@@ -1,0 +1,31 @@
+[project]
+name = "rpa-openapi"
+version = "1.0.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiomysql>=0.2.0",
+    "bcrypt>=4.3.0",
+    "cryptography>=45.0.2",
+    "fastapi[standard]>=0.115.12",
+    "greenlet>=3.2.2",
+    "pydantic-settings>=2.9.1",
+    "python-dotenv>=1.1.0",
+    "redis[hiredis]>=6.1.0",
+    "sqlalchemy>=2.0.41",
+    "pytz",
+    "mcp"
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "pytest-cov>=6.1.1",
+    "ruff>=0.11.11",
+]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"

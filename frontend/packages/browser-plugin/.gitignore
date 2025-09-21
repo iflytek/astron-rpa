@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ie
+atom-script-ie
+rpa-extension
+rpa-extension.zip
+*.zip
+*.crx
+*.pem
+
+.vscode
+.idea
+

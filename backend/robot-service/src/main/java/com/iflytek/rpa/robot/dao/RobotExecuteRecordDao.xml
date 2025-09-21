@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.RobotExecuteRecordDao">
+
+    <resultMap type="com.iflytek.rpa.robot.entity.RobotExecuteRecord" id="RobotExecuteRecordMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="executeId" column="execute_id" jdbcType="VARCHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotName" column="robot_name" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="VARCHAR"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="executeTime" column="execute_time" jdbcType="INTEGER"/>
+        <result property="mode" column="mode" jdbcType="VARCHAR"/>
+        <result property="taskExecuteId" column="task_execute_id" jdbcType="INTEGER"/>
+        <result property="result" column="result" jdbcType="VARCHAR"/>
+        <result property="errorReason" column="error_reason" jdbcType="VARCHAR"/>
+        <result property="executeLog" column="execute_log" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="terminalId" column="terminal_id" jdbcType="CHAR"/>
+    </resultMap>
+
+    <select id="getExecuteRecordList" resultMap="RobotExecuteRecordMap">
+        select rer.id,
+        rer.execute_id,
+        rer.task_execute_id,
+        rer.robot_id,
+        rer.robot_version,
+        re.name as robot_name,
+        rer.start_time,
+        rer.end_time,
+        rer.execute_time,
+        rer.mode,
+        rer.result,
+        rer.video_local_path
+        from robot_execute_record rer
+        left join robot_execute re on rer.robot_id = re.robot_id
+        where
+        rer.deleted=0
+        and rer.creator_id = #{entity.creatorId}
+        and rer.tenant_id = #{entity.tenantId}
+        <if test="entity.robotId != null and entity.robotId != ''">
+            and rer.robot_id = #{entity.robotId}
+        </if>
+        <if test="entity.robotName != null and entity.robotName != ''">
+            and upper(re.name) like concat('%', upper(#{entity.robotName}), '%')
+        </if>
+        <!-- 新增：执行结果筛选 -->
+        <if test="entity.result != null and entity.result != ''">
+            and rer.result = #{entity.result}
+        </if>
+        <!-- 时间区间查询（整体一对） -->
+        <if test="entity.startTime != null and entity.endTime != null">
+            and rer.start_time >= #{entity.startTime}
+            and rer.end_time <![CDATA[ <= ]]> #{entity.endTime}
+        </if>
+        <!-- 单独查询开始时间或结束时间 -->
+        <if test="entity.startTime != null and entity.endTime == null">
+            and rer.start_time >= #{entity.startTime}
+        </if>
+        <if test="entity.startTime == null and entity.endTime != null">
+            and rer.end_time <![CDATA[ <= ]]> #{entity.endTime}
+        </if>
+        <choose>
+            <when test="entity.sortBy !=null and entity.sortBy != ''">
+                <if test="entity.sortType == 'descending'.toString()">
+                    order by ${entity.sortBy} desc
+                </if>
+                <if test="entity.sortType == 'ascending'.toString() ">
+                    order by ${entity.sortBy} asc
+                </if>
+            </when>
+            <otherwise>
+                order by start_time desc
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="getRecordByExecuteIdList" resultMap="RobotExecuteRecordMap">
+        select rer.id,
+            rer.execute_id,
+            rer.task_execute_id,
+            rer.robot_id,
+            re.name as robot_name,
+            rer.robot_version,
+            rer.start_time,
+            rer.end_time,
+            rer.execute_time,
+            rer.result,
+            rer.execute_log,
+            rer.video_local_path
+        from robot_execute_record rer
+        left join robot_execute re on rer.robot_id = re.robot_id
+        where
+            rer.deleted=0
+            and rer.task_execute_id in
+            <foreach collection="executeIdList" item="executeId" separator="," open="(" close=")">
+                #{executeId}
+            </foreach>
+    </select>
+
+    <select id="robotOverviewWithoutVersion" resultType = "com.iflytek.rpa.robot.entity.vo.RobotExecutionData">
+        select count(*) executeTotal, sum(result = 'robotSuccess') executeSuccess, sum(result = 'robotFail') executeFail, sum(result = 'robotCancel') executeAbort,sum(execute_time) executeTime
+        from robot_execute_record
+        <where>
+            result in ('robotSuccess','robotFail','robotCancel')
+            and tenant_id = #{tenantId}
+            and robot_id = #{robotId}
+            and start_time &lt;= #{countTime}
+        </where>
+    </select>
+
+    <select id="getExecuteLog" resultType="java.lang.String">
+        select execute_log
+        from robot_execute_record
+        where execute_id = #{executeId}
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId} limit 1
+    </select>
+
+    <select id="getExecuteRecord" resultMap="RobotExecuteRecordMap">
+        select *
+        from robot_execute_record
+        where deleted = 0
+          and execute_id = #{executeId}
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+    </select>
+
+    <insert id="insertExecuteRecord">
+        insert into robot_execute_record
+        (execute_id,
+         robot_id,
+         robot_version,
+         start_time,
+         end_time,
+         execute_time,
+         mode,
+         task_execute_id,
+         result,
+         error_reason,
+         execute_log,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         deleted,
+         tenant_id,
+         video_local_path,
+         dept_id_path,
+         terminal_id)
+        values (#{executeId},
+                #{robotId},
+                #{robotVersion},
+                #{startTime},
+                #{endTime},
+                #{executeTime},
+                #{mode},
+                #{taskExecuteId},
+                #{result},
+                #{errorReason},
+                #{executeLog},
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                0,
+                #{tenantId},
+                #{videoLocalPath},
+                #{deptIdPath},
+                #{terminalId})
+    </insert>
+
+
+    <update id="updateExecuteRecord">
+        update robot_execute_record
+        set
+        <if test="endTime != null">
+            end_time = #{endTime},
+        </if>
+        <if test="executeTime != null">
+            execute_time = #{executeTime},
+        </if>
+        <if test="taskExecuteId != null">
+            task_execute_id = #{taskExecuteId},
+        </if>
+        <if test="result != null and result != ''">
+            result = #{result},
+        </if>
+        <if test="errorReason != null and errorReason != ''">
+            error_reason = #{errorReason},
+        </if>
+        <if test="executeLog != null and executeLog != ''">
+            execute_log = #{executeLog},
+        </if>
+        <if test="videoLocalPath != null and videoLocalPath != ''">
+            video_local_path = #{videoLocalPath},
+        </if>
+        <if test="updaterId != null">
+            updater_id = #{updaterId},
+        </if>
+        update_time = now()
+        where
+        execute_id = #{executeId}
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
+    </update>
+
+    <select id="countRobotTotalNumOfExecuted" resultType="java.lang.Integer">
+        select count(distinct robot_id)
+        from robot_execute_record
+        where start_time &gt;= #{startAndEndOfDay[0]}
+          and start_time &lt; #{startAndEndOfDay[1]}
+          and deleted = 0
+          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+    </select>
+
+    <!--    统计某一天0点到24点有多少终端执行了机器人-->
+    <select id="countTerminalTotalNumOfExecuted" resultType="java.lang.Integer">
+        select count(distinct terminal_id)
+        from robot_execute_record
+        where start_time &gt;= #{startAndEndOfDay[0]}
+          and start_time &lt; #{startAndEndOfDay[1]}
+          and deleted = 0
+          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+    </select>
+
+
+    <select id="getExecutedRobotByPage" resultMap="RobotExecuteRecordMap">
+        select max(id) id,
+               robot_id
+                ,
+               terminal_id
+        from robot_execute_record
+        where start_time &gt;= #{startAndEndOfDay[0]}
+          and start_time &lt; #{startAndEndOfDay[1]}
+          and deleted = 0
+          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+        group by robot_id
+        order by id asc
+            limit #{limit}
+        offset #{offset}
+    </select>
+
+
+    <select id="getExecutedTerminalByPage" resultMap="RobotExecuteRecordMap">
+        select max(id) id,
+               terminal_id
+        from robot_execute_record
+        where start_time &gt;= #{startAndEndOfDay[0]}
+          and start_time &lt; #{startAndEndOfDay[1]}
+          and deleted = 0
+          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+        group by terminal_id
+        order by id asc
+            limit #{limit}
+        offset #{offset}
+    </select>
+
+
+    <!--<select id="auditByDeptIdPath" resultType="com.iflytek.rpa.monitor.entity.HisBase">-->
+    <!--    select-->
+    <!--        tenant_id tenantId,-->
+    <!--        dept_id_path deptIdPath,-->
+    <!--        count(id) executeTotal,-->
+    <!--        sum(CASE WHEN result = 'robotSuccess' THEN execute_time ELSE 0 END) executeTimeTotal,-->
+    <!--        sum(CASE WHEN result = 'robotFail' THEN 1 ELSE 0 END) executeFail,-->
+    <!--        sum(CASE WHEN result = 'robotSuccess' THEN 1 ELSE 0 END) executeSuccess,-->
+    <!--        sum(CASE WHEN result = 'robotCancel' THEN 1 ELSE 0 END) executeAbort-->
+    <!--    from-->
+    <!--        robot_execute_record-->
+    <!--    where-->
+    <!--        end_time &lt; #{endOfDay}-->
+    <!--        and deleted = 0-->
+    <!--        and dept_id_path in-->
+    <!--        <foreach collection="entities" item="item" separator="," open="(" close=")">-->
+    <!--            #{item.levelCode}-->
+    <!--        </foreach>-->
+    <!--        group by dept_id_path-->
+    <!--</select>-->
+
+    <select id="countSuccessTime" resultType="java.math.BigDecimal">
+        SELECT ROUND(sum(execute_time)/3600, 2) as executeTime
+        from robot_execute_record
+        where
+        result = 'robotSuccess'
+        <if test="tenantId != null">
+            and tenant_id = #{tenantId}
+        </if>
+        <if test="deptIdPath != null and deptIdPath != ''">
+            and dept_id_path like concat(#{deptIdPath}, "%")
+        </if>
+        <if test="deptIdPathList != null">
+            and
+            <foreach collection="deptIdPathList" index="index" item="deptIdPath" open="(" close=")" separator=" or ">
+                dept_id_path like concat(#{deptIdPath}, "%")
+            </foreach>
+        </if>
+        <if test="countTime != null">
+            and start_time &lt;= #{countTime}
+        </if>
+        GROUP by result
+        limit 1
+    </select>
+
+    <!-- 批量删除机器人执行记录（基于taskExecuteId） -->
+    <update id="batchDeleteByTaskExecuteIds">
+        update robot_execute_record
+        set deleted = 1,
+            update_time = now(),
+            updater_id = #{userId}
+        where deleted = 0 
+          and tenant_id = #{tenantId}
+          and task_execute_id in
+          <foreach collection="taskExecuteIdList" item="taskExecuteId" separator="," open="(" close=")">
+              #{taskExecuteId}
+          </foreach>
+    </update>
+
+    <!-- 批量删除机器人执行记录（基于executeId） -->
+    <update id="deleteRobotExecuteRecords">
+        update robot_execute_record
+        set deleted = 1,
+            update_time = now(),
+            updater_id = #{userId}
+        where deleted = 0
+            and tenant_id = #{tenantId}
+            and creator_id = #{userId}
+            and execute_id in
+        <foreach collection="recordsIds" item="recordId" separator="," open="(" close=")">
+            #{recordId}
+        </foreach>
+    </update>
+
+</mapper>

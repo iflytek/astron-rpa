@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CModuleDao">
+
+    <insert id="createModuleForObtainedVersion">
+        insert into c_module (module_id,
+                              module_content,
+                              module_name,
+                              deleted,
+                              creator_id,
+                              create_time,
+                              updater_id,
+                              update_time,
+                              robot_id,
+                              robot_version)
+        select module_id,
+               module_content,
+               module_name,
+               deleted,
+               #{obtainedRobotDesign.creatorId},
+               now(),
+               #{obtainedRobotDesign.updaterId},
+               now(),
+               #{obtainedRobotDesign.robotId},
+               0
+        from c_module
+        where robot_id = #{authorRobotVersion.robotId}
+          and robot_version = #{authorRobotVersion.version}
+          and creator_id = #{authorRobotVersion.creatorId}
+    </insert>
+    <insert id="insertBatch">
+        insert into c_module (
+        module_id,
+        module_content,
+        module_name,
+        deleted,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        robot_id,
+        robot_version
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.moduleId},
+            #{item.moduleContent},
+            #{item.moduleName},
+            #{item.deleted},
+            #{item.creatorId},
+            #{item.createTime},
+            #{item.updaterId},
+            #{item.updateTime},
+            #{item.robotId},
+            #{item.robotVersion}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="createModuleForCurrentVersion">
+        insert into c_module(module_id,
+                             module_content,
+                             module_name,
+                             deleted,
+                             creator_id,
+                             create_time,
+                             updater_id,
+                             update_time,
+                             robot_id,
+                             robot_version)
+        select module_id,
+               module_content,
+               module_name,
+               deleted,
+               creator_id,
+               now(),
+               updater_id,
+               now(),
+               robot_id,
+               #{version}
+        from c_module
+        where robot_id = #{robotId}
+          and creator_id = #{creatorId}
+          and robot_version = 0
+          and deleted = 0
+    </insert>
+</mapper>
+

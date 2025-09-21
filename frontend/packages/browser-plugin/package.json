@@ -1,0 +1,28 @@
+{
+  "name": "@rpa/extension",
+  "displayName": "晓悟RPA插件",
+  "version": "5.1.7",
+  "description": "晓悟RPA插件v3升级版",
+  "homepage": "https://www.iflyrpa.com/",
+  "type": "commonjs",
+  "keywords": [],
+  "license": "ISC",
+  "author": "iflyrpa.com",
+  "main": "background.js",
+  "scripts": {
+    "build": "vite build",
+    "build:firefox": "vite build --mode=firefox",
+    "build:360se": "vite build --mode=360se",
+    "build:360ChromeX": "vite build --mode=360ChromeX"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.6",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "@types/archiver": "^6.0.3",
+    "archiver": "^7.0.1",
+    "chrome-types": "^0.1.290",
+    "vite": "^5.3.1",
+    "ws": "^8.18.0"
+  }
+}

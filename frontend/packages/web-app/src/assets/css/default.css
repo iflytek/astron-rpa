@@ -1,0 +1,121 @@
+@import '@rpa/tokens/variables.css';
+@import 'ant-design-vue/dist/reset.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .n-table-container {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), #ffffff 100%, #ffffff 100%);
+  }
+
+  .n-table-container__dark {
+    background: rgba(20, 20, 20, 0.8);
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  color: var(--color-text);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+.padT60 {
+  padding-top: 60px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
+}
+
+.drag {
+  -webkit-app-region: drag;
+}
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.ant-modal div[aria-hidden='true'] {
+  display: none !important;
+}
+
+:root,
+:host {
+  --headerZindex: 9;
+  --loginBg: url('@/assets/img/login/loginBg.jpg');
+  --loginOpenBg: url('@/assets/img/login/loginOpenBg.jpg');
+  --loginPlatformBg: url('@/assets/img/login/open_platform_logo.png');
+  --headerBgColor: transparent;
+  --headerFontColor: #000;
+  --headerTitleColor: #000;
+  --headerFontColorHover: #4e68f6;
+  --headerHeight: 40px;
+  --menuItemFontColor: #2c69ff;
+  --bottomToolbarHeight: 30px;
+  --processListHeight: 35px;
+  --flowToolbarHeight: 32px;
+}
+
+.fade-in {
+  -webkit-animation: fade-in 0.3s ease-in-out;
+  animation: fade-in 0.3s ease-in-out;
+}
+.fade-out {
+  -webkit-animation: fade-out 0.3s ease-in-out;
+  animation: fade-out 0.3s ease-in-out;
+}
+@-webkit-keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

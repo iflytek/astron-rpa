@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rpatools"
+version = "1.0.20"
+description = "rpatools."
+
+requires-python = ">=3.7"
+dependencies = [
+]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[tool.setuptools]
+package-dir = {"rpatools" = "src/rpatools"}
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]           
+include = ["rpatools*"]
+
+[tool.setuptools.package-data]
+"rpatools.iflyrpa_window" = ["*"]   
+"rpatools.iflyrpa_linux"  = ["*"]   

@@ -1,0 +1,104 @@
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  task:
+    shutdown: graceful
+    graceful-shutdown-timeout: 20s
+  servlet:
+    multipart:
+      max-request-size: 110MB
+      max-file-size: 100MB
+      file-size-threshold: 100MB
+  redis:
+    pool:
+      max-active: 300
+      max-idle: 20
+      max-wait: 10000
+      min-idle: 0
+    lettuce:
+      pool:
+        shutdown-timeout: 100ms
+  datasource:
+    url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 1
+    minIdle: 3
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,slf4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000;druid.stat.logSlowSql=true;druid.stat.enabled=true
+    druid:
+      remove-abandoned: true
+      remove-abandoned-timeout: 180
+      log-abandoned: true
+      test-while-idle: true
+      validation-query: SELECT 1
+      shutdown-timeout: 30s
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save    # 每次响应结束刷到 Redis
+      namespace: uap:session # key 前缀，避免冲突
+  data:
+    redis:
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DB}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 10000
+      lettuce:
+        shutdown-timeout: 100ms
+  sql:
+    init:
+      platform: mysql
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+amazonaws:
+  s3:
+    url: ${MINIO_URL}
+    bucket: ${MINIO_BUCKET}
+    secretKey: ${MINIO_SK}
+    accessKey: ${MINIO_AK}
+    maxConnections: 1000
+
+#日志相关配置
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure: info
+  config: classpath:logback-delayed.xml
+
+redis:
+  open: "true"
+
+# 机器人监控表格导出大小限制， 表格行数
+robotExcel:
+  lineSizeLimit: 3000
+
+
+
+
+
+
+

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.task.dao.ScheduleTaskRobotDao">
+
+    <resultMap type="com.iflytek.rpa.task.entity.ScheduleTaskRobot" id="ScheduleTaskRobotMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="robotName" column="robot_name" jdbcType="INTEGER"/>
+        <result property="taskName" column="task_name" jdbcType="INTEGER"/>
+        <result property="paramJson" column="param_json" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <delete id="deleteByTaskId">
+        delete
+        from schedule_task_robot
+        where task_id = #{taskId}
+          and deleted = 0
+    </delete>
+
+    <update id="deleteByTaskIdLogically">
+        update schedule_task_robot
+        set deleted = 1
+        where task_id = #{taskId}
+          and deleted = 0
+    </update>
+
+    <select id="queryHisRobotIdListByTaskId" resultType="java.lang.String">
+        select robot_id
+        from schedule_task_robot
+        where task_id = #{taskId}
+          and deleted = 0
+    </select>
+
+
+    <select id="queryAllByTaskId" resultMap="ScheduleTaskRobotMap">
+        select
+            str.task_id,
+            str.robot_id,
+            re.name as robot_name
+        from schedule_task_robot str
+        left join robot_execute re
+            on re.robot_id = str.robot_id and re.deleted = 0
+        where
+            str.deleted = 0
+            and
+            str.task_id in
+            <foreach collection="taskIdList" item="taskId" open="(" close=")" separator=",">
+                #{taskId}
+            </foreach>
+        order by str.task_id, str.sort asc
+    </select>
+
+
+    <insert id="insertRobotBatch">
+        insert into schedule_task_robot(
+        task_id, robot_id,
+        sort, param_json,
+        tenant_id, creator_id, create_time,
+        updater_id, update_time, deleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+            #{taskId},
+            #{entity.robotId},
+            #{entity.sort},
+            #{entity.paramJson},
+            #{entity.tenantId},
+            #{entity.creatorId},
+            now(),
+            #{entity.updaterId},
+            now(),
+            0)
+        </foreach>
+    </insert>
+
+    <select id="queryRobotIdListByTaskId" resultType="java.lang.String">
+        select robot_id
+        from schedule_task_robot
+        where task_id = #{taskId}
+          and deleted = 0
+        order by sort asc
+    </select>
+
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ScheduleTaskRobotMap">
+        select *
+        from schedule_task_robot
+        where id = #{id}
+    </select>
+
+
+    <select id="getScheduleRobotByTaskIds" resultMap="ScheduleTaskRobotMap">
+        select str.task_id, str.robot_id, str.sort, st.name as task_name, re.name as robot_name
+        from schedule_task_robot str
+            left join trigger_task st
+            on str.task_id = st.task_id and st.deleted =0
+            left join robot_execute re
+            on str.robot_id = re.robot_id and re.deleted =0
+        where
+            str.deleted = 0
+            and str.task_id in
+                <foreach collection="taskIdList" item="taskId" separator="," open="(" close=")">
+                    #{taskId}
+                </foreach>
+    </select>
+
+    <update id="taskRobotDelete">
+        update schedule_task_robot
+        set deleted = 1
+        where
+            robot_id = #{robotId} and creator_id = #{userId} and tenant_id = #{tenantId} and deleted = 0 and
+            task_id in
+            <foreach collection="taskIdList" item="taskId" separator="," open="(" close=")">
+                #{taskId}
+            </foreach>
+    </update>
+
+    <select id="taskRobotCount" resultType="com.iflytek.rpa.robot.entity.dto.TaskRobotCountDto">
+        select task_id as `taskId`, count(task_id) as `count`
+        from schedule_task_robot
+        where deleted = 0 and task_id in
+            <foreach collection="taskIdList" item="taskId" separator="," open="(" close=")">
+                #{taskId}
+            </foreach>
+        group by task_id
+    </select>
+
+    <select id="queryByTaskId" resultMap="ScheduleTaskRobotMap">
+        select str.id,
+               str.task_id,
+               str.robot_id,
+               str.param_json,
+               str.sort,
+               re.name as robot_name
+        from schedule_task_robot str
+                 left join robot_execute re
+                           on re.robot_id = str.robot_id and re.deleted = 0
+        where str.deleted = 0
+          and str.task_id = #{taskId}
+          and str.creator_id = #{userId}
+          and str.tenant_id = #{tenantId}
+        order by str.sort asc
+    </select>
+
+    <select id="queryAll" resultType="com.iflytek.rpa.task.entity.ScheduleTaskRobot">
+        select
+            str.task_id,
+            str.robot_id,
+            str.param_json,
+            re.name as robot_name
+        from schedule_task_robot str
+        left join robot_execute re
+            on re.robot_id = str.robot_id and re.deleted = 0
+        where
+            str.deleted = 0
+            and
+            str.task_id in
+            <foreach collection="taskIdList" item="taskId" open="(" close=")" separator=",">
+                #{taskId}
+            </foreach>
+        order by str.task_id, str.sort asc
+    </select>
+
+    <!-- 根据机器人列表获取所有任务机器人信息 -->
+    <select id="getAllTaskRobotByList" resultMap="ScheduleTaskRobotMap">
+        select
+            str.*
+        from schedule_task_robot str
+        where
+            str.deleted = 0 and str.tenant_id = #{tenantId}
+            <if test="list != null and list.size() > 0">
+                and (
+                <foreach collection="list" item="robot" open="(" close=")" separator=" or ">
+                    (str.robot_id = #{robot.robotId} and str.creator_id = #{robot.creatorId})
+                </foreach>
+                )
+            </if>
+        order by str.task_id, str.sort asc
+    </select>
+
+
+</mapper>
+

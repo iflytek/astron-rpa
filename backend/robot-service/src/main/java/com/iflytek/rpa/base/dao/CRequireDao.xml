@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CRequireDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.CRequire" id="CRequireMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="projectId" column="project_id" jdbcType="VARCHAR"/>
+        <result property="packageName" column="package_name" jdbcType="VARCHAR"/>
+        <result property="packageVersion" column="package_version" jdbcType="VARCHAR"/>
+        <result property="mirror" column="mirror" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <insert id="createRequireForCurrentVersion">
+        insert into c_require(project_id, package_name, package_version,
+                              mirror, creator_id, create_time, updater_id,
+                              update_time, deleted, robot_id, robot_version)
+        select project_id,
+               package_name,
+               package_version,
+               mirror,
+               creator_id,
+               create_time,
+               updater_id,
+               update_time,
+               deleted,
+               robot_id,
+               #{version}
+        from c_require
+        where robot_id = #{robotId}
+          and robot_version = 0
+          and creator_id = #{creatorId}
+          and deleted = 0
+    </insert>
+
+
+    <insert id="createRequireForObtainedVersion">
+        insert into c_require
+        (project_id,
+         package_name,
+         package_version,
+         mirror,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         deleted,
+         robot_id,
+         robot_version)
+        select project_id,
+               package_name,
+               package_version,
+               mirror,
+               #{obtainedRobotDesign.creatorId},
+               now(),
+               #{obtainedRobotDesign.updaterId},
+               now(),
+               0,
+               #{obtainedRobotDesign.robotId},
+               0
+        from c_require
+        where robot_id = #{authorRobotVersion.robotId}
+          and robot_version = #{authorRobotVersion.version}
+          and creator_id = #{authorRobotVersion.creatorId}
+    </insert>
+
+
+    <insert id="insertReqBatch">
+        insert into c_require(
+        package_name,
+        package_version,
+        mirror,
+        deleted,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        robot_id,
+        robot_version
+        )
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+            #{entity.packageName},
+            #{entity.packageVersion},
+            #{entity.mirror},
+            #{entity.deleted},
+            #{entity.creatorId},
+            #{entity.createTime},
+            #{entity.updaterId},
+            #{entity.updateTime},
+            #{entity.robotId},
+            #{entity.robotVersion}
+            )
+        </foreach>
+    </insert>
+    <insert id="addRequire">
+        INSERT INTO c_require (robot_id,
+                               package_name,
+                               package_version,
+                               mirror,
+                               creator_id,
+                               create_time,
+                               updater_id,
+                               update_time,
+                               deleted,
+                               robot_version)
+        VALUES (#{robotId},
+                #{packageName},
+                #{packageVersion},
+                #{mirror},
+                #{creatorId},
+                NOW(),
+                #{updaterId},
+                NOW(),
+                #{deleted},
+                #{robotVersion})
+    </insert>
+    <update id="updateRequire">
+        UPDATE c_require
+        SET package_name    = #{packageName},
+            package_version = #{packageVersion},
+            mirror          = #{mirror},
+            updater_id      = #{updaterId},
+            update_time     = NOW()
+        WHERE id = #{id}
+          AND robot_id = #{robotId}
+          AND deleted = 0
+    </update>
+    <delete id="deleteRequire">
+        UPDATE c_require
+        SET deleted = 1
+        WHERE robot_id = #{robotId}
+        AND creator_id = #{creatorId}
+        AND id IN
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="countRequire" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM c_require
+        WHERE creator_id = #{creatorId}
+          AND robot_id = #{robotId}
+          AND package_name = #{packageName}
+          AND robot_version = 0
+          AND deleted = 0
+    </select>
+</mapper>
+

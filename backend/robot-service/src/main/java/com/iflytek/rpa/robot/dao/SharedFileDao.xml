@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.SharedFileDao">
+
+    <insert id="addSharedFile">
+        INSERT INTO shared_file(file_id, file_name, path, tags, creator_id, updater_id, tenant_id, deleted)
+        VALUES (#{entity.fileId}, #{entity.fileName}, #{entity.path}, #{entity.tags}, #{entity.creatorId},
+                #{entity.updaterId},
+                #{entity.tenantId}, #{entity.deleted})
+    </insert>
+
+    <update id="deleteBatchSharedFile">
+        UPDATE
+        shared_file
+        SET
+        deleted = 1
+        WHERE
+        deleted = 0
+        AND tenant_id = #{tenantId}
+        AND file_id IN
+        <foreach collection="ids" item="fileId" separator="," open="(" close=")">
+            #{fileId}
+        </foreach>
+    </update>
+
+    <select id="selectTags" resultType="com.iflytek.rpa.robot.entity.SharedFileTag">
+        SELECT tag_id      AS tagId,
+               tag_name    AS tagName,
+               create_time AS createTime,
+               update_time AS updateTime,
+               creator_id  AS creatorId,
+               updater_id  AS updaterId,
+               tenant_id   AS tenantId
+        FROM shared_file_tag
+        WHERE deleted = 0
+          AND tenant_id = #{tenantId}
+    </select>
+
+    <insert id="addTag">
+        INSERT INTO shared_file_tag
+        (tag_id,
+         tag_name,
+         creator_id,
+         updater_id,
+         tenant_id,
+         create_time,
+         update_time,
+         deleted)
+        VALUES (#{entity.tagId},
+                #{entity.tagName},
+                #{entity.creatorId},
+                #{entity.updaterId},
+                #{entity.tenantId},
+                NOW(),
+                NOW(),
+                0)
+    </insert>
+
+    <update id="updateTagById">
+        UPDATE shared_file_tag
+        <set>
+            update_time = NOW(),
+            updater_id = #{updaterId}
+            <if test="tagName != null and tagName != ''">
+                ,tag_name = #{tagName}
+            </if>
+        </set>
+        WHERE tag_id = #{tagId}
+        AND tenant_id = #{tenantId}
+        AND deleted = 0
+    </update>
+
+    <select id="selectFilesByTag" resultType="com.iflytek.rpa.robot.entity.SharedFile">
+        SELECT *
+        FROM shared_file
+        WHERE tenant_id = #{tenantId}
+          AND deleted = 0
+          AND CONCAT(',', tags, ',') LIKE CONCAT('%,', #{tagName}, ',%')
+    </select>
+
+    <update id="updateFileTagById">
+        UPDATE shared_file
+        SET tags = #{tags}
+        WHERE file_id = #{fileId}
+    </update>
+
+    <update id="deletedTagById">
+        UPDATE shared_file_tag
+        SET deleted = 1
+        WHERE tag_id = #{tagId}
+          AND tenant_id = #{tenantId}
+    </update>
+
+    <select id="selectTagsByIds" resultType="com.iflytek.rpa.robot.entity.SharedFileTag">
+        SELECT tag_id, tag_name
+        FROM shared_file_tag
+        WHERE tenant_id = #{tenantId}
+        AND deleted = 0
+        AND tag_id IN
+        <foreach collection="tagIds" item="tagId" separator="," open="(" close=")">
+            #{tagId}
+        </foreach>
+    </select>
+
+    <select id="selectTagsByNameLike" resultType="com.iflytek.rpa.robot.entity.SharedFileTag">
+        SELECT tag_id, tag_name
+        FROM shared_file_tag
+        WHERE tenant_id = #{tenantId}
+          AND deleted = 0
+          AND tag_name LIKE CONCAT('%', #{tagName}, '%')
+    </select>
+    <select id="isTenantAdmin" resultType="java.lang.Integer">
+        select utu.tenant_user_type
+        from ${databaseName}.t_uap_tenant_user utu
+        where utu.user_id = #{userId}
+          and utu.tenant_id = #{tenantId}
+    </select>
+
+    <!-- 分页查询共享文件列表 -->
+    <select id="selectSharedFilePageList" parameterType="map" resultType="com.iflytek.rpa.robot.entity.SharedFile">
+        SELECT * FROM shared_file
+        <where>
+            deleted = 0
+            AND tenant_id = #{tenantId}
+
+            <!-- 创建时间区间查询 -->
+            <if test="queryDto.createTimeStart != null and queryDto.createTimeEnd != null">
+                AND create_time BETWEEN #{queryDto.createTimeStart} AND #{queryDto.createTimeEnd}
+            </if>
+            <if test="queryDto.createTimeStart != null and queryDto.createTimeEnd == null">
+                AND create_time >= #{queryDto.createTimeStart}
+            </if>
+            <if test="queryDto.createTimeStart == null and queryDto.createTimeEnd != null">
+                AND create_time &lt;= #{queryDto.createTimeEnd}
+            </if>
+
+            <!-- 更新时间区间查询 -->
+            <if test="queryDto.updateTimeStart != null and queryDto.updateTimeEnd != null">
+                AND update_time BETWEEN #{queryDto.updateTimeStart} AND #{queryDto.updateTimeEnd}
+            </if>
+            <if test="queryDto.updateTimeStart != null and queryDto.updateTimeEnd == null">
+                AND update_time >= #{queryDto.updateTimeStart}
+            </if>
+            <if test="queryDto.updateTimeStart == null and queryDto.updateTimeEnd != null">
+                AND update_time &lt;= #{queryDto.updateTimeEnd}
+            </if>
+
+            <!-- 文件名模糊查询 -->
+            <if test="queryDto.fileName != null and queryDto.fileName != ''">
+                AND file_name LIKE CONCAT('%', #{queryDto.fileName}, '%')
+            </if>
+
+            <!-- 创建者查询 -->
+            <if test="queryDto.creator != null and queryDto.creator != ''">
+                AND creator_id = #{queryDto.creator}
+            </if>
+
+            <!-- 部门ID查询 -->
+            <if test="queryDto.deptId != null and queryDto.deptId != ''">
+                AND dept_id = #{queryDto.deptId}
+            </if>
+
+            <!-- 标签查询：根据标签名称模糊查询标签ID，再查询包含这些标签ID的文件 -->
+            <if test="queryDto.tags != null and queryDto.tags != ''">
+                AND (
+                SELECT COUNT(*)
+                FROM shared_file_tag
+                WHERE tag_name LIKE CONCAT('%', #{queryDto.tags}, '%')
+                AND tenant_id = #{tenantId}
+                AND deleted = 0
+                AND FIND_IN_SET(tag_id, shared_file.tags)
+                ) > 0
+            </if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectFileByName" resultType="com.iflytek.rpa.robot.entity.SharedFile">
+        SELECT *
+        FROM shared_file
+        WHERE creator_id = #{userId}
+          AND tenant_id = #{tenantId}
+          AND file_name = #{fileName}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,13 @@
+{
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "types/**/*.d.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

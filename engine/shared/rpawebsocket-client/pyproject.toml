@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rpawebsocketclient"
+version = "1.0.3"
+description = "rpawebsocketclient."
+
+requires-python = ">=3.7"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[tool.setuptools]
+package-dir = {"rpawebsocketclient" = "src/rpawebsocketclient"}   # 关键映射
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]           # 只在这一层找
+include = ["rpawebsocketclient*"]   # 实际顶层包

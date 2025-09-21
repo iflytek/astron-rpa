@@ -1,0 +1,87 @@
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  height: 100vh;
+}
+
+#nav {
+  padding-top: 60px;
+  height: calc(100vh);
+  box-sizing: border-box;
+}
+
+.modal-ant-operation {
+  .ant-modal-content {
+    .ant-modal-header {
+      .ant-modal-title {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .ant-form label {
+    font-size: 12px;
+  }
+
+  .ant-input {
+    font-size: 12px;
+  }
+
+  .ant-form-explain {
+    font-size: 12px;
+  }
+}
+
+// 统一抽屉非顶边带圆角
+.ant-drawer-content-wrapper {
+  margin: 8px;
+  .ant-drawer-content {
+    border-radius: 10px;
+  }
+}
+
+// 修改antd-picker的默认高度
+.ant-picker {
+  height: 32px;
+}
+
+// 全局滚动条样式
+* {
+  // Webkit 浏览器（Chrome, Safari, Edge等）
+  &::-webkit-scrollbar {
+    width: 8px; // 垂直滚动条宽度
+    height: 8px; // 水平滚动条高度
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(243, 243, 247, 1);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(243, 243, 247, 1);
+    }
+  }
+}
+
+// 暗色主题样式
+.dark {
+  // Webkit 浏览器
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.component.dao.ComponentVersionDao">
+
+    <resultMap type="com.iflytek.rpa.component.entity.ComponentVersion" id="ComponentVersionMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="componentId" column="component_id" jdbcType="VARCHAR"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+        <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
+        <result property="updateLog" column="update_log" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="SMALLINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="param" column="param" jdbcType="VARCHAR"/>
+        <result property="paramDetail" column="param_detail" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 根据组件ID查询版本列表 -->
+    <select id="getVersionsByComponentId" resultMap="ComponentVersionMap">
+        select *
+        from component_version
+        where component_id = #{componentId}
+          and deleted = 0
+          and tenant_id = #{tenantId}
+        order by version desc
+    </select>
+
+    <!-- 根据组件ID和版本号查询版本信息 -->
+    <select id="getVersionByComponentIdAndVersion" resultMap="ComponentVersionMap">
+        select *
+        from component_version
+        where component_id = #{componentId}
+          and version = #{version}
+          and deleted = 0
+          and tenant_id = #{tenantId}
+    </select>
+
+    <!-- 批量获取组件的最新版本信息 -->
+    <select id="getLatestVersionInfoBatch" resultMap="ComponentVersionMap">
+        SELECT cv.*
+        FROM component_version cv
+        INNER JOIN (
+            SELECT component_id, MAX(version) as max_version
+            FROM component_version
+            WHERE component_id IN
+            <foreach collection="componentIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            AND deleted = 0
+            AND tenant_id = #{tenantId}
+            GROUP BY component_id
+        ) latest ON cv.component_id = latest.component_id AND cv.version = latest.max_version
+        WHERE cv.deleted = 0
+        AND cv.tenant_id = #{tenantId}
+    </select>
+
+</mapper> 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.SharedSubVarDao">
+
+    <insert id="insertBatch">
+        INSERT INTO shared_sub_var(shared_var_id, var_name, var_type, var_value, encrypt, deleted)
+        VALUES
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sharedVarId}, #{entity.varName}, #{entity.varType}, #{entity.varValue}, #{entity.encrypt},
+            #{entity.deleted})
+        </foreach>
+    </insert>
+
+</mapper> 

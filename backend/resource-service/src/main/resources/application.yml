@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: resource
+  profiles:
+    active: local
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+server:
+  port: 8030
+  servlet:
+    context-path: /api/resource

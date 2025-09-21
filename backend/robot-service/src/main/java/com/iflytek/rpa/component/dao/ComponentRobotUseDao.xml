@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.component.dao.ComponentRobotUseDao">
+
+    <resultMap type="com.iflytek.rpa.component.entity.ComponentRobotUse" id="ComponentRobotUseMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="INTEGER"/>
+        <result property="componentId" column="component_id" jdbcType="VARCHAR"/>
+        <result property="componentVersion" column="component_version" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="SMALLINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+    </resultMap>
+
+    <!-- 根据机器人ID查询组件引用列表 -->
+    <select id="getByRobotId" resultMap="ComponentRobotUseMap">
+        select *
+        from component_robot_use
+        where deleted = 0
+          and robot_id = #{robotId}
+          and tenant_id = #{tenantId}
+        order by create_time desc
+    </select>
+
+    <!-- 根据组件ID查询机器人引用列表 -->
+    <select id="getByComponentId" resultMap="ComponentRobotUseMap">
+        select *
+        from component_robot_use
+        where deleted = 0
+          and component_id = #{componentId}
+          and tenant_id = #{tenantId}
+        order by create_time desc
+    </select>
+
+    <!-- 删除组件引用（逻辑删除） -->
+    <update id="deleteComponentUse">
+        update component_robot_use
+        set deleted     = 1,
+            updater_id  = #{updaterId},
+            update_time = now()
+        where deleted = 0
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and component_id = #{componentId}
+          and tenant_id = #{tenantId}
+    </update>
+
+    <!-- 更新组件引用版本 -->
+    <update id="updateComponentUse">
+        update component_robot_use
+        set component_version = #{newComponentVersion},
+            updater_id        = #{updaterId},
+            update_time       = now()
+        where deleted = 0
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and component_id = #{componentId}
+          and component_version = #{oldComponentVersion}
+          and tenant_id = #{tenantId}
+    </update>
+
+    <!-- 批量插入组件引用记录 -->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into component_robot_use(
+            robot_id,
+            robot_version,
+            component_id,
+            component_version,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted,
+            tenant_id
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.robotId},
+                #{entity.robotVersion},
+                #{entity.componentId},
+                #{entity.componentVersion},
+                #{entity.creatorId},
+                #{entity.createTime},
+                #{entity.updaterId},
+                #{entity.updateTime},
+                #{entity.deleted},
+                #{entity.tenantId}
+            )
+        </foreach>
+    </insert>
+
+</mapper> 

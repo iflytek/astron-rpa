@@ -1,0 +1,70 @@
+<configuration scan="true" scanPeriod="3 seconds">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!-- 设置变量 -->
+    <springProperty scope="context" name="logLevel" source="log.file.level" defaultValue="info"/>
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="none"/>
+
+    <!--设置日志输出为控制台-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${logLevel}</level>
+        </filter>
+
+        <encoder charset="UTF-8">
+            <!--格式化输出: %d表示日期, Asia/Shanghai:设置时区, %thread:表示线程名, %-5level:级别从左显示5个字符宽度, %msg:日志消息, %n:是换行符 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss,Asia/Shanghai} %green([%thread]) %yellow(${PID}) %highlight(%-5level)
+                %boldMagenta(%logger{10}.%M\(%F:%L\))- %cyan(%msg%n)
+            </pattern>
+
+        </encoder>
+    </appender>
+
+    <!--设置日志输出为文件-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${logLevel}</level>
+        </filter>
+
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm:ss.SSS,Asia/Shanghai} [%thread] %-5level %logger{32} - %msg%n</Pattern>
+        </layout>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <!--<FileNamePattern>/opt/log/rpa/${appName}/logFile.%d{yyyy-MM-dd_HH}.%i.log</FileNamePattern>-->
+            <FileNamePattern>~/Desktop/var/log/rpa/${appName}/logFile.%d{yyyy-MM-dd_HH}.%i.log</FileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>4320</maxHistory>
+            <!--控制单个日志文件的大小 -->
+            <maxFileSize>20MB</maxFileSize>
+            <!--用来控制所有归档文件总的大小-->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+
+    <!--&lt;!&ndash; grpc方式将traceId推送至skywalking&ndash;&gt;-->
+    <!--<appender name="grpc-log" class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender">-->
+    <!--    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+    <!--        <level>ERROR</level>-->
+    <!--    </filter>-->
+    <!--    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+    <!--        <level>ERROR</level>-->
+    <!--    </filter>-->
+    <!--    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+    <!--        <level>ERROR</level>-->
+    <!--    </filter>-->
+    <!--    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
+    <!--        <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc.TraceIdMDCPatternLogbackLayout">-->
+    <!--            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{tid}] [%thread] %-5level %logger{36} -%msg%n</Pattern>-->
+    <!--        </layout>-->
+    <!--    </encoder>-->
+    <!--</appender>-->
+    <root>
+        <!-- 日志输出级别 -->
+        <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <!--<appender-ref ref="grpc-log"/>-->
+    </root>
+</configuration>

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "types": ["chrome-types/_all.d.ts"],
+    "allowJs": true,
+    "outDir": "./dist"
+  },
+  "include": ["src/*", "src/**/*"],
+  "exclude": ["node_modules", "dist", "src/3rd/rpa_websocket.js"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

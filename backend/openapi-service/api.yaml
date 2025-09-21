@@ -1,0 +1,218 @@
+openapi: 3.0.0
+info:
+  title: 个人 RPA 工作流 API
+  version: 1.0.0
+servers:
+  - url: https://api.rpa-service.com/v1
+tags:
+  - name: workflow
+    description: 工作流相关接口
+  - name: api-key
+    description: API Key 管理接口
+paths:
+  /workflows:
+    get:
+      tags: [workflow]
+      summary: 获取所有工作流
+      responses:
+        '200':
+          description: 成功获取工作流列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Workflow'
+  /workflows/{projectId}:
+    get:
+      tags: [workflow]
+      summary: 获取指定工作流详情
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取工作流详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '404':
+          description: 工作流不存在
+  /workflows/{projectId}/execute:
+    post:
+      tags: [workflow]
+      summary: 同步执行工作流（等待结果）
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameters:
+                  type: object
+      responses:
+        '200':
+          description: 执行完成，返回结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '202':
+          description: 执行超时，建议使用异步接口
+  /workflows/{projectId}/execute-async:
+    post:
+      tags: [workflow]
+      summary: 异步执行工作流（立即返回任务ID）
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameters:
+                  type: object
+      responses:
+        '202':
+          description: 已接受，返回任务ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  executionId:
+                    type: string
+  /executions/{executionId}:
+    get:
+      tags: [workflow]
+      summary: 查询异步执行的进度和结果
+      parameters:
+        - name: executionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 返回执行状态和结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '404':
+          description: 执行记录不存在
+  /api-keys:
+    get:
+      tags: [api-key]
+      summary: 获取所有 API Key
+      responses:
+        '200':
+          description: 成功获取 API Key 列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApiKey'
+    post:
+      tags: [api-key]
+      summary: 创建新的 API Key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: 成功创建 API Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+  /api-keys/{apiKeyId}:
+    delete:
+      tags: [api-key]
+      summary: 删除指定的 API Key
+      parameters:
+        - name: apiKeyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 成功删除 API Key
+components:
+  schemas:
+    Workflow:
+      type: object
+      properties:
+        projectId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        status:
+          type: integer
+          enum: [1, 0]
+    Execution:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, RUNNING, COMPLETED, FAILED, CANCELLED]
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        parameters:
+          type: object
+        result:
+          type: object
+        error:
+          type: object
+    ApiKey:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        key:
+          type: string
+        createdAt:
+          type: string
+          format: date-time

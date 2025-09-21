@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.RobotExecuteDao">
+
+    <resultMap type="com.iflytek.rpa.robot.entity.RobotExecute" id="RobotExecuteMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="resourceStatus" column="resource_status" jdbcType="VARCHAR"/>
+        <result property="dataSource" column="data_source" jdbcType="VARCHAR"/>
+        <result property="paramDetail" column="param_detail" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap type="com.iflytek.rpa.robot.entity.RobotExecute" id="RobotExecuteVersionMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="robotVersion" column="robot_version" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="resourceStatus" column="resource_status" jdbcType="VARCHAR"/>
+        <result property="dataSource" column="data_source" jdbcType="VARCHAR"/>
+        <result property="paramDetail" column="param_detail" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <select id="getUnDeployedUserList" resultType="org.casbin.casdoor.entity.User">
+        select
+            tu.phone,
+            tu.name,
+            tu.id
+        from ${databaseName}.t_uap_user tu
+        where
+        not exists(select 1 from robot_execute re
+        where re.deleted = 0 and re.creator_id = tu.id and re.data_source = 'deploy'
+        and re.robot_id = #{entity.robotId} and re.tenant_id = #{tenantId})
+        <if test="entity.keyword != null and entity.keyword != ''">
+            and (tu.phone like CONCAT('%',#{entity.keyword},'%') or tu.name like CONCAT('%',#{entity.keyword},'%') )
+        </if>
+        and tu.is_delete = 0
+        limit 20
+    </select>
+
+    <update id="updateResourceStatusByMarketId">
+        update robot_execute
+        set resource_status = #{resourceStatus}
+        where deleted = 0
+          and market_id = #{marketId}
+          and creator_id = #{userId}
+          and data_source = 'market'
+          and resource_status = 'toUpdate'
+    </update>
+
+
+    <select id="countObtainedExecute" resultType="java.lang.Integer">
+        select count(1)
+        from robot_execute
+        where deleted = 0
+          and market_id = #{marketId}
+          and app_id = #{appId}
+          and app_version = #{version}
+          and data_source = 'market'
+          and tenant_id = #{tenantId}
+          and creator_id = #{creatorId}
+
+    </select>
+
+
+    <select id="countByName" resultType="java.lang.Integer">
+        select count(*)
+        from robot_execute
+        where deleted = 0
+          and robot_id != #{robotId}
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+          and name = #{name}
+    </select>
+
+
+    <insert id="insertRobot">
+        insert into robot_execute
+        (robot_id,
+         name,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         deleted,
+         tenant_id,
+         app_id,
+         app_version,
+         market_id,
+         resource_status,
+         data_source,
+         dept_id_path,
+         latest_release_time)
+        values (#{robotId},
+                #{name},
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                0,
+                #{tenantId},
+                #{appId},
+                #{appVersion},
+                #{marketId},
+                #{resourceStatus},
+                #{dataSource},
+                #{deptIdPath},
+                now())
+    </insert>
+
+    <update id="updateRobot">
+        update robot_execute
+        set
+            <if test="name != null and name != ''">
+            name = #{name},
+            </if>
+            <if test="deptIdPath != null and deptIdPath != ''">
+                dept_id_path = #{deptIdPath},
+            </if>
+            update_time = now(),
+            latest_release_time = now()
+        where
+            deleted = 0
+            and robot_id = #{robotId}
+            <if test="creatorId != null ">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="tenantId != null ">
+                and tenant_id = #{tenantId}
+            </if>
+    </update>
+
+
+    <select id="getObtainCount" resultType="java.lang.Integer">
+        select count(1)
+        from robot_execute
+        where deleted = 0
+          and app_id = #{appId}
+          and market_id = #{marketId}
+          and tenant_id = #{tenantId}
+          and creator_id = #{creatorId}
+    </select>
+
+    <update id="updateObtainedRobot">
+        update robot_execute
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="resourceStatus != null and resourceStatus != ''">
+                resource_status = #{resourceStatus},
+            </if>
+            update_time = now(),
+            <if test="appVersion != null">
+                app_version = #{appVersion},
+            </if>
+            <if test="dataSource != null and dataSource != ''">
+                data_source = #{dataSource},
+            </if>
+        </set>
+        where
+            deleted = 0
+            and app_id = #{appId}
+            and market_id = #{marketId}
+            and tenant_id = #{tenantId}
+            and creator_id = #{creatorId}
+    </update>
+
+    <insert id="insertObtainedRobot">
+        insert into robot_execute(robot_id,
+                                  name,
+                                  creator_id,
+                                  create_time,
+                                  updater_id,
+                                  update_time,
+                                  deleted,
+                                  tenant_id,
+                                  app_id,
+                                  app_version,
+                                  market_id,
+                                  resource_status,
+                                  data_source)
+        values (#{robotId},
+                #{name},
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                0,
+                #{tenantId},
+                #{appId},
+                #{appVersion},
+                #{marketId},
+                #{resourceStatus},
+                #{dataSource})
+    </insert>
+
+    <update id="updateResourceStatusByAppIdList">
+        update robot_execute
+        set
+        resource_status = #{resourceStatus}
+        where
+        deleted = 0
+        and app_id in
+        <foreach collection="appIdList" item="appId" separator="," open="(" close=")">
+            #{appId}
+        </foreach>
+        and creator_id in
+        <foreach collection="marketUserList" item="item" separator="," open="(" close=")">
+            #{item.creatorId}
+        </foreach>
+    </update>
+
+    <select id="queryByRobotId" resultMap="RobotExecuteMap">
+        select *
+        from robot_execute
+        where deleted = 0
+          and robot_id = #{robotId}
+          and tenant_id = #{tenantId}
+          and creator_id = #{userId}
+    </select>
+
+    <update id="updateParamToNUll">
+        update robot_execute
+        set param_detail = null
+        where deleted = 0
+          and robot_id = #{robotId}
+          and tenant_id = #{tenantId}
+          and creator_id = #{userId}
+    </update>
+
+
+    <update id="updateRobotByPull">
+        update robot_execute
+        set name            = #{name},
+            resource_status = 'obtained',
+            app_version     = #{appVersion},
+            update_time     = now()
+        where deleted = 0
+          and robot_id = #{robotId}
+          and tenant_id = #{tenantId}
+          and creator_id = #{creatorId}
+    </update>
+
+
+    <insert id="addRobotByDeploy">
+        insert into robot_execute(
+        robot_id,
+        name,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted,
+        tenant_id,
+        app_id,
+        app_version,
+        market_id,
+        resource_status,
+        data_source,
+        dept_id_path,
+        latest_release_time
+        )
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+            #{entity.robotId},
+            #{entity.name},
+            #{entity.creatorId},
+            now(),
+            #{entity.updaterId},
+            now(),
+            0,
+            #{entity.tenantId},
+            #{entity.appId},
+            #{entity.appVersion},
+            #{entity.marketId},
+            #{entity.resourceStatus},
+            #{entity.dataSource},
+            #{entity.deptIdPath},
+            #{entity.latestReleaseTime}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getUserListByAppId" resultType="java.lang.String">
+        select creator_id
+        from robot_execute
+        where deleted = 0
+          and app_id = #{appId}
+    </select>
+
+    <update id="updateRobotByPush">
+        update robot_execute
+        set
+            name = #{entity.appName},
+            update_time = now(),
+            app_version = #{entity.appVersion},
+            resource_status = 'obtained'
+        where
+            deleted = 0
+            and app_id = #{entity.appId}
+            and market_id = #{entity.marketId}
+            and creator_id in
+            <foreach collection="entity.userIdList" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+    </update>
+
+
+    <update id="updateRobotByCloudPush">
+        update
+            robot_execute
+        set
+            name = #{entity.appName},
+            update_time = now(),
+            app_version = #{entity.appVersion}
+        where
+        deleted = 0
+        and data_source = 'deploy'
+        and app_id = #{entity.appId}
+        and creator_id in
+        <foreach collection="entity.userIdList" item="userId" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+    </update>
+
+    <select id="getRobotInfoByRobotId" resultMap="RobotExecuteMap">
+        select *
+        from robot_execute
+        where deleted = 0
+          and robot_id = #{robotId}
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+    </select>
+
+
+    <update id="saveParamInfo">
+        update robot_execute
+        <set>
+            <if test="paramDetail!=null">
+                param_detail = #{paramDetail},
+            </if>
+            <if test="updateTime!=null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        where
+        deleted = 0
+        and robot_id = #{robotId}
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
+    </update>
+
+    <select id="getDeployedUserList" resultMap="RobotExecuteMap">
+        select
+            re.id,
+            re.creator_id,
+            tu.name as name,
+            re.update_time,
+            re.app_version
+        from robot_execute re
+            inner join ${databaseName}.t_uap_user tu on re.creator_id = tu.id and tu.is_delete = 0
+        where
+            re.deleted = 0
+            and re.app_id = #{entity.appId}
+            and re.market_id = #{entity.marketId}
+            and re.tenant_id = #{entity.tenantId}
+            and re.data_source = 'market'
+            <if test="entity.realName != null and entity.realName != '' ">
+                and UPPER(tu.name) like concat('%',UPPER(#{entity.realName}),'%')
+            </if>
+    </select>
+
+
+    <select id="getCloudDeployedUserList" resultType="com.iflytek.rpa.robot.entity.dto.DeployedUserDto">
+        select
+        re.id,
+        re.creator_id as creatorId,
+        tu.name as name,
+        re.update_time as time,
+        re.app_version as version
+        from robot_execute re
+        inner join ${databaseName}.t_uap_user tu on re.creator_id = tu.id and tu.is_delete = 0
+        where
+        re.deleted = 0
+        and re.app_id = #{entity.robotId}
+        and re.tenant_id = #{tenantId}
+        and re.data_source = 'deploy'
+        <if test="entity.keyword != null and entity.keyword != '' ">
+            and (UPPER(tu.name) like concat('%',UPPER(#{entity.keyword}),'%') or tu.phone like
+            concat('%',#{entity.keyword},'%'))
+        </if>
+    </select>
+
+
+    <select id="getAuthInfo" resultMap="RobotExecuteMap">
+        select re.id,
+               re.creator_id,
+               re.create_time,
+               max(rv.version) as app_version
+        from robot_execute re
+                 inner join robot_version rv on rv.robot_id = re.robot_id
+        where re.robot_id = #{robotId}
+          and re.data_source = 'create'
+          and re.creator_id = #{creatorId}
+          and re.tenant_id = #{tenantId}
+    </select>
+
+
+    <select id="getAuthInfoForDeployed" resultType="com.iflytek.rpa.robot.entity.dto.DeployedUserDto">
+        select re.id,
+               re.creator_id as creatorId,
+               re.create_time as time,
+            max(rv.version) as version
+        from robot_execute re
+            inner join robot_version rv
+        on rv.robot_id = re.robot_id
+        where
+            re.robot_id = #{robotId}
+          and re.data_source = 'create'
+          and re.tenant_id = #{tenantId}
+            limit 1
+    </select>
+
+
+    <update id="deleteExecute">
+        update robot_execute
+        set deleted = 1
+        where robot_id = #{robotId}
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+    </update>
+
+    <select id="getExecuteByAppIdList" resultMap="RobotExecuteMap">
+        select *
+        from robot_execute
+        where
+            deleted = 0
+          and creator_id = #{userId}
+          and market_id = #{marketId}
+          and tenant_id = #{tenantId}
+          and app_id in
+            <foreach collection="appIdList" item="appId" open="(" close=")" separator=",">
+                #{appId}
+            </foreach>
+    </select>
+
+    <select id="getExeByAppIdsRobotIds" resultMap="RobotExecuteMap">
+        select *
+        from robot_execute
+        where deleted = 0 and creator_id = #{userId} and tenant_id = #{tenantId}
+            and (app_id, robot_id) in
+                <foreach collection="queryInfoList" item="queryInfo" open="(" close=")" separator=",">
+                    (#{queryInfo.appId}, #{queryInfo.robotId})
+                </foreach>
+    </select>
+
+
+    <select id="countRobotTotalNumPersonal" resultType="java.lang.Long">
+        select count(1)
+        from cloud_robot
+        <where>
+            deleted = 0
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="userId != null and userId != ''">
+                and creator_id = #{userId}
+            </if>
+            <if test="countTime != null">
+                and create_time &lt;= #{countTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="countRobotNum" resultType="java.lang.Long">
+        select count(1)
+        from robot_execute
+        <where>
+            deleted = 0
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="deptIdPath != null and deptIdPath != ''">
+                and dept_id_path like concat(#{deptIdPath}, "%")
+            </if>
+            <if test="deptIdPathList != null">
+                and
+                <foreach collection="deptIdPathList" index="index" item="deptIdPath" open="(" close=")" separator=" or ">
+                    dept_id_path like concat(#{deptIdPath}, "%")
+                </foreach>
+            </if>
+            <if test="countTime != null">
+                and create_time &lt;= #{countTime}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getRobotExecuteByNameNDept" resultType="com.iflytek.rpa.robot.entity.vo.RobotExecuteByNameNDeptVo">
+        select name as robotName, robot_id as robotId
+        from robot_execute
+        <where>
+            deleted = 0
+            <if test="robotName != null">
+                and name like concat("%", #{robotName}, "%")
+            </if>
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="deptIdPath != null and deptIdPath != ''">
+                and dept_id_path like concat(#{deptIdPath}, "%")
+            </if>
+            <if test="deptIdPathList != null">
+                and
+                <foreach collection="deptIdPathList" index="index" item="deptIdPath" open="(" close=")" separator=" or ">
+                    dept_id_path like concat(#{deptIdPath}, "%")
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getRobotExecuteByName" resultMap="RobotExecuteVersionMap">
+        SELECT re.*,rv.version as robot_version
+        FROM robot_execute as re
+        left join robot_version rv on rv.robot_id = re.robot_id and rv.deleted = 0 and rv.online = 1
+        WHERE re.deleted = 0
+        AND re.creator_id = #{userId}
+        AND re.tenant_id = #{tenantId}
+        <if test="name != null and name !=''">
+            AND upper(re.name) LIKE CONCAT('%', upper(#{name}), '%')
+        </if>
+        order by re.update_time desc
+    </select>
+
+    <select id="getRobotNameListByName" resultType="com.iflytek.rpa.robot.entity.dto.RobotNameDto">
+        SELECT
+        robot_id id,
+        name name
+        FROM robot_execute
+        WHERE deleted = 0
+        AND tenant_id = #{entity.tenantId}
+        <if test="name != null and name !=''">
+            AND upper(name) LIKE CONCAT('%', upper(#{name}), '%')
+        </if>
+        <if test="entity.deptIdPath != null and entity.deptIdPath != ''">
+            and dept_id_path like concat(#{entity.deptIdPath}, "%")
+        </if>
+        <if test="entity.deptIdPathList != null">
+            and
+            <foreach collection="entity.deptIdPathList" index="index" item="deptIdPath" open="(" close=")" separator=" or ">
+                dept_id_path like concat(#{deptIdPath}, "%")
+            </foreach>
+        </if>
+        order by update_time desc
+    </select>
+
+    <select id="getRobotListForDispatch" resultMap="RobotExecuteVersionMap">
+        SELECT re.*,rv.version as robot_version,rv.introduction
+        FROM robot_execute as re
+        left join robot_version rv on rv.robot_id = re.robot_id and rv.deleted = 0 and rv.online = 1
+        WHERE re.deleted = 0
+        AND re.tenant_id = #{tenantId}
+        <if test="name != null and name !=''">
+            AND upper(re.name) LIKE CONCAT('%', upper(#{name}), '%')
+        </if>
+        order by re.create_time desc
+    </select>
+    <select id="getRobotListForRule" resultType="com.iflytek.rpa.robot.entity.RobotExecute">
+        SELECT re.robot_id, re.name
+        FROM robot_execute as re
+        WHERE re.deleted = 0
+        AND re.tenant_id = #{tenantId}
+        <if test="name != null and name !=''">
+            AND upper(re.name) LIKE CONCAT('%', upper(#{name}), '%')
+        </if>
+        order by re.create_time desc
+    </select>
+
+</mapper>
+

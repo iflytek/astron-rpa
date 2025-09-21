@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.RobotDesignDao">
+
+    <resultMap type="com.iflytek.rpa.robot.entity.RobotDesign" id="RobotMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="dataSource" column="data_source" jdbcType="VARCHAR"/>
+        <result property="resourceStatus" column="resource_status" jdbcType="VARCHAR"/>
+        <result property="editEnable" column="edit_enable" jdbcType="INTEGER"/>
+        <result property="transformStatus" column="transform_status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <select id="getRobotNameList" resultType="java.lang.String">
+        select name
+        from robot_design
+        where deleted = 0
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and name like concat(#{robotNameBase}, '%')
+    </select>
+
+    <select id="getRobotDesignInfo" resultMap="RobotMap">
+        select *
+        from robot_design
+        where deleted = 0
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and robot_id = #{robotId}
+    </select>
+
+    <select id="countByName" resultType="java.lang.Integer">
+        select count(*)
+        from robot_design
+        where deleted = 0
+          and robot_id != #{robotId}
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+          and name = #{name}
+    </select>
+
+    <select id="countRobotByName" resultType="java.lang.Long">
+        select count(*)
+        from robot_design
+        where deleted = 0
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+          and name = #{name}
+    </select>
+
+    <select id="countRobotVersionByName" resultType="java.lang.Long">
+        select count(*)
+        from robot_version
+        where deleted = 0
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+          and name = #{name}
+    </select>
+
+    <update id="updateTransformStatus">
+        update
+        robot_design
+        <set>
+            <if test="transformStatus != null and transformStatus != ''">
+                transform_status = #{transformStatus},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            update_time = now()
+        </set>
+        where
+        robot_id = #{robotId}
+        and creator_id = #{userId}
+        and deleted = 0
+    </update>
+
+    <insert id="createRobot" keyProperty="id" useGeneratedKeys="true">
+        insert into robot_design
+             (robot_id,
+              name,
+              creator_id,
+              create_time,
+              updater_id,
+              update_time,
+              deleted,
+              tenant_id,
+              app_id,
+              app_version,
+              market_id,
+              data_source,
+              resource_status,
+              edit_enable,
+              transform_status)
+        values (#{robotId},
+                #{name},
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                0,
+                #{tenantId},
+                #{appId},
+                #{appVersion},
+                #{marketId},
+                #{dataSource},
+                #{resourceStatus},
+                #{editEnable},
+                #{transformStatus})
+    </insert>
+
+
+    <insert id="obtainRobotToDesign">
+        insert into robot_design
+        (robot_id,
+         name,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         deleted,
+         tenant_id,
+         app_id,
+         app_version,
+         market_id,
+         data_source,
+         resource_status,
+         edit_enable,
+         transform_status)
+        values (#{robotId},
+                #{name},
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                0,
+                #{tenantId},
+                #{appId},
+                #{appVersion},
+                #{marketId},
+                #{dataSource},
+                #{resourceStatus},
+                #{editEnable},
+                #{transformStatus})
+    </insert>
+
+    <update id="deleteDesign">
+        update robot_design
+        set deleted     = 1,
+            update_time = now()
+        where robot_id = #{robotId}
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+    </update>
+
+    <select id="getDesignByAppIdList" resultMap="RobotMap">
+        select *
+        from robot_design
+        where deleted = 0 and creator_id = #{userId} and market_id = #{marketId} and tenant_id = #{tenantId}
+        and app_id in
+        <foreach collection="appIdList" item="appId" open="(" close=")" separator=",">
+            #{appId}
+        </foreach>
+    </select>
+
+</mapper>
+

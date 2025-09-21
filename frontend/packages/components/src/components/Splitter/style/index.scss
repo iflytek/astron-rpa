@@ -1,0 +1,241 @@
+// 变量定义
+$split-bar-cls: 'splitter-bar';
+$split-bar-size: 1px;
+$split-trigger-size: 6px;
+$resize-spinner-size: 70px;
+$split-bar-draggable-size: $resize-spinner-size;
+$split-bar-draggable-cross-size: 3px;
+
+// 混合宏定义
+@mixin bar-preview-style {
+  position: absolute;
+  background: #1677ff;
+  opacity: 0.2;
+  pointer-events: none;
+  transition: none;
+  z-index: 1;
+  display: none;
+}
+
+@mixin center-style {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.splitter {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+
+  > .#{$split-bar-cls} {
+    flex: none;
+    position: relative;
+    user-select: none;
+
+    .splitter-bar-dragger {
+      z-index: 1;
+      @include center-style;
+
+      // Hover background
+      &::before {
+        content: '';
+        background: #ecedf4;
+        @include center-style;
+      }
+
+      &::after {
+        content: '';
+        background: transparent;
+        @include center-style;
+      }
+
+      // Hover
+      &:hover:not(.splitter-bar-dragger-active) {
+        &::before {
+          background: rgba(#726fff, 0.9);
+        }
+
+        &::after {
+          background: #726fff;
+        }
+      }
+
+      // Active
+      &-active {
+        z-index: 2;
+
+        &::before {
+          background: rgba(#726fff, 0.9);
+        }
+
+        &::after {
+          background: #726fff;
+        }
+      }
+
+      // Disabled
+      &-disabled.splitter-bar-dragger {
+        z-index: 0;
+
+        &,
+        &:hover,
+        &-active {
+          cursor: default;
+
+          &::before {
+            background: #ecedf4;
+          }
+        }
+
+        &::after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // ==========================================================
+  // ==                        Layout                        ==
+  // ==========================================================
+  &-horizontal {
+    flex-direction: row;
+
+    .splitter-panel {
+      padding: 0 1px;
+    }
+
+    > .#{$split-bar-cls} {
+      width: 0;
+
+      // ======================= Preview =======================
+      .splitter-bar-preview {
+        height: 100%;
+        width: $split-bar-size;
+        @include bar-preview-style;
+      }
+
+      .splitter-bar-preview-active {
+        display: block;
+      }
+
+      // ======================= Dragger =======================
+      .splitter-bar-dragger {
+        cursor: col-resize;
+        height: 100%;
+        width: $split-trigger-size;
+
+        &::before {
+          height: 100%;
+          width: $split-bar-size;
+        }
+
+        &::after {
+          height: $split-bar-draggable-size;
+          width: $split-bar-draggable-cross-size;
+        }
+      }
+    }
+  }
+
+  &-vertical {
+    flex-direction: column;
+
+    .splitter-panel {
+      padding: 1px 0;
+    }
+
+    > .#{$split-bar-cls} {
+      height: 0;
+
+      // ======================= Preview =======================
+      .splitter-bar-preview {
+        width: 100%;
+        height: $split-bar-size;
+        @include bar-preview-style;
+      }
+
+      .splitter-bar-preview-active {
+        display: block;
+      }
+
+      // ======================= Dragger =======================
+      .splitter-bar-dragger {
+        cursor: row-resize;
+        width: 100%;
+        height: $split-trigger-size;
+
+        &::before {
+          width: 100%;
+          height: $split-bar-size;
+        }
+
+        &::after {
+          width: $split-bar-draggable-size;
+          height: $split-bar-draggable-cross-size;
+        }
+      }
+    }
+  }
+
+  // ========================= Panels =========================
+  .splitter-panel {
+    overflow: auto;
+    scrollbar-width: thin;
+    box-sizing: border-box;
+
+    &-hidden {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    &:has(.splitter:only-child) {
+      overflow: hidden;
+    }
+  }
+
+  // ========================= Dark Mode =========================
+  &.dark {
+    > .#{$split-bar-cls} {
+      .splitter-bar-dragger {
+        &::before {
+          background: #141414;
+        }
+
+        &:hover:not(.splitter-bar-dragger-active) {
+          &::before {
+            background: rgba(#726fff, 0.9);
+          }
+
+          &::after {
+            background: rgba(#8482fe, 0.9);
+          }
+        }
+
+        // Active
+        &-active {
+          &::before {
+            background: rgba(#726fff, 0.9);
+          }
+
+          &::after {
+            background: rgba(#8482fe, 0.9);
+          }
+        }
+
+        // Disabled
+        &-disabled.splitter-bar-dragger {
+          &,
+          &:hover,
+          &-active {
+            &::before {
+              background: #141414;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "iflyrpa",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "cz": "cz",
+    "preinstall": "npx only-allow pnpm",
+    "lint:fix": "eslint . --fix",
+    "dev:web": "pnpm --filter @rpa/web-app run dev",
+    "dev:tauri": "pnpm --filter @rpa/tauri-app run dev",
+    "dev:tauri-logwin": "pnpm --filter @rpa/tauri-app-window run dev",
+    "build:web": "pnpm --filter @rpa/web-app run build",
+    "build:tauri": "pnpm --filter @rpa/tauri-app run build",
+    "build:tauri-debug": "pnpm --filter @rpa/tauri-app run build:debug",
+    "i18n": "env-cmd lobe-i18n locale",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^5.2.0",
+    "@lobehub/i18n-cli": "^1.25.1",
+    "@vitest/ui": "3.2.4",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "env-cmd": "^10.1.0",
+    "eslint": "^9.32.0",
+    "eslint-plugin-format": "^1.0.1",
+    "fast-glob": "^3.3.2",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.4"
+  },
+  "volta": {
+    "node": "22.15.0"
+  }
+}

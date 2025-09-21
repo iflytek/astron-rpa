@@ -1,0 +1,102 @@
+{
+  "build": {
+    "beforeDevCommand": "pnpm dev:web",
+    "beforeBuildCommand": "pnpm build:web",
+    "devPath": "http://localhost:1420/",
+    "distDir": "../../web-app/dist"
+  },
+  "package": {
+    "productName": "iflyrpa",
+    "version": "5.1.1"
+  },
+  "tauri": {
+    "allowlist": {
+      "shell": {
+        "all": true,
+        "open": ".*",
+        "execute": true,
+        "sidecar": true
+      },
+      "window": {
+        "all": true
+      },
+      "clipboard": {
+        "all": true
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "dialog": {
+        "all": true
+      },
+      "os": {
+        "all": true
+      },
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all": true,
+        "readFile": true,
+        "readDir": true,
+        "copyFile": true,
+        "createDir": true,
+        "exists": true,
+        "scope": [
+          "**/resources/*"
+        ]
+      }
+    },
+    "windows": [],
+    "security": {
+      "csp": null,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "windows": ["main", "batch", "record", "record-menu"],
+          "domain": "localhost",
+          "enableTauriAPI": true
+        }
+      ]
+    },
+    "systemTray": {
+      "iconPath": "../../../public/icons/icon.ico",
+      "iconAsTemplate": true
+    },
+    "bundle": {
+      "active": true,
+      "targets": ["msi", "updater", "deb"],
+      "identifier": "iflyrpa",
+      "shortDescription": "IFLYRPA.",
+      "longDescription": "IFLYRPA.",
+      "icon": [
+        "../../../public/icons/32x32.png",
+        "../../../public/icons/128x128.png",
+        "../../../public/icons/256x256.png",
+        "../../../public/icons/icon.ico"
+      ],
+      "deb": {
+        "depends": [
+          "scrot",
+          "xdotool",
+          "procps",
+          "xclip",
+          "python3-tk",
+          "python3-dev",
+          "python3-pyatspi"
+        ]
+      },
+      "windows": {
+        "webviewInstallMode": {
+          "type": "embedBootstrapper"
+        },
+        "wix": {
+          "language": "zh-CN",
+          "template": "wix/main.wxs"
+        }
+      },
+      "resources": [
+        "resources/*"
+      ]
+    }
+  }
+}

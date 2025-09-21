@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.triggerTask.dao.TriggerTaskDao">
+    <resultMap id="TriggerTaskResultMap" type="com.iflytek.rpa.triggerTask.entity.TriggerTask">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="task_id" property="taskId" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="task_json" property="taskJson" jdbcType="VARCHAR"/>
+        <result column="task_type" property="taskType" jdbcType="VARCHAR"/>
+        <result column="enable" property="enable" jdbcType="INTEGER"/>
+        <result column="exceptional" property="exceptional" jdbcType="VARCHAR"/>
+        <result column="timeout" property="timeout" jdbcType="INTEGER"/>
+        <result column="deleted" property="deleted" jdbcType="INTEGER"/>
+        <result column="creator_id" property="creatorId" jdbcType="BIGINT"/>
+        <result column="tenant_id" property="tenantId" jdbcType="CHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="updater_id" property="updaterId" jdbcType="BIGINT"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <select id="getExecuteDataList" resultType="com.iflytek.rpa.triggerTask.entity.vo.TaskPageVo">
+        select task_id,
+               name,
+               create_time,
+               task_type,
+               enable,
+               task_json
+        from trigger_task
+        where deleted = 0
+            and creator_id = #{userId}
+            and tenant_id = #{tenantId}
+            <if test="queryDto.name != null and queryDto.name != ''">
+                and upper(name) like concat('%', upper(#{queryDto.name}), '%')
+            </if>
+            <if test="queryDto.taskType != null and queryDto.taskType != ''">
+                and task_type = #{queryDto.taskType}
+            </if>
+    </select>
+
+
+    <select id="getExecuteDataList4Trigger" resultType="com.iflytek.rpa.triggerTask.entity.vo.TaskPage4TriggerVo">
+        select  task_id,
+            name,
+            create_time,
+            task_type,
+            enable,
+            task_json,
+            exceptional,
+            timeout,
+            queue_enable
+        from trigger_task
+        where deleted = 0
+            and creator_id = #{userId}
+            and tenant_id = #{tenantId}
+            <if test="queryDto.name != null and queryDto.name != ''">
+                and upper(name) like concat('%', upper(#{queryDto.name}), '%')
+            </if>
+            <if test="queryDto.taskType != null and queryDto.taskType != ''">
+                and task_type = queryDto.taskType
+            </if>
+    </select>
+
+    <update id="deleteTasks">
+        update trigger_task
+        set deleted = 1
+        where deleted = 0 and task_id in
+        <foreach collection="taskIdList" item="taskId" separator="," open="(" close=")">
+            #{taskId}
+        </foreach>
+    </update>
+
+</mapper>

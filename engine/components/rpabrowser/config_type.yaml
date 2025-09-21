@@ -1,0 +1,8 @@
+types:
+  Browser:
+    desc: 浏览器对象
+    funcList:
+      - key: Browser.get_url
+        funcDesc: 该网页的地址
+      - key: Browser.get_title
+        funcDesc: 该网页的标题

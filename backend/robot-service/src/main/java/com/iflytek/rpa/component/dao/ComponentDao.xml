@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.component.dao.ComponentDao">
+
+    <resultMap type="com.iflytek.rpa.component.entity.Component" id="ComponentMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="componentId" column="component_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isShown" column="is_shown" jdbcType="SMALLINT"/>
+        <result property="deleted" column="deleted" jdbcType="SMALLINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="resourceStatus" column="resource_status" jdbcType="VARCHAR"/>
+        <result property="dataSource" column="data_source" jdbcType="VARCHAR"/>
+        <result property="transformStatus" column="transform_status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 根据组件ID查询组件信息 -->
+    <select id="getComponentById" resultMap="ComponentMap">
+        select *
+        from component
+        where component_id = #{componentId}
+          and deleted = 0
+          and tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据组件ID查询组件信息 -->
+    <select id="getShownComponentById" resultMap="ComponentMap">
+        select *
+        from component
+        where component_id = #{componentId}
+          and deleted = 0
+          and is_shown = 1
+          and tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据名称查询组件数量 -->
+    <select id="countByName" resultType="java.lang.Long">
+        select count(*)
+        from component
+        where name = #{name}
+          and deleted = 0
+          and is_shown = 1
+          and tenant_id = #{tenantId}
+          and creator_id = #{userId}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 根据应用ID列表查询组件 -->
+    <select id="getComponentsByAppIdList" resultMap="ComponentMap">
+        select *
+        from component
+        where deleted = 0
+          and market_id = #{marketId}
+          and tenant_id = #{tenantId}
+          and app_id in
+        <foreach collection="appIdList" item="appId" open="(" separator="," close=")">
+            #{appId}
+        </foreach>
+        order by app_version desc
+    </select>
+
+    <!-- 根据租户ID和用户ID查询组件列表 -->
+    <select id="getComponentsByTenantAndUser" resultMap="ComponentMap">
+        select *
+        from component
+        where deleted = 0
+          and tenant_id = #{tenantId}
+          and creator_id = #{userId}
+        order by create_time desc
+    </select>
+
+    <select id="getComponentNameList" resultType="java.lang.String">
+        select name
+        from component
+        where deleted = 0
+          and is_shown = 1
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and name like concat(#{componentNameBase}, '%')
+    </select>
+
+    <!-- 分页查询组件列表 -->
+    <select id="getComponentPageList" resultType="com.iflytek.rpa.component.entity.vo.ComponentVo">
+        select 
+            c.component_id as componentId,
+            c.name,
+            c.update_time as updateTime,
+            c.transform_status as transformStatus,
+            (select max(version) from component_version cv where cv.component_id = c.component_id and cv.deleted = 0) as version
+        from component c
+        where c.deleted = 0 
+          and c.is_shown = 1
+          and c.tenant_id = #{tenantId}
+          <if test="userId != null and userId != ''">
+              and c.creator_id = #{userId}
+          </if>
+          <if test="name != null and name != ''">
+              and c.name like concat('%', #{name}, '%')
+          </if>
+          <if test="dataSource != null and dataSource != ''">
+              and c.data_source = #{dataSource}
+          </if>
+        order by 
+            <choose>
+                <when test="sortType == 'asc'">
+                    c.update_time asc
+                </when>
+                <otherwise>
+                    c.update_time desc
+                </otherwise>
+            </choose>
+    </select>
+
+    <!-- 获取用户权限内可获取的组件列表（shown = 1） -->
+    <select id="getAvailableComponentsByUser" resultMap="ComponentMap">
+        select *
+        from component
+        where deleted = 0
+          and is_shown = 1
+          and tenant_id = #{tenantId}
+          and creator_id = #{userId}
+        order by update_time desc
+    </select>
+
+    <!-- 根据组件ID列表查询组件信息 -->
+    <select id="getComponentsByIds" resultMap="ComponentMap">
+        select *
+        from component
+        where deleted = 0
+          and tenant_id = #{tenantId}
+          and component_id in
+        <foreach collection="componentIds" item="componentId" open="(" separator="," close=")">
+            #{componentId}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <update id="updateTransformStatus">
+        update
+        component
+        <set>
+            <if test="transformStatus != null and transformStatus != ''">
+                transform_status = #{transformStatus},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            update_time = now()
+        </set>
+        where
+        component_id = #{componentId}
+        and creator_id = #{userId}
+        and deleted = 0
+    </update>
+
+</mapper> 

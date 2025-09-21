@@ -1,0 +1,223 @@
+atomic:
+  Gui.keyboard:
+    title: 键盘输入
+    comment: 通过(@{keyboard_type})方式模拟键盘输入(@{message})
+    icon: keyboard-input
+    helpManual: ''
+    inputList:
+    - key: keyboard_type
+      title: 输入方式
+      tip: 普通输入：windows键盘消息的方式来模拟按键输入；剪切板输入：获取剪切板内容并粘贴输入；按键组合：使用插入键盘符号组合快捷输入；驱动输入：使用驱动来模拟按键输入，一般用于网银密码框输入场景或其它普通输入方式无法输入的场景
+    - key: message
+      title: 输入内容
+      tip: ''
+    - key: simulate_flag
+      title: 模拟人工输入
+      tip: 模拟人工方式操作键盘逐个输入字符，默认为否
+    - key: interval
+      title: 输入间隔
+      tip: 设置输入间隔，单位为秒
+    outputList: []
+  Gui.key_input:
+    title: 键盘模拟按键
+    comment: 使用键盘模拟按键(@{keys_str})(@{key_model})
+    icon: keyboard-simulate-key
+    helpManual: 通过设置键盘按键进行输入
+    inputList:
+    - key: keys_str
+      title: 按键组合
+      tip: 设置按键组合
+    - key: key_model
+      title: 按键方式
+      tip: 设置按键方式
+    outputList: []
+  Gui.mouse:
+    title: 鼠标点击
+    comment: 模拟鼠标(@{btn_type:左键/右键/中键}) (@{btn_model:按下/弹起/单机/双击}))
+    icon: mouse-click
+    helpManual: ''
+    inputList:
+    - key: btn_type
+      title: 鼠标按键
+      tip: 选择点击鼠标上的键位
+    - key: btn_model
+      title: 点击方式
+      tip: 选择操作鼠标的点击方式
+    - key: ctrl_type
+      title: 键盘辅助按键
+      tip: 选择键盘辅助按键，默认为无
+    outputList: []
+  Gui.mouse_wheel:
+    title: 鼠标滚动
+    comment: 模拟鼠标(@{scroll_type})滚动(@{scroll_px||times}),滚动方向为:(@{direction})
+    icon: mouse-scroll-webpage
+    helpManual: ''
+    inputList:
+    - key: scroll_type
+      title: 滚动方式
+      tip: ''
+    - key: times
+      title: 自定义次数
+      tip: 输入鼠标滚动的次数,默认滚动一次距离为120个网页像素
+    - key: scroll_px
+      title: 自定义像素
+      tip: 输入自定义像素，单位为px，一般为0-9999之间的数值
+    - key: direction
+      title: 滚动方向
+      tip: ''
+    - key: ctrl_type
+      title: 键盘辅助按键
+      tip: 选择键盘辅助按键，默认为无
+    outputList: []
+  Gui.mouse_move:
+    title: 鼠标移动
+    comment: 在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})
+    icon: mouse-move
+    helpManual: ''
+    inputList:
+    - key: window_type
+      title: 窗口类型
+      tip: 整个屏幕：以屏幕左上角为坐标相对位置；激活窗口：以激活窗口左上角为相对坐标位置
+    - key: window_position
+      title: 窗口左上角位置
+      tip: ''
+    - key: get_mouse_position
+      title: 获取鼠标位置
+      tip: ''
+    - key: position_x
+      title: 鼠标x位置
+      tip: ''
+    - key: position_y
+      title: 鼠标y位置
+      tip: ''
+    - key: move_type
+      title: 鼠标移动方式
+      tip: 选择鼠标移动方式
+    - key: move_speed
+      title: 鼠标移动速度
+      tip: ''
+    outputList: []
+  Gui.mouse_drag:
+    title: 鼠标拖拽
+    comment: 模拟鼠标从起点位置(@{start_pos_x}, @{start_pos_y})拖拽到终点位置(@{end_pos_x}, @{end_pos_y})
+    icon: mouse-drag
+    helpManual: ''
+    inputList:
+    - key: start_pos_x
+      title: 鼠标起点x位置
+      tip: ''
+    - key: start_pos_y
+      title: 鼠标起点y位置
+      tip: ''
+    - key: end_pos_x
+      title: 鼠标终点x位置
+      tip: ''
+    - key: end_pos_y
+      title: 鼠标终点y位置
+      tip: ''
+    - key: btn_type
+      title: 鼠标按键
+      tip: 拖拽时按下的鼠标键位
+    - key: move_type
+      title: 移动方式
+      tip: 选择鼠标移动方式
+    - key: move_speed
+      title: 移动速度
+      tip: 选择鼠标移动速度
+    - key: ctrl_type
+      title: 键盘辅助按键
+      tip: 选择鼠标拖拽时的键盘辅助按键，默认为无
+    outputList: []
+  Gui.mouse_position:
+    title: 获取鼠标位置
+    comment: 获取当前鼠标位置并输出至(@{point_x}, @{point_y})
+    icon: get-mouse-position
+    helpManual: ''
+    inputList: []
+    outputList:
+    - key: point_x
+      title: 鼠标x位置
+      tip: ''
+    - key: point_y
+      title: 鼠标y位置
+      tip: ''
+options:
+  KeyboardType:
+  - value: normal
+    label: 普通输入
+  - value: driver
+    label: 驱动输入
+  - value: clip
+    label: 剪贴板输入
+  - value: gblid
+    label: ghost输入
+  Simulate_flag:
+  - value: 'yes'
+    label: 是
+  - value: 'no'
+    label: 否
+  KeyModel:
+  - value: click
+    label: 单击
+  - value: down
+    label: 按下
+  - value: up
+    label: 弹起
+  BtnType:
+  - value: left
+    label: 左键
+  - value: middle
+    label: 中键
+  - value: right
+    label: 右键
+  BtnModel:
+  - value: click
+    label: 单击
+  - value: double_click
+    label: 双击
+  - value: down
+    label: 按下
+  - value: up
+    label: 弹起
+  ControlType:
+  - value: none
+    label: 无
+  - value: ctrl
+    label: ctrl
+  - value: alt
+    label: alt
+  - value: shift
+    label: shift
+  - value: win
+    label: win
+  - value: space
+    label: space
+  ScrollType:
+  - value: time
+    label: 按次数
+  - value: px
+    label: 按像素
+  Direction:
+  - value: up
+    label: 向上
+  - value: down
+    label: 向下
+  WindowType:
+  - value: fullscreen
+    label: 整个屏幕
+  - value: active_window
+    label: 激活窗口
+  MoveType:
+  - value: linear
+    label: 匀速直线移动
+  - value: simulation
+    label: 模拟人工方式
+  - value: teleportation
+    label: 瞬时移动
+  Speed:
+  - value: slow
+    label: 慢速
+  - value: normal
+    label: 正常
+  - value: fast
+    label: 快速

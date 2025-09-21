@@ -1,0 +1,125 @@
+atomic:
+  Email.send_email:
+    title: 发送邮件
+    comment: 给指定邮箱 @{receiver} 发送邮件
+    icon: send-email
+    helpManual: ''
+    inputList:
+    - key: receiver
+      title: 收件人邮箱
+      tip: ''
+    - key: cc
+      title: 抄送邮箱
+      tip: ''
+    - key: subject
+      title: 主题
+      tip: ''
+    - key: is_html
+      title: 是否为HTML格式
+      tip: ''
+    - key: content
+      title: 内容
+      tip: ''
+    - key: attachment_path
+      title: 附件路径
+      tip: ''
+    - key: mail_server
+      title: 邮件服务器
+      tip: ''
+    - key: other_mail_server
+      title: 其他邮件服务器
+      tip: ''
+    - key: mail_port
+      title: 邮件服务器端口
+      tip: ''
+    - key: use_ssl
+      title: 是否使用SSL加密
+      tip: ''
+    - key: sender_mail
+      title: 发件人邮箱
+      tip: ''
+    - key: send_name
+      title: 发件人名称
+      tip: ''
+    - key: password
+      title: 密码/授权码
+      tip: ''
+    - key: bcc
+      title: 密送邮箱
+      tip: ''
+    - key: replace_table
+      title: 智能填充表
+      tip: ''
+    outputList: []
+  Email.receive_email:
+    title: 接收邮件
+    comment: 从邮箱(@{user_mail})接收邮件信息
+    icon: receive-email
+    helpManual: ''
+    inputList:
+    - key: mail_server
+      title: 邮件服务器地址
+      tip: 选择一个邮箱类型
+    - key: custom_mail_server
+      title: IMAP服务器地址
+      tip: 输入指定的IMAP服务器地址
+    - key: custom_mail_port
+      title: IMAP服务器端口
+      tip: 输入指定的IMAP服务器端口
+    - key: user_mail
+      title: 用户邮件账号
+      tip: IMAP服务器身份验证的用户名，通常是邮箱账号，以具体邮件服务商的规范为标准
+    - key: user_password
+      title: 授权码
+      tip: IMAP服务器验证身份的授权码，一般需要短信认证开通，部分邮箱为账号密码，以具体邮件服务商的规范为标准
+    - key: max_return_num
+      title: 邮件最大返回数量
+      tip: 返回的最大邮件数量
+    - key: unseen_flag
+      title: 仅未读邮件
+      tip: 仅获取未读邮件或全部邮件
+    - key: save_attachment_flag
+      title: 保存附件
+      tip: 是否下载邮件附件
+    - key: save_attachment_path
+      title: 保存目录
+      tip: 附件的保存目录
+    - key: folder_name
+      title: 文件夹名称
+      tip: 输入要接收邮件的邮件箱名称，默认为INBOX
+    - key: mask_as_read_flag
+      title: 标记为已读
+      tip: 获取邮件后，将邮件标记为已读状态
+    - key: sender_text
+      title: 发件人中包含的内容
+      tip: 通过发送者包含关键字进行过滤
+    - key: receiver_text
+      title: 收件人中包含的内容
+      tip: 通过接收者包含关键字进行过滤
+    - key: theme_text
+      title: 主题中包含的内容
+      tip: 通过主题包含关键字进行过滤
+    - key: content_text
+      title: 正文中包含的内容
+      tip: 通过内容包含关键字进行过滤
+    outputList:
+    - key: mail_list
+      title: 保存邮件列表
+      tip: 指定一个变量名称，将返回的邮件列表存储至该变量
+options:
+  Bool:
+  - value: true
+    label: 是
+  - value: false
+    label: 否
+  EmailServerType:
+  - value: other
+    label: 其他邮箱
+  - value: '126'
+    label: '126'
+  - value: '163'
+    label: '163'
+  - value: qq
+    label: QQ
+  - value: iflytek
+    label: 讯飞邮箱

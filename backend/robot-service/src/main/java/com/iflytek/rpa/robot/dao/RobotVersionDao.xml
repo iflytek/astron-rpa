@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.RobotVersionDao">
+
+    <resultMap type="com.iflytek.rpa.robot.entity.RobotVersion" id="RobotVersionMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="version" column="version" jdbcType="VARCHAR"/>
+        <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
+        <result property="updateLog" column="update_log" jdbcType="VARCHAR"/>
+        <result property="useDescription" column="use_description" jdbcType="VARCHAR"/>
+        <result property="online" column="online" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="param" column="param" jdbcType="VARCHAR"/>
+        <result property="videoId" column="video_id" jdbcType="VARCHAR"/>
+        <result property="appendixId" column="appendix_id" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <select id="getLatestRobotVersionByRobotId" resultMap="RobotVersionMap">
+        select rv.*,
+               re.name
+        from robot_version as rv
+                 inner join robot_execute as re on re.robot_id = rv.robot_id and re.deleted = 0
+        where rv.deleted = 0
+          and rv.robot_id = #{robotId}
+          and rv.deleted = 0
+          and rv.robot_id = #{robotId}
+        order by rv.version desc limit 1
+    </select>
+
+    <select id="getRobotInfoForExecute" resultMap="RobotVersionMap">
+        select rv.version
+        from robot_version rv
+        where rv.creator_id = #{creatorId}
+          and rv.tenant_id = #{tenantId}
+          and rv.robot_id = #{robotId}
+          and rv.online = 1
+
+    </select>
+
+    <select id="getVersionInfo" resultMap="RobotVersionMap">
+        select *
+        from robot_version rv
+                 inner join app_market_resource amr on amr.robot_id = rv.robot_id
+        where amr.market_id = #{marketId}
+          and amr.app_id = #{appId}
+          and amr.deleted = 0
+          and rv.tenant_id = #{tenantId}
+          and rv.version = #{version}
+    </select>
+
+
+    <select id="getVersionListForApp" resultMap="RobotVersionMap">
+        select rv.version,
+               rv.update_log,
+               rv.create_time
+        from robot_version rv
+                 inner join app_market_resource amr on amr.robot_id = rv.robot_id
+        where rv.tenant_id = #{tenantId}
+          and rv.version &lt;= #{appVersion}
+          and amr.app_id = #{appId}
+          and amr.market_id = #{marketId}
+          and amr.deleted = 0
+        order by rv.version desc
+    </select>
+
+    <select id="getVersionCount" resultType="java.lang.Integer">
+        select count(*)
+        from robot_version
+        where deleted = 0
+          and robot_id = #{robotId}
+    </select>
+
+
+    <select id="getRobotNameList" resultMap="RobotVersionMap">
+        select
+        robot_id,
+        name
+        from
+        robot_version
+        where
+        deleted = 0
+        <if test="entities != null">
+            and
+            <foreach collection="entities" item="entity" separator="or" open="(" close=")">
+                robot_id = #{entity.robotId}
+                and version = #{entity.version}
+            </foreach>
+        </if>
+
+    </select>
+
+
+    <update id="updateOnline">
+        update
+            robot_version
+        set online = #{online}
+        where robot_id = #{robotId}
+          and creator_id = #{userId}
+          and deleted = 0
+    </update>
+
+
+    <insert id="addRobotVersion" keyProperty="id" useGeneratedKeys="true">
+        insert into robot_version(robot_id,
+                                  version,
+                                  introduction,
+                                  update_log,
+                                  use_description,
+                                  online,
+                                  creator_id,
+                                  create_time,
+                                  updater_id,
+                                  update_time,
+                                  deleted,
+                                  tenant_id,
+                                  param,
+<!--                                  param_detail,-->
+                                  video_id,
+                                  appendix_id,
+                                  icon)
+        values (#{robotId},
+        #{version},
+        #{introduction},
+        #{updateLog},
+        #{useDescription},
+        #{online},
+        #{creatorId},
+        now(),
+        #{updaterId},
+        now(),
+        0,
+        #{tenantId},
+        #{param},
+        <!--                #{paramDetail},-->
+        #{videoId},
+        #{appendixId},
+        #{icon}
+        )
+
+    </insert>
+
+
+    <update id="shareRobot">
+        update robot_version
+        set edit_flag = #{editFlag},
+            category  = #{category}
+        where robot_id = #{robotId}
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+          and version = #{version}
+          and deleted = 0
+    </update>
+
+
+    <!--    <select id="getRobotVersionInfo" resultMap="RobotVersionMap">-->
+    <!--        select *-->
+    <!--        from-->
+    <!--            robot_version-->
+    <!--        where-->
+    <!--            robot_id = #{robotId}-->
+    <!--        and creator_id = #{creatorId}-->
+    <!--        and tenant_id = #{tenantId}-->
+    <!--        and version = #{version}-->
+    <!--        and deleted = 0-->
+    <!--    </select>-->
+
+
+    <select id="getLatestRobotVersion" resultType="com.iflytek.rpa.robot.entity.dto.RobotVersionDto">
+        select re.name, rv.version
+        from robot_version rv
+                 inner join app_market_resource amr on amr.robot_id = rv.robot_id
+                 left join robot_execute re on re.robot_id = rv.robot_id
+        where amr.app_id = #{appId}
+        order by rv.version desc limit 1
+    </select>
+
+
+    <select id="getLastRobotVersionInfo" resultMap="RobotVersionMap">
+        select *
+        from robot_version
+        where robot_id = #{robotId}
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+        order by version desc limit 1
+    </select>
+
+    <select id="getFileNameInfo" resultType="com.iflytek.rpa.robot.entity.File">
+        select file_id, file_name
+        from file
+        where
+        file_id in
+        <foreach collection="fileIdList" item="fileId" separator="," open="(" close=")">
+            #{fileId}
+        </foreach>
+        and deleted = 0
+    </select>
+
+    <select id="getParamDetailInMarket" resultType="java.lang.String">
+        select rv.param_detail
+        from robot_version rv
+                 inner join app_market_resource amr on amr.robot_id = rv.robot_id
+        where rv.version = #{appVersion}
+          and amr.market_id = #{marketId}
+          and amr.app_id = #{appId} limit 1
+    </select>
+
+    <select id="getParamDetailWithOnLine" resultType="java.lang.String">
+        select rv.param_detail
+        from robot_version rv
+        where rv.robot_id = #{robotId}
+          and rv.online = 1
+          and deleted = 0 limit 1
+    </select>
+
+    <select id="getLatestVersionNum" resultType="java.lang.Integer">
+        select version
+        from robot_version
+        where robot_id = #{robotId}
+          and creator_id = #{creatorId}
+          and tenant_id = #{tenantId}
+          and deleted = 0
+        order by version desc limit 1
+    </select>
+
+    <select id="getRobotVersionByVersionNId" resultMap="RobotVersionMap">
+        select *
+        from robot_version
+        where deleted = 0 and
+              <foreach collection="resVerDtoList" item="resVerDto">
+                  robot_id = #{resVerDto.robotId} and
+                  version = #{resVerDto.latestAppVersion}
+              </foreach>
+    </select>
+
+    <update id="unEnableAllVersion">
+        update
+            robot_version
+        set online = 0
+        where robot_id = #{robotId}
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+    </update>
+
+</mapper>
+

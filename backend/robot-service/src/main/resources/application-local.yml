@@ -1,0 +1,162 @@
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  task:
+    shutdown: graceful
+    graceful-shutdown-timeout: 20s
+  servlet:
+    multipart:
+      max-request-size: 110MB
+      max-file-size: 100MB
+      file-size-threshold: 100MB
+  redis:
+    database: ${REDIS_DB}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    pool:
+      max-active: 300
+      max-idle: 20
+      max-wait: 10000
+      min-idle: 0
+    timeout: 10000
+    lettuce:
+      shutdown-timeout: 100ms
+      pool:
+        shutdown-timeout: 100ms
+  datasource:
+    url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 1
+    minIdle: 3
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,slf4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000;druid.stat.logSlowSql=true;druid.stat.enabled=true
+    druid:
+      remove-abandoned: true
+      remove-abandoned-timeout: 180
+      log-abandoned: true
+      test-while-idle: true
+      validation-query: SELECT 1
+      shutdown-timeout: 30s
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save    # 每次响应结束刷到 Redis
+      namespace: uap:session # key 前缀，避免冲突
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+
+resource:
+  download:
+    url: /api/resource/file/download?fileId=
+
+
+#日志相关配置
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure: info
+  config: classpath:logback-delayed.xml
+
+redis:
+  open: "true"
+
+# 机器人监控表格导出大小限制， 表格行数
+robotExcel:
+  lineSizeLimit: 3000
+
+# 防抖相关参数
+deBounce:
+  prefix: "doBouncePrefix::"
+  window: 500
+
+
+report:
+  export:
+    strategy: excel
+  excel:
+    sheet:
+      name: "机器人执行记录"
+    buffer:
+      size: 16384
+  robot:
+    maxLines: 50000
+    fileNameTemplate: "{tenant}_{dept}_机器人分析数据.xlsx"
+    titleTemplate: "部门：{dept} 统计区间段：{start} --> {end}"
+
+
+#  允许配置在此处的地址跨域请求接口
+#  前后端分离时如果前端的域和后端不一样，请将前端的域配置在此处,注意是域名或ip即可，不需要端口号
+allowed:
+  origins: localhost
+
+# 短信配置
+sms:
+  apiUrl: ""
+  secretKey: ""
+  appId: ""
+  tid: ""
+  # 告警消息模板
+  alarmTemplate: 告警通知：{0} 触发规则【{1}】告警，操作者【{2}】，角色【{3}】，请登录平台查看。
+
+casdoor:
+  endpoint: ${CASDOOR_ENDPOINT}
+  client-id: e3ba6fec42cfe996121f
+  client-secret: 0c18bf2a11ffbb756ec6ce47dae9e09bdd48e3dd
+  certificate: |-
+    -----BEGIN CERTIFICATE-----
+    MIIE3TCCAsWgAwIBAgIDAeJAMA0GCSqGSIb3DQEBCwUAMCgxDjAMBgNVBAoTBWFk
+    bWluMRYwFAYDVQQDEw1jZXJ0LWJ1aWx0LWluMB4XDTI1MDkyMDEwNDcxOFoXDTQ1
+    MDkyMDEwNDcxOFowKDEOMAwGA1UEChMFYWRtaW4xFjAUBgNVBAMTDWNlcnQtYnVp
+    bHQtaW4wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDL9L2vPZEXUP4z
+    mbVhlgpQx35HzCvQGr+Hbi+ENf5rUadq2X8JVJ5Js3vsi/dMXoXuw2wScltgayEp
+    Ouyh775uXC/gOrKgfnwANE9VRU9jwBdpZcLeQBfZB2gVQZDYt2wZBSpCwp78I2AS
+    eWgpvBDXDTp8fV2bJBu7yaLPTdysXVCpdHEkEan7xCAY9yHl9psiqn8aVD4f9T+U
+    /oHRIvyAVLpxgQ6w/Lsk2Zcw7lI4feRlF0PYQouoof91gnOIjkYEyFvF/imuL+Xg
+    QuA6yMfJ04lfLt8lwu3jAwGw7VIA8LE2pQ6DmJ4pEbFBMU3H626HNel1dxEjW/j+
+    Tv47nkCPpXGI0w17fc54fbZ7VmtZ6LizxkBfhWf+j8Rm3hpMr6tJ6ISjUajyB17U
+    1w9QWU9pOJa/cehOVczEehQLjhX5MZGAUovlmMNojKAtOO/tdcRsDMwOHJyXBqHa
+    oCykyJ00eIguTtmTTboAqdx3cpom8wNjRh5sUB+YkpsYTVVe/a5r0olfZHDos5bf
+    knJXi9X+ppD7nvoCtwrki6AH5Dw9prsrql3sagUHgBKBVLG3EIhDIlkRTQDOO55C
+    8OzuyVbDkIbcEX8BIFj8yoUAP/DcpazHHOGhjHRRcFvVHAGRtz8fH6qB9hX3N3a+
+    TevIZoANOYLgN6ACWJ0bODLAO9pwWwIDAQABoxAwDjAMBgNVHRMBAf8EAjAAMA0G
+    CSqGSIb3DQEBCwUAA4ICAQAT63JAwjc151XNWbMSr5ClNGd+bwEx+zDnQh/YD8V7
+    8Wqj2E4r8B+wysDVu7YdOQkoIjtlFOLACg0469F7oC+kPi6N8vMFFZ+xXWk6qLed
+    OFYsdUyH+l643GfMprFMA1qbJvqcOnymggeMA1rSJMu9PJ5g7WfoEg6UTKh7H9HV
+    vHvgVzLweiZCS37FCC5+RDt/rOCzIrI2DfwDbf4CLKXft7mr3mnA3kVRuT+ufI9X
+    +e6UqmM7EBFYeZAHi8/GXIQ8/j34ag5hiIISMhjuFYKEfMtqLYUCTH6X7NTGbGrv
+    As8YB2x5QnUj89N7IRv2hr1uJnaZOIx5feLRmuRmo35scLopAnNu0VT75TOS0Ifh
+    yrouqlep4grk4DMFSWEMNodpkHHLr4pOVE8vCYphli75/beOkiilUpxGI6/osKKo
+    SOC5CuC6hDarVBF3q6zpNEnqalQf9Vf2d4zeCKMfV2IuUOqKRaRFpVZfVJsbiYTi
+    YF1VUCTFdfrIFsC5V9LknxvLyq8ubzpXHnIV6m/l95OxxCEDvI47l5RmwkblKk57
+    H9IRmr6l66Ar2WRGQYAxpiOz3aF8IMg8f0+Vk91FNTsgNrSsk9uovQrrDDtm3KyO
+    EzhOO4NA9WgaE1c6GzZD87GhrZukHWHE4KvTpkiQ3pGmTqUjIHvon+0lKtG8E5fz
+    Kg==
+    -----END CERTIFICATE-----
+  organization-name: example-org
+  application-name: example-app
+  redirect-url: http://localhost:1420/

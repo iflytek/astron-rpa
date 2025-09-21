@@ -1,0 +1,23 @@
+atomic:
+  Demo.print:
+    title: 日志打印
+    comment: 将变量(@{print_msg})打印
+    icon: log-print
+    helpManual: ''
+    inputList:
+    - key: print_type
+      title: 日志类型
+    - key: print_msg
+      title: 日志内容
+      tip: 打印运行过程中输出的流变量
+    outputList:
+    - key: msg
+      title: 日志内容返回值
+options:
+  ReportLevelType:
+  - value: info
+    label: 信息
+  - value: warning
+    label: 警告
+  - value: error
+    label: 错误

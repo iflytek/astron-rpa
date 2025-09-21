@@ -1,0 +1,28 @@
+.versionHistoryModal {
+  &-default,
+  &-spin {
+    margin: auto;
+    width: 134px;
+    height: 188px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ant-modal-body {
+    max-height: 480px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    background: $color-bg-elevated;
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+  }
+
+  .versionHistory {
+    min-width: 460px;
+    min-height: 320px;
+    max-height: 420px;
+  }
+}

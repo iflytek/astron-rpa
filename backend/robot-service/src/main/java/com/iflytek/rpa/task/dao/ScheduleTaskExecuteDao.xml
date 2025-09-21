@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.task.dao.ScheduleTaskExecuteDao">
+
+    <resultMap type="com.iflytek.rpa.task.entity.ScheduleTaskExecute" id="ScheduleTaskExecuteMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+        <result property="result" column="result" jdbcType="VARCHAR"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="taskExecuteId" column="task_execute_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- TaskRecordListVo结果映射 -->
+    <resultMap type="com.iflytek.rpa.task.entity.vo.TaskRecordListVo" id="TaskRecordListVoMap">
+        <result property="taskExecuteId" column="task_execute_id" jdbcType="VARCHAR"/>
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="taskName" column="task_name" jdbcType="VARCHAR"/>
+        <result property="taskType" column="task_type" jdbcType="VARCHAR"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+        <result property="taskStartTime" column="task_start_time" jdbcType="VARCHAR"/>
+        <result property="taskEndTime" column="task_end_time" jdbcType="VARCHAR"/>
+        <result property="taskExecuteStatus" column="task_status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <insert id="insertExecuteRecord">
+        insert into schedule_task_execute
+        (task_id,
+         count,
+         result,
+         start_time,
+         end_time,
+         tenant_id,
+         creator_id,
+         task_execute_id,
+         create_time,
+         updater_id,
+         update_time,
+         deleted)
+        values (#{taskId},
+                #{count},
+                #{result},
+                #{startTime},
+                null,
+                #{tenantId},
+                #{creatorId},
+                #{taskExecuteId},
+                now(),
+                #{updaterId},
+                now(),
+                0)
+    </insert>
+
+
+    <select id="countExecuteRecord" resultType="java.lang.Integer">
+        select count(*)
+        from schedule_task_execute
+        where deleted = 0
+          and task_execute_id = #{taskExecuteId}
+    </select>
+
+    <select id="getMaxBatch" resultType="java.lang.Integer">
+        select max(count)
+        from schedule_task_execute
+        where deleted = 0
+          and task_id = #{taskId}
+
+    </select>
+
+    <update id="updateExecuteStatus">
+        update
+            schedule_task_execute
+        set result      = #{entity.result},
+            end_time    = #{entity.endTime},
+            update_time = now()
+        where deleted = 0
+          and task_id = #{entity.taskId}
+          and task_execute_id = #{entity.taskExecuteId}
+    </update>
+
+    <select id="getTaskExecuteRecordList" resultType="com.iflytek.rpa.task.entity.dto.TaskExecuteDto">
+        select
+            id,
+            task_id,
+            count,
+            result,
+            start_time,
+            end_time,
+            task_execute_id
+        from schedule_task_execute
+        <where>
+            deleted = 0
+            and task_id = #{entity.taskId}
+            and creator_id = #{entity.creatorId}
+            and tenant_id = #{entity.tenantId}
+            order by count desc
+        </where>
+
+    </select>
+
+    <!-- 分页查询计划任务执行记录列表 -->
+    <select id="getTaskRecordList" resultMap="TaskRecordListVoMap">
+        select 
+            ste.task_execute_id,
+            ste.task_id,
+            ste.count,
+            tt.name as task_name,
+            tt.task_type,
+            ste.start_time  as task_start_time,
+            ste.end_time as task_end_time,
+            ste.result as task_status
+        from schedule_task_execute ste
+        inner join trigger_task tt on ste.task_id = tt.task_id
+        <where>
+            ste.deleted = 0
+            and ste.creator_id = #{dto.userId}
+            and ste.tenant_id = #{dto.tenantId}
+            <if test="dto.taskName != null and dto.taskName != ''">
+                and tt.name like concat('%', #{dto.taskName}, '%')
+            </if>
+            <if test="dto.startDate != null">
+                and ste.start_time &gt;= #{dto.startDate}
+            </if>
+            <if test="dto.endDate != null">
+                and ste.start_time &lt;= #{dto.endDate}
+            </if>
+            <if test="dto.status != null and dto.status != ''">
+                and ste.result = #{dto.status}
+            </if>
+            <if test="dto.taskType != null and dto.taskType != ''">
+                and tt.task_type = #{dto.taskType}
+            </if>
+        </where>
+        <choose>
+            <when test="dto.sortBy != null and dto.sortBy != ''">
+                <choose>
+                    <when test="dto.sortBy == 'startTime'">
+                        <if test="dto.sortType == 'asc'">
+                            order by ste.start_time asc
+                        </if>
+                        <if test="dto.sortType == 'desc'">
+                            order by ste.start_time desc
+                        </if>
+                    </when>
+                    <when test="dto.sortBy == 'endTime'">
+                        <if test="dto.sortType == 'asc'">
+                            order by ste.end_time asc
+                        </if>
+                        <if test="dto.sortType == 'desc'">
+                            order by ste.end_time desc
+                        </if>
+                    </when>
+                    <otherwise>
+                        order by ste.start_time desc
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by ste.start_time desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 批量逻辑删除计划任务执行记录 -->
+    <update id="batchDeleteByTaskExecuteIds">
+        update schedule_task_execute 
+        set deleted = 1, 
+            update_time = now(),
+            updater_id = #{userId}
+        where deleted = 0 and tenant_id = #{tenantId}
+          and task_execute_id in
+          <foreach collection="taskExecuteIdList" item="taskExecuteId" separator="," open="(" close=")">
+              #{taskExecuteId}
+          </foreach>
+    </update>
+
+    <!-- 查询超时的执行记录 -->
+    <select id="getTimeoutExecutingRecords" resultMap="ScheduleTaskExecuteMap">
+        select id
+        from schedule_task_execute
+        where deleted = 0
+          and result = 'executing'
+          and end_time is null
+          and start_time &lt; #{timeoutTime}
+    </select>
+
+    <!-- 根据ID列表更新执行记录为取消状态 -->
+    <update id="updateExecutingRecordsToCancelByIds">
+        update schedule_task_execute
+        set result = 'cancel',
+            end_time = now(),
+            update_time = now()
+        where id in
+        <foreach collection="idList" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>
+

@@ -1,0 +1,80 @@
+{
+  "build": {
+    "beforeDevCommand": "pnpm --filter @rpa/web-app run dev",
+    "beforeBuildCommand": "pnpm --filter @rpa/web-app run build",
+    "devPath": "http://localhost:1420/userform.html",
+    "distDir": "../../web-app/dist"
+  },
+  "package": {
+    "productName": "iflyrpa-window",
+    "version": "1.0.2"
+  },
+  "tauri": {
+    "allowlist": {
+      "fs": {
+        "all": true,
+        "readFile": true,
+        "readDir": true,
+        "copyFile": true,
+        "createDir": true,
+        "exists": true,
+        "scope": ["$HOME/AppData/Roaming/iflyrpa/Cache/chatData/*"]
+      },
+      "window": {
+        "all": true
+      },
+      "clipboard": {
+        "all": true
+      },
+      "globalShortcut": {
+        "all": true
+      },
+      "dialog": {
+        "all": true
+      },
+      "os": {
+        "all": true
+      },
+      "path": {
+        "all": true
+      }
+    },
+    "windows": [],
+    "security": {
+      "csp": null,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "windows": ["iflyrpa-window"],
+          "domain": "localhost",
+          "enableTauriAPI": true
+        }
+      ]
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "iflyrpa.org",
+      "icon": [
+        "../../../public/icons/32x32.png",
+        "../../../public/icons/128x128.png",
+        "../../../public/icons/256x256.png",
+        "../../../public/icons/icon.ico"
+      ],
+      "windows": {
+        "webviewInstallMode": {
+          "type": "embedBootstrapper"
+        },
+        "wix": {
+          "language": "zh-CN"
+        },
+        "nsis": {
+          "languages": ["SimpChinese", "English"],
+          "displayLanguageSelector": true
+        }
+      },
+      "resources": [
+        "resources/*"
+      ]
+    }
+  }
+}

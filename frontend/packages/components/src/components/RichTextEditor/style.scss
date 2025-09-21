@@ -1,0 +1,88 @@
+.tiptap {
+  --white: #fff;
+  --black: #2e2b29;
+  --black-contrast: #110f0e;
+  --gray-1: rgba(61, 37, 20, 0.05);
+  --gray-2: rgba(61, 37, 20, 0.08);
+  --gray-3: rgba(61, 37, 20, 0.12);
+  --gray-4: rgba(53, 38, 28, 0.3);
+  --gray-5: rgba(28, 25, 23, 0.6);
+  --green: #22c55e;
+  --purple: #6a00f5;
+  --purple-contrast: #5800cc;
+  --purple-light: rgba(88, 5, 255, 0.05);
+  --yellow-contrast: #facc15;
+  --yellow: rgba(250, 204, 21, 0.4);
+  --yellow-light: #fffae5;
+  --red: #ff5c33;
+  --red-light: #ffebe5;
+  --shadow: 0px 12px 33px 0px rgba(0, 0, 0, 0.06), 0px 3.618px 9.949px 0px rgba(0, 0, 0, 0.04);
+
+  outline: none;
+  min-height: 100%;
+
+  :first-child {
+    margin-top: 0;
+  }
+
+  /* Table-specific styling */
+  table {
+    border-collapse: collapse;
+    margin: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+
+    td,
+    th {
+      border: 1px solid var(--gray-3);
+      box-sizing: border-box;
+      min-width: 1em;
+      padding: 6px 8px;
+      position: relative;
+      vertical-align: top;
+
+      > * {
+        margin-bottom: 0;
+      }
+    }
+
+    th {
+      background-color: var(--gray-1);
+      font-weight: bold;
+      text-align: left;
+    }
+
+    .selectedCell:after {
+      background: var(--gray-2);
+      content: '';
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      pointer-events: none;
+      position: absolute;
+      z-index: 2;
+    }
+
+    .column-resize-handle {
+      background-color: var(--purple);
+      bottom: -2px;
+      pointer-events: none;
+      position: absolute;
+      right: -2px;
+      top: 0;
+      width: 4px;
+    }
+  }
+
+  .tableWrapper {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  &.resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
+  }
+}

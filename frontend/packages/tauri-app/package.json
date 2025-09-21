@@ -1,0 +1,25 @@
+{
+  "name": "@rpa/tauri-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm build:sdk && tauri dev",
+    "dev:web": "pnpm --filter @rpa/web-app run dev",
+    "build": "pnpm build:sdk && tauri build",
+    "build:sdk": "node ./scripts/build-sdk.js",
+    "build:web": "pnpm --filter @rpa/web-app run build",
+    "build:web:debug": "pnpm --filter @rpa/web-app run build:debug",
+    "build:updater": "pnpm build:sdk && env-cmd -e updater -- tauri build -c src-tauri/tauri.conf.updater.json",
+    "build:debug": "pnpm build:sdk && tauri build -c src-tauri/tauri.conf.debug.json --debug"
+  },
+  "dependencies": {
+    "@rpa/types": "workspace:*",
+    "@tauri-apps/api": "^1.6.0"
+  },
+  "devDependencies": {
+    "@rpa/web-app": "workspace:*",
+    "@tauri-apps/cli": "^1.6.3",
+    "cross-env": "^7.0.3"
+  }
+}

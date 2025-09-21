@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CElementDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.CElement" id="CElementMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="groupId" column="group_id" jdbcType="VARCHAR"/>
+        <result property="elementId" column="element_id" jdbcType="VARCHAR"/>
+        <result property="elementName" column="element_name" jdbcType="VARCHAR"/>
+        <result property="commonSubType" column="common_sub_type" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+        <result property="imageId" column="image_id" jdbcType="VARCHAR"/>
+        <result property="elementData" column="element_data" jdbcType="VARCHAR"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="parentImageId" column="parent_image_id" jdbcType="VARCHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="insertElement">
+        insert into c_element(group_id,
+                              element_id,
+                              element_name,
+                              common_sub_type,
+                              icon,
+                              image_id,
+                              element_data,
+                              deleted,
+                              creator_id,
+                              create_time,
+                              updater_id,
+                              update_time,
+                              parent_image_id,
+                              robot_id,
+                              robot_version)
+        values (#{groupId},
+                #{elementId},
+                #{elementName},
+                #{commonSubType},
+                #{icon},
+                #{imageId},
+                #{elementData},
+                0,
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                #{parentImageId},
+                #{robotId},
+                #{robotVersion})
+    </insert>
+
+    <select id="getElementSameName" resultMap="CElementMap">
+        select ce.*
+        from c_element ce
+        where EXISTS (SELECT 1
+                      from c_group cg
+                      where cg.deleted = 0
+                        and cg.robot_id = #{robotId}
+                        and cg.robot_version = #{robotVersion}
+                        and cg.group_id = ce.group_id
+                        and cg.element_type = #{elementType})
+          and ce.deleted = 0
+          and ce.robot_id = #{robotId}
+          and ce.robot_version = #{robotVersion}
+          and ce.element_name = #{elementName}
+          and ce.element_id != #{elementId}
+            limit 1
+    </select>
+
+    <select id="getElementNameList" resultType="java.lang.String">
+        select element_name
+        from c_element
+        where deleted = 0
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and creator_id = #{creatorId}
+          and element_name like concat(#{elementName}, '%')
+    </select>
+
+    <update id="updateElement">
+        update c_element
+        set
+        <if test="groupId != null and groupId != ''">
+            group_id = #{groupId},
+        </if>
+        <if test="elementName != null and elementName != ''">
+            element_name = #{elementName},
+        </if>
+        <if test="icon != null and icon != ''">
+            icon = #{icon},
+        </if>
+        <if test="imageId != null and imageId != ''">
+            image_id = #{imageId},
+        </if>
+        <if test="elementData != null and elementData != ''">
+            element_data = #{elementData},
+        </if>
+        <if test="updaterId != null">
+            updater_id = #{updaterId},
+        </if>
+        <if test="parentImageId != null and parentImageId != ''">
+            parent_image_id = #{parentImageId},
+        </if>
+        update_time = now()
+        where
+        deleted = 0
+        and robot_id = #{robotId}
+        and robot_version = #{robotVersion}
+        and creator_id = #{creatorId}
+        and element_id = #{elementId}
+    </update>
+
+
+    <insert id="copyElement">
+        insert into c_element
+        (group_id,
+         element_id,
+         element_name,
+         icon,
+         image_id,
+         element_data,
+         deleted,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         parent_image_id,
+         robot_id,
+         robot_version)
+        select group_id,
+               #{newElementId},
+               #{entity.elementName},
+               icon,
+               image_id,
+               element_data,
+               0,
+               creator_id,
+               now(),
+               updater_id,
+               now(),
+               parent_image_id,
+               robot_id,
+               #{entity.robotVersion}
+        from c_element
+        where robot_id = #{entity.robotId}
+          and robot_version = #{entity.robotVersion}
+          and deleted = 0
+          and element_id = #{entity.elementId}
+    </insert>
+
+
+    <update id="deleteElementOrImage">
+        update c_element
+        set deleted = 1
+        where robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and creator_id = #{creatorId}
+          and element_id = #{elementId}
+          and deleted = 0
+    </update>
+
+
+    <insert id="createElementForCurrentVersion">
+        insert into c_element
+        (group_id,
+         element_id,
+         element_name,
+         icon,
+         image_id,
+         element_data,
+         deleted,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         parent_image_id,
+         robot_id,
+         robot_version)
+        select group_id,
+               element_id,
+               element_name,
+               icon,
+               image_id,
+               element_data,
+               deleted,
+               creator_id,
+               now(),
+               updater_id,
+               now(),
+               parent_image_id,
+               robot_id,
+               #{version}
+        from c_element
+        where robot_id = #{robotId}
+          and robot_version = 0
+          and creator_id = #{creatorId}
+          and deleted = 0
+    </insert>
+
+
+    <insert id="createElementForObtainedVersion">
+        insert into c_element
+        (group_id,
+         element_id,
+         element_name,
+         icon,
+         image_id,
+         element_data,
+         deleted,
+         creator_id,
+         create_time,
+         updater_id,
+         update_time,
+         parent_image_id,
+         robot_id,
+         robot_version)
+        select group_id,
+               element_id,
+               element_name,
+               icon,
+               image_id,
+               element_data,
+               0,
+               #{obtainedRobotDesign.creatorId},
+               now(),
+               #{obtainedRobotDesign.updaterId},
+               now(),
+               parent_image_id,
+               #{obtainedRobotDesign.robotId},
+               0
+        from c_element
+        where robot_id = #{authorRobotVersion.robotId}
+          and robot_version = #{authorRobotVersion.version}
+          and creator_id = #{authorRobotVersion.creatorId}
+    </insert>
+
+
+    <select id="getElementByElementId" resultMap="CElementMap">
+        select *
+        from c_element
+        where element_id = #{elementId}
+          and deleted = 0
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion} limit 1
+    </select>
+
+
+    <insert id="insertEleBatch">
+        insert into c_element(
+        group_id,
+        element_id,
+        element_name,
+        icon,
+        image_id,
+        element_data,
+        deleted,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        parent_image_id,
+        robot_id,
+        robot_version
+        )
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+            #{entity.groupId},
+            #{entity.elementId},
+            #{entity.elementName},
+            #{entity.icon},
+            #{entity.imageId},
+            #{entity.elementData},
+            #{entity.deleted},
+            #{entity.creatorId},
+            #{entity.createTime},
+            #{entity.updaterId},
+            #{entity.updateTime},
+            #{entity.parentImageId},
+            #{entity.robotId},
+            #{entity.robotVersion}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="getElementInfo" resultMap="CElementMap">
+        select id,
+               group_id,
+               element_id,
+               element_name,
+               icon,
+               image_id,
+               parent_image_id,
+               robot_id,
+               robot_version
+        from c_element
+        where robot_id = #{robotId}
+          and robot_version = #{version}
+          and deleted = 0
+
+    </select>
+
+
+    <update id="deleteByGroupId">
+        update c_element
+        set deleted     = 1,
+            update_time = now()
+        where deleted = 0
+          and group_id = #{groupId}
+          and creator_id = #{creatorId}
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+    </update>
+
+    <select id="getElementsByGroupIds" resultMap="CElementMap">
+        select group_id,
+        element_id,
+        element_name,
+        common_sub_type,
+        image_id,
+        parent_image_id
+        from c_element
+        where
+        deleted = 0
+        and robot_id = #{entity.robotId}
+        and robot_version = #{entity.robotVersion}
+        and group_id in
+        <foreach collection="groupIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by update_time asc
+    </select>
+
+
+</mapper>
+

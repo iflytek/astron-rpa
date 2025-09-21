@@ -1,0 +1,304 @@
+.dialog-tag-input-hr {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  cursor: pointer;
+}
+.dialog-tag-input-hr::before {
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: 10px;
+  height: 21px;
+  line-height: 21px;
+  border-radius: 5px;
+  padding: 0 5px;
+  border: 1px solid #ccc;
+  content: attr(data-name);
+}
+
+.dialog-modal {
+  .ant-modal-header {
+    .ant-modal-title {
+      padding-left: 15px;
+    }
+  }
+  .ant-modal-content {
+    padding: 15px 0 5px 0;
+  }
+  &_container {
+    display: flex;
+    height: 450px;
+  }
+
+  .header {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  .list-empty-items {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  &_formItems {
+    width: 232px;
+
+    .formItems,
+    .form-item-preview {
+      padding: 10px 16px;
+    }
+
+    .formItemList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .form-item {
+        display: inline-block;
+        width: calc(50% - 8px / 2);
+        padding: 5px 10px;
+        text-align: center;
+        font-size: 12px;
+        cursor: -webkit-grab;
+        font-weight: 400;
+        transition: all 0.1s ease;
+      }
+    }
+
+    .form-item-preview {
+      .header {
+        padding-bottom: 8px;
+      }
+
+      .preview-empty {
+        height: 112px;
+        font-size: 12px;
+        color: #ccc;
+      }
+    }
+  }
+
+  .dialog-file {
+    position: relative;
+
+    .ant-input {
+      padding-right: 25px;
+    }
+
+    .pointer {
+      position: absolute;
+      right: 10px;
+      top: 5px;
+    }
+  }
+
+  .dialog-file-folder {
+    position: relative;
+
+    .ant-input {
+      padding-right: 25px;
+    }
+
+    .anticon-ellipsis {
+      position: absolute;
+      right: 8px;
+      top: 10px;
+    }
+  }
+
+  .ant-calendar-picker {
+    width: 100%;
+  }
+
+  .ant-input {
+    font-size: 12px;
+
+    &::placeholder {
+      font-size: 12px;
+    }
+  }
+
+  .ant-select-selection__placeholder {
+    font-size: 12px;
+  }
+
+  &_main {
+    padding: 10px 0;
+    width: 300px;
+
+    .container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-width: 1px;
+      border-style: dashed;
+      border-radius: 8px;
+    }
+
+    .list {
+      &-items {
+        flex: 1;
+        margin-left: 0;
+        overflow-y: auto;
+        position: relative;
+        padding-bottom: 30px;
+        padding: 8px;
+
+        .item {
+          padding: 8px;
+          border: 1px solid transparent;
+          border-radius: 4px;
+          position: relative;
+          cursor: pointer;
+          transition: all 0.1s ease;
+
+          .name {
+            margin-bottom: 5px;
+            font-size: 13px;
+            .starRequired {
+              color: red;
+              font-size: 14px;
+              display: inline-block;
+              height: 14px;
+              line-height: 14px;
+            }
+          }
+
+          .ant-input[disabled],
+          .ant-select-disabled .ant-select-selection,
+          .ant-time-picker-input[disabled] {
+            color: rgba(0, 0, 0, 0.65);
+            background-color: #fff;
+            cursor: pointer;
+          }
+
+          &.active {
+            border-color: $color-primary;
+
+            .name {
+              color: $color-primary;
+            }
+          }
+        }
+
+        > .sortable-ghost {
+          border-top: 2px solid $color-primary;
+          border-radius: 0;
+
+          span {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: right;
+      margin: 8px;
+
+      .ant-input {
+        width: 80px;
+        text-align: center;
+      }
+
+      .okTextInput {
+        color: #fff;
+        background-color: #548aff;
+        border-color: #548aff;
+        box-shadow: none;
+        margin-left: 10px;
+      }
+
+      .cancleTextInput {
+        color: rgba(0, 0, 0, 0.65);
+        background-color: #fff;
+        border-color: #d9d9d9;
+        box-shadow: none;
+      }
+    }
+  }
+
+  &_attrs {
+    width: 256px;
+    padding: 10px 16px;
+    overflow: hidden;
+    overflow-y: auto;
+    .ant-empty {
+      margin: 120px auto;
+    }
+
+    .title {
+      .anticon-question-circle {
+        margin-left: 5px;
+        color: #aaa;
+        cursor: pointer;
+        font-size: 12px;
+      }
+    }
+
+    .ant-tabs .ant-tabs-top-content > .ant-tabs-tabpane {
+      padding: 0 15px;
+      overflow-y: auto;
+      max-height: 340px;
+    }
+
+    .tagsInput {
+      margin-left: 0;
+
+      .tags-suffix {
+        right: -4px;
+      }
+    }
+  }
+
+  &_footer {
+    height: 50px;
+    line-height: 50px;
+    text-align: right;
+
+    .ant-btn {
+      margin-right: 10px;
+    }
+  }
+
+  .attr {
+    margin-bottom: 10px;
+
+    .title {
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .ant-select-selection--multiple .ant-select-selection__clear,
+    .ant-select-selection--multiple .ant-select-arrow {
+      top: 12px;
+    }
+
+    .select-options {
+      position: relative;
+
+      .ant-input {
+        padding-right: 30px;
+      }
+
+      .textarea-icon {
+        position: absolute;
+        right: 4px;
+      }
+    }
+  }
+
+  .ant-modal-body {
+    padding: 0;
+  }
+
+  .ant-form label {
+    font-size: $font-size-sm;
+  }
+}

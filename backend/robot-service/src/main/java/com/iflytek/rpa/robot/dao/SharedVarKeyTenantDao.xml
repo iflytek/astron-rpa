@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.SharedVarKeyTenantDao">
+
+    <!-- 批量插入租户密钥 -->
+    <insert id="insertBatch">
+        INSERT INTO shared_var_key_tenant (id, tenant_id, `key`, deleted)
+        VALUES
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.tenantId}, #{entity.key}, #{entity.deleted})
+        </foreach>
+    </insert>
+
+    <!-- 根据租户ID查询密钥 -->
+    <select id="selectByTenantId" resultType="com.iflytek.rpa.robot.entity.SharedVarKeyTenant">
+        SELECT id, tenant_id, `key`, deleted
+        FROM shared_var_key_tenant
+        WHERE tenant_id = #{tenantId}
+          AND deleted = 0 LIMIT 1
+    </select>
+
+</mapper>

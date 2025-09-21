@@ -1,0 +1,263 @@
+name: rpa-opensource-studio
+x-env-file: &env_file
+  - .env
+
+services:
+  mysql:
+    image: mysql:8.4.6
+    container_name: rpa-opensource-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+    env_file: *env_file
+    # ports:
+    #   - "${DATABASE_PORT}:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./volumes/mysql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./volumes/mysql/init_app_market_dict_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql
+      - ./volumes/mysql/init_c_atom_meta_data.sql:/docker-entrypoint-initdb.d/03-init_data.sql
+      - ./volumes/mysql/init_his_data_enum_data.sql:/docker-entrypoint-initdb.d/04-init_data.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u${DATABASE_USERNAME}',
+          '-p${DATABASE_PASSWORD}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - rpa-opensource-network
+
+  redis:
+    image: bitnami/redis:8.0
+    container_name: rpa-opensource-redis
+    restart: always
+    user: root
+    privileged: true
+    env_file: *env_file
+    environment:
+      - REDIS_AOF_ENABLED=no
+      - REDIS_PORT_NUMBER=${REDIS_PORT}
+      - REDIS_IO_THREADS=4
+      - ALLOW_EMPTY_PASSWORD=yes
+    # ports:
+    #   - "${REDIS_PORT}:6379"
+    volumes:
+      - ./data/bitnami/redis:/bitnami/redis/data:rw,Z
+    command: >
+      bash -c "
+        /opt/bitnami/scripts/redis/setup.sh
+        # Set proper permissions for data directories
+        chown -R redis:redis /bitnami/redis/data
+        chmod g+s /bitnami/redis/data
+
+        exec /opt/bitnami/scripts/redis/entrypoint.sh /opt/bitnami/scripts/redis/run.sh
+      "
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    networks:
+      - rpa-opensource-network
+  
+  minio:
+    image: minio/minio:RELEASE.2025-06-13T11-33-47Z-cpuv1
+    container_name: rpa-opensource-minio
+    user: root
+    privileged: true
+    restart: always
+    env_file: *env_file
+    # ports:
+    #   - "9000:9000"
+    #   - "9001:9001"
+    volumes:
+      - ./data/minio:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_AK}
+      MINIO_ROOT_PASSWORD: ${MINIO_SK}
+      MINIO_DEFAULT_BUCKETS: ${MINIO_BUCKET}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        # Run initialization in background
+        (
+          # Wait for MinIO to be ready
+          until (/usr/bin/mc alias set localminio http://localhost:9000 ${MINIO_AK} ${MINIO_SK}) do
+            echo "Waiting for MinIO to be ready..."
+            sleep 1
+          done
+
+          # Create bucket
+          /usr/bin/mc mb --ignore-existing localminio/${MINIO_BUCKET}
+
+          echo "MinIO initialization complete."
+        ) &
+
+        # Start minio server in foreground
+        exec minio server /data --console-address ":9001"
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          '/usr/bin/mc alias set health_check http://localhost:9000 ${MINIO_AK} ${MINIO_SK} && /usr/bin/mc ready health_check',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - rpa-opensource-network
+  
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: rpa-opensource-nginx
+    restart: always
+    ports:
+      - "32742:80"
+    volumes:
+      - ./volumes/nginx:/etc/nginx/conf.d:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - resource-service
+      - robot-service
+      - ai-service
+      - openapi-service
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - rpa-opensource-network
+
+  casdoor:
+    image: casbin/casdoor:latest
+    container_name: rpa-opensource-casdoor
+    restart: always
+    env_file: *env_file
+    environment:
+      - driverName=mysql
+      - dataSourceName=${DATABASE_USERNAME}:${DATABASE_PASSWORD}@tcp(${DATABASE_HOST}:${DATABASE_PORT})/
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./volumes/casdoor/init_data_dump.json:/init_data.json
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - rpa-opensource-network
+
+  ai-service:
+    build:
+      context: ..
+      dockerfile: backend/ai-service/Dockerfile
+    container_name: rpa-opensource-ai-service
+    restart: always
+    env_file: *env_file
+    environment:
+      - DATABASE_URL=mysql+aiomysql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@mysql:3306/${DATABASE_NAME}
+      - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
+      - AICHAT_BASE_URL=${AICHAT_BASE_URL}
+      - AICHAT_API_KEY=${AICHAT_API_KEY}
+    # ports:
+    #   - "8010:8010"
+    volumes:
+      - ../backend/ai-service/app:/app/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    networks:
+      - rpa-opensource-network
+
+  openapi-service:
+    build:
+      context: ..
+      dockerfile: backend/openapi-service/Dockerfile
+    container_name: rpa-opensource-openapi-service
+    restart: always
+    env_file: *env_file
+    environment:
+      - DATABASE_URL=mysql+aiomysql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@mysql:3306/${DATABASE_NAME}
+      - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
+      - AICHAT_BASE_URL=${AICHAT_BASE_URL}
+      - AICHAT_API_KEY=${AICHAT_API_KEY}
+    # ports:
+    #   - "8020:8020"
+    volumes:
+      - ../backend/openapi-service/app:/app/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    networks:
+      - rpa-opensource-network
+
+  resource-service:
+    build:
+      context: ..
+      dockerfile: backend/resource-service/Dockerfile
+    container_name: rpa-opensource-resource-service
+    restart: always
+    env_file: *env_file
+    # ports:
+    #   - "8030:8030"
+    volumes:
+      - ./logs/resource-service:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    networks:
+      - rpa-opensource-network
+
+  robot-service:
+    build:
+      context: ..
+      dockerfile: backend/robot-service/Dockerfile
+    container_name: rpa-opensource-robot-service
+    restart: always
+    env_file: *env_file
+    # ports:
+    #   - "8040:8040"
+    volumes:
+      - ./logs/robot-service:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    networks:
+      - rpa-opensource-network
+
+networks:
+  rpa-opensource-network:
+    driver: bridge

@@ -1,0 +1,10 @@
+.idea/
+__pycache__/
+logs/
+dist/
+*.egg-info/
+build/
+whl_cache
+cache/
+pip_cache/
+secure/

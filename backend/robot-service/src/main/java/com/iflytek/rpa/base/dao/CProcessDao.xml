@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CProcessDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.CProcess" id="CProcessMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="processId" column="process_id" jdbcType="VARCHAR"/>
+        <result property="processContent" column="process_content" jdbcType="VARCHAR"/>
+        <result property="processName" column="process_name" jdbcType="VARCHAR"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <update id="deleteProcessByProcessId">
+        UPDATE c_process
+        SET deleted = 1
+        WHERE process_id = #{processId}
+          AND creator_id = #{creatorId}
+          AND deleted = 0
+    </update>
+
+    <select id="countProcessByName" resultType="java.lang.Integer">
+        select count(1)
+        from c_process
+        where robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and process_name = #{processName}
+          and creator_id = #{creatorId}
+          and deleted = 0
+    </select>
+
+    <update id="renameProcess">
+        update
+            c_process
+        set process_name = #{processName},
+            update_time  = now()
+        where process_id = #{processId}
+          and creator_id = #{creatorId}
+          and deleted = 0
+    </update>
+
+
+    <select id="getAllProcessDataByRobotId" resultMap="CProcessMap">
+        select id,
+               process_id,
+               process_content,
+               process_name,
+               robot_id,
+               robot_version
+        from c_process
+        where robot_id = #{robotId}
+          and robot_version = #{version}
+          and deleted = 0
+    </select>
+
+
+    <insert id="createProcessForCurrentVersion">
+        insert into c_process(process_id,
+                              process_content,
+                              process_name,
+                              deleted,
+                              creator_id,
+                              create_time,
+                              updater_id,
+                              update_time,
+                              robot_id,
+                              robot_version)
+        select process_id,
+               process_content,
+               process_name,
+               deleted,
+               creator_id,
+               now(),
+               updater_id,
+               now(),
+               robot_id,
+               #{version}
+        from c_process
+        where robot_id = #{robotId}
+          and creator_id = #{creatorId}
+          and robot_version = 0
+          and deleted = 0
+    </insert>
+
+
+    <insert id="createProcessForObtainedVersion">
+        insert into c_process(process_id,
+                              process_content,
+                              process_name,
+                              deleted,
+                              creator_id,
+                              create_time,
+                              updater_id,
+                              update_time,
+                              robot_id,
+                              robot_version)
+        select process_id,
+               process_content,
+               process_name,
+               0,
+               #{obtainedRobotDesign.creatorId},
+               now(),
+               #{obtainedRobotDesign.updaterId},
+               now(),
+               #{obtainedRobotDesign.robotId},
+               0
+        from c_process
+        where robot_id = #{authorRobotVersion.robotId}
+          and robot_version = #{authorRobotVersion.version}
+          and creator_id = #{authorRobotVersion.creatorId}
+    </insert>
+
+
+    <insert id="createProcess" keyProperty="id" useGeneratedKeys="true">
+        insert into c_process(process_id,
+                              process_content,
+                              process_name,
+                              deleted,
+                              creator_id,
+                              create_time,
+                              updater_id,
+                              update_time,
+                              robot_id,
+                              robot_version)
+        values (#{processId},
+                #{processContent},
+                #{processName},
+                0,
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                #{robotId},
+                #{robotVersion})
+    </insert>
+
+
+    <!--    <update id="updateProcessForVersionZero">-->
+    <!--        <foreach collection="entities" item="entity" separator=";">-->
+    <!--            update c_process-->
+    <!--            set-->
+    <!--                project_id = #{entity.projectId},-->
+    <!--                process_id = #{entity.processId},-->
+    <!--                process_content = #{entity.processContent},-->
+    <!--                process_name = #{entity.processName},-->
+    <!--                updater_id = #{entity.updaterId},-->
+    <!--                update_time = now(),-->
+    <!--                robot_id = #{entity.robotId},-->
+    <!--                robot_version = #{entity.robotVersion}-->
+    <!--            where id = #{entity.id}-->
+    <!--        </foreach>-->
+    <!--    </update>-->
+
+
+    <select id="getProcessIdList" resultType="java.lang.String">
+        select process_id
+        from c_process
+        where robot_id = #{robotId}
+          and creator_id = #{userId}
+          and robot_version = 0
+          and deleted = 0
+    </select>
+
+
+    <update id="updateProcessContent">
+        update c_process
+        set process_content = #{process.processJson},
+            update_time     = now()
+        where robot_id = #{process.robotId}
+          and robot_version = #{process.robotVersion}
+          and process_id = #{process.processId}
+          and creator_id = #{process.creatorId}
+          and deleted = 0
+
+    </update>
+
+    <select id="getProcessById" resultMap="CProcessMap">
+        select *
+        from c_process
+        where robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and process_id = #{processId}
+          and deleted = 0
+    </select>
+
+    <select id="getProcessNameList" resultMap="CProcessMap">
+        select robot_id,
+               process_id,
+               process_name
+        from c_process
+        where robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and deleted = 0
+        order by create_time asc
+    </select>
+
+
+    <insert id="insertProcessBatch">
+        insert into c_process(
+        process_id,
+        process_content,
+        process_name,
+        deleted,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        robot_id,
+        robot_version
+        )
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+            #{entity.processId},
+            #{entity.processContent},
+            #{entity.processName},
+            #{entity.deleted},
+            #{entity.creatorId},
+            #{entity.createTime},
+            #{entity.updaterId},
+            #{entity.updateTime},
+            #{entity.robotId},
+            #{entity.robotVersion}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="getProcessNameListByPrefix" resultType="java.lang.String">
+        select process_name
+        from c_process
+        where robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and deleted = 0
+          and process_name like concat(#{name}, '%')
+        order by create_time asc
+    </select>
+
+
+</mapper>
+

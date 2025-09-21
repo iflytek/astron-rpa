@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.SharedVarDao">
+
+    <resultMap id="sharedSubVarVoMap" type="com.iflytek.rpa.robot.entity.vo.SharedSubVarVo">
+        <id property="id" column="id"/>
+        <result property="sharedVarId" column="shared_var_id"/>
+        <result property="varName" column="var_name"/>
+        <result property="varType" column="var_type"/>
+        <result property="varValue" column="var_value"/>
+        <result property="encrypt" column="encrypt"/>
+    </resultMap>
+
+    <select id="getSubVarListBySharedVarIds" resultMap="sharedSubVarVoMap">
+        SELECT
+        id,
+        shared_var_id,
+        var_name,
+        var_type,
+        var_value,
+        encrypt
+        FROM shared_sub_var
+        WHERE deleted = 0
+        AND shared_var_id IN
+        <foreach collection="sharedVarIds" item="sharedVarId" open="(" close=")" separator=",">
+            #{sharedVarId}
+        </foreach>
+        ORDER BY id ASC
+    </select>
+
+    <select id="getUserListBySharedVarIds" resultType="com.iflytek.rpa.robot.entity.SharedVarUser">
+        SELECT
+        id,
+        shared_var_id,
+        user_id,
+        user_name,
+        user_phone
+        FROM shared_var_user
+        WHERE deleted = 0
+        AND shared_var_id IN
+        <foreach collection="sharedVarIds" item="sharedVarId" open="(" close=")" separator=",">
+            #{sharedVarId}
+        </foreach>
+        ORDER BY id ASC
+    </select>
+    <select id="getAllTenantId" resultType="java.lang.String">
+        select id
+        from ${databaseName}.t_uap_tenant
+        where is_delete = 0
+          and id != 'default-tenant'
+    </select>
+
+    <select id="getAvailableSharedVars" resultType="com.iflytek.rpa.robot.entity.SharedVar">
+        SELECT *
+        FROM shared_var
+        WHERE tenant_id = #{tenantId}
+        AND deleted = 0
+        AND status = 1
+        AND (usage_type = 'all'
+        <if test="deptId != null and deptId != ''">
+            OR (usage_type = 'dept' AND dept_id = #{deptId})
+        </if>
+        <if test="selectVarIds != null and selectVarIds.size() > 0">
+            OR (usage_type = 'select' AND id IN
+            <foreach collection="selectVarIds" item="selectVarId" open="(" close=")" separator=",">
+                #{selectVarId}
+            </foreach>
+            )
+        </if>
+        )
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="getAvailableByIds" resultType="com.iflytek.rpa.robot.entity.SharedVar">
+        SELECT *
+        FROM shared_var
+        WHERE deleted = 0
+        <if test="ids != null and ids.size() > 0">
+            and (id IN
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            )
+        </if>
+    </select>
+
+</mapper> 

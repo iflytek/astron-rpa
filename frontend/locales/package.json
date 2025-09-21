@@ -1,0 +1,9 @@
+{
+  "name": "@rpa/locales",
+  "private": true,
+  "version": "1.0.0",
+  "exports": {
+    "./zh-CN.json": "./zh-CN.json",
+    "./en-US.json": "./en-US.json"
+  }
+}

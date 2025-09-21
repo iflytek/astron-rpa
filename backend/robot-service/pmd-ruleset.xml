@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<ruleset name="Java Code Quality Ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        Custom PMD ruleset for Java code quality analysis
+        Focuses on best practices, performance, and maintainability
+    </description>
+
+    <!-- Best Practices Rules -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Exclude rules that might be too strict for simple projects -->
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+        <exclude name="GuardLogStatement"/>
+        <exclude name="SystemPrintln"/>
+    </rule>
+
+    <!-- Code Style Rules -->
+    <rule ref="category/java/codestyle.xml">
+        <!-- Exclude overly strict style rules -->
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="CallSuperInConstructor"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="DefaultPackage"/>
+        <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
+        <exclude name="LinguisticNaming"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="ShortClassName"/>
+        <exclude name="ShortMethodName"/>
+        <exclude name="ShortVariable"/>
+        <exclude name="TooManyStaticImports"/>
+    </rule>
+
+    <!-- Design Rules -->
+    <rule ref="category/java/design.xml">
+        <!-- Exclude some design rules that might be too restrictive -->
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
+        <exclude name="UseUtilityClass"/>
+    </rule>
+
+    <!-- Error Prone Rules -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- Exclude rules that might give false positives -->
+        <exclude name="DataflowAnomalyAnalysis"/>
+        <exclude name="NullAssignment"/>
+    </rule>
+
+    <!-- Performance Rules -->
+    <rule ref="category/java/performance.xml"/>
+
+    <!-- Security Rules -->
+    <rule ref="category/java/security.xml"/>
+
+    <!-- Custom rule configurations -->
+    
+    <!-- Complexity Rules with Custom Thresholds -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="methodReportLevel" value="10"/>
+            <property name="classReportLevel" value="40"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="7"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/TooManyMethods">
+        <properties>
+            <property name="maxmethods" value="20"/>
+        </properties>
+    </rule>
+
+    <!-- Naming Rules -->
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions">
+        <properties>
+            <property name="classPattern" value="[A-Z][a-zA-Z0-9]*"/>
+            <property name="abstractClassPattern" value="Abstract[A-Z][a-zA-Z0-9]*"/>
+            <property name="interfacePattern" value="[A-Z][a-zA-Z0-9]*"/>
+            <property name="enumPattern" value="[A-Z][a-zA-Z0-9]*"/>
+            <property name="annotationPattern" value="[A-Z][a-zA-Z0-9]*"/>
+            <property name="utilityClassPattern" value="[A-Z][a-zA-Z0-9]*"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+        <properties>
+            <property name="methodPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="staticPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="nativePattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="junit3TestPattern" value="test[A-Z0-9][a-zA-Z0-9]*"/>
+            <property name="junit4TestPattern" value="[a-z][a-zA-Z0-9]*"/>
+            <property name="junit5TestPattern" value="[a-z][a-zA-Z0-9]*"/>
+        </properties>
+    </rule>
+
+    <!-- Documentation Rules -->
+    <rule ref="category/java/documentation.xml/CommentRequired">
+        <properties>
+            <property name="methodWithOverrideCommentRequirement" value="Ignored"/>
+            <property name="accessorCommentRequirement" value="Ignored"/>
+            <property name="classCommentRequirement" value="Required"/>
+            <property name="fieldCommentRequirement" value="Ignored"/>
+            <property name="publicMethodCommentRequirement" value="Required"/>
+            <property name="protectedMethodCommentRequirement" value="Ignored"/>
+            <property name="enumCommentRequirement" value="Ignored"/>
+            <property name="serialVersionUIDCommentRequired" value="Ignored"/>
+        </properties>
+    </rule>
+    
+
+</ruleset>

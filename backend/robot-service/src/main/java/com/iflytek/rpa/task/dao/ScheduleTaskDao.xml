@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.task.dao.ScheduleTaskDao">
+
+    <resultMap type="com.iflytek.rpa.task.entity.ScheduleTask" id="ScheduleTaskMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="exceptionHandleWay" column="exception_handle_way" jdbcType="VARCHAR"/>
+        <result property="runMode" column="run_mode" jdbcType="VARCHAR"/>
+        <result property="cycleFrequency" column="cycle_frequency" jdbcType="INTEGER"/>
+        <result property="cycleNum" column="cycle_num" jdbcType="VARCHAR"/>
+        <result property="cycleUnit" column="cycle_unit" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="scheduleType" column="schedule_type" jdbcType="VARCHAR"/>
+        <result property="scheduleRule" column="schedule_rule" jdbcType="VARCHAR"/>
+        <result property="startAt" column="start_at" jdbcType="TIMESTAMP"/>
+        <result property="endAt" column="end_at" jdbcType="TIMESTAMP"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="enableQueueExecution" column="enable_queue_execution" jdbcType="INTEGER"/>
+        <result property="cronExpression" column="cron_expression" jdbcType="VARCHAR"/>
+        <result property="lastTime" column="last_time" jdbcType="TIMESTAMP"/>
+        <result property="nextTime" column="next_time" jdbcType="TIMESTAMP"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="pullTime" column="pull_time" jdbcType="TIMESTAMP"/>
+        <result property="logEnable" column="log_enable" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getTaskList" resultMap="ScheduleTaskMap">
+        select
+        *
+        from
+        schedule_task
+        <where>
+            deleted = 0
+            <if test="entity.name != null and entity.name != ''">
+                and name like concat('%', #{entity.name}, '%')
+            </if>
+            <if test="entity.userId != null and entity.userId != ''">
+                and creator_id = #{entity.userId}
+            </if>
+            <choose>
+                <when test="entity.sortBy !=null and entity.sortBy != ''">
+                    <if test="entity.sortType == 'descending'.toString()">
+                        order by ${entity.sortBy} desc
+                    </if>
+                    <if test="entity.sortType == 'ascending'.toString() ">
+                        order by ${entity.sortBy} asc
+                    </if>
+                </when>
+                <otherwise>
+                    order by create_time desc
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+
+    <insert id="createScheduleTask" keyProperty="id" useGeneratedKeys="true">
+        insert into schedule_task(task_id,
+                                  name,
+                                  description,
+                                  exception_handle_way,
+                                  run_mode,
+                                  cycle_frequency,
+                                  cycle_num,
+                                  cycle_unit,
+                                  status,
+                                  enable,
+                                  schedule_type,
+                                  schedule_rule,
+                                  start_at,
+                                  end_at,
+                                  tenant_id,
+                                  enable_queue_execution,
+                                  cron_expression,
+                                  last_time,
+                                  next_time,
+                                  creator_id,
+                                  create_time,
+                                  updater_id,
+                                  update_time,
+                                  deleted, pull_time)
+        values (#{taskId},
+                #{name},
+                #{description},
+                #{exceptionHandleWay},
+                #{runMode},
+                #{cycleFrequency},
+                #{cycleNum},
+                #{cycleUnit},
+                #{status},
+                #{enable},
+                #{scheduleType},
+                #{scheduleRule},
+                #{startAt},
+                #{endAt},
+                #{tenantId},
+                #{enableQueueExecution},
+                #{cronExpression},
+                #{lastTime},
+                #{nextTime},
+                #{creatorId},
+                now(),
+                #{updaterId},
+                now(),
+                0,
+                #{pullTime})
+    </insert>
+
+    <update id="updateScheduleTask">
+        update schedule_task
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="exceptionHandleWay != null">
+                exception_handle_way = #{exceptionHandleWay},
+            </if>
+            <if test="runMode !=null">
+                run_mode = #{runMode},
+            </if>
+            <if test="cycleFrequency != null">
+                cycle_frequency = #{cycleFrequency},
+            </if>
+            <if test="cycleNum != null">
+                cycle_num = #{cycleNum},
+            </if>
+            <if test="cycleUnit != null">
+                cycle_unit = #{cycleUnit},
+            </if>
+            <if test="enable != null">
+                enable = #{enable},
+            </if>
+            <if test="scheduleType != null">
+                schedule_type = #{scheduleType},
+            </if>
+            <if test="scheduleRule != null">
+                schedule_rule = #{scheduleRule},
+            </if>
+            <if test="startAt != null">
+                start_at = #{startAt},
+            </if>
+            <if test="endAt != null">
+                end_at = #{endAt},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="enableQueueExecution != null">
+                enable_queue_execution = #{enableQueueExecution},
+            </if>
+            <if test="cronExpression != null">
+                cron_expression = #{cronExpression},
+            </if>
+            <if test="nextTime != null">
+                next_time = #{nextTime},
+            </if>
+            <if test="updaterId != null">
+                updater_id = #{updaterId},
+            </if>
+            update_time = now(),
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+        </set>
+        where
+        task_id = #{taskId}
+        and deleted = 0
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
+    </update>
+
+    <select id="queryCountByTaskId" resultType="java.lang.Integer">
+        select count(*)
+        from schedule_task
+        where task_id = #{taskId}
+          and deleted = 0
+    </select>
+
+
+    <select id="getTaskInfoByTaskId" resultMap="ScheduleTaskMap">
+        select *
+        from schedule_task
+        where task_id = #{taskId}
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and deleted = 0 limit 1
+    </select>
+
+    <select id="getTaskListOrderByNextTime" resultMap="ScheduleTaskMap">
+        select *
+        from schedule_task
+        where next_time &gt;= now()
+          and deleted = 0
+          and enable = 1
+        order by next_time asc limit 1
+    </select>
+
+
+    <update id="updateTask">
+        update
+            schedule_task
+        set
+            <if test="enable != null">
+            enable = #{enable},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="nextTime != null">
+                next_time = #{nextTime},
+            </if>
+            update_time = now()
+        where
+            deleted = 0
+        and task_id = #{taskId}
+    </update>
+
+
+    <select id="countByTaskName" resultType="java.lang.Integer">
+        select
+        count(1)
+        from
+        schedule_task
+        where
+        deleted = 0
+        and name = #{name}
+        <if test="taskId != null and taskId != ''">
+            and task_id != #{taskId}
+        </if>
+    </select>
+
+    <select id="countTaskTotal" resultType="java.lang.Integer">
+        select count(*)
+        from schedule_task
+        where deleted = 0
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and enable = 1
+          and end_at &gt; now()
+    </select>
+
+    <!--    启用状态，并且还没有结束，没有删除-->
+    <select id="getTaskListByPage" resultMap="ScheduleTaskMap">
+        select *
+        from schedule_task
+        where deleted = 0
+          and creator_id = #{userId}
+          and tenant_id = #{tenantId}
+          and enable = 1
+          and end_at &gt; now()
+        order by id desc
+    </select>
+
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ScheduleTaskMap">
+        select id,
+               task_id,
+               name,
+               description,
+               execute_sequence,
+               exception_handle_way,
+               run_mode,
+               cycle_frequency,
+               cycle_num,
+               cycle_unit,
+               status,
+               enable,
+               schedule_type,
+               schedule_rule,
+               start_at,
+               end_at,
+               tenant_id,
+               enable_queue_execution,
+               cron_expression,
+               last_time,
+               next_time,
+               creator_id,
+               create_time,
+               updater_id,
+               update_time,
+               deleted,
+               pull_time
+        from schedule_task
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ScheduleTaskMap">
+        select
+        id, task_id, name, description, execute_sequence, exception_handle_way, run_mode, cycle_frequency, cycle_num,
+        cycle_unit, status, enable, schedule_type, schedule_rule, start_at, end_at, tenant_id, enable_queue_execution,
+        cron_expression, last_time, next_time, creator_id, create_time, updater_id, update_time, deleted, pull_time
+        from schedule_task
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="taskId != null and taskId != ''">
+                and task_id = #{taskId}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="description != null and description != ''">
+                and description = #{description}
+            </if>
+            <if test="executeSequence != null and executeSequence != ''">
+                and execute_sequence = #{executeSequence}
+            </if>
+            <if test="exceptionHandleWay != null and exceptionHandleWay != ''">
+                and exception_handle_way = #{exceptionHandleWay}
+            </if>
+            <if test="runMode != null and runMode != ''">
+                and run_mode = #{runMode}
+            </if>
+            <if test="cycleFrequency != null and cycleFrequency != ''">
+                and cycle_frequency = #{cycleFrequency}
+            </if>
+            <if test="cycleNum != null and cycleNum != ''">
+                and cycle_num = #{cycleNum}
+            </if>
+            <if test="cycleUnit != null and cycleUnit != ''">
+                and cycle_unit = #{cycleUnit}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="enable != null">
+                and enable = #{enable}
+            </if>
+            <if test="scheduleType != null and scheduleType != ''">
+                and schedule_type = #{scheduleType}
+            </if>
+            <if test="scheduleRule != null and scheduleRule != ''">
+                and schedule_rule = #{scheduleRule}
+            </if>
+            <if test="startAt != null">
+                and start_at = #{startAt}
+            </if>
+            <if test="endAt != null">
+                and end_at = #{endAt}
+            </if>
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="enableQueueExecution != null">
+                and enable_queue_execution = #{enableQueueExecution}
+            </if>
+            <if test="cronExpression != null and cronExpression != ''">
+                and cron_expression = #{cronExpression}
+            </if>
+            <if test="lastTime != null">
+                and last_time = #{lastTime}
+            </if>
+            <if test="nextTime != null">
+                and next_time = #{nextTime}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updaterId != null">
+                and updater_id = #{updaterId}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="deleted != null">
+                and deleted = #{deleted}
+            </if>
+            <if test="pullTime != null">
+                and pull_time = #{pullTime}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from schedule_task
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="taskId != null and taskId != ''">
+                and task_id = #{taskId}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="description != null and description != ''">
+                and description = #{description}
+            </if>
+            <if test="executeSequence != null and executeSequence != ''">
+                and execute_sequence = #{executeSequence}
+            </if>
+            <if test="exceptionHandleWay != null and exceptionHandleWay != ''">
+                and exception_handle_way = #{exceptionHandleWay}
+            </if>
+            <if test="runMode != null and runMode != ''">
+                and run_mode = #{runMode}
+            </if>
+            <if test="cycleFrequency != null and cycleFrequency != ''">
+                and cycle_frequency = #{cycleFrequency}
+            </if>
+            <if test="cycleNum != null and cycleNum != ''">
+                and cycle_num = #{cycleNum}
+            </if>
+            <if test="cycleUnit != null and cycleUnit != ''">
+                and cycle_unit = #{cycleUnit}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="enable != null">
+                and enable = #{enable}
+            </if>
+            <if test="scheduleType != null and scheduleType != ''">
+                and schedule_type = #{scheduleType}
+            </if>
+            <if test="scheduleRule != null and scheduleRule != ''">
+                and schedule_rule = #{scheduleRule}
+            </if>
+            <if test="startAt != null">
+                and start_at = #{startAt}
+            </if>
+            <if test="endAt != null">
+                and end_at = #{endAt}
+            </if>
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="enableQueueExecution != null">
+                and enable_queue_execution = #{enableQueueExecution}
+            </if>
+            <if test="cronExpression != null and cronExpression != ''">
+                and cron_expression = #{cronExpression}
+            </if>
+            <if test="lastTime != null">
+                and last_time = #{lastTime}
+            </if>
+            <if test="nextTime != null">
+                and next_time = #{nextTime}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updaterId != null">
+                and updater_id = #{updaterId}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="deleted != null">
+                and deleted = #{deleted}
+            </if>
+            <if test="pullTime != null">
+                and pull_time = #{pullTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTaskNameByTaskExecuteId" resultType="java.lang.String">
+        select tt.name
+        from trigger_task as tt
+                 inner join schedule_task_execute as ste on tt.task_id = ste.task_id and tt.deleted = 0
+        where ste.task_execute_id = #{taskExecuteId}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into schedule_task(task_id, name, description, execute_sequence, exception_handle_way, run_mode,
+                                  cycle_frequency, cycle_num, cycle_unit, status, enable, schedule_type, schedule_rule,
+                                  start_at, end_at, tenant_id, enable_queue_execution, cron_expression, last_time,
+                                  next_time, creator_id, create_time, updater_id, update_time, deleted, pull_time)
+        values (#{taskId}, #{name}, #{description}, #{executeSequence}, #{exceptionHandleWay}, #{runMode},
+                #{cycleFrequency}, #{cycleNum}, #{cycleUnit}, #{status}, #{enable}, #{scheduleType}, #{scheduleRule},
+                #{startAt}, #{endAt}, #{tenantId}, #{enableQueueExecution}, #{cronExpression}, #{lastTime}, #{nextTime},
+                #{creatorId}, #{createTime}, #{updaterId}, #{updateTime}, #{deleted}, #{pullTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into
+        schedule_task(task_idnamedescriptionexecute_sequenceexception_handle_wayrun_modecycle_frequencycycle_numcycle_unitstatusenableschedule_typeschedule_rulestart_atend_attenant_idenable_queue_executioncron_expressionlast_timenext_timecreator_idcreate_timeupdater_idupdate_timedeletedpull_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.taskId}, #{entity.name}, #{entity.description}, #{entity.executeSequence},
+            #{entity.exceptionHandleWay}, #{entity.runMode}, #{entity.cycleFrequency}, #{entity.cycleNum},
+            #{entity.cycleUnit}, #{entity.status}, #{entity.enable}, #{entity.scheduleType}, #{entity.scheduleRule},
+            #{entity.startAt}, #{entity.endAt}, #{entity.tenantId}, #{entity.enableQueueExecution},
+            #{entity.cronExpression}, #{entity.lastTime}, #{entity.nextTime}, #{entity.creatorId}, #{entity.createTime},
+            #{entity.updaterId}, #{entity.updateTime}, #{entity.deleted}, #{entity.pullTime})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into
+        schedule_task(task_idnamedescriptionexecute_sequenceexception_handle_wayrun_modecycle_frequencycycle_numcycle_unitstatusenableschedule_typeschedule_rulestart_atend_attenant_idenable_queue_executioncron_expressionlast_timenext_timecreator_idcreate_timeupdater_idupdate_timedeletedpull_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.taskId}, #{entity.name}, #{entity.description}, #{entity.executeSequence},
+            #{entity.exceptionHandleWay}, #{entity.runMode}, #{entity.cycleFrequency}, #{entity.cycleNum},
+            #{entity.cycleUnit}, #{entity.status}, #{entity.enable}, #{entity.scheduleType}, #{entity.scheduleRule},
+            #{entity.startAt}, #{entity.endAt}, #{entity.tenantId}, #{entity.enableQueueExecution},
+            #{entity.cronExpression}, #{entity.lastTime}, #{entity.nextTime}, #{entity.creatorId}, #{entity.createTime},
+            #{entity.updaterId}, #{entity.updateTime}, #{entity.deleted}, #{entity.pullTime})
+        </foreach>
+        on duplicate key update
+        task_id = values(task_id),
+        name = values(name),
+        description = values(description),
+        execute_sequence = values(execute_sequence),
+        exception_handle_way = values(exception_handle_way),
+        run_mode = values(run_mode),
+        cycle_frequency = values(cycle_frequency),
+        cycle_num = values(cycle_num),
+        cycle_unit = values(cycle_unit),
+        status = values(status),
+        enable = values(enable),
+        schedule_type = values(schedule_type),
+        schedule_rule = values(schedule_rule),
+        start_at = values(start_at),
+        end_at = values(end_at),
+        tenant_id = values(tenant_id),
+        enable_queue_execution = values(enable_queue_execution),
+        cron_expression = values(cron_expression),
+        last_time = values(last_time),
+        next_time = values(next_time),
+        creator_id = values(creator_id),
+        create_time = values(create_time),
+        updater_id = values(updater_id),
+        update_time = values(update_time),
+        deleted = values(deleted),
+        pull_time = values(pull_time)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update schedule_task
+        <set>
+            <if test="taskId != null and taskId != ''">
+                task_id = #{taskId},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="executeSequence != null and executeSequence != ''">
+                execute_sequence = #{executeSequence},
+            </if>
+            <if test="exceptionHandleWay != null and exceptionHandleWay != ''">
+                exception_handle_way = #{exceptionHandleWay},
+            </if>
+            <if test="runMode != null and runMode != ''">
+                run_mode = #{runMode},
+            </if>
+            <if test="cycleFrequency != null and cycleFrequency != ''">
+                cycle_frequency = #{cycleFrequency},
+            </if>
+            <if test="cycleNum != null and cycleNum != ''">
+                cycle_num = #{cycleNum},
+            </if>
+            <if test="cycleUnit != null and cycleUnit != ''">
+                cycle_unit = #{cycleUnit},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="enable != null">
+                enable = #{enable},
+            </if>
+            <if test="scheduleType != null and scheduleType != ''">
+                schedule_type = #{scheduleType},
+            </if>
+            <if test="scheduleRule != null and scheduleRule != ''">
+                schedule_rule = #{scheduleRule},
+            </if>
+            <if test="startAt != null">
+                start_at = #{startAt},
+            </if>
+            <if test="endAt != null">
+                end_at = #{endAt},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="enableQueueExecution != null">
+                enable_queue_execution = #{enableQueueExecution},
+            </if>
+            <if test="cronExpression != null and cronExpression != ''">
+                cron_expression = #{cronExpression},
+            </if>
+            <if test="lastTime != null">
+                last_time = #{lastTime},
+            </if>
+            <if test="nextTime != null">
+                next_time = #{nextTime},
+            </if>
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updaterId != null">
+                updater_id = #{updaterId},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="pullTime != null">
+                pull_time = #{pullTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from schedule_task
+        where id = #{id}
+    </delete>
+
+
+</mapper>
+

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.robot.dao.ResourceRobotManageDao">
+    <resultMap type="com.iflytek.rpa.robot.entity.vo.RobotPageListVo" id="RobotPageListVoMap">
+        <result property="robotId" column="robot_id"/>
+        <result property="robotName" column="name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="latestReleaseTime" column="latest_release_time"/>
+        <result property="type" column="type"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="tenantId" column="tenant_id"/>
+        <result property="appVersion" column="app_version"/>
+        <result property="securityLevel" column="security_level"/>
+    </resultMap>
+
+    <select id="getRobotPageList" resultMap="RobotPageListVoMap">
+        select re.* , aa.security_level
+        from robot_execute as re
+        left join app_application as aa
+        on re.robot_id = aa.robot_id and re.tenant_id = aa.tenant_id
+        and aa.deleted = 0 and aa.cloud_deleted = 0 and aa.application_type = 'release'
+        and aa.status = 'approved'
+        <where>
+            re.deleted = 0
+            <if test="queryDto.tenantId != null">
+                and re.tenant_id = #{queryDto.tenantId}
+            </if>
+            <if test="queryDto.deptIdPath != null and queryDto.deptIdPath != ''">
+                and re.dept_id_path like concat(#{queryDto.deptIdPath}, "%")
+            </if>
+            <if test="queryDto.creatorId != null and queryDto.creatorId != ''">
+                and re.creator_id = #{queryDto.creatorId}
+            </if>
+            <if test="queryDto.createTimeStart != null">
+                and re.create_time &gt;= #{queryDto.createTimeStart}
+            </if>
+            <if test="queryDto.createTimeEnd != null">
+                and re.create_time &lt;= #{queryDto.createTimeEnd}
+            </if>
+            <if test="queryDto.latestReleaseTimeStart != null">
+                and re.latest_release_time &gt;= #{queryDto.latestReleaseTimeStart}
+            </if>
+            <if test="queryDto.latestReleaseTimeEnd != null">
+                and re.latest_release_time &lt;= #{queryDto.latestReleaseTimeEnd}
+            </if>
+            <if test="queryDto.robotName != null and queryDto.robotName != ''">
+                and re.name like concat( "%", #{queryDto.robotName},"%")
+            </if>
+        </where>
+        <choose>
+            <when test="queryDto.sortBy == 'latestReleaseTime'.toString() and queryDto.sortType == 'desc'.toString()">
+                order by latest_release_time desc
+            </when>
+            <when test="queryDto.sortBy == 'latestReleaseTime'.toString() and queryDto.sortType == 'asc'.toString()">
+                order by latest_release_time asc
+            </when>
+            <when test="queryDto.sortBy == 'createTime'.toString() and queryDto.sortType == 'desc'.toString()">
+                order by create_time desc
+            </when>
+            <when test="queryDto.sortBy == 'createTime'.toString() and queryDto.sortType == 'asc'.toString()">
+                order by create_time asc
+            </when>
+            <otherwise>
+                order by latest_release_time desc
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

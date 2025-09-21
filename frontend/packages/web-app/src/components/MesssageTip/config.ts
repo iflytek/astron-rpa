@@ -1,0 +1,16 @@
+const NOREADNUM = 1
+const READNUM = 2
+const JOINNUM = 3
+const REFUSENUM = 4
+const ALLREADNUM = 5
+
+const TEAMMARKETUPDATE = 'teamMarketUpdate'
+
+export {
+  ALLREADNUM,
+  JOINNUM,
+  NOREADNUM,
+  READNUM,
+  REFUSENUM,
+  TEAMMARKETUPDATE,
+}

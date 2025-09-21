@@ -1,0 +1,15 @@
+numpy
+opencv-python
+psutil
+pyarmor
+pyautogui
+pyright
+pythonnet
+pywin32
+requests
+rpa-table-helper>=1.0.0
+rpaframe>=1.0.2
+setuptools
+toml
+twine
+uiautomation

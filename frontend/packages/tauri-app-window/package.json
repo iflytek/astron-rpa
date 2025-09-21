@@ -1,0 +1,19 @@
+{
+  "name": "@rpa/tauri-app-window",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env TAURI_DEV_SUB_WIN=true tauri dev",
+    "build": "tauri build",
+    "build:debug": "tauri build --debug"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1"
+  },
+  "devDependencies": {
+    "@rpa/web-app": "workspace:*",
+    "@tauri-apps/cli": "^1",
+    "cross-env": "^7.0.3"
+  }
+}

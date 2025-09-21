@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CAtomMetaDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.CAtomMeta" id="CAtomMetaMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="parentKey" column="parent_key" jdbcType="VARCHAR"/>
+        <result property="atomKey" column="atom_key" jdbcType="VARCHAR"/>
+        <result property="atomContent" column="atom_content" jdbcType="VARCHAR"/>
+        <result property="version" column="version" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="versionNum" column="version_num" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--    <select id="getAtomCommonInfo" resultMap="CAtomMetaMap">-->
+    <!--        SELECT-->
+    <!--        cam.atom_key,-->
+    <!--        cam.atom_content-->
+    <!--        FROM c_atom_meta cam-->
+    <!--        JOIN (-->
+    <!--            SELECT atom_key, MAX(version) AS max_version-->
+    <!--            FROM c_atom_meta-->
+    <!--            where-->
+    <!--                deleted = 0-->
+    <!--                and atom_key in-->
+    <!--                <foreach collection="atomKeyList" item="atomKey" open="(" close=")" separator=",">-->
+    <!--                    #{atomKey}-->
+    <!--                </foreach>-->
+    <!--                GROUP BY atom_key-->
+    <!--        ) latest-->
+    <!--        ON cam.atom_key = latest.atom_key and cam.version = latest.max_version and cam.deleted = 0-->
+    <!--    </select>-->
+
+    <select id="getLatestAtomListByParentKey" resultType="java.lang.String">
+        select a.atom_content
+        FROM c_atom_meta a
+                 INNER JOIN (SELECT atom_key, max(version_num) AS version_num
+                             FROM c_atom_meta
+                             WHERE deleted = 0
+                               and parent_key = #{parentKey}
+                             GROUP BY atom_key) b
+                            ON a.atom_key = b.atom_key AND a.version_num = b.version_num and a.parent_key = #{parentKey}
+        where a.deleted = 0
+    </select>
+
+
+    <select id="getLatestAtomByKey" resultType="java.lang.String">
+
+        select a.atom_content
+        FROM c_atom_meta a
+                 INNER JOIN (SELECT atom_key, max(version_num) AS version_num
+                             FROM c_atom_meta
+                             WHERE deleted = 0
+                               and atom_key = #{atomKey}
+                             GROUP BY atom_key) b ON a.atom_key = b.atom_key AND a.version_num = b.version_num
+        where a.deleted = 0 limit 1
+    </select>
+
+
+    <select id="selectAtomList" resultMap="CAtomMetaMap">
+        SELECT atom_key, atom_content, version
+        FROM c_atom_meta
+        WHERE deleted = 0
+        AND (atom_key, version) IN (
+        <foreach collection="atomList" item="atom" separator=",">
+            (#{atom.key}, #{atom.version})
+        </foreach>
+        )
+    </select>
+
+
+    <select id="getAtomCommonBaseInfoByAtomKey" resultMap="CAtomMetaMap">
+        select parent_key,
+               atom_key,
+               version,
+               sort
+        from c_atom_meta
+        where deleted = 0
+          and atom_key = #{atomKey}
+    </select>
+
+    <!--    <insert id="insertAtomMeta">-->
+    <!--        insert into-->
+    <!--        c_atom_meta-->
+    <!--        (parent_key,-->
+    <!--        atom_key,-->
+    <!--        atom_content,-->
+    <!--        version,-->
+    <!--        sort,-->
+    <!--        creator_id,-->
+    <!--        create_time,-->
+    <!--        updater_id,-->
+    <!--        update_time,-->
+    <!--        deleted)-->
+    <!--        values-->
+    <!--        (#{parentKey},-->
+    <!--        #{atomKey},-->
+    <!--        #{atomContent},-->
+    <!--        #{version},-->
+    <!--        #{sort},-->
+    <!--        #{creatorId},-->
+    <!--        now(),-->
+    <!--        #{updaterId},-->
+    <!--        now(),-->
+    <!--        0-->
+    <!--        )-->
+    <!--    </insert>-->
+
+    <select id="getLatestAtomListByKeySet" resultMap="CAtomMetaMap">
+        SELECT cam.*
+        FROM c_atom_meta cam
+        INNER JOIN (
+        SELECT
+        atom_key, max(version_num) AS version_num
+        FROM c_atom_meta
+        WHERE deleted = 0
+        AND atom_key IN (<foreach collection="atomKeySet" item="item" separator=",">#{item}</foreach>)
+        GROUP BY atom_key
+        ) latest
+        ON cam.atom_key = latest.atom_key AND cam.version_num = latest.version_num
+        WHERE cam.deleted = 0
+    </select>
+
+    <select id="getLatestAllAtoms" resultType="java.lang.String">
+        SELECT m.atom_content as atomContent
+        FROM c_atom_meta m
+                 INNER JOIN (SELECT atom_key,
+                                    MAX(version_num) AS version_num
+                             FROM c_atom_meta
+                             WHERE deleted = 0
+                               and parent_key != 'root'
+                             GROUP BY atom_key) t ON m.atom_key = t.atom_key
+            AND m.version_num = t.version_num
+        WHERE m.deleted = 0
+          and m.parent_key != 'root';
+    </select>
+
+    <select id="getKeyAndParentKeyByKeySet" resultType="com.iflytek.rpa.base.entity.CAtomMeta">
+        SELECT
+        id,
+        atom_key,
+        parent_key
+        FROM c_atom_meta
+        WHERE deleted = 0
+        AND atom_key IN (
+        <foreach collection="atomKeySet" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+    </select>
+    <select id="getLatestAtomsByList" resultType="com.iflytek.rpa.base.entity.CAtomMeta">
+        SELECT a.atom_key,a.atom_content
+        FROM c_atom_meta a
+        INNER JOIN (
+        SELECT atom_key, MAX(version_num) AS version_num
+        FROM c_atom_meta
+        WHERE
+        deleted = 0
+        AND atom_key IN
+        <foreach collection="atomKeyList" item="atomKey" open="(" separator="," close=")">
+            #{atomKey}
+        </foreach>
+        GROUP BY atom_key
+        ) b ON a.atom_key = b.atom_key AND a.version_num = b.version_num
+        WHERE a.deleted = 0
+    </select>
+
+    <update id="UpdateBatchByKeyAndVersion">
+        <foreach collection="entities" item="entity" separator=";">
+            update
+            c_atom_meta
+            set
+            <if test="entity.atomContent != null and entity.atomContent != ''">
+                atom_content = #{entity.atomContent},
+            </if>
+            <if test="entity.version != null and entity.version != ''">
+                version = #{entity.version},
+            </if>
+            <if test="entity.versionNum != null and entity.versionNum != ''">
+                version_num = #{entity.versionNum}
+            </if>
+            where
+            atom_key = #{entity.atomKey}
+            and version = #{entity.version}
+        </foreach>
+    </update>
+    <update id="updateBatchParentKey">
+        <foreach collection="updateBatchList" item="item">
+            UPDATE c_atom_meta
+            SET
+            <if test="item.parentKey != null and item.parentKey != ''">
+                parent_key = #{item.parentKey},
+            </if>
+            update_time = now()
+            WHERE id = #{item.id};
+        </foreach>
+    </update>
+
+</mapper>
+

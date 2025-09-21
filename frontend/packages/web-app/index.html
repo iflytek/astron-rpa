@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icons/32x32.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>晓悟RPA</title>
+    <style>
+      @font-face {
+        font-family: 'simfang';
+        src: local('仿宋'), local('FangSong');
+      }
+      @font-face {
+        font-family: 'simhei';
+        src: local('黑体'), local('Heiti');
+      }
+      @font-face {
+        font-family: 'simsun';
+        src: local('宋体'), local('SimSun');
+      }
+      @font-face {
+        font-family: 'msyh';
+        src: local('微软雅黑'), local('Microsoft YaHei');
+      }
+      @font-face {
+        font-family: 'times';
+        src: local('Times New Roman'), local('TimesNR');
+      }
+      @font-face {
+        font-family: 'KaiTi';
+        src: local('楷体'), local('KaiTi');
+      }
+      @font-face {
+        font-family: 'LiShu';
+        src: local('隶书'), local('LiShu');
+      }
+      @font-face {
+        font-family: 'NSimSun';
+        src: local('新宋体'), local('NSimSun');
+      }
+      @font-face {
+        font-family: 'YouYuan';
+        src: local('幼圆'), local('YouYuan');
+      }
+      @font-face {
+        font-family: 'Microsoft JhengHei';
+        src: local('Microsoft JhengHei'), local('微軟正黑體');
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        min-height: 400px;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .loading-circle {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #2c69ff;
+        border-top: 4px solid #2c68ff8b;
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+      }
+
+      .loading-text {
+        color: #2c69ff;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="loading-container">
+        <div class="loading-circle"></div>
+        <div class="loading-text">Please Wait...</div>
+      </div>
+    </div>
+    <script type="module" src="/src/views/Home/index.ts"></script>
+  </body>
+</html>

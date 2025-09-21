@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: robot
+  profiles:
+    active: local
+
+server:
+  port: 8040
+  servlet:
+    context-path: /api/robot

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SpotBugs exclude filter configuration
+    This file defines which warnings to suppress
+-->
+<FindBugsFilter xmlns="https://github.com/spotbugs/filter/3.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 
+                                   https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+
+    <!-- Exclude test classes from certain checks -->
+    <Match>
+        <Class name="~.*Test.*"/>
+        <!-- Skip some checks for test classes -->
+        <Bug pattern="DM_EXIT,DM_RUN_FINALIZERS_ON_EXIT"/>
+    </Match>
+    
+    <!-- Exclude main method from unused parameter check -->
+    <Match>
+        <Method name="main" params="java.lang.String\[\]"/>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+    </Match>
+    
+    <!-- Example: Exclude specific files or packages -->
+    <!-- 
+    <Match>
+        <Class name="com.example.generated.*"/>
+    </Match>
+    -->
+    
+    <!-- Example: Exclude specific bug patterns -->
+    <!--
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    -->
+    
+    <!-- Example: Exclude by method name pattern -->
+    <!--
+    <Match>
+        <Method name="~get.*"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    -->
+
+</FindBugsFilter>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.task.dao.ScheduleTaskPullLogDao">
+
+    <resultMap type="com.iflytek.rpa.task.entity.ScheduleTaskPullLog" id="ScheduleTaskPullLogMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="lastTime" column="last_time" jdbcType="TIMESTAMP"/>
+        <result property="nextTime" column="next_time" jdbcType="TIMESTAMP"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="pullTime" column="pull_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insetLog">
+        insert into schedule_task_pull_log
+        (task_id,
+         last_time,
+         next_time,
+         creator_id,
+         create_time,
+         pull_time)
+        values (#{taskId},
+                #{lastTime},
+                #{nextTime},
+                #{creatorId},
+                now(),
+                #{pullTime})
+    </insert>
+
+
+</mapper>
+

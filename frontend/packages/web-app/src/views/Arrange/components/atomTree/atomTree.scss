@@ -1,0 +1,86 @@
+.atom-tree {
+  opacity: 1;
+  height: 100%;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .atom-tree-header {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+
+    .collapsedIcon {
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      color: #31323b;
+
+      &:hover {
+        color: $color-primary;
+      }
+    }
+  }
+
+  .atom-tree-container {
+    width: 100%;
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    overflow: hidden;
+
+    :deep(.ant-tree) {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: auto;
+      font-size: $font-size-sm;
+      color: inherit;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+    }
+
+    :deep(.ant-tree .ant-tree-switcher-noop) {
+      width: 0px;
+    }
+
+    :deep(.ant-tree-node-selected) {
+      background-color: transparent;
+    }
+
+    :deep(.ant-tree-node-content-wrapper:hover) {
+      background-color: transparent;
+    }
+
+    :deep(.ant-tree-list-scrollbar) {
+      width: 4px !important;
+    }
+    :deep(.ant-tree .ant-tree-indent-unit) {
+      width: 15px !important;
+    }
+    .postTreeDraggable {
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+    }
+  }
+
+  .atom-tree-rectangle {
+    width: 20px;
+    height: 50px;
+    right: -20px;
+    line-height: 50px;
+    margin-top: -45px;
+    font-size: 20px;
+    color: #7d7d7d;
+    background: #f2f2f2;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    z-index: 3;
+  }
+}

@@ -1,0 +1,2 @@
+recursive-include src/rpaai/exe/chat *
+recursive-include src/rpaai/exe/chat/resources *

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.component.dao.ComponentRobotBlockDao">
+
+    <resultMap type="com.iflytek.rpa.component.entity.ComponentRobotBlock" id="ComponentRobotBlockMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="INTEGER"/>
+        <result property="componentId" column="component_id" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="SMALLINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, robot_id, robot_version, component_id, creator_id, create_time, updater_id, update_time, deleted, tenant_id
+    </sql>
+
+    <!-- 根据机器人ID和组件ID查询屏蔽记录 -->
+    <select id="getBlockByRobotAndComponent" resultMap="ComponentRobotBlockMap">
+        select
+        <include refid="Base_Column_List"/>
+        from component_robot_block
+        where robot_id = #{robotId}
+        and component_id = #{componentId}
+        and deleted = 0
+        and tenant_id = #{tenantId}
+        limit 1
+    </select>
+
+    <!-- 根据机器人ID查询所有屏蔽的组件 -->
+    <select id="getBlocksByRobotId" resultMap="ComponentRobotBlockMap">
+        select
+        <include refid="Base_Column_List"/>
+        from component_robot_block
+        where robot_id = #{robotId}
+        and deleted = 0
+        and tenant_id = #{tenantId}
+        order by create_time desc
+    </select>
+
+    <!-- 根据组件ID查询所有屏蔽该组件的机器人 -->
+    <select id="getBlocksByComponentId" resultMap="ComponentRobotBlockMap">
+        select
+        <include refid="Base_Column_List"/>
+        from component_robot_block
+        where component_id = #{componentId}
+        and deleted = 0
+        and tenant_id = #{tenantId}
+        order by create_time desc
+    </select>
+
+    <!-- 批量插入组件屏蔽记录 -->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into component_robot_block(
+            robot_id,
+            robot_version,
+            component_id,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted,
+            tenant_id
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.robotId},
+                #{entity.robotVersion},
+                #{entity.componentId},
+                #{entity.creatorId},
+                #{entity.createTime},
+                #{entity.updaterId},
+                #{entity.updateTime},
+                #{entity.deleted},
+                #{entity.tenantId}
+            )
+        </foreach>
+    </insert>
+
+</mapper> 

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CGlobalVarDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.CGlobalVar" id="CGlobalVarMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="projectId" column="project_id" jdbcType="VARCHAR"/>
+        <result property="globalId" column="global_id" jdbcType="VARCHAR"/>
+        <result property="varName" column="var_name" jdbcType="VARCHAR"/>
+        <result property="varType" column="var_type" jdbcType="VARCHAR"/>
+        <result property="varValue" column="var_value" jdbcType="VARCHAR"/>
+        <result property="varDescribe" column="var_describe" jdbcType="VARCHAR"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="createGlobalVarForCurrentVersion">
+        insert into c_global_var(project_id,
+                                 global_id,
+                                 var_name,
+                                 var_type,
+                                 var_value,
+                                 var_describe,
+                                 deleted,
+                                 creator_id,
+                                 create_time,
+                                 updater_id,
+                                 update_time,
+                                 robot_id,
+                                 robot_version)
+        select project_id,
+               global_id,
+               var_name,
+               var_type,
+               var_value,
+               var_describe,
+               deleted,
+               creator_id,
+               now(),
+               updater_id,
+               now(),
+               robot_id,
+               #{version}
+        from c_global_var
+        where robot_id = #{robotId}
+          and robot_version = 0
+          and creator_id = #{creatorId}
+          and deleted = 0
+    </insert>
+
+
+    <insert id="createGlobalVarForObtainedVersion">
+        insert into c_global_var(project_id,
+                                 global_id,
+                                 var_name,
+                                 var_type,
+                                 var_value,
+                                 var_describe,
+                                 deleted,
+                                 creator_id,
+                                 create_time,
+                                 updater_id,
+                                 update_time,
+                                 robot_id,
+                                 robot_version)
+        select project_id,
+               global_id,
+               var_name,
+               var_type,
+               var_value,
+               var_describe,
+               0,
+               #{obtainedRobotDesign.creatorId},
+               now(),
+               #{obtainedRobotDesign.updaterId},
+               now(),
+               #{obtainedRobotDesign.robotId},
+               0
+        from c_global_var
+        where robot_id = #{authorRobotVersion.robotId}
+          and robot_version = #{authorRobotVersion.version}
+          and creator_id = #{authorRobotVersion.creatorId}
+    </insert>
+    <update id="deleteGlobalVar">
+        UPDATE c_global_var
+        SET deleted = 1
+        WHERE robot_id = #{robotId}
+          AND global_id = #{globalId}
+          AND creator_id = #{creatorId}
+          AND robot_version = 0
+          AND deleted = 0
+    </update>
+
+    <select id="getGlobalVarInfoList" resultMap="CGlobalVarMap">
+        select *
+        from c_global_var
+        where robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+          and deleted = 0
+    </select>
+    <select id="countVarByName" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM c_global_var
+        WHERE robot_id = #{robotId}
+          AND var_name = #{varName}
+          AND robot_version = 0
+          AND deleted = 0
+    </select>
+    <select id="getGlobalVarOne" resultMap="CGlobalVarMap">
+        SELECT robot_id, global_id, var_name
+        FROM c_global_var
+        WHERE robot_id = #{robotId}
+          AND creator_id = #{updaterId}
+          AND var_name = #{varName}
+          AND robot_version = 0
+          AND deleted = 0 LIMIT 1
+    </select>
+    <select id="getGlobalVarNameList" resultMap="CGlobalVarMap">
+        SELECT robot_id, global_id, var_name, var_type, var_describe
+        FROM c_global_var
+        WHERE robot_id = #{robotId}
+          AND creator_id = #{userId}
+          AND robot_version = 0
+          AND deleted = 0
+    </select>
+    <insert id="insertGloBatch">
+        insert into c_global_var(
+        global_id,
+        var_name,
+        var_type,
+        var_value,
+        var_describe,
+        deleted,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        robot_id,
+        robot_version
+        )
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+            #{entity.globalId},
+            #{entity.varName},
+            #{entity.varType},
+            #{entity.varValue},
+            #{entity.varDescribe},
+            #{entity.deleted},
+            #{entity.creatorId},
+            #{entity.createTime},
+            #{entity.updaterId},
+            #{entity.updateTime},
+            #{entity.robotId},
+            #{entity.robotVersion}
+            )
+        </foreach>
+    </insert>
+    <insert id="createGlobalVar">
+        INSERT INTO c_global_var (robot_id,
+                                  robot_version,
+                                  global_id,
+                                  var_name,
+                                  var_type,
+                                  var_value,
+                                  var_describe,
+                                  creator_id,
+                                  updater_id,
+                                  deleted)
+        VALUES (#{robotId},
+                0,
+                #{globalId},
+                #{varName},
+                #{varType},
+                #{varValue},
+                #{varDescribe},
+                #{creatorId},
+                #{updaterId},
+                0)
+    </insert>
+    <update id="saveGlobalVar">
+        UPDATE c_global_var
+        SET var_name     = #{varName},
+            var_type     = #{varType},
+            var_value    = #{varValue},
+            var_describe = #{varDescribe},
+            updater_id   = #{updaterId}
+        WHERE robot_id = #{robotId}
+          AND global_id = #{globalId}
+          AND robot_version = 0
+          AND deleted = 0
+    </update>
+
+</mapper>
+

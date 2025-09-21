@@ -1,0 +1,7 @@
+node_modules
+dist
+public
+assets
+!.*
+*.js
+src/3rd

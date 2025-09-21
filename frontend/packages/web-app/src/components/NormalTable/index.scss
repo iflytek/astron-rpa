@@ -1,0 +1,60 @@
+.wrapper {
+  .nTable {
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .formItem {
+        padding: 0 8px 0 0;
+
+        .back-btn {
+          font-size: 18px;
+          cursor: pointer;
+          margin-right: 10px;
+          &:hover {
+            color: #1890ff;
+          }
+        }
+      }
+      &_forms {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      &_btns {
+        min-width: 100px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        .singleBtn,
+        .dropdownBtn {
+          margin: 5px 0 0 16px;
+          &:first-child {
+            margin-left: 0;
+          }
+        }
+      }
+    }
+    &-pagination {
+      font-size: 14px;
+      :deep(.ant-pagination-options) {
+        .ant-select-selector {
+          margin: 0 5px;
+          border: none;
+          background-color: transparent;
+        }
+      }
+    }
+    :deep(.ant-table-thead > tr > th) {
+      font-size: calc(var(--font-size-sm) * 1px);
+      font-weight: normal;
+      color: var(--color-text-secondary);
+    }
+    :deep(.ant-checkbox .ant-checkbox-inner) {
+      width: 14px !important;
+      height: 14px !important;
+    }
+  }
+}

@@ -1,0 +1,247 @@
+atomic:
+  PDF.get_pages_num:
+    title: 获取PDF文档页数
+    comment: 获取路径为 @{file_path} 的PDF文档页数 @{pdf_pages_num}
+    icon: pdf-get-page-count
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: PDF文件路径
+      tip: 输入PDF文件路径
+    - key: password
+      title: PDF文件密码
+      tip: 输入PDF文件密码，如果没有密码则留空
+    outputList:
+    - key: pdf_pages_num
+      title: PDF文档页数
+      tip: 返回PDF文档页数
+  PDF.get_pdf_text:
+    title: 提取PDF文档文本
+    comment: 提取路径为 @{file_path} 的PDF文档文本，返回为字符串或列表 @{pdf_text}
+    icon: pdf-extract-text
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: PDF文件路径
+      tip: 输入PDF文件路径
+    - key: password
+      title: PDF文件密码
+      tip: 输入PDF文件密码，如果没有密码则留空
+    - key: select_range
+      title: 选择范围
+      tip: 选择范围，支持全部页面和指定页面范围
+    - key: page_range
+      title: 指定页面范围
+      tip: 输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页
+    - key: text_save_type
+      title: 是否保存为文件
+      tip: 选择是否保存提取的文本为文件，可保存为Word或文本文件格式
+    - key: save_dir
+      title: 保存文件路径
+      tip: 选择保存文件的文件夹路径
+    - key: save_file_name
+      title: 保存文件名
+      tip: 输入保存文件名，不输入则使用默认文件名
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList:
+    - key: pdf_text
+      title: 提取的PDF文档文本
+      tip: 提取的PDF文档文本，以列表形式存储返回
+  PDF.get_pdf_images:
+    title: 提取PDF文档图片
+    comment: 提取路径为 @{file_path} 的PDF文档图片，并保存到 @{save_dir} 文件夹
+    icon: pdf-extract-images
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: PDF文件路径
+      tip: ''
+    - key: pwd
+      title: PDF文件密码
+      tip: 如果PDF文件需要密码，请输入密码，否则留空
+    - key: select_range
+      title: 选择范围
+      tip: 选择范围，支持全部页面和指定页面范围
+    - key: page_range
+      title: 指定页面范围
+      tip: 输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页
+    - key: image_type
+      title: 图片格式
+      tip: 选择图片格式，支持JPEG、PNG等格式
+    - key: save_dir
+      title: 保存文件路径
+      tip: 选择保存文件的文件夹路径
+    - key: prefix
+      title: 图片文件名前缀
+      tip: 输入图片文件名前缀，不输入则使用原文件名前缀
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList: []
+  PDF.merge_pdf_files:
+    title: 合并PDF文件
+    comment: 合并PDF文件为一个PDF文件，并保存到 @{pdf_merge_file_path} 路径
+    icon: merge-pdf-files
+    helpManual: ''
+    inputList:
+    - key: merge_type
+      title: 合并方式
+      tip: 选择合并方式，支持按文件夹合并或按文件合并
+    - key: file_folder_path
+      title: 合并文件夹
+      tip: 将会合并文件夹中所有的PDF文件
+    - key: files_path
+      title: 合并文件
+      tip: 将会合并所选的所有PDF文件
+    - key: save_dir
+      title: 保存文件路径
+      tip: 选择保存文件的文件夹路径
+    - key: new_file_name
+      title: 合并文件名
+      tip: 输入合并文件名，不输入则使用默认文件名
+    - key: new_pwd_flag
+      title: 是否给新PDF文件设置密码
+      tip: 选择是否设置密码
+    - key: new_pwd
+      title: 新PDF文件密码
+      tip: 输入新PDF文件密码
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList:
+    - key: pdf_merge_file_path
+      title: 合并后的PDF文件路径
+      tip: 合并后的PDF文件路径
+  PDF.extract_pdf_file:
+    title: 抽取PDF指定页
+    comment: 抽取路径为 @{file_path} 的PDF文档指定页，并保存到 @{extract_file_path} 文件夹
+    icon: pdf-extract-page
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: PDF文件路径
+      tip: 选择需要抽取的PDF文件路径
+    - key: pwd
+      title: PDF文件密码
+      tip: 如果PDF文件需要密码，请输入密码，否则留空
+    - key: page_range
+      title: 指定页面范围
+      tip: 输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页
+    - key: save_dir
+      title: 保存文件路径
+      tip: 选择保存文件的文件夹路径
+    - key: new_file_name
+      title: 抽取后新PDF文件名
+      tip: 输入新文件名，不输入则使用默认文件名
+    - key: new_pwd_flag
+      title: 是否给新PDF文件设置密码
+      tip: 选择是否设置密码
+    - key: new_pwd
+      title: 新PDF文件密码
+      tip: 输入新PDF文件密码
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList:
+    - key: extract_file_path
+      title: 提取后的PDF文件路径
+      tip: 提取后的PDF文件路径
+  PDF.extract_forms_from_pdf:
+    title: 提取PDF表格到Excel
+    comment: 提取路径为 @{file_path} 的PDF文档中的表格，并保存到 @{forms_file_path} 文件夹
+    icon: pdf-extract-table-to-excel
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: PDF文件路径
+      tip: 选择需要提取表格的PDF文件路径
+    - key: pwd
+      title: PDF文件密码
+      tip: 如果PDF文件需要密码，请输入密码，否则留空
+    - key: select_range
+      title: 选择范围
+      tip: 选择范围，支持全部页面和指定页面范围
+    - key: page_range
+      title: 指定页面范围
+      tip: 输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页
+    - key: combine_flag
+      title: 是否需要合并多个表格
+      tip: 当出现跨页的表格时，可以选择是否合并成一个表格，建议表头相同时选择合并
+    - key: save_dir
+      title: 保存文件路径
+      tip: 选择保存文件的文件夹路径
+    - key: new_file_name
+      title: 表格文件名
+      tip: 输入表格文件名，不输入则使用默认文件名
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList:
+    - key: forms_file_path
+      title: 提取后的Excel文件路径
+      tip: 提取后的Excel文件路径
+  PDF.convert_pdf_to_img:
+    title: PDF页面转图片
+    comment: 转换路径为 @{file_path} 的PDF文档为图片，并保存到 @{save_dir} 文件夹
+    icon: pdf-page-to-image
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: PDF文件路径
+      tip: 选择需要转换的PDF文件路径
+    - key: pwd
+      title: PDF文件密码
+      tip: 如果PDF文件需要密码，请输入密码，否则留空
+    - key: image_type
+      title: 图片格式
+      tip: 选择图片格式，支持JPEG、PNG等格式
+    - key: select_range
+      title: 选择范围
+      tip: 选择范围，支持全部页面和指定页面范围
+    - key: page_range
+      title: 指定页面范围
+      tip: 输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页
+    - key: save_dir
+      title: 保存文件路径
+      tip: 选择保存文件的文件夹路径
+    - key: prefix
+      title: 图片文件名前缀
+      tip: 输入图片文件名前缀，不输入则使用原文件名前缀
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList: []
+options:
+  PictureType:
+  - value: png
+    label: PNG
+  - value: jpeg
+    label: JPEG
+  SelectRangeType:
+  - value: all
+    label: 所有页面
+  - value: part
+    label: 指定页面
+  FileExistenceType:
+  - value: overwrite
+    label: 覆盖原有文件
+  - value: rename
+    label: 创建文件副本
+  - value: cancel
+    label: 取消保存操作
+  MergeType:
+  - value: folder
+    label: 按文件夹合并
+  - value: file
+    label: 按文件合并
+  TextSaveType:
+  - value: word
+    label: Word文件
+  - value: txt
+    label: 文本文件
+  - value: word_and_txt
+    label: Word文件和文本文件
+  - value: none
+    label: 不保存
