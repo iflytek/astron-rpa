@@ -1,0 +1,270 @@
+atomic:
+  ChatAI.single_turn_chat:
+    title: 单轮会话
+    comment: 大模型将对你提出的问题： @{query} 进行回答。
+    description: 大模型将会根据你给定的问题，生成互动答案。
+    icon: single-chat
+    helpManual: ''
+    inputList:
+    - key: query
+      title: 用户输入
+      tip: 用户输入的问题。
+    - key: model
+      title: 模型选择
+      tip: 可以选择使用的模型。
+    outputList:
+    - key: single_chat_res
+      title: 答案输出
+      tip: 将大模型生成的答案输出为变量。
+  ChatAI.chat:
+    title: 多轮会话
+    comment: 大模型将扮演角色，并进行最多 (@{max_turns}) 问答次数。
+    description: 大模型将扮演指定角色，与您进行多轮的互动。
+    icon: multi-chat
+    helpManual: ''
+    inputList:
+    - key: is_save
+      title: 保存会话
+      tip: 是否在对话结束时保存对话。
+    - key: title
+      title: 窗口标题
+      tip: 定义对话窗口标题。
+    - key: max_turns
+      title: 最大问答次数
+      tip: 最大问答次数，完整的Q&A（question & answer）为一次。
+    - key: model
+      title: 模型选择
+      tip: 可以选择使用的模型。
+    outputList:
+    - key: chat_res
+      title: 对话聊天记录输出
+      tip: 将对话聊天记录输出为变量。
+  ChatAI.knowledge_chat:
+    title: 知识问答
+    comment: 大模型将读取的文件位于 @{file_path} 。
+    description: 大模型将阅读您的文档，并回答您提出的问题。
+    icon: knowledge-qa
+    helpManual: ''
+    inputList:
+    - key: is_save
+      title: 保存会话
+      tip: 是否在对话结束时保存对话。
+    - key: max_turns
+      title: 最大问答次数
+      tip: 最大问答次数，完整的Q&A（question & answer）为一次。
+    - key: file_path
+      title: 文件路径
+      tip: 请选择需要进行知识问答的文件路径。
+    outputList:
+    - key: knowledge_chat_res
+      title: 对话聊天记录输出
+      tip: 将对话聊天记录输出为变量。
+  DocumentAI.theme_expand:
+    title: 主题扩写
+    comment: 大模型将根据您给定的主题： @{text} ，对其进行扩写。
+    description: 大模型将根据您给定的主题，对其进行扩写。
+    icon: topic-expand
+    helpManual: ''
+    inputList:
+    - key: text
+      title: 主题
+      tip: 输入您需要扩展的主题。
+    outputList:
+    - key: theme_expand_res
+      title: 主题扩展结果输出
+      tip: 将主题扩展结果输出为变量。
+  DocumentAI.sentence_expand:
+    title: 段落扩写
+    comment: 大模型将根据您给定的段落 @{text} ，对其进行扩写。
+    description: 大模型将根据您给定的段落，对其进行扩写。
+    icon: paragraph-expand
+    helpManual: ''
+    inputList:
+    - key: text
+      title: 段落
+      tip: 输入您需要扩展的段落。
+    outputList:
+    - key: sentence_expand_res
+      title: 段落扩展结果输出
+      tip: 将段落扩展结果输出为变量。
+  DocumentAI.sentence_reduce:
+    title: 段落缩写
+    comment: 大模型将根据您给定的段落 @{text} ，对其进行缩写。
+    description: 大模型将根据您给定的段落，对其进行缩写。
+    icon: paragraph-abbreviate
+    helpManual: ''
+    inputList:
+    - key: text
+      title: 段落
+      tip: 输入您需要缩写的段落。
+    outputList:
+    - key: sentence_reduce_res
+      title: 段落缩写结果输出
+      tip: 将段落缩写结果输出为变量。
+  Agent.call_dify:
+    title: 调用Dify流程
+    comment: 调用Dify流程 @{app_token} ，完成您指定的任务。
+    icon: call-dify-workflow
+    helpManual: ''
+    inputList:
+    - key: user
+      title: 用户名
+      tip: ''
+    - key: app_token
+      title: Dify流程密钥
+      tip: Dify流程密钥
+    - key: file_flag
+      title: 是否上传文件
+      tip: ''
+    - key: variable_name
+      title: 变量名
+      tip: ''
+    - key: variable_value
+      title: 变量值
+      tip: ''
+    - key: file_path
+      title: 文件路径
+      tip: ''
+    - key: file_type
+      title: 文件类型
+      tip: ''
+    outputList:
+    - key: dify_result
+      title: Dify流程结果输出
+      tip: ''
+  Agent.call_xcagent:
+    title: 调用星辰Agent流程
+    comment: 调用星辰Agent流程 @{flow_id} ，完成您指定的任务。
+    icon: call-dify-workflow
+    helpManual: ''
+    inputList:
+      - key: api_key
+        title: api_key
+        tip: ''
+      - key: api_secret
+        title: api_secret
+        tip: ''
+      - key: flow_id
+        title: 流程id
+        tip: ''
+      - key: input_value
+        title: 工作流默认输入
+        tip: ''
+    outputList:
+      - key: xcagent_result
+        title: 星辰Agent返回值
+        tip: ''
+  ContractAI.get_factors:
+    title: 合同要素提取
+    comment: 提取合同 @{contract_content} 中的要素。
+    icon: contract-element-extraction
+    helpManual: ''
+    inputList:
+    - key: contract_type
+      title: 输入合同方式
+      tip: ''
+    - key: contract_path
+      title: 合同路径
+      tip: ''
+    - key: contract_content
+      title: 合同文本内容
+      tip: 合同内容
+    - key: custom_factors
+      title: 要素
+      tip: ''
+    - key: contract_validate
+      title: 效果验证
+      tip: ''
+    outputList:
+    - key: factor_result
+      title: 返回要素结果
+      tip: ''
+  RecruitAI.generate_keywords:
+    title: 职位关键词生成
+    comment: 根据职位描述 @{job_description} 生成关键词。
+    icon: job-keyword-generation
+    helpManual: ''
+    inputList:
+    - key: job_name
+      title: 职位名称
+      tip: ''
+    - key: job_description
+      title: 职位描述
+      tip: ''
+    - key: job_website
+      title: 招聘网站
+      tip: ''
+    outputList:
+    - key: recruit_keywords
+      title: 职位关键词
+      tip: ''
+  RecruitAI.rating_resume:
+    title: 简历评分
+    comment: 根据简历 @{resume_content} 评分。
+    icon: resume-scoring
+    helpManual: ''
+    inputList:
+    - key: job_name
+      title: 职位名称
+      tip: ''
+    - key: resume_input_type
+      title: 简历输入方式
+      tip: ''
+    - key: resume_file_path
+      title: 简历文件路径
+      tip: ''
+    - key: resume_content
+      title: 简历文本内容
+      tip: ''
+    - key: job_description
+      title: 职位描述
+      tip: ''
+    - key: rating_system
+      title: 岗位评分体系
+      tip: ''
+    - key: rating_dimensions
+      title: 岗位评分画像
+      tip: ''
+    outputList:
+    - key: recruit_rating
+      title: 简历匹配结果
+      tip: ''
+options:
+  Bool:
+  - value: true
+    label: 是
+  - value: false
+    label: 否
+  DifyFileTypes:
+  - value: document
+    label: 文档
+  - value: image
+    label: 图像
+  - value: video
+    label: 视频
+  - value: audio
+    label: 音频
+  - value: custom
+    label: 其他格式
+  InputType:
+  - value: file
+    label: 文件形式
+  - value: text
+    label: 文本形式
+  JobWebsitesTypes:
+  - value: boss
+    label: BOSS直聘
+  - value: liepin
+    label: 猎聘
+  - value: zhilian
+    label: 智联招聘
+  RatingSystemTypes:
+  - value: default
+    label: 根据岗位描述生成
+  - value: custom
+    label: 自定义判断标准
+  LLMModelTypes:
+  - value: deepseek-v3-0324
+    label: DeepSeek-V3
+  - value: claude-4-sonnet
+    label: DeepSeek-R1

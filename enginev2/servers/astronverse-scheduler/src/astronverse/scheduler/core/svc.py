@@ -26,9 +26,9 @@ class Svc:
         self.config: Config = None
 
         # 端口号:
-        self.__local_port__: int = 8002
+        self.__local_port__: int = 13158
         # 路由端口[随机分配]
-        self.rpa_route_port: int = 11002
+        self.rpa_route_port: int = self.get_validate_port(ComponentType.ROUTE)
         # 调度器端口[随机分配]
         self.scheduler_port: int = self.get_validate_port(ComponentType.SCHEDULER)
         # trigger端口[随机分配]
@@ -80,7 +80,7 @@ class Svc:
                 self.__local_port__ += 1
                 # 长时间运行的端口资源问题
                 if self.__local_port__ >= 65500:
-                    self.__local_port__ = 8002
+                    self.__local_port__ = 13158
                 if check_port(self.__local_port__):
                     if component_type is not None:
                         self.port_dict[component_type.name.lower()] = self.__local_port__

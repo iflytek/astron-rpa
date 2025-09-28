@@ -9,7 +9,7 @@ from astronverse.actionlib import ReportTip
 from astronverse.executor.error import *
 from astronverse.executor.flow.syntax.token import TokenType
 from astronverse.executor.logger import logger
-from astronverse.executor.tools import recording_tool
+from astronverse.executor.recording.recording import recording_tool
 
 common_advanced = [
     {

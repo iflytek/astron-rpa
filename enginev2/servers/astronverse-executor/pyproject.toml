@@ -9,28 +9,18 @@ dependencies = [
     "psutil",
     "anyio",
     "requests",
+    "importlib_metadata",
     "astronverse-baseline",
     "astronverse-actionlib",
     "astronverse-websocket-server",
-    "importlib_metadata"
-#    "rpa_recording>=1.0.2",
-#    "rpatools>=1.0.2",
-#    "rpa_param_utils>=1.0.5",
+    "astronverse-tools",
 ]
 
 [tool.uv.sources]
 astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-websocket-server = {path = "../../shared/astronverse-websocket-server", editable = true}
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=6.0",
-    "pytest-cov>=2.0",
-    "black>=21.0",
-    "flake8>=3.8",
-    "mypy>=0.800",
-]
+astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]

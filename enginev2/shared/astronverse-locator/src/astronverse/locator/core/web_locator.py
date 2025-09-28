@@ -24,18 +24,18 @@ class WebFactory:
     """Web工厂"""
 
     @classmethod
-    def find(cls, element: dict, **kwargs) -> Union[WEBLocator, None]:
-        if element.get("app", "") not in LIKE_CHROME_BROWSER_TYPES:
+    def find(cls, ele: dict, picker_type: str, **kwargs) -> Union[WEBLocator, None]:
+        if ele.get("app", "") not in LIKE_CHROME_BROWSER_TYPES:
             # 直接结束
             return None
 
         # 获取外部配置
         scroll_into_view = kwargs.get("scroll_into_view", True)
 
-        menu_height, menu_left = cls.__get_web_top__(element)
+        menu_height, menu_left = cls.__get_web_top__(ele)
 
         # 通过插件获取元素位置信息
-        rect_result = cls.__get_rect_from_browser_plugin__(element, scroll_into_view=scroll_into_view)
+        rect_result = cls.__get_rect_from_browser_plugin__(ele, scroll_into_view=scroll_into_view)
         if not rect_result:
             return None
 

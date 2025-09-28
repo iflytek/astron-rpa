@@ -5,6 +5,7 @@ from astronverse.scheduler.core.schduler.venv import VenvManager
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.terminal.terminal import Terminal
 from astronverse.scheduler.logger import logger
+from astronverse.scheduler.core.setup.setup import Process
 
 
 class RpaSchedulerAsyncServer(IServer):
@@ -115,3 +116,17 @@ class CheckPickProcessAliveServer(IServer):
                 logger.exception("check_pick_process error: {}".format(e))
             finally:
                 time.sleep(1)
+
+
+class CheckStartPidExitsServer(IServer):
+
+    def __init__(self, svc):
+        super().__init__(
+            svc=svc,
+            name="check_start_pid",
+            level=ServerLevel.NORMAL,
+            run_is_async=True,
+        )
+
+    def run(self):
+        Process.pid_exist_check()

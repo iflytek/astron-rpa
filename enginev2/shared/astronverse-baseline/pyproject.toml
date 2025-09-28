@@ -5,16 +5,8 @@ description = "astronverse-baseline."
 requires-python = ">=3.13"
 
 dependencies = [
-    "loguru>=0.7.2",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=6.0",
-    "pytest-cov>=2.0",
-    "black>=21.0",
-    "flake8>=3.8",
-    "mypy>=0.800",
+    "loguru",
+    "toml",
 ]
 
 [tool.hatch.build.targets.wheel]

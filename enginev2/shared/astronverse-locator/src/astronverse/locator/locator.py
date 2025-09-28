@@ -45,9 +45,7 @@ class LocatorManager:
 
     def __init__(self):
         self.locator_handler = {
-            PickerDomain.UIA.value: [
-                uia_factory_callback,
-            ],
+            PickerDomain.UIA.value: [uia_factory_callback],
             PickerDomain.WEB.value: [web_factory_callback],
             PickerDomain.MSAA.value: [msaa_factory_callback],
         }

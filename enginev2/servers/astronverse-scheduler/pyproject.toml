@@ -28,8 +28,6 @@ dependencies = [
 astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
 astronverse-websocket-server = {path = "../../shared/astronverse-websocket-server", editable = true}
 astronverse-browser-plugin = {path = "../../shared/astronverse-browser-plugin", editable = true}
-astronverse-browser-b = {path = "../../shared/astronverse-browser-plugin", editable = true}
-
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]

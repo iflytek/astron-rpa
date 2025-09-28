@@ -20,9 +20,9 @@ class Config:
                 try:
                     data = yaml.load(yaml_file, Loader=yaml.FullLoader)
                 except Exception as e:
-                    raise ErrorException(CONFIG_LOAD_ERROR.format(yaml_file), "配置文件加载出错 {}".format(e)) from e
+                    raise BaseException(CONFIG_LOAD_ERROR.format(yaml_file), "配置文件加载出错 {}".format(e)) from e
             else:
-                raise ErrorException(
+                raise BaseException(
                     CONFIG_TYPE_ERROR.format(file_type), "配置文件解析不支持该类型 {}".format(file_type)
                 )
 

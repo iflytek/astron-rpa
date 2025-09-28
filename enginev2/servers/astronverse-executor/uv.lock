@@ -52,7 +52,7 @@ dependencies = [
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.0" },
     { name = "flake8", marker = "extra == 'dev'", specifier = ">=3.8" },
-    { name = "loguru", specifier = ">=0.7.2" },
+    { name = "loguru" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.800" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=2.0" },
@@ -67,6 +67,7 @@ dependencies = [
     { name = "anyio" },
     { name = "astronverse-actionlib" },
     { name = "astronverse-baseline" },
+    { name = "astronverse-tools" },
     { name = "astronverse-websocket-server" },
     { name = "importlib-metadata" },
     { name = "psutil" },
@@ -88,6 +89,7 @@ requires-dist = [
     { name = "anyio" },
     { name = "astronverse-actionlib", editable = "../../shared/astronverse-actionlib" },
     { name = "astronverse-baseline", editable = "../../shared/astronverse-baseline" },
+    { name = "astronverse-tools", editable = "../../shared/astronverse-tools" },
     { name = "astronverse-websocket-server", editable = "../../shared/astronverse-websocket-server" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.0" },
     { name = "flake8", marker = "extra == 'dev'", specifier = ">=3.8" },
@@ -98,6 +100,21 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=2.0" },
     { name = "requests" },
     { name = "websockets" },
+]
+provides-extras = ["dev"]
+
+[[package]]
+name = "astronverse-tools"
+version = "1.0.0"
+source = { editable = "../../shared/astronverse-tools" }
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=21.0" },
+    { name = "flake8", marker = "extra == 'dev'", specifier = ">=3.8" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.800" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=2.0" },
 ]
 provides-extras = ["dev"]
 

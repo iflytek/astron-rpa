@@ -12,7 +12,7 @@ from astronverse.executor.flow.syntax import Job
 from astronverse.executor.flow.syntax.environment import Environment
 from astronverse.executor.flow.syntax.token import Token
 from astronverse.executor.logger import logger
-from astronverse.executor.utils import exec_run
+from astronverse.executor.utils.utils import exec_run
 
 python_executable = sys.executable
 

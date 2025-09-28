@@ -1,12 +1,11 @@
 import copy
 import json
 from typing import List, Dict, Any
-from rpa_param_utils.param_utils import (
+from astronverse.executor.utils.param_utils import (
     special_eval_element,
     special_eval_parse,
     ParamType,
     pre_param_handler,
-    param_type_dict,
     param_to_eval,
 )
 from astronverse.executor.error import *

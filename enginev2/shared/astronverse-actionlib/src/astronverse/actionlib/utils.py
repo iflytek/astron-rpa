@@ -122,7 +122,7 @@ class ParamModel:
             elif i.operator == "in":
                 res.append(bool(left in i.right))
             else:
-                raise ErrorException(TYPE_KIND_ERROR_FORMAT.format(i.operator), "类型错误{}".format(i.operator))
+                raise BaseException(TYPE_KIND_ERROR_FORMAT.format(i.operator), "类型错误{}".format(i.operator))
 
         # and or
         if conditional.operators == "and":
@@ -130,7 +130,7 @@ class ParamModel:
         elif conditional.operators == "or":
             return any(res)
         else:
-            raise ErrorException(
+            raise BaseException(
                 TYPE_KIND_ERROR_FORMAT.format(conditional.operators), "类型错误{}".format(conditional.operators)
             )
 
@@ -147,7 +147,7 @@ class ParamModel:
             #
             # # 必填判断
             # if i.name not in kwargs and conditional and i.required:
-            #     raise ErrorException(PARAM_REQUIRED_FORMAT.format(show_name), "参数必填{}".format(show_name))
+            #     raise BaseException(PARAM_REQUIRED_FORMAT.format(show_name), "参数必填{}".format(show_name))
 
             if i.name in kwargs:
                 value = kwargs[i.name]
@@ -167,7 +167,7 @@ class ParamModel:
                         is_in = True
                         break
                 if not is_in:
-                    raise ErrorException(
+                    raise BaseException(
                         PARAM_VALUE_ERROR_FORMAT.format(show_name, value), "{}参数的值错误{}".format(show_name, value)
                     )
 
@@ -204,7 +204,7 @@ class ParamModel:
                     else:
                         value = i.__annotation__(value)
                 except Exception as e:
-                    raise ErrorException(
+                    raise BaseException(
                         PARAM_CONVERT_ERROR_FORMAT.format(show_name, i.types, value),
                         "{}的值转换成{}失败{}, error:{}".format(show_name, i.types, value, e),
                     ) from e
@@ -224,7 +224,7 @@ class ParamModel:
                 try:
                     value = i.__annotation__.__validate__(show_name, value)
                 except Exception as e:
-                    raise ErrorException(
+                    raise BaseException(
                         PARAM_CONVERT_ERROR_FORMAT.format(show_name, i.types, value),
                         "{}的值装换成{}失败{}, error:{}".format(show_name, i.types, value, e),
                     ) from e

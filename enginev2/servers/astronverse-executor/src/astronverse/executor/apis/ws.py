@@ -5,10 +5,10 @@ import traceback
 from dataclasses import dataclass
 from typing import Any
 import websockets
+from websockets import ServerConnection
 from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
 from astronverse.websocket_server.ws import WsException, Conn, IWebSocket, BaseMsg
 from astronverse.websocket_server.ws_service import WsManager, AsyncOnce
-from websockets.legacy.server import WebSocketServerProtocol
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.error import *
 from astronverse.executor.logger import logger
@@ -59,7 +59,7 @@ wsmg = WsManager(error_format=error_format, log=ws_log, ping_close_time=300)
 class WsSocket(IWebSocket):
     """websocket连接类, 实现了IWebSocket接口, 抽象的目的主要是为了兼容fastapi接口和websocket的WebSocketServerProtocol接口"""
 
-    def __init__(self, ws: WebSocketServerProtocol):
+    def __init__(self, ws: ServerConnection):
         self.ws = ws
 
     async def receive_text(self) -> str:
@@ -172,8 +172,10 @@ class Ws:
 
         await self.report_once.do(inner_send_report)
 
-    async def websocket_endpoint(self, ws: WebSocketServerProtocol, path):
+    async def websocket_endpoint(self, ws: ServerConnection):
         try:
+            path = ws.request.path
+
             uuid = "$executor$"
             if path in ["", "/"]:
                 self.is_web_link = True
@@ -209,15 +211,19 @@ class Ws:
             )
             self.svc.storage.report_status_upload("fail", "{} {}".format(ReportFlowTaskError, error_str))
 
+    async def run_server(self):
+        server = websockets.serve(self.websocket_endpoint, "127.0.0.1", self.port)
+        await server
+
     def server(self):
         from astronverse.executor.apis.apis import init
-
         init()
+
         try:
             loop = asyncio.get_running_loop()
-        except Exception:
+        except Exception as e:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        server = websockets.serve(self.websocket_endpoint, "127.0.0.1", self.port)
-        loop.run_until_complete(server)
+
+        loop.run_until_complete(self.run_server())
         loop.run_forever()

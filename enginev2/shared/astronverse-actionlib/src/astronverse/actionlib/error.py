@@ -1,7 +1,7 @@
 from astronverse.baseline.i18n.i18n import _
-from astronverse.baseline.error.error import ErrorCode, ErrorException, BizCode
+from astronverse.baseline.error.error import ErrorCode, BaseException, BizCode
 
-ErrorException = ErrorException
+BaseException = BaseException
 
 TYPE_KIND_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("类型错误") + ": {}")
 

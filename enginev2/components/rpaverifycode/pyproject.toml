@@ -1,0 +1,26 @@
+[project]
+name = "rpaverifycode"
+version = "1.0.0"
+description = "rpaverifycode."
+requires-python = ">=3.13"
+
+dependencies = [
+    "rpabrowser",
+    "astronverse-actionlib",
+    "astronverse-locator",
+    "pyautogui",
+    "pytweening",
+    "requests"
+]
+
+[tool.uv.sources]
+rpabrowser = {path = "../../components/rpabrowser", editable = true}
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpaverifycode"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

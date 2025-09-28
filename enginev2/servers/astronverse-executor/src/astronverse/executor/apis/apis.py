@@ -4,7 +4,7 @@ from astronverse.websocket_server.ws import BaseMsg
 from astronverse.executor.apis.ws import wsmg
 from astronverse.executor.flow.svc import Svc
 from astronverse.executor.logger import logger
-from astronverse.executor.utils import kill_proc_tree
+from astronverse.executor.utils.utils import kill_proc_tree
 
 
 def init():

@@ -1,9 +1,7 @@
 import sys
 import threading
-from rpa_recording.recording import RecordingTool
-from rpatools.tools import RpaTools
-
-from astronverse.executor.utils import exec_run
+from astronverse.executor.utils.utils import exec_run
+from astronverse.tools.tools import RpaTools
 
 
 class LogTool:
@@ -40,4 +38,3 @@ class LogTool:
 
 
 log_tool = LogTool()
-recording_tool = RecordingTool()

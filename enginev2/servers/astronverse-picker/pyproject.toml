@@ -13,26 +13,16 @@ dependencies = [
     "psutil",
     "requests",
     "pyautogui",
+    "pandas",
     "pyWinhook; sys_platform == 'win32'",
     "pywin32; sys_platform == 'win32'",
     "uiautomation; sys_platform == 'win32'",
-    "pythonnet; sys_platform == 'win32'",
-#    "rpa_param_utils>=1.0.0",
-#    "rpa_table_helper>=1.0.0",
+    "pythonnet; sys_platform == 'win32'"
 ]
 
 [tool.uv.sources]
 astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
 astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=6.0",
-    "pytest-cov>=2.0",
-    "black>=21.0",
-    "flake8>=3.8",
-    "mypy>=0.800",
-]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]

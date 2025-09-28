@@ -23,7 +23,7 @@ class Float(float):
                     return cls(0)
             return cls(float(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -39,7 +39,7 @@ class Int(int):
                     return cls(0)
             return cls(int(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -55,13 +55,13 @@ class Bool:
                     return cls(False)
             return cls(bool(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
     def __init__(self, value: bool):
         if not isinstance(value, bool):
-            raise ErrorException(TYPE_KIND_ERROR_FORMAT.format(value), "Value must be a boolean")
+            raise BaseException(TYPE_KIND_ERROR_FORMAT.format(value), "Value must be a boolean")
         self._value = value
 
     def __bool__(self):
@@ -79,7 +79,7 @@ class Str(str):
         try:
             return cls(str(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -94,7 +94,7 @@ class List(list):
                 return ast.literal_eval(value)
             return cls(list(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -109,7 +109,7 @@ class Dict(dict):
                 return ast.literal_eval(value)
             return cls(dict(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -124,7 +124,7 @@ class PATH(Str):
             temp_value = temp_value.strip()
             return cls(temp_value)
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -159,7 +159,7 @@ class DIRPATH(Str):
             temp_value = temp_value.strip()
             return cls(temp_value)
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -189,11 +189,11 @@ class Date:
             try:
                 return cls(time_str=value)
             except ValueError:
-                raise ErrorException(
+                raise BaseException(
                     PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}".format(name, value)
                 )
 
-        raise ErrorException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}".format(name, value))
+        raise BaseException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}".format(name, value))
 
     def set_time(self, time_str: str, format_type: TimeFormatType = TimeFormatType.YMD_HMS):
         self.format = format_type
@@ -256,14 +256,14 @@ class URL(Str):
             temp_value = str(value)
             temp_value = temp_value.strip()
             if len(temp_value) == 0:
-                raise ErrorException(
+                raise BaseException(
                     PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败".format(name, value)
                 )
             if "://" not in temp_value:
                 temp_value = "http://" + temp_value
             return cls(temp_value)
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -278,7 +278,7 @@ class Pick(Dict):
                 return None
             return cls(dict(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -293,7 +293,7 @@ class WebPick(Pick):
                 return None
             return cls(dict(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -322,7 +322,7 @@ class WinPick(Pick):
                 return None
             return cls(dict(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -351,7 +351,7 @@ class IMGPick(Pick):
                 return None
             return cls(dict(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -364,7 +364,7 @@ class FeishuBaseInstance(Dict):
         try:
             return cls(dict(value))
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -379,7 +379,7 @@ class DialogResult(Str):
             temp_value = temp_value.strip()
             return cls(temp_value)
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -396,7 +396,7 @@ class Password(Str):
             temp_value = temp_value.strip()
             return cls(temp_value)
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 
@@ -439,6 +439,6 @@ class Ciphertext:
             temp_value = temp_value.strip()
             return cls(temp_value)
         except Exception as e:
-            raise ErrorException(
+            raise BaseException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e

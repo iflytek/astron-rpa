@@ -13,7 +13,7 @@ from astronverse.scheduler.core.servers.async_server import (
     AtomicUploadAsyncServer,
     CheckPickProcessAliveServer,
     RpaSchedulerAsyncServer,
-    TerminalAsyncServer,
+    TerminalAsyncServer, CheckStartPidExitsServer,
 )
 from astronverse.scheduler.core.servers.core_server import (
     RpaBrowserConnectorServer,
@@ -31,7 +31,7 @@ def start():
     try:
         # 1. 初始化配置
         parser = argparse.ArgumentParser(description="{} service".format("scheduler"))
-        parser.add_argument("--conf", type=str, default="", help="配置文件")
+        parser.add_argument("--conf", type=str, default="./conf.json", help="配置文件")
         args = parser.parse_args()
 
         logger.info("args: {} service[:{}] start".format(args, "astronverse.scheduler"))
@@ -50,6 +50,8 @@ def start():
         svc.set_config(conf)
 
         # 3. 环境检测
+        from astronverse.scheduler.core.setup.setup import Process
+        Process.kill_all_zombie()
         repair_pywin32_dependence(svc)
         linux_env_check()
 
@@ -59,8 +61,9 @@ def start():
         server_mg.register(RpaBrowserConnectorServer(svc))
         server_mg.register(RpaSchedulerAsyncServer(svc))
         server_mg.register(TerminalAsyncServer(svc))
-        server_mg.register(AtomicUploadAsyncServer(svc))
+        # server_mg.register(AtomicUploadAsyncServer(svc))
         server_mg.register(CheckPickProcessAliveServer(svc))
+        server_mg.register(CheckStartPidExitsServer(svc))
 
         server_mg.register(svc.trigger_server)
         if svc.vnc_server:

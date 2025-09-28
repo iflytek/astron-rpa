@@ -219,7 +219,7 @@ class PickerRequestHandler:
         """处理拾取获取数据"""
         try:
             from astronverse.locator.locator import LocatorManager
-            from rpa_table_helper.table_filter import (
+            from astronverse.picker.utils.table_filter import (
                 DataFilter,
                 table_json_merge_values,
             )
@@ -254,15 +254,18 @@ class PickerRequestHandler:
 
     def _process_element_data(self, input_data: PickerRequire):
         """处理元素数据"""
-        import rpa_param_utils.param_utils
+        from astronverse.picker.utils.param_utils import (
+            global_to_dict,
+            special_eval_element
+        )
         from astronverse.locator.locator import LocatorManager
 
         global_data = input_data.ext_data.get("global", [])
-        env, id2name = rpa_param_utils.param_utils.global_to_dict(global_data)
+        env, id2name = global_to_dict(global_data)
         data = (
             LocatorManager.parse_element_json(input_data.data) if isinstance(input_data.data, str) else input_data.data
         )
-        return rpa_param_utils.param_utils.special_eval_element(data, env, id2name)
+        return special_eval_element(data, env, id2name)
 
     async def _send_response(self, ws, result: Dict[str, Any]):
         """发送响应消息"""
@@ -404,7 +407,6 @@ class WsServer:
     def server(self) -> None:
         """启动WebSocket服务器"""
         import pythoncom
-
         pythoncom.CoInitialize()
 
         async def start_server():

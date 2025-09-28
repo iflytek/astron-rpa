@@ -1,0 +1,22 @@
+[project]
+name = "rpawindow"
+version = "1.0.0"
+description = "rpawindow."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "pywin32; sys_platform == 'win32'",
+    "uiautomation; sys_platform == 'win32'",
+    "dogtail; sys_platform == 'linux'"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpawindow"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
