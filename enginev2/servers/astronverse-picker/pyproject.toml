@@ -1,0 +1,42 @@
+[project]
+name = "astronverse-picker"
+version = "1.0.0"
+description = "astronverse-picker."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-baseline",
+    "astronverse-locator",
+    "websockets",
+    "anyio",
+    "pydantic",
+    "psutil",
+    "requests",
+    "pyautogui",
+    "pyWinhook; sys_platform == 'win32'",
+    "pywin32; sys_platform == 'win32'",
+    "uiautomation; sys_platform == 'win32'",
+    "pythonnet; sys_platform == 'win32'",
+#    "rpa_param_utils>=1.0.0",
+#    "rpa_table_helper>=1.0.0",
+]
+
+[tool.uv.sources]
+astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=21.0",
+    "flake8>=3.8",
+    "mypy>=0.800",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,27 @@
+[project]
+name = "engine"
+version = "1.0.0"
+description = "engine."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-scheduler",
+    "astronverse-trigger",
+    "astronverse-browser-bridge",
+    "astronverse-picker",
+    "astronverse-vision-picker",
+    "astronverse-executor",
+]
+
+[tool.uv.sources]
+astronverse-scheduler = {path = "./servers/astronverse-scheduler", editable = true}
+astronverse-trigger = {path = "./servers/astronverse-trigger", editable = true}
+astronverse-browser-bridge = {path = "./servers/astronverse-browser-bridge", editable = true}
+astronverse-picker = {path = "./servers/astronverse-picker", editable = true}
+astronverse-vision-picker = {path = "./servers/astronverse-vision-picker", editable = true}
+astronverse-executor = {path = "./servers/astronverse-executor", editable = true}
+
+[dependency-groups]
+dev = [
+  "ruff~=0.12.3"
+]

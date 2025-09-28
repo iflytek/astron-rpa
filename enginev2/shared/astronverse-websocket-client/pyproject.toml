@@ -1,0 +1,25 @@
+[project]
+name = "astronverse-websocket-client"
+version = "1.0.0"
+description = "astronverse-websocket-client."
+requires-python = ">=3.13"
+
+dependencies = [
+    "websocket-client"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=21.0",
+    "flake8>=3.8",
+    "mypy>=0.800",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

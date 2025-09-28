@@ -1,0 +1,39 @@
+types:
+  Date:
+    desc: "日期时间"
+  PATH:
+    desc: "文件路径"
+    funcList:
+      - key: "PATH.root"
+        funcDesc: "根目录"
+      - key: "PATH.directory"
+        funcDesc: "父目录"
+      - key: "PATH.file_name"
+        funcDesc: "文件名称"
+      - key: "PATH.file_name_without_extension"
+        funcDesc: "文件名称(不带扩展名)"
+      - key: "PATH.file_extension"
+        funcDesc: "文件扩展名"
+  URL:
+    desc: "地址"
+  Pick:
+    desc: "元素"
+  WebPick:
+    desc: "网页元素"
+  WinPick:
+    desc: "Win元素"
+  FeishuBaseInstance:
+    desc: "飞书对象"
+  DialogResult:
+    desc: "对话框输出结果"
+options:
+  bool:
+    - value: "True"
+      label: "是"
+    - value: "False"
+      label: "否"
+  Bool:
+    - value: "True"
+      label: "是"
+    - value: "False"
+      label: "否"
