@@ -31,7 +31,7 @@ def start():
     try:
         # 1. 初始化配置
         parser = argparse.ArgumentParser(description="{} service".format("scheduler"))
-        parser.add_argument("--conf", type=str, default="", help="配置文件")
+        parser.add_argument("--conf", type=str, default="./conf.json", help="配置文件")
         args = parser.parse_args()
 
         logger.info("args: {} service[:{}] start".format(args, "astronverse.scheduler"))

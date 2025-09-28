@@ -11,6 +11,12 @@ dependencies = [
     "astronverse-picker",
     "astronverse-vision-picker",
     "astronverse-executor",
+    "astronverse-actionlib",
+    "astronverse-baseline",
+    "astronverse-browser-plugin",
+    "astronverse-locator",
+    "astronverse-websocket-client",
+    "astronverse-websocket-server",
 ]
 
 [tool.uv.sources]
@@ -20,6 +26,12 @@ astronverse-browser-bridge = {path = "./servers/astronverse-browser-bridge", edi
 astronverse-picker = {path = "./servers/astronverse-picker", editable = true}
 astronverse-vision-picker = {path = "./servers/astronverse-vision-picker", editable = true}
 astronverse-executor = {path = "./servers/astronverse-executor", editable = true}
+astronverse-actionlib = {path = "./shared/astronverse-actionlib", editable = true}
+astronverse-baseline = {path = "./shared/astronverse-baseline", editable = true}
+astronverse-browser-plugin = {path = "./shared/astronverse-browser-plugin", editable = true}
+astronverse-locator = {path = "./shared/astronverse-locator", editable = true}
+astronverse-websocket-client = {path = "./shared/astronverse-websocket-client ", editable = true}
+astronverse-websocket-server = {path = "./shared/astronverse-websocket-server", editable = true}
 
 [dependency-groups]
 dev = [
