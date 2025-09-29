@@ -15,7 +15,6 @@ import { windowManager } from '@/platform'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const appConfigStore = useAppConfigStore()
-const auth = authService.getService()
 
 const { token } = theme.useToken()
 
@@ -28,7 +27,8 @@ const randomIllustrationGroup
   = illustrationList[Math.floor(Math.random() * illustrationList.length)]
 
 if (storage.get('httpReady', 'sessionStorage') === 'true') {
-  auth.checkLogin(() => {
+  authService.init()
+  authService.getAuth().checkLogin(() => {
     useRoutePush({ name: DESIGNER })
   })
 }

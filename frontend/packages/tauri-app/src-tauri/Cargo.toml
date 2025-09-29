@@ -12,7 +12,6 @@ tauri-build = { version = "1", features = [] }
 
 [dependencies]
 tauri = { version = "1", features = [
-  "fs-all",
   "path-all",
   "os-all",
   "system-tray",

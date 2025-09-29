@@ -213,6 +213,7 @@ docker-compose ps
    ```bash
    cd frontend
    pnpm install
+   copy packages/web-app/.env.example packages/web-app/.env
    pnpm build:tauri
    ```
 
@@ -222,6 +223,9 @@ docker-compose ps
 # 安装依赖
 cd frontend
 pnpm install
+
+# 配置环境变量(必填项请参见 .env 内注释)
+copy packages/web-app/.env.example packages/web-app/.env
 
 # 启动 Web 开发服务器
 pnpm dev:web

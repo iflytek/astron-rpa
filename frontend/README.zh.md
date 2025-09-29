@@ -78,6 +78,9 @@ cd astron-rpa/frontend
 # 安装依赖
 pnpm install
 
+# 配置环境变量(必填项请参见 .env 内注释)
+copy packages/web-app/.env.example packages/web-app/.env
+
 # 启动 Web 开发服务器
 pnpm dev:web
 

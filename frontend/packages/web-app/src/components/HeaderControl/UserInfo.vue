@@ -17,7 +17,7 @@ import { useRunningStore } from '@/stores/useRunningStore'
 const { t } = useTranslation()
 
 const userInfo = ref({ userName: '' })
-const auth = authService.getService()
+const auth = authService.getAuth()
 
 const menuData = computed(() => [
   // {
