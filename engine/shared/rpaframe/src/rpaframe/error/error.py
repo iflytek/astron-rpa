@@ -19,7 +19,7 @@ class ErrorCode:
         return self
 
 
-class BaseError(Exception):
+class BaseException(Exception):
     def __init__(self, code: ErrorCode, message: str):
         self.code = code
         self.message = message

@@ -151,7 +151,7 @@ class Watch:
         self.timeout += timedelta(seconds=self.interval)
 
 
-class WsError(Exception):
+class WsException(Exception):
     """
     WsException ws基础异常
     """
@@ -159,7 +159,7 @@ class WsError(Exception):
     pass
 
 
-class WatchRetryError(WsError):
+class WatchRetry(WsException):
     """
     WatchTimeout watch重试
     """
@@ -167,7 +167,7 @@ class WatchRetryError(WsError):
     pass
 
 
-class WatchTimeoutError(WsError):
+class WatchTimeout(WsException):
     """
     WatchTimeout watch超时
     """
@@ -175,7 +175,7 @@ class WatchTimeoutError(WsError):
     pass
 
 
-class WsError(Exception):
+class WsError(WsException):
     """
     WsError ws基础错误, 会关闭连接
     """
