@@ -20,9 +20,10 @@ from rpawebsocket.ws import (
     PongMsg,
     Route,
     Watch,
-    WatchRetryError,
-    WatchTimeoutError,
+    WatchRetry,
+    WatchTimeout,
     WsError,
+    WsException,
     default_error_format,
     default_log,
     gen_exit_msg,
@@ -104,7 +105,7 @@ class WsManager:
             func = self.routes[name].func
             return await call(func, *args, **kwargs)
         else:
-            raise WsError("func is not exist: {}".format((channel, key)))
+            raise WsException("func is not exist: {}".format((channel, key)))
 
     @staticmethod
     async def _call_wait(watch: Watch, *args, **kwargs):
@@ -225,10 +226,7 @@ class WsManager:
                     msg = BaseMsg(**data)
 
                     if not msg.channel:
-                        await self._send_exit(
-                            conn,
-                            MsgUnlawfulnessError("msg unlawfulness, {}".format(msg.tojson())),
-                        )
+                        await self._send_exit(conn, MsgUnlawfulnessError("msg unlawfulness, {}".format(msg.tojson())))
                         continue
 
                     if not msg.uuid:
@@ -296,10 +294,10 @@ class WsManager:
                             watch = self.watch_msg[name]
                             watch.retry()
                             if watch.time > watch.retry_time:
-                                await self._call_wait(watch, None, WatchTimeoutError("watch timeout"))
+                                await self._call_wait(watch, None, WatchTimeout("watch timeout"))
                                 del self.watch_msg[name]
                             else:
-                                await self._call_wait(watch, None, WatchRetryError("retry"))
+                                await self._call_wait(watch, None, WatchRetry("retry"))
                                 heapq.heappush(self.watch_msg_queue, (watch.timeout, name))
                     except Exception as e:
                         self.log("error clear_watch: {}".format(e))
@@ -320,14 +318,12 @@ class WsManager:
                         for item in conn_list:
                             if item.last_ping + self.ping_close_time < int(time.time()):
                                 await self._send_exit(
-                                    item,
-                                    PingTimeoutError("ping time expires, {}".format(item.last_ping)),
+                                    item, PingTimeoutError("ping time expires, {}".format(item.last_ping))
                                 )
-                    for index, item in enumerate(self.no_login_conns):
+                    for item in self.no_login_conns:
                         if item.last_ping + self.ping_close_time < int(time.time()):
                             await self._send_exit(
-                                item,
-                                PingTimeoutError("ping time expires, {}".format(item.last_ping)),
+                                item, PingTimeoutError("ping time expires, {}".format(item.last_ping))
                             )
                 except Exception as e:
                     self.log("error check_ping: {}".format(e))
@@ -341,11 +337,11 @@ class WsManager:
         send 发送消息，支持ack确认机制
         """
         if not msg.send_uuid:
-            raise WsError("msg unlawfulness, {}".format(msg.tojson()))
+            raise WsException("msg unlawfulness, {}".format(msg.tojson()))
 
         if msg.send_uuid not in self.conns:
             self.log("uuid empty {} {}".format(msg.send_uuid, self.conns))
-            raise WsError("send uuid empty")
+            raise WsException("send uuid empty")
 
         try:
             tasks = [asyncio.create_task(self._send_text(v, msg.tojson())) for v in self.conns[msg.send_uuid]]
@@ -358,10 +354,10 @@ class WsManager:
 
         async def callback(watch_msg: BaseMsg | None = None, e: Exception | None = None):
             nonlocal callback_func
-            if isinstance(e, WatchTimeoutError):
+            if isinstance(e, WatchTimeout):
                 # 已经退出
                 return await call(callback_func, None, e)
-            elif isinstance(e, WatchRetryError):
+            elif isinstance(e, WatchRetry):
                 # 重试
                 return
             elif watch_msg:

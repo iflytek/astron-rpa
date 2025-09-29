@@ -17,9 +17,9 @@ from rpawebsocketclient.ws import (
     PongMsg,
     Route,
     Watch,
-    WatchRetryError,
-    WatchTimeoutError,
-    WsError,
+    WatchRetry,
+    WatchTimeout,
+    WsException,
     default_log,
 )
 
@@ -82,7 +82,7 @@ class WsApp:
             func = self.routes[temp_channel].func
             return func(*args, **kwargs)
         else:
-            raise WsError("func is not exist: {}".format((channel, key)))
+            raise WsException("func is not exist: {}".format((channel, key)))
 
     @staticmethod
     def _call_wait(watch: Watch, *args, **kwargs):
@@ -123,10 +123,10 @@ class WsApp:
                             watch = self.watch_msg[name]
                             watch.retry()
                             if watch.time > watch.retry_time:
-                                self._call_wait(watch, None, WatchTimeoutError("watch timeout"))
+                                self._call_wait(watch, None, WatchTimeout("watch timeout"))
                                 del self.watch_msg[name]
                             else:
-                                self._call_wait(watch, None, WatchRetryError("retry"))
+                                self._call_wait(watch, None, WatchRetry("retry"))
                                 heapq.heappush(self.watch_msg_queue, (watch.timeout, name))
                     except Exception as e:
                         self.log("error clear_watch: {}".format(e))
@@ -184,10 +184,10 @@ class WsApp:
 
         def callback(watch_msg: BaseMsg | None = None, e: Exception | None = None):
             nonlocal callback_func
-            if isinstance(e, WatchTimeoutError):
+            if isinstance(e, WatchTimeout):
                 # 已经退出
                 return callback_func(None, e)
-            elif isinstance(e, WatchRetryError):
+            elif isinstance(e, WatchRetry):
                 # 重试
                 return
             elif watch_msg:
