@@ -58,7 +58,7 @@ class UIANode:
 class UIAEle:
     """这个是UIA的值，需要和前端PATH对比, 并记录对比结果"""
 
-    def __init__(self, control: Control, index: int = None, index_match_sort: str = ""):
+    def __init__(self, control: Control, index: int | None = None, index_match_sort: str = ""):
         # 上面是基于control，和index计算出来的数据
         self.__control = control
         self.__rect = None
@@ -543,7 +543,8 @@ class UIAFactory:
             cls.__show_desktop_ele__(root_handle, root_ctrl, match_ele.rect)
             res = UIALocator(control=match_ele.control)
             logger.info(
-                f"部分匹配成功，使用句柄: {root_handle}，匹配深度: {best_match_depth}，校验结果的rect {res.rect().to_json()}"
+                f"部分匹配成功，使用句柄: {root_handle}，匹配深度: {best_match_depth}，"
+                f"校验结果的rect {res.rect().to_json()}"
             )
             return res
         else:

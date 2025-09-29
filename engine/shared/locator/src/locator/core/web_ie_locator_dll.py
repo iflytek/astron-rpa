@@ -12,4 +12,4 @@ IEAutomationClass = IEAutomationClass
 
 
 tag_path = os.path.join(os.path.dirname(__file__), "exes", "ie", "tag.ts")
-ie_similarElementjs_path = os.path.join(os.path.dirname(__file__), "exes", "ie", "SimilarElement.js")
+ie_similar_element_js_path = os.path.join(os.path.dirname(__file__), "exes", "ie", "SimilarElement.js")

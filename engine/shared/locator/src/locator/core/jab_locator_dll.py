@@ -1,7 +1,7 @@
 import ctypes
 import os
 import sys
-from ctypes import *
+from ctypes import cdll
 
 # 初始化dll
 jab_path = os.path.join(os.path.dirname(__file__), "exes", "jab")

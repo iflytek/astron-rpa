@@ -118,12 +118,12 @@ class DataFilter:
         self.produceType = data_json.get("produceType")
         self.data_values = data_json.get("values")
         # print(f"self.data_values: {self.data_values}")
-        self.value_types = list(map(lambda x: x.get("value_type"), self.data_values))
+        self.value_types = [x.get("value_type") for x in self.data_values]
         # print(f"self.value_types: {self.value_types}")
-        self.data_list = list(map(lambda x: x["value"], self.data_values))
-        self.cell_filterConfig_list = list(map(lambda x: x.get("colFilterConfig"), self.data_values))
-        self.filterConfig_list = list(map(lambda x: x.get("filterConfig"), self.data_values))
-        self.dataProcessConfig_list = list(map(lambda x: x.get("colDataProcessConfig"), self.data_values))
+        self.data_list = [x["value"] for x in self.data_values]
+        self.cell_filterConfig_list = [x.get("colFilterConfig") for x in self.data_values]
+        self.filterConfig_list = [x.get("filterConfig") for x in self.data_values]
+        self.dataProcessConfig_list = [x.get("colDataProcessConfig") for x in self.data_values]
         self.hightLightIndex_list = []
         self.dataProcess_state = 0
         self.data_table = self.get_table()
@@ -151,7 +151,7 @@ class DataFilter:
                         if item["attrs"].get(self.value_types[i])
                         else ""
                     )
-            text_values = list(map(lambda x: [item["text"] for item in x], self.data_list))
+            text_values = [[item["text"] for item in x] for x in self.data_list]
         elif self.produceType == "table":
             for i, item_list in enumerate(self.data_list):
                 self.data_list[i] = [re.sub(r"[\n\t]|^\s+|\s+$|\xa0", "", item) for item in item_list]
@@ -188,7 +188,9 @@ class DataFilter:
                     filter_condition += filter_one_str
                     filter_index += 1
                 try:
-                    filter_df = self.data_table[eval(filter_condition)]
+                    import ast
+
+                    filter_df = self.data_table[ast.literal_eval(filter_condition)]
                     self.hightLightIndex_list[index] = list(filter_df["index"])
                     filter_result = list(filter_df[index])
                     self.data_table[index] = ""
@@ -219,7 +221,9 @@ class DataFilter:
                     filter_condition += filter_one_str
                     filter_index += 1
                 try:
-                    self.data_table = self.data_table[eval(filter_condition)]
+                    import ast
+
+                    self.data_table = self.data_table[ast.literal_eval(filter_condition)]
                 except Exception as e:
                     logger.error(f"table_filter: {str(e)}")
                     raise ValueError(f"暂不支持该筛选条件：{str(e)}")
@@ -269,7 +273,9 @@ class DataFilter:
                 filter_logic_str = f"{filter_col_str}>'{parameter}'"
             elif logical == "time_between":
                 if isinstance(parameter, str):
-                    parameter = eval(parameter)
+                    import ast
+
+                    parameter = ast.literal_eval(parameter)
                 if isinstance(parameter, list):
                     filter_logic_str = f"({filter_col_str} >= '{parameter[0]}')&({filter_col_str} <= '{parameter[1]}')"
                 else:
@@ -278,7 +284,9 @@ class DataFilter:
             filter_logic_str = f'{filter_col_str}.astype(str).str.contains(r"{parameter}", regex=True)'
         elif logical == "enumerate":
             if isinstance(parameter, str):
-                parameter = eval(parameter)
+                import ast
+
+                parameter = ast.literal_eval(parameter)
             if isinstance(parameter, list):
                 filter_logic_str = f"{filter_col_str}.isin({parameter})"
             else:
@@ -288,7 +296,7 @@ class DataFilter:
 
         return filter_logic_str
 
-    def ExtractNum(self, index, parameters):
+    def extract_num(self, index, parameters):
         # 提取数字
         self.data_table[index] = list(
             self.data_table[index].astype(str).apply(lambda x: "".join(re.findall(r"\d+", x)))
@@ -320,7 +328,7 @@ class DataFilter:
         val = parameters[0].get("val")
         self.data_table[index] = list(self.data_table[index].astype(str) + val)
 
-    def formatTime(self, index, parameters):
+    def format_time(self, index, parameters):
         # 格式化时间
         val = parameters[0].get("val")
         if val != "":
@@ -345,7 +353,7 @@ class DataFilter:
         )
         self.data_table[index] = extracted[0]
 
-    def dataProcess(self):
+    def data_process(self):
         """
         数据处理：提取数字，去除首尾空格，字符替换，添加前缀，添加后缀，格式化时间，正则筛选
         """
@@ -384,13 +392,13 @@ class DataFilter:
                         if process_type == "Trim":
                             self.trim(index, parameters)
                         elif process_type == "FormatTime":
-                            self.formatTime(index, parameters)
+                            self.format_time(index, parameters)
                         elif process_type == "Regular":
                             self.regular(index, parameters)
                         elif process_type == "Replace":
                             self.replace(index, parameters)
                         elif process_type == "ExtractNum":
-                            self.ExtractNum(index, parameters)
+                            self.extract_num(index, parameters)
                         elif process_type == "Prefix":
                             self.prefix(index, parameters)
                         elif process_type == "Suffix":
@@ -404,7 +412,7 @@ class DataFilter:
             self.cell_filter()
         if any(self.dataProcessConfig_list):
             # 数据处理
-            self.dataProcess()
+            self.data_process()
         if any(self.filterConfig_list):
             # 数据筛选
             self.table_filter()
@@ -440,7 +448,7 @@ class DataFilter:
             )
 
         if self.dataProcess_state == 1:
-            data_list_new = list(map(lambda x: x["value"], self.data_json["values"]))
+            data_list_new = [x["value"] for x in self.data_json["values"]]
             for row in range(len(data_list_new)):
                 for col in range(len(data_list_new[row])):
                     data_table_text = self.data_table[row].tolist()[col]
@@ -452,7 +460,7 @@ class DataFilter:
 
         return self.data_json
 
-    def get_hightLightIndex(self):
+    def get_hightlight_index(self):
         """
         获取高亮的索引
         """
@@ -531,7 +539,7 @@ def values_to_row_list(values, produce_type):
         table_data = {item["title"]: item["value"] for item in values}
     else:
         for item in values:
-            val_items = [val_item for val_item in item["value"]]
+            val_items = list(item["value"])
             logger.info(f"val_items: {val_items}")
             if len(val_items) < max_length:
                 val_items += [{"text": "", "attrs": {}}] * (max_length - len(val_items))
@@ -541,7 +549,7 @@ def values_to_row_list(values, produce_type):
     return table_df.values.tolist()
 
 
-def page_values_merge(preValues: list, values: list, produce_type: str):
+def page_values_merge(pre_values: list, values: list, produce_type: str):
     """
     将 values 转换成行二维数组
     @:param values: 抓取数组，以列为单元
@@ -558,10 +566,10 @@ def page_values_merge(preValues: list, values: list, produce_type: str):
                 item["value"] += [{"text": "", "attrs": {}}] * (max_length - len(item["value"]))
 
     logger.info(f"page_values_merge1: {values}")
-    # 2, 将preValues 的value 和 values 的value 合并
-    if len(preValues) == 0:
+    # 2, 将pre_values 的value 和 values 的value 合并
+    if len(pre_values) == 0:
         return values
     else:
-        for i in range(len(preValues)):
-            preValues[i]["value"] += values[i]["value"]
-        return preValues
+        for i in range(len(pre_values)):
+            pre_values[i]["value"] += values[i]["value"]
+        return pre_values

@@ -57,7 +57,8 @@ class SAPLocatorV1:
             type_num = control.TypeAsNumber
             class_text = control.Text.split(".")[1]
             logger.info(
-                f"control{class_text} {control} control.Type {control.Type}  control.TypeAsNumber {control.TypeAsNumber}"
+                f"control{class_text} {control} control.Type {control.Type}  "
+                f"control.TypeAsNumber {control.TypeAsNumber}"
             )
             # 判断控件类型
             if "GridView" in class_text:
@@ -195,7 +196,7 @@ class SAPLocatorV1:
             logger.error(f"遍历节点时出错: {str(e)}")
             return {"height": 0, "left": 0, "top": 0, "width": 0}
 
-    def getElementRect(self, ctrl, type_str, path_dic):
+    def get_element_rect(self, ctrl, type_str, path_dic):
         """
         根据ctrl类型
         """
@@ -234,7 +235,7 @@ class SAPLocatorV1:
         if not handle:
             raise Exception("元素无法找到")
         _, pid = win32process.GetWindowThreadProcessId(handle)
-        print("pid是{}".format(pid))
+        logger.info("pid是{}".format(pid))
         # 将路径变成字符串去找目标
         if not path or len(path) < 1:
             raise Exception("请勾选校验信息")
@@ -263,7 +264,7 @@ class SAPLocatorV1:
         # 滚动到可视区域,目前未完成，因为缺少可验证场景以及sap功能支持调研
         self.scroll_ele(ctrl)
 
-        rect_wywh = self.getElementRect(ctrl, type_str, path[1])
+        rect_wywh = self.get_element_rect(ctrl, type_str, path[1])
         rect_wywh["left"] = rect_wywh["left"]
         rect_wywh["top"] = rect_wywh["top"]
         logger.info(f"校验路径获取的rect信息 {rect_wywh} 缩放比是{ratio}")

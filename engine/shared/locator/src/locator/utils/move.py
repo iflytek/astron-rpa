@@ -1,5 +1,5 @@
 import math
-import random
+import secrets
 import time
 
 import pyautogui
@@ -18,12 +18,12 @@ def generate_smooth_path(start_x, start_y, end_x, end_y, duration=1.0):
     dist = math.hypot(dx, dy)
 
     ctrl1 = (
-        start_x + dx * 0.3 + random.uniform(-dist * 0.1, dist * 0.1),
-        start_y + dy * 0.3 + random.uniform(-dist * 0.1, dist * 0.1),
+        start_x + dx * 0.3 + secrets.randbelow(int(dist * 0.2 * 100)) / 100 - dist * 0.1,
+        start_y + dy * 0.3 + secrets.randbelow(int(dist * 0.2 * 100)) / 100 - dist * 0.1,
     )
     ctrl2 = (
-        start_x + dx * 0.7 + random.uniform(-dist * 0.1, dist * 0.1),
-        start_y + dy * 0.7 + random.uniform(-dist * 0.1, dist * 0.1),
+        start_x + dx * 0.7 + secrets.randbelow(int(dist * 0.2 * 100)) / 100 - dist * 0.1,
+        start_y + dy * 0.7 + secrets.randbelow(int(dist * 0.2 * 100)) / 100 - dist * 0.1,
     )
 
     path = []
@@ -73,7 +73,7 @@ def smooth_move(end_x, end_y, duration=0.4):
                 time.sleep(sleep_time)
 
             # 添加微小随机扰动（幅度更小）
-            x += random.randint(-1, 1)
-            y += random.randint(-1, 1)
+            x += secrets.randbelow(3) - 1
+            y += secrets.randbelow(3) - 1
         # 移动鼠标
         pyautogui.moveTo(x, y)

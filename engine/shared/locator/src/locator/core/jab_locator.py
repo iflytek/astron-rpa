@@ -14,7 +14,12 @@ from uiautomation import ControlFromHandle
 from win32api import GetSystemMetrics
 
 from locator import ILocator, PickerType, Rect
-from locator.core.jab_locator_dll import *
+from locator.core.jab_locator_dll import (
+    bridge_dll,
+    ctypes,
+    lib_windows_access_bridge_path,
+    user32,
+)
 from locator.core.uia_locator import uia_factory
 from locator.utils.window import (
     find_window,
@@ -74,7 +79,7 @@ class JABContext:
         self.acc_context = acc_context
 
     @property
-    def Name(self):
+    def name(self):
         # 这里目的是支持桌面端原子能力，统一调用方式，context可以类比为uia中的control
         info = AccessibleValueInfo()
         accessible_context = self.acc_context
