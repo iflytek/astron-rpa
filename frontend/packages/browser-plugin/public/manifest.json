@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "晓悟RPA插件",
-  "description": "晓悟RPA插件v3升级版",
-  "homepage_url": "https://www.iflyrpa.com/",
+  "name": "Browser-Plugin",
+  "description": "Browser-Plugin",
+  "homepage_url": "https://www.example.com/",
   "version": "5.1.7",
   "icons": {
     "16": "static/icon_16.png",
