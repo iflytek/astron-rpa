@@ -83,3 +83,48 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         working-directory: backend/resource-service
         run: mvn -B -DskipTests -DskipITs spotless:check
+
+  web-style:
+    name: Web Style
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Check changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v46
+        with:
+          files: frontend/**
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          package_json_file: frontend/package.json
+          run_install: false
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        if: steps.changed-files.outputs.any_changed == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ./frontend/package.json
+
+      - name: Web dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        working-directory: ./frontend
+        run: pnpm install
+
+      - name: Web style check
+        if: steps.changed-files.outputs.any_changed == 'true'
+        working-directory: ./frontend
+        run: |
+          pnpm run lint:fix
