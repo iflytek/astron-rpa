@@ -113,11 +113,11 @@ class MSAALocator(ILocator):
 class MSAAElement:
     """MSAA元素包装类"""
 
-    def __init__(self, IAccessible, iObjectId):
-        if not isinstance(iObjectId, int):
+    def __init__(self, i_accessible, i_object_id):
+        if not isinstance(i_object_id, int):
             raise TypeError("iObjectId必须是整数类型")
-        self.IAccessible = IAccessible
-        self.iObjectId = iObjectId
+        self.IAccessible = i_accessible
+        self.iObjectId = i_object_id
         self.dictCache = {}
 
     @property
@@ -333,32 +333,32 @@ class MSAAValidator:
     """MSAA元素校验器"""
 
     @staticmethod
-    def _get_msaa_ele_from_hwnd(hwnd, dwObjectID=0):
+    def _get_msaa_ele_from_hwnd(hwnd, dw_object_id=0):
         """
         通过窗口句柄获取MSAA对象
 
         Args:
             hwnd: 窗口句柄
-            dwObjectID: 对象标识符，默认为OBJID_CLIENT(0)
+            dw_object_id: 对象标识符，默认为OBJID_CLIENT(0)
         """
         # 定义常用的对象ID
         OBJID_CLIENT = 0
         OBJID_WINDOW = -1
 
         # 如果指定了特定的对象ID，先尝试该ID
-        if dwObjectID != 0:
+        if dw_object_id != 0:
             try:
                 IAccessible = ctypes.POINTER(comtypes.gen.Accessibility.IAccessible)()
                 ctypes.oledll.oleacc.AccessibleObjectFromWindow(
                     hwnd,
-                    dwObjectID,
+                    dw_object_id,
                     ctypes.byref(comtypes.gen.Accessibility.IAccessible._iid_),
                     ctypes.byref(IAccessible),
                 )
-                logger.info(f"成功通过对象ID {dwObjectID} 获取MSAA对象")
+                logger.info(f"成功通过对象ID {dw_object_id} 获取MSAA对象")
                 return IAccessible
             except Exception as e:
-                logger.info(f"通过对象ID {dwObjectID} 获取MSAA对象失败: {e}")
+                logger.info(f"通过对象ID {dw_object_id} 获取MSAA对象失败: {e}")
 
         # 尝试不同的对象ID
         object_ids = [OBJID_CLIENT, OBJID_WINDOW]
@@ -393,7 +393,8 @@ class MSAAValidator:
             target_tag = target_desc.get("tag_name")
 
             logger.info(
-                f"正在查找: tag_name={target_tag}, name={target_name}, value={target_value}, index={target_index}, use_recursive={use_recursive}"
+                f"正在查找: tag_name={target_tag}, name={target_name}, "
+                f"value={target_value}, index={target_index}, use_recursive={use_recursive}"
             )
 
             # 获取所有子元素
@@ -450,7 +451,8 @@ class MSAAValidator:
         返回 (找到的元素列表, 错误信息)
         """
         # logger.info(
-        #     f'msaa 开始的首元素信息 {start_element.get_type()} {start_element.get_name()}  {start_element.get_value()}')
+        #     f'msaa 开始的首元素信息 {start_element.get_type()} '
+        #     f'{start_element.get_name()}  {start_element.get_value()}')
 
         try:
             if not path_info:

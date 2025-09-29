@@ -17,9 +17,9 @@ from rpawebsocketclient.ws import (
     PongMsg,
     Route,
     Watch,
-    WatchRetry,
-    WatchTimeout,
-    WsException,
+    WatchRetryError,
+    WatchTimeoutError,
+    WsError,
     default_log,
 )
 
@@ -82,14 +82,14 @@ class WsApp:
             func = self.routes[temp_channel].func
             return func(*args, **kwargs)
         else:
-            raise WsException("func is not exist: {}".format((channel, key)))
+            raise WsError("func is not exist: {}".format((channel, key)))
 
     @staticmethod
     def _call_wait(watch: Watch, *args, **kwargs):
         if watch.callback:
             watch.callback(*args, **kwargs)
 
-    def event(self, channel: str, key: str = "", func: Callable[[BaseMsg, Any], Any] = None):
+    def event(self, channel: str, key: str = "", func: Callable[[BaseMsg, Any], Any] | None = None):
         """
         _add_route 路由添加
         """
@@ -123,10 +123,10 @@ class WsApp:
                             watch = self.watch_msg[name]
                             watch.retry()
                             if watch.time > watch.retry_time:
-                                self._call_wait(watch, None, WatchTimeout("watch timeout"))
+                                self._call_wait(watch, None, WatchTimeoutError("watch timeout"))
                                 del self.watch_msg[name]
                             else:
-                                self._call_wait(watch, None, WatchRetry("retry"))
+                                self._call_wait(watch, None, WatchRetryError("retry"))
                                 heapq.heappush(self.watch_msg_queue, (watch.timeout, name))
                     except Exception as e:
                         self.log("error clear_watch: {}".format(e))
@@ -182,12 +182,12 @@ class WsApp:
     def send_reply(self, msg: BaseMsg, timeout, callback_func=None):
         msg.need_reply = True
 
-        def callback(watch_msg: BaseMsg = None, e: Exception = None):
+        def callback(watch_msg: BaseMsg | None = None, e: Exception | None = None):
             nonlocal callback_func
-            if isinstance(e, WatchTimeout):
+            if isinstance(e, WatchTimeoutError):
                 # 已经退出
                 return callback_func(None, e)
-            elif isinstance(e, WatchRetry):
+            elif isinstance(e, WatchRetryError):
                 # 重试
                 return
             elif watch_msg:

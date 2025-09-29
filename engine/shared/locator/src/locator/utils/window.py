@@ -174,7 +174,7 @@ def is_desktop_by_handle(handle, ctrl: Control) -> bool:
     return is_desktop_by_cls_and_name(ctrl.ClassName, ctrl.Name)
 
 
-RPA_HIGHLIGHT_PROCESSES = list()
+RPA_HIGHLIGHT_PROCESSES = []
 RPA_HIGHLIGHT_CHECKED = False
 
 
@@ -238,7 +238,7 @@ def find_app_handles(app: str) -> list:
     return handles
 
 
-DESKTOP_WINDOW_HANDLES = list()
+DESKTOP_WINDOW_HANDLES = []
 
 
 def show_desktop_rect(rect: Rect, desktop_handle=None):
@@ -264,12 +264,12 @@ def show_desktop_rect(rect: Rect, desktop_handle=None):
             window.minimize()
 
 
-def find_window(cls_name: str, name: str, app_name: str = None) -> int:
+def find_window(cls_name: str, name: str, app_name: str | None = None) -> int:
     global DESKTOP_WINDOW_HANDLES
     is_desktop_win = is_desktop_by_cls_and_name(cls_name, name)
 
     # 通过app_name(进程名称)获取所有的顶层窗口, 并过滤cls_name和name
-    match_list = list()
+    match_list = []
     for handle in find_app_handles(app_name):
         handler_ctrl = ControlFromHandle(handle)
         handler_name = handler_ctrl.Name
@@ -332,7 +332,7 @@ def find_window(cls_name: str, name: str, app_name: str = None) -> int:
     return 0
 
 
-def find_window_handles_list(cls_name: str, name: str, app_name: str = None, picker_type=None) -> list[int]:
+def find_window_handles_list(cls_name: str, name: str, app_name: str | None = None, picker_type=None) -> list[int]:
     """
     获取指定窗口的handle列表，包含cls完全一致的handle和窗口name最长并且一致的handle
 
@@ -347,7 +347,7 @@ def find_window_handles_list(cls_name: str, name: str, app_name: str = None, pic
     is_desktop_win = is_desktop_by_cls_and_name(cls_name, name)
 
     # 通过app_name(进程名称)获取所有的顶层窗口, 并过滤cls_name和name
-    match_list = list()
+    match_list = []
     for handle in find_app_handles(app_name):
         handler_ctrl = ControlFromHandle(handle)
         handler_name = handler_ctrl.Name
@@ -427,7 +427,7 @@ def find_window_handles_list(cls_name: str, name: str, app_name: str = None, pic
     return result_handles
 
 
-def find_window_by_enum(cls: str, name: str, app_name: str = None) -> int:
+def find_window_by_enum(cls: str, name: str, app_name: str | None = None) -> int:
     """
     通过枚举窗口 classname 和 name属性获得窗口，返回如果是0则窗口不存在
     与find_window的区别是使用EnumWindows枚举所有窗口，能找到更多窗口
@@ -530,7 +530,7 @@ def find_window_by_enum(cls: str, name: str, app_name: str = None) -> int:
     return 0
 
 
-def find_window_by_enum_list(cls: str, name: str, app_name: str = None, picker_type=None) -> int:
+def find_window_by_enum_list(cls: str, name: str, app_name: str | None = None, picker_type=None) -> int:
     """
     通过枚举窗口 classname 和 name属性获得窗口，返回如果是0则窗口不存在
     与find_window的区别是使用EnumWindows枚举所有窗口，能找到更多窗口

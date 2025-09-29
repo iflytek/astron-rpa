@@ -6,7 +6,7 @@ import uiautomation as auto
 from rpaframe.logger.logger import logger
 
 from locator import BrowserType, Rect, like_chrome_browser_type
-from locator.core.web_ie_locator_dll import *
+from locator.core.web_ie_locator_dll import IEAutomationClass
 from locator.core.web_locator import WEBLocator
 from locator.utils.window import top_window
 
@@ -39,12 +39,12 @@ class WebIEFactory:
 
         # 获取元素配置
         path = ele.get("path", {})
-        iframe_index = path.get("iframeIndex", None)
+        iframe_index = path.get("iframe_index", None)
         check_type = path.get("checkType", None)  # 选择类型，是使用可视化还是自定义
         match_types = path.get("matchTypes", "")  # 选择匹配方式，是匹配位置，滚动加载
-        scroll_into_view_time = "false" if "scrollPosition" in match_types else "true"  # 开启是否滚动若干次
+        scroll_into_view_time = "false" if "scroll_position" in match_types else "true"  # 开启是否滚动若干次
 
-        css_selector = path.get("cssSelector", None)
+        css_selector = path.get("css_selector", None)
         path_dirs = path.get("pathDirs", [])
         xpath = path.get("xpath", "")
 
@@ -61,7 +61,9 @@ class WebIEFactory:
                         scroll_into_view=scroll_into_view,
                         scroll_into_view_time=scroll_into_view_time,
                     )
-                res = eval(res)
+                import ast
+
+                res = ast.literal_eval(res)
                 rect = Rect(
                     int(float(res[0]["left"])),
                     int(float(res[0]["top"])),
@@ -99,14 +101,16 @@ class WebIEFactory:
                             iframe_index,
                             scroll_into_view=scroll_into_view,
                         )
-                        res = eval(res)
+                        import ast
+
+                        res = ast.literal_eval(res)
                         rect = Rect(
                             int(float(res[0]["left"])),
                             int(float(res[0]["top"])),
                             int(float(res[0]["left"])) + int(float(res[0]["w"])),
                             int(float(res[0]["top"])) + int(float(res[0]["h"])),
                         )
-                    return WEBIELocator(rect=rect)
+                        return WEBIELocator(rect=rect)
                 else:
                     if all(not node.get("checked", True) for node in path_dirs):
                         raise Exception("请选中至少一项校验所需参考信息")
@@ -125,13 +129,15 @@ class WebIEFactory:
                             scroll_into_view=scroll_into_view,
                             scroll_into_view_time=scroll_into_view_time,
                         )
-                    res = eval(res)
-                    rect = Rect(
-                        int(float(res[0]["left"])),
-                        int(float(res[0]["top"])),
-                        int(float(res[0]["left"])) + int(float(res[0]["w"])),
-                        int(float(res[0]["top"])) + int(float(res[0]["h"])),
-                    )
+                        import ast
+
+                        res = ast.literal_eval(res)
+                        rect = Rect(
+                            int(float(res[0]["left"])),
+                            int(float(res[0]["top"])),
+                            int(float(res[0]["left"])) + int(float(res[0]["w"])),
+                            int(float(res[0]["top"])) + int(float(res[0]["h"])),
+                        )
                     rects = []
                     if len(res) > 1:
                         for s_rect in res:
@@ -150,11 +156,11 @@ class WebIEFactory:
             raise Exception("元素查找失败，请勾选可视化信息或者使用自定义")
 
     @classmethod
-    def locate_ele_by_direct_css_selector(cls, cssSelector, iframeIndex, scroll_into_view, scrollPosition="false"):
+    def locate_ele_by_direct_css_selector(cls, css_selector, iframe_index, scroll_into_view, scroll_position="false"):
         ie_win = auto.WindowControl(searchDepth=1, ClassName="IEFrame")
         ie_doc = ie_win.PaneControl(ClassName="Internet Explorer_Server")
         hwnd = ie_doc.NativeWindowHandle
-        page_info = IEAutomationClass().getBoudingOfContainer(hwnd, "", int(iframeIndex), "")
+        page_info = IEAutomationClass().getBoudingOfContainer(hwnd, "", int(iframe_index), "")
         screen_top = page_info["top"]
         screen_left = page_info["left"]
         ieRatio = page_info["ieRatio"]
@@ -187,9 +193,10 @@ class WebIEFactory:
                             * SCROLL_TIMES = 20 最大滚动次数
                             * SCROLL_DELAY = 1500ms // 单次滚动后等待页面加载的时间
                         */
-                        function scrollFindElement(cssSelector) {{
+                        function scrollFindElement(css_selector) {{
                             var windowHeight = window.innerHeight;  // 获取窗口的高度
-                            var windowScrollTop = document.documentElement.scrollTop || document.body.scrollTop;  // 获取当前滚动的高度
+                            var windowScrollTop = document.documentElement.scrollTop || 
+                                document.body.scrollTop;  // 获取当前滚动的高度
                             console.log('windowScrollTop: ', windowScrollTop);
                             console.log('windowHeight: ', windowHeight);
                             console.log('SCROLL_TIMES: ', SCROLL_TIMES);
@@ -200,7 +207,9 @@ class WebIEFactory:
                             function callback() {{
                                 const rects = [];
                                 if (totalMatchedElements.length > 0 && {scroll_into_view_tag})
-                                    totalMatchedElements[Math.floor((totalMatchedElements.length - 1) / 2)].scrollIntoView(false);
+                                    totalMatchedElements[Math.floor(
+                                        (totalMatchedElements.length - 1) / 2
+                                    )].scrollIntoView(false);
                                 // 得到元素位置信息
                                 totalMatchedElements.forEach(function(element) {{
                                     left = element.getBoundingClientRect().left + {screen_left};
@@ -230,7 +239,7 @@ class WebIEFactory:
 
                             // 初始查找元素
                             function findAndCheckElements() {{
-                                var result = document.querySelectorAll(cssSelector);
+                                var result = document.querySelectorAll(css_selector);
                                 console.log('待匹配的元素:', result);
                                 let element_arr = [];
                                 for(var i =0;i < result.length;i++){{
@@ -245,7 +254,7 @@ class WebIEFactory:
                                 callback();
                                 return;
                             }}
-                            if( {scrollPosition}){{
+                            if( {scroll_position}){{
                                 return ;
                             }}
 
@@ -293,18 +302,18 @@ class WebIEFactory:
 
                         """.replace("{", "{{").replace("}", "}}")
             + """findElementBySelector(" """
-            + cssSelector
+            + css_selector
             + ' " '
             + ")"
         )
 
         # script = script.replace('{', '{{')
         # script = script.replace('}', '}}')
-        res = IEAutomationClass().executeJsScroll(hwnd, script, int(iframeIndex), "wait use")["match_ele"]
+        res = IEAutomationClass().executeJsScroll(hwnd, script, int(iframe_index), "wait use")["match_ele"]
         return res
 
     @classmethod
-    def __ele_xpath_handler__(cls, xpath, iframeIndex):
+    def __ele_xpath_handler__(cls, xpath, iframe_index):
         ie_win = auto.WindowControl(searchDepth=1, ClassName="IEFrame")
         ie_doc = ie_win.PaneControl(ClassName="Internet Explorer_Server")
         hwnd = ie_doc.NativeWindowHandle
@@ -463,15 +472,15 @@ class WebIEFactory:
                                                        }}
                 """
         )  # 根据绝对xpath定位元素，将元素信息插入input
-        res = IEAutomationClass().executeJsGetBouding(hwnd, script, int(iframeIndex), "")
+        res = IEAutomationClass().executeJsGetBouding(hwnd, script, int(iframe_index), "")
         return res
 
     @classmethod
-    def __ele_css_selector_handler__(cls, css_selector, iframeIndex, scroll_into_view="true"):
+    def __ele_css_selector_handler__(cls, css_selector, iframe_index, scroll_into_view="true"):
         ie_win = auto.WindowControl(searchDepth=1, ClassName="IEFrame")
         ie_doc = ie_win.PaneControl(ClassName="Internet Explorer_Server")
         hwnd = ie_doc.NativeWindowHandle
-        page_info = IEAutomationClass().getBoudingOfContainer(hwnd, "", int(iframeIndex), "")
+        page_info = IEAutomationClass().getBoudingOfContainer(hwnd, "", int(iframe_index), "")
         screen_top = page_info["top"]
         screen_left = page_info["left"]
         ie_ratio = page_info["ieRatio"]
@@ -521,21 +530,21 @@ class WebIEFactory:
             + css_selector
             + "')"
         )
-        res = IEAutomationClass().executeJs(hwnd, script, int(iframeIndex), "wait use")["match_ele"]
+        res = IEAutomationClass().executeJs(hwnd, script, int(iframe_index), "wait use")["match_ele"]
         return res
 
     @classmethod
     def __ele_path_dirs_handler__(
         cls,
         pathdirs,
-        iframeIndex,
+        iframe_index,
         scroll_into_view="true",
         scroll_into_view_time="false",
     ):
         ie_win = auto.WindowControl(searchDepth=1, ClassName="IEFrame")
         ie_doc = ie_win.PaneControl(ClassName="Internet Explorer_Server")
         hwnd = ie_doc.NativeWindowHandle
-        page_info = IEAutomationClass().getBoudingOfContainer(hwnd, "", int(iframeIndex), "")
+        page_info = IEAutomationClass().getBoudingOfContainer(hwnd, "", int(iframe_index), "")
         screen_top = page_info["top"]
         screen_left = page_info["left"]
         ie_ratio = page_info["ieRatio"]
@@ -582,8 +591,12 @@ class WebIEFactory:
                             if (attr.name === regAttr.name) {{
                                 var value = attr.value;
                                 if (attr.name === 'class' && is_blanck==1) {{
-                                    // 去除无意义字符，多个空白字符（包括换行、制表、全角空格等）都替换为一个半角空格   跟拾取一样，因为ie中元素获取的值有时候是不一样的，跟edge表现不一样
-                                    value = value.replace(/[\\r\\n\\t\\f\\v\\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]+/g, ' ') // 替换所有不可见空白字符
+                                    // 去除无意义字符，多个空白字符（包括换行、制表、全角空格等）都替换为一个半角空格
+                                    // 跟拾取一样，因为ie中元素获取的值有时候是不一样的，跟edge表现不一样
+                                    value = value.replace(
+                                        /[\\r\\n\\t\\f\\v\\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]+/g, ' '
+                                    ) 
+                                        // 替换所有不可见空白字符
                                                 .replace(/\\s+/g, ' ') // 再次替换多个空白为单个空格
                                                 .trim();
                                 }}
@@ -630,7 +643,8 @@ class WebIEFactory:
                                     }}
                                 }} else if (attr.name === "id") {{
                                     var value = attr.value;
-                                    var isNumeric = !isNaN(parseFloat(value)) && isFinite(value) && value.toString().trim() !== "";
+                                    var isNumeric = !isNaN(parseFloat(value)) && 
+                                        isFinite(value) && value.toString().trim() !== "";
                                     if (!isNumeric) {{
                                         selector += "#" + attr.value;
                                     }}
@@ -722,7 +736,8 @@ class WebIEFactory:
                             var child = children[j];
 
                             // 检查标签名是否匹配
-                            if (currentPathdir.tag && child.tagName.toLowerCase() !== currentPathdir.tag.toLowerCase()) {{
+                            if (currentPathdir.tag && 
+                                child.tagName.toLowerCase() !== currentPathdir.tag.toLowerCase()) {{
                                 continue;
                             }}
 
@@ -781,9 +796,9 @@ class WebIEFactory:
                     /**
                      * 查找并检查元素
                      */
-                    function findAndCheckElementsForSelector(cssSelector, pathdirs, totalMatchedElements) {{
+                    function findAndCheckElementsForSelector(css_selector, pathdirs, totalMatchedElements) {{
                         // 使用构建的选择器查找初始元素集
-                        var initialElements = document.querySelectorAll(cssSelector);
+                        var initialElements = document.querySelectorAll(css_selector);
                         var matchedElements = [];
                         //console.log(initialElements)
                         // 对每个初始元素进行深入检查
@@ -807,12 +822,12 @@ class WebIEFactory:
                     /**
                      * 滚动查找元素
                      */
-                    function scrollAndFindElements(cssSelector, pathdirs, totalMatchedElements, count, windowHeight) {{
+                    function scrollAndFindElements(css_selector, pathdirs, totalMatchedElements, count, windowHeight) {{
                         window.scrollTo(window.scrollX, count * windowHeight);
 
                         setTimeout(function() {{
                             var updatedMatchedElements = findAndCheckElementsForSelector(
-                                cssSelector, 
+                                css_selector, 
                                 pathdirs, 
                                 totalMatchedElements
                             );
@@ -824,7 +839,7 @@ class WebIEFactory:
 
                             if (count < SCROLL_TIMES) {{
                                 scrollAndFindElements(
-                                    cssSelector, 
+                                    css_selector, 
                                     pathdirs, 
                                     updatedMatchedElements, 
                                     count + 1, 
@@ -845,10 +860,12 @@ class WebIEFactory:
                         var totalMatchedElements = [];
 
                         // 从pathdirs构建CSS选择器
-                        var cssSelector = buildSelectorFromPathdir(pathdirs);
+                        var css_selector = buildSelectorFromPathdir(pathdirs);
 
                         // 开始查找流程
-                        totalMatchedElements = findAndCheckElementsForSelector(cssSelector, pathdirs, totalMatchedElements);
+                        totalMatchedElements = findAndCheckElementsForSelector(
+                            css_selector, pathdirs, totalMatchedElements
+                        );
 
                         if (totalMatchedElements.length > 0) {{
                             handleMatchedElements(totalMatchedElements);
@@ -863,7 +880,7 @@ class WebIEFactory:
 
                         // 如果尚未滚动到底部且未找到匹配元素，则开始滚动查找
                         if (windowScrollTop < SCROLL_TIMES * windowHeight) {{
-                            scrollAndFindElements(cssSelector, pathdirs, totalMatchedElements, 1, windowHeight);
+                            scrollAndFindElements(css_selector, pathdirs, totalMatchedElements, 1, windowHeight);
                         }} else {{
                             handleMatchedElements(totalMatchedElements);
                         }}
@@ -873,7 +890,7 @@ class WebIEFactory:
             + json.dumps(pathdirs, ensure_ascii=False).replace("{", "{{").replace("}", "}}")
             + ")"
         )
-        res = IEAutomationClass().executeJsScroll(hwnd, script, int(iframeIndex), "wait use")["match_ele"]
+        res = IEAutomationClass().executeJsScroll(hwnd, script, int(iframe_index), "wait use")["match_ele"]
         return res
 
     @classmethod
@@ -904,9 +921,9 @@ class WebIEFactory:
             return False  # 表达式格式错误
 
     @classmethod
-    def __modify_pathdir_attributes__(cls, pathDirs):
+    def __modify_pathdir_attributes__(cls, path_dirs):
         # 遍历每个节点
-        for node in pathDirs:
+        for node in path_dirs:
             # 遍历节点的所有属性
             for attr in node.get("attrs", []):
                 # 仅处理非 @index 的属性
