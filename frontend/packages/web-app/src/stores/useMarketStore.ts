@@ -21,13 +21,13 @@ export const useMarketStore = defineStore('market', () => {
       route: '',
       active: true,
     },
-    {
-      key: APPLICATION_KEY,
-      name: 'market.myApplication',
-      route: APPLICATION,
-      children: [],
-      active: false,
-    },
+    // {
+    //   key: APPLICATION_KEY,
+    //   name: 'market.myApplication',
+    //   route: APPLICATION,
+    //   children: [],
+    //   active: false,
+    // },
   ])
 
   // 当前选中的市场数据
