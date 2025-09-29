@@ -148,19 +148,22 @@ class WsManager:
         """
         _del_conn 删除链接
         """
-        self.log("_del_conn {}".format(uuid))
-        try:
-            if not uuid:
+        # 检查连接是否已经存在，避免重复删除
+        if not uuid:
+            if conn in self.no_login_conns:
+                self.log("_del_conn {}".format(uuid))
                 self.no_login_conns.remove(conn)
                 return True
-            else:
-                if uuid in self.conns:
-                    self.conns[uuid].remove(conn)
-                    return True
-                else:
-                    return False
-        except Exception as e:
-            pass
+            return False
+        else:
+            if uuid in self.conns and conn in self.conns[uuid]:
+                self.log("_del_conn {}".format(uuid))
+                self.conns[uuid].remove(conn)
+                # 如果该uuid下没有连接了，删除整个key
+                if not self.conns[uuid]:
+                    del self.conns[uuid]
+                return True
+            return False
 
     async def listen(self, uuid: str, conn: Conn, svc: Any = None):
         """
@@ -218,31 +221,47 @@ class WsManager:
         self._add_conn(uuid, conn)
         try:
             while True:
-                text = await conn.ws.receive_text()
-                self.log("<<<{}".format(text))
-                # 验证
                 try:
-                    data = json.loads(text)
-                    msg = BaseMsg(**data)
+                    text = await conn.ws.receive_text()
+                    self.log("<<<{}".format(text))
 
-                    if not msg.channel:
-                        await self._send_exit(conn, MsgUnlawfulnessError("msg unlawfulness, {}".format(msg.tojson())))
+                    # 检查是否是连接关闭消息
+                    if text.startswith("WebSocket 连接已关闭"):
+                        self.log("检测到连接关闭消息，退出监听循环")
+                        break
+
+                    # 验证
+                    try:
+                        data = json.loads(text)
+                        msg = BaseMsg(**data)
+
+                        if not msg.channel:
+                            await self._send_exit(
+                                conn, MsgUnlawfulnessError("msg unlawfulness, {}".format(msg.tojson()))
+                            )
+                            continue
+
+                        if not msg.uuid:
+                            msg.uuid = conn.uuid
+
+                        if not msg.send_uuid:
+                            msg.send_uuid = "$root$"
+                    except Exception as e:
+                        await self._send_exit(conn, MsgUnlawfulnessError("msg unlawfulness, {}".format(text)))
                         continue
 
-                    if not msg.uuid:
-                        msg.uuid = conn.uuid
-
-                    if not msg.send_uuid:
-                        msg.send_uuid = "$root$"
+                    # 处理
+                    asyncio.create_task(_listen())
                 except Exception as e:
-                    await self._send_exit(conn, MsgUnlawfulnessError("msg unlawfulness, {}".format(text)))
-                    continue
-
-                # 处理
-                asyncio.create_task(_listen())
+                    # 连接关闭或其他异常，退出循环
+                    self.log("WebSocket 连接已关闭: {}".format(e))
+                    break
         except Exception as e:
             self.log("listen error {}".format(uuid))
             await self._send_exit(conn, e)
+        finally:
+            # 确保连接被正确清理
+            self._del_conn(uuid, conn)
 
     async def _send_exit(self, conn: Conn, e: Exception | None = None):
         """

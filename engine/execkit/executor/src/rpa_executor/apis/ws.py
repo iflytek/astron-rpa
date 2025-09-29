@@ -70,8 +70,8 @@ class WsSocket(IWebSocket):
             res = await self.ws.recv()
             return str(res)
         except ConnectionClosedOK as e:
-            logger.info(f"WebSocket 连接已关闭: {e}")
-            return f"WebSocket 连接已关闭: {e}"
+            # 连接已关闭，抛出异常而不是返回错误消息
+            raise ConnectionClosedOK(f"WebSocket 连接已关闭: {e}")
 
     async def send(self, message: Any) -> None:
         return await self.ws.send(message)
