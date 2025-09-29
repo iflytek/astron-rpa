@@ -83,7 +83,7 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         working-directory: backend/resource-service
         run: mvn -B -DskipTests -DskipITs spotless:check
-        
+
   web-style:
     name: Web Style
     runs-on: ubuntu-latest
@@ -106,6 +106,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
+          version: 9
           package_json_file: frontend/package.json
           run_install: false
 
