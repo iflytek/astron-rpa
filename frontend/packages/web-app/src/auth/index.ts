@@ -1,20 +1,24 @@
-import { CasdoorAuthService } from './casdoorAuth'
-import type { IAuthService } from './types'
-import { UapAuthService } from './uapAuth'
+import { CasdoorAuthService } from './casdoor.auth'
+import type { AuthType, IAuthService } from './types'
+import { UapAuthService } from './uap.auth'
 
-const AUTH_TYPE = import.meta.env.VITE_AUTH_TYPE || 'casdoor'
+const ENV = import.meta.env
 
-export type AuthType = 'casdoor' | 'uap'
-
+const AUTH_TYPE = ENV.VITE_AUTH_TYPE || 'casdoor'
 export class AuthServiceFactory {
   private static instance: AuthServiceFactory
   private currentAuthType: AuthType = AUTH_TYPE
-  private services: Map<AuthType, IAuthService>
+  private auths: Map<AuthType, IAuthService>
 
   private constructor() {
-    this.services = new Map()
-    this.services.set('casdoor', new CasdoorAuthService())
-    this.services.set('uap', new UapAuthService())
+    this.auths = new Map()
+    this.init()
+    this.setAuthType(AUTH_TYPE)
+  }
+
+  init(): void {
+    this.auths.set('casdoor', new CasdoorAuthService())
+    this.auths.set('uap', new UapAuthService())
   }
 
   static getInstance(): AuthServiceFactory {
@@ -32,8 +36,8 @@ export class AuthServiceFactory {
     return this.currentAuthType
   }
 
-  getService(): IAuthService {
-    const service = this.services.get(this.currentAuthType)
+  getAuth(): IAuthService {
+    const service = this.auths.get(this.currentAuthType)
     if (!service) {
       throw new Error(`未找到认证服务: ${this.currentAuthType}`)
     }
@@ -41,11 +45,4 @@ export class AuthServiceFactory {
   }
 }
 
-// 导出一个全局单例并初始化为 casdoor 认证
-const authService = (() => {
-  const instance = AuthServiceFactory.getInstance()
-  instance.setAuthType(AUTH_TYPE)
-  return instance
-})()
-
-export default authService
+export default AuthServiceFactory.getInstance()

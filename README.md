@@ -206,6 +206,7 @@ docker-compose ps
    ```bash
    cd frontend
    pnpm install
+   copy packages/web-app/.env.example packages/web-app/.env
    pnpm build:web
    ```
 
@@ -222,6 +223,9 @@ docker-compose ps
 # Install dependencies
 cd frontend
 pnpm install
+
+# Configure environment variables (for required fields, please refer to the comments in .env)
+copy packages/web-app/.env.example packages/web-app/.env
 
 # Start web development server
 pnpm dev:web

@@ -1,13 +1,5 @@
 import http from '../http'
 
-export interface CasdoorUserInfo {
-  id: string
-  name: string
-  displayName: string
-  phone: string
-  email: string
-}
-
 export function mobileLogin(params) {
   return http.post('uac/sys-login/login-by-code', null, { params })
 }

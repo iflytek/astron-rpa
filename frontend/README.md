@@ -78,6 +78,9 @@ cd astron-rpa/frontend
 # Install dependencies
 pnpm install
 
+# Configure environment variables (for required fields, please refer to the comments in .env)
+copy packages/web-app/.env.example packages/web-app/.env
+
 # Start web development server
 pnpm dev:web
 

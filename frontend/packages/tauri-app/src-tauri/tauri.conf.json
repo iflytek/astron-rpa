@@ -34,17 +34,6 @@
       },
       "path": {
         "all": true
-      },
-      "fs": {
-        "all": true,
-        "readFile": true,
-        "readDir": true,
-        "copyFile": true,
-        "createDir": true,
-        "exists": true,
-        "scope": [
-          "**/resources/*"
-        ]
       }
     },
     "windows": [],

@@ -10,10 +10,12 @@ import { isNil } from 'lodash-es'
 
 import { promiseWithResolvers } from '@/utils/common'
 
-import { checkHttpResponse, getHttpAuthHeader } from '@/auth/unauthorize'
+import authService from '@/auth/index'
 import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 
 import { getBaseURL, unauthorize } from './env'
+
+const auth = authService.getAuth()
 
 export interface RequestConfig<T = any, P = any> extends AxiosRequestConfig<P> {
   toast?: boolean
@@ -91,7 +93,7 @@ class HttpClient {
         }
       }
 
-      const authHeader = getHttpAuthHeader()
+      const authHeader = auth.getHttpAuthHeader()
       if (authHeader) {
         config.headers = new AxiosHeaders({
           ...config.headers,
@@ -114,7 +116,7 @@ class HttpClient {
           // 关闭loading
         }
 
-        if (checkHttpResponse(response)) {
+        if (auth.checkHttpResponse(response)) {
           return
         }
 

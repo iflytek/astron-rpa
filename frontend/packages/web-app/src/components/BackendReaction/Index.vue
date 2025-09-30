@@ -27,7 +27,6 @@ import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 
-const auth = authService.getService()
 export interface W2WType {
   from: string // 来源窗口
   target: string // 目标窗口
@@ -148,8 +147,8 @@ utilsManager.listenEvent('stop_task', () => {
 })
 
 function loginAuto() {
-  auth.checkLogin(() => {
-    useRoutePush({ name: DESIGNER })
+  authService.init() // 初始化认证服务
+  authService.getAuth().checkLogin(() => {    useRoutePush({ name: DESIGNER })
     setTimeout(() => {
       taskNotify({ event: 'login' })
     }, 3000)

@@ -19,7 +19,7 @@ import { CopyModal, RenameModal, VersionManagementModal } from '@/views/Home/com
 import OperMenu from '@/views/Home/components/OperMenu.vue'
 import { ShareRobotModal } from '@/views/Home/components/ShareRobotModal'
 import StatusCircle from '@/views/Home/components/StatusCircle.vue'
-// import { PENDING } from '@/views/Home/components/TeamMarket/config/market'
+import { PENDING } from '@/views/Home/components/TeamMarket/config/market'
 import type { resOption } from '@/views/Home/types'
 
 import { handleRun, useCommonOperate } from '../useCommonOperate'
@@ -135,16 +135,16 @@ export function useProjectOperate(homeTableRef?: Ref) {
       icon: h(<Icon name="tools-publish" size="16px" />),
       clickFn: publish,
     },
-    // {
-    //   key: 'share',
-    //   text: 'common.share',
-    //   icon: h(<Icon name="share" size="16px" />),
-    //   clickFn: shareToMarket,
-    //   disableFn: (row: AnyObj) => {
-    //     return row.applicationStatus === PENDING
-    //   },
-    //   disableTip: 'designerManage.onShelfApplication',
-    // },
+    {
+      key: 'share',
+      text: 'common.share',
+      icon: h(<Icon name="share" size="16px" />),
+      clickFn: shareToMarket,
+      disableFn: (row: AnyObj) => {
+        return row.applicationStatus === PENDING
+      },
+      disableTip: 'designerManage.onShelfApplication',
+    },
     {
       key: 'virtualRun',
       text: 'virtualDesktopRunning',
