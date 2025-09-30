@@ -1,4 +1,4 @@
-from rpaframe import _
+from rpaframe.i18n.i18n import _
 from rpaframe.error.error import BaseException, BizCode, ErrorCode
 
 BaseException = BaseException
