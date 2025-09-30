@@ -37,6 +37,11 @@ class SyncMap:
         with self.lock:
             return key in self.map
 
+    def get(self, key, default=None):
+        """获取键值，如果键不存在则返回默认值"""
+        with self.lock:
+            return self.map.get(key, default)
+
 
 class Svc:
     def __init__(
