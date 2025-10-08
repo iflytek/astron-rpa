@@ -148,7 +148,8 @@ utilsManager.listenEvent('stop_task', () => {
 
 function loginAuto() {
   authService.init() // 初始化认证服务
-  authService.getAuth().checkLogin(() => {    useRoutePush({ name: DESIGNER })
+  authService.getAuth().checkLogin(() => {    
+    useRoutePush({ name: DESIGNER })
     setTimeout(() => {
       taskNotify({ event: 'login' })
     }, 3000)
