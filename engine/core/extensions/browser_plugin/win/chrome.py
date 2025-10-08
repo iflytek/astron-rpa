@@ -1,7 +1,5 @@
 import getpass
 
-from rpaframe.logger import logger
-
 from ..constants import PluginData, PluginStatus
 from ..core import PluginManagerCore
 from ..utils.win import (
@@ -74,12 +72,12 @@ class ChromePluginManager(PluginManagerCore):
             #     Registry.create(r"SOFTWARE\Policies\Google\Chrome\ExtensionManifestV2Availability")
             # # 设置 value 为dword:00000002
             # Registry.add_dword_value(r"SOFTWARE\Policies\Google\Chrome\ExtensionManifestV2Availability", "1", 2)
-            logger.info("设置插件白名单成功")
+            # logger.info("设置插件白名单成功")
         except Exception as e:
-            logger.error(f"设置插件白名单失败: {e}")
+            # logger.error(f"设置插件白名单失败: {e}")
             self.register_policy()
             pass
 
     def register_policy(self):
-        logger.info("手动添加注册表")
+        # logger.info("手动添加注册表")
         return run_reg_file(self.plugin_data.plugin_id)
