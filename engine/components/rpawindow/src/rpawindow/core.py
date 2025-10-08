@@ -3,7 +3,7 @@ from typing import Any
 
 from rpaatomic.types import WinPick
 
-from rpawindow import ControlInfo, WindowSizeType
+from rpawindow import ControlInfo, WindowSizeType, WindowExistType
 
 
 class IWindowsCore(ABC):

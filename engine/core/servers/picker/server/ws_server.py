@@ -223,7 +223,7 @@ class PickerRequestHandler:
         """处理拾取获取数据"""
         try:
             from locator.locator import LocatorManager
-            from rpa_table_helper.table_filter import (
+            from table_helper.table_filter import (
                 DataFilter,
                 table_json_merge_values,
             )
