@@ -27,7 +27,7 @@ defineProps({
   },
   message: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   userInfo: {
     type: Boolean,

@@ -55,6 +55,11 @@ export class CasdoorAuthService implements IAuthService {
     localStorage.setItem('accessToken', token ? `Bearer ${token}` : '')
   }
 
+  private clearToken(): void {
+    localStorage.removeItem('accessToken')
+    this.setLocalAuth()
+  }
+
   private isLoggedIn(): boolean {
     const token = this.getToken()
     return !!token
@@ -154,6 +159,7 @@ export class CasdoorAuthService implements IAuthService {
   checkHttpResponse(response: any): boolean {
     const isExpired = response?.data.code === '800000'
     if (isExpired) {
+      this.clearToken()
       this.redirectToLogin()
     }
     return isExpired
