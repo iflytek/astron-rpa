@@ -9,7 +9,7 @@ import time
 from functools import wraps
 
 import pandas as pd
-from rpa_table_helper.table_filter import (
+from table_helper.table_filter import (
     DataFilter,
     page_values_merge,
     table_df_to_out,
