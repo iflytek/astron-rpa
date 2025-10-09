@@ -1,12 +1,16 @@
 import getpass
 
+from rpaframe.logger.logger import logger
+
 from ..constants import PluginData, PluginStatus
 from ..core import PluginManagerCore
 from ..utils.win import (
     Registry,
     check_chrome_plugin,
+    get_app_path,
     kill_process,
     remove_browser_setting,
+    start_browser,
 )
 from ..win.reg import run_reg_file
 
@@ -26,7 +30,6 @@ class ChromePluginManager(PluginManagerCore):
         )
 
     def check_browser(self):
-        # 通过检查注册表来判断浏览器是否存在
         return Registry.exist(self.browser_path)
 
     def check_plugin(self):
@@ -36,14 +39,16 @@ class ChromePluginManager(PluginManagerCore):
         latest = installed_version == latest_version
 
         return PluginStatus(
-            installed=installed,
-            installed_version=installed_version,
-            latest_version=latest_version,
-            latest=latest,
+            installed=installed, installed_version=installed_version, latest_version=latest_version, latest=latest
         )
 
     def close_browser(self):
         kill_process("chrome")
+
+    def open_browser(self):
+        app_path = get_app_path("chrome")
+        if app_path:
+            start_browser(app_path)
 
     def install_plugin(self):
         self.close_browser()
@@ -59,25 +64,24 @@ class ChromePluginManager(PluginManagerCore):
 
         # https://chromeenterprise.google/policies/?policy=ExtensionInstallAllowlist
         try:
-            # 插件未发布，这个去掉这个警告
             if not Registry.exist(r"Software\Policies\Google\Chrome\ExtensionInstallAllowlist"):
                 Registry.create(r"Software\Policies\Google\Chrome\ExtensionInstallAllowlist")
+
+            Registry.add_string_value(
+                r"Software\Policies\Google\Chrome\ExtensionInstallAllowlist", "1", self.plugin_data.plugin_id
+            )
             Registry.add_string_value(
                 r"Software\Policies\Google\Chrome\ExtensionInstallAllowlist",
-                "2",
+                "1",
                 self.plugin_data.plugin_id,
+                key_type="machine",
             )
 
-            # if not Registry.exist(r"SOFTWARE\Policies\Google\Chrome\ExtensionManifestV2Availability"):
-            #     Registry.create(r"SOFTWARE\Policies\Google\Chrome\ExtensionManifestV2Availability")
-            # # 设置 value 为dword:00000002
-            # Registry.add_dword_value(r"SOFTWARE\Policies\Google\Chrome\ExtensionManifestV2Availability", "1", 2)
-            # logger.info("设置插件白名单成功")
+            logger.info("set chrome plugin allowlist success")
         except Exception as e:
-            # logger.error(f"设置插件白名单失败: {e}")
+            logger.error(f"set chrome plugin allowlist failed: {e}")
             self.register_policy()
             pass
 
     def register_policy(self):
-        # logger.info("手动添加注册表")
         return run_reg_file(self.plugin_data.plugin_id)

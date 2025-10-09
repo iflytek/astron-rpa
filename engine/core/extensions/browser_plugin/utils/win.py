@@ -5,26 +5,34 @@ import winreg as reg
 import psutil
 
 
-class Registry:
+class Registry(object):
     @staticmethod
-    def exist(key_path) -> bool:
+    def exist(key_path, key_type="user") -> bool:
         """
-        检测注册表是否存在
+        check key exists
         """
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
         try:
-            key = reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_READ)
+            key = reg.OpenKey(head, key_path, 0, reg.KEY_READ)
             reg.CloseKey(key)
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     @staticmethod
-    def create(key_path):
+    def create(key_path, key_type="user"):
         """
-        创建项
+        create key
         """
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
         keys = key_path.split("\\")
-        head_key = reg.OpenKey(reg.HKEY_CURRENT_USER, keys[0], 0, reg.KEY_ALL_ACCESS)
+        head_key = reg.OpenKey(head, keys[0], 0, reg.KEY_ALL_ACCESS)
         opened_keys = list()
         opened_keys.append(head_key)
         for key in keys[1:]:
@@ -35,37 +43,48 @@ class Registry:
             reg.CloseKey(opened_key)
 
     @staticmethod
-    def delete(key_path, sub_key):
+    def delete(key_path, sub_key, key_type="user"):
         """
-        删除项
+        delete key
         """
-        key = reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_SET_VALUE)
-        # 删除子项
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
+        key = reg.OpenKey(head, key_path, 0, reg.KEY_SET_VALUE)
         reg.DeleteKey(key, sub_key)
         reg.CloseKey(key)
 
     @staticmethod
-    def add_string_value(key_path, value_name, value):
+    def add_string_value(key_path, value_name, value, key_type="user"):
         """
-        添加字符串kv对
+        add string key value 
         """
-        key = reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_ALL_ACCESS)
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
+        key = reg.OpenKey(head, key_path, 0, reg.KEY_ALL_ACCESS)
         reg.SetValueEx(key, value_name, 0, reg.REG_SZ, value)
         reg.CloseKey(key)
 
     @staticmethod
-    def add_dword_value(key_path, value_name, value):
+    def add_dword_value(key_path, value_name, value, key_type="user"):
         """
-        添加dword kv对
+        add dword key value
         """
-        key = reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_ALL_ACCESS)
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
+        key = reg.OpenKey(head, key_path, 0, reg.KEY_ALL_ACCESS)
         reg.SetValueEx(key, value_name, 0, reg.REG_DWORD, value)
         reg.CloseKey(key)
 
     @staticmethod
     def query_value_ex(key, value_name):
         """
-        查询注册表值
+        query key value
         """
         try:
             return reg.QueryValueEx(key, value_name)
@@ -73,12 +92,16 @@ class Registry:
             return None, None
 
     @staticmethod
-    def query_value(key_path):
+    def query_value(key_path, key_type="user"):
         """
-        查询注册表值
+        query all values under key
         """
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
         try:
-            with reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_READ) as key:
+            with reg.OpenKey(head, key_path, 0, reg.KEY_READ) as key:
                 values = []
                 i = 0
                 while True:
@@ -88,20 +111,23 @@ class Registry:
                         i += 1
                     except OSError:
                         break
-                # print(f"ExtensionInstallAllowlist下的所有值: {values}")
                 return values
         except FileNotFoundError:
             return []
 
     @staticmethod
-    def open_key(key_path):
+    def open_key(key_path, key_type="user"):
         """
-        打开注册表键
+        open key
         """
+        if key_type == "machine":
+            head = reg.HKEY_LOCAL_MACHINE
+        else:
+            head = reg.HKEY_CURRENT_USER
         try:
-            return reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_ALL_ACCESS)
+            return reg.OpenKey(head, key_path, 0, reg.KEY_ALL_ACCESS)
         except FileNotFoundError:
-            raise FileNotFoundError(f"注册表键 {key_path} 不存在。")
+            raise FileNotFoundError(f"registry {key_path} not found")
 
 
 def kill_process(name: str):
@@ -113,14 +139,35 @@ def kill_process(name: str):
             pass
 
 
+def start_browser(browser_path: str):
+    try:
+        os.startfile(browser_path)
+    except Exception:
+        pass
+
+
+def get_app_path(name: str):
+    try:
+        app_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{}.exe".format(name)
+        key = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, app_path)
+        path, _ = reg.QueryValueEx(key, "")
+        return path
+    except FileNotFoundError:
+        try:
+            key = reg.OpenKey(reg.HKEY_CURRENT_USER, app_path)
+            path, _ = reg.QueryValueEx(key, "")
+            return path
+        except FileNotFoundError:
+            return None
+
+
 def check_chrome_plugin(preferences_path_list, extension_id):
     """
-    检查类 chrome 浏览器插件的安装状态
-    :return: 插件是否安装，安装版本
+    check chrome based browser plugin installed
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, encoding="utf8") as f:
+            with open(file, "r", encoding="utf8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 try:
@@ -129,21 +176,20 @@ def check_chrome_plugin(preferences_path_list, extension_id):
                         version = extension_info[extension_id].get("manifest", {}).get("version", "")
                         return True, version
                     else:
-                        return False, None
+                        return False, ""
                 except KeyError:
-                    return False, None
+                    return False, ""
 
-    return False, None
+    return False, ""
 
 
 def remove_browser_setting(preferences_path_list, secure_preferences, extension_id):
     """
-    删除preferences中插件信息
-    :return:
+    delete browser plugin setting
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, encoding="utf8") as f:
+            with open(file, "r", encoding="utf8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 uninstall_list = (
@@ -168,11 +214,15 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
                     del apps[extension_id]
                     is_update = True
 
+                extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(extension_id, None)
+                if extension_info is not None:
+                    del dict_msg["extensions"]["settings"][extension_id]
+                    is_update = True
+
                 if is_update:
                     with open(file, "w", encoding="utf8") as f:
                         json.dump(dict_msg, f)
-            break
 
-    # 删除用户偏好设置
+    # delete secure preferences
     if os.path.exists(secure_preferences):
         os.remove(secure_preferences)

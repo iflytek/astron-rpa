@@ -1,11 +1,3 @@
-#!/usr/bin/env python3.6.5
-# -*- coding: UTF-8 -*-
-"""
-Author: chaowang46
-Date: 2024/9/30 15:30
-docs:
-"""
-
 import os
 import sys
 
@@ -18,7 +10,7 @@ elif sys.platform == "linux":
     from .unix import BrowserPluginFactory
 
 
-class ExtensionManager:
+class ExtensionManager(object):
     def __init__(self, browser_type: BrowserType = BrowserType.CHROME):
         self.browser_type = browser_type
 
@@ -31,9 +23,9 @@ class ExtensionManager:
         plugins = [file for file in os.listdir(plugin_dir) if file.startswith(pre_name + "-")]
 
         if not plugins:
-            raise Exception("插件不存在安装失败...")
+            raise Exception("plugins not found...")
 
-        # 提取文件名中的参数
+        # get plugin info from file
         plugin_name, plugin_version, plugin_id, _extension = parse_filename_regex(plugins[-1])
 
         self.plugin_data = PluginData(
@@ -48,46 +40,48 @@ class ExtensionManager:
     @staticmethod
     def get_support():
         """
-        获取支持的浏览器
-        :return:
+        get support browsers
         """
         return BrowserPluginFactory.get_support_browser()
 
     def close_browser(self):
         """
-        关闭浏览器
-        :return:
+        close browser
         """
         self.browser_plugin_manager.close_browser()
 
     def check_status(self):
         """
-        检测插件的状态
-        :return: 插件是否安装，是否需要更新，当前版本，最新版本
+        check plugin status
         """
-
         return self.browser_plugin_manager.check_plugin()
 
     def install(self):
         """
-        安装插件
+        install plugin
         """
         return self.browser_plugin_manager.install_plugin()
 
     def uninstall(self):
         """
-        卸载插件
+        uninstall plugin
         """
         pass
 
     def upgrade(self):
         """
-        升级插件
+        upgrade plugin
         """
         return self.install()
 
     def check_browser(self):
         """
-        检测浏览器是否安装
+        check browser installed
         """
         return self.browser_plugin_manager.check_browser()
+
+    def open_browser(self):
+        """
+        open browser
+        """
+        self.browser_plugin_manager.open_browser()

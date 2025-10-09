@@ -1,13 +1,5 @@
-#!/usr/bin/env python3.6.5
-# -*- coding: UTF-8 -*-
-"""
-Author: chaowang46
-Date: 2024/10/8 15:01
-docs:
-"""
-
-from dataclasses import dataclass
 from enum import Enum
+from dataclasses import dataclass
 
 
 class BrowserType(Enum):
@@ -38,26 +30,23 @@ class OP(Enum):
 @dataclass
 class PluginStatus:
     """
-    插件的安装状态
+    plugin status
     """
 
-    installed: bool = False  # 插件是否安装
-    latest: bool = False  # 插件是否是最新版本
-    installed_version: str = None  # 插件安装的版本
-    latest_version: str = None  # 插件最新版本
+    installed: bool = False
+    latest: bool = False
+    installed_version: str = ""
+    latest_version: str = ""
 
 
 @dataclass
 class PluginData:
     """
-    插件的相关数据
+    plugin data
     """
 
-    plugin_path: str = None  # 插件的路径
-    plugin_name: str = None  # 插件的名称
-    plugin_id: str = None  # 插件的id
-    plugin_version: str = None  # 插件的版本
+    plugin_path: str = ""
+    plugin_name: str = ""
+    plugin_id: str = ""
+    plugin_version: str = ""
 
-
-if __name__ == "__main__":
-    print(BrowserType.init("chrome"))

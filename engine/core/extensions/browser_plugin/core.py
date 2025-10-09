@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 from .constants import BrowserType, PluginData, PluginStatus
 
@@ -7,7 +8,7 @@ class PluginManagerCore(ABC):
     @abstractmethod
     def check_browser(self) -> bool:
         """
-        检查浏览器是否安装
+        check browser exist
         :return:
         """
         pass
@@ -15,21 +16,28 @@ class PluginManagerCore(ABC):
     @abstractmethod
     def check_plugin(self) -> PluginStatus:
         """
-        检查插件的安装状态
+        check plugin status
         """
         pass
 
     @abstractmethod
     def install_plugin(self):
         """
-        安装插件
+        install plugin
         """
         pass
 
     @abstractmethod
     def close_browser(self):
         """
-        关闭浏览器
+        close browser
+        """
+        pass
+
+    @abstractmethod
+    def open_browser(self):
+        """
+        open browser
         """
         pass
 
@@ -37,10 +45,9 @@ class PluginManagerCore(ABC):
 class PluginManager(ABC):
     @staticmethod
     @abstractmethod
-    def get_support_browser() -> list[BrowserType]:
+    def get_support_browser() -> List[BrowserType]:
         """
-        获取支持的浏览器类型
-        :return:
+        get support browsers
         """
         pass
 
@@ -48,9 +55,6 @@ class PluginManager(ABC):
     @abstractmethod
     def get_plugin_manager(browser_type: BrowserType, plugin_data: PluginData) -> PluginManagerCore:
         """
-        获取插件管理器
-        :param plugin_data: 插件信息
-        :param browser_type: 浏览器类型
-        :return:
+        get plugin manager
         """
         pass
