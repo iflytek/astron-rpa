@@ -108,6 +108,7 @@ public class RobotVersionController {
      */
     @GetMapping("/list4Design")
     public AppResponse<?> list4Design(@RequestParam String robotId) throws NoLoginException {
+        System.out.println("right log for format");
         return robotVersionService.list4Design(robotId);
     }
 }
