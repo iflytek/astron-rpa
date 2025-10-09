@@ -96,6 +96,11 @@ redis:
 robotExcel:
   lineSizeLimit: 3000
 
+# file module config
+file:
+  maxFileSize: 52428800 # 50MB
+  maxShareSize: 104857600 # 100MB
+
 
 
 
