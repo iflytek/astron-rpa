@@ -1,5 +1,5 @@
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 
 
 class BrowserType(Enum):
@@ -49,4 +49,3 @@ class PluginData:
     plugin_name: str = ""
     plugin_id: str = ""
     plugin_version: str = ""
-
