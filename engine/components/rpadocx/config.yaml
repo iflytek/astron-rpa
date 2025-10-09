@@ -1,0 +1,680 @@
+atomic:
+  Docx.open_docx:
+    title: 打开Word文档
+    comment: 打开路径为 @{file_path} 的Word文档，返回Word对象 @{doc_obj}
+    icon: word-open-document
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: 文档路径
+      tip: 填写Word文档的路径
+    - key: default_application
+      title: 驱动方式
+      tip: 选择Word文档的打开方式，如Word或WPS
+    - key: visible_flag
+      title: 是否可见
+      tip: 是否显示Word文档窗口
+    - key: encoding
+      title: 编码模式
+      tip: 选择文档的编码模式，如UTF-8或GBK
+    - key: open_pwd_flag
+      title: 是否填写Word打开密码
+      tip: 选择是否需要输入密码打开文档
+    - key: open_pwd
+      title: Word打开密码
+      tip: 输入Word打开密码
+    - key: write_pwd_flag
+      title: 是否填写Word写入密码
+      tip: 选择是否需要输入密码写入文档
+    - key: write_pwd
+      title: Word写入密码
+      tip: 输入Word写入密码
+    outputList:
+    - key: doc_obj
+      title: Word对象
+      tip: 返回Word对象，用于后续操作
+  Docx.read_docx:
+    title: 读取Word文档内容
+    comment: 读取Word文档对象 @{doc} 内容，返回文档内容 @{doc_data}
+    icon: word-read-content
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: select_range
+      title: 读取范围
+      tip: 选择读取文档的范围，如整个文档或选中区域
+    outputList:
+    - key: doc_data
+      title: 文档内容
+      tip: ''
+  Docx.create_docx:
+    title: 新建Word文档
+    comment: 新建Word文档，保存到路径为 @{file_path} 的位置，文件名为 @{file_name} ，返回Word对象 @{doc_obj}
+      和保存路径 @{doc_create_path}
+    icon: word-new-document
+    helpManual: ''
+    inputList:
+    - key: file_path
+      title: 文档保存文件夹
+      tip: 填写Word文档的保存文件夹路径
+    - key: file_name
+      title: 文档名称
+      tip: 填写Word文档的名称
+    - key: default_application
+      title: 驱动方式
+      tip: 选择Word文档的打开方式，如Word或WPS
+    - key: visible_flag
+      title: 是否可见
+      tip: 是否显示Word文档窗口
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    outputList:
+    - key: doc_obj
+      title: Word对象
+      tip: ''
+    - key: doc_create_path
+      title: 文档保存路径
+      tip: 保存的Word文档的完整路径
+  Docx.save_docx:
+    title: 保存Word文档
+    comment: 保存Word文档对象 @{doc} ，保存方式为 @{save_type}, 并输出保存路径 @{save_file_path}
+    icon: word-save-document
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: save_type
+      title: 保存类型
+      tip: 选择保存类型，如保存、另存为、不保存
+    - key: file_path
+      title: 文档路径
+      tip: 填写Word文档的保存路径
+    - key: file_name
+      title: 文档名称
+      tip: 填写Word文档的名称
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    - key: close_flag
+      title: 是否关闭文档
+      tip: 选择是否关闭文档窗口
+    outputList:
+    - key: save_file_path
+      title: 保存路径
+      tip: 保存的Word文档的完整路径
+  Docx.close_docx:
+    title: 关闭Word文档
+    comment: 关闭Word文档对象 @{doc}
+    icon: word-close-document
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: close_range_flag
+      title: 关闭文档范围
+      tip: 选择关闭文档的范围，如关闭当前文档或关闭所有文档
+    - key: save_type
+      title: 保存类型
+      tip: 选择保存类型，如保存、另存为、不保存
+    - key: file_path
+      title: 另存为文档路径
+      tip: 填写Word文档的保存路径
+    - key: file_name
+      title: 另存为文档名称
+      tip: 填写Word文档的名称
+    - key: exist_handle_type
+      title: 存在同名文件处理方式
+      tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、取消保存操作
+    - key: pkill_flag
+      title: 是否结束Word或WPS进程
+      tip: 选择是否结束Word或WPS进程
+    outputList: []
+  Docx.insert_docx:
+    title: 插入文本到Word文档
+    comment: 向Word文档对象 @{doc} 插入文本 @{text}
+    icon: word-insert-text
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: text
+      title: 插入文本
+      tip: 填写要插入的文本
+    - key: enter_flag
+      title: 是否在插入前换行
+      tip: 选择是否在插入前换行
+    - key: font_size
+      title: 字体大小
+      tip: 填写字体大小
+    - key: bold_flag
+      title: 是否加粗
+      tip: 选择是否加粗
+    - key: italic_flag
+      title: 是否斜体
+      tip: 选择是否斜体
+    - key: underline_flag
+      title: 是否添加下划线
+      tip: 选择是否添加下划线
+    - key: font_name
+      title: 字体名称
+      tip: 填写字体名称
+    - key: font_color
+      title: 字体颜色
+      tip: 选择字体颜色
+    outputList: []
+  Docx.select_text:
+    title: 选择Word文本
+    comment: 从Word文档对象 @{doc} 中选择文本
+    icon: word-select-text
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: select_type
+      title: 选择文本方式
+      tip: 支持选择全文、段落、行
+    - key: p_start
+      title: 起始段落号
+      tip: 输入起始段落号
+    - key: p_end
+      title: 结束段落号
+      tip: 输入结束段落号
+    - key: r_start
+      title: 起始行号
+      tip: 输入起始行号
+    - key: r_end
+      title: 结束行号
+      tip: 输入结束行号
+    outputList: []
+  Docx.get_cursor_position:
+    title: 定位Word光标
+    comment: 在Word文档对象 @{doc} 中定位光标位置
+    icon: word-position-cursor
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: by
+      title: 光标定位方式
+      tip: 选择定位到全文、段落、行、文本
+    - key: pos
+      title: 光标相对位置
+      tip: 所选内容之前/所选内容之后
+    - key: content
+      title: 文本内容
+      tip: 如果选择定位文本，输入文本内容
+    - key: c_idx
+      title: 文本序号
+      tip: 输入定位文本的序号
+    - key: p_idx
+      title: 段落号
+      tip: 输入定位段落号
+    - key: r_idx
+      title: 行号
+      tip: 选择定位的行号
+    outputList: []
+  Docx.move_cursor:
+    title: 移动Word光标
+    comment: 在Word文档对象 @{doc} 中移动光标
+    icon: word-move-cursor
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: direction
+      title: 光标移动方向
+      tip: 可选择向上、向下、向左、向右
+    - key: unitupdown
+      title: 上下移动单位
+      tip: 可选择行、段落
+    - key: unitleftright
+      title: 左右移动单位
+      tip: 可选择字符、单词
+    - key: distance
+      title: 移动距离
+      tip: 输入移动的距离
+    - key: with_shift
+      title: 是否按下Shift
+      tip: 选择是否按下Shift
+    outputList: []
+  Docx.insert_sep:
+    title: Word插入页/段落
+    comment: 在Word文档对象 @{doc} 中插入页/段落
+    icon: word-insert-page
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: sep_type
+      title: 插入类型
+      tip: 选择页、段落
+    outputList: []
+  Docx.insert_hyperlink:
+    title: Word插入超链接
+    comment: 在Word文档对象 @{doc} 中插入超链接
+    icon: word-insert-hyperlink
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: url
+      title: 链接
+      tip: 输入插入的链接
+    - key: display
+      title: 显示文本
+      tip: 输入要显示的文本
+    outputList: []
+  Docx.insert_img:
+    title: Word插入图片
+    comment: 在Word文档对象 @{doc} 中，从路径 @{img_path} 或剪贴板插入图片
+    icon: word-insert-image
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: img_from
+      title: 图片来源
+      tip: 选择通过文件路径、剪贴板
+    - key: img_path
+      title: 文件路径
+      tip: 输入文件路径
+    - key: scale
+      title: 缩放比例（%）
+      tip: 默认为100%，可以输入其他值，不需要输入百分号
+    - key: newline
+      title: 是否换行
+      tip: 选择插入前是否换行
+    outputList: []
+  Docx.read_table:
+    title: Word读取表格
+    comment: 在Word文档对象 @{doc} 中，读取表格内容并返回表格数据对象 @{table_content}
+    icon: word-read-table
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: search_type
+      title: 查找表格方式
+      tip: 选择查找表格方式
+    - key: idx
+      title: 序号
+      tip: 输入查找表格的序号
+    - key: text
+      title: 文本
+      tip: 输入查找表格的文本
+    outputList:
+    - key: table_content
+      title: 表格内容
+      tip: ''
+  Docx.insert_table:
+    title: Word插入表格
+    comment: 在Word文档对象 @{doc} 中，插入表格内容
+    icon: word-insert-table
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: table_content
+      title: 表格内容
+      tip: 要创建的表格内容,格式为二维数组或者为读取的Excel表格内容
+    - key: table_behavior
+      title: 表格大小
+      tip: 选择默认还是适应大小
+    - key: alignment
+      title: 文本左右位置
+      tip: 选择左对齐、居中对齐、右对齐
+    - key: v_alignment
+      title: 文本垂直位置
+      tip: 选择顶部对齐、居中对齐、底部对齐
+    - key: border
+      title: 表格边框
+      tip: 选择是否有边框
+    - key: if_change_font
+      title: 是否改变字体
+      tip: 选择是否改变字体
+    - key: font_size
+      title: 大小
+      tip: 选择字体大小
+    - key: font_color
+      title: 颜色
+      tip: 选择字体颜色
+    - key: font_set
+      title: 字体
+      tip: 选择字体
+    - key: font_bold
+      title: 加粗
+      tip: 选择是否加粗
+    - key: font_italic
+      title: 斜体
+      tip: 选择是否斜体
+    - key: underline
+      title: 下划线
+      tip: 选择是否下划线
+    - key: newline
+      title: 在新的一行插入
+      tip: 选择是否在新的一行插入
+    outputList: []
+  Docx.delete:
+    title: Word删除内容
+    comment: 在Word文档对象 @{doc} 中，删除内容
+    icon: word-delete-content
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: delete_mode
+      title: 删除方式
+      tip: 选择删除方式
+    - key: delete_str
+      title: 文本
+      tip: 选择要删除的文本
+    - key: delete_idx
+      title: 序号
+      tip: 选择删除第几个文本
+    - key: str_delete_all
+      title: 删除所有找到的文本
+      tip: 选择是否删除所有找到的文本
+    - key: p_start
+      title: 起始段落
+      tip: 输入起始段落
+    - key: c_start
+      title: 起始字符
+      tip: 输入起始字符
+    - key: p_end
+      title: 结束段落
+      tip: 输入结束段落
+    - key: c_end
+      title: 结束字符
+      tip: 输入结束字符
+    outputList: []
+  Docx.replace:
+    title: Word替换内容
+    comment: 在Word文档对象 @{doc} 中，查找内容并替换
+    icon: word-replace-content
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: origin_word
+      title: 查找内容
+      tip: 输入要查找的内容
+    - key: replace_type
+      title: 替换为
+      tip: 选择替换为图片或文本
+    - key: new_word
+      title: 新内容
+      tip: 输入要替换为的内容
+    - key: img_path
+      title: 图片路径
+      tip: 选择图片路径
+    - key: replace_method
+      title: 替换模式
+      tip: 选择替换全部、替换首个
+    - key: ignore_case
+      title: 大小写忽略
+      tip: 选择是否大小写忽略
+    outputList: []
+  Docx.create_comment:
+    title: Word创建批注
+    comment: 在Word文档对象 @{doc} 中，创建批注
+    icon: word-create-comment
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: comment
+      title: 批注内容
+      tip: 输入批注内容
+    - key: comment_type
+      title: 批注对象
+      tip: 选择指定范围还是指定内容
+    - key: paragraph_idx
+      title: 段落号
+      tip: 输入创建批注的段落号
+    - key: start
+      title: 起始字符序号
+      tip: 输入批注的起始字符序号
+    - key: end
+      title: 结束字符序号
+      tip: 输入批注的结束字符序号
+    - key: target_str
+      title: 目标内容
+      tip: 输入批注的目标内容
+    - key: comment_all
+      title: 全部批注
+      tip: 选择是否全部批注
+    - key: comment_index
+      title: 序号
+      tip: 选择批注内容的序号
+    outputList: []
+  Docx.delete_comment:
+    title: Word删除批注
+    comment: 在Word文档对象 @{doc} 中，删除指定批注
+    icon: word-delete-comment
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: delete_all
+      title: 删除全部
+      tip: 选择是否删除全部批注
+    - key: comment_index
+      title: 批注序号
+      tip: 输入要删除批注的序号
+    outputList: []
+  Docx.convert_format:
+    title: Word导出为PDF/TXT
+    comment: 在Word文档对象 @{doc} 中，导出指定内容为PDF或TXT文件
+    icon: word-export-pdf-txt
+    helpManual: ''
+    inputList:
+    - key: doc
+      title: Word对象
+      tip: 本软件前序原子能力（如打开、新建）返回的Word对象
+    - key: output_path
+      title: 导出路径
+      tip: 选择要导出的文件夹
+    - key: default_name
+      title: 是否使用默认名称
+      tip: 选择是否使用默认名称
+    - key: output_name
+      title: 导出文件名
+      tip: 输入不含格式后缀的文件名
+    - key: page_type
+      title: 页面范围
+      tip: 选择要导出全部页面、指定页面范围、当前页面、当前选中内容
+    - key: output_file_type
+      title: 导出文件格式
+      tip: 选中导出为pdf还是txt
+    - key: page_start
+      title: 起始页面
+      tip: 输入导出的起始页面
+    - key: page_end
+      title: 结束页面
+      tip: 输入要导出的结束页面
+    - key: save_type
+      title: 重名保存方式
+      tip: 选择存在重名文件时报错、覆盖、自动重命名
+    outputList: []
+options:
+  ApplicationType:
+  - value: Word
+    label: Word
+  - value: WPS
+    label: WPS
+  - value: Default
+    label: 默认软件
+  Bool:
+  - value: true
+    label: 是
+  - value: false
+    label: 否
+  EncodingType:
+  - value: utf-8
+    label: utf-8
+  - value: gbk
+    label: gbk
+  SelectRangeType:
+  - value: all
+    label: 整个文档
+  - value: selected
+    label: 选中区域
+  FileExistenceType:
+  - value: overwrite
+    label: 覆盖原有文件
+  - value: rename
+    label: 创建文件副本
+  - value: cancel
+    label: 取消保存操作
+  SaveType:
+  - value: save
+    label: 保存
+  - value: save_as
+    label: 另存为
+  - value: abort
+    label: 不保存
+  CloseRangeType:
+  - value: one
+    label: 关闭当前文档
+  - value: all
+    label: 关闭所有文档
+  UnderLineStyle:
+  - value: 0
+    label: 无下划线
+  - value: 1
+    label: 有下划线
+  CursorPointerType:
+  - value: paragraph
+    label: 段落
+  - value: row
+    label: 行
+  - value: all
+    label: 文档
+  - value: content
+    label: 文本内容
+  SelectTextType:
+  - value: paragraph
+    label: 段落
+  - value: row
+    label: 行
+  - value: all
+    label: 全文
+  CursorPositionType:
+  - value: head
+    label: 所选内容之前
+  - value: tail
+    label: 所选内容之后
+  MoveDirectionType:
+  - value: up
+    label: 向上
+  - value: down
+    label: 向下
+  - value: left
+    label: 向左
+  - value: right
+    label: 向右
+  MoveUpDownType:
+  - value: paragraph
+    label: 段落
+  - value: row
+    label: 行
+  MoveLeftRightType:
+  - value: character
+    label: 字符
+  - value: word
+    label: 单词
+  InsertionType:
+  - value: page
+    label: 页
+  - value: paragraph
+    label: 段落
+  InsertImgType:
+  - value: file
+    label: 文件
+  - value: clipboard
+    label: 剪贴板
+  SearchTableType:
+  - value: text
+    label: 文本
+  - value: idx
+    label: 序号
+  TableBehavior:
+  - value: 0
+    label: 默认
+  - value: 1
+    label: 适应大小
+  RowAlignment:
+  - value: 0
+    label: 左对齐
+  - value: 1
+    label: 居中对齐
+  - value: 2
+    label: 右对齐
+  VerticalAlignment:
+  - value: 0
+    label: 顶部对齐
+  - value: 1
+    label: 居中对齐
+  - value: 3
+    label: 底部对齐
+  DeleteMode:
+  - value: all
+    label: 全部
+  - value: content
+    label: 指定文本
+  - value: range
+    label: 指定范围
+  ReplaceType:
+  - value: img
+    label: 图片
+  - value: str
+    label: 文本
+  ReplaceMethodType:
+  - value: first
+    label: 首个
+  - value: all
+    label: 全部
+  CommentType:
+  - value: position
+    label: 指定位置
+  - value: content
+    label: 指定内容
+  ConvertPageType:
+  - value: 0
+    label: 全部页面
+  - value: 2
+    label: 当前页面
+  - value: 3
+    label: 指定页面范围
+  - value: 1
+    label: 选中内容
+  FileType:
+  - value: pdf
+    label: PDF
+  - value: txt
+    label: TXT
+  SaveFileType:
+  - value: warn
+    label: 重名提示
+  - value: generate
+    label: 自动生成名称
+  - value: overwrite
+    label: 覆盖同名文件

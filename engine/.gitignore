@@ -1,0 +1,8 @@
+pip_cache
+.cookie.json
+.setting.json
+imgs
+venvs
+build
+python313
+log.txt

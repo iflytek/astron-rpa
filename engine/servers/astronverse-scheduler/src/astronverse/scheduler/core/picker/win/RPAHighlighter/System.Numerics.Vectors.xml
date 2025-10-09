@@ -1,0 +1,3451 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Numerics.Vectors</name>
+    </assembly>
+    <members>
+        <member name="T:System.Numerics.Matrix3x2">
+            <summary>
+            A structure encapsulating a 3x2 matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix3x2.M11">
+            <summary>
+            The first element of the first row
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix3x2.M12">
+            <summary>
+            The second element of the first row
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix3x2.M21">
+            <summary>
+            The first element of the second row
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix3x2.M22">
+            <summary>
+            The second element of the second row
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix3x2.M31">
+            <summary>
+            The first element of the third row
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix3x2.M32">
+            <summary>
+            The second element of the third row
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Matrix3x2.Identity">
+            <summary>
+            Returns the multiplicative identity matrix.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Matrix3x2.IsIdentity">
+            <summary>
+            Returns whether the matrix is the identity matrix.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Matrix3x2.Translation">
+            <summary>
+            Gets or sets the translation component of this matrix.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.#ctor(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a Matrix3x2 from the given components.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateTranslation(System.Numerics.Vector2)">
+            <summary>
+            Creates a translation matrix from the given vector.
+            </summary>
+            <param name="position">The translation position.</param>
+            <returns>A translation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateTranslation(System.Single,System.Single)">
+            <summary>
+            Creates a translation matrix from the given X and Y components.
+            </summary>
+            <param name="xPosition">The X position.</param>
+            <param name="yPosition">The Y position.</param>
+            <returns>A translation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateScale(System.Single,System.Single)">
+            <summary>
+            Creates a scale matrix from the given X and Y components.
+            </summary>
+            <param name="xScale">Value to scale by on the X-axis.</param>
+            <param name="yScale">Value to scale by on the Y-axis.</param>
+            <returns>A scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateScale(System.Single,System.Single,System.Numerics.Vector2)">
+            <summary>
+            Creates a scale matrix that is offset by a given center point.
+            </summary>
+            <param name="xScale">Value to scale by on the X-axis.</param>
+            <param name="yScale">Value to scale by on the Y-axis.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>A scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateScale(System.Numerics.Vector2)">
+            <summary>
+            Creates a scale matrix from the given vector scale.
+            </summary>
+            <param name="scales">The scale to use.</param>
+            <returns>A scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateScale(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Creates a scale matrix from the given vector scale with an offset from the given center point.
+            </summary>
+            <param name="scales">The scale to use.</param>
+            <param name="centerPoint">The center offset.</param>
+            <returns>A scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateScale(System.Single)">
+            <summary>
+            Creates a scale matrix that scales uniformly with the given scale.
+            </summary>
+            <param name="scale">The uniform scale to use.</param>
+            <returns>A scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateScale(System.Single,System.Numerics.Vector2)">
+            <summary>
+            Creates a scale matrix that scales uniformly with the given scale with an offset from the given center.
+            </summary>
+            <param name="scale">The uniform scale to use.</param>
+            <param name="centerPoint">The center offset.</param>
+            <returns>A scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateSkew(System.Single,System.Single)">
+            <summary>
+            Creates a skew matrix from the given angles in radians.
+            </summary>
+            <param name="radiansX">The X angle, in radians.</param>
+            <param name="radiansY">The Y angle, in radians.</param>
+            <returns>A skew matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateSkew(System.Single,System.Single,System.Numerics.Vector2)">
+            <summary>
+            Creates a skew matrix from the given angles in radians and a center point.
+            </summary>
+            <param name="radiansX">The X angle, in radians.</param>
+            <param name="radiansY">The Y angle, in radians.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>A skew matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateRotation(System.Single)">
+            <summary>
+            Creates a rotation matrix using the given rotation in radians.
+            </summary>
+            <param name="radians">The amount of rotation, in radians.</param>
+            <returns>A rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.CreateRotation(System.Single,System.Numerics.Vector2)">
+            <summary>
+            Creates a rotation matrix using the given rotation in radians and a center point.
+            </summary>
+            <param name="radians">The amount of rotation, in radians.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>A rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.GetDeterminant">
+            <summary>
+            Calculates the determinant for this matrix. 
+            The determinant is calculated by expanding the matrix with a third column whose values are (0,0,1).
+            </summary>
+            <returns>The determinant.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Invert(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2@)">
+            <summary>
+            Attempts to invert the given matrix. If the operation succeeds, the inverted matrix is stored in the result parameter.
+            </summary>
+            <param name="matrix">The source matrix.</param>
+            <param name="result">The output matrix.</param>
+            <returns>True if the operation succeeded, False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Lerp(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2,System.Single)">
+            <summary>
+            Linearly interpolates from matrix1 to matrix2, based on the third parameter.
+            </summary>
+            <param name="matrix1">The first source matrix.</param>
+            <param name="matrix2">The second source matrix.</param>
+            <param name="amount">The relative weighting of matrix2.</param>
+            <returns>The interpolated matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Negate(System.Numerics.Matrix3x2)">
+            <summary>
+            Negates the given matrix by multiplying all values by -1.
+            </summary>
+            <param name="value">The source matrix.</param>
+            <returns>The negated matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Add(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Adds each matrix element in value1 with its corresponding element in value2.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The matrix containing the summed values.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Subtract(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Subtracts each matrix element in value2 from its corresponding element in value1.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The matrix containing the resulting values.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Multiply(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Multiplies two matrices together and returns the resulting matrix.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The product matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Multiply(System.Numerics.Matrix3x2,System.Single)">
+            <summary>
+            Scales all elements in a matrix by the given scalar factor.
+            </summary>
+            <param name="value1">The source matrix.</param>
+            <param name="value2">The scaling value to use.</param>
+            <returns>The resulting matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_UnaryNegation(System.Numerics.Matrix3x2)">
+            <summary>
+            Negates the given matrix by multiplying all values by -1.
+            </summary>
+            <param name="value">The source matrix.</param>
+            <returns>The negated matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_Addition(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Adds each matrix element in value1 with its corresponding element in value2.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The matrix containing the summed values.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_Subtraction(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Subtracts each matrix element in value2 from its corresponding element in value1.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The matrix containing the resulting values.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_Multiply(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Multiplies two matrices together and returns the resulting matrix.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The product matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_Multiply(System.Numerics.Matrix3x2,System.Single)">
+            <summary>
+            Scales all elements in a matrix by the given scalar factor.
+            </summary>
+            <param name="value1">The source matrix.</param>
+            <param name="value2">The scaling value to use.</param>
+            <returns>The resulting matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_Equality(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Returns a boolean indicating whether the given matrices are equal.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>True if the matrices are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.op_Inequality(System.Numerics.Matrix3x2,System.Numerics.Matrix3x2)">
+            <summary>
+            Returns a boolean indicating whether the given matrices are not equal.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>True if the matrices are not equal; False if they are equal.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Equals(System.Numerics.Matrix3x2)">
+            <summary>
+            Returns a boolean indicating whether the matrix is equal to the other given matrix.
+            </summary>
+            <param name="other">The other matrix to test equality against.</param>
+            <returns>True if this matrix is equal to other; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this matrix instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this matrix; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.ToString">
+            <summary>
+            Returns a String representing this matrix instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix3x2.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="T:System.Numerics.Matrix4x4">
+            <summary>
+            A structure encapsulating a 4x4 matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M11">
+            <summary>
+            Value at row 1, column 1 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M12">
+            <summary>
+            Value at row 1, column 2 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M13">
+            <summary>
+            Value at row 1, column 3 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M14">
+            <summary>
+            Value at row 1, column 4 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M21">
+            <summary>
+            Value at row 2, column 1 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M22">
+            <summary>
+            Value at row 2, column 2 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M23">
+            <summary>
+            Value at row 2, column 3 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M24">
+            <summary>
+            Value at row 2, column 4 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M31">
+            <summary>
+            Value at row 3, column 1 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M32">
+            <summary>
+            Value at row 3, column 2 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M33">
+            <summary>
+            Value at row 3, column 3 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M34">
+            <summary>
+            Value at row 3, column 4 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M41">
+            <summary>
+            Value at row 4, column 1 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M42">
+            <summary>
+            Value at row 4, column 2 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M43">
+            <summary>
+            Value at row 4, column 3 of the matrix.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Matrix4x4.M44">
+            <summary>
+            Value at row 4, column 4 of the matrix.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Matrix4x4.Identity">
+            <summary>
+            Returns the multiplicative identity matrix.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Matrix4x4.IsIdentity">
+            <summary>
+            Returns whether the matrix is the identity matrix.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Matrix4x4.Translation">
+            <summary>
+            Gets or sets the translation component of this matrix.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.#ctor(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a Matrix4x4 from the given components.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.#ctor(System.Numerics.Matrix3x2)">
+            <summary>
+            Constructs a Matrix4x4 from the given Matrix3x2.
+            </summary>
+            <param name="value">The source Matrix3x2.</param>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateBillboard(System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Creates a spherical billboard that rotates around a specified object position.
+            </summary>
+            <param name="objectPosition">Position of the object the billboard will rotate around.</param>
+            <param name="cameraPosition">Position of the camera.</param>
+            <param name="cameraUpVector">The up vector of the camera.</param>
+            <param name="cameraForwardVector">The forward vector of the camera.</param>
+            <returns>The created billboard matrix</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateConstrainedBillboard(System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Creates a cylindrical billboard that rotates around a specified axis.
+            </summary>
+            <param name="objectPosition">Position of the object the billboard will rotate around.</param>
+            <param name="cameraPosition">Position of the camera.</param>
+            <param name="rotateAxis">Axis to rotate the billboard around.</param>
+            <param name="cameraForwardVector">Forward vector of the camera.</param>
+            <param name="objectForwardVector">Forward vector of the object.</param>
+            <returns>The created billboard matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateTranslation(System.Numerics.Vector3)">
+            <summary>
+            Creates a translation matrix.
+            </summary>
+            <param name="position">The amount to translate in each axis.</param>
+            <returns>The translation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateTranslation(System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a translation matrix.
+            </summary>
+            <param name="xPosition">The amount to translate on the X-axis.</param>
+            <param name="yPosition">The amount to translate on the Y-axis.</param>
+            <param name="zPosition">The amount to translate on the Z-axis.</param>
+            <returns>The translation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateScale(System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a scaling matrix.
+            </summary>
+            <param name="xScale">Value to scale by on the X-axis.</param>
+            <param name="yScale">Value to scale by on the Y-axis.</param>
+            <param name="zScale">Value to scale by on the Z-axis.</param>
+            <returns>The scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateScale(System.Single,System.Single,System.Single,System.Numerics.Vector3)">
+            <summary>
+            Creates a scaling matrix with a center point.
+            </summary>
+            <param name="xScale">Value to scale by on the X-axis.</param>
+            <param name="yScale">Value to scale by on the Y-axis.</param>
+            <param name="zScale">Value to scale by on the Z-axis.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>The scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateScale(System.Numerics.Vector3)">
+            <summary>
+            Creates a scaling matrix.
+            </summary>
+            <param name="scales">The vector containing the amount to scale by on each axis.</param>
+            <returns>The scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateScale(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Creates a scaling matrix with a center point.
+            </summary>
+            <param name="scales">The vector containing the amount to scale by on each axis.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>The scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateScale(System.Single)">
+            <summary>
+            Creates a uniform scaling matrix that scales equally on each axis.
+            </summary>
+            <param name="scale">The uniform scaling factor.</param>
+            <returns>The scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateScale(System.Single,System.Numerics.Vector3)">
+            <summary>
+            Creates a uniform scaling matrix that scales equally on each axis with a center point.
+            </summary>
+            <param name="scale">The uniform scaling factor.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>The scaling matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateRotationX(System.Single)">
+            <summary>
+            Creates a matrix for rotating points around the X-axis.
+            </summary>
+            <param name="radians">The amount, in radians, by which to rotate around the X-axis.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateRotationX(System.Single,System.Numerics.Vector3)">
+            <summary>
+            Creates a matrix for rotating points around the X-axis, from a center point.
+            </summary>
+            <param name="radians">The amount, in radians, by which to rotate around the X-axis.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateRotationY(System.Single)">
+            <summary>
+            Creates a matrix for rotating points around the Y-axis.
+            </summary>
+            <param name="radians">The amount, in radians, by which to rotate around the Y-axis.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateRotationY(System.Single,System.Numerics.Vector3)">
+            <summary>
+            Creates a matrix for rotating points around the Y-axis, from a center point.
+            </summary>
+            <param name="radians">The amount, in radians, by which to rotate around the Y-axis.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateRotationZ(System.Single)">
+            <summary>
+            Creates a matrix for rotating points around the Z-axis.
+            </summary>
+            <param name="radians">The amount, in radians, by which to rotate around the Z-axis.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateRotationZ(System.Single,System.Numerics.Vector3)">
+            <summary>
+            Creates a matrix for rotating points around the Z-axis, from a center point.
+            </summary>
+            <param name="radians">The amount, in radians, by which to rotate around the Z-axis.</param>
+            <param name="centerPoint">The center point.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateFromAxisAngle(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Creates a matrix that rotates around an arbitrary vector.
+            </summary>
+            <param name="axis">The axis to rotate around.</param>
+            <param name="angle">The angle to rotate around the given axis, in radians.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreatePerspectiveFieldOfView(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a perspective projection matrix based on a field of view, aspect ratio, and near and far view plane distances. 
+            </summary>
+            <param name="fieldOfView">Field of view in the y direction, in radians.</param>
+            <param name="aspectRatio">Aspect ratio, defined as view space width divided by height.</param>
+            <param name="nearPlaneDistance">Distance to the near view plane.</param>
+            <param name="farPlaneDistance">Distance to the far view plane.</param>
+            <returns>The perspective projection matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreatePerspective(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a perspective projection matrix from the given view volume dimensions.
+            </summary>
+            <param name="width">Width of the view volume at the near view plane.</param>
+            <param name="height">Height of the view volume at the near view plane.</param>
+            <param name="nearPlaneDistance">Distance to the near view plane.</param>
+            <param name="farPlaneDistance">Distance to the far view plane.</param>
+            <returns>The perspective projection matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreatePerspectiveOffCenter(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a customized, perspective projection matrix.
+            </summary>
+            <param name="left">Minimum x-value of the view volume at the near view plane.</param>
+            <param name="right">Maximum x-value of the view volume at the near view plane.</param>
+            <param name="bottom">Minimum y-value of the view volume at the near view plane.</param>
+            <param name="top">Maximum y-value of the view volume at the near view plane.</param>
+            <param name="nearPlaneDistance">Distance to the near view plane.</param>
+            <param name="farPlaneDistance">Distance to of the far view plane.</param>
+            <returns>The perspective projection matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateOrthographic(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Creates an orthographic perspective matrix from the given view volume dimensions.
+            </summary>
+            <param name="width">Width of the view volume.</param>
+            <param name="height">Height of the view volume.</param>
+            <param name="zNearPlane">Minimum Z-value of the view volume.</param>
+            <param name="zFarPlane">Maximum Z-value of the view volume.</param>
+            <returns>The orthographic projection matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateOrthographicOffCenter(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Builds a customized, orthographic projection matrix.
+            </summary>
+            <param name="left">Minimum X-value of the view volume.</param>
+            <param name="right">Maximum X-value of the view volume.</param>
+            <param name="bottom">Minimum Y-value of the view volume.</param>
+            <param name="top">Maximum Y-value of the view volume.</param>
+            <param name="zNearPlane">Minimum Z-value of the view volume.</param>
+            <param name="zFarPlane">Maximum Z-value of the view volume.</param>
+            <returns>The orthographic projection matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateLookAt(System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Creates a view matrix.
+            </summary>
+            <param name="cameraPosition">The position of the camera.</param>
+            <param name="cameraTarget">The target towards which the camera is pointing.</param>
+            <param name="cameraUpVector">The direction that is "up" from the camera's point of view.</param>
+            <returns>The view matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateWorld(System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Creates a world matrix with the specified parameters.
+            </summary>
+            <param name="position">The position of the object; used in translation operations.</param>
+            <param name="forward">Forward direction of the object.</param>
+            <param name="up">Upward direction of the object; usually [0, 1, 0].</param>
+            <returns>The world matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateFromQuaternion(System.Numerics.Quaternion)">
+            <summary>
+            Creates a rotation matrix from the given Quaternion rotation value.
+            </summary>
+            <param name="quaternion">The source Quaternion.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateFromYawPitchRoll(System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a rotation matrix from the specified yaw, pitch, and roll.
+            </summary>
+            <param name="yaw">Angle of rotation, in radians, around the Y-axis.</param>
+            <param name="pitch">Angle of rotation, in radians, around the X-axis.</param>
+            <param name="roll">Angle of rotation, in radians, around the Z-axis.</param>
+            <returns>The rotation matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateShadow(System.Numerics.Vector3,System.Numerics.Plane)">
+            <summary>
+            Creates a Matrix that flattens geometry into a specified Plane as if casting a shadow from a specified light source.
+            </summary>
+            <param name="lightDirection">The direction from which the light that will cast the shadow is coming.</param>
+            <param name="plane">The Plane onto which the new matrix should flatten geometry so as to cast a shadow.</param>
+            <returns>A new Matrix that can be used to flatten geometry onto the specified plane from the specified direction.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.CreateReflection(System.Numerics.Plane)">
+            <summary>
+            Creates a Matrix that reflects the coordinate system about a specified Plane.
+            </summary>
+            <param name="value">The Plane about which to create a reflection.</param>
+            <returns>A new matrix expressing the reflection.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.GetDeterminant">
+            <summary>
+            Calculates the determinant of the matrix.
+            </summary>
+            <returns>The determinant of the matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Invert(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4@)">
+            <summary>
+            Attempts to calculate the inverse of the given matrix. If successful, result will contain the inverted matrix.
+            </summary>
+            <param name="matrix">The source matrix to invert.</param>
+            <param name="result">If successful, contains the inverted matrix.</param>
+            <returns>True if the source matrix could be inverted; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Decompose(System.Numerics.Matrix4x4,System.Numerics.Vector3@,System.Numerics.Quaternion@,System.Numerics.Vector3@)">
+            <summary>
+            Attempts to extract the scale, translation, and rotation components from the given scale/rotation/translation matrix.
+            If successful, the out parameters will contained the extracted values.
+            </summary>
+            <param name="matrix">The source matrix.</param>
+            <param name="scale">The scaling component of the transformation matrix.</param>
+            <param name="rotation">The rotation component of the transformation matrix.</param>
+            <param name="translation">The translation component of the transformation matrix</param>
+            <returns>True if the source matrix was successfully decomposed; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Transform(System.Numerics.Matrix4x4,System.Numerics.Quaternion)">
+            <summary>
+            Transforms the given matrix by applying the given Quaternion rotation.
+            </summary>
+            <param name="value">The source matrix to transform.</param>
+            <param name="rotation">The rotation to apply.</param>
+            <returns>The transformed matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Transpose(System.Numerics.Matrix4x4)">
+            <summary>
+            Transposes the rows and columns of a matrix.
+            </summary>
+            <param name="matrix">The source matrix.</param>
+            <returns>The transposed matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Lerp(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4,System.Single)">
+            <summary>
+            Linearly interpolates between the corresponding values of two matrices.
+            </summary>
+            <param name="matrix1">The first source matrix.</param>
+            <param name="matrix2">The second source matrix.</param>
+            <param name="amount">The relative weight of the second source matrix.</param>
+            <returns>The interpolated matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Negate(System.Numerics.Matrix4x4)">
+            <summary>
+            Returns a new matrix with the negated elements of the given matrix.
+            </summary>
+            <param name="value">The source matrix.</param>
+            <returns>The negated matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Add(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Adds two matrices together.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The resulting matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Subtract(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Subtracts the second matrix from the first.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The result of the subtraction.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Multiply(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Multiplies a matrix by another matrix.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The result of the multiplication.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Multiply(System.Numerics.Matrix4x4,System.Single)">
+            <summary>
+            Multiplies a matrix by a scalar value.
+            </summary>
+            <param name="value1">The source matrix.</param>
+            <param name="value2">The scaling factor.</param>
+            <returns>The scaled matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_UnaryNegation(System.Numerics.Matrix4x4)">
+            <summary>
+            Returns a new matrix with the negated elements of the given matrix.
+            </summary>
+            <param name="value">The source matrix.</param>
+            <returns>The negated matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_Addition(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Adds two matrices together.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The resulting matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_Subtraction(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Subtracts the second matrix from the first.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The result of the subtraction.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_Multiply(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Multiplies a matrix by another matrix.
+            </summary>
+            <param name="value1">The first source matrix.</param>
+            <param name="value2">The second source matrix.</param>
+            <returns>The result of the multiplication.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_Multiply(System.Numerics.Matrix4x4,System.Single)">
+            <summary>
+            Multiplies a matrix by a scalar value.
+            </summary>
+            <param name="value1">The source matrix.</param>
+            <param name="value2">The scaling factor.</param>
+            <returns>The scaled matrix.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_Equality(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Returns a boolean indicating whether the given two matrices are equal.
+            </summary>
+            <param name="value1">The first matrix to compare.</param>
+            <param name="value2">The second matrix to compare.</param>
+            <returns>True if the given matrices are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.op_Inequality(System.Numerics.Matrix4x4,System.Numerics.Matrix4x4)">
+            <summary>
+            Returns a boolean indicating whether the given two matrices are not equal.
+            </summary>
+            <param name="value1">The first matrix to compare.</param>
+            <param name="value2">The second matrix to compare.</param>
+            <returns>True if the given matrices are not equal; False if they are equal.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Equals(System.Numerics.Matrix4x4)">
+            <summary>
+            Returns a boolean indicating whether this matrix instance is equal to the other given matrix.
+            </summary>
+            <param name="other">The matrix to compare this instance to.</param>
+            <returns>True if the matrices are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this matrix instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this matrix; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.ToString">
+            <summary>
+            Returns a String representing this matrix instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Matrix4x4.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="T:System.Numerics.Plane">
+            <summary>
+            A structure encapsulating a 3D Plane
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Plane.Normal">
+            <summary>
+            The normal vector of the Plane.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Plane.D">
+            <summary>
+            The distance of the Plane along its normal from the origin.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Plane.#ctor(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a Plane from the X, Y, and Z components of its normal, and its distance from the origin on that normal.
+            </summary>
+            <param name="x">The X-component of the normal.</param>
+            <param name="y">The Y-component of the normal.</param>
+            <param name="z">The Z-component of the normal.</param>
+            <param name="d">The distance of the Plane along its normal from the origin.</param>
+        </member>
+        <member name="M:System.Numerics.Plane.#ctor(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Constructs a Plane from the given normal and distance along the normal from the origin.
+            </summary>
+            <param name="normal">The Plane's normal vector.</param>
+            <param name="d">The Plane's distance from the origin along its normal vector.</param>
+        </member>
+        <member name="M:System.Numerics.Plane.#ctor(System.Numerics.Vector4)">
+            <summary>
+            Constructs a Plane from the given Vector4.
+            </summary>
+            <param name="value">A vector whose first 3 elements describe the normal vector, 
+            and whose W component defines the distance along that normal from the origin.</param>
+        </member>
+        <member name="M:System.Numerics.Plane.CreateFromVertices(System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Creates a Plane that contains the three given points.
+            </summary>
+            <param name="point1">The first point defining the Plane.</param>
+            <param name="point2">The second point defining the Plane.</param>
+            <param name="point3">The third point defining the Plane.</param>
+            <returns>The Plane containing the three points.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.Normalize(System.Numerics.Plane)">
+            <summary>
+            Creates a new Plane whose normal vector is the source Plane's normal vector normalized.
+            </summary>
+            <param name="value">The source Plane.</param>
+            <returns>The normalized Plane.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.Transform(System.Numerics.Plane,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a normalized Plane by a Matrix.
+            </summary>
+            <param name="plane"> The normalized Plane to transform. 
+            This Plane must already be normalized, so that its Normal vector is of unit length, before this method is called.</param>
+            <param name="matrix">The transformation matrix to apply to the Plane.</param>
+            <returns>The transformed Plane.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.Transform(System.Numerics.Plane,System.Numerics.Quaternion)">
+            <summary>
+             Transforms a normalized Plane by a Quaternion rotation.
+            </summary>
+            <param name="plane"> The normalized Plane to transform.
+            This Plane must already be normalized, so that its Normal vector is of unit length, before this method is called.</param>
+            <param name="rotation">The Quaternion rotation to apply to the Plane.</param>
+            <returns>A new Plane that results from applying the rotation.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.Dot(System.Numerics.Plane,System.Numerics.Vector4)">
+            <summary>
+            Calculates the dot product of a Plane and Vector4.
+            </summary>
+            <param name="plane">The Plane.</param>
+            <param name="value">The Vector4.</param>
+            <returns>The dot product.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.DotCoordinate(System.Numerics.Plane,System.Numerics.Vector3)">
+            <summary>
+            Returns the dot product of a specified Vector3 and the normal vector of this Plane plus the distance (D) value of the Plane.
+            </summary>
+            <param name="plane">The plane.</param>
+            <param name="value">The Vector3.</param>
+            <returns>The resulting value.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.DotNormal(System.Numerics.Plane,System.Numerics.Vector3)">
+            <summary>
+            Returns the dot product of a specified Vector3 and the Normal vector of this Plane.
+            </summary>
+            <param name="plane">The plane.</param>
+            <param name="value">The Vector3.</param>
+            <returns>The resulting dot product.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.op_Equality(System.Numerics.Plane,System.Numerics.Plane)">
+            <summary>
+            Returns a boolean indicating whether the two given Planes are equal.
+            </summary>
+            <param name="value1">The first Plane to compare.</param>
+            <param name="value2">The second Plane to compare.</param>
+            <returns>True if the Planes are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.op_Inequality(System.Numerics.Plane,System.Numerics.Plane)">
+            <summary>
+            Returns a boolean indicating whether the two given Planes are not equal.
+            </summary>
+            <param name="value1">The first Plane to compare.</param>
+            <param name="value2">The second Plane to compare.</param>
+            <returns>True if the Planes are not equal; False if they are equal.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.Equals(System.Numerics.Plane)">
+            <summary>
+            Returns a boolean indicating whether the given Plane is equal to this Plane instance.
+            </summary>
+            <param name="other">The Plane to compare this instance to.</param>
+            <returns>True if the other Plane is equal to this instance; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this Plane instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this Plane; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.ToString">
+            <summary>
+            Returns a String representing this Plane instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Plane.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="T:System.Numerics.Quaternion">
+            <summary>
+            A structure encapsulating a four-dimensional vector (x,y,z,w), 
+            which is used to efficiently rotate an object about the (x,y,z) vector by the angle theta, where w = cos(theta/2).
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Quaternion.X">
+            <summary>
+            Specifies the X-value of the vector component of the Quaternion.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Quaternion.Y">
+            <summary>
+            Specifies the Y-value of the vector component of the Quaternion.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Quaternion.Z">
+            <summary>
+            Specifies the Z-value of the vector component of the Quaternion.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Quaternion.W">
+            <summary>
+            Specifies the rotation component of the Quaternion.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Quaternion.Identity">
+            <summary>
+            Returns a Quaternion representing no rotation. 
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Quaternion.IsIdentity">
+            <summary>
+            Returns whether the Quaternion is the identity Quaternion.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Quaternion.#ctor(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a Quaternion from the given components.
+            </summary>
+            <param name="x">The X component of the Quaternion.</param>
+            <param name="y">The Y component of the Quaternion.</param>
+            <param name="z">The Z component of the Quaternion.</param>
+            <param name="w">The W component of the Quaternion.</param>
+        </member>
+        <member name="M:System.Numerics.Quaternion.#ctor(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Constructs a Quaternion from the given vector and rotation parts.
+            </summary>
+            <param name="vectorPart">The vector part of the Quaternion.</param>
+            <param name="scalarPart">The rotation part of the Quaternion.</param>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Length">
+            <summary>
+            Calculates the length of the Quaternion.
+            </summary>
+            <returns>The computed length of the Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.LengthSquared">
+            <summary>
+            Calculates the length squared of the Quaternion. This operation is cheaper than Length().
+            </summary>
+            <returns>The length squared of the Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Normalize(System.Numerics.Quaternion)">
+            <summary>
+            Divides each component of the Quaternion by the length of the Quaternion.
+            </summary>
+            <param name="value">The source Quaternion.</param>
+            <returns>The normalized Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Conjugate(System.Numerics.Quaternion)">
+            <summary>
+            Creates the conjugate of a specified Quaternion.
+            </summary>
+            <param name="value">The Quaternion of which to return the conjugate.</param>
+            <returns>A new Quaternion that is the conjugate of the specified one.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Inverse(System.Numerics.Quaternion)">
+            <summary>
+            Returns the inverse of a Quaternion.
+            </summary>
+            <param name="value">The source Quaternion.</param>
+            <returns>The inverted Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Creates a Quaternion from a normalized vector axis and an angle to rotate about the vector.
+            </summary>
+            <param name="axis">The unit vector to rotate around.
+            This vector must be normalized before calling this function or the resulting Quaternion will be incorrect.</param>
+            <param name="angle">The angle, in radians, to rotate around the vector.</param>
+            <returns>The created Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.CreateFromYawPitchRoll(System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a new Quaternion from the given yaw, pitch, and roll, in radians.
+            </summary>
+            <param name="yaw">The yaw angle, in radians, around the Y-axis.</param>
+            <param name="pitch">The pitch angle, in radians, around the X-axis.</param>
+            <param name="roll">The roll angle, in radians, around the Z-axis.</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.CreateFromRotationMatrix(System.Numerics.Matrix4x4)">
+            <summary>
+            Creates a Quaternion from the given rotation matrix.
+            </summary>
+            <param name="matrix">The rotation matrix.</param>
+            <returns>The created Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Dot(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Calculates the dot product of two Quaternions.
+            </summary>
+            <param name="quaternion1">The first source Quaternion.</param>
+            <param name="quaternion2">The second source Quaternion.</param>
+            <returns>The dot product of the Quaternions.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Slerp(System.Numerics.Quaternion,System.Numerics.Quaternion,System.Single)">
+            <summary>
+            Interpolates between two quaternions, using spherical linear interpolation.
+            </summary>
+            <param name="quaternion1">The first source Quaternion.</param>
+            <param name="quaternion2">The second source Quaternion.</param>
+            <param name="amount">The relative weight of the second source Quaternion in the interpolation.</param>
+            <returns>The interpolated Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Lerp(System.Numerics.Quaternion,System.Numerics.Quaternion,System.Single)">
+            <summary>
+             Linearly interpolates between two quaternions.
+            </summary>
+            <param name="quaternion1">The first source Quaternion.</param>
+            <param name="quaternion2">The second source Quaternion.</param>
+            <param name="amount">The relative weight of the second source Quaternion in the interpolation.</param>
+            <returns>The interpolated Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Concatenate(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Concatenates two Quaternions; the result represents the value1 rotation followed by the value2 rotation.
+            </summary>
+            <param name="value1">The first Quaternion rotation in the series.</param>
+            <param name="value2">The second Quaternion rotation in the series.</param>
+            <returns>A new Quaternion representing the concatenation of the value1 rotation followed by the value2 rotation.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Negate(System.Numerics.Quaternion)">
+            <summary>
+            Flips the sign of each component of the quaternion.
+            </summary>
+            <param name="value">The source Quaternion.</param>
+            <returns>The negated Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Add(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Adds two Quaternions element-by-element.
+            </summary>
+            <param name="value1">The first source Quaternion.</param>
+            <param name="value2">The second source Quaternion.</param>
+            <returns>The result of adding the Quaternions.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Subtract(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Subtracts one Quaternion from another.
+            </summary>
+            <param name="value1">The first source Quaternion.</param>
+            <param name="value2">The second Quaternion, to be subtracted from the first.</param>
+            <returns>The result of the subtraction.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Multiply(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Multiplies two Quaternions together.
+            </summary>
+            <param name="value1">The Quaternion on the left side of the multiplication.</param>
+            <param name="value2">The Quaternion on the right side of the multiplication.</param>
+            <returns>The result of the multiplication.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Multiply(System.Numerics.Quaternion,System.Single)">
+            <summary>
+            Multiplies a Quaternion by a scalar value.
+            </summary>
+            <param name="value1">The source Quaternion.</param>
+            <param name="value2">The scalar value.</param>
+            <returns>The result of the multiplication.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Divide(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Divides a Quaternion by another Quaternion.
+            </summary>
+            <param name="value1">The source Quaternion.</param>
+            <param name="value2">The divisor.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_UnaryNegation(System.Numerics.Quaternion)">
+            <summary>
+            Flips the sign of each component of the quaternion.
+            </summary>
+            <param name="value">The source Quaternion.</param>
+            <returns>The negated Quaternion.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Addition(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Adds two Quaternions element-by-element.
+            </summary>
+            <param name="value1">The first source Quaternion.</param>
+            <param name="value2">The second source Quaternion.</param>
+            <returns>The result of adding the Quaternions.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Subtraction(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Subtracts one Quaternion from another.
+            </summary>
+            <param name="value1">The first source Quaternion.</param>
+            <param name="value2">The second Quaternion, to be subtracted from the first.</param>
+            <returns>The result of the subtraction.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Multiply(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Multiplies two Quaternions together.
+            </summary>
+            <param name="value1">The Quaternion on the left side of the multiplication.</param>
+            <param name="value2">The Quaternion on the right side of the multiplication.</param>
+            <returns>The result of the multiplication.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Multiply(System.Numerics.Quaternion,System.Single)">
+            <summary>
+            Multiplies a Quaternion by a scalar value.
+            </summary>
+            <param name="value1">The source Quaternion.</param>
+            <param name="value2">The scalar value.</param>
+            <returns>The result of the multiplication.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Division(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Divides a Quaternion by another Quaternion.
+            </summary>
+            <param name="value1">The source Quaternion.</param>
+            <param name="value2">The divisor.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Equality(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Returns a boolean indicating whether the two given Quaternions are equal.
+            </summary>
+            <param name="value1">The first Quaternion to compare.</param>
+            <param name="value2">The second Quaternion to compare.</param>
+            <returns>True if the Quaternions are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.op_Inequality(System.Numerics.Quaternion,System.Numerics.Quaternion)">
+            <summary>
+            Returns a boolean indicating whether the two given Quaternions are not equal.
+            </summary>
+            <param name="value1">The first Quaternion to compare.</param>
+            <param name="value2">The second Quaternion to compare.</param>
+            <returns>True if the Quaternions are not equal; False if they are equal.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Equals(System.Numerics.Quaternion)">
+            <summary>
+            Returns a boolean indicating whether the given Quaternion is equal to this Quaternion instance.
+            </summary>
+            <param name="other">The Quaternion to compare this instance to.</param>
+            <returns>True if the other Quaternion is equal to this instance; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this Quaternion instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this Quaternion; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.ToString">
+            <summary>
+            Returns a String representing this Quaternion instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Quaternion.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="T:System.Numerics.Register">
+            <summary>
+            A structure describing the layout of an SSE2-sized register.
+            Contains overlapping fields representing the set of valid numeric types.
+            Allows the generic Vector'T struct to contain an explicit field layout.
+            </summary>
+        </member>
+        <member name="T:System.Numerics.Vector`1">
+            <summary>
+            A structure that represents a single Vector. The count of this Vector is fixed but CPU register dependent.
+            This struct only supports numerical types. This type is intended to be used as a building block for vectorizing
+            large algorithms. This type is immutable, individual elements cannot be modified.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector`1.Count">
+            <summary>
+            Returns the number of elements stored in the vector. This value is hardware dependent.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector`1.Zero">
+            <summary>
+            Returns a vector containing all zeroes.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector`1.One">
+            <summary>
+            Returns a vector containing all ones.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector`1.#ctor(`0)">
+            <summary>
+            Constructs a vector whose components are all <code>value</code>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector`1.#ctor(`0[])">
+            <summary>
+            Constructs a vector from the given array. The size of the given array must be at least Vector'T.Count.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector`1.#ctor(`0[],System.Int32)">
+            <summary>
+            Constructs a vector from the given array, starting from the given index.
+            The array must contain at least Vector'T.Count from the given index.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector`1.CopyTo(`0[])">
+            <summary>
+            Copies the vector to the given destination array. The destination array must be at least size Vector'T.Count.
+            </summary>
+            <param name="destination">The destination array which the values are copied into</param>
+            <exception cref="T:System.ArgumentNullException">If the destination array is null</exception>
+            <exception cref="T:System.ArgumentException">If number of elements in source vector is greater than those available in destination array</exception>
+        </member>
+        <member name="M:System.Numerics.Vector`1.CopyTo(`0[],System.Int32)">
+            <summary>
+            Copies the vector to the given destination array. The destination array must be at least size Vector'T.Count.
+            </summary>
+            <param name="destination">The destination array which the values are copied into</param>
+            <param name="startIndex">The index to start copying to</param>
+            <exception cref="T:System.ArgumentNullException">If the destination array is null</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">If index is greater than end of the array or index is less than zero</exception>
+            <exception cref="T:System.ArgumentException">If number of elements in source vector is greater than those available in destination array</exception>
+        </member>
+        <member name="P:System.Numerics.Vector`1.Item(System.Int32)">
+            <summary>
+            Returns the element at the given index.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector`1.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this vector instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this vector; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.Equals(System.Numerics.Vector{`0})">
+            <summary>
+            Returns a boolean indicating whether the given vector is equal to this vector instance.
+            </summary>
+            <param name="other">The vector to compare this instance to.</param>
+            <returns>True if the other vector is equal to this instance; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.ToString">
+            <summary>
+            Returns a String representing this vector.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.ToString(System.String)">
+            <summary>
+            Returns a String representing this vector, using the specified format string to format individual elements.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.ToString(System.String,System.IFormatProvider)">
+            <summary>
+            Returns a String representing this vector, using the specified format string to format individual elements
+            and the given IFormatProvider.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <param name="formatProvider">The format provider to use when formatting elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Addition(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Subtraction(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Multiply(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Multiply(System.Numerics.Vector{`0},`0)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="value">The source vector.</param>
+            <param name="factor">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Multiply(`0,System.Numerics.Vector{`0})">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="factor">The scalar value.</param>
+            <param name="value">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Division(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_UnaryNegation(System.Numerics.Vector{`0})">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_BitwiseAnd(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Returns a new vector by performing a bitwise-and operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_BitwiseOr(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Returns a new vector by performing a bitwise-or operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_ExclusiveOr(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Returns a new vector by performing a bitwise-exclusive-or operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_OnesComplement(System.Numerics.Vector{`0})">
+            <summary>
+            Returns a new vector whose elements are obtained by taking the one's complement of the given vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The one's complement vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Equality(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Returns a boolean indicating whether each pair of elements in the given vectors are equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The first vector to compare.</param>
+            <returns>True if all elements are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Inequality(System.Numerics.Vector{`0},System.Numerics.Vector{`0})">
+            <summary>
+            Returns a boolean indicating whether any single pair of elements in the given vectors are not equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if left and right are not equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.Byte}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.SByte}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.UInt16}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.Int16}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.UInt32}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.Int32}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.UInt64}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.Int64}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.Single}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector`1.op_Explicit(System.Numerics.Vector{`0})~System.Numerics.Vector{System.Double}">
+            <summary>
+            Reinterprets the bits of the given vector into those of another type.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="T:System.Numerics.Vector">
+            <summary>
+            Contains various methods useful for creating, manipulating, combining, and converting generic vectors with one another.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.Byte},System.Numerics.Vector{System.UInt16}@,System.Numerics.Vector{System.UInt16}@)">
+            <summary>
+            Widens a Vector{Byte} into two Vector{UInt16}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.UInt16},System.Numerics.Vector{System.UInt32}@,System.Numerics.Vector{System.UInt32}@)">
+            <summary>
+            Widens a Vector{UInt16} into two Vector{UInt32}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.UInt32},System.Numerics.Vector{System.UInt64}@,System.Numerics.Vector{System.UInt64}@)">
+            <summary>
+            Widens a Vector{UInt32} into two Vector{UInt64}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.SByte},System.Numerics.Vector{System.Int16}@,System.Numerics.Vector{System.Int16}@)">
+            <summary>
+            Widens a Vector{SByte} into two Vector{Int16}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.Int16},System.Numerics.Vector{System.Int32}@,System.Numerics.Vector{System.Int32}@)">
+            <summary>
+            Widens a Vector{Int16} into two Vector{Int32}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int64}@,System.Numerics.Vector{System.Int64}@)">
+            <summary>
+            Widens a Vector{Int32} into two Vector{Int64}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Widen(System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Double}@,System.Numerics.Vector{System.Double}@)">
+            <summary>
+            Widens a Vector{Single} into two Vector{Double}'s.
+            <param name="source">The source vector whose elements are widened into the outputs.</param>
+            <param name="low">The first output vector, whose elements will contain the widened elements from lower indices in the source vector.</param>
+            <param name="high">The second output vector, whose elements will contain the widened elements from higher indices in the source vector.</param>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.UInt16},System.Numerics.Vector{System.UInt16})">
+            <summary>
+            Narrows two Vector{UInt16}'s into one Vector{Byte}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{Byte} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.UInt32},System.Numerics.Vector{System.UInt32})">
+            <summary>
+            Narrows two Vector{UInt32}'s into one Vector{UInt16}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{UInt16} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.UInt64},System.Numerics.Vector{System.UInt64})">
+            <summary>
+            Narrows two Vector{UInt64}'s into one Vector{UInt32}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{UInt32} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.Int16},System.Numerics.Vector{System.Int16})">
+            <summary>
+            Narrows two Vector{Int16}'s into one Vector{SByte}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{SByte} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int32})">
+            <summary>
+            Narrows two Vector{Int32}'s into one Vector{Int16}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{Int16} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Int64})">
+            <summary>
+            Narrows two Vector{Int64}'s into one Vector{Int32}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{Int32} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Narrow(System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Narrows two Vector{Double}'s into one Vector{Single}.
+            <param name="low">The first source vector, whose elements become the lower-index elements of the return value.</param>
+            <param name="high">The second source vector, whose elements become the higher-index elements of the return value.</param>
+            <returns>A Vector{Single} containing elements narrowed from the source vectors.</returns>
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToSingle(System.Numerics.Vector{System.Int32})">
+            <summary>
+            Converts a Vector{Int32} to a Vector{Single}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToSingle(System.Numerics.Vector{System.UInt32})">
+            <summary>
+            Converts a Vector{UInt32} to a Vector{Single}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToDouble(System.Numerics.Vector{System.Int64})">
+            <summary>
+            Converts a Vector{Int64} to a Vector{Double}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToDouble(System.Numerics.Vector{System.UInt64})">
+            <summary>
+            Converts a Vector{UInt64} to a Vector{Double}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToInt32(System.Numerics.Vector{System.Single})">
+            <summary>
+            Converts a Vector{Single} to a Vector{Int32}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToUInt32(System.Numerics.Vector{System.Single})">
+            <summary>
+            Converts a Vector{Single} to a Vector{UInt32}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToInt64(System.Numerics.Vector{System.Double})">
+            <summary>
+            Converts a Vector{Double} to a Vector{Int64}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConvertToUInt64(System.Numerics.Vector{System.Double})">
+            <summary>
+            Converts a Vector{Double} to a Vector{UInt64}.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The converted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConditionalSelect(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Single})">
+            <summary>
+            Creates a new vector with elements selected between the two given source vectors, and based on a mask vector.
+            </summary>
+            <param name="condition">The integral mask vector used to drive selection.</param>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The new vector with elements selected based on the mask.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConditionalSelect(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Creates a new vector with elements selected between the two given source vectors, and based on a mask vector.
+            </summary>
+            <param name="condition">The integral mask vector used to drive selection.</param>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The new vector with elements selected based on the mask.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.ConditionalSelect``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Creates a new vector with elements selected between the two given source vectors, and based on a mask vector.
+            </summary>
+            <param name="condition">The mask vector used to drive selection.</param>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The new vector with elements selected based on the mask.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Equals``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left and right were equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Equals(System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Single})">
+            <summary>
+            Returns an integral vector whose elements signal whether elements in the left and right floating point vectors were equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Equals(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int32})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left and right were equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Equals(System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Returns an integral vector whose elements signal whether elements in the left and right floating point vectors were equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Equals(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Int64})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left and right were equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.EqualsAll``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether each pair of elements in the given vectors are equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The first vector to compare.</param>
+            <returns>True if all elements are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.EqualsAny``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether any single pair of elements in the given vectors are equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if any element pairs are equal; False if no element pairs are equal.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThan``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were less than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThan(System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Single})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were less than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThan(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int32})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were less than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThan(System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were less than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThan(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Int64})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were less than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanAll``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether all of the elements in left are less than their corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if all elements in left are less than their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanAny``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether any element in left is less than its corresponding element in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if any elements in left are less than their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqual``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were less than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqual(System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Single})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were less than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqual(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int32})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were less than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqual(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Int64})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were less than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqual(System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were less than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqualAll``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether all elements in left are less than or equal to their corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if all elements in left are less than or equal to their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.LessThanOrEqualAny``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether any element in left is less than or equal to its corresponding element in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if any elements in left are less than their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThan``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were greater than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThan(System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Single})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were greater than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThan(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int32})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were greater than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThan(System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were greater than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThan(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Int64})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were greater than their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanAll``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether all elements in left are greater than the corresponding elements in right.
+            elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if all elements in left are greater than their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanAny``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether any element in left is greater than its corresponding element in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if any elements in left are greater than their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqual``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were greater than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqual(System.Numerics.Vector{System.Single},System.Numerics.Vector{System.Single})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were greater than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqual(System.Numerics.Vector{System.Int32},System.Numerics.Vector{System.Int32})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were greater than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqual(System.Numerics.Vector{System.Int64},System.Numerics.Vector{System.Int64})">
+            <summary>
+            Returns a new vector whose elements signal whether the elements in left were greater than or equal to their
+            corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqual(System.Numerics.Vector{System.Double},System.Numerics.Vector{System.Double})">
+            <summary>
+            Returns an integral vector whose elements signal whether the elements in left were greater than or equal to 
+            their corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>The resultant integral vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqualAll``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether all of the elements in left are greater than or equal to 
+            their corresponding elements in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if all elements in left are greater than or equal to their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.GreaterThanOrEqualAny``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a boolean indicating whether any element in left is greater than or equal to its corresponding element in right.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if any elements in left are greater than or equal to their corresponding elements in right; False otherwise.</returns>
+        </member>
+        <member name="P:System.Numerics.Vector.IsHardwareAccelerated">
+            <summary>
+            Returns whether or not vector operations are subject to hardware acceleration through JIT intrinsic support.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector.Abs``1(System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements are the absolute values of the given vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The absolute value vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Min``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements are the minimum of each pair of elements in the two given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The minimum vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Max``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements are the maximum of each pair of elements in the two given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The maximum vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Dot``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns the dot product of two vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The dot product.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.SquareRoot``1(System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements are the square roots of the given vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The square root vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Add``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Creates a new vector whose values are the sum of each pair of elements from the two given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Subtract``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Creates a new vector whose values are the difference between each pairs of elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Multiply``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Creates a new vector whose values are the product of each pair of elements from the two given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Multiply``1(System.Numerics.Vector{``0},``0)">
+            <summary>
+            Returns a new vector whose values are the values of the given vector each multiplied by a scalar value.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar factor.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Multiply``1(``0,System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose values are the values of the given vector each multiplied by a scalar value.
+            </summary>
+            <param name="left">The scalar factor.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Divide``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose values are the result of dividing the first vector's elements 
+            by the corresponding elements in the second vector.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The divided vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Negate``1(System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements are the given vector's elements negated.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.BitwiseAnd``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector by performing a bitwise-and operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.BitwiseOr``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector by performing a bitwise-or operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.OnesComplement``1(System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector whose elements are obtained by taking the one's complement of the given vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The one's complement vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.Xor``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector by performing a bitwise-exclusive-or operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AndNot``1(System.Numerics.Vector{``0},System.Numerics.Vector{``0})">
+            <summary>
+            Returns a new vector by performing a bitwise-and-not operation on each of the elements in the given vectors.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The resultant vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorByte``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of unsigned bytes.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorSByte``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of signed bytes.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorUInt16``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of 16-bit integers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorInt16``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of signed 16-bit integers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorUInt32``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of unsigned 32-bit integers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorInt32``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of signed 32-bit integers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorUInt64``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of unsigned 64-bit integers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorInt64``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of signed 64-bit integers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorSingle``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of 32-bit floating point numbers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector.AsVectorDouble``1(System.Numerics.Vector{``0})">
+            <summary>
+            Reinterprets the bits of the given vector into those of a vector of 64-bit floating point numbers.
+            </summary>
+            <param name="value">The source vector</param>
+            <returns>The reinterpreted vector.</returns>
+        </member>
+        <member name="T:System.Numerics.Vector2">
+            <summary>
+            A structure encapsulating two single precision floating point values and provides hardware accelerated methods.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector2.Zero">
+            <summary>
+            Returns the vector (0,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector2.One">
+            <summary>
+            Returns the vector (1,1).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector2.UnitX">
+            <summary>
+            Returns the vector (1,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector2.UnitY">
+            <summary>
+            Returns the vector (0,1).
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector2.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this Vector2 instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this Vector2; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.ToString">
+            <summary>
+            Returns a String representing this Vector2 instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.ToString(System.String)">
+            <summary>
+            Returns a String representing this Vector2 instance, using the specified format to format individual elements.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.ToString(System.String,System.IFormatProvider)">
+            <summary>
+            Returns a String representing this Vector2 instance, using the specified format to format individual elements 
+            and the given IFormatProvider.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <param name="formatProvider">The format provider to use when formatting elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Length">
+            <summary>
+            Returns the length of the vector.
+            </summary>
+            <returns>The vector's length.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.LengthSquared">
+            <summary>
+            Returns the length of the vector squared. This operation is cheaper than Length().
+            </summary>
+            <returns>The vector's length squared.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Distance(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns the Euclidean distance between the two given points.
+            </summary>
+            <param name="value1">The first point.</param>
+            <param name="value2">The second point.</param>
+            <returns>The distance.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.DistanceSquared(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns the Euclidean distance squared between the two given points.
+            </summary>
+            <param name="value1">The first point.</param>
+            <param name="value2">The second point.</param>
+            <returns>The distance squared.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Normalize(System.Numerics.Vector2)">
+            <summary>
+            Returns a vector with the same direction as the given vector, but with a length of 1.
+            </summary>
+            <param name="value">The vector to normalize.</param>
+            <returns>The normalized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Reflect(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns the reflection of a vector off a surface that has the specified normal.
+            </summary>
+            <param name="vector">The source vector.</param>
+            <param name="normal">The normal of the surface being reflected off.</param>
+            <returns>The reflected vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Clamp(System.Numerics.Vector2,System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Restricts a vector between a min and max value.
+            </summary>
+            <param name="value1">The source vector.</param>
+            <param name="min">The minimum value.</param>
+            <param name="max">The maximum value.</param>
+        </member>
+        <member name="M:System.Numerics.Vector2.Lerp(System.Numerics.Vector2,System.Numerics.Vector2,System.Single)">
+            <summary>
+            Linearly interpolates between two vectors based on the given weighting.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <param name="amount">Value between 0 and 1 indicating the weight of the second source vector.</param>
+            <returns>The interpolated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Transform(System.Numerics.Vector2,System.Numerics.Matrix3x2)">
+            <summary>
+            Transforms a vector by the given matrix.
+            </summary>
+            <param name="position">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Transform(System.Numerics.Vector2,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector by the given matrix.
+            </summary>
+            <param name="position">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.TransformNormal(System.Numerics.Vector2,System.Numerics.Matrix3x2)">
+            <summary>
+            Transforms a vector normal by the given matrix.
+            </summary>
+            <param name="normal">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.TransformNormal(System.Numerics.Vector2,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector normal by the given matrix.
+            </summary>
+            <param name="normal">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Transform(System.Numerics.Vector2,System.Numerics.Quaternion)">
+            <summary>
+            Transforms a vector by the given Quaternion rotation value.
+            </summary>
+            <param name="value">The source vector to be rotated.</param>
+            <param name="rotation">The rotation to apply.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Add(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Subtract(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Multiply(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Multiply(System.Numerics.Vector2,System.Single)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Multiply(System.Single,System.Numerics.Vector2)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The scalar value.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Divide(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Divide(System.Numerics.Vector2,System.Single)">
+            <summary>
+            Divides the vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="divisor">The scalar value.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Negate(System.Numerics.Vector2)">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="F:System.Numerics.Vector2.X">
+            <summary>
+            The X component of the vector.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Vector2.Y">
+            <summary>
+            The Y component of the vector.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector2.#ctor(System.Single)">
+            <summary>
+            Constructs a vector whose elements are all the single specified value.
+            </summary>
+            <param name="value">The element to fill the vector with.</param>
+        </member>
+        <member name="M:System.Numerics.Vector2.#ctor(System.Single,System.Single)">
+            <summary>
+            Constructs a vector with the given individual elements.
+            </summary>
+            <param name="x">The X component.</param>
+            <param name="y">The Y component.</param>
+        </member>
+        <member name="M:System.Numerics.Vector2.CopyTo(System.Single[])">
+            <summary>
+            Copies the contents of the vector into the given array.
+            </summary>
+            <param name="array">The destination array.</param>
+        </member>
+        <member name="M:System.Numerics.Vector2.CopyTo(System.Single[],System.Int32)">
+            <summary>
+            Copies the contents of the vector into the given array, starting from the given index.
+            </summary>
+            <exception cref="T:System.ArgumentNullException">If array is null.</exception>
+            <exception cref="T:System.RankException">If array is multidimensional.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">If index is greater than end of the array or index is less than zero.</exception>
+            <exception cref="T:System.ArgumentException">If number of elements in source vector is greater than those available in destination array
+            or if there are not enough elements to copy.</exception>
+        </member>
+        <member name="M:System.Numerics.Vector2.Equals(System.Numerics.Vector2)">
+            <summary>
+            Returns a boolean indicating whether the given Vector2 is equal to this Vector2 instance.
+            </summary>
+            <param name="other">The Vector2 to compare this instance to.</param>
+            <returns>True if the other Vector2 is equal to this instance; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Dot(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns the dot product of two vectors.
+            </summary>
+            <param name="value1">The first vector.</param>
+            <param name="value2">The second vector.</param>
+            <returns>The dot product.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Min(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns a vector whose elements are the minimum of each of the pairs of elements in the two source vectors.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <returns>The minimized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Max(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns a vector whose elements are the maximum of each of the pairs of elements in the two source vectors
+            </summary>
+            <param name="value1">The first source vector</param>
+            <param name="value2">The second source vector</param>
+            <returns>The maximized vector</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.Abs(System.Numerics.Vector2)">
+            <summary>
+            Returns a vector whose elements are the absolute values of each of the source vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The absolute value vector.</returns>        
+        </member>
+        <member name="M:System.Numerics.Vector2.SquareRoot(System.Numerics.Vector2)">
+            <summary>
+            Returns a vector whose elements are the square root of each of the source vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The square root vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Addition(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Subtraction(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Multiply(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Multiply(System.Single,System.Numerics.Vector2)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The scalar value.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Multiply(System.Numerics.Vector2,System.Single)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Division(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Division(System.Numerics.Vector2,System.Single)">
+            <summary>
+            Divides the vector by the given scalar.
+            </summary>
+            <param name="value1">The source vector.</param>
+            <param name="value2">The scalar value.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_UnaryNegation(System.Numerics.Vector2)">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Equality(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns a boolean indicating whether the two given vectors are equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if the vectors are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector2.op_Inequality(System.Numerics.Vector2,System.Numerics.Vector2)">
+            <summary>
+            Returns a boolean indicating whether the two given vectors are not equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if the vectors are not equal; False if they are equal.</returns>
+        </member>
+        <member name="T:System.Numerics.Vector3">
+            <summary>
+            A structure encapsulating three single precision floating point values and provides hardware accelerated methods.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector3.Zero">
+            <summary>
+            Returns the vector (0,0,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector3.One">
+            <summary>
+            Returns the vector (1,1,1).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector3.UnitX">
+            <summary>
+            Returns the vector (1,0,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector3.UnitY">
+            <summary>
+            Returns the vector (0,1,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector3.UnitZ">
+            <summary>
+            Returns the vector (0,0,1).
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector3.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this Vector3 instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this Vector3; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.ToString">
+            <summary>
+            Returns a String representing this Vector3 instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.ToString(System.String)">
+            <summary>
+            Returns a String representing this Vector3 instance, using the specified format to format individual elements.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.ToString(System.String,System.IFormatProvider)">
+            <summary>
+            Returns a String representing this Vector3 instance, using the specified format to format individual elements 
+            and the given IFormatProvider.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <param name="formatProvider">The format provider to use when formatting elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Length">
+            <summary>
+            Returns the length of the vector.
+            </summary>
+            <returns>The vector's length.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.LengthSquared">
+            <summary>
+            Returns the length of the vector squared. This operation is cheaper than Length().
+            </summary>
+            <returns>The vector's length squared.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Distance(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns the Euclidean distance between the two given points.
+            </summary>
+            <param name="value1">The first point.</param>
+            <param name="value2">The second point.</param>
+            <returns>The distance.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.DistanceSquared(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns the Euclidean distance squared between the two given points.
+            </summary>
+            <param name="value1">The first point.</param>
+            <param name="value2">The second point.</param>
+            <returns>The distance squared.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Normalize(System.Numerics.Vector3)">
+            <summary>
+            Returns a vector with the same direction as the given vector, but with a length of 1.
+            </summary>
+            <param name="value">The vector to normalize.</param>
+            <returns>The normalized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Cross(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Computes the cross product of two vectors.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The cross product.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Reflect(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns the reflection of a vector off a surface that has the specified normal.
+            </summary>
+            <param name="vector">The source vector.</param>
+            <param name="normal">The normal of the surface being reflected off.</param>
+            <returns>The reflected vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Clamp(System.Numerics.Vector3,System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Restricts a vector between a min and max value.
+            </summary>
+            <param name="value1">The source vector.</param>
+            <param name="min">The minimum value.</param>
+            <param name="max">The maximum value.</param>
+            <returns>The restricted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Lerp(System.Numerics.Vector3,System.Numerics.Vector3,System.Single)">
+            <summary>
+            Linearly interpolates between two vectors based on the given weighting.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <param name="amount">Value between 0 and 1 indicating the weight of the second source vector.</param>
+            <returns>The interpolated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Transform(System.Numerics.Vector3,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector by the given matrix.
+            </summary>
+            <param name="position">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.TransformNormal(System.Numerics.Vector3,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector normal by the given matrix.
+            </summary>
+            <param name="normal">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Transform(System.Numerics.Vector3,System.Numerics.Quaternion)">
+            <summary>
+            Transforms a vector by the given Quaternion rotation value.
+            </summary>
+            <param name="value">The source vector to be rotated.</param>
+            <param name="rotation">The rotation to apply.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Add(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Subtract(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Multiply(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Multiply(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Multiply(System.Single,System.Numerics.Vector3)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The scalar value.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Divide(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Divide(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Divides the vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="divisor">The scalar value.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Negate(System.Numerics.Vector3)">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="F:System.Numerics.Vector3.X">
+            <summary>
+            The X component of the vector.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Vector3.Y">
+            <summary>
+            The Y component of the vector.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Vector3.Z">
+            <summary>
+            The Z component of the vector.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector3.#ctor(System.Single)">
+            <summary>
+            Constructs a vector whose elements are all the single specified value.
+            </summary>
+            <param name="value">The element to fill the vector with.</param>
+        </member>
+        <member name="M:System.Numerics.Vector3.#ctor(System.Numerics.Vector2,System.Single)">
+            <summary>
+            Constructs a Vector3 from the given Vector2 and a third value.
+            </summary>
+            <param name="value">The Vector to extract X and Y components from.</param>
+            <param name="z">The Z component.</param>
+        </member>
+        <member name="M:System.Numerics.Vector3.#ctor(System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a vector with the given individual elements.
+            </summary>
+            <param name="x">The X component.</param>
+            <param name="y">The Y component.</param>
+            <param name="z">The Z component.</param>
+        </member>
+        <member name="M:System.Numerics.Vector3.CopyTo(System.Single[])">
+            <summary>
+            Copies the contents of the vector into the given array.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector3.CopyTo(System.Single[],System.Int32)">
+            <summary>
+            Copies the contents of the vector into the given array, starting from index.
+            </summary>
+            <exception cref="T:System.ArgumentNullException">If array is null.</exception>
+            <exception cref="T:System.RankException">If array is multidimensional.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">If index is greater than end of the array or index is less than zero.</exception>
+            <exception cref="T:System.ArgumentException">If number of elements in source vector is greater than those available in destination array.</exception>
+        </member>
+        <member name="M:System.Numerics.Vector3.Equals(System.Numerics.Vector3)">
+            <summary>
+            Returns a boolean indicating whether the given Vector3 is equal to this Vector3 instance.
+            </summary>
+            <param name="other">The Vector3 to compare this instance to.</param>
+            <returns>True if the other Vector3 is equal to this instance; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Dot(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns the dot product of two vectors.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The dot product.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Min(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns a vector whose elements are the minimum of each of the pairs of elements in the two source vectors.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <returns>The minimized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Max(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns a vector whose elements are the maximum of each of the pairs of elements in the two source vectors.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <returns>The maximized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.Abs(System.Numerics.Vector3)">
+            <summary>
+            Returns a vector whose elements are the absolute values of each of the source vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The absolute value vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.SquareRoot(System.Numerics.Vector3)">
+            <summary>
+            Returns a vector whose elements are the square root of each of the source vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The square root vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Addition(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Subtraction(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Multiply(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Multiply(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Multiply(System.Single,System.Numerics.Vector3)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The scalar value.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Division(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Division(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Divides the vector by the given scalar.
+            </summary>
+            <param name="value1">The source vector.</param>
+            <param name="value2">The scalar value.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_UnaryNegation(System.Numerics.Vector3)">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Equality(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns a boolean indicating whether the two given vectors are equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if the vectors are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector3.op_Inequality(System.Numerics.Vector3,System.Numerics.Vector3)">
+            <summary>
+            Returns a boolean indicating whether the two given vectors are not equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if the vectors are not equal; False if they are equal.</returns>
+        </member>
+        <member name="T:System.Numerics.Vector4">
+            <summary>
+            A structure encapsulating four single precision floating point values and provides hardware accelerated methods.
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector4.Zero">
+            <summary>
+            Returns the vector (0,0,0,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector4.One">
+            <summary>
+            Returns the vector (1,1,1,1).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector4.UnitX">
+            <summary>
+            Returns the vector (1,0,0,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector4.UnitY">
+            <summary>
+            Returns the vector (0,1,0,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector4.UnitZ">
+            <summary>
+            Returns the vector (0,0,1,0).
+            </summary>
+        </member>
+        <member name="P:System.Numerics.Vector4.UnitW">
+            <summary>
+            Returns the vector (0,0,0,1).
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector4.GetHashCode">
+            <summary>
+            Returns the hash code for this instance.
+            </summary>
+            <returns>The hash code.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Equals(System.Object)">
+            <summary>
+            Returns a boolean indicating whether the given Object is equal to this Vector4 instance.
+            </summary>
+            <param name="obj">The Object to compare against.</param>
+            <returns>True if the Object is equal to this Vector4; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.ToString">
+            <summary>
+            Returns a String representing this Vector4 instance.
+            </summary>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.ToString(System.String)">
+            <summary>
+            Returns a String representing this Vector4 instance, using the specified format to format individual elements.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.ToString(System.String,System.IFormatProvider)">
+            <summary>
+            Returns a String representing this Vector4 instance, using the specified format to format individual elements 
+            and the given IFormatProvider.
+            </summary>
+            <param name="format">The format of individual elements.</param>
+            <param name="formatProvider">The format provider to use when formatting elements.</param>
+            <returns>The string representation.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Length">
+            <summary>
+            Returns the length of the vector. This operation is cheaper than Length().
+            </summary>
+            <returns>The vector's length.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.LengthSquared">
+            <summary>
+            Returns the length of the vector squared.
+            </summary>
+            <returns>The vector's length squared.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Distance(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns the Euclidean distance between the two given points.
+            </summary>
+            <param name="value1">The first point.</param>
+            <param name="value2">The second point.</param>
+            <returns>The distance.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.DistanceSquared(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns the Euclidean distance squared between the two given points.
+            </summary>
+            <param name="value1">The first point.</param>
+            <param name="value2">The second point.</param>
+            <returns>The distance squared.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Normalize(System.Numerics.Vector4)">
+            <summary>
+            Returns a vector with the same direction as the given vector, but with a length of 1.
+            </summary>
+            <param name="vector">The vector to normalize.</param>
+            <returns>The normalized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Clamp(System.Numerics.Vector4,System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Restricts a vector between a min and max value.
+            </summary>
+            <param name="value1">The source vector.</param>
+            <param name="min">The minimum value.</param>
+            <param name="max">The maximum value.</param>
+            <returns>The restricted vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Lerp(System.Numerics.Vector4,System.Numerics.Vector4,System.Single)">
+            <summary>
+            Linearly interpolates between two vectors based on the given weighting.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <param name="amount">Value between 0 and 1 indicating the weight of the second source vector.</param>
+            <returns>The interpolated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Transform(System.Numerics.Vector2,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector by the given matrix.
+            </summary>
+            <param name="position">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Transform(System.Numerics.Vector3,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector by the given matrix.
+            </summary>
+            <param name="position">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Transform(System.Numerics.Vector4,System.Numerics.Matrix4x4)">
+            <summary>
+            Transforms a vector by the given matrix.
+            </summary>
+            <param name="vector">The source vector.</param>
+            <param name="matrix">The transformation matrix.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Transform(System.Numerics.Vector2,System.Numerics.Quaternion)">
+            <summary>
+            Transforms a vector by the given Quaternion rotation value.
+            </summary>
+            <param name="value">The source vector to be rotated.</param>
+            <param name="rotation">The rotation to apply.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Transform(System.Numerics.Vector3,System.Numerics.Quaternion)">
+            <summary>
+            Transforms a vector by the given Quaternion rotation value.
+            </summary>
+            <param name="value">The source vector to be rotated.</param>
+            <param name="rotation">The rotation to apply.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Transform(System.Numerics.Vector4,System.Numerics.Quaternion)">
+            <summary>
+            Transforms a vector by the given Quaternion rotation value.
+            </summary>
+            <param name="value">The source vector to be rotated.</param>
+            <param name="rotation">The rotation to apply.</param>
+            <returns>The transformed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Add(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Subtract(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Multiply(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Multiply(System.Numerics.Vector4,System.Single)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Multiply(System.Single,System.Numerics.Vector4)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The scalar value.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Divide(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Divide(System.Numerics.Vector4,System.Single)">
+            <summary>
+            Divides the vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="divisor">The scalar value.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Negate(System.Numerics.Vector4)">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="F:System.Numerics.Vector4.X">
+            <summary>
+            The X component of the vector.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Vector4.Y">
+            <summary>
+            The Y component of the vector.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Vector4.Z">
+            <summary>
+            The Z component of the vector.
+            </summary>
+        </member>
+        <member name="F:System.Numerics.Vector4.W">
+            <summary>
+            The W component of the vector.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector4.#ctor(System.Single)">
+            <summary>
+            Constructs a vector whose elements are all the single specified value.
+            </summary>
+            <param name="value">The element to fill the vector with.</param>
+        </member>
+        <member name="M:System.Numerics.Vector4.#ctor(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a vector with the given individual elements.
+            </summary>
+            <param name="w">W component.</param>
+            <param name="x">X component.</param>
+            <param name="y">Y component.</param>
+            <param name="z">Z component.</param>
+        </member>
+        <member name="M:System.Numerics.Vector4.#ctor(System.Numerics.Vector2,System.Single,System.Single)">
+            <summary>
+            Constructs a Vector4 from the given Vector2 and a Z and W component.
+            </summary>
+            <param name="value">The vector to use as the X and Y components.</param>
+            <param name="z">The Z component.</param>
+            <param name="w">The W component.</param>
+        </member>
+        <member name="M:System.Numerics.Vector4.#ctor(System.Numerics.Vector3,System.Single)">
+            <summary>
+            Constructs a Vector4 from the given Vector3 and a W component.
+            </summary>
+            <param name="value">The vector to use as the X, Y, and Z components.</param>
+            <param name="w">The W component.</param>
+        </member>
+        <member name="M:System.Numerics.Vector4.CopyTo(System.Single[])">
+            <summary>
+            Copies the contents of the vector into the given array.
+            </summary>
+        </member>
+        <member name="M:System.Numerics.Vector4.CopyTo(System.Single[],System.Int32)">
+            <summary>
+            Copies the contents of the vector into the given array, starting from index.
+            </summary>
+            <exception cref="T:System.ArgumentNullException">If array is null.</exception>
+            <exception cref="T:System.RankException">If array is multidimensional.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">If index is greater than end of the array or index is less than zero.</exception>
+            <exception cref="T:System.ArgumentException">If number of elements in source vector is greater than those available in destination array.</exception>
+        </member>
+        <member name="M:System.Numerics.Vector4.Equals(System.Numerics.Vector4)">
+            <summary>
+            Returns a boolean indicating whether the given Vector4 is equal to this Vector4 instance.
+            </summary>
+            <param name="other">The Vector4 to compare this instance to.</param>
+            <returns>True if the other Vector4 is equal to this instance; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Dot(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns the dot product of two vectors.
+            </summary>
+            <param name="vector1">The first vector.</param>
+            <param name="vector2">The second vector.</param>
+            <returns>The dot product.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Min(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns a vector whose elements are the minimum of each of the pairs of elements in the two source vectors.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <returns>The minimized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Max(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns a vector whose elements are the maximum of each of the pairs of elements in the two source vectors.
+            </summary>
+            <param name="value1">The first source vector.</param>
+            <param name="value2">The second source vector.</param>
+            <returns>The maximized vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.Abs(System.Numerics.Vector4)">
+            <summary>
+            Returns a vector whose elements are the absolute values of each of the source vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The absolute value vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.SquareRoot(System.Numerics.Vector4)">
+            <summary>
+            Returns a vector whose elements are the square root of each of the source vector's elements.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The square root vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Addition(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Adds two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The summed vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Subtraction(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Subtracts the second vector from the first.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The difference vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Multiply(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Multiplies two vectors together.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The product vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Multiply(System.Numerics.Vector4,System.Single)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The source vector.</param>
+            <param name="right">The scalar value.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Multiply(System.Single,System.Numerics.Vector4)">
+            <summary>
+            Multiplies a vector by the given scalar.
+            </summary>
+            <param name="left">The scalar value.</param>
+            <param name="right">The source vector.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Division(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Divides the first vector by the second.
+            </summary>
+            <param name="left">The first source vector.</param>
+            <param name="right">The second source vector.</param>
+            <returns>The vector resulting from the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Division(System.Numerics.Vector4,System.Single)">
+            <summary>
+            Divides the vector by the given scalar.
+            </summary>
+            <param name="value1">The source vector.</param>
+            <param name="value2">The scalar value.</param>
+            <returns>The result of the division.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_UnaryNegation(System.Numerics.Vector4)">
+            <summary>
+            Negates a given vector.
+            </summary>
+            <param name="value">The source vector.</param>
+            <returns>The negated vector.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Equality(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns a boolean indicating whether the two given vectors are equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if the vectors are equal; False otherwise.</returns>
+        </member>
+        <member name="M:System.Numerics.Vector4.op_Inequality(System.Numerics.Vector4,System.Numerics.Vector4)">
+            <summary>
+            Returns a boolean indicating whether the two given vectors are not equal.
+            </summary>
+            <param name="left">The first vector to compare.</param>
+            <param name="right">The second vector to compare.</param>
+            <returns>True if the vectors are not equal; False if they are equal.</returns>
+        </member>
+        <member name="P:System.SR.Arg_ArgumentOutOfRangeException">
+            <summary>Index was out of bounds:</summary>
+        </member>
+        <member name="P:System.SR.Arg_ElementsInSourceIsGreaterThanDestination">
+            <summary>Number of elements in source vector is greater than the destination array</summary>
+        </member>
+        <member name="P:System.SR.Arg_NullArgumentNullRef">
+            <summary>The method was called with a null array argument.</summary>
+        </member>
+        <member name="P:System.SR.Arg_TypeNotSupported">
+            <summary>Specified type is not supported</summary>
+        </member>
+        <member name="P:System.SR.Arg_InsufficientNumberOfElements">
+            <summary>At least {0} element(s) are expected in the parameter "{1}".</summary>
+        </member>
+    </members>
+</doc>

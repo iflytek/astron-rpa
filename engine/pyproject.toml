@@ -1,0 +1,87 @@
+[project]
+name = "engine"
+version = "1.0.0"
+description = "engine."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-scheduler",
+    "astronverse-trigger",
+    "astronverse-browser-bridge",
+    "astronverse-picker",
+    "astronverse-vision-picker",
+    "astronverse-executor",
+    "astronverse-actionlib",
+    "astronverse-baseline",
+    "astronverse-browser-plugin",
+    "astronverse-locator",
+    "astronverse-websocket-client",
+    "astronverse-websocket-server",
+    "astronverse-tools",
+    "rpaai",
+    "rpabrowser",
+    "rpacv",
+    "rpadatabase",
+    "rpadataprocess",
+    "rpadialog",
+    "rpadocx",
+    "rpaemail",
+    "rpaencrypt",
+    "rpaenterprise",
+    "rpaexcel",
+    "rpagui",
+    "rpahelper",
+    "rpanetwork",
+    "rpaopenapi",
+    "rpapdf",
+    "rpareport",
+    "rpascript",
+    "rpasoftware",
+    "rpasystem",
+    "rpaverifycode",
+    "rpawindow",
+    "rpawinele",
+]
+
+[tool.uv.sources]
+astronverse-baseline = {path = "./shared/astronverse-baseline", editable = true}
+astronverse-actionlib = {path = "./shared/astronverse-actionlib", editable = true}
+astronverse-browser-plugin = {path = "./shared/astronverse-browser-plugin", editable = true}
+astronverse-locator = {path = "./shared/astronverse-locator", editable = true}
+astronverse-websocket-client = {path = "./shared/astronverse-websocket-client", editable = true}
+astronverse-websocket-server = {path = "./shared/astronverse-websocket-server", editable = true}
+astronverse-tools = {path = "./shared/astronverse-tools", editable = true}
+astronverse-scheduler = {path = "./servers/astronverse-scheduler", editable = true}
+astronverse-trigger = {path = "./servers/astronverse-trigger", editable = true}
+astronverse-browser-bridge = {path = "./servers/astronverse-browser-bridge", editable = true}
+astronverse-picker = {path = "./servers/astronverse-picker", editable = true}
+astronverse-vision-picker = {path = "./servers/astronverse-vision-picker", editable = true}
+astronverse-executor = {path = "./servers/astronverse-executor", editable = true}
+rpaai = {path = "./components/rpaai", editable = true}
+rpabrowser = {path = "./components/rpabrowser", editable = true}
+rpacv = {path = "./components/rpacv", editable = true}
+rpadatabase = {path = "./components/rpadatabase", editable = true}
+rpadataprocess = {path = "./components/rpadataprocess", editable = true}
+rpadialog = {path = "./components/rpadialog", editable = true}
+rpadocx = {path = "./components/rpadocx", editable = true}
+rpaemail = {path = "./components/rpaemail", editable = true}
+rpaencrypt = {path = "./components/rpaencrypt", editable = true}
+rpaenterprise = {path = "./components/rpaenterprise", editable = true}
+rpaexcel = {path = "./components/rpaexcel", editable = true}
+rpagui = {path = "./components/rpagui", editable = true}
+rpahelper = {path = "./components/rpahelper", editable = true}
+rpanetwork = {path = "./components/rpanetwork", editable = true}
+rpaopenapi = {path = "./components/rpaopenapi", editable = true}
+rpapdf = {path = "./components/rpapdf", editable = true}
+rpareport = {path = "./components/rpareport", editable = true}
+rpascript = {path = "./components/rpascript", editable = true}
+rpasoftware = {path = "./components/rpasoftware", editable = true}
+rpasystem = {path = "./components/rpasystem", editable = true}
+rpaverifycode = {path = "./components/rpaverifycode", editable = true}
+rpawindow = {path = "./components/rpawindow", editable = true}
+rpawinele = {path = "./components/rpawinele", editable = true}
+
+[dependency-groups]
+dev = [
+  "ruff~=0.12.3"
+]

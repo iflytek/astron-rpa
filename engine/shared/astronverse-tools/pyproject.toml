@@ -1,0 +1,18 @@
+[project]
+name = "astronverse-tools"
+version = "1.0.0"
+description = "astronverse-tools."
+requires-python = ">=3.13"
+
+dependencies = [
+]
+
+[tool.uv.sources]
+astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

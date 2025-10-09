@@ -211,11 +211,8 @@ fn main() -> Result<(), String> {
 fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> {
     let work_dir = work_dir(&app_handle)?;
     let mut need_download = false;
-    
-    let python_base = work_dir.join("python_base");
+
     let python_core = work_dir.join("python_core");
-    let rpachrome = work_dir.join("rpachrome");
-    let engine = work_dir.join("engine");
 
     // 检查 resources 目录中的 7z 文件并解压
     let resources_dir = install_dir(Some(&app_handle))?.join("resources");
@@ -240,7 +237,7 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
         }
     }
 
-    if !python_base.exists() || !python_core.exists() || !rpachrome.exists(){
+    if !python_core.exists() {
         need_download = true;
     }
     if need_download {
@@ -259,7 +256,7 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
         setup_download(python_map, &work_dir, &main_window_2, &app_handle)?;
 
         // 重新检测
-        if !python_base.exists() || !python_core.exists() {
+        if !python_core.exists() {
             return Err(format!("下载失败 {}", python_core.display()));
         }
         send_msg(r"\u6838\u5fc3\u4f9d\u8d56\u5b8c\u6210".to_string(), 50.0, &main_window_2);
@@ -279,10 +276,9 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
         info!("command python_exe {}", curr_attempt);
 
         let conf_path = install_dir(Some(&app_handle))?.join("resources").join("conf.json").display().to_string();
-        let engine_starter_path = engine.join("__main__.py").display().to_string();
-
         setup_command(&python_exe, vec![
-            &engine_starter_path,
+            &String::from("-m"),
+            &String::from("astronverse.scheduler"),
             &format!("--conf={}", conf_path),
         ],  &work_dir, &app_handle);
 

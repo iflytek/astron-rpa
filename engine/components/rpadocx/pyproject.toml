@@ -1,0 +1,24 @@
+[project]
+name = "rpadocx"
+version = "1.0.0"
+description = "rpadocx."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "python-docx",
+    "psutil",
+    "pillow",
+    "pywin32; sys_platform == 'win32'",
+    "pywpsrpc; sys_platform == 'linux'"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpadocx"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,21 @@
+[project]
+name = "rpaopenapi"
+version = "1.0.0"
+description = "rpaopenapi."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "requests",
+    "openpyxl"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpaopenapi"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

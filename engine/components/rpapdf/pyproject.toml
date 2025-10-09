@@ -1,0 +1,25 @@
+[project]
+name = "rpapdf"
+version = "1.0.0"
+description = "rpapdf."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "pypdf",
+    "python-docx",
+    "pdfplumber",
+    "pandas",
+    "openpyxl",
+    "pypdfium2"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpapdf"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

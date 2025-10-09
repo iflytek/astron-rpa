@@ -1,0 +1,31 @@
+[project]
+name = "rpasystem"
+version = "1.0.0"
+description = "rpasystem."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "pandas",
+    "chardet",
+    "pyzipper",
+    "charset_normalizer",
+    "pyperclip",
+    "pyautogui",
+    "openpyxl",
+    "send2trash",
+    "pillow",
+    "pywin32; sys_platform == 'win32'",
+    "py7zr; sys_platform == 'win32'",
+    "Pillow; sys_platform == 'linux'"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpasystem"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

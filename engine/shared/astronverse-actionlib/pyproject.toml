@@ -1,0 +1,22 @@
+[project]
+name = "astronverse-actionlib"
+version = "1.0.0"
+description = "astronverse-actionlib."
+requires-python = ">=3.13"
+
+dependencies = [
+    "PyYAML",
+    "python-dateutil",
+    "pycryptodome",
+    "astronverse-baseline",
+]
+
+[tool.uv.sources]
+astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

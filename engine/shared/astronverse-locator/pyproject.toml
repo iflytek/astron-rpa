@@ -1,0 +1,26 @@
+[project]
+name = "astronverse-locator"
+version = "1.0.0"
+description = "astronverse-locator."
+requires-python = ">=3.13"
+
+dependencies = [
+    "numpy",
+    "PyAutoGUI",
+    "psutil",
+    "requests",
+    "astronverse-baseline",
+    "pywin32; sys_platform == 'win32'",
+    "pythonnet; sys_platform == 'win32'",
+    "uiautomation; sys_platform == 'win32'",
+]
+
+[tool.uv.sources]
+astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
