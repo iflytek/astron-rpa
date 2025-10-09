@@ -1,6 +1,0 @@
-anyio
-pyarmor
-pyright
-setuptools
-toml
-twine
