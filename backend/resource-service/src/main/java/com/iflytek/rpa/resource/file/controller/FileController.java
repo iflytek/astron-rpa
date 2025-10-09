@@ -9,6 +9,7 @@ import com.iflytek.rpa.resource.file.service.FileService;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,10 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/file")
 public class FileController {
 
-    // 文件大小校验 (50MB = 50 * 1024 * 1024 bytes)
-    private final long maxFileSize = 50 * 1024 * 1024;
-    // 文件大小校验 (100MB = 50 * 1024 * 1024 bytes)
-    private final long maxShareSize = 100 * 1024 * 1024;
+    @Value("${file.maxFileSize}")
+    private long maxFileSize;
+
+    @Value("${file.maxShareSize}")
+    private long maxShareSize;
 
     @Autowired
     private FileService fileService;
