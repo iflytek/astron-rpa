@@ -3,8 +3,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import {
   ACTUATOR,
-  // APPLICATION,
-  // APPLICATIONMARKET,
+  APPLICATION,
+  APPLICATIONMARKET,
   ARRANGE,
   BOOT,
   COMPONENTCREATED,
@@ -13,11 +13,11 @@ import {
   EXCUTELIST,
   PROJECTCREATED,
   PROJECTMANAGEMENT,
-  // PROJECTMARKET,
+  PROJECTMARKET,
   ROBOTLIST,
   TASKLIST,
-  // TEAMMARKETMANAGE,
-  // TEAMMARKETS,
+  TEAMMARKETMANAGE,
+  TEAMMARKETS,
 } from '@/constants/menu'
 import BootPage from '@/views/Boot/Index.vue'
 
@@ -69,15 +69,15 @@ export const routes: RouteRecordRaw[] = [
             },
             component: () => import('@/views/Home/pages/MyCreatedProject.vue'),
           },
-          // {
-          //   path: PROJECTMARKET,
-          //   name: PROJECTMARKET,
-          //   meta: {
-          //     key: PROJECTMARKET,
-          //     iconPark: 'user-list',
-          //   },
-          //   component: () => import('@/views/Home/pages/MyGotProject.vue'),
-          // },
+          {
+            path: PROJECTMARKET,
+            name: PROJECTMARKET,
+            meta: {
+              key: PROJECTMARKET,
+              iconPark: 'user-list',
+            },
+            component: () => import('@/views/Home/pages/MyGotProject.vue'),
+          },
         ],
       },
       {
@@ -155,53 +155,53 @@ export const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  // {
-  //   path: `/${APPLICATIONMARKET}`,
-  //   name: APPLICATIONMARKET,
-  //   meta: {
-  //     show: true,
-  //   },
-  //   redirect: `/${APPLICATIONMARKET}/${TEAMMARKETS}`,
-  //   component: () => import('@/views/Home/Index.vue'),
-  //   children: [
-  //     {
-  //       path: TEAMMARKETS,
-  //       name: TEAMMARKETS,
-  //       meta: {
-  //         key: TEAMMARKETS,
-  //         icon: TEAMMARKETS,
-  //         color: '#2C69FF',
-  //         secret: 'market_team',
-  //         group: APPLICATIONMARKET,
-  //       },
-  //       component: () => import('@/views/Home/pages/market/TeamMarketApp.vue'),
-  //     },
-  //     {
-  //       path: TEAMMARKETMANAGE,
-  //       name: TEAMMARKETMANAGE,
-  //       meta: {
-  //         key: TEAMMARKETMANAGE,
-  //         icon: TEAMMARKETMANAGE,
-  //         color: '#2C69FF',
-  //         secret: 'market_team',
-  //         group: APPLICATIONMARKET,
-  //       },
-  //       component: () => import('@/views/Home/pages/market/TeamMarketManage.vue'),
-  //     },
-  //     {
-  //       path: APPLICATION,
-  //       name: APPLICATION,
-  //       meta: {
-  //         key: APPLICATION,
-  //         icon: APPLICATION,
-  //         color: '#2C69FF',
-  //         secret: 'market_team',
-  //         group: APPLICATIONMARKET,
-  //       },
-  //       component: () => import('@/views/Home/pages/market/Application.vue'),
-  //     },
-  //   ],
-  // },
+  {
+    path: `/${APPLICATIONMARKET}`,
+    name: APPLICATIONMARKET,
+    meta: {
+      show: true,
+    },
+    redirect: `/${APPLICATIONMARKET}/${TEAMMARKETS}`,
+    component: () => import('@/views/Home/Index.vue'),
+    children: [
+      {
+        path: TEAMMARKETS,
+        name: TEAMMARKETS,
+        meta: {
+          key: TEAMMARKETS,
+          icon: TEAMMARKETS,
+          color: '#2C69FF',
+          secret: 'market_team',
+          group: APPLICATIONMARKET,
+        },
+        component: () => import('@/views/Home/pages/market/TeamMarketApp.vue'),
+      },
+      {
+        path: TEAMMARKETMANAGE,
+        name: TEAMMARKETMANAGE,
+        meta: {
+          key: TEAMMARKETMANAGE,
+          icon: TEAMMARKETMANAGE,
+          color: '#2C69FF',
+          secret: 'market_team',
+          group: APPLICATIONMARKET,
+        },
+        component: () => import('@/views/Home/pages/market/TeamMarketManage.vue'),
+      },
+      {
+        path: APPLICATION,
+        name: APPLICATION,
+        meta: {
+          key: APPLICATION,
+          icon: APPLICATION,
+          color: '#2C69FF',
+          secret: 'market_team',
+          group: APPLICATIONMARKET,
+        },
+        component: () => import('@/views/Home/pages/market/Application.vue'),
+      },
+    ],
+  },
 ]
 // hash router
 const router = createRouter({
