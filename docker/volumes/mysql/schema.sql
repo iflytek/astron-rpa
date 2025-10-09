@@ -2,7 +2,7 @@
 SET GLOBAL character_set_client = utf8mb4;
 SET GLOBAL character_set_connection = utf8mb4;
 SET GLOBAL character_set_results = utf8mb4;
-SET GLOBAL collation_connection = utf8mb4_unicode_ci;
+SET GLOBAL collation_connection = utf8mb4_general_ci;
 
 -- casdoor database init
 
@@ -10,7 +10,7 @@ CREATE DATABASE IF NOT EXISTS casdoor COLLATE utf8mb4_general_ci;
 
 -- rpa database init
 
-CREATE DATABASE IF NOT EXISTS rpa COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS rpa COLLATE utf8mb4_general_ci;
 
 USE rpa;
 -- rpa.alarm_rule definition
@@ -34,7 +34,7 @@ CREATE TABLE `alarm_rule` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1966060594098135041 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1966060594098135041 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.alarm_rule_user definition
@@ -46,7 +46,7 @@ CREATE TABLE `alarm_rule_user` (
   `name` varchar(100) DEFAULT NULL COMMENT '用户姓名',
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1966061018251321345 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1966061018251321345 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.app_application definition
@@ -74,7 +74,7 @@ CREATE TABLE `app_application` (
   `publish_info` varchar(500) DEFAULT NULL COMMENT '发版JSON信息',
   PRIMARY KEY (`id`),
   KEY `idx_app_robot` (`robot_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1967839071050592259 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='上架/使用审核表';
+) ENGINE=InnoDB AUTO_INCREMENT=1967839071050592259 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='上架/使用审核表';
 
 
 -- rpa.app_application_tenant definition
@@ -86,7 +86,7 @@ CREATE TABLE `app_application_tenant` (
   `audit_enable_operator` char(36) DEFAULT NULL,
   `audit_enable_reason` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`tenant_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='租户是否开启审核配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='租户是否开启审核配置表';
 
 
 -- rpa.app_market definition
@@ -107,7 +107,7 @@ CREATE TABLE `app_market` (
   KEY `app_market_creator_id_IDX` (`creator_id`),
   KEY `app_market_market_id_IDX` (`market_id`),
   KEY `app_market_tenant_id_IDX` (`tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='团队市场-团队表';
+) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='团队市场-团队表';
 
 
 -- rpa.app_market_dict definition
@@ -152,7 +152,7 @@ CREATE TABLE `app_market_resource` (
   KEY `app_market_resource_creator_id_IDX` (`creator_id`),
   KEY `app_market_resource_market_id_IDX` (`market_id`),
   KEY `app_market_resource_tenant_id_IDX` (`tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=196 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='团队市场-资源映射表';
+) ENGINE=InnoDB AUTO_INCREMENT=196 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='团队市场-资源映射表';
 
 
 -- rpa.app_market_user definition
@@ -171,7 +171,7 @@ CREATE TABLE `app_market_user` (
   KEY `app_market_user_creator_id_IDX` (`creator_id`),
   KEY `app_market_user_market_id_IDX` (`market_id`),
   KEY `app_market_user_tenant_id_IDX` (`tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='团队市场-人员表，n:n的关系';
+) ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='团队市场-人员表，n:n的关系';
 
 
 -- rpa.app_market_version definition
@@ -191,7 +191,7 @@ CREATE TABLE `app_market_version` (
   PRIMARY KEY (`id`),
   KEY `app_market_version_app_id_IDX` (`app_id`) USING BTREE,
   KEY `app_market_version_market_id_IDX` (`market_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=280 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='团队市场-应用版本表';
+) ENGINE=InnoDB AUTO_INCREMENT=280 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='团队市场-应用版本表';
 
 
 -- rpa.atom_like definition
@@ -222,7 +222,7 @@ CREATE TABLE `atom_meta_duplicate_log` (
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updater_id` bigint(20) DEFAULT '73',
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.audit_checkpoint definition
@@ -236,7 +236,7 @@ CREATE TABLE `audit_checkpoint` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` smallint(1) DEFAULT '0' COMMENT '删除标识',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=324 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='监控管理统计断点表';
+) ENGINE=InnoDB AUTO_INCREMENT=324 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='监控管理统计断点表';
 
 
 -- rpa.audit_record definition
@@ -255,7 +255,7 @@ CREATE TABLE `audit_record` (
   `process_id_list` mediumtext COMMENT 'processId',
   `role_id_list` mediumtext COMMENT '角色id列表',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=150 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=150 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_atom_meta definition
@@ -274,7 +274,7 @@ CREATE TABLE `c_atom_meta` (
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4387 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4387 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_atom_meta_bak_20250729 definition
@@ -292,7 +292,7 @@ CREATE TABLE `c_atom_meta_bak_20250729` (
   `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.`c_atom_meta_bak_2025-07-18` definition
@@ -312,7 +312,7 @@ CREATE TABLE `c_atom_meta_bak_2025-07-18` (
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
   PRIMARY KEY (`id`),
   KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4625 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户端-左侧树原子能力定义';
+) ENGINE=InnoDB AUTO_INCREMENT=4625 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='客户端-左侧树原子能力定义';
 
 
 -- rpa.c_atom_meta_copy_0606104126 definition
@@ -330,7 +330,7 @@ CREATE TABLE `c_atom_meta_copy_0606104126` (
   `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_atom_meta_copy_0606104412 definition
@@ -348,7 +348,7 @@ CREATE TABLE `c_atom_meta_copy_0606104412` (
   `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_atom_meta_copy_0731105058 definition
@@ -366,7 +366,7 @@ CREATE TABLE `c_atom_meta_copy_0731105058` (
   `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_atom_meta_copy_20250728 definition
@@ -384,7 +384,7 @@ CREATE TABLE `c_atom_meta_copy_20250728` (
   `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_element definition
@@ -409,7 +409,7 @@ CREATE TABLE `c_element` (
   `group_name` varchar(100) DEFAULT NULL,
   `element_type` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6205 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户端，元素信息';
+) ENGINE=InnoDB AUTO_INCREMENT=6205 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='客户端，元素信息';
 
 
 -- rpa.c_global_var definition
@@ -430,7 +430,7 @@ CREATE TABLE `c_global_var` (
   `robot_id` varchar(100) DEFAULT NULL,
   `robot_version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=506 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户端-全局变量';
+) ENGINE=InnoDB AUTO_INCREMENT=506 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='客户端-全局变量';
 
 
 -- rpa.c_group definition
@@ -448,7 +448,7 @@ CREATE TABLE `c_group` (
   `robot_version` int(11) DEFAULT NULL,
   `element_type` varchar(20) DEFAULT NULL COMMENT 'cv：cv拾取; common:普通元素拾取',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1505 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元素或图像的分组';
+) ENGINE=InnoDB AUTO_INCREMENT=1505 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='元素或图像的分组';
 
 
 -- rpa.c_module definition
@@ -466,7 +466,7 @@ CREATE TABLE `c_module` (
   `robot_id` varchar(100) DEFAULT NULL,
   `robot_version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=285 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户端-python模块数据';
+) ENGINE=InnoDB AUTO_INCREMENT=285 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='客户端-python模块数据';
 
 
 -- rpa.c_param definition
@@ -487,7 +487,7 @@ CREATE TABLE `c_param` (
   `robot_id` varchar(100) DEFAULT NULL,
   `robot_version` int(11) DEFAULT NULL,
   KEY `c_param_id_IDX` (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_process definition
@@ -506,7 +506,7 @@ CREATE TABLE `c_process` (
   `robot_id` varchar(100) DEFAULT NULL,
   `robot_version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3568 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户端-流程数据';
+) ENGINE=InnoDB AUTO_INCREMENT=3568 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='客户端-流程数据';
 
 
 -- rpa.c_project definition
@@ -521,7 +521,7 @@ CREATE TABLE `c_project` (
   `update_time` datetime DEFAULT NULL COMMENT '创建时间',
   `deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除 0：未删除 1：已删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工程表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='工程表';
 
 
 -- rpa.c_require definition
@@ -540,7 +540,7 @@ CREATE TABLE `c_require` (
   `robot_id` varchar(100) DEFAULT NULL,
   `robot_version` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='python依赖管理';
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='python依赖管理';
 
 
 -- rpa.cloud_terminal definition
@@ -570,7 +570,7 @@ CREATE TABLE `cloud_terminal` (
   KEY `cloud_terminal_tenant_id_IDX` (`tenant_id`,`dept_id_path`),
   KEY `cloud_terminal_terminal_mac_IDX` (`terminal_mac`),
   KEY `cloud_terminal_user_id_IDX` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='终端表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='终端表';
 
 
 -- rpa.component definition
@@ -610,7 +610,7 @@ CREATE TABLE `component_robot_block` (
   `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   `tenant_id` char(36) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='机器人对组件屏蔽表';
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='机器人对组件屏蔽表';
 
 
 -- rpa.component_robot_use definition
@@ -628,7 +628,7 @@ CREATE TABLE `component_robot_use` (
   `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   `tenant_id` char(36) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='机器人对组件引用表';
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='机器人对组件引用表';
 
 
 -- rpa.component_version definition
@@ -646,10 +646,10 @@ CREATE TABLE `component_version` (
   `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   `tenant_id` char(36) DEFAULT NULL,
   `param` text CHARACTER SET utf8,
-  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '发版时拖的表单参数信息',
+  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '发版时拖的表单参数信息',
   `icon` varchar(30) NOT NULL COMMENT '图标',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='组件版本表';
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='组件版本表';
 
 
 -- rpa.dispatch_day_task_info definition
@@ -698,7 +698,7 @@ CREATE TABLE `dispatch_task` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`dispatch_task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1965712054394085377 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1965712054394085377 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.dispatch_task_execute_record definition
@@ -723,7 +723,7 @@ CREATE TABLE `dispatch_task_execute_record` (
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`),
   KEY `idx_dispatch_task_teminal_task_id` (`dispatch_task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.dispatch_task_robot definition
@@ -744,7 +744,7 @@ CREATE TABLE `dispatch_task_robot` (
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`),
   KEY `idx_dispatch_task_teminal_task_id` (`dispatch_task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.dispatch_task_robot_execute_record definition
@@ -772,7 +772,7 @@ CREATE TABLE `dispatch_task_robot_execute_record` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.dispatch_task_terminal definition
@@ -791,7 +791,7 @@ CREATE TABLE `dispatch_task_terminal` (
   `deleted` smallint(6) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`),
   KEY `idx_dispatch_task_teminal_task_id` (`dispatch_task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.file definition
@@ -805,7 +805,7 @@ CREATE TABLE `file` (
   `deleted` int(11) DEFAULT NULL COMMENT '逻辑删除标志位',
   `file_name` varchar(1000) DEFAULT NULL COMMENT '文件真实名称',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4406 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文件表';
+) ENGINE=InnoDB AUTO_INCREMENT=4406 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='文件表';
 
 
 -- rpa.his_base definition
@@ -886,7 +886,7 @@ CREATE TABLE `his_robot_copy_0905140530` (
   `robot_id` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `user_id` char(36) CHARACTER SET utf8 DEFAULT NULL COMMENT '用户id',
   `dept_id_path` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '部门全路径id'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.his_terminal definition
@@ -924,7 +924,7 @@ CREATE TABLE `notify_send` (
   `user_type` varchar(10) CHARACTER SET utf8 DEFAULT NULL COMMENT '成员类型：owner,admin,consumer',
   `app_name` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息通知-消息表';
+) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='消息通知-消息表';
 
 
 -- rpa.openapi_auth definition
@@ -998,7 +998,7 @@ CREATE TABLE `robot_execute` (
   `market_id` varchar(20) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '获取的应用：市场id',
   `resource_status` varchar(20) DEFAULT NULL COMMENT '资源状态：toObtain, obtained, toUpdate',
   `data_source` varchar(20) DEFAULT NULL COMMENT '来源：create 自己创建 ； market 市场获取 ；deploy卓越中心部署',
-  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '运行前用户自定义的表单参数',
+  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '运行前用户自定义的表单参数',
   `dept_id_path` varchar(200) DEFAULT NULL COMMENT '部门全路径',
   `type` varchar(10) DEFAULT NULL COMMENT '最新版本机器人的类型，web，other',
   `latest_release_time` timestamp NULL DEFAULT NULL COMMENT '最新版本发版时间',
@@ -1023,11 +1023,11 @@ CREATE TABLE `robot_execute_bak_2025-07-18` (
   `market_id` varchar(20) DEFAULT NULL COMMENT '获取的应用：市场id',
   `resource_status` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '资源状态：toObtain, obtained, toUpdate',
   `data_source` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '来源：create 自己创建 ； market 市场获取 ',
-  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '运行前用户自定义的表单参数',
+  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '运行前用户自定义的表单参数',
   `dept_id_path` varchar(200) CHARACTER SET utf8 DEFAULT NULL COMMENT '部门全路径',
   `type` varchar(10) CHARACTER SET utf8 DEFAULT NULL COMMENT '最新版本机器人的类型，web，other',
   `latest_release_time` timestamp NULL DEFAULT NULL COMMENT '最新版本发版时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.robot_execute_record definition
@@ -1075,12 +1075,12 @@ CREATE TABLE `robot_version` (
   `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   `tenant_id` char(36) DEFAULT NULL,
   `param` text CHARACTER SET utf8,
-  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '发版时拖的表单参数信息',
+  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '发版时拖的表单参数信息',
   `video_id` varchar(100) DEFAULT NULL COMMENT '视频地址id',
   `appendix_id` varchar(100) DEFAULT NULL COMMENT '附件地址id',
   `icon` varchar(100) DEFAULT NULL COMMENT '图标',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2083 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='云端机器人版本表';
+) ENGINE=InnoDB AUTO_INCREMENT=2083 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='云端机器人版本表';
 
 
 -- rpa.schedule_task definition
@@ -1147,7 +1147,7 @@ CREATE TABLE `schedule_task_pull_log` (
   `next_time` timestamp NULL DEFAULT NULL COMMENT '下次执行时间',
   `creator_id` char(36) DEFAULT NULL COMMENT '创建人ID',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.schedule_task_robot definition
@@ -1186,7 +1186,7 @@ CREATE TABLE `shared_file` (
   `file_index_status` tinyint(4) DEFAULT NULL COMMENT '文件向量化状态:1-初始化 2-完成 3-失败',
   `dept_id` varchar(100) DEFAULT NULL COMMENT '部门id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='共享文件表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='共享文件表';
 
 
 -- rpa.shared_file_tag definition
@@ -1201,7 +1201,7 @@ CREATE TABLE `shared_file_tag` (
   `creator_id` char(36) DEFAULT NULL COMMENT '创建者ID',
   `updater_id` char(36) DEFAULT NULL COMMENT '更新者ID',
   PRIMARY KEY (`tag_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1963072518379114497 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='共享文件标签表';
+) ENGINE=InnoDB AUTO_INCREMENT=1963072518379114497 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='共享文件标签表';
 
 
 -- rpa.shared_sub_var definition
@@ -1281,7 +1281,7 @@ CREATE TABLE `sms_record` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted` int(11) DEFAULT NULL COMMENT '是否已删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.task_mail definition
@@ -1300,7 +1300,7 @@ CREATE TABLE `task_mail` (
   `authorization_code` varchar(255) DEFAULT NULL COMMENT '邮箱授权码',
   `deleted` tinyint(1) DEFAULT '0' COMMENT '是否删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.terminal definition
@@ -1333,7 +1333,7 @@ CREATE TABLE `terminal` (
   KEY `cloud_terminal_mac_tenant_index` (`tenant_id`),
   KEY `cloud_terminal_tenant_id_IDX` (`tenant_id`,`dept_id_path`),
   KEY `cloud_terminal_user_id_IDX` (`os_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='终端表';
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='终端表';
 
 
 -- rpa.terminal_group definition
@@ -1428,7 +1428,7 @@ CREATE TABLE `terminal_login_record` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COLLATE=utf8mb4_bin COMMENT='终端登录账号历史记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COLLATE=utf8mb4_bin COMMENT='终端登录账号历史记录';
 
 
 -- rpa.trigger_task definition
