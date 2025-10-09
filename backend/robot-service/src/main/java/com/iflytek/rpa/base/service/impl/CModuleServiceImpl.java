@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -36,7 +37,9 @@ import org.springframework.util.CollectionUtils;
 @Service("CModuleService")
 public class CModuleServiceImpl extends NextName implements CModuleService {
 
-    public final int CONTENT_MAX_LENGTH = 10000000; // 实际数据库中medium text 支持的最大长度是 16777215
+    @Value("${baseModule.contentMaxLength}")
+    private Integer contentMaxLength; // 实际数据库中medium text 支持的最大长度是 16777215
+
     // 新生成的初始代码
     public final String initContent =
             "from typing import Any\n" + "from rpahelper.helper import Helper, print, logger\n" + "\n"
@@ -157,7 +160,7 @@ public class CModuleServiceImpl extends NextName implements CModuleService {
         String robotId = queryDto.getRobotId();
         String newModuleContent = queryDto.getModuleContent();
 
-        if (StringUtils.length(newModuleContent) > CONTENT_MAX_LENGTH) {
+        if (StringUtils.length(newModuleContent) > contentMaxLength) {
             throw new ServiceException(ErrorCodeEnum.E_PARAM_CHECK.getCode(), "模块代码长度超长");
         }
 

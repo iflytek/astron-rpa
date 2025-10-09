@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +65,9 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
 
     @Autowired
     private IdWorker idWorker;
+
+    @Value("${baseModule.maxProcessSize}")
+    private Integer maxProcessSize;
 
     @Override
     public AppResponse<String> getProcessNextName(String robotId) {
@@ -173,7 +177,7 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             int byteLength = newProcessContent.getBytes().length;
             // 将字节长度转换为兆字节（MB）
             double megabytes = byteLength / (1024.0 * 1024.0);
-            if (megabytes > 14) {
+            if (megabytes > maxProcessSize) {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM, "流程数据不能超过15M");
             }
         }
