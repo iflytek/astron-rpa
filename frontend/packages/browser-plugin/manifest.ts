@@ -7,7 +7,7 @@ export function generateManifest(mode: string, environment) {
   const { version } = JSON.parse(packageJson)
   const isFirefox = mode === 'firefox'
   const appName = environment.VITE_APP_NAME
-  const appDescription = environment.VITE_APP_NAME
+  const appDescription = environment.VITE_APP_DESCRIPTION
   const appHomePage = environment.VITE_APP_HOMEPAGE
   let manifest = {
     manifest_version: 3,
