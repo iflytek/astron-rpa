@@ -1,6 +1,6 @@
 import os
 
-from rpaframe import logger
+from rpaframe.logger.logger import logger
 
 from ..utils.win import Registry
 

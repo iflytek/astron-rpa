@@ -5,8 +5,8 @@ import threading
 import time
 
 import psutil
-from rpaframe import logger
-from rpawatch.utils.utils import kill_proc_tree
+from rpaframe.logger.logger import logger
+from .utils import kill_proc_tree
 
 system_encoding = sys.getdefaultencoding()
 

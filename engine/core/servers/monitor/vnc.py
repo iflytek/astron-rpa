@@ -1,8 +1,8 @@
 import os
 import sys
 
-from rpaframe import logger
-from rpawatch.utils.subprocess import SubPopen
+from rpaframe.logger.logger import logger
+from utils.subprocess import SubPopen
 
 
 class VNCServer:
