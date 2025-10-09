@@ -1,6 +1,6 @@
 import getpass
 
-from rpaframe.logger import logger
+from rpaframe.logger.logger import logger
 
 from ..constants import PluginData, PluginStatus
 from ..core import PluginManagerCore
