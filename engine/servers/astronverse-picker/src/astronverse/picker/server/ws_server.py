@@ -254,10 +254,7 @@ class PickerRequestHandler:
 
     def _process_element_data(self, input_data: PickerRequire):
         """处理元素数据"""
-        from astronverse.picker.utils.param_utils import (
-            global_to_dict,
-            special_eval_element
-        )
+        from astronverse.picker.utils.param_utils import global_to_dict, special_eval_element
         from astronverse.locator.locator import LocatorManager
 
         global_data = input_data.ext_data.get("global", [])
@@ -407,6 +404,7 @@ class WsServer:
     def server(self) -> None:
         """启动WebSocket服务器"""
         import pythoncom
+
         pythoncom.CoInitialize()
 
         async def start_server():

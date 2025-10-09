@@ -187,6 +187,7 @@ dependencies = [
     { name = "anyio" },
     { name = "astronverse-baseline" },
     { name = "astronverse-locator" },
+    { name = "pandas" },
     { name = "psutil" },
     { name = "pyautogui" },
     { name = "pydantic" },
@@ -203,6 +204,7 @@ requires-dist = [
     { name = "anyio" },
     { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
+    { name = "pandas" },
     { name = "psutil" },
     { name = "pyautogui" },
     { name = "pydantic" },
@@ -680,7 +682,7 @@ requires-dist = [
     { name = "astronverse-tools", editable = "shared/astronverse-tools" },
     { name = "astronverse-trigger", editable = "servers/astronverse-trigger" },
     { name = "astronverse-vision-picker", editable = "servers/astronverse-vision-picker" },
-    { name = "astronverse-websocket-client", editable = "shared/astronverse-websocket-client " },
+    { name = "astronverse-websocket-client", editable = "shared/astronverse-websocket-client" },
     { name = "astronverse-websocket-server", editable = "shared/astronverse-websocket-server" },
     { name = "rpaai", editable = "components/rpaai" },
     { name = "rpabrowser", editable = "components/rpabrowser" },
@@ -4288,6 +4290,7 @@ dependencies = [
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "requests" },
+    { name = "rpabrowser", marker = "sys_platform == 'win32'" },
     { name = "sseclient-py" },
 ]
 
@@ -4299,6 +4302,7 @@ requires-dist = [
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "requests" },
+    { name = "rpabrowser", marker = "sys_platform == 'win32'", editable = "components/rpabrowser" },
     { name = "sseclient-py" },
 ]
 

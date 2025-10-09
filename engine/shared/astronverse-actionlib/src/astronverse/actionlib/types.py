@@ -256,9 +256,7 @@ class URL(Str):
             temp_value = str(value)
             temp_value = temp_value.strip()
             if len(temp_value) == 0:
-                raise BaseException(
-                    PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败".format(name, value)
-                )
+                raise BaseException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败".format(name, value))
             if "://" not in temp_value:
                 temp_value = "http://" + temp_value
             return cls(temp_value)

@@ -217,6 +217,7 @@ class Ws:
 
     def server(self):
         from astronverse.executor.apis.apis import init
+
         init()
 
         try:

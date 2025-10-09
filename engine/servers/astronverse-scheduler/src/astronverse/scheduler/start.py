@@ -13,7 +13,8 @@ from astronverse.scheduler.core.servers.async_server import (
     AtomicUploadAsyncServer,
     CheckPickProcessAliveServer,
     RpaSchedulerAsyncServer,
-    TerminalAsyncServer, CheckStartPidExitsServer,
+    TerminalAsyncServer,
+    CheckStartPidExitsServer,
 )
 from astronverse.scheduler.core.servers.core_server import (
     RpaBrowserConnectorServer,
@@ -51,6 +52,7 @@ def start():
 
         # 3. 环境检测
         from astronverse.scheduler.core.setup.setup import Process
+
         Process.kill_all_zombie()
         repair_pywin32_dependence(svc)
         linux_env_check()

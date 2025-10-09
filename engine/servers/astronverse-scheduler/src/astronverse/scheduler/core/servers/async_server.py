@@ -119,7 +119,6 @@ class CheckPickProcessAliveServer(IServer):
 
 
 class CheckStartPidExitsServer(IServer):
-
     def __init__(self, svc):
         super().__init__(
             svc=svc,

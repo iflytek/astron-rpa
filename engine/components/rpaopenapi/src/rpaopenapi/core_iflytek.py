@@ -13,11 +13,11 @@ import requests
 from astronverse.actionlib.atomic import atomicMg
 from rpaopenapi.error import *
 
-#配置文件中设置信息读取
-cfg=atomicMg.cfg_from_file(key="OpenApi")
-APPId = cfg.get("APP_ID","")
-APISecret = cfg.get("API_SECRET","")
-APIKey = cfg.get("API_KEY","")
+# 配置文件中设置信息读取
+cfg = atomicMg.cfg_from_file(key="OpenApi")
+APPId = cfg.get("APP_ID", "")
+APISecret = cfg.get("API_SECRET", "")
+APIKey = cfg.get("API_KEY", "")
 
 
 class OcrRequests:

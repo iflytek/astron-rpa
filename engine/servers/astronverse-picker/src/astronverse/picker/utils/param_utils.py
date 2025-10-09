@@ -104,7 +104,12 @@ def pre_param_handler(param_value: Any, param_types: str = None, show_name: str 
     ls = []
 
     # 判断是不是列表, 并且列表的结构符合要求
-    if isinstance(param_value, list) and len(param_value) > 0 and "type" in param_value[0] and param_value[0]["type"] in param_type_dict:
+    if (
+        isinstance(param_value, list)
+        and len(param_value) > 0
+        and "type" in param_value[0]
+        and param_value[0]["type"] in param_type_dict
+    ):
         # 预处理1: 处理data优先
         # 预处理2: 过略前端无效数据
         for v in param_value:
@@ -157,7 +162,12 @@ def param_to_eval(ls: list) -> (Any, bool):
     # 判断是否需要解析
     need_eval = False
     for v in ls:
-        if v.get("type", "str") in [ParamType.PYTHON.value, ParamType.VAR.value, ParamType.G_VAR.value, ParamType.P_VAR.value]:
+        if v.get("type", "str") in [
+            ParamType.PYTHON.value,
+            ParamType.VAR.value,
+            ParamType.G_VAR.value,
+            ParamType.P_VAR.value,
+        ]:
             need_eval = True
             break
 
@@ -168,7 +178,7 @@ def param_to_eval(ls: list) -> (Any, bool):
         if need_eval:
             # 转换成eval能执行的状态
             if types == ParamType.STR.value:
-                res.append("\"{}\"".format(value.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
+                res.append('"{}"'.format(value.replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")))
             else:
                 res.append("{}".format(value))
         else:

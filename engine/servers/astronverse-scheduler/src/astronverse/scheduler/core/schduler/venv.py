@@ -100,7 +100,11 @@ class VenvManager:
             # todo 如果虚拟环境中也有pth,不会继承。
             base_env_pth = os.path.join(env_dir_temp, "Lib", "site-packages", "base_env.pth")
             with open(base_env_pth, "w") as f:
-                f.write(os.path.join(os.path.dirname(os.path.dirname(svc.config.app_server.python_base)), "Lib", "site-packages"))
+                f.write(
+                    os.path.join(
+                        os.path.dirname(os.path.dirname(svc.config.app_server.python_base)), "Lib", "site-packages"
+                    )
+                )
 
         # 2.4 .temp_venv重命名成temp_venv
         os.rename(

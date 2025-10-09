@@ -76,17 +76,17 @@ class AnchorMatch:
         return (x1, y1), (x2, y2)
 
     def process_image(
-            self,
-            image,
-            element,
-            anchor=None,
-            center_coords_aim=None,
-            center_coords_anchor=None,
-            canny_flag=False,
-            ratio=None,
-            match_similarity=0.95,
-            line_width_match=None,
-            dash_color=None,
+        self,
+        image,
+        element,
+        anchor=None,
+        center_coords_aim=None,
+        center_coords_anchor=None,
+        canny_flag=False,
+        ratio=None,
+        match_similarity=0.95,
+        line_width_match=None,
+        dash_color=None,
     ):
         """
         根据锚点找到目标
@@ -106,9 +106,9 @@ class AnchorMatch:
         if dash_color is None:
             dash_color = "#00FF00"
         dash_color = dash_color.lstrip("#")
-        color_bgr = tuple(int(dash_color[i: i + 2], 16) for i in (0, 2, 4))
+        color_bgr = tuple(int(dash_color[i : i + 2], 16) for i in (0, 2, 4))
         # 目标元素查找范围的框的颜色
-        roi_color_bgr = tuple(int("ADD8E6"[i: i + 2], 16) for i in (2, 0, 4))
+        roi_color_bgr = tuple(int("ADD8E6"[i : i + 2], 16) for i in (2, 0, 4))
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         element = np.array(element)
         element = cv2.cvtColor(element, cv2.COLOR_RGB2BGR)
@@ -186,7 +186,7 @@ class AnchorMatch:
                 roi_top_left, roi_bottom_right = self._limit_roi_bounds(roi_top_left, roi_bottom_right, image.shape)
                 print(f"roi_top_left:{roi_top_left},roi_bottom_right:{roi_bottom_right}")
                 self.draw_dashed_rectangle(image, roi_top_left, roi_bottom_right, roi_color_bgr, line_width_match)
-                roi = gray[roi_top_left[1]: roi_bottom_right[1], roi_top_left[0]: roi_bottom_right[0]]
+                roi = gray[roi_top_left[1] : roi_bottom_right[1], roi_top_left[0] : roi_bottom_right[0]]
 
                 result_CCORR_top = cv2.matchTemplate(roi, small_gray, cv2.TM_CCORR_NORMED)
                 result_CCOEFF_top = cv2.matchTemplate(roi, small_gray, cv2.TM_CCOEFF_NORMED)

@@ -40,7 +40,7 @@ class AtomicManager:
         return {"GATEWAY_PORT": os.environ.get("GATEWAY_PORT", "")}
 
     @staticmethod
-    def cfg_from_file(key: str = '', file: str = '') -> dict:
+    def cfg_from_file(key: str = "", file: str = "") -> dict:
         """
         从指定配置文件读取配置信息
 
@@ -54,7 +54,7 @@ class AtomicManager:
         if not file:
             # 从项目的指定配置文件获取路径，即原子能力设置的key值文件的全路径
             search_paths = [
-                ''  # 比如上级目录 os.path.dirname(os.getcwd())+'.setting.json'
+                ""  # 比如上级目录 os.path.dirname(os.getcwd())+'.setting.json'
             ]
 
             for search_path in search_paths:
@@ -69,7 +69,7 @@ class AtomicManager:
             return {}
 
         try:
-            with open(file, encoding='utf-8') as f:
+            with open(file, encoding="utf-8") as f:
                 config = json.load(f)
 
             if not isinstance(config, dict):
@@ -83,7 +83,6 @@ class AtomicManager:
 
         except OSError:
             return {}
-
 
     def atomic(self, group_key="", **kwargs):
         def real_atomic(func):

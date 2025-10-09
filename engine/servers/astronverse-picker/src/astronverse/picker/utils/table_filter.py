@@ -120,15 +120,9 @@ class DataFilter(object):
         self.value_types = list(map(lambda x: x.get("value_type"), self.data_values))
         # print(f"self.value_types: {self.value_types}")
         self.data_list = list(map(lambda x: x["value"], self.data_values))
-        self.cell_filterConfig_list = list(
-            map(lambda x: x.get("colFilterConfig"), self.data_values)
-        )
-        self.filterConfig_list = list(
-            map(lambda x: x.get("filterConfig"), self.data_values)
-        )
-        self.dataProcessConfig_list = list(
-            map(lambda x: x.get("colDataProcessConfig"), self.data_values)
-        )
+        self.cell_filterConfig_list = list(map(lambda x: x.get("colFilterConfig"), self.data_values))
+        self.filterConfig_list = list(map(lambda x: x.get("filterConfig"), self.data_values))
+        self.dataProcessConfig_list = list(map(lambda x: x.get("colDataProcessConfig"), self.data_values))
         self.hightLightIndex_list = []
         self.dataProcess_state = 0
         self.data_table = self.get_table()
@@ -156,23 +150,17 @@ class DataFilter(object):
                         if item["attrs"].get(self.value_types[i])
                         else ""
                     )
-            text_values = list(
-                map(lambda x: [item["text"] for item in x], self.data_list)
-            )
+            text_values = list(map(lambda x: [item["text"] for item in x], self.data_list))
         elif self.produceType == "table":
             for i, item_list in enumerate(self.data_list):
-                self.data_list[i] = [
-                    re.sub(r"[\n\t]|^\s+|\s+$|\xa0", "", item) for item in item_list
-                ]
+                self.data_list[i] = [re.sub(r"[\n\t]|^\s+|\s+$|\xa0", "", item) for item in item_list]
             text_values = self.data_list
 
         else:
             text_values = []
         data_table = pd.DataFrame(text_values).T
         data_table.reset_index(inplace=True)
-        self.hightLightIndex_list = [
-            list(data_table["index"]) for _ in range(len(text_values))
-        ]
+        self.hightLightIndex_list = [list(data_table["index"]) for _ in range(len(text_values))]
         # print(self.hightLightIndex_list )
 
         return data_table
@@ -195,9 +183,7 @@ class DataFilter(object):
                     filter_logic_str = self.filter_logic_calc(index, logical, parameter)
                     filter_one_str = f"({filter_logic_str})"
                     if filter_index > 0:
-                        filter_one_str = (
-                            f" {logic_op_map[filterAssociation]} {filter_one_str}"
-                        )
+                        filter_one_str = f" {logic_op_map[filterAssociation]} {filter_one_str}"
                     filter_condition += filter_one_str
                     filter_index += 1
                 try:
@@ -228,9 +214,7 @@ class DataFilter(object):
                     filter_logic_str = self.filter_logic_calc(index, logical, parameter)
                     filter_one_str = f"({filter_logic_str})"
                     if filter_index > 0:
-                        filter_one_str = (
-                            f" {logic_op_map[filterAssociation]} {filter_one_str}"
-                        )
+                        filter_one_str = f" {logic_op_map[filterAssociation]} {filter_one_str}"
                     filter_condition += filter_one_str
                     filter_index += 1
                 try:
@@ -240,8 +224,7 @@ class DataFilter(object):
                     raise ValueError(f"暂不支持该筛选条件：{str(e)}")
         for index in range(len(self.hightLightIndex_list)):
             self.hightLightIndex_list[index] = [
-                self.hightLightIndex_list[index][i]
-                for i in list(self.data_table["index"])
+                self.hightLightIndex_list[index][i] for i in list(self.data_table["index"])
             ]
 
     def filter_logic_calc(self, index, logical, parameter):
@@ -255,30 +238,22 @@ class DataFilter(object):
         if logical in ["==", "!=", ">", "<", ">=", "<="]:
             if logical in ["==", "!="]:
                 if parameter.isdigit():
-                    self.data_table[index] = pd.to_numeric(
-                        self.data_table[index], errors="coerce"
-                    )
+                    self.data_table[index] = pd.to_numeric(self.data_table[index], errors="coerce")
                     parameter = f"{parameter}"
                 else:
                     parameter = f'"{parameter}"'
             else:
-                self.data_table[index] = pd.to_numeric(
-                    self.data_table[index], errors="coerce"
-                )
+                self.data_table[index] = pd.to_numeric(self.data_table[index], errors="coerce")
             filter_logic_str = f"{filter_col_str}{logical}{parameter}"
         elif logical in ["startswith", "endswith", "contains"]:
             if logical == "contains":
                 parameter = re.escape(parameter)
-            filter_logic_str = (
-                f'{filter_col_str}.astype(str).str.{logical}("{parameter}")'
-            )
+            filter_logic_str = f'{filter_col_str}.astype(str).str.{logical}("{parameter}")'
         elif logical in ["not_startswith", "not_endswith", "not_contains"]:
             if logical == "not_contains":
                 parameter = re.escape(parameter)
             logical = logical.split("_")[1]
-            filter_logic_str = (
-                f'~{filter_col_str}.astype(str).str.{logical}("{parameter}")'
-            )
+            filter_logic_str = f'~{filter_col_str}.astype(str).str.{logical}("{parameter}")'
         elif logical in ["isnull", "notnull"]:
             # filter_logic_str = f'{filter_col_str}.astype(str).{logical}()'
             if logical == "isnull":
@@ -299,9 +274,7 @@ class DataFilter(object):
                 else:
                     raise ValueError("条件异常，请输入正确的条件！")
         elif logical == "regular":
-            filter_logic_str = (
-                f'{filter_col_str}.astype(str).str.contains(r"{parameter}", regex=True)'
-            )
+            filter_logic_str = f'{filter_col_str}.astype(str).str.contains(r"{parameter}", regex=True)'
         elif logical == "enumerate":
             if isinstance(parameter, str):
                 parameter = eval(parameter)
@@ -317,9 +290,7 @@ class DataFilter(object):
     def ExtractNum(self, index, parameters):
         # 提取数字
         self.data_table[index] = list(
-            self.data_table[index]
-            .astype(str)
-            .apply(lambda x: "".join(re.findall(r"\d+", x)))
+            self.data_table[index].astype(str).apply(lambda x: "".join(re.findall(r"\d+", x)))
         )
 
     def trim(self, index, parameters):
@@ -336,9 +307,7 @@ class DataFilter(object):
         for parameter in parameters:
             text = re.escape(parameter.get("text"))
             replaceText = parameter.get("replaceText")
-            self.data_table[index] = list(
-                self.data_table[index].astype(str).str.replace(text, replaceText)
-            )
+            self.data_table[index] = list(self.data_table[index].astype(str).str.replace(text, replaceText))
 
     def prefix(self, index, parameters):
         # 添加前缀
@@ -355,16 +324,10 @@ class DataFilter(object):
         val = parameters[0].get("val")
         if val != "":
             self.data_table[index] = self.data_table[index].apply(parse_datetime)
-            self.data_table[index] = pd.to_datetime(
-                self.data_table[index].astype(str), errors="coerce"
-            )
-            self.data_table[index] = self.data_table[index].dt.strftime(
-                val.encode("unicode-escape").decode()
-            )
+            self.data_table[index] = pd.to_datetime(self.data_table[index].astype(str), errors="coerce")
+            self.data_table[index] = self.data_table[index].dt.strftime(val.encode("unicode-escape").decode())
             self.data_table[index] = (
-                self.data_table[index]
-                .fillna("")
-                .apply(lambda x: x.encode().decode("unicode-escape"))
+                self.data_table[index].fillna("").apply(lambda x: x.encode().decode("unicode-escape"))
             )
 
     def regular(self, index, parameters):
@@ -432,9 +395,7 @@ class DataFilter(object):
                         elif process_type == "Suffix":
                             self.suffix(index, parameters)
                     except Exception as e:
-                        raise ValueError(
-                            f"参数异常，请输入正确的参数！{process_type}{e}"
-                        )
+                        raise ValueError(f"参数异常，请输入正确的参数！{process_type}{e}")
 
     def data_filter_main(self):
         if any(self.cell_filterConfig_list):
@@ -447,9 +408,9 @@ class DataFilter(object):
             # 数据筛选
             self.table_filter()
         if (
-                (any(self.cell_filterConfig_list) == False)
-                and (any(self.filterConfig_list) == False)
-                and (any(self.dataProcessConfig_list) == False)
+            (any(self.cell_filterConfig_list) == False)
+            and (any(self.filterConfig_list) == False)
+            and (any(self.dataProcessConfig_list) == False)
         ):
             for i in range(len(self.data_values)):
                 self.data_json["values"][i]["filterConfig"] = []
@@ -471,8 +432,7 @@ class DataFilter(object):
             self.data_json["values"][list_index].update(
                 {
                     "value": [
-                        self.data_values[list_index].get("value")[i]
-                        for i in self.hightLightIndex_list[list_index]
+                        self.data_values[list_index].get("value")[i] for i in self.hightLightIndex_list[list_index]
                     ],
                     # "highlightRows": self.hightLightIndex_list[list_index],
                 }
@@ -483,13 +443,9 @@ class DataFilter(object):
             for row in range(len(data_list_new)):
                 for col in range(len(data_list_new[row])):
                     data_table_text = self.data_table[row].tolist()[col]
-                    data_table_text = (
-                        "" if pd.isnull(data_table_text) else data_table_text
-                    )
+                    data_table_text = "" if pd.isnull(data_table_text) else data_table_text
                     if self.produceType == "similar":
-                        self.data_values[row]["value"][col].update(
-                            {"text": data_table_text}
-                        )
+                        self.data_values[row]["value"][col].update({"text": data_table_text})
                     else:
                         self.data_values[row]["value"][col] = data_table_text
 
@@ -510,8 +466,8 @@ def table_json_merge_values(data_json, values):
     """
     logger.info(f"table_data_merge_values data_json: {data_json}")
     logger.info(f"table_data_merge_values values: {values}")
-    for (index, item) in enumerate(data_json["values"]):
-        item["value"] = values[index]['value']
+    for index, item in enumerate(data_json["values"]):
+        item["value"] = values[index]["value"]
     return data_json
 
 
@@ -521,14 +477,14 @@ def table_df_to_out(data_json):
     @:param data_json: 抓取对象
     """
     produce_type = data_json["produceType"]
-    table_head = [item['title'] for item in data_json["values"]]  # 表头
+    table_head = [item["title"] for item in data_json["values"]]  # 表头
     if produce_type == "table":
         # values: [{"value": ["A", "B", "C"]}, {"value": ["D", "E", "F"]}]
-        rows = list(zip(*[item['value'] for item in data_json["values"]]))  # 数据行
+        rows = list(zip(*[item["value"] for item in data_json["values"]]))  # 数据行
     else:
         # values: [{ “value”: [{"text" : “xxx”, "attrs": {}}] }], 按行取出text
-        rows_temp = list(zip(*[item['value'] for item in data_json["values"]]))  # 数据行
-        rows = [[val_item['text'] for val_item in row] for row in rows_temp]
+        rows_temp = list(zip(*[item["value"] for item in data_json["values"]]))  # 数据行
+        rows = [[val_item["text"] for val_item in row] for row in rows_temp]
 
     df = pd.DataFrame(rows, columns=table_head)
     return df
@@ -540,19 +496,19 @@ def table_values_to_table_dict(values, produce_type):
     """
     produce_type = produce_type
     logger.info(f"table_values_to_table_dict: {values}")
-    table_head = [item['title'] for item in values]
+    table_head = [item["title"] for item in values]
     table_data = {}
-    max_length = max(len(item['value']) for item in values)
+    max_length = max(len(item["value"]) for item in values)
 
     if produce_type == "table":
-        table_data = {item['title']: item['value'] for item in values}
+        table_data = {item["title"]: item["value"] for item in values}
     else:
         for item in values:
-            val_items = [val_item['text'] for val_item in item['value']]
+            val_items = [val_item["text"] for val_item in item["value"]]
             logger.info(f"val_items: {val_items}")
             if len(val_items) < max_length:
-                val_items += [''] * (max_length - len(val_items))
-            table_data[item['title']] = val_items
+                val_items += [""] * (max_length - len(val_items))
+            table_data[item["title"]] = val_items
             logger.info(f"table_data: {table_data}")
     table_df = pd.DataFrame(table_data, columns=table_head)
     return table_df.to_dict("list")
@@ -566,19 +522,19 @@ def values_to_row_list(values, produce_type):
     """
     produce_type = produce_type
     logger.info(f"values_to_row_list: {values}")
-    table_head = [item['title'] for item in values]
+    table_head = [item["title"] for item in values]
     table_data = {}
-    max_length = max(len(item['value']) for item in values)
+    max_length = max(len(item["value"]) for item in values)
 
     if produce_type == "table":
-        table_data = {item['title']: item['value'] for item in values}
+        table_data = {item["title"]: item["value"] for item in values}
     else:
         for item in values:
-            val_items = [val_item for val_item in item['value']]
+            val_items = [val_item for val_item in item["value"]]
             logger.info(f"val_items: {val_items}")
             if len(val_items) < max_length:
                 val_items += [{"text": "", "attrs": {}}] * (max_length - len(val_items))
-            table_data[item['title']] = val_items
+            table_data[item["title"]] = val_items
             logger.info(f"table_data: {table_data}")
     table_df = pd.DataFrame(table_data, columns=table_head)
     return table_df.values.tolist()
@@ -592,13 +548,13 @@ def page_values_merge(preValues: list, values: list, produce_type: str):
     """
     logger.info(f"page_values_merge: {values}")
     # 1, 先补齐values 的每一项内value 的长度
-    max_length = max(len(item['value']) for item in values)
+    max_length = max(len(item["value"]) for item in values)
     for item in values:
-        if len(item['value']) < max_length:
+        if len(item["value"]) < max_length:
             if produce_type == "table":
-                item['value'] += [''] * (max_length - len(item['value']))
+                item["value"] += [""] * (max_length - len(item["value"]))
             else:
-                item['value'] += [{"text": "", "attrs": {}}] * (max_length - len(item['value']))
+                item["value"] += [{"text": "", "attrs": {}}] * (max_length - len(item["value"]))
 
     logger.info(f"page_values_merge1: {values}")
     # 2, 将preValues 的value 和 values 的value 合并
@@ -606,5 +562,5 @@ def page_values_merge(preValues: list, values: list, produce_type: str):
         return values
     else:
         for i in range(len(preValues)):
-            preValues[i]['value'] += values[i]['value']
+            preValues[i]["value"] += values[i]["value"]
         return preValues

@@ -30,7 +30,9 @@ class Picker:
                 "ConsoleApp1.exe",
             )
             self.highlighter = SubPopen(name="highlighter", cmd=[highlighter_path])
-            self.vision_picker = SubPopen(name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"])
+            self.vision_picker = SubPopen(
+                name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"]
+            )
             self.app_picker = SubPopen(name="picker", cmd=[python_executable, "-m", "astronverse.picker"])
         elif sys.platform == "win32" and platform.release() == "7":
             highlighter_path = os.path.join(
@@ -47,7 +49,9 @@ class Picker:
                     "{}".format(self.svc.rpa_hl_port),
                 ],
             )
-            self.vision_picker = SubPopen(name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"])
+            self.vision_picker = SubPopen(
+                name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"]
+            )
             self.app_picker = SubPopen(name="picker", cmd=[python_executable, "-m", "astronverse.picker"])
         else:
             highlighter_path = os.path.join(
@@ -64,7 +68,9 @@ class Picker:
                     "{}".format(self.svc.rpa_hl_port),
                 ],
             )
-            self.vision_picker = SubPopen(name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"])
+            self.vision_picker = SubPopen(
+                name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"]
+            )
             self.app_picker = SubPopen(name="picker", cmd=[python_executable, "-m", "astronverse.picker_linux"])
 
         # 2. 服务配置

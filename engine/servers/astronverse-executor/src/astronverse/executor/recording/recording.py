@@ -19,7 +19,6 @@ def folder_empty(folder_path) -> bool:
 
 
 class RecordingTool:
-
     def __init__(self):
         self.thread = None
 
@@ -64,35 +63,56 @@ class RecordingTool:
                 url = os.path.join(script_dir, "view", "win", "ffmpeg.exe")
                 exec_args_1 = [
                     url,
-                    "-thread_queue_size", "16",
-                    "-f", "gdigrab",
-                    "-rtbufsize", "500M",
-                    "-framerate", "3",
-                    "-i", "desktop",
-                    "-crf", "23",
-                    "-pix_fmt", "yuv420p",
-                    "-vf", "scale=iw*75/100:ih*75/100,pad=ceil(iw/2)*2:ceil(ih/2)*2",
+                    "-thread_queue_size",
+                    "16",
+                    "-f",
+                    "gdigrab",
+                    "-rtbufsize",
+                    "500M",
+                    "-framerate",
+                    "3",
+                    "-i",
+                    "desktop",
+                    "-crf",
+                    "23",
+                    "-pix_fmt",
+                    "yuv420p",
+                    "-vf",
+                    "scale=iw*75/100:ih*75/100,pad=ceil(iw/2)*2:ceil(ih/2)*2",
                     "{}".format(self.local_raw_file),
-                    "-y"
+                    "-y",
                 ]
             else:
                 url = os.path.join(script_dir, "view", "linux", "ffmpeg.exe")
                 exec_args_1 = [
                     url,
-                    "-thread_queue_size", "16",
-                    "-f", "x11grab",
-                    "-rtbufsize", "500M",
-                    "-framerate", "3",
-                    "-i", ":0.0",
-                    "-crf", "23",
-                    "-vf", "scale=iw*75/100:ih*75/100,pad=ceil(iw/2)*2:ceil(ih/2)*2",
+                    "-thread_queue_size",
+                    "16",
+                    "-f",
+                    "x11grab",
+                    "-rtbufsize",
+                    "500M",
+                    "-framerate",
+                    "3",
+                    "-i",
+                    ":0.0",
+                    "-crf",
+                    "23",
+                    "-vf",
+                    "scale=iw*75/100:ih*75/100,pad=ceil(iw/2)*2:ceil(ih/2)*2",
                     "{}".format(self.local_raw_file),
-                    "-y"
+                    "-y",
                 ]
 
             # 1. 启动录制
-            proc_1 = subprocess.Popen(exec_args_1, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                                      stderr=subprocess.DEVNULL, text=True, encoding=system_encoding)
+            proc_1 = subprocess.Popen(
+                exec_args_1,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                encoding=system_encoding,
+            )
 
             # 2. 收到结束信号
             self.event.wait()
@@ -131,14 +151,23 @@ class RecordingTool:
                 else:
                     exec_args_2 = [
                         url,
-                        "-ss", "{}".format(ss),
-                        "-t", "{}".format(int(self.config.get("cut_time")) + dt + dt),
-                        "-i", self.local_raw_file,
+                        "-ss",
+                        "{}".format(ss),
+                        "-t",
+                        "{}".format(int(self.config.get("cut_time")) + dt + dt),
+                        "-i",
+                        self.local_raw_file,
                         self.local_file,
-                        "-y"
+                        "-y",
                     ]
-                    proc_2 = subprocess.Popen(exec_args_2, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                              stderr=subprocess.PIPE, text=True, encoding=system_encoding)
+                    proc_2 = subprocess.Popen(
+                        exec_args_2,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        encoding=system_encoding,
+                    )
                     output, error = proc_2.communicate()
                     logger.info("RecordingTool proc_2 output: {}, error: {}".format(output, error))
 
@@ -164,7 +193,7 @@ class RecordingTool:
 
         for root, dirs, files in os.walk(self.config.get("file_path")):
             for file in files:
-                if file.endswith('.mp4'):
+                if file.endswith(".mp4"):
                     file_path = os.path.join(root, file)
                     logger.info("walk mp4:{}".format(file_path))
                     file_mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))

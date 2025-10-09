@@ -90,6 +90,7 @@ class ServiceContext:
         # 定住 - 可选模块
         try:
             from astronverse.locator.locator import LocatorManager
+
             self.locator = LocatorManager
         except ImportError:
             logger.info("无法导入rpa_locator模块，如非必要请忽略")
