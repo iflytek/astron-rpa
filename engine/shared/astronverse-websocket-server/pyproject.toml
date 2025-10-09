@@ -1,0 +1,16 @@
+[project]
+name = "astronverse-websocket-server"
+version = "1.0.0"
+description = "astronverse-websocket-server."
+requires-python = ">=3.13"
+
+dependencies = [
+    "anyio",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

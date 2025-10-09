@@ -1,0 +1,27 @@
+[project]
+name = "rpacv"
+version = "1.0.0"
+description = "rpacv."
+requires-python = ">=3.13"
+
+dependencies = [
+    "rpagui",
+    "astronverse-actionlib",
+    "opencv-python",
+    "PyAutoGUI",
+    "Pillow",
+    "pynput",
+    "numpy",
+    "pywin32; sys_platform == 'win32'"
+]
+
+[tool.uv.sources]
+rpagui = {path = "../../components/rpagui", editable = true}
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpacv"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
