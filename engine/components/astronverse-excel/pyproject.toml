@@ -1,22 +1,18 @@
 [project]
-name = "astronverse-vision"
+name = "astronverse-excel"
 version = "1.0.0"
-description = "astronverse-vision."
+description = "astronverse-excel."
 requires-python = ">=3.13"
 
 dependencies = [
-    "astronverse-input",
     "astronverse-actionlib",
-    "opencv-python",
-    "PyAutoGUI",
-    "Pillow",
-    "pynput",
+    "psutil",
     "numpy",
+    "Pillow",
     "pywin32; sys_platform == 'win32'"
 ]
 
 [tool.uv.sources]
-astronverse-input = {path = "../../components/astronverse-input", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]

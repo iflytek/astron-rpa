@@ -5,7 +5,7 @@ description = "rpaverifycode."
 requires-python = ">=3.13"
 
 dependencies = [
-    "rpabrowser",
+    "astronverse-browser",
     "astronverse-actionlib",
     "astronverse-locator",
     "pyautogui",
@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-rpabrowser = {path = "../../components/rpabrowser", editable = true}
+astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
 

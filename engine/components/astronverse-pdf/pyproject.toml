@@ -1,22 +1,20 @@
 [project]
-name = "astronverse-vision"
+name = "astronverse-pdf"
 version = "1.0.0"
-description = "astronverse-vision."
+description = "astronverse-pdf."
 requires-python = ">=3.13"
 
 dependencies = [
-    "astronverse-input",
     "astronverse-actionlib",
-    "opencv-python",
-    "PyAutoGUI",
-    "Pillow",
-    "pynput",
-    "numpy",
-    "pywin32; sys_platform == 'win32'"
+    "pypdf",
+    "python-docx",
+    "pdfplumber",
+    "pandas",
+    "openpyxl",
+    "pypdfium2"
 ]
 
 [tool.uv.sources]
-astronverse-input = {path = "../../components/astronverse-input", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]

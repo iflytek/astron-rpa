@@ -1,22 +1,19 @@
 [project]
-name = "astronverse-vision"
+name = "astronverse-word"
 version = "1.0.0"
-description = "astronverse-vision."
+description = "astronverse-word."
 requires-python = ">=3.13"
 
 dependencies = [
-    "astronverse-input",
     "astronverse-actionlib",
-    "opencv-python",
-    "PyAutoGUI",
-    "Pillow",
-    "pynput",
-    "numpy",
-    "pywin32; sys_platform == 'win32'"
+    "python-docx",
+    "psutil",
+    "pillow",
+    "pywin32; sys_platform == 'win32'",
+    "pywpsrpc; sys_platform == 'linux'"
 ]
 
 [tool.uv.sources]
-astronverse-input = {path = "../../components/astronverse-input", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]

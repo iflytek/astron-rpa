@@ -1,0 +1,20 @@
+[project]
+name = "astronverse-encrypt"
+version = "1.0.0"
+description = "astronverse-encrypt."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "pycryptodomex"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rpaencrypt"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

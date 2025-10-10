@@ -1,0 +1,36 @@
+[project]
+name = "astronverse-browser"
+version = "1.0.0"
+description = "astronverse-browser."
+requires-python = ">=3.13"
+
+dependencies = [
+    "requests",
+    "pandas",
+    "dogtail; sys_platform == 'linux'",
+    "astronverse-software",
+    "astronverse-window",
+    "astronverse-input",
+    "astronverse-encrypt",
+    "pandas",
+    "astronverse-actionlib",
+    "astronverse-locator; sys_platform == 'win32'",
+]
+
+[tool.uv.sources]
+astronverse-software = {path = "../../components/astronverse-software", editable = true}
+astronverse-encrypt = {path = "../../components/astronverse-encrypt", editable = true}
+astronverse-window = {path = "../../components/astronverse-window", editable = true}
+astronverse-input = {path = "../../components/astronverse-input", editable = true}
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+

@@ -1,24 +1,19 @@
 [project]
-name = "astronverse-ai"
+name = "astronverse-dialog"
 version = "1.0.0"
-description = "astronverse-ai."
+description = "astronverse-dialog."
 requires-python = ">=3.13"
 
 dependencies = [
-    "requests",
-    "dotenv",
-    "pypdf",
-    "python-docx",
-    "sseclient-py",
     "astronverse-actionlib",
     "astronverse-tools",
-    "astronverse-browser; sys_platform == 'win32'"
+    "pynput"
 ]
 
 [tool.uv.sources]
-astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
+
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
