@@ -5,7 +5,6 @@ description = "astronverse-actionlib."
 requires-python = ">=3.13"
 
 dependencies = [
-    "PyYAML",
     "python-dateutil",
     "pycryptodome",
     "astronverse-baseline",

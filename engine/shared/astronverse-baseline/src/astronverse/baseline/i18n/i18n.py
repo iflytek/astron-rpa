@@ -4,10 +4,8 @@ import os
 
 
 class I18n:
-    """国际化"""
-
     def __init__(self, name: str = "null"):
-        """翻译失败,接受翻译文件不存在"""
+        """Initialize internationalization, gracefully handle missing translation files"""
 
         self.translation = None
         try:
@@ -18,10 +16,10 @@ class I18n:
             return
 
     def gettext(self, message):
-        """翻译失败，接受翻译key不存在"""
+        """Get translated text, gracefully handle missing translation keys"""
 
         if self.translation is None:
-            # 翻译文件不存在的优化
+            # Optimization for missing translation files
             return message
 
         try:

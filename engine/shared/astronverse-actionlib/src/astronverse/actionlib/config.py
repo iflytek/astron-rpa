@@ -1,29 +1,5 @@
 import os
-
-from astronverse.actionlib.error import *
-
-
-def load_config(url, file_type="yaml"):
-    """读取并解析配置文件"""
-    
-    with open(url, "r", encoding="utf-8") as config_file:
-        if file_type == "yaml":
-            import yaml
-            try:
-                data = yaml.load(config_file, Loader=yaml.FullLoader)
-            except Exception as e:
-                raise BaseException(CONFIG_LOAD_ERROR.format(config_file), "配置文件加载出错 {}".format(e)) from e
-        elif file_type == "json":
-            import json
-            try:
-                data = json.load(config_file)
-            except Exception as e:
-                raise BaseException(CONFIG_LOAD_ERROR.format(config_file), "配置文件加载出错 {}".format(e)) from e
-        else:
-            raise BaseException(
-                CONFIG_TYPE_ERROR.format(file_type), "配置文件解析不支持该类型 {}".format(file_type)
-            )
-    return data
+from astronverse.baseline.config.config import load_config
 
 
 class Config:

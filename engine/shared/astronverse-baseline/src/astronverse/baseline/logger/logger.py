@@ -5,7 +5,7 @@ from loguru import logger as log
 
 
 class Logger:
-    """日志"""
+    """Logger"""
 
     def __init__(self):
         self.logger = log
@@ -18,7 +18,7 @@ class Logger:
         if not os.path.exists(log_path):
             os.mkdir(log_path)
 
-        # 按时间轮转的日志文件
+        # Time-rotated log file
         log_path = os.path.abspath(os.path.join(log_path, "{}-{}.log".format(name, time.strftime("%Y-%m-%d"))))
         self.logger.add(
             log_path, rotation="50MB", retention="7 days", encoding="utf-8", enqueue=True, compression="zip"

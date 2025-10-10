@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "loguru",
     "toml",
+    "PyYAML",
 ]
 
 [tool.hatch.build.targets.wheel]

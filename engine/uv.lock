@@ -59,7 +59,6 @@ dependencies = [
     { name = "astronverse-baseline" },
     { name = "pycryptodome" },
     { name = "python-dateutil" },
-    { name = "pyyaml" },
 ]
 
 [package.metadata]
@@ -67,7 +66,6 @@ requires-dist = [
     { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
     { name = "pycryptodome" },
     { name = "python-dateutil" },
-    { name = "pyyaml" },
 ]
 
 [[package]]
@@ -103,12 +101,14 @@ version = "1.0.0"
 source = { editable = "shared/astronverse-baseline" }
 dependencies = [
     { name = "loguru" },
+    { name = "pyyaml" },
     { name = "toml" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "loguru" },
+    { name = "pyyaml" },
     { name = "toml" },
 ]
 
