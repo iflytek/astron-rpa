@@ -1,5 +1,7 @@
 package com.iflytek.rpa.robot.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.*;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -40,8 +42,6 @@ import org.springframework.util.CollectionUtils;
 @Slf4j
 @Service
 public class ResourceRobotManageServiceImpl implements ResourceRobotManageService {
-    private final String filePathPrefix = "/api/resource/file/download?fileId=";
-
     @Resource
     ResourceRobotManageDao resourceRobotManageDao;
 
@@ -222,9 +222,9 @@ public class ResourceRobotManageServiceImpl implements ResourceRobotManageServic
         resVo.setCreatorName(creatorName);
         resVo.setCreateTime(robot.getCreateTime());
         resVo.setFileName(fileName);
-        resVo.setFilePath(org.apache.commons.lang3.StringUtils.isEmpty(fileId) ? null : filePathPrefix + fileId);
+        resVo.setFilePath(org.apache.commons.lang3.StringUtils.isEmpty(fileId) ? null : FILE_PATH_PREFIX + fileId);
         resVo.setVideoName(videoName);
-        resVo.setVideoPath(org.apache.commons.lang3.StringUtils.isEmpty(videoId) ? null : (filePathPrefix + videoId));
+        resVo.setVideoPath(org.apache.commons.lang3.StringUtils.isEmpty(videoId) ? null : (FILE_PATH_PREFIX + videoId));
         resVo.setDeptName("");
 
         resVo.setUpdateTime(robot.getUpdateTime());

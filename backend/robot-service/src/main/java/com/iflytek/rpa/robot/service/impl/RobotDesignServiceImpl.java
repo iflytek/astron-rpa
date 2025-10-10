@@ -1,6 +1,6 @@
 package com.iflytek.rpa.robot.service.impl;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
+import static com.iflytek.rpa.robot.constants.RobotConstant.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -109,8 +109,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
     @Resource
     private RobotExecuteRecordDao robotExecuteRecordDao;
-
-    private final String filePathPrefix = "/api/resource/file/download?fileId=";
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -837,9 +835,9 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
         myRobotDetailRes.setUseDescription(latestRobotVersion.getUseDescription());
         myRobotDetailRes.setFileName(fileName);
-        myRobotDetailRes.setFilePath(filePathPrefix + fileId);
+        myRobotDetailRes.setFilePath(FILE_PATH_PREFIX + fileId);
         myRobotDetailRes.setVideoName(videoName);
-        myRobotDetailRes.setVideoPath(StringUtils.isEmpty(videoId) ? null : (filePathPrefix + videoId));
+        myRobotDetailRes.setVideoPath(StringUtils.isEmpty(videoId) ? null : (FILE_PATH_PREFIX + videoId));
     }
 
     private MyRobotDetailVo getMyRobotDetailRes(RobotDesign robot, RobotVersion enableVersion) {
@@ -871,9 +869,9 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         resVo.setCreatorName(creatorName);
         resVo.setCreateTime(robot.getCreateTime());
         resVo.setFileName(fileName);
-        resVo.setFilePath(filePathPrefix + fileId);
+        resVo.setFilePath(FILE_PATH_PREFIX + fileId);
         resVo.setVideoName(videoName);
-        resVo.setVideoPath(StringUtils.isEmpty(videoId) ? null : (filePathPrefix + videoId));
+        resVo.setVideoPath(StringUtils.isEmpty(videoId) ? null : (FILE_PATH_PREFIX + videoId));
 
         return resVo;
     }

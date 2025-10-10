@@ -1,5 +1,7 @@
 package com.iflytek.rpa.robot.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.*;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -85,8 +87,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
     @Autowired
     private CRequireDao cRequireDao;
-
-    private final String filePathPrefix = "/api/resource/file/download?fileId=";
 
     private static List<ExeUpdateCheckVo> getExeUpdateCheckVos(List<RobotExecute> robotExecuteList) {
         List<ExeUpdateCheckVo> resVoList = new ArrayList<>();
@@ -475,9 +475,9 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         resVo.setUseDescription(useDescription);
         resVo.setIntroduction(introduction);
         resVo.setFileName(fileName);
-        resVo.setFilePath(filePathPrefix + fileId);
+        resVo.setFilePath(FILE_PATH_PREFIX + fileId);
         resVo.setVideoName(videoName);
-        resVo.setVideoPath(StringUtils.isEmpty(videoId) ? null : (filePathPrefix + videoId));
+        resVo.setVideoPath(StringUtils.isEmpty(videoId) ? null : (FILE_PATH_PREFIX + videoId));
     }
 
     private void taskRobotDeleteAfter(List<String> taskIdList) throws Exception {

@@ -49,4 +49,9 @@ public class RobotConstant {
     public static final String ROBOT_RESULT_CANCEL = "robotCancel";
 
     public static final String ROBOT_RESULT_EXECUTE = "robotExecute";
+
+    /**
+     * file download
+     */
+    public static final String FILE_PATH_PREFIX = "/api/resource/file/download?fileId=";
 }
