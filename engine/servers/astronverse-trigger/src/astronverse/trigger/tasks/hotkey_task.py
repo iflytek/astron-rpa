@@ -1,13 +1,11 @@
 import asyncio
-from typing import List
-
-from keyboard import add_hotkey, remove_hotkey
 
 from astronverse.trigger.core.logger import logger
+from keyboard import add_hotkey, remove_hotkey
 
 
 class HotKeyTask:
-    def __init__(self, shortcuts: List = None, **kwargs):
+    def __init__(self, shortcuts: list = None, **kwargs):
         """
         构建热键监听的类
 

@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from astronverse.browser_bridge.error import BaseException
-from astronverse.browser_bridge.apis.context import get_svc
-from astronverse.browser_bridge.apis.response import http_base_exception, http_exception
 from astronverse.browser_bridge.apis import ws_route
 from astronverse.browser_bridge.apis.browser.v1 import browser
+from astronverse.browser_bridge.apis.context import get_svc
+from astronverse.browser_bridge.apis.response import http_base_exception, http_exception
+from astronverse.browser_bridge.error import BaseException
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def handler(app: FastAPI):

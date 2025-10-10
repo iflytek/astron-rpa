@@ -1,27 +1,28 @@
-from astronverse.scheduler.logger import logger
 import argparse
 import json
 import time
 import traceback
+
 import uvicorn
 from fastapi import FastAPI
+
 from astronverse.scheduler.apis import route
 from astronverse.scheduler.config import Config as conf
 from astronverse.scheduler.core.schduler.init import linux_env_check, repair_pywin32_dependence
 from astronverse.scheduler.core.server import ServerManager
 from astronverse.scheduler.core.servers.async_server import (
-    AtomicUploadAsyncServer,
     CheckPickProcessAliveServer,
+    CheckStartPidExitsServer,
     RpaSchedulerAsyncServer,
     TerminalAsyncServer,
-    CheckStartPidExitsServer,
 )
 from astronverse.scheduler.core.servers.core_server import (
     RpaBrowserConnectorServer,
     RpaRouteServer,
 )
 from astronverse.scheduler.core.svc import get_svc
-from astronverse.scheduler.utils.utils import EmitType, check_port, emit_to_front
+from astronverse.scheduler.logger import logger
+from astronverse.scheduler.utils.utils import check_port
 
 # 0. app实例化，并做初始化
 app = FastAPI()
@@ -40,7 +41,7 @@ def start():
         # 2. 读取配置，并解析到上下文
         conf_path = args.conf.strip('"')
         conf_path = conf_path.replace("\\\\", "\\")
-        with open(conf_path, "r") as f:
+        with open(conf_path) as f:
             conf_json = json.loads(f.read().strip())
 
         conf.app_server.remote_addr = conf_json.get("remote_addr")

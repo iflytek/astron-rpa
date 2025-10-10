@@ -1,16 +1,15 @@
 import base64
-import json
 import io
+import json
+import os
 from abc import ABC, abstractmethod
 
 import cv2
 import numpy as np
-import requests
-from PIL import Image
-
-from astronverse.vision_picker.core.cv_match import AnchorMatch
 import pyautogui
-import os
+import requests
+from astronverse.vision_picker.core.cv_match import AnchorMatch
+from PIL import Image
 
 current_directory = os.getcwd()
 match_filepath = os.path.join(current_directory, "imgs", "match_img.png")
@@ -162,5 +161,5 @@ class IPickCore(ABC):
                 match_similarity=match_similarity,
             )
         except cv2.error as e:
-            raise ValueError(f"图像匹配报错，请检查图像")
+            raise ValueError("图像匹配报错，请检查图像")
         return match_box

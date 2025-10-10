@@ -1,11 +1,12 @@
-from astronverse.browser_bridge.logger import logger  # 必须排第一
 import argparse
-import uvicorn
 import os
+
+import uvicorn
+from astronverse.browser_bridge.apis import context, route
+from astronverse.browser_bridge.config import Config as conf
+from astronverse.browser_bridge.logger import logger  # 必须排第一
 from fastapi import FastAPI
 from no_config import Config
-from astronverse.browser_bridge.config import Config as conf
-from astronverse.browser_bridge.apis import context, route
 
 # 0. app实例化，并做初始化
 app = FastAPI()

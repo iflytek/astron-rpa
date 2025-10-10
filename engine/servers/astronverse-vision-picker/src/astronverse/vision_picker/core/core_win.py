@@ -1,8 +1,8 @@
 import ctypes
+
 import pyautogui
 import win32gui
-
-from astronverse.vision_picker.core.core import IRectHandler, IPickCore
+from astronverse.vision_picker.core.core import IPickCore, IRectHandler
 
 
 class RectHandler(IRectHandler):

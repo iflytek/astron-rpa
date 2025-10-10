@@ -3,10 +3,9 @@ import time
 
 import pythoncom
 import pyWinhook as pyWinhook
-from pyWinhook import KeyboardEvent
-
 from astronverse.picker import IEventCore, MKSign
 from astronverse.picker.logger import logger
+from pyWinhook import KeyboardEvent
 
 
 class EventCore(IEventCore):
@@ -63,7 +62,7 @@ class EventCore(IEventCore):
         self.__hook_manager.HookMouse()
         self.__hook_manager.HookKeyboard()
         self.__init = True
-        pythoncom.PumpMessages()  # noqa
+        pythoncom.PumpMessages()
         logger.info("EventCore __hook__ end")
 
     def is_cancel(self):

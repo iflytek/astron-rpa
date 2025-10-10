@@ -1,9 +1,9 @@
 import traceback
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from astronverse.picker import APP, MSAA_APPLICATIONS, WEB_CLASS_NAMES, IElement
-from astronverse.picker.logger import logger
 from astronverse.picker.engines.uia_picker import UIAOperate
+from astronverse.picker.logger import logger
 
 if TYPE_CHECKING:
     from astronverse.picker.strategy.types import Strategy, StrategySvc

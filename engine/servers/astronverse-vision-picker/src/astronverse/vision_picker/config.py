@@ -1,7 +1,7 @@
 import logging
 
 
-class Config(object):
+class Config:
     # 主进程监端口
     VISION_PICKER_PORT = None
     # 服务启动端口开始端

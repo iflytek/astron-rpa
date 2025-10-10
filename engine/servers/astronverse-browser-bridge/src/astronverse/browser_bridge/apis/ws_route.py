@@ -3,14 +3,15 @@ import os
 import traceback
 from base64 import b64decode
 from typing import Any
-from astronverse.browser_bridge.apis.context import get_svc, ServiceContext
-from starlette.websockets import WebSocket
-from fastapi import APIRouter, Depends
+
+from astronverse.browser_bridge.apis.context import ServiceContext, get_svc
 from astronverse.browser_bridge.apis.response import CustomResponse
-from astronverse.websocket_server.ws import Conn, WsException, IWebSocket, BaseMsg
-from astronverse.websocket_server.ws_service import WsManager
+from astronverse.browser_bridge.error import CODE_INNER, ERROR_FORMAT, BaseException
 from astronverse.browser_bridge.logger import logger
-from astronverse.browser_bridge.error import BaseException, CODE_INNER, ERROR_FORMAT
+from astronverse.websocket_server.ws import BaseMsg, Conn, IWebSocket, WsException
+from astronverse.websocket_server.ws_service import WsManager
+from fastapi import APIRouter, Depends
+from starlette.websockets import WebSocket
 
 
 def error_to_base_error(e=None) -> BaseException:
@@ -69,7 +70,7 @@ async def browser_init_inject(ws: IWebSocket, uuid: str):
         {"data_path": os.path.join(inject_path, "contentInject.js"), "key": "contentInject"},
     ]
     for data in data_list:
-        with open(data.get("data_path"), "r", encoding="utf-8") as file:
+        with open(data.get("data_path"), encoding="utf-8") as file:
             file_data = file.read()
         await ws.send(
             BaseMsg(
@@ -78,7 +79,7 @@ async def browser_init_inject(ws: IWebSocket, uuid: str):
                 uuid="$root$",
                 send_uuid=uuid,
                 need_ack=False,
-                data=file_data,  # noqa
+                data=file_data,
             )
             .init()
             .tojson()

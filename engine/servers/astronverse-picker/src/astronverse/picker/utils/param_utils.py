@@ -1,6 +1,9 @@
 from enum import Enum
-from typing import Any, Tuple
-from astronverse.actionlib.types import Bool, Float, Int, List as RpaList, Dict as RpaDict
+from typing import Any
+
+from astronverse.actionlib.types import Bool, Float, Int
+from astronverse.actionlib.types import Dict as RpaDict
+from astronverse.actionlib.types import List as RpaList
 
 
 class ParamType(Enum):
@@ -60,7 +63,7 @@ def __special_eval__(value: Any, env: dict, id2name: dict = None) -> Any:
     return value
 
 
-def global_to_dict(ls: list) -> Tuple[dict, dict]:
+def global_to_dict(ls: list) -> tuple[dict, dict]:
     """工具类: 全局变量转换为字典"""
     res = {}
     id2name = {}

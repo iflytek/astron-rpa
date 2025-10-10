@@ -1,10 +1,11 @@
 import base64
 import json
+import platform
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
 from typing import Any, Optional
+
 import requests
-import platform
 from astronverse.actionlib import ReportTip
 from astronverse.executor.error import *
 from astronverse.executor.flow.syntax.token import TokenType
@@ -419,13 +420,13 @@ class HttpStorage(Storage):
 
         # 关闭日志
         if self.svc.recording_config.get("enable", False):
-            if result in ["fail"]:
+            if result == "fail":
                 self.svc.report.info(ReportTip(msg_str=VIDEO_RECORDING_WAIT))
                 recording_tool.close(False)
             elif result in ["success", "cancel"]:
                 self.svc.report.info(ReportTip(msg_str=VIDEO_RECORDING_WAIT))
                 recording_tool.close(True)
-            elif result in ["execute"]:
+            elif result == "execute":
                 pass
 
     def get_remote_var_key(self) -> str:

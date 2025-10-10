@@ -1,20 +1,20 @@
 import json
 import os
 import platform
+import socket
 import sys
+import threading
 import time
 from collections import deque
+
 import cv2
 import pyautogui
-from pynput import keyboard
-import socket
-import threading
-from astronverse.vision_picker.core import Status, PickType
+from astronverse.vision_picker.core import PickType, Status
+from astronverse.vision_picker.core.core import IPickCore, IRectHandler
 from astronverse.vision_picker.core.cv_match import AnchorMatch
 from astronverse.vision_picker.core.cv_picker import ImageDetector
-from astronverse.vision_picker.core.core import IPickCore, IRectHandler
 from astronverse.vision_picker.logger import logger
-
+from pynput import keyboard
 
 current_directory = os.getcwd()
 desktop_filepath = os.path.join(current_directory, "imgs", "desktop.png")
@@ -73,7 +73,7 @@ class Socket:
                 logger.info(f"receive_data:{self.receive_data}")
                 operation, rect = self.parse_response(self.receive_data)
             return operation, rect
-        except socket.error as e:
+        except OSError as e:
             pass
 
     def parse_response(self, data):
@@ -134,7 +134,7 @@ class CVPicker:
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super(CVPicker, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self, status: Status = Status.START, picktype: PickType = PickType.TARGET, anchor_pick_img=None):

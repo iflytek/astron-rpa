@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from astronverse.scheduler.apis.connector import executor, picker, terminal, tools, ws
 from astronverse.scheduler.core.lsp.routes import router as lsp_router
 from astronverse.scheduler.core.svc import get_svc

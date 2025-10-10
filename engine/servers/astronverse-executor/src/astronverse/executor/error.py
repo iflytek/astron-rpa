@@ -2,9 +2,8 @@ import re
 from functools import wraps
 
 from astronverse.actionlib import IgnoreException
-from astronverse.baseline.error.error import ErrorCode, BaseException, BizCode
+from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
-
 from astronverse.executor.flow.syntax.event import CloseError
 
 INDEX_ERROR = IndexError

@@ -1,8 +1,8 @@
 """策略管理器模块"""
 
+from astronverse.picker import APP, PickerDomain
 from astronverse.picker.strategy.types import StrategyEnv, StrategySvc
 from astronverse.picker.utils.process import get_process_name
-from astronverse.picker import APP, PickerDomain
 
 
 class Strategy:
@@ -30,9 +30,10 @@ class Strategy:
 
     def run(self, strategy_svc: StrategySvc):
         """调用策略函数"""
-        from astronverse.picker import IElement, PickerDomain
-        from astronverse.picker.logger import logger
         import traceback
+
+        from astronverse.picker import PickerDomain
+        from astronverse.picker.logger import logger
 
         # 根据domain动态导入对应的策略函数
         strategy_func = None
