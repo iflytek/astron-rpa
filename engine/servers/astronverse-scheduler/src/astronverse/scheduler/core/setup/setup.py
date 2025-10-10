@@ -34,20 +34,15 @@ class Process:
         all_process = list()
         if sys.platform == "win32":
             # 他们的名称是否包含python
-            process_names = [
-                python_tag_window,
-                "route.exe", 
-                "ConsoleApp1.exe",
-                "winvnc.exe"
-            ]
-            
+            process_names = [python_tag_window, "route.exe", "ConsoleApp1.exe", "winvnc.exe"]
+
             outputs = []
             for process_name in process_names:
                 output = subprocess.check_output(
                     ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"]
                 ).decode(system_encoding)
                 outputs.append(output)
-            
+
             pids = []
             for output in outputs:
                 for line in output.splitlines()[1:]:
