@@ -6,9 +6,9 @@ RPA定位器模块 - 提供各种UI元素定位功能
 """
 
 import json
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Optional
-from abc import ABC, abstractmethod
 
 from astronverse.locator.utils.move import smooth_move
 

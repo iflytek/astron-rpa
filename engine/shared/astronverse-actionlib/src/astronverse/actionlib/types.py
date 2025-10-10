@@ -1,12 +1,13 @@
 import ast
-from base64 import b64decode
-from datetime import datetime
-from dateutil import parser
 import os.path
 import typing
+from base64 import b64decode
+from datetime import datetime
+
 from astronverse.actionlib import TimeFormatType
 from astronverse.actionlib.error import *
 from astronverse.actionlib.types_manager import TypesManager
+from dateutil import parser
 
 typesMg = TypesManager()
 Any = typing.Any
@@ -256,7 +257,12 @@ class URL(Str):
             temp_value = str(value)
             temp_value = temp_value.strip()
             if len(temp_value) == 0:
-                raise BaseException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败".format(name, value))
+                raise BaseException(
+                    PARAM_VERIFY_ERROR_FORMAT.format(name, value),
+                    "{}参数验证失败".format(
+                        name,
+                    ),
+                )
             if "://" not in temp_value:
                 temp_value = "http://" + temp_value
             return cls(temp_value)

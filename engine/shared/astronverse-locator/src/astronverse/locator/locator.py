@@ -7,7 +7,7 @@
 import json
 import re
 import traceback
-from typing import List, Union
+from typing import Union
 
 from astronverse.baseline.logger.logger import logger
 from astronverse.locator import ILocator, PickerDomain
@@ -74,7 +74,7 @@ class LocatorManager:
             pass
         return json.loads(element_string)
 
-    def locator(self, element: Union[str, dict], **kwargs) -> Union[List[ILocator], ILocator, None]:
+    def locator(self, element: Union[str, dict], **kwargs) -> Union[list[ILocator], ILocator, None]:
         """
         定位元素
 

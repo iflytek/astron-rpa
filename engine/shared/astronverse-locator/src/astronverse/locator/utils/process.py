@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, List
+
 import psutil
 from astronverse.baseline.logger.logger import logger
 
@@ -9,7 +9,7 @@ def get_process_name(pid: int):
     return p.name().split(".exe")[0] if p.name().endswith(".exe") else p.name()
 
 
-def get_java_process() -> Tuple[List[int], List[str]]:
+def get_java_process() -> tuple[list[int], list[str]]:
     username = os.getenv("USERNAME")
     if not username:
         logger.error("无法获取当前用户名")
