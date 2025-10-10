@@ -10,6 +10,7 @@ from astronverse.scheduler.utils.utils import EmitType, emit_to_front
 def repair_pywin32_dependence(svc):
     return
     """
+    废弃:
     修复部分机器pywin32依赖缺失，无法引入，导致拾取组件无法使用bug，直接使用动态修复方法，如果环境依赖缺失将动态下载, rpa_win32_repair包然后执行修复
     """
     if sys.platform != "win32":

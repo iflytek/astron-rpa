@@ -6,8 +6,8 @@ REM ============================================
 REM 1. Configuration
 REM ============================================
 
-set PYTHON_EXE=E:\Python313\python.exe
-set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
+if "%PYTHON_EXE%"=="" set PYTHON_EXE=C:\Program Files\Python313\python.exe
+if "%SEVENZ_EXE%"=="" set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
 set BUILD_DIR=build
 set PYTHON_CORE_DIR=%BUILD_DIR%\python_core
 set DIST_DIR=%BUILD_DIR%\dist
