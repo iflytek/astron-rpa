@@ -9,7 +9,7 @@ class BizCode(Enum):
 
 @dataclass
 class ErrorCode:
-    code: BizCode  # 业务code
+    code: BizCode  # Business code
     message: str
     httpcode: int = 200
 
