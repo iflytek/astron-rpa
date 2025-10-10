@@ -6,8 +6,8 @@ from astronverse.locator.locator import locator
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WebPick
-from rpabrowser.browser import Browser
-from rpabrowser.browser_element import BrowserElement
+from astronverse.browser.browser import Browser
+from astronverse.browser.browser_element import BrowserElement
 from astronverse.baseline.logger.logger import logger
 
 from rpaverifycode import HintPosition, PictureCodeType

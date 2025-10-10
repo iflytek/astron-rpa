@@ -1,19 +1,21 @@
 [project]
-name = "rpaencrypt"
+name = "astronverse-window"
 version = "1.0.0"
-description = "rpaencrypt."
+description = "astronverse-window."
 requires-python = ">=3.13"
 
 dependencies = [
     "astronverse-actionlib",
-    "pycryptodomex"
+    "pywin32; sys_platform == 'win32'",
+    "uiautomation; sys_platform == 'win32'",
+    "dogtail; sys_platform == 'linux'"
 ]
 
 [tool.uv.sources]
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rpaencrypt"]
+packages = ["src/rpawindow"]
 
 [build-system]
 requires = ["hatchling"]

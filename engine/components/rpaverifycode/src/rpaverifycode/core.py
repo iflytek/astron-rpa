@@ -62,7 +62,7 @@ class VerifyCodeCore:
 
     @staticmethod
     def get_margin_left(browser_obj, element):
-        from rpabrowser.browser_element import BrowserElement
+        from astronverse.browser.browser_element import BrowserElement
 
         style = BrowserElement.element_operation(
             browser_obj=browser_obj,

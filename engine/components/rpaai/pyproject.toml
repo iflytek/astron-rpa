@@ -12,11 +12,11 @@ dependencies = [
     "sseclient-py",
     "astronverse-actionlib",
     "astronverse-tools",
-    "rpabrowser; sys_platform == 'win32'"
+    "astronverse-browser; sys_platform == 'win32'"
 ]
 
 [tool.uv.sources]
-rpabrowser = {path = "../../components/rpabrowser", editable = true}
+astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
 
