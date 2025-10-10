@@ -3,7 +3,6 @@ import ast
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
-
 from astronverse.ai import InputType
 from astronverse.ai.api.llm import chat_prompt
 from astronverse.ai.prompt.contract import CONTRACT_FACTOR_DICT

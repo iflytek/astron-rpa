@@ -13,7 +13,7 @@ dependencies = [
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rpaencrypt"]
+packages = ["src/astronverse"]
 
 [build-system]
 requires = ["hatchling"]

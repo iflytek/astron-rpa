@@ -1,7 +1,13 @@
 [project]
+<<<<<<<< HEAD:engine/components/astronverse-input/pyproject.toml
 name = "astronverse-input"
 version = "1.0.0"
 description = "astronverse-input."
+========
+name = "astronverse-gui"
+version = "1.0.0"
+description = "astronverse-gui."
+>>>>>>>> ca67a43 (chore: components refactor):engine/components/astronverse-gui/pyproject.toml
 requires-python = ">=3.13"
 
 dependencies = [
@@ -17,7 +23,7 @@ dependencies = [
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rpagui"]
+packages = ["src/astronverse"]
 
 [build-system]
 requires = ["hatchling"]

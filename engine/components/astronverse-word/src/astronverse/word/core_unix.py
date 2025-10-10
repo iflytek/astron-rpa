@@ -5,11 +5,11 @@ import time
 from io import BytesIO
 
 import PIL
+from astronverse.actionlib.utils import handle_existence
 from docx import Document
 from docx.shared import RGBColor
 from pywpsrpc import rpcwpsapi
 from pywpsrpc.rpcwpsapi import *
-from astronverse.actionlib.utils import handle_existence
 
 from astronverse.word import (
     ApplicationType,

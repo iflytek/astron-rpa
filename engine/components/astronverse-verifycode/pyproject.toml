@@ -1,0 +1,26 @@
+[project]
+name = "astronverse-verifycode"
+version = "1.0.0"
+description = "astronverse-verifycode."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-browser",
+    "astronverse-actionlib",
+    "astronverse-locator",
+    "pyautogui",
+    "pytweening",
+    "requests"
+]
+
+[tool.uv.sources]
+astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

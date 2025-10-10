@@ -1,11 +1,10 @@
 import time
 from typing import Union
 
-from astronverse.locator import ILocator
-from astronverse.locator.locator import locator
 from astronverse.actionlib.types import WinPick
 from astronverse.baseline.logger.logger import logger
-
+from astronverse.locator import ILocator
+from astronverse.locator.locator import locator
 from astronverse.winelement.core import IWinEleCore
 from astronverse.winelement.error import *
 

@@ -1,7 +1,7 @@
 import time
 from unittest import TestCase
 
-from rpagui import (
+from astronverse.input import (
     BtnModel,
     BtnType,
     ControlType,
@@ -12,7 +12,7 @@ from rpagui import (
     Speed,
     WindowType,
 )
-from rpagui.gui import Gui
+from astronverse.input.qui_mouse import Gui
 
 
 class TestMouse(TestCase):

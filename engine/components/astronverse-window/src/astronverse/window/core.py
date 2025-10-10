@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from astronverse.actionlib.types import WinPick
-
 from astronverse.window import ControlInfo, WindowSizeType
 
 

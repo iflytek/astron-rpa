@@ -1,8 +1,8 @@
 import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
-from rpagui.gui_key import GuiKeyBoard
-from rpagui.gui_mouse import GuiMouse
+from astronverse.input.gui_key import GuiKeyBoard
+from astronverse.input.gui_mouse import GuiMouse
 
 
 def get_version():

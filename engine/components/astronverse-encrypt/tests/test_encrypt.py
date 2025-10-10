@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from rpaencrypt import Base64CodeType
-from rpaencrypt.encrypt import Encrypt
+from astronverse.encrypt import Base64CodeType
+from astronverse.encrypt.encrypt import Encrypt
 
 
 class TestEncrypt(TestCase):

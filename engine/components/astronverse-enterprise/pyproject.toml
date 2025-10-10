@@ -1,0 +1,20 @@
+[project]
+name = "astronverse-enterprise"
+version = "1.0.0"
+description = "astronverse-enterprise."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "requests"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

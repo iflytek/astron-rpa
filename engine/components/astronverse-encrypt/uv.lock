@@ -167,7 +167,7 @@ wheels = [
 ]
 
 [[package]]
-name = "rpaencrypt"
+name = "astronverse-encrypt"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [

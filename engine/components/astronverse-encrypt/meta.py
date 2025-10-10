@@ -1,7 +1,7 @@
 import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
-from rpaencrypt.encrypt import Encrypt
+from astronverse.encrypt.encrypt import Encrypt
 
 
 def get_version():

@@ -2,9 +2,9 @@ import time
 from typing import Any
 
 from astronverse.actionlib.types import WinPick
-from rpagui.gui import Gui
-from astronverse.workflowlib.helper import Helper
+from astronverse.input.gui import Gui
 from astronverse.window.window import Window
+from astronverse.workflowlib.helper import Helper
 
 
 def main(*args, **kwargs) -> Any:

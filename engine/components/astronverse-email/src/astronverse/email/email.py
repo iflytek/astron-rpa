@@ -4,7 +4,6 @@ import os
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.baseline.logger.logger import logger
-
 from astronverse.email import EmailSeenType, EmailServerType
 
 

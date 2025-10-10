@@ -4,9 +4,8 @@ import io
 import cv2
 import numpy as np
 import pyautogui
-from PIL import Image
-
 from astronverse.vision.cv_match import AnchorMatch
+from PIL import Image
 
 desktop_filepath = "desktop.png"
 desktop_filepath_match = "desktop_filepath_match.png"

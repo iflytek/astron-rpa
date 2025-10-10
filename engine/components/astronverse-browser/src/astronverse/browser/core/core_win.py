@@ -10,6 +10,7 @@ from astronverse.baseline.logger.logger import logger
 from astronverse.software.software import Software
 from astronverse.window import WalkControlInfo
 from astronverse.window.uitree import UITreeCore
+from rpasoftware.software import Software
 
 from astronverse.browser import (
     BROWSER_REGISTER_NAME,

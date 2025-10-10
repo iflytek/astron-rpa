@@ -816,8 +816,8 @@ dependencies = [
     { name = "dogtail", marker = "sys_platform == 'linux'" },
     { name = "pandas" },
     { name = "requests" },
-    { name = "rpaencrypt" },
-    { name = "rpagui" },
+    { name = "astronverse-encrypt" },
+    { name = "astronverse-gui" },
     { name = "rpasoftware" },
     { name = "rpawindow" },
 ]
@@ -829,16 +829,16 @@ requires-dist = [
     { name = "dogtail", marker = "sys_platform == 'linux'" },
     { name = "pandas" },
     { name = "requests" },
-    { name = "rpaencrypt", editable = "../rpaencrypt" },
-    { name = "rpagui", editable = "../rpagui" },
+    { name = "astronverse-encrypt", editable = "../astronverse-encrypt" },
+    { name = "astronverse-gui", editable = "../astronverse-gui" },
     { name = "rpasoftware", editable = "../rpasoftware" },
     { name = "rpawindow", editable = "../rpawindow" },
 ]
 
 [[package]]
-name = "rpaencrypt"
+name = "astronverse-encrypt"
 version = "1.0.0"
-source = { editable = "../rpaencrypt" }
+source = { editable = "../astronverse-encrypt" }
 dependencies = [
     { name = "astronverse-actionlib" },
     { name = "pycryptodomex" },
@@ -851,9 +851,9 @@ requires-dist = [
 ]
 
 [[package]]
-name = "rpagui"
+name = "astronverse-gui"
 version = "1.0.0"
-source = { editable = "../rpagui" }
+source = { editable = "../astronverse-gui" }
 dependencies = [
     { name = "astronverse-actionlib" },
     { name = "pillow", marker = "sys_platform == 'linux'" },
