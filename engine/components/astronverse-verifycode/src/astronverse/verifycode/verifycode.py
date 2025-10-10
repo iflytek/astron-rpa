@@ -5,13 +5,13 @@ from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WebPick
 from astronverse.baseline.logger.logger import logger
+from astronverse.browser.browser import Browser
+from astronverse.browser.browser_element import BrowserElement
 from astronverse.locator import smooth_move
 from astronverse.locator.locator import locator
 from astronverse.verifycode import HintPosition, PictureCodeType
 from astronverse.verifycode.core import VerifyCodeCore
 from astronverse.verifycode.error import *
-from rpabrowser.browser import Browser
-from rpabrowser.browser_element import BrowserElement
 
 VerifyCodeCore = VerifyCodeCore()
 Locator = locator
