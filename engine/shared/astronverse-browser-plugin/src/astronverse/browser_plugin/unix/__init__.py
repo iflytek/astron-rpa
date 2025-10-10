@@ -1,6 +1,6 @@
+from astronverse.browser_plugin import BrowserType, PluginData, PluginManager, PluginManagerCore
 from astronverse.browser_plugin.unix.chromium import ChromiumPluginManager
 from astronverse.browser_plugin.unix.firefox import FirefoxPluginManager
-from astronverse.browser_plugin import BrowserType, PluginData, PluginManagerCore, PluginManager
 
 
 class BrowserPluginFactory(PluginManager):

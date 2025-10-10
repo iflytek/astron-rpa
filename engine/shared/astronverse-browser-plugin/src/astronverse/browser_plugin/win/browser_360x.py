@@ -1,10 +1,10 @@
-import winreg
-import subprocess
 import getpass
 import os
+import subprocess
+import winreg
 
-from astronverse.browser_plugin import PluginData, PluginStatus, PluginManagerCore
-from astronverse.browser_plugin.utils import kill_process, Registry, check_chrome_plugin
+from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
+from astronverse.browser_plugin.utils import Registry, check_chrome_plugin, kill_process
 
 
 class Browser360XPluginManager(PluginManagerCore):
@@ -25,30 +25,21 @@ class Browser360XPluginManager(PluginManagerCore):
 
     @staticmethod
     def get_browser_path():
-        """
-        获取可执行文件路径
-        """
-
-        # 1. 判断是否安装在默认路径
         default_path = r"C:\Users\{}\AppData\Local\360ChromeX\Chrome\Application\360ChromeX.exe".format(
             getpass.getuser()
         )
         if os.path.exists(default_path):
             return default_path
 
-        # 2. 查询注册表
         try:
-            # 打开注册表中的路径
             key_path = r"Software\Microsoft\Windows\CurrentVersion\App Paths\360chromeX.exe"
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
-            # 读取默认值，这通常是可执行文件的完整路径
             value, _ = winreg.QueryValueEx(key, "")
             return value
         except FileNotFoundError:
             raise FileNotFoundError("360X is not installed or the registry key is not found.")
 
     def check_browser(self):
-        # 通过检查注册表来判断浏览器是否存在
         return Registry.exist(self.browser_path)
 
     def check_plugin(self):
@@ -64,8 +55,10 @@ class Browser360XPluginManager(PluginManagerCore):
     def close_browser(self):
         kill_process("360chromex")
 
+    def open_browser(self):
+        pass
+
     def install_plugin(self):
         browser_path = self.get_browser_path()
         command = [browser_path, self.plugin_data.plugin_path]
-        # 启动进程
         subprocess.Popen(command)

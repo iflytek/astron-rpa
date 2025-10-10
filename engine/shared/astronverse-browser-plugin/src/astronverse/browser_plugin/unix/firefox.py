@@ -1,12 +1,11 @@
 import subprocess
 
-from astronverse.browser_plugin import PluginData, PluginStatus, PluginManagerCore
+from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
 from astronverse.browser_plugin.utils import FirefoxUtils
 
 
 class FirefoxPluginManager(PluginManagerCore):
-    # 可执行的 firefox 命令
-    firefox_command: str = None
+    firefox_command: str = ""
 
     def __init__(self, plugin_data: PluginData):
         self.plugin_data = plugin_data
@@ -18,8 +17,6 @@ class FirefoxPluginManager(PluginManagerCore):
     def check_plugin(self):
         installed, installed_version = FirefoxUtils.check(self.firefox_command)
 
-        print(installed, installed_version)
-
         latest_version = self.plugin_data.plugin_version
         latest = installed_version == latest_version
 
@@ -29,17 +26,15 @@ class FirefoxPluginManager(PluginManagerCore):
 
     def close_browser(self):
         try:
-            # 使用 killall 命令终止所有名为 firefox 的进程
             subprocess.run(["killall", self.firefox_command], check=True)
-            print("Firefox has been closed successfully.")
         except subprocess.CalledProcessError:
-            print("Failed to close Firefox. It may not be running.")
+            pass
         except Exception as e:
-            print(f"An error occurred: {e}")
+            pass
+
+    def open_browser(self):
+        pass
 
     def install_plugin(self):
         command = [self.firefox_command, self.plugin_data.plugin_path, "&"]
-        # 启动进程
-        process = subprocess.Popen(command)
-
-        print("Firefox 已启动：{0}".format(process.pid))
+        subprocess.Popen(command)
