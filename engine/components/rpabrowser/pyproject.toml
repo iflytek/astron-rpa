@@ -9,7 +9,7 @@ dependencies = [
     "pandas",
     "dogtail; sys_platform == 'linux'",
     "rpasoftware",
-    "rpawindow",
+    "astronverse-window",
     "rpagui",
     "rpaencrypt",
     "pandas",
@@ -20,8 +20,8 @@ dependencies = [
 [tool.uv.sources]
 rpasoftware = {path = "../../components/rpasoftware", editable = true}
 rpaencrypt = {path = "../../components/rpaencrypt", editable = true}
-rpawindow = {path = "../../components/rpawindow", editable = true}
 rpagui = {path = "../../components/rpagui", editable = true}
+astronverse-window = {path = "../../components/astronverse-window", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
 

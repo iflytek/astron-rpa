@@ -1,0 +1,22 @@
+[project]
+name = "astronverse-winelement"
+version = "1.0.0"
+description = "astronverse-winelement."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "astronverse-locator",
+    "pyautogui"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,28 @@
+[project]
+name = "astronverse-ai"
+version = "1.0.0"
+description = "astronverse-ai."
+requires-python = ">=3.13"
+
+dependencies = [
+    "requests",
+    "dotenv",
+    "pypdf",
+    "python-docx",
+    "sseclient-py",
+    "astronverse-actionlib",
+    "astronverse-tools",
+    "rpabrowser; sys_platform == 'win32'"
+]
+
+[tool.uv.sources]
+rpabrowser = {path = "../../components/rpabrowser", editable = true}
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
