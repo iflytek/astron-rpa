@@ -21,21 +21,27 @@ dependencies = [
     "astronverse-ai",
     "astronverse-browser",
     "astronverse-vision",
-    "rpadatabase",
-    "rpadataprocess",
+    "astronverse-database",
+    "astronverse-dataprocess",
     "astronverse-dialog",
     "astronverse-word",
     "astronverse-email",
+    "astronverse-encrypt",
+    "astronverse-enterprise",
     "astronverse-encrypt",
     "rpaenterprise",
     "astronverse-excel",
     "astronverse-input",
     "astronverse-workflowlib",
-    "rpanetwork",
-    "rpaopenapi",
+    "astronverse-openapi",
+
+    "astronverse-report",
+
     "astronverse-pdf",
-    "rpareport",
     "astronverse-script",
+    "rpasoftware",
+    "astronverse-system",
+    "astronverse-verifycode",
     "astronverse-software",
     "rpasystem",
     "rpaverifycode",
@@ -59,24 +65,25 @@ astronverse-executor = {path = "./servers/astronverse-executor", editable = true
 astronverse-ai = {path = "./components/astronverse-ai", editable = true}
 astronverse-browser = {path = "./components/astronverse-browser", editable = true}
 astronverse-vision = {path = "./components/astronverse-vision", editable = true}
-rpadatabase = {path = "./components/rpadatabase", editable = true}
-rpadataprocess = {path = "./components/rpadataprocess", editable = true}
+astronverse-database = {path = "./components/astronverse-database", editable = true}
+astronverse-dataprocess = {path = "./components/astronverse-dataprocess", editable = true}
 astronverse-dialog = {path = "./components/astronverse-dialog", editable = true}
 astronverse-word = {path = "./components/astronverse-word", editable = true}
 astronverse-email = {path = "./components/astronverse-email", editable = true}
 astronverse-encrypt = {path = "./components/astronverse-encrypt", editable = true}
-rpaenterprise = {path = "./components/rpaenterprise", editable = true}
 astronverse-excel = {path = "./components/astronverse-excel", editable = true}
 astronverse-input = {path = "./components/astronverse-input", editable = true}
+astronverse-encrypt = {path = "./components/astronverse-encrypt", editable = true}
+astronverse-enterprise = {path = "./components/astronverse-enterprise", editable = true}
+astronverse-gui = {path = "./components/astronverse-gui", editable = true}
 astronverse-workflowlib = {path = "./components/astronverse-workflowlib", editable = true}
-rpanetwork = {path = "./components/rpanetwork", editable = true}
-rpaopenapi = {path = "./components/rpaopenapi", editable = true}
 astronverse-pdf = {path = "./components/astronverse-pdf", editable = true}
-rpareport = {path = "./components/rpareport", editable = true}
+astronverse-openapi = {path = "./components/astronverse-openapi", editable = true}
+astronverse-report = {path = "./components/astronverse-report", editable = true}
 astronverse-script = {path = "./components/astronverse-script", editable = true}
 astronverse-software = {path = "./components/astronverse-software", editable = true}
-rpasystem = {path = "./components/rpasystem", editable = true}
-rpaverifycode = {path = "./components/rpaverifycode", editable = true}
+astronverse-system = {path = "./components/astronverse-system", editable = true}
+astronverse-verifycode = {path = "./components/astronverse-verifycode", editable = true}
 astronverse-window = {path = "./components/astronverse-window", editable = true}
 astronverse-winelement = {path = "./components/astronverse-winelement", editable = true}
 astronverse-browser-bridge = {path = "./servers/astronverse-browser-bridge", editable = true}
