@@ -1,7 +1,7 @@
 [project]
-name = "rpawindow"
+name = "astronverse-window"
 version = "1.0.0"
-description = "rpawindow."
+description = "astronverse-window."
 requires-python = ">=3.13"
 
 dependencies = [

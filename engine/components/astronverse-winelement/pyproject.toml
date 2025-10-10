@@ -1,7 +1,7 @@
 [project]
-name = "rpawinele"
+name = "astronverse-winelement"
 version = "1.0.0"
-description = "rpawinele."
+description = "astronverse-winelement."
 requires-python = ">=3.13"
 
 dependencies = [

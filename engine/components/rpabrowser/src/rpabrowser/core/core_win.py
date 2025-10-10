@@ -8,8 +8,8 @@ import win32con
 import win32gui
 from astronverse.baseline.logger.logger import logger
 from rpasoftware.software import Software
-from rpawindow import WalkControlInfo
-from rpawindow.uitree import UITreeCore
+from astronverse.window import WalkControlInfo
+from astronverse.window.uitree import UITreeCore
 
 from rpabrowser import (
     BROWSER_REGISTER_NAME,

@@ -1,7 +1,7 @@
 [project]
-name = "rpaemail"
+name = "astronverse-email"
 version = "1.0.0"
-description = "rpaemail."
+description = "astronverse-email."
 requires-python = ">=3.13"
 
 dependencies = [

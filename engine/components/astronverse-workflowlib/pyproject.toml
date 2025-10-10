@@ -1,7 +1,7 @@
 [project]
-name = "rpahelper"
+name = "astronverse-workflowlib"
 version = "1.0.0"
-description = "rpahelper."
+description = "astronverse-workflowlib."
 requires-python = ">=3.13"
 
 dependencies = [

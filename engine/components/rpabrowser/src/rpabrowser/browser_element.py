@@ -94,8 +94,8 @@ def get_browser_instance():
         browser_found = True
         browser_instance.browser_type = browser_type
         if browser_type in CHROME_LIKE_BROWSERS:
-            from rpawindow import WindowSizeType
-            from rpawindow.window import WindowsCore
+            from astronverse.window import WindowSizeType
+            from astronverse.window.window import WindowsCore
 
             WindowsCore.top(handler)
             WindowsCore.size(handler, WindowSizeType.MAX)

@@ -1,7 +1,7 @@
 [project]
-name = "rpacv"
+name = "astronverse-vision"
 version = "1.0.0"
-description = "rpacv."
+description = "astronverse-vision."
 requires-python = ">=3.13"
 
 dependencies = [

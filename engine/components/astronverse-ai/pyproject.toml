@@ -1,7 +1,7 @@
 [project]
-name = "rpaai"
+name = "astronverse-ai"
 version = "1.0.0"
-description = "rpaai."
+description = "astronverse-ai."
 requires-python = ">=3.13"
 
 dependencies = [
