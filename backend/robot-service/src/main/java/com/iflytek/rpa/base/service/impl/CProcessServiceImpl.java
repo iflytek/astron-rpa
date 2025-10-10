@@ -1,7 +1,6 @@
 package com.iflytek.rpa.base.service.impl;
 
-import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_MODULE;
-import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_PROCESS;
+import static com.iflytek.rpa.base.constants.BaseConstant.*;
 import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
@@ -33,7 +32,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,9 +63,6 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
 
     @Autowired
     private IdWorker idWorker;
-
-    @Value("${baseModule.maxProcessSize}")
-    private Integer maxProcessSize;
 
     @Override
     public AppResponse<String> getProcessNextName(String robotId) {
@@ -177,7 +172,7 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             int byteLength = newProcessContent.getBytes().length;
             // 将字节长度转换为兆字节（MB）
             double megabytes = byteLength / (1024.0 * 1024.0);
-            if (megabytes > maxProcessSize) {
+            if (megabytes > MAX_PROCESS_SIZE) {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM, "流程数据不能超过15M");
             }
         }

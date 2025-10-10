@@ -1,5 +1,7 @@
 package com.iflytek.rpa.robot.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.*;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -91,7 +93,7 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
             } else {
                 vo.setTags(null);
             }
-            vo.setFilePath("/api/resource/file/download?fileId=" + sharedFile.getFileId());
+            vo.setFilePath(FILE_PATH_PREFIX + sharedFile.getFileId());
             // 填充creatorName, phone(账号), deptId, deptName
             String creatorId = sharedFile.getCreatorId();
             //            String deptId = DeptUtils.getDeptIdByUserId(creatorId, tenantId);

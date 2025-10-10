@@ -160,12 +160,3 @@ casdoor:
   organization-name: ${CASDOOR_ORGANIZATION_NAME}
   application-name: ${CASDOOR_APPLICATION_NAME}
   redirect-url: ${CASDOOR_REDIRECT_URL}
-
-baseModule:
-  atomListMaxSize: 500
-  initVersionNum: 1000000
-  majorSize: 1000000
-  minorSize: 1000
-  batchSize: 50
-  contentMaxLength: 10000000
-  maxProcessSize: 14
