@@ -185,21 +185,21 @@ docker-compose ps
    ```bash
    # 准备一个 Python 3.13.x 安装目录
    # 可以是本地文件夹或系统安装路径
-   # 脚本会复制该目录来创建 python_base 和 python_core
+   # 脚本会复制该目录来创建 python_core
    ```
 
 2. **运行打包脚本**
    ```bash
-   # 使用本地 Python313 文件夹（自动检测）
-   pack.bat
-   
-   # 指定自定义 Python 目录
-   pack.bat "" "C:\Python313"
-   pack.bat "" "D:\Python"
-   pack.bat "" "Python313"
-   
-   # 同时指定 7-Zip 路径和 Python 目录
-   pack.bat "D:\Tools\7-Zip\7z.exe" "C:\Python313"
+    cd engine
+
+    # 修改build.bat的第9和10行配置，确保环境正确
+    # 注意!!! 请确保指定的 Python 解释器为纯净安装，未安装额外第三方包，以避免影响最终打包体积
+    # set PYTHON_EXE=C:\Program Files\Python313\python.exe
+    # set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
+    
+    # 执行构建流程，请等待操作完成提示
+    # 当控制台显示 "Complete!" 时表示构建成功
+    ./build.bat
    ```
 
 3. **构建前端应用**

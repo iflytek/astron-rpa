@@ -185,21 +185,21 @@ docker-compose ps
    ```bash
    # Prepare a Python 3.13.x installation directory
    # Can be a local folder or system installation path
-   # The script will copy this directory to create python_base and python_core
+   # The script will copy this directory to create python_base
    ```
 
 2. **Run Packaging Script**
    ```bash
-   # Using local Python313 folder (auto-detected)
-   pack.bat
-   
-   # Specify custom Python directory
-   pack.bat "" "C:\Python313"
-   pack.bat "" "D:\Python"
-   pack.bat "" "Python313"
-   
-   # With custom 7-Zip path and Python directory
-   pack.bat "D:\Tools\7-Zip\7z.exe" "C:\Python313"
+    cd engine
+
+    # Modify lines 9 and 10 of build.bat configuration to ensure correct environment
+    # Note!!! Please ensure the specified Python interpreter is a clean installation without additional third-party packages to avoid affecting the final package size
+    # set PYTHON_EXE=C:\Program Files\Python313\python.exe
+    # set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
+    
+    # Execute the build process, please wait for the completion prompt
+    # When the console displays "Complete!" it indicates successful build
+    ./build.bat
    ```
 
 3. **Build Frontend Application**

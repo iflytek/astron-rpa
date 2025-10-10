@@ -53,7 +53,7 @@ def start():
         # 3. 环境检测
         from astronverse.scheduler.core.setup.setup import Process
 
-        Process.kill_all_zombie()
+        # Process.kill_all_zombie()
         repair_pywin32_dependence(svc)
         linux_env_check()
 
