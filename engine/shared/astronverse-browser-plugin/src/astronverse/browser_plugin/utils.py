@@ -1,21 +1,22 @@
-import psutil
-import winreg as reg
+import configparser
 import json
 import os
 import platform
 import re
 import subprocess
-import configparser
+import winreg as reg
+
+import psutil
+
+from .config import Config
 
 
 def parse_filename_regex(filename):
-    # 正则表达式匹配模式
     pattern = (
         r"^(?P<browser>[a-zA-Z0-9-]+)-(?P<version>\d+(\.\d+)*)-(?P<hashid>[a-zA-Z0-9]+)\.(?P<extension>[a-zA-Z]+)$"
     )
     match = re.match(pattern, filename)
     if match:
-        # 使用命名捕获组来提取各部分
         browser = match.group("browser")
         version = match.group("version")
         hashid = match.group("hashid")
@@ -26,36 +27,24 @@ def parse_filename_regex(filename):
 
 
 class FirefoxUtils:
-    firefox_plugin_id = "iflyrpa@iflytek.com"
+    firefox_plugin_id = Config.FIREFOX_PLUGIN_ID
 
     @staticmethod
     def get_firefox_command():
         try:
-            """
-            检查系统上是否安装了Firefox或Firefox ESR。
-
-            返回:
-                bool: 如果安装了Firefox或Firefox ESR则返回True，否则返回False。
-            """
-            # 可能的Firefox二进制文件名列表
             firefox_versions = ["firefox", "firefox-esr"]
 
-            # 遍历每个版本并检查是否安装
             for version in firefox_versions:
                 result = subprocess.run(["which", version], capture_output=True, text=True)
-                # 检查'which'命令是否找到了二进制文件
                 if result.returncode == 0:
                     return version
+            return ""
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        except Exception:
+            return ""
 
     @staticmethod
     def get_default_profile_path(firefox_command="firefox"):
-        """
-        获取 Firefox 配置文件路径
-        :return:
-        """
         if platform.system() == "Windows":
             profile_path = os.path.expandvars(r"%APPDATA%\Mozilla\Firefox")
         elif platform.system() == "Darwin":  # macOS
@@ -63,45 +52,39 @@ class FirefoxUtils:
         else:  # Linux
             profile_path = os.path.expanduser("~/.mozilla/{0}".format(firefox_command))
 
-        # 找到默认配置文件夹
         config = configparser.ConfigParser()
         config.read(os.path.join(profile_path, "installs.ini"))
         sections = config.sections()
-        # 检查是否有任何 section 存在
         if sections:
             default_profile = config[sections[0]]["Default"]
             return os.path.join(profile_path, default_profile)
         else:
-            raise FileNotFoundError("没有找到默认配置文件。请确保已创建 Firefox 配置文件。")
+            raise FileNotFoundError("Firefox profile not found.")
 
     @staticmethod
     def check(firefox_command="firefox"):
-        """
-        检查插件是否安装, 并返回插件的版本号
-        :return:
-        """
         try:
             default_profile_path = FirefoxUtils.get_default_profile_path(firefox_command)
-            # extensions.json 文件中保存了插件的相关信息
+            # firefox extensions.json
             extensions_path = os.path.join(default_profile_path, "extensions.json")
             if os.path.exists(extensions_path):
-                with open(extensions_path, "r", encoding="utf8") as f:
+                with open(extensions_path, encoding="utf8") as f:
                     dict_msg = json.loads(f.read())
                     for addon in dict_msg["addons"]:
                         if addon["id"] == FirefoxUtils.firefox_plugin_id:
                             return True, addon["version"]
-                    return False, None
+                    return False, ""
             else:
-                return False, None
+                return False, ""
         except FileNotFoundError:
-            return False, None
+            return False, ""
 
 
-class Registry(object):
+class Registry:
     @staticmethod
     def exist(key_path, key_type="user") -> bool:
         """
-        检测注册表是否存在
+        check key exists
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
@@ -111,13 +94,13 @@ class Registry(object):
             key = reg.OpenKey(head, key_path, 0, reg.KEY_READ)
             reg.CloseKey(key)
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     @staticmethod
     def create(key_path, key_type="user"):
         """
-        创建项
+        create key
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
@@ -137,21 +120,20 @@ class Registry(object):
     @staticmethod
     def delete(key_path, sub_key, key_type="user"):
         """
-        删除项
+        delete key
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
         else:
             head = reg.HKEY_CURRENT_USER
         key = reg.OpenKey(head, key_path, 0, reg.KEY_SET_VALUE)
-        # 删除子项
         reg.DeleteKey(key, sub_key)
         reg.CloseKey(key)
 
     @staticmethod
     def add_string_value(key_path, value_name, value, key_type="user"):
         """
-        添加字符串kv对
+        add string key value
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
@@ -164,7 +146,7 @@ class Registry(object):
     @staticmethod
     def add_dword_value(key_path, value_name, value, key_type="user"):
         """
-        添加dword kv对
+        add dword key value
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
@@ -177,7 +159,7 @@ class Registry(object):
     @staticmethod
     def query_value_ex(key, value_name):
         """
-        查询注册表值
+        query key value
         """
         try:
             return reg.QueryValueEx(key, value_name)
@@ -187,7 +169,7 @@ class Registry(object):
     @staticmethod
     def query_value(key_path, key_type="user"):
         """
-        查询注册表值
+        query all values under key
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
@@ -204,7 +186,6 @@ class Registry(object):
                         i += 1
                     except OSError:
                         break
-                # print(f"ExtensionInstallAllowlist下的所有值: {values}")
                 return values
         except FileNotFoundError:
             return []
@@ -212,7 +193,7 @@ class Registry(object):
     @staticmethod
     def open_key(key_path, key_type="user"):
         """
-        打开注册表键
+        open key
         """
         if key_type == "machine":
             head = reg.HKEY_LOCAL_MACHINE
@@ -221,7 +202,7 @@ class Registry(object):
         try:
             return reg.OpenKey(head, key_path, 0, reg.KEY_ALL_ACCESS)
         except FileNotFoundError:
-            raise FileNotFoundError(f"注册表键 {key_path} 不存在。")
+            raise FileNotFoundError(f"registry {key_path} not found")
 
 
 def kill_process(name: str):
@@ -233,14 +214,35 @@ def kill_process(name: str):
             pass
 
 
+def start_browser(browser_path: str):
+    try:
+        os.startfile(browser_path)
+    except Exception:
+        pass
+
+
+def get_app_path(name: str):
+    try:
+        app_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{}.exe".format(name)
+        key = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, app_path)
+        path, _ = reg.QueryValueEx(key, "")
+        return path
+    except FileNotFoundError:
+        try:
+            key = reg.OpenKey(reg.HKEY_CURRENT_USER, app_path)
+            path, _ = reg.QueryValueEx(key, "")
+            return path
+        except FileNotFoundError:
+            return None
+
+
 def check_chrome_plugin(preferences_path_list, extension_id):
     """
-    检查类 chrome 浏览器插件的安装状态
-    :return: 插件是否安装，安装版本
+    check chrome based browser plugin installed
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, "r", encoding="utf8") as f:
+            with open(file, encoding="utf8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 try:
@@ -249,21 +251,20 @@ def check_chrome_plugin(preferences_path_list, extension_id):
                         version = extension_info[extension_id].get("manifest", {}).get("version", "")
                         return True, version
                     else:
-                        return False, None
+                        return False, ""
                 except KeyError:
-                    return False, None
+                    return False, ""
 
-    return False, None
+    return False, ""
 
 
 def remove_browser_setting(preferences_path_list, secure_preferences, extension_id):
     """
-    删除preferences中插件信息
-    :return:
+    delete browser plugin setting
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, "r", encoding="utf8") as f:
+            with open(file, encoding="utf8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 uninstall_list = (
@@ -288,11 +289,16 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
                     del apps[extension_id]
                     is_update = True
 
+                extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(extension_id, None)
+                if extension_info is not None:
+                    del dict_msg["extensions"]["settings"][extension_id]
+                    is_update = True
+
                 if is_update:
                     with open(file, "w", encoding="utf8") as f:
                         json.dump(dict_msg, f)
             break
 
-    # 删除用户偏好设置
+    # delete secure preferences
     if os.path.exists(secure_preferences):
         os.remove(secure_preferences)

@@ -1,9 +1,16 @@
 import getpass
 
-from astronverse.browser_plugin import PluginData, PluginStatus, PluginManagerCore
-from astronverse.browser_plugin.utils import kill_process, Registry, check_chrome_plugin, remove_browser_setting
-from astronverse.browser_plugin.win.reg import run_reg_file
 from astronverse.baseline.logger.logger import logger
+from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
+from astronverse.browser_plugin.utils import (
+    Registry,
+    check_chrome_plugin,
+    get_app_path,
+    kill_process,
+    remove_browser_setting,
+    start_browser,
+)
+from astronverse.browser_plugin.win.reg import run_reg_file
 
 
 class EdgePluginManager(PluginManagerCore):
@@ -11,9 +18,7 @@ class EdgePluginManager(PluginManagerCore):
         self.plugin_data = plugin_data
 
         self.browser_path = r"SOFTWARE\Microsoft\Edge"
-        # TODO: edge安装在部分电脑上出现 “此扩展不是来自任何已知来源，可能是在你不知情的情况下添加的。”警告，插件无法使用
-        # 参考如下方式解决https://blog.csdn.net/buxihuanchongzi/article/details/140160258，目前没有在插件安装中自动化
-        # 解决，后续需要定制
+
         self.extension_path = f"{self.browser_path}\\Extensions\\{plugin_data.plugin_id}"
         self.preferences_path_list = [
             r"C:\Users\{}\AppData\Local\Microsoft\Edge\User Data\Default\Preferences".format(getpass.getuser()),
@@ -24,7 +29,6 @@ class EdgePluginManager(PluginManagerCore):
         )
 
     def check_browser(self):
-        # 通过检查注册表来判断浏览器是否存在
         return Registry.exist(self.browser_path)
 
     def check_plugin(self):
@@ -40,6 +44,11 @@ class EdgePluginManager(PluginManagerCore):
     def close_browser(self):
         kill_process("msedge")
 
+    def open_browser(self):
+        app_path = get_app_path("msedge")
+        if app_path:
+            start_browser(app_path)
+
     def install_plugin(self):
         self.close_browser()
         remove_browser_setting(
@@ -53,23 +62,23 @@ class EdgePluginManager(PluginManagerCore):
         Registry.add_string_value(self.extension_path, "version", self.plugin_data.plugin_version)
 
         try:
-            # 插件未发布，这个去掉这个警告
             if not Registry.exist(r"Software\Policies\Microsoft\Edge\ExtensionInstallAllowlist"):
                 Registry.create(r"Software\Policies\Microsoft\Edge\ExtensionInstallAllowlist")
             Registry.add_string_value(
-                r"Software\Policies\Microsoft\Edge\ExtensionInstallAllowlist", "2", self.plugin_data.plugin_id
+                r"Software\Policies\Microsoft\Edge\ExtensionInstallAllowlist", "1", self.plugin_data.plugin_id
+            )
+            Registry.add_string_value(
+                r"Software\Policies\Microsoft\Edge\ExtensionInstallAllowlist",
+                "1",
+                self.plugin_data.plugin_id,
+                key_type="machine",
             )
 
-            # if not Registry.exist(r"SOFTWARE\Policies\Microsoft\Edge\ExtensionManifestV2Availability"):
-            #     Registry.create(r"SOFTWARE\Policies\Microsoft\Edge\ExtensionManifestV2Availability")
-            # # 设置 value 为dword:00000002
-            # Registry.add_dword_value(r"SOFTWARE\Policies\Microsoft\Edge\ExtensionManifestV2Availability", "1", 2)
-            logger.info("设置插件白名单成功")
+            logger.info("set edge plugin allowlist success")
         except Exception as e:
-            logger.error(f"edge设置插件白名单失败: {e}")
+            logger.error(f"set edge plugin allowlist failed: {e}")
             self.register_policy()
             pass
 
     def register_policy(self):
-        logger.info("edge手动添加注册表")
         return run_reg_file(self.plugin_data.plugin_id)

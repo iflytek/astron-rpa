@@ -1,9 +1,9 @@
-from astronverse.browser_plugin.win.chrome import ChromePluginManager
-from astronverse.browser_plugin.win.microsoft_edge import EdgePluginManager
-from astronverse.browser_plugin.win.firefox import FirefoxPluginManager
+from astronverse.browser_plugin import BrowserType, PluginData, PluginManager, PluginManagerCore
 from astronverse.browser_plugin.win.browser_360 import Browser360PluginManager
 from astronverse.browser_plugin.win.browser_360x import Browser360XPluginManager
-from astronverse.browser_plugin import BrowserType, PluginData, PluginManagerCore, PluginManager
+from astronverse.browser_plugin.win.chrome import ChromePluginManager
+from astronverse.browser_plugin.win.firefox import FirefoxPluginManager
+from astronverse.browser_plugin.win.microsoft_edge import EdgePluginManager
 
 
 class BrowserPluginFactory(PluginManager):

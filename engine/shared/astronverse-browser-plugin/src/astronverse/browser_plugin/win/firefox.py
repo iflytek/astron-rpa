@@ -1,34 +1,27 @@
-import winreg
 import subprocess
-from astronverse.browser_plugin import PluginData, PluginStatus, PluginManagerCore
-from astronverse.browser_plugin.utils import kill_process, Registry, FirefoxUtils
+import winreg
 
-
-# 自动安装 firefox 插件的方式
-# 1. 使用配置文件的方式（在 Firefox 中，输入 about:profiles 查看配置文件）
-# 2. 使用命令行的方式（firefox xxxx.xpi）
+from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
+from astronverse.browser_plugin.utils import FirefoxUtils, Registry, kill_process
 
 
 class FirefoxPluginManager(PluginManagerCore):
     def __init__(self, plugin_data: PluginData):
         self.plugin_data = plugin_data
-        self.browser_path = r"Software\Google\Chrome"
+        self.browser_path = r"Software\Mozilla\Mozilla Firefox"
 
     @staticmethod
     def get_browser_path():
         try:
             with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Mozilla\\Mozilla Firefox") as key:
-                # 获取当前安装的版本
                 version, _ = winreg.QueryValueEx(key, "CurrentVersion")
-                # 使用版本信息获取安装路径
                 with winreg.OpenKey(key, f"{version}\\Main") as main_key:
                     path, _ = winreg.QueryValueEx(main_key, "PathToExe")
                     return path
         except FileNotFoundError:
-            raise FileNotFoundError("安装此插件前，请确保本地已安装Firefox浏览器。")
+            raise FileNotFoundError("Firefox is not installed or the registry key is not found.")
 
     def check_browser(self):
-        # 通过检查注册表来判断浏览器是否存在
         return Registry.exist(self.browser_path)
 
     def check_plugin(self):
@@ -44,23 +37,10 @@ class FirefoxPluginManager(PluginManagerCore):
     def close_browser(self):
         kill_process("firefox")
 
-    def install_plugin(self):
-        # 1. 使用配置文件安装插件的方式
-        # default_profile_path = FirefoxRegistry.get_default_profile_path()
-        # extensions_path = os.path.join(default_profile_path, "extensions")
-        #
-        # # 创建 extensions 文件夹（如果不存在）
-        # os.makedirs(extensions_path, exist_ok=True)
-        #
-        # # 复制扩展文件到 extensions 文件夹
-        # shutil.copy(extension_xpi, extensions_path)
-        #
-        # print(f"已将扩展复制到 {extensions_path}")
+    def open_browser(self):
+        pass
 
-        # 2. 使用命令行安装
+    def install_plugin(self):
         firefox_path = self.get_browser_path()
         command = [firefox_path, self.plugin_data.plugin_path]
-        # 启动进程
-        process = subprocess.Popen(command)
-
-        print("Firefox 已启动：{0}".format(process.pid))
+        subprocess.Popen(command)
