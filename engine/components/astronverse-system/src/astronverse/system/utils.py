@@ -69,5 +69,7 @@ def list_to_excel(path_list: list = None, excel_path: str = ""):
 
 def get_exe_path():
     atoms_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    driver_path = os.path.join(atoms_dir, "astronverse.input", "src", "astronverse.input", "VK", "bin", "debug", "VK.exe")
+    driver_path = os.path.join(
+        atoms_dir, "astronverse.input", "src", "astronverse.input", "VK", "bin", "debug", "VK.exe"
+    )
     return driver_path
