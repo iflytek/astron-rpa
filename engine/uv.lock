@@ -76,24 +76,24 @@ version = "1.0.0"
 source = { editable = "components/astronverse-ai" }
 dependencies = [
     { name = "astronverse-actionlib" },
+    { name = "astronverse-browser", marker = "sys_platform == 'win32'" },
     { name = "astronverse-tools" },
     { name = "dotenv" },
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "requests" },
-    { name = "rpabrowser", marker = "sys_platform == 'win32'" },
     { name = "sseclient-py" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "astronverse-browser", marker = "sys_platform == 'win32'", editable = "components/astronverse-browser" },
     { name = "astronverse-tools", editable = "shared/astronverse-tools" },
     { name = "dotenv" },
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "requests" },
-    { name = "rpabrowser", marker = "sys_platform == 'win32'", editable = "components/rpabrowser" },
     { name = "sseclient-py" },
 ]
 
@@ -110,6 +110,35 @@ dependencies = [
 requires-dist = [
     { name = "loguru" },
     { name = "toml" },
+]
+
+[[package]]
+name = "astronverse-browser"
+version = "1.0.0"
+source = { editable = "components/astronverse-browser" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "astronverse-encrypt" },
+    { name = "astronverse-input" },
+    { name = "astronverse-locator", marker = "sys_platform == 'win32'" },
+    { name = "astronverse-software" },
+    { name = "astronverse-window" },
+    { name = "dogtail", marker = "sys_platform == 'linux'" },
+    { name = "pandas" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "astronverse-encrypt", editable = "components/astronverse-encrypt" },
+    { name = "astronverse-input", editable = "components/astronverse-input" },
+    { name = "astronverse-locator", marker = "sys_platform == 'win32'", editable = "shared/astronverse-locator" },
+    { name = "astronverse-software", editable = "components/astronverse-software" },
+    { name = "astronverse-window", editable = "components/astronverse-window" },
+    { name = "dogtail", marker = "sys_platform == 'linux'" },
+    { name = "pandas" },
+    { name = "requests" },
 ]
 
 [[package]]
@@ -151,6 +180,23 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-dialog"
+version = "1.0.0"
+source = { editable = "components/astronverse-dialog" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "astronverse-tools" },
+    { name = "pynput" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "astronverse-tools", editable = "shared/astronverse-tools" },
+    { name = "pynput" },
+]
+
+[[package]]
 name = "astronverse-email"
 version = "1.0.0"
 source = { editable = "components/astronverse-email" }
@@ -160,6 +206,42 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" }]
+
+[[package]]
+name = "astronverse-encrypt"
+version = "1.0.0"
+source = { editable = "components/astronverse-encrypt" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "pycryptodomex" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "pycryptodomex" },
+]
+
+[[package]]
+name = "astronverse-excel"
+version = "1.0.0"
+source = { editable = "components/astronverse-excel" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "psutil" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "psutil" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
 
 [[package]]
 name = "astronverse-executor"
@@ -191,6 +273,29 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-input"
+version = "1.0.0"
+source = { editable = "components/astronverse-input" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "pillow", marker = "sys_platform == 'linux'" },
+    { name = "pyautogui" },
+    { name = "pynput" },
+    { name = "pyperclip" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "pillow", marker = "sys_platform == 'linux'" },
+    { name = "pyautogui" },
+    { name = "pynput" },
+    { name = "pyperclip" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+
+[[package]]
 name = "astronverse-locator"
 version = "1.0.0"
 source = { editable = "shared/astronverse-locator" }
@@ -215,6 +320,31 @@ requires-dist = [
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "requests" },
     { name = "uiautomation", marker = "sys_platform == 'win32'" },
+]
+
+[[package]]
+name = "astronverse-pdf"
+version = "1.0.0"
+source = { editable = "components/astronverse-pdf" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "pdfplumber" },
+    { name = "pypdf" },
+    { name = "pypdfium2" },
+    { name = "python-docx" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "pdfplumber" },
+    { name = "pypdf" },
+    { name = "pypdfium2" },
+    { name = "python-docx" },
 ]
 
 [[package]]
@@ -311,6 +441,23 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-software"
+version = "1.0.0"
+source = { editable = "components/astronverse-software" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "psutil" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "psutil" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+
+[[package]]
 name = "astronverse-tools"
 version = "1.0.0"
 source = { editable = "shared/astronverse-tools" }
@@ -352,25 +499,25 @@ version = "1.0.0"
 source = { editable = "components/astronverse-vision" }
 dependencies = [
     { name = "astronverse-actionlib" },
+    { name = "astronverse-input" },
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "pillow" },
     { name = "pyautogui" },
     { name = "pynput" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "rpagui" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "astronverse-input", editable = "components/astronverse-input" },
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "pillow" },
     { name = "pyautogui" },
     { name = "pynput" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "rpagui", editable = "components/rpagui" },
 ]
 
 [[package]]
@@ -460,6 +607,29 @@ requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
     { name = "pyautogui" },
+]
+
+[[package]]
+name = "astronverse-word"
+version = "1.0.0"
+source = { editable = "components/astronverse-word" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "pillow" },
+    { name = "psutil" },
+    { name = "python-docx" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pywpsrpc", marker = "sys_platform == 'linux'" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "pillow" },
+    { name = "psutil" },
+    { name = "python-docx" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pywpsrpc", marker = "sys_platform == 'linux'" },
 ]
 
 [[package]]
@@ -760,14 +930,21 @@ dependencies = [
     { name = "astronverse-actionlib" },
     { name = "astronverse-ai" },
     { name = "astronverse-baseline" },
+    { name = "astronverse-browser" },
     { name = "astronverse-browser-bridge" },
     { name = "astronverse-browser-plugin" },
+    { name = "astronverse-dialog" },
     { name = "astronverse-email" },
+    { name = "astronverse-encrypt" },
+    { name = "astronverse-excel" },
     { name = "astronverse-executor" },
+    { name = "astronverse-input" },
     { name = "astronverse-locator" },
+    { name = "astronverse-pdf" },
     { name = "astronverse-picker" },
     { name = "astronverse-scheduler" },
     { name = "astronverse-script" },
+    { name = "astronverse-software" },
     { name = "astronverse-tools" },
     { name = "astronverse-trigger" },
     { name = "astronverse-vision" },
@@ -776,21 +953,14 @@ dependencies = [
     { name = "astronverse-websocket-server" },
     { name = "astronverse-window" },
     { name = "astronverse-winelement" },
+    { name = "astronverse-word" },
     { name = "astronverse-workflowlib" },
-    { name = "rpabrowser" },
     { name = "rpadatabase" },
     { name = "rpadataprocess" },
-    { name = "rpadialog" },
-    { name = "rpadocx" },
-    { name = "rpaencrypt" },
     { name = "rpaenterprise" },
-    { name = "rpaexcel" },
-    { name = "rpagui" },
     { name = "rpanetwork" },
     { name = "rpaopenapi" },
-    { name = "rpapdf" },
     { name = "rpareport" },
-    { name = "rpasoftware" },
     { name = "rpasystem" },
     { name = "rpaverifycode" },
 ]
@@ -805,14 +975,21 @@ requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
     { name = "astronverse-ai", editable = "components/astronverse-ai" },
     { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
+    { name = "astronverse-browser", editable = "components/astronverse-browser" },
     { name = "astronverse-browser-bridge", editable = "servers/astronverse-browser-bridge" },
     { name = "astronverse-browser-plugin", editable = "shared/astronverse-browser-plugin" },
+    { name = "astronverse-dialog", editable = "components/astronverse-dialog" },
     { name = "astronverse-email", editable = "components/astronverse-email" },
+    { name = "astronverse-encrypt", editable = "components/astronverse-encrypt" },
+    { name = "astronverse-excel", editable = "components/astronverse-excel" },
     { name = "astronverse-executor", editable = "servers/astronverse-executor" },
+    { name = "astronverse-input", editable = "components/astronverse-input" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
+    { name = "astronverse-pdf", editable = "components/astronverse-pdf" },
     { name = "astronverse-picker", editable = "servers/astronverse-picker" },
     { name = "astronverse-scheduler", editable = "servers/astronverse-scheduler" },
     { name = "astronverse-script", editable = "components/astronverse-script" },
+    { name = "astronverse-software", editable = "components/astronverse-software" },
     { name = "astronverse-tools", editable = "shared/astronverse-tools" },
     { name = "astronverse-trigger", editable = "servers/astronverse-trigger" },
     { name = "astronverse-vision", editable = "components/astronverse-vision" },
@@ -821,21 +998,14 @@ requires-dist = [
     { name = "astronverse-websocket-server", editable = "shared/astronverse-websocket-server" },
     { name = "astronverse-window", editable = "components/astronverse-window" },
     { name = "astronverse-winelement", editable = "components/astronverse-winelement" },
+    { name = "astronverse-word", editable = "components/astronverse-word" },
     { name = "astronverse-workflowlib", editable = "components/astronverse-workflowlib" },
-    { name = "rpabrowser", editable = "components/rpabrowser" },
     { name = "rpadatabase", editable = "components/rpadatabase" },
     { name = "rpadataprocess", editable = "components/rpadataprocess" },
-    { name = "rpadialog", editable = "components/rpadialog" },
-    { name = "rpadocx", editable = "components/rpadocx" },
-    { name = "rpaencrypt", editable = "components/rpaencrypt" },
     { name = "rpaenterprise", editable = "components/rpaenterprise" },
-    { name = "rpaexcel", editable = "components/rpaexcel" },
-    { name = "rpagui", editable = "components/rpagui" },
     { name = "rpanetwork", editable = "components/rpanetwork" },
     { name = "rpaopenapi", editable = "components/rpaopenapi" },
-    { name = "rpapdf", editable = "components/rpapdf" },
     { name = "rpareport", editable = "components/rpareport" },
-    { name = "rpasoftware", editable = "components/rpasoftware" },
     { name = "rpasystem", editable = "components/rpasystem" },
     { name = "rpaverifycode", editable = "components/rpaverifycode" },
 ]
@@ -4411,35 +4581,6 @@ wheels = [
 ]
 
 [[package]]
-name = "rpabrowser"
-version = "1.0.0"
-source = { editable = "components/rpabrowser" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "astronverse-locator", marker = "sys_platform == 'win32'" },
-    { name = "astronverse-window" },
-    { name = "dogtail", marker = "sys_platform == 'linux'" },
-    { name = "pandas" },
-    { name = "requests" },
-    { name = "rpaencrypt" },
-    { name = "rpagui" },
-    { name = "rpasoftware" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "astronverse-locator", marker = "sys_platform == 'win32'", editable = "shared/astronverse-locator" },
-    { name = "astronverse-window", editable = "components/astronverse-window" },
-    { name = "dogtail", marker = "sys_platform == 'linux'" },
-    { name = "pandas" },
-    { name = "requests" },
-    { name = "rpaencrypt", editable = "components/rpaencrypt" },
-    { name = "rpagui", editable = "components/rpagui" },
-    { name = "rpasoftware", editable = "components/rpasoftware" },
-]
-
-[[package]]
 name = "rpadatabase"
 version = "1.0.0"
 source = { editable = "components/rpadatabase" }
@@ -4478,61 +4619,6 @@ requires-dist = [
 ]
 
 [[package]]
-name = "rpadialog"
-version = "1.0.0"
-source = { editable = "components/rpadialog" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "astronverse-tools" },
-    { name = "pynput" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "astronverse-tools", editable = "shared/astronverse-tools" },
-    { name = "pynput" },
-]
-
-[[package]]
-name = "rpadocx"
-version = "1.0.0"
-source = { editable = "components/rpadocx" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "pillow" },
-    { name = "psutil" },
-    { name = "python-docx" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "pywpsrpc", marker = "sys_platform == 'linux'" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "pillow" },
-    { name = "psutil" },
-    { name = "python-docx" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "pywpsrpc", marker = "sys_platform == 'linux'" },
-]
-
-[[package]]
-name = "rpaencrypt"
-version = "1.0.0"
-source = { editable = "components/rpaencrypt" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "pycryptodomex" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "pycryptodomex" },
-]
-
-[[package]]
 name = "rpaenterprise"
 version = "1.0.0"
 source = { editable = "components/rpaenterprise" }
@@ -4545,50 +4631,6 @@ dependencies = [
 requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
     { name = "requests" },
-]
-
-[[package]]
-name = "rpaexcel"
-version = "1.0.0"
-source = { editable = "components/rpaexcel" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "psutil" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "psutil" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-]
-
-[[package]]
-name = "rpagui"
-version = "1.0.0"
-source = { editable = "components/rpagui" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "pillow", marker = "sys_platform == 'linux'" },
-    { name = "pyautogui" },
-    { name = "pynput" },
-    { name = "pyperclip" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "pillow", marker = "sys_platform == 'linux'" },
-    { name = "pyautogui" },
-    { name = "pynput" },
-    { name = "pyperclip" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
 ]
 
 [[package]]
@@ -4624,31 +4666,6 @@ requires-dist = [
 ]
 
 [[package]]
-name = "rpapdf"
-version = "1.0.0"
-source = { editable = "components/rpapdf" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pdfplumber" },
-    { name = "pypdf" },
-    { name = "pypdfium2" },
-    { name = "python-docx" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pdfplumber" },
-    { name = "pypdf" },
-    { name = "pypdfium2" },
-    { name = "python-docx" },
-]
-
-[[package]]
 name = "rpareport"
 version = "1.0.0"
 source = { editable = "components/rpareport" }
@@ -4658,23 +4675,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" }]
-
-[[package]]
-name = "rpasoftware"
-version = "1.0.0"
-source = { editable = "components/rpasoftware" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "psutil" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "psutil" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-]
 
 [[package]]
 name = "rpasystem"
@@ -4718,21 +4718,21 @@ version = "1.0.0"
 source = { editable = "components/rpaverifycode" }
 dependencies = [
     { name = "astronverse-actionlib" },
+    { name = "astronverse-browser" },
     { name = "astronverse-locator" },
     { name = "pyautogui" },
     { name = "pytweening" },
     { name = "requests" },
-    { name = "rpabrowser" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "astronverse-browser", editable = "components/astronverse-browser" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
     { name = "pyautogui" },
     { name = "pytweening" },
     { name = "requests" },
-    { name = "rpabrowser", editable = "components/rpabrowser" },
 ]
 
 [[package]]
