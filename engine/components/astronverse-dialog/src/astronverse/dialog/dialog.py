@@ -27,7 +27,7 @@ from astronverse.dialog.error import EXECUTABLE_PATH_NOT_FOUND_ERROR
 from astronverse.actionlib import DynamicsItem
 
 
-class DialogManager:
+class Dialog:
     @staticmethod
     @atomicMg.atomic(
         "Dialog",

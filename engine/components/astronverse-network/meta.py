@@ -1,8 +1,8 @@
 import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
-from astronverse.ftp import FTP
-from astronverse.network import Network
+from astronverse.network.ftp import FTP
+from astronverse.network.network import Network
 
 
 def get_version():

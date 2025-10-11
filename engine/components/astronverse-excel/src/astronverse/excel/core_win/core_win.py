@@ -754,7 +754,7 @@ class ExcelCore(IExcelCore):
     @staticmethod
     def range_location_supply(data_region, ws):
         try:
-            if not re.findall("\d", data_region):
+            if not re.findall(r"\d", data_region):
                 if ":" in data_region:
                     used_row = ws.Cells.SpecialCells(11).Row
                     columns_list = data_region.split(":")

@@ -60,8 +60,8 @@ from astronverse.browser.utils.table_filter import (
 from astronverse.input.code.screenshot import Screenshot
 
 if sys.platform == "win32":
-    from locator import smooth_move
-    from locator.locator import locator
+    from astronverse.locator import smooth_move
+    from astronverse.locator.locator import locator
 
     from astronverse.browser.core.core_win import BrowserCore
 elif platform.system() == "Linux":
