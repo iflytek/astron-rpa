@@ -790,7 +790,7 @@ dependencies = [
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "requests" },
-    { name = "rpabrowser" },
+    { name = "astronverse-browser" },
     { name = "sseclient-py" },
 ]
 
@@ -802,14 +802,14 @@ requires-dist = [
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "requests" },
-    { name = "rpabrowser", editable = "../rpabrowser" },
+    { name = "astronverse-browser", editable = "../astronverse-browser" },
     { name = "sseclient-py" },
 ]
 
 [[package]]
-name = "rpabrowser"
+name = "astronverse-browser"
 version = "1.0.0"
-source = { editable = "../rpabrowser" }
+source = { editable = "../astronverse-browser" }
 dependencies = [
     { name = "astronverse-actionlib" },
     { name = "astronverse-locator", marker = "sys_platform == 'win32'" },
