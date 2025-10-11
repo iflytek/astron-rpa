@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.monitor.dao.HisRobotDao">
+
+    <resultMap type="com.iflytek.rpa.monitor.entity.HisRobot" id="HisCloudRobotMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="userId" column="user_id" jdbcType="CHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="executeNumTotal" column="execute_num_total" jdbcType="INTEGER"/>
+        <result property="executeSuccess" column="execute_success" jdbcType="INTEGER"/>
+        <result property="executeFail" column="execute_fail" jdbcType="INTEGER"/>
+        <result property="executeAbort" column="execute_abort" jdbcType="INTEGER"/>
+        <result property="executeSuccessRate" column="execute_success_rate" jdbcType="NUMERIC"/>
+        <result property="executeTime" column="execute_time" jdbcType="INTEGER"/>
+        <result property="countTime" column="count_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+
+    </resultMap>
+
+    <!-- 结果映射 -->
+    <resultMap id="RobotExecutionTrendDataMap" type="com.iflytek.rpa.robot.entity.vo.RobotExecutionTrendData">
+        <result property="countTime" column="count_time" jdbcType="TIMESTAMP"/>
+        <result property="executeSuccess" column="execute_success" jdbcType="BIGINT"/>
+        <result property="executeFail" column="execute_fail" jdbcType="BIGINT"/>
+        <result property="executeAbort" column="execute_abort" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <insert id="insertBatch">
+        INSERT INTO his_robot
+        (
+            tenant_id,
+            user_id,
+            robot_id,
+            execute_num_total,
+            execute_success,
+            execute_fail,
+            execute_abort,
+            execute_success_rate,
+            execute_time,
+            count_time,
+            update_time,
+            deleted
+        )
+        SELECT
+            t.tenant_id,
+            t.user_id,
+            t.robot_id,
+            t.execute_num_total,
+            t.execute_success,
+            t.execute_fail,
+            t.execute_abort,
+            t.execute_success_rate,
+            t.execute_time,
+            t.count_time,
+            NOW(),
+            0
+        FROM (
+        <foreach collection="entities" item="entity" separator=" UNION ALL ">
+            SELECT
+            #{entity.tenantId} AS tenant_id,
+            #{entity.userId} AS user_id,
+            #{entity.robotId} AS robot_id,
+            #{entity.executeNumTotal} AS execute_num_total,
+            #{entity.executeSuccess} AS execute_success,
+            #{entity.executeFail} AS execute_fail,
+            #{entity.executeAbort} AS execute_abort,
+            #{entity.executeSuccessRate} AS execute_success_rate,
+            #{entity.executeTime} AS execute_time,
+            #{entity.countTime} AS count_time
+            FROM DUAL
+        </foreach>
+        ) t
+        WHERE NOT EXISTS (
+            SELECT 1 FROM his_robot hr
+            WHERE hr.robot_id = t.robot_id
+            AND hr.count_time = t.count_time
+            and hr.deleted = 0
+        )
+    </insert>
+    <select id="getExecuteDataHistory" resultMap="RobotExecutionTrendDataMap">
+        select count_time,execute_success,execute_fail,execute_abort
+        from his_robot
+        where
+            deleted = 0 and robot_id = #{robotId}
+        <if test="startTime != null">
+            and count_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and count_time &lt;= #{endTime}
+        </if>
+        group by count_time,execute_success,execute_fail,execute_abort
+        order by count_time asc
+    </select>
+
+    <select id="getRobotHistoryExecutionData" resultType="com.iflytek.rpa.robot.entity.vo.RobotExecutionData">
+        select
+            ifNull(sum(execute_num_total),0) executeTotal,
+            ifNull(sum(execute_success),0) executeSuccess,
+            ifNull(sum(execute_fail),0) executeFail,
+            ifNull(sum(execute_abort),0) executeAbort,
+            ifNull(sum(execute_time),0) executeTime
+        from his_robot
+        where
+        deleted = 0 and
+        robot_id = #{robotId} and
+        count_time &lt;= #{endTime}
+    </select>
+</mapper>
+

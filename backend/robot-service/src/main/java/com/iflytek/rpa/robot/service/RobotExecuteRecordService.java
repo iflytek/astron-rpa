@@ -1,6 +1,7 @@
 package com.iflytek.rpa.robot.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.iflytek.rpa.monitor.entity.RobotMonitorDto;
 import com.iflytek.rpa.robot.entity.RobotExecuteRecord;
 import com.iflytek.rpa.robot.entity.dto.ExecuteRecordDto;
 import com.iflytek.rpa.robot.entity.dto.RobotExecuteRecordsBatchDeleteDto;
@@ -19,6 +20,8 @@ public interface RobotExecuteRecordService extends IService<RobotExecuteRecord> 
     AppResponse<?> recordList(ExecuteRecordDto recordDto) throws NoLoginException;
 
     AppResponse<?> getExecuteLog(ExecuteRecordDto recordDto) throws NoLoginException;
+
+    AppResponse<?> robotOverview(RobotMonitorDto robotMonitorDto);
 
     AppResponse<?> saveExecuteResult(ExecuteRecordDto recordDto, String currentRobotId) throws NoLoginException;
 

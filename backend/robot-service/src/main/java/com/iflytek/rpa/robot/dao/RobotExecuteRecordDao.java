@@ -2,6 +2,7 @@ package com.iflytek.rpa.robot.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.iflytek.rpa.monitor.entity.RobotMonitorDto;
 import com.iflytek.rpa.robot.entity.RobotExecuteRecord;
 import com.iflytek.rpa.robot.entity.dto.ExecuteRecordDto;
 import com.iflytek.rpa.robot.entity.dto.ExecuteRecordPageDto;
@@ -31,6 +32,12 @@ public interface RobotExecuteRecordDao extends BaseMapper<RobotExecuteRecord> {
 
     RobotExecutionData robotOverviewWithoutVersion(
             @Param("tenantId") String tenantId, @Param("robotId") String robotId, @Param("countTime") Date countTime);
+
+    RobotMonitorDto robotOverview(
+            @Param("tenantId") String tenantId,
+            @Param("robotId") String robotId,
+            @Param("countTime") Date countTime,
+            @Param("robotVersion") Integer robotVersion);
 
     String getExecuteLog(ExecuteRecordDto recordDto);
 

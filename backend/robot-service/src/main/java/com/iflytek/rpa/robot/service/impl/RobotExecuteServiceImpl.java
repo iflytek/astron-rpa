@@ -9,6 +9,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iflytek.rpa.base.dao.*;
 import com.iflytek.rpa.base.entity.*;
+import com.iflytek.rpa.market.dao.AppMarketResourceDao;
+import com.iflytek.rpa.market.dao.AppMarketUserDao;
+import com.iflytek.rpa.market.dao.AppMarketVersionDao;
+import com.iflytek.rpa.market.entity.AppMarketResource;
+import com.iflytek.rpa.market.entity.AppMarketUser;
+import com.iflytek.rpa.market.entity.AppMarketVersion;
+import com.iflytek.rpa.monitor.entity.DeptUser;
+import com.iflytek.rpa.monitor.entity.dto.HisBaseDto;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.dao.RobotExecuteRecordDao;
@@ -61,6 +69,15 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
     @Resource
     private ScheduleTaskDao scheduleTaskDao;
 
+    @Resource
+    private AppMarketVersionDao appVersionDao;
+
+    @Resource
+    private AppMarketResourceDao appResourceDao;
+
+    @Autowired
+    private AppMarketUserDao appMarketUserDao;
+
     @Autowired
     private TriggerTaskDao triggerTaskDao;
 
@@ -87,26 +104,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
     @Autowired
     private CRequireDao cRequireDao;
-
-    private static List<ExeUpdateCheckVo> getExeUpdateCheckVos(List<RobotExecute> robotExecuteList) {
-        List<ExeUpdateCheckVo> resVoList = new ArrayList<>();
-        for (RobotExecute robotExecute : robotExecuteList) {
-            Integer updateStatus = 0;
-            if (robotExecute.getResourceStatus() != null) {
-                updateStatus = robotExecute.getResourceStatus().equals("toUpdate") ? 1 : 0;
-            } else {
-                updateStatus = 0;
-            }
-            ExeUpdateCheckVo exeUpdateCheckVo = new ExeUpdateCheckVo();
-
-            exeUpdateCheckVo.setAppId(robotExecute.getAppId());
-            exeUpdateCheckVo.setRobotId(robotExecute.getRobotId());
-            exeUpdateCheckVo.setUpdateStatus(updateStatus);
-
-            resVoList.add(exeUpdateCheckVo);
-        }
-        return resVoList;
-    }
 
     @Override
     public AppResponse<?> executeList(ExecuteListDto queryDto) throws NoLoginException {
@@ -243,7 +240,10 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         if (StringUtils.isBlank(marketId)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "市场信息缺失");
         }
-
+        AppMarketUser appMarketUser = appMarketUserDao.getMarketUser(marketId, userId);
+        if (null == appMarketUser) {
+            return AppResponse.error(ErrorCodeEnum.E_PARAM, "当前未加入该机器人所在的团队市场，且点击后按钮消失");
+        }
         // 查询市场中机器人的版本信息
         RobotVersionDto robotVersion = robotVersionDao.getLatestRobotVersion(robotExecute.getAppId());
         if (null == robotVersion) {
@@ -338,6 +338,11 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
             if (robotExecute.getDataSource().equals("create")) {
                 // 如果是自己获取的, 采用启用版本
                 robotVersion = robotVersionDao.getEnableVersion(robotId, userId, tenantId);
+            } else if (robotExecute.getDataSource().equals("market")) {
+                // 如果是市场中获取的，用溯源的最新版本
+                AppMarketResource appResource =
+                        appResourceDao.getAppResourceRegardlessDel(robotExecute.getAppId(), robotExecute.getMarketId());
+                robotVersion = robotVersionDao.getLatestVersionRegardlessDel(appResource.getRobotId());
             } else if (robotExecute.getDataSource().equals("deploy")) {
                 String oriRobotId = robotExecute.getAppId();
                 robotVersion = robotVersionDao.getDeployEnableVersion(oriRobotId, tenantId);
@@ -403,6 +408,26 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         return robotExecuteList;
     }
 
+    private static List<ExeUpdateCheckVo> getExeUpdateCheckVos(List<RobotExecute> robotExecuteList) {
+        List<ExeUpdateCheckVo> resVoList = new ArrayList<>();
+        for (RobotExecute robotExecute : robotExecuteList) {
+            Integer updateStatus = 0;
+            if (robotExecute.getResourceStatus() != null) {
+                updateStatus = robotExecute.getResourceStatus().equals("toUpdate") ? 1 : 0;
+            } else {
+                updateStatus = 0;
+            }
+            ExeUpdateCheckVo exeUpdateCheckVo = new ExeUpdateCheckVo();
+
+            exeUpdateCheckVo.setAppId(robotExecute.getAppId());
+            exeUpdateCheckVo.setRobotId(robotExecute.getRobotId());
+            exeUpdateCheckVo.setUpdateStatus(updateStatus);
+
+            resVoList.add(exeUpdateCheckVo);
+        }
+        return resVoList;
+    }
+
     private void setVersionNCreatorInfo(
             RobotExecute robotExecute, ExecuteDetailVo resVo, String dataSource, String userId, String tenantId)
             throws Exception {
@@ -434,6 +459,35 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
                 resVo.setCreateTime(robotExecute.getCreateTime());
                 resVo.setCreatorName(creatorName);
+                break;
+
+            case "market": // 市场获取的应用
+                String appId = robotExecute.getAppId();
+                String marketId = robotExecute.getMarketId();
+                Integer version = robotExecute.getAppVersion(); // 获取时的AppVersion
+
+                List<AppMarketVersion> appVersionList = appVersionDao.getAllAppVersionRegardlessDel(appId, marketId);
+                AppMarketResource appResource = appResourceDao.getAppResourceRegardlessDel(appId, marketId);
+
+                for (AppMarketVersion appVersionTmp : appVersionList) {
+                    VersionInfo versionInfo = new VersionInfo();
+
+                    Integer appVersionNumTmp = appVersionTmp.getAppVersion();
+                    Integer online = 0;
+                    online = appVersionNumTmp.equals(version) ? 1 : 0;
+
+                    versionInfo.setVersionNum(appVersionNumTmp);
+                    versionInfo.setCreateTime(appVersionTmp.getCreateTime());
+                    versionInfo.setOnline(online);
+
+                    versionInfoList.add(versionInfo);
+                }
+
+                // 创建者信息
+                String creatorName1 = UserUtils.getRealNameById(appResource.getCreatorId());
+
+                resVo.setCreateTime(appResource.getCreateTime());
+                resVo.setCreatorName(creatorName1);
                 break;
 
             case "deploy":
@@ -565,6 +619,14 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
     }
 
     @Override
+    public List<HisBaseDto> countRobotTotalNumByDate(String endOfDay, List<DeptUser> userIdList) {
+        if (StringUtils.isBlank(endOfDay) || CollectionUtils.isEmpty(userIdList)) {
+            return new ArrayList<>();
+        }
+        return robotExecuteDao.countRobotTotalNumByDate(endOfDay, userIdList);
+    }
+
+    @Override
     public AppResponse<List<RobotExecuteByNameNDeptVo>> getRobotExecuteList(RobotExecuteByNameNDeptDto queryDto)
             throws NoLoginException {
         String tenantId = TenantUtils.getTenantId();
@@ -620,6 +682,33 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
                         .in(RobotVersion::getRobotId, robotIdList)
                         .eq(RobotVersion::getDeleted, 0)
                         .set(RobotVersion::getCreatorId, newOwnerId));
+        // todo 转移市场中的应用和版本
+        appResourceDao.update(
+                null,
+                new LambdaUpdateWrapper<AppMarketResource>()
+                        .in(AppMarketResource::getRobotId, robotIdList)
+                        .eq(AppMarketResource::getDeleted, 0)
+                        .set(AppMarketResource::getCreatorId, newOwnerId));
+        // 获取appId列表
+        List<String> appIdList = appResourceDao
+                .selectList(new LambdaQueryWrapper<AppMarketResource>()
+                        .in(AppMarketResource::getRobotId, robotIdList)
+                        .eq(AppMarketResource::getDeleted, 0))
+                .stream()
+                .map(AppMarketResource::getAppId)
+                .collect(Collectors.toList());
+
+        appIdList.removeIf(Objects::isNull);
+
+        if (!CollectionUtils.isEmpty(appIdList)) {
+            // 转移市场中的应用和版本
+            appVersionDao.update(
+                    null,
+                    new LambdaUpdateWrapper<AppMarketVersion>()
+                            .in(AppMarketVersion::getAppId, appIdList)
+                            .eq(AppMarketVersion::getDeleted, 0)
+                            .set(AppMarketVersion::getCreatorId, newOwnerId));
+        }
 
         // 转移流程、图像、分组等，todo后期解除流程、图像、分组等的creatorId，只用robotId和机器人关联
         cElementDao.update(

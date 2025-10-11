@@ -5,8 +5,8 @@
     <insert id="addSharedFile">
         INSERT INTO shared_file(file_id, file_name, path, tags, creator_id, updater_id, tenant_id, deleted)
         VALUES (#{entity.fileId}, #{entity.fileName}, #{entity.path}, #{entity.tags}, #{entity.creatorId},
-                #{entity.updaterId},
-                #{entity.tenantId}, #{entity.deleted})
+        #{entity.updaterId},
+        #{entity.tenantId}, #{entity.deleted})
     </insert>
 
     <update id="deleteBatchSharedFile">
@@ -25,35 +25,35 @@
 
     <select id="selectTags" resultType="com.iflytek.rpa.robot.entity.SharedFileTag">
         SELECT tag_id      AS tagId,
-               tag_name    AS tagName,
-               create_time AS createTime,
-               update_time AS updateTime,
-               creator_id  AS creatorId,
-               updater_id  AS updaterId,
-               tenant_id   AS tenantId
+        tag_name    AS tagName,
+        create_time AS createTime,
+        update_time AS updateTime,
+        creator_id  AS creatorId,
+        updater_id  AS updaterId,
+        tenant_id   AS tenantId
         FROM shared_file_tag
         WHERE deleted = 0
-          AND tenant_id = #{tenantId}
+        AND tenant_id = #{tenantId}
     </select>
 
     <insert id="addTag">
         INSERT INTO shared_file_tag
         (tag_id,
-         tag_name,
-         creator_id,
-         updater_id,
-         tenant_id,
-         create_time,
-         update_time,
-         deleted)
+        tag_name,
+        creator_id,
+        updater_id,
+        tenant_id,
+        create_time,
+        update_time,
+        deleted)
         VALUES (#{entity.tagId},
-                #{entity.tagName},
-                #{entity.creatorId},
-                #{entity.updaterId},
-                #{entity.tenantId},
-                NOW(),
-                NOW(),
-                0)
+        #{entity.tagName},
+        #{entity.creatorId},
+        #{entity.updaterId},
+        #{entity.tenantId},
+        NOW(),
+        NOW(),
+        0)
     </insert>
 
     <update id="updateTagById">
@@ -74,8 +74,8 @@
         SELECT *
         FROM shared_file
         WHERE tenant_id = #{tenantId}
-          AND deleted = 0
-          AND CONCAT(',', tags, ',') LIKE CONCAT('%,', #{tagName}, ',%')
+        AND deleted = 0
+        AND CONCAT(',', tags, ',') LIKE CONCAT('%,', #{tagName}, ',%')
     </select>
 
     <update id="updateFileTagById">
@@ -88,7 +88,7 @@
         UPDATE shared_file_tag
         SET deleted = 1
         WHERE tag_id = #{tagId}
-          AND tenant_id = #{tenantId}
+        AND tenant_id = #{tenantId}
     </update>
 
     <select id="selectTagsByIds" resultType="com.iflytek.rpa.robot.entity.SharedFileTag">
@@ -106,14 +106,14 @@
         SELECT tag_id, tag_name
         FROM shared_file_tag
         WHERE tenant_id = #{tenantId}
-          AND deleted = 0
-          AND tag_name LIKE CONCAT('%', #{tagName}, '%')
+        AND deleted = 0
+        AND tag_name LIKE CONCAT('%', #{tagName}, '%')
     </select>
     <select id="isTenantAdmin" resultType="java.lang.Integer">
-        select utu.tenant_user_type
-        from ${databaseName}.t_uap_tenant_user utu
-        where utu.user_id = #{userId}
-          and utu.tenant_id = #{tenantId}
+        select utu.is_admin
+        from ${databaseName}.user utu
+        where utu.id = #{userId}
+        and utu.owner = #{tenantId}
     </select>
 
     <!-- 分页查询共享文件列表 -->
@@ -179,8 +179,8 @@
         SELECT *
         FROM shared_file
         WHERE creator_id = #{userId}
-          AND tenant_id = #{tenantId}
-          AND file_name = #{fileName}
+        AND tenant_id = #{tenantId}
+        AND file_name = #{fileName}
     </select>
 
 

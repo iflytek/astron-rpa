@@ -1,6 +1,8 @@
 package com.iflytek.rpa.robot.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iflytek.rpa.market.entity.MarketDto;
+import com.iflytek.rpa.market.entity.dto.MarketResourceDto;
 import com.iflytek.rpa.robot.entity.File;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.RobotVersion;
@@ -26,6 +28,10 @@ public interface RobotVersionDao extends BaseMapper<RobotVersion> {
     RobotVersion getLatestRobotVersionByRobotId(@Param("robotId") String robotId);
 
     RobotVersion getRobotInfoForExecute(ExecuteRecordDto executeRecordDto);
+
+    RobotVersion getVersionInfo(MarketResourceDto marketResourceDto);
+
+    List<RobotVersion> getVersionListForApp(MarketDto marketDto);
 
     Integer getVersionCount(@Param("robotId") String robotId);
 

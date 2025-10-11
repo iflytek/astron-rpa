@@ -251,6 +251,7 @@ public class UserUtils {
 
     /**
      * 根据roleid 查role详情(roleId用"name"代替)
+     *
      * @param roleName
      * @return 角色
      */
@@ -282,5 +283,40 @@ public class UserUtils {
         User user = nowLoginUser();
 
         return user.roles;
+    }
+
+    /**
+     * 根据电话获取用户信息
+     *
+     * @param PhoneNumber
+     * @return
+     */
+    public static User getUserInfoByPhone(String PhoneNumber) {
+        if (Objects.isNull(staticUserExtendService) || Objects.isNull(PhoneNumber)) {
+            return null;
+        }
+
+        try {
+            return staticUserExtendService.getUserByPhone(PhoneNumber);
+        } catch (Exception e) {
+            log.error("根据用户电话获取用户信息失败: {}", PhoneNumber, e);
+            return null;
+        }
+    }
+
+    /**
+     * 根据电话获取用户姓名
+     *
+     * @param phoneNumber
+     * @return
+     */
+    public static String getRealNameByPhone(String phoneNumber) {
+        User user = getUserInfoByPhone(phoneNumber);
+
+        if (Objects.isNull(user)) {
+            return null;
+        }
+
+        return user.displayName;
     }
 }

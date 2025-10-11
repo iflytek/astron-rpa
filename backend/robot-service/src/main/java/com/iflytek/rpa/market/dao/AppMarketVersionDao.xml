@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppMarketVersionDao">
+
+    <resultMap type="com.iflytek.rpa.market.entity.AppMarketVersion" id="AppMarketVersionMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="editFlag" column="edit_flag" jdbcType="INTEGER"/>
+        <result property="category" column="category" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <insert id="insertAppVersionBatch">
+        insert into
+        app_market_version
+            (market_id,
+             app_id,
+             app_version,
+             edit_flag,
+             category,
+             creator_id,
+             create_time,
+             updater_id,
+             update_time,
+             deleted)
+        values
+        <foreach collection="appInfoList" item="appInfo" separator=",">
+            (#{appInfo.marketId},
+             #{appInfo.appId},
+             #{latestAppVersionInfo.appVersion},
+             #{latestAppVersionInfo.editFlag},
+             #{latestAppVersionInfo.category},
+             #{latestAppVersionInfo.creatorId},
+             #{latestAppVersionInfo.createTime},
+             #{latestAppVersionInfo.updaterId},
+             #{latestAppVersionInfo.updateTime},
+             0)
+        </foreach>
+    </insert>
+
+    <insert id="addAppVersionBatch">
+        insert into
+        app_market_version
+            (market_id,
+             app_id,
+             app_version,
+             edit_flag,
+             category,
+             creator_id,
+             create_time,
+             deleted)
+        values
+        <foreach collection="entity.appInsertInfoList" item="item" separator=",">
+            (#{item.marketId},
+             #{item.appId},
+             #{entity.version},
+             #{entity.editFlag},
+             #{entity.category},
+             #{entity.creatorId},
+             now(),
+             0)
+        </foreach>
+    </insert>
+
+
+    <update id="updateAppVersionBatch">
+        <foreach collection="entity.appUpdateInfoList" item="item">
+            update app_market_version
+            set
+                category = #{entity.category},
+                edit_flag = #{entity.editFlag},
+                update_time = now()
+            where
+                market_id = #{item.marketId}
+              and app_id = #{item.appId}
+              and deleted = 0
+              order by app_version desc
+              limit 1
+        </foreach>
+    </update>
+
+    
+    <update id="deleteAppVersion">
+        update app_market_version
+        set deleted = 1
+        where market_id = #{marketId} and app_id = #{appId} and deleted = 0
+    </update>
+
+    <select id="getLatestAppVersionInfo" resultMap="AppMarketVersionMap">
+        select *
+        from app_market_version
+        where
+            market_id = #{marketId}
+          and app_id = #{appId}
+          and deleted = 0
+        order by app_version desc limit 1
+    </select>
+
+    <select id="getAppVersionList" resultMap="AppMarketVersionMap">
+        select *
+        from app_market_version
+        where deleted = 0 and market_id = #{marketId}
+          and app_id in
+            <foreach collection="appIdList" item="appId" open="(" close=")" separator=",">
+                #{appId}
+            </foreach>
+        order by app_version desc;
+    </select>
+
+    <select id="getResVerJoin" resultType="com.iflytek.rpa.market.entity.dto.ResVerDto">
+        SELECT sub.appId,
+            sub.latestAppVersion,
+            sub.marketId,
+            sub.robotId,
+            rv.introduction,
+            rv.use_description as useDescription,
+            rv.icon as iconUrl
+        FROM (
+            SELECT  amv.app_id AS appId,
+                    MAX(amv.app_version) AS latestAppVersion,
+                    amv.market_id AS marketId,
+                    MAX(amr.robot_id) AS robotId
+            FROM app_market_version amv
+            LEFT JOIN app_market_resource amr ON amr.app_id = amv.app_id
+            WHERE amv.deleted = 0 AND amv.market_id = #{marketId}
+                AND amv.app_id IN
+                    <foreach collection="appIdList" item="appId" open="(" close=")" separator=",">
+                        #{appId}
+                    </foreach>
+            GROUP BY amv.app_id, amv.market_id
+            ORDER BY latestAppVersion DESC
+        ) AS sub
+        LEFT JOIN robot_version rv ON sub.robotId = rv.robot_id and sub.latestAppVersion = rv.version;
+    </select>
+
+
+</mapper>
+

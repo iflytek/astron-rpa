@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppMarketResourceDao">
+
+    <resultMap type="com.iflytek.rpa.market.entity.AppMarketResource" id="AppMarketResourceMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="downloadNum" column="download_num" jdbcType="INTEGER"/>
+        <result property="checkNum" column="check_num" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="appName" column="app_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <update id="updateDownloadNum">
+        update app_market_resource
+        set
+            download_num = download_num + 1,
+            update_time = now()
+        where
+            market_id = #{marketId}
+        and app_id = #{appId}
+        and tenant_id = #{tenantId}
+        and deleted = 0
+    </update>
+
+    <insert id="addAppResource">
+        insert into
+            app_market_resource
+            (market_id,
+             app_id,
+             download_num,
+             check_num,
+             creator_id,
+             create_time,
+             updater_id,
+             update_time,
+             deleted,
+             tenant_id,
+             robot_id,
+             app_name)
+        values
+            <foreach collection="entity.appInsertInfoList" item="appInfo" separator=",">
+            (#{appInfo.marketId},
+                #{appInfo.appId},
+                0,
+                0,
+                #{entity.creatorId},
+                now(),
+                #{entity.updaterId},
+                now(),
+                0,
+                #{entity.tenantId},
+                #{entity.robotId},
+                #{entity.appName})
+            </foreach>
+    </insert>
+
+
+    <update id="updateAppResource">
+        UPDATE app_market_resource
+        <set>
+            <if test="entity.appName != null and entity.appName != ''">
+                app_name = #{entity.appName},
+            </if>
+            update_time = now()
+        </set>
+        WHERE deleted = 0
+        AND tenant_id = #{entity.tenantId}
+        AND (
+        <foreach collection="entity.appUpdateInfoList" item="item" separator="OR">
+            (market_id = #{item.marketId} AND app_id = #{item.appId})
+        </foreach>
+        )
+
+    </update>
+
+
+    <select id="getAppInfoByRobotId" resultMap="AppMarketResourceMap">
+        select  distinct amr.*
+        from
+            app_market_resource amr
+        where
+            exists(select 1 from app_market_user where deleted = 0 and creator_id = #{authorId} and market_id = amr.market_id)
+            and amr.robot_id = #{robotId}
+            and amr.deleted = 0
+    </select>
+
+    <update id="updateAppName">
+        update app_market_resource amr
+        set
+            amr.app_name = #{name},
+            amr.update_time = now()
+        where
+            exists(select 1 from app_market_user where deleted = 0 and creator_id = #{creatorId} and market_id = amr.market_id)
+            and amr.deleted = 0
+            and amr.robot_id = #{robotId}
+    </update>
+
+    <select id="selectAppInfo" resultType="java.lang.Integer">
+        select COUNT(*) from
+            app_market_resource amr
+        where
+        exists(select 1 from app_market_user where deleted = 0 and creator_id = #{creatorId} and market_id = amr.market_id)
+        and amr.deleted = 0
+        and amr.robot_id = #{robotId}
+    </select>
+
+    <select id="getAppNameByAppId" resultType="java.lang.String">
+        select
+            app_name
+        from
+            app_market_resource
+        where
+            app_id = #{appId}
+            and deleted = 0
+    </select>
+
+
+    <select id="getAppInfoByAppId" resultMap="AppMarketResourceMap">
+        select *
+        from
+            app_market_resource
+        where
+            app_id = #{appId}
+          and market_id = #{marketId}
+          and tenant_id = #{tenantId}
+--           and deleted = 0
+    </select>
+
+    <update id="deleteApp">
+        update app_market_resource
+        set deleted = 1
+        where
+            app_id = #{appId} and market_id = #{marketId}
+            and tenant_id = #{tenantId} and deleted = 0
+    </update>
+
+
+</mapper>
+

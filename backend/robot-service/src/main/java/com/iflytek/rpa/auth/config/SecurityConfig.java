@@ -5,7 +5,6 @@ import com.iflytek.rpa.auth.entity.CustomUserDetails;
 import com.iflytek.rpa.auth.filter.JwtTokenFilter;
 import com.iflytek.rpa.auth.utils.ResponseUtils;
 import com.iflytek.rpa.starter.redis.RedisUtils;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -131,13 +129,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource configurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedHeaders(Arrays.asList(
-                HttpHeaders.AUTHORIZATION,
-                HttpHeaders.CONTENT_TYPE,
-                HttpHeaders.ACCEPT,
-                HttpHeaders.ORIGIN,
-                "X-Requested-With",
-                "Cache-Control"));
+        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
         corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
         corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
         corsConfiguration.setMaxAge(3600L);

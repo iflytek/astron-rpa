@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.monitor.dao.AuditCheckpointDao">
+
+    <resultMap id="AuditCheckpointMap" type="com.iflytek.rpa.monitor.entity.AuditCheckpoint">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="auditObjectType" column="audit_object_type" jdbcType="VARCHAR"/>
+        <result property="lastProcessedId" column="last_processed_id" jdbcType="VARCHAR"/>
+        <result property="auditStatus" column="audit_status" jdbcType="VARCHAR"/>
+        <result property="countTime" column="count_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="insertTaskForYesterday">
+        INSERT INTO audit_checkpoint
+            (audit_object_type,
+            last_processed_id,
+            audit_status,
+            count_time,
+            update_time,
+            deleted)
+        select
+            #{auditObjectType},
+            #{lastProcessedId},
+            #{auditStatus},
+            #{countTime},
+            now(),
+            0
+        from
+            dual
+        where not exists (
+            select 1 from audit_checkpoint
+            where audit_object_type = #{auditObjectType}
+            and count_time = #{countTime}
+            and deleted = 0
+        )
+    </insert>
+
+    <update id="updateAuditCheckpoint">
+        update
+            audit_checkpoint
+        set
+        <if test="auditStatus != null and auditStatus != ''">
+            audit_status = #{auditStatus},
+        </if>
+        <if test="lastProcessedId != null and lastProcessedId != ''">
+            last_processed_id = #{lastProcessedId},
+        </if>
+        update_time = now()
+        where
+            deleted = 0
+            and audit_object_type = #{auditObjectType}
+            and count_time = #{countTime}
+    </update>
+
+    <select id="getUnFinishedAuditTask" resultMap="AuditCheckpointMap">
+        select
+            audit_object_type,
+            last_processed_id,
+            audit_status,
+            count_time
+        from
+            audit_checkpoint
+        where
+            audit_object_type = #{auditObjectType}
+            and audit_status in ('pending', 'to_count', 'counting')
+            and deleted = 0
+            <if test="startAndEndOfDay != null and startAndEndOfDay.size() == 2">
+                and count_time &gt;= #{startAndEndOfDay[0]}
+                and count_time &lt; #{startAndEndOfDay[1]}
+            </if>
+            order by count_time asc
+    </select>
+
+</mapper>
+

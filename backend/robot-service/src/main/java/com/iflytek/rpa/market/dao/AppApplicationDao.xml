@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppApplicationDao">
+
+    <resultMap id="BaseResultMap" type="com.iflytek.rpa.market.entity.AppApplication">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="robot_id" property="robotId" jdbcType="VARCHAR"/>
+        <result column="robot_version" property="robotVersion" jdbcType="BIGINT"/>
+        <result column="application_type" property="applicationType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="security_level" property="securityLevel" jdbcType="VARCHAR"/>
+        <result column="allowed_dept" property="allowedDept" jdbcType="VARCHAR"/>
+        <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
+        <result column="audit_opinion" property="auditOpinion" jdbcType="VARCHAR"/>
+        <result column="creator_id" property="creatorId" jdbcType="CHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="updater_id" property="updaterId" jdbcType="CHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="deleted" property="deleted" jdbcType="SMALLINT"/>
+        <result column="tenant_id" property="tenantId" jdbcType="CHAR"/>
+        <result column="client_deleted" property="clientDeleted" jdbcType="SMALLINT"/>
+        <result column="cloud_deleted" property="cloudDeleted" jdbcType="SMALLINT"/>
+        <result column="default_pass" property="defaultPass" jdbcType="SMALLINT"/>
+    </resultMap>
+
+    <resultMap id="ReleasePageListVoMap" type="com.iflytek.rpa.market.entity.vo.ReleasePageListVo">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="robotName" jdbcType="VARCHAR"/>
+        <result column="creator_id" property="creatorId" jdbcType="CHAR"/>
+        <result column="robot_id" property="robotId" jdbcType="VARCHAR"/>
+        <result column="robot_version" property="robotVersion" jdbcType="VARCHAR"/>
+        <result column="allowed_dept" property="allowedDept" jdbcType="VARCHAR"/>
+        <result column="create_time" property="submitAuditTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="security_level" property="securityLevel" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="UsePageListVoMap" type="com.iflytek.rpa.market.entity.vo.UsePageListVo">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="robotName" jdbcType="VARCHAR"/>
+        <result column="robot_id" property="robotId" jdbcType="VARCHAR"/>
+        <result column="robot_version" property="robotVersion" jdbcType="VARCHAR"/>
+        <result column="security_level" property="securityLevel" jdbcType="VARCHAR"/>
+        <result column="creator_id" property="creatorId" jdbcType="CHAR"/>
+        <result column="create_time" property="submitAuditTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <!-- 申请人部门后续在service层补充 -->
+    </resultMap>
+
+    <resultMap id="MyApplicationPageListVoMap" type="com.iflytek.rpa.market.entity.vo.MyApplicationPageListVo">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="robot_id" property="robotId" jdbcType="VARCHAR"/>
+        <result column="robot_version" property="robotVersion" jdbcType="VARCHAR"/>
+        <result column="name" property="robotName" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="security_level" property="securityLevel" jdbcType="VARCHAR"/>
+        <result column="application_type" property="applicationType" jdbcType="VARCHAR"/>
+        <result column="create_time" property="submitAuditTime" jdbcType="TIMESTAMP"/>
+        <result column="audit_opinion" property="auditOpinion" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getReleasePageList" resultMap="ReleasePageListVoMap">
+        select
+            aa.*,re.name
+        from app_application as aa
+        inner join robot_execute as re on aa.robot_id = re.robot_id
+        <where>
+            aa.application_type = 'release' and aa.deleted = 0 and aa.cloud_deleted = 0 and aa.tenant_id = #{entity.tenantId}
+         <if test="entity.robotName != null and entity.robotName != ''">
+            and re.name like concat('%', #{entity.robotName}, '%')
+         </if>
+         <if test="entity.creatorId != null and entity.creatorId != ''">
+            and aa.creator_id = #{entity.creatorId}
+         </if>
+         <if test="entity.status != null and entity.status != ''">
+            and aa.status = #{entity.status}
+         </if>
+        </where>
+        order by aa.create_time desc
+    </select>
+
+    <select id="getUsePageList" resultMap="UsePageListVoMap">
+        select
+            aa.*, re.name
+        from app_application as aa
+        left join robot_execute as re on aa.robot_id = re.robot_id
+        <where>
+            aa.application_type = 'use' and aa.deleted = 0 and aa.cloud_deleted = 0 and aa.tenant_id = #{entity.tenantId}
+         <if test="entity.robotName != null and entity.robotName != ''">
+            and re.name like concat('%', #{entity.robotName}, '%')
+         </if>
+         <if test="entity.creatorId != null and entity.creatorId != ''">
+            and aa.creator_id = #{entity.creatorId}
+         </if>
+         <if test="entity.status != null and entity.status != ''">
+            and aa.status = #{entity.status}
+         </if>
+        </where>
+        order by aa.create_time desc
+    </select>
+
+    <select id="getMyApplicationPageList" resultMap="MyApplicationPageListVoMap">
+        select
+            aa.*, re.name
+        from app_application as aa
+        left join robot_execute as re on aa.robot_id = re.robot_id
+        <where>
+            aa.deleted = 0 and aa.client_deleted = 0 and aa.tenant_id = #{entity.tenantId}
+         <if test="entity.userId != null and entity.userId != ''">
+            and aa.creator_id = #{entity.userId}
+         </if>
+         <if test="entity.robotName != null and entity.robotName != ''">
+            and re.name like concat('%', #{entity.robotName}, '%')
+         </if>
+         <if test="entity.applicationType != null and entity.applicationType != ''">
+            and aa.application_type = #{entity.applicationType}
+         </if>
+         <if test="entity.status != null and entity.status != ''">
+            and aa.status = #{entity.status}
+         </if>
+        </where>
+        order by aa.create_time desc
+    </select>
+    <select id="getApplicationByObtainedAppId" resultType="com.iflytek.rpa.market.entity.AppApplication">
+        select
+            aa.*
+        from app_application as aa
+        inner join app_market_resource as amr on aa.robot_id = amr.robot_id
+        <where>
+            amr.app_id=#{appId} and aa.deleted = 0
+            and aa.cloud_deleted = 0
+            and aa.client_deleted = 0
+            and aa.status = 'approved'
+            and aa.application_type = "release"
+        </where>
+    </select>
+
+    <!-- 自动审批未审核的上架申请 -->
+    <update id="autoApproveReleaseApplications">
+        UPDATE app_application 
+        SET status = 'approved', 
+            updater_id = #{operator}, 
+            update_time = NOW()
+        WHERE tenant_id = #{tenantId} 
+          AND application_type = 'release' 
+          AND status = 'pending' 
+          AND deleted = 0 
+          AND cloud_deleted = 0
+    </update>
+
+    <!-- 逻辑删除开启阶段的所有审核申请记录 -->
+    <update id="deleteAuditRecords">
+        UPDATE app_application 
+        SET cloud_deleted = 1,
+            client_deleted = 1,
+            deleted = 1,
+            updater_id = #{operator}, 
+            update_time = NOW()
+        WHERE tenant_id = #{tenantId} 
+          AND deleted = 0 
+          AND (cloud_deleted = 0 or client_deleted = 0)
+    </update>
+</mapper>

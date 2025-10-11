@@ -25,7 +25,7 @@ spring:
       pool:
         shutdown-timeout: 100ms
   datasource:
-    url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true
+    url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -159,4 +159,6 @@ casdoor:
     -----END CERTIFICATE-----
   organization-name: ${CASDOOR_ORGANIZATION_NAME}
   application-name: ${CASDOOR_APPLICATION_NAME}
+  database:
+    name: casdoor
   redirect-url: ${CASDOOR_REDIRECT_URL}

@@ -1,5 +1,6 @@
 package com.iflytek.rpa.robot.controller;
 
+import com.iflytek.rpa.monitor.entity.RobotMonitorDto;
 import com.iflytek.rpa.robot.entity.dto.ExecuteRecordDto;
 import com.iflytek.rpa.robot.entity.dto.RobotExecuteRecordsBatchDeleteDto;
 import com.iflytek.rpa.robot.service.RobotExecuteRecordService;
@@ -48,17 +49,17 @@ public class RobotExecuteRecordController {
         return robotExecuteRecordService.getExecuteLog(recordDto);
     }
 
-    // todo:0920
-    //    /**
-    //     * 执行器-机器人详情-执行概况
-    //     * @paramMarketResourceDto
-    //     * @return
-    //     * @throws Exception
-    //     */
-    //    @PostMapping("/detail/overview")
-    //    public AppResponse<?> getOverViewData(@RequestBody RobotMonitorDto robotMonitorDto){
-    //        return robotExecuteRecordService.robotOverview(robotMonitorDto);
-    //    }
+    /**
+     * 执行器-机器人详情-执行概况
+     *
+     * @return
+     * @throws Exception
+     * @paramMarketResourceDto
+     */
+    @PostMapping("/detail/overview")
+    public AppResponse<?> getOverViewData(@RequestBody RobotMonitorDto robotMonitorDto) {
+        return robotExecuteRecordService.robotOverview(robotMonitorDto);
+    }
 
     /**
      * 上传机器人执行结果

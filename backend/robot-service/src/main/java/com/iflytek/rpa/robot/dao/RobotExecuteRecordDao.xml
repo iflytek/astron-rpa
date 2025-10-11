@@ -84,25 +84,39 @@
 
     <select id="getRecordByExecuteIdList" resultMap="RobotExecuteRecordMap">
         select rer.id,
-            rer.execute_id,
-            rer.task_execute_id,
-            rer.robot_id,
-            re.name as robot_name,
-            rer.robot_version,
-            rer.start_time,
-            rer.end_time,
-            rer.execute_time,
-            rer.result,
-            rer.execute_log,
-            rer.video_local_path
+        rer.execute_id,
+        rer.task_execute_id,
+        rer.robot_id,
+        re.name as robot_name,
+        rer.robot_version,
+        rer.start_time,
+        rer.end_time,
+        rer.execute_time,
+        rer.result,
+        rer.execute_log,
+        rer.video_local_path
         from robot_execute_record rer
         left join robot_execute re on rer.robot_id = re.robot_id
         where
-            rer.deleted=0
-            and rer.task_execute_id in
-            <foreach collection="executeIdList" item="executeId" separator="," open="(" close=")">
-                #{executeId}
-            </foreach>
+        rer.deleted=0
+        and rer.task_execute_id in
+        <foreach collection="executeIdList" item="executeId" separator="," open="(" close=")">
+            #{executeId}
+        </foreach>
+    </select>
+
+    <select id="robotOverview" resultType = "com.iflytek.rpa.monitor.entity.RobotMonitorDto">
+        select count(*) executeTotal, sum(result = 'robotSuccess') executeSuccess, sum(result = 'robotFail') executeFail, sum(result = 'robotCancel') executeAbort
+        from robot_execute_record
+        <where>
+            result in ('robotSuccess','robotFail','robotCancel')
+            and tenant_id = #{tenantId}
+            and robot_id = #{robotId}
+            <if test="robotVersion != null">
+                and robot_version= #{robotVersion}
+            </if>
+            and start_time &lt;= #{countTime}
+        </where>
     </select>
 
     <select id="robotOverviewWithoutVersion" resultType = "com.iflytek.rpa.robot.entity.vo.RobotExecutionData">
@@ -120,61 +134,61 @@
         select execute_log
         from robot_execute_record
         where execute_id = #{executeId}
-          and creator_id = #{creatorId}
-          and tenant_id = #{tenantId} limit 1
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId} limit 1
     </select>
 
     <select id="getExecuteRecord" resultMap="RobotExecuteRecordMap">
         select *
         from robot_execute_record
         where deleted = 0
-          and execute_id = #{executeId}
-          and creator_id = #{creatorId}
-          and tenant_id = #{tenantId}
+        and execute_id = #{executeId}
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
     </select>
 
     <insert id="insertExecuteRecord">
         insert into robot_execute_record
         (execute_id,
-         robot_id,
-         robot_version,
-         start_time,
-         end_time,
-         execute_time,
-         mode,
-         task_execute_id,
-         result,
-         error_reason,
-         execute_log,
-         creator_id,
-         create_time,
-         updater_id,
-         update_time,
-         deleted,
-         tenant_id,
-         video_local_path,
-         dept_id_path,
-         terminal_id)
+        robot_id,
+        robot_version,
+        start_time,
+        end_time,
+        execute_time,
+        mode,
+        task_execute_id,
+        result,
+        error_reason,
+        execute_log,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted,
+        tenant_id,
+        video_local_path,
+        dept_id_path,
+        terminal_id)
         values (#{executeId},
-                #{robotId},
-                #{robotVersion},
-                #{startTime},
-                #{endTime},
-                #{executeTime},
-                #{mode},
-                #{taskExecuteId},
-                #{result},
-                #{errorReason},
-                #{executeLog},
-                #{creatorId},
-                now(),
-                #{updaterId},
-                now(),
-                0,
-                #{tenantId},
-                #{videoLocalPath},
-                #{deptIdPath},
-                #{terminalId})
+        #{robotId},
+        #{robotVersion},
+        #{startTime},
+        #{endTime},
+        #{executeTime},
+        #{mode},
+        #{taskExecuteId},
+        #{result},
+        #{errorReason},
+        #{executeLog},
+        #{creatorId},
+        now(),
+        #{updaterId},
+        now(),
+        0,
+        #{tenantId},
+        #{videoLocalPath},
+        #{deptIdPath},
+        #{terminalId})
     </insert>
 
 
@@ -216,9 +230,9 @@
         select count(distinct robot_id)
         from robot_execute_record
         where start_time &gt;= #{startAndEndOfDay[0]}
-          and start_time &lt; #{startAndEndOfDay[1]}
-          and deleted = 0
-          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+        and start_time &lt; #{startAndEndOfDay[1]}
+        and deleted = 0
+        and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
     </select>
 
     <!--    统计某一天0点到24点有多少终端执行了机器人-->
@@ -226,40 +240,40 @@
         select count(distinct terminal_id)
         from robot_execute_record
         where start_time &gt;= #{startAndEndOfDay[0]}
-          and start_time &lt; #{startAndEndOfDay[1]}
-          and deleted = 0
-          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+        and start_time &lt; #{startAndEndOfDay[1]}
+        and deleted = 0
+        and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
     </select>
 
 
     <select id="getExecutedRobotByPage" resultMap="RobotExecuteRecordMap">
         select max(id) id,
-               robot_id
-                ,
-               terminal_id
+        robot_id
+        ,
+        terminal_id
         from robot_execute_record
         where start_time &gt;= #{startAndEndOfDay[0]}
-          and start_time &lt; #{startAndEndOfDay[1]}
-          and deleted = 0
-          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+        and start_time &lt; #{startAndEndOfDay[1]}
+        and deleted = 0
+        and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
         group by robot_id
         order by id asc
-            limit #{limit}
+        limit #{limit}
         offset #{offset}
     </select>
 
 
     <select id="getExecutedTerminalByPage" resultMap="RobotExecuteRecordMap">
         select max(id) id,
-               terminal_id
+        terminal_id
         from robot_execute_record
         where start_time &gt;= #{startAndEndOfDay[0]}
-          and start_time &lt; #{startAndEndOfDay[1]}
-          and deleted = 0
-          and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
+        and start_time &lt; #{startAndEndOfDay[1]}
+        and deleted = 0
+        and id &gt; CAST(#{lastProcessedId} AS UNSIGNED)
         group by terminal_id
         order by id asc
-            limit #{limit}
+        limit #{limit}
         offset #{offset}
     </select>
 
@@ -313,26 +327,26 @@
     <update id="batchDeleteByTaskExecuteIds">
         update robot_execute_record
         set deleted = 1,
-            update_time = now(),
-            updater_id = #{userId}
-        where deleted = 0 
-          and tenant_id = #{tenantId}
-          and task_execute_id in
-          <foreach collection="taskExecuteIdList" item="taskExecuteId" separator="," open="(" close=")">
-              #{taskExecuteId}
-          </foreach>
+        update_time = now(),
+        updater_id = #{userId}
+        where deleted = 0
+        and tenant_id = #{tenantId}
+        and task_execute_id in
+        <foreach collection="taskExecuteIdList" item="taskExecuteId" separator="," open="(" close=")">
+            #{taskExecuteId}
+        </foreach>
     </update>
 
     <!-- 批量删除机器人执行记录（基于executeId） -->
     <update id="deleteRobotExecuteRecords">
         update robot_execute_record
         set deleted = 1,
-            update_time = now(),
-            updater_id = #{userId}
+        update_time = now(),
+        updater_id = #{userId}
         where deleted = 0
-            and tenant_id = #{tenantId}
-            and creator_id = #{userId}
-            and execute_id in
+        and tenant_id = #{tenantId}
+        and creator_id = #{userId}
+        and execute_id in
         <foreach collection="recordsIds" item="recordId" separator="," open="(" close=")">
             #{recordId}
         </foreach>

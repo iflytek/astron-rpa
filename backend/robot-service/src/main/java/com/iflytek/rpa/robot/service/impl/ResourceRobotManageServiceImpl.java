@@ -63,7 +63,7 @@ public class ResourceRobotManageServiceImpl implements ResourceRobotManageServic
     @Resource
     private RobotVersionDao robotVersionDao;
 
-    @Value("${uap.database.name:uap_db}")
+    @Value("${casdoor.database.name:casdoor}")
     private String databaseName;
 
     @Autowired

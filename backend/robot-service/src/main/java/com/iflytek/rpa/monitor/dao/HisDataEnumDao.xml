@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.monitor.dao.HisDataEnumDao">
+
+    <resultMap type="com.iflytek.rpa.monitor.entity.HisDataEnum" id="HisDataEnumMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="parentCode" column="parent_code" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+        <result property="field" column="field" jdbcType="VARCHAR"/>
+        <result property="text" column="text" jdbcType="VARCHAR"/>
+        <result property="num" column="num" jdbcType="VARCHAR"/>
+        <result property="unit" column="unit" jdbcType="VARCHAR"/>
+        <result property="percent" column="percent" jdbcType="VARCHAR"/>
+        <result property="tip" column="tip" jdbcType="VARCHAR"/>
+        <result property="order" column="order" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="getEnumByParentCode" resultMap="HisDataEnumMap">
+        select *
+        from
+            his_data_enum
+        where
+            parent_code = #{parentCode}
+        order by 'order'
+    </select>
+
+</mapper>
+

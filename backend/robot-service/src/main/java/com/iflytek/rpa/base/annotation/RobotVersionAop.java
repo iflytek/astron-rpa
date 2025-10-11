@@ -3,6 +3,9 @@ package com.iflytek.rpa.base.annotation;
 import static com.iflytek.rpa.robot.constants.RobotConstant.*;
 
 import com.iflytek.rpa.base.entity.dto.BaseDto;
+import com.iflytek.rpa.market.dao.AppMarketResourceDao;
+import com.iflytek.rpa.market.entity.AppMarketResource;
+import com.iflytek.rpa.market.entity.MarketDto;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
@@ -34,6 +37,9 @@ public class RobotVersionAop {
 
     @Autowired
     private RobotVersionDao robotVersionDao;
+
+    @Autowired
+    private AppMarketResourceDao appMarketResourceDao;
 
     @Around("@annotation(robotVersionAnnotation)")
     public Object process(ProceedingJoinPoint joinPoint, RobotVersionAnnotation robotVersionAnnotation)
@@ -134,7 +140,12 @@ public class RobotVersionAop {
                 // 市场获取的，查appVersion和作者的robotId
                 String marketId = robotExecute.getMarketId();
                 String appId = robotExecute.getAppId();
-
+                AppMarketResource appMarketResource =
+                        appMarketResourceDao.getAppInfoByAppId(new MarketDto(tenantId, marketId, appId));
+                if (null == appMarketResource || null == appMarketResource.getRobotId()) {
+                    throw new NoDataException("该机器人关联的市场应用信息缺失");
+                }
+                baseDto.setRobotId(appMarketResource.getRobotId());
                 if (null == robotExecute.getAppVersion()) {
                     throw new NoDataException("该机器人关联的应用版本信息缺失");
                 }

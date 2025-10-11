@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppMarketUserDao">
+
+    <resultMap type="com.iflytek.rpa.market.entity.AppMarketUser" id="AppMarketUserMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="userType" column="user_type" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getUserListForUpdate" resultMap="AppMarketUserMap">
+        select
+        amu.*
+        from
+        app_market_user amu, component_manage cm
+
+        where
+        amu.market_id = #{marketId}
+        and amu.deleted = 0
+        and amu.creator_id = cm.creator_id
+        and cm.deleted = 0
+        and cm.app_id = #{appId}
+    </select>
+
+
+    <insert id="addDefaultUser">
+        insert into app_market_user
+        (tenant_id,
+        market_id,
+        user_type,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted)
+        values
+        (#{entity.tenantId},
+        #{entity.marketId},
+        'owner',
+        #{entity.creatorId},
+        now(),
+        #{entity.updaterId},
+        now(),
+        0)
+    </insert>
+
+
+
+
+
+    <select id="getUserList" resultType="com.iflytek.rpa.market.entity.MarketDto">
+        select
+        amu.id id,
+        amu.user_type userType,
+        amu.creator_id creatorId,
+        amu.create_time createTime,
+        tu.name userName,
+        tu.display_name realName,
+        tu.email email,
+        tu.phone phone
+        from app_market_user amu
+        left join ${databaseName}.user tu on tu.id = amu.creator_id and tu.is_deleted = 0
+        where
+        amu.market_id = #{entity.marketId}
+        and amu.deleted = 0
+        <if test="entity.userName != null and entity.userName != ''">
+            and upper(tu.name) like concat('%', upper(#{entity.userName}), '%')
+        </if>
+        <if test="entity.realName != null and entity.realName != ''">
+            and upper(tu.display_name) like concat('%', upper(#{entity.realName}), '%')
+        </if>
+        <choose>
+            <when test="entity.sortBy !=null and entity.sortBy != ''">
+                <if test="entity.sortType == 'descend'.toString()">
+                    order by ${entity.sortBy} desc
+                </if>
+                <if test="entity.sortType == 'ascend'.toString() ">
+                    order by ${entity.sortBy} asc
+                </if>
+            </when>
+            <otherwise>
+                order by createTime desc
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <update id="deleteUser">
+        update app_market_user
+        set deleted = 1
+        where
+        market_id = #{entity.marketId}
+        and user_type != 'owner'
+        and creator_id = #{entity.creatorId}
+    </update>
+
+
+    <update id="roleSet">
+        update app_market_user
+        set user_type = #{entity.userType}
+        where
+        market_id = #{entity.marketId}
+        and creator_id = #{entity.creatorId}
+        and deleted = 0
+    </update>
+
+    <select id="getOwnerByRole"  resultType="java.lang.String">
+        select creator_id
+        from app_market_user
+        where
+        market_id = #{marketId}
+        and user_type = 'owner'
+        and deleted = 0
+        limit 1
+    </select>
+
+
+    <select id="getUserTypeForCheck" resultType="java.lang.String">
+        select user_type
+        from app_market_user
+        where
+        market_id = #{marketId}
+        and creator_id = #{userId}
+        and deleted = 0
+        limit 1
+    </select>
+
+
+    <select id="getUserUnDeployed" resultType="com.iflytek.rpa.market.entity.MarketDto">
+        select
+        phone,
+        display_name realName,
+        id creatorId
+        from ${databaseName}.user tu
+        where
+        exists(select id
+        from app_market_user amu
+        where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{entity.marketId} and amu.tenant_id = #{entity.tenantId})
+        and not exists(select id
+        from robot_execute re
+        where re.deleted = 0
+        and re.creator_id = tu.id
+        and re.data_source = 'market'
+        and re.market_id = #{entity.marketId}
+        and re.app_id = #{entity.appId})
+        <if test="entity.phone != null and entity.phone != ''">
+            and phone like CONCAT('%',#{entity.phone},'%')
+        </if>
+        and is_deleted = 0
+        limit 20
+    </select>
+
+
+
+    <!--    已经在团队内的不再查询, 已禁用的不再查询-->
+    <select id="getUserByPhone" resultType="com.iflytek.rpa.market.entity.MarketDto">
+        select
+        phone,
+        display_name realName,
+        id creatorId
+        from ${databaseName}.user tu
+        where
+        not exists(select id
+        from app_market_user amu
+        where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{entity.marketId} and amu.tenant_id = #{entity.tenantId})
+        and phone like CONCAT('%',#{entity.phone},'%')
+        and is_deleted = 0
+        limit 20
+    </select>
+
+    <select id="getUserByPhoneForOwner" resultType="com.iflytek.rpa.market.entity.MarketDto">
+        select
+        uu.phone phone,
+        uu.display_name realName,
+        uu.id creatorId
+        from
+        ${databaseName}.user uu
+        where
+        uu.phone like CONCAT('%',#{entity.phone},'%')
+        and uu.owner = #{entity.tenantId}
+        and uu.is_deleted = 0
+        limit 20
+    </select>
+
+    <select id="getTenantUser" resultType="com.iflytek.rpa.market.entity.TenantUser">
+        select
+        uu.owner tenantId,
+        uu.id userId
+        from
+        ${databaseName}.user uu
+        where
+        uu.is_deleted = 0
+        and uu.owner = #{tenantId}
+        and uu.id in
+        <foreach collection="entities" item="entity" open="(" close=")" separator=",">
+            #{entity.creatorId}
+        </foreach>
+    </select>
+
+
+    <update id="leaveTeamMarket">
+        update app_market_user
+        set deleted = 1
+        where
+        market_id = #{entity.marketId}
+        and creator_id = #{entity.creatorId}
+        and deleted = 0
+    </update>
+
+
+    <update id="updateToOwner">
+        update
+        app_market_user
+        set user_type = 'owner'
+        where
+        market_id = #{marketId}
+        and creator_id = #{newOwnerId}
+        and deleted = 0
+
+    </update>
+
+
+    <update id="deleteAllUser">
+        update app_market_user
+        set deleted = 1
+        where
+        market_id = #{marketId}
+        and deleted = 0
+    </update>
+
+
+    <select id="getMarketUserListForDeploy" resultType="java.lang.String">
+        select
+        creator_id
+        from
+        app_market_user
+        where
+        deleted = 0
+        and market_id = #{marketId}
+        and creator_id in
+        <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+
+    <select id="getMarketUserInList" resultType="java.lang.String">
+        select creator_id
+        from app_market_user
+        where
+        deleted = 0 and market_id = #{marketId} and tenant_id = #{tenantId}
+        and creator_id in
+        <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from app_market_user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="marketId != null and marketId != ''">
+                and market_id = #{marketId}
+            </if>
+            <if test="userType != null and userType != ''">
+                and user_type = #{userType}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updaterId != null">
+                and updater_id = #{updaterId}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="deleted != null">
+                and deleted = #{deleted}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
+

@@ -1,6 +1,12 @@
 package com.iflytek.rpa.robot.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iflytek.rpa.market.entity.AppMarketResource;
+import com.iflytek.rpa.market.entity.MarketDto;
+import com.iflytek.rpa.market.entity.dto.MarketResourceDto;
+import com.iflytek.rpa.monitor.entity.DeptUser;
+import com.iflytek.rpa.monitor.entity.dto.BaseDto;
+import com.iflytek.rpa.monitor.entity.dto.HisBaseDto;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.dto.*;
 import com.iflytek.rpa.robot.entity.vo.RobotExecuteByNameNDeptVo;
@@ -31,11 +37,15 @@ public interface RobotExecuteDao extends BaseMapper<RobotExecute> {
             @Param("userId") String userId,
             @Param("marketId") String marketId);
 
+    Integer countObtainedExecute(MarketResourceDto marketResourceDto);
+
     Integer countByName(RobotVersionDto robotVersionDto);
 
     Integer insertRobot(RobotExecute robotExecute);
 
     Integer updateRobot(RobotExecute robotExecute);
+
+    Integer getObtainCount(MarketResourceDto marketResourceDto);
 
     Integer updateObtainedRobot(RobotExecute robotExecute);
 
@@ -53,6 +63,8 @@ public interface RobotExecuteDao extends BaseMapper<RobotExecute> {
 
     Set<String> getUserListByAppId(@Param("appId") String appId);
 
+    Integer updateRobotByPush(@Param("entity") MarketDto marketDto);
+
     RobotExecute getRobotInfoByRobotId(
             @Param("robotId") String robotId, @Param("userId") String userId, @Param("tenantId") String tenantId);
 
@@ -69,11 +81,18 @@ public interface RobotExecuteDao extends BaseMapper<RobotExecute> {
     @Select("select * " + "from robot_execute " + "where robot_id = #{robotId} and deleted = 0")
     RobotExecute getRobotExecuteByRobotId(@Param("robotId") String robotId);
 
+    PrePage<RobotExecute> getDeployedUserList(
+            PrePage<RobotExecute> pageConfig,
+            @Param("entity") MarketDto marketDto,
+            @Param("databaseName") String databaseName);
+
     PrePage<DeployedUserDto> getCloudDeployedUserList(
             PrePage<DeployedUserDto> pageConfig,
             @Param("entity") QueryDeployedUserDto queryDeployedUserDto,
             @Param("tenantId") String tenantId,
             @Param("databaseName") String databaseName);
+
+    RobotExecute getAuthInfo(AppMarketResource appMarketResource);
 
     DeployedUserDto getAuthInfoForDeployed(@Param("robotId") String robotId, @Param("tenantId") String tenantId);
 
@@ -104,10 +123,15 @@ public interface RobotExecuteDao extends BaseMapper<RobotExecute> {
             @Param("tenantId") String tenantId,
             @Param("queryInfoList") List<RobotExecute> queryInfoList);
 
+    List<HisBaseDto> countRobotTotalNumByDate(
+            @Param("endOfDay") String endOfDay, @Param("deptUserList") List<DeptUser> deptUserList);
+
     List<RobotExecuteByNameNDeptVo> getRobotExecuteByNameNDept(RobotExecuteByNameNDeptDto queryDto);
 
     List<RobotExecute> getRobotExecuteByName(
             @Param("name") String name, @Param("userId") String userId, @Param("tenantId") String tenantId);
+
+    List<RobotNameDto> getRobotNameListByName(@Param("name") String robotName, @Param("entity") BaseDto baseDto);
 
     /**
      * 调度模块-查询租户内所有可用机器人列表（包含版本信息）

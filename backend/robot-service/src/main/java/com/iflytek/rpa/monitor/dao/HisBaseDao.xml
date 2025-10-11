@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.monitor.dao.HisBaseDao">
+
+    <resultMap type="com.iflytek.rpa.monitor.entity.HisBase" id="HisBaseMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="deptIdPath" column="dept_id_path" jdbcType="VARCHAR"/>
+        <result property="executeSuccess" column="execute_success" jdbcType="INTEGER"/>
+        <result property="executeFail" column="execute_fail" jdbcType="INTEGER"/>
+        <result property="executeAbort" column="execute_abort" jdbcType="INTEGER"/>
+        <result property="robotNum" column="robot_num" jdbcType="INTEGER"/>
+        <result property="executeTotal" column="execute_total" jdbcType="INTEGER"/>
+        <result property="executeTimeTotal" column="execute_time_total" jdbcType="INTEGER"/>
+        <result property="executeSuccessRate" column="execute_success_rate" jdbcType="NUMERIC"/>
+        <result property="userNum" column="user_num" jdbcType="INTEGER"/>
+        <result property="countTime" column="count_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="base">
+        deleted = 0
+        <if test="tenantId != null">
+            and tenant_id = #{tenantId}
+        </if>
+        <if test="deptIdPath != null and deptIdPath != ''">
+            and dept_id_path like concat(#{deptIdPath}, "%")
+        </if>
+        <if test="deptIdPathList != null">
+            and
+            <foreach collection="deptIdPathList" index="index" item="deptIdPath" open="(" close=")" separator=" or ">
+                dept_id_path like concat(#{deptIdPath}, "%")
+            </foreach>
+        </if>
+        <if test="startTime != null">
+            and count_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and count_time &lt;= #{endTime}
+        </if>
+        group by count_time
+        order by count_time asc
+    </sql>
+
+
+    <insert id="insertBatch">
+        INSERT INTO his_base
+        (
+        tenant_id,
+        dept_id_path,
+        execute_success,
+        execute_fail,
+        execute_abort,
+        robot_num,
+        execute_total,
+        execute_time_total,
+        execute_success_rate,
+        user_num,
+        count_time,
+        update_time,
+        deleted
+        )
+        SELECT * FROM (
+        <foreach collection="entities" item="item" separator=" UNION ALL ">
+            SELECT
+                #{item.tenantId} AS tenant_id,
+                #{item.deptIdPath} AS dept_id_path,
+                #{item.executeSuccess} AS execute_success,
+                #{item.executeFail} AS execute_fail,
+                #{item.executeAbort} AS execute_abort,
+                #{item.robotNum} AS robot_num,
+                #{item.executeTotal} AS execute_total,
+                #{item.executeTimeTotal} AS execute_time_total,
+                #{item.executeSuccessRate} AS execute_success_rate,
+                #{item.userNum} AS user_num,
+                #{item.countTime} AS count_time,
+                NOW() AS update_time,
+                0 AS deleted
+            FROM DUAL
+            WHERE NOT EXISTS (
+                SELECT 1 FROM his_base
+                WHERE count_time = #{item.countTime}
+                AND dept_id_path = #{item.deptIdPath}
+                )
+        </foreach>
+        ) t
+    </insert>
+
+
+
+
+
+
+
+    <select id="getBaseData" resultMap="HisBaseMap">
+        select
+            sum(user_num) user_num,
+            sum(terminal) terminal,
+            sum(robot_num) robot_num,
+            sum(execute_success) execute_success,
+            sum(execute_total) execute_total,
+            ROUND(sum(execute_success_rate)/count(id), 2) execute_success_rate,
+            ROUND(sum(execute_time_total)/3600, 2) execute_time_total_hour,
+            ROUND(sum(labor_save)/3600, 2) labor_save_hour,
+            DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where <include refid="base"/>
+        limit 1
+    </select>
+
+    <select id="robotNumHistory" resultMap="HisBaseMap">
+        select
+        sum(robot_num) robot_num, DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where
+        <include refid="base"/>
+
+    </select>
+
+    <select id="robotExecuteTimeHistory" resultMap="HisBaseMap">
+        select
+        ROUND(sum(execute_time_total)/3600, 2) execute_time_total_hour, DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where
+        <include refid="base"/>
+    </select>
+
+    <select id="robotExecuteNumAndSuccessRateHistory" resultMap="HisBaseMap">
+        select
+        sum(execute_success) execute_success, sum(execute_fail) execute_fail, sum(execute_abort) execute_abort, DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where
+        <include refid="base"/>
+    </select>
+
+    <select id="laborSaveHistory" resultMap="HisBaseMap">
+        select
+        ROUND(sum(labor_save)/3600, 2) labor_save_hour, DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where
+        <include refid="base"/>
+    </select>
+
+    <select id="userNumHistory" resultMap="HisBaseMap">
+        select
+        sum(user_num) user_num, DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where
+        <include refid="base"/>
+    </select>
+
+    <select id="terminalNumHistory" resultMap="HisBaseMap">
+        select
+        sum(terminal) terminal, DATE_FORMAT(count_time, '%Y-%m-%d') as count_time
+        from his_base
+        where
+        <include refid="base"/>
+    </select>
+
+</mapper>
+

@@ -58,7 +58,7 @@ public class SharedVarServiceImpl extends ServiceImpl<SharedVarDao, SharedVar> i
     @Resource
     private SharedVarUserDao sharedVarUserDao;
 
-    @Value("${uap.database.name:uap_db}")
+    @Value("${casdoor.database.name:casdoor}")
     private String databaseName;
 
     @Resource

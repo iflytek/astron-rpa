@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppApplicationTenantDao">
+
+    <resultMap id="BaseResultMap" type="com.iflytek.rpa.market.entity.AppApplicationTenant">
+        <id column="tenant_id" property="tenantId" jdbcType="CHAR"/>
+        <result column="audit_enable" property="auditEnable" jdbcType="SMALLINT"/>
+        <result column="audit_enable_time" property="auditEnableTime" jdbcType="TIMESTAMP"/>
+        <result column="audit_enable_operator" property="auditEnableOperator" jdbcType="CHAR"/>
+        <result column="audit_enable_reason" property="auditEnableReason" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 根据租户ID查询审核开关状态 -->
+    <select id="getByTenantId" resultMap="BaseResultMap">
+        SELECT tenant_id, audit_enable
+        FROM app_application_tenant 
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+    <!-- 更新审核开关状态 -->
+    <update id="updateAuditEnable">
+        UPDATE app_application_tenant 
+        SET audit_enable = #{auditEnable}, 
+            audit_enable_time = NOW(), 
+            audit_enable_operator = #{operator}, 
+            audit_enable_reason = #{reason} 
+        WHERE tenant_id = #{tenantId}
+    </update>
+
+    <!-- 插入审核开关配置 -->
+    <update id="insertOrUpdateAuditEnable">
+        INSERT INTO app_application_tenant (tenant_id, audit_enable, audit_enable_time, audit_enable_operator, audit_enable_reason) 
+        VALUES (#{tenantId}, #{auditEnable}, NOW(), #{operator}, #{reason}) 
+        ON DUPLICATE KEY UPDATE 
+            audit_enable = #{auditEnable}, 
+            audit_enable_time = NOW(), 
+            audit_enable_operator = #{operator}, 
+            audit_enable_reason = #{reason}
+    </update>
+
+</mapper>

@@ -1,5 +1,7 @@
 package com.iflytek.rpa.robot.service;
 
+import com.iflytek.rpa.monitor.entity.DeptUser;
+import com.iflytek.rpa.monitor.entity.dto.HisBaseDto;
 import com.iflytek.rpa.robot.entity.dto.*;
 import com.iflytek.rpa.robot.entity.vo.RobotExecuteByNameNDeptVo;
 import com.iflytek.rpa.starter.exception.NoLoginException;
@@ -25,6 +27,8 @@ public interface RobotExecuteService {
     AppResponse<?> robotDetail(String robotId) throws Exception;
 
     AppResponse<?> executeUpdateCheck(ExeUpdateCheckDto queryDto) throws NoLoginException;
+
+    List<HisBaseDto> countRobotTotalNumByDate(String endOfDay, List<DeptUser> userIdList);
 
     AppResponse<List<RobotExecuteByNameNDeptVo>> getRobotExecuteList(@RequestBody RobotExecuteByNameNDeptDto queryDto)
             throws NoLoginException;

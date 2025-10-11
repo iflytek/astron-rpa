@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppMarketDao">
+
+    <resultMap type="com.iflytek.rpa.market.entity.AppMarket" id="AppMarketMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="marketName" column="market_name" jdbcType="VARCHAR"/>
+        <result property="marketShare" column="market_share" jdbcType="VARCHAR"/>
+        <result property="appShare" column="app_share" jdbcType="VARCHAR"/>
+        <result property="marketDescribe" column="market_describe" jdbcType="VARCHAR"/>
+        <result property="marketType" column="market_type" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+    </resultMap>
+
+
+<!--    只有我加入的-->
+    <select id="getJoinedMarketList" resultMap="AppMarketMap">
+        select am.market_id,
+            am.market_name
+        from app_market_user amu
+            left join app_market am on am.market_id = amu.market_id
+        where
+            amu.creator_id = #{userId}
+            and amu.deleted = 0
+            and am.deleted = 0
+            and am.tenant_id = #{tenantId}
+            and amu.user_type != 'acquirer'
+            and am.creator_id != #{userId}
+    </select>
+
+<!--    只有我创建的-->
+    <select id="getCreatedMarketList" resultMap="AppMarketMap">
+        select am.market_id,
+            am.market_name
+        from app_market am
+        where
+            am.deleted = 0
+            and am.tenant_id = #{tenantId}
+            and am.creator_id = #{userId}
+    </select>
+
+
+
+<!--    包括我加入的和我创建的-->
+    <select id="getMarketList" resultMap="AppMarketMap">
+        select am.market_id,
+            am.market_name,
+            am.market_type,
+            amu.user_type
+        from app_market_user amu
+            left join app_market am on am.market_id = amu.market_id
+        where
+            amu.creator_id = #{userId}
+            and amu.tenant_id = #{tenantId}
+            and amu.deleted = 0
+            and am.deleted = 0
+        order by amu.update_time desc
+    </select>
+
+    <!--    租户下的所有团队市场-->
+    <select id="getTenantMarketList" resultMap="AppMarketMap">
+        select market_id, market_name
+        from app_market
+        where tenant_id = #{tenantId}
+        and deleted = 0
+    </select>
+
+    <insert id="addMarket" keyProperty="id" useGeneratedKeys="true">
+        insert into app_market (tenant_id,
+             market_id,
+            market_name,
+            market_describe,
+            market_type,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted)
+        values
+            (#{entity.tenantId},
+             #{entity.marketId},
+            #{entity.marketName},
+            #{entity.marketDescribe},
+            'team',
+            #{entity.creatorId},
+            now(),
+            #{entity.updaterId},
+            now(),
+            0)
+    </insert>
+
+
+    <select id="getMarketNameByName" resultType="java.lang.Integer">
+        select count(1)
+        from app_market
+        where
+        deleted = 0
+        and tenant_id = #{tenantId}
+        and market_name = #{marketName}
+    </select>
+
+    <update id="updateTeamMarket">
+        update app_market
+        <set>
+            <if test="marketName != null and marketName != ''">
+                market_name = #{marketName},
+            </if>
+            <if test="marketDescribe != null and marketDescribe != ''">
+                market_describe = #{marketDescribe},
+            </if>
+
+            <if test="updaterId != null">
+                updater_id = #{updaterId},
+            </if>
+            update_time = now()
+        </set>
+        where
+            market_id = #{marketId}
+            and tenant_id = #{tenantId}
+            and deleted = 0
+    </update>
+
+    <select id="getMarketInfo" resultMap="AppMarketMap">
+        select market_name,
+               market_describe,
+               create_time,
+               creator_id
+        from
+            app_market
+        where
+            market_id = #{marketId}
+            and tenant_id = #{tenantId}
+            and deleted = 0
+           limit 1
+    </select>
+
+
+    <update id="deleteMarket">
+        update
+            app_market
+        set
+            deleted = 1
+        where
+            market_id = #{marketId}
+            and deleted = 0
+    </update>
+
+
+    <select id="getCreator" resultType="java.lang.String">
+        select
+            creator_id
+        from
+            app_market
+        where
+            market_id = #{marketId}
+        and deleted = 0
+    </select>
+
+
+    <update id="updateTeamMarketOwner">
+        update
+            app_market
+        set
+            creator_id = #{newOwnerId}
+        where
+            market_id = #{marketId}
+            and deleted = 0
+    </update>
+
+
+    <select id="getMarketNameById" resultType="java.lang.String">
+        select
+            market_name
+        from
+            app_market
+        where
+            market_id = #{marketId}
+            and deleted = 0
+    </select>
+
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="AppMarketMap">
+        select
+idmarket_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_timeupdater_idupdate_timedeleted
+        from app_market
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="AppMarketMap">
+        select
+idmarket_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_timeupdater_idupdate_timedeleted
+        from app_market
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="marketName != null and marketName != ''">
+                and market_name = #{marketName}
+            </if>
+            <if test="marketShare != null and marketShare != ''">
+                and market_share = #{marketShare}
+            </if>
+            <if test="appShare != null and appShare != ''">
+                and app_share = #{appShare}
+            </if>
+            <if test="marketDescribe != null and marketDescribe != ''">
+                and market_describe = #{marketDescribe}
+            </if>
+            <if test="marketType != null and marketType != ''">
+                and market_type = #{marketType}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updaterId != null">
+                and updater_id = #{updaterId}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="deleted != null">
+                and deleted = #{deleted}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from app_market
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="marketName != null and marketName != ''">
+                and market_name = #{marketName}
+            </if>
+            <if test="marketShare != null and marketShare != ''">
+                and market_share = #{marketShare}
+            </if>
+            <if test="appShare != null and appShare != ''">
+                and app_share = #{appShare}
+            </if>
+            <if test="marketDescribe != null and marketDescribe != ''">
+                and market_describe = #{marketDescribe}
+            </if>
+            <if test="marketType != null and marketType != ''">
+                and market_type = #{marketType}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updaterId != null">
+                and updater_id = #{updaterId}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="deleted != null">
+                and deleted = #{deleted}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insertxxx" keyProperty="id" useGeneratedKeys="true">
+        insert into app_market(market_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_timeupdater_idupdate_timedeleted)
+        values (#{marketName}#{marketShare}#{appShare}#{marketDescribe}#{marketType}#{creatorId}#{createTime}#{updaterId}#{updateTime}#{deleted})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into app_market(market_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_timeupdater_idupdate_timedeleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.marketName}#{entity.marketShare}#{entity.appShare}#{entity.marketDescribe}#{entity.marketType}#{entity.creatorId}#{entity.createTime}#{entity.updaterId}#{entity.updateTime}#{entity.deleted})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into app_market(market_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_timeupdater_idupdate_timedeleted)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.marketName}#{entity.marketShare}#{entity.appShare}#{entity.marketDescribe}#{entity.marketType}#{entity.creatorId}#{entity.createTime}#{entity.updaterId}#{entity.updateTime}#{entity.deleted})
+        </foreach>
+        on duplicate key update
+market_name = values(market_name)market_share = values(market_share)app_share = values(app_share)market_describe = values(market_describe)market_type = values(market_type)creator_id = values(creator_id)create_time = values(create_time)updater_id = values(updater_id)update_time = values(update_time)deleted = values(deleted)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update app_market
+        <set>
+            <if test="marketName != null and marketName != ''">
+                market_name = #{marketName},
+            </if>
+            <if test="marketShare != null and marketShare != ''">
+                market_share = #{marketShare},
+            </if>
+            <if test="appShare != null and appShare != ''">
+                app_share = #{appShare},
+            </if>
+            <if test="marketDescribe != null and marketDescribe != ''">
+                market_describe = #{marketDescribe},
+            </if>
+            <if test="marketType != null and marketType != ''">
+                market_type = #{marketType},
+            </if>
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updaterId != null">
+                updater_id = #{updaterId},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from app_market where id = #{id}
+    </delete>
+
+</mapper>
+

@@ -53,7 +53,7 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
     @Autowired
     private SharedFileDao sharedFileDao;
 
-    @Value("${uap.database.name:uap_db}")
+    @Value("${casdoor.database.name:casdoor}")
     private String databaseName;
 
     @Override
