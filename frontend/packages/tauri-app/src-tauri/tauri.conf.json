@@ -84,7 +84,7 @@
         }
       },
       "resources": [
-        "resources/*"
+        "../../../../resources"
       ]
     }
   }
