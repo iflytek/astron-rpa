@@ -4,7 +4,7 @@ requires-python = ">=3.13"
 
 [[package]]
 name = "astronverse-baseline"
-version = "1.0.0"
+version = "1.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "loguru" },

@@ -26,7 +26,7 @@ wheels = [
 
 [[package]]
 name = "astronverse-baseline"
-version = "1.0.0"
+version = "1.0.1"
 source = { editable = "../../shared/astronverse-baseline" }
 dependencies = [
     { name = "loguru" },
@@ -43,7 +43,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-browser-plugin"
-version = "1.0.0"
+version = "1.0.1"
 source = { editable = "../../shared/astronverse-browser-plugin" }
 dependencies = [
     { name = "astronverse-baseline" },
@@ -58,7 +58,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-scheduler"
-version = "1.0.0"
+version = "1.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "astronverse-baseline" },
@@ -99,7 +99,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-websocket-server"
-version = "1.0.0"
+version = "1.0.1"
 source = { editable = "../../shared/astronverse-websocket-server" }
 dependencies = [
     { name = "anyio" },

@@ -72,6 +72,28 @@ REM ============================================
 REM 4. Environment Setup
 REM ============================================
 
+echo Cleaning dist directory...
+if exist "%DIST_DIR%" (
+    rmdir /s /q "%DIST_DIR%"
+    if errorlevel 1 (
+        echo Failed to clean dist directory
+        exit /b 1
+    )
+)
+
+echo Cleaning requirements.txt...
+if exist requirements.txt (
+    del /q requirements.txt
+    if errorlevel 1 (
+        echo Failed to delete requirements.txt
+        exit /b 1
+    )
+)
+
+if exist pyproject.toml.backup (
+    move /y pyproject.toml.backup pyproject.toml >nul
+)
+
 echo Creating build directory structure...
 if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 if not exist %DIST_DIR% mkdir %DIST_DIR%
@@ -123,17 +145,8 @@ echo Upgrading pip...
 
 echo Generating requirements.txt from built packages...
 
-REM Generate requirements.txt from wheel files
-echo # Generated requirements from built packages > "requirements.txt"
-for %%f in ("%DIST_DIR%\*.whl") do (
-    for %%n in ("%%f") do (
-        set "package_name=%%~nf"
-        set "package_name=!package_name:_=-!"
-        REM Extract package name without version (everything before the first -1.0.0)
-        set "package_name=!package_name:-1.0.0-py3-none-any=!"
-        echo !package_name! >> "requirements.txt"
-    )
-)
+REM Generate requirements.txt from wheel files using PowerShell
+powershell -Command "$files = Get-ChildItem '%DIST_DIR%\*.whl' | ForEach-Object { $name = $_.BaseName -replace '_','-'; $name -replace '-\d+\.\d+\.\d+-py3-none-any$','' }; Set-Content -Path 'requirements.txt' -Value '# Generated requirements from built packages'; Add-Content -Path 'requirements.txt' -Value $files"
 
 echo Installing packages from requirements.txt...
 uv pip install --link-mode=copy --python "%PYTHON_CORE_DIR%\python.exe" --find-links="%DIST_DIR%" -r "requirements.txt"

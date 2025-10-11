@@ -17,7 +17,7 @@ def load_config(url, file_type="yaml", wait_time=0):
         if not os.path.exists(url):
             raise FileNotFoundError("Configuration file not found: {}".format(url))
 
-    with open(url, "r", encoding="utf-8") as config_file:
+    with open(url, encoding="utf-8") as config_file:
         if file_type == "yaml":
             import yaml
 
