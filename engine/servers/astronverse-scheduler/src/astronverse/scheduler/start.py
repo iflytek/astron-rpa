@@ -1,9 +1,10 @@
 import argparse
 import time
 import traceback
+from pathlib import Path
 
 import uvicorn
-from pathlib import Path
+from astronverse.baseline.config.config import load_config
 from fastapi import FastAPI
 
 from astronverse.scheduler.apis import route
@@ -22,7 +23,6 @@ from astronverse.scheduler.core.servers.core_server import (
 )
 from astronverse.scheduler.core.svc import get_svc
 from astronverse.scheduler.utils.utils import check_port
-from astronverse.baseline.config.config import load_config
 
 # 0. app实例化，并做初始化
 app = FastAPI()
