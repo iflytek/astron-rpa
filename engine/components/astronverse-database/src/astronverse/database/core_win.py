@@ -4,7 +4,6 @@ import cx_Oracle
 import psycopg2
 import pymysql
 import pyodbc
-from astronverse.baseline.logger.logger import logger
 from astronverse.database import DatabaseType
 from astronverse.database.core import IDatabaseCore
 

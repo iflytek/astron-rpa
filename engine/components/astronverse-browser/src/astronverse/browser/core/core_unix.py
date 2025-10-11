@@ -1,8 +1,6 @@
 import subprocess
 from typing import Any
 
-from dogtail.tree import *
-
 from astronverse.browser import (
     BROWSER_DOGTAIL_POINT_CLASS,
     BROWSER_DOGTAIL_WINDOW_CLASS,
@@ -11,6 +9,7 @@ from astronverse.browser import (
 from astronverse.browser import CommonForBrowserType as BrowserType
 from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.error import *
+from dogtail.tree import *
 
 
 class BrowserCore(IBrowserCore):

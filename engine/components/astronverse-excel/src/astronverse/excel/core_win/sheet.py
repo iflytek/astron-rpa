@@ -1,11 +1,11 @@
 import time
 
 from astronverse.excel import (
-    MoveSheetType,
-    SheetRangeType,
     CopySheetLocationType,
     CopySheetType,
+    MoveSheetType,
     SheetInsertType,
+    SheetRangeType,
 )
 from astronverse.excel.core import IExcelCore
 

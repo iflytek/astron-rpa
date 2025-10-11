@@ -52,7 +52,6 @@ def start():
         svc.set_config(conf)
 
         # 3. 环境检测
-        from astronverse.scheduler.core.setup.setup import Process
 
         # Process.kill_all_zombie()
         repair_pywin32_dependence(svc)

@@ -14,8 +14,6 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLeve
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, URL, WebPick
 from astronverse.baseline.logger.logger import logger
-from astronverse.software.software import Software
-
 from astronverse.browser import (
     BROWSER_PRIVATE_MAP,
     BROWSER_SOFTWARE_TAG,
@@ -39,6 +37,7 @@ from astronverse.browser.error import (
     PARAMETER_INVALID_FORMAT,
     SELECT_MATCHING_APP_PATH,
 )
+from astronverse.software.software import Software
 
 if sys.platform == "win32":
     from astronverse.browser.core.core_win import BrowserCore
@@ -169,7 +168,6 @@ class BrowserSoftware:
                 )
             else:
                 raise NotImplementedError()
-        # noqa
 
         # 查询打开状态
         handler = None
@@ -200,7 +198,7 @@ class BrowserSoftware:
         else:
             if browser_type in CHROME_LIKE_BROWSERS and not open_with_incognito:
                 res.send_browser_extension(
-                    browser_type=res.browser_type.value,  #'{{' + res.browser_type.value + '}}',
+                    browser_type=res.browser_type.value,  # '{{' + res.browser_type.value + '}}',
                     key="updateTab",
                     data={"url": str(url)},
                 )
