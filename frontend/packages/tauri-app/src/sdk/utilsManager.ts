@@ -93,10 +93,10 @@ async function openPlugins() {
     userDataPath += '/'
   }
   if (appPath.startsWith('C:') || appPath.startsWith('c:') || appPath.startsWith('/')) {
-    shellopen(`${userDataPath}python_core/Lib/site-packages/rpa_browser_plugin/plugins`)
+    shellopen(`${userDataPath}python_core/Lib/site-packages/astronverse/browser_plugin/plugins`)
   }
   else {
-    shellopen(`${appPath}data/python_core/Lib/site-packages/rpa_browser_plugin/plugins`)
+    shellopen(`${appPath}data/python_core/Lib/site-packages/astronverse/browser_plugin/plugins`)
   }
 }
 
