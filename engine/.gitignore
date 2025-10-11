@@ -6,3 +6,4 @@ venvs
 build
 python313
 log.txt
+meta_json.py

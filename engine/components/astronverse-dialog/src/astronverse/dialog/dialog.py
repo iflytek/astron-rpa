@@ -4,30 +4,30 @@ import subprocess
 import threading
 import time
 import urllib.parse
-from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType, AtomicLevel
+
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import DialogResult
-from astronverse.tools.tools import RpaTools
 from astronverse.dialog import (
-    MessageType,
     ButtonType,
-    InputType,
-    SelectType,
-    TimeType,
-    TimeFormat,
-    OpenType,
-    FileType,
     DefaultButtonC,
     DefaultButtonCN,
     DefaultButtonY,
     DefaultButtonYN,
+    FileType,
+    InputType,
+    MessageType,
+    OpenType,
+    SelectType,
+    TimeFormat,
+    TimeType,
 )
 from astronverse.dialog.core import DialogController
 from astronverse.dialog.error import EXECUTABLE_PATH_NOT_FOUND_ERROR
-from astronverse.actionlib import DynamicsItem
+from astronverse.tools.tools import RpaTools
 
 
-class DialogManager:
+class Dialog:
     @staticmethod
     @atomicMg.atomic(
         "Dialog",
@@ -180,7 +180,7 @@ class DialogManager:
         timeout_start_time = time.time()
         dialog_result_data = {}
 
-        from pynput import mouse, keyboard
+        from pynput import keyboard, mouse
 
         def on_move(x, y):
             nonlocal auto_check
@@ -339,7 +339,7 @@ class DialogManager:
         output_data = DialogController.execute_subprocess(args)
 
         input_content = output_data.get("input_content")
-        return input_content if input_content else None
+        return input_content or None
 
     @staticmethod
     @atomicMg.atomic(
@@ -752,7 +752,7 @@ class DialogManager:
         timeout_start_time = time.time()
         dialog_result = {}
 
-        from pynput import mouse, keyboard
+        from pynput import keyboard, mouse
 
         def on_move(x, y):
             nonlocal auto_check

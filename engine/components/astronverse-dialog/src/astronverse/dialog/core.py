@@ -1,6 +1,7 @@
 import json
 import subprocess
 import time
+
 from pynput.mouse import Controller
 
 

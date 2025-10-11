@@ -60,15 +60,11 @@ from astronverse.browser.utils.table_filter import (
 from astronverse.input.code.screenshot import Screenshot
 
 if sys.platform == "win32":
-    from locator import smooth_move
-    from locator.locator import locator
-
     from astronverse.browser.core.core_win import BrowserCore
+    from astronverse.locator import smooth_move
+    from astronverse.locator.locator import locator
 elif platform.system() == "Linux":
-    from locator_linux import smooth_move
-    from locator_linux.locator import locator
-
-    from astronverse.browser.core.core_unix import BrowserCore
+    raise NotImplementedError(f"Your platform ({platform.system()}) is not supported by clipboard.")
 else:
     raise NotImplementedError(f"Your platform ({platform.system()}) is not supported by clipboard.")
 
@@ -222,9 +218,12 @@ class BrowserElement:
                 element_exist = None
 
             # 判断是否提前结束
-            if ele_status == WaitElementForStatusFlag.ElementExists and element_exist:
-                return True
-            elif ele_status == WaitElementForStatusFlag.ElementDisappears and not element_exist:
+            if (
+                ele_status == WaitElementForStatusFlag.ElementExists
+                and element_exist
+                or ele_status == WaitElementForStatusFlag.ElementDisappears
+                and not element_exist
+            ):
                 return True
             else:
                 # 重试

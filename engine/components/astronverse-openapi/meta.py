@@ -1,7 +1,7 @@
 import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
-from astronverse.openapi import OpenApi
+from astronverse.openapi.openapi import OpenApi
 
 
 def get_version():

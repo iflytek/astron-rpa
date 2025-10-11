@@ -1,7 +1,7 @@
 import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
-from astronverse.verifycode import VerifyCode
+from astronverse.verifycode.verifycode import VerifyCode
 
 
 def get_version():

@@ -2,52 +2,49 @@ import io
 import os
 import re
 import tempfile
-from typing import Tuple
 
 import psutil
-from win32api import RGB
 import win32clipboard
 import win32com.client
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
 from astronverse.actionlib.utils import handle_existence
-
 from astronverse.word import (
-    SaveType,
     ApplicationType,
-    EncodingType,
-    SelectRangeType,
-    FileExistenceType,
     CloseRangeType,
-    ReplaceType,
-    ReplaceMethodType,
-    SelectTextType,
+    CommentType,
+    ConvertPageType,
     CursorPointerType,
     CursorPositionType,
-    MoveDirectionType,
-    MoveUpDownType,
-    MoveLeftRightType,
-    InsertionType,
-    InsertImgType,
-    SearchTableType,
-    TableBehavior,
-    RowAlignment,
-    VerticalAlignment,
-    UnderLineStyle,
     DeleteMode,
-    CommentType,
+    EncodingType,
+    FileExistenceType,
+    InsertImgType,
+    InsertionType,
+    MoveDirectionType,
+    MoveLeftRightType,
+    MoveUpDownType,
+    ReplaceMethodType,
+    ReplaceType,
+    RowAlignment,
     SaveFileType,
-    ConvertPageType,
+    SaveType,
+    SearchTableType,
+    SelectRangeType,
+    SelectTextType,
+    TableBehavior,
+    UnderLineStyle,
+    VerticalAlignment,
 )
-
 from astronverse.word.core import IDocumentCore
 from astronverse.word.error import (
-    CONTENT_FORMAT_ERROR_FORMAT,
     CLIPBOARD_PASTE_ERROR,
+    CONTENT_FORMAT_ERROR_FORMAT,
     DOCUMENT_PATH_ERROR_FORMAT,
-    TABLE_NOT_EXIST_ERROR,
     FILENAME_ALREADY_EXISTS_ERROR,
+    TABLE_NOT_EXIST_ERROR,
 )
+from win32api import RGB
 
 
 class WordDocumentCore(IDocumentCore):
@@ -186,7 +183,7 @@ class WordDocumentCore(IDocumentCore):
         visible_flag: bool = True,
         default_application: ApplicationType = ApplicationType.WORD,
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
-    ) -> Tuple[object, str]:
+    ) -> tuple[object, str]:
         """
         Word - 文档操作 - 创建
         """
@@ -650,8 +647,8 @@ class WordDocumentCore(IDocumentCore):
                 if if_change_font:
                     # 设置字体属性
                     run = cell.Range.Font
-                    run.Name = font_set if font_set else "宋体"
-                    run.Size = font_size if font_size else 12
+                    run.Name = font_set or "宋体"
+                    run.Size = font_size or 12
                     run.Bold = font_bold
                     run.Italic = font_italic
                     run.Underline = underline.value if underline else 0
@@ -806,8 +803,7 @@ class WordDocumentCore(IDocumentCore):
         pydoc = Document(oldfilepath)
         new_path = os.path.join(output_path, filename)
         with open(new_path, "w", encoding="utf-8") as txt_file:
-            for para in pydoc.paragraphs:
-                txt_file.write(para.text + "\n")
+            txt_file.writelines(para.text + "\n" for para in pydoc.paragraphs)
 
     @classmethod
     def convert_to_pdf(

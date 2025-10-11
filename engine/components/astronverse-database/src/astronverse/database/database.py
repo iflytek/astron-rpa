@@ -21,7 +21,7 @@ class Database:
     @staticmethod
     @atomicMg.atomic(
         "Database",
-        intputList=[
+        inputList=[
             atomicMg.param("connect_info", types=dict),  # TODO 確定類型【目前用手動輸入Dict的方式】
         ],
         outputList=[atomicMg.param("connect_db_obj", types="Any")],
@@ -31,19 +31,19 @@ class Database:
         return connect_db_obj
 
     @staticmethod
-    @atomicMg.atomic("Database", intputList=[], outputList=[])
+    @atomicMg.atomic("Database", inputList=[], outputList=[])
     def disconnect_database(database_obj: object):
         DatabaseCore.disconnect(database_obj)
 
     @staticmethod
-    @atomicMg.atomic("Database", intputList=[], outputList=[])
+    @atomicMg.atomic("Database", inputList=[], outputList=[])
     def execute_sql(database_obj: object, sql: str):
         DatabaseCore.execute(database_obj, sql)
 
     @staticmethod
     @atomicMg.atomic(
         "Database",
-        intputList=[],
+        inputList=[],
         outputList=[atomicMg.param("query_db_result", types="Any")],
     )
     def query_sql(database_obj: object, sql: str):

@@ -4,14 +4,13 @@ import cx_Oracle
 import psycopg2
 import pymysql
 import pyodbc
-from astronverse.baseline.logger.logger import logger
 from astronverse.database import DatabaseType
 from astronverse.database.core import IDatabaseCore
 
-try:
-    import ibm_db_dbi
-except Exception as e:
-    logger.error(f"加载ibm_db_dll出错：{str(e)}")
+# try:
+#     import ibm_db_dbi
+# except Exception as e:
+#     logger.error(f"加载ibm_db_dll出错：{str(e)}")
 
 
 class DatabaseCore(IDatabaseCore):
@@ -68,13 +67,14 @@ class DatabaseCore(IDatabaseCore):
             )
             db_conn = pyodbc.connect(conn_str)
         elif db_type == DatabaseType.DB2:
-            db_conn = ibm_db_dbi.connect(
-                f"PORT={int(db_info_dict.get('port', 50000))};PROTOCOL=TCPIP;",
-                database=db_info_dict.get("database", ""),
-                user=db_info_dict.get("user", ""),
-                password=db_info_dict.get("password", ""),
-                host=db_info_dict.get("host", ""),
-            )
+            pass
+            # db_conn = ibm_db_dbi.connect(
+            #     f"PORT={int(db_info_dict.get('port', 50000))};PROTOCOL=TCPIP;",
+            #     database=db_info_dict.get("database", ""),
+            #     user=db_info_dict.get("user", ""),
+            #     password=db_info_dict.get("password", ""),
+            #     host=db_info_dict.get("host", ""),
+            # )
         else:
             raise Exception("找不到该数据库类型!")
 

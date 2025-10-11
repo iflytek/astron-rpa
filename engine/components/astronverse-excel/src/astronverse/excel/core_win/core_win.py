@@ -1,49 +1,49 @@
+import ast
 import os
 import re
-import ast
-import winreg
-import traceback
 import subprocess
-from typing import Tuple
+import traceback
+import winreg
+
 import numpy as np
-import win32com.client
-from win32api import RGB
 import win32clipboard as cv
+import win32com.client
 from astronverse.actionlib.logger import logger
 from astronverse.excel import (
     ApplicationType,
-    FileExistenceType,
-    SaveType,
-    HorizontalAlign,
-    VerticalAlign,
     ClearType,
-    EditRangeType,
-    ReadRangeType,
-    FontType,
-    NumberFormatType,
-    FontNameType,
-    PasteType,
-    SheetRangeType,
-    DeleteCellDirection,
-    RowDirectionType,
+    CloseRangeType,
     ColumnDirectionType,
-    MergeOrSplitType,
-    SearchRangeType,
-    MatchCountType,
-    SearchResultType,
-    SearchSheetType,
+    ColumnOutputType,
+    ColumnType,
+    CreateCommentType,
+    DeleteCellDirection,
+    EditRangeType,
+    EnhancedInsertType,
+    FileExistenceType,
+    FontNameType,
+    FontType,
+    HorizontalAlign,
     ImageSizeType,
     InsertFormulaDirectionType,
-    CreateCommentType,
-    ColumnOutputType,
+    MatchCountType,
+    MergeOrSplitType,
+    NumberFormatType,
+    PasteType,
+    ReadRangeType,
+    RowDirectionType,
     RowType,
-    ColumnType,
+    SaveType,
+    SearchRangeType,
+    SearchResultType,
+    SearchSheetType,
     SetType,
-    EnhancedInsertType,
-    CloseRangeType,
+    SheetRangeType,
+    VerticalAlign,
 )
 from astronverse.excel.core import IExcelCore
 from astronverse.excel.error import EXCEL_UNAVAILABLE_ERROR_FORMAT, INPUT_DATA_ERROR_FORMAT
+from win32api import RGB
 
 excel_constants = win32com.client.constants
 
@@ -130,7 +130,7 @@ class ExcelCore(IExcelCore):
         visible_flag: bool = True,
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
         password: str = "",
-    ) -> Tuple[object, str]:
+    ) -> tuple[object, str]:
         """
         Excel - 文档操作 - 创建
         """
@@ -171,7 +171,6 @@ class ExcelCore(IExcelCore):
             excel.SaveAs(Filename=new_file_path)
         elif save_type == SaveType.SAVE:
             excel.Save()
-        return
 
     @classmethod
     def open(
@@ -754,7 +753,7 @@ class ExcelCore(IExcelCore):
     @staticmethod
     def range_location_supply(data_region, ws):
         try:
-            if not re.findall("\d", data_region):
+            if not re.findall(r"\d", data_region):
                 if ":" in data_region:
                     used_row = ws.Cells.SpecialCells(11).Row
                     columns_list = data_region.split(":")
