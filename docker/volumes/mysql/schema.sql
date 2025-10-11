@@ -274,117 +274,7 @@ CREATE TABLE `c_atom_meta` (
   `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
   `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4387 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
--- rpa.c_atom_meta_bak_20250729 definition
-
-CREATE TABLE `c_atom_meta_bak_20250729` (
-  `id` bigint(20) NOT NULL DEFAULT '0',
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` bigint(20) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` bigint(20) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
--- rpa.`c_atom_meta_bak_2025-07-18` definition
-
-CREATE TABLE `c_atom_meta_bak_2025-07-18` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4625 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_copy_0606104126 definition
-
-CREATE TABLE `c_atom_meta_copy_0606104126` (
-  `id` bigint(20) NOT NULL DEFAULT '0',
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
--- rpa.c_atom_meta_copy_0606104412 definition
-
-CREATE TABLE `c_atom_meta_copy_0606104412` (
-  `id` bigint(20) NOT NULL DEFAULT '0',
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
--- rpa.c_atom_meta_copy_0731105058 definition
-
-CREATE TABLE `c_atom_meta_copy_0731105058` (
-  `id` bigint(20) NOT NULL DEFAULT '0',
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` bigint(20) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` bigint(20) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
--- rpa.c_atom_meta_copy_20250728 definition
-
-CREATE TABLE `c_atom_meta_copy_20250728` (
-  `id` bigint(20) NOT NULL DEFAULT '0',
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` bigint(20) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` bigint(20) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=274 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.c_element definition
@@ -869,26 +759,6 @@ CREATE TABLE `his_robot` (
 ) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8 COMMENT='单个机器人趋势表,当日数据';
 
 
--- rpa.his_robot_copy_0905140530 definition
-
-CREATE TABLE `his_robot_copy_0905140530` (
-  `id` bigint(20) NOT NULL DEFAULT '0',
-  `tenant_id` char(36) CHARACTER SET utf8 DEFAULT NULL COMMENT '租户id',
-  `execute_num_total` bigint(20) DEFAULT NULL COMMENT '当日执行总次数',
-  `execute_success` bigint(20) DEFAULT NULL COMMENT '每日成功次数',
-  `execute_fail` bigint(20) DEFAULT NULL COMMENT '每日失败次数',
-  `execute_abort` bigint(20) DEFAULT NULL COMMENT '每日中止次数',
-  `execute_success_rate` decimal(5,2) DEFAULT NULL COMMENT '每日成功率',
-  `execute_time` bigint(20) DEFAULT NULL COMMENT '每日执行时长，单位秒',
-  `count_time` timestamp NULL DEFAULT NULL COMMENT '统计时间',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
-  `robot_id` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `user_id` char(36) CHARACTER SET utf8 DEFAULT NULL COMMENT '用户id',
-  `dept_id_path` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '部门全路径id'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
 -- rpa.his_terminal definition
 
 CREATE TABLE `his_terminal` (
@@ -1004,30 +874,6 @@ CREATE TABLE `robot_execute` (
   `latest_release_time` timestamp NULL DEFAULT NULL COMMENT '最新版本发版时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2667 DEFAULT CHARSET=utf8 COMMENT='云端机器人表';
-
-
--- rpa.`robot_execute_bak_2025-07-18` definition
-
-CREATE TABLE `robot_execute_bak_2025-07-18` (
-  `id` bigint(20) NOT NULL DEFAULT '0' COMMENT '主键id',
-  `robot_id` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '机器人唯一id，获取的应用id',
-  `name` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '当前名字，用于列表展示',
-  `creator_id` char(36) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者id',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updater_id` char(36) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者id',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
-  `tenant_id` char(36) CHARACTER SET utf8 DEFAULT NULL,
-  `app_id` varchar(50) DEFAULT NULL COMMENT 'appmarketResource中的应用id',
-  `app_version` int(11) DEFAULT NULL COMMENT '获取的应用：应用市场版本',
-  `market_id` varchar(20) DEFAULT NULL COMMENT '获取的应用：市场id',
-  `resource_status` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '资源状态：toObtain, obtained, toUpdate',
-  `data_source` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '来源：create 自己创建 ； market 市场获取 ',
-  `param_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '运行前用户自定义的表单参数',
-  `dept_id_path` varchar(200) CHARACTER SET utf8 DEFAULT NULL COMMENT '部门全路径',
-  `type` varchar(10) CHARACTER SET utf8 DEFAULT NULL COMMENT '最新版本机器人的类型，web，other',
-  `latest_release_time` timestamp NULL DEFAULT NULL COMMENT '最新版本发版时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- rpa.robot_execute_record definition
