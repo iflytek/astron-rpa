@@ -5,7 +5,6 @@ import time
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WinPick
-
 from astronverse.window import WindowExistType
 from astronverse.window.core import IWindowsCore, WindowSizeType
 from astronverse.window.error import *

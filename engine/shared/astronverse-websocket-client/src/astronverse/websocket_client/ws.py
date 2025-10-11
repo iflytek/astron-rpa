@@ -1,12 +1,13 @@
 import copy
 import json
 import logging
+import time
 import uuid as uid
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-import time
 from datetime import datetime, timedelta
-from typing import Callable, Any, Union
+from typing import Any, Union
 
 
 class IWebSocket(ABC):

@@ -2,7 +2,6 @@ import subprocess
 from typing import Any
 
 from astronverse.actionlib.types import WinPick
-
 from astronverse.window import ControlInfo, WindowSizeType
 from astronverse.window.core import IWindowsCore
 

@@ -4,7 +4,6 @@ import win32com.client
 import win32con
 import win32gui
 from astronverse.actionlib.types import WinPick
-
 from astronverse.window import ControlInfo, WalkControlInfo, WindowSizeType
 from astronverse.window.core import IUITreeCore, IWindowsCore
 from astronverse.window.error import *

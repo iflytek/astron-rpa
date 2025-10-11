@@ -1,19 +1,18 @@
 import asyncio
 from datetime import datetime
 from queue import Queue
-from typing import List, Union
+from typing import Union
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-from tzlocal import get_localzone
-
 from astronverse.trigger import CONVERT_COLUMN
 from astronverse.trigger.server.gateway_client import get_executor_status, send_msg
 from astronverse.trigger.tasks.file_task import FileTask
 from astronverse.trigger.tasks.hotkey_task import HotKeyTask
 from astronverse.trigger.tasks.mail_task import MailTask
 from astronverse.trigger.tasks.scheduled_task import ScheduledTask
+from tzlocal import get_localzone
 
 
 class Task:
@@ -25,7 +24,7 @@ class Task:
         enable: bool,
         queue_enable: bool,
         q: Queue,
-        callback_project_ids: List,
+        callback_project_ids: list,
         exceptional: str,
         timeout: int,
         mode: str,
@@ -57,11 +56,11 @@ class Task:
         self.queue: Queue = q
         self.exceptional: str = exceptional
         self.timeout: int = timeout
-        self.callback_project_ids: List = callback_project_ids
+        self.callback_project_ids: list = callback_project_ids
         self.trigger_json: dict = kwargs
         self.time = datetime.now(tz=get_localzone())
-        self.screen_record_enable = screen_record_enable if screen_record_enable else False
-        self.open_virtual_desk = open_virtual_desk if open_virtual_desk else False
+        self.screen_record_enable = screen_record_enable or False
+        self.open_virtual_desk = open_virtual_desk or False
 
         # 新增mode字段，用于区分远程下发（DISPATCH）
         self.mode: str = mode
@@ -106,7 +105,7 @@ class Task:
         elif task_type == "manual":
             m = None
         else:
-            raise NotImplemented
+            raise NotImplementedError
         return m
 
     def __dict__(self):

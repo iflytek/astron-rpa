@@ -7,10 +7,6 @@ import pyperclip
 import win32con
 import win32gui
 from astronverse.baseline.logger.logger import logger
-from astronverse.software.software import Software
-from astronverse.window import WalkControlInfo
-from astronverse.window.uitree import UITreeCore
-
 from astronverse.browser import (
     BROWSER_REGISTER_NAME,
     BROWSER_UIA_POINT_CLASS,
@@ -20,6 +16,9 @@ from astronverse.browser import (
 from astronverse.browser import CommonForBrowserType as BrowserType
 from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.error import *
+from astronverse.software.software import Software
+from astronverse.window import WalkControlInfo
+from astronverse.window.uitree import UITreeCore
 
 
 class BrowserCore(IBrowserCore):

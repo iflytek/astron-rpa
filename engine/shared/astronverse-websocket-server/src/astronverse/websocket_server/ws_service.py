@@ -3,19 +3,30 @@ import functools
 import heapq
 import json
 import time
-import anyio
+from collections.abc import Callable
 from datetime import datetime
-from astronverse.websocket_server.ws import BaseMsg, Route, Conn, Watch, default_error_format, WsError, default_log
-from astronverse.websocket_server.ws import gen_exit_msg
-from astronverse.websocket_server.ws import PingMsg, PongMsg, AckMsg, ExitMsg
+from typing import Any
+
+import anyio
 from astronverse.websocket_server.ws import (
-    WsException,
-    WatchTimeout,
-    WatchRetry,
-    PingTimeoutError,
+    AckMsg,
+    BaseMsg,
+    Conn,
+    ExitMsg,
     MsgUnlawfulnessError,
+    PingMsg,
+    PingTimeoutError,
+    PongMsg,
+    Route,
+    Watch,
+    WatchRetry,
+    WatchTimeout,
+    WsError,
+    WsException,
+    default_error_format,
+    default_log,
+    gen_exit_msg,
 )
-from typing import Dict, Callable, List, Any
 
 
 class AsyncOnce:
@@ -64,16 +75,16 @@ class WsManager:
         self.ping_close_time = ping_close_time
 
         # 消息监听
-        self.watch_msg: Dict[str, Watch] = {}
+        self.watch_msg: dict[str, Watch] = {}
         self.watch_interval = 1
         self.watch_msg_queue: list = []
 
         # 路由管理
-        self.routes: Dict[str, Route] = {}
+        self.routes: dict[str, Route] = {}
 
         # 链接管理
-        self.conns: Dict[str, List[Conn]] = {}
-        self.no_login_conns: List[Conn] = []
+        self.conns: dict[str, list[Conn]] = {}
+        self.no_login_conns: list[Conn] = []
 
         # 启动任务
         self.check_ping_once = AsyncOnce()

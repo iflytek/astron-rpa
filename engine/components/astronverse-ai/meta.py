@@ -1,7 +1,7 @@
 import toml
-from astronverse.ai.agent import Agent
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.ai.agent import Agent
 from astronverse.ai.chat import ChatAI
 from astronverse.ai.contract import ContractAI
 from astronverse.ai.document import DocumentAI

@@ -1,6 +1,6 @@
 import gettext
-import os
 import locale
+import os
 
 
 class I18n:

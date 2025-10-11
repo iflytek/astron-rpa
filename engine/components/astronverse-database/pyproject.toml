@@ -1,0 +1,23 @@
+[project]
+name = "astronverse-database"
+version = "1.0.0"
+description = "astronverse-database."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "pymysql",
+    "pyodbc",
+    "cx_Oracle",
+    "psycopg2"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -9,18 +9,10 @@ import time
 from functools import wraps
 
 import pandas as pd
-from rpa_table_helper.table_filter import (
-    DataFilter,
-    page_values_merge,
-    table_df_to_out,
-    table_json_merge_values,
-)
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
-from astronverse.input.code.screenshot import Screenshot
-
 from astronverse.browser import (
     ALL_BROWSER_TYPES,
     CHROME_LIKE_BROWSERS,
@@ -59,6 +51,13 @@ from astronverse.browser.error import (
 )
 from astronverse.browser.js.base import BaseBuilder
 from astronverse.browser.js.chrome import CodeChromeBuilder
+from astronverse.browser.utils.table_filter import (
+    DataFilter,
+    page_values_merge,
+    table_df_to_out,
+    table_json_merge_values,
+)
+from astronverse.input.code.screenshot import Screenshot
 
 if sys.platform == "win32":
     from locator import smooth_move

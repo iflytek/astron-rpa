@@ -8,9 +8,6 @@ import psutil
 from win32api import RGB
 import win32clipboard
 import win32com.client
-from docx import Document
-from docx.shared import RGBColor
-from PIL import Image
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
 from astronverse.actionlib.utils import handle_existence

@@ -1,9 +1,9 @@
 import time
 from unittest import TestCase
 
+from astronverse.input import MoveType, Speed
 from astronverse.vision import BtnModel, BtnType, ExistType, InputType, PositionType, WaitType
 from astronverse.vision.cv import CV
-from rpagui import MoveType, Speed
 
 inputdata = {
     "version": "1",

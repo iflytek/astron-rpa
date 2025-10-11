@@ -5,8 +5,8 @@ print(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from unittest import TestCase
 
-from rpagui import KeyboardType
-from rpagui.gui import Gui, Mouse
+from astronverse.input import KeyboardType
+from astronverse.input.gui_mouse import Gui, Mouse
 
 
 class TestMouse(TestCase):

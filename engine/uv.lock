@@ -180,6 +180,44 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-database"
+version = "1.0.0"
+source = { editable = "components/astronverse-database" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "cx-oracle" },
+    { name = "psycopg2" },
+    { name = "pymysql" },
+    { name = "pyodbc" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "cx-oracle" },
+    { name = "psycopg2" },
+    { name = "pymysql" },
+    { name = "pyodbc" },
+]
+
+[[package]]
+name = "astronverse-dataprocess"
+version = "1.0.0"
+source = { editable = "components/astronverse-dataprocess" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "numpy" },
+    { name = "python-dateutil" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "numpy" },
+    { name = "python-dateutil" },
+]
+
+[[package]]
 name = "astronverse-dialog"
 version = "1.0.0"
 source = { editable = "components/astronverse-dialog" }
@@ -220,6 +258,21 @@ dependencies = [
 requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
     { name = "pycryptodomex" },
+]
+
+[[package]]
+name = "astronverse-enterprise"
+version = "1.0.0"
+source = { editable = "components/astronverse-enterprise" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "requests" },
 ]
 
 [[package]]
@@ -323,6 +376,23 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-openapi"
+version = "1.0.0"
+source = { editable = "components/astronverse-openapi" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "openpyxl" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "openpyxl" },
+    { name = "requests" },
+]
+
+[[package]]
 name = "astronverse-pdf"
 version = "1.0.0"
 source = { editable = "components/astronverse-pdf" }
@@ -383,6 +453,17 @@ requires-dist = [
     { name = "uiautomation", marker = "sys_platform == 'win32'" },
     { name = "websockets" },
 ]
+
+[[package]]
+name = "astronverse-report"
+version = "1.0.0"
+source = { editable = "components/astronverse-report" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" }]
 
 [[package]]
 name = "astronverse-scheduler"
@@ -458,6 +539,42 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-system"
+version = "1.0.0"
+source = { editable = "components/astronverse-system" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "chardet" },
+    { name = "charset-normalizer" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "pillow" },
+    { name = "py7zr", marker = "sys_platform == 'win32'" },
+    { name = "pyautogui" },
+    { name = "pyperclip" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pyzipper" },
+    { name = "send2trash" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "chardet" },
+    { name = "charset-normalizer" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "pillow" },
+    { name = "pillow", marker = "sys_platform == 'linux'" },
+    { name = "py7zr", marker = "sys_platform == 'win32'" },
+    { name = "pyautogui" },
+    { name = "pyperclip" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pyzipper" },
+    { name = "send2trash" },
+]
+
+[[package]]
 name = "astronverse-tools"
 version = "1.0.0"
 source = { editable = "shared/astronverse-tools" }
@@ -491,6 +608,29 @@ requires-dist = [
     { name = "requests" },
     { name = "uvicorn" },
     { name = "watchfiles" },
+]
+
+[[package]]
+name = "astronverse-verifycode"
+version = "1.0.0"
+source = { editable = "components/astronverse-verifycode" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "astronverse-browser" },
+    { name = "astronverse-locator" },
+    { name = "pyautogui" },
+    { name = "pytweening" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "astronverse-browser", editable = "components/astronverse-browser" },
+    { name = "astronverse-locator", editable = "shared/astronverse-locator" },
+    { name = "pyautogui" },
+    { name = "pytweening" },
+    { name = "requests" },
 ]
 
 [[package]]
@@ -933,20 +1073,27 @@ dependencies = [
     { name = "astronverse-browser" },
     { name = "astronverse-browser-bridge" },
     { name = "astronverse-browser-plugin" },
+    { name = "astronverse-database" },
+    { name = "astronverse-dataprocess" },
     { name = "astronverse-dialog" },
     { name = "astronverse-email" },
     { name = "astronverse-encrypt" },
+    { name = "astronverse-enterprise" },
     { name = "astronverse-excel" },
     { name = "astronverse-executor" },
     { name = "astronverse-input" },
     { name = "astronverse-locator" },
+    { name = "astronverse-openapi" },
     { name = "astronverse-pdf" },
     { name = "astronverse-picker" },
+    { name = "astronverse-report" },
     { name = "astronverse-scheduler" },
     { name = "astronverse-script" },
     { name = "astronverse-software" },
+    { name = "astronverse-system" },
     { name = "astronverse-tools" },
     { name = "astronverse-trigger" },
+    { name = "astronverse-verifycode" },
     { name = "astronverse-vision" },
     { name = "astronverse-vision-picker" },
     { name = "astronverse-websocket-client" },
@@ -955,14 +1102,6 @@ dependencies = [
     { name = "astronverse-winelement" },
     { name = "astronverse-word" },
     { name = "astronverse-workflowlib" },
-    { name = "rpadatabase" },
-    { name = "rpadataprocess" },
-    { name = "rpaenterprise" },
-    { name = "rpanetwork" },
-    { name = "rpaopenapi" },
-    { name = "rpareport" },
-    { name = "rpasystem" },
-    { name = "rpaverifycode" },
 ]
 
 [package.dev-dependencies]
@@ -978,20 +1117,27 @@ requires-dist = [
     { name = "astronverse-browser", editable = "components/astronverse-browser" },
     { name = "astronverse-browser-bridge", editable = "servers/astronverse-browser-bridge" },
     { name = "astronverse-browser-plugin", editable = "shared/astronverse-browser-plugin" },
+    { name = "astronverse-database", editable = "components/astronverse-database" },
+    { name = "astronverse-dataprocess", editable = "components/astronverse-dataprocess" },
     { name = "astronverse-dialog", editable = "components/astronverse-dialog" },
     { name = "astronverse-email", editable = "components/astronverse-email" },
     { name = "astronverse-encrypt", editable = "components/astronverse-encrypt" },
+    { name = "astronverse-enterprise", editable = "components/astronverse-enterprise" },
     { name = "astronverse-excel", editable = "components/astronverse-excel" },
     { name = "astronverse-executor", editable = "servers/astronverse-executor" },
     { name = "astronverse-input", editable = "components/astronverse-input" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
+    { name = "astronverse-openapi", editable = "components/astronverse-openapi" },
     { name = "astronverse-pdf", editable = "components/astronverse-pdf" },
     { name = "astronverse-picker", editable = "servers/astronverse-picker" },
+    { name = "astronverse-report", editable = "components/astronverse-report" },
     { name = "astronverse-scheduler", editable = "servers/astronverse-scheduler" },
     { name = "astronverse-script", editable = "components/astronverse-script" },
     { name = "astronverse-software", editable = "components/astronverse-software" },
+    { name = "astronverse-system", editable = "components/astronverse-system" },
     { name = "astronverse-tools", editable = "shared/astronverse-tools" },
     { name = "astronverse-trigger", editable = "servers/astronverse-trigger" },
+    { name = "astronverse-verifycode", editable = "components/astronverse-verifycode" },
     { name = "astronverse-vision", editable = "components/astronverse-vision" },
     { name = "astronverse-vision-picker", editable = "servers/astronverse-vision-picker" },
     { name = "astronverse-websocket-client", editable = "shared/astronverse-websocket-client" },
@@ -1000,14 +1146,6 @@ requires-dist = [
     { name = "astronverse-winelement", editable = "components/astronverse-winelement" },
     { name = "astronverse-word", editable = "components/astronverse-word" },
     { name = "astronverse-workflowlib", editable = "components/astronverse-workflowlib" },
-    { name = "rpadatabase", editable = "components/rpadatabase" },
-    { name = "rpadataprocess", editable = "components/rpadataprocess" },
-    { name = "rpaenterprise", editable = "components/rpaenterprise" },
-    { name = "rpanetwork", editable = "components/rpanetwork" },
-    { name = "rpaopenapi", editable = "components/rpaopenapi" },
-    { name = "rpareport", editable = "components/rpareport" },
-    { name = "rpasystem", editable = "components/rpasystem" },
-    { name = "rpaverifycode", editable = "components/rpaverifycode" },
 ]
 
 [package.metadata.requires-dev]
@@ -4578,161 +4716,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738, upload-time = "2025-08-18T20:46:00.542Z" },
-]
-
-[[package]]
-name = "rpadatabase"
-version = "1.0.0"
-source = { editable = "components/rpadatabase" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "cx-oracle" },
-    { name = "psycopg2" },
-    { name = "pymysql" },
-    { name = "pyodbc" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "cx-oracle" },
-    { name = "psycopg2" },
-    { name = "pymysql" },
-    { name = "pyodbc" },
-]
-
-[[package]]
-name = "rpadataprocess"
-version = "1.0.0"
-source = { editable = "components/rpadataprocess" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "numpy" },
-    { name = "python-dateutil" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "numpy" },
-    { name = "python-dateutil" },
-]
-
-[[package]]
-name = "rpaenterprise"
-version = "1.0.0"
-source = { editable = "components/rpaenterprise" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "requests" },
-]
-
-[[package]]
-name = "rpanetwork"
-version = "1.0.0"
-source = { editable = "components/rpanetwork" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "requests" },
-]
-
-[[package]]
-name = "rpaopenapi"
-version = "1.0.0"
-source = { editable = "components/rpaopenapi" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "openpyxl" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "openpyxl" },
-    { name = "requests" },
-]
-
-[[package]]
-name = "rpareport"
-version = "1.0.0"
-source = { editable = "components/rpareport" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" }]
-
-[[package]]
-name = "rpasystem"
-version = "1.0.0"
-source = { editable = "components/rpasystem" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "chardet" },
-    { name = "charset-normalizer" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pillow" },
-    { name = "py7zr", marker = "sys_platform == 'win32'" },
-    { name = "pyautogui" },
-    { name = "pyperclip" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "pyzipper" },
-    { name = "send2trash" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "chardet" },
-    { name = "charset-normalizer" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pillow" },
-    { name = "pillow", marker = "sys_platform == 'linux'" },
-    { name = "py7zr", marker = "sys_platform == 'win32'" },
-    { name = "pyautogui" },
-    { name = "pyperclip" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "pyzipper" },
-    { name = "send2trash" },
-]
-
-[[package]]
-name = "rpaverifycode"
-version = "1.0.0"
-source = { editable = "components/rpaverifycode" }
-dependencies = [
-    { name = "astronverse-actionlib" },
-    { name = "astronverse-browser" },
-    { name = "astronverse-locator" },
-    { name = "pyautogui" },
-    { name = "pytweening" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
-    { name = "astronverse-browser", editable = "components/astronverse-browser" },
-    { name = "astronverse-locator", editable = "shared/astronverse-locator" },
-    { name = "pyautogui" },
-    { name = "pytweening" },
-    { name = "requests" },
 ]
 
 [[package]]

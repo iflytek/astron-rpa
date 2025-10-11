@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from astronverse.picker import WEB_CLASS_NAMES, IElement, Point
 from astronverse.picker.engines.uia_picker import UIAOperate

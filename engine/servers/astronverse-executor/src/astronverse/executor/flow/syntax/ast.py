@@ -4,15 +4,18 @@ import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Union, List, Dict, Optional
-from astronverse.actionlib.types import Int, Bool, List as RpaList, Dict as RpaDict
+from typing import Any, Optional, Union
+
+from astronverse.actionlib.types import Bool, Int
+from astronverse.actionlib.types import Dict as RpaDict
+from astronverse.actionlib.types import List as RpaList
 from astronverse.executor.error import FLOW_PARAM_NAME_FORMAT
 from astronverse.executor.flow.params import callback_special_eval_element, callback_special_eval_parse
 from astronverse.executor.flow.svc import Svc
 from astronverse.executor.flow.syntax import InputParam, OutputParam
-from astronverse.executor.flow.syntax.environment import Environment, EnvItem, EnvBizTypes
+from astronverse.executor.flow.syntax.environment import EnvBizTypes, Environment, EnvItem
 from astronverse.executor.flow.syntax.event import event
-from astronverse.executor.flow.syntax.sign import Sign, SignType, ContinueSign, BreakSign
+from astronverse.executor.flow.syntax.sign import BreakSign, ContinueSign, Sign, SignType
 from astronverse.executor.flow.syntax.token import Token, TokenType
 
 
@@ -40,7 +43,7 @@ def expression(code: str, svc: Svc, env: Optional[Environment], token: Token, pr
     return value
 
 
-def condition_expression(condition: Dict[str, InputParam], svc: Svc, env: Environment, token: Token, project_id):
+def condition_expression(condition: dict[str, InputParam], svc: Svc, env: Environment, token: Token, project_id):
     """处理condition的表达式，先对于expression会后一些和python执行器差异的地方"""
 
     cond = condition["condition"].value
@@ -143,9 +146,12 @@ def condition_expression(condition: Dict[str, InputParam], svc: Svc, env: Enviro
         elif cond in ["in", "notin"]:
             # 优先将args2_val尝试转换成list和dict
             try:
-                if isinstance(args2_val, str) and str_is_list(args2_val):
-                    args2_val = ast.literal_eval(args2_val)
-                elif isinstance(args2_val, str) and str_is_dict(args2_val):
+                if (
+                    isinstance(args2_val, str)
+                    and str_is_list(args2_val)
+                    or isinstance(args2_val, str)
+                    and str_is_dict(args2_val)
+                ):
                     args2_val = ast.literal_eval(args2_val)
             except Exception:
                 pass
@@ -167,7 +173,7 @@ def condition_expression(condition: Dict[str, InputParam], svc: Svc, env: Enviro
 
 
 def if_condition_expression(
-    condition: Dict[str, InputParam], consequence: "Block", svc: Svc, env: Environment, token: Token, project_id
+    condition: dict[str, InputParam], consequence: "Block", svc: Svc, env: Environment, token: Token, project_id
 ) -> Any:
     """if执行主要是为了处理else if无限叠层"""
 
@@ -203,7 +209,7 @@ class Node(ABC):
 @dataclass
 class Program(Node):
     token: Token = None
-    statements: List[Node] = None
+    statements: list[Node] = None
 
     def init(self, svc: Svc):
         self.is_init = True
@@ -286,7 +292,7 @@ class Program(Node):
 
                     # 中断后续执行, 并向上抛出
                     assert isinstance(res, Sign)
-                    if res.type in [SignType.Return]:
+                    if res.type == SignType.Return:
                         return res
 
             # 输出参数
@@ -301,10 +307,10 @@ class Program(Node):
 
 @dataclass
 class Component(Node):
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
     token: Token = None
-    statements: List[Node] = None
+    statements: list[Node] = None
 
     def init(self, svc: Svc):
         self.__arguments__ = {}
@@ -419,7 +425,7 @@ class Component(Node):
 
                     # 中断后续执行, 并向上抛出
                     assert isinstance(res, Sign)
-                    if res.type in [SignType.Return]:
+                    if res.type == SignType.Return:
                         return res
 
             returned = []
@@ -452,10 +458,10 @@ class Component(Node):
 
 @dataclass
 class ChildProgram(Node):
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
     token: Token = None
-    statements: List[Node] = None
+    statements: list[Node] = None
 
     def init(self, svc: Svc):
         self.__arguments__ = {}
@@ -561,7 +567,7 @@ class ChildProgram(Node):
 
                     # 中断后续执行, 并向上抛出
                     assert isinstance(res, Sign)
-                    if res.type in [SignType.Return]:
+                    if res.type == SignType.Return:
                         return res
 
             returned = []
@@ -600,7 +606,7 @@ class ChildProgram(Node):
 @dataclass
 class Block(Node):
     token: Token = None
-    statements: List[Node] = None
+    statements: list[Node] = None
 
     def init(self, svc: Svc):
         self.is_init = True
@@ -638,8 +644,8 @@ class Block(Node):
 class Atomic(Node):
     token: Token = None
     init_err = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     def init(self, svc: Svc):
         try:
@@ -713,7 +719,6 @@ class Atomic(Node):
                     env.setitem(
                         project_id, t_key, EnvItem(biz_types=t_biz_types, types=returned[0].types, key=t_key, value=res)
                     )
-            return
 
         event.debug_handler(svc, env, self.token)
         return raw_run()
@@ -725,11 +730,11 @@ class AtomicExist(Node):
 
     token: Token = None
     init_err = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     consequence: Block = None
-    conditions_and_blocks: List["IF"] = None
+    conditions_and_blocks: list["IF"] = None
     alternative: Block = None
 
     def init(self, svc: Svc):
@@ -829,8 +834,8 @@ class AtomicFor(Node):
     init_err = None
 
     body: Block = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     def init(self, svc: Svc):
         try:
@@ -924,7 +929,7 @@ class AtomicFor(Node):
                     elif res.type == SignType.Continue:
                         i += 1
                         continue
-                    elif res.type in [SignType.Return]:
+                    elif res.type == SignType.Return:
                         return res
 
                     i += 1
@@ -973,7 +978,7 @@ class AtomicFor(Node):
                     elif res.type == SignType.Continue:
                         i += 1
                         continue
-                    elif res.type in [SignType.Return]:
+                    elif res.type == SignType.Return:
                         return res
 
                     i += 1
@@ -1021,7 +1026,7 @@ class AtomicFor(Node):
                     elif res.type == SignType.Continue:
                         i += 1
                         continue
-                    elif res.type in [SignType.Return]:
+                    elif res.type == SignType.Return:
                         return res
 
                     i += 1
@@ -1076,9 +1081,9 @@ class Continue(Node):
 class IF(Node):
     token: Token = None
     consequence: Block = None
-    conditions_and_blocks: List["IF"] = None
+    conditions_and_blocks: list["IF"] = None
     alternative: Block = None
-    __condition__: Dict[str, InputParam] = None
+    __condition__: dict[str, InputParam] = None
 
     def init(self, svc: Svc):
         self.__condition__ = svc.params.parse_condition_input(self.token)
@@ -1137,7 +1142,7 @@ class IF(Node):
 class While(Node):
     token: Token = None
     body: Block = None
-    __condition__: Dict[str, InputParam] = None
+    __condition__: dict[str, InputParam] = None
 
     def init(self, svc: Svc):
         self.__condition__ = svc.params.parse_condition_input(self.token)
@@ -1170,7 +1175,7 @@ class While(Node):
                     break
                 elif res.type == SignType.Continue:
                     continue
-                elif res.type in [SignType.Return]:
+                elif res.type == SignType.Return:
                     return res
 
         return raw_run()
@@ -1232,8 +1237,8 @@ class Try(Node):
 class For(Node):
     token: Token = None
     body: Block = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     def init(self, svc: Svc):
         self.__arguments__ = {}
@@ -1297,7 +1302,7 @@ class For(Node):
                     elif res.type == SignType.Continue:
                         i += step
                         continue
-                    elif res.type in [SignType.Return]:
+                    elif res.type == SignType.Return:
                         return res
 
                     i += step
@@ -1343,7 +1348,7 @@ class For(Node):
                     elif res.type == SignType.Continue:
                         i += 1
                         continue
-                    elif res.type in [SignType.Return]:
+                    elif res.type == SignType.Return:
                         return res
 
                     i += 1
@@ -1393,7 +1398,7 @@ class For(Node):
                     elif res.type == SignType.Continue:
                         i += 1
                         continue
-                    elif res.type in [SignType.Return]:
+                    elif res.type == SignType.Return:
                         return res
 
                     i += 1

@@ -13,7 +13,6 @@ from email.utils import formataddr, parseaddr
 from typing import Union
 
 from astronverse.baseline.logger.logger import logger
-
 from astronverse.email.error import *
 
 

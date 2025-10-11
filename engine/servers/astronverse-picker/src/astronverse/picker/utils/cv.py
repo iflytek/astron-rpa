@@ -1,5 +1,6 @@
 import base64
 import io
+
 import pyautogui
 from astronverse.picker import Rect
 

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
+
 from astronverse.executor.flow.syntax.environment import Environment
 from astronverse.executor.flow.syntax.token import Token
 

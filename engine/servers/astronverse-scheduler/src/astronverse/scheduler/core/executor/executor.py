@@ -26,7 +26,6 @@ from astronverse.scheduler.utils.utils import (
     EmitType,
     check_port,
     emit_to_front,
-    kill_proc_tree,
     read_last_n_lines,
 )
 
@@ -85,7 +84,7 @@ def read_status(file) -> (ExecuteStatus, str):
             log_lines = read_last_n_lines(file, 5)
             for line in reversed(log_lines):
                 line = line.strip()
-                if "" == line:
+                if line == "":
                     continue
                 try:
                     result_json = json.loads(line)
@@ -562,7 +561,7 @@ class ExecutorManager:
                 log_path_size = os.path.getsize(log_file)
                 if log_path_size < 10 * 1024 * 1024:
                     # 小于10M的才读取
-                    with open(log_file, "r", encoding="utf-8") as f:
+                    with open(log_file, encoding="utf-8") as f:
                         log_content = f.readlines()
                     log_content = [json.loads(item.strip()) for item in log_content]
                     log_content = json.dumps(log_content)
@@ -602,7 +601,7 @@ class ExecutorManager:
                 # 日志上报
                 data = {
                     "robotId": executor.project_id,
-                    "executeId": executor.exec_id if executor.exec_id else "",
+                    "executeId": executor.exec_id or "",
                     "taskExecuteId": executor.task_exec_id,
                     "result": executor.execute_status.value,
                     "errorReason": executor.execute_reason,

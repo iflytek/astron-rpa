@@ -7,21 +7,19 @@ import sys
 import time
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
-from astronverse.tools.tools import RpaTools
-
 from astronverse.ai import LLMModelTypes
+from astronverse.tools.tools import RpaTools
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 print(os.path.dirname(os.path.abspath(__file__)))
 
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.baseline.logger.logger import logger
-
 from astronverse.ai.api.llm import chat_normal, chat_streamable
 from astronverse.ai.error import *
 from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
+from astronverse.baseline.logger.logger import logger
 
 
 class ChatAI:

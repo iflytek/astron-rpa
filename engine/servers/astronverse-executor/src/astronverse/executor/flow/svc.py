@@ -1,15 +1,16 @@
 import asyncio
 import threading
 from queue import Queue
+from typing import Optional
+
 from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
-from astronverse.executor import utils, ExecuteStatus, ProjectInfo, ProcessInfo
+from astronverse.executor import ExecuteStatus, ProcessInfo, ProjectInfo
 from astronverse.executor.error import *
 from astronverse.executor.flow.atomic import Atomic
 from astronverse.executor.flow.params import Params
 from astronverse.executor.flow.report import report
 from astronverse.executor.flow.storage import HttpStorage, Storage
 from astronverse.executor.flow.syntax import Job
-from typing import Optional, List, Dict
 from astronverse.executor.flow.syntax.event import EventKey, EventStopReason
 
 
@@ -66,8 +67,8 @@ class Svc:
         self.run_param: list = run_param
 
         self.global_id2name: dict = {}
-        self.process_dict: Dict[str, ProcessInfo] = {}
-        self.project_dict: Dict[str, ProjectInfo] = {}
+        self.process_dict: dict[str, ProcessInfo] = {}
+        self.project_dict: dict[str, ProjectInfo] = {}
         self.start_process_id = ""  # 启动的流程id
         self.start_project_id = project_id  # 启动的project_id
         self.start_project_name = project_name  # 启动的project_name
@@ -100,24 +101,24 @@ class Svc:
         if is_pause:
             self.events[EventKey.ResPause.value] = False
             self.events[EventKey.Pause.value] = True
-            while not (EventKey.ResPause.value in self.events and self.events[EventKey.ResPause.value]):
+            while not (self.events.get(EventKey.ResPause.value)):
                 await asyncio.sleep(0.1)
         else:
             self.events[EventKey.ResPause.value] = True
             self.events[EventKey.Pause.value] = False
-            while EventKey.ResPause.value in self.events and self.events[EventKey.ResPause.value]:
+            while self.events.get(EventKey.ResPause.value):
                 await asyncio.sleep(0.1)
 
     async def event_continue(self):
         self.events[EventKey.ResContinue.value] = False
         self.events[EventKey.Continue.value] = True
-        while not (EventKey.ResContinue.value in self.events and self.events[EventKey.ResContinue.value]):
+        while not (self.events.get(EventKey.ResContinue.value)):
             await asyncio.sleep(0.1)
 
     async def event_next(self):
         self.events[EventKey.ResNext.value] = False
         self.events[EventKey.Next.value] = True
-        while not (EventKey.ResNext.value in self.events and self.events[EventKey.ResNext.value]):
+        while not (self.events.get(EventKey.ResNext.value)):
             await asyncio.sleep(0.1)
 
     def event_break(self) -> dict:

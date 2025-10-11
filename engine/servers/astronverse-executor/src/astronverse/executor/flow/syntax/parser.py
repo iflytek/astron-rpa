@@ -1,30 +1,31 @@
+from typing import Optional, Union
+
 from astronverse.executor.error import *
 from astronverse.executor.flow.syntax.ast import (
-    Program,
-    Node,
-    Atomic,
-    Block,
     IF,
-    Break,
-    Continue,
-    While,
-    Try,
-    For,
-    ChildProgram,
+    Atomic,
     AtomicExist,
     AtomicFor,
+    Block,
+    Break,
+    ChildProgram,
     Component,
+    Continue,
+    For,
+    Node,
+    Program,
+    Try,
+    While,
 )
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.token import (
     Token,
     TokenType,
-    token_type_key_dict,
     exist_atomic_dict,
-    special_token_type_end,
     for_atomic_dict,
+    special_token_type_end,
+    token_type_key_dict,
 )
-from typing import Union, Optional
 
 
 class Parser:

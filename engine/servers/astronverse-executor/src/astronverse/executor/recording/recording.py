@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
 import os
 import subprocess
 import sys
 import threading
 import time
-from astronverse.executor.logger import logger
+from datetime import datetime, timedelta
 
+from astronverse.executor.logger import logger
 
 system_encoding = sys.getdefaultencoding()
 

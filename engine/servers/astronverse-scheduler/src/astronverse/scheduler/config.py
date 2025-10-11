@@ -3,7 +3,6 @@ import sys
 from no_config import Config
 
 from astronverse.scheduler.utils.platform_utils import (
-    platform_python_path,
     platform_python_run_dir,
 )
 

@@ -1,11 +1,11 @@
 import os
 
 import pyautogui
-from astronverse.locator import PickerDomain, Point
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WinPick
 from astronverse.actionlib.utils import FileExistenceType, handle_existence
+from astronverse.locator import PickerDomain, Point
 from astronverse.winelement import (
     ElementInputType,
     MouseClickButton,

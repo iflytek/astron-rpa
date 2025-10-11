@@ -1,6 +1,7 @@
 import subprocess
+
+from astronverse.vision_picker.core.core import IPickCore, IRectHandler
 from pynput.mouse import Controller
-from astronverse.vision_picker.core.core import IRectHandler, IPickCore
 
 
 class RectHandler(IRectHandler):

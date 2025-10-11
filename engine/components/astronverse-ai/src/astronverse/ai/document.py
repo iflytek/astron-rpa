@@ -3,7 +3,6 @@
 import copy
 
 from astronverse.actionlib.atomic import atomicMg
-
 from astronverse.ai.chat import ChatAI
 from astronverse.ai.prompt.g_document import (
     prompt_sentence_extend,

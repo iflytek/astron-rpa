@@ -1,10 +1,11 @@
 import traceback
+from dataclasses import dataclass
+from typing import Any
+
+from astronverse.browser_bridge.error import CODE_INNER, CODE_OK, BaseException
+from astronverse.browser_bridge.logger import logger
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from typing import Any
-from dataclasses import dataclass
-from astronverse.browser_bridge.logger import logger
-from astronverse.browser_bridge.error import BaseException, CODE_OK, CODE_INNER
 
 
 @dataclass

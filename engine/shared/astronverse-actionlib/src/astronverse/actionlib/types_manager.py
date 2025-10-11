@@ -1,7 +1,8 @@
 import json
 from functools import wraps
 from typing import Any
-from astronverse.actionlib import TypesMeta, TypeFuncMeta
+
+from astronverse.actionlib import TypeFuncMeta, TypesMeta
 from astronverse.actionlib.config import config
 
 

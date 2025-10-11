@@ -2,9 +2,8 @@ import os
 import sys
 from typing import Any
 from urllib.parse import urlparse
-from importlib_metadata import version as check_version
-from astronverse.actionlib import ReportTip
 
+from astronverse.actionlib import ReportTip
 from astronverse.executor.error import DOWNLOAD_ATOMIC_FORMAT, DOWNLOAD_ATOMIC_SUCCESS_FORMAT
 from astronverse.executor.flow.report import SimpleReport
 from astronverse.executor.flow.storage import Storage
@@ -13,6 +12,7 @@ from astronverse.executor.flow.syntax.environment import Environment
 from astronverse.executor.flow.syntax.token import Token
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import exec_run
+from importlib_metadata import version as check_version
 
 python_executable = sys.executable
 

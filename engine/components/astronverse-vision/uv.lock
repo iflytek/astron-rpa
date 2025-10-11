@@ -480,7 +480,7 @@ dependencies = [
     { name = "pyautogui" },
     { name = "pynput" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "rpagui" },
+    { name = "astronverse-gui" },
 ]
 
 [package.metadata]
@@ -492,13 +492,13 @@ requires-dist = [
     { name = "pyautogui" },
     { name = "pynput" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
-    { name = "rpagui", editable = "../rpagui" },
+    { name = "astronverse-gui", editable = "../astronverse-gui" },
 ]
 
 [[package]]
-name = "rpagui"
+name = "astronverse-gui"
 version = "1.0.0"
-source = { editable = "../rpagui" }
+source = { editable = "../astronverse-gui" }
 dependencies = [
     { name = "astronverse-actionlib" },
     { name = "pillow", marker = "sys_platform == 'linux'" },

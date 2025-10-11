@@ -1,7 +1,9 @@
 import base64
 import io
+
 import pyautogui
 from fastapi import APIRouter, Depends
+
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.core.terminal.terminal import Terminal

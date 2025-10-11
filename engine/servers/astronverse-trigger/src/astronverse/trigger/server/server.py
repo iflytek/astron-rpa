@@ -3,11 +3,6 @@ import copy
 import threading
 import time
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from astronverse.websocket_client.ws import BaseMsg
-from astronverse.websocket_client.ws_client import WsApp
-
 from astronverse.trigger import (
     ConfigInput,
     MailDetectInput,
@@ -28,6 +23,10 @@ from astronverse.trigger.server.gateway_client import (
 from astronverse.trigger.tasks.base_task import AsyncImmediateTask, AsyncSchedulerTask
 from astronverse.trigger.tasks.mail_task import MailTask
 from astronverse.trigger.tasks.scheduled_task import ScheduledTask
+from astronverse.websocket_client.ws import BaseMsg
+from astronverse.websocket_client.ws_client import WsApp
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class WebSocketManager:

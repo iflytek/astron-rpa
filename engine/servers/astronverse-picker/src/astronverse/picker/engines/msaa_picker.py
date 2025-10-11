@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 独立的 MSAA 拾取与校验模块
 整合原有项目中的 MSAA 相关功能，可独立运行，不依赖项目中的其他文件
@@ -13,13 +12,12 @@ import comtypes
 import comtypes.automation
 import comtypes.client
 import uiautomation as auto
-from pywin.mfc.object import Object
-
 from astronverse.picker import IElement, PickerDomain, Point, Rect
-from astronverse.picker.logger import logger
 from astronverse.picker.engines.uia_picker import UIAOperate
+from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
+from pywin.mfc.object import Object
 
 # 加载 MSAA 相关的 COM 类型库
 try:
@@ -617,8 +615,8 @@ class MSAAPickerUtil:
 
                         while uia_current:
                             try:
-                                value = uia_current.GetValuePattern().Value  # noqa
-                            except Exception:  # noqa
+                                value = uia_current.GetValuePattern().Value
+                            except Exception:
                                 value = None
                             uia_info = {
                                 "cls": uia_current.ClassName,

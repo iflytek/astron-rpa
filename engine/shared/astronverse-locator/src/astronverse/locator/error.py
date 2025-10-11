@@ -4,7 +4,8 @@
 定义RPA定位器相关的错误码和异常类型。
 """
 
-from astronverse.baseline.error.error import ErrorCode, BaseException as RPABaseException, BizCode
+from astronverse.baseline.error.error import BaseException as RPABaseException
+from astronverse.baseline.error.error import BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
 # 重新导出基础异常类
