@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-software"
-version = "1.0.0"
+version = "1.0.1"
 description = "astronverse-software."
 requires-python = ">=3.13"
 

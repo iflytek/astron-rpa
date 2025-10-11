@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-picker"
-version = "1.0.0"
+version = "1.0.1"
 description = "astronverse-picker."
 requires-python = ">=3.13"
 

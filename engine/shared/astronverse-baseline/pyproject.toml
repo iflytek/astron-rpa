@@ -1,12 +1,13 @@
 [project]
 name = "astronverse-baseline"
-version = "1.0.0"
+version = "1.0.1"
 description = "astronverse-baseline."
 requires-python = ">=3.13"
 
 dependencies = [
     "loguru",
     "toml",
+    "PyYAML",
 ]
 
 [tool.hatch.build.targets.wheel]

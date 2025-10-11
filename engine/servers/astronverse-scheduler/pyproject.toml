@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-scheduler"
-version = "1.0.0"
+version = "1.0.1"
 description = "astronverse-scheduler."
 requires-python = ">=3.13"
 
@@ -12,7 +12,6 @@ dependencies = [
     "uvicorn",
     "requests",
     "importlib_metadata",
-    "no_config",
     "pyperclip",
     "sseclient",
     "websocket-client",

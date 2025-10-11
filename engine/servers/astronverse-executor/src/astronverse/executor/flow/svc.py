@@ -36,6 +36,10 @@ class SyncMap:
         with self.lock:
             return key in self.map
 
+    def get(self, key, default=None):
+        with self.lock:
+            return self.map.get(key, default)
+
 
 class Svc:
     def __init__(
@@ -101,24 +105,24 @@ class Svc:
         if is_pause:
             self.events[EventKey.ResPause.value] = False
             self.events[EventKey.Pause.value] = True
-            while not (self.events.get(EventKey.ResPause.value)):
+            while not (EventKey.ResPause.value in self.events and self.events[EventKey.ResPause.value]):
                 await asyncio.sleep(0.1)
         else:
             self.events[EventKey.ResPause.value] = True
             self.events[EventKey.Pause.value] = False
-            while self.events.get(EventKey.ResPause.value):
+            while EventKey.ResPause.value in self.events and self.events[EventKey.ResPause.value]:
                 await asyncio.sleep(0.1)
 
     async def event_continue(self):
         self.events[EventKey.ResContinue.value] = False
         self.events[EventKey.Continue.value] = True
-        while not (self.events.get(EventKey.ResContinue.value)):
+        while not (EventKey.ResContinue.value in self.events and self.events[EventKey.ResContinue.value]):
             await asyncio.sleep(0.1)
 
     async def event_next(self):
         self.events[EventKey.ResNext.value] = False
         self.events[EventKey.Next.value] = True
-        while not (self.events.get(EventKey.ResNext.value)):
+        while not (EventKey.ResNext.value in self.events and self.events[EventKey.ResNext.value]):
             await asyncio.sleep(0.1)
 
     def event_break(self) -> dict:

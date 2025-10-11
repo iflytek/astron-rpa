@@ -1,10 +1,6 @@
 import sys
 
-from no_config import Config
-
-from astronverse.scheduler.utils.platform_utils import (
-    platform_python_run_dir,
-)
+from astronverse.scheduler.utils.platform_utils import platform_python_run_dir
 
 
 class AppServer:
@@ -37,7 +33,6 @@ class BasePIPYServer:
     pypi_remote: str = None
 
 
-@Config(type=dict(app_server=AppServer, base_pipy_server=BasePIPYServer))
 class Config:
     """
     公共配置
