@@ -1,4 +1,4 @@
-import tailwindPreset from '@rpa/tokens/tailwind'
+import tailwindPreset from '@rpa/shared/tokens/tailwind'
 
 /** @type {import('tailwindcss').Config} */
 export default {

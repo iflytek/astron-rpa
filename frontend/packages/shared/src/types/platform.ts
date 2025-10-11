@@ -1,3 +1,5 @@
+import type { IPluginConfig } from './plugin'
+
 // 窗口管理相关类型
 export interface WindowManager {
   platform: string
@@ -96,6 +98,8 @@ export interface UtilsManager {
   shellopen: (path: string) => Promise<void>
   openPlugins: () => Promise<void>
   showDialog: (dialogProps: any) => Promise<any>
+  getPluginPath: (filePath: string) => Promise<string>
+  getPluginList: () => Promise<IPluginConfig[]>
 }
 
 // 快捷键管理器

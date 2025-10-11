@@ -1,4 +1,4 @@
-import type { UpdaterManager as UpdaterManagerType } from '@rpa/types'
+import type { UpdaterManager as UpdaterManagerType } from '@rpa/shared/platform'
 
 const checkUpdate: UpdaterManagerType['checkUpdate'] = async () => {
   console.warn('checkUpdate not implemented')

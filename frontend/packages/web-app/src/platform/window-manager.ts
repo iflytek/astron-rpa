@@ -1,4 +1,4 @@
-import type { WindowManager } from '@rpa/types'
+import type { WindowManager } from '@rpa/shared/platform'
 import { noop } from 'lodash-es'
 
 import type { WINDOW_NAME } from '@/constants'

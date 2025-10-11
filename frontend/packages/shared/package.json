@@ -1,0 +1,45 @@
+{
+  "name": "@rpa/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./platform": {
+      "types": "./dist/platform.d.ts",
+      "import": "./dist/platform.js"
+    },
+    "./tokens/light": {
+      "types": "./dist/tokens/variables.d.ts",
+      "import": "./dist/tokens/variables.js",
+      "require": "./dist/tokens/variables.cjs"
+    },
+    "./tokens/dark": {
+      "types": "./dist/tokens/variables.d.ts",
+      "import": "./dist/tokens/variables.dark.js",
+      "require": "./dist/tokens/variables.dark.cjs"
+    },
+    "./tokens/variables.css": "./dist/tokens/variables.css",
+    "./tokens/variables.scss": "./dist/tokens/variables.scss",
+    "./tokens/tailwind": "./dist/tokens/tailwind-preset.js"
+  },
+  "scripts": {
+    "build": "rslib build",
+    "dev": "rslib build --watch",
+    "build:tokens": "node tokens/build-tokens.js",
+    "postinstall": "npm run build && npm run build:tokens"
+  },
+  "devDependencies": {
+    "@rslib/core": "^0.14.0",
+    "style-dictionary": "^4.4.0"
+  },
+  "dependencies": {
+    "@ctrl/tinycolor": "^4.1.0"
+  }
+}

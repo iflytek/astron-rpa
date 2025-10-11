@@ -1,4 +1,4 @@
-import type { ShortCutManager } from '@rpa/types'
+import type { ShortCutManager } from '@rpa/shared/platform'
 
 const ShortCut: ShortCutManager = {
   register(_shortKey: string, _handler: any) {},

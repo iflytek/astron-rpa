@@ -1,4 +1,4 @@
-/// <reference types="@rpa/types/global" />
+/// <reference types="@rpa/shared/platform" />
 
 export interface DialogObj {
   title: string

@@ -1,3 +1,7 @@
+import { readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import StyleDictionary from 'style-dictionary'
 import { formats, transformGroups, transformTypes } from 'style-dictionary/enums'
 
@@ -43,9 +47,9 @@ StyleDictionary.registerFormat({
   format: tailwindPreset,
 })
 
-const buildPath = 'dist/'
+const buildPath = 'dist/tokens/'
 
-export default {
+const sd = new StyleDictionary({
   source: [`tokens/**/*.js`],
   platforms: {
     'css': {
@@ -135,4 +139,35 @@ export default {
       ],
     },
   },
+})
+
+// 合并 css 变量文件
+function mergeCss() {
+  // 获取当前文件路径
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = dirname(__filename)
+
+  const distPath = join(__dirname, '../', buildPath)
+
+  const lightFile = join(distPath, 'variables.css')
+  const darkFile = join(distPath, 'variables.dark.css')
+
+  try {
+    const lightVars = readFileSync(lightFile, 'utf8')
+    const darkVars = readFileSync(darkFile, 'utf8')
+    const combined = `${lightVars}\n\n/* Dark mode variables */\n${darkVars}`
+
+    writeFileSync(lightFile, combined)
+    console.log('CSS variables merged successfully!')
+  }
+  catch (err) {
+    console.error('Error merging files:', err.message)
+  }
 }
+
+async function build() {
+  await sd.buildAllPlatforms()
+  mergeCss()
+}
+
+build()
