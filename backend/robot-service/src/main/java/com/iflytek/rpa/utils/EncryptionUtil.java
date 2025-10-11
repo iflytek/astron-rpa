@@ -44,7 +44,4 @@ public class EncryptionUtil {
         return new String(decrypted, StandardCharsets.UTF_8);
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println(decrypt("90/gZdamVIOz8v/0xcAclw==", "rF9iTEzQegxmNTiOjDQjWQZREXALlMXO"));
-    }
 }

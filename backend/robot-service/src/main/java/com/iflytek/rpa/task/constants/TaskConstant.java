@@ -14,4 +14,6 @@ public class TaskConstant {
     public static final String TASK_RESULT_CANCEL = "cancel";
 
     public static final String TASK_RESULT_EXECUTE = "executing";
+
+    public static final Integer TASK_MAX_SIZE = 100;
 }
