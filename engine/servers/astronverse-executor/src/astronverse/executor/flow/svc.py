@@ -137,7 +137,14 @@ class Svc:
                 svc = self
                 # 如果中止了，需要补充日志
                 if is_abort:
-                    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, result=ExecuteStatus.CANCEL.value, msg_str=ReportFlowTaskEndUserClose))
+                    svc.report.info(
+                        ReportFlow(
+                            log_type=ReportType.Flow,
+                            status=ReportFlowStatus.TASK_END,
+                            result=ExecuteStatus.CANCEL.value,
+                            msg_str=ReportFlowTaskEndUserClose,
+                        )
+                    )
                     svc.storage.report_status_upload("cancel", ReportFlowTaskEndUserClose)
                 # 补充日志结束
                 svc.report.code.close()
