@@ -1,5 +1,7 @@
 package com.iflytek.rpa.task.service.impl;
 
+import static com.iflytek.rpa.task.constants.TaskConstant.TASK_MAX_SIZE;
+
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -35,8 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import static com.iflytek.rpa.task.constants.TaskConstant.TASK_MAX_SIZE;
 
 /**
  * <p>

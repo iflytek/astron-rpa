@@ -1,5 +1,7 @@
 package com.iflytek.rpa.triggerTask.service.impl;
 
+import static com.iflytek.rpa.triggerTask.constants.TaskConstants.*;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,8 +22,6 @@ import org.casbin.casdoor.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import static com.iflytek.rpa.triggerTask.constants.TaskConstants.*;
 
 /**
  * <p>

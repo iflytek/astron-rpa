@@ -43,5 +43,4 @@ public class EncryptionUtil {
         byte[] decrypted = cipher.doFinal(decoded);
         return new String(decrypted, StandardCharsets.UTF_8);
     }
-
 }

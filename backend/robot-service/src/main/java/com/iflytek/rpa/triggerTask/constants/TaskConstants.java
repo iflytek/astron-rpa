@@ -10,6 +10,4 @@ public class TaskConstants {
     public static final String EMAIL_126 = "126Email";
     public static final String EMAIL_IFLYTEK = "iflytekEmail";
     public static final String PORT = "993";
-
-
 }
