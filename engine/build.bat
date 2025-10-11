@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
@@ -11,7 +11,7 @@ if "%SEVENZ_EXE%"=="" set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
 set BUILD_DIR=build
 set PYTHON_CORE_DIR=%BUILD_DIR%\python_core
 set DIST_DIR=%BUILD_DIR%\dist
-set ARCHIVE_DIST_DIR=../frontend/packages/tauri-app/src-tauri/resources/
+set ARCHIVE_DIST_DIR=../resources/
 
 REM ============================================
 REM 2. Argument Parsing

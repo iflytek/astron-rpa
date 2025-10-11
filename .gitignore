@@ -155,3 +155,5 @@ coverage.out
 /pack_workspace/*
 
 /docker/data/
+
+resources/*.7z
