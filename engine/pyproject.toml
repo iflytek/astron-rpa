@@ -77,7 +77,7 @@ astronverse-websocket-server = {path = "./shared/astronverse-websocket-server", 
 astronverse-window = {path = "./components/astronverse-window", editable = true}
 astronverse-winelement = {path = "./components/astronverse-winelement", editable = true}
 astronverse-word = {path = "./components/astronverse-word", editable = true}
-astronverse-workflowlib = {path = "./components/astronverse-workflowlib", editable = true}
+astronverse-workflowlib = {path = "./shared/astronverse-workflowlib", editable = true}
 
 [dependency-groups]
 dev = [
