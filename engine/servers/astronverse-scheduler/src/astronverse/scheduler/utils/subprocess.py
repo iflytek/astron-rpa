@@ -5,7 +5,6 @@ import threading
 import time
 
 import psutil
-
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import kill_proc_tree
 

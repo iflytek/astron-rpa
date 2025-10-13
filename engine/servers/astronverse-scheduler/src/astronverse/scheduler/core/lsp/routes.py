@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
-
 from astronverse.scheduler.core.lsp import SessionOptions, service
 from astronverse.scheduler.core.schduler.venv import create_project_venv
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.logger import logger
+from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter()
 

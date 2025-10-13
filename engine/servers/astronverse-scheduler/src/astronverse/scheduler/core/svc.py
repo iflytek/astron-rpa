@@ -3,7 +3,6 @@ import threading
 import time
 
 import requests
-
 from astronverse.scheduler import ComponentType
 from astronverse.scheduler.config import Config
 from astronverse.scheduler.core.executor.executor import ExecutorManager

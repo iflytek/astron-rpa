@@ -1,7 +1,7 @@
-from astronverse.baseline.config.config import load_config
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
 from astronverse.actionlib.types import typesMg
+from astronverse.baseline.config.config import load_config
 from astronverse.word.docx import Docx
 from astronverse.word.docx_obj import DocumentObject
 

@@ -3,10 +3,9 @@ import sys
 import time
 from urllib.parse import urlparse
 
-from importlib_metadata import version
-
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.subprocess import SubPopen
+from importlib_metadata import version
 
 
 class PipManager:

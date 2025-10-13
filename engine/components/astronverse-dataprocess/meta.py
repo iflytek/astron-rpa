@@ -1,6 +1,6 @@
-from astronverse.baseline.config.config import load_config
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.baseline.config.config import load_config
 from astronverse.dataprocess.data import DataProcess
 from astronverse.dataprocess.dataconvert import DataConvertProcess
 from astronverse.dataprocess.dict import DictProcess

@@ -5,7 +5,6 @@ import sys
 import time
 
 import psutil
-
 from astronverse.scheduler.logger import logger
 
 system_encoding = locale.getpreferredencoding()

@@ -1,6 +1,6 @@
-from astronverse.baseline.config.config import load_config
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.baseline.config.config import load_config
 from astronverse.system.clipboard import Clipboard
 from astronverse.system.compress import Compress
 from astronverse.system.file import File

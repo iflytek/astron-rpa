@@ -3,12 +3,11 @@ import subprocess
 from concurrent.futures import Future, ThreadPoolExecutor
 from threading import Event
 
+from astronverse.scheduler.core.svc import get_svc
+from astronverse.scheduler.logger import logger
 from pylsp_jsonrpc.dispatchers import MethodDispatcher
 from pylsp_jsonrpc.endpoint import Endpoint
 from pylsp_jsonrpc.streams import JsonRpcStreamReader, JsonRpcStreamWriter
-
-from astronverse.scheduler.core.svc import get_svc
-from astronverse.scheduler.logger import logger
 
 LSP_EXIT_TIMEOUT = 5000
 

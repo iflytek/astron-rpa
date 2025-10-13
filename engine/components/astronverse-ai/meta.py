@@ -1,4 +1,3 @@
-from astronverse.baseline.config.config import load_config
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
 from astronverse.ai.agent import Agent
@@ -6,6 +5,7 @@ from astronverse.ai.chat import ChatAI
 from astronverse.ai.contract import ContractAI
 from astronverse.ai.document import DocumentAI
 from astronverse.ai.recruit import RecruitAI
+from astronverse.baseline.config.config import load_config
 
 
 def get_version():

@@ -19,11 +19,11 @@ def load_config(url, file_type=None, wait_time=0):
 
     if file_type is None:
         file_extension = os.path.splitext(url)[1].lower()
-        if file_extension in ['.yml', '.yaml']:
+        if file_extension in [".yml", ".yaml"]:
             file_type = "yaml"
-        elif file_extension == '.json':
+        elif file_extension == ".json":
             file_type = "json"
-        elif file_extension == '.toml':
+        elif file_extension == ".toml":
             file_type = "toml"
         else:
             raise Exception("Cannot auto-detect file type from extension: {}".format(file_extension))

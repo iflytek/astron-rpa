@@ -1,13 +1,12 @@
 import asyncio
 from typing import Any
 
+from astronverse.scheduler.core.svc import Svc, get_svc
+from astronverse.scheduler.logger import logger
 from astronverse.websocket_server.ws import Conn, IWebSocket
 from astronverse.websocket_server.ws_service import WsManager
 from fastapi import APIRouter, Depends
 from fastapi.websockets import WebSocket
-
-from astronverse.scheduler.core.svc import Svc, get_svc
-from astronverse.scheduler.logger import logger
 
 router = APIRouter()
 

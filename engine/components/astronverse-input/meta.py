@@ -1,6 +1,6 @@
-from astronverse.baseline.config.config import load_config
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.baseline.config.config import load_config
 from astronverse.input.gui_key import GuiKeyBoard
 from astronverse.input.gui_mouse import GuiMouse
 
