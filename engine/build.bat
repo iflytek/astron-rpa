@@ -23,18 +23,21 @@ REM 3. Environment Check
 REM ============================================
 
 if not exist "%PYTHON_EXE%" (
-    echo Local Python environment not found: %PYTHON_EXE%, please set PYTHON_EXE in build.bat
-    exit /b 1
-)
-
-uv --version >nul 2>&1
-if errorlevel 1 (
-    echo uv not found, please install uv first, https://docs.astral.sh/uv/, and ensure uv command is in environment variables
+    echo Local Python environment not found: %PYTHON_EXE%
+    echo please set PYTHON_EXE in build.bat or $env:PYTHON_EXE = "C:\Program Files\Python313\python.exe"
     exit /b 1
 )
 
 if not exist "%SEVENZ_EXE%" (
-    echo 7z.exe not found: %SEVENZ_EXE%, please set SEVENZ_EXE in build.bat
+    echo 7z.exe not found: %SEVENZ_EXE%
+    echo please set SEVENZ_EXE in build.bat or $env:SEVENZ_EXE = "C:\Program Files\7-Zip\7z.exe"
+    exit /b 1
+)
+
+
+uv --version >nul 2>&1
+if errorlevel 1 (
+    echo uv not found, please install uv first, https://docs.astral.sh/uv/, and ensure uv command is in environment variables
     exit /b 1
 )
 
@@ -105,7 +108,7 @@ if errorlevel 1 (
     exit /b 1
 )
 move pyproject.toml.backup pyproject.toml >nul
-echo ✓ All packages built successfully
+echo All packages built successfully
 
 REM ============================================
 REM 6. Install Packages
@@ -125,7 +128,7 @@ if errorlevel 1 (
     echo Package installation failed
     exit /b 1
 )
-echo ✓ Batch installation successful
+echo Batch installation successful
 
 REM ============================================
 REM 7. Package and Release
@@ -139,7 +142,7 @@ if errorlevel 1 (
     echo python_core directory compression failed
     exit /b 1
 )
-echo ✓ python_core directory compressed successfully, file saved to: %ARCHIVE_DIST_DIR%\python_core.7z
+echo Python_core directory compressed successfully, file saved to: %ARCHIVE_DIST_DIR%\python_core.7z
 
 echo.
 echo ============================================

@@ -9,7 +9,7 @@ from fastapi import FastAPI
 
 from astronverse.scheduler.apis import route
 from astronverse.scheduler.config import Config
-from astronverse.scheduler.core.schduler.init import linux_env_check, repair_pywin32_dependence
+from astronverse.scheduler.core.schduler.init import linux_env_check
 from astronverse.scheduler.core.server import ServerManager
 from astronverse.scheduler.core.servers.async_server import (
     CheckPickProcessAliveServer,
@@ -60,7 +60,6 @@ def start():
         server_mg.register(RpaBrowserConnectorServer(svc))
         server_mg.register(RpaSchedulerAsyncServer(svc))
         server_mg.register(TerminalAsyncServer(svc))
-        # server_mg.register(AtomicUploadAsyncServer(svc))
         server_mg.register(CheckPickProcessAliveServer(svc))
         server_mg.register(CheckStartPidExitsServer(svc))
 
