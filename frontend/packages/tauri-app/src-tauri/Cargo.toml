@@ -1,7 +1,7 @@
 [package]
-name = "iflyrpa"
+name = "astron-rpa"
 version = "1.0.1"
-description = "iflyrpa."
+description = "AstronRPA - A comprehensive robotic process automation platform for desktop application automation."
 authors = [ "iflytek" ]
 edition = "2021"
 
