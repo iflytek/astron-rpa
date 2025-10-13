@@ -39,7 +39,7 @@ class ProcessCoreWin(IProcessCore):
         if not cmd:
             raise ValueError("命令不能为空")
         if not cwd:
-            cwd = None
+            cwd = ""
 
         try:
             # 使用runas命令以管理员权限运行

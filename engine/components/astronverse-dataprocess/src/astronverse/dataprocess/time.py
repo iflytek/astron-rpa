@@ -137,14 +137,14 @@ class TimeProcess:
     @atomicMg.atomic("TimeProcess", outputList=[atomicMg.param("converted_time", types="Date")])
     def timestamp_to_time(timestamp: int, time_zone: TimeZoneType = TimeZoneType.LOCAL):
         if 10 < len(str(timestamp)) <= 13:  # 毫秒级时间戳
-            timestamp = timestamp / 1000
+            timestamp_float = timestamp / 1000
         elif 13 < len(str(timestamp)) <= 16:  # 微秒级时间戳
-            timestamp = timestamp / 1000000
+            timestamp_float = timestamp / 1000000
         time_obj = Date()
         if time_zone == TimeZoneType.UTC:
-            time_obj.time = datetime.fromtimestamp(timestamp, tz=UTC)
+            time_obj.time = datetime.fromtimestamp(timestamp_float, tz=UTC)
         elif time_zone == TimeZoneType.LOCAL:
-            time_obj.time = datetime.fromtimestamp(timestamp)
+            time_obj.time = datetime.fromtimestamp(timestamp_float)
         return time_obj
 
     @staticmethod

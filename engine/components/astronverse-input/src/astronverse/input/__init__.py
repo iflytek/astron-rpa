@@ -2,26 +2,26 @@ from enum import Enum
 
 
 class KeyboardType(Enum):
-    NORMAL = "normal"  # 普通输入
-    DRIVER = "driver"  # 驱动输入
-    CLIP = "clip"  # 剪贴板输入
-    GBLID = "gblid"  # 虚拟键盘输入
+    NORMAL = "normal"
+    DRIVER = "driver"
+    CLIP = "clip"
+    GBLID = "gblid"
 
 
-class BtnType(Enum):  # 按键类型
+class BtnType(Enum):
     LEFT = "left"
     MIDDLE = "middle"
     RIGHT = "right"
 
 
-class BtnModel(Enum):  # 按键模式
+class BtnModel(Enum):
     CLICK = "click"
     DOUBLE_CLICK = "double_click"
     DOWN = "down"
     UP = "up"
 
 
-class KeyModel(Enum):  # 按键模式
+class KeyModel(Enum):
     CLICK = "click"
     DOWN = "down"
     UP = "up"

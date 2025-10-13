@@ -21,6 +21,7 @@ class Encrypt:
         if source_str:
             md5_encrypted_result = EncryptCore.md5_encrypt(source_str, md5_method, case_method)
             return md5_encrypted_result
+        return ""
 
     @staticmethod
     @atomicMg.atomic("Encrypt", outputList=[atomicMg.param("sha_encrypted_result", types="Str")])
@@ -35,6 +36,7 @@ class Encrypt:
         if source_str:
             sha_encrypted_result = EncryptCore.sha_encrypt(source_str, sha_method, case_method)
             return sha_encrypted_result
+        return ""
 
     @staticmethod
     @atomicMg.atomic(
@@ -48,6 +50,7 @@ class Encrypt:
         if source_str:
             symmetric_encrypted_result = EncryptCore.symmetric_encrypt(source_str, password)
             return symmetric_encrypted_result
+        return ""
 
     @staticmethod
     @atomicMg.atomic(
@@ -61,6 +64,7 @@ class Encrypt:
         if source_str:
             symmetric_decrypted_result = EncryptCore.symmetric_decrypt(source_str, password)
             return symmetric_decrypted_result
+        return ""
 
     # --------------Base64操作-----------------
     @staticmethod

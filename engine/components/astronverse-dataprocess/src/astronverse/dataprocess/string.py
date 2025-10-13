@@ -64,7 +64,7 @@ class StringProcess:
             except re.error:
                 raise BaseException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
 
-        pattern = get_pattern(extract_type, regex_formula)
+        pattern = get_pattern(extract_type, regex_formula) or ""
         result = re.findall(pattern, text)
         if first_flag:
             result = result[0] if result else []
@@ -119,7 +119,7 @@ class StringProcess:
             old_value = ""
 
         count = 1 if first_flag else 0
-        pattern = get_pattern(replace_type, old_value)
+        pattern = get_pattern(replace_type, old_value) or ""
         return re.sub(
             pattern,
             new_value,
@@ -215,18 +215,18 @@ class StringProcess:
         if (not string_data) or (not add_str):
             raise ValueError("目标文本或补充文本不能为空!")
         try:
-            total_length = int(total_length)
-            assert total_length >= 0
+            total_length_int = int(total_length)
+            assert total_length_int >= 0
         except Exception as e:
             raise ValueError("长度输入不合法,请提供整数类型数据!")
 
         result_str = deepcopy(str(string_data))
-        if total_length <= len(string_data):
+        if total_length_int <= len(string_data):
             return result_str
         else:
-            n = math.ceil((total_length - len(string_data)) / len(add_str))  # 向上取整获得重复次数
+            n = math.ceil((total_length_int - len(string_data)) / len(add_str))  # 向上取整获得重复次数
             if fill_type == FillStringType.LEFT:  # 左端补齐
-                result_str = (add_str * n)[0 : total_length - len(string_data)] + string_data
+                result_str = (add_str * n)[0 : total_length_int - len(string_data)] + string_data
             elif fill_type == FillStringType.RIGHT:  # 右端补齐
                 result_str = (string_data + add_str * n)[0:total_length]
             return result_str

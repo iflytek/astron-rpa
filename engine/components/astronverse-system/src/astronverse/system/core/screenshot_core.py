@@ -14,7 +14,7 @@ class ScreenShotCore:
         pyautogui.FAILSAFE = False
 
     @staticmethod
-    def screenshot(region: tuple[int, int, int, int] = None, file_path: str = "") -> Any:
+    def screenshot(region: tuple[int, int, int, int], file_path: str = "") -> Any:
         """
         截图
         """
@@ -62,7 +62,7 @@ class ScreenShotCore:
         return im
 
     @staticmethod
-    def screen_size() -> (int, int):
+    def screen_size() -> tuple[int, int]:
         """
         获取屏幕大小
         :return: 屏幕宽度和屏幕高度
