@@ -18,16 +18,17 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * @desc: TODO
+ * @desc: JWT Token过滤器（已废弃 - 不符合OAuth2.0+OIDC标准流程）
+ * @deprecated 使用SessionAuthenticationFilter替代，基于session的认证更符合OAuth2.0+OIDC规范
  * @author: weilai <laiwei3@iflytek.com>
  * @create: 2025/9/16 17:16
  */
-@Component
+@Deprecated
+// @Component // 注释掉，不再作为Spring组件
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final AuthService authService;

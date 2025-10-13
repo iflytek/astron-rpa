@@ -1,9 +1,12 @@
 package com.iflytek.rpa.starter.utils.response;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import org.springframework.util.StringUtils;
 
 public class AppResponse<T> implements Serializable {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private String code;
     private T data;
     private String message;
@@ -19,7 +22,7 @@ public class AppResponse<T> implements Serializable {
             message = codeEnum.getFlag();
         }
 
-        AppResponse<T> response = new AppResponse();
+        AppResponse<T> response = new AppResponse<>();
         response.setCode(codeEnum.getCode());
         response.setData(null);
         response.setMessage(message);
@@ -27,7 +30,7 @@ public class AppResponse<T> implements Serializable {
     }
 
     public static AppResponse<String> error(String code, String message) {
-        AppResponse<String> response = new AppResponse();
+        AppResponse<String> response = new AppResponse<>();
         response.setCode(code);
         response.setData("");
         response.setMessage(message);
@@ -39,7 +42,7 @@ public class AppResponse<T> implements Serializable {
     }
 
     public static <T> AppResponse<T> success(T data) {
-        AppResponse<T> response = new AppResponse();
+        AppResponse<T> response = new AppResponse<>();
         response.setCode(ErrorCodeEnum.S_SUCCESS.getCode());
         response.setData(data);
         response.setMessage("");
@@ -72,5 +75,15 @@ public class AppResponse<T> implements Serializable {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return objectMapper.writeValueAsString(this);
+        } catch (Exception e) {
+            // 如果序列化失败，回退到简单的字符串表示
+            return "{\"code\":\"" + code + "\",\"data\":" + data + ",\"message\":\"" + message + "\"}";
+        }
     }
 }

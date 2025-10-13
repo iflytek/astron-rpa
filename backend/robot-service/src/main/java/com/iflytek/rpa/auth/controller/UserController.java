@@ -3,10 +3,14 @@ package com.iflytek.rpa.auth.controller;
 import com.iflytek.rpa.auth.entity.CustomUserDetails;
 import com.iflytek.rpa.auth.entity.Result;
 import com.iflytek.rpa.auth.service.AuthExtendService;
+import com.iflytek.rpa.auth.utils.TokenManager;
 import com.iflytek.rpa.starter.exception.NoLoginException;
 import com.iflytek.rpa.utils.TenantUtils;
 import com.iflytek.rpa.utils.UserUtils;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
 import org.casbin.casdoor.entity.Group;
 import org.casbin.casdoor.entity.Permission;
 import org.casbin.casdoor.entity.User;
@@ -15,7 +19,11 @@ import org.casbin.casdoor.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -41,7 +49,7 @@ public class UserController {
         this.redirectUrl = redirectUrl;
     }
 
-    @GetMapping("/api/redirect-url")
+    @GetMapping("/redirect-url")
     public Result getRedirectUrl() {
         try {
             String signinUrl = authExtendService.getCustomSigninUrl(redirectUrl);
@@ -52,14 +60,106 @@ public class UserController {
         }
     }
 
-    @PostMapping("/api/signin")
-    public Result signin(@RequestParam("code") String code, @RequestParam("state") String state) {
+    @PostMapping("/sign/in")
+    public Result signIn(
+            @RequestParam("code") String code, @RequestParam("state") String state, HttpServletRequest request) {
         try {
-            String token = authService.getOAuthToken(code, state);
-            return Result.success(token);
+            OAuthJSONAccessTokenResponse oAuthTokenResponse = authExtendService.getOAuthTokenResponse(code, state);
+            String accessToken = oAuthTokenResponse.getAccessToken();
+            String refreshToken = oAuthTokenResponse.getRefreshToken();
+            String idToken = accessToken;
+
+            // 使用idToken解析用户信息（这是OIDC的核心：从id_token获取用户身份）
+            User user = authService.parseJwtToken(idToken);
+
+            // 1. 将用户信息存储到session中（Spring Session自动管理Redis存储）
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user);
+
+            // 2. 设置Spring Security认证上下文
+            CustomUserDetails userDetails = new CustomUserDetails(user);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, AuthorityUtils.createAuthorityList("ROLE_USER"));
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // 3. accessToken和refreshToken存储到Redis，供服务端调用Casdoor API使用
+            long tokenExpireTime = 24 * 60 * 60; // 24小时过期时间（秒）
+            TokenManager.storeTokens(user.name, accessToken, refreshToken, tokenExpireTime);
+
+            logger.info("用户 {} 登录成功，session和认证上下文已设置，服务端token已存储", user.name);
+            return Result.success(user);
         } catch (AuthException exception) {
             logger.error("casdoor auth exception", exception);
             return Result.failure(exception.getMessage());
+        }
+    }
+
+    /**
+     * 注意：登出请求会被Spring Security的LogoutHandler拦截处理
+     * 实际的登出逻辑在SecurityConfig.java中的LogoutHandler中实现
+     * 这里不需要重复的@PostMapping("/sign/out")方法
+     */
+
+    /**
+     * 检查用户登录状态
+     */
+    @GetMapping("/login-check")
+    public Result checkLoginStatus(HttpServletRequest request) {
+        try {
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                return Result.failure("未登录");
+            }
+
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return Result.failure("用户信息不存在");
+            }
+
+            // 检查服务端token是否还有效
+            boolean hasToken = TokenManager.hasToken(user.name);
+            if (!hasToken) {
+                return Result.failure("服务端token已过期，请重新登录");
+            }
+
+            return Result.success(user);
+        } catch (Exception exception) {
+            logger.error("检查登录状态异常", exception);
+            return Result.failure("检查登录状态失败: " + exception.getMessage());
+        }
+    }
+
+    /**
+     * 刷新服务端token（当accessToken过期时使用）
+     */
+    @PostMapping("/api/refresh-token")
+    public Result refreshToken(HttpServletRequest request) {
+        try {
+            User user = (User) request.getSession().getAttribute("user");
+            if (user == null) {
+                return Result.failure("未登录");
+            }
+
+            String refreshToken = TokenManager.getRefreshToken(user.name);
+            if (refreshToken == null) {
+                return Result.failure("RefreshToken不存在，请重新登录");
+            }
+
+            // 使用refreshToken获取新的token
+            OAuthJSONAccessTokenResponse newTokenResponse = authExtendService.refreshToken(refreshToken, "read");
+            String newAccessToken = newTokenResponse.getAccessToken();
+            String newRefreshToken = newTokenResponse.getRefreshToken();
+
+            // 更新Redis中的token
+            long tokenExpireTime = 24 * 60 * 60; // 24小时过期时间（秒）
+            TokenManager.storeTokens(user.name, newAccessToken, newRefreshToken, tokenExpireTime);
+
+            logger.info("用户 {} 的服务端token已刷新", user.name);
+            return Result.success("Token刷新成功");
+        } catch (Exception exception) {
+            logger.error("刷新token异常", exception);
+            return Result.failure("刷新token失败: " + exception.getMessage());
         }
     }
 
