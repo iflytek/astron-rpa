@@ -144,7 +144,7 @@ export default defineConfig((env) => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @import "@rpa/tokens/variables.scss";
+            @import "@rpa/shared/tokens/variables.scss";
           `,
         },
       },

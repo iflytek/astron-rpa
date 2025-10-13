@@ -1,4 +1,4 @@
-import type { AppEnv, UtilsManager as UtilsManagerType } from '@rpa/types'
+import type { AppEnv, UtilsManager as UtilsManagerType } from '@rpa/shared/platform'
 import { dialog } from '@tauri-apps/api'
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app'
 import { listen } from '@tauri-apps/api/event'
@@ -126,6 +126,16 @@ const showDialog: UtilsManagerType['showDialog'] = (dialogProps) => {
   })
 }
 
+const getPluginPath: UtilsManagerType['getPluginPath'] = async (_filePath) => {
+  console.log('getPluginPath')
+  return ""
+}
+
+const getPluginList: UtilsManagerType['getPluginList'] = async () => {
+  console.log('getPluginList')
+  return []
+}
+
 const UtilsManager: UtilsManagerType = {
   getAppEnv,
   isBrowser: false,
@@ -143,6 +153,8 @@ const UtilsManager: UtilsManagerType = {
   shellopen,
   openPlugins,
   showDialog,
+  getPluginPath,
+  getPluginList,
 }
 
 export default UtilsManager

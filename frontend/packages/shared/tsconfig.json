@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "lib": ["DOM", "ES2022"],
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "jsxImportSource": "vue",
+    "useDefineForClassFields": true,
+    "declaration": true,
+    "outDir": "dist",
+    "emitDeclarationOnly": true,
+
+    /* modules */
+    "module": "ESNext",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler",
+
+    /* type checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src"]
+}

@@ -1,4 +1,4 @@
-import type { UtilsManager } from '@rpa/types'
+import type { UtilsManager } from '@rpa/shared/platform'
 
 const Utils: UtilsManager = {
   getAppVersion: () => Promise.resolve('0.0.0'),
@@ -36,5 +36,12 @@ const Utils: UtilsManager = {
   showDialog: (_dialogProps: any) => {
     return Promise.reject(new Error('showDialog is not supported in browser environment'))
   },
+  getPluginPath: (_filePath: string) => {
+    return Promise.reject(new Error('getPluginPath is not supported in browser environment'))
+  },
+  getPluginList: () => {
+    return Promise.reject(new Error('getPluginList is not supported in browser environment'))
+  },
 }
+
 export default Utils

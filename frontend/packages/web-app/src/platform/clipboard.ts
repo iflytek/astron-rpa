@@ -1,4 +1,4 @@
-import type { ClipboardManager } from '@rpa/types'
+import type { ClipboardManager } from '@rpa/shared/platform'
 
 const ClipBoard: ClipboardManager = {
   async writeClipboardText(text: string) {

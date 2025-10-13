@@ -8,7 +8,7 @@ import { computed, ref } from 'vue'
 
 import { getAntdvTheme } from '../src'
 import type { Theme } from '../src'
-import '@rpa/tokens/variables.css'
+import '@rpa/shared/tokens/variables.css'
 import './preview.css'
 
 const { initializeThemeState, pluckThemeFromContext } = DecoratorHelpers

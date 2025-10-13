@@ -1,4 +1,4 @@
-import type { ShortCutManager } from '@rpa/types'
+import type { ShortCutManager } from '@rpa/shared/platform'
 import type { ShortcutHandler } from '@tauri-apps/api/globalShortcut'
 import { register, unregister, unregisterAll } from '@tauri-apps/api/globalShortcut'
 

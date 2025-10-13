@@ -1,5 +1,5 @@
 // 全局类型声明文件
-// 这个文件确保全局类型在所有使用 @rpa/types 的 packages 中生效
+// 这个文件确保全局类型在所有使用 @rpa/shared 的 packages 中生效
 
 import type {
   ClipboardManager,
@@ -7,7 +7,7 @@ import type {
   UpdaterManager,
   UtilsManager,
   WindowManager,
-} from './index'
+} from './platform'
 
 declare global {
   interface Window {

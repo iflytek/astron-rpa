@@ -1,4 +1,4 @@
-import type { UpdateInfo, UpdaterManager as UpdaterManagerType } from '@rpa/types'
+import type { UpdateInfo, UpdaterManager as UpdaterManagerType } from '@rpa/shared/platform'
 
 import { promiseTimeout } from '../utils/promiseTimeout'
 

@@ -10,7 +10,7 @@ const external = [
   ...Object.keys(pj.dependencies),
   ...Object.keys(pj.peerDependencies),
   '@rpa/components/icon',
-  '@rpa/tokens/dark',
+  '@rpa/shared/tokens/dark',
 ]
 
 // https://vitejs.dev/config/
@@ -39,7 +39,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@rpa/tokens/variables.scss";`,
+        additionalData: `@import "@rpa/shared/tokens/variables.scss";`,
       },
     },
   },
