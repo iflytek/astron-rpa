@@ -85,21 +85,3 @@ class Dify:
         except Exception as e:
             print(f"发生错误: {str(e)}")
             return {"status": "error", "message": str(e)}
-
-
-# 使用示例
-
-# file_path = r"C:\Users\zyzhou23.IFLYTEK\Downloads\写出好的代码 -经验篇.md"
-# user = "drbruce"
-#
-# test_dify = Dify("app-MgbOPD6ZYA6mSyip1w4h74wU")
-#
-# # 上传文件
-# file_id = test_dify.upload_file(file_path, user)
-# #file_id = "a17f9f77-4eb9-461b-a62c-1f302c806187"
-# if file_id:
-#     # 文件上传成功，继续运行工作流
-#     result = test_dify.run_workflow(user, "input_files", True, file_id, "document")
-#     print(result)
-# else:
-#     print("文件上传失败，无法执行工作流")

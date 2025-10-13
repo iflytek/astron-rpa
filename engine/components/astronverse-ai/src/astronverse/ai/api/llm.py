@@ -30,7 +30,7 @@ def chat_streamable(messages: Any, model: str = "deepseek-v3-0324"):
 
     response = requests.post(API_URL, json=chat_json)
     if response.status_code == 200:
-        client = sseclient.SSEClient(response)
+        client = sseclient.SSEClient(response)  # type: ignore
         for event in client.events():
             if event.data and event.data != "[DONE]":
                 response_json = json.loads(event.data)

@@ -21,14 +21,14 @@ class NetworkCore:
         if body:
             if is_json(body):
                 json_body = json.loads(body)
-                body = None
+                body = ""
             else:
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
 
         if files:
-            files = json.loads(files)
-            for key in files:
-                value = files[key]
+            files_dict = json.loads(files)
+            for key in files_dict:
+                value = files_dict[key]
                 basename = os.path.basename(value)
                 with open(value, "rb") as f:
                     file_arr.append((key, (basename, f, "application/octet-stream")))
@@ -98,20 +98,18 @@ class NetworkCore:
     def put_request(url: str = "", header: str = "", body: str = "", timeout: int = 60):
         if timeout == "" or timeout is None:
             timeout = 60
-
+        header_dict = {}
         if header:
-            header = json.loads(header)
-        else:
-            header = {}
+            header_dict = json.loads(header)
 
         json_body = None
         if body:
             if is_json(body):
                 json_body = json.loads(body)
             else:
-                header["Content-Type"] = "application/x-www-form-urlencoded"
+                header_dict["Content-Type"] = "application/x-www-form-urlencoded"
         try:
-            res = requests.put(url=url, headers=header, data=body, json=json_body, timeout=timeout)
+            res = requests.put(url=url, headers=header_dict, data=body, json=json_body, timeout=timeout)
             return res.text
         except requests.RequestException as e:
             raise Exception(f"Request failed: {e}")
@@ -176,7 +174,7 @@ class NetworkCore:
         if body:
             if is_json(body):
                 json_body = json.loads(body)
-                body = None
+                body = ""
             else:
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
         try:

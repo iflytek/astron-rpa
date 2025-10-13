@@ -23,7 +23,7 @@ class Mouse:
         return max(0.1, duration)
 
     @staticmethod
-    def position() -> (int, int):
+    def position() -> tuple:
         """
         鼠标位置
         """
@@ -80,7 +80,7 @@ class Mouse:
                 new_y += random.uniform(-1, 1)
 
             # 使用pyautogui的moveTo函数，但减少调用次数
-            pyautogui.moveTo(new_x, new_y, duration=interval, tween=pyautogui.easeInOutQuad)
+            pyautogui.moveTo(new_x, new_y, duration=interval, tween=pyautogui.easeInOutQuad)  # type: ignore
 
         # 确保最终位置准确
         Mouse.move(x=x, y=y)
@@ -130,7 +130,7 @@ class Mouse:
         return pyautogui.scroll(clicks=clicks, x=x, y=y)
 
     @staticmethod
-    def screen_size() -> (int, int):
+    def screen_size() -> tuple:
         """
         获取屏幕大小
         """

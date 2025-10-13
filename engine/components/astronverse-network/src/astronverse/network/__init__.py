@@ -20,19 +20,19 @@ class RequestType(Enum):
 
 
 class ListType(Enum):
-    ALL = "all"  # 获取当前工作目录下全部文件及子文件夹
-    FILE = "file"  # 获取全部文件
-    FOLDER = "folder"  # 获取全部文件夹
+    ALL = "all"
+    FILE = "file"
+    FOLDER = "folder"
 
 
 class FileType(Enum):
-    FILE = "file"  # 获取全部文件
-    FOLDER = "folder"  # 获取全部文件夹
+    FILE = "file"
+    FOLDER = "folder"
 
 
 class StateType(Enum):
-    CREATE = "create"  # 新建
-    ERROR = "error"  # 提示并报错
+    CREATE = "create"
+    ERROR = "error"
 
 
 class SaveType(Enum):

@@ -82,8 +82,8 @@ class Network:
     def http_request(
         url: str = "",
         request_type: RequestType = RequestType.POST,
-        headers=None,
-        body=None,
+        headers="",
+        body="",
         file_path: str = "",
         time_out: int = 60,
         save_type: SaveType = SaveType.NO,
@@ -131,7 +131,8 @@ class Network:
             save_path = os.path.join(save_path, save_name)
             try:
                 with open(save_path, "w", encoding="utf-8") as f:
-                    f.write(http_response)
+                    response_str = str(http_response)
+                    f.write(response_str)
                 return save_path
             except Exception as e:
                 raise ValueError("文件写入失败，请检查文件类型是否正确")

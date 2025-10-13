@@ -88,7 +88,7 @@ class Email:
         try:
             if replace_table and isinstance(replace_table, list):
                 for replace in replace_table:
-                    content = content.replace(str(replace.get("origintext")), str(replace.get("replacetext")))
+                    content = content.replace(str(replace.get("origintext")), str(replace.get("replacetext")))  # type: ignore
         except Exception as e:
             pass
         core.send(
@@ -227,7 +227,7 @@ class Email:
             port=custom_mail_port,
             user=user_mail,
             password=user_password,
-            use_ssl=True,
+            # use_ssl=True,
         )
         core.select(selector=folder_name)
 

@@ -59,7 +59,7 @@ class AnchorMatch:
         center_coords_aim=None,
         center_coords_anchor=None,
         canny_flag=False,
-        ratio=None,
+        ratio="",
         match_similarity=0.95,
         line_width_match=None,
         dash_color=None,

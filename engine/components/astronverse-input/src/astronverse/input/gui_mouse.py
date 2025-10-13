@@ -184,10 +184,10 @@ class GuiMouse:
     )
     def mouse_move(
         window_type: WindowType = WindowType.FULL_SCREEN,
-        window_position: list = None,
+        window_position: list = [],
         get_mouse_position: str = "",
-        position_x: int = None,
-        position_y: int = None,
+        position_x: int = 0,
+        position_y: int = 0,
         move_type: MoveType = MoveType.LINEAR,
         move_speed: Speed = Speed.NORMAL,
     ):
@@ -215,7 +215,7 @@ class GuiMouse:
             Mouse.move(position_x, position_y, duration=duration, tween=pyautogui.linear)
         elif move_type == MoveType.SIMULATION:
             duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
-            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)
+            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)  # type: ignore
         elif move_type == MoveType.TELEPORTATION:
             Mouse.move(position_x, position_y, duration=0)
         else:
@@ -269,10 +269,10 @@ class GuiMouse:
         ],
     )
     def mouse_drag(
-        start_pos_x: int = None,
-        start_pos_y: int = None,
-        end_pos_x: int = None,
-        end_pos_y: int = None,
+        start_pos_x: int = 0,
+        start_pos_y: int = 0,
+        end_pos_x: int = 0,
+        end_pos_y: int = 0,
         btn_type: BtnType = BtnType.LEFT,
         move_type: MoveType = MoveType.LINEAR,
         move_speed: Speed = Speed.NORMAL,
@@ -317,7 +317,7 @@ class GuiMouse:
                     x=end_pos_x,
                     y=end_pos_y,
                     duration=duration,
-                    tween=pyautogui.easeInOutQuad,
+                    tween=pyautogui.easeInOutQuad,  # type: ignore
                 )
             elif move_type == MoveType.TELEPORTATION:
                 Mouse.move(x=end_pos_x, y=end_pos_y, duration=0)
@@ -344,7 +344,7 @@ class GuiMouse:
             ),
         ],
     )
-    def mouse_position() -> (int, int):
+    def mouse_position() -> tuple:
         """获取鼠标位置"""
         point_x, point_y = Mouse.position()
         return point_x, point_y

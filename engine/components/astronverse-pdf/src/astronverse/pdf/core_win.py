@@ -97,7 +97,7 @@ class PDFCore(IPDFCore):
     def merge_pdf_files(
         merge_type: MergeType = MergeType.FOLDER,
         file_folder_path: str = "",
-        files_path: str = "",
+        files_path: str | list = "",
         save_dir: str = "",
         new_file_name: str = "",
         new_pwd: str = "",
@@ -149,7 +149,7 @@ class PDFCore(IPDFCore):
 
         if new_pwd:
             merger.encrypt(new_pwd)  # user_password
-        new_file_path = handle_existence(new_file_path, exist_handle_type)
+        new_file_path = handle_existence(new_file_path, exist_handle_type) or ""
         if new_file_path:
             merger.write(new_file_path)
         merger.close()
@@ -195,7 +195,7 @@ class PDFCore(IPDFCore):
             writer.add_page(reader.pages[page_num])
         if new_pwd:
             writer.encrypt(new_pwd)  # user_password
-        new_file_path = handle_existence(new_file_path, exist_handle_type)
+        new_file_path = handle_existence(new_file_path, exist_handle_type) or ""
         if new_file_path:
             writer.write(new_file_path)
         writer.close()
@@ -310,7 +310,7 @@ class PDFCore(IPDFCore):
         for page_num in page_nums:
             page = pdf_obj[page_num]
             bitmap = page.render(
-                scale=300 / 72,  # set resolution to 300 DPI
+                scale=int(300 / 72),  # set resolution to 300 DPI
                 rotation=0,  # no additional rotation
                 # ... further rendering options
             )

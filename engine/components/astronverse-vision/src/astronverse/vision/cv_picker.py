@@ -106,7 +106,8 @@ class ImageDetector:
         :return: 形态学变换后的图像。
         """
 
-        closed = cv2.dilate(thresh, (3, 3), iterations=3)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        closed = cv2.dilate(thresh, kernel, iterations=3)
         return closed
 
     @staticmethod
@@ -289,6 +290,7 @@ class ImageDetector:
         self.output_img = copy.deepcopy(self.original_img)
         # 边框融合&非极大值抑制
         all_boxes = fore_boxes + sobel_boxes
+        all_boxes = [list(box) for box in all_boxes]
         selected_boxes = self.apply_nms(all_boxes)
 
         boxes_with_coordinates = []
@@ -312,7 +314,7 @@ class ImageDetector:
         print(end_time - start_time)
         return self.output_img, selected_boxes
 
-    def show_or_save_image(self, save_path: str = None, show_image: bool = True):
+    def show_or_save_image(self, save_path: str = "", show_image: bool = True):
         """
         显示或保存检测到对象的图像。
 

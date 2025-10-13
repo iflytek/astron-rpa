@@ -1,6 +1,9 @@
 import email
+import email.header
+import email.utils
 import imaplib
 from datetime import datetime
+from imaplib import IMAP4_SSL
 
 
 def decode_data(b, added_encode=None):
@@ -26,7 +29,7 @@ def decode_data(b, added_encode=None):
 
 class EmailImap4Receive:
     def __init__(self):
-        self.mail_handler = None
+        self.mail_handler: IMAP4_SSL
 
     def login(self, server, port: int, user, password):
         self.mail_handler = imaplib.IMAP4_SSL(server, port)
@@ -37,7 +40,7 @@ class EmailImap4Receive:
         """
         构建网易客户端id
         """
-        imaplib.Commands["ID"] = "AUTH"
+        imaplib.Commands["ID"] = ("AUTH",)
         args = (
             "name",
             user.split("@")[0],
@@ -87,8 +90,12 @@ class EmailImap4Receive:
         :return: msg
         """
         data = self.mail_handler.fetch(num, "RFC822")
-        if data[0] == "OK":
-            return email.message_from_string(decode_data(data[1][0][1]))
+        if data[0] == "OK" and data[1] and data[1][0] and len(data[1][0]) > 1:
+            decoded = decode_data(data[1][0][1])
+            if decoded is not None:
+                return email.message_from_string(decoded)
+            else:
+                return "decode error"
         else:
             return "fetch error"
 
@@ -165,15 +172,19 @@ class EmailImap4Receive:
         body = None
         html = None
 
-        for part in msg.walk():
+        for part in msg.walk():  # type: ignore
             if part.get_content_type() == "text/plain":
                 if body is None:
                     body = b""
-                body += part.get_payload(decode=True)
+                payload = part.get_payload(decode=True)
+                if isinstance(payload, bytes):
+                    body += payload
             elif part.get_content_type() == "text/html":
                 if html is None:
                     html = b""
-                html += part.get_payload(decode=True)
+                payload = part.get_payload(decode=True)
+                if isinstance(payload, bytes):
+                    html += payload
             else:
                 attachment = self.__parse_attachment__(part)
                 attachments.append(attachment)

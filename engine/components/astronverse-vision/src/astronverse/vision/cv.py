@@ -156,7 +156,7 @@ class CV:
                             target_x,
                             target_y,
                             duration=speed_to_int[move_speed],
-                            tween=pyautogui.easeInOutQuad,
+                            tween=pyautogui.easeInOutQuad,  # type: ignore
                         )
                     elif move_type == MoveType.TELEPORTATION:
                         Mouse.move(target_x, target_y, duration=0)
@@ -310,7 +310,7 @@ class CV:
                             target_x,
                             target_y,
                             duration=speed_to_int[move_speed],
-                            tween=pyautogui.easeInOutQuad,
+                            tween=pyautogui.easeInOutQuad,  # type: ignore
                         )
                     elif move_type == MoveType.TELEPORTATION:
                         Mouse.move(target_x, target_y, duration=0)
@@ -504,7 +504,7 @@ class CV:
     def image_input(
         input_data: IMGPick,
         input_type: InputType = InputType.TEXT,
-        input_content: str = None,
+        input_content: str = "",
         simulate_flag: Simulate_flag = Simulate_flag.YES,
         interval: float = 0.1,
         match_similarity: float = 0.95,

@@ -16,7 +16,7 @@ class IPDFCore(ABC):
                 path = kwargs.get(param_name)
 
                 # 如果参数值不存在，抛出异常
-                if not os.path.exists(path):
+                if path is None or not os.path.exists(path):
                     raise ValueError(f"{param_name} 路径不存在")
 
                 if not path.endswith(".pdf"):
@@ -78,17 +78,25 @@ class IPDFCore(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_page_text(file_path, pwd, page_range) -> list:
+    def get_page_text(file_path, pwd, page_range, select_range) -> list:
         pass
 
     @staticmethod
     @abstractmethod
-    def get_images_in_page(file_path, pwd, page_range, save_dir) -> list:
+    def get_images_in_page(file_path, pwd, page_range, save_dir, image_type, prefix, exist_handle_type) -> list:
         pass
 
     @staticmethod
     @abstractmethod
-    def merge_pdf_files(file_path, pwd) -> str:
+    def merge_pdf_files(
+        merge_type,
+        file_folder_path,
+        files_path,
+        save_dir,
+        new_file_name,
+        new_pwd,
+        exist_handle_type,
+    ) -> str:
         pass
 
     @staticmethod
@@ -113,5 +121,13 @@ class IPDFCore(ABC):
         page_range: str = "",
         image_type: PictureType = PictureType.PNG,
         prefix: str = "",
+        exist_handle_type: FileExistenceType = FileExistenceType.OVERWRITE,
     ):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def extract_forms_from_pdf(
+        file_path, pwd, page_range, combine_flag, save_dir, new_file_name, exist_handle_type
+    ) -> str:
         pass

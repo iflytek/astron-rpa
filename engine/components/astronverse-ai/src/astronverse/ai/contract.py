@@ -87,20 +87,29 @@ class ContractAI:
             custom_factors = ast.literal_eval(custom_factors)
         except:
             raise ValueError("custom_factors 格式错误，请检查")
-        preset_factors = custom_factors.get("preset", [])
-        custom_factors = custom_factors.get("custom", [])
+        preset_factors = custom_factors.get("preset", [])  # type: ignore
+        custom_factors = custom_factors.get("custom", [])  # type: ignore
 
         factors = []
         for factor in preset_factors:
             factors.append({"要素名": factor, "要素描述": CONTRACT_FACTOR_DICT[factor]})
         for factor in custom_factors:
-            factors.append(
-                {
-                    "要素名": factor["name"],
-                    "要素描述": factor.get("desc", ""),
-                    "要素实例": factor.get("example", ""),
-                }
-            )
+            if isinstance(factor, dict):
+                factors.append(
+                    {
+                        "要素名": factor.get("name", ""),
+                        "要素描述": factor.get("desc", ""),
+                        "要素实例": factor.get("example", ""),
+                    }
+                )
+            elif isinstance(factor, (list, tuple)) and len(factor) >= 1:
+                factors.append(
+                    {
+                        "要素名": factor[0],
+                        "要素描述": factor[1] if len(factor) > 1 else "",
+                        "要素实例": factor[2] if len(factor) > 2 else "",
+                    }
+                )
 
         params = {"factors": str(factors), "parsed_content": contract_content}
         reply = chat_prompt(prompt_type="contract", params=params)

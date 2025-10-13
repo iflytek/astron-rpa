@@ -5,8 +5,8 @@ from typing import Any
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.actionlib.utils import FileExistenceType, handle_existence
-from astronverse.pdf import MergeType, PictureType, SelectRangeType, TextSaveType
+from astronverse.actionlib.utils import handle_existence
+from astronverse.pdf import FileExistenceType, MergeType, PictureType, SelectRangeType, TextSaveType
 from astronverse.pdf.core import IPDFCore
 from astronverse.pdf.error import *
 

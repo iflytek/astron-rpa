@@ -14,7 +14,7 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
     """
     if not allow_empty and len(list_data) == 0:
         raise ValueError("列表不能为空!")
-
+    index_int = 0
     if index:
         try:
             if isinstance(index, str):
@@ -26,19 +26,19 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
                         raise ValueError("数组索引值超出范围!")
                 # 如果只有一个索引，返回第一个值
                 if len(index_list) == 1:
-                    index = index_list[0]
+                    index_int = index_list[0]
                 else:
-                    index = index_list
+                    index_int = index_list
             else:
                 # 如果不是字符串，直接转换为整数
-                index = int(index)
+                index_int = int(index)
                 if index < -len(list_data) or index >= len(list_data):
                     raise ValueError("数组索引值超出范围!")
         except ValueError as e:
             raise ValueError("请提供有效的整数类型索引!")
         except Exception:
             raise ValueError("请提供整数类型的索引!")
-    return list_data, index
+    return list_data, index_int
 
 
 class ListProcess:
@@ -129,6 +129,7 @@ class ListProcess:
         """
         列表插入一项
         """
+        index_int = 0
         if insert_method == InsertMethodType.APPEND:
             index = ""
         list_data, _ = list_legal_check(list_data, "", True)
@@ -136,10 +137,10 @@ class ListProcess:
             list_data.append(value)
         elif insert_method == InsertMethodType.INDEX:  # 插入方式：指定位置
             try:
-                index = int(index)
+                index_int = int(index)
             except:
                 raise BaseException(INVALID_INDEX_ERROR_FORMAT.format(index), "需要提供整数类型的索引！")
-            list_data.insert(index, value)
+            list_data.insert(index_int, value)
         return list_data
 
     @staticmethod
@@ -155,8 +156,13 @@ class ListProcess:
         """
         列表修改一项
         """
-        list_data, index = list_legal_check(list_data, index, False)
-        list_data[index] = new_value
+        index_int = 0
+        list_data, index_int = list_legal_check(list_data, index, False)
+
+        if isinstance(index_int, list):
+            raise ValueError("请提供单个整数类型的索引！")
+        else:
+            list_data[index_int] = new_value
         return list_data
 
     @staticmethod
@@ -215,15 +221,16 @@ class ListProcess:
         """
         列表删除一项
         """
-        list_data, del_pos = list_legal_check(list_data, del_pos, False)
+        del_pos_int = 0
+        list_data, del_pos_int = list_legal_check(list_data, del_pos, False)
         if del_mode == DeleteMethodType.INDEX:
-            if isinstance(del_pos, list):
+            if isinstance(del_pos_int, list):
                 # 从大到小排序索引，避免删除时索引变化
                 sorted_indices = sorted(del_pos, reverse=True)
                 for index in sorted_indices:
-                    del list_data[index]
+                    del list_data[int(index)]
             else:
-                del list_data[del_pos]
+                del list_data[del_pos_int]
             return list_data
         elif del_mode == DeleteMethodType.VALUE:
             try:
@@ -363,8 +370,11 @@ class ListProcess:
         """
         列表获取一项
         """
-        list_data, index = list_legal_check(list_data, index, False)
-        return list_data[index]
+        index_int = 0
+        list_data, index_int = list_legal_check(list_data, index, False)
+        if isinstance(index_int, list):
+            raise ValueError("请提供单个整数类型的索引！")
+        return list_data[index_int]
 
     @staticmethod
     @atomicMg.atomic(
