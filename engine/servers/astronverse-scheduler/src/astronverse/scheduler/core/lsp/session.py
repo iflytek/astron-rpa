@@ -32,7 +32,7 @@ class LspSession(MethodDispatcher):
 
     def enter(self):
         """Context manager entrypoint."""
-        python_path = self.svc.config.app_server.python_core
+        python_path = self.svc.config.python_core
         logger.info(f"Starting pylsp process, python_path: {python_path}")
         try:
             self._sub = subprocess.Popen(

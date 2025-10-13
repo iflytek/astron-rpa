@@ -1,66 +1,6 @@
-import os
 import subprocess
 import sys
-
-from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.pip import PipManager
 from astronverse.scheduler.utils.utils import EmitType, emit_to_front
-
-
-def repair_pywin32_dependence(svc):
-    return
-    """
-    废弃:
-    修复部分机器pywin32依赖缺失，无法引入，导致拾取组件无法使用bug，直接使用动态修复方法，如果环境依赖缺失将动态下载, rpa_win32_repair包然后执行修复
-    """
-    if sys.platform != "win32":
-        return
-
-    version = PipManager.local_packages_version("pywin32")
-    if not version:
-        return
-    try:
-        pass
-    except Exception as e:
-        emit_to_front(
-            EmitType.SYNC,
-            msg={
-                "msg": "系统依赖缺失，执行修复中...",
-                "step": 95,  # 进度条 90-100之间可选
-            },
-        )
-        try:
-            PipManager.download_pip(
-                "rpa_win32_repair",
-                ver="",
-                mirror=svc.config.base_pipy_server.pypi_remote,
-            )
-            PipManager.install_pip(
-                "rpa_win32_repair",
-                ver="",
-                mirror=svc.config.base_pipy_server.pypi_remote,
-            )
-            command = [
-                sys.executable,
-                "-m",
-                "rpa_win32_repair",
-                '--work_dir="{}"'.format(os.getcwd()),
-            ]
-            result = subprocess.run(command, check=True)
-            if result.returncode == 0:
-                logger.info("pywin32扩展安装成功")
-            else:
-                raise Exception("pywin32扩展安装失败!")
-        except Exception as e:
-            emit_to_front(
-                EmitType.TIP,
-                {
-                    "msg": "系统依赖修复失败",
-                    "type": "error",
-                },
-            )
-        else:
-            emit_to_front(EmitType.TIP, {"msg": "系统依赖修复成功", "type": "tip"})
 
 
 def linux_env_check():

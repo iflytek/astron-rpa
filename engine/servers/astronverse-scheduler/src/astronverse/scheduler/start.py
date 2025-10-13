@@ -44,16 +44,14 @@ def start():
         conf_path = Path(args.conf.strip('"').replace("\\\\", "\\")).resolve()
         conf_data = load_config(conf_path)
 
-        Config.app_server.conf_file = conf_path
-        Config.app_server.remote_addr = conf_data.get("remote_addr")
-        Config.base_pipy_server.pypi_remote = conf_data.get("pypi_remote")
+        Config.conf_file = conf_path
+        Config.remote_addr = conf_data.get("remote_addr")
         svc = get_svc()
         svc.set_config(Config)
 
         # 3. 环境检测
 
         # Process.kill_all_zombie()
-        repair_pywin32_dependence(svc)
         linux_env_check()
 
         # 4. 服务注册与启动

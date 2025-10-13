@@ -64,11 +64,15 @@ class Svc:
         self.terminal_mod = False
         self.terminal_task_stop = False
 
+        # 是否是在虚拟环境中运行[虚拟环境中运行，执行器不会创建虚拟环境]
+        self.is_venv = False
+
         # 4. 全局状态
         self.pip_download_ing = False
 
     def set_config(self, config):
         self.config = config
+        self.is_venv = True if "venv" in self.config.python_base else False
         self.picker.init()
 
     def get_validate_port(self, component_type: ComponentType = None) -> int:

@@ -120,7 +120,7 @@ REM Generate requirements.txt from wheel files using PowerShell
 powershell -Command "$files = Get-ChildItem '%DIST_DIR%\*.whl' | ForEach-Object { $name = $_.BaseName -replace '_','-'; $name -replace '-\d+\.\d+\.\d+-py3-none-any$','' }; Set-Content -Path 'requirements.txt' -Value '# Generated requirements from built packages'; Add-Content -Path 'requirements.txt' -Value $files"
 
 echo Installing packages from requirements.txt...
-uv pip install --link-mode=copy --python "%PYTHON_CORE_DIR%\python.exe" --find-links="%DIST_DIR%" -r "requirements.txt"
+uv pip install --link-mode=copy --python "%PYTHON_CORE_DIR%\python.exe" --find-links="%DIST_DIR%" -r "requirements.txt" --upgrade
 if errorlevel 1 (
     echo Package installation failed
     exit /b 1

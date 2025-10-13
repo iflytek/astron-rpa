@@ -63,7 +63,7 @@ class WindowVirtualDesk:
             self.svc = svc
             vd_path = os.path.join(os.path.dirname(__file__), "virtual_desktop", "iFlyRpaRDP.exe")
             ve_path = os.path.join(os.path.dirname(__file__), "virtual_desktop", "virtual-engine.exe")
-            python_path = os.path.abspath(svc.config.app_server.python_base)
+            python_path = os.path.abspath(svc.config.python_base)
             port = svc.win_virtual_port
             params = "{} --python-path={} --port={}".format(ve_path, python_path, port)
             self.handler = subprocess.Popen(
