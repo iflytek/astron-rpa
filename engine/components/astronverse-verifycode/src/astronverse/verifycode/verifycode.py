@@ -37,11 +37,11 @@ class VerifyCode:
         ],
     )
     def picture_code(
-        browser_obj: Browser | None = None,
-        picture_pick: WebPick | None = None,
+        browser_obj: Browser = None,
+        picture_pick: WebPick = None,
         code_type: PictureCodeType = PictureCodeType.GENERAL1234,
         input_flag: bool = False,
-        input_box: WebPick | None = None,
+        input_box: WebPick = None,
     ) -> str:
         element = Locator.locator(picture_pick.get("elementData"))
         rect = element.rect()

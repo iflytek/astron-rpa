@@ -75,7 +75,7 @@ class ContractAI:
     )
     def get_factors(
         contract_type: InputType = InputType.TEXT,
-        contract_path: PATH | str = "",
+        contract_path: PATH = "",
         contract_content: str = "",
         custom_factors: str = "",
         contract_validate: str = "",

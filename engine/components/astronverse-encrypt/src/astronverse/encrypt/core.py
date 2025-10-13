@@ -8,6 +8,7 @@ from __future__ import annotations
 import base64
 import hashlib
 from collections.abc import Callable
+from pathlib import Path
 
 from astronverse.encrypt import (
     Base64CodeType,
@@ -129,8 +130,7 @@ class EncryptCore:  # pylint: disable=too-few-public-methods
 
         当 encode_type == PICTURE 时，会增加 data URI 前缀。"""
         if file_path:
-            with open(file_path, "rb") as file:
-                input_content = file.read()
+            input_content = Path(file_path).read_bytes()
         else:
             input_content = string_data.encode("utf-8")
         base64_encoded = base64.b64encode(input_content)
@@ -158,6 +158,5 @@ class EncryptCore:  # pylint: disable=too-few-public-methods
             return str(decoded, "utf-8")
 
         if file_path:
-            with open(file_path, "wb") as f:
-                f.write(base64.b64decode(string_data.replace("data:image/png;base64,", "")))
+            Path(file_path).write_bytes(base64.b64decode(string_data.replace("data:image/png;base64,", "")))
         return file_path
