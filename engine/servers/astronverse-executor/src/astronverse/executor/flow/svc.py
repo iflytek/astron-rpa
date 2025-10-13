@@ -105,24 +105,24 @@ class Svc:
         if is_pause:
             self.events[EventKey.ResPause.value] = False
             self.events[EventKey.Pause.value] = True
-            while not (EventKey.ResPause.value in self.events and self.events[EventKey.ResPause.value]):
+            while not (self.events.get(EventKey.ResPause.value)):
                 await asyncio.sleep(0.1)
         else:
             self.events[EventKey.ResPause.value] = True
             self.events[EventKey.Pause.value] = False
-            while EventKey.ResPause.value in self.events and self.events[EventKey.ResPause.value]:
+            while self.events.get(EventKey.ResPause.value):
                 await asyncio.sleep(0.1)
 
     async def event_continue(self):
         self.events[EventKey.ResContinue.value] = False
         self.events[EventKey.Continue.value] = True
-        while not (EventKey.ResContinue.value in self.events and self.events[EventKey.ResContinue.value]):
+        while not (self.events.get(EventKey.ResContinue.value)):
             await asyncio.sleep(0.1)
 
     async def event_next(self):
         self.events[EventKey.ResNext.value] = False
         self.events[EventKey.Next.value] = True
-        while not (EventKey.ResNext.value in self.events and self.events[EventKey.ResNext.value]):
+        while not (self.events.get(EventKey.ResNext.value)):
             await asyncio.sleep(0.1)
 
     def event_break(self) -> dict:

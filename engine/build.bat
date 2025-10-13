@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
@@ -17,35 +17,6 @@ REM ============================================
 REM 2. Argument Parsing
 REM ============================================
 
-set SHOW_HELP=false
-
-:parse_args
-if "%~1"=="" goto end_parse
-if /i "%~1"=="--help" (
-    set SHOW_HELP=true
-    shift
-    goto parse_args
-)
-echo Unknown parameter: %~1
-echo Use --help to view help information
-exit /b 1
-:end_parse
-
-if "%SHOW_HELP%"=="true" (
-    echo.
-    echo ============================================
-    echo Engine Build Script
-    echo ============================================
-    echo.
-    echo Usage: build.bat [options]
-    echo.
-    echo Options:
-    echo   --help    Show this help information
-    echo.
-    echo ============================================
-    echo.
-    exit /b 0
-)
 
 REM ============================================
 REM 3. Environment Check

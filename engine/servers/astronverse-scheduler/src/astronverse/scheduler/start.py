@@ -22,6 +22,7 @@ from astronverse.scheduler.core.servers.core_server import (
     RpaRouteServer,
 )
 from astronverse.scheduler.core.svc import get_svc
+from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import check_port
 
 # 0. app实例化，并做初始化
@@ -33,8 +34,8 @@ def start():
     try:
         # 1. 初始化配置
         parser = argparse.ArgumentParser(description="{} service".format("scheduler"))
-        parser.add_argument("--conf", type=str, default="./conf.json", help="配置文件")
-        parser.add_argument("--venv", type=str, default="./conf.json", help="配置文件")
+        parser.add_argument("--conf", type=str, default="../resources/conf.json", help="配置文件")
+        parser.add_argument("--venv", type=str, help="配置文件")
         args = parser.parse_args()
 
         logger.info("args: {} service[:{}] start".format(args, "astronverse.scheduler"))
