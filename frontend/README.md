@@ -125,8 +125,7 @@ pnpm i18n
 - **@rpa/tauri-app-window**: Tauri log window application
 - **@rpa/browser-plugin**: Browser extension
 - **@rpa/components**: Shared UI components
-- **@rpa/types**: TypeScript type definitions
-- **@rpa/tokens**: Design tokens and styling
+- **@rpa/shared**: Shared tools
 - **@rpa/locales**: Internationalization resources
 
 ### Development Tools

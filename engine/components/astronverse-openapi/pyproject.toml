@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-openapi"
-version = "1.0.0"
+version = "1.0.1"
 description = "astronverse-openapi."
 requires-python = ">=3.13"
 
@@ -14,7 +14,7 @@ dependencies = [
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/astronverse-openapi"]
+packages = ["src/astronverse"]
 
 [build-system]
 requires = ["hatchling"]

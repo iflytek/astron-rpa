@@ -14,7 +14,7 @@
     "build:debug": "pnpm build:sdk && tauri build -c src-tauri/tauri.conf.debug.json --debug"
   },
   "dependencies": {
-    "@rpa/types": "workspace:*",
+    "@rpa/shared": "workspace:*",
     "@tauri-apps/api": "^1.6.0"
   },
   "devDependencies": {

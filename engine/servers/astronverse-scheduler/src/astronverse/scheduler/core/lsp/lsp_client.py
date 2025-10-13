@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from os import path
 from threading import Event
 from typing import Optional
 
@@ -7,9 +6,10 @@ from pylsp import uris
 
 from astronverse.scheduler.core.lsp import SessionId, SessionOptions
 from astronverse.scheduler.core.lsp.session import PUBLISH_DIAGNOSTICS, LspSession
+from astronverse.scheduler.core.schduler.venv import get_project_venv
 from astronverse.scheduler.core.svc import get_svc
 from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.platform_utils import platform_python_venv_path
+from astronverse.scheduler.utils.platform_utils import platform_python_venv_path, platform_python_venv_run_dir
 
 document_uri = "file:///Untitled.py"
 
@@ -17,26 +17,21 @@ LSP_EXIT_TIMEOUT = 5000
 
 
 class LspClient:
-    _project_path: str
-    _document_version: int = 1
-    _document_text: str = ""
-    _document_diags: dict = None
-    _pending_diag_event: Event = None
-
-    _lsp_session: LspSession
-
     def __init__(self, project_id: str):
+        self._document_version: int = 1
+        self._document_text: str = ""
+        self._document_diags: dict = None
+        self._pending_diag_event: Event = None
         self.svc = get_svc()
-        self._project_path = path.join(path.abspath(self.svc.config.app_server.venv_base_dir), project_id)
+        self._project_path = get_project_venv(self.svc, project_id)
+        self._project_dir = platform_python_venv_run_dir(self._project_path)
         self._lsp_session = LspSession()
         self._lsp_session.enter()
 
     def initialize(self, session_options: SessionOptions):
-        python_base_path = platform_python_venv_path(self._project_path)
-
         init = {
-            "rootUri": uris.from_fs_path(self._project_path),
-            "rootPath": self._project_path,
+            "rootUri": uris.from_fs_path(self._project_dir),
+            "rootPath": self._project_dir,
             "processId": 1,
             "capabilities": {
                 "textDocument": {
@@ -84,7 +79,7 @@ class LspClient:
                             "pyflakes": {"enabled": True},
                             "mccabe": {"enabled": True},
                             "pylint": {"enabled": False},
-                            "jedi": {"environment": python_base_path},
+                            "jedi": {"environment": self._project_path},
                         },
                     }
                 }

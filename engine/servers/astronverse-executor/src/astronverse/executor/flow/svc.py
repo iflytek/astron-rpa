@@ -36,6 +36,10 @@ class SyncMap:
         with self.lock:
             return key in self.map
 
+    def get(self, key, default=None):
+        with self.lock:
+            return self.map.get(key, default)
+
 
 class Svc:
     def __init__(

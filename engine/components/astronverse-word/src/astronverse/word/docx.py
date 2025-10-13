@@ -1,50 +1,47 @@
 import os
 import platform
 import sys
-from typing import Tuple
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
-
 from astronverse.word import (
     ApplicationType,
-    EncodingType,
-    SelectRangeType,
-    FileExistenceType,
-    SaveType,
     CloseRangeType,
-    UnderLineStyle,
-    SelectTextType,
+    CommentType,
+    ConvertPageType,
     CursorPointerType,
     CursorPositionType,
-    MoveDirectionType,
-    MoveUpDownType,
-    MoveLeftRightType,
-    InsertionType,
-    InsertImgType,
-    SearchTableType,
-    TableBehavior,
-    RowAlignment,
-    VerticalAlignment,
     DeleteMode,
-    ReplaceType,
-    ReplaceMethodType,
-    CommentType,
+    EncodingType,
+    FileExistenceType,
     FileType,
-    ConvertPageType,
+    InsertImgType,
+    InsertionType,
+    MoveDirectionType,
+    MoveLeftRightType,
+    MoveUpDownType,
+    ReplaceMethodType,
+    ReplaceType,
+    RowAlignment,
     SaveFileType,
+    SaveType,
+    SearchTableType,
+    SelectRangeType,
+    SelectTextType,
+    TableBehavior,
+    UnderLineStyle,
+    VerticalAlignment,
 )
 from astronverse.word.core import IDocumentCore
 from astronverse.word.docx_obj import DocumentObject
 from astronverse.word.error import (
-    DOCUMENT_READ_ERROR_FORMAT,
+    CONTENT_FORMAT_ERROR_FORMAT,
     DOCUMENT_NOT_EXIST_ERROR_FORMAT,
     DOCUMENT_PATH_ERROR_FORMAT,
-    CONTENT_FORMAT_ERROR_FORMAT,
+    DOCUMENT_READ_ERROR_FORMAT,
     FILENAME_ALREADY_EXISTS_ERROR,
 )
-
 
 if sys.platform == "win32":
     from astronverse.word.core_win import WordDocumentCore
@@ -173,7 +170,7 @@ class Docx:
         default_application: ApplicationType = ApplicationType.WORD,
         visible_flag: bool = True,
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
-    ) -> Tuple[DocumentObject, PATH]:
+    ) -> tuple[DocumentObject, PATH]:
         if not os.path.exists(file_path):
             raise BaseException(
                 DOCUMENT_PATH_ERROR_FORMAT.format(file_path),

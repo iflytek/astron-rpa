@@ -2,9 +2,9 @@ import json
 from typing import Optional
 from uuid import uuid4
 
-from ...logger import logger
-from . import SessionId, SessionOptions
-from .lsp_client import LspClient, Session
+from astronverse.scheduler.logger import logger
+from astronverse.scheduler.core.lsp import SessionId, SessionOptions
+from astronverse.scheduler.core.lsp.lsp_client import LspClient, Session
 
 # Map of active sessions indexed by ID
 active_sessions: dict[SessionId, Session] = {}

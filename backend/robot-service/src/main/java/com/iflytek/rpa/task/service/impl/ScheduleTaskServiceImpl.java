@@ -1,5 +1,7 @@
 package com.iflytek.rpa.task.service.impl;
 
+import static com.iflytek.rpa.task.constants.TaskConstant.TASK_MAX_SIZE;
+
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -65,8 +67,6 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
 
     @Autowired
     private IdWorker idWorker;
-
-    private int taskMaxSize = 100;
 
     public Date generateNextValidTimeNew(ScheduleTask task, Date fromTime) throws Exception {
         if ("fixed".equals(task.getRunMode()) || "custom".equals(task.getRunMode())) {
@@ -391,8 +391,8 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
         if (0 == total) {
             return null;
         }
-        if (total > taskMaxSize) {
-            throw new IllegalStateException("启用中计划任务数量超过" + taskMaxSize + "个" + ", 请将部分任务禁用");
+        if (total > TASK_MAX_SIZE) {
+            throw new IllegalStateException("启用中计划任务数量超过" + TASK_MAX_SIZE + "个" + ", 请将部分任务禁用");
         }
         //        PageBatch pageBatch = new PageBatch();
         // 批量操作，防止数据量过大，内存溢出或mybatis报错

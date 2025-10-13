@@ -1,9 +1,0 @@
-{
-  "name": "@rpa/types",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "Shared TypeScript type definitions for RPA project",
-  "main": "",
-  "types": "index.d.ts",
-  "files": ["*.d.ts"]
-}

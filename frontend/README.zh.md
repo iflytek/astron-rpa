@@ -125,8 +125,7 @@ pnpm i18n
 - **@rpa/tauri-app-window**: Tauri 日志窗口应用
 - **@rpa/browser-plugin**: 浏览器扩展
 - **@rpa/components**: 共享 UI 组件
-- **@rpa/types**: TypeScript 类型定义
-- **@rpa/tokens**: 设计令牌和样式
+- **@rpa/shared**: 共享工具库
 - **@rpa/locales**: 国际化资源
 
 ### 开发工具

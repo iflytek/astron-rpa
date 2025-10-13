@@ -1,4 +1,4 @@
-import type { CreateWindowOptions, WindowManager } from '@rpa/types'
+import type { CreateWindowOptions, WindowManager } from '@rpa/shared/platform'
 import { appWindow, getCurrent, LogicalPosition, LogicalSize, PhysicalPosition, PhysicalSize, primaryMonitor, WebviewWindow } from '@tauri-apps/api/window'
 
 const loginWinState = {

@@ -1,56 +1,55 @@
 import ast
+import os
 import platform
 import sys
-import os
-from typing import Tuple
+
 import psutil
 import win32com
-from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType, AtomicLevel
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
-from astronverse.actionlib import DynamicsItem
 from astronverse.excel import (
     ApplicationType,
-    FileExistenceType,
-    SaveType,
-    CloseRangeType,
-    SaveTypeAll,
-    EditRangeType,
-    ReadRangeType,
-    NumberFormatType,
-    FontType,
-    FontNameType,
-    HorizontalAlign,
-    VerticalAlign,
-    PasteType,
-    DeleteCellDirection,
     ClearType,
-    EnhancedInsertType,
-    RowDirectionType,
+    CloseRangeType,
     ColumnDirectionType,
-    ColumnType,
-    RowType,
     ColumnOutputType,
-    SearchRangeType,
-    MergeOrSplitType,
-    SheetInsertType,
-    MoveSheetType,
-    CopySheetType,
+    ColumnType,
     CopySheetLocationType,
-    SheetRangeType,
-    SearchSheetType,
-    MatchCountType,
-    SearchResultType,
+    CopySheetType,
+    CreateCommentType,
+    DeleteCellDirection,
+    EditRangeType,
+    EnhancedInsertType,
+    FileExistenceType,
+    FontNameType,
+    FontType,
+    HorizontalAlign,
     ImageSizeType,
     InsertFormulaDirectionType,
-    CreateCommentType,
+    MatchCountType,
+    MergeOrSplitType,
+    MoveSheetType,
+    NumberFormatType,
+    PasteType,
+    ReadRangeType,
+    RowDirectionType,
+    RowType,
+    SaveType,
+    SaveTypeAll,
+    SearchRangeType,
+    SearchResultType,
+    SearchSheetType,
     SetType,
+    SheetInsertType,
+    SheetRangeType,
+    VerticalAlign,
 )
 from astronverse.excel.core import IExcelCore
 from astronverse.excel.error import (
-    FILE_PATH_ERROR_FORMAT,
     EXCEL_NOT_EXIST_ERROR_FORMAT,
     EXCEL_READ_ERROR_FORMAT,
+    FILE_PATH_ERROR_FORMAT,
     INPUT_DATA_ERROR_FORMAT,
 )
 from astronverse.excel.excel_obj import ExcelObj
@@ -140,7 +139,7 @@ class Excel:
         visible_flag: bool = True,
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
         password: str = "",
-    ) -> Tuple[ExcelObj, str]:
+    ) -> tuple[ExcelObj, str]:
         if not os.path.exists(file_path):
             raise BaseException(
                 FILE_PATH_ERROR_FORMAT.format(file_path),

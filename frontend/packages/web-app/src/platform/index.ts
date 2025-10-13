@@ -1,4 +1,4 @@
-import type { ClipboardManager, ShortCutManager, UpdaterManager, UtilsManager, WindowManager } from '@rpa/types'
+import type { ClipboardManager, ShortCutManager, UpdaterManager, UtilsManager, WindowManager } from '@rpa/shared/platform'
 
 import ClipBoard from './clipboard'
 import ShortCut from './short-cut'

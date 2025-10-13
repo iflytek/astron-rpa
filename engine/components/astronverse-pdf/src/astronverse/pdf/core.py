@@ -2,9 +2,8 @@ import os
 from abc import ABC, abstractmethod
 from functools import wraps
 
-from docx import Document
-
 from astronverse.pdf import FileExistenceType, PictureType
+from docx import Document
 
 
 class IPDFCore(ABC):

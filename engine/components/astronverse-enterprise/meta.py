@@ -1,7 +1,7 @@
 import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
-from astronverse.enterprise import Enterprise
+from astronverse.enterprise.enterprise import Enterprise
 
 
 def get_version():

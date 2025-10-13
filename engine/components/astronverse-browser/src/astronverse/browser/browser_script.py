@@ -6,7 +6,6 @@ import sys
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
-
 from astronverse.browser import CHROME_LIKE_BROWSERS, InputType
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import CodeChromeBuilder

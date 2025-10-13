@@ -298,10 +298,7 @@ class ExecutorManager:
         executor.exec_port = self.svc.get_validate_port(None)
 
         # 4. 创建虚拟环境
-        create_project_venv(self.svc, project_id)
-
-        # 5. 配置tasK
-        exec_python = platform_python_venv_path(os.path.join(self.svc.config.app_server.venv_base_dir, project_id))
+        exec_python = create_project_venv(self.svc, project_id)
 
         if open_virtual_desk and sys.platform == "win32":
             ins = WindowVirtualDeskSubprocessAdapter(self.svc, exec_python=exec_python)

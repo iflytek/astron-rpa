@@ -1,5 +1,7 @@
 package com.iflytek.rpa.triggerTask.service.impl;
 
+import static com.iflytek.rpa.triggerTask.constants.TaskConstants.*;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -88,15 +90,15 @@ public class TaskMailServiceImpl extends ServiceImpl<TaskMailMapper, TaskMail> i
     }
 
     private void preDealMailInfo(TaskMail mail) throws NoLoginException {
-        if ("qqEmail".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("imap.qq.com");
-            mail.setPort("993");
-        } else if ("163Email".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("imap.163.com");
-            mail.setPort("993");
-        } else if ("126Email".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("imap.126.com");
-            mail.setPort("993");
+        if (EMAIL_QQ.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_QQ);
+            mail.setPort(PORT);
+        } else if (EMAIL_163.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_163);
+            mail.setPort(PORT);
+        } else if (EMAIL_126.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_126);
+            mail.setPort(PORT);
         }
         if (mail.getUserId() == null) {
             mail.setUserId(UserUtils.nowLoginUser().id);
@@ -112,18 +114,18 @@ public class TaskMailServiceImpl extends ServiceImpl<TaskMailMapper, TaskMail> i
 
     @Override
     public String connectMail(TaskMail mail) {
-        if ("qqEmail".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("imap.qq.com");
-            mail.setPort("993");
-        } else if ("163Email".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("imap.163.com");
-            mail.setPort("993");
-        } else if ("126Email".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("imap.126.com");
-            mail.setPort("993");
-        } else if ("iflytekEmail".equals(mail.getEmailService())) {
-            mail.setEmailServiceAddress("mail.iflytek.com");
-            mail.setPort("993");
+        if (EMAIL_QQ.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_QQ);
+            mail.setPort(PORT);
+        } else if (EMAIL_163.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_163);
+            mail.setPort(PORT);
+        } else if (EMAIL_126.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_126);
+            mail.setPort(PORT);
+        } else if (EMAIL_IFLYTEK.equals(mail.getEmailService())) {
+            mail.setEmailServiceAddress(IMAP_IFLYTEK);
+            mail.setPort(PORT);
         }
         mail.setPort(mail.getPort().replaceAll(" ", ""));
         mail.setEmailServiceAddress(mail.getEmailServiceAddress().replaceAll(" ", ""));

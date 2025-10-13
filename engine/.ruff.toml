@@ -3,6 +3,53 @@ line-length = 120
 [format]
 quote-style = "double"
 
+exclude = [
+    # 版本控制
+    ".git",
+    ".svn",
+    ".hg",
+    
+    # Python 缓存和虚拟环境
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    ".env",
+    
+    # 构建目录
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    
+    # IDE 和编辑器文件
+    ".vscode",
+    ".idea",
+    
+    # 测试和覆盖率
+    ".pytest_cache",
+    ".coverage",
+    "htmlcov",
+    
+    # 文档
+    "docs/_build",
+    
+    # 特定文件
+    "migrations/*",
+    "*/migrations/*",
+    "test_*.py",
+    "*_test.py",
+    
+    # 特定文件夹
+    "scripts/",
+    "tools/",
+    "legacy/",
+    
+    # 使用通配符
+    "temp_*",
+    "*.tmp",
+]
+
 [lint]
 preview = true
 select = [
@@ -71,6 +118,7 @@ ignore = [
     "B905",    # zip-without-explicit-strict
     "N806",    # non-lowercase-variable-in-function
     "N815",    # mixed-case-variable-in-class-scope
+    "N818",    # Exception -> Error
     "PT011",   # pytest-raises-too-broad
     "SIM102",  # collapsible-if
     "SIM103",  # needless-bool

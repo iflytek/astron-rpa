@@ -28,11 +28,11 @@ function handleCancel() {
 }
 
 const filePath = computed(() =>
-  new URL(`/server${appDetail.value.filePath}`, getBaseURL()).toString(),
+  new URL(`${appDetail.value.filePath}`, getBaseURL()).toString(),
 )
 
 const videoPath = computed(() =>
-  new URL(`/server${appDetail.value.videoPath}`, getBaseURL()).toString(),
+  new URL(`${appDetail.value.videoPath}`, getBaseURL()).toString(),
 )
 </script>
 

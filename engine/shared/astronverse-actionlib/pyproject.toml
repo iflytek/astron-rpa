@@ -1,11 +1,10 @@
 [project]
 name = "astronverse-actionlib"
-version = "1.0.0"
+version = "1.0.1"
 description = "astronverse-actionlib."
 requires-python = ">=3.13"
 
 dependencies = [
-    "PyYAML",
     "python-dateutil",
     "pycryptodome",
     "astronverse-baseline",

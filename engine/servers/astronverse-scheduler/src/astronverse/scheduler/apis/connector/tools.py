@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
 
 from astronverse.scheduler.apis.response import ResCode, res_msg
-from astronverse.scheduler.core.schduler.venv import create_project_venv
+from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.ai import InputType, get_factors
@@ -190,7 +190,7 @@ def auto_start_enable(svc: Svc = Depends(get_svc)):
 
     from astronverse.scheduler.utils.window import AutoStart
 
-    exe_path = os.path.join(os.path.dirname(os.path.dirname(svc.config.app_server.conf_file)), "iflyrpa.exe").lower()
+    exe_path = os.path.join(os.path.dirname(os.path.dirname(svc.config.conf_file)), "iflyrpa.exe").lower()
     AutoStart.enable(exe_path)
     return res_msg(msg="", data={"tips": "操作成功"})
 
@@ -287,12 +287,10 @@ def stream_sse(pck: PipPackages, svc: Svc = Depends(get_svc)):
             package = pck.package
             version = pck.version
             mirror = pck.mirror
-            create_project_venv(svc, project_id)
+            exec_python = create_project_venv(svc, project_id)
             pck_v = package
             if version:
                 pck_v += "=={}".format(version)
-            v_path = os.path.join(svc.config.app_server.venv_base_dir, project_id)
-            exec_python = platform_python_venv_path(v_path)
 
             def log(sub_proc):
                 while True:
@@ -338,8 +336,7 @@ def stream_sse(pck: PipPackages, svc: Svc = Depends(get_svc)):
 def package_version(pck: PipPackages, svc: Svc = Depends(get_svc)):
     package = pck.package
     project_id = pck.project_id
-    v_path = os.path.join(svc.config.app_server.venv_base_dir, project_id)
-    exec_python = platform_python_venv_path(v_path)
+    exec_python = get_project_venv(svc, project_id)
     if os.path.exists(exec_python):
         version = PipManager.package_version(package, exec_python=exec_python)
     else:

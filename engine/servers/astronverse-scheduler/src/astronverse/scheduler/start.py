@@ -1,13 +1,14 @@
 import argparse
-import json
 import time
 import traceback
+from pathlib import Path
 
 import uvicorn
+from astronverse.baseline.config.config import load_config
 from fastapi import FastAPI
 
 from astronverse.scheduler.apis import route
-from astronverse.scheduler.config import Config as conf
+from astronverse.scheduler.config import Config
 from astronverse.scheduler.core.schduler.init import linux_env_check, repair_pywin32_dependence
 from astronverse.scheduler.core.server import ServerManager
 from astronverse.scheduler.core.servers.async_server import (
@@ -33,29 +34,24 @@ def start():
     try:
         # 1. 初始化配置
         parser = argparse.ArgumentParser(description="{} service".format("scheduler"))
-        parser.add_argument("--conf", type=str, default="./conf.json", help="配置文件")
+        parser.add_argument("--conf", type=str, default="../resources/conf.json", help="配置文件")
+        parser.add_argument("--venv", type=str, help="配置文件")
         args = parser.parse_args()
 
         logger.info("args: {} service[:{}] start".format(args, "astronverse.scheduler"))
 
         # 2. 读取配置，并解析到上下文
-        conf_path = args.conf.strip('"')
-        conf_path = conf_path.replace("\\\\", "\\")
-        with open(conf_path) as f:
-            conf_json = json.loads(f.read().strip())
+        conf_path = Path(args.conf.strip('"').replace("\\\\", "\\")).resolve()
+        conf_data = load_config(conf_path)
 
-        conf.app_server.remote_addr = conf_json.get("remote_addr")
-        conf.app_server.conf_file = conf_path
-        conf.base_pipy_server.pypi_remote = conf_json.get("pypi_remote")
-
+        Config.conf_file = conf_path
+        Config.remote_addr = conf_data.get("remote_addr")
         svc = get_svc()
-        svc.set_config(conf)
+        svc.set_config(Config)
 
         # 3. 环境检测
-        from astronverse.scheduler.core.setup.setup import Process
 
         # Process.kill_all_zombie()
-        repair_pywin32_dependence(svc)
         linux_env_check()
 
         # 4. 服务注册与启动

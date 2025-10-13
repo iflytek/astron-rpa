@@ -6,43 +6,42 @@ from io import BytesIO
 
 import PIL
 from astronverse.actionlib.utils import handle_existence
-from docx import Document
-from docx.shared import RGBColor
-from pywpsrpc import rpcwpsapi
-from pywpsrpc.rpcwpsapi import *
-
 from astronverse.word import (
     ApplicationType,
-    SelectRangeType,
-    SaveType,
-    FileExistenceType,
     CloseRangeType,
-    ReplaceType,
-    ReplaceMethodType,
-    SelectTextType,
-    CursorPositionType,
-    MoveDirectionType,
-    MoveUpDownType,
-    MoveLeftRightType,
-    InsertionType,
-    InsertImgType,
-    SearchTableType,
-    TableBehavior,
-    RowAlignment,
-    VerticalAlignment,
-    UnderLineStyle,
-    DeleteMode,
     CommentType,
-    SaveFileType,
     ConvertPageType,
+    CursorPositionType,
+    DeleteMode,
+    FileExistenceType,
+    InsertImgType,
+    InsertionType,
+    MoveDirectionType,
+    MoveLeftRightType,
+    MoveUpDownType,
+    ReplaceMethodType,
+    ReplaceType,
+    RowAlignment,
+    SaveFileType,
+    SaveType,
+    SearchTableType,
+    SelectRangeType,
+    SelectTextType,
+    TableBehavior,
+    UnderLineStyle,
+    VerticalAlignment,
 )
 from astronverse.word.core import IDocumentCore
 from astronverse.word.error import (
     CONTENT_FORMAT_ERROR_FORMAT,
     DOCUMENT_PATH_ERROR_FORMAT,
-    TABLE_NOT_EXIST_ERROR,
     FILENAME_ALREADY_EXISTS_ERROR,
+    TABLE_NOT_EXIST_ERROR,
 )
+from docx import Document
+from docx.shared import RGBColor
+from pywpsrpc import rpcwpsapi
+from pywpsrpc.rpcwpsapi import *
 
 APP = None
 
@@ -170,7 +169,6 @@ class WordDocumentCore(IDocumentCore):
             doc.SaveAs(FileName=new_file_path)
         elif save_type == SaveType.SAVE:
             doc.Save()
-        return
 
     @classmethod
     def save(
@@ -643,8 +641,8 @@ class WordDocumentCore(IDocumentCore):
                 if if_change_font:
                     # 设置字体属性
                     run = cell.Range.Font
-                    run.Name = font_set if font_set else "宋体"
-                    run.Size = font_size if font_size else 12
+                    run.Name = font_set or "宋体"
+                    run.Size = font_size or 12
                     run.Bold = font_bold
                     run.Italic = font_italic
                     run.Underline = underline.value if underline else 0
@@ -813,8 +811,7 @@ class WordDocumentCore(IDocumentCore):
         pydoc = Document(oldfilepath)
         new_path = os.path.join(output_path, filename)
         with open(new_path, "w", encoding="utf-8") as txt_file:
-            for para in pydoc.paragraphs:
-                txt_file.write(para.text + "\n")
+            txt_file.writelines(para.text + "\n" for para in pydoc.paragraphs)
 
     @classmethod
     def convert_to_pdf(
