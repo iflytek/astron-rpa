@@ -20,7 +20,7 @@ class RpaRouteServer(IServer):
         self.proc = SubPopen(name="rpa_route", cmd=[get_cmd()])
         self.proc.set_param("port", self.port)
 
-        remote_parsed_url = urlparse(self.svc.config.app_server.remote_addr)
+        remote_parsed_url = urlparse(self.svc.config.remote_addr)
 
         if remote_parsed_url.scheme.lower() == "https":
             self.proc.set_param("httpProtocol", "https")
@@ -63,7 +63,7 @@ class RpaBrowserConnectorServer(IServer):
 
         self.proc = SubPopen(
             name="browser_bridge",
-            cmd=[self.svc.config.app_server.python_core, "-m", "astronverse.browser_bridge"],
+            cmd=[self.svc.config.python_core, "-m", "astronverse.browser_bridge"],
         )
         self.proc.set_param("port", self.port)
         self.proc.run()

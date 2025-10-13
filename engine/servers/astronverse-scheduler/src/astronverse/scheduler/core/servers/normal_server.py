@@ -20,7 +20,7 @@ class TriggerServer(IServer):
 
         self.proc = SubPopen(
             name="trigger",
-            cmd=[self.svc.config.app_server.python_core, "-m", "astronverse.trigger"],
+            cmd=[self.svc.config.python_core, "-m", "astronverse.trigger"],
         )
         self.proc.set_param("port", self.port)
         self.proc.set_param("gateway_port", self.svc.rpa_route_port)

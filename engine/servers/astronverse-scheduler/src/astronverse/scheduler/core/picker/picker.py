@@ -19,7 +19,7 @@ class Picker:
         self.start = start
 
     def init(self):
-        python_executable = self.svc.config.app_server.python_core
+        python_executable = self.svc.config.python_core
 
         # 1. 服务声明
         if sys.platform == "win32" and platform.release() != "7":
@@ -80,5 +80,5 @@ class Picker:
 
         self.vision_picker.set_param("schema", "vision_picker")
         self.vision_picker.set_param("vision_picker_port", self.svc.get_validate_port(ComponentType.CV_PICKER))
-        self.vision_picker.set_param("remote_addr", self.svc.config.app_server.remote_addr)
+        self.vision_picker.set_param("remote_addr", self.svc.config.remote_addr)
         self.vision_picker.set_param("highlight_socket_port", self.svc.rpa_hl_port)

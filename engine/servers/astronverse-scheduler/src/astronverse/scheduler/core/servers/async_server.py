@@ -1,7 +1,6 @@
 import time
 
 from astronverse.scheduler import ServerLevel
-from astronverse.scheduler.core.schduler.package import Package
 from astronverse.scheduler.core.schduler.venv import VenvManager
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.setup.setup import Process
@@ -24,7 +23,8 @@ class RpaSchedulerAsyncServer(IServer):
             try:
                 # 创建空的虚拟环境
                 try:
-                    VenvManager().create_new(self.svc)
+                    if not self.svc.is_venv:
+                        VenvManager().create_new(self.svc)
                 except Exception as e:
                     logger.exception("VenvManager error: {}".format(e))
 
@@ -59,31 +59,6 @@ class TerminalAsyncServer(IServer):
                         Terminal.register(self.svc)
             except Exception as e:
                 logger.exception("Terminal upload error: {}".format(e))
-            finally:
-                i += 1
-                if i > 60:
-                    i = 0
-                time.sleep(1)
-
-
-class AtomicUploadAsyncServer(IServer):
-    def __init__(self, svc):
-        super().__init__(
-            svc=svc,
-            name="atomic_upload_async",
-            level=ServerLevel.NORMAL,
-            run_is_async=True,
-        )
-
-    def run(self):
-        i = 1
-        while True:
-            try:
-                # 原子能力更新
-                if i % 60 == 0:
-                    Package().atomic_upload(self.svc)
-            except Exception as e:
-                logger.exception("update_atomic error: {}".format(e))
             finally:
                 i += 1
                 if i > 60:
