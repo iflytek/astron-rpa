@@ -7,7 +7,6 @@ from email.mime.text import MIMEText
 from email.utils import formataddr, parseaddr
 
 import requests
-
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import get_settings
 

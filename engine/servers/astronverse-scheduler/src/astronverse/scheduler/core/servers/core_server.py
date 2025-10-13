@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 
 import requests
-
 from astronverse.scheduler import ComponentType, ServerLevel
 from astronverse.scheduler.core.route.proxy import get_cmd
 from astronverse.scheduler.core.server import IServer

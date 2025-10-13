@@ -7,10 +7,6 @@ import sys
 from dataclasses import field
 from enum import Enum
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, field_validator
-
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
 from astronverse.scheduler.core.svc import Svc, get_svc
@@ -18,9 +14,11 @@ from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.ai import InputType, get_factors
 from astronverse.scheduler.utils.clipboard import Clipboard
 from astronverse.scheduler.utils.pip import PipManager
-from astronverse.scheduler.utils.platform_utils import platform_python_venv_path
 from astronverse.scheduler.utils.subprocess import SubPopen
 from astronverse.scheduler.utils.utils import EmitType, emit_to_front
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, field_validator
 
 router = APIRouter()
 

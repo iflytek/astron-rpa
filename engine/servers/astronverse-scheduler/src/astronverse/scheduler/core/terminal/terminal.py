@@ -6,7 +6,6 @@ import sys
 
 import psutil
 import requests
-
 from astronverse.scheduler.logger import logger
 
 

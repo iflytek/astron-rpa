@@ -2,14 +2,13 @@ from dataclasses import dataclass
 from threading import Event
 from typing import Optional
 
-from pylsp import uris
-
 from astronverse.scheduler.core.lsp import SessionId, SessionOptions
 from astronverse.scheduler.core.lsp.session import PUBLISH_DIAGNOSTICS, LspSession
 from astronverse.scheduler.core.schduler.venv import get_project_venv
 from astronverse.scheduler.core.svc import get_svc
 from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.platform_utils import platform_python_venv_path, platform_python_venv_run_dir
+from astronverse.scheduler.utils.platform_utils import platform_python_venv_run_dir
+from pylsp import uris
 
 document_uri = "file:///Untitled.py"
 

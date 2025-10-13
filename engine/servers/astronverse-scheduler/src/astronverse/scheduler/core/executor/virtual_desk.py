@@ -5,7 +5,6 @@ import threading
 import time
 
 import requests
-
 from astronverse.scheduler.logger import logger
 
 

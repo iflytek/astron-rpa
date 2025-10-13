@@ -1,13 +1,12 @@
-import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.baseline.config.config import load_config
 from astronverse.input.gui_key import GuiKeyBoard
 from astronverse.input.gui_mouse import GuiMouse
 
 
 def get_version():
-    with open("pyproject.toml", encoding="utf-8") as f:
-        pyproject_data = toml.load(f)
+    pyproject_data = load_config("pyproject.toml")
     return pyproject_data["project"]["version"]
 
 

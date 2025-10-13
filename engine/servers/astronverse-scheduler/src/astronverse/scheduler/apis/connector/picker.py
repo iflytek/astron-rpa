@@ -1,9 +1,8 @@
 import time
 
-from fastapi import APIRouter, Depends
-
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.svc import Svc, get_svc
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
 

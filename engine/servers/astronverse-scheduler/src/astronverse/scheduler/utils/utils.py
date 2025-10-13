@@ -8,7 +8,6 @@ import time
 from enum import Enum
 
 import psutil
-
 from astronverse.scheduler.logger import logger
 
 

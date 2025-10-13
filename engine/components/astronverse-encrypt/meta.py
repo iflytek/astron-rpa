@@ -1,12 +1,11 @@
-import toml
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.baseline.config.config import load_config
 from astronverse.encrypt.encrypt import Encrypt
 
 
 def get_version():
-    with open("pyproject.toml", encoding="utf-8") as f:
-        pyproject_data = toml.load(f)
+    pyproject_data = load_config("pyproject.toml")
     return pyproject_data["project"]["version"]
 
 

@@ -11,7 +11,6 @@ from typing import Union
 
 import requests
 import websocket
-
 from astronverse.scheduler.core.executor.virtual_desk import (
     WindowVirtualDeskSubprocessAdapter,
     virtual_desk,
@@ -20,7 +19,6 @@ from astronverse.scheduler.core.schduler.venv import create_project_venv
 from astronverse.scheduler.core.terminal.terminal import Terminal
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.notify_utils import NotifyUtils
-from astronverse.scheduler.utils.platform_utils import platform_python_venv_path
 from astronverse.scheduler.utils.subprocess import SubPopen
 from astronverse.scheduler.utils.utils import (
     EmitType,

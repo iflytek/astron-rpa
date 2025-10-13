@@ -1,5 +1,4 @@
 import requests
-
 from astronverse.scheduler import ComponentType, ServerLevel
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.terminal.terminal import terminal_id
