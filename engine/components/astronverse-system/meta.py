@@ -1,4 +1,4 @@
-import toml
+from astronverse.baseline.config.config import load_config
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
 from astronverse.system.clipboard import Clipboard
@@ -10,8 +10,7 @@ from astronverse.system.system import System
 
 
 def get_version():
-    with open("pyproject.toml", encoding="utf-8") as f:
-        pyproject_data = toml.load(f)
+    pyproject_data = load_config("pyproject.toml")
     return pyproject_data["project"]["version"]
 
 
