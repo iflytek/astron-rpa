@@ -93,14 +93,6 @@ class HttpClient {
         }
       }
 
-      const authHeader = auth.getHttpAuthHeader()
-      if (authHeader) {
-        config.headers = new AxiosHeaders({
-          ...config.headers,
-          ...authHeader,
-        })
-      }
-
       // 在这里可以添加请求拦截器的逻辑，例如添加请求头、处理请求参数等
       if (config.loading) {
         // TODO: 添加全局 loading

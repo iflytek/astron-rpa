@@ -5,19 +5,7 @@ export interface IAuthService {
   logout: () => Promise<void>
   getUserName: () => Promise<string>
   checkLogin: (callback: () => void) => Promise<void>
-  getHttpAuthHeader: () => Record<string, string> | null
   checkHttpResponse: (response: any) => boolean
-}
-
-export interface CasdoorConfig {
-  serverUrl?: string
-  clientId?: string
-  appName?: string
-  organizationName?: string
-  redirectPath?: string
-  scope?: string
-  signinPath?: string
-  backendServerUrl?: string
 }
 
 export interface CasdoorUserInfo {

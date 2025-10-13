@@ -73,8 +73,4 @@ export class UapAuthService implements IAuthService {
     }
     return isExpired
   }
-
-  getHttpAuthHeader(): Record<string, string> | null {
-    return null
-  }
 }
