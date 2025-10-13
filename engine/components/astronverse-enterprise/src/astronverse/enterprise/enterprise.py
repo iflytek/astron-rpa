@@ -25,7 +25,7 @@ class Enterprise:
         ],
         outputList=[atomicMg.param("upload_result", types="Str")],
     )
-    def upload_to_sharefolder(file_path: PATH = ""):
+    def upload_to_sharefolder(file_path: PATH | str = ""):
         upload_url = "http://127.0.0.1:8003/api/resource/file/shared-file-upload"
         update_info_url = "http://127.0.0.1:8003/api/robot/robot-shared-file/addSharedFileInfo"
         # 检查文件是否存在
@@ -99,7 +99,7 @@ class Enterprise:
         ],
         outputList=[atomicMg.param("download_result", types="Str")],
     )
-    def download_from_sharefolder(file_path: int, save_folder: PATH = ""):
+    def download_from_sharefolder(file_path: int, save_folder: PATH | str = ""):
         download_url = "http://127.0.0.1:8003/api/resource/file/download"
 
         # 检查保存文件夹是否存在，如果不存在则创建

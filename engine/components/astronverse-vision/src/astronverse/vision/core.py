@@ -26,6 +26,8 @@ class CvCore:
     @staticmethod
     def match_imgs(input_data=None, match_similarity=0.95, canny_flag=False):
         match = AnchorMatch()
+        if input_data is None:
+            raise ValueError("input_data cannot be None")
         data = input_data.get("elementData")
 
         # data = input_data
@@ -46,7 +48,7 @@ class CvCore:
         ratio = f"{ratio_w},{ratio_h}"
         match_img = np.array(match_img)
 
-        out_img, match_box = match.process_image(
+        result = match.process_image(
             match_img,
             target_img,
             anchor_img,
@@ -56,6 +58,9 @@ class CvCore:
             ratio=ratio,
             match_similarity=match_similarity,
         )
+        if result is None or not isinstance(result, (list, tuple)) or len(result) != 2:
+            raise ValueError("match.process_image did not return a valid (out_img, match_box) tuple")
+        out_img, match_box = result
         cv2.imwrite(desktop_filepath, out_img)
         return match_box
 

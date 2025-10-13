@@ -7,8 +7,9 @@ from io import BytesIO
 import pyautogui
 import requests
 from astronverse.actionlib.logger import logger
+from astronverse.browser import ElementGetAttributeTypeFlag
 from astronverse.locator import smooth_move
-from astronverse.verifycode import ElementGetAttributeTypeFlag, VerifyCodeConfig
+from astronverse.verifycode import VerifyCodeConfig
 
 
 class VerifyCodeCore:
@@ -19,7 +20,7 @@ class VerifyCodeCore:
             "type": api_type,
         }
         if kwargs.get("direction"):
-            data["direction"] = kwargs.get("direction")
+            data["direction"] = kwargs.get("direction", "")
 
         headers = {
             "Content-Type": "application/json",
@@ -69,6 +70,8 @@ class VerifyCodeCore:
             attribute_name="style",
         )
         # margin-top: 46px; display: block; margin-left: 0px;
+        if not isinstance(style, str):
+            style = str(style)
         match = re.search(r"margin-left:\s*([-+]?\d*\.?\d+)px", style)
         if match:
             margin_left_value = match.group(1)  # 提取捕获组中的值

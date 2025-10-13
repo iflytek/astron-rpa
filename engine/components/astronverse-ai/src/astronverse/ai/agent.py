@@ -53,7 +53,7 @@ class Agent:
         file_flag: bool = False,
         variable_name: str = "",
         variable_value: str = "",
-        file_path: PATH = "",
+        file_path: PATH | str = "",
         file_type: DifyFileTypes = DifyFileTypes.DOCUMENT,
     ):
         # 使用示例

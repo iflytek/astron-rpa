@@ -18,7 +18,7 @@ from astronverse.email.error import *
 
 class EmailSmtpSend:
     def __init__(self):
-        self.mail_handler = None
+        self.mail_handler: smtplib.SMTP | smtplib.SMTP_SSL
 
     def login(self, server, port: int, user, password, use_ssl: bool = False, timeout=20):
         if use_ssl:
@@ -106,7 +106,7 @@ class EmailSmtpSend:
             msg = MIMEMultipart()
             name, addr = parseaddr(f"{user_name} <{user}>")
             msg["From"] = formataddr((Header(name, "utf-8").encode(), addr))
-            msg["To"] = Header(receiver_list[i])
+            msg["To"] = str(Header(receiver_list[i]))
             msg["Cc"] = cc_list[i]
             msg["Bcc"] = bcc_list[i]
             msg["date"] = time.strftime("%a, %d %b %Y %H:%M:%S %z")

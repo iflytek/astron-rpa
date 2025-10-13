@@ -25,7 +25,7 @@ from astronverse.baseline.logger.logger import logger
 class ChatAI:
     @staticmethod
     @atomicMg.atomic("ChatAI", outputList=[atomicMg.param("single_chat_res", types="Str")])
-    def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DS_CHAT) -> str:
+    def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DS_CHAT):
         """
         单轮对话方法
         Args:
@@ -33,7 +33,6 @@ class ChatAI:
         Return:
             `str`, 大模型生成的答案
         """
-
         return chat_normal(user_input=query, system_input="", model=model.value)
 
     @staticmethod
@@ -73,6 +72,8 @@ class ChatAI:
         # 数据输出
         save_dict = {}
         while True:
+            if process.stdout is None:
+                break
             output = process.stdout.readline()
             if output == "" and process.poll() is not None:
                 break
@@ -182,16 +183,14 @@ class ChatAI:
         # 数据输出
         save_dict = {}
         while True:
+            if process.stdout is None:
+                break
             output = process.stdout.readline()
             if output == "" and process.poll() is not None:
                 break
             if not output:
                 continue
 
-            if output == "" and process.poll() is not None:
-                break
-            if not output:
-                continue
             save_str = output.strip()
             try:
                 save_dict = json.loads(save_str)

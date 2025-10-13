@@ -62,10 +62,10 @@ class OpenApi:
     )
     def id_card(
         is_multi: bool = True,
-        src_file: PATH = "",
-        src_dir: PATH = "",
+        src_file: PATH | str = "",
+        src_dir: PATH | str = "",
         is_save: bool = True,
-        dst_file: PATH = "",
+        dst_file: PATH | str = "",
         dst_file_name: str = "id_card",
     ) -> list:
         header_dict = {
@@ -150,10 +150,10 @@ class OpenApi:
     )
     def business_license(
         is_multi: bool = True,
-        src_file: PATH = "",
-        src_dir: PATH = "",
+        src_file: PATH | str = "",
+        src_dir: PATH | str = "",
         is_save: bool = True,
-        dst_file: PATH = "",
+        dst_file: PATH | str = "",
         dst_file_name: str = "business_license",
     ):
         header_dict = {
@@ -239,10 +239,10 @@ class OpenApi:
     )
     def vat_invoice(
         is_multi: bool = True,
-        src_file: PATH = "",
-        src_dir: PATH = "",
+        src_file: PATH | str = "",
+        src_dir: PATH | str = "",
         is_save: bool = True,
-        dst_file: PATH = "",
+        dst_file: PATH | str = "",
         dst_file_name: str = "vat_invoice",
     ) -> list:
         header_dict = {
@@ -343,10 +343,10 @@ class OpenApi:
     )
     def train_ticket(
         is_multi: bool = True,
-        src_file: PATH = "",
-        src_dir: PATH = "",
+        src_file: PATH | str = "",
+        src_dir: PATH | str = "",
         is_save: bool = True,
-        dst_file: PATH = "",
+        dst_file: PATH | str = "",
         dst_file_name: str = "train_ticket",
     ) -> list:
         header_dict = {
@@ -436,10 +436,10 @@ class OpenApi:
     )
     def taxi_ticket(
         is_multi: bool = True,
-        src_file: PATH = "",
-        src_dir: PATH = "",
+        src_file: PATH | str = "",
+        src_dir: PATH | str = "",
         is_save: bool = True,
-        dst_file: PATH = "",
+        dst_file: PATH | str = "",
         dst_file_name: str = "taxi_ticket",
     ) -> list:
         header_dict = {
@@ -525,10 +525,10 @@ class OpenApi:
     )
     def common_ocr(
         is_multi: bool = False,
-        src_file: PATH = "",
-        src_dir: PATH = "",
+        src_file: PATH | str = "",
+        src_dir: PATH | str = "",
         is_save: bool = True,
-        dst_file: PATH = "",
+        dst_file: PATH | str = "",
         dst_file_name: str = "common_ocr",
     ) -> list:
         header_dict = {
