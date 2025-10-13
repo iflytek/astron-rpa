@@ -17,7 +17,6 @@ LSP_EXIT_TIMEOUT = 5000
 
 
 class LspClient:
-
     def __init__(self, project_id: str):
         self._document_version: int = 1
         self._document_text: str = ""

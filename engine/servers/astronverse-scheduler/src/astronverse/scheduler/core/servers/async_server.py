@@ -66,7 +66,6 @@ class TerminalAsyncServer(IServer):
                 time.sleep(1)
 
 
-
 class CheckPickProcessAliveServer(IServer):
     def __init__(self, svc):
         super().__init__(

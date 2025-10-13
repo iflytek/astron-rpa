@@ -112,7 +112,7 @@ def create_project_venv(svc, project_id: str):
     """
     if svc.is_venv:
         return svc.config.python_base
-    
+
     v_path = os.path.join(svc.config.venv_base_dir, project_id)
     if not os.path.exists(v_path):
         temp_envs = VenvManager.list_temp_venvs(svc)
