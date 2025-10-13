@@ -88,7 +88,7 @@ class Email:
         try:
             if replace_table and isinstance(replace_table, list):
                 for replace in replace_table:
-                    content = content.replace(str(replace.get("origintext")), str(replace.get("replacetext"))) # type: ignore
+                    content = content.replace(str(replace.get("origintext")), str(replace.get("replacetext")))  # type: ignore
         except Exception as e:
             pass
         core.send(

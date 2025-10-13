@@ -215,7 +215,7 @@ class GuiMouse:
             Mouse.move(position_x, position_y, duration=duration, tween=pyautogui.linear)
         elif move_type == MoveType.SIMULATION:
             duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
-            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad) # type: ignore
+            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)  # type: ignore
         elif move_type == MoveType.TELEPORTATION:
             Mouse.move(position_x, position_y, duration=0)
         else:
@@ -317,7 +317,7 @@ class GuiMouse:
                     x=end_pos_x,
                     y=end_pos_y,
                     duration=duration,
-                    tween=pyautogui.easeInOutQuad, # type: ignore
+                    tween=pyautogui.easeInOutQuad,  # type: ignore
                 )
             elif move_type == MoveType.TELEPORTATION:
                 Mouse.move(x=end_pos_x, y=end_pos_y, duration=0)

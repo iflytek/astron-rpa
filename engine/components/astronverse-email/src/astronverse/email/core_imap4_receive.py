@@ -172,7 +172,7 @@ class EmailImap4Receive:
         body = None
         html = None
 
-        for part in msg.walk(): # type: ignore
+        for part in msg.walk():  # type: ignore
             if part.get_content_type() == "text/plain":
                 if body is None:
                     body = b""

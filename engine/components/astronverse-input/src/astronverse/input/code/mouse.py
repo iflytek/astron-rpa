@@ -80,7 +80,7 @@ class Mouse:
                 new_y += random.uniform(-1, 1)
 
             # 使用pyautogui的moveTo函数，但减少调用次数
-            pyautogui.moveTo(new_x, new_y, duration=interval, tween=pyautogui.easeInOutQuad) # type: ignore
+            pyautogui.moveTo(new_x, new_y, duration=interval, tween=pyautogui.easeInOutQuad)  # type: ignore
 
         # 确保最终位置准确
         Mouse.move(x=x, y=y)

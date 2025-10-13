@@ -58,8 +58,7 @@ class ClipBoardCore(IClipBoardCore):
         if start_index == -1 or end_index == -1:
             # 使用正则表达式进行匹配
             # 一般小的複製會是這種形式
-            start = re.search(r"StartHTML:(\d+)\r", html_clipboard_str)
-            match_start = start is not None ? start.group(1) : None
+            match_start = re.search(r"StartHTML:(\d+)\r", html_clipboard_str).group(1)
             match_end = re.search(r"EndHTML:(\d+)\r", html_clipboard_str).group(1)
             return html_clipboard_str[int(match_start) : int(match_end)]
 

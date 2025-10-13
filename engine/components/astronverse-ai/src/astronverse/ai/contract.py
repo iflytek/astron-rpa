@@ -84,11 +84,11 @@ class ContractAI:
             contract_content = FileExtractor(contract_path).extract_text()
 
         try:
-            custom_factors = ast.literal_eval(custom_factors) 
+            custom_factors = ast.literal_eval(custom_factors)
         except:
             raise ValueError("custom_factors 格式错误，请检查")
-        preset_factors = custom_factors.get("preset", []) # type: ignore
-        custom_factors = custom_factors.get("custom", []) # type: ignore
+        preset_factors = custom_factors.get("preset", [])  # type: ignore
+        custom_factors = custom_factors.get("custom", [])  # type: ignore
 
         factors = []
         for factor in preset_factors:

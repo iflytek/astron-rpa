@@ -158,7 +158,7 @@ class ListProcess:
         """
         index_int = 0
         list_data, index_int = list_legal_check(list_data, index, False)
-        
+
         if isinstance(index_int, list):
             raise ValueError("请提供单个整数类型的索引！")
         else:

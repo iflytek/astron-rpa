@@ -156,7 +156,7 @@ class CV:
                             target_x,
                             target_y,
                             duration=speed_to_int[move_speed],
-                            tween=pyautogui.easeInOutQuad, # type: ignore
+                            tween=pyautogui.easeInOutQuad,  # type: ignore
                         )
                     elif move_type == MoveType.TELEPORTATION:
                         Mouse.move(target_x, target_y, duration=0)
@@ -310,7 +310,7 @@ class CV:
                             target_x,
                             target_y,
                             duration=speed_to_int[move_speed],
-                            tween=pyautogui.easeInOutQuad, # type: ignore
+                            tween=pyautogui.easeInOutQuad,  # type: ignore
                         )
                     elif move_type == MoveType.TELEPORTATION:
                         Mouse.move(target_x, target_y, duration=0)

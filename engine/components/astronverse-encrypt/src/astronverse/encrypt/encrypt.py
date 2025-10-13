@@ -24,6 +24,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
     通过 atomic 装饰器将底层实现包装成流程可编排的原子节点。所有方法均为
     无状态静态方法，便于测试与复用。
     """
+
     @staticmethod
     @atomicMg.atomic("Encrypt", outputList=[atomicMg.param("md5_encrypted_result", types="Str")])
     def md5_encrypt(
@@ -99,9 +100,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
                 dynamics=[
                     DynamicsItem(
                         key="$this.string_data.show",
-                        expression=(
-                            f"return $this.encode_type.value == '{Base64CodeType.STRING.value}'"
-                        ),
+                        expression=(f"return $this.encode_type.value == '{Base64CodeType.STRING.value}'"),
                     )
                 ],
             ),
@@ -111,9 +110,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
                 dynamics=[
                     DynamicsItem(
                         key="$this.file_path.show",
-                        expression=(
-                            f"return $this.encode_type.value == '{Base64CodeType.PICTURE.value}'"
-                        ),
+                        expression=(f"return $this.encode_type.value == '{Base64CodeType.PICTURE.value}'"),
                     )
                 ],
                 formType=AtomicFormTypeMeta(
@@ -149,9 +146,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
                 dynamics=[
                     DynamicsItem(
                         key="$this.file_path.show",
-                        expression=(
-                            f"return $this.decode_type.value == '{Base64CodeType.PICTURE.value}'"
-                        ),
+                        expression=(f"return $this.decode_type.value == '{Base64CodeType.PICTURE.value}'"),
                     )
                 ],
                 formType=AtomicFormTypeMeta(
@@ -165,9 +160,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
                 dynamics=[
                     DynamicsItem(
                         key="$this.file_name.show",
-                        expression=(
-                            f"return $this.decode_type.value == '{Base64CodeType.PICTURE.value}'"
-                        ),
+                        expression=(f"return $this.decode_type.value == '{Base64CodeType.PICTURE.value}'"),
                     )
                 ],
             ),
@@ -177,9 +170,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
                 dynamics=[
                     DynamicsItem(
                         key="$this.exist_handle_type.show",
-                        expression=(
-                            f"return $this.decode_type.value == '{Base64CodeType.PICTURE.value}'"
-                        ),
+                        expression=(f"return $this.decode_type.value == '{Base64CodeType.PICTURE.value}'"),
                     )
                 ],
             ),

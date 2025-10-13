@@ -88,7 +88,15 @@ class IPDFCore(ABC):
 
     @staticmethod
     @abstractmethod
-    def merge_pdf_files(merge_type, file_folder_path, files_path, save_dir, new_file_name, new_pwd, exist_handle_type,) -> str:
+    def merge_pdf_files(
+        merge_type,
+        file_folder_path,
+        files_path,
+        save_dir,
+        new_file_name,
+        new_pwd,
+        exist_handle_type,
+    ) -> str:
         pass
 
     @staticmethod
@@ -116,17 +124,10 @@ class IPDFCore(ABC):
         exist_handle_type: FileExistenceType = FileExistenceType.OVERWRITE,
     ):
         pass
-    
+
     @staticmethod
     @abstractmethod
     def extract_forms_from_pdf(
-        file_path,
-        pwd,
-        page_range,
-        combine_flag,
-        save_dir,
-        new_file_name,
-        exist_handle_type
+        file_path, pwd, page_range, combine_flag, save_dir, new_file_name, exist_handle_type
     ) -> str:
         pass
-        
