@@ -18,7 +18,7 @@ export interface InfoInterface {
 
 const props = defineProps<{ data: InfoInterface }>()
 
-const filePath = computed(() => new URL(`/server${props.data.filePath}`, getBaseURL()).toString())
+const filePath = computed(() => new URL(`${props.data.filePath}`, getBaseURL()).toString())
 </script>
 
 <template>
