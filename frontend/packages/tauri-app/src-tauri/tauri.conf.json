@@ -6,7 +6,7 @@
     "distDir": "../../web-app/dist"
   },
   "package": {
-    "productName": "iflyrpa",
+    "productName": "astron-rpa",
     "version": "5.1.1"
   },
   "tauri": {
@@ -54,9 +54,9 @@
     "bundle": {
       "active": true,
       "targets": ["msi", "updater", "deb"],
-      "identifier": "iflyrpa",
-      "shortDescription": "IFLYRPA.",
-      "longDescription": "IFLYRPA.",
+      "identifier": "astron-rpa",
+      "shortDescription": "AstronRPA",
+      "longDescription": "AstronRPA",
       "icon": [
         "../../../public/icons/32x32.png",
         "../../../public/icons/128x128.png",

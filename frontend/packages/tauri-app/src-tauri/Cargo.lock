@@ -78,6 +78,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "astron-rpa"
+version = "1.0.1"
+dependencies = [
+ "base64 0.22.1",
+ "chrono",
+ "fern",
+ "hyper 0.14.32",
+ "hyper-tls 0.5.0",
+ "lazy_static",
+ "log",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tokio",
+ "window-shadows",
+ "windows 0.54.0",
+]
+
+[[package]]
 name = "atk"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1733,27 +1754,6 @@ checksum = "3acae9609540aa318d1bc588455225fb2085b9ed0c4f6bd0d9d5bcd86f1a0344"
 dependencies = [
  "icu_normalizer",
  "icu_properties",
-]
-
-[[package]]
-name = "iflyrpa"
-version = "1.0.1"
-dependencies = [
- "base64 0.22.1",
- "chrono",
- "fern",
- "hyper 0.14.32",
- "hyper-tls 0.5.0",
- "lazy_static",
- "log",
- "reqwest",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tokio",
- "window-shadows",
- "windows 0.54.0",
 ]
 
 [[package]]

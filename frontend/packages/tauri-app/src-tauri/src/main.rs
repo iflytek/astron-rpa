@@ -32,7 +32,7 @@ use std::os::windows::process::CommandExt;
 mod tray;
 mod utils;
 
-const PRO_NAME: &str = "iflyrpa";
+const PRO_NAME: &str = "astron-rpa";
 const DATA_PATH: &str = "data";
 
 #[derive(Debug, Deserialize, Default)]
