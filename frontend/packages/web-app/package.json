@@ -25,7 +25,7 @@
     "axios": "^1.7.4",
     "axios-retry": "^4.5.0",
     "casdoor-js-sdk": "^0.16.0",
-    "dayjs": "^1.11.12",
+    "dayjs": "^1.11.18",
     "deepmerge": "^4.3.1",
     "hotkeys-js": "^3.13.7",
     "i18next": "^25.3.6",
