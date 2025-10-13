@@ -37,7 +37,9 @@ const DATA_PATH: &str = "data";
 
 #[derive(Debug, Deserialize, Default)]
 struct AppConfig {
-    remote_addr: String
+    remote_addr: String,
+    #[serde(default)]
+    skip_engine_start: bool,
 }
 
 lazy_static! {
@@ -209,9 +211,14 @@ fn main() -> Result<(), String> {
 }
 
 fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> {
-    let work_dir = work_dir(&app_handle)?;
-    let mut need_download = false;
+    // 等待前端拉起
+    while !MIAN_WINDOW_ONLOAD.load(Ordering::SeqCst) {
+        thread::sleep(Duration::from_millis(10));
+    }
 
+    let work_dir = work_dir(&app_handle)?;
+    let main_window = app_handle.get_window("main").ok_or("获取主窗口")?;
+    let mut need_download = false;
     let python_core = work_dir.join("python_core");
 
     // 检查 resources 目录中的 7z 文件并解压
@@ -240,28 +247,29 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
     if !python_core.exists() {
         need_download = true;
     }
-    if need_download {
-        // 等待前端拉起
-        while !MIAN_WINDOW_ONLOAD.load(Ordering::SeqCst) {
-            thread::sleep(Duration::from_millis(10));
-        }
-        let main_window_2 = app_handle.get_window("main").ok_or("获取主窗口")?;
 
-        send_msg(r"\u6838\u5fc3\u4f9d\u8d56\u68c0\u6d4b".to_string(), 0.0, &main_window_2);
+    if need_download {
+        send_msg(r"\u6838\u5fc3\u4f9d\u8d56\u68c0\u6d4b".to_string(), 0.0, &main_window);
 
         // 获取远程配置
         let python_map = get_python_url(&config.remote_addr)?;
 
         // 运行rpa_download.exe
-        setup_download(python_map, &work_dir, &main_window_2, &app_handle)?;
+        setup_download(python_map, &work_dir, &main_window, &app_handle)?;
 
         // 重新检测
         if !python_core.exists() {
             return Err(format!("下载失败 {}", python_core.display()));
         }
-        send_msg(r"\u6838\u5fc3\u4f9d\u8d56\u5b8c\u6210".to_string(), 50.0, &main_window_2);
+        send_msg(r"\u6838\u5fc3\u4f9d\u8d56\u5b8c\u6210".to_string(), 50.0, &main_window);
     }
 
+    // 检查是否需要跳过引擎启动
+    if config.skip_engine_start {
+        let json_str = r#"{"type": "sync_cancel", "msg": {"step": 100}}"#;
+        emit_to_window(&main_window, "scheduler-event", &general_purpose::STANDARD.encode(json_str));
+        return Ok(());
+    }
 
     // 启动rpa_setup.py
     let python_exe = if env::consts::OS == "windows" {
@@ -280,7 +288,7 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
             &String::from("-m"),
             &String::from("astronverse.scheduler"),
             &format!("--conf={}", conf_path),
-        ],  &work_dir, &app_handle);
+        ],  &work_dir, &main_window);
 
         //  如果运行超过10分钟会重新计算次数, 并立即执行
         if SystemTime::now().duration_since(last_success_time).unwrap() > Duration::from_secs(600) {
@@ -301,6 +309,16 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
     Ok(())
 }
 
+/// 向窗口发送事件的通用方法
+fn emit_to_window(window: &Window, event: &str, payload: &str) {
+    match window.emit(event, payload) {
+        Ok(_) => {}
+        Err(e) => {
+            error!("发送事件失败: {}", e);
+        }
+    }
+}
+
 fn send_msg(body: String, step: f32, main_window: &Window) {
     let json_str = format!(
         r#"{{"type": "sync", "msg": {{"msg": "{}","step": {}}}}}"#,
@@ -308,12 +326,7 @@ fn send_msg(body: String, step: f32, main_window: &Window) {
         step
     );
     info!("send_msg {}", json_str);
-    match main_window.emit("scheduler-event", general_purpose::STANDARD.encode(&json_str)) {
-        Ok(_) => {}
-        Err(e) => {
-            error!("{}", e);
-        }
-    }
+    emit_to_window(main_window, "scheduler-event", &general_purpose::STANDARD.encode(&json_str));
 }
 
 fn setup_download(urls: HashMap<String, String>, work_dir: &PathBuf, main_window: &Window, app_handle: &tauri::AppHandle) -> Result<(), String> {
@@ -367,12 +380,7 @@ fn setup_command_output<T: std::io::Read + Send + 'static>(stream: T, prefix: &'
                     let content = content.trim_matches('"').trim();
                     if content.starts_with("||emit||") {
                         let message = content.trim_start_matches("||emit||").trim();
-                        match window.emit("scheduler-event", message) {
-                            Ok(_) => {}
-                            Err(e) => {
-                                error!("{}", e);
-                            }
-                        }
+                        emit_to_window(&window, "scheduler-event", message);
                     }
                 },
                 Err(e) => error!("{} 读取失败: {}", prefix, e),
@@ -389,7 +397,7 @@ fn setup_command_output<T: std::io::Read + Send + 'static>(stream: T, prefix: &'
     }
 }
 
-fn setup_command(cmd: &str, args: Vec<&String>, work_dir: &PathBuf, app_handle: &tauri::AppHandle) -> bool {
+fn setup_command(cmd: &str, args: Vec<&String>, work_dir: &PathBuf, main_window: &Window) -> bool {
     // 构建子进程
     info!("command: {} {:?} {}", cmd, args, work_dir.display());
     let mut cmd_build = Command::new(cmd);
@@ -416,21 +424,14 @@ fn setup_command(cmd: &str, args: Vec<&String>, work_dir: &PathBuf, app_handle: 
     while !MIAN_WINDOW_ONLOAD.load(Ordering::SeqCst) {
         thread::sleep(Duration::from_millis(10));
     }
-    let main_window = match app_handle.get_window("main").ok_or("获取主窗口")
-    {
-        Ok(p) => p,
-        Err(e) => {
-            error!("启动命令 '{}' 失败: {}", cmd, e);
-            return false;
-        }
-    };
-    send_msg(r"\u5de5\u7a0b\u542f\u52a8".to_string(), 60.0, &main_window);
+    send_msg(r"\u5de5\u7a0b\u542f\u52a8".to_string(), 60.0, main_window);
 
     // 获取输出管道（安全unwrap因为已配置piped）
     let stdout = process.stdout.take().expect("标准输出管道获取失败");
     let stderr = process.stderr.take().expect("错误输出管道获取失败");
     // 启动输出处理线程
-    let stdout_handler = thread::spawn(move || setup_command_output(stdout,"[输出]", Some(main_window)));
+    let main_window_clone = main_window.clone();
+    let stdout_handler = thread::spawn(move || setup_command_output(stdout,"[输出]", Some(main_window_clone)));
     let stderr_handler = thread::spawn(move || setup_command_output(stderr, "[错误]", None));
     // 主线程等待进程结束
     let exit_status = match process.wait() {

@@ -50,7 +50,7 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
     }
     case 'sync_cancel': {
       $loading.close(true)
-      storage.set('route_port', msg?.route_port)
+      storage.set('route_port', msg?.route_port ?? '')
       storage.set('httpReady', '1', 'sessionStorage')
       http.init()
       http.resolveReadyPromise()

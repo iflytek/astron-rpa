@@ -2,14 +2,14 @@ import { storage } from '@/utils/storage'
 
 import GlobalModal from '@/components/GlobalModal/index.ts'
 
-const DEFAULT_PORT = '13159'
+const DEFAULT_PORT = 13159
 
 /**
  * 获取接口基础URL
  * @returns baseURL
  */
 export function getBaseURL(): string {
-  const port = storage.get('route_port') || DEFAULT_PORT
+  const port = Number(storage.get('route_port')) || DEFAULT_PORT
   return `http://127.0.0.1:${port}/api`
 }
 
