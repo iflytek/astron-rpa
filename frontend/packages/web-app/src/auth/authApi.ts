@@ -2,24 +2,31 @@ import axios from 'axios'
 
 import sentry from '@/plugins/sentry'
 
-import { getBaseURL, getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 
 import type { UapUserInfo } from './types'
 
 const baseUrl = getBaseURL()
-const rootBaseUrl = getRootBaseURL()
 
-export async function casdoorSignin(serverUrl: string, signinPath?: string, code?: string | null, state?: string | null) {
-  if (!code || !state) {
-    const params = new URLSearchParams(window.location.search)
-    code = params.get('code')
-    state = params.get('state')
+export async function casdoorLoginStatus() {
+  try {
+    const res: any = await axios.get(`${baseUrl}/robot/user/login-check`)
+    return !(res.data.code === '900001')
+  } catch {
+    return false
   }
-  return axios.post(`${serverUrl}${signinPath || '/api/signin'}?code=${code}&state=${state}`)
 }
 
-export function setCasdoorRpaLocalAuth(data: { authorization: string }) {
-  return axios.post(`${rootBaseUrl}/rpa-local-route/set-auth`, data)
+export async function casdoorLoginUrl() {
+  return axios.get(`${baseUrl}/robot/user/redirect-url`)
+}
+
+export async function casdoorSignin(params: {code: string | null, state: string | null}) {
+  return axios.post(`${baseUrl}/robot/user/sign/in?code=${params.code}&state=${params.state}`)
+}
+
+export async function casdoorSignout() {
+  return axios.post(`${baseUrl}/robot/user/sign/out`)
 }
 
 export async function uapLoginStatus() {
