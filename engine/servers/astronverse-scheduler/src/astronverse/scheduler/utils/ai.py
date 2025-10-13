@@ -107,7 +107,7 @@ def extract_docx(path: str) -> str:
 
 
 def chat_sse(inputs: Any, route_port: int):
-    url = "http://127.0.0.1:8003/api/rpaai/chat"
+    url = "http://127.0.0.1:{}/api/rpaai/chat".format(route_port)
     response = requests.post(url, json=inputs, stream=True)
     if response.status_code == 200:
         client = sseclient.SSEClient(response)
