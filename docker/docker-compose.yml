@@ -20,7 +20,6 @@ services:
       - ./volumes/mysql/init_app_market_dict_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql
       - ./volumes/mysql/init_c_atom_meta_data.sql:/docker-entrypoint-initdb.d/03-init_data.sql
       - ./volumes/mysql/init_his_data_enum_data.sql:/docker-entrypoint-initdb.d/04-init_data.sql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test:
         [
