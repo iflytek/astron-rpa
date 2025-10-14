@@ -448,47 +448,75 @@ Python313/
 </details>
 
 <details>
-<summary><b>步骤 2️⃣: 配置构建脚本</b></summary>
+<summary><b>步骤 2️⃣: 运行打包脚本</b></summary>
 
 <br>
 
-编辑 `engine/build.bat` 的第 9 和 10 行配置：
+### 基础用法
 
-```bat
-set PYTHON_EXE=C:\Program Files\Python313\python.exe
-set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
-```
-
-</details>
-
-<details>
-<summary><b>步骤 3️⃣: 运行打包脚本</b></summary>
-
-<br>
+在项目根目录执行构建脚本：
 
 ```bash
-cd engine
+# 🚀 完整构建（引擎 + 前端）
+./build.bat --python-exe "C:\Program Files\Python313\python.exe"
 
-# 🚀 执行构建流程
+# 或使用默认配置（如果 Python 在默认路径）
 ./build.bat
 
 # ⏳ 请等待操作完成
-# ✅ 当控制台显示 "Complete!" 时表示构建成功
+# ✅ 当控制台显示 "Full Build Complete!" 时表示构建成功
 ```
 
 **执行流程：**
-1. ✅ 检测/复制 Python 环境到 `python_core`
+1. ✅ 检测/复制 Python 环境到 `build/python_core`
 2. ✅ 安装 RPA 引擎依赖包
-3. ✅ 构建前端 Web 应用
-4. ✅ 构建 Tauri 桌面应用
-5. ✅ 创建部署压缩包
+3. ✅ 压缩 Python 核心到 `resources/python_core.7z`
+4. ✅ 安装前端依赖
+5. ✅ 构建前端 Web 应用
+6. ✅ 构建 Tauri 桌面应用
 
-</details>
+### 高级选项
+
+查看所有可用参数：
+
+```bash
+./build.bat --help
+```
+
+**常用参数组合：**
+
+```bash
+# 🔧 指定 Python 路径
+./build.bat --python-exe "D:\Python313\python.exe"
+
+# 🔧 指定 7-Zip 路径
+./build.bat --sevenz-exe "D:\7-Zip\7z.exe"
+
+# ⏭️ 只构建引擎，跳过前端
+./build.bat --skip-frontend
+
+# ⏭️ 只构建前端，跳过引擎
+./build.bat --skip-engine
+
+# 🔀 组合使用短参数
+./build.bat -p "D:\Python313\python.exe" -s "D:\7-Zip\7z.exe"
+```
+
+**参数说明：**
+| 参数 | 简写 | 说明 |
+|------|------|------|
+| `--python-exe <路径>` | `-p` | 指定 Python 可执行文件路径 |
+| `--sevenz-exe <路径>` | `-s` | 指定 7-Zip 可执行文件路径 |
+| `--skip-engine` | - | 跳过引擎（Python）构建 |
+| `--skip-frontend` | - | 跳过前端构建 |
+| `--help` | `-h` | 显示帮助信息 |
+
+### 手动构建前端
+
+如果需要单独手动构建前端，可以执行以下步骤：
 
 <details>
-<summary><b>步骤 4️⃣: 构建前端应用</b></summary>
-
-<br>
+<summary>点击展开手动构建步骤</summary>
 
 ```bash
 cd frontend
@@ -506,10 +534,14 @@ pnpm build:web
 pnpm build:tauri-debug
 ```
 
+> **提示：** 使用 `build.bat --skip-engine` 可以自动完成上述前端构建步骤。
+
+</details>
+
 </details>
 
 <details>
-<summary><b>步骤 5️⃣: 安装 MSI 安装包</b></summary>
+<summary><b>步骤 3️⃣: 安装 MSI 安装包</b></summary>
 
 <br>
 

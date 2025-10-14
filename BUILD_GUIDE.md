@@ -448,47 +448,75 @@ Python313/
 </details>
 
 <details>
-<summary><b>Step 2️⃣: Configure Build Script</b></summary>
+<summary><b>Step 2️⃣: Run Packaging Script</b></summary>
 
 <br>
 
-Edit lines 9 and 10 in `engine/build.bat`:
+### Basic Usage
 
-```bat
-set PYTHON_EXE=C:\Program Files\Python313\python.exe
-set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
-```
-
-</details>
-
-<details>
-<summary><b>Step 3️⃣: Run Packaging Script</b></summary>
-
-<br>
+Execute the build script from the project root directory:
 
 ```bash
-cd engine
+# 🚀 Full build (engine + frontend)
+./build.bat --python-exe "C:\Program Files\Python313\python.exe"
 
-# 🚀 Execute build process
+# Or use default configuration (if Python is in default path)
 ./build.bat
 
 # ⏳ Wait for operation to complete
-# ✅ Build successful when console displays "Complete!"
+# ✅ Build successful when console displays "Full Build Complete!"
 ```
 
 **Execution Flow:**
-1. ✅ Detect/copy Python environment to `python_core`
+1. ✅ Detect/copy Python environment to `build/python_core`
 2. ✅ Install RPA engine dependencies
-3. ✅ Build frontend web application
-4. ✅ Build Tauri desktop application
-5. ✅ Create deployment package
+3. ✅ Compress Python core to `resources/python_core.7z`
+4. ✅ Install frontend dependencies
+5. ✅ Build frontend web application
+6. ✅ Build Tauri desktop application
 
-</details>
+### Advanced Options
+
+View all available parameters:
+
+```bash
+./build.bat --help
+```
+
+**Common Parameter Combinations:**
+
+```bash
+# 🔧 Specify Python path
+./build.bat --python-exe "D:\Python313\python.exe"
+
+# 🔧 Specify 7-Zip path
+./build.bat --sevenz-exe "D:\7-Zip\7z.exe"
+
+# ⏭️ Build engine only, skip frontend
+./build.bat --skip-frontend
+
+# ⏭️ Build frontend only, skip engine
+./build.bat --skip-engine
+
+# 🔀 Combine with short options
+./build.bat -p "D:\Python313\python.exe" -s "D:\7-Zip\7z.exe"
+```
+
+**Parameter Description:**
+| Parameter | Short | Description |
+|-----------|-------|-------------|
+| `--python-exe <path>` | `-p` | Specify Python executable path |
+| `--sevenz-exe <path>` | `-s` | Specify 7-Zip executable path |
+| `--skip-engine` | - | Skip engine (Python) build |
+| `--skip-frontend` | - | Skip frontend build |
+| `--help` | `-h` | Display help message |
+
+### Manual Frontend Build
+
+If you need to manually build the frontend separately, you can execute the following steps:
 
 <details>
-<summary><b>Step 4️⃣: Build Frontend Application</b></summary>
-
-<br>
+<summary>Click to expand manual build steps</summary>
 
 ```bash
 cd frontend
@@ -506,10 +534,14 @@ pnpm build:web
 pnpm build:tauri-debug
 ```
 
+> **Tip:** Use `build.bat --skip-engine` to automatically complete the frontend build steps above.
+
+</details>
+
 </details>
 
 <details>
-<summary><b>Step 5️⃣: Install MSI Package</b></summary>
+<summary><b>Step 3️⃣: Install MSI Package</b></summary>
 
 <br>
 
