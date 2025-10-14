@@ -136,9 +136,9 @@ fn install_dir(_app_handle: Option<&tauri::AppHandle>) -> Result<PathBuf, String
 }
 
 fn conf(app_handle: Option<&tauri::AppHandle>) -> Result<AppConfig, String> {
-    let config_path = install_dir(app_handle)?.join("resources").join("conf.json");
+    let config_path = install_dir(app_handle)?.join("resources").join("conf.yaml");
     let config_data = fs::read_to_string(config_path).map_err(|e|format!("配置读取异常{}",e))?;
-    let config: AppConfig = serde_json::from_str(&config_data).map_err(|e|format!("配置解析异常{}",e))?;
+    let config: AppConfig = serde_yaml::from_str(&config_data).map_err(|e|format!("配置解析异常{}",e))?;
     Ok(config)
 }
 
@@ -225,15 +225,15 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
     let resources_dir = install_dir(Some(&app_handle))?.join("resources");
     if resources_dir.exists() {
         let entries = fs::read_dir(&resources_dir).map_err(|e| format!("读取resources目录失败: {}", e))?;
-        
+
         for entry in entries {
             let entry = entry.map_err(|e| format!("读取目录项失败: {}", e))?;
             let path = entry.path();
-            
+
             if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("7z") {
                 let file_name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
                 let output_dir = work_dir.join(file_name);
-                
+
                 // 如果对应的目录不存在，则解压
                 if !output_dir.exists() {
                     info!("发现7z文件，正在解压: {} -> {}", path.display(), output_dir.display());
@@ -283,7 +283,7 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
     loop {
         info!("command python_exe {}", curr_attempt);
 
-        let conf_path = install_dir(Some(&app_handle))?.join("resources").join("conf.json").display().to_string();
+        let conf_path = install_dir(Some(&app_handle))?.join("resources").join("conf.yaml").display().to_string();
         setup_command(&python_exe, vec![
             &String::from("-m"),
             &String::from("astronverse.scheduler"),
@@ -491,7 +491,7 @@ fn check_if_running(process_name: &str) -> Result<bool, String> {
 
         let output_str = String::from_utf8_lossy(&output.stdout);
         let process_count = output_str.lines().count();
-        
+
         // 如果找到超过1个进程（包括自己），说明有重复运行
         Ok(process_count > 1)
     }
@@ -572,7 +572,7 @@ fn unzip_file(zip_path: &Path, output_dir: &Path, app_handle: &tauri::AppHandle)
         // 仅 Windows 设置隐藏窗口
         cmd_build.creation_flags(CREATE_NO_WINDOW.0 as u32);
     }
-    
+
     let output = cmd_build
         .args(&["x", "-y"]) // x 表示解压，-y 表示确认覆盖
         .arg(OsStr::new(zip_path)) // 处理非 UTF-8 路径
