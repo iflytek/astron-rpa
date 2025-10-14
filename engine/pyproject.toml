@@ -81,5 +81,6 @@ astronverse-workflowlib = {path = "./shared/astronverse-workflowlib", editable =
 
 [dependency-groups]
 dev = [
-  "ruff~=0.12.3"
+  "pre-commit>=4.3.0",
+  "ruff~=0.12.3",
 ]

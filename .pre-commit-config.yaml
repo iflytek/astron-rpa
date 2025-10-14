@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: engine-ruff-format
+        name: Format engine code with ruff
+        entry: uv run --project engine --dev ruff format ./engine
+        language: system
+        files: ^engine/.*\.py$
+        pass_filenames: false
