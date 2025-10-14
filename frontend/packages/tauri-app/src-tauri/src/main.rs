@@ -170,7 +170,7 @@ fn main() -> Result<(), String> {
             let config = conf(Some(&app_handle))?;
 
             // 启动主窗口
-            let window_url = WindowUrl::App("index.html".into());
+            let window_url = WindowUrl::App("boot.html".into());
 
             WindowBuilder::new(app, "main", window_url)
                 .title(PRO_NAME)

@@ -1,7 +1,6 @@
-import { getUrlPath, getUrlQueryField, replaceUrlDomain, setUrlQueryField } from '@/utils/common'
+import { getUrlQueryField, replaceUrlDomain, setUrlQueryField } from '@/utils/common'
 
 import { getRootBaseURL } from '@/api/http/env'
-import { DESIGNER } from '@/constants/menu'
 import { windowManager } from '@/platform'
 
 import { uapLoginStatus, uapLogout, uapUserInfo } from './authApi'
@@ -15,12 +14,13 @@ export class UapAuthService implements IAuthService {
 
   private async redirectToLogin(url: string): Promise<void> {
     try {
-      const redirectUrl = location.hash === '#/' ? `${location.href}${DESIGNER}` : location.href
+      // const redirectUrl = location.hash === '#/' ? `${location.href}${DESIGNER}` : location.href
+      const redirectUrl = location.origin + '/boot.html'
       let uapUrl = setUrlQueryField('redirect', redirectUrl, url)
       const service = getUrlQueryField('service', uapUrl)
       let newService = ''
       if (url.includes('/logout')) {
-        newService = getUrlPath(location.href)
+        newService = redirectUrl
       }
       else {
         newService = replaceUrlDomain(service, getRootBaseURL())

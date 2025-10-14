@@ -6,11 +6,9 @@ import { getBaseURL } from '@/api/http/env'
 
 import type { UapUserInfo } from './types'
 
-const baseUrl = getBaseURL()
-
 export async function casdoorLoginStatus() {
   try {
-    const res: any = await axios.get(`${baseUrl}/robot/user/login-check`)
+    const res: any = await axios.get(`${getBaseURL()}/robot/user/login-check`)
     return !(res.data.code === '900001')
   } catch {
     return false
@@ -18,27 +16,27 @@ export async function casdoorLoginStatus() {
 }
 
 export async function casdoorLoginUrl() {
-  return axios.get(`${baseUrl}/robot/user/redirect-url`)
+  return axios.get(`${getBaseURL()}/robot/user/redirect-url`)
 }
 
 export async function casdoorSignin(params: {code: string | null, state: string | null}) {
-  return axios.post(`${baseUrl}/robot/user/sign/in?code=${params.code}&state=${params.state}`)
+  return axios.post(`${getBaseURL()}/robot/user/sign/in?code=${params.code}&state=${params.state}`)
 }
 
 export async function casdoorSignout() {
-  return axios.post(`${baseUrl}/robot/user/sign/out`)
+  return axios.post(`${getBaseURL()}/robot/user/sign/out`)
 }
 
 export async function uapLoginStatus() {
-  return axios.get(`${baseUrl}/robot/login-status`)
+  return axios.get(`${getBaseURL()}/robot/login-status`)
 }
 
 export async function uapLogout() {
-  return axios.post(`${baseUrl}/robot/logout`)
+  return axios.post(`${getBaseURL()}/robot/logout`)
 }
 
 export async function uapUserInfo() {
-  const res = await axios.get<UapUserInfo>(`${baseUrl}/robot/user/info`)
+  const res = await axios.get<UapUserInfo>(`${getBaseURL()}/robot/user/info`)
   if (res.data) {
     sentry.setUser({
       id: res.data.id,

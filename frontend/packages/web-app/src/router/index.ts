@@ -27,8 +27,7 @@ const MyCreatedComponent = () => import('@/views/Home/pages/MyCreatedComponent.v
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: BOOT,
-    component: BootPage,
+    redirect: `/${DESIGNER}`,
   },
   {
     path: `/${ARRANGE}`,

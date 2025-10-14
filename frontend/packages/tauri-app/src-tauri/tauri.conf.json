@@ -2,7 +2,7 @@
   "build": {
     "beforeDevCommand": "pnpm dev:web",
     "beforeBuildCommand": "pnpm build:web",
-    "devPath": "http://localhost:1420/",
+    "devPath": "http://localhost:1420/boot.html",
     "distDir": "../../web-app/dist"
   },
   "package": {
