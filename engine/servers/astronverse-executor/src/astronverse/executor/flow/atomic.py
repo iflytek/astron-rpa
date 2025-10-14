@@ -91,28 +91,6 @@ class Atomic(Job):
         if not os.path.exists(pip_cache_dir):
             os.makedirs(pip_cache_dir)
 
-        # 5. 特殊library, 强制服务端版本
-        remote_version_dict = self.storage.atomic_version_list()
-        if library in remote_version_dict:
-            # 如果是服务器的服务，就需要强制一个版本了
-
-            remote_lib_version_arrr = remote_version_dict[library].split(",")
-            for remote_version in remote_lib_version_arrr:
-                if version:
-                    # 大版本符合要求
-                    if int(version.split(".")[0]) == int(remote_version.split(".")[0]):
-                        version = remote_version
-                        version_strict = True
-                        break
-                    else:
-                        # 取最后一个
-                        version = remote_version
-                        version_strict = True
-                else:
-                    # 取最后一个
-                    version = remote_version
-                    version_strict = True
-
         # 6. 下载
 
         # 6.1 下载的名称
@@ -202,7 +180,7 @@ class Atomic(Job):
         src = token.value.get("src", "")
         project_id = token.value.get("__project_id__")
 
-        if src in ["rpascript.script.Script().run", "rpascript.script.Script().module"]:
+        if src in ["astronverse.script.script.Script().run", "astronverse.script.script.Script().module"]:
             # 有些原子能力需要当前的环境变量，打开这个提供整个环境变量处理
             params["__env__"] = env
             params["__project_id__"] = project_id

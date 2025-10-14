@@ -133,11 +133,6 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def atomic_version_list(self) -> list:
-        """检测原子能力版本"""
-        pass
-
-    @abstractmethod
     def report_status_upload(self, result: str, reason: str):
         """上报状态"""
         pass
@@ -402,18 +397,6 @@ class HttpStorage(Storage):
         if version:
             params["robotVersion"] = int(version)
         return self.__http__("/api/robot/component-robot-use/component-use", None, params, meta="post")
-
-    def atomic_version_list(self) -> dict:
-        if self.cache_atomic_version:
-            return self.cache_atomic_version
-        plat = ""
-        if platform.system() == "Linux":
-            plat = "linux"
-        res = self.__http__(
-            "/api/rpa_update/v2/rpa_atom/pip_version?platform={}".format(plat), None, None, "get", False
-        )
-        self.cache_atomic_version = res
-        return res
 
     def report_status_upload(self, result: str, reason: str):
         """废弃：迁移到了scheduler中做上报，现在这里处理关系信息"""

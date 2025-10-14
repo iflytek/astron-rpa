@@ -7,7 +7,7 @@ from astronverse.scheduler import ComponentType
 from astronverse.scheduler.config import Config
 from astronverse.scheduler.core.executor.executor import ExecutorManager
 from astronverse.scheduler.core.picker.picker import Picker
-from astronverse.scheduler.core.servers.normal_server import TriggerServer, VNCServer
+from astronverse.scheduler.core.servers.normal_server import TriggerServer
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import check_port
 
@@ -51,9 +51,8 @@ class Svc:
         # 触发器
         self.trigger_server = TriggerServer(self)
         # nav服务
-
         if sys.platform == "win32":
-            self.vnc_server = VNCServer(self)
+            self.vnc_server = None
         else:
             self.vnc_server = None
 
