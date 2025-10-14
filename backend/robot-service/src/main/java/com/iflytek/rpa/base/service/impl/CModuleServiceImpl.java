@@ -1,6 +1,6 @@
 package com.iflytek.rpa.base.service.impl;
 
-import static com.iflytek.rpa.base.constants.BaseConstant.CONTENT_MAX_LENGTH;
+import static com.iflytek.rpa.base.constants.BaseConstant.*;
 import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
@@ -36,12 +36,6 @@ import org.springframework.util.CollectionUtils;
 
 @Service("CModuleService")
 public class CModuleServiceImpl extends NextName implements CModuleService {
-
-    // 新生成的初始代码
-    public final String initContent =
-            "from typing import Any\n" + "from rpahelper.helper import Helper, print, logger\n" + "\n"
-                    + "def main(*args, **kwargs) -> Any:\n" + "    h = Helper(**kwargs)\n" + "    params = h.params()\n"
-                    + "\n" + "    # 打印所有的变量key\n" + "    logger.info(params.keys())\n" + "\n" + "    return True";
 
     @Resource
     private CModuleDao cModuleDao;
@@ -95,7 +89,7 @@ public class CModuleServiceImpl extends NextName implements CModuleService {
         cModule.setModuleId(newModuleId);
         cModule.setCreatorId(userId);
         cModule.setModuleName(queryDto.getModuleName());
-        cModule.setModuleContent(initContent);
+        cModule.setModuleContent(MODULE_INIT_CONTENT);
         cModule.setRobotVersion(0);
         cModule.setRobotId(robotId);
         cModule.setCreatorId(userId);
