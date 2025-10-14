@@ -33,6 +33,7 @@ class BrowserCore(IBrowserCore):
 
     @staticmethod
     def get_ele_by_name(name_list: list) -> Any:
+        """get element by name"""
         for ind, app in enumerate(root.children):
             if app.name in name_list:
                 return app, app.name
