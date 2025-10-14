@@ -1,3 +1,5 @@
+"""String utility helpers for prompt keyword replacement and platform paths."""
+
 import os
 import sys
 
@@ -19,6 +21,7 @@ def replace_keyword(prompts: list, input_keys: list) -> list:
 
 
 def platform_python_path(parent_dir: str):
+    """Return platform specific python executable path under given parent directory."""
     if sys.platform == "win32":
         path = os.path.join(parent_dir, r"python.exe")
     else:

@@ -1,16 +1,33 @@
+"""Client for xcAgent flow execution (Xingchen API streaming wrapper)."""
+
 import http.client
 import json
 
 
-class xcAgent:
-    def __init__(self, api_key, api_secret):
+class xcAgent:  # pylint: disable=invalid-name
+    """Minimal client for Xingchen flow execution.
+
+    NOTE: Class name kept for backward compatibility; consider renaming to `XcAgent`.
+    """
+
+    def __init__(self, api_key: str, api_secret: str):
+        """Store credentials and prepare headers."""
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "text/event-stream",
             "Authorization": "Bearer {}:{}".format(api_key, api_secret),
         }
 
-    def run_flow(self, flow_id, content, is_stream: bool = False):
+    def run_flow(self, flow_id: str, content: str, is_stream: bool = False):
+        """Execute a remote flow and optionally stream results.
+
+        Args:
+            flow_id: remote flow identifier
+            content: user input content
+            is_stream: request streaming mode
+        Returns:
+            First chunk delta content string.
+        """
         data = {
             "flow_id": flow_id,
             "parameters": {"AGENT_USER_INPUT": content},
