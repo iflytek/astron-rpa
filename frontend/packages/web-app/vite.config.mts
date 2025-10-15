@@ -42,6 +42,7 @@ export default defineConfig((env) => {
       sourcemap: isDebug ? 'inline' : isPublish,
       rollupOptions: {
         input: {
+          boot: './boot.html',
           index: './index.html',
           404: './404.html',
           logwin: './logwin.html',

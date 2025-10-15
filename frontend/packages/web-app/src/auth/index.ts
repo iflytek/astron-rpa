@@ -12,13 +12,9 @@ export class AuthServiceFactory {
 
   private constructor() {
     this.auths = new Map()
-    this.init()
-    this.setAuthType(AUTH_TYPE)
-  }
-
-  init(): void {
     this.auths.set('casdoor', new CasdoorAuthService())
     this.auths.set('uap', new UapAuthService())
+    this.setAuthType(AUTH_TYPE)
   }
 
   static getInstance(): AuthServiceFactory {

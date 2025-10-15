@@ -23,12 +23,13 @@ import BootPage from '@/views/Boot/Index.vue'
 
 const ComponentManagement = () => import('@/views/Home/pages/ComponentManagement.vue')
 const MyCreatedComponent = () => import('@/views/Home/pages/MyCreatedComponent.vue')
+const DesignerComponent = () => import('@/views/Home/Index.vue')
+const ProjectManagementComponent = () => import('@/views/Home/pages/ProjectManagement.vue')
 
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: BOOT,
-    component: BootPage,
+    redirect: `/${DESIGNER}`,
   },
   {
     path: `/${ARRANGE}`,
@@ -47,7 +48,7 @@ export const routes: RouteRecordRaw[] = [
       illustration: 'robot1',
     },
     redirect: `/${DESIGNER}/${PROJECTMANAGEMENT}`,
-    component: () => import('@/views/Home/Index.vue'),
+    component: DesignerComponent,
     children: [
       {
         path: PROJECTMANAGEMENT,
@@ -58,7 +59,7 @@ export const routes: RouteRecordRaw[] = [
           group: DESIGNER,
         },
         redirect: `/${DESIGNER}/${PROJECTMANAGEMENT}/${PROJECTCREATED}`,
-        component: () => import('@/views/Home/pages/ProjectManagement.vue'),
+        component: ProjectManagementComponent,
         children: [
           {
             path: PROJECTCREATED,
@@ -212,13 +213,11 @@ const router = createRouter({
 window.addEventListener('load', () => {
   if ('requestIdleCallback' in window) {
     window.requestIdleCallback(() => {
-      import('@/views/Home/Index.vue')
       import('@/views/Arrange/index.vue')
     })
   }
   else {
     setTimeout(() => {
-      import('@/views/Home/Index.vue')
       import('@/views/Arrange/index.vue')
     }, 0)
   }

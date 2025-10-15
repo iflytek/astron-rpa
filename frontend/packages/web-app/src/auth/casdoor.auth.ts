@@ -1,5 +1,3 @@
-import { DESIGNER } from '@/constants/menu'
-import { useRoutePush } from '@/hooks/useCommonRoute'
 import { windowManager } from '@/platform'
 import { setUrlQueryField } from '@/utils/common'
 
@@ -16,7 +14,7 @@ export class CasdoorAuthService implements IAuthService {
     try {
       const response: any = await casdoorSignin({code, state})
       localStorage.setItem('userInfo', JSON.stringify(response.data.data))
-      useRoutePush({ name: DESIGNER })
+      location.replace(`/`)
     }
     catch (error) {
       console.error('Casdoor登录失败:', error)
@@ -27,13 +25,13 @@ export class CasdoorAuthService implements IAuthService {
     try {
       const res = await casdoorLoginUrl()
       let loginUrl = res.data.data
+      const redirectUrl = location.origin + '/boot.html'
+      loginUrl = setUrlQueryField('redirect_uri', redirectUrl, loginUrl)
       if (loginUrl) {
         if (windowManager) {
           await windowManager.restoreLoginWindow()
           await windowManager.showDecorations()
         }
-        const redirectUrl = location.origin + '/'
-        loginUrl = setUrlQueryField('redirect_uri', redirectUrl, loginUrl)
         window.location.href = loginUrl
         return
       }
@@ -49,7 +47,7 @@ export class CasdoorAuthService implements IAuthService {
     const state = urlParams.get('state')
 
     if (code && state) {
-      this.signin(code, state)
+      await this.signin(code, state)
       return
     }
     this.redirectToLogin()
@@ -76,7 +74,7 @@ export class CasdoorAuthService implements IAuthService {
       callback && callback()
       return
     }
-    this.login()
+    await this.login()
   }
 
   checkHttpResponse(response: any): boolean {

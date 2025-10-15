@@ -12,16 +12,12 @@ import { useRoute } from 'vue-router'
 import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
 import $loading from '@/utils/globalLoading'
-import { storage } from '@/utils/storage'
 
 import { endSchedulingMode, stopSchedulingTask } from '@/api/engine'
 import http from '@/api/http'
 import { taskCancel, taskNotify } from '@/api/task'
-import authService from '@/auth/index'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { WINDOW_NAME } from '@/constants'
-import { DESIGNER } from '@/constants/menu'
-import { useRoutePush } from '@/hooks/useCommonRoute'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
@@ -43,20 +39,6 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
   const { type, msg } = msgObject
   console.log('主进程消息: ', msgObject)
   switch (type) {
-    case 'sync': {
-      // 启动进度
-      BUS.$emit('launch-progress', msg)
-      break
-    }
-    case 'sync_cancel': {
-      $loading.close(true)
-      storage.set('route_port', msg?.route_port ?? '')
-      storage.set('httpReady', '1', 'sessionStorage')
-      http.init()
-      http.resolveReadyPromise()
-      loginAuto()
-      break
-    }
     case 'tip': {
       const msgContent = typeof msg === 'string' ? msg : msg.msg
       if (msg.type === 'error') {
@@ -146,15 +128,6 @@ utilsManager.listenEvent('stop_task', () => {
   utilsManager.invoke('tray_change', { mode: 'scheduling', status: 'idle' }) // 改变托盘菜单
 })
 
-function loginAuto() {
-  authService.init() // 初始化认证服务
-  authService.getAuth().checkLogin(() => {    useRoutePush({ name: DESIGNER })
-    setTimeout(() => {
-      taskNotify({ event: 'login' })
-    }, 3000)
-  })
-}
-
 function openTaskCountDown(countDownInfo) {
   const { task_name, task_id, count_down } = countDownInfo
   let timer = null
@@ -220,9 +193,9 @@ function alertHandle(msg) {
 }
 
 window.onload = () => {
-  if (storage.get('httpReady', 'sessionStorage') === '1') {
-    http.resolveReadyPromise()
-  }
+  taskNotify({ event: 'login' })
+  http.init()
+  http.resolveReadyPromise()
 
   utilsManager.invoke('main_window_onload').catch(() => {
     // 在浏览器中，默认引擎已经启动，可以发送 http 请求了
