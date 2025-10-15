@@ -55,8 +55,9 @@ spring:
   session:
     store-type: redis
     redis:
-      flush-mode: on_save    # 每次响应结束刷到 Redis
-      namespace: uap:session # key 前缀，避免冲突
+      flush-mode: on_save
+      namespace: spring:session
+    timeout: 86400s  # 24小时
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*/*.xml
@@ -125,6 +126,8 @@ sms:
 
 casdoor:
   endpoint: ${CASDOOR_ENDPOINT}
+  # 用于外部访问的endpoint，返回给前端的登录地址使用（服务器IP或公网域名）
+  external-endpoint: ${CASDOOR_EXTERNAL_ENDPOINT}
   client-id: ${CASDOOR_CLIENT_ID}
   client-secret: ${CASDOOR_CLIENT_SECRET}
   certificate: |-
