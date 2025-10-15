@@ -1,6 +1,9 @@
+"""字符串处理相关功能。"""
+
 import math
 import re
 from copy import deepcopy
+from typing import Optional
 
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -13,11 +16,12 @@ from astronverse.dataprocess import (
     ReplaceType,
     StripStringType,
 )
-from astronverse.dataprocess.error import *
+from astronverse.dataprocess.error import INVALID_REGEX_ERROR_FORMAT
 
 
-def get_pattern(pattern_type, regex_formula):
-    pattern = None
+def get_pattern(pattern_type, regex_formula: str) -> Optional[str]:
+    """根据类型选择对应的正则表达式。"""
+    pattern: Optional[str] = None
     if pattern_type in [ReplaceType.DIGIT, ExtractType.DIGIT]:
         pattern = r"\d+"
     elif pattern_type in [ReplaceType.EMAIL, ExtractType.EMAIL]:
@@ -35,6 +39,8 @@ def get_pattern(pattern_type, regex_formula):
 
 
 class StringProcess:
+    """字符串处理工具集合。"""
+
     @staticmethod
     @atomicMg.atomic(
         "StringProcess",
@@ -44,7 +50,7 @@ class StringProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.regex_formula.show",
-                        expression="return $this.extract_type.value == '{}'".format(ExtractType.REGEX.value),
+                        expression=f"return $this.extract_type.value == '{ExtractType.REGEX.value}'",
                     )
                 ],
             ),
@@ -57,6 +63,7 @@ class StringProcess:
         regex_formula: str = "",
         first_flag: bool = True,
     ):
+        """从文本中提取匹配内容。"""
         if regex_formula:
             try:
                 re.compile(regex_formula)
@@ -79,7 +86,7 @@ class StringProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.replaced_string.show",
-                        expression="return $this.replace_type.value == '{}'".format(ReplaceType.STRING.value),
+                        expression=f"return $this.replace_type.value == '{ReplaceType.STRING.value}'",
                     )
                 ],
             ),
@@ -88,7 +95,7 @@ class StringProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.regex_formula.show",
-                        expression="return $this.replace_type.value == '{}'".format(ReplaceType.REGEX.value),
+                        expression=f"return $this.replace_type.value == '{ReplaceType.REGEX.value}'",
                     )
                 ],
             ),
@@ -104,6 +111,7 @@ class StringProcess:
         first_flag: bool = True,
         ignore_case_flag: bool = False,
     ):
+        """替换字符串中匹配的内容。"""
         if regex_formula:
             try:
                 re.compile(regex_formula)
@@ -168,7 +176,7 @@ class StringProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.separator.show",
-                        expression="return $this.concat_type.value == '{}'".format(ConcatStringType.OTHER.value),
+                        expression=f"return $this.concat_type.value == '{ConcatStringType.OTHER.value}'",
                     )
                 ],
             ),
@@ -181,9 +189,7 @@ class StringProcess:
         concat_type: ConcatStringType = ConcatStringType.NONE,
         separator: str = "",
     ):
-        """
-        字符串拼接
-        """
+        """拼接两个字符串，按 concat_type 确定分隔符。"""
         if concat_type == ConcatStringType.NONE:
             separator = ""
         elif concat_type == ConcatStringType.SPACE:
@@ -212,6 +218,7 @@ class StringProcess:
         total_length: str = "",
         fill_type: FillStringType = FillStringType.RIGHT,
     ):
+        """按指定方向填充字符串到目标长度。"""
         if (not string_data) or (not add_str):
             raise ValueError("目标文本或补充文本不能为空!")
         try:
@@ -223,13 +230,12 @@ class StringProcess:
         result_str = deepcopy(str(string_data))
         if total_length_int <= len(string_data):
             return result_str
-        else:
-            n = math.ceil((total_length_int - len(string_data)) / len(add_str))  # 向上取整获得重复次数
-            if fill_type == FillStringType.LEFT:  # 左端补齐
-                result_str = (add_str * n)[0 : total_length_int - len(string_data)] + string_data
-            elif fill_type == FillStringType.RIGHT:  # 右端补齐
-                result_str = (string_data + add_str * n)[0:total_length]
-            return result_str
+        n = math.ceil((total_length_int - len(string_data)) / len(add_str))  # 向上取整获得重复次数
+        if fill_type == FillStringType.LEFT:  # 左端补齐
+            result_str = (add_str * n)[0 : total_length_int - len(string_data)] + string_data
+        elif fill_type == FillStringType.RIGHT:  # 右端补齐
+            result_str = (string_data + add_str * n)[0:total_length]
+        return result_str
 
     @staticmethod
     @atomicMg.atomic(
@@ -240,8 +246,8 @@ class StringProcess:
         outputList=[atomicMg.param("stripped_string", types="Str")],
     )
     def strip_string(string_data: str, strip_method: StripStringType = StripStringType.BOTH):
-        """ """
-        if len(string_data) == 0:
+        """移除字符串空白。"""
+        if not string_data:
             return ""
 
         result_str = deepcopy(string_data)
@@ -263,7 +269,7 @@ class StringProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.index.show",
-                        expression="return $this.cut_type.value == '{}'".format(CutStringType.INDEX.value),
+                        expression=f"return $this.cut_type.value == '{CutStringType.INDEX.value}'",
                     )
                 ],
             ),
@@ -272,7 +278,7 @@ class StringProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.find_str.show",
-                        expression="return $this.cut_type.value == '{}'".format(CutStringType.STRING.value),
+                        expression=f"return $this.cut_type.value == '{CutStringType.STRING.value}'",
                     )
                 ],
             ),
@@ -286,10 +292,8 @@ class StringProcess:
         index: int = 0,
         find_str: str = "",
     ):
-        """
-        字符串截取
-        """
-        if len(string_data) == 0:
+        """按照指定方式截取字符串。"""
+        if not string_data:
             raise ValueError("目标文本不能为空!")
         if length < 0:
             raise ValueError("长度输入不合法,请提供整数类型数据!")
@@ -303,8 +307,7 @@ class StringProcess:
             index = string_data.find(find_str)
             if index == -1:
                 raise ValueError("未找到指定字符串!")
-            else:
-                result_str = string_data[index : index + length]
+            result_str = string_data[index : index + length]
         return result_str
 
     @staticmethod
@@ -316,15 +319,16 @@ class StringProcess:
         outputList=[atomicMg.param("change_case_string", types="Str")],
     )
     def change_case_of_string(string_data: str, case_type: CaseChangeType = CaseChangeType.LOWER):
-        if string_data:
-            if case_type == CaseChangeType.LOWER:
-                return str.lower(string_data)
-            elif case_type == CaseChangeType.UPPER:
-                return str.upper(string_data)
-            elif case_type == CaseChangeType.CAPS:
-                return str.capitalize(string_data)
-        else:
+        """转换字符串大小写。"""
+        if not string_data:
             return ""
+        if case_type == CaseChangeType.LOWER:
+            return string_data.lower()
+        if case_type == CaseChangeType.UPPER:
+            return string_data.upper()
+        if case_type == CaseChangeType.CAPS:
+            return string_data.capitalize()
+        raise ValueError("不支持的大小写转换类型")
 
     @staticmethod
     @atomicMg.atomic(
@@ -335,7 +339,5 @@ class StringProcess:
         outputList=[atomicMg.param("string_length", types="Int")],
     )
     def get_string_length(string_data: str):
-        if string_data:
-            return len(string_data)
-        else:
-            return 0
+        """返回字符串长度。"""
+        return len(string_data) if string_data else 0
