@@ -78,48 +78,38 @@ def merge_dicts(flow, full_flow):
 class IStorage(ABC):
 
     @abstractmethod
-    def process_list(self, project_id: str, mode: str) -> list:
+    def process_list(self, project_id: str, mode: str, version: str) -> list:
         """获取工程的流程列表"""
         pass
 
     @abstractmethod
-    def process_json(self, project_id: str, process_id: str, mode: str) -> list:
+    def process_detail(self, project_id: str, mode: str, version: str, process_id: str) -> list:
         """获取流程json"""
         pass
 
     @abstractmethod
-    def process_param_list(self, project_id: str, process_id: str, mode: str) -> list:
-        """获取工程的配置参数"""
-        pass
-
-    @abstractmethod
-    def module_detail(self, project_id: str, module_id: str, mode: str) -> str:
+    def module_detail(self, project_id: str, mode: str, version: str, module_id: str) -> str:
         """获取脚本数据"""
         pass
 
     @abstractmethod
-    def global_list(self, project_id: str, mode: str) -> list:
+    def param_list(self, project_id: str, mode: str, version: str, process_id: str) -> list:
+        """获取工程的配置参数"""
+        pass
+
+    @abstractmethod
+    def global_list(self, project_id: str, mode: str, version: str = "") -> list:
         """获取工程的全局变量"""
         pass
 
     @abstractmethod
-    def element_detail(self, project_id: str, element_id: str, mode: str) -> dict:
-        """获取工程的元素数据详情"""
-        pass
-
-    @abstractmethod
-    def user_pip_list(self, project_id: str, mode: str) -> list:
+    def pip_list(self, project_id: str, mode: str, version: str = "") -> list:
         """获取工程的用户pip依赖详情"""
         pass
 
     @abstractmethod
-    def get_remote_var_key(self) -> str:
-        """获取远程参数的加密密钥"""
-        pass
-
-    @abstractmethod
-    def get_remote_var_value(self, key: str) -> dict:
-        """获取远程参数值"""
+    def element_detail(self, project_id: str, mode: str, version: str, element_id: str) -> dict:
+        """获取工程的元素数据详情"""
         pass
 
 
@@ -156,102 +146,132 @@ class HttpStorage(IStorage):
         if len(atom_list) == 0:
             return []
 
-        res = self.__http__("/api/robot/atom/getByVersionList", None, {
-            "atomList": atom_list,
+        res = self.__http__("/api/robot/atom/getLatestAtomsByList", None, {
+            "atomKeyList": atom_list,
         })
         return res
 
-    def process_list(self, project_id: str, mode: str) -> list:
+    def process_list(self, project_id: str, mode: str, version: str) -> list:
         """获取工程的流程列表"""
-        return self.__http__("/api/robot/module/processModuleList", None, {
-            "robotId": project_id,
-            "mode": mode
-        })
 
-    def process_json(self, project_id: str, process_id: str, mode: str) -> list:
+        data = {
+            "robotId": project_id,
+        }
+        if mode:
+            data["mode"] = mode
+        if version:
+            data["robotVersion"] = int(version)
+
+        return self.__http__("/api/robot/module/processModuleList", None, data)
+
+    def process_detail(self, project_id: str, mode: str, version: str, process_id: str) -> list:
         """获取流程json"""
 
-        # 获取最简化的流程数据
-        res = self.__http__("/api/robot/process/process-json", None, {
+        # 基础数据
+        data = {
             "robotId": project_id,
             "processId": process_id,
-            "mode": mode,
-        })
+        }
+        if mode:
+            data["mode"] = mode
+        if version:
+            data["robotVersion"] = int(version)
+
+        res = self.__http__("/api/robot/process/process-json", None, data)
         try:
             flow_list = json.loads(res)
         except Exception as e:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT.format(process_id), "工程数据异常 {}".format(e))
 
-        # 获取公共数据
-        atom_list = {}
+        # 附加数据
+        atom_key_list = []
         for flow in flow_list:
-            atom_list["{}-{}".format(flow.get("key"), flow.get("version"))] = {
-                "key": flow.get("key"),
-                "version": flow.get("version")
-            }
-        full = self.__process_json_full__(list(atom_list.values()))
+            atom_key_list.append(flow.get("key"))
+        full = self.__process_json_full__(atom_key_list)
         full_dict = {}
         for f in full:
             if f:
-                f = json.loads(f)
+                f = json.loads(f.get("atomContent"))
             f["inputList"] = f.get("inputList", []) + common_advanced
-            full_dict["{}-{}".format(f.get("key"), f.get("version"))] = f
+            full_dict[f.get("key")] = f
 
-        # 合并成需要的流程数据
+        # 合并
         for k, flow in enumerate(flow_list):
-            if "{}-{}".format(flow.get("key"), flow.get("version")) in full_dict:
-                full_item = full_dict["{}-{}".format(flow.get("key"), flow.get("version"))]
+            if flow.get("key") in full_dict:
+                full_item = full_dict[flow.get("key")]
                 flow_list[k] = merge_dicts(flow, full_item)
         return flow_list
 
-    def module_detail(self, project_id: str, module_id: str, mode: str) -> str:
-        res = self.__http__("/api/robot/module/open", None, {
+    def module_detail(self, project_id: str, mode: str, version: str, module_id: str) -> str:
+
+        data = {
             "robotId": project_id,
             "moduleId": module_id,
-            "mode": mode,
-        })
+        }
+        if mode:
+            data["mode"] = mode
+        if version:
+            data["robotVersion"] = int(version)
+
+        res = self.__http__("/api/robot/module/open", None, data)
         if res:
             return res.get("moduleContent", "")
+        else:
+            return ""
 
-    def process_param_list(self, project_id: str, process_id: str, mode: str) -> list:
+    def param_list(self, project_id: str, mode: str, version: str, process_id: str) -> list:
         """运行参数列表"""
 
-        res = self.__http__("/api/robot/param/all", None, {
+        data = {
             "robotId": project_id,
             "processId": process_id,
-            "mode": mode,
-        })
+        }
+        if mode:
+            data["mode"] = mode
+        if version:
+            data["robotVersion"] = int(version)
+
+        res = self.__http__("/api/robot/param/all", None, data)
         if res and isinstance(res, str):
             res = json.loads(res)
         return res
 
-    def global_list(self, project_id: str, mode: str) -> list:
+    def global_list(self, project_id: str, mode: str, version: str = "") -> list:
         """获取工程的全局变量"""
 
-        return self.__http__("/api/robot/global/all", {
+        params = {
             "robotId": project_id,
-            "mode": mode
-        }, None)
+        }
+        if mode:
+            params["mode"] = mode
+        if version:
+            params["robotVersion"] = int(version)
 
-    def user_pip_list(self, project_id: str, mode: str) -> list:
-        res = self.__http__("/api/robot/require/list", None, {
+        return self.__http__("/api/robot/global/all", params, None)
+
+    def pip_list(self, project_id: str, mode: str, version: str = "") -> list:
+        data = {
             "robotId": project_id,
-            "mode": mode,
-        })
-        return res
+        }
+        if mode:
+            data["mode"] = mode
+        if version:
+            data["robotVersion"] = int(version)
 
-    def get_remote_var_key(self) -> str:
-        res = self.__http__("/api/robot/robot-shared-var/shared-var-key", None, None, "get")
-        if res:
-            return res.get("key", "")
+        return self.__http__("/api/robot/require/list", None, data)
 
-    def element_detail(self, project_id: str, element_id: str, mode: str) -> dict:
+    def element_detail(self, project_id: str, mode: str, version: str, element_id: str) -> dict:
         """获取工程的元素数据详情"""
-        res = self.__http__("/api/robot/element/detail", {
+
+        params = {
             "robotId": project_id,
             "elementId": element_id,
-            "mode": mode,
-        }, None)
+        }
+        if mode:
+            params["mode"] = mode
+        if version:
+            params["robotVersion"] = int(version)
+        res = self.__http__("/api/robot/element/detail", params, None)
         if not res:
             raise BaseException(ELEMENT_ACCESS_ERROR_FORMAT.format(element_id), "元素获取异常为空")
 
@@ -274,7 +294,3 @@ class HttpStorage(IStorage):
                 res.update({"elementData": json.dumps(element_data, ensure_ascii=False)})
         return res
 
-    def get_remote_var_value(self, key: str) -> dict:
-        res = self.__http__("/api/robot/robot-shared-var/get-batch-shared-var", None, {"ids": [key]}, "post")
-        if res and len(res) > 0:
-            return res[0]

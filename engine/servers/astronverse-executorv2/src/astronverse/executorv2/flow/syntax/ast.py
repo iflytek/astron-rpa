@@ -20,8 +20,10 @@ class Program(Node):
 
     def display(self, svc, tab_num=0):
         statement_code_lines = []
-        project_id = self.token.value.get("__project_id__")
-        process_id = self.token.value.get("__process_id__")
+        project_id = svc.ast_curr_info.get("__project_id__")
+        mode = svc.ast_curr_info.get("__mode__")
+        version = svc.ast_curr_info.get("__version__")
+        process_id = svc.ast_curr_info.get("__process_id__")
 
         # body 块
         if self.statements:
@@ -43,7 +45,7 @@ class Program(Node):
         # main 块
         code_lines.append(CodeLine(tab_num, "def main(**kwargs):"))
         code_lines.append(CodeLine(tab_num + 1, "pass"))
-        param_list = svc.storage.process_param_list(project_id, process_id, svc.mode)
+        param_list = svc.storage.param_list(project_id=project_id, mode=mode, version=version, process_id=process_id)
         for p in param_list:
             param = svc.param.parse_param({
                 "value": p.get("varValue"),

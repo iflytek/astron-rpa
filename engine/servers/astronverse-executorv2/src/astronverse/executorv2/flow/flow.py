@@ -13,11 +13,11 @@ class Flow:
     def __init__(self, svc: Svc):
         self.svc = svc
 
-    def gen_package(self, project_id: str):
+    def gen_package(self, project_id: str, mode: str, version: str):
         os.makedirs("./project", exist_ok=True)
 
         # 生成project.py
-        res = self.__global_display__(project_id)
+        res = self._global_display(project_id, mode, version)
         if res:
             with open("./project/project.py", "w", encoding="utf-8") as file:
                 file.write(res)
@@ -35,7 +35,7 @@ class Flow:
 
         # 生成requirement_exit
         requirement = dict()
-        res = self.__requirement_display__(project_id)
+        res = self._requirement_display(project_id, mode, version)
         if res:
             for i in res:
                 if i.get("packageName") not in requirement:
@@ -49,9 +49,9 @@ class Flow:
         with open("./project/project.json", "w", encoding="utf-8") as file:
             file.write(json.dumps(project_json, ensure_ascii=False, indent=4))
 
-    def gen_flow(self, project_id, process_id: str = ""):
+    def gen_flow(self, project_id: str, mode: str, version: str):
         # 生成流程相关数据
-        process_list = self.svc.storage.process_list(project_id, self.svc.mode)
+        process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
@@ -61,40 +61,39 @@ class Flow:
             name = process.get("name")
             category = process.get("resourceCategory")
             resource_id = process.get("resourceId")
-            if process_id and process_id != resource_id:
-                continue
 
             # 生成python
             if category == "process":
-                if name == "主流程":
+                if name == self.svc.conf.MAIN_FLOW_NAME:
                     file_name = "main"
                 else:
                     file_name = "process{}".format(process_index)
                     process_index += 1
-                res = self.__flow_display__(project_id, resource_id, name)
+                res = self._flow_display(project_id, mode, version, resource_id, name)
             elif category == "module":
-                res = self.__module_display__(project_id, resource_id, name)
+                res = self._module_display(project_id, mode, version, resource_id, name)
                 file_name = "module{}".format(module_index)
                 module_index += 1
             else:
                 res = None
                 file_name = ""
             if res:
-                self.svc.set_process_info(resource_id, file_name, category)
+                self.svc.set_process_info(resource_id, file_name, category, name)
+
                 with open("./project/{}.py".format(file_name), "w", encoding="utf-8") as file:
                     file.write(res)
 
-    def __requirement_display__(self, project_id: str):
+    def _requirement_display(self, project_id: str, mode: str, version: str):
         """
         当前包的依赖性
         """
-        return self.svc.storage.user_pip_list(project_id, self.svc.mode)
+        return self.svc.storage.pip_list(project_id=project_id, mode=mode, version=version)
 
-    def __global_display__(self, project_id: str):
+    def _global_display(self, project_id: str, mode: str, version: str):
         """
         当前包的访问全局变量
         """
-        global_list = self.svc.storage.global_list(project_id, self.svc.mode)
+        global_list = self.svc.storage.global_list(project_id=project_id, mode=mode, version=version)
         param_code = ""
         for g in global_list:
             param = self.svc.param.parse_param({
@@ -105,20 +104,20 @@ class Flow:
             param_code += "{} = {}\n".format(g.get("varName"), param.show_value())
         return param_code
 
-    def __module_display__(self, project_id: str, module_id: str, module_name) -> str:
+    def _module_display(self, project_id: str, mode: str, version: str, module_id: str, module_name) -> str:
         """
         模块生成 python模块
         """
         # 1. 获取模块数据
-        return self.svc.storage.module_detail(project_id, module_id, self.svc.mode)
+        return self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version, module_id=module_id)
 
-    def __flow_display__(self, project_id: str, process_id: str, process_name: str) -> str:
+    def _flow_display(self, project_id: str, mode: str, version: str, process_id: str, process_name: str) -> str:
         """
         流程生成 主流程 子流程
         """
 
         # 1. 获取流程数据
-        flow_list = self.svc.storage.process_json(project_id, process_id, self.svc.mode)
+        flow_list = self.svc.storage.process_detail(project_id=project_id, mode=mode, version=version, process_id=process_id)
 
         line = 0
         new_flow_list = []
@@ -128,9 +127,6 @@ class Flow:
                 continue
             v.update({
                 "__line__": line,
-                "__project_id__": project_id,
-                "__process_id__": process_id,
-                "__process_name__": process_name
             })
             new_flow_list.append(v)
 
@@ -140,12 +136,18 @@ class Flow:
         program = parser.parse_program()
         if len(parser.errors) > 0:
             raise BaseException(SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)), "语法错误: {}".format(parser.errors))
-
+        self.svc.ast_curr_info = {
+            "__project_id__": project_id,
+            "__mode__": mode,
+            "__version__": version,
+            "__process_id__": process_id,
+            "__process_name__": process_name
+        }
         result = program.display(svc=self.svc, tab_num=0)
         code_lines = []
         for code_line in result:
             if isinstance(code_line, CodeLine):
-                indent = "    " * code_line.tab_num
+                indent = self.svc.conf.INDENTATION * code_line.tab_num
                 code_lines.append(indent + code_line.code)
             else:
                 # 兼容旧格式
