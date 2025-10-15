@@ -6,7 +6,8 @@ package com.iflytek.rpa.auth.utils;
  * @create: 2025/9/16 19:27
  */
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iflytek.rpa.auth.entity.Result;
+import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -20,16 +21,16 @@ public class ResponseUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static void success(HttpServletResponse response, Object data) {
-        Result result = new Result(200, "ok", data);
+        AppResponse<?> result = AppResponse.success(data);
         writeResultToResponse(response, result);
     }
 
     public static void fail(HttpServletResponse response, String message) {
-        Result result = new Result(500, message, null);
+        AppResponse<?> result = AppResponse.error(ErrorCodeEnum.E_NOT_LOGIN, message);
         writeResultToResponse(response, result);
     }
 
-    private static void writeResultToResponse(HttpServletResponse response, Result result) {
+    private static void writeResultToResponse(HttpServletResponse response, AppResponse<?> result) {
         try {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
