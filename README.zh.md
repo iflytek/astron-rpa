@@ -38,45 +38,42 @@
 
 ## 📋 概述
 
-AstronRPA 是一个全能型的机器人流程自动化（RPA）开发工具，为企业和开发者提供从设计到部署的全流程 RPA 自动化解决方案。平台集成最新的 AI 大模型、丰富的组件库、多种开发模式和框架，让开发者能够以最便捷的方式构建强大的自动化流程。
+AstronRPA 是一个全能型的机器人流程自动化（RPA）开发工具，为企业和开发者提供从设计到部署的全流程 RPA 自动化解决方案。平台集成全方位的自动化操作、丰富的组件库、多种开发模式和框架，让开发者能够以最便捷的方式构建强大的自动化流程。
 
-AstronRPA 源自服务于数万家企业和数百万开发者的"科大讯飞 RPA 平台"，我们将其核心引擎完全开源。通过可视化设计和构建工具，开发者可以使用无代码或低代码的方式快速创建和调试机器人、应用程序和工作流，实现强大的 RPA 应用开发和更多定制化的业务逻辑。
+AstronRPA 源自服务于各行各业和各位专业开发者的"科大讯飞 RPA 平台"，我们将其核心引擎完全开源。通过可视化设计和构建工具，开发者可以使用无代码或低代码的方式快速创建和调试机器人、应用程序和工作流，实现强大的 RPA 应用开发和更多定制化的业务逻辑。
 
 ### 🎯 为什么选择 AstronRPA？
 
-- **🏭 生产可用**：源自服务数万家企业的成熟平台
-- **👨‍💻 开发者友好**：可视化设计 + 完整的 API 和文档
+- **🏭 生产可用**：源自服务各行各业的成熟平台
+- **🧩 组件丰富**：300+ 专业 RPA 组件能力
+- **👨‍💻 开发者友好**：可视化设计 + 完整的构建文档
 - **☁️ 云原生**：基于微服务架构，支持容器化部署
 - **🔓 开源透明**：核心引擎完全开源，社区驱动开发
-- **🤖 AI 赋能**：集成 DeepSeek 等大语言模型
-- **🧩 组件丰富**：25+ 专业 RPA 组件库
+- **🤖 AI 赋能**：支持集成各家大语言模型
 
 ## ✨ 核心特性
 
-- 🚀 **高性能执行** - 基于 Python 3.13+ 的高性能执行引擎，支持分布式运行
+
 - 🔒 **企业级安全** - 完整的权限管理、审计日志和数据加密
-- 🔧 **易于集成** - 丰富的 API 接口和 SDK，支持多语言集成
+- 🔧 **易于集成** - 丰富的 API 接口和配置，支持多语言集成
 - 📊 **实时监控** - 完整的执行状态监控、性能指标和告警系统
-- 🌍 **多环境支持** - 支持 Windows、Linux 和容器化部署
 - 📈 **弹性扩展** - 微服务架构，支持水平扩展和负载均衡
 
 ### 🎯 可视化设计
 - 拖拽式流程设计器
 - 实时预览和调试
 - 丰富的组件模板
-- 智能连线和布局
-
-### 🤖 AI 赋能
-- 智能元素识别
-- OCR 文字提取
-- 验证码自动识别
-- 自然语言流程生成
 
 ### 🔧 组件化开发
-- 25+ 专业 RPA 组件
+- 300+ 专业 RPA 组件能力
 - 标准化组件接口
 - 自定义组件扩展
 - 组件版本管理
+
+### 🤖 AI 赋能
+- 智能图像拾取
+- OCR 文字提取
+- 验证码自动识别
 
 ### 📊 执行监控
 - 实时执行状态
@@ -85,21 +82,21 @@ AstronRPA 源自服务于数万家企业和数百万开发者的"科大讯飞 RP
 - 异常告警通知
 
 ### 🌐 多端支持
-- Web 端在线编辑
 - 桌面端本地运行
-- 移动端监控查看
+- Web端监控查看
 - API 接口集成
+- MCP 工具支持
 
 ## 🛠️ 技术栈
 
-**前端技术**: Vue 3 + TypeScript + Vite + Ant Design Vue
-**后端服务**: Java Spring Boot + Python FastAPI
-**数据存储**: MySQL + Redis
-**消息队列**: 支持异步任务处理
-**容器化**: Docker + Docker Compose
-**桌面应用**: Tauri (Rust + Web)
-**包管理**: pnpm workspace 单体仓库管理
-**监控系统**: 集成 SkyWalking 链路追踪
+- **前端技术**: Vue 3 + TypeScript + Vite + Ant Design Vue
+- **后端服务**: Java Spring Boot + Python FastAPI
+- **数据存储**: MySQL + Redis
+- **消息队列**: 支持异步任务处理
+- **容器化**: Docker + Docker Compose
+- **桌面应用**: Tauri (Rust + Web)
+- **包管理**: pnpm + uv
+- **监控系统**: 集成 SkyWalking 链路追踪
 
 ## 📱 界面展示
 
@@ -123,16 +120,16 @@ AstronRPA 源自服务于数万家企业和数百万开发者的"科大讯飞 RP
 
 ### 后端架构
 - **主服务**：Java Spring Boot 2.3.11
-- **AI 服务**：Python FastAPI + DeepSeek 集成
+- **AI 服务**：Python FastAPI
 - **OpenAPI 服务**：Python FastAPI 
 - **资源服务**：Java Spring Boot
 - **数据库**：MySQL + Redis
 - **消息队列**：支持异步任务处理
 
-### RPA 引擎
+### 引擎架构
 - **语言**：Python 3.13+
 - **框架**：FastAPI + asyncio
-- **组件化架构**：25+ 专业 RPA 组件
+- **组件化架构**：20+ 专业 RPA 组件类型
 - **执行器**：支持原子操作、工作流、录制回放
 - **通信**：WebSocket 实时通信
 - **定位技术**：图像识别、OCR、UI 自动化
@@ -188,33 +185,27 @@ docker-compose ps
    # 脚本会复制该目录来创建 python_core
    ```
 
-2. **运行打包脚本**
+2. **运行构建脚本**
    ```bash
-    cd engine
-
-    # 修改build.bat的第9和10行配置，确保环境正确
-    # 注意!!! 请确保指定的 Python 解释器为纯净安装，未安装额外第三方包，以避免影响最终打包体积
-    # set PYTHON_EXE=C:\Program Files\Python313\python.exe
-    # set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
-    
-    # 执行构建流程，请等待操作完成提示
-    # 当控制台显示 "Complete!" 时表示构建成功
-    ./build.bat
+   # 在项目根目录执行完整构建（引擎 + 前端 + 桌面应用）
+   ./build.bat --python-exe "C:\Program Files\Python313\python.exe"
+   
+   # 或使用默认配置（如果 Python 在默认路径）
+   ./build.bat
+   
+   # 等待操作完成
+   # 当控制台显示 "Full Build Complete!" 时表示构建成功
    ```
 
-3. **构建前端应用**
-   ```bash
-   cd frontend
-   pnpm install
-   pnpm build:web
-   ```
+   > **注意：** 请确保指定的 Python 解释器为纯净安装，未安装额外第三方包，以减小打包体积。
 
-4. **构建tauri应用**
-   ```bash
-   cd frontend
-   pnpm install
-   pnpm build:tauri
-   ```
+   **构建流程包含：**
+   1. ✅ 检测/复制 Python 环境到 `build/python_core`
+   2. ✅ 安装 RPA 引擎依赖包
+   3. ✅ 压缩 Python 核心到 `resources/python_core.7z`
+   4. ✅ 安装前端依赖
+   5. ✅ 构建前端 Web 应用
+   6. ✅ 构建 Tauri 桌面应用
 
 #### 开发环境
 
@@ -237,61 +228,31 @@ mvn spring-boot:run
 ## 📦 组件生态
 
 ### 核心组件包
-- **rpasystem**：系统操作、进程管理、截图
-- **rpabrowser**：浏览器自动化、网页操作
-- **rpagui**：图形界面自动化、鼠标键盘操作
-- **rpaexcel**：Excel 表格操作、数据处理
-- **rpacv**：计算机视觉、图像识别
-- **rpaai**：AI 智能服务集成
-- **rpadatabase**：数据库连接和操作
-- **rpanetwork**：网络请求、API 调用
-- **rpaemail**：邮件发送和接收
-- **rpadocx**：Word 文档处理
-- **rpapdf**：PDF 文档操作
-- **rpaencrypt**：加密解密功能
+- **astronverse.system**：系统操作、进程管理、截图
+- **astronverse.browser**：浏览器自动化、网页操作
+- **astronverse.gui**：图形界面自动化、鼠标键盘操作
+- **astronverse.excel**：Excel 表格操作、数据处理
+- **astronverse.vision**：计算机视觉、图像识别
+- **astronverse.ai**：AI 智能服务集成
+- **astronverse.network**：网络请求、API 调用
+- **astronverse.email**：邮件发送和接收
+- **astronverse.docx**：Word 文档处理
+- **astronverse.pdf**：PDF 文档操作
+- **astronverse.encrypt**：加密解密功能
 
 ### 执行框架
-- **atomic**：原子操作定义和执行
-- **executor**：工作流执行引擎
-- **recording**：操作录制和回放
-- **param_utils**：参数处理工具
+- **astronverse.actionlib**：原子操作定义和执行
+- **astronverse.executor**：工作流执行引擎
+- **astronverse.picker**: 工作流拾取元素引擎
+- **astronverse.scheduler**: 引擎调度器
+- **astronverse.trigger**: 引擎触发器
 
 ### 共享库
-- **rpaframe**：RPA 框架核心
-- **rpawebsocket**：WebSocket 通信
-- **locator**：元素定位技术
+- **astronverse.baseline**：RPA 框架核心
+- **astronverse.websocketserver**：WebSocket 通信
+- **astronverse.websocketclient**：WebSocket 通信
+- **astronverse.locator**：元素定位技术
 
-## 🌟 核心特性
-
-### 🎯 可视化设计
-- 拖拽式流程设计器
-- 实时预览和调试
-- 丰富的组件模板
-- 智能连线和布局
-
-### 🤖 AI 赋能
-- 智能元素识别
-- OCR 文字提取
-- 验证码自动识别
-- 自然语言流程生成
-
-### 🔧 组件化开发
-- 25+ 专业 RPA 组件
-- 标准化组件接口
-- 自定义组件扩展
-- 组件版本管理
-
-### 📊 执行监控
-- 实时执行状态
-- 详细日志记录
-- 性能指标统计
-- 异常告警通知
-
-### 🌐 多端支持
-- Web 端在线编辑
-- 桌面端本地运行
-- 移动端监控查看
-- API 接口集成
 
 ## 📚 文档链接
 
