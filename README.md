@@ -38,45 +38,42 @@ English | [简体中文](README.zh.md)
 
 ## 📋 Overview
 
-AstronRPA is an all-in-one Robotic Process Automation (RPA) development tool that provides enterprises and developers with a complete RPA automation solution from design to deployment. The platform integrates the latest AI language models, rich component libraries, various development modes and frameworks, enabling developers to build powerful automation processes in the most convenient way.
+AstronRPA is an all-in-one Robotic Process Automation (RPA) development tool that provides enterprises and developers with a complete RPA automation solution from design to deployment. The platform integrates comprehensive automation capabilities, rich component libraries, various development modes and frameworks, enabling developers to build powerful automation processes in the most convenient way.
 
-AstronRPA is derived from the "iFlytek RPA Platform" which has served tens of thousands of enterprises and millions of developers, and we have made its core engine completely open source. Through visual design and build tools, developers can quickly create and debug robots, applications, and workflows using no-code or low-code approaches, enabling powerful RPA application development and more customized business logic.
+AstronRPA is derived from the "iFlytek RPA Platform" which has served various industries and professional developers, and we have made its core engine completely open source. Through visual design and build tools, developers can quickly create and debug robots, applications, and workflows using no-code or low-code approaches, enabling powerful RPA application development and more customized business logic.
 
 ### 🎯 Why Choose AstronRPA?
 
-- **🏭 Production Ready**: Mature platform serving tens of thousands of enterprises
-- **👨‍💻 Developer Friendly**: Visual design + comprehensive APIs and documentation
+- **🏭 Production Ready**: Mature platform serving various industries
+- **🧩 Rich Components**: 300+ professional RPA component capabilities
+- **👨‍💻 Developer Friendly**: Visual design + complete build documentation
 - **☁️ Cloud Native**: Built on microservices architecture with containerization support
 - **🔓 Open Source**: Core engine completely open source, community-driven development
-- **🤖 AI Powered**: Integrated with DeepSeek and other large language models
-- **🧩 Rich Components**: 25+ professional RPA component library
+- **🤖 AI Powered**: Supports integration with various large language models
 
 ## ✨ Core Features
 
-- 🚀 **High Performance** - Python 3.13+ based high-performance execution engine with distributed support
+
 - 🔒 **Enterprise Security** - Complete permission management, audit logs, and data encryption
-- 🔧 **Easy Integration** - Rich API interfaces and SDKs with multi-language support
-- 📊 **Real-time Monitoring** - Complete execution status monitoring, performance metrics, and alerting
-- 🌍 **Multi-platform Support** - Windows, Linux, and containerized deployment support
+- 🔧 **Easy Integration** - Rich API interfaces and configurations with multi-language support
+- 📊 **Real-time Monitoring** - Complete execution status monitoring, performance metrics, and alerting system
 - 📈 **Elastic Scaling** - Microservices architecture with horizontal scaling and load balancing
 
 ### 🎯 Visual Design
 - Drag-and-drop process designer
 - Real-time preview and debugging
 - Rich component templates
-- Smart connection and layout
-
-### 🤖 AI Empowerment
-- Intelligent element recognition
-- OCR text extraction
-- Automatic CAPTCHA recognition
-- Natural language process generation
 
 ### 🔧 Component-based Development
-- 25+ professional RPA components
+- 300+ professional RPA component capabilities
 - Standardized component interfaces
 - Custom component extensions
 - Component version management
+
+### 🤖 AI Empowerment
+- Intelligent image picking
+- OCR text extraction
+- Automatic CAPTCHA recognition
 
 ### 📊 Execution Monitoring
 - Real-time execution status
@@ -85,21 +82,21 @@ AstronRPA is derived from the "iFlytek RPA Platform" which has served tens of th
 - Exception alert notifications
 
 ### 🌐 Multi-platform Support
-- Web-based online editing
 - Desktop local execution
-- Mobile monitoring view
+- Web monitoring and viewing
 - API interface integration
+- MCP tool support
 
 ## 🛠️ Tech Stack
 
-**Frontend**: Vue 3 + TypeScript + Vite + Ant Design Vue
-**Backend Services**: Java Spring Boot + Python FastAPI
-**Data Storage**: MySQL + Redis
-**Message Queue**: Asynchronous task processing support
-**Containerization**: Docker + Docker Compose
-**Desktop App**: Tauri (Rust + Web)
-**Package Management**: pnpm workspace monorepo
-**Monitoring**: Integrated SkyWalking distributed tracing
+- **Frontend**: Vue 3 + TypeScript + Vite + Ant Design Vue
+- **Backend Services**: Java Spring Boot + Python FastAPI
+- **Data Storage**: MySQL + Redis
+- **Message Queue**: Asynchronous task processing support
+- **Containerization**: Docker + Docker Compose
+- **Desktop App**: Tauri (Rust + Web)
+- **Package Management**: pnpm + uv
+- **Monitoring**: Integrated SkyWalking distributed tracing
 
 ## 📱 Screenshots
 
@@ -123,16 +120,16 @@ AstronRPA is derived from the "iFlytek RPA Platform" which has served tens of th
 
 ### Backend Architecture
 - **Main Service**: Java Spring Boot 2.3.11
-- **AI Service**: Python FastAPI + DeepSeek Integration
-- **OpenAPI Service**: Python FastAPI
+- **AI Service**: Python FastAPI
+- **OpenAPI Service**: Python FastAPI 
 - **Resource Service**: Java Spring Boot
 - **Database**: MySQL + Redis
 - **Message Queue**: Support for asynchronous task processing
 
-### RPA Engine
+### Engine Architecture
 - **Language**: Python 3.13+
 - **Framework**: FastAPI + asyncio
-- **Component Architecture**: 25+ professional RPA components
+- **Component Architecture**: 20+ professional RPA component types
 - **Executor**: Support atomic operations, workflows, record & replay
 - **Communication**: WebSocket real-time communication
 - **Locating Technology**: Image recognition, OCR, UI automation
@@ -185,36 +182,30 @@ docker-compose ps
    ```bash
    # Prepare a Python 3.13.x installation directory
    # Can be a local folder or system installation path
-   # The script will copy this directory to create python_base
+   # The script will copy this directory to create python_core
    ```
 
-2. **Run Packaging Script**
+2. **Run Build Script**
    ```bash
-    cd engine
-
-    # Modify lines 9 and 10 of build.bat configuration to ensure correct environment
-    # Note!!! Please ensure the specified Python interpreter is a clean installation without additional third-party packages to avoid affecting the final package size
-    # set PYTHON_EXE=C:\Program Files\Python313\python.exe
-    # set SEVENZ_EXE=C:\Program Files\7-Zip\7z.exe
-    
-    # Execute the build process, please wait for the completion prompt
-    # When the console displays "Complete!" it indicates successful build
-    ./build.bat
+   # Full build (engine + frontend + desktop app) from project root directory
+   ./build.bat --python-exe "C:\Program Files\Python313\python.exe"
+   
+   # Or use default configuration (if Python is in default path)
+   ./build.bat
+   
+   # Wait for completion
+   # Build successful when console displays "Full Build Complete!"
    ```
 
-3. **Build Frontend Application**
-   ```bash
-   cd frontend
-   pnpm install
-   pnpm build:web
-   ```
+   > **Note:** Please ensure the specified Python interpreter is a clean installation without additional third-party packages to minimize package size.
 
-4. **Build Tauri Application**
-   ```bash
-   cd frontend
-   pnpm install
-   pnpm build:tauri 
-   ```
+   **Build process includes:**
+   1. ✅ Detect/copy Python environment to `build/python_core`
+   2. ✅ Install RPA engine dependencies
+   3. ✅ Compress Python core to `resources/python_core.7z`
+   4. ✅ Install frontend dependencies
+   5. ✅ Build frontend web application
+   6. ✅ Build Tauri desktop application
 
 #### Development Environment
 
@@ -237,61 +228,31 @@ mvn spring-boot:run
 ## 📦 Component Ecosystem
 
 ### Core Component Packages
-- **rpasystem**: System operations, process management, screenshots
-- **rpabrowser**: Browser automation, web page operations
-- **rpagui**: GUI automation, mouse and keyboard operations
-- **rpaexcel**: Excel spreadsheet operations, data processing
-- **rpacv**: Computer vision, image recognition
-- **rpaai**: AI intelligent service integration
-- **rpadatabase**: Database connections and operations
-- **rpanetwork**: Network requests, API calls
-- **rpaemail**: Email sending and receiving
-- **rpadocx**: Word document processing
-- **rpapdf**: PDF document operations
-- **rpaencrypt**: Encryption and decryption functions
+- **astronverse.system**: System operations, process management, screenshots
+- **astronverse.browser**: Browser automation, web page operations
+- **astronverse.gui**: GUI automation, mouse and keyboard operations
+- **astronverse.excel**: Excel spreadsheet operations, data processing
+- **astronverse.vision**: Computer vision, image recognition
+- **astronverse.ai**: AI intelligent service integration
+- **astronverse.network**: Network requests, API calls
+- **astronverse.email**: Email sending and receiving
+- **astronverse.docx**: Word document processing
+- **astronverse.pdf**: PDF document operations
+- **astronverse.encrypt**: Encryption and decryption functions
 
 ### Execution Framework
-- **atomic**: Atomic operation definition and execution
-- **executor**: Workflow execution engine
-- **recording**: Operation recording and playback
-- **param_utils**: Parameter processing tools
+- **astronverse.actionlib**: Atomic operation definition and execution
+- **astronverse.executor**: Workflow execution engine
+- **astronverse.picker**: Workflow element picker engine
+- **astronverse.scheduler**: Engine scheduler
+- **astronverse.trigger**: Engine trigger
 
 ### Shared Libraries
-- **rpaframe**: RPA framework core
-- **rpawebsocket**: WebSocket communication
-- **locator**: Element locating technology
+- **astronverse.baseline**: RPA framework core
+- **astronverse.websocketserver**: WebSocket communication
+- **astronverse.websocketclient**: WebSocket communication
+- **astronverse.locator**: Element locating technology
 
-## 🌟 Core Features
-
-### 🎯 Visual Design
-- Drag-and-drop process designer
-- Real-time preview and debugging
-- Rich component templates
-- Smart connection and layout
-
-### 🤖 AI Empowerment
-- Intelligent element recognition
-- OCR text extraction
-- Automatic CAPTCHA recognition
-- Natural language process generation
-
-### 🔧 Component-based Development
-- 25+ professional RPA components
-- Standardized component interfaces
-- Custom component extensions
-- Component version management
-
-### 📊 Execution Monitoring
-- Real-time execution status
-- Detailed logging
-- Performance metrics statistics
-- Exception alert notifications
-
-### 🌐 Multi-platform Support
-- Web-based online editing
-- Desktop local execution
-- Mobile monitoring view
-- API interface integration
 
 ## 📚 Documentation
 
