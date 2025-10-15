@@ -44,6 +44,28 @@ local function authenticate_user()
         end
     end
 
+    -- 3. 如果还没有token，尝试从Cookie中获取 JSESSIONID
+    if not session_token then
+        local cookie_header = ngx.var.http_cookie
+        if cookie_header then
+            ngx_log(ngx_DEBUG, "Found Cookie header: " .. cookie_header)
+            -- 解析Cookie，查找JSESSIONID
+            for cookie_pair in string.gmatch(cookie_header, "[^;]+") do
+                local cookie_name, cookie_value = string.match(cookie_pair, "^%s*(.-)%s*=%s*(.-)%s*$")
+                if cookie_name == "JSESSIONID" then
+                    session_token = cookie_value
+                    ngx_log(ngx_DEBUG, "Extracted Token from Cookie JSESSIONID: " .. session_token)
+                    break
+                end
+            end
+            if not session_token then
+                ngx_log(ngx_DEBUG, "Cookie header present but no JSESSIONID found.")
+            end
+        else
+            ngx_log(ngx_DEBUG, "No Cookie header found.")
+        end
+    end
+
     if not session_token or session_token == "" or session_token == " " then
         ngx_log(ngx_ERR, "Missing SESSION/Token in " .. ctx_type .. " request after trying all sources.")
         ngx.status = ngx_HTTP_UNAUTHORIZED
@@ -54,19 +76,18 @@ local function authenticate_user()
     ngx_log(ngx_DEBUG, "Successfully extracted session_token: '" .. session_token .. "'")
 
     -- 调用 robot-service 进行认证
-    local getUserUrl = "http://robot-service:8040/api/robot/user/api/now/userinfo"
+    local getUserUrl = "http://robot-service:8040/api/robot/user/now/userinfo"
     local httpc = http.new()
 
     -- 准备发送给 robot-service 的 Headers
-    -- 重点：你发送给 robot-service 的 Token 格式是什么？
-    -- 在你的原始配置中，是作为 Cookie: SESSION=... 发送的。
-    -- 如果 robot-service 也需要 Authorization: Bearer {token} 这种形式，你需要修改这里。
+    -- 使用Cookie方式传递JSESSIONID给robot-service
     local headers_to_robot_service = {
         ["Content-Type"] = "application/json",
         -- 示例：如果 robot-service 期望 Authorization 头
-        ["Authorization"] = "Bearer " .. session_token,
+        -- ["Authorization"] = "Bearer " .. session_token,
         -- 或者，如果 robot-service 期望 Token 在 Cookie 里：
         -- ["Cookie"] = "SESSION=" .. session_token
+        ["Cookie"] = "JSESSIONID=" .. session_token
     }
 
     ngx_log(ngx_DEBUG, "Calling robot-service (" .. getUserUrl .. ") with headers: " .. json.encode(headers_to_robot_service))
