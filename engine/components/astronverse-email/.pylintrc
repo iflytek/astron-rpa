@@ -1,0 +1,29 @@
+[MASTER]
+ignore=__pycache__
+jobs=0
+
+[MESSAGES CONTROL]
+disable=
+    too-few-public-methods,
+    import-outside-toplevel,
+    invalid-name
+
+[REPORTS]
+score=yes
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-branches=16
+max-statements=60
+
+[IMPORTS]
+allow-wildcard-with-all=no
+
+[BASIC]
+good-names=i,j,k,ex,_,id
+
+[EXCEPTIONS]
+# 使用 fully qualified name 以避免 Pylint 警告
+overgeneral-exceptions=builtins.Exception
