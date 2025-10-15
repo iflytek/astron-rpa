@@ -1,10 +1,7 @@
 """数学与数值处理相关功能。"""
-
-from __future__ import annotations
-
 import math
 import re
-from typing import Any, Union
+from typing import Any
 
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -17,11 +14,11 @@ from astronverse.dataprocess.error import (
 
 
 def random_number(
-    start: Union[int, float],
-    end: Union[int, float],
+    start,
+    end,
     number_type: NumberType = NumberType.INTEGER,
     size: int = 1,
-) -> list[Union[int, float]]:
+) -> list:
     """随机数生成。
 
     返回指定范围与类型的随机数列表。
@@ -29,9 +26,7 @@ def random_number(
     import numpy  # type: ignore
 
     if number_type == NumberType.INTEGER:
-        if not (isinstance(start, int) and isinstance(end, int)):
-            raise ValueError("整数随机需要 int 边界")
-        return numpy.random.randint(start, end, size).tolist()  # type: ignore[arg-type]
+        return numpy.random.randint(start, end, size).tolist()
     if number_type == NumberType.FLOAT:
         return numpy.random.uniform(start, end, size).tolist()
     raise ValueError("不支持的 number_type")
@@ -137,23 +132,23 @@ class MathProcess:
             left = "0"
         if not right:
             right = "0"
-        expression = f"{left}{operator.value}{right}"
         try:
-            calc_res = eval(expression)  # nosec B307  pylint: disable=eval-used
-        except Exception as e:  # pylint: disable=broad-except
+            calc_res = eval(str(left) + operator.value + str(right))
+        except Exception as e:
             raise BaseException(
                 INVALID_MATH_EXPRESSION_ERROR_FORMAT.format(e),
-                expression,
-            ) from e
-
+                str(left) + operator.value + str(right),
+            )
         if handle_method == MathRoundType.ROUND:
             if precision <= 0:
                 return int(round(float(calc_res), int(precision)))
-            if float(calc_res).is_integer():
-                return int(round(float(calc_res), int(precision)))
-            return round(float(calc_res), int(precision))
-        if handle_method == MathRoundType.FLOOR:
-            return math.floor(calc_res)
-        if handle_method == MathRoundType.CEIL:
-            return math.ceil(calc_res)
+            else:
+                if float(calc_res).is_integer():
+                    return int(round(float(calc_res), int(precision)))
+                else:
+                    return round(float(calc_res), int(precision))
+        elif handle_method == MathRoundType.FLOOR:
+            calc_res = math.floor(calc_res)
+        elif handle_method == MathRoundType.CEIL:
+            calc_res = math.ceil(calc_res)
         return calc_res

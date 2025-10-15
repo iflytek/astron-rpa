@@ -90,7 +90,7 @@ class Browser:
         data: Any,
         key: str,
         data_path: str = "",
-        timeout: float = 0.0,
+        timeout: float = None,
     ):
         """发送浏览器扩展请求。"""
         res = self.send_browser_rpc(

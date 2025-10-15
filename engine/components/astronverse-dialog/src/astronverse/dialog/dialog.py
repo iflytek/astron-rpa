@@ -133,7 +133,7 @@ class Dialog:
         message_content: str = "",
         button_type: ButtonType = ButtonType.CONFIRM,
         auto_check: bool = False,
-        wait_time: int = 0,
+        wait_time: int = 60,
         default_button_c: DefaultButtonC = DefaultButtonC.CONFIRM,
         default_button_cn: DefaultButtonCN = DefaultButtonCN.CONFIRM,
         default_button_y: DefaultButtonY = DefaultButtonY.YES,
@@ -695,7 +695,7 @@ class Dialog:
         box_title: str = "自定义对话框",
         design_interface: dict = None,
         auto_check: bool = False,
-        wait_time: int = 0,
+        wait_time: int = 60,
         default_button: DefaultButtonCN = DefaultButtonCN.CONFIRM,
     ) -> DialogResult:
         """自定义对话框"""
