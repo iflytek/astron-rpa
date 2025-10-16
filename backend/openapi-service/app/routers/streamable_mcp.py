@@ -4,6 +4,8 @@ from mcp.server.lowlevel import Server
 import mcp.types as types
 from starlette.types import Receive, Scope, Send
 
+from app.logger import get_logger
+logger = get_logger(__name__)
 from app.services.streamable_mcp import ToolsConfig
 from app.dependencies import extract_api_key_from_request
 
@@ -28,6 +30,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock]:
     # 从URL参数获取API_KEY
     api_key = extract_api_key_from_request(ctx)
     user_id = await tools_config.get_uid_from_raw_key(api_key)
+    logger.info(f"[call_tool] user_id: {user_id}")
     if not user_id:
         await ctx.session.send_log_message(
             level="error",

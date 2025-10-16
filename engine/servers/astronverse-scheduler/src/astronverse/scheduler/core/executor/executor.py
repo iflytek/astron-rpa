@@ -321,7 +321,7 @@ class ExecutorManager:
         if project_name:
             ins.set_param("project_name", project_name)
         if version:
-            ins.set_param("version", version)
+            ins.set_param("version", int(version))
 
         wait_web_ws = "y"
         wait_tip_ws = "y"

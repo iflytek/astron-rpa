@@ -92,7 +92,7 @@ class Executor:
                         error_traceback=traceback.format_exc(),
                     )
                 )
-                raise IgnoreException() from e
+                raise IgnoreException(error_str) from e
 
     def debug_handler(self, svc, env, token):
         """调试模式处理类"""
@@ -514,13 +514,13 @@ class Executor:
                 )
                 self.svc.storage.report_status_upload("cancel", ReportFlowTaskEndUserClose)
             return
-        except IgnoreException:
+        except IgnoreException as e:
             self.svc.report.error(
                 ReportFlow(
                     log_type=ReportType.Flow,
                     status=ReportFlowStatus.TASK_ERROR,
                     result=ExecuteStatus.FAIL.value,
-                    msg_str="{}".format(ReportFlowTaskError),
+                    msg_str="{}".format(str(e)),
                 )
             )
             self.svc.storage.report_status_upload("fail", "{}".format(ReportFlowTaskError))

@@ -23,7 +23,7 @@ class WorkflowBase(BaseModel):
     name: str = Field(..., description="工作流名称", min_length=1, max_length=100)
     english_name: Optional[str] = Field(None, description="工作流英文名称", max_length=100)
     description: Optional[str] = Field(None, description="工作流描述", max_length=500)
-    version: str = Field("1.0.0", description="工作流版本号", min_length=1, max_length=20)
+    version: int = Field(1, description="工作流版本号")
     status: int = Field(1, description="工作流状态")
     parameters: Optional[str] = Field(None, description="工作流参数(JSON格式)")
 
@@ -45,6 +45,7 @@ class ExecutionCreate(BaseModel):
     project_id: str = Field(..., description="项目ID")
     params: Optional[Dict[str, Any]] = Field(None, description="执行参数")
     exec_position: str = Field("EXECUTOR", description="执行位置")
+    version: Optional[int] = Field(None, description="工作流版本号")
 
 
 class ExecutionResponse(BaseModel):
@@ -56,6 +57,7 @@ class ExecutionResponse(BaseModel):
     result: Optional[Dict[str, Any]] = Field(None, description="执行结果")
     error: Optional[str] = Field(None, description="错误信息")
     exec_position: str = Field(..., description="执行位置")
+    version: Optional[int] = Field(None, description="工作流版本号")
     start_time: datetime = Field(..., description="开始时间")
     end_time: Optional[datetime] = Field(None, description="结束时间")
 
