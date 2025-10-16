@@ -513,6 +513,7 @@
   "virtualDesktopRunning": "虚拟桌面运行",
   "configParameters": "配置参数",
   "checkDetails": "机器人详情",
+  "mcpconfig": "外部调用配置",
   "equipment": "设备",
   "openFolder": "打开文件夹",
   "desktopElement": "桌面元素",

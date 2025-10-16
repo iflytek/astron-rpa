@@ -15,7 +15,7 @@ export class UapAuthService implements IAuthService {
   private async redirectToLogin(url: string): Promise<void> {
     try {
       // const redirectUrl = location.hash === '#/' ? `${location.href}${DESIGNER}` : location.href
-      const redirectUrl = location.origin + '/boot.html'
+      const redirectUrl = `${location.origin}/boot.html`
       let uapUrl = setUrlQueryField('redirect', redirectUrl, url)
       const service = getUrlQueryField('service', uapUrl)
       let newService = ''

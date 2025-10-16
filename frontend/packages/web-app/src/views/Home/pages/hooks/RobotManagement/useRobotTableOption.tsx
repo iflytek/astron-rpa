@@ -20,7 +20,7 @@ export default function useRobotTableOption() {
     }
   }
   const { t } = useTranslation()
-  const { getTableData, handleToConfig, openRobotDetailModal, handleDeleteRobot, handleRobotUpdate, expiredTip } = useRobotOperation(homeTableRef, refreshHomeTable)
+  const { getTableData, handleToConfig, openRobotDetailModal, openMcpConfigModal, handleDeleteRobot, handleRobotUpdate, expiredTip } = useRobotOperation(homeTableRef, refreshHomeTable)
 
   const baseOpts = [
     {
@@ -50,6 +50,12 @@ export default function useRobotTableOption() {
       text: 'checkDetails',
       icon: h(<Icon name="robot" size="16px" />),
       clickFn: openRobotDetailModal,
+    },
+    {
+      key: 'mcpconfig',
+      text: 'mcpconfig',
+      icon: h(<Icon name="robot" size="16px" />),
+      clickFn: openMcpConfigModal,
     },
   ]
   const marketMoreOpts = [

@@ -2,17 +2,17 @@
 import { theme } from 'ant-design-vue'
 import type { CarouselRef } from 'ant-design-vue/es/carousel'
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
-import ConfigProvider from '@/components/ConfigProvider/index.vue'
 
+import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
+import { storage } from '@/utils/storage'
 
 import authService from '@/auth/index'
-import { illustrationList } from '@/constants/launch'
-import { useAppConfigStore } from '@/stores/useAppConfig'
-import { base64ToString } from '@/utils/common'
-import { isBrowser, utilsManager, windowManager } from '@/platform'
-import { storage } from '@/utils/storage'
+import ConfigProvider from '@/components/ConfigProvider/index.vue'
 import Loading from '@/components/Loading.vue'
+import { illustrationList } from '@/constants/launch'
+import { isBrowser, utilsManager, windowManager } from '@/platform'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const appConfigStore = useAppConfigStore()
 
@@ -23,8 +23,8 @@ const progress = ref(0)
 const current = ref(0)
 
 // 从 illustrationList 中随机挑一组
-const randomIllustrationGroup =
-  illustrationList[Math.floor(Math.random() * illustrationList.length)]
+const randomIllustrationGroup
+  = illustrationList[Math.floor(Math.random() * illustrationList.length)]
 
 function onChange(idx: number) {
   current.value = idx
@@ -73,7 +73,8 @@ function loginAuto() {
 
 // 控制窗口最小化、最大化、关闭
 function handleMinMaxClose(type: string) {
-  if (isBrowser) return
+  if (isBrowser)
+    return
 
   switch (type) {
     case 'minimize':
@@ -109,7 +110,7 @@ onUnmounted(() => {
           data-tauri-drag-region
           class="app_control_text flex items-center gap-2 drag whitespace-nowrap"
         >
-          <img data-tauri-drag-region class="w-5" src="/icons/icon.png" />
+          <img data-tauri-drag-region class="w-5" src="/icons/icon.png">
           <span class="text-base leading-5 font-bold">
             {{ $t('app') }}
           </span>
@@ -125,9 +126,10 @@ onUnmounted(() => {
           >
             <rpa-icon name="remove" />
           </span>
-          <span 
-            class="app_control__item" 
-            @click="handleMinMaxClose('close')">
+          <span
+            class="app_control__item"
+            @click="handleMinMaxClose('close')"
+          >
             <rpa-icon name="close" />
           </span>
         </div>
@@ -183,6 +185,7 @@ onUnmounted(() => {
     </div>
   </ConfigProvider>
 </template>
+
 <style lang="scss" scoped>
 .app_control {
   position: relative;
