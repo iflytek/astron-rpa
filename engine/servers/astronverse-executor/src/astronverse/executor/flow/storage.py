@@ -1,6 +1,5 @@
 import base64
 import json
-import platform
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
 from typing import Any, Optional
