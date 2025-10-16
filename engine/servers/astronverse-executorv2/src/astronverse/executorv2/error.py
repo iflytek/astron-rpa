@@ -1,8 +1,7 @@
-import re
-from functools import wraps
-from astronverse.actionlib import IgnoreException
 from astronverse.baseline.error.error import ErrorCode, BaseException, BizCode
 from astronverse.baseline.i18n.i18n import _
+
+BaseException = BaseException
 
 # 通用错误
 SUCCESS: ErrorCode = ErrorCode(BizCode.LocalOK, "ok")

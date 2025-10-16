@@ -13,44 +13,45 @@ class Flow:
     def __init__(self, svc: Svc):
         self.svc = svc
 
-    def gen_package(self, project_id: str, mode: str, version: str):
-        os.makedirs("./project", exist_ok=True)
+    # def gen_code(self, project_id: str, mode: str, version: str):
+    #     os.makedirs("./project", exist_ok=True)
+    #
+    #     # 生成project.py
+    #     res = self._global_display(project_id, mode, version)
+    #     with open("./project/project.py", "w", encoding="utf-8") as file:
+    #         file.write(res)
+    #
+    #     # 生成project.json
+    #     project_json = {
+    #         "project_info": None,
+    #         "requirement": None,
+    #     }
+    #
+    #     # 生成project_info
+    #     res = [v.to_project_json() for k, v in self.svc.ast_globals.items()]
+    #     if res:
+    #         project_json["project_info"] = res
+    #
+    #     # 生成requirement_exit
+    #     requirement = dict()
+    #     res = self._requirement_display(project_id, mode, version)
+    #     if res:
+    #         for i in res:
+    #             if i.get("packageName") not in requirement:
+    #                 requirement[i.get("packageName")] = {
+    #                     "package_name": i.get("packageName"),
+    #                     "package_version": i.get("packageVersion"),
+    #                     "package_mirror": i.get("mirror")
+    #                 }
+    #     if len(requirement) > 0:
+    #         project_json["requirement"] = requirement
+    #     with open("./project/project.json", "w", encoding="utf-8") as file:
+    #         file.write(json.dumps(project_json, ensure_ascii=False, indent=4))
 
-        # 生成project.py
-        res = self._global_display(project_id, mode, version)
-        if res:
-            with open("./project/project.py", "w", encoding="utf-8") as file:
-                file.write(res)
+    def gen_code(self, project_id: str, mode: str, version: str):
+        os.makedirs(self.svc.conf.GEN_CORE_PATH, exist_ok=True)
 
-        # 生成project.json
-        project_json = {
-            "project_info": None,
-            "requirement": None,
-        }
-
-        # 生成project_info
-        res = [v.to_project_json() for k, v in self.svc.ast_globals.items()]
-        if res:
-            project_json["project_info"] = res
-
-        # 生成requirement_exit
-        requirement = dict()
-        res = self._requirement_display(project_id, mode, version)
-        if res:
-            for i in res:
-                if i.get("packageName") not in requirement:
-                    requirement[i.get("packageName")] = {
-                        "package_name": i.get("packageName"),
-                        "package_version": i.get("packageVersion"),
-                        "package_mirror": i.get("mirror")
-                    }
-        if len(requirement) > 0:
-            project_json["requirement"] = requirement
-        with open("./project/project.json", "w", encoding="utf-8") as file:
-            file.write(json.dumps(project_json, ensure_ascii=False, indent=4))
-
-    def gen_flow(self, project_id: str, mode: str, version: str):
-        # 生成流程相关数据
+        # 1. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
@@ -65,29 +66,51 @@ class Flow:
             # 生成python
             if category == "process":
                 if name == self.svc.conf.MAIN_FLOW_NAME:
-                    file_name = "main"
+                    file_name = self.svc.conf.MAIN_FILE_NAME
                 else:
-                    file_name = "process{}".format(process_index)
+                    file_name = "process{}.py".format(process_index)
                     process_index += 1
-                res = self._flow_display(project_id, mode, version, resource_id, name)
+                res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
+
+                self.svc.add_process_info(project_id, category, name, file_name)
+                with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name), "w", encoding="utf-8") as file:
+                    file.write(res)
+                with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
+                    file.write(map_res)
             elif category == "module":
                 res = self._module_display(project_id, mode, version, resource_id, name)
-                file_name = "module{}".format(module_index)
+                file_name = "module{}.py".format(module_index)
                 module_index += 1
-            else:
-                res = None
-                file_name = ""
-            if res:
-                self.svc.set_process_info(resource_id, file_name, category, name)
 
-                with open("./project/{}.py".format(file_name), "w", encoding="utf-8") as file:
+                self.svc.add_process_info(project_id, category, name, file_name)
+                with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
+            else:
+                raise NotImplementedError()
+
+        # 2. 生成project.py
+
+        # 2.1 生成全局变量
+        res = self._global_display(project_id, mode, version)
+        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.py"), "w", encoding="utf-8") as file:
+            file.write(res)
+
+        # # 3. 生成project.json
+        # res = json.dumps(self.svc.ast_globals)
+        # with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.json"), "w", encoding="utf-8") as file:
+        #     file.write(res)
+        #
+        # # 4. 生成requirement
+        # res = self._requirement_display(project_id, mode, version)
+        # with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "requirements.txt"), "w", encoding="utf-8") as file:
+        #     file.write(res)
 
     def _requirement_display(self, project_id: str, mode: str, version: str):
         """
         当前包的依赖性
         """
-        return self.svc.storage.pip_list(project_id=project_id, mode=mode, version=version)
+        res = self.svc.storage.pip_list(project_id=project_id, mode=mode, version=version)
+        return res
 
     def _global_display(self, project_id: str, mode: str, version: str):
         """
@@ -111,7 +134,7 @@ class Flow:
         # 1. 获取模块数据
         return self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version, module_id=module_id)
 
-    def _flow_display(self, project_id: str, mode: str, version: str, process_id: str, process_name: str) -> str:
+    def _flow_display(self, project_id: str, mode: str, version: str, process_id: str, process_name: str):
         """
         流程生成 主流程 子流程
         """
@@ -145,11 +168,11 @@ class Flow:
         }
         result = program.display(svc=self.svc, tab_num=0)
         code_lines = []
-        for code_line in result:
+        map_list = []
+        for i, code_line in enumerate(result):
             if isinstance(code_line, CodeLine):
-                indent = self.svc.conf.INDENTATION * code_line.tab_num
+                indent = str(self.svc.conf.INDENTATION * code_line.tab_num)
                 code_lines.append(indent + code_line.code)
-            else:
-                # 兼容旧格式
-                code_lines.append(str(code_line))
-        return "\n".join(code_lines)
+                if code_line.line > 0:
+                    map_list.append("{}:{}".format(i + 1, code_line.line))
+        return "\n".join(code_lines), ",".join(map_list)

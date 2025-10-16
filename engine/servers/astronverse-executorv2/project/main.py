@@ -1,8 +1,10 @@
 from project import *
-from rpaatomic.types import *
+from astronverse.actionlib.types import *
+import astronverse.report.report
 
 
 def main(**kwargs):
     pass
     
-    rpareport.report.Report().print(report_type="info", msg="123", __project_id__="", __process_id__="", __process_name__="", __atomic_name__="日志打印", __line__=1, __line_id__="bh748185235353669", __params_name__={'report_type': '日志类型', 'msg': '日志内容'})
+    astronverse.report.report.Report().print(report_type="info", msg="123", __info__="[1, 'bh748264431104069', '日志打印', {'report_type': '日志类型', 'msg': '日志内容'}]")
+    astronverse.report.report.Report().print(report_type="info", msg=1/0, __info__="[2, 'bh748576963711045', '日志打印', {'report_type': '日志类型', 'msg': '日志内容'}]")

@@ -20,12 +20,7 @@ def start():
     logger.debug("start {}".format(args))
     svc = Svc(args=args, conf=Config)
     flow = Flow(svc=svc)
-    flow.gen_flow(project_id=args.project_id, mode=args.mode, version=args.version)
-    flow.gen_package(project_id=args.project_id, mode=args.mode, version=args.version)
+    flow.gen_code(project_id=args.project_id, mode=args.mode, version=args.version)
 
-    # 如果启用调试模式
-    # debug = Debug(os.path.abspath("project/main.py"))
-    # debug.run_path()
-
-
-
+    debug = Debug(os.path.abspath(os.path.join(svc.conf.GEN_CORE_PATH, svc.conf.MAIN_FILE_NAME)))
+    debug.start()

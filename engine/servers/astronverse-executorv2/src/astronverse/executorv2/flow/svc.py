@@ -5,23 +5,33 @@ from astronverse.executorv2.flow.storage import IStorage, HttpStorage
 from astronverse.executorv2.flow.syntax import IParam
 
 
+class ProjectInfo:
+    project_id: str = ""
+    project_name: str = ""
+    mode: str = ""
+    version: str = ""
+
+
 @dataclass
-class AstGlobals:
-    import_python: set = None
+class ProcessInfo:
     process_file_name: str = ""
     process_id: str = ""
     process_category: str = ""
     process_name: str = ""
+    import_python: set = None
 
     def __init__(self):
-        self.import_python: set = set()
+        self.import_python = set()
 
-    def to_project_json(self):
-        return {
-            "process_file_name": self.process_file_name,
-            "process_id": self.process_id,
-            "process_category": self.process_category,
-        }
+
+@dataclass
+class AstGlobals:
+    project_info: ProjectInfo = None
+    process_info: Dict[str, ProcessInfo] = None
+
+    def __init__(self):
+        self.project_info = ProjectInfo()
+        self.process_info = {}
 
 
 class Svc:
@@ -36,24 +46,30 @@ class Svc:
         self.param: IParam = Param(self)
         self.storage: IStorage = HttpStorage(self)
 
-        # 解析树全局变量字典
-        self.ast_globals: Dict[str, AstGlobals] = {}
+        # 解析树变量
+        self.ast_globals: AstGlobals = AstGlobals()
         self.ast_curr_info: {}
+    
+    def add_project_info(self, project_id: str, mode: str, version: str, project_name: str):
+        self.ast_globals.project_info.project_id = project_id
+        self.ast_globals.project_info.project_name = project_name
+        self.ast_globals.project_info.mode = mode
+        self.ast_globals.project_info.version = version
 
-    def set_process_info(self, process_id, process_file_name, process_category, process_name):
-        if process_id not in self.ast_globals:
-            self.ast_globals[process_id] = AstGlobals()
-        self.ast_globals[process_id].process_id = process_id
-        self.ast_globals[process_id].process_file_name = process_file_name
-        self.ast_globals[process_id].process_category = process_category
-        self.ast_globals[process_id].process_name = process_name
+    def add_process_info(self, process_id: str, process_category: str, process_name, process_file_name):
+        if process_id not in self.ast_globals.process_info:
+            self.ast_globals.process_info[process_id] = ProcessInfo()
+        self.ast_globals.process_info[process_id].process_id = process_id
+        self.ast_globals.process_info[process_id].process_category = process_category
+        self.ast_globals.process_info[process_id].process_name = process_name
+        self.ast_globals.process_info[process_id].process_file_name = process_file_name
 
     def add_import_python(self, process_id: str, import_python: str):
-        if process_id not in self.ast_globals:
-            self.ast_globals[process_id] = AstGlobals()
-        self.ast_globals[process_id].import_python.add(import_python)
+        if process_id not in self.ast_globals.process_info:
+            self.ast_globals.process_info[process_id] = ProcessInfo()
+        self.ast_globals.process_info[process_id].import_python.add(import_python)
 
     def get_import_python(self, process_id):
-        if process_id not in self.ast_globals:
+        if process_id not in self.ast_globals.process_info:
             return None
-        return self.ast_globals[process_id].import_python
+        return self.ast_globals.process_info[process_id].import_python

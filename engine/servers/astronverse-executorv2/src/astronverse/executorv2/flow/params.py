@@ -2,7 +2,6 @@ from enum import Enum
 from astronverse.actionlib.types import Bool, Float, Int, List as RpaList, Dict as RpaDict
 from typing import Any, Dict, List
 from astronverse.executorv2.flow.syntax import IParam, InputParam, Token, OutputParam
-from astronverse.executorv2.flow.syntax.token import token_type_key_dict
 
 
 class ParamType(Enum):
@@ -11,7 +10,7 @@ class ParamType(Enum):
     P_VAR = "p_var"  # 流程变量
     G_VAR = "g_var"  # 全局变量
     STR = "str"  # 明确是str
-    OTHER = "other"  # 等同于str,会部分转换
+    OTHER = "other"  # 等同于str, 引擎会简单转换[可忽略]
     ELEMENT = "element"  # 元素
 
     @classmethod
@@ -175,14 +174,13 @@ class Param(IParam):
                 res[i.get("name")] = self.parse_param(i)
 
         # 添加一些高级选项
-        if token.type not in token_type_key_dict:
-            res["__project_id__"] = InputParam(types="Str", key="__project_id__", value=token.value.get("__project_id__", ""), need_eval=False)
-            res["__process_id__"] = InputParam(types="Str", key="__process_id__", value=token.value.get("__process_id__", ""), need_eval=False)
-            res["__process_name__"] = InputParam(types="Str", key="__process_name__", value=token.value.get("__process_name__", ""), need_eval=False)
-            res["__atomic_name__"] = InputParam(types="Str", key="__atomic_name__", value=token.value.get("alias", token.value.get("title", "")), need_eval=False)
-            res["__line__"] = InputParam(types="Int", key="__line__", value=token.value.get("__line__", 0), need_eval=True)
-            res["__line_id__"] = InputParam(types="Str", key="__line_id__", value=token.value.get("id", ""), need_eval=False)
-        res["__params_name__"] = InputParam(types="Str", key="__params_name__", value=params_name, need_eval=True)
+        info = [
+            token.value.get("__line__", 0),
+            token.value.get("id", ""),
+            token.value.get("alias", token.value.get("title", "")),
+            params_name
+        ]
+        res["info"] = InputParam(types="Str", key="__info__", value=info, need_eval=False)
         return res
 
     def parse_output(self, token: Token) -> List[OutputParam]:

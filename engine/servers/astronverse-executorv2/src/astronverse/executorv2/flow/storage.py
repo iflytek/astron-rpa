@@ -134,13 +134,11 @@ class HttpStorage(IStorage):
 
         try:
             json_data = response.json()
+            if json_data.get("code") != "000000":
+                raise BaseException(SERVER_ERROR_FORMAT.format(json_data.get("message", "")), "服务器错误{}".format(json_data))
+            return json_data.get("data", {})
         except JSONDecodeError:
-            base64_encoded_data = base64.b64encode(response.content).decode('utf-8')
-            return base64_encoded_data
-        if json_data.get("code") != "0000" and json_data.get("code") != "000000":
-            msg = json_data.get("message", "")
-            raise BaseException(SERVER_ERROR_FORMAT.format(msg), "服务器错误{}".format(json_data))
-        return json_data.get("data", {})
+            return base64.b64encode(response.content).decode('utf-8')
 
     def __process_json_full__(self, atom_list: list) -> list:
         if len(atom_list) == 0:
@@ -275,7 +273,7 @@ class HttpStorage(IStorage):
         if not res:
             raise BaseException(ELEMENT_ACCESS_ERROR_FORMAT.format(element_id), "元素获取异常为空")
 
-        # 处理元素的图片URL，将其转为base64编码保存到elementData中
+        # todo: 需要优化， 处理元素的图片URL，将其转为base64编码保存到elementData中
         if res.get("imageUrl") or res.get("parentImageUrl"):
             element_data = json.loads(res.get("elementData"))
             if element_data.get("type") == "cv":

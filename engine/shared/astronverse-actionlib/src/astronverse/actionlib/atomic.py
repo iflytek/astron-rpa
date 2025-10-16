@@ -113,11 +113,12 @@ class AtomicManager:
         base_kwargs = {k: v for k, v in kwargs.items() if v is not None and not k.startswith("__")}
         advance_kwargs = {k: v for k, v in kwargs.items() if v is not None and k.startswith("__")}
 
-        line = int(kwargs.get("__line__", 0))
-        if not line:
+        info = kwargs.get("__info__", [])
+        if not info:
             # 不是用原子能力调用，而是直接调用，不做处理
             return func(*args, **base_kwargs, **advance_kwargs)
 
+        line = int(kwargs.get("__line__", 0))
         line_id = kwargs.get("__line_id__", "")
         res_print = kwargs.get("__res_print__", False)
         delay_before = float(kwargs.get("__delay_before__", 0))
