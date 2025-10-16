@@ -6,7 +6,6 @@ import {
   APPLICATION,
   APPLICATIONMARKET,
   ARRANGE,
-  BOOT,
   COMPONENTCREATED,
   COMPONENTMANAGEMENT,
   DESIGNER,
@@ -19,7 +18,6 @@ import {
   TEAMMARKETMANAGE,
   TEAMMARKETS,
 } from '@/constants/menu'
-import BootPage from '@/views/Boot/Index.vue'
 
 const ComponentManagement = () => import('@/views/Home/pages/ComponentManagement.vue')
 const MyCreatedComponent = () => import('@/views/Home/pages/MyCreatedComponent.vue')

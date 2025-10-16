@@ -128,7 +128,7 @@ const showDialog: UtilsManagerType['showDialog'] = (dialogProps) => {
 
 const getPluginPath: UtilsManagerType['getPluginPath'] = async (_filePath) => {
   console.log('getPluginPath')
-  return ""
+  return ''
 }
 
 const getPluginList: UtilsManagerType['getPluginList'] = async () => {

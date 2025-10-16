@@ -1,10 +1,11 @@
-import { windowManager } from '@/platform'
 import { setUrlQueryField } from '@/utils/common'
 
-import { casdoorLoginUrl, casdoorLoginStatus, casdoorSignin, casdoorSignout } from './authApi'
+import { windowManager } from '@/platform'
+
+import { casdoorLoginStatus, casdoorLoginUrl, casdoorSignin, casdoorSignout } from './authApi'
 import type { IAuthService } from './types'
 
-export class CasdoorAuthService implements IAuthService {  
+export class CasdoorAuthService implements IAuthService {
   private async isLoggedIn(): Promise<boolean> {
     const res = await casdoorLoginStatus()
     return !!res
@@ -12,7 +13,7 @@ export class CasdoorAuthService implements IAuthService {
 
   private async signin(code: string, state: string) {
     try {
-      const response: any = await casdoorSignin({code, state})
+      const response: any = await casdoorSignin({ code, state })
       localStorage.setItem('userInfo', JSON.stringify(response.data.data))
       location.replace(`/`)
     }
@@ -25,7 +26,7 @@ export class CasdoorAuthService implements IAuthService {
     try {
       const res = await casdoorLoginUrl()
       let loginUrl = res.data.data
-      const redirectUrl = location.origin + '/boot.html'
+      const redirectUrl = `${location.origin}/boot.html`
       loginUrl = setUrlQueryField('redirect_uri', redirectUrl, loginUrl)
       if (loginUrl) {
         if (windowManager) {
@@ -33,7 +34,6 @@ export class CasdoorAuthService implements IAuthService {
           await windowManager.showDecorations()
         }
         window.location.href = loginUrl
-        return
       }
     }
     catch {
@@ -55,14 +55,14 @@ export class CasdoorAuthService implements IAuthService {
 
   async getUserName(): Promise<string> {
     const userInfo = localStorage.getItem('userInfo')
-    return Promise.resolve(JSON.parse(userInfo||'{}')?.displayName || '--')
+    return Promise.resolve(JSON.parse(userInfo || '{}')?.displayName || '--')
   }
 
   async logout(): Promise<void> {
     try {
-      const res = await casdoorSignout()      
+      const res = await casdoorSignout()
       let logoutUrl = res.data.data.logoutUrl
-      const redirectUrl = location.origin + '/boot.html'
+      const redirectUrl = `${location.origin}/boot.html`
       logoutUrl = setUrlQueryField('post_logout_redirect_uri', redirectUrl, logoutUrl)
       window.location.href = logoutUrl
     }

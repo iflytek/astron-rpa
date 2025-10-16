@@ -10,7 +10,8 @@ export async function casdoorLoginStatus() {
   try {
     const res: any = await axios.get(`${getBaseURL()}/robot/user/login-check`)
     return !(res.data.code === '900001')
-  } catch {
+  }
+  catch {
     return false
   }
 }
@@ -19,7 +20,7 @@ export async function casdoorLoginUrl() {
   return axios.get(`${getBaseURL()}/robot/user/redirect-url`)
 }
 
-export async function casdoorSignin(params: {code: string | null, state: string | null}) {
+export async function casdoorSignin(params: { code: string | null, state: string | null }) {
   return axios.post(`${getBaseURL()}/robot/user/sign/in?code=${params.code}&state=${params.state}`)
 }
 
