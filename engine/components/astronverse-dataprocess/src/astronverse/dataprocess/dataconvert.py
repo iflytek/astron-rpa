@@ -1,4 +1,5 @@
 """数据转换处理模块"""
+
 import ast
 import json
 from typing import Any
@@ -9,6 +10,7 @@ from astronverse.dataprocess import JSONConvertType, StringConvertType
 
 class DataConvertProcess:
     """数据转换处理组件"""
+
     @staticmethod
     @atomicMg.atomic(
         "DataConvertProcess",

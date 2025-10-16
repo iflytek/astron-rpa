@@ -70,7 +70,7 @@ def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
 
 
 def chat_prompt(prompt_type, params, model="deepseek-v3-0324"):
-    """ chat_prompt """
+    """chat_prompt"""
     data = {
         # 'model': model,  # 选择大模型，替换为实际模型标识
         "prompt_type": prompt_type,

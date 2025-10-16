@@ -400,7 +400,7 @@ class DataFilter:
                         raise ValueError(f"参数异常，请输入正确的参数！{process_type}{e}")
 
     def data_filter_main(self):
-        """ data filter"""
+        """data filter"""
         if any(self.cell_filterConfig_list):
             # 单元格过滤
             self.cell_filter()

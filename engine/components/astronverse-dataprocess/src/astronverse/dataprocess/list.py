@@ -1,6 +1,7 @@
 """
 列表处理相关方法。
 """
+
 import ast
 import random
 from typing import Any
@@ -46,6 +47,7 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
 
 class ListProcess:
     """列表处理流程类。"""
+
     @staticmethod
     @atomicMg.atomic(
         "ListProcess",

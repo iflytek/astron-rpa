@@ -1,4 +1,5 @@
 """数学与数值处理相关功能。"""
+
 import math
 import re
 from typing import Any

@@ -10,6 +10,7 @@ from astronverse.baseline.logger.logger import logger
 
 class RecruitAI:
     """AI helpers for generating recruitment keyword sets and scoring resumes."""
+
     keywords_boss = {
         "学历要求": ["不限", "本科及以上", "硕士及以上", "博士"],
         "院校要求": [

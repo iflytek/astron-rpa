@@ -20,6 +20,7 @@ from astronverse.email.error import *
 
 class EmailSmtpSend:
     """smtp发送邮件"""
+
     def __init__(self):
         self.mail_handler: smtplib.SMTP | smtplib.SMTP_SSL
 
@@ -93,7 +94,7 @@ class EmailSmtpSend:
         subject: str = "",
         attachment_path: str = "",
     ):
-        """ 发送邮件 """
+        """发送邮件"""
         receiver_list, receiver_group_list = self.__handle_email_address__(receiver)
         if not receiver_list:
             return False

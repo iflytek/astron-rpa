@@ -13,6 +13,7 @@ from astronverse.ai.utils.extract import FileExtractor
 
 class ContractAI:
     """AI helpers for extracting contract clauses and key factors."""
+
     @staticmethod
     @atomicMg.atomic(
         "ContractAI",

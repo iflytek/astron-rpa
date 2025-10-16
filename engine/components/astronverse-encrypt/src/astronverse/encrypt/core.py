@@ -2,6 +2,7 @@
 
 包含 MD5、SHA、AES 对称加解密以及 Base64 编码/解码等基础能力。
 """
+
 import base64
 import hashlib
 from collections.abc import Callable

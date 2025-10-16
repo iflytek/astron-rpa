@@ -2,6 +2,7 @@
 对话功能相关实现。
 包含消息框、输入框、选择框、时间选择、文件选择等对话框的自动化操作。
 """
+
 import json
 import os
 import subprocess
@@ -35,6 +36,7 @@ class Dialog:
     """
     对话相关操作的主类，封装了各种对话框的自动化调用方法。
     """
+
     @staticmethod
     @atomicMg.atomic(
         "Dialog",
@@ -140,7 +142,7 @@ class Dialog:
         default_button_yn: DefaultButtonYN = DefaultButtonYN.YES,
         preview_button=None,
     ) -> str:
-        """ 弹出消息提示框"""
+        """弹出消息提示框"""
         executable_path = RpaTools.get_window_dir()
         if not os.path.exists(executable_path):
             raise BaseException(
@@ -315,7 +317,7 @@ class Dialog:
         default_input_pwd: str = "",
         preview_button=None,
     ):
-        """ 弹出输入框"""
+        """弹出输入框"""
         executable_path = RpaTools.get_window_dir()
 
         if input_type == InputType.TEXT:
@@ -487,7 +489,7 @@ class Dialog:
         default_time: str = "",
         default_time_range: list = ["", ""],
         input_title: str = "输入框标题",
-        preview_button = None,
+        preview_button=None,
     ):
         """时间选择对话框"""
         executable_path = RpaTools.get_window_dir()

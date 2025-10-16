@@ -16,6 +16,7 @@ from astronverse.ai.utils.str import replace_keyword
 
 class DocumentAI:
     """Provide document-oriented AI utilities: theme expansion, sentence expansion and reduction."""
+
     @staticmethod
     @atomicMg.atomic("DocumentAI", outputList=[atomicMg.param("theme_expand_res", types="Str")])
     def theme_expand(text: str) -> str:

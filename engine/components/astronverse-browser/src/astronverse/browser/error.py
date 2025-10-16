@@ -86,5 +86,5 @@ __all__ = [
     "WEB_LOAD_TIMEOUT",
     "WEB_PAGES_NUM_ERROR",
     "WEB_WAIT_TIME_ERROR",
-    "BaseException"
+    "BaseException",
 ]

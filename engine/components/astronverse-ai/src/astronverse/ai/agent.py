@@ -10,6 +10,7 @@ from astronverse.ai.api.xcagent import xcAgent
 
 class Agent:
     """High-level wrapper for interacting with Dify and xcAgent flows via atomic tasks."""
+
     @staticmethod
     @atomicMg.atomic(
         "Agent",

@@ -12,6 +12,7 @@ from astronverse.dataprocess.error import *
 
 class DataProcess:
     """数据处理组件"""
+
     @staticmethod
     @atomicMg.atomic(
         "DataProcess",

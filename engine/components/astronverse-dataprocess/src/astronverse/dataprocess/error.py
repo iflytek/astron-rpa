@@ -1,6 +1,7 @@
 """
 错误码与异常定义。
 """
+
 from astronverse.baseline.error.error import BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 

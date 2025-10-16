@@ -225,7 +225,7 @@ class BrowserSoftware:
 
     @staticmethod
     def browser_max_window(browser_obj: Browser) -> bool:
-        """ 最大化浏览器窗口 """
+        """最大化浏览器窗口"""
         browser_type = browser_obj.browser_type
         if browser_type in CHROME_LIKE_BROWSERS:
             try:
@@ -484,7 +484,7 @@ class BrowserSoftware:
         image_name: str = "",
         page_timeout: float = 10,
     ) -> str:
-        """ 截图网页 """
+        """截图网页"""
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
         BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
@@ -519,7 +519,7 @@ class BrowserSoftware:
     def browser_forward(
         browser_obj: Browser,
     ):
-        """ 前进网页 """
+        """前进网页"""
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
             browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
@@ -534,7 +534,7 @@ class BrowserSoftware:
     def browser_back(
         browser_obj: Browser,
     ):
-        """ 后退网页 """
+        """后退网页"""
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
             browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,

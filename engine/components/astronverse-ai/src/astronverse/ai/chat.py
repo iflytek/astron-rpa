@@ -21,6 +21,7 @@ from astronverse.tools.tools import RpaTools
 
 class ChatAI:
     """Chat interaction utilities: single turn, multi-turn, and knowledge-based chat."""
+
     @staticmethod
     @atomicMg.atomic("ChatAI", outputList=[atomicMg.param("single_chat_res", types="Str")])
     def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DS_CHAT):

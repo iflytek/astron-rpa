@@ -1,4 +1,5 @@
 """字典处理相关类型定义模块"""
+
 from typing import Any
 
 from astronverse.actionlib import DynamicsItem
@@ -8,6 +9,7 @@ from astronverse.dataprocess import NoKeyOptionType
 
 class DictProcess:
     """字典处理组件"""
+
     @staticmethod
     @atomicMg.atomic(
         "DictProcess",

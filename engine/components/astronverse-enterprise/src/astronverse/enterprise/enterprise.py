@@ -1,4 +1,4 @@
-""" Enterprise module """
+"""Enterprise module"""
 
 import json
 import os
@@ -13,9 +13,8 @@ from astronverse.enterprise.error import *
 
 
 class Enterprise:
-    
-    """ Enterprise class """
-    
+    """Enterprise class"""
+
     @staticmethod
     @atomicMg.atomic(
         "Enterprise",
@@ -31,7 +30,7 @@ class Enterprise:
         outputList=[atomicMg.param("upload_result", types="Str")],
     )
     def upload_to_sharefolder(file_path: PATH = ""):
-        """ Upload file to shared folder """
+        """Upload file to shared folder"""
         upload_url = "http://127.0.0.1:8003/api/resource/file/shared-file-upload"
         update_info_url = "http://127.0.0.1:8003/api/robot/robot-shared-file/addSharedFileInfo"
         # 检查文件是否存在
@@ -106,7 +105,7 @@ class Enterprise:
         outputList=[atomicMg.param("download_result", types="Str")],
     )
     def download_from_sharefolder(file_path: int, save_folder: PATH = ""):
-        """ Download file from shared folder """
+        """Download file from shared folder"""
         download_url = "http://127.0.0.1:8003/api/resource/file/download"
 
         # 检查保存文件夹是否存在，如果不存在则创建

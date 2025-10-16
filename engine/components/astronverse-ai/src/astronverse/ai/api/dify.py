@@ -12,6 +12,7 @@ mimetypes.add_type("text/markdown", ".md")
 
 class Dify:
     """Lightweight client for interacting with Dify platform APIs."""
+
     base_url = "https://api.dify.ai/v1/"
 
     def __init__(self, api_key: str):

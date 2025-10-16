@@ -17,6 +17,7 @@ class FileExtractor:
             text_content = self.extract_docx(self.file_path)
         elif file_extension.lower() == "txt":
             from pathlib import Path
+
             text_content = Path(self.file_path).read_text(encoding="utf-8")
         else:
             raise ValueError("不支持的文件扩展类型: " + file_extension)
