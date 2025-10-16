@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Optional
+from typing import Optional, Union
 
 from astronverse.scheduler.apis.connector.terminal import Terminal
 from astronverse.scheduler.apis.response import ResCode, res_msg
