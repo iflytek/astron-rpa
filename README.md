@@ -98,13 +98,6 @@ AstronRPA is derived from the "iFlytek RPA Platform" which has served various in
 - **Package Management**: pnpm + uv
 - **Monitoring**: Integrated SkyWalking distributed tracing
 
-## 📱 Screenshots
-
-<div align="center">
-  <img src="https://via.placeholder.com/800x400?text=Visual+Process+Designer" alt="Visual Process Designer" width="45%">
-  <img src="https://via.placeholder.com/800x400?text=Execution+Monitoring+Dashboard" alt="Execution Monitoring Dashboard" width="45%">
-</div>
-
 ## 🏗️ Architecture Overview
 
 ![Architecture Overview](./docs/images/Structure.png "Architecture Overview")

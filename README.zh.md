@@ -98,12 +98,6 @@ AstronRPA 源自服务于各行各业和各位专业开发者的"科大讯飞 RP
 - **包管理**: pnpm + uv
 - **监控系统**: 集成 SkyWalking 链路追踪
 
-## 📱 界面展示
-
-<div align="center">
-  <img src="https://via.placeholder.com/800x400?text=可视化流程设计器" alt="可视化流程设计器" width="45%">
-  <img src="https://via.placeholder.com/800x400?text=执行监控仪表盘" alt="执行监控仪表盘" width="45%">
-</div>
 
 ## 🏗️ 架构概览
 

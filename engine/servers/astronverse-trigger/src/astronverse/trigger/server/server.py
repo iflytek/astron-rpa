@@ -51,8 +51,8 @@ class WebSocketManager:
             if not get_executor_status():
                 return execute_single_project(data)
             else:
-                time.sleep(5)
-        return None
+                time.sleep(2)
+        return {"code": "5001", "msg": "有任务在运行中", "data": None}
 
     def start(self):
         """启动 WebSocket 连接"""

@@ -13,9 +13,9 @@ engine = create_async_engine(
     future=True,
     pool_pre_ping=True,
     pool_recycle=1800,  # 减少到30分钟，避免连接过期
-    pool_size=5,        # 减少连接池大小
-    max_overflow=10,    # 减少最大溢出连接数
-    pool_timeout=30,    # 连接池超时时间
+    pool_size=20,       # 增加连接池大小以支持更高并发
+    max_overflow=30,    # 增加最大溢出连接数
+    pool_timeout=60,    # 增加连接池超时时间到60秒
     pool_reset_on_return='commit',  # 返回连接时重置
     connect_args={
         "autocommit": False,

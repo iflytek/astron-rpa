@@ -25,10 +25,10 @@ def execute_single_project(project_info: dict):
     response = requests.post(url, headers=headers, data=json.dumps(project_info))
 
     logger.info(f"当前调度器返回的结果的Json是：{response.json()}")
-    if int(response.status_code) == 200 and response.json()["code"] == "0000":
+    if int(response.status_code) == 200:
         return response.json()
     else:
-        return None
+        return {"code": "5001", "msg": "请求失败", "data": None}
 
 
 def get_executor_status():

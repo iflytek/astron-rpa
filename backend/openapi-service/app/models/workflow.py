@@ -12,7 +12,7 @@ class Workflow(Base):
     name = Column(String(100), index=True, nullable=False)
     english_name = Column(String(100), nullable=True)  # 翻译后的英文名称
     description = Column(String(500), nullable=True)
-    version = Column(String(20), nullable=False, default="1.0.0")
+    version = Column(Integer, nullable=False, default=1)
     status = Column(Integer, default=1, nullable=False)
     parameters = Column(Text, nullable=True)  # 存储JSON字符串格式的参数
     user_id = Column(String(50), nullable=False, index=True)
@@ -71,6 +71,7 @@ class Execution(Base):
     error = Column(Text, nullable=True)
     user_id = Column(String(50), nullable=False, index=True)
     exec_position = Column(String(50), default="EXECUTOR", nullable=False)  # 执行位置
+    version = Column(Integer, nullable=True)  # 工作流版本
     start_time = Column(DateTime, default=func.now(), nullable=False)
     end_time = Column(DateTime, nullable=True)
 
@@ -99,6 +100,7 @@ class Execution(Base):
             "result": result_dict,
             "error": self.error,
             "exec_position": self.exec_position,
+            "version": self.version,
             "user_id": self.user_id,
             "start_time": self.start_time,
             "end_time": self.end_time

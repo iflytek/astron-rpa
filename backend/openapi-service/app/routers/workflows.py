@@ -159,13 +159,17 @@ async def execute_workflow(
                 msg=f"Workflow with project_id {execution_data.project_id} not found",
                 data=None
             )
+
+        # 使用workflow默认version
+        if not execution_data.version:
+            execution_data.version = workflow.version
         
-        # 执行工作流，设置300秒超时，因为是同步所以设置长一点
+        # 执行工作流，设置超时参数
         execution = await execution_service.execute_workflow(
             execution_data=execution_data, 
             user_id=user_id,
             wait=True,
-            timeout=300
+            workflow_timeout=600  # 工作流执行超时10分钟（同步执行）
         )
         
         # 如果执行中途没有完成（状态仍为RUNNING），返回202
@@ -213,13 +217,16 @@ async def execute_workflow_async(
                 msg=f"Workflow with project_id {execution_data.project_id} not found",
                 data=None
             )
-        
+
+        if not execution_data.version:
+            execution_data.version = workflow.version
+
         # 执行工作流，不等待结果
         execution = await execution_service.execute_workflow(
             execution_data=execution_data, 
             user_id=user_id,
             wait=False,
-            timeout=60
+            workflow_timeout=36000  # 工作流执行超时10小时
         )
         
         return StandardResponse(

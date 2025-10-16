@@ -162,7 +162,7 @@ class ToolsConfig:
             
             async with AsyncSessionLocal() as db_session:
                 execution_service = ExecutionService(db_session)
-                
+                logger.info(f"[execute_workflow_by_name] user_id '{user_id}'")
                 # 异步执行工作流
                 execution = await execution_service.execute_workflow(
                     execution_data=execution_data,
@@ -193,7 +193,12 @@ class ToolsConfig:
         tool_name = workflow.get("english_name") or workflow.get("name")
         
         # 如果有自定义parameters，使用它作为输入参数配置
-        tool_input_schema = workflow.get("parameters") or {"type": "object"}
+        parameters = workflow.get("parameters")
+        if parameters and isinstance(parameters, list):
+            # 转换参数数组为JSON Schema格式
+            tool_input_schema = ToolsConfig._convert_parameters_to_schema(parameters)
+        else:
+            tool_input_schema = parameters or {"type": "object"}
         
         tool_config = types.Tool(
             name=tool_name,
@@ -202,6 +207,67 @@ class ToolsConfig:
         )
 
         return tool_config
+
+    @staticmethod
+    def _convert_parameters_to_schema(parameters: List[Dict]) -> Dict:
+        """将工作流参数数组转换为JSON Schema格式"""
+        schema = {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+        
+        # 类型映射表
+        type_mapping = {
+            "Str": "string",
+            "Int": "integer", 
+            "Float": "number",
+            "PATH": "string",
+            "DIRPATH": "string",
+            "Date": "string",
+            "Password": "string"
+        }
+        
+        for param in parameters:
+            # 只处理输入参数 (varDirection = 0)
+            if param.get("varDirection") == 0:
+                var_name = param.get("varName")
+                var_type = param.get("varType", "Str")
+                var_describe = param.get("varDescribe", "")
+                var_value = param.get("varValue", "")
+                
+                if var_name:
+                    # 映射类型
+                    json_type = type_mapping.get(var_type, "string")
+                    
+                    # 构建属性定义
+                    property_def = {
+                        "type": json_type,
+                        "description": var_describe
+                    }
+                    
+                    # 如果有默认值，添加默认值
+                    if var_value and var_value != "":
+                        if json_type == "integer":
+                            try:
+                                property_def["default"] = int(var_value)
+                            except ValueError:
+                                pass
+                        elif json_type == "number":
+                            try:
+                                property_def["default"] = float(var_value)
+                            except ValueError:
+                                pass
+                        else:
+                            property_def["default"] = var_value
+                    
+                    schema["properties"][var_name] = property_def
+                    
+                    # 如果没有默认值，添加到必需字段
+                    if not var_value or var_value == "":
+                        schema["required"].append(var_name)
+        
+        return schema
 
     async def get_tools_for_user(self, user_id: str) -> List[types.Tool]:
         """获取用户可用的工具配置列表"""

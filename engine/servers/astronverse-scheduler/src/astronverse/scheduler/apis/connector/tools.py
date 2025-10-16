@@ -33,6 +33,10 @@ class WriteFile(BaseModel):
     content: str
 
 
+class PythonCode(BaseModel):
+    code: str
+
+
 class VideoPaths(BaseModel):
     videoPaths: list
 
