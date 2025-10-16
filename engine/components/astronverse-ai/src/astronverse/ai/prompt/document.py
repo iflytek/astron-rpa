@@ -1,3 +1,5 @@
+"""Prompt templates for document theme expansion and sentence operations."""
+
 PROMPT_THEME_EXTEND = """
     根据给定主题，生成一篇文章，要求该文章符合通用形式和字数要求。
 

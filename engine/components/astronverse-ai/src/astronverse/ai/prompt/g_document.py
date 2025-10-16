@@ -1,3 +1,5 @@
+"""Grouped document prompt presets for theme and sentence level operations."""
+
 from astronverse.ai.prompt.document import (
     PROMPT_SENTENCE_EXTEND,
     PROMPT_SENTENCE_REDUCE,

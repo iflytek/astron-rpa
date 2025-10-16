@@ -225,6 +225,7 @@ class BrowserSoftware:
 
     @staticmethod
     def browser_max_window(browser_obj: Browser) -> bool:
+        """最大化浏览器窗口"""
         browser_type = browser_obj.browser_type
         if browser_type in CHROME_LIKE_BROWSERS:
             try:
@@ -360,6 +361,7 @@ class BrowserSoftware:
         tab_title: str = "",
         tab_id: int = 0,
     ) -> str:
+        """切换网页"""
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
             if switch_type == WebSwitchType.URL:
                 browser_obj.send_browser_extension(
@@ -482,6 +484,7 @@ class BrowserSoftware:
         image_name: str = "",
         page_timeout: float = 10,
     ) -> str:
+        """截图网页"""
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
         BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
@@ -516,6 +519,7 @@ class BrowserSoftware:
     def browser_forward(
         browser_obj: Browser,
     ):
+        """前进网页"""
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
             browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
@@ -530,6 +534,7 @@ class BrowserSoftware:
     def browser_back(
         browser_obj: Browser,
     ):
+        """后退网页"""
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
             browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
@@ -549,6 +554,7 @@ class BrowserSoftware:
     def get_current_obj(
         browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
     ) -> Browser:
+        """获取当前浏览器对象"""
         br = Browser()
         br.browser_type = browser_type
         # 查询打开状态
@@ -581,6 +587,7 @@ class BrowserSoftware:
         ],
     )
     def get_current_url(browser_obj: Browser) -> str:
+        """获取当前网页地址"""
         return browser_obj.get_url()
 
     @staticmethod
@@ -591,6 +598,7 @@ class BrowserSoftware:
         ],
     )
     def get_current_title(browser_obj: Browser) -> str:
+        """获取当前网页标题"""
         return browser_obj.get_title()
 
     @staticmethod
@@ -601,6 +609,7 @@ class BrowserSoftware:
         ],
     )
     def get_current_tab_id(browser_obj: Browser) -> int:
+        """获取当前网页tabid"""
         return browser_obj.get_tabid()
 
     @staticmethod
@@ -680,6 +689,7 @@ class BrowserSoftware:
         is_wait: bool = True,
         time_out: int = 60,
     ):
+        """下载文件"""
         if download_mode == DownloadModeForFlag.Click:
             default_save_path = os.path.join(os.path.expanduser("~"), "Downloads")
             origin_files = os.listdir(default_save_path)
@@ -775,6 +785,7 @@ class BrowserSoftware:
         upload_path: str = "",
         simulate_flag: bool = True,
     ):
+        """上传文件"""
         BrowserElement.click(
             browser_obj=browser_obj,
             element_data=element_data,

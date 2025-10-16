@@ -1,5 +1,6 @@
+"""email原子能力"""
+
 import copy
-import os
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -8,6 +9,8 @@ from astronverse.email import EmailSeenType, EmailServerType
 
 
 class Email:
+    """email原子能力"""
+
     @staticmethod
     @atomicMg.atomic(
         "Email",
@@ -65,6 +68,7 @@ class Email:
         bcc: str = "",
         replace_table: str = "",
     ):
+        """邮件发送原子能力"""
         mail_server_dict = {
             EmailServerType.QQ: "smtp.qq.com",
             EmailServerType.NETEASE_163: "smtp.163.com",
@@ -89,7 +93,7 @@ class Email:
             if replace_table and isinstance(replace_table, list):
                 for replace in replace_table:
                     content = content.replace(str(replace.get("origintext")), str(replace.get("replacetext")))  # type: ignore
-        except Exception as e:
+        except Exception:
             pass
         core.send(
             user=sender_mail,
@@ -274,6 +278,8 @@ class Email:
 
         # 获取邮件详细信息，并存储附件
         return_mail_res = []
+        from pathlib import Path
+
         for mail_id in mail_ids:
             mail_info = core.get_entire_mail_info(mail_id)
             # 判断是否需要保存附件
@@ -281,8 +287,8 @@ class Email:
                 for attachment in mail_info["attachments"]:
                     if not attachment:
                         continue
-                    with open(os.path.join(save_attachment_path, attachment["name"]), "wb") as f:
-                        f.write(attachment["data"])
+                    file_path = Path(save_attachment_path) / attachment["name"]
+                    file_path.write_bytes(attachment["data"])
             # 判断是否需要标注为已读
             if mask_as_read_flag:
                 core.mask_as_read(mail_id)

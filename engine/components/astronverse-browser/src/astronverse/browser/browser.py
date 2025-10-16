@@ -11,9 +11,11 @@ from astronverse.browser import CHROME_LIKE_BROWSERS, CommonForBrowserType
 from astronverse.browser.error import (
     BROWSER_EXTENSION_ERROR_FORMAT,
     BROWSER_EXTENSION_INSTALL_ERROR,
-    BaseException,
-    WEB_EXEC_ElE_ERROR,
-    WEB_GET_ElE_ERROR,
+    WEB_EXEC_ELE_ERROR,
+    WEB_GET_ELE_ERROR,
+)
+from astronverse.browser.error import (
+    BaseException as BrowserBaseException,
 )
 
 
@@ -47,20 +49,28 @@ class Browser:
     def get_tabid(self) -> int:
         """获取当前标签ID。"""
         if self.browser_type in CHROME_LIKE_BROWSERS:
-            data = self.send_browser_extension(browser_type=self.browser_type.value, key="getTabId", data={"": ""})
+            data = self.send_browser_extension(
+                browser_type=self.browser_type.value,
+                key="getTabId",
+                data={"": ""},
+            )
         else:
             raise NotImplementedError()
-        return data
+        # 插件按约定应返回整数；若异常返回兼容值则转为 -1
+        return data if isinstance(data, int) else -1
 
     @classmethod
     def __validate__(cls, name: str, value):
         """验证浏览器对象。"""
         if isinstance(value, Browser):
             return value
-        raise BaseException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), f"{name}参数验证失败{value}")
+        raise BrowserBaseException(
+            PARAM_VERIFY_ERROR_FORMAT.format(name, value),
+            f"{name}参数验证失败{value}",
+        )
 
     @staticmethod
-    def send_browser_rpc(req: dict, timeout: float = None) -> Any:
+    def send_browser_rpc(req: dict, timeout: float = 0.0) -> Any:
         """发送浏览器RPC请求。"""
         gateway_port = atomicMg.cfg().get("GATEWAY_PORT") or "8003"
         url = f"http://127.0.0.1:{gateway_port}"
@@ -94,24 +104,27 @@ class Browser:
         )
 
         if res.status_code != 200:
-            raise BaseException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
+            raise BrowserBaseException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
         data = res.json()
         if not data.get("data"):
             return "插件无返回消息"
         if data.get("data").get("code") == "5001":
-            raise BaseException(
+            raise BrowserBaseException(
                 BROWSER_EXTENSION_ERROR_FORMAT.format(data.get("data").get("msg")),
                 data.get("data").get("msg"),
             )
         if data.get("data").get("code") == "5002":
-            raise BaseException(WEB_GET_ElE_ERROR.format(data.get("data").get("msg")), "网页元素未找到")
+            raise BrowserBaseException(
+                WEB_GET_ELE_ERROR.format(data.get("data").get("msg")),
+                "网页元素未找到",
+            )
         if data.get("data").get("code") == "5003":
-            raise BaseException(
-                WEB_EXEC_ElE_ERROR.format(data.get("data").get("msg")),
+            raise BrowserBaseException(
+                WEB_EXEC_ELE_ERROR.format(data.get("data").get("msg")),
                 data.get("data").get("msg"),
             )
         if data.get("data").get("code") == "5004":
-            raise BaseException(
+            raise BrowserBaseException(
                 BROWSER_EXTENSION_ERROR_FORMAT.format(data.get("data").get("msg")),
                 data.get("data").get("msg"),
             )

@@ -46,8 +46,8 @@ from astronverse.browser.error import (
     FOCUS_TIMEOUT_MUST_BE_POSITIVE,
     KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE,
     PARAMETER_INVALID_FORMAT,
+    WEB_GET_ELE_ERROR,
     BaseException,
-    WEB_GET_ElE_ERROR,
 )
 from astronverse.browser.js.base import BaseBuilder
 from astronverse.browser.js.chrome import CodeChromeBuilder
@@ -143,9 +143,9 @@ def wait_element_appear(func):
                         key="checkElement",
                         data=element_data["elementData"]["path"],
                     )
-                    raise BaseException(WEB_GET_ElE_ERROR.format(reason.msg), "浏览器元素未找到！")
+                    raise BaseException(WEB_GET_ELE_ERROR.format(reason.msg), "浏览器元素未找到！")
                 else:
-                    raise BaseException(WEB_GET_ElE_ERROR.format(""), "浏览器元素未找到！")
+                    raise BaseException(WEB_GET_ELE_ERROR.format(""), "浏览器元素未找到！")
         return func(*args, **new_kwargs)
 
     return wrapper
@@ -1377,7 +1377,7 @@ class BrowserElement:
         browser_obj: Browser,
         element_data: WebPick,
         to_excel: bool = False,  # 是否导出excel
-        excel_path: str = None,  # excel路径
+        excel_path: str = "",  # excel路径
         element_timeout: int = 10,
     ):
         """
@@ -1524,7 +1524,7 @@ class BrowserElement:
         simulate_flag: bool = False,  # 翻页按钮元素模拟人工点击
         button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
         to_excel: bool = False,  # 是否导出excel
-        excel_path: str = None,  # excel路径
+        excel_path: str = "",  # excel路径
         element_timeout: int = 10,
         output_type: TablePickType = TablePickType.Row,
         output_head: bool = True,  # 是否输出表头
@@ -1545,7 +1545,7 @@ class BrowserElement:
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BaseException(WEB_GET_ElE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
                 # 定位
                 Locator.locator(batch_element)
                 # 发送给插件
@@ -1576,7 +1576,7 @@ class BrowserElement:
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BaseException(WEB_GET_ElE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
                     key="simalarListBatch",
@@ -1627,10 +1627,8 @@ class BrowserElement:
             if output_type == TablePickType.Row:
                 if output_head:
                     return [table_df_out.columns.tolist()] + table_df_out.values.tolist(), table_path
-                else:
-                    return table_df_out.values.tolist(), table_path
-            else:
-                return table_df_out.to_dict(orient="list"), table_path
+                return table_df_out.values.tolist(), table_path
+            return table_df_out.to_dict(orient="list"), table_path
 
         # 返回表格数据 按行/列 返回
         if output_type == TablePickType.Row:
@@ -1652,7 +1650,7 @@ class BrowserElement:
     def create_element(
         browser_obj: Browser = None,  # 浏览器对象
         locate_type: LocateType = LocateType.Xpath,  # 定位方式 xpath / cssSelector
-        locate_value: str = None,
+        locate_value: str = "",
     ):
         """
         根据xpath或cssSelector生成元素对象
@@ -1755,7 +1753,7 @@ class BrowserElement:
         element_data: WebPick = None,
         relative_type: RelativeType = RelativeType.Child,
         child_element_type: ChildElementType = ChildElementType.All,
-        child_element_xpath: str = None,
+        child_element_xpath: str = "",
         child_element_index: int = 0,
         sibling_element_type: SiblingElementType = SiblingElementType.All,
         element_timeout: int = 10,

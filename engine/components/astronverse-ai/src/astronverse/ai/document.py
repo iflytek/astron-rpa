@@ -1,3 +1,5 @@
+"""Document AI utilities for expansion and summarization prompts."""
+
 # encoding: UTF-8
 
 import copy
@@ -13,9 +15,18 @@ from astronverse.ai.utils.str import replace_keyword
 
 
 class DocumentAI:
+    """Provide document-oriented AI utilities: theme expansion, sentence expansion and reduction."""
+
     @staticmethod
     @atomicMg.atomic("DocumentAI", outputList=[atomicMg.param("theme_expand_res", types="Str")])
     def theme_expand(text: str) -> str:
+        """Expand a theme into a structured long-form article.
+
+        Args:
+            text: theme string to expand.
+        Returns:
+            Expanded article text.
+        """
         # 生成提示词
         inputs = replace_keyword(
             prompts=copy.deepcopy(prompt_theme_extend),

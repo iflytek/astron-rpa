@@ -1,3 +1,5 @@
+"""Prompt factor dictionary used for contract information extraction tasks."""
+
 CONTRACT_FACTOR_DICT = {
     "合同名称": "反映合同内容和性质的完整标题或名称",
     "合同编号": "合同的唯一识别编码",

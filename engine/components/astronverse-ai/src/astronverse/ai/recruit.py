@@ -1,3 +1,5 @@
+"""Recruitment JD analysis and candidate requirement evaluation utilities."""
+
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import InputType, JobWebsitesTypes, RatingSystemTypes
@@ -7,6 +9,8 @@ from astronverse.baseline.logger.logger import logger
 
 
 class RecruitAI:
+    """AI helpers for generating recruitment keyword sets and scoring resumes."""
+
     keywords_boss = {
         "学历要求": ["不限", "本科及以上", "硕士及以上", "博士"],
         "院校要求": [
@@ -57,6 +61,15 @@ class RecruitAI:
         job_description: str = "",
         job_website: JobWebsitesTypes = JobWebsitesTypes.BOSS,
     ):
+        """Generate structured recruitment keywords for a given job description.
+
+        Args:
+            job_name: job title
+            job_description: free text JD
+            job_website: target job board type
+        Returns:
+            Raw model reply string containing keyword groups.
+        """
         params = {
             "job_name": job_name,
             "job_description": job_description,
@@ -114,6 +127,21 @@ class RecruitAI:
         rating_system: RatingSystemTypes = RatingSystemTypes.DEFAULT,
         rating_dimensions: str = "",
     ):
+        """Score a resume against a job description.
+
+        Automatically extracts text if file mode selected.
+
+        Args:
+            job_name: Job title
+            resume_input_type: Whether resume is provided as text or file
+            resume_file_path: Path to resume file
+            resume_content: Raw resume text if provided directly
+            job_description: JD text
+            rating_system: default or custom rating style
+            rating_dimensions: custom rating dimensions when custom mode
+        Returns:
+            Rating result reply string.
+        """
         if resume_input_type == InputType.FILE:
             resume_content = FileExtractor(resume_file_path).extract_text()
         reply = ""

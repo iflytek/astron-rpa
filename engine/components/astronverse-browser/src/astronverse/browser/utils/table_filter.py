@@ -6,6 +6,7 @@ from astronverse.actionlib.logger import logger
 
 
 def parse_datetime(date_string):
+    """parse datetime in chinese"""
     chinese_to_number = {
         "一": "1",
         "初一": "1",
@@ -289,13 +290,13 @@ class DataFilter:
         return filter_logic_str
 
     def ExtractNum(self, index, parameters):
-        # 提取数字
+        """提取数字"""
         self.data_table[index] = list(
             self.data_table[index].astype(str).apply(lambda x: "".join(re.findall(r"\d+", x)))
         )
 
     def trim(self, index, parameters):
-        # 去除首尾空格
+        """去除首尾空格"""
         self.data_table[index] = list(
             self.data_table[index]
             .astype(str)
@@ -304,24 +305,24 @@ class DataFilter:
         )
 
     def replace(self, index, parameters):
-        # 字符替换
+        """字符替换"""
         for parameter in parameters:
             text = re.escape(parameter.get("text"))
             replaceText = parameter.get("replaceText")
             self.data_table[index] = list(self.data_table[index].astype(str).str.replace(text, replaceText))
 
     def prefix(self, index, parameters):
-        # 添加前缀
+        """添加前缀"""
         val = parameters[0].get("val")
         self.data_table[index] = list(val + self.data_table[index].astype(str))
 
     def suffix(self, index, parameters):
-        # 添加后缀
+        """添加后缀"""
         val = parameters[0].get("val")
         self.data_table[index] = list(self.data_table[index].astype(str) + val)
 
     def formatTime(self, index, parameters):
-        # 格式化时间
+        """格式化时间"""
         val = parameters[0].get("val")
         if val != "":
             self.data_table[index] = self.data_table[index].apply(parse_datetime)
@@ -332,7 +333,7 @@ class DataFilter:
             )
 
     def regular(self, index, parameters):
-        # 正则筛选
+        """正则筛选"""
         val = parameters[0].get("val")
         # self.data_table[index] = self.data_table[index].astype(str).str.extractall(f'({val})')
         extracted = (
@@ -399,6 +400,7 @@ class DataFilter:
                         raise ValueError(f"参数异常，请输入正确的参数！{process_type}{e}")
 
     def data_filter_main(self):
+        """data filter"""
         if any(self.cell_filterConfig_list):
             # 单元格过滤
             self.cell_filter()
@@ -561,7 +563,7 @@ def page_values_merge(preValues: list, values: list, produce_type: str):
     # 2, 将preValues 的value 和 values 的value 合并
     if len(preValues) == 0:
         return values
-    else:
-        for i in range(len(preValues)):
-            preValues[i]["value"] += values[i]["value"]
-        return preValues
+
+    for i in range(len(preValues)):
+        preValues[i]["value"] += values[i]["value"]
+    return preValues

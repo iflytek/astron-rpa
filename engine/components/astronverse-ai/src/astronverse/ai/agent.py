@@ -1,3 +1,5 @@
+"""Agent related atomic operations and workflow integration for AI interactions."""
+
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
@@ -7,6 +9,8 @@ from astronverse.ai.api.xcagent import xcAgent
 
 
 class Agent:
+    """High-level wrapper for interacting with Dify and xcAgent flows via atomic tasks."""
+
     @staticmethod
     @atomicMg.atomic(
         "Agent",
@@ -56,11 +60,7 @@ class Agent:
         file_path: PATH = "",
         file_type: DifyFileTypes = DifyFileTypes.DOCUMENT,
     ):
-        # 使用示例
-
-        # file_path = r"C:\Users\zyzhou23.IFLYTEK\Downloads\写出好的代码 -经验篇.md"
-        # user = "drbruce"
-        # dify = Dify("app-MgbOPD6ZYA6mSyip1w4h74wU")
+        """Call Dify workflow with optional file upload."""
 
         dify = Dify(app_token)
         file_id = None
@@ -94,9 +94,7 @@ class Agent:
         outputList=[atomicMg.param("xcagent_result", types="Str")],
     )
     def call_xcagent(api_key: str, api_secret: str, flow_id: str, input_value: str = ""):
-        # def call_xcagent(api_key: str, api_secret: str, file_flag: bool = False, variable_name: str = "",
-        #                  variable_value: str = "",
-        #                  file_path: PATH = "", file_type: DifyFileTypes = DifyFileTypes.DOCUMENT):
+        """Call xcAgent flow with given input value."""
 
         xcagent = xcAgent(api_key, api_secret)
         xcagent_result = xcagent.run_flow(flow_id, input_value)

@@ -1,9 +1,16 @@
-"""错误定义模块，包含浏览器操作相关的错误代码。"""
+"""浏览器相关错误码定义。
 
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+注意：不要覆盖内置 ``BaseException`` ，这里引入的是框架自定义的异常类 ``BaseException``。
+
+"""
+
+from astronverse.baseline.error.error import BaseException as FrameworkBaseException
+from astronverse.baseline.error.error import BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+# 对外仍然暴露 BaseException 名称
+# pylint: disable=redefined-builtin
+BaseException = FrameworkBaseException
 
 PARAMETER_INVALID_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数异常") + ": {}")
 
@@ -11,14 +18,15 @@ WEB_LOAD_TIMEOUT: ErrorCode = ErrorCode(BizCode.LocalErr, _("网页加载超时�
 WEB_GET_BROWSER_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("获取浏览器对象失败"))
 WEB_GET_URL_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("获取网页URL失败"))
 WEB_GET_TITLE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("获取当前页面标题失败"))
-WEB_GET_ElE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("网页元素查找失败") + " {}")
-WEB_GET_SIMILAR_ElE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器获取相似元素列表失败"))
+WEB_GET_ELE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("网页元素查找失败") + " {}")
+WEB_GET_SIMILAR_ELE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器获取相似元素列表失败"))
 WEB_GET_SELECTED_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器获取下拉框选中值失败"))
 WEB_GET_CHECKBOX_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器获取复选框选中值失败"))
 WEB_PAGES_NUM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("页面数量必须是整数"))
 WEB_WAIT_TIME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("等待时间不能小于0！"))
 WEB_ELE_ATTR_NAME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("请输入元素属性名称"))
-WEB_EXEC_ElE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("脚本执行错误") + ": {}")
+WEB_EXEC_ELE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("脚本执行错误") + ": {}")
+
 
 DOWNLOAD_WINDOW_NO_FIND: ErrorCode = ErrorCode(
     BizCode.LocalErr,
@@ -47,3 +55,36 @@ KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE: ErrorCode = ErrorCode(BizCode.LocalErr,
 SELECT_MATCHING_APP_PATH: ErrorCode = ErrorCode(BizCode.LocalErr, _("请选择跟浏览器匹配的应用路径"))
 
 LINUX_MUST_BROWSER_PATH_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("Linux必须手动填入浏览器地址"))
+
+# 显式导出符号，便于静态分析工具识别
+__all__ = [
+    "BROWSER_EXTENSION_ERROR_FORMAT",
+    "BROWSER_EXTENSION_INSTALL_ERROR",
+    "BROWSER_GET_TIMEOUT",
+    "BROWSER_NO_INSTALL",
+    "BROWSER_OPEN_TIMEOUT",
+    "BROWSER_PATH_EMPTY",
+    "CODE_EMPTY",
+    "CODE_NO_MAIN_FUNC",
+    "DOWNLOAD_WINDOW_NO_FIND",
+    "FOCUS_TIMEOUT_MUST_BE_POSITIVE",
+    "KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE",
+    "LINUX_MUST_BROWSER_PATH_ERROR",
+    "PARAMETER_INVALID_FORMAT",
+    "SELECT_MATCHING_APP_PATH",
+    "SWITCH_TAB_ERROR",
+    "UPLOAD_WINDOW_NO_FIND",
+    "WEB_ELE_ATTR_NAME_ERROR",
+    "WEB_EXEC_ELE_ERROR",
+    "WEB_GET_BROWSER_ERROR",
+    "WEB_GET_CHECKBOX_ERROR",
+    "WEB_GET_ELE_ERROR",
+    "WEB_GET_SELECTED_ERROR",
+    "WEB_GET_SIMILAR_ELE_ERROR",
+    "WEB_GET_TITLE_ERROR",
+    "WEB_GET_URL_ERROR",
+    "WEB_LOAD_TIMEOUT",
+    "WEB_PAGES_NUM_ERROR",
+    "WEB_WAIT_TIME_ERROR",
+    "BaseException",
+]

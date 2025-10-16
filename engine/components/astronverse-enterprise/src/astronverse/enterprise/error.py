@@ -1,3 +1,5 @@
+"Enterprise error definitions"
+
 from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 

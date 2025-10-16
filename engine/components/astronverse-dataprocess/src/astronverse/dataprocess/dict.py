@@ -1,3 +1,5 @@
+"""字典处理相关类型定义模块"""
+
 from typing import Any
 
 from astronverse.actionlib import DynamicsItem
@@ -6,6 +8,8 @@ from astronverse.dataprocess import NoKeyOptionType
 
 
 class DictProcess:
+    """字典处理组件"""
+
     @staticmethod
     @atomicMg.atomic(
         "DictProcess",
@@ -15,6 +19,9 @@ class DictProcess:
         outputList=[atomicMg.param("created_new_dict_data", types="Dict")],
     )
     def create_new_dict(dict_data: dict):
+        """
+        创建一个新的字典
+        """
         return dict_data
 
     @staticmethod

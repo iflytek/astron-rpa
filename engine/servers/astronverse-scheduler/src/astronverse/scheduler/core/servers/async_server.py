@@ -4,7 +4,6 @@ from astronverse.scheduler import ServerLevel
 from astronverse.scheduler.core.schduler.venv import VenvManager
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.setup.setup import Process
-from astronverse.scheduler.core.terminal.terminal import Terminal
 from astronverse.scheduler.logger import logger
 
 

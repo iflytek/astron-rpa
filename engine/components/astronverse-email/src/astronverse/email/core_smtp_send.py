@@ -1,3 +1,5 @@
+"""smtp发送邮件"""
+
 import ast
 import copy
 import mimetypes
@@ -17,10 +19,13 @@ from astronverse.email.error import *
 
 
 class EmailSmtpSend:
+    """smtp发送邮件"""
+
     def __init__(self):
         self.mail_handler: smtplib.SMTP | smtplib.SMTP_SSL
 
     def login(self, server, port: int, user, password, use_ssl: bool = False, timeout=20):
+        """登录邮箱服务器"""
         if use_ssl:
             self.mail_handler = smtplib.SMTP_SSL(server, port, timeout=timeout)
         else:
@@ -34,6 +39,9 @@ class EmailSmtpSend:
 
     @staticmethod
     def __handle_email_address__(address_list):
+        """
+        处理收件人地址，支持多种格式输入
+        """
         address_group_list = []
         if isinstance(address_list, list):
             address_group_list = [
@@ -44,7 +52,7 @@ class EmailSmtpSend:
             try:
                 address_list = ast.literal_eval(address_list)
                 address_group_list = [list(filter(lambda a: a, email.split(";"))) for email in address_list]
-            except Exception as e:
+            except Exception:
                 address_group_list = [list(filter(lambda a: a, address_list.split(";")))]
                 address_list = [address_list]
 
@@ -86,6 +94,7 @@ class EmailSmtpSend:
         subject: str = "",
         attachment_path: str = "",
     ):
+        """发送邮件"""
         receiver_list, receiver_group_list = self.__handle_email_address__(receiver)
         if not receiver_list:
             return False

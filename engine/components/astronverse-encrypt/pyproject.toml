@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-encrypt"
-version = "1.0.1"
+version = "1.0.2"
 description = "astronverse-encrypt."
 requires-python = ">=3.13"
 

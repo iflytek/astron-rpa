@@ -1,3 +1,5 @@
+"""数学与数值处理相关功能。"""
+
 import math
 import re
 from typing import Any
@@ -5,20 +7,35 @@ from typing import Any
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dataprocess import AddSubType, MathOperatorType, MathRoundType, NumberType
-from astronverse.dataprocess.error import *
+from astronverse.dataprocess.error import (
+    INVALID_MATH_EXPRESSION_ERROR_FORMAT,
+    INVALID_NUMBER_FORMAT_ERROR_FORMAT,
+    INVALID_NUMBER_RANGE_ERROR_FORMAT,
+)
 
 
-def random_number(start, end, number_type: NumberType = NumberType.INTEGER, size: int = 1) -> list:
-    """随机数生成"""
-    import numpy
+def random_number(
+    start,
+    end,
+    number_type: NumberType = NumberType.INTEGER,
+    size: int = 1,
+) -> list:
+    """随机数生成。
+
+    返回指定范围与类型的随机数列表。
+    """
+    import numpy  # type: ignore
 
     if number_type == NumberType.INTEGER:
         return numpy.random.randint(start, end, size).tolist()
-    elif number_type == NumberType.FLOAT:
+    if number_type == NumberType.FLOAT:
         return numpy.random.uniform(start, end, size).tolist()
+    raise ValueError("不支持的 number_type")
 
 
 class MathProcess:
+    """数学处理原子能力集合。"""
+
     @staticmethod
     @atomicMg.atomic(
         "MathProcess",
@@ -37,10 +54,7 @@ class MathProcess:
         if start > end:
             raise BaseException(INVALID_NUMBER_RANGE_ERROR_FORMAT, "开始值必须小于结束值")
         res = random_number(number_type=number_type, start=start, end=end, size=size)
-        if len(res) == 1:
-            return res[0]
-        else:
-            return res
+        return res[0] if len(res) == 1 else res
 
     @staticmethod
     @atomicMg.atomic("MathProcess", outputList=[atomicMg.param("rounding_number", types="Any")])
@@ -50,11 +64,9 @@ class MathProcess:
         """
         if precision <= 0:
             return int(round(float(number), int(precision)))
-        else:
-            if float(number).is_integer():
-                return int(round(float(number), int(precision)))
-            else:
-                return round(float(number), int(precision))
+        if float(number).is_integer():
+            return int(round(float(number), int(precision)))
+        return round(float(number), int(precision))
 
     @staticmethod
     @atomicMg.atomic(
@@ -67,8 +79,9 @@ class MathProcess:
         """
         if add_sub == AddSubType.ADD:
             return number + add_sub_number
-        elif add_sub == AddSubType.SUB:
+        if add_sub == AddSubType.SUB:
             return number - add_sub_number
+        raise ValueError("不支持的加减类型")
 
     @staticmethod
     @atomicMg.atomic(
@@ -83,8 +96,7 @@ class MathProcess:
         if isinstance(raw_number, str):
             if re.match(r"^-?\d+$", raw_number):
                 raw_number = int(raw_number)
-            # 正则表达式匹配浮点数
-            elif re.match(r"^-?\d+\.\d+$", raw_number):
+            elif re.match(r"^-?\d+\.\d+$", raw_number):  # 浮点数
                 raw_number = float(raw_number)
             else:
                 raise BaseException(INVALID_NUMBER_FORMAT_ERROR_FORMAT, "请输入整数或浮点数")
@@ -100,7 +112,7 @@ class MathProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.precision.show",
-                        expression="return $this.handle_method.value == '{}'".format(MathRoundType.ROUND.value),
+                        expression=f"return $this.handle_method.value == '{MathRoundType.ROUND.value}'",
                     )
                 ],
             )

@@ -1,3 +1,5 @@
+"""LLM API client helpers: streaming and normal chat plus prompt interface."""
+
 import json
 from typing import Any
 
@@ -41,7 +43,7 @@ def chat_streamable(messages: Any, model: str = "deepseek-v3-0324"):
 
 
 def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
-    # 构建请求的 payload
+    """构建请求的 payload"""
     data = {
         "model": model,  # 选择大模型，替换为实际模型标识
         "messages": [
@@ -68,7 +70,7 @@ def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
 
 
 def chat_prompt(prompt_type, params, model="deepseek-v3-0324"):
-    # 构建请求的 payload
+    """chat_prompt"""
     data = {
         # 'model': model,  # 选择大模型，替换为实际模型标识
         "prompt_type": prompt_type,

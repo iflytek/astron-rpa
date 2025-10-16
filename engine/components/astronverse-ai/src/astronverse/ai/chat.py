@@ -1,28 +1,27 @@
+"""ChatAI multi-turn and knowledge-based chat orchestration utilities."""
+
 import copy
 import json
 import os
 import shutil
 import subprocess
-import sys
 import time
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
-from astronverse.ai import LLMModelTypes
-from astronverse.tools.tools import RpaTools
-
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-print(os.path.dirname(os.path.abspath(__file__)))
-
 from astronverse.actionlib.atomic import atomicMg
+from astronverse.ai import LLMModelTypes
 from astronverse.ai.api.llm import chat_normal, chat_streamable
-from astronverse.ai.error import *
+from astronverse.ai.error import LLM_NO_RESPONSE_ERROR  # noqa: F401 (示例: 保留若后续使用)
 from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
 from astronverse.baseline.logger.logger import logger
+from astronverse.tools.tools import RpaTools
 
 
 class ChatAI:
+    """Chat interaction utilities: single turn, multi-turn, and knowledge-based chat."""
+
     @staticmethod
     @atomicMg.atomic("ChatAI", outputList=[atomicMg.param("single_chat_res", types="Str")])
     def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DS_CHAT):
@@ -60,7 +59,7 @@ class ChatAI:
             f"--url=tauri://localhost/multichat.html?max_turns={str(max_turns)}&is_save={str(int(is_save))}&title={title}&model={model.value}",
             "--height=600",
         ]
-        process = subprocess.Popen(
+        process = subprocess.Popen(  # pylint: disable=consider-using-with
             args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -82,15 +81,14 @@ class ChatAI:
             save_str = output.strip()
             try:
                 save_dict = json.loads(save_str)
-            except Exception as e:
-                logger.error(f"save_dict：{save_str}")
-                pass
+            except Exception:  # 保留宽泛捕获用于健壮性日志
+                logger.error("save_dict JSON parse error: %s", save_str)
 
         try:
             time.sleep(1)
             process.kill()
-        except Exception as e:
-            pass
+        except Exception:  # 宽泛捕获：仅做进程清理
+            logger.debug("process already terminated")
 
         return save_dict
 
@@ -171,7 +169,7 @@ class ChatAI:
             "--height=700",
         ]
         # args = [exe_path, f"--url=https://tauri.localhost/multichat.html?max_turns={str(max_turns)}&is_save={str(int(is_save))}&questions={'$-$'.join(output)}&file_path={file_path}", f"--content={file_content[:5000]}", "--height=700"]
-        process = subprocess.Popen(
+        process = subprocess.Popen(  # pylint: disable=consider-using-with
             args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -194,42 +192,36 @@ class ChatAI:
             save_str = output.strip()
             try:
                 save_dict = json.loads(save_str)
-            except Exception:
-                pass
+            except Exception:  # 宽泛捕获：日志调试
+                logger.debug("save_dict JSON parse error: %s", save_str)
 
         # 文件清空
         if os.path.exists(dest_file):
             os.remove(dest_file)
 
+        # 结束子进程
         try:
             time.sleep(1)
             process.kill()
-        except Exception:
-            pass
-            try:
-                save_dict = json.loads(save_str)
-                print(f"save_dict：{save_dict}")
-            except Exception as error:
-                pass
-
-        if os.path.exists(dest_file):
-            os.remove(dest_file)
-
-        try:
-            time.sleep(1)
-            process.kill()
-        except Exception:
-            pass
+        except Exception:  # 进程可能已退出
+            logger.debug("process already terminated (knowledge_chat)")
 
         return save_dict
 
     @staticmethod
     def streamable_response(inputs: list):
-        content = []
-        reason = []
-        for i in chat_streamable(inputs):
-            if i.get("content"):
-                content.append(i.get("content"))
-            if i.get("reasoning_content"):
-                reason.append(i.get("reasoning_content"))
+        """Stream model responses accumulating content and reasoning lists.
+
+        Args:
+            inputs (list): chat message list [{'role': str, 'content': str}, ...]
+        Returns:
+            tuple[list[str], list[str]]: (content tokens, reasoning tokens)
+        """
+        content: list[str] = []
+        reason: list[str] = []
+        for item in chat_streamable(inputs):
+            if item.get("content"):
+                content.append(item.get("content"))
+            if item.get("reasoning_content"):
+                reason.append(item.get("reasoning_content"))
         return content, reason

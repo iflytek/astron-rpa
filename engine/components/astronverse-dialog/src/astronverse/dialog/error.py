@@ -1,3 +1,5 @@
+"""错误码定义"""
+
 from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 

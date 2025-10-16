@@ -1,3 +1,5 @@
+"""Contract analysis and clause extraction utilities."""
+
 import ast
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
@@ -10,6 +12,8 @@ from astronverse.ai.utils.extract import FileExtractor
 
 
 class ContractAI:
+    """AI helpers for extracting contract clauses and key factors."""
+
     @staticmethod
     @atomicMg.atomic(
         "ContractAI",
@@ -80,6 +84,7 @@ class ContractAI:
         custom_factors: str = "",
         contract_validate: str = "",
     ):
+        """Extract specified factors from a contract file or text content."""
         if contract_type == InputType.FILE:
             contract_content = FileExtractor(contract_path).extract_text()
 

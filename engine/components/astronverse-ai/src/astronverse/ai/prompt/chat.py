@@ -1,3 +1,5 @@
+"""Prompt templates for role-play and question generation in chat flows."""
+
 PROMPT_ROLE_PLAY = """
     我希望你扮演一名{role}，我将以用户的身份向你提出问题，要求：
     

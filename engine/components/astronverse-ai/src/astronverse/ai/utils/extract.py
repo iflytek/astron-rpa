@@ -1,32 +1,31 @@
+"""File content extraction utilities for pdf, docx and text files."""
+
+
 class FileExtractor:
+    """Unified file content extractor supporting PDF, DOCX/DOC and TXT."""
+
     def __init__(self, file_path: str):
+        """Store path for later extraction."""
         self.file_path = file_path
 
     def extract_text(self) -> str:
-        """
-        提取文件文本内容
-
-        :return:
-        """
+        """Dispatch to a specific extractor based on file extension."""
         file_extension = self.file_path.split(".")[-1]
         if file_extension.lower() == "pdf":
             text_content = self.extract_pdf(self.file_path)
         elif file_extension.lower() in ["docx", "doc"]:
             text_content = self.extract_docx(self.file_path)
         elif file_extension.lower() == "txt":
-            text_content = open(self.file_path).read()
+            from pathlib import Path
+
+            text_content = Path(self.file_path).read_text(encoding="utf-8")
         else:
             raise ValueError("不支持的文件扩展类型: " + file_extension)
         return text_content
 
     @staticmethod
     def extract_pdf(path: str) -> str:
-        """
-        提取 pdf 文本内容
-
-        :param path:
-        :return:
-        """
+        """Extract text content from a PDF file path."""
         import pypdf
 
         pdf_reader = pypdf.PdfReader(path)
@@ -34,12 +33,7 @@ class FileExtractor:
 
     @staticmethod
     def extract_docx(path: str) -> str:
-        """
-        提取 docx 文本内容
-
-        :param path:
-        :return:
-        """
+        """Extract text content (paragraphs and tables) from a DOCX file path."""
         from docx import Document
         from docx.table import Table
         from docx.text.paragraph import Paragraph

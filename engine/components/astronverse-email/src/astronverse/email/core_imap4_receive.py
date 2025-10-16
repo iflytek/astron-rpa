@@ -1,3 +1,7 @@
+"""
+基于 IMAP4 协议的邮件接收与解析工具类。
+"""
+
 import email
 import email.header
 import email.utils
@@ -12,6 +16,9 @@ def decode_data(b, added_encode=None):
     """
 
     def _decode(bs, encoding):
+        """
+        内部解码函数
+        """
         try:
             return str(bs, encoding=encoding)
         except Exception as e:
@@ -28,10 +35,16 @@ def decode_data(b, added_encode=None):
 
 
 class EmailImap4Receive:
+    """
+    基于 IMAP4 协议的邮件接收与解析工具类。
+    提供登录、邮件检索、解析、标记已读等功能。
+    """
+
     def __init__(self):
         self.mail_handler: IMAP4_SSL
 
     def login(self, server, port: int, user, password):
+        """登录邮箱服务器"""
         self.mail_handler = imaplib.IMAP4_SSL(server, port)
         self.mail_handler.login(user, password)
         self.__build_header__(user)
@@ -78,7 +91,7 @@ class EmailImap4Receive:
         """
         try:
             return self.mail_handler.search(charset, *criteria)
-        except Exception as e:
+        except Exception:
             self.select("INBOX")
             return self.mail_handler.search(charset, *criteria)
 
@@ -146,7 +159,7 @@ class EmailImap4Receive:
         """返回邮件的主题（参数msg是email对象，可调用getEmailFormat获得）"""
         try:
             de_content = email.header.decode_header(msg["subject"])[0]
-        except Exception as e:
+        except Exception:
             return msg["subject"]
         if de_content[1] is not None:
             return decode_data(de_content[0], de_content[1])

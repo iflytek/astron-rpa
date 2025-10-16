@@ -1,3 +1,8 @@
+"""
+对话功能相关实现。
+包含消息框、输入框、选择框、时间选择、文件选择等对话框的自动化操作。
+"""
+
 import json
 import os
 import subprocess
@@ -28,6 +33,10 @@ from astronverse.tools.tools import RpaTools
 
 
 class Dialog:
+    """
+    对话相关操作的主类，封装了各种对话框的自动化调用方法。
+    """
+
     @staticmethod
     @atomicMg.atomic(
         "Dialog",
@@ -126,13 +135,14 @@ class Dialog:
         message_content: str = "",
         button_type: ButtonType = ButtonType.CONFIRM,
         auto_check: bool = False,
-        wait_time: int = None,
+        wait_time: int = 60,
         default_button_c: DefaultButtonC = DefaultButtonC.CONFIRM,
         default_button_cn: DefaultButtonCN = DefaultButtonCN.CONFIRM,
         default_button_y: DefaultButtonY = DefaultButtonY.YES,
         default_button_yn: DefaultButtonYN = DefaultButtonYN.YES,
         preview_button=None,
     ) -> str:
+        """弹出消息提示框"""
         executable_path = RpaTools.get_window_dir()
         if not os.path.exists(executable_path):
             raise BaseException(
@@ -222,7 +232,7 @@ class Dialog:
                     previous_mouse_position = current_position
                     timeout_start_time = time.time()
             if auto_check and time.time() - timeout_start_time > wait_time:
-                print("kill")
+                # print("kill")
                 break
             if process_output_list:
                 output = process_output_list.pop(0)
@@ -254,7 +264,7 @@ class Dialog:
         else:
             result_button = dialog_result_data.get("result_button")
 
-        return result_button
+        return str(result_button)
 
     @staticmethod
     @atomicMg.atomic(
@@ -307,6 +317,7 @@ class Dialog:
         default_input_pwd: str = "",
         preview_button=None,
     ):
+        """弹出输入框"""
         executable_path = RpaTools.get_window_dir()
 
         if input_type == InputType.TEXT:
@@ -379,6 +390,9 @@ class Dialog:
         options_title: str = "",
         preview_button=None,
     ):
+        """选择对话框"""
+        if options is None:
+            options = []
         executable_path = RpaTools.get_window_dir()
         if not os.path.exists(executable_path):
             raise BaseException(
@@ -403,7 +417,7 @@ class Dialog:
 
         output_data = DialogController.execute_subprocess(args)
 
-        return output_data.get("select_result") if output_data.get("select_result") else None
+        return output_data.get("select_result") or None
 
     @staticmethod
     @atomicMg.atomic(
@@ -475,8 +489,9 @@ class Dialog:
         default_time: str = "",
         default_time_range: list = ["", ""],
         input_title: str = "输入框标题",
-        preview_button: bool = None,
+        preview_button=None,
     ):
+        """时间选择对话框"""
         executable_path = RpaTools.get_window_dir()
 
         if not os.path.exists(executable_path):
@@ -496,7 +511,6 @@ class Dialog:
             "outputkey": "select_time",
         }
         data = json.dumps(data)
-        print(f"data:{data}")
         encoded_data = urllib.parse.quote(data)
         args = [
             executable_path,
@@ -595,6 +609,7 @@ class Dialog:
         default_path: str = "",
         preview_button=None,
     ):
+        """文件选择对话框"""
         executable_path = RpaTools.get_window_dir()
 
         if not os.path.exists(executable_path):
@@ -627,7 +642,7 @@ class Dialog:
 
         output_data = DialogController.execute_subprocess(args)
 
-        return output_data.get("select_file") if output_data.get("select_file") else None
+        return output_data.get("select_file") or None
 
     @staticmethod
     @atomicMg.atomic(
@@ -682,9 +697,10 @@ class Dialog:
         box_title: str = "自定义对话框",
         design_interface: dict = None,
         auto_check: bool = False,
-        wait_time: int = None,
+        wait_time: int = 60,
         default_button: DefaultButtonCN = DefaultButtonCN.CONFIRM,
     ) -> DialogResult:
+        """自定义对话框"""
         executable_path = RpaTools.get_window_dir()
         if not os.path.exists(executable_path):
             raise BaseException(
@@ -813,7 +829,9 @@ class Dialog:
             pass
 
         if not dialog_result and auto_check:
-            if design_interface.get("value").get("table_required"):
+            # 防止 design_interface.get("value") 为 None 时继续调用 get 导致异常
+            value_cfg = design_interface.get("value") or {}
+            if value_cfg.get("table_required"):
                 dialog_result["result_button"] = DefaultButtonCN.CANCEL.value
             else:
                 dialog_result["result_button"] = DefaultButtonCN.CONFIRM.value

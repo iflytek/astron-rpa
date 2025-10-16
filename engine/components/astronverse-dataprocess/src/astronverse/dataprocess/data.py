@@ -1,3 +1,5 @@
+"""数据处理相关类型定义模块"""
+
 import ast
 import json
 from typing import Any
@@ -9,6 +11,8 @@ from astronverse.dataprocess.error import *
 
 
 class DataProcess:
+    """数据处理组件"""
+
     @staticmethod
     @atomicMg.atomic(
         "DataProcess",
@@ -20,13 +24,14 @@ class DataProcess:
                 dynamics=[
                     DynamicsItem(
                         key="$this.variable_var.types",
-                        expression="return ['int','str', 'float', 'bool', 'list', 'dict'].includes($this.variable_type.value) ? $this.variable_type.value[0].toUpperCase() + $this.variable_type.value.slice(1) : 'Any'",
+                        expression="return ['int','str', 'float', 'bool', 'list', 'dict'].includes($this.variable_type.value) ? $this.variable_type.value[0].toUpperCase() + $this.variable_type.value.slice(1) : 'Any'",  # noqa: E501
                     )
                 ],
             ),
         ],
     )
     def set_variable_value(value: Any, variable_type: VariableType = VariableType.INT):
+        """设置变量值"""
         if variable_type != variable_type.OTHER:
             value = str(value)
 
