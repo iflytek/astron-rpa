@@ -28,7 +28,15 @@ public class BaseConstant {
     public static final Integer MAX_PROCESS_SIZE = 14;
 
     public static final String MODULE_INIT_CONTENT =
-            "from typing import Any\n" + "from rpahelper.helper import Helper, print, logger\n" + "\n"
-                    + "def main(*args, **kwargs) -> Any:\n" + "    h = Helper(**kwargs)\n" + "    params = h.params()\n"
-                    + "\n" + "    # 打印所有的变量key\n" + "    logger.info(params.keys())\n" + "\n" + "    return True";
+            "from typing import Any\n" + "from astronverse.workflowlib.helper import Helper, print, logger\n"
+                    + "\n"
+                    + "\n"
+                    + "def main(*args, **kwargs) -> Any:\n"
+                    + "    h = Helper(**kwargs)\n"
+                    + "    params = h.params()\n"
+                    + "\n"
+                    + "    # 打印所有的变量key\n"
+                    + "    logger.info(params.keys())\n"
+                    + "\n"
+                    + "    return True";
 }
