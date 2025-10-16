@@ -84,13 +84,13 @@ class Atomic(Node):
         arguments = [i.show() for i in self.__arguments__.values()]
 
         # import 块
-        import_list = self.token.value.get("src").split(".")
+        import_list = self.token.value.get("src", "").split(".")
         if len(import_list) == 4:
             svc.add_import_python(process_id, "import {}.{}".format(import_list[0], import_list[1]))
         elif len(import_list) == 5:
             svc.add_import_python(process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2]))
         else:
-            raise NotImplementedError()
+            pass
 
         # 原子能力块
         if len(self.__returned__) > 0:

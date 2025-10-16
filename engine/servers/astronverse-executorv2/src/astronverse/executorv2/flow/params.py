@@ -1,5 +1,5 @@
+import json
 from enum import Enum
-from astronverse.actionlib.types import Bool, Float, Int, List as RpaList, Dict as RpaDict
 from typing import Any, Dict, List
 from astronverse.executorv2.flow.syntax import IParam, InputParam, Token, OutputParam
 
@@ -10,7 +10,7 @@ class ParamType(Enum):
     P_VAR = "p_var"  # 流程变量
     G_VAR = "g_var"  # 全局变量
     STR = "str"  # 明确是str
-    OTHER = "other"  # 等同于str, 引擎会简单转换[可忽略]
+    OTHER = "other"  # 等同于str, 引擎会简单转换[当前版本不做转换]
     ELEMENT = "element"  # 元素
 
     @classmethod
@@ -26,13 +26,26 @@ class Param(IParam):
     def __init__(self, svc):
         self.svc = svc
 
+    def _dict_deep_traverse(self, data, process_func):
+        """深度遍历字典"""
+        if isinstance(data, dict):
+            for key in list(data.keys()):  # 使用list()来避免在遍历过程中修改字典
+                value = data[key]
+                res = process_func(key, value)
+                if res is not None:
+                    data[key] = res
+                    continue
+                self._dict_deep_traverse(value, process_func)
+        elif isinstance(data, list):
+            for item in data:
+                self._dict_deep_traverse(item, process_func)
+
     @staticmethod
-    def pre_param_handler(param_value: Any, param_types: str = None, show_name: str = ""):
+    def pre_param_handler(param_value: Any):
         """
         预处理参数
         1. 预处理data优先
         2. 过筛前端无效数据
-        3. 基于type为other的数据进行类型转换
         """
 
         ls = []
@@ -43,39 +56,17 @@ class Param(IParam):
             for v in param_value:
                 if "data" not in v:
                     v["data"] = v.get("value", "")
+                del v["value"]
                 if v["data"] != "":
                     ls.append(v)
             if len(ls) == 0:
                 ls.append(param_value[0])
         else:
             ls = [{"type": ParamType.OTHER.value, "data": param_value}]
-
-        # 预处理3: 基于t处理type为other的数据
-        for v in ls:
-            if v.get("type") == ParamType.OTHER.value and isinstance(v["data"], str):
-                try:
-                    param_types = param_types.lower()
-                    if param_types == "bool":
-                        v["data"] = bool(Bool.__validate__(show_name, v["data"]))
-                    elif param_types == "float":
-                        v["data"] = float(Float.__validate__(show_name, v["data"]))
-                    elif param_types == "int":
-                        v["data"] = int(Int.__validate__(show_name, v["data"]))
-                    elif param_types == "list":
-                        v["data"] = list(RpaList.__validate__(show_name, v["data"]))
-                    elif param_types == "dict":
-                        v["data"] = dict(RpaDict.__validate__(show_name, v["data"]))
-                    elif param_types == "str":
-                        v["type"] = ParamType.STR.value
-                    else:
-                        v["type"] = ParamType.STR.value
-                except Exception as e:
-                    raise Exception("{}的值转换成{}失败，原始值:{}。".format(show_name, param_types, v["data"])) from e
-        # 处理后的数据返回
         return ls
 
     @staticmethod
-    def param_to_eval(ls: list) -> (Any, bool):
+    def _param_to_eval(ls: list) -> (Any, bool):
         """
         将参数解析成evaL能执行的状态,
         need_eval=False是为了加速, 能够直接算出来就不经过eval处理, 直接输出结果
@@ -91,16 +82,16 @@ class Param(IParam):
         res = []
         for v in ls:
             types = v.get("type", "str")
-            value = v.get("data", "")
+            data = v.get("data", "")
             if need_eval:
                 # 转换成eval能执行的状态
                 if types == ParamType.STR.value:
-                    res.append("\"{}\"".format(value.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
+                    res.append("\"{}\"".format(data.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
                 else:
-                    res.append("{}".format(value))
+                    res.append("{}".format(data))
             else:
                 # 直接输出
-                res.append(value)
+                res.append(data)
 
         # 处理最终数据(>1表示拼凑 =1表示正常数据)
         if len(res) > 1:
@@ -116,10 +107,61 @@ class Param(IParam):
         else:
             return res[0], need_eval
 
+    def _param_to_eval_special(self, value: Any) -> Any:
+        """特殊dict处理"""
+
+        if not isinstance(value, dict):
+            return
+
+        if value.get("rpa", "") != "special":
+            return
+
+        ls = self.pre_param_handler(value.get("value", []))
+        return self._param_to_eval(ls)
+
     def parse_param(self, i: dict) -> InputParam:
-        ls = self.pre_param_handler(i.get("value"), i.get("types").lower(), i.get("title", i.get("name", "")))
-        value, need_eval = self.param_to_eval(ls)
-        return InputParam(types=i.get("types", "Any"), key=i.get("name"), value=value, need_eval=need_eval)
+        ls = self.pre_param_handler(i.get("value"))
+        value, need_eval = self._param_to_eval(ls)
+        return InputParam(key=i.get("name"), value=value, need_eval=need_eval)
+
+    def _custom_json_dumps(self, obj):
+        if isinstance(obj, InputParam):
+            if obj.need_eval:
+                return obj.value
+            else:
+                return json.dumps(obj.value, ensure_ascii=False)
+        elif isinstance(obj, dict):
+            items = []
+            for key, value in obj.items():
+                key_str = json.dumps(key, ensure_ascii=False)
+                value_str = self._custom_json_dumps(value)
+                items.append(f"{key_str}: {value_str}")
+            return "{" + ", ".join(items) + "}"
+        elif isinstance(obj, list):
+            items = [self._custom_json_dumps(item) for item in obj]
+            return "[" + ", ".join(items) + "]"
+        else:
+            return json.dumps(obj, ensure_ascii=False)
+
+    def parse_param_special(self, i: dict) -> InputParam:
+        data = i.get("value")
+        parse = i.get("need_parse")
+        if parse == "json_str":
+            data = json.loads(data)
+
+        def process_func(key, value):
+            res = self._param_to_eval_special(value)
+            if res is None:
+                return
+            value, need_eval = res
+            return InputParam(value=value, need_eval=need_eval)
+
+        self._dict_deep_traverse(data, process_func)
+        
+        # 使用自定义序列化函数，直接处理InputParam对象
+        data_str = self._custom_json_dumps(data)
+        
+        return InputParam(key=i.get("name"), value=data_str, need_eval=True)
 
     def parse_condition_input(self, token: Token) -> InputParam:
         res = {}
@@ -144,43 +186,43 @@ class Param(IParam):
             if cond == "notin":
                 cond = "not in"
             value = "{} {} {}".format(args1.show_value(), cond, args2.show_value())
-        return InputParam(types="Bool", key="__condition__", value=value, need_eval=True)
+        return InputParam(key="__condition__", value=value, need_eval=True)
 
     def parse_input(self, token: Token) -> Dict[str, InputParam]:
         res = {}
-        params_name = {}
         input_list = token.value.get("inputList", [])
         for i in input_list:
+            # 优化: 过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
+            if (i.get("key") in [
+                "__delay_before__",
+                "__delay_after__",
+                "__retry_time__",
+                "__retry_interval__",
+            ]
+                    and i.get("value") == [{"type": "other", "value": 0}]
+                    or i.get("key") == "__res_print__"
+                    and i.get("value") is False
+                    or i.get("key") == "__skip_err__"
+                    and i.get("value") == "exit"
+            ):
+                continue
 
-            # 0. 优化:过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
-            if i.get("key") in ["__delay_before__", "__delay_after__", "__retry_time__", "__retry_interval__"] and i.get("value") == [{'type': 'other', 'value': 0}]:
-                continue
-            elif i.get("key") in ["__res_print__"] and i.get("value") is False:
-                continue
-            elif i.get("key") in ["__skip_err__"] and i.get("value") == "exit":
-                continue
-
-            # 1. 显隐关系
+            # 0. 显隐关系
             if not i.get("show", True):
                 continue
 
-            # 2. 收集key对应的名称
-            if not i.get("key").startswith("__"):
-                params_name[i.get("name")] = i.get("title", "")
-
             if i.get("need_parse", None) is not None:
-                res[i.get("name")] = InputParam(types="Any", key=i.get("name"), value=None, need_eval=True)
+                res[i.get("name")] = self.parse_param_special(i)
             else:
                 res[i.get("name")] = self.parse_param(i)
 
-        # 添加一些高级选项
+        # 高级选项
         info = [
             token.value.get("__line__", 0),
             token.value.get("id", ""),
             token.value.get("alias", token.value.get("title", "")),
-            params_name
         ]
-        res["info"] = InputParam(types="Str", key="__info__", value=info, need_eval=False)
+        res["info"] = InputParam(key="__info__", value=info, need_eval=False)
         return res
 
     def parse_output(self, token: Token) -> List[OutputParam]:
@@ -196,5 +238,5 @@ class Param(IParam):
                 ls = self.pre_param_handler(param_value=i.get("value", []))
 
                 # 2. 解析
-                res.append(OutputParam(types=i.get("types", "Any"), value=ls[0].get("value", "")))
+                res.append(OutputParam(value=ls[0].get("data", "")))
         return res

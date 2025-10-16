@@ -5,11 +5,22 @@ from astronverse.executorv2.flow.storage import IStorage, HttpStorage
 from astronverse.executorv2.flow.syntax import IParam
 
 
+@dataclass
 class ProjectInfo:
     project_id: str = ""
     project_name: str = ""
     mode: str = ""
     version: str = ""
+    requirement: dict = None
+
+    def __json__(self):
+        return {
+            "project_id": self.project_id,
+            "project_name": self.project_name,
+            "mode": self.mode,
+            "version": self.version,
+            "requirement": self.requirement
+        }
 
 
 @dataclass
@@ -23,6 +34,15 @@ class ProcessInfo:
     def __init__(self):
         self.import_python = set()
 
+    def __json__(self):
+        return {
+            "process_file_name": self.process_file_name,
+            "process_id": self.process_id,
+            "process_category": self.process_category,
+            "process_name": self.process_name,
+            "import_python": list(self.import_python),
+        }
+
 
 @dataclass
 class AstGlobals:
@@ -32,6 +52,12 @@ class AstGlobals:
     def __init__(self):
         self.project_info = ProjectInfo()
         self.process_info = {}
+
+    def __json__(self):
+        return {
+            "project_info": self.project_info.__json__(),
+            "process_info": {k: v.__json__() for k, v in self.process_info.items()},
+        }
 
 
 class Svc:
@@ -49,12 +75,13 @@ class Svc:
         # 解析树变量
         self.ast_globals: AstGlobals = AstGlobals()
         self.ast_curr_info: {}
-    
-    def add_project_info(self, project_id: str, mode: str, version: str, project_name: str):
+
+    def add_project_info(self, project_id: str, mode: str, version: str, project_name: str, requirement: dict):
         self.ast_globals.project_info.project_id = project_id
         self.ast_globals.project_info.project_name = project_name
         self.ast_globals.project_info.mode = mode
         self.ast_globals.project_info.version = version
+        self.ast_globals.project_info.requirement = requirement
 
     def add_process_info(self, process_id: str, process_category: str, process_name, process_file_name):
         if process_id not in self.ast_globals.process_info:

@@ -106,6 +106,23 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-dataprocess"
+version = "1.0.1"
+source = { editable = "../../components/astronverse-dataprocess" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "numpy" },
+    { name = "python-dateutil" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "../../shared/astronverse-actionlib" },
+    { name = "numpy" },
+    { name = "python-dateutil" },
+]
+
+[[package]]
 name = "astronverse-dialog"
 version = "1.0.1"
 source = { editable = "../../components/astronverse-dialog" }
@@ -194,6 +211,7 @@ dependencies = [
     { name = "astronverse-baseline" },
     { name = "astronverse-browser" },
     { name = "astronverse-database" },
+    { name = "astronverse-dataprocess" },
     { name = "astronverse-dialog" },
     { name = "astronverse-email" },
     { name = "astronverse-encrypt" },
@@ -227,6 +245,7 @@ requires-dist = [
     { name = "astronverse-baseline", editable = "../../shared/astronverse-baseline" },
     { name = "astronverse-browser", editable = "../../components/astronverse-browser" },
     { name = "astronverse-database", editable = "../../components/astronverse-database" },
+    { name = "astronverse-dataprocess", editable = "../../components/astronverse-dataprocess" },
     { name = "astronverse-dialog", editable = "../../components/astronverse-dialog" },
     { name = "astronverse-email", editable = "../../components/astronverse-email" },
     { name = "astronverse-encrypt", editable = "../../components/astronverse-encrypt" },

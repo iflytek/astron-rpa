@@ -21,18 +21,13 @@ class Node(ABC):
 
 @dataclass
 class InputParam:
-    types: str
-    key: str
-    value: Any
-    need_eval: bool
+    key: str = ""
+    value: Any = ""
+    need_eval: bool = False
     special: str = None
 
     def show(self, is_func_param: bool = True):
-        code = self.value
-        if not self.need_eval:
-            code = "\"{}\"".format(self.value)
-        if self.special:
-            code = "{}({})".format(self.special, code)
+        code = self.show_value()
         if self.key:
             if is_func_param:
                 code = "{}={}".format(self.key, code)
@@ -51,8 +46,7 @@ class InputParam:
 
 @dataclass
 class OutputParam:
-    types: str
-    value: str
+    value: str = ""
 
     def show(self):
         return self.value

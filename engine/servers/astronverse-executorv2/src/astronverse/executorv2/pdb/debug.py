@@ -1,11 +1,12 @@
 import bdb
 import json
 import os
+import sys
 from collections import defaultdict
 
 
 def _notify(typ, **kw):
-    """简单 mock：把事件发回 WebSocket，或打印演示"""
+    """打印演示"""
     print(json.dumps({'type': typ, **kw}, ensure_ascii=False))
 
 
@@ -13,7 +14,7 @@ class Debug(bdb.Bdb):
 
     def __init__(self, filename: str):
         super().__init__()
-        self.filename = os.path.abspath(filename)
+        self.filename = filename
         self.map_file = self.filename.replace('.py', '.map')
 
         self.line_map = self._load_line_map()
@@ -73,12 +74,17 @@ class Debug(bdb.Bdb):
             g_v = {'__name__': '__main__', '__file__': self.filename}
         if l_v is None:
             l_v = g_v
+
+        project_dir = os.path.dirname(self.filename)
+        if project_dir not in sys.path:
+            sys.path.insert(0, project_dir)
+
         try:
             with open(self.filename, encoding='utf-8') as f:
                 source = f.read()
             code = compile(source, self.filename, 'exec')
             self.run(code, g_v, l_v)
-            l_v['main']() #noqa
+            l_v['main']()  # noqa
         except Exception as e:
             self._handle_exception(e)
 
@@ -93,8 +99,6 @@ class Debug(bdb.Bdb):
     def user_line(self, frame):
         self.current_frame = frame
         self.paused = True
-        flow_line = self._to_flow_line(frame.f_lineno)
-        _notify('pause', file=self.filename, line=flow_line)
 
     def _handle_exception(self, exc: Exception):
         tb = exc.__traceback__

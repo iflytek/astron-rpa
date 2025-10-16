@@ -13,42 +13,7 @@ class Flow:
     def __init__(self, svc: Svc):
         self.svc = svc
 
-    # def gen_code(self, project_id: str, mode: str, version: str):
-    #     os.makedirs("./project", exist_ok=True)
-    #
-    #     # 生成project.py
-    #     res = self._global_display(project_id, mode, version)
-    #     with open("./project/project.py", "w", encoding="utf-8") as file:
-    #         file.write(res)
-    #
-    #     # 生成project.json
-    #     project_json = {
-    #         "project_info": None,
-    #         "requirement": None,
-    #     }
-    #
-    #     # 生成project_info
-    #     res = [v.to_project_json() for k, v in self.svc.ast_globals.items()]
-    #     if res:
-    #         project_json["project_info"] = res
-    #
-    #     # 生成requirement_exit
-    #     requirement = dict()
-    #     res = self._requirement_display(project_id, mode, version)
-    #     if res:
-    #         for i in res:
-    #             if i.get("packageName") not in requirement:
-    #                 requirement[i.get("packageName")] = {
-    #                     "package_name": i.get("packageName"),
-    #                     "package_version": i.get("packageVersion"),
-    #                     "package_mirror": i.get("mirror")
-    #                 }
-    #     if len(requirement) > 0:
-    #         project_json["requirement"] = requirement
-    #     with open("./project/project.json", "w", encoding="utf-8") as file:
-    #         file.write(json.dumps(project_json, ensure_ascii=False, indent=4))
-
-    def gen_code(self, project_id: str, mode: str, version: str):
+    def gen_code(self, project_id: str, project_name: str, mode: str, version: str):
         os.makedirs(self.svc.conf.GEN_CORE_PATH, exist_ok=True)
 
         # 1. 生成流程相关数据
@@ -72,7 +37,7 @@ class Flow:
                     process_index += 1
                 res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
 
-                self.svc.add_process_info(project_id, category, name, file_name)
+                self.svc.add_process_info(resource_id, category, name, file_name)
                 with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                 with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
@@ -95,22 +60,31 @@ class Flow:
         with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.py"), "w", encoding="utf-8") as file:
             file.write(res)
 
-        # # 3. 生成project.json
-        # res = json.dumps(self.svc.ast_globals)
-        # with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.json"), "w", encoding="utf-8") as file:
-        #     file.write(res)
-        #
-        # # 4. 生成requirement
-        # res = self._requirement_display(project_id, mode, version)
-        # with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "requirements.txt"), "w", encoding="utf-8") as file:
-        #     file.write(res)
+        # 3 生成project.json
+        requirement = self._requirement_display(project_id, mode, version)
+        self.svc.add_project_info(project_id, mode, version, project_name, requirement)
+        res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
+        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.json"), "w", encoding="utf-8") as file:
+            file.write(res)
 
     def _requirement_display(self, project_id: str, mode: str, version: str):
         """
         当前包的依赖性
         """
+
+        requirement = dict()
         res = self.svc.storage.pip_list(project_id=project_id, mode=mode, version=version)
-        return res
+        for i in res:
+            pack_name = i.get("packageName")
+            pack_version = i.get("packageVersion")
+            pack_mirror = i.get("mirror")
+            if pack_name not in requirement:
+                requirement[pack_name] = {
+                    "package_name": pack_name,
+                    "package_version": pack_version,
+                    "package_mirror": pack_mirror
+                }
+        return requirement
 
     def _global_display(self, project_id: str, mode: str, version: str):
         """
