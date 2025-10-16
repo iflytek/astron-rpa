@@ -60,8 +60,11 @@ export class CasdoorAuthService implements IAuthService {
 
   async logout(): Promise<void> {
     try {
-      await casdoorSignout()
-      window.location.href = '/'
+      const res = await casdoorSignout()      
+      let logoutUrl = res.data.data.logoutUrl
+      const redirectUrl = location.origin + '/boot.html'
+      logoutUrl = setUrlQueryField('post_logout_redirect_uri', redirectUrl, logoutUrl)
+      window.location.href = logoutUrl
     }
     catch (error) {
       console.error('Casdoor登出失败:', error)
