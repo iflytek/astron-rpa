@@ -23,8 +23,9 @@ local function authenticate_user()
         ngx_log(ngx_DEBUG, "Found Authorization header: " .. authorization_header)
         local _, _, token_type, token_value = string.find(authorization_header, "^(%S+)%s+(.+)$")
         if token_type and token_type:lower() == "bearer" then
-            session_token = token_value
-            ngx_log(ngx_DEBUG, "Extracted Bearer Token from Authorization header: " .. session_token)
+            -- session_token = token_value
+            -- ngx_log(ngx_DEBUG, "Extracted Bearer Token from Authorization header: " .. session_token)
+            return
         else
             ngx_log(ngx_DEBUG, "Authorization header is present but not Bearer type, type: " .. (token_type or "nil"))
         end
