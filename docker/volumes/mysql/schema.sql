@@ -813,6 +813,50 @@ CREATE TABLE `openapi_auth` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='openapi鉴权储存';
 
 
+-- rpa.openai_executions definition
+
+CREATE TABLE `openai_executions` (
+  `id` varchar(36) NOT NULL COMMENT '执行记录ID（UUID）',
+  `project_id` varchar(100) NOT NULL COMMENT '项目ID（关联工作流）',
+  `status` varchar(20) NOT NULL DEFAULT 'PENDING' COMMENT '执行状态（PENDING/RUNNING/COMPLETED/FAILED/CANCELLED）',
+  `parameters` text COMMENT '执行参数（JSON格式）',
+  `result` text COMMENT '执行结果（JSON格式）',
+  `error` text COMMENT '错误信息',
+  `user_id` varchar(50) NOT NULL COMMENT '用户ID',
+  `exec_position` varchar(50) NOT NULL DEFAULT 'EXECUTOR' COMMENT '执行位置',
+  `version` int(11) DEFAULT NULL COMMENT '工作流版本号',
+  `start_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_project_id` (`project_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_start_time` (`start_time`),
+  CONSTRAINT `openai_executions_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `openai_workflows` (`project_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- rpa.openai_workflows definition
+
+CREATE TABLE `openai_workflows` (
+  `project_id` varchar(100) NOT NULL COMMENT '项目ID（主键）',
+  `name` varchar(100) NOT NULL COMMENT '工作流名称',
+  `description` varchar(500) DEFAULT NULL COMMENT '工作流描述',
+  `version` int(11) NOT NULL DEFAULT '1' COMMENT '工作流版本号',
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '工作流状态（1=激活，0=禁用）',
+  `user_id` varchar(50) NOT NULL COMMENT '用户ID',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `english_name` varchar(100) DEFAULT NULL COMMENT '翻译后的英文名称',
+  `parameters` text COMMENT '存储JSON字符串格式的参数',
+  PRIMARY KEY (`project_id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- rpa.pypi_packages definition
 
 CREATE TABLE `pypi_packages` (
