@@ -41,9 +41,11 @@ export async function getRobotLastVersion(robotId: string) {
 /**
  * @description: 获取该机器人是否允许外部调用
  */
+
 export async function getRobotLastIsExternalCall(robotId: string) {
-  const res = await http.get('/rpa-openapi/workflows/get', { project_id: robotId })
-  return pickBy(res.data.workflow, (value, key) => key.startsWith('status'))
+  console.log('robotId', robotId)
+  const res = await http.get(`/rpa-openapi/workflows/get/${robotId}`)
+  return pickBy(res?.data?.workflow, value => value !== null)
 }
 
 /**
@@ -51,6 +53,14 @@ export async function getRobotLastIsExternalCall(robotId: string) {
  */
 export function setRobotIsExternalCall(data) {
   return http.post('/rpa-openapi/workflows/upsert', data)
+}
+
+/**
+ * @description: 获取机器人名称以英文翻译
+ */
+export function getRobotEnglishName(name: string) {
+  console.log('name', name)
+  return http.post('/rpa-ai-service/v1/chat/prompt', { prompt_type: 'translate', params: { name } })
 }
 
 /**

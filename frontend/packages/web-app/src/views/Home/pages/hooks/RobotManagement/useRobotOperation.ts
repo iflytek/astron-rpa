@@ -4,6 +4,7 @@ import { message } from 'ant-design-vue'
 import { deleteRobot, getRobotLst, isRobotInTask, updateRobot } from '@/api/robot'
 import { RobotConfigTaskModal } from '@/components/RobotConfigTaskModal'
 import { ActuatorRobotDetailModal } from '@/components/RobotDetail'
+import { McpConfigModal } from '@/views/Home/components/modals/index'
 import { useRobotUpdate } from '@/views/Home/components/TeamMarket/hooks/useRobotUpdate'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
@@ -41,6 +42,9 @@ export default function useRobotOperation(homeTableRef, refreshHomeTable) {
       robotId: record.robotId,
       version: record.version,
     })
+  }
+  function openMcpConfigModal(record) {
+    NiceModal.show(McpConfigModal, { record })
   }
   // 删除
   function handleDeleteRobot(editObj) {
@@ -87,6 +91,7 @@ export default function useRobotOperation(homeTableRef, refreshHomeTable) {
     importRobot,
     handleToConfig,
     openRobotDetailModal,
+    openMcpConfigModal,
     handleDeleteRobot,
     handleRobotUpdate,
     expiredTip,
