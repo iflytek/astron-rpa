@@ -67,9 +67,14 @@
 # Download and install Python 3.13.x
 ```
 
-#### Method 2: Using Chocolatey
+#### Method 2: Using Winget
 ```bash
-choco install python --version=3.13.0
+winget install Python.Python.3.13
+```
+
+#### Method 3: Using Chocolatey
+```bash
+choco install python --version=3.13.x
 ```
 
 </details>
@@ -158,13 +163,14 @@ pnpm --version
 
 <br>
 
-You need to install Microsoft C++ Build Tools. The easiest way is to download **Visual Studio 2022 Build Tools**.
+You need to install Microsoft C++ Build Tools. The easiest way is to download [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+It's recommended to install on a non-system drive as it may take up significant storage space.
 
 **During installation, check:**
 - ✅ C++ Build Tools
 - ✅ Windows 10 SDK
 
-> **💡 Tip:** Use Visual Studio 2022 Build Tools installer
+> **💡 Tip:** ![VS Hint](./docs/images/visual_studio_install.png "VS Installation Hint")
 
 </details>
 
@@ -176,7 +182,7 @@ You need to install Microsoft C++ Build Tools. The easiest way is to download **
 > **📝 Note**  
 > Windows 10 (Version 1803+) and Windows 11 come with WebView2 pre-installed
 
-Tauri needs WebView2 to render web content on Windows. Download and run the **Evergreen Bootstrapper** from Microsoft's website.
+Tauri needs WebView2 to render web content on Windows. Download and run the **Evergreen Bootstrapper** from [Microsoft's website](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section).
 
 **🔍 Troubleshooting:** If you encounter issues (especially on Windows on ARM), manually select the version that matches your architecture.
 
@@ -189,7 +195,7 @@ Tauri needs WebView2 to render web content on Windows. Download and run the **Ev
 
 Visit [Rust Installation](https://www.rust-lang.org/tools/install) to install rustup (Rust installer).
 
-**Or install using winget:**
+**Or install using winget in PowerShell:**
 ```bash
 winget install --id Rustlang.Rustup
 ```
@@ -337,6 +343,12 @@ cd astron-rpa
 # Enter Docker directory
 cd docker
 
+# Copy .env file
+cp .env.example .env
+
+# Modify casdoor service configuration in .env
+CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+
 # 🚀 Start all services
 docker compose up -d
 
@@ -363,20 +375,7 @@ redis               Up 30 seconds       0.0.0.0:6379->6379/tcp
 ```bash
 # 📝 View service logs
 docker compose logs -f
-
-# ✅ Check service health status
-curl http://localhost:8080/health
-curl http://localhost:8081/health
-curl http://localhost:8082/health
 ```
-
-#### Step 4️⃣: Access Web Interface
-
-| Service | Address | Description |
-|-----|------|------|
-| 🖥️ **Management UI** | http://localhost:8080 | Main management console |
-| 📚 **API Docs** | http://localhost:8080/api-docs | Swagger API documentation |
-| 📊 **Monitoring** | http://localhost:8080/monitoring | System monitoring panel |
 
 ---
 
@@ -397,7 +396,7 @@ docker compose pull
 docker compose up -d
 ```
 
-**📖 Detailed Configuration**: [Server Deployment Guide](../docker/QUICK_START.md)
+**📖 Detailed Configuration**: [Server Deployment Guide](./docker/QUICK_START.md)
 
 
 
@@ -587,11 +586,9 @@ src-tauri/resources/
 
 | Service | Address | Description |
 |-----|------|------|
-| 🌐 **Web App** | http://localhost:5173 | Development frontend UI |
 | 🖥️ **Desktop App** | Auto-launch window | Tauri desktop client |
-| 🔌 **Main Service API** | http://localhost:8080 | Robot service API |
-| 🤖 **AI Service API** | http://localhost:8001 | AI intelligence service |
-| 🔗 **OpenAPI Service** | http://localhost:8002 | OpenAPI service |
+| 🔌 **Backend Service API** | http://localhost:32742 | Backend Gateway Service Nginx |
+| 🔑 **Casdoor Service API** | http://localhost:8000 | Authentication Service Casdoor |
 
 ---
 
@@ -603,38 +600,16 @@ src-tauri/resources/
 # 📊 Check Docker service status
 docker compose ps
 
-# 🔍 Verify API responses
-curl http://localhost:8080/health
-curl http://localhost:8080/api/v1/status
-
-# 🌐 Access web interface
-# Open in browser: http://localhost:8080
+# 🔍 Verify API response
+curl http://localhost:32742/health
+(Return "healthy" means deployment successful)
 ```
 
-<details>
-<summary>💡 <b>Expected Health Check Response</b></summary>
-
-```json
-{
-  "status": "healthy",
-  "timestamp": "2024-01-01T00:00:00Z",
-  "services": {
-    "database": "up",
-    "redis": "up",
-    "api": "up"
-  }
-}
-```
-
-</details>
-
-### ✅ Step 2: Connection Test
+### ✅ Step 2: Casdoor Service Check
 
 ```bash
-# 🔌 Test WebSocket connection
-curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
-     -H "Sec-WebSocket-Key: test" -H "Sec-WebSocket-Version: 13" \
-     http://localhost:8080/ws
+# Open http://localhost:8000 in browser
+# Casdoor authentication page should appear
 ```
 
 **Follow-up Verification:**
@@ -700,6 +675,11 @@ docker compose restart mysql
 # 🔍 Check Python installation path
 where python  # Windows
 which python  # Linux/macOS
+
+# 🔍 Make sure to pass the Python executable file
+
+✖️ ./build.bat -p "C:\\Python313"
+✔️ ./build.bat -p "C:\\Python313\\python.exe"
 ```
 
 **Solutions:**
@@ -715,11 +695,7 @@ which python  # Linux/macOS
 <br>
 
 ```bash
-# ✅ Check 7-Zip path
-"C:\Program Files\7-Zip\7z.exe"
-
-# 🔧 Manually specify path
-pack.bat "D:\Tools\7-Zip\7z.exe" "C:\Python313"
+# ✅ Check all dependencies in preparation phase are fully installed
 
 # 💾 Check disk space
 dir  # Windows check available space
@@ -738,15 +714,16 @@ dir  # Windows check available space
 
 ```bash
 # 🌐 Check network connectivity
-ping localhost
-telnet localhost 8080
+# Open the following URL in your browser to see if there's a response
+# http://localhost:32742 can be replaced with your deployed server address+port
+http://localhost:32742/api/robot/user/login-check
 
 # 🛡️ Check firewall settings
 # Windows: Control Panel > System and Security > Windows Defender Firewall
 # Linux: ufw status
 
 # ✅ Check server health status
-curl http://localhost:8080/health
+curl http://localhost:32742/health
 ```
 
 **Common Causes:**
