@@ -103,6 +103,8 @@ class Param(IParam):
                 # 转换成eval能执行的状态
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
                     res.append("\"{}\"".format(data.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
+                elif types in [ParamType.G_VAR.value]:
+                    res.append("gv[\"{}\"]".format(data))
                 else:
                     res.append("{}".format(data))
             else:
@@ -123,20 +125,26 @@ class Param(IParam):
         else:
             return res[0], need_eval
 
-    def parse_param(self, i: dict) -> InputParam:
-        ls = self.pre_param_handler(i.get("value"))
-        value, need_eval = self._param_to_eval(ls)
-        return InputParam(key=i.get("name"), value=value, need_eval=need_eval)
-
-    def parse_param_special(self, i: dict) -> InputParam:
+    def parse_param(self, i: dict, token=None) -> InputParam:
         data = i.get("value")
         parse = i.get("need_parse")
-        if parse == "json_str":
-            data = json.loads(data)
-
-        python_code = self._process_and_convert_to_python(data)
-
-        return InputParam(key=i.get("name"), value=python_code, need_eval=True)
+        if i.get("need_parse", None) is not None:
+            if parse == "json_str":
+                data = json.loads(data)
+            return InputParam(key=i.get("name"), value=self._process_and_convert_to_python(data), need_eval=True)
+        else:
+            value, need_eval = self._param_to_eval(self.pre_param_handler(data))
+            special = ""
+            if isinstance(i.get("value"), list) and i.get("value")[0]["type"] == ParamType.ELEMENT.value:
+                # 元素
+                special = "element"
+            elif token and token.value.get("key") == "Code.Module" and i.get("key") == "content":
+                # 子模块
+                special = "module"
+            elif token and token.value.get("key") == "Code.Process" and i.get("key") == "content":
+                # 子模块
+                special = "module"
+            return InputParam(key=i.get("name"), value=value, need_eval=need_eval, special=special)
 
     def parse_condition_input(self, token: Token) -> InputParam:
         res = {}
@@ -182,14 +190,12 @@ class Param(IParam):
             ):
                 continue
 
-            # 0. 显隐关系
+            # 1. 显隐关系
             if not i.get("show", True):
                 continue
 
-            if i.get("need_parse", None) is not None:
-                res[i.get("name")] = self.parse_param_special(i)
-            else:
-                res[i.get("name")] = self.parse_param(i)
+            # 2. 解析
+            res[i.get("name")] = self.parse_param(i, token=token)
 
         # 高级选项
         info = [

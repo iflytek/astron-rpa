@@ -55,16 +55,22 @@ class Flow:
 
         # 2. 生成project.py
 
-        # 2.1 生成全局变量
-        res = self._global_display(project_id, mode, version)
-        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.py"), "w", encoding="utf-8") as file:
-            file.write(res)
+        # 2.1 读取模板
+        tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
+        with open(tpl_path, "r", encoding="utf-8") as tpl_file:
+            tpl_content = tpl_file.read()
 
-        # 3 生成project.json
+        # 2.2 替换全局变量
+        global_code = self._global_display(project_id, mode, version)
+        package_py_content = tpl_content.replace("{{GLOBAL}}", global_code)
+        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "package.py"), "w", encoding="utf-8") as file:
+            file.write(package_py_content)
+
+        # 3 生成package.json
         requirement = self._requirement_display(project_id, mode, version)
         self.svc.add_project_info(project_id, mode, version, project_name, requirement)
         res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
-        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "project.json"), "w", encoding="utf-8") as file:
+        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)
 
     def _requirement_display(self, project_id: str, mode: str, version: str):
@@ -98,7 +104,7 @@ class Flow:
                 "types": g.get("varType"),
                 "name": g.get("varName"),
             })
-            param_code += "{} = {}\n".format(g.get("varName"), param.show_value())
+            param_code += "gv[\"{}\"] = {}\n".format(g.get("varName"), param.show_value())
         return param_code
 
     def _module_display(self, project_id: str, mode: str, version: str, module_id: str, module_name) -> str:

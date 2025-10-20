@@ -21,10 +21,10 @@ def start():
     logger.debug("start {}".format(args))
 
     # 生成代码
-    # svc = Svc(args=args, conf=Config)
-    # flow = Flow(svc=svc)
-    # flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
+    svc = Svc(args=args, conf=Config)
+    flow = Flow(svc=svc)
+    flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
 
     # 执行代码
-    debug = Debug(str(os.path.join(svc.conf.GEN_CORE_PATH, svc.conf.MAIN_FILE_NAME)))
-    debug.start()
+    # debug = Debug(str(os.path.join(svc.conf.GEN_CORE_PATH, svc.conf.MAIN_FILE_NAME)))
+    # debug.start()
