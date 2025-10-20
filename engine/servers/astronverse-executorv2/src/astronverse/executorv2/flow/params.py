@@ -26,19 +26,35 @@ class Param(IParam):
     def __init__(self, svc):
         self.svc = svc
 
-    def _dict_deep_traverse(self, data, process_func):
-        """深度遍历字典"""
+    def _process_and_convert_to_python(self, data: Any) -> str:
         if isinstance(data, dict):
-            for key in list(data.keys()):  # 使用list()来避免在遍历过程中修改字典
-                value = data[key]
-                res = process_func(key, value)
-                if res is not None:
-                    data[key] = res
-                    continue
-                self._dict_deep_traverse(value, process_func)
+            if data.get("rpa") == "special" and isinstance(data.get("value"), list):
+                ls = self.pre_param_handler(data.get("value"))
+                value, need_eval = self._param_to_eval(ls)
+                return InputParam(value=value, need_eval=need_eval).show_value()
+            else:
+                # 普通字典，递归处理
+                items = []
+                for key, value in data.items():
+                    key_str = json.dumps(key, ensure_ascii=False)
+                    value_str = self._process_and_convert_to_python(value)
+                    items.append(f"{key_str}: {value_str}")
+                return "{" + ", ".join(items) + "}"
         elif isinstance(data, list):
-            for item in data:
-                self._dict_deep_traverse(item, process_func)
+            items = [self._process_and_convert_to_python(item) for item in data]
+            return "[" + ", ".join(items) + "]"
+        else:
+            # 基本类型，直接转换
+            if isinstance(data, str):
+                return json.dumps(data, ensure_ascii=False)
+            elif isinstance(data, (int, float)):
+                return str(data)
+            elif isinstance(data, bool):
+                return str(data)
+            elif data is None:
+                return "None"
+            else:
+                return json.dumps(data, ensure_ascii=False)
 
     @staticmethod
     def pre_param_handler(param_value: Any):
@@ -85,7 +101,7 @@ class Param(IParam):
             data = v.get("data", "")
             if need_eval:
                 # 转换成eval能执行的状态
-                if types == ParamType.STR.value:
+                if types in [ParamType.STR.value, ParamType.OTHER.value]:
                     res.append("\"{}\"".format(data.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
                 else:
                     res.append("{}".format(data))
@@ -107,41 +123,10 @@ class Param(IParam):
         else:
             return res[0], need_eval
 
-    def _param_to_eval_special(self, value: Any) -> Any:
-        """特殊dict处理"""
-
-        if not isinstance(value, dict):
-            return
-
-        if value.get("rpa", "") != "special":
-            return
-
-        ls = self.pre_param_handler(value.get("value", []))
-        return self._param_to_eval(ls)
-
     def parse_param(self, i: dict) -> InputParam:
         ls = self.pre_param_handler(i.get("value"))
         value, need_eval = self._param_to_eval(ls)
         return InputParam(key=i.get("name"), value=value, need_eval=need_eval)
-
-    def _custom_json_dumps(self, obj):
-        if isinstance(obj, InputParam):
-            if obj.need_eval:
-                return obj.value
-            else:
-                return json.dumps(obj.value, ensure_ascii=False)
-        elif isinstance(obj, dict):
-            items = []
-            for key, value in obj.items():
-                key_str = json.dumps(key, ensure_ascii=False)
-                value_str = self._custom_json_dumps(value)
-                items.append(f"{key_str}: {value_str}")
-            return "{" + ", ".join(items) + "}"
-        elif isinstance(obj, list):
-            items = [self._custom_json_dumps(item) for item in obj]
-            return "[" + ", ".join(items) + "]"
-        else:
-            return json.dumps(obj, ensure_ascii=False)
 
     def parse_param_special(self, i: dict) -> InputParam:
         data = i.get("value")
@@ -149,19 +134,9 @@ class Param(IParam):
         if parse == "json_str":
             data = json.loads(data)
 
-        def process_func(key, value):
-            res = self._param_to_eval_special(value)
-            if res is None:
-                return
-            value, need_eval = res
-            return InputParam(value=value, need_eval=need_eval)
+        python_code = self._process_and_convert_to_python(data)
 
-        self._dict_deep_traverse(data, process_func)
-        
-        # 使用自定义序列化函数，直接处理InputParam对象
-        data_str = self._custom_json_dumps(data)
-        
-        return InputParam(key=i.get("name"), value=data_str, need_eval=True)
+        return InputParam(key=i.get("name"), value=python_code, need_eval=True)
 
     def parse_condition_input(self, token: Token) -> InputParam:
         res = {}
