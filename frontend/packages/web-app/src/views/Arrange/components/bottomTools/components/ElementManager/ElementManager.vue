@@ -14,6 +14,7 @@ import type { ElementActionType, ElementsType, GroupContextMenuType } from '@/ty
 import { ElementPickModal } from '@/views/Arrange/components/pick'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 import { quoteManage } from '@/views/Arrange/hook/useQuoteManage'
+import { getImageURL } from '@/api/http/env'
 
 import { useGroupManager } from '../hooks/useGroup'
 
@@ -175,7 +176,7 @@ function handleAction(data: { keys: ElementActionType[], data: ElementsType }) {
           </div>
           <div class="preview dark:bg-[rgba(255,255,255,0.08)] bg-[#f3f3f7]">
             <div class="pick-img">
-              <Image v-if="useElements.selectedElement.imageUrl" :title="$t('fullSizeImage')" :src="useElements.selectedElement.imageUrl" alt="元素图片" />
+              <Image v-if="useElements.selectedElement.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(useElements.selectedElement.imageUrl)" alt="元素图片" />
             </div>
           </div>
         </div>

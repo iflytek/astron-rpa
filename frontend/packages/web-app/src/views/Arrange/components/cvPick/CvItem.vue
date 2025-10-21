@@ -14,6 +14,7 @@ import { useGroupManager } from '@/views/Arrange/components/bottomTools/componen
 import { useCvManager } from '@/views/Arrange/components/cvPick/hooks/useCvManager.ts'
 
 import { filterActionData } from '../../utils/elementsUtils'
+import { getImageURL } from '@/api/http/env'
 
 const { itemData, groupId, elementActions, itemChosed } = defineProps({
   itemData: {
@@ -133,7 +134,7 @@ const configData = computed(() => filterActionData(initConfigData.value, element
       <ElementMenu :selectd-id="groupId" :menus="configData[1].menus" @key-path="actionClick" />
     </template>
     <div class="cv-item relative" :class="{ 'cv-item-active': itemChosed === itemData.id }" :name="itemChosed ? itemData.id : ''" @click.stop="itemClick">
-      <span class="cv-item-img inline-block"><Image wrapper-class-name="cv-img-mask" :title="$t('fullSizeImage')" :src="itemData.imageUrl" @click.stop /></span>
+      <span class="cv-item-img inline-block"><Image wrapper-class-name="cv-img-mask" :title="$t('fullSizeImage')" :src="getImageURL(itemData.imageUrl)" @click.stop /></span>
       <div class="flex w-[64px]">
         <a-tooltip :title="itemData.name" class="flex-1">
           <div class="cv-item-title text-nowrap text-ellipsis overflow-hidden text-center">

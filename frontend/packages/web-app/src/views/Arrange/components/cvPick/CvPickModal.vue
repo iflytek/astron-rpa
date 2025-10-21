@@ -13,6 +13,7 @@ import { useCvStore } from '@/stores/useCvStore'
 import AtomSlider from '@/views/Arrange/components/atomForm/AtomSlider.vue'
 import { useCvPick } from '@/views/Arrange/components/cvPick/hooks/useCvPick.ts'
 import { useCvPickForm } from '@/views/Arrange/components/cvPick/hooks/useCvPickForm.ts'
+import { getImageURL } from '@/api/http/env'
 
 const { entry, groupId } = defineProps({
   entry: { // 拾取入口, 'group'-分组增加 会保存并继续  atomFormBtn-原子能力配置表单拾取按钮，仅保存  edit-编辑入口，仅保存，按钮文字展示为“保存”
@@ -182,14 +183,14 @@ onUnmounted(() => {
         <a-row class="cv-pick-content">
           <a-col :span="15" class="cv-imgs flex">
             <span v-if="cvStore.currentCvItem?.parentImageUrl" class="cv-img-item anchor-img relative">
-              <Image v-if="!defaultAnchor" :title="$t('fullSizeImage')" :src="cvStore.currentCvItem.parentImageUrl" />
+              <Image v-if="!defaultAnchor" :title="$t('fullSizeImage')" :src="getImageURL(cvStore.currentCvItem.parentImageUrl)" />
               <span v-else class="anchor flex items-center justify-center" @click="pickAnchor">
                 <rpa-icon name="anchor-point" color="#F39D09" class="cursor-pointer" size="48" />
               </span>
               <span class="anchor-tip absolute inline-block" @click="pickAnchor">指定锚点</span>
             </span>
             <span class="cv-img-item cv-img" :class="{ 'cv-img-item-fullw': !cvStore.currentCvItem?.parentImageUrl }">
-              <Image v-if="cvStore.currentCvItem?.imageUrl" :title="$t('fullSizeImage')" :src="cvStore.currentCvItem.imageUrl" />
+              <Image v-if="cvStore.currentCvItem?.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(cvStore.currentCvItem.imageUrl)" />
             </span>
           </a-col>
           <a-col :span="9" class="cv-buttons flex items-center">

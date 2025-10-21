@@ -33,6 +33,7 @@ import {
 import CustomTable from './CustomTable.vue'
 import DirectoryTable from './DirectoryTable.vue'
 import PickForm from './PickForm.vue'
+import { getImageURL } from '@/api/http/env'
 
 defineProps({
   isContinue: {
@@ -356,7 +357,7 @@ watch(
             <Image
               v-if="useElements.currentElement.imageUrl"
               :title="$t('fullSizeImage')"
-              :src="useElements.currentElement.imageUrl"
+              :src="getImageURL(useElements.currentElement.imageUrl)"
             />
           </div>
         </a-col>

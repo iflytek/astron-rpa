@@ -18,6 +18,7 @@ import { useRenderPick } from '@/views/Arrange/components/descForm/hooks/useRend
 import { ElementPickModal } from '@/views/Arrange/components/pick'
 import { DEFAULT_DESC_TEXT } from '@/views/Arrange/config/flow'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
+import { getImageURL } from '@/api/http/env'
 
 const { itemData, itemType, desc, id, canEdit } = defineProps({
   itemType: {
@@ -190,7 +191,7 @@ function pickClick(key: string) {
           <rpa-icon v-if="itemType === ATOM_FORM_TYPE.CVPICK" name="bottom-menu-img-manage" />
           <rpa-icon v-else name="bottom-menu-ele-manage" />
         </template>
-        <Image v-if="renderInfo.img" class="desc-pick-img inline-block" :title="$t('fullSizeImage')" :height="14" :src="renderInfo.img" />
+        <Image v-if="renderInfo.img" class="desc-pick-img inline-block" :title="$t('fullSizeImage')" :height="14" :src="getImageURL(renderInfo.img)" />
       </span>
     </a-tooltip>
   </a-dropdown>

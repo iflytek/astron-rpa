@@ -14,6 +14,7 @@ import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 
 import { createDom, setEditTextContent } from './hooks/useAtomVarPopover'
 import { formBtnHandle } from './hooks/useRenderFormType'
+import { getImageURL } from '@/api/http/env'
 
 const { renderData, immediatUpdate } = defineProps({
   renderType: {
@@ -156,7 +157,7 @@ watchEffect(() => {
       </article>
     </div>
     <article class="atom-popover-footer bg-[#F3F3F7] dark:bg-[#FFFFFF]/[.08]">
-      <a-image v-if="eleImg" :preview="false" :src="eleImg" :height="80" />
+      <a-image v-if="eleImg" :preview="false" :src="getImageURL(eleImg)" :height="80" />
       <a-empty v-else :image="simpleImage" :description="null" />
     </article>
   </div>
