@@ -1,8 +1,9 @@
 import os.path
-from typing import Optional
+from typing import Optional, Any
 from astronverse.actionlib.types import Pick
 from astronverse.workflowlib.storage import HttpStorage
 from astronverse.workflowlib.config import config
+from astronverse.workflowlib.params import ComplexParamParser
 
 conf = config("./package.json")
 
@@ -21,6 +22,10 @@ def module(module_id) -> Optional[str]:
     return os.path.splitext(name)[0]
 
 
+def complex_param_parser(complex_param: dict) -> dict:
+    res = ComplexParamParser.parse_params(complex_param)
+
+
 def element(element_id) -> Optional[Pick]:
     res = storage.element_detail(
         project_info.get("project_id"),
@@ -30,6 +35,7 @@ def element(element_id) -> Optional[Pick]:
     )
     if res is None:
         return None
+    res = complex_param_parser(res)
     return Pick(res)
 
 

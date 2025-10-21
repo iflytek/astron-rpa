@@ -26,7 +26,7 @@ class Param(IParam):
     def __init__(self, svc):
         self.svc = svc
 
-    def _process_and_convert_to_python(self, data: Any) -> str:
+    def _parse_complex_params(self, data: Any) -> str:
         if isinstance(data, dict):
             if data.get("rpa") == "special" and isinstance(data.get("value"), list):
                 ls = self.pre_param_handler(data.get("value"))
@@ -37,11 +37,11 @@ class Param(IParam):
                 items = []
                 for key, value in data.items():
                     key_str = json.dumps(key, ensure_ascii=False)
-                    value_str = self._process_and_convert_to_python(value)
+                    value_str = self._parse_complex_params(value)
                     items.append(f"{key_str}: {value_str}")
                 return "{" + ", ".join(items) + "}"
         elif isinstance(data, list):
-            items = [self._process_and_convert_to_python(item) for item in data]
+            items = [self._parse_complex_params(item) for item in data]
             return "[" + ", ".join(items) + "]"
         else:
             # 基本类型，直接转换
@@ -126,25 +126,30 @@ class Param(IParam):
             return res[0], need_eval
 
     def parse_param(self, i: dict, token=None) -> InputParam:
+        name = i.get("name")
         data = i.get("value")
         parse = i.get("need_parse")
-        if i.get("need_parse", None) is not None:
+        key = token.value.get("key") if token else ""
+
+        if parse is not None:
             if parse == "json_str":
                 data = json.loads(data)
-            return InputParam(key=i.get("name"), value=self._process_and_convert_to_python(data), need_eval=True)
-        else:
-            value, need_eval = self._param_to_eval(self.pre_param_handler(data))
-            special = ""
-            if isinstance(i.get("value"), list) and i.get("value")[0]["type"] == ParamType.ELEMENT.value:
-                # 元素
-                special = "element"
-            elif token and token.value.get("key") == "Code.Module" and i.get("key") == "content":
-                # 子模块
-                special = "module"
-            elif token and token.value.get("key") == "Code.Process" and i.get("key") == "content":
-                # 子模块
-                special = "module"
-            return InputParam(key=i.get("name"), value=value, need_eval=need_eval, special=special)
+        special = ""
+        if parse is not None:
+            # 复杂参数解析
+            special = "complex_param_parser"
+        elif isinstance(data, list) and data[0]["type"] == ParamType.ELEMENT.value:
+            # 元素
+            special = "element"
+        elif key == "Code.Module" and name == "content":
+            # 子模块
+            special = "module"
+        elif key == "Code.Process" and name == "content":
+            # 子模块
+            special = "module"
+
+        value, need_eval = self._param_to_eval(self.pre_param_handler(data))
+        return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 
     def parse_condition_input(self, token: Token) -> InputParam:
         res = {}
