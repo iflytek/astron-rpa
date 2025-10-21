@@ -26,36 +26,6 @@ class Param(IParam):
     def __init__(self, svc):
         self.svc = svc
 
-    def _parse_complex_params(self, data: Any) -> str:
-        if isinstance(data, dict):
-            if data.get("rpa") == "special" and isinstance(data.get("value"), list):
-                ls = self.pre_param_handler(data.get("value"))
-                value, need_eval = self._param_to_eval(ls)
-                return InputParam(value=value, need_eval=need_eval).show_value()
-            else:
-                # 普通字典，递归处理
-                items = []
-                for key, value in data.items():
-                    key_str = json.dumps(key, ensure_ascii=False)
-                    value_str = self._parse_complex_params(value)
-                    items.append(f"{key_str}: {value_str}")
-                return "{" + ", ".join(items) + "}"
-        elif isinstance(data, list):
-            items = [self._parse_complex_params(item) for item in data]
-            return "[" + ", ".join(items) + "]"
-        else:
-            # 基本类型，直接转换
-            if isinstance(data, str):
-                return json.dumps(data, ensure_ascii=False)
-            elif isinstance(data, (int, float)):
-                return str(data)
-            elif isinstance(data, bool):
-                return str(data)
-            elif data is None:
-                return "None"
-            else:
-                return json.dumps(data, ensure_ascii=False)
-
     @staticmethod
     def pre_param_handler(param_value: Any):
         """

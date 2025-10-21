@@ -68,7 +68,7 @@ class Flow:
 
         # 3 生成package.json
         requirement = self._requirement_display(project_id, mode, version)
-        self.svc.add_project_info(project_id, mode, version, project_name, requirement)
+        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.gateway_port)
         res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
         with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)

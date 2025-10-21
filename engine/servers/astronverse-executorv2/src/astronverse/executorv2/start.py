@@ -1,10 +1,9 @@
 import argparse
 import os.path
-
+from astronverse.executorv2.logger import logger
 from astronverse.executorv2.config import Config
 from astronverse.executorv2.flow.flow import Flow
 from astronverse.executorv2.flow.svc import Svc
-from astronverse.executorv2.logger import logger
 from astronverse.executorv2.pdb.debug import Debug
 
 
@@ -18,7 +17,7 @@ def start():
     parser.add_argument("--version", default="", help="运行版本", required=False)
     args = parser.parse_args()
 
-    logger.debug("start {}".format(args))
+    logger.debug("executor start {}".format(args))
 
     # 生成代码
     svc = Svc(args=args, conf=Config)
@@ -26,5 +25,5 @@ def start():
     flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
 
     # 执行代码
-    # debug = Debug(str(os.path.join(svc.conf.GEN_CORE_PATH, svc.conf.MAIN_FILE_NAME)))
-    # debug.start()
+    debug = Debug(str(os.path.join(svc.conf.GEN_CORE_PATH, svc.conf.MAIN_FILE_NAME)))
+    debug.start()
