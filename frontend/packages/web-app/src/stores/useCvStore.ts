@@ -111,6 +111,8 @@ export const useCvStore = defineStore('cv', () => {
             ...cvParams,
             name: _name,
             ...res,
+            imageUrl: '',
+            parentImageUrl: '',
           },
           type: 'cv',
         }
