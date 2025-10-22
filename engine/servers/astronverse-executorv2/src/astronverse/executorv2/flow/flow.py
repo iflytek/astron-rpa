@@ -131,6 +131,9 @@ class Flow:
             v.update({
                 "__line__": line,
             })
+            if v.get("breakpoint"):
+                # 流程扫描的断点
+                self.svc.add_breakpoint(process_id, line)
             new_flow_list.append(v)
 
         # 2. 解析

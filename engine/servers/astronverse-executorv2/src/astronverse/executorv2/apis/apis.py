@@ -22,9 +22,9 @@ async def add_break_list(msg: BaseMsg, svc: Svc):
 
     if len(break_list) > 0 and svc:
         for k, v in enumerate(break_list):
-            process_info = svc.get_process_info(v.get("process_id"))
-            if process_info:
-                svc.debug.set_breakpoint(process_info.process_file_name, v.get("line"))
+            filename = v.get("process_id", v.get("filename", ""))
+            if filename:
+                svc.debug_handler.set_breakpoint(filename, v.v.get("line"))
     return {"status": "ok"}
 
 
@@ -34,21 +34,21 @@ async def clear_bradk(msg: BaseMsg, svc: Svc):
 
     if len(break_list) > 0 and svc:
         for k, v in enumerate(break_list):
-            process_info = svc.get_process_info(v.get("process_id"))
-            if process_info:
-                svc.debug.clear_breakpoint(process_info.process_file_name, v.get("line"))
+            filename = v.get("process_id", v.get("filename", ""))
+            if filename:
+                svc.debug_handler.clear_breakpoint(filename, v.v.get("line"))
     return {"status": "ok"}
 
 
 @wsmg.event("flow", "continue")
 def debug_continue(msg: BaseMsg, svc: Svc):
     if svc:
-        svc.debug.cmd_continue()
+        svc.debug_handler.cmd_continue()
     return {"status": "ok"}
 
 
 @wsmg.event("flow", "next")
 def debug_next(msg: BaseMsg, svc: Svc):
     if svc:
-        svc.debug.cmd_next()
+        svc.debug_handler.cmd_next()
     return {"status": "ok"}

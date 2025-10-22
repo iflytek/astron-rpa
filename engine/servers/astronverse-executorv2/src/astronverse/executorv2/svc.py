@@ -1,11 +1,11 @@
-from asyncio import Queue
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 from astronverse.executorv2.config import Config
 from astronverse.executorv2.flow.params import Param
 from astronverse.executorv2.flow.storage import IStorage, HttpStorage
 from astronverse.executorv2.flow.syntax import IParam
 from astronverse.executorv2.run import report
+from astronverse.executorv2.run.debug import Debug
 from astronverse.executorv2.run.report import Report
 from astronverse.executorv2.logger import logger
 
@@ -37,9 +37,11 @@ class ProcessInfo:
     process_category: str = ""
     process_name: str = ""
     import_python: set = None
+    breakpoint: set = None
 
     def __init__(self):
         self.import_python = set()
+        self.breakpoint = set()
 
     def __json__(self):
         return {
@@ -69,7 +71,7 @@ class AstGlobals:
 
 class Svc:
 
-    def __init__(self, conf):
+    def __init__(self, conf, debug_model):
         # 全局类型
         self.conf: Config = conf
 
@@ -84,7 +86,8 @@ class Svc:
         self.ast_curr_info: {}
 
         # 运行时
-        self.debug = None
+        self.debug_model = debug_model
+        self.debug_handler: Optional[Debug] = None
 
     def add_project_info(self, project_id: str, mode: str, version: str, project_name: str, requirement: dict, gateway_port: int):
         self.ast_globals.project_info.project_id = project_id
@@ -116,6 +119,11 @@ class Svc:
         if process_id not in self.ast_globals.process_info:
             return None
         return self.ast_globals.process_info[process_id].import_python
+
+    def add_breakpoint(self, process_id, line):
+        if process_id not in self.ast_globals.process_info:
+            self.ast_globals.process_info[process_id] = ProcessInfo()
+        self.ast_globals.process_info[process_id].breakpoint.add(line)
 
     @staticmethod
     def end(status, reason, traceback):
