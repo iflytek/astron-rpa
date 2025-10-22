@@ -112,7 +112,7 @@ class HttpStorage(IStorage):
 
     def __init__(self, svc):
         self.svc = svc
-        self.gateway_port = svc.gateway_port
+        self.gateway_port = self.svc.conf.gateway_port
 
     def __http__(self, shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post") -> Any:
         """ post 请求 """

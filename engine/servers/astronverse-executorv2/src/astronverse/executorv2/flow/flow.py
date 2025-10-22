@@ -14,7 +14,7 @@ class Flow:
         self.svc = svc
 
     def gen_code(self, project_id: str, project_name: str, mode: str, version: str):
-        os.makedirs(self.svc.conf.GEN_CORE_PATH, exist_ok=True)
+        os.makedirs(self.svc.conf.gen_core_path, exist_ok=True)
 
         # 1. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
@@ -30,17 +30,17 @@ class Flow:
 
             # 生成python
             if category == "process":
-                if name == self.svc.conf.MAIN_FLOW_NAME:
-                    file_name = self.svc.conf.MAIN_FILE_NAME
+                if name == self.svc.conf.main_process_name:
+                    file_name = self.svc.conf.main_file_name
                 else:
                     file_name = "process{}.py".format(process_index)
                     process_index += 1
                 res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
 
                 self.svc.add_process_info(resource_id, category, name, file_name)
-                with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name), "w", encoding="utf-8") as file:
+                with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
-                with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
+                with open(os.path.join(self.svc.conf.gen_core_path, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
                     file.write(map_res)
             elif category == "module":
                 res = self._module_display(project_id, mode, version, resource_id, name)
@@ -48,7 +48,7 @@ class Flow:
                 module_index += 1
 
                 self.svc.add_process_info(project_id, category, name, file_name)
-                with open(os.path.join(self.svc.conf.GEN_CORE_PATH, file_name), "w", encoding="utf-8") as file:
+                with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
             else:
                 raise NotImplementedError()
@@ -63,14 +63,14 @@ class Flow:
         # 2.2 替换全局变量
         global_code = self._global_display(project_id, mode, version)
         package_py_content = tpl_content.replace("{{GLOBAL}}", global_code)
-        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "package.py"), "w", encoding="utf-8") as file:
+        with open(os.path.join(self.svc.conf.gen_core_path, "package.py"), "w", encoding="utf-8") as file:
             file.write(package_py_content)
 
         # 3 生成package.json
         requirement = self._requirement_display(project_id, mode, version)
-        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.gateway_port)
+        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port)
         res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
-        with open(os.path.join(self.svc.conf.GEN_CORE_PATH, "package.json"), "w", encoding="utf-8") as file:
+        with open(os.path.join(self.svc.conf.gen_core_path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)
 
     def _requirement_display(self, project_id: str, mode: str, version: str):
@@ -151,7 +151,7 @@ class Flow:
         map_list = []
         for i, code_line in enumerate(result):
             if isinstance(code_line, CodeLine):
-                indent = str(self.svc.conf.INDENTATION * code_line.tab_num)
+                indent = str(self.svc.conf.indentation * code_line.tab_num)
                 code_lines.append(indent + code_line.code)
                 if code_line.line > 0:
                     map_list.append("{}:{}".format(i + 1, code_line.line))

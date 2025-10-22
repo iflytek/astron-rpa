@@ -1,8 +1,13 @@
+from asyncio import Queue
 from dataclasses import dataclass
 from typing import Dict
+from astronverse.executorv2.config import Config
 from astronverse.executorv2.flow.params import Param
 from astronverse.executorv2.flow.storage import IStorage, HttpStorage
 from astronverse.executorv2.flow.syntax import IParam
+from astronverse.executorv2.run import report
+from astronverse.executorv2.run.report import Report
+from astronverse.executorv2.logger import logger
 
 
 @dataclass
@@ -64,19 +69,22 @@ class AstGlobals:
 
 class Svc:
 
-    def __init__(self, args, conf):
+    def __init__(self, conf):
         # 全局类型
-        self.conf = conf
-        self.port = args.port
-        self.gateway_port = args.gateway_port
+        self.conf: Config = conf
 
         # 工具类
         self.param: IParam = Param(self)
         self.storage: IStorage = HttpStorage(self)
+        self.report = Report(self)
+        report.code = self.report
 
         # 解析树变量
         self.ast_globals: AstGlobals = AstGlobals()
         self.ast_curr_info: {}
+
+        # 运行时
+        self.debug = None
 
     def add_project_info(self, project_id: str, mode: str, version: str, project_name: str, requirement: dict, gateway_port: int):
         self.ast_globals.project_info.project_id = project_id
@@ -93,7 +101,12 @@ class Svc:
         self.ast_globals.process_info[process_id].process_category = process_category
         self.ast_globals.process_info[process_id].process_name = process_name
         self.ast_globals.process_info[process_id].process_file_name = process_file_name
-
+    
+    def get_process_info(self, process_id):
+        if process_id not in self.ast_globals.process_info:
+            return None
+        return self.ast_globals.process_info[process_id]
+    
     def add_import_python(self, process_id: str, import_python: str):
         if process_id not in self.ast_globals.process_info:
             self.ast_globals.process_info[process_id] = ProcessInfo()
@@ -103,3 +116,7 @@ class Svc:
         if process_id not in self.ast_globals.process_info:
             return None
         return self.ast_globals.process_info[process_id].import_python
+
+    @staticmethod
+    def end(status, reason, traceback):
+        logger.info("{}.{}.{}".format(status, reason, traceback))
