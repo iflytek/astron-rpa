@@ -21,9 +21,11 @@ def start():
 
     # 生成代码
     svc = Svc(args=args, conf=Config)
-    flow = Flow(svc=svc)
-    flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
+    # flow = Flow(svc=svc)
+    # flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
 
-    # 执行代码
-    debug = Debug(str(os.path.join(svc.conf.GEN_CORE_PATH, svc.conf.MAIN_FILE_NAME)))
-    debug.start()
+    # 执行代码 - 使用project目录进行多文件调试
+    debug = Debug(svc.conf.GEN_CORE_PATH)
+    debug.set_breakpoint("main.py", 1)
+    debug.set_breakpoint("module1.py", 10)
+    debug.cmd_start()

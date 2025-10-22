@@ -21,17 +21,17 @@ class Script:
     @staticmethod
     @atomicMg.atomic(
         "Script",
-        outputList=[atomicMg.param("call_process", types="Any")],
+        outputList=[atomicMg.param("process", types="Any")],
     )
-    def call_process(process_path: str, **kwargs):
+    def process(content: str, **kwargs):
         """动态调用流程"""
-        return Script._call(process_path, **kwargs)
+        return Script._call(content, **kwargs)
 
     @staticmethod
     @atomicMg.atomic(
         "Script",
-        outputList=[atomicMg.param("call_module", types="Any")],
+        outputList=[atomicMg.param("module", types="Any")],
     )
-    def call_module(module_path: str, **kwargs):
+    def module(content: str, **kwargs):
         """动态调用模块"""
-        return Script._call(module_path, **kwargs)
+        return Script._call(content, **kwargs)

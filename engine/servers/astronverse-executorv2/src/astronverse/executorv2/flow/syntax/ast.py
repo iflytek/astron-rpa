@@ -30,8 +30,7 @@ class Program(Node):
                 statement_code_lines.extend(statement.display(svc, tab_num + 1))
 
         # import 块
-        code_lines = [CodeLine(tab_num, "from project import *"),
-                      CodeLine(tab_num, "from package import element, element_img, module, gv, complex_param_parser"),
+        code_lines = [CodeLine(tab_num, "from package import element, element_img, module, gv, complex_param_parser"),
                       CodeLine(tab_num, "from astronverse.actionlib.types import *")]
         if self.token.value:
             import_python = svc.get_import_python(process_id)

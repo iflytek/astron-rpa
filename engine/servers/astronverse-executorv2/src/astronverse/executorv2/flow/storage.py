@@ -107,11 +107,6 @@ class IStorage(ABC):
         """获取工程的用户pip依赖详情"""
         pass
 
-    @abstractmethod
-    def element_detail(self, project_id: str, mode: str, version: str, element_id: str) -> dict:
-        """获取工程的元素数据详情"""
-        pass
-
 
 class HttpStorage(IStorage):
 
@@ -184,7 +179,13 @@ class HttpStorage(IStorage):
         # 附加数据
         atom_key_list = []
         for flow in flow_list:
+            # 兼容代码
+            if flow.get("key") == "Code.Process":
+                flow.update({
+                    "key": "Script.process",
+                })
             atom_key_list.append(flow.get("key"))
+
         full = self.__process_json_full__(atom_key_list)
         full_dict = {}
         for f in full:
@@ -257,38 +258,3 @@ class HttpStorage(IStorage):
             data["robotVersion"] = int(version)
 
         return self.__http__("/api/robot/require/list", None, data)
-
-    def element_detail(self, project_id: str, mode: str, version: str, element_id: str) -> dict:
-        """获取工程的元素数据详情"""
-
-        params = {
-            "robotId": project_id,
-            "elementId": element_id,
-        }
-        if mode:
-            params["mode"] = mode
-        if version:
-            params["robotVersion"] = int(version)
-        res = self.__http__("/api/robot/element/detail", params, None)
-        if not res:
-            raise BaseException(ELEMENT_ACCESS_ERROR_FORMAT.format(element_id), "元素获取异常为空")
-
-        # todo: 需要优化， 处理元素的图片URL，将其转为base64编码保存到elementData中
-        if res.get("imageUrl") or res.get("parentImageUrl"):
-            element_data = json.loads(res.get("elementData"))
-            if element_data.get("type") == "cv":
-                image_url = res.get("imageUrl", "")
-                parent_image_url = res.get("parentImageUrl")
-                if not image_url.endswith("fileId="):
-                    image_base64 = self.__http__(image_url, None, None, "get")
-                else:
-                    image_base64 = ""
-                if parent_image_url and not parent_image_url.endswith("fileId="):
-                    parent_image_base64 = self.__http__(parent_image_url, None, None, "get")
-                else:
-                    parent_image_base64 = ""
-                element_data["img"]["self"] = image_base64
-                element_data["img"]["parent"] = parent_image_base64
-                res.update({"elementData": json.dumps(element_data, ensure_ascii=False)})
-        return res
-

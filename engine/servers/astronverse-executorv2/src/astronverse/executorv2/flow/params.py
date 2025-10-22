@@ -108,7 +108,7 @@ class Param(IParam):
         if parse is not None:
             # 复杂参数解析
             special = "complex_param_parser"
-        elif isinstance(data, list) and data[0]["type"] == ParamType.ELEMENT.value:
+        elif isinstance(data, list) and len(data) == 1 and data[0]["type"] == ParamType.ELEMENT.value:
             # 元素
             special = "element"
         elif key == "Code.Module" and name == "content":
