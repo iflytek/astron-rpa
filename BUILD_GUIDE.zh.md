@@ -558,13 +558,11 @@ pnpm build:tauri-debug
 
 <br>
 
-安装好后在安装目录下的 `resources/conf.json` 中修改服务端地址：
+安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
-```json
-{
-  "remote_addr": "http://YOUR_SERVER_ADDRESS/",
-  "pypi_remote": ""
-}
+```yaml
+remote_addr: http://YOUR_SERVER_ADDRESS/
+skip_engine_start: false
 ```
 
 > **💡 提示：** 将 `YOUR_SERVER_ADDRESS` 替换为实际的服务端地址

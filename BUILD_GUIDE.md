@@ -558,13 +558,11 @@ Double-click the MSI file to install.
 
 <br>
 
-Modify the server address in `resources/conf.json` under the installation directory:
+Modify the server address in `resources/conf.yaml` under the installation directory:
 
-```json
-{
-  "remote_addr": "http://YOUR_SERVER_ADDRESS/",
-  "pypi_remote": ""
-}
+```yaml
+remote_addr: http://YOUR_SERVER_ADDRESS/
+skip_engine_start: false
 ```
 
 > **💡 Tip:** Replace `YOUR_SERVER_ADDRESS` with your actual server address
