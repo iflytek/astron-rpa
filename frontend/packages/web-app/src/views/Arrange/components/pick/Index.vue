@@ -14,6 +14,7 @@ import { h, ref, toRaw, watch } from 'vue'
 
 import { isBase64Image, trimBase64Header } from '@/utils/common'
 
+import { getImageURL } from '@/api/http/env'
 import { useElementsStore } from '@/stores/useElementsStore'
 import { usePickStore } from '@/stores/usePickStore'
 import type { PickElementType } from '@/types/resource.d'
@@ -33,7 +34,6 @@ import {
 import CustomTable from './CustomTable.vue'
 import DirectoryTable from './DirectoryTable.vue'
 import PickForm from './PickForm.vue'
-import { getImageURL } from '@/api/http/env'
 
 defineProps({
   isContinue: {

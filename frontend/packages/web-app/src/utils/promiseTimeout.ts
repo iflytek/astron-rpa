@@ -8,7 +8,7 @@ class TimeoutError extends Error {
  * 设置 promise 超时
  * @param promise 需要设置超时的 promise
  * @param timeoutMillis 超时时间
- * @returns
+ * @returns Promise<T>
  */
 export function promiseTimeout<T>(promise: Promise<T>, timeoutMillis: number, params?: { default?: T }): Promise<T> {
   const error = new TimeoutError()

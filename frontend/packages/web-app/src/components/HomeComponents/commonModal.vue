@@ -69,6 +69,7 @@ export default {
       },
     },
   },
+  emits: ['cancel', 'handleBack'],
   data() {
     return {
       title: '',

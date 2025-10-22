@@ -33,8 +33,8 @@ export const useCvPickStore = defineStore('cvPickStore', () => {
   /**
    *
    * @param type  类型 '' 普通拾取， ''similar' 相似度拾取, 'cv' cv拾取
-   * @param pickStep  pickStep 拾取步骤 'new' | 'repick' | 'anchor'
    * @param element  元素数据， 相似度拾取时，element不能为空
+   * @param pickStep  pickStep 拾取步骤 'new' | 'repick' | 'anchor'
    * @param callback 成功/失败回调
    */
   const startCvPick = (type: string, element: any, pickStep = 'new', callback: (params: { success: boolean, data: any }) => void) => {

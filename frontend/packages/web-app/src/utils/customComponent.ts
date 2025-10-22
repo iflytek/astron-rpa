@@ -83,7 +83,6 @@ export const varTypeToFormTypeMap = {
 
 /**
  * @param key 为Code.Component和componentId拼接组成，如：Code.Component.1960590437807538176
- * @returns
  */
 export function isComponentKey(key: string) {
   return key?.startsWith(COMPONENT_KEY_PREFIX)
@@ -91,7 +90,6 @@ export function isComponentKey(key: string) {
 
 /**
  * @param key 为Code.Component和componentId拼接组成，如：Code.Component.1960590437807538176
- * @returns
  */
 export function getComponentId(key: string) {
   return key?.split(`${COMPONENT_KEY_PREFIX}.`)?.[1] || ''

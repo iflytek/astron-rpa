@@ -8,12 +8,12 @@ import { computed, h, onUnmounted, ref, watch } from 'vue'
 
 import { isBase64Image, trimBase64Header } from '@/utils/common'
 
+import { getImageURL } from '@/api/http/env'
 import { useCvPickStore } from '@/stores/useCvPickStore'
 import { useCvStore } from '@/stores/useCvStore'
 import AtomSlider from '@/views/Arrange/components/atomForm/AtomSlider.vue'
 import { useCvPick } from '@/views/Arrange/components/cvPick/hooks/useCvPick.ts'
 import { useCvPickForm } from '@/views/Arrange/components/cvPick/hooks/useCvPickForm.ts'
-import { getImageURL } from '@/api/http/env'
 
 const { entry, groupId } = defineProps({
   entry: { // 拾取入口, 'group'-分组增加 会保存并继续  atomFormBtn-原子能力配置表单拾取按钮，仅保存  edit-编辑入口，仅保存，按钮文字展示为“保存”

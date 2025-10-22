@@ -4,6 +4,7 @@ import { HintIcon } from '@rpa/components'
 import { Image, message } from 'ant-design-vue'
 import { computed, h } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import ElementMenu from '@/components/ElementItemAction/elementMenu.vue'
 import ElementItemAction from '@/components/ElementItemAction/Index.vue'
 import { clipboardManager } from '@/platform'
@@ -14,7 +15,6 @@ import { useGroupManager } from '@/views/Arrange/components/bottomTools/componen
 import { useCvManager } from '@/views/Arrange/components/cvPick/hooks/useCvManager.ts'
 
 import { filterActionData } from '../../utils/elementsUtils'
-import { getImageURL } from '@/api/http/env'
 
 const { itemData, groupId, elementActions, itemChosed } = defineProps({
   itemData: {

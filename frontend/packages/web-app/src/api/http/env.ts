@@ -1,5 +1,5 @@
-import { storage } from '@/utils/storage'
 import { isBase64Image } from '@/utils/common'
+import { storage } from '@/utils/storage'
 
 import GlobalModal from '@/components/GlobalModal/index.ts'
 
@@ -23,7 +23,8 @@ export function getRootBaseURL(): string {
 }
 
 export function getImageURL(str: string): string {
-  if (isBase64Image(str))  return str
+  if (isBase64Image(str))
+    return str
   return `${getRootBaseURL()}${str}`
 }
 

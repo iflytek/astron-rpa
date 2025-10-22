@@ -4,7 +4,6 @@ export { isEmpty } from 'lodash-es'
  * 正则简单模糊匹配
  * @param {string} input
  * @param {string} target
- * @returns {boolean}
  */
 export function simpleFuzzyMatch(input: string, target: string) {
   // 匹配所有正则特殊字符，并在前面加反斜杠转义
@@ -225,7 +224,7 @@ export function retry<T>(operation: () => Promise<T>, maxRetries: number, interv
 
 /**
  * 替换中间字符串为..., 显示字符串总长度为N
- * @returns
+ * @returns string
  */
 export function replaceMiddle(str: string, length: number = 16) {
   if (str.length <= length) {
@@ -267,8 +266,8 @@ export function generateSheetName(allNames: string[], locale = 'zh-CN') {
 }
 /**
  * 获取url中的参数
- * @param url string
  * @param field string
+ * @param url string
  * @returns string
  */
 export function getUrlQueryField(field: string, url?: string) {
@@ -410,7 +409,7 @@ export function getParentNodes(treeData: RPA.AtomTreeNode[]): string[] {
  * 比较两个数组，输出各自独有的项
  * @param arrOld 原数组
  * @param arrNew 新数组
- * @returns { deleteIds: string[], addIds: string[] }
+ * @returns { deleteIds: string[], addIds: string[] } 删除的项和新增的项
  */
 export function diffArrays<T>(arrOld: T[], arrNew: T[]): { deleteIds: T[], addIds: T[] } {
   const deleteIds = arrOld.filter(item => !arrNew.includes(item))

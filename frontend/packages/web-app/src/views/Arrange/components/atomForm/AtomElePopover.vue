@@ -4,6 +4,7 @@ import { Empty, message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
 import { ref, watchEffect } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import ElementsTree from '@/components/ElementsTree/Index.vue'
 import { ATOM_FORM_TYPE, ELEMENT_IN_TYPE } from '@/constants/atom'
 import { useElementsStore } from '@/stores/useElementsStore'
@@ -14,7 +15,6 @@ import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 
 import { createDom, setEditTextContent } from './hooks/useAtomVarPopover'
 import { formBtnHandle } from './hooks/useRenderFormType'
-import { getImageURL } from '@/api/http/env'
 
 const { renderData, immediatUpdate } = defineProps({
   renderType: {

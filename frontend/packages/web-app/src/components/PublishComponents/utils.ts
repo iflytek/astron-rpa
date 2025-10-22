@@ -16,8 +16,6 @@ export interface FormState {
 
 /**
  * 将后端保存的表单转为前端需要的格式
- * @param data
- * @returns
  */
 export function toFrontData(data: Record<string, any> = {}): FormState {
   const { videoId, videoName, appendixId, appendixName, enableLastVersion } = data
@@ -38,8 +36,6 @@ export function toFrontData(data: Record<string, any> = {}): FormState {
 
 /**
  * 将前端需要的格式转为后端保存的格式
- * @param data
- * @returns
  */
 export function toBackData(data: FormState) {
   return {

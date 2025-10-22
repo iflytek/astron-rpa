@@ -4,6 +4,7 @@ import { Image, message } from 'ant-design-vue'
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import ElementsTree from '@/components/ElementsTree/Index.vue'
 import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import { clipboardManager } from '@/platform'
@@ -14,7 +15,6 @@ import type { ElementActionType, ElementsType, GroupContextMenuType } from '@/ty
 import { ElementPickModal } from '@/views/Arrange/components/pick'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 import { quoteManage } from '@/views/Arrange/hook/useQuoteManage'
-import { getImageURL } from '@/api/http/env'
 
 import { useGroupManager } from '../hooks/useGroup'
 

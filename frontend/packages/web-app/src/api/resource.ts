@@ -45,8 +45,6 @@ export async function getProcessAndCodeList(data: { robotId: string }): Promise<
 
 /**
  * 获取 python 模块代码内容
- * @param data
- * @returns
  */
 export async function getProcessPyCode(data: { robotId: string, mode?: string, moduleId: string }): Promise<string> {
   // mode 为空时，默认值为 EDIT_PAGE
@@ -64,7 +62,6 @@ export async function getProcessPyCode(data: { robotId: string, mode?: string, m
 
 /**
  * 删除 python 模块代码内容
- * @param moduleId
  */
 export async function deleteProcessPyCode(moduleId: string) {
   const res = await http.get<boolean>('/robot/module/delete', { moduleId })
@@ -73,8 +70,6 @@ export async function deleteProcessPyCode(moduleId: string) {
 
 /**
  * 保存 python 模块代码内容
- * @param data
- * @returns
  */
 export async function saveProcessPyCode(data: { robotId: string, moduleId: string, moduleContent: string }): Promise<boolean> {
   const res = await http.post<boolean>('/robot/module/save', data)
@@ -83,8 +78,6 @@ export async function saveProcessPyCode(data: { robotId: string, moduleId: strin
 
 /**
  * 获取新增 Python 模块的名称
- * @returns
- * @param params
  */
 export async function genProcessPyCodeName(params: { robotId: string }) {
   const res = await http.get<string>('/robot/module/newModuleName', params)
@@ -93,7 +86,6 @@ export async function genProcessPyCodeName(params: { robotId: string }) {
 
 /**
  * 新增 Python 模块
- * @param data
  */
 export async function addProcessPyCode(data: { robotId: string, moduleName: string }): Promise<string> {
   const res = await http.post<{ moduleId: string }>('/robot/module/create', data)
@@ -102,7 +94,6 @@ export async function addProcessPyCode(data: { robotId: string, moduleName: stri
 
 /**
  * 复制 Python 模块
- * @param data
  */
 export async function copyProcessPyCode(data: { robotId: string, moduleId: string }): Promise<unknown> {
   const res = await http.post<{ moduleId: string }>('/robot/process/copy', null, { params: { robotId: data.robotId, processId: data.moduleId, type: 'module' } })
@@ -111,7 +102,6 @@ export async function copyProcessPyCode(data: { robotId: string, moduleId: strin
 
 /**
  * 重命名 Python 模块
- * @param data
  */
 export async function renameProcessPyCode(data: { robotId: string, moduleId: string, moduleName: string }) {
   const res = await http.post('/robot/module/rename', data)

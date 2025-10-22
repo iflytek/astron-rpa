@@ -25,6 +25,7 @@ export default antfu({
     'no-console': 'off',
     'ts/no-unused-expressions': 'off',
     'ts/no-require-imports': 'off',
+    'ts/no-empty-object-type': 'off',
     'eslint-comments/no-unlimited-disable': 'off',
     'jsonc/sort-keys': 'off',
     'regexp/no-unused-capturing-group': 'off',
@@ -74,6 +75,8 @@ export default antfu({
     'unicorn/prefer-dom-node-text-content': 'off',
   },
   ignores: [
+    'packages/tauri-app/**',
+    'packages/tauri-app-window/**',
     'packages/electron-app/resources/**/*.js',
     'packages/components/lib/**/*.js',
     'public/*.js',

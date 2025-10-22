@@ -3,6 +3,7 @@ import { NiceModal } from '@rpa/components'
 import { Image } from 'ant-design-vue'
 import { computed, ref } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useCvPickStore } from '@/stores/useCvPickStore'
 import { useCvStore } from '@/stores/useCvStore.ts'
@@ -18,7 +19,6 @@ import { useRenderPick } from '@/views/Arrange/components/descForm/hooks/useRend
 import { ElementPickModal } from '@/views/Arrange/components/pick'
 import { DEFAULT_DESC_TEXT } from '@/views/Arrange/config/flow'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
-import { getImageURL } from '@/api/http/env'
 
 const { itemData, itemType, desc, id, canEdit } = defineProps({
   itemType: {
