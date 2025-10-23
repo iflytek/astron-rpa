@@ -1,11 +1,17 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
+
+from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
+
+from astronverse.executorv2 import ExecuteStatus
 from astronverse.executorv2.config import Config
+from astronverse.executorv2.error import MSG_TASK_EXECUTION_END, MSG_TASK_EXECUTION_ERROR, MSG_TASK_USER_CANCELLED
 from astronverse.executorv2.flow.params import Param
 from astronverse.executorv2.flow.storage import IStorage, HttpStorage
 from astronverse.executorv2.flow.syntax import IParam
 from astronverse.executorv2.run import report
 from astronverse.executorv2.run.debug import Debug
+from astronverse.executorv2.run.package import Package
 from astronverse.executorv2.run.report import Report
 from astronverse.executorv2.logger import logger
 
@@ -79,6 +85,7 @@ class Svc:
         self.param: IParam = Param(self)
         self.storage: IStorage = HttpStorage(self)
         self.report = Report(self)
+        self.package = Package(self)
         report.code = self.report
 
         # 解析树变量
@@ -104,12 +111,12 @@ class Svc:
         self.ast_globals.process_info[process_id].process_category = process_category
         self.ast_globals.process_info[process_id].process_name = process_name
         self.ast_globals.process_info[process_id].process_file_name = process_file_name
-    
+
     def get_process_info(self, process_id):
         if process_id not in self.ast_globals.process_info:
             return None
         return self.ast_globals.process_info[process_id]
-    
+
     def add_import_python(self, process_id: str, import_python: str):
         if process_id not in self.ast_globals.process_info:
             self.ast_globals.process_info[process_id] = ProcessInfo()
@@ -125,6 +132,14 @@ class Svc:
             self.ast_globals.process_info[process_id] = ProcessInfo()
         self.ast_globals.process_info[process_id].breakpoint.add(line)
 
-    @staticmethod
-    def end(status, reason, traceback):
+    def end(self, status: ExecuteStatus, reason, traceback):
+        if status == ExecuteStatus.SUCCESS:
+            self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, msg_str=MSG_TASK_EXECUTION_END))
+        elif status == ExecuteStatus.CANCEL:
+            self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_USER_CANCELLED))
+        elif status == ExecuteStatus.FAIL:
+            self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_EXECUTION_ERROR))
+        else:
+            pass
         logger.info("{}.{}.{}".format(status, reason, traceback))
+        raise Exception("结束")

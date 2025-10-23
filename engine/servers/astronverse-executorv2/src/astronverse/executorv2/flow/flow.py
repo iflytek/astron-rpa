@@ -2,7 +2,6 @@ import json
 import os
 
 from astronverse.executorv2.error import BaseException, SYNTAX_ERROR_FORMAT, PROCESS_ACCESS_ERROR_FORMAT
-from astronverse.executorv2.flow.svc import Svc
 from astronverse.executorv2.flow.syntax.lexer import Lexer
 from astronverse.executorv2.flow.syntax.parser import Parser
 from astronverse.executorv2.flow.syntax.ast import CodeLine
@@ -10,7 +9,7 @@ from astronverse.executorv2.flow.syntax.ast import CodeLine
 
 class Flow:
 
-    def __init__(self, svc: Svc):
+    def __init__(self, svc):
         self.svc = svc
 
     def gen_code(self, project_id: str, project_name: str, mode: str, version: str):
@@ -39,7 +38,8 @@ class Flow:
 
                 self.svc.add_process_info(resource_id, category, name, file_name)
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
-                    file.write(res)
+                    # file.write(res)
+                    pass
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
                     file.write(map_res)
             elif category == "module":
@@ -49,7 +49,8 @@ class Flow:
 
                 self.svc.add_process_info(project_id, category, name, file_name)
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
-                    file.write(res)
+                    # file.write(res)
+                    pass
             else:
                 raise NotImplementedError()
 

@@ -2,13 +2,16 @@ import argparse
 import threading
 import time
 
+from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
+
 from astronverse.executorv2 import ExecuteStatus
 from astronverse.executorv2.apis.ws import Ws
+from astronverse.executorv2.error import MSG_FLOW_INIT_START, MSG_FLOW_INIT_SUCCESS, MSG_TASK_EXECUTION_START, MSG_TASK_EXECUTION_END
 from astronverse.executorv2.logger import logger
 from astronverse.executorv2.config import Config
 from astronverse.executorv2.flow.flow import Flow
-from astronverse.executorv2.svc import Svc
 from astronverse.executorv2.run.debug import Debug
+from astronverse.executorv2.svc import Svc
 
 
 def start():
@@ -63,7 +66,9 @@ def start():
 
     # 生成代码
     flow = Flow(svc=svc)
+    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
     flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
+    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS))
 
     # 执行前验证
     if Config.open_log_ws:
@@ -78,23 +83,24 @@ def start():
     # 执行代码
     debug = Debug(svc=svc)
     svc.debug_handler = debug
+    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START))
     debug.start()
 
     # 执行后验证
     if Config.open_log_ws and Config.wait_web_ws:
         wait_time = 0
-        size = svc.report.code.queue.qsize()
-        while not svc.report.code.queue.empty():
+        size = svc.report.queue.qsize()
+        while not svc.report.queue.empty():
             time.sleep(0.3)
             wait_time += 0.3
             if wait_time >= 3:
                 wait_time = 0
                 # 等待日志(n)s内没有任何发送，就不发送了，直接退出
-                if size == svc.report.code.queue.qsize():
+                if size == svc.report.queue.qsize():
                     logger.error("The websocket connection send timed out")
                     break
                 else:
-                    size = svc.report.code.queue.qsize()
+                    size = svc.report.queue.qsize()
 
     svc.end(ExecuteStatus.SUCCESS, "", "")
     logger.debug("end ok")

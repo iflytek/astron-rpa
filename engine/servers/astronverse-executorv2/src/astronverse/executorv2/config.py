@@ -11,7 +11,7 @@ class Config:
     
     # 工程id
     project_id: str = ""
-    
+
     # 主流程名称（中文显示用）
     main_process_name: str = "主流程"
 
@@ -26,6 +26,9 @@ class Config:
 
     # 日志存储位置
     log_path: str = "./logs/"
+
+    # package cache
+    package_cache_dir: str = "./pip_cache/"
 
     # 开启ws日志通信
     open_log_ws: bool = True

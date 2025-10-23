@@ -14,14 +14,13 @@ from astronverse.actionlib import (
     ReportType,
     ReportUser,
 )
-from astronverse.executorv2.svc import Svc
 from astronverse.actionlib.report import IReport
 
 
 class Report(IReport):
     """运行日志处理程序"""
 
-    def __init__(self, svc: Svc):
+    def __init__(self, svc):
         self.svc = svc
         self.queue = Queue(maxsize=1000)
         local_file_path = os.path.join(self.svc.conf.log_path, "report", self.svc.conf.project_id)

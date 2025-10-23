@@ -1,6 +1,5 @@
 from astronverse.executorv2 import ExecuteStatus
 from astronverse.executorv2.apis.ws import wsmg
-from astronverse.executorv2.svc import Svc
 from astronverse.executorv2.logger import logger
 from astronverse.websocket_server.ws import BaseMsg
 
@@ -10,14 +9,14 @@ def route_init():
 
 
 @wsmg.event("flow", "close")
-def close(msg: BaseMsg, svc: Svc):
+def close(msg: BaseMsg, svc):
     if svc:
         svc.end(ExecuteStatus.CANCEL, "", "")
     return {"status": "ok"}
 
 
 @wsmg.event("flow", "add_break")
-async def add_break_list(msg: BaseMsg, svc: Svc):
+async def add_break_list(msg: BaseMsg, svc):
     break_list = msg.data.get("break_list")
 
     if len(break_list) > 0 and svc:
@@ -29,7 +28,7 @@ async def add_break_list(msg: BaseMsg, svc: Svc):
 
 
 @wsmg.event("flow", "clear_break")
-async def clear_bradk(msg: BaseMsg, svc: Svc):
+async def clear_bradk(msg: BaseMsg, svc):
     break_list = msg.data.get("break_list")
 
     if len(break_list) > 0 and svc:
@@ -41,14 +40,14 @@ async def clear_bradk(msg: BaseMsg, svc: Svc):
 
 
 @wsmg.event("flow", "continue")
-def debug_continue(msg: BaseMsg, svc: Svc):
+def debug_continue(msg: BaseMsg, svc):
     if svc:
         svc.debug_handler.cmd_continue()
     return {"status": "ok"}
 
 
 @wsmg.event("flow", "next")
-def debug_next(msg: BaseMsg, svc: Svc):
+def debug_next(msg: BaseMsg, svc):
     if svc:
         svc.debug_handler.cmd_next()
     return {"status": "ok"}

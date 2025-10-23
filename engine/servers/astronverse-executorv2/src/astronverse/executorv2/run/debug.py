@@ -1,22 +1,32 @@
 import json
 from astronverse.executorv2.run.bdb import CustomBdb
-from astronverse.executorv2.svc import Svc
 
 
 class Debug:
 
-    def __init__(self, svc: Svc):
+    def __init__(self, svc):
         self.svc = svc
         self.bdb = CustomBdb(project_dir=svc.conf.gen_core_path, notify=self.notify)
 
     @staticmethod
     def notify(typ, **kw):
         """打印演示"""
+
         print(json.dumps({'type': typ, **kw}, ensure_ascii=False))
 
     def start(self):
         """执行代码"""
 
+        # 环境准备
+        if self.svc.ast_globals.project_info.requirement:
+            for k, v in self.svc.ast_globals.project_info.requirement.items():
+                self.svc.package.download(
+                    library=v.get("package_name"),
+                    version=v.get("package_version", ""),
+                    mirror=v.get("package_mirror", "")
+                )
+
+        # 断点设置
         for k, v in self.svc.ast_globals.process_info.items():
             for b in v.breakpoint:
                 self.set_breakpoint(v.process_id, b)

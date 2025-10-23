@@ -11,7 +11,6 @@ from websockets import ServerConnection
 
 from astronverse.executorv2 import ExecuteStatus
 from astronverse.executorv2.error import *
-from astronverse.executorv2.svc import Svc
 from astronverse.executorv2.logger import logger
 
 
@@ -63,7 +62,7 @@ class WsSocket(IWebSocket):
 
 
 class Ws:
-    def __init__(self, svc: Svc):
+    def __init__(self, svc):
         self.svc = svc
 
         self.is_open_web_link = False
