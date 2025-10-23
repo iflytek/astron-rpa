@@ -1,9 +1,6 @@
 import type { Rule } from 'ant-design-vue/es/form'
 /**
  * 手机号格式验证
- * @param {string} rule 验证规则
- * @param {Number,String} value 需要验证的值
- * @param {Function} callback 回调函数
  */
 async function phoneValidate(_rule: Rule, value: string) {
   if (!value) {
@@ -93,9 +90,6 @@ async function validatePassNew(_rule: Rule, value: string) {
 }
 /**
  * 短信验证码格式验证
- * @param {string} rule 验证规则
- * @param {number} value 需要验证的值
- * @param {Function} callback 回调函数
  */
 async function codeValidate(_rule: Rule, value: string) {
   if (!/^\d{6}$/.test(value)) {
@@ -106,9 +100,6 @@ async function codeValidate(_rule: Rule, value: string) {
 
 /**
  * 邮箱格式验证
- * @param {string} rule 验证规则
- * @param {string} value 需要验证的值
- * @param {Function} callback 回调函数
  */
 async function emailValidate(_rule: Rule, value: string) {
   if (!/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(value)) {
@@ -119,9 +110,6 @@ async function emailValidate(_rule: Rule, value: string) {
 
 /**
  * url格式验证
- * @param {string} rule 验证规则
- * @param {string} value 需要验证的值
- * @param {Function} callback 回调函数
  */
 async function urlValidate(_rule: Rule, value: string) {
   const pattern = /^[a-z]+:\/\/[a-z0-9\-.]+\.[a-z]{2,}(\/\S*)?$/i
@@ -133,9 +121,6 @@ async function urlValidate(_rule: Rule, value: string) {
 
 /**
  * 文件地址格式验证
- * @param {string} rule 验证规则
- * @param {string} value 需要验证的值
- * @param {Function} callback 回调函数
  */
 async function fileUrlValidate(_rule: Rule, value: string) {
   if (!/^[C-F|]:\\.+\\.+$/.test(value)) {

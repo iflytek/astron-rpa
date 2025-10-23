@@ -4,6 +4,7 @@ import { Empty, message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
 import { ref, watchEffect } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import ElementsTree from '@/components/ElementsTree/Index.vue'
 import { ATOM_FORM_TYPE, ELEMENT_IN_TYPE } from '@/constants/atom'
 import { useElementsStore } from '@/stores/useElementsStore'
@@ -156,7 +157,7 @@ watchEffect(() => {
       </article>
     </div>
     <article class="atom-popover-footer bg-[#F3F3F7] dark:bg-[#FFFFFF]/[.08]">
-      <a-image v-if="eleImg" :preview="false" :src="eleImg" :height="80" />
+      <a-image v-if="eleImg" :preview="false" :src="getImageURL(eleImg)" :height="80" />
       <a-empty v-else :image="simpleImage" :description="null" />
     </article>
   </div>

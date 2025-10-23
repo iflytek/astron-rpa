@@ -10,7 +10,7 @@ export function getPtg(str: string) {
 /**
  * 判断是否是文字 '百分比%' 类型
  * @param itemSize
- * @returns
+ * @returns boolean
  */
 function isPtg(itemSize: string | number | undefined): itemSize is string {
   return typeof itemSize === 'string' && itemSize.endsWith('%')

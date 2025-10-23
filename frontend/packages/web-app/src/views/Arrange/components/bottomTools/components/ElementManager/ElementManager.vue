@@ -4,6 +4,7 @@ import { Image, message } from 'ant-design-vue'
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import ElementsTree from '@/components/ElementsTree/Index.vue'
 import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import { clipboardManager } from '@/platform'
@@ -175,7 +176,7 @@ function handleAction(data: { keys: ElementActionType[], data: ElementsType }) {
           </div>
           <div class="preview dark:bg-[rgba(255,255,255,0.08)] bg-[#f3f3f7]">
             <div class="pick-img">
-              <Image v-if="useElements.selectedElement.imageUrl" :title="$t('fullSizeImage')" :src="useElements.selectedElement.imageUrl" alt="元素图片" />
+              <Image v-if="useElements.selectedElement.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(useElements.selectedElement.imageUrl)" alt="元素图片" />
             </div>
           </div>
         </div>

@@ -11,7 +11,7 @@
     "cz": "cz",
     "preinstall": "npx only-allow pnpm",
     "lint": "eslint",
-    "lint:fix": "eslint --fix '**/*.{vue,ts,tsx,js,jsx}'",
+    "lint:fix": "eslint --fix \"**/*.{vue,ts,tsx,js,jsx}\"",
     "dev:web": "pnpm --filter @rpa/web-app run dev",
     "dev:tauri": "pnpm --filter @rpa/tauri-app run dev",
     "dev:tauri-logwin": "pnpm --filter @rpa/tauri-app-window run dev",

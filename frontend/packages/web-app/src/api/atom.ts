@@ -60,9 +60,6 @@ export async function getComponentList(data: {
 
 /**
  * 获取原子能力的配置参数
- * @param robotId 机器人id
- * @param processId 流程id
- * @param mode 模式 - PROJECT_LIST（设计器列表页）/EDIT_PAGE（编辑页）/EXECUTOR（执行器）
  */
 export async function getConfigParams(params: { robotId: string, robotVersion?: string | number, processId?: string, mode?: string }) {
   const res = await http.post<RPA.ConfigParamData[]>('/robot/param/all', params)
@@ -71,8 +68,6 @@ export async function getConfigParams(params: { robotId: string, robotVersion?: 
 
 /**
  * 新增原子能力的配置参数
- * @param data RPA.CreateConfigParamData
- * @returns
  */
 export async function createConfigParam(data: RPA.CreateConfigParamData) {
   const res = await http.post<string>('/robot/param/add', data)
@@ -82,7 +77,6 @@ export async function createConfigParam(data: RPA.CreateConfigParamData) {
 /**
  * 删除原子能力的配置参数
  * @param id 参数id
- * @returns
  */
 export function deleteConfigParam(id: string) {
   return http.post(`/robot/param/delete?id=${id}`)
@@ -91,7 +85,6 @@ export function deleteConfigParam(id: string) {
 /**
  * 更新原子能力的配置参数
  * @param data RPA.ConfigParamData
- * @returns
  */
 export function updateConfigParam(data: RPA.ConfigParamData) {
   return http.post('/robot/param/update', data)
@@ -100,14 +93,12 @@ export function updateConfigParam(data: RPA.ConfigParamData) {
 /**
  * 获取远程共享变量
  */
-
 export function getRemoteParams() {
   return http.get('/robot/robot-shared-var/get-shared-var', {})
 }
 
 /**
  * 获取卓越中心文件管理共享文件列表
- * @params { fileName: string }
  */
 export function getRemoteFiles(data?: { pageSize?: number, fileName?: string }) {
   return http.post('/robot/robot-shared-file/page', data)

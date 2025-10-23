@@ -167,7 +167,6 @@ class Socket {
   /**
    * 自定义消息监听事件
    * 如果callback存在，调用callback，不存在调用OPTIONS中的回调
-   * @param {Function} CALLBACK 回调函数
    */
   onmessage() {
     this.ws.onmessage = (event: any) => {

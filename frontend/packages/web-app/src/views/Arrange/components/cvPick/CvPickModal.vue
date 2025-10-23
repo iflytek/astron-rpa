@@ -8,6 +8,7 @@ import { computed, h, onUnmounted, ref, watch } from 'vue'
 
 import { isBase64Image, trimBase64Header } from '@/utils/common'
 
+import { getImageURL } from '@/api/http/env'
 import { useCvPickStore } from '@/stores/useCvPickStore'
 import { useCvStore } from '@/stores/useCvStore'
 import AtomSlider from '@/views/Arrange/components/atomForm/AtomSlider.vue'
@@ -182,14 +183,14 @@ onUnmounted(() => {
         <a-row class="cv-pick-content">
           <a-col :span="15" class="cv-imgs flex">
             <span v-if="cvStore.currentCvItem?.parentImageUrl" class="cv-img-item anchor-img relative">
-              <Image v-if="!defaultAnchor" :title="$t('fullSizeImage')" :src="cvStore.currentCvItem.parentImageUrl" />
+              <Image v-if="!defaultAnchor" :title="$t('fullSizeImage')" :src="getImageURL(cvStore.currentCvItem.parentImageUrl)" />
               <span v-else class="anchor flex items-center justify-center" @click="pickAnchor">
                 <rpa-icon name="anchor-point" color="#F39D09" class="cursor-pointer" size="48" />
               </span>
               <span class="anchor-tip absolute inline-block" @click="pickAnchor">指定锚点</span>
             </span>
             <span class="cv-img-item cv-img" :class="{ 'cv-img-item-fullw': !cvStore.currentCvItem?.parentImageUrl }">
-              <Image v-if="cvStore.currentCvItem?.imageUrl" :title="$t('fullSizeImage')" :src="cvStore.currentCvItem.imageUrl" />
+              <Image v-if="cvStore.currentCvItem?.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(cvStore.currentCvItem.imageUrl)" />
             </span>
           </a-col>
           <a-col :span="9" class="cv-buttons flex items-center">

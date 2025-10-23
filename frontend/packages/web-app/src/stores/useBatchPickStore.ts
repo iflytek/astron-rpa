@@ -149,7 +149,6 @@ export const useBatchPickStore = defineStore('batchPick', () => {
   }
   /**
    * 高亮元素
-   * @param element 元素
    */
   const highLight = (data: string, callback?: (params: { success: boolean, data: any }) => void) => {
     if (isHighlight)

@@ -3,6 +3,7 @@ import { NiceModal } from '@rpa/components'
 import { Image } from 'ant-design-vue'
 import { computed, ref } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useCvPickStore } from '@/stores/useCvPickStore'
 import { useCvStore } from '@/stores/useCvStore.ts'
@@ -190,7 +191,7 @@ function pickClick(key: string) {
           <rpa-icon v-if="itemType === ATOM_FORM_TYPE.CVPICK" name="bottom-menu-img-manage" />
           <rpa-icon v-else name="bottom-menu-ele-manage" />
         </template>
-        <Image v-if="renderInfo.img" class="desc-pick-img inline-block" :title="$t('fullSizeImage')" :height="14" :src="renderInfo.img" />
+        <Image v-if="renderInfo.img" class="desc-pick-img inline-block" :title="$t('fullSizeImage')" :height="14" :src="getImageURL(renderInfo.img)" />
       </span>
     </a-tooltip>
   </a-dropdown>

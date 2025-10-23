@@ -86,8 +86,6 @@ export function checkRobotName(data: { robotId: string, name: string }) {
 
 /**
  * 我创建的机器人详情
- * @param robotId
- * @returns
  */
 export async function getMyRobotDetail(robotId: string) {
   const res = await http.get('/robot/robot-design/my-robot-detail', { robotId })
@@ -96,8 +94,6 @@ export async function getMyRobotDetail(robotId: string) {
 
 /**
  * 我获取的机器人详情
- * @param robotId
- * @returns
  */
 export async function getMarketRobotDetail(robotId: string) {
   const res = await http.get('/robot/robot-design/market-robot-detail', { robotId })
@@ -127,8 +123,6 @@ export async function getRobotProcessList(robotId: string): Promise<any[]> {
 
 /**
  * 保存机器人自定义配置参数
- * @param params
- * @returns
  */
 export async function saveRobotConfigParamValue(data: RPA.CreateConfigParamData[], mode: string, robotId: string) {
   return http.post('/robot/param/saveUserParam', { paramList: data, mode, robotId })
@@ -136,8 +130,6 @@ export async function saveRobotConfigParamValue(data: RPA.CreateConfigParamData[
 
 /**
  * 执行器机器人详情基本信息
- * @param robotId
- * @returns
  */
 export async function getRobotBasicInfo(robotId: string) {
   const res = await http.get('/robot/robot-execute/robot-detail', { robotId })

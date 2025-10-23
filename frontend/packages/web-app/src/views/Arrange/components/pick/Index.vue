@@ -14,6 +14,7 @@ import { h, ref, toRaw, watch } from 'vue'
 
 import { isBase64Image, trimBase64Header } from '@/utils/common'
 
+import { getImageURL } from '@/api/http/env'
 import { useElementsStore } from '@/stores/useElementsStore'
 import { usePickStore } from '@/stores/usePickStore'
 import type { PickElementType } from '@/types/resource.d'
@@ -356,7 +357,7 @@ watch(
             <Image
               v-if="useElements.currentElement.imageUrl"
               :title="$t('fullSizeImage')"
-              :src="useElements.currentElement.imageUrl"
+              :src="getImageURL(useElements.currentElement.imageUrl)"
             />
           </div>
         </a-col>

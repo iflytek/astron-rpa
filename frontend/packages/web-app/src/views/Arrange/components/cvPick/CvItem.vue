@@ -4,6 +4,7 @@ import { HintIcon } from '@rpa/components'
 import { Image, message } from 'ant-design-vue'
 import { computed, h } from 'vue'
 
+import { getImageURL } from '@/api/http/env'
 import ElementMenu from '@/components/ElementItemAction/elementMenu.vue'
 import ElementItemAction from '@/components/ElementItemAction/Index.vue'
 import { clipboardManager } from '@/platform'
@@ -133,7 +134,7 @@ const configData = computed(() => filterActionData(initConfigData.value, element
       <ElementMenu :selectd-id="groupId" :menus="configData[1].menus" @key-path="actionClick" />
     </template>
     <div class="cv-item relative" :class="{ 'cv-item-active': itemChosed === itemData.id }" :name="itemChosed ? itemData.id : ''" @click.stop="itemClick">
-      <span class="cv-item-img inline-block"><Image wrapper-class-name="cv-img-mask" :title="$t('fullSizeImage')" :src="itemData.imageUrl" @click.stop /></span>
+      <span class="cv-item-img inline-block"><Image wrapper-class-name="cv-img-mask" :title="$t('fullSizeImage')" :src="getImageURL(itemData.imageUrl)" @click.stop /></span>
       <div class="flex w-[64px]">
         <a-tooltip :title="itemData.name" class="flex-1">
           <div class="cv-item-title text-nowrap text-ellipsis overflow-hidden text-center">
