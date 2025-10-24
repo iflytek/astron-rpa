@@ -1,4 +1,4 @@
-name: rpa-opensource-studio
+#name: rpa-opensource-studio
 x-env-file: &env_file
   - .env
 
@@ -153,6 +153,7 @@ services:
     environment:
       - driverName=mysql
       - dataSourceName=${DATABASE_USERNAME}:${DATABASE_PASSWORD}@tcp(${DATABASE_HOST}:${DATABASE_PORT})/
+      - CASDOOR_ENABLE_HTTP_WEBHOOK=true
     ports:
       - "8000:8000"
     volumes:

@@ -66,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 配置访问权限
         http.authorizeRequests(authorize -> authorize
                 // 公开端点：OAuth2.0授权相关
-                .mvcMatchers("/user/redirect-url", "/user/sign/in", "/user/sign/out")
+                .mvcMatchers("/user/redirect-url", "/user/sign/in", "/user/sign/out", "/example/insert")
                 .permitAll()
                 // 需要认证的端点
                 .mvcMatchers("/user/api/**", "/api/**")
