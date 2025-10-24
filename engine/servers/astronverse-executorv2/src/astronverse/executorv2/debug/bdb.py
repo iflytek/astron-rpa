@@ -9,10 +9,11 @@ from typing import List, Callable
 
 class CustomBdb(bdb.Bdb):
 
-    def __init__(self, project_dir: str, notify: Callable):
+    def __init__(self, project_dir: str, notify: Callable, err_handler: Callable):
         super().__init__()
 
         self.notify = notify
+        self.err_handler = err_handler
 
         # 配置
         self.project_dir = os.path.abspath(project_dir)
@@ -33,6 +34,9 @@ class CustomBdb(bdb.Bdb):
         self._go_event = threading.Event()
         self._go_event.set()
         self._first_stop = True
+        
+        # 强制中断标志
+        self._force_stop = False
 
     def _load_all_maps(self):
         """加载project目录下所有.py文件的.map文件"""
@@ -111,6 +115,9 @@ class CustomBdb(bdb.Bdb):
         if l_v is None:
             l_v = g_v
 
+        # 重置强制中断标志
+        self._force_stop = False
+
         # 确保project目录在sys.path中
         if self.project_dir not in sys.path:
             sys.path.insert(0, self.project_dir)
@@ -126,7 +133,7 @@ class CustomBdb(bdb.Bdb):
             code = compile(source, self.main_file, 'exec')
 
             # 运行代码
-            self.run(code, g_v, l_v)
+            self.err_handler(self.run(code, g_v, l_v))
         except Exception as e:
             self._handle_exception(e)
         finally:
@@ -144,8 +151,20 @@ class CustomBdb(bdb.Bdb):
         self.paused = False
         self._go_event.set()
 
+    def cmd_force_stop(self):
+        """强制中断执行"""
+        self._force_stop = True
+        self.paused = True
+        self._go_event.set()
+        # 立即停止调试器执行
+        self.set_quit()
+
     def user_line(self, frame):
         """行断点触发"""
+        # 检查是否被强制中断
+        if self._force_stop:
+            return
+
         filename = frame.f_code.co_filename
         py_line = frame.f_lineno
 
@@ -166,8 +185,15 @@ class CustomBdb(bdb.Bdb):
 
         project_filename = self._to_project_path(filename)
         flow_line = self._to_flow_line(os.path.basename(filename), py_line)
-        self.notify(reason, file=project_filename, line=flow_line,
-                    py_line=py_line, code=frame.f_code.co_name)
+
+        merged_vars = {}
+        local_vars = frame.f_locals if hasattr(frame, 'f_locals') else {}
+        gv_obj = frame.f_globals.get('gv', {}) if hasattr(frame, 'f_globals') else {}
+        for k, v in {**gv_obj, **local_vars}.items():
+            if not k.startswith('__'):
+                merged_vars[k] = v
+
+        self.notify(reason, file=project_filename, line=flow_line, py_line=py_line, merged_vars=merged_vars)
 
         # 阻塞等待用户操作
         self._go_event.clear()
@@ -186,4 +212,4 @@ class CustomBdb(bdb.Bdb):
         project_filename = self._to_project_path(filename)
         flow_line = self._to_flow_line(filename, py_line)
 
-        self.notify('exception', file=project_filename, line=flow_line, py_line=py_line, msg=str(exc), exc_type=type(exc).__name__)
+        self.notify('exception', file=project_filename, line=flow_line, py_line=py_line, exc=exc)

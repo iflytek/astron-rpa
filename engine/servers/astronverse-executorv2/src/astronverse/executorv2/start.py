@@ -94,7 +94,7 @@ def start():
 
     parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
     parser.add_argument("--wait_web_ws", default="y", help="[ws通信]等待前端ws连接 y/n", required=False)
-    parser.add_argument("--wait_tip_ws", default="n", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
+    parser.add_argument("--wait_tip_ws", default="y", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
     args = parser.parse_args()
 
     logger.debug("start {}".format(args))
@@ -111,9 +111,9 @@ def start():
     Config.wait_tip_ws = args.wait_tip_ws == "y"
 
     # 生成代码
-    flow_start(conf=Config, args=args)
+    # flow_start(conf=Config, args=args)
 
     # 执行代码
-    # debug_start(conf=Config, args=args)
+    debug_start(conf=Config, args=args)
 
     logger.debug("end")
