@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ExampleController {
     @GetMapping("/insert")
-    public void insertExample(){
+    public void insertExample() {
         log.info("received hook");
     }
 }
