@@ -26,7 +26,7 @@ class Report(IReport):
         local_file_path = os.path.join(self.svc.conf.log_path, "report", self.svc.conf.project_id)
         if not os.path.exists(local_file_path):
             os.makedirs(local_file_path)
-        self.log_local_file = open(os.path.join(local_file_path, "{}.txt".format(self.svc.conf.exec_id)), "w", encoding="utf-8")
+        self.log_local_file = open(os.path.join(str(local_file_path), "{}.txt".format(self.svc.conf.exec_id)), "w", encoding="utf-8")
 
     def close(self):
         self.log_local_file.close()

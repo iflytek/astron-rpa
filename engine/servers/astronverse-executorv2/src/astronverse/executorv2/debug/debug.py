@@ -1,5 +1,7 @@
 import json
-from astronverse.executorv2.run.bdb import CustomBdb
+import os.path
+
+from astronverse.executorv2.debug.bdb import CustomBdb
 
 
 class Debug:
@@ -8,10 +10,14 @@ class Debug:
         self.svc = svc
         self.bdb = CustomBdb(project_dir=svc.conf.gen_core_path, notify=self.notify)
 
-    @staticmethod
-    def notify(typ, **kw):
+        # 让 DebugSvc 负责加载数据
+        svc.load_package_info()
+
+    def notify(self, typ, **kw):
         """打印演示"""
 
+        if typ == "breakpoint" or typ == "step":
+            pass
         print(json.dumps({'type': typ, **kw}, ensure_ascii=False))
 
     def start(self):
@@ -27,6 +33,10 @@ class Debug:
                 )
 
         # 断点设置
+        if self.svc.debug_model:
+            # 如果开启了debug,需要手动添加第一个默认第一个节点为断点
+            self.set_breakpoint(self.svc.ast_globals.project_info.main_process_id, 1)
+
         for k, v in self.svc.ast_globals.process_info.items():
             for b in v.breakpoint:
                 self.set_breakpoint(v.process_id, b)

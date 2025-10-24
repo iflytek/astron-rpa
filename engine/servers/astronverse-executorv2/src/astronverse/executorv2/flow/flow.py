@@ -12,16 +12,18 @@ class Flow:
     def __init__(self, svc):
         self.svc = svc
 
-    def gen_code(self, project_id: str, project_name: str, mode: str, version: str):
+    def gen_code(self, project_id: str, project_name: str, mode: str, version: str, process_id: str = ""):
         os.makedirs(self.svc.conf.gen_core_path, exist_ok=True)
 
-        # 1. 生成流程相关数据
+        # 0. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
         process_index = 1
         module_index = 1
+        main_process_id = process_id
+        main_process_name = ""
         for process in process_list:
             name = process.get("name")
             category = process.get("resourceCategory")
@@ -29,39 +31,55 @@ class Flow:
 
             # 生成python
             if category == "process":
-                if name == self.svc.conf.main_process_name:
-                    file_name = self.svc.conf.main_file_name
+                if process_id:
+                    if resource_id == process_id:
+                        main_process_name = "process{}".format(process_index)
                 else:
-                    file_name = "process{}.py".format(process_index)
-                    process_index += 1
+                    if name == self.svc.conf.main_process_name:
+                        main_process_id = resource_id
+                        main_process_name = "process{}".format(process_index)
+
+                file_name = "process{}.py".format(process_index)
+                process_index += 1
                 res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
 
                 self.svc.add_process_info(resource_id, category, name, file_name)
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
-                    # file.write(res)
+                    file.write(res)
                     pass
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
                     file.write(map_res)
+                    pass
             elif category == "module":
-                res = self._module_display(project_id, mode, version, resource_id, name)
+                if process_id:
+                    if resource_id == process_id:
+                        main_process_name = "module{}".format(process_index)
+
                 file_name = "module{}.py".format(module_index)
                 module_index += 1
+                res = self._module_display(project_id, mode, version, resource_id, name)
 
                 self.svc.add_process_info(project_id, category, name, file_name)
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
-                    # file.write(res)
+                    file.write(res)
                     pass
             else:
                 raise NotImplementedError()
 
-        # 2. 生成project.py
+        # 1. 生成main.py
+        tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "main.tpl")
+        with open(tpl_path, "r", encoding="utf-8") as tpl_file:
+            tpl_content = tpl_file.read()
 
-        # 2.1 读取模板
+        main_py_content = tpl_content.replace("{{MAIN_PROCESS_NAME}}", main_process_name)
+        with open(os.path.join(self.svc.conf.gen_core_path, "main.py"), "w", encoding="utf-8") as file:
+            file.write(main_py_content)
+
+        # 2. 生成project.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
         with open(tpl_path, "r", encoding="utf-8") as tpl_file:
             tpl_content = tpl_file.read()
 
-        # 2.2 替换全局变量
         global_code = self._global_display(project_id, mode, version)
         package_py_content = tpl_content.replace("{{GLOBAL}}", global_code)
         with open(os.path.join(self.svc.conf.gen_core_path, "package.py"), "w", encoding="utf-8") as file:
@@ -69,7 +87,8 @@ class Flow:
 
         # 3 生成package.json
         requirement = self._requirement_display(project_id, mode, version)
-        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port)
+        self.svc.add_project_info(project_id, mode, version, project_name, requirement,
+                                  self.svc.conf.gateway_port, main_process_id)
         res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
         with open(os.path.join(self.svc.conf.gen_core_path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)

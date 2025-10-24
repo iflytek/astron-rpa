@@ -331,32 +331,29 @@ class For(Node):
             start = arguments[0]
             end = arguments[1]
             step = arguments[2]
-            params_name = arguments[3]
             if self.__returned__:
                 iterator_var = self.__returned__[0].show()
-                code_lines.append(CodeLine(tab_num, "for {} in range(Int.__validate__(\"{}\", {}), Int.__validate__(\"{}\", {}), Int.__validate__(\"{}\", {})):".format(
-                    iterator_var, params_name.get("start"), start, params_name.get("end"), end, params_name.get("step"), step), self.token.value.get("__line__")))
+                code_lines.append(CodeLine(tab_num, "for {} in range(Int.__validate__(\"start\", {}), Int.__validate__(\"end\", {}), Int.__validate__(\"step\", {})):".format(
+                    iterator_var, start, end, step), self.token.value.get("__line__")))
             else:
-                code_lines.append(CodeLine(tab_num, "for i in range(Int.__validate__(\"{}\", {}), Int.__validate__(\"{}\", {}), Int.__validate__(\"{}\", {})):".format(
-                    params_name.get("start"), start, params_name.get("end"), end, params_name.get("step"), step), self.token.value.get("__line__")))
+                code_lines.append(CodeLine(tab_num, "for i in range(Int.__validate__(\"start\", {}), Int.__validate__(\"end\", {}), Int.__validate__(\"step\", {})):".format(
+                    start, end, step), self.token.value.get("__line__")))
         elif self.token.type == TokenType.ForList.value:
             lists = arguments[0]
-            params_name = arguments[1]
             if self.__returned__ and len(self.__returned__) >= 2:
                 index_var = self.__returned__[0].show()
                 item_var = self.__returned__[1].show()
-                code_lines.append(CodeLine(tab_num, "for {}, {} in enumerate(List.__validate__(\"{}\", {})):".format(index_var, item_var, params_name.get("list"), lists), self.token.value.get("__line__")))
+                code_lines.append(CodeLine(tab_num, "for {}, {} in enumerate(List.__validate__(\"lists\", {})):".format(index_var, item_var, lists), self.token.value.get("__line__")))
             else:
-                code_lines.append(CodeLine(tab_num, "for item in List.__validate__(\"{}\", {}):".format(params_name, lists), self.token.value.get("__line__")))
+                code_lines.append(CodeLine(tab_num, "for item in List.__validate__(\"lists\", {}):".format(lists), self.token.value.get("__line__")))
         elif self.token.type == TokenType.ForDict.value:
             dicts = arguments[0]
-            params_name = arguments[1]
             if self.__returned__ and len(self.__returned__) >= 2:
                 key_var = self.__returned__[0].show()
                 value_var = self.__returned__[1].show()
-                code_lines.append(CodeLine(tab_num, "for {}, {} in dict(Dict.__validate__(\"{}\", {})).items():".format(key_var, value_var, params_name.get("dicts"), dicts), self.token.value.get("__line__")))
+                code_lines.append(CodeLine(tab_num, "for {}, {} in dict(Dict.__validate__(\"dicts\", {})).items():".format(key_var, value_var, dicts), self.token.value.get("__line__")))
             else:
-                code_lines.append(CodeLine(tab_num, "for key, value in dict(Dict.__validate__(\"{}\", {})).items():".format(params_name, dicts), self.token.value.get("__line__")))
+                code_lines.append(CodeLine(tab_num, "for key, value in dict(Dict.__validate__(\"dicts\", {})).items():".format(dicts), self.token.value.get("__line__")))
 
         # body块
         if self.body:

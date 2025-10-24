@@ -190,6 +190,6 @@ class Ws:
             await asyncio.Future()
 
     def server(self):
-        from astronverse.executorv2.apis.apis import route_init
+        from astronverse.executorv2.debug.apis.apis import route_init
         route_init()
         asyncio.run(self.run_server())

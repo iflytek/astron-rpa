@@ -1,5 +1,5 @@
 from astronverse.executorv2 import ExecuteStatus
-from astronverse.executorv2.apis.ws import wsmg
+from astronverse.executorv2.debug.apis.ws import wsmg
 from astronverse.executorv2.logger import logger
 from astronverse.websocket_server.ws import BaseMsg
 

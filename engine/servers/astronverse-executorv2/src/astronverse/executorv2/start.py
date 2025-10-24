@@ -1,53 +1,26 @@
 import argparse
 import threading
 import time
-
 from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
-
 from astronverse.executorv2 import ExecuteStatus
-from astronverse.executorv2.apis.ws import Ws
+from astronverse.executorv2.debug.apis.ws import Ws
+from astronverse.executorv2.debug.debug import Debug
+from astronverse.executorv2.debug.debug_svc import DebugSvc
 from astronverse.executorv2.error import MSG_FLOW_INIT_START, MSG_FLOW_INIT_SUCCESS, MSG_TASK_EXECUTION_START, MSG_TASK_EXECUTION_END
+from astronverse.executorv2.flow.flow_svc import FlowSvc
 from astronverse.executorv2.logger import logger
 from astronverse.executorv2.config import Config
 from astronverse.executorv2.flow.flow import Flow
-from astronverse.executorv2.run.debug import Debug
-from astronverse.executorv2.svc import Svc
 
 
-def start():
-    parser = argparse.ArgumentParser(description="{} service".format("executor"))
-    parser.add_argument("--port", default="8077", help="本地端口号", required=False)
-    parser.add_argument("--gateway_port", default="8003", help="网关端口", required=False)
-    parser.add_argument("--project_id", default="", help="启动的工程id", required=True)
-    parser.add_argument("--project_name", default="", help="启动的工程名称", required=False)
-    parser.add_argument("--mode", default="EDIT_PAGE", help="运行场景", required=False)
-    parser.add_argument("--version", default="", help="运行版本", required=False)
-    parser.add_argument("--run_param", default="", help="运行参数", required=False)
-    parser.add_argument("--exec_id", default="", help="启动的执行id", required=False)
+def flow_start(args, conf):
+    svc = FlowSvc(conf=conf)
+    flow = Flow(svc=svc)
+    flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version, process_id=args.process_id)
 
-    parser.add_argument("--process_id", default="", help="[调试]启动的流程id", required=False)
-    parser.add_argument("--line", default="0", help="[调试]启动的行号", required=False)
-    parser.add_argument("--end_line", default="0", help="[调试]结束的行号", required=False)
-    parser.add_argument("--debug", default="n", help="[调试]是否是debug模式 y/n", required=False)
 
-    parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
-    parser.add_argument("--wait_web_ws", default="y", help="[ws通信]等待前端ws连接 y/n", required=False)
-    parser.add_argument("--wait_tip_ws", default="n", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
-    args = parser.parse_args()
-
-    logger.debug("executor start {}".format(args))
-
-    # 生成代码
-    Config.port = args.port
-    Config.gateway_port = args.gateway_port
-    Config.exec_id = args.exec_id
-    Config.project_id = args.project_id
-
-    Config.open_log_ws = args.log_ws == "y"
-    Config.wait_web_ws = args.wait_web_ws == "y"
-    Config.wait_tip_ws = args.wait_tip_ws == "y"
-
-    svc = Svc(conf=Config, debug_model=args.debug == "y")
+def debug_start(args, conf):
+    svc = DebugSvc(conf=conf, debug_model=args.debug == "y")
 
     # Ws服务
     ws = Ws(svc=svc)
@@ -62,12 +35,10 @@ def start():
 
     # 右下角日志窗口
     if Config.wait_tip_ws:
-        pass
+        svc.log_tool.start()
 
     # 生成代码
-    flow = Flow(svc=svc)
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
-    flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version)
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS))
 
     # 执行前验证
@@ -103,4 +74,46 @@ def start():
                     size = svc.report.queue.qsize()
 
     svc.end(ExecuteStatus.SUCCESS, "", "")
-    logger.debug("end ok")
+
+
+def start():
+    parser = argparse.ArgumentParser(description="{} service".format("executor"))
+    parser.add_argument("--port", default="13158", help="本地端口号", required=False)
+    parser.add_argument("--gateway_port", default="13159", help="网关端口", required=False)
+    parser.add_argument("--project_id", default="", help="启动的工程id", required=True)
+    parser.add_argument("--project_name", default="", help="启动的工程名称", required=False)
+    parser.add_argument("--mode", default="EDIT_PAGE", help="运行场景", required=False)
+    parser.add_argument("--version", default="", help="运行版本", required=False)
+    parser.add_argument("--run_param", default="", help="运行参数", required=False)
+    parser.add_argument("--exec_id", default="", help="启动的执行id", required=False)
+
+    parser.add_argument("--process_id", default="", help="[调试]启动的流程id", required=False)
+    parser.add_argument("--line", default="0", help="[调试]启动的行号", required=False)
+    parser.add_argument("--end_line", default="0", help="[调试]结束的行号", required=False)
+    parser.add_argument("--debug", default="n", help="[调试]是否是debug模式 y/n", required=False)
+
+    parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
+    parser.add_argument("--wait_web_ws", default="y", help="[ws通信]等待前端ws连接 y/n", required=False)
+    parser.add_argument("--wait_tip_ws", default="n", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
+    args = parser.parse_args()
+
+    logger.debug("start {}".format(args))
+
+    # 配置
+    Config.port = args.port
+    Config.gateway_port = args.gateway_port
+    Config.exec_id = args.exec_id
+    Config.project_id = args.project_id
+    Config.project_name = args.project_name
+
+    Config.open_log_ws = args.log_ws == "y"
+    Config.wait_web_ws = args.wait_web_ws == "y"
+    Config.wait_tip_ws = args.wait_tip_ws == "y"
+
+    # 生成代码
+    flow_start(conf=Config, args=args)
+
+    # 执行代码
+    # debug_start(conf=Config, args=args)
+
+    logger.debug("end")

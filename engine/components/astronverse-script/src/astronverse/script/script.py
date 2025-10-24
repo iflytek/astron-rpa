@@ -35,3 +35,35 @@ class Script:
     def module(content: str, **kwargs):
         """动态调用模块"""
         return Script._call(content, **kwargs)
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Script",
+        outputList=[atomicMg.param("condition", types="Bool")],
+    )
+    def condition(args1, condition, args2) -> bool:
+        return True
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Script",
+        outputList=[atomicMg.param("condition", types="Int")],
+    )
+    def for_range(start: int, end: int, step: int):
+        return range(start, end, step)
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Script",
+        outputList=[atomicMg.param("index", types="Int"), atomicMg.param("list_item", types="Any")]
+    )
+    def for_list(lists):
+        return enumerate(lists)
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Script",
+        outputList=[atomicMg.param("key", types="Any"), atomicMg.param("value", types="Any")]
+    )
+    def for_dict(dicts):
+        return dict(dicts).items()

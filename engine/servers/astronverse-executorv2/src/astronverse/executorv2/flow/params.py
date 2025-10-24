@@ -148,6 +148,7 @@ class Param(IParam):
 
     def parse_input(self, token: Token) -> Dict[str, InputParam]:
         res = {}
+        params_name = {}
         input_list = token.value.get("inputList", [])
         for i in input_list:
             # 优化: 过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
@@ -169,6 +170,9 @@ class Param(IParam):
             if not i.get("show", True):
                 continue
 
+            if not i.get("key").startswith("__"):
+                params_name[i.get("name")] = i.get("title", "")
+
             # 2. 解析
             res[i.get("name")] = self.parse_param(i, token=token)
 
@@ -178,7 +182,8 @@ class Param(IParam):
             token.value.get("id", ""),
             token.value.get("alias", token.value.get("title", "")),
         ]
-        res["info"] = InputParam(key="__info__", value=info, need_eval=False)
+        res["info"] = InputParam(key="__info__", value=info, need_eval=True)
+        self.svc.add_atomic_info(token.value.get("key"), params_name)
         return res
 
     def parse_output(self, token: Token) -> List[OutputParam]:

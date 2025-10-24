@@ -2,8 +2,9 @@ import bdb
 import os
 import sys
 import glob
+import threading
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, Callable
+from typing import List, Callable
 
 
 class CustomBdb(bdb.Bdb):
@@ -27,6 +28,11 @@ class CustomBdb(bdb.Bdb):
 
         # 加载所有文件的映射
         self._load_all_maps()
+
+        # 同步事件
+        self._go_event = threading.Event()
+        self._go_event.set()
+        self._first_stop = True
 
     def _load_all_maps(self):
         """加载project目录下所有.py文件的.map文件"""
@@ -130,32 +136,42 @@ class CustomBdb(bdb.Bdb):
         """继续执行"""
         self.set_continue()
         self.paused = False
+        self._go_event.set()
 
     def cmd_next(self):
         """单步执行"""
         self.set_next(self.current_frame)
         self.paused = False
+        self._go_event.set()
 
     def user_line(self, frame):
         """行断点触发"""
         filename = frame.f_code.co_filename
         py_line = frame.f_lineno
 
-        # 只检查project目录下的文件
         if not filename.startswith(self.project_dir):
             return
 
-        breaks = self.get_breaks(filename, py_line)
-        if not breaks:
+        # 清掉框架初始 trace（仅第一次）
+        if self._first_stop:
+            self._first_stop = False
+            self.set_continue()
             return
 
         self.current_frame = frame
         self.paused = True
 
+        breaks = self.get_breaks(filename, py_line)
+        reason = 'breakpoint' if breaks else 'step'
+
         project_filename = self._to_project_path(filename)
         flow_line = self._to_flow_line(os.path.basename(filename), py_line)
+        self.notify(reason, file=project_filename, line=flow_line,
+                    py_line=py_line, code=frame.f_code.co_name)
 
-        self.notify('breakpoint', file=project_filename, line=flow_line, py_line=py_line, code=frame.f_code.co_name)
+        # 阻塞等待用户操作
+        self._go_event.clear()
+        self._go_event.wait()
 
     def _handle_exception(self, exc: Exception):
         """处理异常 - 支持多文件"""
