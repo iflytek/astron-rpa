@@ -1762,7 +1762,24 @@
       "codeExpireIn": 0
     }
   ],
-  "webhooks": [],
+  "webhooks": [
+    {
+      "owner": "admin",
+      "name": "webhook_1a1vzj",
+      "createdTime": "2025-10-20T16:19:46+08:00",
+      "organization": "built-in",
+      "url": "http://rpa-opensource-robot-service:8040/api/robot/example/insert",
+      "method": "GET",
+      "contentType": "application/json",
+      "headers": [],
+      "events": ["signup"],
+      "tokenFields": null,
+      "objectFields": null,
+      "isUserExtended": false,
+      "singleOrgOnly": false,
+      "isEnabled": true
+    }
+  ],
   "groups": [],
   "adapters": [
     {
