@@ -7,145 +7,36 @@
 **🤖 Enterprise-grade Robotic Process Automation (RPA) Development Platform**
 
 [![License](https://img.shields.io/badge/license-Open%20Source-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/iflytek/astron-rpa)](https://github.com/iflytek/astron-rpa/releases)
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
-[![Java](https://img.shields.io/badge/java-8+-orange.svg)](https://openjdk.java.net/)
-[![Vue](https://img.shields.io/badge/vue-3+-green.svg)](https://vuejs.org/)
-[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://www.docker.com/)
 [![GitHub Stars](https://img.shields.io/github/stars/iflytek/astron-rpa?style=social)](https://github.com/iflytek/astron-rpa/stargazers)
 
 English | [简体中文](README.zh.md)
 
 </div>
 
-## 📑 Table of Contents
-
-- [📋 Overview](#-overview)
-- [🎯 Why Choose AstronRPA](#-why-choose-astronrpa)
-- [✨ Core Features](#-core-features)
-- [🛠️ Tech Stack](#-tech-stack)
-- [📱 Screenshots](#-screenshots)
-- [🚀 Quick Start](#-quick-start)
-  - [System Requirements](#system-requirements)
-  - [Using Docker](#using-docker)
-  - [Source Deployment](#source-deployment)
-- [📦 Component Ecosystem](#-component-ecosystem)
-- [🏗️ Technical Architecture](#-technical-architecture)
-- [📚 Documentation](#-documentation)
-- [🤝 Contributing](#-contributing)
-- [💖 Sponsorship](#-sponsorship)
-- [📞 Getting Help](#-getting-help)
-- [📄 License](#-license)
-
 ## 📋 Overview
 
-AstronRPA is an all-in-one Robotic Process Automation (RPA) development tool that provides enterprises and developers with a complete RPA automation solution from design to deployment. The platform integrates comprehensive automation capabilities, rich component libraries, various development modes and frameworks, enabling developers to build powerful automation processes in the most convenient way.
+AstronRPA is an enterprise-grade Robotic Process Automation (RPA) desktop application. Through a visual designer, it supports low-code/no-code development, enabling users to rapidly build workflows and automate desktop softwares and browser pages.
 
-AstronRPA is derived from the "iFlytek RPA Platform" which has served various industries and professional developers, and we have made its core engine completely open source. Through visual design and build tools, developers can quickly create and debug robots, applications, and workflows using no-code or low-code approaches, enabling powerful RPA application development and more customized business logic.
+[Astron Agent](https://github.com/iflytek/astron-agent) is the native Agent platform supported by this project. Users can directly call RPA workflow nodes in Astron Agent, and also use Agent workflows in AstronRPA, achieving efficient collaboration between automation processes and intelligent agent systems, empowering broader business automation scenarios.
 
 ### 🎯 Why Choose AstronRPA?
 
-- **🏭 Production Ready**: Mature platform serving various industries
-- **🧩 Rich Components**: 300+ professional RPA component capabilities
-- **👨‍💻 Developer Friendly**: Visual design + complete build documentation
-- **☁️ Cloud Native**: Built on microservices architecture with containerization support
-- **🔓 Open Source**: Core engine completely open source, community-driven development
-- **🤖 AI Powered**: Supports integration with various large language models
-
-## ✨ Core Features
-
-
-- 🔒 **Enterprise Security** - Complete permission management, audit logs, and data encryption
-- 🔧 **Easy Integration** - Rich API interfaces and configurations with multi-language support
-- 📊 **Real-time Monitoring** - Complete execution status monitoring, performance metrics, and alerting system
-- 📈 **Elastic Scaling** - Microservices architecture with horizontal scaling and load balancing
-
-### 🎯 Visual Design
-- Drag-and-drop process designer
-- Real-time preview and debugging
-- Rich component templates
-
-### 🔧 Component-based Development
-- 300+ professional RPA component capabilities
-- Standardized component interfaces
-- Custom component extensions
-- Component version management
-
-### 🤖 AI Empowerment
-- Intelligent image picking
-- OCR text extraction
-- Automatic CAPTCHA recognition
-
-### 📊 Execution Monitoring
-- Real-time execution status
-- Detailed logging
-- Performance metrics statistics
-- Exception alert notifications
-
-### 🌐 Multi-platform Support
-- Desktop local execution
-- Web monitoring and viewing
-- API interface integration
-- MCP tool support
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Vue 3 + TypeScript + Vite + Ant Design Vue
-- **Backend Services**: Java Spring Boot + Python FastAPI
-- **Data Storage**: MySQL + Redis
-- **Message Queue**: Asynchronous task processing support
-- **Containerization**: Docker + Docker Compose
-- **Desktop App**: Tauri (Rust + Web)
-- **Package Management**: pnpm + uv
-- **Monitoring**: Integrated SkyWalking distributed tracing
-
-## 🏗️ Architecture Overview
-
-![Architecture Overview](./docs/images/Structure.png "Architecture Overview")
-
-### Architecture Details
-
-### Frontend Architecture
-- **Framework**: Vue 3 + TypeScript + Vite
-- **UI Components**: Ant Design Vue + VXE Table
-- **State Management**: Pinia
-- **Desktop App**: Tauri (Rust + Web Technologies)
-- **Package Management**: pnpm workspace monorepo
-
-### Backend Architecture
-- **Main Service**: Java Spring Boot 2.3.11
-- **AI Service**: Python FastAPI
-- **OpenAPI Service**: Python FastAPI 
-- **Resource Service**: Java Spring Boot
-- **Database**: MySQL + Redis
-- **Message Queue**: Support for asynchronous task processing
-
-### Engine Architecture
-- **Language**: Python 3.13+
-- **Framework**: FastAPI + asyncio
-- **Component Architecture**: 20+ professional RPA component types
-- **Executor**: Support atomic operations, workflows, record & replay
-- **Communication**: WebSocket real-time communication
-- **Locating Technology**: Image recognition, OCR, UI automation
-
-### Deployment Architecture
-- **Containerization**: Docker + Docker Compose
-- **Microservices**: Independent service modules, deployable separately
-- **Observability**: Integrated SkyWalking distributed tracing
-- **Load Balancing**: Nginx reverse proxy
+- **🛠️ Comprehensive Automation Support**: Comprehensive coverage of Windows desktop applications and web pages automation. Support for common office software like WPS and Office, financial and ERP systems like Kingdee and YonYou, and various browsers like IE, Edge, and Chrome, enabling end-to-end cross-application automation.
+- **🧩 Highly Component-based**: 300+ pre-built atomic capabilities covering UI operations, data processing, and system interactions. Support for visual orchestration and custom component extensions with high flexibility and maintainability.
+- **🏭 Enterprise-grade Security & Collaboration**: Built-in excellence center and team marketplace with enterprise modules. Provides terminal monitoring, scheduling modes, robot team sharing and collaborative functions. Build a complete enterprise automation management ecosystem with process security, permission control, and cross-team collaboration.
+- **👨‍💻 Developer-friendly Experience**: Low-code, visual process design and debugging environment. Quickly build automation workflows through intuitive drag-and-drop methods, reducing development barriers, improving building efficiency, and enabling business users to participate in automation creation.
+- **🤖 Native Agent Empowerment**: Deep integration with Astron Agent platform supporting bi-directional calls between automation processes and AI agents with capability fusion. Achieve seamless connection between task reasoning, decision making, and automated execution, expanding automation boundaries.
+- **🌐 Multi-channel Trigger Integration**: Support for direct execution, scheduled tasks, scheduling modes, API calls, and MCP services. Flexible integration capabilities to quickly respond to third-party system integration needs and easily embed in complex business scenarios.
 
 ## 🚀 Quick Start
 
 ### System Requirements
-- **Operating System**: Windows 10/11 (primary support), macOS, Linux
-- **Node.js**: >= 22
-- **Python**: 3.13.x
-- **Java**: JDK 8+
-- **pnpm**: >= 9
-- **rustc**：>= 1.90.0
-- **UV**: Python package management tool
-- **7-Zip**: For creating deployment archives
+- 💻 **Client Operating System**: Windows 10/11 (primary support)
+- 🧠 **RAM** >= 8 GiB
 
-### Using Docker
+### **Server**: Using Docker
 
 Recommended for quick deployment:
 
@@ -157,24 +48,47 @@ cd astron-rpa
 # Enter docker directory
 cd docker
 
-# Start the container stack
-docker-compose up -d
+# Copy .env
+cp .env.example .env
 
-# Check service status
-docker-compose ps
+# Modify casdoor service configuration in .env
+CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+
+# 🚀 Start all services
+docker compose up -d
+
+# 📊 Check service status
+docker compose ps
 ```
 
 - Access the application at `http://localhost:8080`
 - For production deployment and security hardening, refer to [Deployment Guide](docker/QUICK_START.md)
 
-### Source Deployment
+### **Client**: Source Deployment/Binary Deployment
 
-#### One-Click Launch (Recommended)
+#### Environment Dependencies
+| Tool | Version | Description |
+|-----|---------|------------|
+| **Node.js** | >= 22 | JavaScript runtime |
+| **Python** | 3.13.x | RPA engine core |
+| **Java** | JDK 8+ | Backend runtime |
+| **pnpm** | >= 9 | Node.js package manager |
+| **rustc** | >= 1.90.0 | Tauri build framework |
+| **UV** | 0.8+ | Python package management tool |
+| **7-Zip** | - | Create deployment archives |
+| **SWIG** | - | Connect Python with C/C++ |
+
+For specific installation instructions and common issues, refer to [Build Guide](./BUILD_GUIDE.md)
+
+#### Direct Download (Recommended)
+
+Download the latest [Release Package](https://github.com/iflytek/astron-rpa/releases)
+
+#### One-Click Build
 
 1. **Prepare Python Environment**
    ```bash
-   # Prepare a Python 3.13.x installation directory
-   # Can be a local folder or system installation path
+   # Prepare a Python 3.13.x installation directory (can be a local folder or system installation path)
    # The script will copy this directory to create python_core
    ```
 
@@ -200,23 +114,20 @@ docker-compose ps
    5. ✅ Build frontend web application
    6. ✅ Build Tauri desktop application
 
-#### Development Environment
+3. 📦 Install the packaged client installation package
 
-```bash
-# Install dependencies
-cd frontend
-pnpm install
+4. ⚙️ After installation, modify the server address in `resources/conf.yaml` in the installation directory:
 
-# Start web development server
-pnpm dev:web
+    ```yaml
+    remote_addr: http://YOUR_SERVER_ADDRESS/
+    skip_engine_start: false
+    ```
 
-# Start Tauri desktop app (development mode)
-pnpm dev:tauri
+## 🏗️ Architecture Overview
 
-# Start backend services (need to configure database first)
-cd backend/robot-service
-mvn spring-boot:run
-```
+The project adopts a frontend-backend separation architecture. The frontend is built with Vue 3 + TypeScript and Tauri for desktop applications; the backend uses Java Spring Boot and Python FastAPI to build microservices supporting business and AI capabilities. The engine layer is based on Python, integrating 20+ RPA components with support for image recognition and UI automation. The entire system is deployed via Docker with high observability and scalability, designed for complex RPA scenarios.
+
+![Architecture Overview](./docs/images/Structure.png "Architecture Overview")
 
 ## 📦 Component Ecosystem
 
@@ -261,17 +172,17 @@ mvn spring-boot:run
 We welcome any form of contribution! Please check [Contributing Guide](CONTRIBUTING.md)
 
 ### Development Guidelines
-- Follow existing code style
-- Add necessary test cases
-- Update relevant documentation
-- Ensure all checks pass
+- ✅ Follow existing code style
+- ✅ Add necessary test cases
+- ✅ Update relevant documentation
+- ✅ Ensure all checks pass
 
 ### Contributing Steps
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. 🍴 Fork the repository
+2. 🌿 Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. 💾 Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. 🚀 Push to the branch (`git push origin feature/AmazingFeature`)
+5. 📝 Open a Pull Request
 
 ## 🌟 Star History
 
@@ -292,9 +203,9 @@ We welcome any form of contribution! Please check [Contributing Guide](CONTRIBUT
 
 ## 📞 Getting Help
 
-- 📧 Technical Support: [cbg_rpa_ml@iflytek.com](mailto:cbg_rpa_ml@iflytek.com)
-- 💬 Community Discussion: [GitHub Discussions](https://github.com/iflytek/astron-rpa/discussions)
-- 🐛 Bug Reports: [Issues](https://github.com/iflytek/astron-rpa/issues)
+- 📧 **Technical Support**: [cbg_rpa_ml@iflytek.com](mailto:cbg_rpa_ml@iflytek.com)
+- 💬 **Community Discussion**: [GitHub Discussions](https://github.com/iflytek/astron-rpa/discussions)
+- 🐛 **Bug Reports**: [Issues](https://github.com/iflytek/astron-rpa/issues)
 
 ## 📄 License
 
