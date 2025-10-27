@@ -7,10 +7,8 @@
 **🤖 Enterprise-grade Robotic Process Automation (RPA) Development Platform**
 
 [![License](https://img.shields.io/badge/license-Open%20Source-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/iflytek/astron-rpa)](https://github.com/iflytek/astron-rpa/releases)
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
-[![Java](https://img.shields.io/badge/java-8+-orange.svg)](https://openjdk.java.net/)
-[![Vue](https://img.shields.io/badge/vue-3+-green.svg)](https://vuejs.org/)
-[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://www.docker.com/)
 [![GitHub Stars](https://img.shields.io/github/stars/iflytek/astron-rpa?style=social)](https://github.com/iflytek/astron-rpa/stargazers)
 
 English | [简体中文](README.zh.md)
