@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.example.dao.SampleUsersDao">
+
+    <resultMap type="com.iflytek.rpa.example.entity.SampleUsers" id="SampleUsersResultMap">
+        <id column="id" property="id" />
+        <result column="creator_id" property="creatorId" />
+        <result column="sample_id" property="sampleId" />
+        <result column="name" property="name" />
+        <result column="data" property="data" />
+        <result column="source" property="source" />
+        <result column="version_injected" property="versionInjected" />
+        <result column="created_time" property="createdTime" />
+        <result column="updated_time" property="updatedTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, creator_id, sample_id, name, data, source, version_injected, created_time, updated_time
+    </sql>
+
+    <select id="selectByCreatorIdAndSampleId" resultMap="SampleUsersResultMap">
+        select <include refid="Base_Column_List" />
+        from sample_users
+        where creator_id = #{creatorId}
+          and sample_id = #{sampleId}
+    </select>
+
+    <select id="selectByCreatorId" resultMap="SampleUsersResultMap">
+        select <include refid="Base_Column_List" />
+        from sample_users
+        where creator_id = #{creatorId}
+        order by created_time desc
+    </select>
+
+    <insert id="insertBatch">
+        insert into sample_users (creator_id, sample_id, name, data, source, version_injected, created_time, updated_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.creatorId}, #{entity.sampleId}, #{entity.name}, #{entity.data}, #{entity.source}, #{entity.versionInjected}, #{entity.createdTime}, #{entity.updatedTime})
+        </foreach>
+    </insert>
+
+    <update id="updateBatch">
+        update sample_users
+        set
+            name = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.name}
+            </foreach>
+            end,
+            data = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.data}
+            </foreach>
+            end,
+            source = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.source}
+            </foreach>
+            end,
+            version_injected = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.versionInjected}
+            </foreach>
+            end,
+            updated_time = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.updatedTime}
+            </foreach>
+            end
+        where id in
+        <foreach collection="entities" item="entity" open="(" close=")" separator=",">
+            #{entity.id}
+        </foreach>
+    </update>
+</mapper>
