@@ -1341,3 +1341,39 @@ CREATE TABLE `trigger_task` (
   `queue_enable` smallint(6) DEFAULT '0' COMMENT '是否启用排队 1:启用 0:不启用',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=194 DEFAULT CHARSET=utf8 COMMENT='触发器计划任务';
+
+-- rpa.sample_templates
+create table sample_templates
+(
+    id           bigint unsigned auto_increment comment '主键' primary key,
+    sample_id    varchar(100)                          null comment '样例id',
+    name         varchar(50)                           not null comment '模版名称',
+    type         varchar(20)                           not null comment '模板类型：robot_design, robot_execute, schedule_task 等',
+    version      varchar(20) default '1.0.0'           not null comment '模板语义化版本号（如 1.2.0）',
+    data         text                                  not null comment '模板配置数据（JSON 格式），数据库一行的数据',
+    description  text                                  null comment '模板说明',
+    is_active    tinyint     default 1                 not null comment '是否启用（false 则新用户不注入）',
+    is_deleted   tinyint     default 0                 not null comment '逻辑删除标记（避免物理删除）',
+    created_time timestamp   default CURRENT_TIMESTAMP not null,
+    updated_time timestamp   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP
+)
+    comment '系统预定义的模板库，用于注入用户初始化数据。支持 robot、project、task 等多种类型。' charset = utf8mb4;
+
+-- rpa.sample_users
+create table sample_users
+(
+    id               bigint unsigned auto_increment comment '主键自增ID' primary key,
+    creator_id       char(36)                                          not null comment '用户唯一标识（如 UUID）',
+    sample_id        varchar(100)                                      not null comment '关联 sample_templates.sample_id',
+    name             varchar(100)                                      not null comment '用户看到的名称（默认继承模板 name，可自定义）',
+    data             text                                              not null comment '从模板中注入的配置数据（JSON 字符串，由 Java 序列化）',
+    source           enum ('system', 'user') default 'system'          not null comment '来源：system（系统自动注入）或 user（用户手动创建/修改）',
+    version_injected varchar(20)                                       not null comment '注入时所用模板的版本号，用于后续升级判断',
+    created_time     timestamp               default CURRENT_TIMESTAMP not null comment '创建时间',
+    updated_time     timestamp               default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '最后更新时间',
+    constraint sample_users_creator_id_sample_id_uindex
+        unique (creator_id, sample_id)
+)
+    comment '记录用户从系统模板中注入的样例数据，是模板工程的核心中间层。' charset = utf8mb4;
+
+
