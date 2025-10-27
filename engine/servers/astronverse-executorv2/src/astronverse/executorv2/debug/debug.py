@@ -1,7 +1,12 @@
 import json
-from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus
+import traceback
+
+from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus, ReportFlow, ReportFlowStatus
+from astronverse.actionlib.error import IgnoreException, ParamException, BaseException
+
+from astronverse.executorv2 import ExecuteStatus
 from astronverse.executorv2.debug.bdb import CustomBdb
-from astronverse.executorv2.error import python_base_error
+from astronverse.executorv2.error import python_base_error, MSG_DEBUG_INSTRUCTION_START_FORMAT, MSG_EXECUTION_ERROR
 
 
 class Debug:
@@ -15,39 +20,49 @@ class Debug:
 
         self.file_to_process = {}
         for i, v in self.svc.ast_globals.process_info.items():
-            self.file_to_process[v.process_file_name] = v
+            self.file_to_process[v.process_file_name] = v.process_id
 
     def notify(self, typ, **kw):
         """打印演示"""
 
         if typ == "breakpoint" or typ == "step":
-            print(json.dumps(kw.get("merged_vars"), ensure_ascii=False))
-
             file = kw.get("file")
             process_id = ""
-            process = ""
             if file in self.file_to_process:
-                process_id = self.file_to_process[file].process_id
-                process = self.file_to_process[file].process_name
+                process_id = self.file_to_process[file]
+
+            line = kw.get("line")
 
             self.svc.report.info(ReportCode(
                 log_type=ReportType.Code,
-                process=process,
                 process_id=process_id,
-                atomic="",
-                key="",
-                line_id="",
-                line=kw.get("py_line"),
+                line=line,
+                msg_str=MSG_DEBUG_INSTRUCTION_START_FORMAT.format("{process}", line, "{atomic}"),
                 status=ReportCodeStatus.DEBUG_START,
                 debug_data={
                     "is_break": True,
                     "data": kw.get("merged_vars")
                 },
             ))
-
-            print(json.dumps({'type': typ, "file": kw.get("file"), "line": kw.get("line"), "py_line": kw.get("py_line")}, ensure_ascii=False))
         else:
-            raise kw.get("exc")
+            exc = kw.get("exc")
+            if isinstance(exc, IgnoreException):
+                error_str = exc.code.message
+            elif isinstance(exc, ParamException):
+                error_str = exc.code.message
+            elif isinstance(exc, BaseException):
+                error_str = exc.code.message
+            else:
+                error_str = str(exc)
+            self.svc.report.error(
+                ReportFlow(
+                    log_type=ReportType.Flow,
+                    status=ReportFlowStatus.TASK_ERROR,
+                    result=ExecuteStatus.FAIL.value,
+                    msg_str="{} {}".format(MSG_EXECUTION_ERROR, error_str),
+                    error_traceback=traceback.format_exc(),
+                )
+            )
 
     def start(self):
         """执行代码"""

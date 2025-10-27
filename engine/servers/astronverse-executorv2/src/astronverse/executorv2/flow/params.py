@@ -179,8 +179,7 @@ class Param(IParam):
         # 高级选项
         info = [
             token.value.get("__line__", 0),
-            token.value.get("id", ""),
-            token.value.get("alias", token.value.get("title", "")),
+            token.value.get("__process_id__", ""),
         ]
         res["info"] = InputParam(key="__info__", value=info, need_eval=True)
         self.svc.add_atomic_info(token.value.get("key"), params_name)

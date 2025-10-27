@@ -51,7 +51,12 @@ class FlowSvc:
         if process_id not in self.ast_globals.process_info:
             self.ast_globals.process_info[process_id] = ProcessInfo()
         self.ast_globals.process_info[process_id].breakpoint.add(line)
-
+    
+    def add_process_meta(self, process_id: str, process_meta: dict):
+        if process_id not in self.ast_globals.process_info:
+            self.ast_globals.process_info[process_id] = ProcessInfo()
+        self.ast_globals.process_info[process_id].process_meta = process_meta
+    
     def add_atomic_info(self, atomic_key: str, atomic_params: dict):
         if atomic_key not in self.ast_globals.atomic_info:
             self.ast_globals.atomic_info[atomic_key] = AtomicInfo()

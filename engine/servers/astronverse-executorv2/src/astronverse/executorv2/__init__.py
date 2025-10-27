@@ -64,10 +64,12 @@ class ProcessInfo:
     process_name: str = ""
     import_python: set = None
     breakpoint: set = None
+    process_meta: list = None
 
     def __init__(self):
         self.import_python = set()
         self.breakpoint = set()
+        self.process_meta = []
 
     def __json__(self):
         return {
@@ -75,7 +77,8 @@ class ProcessInfo:
             "process_id": self.process_id,
             "process_category": self.process_category,
             "process_name": self.process_name,
-            "breakpoint": list(self.breakpoint)
+            "breakpoint": list(self.breakpoint),
+            "process_meta": self.process_meta
         }
 
     @classmethod
@@ -86,6 +89,7 @@ class ProcessInfo:
         instance.process_category = data.get("process_category", "")
         instance.process_name = data.get("process_name", "")
         instance.breakpoint = set(data.get("breakpoint", []))
+        instance.process_meta = data.get("process_meta", [])
         return instance
 
 

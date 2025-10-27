@@ -19,14 +19,15 @@ class DebugSvc:
         # 全局类型
         self.conf: Config = conf
 
+
+
         # 工具类
+        self.ast_globals: AstGlobals = AstGlobals()
+        self.load_package_info()
         self.report = Report(self)
         self.package = Package(self)
         report.set_code(self.report)
         self.log_tool = LogTool(self)
-
-        self.ast_globals: AstGlobals = AstGlobals()
-        self.load_package_info()
 
         # 运行时
         self.debug_model = debug_model

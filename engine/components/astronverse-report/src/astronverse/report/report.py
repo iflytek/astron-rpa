@@ -43,20 +43,14 @@ class Report:  # pylint: disable=too-few-public-methods
             **kwargs: 执行框架注入的上下文字段，如 `__line__`, `__process_name__` 等。
         """
         msg = str(msg)
-
-        line = int(kwargs.get("__line__", 0))
-        line_id = kwargs.get("__line_id__", "")
-        process_name = kwargs.get("__process_name__", "")
-        process_id = kwargs.get("__process_id__", "")
-        atomic_name = kwargs.get("__atomic_name__", "")
+        info = kwargs.get("__info__", [])
+        line = info[0]
+        process_id = info[1]
 
         user_obj = ReportUser(
             log_type=ReportType.User,
-            process=process_name,
             process_id=process_id,
-            atomic=atomic_name,
             line=line,
-            line_id=line_id,
             msg_str=msg,
         )
         dispatcher: dict[ReportLevelType, Callable[[ReportUser], Any]] = {

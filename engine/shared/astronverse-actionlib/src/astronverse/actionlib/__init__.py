@@ -243,15 +243,15 @@ class AtomicParamMeta:
         return data
 
     def update(
-        self,
-        name: str = None,
-        types: str = None,
-        __annotation__: Any = None,
-        formType: AtomicFormTypeMeta = None,
-        default: Any = None,
-        options: list = None,
-        noInput: bool = None,
-        required: Union[None, bool] = True,
+            self,
+            name: str = None,
+            types: str = None,
+            __annotation__: Any = None,
+            formType: AtomicFormTypeMeta = None,
+            default: Any = None,
+            options: list = None,
+            noInput: bool = None,
+            required: Union[None, bool] = True,
     ):
         if self.name is None:
             self.name = name
@@ -401,7 +401,3 @@ class ReportCode:
     error_traceback: Any = None
     msg_str: str = None
     debug_data: Any = None
-
-
-class IgnoreException(Exception):
-    pass

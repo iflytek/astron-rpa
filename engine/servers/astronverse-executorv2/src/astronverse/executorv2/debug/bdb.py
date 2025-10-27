@@ -133,7 +133,7 @@ class CustomBdb(bdb.Bdb):
             code = compile(source, self.main_file, 'exec')
 
             # 运行代码
-            self.err_handler(self.run(code, g_v, l_v))
+            self.err_handler(self.run)(code, g_v, l_v)
         except Exception as e:
             self._handle_exception(e)
         finally:

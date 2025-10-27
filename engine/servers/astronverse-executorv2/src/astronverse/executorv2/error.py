@@ -142,9 +142,6 @@ def python_base_error(func):
             error_str = f"语法错误, 文件名: '{e.filename}', 行号: {e.lineno}, 列号: {e.offset}, 代码行: {repr(e.text)}"
             raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except Exception as e:
-            if isinstance(e, BaseException):
-                raise e
-            else:
-                raise e
+            raise e
 
     return wrapper

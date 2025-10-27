@@ -59,7 +59,7 @@ class Flow:
                 module_index += 1
                 res = self._module_display(project_id, mode, version, resource_id, name)
 
-                self.svc.add_process_info(project_id, category, name, file_name)
+                self.svc.add_process_info(resource_id, category, name, file_name)
                 with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
@@ -144,17 +144,22 @@ class Flow:
 
         line = 0
         new_flow_list = []
+        process_meta = []
         for k, v in enumerate(flow_list):
             line = line + 1
             if v.get("disabled"):
                 continue
             v.update({
                 "__line__": line,
+                "__process_id__": process_id,
             })
             if v.get("breakpoint"):
                 # 流程扫描的断点
                 self.svc.add_breakpoint(process_id, line)
+            process_meta.append([line, v.get("id"), v.get("alias", v.get("title", "")), v.get("key")])
             new_flow_list.append(v)
+
+        self.svc.add_process_meta(process_id, process_meta)
 
         # 2. 解析
         lexer = Lexer(flow_list=new_flow_list)

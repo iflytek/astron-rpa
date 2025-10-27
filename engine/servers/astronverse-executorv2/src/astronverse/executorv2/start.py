@@ -111,7 +111,7 @@ def start():
     Config.wait_tip_ws = args.wait_tip_ws == "y"
 
     # 生成代码
-    # flow_start(conf=Config, args=args)
+    flow_start(conf=Config, args=args)
 
     # 执行代码
     debug_start(conf=Config, args=args)

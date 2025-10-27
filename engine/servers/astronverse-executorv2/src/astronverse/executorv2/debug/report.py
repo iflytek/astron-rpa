@@ -28,6 +28,15 @@ class Report(IReport):
             os.makedirs(local_file_path)
         self.log_local_file = open(os.path.join(str(local_file_path), "{}.txt".format(self.svc.conf.exec_id)), "w", encoding="utf-8")
 
+        self.process = {}
+        for i, v in self.svc.ast_globals.process_info.items():
+            process_meta = {}
+            if v.process_meta:
+                for m in v.process_meta:
+                    process_meta[m[0]] = m
+            v.process_meta = process_meta
+            self.process[v.process_id] = v
+
     def close(self):
         self.log_local_file.close()
 
@@ -44,10 +53,10 @@ class Report(IReport):
             self.queue.put(ms, block=True, timeout=None)
 
         if (
-            self.log_local_file
-            and (not self.log_local_file.closed)
-            and filtered_dict["log_type"] != ReportType.Tip
-            and filtered_dict.get("tag", None) != "tip"
+                self.log_local_file
+                and (not self.log_local_file.closed)
+                and filtered_dict["log_type"] != ReportType.Tip
+                and filtered_dict.get("tag", None) != "tip"
         ):
             # Tip数据不写入到日志里面, tag等于Tag也不写入到日志
             message = json.dumps(
@@ -58,14 +67,37 @@ class Report(IReport):
 
     def info(self, message):
         if (
-            isinstance(message, ReportFlow)
-            or isinstance(message, ReportCode)
-            or isinstance(message, ReportUser)
-            or isinstance(message, ReportTip)
+                isinstance(message, ReportFlow)
+                or isinstance(message, ReportCode)
+                or isinstance(message, ReportUser)
+                or isinstance(message, ReportTip)
         ):
             pass
         else:
             message = ReportScript(msg_str=str(message))
+
+        if isinstance(message, ReportCode) or isinstance(message, ReportUser):
+            process_id = message.process_id
+            line = message.line
+            if process_id in self.process:
+                process = self.process[process_id]
+                if not message.process:
+                    message.process = process.process_name
+                    message.msg_str = message.msg_str.replace("{process}", process.process_name)
+                if line in process.process_meta:
+                    meta = process.process_meta[line]
+                    atomic = meta[2]
+                    key = meta[3]
+                    line_id = meta[1]
+                    if hasattr(message, "atomic") and not message.atomic:
+                        message.atomic = atomic
+                        message.msg_str = message.msg_str.replace("{atomic}", atomic)
+                    if hasattr(message, "key") and not message.key:
+                        message.key = key
+                        message.msg_str = message.msg_str.replace("{key}", key)
+                    if hasattr(message, "line_id") and not message.line_id:
+                        message.line_id = line_id
+                        message.msg_str = message.msg_str.replace("{line_id}", line_id)
 
         filtered_dict = {k: v for k, v in asdict(message).items() if v is not None}
 
@@ -77,14 +109,37 @@ class Report(IReport):
 
     def warning(self, message):
         if (
-            isinstance(message, ReportFlow)
-            or isinstance(message, ReportCode)
-            or isinstance(message, ReportUser)
-            or isinstance(message, ReportTip)
+                isinstance(message, ReportFlow)
+                or isinstance(message, ReportCode)
+                or isinstance(message, ReportUser)
+                or isinstance(message, ReportTip)
         ):
             pass
         else:
             message = ReportScript(msg_str=str(message))
+
+        if isinstance(message, ReportCode) or isinstance(message, ReportUser):
+            process_id = message.process_id
+            line = message.line
+            if process_id in self.process:
+                process = self.process[process_id]
+                if not message.process:
+                    message.process = process.process_name
+                    message.msg_str = message.msg_str.replace("{process}", process.process_name)
+                if line in process.process_meta:
+                    meta = process.process_meta[line]
+                    atomic = meta[2]
+                    key = meta[3]
+                    line_id = meta[1]
+                    if hasattr(message, "atomic") and not message.atomic:
+                        message.atomic = atomic
+                        message.msg_str = message.msg_str.replace("{atomic}", atomic)
+                    if hasattr(message, "key") and not message.key:
+                        message.key = key
+                        message.msg_str = message.msg_str.replace("{key}", key)
+                    if hasattr(message, "line_id") and not message.line_id:
+                        message.line_id = line_id
+                        message.msg_str = message.msg_str.replace("{line_id}", line_id)
 
         filtered_dict = {k: v for k, v in asdict(message).items() if v is not None}
         filtered_dict["log_level"] = "warning"
@@ -92,18 +147,38 @@ class Report(IReport):
 
     def error(self, message):
         if (
-            isinstance(message, ReportFlow)
-            or isinstance(message, ReportCode)
-            or isinstance(message, ReportUser)
-            or isinstance(message, ReportTip)
+                isinstance(message, ReportFlow)
+                or isinstance(message, ReportCode)
+                or isinstance(message, ReportUser)
+                or isinstance(message, ReportTip)
         ):
             pass
         else:
             message = ReportScript(msg_str=str(message))
 
+        if isinstance(message, ReportCode) or isinstance(message, ReportUser):
+            process_id = message.process_id
+            line = message.line
+            if process_id in self.process:
+                process = self.process[process_id]
+                if not message.process:
+                    message.process = process.process_name
+                    message.msg_str = message.msg_str.replace("{process}", process.process_name)
+                if line in process.process_meta:
+                    meta = process.process_meta[line]
+                    atomic = meta[2]
+                    key = meta[3]
+                    line_id = meta[1]
+                    if hasattr(message, "atomic") and not message.atomic:
+                        message.atomic = atomic
+                        message.msg_str = message.msg_str.replace("{atomic}", atomic)
+                    if hasattr(message, "key") and not message.key:
+                        message.key = key
+                        message.msg_str = message.msg_str.replace("{key}", key)
+                    if hasattr(message, "line_id") and not message.line_id:
+                        message.line_id = line_id
+                        message.msg_str = message.msg_str.replace("{line_id}", line_id)
+
         filtered_dict = {k: v for k, v in asdict(message).items() if v is not None}
         filtered_dict["log_level"] = "error"
         return self.__send__(filtered_dict)
-
-
-
