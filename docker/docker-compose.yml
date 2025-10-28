@@ -190,9 +190,10 @@ services:
       - rpa-opensource-network
 
   ai-service:
-    build:
-      context: ..
-      dockerfile: backend/ai-service/Dockerfile
+    image: ghcr.io/iflytek/astron-rpa/ai-service:latest
+    # build:
+    #   context: ..
+    #   dockerfile: backend/ai-service/Dockerfile
     container_name: rpa-opensource-ai-service
     restart: always
     env_file: *env_file
@@ -216,9 +217,10 @@ services:
       - rpa-opensource-network
 
   openapi-service:
-    build:
-      context: ..
-      dockerfile: backend/openapi-service/Dockerfile
+    image: ghcr.io/iflytek/astron-rpa/openapi-service:latest
+    # build:
+    #   context: ..
+    #   dockerfile: backend/openapi-service/Dockerfile
     container_name: rpa-opensource-openapi-service
     restart: always
     env_file: *env_file
@@ -242,9 +244,10 @@ services:
       - rpa-opensource-network
 
   resource-service:
-    build:
-      context: ..
-      dockerfile: backend/resource-service/Dockerfile
+    image: ghcr.io/iflytek/astron-rpa/resource-service:latest
+    # build:
+    #   context: ..
+    #   dockerfile: backend/resource-service/Dockerfile
     container_name: rpa-opensource-resource-service
     restart: always
     env_file: *env_file
@@ -265,9 +268,10 @@ services:
       - rpa-opensource-network
 
   robot-service:
-    build:
-      context: ..
-      dockerfile: backend/robot-service/Dockerfile
+    image: ghcr.io/iflytek/astron-rpa/robot-service:latest
+    # build:
+    #   context: ..
+    #   dockerfile: backend/robot-service/Dockerfile
     container_name: rpa-opensource-robot-service
     restart: always
     env_file: *env_file
