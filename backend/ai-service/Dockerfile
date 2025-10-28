@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir -e .
 COPY backend/ai-service/app/ ./app/
 
 # 复制配置文件（如果存在）
-COPY docker/.env ./.env
+# COPY docker/.env ./.env
 
 # 暴露端口
 EXPOSE 8010
