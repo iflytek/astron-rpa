@@ -2,15 +2,21 @@ package com.iflytek.rpa.example.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.example.constants.ExampleConstants;
 import com.iflytek.rpa.example.dao.SampleTemplatesDao;
 import com.iflytek.rpa.example.dao.SampleUsersDao;
+import com.iflytek.rpa.example.entity.Dto.WorkflowsUpsertDto;
 import com.iflytek.rpa.example.entity.SampleTemplates;
 import com.iflytek.rpa.example.entity.SampleUsers;
 import com.iflytek.rpa.example.service.SampleUsersService;
+import com.iflytek.rpa.robot.dao.RobotDesignDao;
+import com.iflytek.rpa.robot.dao.RobotExecuteDao;
+import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.RobotExecute;
+import com.iflytek.rpa.robot.entity.RobotVersion;
 import com.iflytek.rpa.starter.utils.response.AppResponse;
 import java.util.*;
 import java.util.function.Function;
@@ -41,13 +47,16 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
     private SampleUsersDao sampleUsersDao;
 
     @Autowired
-    private com.iflytek.rpa.robot.dao.RobotDesignDao robotDesignDao;
+    private RobotDesignDao robotDesignDao;
 
     @Autowired
-    private com.iflytek.rpa.robot.dao.RobotExecuteDao robotExecuteDao;
+    private RobotExecuteDao robotExecuteDao;
 
     @Autowired
-    private com.iflytek.rpa.base.dao.CProcessDao cProcessDao;
+    private RobotVersionDao robotVersionDao;
+
+    @Autowired
+    private CProcessDao cProcessDao;
 
     // type 到插入操作的映射
     private Map<String, Function<Object, Integer>> typeInsertMap = new HashMap<>();
@@ -56,6 +65,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
     public void initTypeInsertMap() {
         typeInsertMap.put("robot_design", (obj) -> robotDesignDao.insert((RobotDesign) obj));
         typeInsertMap.put("robot_execute", (obj) -> robotExecuteDao.insert((RobotExecute) obj));
+        typeInsertMap.put("robot_version", (obj) -> robotVersionDao.insert((RobotVersion) obj));
         typeInsertMap.put("c_process", (obj) -> cProcessDao.insert((CProcess) obj));
     }
 
@@ -190,6 +200,18 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
                 log.error("处理模板数据失败，类型: {}, 错误信息: {}", template.getType(), e.getMessage(), e);
             }
         }
+    }
+
+    private void sendOpenApiRequest(RobotExecute robotExecute){
+        WorkflowsUpsertDto requestDto = new WorkflowsUpsertDto();
+        requestDto.setProject_id(robotExecute.getRobotId());
+        requestDto.setName(robotExecute.getName());
+        requestDto.setEnglish_name(robotExecute.getName());
+        requestDto.setDescription("");
+        requestDto.setVersion(robotExecute.getRobotVersion().toString());
+        requestDto.setStatus(1);
+        requestDto.setParameters("");
+
     }
 
     /**

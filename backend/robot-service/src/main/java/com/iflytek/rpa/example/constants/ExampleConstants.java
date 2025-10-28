@@ -3,6 +3,8 @@ package com.iflytek.rpa.example.constants;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.RobotExecute;
+import com.iflytek.rpa.robot.entity.RobotVersion;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ public class ExampleConstants {
         {
             put("robot_design", RobotDesign.class);
             put("robot_execute", RobotExecute.class);
+            put("robot_version", RobotVersion.class);
             put("c_process", CProcess.class);
         }
     };
