@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.example.entity.SampleTemplates;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
 import java.util.List;
 
 /**
@@ -46,4 +48,10 @@ public interface SampleTemplatesDao extends BaseMapper<SampleTemplates> {
      * @return 模板列表
      */
     List<SampleTemplates> selectActiveByType(@Param("type") String type);
+
+    @Select("select version from sample_template where is_deleted = 0 and is_active = 1")
+    List<String> getVersionList();
+
+    @Select("select * from sample_template where is_deleted = 0 and is_active = 1 and version = #{version}")
+    List<SampleTemplates> getSamples(@Param("version") String version);
 }

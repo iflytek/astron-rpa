@@ -23,7 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @desc: 用户工具类
@@ -318,5 +318,15 @@ public class UserUtils {
         }
 
         return user.displayName;
+    }
+
+    /**
+     * 通过name获取用户
+     */
+
+    public static User getUserByName(String name) throws IOException {
+        if (org.apache.commons.lang3.StringUtils.isBlank(name))
+            return null;
+        return staticUserService.getUser(name);
     }
 }
