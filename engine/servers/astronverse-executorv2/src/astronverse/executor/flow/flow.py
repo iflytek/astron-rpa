@@ -1,10 +1,10 @@
 import json
 import os
 
-from astronverse.executorv2.error import BaseException, SYNTAX_ERROR_FORMAT, PROCESS_ACCESS_ERROR_FORMAT
-from astronverse.executorv2.flow.syntax.lexer import Lexer
-from astronverse.executorv2.flow.syntax.parser import Parser
-from astronverse.executorv2.flow.syntax.ast import CodeLine
+from astronverse.executor.error import BaseException, SYNTAX_ERROR_FORMAT, PROCESS_ACCESS_ERROR_FORMAT
+from astronverse.executor.flow.syntax.lexer import Lexer
+from astronverse.executor.flow.syntax.parser import Parser
+from astronverse.executor.flow.syntax.ast import CodeLine
 
 
 class Flow:

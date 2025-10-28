@@ -9,9 +9,9 @@ from astronverse.websocket_server.ws import IWebSocket, BaseMsg, Conn
 from astronverse.websocket_server.ws_service import WsManager, AsyncOnce
 from websockets import ServerConnection
 
-from astronverse.executorv2 import ExecuteStatus
-from astronverse.executorv2.error import *
-from astronverse.executorv2.logger import logger
+from astronverse.executor import ExecuteStatus
+from astronverse.executor.error import *
+from astronverse.executor.logger import logger
 
 
 @dataclass
@@ -190,6 +190,6 @@ class Ws:
             await asyncio.Future()
 
     def server(self):
-        from astronverse.executorv2.debug.apis.apis import route_init
+        from astronverse.executor.debug.apis.apis import route_init
         route_init()
         asyncio.run(self.run_server())

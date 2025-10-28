@@ -1,7 +1,7 @@
 from typing import Optional
-from astronverse.executorv2.flow.syntax import Token
-from astronverse.executorv2.flow.syntax.token import TokenType, atomic_old_to_new
-from astronverse.executorv2.error import BaseException, MISSING_REQUIRED_KEY_ERROR_FORMAT
+from astronverse.executor.flow.syntax import Token
+from astronverse.executor.flow.syntax.token import TokenType, atomic_old_to_new
+from astronverse.executor.error import BaseException, MISSING_REQUIRED_KEY_ERROR_FORMAT
 
 
 class Lexer:

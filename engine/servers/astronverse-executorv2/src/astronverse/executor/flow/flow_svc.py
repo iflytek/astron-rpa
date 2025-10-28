@@ -1,8 +1,8 @@
-from astronverse.executorv2 import AstGlobals, ProcessInfo, AtomicInfo
-from astronverse.executorv2.config import Config
-from astronverse.executorv2.flow.params import Param
-from astronverse.executorv2.flow.storage import IStorage, HttpStorage
-from astronverse.executorv2.flow.syntax import IParam
+from astronverse.executor import AstGlobals, ProcessInfo, AtomicInfo
+from astronverse.executor.config import Config
+from astronverse.executor.flow.params import Param
+from astronverse.executor.flow.storage import IStorage, HttpStorage
+from astronverse.executor.flow.syntax import IParam
 
 
 class FlowSvc:

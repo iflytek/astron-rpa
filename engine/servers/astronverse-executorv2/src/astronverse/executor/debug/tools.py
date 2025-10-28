@@ -1,7 +1,7 @@
 import sys
 import threading
 from astronverse.tools.tools import RpaTools
-from astronverse.executorv2.utils.utils import exec_run
+from astronverse.executor.utils.utils import exec_run
 
 class LogTool:
 

@@ -1,7 +1,7 @@
 [project]
-name = "astronverse-executorv2"
+name = "astronverse-executor"
 version = "1.0.1"
-description = "astronverse-executorv2."
+description = "astronverse-executor."
 requires-python = ">=3.13"
 
 dependencies = [

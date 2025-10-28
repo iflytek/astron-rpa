@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from astronverse.executorv2.flow.syntax import InputParam, OutputParam, Token, Node
+from astronverse.executor.flow.syntax import InputParam, OutputParam, Token, Node
 from typing import List, Dict
-from astronverse.executorv2.flow.syntax.token import TokenType
+from astronverse.executor.flow.syntax.token import TokenType
 
 
 @dataclass

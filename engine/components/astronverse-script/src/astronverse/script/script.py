@@ -1,4 +1,6 @@
 import importlib
+
+from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.script.error import BaseException, MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND
 
@@ -21,49 +23,22 @@ class Script:
     @staticmethod
     @atomicMg.atomic(
         "Script",
-        outputList=[atomicMg.param("process", types="Any")],
+        inputList=[
+            atomicMg.param("process", types="Any", formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["Process"]})),
+            atomicMg.param("process_param", types="List", need_parse=True, formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"})),
+        ],
+        outputList=[atomicMg.param("process_res", types="Any")],
     )
-    def process(content: str, **kwargs):
+    def process(process: str, process_param: list, **kwargs):
         """动态调用流程"""
-        return Script._call(content, **kwargs)
+        return Script._call(process, **kwargs)
 
     @staticmethod
     @atomicMg.atomic(
         "Script",
-        outputList=[atomicMg.param("module", types="Any")],
+        inputList=[atomicMg.param("content", types="Any", formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": "PyModule"}))],
+        outputList=[atomicMg.param("program_script", types="Any")],
     )
     def module(content: str, **kwargs):
         """动态调用模块"""
         return Script._call(content, **kwargs)
-
-    @staticmethod
-    @atomicMg.atomic(
-        "Script",
-        outputList=[atomicMg.param("condition", types="Bool")],
-    )
-    def condition(args1, condition, args2) -> bool:
-        return True
-
-    @staticmethod
-    @atomicMg.atomic(
-        "Script",
-        outputList=[atomicMg.param("condition", types="Int")],
-    )
-    def for_range(start: int, end: int, step: int):
-        return range(start, end, step)
-
-    @staticmethod
-    @atomicMg.atomic(
-        "Script",
-        outputList=[atomicMg.param("index", types="Int"), atomicMg.param("list_item", types="Any")]
-    )
-    def for_list(lists):
-        return enumerate(lists)
-
-    @staticmethod
-    @atomicMg.atomic(
-        "Script",
-        outputList=[atomicMg.param("key", types="Any"), atomicMg.param("value", types="Any")]
-    )
-    def for_dict(dicts):
-        return dict(dicts).items()

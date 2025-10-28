@@ -1,7 +1,7 @@
 import json
 from enum import Enum
 from typing import Any, Dict, List
-from astronverse.executorv2.flow.syntax import IParam, InputParam, Token, OutputParam
+from astronverse.executor.flow.syntax import IParam, InputParam, Token, OutputParam
 
 
 class ParamType(Enum):
@@ -100,26 +100,31 @@ class Param(IParam):
         data = i.get("value")
         parse = i.get("need_parse")
         key = token.value.get("key") if token else ""
+        special = ""
 
         if parse is not None:
             if parse == "json_str":
                 data = json.loads(data)
-        special = ""
-        if parse is not None:
-            # 复杂参数解析
-            special = "complex_param_parser"
-        elif isinstance(data, list) and len(data) == 1 and data[0]["type"] == ParamType.ELEMENT.value:
-            # 元素
-            special = "element"
-        elif key == "Code.Module" and name == "content":
-            # 子模块
-            special = "module"
-        elif key == "Code.Process" and name == "content":
-            # 子模块
-            special = "module"
+            return InputParam(key=name, value=data, need_eval=True, special="complex_param_parser")
+        else:
+            if isinstance(data, list) and len(data) == 1 and data[0]["type"] == ParamType.ELEMENT.value:
+                # 元素
+                special = "element"
+            elif key == "Code.Module" and name == "content":
+                # 子模块
+                special = "module"
+            elif key == "Code.Process" and name == "process":
+                # 子模块
+                special = "module"
+            elif key == "Script.process" and name == "process":
+                # 子模块
+                special = "module"
+            elif key == "Script.module" and name == "content":
+                # 子模块
+                special = "module"
 
-        value, need_eval = self._param_to_eval(self.pre_param_handler(data))
-        return InputParam(key=name, value=value, need_eval=need_eval, special=special)
+            value, need_eval = self._param_to_eval(self.pre_param_handler(data))
+            return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 
     def parse_condition_input(self, token: Token) -> InputParam:
         res = {}

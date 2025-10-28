@@ -76,6 +76,8 @@ class AtomicFormType(Enum):
     REMOTEPARAMS = "REMOTEPARAMS"
     # 卓越中心共享文件夹
     REMOTEFOLDERS = "REMOTEFOLDERS"
+    # 流程参数
+    PROCESSPARAM = "PROCESSPARAM"
 
 
 class AtomicFormTypeParam(Enum):
@@ -92,6 +94,9 @@ class AtomicFormTypeParam(Enum):
     }
     PROCESS_PARAM = {
         "linkage": "process"  # xxx关联参数
+    }
+    PROCESSPARAM = {
+        "linkage": "process"
     }
 
 
