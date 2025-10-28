@@ -31,7 +31,7 @@ RUN apk add --no-cache curl
 COPY --from=build /app/target/*.jar app.jar
 
 # 复制配置文件（如果存在）
-COPY docker/.env ./.env
+# COPY docker/.env ./.env
 
 # 创建日志目录
 RUN mkdir -p /app/logs

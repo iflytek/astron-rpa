@@ -4,7 +4,7 @@
 
 ![AstronRPA Logo](./docs/images/icon_128px.png)
 
-**🤖 Enterprise-grade Robotic Process Automation (RPA) Development Platform**
+**🤖 Pioneering Open-Source Enterprise RPA Desktop Application**
 
 [![License](https://img.shields.io/badge/license-Open%20Source-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/iflytek/astron-rpa)](https://github.com/iflytek/astron-rpa/releases)

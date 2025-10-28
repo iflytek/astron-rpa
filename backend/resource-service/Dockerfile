@@ -28,7 +28,7 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # 复制配置文件（如果存在）
-COPY docker/.env ./.env
+# COPY docker/.env ./.env
 
 # 暴露端口
 EXPOSE 8030
