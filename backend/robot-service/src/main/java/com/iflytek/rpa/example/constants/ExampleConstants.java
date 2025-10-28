@@ -16,4 +16,6 @@ public class ExampleConstants {
             put("c_process", CProcess.class);
         }
     };
+
+    public static final String EXAMPLE_USER_NAME = "example-user";
 }

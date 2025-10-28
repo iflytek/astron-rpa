@@ -35,6 +35,5 @@ public class ExampleController {
 
         // insert sample
         return sampleUsersService.insertUserSample(user.id, tenantId);
-//        return sampleUsersService.insertUserSample("e88d905d-b080-4559-aa0f-af9073908730", "example-org");
     }
 }
