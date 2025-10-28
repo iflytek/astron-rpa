@@ -8,7 +8,7 @@ public class WorkflowsUpsertDto {
     String name;
     String english_name;
     String description;
-    String version;
+    Integer version;
     Integer status;
     String parameters;
 }

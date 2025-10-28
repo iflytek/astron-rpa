@@ -2,8 +2,12 @@ package com.iflytek.rpa.example.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.CProcess;
+import com.iflytek.rpa.base.entity.dto.ParamDto;
+import com.iflytek.rpa.base.entity.dto.QueryParamDto;
+import com.iflytek.rpa.base.service.CParamService;
 import com.iflytek.rpa.example.constants.ExampleConstants;
 import com.iflytek.rpa.example.dao.SampleTemplatesDao;
 import com.iflytek.rpa.example.dao.SampleUsersDao;
@@ -17,17 +21,29 @@ import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.RobotVersion;
+import com.iflytek.rpa.starter.exception.NoLoginException;
 import com.iflytek.rpa.starter.utils.response.AppResponse;
 import java.util.*;
 import java.util.function.Function;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+
+import static com.iflytek.rpa.example.constants.ExampleConstants.WORKFLOWS_UPSERT_URL;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)表服务实现类
@@ -57,6 +73,9 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
     @Autowired
     private CProcessDao cProcessDao;
+
+    @Autowired
+    private CParamService cParamService;
 
     // type 到插入操作的映射
     private Map<String, Function<Object, Integer>> typeInsertMap = new HashMap<>();
@@ -172,28 +191,34 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @param userId
      * @param tenantId
      */
-    private void processTemplateDataByType(SampleTemplates template, String userId, String tenantId) {
+    public void processTemplateDataByType(SampleTemplates template, String userId, String tenantId) {
         if (template == null || StringUtils.isBlank(template.getType()) || StringUtils.isBlank(template.getData())) {
             return;
         }
+
+        String businessType = template.getType();
 
         String dataJsonStr = template.getData();
         // 更新JSON中的creatorId、updaterId和tenantId字段
         dataJsonStr = updateJsonFields(dataJsonStr, userId, tenantId);
         
-        Class<?> businessClass = ExampleConstants.TYPE_BUSINESS_CLASS_MAP.get(template.getType());
+        Class<?> businessClass = ExampleConstants.TYPE_BUSINESS_CLASS_MAP.get(businessType);
         if (businessClass != null) {
             try {
                 // 使用fastJson将JSON字符串转换为对应的业务对象
                 Object businessObject = JSONObject.parseObject(dataJsonStr, businessClass);
 
+                // 请求openapi接口
+                if (businessType.equals("robot_execute"))
+                    sendOpenApiRequest((RobotExecute) businessObject);
+
                 // 获取对应的插入函数并执行
-                Function<Object, Integer> insertFunction = typeInsertMap.get(template.getType());
+                Function<Object, Integer> insertFunction = typeInsertMap.get(businessType);
                 if (insertFunction != null) {
                     insertFunction.apply(businessObject);
-                    log.info("成功插入业务数据，类型: {}", template.getType());
+                    log.info("成功插入业务数据，类型: {}", businessType);
                 } else {
-                    log.warn("未找到对应的插入方法，类型: {}", template.getType());
+                    log.warn("未找到对应的插入方法，类型: {}", businessType);
                 }
 
             } catch (Exception e) {
@@ -202,16 +227,51 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         }
     }
 
-    private void sendOpenApiRequest(RobotExecute robotExecute){
+    private void sendOpenApiRequest(RobotExecute robotExecute) throws NoLoginException, JsonProcessingException {
+
+        QueryParamDto queryParamDto = new QueryParamDto();
+        queryParamDto.setRobotId(robotExecute.getRobotId());
+        queryParamDto.setMode(EXECUTOR);
+        // todo 还需要拿param，现在这种方法拿不到
+//       AppResponse<List<ParamDto>> allParams = cParamService.getAllParams(queryParamDto);
+
         WorkflowsUpsertDto requestDto = new WorkflowsUpsertDto();
         requestDto.setProject_id(robotExecute.getRobotId());
         requestDto.setName(robotExecute.getName());
         requestDto.setEnglish_name(robotExecute.getName());
         requestDto.setDescription("");
-        requestDto.setVersion(robotExecute.getRobotVersion().toString());
+        requestDto.setVersion(robotExecute.getRobotVersion());
         requestDto.setStatus(1);
         requestDto.setParameters("");
 
+        // 将 requestDto 转换为 JSON 字符串
+        String requestBody = JSONObject.toJSONString(requestDto);
+        
+        // 创建 RestTemplate 实例
+        RestTemplate restTemplate = new RestTemplate();
+        
+        // 设置请求头
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        // 创建请求实体
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        
+        // 发起 POST 请求
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    WORKFLOWS_UPSERT_URL,
+                HttpMethod.POST, 
+                requestEntity, 
+                String.class
+            );
+            
+            log.info("OpenAPI 请求成功，URL: {}, 响应状态: {}, 响应体: {}",
+                    WORKFLOWS_UPSERT_URL, response.getStatusCode(), response.getBody());
+        } catch (Exception e) {
+            log.error("OpenAPI 请求失败，URL: {}, 错误信息: {}", WORKFLOWS_UPSERT_URL, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**

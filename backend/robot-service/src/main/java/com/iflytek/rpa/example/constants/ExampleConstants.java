@@ -21,4 +21,6 @@ public class ExampleConstants {
     };
 
     public static final String EXAMPLE_USER_NAME = "example-user";
+
+    public static final String WORKFLOWS_UPSERT_URL = "http://openapi-service:8020/workflows/upsert";
 }
