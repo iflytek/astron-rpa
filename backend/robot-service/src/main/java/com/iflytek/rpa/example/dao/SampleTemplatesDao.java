@@ -2,11 +2,10 @@ package com.iflytek.rpa.example.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.example.entity.SampleTemplates;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * 系统预定义的模板库(SampleTemplates)表数据库访问层

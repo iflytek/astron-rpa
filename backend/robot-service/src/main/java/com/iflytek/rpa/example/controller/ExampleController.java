@@ -2,12 +2,10 @@ package com.iflytek.rpa.example.controller;
 
 import com.iflytek.rpa.example.service.SampleUsersService;
 import com.iflytek.rpa.starter.exception.ServiceException;
-
-import java.io.IOException;
-import java.util.Map;
-
 import com.iflytek.rpa.starter.utils.response.AppResponse;
 import com.iflytek.rpa.utils.UserUtils;
+import java.io.IOException;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;

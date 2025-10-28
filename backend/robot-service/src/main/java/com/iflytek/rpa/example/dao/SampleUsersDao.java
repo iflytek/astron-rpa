@@ -2,9 +2,9 @@ package com.iflytek.rpa.example.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.example.entity.SampleUsers;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)表数据库访问层

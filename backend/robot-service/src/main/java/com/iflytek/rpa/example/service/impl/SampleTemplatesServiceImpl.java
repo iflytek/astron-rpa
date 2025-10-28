@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
  * @since 2024-12-19
  */
 @Service
-public class SampleTemplatesServiceImpl extends ServiceImpl<SampleTemplatesDao, SampleTemplates> implements SampleTemplatesService {
+public class SampleTemplatesServiceImpl extends ServiceImpl<SampleTemplatesDao, SampleTemplates>
+        implements SampleTemplatesService {
 
     // 用户自行实现方法
 }

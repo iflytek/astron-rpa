@@ -2,23 +2,26 @@ package com.iflytek.rpa.example.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iflytek.rpa.base.entity.CProcess;
+import com.iflytek.rpa.example.constants.ExampleConstants;
 import com.iflytek.rpa.example.dao.SampleTemplatesDao;
 import com.iflytek.rpa.example.dao.SampleUsersDao;
 import com.iflytek.rpa.example.entity.SampleTemplates;
 import com.iflytek.rpa.example.entity.SampleUsers;
 import com.iflytek.rpa.example.service.SampleUsersService;
+import com.iflytek.rpa.robot.entity.RobotDesign;
+import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.starter.utils.response.AppResponse;
+import java.util.*;
+import java.util.function.Function;
+import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static com.iflytek.rpa.example.constants.ExampleConstants.TYPE_BUSINESS_CLASS_MAP;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)表服务实现类
@@ -28,6 +31,7 @@ import static com.iflytek.rpa.example.constants.ExampleConstants.TYPE_BUSINESS_C
  */
 @Service
 public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUsers> implements SampleUsersService {
+
     private static final Logger log = LoggerFactory.getLogger(SampleUsersServiceImpl.class);
 
     @Autowired
@@ -36,6 +40,24 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
     @Autowired
     private SampleUsersDao sampleUsersDao;
 
+    @Autowired
+    private com.iflytek.rpa.robot.dao.RobotDesignDao robotDesignDao;
+
+    @Autowired
+    private com.iflytek.rpa.robot.dao.RobotExecuteDao robotExecuteDao;
+
+    @Autowired
+    private com.iflytek.rpa.base.dao.CProcessDao cProcessDao;
+
+    // type 到插入操作的映射
+    private Map<String, Function<Object, Integer>> typeInsertMap = new HashMap<>();
+
+    @PostConstruct
+    public void initTypeInsertMap() {
+        typeInsertMap.put("robot_design", (obj) -> robotDesignDao.insert((RobotDesign) obj));
+        typeInsertMap.put("robot_execute", (obj) -> robotExecuteDao.insert((RobotExecute) obj));
+        typeInsertMap.put("c_process", (obj) -> cProcessDao.insert((CProcess) obj));
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -52,7 +74,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         return AppResponse.success(true);
     }
 
-    public void addUserSamples(List<SampleTemplates> latestActiveTemplates, String userId){
+    public void addUserSamples(List<SampleTemplates> latestActiveTemplates, String userId) {
 
         // 2. 结合userId，插入多行sample_users表记录
         List<SampleUsers> sampleUsersList = new ArrayList<>();
@@ -76,10 +98,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         }
 
         // 批量插入sample_users表
-        if (!CollectionUtils.isEmpty(sampleUsersList)) {
-            sampleUsersDao.insertBatch(sampleUsersList);
-        }
-
+        sampleUsersDao.insertBatch(sampleUsersList);
     }
 
     /**
@@ -146,23 +165,24 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
             return;
         }
 
-        Class<?> businessClass = TYPE_BUSINESS_CLASS_MAP.get(template.getType());
+        Class<?> businessClass = ExampleConstants.TYPE_BUSINESS_CLASS_MAP.get(template.getType());
         if (businessClass != null) {
             try {
                 // 使用fastJson将JSON字符串转换为对应的业务对象
                 Object businessObject = JSONObject.parseObject(template.getData(), businessClass);
-                
-                // 这里可以根据业务对象类型进行相应的数据库操作
-                // 例如：businessService.insert(businessObject);
-                // 实际使用时需要注入对应的业务服务并进行操作
-                
-                // 注意：实际项目中，这里应该调用具体的业务服务层方法来保存数据
-                // 而不是直接在当前方法中执行数据库操作
+
+                // 获取对应的插入函数并执行
+                Function<Object, Integer> insertFunction = typeInsertMap.get(template.getType());
+                if (insertFunction != null) {
+                    insertFunction.apply(businessObject);
+                    log.info("成功插入业务数据，类型: {}", template.getType());
+                } else {
+                    log.warn("未找到对应的插入方法，类型: {}", template.getType());
+                }
+
             } catch (Exception e) {
-                // 记录错误日志但不中断主流程
                 log.error("处理模板数据失败，类型: {}, 错误信息: {}", template.getType(), e.getMessage(), e);
             }
         }
     }
-
 }

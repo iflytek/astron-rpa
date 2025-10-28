@@ -3,7 +3,6 @@ package com.iflytek.rpa.example.constants;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.RobotExecute;
-
 import java.util.HashMap;
 import java.util.Map;
 

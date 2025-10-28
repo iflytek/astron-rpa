@@ -10,5 +10,4 @@ import com.iflytek.rpa.starter.utils.response.AppResponse;
  */
 public interface SampleUsersService {
     AppResponse<Boolean> insertUserSample(String userId);
-
 }
