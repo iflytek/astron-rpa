@@ -9,5 +9,5 @@ import com.iflytek.rpa.starter.utils.response.AppResponse;
  * @since 2024-12-19
  */
 public interface SampleUsersService {
-    AppResponse<Boolean> insertUserSample(String userId);
+    AppResponse<Boolean> insertUserSample(String userId, String tenantId);
 }

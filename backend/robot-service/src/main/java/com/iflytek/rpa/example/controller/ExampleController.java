@@ -27,13 +27,14 @@ public class ExampleController {
         if (!requestBody.containsKey("organization") || !requestBody.containsKey("user"))
             throw new ServiceException("hook body from cas-door is missing");
         String name = (String) requestBody.get("user");
-        String owner = (String) requestBody.get("organization");
+        String tenantId = (String) requestBody.get("organization");
 
         // get user by casdoor api
         User user = UserUtils.getUserByName(name);
         if (user == null) throw new ServiceException("fail to get casdoor user by name");
 
         // insert sample
-        return sampleUsersService.insertUserSample(user.id);
+        return sampleUsersService.insertUserSample(user.id, tenantId);
+//        return sampleUsersService.insertUserSample("e88d905d-b080-4559-aa0f-af9073908730", "example-org");
     }
 }

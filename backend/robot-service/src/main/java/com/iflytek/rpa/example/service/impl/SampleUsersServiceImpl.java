@@ -61,7 +61,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public AppResponse<Boolean> insertUserSample(String userId) {
+    public AppResponse<Boolean> insertUserSample(String userId, String tenantId) {
         // 1. 读取sample_templates表中version最大的且is_active = 1 的所有记录
         List<SampleTemplates> latestActiveTemplates = getLatestActiveTemplates();
         if (CollectionUtils.isEmpty(latestActiveTemplates)) {
@@ -69,12 +69,12 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         }
 
         // user_sample 表中插入记录
-        addUserSamples(latestActiveTemplates, userId);
+        addUserSamples(latestActiveTemplates, userId, tenantId);
 
         return AppResponse.success(true);
     }
 
-    public void addUserSamples(List<SampleTemplates> latestActiveTemplates, String userId) {
+    public void addUserSamples(List<SampleTemplates> latestActiveTemplates, String userId, String tenantId) {
 
         // 2. 结合userId，插入多行sample_users表记录
         List<SampleUsers> sampleUsersList = new ArrayList<>();
@@ -94,7 +94,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
             sampleUsersList.add(sampleUser);
 
             // 3. 根据type，把data中的json数据使用fastJson转换成对应的object，然后插入到对应的业务表中
-            processTemplateDataByType(template);
+            processTemplateDataByType(template, userId, tenantId);
         }
 
         // 批量插入sample_users表
@@ -158,18 +158,24 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
     /**
      * 根据模板类型处理数据
-     * @param template 模板对象
+     * @param template
+     * @param userId
+     * @param tenantId
      */
-    private void processTemplateDataByType(SampleTemplates template) {
+    private void processTemplateDataByType(SampleTemplates template, String userId, String tenantId) {
         if (template == null || StringUtils.isBlank(template.getType()) || StringUtils.isBlank(template.getData())) {
             return;
         }
 
+        String dataJsonStr = template.getData();
+        // 更新JSON中的creatorId、updaterId和tenantId字段
+        dataJsonStr = updateJsonFields(dataJsonStr, userId, tenantId);
+        
         Class<?> businessClass = ExampleConstants.TYPE_BUSINESS_CLASS_MAP.get(template.getType());
         if (businessClass != null) {
             try {
                 // 使用fastJson将JSON字符串转换为对应的业务对象
-                Object businessObject = JSONObject.parseObject(template.getData(), businessClass);
+                Object businessObject = JSONObject.parseObject(dataJsonStr, businessClass);
 
                 // 获取对应的插入函数并执行
                 Function<Object, Integer> insertFunction = typeInsertMap.get(template.getType());
@@ -184,5 +190,30 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
                 log.error("处理模板数据失败，类型: {}, 错误信息: {}", template.getType(), e.getMessage(), e);
             }
         }
+    }
+
+    /**
+     * 更新JSON字符串中的creatorId、updaterId和tenantId字段
+     * @param jsonStr JSON字符串
+     * @param userId 用户ID
+     * @param tenantId 租户ID
+     * @return 更新后的JSON字符串
+     */
+    private String updateJsonFields(String jsonStr, String userId, String tenantId) {
+        if (StringUtils.isBlank(jsonStr)) {
+            return jsonStr;
+        }
+
+        JSONObject jsonObject = JSONObject.parseObject(jsonStr);
+        if (jsonObject != null) {
+            // 更新creatorId和updaterId为userId
+            jsonObject.put("creatorId", userId);
+            jsonObject.put("updaterId", userId);
+            // 更新tenantId
+            jsonObject.put("tenantId", tenantId);
+
+            return jsonObject.toJSONString();
+        }
+        return jsonStr;
     }
 }

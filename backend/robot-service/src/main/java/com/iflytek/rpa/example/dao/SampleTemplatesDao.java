@@ -48,9 +48,9 @@ public interface SampleTemplatesDao extends BaseMapper<SampleTemplates> {
      */
     List<SampleTemplates> selectActiveByType(@Param("type") String type);
 
-    @Select("select version from sample_template where is_deleted = 0 and is_active = 1")
+    @Select("select version from sample_templates where is_deleted = 0 and is_active = 1")
     List<String> getVersionList();
 
-    @Select("select * from sample_template where is_deleted = 0 and is_active = 1 and version = #{version}")
+    @Select("select * from sample_templates where is_deleted = 0 and is_active = 1 and version = #{version}")
     List<SampleTemplates> getSamples(@Param("version") String version);
 }
