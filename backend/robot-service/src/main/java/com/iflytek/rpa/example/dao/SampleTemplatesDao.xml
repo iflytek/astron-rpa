@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.example.dao.SampleTemplatesDao">
+
+    <resultMap type="com.iflytek.rpa.example.entity.SampleTemplates" id="SampleTemplatesResultMap">
+        <id column="id" property="id" />
+        <result column="sample_id" property="sampleId" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="version" property="version" />
+        <result column="data" property="data" />
+        <result column="description" property="description" />
+        <result column="is_active" property="isActive" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="created_time" property="createdTime" />
+        <result column="updated_time" property="updatedTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time
+    </sql>
+
+    <select id="selectBySampleId" resultMap="SampleTemplatesResultMap">
+        select <include refid="Base_Column_List" />
+        from sample_templates
+        where sample_id = #{sampleId}
+          and is_deleted = 0
+    </select>
+
+    <select id="selectActiveByType" resultMap="SampleTemplatesResultMap">
+        select <include refid="Base_Column_List" />
+        from sample_templates
+        where type = #{type}
+          and is_active = 1
+          and is_deleted = 0
+        order by created_time desc
+    </select>
+
+    <insert id="insertBatch">
+        insert into sample_templates (sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sampleId}, #{entity.name}, #{entity.type}, #{entity.version}, #{entity.data}, #{entity.description}, #{entity.isActive}, #{entity.isDeleted}, #{entity.createdTime}, #{entity.updatedTime})
+        </foreach>
+    </insert>
+
+    <update id="updateBatch">
+        update sample_templates
+        set
+            name = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.name}
+            </foreach>
+            end,
+            type = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.type}
+            </foreach>
+            end,
+            version = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.version}
+            </foreach>
+            end,
+            data = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.data}
+            </foreach>
+            end,
+            description = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.description}
+            </foreach>
+            end,
+            is_active = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.isActive}
+            </foreach>
+            end,
+            is_deleted = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.isDeleted}
+            </foreach>
+            end,
+            updated_time = case id
+            <foreach collection="entities" item="entity">
+                when #{entity.id} then #{entity.updatedTime}
+            </foreach>
+            end
+        where id in
+        <foreach collection="entities" item="entity" open="(" close=")" separator=",">
+            #{entity.id}
+        </foreach>
+    </update>
+</mapper>

@@ -50,6 +50,28 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return handleDataSource(executeInfo, dto.getProcessId(), dto.getRobotVersion());
     }
 
+    /**
+     * 内部调用获取参数
+     * @param dto
+     * @return
+     * @throws JsonProcessingException
+     * @throws NoLoginException
+     */
+    public AppResponse<List<ParamDto>> getParamInside(QueryParamDto dto, String userId, String tenantId)
+            throws JsonProcessingException {
+        RobotExecute executeInfo = getRobotExecuteInside(dto.getRobotId(), userId, tenantId);
+
+        return handleDataSource(executeInfo, dto.getProcessId(), dto.getRobotVersion());
+    }
+
+    private RobotExecute getRobotExecuteInside(String robotId, String userId, String tenantId) {
+        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(robotId, userId, tenantId);
+        if (executeInfo == null) {
+            throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "无法获取执行器机器人信息");
+        }
+        return executeInfo;
+    }
+
     private RobotExecute getRobotExecute(String robotId) throws NoLoginException {
         RobotExecute executeInfo =
                 robotExecuteDao.getRobotInfoByRobotId(robotId, UserUtils.nowUserId(), TenantUtils.getTenantId());

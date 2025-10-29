@@ -1769,7 +1769,7 @@
       "createdTime": "2025-10-20T16:19:46+08:00",
       "organization": "built-in",
       "url": "http://rpa-opensource-robot-service:8040/api/robot/example/insert",
-      "method": "GET",
+      "method": "POST",
       "contentType": "application/json",
       "headers": [],
       "events": ["signup"],

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.casbin.casdoor.entity.Permission;
 import org.casbin.casdoor.entity.Role;
 import org.casbin.casdoor.entity.User;
@@ -23,7 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * @desc: 用户工具类
@@ -318,5 +318,13 @@ public class UserUtils {
         }
 
         return user.displayName;
+    }
+
+    /**
+     * 通过name获取用户
+     */
+    public static User getUserByName(String name) throws IOException {
+        if (org.apache.commons.lang3.StringUtils.isBlank(name)) return null;
+        return staticUserService.getUser(name);
     }
 }

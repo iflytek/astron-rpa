@@ -20,6 +20,7 @@ services:
       - ./volumes/mysql/init_app_market_dict_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql
       - ./volumes/mysql/init_c_atom_meta_data.sql:/docker-entrypoint-initdb.d/03-init_data.sql
       - ./volumes/mysql/init_his_data_enum_data.sql:/docker-entrypoint-initdb.d/04-init_data.sql
+      - ./volumes/mysql/init_sample_template_data.sql:/docker-entrypoint-initdb.d/05-init_data.sql
     healthcheck:
       test:
         [
@@ -161,31 +162,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    networks:
-      - rpa-opensource-network
-
-  mysql-init:
-    image: mysql:8.4.6
-    container_name: rpa-opensource-mysql-init
-    depends_on:
-      mysql:
-        condition: service_healthy
-      resource-service:
-        condition: service_started
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME}
-    env_file: *env_file
-    volumes:
-      - ./volumes/mysql/init_robot_example_data.sql:/init_robot_example_data.sql
-    command: >
-      sh -c "
-        echo 'Waiting for robot-service to be ready...'
-        sleep 10
-        echo 'Executing robot example data initialization...'
-        mysql -h mysql -u root -p$$MYSQL_ROOT_PASSWORD --default-character-set=utf8mb4 --init-command='SET NAMES utf8mb4;' $$MYSQL_DATABASE < /init_robot_example_data.sql
-        echo 'Robot example data initialization completed!'
-      "
     networks:
       - rpa-opensource-network
 
