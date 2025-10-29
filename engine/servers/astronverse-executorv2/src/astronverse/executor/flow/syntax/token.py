@@ -62,7 +62,3 @@ for_atomic_dict = [
     "BrowserElement.loop_similar",
 ]
 
-# 兼容性替换
-atomic_old_to_new = {
-    "Script.module": "Code.Module"
-}

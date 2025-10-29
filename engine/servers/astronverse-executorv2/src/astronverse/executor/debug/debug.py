@@ -13,7 +13,7 @@ class Debug:
 
     def __init__(self, svc):
         self.svc = svc
-        self.bdb = CustomBdb(project_dir=svc.conf.gen_core_path, notify=self.notify, err_handler=python_base_error)
+        self.bdb = CustomBdb(project_dir=svc.conf.gen_core_path, ext_dir=svc.conf.gen_component_path, notify=self.notify, err_handler=python_base_error)
 
         # 让 DebugSvc 负责加载数据
         svc.load_package_info()

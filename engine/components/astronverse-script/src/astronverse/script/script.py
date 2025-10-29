@@ -88,3 +88,13 @@ class Script:
         kwargs = Script._get_auto_context()
         res, _ = Script._call(content, **kwargs)
         return res
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Script",
+        inputList=[],
+        outputList=[]
+    )
+    def component(component: str, **kwargs):
+        _, kwargs = Script._call(component, **kwargs)
+        return kwargs

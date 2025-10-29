@@ -28,4 +28,14 @@ atomic:
       - key: program_script
         title: ''
         tip: ''
+  Script.component:
+    title: 运行组件
+    comment: 运行组件(@{component:组件})
+    icon: ''
+    helpManual: ''
+    inputList:
+      - key: component
+        title: 选择组件
+        tip: ''
+    outputList: []
 options: {}

@@ -9,7 +9,7 @@ from typing import List, Callable
 
 class CustomBdb(bdb.Bdb):
 
-    def __init__(self, project_dir: str, notify: Callable, err_handler: Callable):
+    def __init__(self, project_dir: str, ext_dir: str, notify: Callable, err_handler: Callable):
         super().__init__()
 
         self.notify = notify
@@ -17,6 +17,7 @@ class CustomBdb(bdb.Bdb):
 
         # 配置
         self.project_dir = os.path.abspath(project_dir)
+        self.ext_dir = os.path.abspath(ext_dir)
         self.main_file = os.path.join(self.project_dir, "main.py")
 
         # 多文件行号映射
@@ -117,6 +118,8 @@ class CustomBdb(bdb.Bdb):
         self._force_stop = False
 
         # 确保project目录在sys.path中
+        if self.ext_dir not in sys.path:
+            sys.path.insert(0, self.ext_dir)
         if self.project_dir not in sys.path:
             sys.path.insert(0, self.project_dir)
 

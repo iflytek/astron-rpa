@@ -32,7 +32,7 @@ class FlowSvc:
         self.ast_globals_dict[project_id].project_info.requirement = requirement
         self.ast_globals_dict[project_id].project_info.gateway_port = gateway_port
 
-    def add_component_info(self, project_id: str, component_id: str, component_name: str, version: str, requirement: dict):
+    def add_component_info(self, project_id: str, component_id: str, component_name: str, version: str, requirement: dict, component_file_name: str):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
         if component_id not in self.ast_globals_dict[project_id].component_info:
@@ -40,6 +40,7 @@ class FlowSvc:
         self.ast_globals_dict[project_id].component_info[component_id].component_name = component_name
         self.ast_globals_dict[project_id].component_info[component_id].version = version
         self.ast_globals_dict[project_id].component_info[component_id].requirement = requirement
+        self.ast_globals_dict[project_id].component_info[component_id].component_file_name = component_file_name
 
     def add_process_info(self, project_id: str, process_id: str, process_category: str, process_name, process_file_name):
         if project_id not in self.ast_globals_dict:

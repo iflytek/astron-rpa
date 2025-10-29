@@ -95,12 +95,14 @@ class ComponentInfo:
     component_name: str = ""
     version: str = ""
     requirement: dict = None
+    component_file_name: str = ""
 
     def __json__(self):
         return {
             "component_name": self.component_name,
             "version": self.version,
-            "requirement": self.requirement
+            "requirement": self.requirement,
+            "component_file_name": self.component_file_name
         }
 
     @classmethod
@@ -108,7 +110,8 @@ class ComponentInfo:
         return cls(
             component_name=data.get("component_name", ""),
             version=data.get("version", ""),
-            requirement=data.get("requirement", {})
+            requirement=data.get("requirement", {}),
+            component_file_name=data.get("component_file_name", "")
         )
 
 

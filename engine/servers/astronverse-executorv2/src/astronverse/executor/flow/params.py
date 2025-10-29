@@ -96,7 +96,7 @@ class Param(IParam):
             return res[0], need_eval
 
     def parse_param(self, i: dict, token=None) -> InputParam:
-        name = i.get("name")
+        name = i.get("name", i.get("key"))
         data = i.get("value")
         parse = i.get("need_parse")
         key = token.value.get("key") if token else ""
@@ -110,19 +110,15 @@ class Param(IParam):
             if isinstance(data, list) and len(data) == 1 and data[0]["type"] == ParamType.ELEMENT.value:
                 # 元素
                 special = "element"
-            elif key == "Code.Module" and name == "content":
-                # 子模块
-                special = "module"
-            elif key == "Code.Process" and name == "process":
-                # 子模块
-                special = "module"
             elif key == "Script.process" and name == "process":
                 # 子模块
                 special = "module"
             elif key == "Script.module" and name == "content":
                 # 子模块
                 special = "module"
-
+            elif key == "Script.component" and name == "component":
+                # 子模块
+                special = "component"
             value, need_eval = self._param_to_eval(self.pre_param_handler(data))
             return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 
@@ -130,7 +126,7 @@ class Param(IParam):
         res = {}
         input_list = token.value.get("inputList", [])
         for i in input_list:
-            res[i.get("name")] = self.parse_param(i)
+            res[i.get("name", i.get("key"))] = self.parse_param(i)
         condition = res.get("condition")
         cond = condition.value
         args1 = res.get("args1")
@@ -176,10 +172,10 @@ class Param(IParam):
                 continue
 
             if not i.get("key").startswith("__"):
-                params_name[i.get("name")] = i.get("title", "")
+                params_name[i.get("name", i.get("key"))] = i.get("title", "")
 
             # 2. 解析
-            res[i.get("name")] = self.parse_param(i, token=token)
+            res[i.get("name", i.get("key"))] = self.parse_param(i, token=token)
 
         # 高级选项
         info = [

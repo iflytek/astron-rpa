@@ -9,6 +9,7 @@ conf = config("./package.json")
 
 project_info = conf.get("project_info", {})
 process_info = conf.get("process_info", {})
+component_info = conf.get("component_info", {})
 
 storage = HttpStorage(project_info.get("gateway_port"))
 
@@ -17,6 +18,15 @@ def module(module_id) -> Optional[str]:
     if module_id not in process_info:
         return None
     name = process_info[module_id].get("process_file_name")
+    if not name:
+        return name
+    return os.path.splitext(name)[0]
+
+
+def component(component_id) -> Optional[str]:
+    if component_id not in component_info:
+        return None
+    name = component_info[component_id].get("component_file_name")
     if not name:
         return name
     return os.path.splitext(name)[0]

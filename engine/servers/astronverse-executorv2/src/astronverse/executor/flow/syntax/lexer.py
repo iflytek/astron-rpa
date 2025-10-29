@@ -1,6 +1,6 @@
 from typing import Optional
 from astronverse.executor.flow.syntax import Token
-from astronverse.executor.flow.syntax.token import TokenType, atomic_old_to_new
+from astronverse.executor.flow.syntax.token import TokenType
 from astronverse.executor.error import BaseException, MISSING_REQUIRED_KEY_ERROR_FORMAT
 
 
@@ -20,11 +20,6 @@ class Lexer:
         """将flow转换成token"""
 
         token_type = flow_json.get("key", "")
-
-        # 为了兼容性替换Key
-        if token_type in atomic_old_to_new:
-            flow_json["key"] = atomic_old_to_new[token_type]
-            token_type = flow_json.get("key", "")
 
         if not token_type:
             raise BaseException(MISSING_REQUIRED_KEY_ERROR_FORMAT.format(flow_json), f"missing key {flow_json}")

@@ -187,8 +187,15 @@ class HttpStorage(IStorage):
             # 兼容代码
             if flow.get("key") == "Code.Process":
                 flow.update({
-                    "key": "Script.process",
+                    "key": "Script.process"
                 })
+            if flow.get("key").startswith("Code.Component.") or flow.get("key").startswith("Script.component."):
+                code_id = flow.get("key").split('.')[-1]
+                flow.update({
+                    "inputList": [{"key": "component", "value": code_id}] + flow.get("inputList", []),
+                    "key": "Script.component",
+                })
+            # 兼容结束
             atom_key_list.append(flow.get("key"))
 
         full = self.__process_json_full__(atom_key_list)

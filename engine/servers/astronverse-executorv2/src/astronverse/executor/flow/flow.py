@@ -21,9 +21,10 @@ class Flow:
                 component_name = c.get("componentId")
                 version = c.get("version")
                 requirement = self._requirement_display(component_id, "", version)
-                self.svc.add_component_info(project_id, component_id, component_name, version, requirement)
 
-                component_path = os.path.join(path, component_id)
+                self.svc.add_component_info(project_id, component_id, component_name, version, requirement, "c{}.{}".format(component_id, "main.py"))
+
+                component_path = os.path.join(path, "c{}".format(component_id))
                 self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
 
     def gen_code(self, path: str, project_id: str, project_name: str, mode: str, version: str, process_id: str = ""):
