@@ -1,12 +1,15 @@
 package com.iflytek.rpa.example.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.CProcess;
+import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.base.service.CParamService;
+import com.iflytek.rpa.base.service.handler.ExecutorModeHandler;
 import com.iflytek.rpa.example.constants.ExampleConstants;
 import com.iflytek.rpa.example.dao.SampleTemplatesDao;
 import com.iflytek.rpa.example.dao.SampleUsersDao;
@@ -74,7 +77,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
     private CProcessDao cProcessDao;
 
     @Autowired
-    private CParamService cParamService;
+    private ExecutorModeHandler executorModeHandler;
 
     @Autowired
     private IdWorker idWorker;
@@ -213,15 +216,15 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
                 // 使用fastJson将JSON字符串转换为对应的业务对象
                 Object businessObject = JSONObject.parseObject(dataJsonStr, businessClass);
 
-                // 请求openapi接口
-                if (businessType.equals("robot_execute"))
-                    sendOpenApiRequest((RobotExecute) businessObject, userId);
-
                 // 获取对应的插入函数并执行
                 Function<Object, Integer> insertFunction = typeInsertMap.get(businessType);
                 if (insertFunction != null) {
                     insertFunction.apply(businessObject);
                     log.info("成功插入业务数据，类型: {}", businessType);
+
+                    // 请求openapi接口
+                    if (businessType.equals("robot_execute"))
+                        sendOpenApiRequest((RobotExecute) businessObject, userId, tenantId);
                 } else {
                     log.warn("未找到对应的插入方法，类型: {}", businessType);
                 }
@@ -240,13 +243,17 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @throws NoLoginException
      * @throws JsonProcessingException
      */
-    private void sendOpenApiRequest(RobotExecute robotExecute, String userId) {
+    private void sendOpenApiRequest(RobotExecute robotExecute, String userId, String tenantId) throws NoLoginException, JsonProcessingException {
         log.info("send request to openapi start ... ");
         QueryParamDto queryParamDto = new QueryParamDto();
         queryParamDto.setRobotId(robotExecute.getRobotId());
         queryParamDto.setMode(EXECUTOR);
-        // todo 还需要拿param，现在这种方法拿不到
-//       AppResponse<List<ParamDto>> allParams = cParamService.getAllParams(queryParamDto);
+        // 获取param
+        log.info("start get param");
+        AppResponse<List<ParamDto>> allParamResponse = executorModeHandler.getParamInside(queryParamDto, userId, tenantId);
+        List<ParamDto> responseData = allParamResponse.getData();
+        String parameters = JSON.toJSONString(responseData);
+        log.info("robot params are as follows:" + parameters);
 
         WorkflowsUpsertDto requestDto = new WorkflowsUpsertDto();
         requestDto.setProject_id(robotExecute.getRobotId());
@@ -255,7 +262,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         requestDto.setDescription("");
         requestDto.setVersion(robotExecute.getRobotVersion());
         requestDto.setStatus(1);
-        requestDto.setParameters("");
+        requestDto.setParameters(parameters);
 
         // 将 requestDto 转换为 JSON 字符串
         String requestBody = JSONObject.toJSONString(requestDto);
