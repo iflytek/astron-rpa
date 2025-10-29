@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.function.Function;
 import javax.annotation.PostConstruct;
 
+import com.iflytek.rpa.utils.IdWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,9 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
     @Autowired
     private CParamService cParamService;
 
+    @Autowired
+    private IdWorker idWorker;
+
     // type 到插入操作的映射
     private Map<String, Function<Object, Integer>> typeInsertMap = new HashMap<>();
 
@@ -103,6 +107,9 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
     public void addUserSamples(List<SampleTemplates> latestActiveTemplates, String userId, String tenantId) {
 
+        String processId = String.valueOf(idWorker.nextId());
+        String robotId = String.valueOf(idWorker.nextId());
+
         // 2. 结合userId，插入多行sample_users表记录
         List<SampleUsers> sampleUsersList = new ArrayList<>();
         Date now = new Date();
@@ -121,7 +128,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
             sampleUsersList.add(sampleUser);
 
             // 3. 根据type，把data中的json数据使用fastJson转换成对应的object，然后插入到对应的业务表中
-            processTemplateDataByType(template, userId, tenantId);
+            processTemplateDataByType(template, userId, tenantId, processId, robotId);
         }
 
         // 批量插入sample_users表
@@ -189,7 +196,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @param userId
      * @param tenantId
      */
-    public void processTemplateDataByType(SampleTemplates template, String userId, String tenantId) {
+    public void processTemplateDataByType(SampleTemplates template, String userId, String tenantId, String processId, String robotId) {
         if (template == null || StringUtils.isBlank(template.getType()) || StringUtils.isBlank(template.getData())) {
             return;
         }
@@ -198,7 +205,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
         String dataJsonStr = template.getData();
         // 更新JSON中的creatorId、updaterId和tenantId字段
-        dataJsonStr = updateJsonFields(dataJsonStr, userId, tenantId);
+        dataJsonStr = updateJsonFields(dataJsonStr, userId, tenantId, processId, robotId);
         
         Class<?> businessClass = ExampleConstants.TYPE_BUSINESS_CLASS_MAP.get(businessType);
         if (businessClass != null) {
@@ -289,7 +296,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @param tenantId 租户ID
      * @return 更新后的JSON字符串
      */
-    private String updateJsonFields(String jsonStr, String userId, String tenantId) {
+    private String updateJsonFields(String jsonStr, String userId, String tenantId, String processId, String robotId) {
         if (StringUtils.isBlank(jsonStr)) {
             return jsonStr;
         }
@@ -301,6 +308,10 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
             jsonObject.put("updaterId", userId);
             // 更新tenantId
             jsonObject.put("tenantId", tenantId);
+            // 更新robotId
+            jsonObject.put("robotId", robotId);
+            // 更新processId
+            jsonObject.put("processId", processId);
 
             return jsonObject.toJSONString();
         }

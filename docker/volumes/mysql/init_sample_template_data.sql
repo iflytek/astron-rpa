@@ -1,4 +1,4 @@
-INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (1, '1978748427445471111', 'sample_robot_design', 'robot_design', '1.0', '{
+INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (1, '1888748427445471111', 'sample_robot_design', 'robot_design', '1.0', '{
     "robotId": "1978748427445478888",
     "name": "示例机器人",
     "creatorId": "",
@@ -15,7 +15,7 @@ INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, desc
     "transformStatus": "published",
     "editEnable": "1"
  }', '111', 1, 0, '2025-10-28 14:43:22', '2025-10-28 07:00:57');
-INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (2, '1978748427445472222', 'sample_c_process', 'c_process', '1.0', '{
+INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (2, '1888748427445472222', 'sample_c_process', 'c_process', '1.0', '{
     "id": 3571,
     "projectId": null,
     "processId": "1978748427479027712",
@@ -29,7 +29,7 @@ INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, desc
     "robotId": "1978748427445478888",
     "robotVersion": 0
  }', '222', 1, 0, '2025-10-28 14:43:22', '2025-10-28 07:17:08');
-INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (3, '1978748427445473333', 'sample_c_process', 'c_process', '1.0', '{
+INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (3, '1888748427445473333', 'sample_c_process', 'c_process', '1.0', '{
     "id": 3571,
     "projectId": null,
     "processId": "1978748427479027712",
@@ -43,7 +43,7 @@ INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, desc
     "robotId": "1978748427445478888",
     "robotVersion": 1
  }', '222', 1, 0, '2025-10-28 14:43:22', '2025-10-28 07:17:08');
-INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (4, '1978748427445474444', 'sample_robot_execute', 'robot_execute', '1.0', '{
+INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (4, '1888748427445474444', 'sample_robot_execute', 'robot_execute', '1.0', '{
     "id": 2667,
     "robotId": "1978748427445478888",
     "name": "示例机器人",
@@ -63,7 +63,7 @@ INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, desc
     "type": null,
     "latestReleaseTime": "2025-10-28 11:54:31"
  }', '333', 1, 0, '2025-10-28 14:43:22', '2025-10-28 11:58:55');
-INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (5, '1978748427445475555', 'sample_robot_version', 'robot_version', '1.0', '{
+INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (5, '1888748427445475555', 'sample_robot_version', 'robot_version', '1.0', '{
     "id": 2083,
     "robotId": "1978748427445478888",
     "version": 1,
