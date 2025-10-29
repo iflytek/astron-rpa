@@ -64,7 +64,7 @@ class Debug:
                 )
             )
 
-    def start(self):
+    def start(self, params: dict) -> dict:
         """执行代码"""
 
         # 环境准备
@@ -85,7 +85,9 @@ class Debug:
             for b in v.breakpoint:
                 self.set_breakpoint(v.process_id, b)
 
-        self.bdb.cmd_start()
+        shared = {"_kwargs": params}
+        self.bdb.cmd_start(g_v=shared)
+        return shared.get("_kwargs", {})
 
     def cmd_continue(self):
         """继续执行"""

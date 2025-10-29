@@ -12,7 +12,7 @@ def route_init():
 def close(msg: BaseMsg, svc):
     if svc:
         svc.debug_handler.cmd_force_stop()
-        svc.end(ExecuteStatus.CANCEL, "", "")
+        svc.end(ExecuteStatus.CANCEL)
     return {"status": "ok"}
 
 

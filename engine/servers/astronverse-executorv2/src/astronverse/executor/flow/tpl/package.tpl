@@ -23,7 +23,7 @@ def module(module_id) -> Optional[str]:
 
 
 def complex_param_parser(complex_param: dict) -> dict:
-    return ComplexParamParser.parse_params(complex_param)
+    return ComplexParamParser.evaluate_params(ComplexParamParser.parse_params(complex_param))
 
 
 def element(element_id) -> Optional[Pick]:

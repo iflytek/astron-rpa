@@ -110,10 +110,8 @@ class CustomBdb(bdb.Bdb):
 
     def cmd_start(self, g_v=None, l_v=None):
         """启动调试 - 在project目录下运行"""
-        if g_v is None:
-            g_v = {'__name__': '__main__', '__file__': self.main_file}
-        if l_v is None:
-            l_v = g_v
+        g_v = {'__name__': '__main__', '__file__': self.main_file, **(g_v or {})}
+        l_v = {**g_v, **(l_v or {})}
 
         # 重置强制中断标志
         self._force_stop = False

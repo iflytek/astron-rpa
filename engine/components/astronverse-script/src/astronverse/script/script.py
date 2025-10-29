@@ -1,4 +1,5 @@
 import importlib
+import inspect
 
 from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType
 from astronverse.actionlib.atomic import atomicMg
@@ -9,7 +10,6 @@ class Script:
 
     @staticmethod
     def _call(path: str, **kwargs):
-        kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
         try:
             process_module = importlib.import_module(path)
         except Exception as e:
@@ -18,7 +18,45 @@ class Script:
         main_func = getattr(process_module, "main", None)
         if not main_func or not callable(main_func):
             raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
-        return main_func(**kwargs)
+        res = main_func(**kwargs)
+        return res, kwargs
+
+    @staticmethod
+    def _get_auto_context() -> dict:
+        """
+        自动获取调用者的上下文变量，收集所有调用栈中的变量
+        """
+        try:
+            frame = inspect.currentframe()
+            if frame is None:
+                return {}
+
+            # 收集所有调用栈中的变量
+            all_vars = {}
+
+            # 跳过当前帧（_get_auto_context 本身）
+            frame = frame.f_back
+            if frame is None:
+                return {}
+
+            # 遍历所有调用栈，找到最外层为main的层
+            cframe = frame
+            while frame is not None:
+                # 获取当前帧的局部变量
+                if frame.f_locals.get("main"):
+                    break
+                else:
+                    cframe = frame
+                    frame = frame.f_back
+
+            # 获取局部变量和全局变量
+            if cframe is not None:
+                local_vars = cframe.f_locals.copy()
+                # 合并变量，局部变量优先（覆盖全局变量）
+                all_vars.update(local_vars)
+            return all_vars
+        except Exception:
+            return {}
 
     @staticmethod
     @atomicMg.atomic(
@@ -29,9 +67,15 @@ class Script:
         ],
         outputList=[atomicMg.param("process_res", types="Any")],
     )
-    def process(process: str, process_param: list, **kwargs):
+    def process(process: str, process_param: list):
         """动态调用流程"""
-        return Script._call(process, **kwargs)
+
+        kwargs = {}
+        if process_param:
+            for p in process_param:
+                kwargs[p.get("varName")] = p.get("varValue")
+        _, kwargs = Script._call(process, **kwargs)
+        return kwargs
 
     @staticmethod
     @atomicMg.atomic(
@@ -39,6 +83,8 @@ class Script:
         inputList=[atomicMg.param("content", types="Any", formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": "PyModule"}))],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
-    def module(content: str, **kwargs):
+    def module(content: str):
         """动态调用模块"""
-        return Script._call(content, **kwargs)
+        kwargs = Script._get_auto_context()
+        res, _ = Script._call(content, **kwargs)
+        return res

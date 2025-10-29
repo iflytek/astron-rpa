@@ -57,17 +57,21 @@ class DebugSvc:
             return None
         return self.ast_globals.process_info[process_id]
 
-    def end(self, status: ExecuteStatus, reason, traceback):
-        logger.info("end: {}.{}.{}".format(status, reason, traceback))
+    def end(self, status: ExecuteStatus, data=None, reason=""):
+        logger.info("end: {}.{}.{}".format(status, data, reason))
         with self.sys_exit_lock:
             if not self.sys_exit_lock_end:
 
                 if status == ExecuteStatus.SUCCESS:
-                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, msg_str=MSG_TASK_EXECUTION_END))
+                    if data is None:
+                        data = {}
+                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, data=data, msg_str=MSG_TASK_EXECUTION_END))
                 elif status == ExecuteStatus.CANCEL:
                     self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_USER_CANCELLED))
                 elif status == ExecuteStatus.FAIL:
-                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_EXECUTION_ERROR))
+                    if not reason:
+                        reason = MSG_TASK_EXECUTION_ERROR
+                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=reason))
 
                 if self.report:
                     self.report.close()

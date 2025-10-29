@@ -166,20 +166,23 @@ class ComplexParamParser:
             if frame is None:
                 return {}
             
-            # 遍历所有调用栈，收集变量
+            # 遍历所有调用栈，找到最外层为main的层
+            cframe = frame
             while frame is not None:
                 # 获取当前帧的局部变量
-                local_vars = frame.f_locals.copy()
-                # 获取当前帧的全局变量
-                global_vars = frame.f_globals.copy()
-                
-                # 合并变量，局部变量优先（覆盖全局变量）
-                all_vars.update(global_vars)
-                all_vars.update(local_vars)
-                
-                # 移动到上一帧
-                frame = frame.f_back
+                if frame.f_locals.get("main"):
+                    break
+                else:
+                    cframe = frame
+                    frame = frame.f_back
             
+            # 获取局部变量和全局变量
+            if cframe is not None:
+                local_vars = cframe.f_locals.copy()
+                global_vars = cframe.f_globals.get("gv").copy()
+                # 合并变量，局部变量优先（覆盖全局变量）
+                all_vars.update({"gv": global_vars})
+                all_vars.update(local_vars)
             return all_vars
         except Exception:
             return {}

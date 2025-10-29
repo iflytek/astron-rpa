@@ -71,7 +71,7 @@ class StorageCache:
         local_data_path = os.path.join(self.base_dir, resource_type, "{}.{}".format(resource_id, conf.get("file_ext")))
         if resource_type == "element":
             with open(local_data_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
+                json.dump(data, f, ensure_ascii=False)
         elif resource_type == "image":
             binary_bytes = base64.b64decode(data) if isinstance(data, str) else data
             with open(local_data_path, "wb") as f:

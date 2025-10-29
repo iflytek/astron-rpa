@@ -1,4 +1,5 @@
 import argparse
+import json
 import threading
 import time
 from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
@@ -49,13 +50,19 @@ def debug_start(args, conf):
             wait_time += 0.3
             if wait_time >= 10:
                 logger.error("The websocket connection timed out")
-                svc.end(ExecuteStatus.CANCEL, "", "")
+                svc.end(ExecuteStatus.CANCEL)
 
     # 执行代码
     debug = Debug(svc=svc)
     svc.debug_handler = debug
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START))
-    debug.start()
+    run_param = {}
+    if args.run_param:
+        try:
+            run_param = json.loads(args.run_param)
+        except Exception as e:
+            pass
+    data = debug.start(params=run_param)
 
     # 执行后验证
     if Config.open_log_ws and Config.wait_web_ws:
@@ -73,7 +80,7 @@ def debug_start(args, conf):
                 else:
                     size = svc.report.queue.qsize()
 
-    svc.end(ExecuteStatus.SUCCESS, "", "")
+    svc.end(ExecuteStatus.SUCCESS, data=data)
 
 
 def start():

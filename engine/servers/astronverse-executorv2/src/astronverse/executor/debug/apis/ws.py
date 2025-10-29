@@ -182,7 +182,7 @@ class Ws:
                 error_str = e.code.message
             else:
                 error_str = str(e)
-            self.svc.end(ExecuteStatus.FAIL, error_str, traceback.format_exc())
+            self.svc.end(ExecuteStatus.FAIL, reason=error_str)
 
     async def run_server(self):
         async with websockets.serve(self.websocket_endpoint, "127.0.0.1", self.svc.conf.port):
