@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import threading
 import time
 from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
@@ -17,7 +18,8 @@ from astronverse.executor.flow.flow import Flow
 def flow_start(args, conf):
     svc = FlowSvc(conf=conf)
     flow = Flow(svc=svc)
-    flow.gen_code(project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version, process_id=args.process_id)
+    flow.gen_component(path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version)
+    flow.gen_code(path=svc.conf.gen_core_path, project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version, process_id=args.process_id)
 
 
 def debug_start(args, conf):

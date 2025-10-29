@@ -33,7 +33,7 @@ class Program(Node):
         code_lines = [CodeLine(tab_num, "from package import element, element_img, module, gv, complex_param_parser"),
                       CodeLine(tab_num, "from astronverse.actionlib.types import *")]
         if self.token.value:
-            import_python = svc.get_import_python(process_id)
+            import_python = svc.get_import_python(project_id, process_id)
             if import_python:
                 for import_line in import_python:
                     code_lines.append(CodeLine(tab_num, import_line))
@@ -86,6 +86,7 @@ class Atomic(Node):
     __returned__: List[OutputParam] = None
 
     def display(self, svc, tab_num=0):
+        project_id = svc.ast_curr_info.get("__project_id__")
         process_id = svc.ast_curr_info.get("__process_id__")
         self.__arguments__ = svc.param.parse_input(self.token)
         self.__returned__ = svc.param.parse_output(self.token)
@@ -94,9 +95,9 @@ class Atomic(Node):
         # import 块
         import_list = self.token.value.get("src", "").split(".")
         if len(import_list) == 4:
-            svc.add_import_python(process_id, "import {}.{}".format(import_list[0], import_list[1]))
+            svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
         elif len(import_list) == 5:
-            svc.add_import_python(process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2]))
+            svc.add_import_python(project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2]))
         else:
             pass
 
@@ -123,13 +124,14 @@ class AtomicExist(Node):
     def display(self, svc, tab_num=0):
         # 解析原子能力的参数和返回值
         code_lines = []
+        project_id = svc.ast_curr_info.get("__project_id__")
         process_id = svc.ast_curr_info.get("__process_id__")
         self.__arguments__ = svc.param.parse_input(self.token)
         arguments = [i.show() for i in self.__arguments__.values()]
 
         # import 块
         import_list = self.token.value.get("src").split(".")
-        svc.add_import_python(process_id, "import {}.{}".format(import_list[0], import_list[1]))
+        svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
 
         # if 原子能力块
         atomic_code = "if {}({}):".format(self.token.value.get("src"), ", ".join(arguments))
@@ -170,6 +172,7 @@ class AtomicFor(Node):
 
     def display(self, svc, tab_num=0):
         code_lines = []
+        project_id = svc.ast_curr_info.get("__project_id__")
         process_id = svc.ast_curr_info.get("__process_id__")
         self.__arguments__ = svc.param.parse_input(self.token)
         self.__returned__ = svc.param.parse_output(self.token)
@@ -177,7 +180,7 @@ class AtomicFor(Node):
 
         # import 块
         import_list = self.token.value.get("src").split(".")
-        svc.add_import_python(process_id, "import {}.{}".format(import_list[0], import_list[1]))
+        svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
 
         # for 原子能力块
         atomic_code = "for {} in {}({}):".format(", ".join([r.show() for r in self.__returned__]), self.token.value.get("src"), ", ".join(arguments))

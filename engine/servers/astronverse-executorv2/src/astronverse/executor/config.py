@@ -27,7 +27,10 @@ class Config:
     indentation: str = " " * 4
 
     # 项目生成根目录路径
-    gen_core_path: str = "{}/project/".format(platform_python_venv_run_dir(sys.executable))
+    gen_core_path: str = "{}/astron/".format(platform_python_venv_run_dir(sys.executable))
+    
+    # 组件生成目录
+    gen_component_path: str = "{}/astron_extension/".format(platform_python_venv_run_dir(sys.executable))
 
     # 主入口脚本文件名
     main_file_name: str = "main.py"

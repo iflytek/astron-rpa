@@ -103,6 +103,11 @@ class IStorage(ABC):
         pass
 
     @abstractmethod
+    def component_list(self, project_id: str, mode: str, version: str = "") -> list:
+        """获取组件列表"""
+        pass
+
+    @abstractmethod
     def pip_list(self, project_id: str, mode: str, version: str = "") -> list:
         """获取工程的用户pip依赖详情"""
         pass
@@ -247,6 +252,16 @@ class HttpStorage(IStorage):
             params["robotVersion"] = int(version)
 
         return self.__http__("/api/robot/global/all", params, None)
+
+    def component_list(self, project_id: str, mode: str, version: str = "") -> list:
+        params = {
+            "robotId": project_id,
+        }
+        if mode:
+            params["mode"] = mode
+        if version:
+            params["robotVersion"] = int(version)
+        return self.__http__("/api/robot/component-robot-use/component-use", None, params, meta="post")
 
     def pip_list(self, project_id: str, mode: str, version: str = "") -> list:
         data = {

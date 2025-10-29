@@ -187,7 +187,8 @@ class Param(IParam):
             token.value.get("__process_id__", ""),
         ]
         res["info"] = InputParam(key="__info__", value=info, need_eval=True)
-        self.svc.add_atomic_info(token.value.get("key"), params_name)
+        project_id = self.svc.ast_curr_info.get("__project_id__")
+        self.svc.add_atomic_info(project_id, token.value.get("key"), params_name)
         return res
 
     def parse_output(self, token: Token) -> List[OutputParam]:

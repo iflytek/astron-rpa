@@ -12,9 +12,22 @@ class Flow:
     def __init__(self, svc):
         self.svc = svc
 
-    def gen_code(self, project_id: str, project_name: str, mode: str, version: str, process_id: str = ""):
-        os.makedirs(self.svc.conf.gen_core_path, exist_ok=True)
+    def gen_component(self, path: str, project_id, mode: str, version: str):
+        os.makedirs(path, exist_ok=True)
+        component_list = self.svc.storage.component_list(project_id, mode, version)
+        if component_list:
+            for c in component_list:
+                component_id = c.get("componentId")
+                component_name = c.get("componentId")
+                version = c.get("version")
+                requirement = self._requirement_display(component_id, "", version)
+                self.svc.add_component_info(project_id, component_id, component_name, version, requirement)
 
+                component_path = os.path.join(path, component_id)
+                self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
+
+    def gen_code(self, path: str, project_id: str, project_name: str, mode: str, version: str, process_id: str = ""):
+        os.makedirs(path, exist_ok=True)
         # 0. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
@@ -43,11 +56,11 @@ class Flow:
                 process_index += 1
                 res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
 
-                self.svc.add_process_info(resource_id, category, name, file_name)
-                with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name)
+                with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
-                with open(os.path.join(self.svc.conf.gen_core_path, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
+                with open(os.path.join(path, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
                     file.write(map_res)
                     pass
             elif category == "module":
@@ -59,8 +72,8 @@ class Flow:
                 module_index += 1
                 res = self._module_display(project_id, mode, version, resource_id, name)
 
-                self.svc.add_process_info(resource_id, category, name, file_name)
-                with open(os.path.join(self.svc.conf.gen_core_path, file_name), "w", encoding="utf-8") as file:
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name)
+                with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
             else:
@@ -72,7 +85,7 @@ class Flow:
             tpl_content = tpl_file.read()
 
         main_py_content = tpl_content.replace("{{MAIN_PROCESS_NAME}}", main_process_name)
-        with open(os.path.join(self.svc.conf.gen_core_path, "main.py"), "w", encoding="utf-8") as file:
+        with open(os.path.join(path, "main.py"), "w", encoding="utf-8") as file:
             file.write(main_py_content)
 
         # 2. 生成project.py
@@ -82,15 +95,14 @@ class Flow:
 
         global_code = self._global_display(project_id, mode, version)
         package_py_content = tpl_content.replace("{{GLOBAL}}", global_code)
-        with open(os.path.join(self.svc.conf.gen_core_path, "package.py"), "w", encoding="utf-8") as file:
+        with open(os.path.join(path, "package.py"), "w", encoding="utf-8") as file:
             file.write(package_py_content)
 
         # 3 生成package.json
         requirement = self._requirement_display(project_id, mode, version)
-        self.svc.add_project_info(project_id, mode, version, project_name, requirement,
-                                  self.svc.conf.gateway_port)
-        res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
-        with open(os.path.join(self.svc.conf.gen_core_path, "package.json"), "w", encoding="utf-8") as file:
+        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port)
+        res = json.dumps(self.svc.ast_globals_dict[project_id], default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
+        with open(os.path.join(path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)
 
     def _requirement_display(self, project_id: str, mode: str, version: str):
@@ -155,11 +167,11 @@ class Flow:
             })
             if v.get("breakpoint"):
                 # 流程扫描的断点
-                self.svc.add_breakpoint(process_id, line)
+                self.svc.add_breakpoint(project_id, process_id, line)
             process_meta.append([line, v.get("id"), v.get("alias", v.get("title", "")), v.get("key")])
             new_flow_list.append(v)
 
-        self.svc.add_process_meta(process_id, process_meta)
+        self.svc.add_process_meta(project_id, process_id, process_meta)
 
         # 2. 解析
         lexer = Lexer(flow_list=new_flow_list)

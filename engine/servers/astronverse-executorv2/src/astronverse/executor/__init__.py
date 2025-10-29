@@ -91,19 +91,44 @@ class ProcessInfo:
 
 
 @dataclass
+class ComponentInfo:
+    component_name: str = ""
+    version: str = ""
+    requirement: dict = None
+
+    def __json__(self):
+        return {
+            "component_name": self.component_name,
+            "version": self.version,
+            "requirement": self.requirement
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            component_name=data.get("component_name", ""),
+            version=data.get("version", ""),
+            requirement=data.get("requirement", {})
+        )
+
+
+@dataclass
 class AstGlobals:
     project_info: ProjectInfo = None
+    component_info: Dict[str, ComponentInfo] = None
     process_info: Dict[str, ProcessInfo] = None
     atomic_info: Dict[str, AtomicInfo] = None
 
     def __init__(self):
         self.project_info = ProjectInfo()
         self.process_info = {}
+        self.component_info = {}
         self.atomic_info = {}
 
     def __json__(self):
         return {
             "project_info": self.project_info.__json__(),
+            "component_info": {k: v.__json__() for k, v in self.component_info.items()},
             "process_info": {k: v.__json__() for k, v in self.process_info.items()},
             "atomic_info": {k: v.__json__() for k, v in self.atomic_info.items()},
         }
@@ -112,13 +137,17 @@ class AstGlobals:
     def from_dict(cls, data: dict):
         instance = cls()
         instance.project_info = ProjectInfo.from_dict(data.get("project_info", {}))
+        instance.component_info = {
+            component_id: ComponentInfo.from_dict(component_data)
+            for component_id, component_data in data.get("component_info", {}).items()
+        }
         instance.process_info = {
             process_id: ProcessInfo.from_dict(process_data)
             for process_id, process_data in data.get("process_info", {}).items()
         }
         instance.atomic_info = {
-            key: AtomicInfo.from_dict(atomic_data)
-            for key, atomic_data in data.get("atomic_info", {}).items()
+            atomic_key: AtomicInfo.from_dict(atomic_data)
+            for atomic_key, atomic_data in data.get("atomic_info", {}).items()
         }
         return instance
 

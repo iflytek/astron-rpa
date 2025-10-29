@@ -67,7 +67,7 @@ class Debug:
     def start(self, params: dict) -> dict:
         """执行代码"""
 
-        # 环境准备
+        # 环境准备, 下载依赖环境
         if self.svc.ast_globals.project_info.requirement:
             for k, v in self.svc.ast_globals.project_info.requirement.items():
                 self.svc.package.download(
@@ -75,6 +75,14 @@ class Debug:
                     version=v.get("package_version", ""),
                     mirror=v.get("package_mirror", "")
                 )
+        if self.svc.ast_globals.component_info:
+            for c_id, c in self.svc.ast_globals.component_info.items():
+                for k, v in c.requirement.items():
+                    self.svc.package.download(
+                        library=v.get("package_name"),
+                        version=v.get("package_version", ""),
+                        mirror=v.get("package_mirror", "")
+                    )
 
         # 断点设置
         if self.svc.debug_model:
