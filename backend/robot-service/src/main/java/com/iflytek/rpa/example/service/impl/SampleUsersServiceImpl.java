@@ -1,5 +1,8 @@
 package com.iflytek.rpa.example.service.impl;
 
+import static com.iflytek.rpa.example.constants.ExampleConstants.WORKFLOWS_UPSERT_URL;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,7 +11,6 @@ import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
-import com.iflytek.rpa.base.service.CParamService;
 import com.iflytek.rpa.base.service.handler.ExecutorModeHandler;
 import com.iflytek.rpa.example.constants.ExampleConstants;
 import com.iflytek.rpa.example.dao.SampleTemplatesDao;
@@ -25,11 +27,10 @@ import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.RobotVersion;
 import com.iflytek.rpa.starter.exception.NoLoginException;
 import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.IdWorker;
 import java.util.*;
 import java.util.function.Function;
 import javax.annotation.PostConstruct;
-
-import com.iflytek.rpa.utils.IdWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +44,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
-
-import static com.iflytek.rpa.example.constants.ExampleConstants.WORKFLOWS_UPSERT_URL;
-import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)表服务实现类
@@ -199,7 +197,8 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @param userId
      * @param tenantId
      */
-    public void processTemplateDataByType(SampleTemplates template, String userId, String tenantId, String processId, String robotId) {
+    public void processTemplateDataByType(
+            SampleTemplates template, String userId, String tenantId, String processId, String robotId) {
         if (template == null || StringUtils.isBlank(template.getType()) || StringUtils.isBlank(template.getData())) {
             return;
         }
@@ -209,7 +208,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         String dataJsonStr = template.getData();
         // 更新JSON中的creatorId、updaterId和tenantId字段
         dataJsonStr = updateJsonFields(dataJsonStr, userId, tenantId, processId, robotId);
-        
+
         Class<?> businessClass = ExampleConstants.TYPE_BUSINESS_CLASS_MAP.get(businessType);
         if (businessClass != null) {
             try {
@@ -243,14 +242,16 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @throws NoLoginException
      * @throws JsonProcessingException
      */
-    private void sendOpenApiRequest(RobotExecute robotExecute, String userId, String tenantId) throws NoLoginException, JsonProcessingException {
+    private void sendOpenApiRequest(RobotExecute robotExecute, String userId, String tenantId)
+            throws NoLoginException, JsonProcessingException {
         log.info("send request to openapi start ... ");
         QueryParamDto queryParamDto = new QueryParamDto();
         queryParamDto.setRobotId(robotExecute.getRobotId());
         queryParamDto.setMode(EXECUTOR);
         // 获取param
         log.info("start get param");
-        AppResponse<List<ParamDto>> allParamResponse = executorModeHandler.getParamInside(queryParamDto, userId, tenantId);
+        AppResponse<List<ParamDto>> allParamResponse =
+                executorModeHandler.getParamInside(queryParamDto, userId, tenantId);
         List<ParamDto> responseData = allParamResponse.getData();
         String parameters = JSON.toJSONString(responseData);
         log.info("robot params are as follows:" + parameters);
@@ -266,30 +267,29 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
         // 将 requestDto 转换为 JSON 字符串
         String requestBody = JSONObject.toJSONString(requestDto);
-        
+
         // 创建 RestTemplate 实例
         RestTemplate restTemplate = new RestTemplate();
-        
+
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         headers.add("user_id", userId);
-        
+
         // 创建请求实体
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-        
+
         // 发起 POST 请求
         try {
-            ResponseEntity<String> response = restTemplate.exchange(
+            ResponseEntity<String> response =
+                    restTemplate.exchange(WORKFLOWS_UPSERT_URL, HttpMethod.POST, requestEntity, String.class);
+
+            log.info(
+                    "OpenAPI 请求成功，URL: {}, 响应状态: {}, 响应体: {}",
                     WORKFLOWS_UPSERT_URL,
-                HttpMethod.POST, 
-                requestEntity, 
-                String.class
-            );
-            
-            log.info("OpenAPI 请求成功，URL: {}, 响应状态: {}, 响应体: {}",
-                    WORKFLOWS_UPSERT_URL, response.getStatusCode(), response.getBody());
+                    response.getStatusCode(),
+                    response.getBody());
         } catch (Exception e) {
             log.error("OpenAPI 请求失败，URL: {}, 错误信息: {}", WORKFLOWS_UPSERT_URL, e.getMessage(), e);
             throw e;

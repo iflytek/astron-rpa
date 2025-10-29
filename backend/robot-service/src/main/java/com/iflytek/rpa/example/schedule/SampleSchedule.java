@@ -1,18 +1,17 @@
 package com.iflytek.rpa.example.schedule;
 
+import static com.iflytek.rpa.example.constants.ExampleConstants.EXAMPLE_USER_NAME;
+
 import com.iflytek.rpa.example.service.SampleUsersService;
 import com.iflytek.rpa.starter.utils.response.AppResponse;
 import com.iflytek.rpa.utils.UserUtils;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-
-import static com.iflytek.rpa.example.constants.ExampleConstants.EXAMPLE_USER_NAME;
 
 @Component
 @Slf4j
