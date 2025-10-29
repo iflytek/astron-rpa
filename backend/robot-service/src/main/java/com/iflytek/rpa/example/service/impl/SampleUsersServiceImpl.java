@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.CProcess;
-import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.base.service.CParamService;
 import com.iflytek.rpa.example.constants.ExampleConstants;
@@ -26,7 +25,6 @@ import com.iflytek.rpa.starter.utils.response.AppResponse;
 import java.util.*;
 import java.util.function.Function;
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -210,7 +208,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
                 // 请求openapi接口
                 if (businessType.equals("robot_execute"))
-                    sendOpenApiRequest((RobotExecute) businessObject);
+                    sendOpenApiRequest((RobotExecute) businessObject, userId);
 
                 // 获取对应的插入函数并执行
                 Function<Object, Integer> insertFunction = typeInsertMap.get(businessType);
@@ -227,8 +225,16 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         }
     }
 
-    private void sendOpenApiRequest(RobotExecute robotExecute) throws NoLoginException, JsonProcessingException {
-
+    /**
+     * 向openapi发送请求
+     *
+     * @param robotExecute
+     * @param userId
+     * @throws NoLoginException
+     * @throws JsonProcessingException
+     */
+    private void sendOpenApiRequest(RobotExecute robotExecute, String userId) {
+        log.info("send request to openapi start ... ");
         QueryParamDto queryParamDto = new QueryParamDto();
         queryParamDto.setRobotId(robotExecute.getRobotId());
         queryParamDto.setMode(EXECUTOR);
@@ -253,6 +259,8 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+
+        headers.add("user_id", userId);
         
         // 创建请求实体
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
