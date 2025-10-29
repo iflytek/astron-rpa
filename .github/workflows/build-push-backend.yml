@@ -1,24 +1,8 @@
 name: Build and Push Astron RPA Backend Services
 
 on:
-  push:
-    branches:
-      - main
-      - master
-      - feature/**
-    paths:
-      - 'backend/**'
-      - 'docker/**'
-      - '.github/workflows/build-push-backend.yml'
-  pull_request:
-    branches:
-      - main
-      - master
-      - feature/**
-    paths:
-      - 'backend/**'
-      - 'docker/**'
-      - '.github/workflows/build-push-backend.yml'
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       push_images:
@@ -66,18 +50,16 @@ jobs:
       - name: Extract metadata
         id: meta
         run: |
-          # Version is always latest
-          VERSION="latest"
+          # Determine version based on trigger
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          else
+            VERSION="latest"
+          fi
 
-          # Determine if should push (main, master, feature branches, PR, or manual dispatch)
+          # Determine if should push (always true for releases, configurable for manual dispatch)
           SHOULD_PUSH="false"
-          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
-            SHOULD_PUSH="true"
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]]; then
-            SHOULD_PUSH="true"
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/heads/feature/* ]]; then
-            SHOULD_PUSH="true"
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "${{ github.event_name }}" == "release" ]]; then
             SHOULD_PUSH="true"
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.push_images }}" == "true" ]]; then
             SHOULD_PUSH="true"
@@ -136,7 +118,8 @@ jobs:
           images: |
             ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/ai-service
           tags: |
-            type=raw,value=latest
+            type=raw,value=${{ needs.detect-and-prepare.outputs.version }}
+            ${{ github.event_name == 'release' && 'type=raw,value=latest' || '' }}
 
       - name: Build and push AI Service image
         uses: docker/build-push-action@v5
@@ -184,7 +167,8 @@ jobs:
           images: |
             ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/openapi-service
           tags: |
-            type=raw,value=latest
+            type=raw,value=${{ needs.detect-and-prepare.outputs.version }}
+            ${{ github.event_name == 'release' && 'type=raw,value=latest' || '' }}
 
       - name: Build and push OpenAPI Service image
         uses: docker/build-push-action@v5
@@ -232,7 +216,8 @@ jobs:
           images: |
             ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/resource-service
           tags: |
-            type=raw,value=latest
+            type=raw,value=${{ needs.detect-and-prepare.outputs.version }}
+            ${{ github.event_name == 'release' && 'type=raw,value=latest' || '' }}
 
       - name: Build and push Resource Service image
         uses: docker/build-push-action@v5
@@ -280,7 +265,8 @@ jobs:
           images: |
             ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/robot-service
           tags: |
-            type=raw,value=latest
+            type=raw,value=${{ needs.detect-and-prepare.outputs.version }}
+            ${{ github.event_name == 'release' && 'type=raw,value=latest' || '' }}
 
       - name: Build and push Robot Service image
         uses: docker/build-push-action@v5
@@ -357,10 +343,30 @@ jobs:
           if [[ "${{ needs.detect-and-prepare.outputs.should-push }}" == "true" ]]; then
             echo ""
             echo "🎯 Published Images:"
-            [[ "${{ needs.build-ai-service.result }}" == "success" ]] && echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/ai-service:${{ needs.detect-and-prepare.outputs.version }}"
-            [[ "${{ needs.build-openapi-service.result }}" == "success" ]] && echo "  🌐 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/openapi-service:${{ needs.detect-and-prepare.outputs.version }}"
-            [[ "${{ needs.build-resource-service.result }}" == "success" ]] && echo "  📦 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/resource-service:${{ needs.detect-and-prepare.outputs.version }}"
-            [[ "${{ needs.build-robot-service.result }}" == "success" ]] && echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/robot-service:${{ needs.detect-and-prepare.outputs.version }}"
+            if [[ "${{ needs.build-ai-service.result }}" == "success" ]]; then
+              echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/ai-service:${{ needs.detect-and-prepare.outputs.version }}"
+              if [[ "${{ github.event_name }}" == "release" ]]; then
+                echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/ai-service:latest"
+              fi
+            fi
+            if [[ "${{ needs.build-openapi-service.result }}" == "success" ]]; then
+              echo "  🌐 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/openapi-service:${{ needs.detect-and-prepare.outputs.version }}"
+              if [[ "${{ github.event_name }}" == "release" ]]; then
+                echo "  🌐 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/openapi-service:latest"
+              fi
+            fi
+            if [[ "${{ needs.build-resource-service.result }}" == "success" ]]; then
+              echo "  📦 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/resource-service:${{ needs.detect-and-prepare.outputs.version }}"
+              if [[ "${{ github.event_name }}" == "release" ]]; then
+                echo "  📦 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/resource-service:latest"
+              fi
+            fi
+            if [[ "${{ needs.build-robot-service.result }}" == "success" ]]; then
+              echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/robot-service:${{ needs.detect-and-prepare.outputs.version }}"
+              if [[ "${{ github.event_name }}" == "release" ]]; then
+                echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/robot-service:latest"
+              fi
+            fi
           fi
 
           if [[ "$SUCCESS_COUNT" == "$TOTAL_COUNT" && "$TOTAL_COUNT" -gt 0 ]]; then
@@ -386,6 +392,7 @@ jobs:
             echo "🔧 Manual Workflow Dispatch Summary:"
             echo "  Trigger: ${{ github.actor }}"
             echo "  Ref: ${{ github.ref }}"
+            echo "  Build Type: latest (based on current code)"
             echo "  Push Images: ${{ github.event.inputs.push_images }}"
             echo "  Services: ${{ github.event.inputs.services }}"
           fi
