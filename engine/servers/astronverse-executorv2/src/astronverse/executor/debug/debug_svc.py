@@ -37,6 +37,9 @@ class DebugSvc:
         self.sys_exit_lock = threading.Lock()
         self.sys_exit_lock_end = False
 
+        # 启动参数
+        self.main_process_id = None
+
     def load_package_info(self):
         """从 package.json 加载项目信息并转换为结构化对象"""
         package_json = os.path.join(self.conf.gen_core_path, "package.json")
@@ -61,7 +64,6 @@ class DebugSvc:
 
                 if status == ExecuteStatus.SUCCESS:
                     self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, msg_str=MSG_TASK_EXECUTION_END))
-                    return
                 elif status == ExecuteStatus.CANCEL:
                     self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_USER_CANCELLED))
                 elif status == ExecuteStatus.FAIL:

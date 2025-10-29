@@ -1,3 +1,8 @@
+import sys
+
+from astronverse.executor.utils.utils import platform_python_venv_run_dir
+
+
 class Config:
 
     # 端口号
@@ -22,7 +27,7 @@ class Config:
     indentation: str = " " * 4
 
     # 项目生成根目录路径
-    gen_core_path: str = "./project/"
+    gen_core_path: str = "{}/project/".format(platform_python_venv_run_dir(sys.executable))
 
     # 主入口脚本文件名
     main_file_name: str = "main.py"

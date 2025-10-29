@@ -68,7 +68,7 @@ class Param(IParam):
         res = []
         for v in ls:
             types = v.get("type", "str")
-            data = v.get("data", "")
+            data = v.get("data", v.get("value", ""))
             if need_eval:
                 # 转换成eval能执行的状态
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:

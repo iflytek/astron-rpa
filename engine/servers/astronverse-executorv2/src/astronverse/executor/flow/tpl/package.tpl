@@ -7,10 +7,10 @@ from astronverse.workflowlib.params import ComplexParamParser
 
 conf = config("./package.json")
 
-storage = HttpStorage(conf.get("gateway_port"))
-
 project_info = conf.get("project_info", {})
 process_info = conf.get("process_info", {})
+
+storage = HttpStorage(project_info.get("gateway_port"))
 
 
 def module(module_id) -> Optional[str]:

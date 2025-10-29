@@ -27,7 +27,7 @@ class Program(Node):
         # body 块
         if self.statements:
             for statement in self.statements:
-                statement_code_lines.extend(statement.display(svc, tab_num + 1))
+                statement_code_lines.extend(statement.display(svc, tab_num + 2))
 
         # import 块
         code_lines = [CodeLine(tab_num, "from package import element, element_img, module, gv, complex_param_parser"),
@@ -43,7 +43,6 @@ class Program(Node):
 
         # main 块
         code_lines.append(CodeLine(tab_num, "def main(**kwargs):"))
-        code_lines.append(CodeLine(tab_num + 1, "pass"))
         param_list = svc.storage.param_list(project_id=project_id, mode=mode, version=version, process_id=process_id)
         for p in param_list:
             param = svc.param.parse_param({
@@ -52,9 +51,18 @@ class Program(Node):
                 "name": p.get("varName"),
             })
             code_lines.append(CodeLine(tab_num + 1, "{} = kwargs.get(\"{}\", {})".format(p.get("varName"), p.get("varName"), param.show_value())))
-        code_lines.append(CodeLine(tab_num + 1, ""))  # 空行
+        code_lines.append(CodeLine(tab_num + 1, ""))
+        code_lines.append(CodeLine(tab_num + 1, "try:"))
+        code_lines.append(CodeLine(tab_num + 2, "pass"))
 
         code_lines.extend(statement_code_lines)
+
+        code_lines.append(CodeLine(tab_num + 1, "finally:"))
+        code_lines.append(CodeLine(tab_num + 2, "pass"))
+        for p in param_list:
+            if p.get("varDirection"):
+                code_lines.append(CodeLine(tab_num + 2, "kwargs[\"{}\"] = {}".format(p.get("varName"), p.get("varName"))))
+        code_lines.append(CodeLine(tab_num + 1, ""))
         return code_lines
 
 

@@ -142,16 +142,16 @@ class ParamModel:
                     value = value.decrypt()
 
             # 选项判断
-            if i.options:
-                is_in = False
-                for o in i.options:
-                    if o.value == value:
-                        is_in = True
-                        break
-                if not is_in:
-                    raise ParamException(
-                        PARAM_VALUE_ERROR_FORMAT.format(i.name, value), "{}参数的值错误{}".format(i.name, value)
-                    )
+            # if i.options:
+            #     is_in = False
+            #     for o in i.options:
+            #         if o.value == value:
+            #             is_in = True
+            #             break
+            #     if not is_in:
+            #         raise ParamException(
+            #             PARAM_VALUE_ERROR_FORMAT.format(i.name, value), "{}参数的值错误{}".format(i.name, value)
+            #         )
 
             # 类型处理
             if i.__annotation__ == inspect.Parameter.empty:

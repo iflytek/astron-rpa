@@ -1,7 +1,17 @@
 import os
 import subprocess
+import sys
+
 import psutil
 from astronverse.executor.logger import logger
+
+
+def platform_python_venv_run_dir(dir: str):
+    if sys.platform == "win32":
+        path = os.path.dirname(os.path.dirname(os.path.dirname(dir)))
+    else:
+        path = os.path.dirname(os.path.dirname(os.path.dirname(dir)))
+    return path
 
 
 def kill_proc_tree(pid, including_parent=True):

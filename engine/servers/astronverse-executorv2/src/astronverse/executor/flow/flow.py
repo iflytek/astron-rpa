@@ -22,7 +22,7 @@ class Flow:
 
         process_index = 1
         module_index = 1
-        main_process_id = process_id
+        self.svc.main_process_id = process_id
         main_process_name = ""
         for process in process_list:
             name = process.get("name")
@@ -36,7 +36,7 @@ class Flow:
                         main_process_name = "process{}".format(process_index)
                 else:
                     if name == self.svc.conf.main_process_name:
-                        main_process_id = resource_id
+                        self.svc.main_process_id = resource_id
                         main_process_name = "process{}".format(process_index)
 
                 file_name = "process{}.py".format(process_index)
@@ -88,7 +88,7 @@ class Flow:
         # 3 生成package.json
         requirement = self._requirement_display(project_id, mode, version)
         self.svc.add_project_info(project_id, mode, version, project_name, requirement,
-                                  self.svc.conf.gateway_port, main_process_id)
+                                  self.svc.conf.gateway_port)
         res = json.dumps(self.svc.ast_globals, default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
         with open(os.path.join(self.svc.conf.gen_core_path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)

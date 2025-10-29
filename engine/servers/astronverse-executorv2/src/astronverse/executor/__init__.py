@@ -30,7 +30,6 @@ class ProjectInfo:
     version: str = ""
     requirement: dict = None
     gateway_port: int = 0
-    main_process_id: str = ""
 
     def __json__(self):
         return {
@@ -39,8 +38,7 @@ class ProjectInfo:
             "mode": self.mode,
             "version": self.version,
             "requirement": self.requirement,
-            "gateway_port": self.gateway_port,
-            "main_process_id": self.main_process_id
+            "gateway_port": self.gateway_port
         }
 
     @classmethod
@@ -51,8 +49,7 @@ class ProjectInfo:
             mode=data.get("mode", ""),
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
-            gateway_port=int(data.get("gateway_port", 0)),
-            main_process_id=data.get("main_process_id", "")
+            gateway_port=int(data.get("gateway_port", 0))
         )
 
 

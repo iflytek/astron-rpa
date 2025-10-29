@@ -93,7 +93,7 @@ def start():
     parser.add_argument("--debug", default="n", help="[调试]是否是debug模式 y/n", required=False)
 
     parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
-    parser.add_argument("--wait_web_ws", default="y", help="[ws通信]等待前端ws连接 y/n", required=False)
+    parser.add_argument("--wait_web_ws", default="n", help="[ws通信]等待前端ws连接 y/n", required=False)
     parser.add_argument("--wait_tip_ws", default="y", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
     args = parser.parse_args()
 

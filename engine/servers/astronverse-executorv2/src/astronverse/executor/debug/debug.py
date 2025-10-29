@@ -79,7 +79,7 @@ class Debug:
         # 断点设置
         if self.svc.debug_model:
             # 如果开启了debug,需要手动添加第一个默认第一个节点为断点
-            self.set_breakpoint(self.svc.ast_globals.project_info.main_process_id, 1)
+            self.set_breakpoint(self.svc.main_process_id, 1)
 
         for k, v in self.svc.ast_globals.process_info.items():
             for b in v.breakpoint:

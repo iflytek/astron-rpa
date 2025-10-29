@@ -132,7 +132,7 @@ class HttpStorage(Storage):
         element_data = json.loads(res.get("elementData"))
         element_data["img"]["self"] = res.get("imageUrl")
         element_data["img"]["parent"] = res.get("parentImageUrl")
-        res.update({"elementData": json.dumps(element_data, ensure_ascii=False)})
+        res.update({"elementData": element_data})
 
         self.cache_manager.set("element", element_id, res)
         return res

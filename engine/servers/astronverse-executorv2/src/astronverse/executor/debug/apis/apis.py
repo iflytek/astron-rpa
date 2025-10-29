@@ -24,7 +24,7 @@ async def add_break_list(msg: BaseMsg, svc):
         for k, v in enumerate(break_list):
             filename = v.get("process_id", v.get("filename", ""))
             if filename:
-                svc.debug_handler.set_breakpoint(filename, v.v.get("line"))
+                svc.debug_handler.set_breakpoint(filename, v.get("line"))
     return {"status": "ok"}
 
 
@@ -36,7 +36,7 @@ async def clear_bradk(msg: BaseMsg, svc):
         for k, v in enumerate(break_list):
             filename = v.get("process_id", v.get("filename", ""))
             if filename:
-                svc.debug_handler.clear_breakpoint(filename, v.v.get("line"))
+                svc.debug_handler.clear_breakpoint(filename, v.get("line"))
     return {"status": "ok"}
 
 

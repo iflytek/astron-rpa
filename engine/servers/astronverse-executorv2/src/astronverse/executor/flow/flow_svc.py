@@ -20,14 +20,13 @@ class FlowSvc:
         self.ast_curr_info: {}
 
     def add_project_info(self, project_id: str, mode: str, version: str, project_name: str,
-                         requirement: dict, gateway_port: int, main_process_id: str):
+                         requirement: dict, gateway_port: int):
         self.ast_globals.project_info.project_id = project_id
         self.ast_globals.project_info.project_name = project_name
         self.ast_globals.project_info.mode = mode
         self.ast_globals.project_info.version = version
         self.ast_globals.project_info.requirement = requirement
         self.ast_globals.project_info.gateway_port = gateway_port
-        self.ast_globals.project_info.main_process_id = main_process_id
 
     def add_process_info(self, process_id: str, process_category: str, process_name, process_file_name):
         if process_id not in self.ast_globals.process_info:
