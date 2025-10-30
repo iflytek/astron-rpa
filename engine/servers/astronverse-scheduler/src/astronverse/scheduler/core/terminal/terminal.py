@@ -121,7 +121,7 @@ class Terminal:
                         "vmnet",
                         "vboxnet",
                         "tun",
-                        "tap",
+                        # "tap",
                     )
                 ):
                     # 跳过本地回环和虚拟接口, 如Docker、VMware、VirtualBox等
