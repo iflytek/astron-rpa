@@ -181,7 +181,7 @@ def param_to_eval(ls: list) -> (Any, bool):
         if need_eval:
             # 转换成eval能执行的状态
             if types == ParamType.STR.value:
-                res.append('"{}"'.format(value.replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")))
+                res.append(repr(value))
             else:
                 res.append("{}".format(value))
         else:

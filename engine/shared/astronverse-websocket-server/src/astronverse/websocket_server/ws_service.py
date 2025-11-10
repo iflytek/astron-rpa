@@ -155,6 +155,8 @@ class WsManager:
             else:
                 if uuid in self.conns:
                     self.conns[uuid].remove(conn)
+                    if len(self.conns[uuid]) == 0:
+                        del self.conns[uuid]
                     return True
                 else:
                     return False

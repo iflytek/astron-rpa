@@ -227,7 +227,7 @@ class AtomicManager:
                                 error_traceback=traceback.format_exc(),
                             )
                         )
-                        raise IgnoreException() from e
+                        raise IgnoreException(error_str) from e
                     report.warning(
                         ReportCode(
                             log_type=ReportType.Code,
@@ -257,7 +257,7 @@ class AtomicManager:
                             error_traceback=traceback.format_exc(),
                         )
                     )
-                    raise IgnoreException() from e
+                    raise IgnoreException(error_str) from e
 
         if delay_after > 0:
             time.sleep(delay_after)
