@@ -52,48 +52,41 @@ class Param(IParam):
         return ls
 
     @staticmethod
-    def _param_to_eval(ls: list) -> (Any, bool):
+    def _param_to_eval(ls: list, gv: dict = None) -> (Any, bool):
         """
         将参数解析成evaL能执行的状态,
         need_eval=False是为了加速, 能够直接算出来就不经过eval处理, 直接输出结果
         """
 
-        # 判断是否需要解析
         need_eval = False
         for v in ls:
             if v.get("type", "str") in [ParamType.PYTHON.value, ParamType.VAR.value, ParamType.G_VAR.value, ParamType.P_VAR.value]:
                 need_eval = True
                 break
 
-        res = []
+        pieces = []
         for v in ls:
             types = v.get("type", "str")
             data = v.get("data", v.get("value", ""))
             if need_eval:
-                # 转换成eval能执行的状态
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
-                    res.append("\"{}\"".format(data.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
+                    pieces.append(f'{data!r}')
                 elif types in [ParamType.G_VAR.value]:
-                    res.append("gv[\"{}\"]".format(data))
+                    pieces.append(f'gv[{data!r}]')
                 else:
-                    res.append("{}".format(data))
+                    pieces.append(f"{data}")
             else:
-                # 直接输出
-                res.append(data)
+                if gv and data in gv:  # 兜底
+                    pieces.append(f'gv[{data!r}]')
+                else:
+                    pieces.append(data)
 
-        # 处理最终数据(>1表示拼凑 =1表示正常数据)
-        if len(res) > 1:
-            if need_eval:
-                # 拼接成eval能执行的状态
-                return "+".join("str({})".format(r) for r in res), need_eval
-            else:
-                # 手动拼接
-                res_str = ""
-                for r in res:
-                    res_str += str(r)
-                return res_str, need_eval
+        if len(pieces) == 1:
+            return pieces[0], need_eval
+        if need_eval:
+            return "+".join(f"str({p})" for p in pieces), need_eval
         else:
-            return res[0], need_eval
+            return ''.join(pieces), need_eval, need_eval
 
     def parse_param(self, i: dict, token=None) -> InputParam:
         name = i.get("name", i.get("key"))
@@ -130,21 +123,20 @@ class Param(IParam):
         condition = res.get("condition")
         cond = condition.value
         args1 = res.get("args1")
-        value = ""
-        if cond in ["true", "false", "empty", "notempty"]:
-            if cond == "true":
-                value = "{} == {}".format(args1.show_value(), True)
-            elif cond == "false":
-                value = "{} == {}".format(args1.show_value(), False)
-            elif cond == "empty":
-                value = "{}".format(args1.show_value())
-            elif cond == "notempty":
-                value = "not {}".format(args1.show_value())
-        else:
-            args2 = res.get("args2", "")
-            if cond == "notin":
-                cond = "not in"
-            value = "{} {} {}".format(args1.show_value(), cond, args2.show_value())
+        args2 = res.get("args2", "")
+        match cond:
+            case "true":
+                value = f"{args1.show_value()!r} == True"
+            case "false":
+                value = f"{args1.show_value()!r} == False"
+            case "empty":
+                value = f"not {args1.show_value()!r}"
+            case "notempty":  # noqa
+                value = f"{args1.show_value()!r}"
+            case "notin":  # noqa
+                value = f"{args1.show_value()!r} not in {args2.show_value()!r}"
+            case _:
+                value = f"{args1.show_value()!r} {cond} {args2.show_value()!r}"
         return InputParam(key="__condition__", value=value, need_eval=True)
 
     def parse_input(self, token: Token) -> Dict[str, InputParam]:
@@ -198,7 +190,13 @@ class Param(IParam):
 
                 # 1. 预处理
                 ls = self.pre_param_handler(param_value=i.get("value", []))
+                value = ls[0].get("data", "")
+
+                project_id = self.svc.ast_curr_info.get("__project_id__")
+                global_var = self.svc.ast_globals_dict[project_id].project_info.global_var
+                if global_var and value in global_var:
+                    value = f"gv[{value!r}]"
 
                 # 2. 解析
-                res.append(OutputParam(value=ls[0].get("data", "")))
+                res.append(OutputParam(value=value))
         return res

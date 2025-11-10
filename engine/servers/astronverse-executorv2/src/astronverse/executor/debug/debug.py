@@ -93,9 +93,9 @@ class Debug:
             for b in v.breakpoint:
                 self.set_breakpoint(v.process_id, b)
 
-        shared = {"_kwargs": params}
+        shared = {"_args": params}
         self.bdb.cmd_start(g_v=shared)
-        return shared.get("_kwargs", {})
+        return shared.get("_args", {})
 
     def cmd_continue(self):
         """继续执行"""

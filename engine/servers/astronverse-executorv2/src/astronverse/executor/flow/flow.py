@@ -29,7 +29,13 @@ class Flow:
 
     def gen_code(self, path: str, project_id: str, project_name: str, mode: str, version: str, process_id: str = ""):
         os.makedirs(path, exist_ok=True)
-        # 0. 生成流程相关数据
+
+        # 1. 获取全局变量
+        global_var = self._global_display(project_id, mode, version)
+        requirement = self._requirement_display(project_id, mode, version)
+        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port, global_var)
+
+        # 2. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
@@ -80,7 +86,7 @@ class Flow:
             else:
                 raise NotImplementedError()
 
-        # 1. 生成main.py
+        # 3. 生成main.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "main.tpl")
         with open(tpl_path, "r", encoding="utf-8") as tpl_file:
             tpl_content = tpl_file.read()
@@ -89,19 +95,19 @@ class Flow:
         with open(os.path.join(path, "main.py"), "w", encoding="utf-8") as file:
             file.write(main_py_content)
 
-        # 2. 生成project.py
+        # 4. 生成project.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
         with open(tpl_path, "r", encoding="utf-8") as tpl_file:
             tpl_content = tpl_file.read()
 
-        global_code = self._global_display(project_id, mode, version)
+        global_code = ""
+        for k, v in global_var.items():
+            global_code += f"gv[{k!r}] = {v}\n"
         package_py_content = tpl_content.replace("{{GLOBAL}}", global_code)
         with open(os.path.join(path, "package.py"), "w", encoding="utf-8") as file:
             file.write(package_py_content)
 
-        # 3 生成package.json
-        requirement = self._requirement_display(project_id, mode, version)
-        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port)
+        # 5. 生成package.json
         res = json.dumps(self.svc.ast_globals_dict[project_id], default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
         with open(os.path.join(path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)
@@ -130,15 +136,15 @@ class Flow:
         当前包的访问全局变量
         """
         global_list = self.svc.storage.global_list(project_id=project_id, mode=mode, version=version)
-        param_code = ""
+        global_var = {}
         for g in global_list:
             param = self.svc.param.parse_param({
                 "value": g.get("varValue"),
                 "types": g.get("varType"),
                 "name": g.get("varName"),
             })
-            param_code += "gv[\"{}\"] = {}\n".format(g.get("varName"), param.show_value())
-        return param_code
+            global_var[g["varName"]] = param.show_value()
+        return global_var
 
     def _module_display(self, project_id: str, mode: str, version: str, module_id: str, module_name) -> str:
         """

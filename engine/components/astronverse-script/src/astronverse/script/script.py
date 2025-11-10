@@ -18,7 +18,7 @@ class Script:
         main_func = getattr(process_module, "main", None)
         if not main_func or not callable(main_func):
             raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
-        res = main_func(**kwargs)
+        res = main_func(kwargs)
         return res, kwargs
 
     @staticmethod

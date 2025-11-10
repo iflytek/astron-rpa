@@ -30,6 +30,7 @@ class ProjectInfo:
     version: str = ""
     requirement: dict = None
     gateway_port: int = 0
+    global_var: dict = None
 
     def __json__(self):
         return {

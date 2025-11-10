@@ -21,8 +21,8 @@ class ParamType(Enum):
 param_type_dict = ParamType.to_dict()
 
 
-def param(**kwargs) -> dict:
-    return {k: v for k, v in kwargs.items() if not k.startswith("__")}
+def param(args) -> dict:
+    return {k: v for k, v in args.items() if not k.startswith("__")}
 
 
 class RpaExpression:
@@ -53,48 +53,41 @@ class ComplexParamParser:
     """
 
     @staticmethod
-    def _param_to_eval(ls: list) -> (Any, bool):
+    def _param_to_eval(ls: list, gv: dict = None) -> (Any, bool):
         """
         将参数解析成evaL能执行的状态,
         need_eval=False是为了加速, 能够直接算出来就不经过eval处理, 直接输出结果
         """
 
-        # 判断是否需要解析
         need_eval = False
         for v in ls:
             if v.get("type", "str") in [ParamType.PYTHON.value, ParamType.VAR.value, ParamType.G_VAR.value, ParamType.P_VAR.value]:
                 need_eval = True
                 break
 
-        res = []
+        pieces = []
         for v in ls:
             types = v.get("type", "str")
             data = v.get("data", v.get("value", ""))
             if need_eval:
-                # 转换成eval能执行的状态
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
-                    res.append("\"{}\"".format(data.replace("\n", "\\n").replace('\t', '\\t').replace('\r', '\\r')))
+                    pieces.append(f'{data!r}')
                 elif types in [ParamType.G_VAR.value]:
-                    res.append("gv[\"{}\"]".format(data))
+                    pieces.append(f'gv[{data!r}]')
                 else:
-                    res.append("{}".format(data))
+                    pieces.append(f"{data}")
             else:
-                # 直接输出
-                res.append(data)
+                if gv and data in gv:  # 兜底[目前没有兜底策略]
+                    pieces.append(f'gv[{data!r}]')
+                else:
+                    pieces.append(data)
 
-        # 处理最终数据(>1表示拼凑 =1表示正常数据)
-        if len(res) > 1:
-            if need_eval:
-                # 拼接成eval能执行的状态
-                return "+".join("str({})".format(r) for r in res), need_eval
-            else:
-                # 手动拼接
-                res_str = ""
-                for r in res:
-                    res_str += str(r)
-                return res_str, need_eval
+        if len(pieces) == 1:
+            return pieces[0], need_eval
+        if need_eval:
+            return "+".join(f"str({p})" for p in pieces), need_eval
         else:
-            return res[0], need_eval
+            return ''.join(pieces), need_eval, need_eval
 
     @classmethod
     def _recursive_convert_params(cls, data: Any) -> Any:
