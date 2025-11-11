@@ -86,13 +86,24 @@ async def get_workflows(
         skip = (pageNo - 1) * pageSize
         workflows = await service.get_workflows(user_id, skip, pageSize)
         workflow_dicts = []
+        personal_total = 0
+        public_total = 0
         for workflow in workflows:
             workflow_dicts.append(workflow.to_dict())
+            if not workflow.example_project_id:
+                personal_total += 1
+            else:
+                public_total += 1
 
         return StandardResponse(
             code=ResCode.SUCCESS,
             msg="",
-            data={"total": len(workflow_dicts), "records": workflow_dicts}
+            data={
+                "total": len(workflow_dicts),
+                "personal_total": personal_total,
+                "public_total": public_total,
+                "records": workflow_dicts,
+            },
         )
     except Exception as e:
         logger.error(f"Error getting workflows: {str(e)}")
@@ -159,7 +170,8 @@ async def execute_workflow(
                 msg=f"Workflow with project_id {execution_data.project_id} not found",
                 data=None
             )
-
+        execution_data.project_id = workflow.project_id
+        logger.info(f"[execute_workflow] project_id: {execution_data.project_id}")
         # 使用workflow默认version
         if not execution_data.version:
             execution_data.version = workflow.version
@@ -221,6 +233,8 @@ async def execute_workflow_async(
         if not execution_data.version:
             execution_data.version = workflow.version
 
+        execution_data.project_id = workflow.project_id
+        logger.info(f"[execute_workflow_async] project_id: {execution_data.project_id}")
         # 执行工作流，不等待结果
         execution = await execution_service.execute_workflow(
             execution_data=execution_data, 
