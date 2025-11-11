@@ -20,7 +20,7 @@ pub fn menu() -> SystemTray {
     *status = "idle".to_string();
 
     let tray_menu = build_normal_menu();
-    SystemTray::new().with_tooltip("晓悟RPA").with_menu(tray_menu)
+    SystemTray::new().with_tooltip("星辰RPA").with_menu(tray_menu)
 }
 
 // normal 模式菜单

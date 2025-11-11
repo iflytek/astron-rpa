@@ -118,7 +118,7 @@ function handleSubmit() {
             </template>
             <template v-else #description>
               <div>点击上方“开始录制”</div>
-              <div>晓悟RPA会记录你的操作，智能生成流程</div>
+              <div>星辰RPA会记录你的操作，智能生成流程</div>
             </template>
           </Empty>
         </div>

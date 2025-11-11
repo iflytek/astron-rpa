@@ -279,12 +279,12 @@ class TauriWindowManager implements WindowManager {
 
   async showDecorations() {
     await appWindow.setDecorations(true)
-    await appWindow.setTitle('登录晓悟RPA')
+    await appWindow.setTitle('登录星辰RPA')
   }
 
   async hideDecorations() {
     await appWindow.setDecorations(false)
-    await appWindow.setTitle('晓悟RPA')
+    await appWindow.setTitle('星辰RPA')
   }
 
   /**
