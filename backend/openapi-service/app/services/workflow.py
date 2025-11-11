@@ -10,7 +10,7 @@ class WorkflowService:
     def __init__(self, db: AsyncSession, redis: Redis = None):
         self.db = db
         self.redis = redis
-    
+
     async def _invalidate_workflows_cache(self, user_id: str) -> None:
         """清除用户工作流缓存"""
         if self.redis:
@@ -43,50 +43,43 @@ class WorkflowService:
         await self._invalidate_workflows_cache(user_id)
         
         return workflow
-    
-    async def get_workflow(self, project_id: str, user_id: str = None) -> Optional[Workflow]:
+
+    async def get_workflow(
+        self, project_id: str, user_id: str = None
+    ) -> Optional[Workflow]:
         """获取指定工作流"""
         query = select(Workflow).where(Workflow.project_id == project_id)
         if user_id is not None:
             query = query.where(Workflow.user_id == user_id)
-            
+
         result = await self.db.execute(query)
         return result.scalars().first()
     
-    async def get_workflows(self, user_id: str = None, skip: int = 0, limit: int = None) -> List[Workflow]:
-        """获取工作流列表"""
-        # 生成缓存键
-        cache_key = f"workflows:{user_id or 'all'}:{skip}:{limit}"
-        
-        # 如果Redis可用，尝试从缓存获取
-        if self.redis:
-            cached_data = await self.redis.get(cache_key)
-            if cached_data:
-                # 这里需要反序列化数据，但不能直接将JSON转为对象
-                # 实际中可能需要更复杂的序列化/反序列化方案
-                # 由于实现复杂，这里只返回数据库查询结果
-                pass
-        
-        # 构建查询
-        if limit is None:
-            query = select(Workflow).order_by(Workflow.created_at.desc()).offset(skip)
-        else:
-            query = select(Workflow).order_by(Workflow.created_at.desc()).offset(skip).limit(limit)
+    async def get_workflows(
+            self, user_id: str = None, skip: int = 0, limit: int = None
+    ) -> List[Workflow]:
+        """获取工作流列表（仅返回状态为1的项目）"""
+        base_query = select(Workflow).where(Workflow.status == 1)
 
+        if limit is None:
+            query = base_query.order_by(Workflow.created_at.desc()).offset(skip)
+        else:
+            query = (
+                base_query
+                .order_by(Workflow.created_at.desc())
+                .offset(skip)
+                .limit(limit)
+            )
+        # 如果指定了用户ID，添加用户过滤条件
         if user_id is not None:
             query = query.where(Workflow.user_id == user_id)
-            
         result = await self.db.execute(query)
         workflows = result.scalars().all()
-        
-        # 缓存查询结果
-        if self.redis:
-            # 由于对象序列化复杂，实际项目中可使用专用库或自定义序列化方法
-            pass
-            
         return workflows
-    
-    async def update_workflow(self, workflow_data: WorkflowBase, user_id: str) -> Optional[Workflow]:
+
+    async def update_workflow(
+        self, workflow_data: WorkflowBase, user_id: str
+    ) -> Optional[Workflow]:
         """更新工作流"""
         # 检查工作流是否存在且属于当前用户
         project_id = str(workflow_data.project_id)
