@@ -178,6 +178,13 @@ class CustomBdb(bdb.Bdb):
             self.set_continue()
             return
 
+        # 检查是否是可视化文件，但当前行号不在映射表中
+        basename = os.path.basename(filename)
+        if basename in self.file_line_maps:
+            line_map = self.file_line_maps[basename]
+            if py_line not in line_map:
+                return
+
         self.current_frame = frame
         self.paused = True
 
@@ -185,15 +192,20 @@ class CustomBdb(bdb.Bdb):
         reason = 'breakpoint' if breaks else 'step'
 
         project_filename = self._to_project_path(filename)
-        flow_line = self._to_flow_line(os.path.basename(filename), py_line)
+        flow_line = self._to_flow_line(basename, py_line)
 
         merged_vars = {}
         local_vars = frame.f_locals if hasattr(frame, 'f_locals') else {}
         gv_obj = frame.f_globals.get('gv', {}) if hasattr(frame, 'f_globals') else {}
         for k, v in {**gv_obj, **local_vars}.items():
             if not k.startswith('__'):
-                merged_vars[k] = v
-
+                try:
+                    v_str = str(v)
+                except Exception as e:
+                    v_str = v
+                merged_vars[k] = {
+                    "value": v_str
+                }
         self.notify(reason, file=project_filename, line=flow_line, py_line=py_line, merged_vars=merged_vars)
 
         # 阻塞等待用户操作

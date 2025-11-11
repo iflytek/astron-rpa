@@ -27,7 +27,7 @@ class Flow:
                 component_path = os.path.join(path, "c{}".format(component_id))
                 self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
 
-    def gen_code(self, path: str, project_id: str, project_name: str, mode: str, version: str, process_id: str = ""):
+    def gen_code(self, path: str, project_id: str, project_name: str, mode: str, version: str, process_id: str = "", line=0, end_line=0):
         os.makedirs(path, exist_ok=True)
 
         # 1. 获取全局变量
@@ -42,7 +42,6 @@ class Flow:
 
         process_index = 1
         module_index = 1
-        self.svc.main_process_id = process_id
         main_process_name = ""
         for process in process_list:
             name = process.get("name")
@@ -56,12 +55,11 @@ class Flow:
                         main_process_name = "process{}".format(process_index)
                 else:
                     if name == self.svc.conf.main_process_name:
-                        self.svc.main_process_id = resource_id
                         main_process_name = "process{}".format(process_index)
 
                 file_name = "process{}.py".format(process_index)
                 process_index += 1
-                res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
+                res, map_res = self._flow_display(project_id, mode, version, resource_id, name, start_line=line, end_line=end_line)
 
                 self.svc.add_process_info(project_id, resource_id, category, name, file_name)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
@@ -153,20 +151,23 @@ class Flow:
         # 1. 获取模块数据
         return self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version, module_id=module_id)
 
-    def _flow_display(self, project_id: str, mode: str, version: str, process_id: str, process_name: str):
+    def _flow_display(self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0):
         """
         流程生成 主流程 子流程
         """
 
         # 1. 获取流程数据
         flow_list = self.svc.storage.process_detail(project_id=project_id, mode=mode, version=version, process_id=process_id)
-
         line = 0
         new_flow_list = []
         process_meta = []
         for k, v in enumerate(flow_list):
             line = line + 1
             if v.get("disabled"):
+                continue
+            if start_line > 0 and line < start_line:
+                continue
+            if end_line > 0 and line > end_line: # noqa
                 continue
             v.update({
                 "__line__": line,

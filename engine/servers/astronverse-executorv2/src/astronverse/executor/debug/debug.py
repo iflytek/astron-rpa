@@ -11,9 +11,10 @@ from astronverse.executor.error import python_base_error, MSG_DEBUG_INSTRUCTION_
 
 class Debug:
 
-    def __init__(self, svc):
+    def __init__(self, svc, args):
         self.svc = svc
         self.bdb = CustomBdb(project_dir=svc.conf.gen_core_path, ext_dir=svc.conf.gen_component_path, notify=self.notify, err_handler=python_base_error)
+        self.svc.main_process_id = args.process_id
 
         # 让 DebugSvc 负责加载数据
         svc.load_package_info()
@@ -21,6 +22,8 @@ class Debug:
         self.file_to_process = {}
         for i, v in self.svc.ast_globals.process_info.items():
             self.file_to_process[v.process_file_name] = v.process_id
+            if not self.svc.main_process_id and v.process_name == svc.conf.main_process_name:
+                self.svc.main_process_id = v.process_id
 
     def notify(self, typ, **kw):
         """打印演示"""

@@ -1,6 +1,8 @@
+import sys
+import os
+import importlib.util
 import importlib
 import inspect
-
 from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.script.error import BaseException, MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND
@@ -11,7 +13,32 @@ class Script:
     @staticmethod
     def _call(path: str, **kwargs):
         try:
-            process_module = importlib.import_module(path)
+            # 先尝试找到模块规范
+            spec = importlib.util.find_spec(path)
+            if spec is None or spec.origin is None:
+                raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法找到模块 {path}")
+
+            module_dir = os.path.dirname(os.path.abspath(spec.origin))
+
+            # 临时修改 sys.path，将模块目录添加到最前面
+            original_path = sys.path.copy()
+            module_dir_added = False
+            if module_dir not in sys.path:
+                sys.path.insert(0, module_dir)
+                module_dir_added = True
+
+            try:
+                # 如果模块已经导入，检查是否需要重新导入
+                # 只有当模块目录不在 sys.path 中时才需要重新导入
+                if path in sys.modules and module_dir_added:
+                    # 使用 reload 而不是删除，更安全
+                    process_module = importlib.reload(sys.modules[path])
+                else:
+                    process_module = importlib.import_module(path)
+            finally:
+                # 恢复 sys.path
+                sys.path[:] = original_path
+
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
@@ -51,7 +78,7 @@ class Script:
 
             # 获取局部变量和全局变量
             if cframe is not None:
-                local_vars = cframe.f_locals.copy()
+                local_vars = cframe.f_locals
                 # 合并变量，局部变量优先（覆盖全局变量）
                 all_vars.update(local_vars)
             return all_vars
@@ -96,5 +123,7 @@ class Script:
         outputList=[]
     )
     def component(component: str, **kwargs):
+        # 忽略掉所有__开头的kwargs值
+        kwargs = {k: v for k, v in kwargs.items() if not k.startswith('__')}
         _, kwargs = Script._call(component, **kwargs)
         return kwargs

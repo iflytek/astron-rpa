@@ -19,7 +19,8 @@ def flow_start(args, conf):
     svc = FlowSvc(conf=conf)
     flow = Flow(svc=svc)
     flow.gen_component(path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version)
-    flow.gen_code(path=svc.conf.gen_core_path, project_id=args.project_id, project_name=args.project_name, mode=args.mode, version=args.version, process_id=args.process_id)
+    flow.gen_code(path=svc.conf.gen_core_path, project_id=args.project_id, project_name=args.project_name, mode=args.mode,
+                  version=args.version, process_id=args.process_id, line=int(args.line), end_line=int(args.end_line))
 
 
 def debug_start(args, conf):
@@ -40,7 +41,7 @@ def debug_start(args, conf):
     if Config.wait_tip_ws:
         svc.log_tool.start()
 
-    # 生成代码
+    # 生成日志
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS))
 
@@ -55,7 +56,7 @@ def debug_start(args, conf):
                 svc.end(ExecuteStatus.CANCEL)
 
     # 执行代码
-    debug = Debug(svc=svc)
+    debug = Debug(svc=svc, args=args)
     svc.debug_handler = debug
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START))
     run_param = {}
