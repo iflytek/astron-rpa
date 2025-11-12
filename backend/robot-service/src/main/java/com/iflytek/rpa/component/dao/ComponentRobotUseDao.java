@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.component.entity.ComponentRobotUse;
 import com.iflytek.rpa.component.entity.bo.ComponentRobotUseDeleteBo;
 import com.iflytek.rpa.component.entity.bo.ComponentRobotUseUpdateBo;
+import com.iflytek.rpa.component.entity.vo.CompUseInfo;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -36,6 +37,14 @@ public interface ComponentRobotUseDao extends BaseMapper<ComponentRobotUse> {
     @Select("select * from component_robot_use " + "where deleted = 0 and robot_id = #{robotId} "
             + "and robot_version = #{robotVersion} and tenant_id = #{tenantId}")
     List<ComponentRobotUse> getByRobotIdAndVersion(
+            @Param("robotId") String robotId,
+            @Param("robotVersion") Integer robotVersion,
+            @Param("tenantId") String tenantId);
+
+    /**
+     * 根据机器人ID和版本号查询组件引用，以及其对应引用的版本
+     */
+    List<CompUseInfo> getCompUseInfoList(
             @Param("robotId") String robotId,
             @Param("robotVersion") Integer robotVersion,
             @Param("tenantId") String tenantId);
