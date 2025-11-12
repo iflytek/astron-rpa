@@ -35,7 +35,18 @@ def debug_start(args, conf):
         thread_ws.start()
 
     # 录制服务
-    pass
+    if args.recording_config.get("enable", False):
+        file_clear_time = args.recording_config.get("fileClearTime", 0)
+        if not args.recording_config.get("saveType", False):
+            file_clear_time = 0
+        temp_config = {
+            "open": args.recording_config.get("enable", False),
+            "cut_time": args.recording_config.get("cutTime", 0),
+            "scene": args.recording_config.get("scene", "always"),
+            "file_path": args.recording_config.get("filePath", "./logs/report"),
+            "file_clear_time": file_clear_time,  # 清理录制视频7天
+        }
+        svc.recording_tool.init(args.project_id, args.exec_id, temp_config).start()
 
     # 右下角日志窗口
     if Config.wait_tip_ws:
@@ -59,13 +70,7 @@ def debug_start(args, conf):
     debug = Debug(svc=svc, args=args)
     svc.debug_handler = debug
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START))
-    run_param = {}
-    if args.run_param:
-        try:
-            run_param = json.loads(args.run_param)
-        except Exception as e:
-            pass
-    data = debug.start(params=run_param)
+    data = debug.start(params=args.run_param)
 
     # 执行后验证
     if Config.open_log_ws and Config.wait_web_ws:
@@ -105,6 +110,9 @@ def start():
     parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
     parser.add_argument("--wait_web_ws", default="n", help="[ws通信]等待前端ws连接 y/n", required=False)
     parser.add_argument("--wait_tip_ws", default="y", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
+    
+    parser.add_argument("--resource_dir", default="", help="资源目录", required=False)
+    parser.add_argument("--recording_config", default="", help="录屏", required=False)
     args = parser.parse_args()
 
     logger.debug("start {}".format(args))
@@ -115,10 +123,26 @@ def start():
     Config.exec_id = args.exec_id
     Config.project_id = args.project_id
     Config.project_name = args.project_name
+    Config.resource_dir = args.resource_dir
 
     Config.open_log_ws = args.log_ws == "y"
     Config.wait_web_ws = args.wait_web_ws == "y"
     Config.wait_tip_ws = args.wait_tip_ws == "y"
+
+    if args.run_param:
+        try:
+            if os.path.exists(args.run_param):
+                with open(args.run_param, "r", encoding="utf-8") as f:
+                    args.run_param = json.load(f)
+            else:
+                args.run_param = json.loads(args.run_param)
+        except Exception as e:
+            pass
+    if args.recording_config:
+        try:
+            args.recording_config = json.loads(args.recording_config)
+        except Exception as e:
+            pass
 
     # 生成代码
     flow_start(conf=Config, args=args)

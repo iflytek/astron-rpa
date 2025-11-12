@@ -40,6 +40,9 @@ class Config:
 
     # package cache
     package_cache_dir: str = "./pip_cache/"
+    
+    # resource dir
+    resource_dir: str = "./resources/"
 
     # 开启ws日志通信
     open_log_ws: bool = True
