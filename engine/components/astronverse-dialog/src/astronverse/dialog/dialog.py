@@ -12,7 +12,6 @@ import urllib.parse
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.actionlib.types import DialogResult
 from astronverse.dialog import (
     ButtonType,
     DefaultButtonC,
@@ -691,7 +690,7 @@ class Dialog:
                 ],
             ),
         ],
-        outputList=[atomicMg.param("dialog_result", types="DialogResult")],
+        outputList=[atomicMg.param("dialog_result", types="Str")],
     )
     def custom_box(
         box_title: str = "自定义对话框",
@@ -699,7 +698,7 @@ class Dialog:
         auto_check: bool = False,
         wait_time: int = 60,
         default_button: DefaultButtonCN = DefaultButtonCN.CONFIRM,
-    ) -> DialogResult:
+    ) -> str:
         """自定义对话框"""
         executable_path = RpaTools.get_window_dir()
         if not os.path.exists(executable_path):

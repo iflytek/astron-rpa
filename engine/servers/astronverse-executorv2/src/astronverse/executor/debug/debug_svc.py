@@ -73,21 +73,27 @@ class DebugSvc:
                     if data is None:
                         data = {}
                     self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, data=data, msg_str=MSG_TASK_EXECUTION_END))
-                    self.recording_tool.close(False)
                 elif status == ExecuteStatus.CANCEL:
                     self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_USER_CANCELLED))
-                    self.recording_tool.close(True)
                 elif status == ExecuteStatus.FAIL:
                     if not reason:
                         reason = MSG_TASK_EXECUTION_ERROR
                     self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=reason))
-                    self.recording_tool.close(False)
                 else:
                     raise NotImplementedError()
 
                 # 关闭日志
                 if self.report:
                     self.report.close()
+
+                # 结束录制
+                if self.recording_tool.config.get("open"):
+                    if status == ExecuteStatus.SUCCESS:
+                        self.recording_tool.close(True)
+                    elif status == ExecuteStatus.CANCEL:
+                        self.recording_tool.close(True)
+                    elif status == ExecuteStatus.FAIL:
+                        self.recording_tool.close(False)
 
                 # 结束退出
                 self.sys_exit_lock_end = True

@@ -38,7 +38,7 @@ class InputParam:
     def show_value(self):
         code = self.value
         if not self.need_eval:
-            code = "\"{}\"".format(self.value)
+            code = repr(self.value)
         if self.special:
             code = "{}({})".format(self.special, code)
         return code

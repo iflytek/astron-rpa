@@ -357,34 +357,6 @@ class IMGPick(Pick):
             ) from e
 
 
-class FeishuBaseInstance(Dict):
-    @classmethod
-    def __validate__(cls, name: str, value):
-        if isinstance(value, FeishuBaseInstance):
-            return value
-        try:
-            return cls(dict(value))
-        except Exception as e:
-            raise ParamException(
-                PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
-            ) from e
-
-
-class DialogResult(Str):
-    @classmethod
-    def __validate__(cls, name: str, value):
-        if isinstance(value, DialogResult):
-            return value
-        try:
-            temp_value = str(value)
-            temp_value = temp_value.strip()
-            return cls(temp_value)
-        except Exception as e:
-            raise ParamException(
-                PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
-            ) from e
-
-
 class Password(Str):
     """主要是给前端标记为密码 ***"""
 

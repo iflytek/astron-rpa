@@ -136,23 +136,6 @@ class ParamModel:
             else:
                 continue
 
-            # 运行解密
-            if isinstance(value, Ciphertext):
-                if self.key != "Report.print":
-                    value = value.decrypt()
-
-            # 选项判断
-            # if i.options:
-            #     is_in = False
-            #     for o in i.options:
-            #         if o.value == value:
-            #             is_in = True
-            #             break
-            #     if not is_in:
-            #         raise ParamException(
-            #             PARAM_VALUE_ERROR_FORMAT.format(i.name, value), "{}参数的值错误{}".format(i.name, value)
-            #         )
-
             # 类型处理
             if i.__annotation__ == inspect.Parameter.empty:
                 # 忽略
@@ -198,7 +181,7 @@ class ParamModel:
             elif hasattr(i.__annotation__, "__validate__"):
                 # 转换
                 try:
-                    value = i.__annotation__.__validate__(i.name, value)
+                    value = i.__annotation__.__validate__(i.name, value) # noqa
                 except Exception as e:
                     raise ParamException(
                         PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value), "{}的值装换成{}失败{}, error:{}".format(i.name, i.types, value, e)

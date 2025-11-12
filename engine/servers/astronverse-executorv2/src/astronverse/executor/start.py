@@ -122,8 +122,10 @@ def start():
     Config.gateway_port = args.gateway_port
     Config.exec_id = args.exec_id
     Config.project_id = args.project_id
-    Config.project_name = args.project_name
-    Config.resource_dir = args.resource_dir
+    if args.project_name:
+        Config.project_name = args.project_name
+    if args.resource_dir:
+        Config.resource_dir = args.resource_dir
 
     Config.open_log_ws = args.log_ws == "y"
     Config.wait_web_ws = args.wait_web_ws == "y"
@@ -137,12 +139,12 @@ def start():
             else:
                 args.run_param = json.loads(args.run_param)
         except Exception as e:
-            pass
+            args.run_param = {}
     if args.recording_config:
         try:
             args.recording_config = json.loads(args.recording_config)
         except Exception as e:
-            pass
+            args.recording_config = {}
 
     # 生成代码
     flow_start(conf=Config, args=args)

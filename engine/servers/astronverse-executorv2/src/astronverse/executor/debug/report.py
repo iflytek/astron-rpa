@@ -65,7 +65,7 @@ class Report(IReport):
             self.log_local_file.write(f"{message}\n")
             self.log_local_file.flush()
 
-    def info(self, message):
+    def __pre__(self, message):
         if (
                 isinstance(message, ReportFlow)
                 or isinstance(message, ReportCode)
@@ -98,6 +98,10 @@ class Report(IReport):
                     if hasattr(message, "line_id") and not message.line_id:
                         message.line_id = line_id
                         message.msg_str = message.msg_str.replace("{line_id}", line_id)
+        return message
+
+    def info(self, message):
+        message = self.__pre__(message)
 
         filtered_dict = {k: v for k, v in asdict(message).items() if v is not None}
 
@@ -108,76 +112,14 @@ class Report(IReport):
         return self.__send__(filtered_dict)
 
     def warning(self, message):
-        if (
-                isinstance(message, ReportFlow)
-                or isinstance(message, ReportCode)
-                or isinstance(message, ReportUser)
-                or isinstance(message, ReportTip)
-        ):
-            pass
-        else:
-            message = ReportScript(msg_str=str(message))
-
-        if isinstance(message, ReportCode) or isinstance(message, ReportUser):
-            process_id = message.process_id
-            line = message.line
-            if process_id in self.process:
-                process = self.process[process_id]
-                if not message.process:
-                    message.process = process.process_name
-                    message.msg_str = message.msg_str.replace("{process}", process.process_name)
-                if line in process.process_meta:
-                    meta = process.process_meta[line]
-                    atomic = meta[2]
-                    key = meta[3]
-                    line_id = meta[1]
-                    if hasattr(message, "atomic") and not message.atomic:
-                        message.atomic = atomic
-                        message.msg_str = message.msg_str.replace("{atomic}", atomic)
-                    if hasattr(message, "key") and not message.key:
-                        message.key = key
-                        message.msg_str = message.msg_str.replace("{key}", key)
-                    if hasattr(message, "line_id") and not message.line_id:
-                        message.line_id = line_id
-                        message.msg_str = message.msg_str.replace("{line_id}", line_id)
+        message = self.__pre__(message)
 
         filtered_dict = {k: v for k, v in asdict(message).items() if v is not None}
         filtered_dict["log_level"] = "warning"
         return self.__send__(filtered_dict)
 
     def error(self, message):
-        if (
-                isinstance(message, ReportFlow)
-                or isinstance(message, ReportCode)
-                or isinstance(message, ReportUser)
-                or isinstance(message, ReportTip)
-        ):
-            pass
-        else:
-            message = ReportScript(msg_str=str(message))
-
-        if isinstance(message, ReportCode) or isinstance(message, ReportUser):
-            process_id = message.process_id
-            line = message.line
-            if process_id in self.process:
-                process = self.process[process_id]
-                if not message.process:
-                    message.process = process.process_name
-                    message.msg_str = message.msg_str.replace("{process}", process.process_name)
-                if line in process.process_meta:
-                    meta = process.process_meta[line]
-                    atomic = meta[2]
-                    key = meta[3]
-                    line_id = meta[1]
-                    if hasattr(message, "atomic") and not message.atomic:
-                        message.atomic = atomic
-                        message.msg_str = message.msg_str.replace("{atomic}", atomic)
-                    if hasattr(message, "key") and not message.key:
-                        message.key = key
-                        message.msg_str = message.msg_str.replace("{key}", key)
-                    if hasattr(message, "line_id") and not message.line_id:
-                        message.line_id = line_id
-                        message.msg_str = message.msg_str.replace("{line_id}", line_id)
+        message = self.__pre__(message)
 
         filtered_dict = {k: v for k, v in asdict(message).items() if v is not None}
         filtered_dict["log_level"] = "error"

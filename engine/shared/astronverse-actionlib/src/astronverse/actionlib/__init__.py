@@ -362,10 +362,10 @@ class TimeFormatType(Enum):
 @dataclass
 class ReportUser:
     log_type: ReportType = ReportType.User
-    process: str = None
+    process: str = None # 可空
     process_id: str = None
-    atomic: str = None
-    line_id: str = ""
+    atomic: str = None # 可空
+    line_id: str = "" # 可空
     line: int = 0
     msg_str: str = None
 
@@ -396,11 +396,11 @@ class ReportScript:
 @dataclass
 class ReportCode:
     log_type: ReportType = ReportType.Code
-    process: str = None
+    process: str = None # 可空
     process_id: str = None
-    atomic: str = None
-    key: str = None
-    line_id: str = ""
+    atomic: str = None # 可空
+    key: str = None # 可空
+    line_id: str = "" # 可空
     line: int = 0
     status: ReportCodeStatus = ReportCodeStatus.RES
     error_traceback: Any = None
