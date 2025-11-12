@@ -5,6 +5,8 @@ import com.iflytek.rpa.component.entity.ComponentRobotUse;
 import com.iflytek.rpa.component.entity.bo.ComponentRobotUseDeleteBo;
 import com.iflytek.rpa.component.entity.bo.ComponentRobotUseUpdateBo;
 import java.util.List;
+
+import com.iflytek.rpa.component.entity.vo.CompUseInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -39,6 +41,13 @@ public interface ComponentRobotUseDao extends BaseMapper<ComponentRobotUse> {
             @Param("robotId") String robotId,
             @Param("robotVersion") Integer robotVersion,
             @Param("tenantId") String tenantId);
+
+    /**
+     * 根据机器人ID和版本号查询组件引用，以及其对应引用的版本
+     */
+    List<CompUseInfo> getCompUseInfoList(@Param("robotId") String robotId,
+                                         @Param("robotVersion") Integer robotVersion,
+                                         @Param("tenantId") String tenantId);
 
     /**
      * 根据机器人ID、版本号和组件ID查询组件引用
