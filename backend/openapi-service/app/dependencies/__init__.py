@@ -38,6 +38,7 @@ def get_user_id_from_header(
 
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
+
 def extract_api_key_from_request(ctx) -> Optional[str]:
     """从请求上下文中提取API_KEY"""
 
@@ -56,6 +57,7 @@ def extract_api_key_from_request(ctx) -> Optional[str]:
         # 如果是字符串类型的查询字符串
         if isinstance(query_params, str):
             from urllib.parse import parse_qs
+
             parsed = parse_qs(query_params)
             key_values = parsed.get('key', [])
             return key_values[0] if key_values else None
@@ -83,23 +85,22 @@ async def get_user_id_from_api_key(
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     api_key = parts[1]
 
     # 使用前缀匹配和哈希验证
     keys = await db.execute(
         select(OpenAPIDB).where(
-            OpenAPIDB.prefix == api_key[:8], 
-            OpenAPIDB.is_active == 1
+            OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1
         )
     )
     api_keys = keys.scalars().all()
-    
+
     for key in api_keys:
         hashed_key = key.api_key
         if APIKeyUtils.verify_api_key(api_key, hashed_key):
             return str(key.user_id)
-    
+
     # 如果没有找到匹配的API key
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -111,26 +112,22 @@ async def get_user_id_from_api_key(
 # 注意：get_uid_from_raw_key 函数已经被移动到 app.services.streamable_mcp.ToolsConfig 类中
 # 以避免创建多个数据库连接实例
 
-
 async def get_workflow_service(
-    db: AsyncSession = Depends(get_db),
-    redis: Redis = Depends(get_redis)
+    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
 ) -> WorkflowService:
     """提供WorkflowService实例的依赖项"""
     return WorkflowService(db, redis)
 
 
 async def get_execution_service(
-    db: AsyncSession = Depends(get_db),
-    redis: Redis = Depends(get_redis)
+    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
 ) -> ExecutionService:
     """提供ExecutionService实例的依赖项"""
     return ExecutionService(db, redis)
 
 
 async def get_api_key_service(
-    db: AsyncSession = Depends(get_db),
-    redis: Redis = Depends(get_redis)
+    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
 ) -> ApiKeyService:
     """提供ApiKeyService实例的依赖项"""
     return ApiKeyService(db, redis)
@@ -159,7 +156,7 @@ async def get_user_id_with_fallback(
     1. 首先尝试从Authorization Bearer token中获取API key并验证
     2. 如果没有API key，则从X-User-Id或user_id header中获取
     3. 如果都没有，则抛出401错误
-    
+
     使用示例：
     @router.get("/example")
     async def example_endpoint(
@@ -173,32 +170,48 @@ async def get_user_id_with_fallback(
             parts = api_key_header.split()
             if len(parts) == 2 and parts[0].lower() == "bearer":
                 api_key = parts[1]
-                
+
                 # 使用前缀匹配和哈希验证
                 keys = await db.execute(
                     select(OpenAPIDB).where(
-                        OpenAPIDB.prefix == api_key[:8], 
-                        OpenAPIDB.is_active == 1
+                        OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1
                     )
                 )
                 api_keys = keys.scalars().all()
-                
+
                 for key in api_keys:
                     hashed_key = key.api_key
                     if APIKeyUtils.verify_api_key(api_key, hashed_key):
                         return str(key.user_id)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
         except Exception as e:
-            # 如果API key验证失败，继续尝试header方式
-            pass
-    
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
     # 如果API key验证失败或不存在，尝试从header获取
     header_user_id = x_user_id or user_id
     if header_user_id:
         return header_user_id
-    
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        # expo-user 逻辑开源版暂时没有
+        # example_user_id = "e79349dd-ffcb-4282-b343-193183965240"
+        # return example_user_id
+
     # 如果都没有，抛出401错误
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    # raise HTTPException(
+    #     status_code=status.HTTP_401_UNAUTHORIZED,
+    #     detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
+    #     headers={"WWW-Authenticate": "Bearer"},
+    # )

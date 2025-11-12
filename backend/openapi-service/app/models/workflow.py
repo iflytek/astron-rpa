@@ -4,8 +4,10 @@ from app.database import Base
 from app.schemas.workflow import ExecutionStatus
 import json
 
+
 class Workflow(Base):
     """工作流数据库模型"""
+
     __tablename__ = "openai_workflows"
 
     project_id = Column(String(100), primary_key=True, index=True)  # 项目ID作为主键
@@ -28,7 +30,7 @@ class Workflow(Base):
                 parameters_dict = json.loads(self.parameters)
             except (json.JSONDecodeError, TypeError):
                 parameters_dict = None
-        
+
         workflow_dict = {
             "project_id": self.project_id,
             "name": self.name,

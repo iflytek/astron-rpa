@@ -55,7 +55,7 @@ app.include_router(workflows.router)
 app.include_router(executions.router)
 app.include_router(api_keys.router)
 app.include_router(websocket.router)
-app.mount("/mcp", handle_streamable_http) #APISIX增加路由，解决307重定向问题
+app.mount("/mcp", handle_streamable_http)  # APISIX增加路由，解决307重定向问题
 
 app.add_middleware(RequestTracingMiddleware)
 
@@ -65,6 +65,7 @@ async def root():
     logger.info("Root endpoint accessed!")
 
     return {"message": "Hello Bigger Applications!"}
+
 
 if __name__ == "__main__":
     uvicorn.run(

@@ -83,12 +83,18 @@ class Terminal:
     def update_task_list(self):
         # 请求全量任务列表
         new_task_list, retry_task_list, stop_task_list = terminal_list_task()
-        new_task_ids = new_task_list.keys()
+        new_task_ids = [task["trigger_id"] for task in new_task_list if task["task_type"] != "manual"]
         # 和本地任务的交集、本地任务差集、云端任务差集
 
-        intersection = [new_task_list.get(task_id) for task_id, task in self.tasks.items() if task_id in new_task_ids]
+        manual_new_task_list = [task for task in new_task_list if task["task_type"] == "manual"]
+
+        non_manual_new_task_list = [task for task in new_task_list if task["task_type"] != "manual"]
+        logger.info(f"【update_task_list】new_task_list全量任务列表: {non_manual_new_task_list} ")
+
+        intersection = [task for task in non_manual_new_task_list if task["trigger_id"] in self.tasks.keys()]
         local_tasks_unique = [task_id for task_id, task in self.tasks.items() if task_id not in new_task_ids]
-        cloud_tasks_unique = [task for task_id, task in new_task_list.items() if task_id not in self.tasks.keys()]
+        cloud_tasks_unique = [task for task in non_manual_new_task_list if task["trigger_id"] not in self.tasks.keys()]
+
         logger.info(f"【update_task_list】intersection本地、云端相交部分是：{intersection} ")
         logger.info(f"【update_task_list】local_tasks_unique本地独有任务：{local_tasks_unique} ")
         logger.info(f"【update_task_list】cloud_tasks_unique云端独有任务：{cloud_tasks_unique} ")
@@ -101,6 +107,11 @@ class Terminal:
         # 云端任务差值，直接添加
         for task in cloud_tasks_unique:
             logger.info(f"【update_task_list】云端添加任务: {task}")
+            self.add_task(**task)
+
+        # 手动任务直接添加
+        for task in manual_new_task_list:
+            logger.info(f"【update_task_list】手动添加任务: {task}")
             self.add_task(**task)
 
         # 本地计划任务交集，进行更新处理
@@ -116,13 +127,13 @@ class Terminal:
                 self.update_task(**new_task)
 
         # 处理retry和stop任务
-        for task in retry_task_list.values():
+        for task in retry_task_list:
             task["task_type"] = "manual"
             logger.info(f"【retry_task】 重试任务: {task}")
             self.add_task(**task)
 
         if stop_task_list:
-            for task in stop_task_list.values():
+            for task in stop_task_list:
                 logger.info(f"【stop_task】 停止任务: {task}")
                 send_stop_list(task.get("trigger_id", None))
 
