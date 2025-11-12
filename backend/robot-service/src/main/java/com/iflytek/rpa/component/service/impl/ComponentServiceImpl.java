@@ -551,9 +551,8 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
         // 获取 compUseInfoMap
         List<CompUseInfo> compUseInfoList = componentRobotUseDao.getCompUseInfoList(robotId, robotVersion, tenantId);
-        Map<String, CompUseInfo> compUseInfoMap = compUseInfoList.stream()
-                .collect(Collectors.toMap(CompUseInfo::getComponentId, info -> info));
-
+        Map<String, CompUseInfo> compUseInfoMap =
+                compUseInfoList.stream().collect(Collectors.toMap(CompUseInfo::getComponentId, info -> info));
 
         // 获取所有组件的ID列表
         List<String> componentIds =
@@ -588,10 +587,10 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
             ComponentVersion latestVersionInfo = versionInfoMap.get(componentId);
 
             // 设置icon字段，如果使用过，就用当前使用的版本的icon
-            if (compUseInfoMap.containsKey(componentId)){
+            if (compUseInfoMap.containsKey(componentId)) {
                 CompUseInfo compUseInfo = compUseInfoMap.get(componentId);
                 vo.setIcon(compUseInfo.getIcon());
-            }else { // 如果没有使用过，就用最新版本的icon
+            } else { // 如果没有使用过，就用最新版本的icon
                 vo.setIcon(latestVersionInfo.getIcon());
             }
 
