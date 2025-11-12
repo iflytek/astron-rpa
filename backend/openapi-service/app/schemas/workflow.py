@@ -19,12 +19,13 @@ class ExecutionStatus(str, Enum):
 
 class WorkflowBase(BaseModel):
     """工作流基本数据模型"""
-    project_id: Union[str,int] = Field(..., description="项目ID")
-    name: str = Field(..., description="工作流名称", min_length=1, max_length=100)
+
+    project_id: Union[str, int] = Field(..., description="项目ID")
+    name: str = Field("Default_Workflow", description="工作流名称", min_length=1, max_length=100)
     english_name: Optional[str] = Field(None, description="工作流英文名称", max_length=100)
     description: Optional[str] = Field(None, description="工作流描述", max_length=500)
     version: int = Field(1, description="工作流版本号")
-    status: int = Field(1, description="工作流状态")
+    status: int = Field(0, description="工作流状态")
     parameters: Optional[str] = Field(None, description="工作流参数(JSON格式)")
 
 class WorkflowResponse(WorkflowBase):

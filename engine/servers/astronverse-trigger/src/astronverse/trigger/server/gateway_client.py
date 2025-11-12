@@ -139,9 +139,9 @@ def terminal_list_task():
     """
 
     def convert(recorder: dict):
-        dispatch_tasks = {}
-        retry_tasks = {}
-        stop_tasks = {}
+        dispatch_tasks = []
+        retry_tasks = []
+        stop_tasks = []
 
         def convert_task(task):
             _d = {}
@@ -183,13 +183,13 @@ def terminal_list_task():
 
         for record in recorder.get("dispatchTaskInfos", []):
             _d = convert_task(record)
-            dispatch_tasks[_d["trigger_id"]] = _d
+            dispatch_tasks.append(_d)
         for record in recorder.get("retryTaskInfos", []):
             _d = convert_task(record)
-            retry_tasks[_d["trigger_id"]] = _d
+            retry_tasks.append(_d)
         for record in recorder.get("stopTaskInfos", []):
             _d = convert_task(record)
-            stop_tasks[_d["trigger_id"]] = _d
+            stop_tasks.append(_d)
 
         return dispatch_tasks, retry_tasks, stop_tasks
 
