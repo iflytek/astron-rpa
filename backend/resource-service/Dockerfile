@@ -19,7 +19,7 @@ COPY backend/resource-service/src ./src
 RUN mvn clean package -DskipTests
 
 # 第二阶段：构建可执行镜像
-FROM openjdk:21-slim AS runtime
+FROM eclipse-temurin:21-jre AS runtime
 
 # 设置工作目录
 WORKDIR /app
