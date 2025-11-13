@@ -11,7 +11,7 @@ project_info = conf.get("project_info", {})
 process_info = conf.get("process_info", {})
 component_info = conf.get("component_info", {})
 
-storage = HttpStorage(project_info.get("gateway_port"))
+storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
 
 
 def module(module_id) -> Optional[str]:
@@ -49,8 +49,8 @@ def element(element_id) -> Optional[Pick]:
     return Pick(res)
 
 
-def element_img(url) -> str:
-    return storage.element_img_detail(url)
+def element_vision(url) -> str:
+    return storage.element_vision_detail(url)
 
 
 gv = {}

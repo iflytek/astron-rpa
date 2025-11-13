@@ -115,30 +115,6 @@ class Param(IParam):
             value, need_eval = self._param_to_eval(self.pre_param_handler(data))
             return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 
-    def parse_condition_input(self, token: Token) -> InputParam:
-        res = {}
-        input_list = token.value.get("inputList", [])
-        for i in input_list:
-            res[i.get("name", i.get("key"))] = self.parse_param(i)
-        condition = res.get("condition")
-        cond = condition.value
-        args1 = res.get("args1")
-        args2 = res.get("args2", "")
-        match cond:
-            case "true":
-                value = f"{args1.show_value()!r} == True"
-            case "false":
-                value = f"{args1.show_value()!r} == False"
-            case "empty":
-                value = f"not {args1.show_value()!r}"
-            case "notempty":  # noqa
-                value = f"{args1.show_value()!r}"
-            case "notin":  # noqa
-                value = f"{args1.show_value()!r} not in {args2.show_value()!r}"
-            case _:
-                value = f"{args1.show_value()!r} {cond} {args2.show_value()!r}"
-        return InputParam(key="__condition__", value=value, need_eval=True)
-
     def parse_input(self, token: Token) -> Dict[str, InputParam]:
         res = {}
         params_name = {}

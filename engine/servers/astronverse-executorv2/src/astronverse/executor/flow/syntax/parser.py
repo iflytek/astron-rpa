@@ -1,6 +1,6 @@
 from astronverse.executor.error import ATOMIC_CAPABILITY_PARSE_ERROR_FORMAT, LOOP_CONTROL_STATEMENT_ERROR, ONLY_ONE_CATCH_CAN_BE_RETAINED
 from astronverse.executor.flow.syntax import Token
-from astronverse.executor.flow.syntax.ast import Program, Node, Atomic, Block, IF, Break, Continue, While, Try, For, AtomicExist, AtomicFor
+from astronverse.executor.flow.syntax.ast import Program, Node, Atomic, Block, IF, Break, Continue, While, Try, For, AtomicExist, AtomicFor, Return
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.token import TokenType, token_type_key_dict, exist_atomic_dict, \
     special_token_type_end, for_atomic_dict
@@ -29,6 +29,7 @@ class Parser:
         # 注册解析器
         self.break_and_continue_in_loop = 0
         self.register_prefix(TokenType.Break, self.__parse_break__)
+        self.register_prefix(TokenType.Return, self.__parse_return__)
         self.register_prefix(TokenType.Continue, self.__parse_continue__)
         self.register_prefix(TokenType.While, self.__parse_while__)
         self.register_prefix(TokenType.If, self.__parse_if__)
@@ -131,6 +132,11 @@ class Parser:
         if self.break_and_continue_in_loop <= 0:
             self.errors.append(LOOP_CONTROL_STATEMENT_ERROR)
         stmt = Continue()
+        stmt.token = self.cur_token
+        return stmt
+
+    def __parse_return__(self) -> Optional[Node]:
+        stmt = Return()
         stmt.token = self.cur_token
         return stmt
 

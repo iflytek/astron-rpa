@@ -83,6 +83,8 @@ class Flow:
                     pass
             else:
                 raise NotImplementedError()
+        if not main_process_name:
+            raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
         # 3. 生成main.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "main.tpl")
@@ -167,7 +169,7 @@ class Flow:
                 continue
             if start_line > 0 and line < start_line:
                 continue
-            if end_line > 0 and line > end_line: # noqa
+            if end_line > 0 and line > end_line:  # noqa
                 continue
             v.update({
                 "__line__": line,

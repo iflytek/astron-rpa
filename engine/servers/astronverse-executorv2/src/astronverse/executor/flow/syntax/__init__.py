@@ -59,10 +59,6 @@ class IParam(ABC):
         pass
 
     @abstractmethod
-    def parse_condition_input(self, token: Token) -> InputParam:
-        pass
-
-    @abstractmethod
     def parse_input(self, token: Token) -> Dict[str, InputParam]:
         pass
 

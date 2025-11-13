@@ -6,6 +6,7 @@ class TokenType(Enum):
 
     Break = "Code.Break"
     Continue = "Code.Continue"
+    Return = "Code.Return"
 
     If = "Code.If"
     ElseIf = "Code.ElseIf"

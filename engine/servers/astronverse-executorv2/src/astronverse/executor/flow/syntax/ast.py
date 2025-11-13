@@ -30,8 +30,10 @@ class Program(Node):
                 statement_code_lines.extend(statement.display(svc, tab_num + 2))
 
         # import 块
-        code_lines = [CodeLine(tab_num, "from package import element, element_img, module, component, gv, complex_param_parser"),
-                      CodeLine(tab_num, "from astronverse.actionlib.types import *")]
+        code_lines = [CodeLine(tab_num, "from package import element, element_vision, module, component, gv, complex_param_parser"),
+                      CodeLine(tab_num, "from astronverse.actionlib.types import *"),
+                      CodeLine(tab_num, "from astronverse.workflowlib.consequence import consequence")
+                      ]
         if self.token.value:
             import_python = svc.get_import_python(project_id, process_id)
             if import_python:
@@ -216,22 +218,32 @@ class Continue(Node):
 
 
 @dataclass
+class Return(Node):
+    token: Token = None
+
+    def display(self, svc, tab_num=0):
+        return [CodeLine(tab_num, "return", self.token.value.get("__line__"))]
+
+
+@dataclass
 class IF(Node):
     token: Token = None
+    __arguments__: Dict[str, InputParam] = None
+
     consequence: Block = None
     conditions_and_blocks: List["IF"] = None
     alternative: Block = None
-    __condition__: InputParam = None
 
     def display(self, svc, tab_num=0, is_else_if: bool = False):
-        self.__condition__ = svc.param.parse_condition_input(self.token)
         code_lines = []
+        self.__arguments__ = svc.param.parse_input(self.token)
+        arguments = [i.show() for i in self.__arguments__.values()]
 
         # if块
         if is_else_if:
-            code_lines.append(CodeLine(tab_num, "elif {}:".format(self.__condition__.show_value()), self.token.value.get("__line__")))
+            code_lines.append(CodeLine(tab_num, "elif consequence({}):".format(", ".join(arguments))))
         else:
-            code_lines.append(CodeLine(tab_num, "if {}:".format(self.__condition__.show_value()), self.token.value.get("__line__")))
+            code_lines.append(CodeLine(tab_num, "if consequence({}):".format(", ".join(arguments))))
 
         # if body块
         if self.consequence:
@@ -261,14 +273,17 @@ class IF(Node):
 @dataclass
 class While(Node):
     token: Token = None
+    __arguments__: Dict[str, InputParam] = None
+
     body: Block = None
-    __condition__: InputParam = None
 
     def display(self, svc, tab_num=0):
-        self.__condition__ = svc.param.parse_condition_input(self.token)
+        code_lines = []
+        self.__arguments__ = svc.param.parse_input(self.token)
+        arguments = [i.show() for i in self.__arguments__.values()]
 
         # while块
-        code_lines = [CodeLine(tab_num, "while {}:".format(self.__condition__.show_value()), self.token.value.get("__line__"))]
+        code_lines.append(CodeLine(tab_num, "while consequence({}):".format(", ".join(arguments))))
 
         # body块
         if self.body:

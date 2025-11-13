@@ -17,15 +17,16 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def element_img_detail(self, url: str) -> str:
+    def element_vision_detail(self, url: str) -> str:
         """Get element image (base64 string) by URL"""
         pass
 
 
 class StorageCache:
 
-    def __init__(self, base_dir: str = "resource"):
+    def __init__(self, base_dir: str = "resource", resource_cache: bool = True):
         self.base_dir = base_dir
+        self.resource_cache = resource_cache
         self.memory = {}
         self.resource_type_conf = {
             "element": {"file_ext": "json", "binary": False},
@@ -44,7 +45,7 @@ class StorageCache:
             return data
 
         local_data_path = os.path.join(self.base_dir, resource_type, "{}.{}".format(resource_id, conf.get("file_ext")))
-        if os.path.exists(local_data_path):
+        if self.resource_cache and os.path.exists(local_data_path):
             if conf.get("binary"):
                 with open(local_data_path, "rb") as f:
                     raw_bytes = f.read()
@@ -69,20 +70,28 @@ class StorageCache:
 
         self.memory[resource_type][resource_id] = data
         local_data_path = os.path.join(self.base_dir, resource_type, "{}.{}".format(resource_id, conf.get("file_ext")))
-        if resource_type == "element":
-            with open(local_data_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False)
-        elif resource_type == "image":
-            binary_bytes = base64.b64decode(data) if isinstance(data, str) else data
-            with open(local_data_path, "wb") as f:
-                f.write(binary_bytes)
+        if self.resource_cache:
+            if resource_type == "element":
+                with open(local_data_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False)
+            elif resource_type == "image":
+                binary_bytes = base64.b64decode(data) if isinstance(data, str) else data
+                with open(local_data_path, "wb") as f:
+                    f.write(binary_bytes)
 
 
 class HttpStorage(Storage):
 
-    def __init__(self, gateway_port: str = None):
+    def __init__(self, gateway_port: str = None, mode: str = "EDIT_PAGE"):
         self.gateway_port = gateway_port
-        self.cache_manager = StorageCache()
+
+        if mode in ["PROJECT_LIST", "EDIT_PAGE"]:
+            resource_cache = False
+        else:
+            resource_cache = True
+        self.cache_manager = StorageCache(resource_cache=resource_cache)
+
+
 
     def __http__(self, shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post") -> Any:
         """HTTP request helper"""
@@ -137,7 +146,7 @@ class HttpStorage(Storage):
         self.cache_manager.set("element", element_id, res)
         return res
 
-    def element_img_detail(self, url: str) -> str:
+    def element_vision_detail(self, url: str) -> str:
         """Get element image (base64 string) by URL"""
 
         parsed = urlparse(url)

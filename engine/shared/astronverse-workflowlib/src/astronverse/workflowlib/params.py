@@ -21,10 +21,6 @@ class ParamType(Enum):
 param_type_dict = ParamType.to_dict()
 
 
-def param(args) -> dict:
-    return {k: v for k, v in args.items() if not k.startswith("__")}
-
-
 class RpaExpression:
     """
     包装编译后的 code object，并提供安全求值接口
@@ -126,7 +122,7 @@ class ComplexParamParser:
         else:
             merged_ctx = auto_ctx
         return cls._evaluate_params_recursive(converted, merged_ctx)
-    
+
     @classmethod
     def _evaluate_params_recursive(cls, converted: Any, merged_ctx: dict) -> Any:
         """
@@ -150,15 +146,15 @@ class ComplexParamParser:
             frame = inspect.currentframe()
             if frame is None:
                 return {}
-            
+
             # 收集所有调用栈中的变量
             all_vars = {}
-            
+
             # 跳过当前帧（_get_auto_context 本身）
             frame = frame.f_back
             if frame is None:
                 return {}
-            
+
             # 遍历所有调用栈，找到最外层为main的层
             cframe = frame
             while frame is not None:
@@ -168,7 +164,7 @@ class ComplexParamParser:
                 else:
                     cframe = frame
                     frame = frame.f_back
-            
+
             # 获取局部变量和全局变量
             if cframe is not None:
                 local_vars = cframe.f_locals.copy()
@@ -179,3 +175,5 @@ class ComplexParamParser:
             return all_vars
         except Exception:
             return {}
+
+

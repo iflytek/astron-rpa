@@ -690,7 +690,7 @@ class Dialog:
                 ],
             ),
         ],
-        outputList=[atomicMg.param("dialog_result", types="Str")],
+        outputList=[atomicMg.param("dialog_result", types="DialogResult")],
     )
     def custom_box(
         box_title: str = "自定义对话框",
