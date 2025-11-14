@@ -19,13 +19,13 @@ COPY backend/robot-service/src ./src
 RUN mvn clean package -DskipTests
 
 # 第二阶段：构建可执行镜像
-FROM openjdk:8-jre-alpine AS runtime
+FROM eclipse-temurin:8-jre AS runtime
 
 # 设置工作目录
 WORKDIR /app
 
 # 安装必要的工具
-RUN apk add --no-cache curl
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # 从构建阶段复制JAR文件
 COPY --from=build /app/target/*.jar app.jar
