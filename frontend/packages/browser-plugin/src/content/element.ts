@@ -622,7 +622,7 @@ export function hasChildElement(element) {
   return element && element.children && element.children.length > 0
 }
 
-export function checkElements(elements: HTMLElement[]) {
+export function highlightElements(elements: HTMLElement[]) {
   if (elements.length > 1) {
     const rects = elements.map(element => element.getBoundingClientRect().toJSON())
     highLightRects(rects)
@@ -690,8 +690,20 @@ export function getAllElementsPosition() {
 }
 
 export function getAllElements() {
-  const elements = document.querySelectorAll('*')
+  const elements = document.body.querySelectorAll('*:not(script):not(style):not(noscript)')
   return Array.from(elements)
+}
+
+/**
+ * get all visiable elements
+ */
+export function getAllVisibleElements() {
+  const allElements = getAllElements()
+  const visibleElements = allElements.filter((element) => {
+    const rect = element.getBoundingClientRect()
+    return rect.width > 0 && rect.height > 0
+  })
+  return visibleElements
 }
 
 /**

@@ -1,7 +1,7 @@
 {
   "name": "@rpa/extension",
   "displayName": "RPA-Browser-Plugin",
-  "version": "5.1.7",
+  "version": "5.2.1",
   "description": "RPA browser plugin",
   "homepage": "",
   "type": "commonjs",
@@ -16,7 +16,8 @@
     "build:360se": "vite build --mode=360se",
     "build:360ChromeX": "vite build --mode=360ChromeX",
     "test:browser": "vitest --config=vitest.browser.config.js",
-    "coverage": "vitest --config=vitest.browser.config.js run --coverage"
+    "coverage": "vitest --config=vitest.browser.config.js run --coverage",
+    "build:all": "npm run build && npm run build:firefox && npm run build:360se && npm run build:360ChromeX"
   },
   "devDependencies": {
     "@babel/cli": "^7.25.6",

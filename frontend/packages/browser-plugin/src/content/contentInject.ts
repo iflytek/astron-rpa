@@ -1,12 +1,12 @@
 import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
-  checkElements,
   findElementByPoint,
   getBoundingClientRect,
   getChildElementByType,
   getElementByElementInfo,
   getElementBySelector,
+  getElementByXPath,
   getElementDirectory,
   getElementsByXpath,
   getIFramesElements,
@@ -16,6 +16,7 @@ import {
   getText,
   getWindowFrames,
   getXpath,
+  highlightElements,
   isTable,
   shadowRootElement,
 } from './element'
@@ -63,7 +64,7 @@ function findElement(ev: MouseEvent, docu: Document | ShadowRoot, _extra) {
   if (element) {
     const elementData = formatElementInfo(element, docu, shadowPath, shadowDirs)
     sendElementData(elementData)
-    frontCheckEnabled && checkElements([element])
+    frontCheckEnabled && highlightElements([element])
   }
 }
 
@@ -200,15 +201,27 @@ function dispatchMouseSequence(
 }
 
 const ContentHandler = {
-  version: '5.1.7',
   ele: {
-
     getElement: async (data: ElementInfo, isSelf = false, atomRun = false): Promise<null | HTMLElement[]> => {
       const { matchTypes } = data
       const isScrollFind = matchTypes && matchTypes.includes('scrollPosition') && !isSelf && !atomRun
       let tempEles: HTMLElement[] | null = getElementByElementInfo(data)
       if (!tempEles && isScrollFind) {
         tempEles = (await scrollFindElement(data)) as HTMLElement[]
+      }
+      // filter out elements that are not visible
+      if (tempEles && tempEles.length) {
+        tempEles = tempEles.filter((ele) => {
+          const rect = ele.getBoundingClientRect()
+          if (rect.width === 0 || rect.height === 0)
+            return false
+          const style = window.getComputedStyle(ele)
+          if (style.visibility === 'hidden' || style.visibility === 'collapse')
+            return false
+          return true
+        })
+        if (!tempEles.length)
+          tempEles = null
       }
       return tempEles as HTMLElement[]
     },
@@ -218,6 +231,12 @@ const ContentHandler = {
       const result = eles ? eles[0] : null
       return result
     },
+    getOuterHTML: async (data: ElementInfo) => {
+      const ele = await ContentHandler.ele.getDom(data)
+      const outerHTML = ele ? ele.outerHTML : ''
+      const abXpath = getXpath(ele, true)
+      return Utils.success({ ...data, abXpath, outerHTML })
+    },
     checkElement: async (data: ElementInfo) => {
       let checkEles = null
       try {
@@ -226,7 +245,7 @@ const ContentHandler = {
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
-      frontCheckEnabled && checkEles && checkElements(checkEles)
+      frontCheckEnabled && checkEles && highlightElements(checkEles)
       if (checkEles && checkEles.length === 1) {
         const elementPos = getBoundingClientRect(checkEles[0])
         return Utils.success({ rect: [elementPos] })
@@ -563,8 +582,8 @@ const ContentHandler = {
     },
 
     generateElement: (data: GenerateParamsT) => {
-      const { type, value } = data
-      let eles = null
+      const { type, value, returnType } = data
+      let eles: HTMLElement[]
       try {
         if (type === 'xpath') {
           eles = getElementsByXpath(value)
@@ -572,22 +591,87 @@ const ContentHandler = {
         if (type === 'cssSelector') {
           eles = getElementBySelector(value)
         }
+        if (type === 'text') {
+          eles = getElementsByXpath(`//*[contains(text(),"${value}")]`)
+        }
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
       if (eles && eles.length > 0) {
+        eles = eles.filter(ele => ele.getBoundingClientRect().width > 0 && ele.getBoundingClientRect().height > 0)
         const elementInfo = eles.map((item) => {
           const obj = formatElementInfo(item, document)
           const pureElementInfo = Utils.pureObject(obj, ['xpath', 'cssSelector', 'url', 'shadowRoot'])
           Object.assign(pureElementInfo, { checkType: 'customization', matchTypes: [] })
           return pureElementInfo
         })
-        const result = elementInfo.length > 1 ? elementInfo : elementInfo[0]
-        return Utils.success(result)
+        if (returnType === 'list') {
+          return Utils.success(elementInfo)
+        }
+        else {
+          return Utils.success(elementInfo[0])
+        }
       }
       else {
         return Utils.fail(ErrorMessage.ELEMENT_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
+      }
+    },
+
+    async getParentElement(data: ElementInfo) {
+      const currentElement = await ContentHandler.ele.getDom(data)
+      const parentElement = currentElement?.parentElement || null
+      // if parent element found, return parent element info
+      if (parentElement) {
+        const elementInfo = formatElementInfo(parentElement, document)
+        const parentInfo = { ...data, ...elementInfo, outerHTML: parentElement.outerHTML }
+        return Utils.success(parentInfo)
+      }
+      else {
+        return Utils.fail(ErrorMessage.ELEMENT_PARENT_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
+      }
+    },
+    async getChildElement(data: ElementInfo) {
+      let { originXpath = '', abXpath } = data // origin element xpath
+      let childElement = null
+      if (!originXpath)
+        originXpath = abXpath
+      // compare current xpath with origin xpath to find changed child element
+      const originXpathArr = originXpath.split('/')
+      const currentXpathArr = abXpath.split('/')
+      const currentElement = await ContentHandler.ele.getDom(data)
+      // if origin xpath longer than current xpath, find child by origin xpath
+      if (originXpathArr.length > currentXpathArr.length) {
+        const childXpath = originXpathArr.slice(0, currentXpathArr.length + 1).join('/')
+        childElement = getElementByXPath(childXpath)
+        if (childElement) {
+          const elementInfo = formatElementInfo(childElement, document)
+          const childInfo = { ...data, ...elementInfo, outerHTML: childElement.outerHTML }
+          return Utils.success(childInfo)
+        }
+        return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
+      }
+      // if origin xpath equals current xpath, find visible child element
+      if (originXpath === abXpath) {
+        const children = Array.from(currentElement.children)
+        if (children.length > 0) {
+          const visiableChild = children.find((child) => {
+            const style = window.getComputedStyle(child)
+            return style.display !== 'none' && style.visibility !== 'hidden' && child.getBoundingClientRect().width > 0 && child.getBoundingClientRect().height > 0
+          })
+          if (visiableChild) {
+            childElement = visiableChild as HTMLElement
+            const elementInfo = formatElementInfo(childElement, document)
+            const childInfo = { ...data, ...elementInfo, outerHTML: childElement.outerHTML }
+            return Utils.success(childInfo)
+          }
+          else {
+            return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
+          }
+        }
+        else {
+          return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
+        }
       }
     },
 
@@ -667,8 +751,20 @@ const ContentHandler = {
             value = (result as HTMLImageElement).src || (result as HTMLAnchorElement).href || ''
             break
           case '4':
-            value = result.getAttribute(attrName) || ''
+          {
+            if (attrName) {
+              value = result.getAttribute(attrName) || ''
+            }
+            else {
+              const allAttrs: Record<string, string> = {}
+              for (let i = 0; i < result.attributes.length; i++) {
+                const attr = result.attributes[i]
+                allAttrs[attr.name] = attr.value
+              }
+              value = allAttrs
+            }
             break
+          }
           case '5':
             value = getBoundingClientRect(result)
             break
@@ -678,8 +774,28 @@ const ContentHandler = {
             }
             value = (result as HTMLInputElement).checked
             break
-          default:
+          case '7':
+          {
+            const styleDecl = window.getComputedStyle(result)
+            if (attrName) {
+              // Support camelCase or kebab-case
+              const cssName = attrName.includes('-')
+                ? attrName
+                : attrName.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)
+              value = styleDecl.getPropertyValue(cssName) || (result.style as any)[attrName] || ''
+            }
+            else {
+              const allStyles: Record<string, string> = {}
+              for (let i = 0; i < styleDecl.length; i++) {
+                const prop = styleDecl[i]
+                allStyles[prop] = styleDecl.getPropertyValue(prop)
+              }
+              value = allStyles
+            }
             break
+          }
+          default:
+            return Utils.fail(ErrorMessage.UPDATE_TIP, StatusCode.EXECUTE_ERROR)
         }
         return Utils.success(value)
       }
@@ -963,20 +1079,25 @@ const ContentHandler = {
 }
 
 function executeHandler(key: string, data, isAsync: boolean = true) {
-  if (ContentHandler.ele[key]) {
-    return isAsync ? ContentHandler.ele[key](data) : ContentHandler.ele[key](data)
+  try {
+    if (ContentHandler.ele[key]) {
+      return isAsync ? ContentHandler.ele[key](data) : ContentHandler.ele[key](data)
+    }
+    else if (ContentHandler.code[key]) {
+      return ContentHandler.code[key](data)
+    }
+    else if (ContentHandler.frame[key]) {
+      return ContentHandler.frame[key](data)
+    }
+    else if (ContentHandler.page[key]) {
+      return ContentHandler.page[key](data)
+    }
+    else {
+      return Utils.fail(ErrorMessage.UNSUPPORT_ERROR)
+    }
   }
-  else if (ContentHandler.code[key]) {
-    return ContentHandler.code[key](data)
-  }
-  else if (ContentHandler.frame[key]) {
-    return ContentHandler.frame[key](data)
-  }
-  else if (ContentHandler.page[key]) {
-    return ContentHandler.page[key](data)
-  }
-  else {
-    return Utils.fail(ErrorMessage.UNSUPPORT_ERROR)
+  catch (error) {
+    return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
   }
 }
 

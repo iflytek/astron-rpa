@@ -17,6 +17,16 @@ export function highLight(rect: DOMRectT) {
   }, 3000)
 }
 
+export function addAnimation(el: HTMLElement | null) {
+  document.querySelector('canvas.rpa-edge-mask')?.classList.add('rpa-edge-mask')
+  if (!el)
+    return
+  el.classList.add('rpa-animation')
+  setTimeout(() => {
+    el.classList.remove('rpa-animation')
+  }, 1000)
+}
+
 export function highLightRects(rects: DOMRectT[]) {
   rects.forEach((rect) => {
     const highlight = document.createElement('div')

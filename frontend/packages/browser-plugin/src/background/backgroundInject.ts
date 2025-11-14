@@ -205,7 +205,6 @@ async function findTabAndFrame(params: ElementParams) {
 }
 
 const Handlers = {
-  version: '5.1.7',
   tabsHandler() {
     return {
       async reloadTab() {
@@ -429,6 +428,14 @@ const Handlers = {
           return Utils.success(result)
         }
         return Utils.success(activeElement)
+      },
+      async getOuterHTML(params) {
+        const result = await Handlers.elementHandler().getElement(params)
+        params.data = result.data
+        const { tab, frameId } = await findTabAndFrame(params)
+        const htmlResult = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
+        const mergedInfo = { ...result.data, ...htmlResult.data }
+        return Utils.success(mergedInfo)
       },
       async handleInContent(params: ElementParams) {
         const { tab, frameId } = await findTabAndFrame(params)
@@ -727,6 +734,15 @@ const Handlers = {
         return result
       },
 
+      async getParentElement(params: ElementParams) {
+        const res = await Handlers.elementHandler().handleInContent(params)
+        return res
+      },
+      async getChildElement(params: ElementParams) {
+        const res = await Handlers.elementHandler().handleInContent(params)
+        return res
+      },
+      // --------------- v3
       async clickElement(params: ElementParams) {
         const res = await Handlers.elementHandler().handleInContent(params)
         return res
