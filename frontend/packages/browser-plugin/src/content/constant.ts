@@ -24,6 +24,9 @@ export enum ErrorMessage {
   ELEMENT_NOT_CHECKED = '元素无选中属性',
   ELEMENT_NOT_SELECT = '该元素不是原生选框元素',
   UNSUPPORT_ERROR = '暂不支持',
+  ELEMENT_PARENT_NOT_FOUND = '父元素未找到',
+  ELEMENT_CHILD_NOT_FOUND = '子元素未找到',
+  UPDATE_TIP = '请更新插件至最新版本后重试',
 }
 
 export const SVG_NODETAGS = [

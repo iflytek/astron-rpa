@@ -52,3 +52,4 @@ The logic for locating iframeXpath is the same as for other elements, and there 
 ### Firefox
 
 1. You can apply for a free developer account on Firefox, upload your packaged xpi file, and install it directly without publishing.
+2. Please package the Firefox extension yourself, upload it using your own developer account, and build your own XPI file.

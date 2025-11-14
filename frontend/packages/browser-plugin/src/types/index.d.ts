@@ -105,6 +105,9 @@ interface ElementInfo {
   relativeOptions?: Options
 
   atomConfig?: any
+
+  originXpath?: string
+  abXpath?: string
 }
 
 interface SocketParamsType {
@@ -172,8 +175,9 @@ interface SimilarDataValueT {
 }
 
 interface GenerateParamsT {
-  type: 'xpath' | 'cssSelector'
+  type: 'xpath' | 'cssSelector' | 'text'
   value: string
+  returnType: 'single' | 'list'
 }
 
 type XPathStep = string
