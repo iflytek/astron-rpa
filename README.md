@@ -160,7 +160,7 @@ The project adopts a frontend-backend separation architecture. The frontend is b
 
 ## 📚 Documentation
 
-- [📖 User Guide](HOW_TO_RUN.md)
+- [📖 User Guide](https://www.iflyrpa.com/docs/)
 - [🚀 Deployment Guide](docker/QUICK_START.md)
 - [📖 API Documentation](backend/openapi-service/api.yaml)
 - [🔧 Component Development Guide](engine/components/)

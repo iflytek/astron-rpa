@@ -159,7 +159,7 @@ docker compose ps
 
 ## 📚 文档链接
 
-- [📖 使用指南](HOW_TO_RUN.zh.md)
+- [📖 使用指南](https://www.iflyrpa.com/docs/)
 - [🚀 部署指南](docker/QUICK_START.md)
 - [📖 API 文档](backend/openapi-service/api.yaml)
 - [🔧 组件开发指南](engine/components/)
