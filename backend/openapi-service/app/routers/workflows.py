@@ -3,10 +3,20 @@ from app.services.websocket import WsManagerService
 from app.services.workflow import WorkflowService
 from app.services.execution import ExecutionService
 from app.schemas.workflow import (
-    WorkflowBase, WorkflowResponse, WorkflowListResponse,
-    ExecutionCreate, ExecutionStatus
+    WorkflowBase,
+    WorkflowResponse,
+    WorkflowListResponse,
+    ExecutionCreate,
+    ExecutionStatus,
 )
-from app.dependencies import get_user_id_from_api_key, get_user_id_with_fallback, get_workflow_service, get_execution_service, get_user_id_from_header, get_ws_service
+from app.dependencies import (
+    get_user_id_from_api_key,
+    get_user_id_with_fallback,
+    get_workflow_service,
+    get_execution_service,
+    get_user_id_from_header,
+    get_ws_service,
+)
 from app.logger import get_logger
 from app.schemas import StandardResponse, ResCode
 
@@ -24,62 +34,58 @@ router = APIRouter(
     response_model=StandardResponse,
     status_code=status.HTTP_200_OK,
     summary="创建或修改工作流",
-    description="如果 project_id 不存在则创建新工作流，如果存在则更新现有工作流"
+    description="如果 project_id 不存在则创建新工作流，如果存在则更新现有工作流",
 )
 async def create_or_update_workflow(
     workflow_data: WorkflowBase,
     user_id: str = Depends(get_user_id_from_header),
-    service: WorkflowService = Depends(get_workflow_service)
+    service: WorkflowService = Depends(get_workflow_service),
 ):
     """创建或修改工作流"""
     try:
         # 先检查是否已存在相同 project_id 的工作流
         existing_workflow = await service.get_workflow(str(workflow_data.project_id))
-        
+
         if existing_workflow:
             # 如果存在，检查是否属于当前用户
             if existing_workflow.user_id != user_id:
                 return StandardResponse(
                     code=ResCode.ERR,
                     msg=f"Project ID '{workflow_data.project_id}' already exists and belongs to another user",
-                    data=None
+                    data=None,
                 )
-            
+
             workflow = await service.update_workflow(workflow_data, user_id)
             action = "updated"
         else:
             # 创建新工作流
             workflow = await service.create_workflow(workflow_data, user_id)
             action = "created"
-        
+
         # 转换为可序列化的字典
         workflow_dict = workflow.to_dict()
-        
+
         return StandardResponse(
             code=ResCode.SUCCESS,
             msg=f"Workflow {action} successfully",
-            data={"workflow": workflow_dict, "action": action}
+            data={"workflow": workflow_dict, "action": action},
         )
     except Exception as e:
         logger.error(f"Error creating/updating workflow: {str(e)}")
-        return StandardResponse(
-            code=ResCode.ERR,
-            msg="Failed to create or update workflow",
-            data=None
-        )
+        return StandardResponse(code=ResCode.ERR, msg="Failed to create or update workflow", data=None)
 
 
 @router.get(
     "/get",
     response_model=StandardResponse,
     summary="获取所有工作流",
-    description="获取当前用户的所有工作流列表"
+    description="获取当前用户的所有工作流列表",
 )
 async def get_workflows(
     pageNo: int = Query(1, ge=1, description="获取哪一页"),
     pageSize: int = Query(100, ge=1, le=100, description="一页有多少条记录"),
     user_id: str = Depends(get_user_id_with_fallback),
-    service: WorkflowService = Depends(get_workflow_service)
+    service: WorkflowService = Depends(get_workflow_service),
 ):
     """获取工作流列表"""
     try:
@@ -109,7 +115,7 @@ async def get_workflows(
         logger.error(f"Error getting workflows: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get workflows"
+            detail="Failed to get workflows",
         )
 
 
@@ -117,11 +123,11 @@ async def get_workflows(
     "/get/{project_id}",
     response_model=StandardResponse,
     summary="获取指定工作流详情",
-    description="获取指定project_id的工作流详细信息"
+    description="获取指定project_id的工作流详细信息",
 )
 async def get_workflow(
     project_id: str = Path(..., description="项目ID"),
-    service: WorkflowService = Depends(get_workflow_service)
+    service: WorkflowService = Depends(get_workflow_service),
 ):
     """获取工作流详情"""
     try:
@@ -131,28 +137,20 @@ async def get_workflow(
             return StandardResponse(
                 code=ResCode.SUCCESS,
                 msg=f"Workflow with project_id {project_id} not found",
-                data=None
+                data=None,
             )
         workflow_dict = workflow.to_dict()
-        return StandardResponse(
-            code=ResCode.SUCCESS,
-            msg="",
-            data={"workflow": workflow_dict}
-        )
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"workflow": workflow_dict})
     except Exception as e:
         logger.error(f"Error getting workflow {project_id}: {str(e)}")
-        return StandardResponse(
-            code=ResCode.SUCCESS,
-            msg="Failed to get workflow",
-            data=None
-        )
+        return StandardResponse(code=ResCode.SUCCESS, msg="Failed to get workflow", data=None)
 
 
 @router.post(
     "/execute",
     response_model=StandardResponse,
     summary="同步执行工作流（等待结果）",
-    description="同步执行指定的工作流，等待执行结果。如果执行时间过长，会返回202状态码，建议使用异步接口"
+    description="同步执行指定的工作流，等待执行结果。如果执行时间过长，会返回202状态码，建议使用异步接口",
 )
 async def execute_workflow(
     execution_data: ExecutionCreate,
@@ -168,42 +166,34 @@ async def execute_workflow(
             return StandardResponse(
                 code=ResCode.ERR,
                 msg=f"Workflow with project_id {execution_data.project_id} not found",
-                data=None
+                data=None,
             )
         execution_data.project_id = workflow.project_id
         logger.info(f"[execute_workflow] project_id: {execution_data.project_id}")
         # 使用workflow默认version
         if not execution_data.version:
             execution_data.version = workflow.version
-        
+
         # 执行工作流，设置超时参数
         execution = await execution_service.execute_workflow(
-            execution_data=execution_data, 
+            execution_data=execution_data,
             user_id=user_id,
             wait=True,
-            workflow_timeout=600  # 工作流执行超时10分钟（同步执行）
+            workflow_timeout=600,  # 工作流执行超时10分钟（同步执行）
         )
-        
+
         # 如果执行中途没有完成（状态仍为RUNNING），返回202
         if execution.status == ExecutionStatus.RUNNING.value:
             return StandardResponse(
                 code=ResCode.SUCCESS,
                 msg="Execution is still in progress, please check status using execution ID",
-                data={"execution": execution.to_dict()}
+                data={"execution": execution.to_dict()},
             )
-        
-        return StandardResponse(
-            code=ResCode.SUCCESS,
-            msg="",
-            data={"execution": execution.to_dict()}
-        )
+
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": execution.to_dict()})
     except Exception as e:
         logger.error(f"Error executing workflow {execution_data.project_id}: {str(e)}")
-        return StandardResponse(
-            code=ResCode.ERR,
-            msg="Failed to execute workflow",
-            data=None
-        )
+        return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow", data=None)
 
 
 @router.post(
@@ -211,7 +201,7 @@ async def execute_workflow(
     response_model=StandardResponse,
     status_code=status.HTTP_202_ACCEPTED,
     summary="异步执行工作流（立即返回任务ID）",
-    description="异步执行指定的工作流，立即返回执行ID，可通过执行ID查询执行状态"
+    description="异步执行指定的工作流，立即返回执行ID，可通过执行ID查询执行状态",
 )
 async def execute_workflow_async(
     execution_data: ExecutionCreate,
@@ -227,7 +217,7 @@ async def execute_workflow_async(
             return StandardResponse(
                 code=ResCode.ERR,
                 msg=f"Workflow with project_id {execution_data.project_id} not found",
-                data=None
+                data=None,
             )
 
         if not execution_data.version:
@@ -237,36 +227,28 @@ async def execute_workflow_async(
         logger.info(f"[execute_workflow_async] project_id: {execution_data.project_id}")
         # 执行工作流，不等待结果
         execution = await execution_service.execute_workflow(
-            execution_data=execution_data, 
+            execution_data=execution_data,
             user_id=user_id,
             wait=False,
-            workflow_timeout=36000  # 工作流执行超时10小时
+            workflow_timeout=36000,  # 工作流执行超时10小时
         )
-        
-        return StandardResponse(
-            code=ResCode.SUCCESS,
-            msg="",
-            data={"executionId": execution.id}
-        )
+
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"executionId": execution.id})
     except Exception as e:
         logger.error(f"Error executing workflow async {execution_data.project_id}: {str(e)}")
-        return StandardResponse(
-            code=ResCode.ERR,
-            msg="Failed to execute workflow asynchronously",
-            data=None
-        )
+        return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow asynchronously", data=None)
 
 
 @router.get(
     "/../executions/{execution_id}",
     response_model=StandardResponse,
     summary="查询异步执行的进度和结果",
-    description="查询工作流执行的状态和结果"
+    description="查询工作流执行的状态和结果",
 )
 async def get_execution(
     execution_id: str = Path(..., description="执行记录ID"),
     user_id: str = Depends(get_user_id_from_api_key),
-    execution_service: ExecutionService = Depends(get_execution_service)
+    execution_service: ExecutionService = Depends(get_execution_service),
 ):
     """获取执行记录"""
     try:
@@ -275,17 +257,9 @@ async def get_execution(
             return StandardResponse(
                 code=ResCode.ERR,
                 msg=f"Execution with ID {execution_id} not found",
-                data=None
+                data=None,
             )
-        return StandardResponse(
-            code=ResCode.SUCCESS,
-            msg="",
-            data={"execution": execution}
-        )
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": execution})
     except Exception as e:
         logger.error(f"Error getting execution {execution_id}: {str(e)}")
-        return StandardResponse(
-            code=ResCode.ERR,
-            msg="Failed to get execution",
-            data=None
-        )
+        return StandardResponse(code=ResCode.ERR, msg="Failed to get execution", data=None)

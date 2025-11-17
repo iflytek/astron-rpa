@@ -24,7 +24,7 @@ def get_logger(name=None, log_level=LOG_LEVEL):
     uvicorn_logger = logging.getLogger("uvicorn")
     # 一行式写法
     uvicorn_formatter = (
-        uvicorn_logger.handlers[0].formatter 
+        uvicorn_logger.handlers[0].formatter
         if uvicorn_logger.handlers and uvicorn_logger.handlers[0].formatter
         else default_formatter
     )

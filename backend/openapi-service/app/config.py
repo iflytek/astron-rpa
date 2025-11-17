@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
+
 class Settings(BaseSettings):
     APP_NAME: str = "RPA OpenAPI"
     API_VERSION: str = "1.0"
@@ -11,7 +12,6 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
     LOG_DIR: str = "/var/log/rpa-openapi"
-
 
     model_config = SettingsConfigDict(
         env_file=None,

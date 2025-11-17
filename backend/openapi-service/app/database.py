@@ -7,21 +7,22 @@ import asyncio
 from functools import wraps
 
 engine = create_async_engine(
-    get_settings().DATABASE_URL.replace("{username}",
-                                        get_settings().DATABASE_USERNAME).replace("{password}", quote(get_settings().DATABASE_PASSWORD)),
+    get_settings()
+    .DATABASE_URL.replace("{username}", get_settings().DATABASE_USERNAME)
+    .replace("{password}", quote(get_settings().DATABASE_PASSWORD)),
     echo=False,
     future=True,
     pool_pre_ping=True,
     pool_recycle=1800,  # 减少到30分钟，避免连接过期
-    pool_size=20,       # 增加连接池大小以支持更高并发
-    max_overflow=30,    # 增加最大溢出连接数
-    pool_timeout=60,    # 增加连接池超时时间到60秒
-    pool_reset_on_return='commit',  # 返回连接时重置
+    pool_size=20,  # 增加连接池大小以支持更高并发
+    max_overflow=30,  # 增加最大溢出连接数
+    pool_timeout=60,  # 增加连接池超时时间到60秒
+    pool_reset_on_return="commit",  # 返回连接时重置
     connect_args={
         "autocommit": False,
         "charset": "utf8mb4",
         "connect_timeout": 60,  # 连接超时时间
-    }
+    },
 )
 
 
@@ -29,9 +30,7 @@ class Base(DeclarativeBase):
     pass
 
 
-AsyncSessionLocal = sessionmaker(
-    bind=engine, class_=AsyncSession, expire_on_commit=False, autoflush=False
-)
+AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -56,6 +55,7 @@ async def create_db_and_tables():
 
 def with_db_retry(max_retries=3, delay=1):
     """数据库操作重试装饰器"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -70,5 +70,7 @@ def with_db_retry(max_retries=3, delay=1):
                         continue
                     raise
             raise last_exception
+
         return wrapper
+
     return decorator

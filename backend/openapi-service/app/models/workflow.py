@@ -18,6 +18,7 @@ class Workflow(Base):
     status = Column(Integer, default=1, nullable=False)
     parameters = Column(Text, nullable=True)  # 存储JSON字符串格式的参数
     user_id = Column(String(50), nullable=False, index=True)
+    example_project_id = Column(String(100), nullable=True)  # 示例用户账号下的project_id，用于执行时映射
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -40,8 +41,9 @@ class Workflow(Base):
             "status": self.status,
             "parameters": parameters_dict,
             "user_id": self.user_id,
+            "example_project_id": self.example_project_id,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
         }
         return workflow_dict
 
@@ -61,8 +63,10 @@ class Workflow(Base):
         else:
             self.parameters = None
 
+
 class Execution(Base):
     """工作流执行记录数据库模型"""
+
     __tablename__ = "openai_executions"
 
     id = Column(String(36), primary_key=True, index=True)  # UUID格式
@@ -86,14 +90,14 @@ class Execution(Base):
                 parameters_dict = json.loads(self.parameters)
             except (json.JSONDecodeError, TypeError):
                 parameters_dict = None
-        
+
         result_dict = None
         if self.result:
             try:
                 result_dict = json.loads(self.result)
             except (json.JSONDecodeError, TypeError):
                 result_dict = None
-        
+
         execution_dict = {
             "id": self.id,
             "project_id": self.project_id,
@@ -105,7 +109,7 @@ class Execution(Base):
             "version": self.version,
             "user_id": self.user_id,
             "start_time": self.start_time,
-            "end_time": self.end_time
+            "end_time": self.end_time,
         }
         return execution_dict
 
