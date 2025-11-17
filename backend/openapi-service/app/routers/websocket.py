@@ -8,10 +8,8 @@ from app.services.websocket import WsManagerService, WsService
 
 logger = get_logger(__name__)
 
-router = APIRouter(
-    prefix="/ws",
-    tags=["websocket"]
-)
+router = APIRouter(prefix="/ws", tags=["websocket"])
+
 
 @router.websocket("")
 async def websocket_endpoint(ws: WebSocket, ws_mg_service: WsManagerService = Depends(get_ws_service)):
@@ -26,8 +24,4 @@ async def websocket_endpoint(ws: WebSocket, ws_mg_service: WsManagerService = De
 
     await ws.accept()
     ws_mg = ws_mg_service.ws_manager
-    await asyncio.gather(
-        ws_mg.listen(user_id, Conn(ws=WsService(ws))),
-        ws_mg.start_ping(),
-        ws_mg.clear_watch()
-    )
+    await asyncio.gather(ws_mg.listen(user_id, Conn(ws=WsService(ws))), ws_mg.start_ping(), ws_mg.clear_watch())

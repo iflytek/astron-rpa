@@ -54,12 +54,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock]:
         )
 
         if result["message"]["code"] == "0000":
-            return [
-                types.TextContent(
-                    type="text",
-                    text=json.dumps(result["message"], indent=2, ensure_ascii=False)
-                )
-            ]
+            return [types.TextContent(type="text", text=json.dumps(result["message"], indent=2, ensure_ascii=False))]
         else:
             raise Exception(f"客户端运行失败：{result['message']['msg']}")
     else:
@@ -87,7 +82,7 @@ async def list_tools() -> list[types.Tool]:
     user_id = await tools_config.get_uid_from_raw_key(api_key)
     if not user_id:
         # 记录权限检查失败
-        if hasattr(ctx, 'session'):
+        if hasattr(ctx, "session"):
             await ctx.session.send_log_message(
                 level="warning",
                 data=f"No user found for API key: {api_key}",
@@ -100,7 +95,7 @@ async def list_tools() -> list[types.Tool]:
     allowed_tools = await tools_config.get_tools_for_user(user_id)
 
     # 记录权限检查成功
-    if hasattr(ctx, 'session'):
+    if hasattr(ctx, "session"):
         await ctx.session.send_log_message(
             level="info",
             data=f"User access: user_id={user_id}, allowed_tools={len(allowed_tools)}",
@@ -111,9 +106,5 @@ async def list_tools() -> list[types.Tool]:
     return allowed_tools
 
 
-async def handle_streamable_http(
-    scope: Scope, receive: Receive, send: Send
-) -> None:
+async def handle_streamable_http(scope: Scope, receive: Receive, send: Send) -> None:
     await session_manager.handle_request(scope, receive, send)
-
-

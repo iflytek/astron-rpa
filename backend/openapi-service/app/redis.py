@@ -25,9 +25,7 @@ async def close_redis_pool():
 async def get_redis() -> AsyncGenerator[Redis, None]:
     global redis_pool
     if redis_pool is None:
-        raise RuntimeError(
-            "Redis pool is not initialized. Call init_redis_pool() first."
-        )
+        raise RuntimeError("Redis pool is not initialized. Call init_redis_pool() first.")
 
     redis = Redis(connection_pool=redis_pool)
     try:

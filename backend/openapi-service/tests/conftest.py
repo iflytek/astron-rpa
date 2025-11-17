@@ -81,9 +81,7 @@ async def test_db_engine():
 @pytest_asyncio.fixture(scope="function")  # 改为 function 级别确保测试隔离
 async def test_get_db(test_db_engine):
     """提供干净的数据库会话"""
-    TestingSessionLocal = sessionmaker(
-        test_db_engine, class_=AsyncSession, expire_on_commit=False
-    )
+    TestingSessionLocal = sessionmaker(test_db_engine, class_=AsyncSession, expire_on_commit=False)
 
     async with TestingSessionLocal() as session:
         # 开始事务
@@ -135,30 +133,33 @@ async def client(test_app: FastAPI, test_get_db, test_get_redis):
 #     # 例如：创建测试用户、文章等
 #     pass
 
-async def create_api_key(user_id: str, test_get_db, test_get_redis = None):
+
+async def create_api_key(user_id: str, test_get_db, test_get_redis=None):
     """为测试创建临时的 API Key"""
     from app.services.api_key import ApiKeyService
     from app.schemas.api_key import ApiKeyCreate
     import random
-    
+
     # 创建服务实例
     service = ApiKeyService(test_get_db, test_get_redis)
-    
+
     # 创建 API Key
     api_key_data = ApiKeyCreate(name=f"Test API Key {random.randint(1000, 9999)}")
     api_key = await service.create_api_key(api_key_data, user_id)
-    
+
     return {"id": api_key.id, "key": api_key.key}
 
-async def destroy_api_key(user_id: str, key_data: dict, test_get_db, test_get_redis = None):
+
+async def destroy_api_key(user_id: str, key_data: dict, test_get_db, test_get_redis=None):
     """删除测试用的 API Key"""
     from app.services.api_key import ApiKeyService
-    
+
     # 创建服务实例
     service = ApiKeyService(test_get_db, test_get_redis)
-    
+
     # 删除 API Key
     await service.delete_api_key(key_data["id"], user_id)
+
 
 @pytest_asyncio.fixture(scope="function")
 async def api_key_factory(test_get_db, test_get_redis):
@@ -166,17 +167,18 @@ async def api_key_factory(test_get_db, test_get_redis):
     API Key 工厂函数，支持动态 user_id
     """
     created_keys = []
-    
+
     async def _create_api_key(user_id: str = "1234"):
         key_data = await create_api_key(user_id, test_get_db, test_get_redis)
         created_keys.append((user_id, key_data))
         return key_data
-    
+
     yield _create_api_key
-    
+
     # 清理所有创建的 API Key
     for user_id, key_data in created_keys:
         await destroy_api_key(user_id, key_data, test_get_db, test_get_redis)
+
 
 @pytest_asyncio.fixture(scope="function")
 async def api_key(test_get_db, test_get_redis):

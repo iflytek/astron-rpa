@@ -1,11 +1,12 @@
-from fastapi import Depends, Header, HTTPException, Security, status # Added status
+from fastapi import Depends, Header, HTTPException, Security, status  # Added status
 from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis.asyncio import Redis
 from app.services.websocket import WsManagerService, WsService
 from app.services.workflow import WorkflowService
 from app.services.execution import ExecutionService
-from app.services.api_key import ApiKeyService
+from app.services.api_key import ApiKeyService, XcApiKeyService
+from app.services.user import UserService
 from app.database import get_db
 from app.redis import get_redis
 from app.models.api_key import OpenAPIDB
@@ -36,6 +37,50 @@ def get_user_id_from_header(
     return header_user_id
 
 
+# 注册 Token 验证用的 APIKeyHeader
+REGISTER_TOKEN_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
+
+
+async def verify_register_bearer_token(
+    token: str = Security(REGISTER_TOKEN_HEADER),
+) -> str:
+    """
+    验证注册接口的 Bearer Token (使用 Security + APIKeyHeader 方式)
+
+    使用示例:
+    @router.post("/register")
+    async def register_user(
+        request: UserRegisterRequest,
+        token: str = Depends(verify_register_bearer_token),
+    ):
+        ...
+    """
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing Authorization header",
+        )
+
+    # 验证 Bearer 格式
+    parts = token.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Authorization header format",
+        )
+
+    bearer_token = parts[1]
+
+    # 验证 Token 是否正确
+    if bearer_token != "opensource-register-token":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        )
+
+    return bearer_token
+
+
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
 
@@ -48,18 +93,18 @@ def extract_api_key_from_request(ctx) -> Optional[str]:
     if query_params:
         # 如果是字典类型
         if isinstance(query_params, dict):
-            return query_params.get('key')
+            return query_params.get("key")
 
         # 如果是QueryParams对象（Starlette）
-        if hasattr(query_params, 'get'):
-            return query_params.get('key')
+        if hasattr(query_params, "get"):
+            return query_params.get("key")
 
         # 如果是字符串类型的查询字符串
         if isinstance(query_params, str):
             from urllib.parse import parse_qs
 
             parsed = parse_qs(query_params)
-            key_values = parsed.get('key', [])
+            key_values = parsed.get("key", [])
             return key_values[0] if key_values else None
     return None
 
@@ -89,11 +134,7 @@ async def get_user_id_from_api_key(
     api_key = parts[1]
 
     # 使用前缀匹配和哈希验证
-    keys = await db.execute(
-        select(OpenAPIDB).where(
-            OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1
-        )
-    )
+    keys = await db.execute(select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1))
     api_keys = keys.scalars().all()
 
     for key in api_keys:
@@ -126,11 +167,26 @@ async def get_execution_service(
     return ExecutionService(db, redis)
 
 
-async def get_api_key_service(
-    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
-) -> ApiKeyService:
+async def get_api_key_service(db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> ApiKeyService:
     """提供ApiKeyService实例的依赖项"""
     return ApiKeyService(db, redis)
+
+
+async def get_xc_api_key_service(
+    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
+) -> XcApiKeyService:
+    """提供XcApiKeyService实例的依赖项"""
+    return XcApiKeyService(db, redis)
+
+
+async def get_user_service(
+    db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis),
+    api_key_service: ApiKeyService = Depends(get_api_key_service),
+) -> UserService:
+    """提供UserService实例的依赖项"""
+    return UserService(db, redis, api_key_service)
+
 
 async def get_ws_service() -> WsManagerService:
     """提供 WsManagerService 单例实例的依赖项"""
@@ -173,9 +229,7 @@ async def get_user_id_with_fallback(
 
                 # 使用前缀匹配和哈希验证
                 keys = await db.execute(
-                    select(OpenAPIDB).where(
-                        OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1
-                    )
+                    select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1)
                 )
                 api_keys = keys.scalars().all()
 
@@ -200,18 +254,13 @@ async def get_user_id_with_fallback(
     if header_user_id:
         return header_user_id
     else:
+        #     # expo-user
+        #     # example_user_id = "expo-user-id"
+        #     return example_user_id
+
+        # 如果都没有，抛出401错误
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        # expo-user 逻辑开源版暂时没有
-        # example_user_id = "e79349dd-ffcb-4282-b343-193183965240"
-        # return example_user_id
-
-    # 如果都没有，抛出401错误
-    # raise HTTPException(
-    #     status_code=status.HTTP_401_UNAUTHORIZED,
-    #     detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
-    #     headers={"WWW-Authenticate": "Bearer"},
-    # )

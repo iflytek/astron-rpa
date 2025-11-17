@@ -69,12 +69,7 @@ class ToolsConfig:
             db = AsyncSessionLocal()
 
             # 使用前缀匹配和哈希验证
-            keys = await db.execute(
-                select(OpenAPIDB).where(
-                    OpenAPIDB.prefix == api_key[:8],
-                    OpenAPIDB.is_active == 1
-                )
-            )
+            keys = await db.execute(select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1))
             api_keys = keys.scalars().all()
 
             for key in api_keys:
@@ -124,26 +119,20 @@ class ToolsConfig:
             # 查找匹配的工作流
             for workflow in user_workflows:
                 # 优先使用 english_name，如果没有则使用 name
-                workflow_name = (
-                    workflow.english_name if workflow.english_name else workflow.name
-                )
+                workflow_name = workflow.english_name if workflow.english_name else workflow.name
                 if workflow_name == name:
                     return workflow.project_id, workflow.version
 
             return None
         except Exception as e:
-            logger.error(
-                f"Error getting project_id for name '{name}' and user_id '{user_id}': {e}"
-            )
+            logger.error(f"Error getting project_id for name '{name}' and user_id '{user_id}': {e}")
             return None
         finally:
             # 确保数据库会话被关闭
             if db:
                 await db.close()
 
-    async def execute_workflow_by_name(
-        self, name: str, user_id: str, arguments: dict
-    ) -> dict:
+    async def execute_workflow_by_name(self, name: str, user_id: str, arguments: dict) -> dict:
         """根据工具名称执行对应的工作流"""
         await self._ensure_redis_connection()
 
