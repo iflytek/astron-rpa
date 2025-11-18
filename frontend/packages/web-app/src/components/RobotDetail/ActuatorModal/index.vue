@@ -5,7 +5,7 @@ import { ref } from 'vue'
 
 import BasicContent from './BasicContent.vue'
 import { useProvideBasicStore } from './basicStore'
-import RecordContent from './RecordContent'
+import RecordContent from './RecordContent.vue'
 
 const props = defineProps<{ robotId: string, version: number }>()
 

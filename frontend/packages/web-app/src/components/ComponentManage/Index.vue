@@ -17,7 +17,7 @@ const { state: componentList, execute } = useAsyncState(() => getComponentManage
 
 function handleRefresh() {
   execute()
-  processStore.componentTree.refresh()
+  processStore.componentTree.execute()
 }
 </script>
 

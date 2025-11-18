@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import type { PropType } from 'vue'
-
-import { useAppConfigStore } from '@/stores/useAppConfig'
+import { useTheme } from '@rpa/components'
 
 export interface DataCardItem {
   id: number
@@ -24,7 +22,7 @@ const props = defineProps({
   },
 })
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 </script>
 
 <template>

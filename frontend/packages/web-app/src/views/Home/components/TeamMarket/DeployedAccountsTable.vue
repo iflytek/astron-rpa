@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { HintIcon } from '@rpa/components'
-import { storeToRefs } from 'pinia'
+import { HintIcon, useTheme } from '@rpa/components'
 import { h, reactive } from 'vue'
 
 import { getDeployedAccounts } from '@/api/market'
 import NormalTable from '@/components/NormalTable/index.vue'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import type { resOption } from '../../types'
 import type { cardAppItem } from '../../types/market'
@@ -25,7 +23,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits(['selectedIds'])
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 
 const tableOption = reactive({
   refresh: false,

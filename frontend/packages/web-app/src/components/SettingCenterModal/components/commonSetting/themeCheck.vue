@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import type { SegmentedProps } from 'ant-design-vue'
 import { Segmented } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
-
-import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import Card from '../card.vue'
 
@@ -28,16 +27,16 @@ const themeOptions = computed<SegmentedProps['options']>(() => [
   },
 ])
 
-const appStore = useAppConfigStore()
+const { setColorMode, colorMode } = useTheme()
 </script>
 
 <template>
   <Card class="px-5 py-4" :title="t('settingCenter.appearance')">
     <template #suffix>
       <Segmented
-        :value="appStore.colorMode"
+        :value="colorMode"
         :options="themeOptions"
-        @update:value="appStore.setColorMode"
+        @update:value="setColorMode"
       >
         <template #label="{ title, payload: icon }">
           <div class="flex items-center gap-1">

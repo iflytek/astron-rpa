@@ -1,24 +1,22 @@
 <script setup lang="ts">
-import { NiceModal } from '@rpa/components'
+import { NiceModal, useTheme } from '@rpa/components'
 
-import { useAppConfigStore } from '@/stores/useAppConfig'
+interface LoadingConfig {
+  loadingType: string
+  loadingText: string
+  cancleBtn: boolean
+  okBtn: boolean
+  headerText?: string
+  icon: string
+  closable: boolean
+}
 
-defineProps<{
-  loadingConfig: {
-    loadingType: string
-    loadingText: string
-    cancleBtn: boolean
-    okBtn: boolean
-    headerText?: string
-    icon: string
-    closable: boolean
-  }
-}>()
+defineProps<{ loadingConfig: LoadingConfig }>()
 
 const emit = defineEmits(['confirm'])
 
 const modal = NiceModal.useModal()
-const appConfigStore = useAppConfigStore()
+const { isDark } = useTheme()
 
 function handleOkConfirm() {
   emit('confirm')
@@ -44,7 +42,7 @@ function handleCancel() {
   >
     <div v-if="loadingConfig" class="pythonDependence-loading-modal_inner">
       <div class="tip flex flex-col justify-center items-center">
-        <rpa-icon :name="`${appConfigStore.colorTheme === 'dark' ? 'python-installing-dark' : 'python-installing-light'}`" width="36" height="36" />
+        <rpa-icon :name="`${isDark ? 'python-installing-dark' : 'python-installing-light'}`" width="36" height="36" />
         <div class="mt-3">
           {{ loadingConfig.loadingText }}
         </div>

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { NiceModal } from '@rpa/components'
+import { NiceModal, useTheme } from '@rpa/components'
 import { useElementSize, watchDebounced } from '@vueuse/core'
 import type { TreeProps } from 'ant-design-vue'
 import { Empty, message, Skeleton } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { cloneDeep, throttle } from 'lodash-es'
-import { storeToRefs } from 'pinia'
 import { computed, onBeforeMount, ref, shallowRef, useTemplateRef } from 'vue'
 import draggable from 'vuedraggable'
 
@@ -14,7 +13,6 @@ import { COMPONENT_KEY_PREFIX, isComponentKey } from '@/utils/customComponent'
 
 import { addFavorite, removeFavorite } from '@/api/atom'
 import { ComponentManageModal } from '@/components/ComponentManage'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import { addAtomData, draggableAddStyle } from '@/views/Arrange/components/flow/hooks/useFlow'
@@ -37,7 +35,7 @@ const emit = defineEmits<{
   (evt: 'change-trigger', e: 'hover' | 'click'): void
 }>()
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 const processStore = useProcessStore()
 const panel = useTemplateRef('panel')
 const panelHeight = useElementSize(panel).height
@@ -58,22 +56,21 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
 
   switch (menuKey.value) {
     case 'BASE_ATOM': {
-      list = processStore.atomicTreeData
-      const favorite = {
+      const favorite: RPA.AtomTreeNode = {
         key: 'favorite',
         title: t('myFavorites'),
         icon: 'atom-favorite',
         iconColor: '#F39D09',
-        atomics: processStore.favorite.data,
+        atomics: processStore.favorite.state,
       }
-      list = [favorite, ...list]
+      list = [favorite, ...processStore.atomicTreeData]
       break
     }
     case 'EXT_ATOM': {
       const customComps = {
         key: 'customComponent',
         title: t('components.customComponent'),
-        atomics: processStore.componentTree.data.map(item => ({
+        atomics: processStore.componentTree.state.map(item => ({
           key: `${COMPONENT_KEY_PREFIX}.${item.componentId}`,
           title: item.name,
           icon: item.icon,
@@ -84,7 +81,7 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
       const businessComps = {
         key: 'businessComponent',
         title: t('businessComponent'),
-        atomics: processStore.extendTree.data,
+        atomics: processStore.extendTree.state,
       }
       list = processStore.isComponent ? [businessComps] : [customComps, businessComps]
       break
@@ -122,9 +119,9 @@ watchDebounced([searchAtom, fullTreeData], ([searchKey, treeList], [oldSearchKey
 const loading = computed(() => {
   switch (menuKey.value) {
     case 'BASE_ATOM':
-      return processStore.atomMeta.loading
+      return processStore.atomMeta.isLoading
     case 'EXT_ATOM':
-      return processStore.extendTree.loading
+      return processStore.extendTree.isLoading
   }
 
   return false
@@ -159,7 +156,7 @@ const selectedClick: TreeProps['onSelect'] = (_, { node }) => {
 }
 
 function getLikeId(atom: AtomTreeNode) {
-  return processStore.favorite.data.find(item => item.key === atom.key)?.likeId
+  return processStore.favorite.state.find(item => item.key === atom.key)?.likeId
 }
 
 // 添加收藏
@@ -168,7 +165,7 @@ const addfavorite = throttle(async (item: TreeProps['treeData'][number]) => {
   await addFavorite({ atomKey: key })
   message.success(t('common.collectSuccess'))
   // 刷新列表
-  processStore.favorite.run()
+  processStore.favorite.execute()
 }, 1500, { leading: true, trailing: false })
 
 // 取消收藏
@@ -176,7 +173,7 @@ async function removefavorite(likeId) {
   await removeFavorite({ likeId })
   message.success(t('common.cancelCollectSuccess'))
   // 刷新列表
-  processStore.favorite.run()
+  processStore.favorite.execute()
 }
 
 // 打开组件管理弹窗
@@ -186,14 +183,14 @@ function openComponentManageModal() {
 
 // 刷新自定义组件
 function refreshComponentTree() {
-  processStore.componentTree.refresh()
+  processStore.componentTree.execute()
 }
 
 onBeforeMount(() => {
-  processStore.atomMeta.run()
-  processStore.favorite.run()
-  processStore.extendTree.run()
-  processStore.componentTree.run()
+  processStore.atomMeta.execute()
+  processStore.favorite.execute()
+  processStore.extendTree.execute()
+  processStore.componentTree.execute()
 })
 </script>
 

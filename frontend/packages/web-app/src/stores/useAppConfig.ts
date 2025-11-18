@@ -1,5 +1,4 @@
-import type { BasicColorMode } from '@vueuse/core'
-import { useAsyncState, useColorMode } from '@vueuse/core'
+import { useAsyncState } from '@vueuse/core'
 import { useTranslation } from 'i18next-vue'
 import { defineStore } from 'pinia'
 import { computed, h, reactive } from 'vue'
@@ -14,7 +13,6 @@ import { updaterManager, utilsManager } from '@/platform'
 export const useAppConfigStore = defineStore('appConfig', () => {
   let updateModal: ReturnType<typeof GlobalModal.confirm> = null
 
-  const colorMode = useColorMode({ emitAuto: true, initialValue: 'light' })
   const { t } = useTranslation()
   const updaterState = reactive({
     shouldUpdate: false, // 是否需要更新
@@ -23,12 +21,6 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     progress: 0, // 下载进度
     installLoading: false, // 安装更新loading
   })
-
-  const colorTheme = computed<BasicColorMode>(() => {
-    return colorMode.value === 'auto' ? colorMode.system.value : colorMode.value
-  })
-
-  const isDark = computed(() => colorTheme.value === 'dark')
 
   // 当前版本
   const { state: appVersion } = useAsyncState<string>(utilsManager.getAppVersion, '')
@@ -84,10 +76,6 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     userPath: userPath.value,
   }))
 
-  const setColorMode = (theme: BasicColorMode) => {
-    colorMode.value = theme
-  }
-
   const checkUpdate = async () => {
     if (updaterState.checkLoading)
       return
@@ -114,7 +102,7 @@ export const useAppConfigStore = defineStore('appConfig', () => {
       ]),
       onOk: async () => {
         updaterState.installLoading = true
-        await updaterManager.installUpdate(percent => (updaterState.progress = percent))
+        await updaterManager.installUpdate((percent) => { updaterState.progress = percent })
       },
       afterClose: () => {
         updateModal.destroy()
@@ -126,13 +114,9 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   }
 
   return {
-    colorMode: colorMode.store,
-    colorTheme,
-    isDark,
     browserPlugins,
     appInfo,
     updaterState,
-    setColorMode,
     checkUpdate,
     installUpdate,
     refreshBrowserPluginStatus,

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTheme } from '@rpa/components'
 
 import { COMMON_SIDER_WIDTH } from '@/constants'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useTopMenu } from '@/hooks/useTopMenu'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import MenuItem from './MenuItem.vue'
 
@@ -13,7 +13,7 @@ defineEmits<{
   (e: 'getCurrentMenuKey', key: string): void
 }>()
 
-const appConfigStore = useAppConfigStore()
+const { colorTheme } = useTheme()
 const siderMenu = useTopMenu() // 顶部菜单
 const route = useRoute()
 
@@ -36,7 +36,7 @@ function menuClick(key: string) {
     trigger-sub-menu-action="click"
     :selected-keys="currentMenuKey"
     :open-keys="menuData.map(item => item.name as string)"
-    class="home-menu" :class="[appConfigStore.colorTheme]"
+    class="home-menu" :class="[colorTheme]"
     :style="{ width: `${COMMON_SIDER_WIDTH}px` }"
   >
     <MenuItem v-for="menu in menuData" :key="menu.name" :route="menu" @get-current-menu-key="menuClick" />

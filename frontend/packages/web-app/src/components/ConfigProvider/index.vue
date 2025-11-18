@@ -1,29 +1,19 @@
 <script lang="ts" setup>
-import { getAntdvTheme, NiceModal } from '@rpa/components'
+import { ConfigProvider, NiceModal, useTheme } from '@rpa/components'
 import { watchImmediate } from '@vueuse/core'
-import { App, ConfigProvider } from 'ant-design-vue'
-import enUS from 'ant-design-vue/es/locale/en_US'
-import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import { App } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { useTranslation } from 'i18next-vue'
-import 'dayjs/locale/zh-cn'
-import { computed } from 'vue'
 import { VxeUI } from 'vxe-table'
 
-import { useAppConfigStore } from '@/stores/useAppConfig'
+import 'dayjs/locale/zh-cn'
 
 const NiceModalProvider = NiceModal.Provider
 
-const appStore = useAppConfigStore()
 const { i18next } = useTranslation()
+const { colorTheme } = useTheme()
 
-const locale = computed(() => (i18next.language === 'zh-CN' ? zhCN : enUS))
-const theme = computed(() => getAntdvTheme(appStore.colorTheme))
-
-watchImmediate(
-  () => appStore.colorTheme,
-  theme => VxeUI.setTheme(theme),
-)
+watchImmediate(colorTheme, theme => VxeUI.setTheme(theme))
 
 watchImmediate(
   () => i18next.language,
@@ -34,7 +24,7 @@ watchImmediate(
 </script>
 
 <template>
-  <ConfigProvider :theme="theme" :locale="locale">
+  <ConfigProvider :locale="i18next.language">
     <App class="w-full h-full">
       <NiceModalProvider>
         <slot />

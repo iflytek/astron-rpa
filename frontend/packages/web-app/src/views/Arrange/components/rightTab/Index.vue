@@ -1,13 +1,12 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import { onClickOutside } from '@vueuse/core'
 import { message } from 'ant-design-vue'
-import { storeToRefs } from 'pinia'
 import { ref, useTemplateRef } from 'vue'
 
 import BUS from '@/utils/eventBus'
 
 import PythonPackageManagement from '@/components/PythonPackageManagement/Index.vue'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useFlowStore } from '@/stores/useFlowStore'
 import AtomForm from '@/views/Arrange/components/atomForm/AtomForm.vue'
 import ProcessManage from '@/views/Arrange/components/process/ProcessManage.vue'
@@ -15,7 +14,7 @@ import CustomTabItem from '@/views/Arrange/components/rightTab/CustomTabItem.vue
 import CustomTabs from '@/views/Arrange/components/rightTab/CustomTabs.vue'
 import VariableManage from '@/views/Arrange/components/variableManage/Index.vue'
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 const flowStore = useFlowStore()
 const activeTab = ref('')
 const tabsRef = useTemplateRef('tabsRef')

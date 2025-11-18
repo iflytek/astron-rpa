@@ -14,14 +14,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@rpa/components": "workspace:*",
     "@rpa/locales": "workspace:*",
     "@rpa/shared": "workspace:*",
     "@sentry/vite-plugin": "^3.5.0",
     "@sentry/vue": "^9.22.0",
-    "@vue-hooks-plus/use-request": "^2.2.0",
     "@vueuse/core": "^13.6.0",
+    "ant-design-vue": "^4.2.6",
     "axios": "^1.7.4",
     "axios-retry": "^4.5.0",
     "casdoor-js-sdk": "^0.16.0",
@@ -38,11 +39,9 @@
     "vxe-table": "4.9.35"
   },
   "devDependencies": {
-    "@ant-design/icons-vue": "^7.0.1",
     "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.0.1",
-    "ant-design-vue": "^4.2.6",
     "autoprefixer": "^10.4.19",
     "lodash-es": "^4.17.21",
     "pinia": "^3.0.3",

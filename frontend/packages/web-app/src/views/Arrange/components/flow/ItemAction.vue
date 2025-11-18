@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-import { Icon } from '@rpa/components'
+import { Icon, useTheme } from '@rpa/components'
 import type { ItemType } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { clickContextItem, getContextMenuList, getDisabled, getTitle } from '@/views/Arrange/utils/contextMenu'
 
 const { item } = defineProps<{ item: RPA.Atom }>()
 
 const { t } = useTranslation()
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 
 const menuList = getContextMenuList()
 
