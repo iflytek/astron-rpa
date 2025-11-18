@@ -1,5 +1,6 @@
 import './style.css'
 
+export * from './components/Auth'
 export * from './components/CodeEditor'
 export * from './components/ConfigProvider'
 export * from './components/HintIcon'

@@ -17,6 +17,16 @@
       "import": "./src/index.ts",
       "require": "./src/index.ts"
     },
+    "./auth": {
+      "types": "./src/components/Auth/index.ts",
+      "import": "./src/components/Auth/index.ts",
+      "require": "./src/components/Auth/index.ts"
+    },
+    "./config-provider": {
+      "types": "./src/components/ConfigProvider/index.ts",
+      "import": "./src/components/ConfigProvider/index.ts",
+      "require": "./src/components/ConfigProvider/index.ts"
+    },
     "./icon": "./lib/iconpark.js",
     "./resolver": "./resolver.js"
   },
