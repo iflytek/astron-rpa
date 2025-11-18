@@ -1,0 +1,6 @@
+@import '@rpa/shared/tokens/variables.css';
+@import 'ant-design-vue/dist/reset.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
