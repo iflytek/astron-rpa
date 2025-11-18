@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import { isNil } from 'lodash-es'
 import { storeToRefs } from 'pinia'
 import { h } from 'vue'
 
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useRunningStore } from '@/stores/useRunningStore'
 import type { TableMoreAction, TableOrdinaryAction } from '@/views/Home/types'
 
@@ -23,7 +23,7 @@ const props = defineProps({
 })
 
 const { running } = storeToRefs(useRunningStore())
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 
 function isDisabled(key: string) {
   // 存在运行中的工程，不可编辑和再次运行

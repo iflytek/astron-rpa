@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import { useElementVisibility, useEventBus, useScroll } from '@vueuse/core'
 import { message } from 'ant-design-vue'
-import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 
 import { atomScrollIntoViewKey } from '@/constants/eventBusKey'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { clearDraggable } from '@/views/Arrange/utils/drag'
 
@@ -16,7 +15,7 @@ import { useRenderList, useRenderListProvide } from './hooks/useRenderList'
 import { useRunDebug } from './hooks/useRunDebug'
 import Item from './Item.vue'
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 const flowContainer = useTemplateRef<HTMLElement>('flowContainer')
 const draggableRef = useTemplateRef('draggableRef')
 const flowStore = useFlowStore()

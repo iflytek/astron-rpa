@@ -3,11 +3,11 @@ import * as lightTokens from '@rpa/shared/tokens/light'
 import type { ConfigProvider } from 'ant-design-vue'
 import { lowerFirst } from 'lodash-es'
 
+import type { BasicColorMode } from './useTheme'
+
 type ConfigProps = InstanceType<typeof ConfigProvider>['$props']
 
-export type Theme = 'light' | 'dark'
-
-export function getAntdvTheme(theme: Theme): ConfigProps['theme'] {
+export function getAntdvTheme(theme: BasicColorMode): ConfigProps['theme'] {
   const isLight = theme === 'light'
   const tokens = (isLight ? lightTokens : darkTokens) as Record<string, unknown>
 

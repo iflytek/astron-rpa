@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { defineAsyncComponent, onBeforeMount, onUnmounted } from 'vue'
+import { useTheme } from '@rpa/components'
 
 import { getRootBaseURL } from '@/api/http/env'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useProcessStore } from '@/stores/useProcessStore'
 
 const props = defineProps<{ resourceId: string }>()
 const processStore = useProcessStore()
-const appStore = useAppConfigStore()
+const { isDark } = useTheme()
 const { pyCodeText } = storeToRefs(processStore)
 
 const baseUrl = `${getRootBaseURL()}/scheduler`
@@ -29,7 +29,7 @@ onUnmounted(() => processStore.setCodeText(''))
     :project-id="processStore.project.id"
     :base-url="baseUrl"
     :value="pyCodeText"
-    :is-dark="appStore.isDark"
+    :is-dark="isDark"
     height="100%"
     @update:value="handleUpdate"
   />

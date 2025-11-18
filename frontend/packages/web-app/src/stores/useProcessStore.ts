@@ -1,5 +1,4 @@
-import useRequest from '@vue-hooks-plus/use-request'
-import { useDebounceFn } from '@vueuse/core'
+import { useAsyncState, useDebounceFn } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { isEmpty } from 'lodash-es'
 import { defineStore } from 'pinia'
@@ -48,13 +47,11 @@ export const useProcessStore = defineStore('process', () => {
   const route = useRoute()
   const isComponent = computed(() => route?.query?.type === 'component')
 
-  const atomMeta = useRequest<RPA.AtomMetaData>(() => getAtomsMeta(), {
-    initialData: {
-      atomicTree: [],
-      atomicTreeExtend: [],
-      commonAdvancedParameter: [],
-      types: {},
-    },
+  const atomMeta = useAsyncState<RPA.AtomMetaData>(() => getAtomsMeta(), {
+    atomicTree: [],
+    atomicTreeExtend: [],
+    commonAdvancedParameter: [],
+    types: {},
   })
 
   const project = ref<ProjectData>({ id: '', name: '工程名称' })
@@ -70,30 +67,21 @@ export const useProcessStore = defineStore('process', () => {
   const attributes = ref<RPA.ComponentAttrData[]>([])
   // 原子能力 tree 列表
   const atomicTreeData = computed<RPA.AtomTreeNode[]>(
-    () => atomMeta.data.value.atomicTree || [],
+    () => atomMeta.state.value.atomicTree || [],
   )
   // 我的收藏 tree 列表
-  const favorite = useRequest(getFavoriteList, {
-    manual: true,
-    initialData: [],
-  })
+  const favorite = useAsyncState(getFavoriteList, [], { immediate: false })
   // 扩展组件 tree 列表
-  const extendTree = useRequest(getModuleMeta, {
-    manual: true,
-    initialData: [],
-  })
+  const extendTree = useAsyncState(getModuleMeta, [], { immediate: false })
   // 自定义组件 tree 列表
-  const componentTree = useRequest(() => getComponentList({ robotId: project.value.id }), {
-    manual: true,
-    initialData: [],
-  })
+  const componentTree = useAsyncState(() => getComponentList({ robotId: project.value.id }), [], { immediate: false })
   // 全局变量模板列表
   const globalVarTypeList = computed<Record<string, RPA.VariableValueType>>(
-    () => atomMeta.data.value?.types || {},
+    () => atomMeta.state.value?.types || {},
   )
   // 高级参数和异常处理表单公共配置
   const commonAdvancedParameter = computed<RPA.AtomFormBaseForm[]>(
-    () => atomMeta.data.value?.commonAdvancedParameter || [],
+    () => atomMeta.state.value?.commonAdvancedParameter || [],
   )
 
   // 拍平后的原子能力 tree 列表 (不包含父节点)

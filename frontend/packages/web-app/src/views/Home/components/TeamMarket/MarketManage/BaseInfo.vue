@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import { EditOutlined } from '@ant-design/icons-vue'
-import { useDark } from '@vueuse/core'
 import { Descriptions } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 
@@ -12,7 +12,7 @@ import { useTeamUserTable } from '@/views/Home/components/TeamMarket/hooks/Marke
 const { t } = useTranslation()
 const { inputRef, teamMarketConfig, baseInfoData, setEditing, editMarket } = useBaseInfo()
 const { leaveTeam, giveOwner, fireTeam } = useTeamUserTable()
-const isDark = useDark()
+const { isDark } = useTheme()
 
 function openModal(key: string) {
   switch (key) {
@@ -86,15 +86,8 @@ function openModal(key: string) {
   :deep(.ant-descriptions-item-container) {
     align-items: center;
   }
-  :deep(.ant-descriptions-title) {
-    //color:  $color-text-head
-  }
-  :deep(.ant-descriptions-item-label) {
-    //color:  $color-text-head
-  }
   :deep(.ant-descriptions-item-content) {
     align-items: center;
-    //color:  $color-text-head
   }
   .truncate {
     display: inline-block;

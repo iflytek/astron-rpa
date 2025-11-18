@@ -2,13 +2,13 @@
 import { Input } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
 import type { VxeGridProps } from 'vxe-table'
+import { useTheme } from '@rpa/components'
 
 import VxeGrid from '@/plugins/VxeTable'
-
-import { useAppConfigStore } from '@/stores/useAppConfig.ts'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
 
 const processStore = useProcessStore()
+const { isDark } = useTheme()
 
 const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   size: 'mini',
@@ -29,24 +29,12 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
 </script>
 
 <template>
-  <!-- <VxeGrid
-    v-bind="gridOptions"
-    class="config-params"
-    border="none"
-    :header-cell-style="{
-      color: useAppConfigStore().isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.45)',
-      fontWeight: '400',
-    }"
-    :height="props.height"
-    :data="searchedData"
-    :empty-text="emptyText"
-  > -->
   <VxeGrid
     v-bind="gridOptions"
     class="config-params"
     border="none"
     :header-cell-style="{
-      color: useAppConfigStore().isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.45)',
+      color: isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.45)',
       fontWeight: '400',
     }"
     :height="200"

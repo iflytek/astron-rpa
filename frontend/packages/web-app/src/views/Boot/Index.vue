@@ -2,6 +2,7 @@
 import { theme } from 'ant-design-vue'
 import type { CarouselRef } from 'ant-design-vue/es/carousel'
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
+import { useTheme } from '@rpa/components'
 
 import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
@@ -12,10 +13,8 @@ import ConfigProvider from '@/components/ConfigProvider/index.vue'
 import Loading from '@/components/Loading.vue'
 import { illustrationList } from '@/constants/launch'
 import { isBrowser, utilsManager, windowManager } from '@/platform'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 
-const appConfigStore = useAppConfigStore()
-
+const { colorTheme } = useTheme()
 const { token } = theme.useToken()
 
 const carouselRef = useTemplateRef<CarouselRef>('carouselRef')
@@ -149,7 +148,7 @@ onUnmounted(() => {
             <rpa-icon
               v-for="(item, index) in randomIllustrationGroup"
               :key="index"
-              :name="`${appConfigStore.colorTheme}-${item.img}`"
+              :name="`${colorTheme}-${item.img}`"
               width="100%"
               height="200px"
             />

@@ -1,15 +1,16 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
+
 import DiffuseDark from '@/components/Illustration/DiffuseDark.vue'
 import DiffuseLight from '@/components/Illustration/DiffuseLight.vue'
 import RobotIll1ustration from '@/components/Illustration/Robot1.vue'
 import RobotIll2ustration from '@/components/Illustration/Robot2.vue'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const props = defineProps<{
   illustration?: Illustration
 }>()
 
-const { isDark } = useAppConfigStore()
+const { isDark } = useTheme()
 
 export type Illustration = 'robot1' | 'robot2'
 </script>

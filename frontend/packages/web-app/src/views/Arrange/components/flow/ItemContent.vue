@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { DoubleRightOutlined } from '@ant-design/icons-vue'
 import { useEventBus } from '@vueuse/core'
+import { useTheme } from '@rpa/components'
 import { isEmpty, throttle } from 'lodash-es'
-import { storeToRefs } from 'pinia'
 import { nextTick, ref } from 'vue'
 import type { PropType } from 'vue'
 
 import CustomCheckbox from '@/components/CustomCheckbox.vue'
 import { showTriggerInputKey } from '@/constants/eventBusKey'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { Catch, LOOP_END } from '@/views/Arrange/config/atomKeyMap'
 import { FLOW_ACTIVE, FLOW_DISABLE, FLOW_FORBID } from '@/views/Arrange/config/flow'
@@ -37,7 +36,7 @@ const { item, index } = defineProps({
   },
 })
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 const flowStore = useFlowStore()
 const { triggerInsert, canInsert } = useRenderList()
 

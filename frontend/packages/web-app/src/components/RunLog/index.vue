@@ -2,7 +2,6 @@
 import { message, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { debounce, isNil, last, noop } from 'lodash-es'
-import { storeToRefs } from 'pinia'
 import type { Ref } from 'vue'
 import { computed, inject, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import type {
@@ -10,17 +9,17 @@ import type {
   VxeGridInstance,
   VxeGridProps,
 } from 'vxe-table'
+import { useTheme } from '@rpa/components'
 
 import VxeGrid from '@/plugins/VxeTable'
 
 import { clipboardManager, windowManager } from '@/platform'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 
 const props = defineProps<{ size?: 'default' | 'small' }>()
 const emit = defineEmits(['rowClick'])
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 const height = inject<Ref<number>>('logTableHeight', ref(320)) // 若没有注入，默认值为320
 const runlogStore = useRunlogStore()
 const { t } = useTranslation()

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { RichTextPreview } from '@rpa/components'
-import { useDark } from '@vueuse/core'
+import { RichTextPreview, useTheme } from '@rpa/components'
 import { Badge, Drawer, Timeline, TypographyLink } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
 
-// import AppFileDownload from '@/views/Home/components/TeamMarket/AppFileDownload.vue'
 import { getBaseURL } from '@/api/http/env'
 import Avatar from '@/components/Avatar/Avatar.vue'
-import { useAppDetail } from '@/views/Home/components/TeamMarket/hooks/useAppDetail'
 
+import { useAppDetail } from './hooks/useAppDetail'
 import type { cardAppItem } from '../../types/market'
 
 const { appData } = defineProps({
@@ -19,7 +17,7 @@ const { appData } = defineProps({
 })
 const emit = defineEmits(['close'])
 
-const isDark = useDark()
+const { isDark } = useTheme()
 const { t } = useTranslation()
 const appDetail = useAppDetail({ marketId: appData.marketId, appId: appData.appId })
 

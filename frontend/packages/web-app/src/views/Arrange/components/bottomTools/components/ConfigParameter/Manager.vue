@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { useTheme } from '@rpa/components'
 import { Button, Input, message, Select } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
-import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
@@ -10,7 +10,6 @@ import VxeGrid from '@/plugins/VxeTable'
 import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { PARAMETER_VAR_IN_TYPE } from '@/constants/atom'
-import { useAppConfigStore } from '@/stores/useAppConfig.ts'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
 
@@ -23,7 +22,7 @@ interface LocalConfigParamData extends RPA.ConfigParamData {
 
 const props = defineProps<{ height?: number }>()
 
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 const flowStore = useFlowStore()
 const processStore = useProcessStore()
 const { searchText, isQuoted, quotedData, findQuoted } = injectConfigParameter()

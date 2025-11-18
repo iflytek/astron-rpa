@@ -10,6 +10,7 @@ declare namespace RPA {
     icon?: string
     parentKey?: string
     likeId?: string
+    iconColor?: string
     atomics?: RPA.AtomTreeNode[]
   }
 
