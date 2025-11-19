@@ -74,6 +74,7 @@ class ContractAI:
                 formType=AtomicFormTypeMeta(type=AtomicFormType.MODALBUTTON.value, params={"loading": False}),
                 required=False,
             ),
+            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("factor_result", types="Dict")],
     )
@@ -83,6 +84,7 @@ class ContractAI:
         contract_content: str = "",
         custom_factors: str = "",
         contract_validate: str = "",
+        model: str = "",
     ):
         """Extract specified factors from a contract file or text content."""
         if contract_type == InputType.FILE:
@@ -117,6 +119,9 @@ class ContractAI:
                 )
 
         params = {"factors": str(factors), "parsed_content": contract_content}
-        reply = chat_prompt(prompt_type="contract", params=params)
+        if model:
+            reply = chat_prompt(prompt_type="contract", params=params, model=model)
+        else:
+            reply = chat_prompt(prompt_type="contract", params=params)
 
         return reply
