@@ -1,8 +1,8 @@
 """Recruitment JD analysis and candidate requirement evaluation utilities."""
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem, AtomicLevel
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.ai import InputType, JobWebsitesTypes, RatingSystemTypes
+from astronverse.ai import InputType, JobWebsitesTypes, RatingSystemTypes, LLMModelTypes
 from astronverse.ai.api.llm import chat_prompt
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.baseline.logger.logger import logger
@@ -52,6 +52,7 @@ class RecruitAI:
                 "job_description",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_PYTHON_TEXTAREAMODAL_VARIABLE.value),
             ),
+            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("recruit_keywords", types="Str")],
     )
@@ -60,6 +61,7 @@ class RecruitAI:
         job_name: str = "",
         job_description: str = "",
         job_website: JobWebsitesTypes = JobWebsitesTypes.BOSS,
+        model: str = "",
     ):
         """Generate structured recruitment keywords for a given job description.
 
@@ -75,8 +77,10 @@ class RecruitAI:
             "job_description": job_description,
             "keywords_list": self.keywords_dict[job_website.value],
         }
-
-        reply = chat_prompt(prompt_type="recruit_keywords", params=params)
+        if model:
+            reply = chat_prompt(prompt_type="recruit_keywords", params=params, model=model)
+        else:
+            reply = chat_prompt(prompt_type="recruit_keywords", params=params)
         logger.info("RecruitAI generate_keywords: {}".format(reply))
         return reply
 
@@ -114,6 +118,7 @@ class RecruitAI:
                     )
                 ],
             ),
+            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("recruit_rating", types="Str")],
     )
@@ -126,6 +131,7 @@ class RecruitAI:
         job_description: str = "",
         rating_system: RatingSystemTypes = RatingSystemTypes.DEFAULT,
         rating_dimensions: str = "",
+        model: LLMModelTypes = LLMModelTypes.DS_CHAT,
     ):
         """Score a resume against a job description.
 
@@ -144,22 +150,28 @@ class RecruitAI:
         """
         if resume_input_type == InputType.FILE:
             resume_content = FileExtractor(resume_file_path).extract_text()
-        reply = ""
+
         if rating_system == RatingSystemTypes.DEFAULT:
             params = {
                 "job_name": job_name,
                 "job_description": job_description,
                 "resume": resume_content,
             }
-            reply = chat_prompt(prompt_type="recruit_rating_default", params=params)
+            prompt_type = "recruit_rating_default"
 
-        elif rating_system == RatingSystemTypes.CUSTOM:
+        else:
+            # rating_system == RatingSystemTypes.CUSTOM:
             params = {
                 "job_name": job_name,
                 "rating_dimensions": rating_dimensions,
                 "resume": resume_content,
             }
-            reply = chat_prompt(prompt_type="recruit_rating_custom", params=params)
+            prompt_type = "recruit_rating_custom"
+
+        if model:
+            reply = chat_prompt(prompt_type=prompt_type, params=params, model=model.value)
+        else:
+            reply = chat_prompt(prompt_type=prompt_type, params=params)
 
         logger.info("RecruitAI rating_resume: {}".format(reply))
         return reply

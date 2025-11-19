@@ -65,20 +65,29 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
 
         # 返回模型生成的回复
         response_json = response.json()
-        return response_json["choices"][0]["message"]["content"]
+
+        # 兼容两种响应格式
+        if "data" in response_json and "choices" in response_json["data"]:
+            # 新格式
+            return response_json["data"]["choices"][0]["message"]["content"]
+        elif "choices" in response_json:
+            # 原格式
+            return response_json["choices"][0]["message"]["content"]
+        else:
+            raise ValueError("未知的响应格式")
 
     except requests.exceptions.RequestException as e:
-        print(f"请求错误: {e}")
+        logger.info(f"请求错误: {e}")
         return None
     except KeyError:
-        print("响应格式不正确")
+        logger.info("响应格式不正确")
         return None
 
 
 def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
     """chat_prompt"""
     data = {
-        # 'model': model,  # 选择大模型，替换为实际模型标识
+        "model": model,  # 选择大模型，替换为实际模型标识
         "prompt_type": prompt_type,
         "params": params,
     }
