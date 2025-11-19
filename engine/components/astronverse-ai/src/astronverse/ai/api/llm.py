@@ -6,12 +6,18 @@ from typing import Any
 import requests
 import sseclient
 from astronverse.ai.error import *
+from astronverse.actionlib.atomic import atomicMg
 
-API_URL = "http://127.0.0.1:8003/api/rpa-ai-service/v1/chat/completions"
-PROMPT_URL = "http://127.0.0.1:8003/api/rpa-ai-service/v1/chat/prompt"
+API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"
+)
+PROMPT_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/prompt".format(
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"
+)
+DEFAULT_MODEL = "deepseek-v3.1"
 
 
-def chat_streamable(messages: Any, model: str = "deepseek-v3-0324"):
+def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
     """
     调用远端大模型
 
@@ -42,7 +48,7 @@ def chat_streamable(messages: Any, model: str = "deepseek-v3-0324"):
         raise BaseException(LLM_NO_RESPONSE_ERROR.format(response), "")
 
 
-def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
+def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
     """构建请求的 payload"""
     data = {
         "model": model,  # 选择大模型，替换为实际模型标识
@@ -69,7 +75,7 @@ def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
         return None
 
 
-def chat_prompt(prompt_type, params, model="deepseek-v3-0324"):
+def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
     """chat_prompt"""
     data = {
         # 'model': model,  # 选择大模型，替换为实际模型标识

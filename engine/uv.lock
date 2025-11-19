@@ -166,7 +166,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-browser-plugin"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "shared/astronverse-browser-plugin" }
 dependencies = [
     { name = "astronverse-baseline" },
