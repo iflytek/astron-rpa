@@ -37,6 +37,7 @@ class Report(IReport):
             v.process_meta = process_meta
             self.process[v.process_id] = v
 
+        self.last_process_id = ""
         self.last_process_name = ""
         self.last_meta = []
         self.last_line = 0
@@ -106,8 +107,11 @@ class Report(IReport):
                     self.last_meta = meta
                 self.last_line = line
                 self.last_process_name = process_name
+                self.last_process_id = process_id
             else:
                 # 没有就是组件
+                if self.last_process_id:
+                    message.process_id = self.last_process_id
                 if self.last_process_name:
                     if not message.process:
                         message.process = self.last_process_name

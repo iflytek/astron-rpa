@@ -122,6 +122,8 @@ class CustomBdb(bdb.Bdb):
         if self.project_dir not in sys.path:
             sys.path.insert(0, self.project_dir)
 
+        if os.path.dirname(self.project_dir) not in sys.path:
+            sys.path.insert(0, os.path.dirname(self.project_dir))
         # 切换到project目录
         original_cwd = os.getcwd()
         os.chdir(self.project_dir)
@@ -219,10 +221,13 @@ class CustomBdb(bdb.Bdb):
             if not k.startswith('__'):
                 try:
                     v_str = str(v)
+                    v_type = type(v).__name__.capitalize()
                 except Exception as e:
                     v_str = v
+                    v_type = "Any"
                 merged_vars[k] = {
-                    "value": v_str
+                    "value": v_str,
+                    "types": v_type
                 }
         self.notify(reason, file=project_filename, line=flow_line, py_line=py_line, merged_vars=merged_vars)
 
