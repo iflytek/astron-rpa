@@ -199,7 +199,7 @@ atomic:
       title: 读取的Excel内容
       tip: 读取的Excel内容以列表方式返回
   Excel.design_cell_type:
-    title: 设置单元格格式
+    title: 设置单元格属性
     comment: 设置 @{excel} 中工作表 @{sheet_name} 的单元格格式，字体大小为 @{font_size}，字体名称为 @{font_name}，字体颜色为
       @{font_color}，背景颜色 @{bg_color}
     icon: excel-set-cell-format

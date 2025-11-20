@@ -10,3 +10,4 @@ EXCEL_UNAVAILABLE_ERROR_FORMAT: ErrorCode = ErrorCode(
     BizCode.LocalErr, _("Excel不可用，请检查Excel是否已被占用！") + ": {}"
 )
 INPUT_DATA_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("输入数据有误，请检查输入数据！") + ": {}")
+EXCEL_START_ROW_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("起始行不能等于0，请输入大于0的整数！"))
