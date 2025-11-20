@@ -65,7 +65,7 @@ atomic:
   BrowserElement.input:
     title: 填写输入框（web）
     comment: 在指定的浏览器对象 @{browser_obj} 中拾取输入框 @{element_data} ，以 @{fill_type:键盘输入/剪贴板输入}
-      的形式输入内容 @{fill_input} ，将执行结果输出至 @{form_input}
+      的形式输入内容 ，将执行结果输出至 @{form_input}
     icon: fill-input-web
     helpManual: ''
     inputList:
@@ -167,7 +167,7 @@ atomic:
       title: 截图文件路径
       tip: ''
   BrowserElement.scroll:
-    title: 鼠标滚动网页
+    title: 网页滚动
     comment: 通过 @{scroll_direction:横向/纵向} 的方向，从（@{x_scroll_type||y_scroll_type}）滚动浏览器对象
       @{browser_obj} 的滚动条
     icon: mouse-scroll-webpage
@@ -430,7 +430,7 @@ atomic:
       tip: ''
     - key: attribute_name
       title: 属性名称
-      tip: ''
+      tip: 填写属性名称，例如：id、class, data-id等
     - key: position
       title: 相对位置
       tip: ''
@@ -462,9 +462,12 @@ atomic:
     - key: get_ele_selected
       title: 元素选中状态
       tip: ''
+    - key: get_ele_style
+      title: 元素样式
+      tip: ''
   BrowserElement.get_table:
     title: 获取表格数据（web）
-    comment: 获取浏览器对象 @{browser_obj} 中的表格 @{element_data} ，将结果输出为字典对象 @{table_pick}
+    comment: 获取浏览器对象 @{browser_obj} 中的表格 @{element_data} ，将结果输出为 @{table_pick}
     icon: get-table-data-web
     helpManual: ''
     inputList:
@@ -489,7 +492,7 @@ atomic:
       tip: 输出获取的表格对象，数据类型：字典
   BrowserElement.data_batch:
     title: 数据抓取（web）
-    comment: 在指定的浏览器对象 @{browser_obj} 中抓取 @{batch_data} ，将结果输出为字典对象 @{table_pick}
+    comment: 在指定的浏览器对象 @{browser_obj} 中抓取 @{batch_data} ，将结果输出为 @{table_pick}
     icon: data-scraping-web
     helpManual: ''
     inputList:
@@ -532,6 +535,9 @@ atomic:
     - key: output_head
       title: 是否输出表头
       tip: 选择是否输出表头，默认输出表头
+    - key: output_filter_empty_col
+      title: 是否过滤空列
+      tip: 选择是否过滤表格中的空列
     outputList:
     - key: table_pick
       title: 表格对象
@@ -550,10 +556,13 @@ atomic:
       tip: ''
     - key: locate_type
       title: 定位方式
-      tip: 选择Xpath或者CssSelector定位方式
+      tip: 选择 Xpath/css选择器/文字 定位方式
     - key: locate_value
-      title: Xpath/CssSelector
-      tip: 输入Xpath或者CssSelector
+      title: Xpath/css选择器/文字
+      tip: 输入对应定位方式的 Xpath / css选择器 / 文字内容
+    - key: return_type
+      title: 返回值类型
+      tip: 选择返回单个元素对象还是元素对象列表
     outputList:
     - key: element_obj
       title: 元素对象
@@ -671,7 +680,7 @@ atomic:
     outputList: []
   BrowserSoftware.set_cookies:
     title: 设置Cookie
-    comment: 设置浏览器对象 @{browser_obj} 的Cookie值为 @{cookie_input}
+    comment: 设置浏览器对象 @{browser_obj} 的 @{url} 的Cookie名称 @{cookie_name} 的值为 @{cookie_val}
     icon: set-cookie
     helpManual: ''
     inputList:
@@ -718,7 +727,7 @@ atomic:
       tip: ''
   BrowserSoftware.web_open:
     title: 打开新网页
-    comment: 打开浏览器对象 @{browser_obj} 并进入网址 @{new_tab_url:新标签页地址} ，将结果输出为浏览器对象（open_new_tab_1)
+    comment: 打开浏览器对象 @{browser_obj} 并进入网址 @{new_tab_url} ，将结果输出为浏览器对象 @{web_new_page}
     icon: open-new-webpage
     helpManual: ''
     inputList:
@@ -762,7 +771,7 @@ atomic:
       tip: ''
   BrowserSoftware.wait_web_load:
     title: 等待页面加载完成
-    comment: 等待浏览器对象 @{browser_obj} 中页面加载
+    comment: 等待浏览器对象 @{browser_obj} 中页面加载完成
     icon: wait-page-load
     helpManual: ''
     inputList:
