@@ -42,7 +42,7 @@ class Flow:
 
         process_index = 1
         module_index = 1
-        main_process_name = ""
+        main_process_name = False
         for process in process_list:
             name = process.get("name")
             category = process.get("resourceCategory")
@@ -50,14 +50,17 @@ class Flow:
 
             # 生成python
             if category == "process":
+                file_name = ""
                 if process_id:
                     if resource_id == process_id:
-                        main_process_name = "process{}".format(process_index)
+                        main_process_name = True
+                        file_name = "main.py"
                 else:
                     if name == self.svc.conf.main_process_name:
-                        main_process_name = "process{}".format(process_index)
-
-                file_name = "process{}.py".format(process_index)
+                        main_process_name = True
+                        file_name = "main.py"
+                if not file_name:
+                    file_name = "process{}.py".format(process_index)
                 process_index += 1
                 res, map_res = self._flow_display(project_id, mode, version, resource_id, name, start_line=line, end_line=end_line)
 
@@ -69,11 +72,14 @@ class Flow:
                     file.write(map_res)
                     pass
             elif category == "module":
+                file_name = ""
                 if process_id:
                     if resource_id == process_id:
-                        main_process_name = "module{}".format(process_index)
+                        file_name = "main.py"
+                        main_process_name = True
 
-                file_name = "module{}.py".format(module_index)
+                if not file_name:
+                    file_name = "module{}.py".format(module_index)
                 module_index += 1
                 res = self._module_display(project_id, mode, version, resource_id, name)
 
@@ -86,16 +92,7 @@ class Flow:
         if not main_process_name:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
-        # 3. 生成main.py
-        tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "main.tpl")
-        with open(tpl_path, "r", encoding="utf-8") as tpl_file:
-            tpl_content = tpl_file.read()
-
-        main_py_content = tpl_content.replace("{{MAIN_PROCESS_NAME}}", main_process_name)
-        with open(os.path.join(path, "main.py"), "w", encoding="utf-8") as file:
-            file.write(main_py_content)
-
-        # 4. 生成project.py
+        # 3. 生成project.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
         with open(tpl_path, "r", encoding="utf-8") as tpl_file:
             tpl_content = tpl_file.read()
@@ -103,14 +100,21 @@ class Flow:
         global_code = ""
         for k, v in global_var.items():
             global_code += f"gv[{k!r}] = {v}\n"
-        package_py_content = tpl_content.replace("{{GLOBAL}}", global_code)
+        tpl_content = tpl_content.replace("{{GLOBAL}}", global_code)
+        package_py_content = tpl_content.replace("{{PACKAGE_PATH}}", repr(os.path.join(path, "package.json")))
         with open(os.path.join(path, "package.py"), "w", encoding="utf-8") as file:
             file.write(package_py_content)
 
-        # 5. 生成package.json
+        # 4. 生成package.json
         res = json.dumps(self.svc.ast_globals_dict[project_id], default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
         with open(os.path.join(path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)
+        
+        # 5. 生成__init__.py（使目录成为包，支持相对导入）
+        init_py_path = os.path.join(path, "__init__.py")
+        if not os.path.exists(init_py_path):
+            with open(init_py_path, "w", encoding="utf-8") as file:
+                file.write("")
 
     def _requirement_display(self, project_id: str, mode: str, version: str):
         """

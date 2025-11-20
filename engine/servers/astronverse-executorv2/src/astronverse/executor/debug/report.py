@@ -37,6 +37,10 @@ class Report(IReport):
             v.process_meta = process_meta
             self.process[v.process_id] = v
 
+        self.last_process_name = ""
+        self.last_meta = []
+        self.last_line = 0
+
     def close(self):
         self.log_local_file.close()
 
@@ -78,17 +82,42 @@ class Report(IReport):
 
         if isinstance(message, ReportCode) or isinstance(message, ReportUser):
             process_id = message.process_id
-            line = message.line
             if process_id in self.process:
                 process = self.process[process_id]
+                process_name = process.process_name
+                line = message.line
                 if not message.process:
-                    message.process = process.process_name
-                    message.msg_str = message.msg_str.replace("{process}", process.process_name)
+                    message.process = process_name
+                    message.msg_str = message.msg_str.replace("{process}", process_name)
                 if line in process.process_meta:
                     meta = process.process_meta[line]
                     atomic = meta[2]
                     key = meta[3]
                     line_id = meta[1]
+                    if hasattr(message, "atomic") and not message.atomic:
+                        message.atomic = atomic
+                        message.msg_str = message.msg_str.replace("{atomic}", atomic)
+                    if hasattr(message, "key") and not message.key:
+                        message.key = key
+                        message.msg_str = message.msg_str.replace("{key}", key)
+                    if hasattr(message, "line_id") and not message.line_id:
+                        message.line_id = line_id
+                        message.msg_str = message.msg_str.replace("{line_id}", line_id)
+                    self.last_meta = meta
+                self.last_line = line
+                self.last_process_name = process_name
+            else:
+                # 没有就是组件
+                if self.last_process_name:
+                    if not message.process:
+                        message.process = self.last_process_name
+                        message.msg_str = message.msg_str.replace("{process}", self.last_process_name)
+                if self.last_line:
+                    message.line = self.last_line
+                if self.last_meta and len(self.last_meta) >= 3:
+                    atomic = self.last_meta[2]
+                    key = self.last_meta[3]
+                    line_id = self.last_meta[1]
                     if hasattr(message, "atomic") and not message.atomic:
                         message.atomic = atomic
                         message.msg_str = message.msg_str.replace("{atomic}", atomic)

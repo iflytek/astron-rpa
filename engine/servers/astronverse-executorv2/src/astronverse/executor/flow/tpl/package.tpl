@@ -5,7 +5,7 @@ from astronverse.workflowlib.storage import HttpStorage
 from astronverse.workflowlib.config import config
 from astronverse.workflowlib.params import ComplexParamParser
 
-conf = config("./package.json")
+conf = config({{PACKAGE_PATH}})
 
 project_info = conf.get("project_info", {})
 process_info = conf.get("process_info", {})

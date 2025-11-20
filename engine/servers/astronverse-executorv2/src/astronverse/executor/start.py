@@ -140,11 +140,15 @@ def start():
                 args.run_param = json.loads(args.run_param)
         except Exception as e:
             args.run_param = {}
+    else:
+        args.run_param = {}
     if args.recording_config:
         try:
             args.recording_config = json.loads(args.recording_config)
         except Exception as e:
             args.recording_config = {}
+    else:
+        args.recording_config = {}
 
     # 生成代码
     flow_start(conf=Config, args=args)

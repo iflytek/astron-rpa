@@ -40,7 +40,6 @@ def kill_proc_tree(pid, including_parent=True):
         try:
             # 只会杀掉当前运行目录下的进程
             proc_cwd = proc.exe()
-            logger.error("proc_cwd: {} work_dir: {}".format(proc_cwd, work_dir))
             if work_dir not in proc_cwd:
                 return
             # 尝试杀死父进程

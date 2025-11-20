@@ -24,7 +24,7 @@ class RecordingTool:
         self.thread = None
         self.svc = svc
         self.config = {
-            "open": True,
+            "open": False,
             "cut_time": 30,  # 裁剪最后时间：0表示不裁剪
             "scene": "always",  # 运行场景:fail/always
             "file_path": "./logs/report",

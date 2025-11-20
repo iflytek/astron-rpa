@@ -11,69 +11,52 @@ from astronverse.script.error import BaseException, MODULE_IMPORT_ERROR, MODULE_
 class Script:
 
     @staticmethod
-    def _call(path: str, **kwargs):
+    def _call(path: str, package: str, **kwargs):
         try:
-            # 先尝试找到模块规范
-            spec = importlib.util.find_spec(path)
-            if spec is None or spec.origin is None:
-                raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法找到模块 {path}")
-
-            module_dir = os.path.dirname(os.path.abspath(spec.origin))
-
-            # 临时修改 sys.path，将模块目录添加到最前面
-            original_path = sys.path.copy()
-            module_dir_added = False
-            if module_dir not in sys.path:
-                sys.path.insert(0, module_dir)
-                module_dir_added = True
-
-            try:
-                # 如果模块已经导入，检查是否需要重新导入
-                # 只有当模块目录不在 sys.path 中时才需要重新导入
-                if path in sys.modules and module_dir_added:
-                    # 使用 reload 而不是删除，更安全
-                    process_module = importlib.reload(sys.modules[path])
-                else:
-                    process_module = importlib.import_module(path)
-            finally:
-                # 恢复 sys.path
-                sys.path[:] = original_path
-
+            process_module = importlib.import_module(path, package=package)
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
         main_func = getattr(process_module, "main", None)
         if not main_func or not callable(main_func):
             raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+        
+        # module_package = getattr(process_module, '__package__', None)
+        # if module_package != package:
+        #     process_module.__package__ = package
+           
         res = main_func(kwargs)
+        
         return res, kwargs
 
     @staticmethod
-    def _get_auto_context() -> dict:
+    def _get_auto_context() -> (dict, str):
         """
         自动获取调用者的上下文变量，收集所有调用栈中的变量
         """
         try:
             frame = inspect.currentframe()
             if frame is None:
-                return {}
+                return {}, ""
 
             # 收集所有调用栈中的变量
             all_vars = {}
+            package = ""
 
             # 跳过当前帧（_get_auto_context 本身）
             frame = frame.f_back
             if frame is None:
-                return {}
+                return {}, ""
 
             # 遍历所有调用栈，找到最外层为main的层
-            cframe = frame
+            cframe = None
             while frame is not None:
                 # 获取当前帧的局部变量
-                if frame.f_locals.get("main"):
+                if frame.f_code.co_name == "main":
+                    # 找到 main 函数帧，使用该帧
+                    cframe = frame
                     break
                 else:
-                    cframe = frame
                     frame = frame.f_back
 
             # 获取局部变量和全局变量
@@ -81,9 +64,10 @@ class Script:
                 local_vars = cframe.f_locals
                 # 合并变量，局部变量优先（覆盖全局变量）
                 all_vars.update(local_vars)
-            return all_vars
+                package = cframe.f_globals.get("__package__")
+            return all_vars, package
         except Exception:
-            return {}
+            return {}, ""
 
     @staticmethod
     @atomicMg.atomic(
@@ -101,7 +85,9 @@ class Script:
         if process_param:
             for p in process_param:
                 kwargs[p.get("varName")] = p.get("varValue")
-        _, kwargs = Script._call(process, **kwargs)
+
+        _, package = Script._get_auto_context()
+        _, kwargs = Script._call(".{}".format(process), package=package, **kwargs)
         return kwargs
 
     @staticmethod
@@ -112,8 +98,9 @@ class Script:
     )
     def module(content: str):
         """动态调用模块"""
-        kwargs = Script._get_auto_context()
-        res, _ = Script._call(content, **kwargs)
+
+        kwargs, package = Script._get_auto_context()
+        res, _ = Script._call(".{}".format(content), package=package, **kwargs)
         return res
 
     @staticmethod
@@ -125,5 +112,9 @@ class Script:
     def component(component: str, **kwargs):
         # 忽略掉所有__开头的kwargs值
         kwargs = {k: v for k, v in kwargs.items() if not k.startswith('__')}
-        _, kwargs = Script._call(component, **kwargs)
+
+        # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
+        package = component.split('.')[0] if '.' in component else component
+        module_name = component.split('.')[-1] if '.' in component else component
+        _, kwargs = Script._call(".{}".format(module_name), package=package, **kwargs)
         return kwargs

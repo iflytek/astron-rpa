@@ -100,7 +100,7 @@ class Param(IParam):
                 data = json.loads(data)
             return InputParam(key=name, value=data, need_eval=True, special="complex_param_parser")
         else:
-            if isinstance(data, list) and len(data) == 1 and data[0]["type"] == ParamType.ELEMENT.value:
+            if isinstance(data, list) and len(data) == 1 and data[0].get("type", None) == ParamType.ELEMENT.value:
                 # 元素
                 special = "element"
             elif key == "Script.process" and name == "process":

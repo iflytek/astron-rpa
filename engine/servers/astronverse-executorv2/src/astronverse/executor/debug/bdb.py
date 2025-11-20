@@ -1,4 +1,5 @@
 import bdb
+import importlib
 import os
 import sys
 import glob
@@ -111,8 +112,6 @@ class CustomBdb(bdb.Bdb):
 
     def cmd_start(self, g_v=None, l_v=None):
         """启动调试 - 在project目录下运行"""
-        g_v = {'__name__': '__main__', '__file__': self.main_file, **(g_v or {})}
-        l_v = {**g_v, **(l_v or {})}
 
         # 重置强制中断标志
         self._force_stop = False
@@ -128,13 +127,32 @@ class CustomBdb(bdb.Bdb):
         os.chdir(self.project_dir)
 
         try:
+            package_name = os.path.basename(self.project_dir)
+            try:
+                importlib.import_module(package_name)
+            except ImportError:
+                pass
+
+            # 准备执行环境
+            # 合并 g_v 参数和必要的执行环境变量
+            g_v_exec = {
+                '__name__': '__main__',
+                '__file__': self.main_file,
+                '__package__': package_name,
+                **(g_v or {})
+            }
+            l_v_exec = g_v_exec
+
             # 读取并编译main.py
             with open(self.main_file, encoding='utf-8') as f:
                 source = f.read()
+
+            # 在 source 后追加调用 main 函数的代码
+            source = source + '\n\n# 自动追加：执行完 main.py 后调用 main 函数\nif __name__ == \'__main__\':\n    _args = globals().get(\'_args\', {})\n    main(_args)\n'
             code = compile(source, self.main_file, 'exec')
 
             # 运行代码
-            self.err_handler(self.run)(code, g_v, l_v)
+            self.err_handler(self.run)(code, g_v_exec, l_v_exec)
         except Exception as e:
             self._handle_exception(e)
         finally:
