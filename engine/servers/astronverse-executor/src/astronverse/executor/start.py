@@ -3,161 +3,176 @@ import json
 import os
 import threading
 import time
-
-from astronverse.executor.apis.ws import Ws
-from astronverse.executor.executor import Executor
-from astronverse.executor.flow.svc import Svc
-from astronverse.executor.flow.syntax import Environment
+from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
+from astronverse.executor import ExecuteStatus
+from astronverse.executor.debug.apis.ws import Ws
+from astronverse.executor.debug.debug import Debug
+from astronverse.executor.debug.debug_svc import DebugSvc
+from astronverse.executor.error import (
+    MSG_FLOW_INIT_START,
+    MSG_FLOW_INIT_SUCCESS,
+    MSG_TASK_EXECUTION_START,
+    MSG_TASK_EXECUTION_END,
+)
+from astronverse.executor.flow.flow_svc import FlowSvc
 from astronverse.executor.logger import logger
-from astronverse.executor.recording.recording import recording_tool
-from astronverse.executor.tools import log_tool
-from astronverse.executor.utils.utils import kill_proc_tree
+from astronverse.executor.config import Config
+from astronverse.executor.flow.flow import Flow
 
 
-def start():
-    parser = argparse.ArgumentParser(description="{} service".format("executor"))
-
-    parser.add_argument("--cache_dir", default=".", help="[系统配置]缓存目录", required=False)
-    parser.add_argument("--port", default="8077", help="[系统配置]本地端口号", required=False)
-    parser.add_argument("--gateway_port", default="8003", help="[系统配置]网关端口", required=False)
-
-    parser.add_argument(
-        "--mode",
-        default="EDIT_PAGE",
-        help="[启动配置]运行场景[PROJECT_LIST, EDIT_PAGE, CRONTAB, EXECUTOR]",
-        required=False,
+def flow_start(args, conf):
+    svc = FlowSvc(conf=conf)
+    flow = Flow(svc=svc)
+    flow.gen_component(
+        path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version
     )
-    parser.add_argument("--version", default="", help="[启动配置]运行版本", required=False)
-    parser.add_argument("--project_id", default="", help="[启动配置]启动的工程id", required=True)
-    parser.add_argument("--process_id", default="", help="[启动配置]启动的流程id", required=False)
-    parser.add_argument("--line", default="0", help="[启动配置]启动的行号", required=False)
-    parser.add_argument("--end_line", default="0", help="[启动配置]结束的行号", required=False)
-    parser.add_argument("--debug", default="n", help="[启动配置]是否是debug模式 y/n", required=False)
-    parser.add_argument("--exec_id", default="", help="[启动配置]启动的执行id", required=False)
-
-    parser.add_argument("--log_ws", default="y", help="[ws功能配置]ws通信，ws总开关 y/n", required=False)
-    parser.add_argument("--wait_web_ws", default="y", help="[ws功能配置]等待前端ws连接 y/n", required=False)
-    parser.add_argument("--wait_tip_ws", default="n", help="[ws功能配置]开启并等待右下角ws连接 y/n", required=False)
-
-    parser.add_argument("--recording_config", default="{}", help="[录制功能配置]录制功能配置json", required=False)
-
-    parser.add_argument("--run_param", default="", help="运行参数", required=False)
-
-    parser.add_argument("--project_name", default="RPA机器人", help="工程名称", required=False)
-    args = parser.parse_args()
-
-    logger.debug("start {}".format(args))
-
-    recording_config = {}  # 初始化录制配置
-    if args.recording_config:
-        try:
-            recording_config = json.loads(args.recording_config)
-        except Exception as e:
-            pass
-    run_param = {}
-    if args.run_param:
-        try:
-            run_param = json.loads(args.run_param)
-        except Exception as e:
-            pass
-
-    # 初始化Svc服务
-    svc = Svc(
-        cache_dir=args.cache_dir,
-        gateway_port=args.gateway_port,
+    flow.gen_code(
+        path=svc.conf.gen_core_path,
         project_id=args.project_id,
         project_name=args.project_name,
-        port=args.port,
-        debug=(args.debug == "y"),
-        log_ws=(args.log_ws == "y"),
-        exec_id=args.exec_id,
-        recording_config=recording_config,
         mode=args.mode,
-        run_param=run_param,
         version=args.version,
+        process_id=args.process_id,
+        line=int(args.line),
+        end_line=int(args.end_line),
     )
 
-    # Ws服务基于配置启动
-    ws = Ws(svc=svc, port=args.port)
-    if args.log_ws == "y":
-        ws.is_open_web_link = args.wait_web_ws == "y"
-        ws.is_open_top_link = args.wait_tip_ws == "y"
+
+def debug_start(args, conf):
+    svc = DebugSvc(conf=conf, debug_model=args.debug == "y")
+
+    # Ws服务
+    ws = Ws(svc=svc)
+    if Config.open_log_ws:
+        ws.is_open_web_link = Config.wait_web_ws
+        ws.is_open_top_link = Config.wait_tip_ws
         thread_ws = threading.Thread(target=ws.server, args=(), daemon=True)
         thread_ws.start()
-        logger.debug("Wait for the websocket connection")
 
-    # 录制服务基于配置启动
-    if recording_config.get("enable", False):
-        file_clear_time = recording_config.get("fileClearTime", 0)
-        if not recording_config.get("saveType", False):
+    # 录制服务
+    if args.recording_config.get("enable", False):
+        file_clear_time = args.recording_config.get("fileClearTime", 0)
+        if not args.recording_config.get("saveType", False):
             file_clear_time = 0
-        config = {
-            "open": recording_config.get("enable", False),
-            "cut_time": recording_config.get("cutTime", 0),
-            "scene": recording_config.get("scene", "always"),
-            "file_path": recording_config.get("filePath", "./logs/report"),
+        temp_config = {
+            "open": args.recording_config.get("enable", False),
+            "cut_time": args.recording_config.get("cutTime", 0),
+            "scene": args.recording_config.get("scene", "always"),
+            "file_path": args.recording_config.get("filePath", "./logs/report"),
             "file_clear_time": file_clear_time,  # 清理录制视频7天
         }
-        recording_tool.init(args.project_id, args.exec_id, config).start()
+        svc.recording_tool.init(args.project_id, args.exec_id, temp_config).start()
 
-    # 右下角日志窗口基于配置启动
-    if args.wait_tip_ws == "y":
-        log_tool.init(svc).start()
+    # 右下角日志窗口
+    if Config.wait_tip_ws:
+        svc.log_tool.start()
 
-    # 执行器开启执行__process_init__
-    executor = Executor(svc=svc)
-    env = Environment()
-    program = executor.project_init(
-        args.project_id, args.process_id, args.mode, args.version, int(args.line), int(args.end_line), env
+    # 生成日志
+    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
+    svc.report.info(
+        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS)
     )
-    thread_init = threading.Thread(target=executor.__process_init__, args=(program,), daemon=True)
-    thread_init.start()
 
-    # 开启执行前，等待ws(n)s内没有连接
-    if args.log_ws == "y":
+    # 执行前验证
+    if Config.open_log_ws:
         wait_time = 0
         while not ws.check_ws_link():
             time.sleep(0.3)
             wait_time += 0.3
             if wait_time >= 10:
-                # 等待1s, 如果正常逻辑没有退出，就强制结束
                 logger.error("The websocket connection timed out")
-                svc.event_stop(False)
-                time.sleep(1)
-                svc.sys_exit(True)
-                kill_proc_tree(os.getpid(), True)
+                svc.end(ExecuteStatus.CANCEL)
 
-    # 执行器开启执行__process_run__
-    thread_run = threading.Thread(
-        target=executor.__process_run__,
-        args=(
-            program,
-            env,
-        ),
-        daemon=True,
+    # 执行代码
+    debug = Debug(svc=svc, args=args)
+    svc.debug_handler = debug
+    svc.report.info(
+        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START)
     )
-    thread_run.start()
-    while thread_run.is_alive():  # 用is_alive替代join，使主线程不会被阻塞，用户监听kill命令
-        time.sleep(0.1)
-    thread_run.join()
+    data = debug.start(params=args.run_param)
 
-    # 执行器完成后，等待ws消费完成
-    if args.log_ws == "y" and args.wait_web_ws == "y":  # ws.is_open_top_link 不用考虑是否发送完成
+    # 执行后验证
+    if Config.open_log_ws and Config.wait_web_ws:
         wait_time = 0
-        size = svc.report.code.queue.qsize()
-        while not svc.report.code.queue.empty():
+        size = svc.report.queue.qsize()
+        while not svc.report.queue.empty():
             time.sleep(0.3)
             wait_time += 0.3
             if wait_time >= 3:
                 wait_time = 0
-                if size == svc.report.code.queue.qsize():  # 等待日志(n)s内没有任何发送，就不发送了，直接退出
+                # 等待日志(n)s内没有任何发送，就不发送了，直接退出
+                if size == svc.report.queue.qsize():
                     logger.error("The websocket connection send timed out")
                     break
                 else:
-                    size = svc.report.code.queue.qsize()
+                    size = svc.report.queue.qsize()
 
-    # 等待1s, 如果正常逻辑没有退出，就强制结束
-    logger.debug("end ok")
-    time.sleep(1)
-    svc.sys_exit(False)
-    kill_proc_tree(os.getpid(), True)
+    svc.end(ExecuteStatus.SUCCESS, data=data)
+
+
+def start():
+    parser = argparse.ArgumentParser(description="{} service".format("executor"))
+    parser.add_argument("--port", default="13158", help="本地端口号", required=False)
+    parser.add_argument("--gateway_port", default="13159", help="网关端口", required=False)
+    parser.add_argument("--project_id", default="", help="启动的工程id", required=True)
+    parser.add_argument("--project_name", default="", help="启动的工程名称", required=False)
+    parser.add_argument("--mode", default="EDIT_PAGE", help="运行场景", required=False)
+    parser.add_argument("--version", default="", help="运行版本", required=False)
+    parser.add_argument("--run_param", default="", help="运行参数", required=False)
+    parser.add_argument("--exec_id", default="", help="启动的执行id", required=False)
+
+    parser.add_argument("--process_id", default="", help="[调试]启动的流程id", required=False)
+    parser.add_argument("--line", default="0", help="[调试]启动的行号", required=False)
+    parser.add_argument("--end_line", default="0", help="[调试]结束的行号", required=False)
+    parser.add_argument("--debug", default="n", help="[调试]是否是debug模式 y/n", required=False)
+
+    parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
+    parser.add_argument("--wait_web_ws", default="n", help="[ws通信]等待前端ws连接 y/n", required=False)
+    parser.add_argument("--wait_tip_ws", default="y", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
+
+    parser.add_argument("--resource_dir", default="", help="资源目录", required=False)
+    parser.add_argument("--recording_config", default="", help="录屏", required=False)
+    args = parser.parse_args()
+
+    logger.debug("start {}".format(args))
+
+    # 配置
+    Config.port = args.port
+    Config.gateway_port = args.gateway_port
+    Config.exec_id = args.exec_id
+    Config.project_id = args.project_id
+    if args.project_name:
+        Config.project_name = args.project_name
+    if args.resource_dir:
+        Config.resource_dir = args.resource_dir
+
+    Config.open_log_ws = args.log_ws == "y"
+    Config.wait_web_ws = args.wait_web_ws == "y"
+    Config.wait_tip_ws = args.wait_tip_ws == "y"
+
+    if args.run_param:
+        try:
+            if os.path.exists(args.run_param):
+                with open(args.run_param, "r", encoding="utf-8") as f:
+                    args.run_param = json.load(f)
+            else:
+                args.run_param = json.loads(args.run_param)
+        except Exception as e:
+            args.run_param = {}
+    else:
+        args.run_param = {}
+    if args.recording_config:
+        try:
+            args.recording_config = json.loads(args.recording_config)
+        except Exception as e:
+            args.recording_config = {}
+    else:
+        args.recording_config = {}
+
+    # 生成代码
+    flow_start(conf=Config, args=args)
+
+    # 执行代码
+    debug_start(conf=Config, args=args)
+
+    logger.debug("end")
