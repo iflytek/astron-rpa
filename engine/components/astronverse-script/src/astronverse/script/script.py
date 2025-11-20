@@ -9,7 +9,6 @@ from astronverse.script.error import BaseException, MODULE_IMPORT_ERROR, MODULE_
 
 
 class Script:
-
     @staticmethod
     def _call(path: str, package: str, **kwargs):
         try:
@@ -20,13 +19,13 @@ class Script:
         main_func = getattr(process_module, "main", None)
         if not main_func or not callable(main_func):
             raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
-        
+
         # module_package = getattr(process_module, '__package__', None)
         # if module_package != package:
         #     process_module.__package__ = package
-           
+
         res = main_func(kwargs)
-        
+
         return res, kwargs
 
     @staticmethod
@@ -73,8 +72,17 @@ class Script:
     @atomicMg.atomic(
         "Script",
         inputList=[
-            atomicMg.param("process", types="Any", formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["Process"]})),
-            atomicMg.param("process_param", types="List", need_parse=True, formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"})),
+            atomicMg.param(
+                "process",
+                types="Any",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["Process"]}),
+            ),
+            atomicMg.param(
+                "process_param",
+                types="List",
+                need_parse=True,
+                formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"}),
+            ),
         ],
         outputList=[atomicMg.param("process_res", types="Any")],
     )
@@ -93,7 +101,13 @@ class Script:
     @staticmethod
     @atomicMg.atomic(
         "Script",
-        inputList=[atomicMg.param("content", types="Any", formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": "PyModule"}))],
+        inputList=[
+            atomicMg.param(
+                "content",
+                types="Any",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": "PyModule"}),
+            )
+        ],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
     def module(content: str):
@@ -104,17 +118,13 @@ class Script:
         return res
 
     @staticmethod
-    @atomicMg.atomic(
-        "Script",
-        inputList=[],
-        outputList=[]
-    )
+    @atomicMg.atomic("Script", inputList=[], outputList=[])
     def component(component: str, **kwargs):
         # 忽略掉所有__开头的kwargs值
-        kwargs = {k: v for k, v in kwargs.items() if not k.startswith('__')}
+        kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
 
         # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
-        package = component.split('.')[0] if '.' in component else component
-        module_name = component.split('.')[-1] if '.' in component else component
+        package = component.split(".")[0] if "." in component else component
+        module_name = component.split(".")[-1] if "." in component else component
         _, kwargs = Script._call(".{}".format(module_name), package=package, **kwargs)
         return kwargs

@@ -43,7 +43,7 @@ common_advanced = [
         "types": "Float",
         "title": "重试间隔(秒)",
         "name": "__retry_interval__",
-    }
+    },
 ]
 
 
@@ -76,7 +76,6 @@ def merge_dicts(flow, full_flow):
 
 
 class IStorage(ABC):
-
     @abstractmethod
     def process_list(self, project_id: str, mode: str, version: str) -> list:
         """获取工程的流程列表"""
@@ -114,39 +113,48 @@ class IStorage(ABC):
 
 
 class HttpStorage(IStorage):
-
     def __init__(self, svc):
         self.svc = svc
         self.gateway_port = self.svc.conf.gateway_port
 
     def __http__(self, shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post") -> Any:
-        """ post 请求 """
+        """post 请求"""
         logger.debug("请求开始 {}:{}:{}".format(shot_url, params, data))
 
         if meta == "post":
-            response = requests.post("http://127.0.0.1:{}{}".format(self.gateway_port, shot_url), json=data, params=params)
+            response = requests.post(
+                "http://127.0.0.1:{}{}".format(self.gateway_port, shot_url), json=data, params=params
+            )
         else:
             response = requests.get("http://127.0.0.1:{}{}".format(self.gateway_port, shot_url), params=params)
         if response.status_code != 200:
-            raise BaseException(SERVER_ERROR_FORMAT.format(response.status_code), "服务器错误{}".format(response.status_code))
+            raise BaseException(
+                SERVER_ERROR_FORMAT.format(response.status_code), "服务器错误{}".format(response.status_code)
+            )
 
         logger.debug("请求结束 {}:{}".format(shot_url, response.status_code))
 
         try:
             json_data = response.json()
             if json_data.get("code") != "000000":
-                raise BaseException(SERVER_ERROR_FORMAT.format(json_data.get("message", "")), "服务器错误{}".format(json_data))
+                raise BaseException(
+                    SERVER_ERROR_FORMAT.format(json_data.get("message", "")), "服务器错误{}".format(json_data)
+                )
             return json_data.get("data", {})
         except JSONDecodeError:
-            return base64.b64encode(response.content).decode('utf-8')
+            return base64.b64encode(response.content).decode("utf-8")
 
     def __process_json_full__(self, atom_list: list) -> list:
         if len(atom_list) == 0:
             return []
 
-        res = self.__http__("/api/robot/atom/getLatestAtomsByList", None, {
-            "atomKeyList": atom_list,
-        })
+        res = self.__http__(
+            "/api/robot/atom/getLatestAtomsByList",
+            None,
+            {
+                "atomKeyList": atom_list,
+            },
+        )
         return res
 
     def process_list(self, project_id: str, mode: str, version: str) -> list:
@@ -186,15 +194,15 @@ class HttpStorage(IStorage):
         for flow in flow_list:
             # 兼容代码
             if flow.get("key") == "Code.Process":
-                flow.update({
-                    "key": "Script.process"
-                })
+                flow.update({"key": "Script.process"})
             if flow.get("key").startswith("Code.Component.") or flow.get("key").startswith("Script.component."):
-                code_id = flow.get("key").split('.')[-1]
-                flow.update({
-                    "inputList": [{"key": "component", "value": code_id}] + flow.get("inputList", []),
-                    "key": "Script.component",
-                })
+                code_id = flow.get("key").split(".")[-1]
+                flow.update(
+                    {
+                        "inputList": [{"key": "component", "value": code_id}] + flow.get("inputList", []),
+                        "key": "Script.component",
+                    }
+                )
             # 兼容结束
             atom_key_list.append(flow.get("key"))
 
@@ -214,7 +222,6 @@ class HttpStorage(IStorage):
         return flow_list
 
     def module_detail(self, project_id: str, mode: str, version: str, module_id: str) -> str:
-
         data = {
             "robotId": project_id,
             "moduleId": module_id,

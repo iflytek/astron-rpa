@@ -8,7 +8,6 @@ from astronverse.executor.flow.syntax.ast import CodeLine
 
 
 class Flow:
-
     def __init__(self, svc):
         self.svc = svc
 
@@ -22,18 +21,37 @@ class Flow:
                 version = c.get("version")
                 requirement = self._requirement_display(component_id, "", version)
 
-                self.svc.add_component_info(project_id, component_id, component_name, version, requirement, "c{}.{}".format(component_id, "main.py"))
+                self.svc.add_component_info(
+                    project_id,
+                    component_id,
+                    component_name,
+                    version,
+                    requirement,
+                    "c{}.{}".format(component_id, "main.py"),
+                )
 
                 component_path = os.path.join(path, "c{}".format(component_id))
                 self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
 
-    def gen_code(self, path: str, project_id: str, project_name: str, mode: str, version: str, process_id: str = "", line=0, end_line=0):
+    def gen_code(
+        self,
+        path: str,
+        project_id: str,
+        project_name: str,
+        mode: str,
+        version: str,
+        process_id: str = "",
+        line=0,
+        end_line=0,
+    ):
         os.makedirs(path, exist_ok=True)
 
         # 1. 获取全局变量
         global_var = self._global_display(project_id, mode, version)
         requirement = self._requirement_display(project_id, mode, version)
-        self.svc.add_project_info(project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port, global_var)
+        self.svc.add_project_info(
+            project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port, global_var
+        )
 
         # 2. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
@@ -62,7 +80,9 @@ class Flow:
                 if not file_name:
                     file_name = "process{}.py".format(process_index)
                 process_index += 1
-                res, map_res = self._flow_display(project_id, mode, version, resource_id, name, start_line=line, end_line=end_line)
+                res, map_res = self._flow_display(
+                    project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
+                )
 
                 self.svc.add_process_info(project_id, resource_id, category, name, file_name)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
@@ -106,10 +126,15 @@ class Flow:
             file.write(package_py_content)
 
         # 4. 生成package.json
-        res = json.dumps(self.svc.ast_globals_dict[project_id], default=lambda o: o.__json__() if hasattr(o, '__json__') else None, ensure_ascii=False, indent=4)
+        res = json.dumps(
+            self.svc.ast_globals_dict[project_id],
+            default=lambda o: o.__json__() if hasattr(o, "__json__") else None,
+            ensure_ascii=False,
+            indent=4,
+        )
         with open(os.path.join(path, "package.json"), "w", encoding="utf-8") as file:
             file.write(res)
-        
+
         # 5. 生成__init__.py（使目录成为包，支持相对导入）
         init_py_path = os.path.join(path, "__init__.py")
         if not os.path.exists(init_py_path):
@@ -131,7 +156,7 @@ class Flow:
                 requirement[pack_name] = {
                     "package_name": pack_name,
                     "package_version": pack_version,
-                    "package_mirror": pack_mirror
+                    "package_mirror": pack_mirror,
                 }
         return requirement
 
@@ -142,11 +167,13 @@ class Flow:
         global_list = self.svc.storage.global_list(project_id=project_id, mode=mode, version=version)
         global_var = {}
         for g in global_list:
-            param = self.svc.param.parse_param({
-                "value": g.get("varValue"),
-                "types": g.get("varType"),
-                "name": g.get("varName"),
-            })
+            param = self.svc.param.parse_param(
+                {
+                    "value": g.get("varValue"),
+                    "types": g.get("varType"),
+                    "name": g.get("varName"),
+                }
+            )
             global_var[g["varName"]] = param.show_value()
         return global_var
 
@@ -157,13 +184,17 @@ class Flow:
         # 1. 获取模块数据
         return self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version, module_id=module_id)
 
-    def _flow_display(self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0):
+    def _flow_display(
+        self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0
+    ):
         """
         流程生成 主流程 子流程
         """
 
         # 1. 获取流程数据
-        flow_list = self.svc.storage.process_detail(project_id=project_id, mode=mode, version=version, process_id=process_id)
+        flow_list = self.svc.storage.process_detail(
+            project_id=project_id, mode=mode, version=version, process_id=process_id
+        )
         line = 0
         new_flow_list = []
         process_meta = []
@@ -175,10 +206,12 @@ class Flow:
                 continue
             if end_line > 0 and line > end_line:  # noqa
                 continue
-            v.update({
-                "__line__": line,
-                "__process_id__": process_id,
-            })
+            v.update(
+                {
+                    "__line__": line,
+                    "__process_id__": process_id,
+                }
+            )
             if v.get("breakpoint"):
                 # 流程扫描的断点
                 self.svc.add_breakpoint(project_id, process_id, line)
@@ -192,13 +225,15 @@ class Flow:
         parser = Parser(lexer=lexer)
         program = parser.parse_program()
         if len(parser.errors) > 0:
-            raise BaseException(SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)), "语法错误: {}".format(parser.errors))
+            raise BaseException(
+                SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)), "语法错误: {}".format(parser.errors)
+            )
         self.svc.ast_curr_info = {
             "__project_id__": project_id,
             "__mode__": mode,
             "__version__": version,
             "__process_id__": process_id,
-            "__process_name__": process_name
+            "__process_name__": process_name,
         }
         result = program.display(svc=self.svc, tab_num=0)
         code_lines = []

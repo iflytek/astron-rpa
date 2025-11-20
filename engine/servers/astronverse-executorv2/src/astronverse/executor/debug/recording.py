@@ -19,7 +19,6 @@ def folder_empty(folder_path) -> bool:
 
 
 class RecordingTool:
-
     def __init__(self, svc):
         self.thread = None
         self.svc = svc

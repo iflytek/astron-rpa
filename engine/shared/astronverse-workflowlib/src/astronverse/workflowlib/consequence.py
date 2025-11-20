@@ -20,11 +20,11 @@ class CondType(Enum):
 
 
 def str_is_integer(s):
-    return bool(re.match(r'^-?\d+$', s))
+    return bool(re.match(r"^-?\d+$", s))
 
 
 def str_is_float(s):
-    return bool(re.match(r'^-?\d*\.\d+$', s))
+    return bool(re.match(r"^-?\d*\.\d+$", s))
 
 
 def str_is_list(s):

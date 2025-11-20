@@ -12,13 +12,17 @@ from astronverse.executor.debug.package import Package
 from astronverse.executor.debug.recording import RecordingTool
 from astronverse.executor.debug.report import Report
 from astronverse.executor.debug.tools import LogTool
-from astronverse.executor.error import MSG_TASK_EXECUTION_END, MSG_TASK_EXECUTION_ERROR, MSG_TASK_USER_CANCELLED, MSG_VIDEO_PROCESSING_WAIT
+from astronverse.executor.error import (
+    MSG_TASK_EXECUTION_END,
+    MSG_TASK_EXECUTION_ERROR,
+    MSG_TASK_USER_CANCELLED,
+    MSG_VIDEO_PROCESSING_WAIT,
+)
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import kill_proc_tree
 
 
 class DebugSvc:
-
     def __init__(self, conf, debug_model):
         # 全局类型
         self.conf: Config = conf
@@ -72,13 +76,28 @@ class DebugSvc:
                 if status == ExecuteStatus.SUCCESS:
                     if data is None:
                         data = {}
-                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_END, data=data, msg_str=MSG_TASK_EXECUTION_END))
+                    self.report.info(
+                        ReportFlow(
+                            log_type=ReportType.Flow,
+                            status=ReportFlowStatus.TASK_END,
+                            data=data,
+                            msg_str=MSG_TASK_EXECUTION_END,
+                        )
+                    )
                 elif status == ExecuteStatus.CANCEL:
-                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=MSG_TASK_USER_CANCELLED))
+                    self.report.info(
+                        ReportFlow(
+                            log_type=ReportType.Flow,
+                            status=ReportFlowStatus.TASK_ERROR,
+                            msg_str=MSG_TASK_USER_CANCELLED,
+                        )
+                    )
                 elif status == ExecuteStatus.FAIL:
                     if not reason:
                         reason = MSG_TASK_EXECUTION_ERROR
-                    self.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=reason))
+                    self.report.info(
+                        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=reason)
+                    )
                 else:
                     raise NotImplementedError()
 

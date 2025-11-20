@@ -42,7 +42,6 @@ def find_version(lib, ver, ver_strict) -> bool:
 
 
 class Package:
-
     def __init__(self, svc):
         self.svc = svc
         self.library_cache = {}

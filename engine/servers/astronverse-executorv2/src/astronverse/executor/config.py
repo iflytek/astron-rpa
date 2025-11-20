@@ -4,7 +4,6 @@ from astronverse.executor.utils.utils import platform_python_venv_run_dir
 
 
 class Config:
-
     # 端口号
     port: int = 0
 
@@ -13,7 +12,7 @@ class Config:
 
     # 执行id
     exec_id: str = ""
-    
+
     # 工程id
     project_id: str = ""
 
@@ -28,7 +27,7 @@ class Config:
 
     # 项目生成根目录路径
     gen_core_path: str = "{}/astron/".format(platform_python_venv_run_dir(sys.executable))
-    
+
     # 组件生成目录
     gen_component_path: str = "{}/astron_extension/".format(platform_python_venv_run_dir(sys.executable))
 
@@ -40,7 +39,7 @@ class Config:
 
     # package cache
     package_cache_dir: str = "./pip_cache/"
-    
+
     # resource dir
     resource_dir: str = "./"
 

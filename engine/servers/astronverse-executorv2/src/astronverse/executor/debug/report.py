@@ -26,7 +26,9 @@ class Report(IReport):
         local_file_path = os.path.join(self.svc.conf.log_path, "report", self.svc.conf.project_id)
         if not os.path.exists(local_file_path):
             os.makedirs(local_file_path)
-        self.log_local_file = open(os.path.join(str(local_file_path), "{}.txt".format(self.svc.conf.exec_id)), "w", encoding="utf-8")
+        self.log_local_file = open(
+            os.path.join(str(local_file_path), "{}.txt".format(self.svc.conf.exec_id)), "w", encoding="utf-8"
+        )
 
         self.process = {}
         for i, v in self.svc.ast_globals.process_info.items():
@@ -58,10 +60,10 @@ class Report(IReport):
             self.queue.put(ms, block=True, timeout=None)
 
         if (
-                self.log_local_file
-                and (not self.log_local_file.closed)
-                and filtered_dict["log_type"] != ReportType.Tip
-                and filtered_dict.get("tag", None) != "tip"
+            self.log_local_file
+            and (not self.log_local_file.closed)
+            and filtered_dict["log_type"] != ReportType.Tip
+            and filtered_dict.get("tag", None) != "tip"
         ):
             # Tip数据不写入到日志里面, tag等于Tag也不写入到日志
             message = json.dumps(
@@ -72,10 +74,10 @@ class Report(IReport):
 
     def __pre__(self, message):
         if (
-                isinstance(message, ReportFlow)
-                or isinstance(message, ReportCode)
-                or isinstance(message, ReportUser)
-                or isinstance(message, ReportTip)
+            isinstance(message, ReportFlow)
+            or isinstance(message, ReportCode)
+            or isinstance(message, ReportUser)
+            or isinstance(message, ReportTip)
         ):
             pass
         else:

@@ -25,6 +25,7 @@ class RpaExpression:
     """
     包装编译后的 code object，并提供安全求值接口
     """
+
     __slots__ = ("code", "expr_str")
 
     def __init__(self, expr_str: str):
@@ -57,7 +58,12 @@ class ComplexParamParser:
 
         need_eval = False
         for v in ls:
-            if v.get("type", "str") in [ParamType.PYTHON.value, ParamType.VAR.value, ParamType.G_VAR.value, ParamType.P_VAR.value]:
+            if v.get("type", "str") in [
+                ParamType.PYTHON.value,
+                ParamType.VAR.value,
+                ParamType.G_VAR.value,
+                ParamType.P_VAR.value,
+            ]:
                 need_eval = True
                 break
 
@@ -67,14 +73,14 @@ class ComplexParamParser:
             data = v.get("data", v.get("value", ""))
             if need_eval:
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
-                    pieces.append(f'{data!r}')
+                    pieces.append(f"{data!r}")
                 elif types in [ParamType.G_VAR.value]:
-                    pieces.append(f'gv[{data!r}]')
+                    pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(f"{data}")
             else:
                 if gv and data in gv:  # 兜底[目前没有兜底策略]
-                    pieces.append(f'gv[{data!r}]')
+                    pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(data)
 
@@ -83,7 +89,7 @@ class ComplexParamParser:
         if need_eval:
             return "+".join(f"str({p})" for p in pieces), need_eval
         else:
-            return ''.join(pieces), need_eval, need_eval
+            return "".join(pieces), need_eval, need_eval
 
     @classmethod
     def _recursive_convert_params(cls, data: Any) -> Any:
@@ -175,5 +181,3 @@ class ComplexParamParser:
             return all_vars
         except Exception:
             return {}
-
-

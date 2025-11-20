@@ -9,7 +9,6 @@ from typing import List, Callable
 
 
 class CustomBdb(bdb.Bdb):
-
     def __init__(self, project_dir: str, ext_dir: str, notify: Callable, err_handler: Callable):
         super().__init__()
 
@@ -36,7 +35,7 @@ class CustomBdb(bdb.Bdb):
         self._go_event = threading.Event()
         self._go_event.set()
         self._first_stop = True
-        
+
         # 强制中断标志
         self._force_stop = False
 
@@ -46,21 +45,21 @@ class CustomBdb(bdb.Bdb):
 
         for py_file in py_files:
             filename = os.path.basename(py_file)
-            map_file = py_file.replace('.py', '.map')
+            map_file = py_file.replace(".py", ".map")
 
             if not os.path.exists(map_file):
                 continue
 
             # 加载单个.map文件
-            with open(map_file, encoding='utf-8') as f:
+            with open(map_file, encoding="utf-8") as f:
                 content = f.read().strip()
                 if not content:
                     continue
 
                 line_map = {}
-                for pair in content.split(','):
-                    if ':' in pair:
-                        py_line, flow_line = pair.strip().split(':')
+                for pair in content.split(","):
+                    if ":" in pair:
+                        py_line, flow_line = pair.strip().split(":")
                         line_map[int(py_line)] = int(flow_line)
 
                 if line_map:
@@ -137,21 +136,19 @@ class CustomBdb(bdb.Bdb):
 
             # 准备执行环境
             # 合并 g_v 参数和必要的执行环境变量
-            g_v_exec = {
-                '__name__': '__main__',
-                '__file__': self.main_file,
-                '__package__': package_name,
-                **(g_v or {})
-            }
+            g_v_exec = {"__name__": "__main__", "__file__": self.main_file, "__package__": package_name, **(g_v or {})}
             l_v_exec = g_v_exec
 
             # 读取并编译main.py
-            with open(self.main_file, encoding='utf-8') as f:
+            with open(self.main_file, encoding="utf-8") as f:
                 source = f.read()
 
             # 在 source 后追加调用 main 函数的代码
-            source = source + '\n\n# 自动追加：执行完 main.py 后调用 main 函数\nif __name__ == \'__main__\':\n    _args = globals().get(\'_args\', {})\n    main(_args)\n'
-            code = compile(source, self.main_file, 'exec')
+            source = (
+                source
+                + "\n\n# 自动追加：执行完 main.py 后调用 main 函数\nif __name__ == '__main__':\n    _args = globals().get('_args', {})\n    main(_args)\n"
+            )
+            code = compile(source, self.main_file, "exec")
 
             # 运行代码
             self.err_handler(self.run)(code, g_v_exec, l_v_exec)
@@ -209,26 +206,23 @@ class CustomBdb(bdb.Bdb):
         self.paused = True
 
         breaks = self.get_breaks(filename, py_line)
-        reason = 'breakpoint' if breaks else 'step'
+        reason = "breakpoint" if breaks else "step"
 
         project_filename = self._to_project_path(filename)
         flow_line = self._to_flow_line(basename, py_line)
 
         merged_vars = {}
-        local_vars = frame.f_locals if hasattr(frame, 'f_locals') else {}
-        gv_obj = frame.f_globals.get('gv', {}) if hasattr(frame, 'f_globals') else {}
+        local_vars = frame.f_locals if hasattr(frame, "f_locals") else {}
+        gv_obj = frame.f_globals.get("gv", {}) if hasattr(frame, "f_globals") else {}
         for k, v in {**gv_obj, **local_vars}.items():
-            if not k.startswith('__'):
+            if not k.startswith("__"):
                 try:
                     v_str = str(v)
                     v_type = type(v).__name__.capitalize()
                 except Exception as e:
                     v_str = v
                     v_type = "Any"
-                merged_vars[k] = {
-                    "value": v_str,
-                    "types": v_type
-                }
+                merged_vars[k] = {"value": v_str, "types": v_type}
         self.notify(reason, file=project_filename, line=flow_line, py_line=py_line, merged_vars=merged_vars)
 
         # 阻塞等待用户操作
@@ -248,4 +242,4 @@ class CustomBdb(bdb.Bdb):
         project_filename = self._to_project_path(filename)
         flow_line = self._to_flow_line(filename, py_line)
 
-        self.notify('exception', file=project_filename, line=flow_line, py_line=py_line, exc=exc)
+        self.notify("exception", file=project_filename, line=flow_line, py_line=py_line, exc=exc)

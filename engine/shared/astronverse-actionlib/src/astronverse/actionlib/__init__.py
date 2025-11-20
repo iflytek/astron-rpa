@@ -95,9 +95,7 @@ class AtomicFormTypeParam(Enum):
     PROCESS_PARAM = {
         "linkage": "process"  # xxx关联参数
     }
-    PROCESSPARAM = {
-        "linkage": "process"
-    }
+    PROCESSPARAM = {"linkage": "process"}
 
 
 @dataclass
@@ -248,15 +246,15 @@ class AtomicParamMeta:
         return data
 
     def update(
-            self,
-            name: str = None,
-            types: str = None,
-            __annotation__: Any = None,
-            formType: AtomicFormTypeMeta = None,
-            default: Any = None,
-            options: list = None,
-            noInput: bool = None,
-            required: Union[None, bool] = True,
+        self,
+        name: str = None,
+        types: str = None,
+        __annotation__: Any = None,
+        formType: AtomicFormTypeMeta = None,
+        default: Any = None,
+        options: list = None,
+        noInput: bool = None,
+        required: Union[None, bool] = True,
     ):
         if self.name is None:
             self.name = name
@@ -362,10 +360,10 @@ class TimeFormatType(Enum):
 @dataclass
 class ReportUser:
     log_type: ReportType = ReportType.User
-    process: str = None # 可空
+    process: str = None  # 可空
     process_id: str = None
-    atomic: str = None # 可空
-    line_id: str = "" # 可空
+    atomic: str = None  # 可空
+    line_id: str = ""  # 可空
     line: int = 0
     msg_str: str = None
 
@@ -396,11 +394,11 @@ class ReportScript:
 @dataclass
 class ReportCode:
     log_type: ReportType = ReportType.Code
-    process: str = None # 可空
+    process: str = None  # 可空
     process_id: str = None
-    atomic: str = None # 可空
-    key: str = None # 可空
-    line_id: str = "" # 可空
+    atomic: str = None  # 可空
+    key: str = None  # 可空
+    line_id: str = ""  # 可空
     line: int = 0
     status: ReportCodeStatus = ReportCodeStatus.RES
     error_traceback: Any = None

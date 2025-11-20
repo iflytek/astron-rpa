@@ -8,7 +8,6 @@ from astronverse.executor.flow.syntax import IParam
 
 
 class FlowSvc:
-
     def __init__(self, conf):
         # 全局类型
         self.conf: Config = conf
@@ -21,8 +20,16 @@ class FlowSvc:
         self.ast_globals_dict: Dict[str, AstGlobals] = {}
         self.ast_curr_info = {}
 
-    def add_project_info(self, project_id: str, mode: str, version: str, project_name: str,
-                         requirement: dict, gateway_port: int, global_var: dict):
+    def add_project_info(
+        self,
+        project_id: str,
+        mode: str,
+        version: str,
+        project_name: str,
+        requirement: dict,
+        gateway_port: int,
+        global_var: dict,
+    ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
 
@@ -34,7 +41,15 @@ class FlowSvc:
         self.ast_globals_dict[project_id].project_info.gateway_port = gateway_port
         self.ast_globals_dict[project_id].project_info.global_var = global_var
 
-    def add_component_info(self, project_id: str, component_id: str, component_name: str, version: str, requirement: dict, component_file_name: str):
+    def add_component_info(
+        self,
+        project_id: str,
+        component_id: str,
+        component_name: str,
+        version: str,
+        requirement: dict,
+        component_file_name: str,
+    ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
         if component_id not in self.ast_globals_dict[project_id].component_info:
@@ -44,7 +59,9 @@ class FlowSvc:
         self.ast_globals_dict[project_id].component_info[component_id].requirement = requirement
         self.ast_globals_dict[project_id].component_info[component_id].component_file_name = component_file_name
 
-    def add_process_info(self, project_id: str, process_id: str, process_category: str, process_name, process_file_name):
+    def add_process_info(
+        self, project_id: str, process_id: str, process_category: str, process_name, process_file_name
+    ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
         if process_id not in self.ast_globals_dict[project_id].process_info:

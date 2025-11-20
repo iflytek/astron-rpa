@@ -14,26 +14,6 @@ dependencies = [
     "astronverse-actionlib",
     "astronverse-websocket-server",
     "astronverse-tools",
-    "astronverse-browser",
-    "astronverse-input",
-    "astronverse-openapi",
-    "astronverse-pdf",
-    "astronverse-report",
-    "astronverse-verifycode",
-    "astronverse-vision",
-    "astronverse-script",
-    "astronverse-software",
-    "astronverse-system",
-    "astronverse-database",
-    "astronverse-dataprocess",
-    "astronverse-dialog",
-    "astronverse-email",
-    "astronverse-encrypt",
-    "astronverse-enterprise",
-    "astronverse-excel",
-    "astronverse-window",
-    "astronverse-winelement",
-    "astronverse-word",
     "astronverse-workflowlib"
 ]
 
@@ -43,28 +23,6 @@ astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable =
 astronverse-websocket-server = {path = "../../shared/astronverse-websocket-server", editable = true}
 astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
 astronverse-workflowlib = {path = "../../shared/astronverse-workflowlib", editable = true}
-
-astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
-astronverse-input = {path = "../../components/astronverse-input", editable = true}
-astronverse-openapi = {path = "../../components/astronverse-openapi", editable = true}
-astronverse-pdf = {path = "../../components/astronverse-pdf", editable = true}
-astronverse-report = {path = "../../components/astronverse-report", editable = true}
-astronverse-verifycode = {path = "../../components/astronverse-verifycode", editable = true}
-astronverse-vision = {path = "../../components/astronverse-vision", editable = true}
-astronverse-script = {path = "../../components/astronverse-script", editable = true}
-astronverse-software = {path = "../../components/astronverse-software", editable = true}
-astronverse-system = {path = "../../components/astronverse-system", editable = true}
-astronverse-database = {path = "../../components/astronverse-database", editable = true}
-astronverse-dataprocess = {path = "../../components/astronverse-dataprocess", editable = true}
-astronverse-dialog = {path = "../../components/astronverse-dialog", editable = true}
-astronverse-email = {path = "../../components/astronverse-email", editable = true}
-astronverse-encrypt = {path = "../../components/astronverse-encrypt", editable = true}
-astronverse-enterprise = {path = "../../components/astronverse-enterprise", editable = true}
-astronverse-excel = {path = "../../components/astronverse-excel", editable = true}
-astronverse-window = {path = "../../components/astronverse-window", editable = true}
-astronverse-winelement = {path = "../../components/astronverse-winelement", editable = true}
-astronverse-word = {path = "../../components/astronverse-word", editable = true}
-
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]

@@ -40,11 +40,9 @@ special_token_type_end = {
     TokenType.If.value: [TokenType.Else.value, TokenType.ElseIf.value, TokenType.IfEnd.value],
     TokenType.Else.value: [TokenType.IfEnd.value],
     TokenType.ElseIf.value: [TokenType.Else.value, TokenType.ElseIf.value, TokenType.IfEnd.value],
-
     TokenType.Try.value: [TokenType.Catch.value],
     TokenType.Catch.value: [TokenType.Finally.value, TokenType.TryEnd.value],
     TokenType.Finally.value: [TokenType.TryEnd.value],
-
     TokenType.ForStep.value: [TokenType.ForEnd.value],
     TokenType.ForList.value: [TokenType.ForEnd.value],
     TokenType.ForDict.value: [TokenType.ForEnd.value],
@@ -62,4 +60,3 @@ for_atomic_dict = [
     "Excel.loop_excel_content",
     "BrowserElement.loop_similar",
 ]
-

@@ -130,7 +130,6 @@ class ParamModel:
     def __call__(self, **kwargs) -> dict:
         res_list = {}
         for i in self.inputList:
-
             if i.name in kwargs:
                 value = kwargs[i.name]
             else:
@@ -168,7 +167,8 @@ class ParamModel:
                         value = i.__annotation__(value)
                 except Exception as e:
                     raise ParamException(
-                        PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value), "{}的值转换成{}失败{}, error:{}".format(i.name, i.types, value, e),
+                        PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value),
+                        "{}的值转换成{}失败{}, error:{}".format(i.name, i.types, value, e),
                     ) from e
             elif isinstance(i.__annotation__, str) or str(i.__annotation__).startswith("typing."):
                 # 忽略
@@ -181,10 +181,11 @@ class ParamModel:
             elif hasattr(i.__annotation__, "__validate__"):
                 # 转换
                 try:
-                    value = i.__annotation__.__validate__(i.name, value) # noqa
+                    value = i.__annotation__.__validate__(i.name, value)  # noqa
                 except Exception as e:
                     raise ParamException(
-                        PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value), "{}的值装换成{}失败{}, error:{}".format(i.name, i.types, value, e)
+                        PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value),
+                        "{}的值装换成{}失败{}, error:{}".format(i.name, i.types, value, e),
                     ) from e
             else:
                 # 忽略

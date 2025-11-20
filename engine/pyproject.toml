@@ -59,6 +59,7 @@ astronverse-scheduler = {path = "./servers/astronverse-scheduler", editable = tr
 astronverse-trigger = {path = "./servers/astronverse-trigger", editable = true}
 astronverse-vision-picker = {path = "./servers/astronverse-vision-picker", editable = true}
 
+astronverse-ai = {path = "./components/astronverse-ai", editable = true}
 astronverse-browser = {path = "./components/astronverse-browser", editable = true}
 astronverse-input = {path = "./components/astronverse-input", editable = true}
 astronverse-openapi = {path = "./components/astronverse-openapi", editable = true}

@@ -10,7 +10,6 @@ from astronverse.actionlib.logger import logger
 
 
 class Storage(ABC):
-
     @abstractmethod
     def element_detail(self, project_id: str, element_id: str, mode: str, version: str = "") -> dict:
         """Get element detail data for a project"""
@@ -23,7 +22,6 @@ class Storage(ABC):
 
 
 class StorageCache:
-
     def __init__(self, base_dir: str = "resource", resource_cache: bool = True):
         self.base_dir = base_dir
         self.resource_cache = resource_cache
@@ -81,7 +79,6 @@ class StorageCache:
 
 
 class HttpStorage(Storage):
-
     def __init__(self, gateway_port: str = None, mode: str = "EDIT_PAGE"):
         self.gateway_port = gateway_port
 
@@ -90,8 +87,6 @@ class HttpStorage(Storage):
         else:
             resource_cache = True
         self.cache_manager = StorageCache(resource_cache=resource_cache)
-
-
 
     def __http__(self, shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post") -> Any:
         """HTTP request helper"""

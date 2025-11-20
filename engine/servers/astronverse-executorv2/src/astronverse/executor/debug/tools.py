@@ -3,8 +3,8 @@ import threading
 from astronverse.tools.tools import RpaTools
 from astronverse.executor.utils.utils import exec_run
 
-class LogTool:
 
+class LogTool:
     def __init__(self, svc):
         self.svc = svc
         self.thread = None

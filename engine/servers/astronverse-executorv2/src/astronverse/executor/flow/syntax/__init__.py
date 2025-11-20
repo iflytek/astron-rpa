@@ -53,7 +53,6 @@ class OutputParam:
 
 
 class IParam(ABC):
-
     @abstractmethod
     def parse_param(self, i: dict) -> InputParam:
         pass

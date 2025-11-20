@@ -29,9 +29,11 @@ ReportCodeRetry = _("执行错误重试")
 
 class IgnoreException(BaseException):
     """内部已经处理了错误, 外部可忽略错误细节的错误"""
+
     pass
 
 
 class ParamException(BaseException):
     """参数错误，额外携带出错的参数名"""
+
     pass

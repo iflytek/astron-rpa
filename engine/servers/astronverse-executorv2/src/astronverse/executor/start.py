@@ -8,7 +8,12 @@ from astronverse.executor import ExecuteStatus
 from astronverse.executor.debug.apis.ws import Ws
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.debug_svc import DebugSvc
-from astronverse.executor.error import MSG_FLOW_INIT_START, MSG_FLOW_INIT_SUCCESS, MSG_TASK_EXECUTION_START, MSG_TASK_EXECUTION_END
+from astronverse.executor.error import (
+    MSG_FLOW_INIT_START,
+    MSG_FLOW_INIT_SUCCESS,
+    MSG_TASK_EXECUTION_START,
+    MSG_TASK_EXECUTION_END,
+)
 from astronverse.executor.flow.flow_svc import FlowSvc
 from astronverse.executor.logger import logger
 from astronverse.executor.config import Config
@@ -18,9 +23,19 @@ from astronverse.executor.flow.flow import Flow
 def flow_start(args, conf):
     svc = FlowSvc(conf=conf)
     flow = Flow(svc=svc)
-    flow.gen_component(path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version)
-    flow.gen_code(path=svc.conf.gen_core_path, project_id=args.project_id, project_name=args.project_name, mode=args.mode,
-                  version=args.version, process_id=args.process_id, line=int(args.line), end_line=int(args.end_line))
+    flow.gen_component(
+        path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version
+    )
+    flow.gen_code(
+        path=svc.conf.gen_core_path,
+        project_id=args.project_id,
+        project_name=args.project_name,
+        mode=args.mode,
+        version=args.version,
+        process_id=args.process_id,
+        line=int(args.line),
+        end_line=int(args.end_line),
+    )
 
 
 def debug_start(args, conf):
@@ -54,7 +69,9 @@ def debug_start(args, conf):
 
     # 生成日志
     svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
-    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS))
+    svc.report.info(
+        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS)
+    )
 
     # 执行前验证
     if Config.open_log_ws:
@@ -69,7 +86,9 @@ def debug_start(args, conf):
     # 执行代码
     debug = Debug(svc=svc, args=args)
     svc.debug_handler = debug
-    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START))
+    svc.report.info(
+        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START)
+    )
     data = debug.start(params=args.run_param)
 
     # 执行后验证
@@ -110,7 +129,7 @@ def start():
     parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
     parser.add_argument("--wait_web_ws", default="n", help="[ws通信]等待前端ws连接 y/n", required=False)
     parser.add_argument("--wait_tip_ws", default="y", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
-    
+
     parser.add_argument("--resource_dir", default="", help="资源目录", required=False)
     parser.add_argument("--recording_config", default="", help="录屏", required=False)
     args = parser.parse_args()

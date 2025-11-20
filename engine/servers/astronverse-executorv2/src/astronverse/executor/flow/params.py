@@ -22,7 +22,6 @@ param_type_dict = ParamType.to_dict()
 
 
 class Param(IParam):
-
     def __init__(self, svc):
         self.svc = svc
 
@@ -36,7 +35,12 @@ class Param(IParam):
 
         ls = []
         # 判断是不是列表, 并且列表的结构符合要求
-        if isinstance(param_value, list) and len(param_value) > 0 and "type" in param_value[0] and param_value[0]["type"] in param_type_dict:
+        if (
+            isinstance(param_value, list)
+            and len(param_value) > 0
+            and "type" in param_value[0]
+            and param_value[0]["type"] in param_type_dict
+        ):
             # 预处理1: 处理data优先
             # 预处理2: 过略前端无效数据
             for v in param_value:
@@ -60,7 +64,12 @@ class Param(IParam):
 
         need_eval = False
         for v in ls:
-            if v.get("type", "str") in [ParamType.PYTHON.value, ParamType.VAR.value, ParamType.G_VAR.value, ParamType.P_VAR.value]:
+            if v.get("type", "str") in [
+                ParamType.PYTHON.value,
+                ParamType.VAR.value,
+                ParamType.G_VAR.value,
+                ParamType.P_VAR.value,
+            ]:
                 need_eval = True
                 break
 
@@ -70,14 +79,14 @@ class Param(IParam):
             data = v.get("data", v.get("value", ""))
             if need_eval:
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
-                    pieces.append(f'{data!r}')
+                    pieces.append(f"{data!r}")
                 elif types in [ParamType.G_VAR.value]:
-                    pieces.append(f'gv[{data!r}]')
+                    pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(f"{data}")
             else:
                 if gv and data in gv:  # 兜底
-                    pieces.append(f'gv[{data!r}]')
+                    pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(data)
 
@@ -86,7 +95,7 @@ class Param(IParam):
         if need_eval:
             return "+".join(f"str({p})" for p in pieces), need_eval
         else:
-            return ''.join(pieces), need_eval, need_eval
+            return "".join(pieces), need_eval, need_eval
 
     def parse_param(self, i: dict, token=None) -> InputParam:
         name = i.get("name", i.get("key"))
@@ -121,17 +130,19 @@ class Param(IParam):
         input_list = token.value.get("inputList", [])
         for i in input_list:
             # 优化: 过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
-            if (i.get("key") in [
-                "__delay_before__",
-                "__delay_after__",
-                "__retry_time__",
-                "__retry_interval__",
-            ]
-                    and i.get("value") == [{"type": "other", "value": 0}]
-                    or i.get("key") == "__res_print__"
-                    and i.get("value") is False
-                    or i.get("key") == "__skip_err__"
-                    and i.get("value") == "exit"
+            if (
+                i.get("key")
+                in [
+                    "__delay_before__",
+                    "__delay_after__",
+                    "__retry_time__",
+                    "__retry_interval__",
+                ]
+                and i.get("value") == [{"type": "other", "value": 0}]
+                or i.get("key") == "__res_print__"
+                and i.get("value") is False
+                or i.get("key") == "__skip_err__"
+                and i.get("value") == "exit"
             ):
                 continue
 

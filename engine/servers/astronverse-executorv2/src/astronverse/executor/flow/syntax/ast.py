@@ -7,6 +7,7 @@ from astronverse.executor.flow.syntax.token import TokenType
 @dataclass
 class CodeLine:
     """表示一行代码的数据结构"""
+
     tab_num: int = 0
     code: str = ""
     line: int = -1
@@ -30,10 +31,13 @@ class Program(Node):
                 statement_code_lines.extend(statement.display(svc, tab_num + 2))
 
         # import 块
-        code_lines = [CodeLine(tab_num, "from .package import element, element_vision, module, component, gv, complex_param_parser"),
-                      CodeLine(tab_num, "from astronverse.actionlib.types import *"),
-                      CodeLine(tab_num, "from astronverse.workflowlib.consequence import consequence")
-                      ]
+        code_lines = [
+            CodeLine(
+                tab_num, "from .package import element, element_vision, module, component, gv, complex_param_parser"
+            ),
+            CodeLine(tab_num, "from astronverse.actionlib.types import *"),
+            CodeLine(tab_num, "from astronverse.workflowlib.consequence import consequence"),
+        ]
         if self.token.value:
             import_python = svc.get_import_python(project_id, process_id)
             if import_python:
@@ -47,12 +51,19 @@ class Program(Node):
         code_lines.append(CodeLine(tab_num, "def main(args):"))
         param_list = svc.storage.param_list(project_id=project_id, mode=mode, version=version, process_id=process_id)
         for p in param_list:
-            param = svc.param.parse_param({
-                "value": p.get("varValue"),
-                "types": p.get("varType"),
-                "name": p.get("varName"),
-            })
-            code_lines.append(CodeLine(tab_num + 1, "{} = args.get(\"{}\", {})".format(p.get("varName"), p.get("varName"), param.show_value())))
+            param = svc.param.parse_param(
+                {
+                    "value": p.get("varValue"),
+                    "types": p.get("varType"),
+                    "name": p.get("varName"),
+                }
+            )
+            code_lines.append(
+                CodeLine(
+                    tab_num + 1,
+                    '{} = args.get("{}", {})'.format(p.get("varName"), p.get("varName"), param.show_value()),
+                )
+            )
         code_lines.append(CodeLine(tab_num + 1, ""))
         code_lines.append(CodeLine(tab_num + 1, "try:"))
         code_lines.append(CodeLine(tab_num + 2, "pass"))
@@ -63,7 +74,7 @@ class Program(Node):
         code_lines.append(CodeLine(tab_num + 2, "pass"))
         for p in param_list:
             if p.get("varDirection"):
-                code_lines.append(CodeLine(tab_num + 2, "args[\"{}\"] = {}".format(p.get("varName"), p.get("varName"))))
+                code_lines.append(CodeLine(tab_num + 2, 'args["{}"] = {}'.format(p.get("varName"), p.get("varName"))))
         code_lines.append(CodeLine(tab_num + 1, ""))
         return code_lines
 
@@ -99,13 +110,17 @@ class Atomic(Node):
         if len(import_list) == 4:
             svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
         elif len(import_list) == 5:
-            svc.add_import_python(project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2]))
+            svc.add_import_python(
+                project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
+            )
         else:
             pass
 
         # 原子能力块
         if len(self.__returned__) > 0:
-            code = ",".join([r.show() for r in self.__returned__]) + " = {}({})".format(self.token.value.get("src"), ", ".join(arguments))
+            code = ",".join([r.show() for r in self.__returned__]) + " = {}({})".format(
+                self.token.value.get("src"), ", ".join(arguments)
+            )
         else:
             code = "{}({})".format(self.token.value.get("src"), ", ".join(arguments))
 
@@ -185,7 +200,9 @@ class AtomicFor(Node):
         svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
 
         # for 原子能力块
-        atomic_code = "for {} in {}({}):".format(", ".join([r.show() for r in self.__returned__]), self.token.value.get("src"), ", ".join(arguments))
+        atomic_code = "for {} in {}({}):".format(
+            ", ".join([r.show() for r in self.__returned__]), self.token.value.get("src"), ", ".join(arguments)
+        )
         code_lines.append(CodeLine(tab_num, atomic_code, self.token.value.get("__line__")))
 
         # for body块
@@ -359,27 +376,65 @@ class For(Node):
             step = arguments[2]
             if self.__returned__:
                 iterator_var = self.__returned__[0].show()
-                code_lines.append(CodeLine(tab_num, "for {} in range(Int.__validate__(\"start\", {}), Int.__validate__(\"end\", {}), Int.__validate__(\"step\", {})):".format(
-                    iterator_var, start, end, step), self.token.value.get("__line__")))
+                code_lines.append(
+                    CodeLine(
+                        tab_num,
+                        'for {} in range(Int.__validate__("start", {}), Int.__validate__("end", {}), Int.__validate__("step", {})):'.format(
+                            iterator_var, start, end, step
+                        ),
+                        self.token.value.get("__line__"),
+                    )
+                )
             else:
-                code_lines.append(CodeLine(tab_num, "for i in range(Int.__validate__(\"start\", {}), Int.__validate__(\"end\", {}), Int.__validate__(\"step\", {})):".format(
-                    start, end, step), self.token.value.get("__line__")))
+                code_lines.append(
+                    CodeLine(
+                        tab_num,
+                        'for i in range(Int.__validate__("start", {}), Int.__validate__("end", {}), Int.__validate__("step", {})):'.format(
+                            start, end, step
+                        ),
+                        self.token.value.get("__line__"),
+                    )
+                )
         elif self.token.type == TokenType.ForList.value:
             lists = arguments[0]
             if self.__returned__ and len(self.__returned__) >= 2:
                 index_var = self.__returned__[0].show()
                 item_var = self.__returned__[1].show()
-                code_lines.append(CodeLine(tab_num, "for {}, {} in enumerate(List.__validate__(\"lists\", {})):".format(index_var, item_var, lists), self.token.value.get("__line__")))
+                code_lines.append(
+                    CodeLine(
+                        tab_num,
+                        'for {}, {} in enumerate(List.__validate__("lists", {})):'.format(index_var, item_var, lists),
+                        self.token.value.get("__line__"),
+                    )
+                )
             else:
-                code_lines.append(CodeLine(tab_num, "for item in List.__validate__(\"lists\", {}):".format(lists), self.token.value.get("__line__")))
+                code_lines.append(
+                    CodeLine(
+                        tab_num,
+                        'for item in List.__validate__("lists", {}):'.format(lists),
+                        self.token.value.get("__line__"),
+                    )
+                )
         elif self.token.type == TokenType.ForDict.value:
             dicts = arguments[0]
             if self.__returned__ and len(self.__returned__) >= 2:
                 key_var = self.__returned__[0].show()
                 value_var = self.__returned__[1].show()
-                code_lines.append(CodeLine(tab_num, "for {}, {} in dict(Dict.__validate__(\"dicts\", {})).items():".format(key_var, value_var, dicts), self.token.value.get("__line__")))
+                code_lines.append(
+                    CodeLine(
+                        tab_num,
+                        'for {}, {} in dict(Dict.__validate__("dicts", {})).items():'.format(key_var, value_var, dicts),
+                        self.token.value.get("__line__"),
+                    )
+                )
             else:
-                code_lines.append(CodeLine(tab_num, "for key, value in dict(Dict.__validate__(\"dicts\", {})).items():".format(dicts), self.token.value.get("__line__")))
+                code_lines.append(
+                    CodeLine(
+                        tab_num,
+                        'for key, value in dict(Dict.__validate__("dicts", {})).items():'.format(dicts),
+                        self.token.value.get("__line__"),
+                    )
+                )
 
         # body块
         if self.body:

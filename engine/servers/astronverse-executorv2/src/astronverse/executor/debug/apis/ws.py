@@ -17,6 +17,7 @@ from astronverse.executor.logger import logger
 @dataclass
 class CustomResponse:
     """自定义的返回值"""
+
     code: str
     msg: str
     data: Any
@@ -191,5 +192,6 @@ class Ws:
 
     def server(self):
         from astronverse.executor.debug.apis.apis import route_init
+
         route_init()
         asyncio.run(self.run_server())

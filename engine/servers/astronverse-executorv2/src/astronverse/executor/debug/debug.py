@@ -10,10 +10,14 @@ from astronverse.executor.error import python_base_error, MSG_DEBUG_INSTRUCTION_
 
 
 class Debug:
-
     def __init__(self, svc, args):
         self.svc = svc
-        self.bdb = CustomBdb(project_dir=svc.conf.gen_core_path, ext_dir=svc.conf.gen_component_path, notify=self.notify, err_handler=python_base_error)
+        self.bdb = CustomBdb(
+            project_dir=svc.conf.gen_core_path,
+            ext_dir=svc.conf.gen_component_path,
+            notify=self.notify,
+            err_handler=python_base_error,
+        )
         self.svc.main_process_id = args.process_id
 
         # 让 DebugSvc 负责加载数据
@@ -36,17 +40,16 @@ class Debug:
 
             line = kw.get("line")
 
-            self.svc.report.info(ReportCode(
-                log_type=ReportType.Code,
-                process_id=process_id,
-                line=line,
-                msg_str=MSG_DEBUG_INSTRUCTION_START_FORMAT.format("{process}", line, "{atomic}"),
-                status=ReportCodeStatus.DEBUG_START,
-                debug_data={
-                    "is_break": True,
-                    "data": kw.get("merged_vars")
-                },
-            ))
+            self.svc.report.info(
+                ReportCode(
+                    log_type=ReportType.Code,
+                    process_id=process_id,
+                    line=line,
+                    msg_str=MSG_DEBUG_INSTRUCTION_START_FORMAT.format("{process}", line, "{atomic}"),
+                    status=ReportCodeStatus.DEBUG_START,
+                    debug_data={"is_break": True, "data": kw.get("merged_vars")},
+                )
+            )
         else:
             exc = kw.get("exc")
             if isinstance(exc, IgnoreException):
@@ -76,7 +79,7 @@ class Debug:
                 self.svc.package.download(
                     library=v.get("package_name"),
                     version=v.get("package_version", ""),
-                    mirror=v.get("package_mirror", "")
+                    mirror=v.get("package_mirror", ""),
                 )
         if self.svc.ast_globals.component_info:
             for c_id, c in self.svc.ast_globals.component_info.items():
@@ -84,7 +87,7 @@ class Debug:
                     self.svc.package.download(
                         library=v.get("package_name"),
                         version=v.get("package_version", ""),
-                        mirror=v.get("package_mirror", "")
+                        mirror=v.get("package_mirror", ""),
                     )
 
         # 断点设置

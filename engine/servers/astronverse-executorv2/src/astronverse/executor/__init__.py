@@ -9,17 +9,11 @@ class AtomicInfo:
     params_name: dict = ""
 
     def __json__(self):
-        return {
-            "key": self.key,
-            "params_name": self.params_name
-        }
+        return {"key": self.key, "params_name": self.params_name}
 
     @classmethod
     def from_dict(cls, data: dict):
-        return cls(
-            key=data.get("key", ""),
-            params_name=data.get("params_name", {})
-        )
+        return cls(key=data.get("key", ""), params_name=data.get("params_name", {}))
 
 
 @dataclass
@@ -39,7 +33,7 @@ class ProjectInfo:
             "mode": self.mode,
             "version": self.version,
             "requirement": self.requirement,
-            "gateway_port": self.gateway_port
+            "gateway_port": self.gateway_port,
         }
 
     @classmethod
@@ -50,7 +44,7 @@ class ProjectInfo:
             mode=data.get("mode", ""),
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
-            gateway_port=int(data.get("gateway_port", 0))
+            gateway_port=int(data.get("gateway_port", 0)),
         )
 
 
@@ -76,7 +70,7 @@ class ProcessInfo:
             "process_category": self.process_category,
             "process_name": self.process_name,
             "breakpoint": list(self.breakpoint),
-            "process_meta": self.process_meta
+            "process_meta": self.process_meta,
         }
 
     @classmethod
@@ -103,7 +97,7 @@ class ComponentInfo:
             "component_name": self.component_name,
             "version": self.version,
             "requirement": self.requirement,
-            "component_file_name": self.component_file_name
+            "component_file_name": self.component_file_name,
         }
 
     @classmethod
@@ -112,7 +106,7 @@ class ComponentInfo:
             component_name=data.get("component_name", ""),
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
-            component_file_name=data.get("component_file_name", "")
+            component_file_name=data.get("component_file_name", ""),
         )
 
 
