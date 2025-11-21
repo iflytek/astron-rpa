@@ -1,5 +1,6 @@
 import json
 import traceback
+from typing import List
 
 from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus, ReportFlow, ReportFlowStatus
 from astronverse.actionlib.error import IgnoreException, ParamException, BaseException
@@ -70,7 +71,7 @@ class Debug:
                 )
             )
 
-    def start(self, params: dict) -> dict:
+    def start(self, params: list) -> dict:
         """执行代码"""
 
         # 环境准备, 下载依赖环境
@@ -99,7 +100,11 @@ class Debug:
             for b in v.breakpoint:
                 self.set_breakpoint(v.process_id, b)
 
-        shared = {"_args": params}
+        args = {}
+        if params and isinstance(params, List):
+            for p in params:
+                args[p.get("varName")] = p.get("varValue")
+        shared = {"_args": args}
         self.bdb.cmd_start(g_v=shared)
         return shared.get("_args", {})
 

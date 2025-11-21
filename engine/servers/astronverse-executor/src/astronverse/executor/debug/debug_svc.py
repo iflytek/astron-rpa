@@ -80,6 +80,7 @@ class DebugSvc:
                         ReportFlow(
                             log_type=ReportType.Flow,
                             status=ReportFlowStatus.TASK_END,
+                            result=status,
                             data=data,
                             msg_str=MSG_TASK_EXECUTION_END,
                         )
@@ -89,6 +90,7 @@ class DebugSvc:
                         ReportFlow(
                             log_type=ReportType.Flow,
                             status=ReportFlowStatus.TASK_ERROR,
+                            result=status,
                             msg_str=MSG_TASK_USER_CANCELLED,
                         )
                     )
@@ -96,7 +98,9 @@ class DebugSvc:
                     if not reason:
                         reason = MSG_TASK_EXECUTION_ERROR
                     self.report.info(
-                        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_ERROR, msg_str=reason)
+                        ReportFlow(
+                            log_type=ReportType.Flow, result=status, status=ReportFlowStatus.TASK_ERROR, msg_str=reason
+                        )
                     )
                 else:
                     raise NotImplementedError()
@@ -118,4 +122,4 @@ class DebugSvc:
                 self.sys_exit_lock_end = True
                 time.sleep(1)
                 kill_proc_tree(os.getpid(), True)
-                raise NotImplementedError()
+                # raise NotImplementedError()

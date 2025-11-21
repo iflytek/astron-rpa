@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-workflowlib"
-version = "1.0.1"
+version = "1.0.2"
 description = "astronverse-workflowlib."
 requires-python = ">=3.13"
 

@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import sys
+import tempfile
 import threading
 import time
 import traceback
@@ -145,6 +146,7 @@ class Executor:
         self.open_async = False  # 是否开启回收逻辑
         self.kill_time = 0  # 强杀时间 0 不强杀 >0 强杀 <0 已经强杀
         self.report_log_time = 0  # 上报 0 没上报 > 0 上报中 <0 上报结束
+        self.run_param_file = None  # run_param临时文件路径
 
         # -运行结果
         self.execute_status = ExecuteStatus.EXECUTE  # 执行状态
@@ -309,7 +311,25 @@ class ExecutorManager:
         ins.set_param("mode", exec_position.value)
         ins.set_param("exec_id", executor.exec_id)
         if run_param:
-            ins.set_param("run_param", run_param)
+            try:
+                # 在 temp 目录下创建临时文件
+                temp_dir = tempfile.gettempdir()
+                random_filename = f"run_param_{uuid.uuid4().hex}.tmp"
+                temp_file_path = os.path.join(temp_dir, random_filename)
+
+                # 解析 run_param 字符串为 JSON 对象，然后写入文件
+                try:
+                    run_param_obj = json.loads(run_param)
+                    with open(temp_file_path, "w", encoding="utf-8") as f:
+                        json.dump(run_param_obj, f, ensure_ascii=False)
+                except (json.JSONDecodeError, TypeError):
+                    with open(temp_file_path, "w", encoding="utf-8") as f:
+                        f.write(run_param)
+
+                executor.run_param_file = temp_file_path
+                ins.set_param("run_param", temp_file_path)
+            except Exception:
+                ins.set_param("run_param", run_param)
         if process_id:
             ins.set_param("process_id", process_id)
         if line:
@@ -322,6 +342,9 @@ class ExecutorManager:
             ins.set_param("project_name", project_name)
         if version:
             ins.set_param("version", int(version))
+        if self.svc.config and self.svc.config.conf_file:
+            resource_dir = os.path.dirname(self.svc.config.conf_file)
+            ins.set_param("resource_dir", resource_dir)
 
         wait_web_ws = "y"
         wait_tip_ws = "y"
@@ -429,6 +452,11 @@ class ExecutorManager:
                                     virtual_desk.stop()
                             except Exception as e:
                                 pass
+                            if executor.run_param_file and os.path.exists(executor.run_param_file):
+                                try:
+                                    os.remove(executor.run_param_file)
+                                except Exception:
+                                    pass
                             del self.executor_list[executor.exec_id]
                     except Exception as e:
                         logger.info("step4 error: {}".format(e))
