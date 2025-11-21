@@ -74,8 +74,7 @@ class IDocumentCore(ABC):
             return True
 
         return False
-    
-    
+
     @staticmethod
     def handle_existence(file_path, exist_type):
         # 文件存在时的处理方式
@@ -101,5 +100,3 @@ class IDocumentCore(ABC):
                 return ""
             else:
                 return file_path
-
-

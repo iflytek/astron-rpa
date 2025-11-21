@@ -1436,7 +1436,7 @@ class BrowserElement:
             table_list = table_body
             if to_excel:
                 # 检查 excel_path 是否为 .xlsx 文件
-                if excel_path and not excel_path.endswith('.xlsx'):
+                if excel_path and not excel_path.endswith(".xlsx"):
                     raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
                 if excel_path is None:
                     excel_path = f"{table_element['name']}.xlsx"
@@ -1640,15 +1640,15 @@ class BrowserElement:
 
         # 得到过滤后的 table_df
         table_df_out = table_df_to_out(data_json=data_filtered)
-        
+
         # 是否过滤空列
         if output_filter_empty_col:
-            table_df_out = table_df_out.dropna(axis=1, how='all')
+            table_df_out = table_df_out.dropna(axis=1, how="all")
 
         if to_excel:
             # 将table_list 转换为excel
             # 检查 excel_path 是否为 .xlsx 文件
-            if excel_path and not excel_path.endswith('.xlsx'):
+            if excel_path and not excel_path.endswith(".xlsx"):
                 raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
             if excel_path is None:
                 excel_path = f"{table_element['name']}.xlsx"

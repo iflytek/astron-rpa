@@ -44,9 +44,7 @@ class OpenApi:
                 "dst_file",
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={
-                        "file_type": "folder"
-                    },
+                    params={"file_type": "folder"},
                 ),
                 dynamics=[
                     DynamicsItem(
@@ -130,9 +128,7 @@ class OpenApi:
                 "dst_file",
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={
-                        "file_type": "folder"
-                    },
+                    params={"file_type": "folder"},
                 ),
                 dynamics=[
                     DynamicsItem(
@@ -221,9 +217,7 @@ class OpenApi:
                 "dst_file",
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={
-                        "file_type": "folder"
-                    },
+                    params={"file_type": "folder"},
                 ),
                 dynamics=[
                     DynamicsItem(
@@ -323,9 +317,7 @@ class OpenApi:
                 "dst_file",
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={
-                        "file_type": "folder"
-                    },
+                    params={"file_type": "folder"},
                 ),
                 dynamics=[
                     DynamicsItem(
@@ -414,9 +406,7 @@ class OpenApi:
                 "dst_file",
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={
-                        "file_type": "folder"
-                    },
+                    params={"file_type": "folder"},
                 ),
                 dynamics=[
                     DynamicsItem(

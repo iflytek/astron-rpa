@@ -323,6 +323,7 @@ class LocateType(Enum):
 
 class ElementCreateReturnType(Enum):
     """创建元素对象返回类型"""
+
     SINGLE = "single"  # 单个元素对象
     LIST = "list"  # 元素对象列表
 

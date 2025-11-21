@@ -351,7 +351,7 @@ class BrowserSoftware:
                     )
                 ],
             ),
-        ]
+        ],
     )
     def web_switch(
         browser_obj: Browser,

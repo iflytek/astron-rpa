@@ -306,5 +306,6 @@ class SheetInsertType(Enum):
 
 class EditType(Enum):
     """写入类型，包括追加和覆盖两种"""
+
     OVERWRITE = "overwrite"  # 覆盖
-    APPEND = "append"      # 追加
+    APPEND = "append"  # 追加

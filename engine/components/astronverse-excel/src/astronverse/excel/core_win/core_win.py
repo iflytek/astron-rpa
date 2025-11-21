@@ -477,7 +477,7 @@ class ExcelCore(IExcelCore):
         sheet_name: str = "",
         edit_range: EditRangeType = EditRangeType.ROW,
         value: list = [],
-        edit_type=EditType.OVERWRITE
+        edit_type=EditType.OVERWRITE,
     ):
         """
         编辑Excel文件中的单元格

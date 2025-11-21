@@ -68,8 +68,11 @@ class Enterprise:
                     info_response = requests.post(update_info_url, json=info_data, timeout=30)
                     if info_response.status_code == 200:
                         logger.info(info_response.text)
-                        if info_response.json().get('code') != '000000':
-                            raise BaseException(FILE_UPLOAD_FAILED_FORMAT.format(info_response.json().get('message')), "文件已存在或更新文件信息失败！")
+                        if info_response.json().get("code") != "000000":
+                            raise BaseException(
+                                FILE_UPLOAD_FAILED_FORMAT.format(info_response.json().get("message")),
+                                "文件已存在或更新文件信息失败！",
+                            )
                         return "上传成功"
                     else:
                         logger.info(
@@ -116,11 +119,10 @@ class Enterprise:
         # 检查保存文件夹是否存在，如果不存在则创建
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
-            
+
         # 检查保存路径是否为目录
         if not os.path.isdir(save_folder):
             raise Exception(f"文件夹路径错误：{save_folder} 不是文件夹路径")
-
 
         try:
             params = {"fileId": file_path}

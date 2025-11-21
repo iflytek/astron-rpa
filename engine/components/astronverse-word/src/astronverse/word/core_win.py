@@ -8,7 +8,7 @@ import win32clipboard
 import win32com.client
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
-from astronverse.actionlib.utils import handle_existence, FileExistenceType
+from astronverse.actionlib.utils import FileExistenceType, handle_existence
 from astronverse.word import (
     ApplicationType,
     CloseRangeType,
@@ -190,7 +190,7 @@ class WordDocumentCore(IDocumentCore):
         if cls.word_application_instance is None:
             cls.initialize_word_application(default_application)
             cls.word_application_instance.Visible = True
-            
+
         doc = cls.word_application_instance.Documents.Add()  # 去掉 Visible 参数以兼容 WPS
         # 处理保存路径
         new_file_path = ""
