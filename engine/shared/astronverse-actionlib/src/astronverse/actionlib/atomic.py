@@ -14,7 +14,6 @@ from astronverse.actionlib import (
     AtomicMeta,
     AtomicOption,
     AtomicParamMeta,
-    IgnoreException,
     ReportCode,
     ReportCodeStatus,
     ReportType,
@@ -113,34 +112,31 @@ class AtomicManager:
         base_kwargs = {k: v for k, v in kwargs.items() if v is not None and not k.startswith("__")}
         advance_kwargs = {k: v for k, v in kwargs.items() if v is not None and k.startswith("__")}
 
-        line = int(kwargs.get("__line__", 0))
-        if not line:
+        info = kwargs.get("__info__", [])
+        if not info:
             # 不是用原子能力调用，而是直接调用，不做处理
             return func(*args, **base_kwargs, **advance_kwargs)
 
-        line_id = kwargs.get("__line_id__", "")
+        # 额外信息
+        line = int(info[0])
+        process_id = info[1]
+
+        # 高级参数
         res_print = kwargs.get("__res_print__", False)
         delay_before = float(kwargs.get("__delay_before__", 0))
         delay_after = float(kwargs.get("__delay_after__", 0))
         skip_err = kwargs.get("__skip_err__", "exit")
-        process_name = kwargs.get("__process_name__", "")
-        process_id = kwargs.get("__process_id__", "")
-        atomic_name = kwargs.get("__atomic_name__", "")
-        params_name_dict = kwargs.get("__params_name__", {})
         retry_time = kwargs.get("__retry_time__", 0)
         retry_interval = float(kwargs.get("__retry_interval__", 0))
 
         report.info(
             ReportCode(
                 log_type=ReportType.Code,
-                process=process_name,
                 process_id=process_id,
-                atomic=atomic_name,
                 key=key,
                 line=line,
-                line_id=line_id,
                 status=ReportCodeStatus.START,
-                msg_str=ReportStartMsgFormat.format(process_name, line, atomic_name),
+                msg_str=ReportStartMsgFormat.format("{process}", line, "{atomic}"),
             )
         )
 
@@ -152,7 +148,7 @@ class AtomicManager:
             if len(self.model_cache) > self.model_cache_max_size:
                 # gc回收
                 self.model_cache = {}
-            model = utils.ParamModel(self.atomic_dict[key].inputList, params_name_dict, key)
+            model = utils.ParamModel(self.atomic_dict[key].inputList, key)
             self.model_cache[key] = model
         else:
             model = self.model_cache[key]
@@ -180,11 +176,8 @@ class AtomicManager:
                     report.info(
                         ReportCode(
                             log_type=ReportType.Code,
-                            process=process_name,
                             process_id=process_id,
-                            atomic=atomic_name,
                             line=line,
-                            line_id=line_id,
                             status=ReportCodeStatus.RES,
                             msg_str=str(res),
                         )
@@ -200,11 +193,8 @@ class AtomicManager:
                     report.warning(
                         ReportCode(
                             log_type=ReportType.Code,
-                            process=process_name,
                             process_id=process_id,
-                            atomic=atomic_name,
                             line=line,
-                            line_id=line_id,
                             status=ReportCodeStatus.SKIP,
                             msg_str="{} {}".format(ReportCodeSkip, error_str),
                             error_traceback=traceback.format_exc(),
@@ -217,25 +207,19 @@ class AtomicManager:
                         report.error(
                             ReportCode(
                                 log_type=ReportType.Code,
-                                process=process_name,
                                 process_id=process_id,
-                                atomic=atomic_name,
                                 line=line,
-                                line_id=line_id,
                                 status=ReportCodeStatus.ERROR,
                                 msg_str="{} {}".format(ReportCodeError, error_str),
                                 error_traceback=traceback.format_exc(),
                             )
                         )
-                        raise IgnoreException(error_str) from e
+                        raise IgnoreException(IGNORE_ERROR_FORMAT.format(error_str), error_str) from e
                     report.warning(
                         ReportCode(
                             log_type=ReportType.Code,
-                            process=process_name,
                             process_id=process_id,
-                            atomic=atomic_name,
                             line=line,
-                            line_id=line_id,
                             status=ReportCodeStatus.SKIP,
                             msg_str="{} {}".format(ReportCodeRetry, error_str),
                             error_traceback=traceback.format_exc(),
@@ -247,18 +231,14 @@ class AtomicManager:
                     report.error(
                         ReportCode(
                             log_type=ReportType.Code,
-                            process=process_name,
                             process_id=process_id,
-                            atomic=atomic_name,
                             line=line,
-                            line_id=line_id,
                             status=ReportCodeStatus.ERROR,
                             msg_str="{} {}".format(ReportCodeError, error_str),
                             error_traceback=traceback.format_exc(),
                         )
                     )
-                    raise IgnoreException(error_str) from e
-
+                    raise IgnoreException(IGNORE_ERROR_FORMAT.format(error_str), error_str) from e
         if delay_after > 0:
             time.sleep(delay_after)
         return res

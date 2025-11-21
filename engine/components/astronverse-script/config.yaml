@@ -1,15 +1,41 @@
 atomic:
+  Script.process:
+    title: 运行子流程
+    comment: 运行子流程(@{process:子流程})
+    icon: run-sub-process
+    helpManual: ''
+    inputList:
+      - key: process
+        title: 选择子流程
+        tip: 选择要运行的子流程
+      - key: process_param
+        title: 输入参数
+        tip: ''
+    outputList:
+      - key: process_res
+        title: 保存流程输出结果
+        tip: ''
   Script.module:
     title: 运行Python模块
     comment: 运行Python模块(@{content:Python模块})
     icon: run-python-module
     helpManual: ''
     inputList:
-    - key: content
-      title: 选择Python模块
-      tip: ''
+      - key: content
+        title: 选择Python模块
+        tip: ''
     outputList:
-    - key: program_script
-      title: 执行结果
-      tip: ''
+      - key: program_script
+        title: ''
+        tip: ''
+  Script.component:
+    title: 运行组件
+    comment: 运行组件(@{component:组件})
+    icon: ''
+    helpManual: ''
+    inputList:
+      - key: component
+        title: 选择组件
+        tip: ''
+    outputList: []
 options: {}

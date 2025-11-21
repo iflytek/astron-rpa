@@ -1,19 +1,29 @@
-from astronverse.executor.flow.syntax.token import Token, TokenType
+from typing import Optional
+from astronverse.executor.flow.syntax import Token
+from astronverse.executor.flow.syntax.token import TokenType
+from astronverse.executor.error import BaseException, MISSING_REQUIRED_KEY_ERROR_FORMAT
 
 
 class Lexer:
     """词法分析，主要是将flow转换成token, 并过滤flow没用的信息"""
 
-    def __init__(self, flow_list: list, flow_to_token, child_process_flow_list):
-        self.flow_to_token = flow_to_token
-        self.child_process_flow_list = child_process_flow_list
-
+    def __init__(self, flow_list: list):
         self.flow_list: list = flow_list  # list dict
         self.position: int = 0
         self.read_position: int = 0
         self.flow: dict = {}
 
         self.read_flow()  # 初始化
+
+    @staticmethod
+    def flow_to_token(flow_json: dict) -> Optional[Token]:
+        """将flow转换成token"""
+
+        token_type = flow_json.get("key", "")
+
+        if not token_type:
+            raise BaseException(MISSING_REQUIRED_KEY_ERROR_FORMAT.format(flow_json), f"missing key {flow_json}")
+        return Token(type=token_type, value=flow_json)
 
     def read_flow(self):
         """词法分析核心"""
@@ -22,11 +32,6 @@ class Lexer:
             self.flow = None
         else:
             self.flow = self.flow_list[self.read_position]
-            # 如果token是执行子流程 会动态加载flow_list
-            if self.child_process_flow_list:
-                new_flow_list = self.child_process_flow_list(self.flow, self.flow_list, self.read_position)
-                if new_flow_list:
-                    self.flow_list = new_flow_list
         self.position = self.read_position
         self.read_position += 1
 
@@ -37,9 +42,5 @@ class Lexer:
             token = Token(TokenType.EOF.value)
         else:
             token = self.flow_to_token(self.flow)
-            if token is None:
-                # 如果token为空就过滤掉
-                self.read_flow()
-                return self.next_token()
         self.read_flow()
         return token

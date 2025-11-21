@@ -19,11 +19,11 @@ def folder_empty(folder_path) -> bool:
 
 
 class RecordingTool:
-    def __init__(self):
+    def __init__(self, svc):
         self.thread = None
-
+        self.svc = svc
         self.config = {
-            "open": True,
+            "open": False,
             "cut_time": 30,  # 裁剪最后时间：0表示不裁剪
             "scene": "always",  # 运行场景:fail/always
             "file_path": "./logs/report",
@@ -55,12 +55,13 @@ class RecordingTool:
         try:
             if not self.config.get("open"):
                 return
+            url = os.path.join(os.path.abspath(self.svc.conf.resource_dir), "ffmpeg.exe")
+            if not os.path.exists(url):
+                logger.warning("ffmpeg.exe not found")
+                return
 
-            # 0. 获取ffmpeg位置
             self.start_time = int(time.time())
-            script_dir = os.path.dirname(os.path.abspath(__file__))
             if sys.platform == "win32":
-                url = os.path.join(script_dir, "view", "win", "ffmpeg.exe")
                 exec_args_1 = [
                     url,
                     "-thread_queue_size",
@@ -83,7 +84,6 @@ class RecordingTool:
                     "-y",
                 ]
             else:
-                url = os.path.join(script_dir, "view", "linux", "ffmpeg.exe")
                 exec_args_1 = [
                     url,
                     "-thread_queue_size",
@@ -229,6 +229,3 @@ class RecordingTool:
             while self.exec_res is None:
                 time.sleep(0.1)
             self.exec_res = None
-
-
-recording_tool = RecordingTool()

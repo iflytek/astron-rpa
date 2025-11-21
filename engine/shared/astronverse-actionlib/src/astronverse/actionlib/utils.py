@@ -86,10 +86,9 @@ def handle_existence(file_path, exist_type):
 
 
 class ParamModel:
-    def __init__(self, inputList: list, params_name_dict: dict, key: str = ""):
+    def __init__(self, inputList: list, key: str = ""):
         self.inputList = inputList
         self.key = key
-        self.params_name_dict = params_name_dict
 
     @staticmethod
     def parse_conditional(conditional, kwargs) -> bool:
@@ -131,39 +130,10 @@ class ParamModel:
     def __call__(self, **kwargs) -> dict:
         res_list = {}
         for i in self.inputList:
-            show_name = self.params_name_dict.get(i.name, i.name)
-
-            # 目前的显影都交给前端来控制
-            # # 显隐判断
-            # conditional = False
-            # if i.conditional is not None:
-            #     conditional = self.parse_conditional(i.conditional, kwargs)
-            #
-            # # 必填判断
-            # if i.name not in kwargs and conditional and i.required:
-            #     raise BaseException(PARAM_REQUIRED_FORMAT.format(show_name), "参数必填{}".format(show_name))
-
             if i.name in kwargs:
                 value = kwargs[i.name]
             else:
                 continue
-
-            # 运行解密
-            if isinstance(value, Ciphertext):
-                if self.key != "Report.print":
-                    value = value.decrypt()
-
-            # 选项判断
-            if i.options:
-                is_in = False
-                for o in i.options:
-                    if o.value == value:
-                        is_in = True
-                        break
-                if not is_in:
-                    raise BaseException(
-                        PARAM_VALUE_ERROR_FORMAT.format(show_name, value), "{}参数的值错误{}".format(show_name, value)
-                    )
 
             # 类型处理
             if i.__annotation__ == inspect.Parameter.empty:
@@ -196,9 +166,9 @@ class ParamModel:
                     else:
                         value = i.__annotation__(value)
                 except Exception as e:
-                    raise BaseException(
-                        PARAM_CONVERT_ERROR_FORMAT.format(show_name, i.types, value),
-                        "{}的值转换成{}失败{}, error:{}".format(show_name, i.types, value, e),
+                    raise ParamException(
+                        PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value),
+                        "{}的值转换成{}失败{}, error:{}".format(i.name, i.types, value, e),
                     ) from e
             elif isinstance(i.__annotation__, str) or str(i.__annotation__).startswith("typing."):
                 # 忽略
@@ -211,11 +181,11 @@ class ParamModel:
             elif hasattr(i.__annotation__, "__validate__"):
                 # 转换
                 try:
-                    value = i.__annotation__.__validate__(show_name, value)
+                    value = i.__annotation__.__validate__(i.name, value)  # noqa
                 except Exception as e:
-                    raise BaseException(
-                        PARAM_CONVERT_ERROR_FORMAT.format(show_name, i.types, value),
-                        "{}的值装换成{}失败{}, error:{}".format(show_name, i.types, value, e),
+                    raise ParamException(
+                        PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value),
+                        "{}的值装换成{}失败{}, error:{}".format(i.name, i.types, value, e),
                     ) from e
             else:
                 # 忽略

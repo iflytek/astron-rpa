@@ -1,20 +1,11 @@
 import os
 import sys
-from typing import Any
 from urllib.parse import urlparse
-
 from astronverse.actionlib import ReportTip
-from astronverse.executor.error import DOWNLOAD_ATOMIC_FORMAT, DOWNLOAD_ATOMIC_SUCCESS_FORMAT
-from astronverse.executor.flow.report import SimpleReport
-from astronverse.executor.flow.storage import Storage
-from astronverse.executor.flow.syntax import Job
-from astronverse.executor.flow.syntax.environment import Environment
-from astronverse.executor.flow.syntax.token import Token
+from importlib_metadata import version as check_version
+from astronverse.executor.error import MSG_DOWNLOAD_FORMAT, MSG_DOWNLOAD_SUCCESS_FORMAT
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import exec_run
-from importlib_metadata import version as check_version
-
-python_executable = sys.executable
 
 
 def compare_versions(v1, v2):
@@ -50,27 +41,12 @@ def find_version(lib, ver, ver_strict) -> bool:
     return False
 
 
-class Atomic(Job):
-    def __init__(self, report: SimpleReport, storage):
+class Package:
+    def __init__(self, svc):
+        self.svc = svc
         self.library_cache = {}
-        self.report: SimpleReport = report
-        self.storage: Storage = storage
 
-    def init(self, token: Token, cache_dir: str):
-        """原子能力初始化下载阶段"""
-
-        src = token.value.get("src", "")
-        keys = src.split("(")[0].split(".")
-
-        library = keys[0]
-        version = token.value.get("version", "1")
-
-        # 不在安装没有的原子能力。已经交给rpa_schedule来管理
-        # self.download(library, version, cache_dir)
-
-    def download(
-        self, library: str, version: str, cache_dir: str, mirror: str = "", version_strict: bool = False, error_try=True
-    ):
+    def download(self, library: str, version: str, mirror: str = "", version_strict: bool = False, error_try=True):
         # 1. 快速结束
         if not library:
             return
@@ -85,9 +61,9 @@ class Atomic(Job):
             return
 
         # 4. 初始化
-        self.report.info(ReportTip(msg_str=DOWNLOAD_ATOMIC_FORMAT.format(library)))
+        self.svc.report.info(ReportTip(msg_str=MSG_DOWNLOAD_FORMAT.format(library)))
 
-        pip_cache_dir = os.path.join(cache_dir, "pip_cache")
+        pip_cache_dir = os.path.join(self.svc.conf.package_cache_dir)
         if not os.path.exists(pip_cache_dir):
             os.makedirs(pip_cache_dir)
 
@@ -100,19 +76,17 @@ class Atomic(Job):
             else:
                 v1 = [[int(x) for x in version.split(".")][0]]
                 v2 = [v1[0] + 1]
-                cmd_name = ("{}>={},<{}".format(library, ".".join(str(x) for x in v1), ".".join(str(x) for x in v2)),)
+                cmd_name = "{}>={},<{}".format(library, ".".join(str(x) for x in v1), ".".join(str(x) for x in v2))
         else:
             cmd_name = library
 
         # 6.2 下载的mirror
         if mirror:
             mirror = ["--index-url", mirror, "--trusted-host", urlparse(mirror).hostname]
-        else:
-            mirror = ["--index-url", "http://172.30.34.113:31808/simple/", "--trusted-host", "172.30.34.113"]
 
         # 6.3 下载的命令
         pip_download = [
-            python_executable,
+            sys.executable,
             "-m",
             "pip",
             "download",
@@ -124,7 +98,7 @@ class Atomic(Job):
             "--no-cache",
         ]
         pip_install_1 = [
-            python_executable,
+            sys.executable,
             "-m",
             "pip",
             "install",
@@ -135,7 +109,7 @@ class Atomic(Job):
             "--disable-pip-version-check",
         ]
         pip_install_2 = [
-            python_executable,
+            sys.executable,
             "-m",
             "pip",
             "install",
@@ -170,45 +144,4 @@ class Atomic(Job):
             else:
                 raise e
 
-        self.report.info(ReportTip(msg_str=DOWNLOAD_ATOMIC_SUCCESS_FORMAT.format(library)))
-
-    def run(self, token: Token, svc, env: Environment, params: dict = None) -> Any:
-        """原子能力执行阶段"""
-        if not params:
-            params = {}
-
-        src = token.value.get("src", "")
-        project_id = token.value.get("__project_id__")
-
-        if src in ["astronverse.script.script.Script().run", "astronverse.script.script.Script().module"]:
-            # 有些原子能力需要当前的环境变量，打开这个提供整个环境变量处理
-            params["__env__"] = env
-            params["__project_id__"] = project_id
-        if len(svc.line_debug) > 0 and svc.line_debug == "{}-{}".format(
-            token.value.get("__process_id__"), token.value.get("__line__")
-        ):
-            # debug_line 单行调试
-            params["__debug_line__"] = True
-            svc.line_debug = ""
-
-        keys = src.split("(")[0].split(".")
-
-        imp = ".".join(keys[0:-1])
-        imp_as = "__{}__".format("_".join(keys[0:-1]))
-        func_name = src.replace(imp, imp_as, 1)  # 只替换第一个
-
-        globals = env.to_dict(project_id)
-        local = params
-
-        if imp_as not in globals:
-            # 这个会比较慢
-            import_code = f"""{imp_as} = __importlib__.import_module('{imp}')""".strip()
-            exec(import_code, globals, None)
-            env.sync_with_dict(project_id, globals)  # 这个垮不了子流程
-
-        func_params = ", ".join(f"{p}={p}" for p in params.keys())
-        func_code = f"""{func_name}({func_params})""".strip()
-        logger.info("atomic run: {}: local: {}".format(func_code, local))
-        value = eval(func_code, globals, local)
-        env.sync_with_dict(project_id, globals)
-        return value
+        self.svc.report.info(ReportTip(msg_str=MSG_DOWNLOAD_SUCCESS_FORMAT.format(library)))

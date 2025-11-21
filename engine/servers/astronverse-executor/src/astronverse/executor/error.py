@@ -1,52 +1,41 @@
 import re
 from functools import wraps
-
-from astronverse.actionlib import IgnoreException
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import ErrorCode, BaseException, BizCode
 from astronverse.baseline.i18n.i18n import _
-from astronverse.executor.flow.syntax.event import CloseError
-
-INDEX_ERROR = IndexError
 
 BaseException = BaseException
 
-ReportFlowInit = _("开始初始化...")
-ReportFlowInitSuccess = _("初始化完成")
-ReportFlowTaskStart = _("开始执行")
-ReportFlowTaskEnd = _("执行结束")
-ReportFlowTaskEndUserClose = _("执行结束，用户主动关闭")
-ReportFlowTaskError = _("执行错误")
-ReportStartMsgFormat = _("{} 执行第{}条指令 [{}]")
-ReportDebugStartMsgFormat = _("{} 开始调试第{}条指令 [{}]")
-ReportCodeSkip = _("执行错误跳过")
-ReportCodeError = _("执行错误")
-BreakSyntaxError = _("break和continue语句必须在循环中使用")
-NO_ATOMIC_FORMAT = _("检查{}原子能力是否合法")
-GLOBAL_PARAM_NAME_FORMAT = _("全局变量{}")
-FLOW_PARAM_NAME_FORMAT = _("全局变量{}")
+# 通用错误
+SUCCESS: ErrorCode = ErrorCode(BizCode.LocalOK, "ok")
+GENERAL_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("错误: {}"))
+INTERNAL_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("内部错误: {}"))
+SERVER_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("服务器错误: {}"))
+SYNTAX_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("语法错误: {}"))
 
-DOWNLOAD_ATOMIC_FORMAT = _("{}动态下载中...")
-DOWNLOAD_ATOMIC_SUCCESS_FORMAT = _("{}下载完成")
+# 解析错误
+LOOP_CONTROL_STATEMENT_ERROR = _("break和continue语句必须在循环结构中使用")
+ATOMIC_CAPABILITY_PARSE_ERROR_FORMAT = _("原子能力 {} 解析失败")
+MISSING_REQUIRED_KEY_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("缺少必需的key字段 {}"))
+ONLY_ONE_CATCH_CAN_BE_RETAINED = _("只能保留一个catch语句")
 
-VIDEO_RECORDING_WAIT = _("录屏数据处理中，可能时间较长，请稍等")
+# 外部获取
+ELEMENT_ACCESS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("元素获取异常: {}"))
+PROCESS_ACCESS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("工程数据异常: {}"))
 
-CODE_OK: ErrorCode = ErrorCode(BizCode.LocalOK, "ok", 200)
-ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("错误") + ": {}")
-CODE_INNER: ErrorCode = ErrorCode(BizCode.LocalErr, _("内部错误"))
-TASK_RUNNING_CANNOT_EXECUTE: ErrorCode = ErrorCode(BizCode.LocalErr, _("已有任务正在执行，‌当前任务无法执行"))
-SERVER_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("服务器错误") + ": {}")
-ENGINEERING_DATA_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("工程数据异常"))
-RECURSIVE_CALL_MAX_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("加载子流程超过{}上限，可能是循环引用"))
-RECURSIVE_CALL: ErrorCode = ErrorCode(BizCode.LocalErr, _("循环引用"))
-SYNTAX_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("语法错误") + ": {}")
-CONDITION_ILLEGAL_FORMAL: ErrorCode = ErrorCode(BizCode.LocalErr, _("条件解析非法") + ": {}")
-ELEMENT_FAIL_GET_FORMAL: ErrorCode = ErrorCode(BizCode.LocalErr, _("元素获取异常") + ": {}")
-REMOTE_VARIABLE_FAIL_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("远程参数获取异常") + ": {}")
-MODULE_FAIL_GET_FORMAL: ErrorCode = ErrorCode(BizCode.LocalErr, _("模块获取异常") + ": {}")
-SPECIAL_PARSE_FORMAL: ErrorCode = ErrorCode(BizCode.LocalErr, _("特殊元素处理异常") + ": {}")
-CHILD_PROCESS_PARAM_NOT_VALID: ErrorCode = ErrorCode(BizCode.LocalErr, _("子流程参数不合法"))
-TYPE_KIND_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("类型错误") + ": {}")
-VALUE_NOT_PARSE: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数解析失败"))
+# 报告和状态消息
+MSG_FLOW_INIT_START = _("开始初始化...")
+MSG_FLOW_INIT_SUCCESS = _("初始化完成")
+MSG_TASK_EXECUTION_START = _("开始执行")
+MSG_TASK_EXECUTION_END = _("执行结束")
+MSG_TASK_USER_CANCELLED = _("执行结束，用户主动关闭")
+MSG_TASK_EXECUTION_ERROR = _("执行错误")
+MSG_INSTRUCTION_EXECUTION_FORMAT = _("{} 执行第{}条指令 [{}]")
+MSG_DEBUG_INSTRUCTION_START_FORMAT = _("{} 开始调试第{}条指令 [{}]")
+MSG_ERROR_SKIP = _("执行错误跳过")
+MSG_EXECUTION_ERROR = _("执行错误")
+MSG_VIDEO_PROCESSING_WAIT = _("录屏数据处理中，可能时间较长，请稍等")
+MSG_DOWNLOAD_FORMAT = _("{}动态下载中...")
+MSG_DOWNLOAD_SUCCESS_FORMAT = _("{}下载完成")
 
 
 def python_base_error(func):
@@ -63,7 +52,7 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except TypeError as e:
             type_error_translations = [
                 (
@@ -91,7 +80,7 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except IndexError as e:
             index_error_translations = [
                 (r"list index out of range", "列表索引超出范围"),
@@ -103,7 +92,7 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except KeyError as e:
             key_error_translations = [
                 (r"'(.+)'", "字典中不存在键 '{}'"),
@@ -113,7 +102,7 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except ValueError as e:
             value_error_translations = [
                 (r"invalid literal for int\(\) with base 10: '(.+)'", "无效的字面量 '{}' 不能转换为整数"),
@@ -124,7 +113,7 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except AttributeError as e:
             attribute_error_translations = [
                 (r"(.+) object has no attribute '(.+)'", "{} 对象没有属性 '{}'"),
@@ -134,10 +123,10 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except ZeroDivisionError as e:
             error_str = "除零错误,除数不能为零"
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except ImportError as e:
             import_error_translations = [
                 (r"cannot import name '(.+)' from '(.+)'", "无法从 '{}' 导入名称 '{}'"),
@@ -148,18 +137,11 @@ def python_base_error(func):
                 match = re.search(pattern, error_str)
                 if match:
                     error_str = translation.format(*match.groups())
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except SyntaxError as e:
             error_str = f"语法错误, 文件名: '{e.filename}', 行号: {e.lineno}, 列号: {e.offset}, 代码行: {repr(e.text)}"
-            raise BaseException(ERROR_FORMAT.format(error_str), error_str) from e
-        except CloseError as e:
-            raise e
-        except IgnoreException as e:
-            raise e
+            raise BaseException(GENERAL_ERROR_FORMAT.format(error_str), error_str) from e
         except Exception as e:
-            if isinstance(e, BaseException):
-                raise e
-            else:
-                raise e
+            raise e
 
     return wrapper

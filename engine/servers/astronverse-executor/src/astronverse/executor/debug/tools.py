@@ -1,18 +1,13 @@
 import sys
 import threading
-
-from astronverse.executor.utils.utils import exec_run
 from astronverse.tools.tools import RpaTools
+from astronverse.executor.utils.utils import exec_run
 
 
 class LogTool:
-    def __init__(self):
-        self.thread = None
-        self.svc = None
-
-    def init(self, svc):
+    def __init__(self, svc):
         self.svc = svc
-        return self
+        self.thread = None
 
     def __tool__(self):
         if sys.platform == "win32":
@@ -23,7 +18,7 @@ class LogTool:
             [
                 url,
                 "--url=tauri://localhost/logwin.html?title={}&ws=ws://127.0.0.1:{}/?tag=tip".format(
-                    self.svc.start_project_name, self.svc.port
+                    self.svc.conf.project_name, self.svc.conf.port
                 ),
                 "--pos=right_bottom",
                 "--width=288",
@@ -36,6 +31,3 @@ class LogTool:
     def start(self):
         self.thread = threading.Thread(target=self.__tool__, daemon=True)
         self.thread.start()
-
-
-log_tool = LogTool()

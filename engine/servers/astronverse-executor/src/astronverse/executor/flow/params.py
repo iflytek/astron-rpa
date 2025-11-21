@@ -1,184 +1,140 @@
-import copy
 import json
-
-from astronverse.executor.error import *
-from astronverse.executor.flow.syntax import Environment, InputParam, OutputParam
-from astronverse.executor.flow.syntax.token import Token, token_type_key_dict
-from astronverse.executor.utils.param_utils import (
-    ParamType,
-    param_to_eval,
-    pre_param_handler,
-    special_eval_element,
-    special_eval_parse,
-)
+from enum import Enum
+from typing import Any, Dict, List
+from astronverse.executor.flow.syntax import IParam, InputParam, Token, OutputParam
 
 
-def callback_special_eval_element(svc, param: InputParam, env: Environment, project_id):
-    """特殊处理-元素"""
-    res = copy.deepcopy(param)
-    env = env.to_dict(project_id)
-    try:
-        res.value["elementData"] = special_eval_element(
-            json.loads(param.value.get("elementData")), env, svc.global_id2name
-        )
-        return res
-    except Exception as e:
-        raise BaseException(SPECIAL_PARSE_FORMAL, "特殊元素处理异常 {}".format(e)) from e
+class ParamType(Enum):
+    PYTHON = "python"  # python模式
+    VAR = "var"  # 流变量
+    P_VAR = "p_var"  # 流程变量
+    G_VAR = "g_var"  # 全局变量
+    STR = "str"  # 明确是str
+    OTHER = "other"  # 等同于str, 引擎会简单转换[当前版本不做转换]
+    ELEMENT = "element"  # 元素
+
+    @classmethod
+    def to_dict(cls):
+        return {item.value: item.value for item in cls}
 
 
-def callback_special_eval_parse(svc, param: InputParam, env: Environment, project_id):
-    """特殊处理-复杂dict"""
-    res = copy.deepcopy(param)
-    env = env.to_dict(project_id)
-    try:
-        res.value = special_eval_parse(param.value, env, svc.global_id2name)
-        return res
-    except Exception as e:
-        raise BaseException(SPECIAL_PARSE_FORMAL, "特殊元素处理异常 {}".format(e)) from e
+param_type_dict = ParamType.to_dict()
 
 
-class Params:
+class Param(IParam):
     def __init__(self, svc):
         self.svc = svc
 
-    def parse_param(self, project_id: str, i: dict, svc=None, token=None) -> InputParam:
-        if i.get("need_parse") is not None:
-            # 复杂数据前置处理
-            if isinstance(i.get("value"), list) and i.get("need_parse", "") == "str":
-                dict_value = i.get("value")
-            elif isinstance(i.get("value"), str) and i.get("need_parse", "") == "json_str":
-                value = i.get("value")
-                if value:
-                    try:
-                        dict_value = json.loads(value)
-                    except Exception as e:
-                        raise BaseException(VALUE_NOT_PARSE, "参数解析失败")
-                else:
-                    dict_value = ""
-            else:
-                dict_value = i.get("value")
+    @staticmethod
+    def pre_param_handler(param_value: Any):
+        """
+        预处理参数
+        1. 预处理data优先
+        2. 过筛前端无效数据
+        """
 
-            # 复杂数据解析
-            return InputParam(
-                types=i.get("types", "Any"),
-                key=i.get("name"),
-                value=dict_value,
-                need_eval=False,
-                special="callback_special_eval_parse",
-            )
+        ls = []
+        # 判断是不是列表, 并且列表的结构符合要求
+        if (
+            isinstance(param_value, list)
+            and len(param_value) > 0
+            and "type" in param_value[0]
+            and param_value[0]["type"] in param_type_dict
+        ):
+            # 预处理1: 处理data优先
+            # 预处理2: 过略前端无效数据
+            for v in param_value:
+                if "data" not in v:
+                    v["data"] = v.get("value", "")
+                del v["value"]
+                if v["data"] != "":
+                    ls.append(v)
+            if len(ls) == 0:
+                ls.append(param_value[0])
         else:
-            if (
-                isinstance(i.get("value"), list)
-                and len(i.get("value")) == 1
-                and i.get("value")[0]["type"] == ParamType.ELEMENT.value
-            ):
-                # 普通流程的特殊数据1：元素数据(原子能力不可枚举使用特殊类型)
-                element_id = i.get("value")[0]["data"]
-                try:
-                    project_info = svc.project_dict[project_id]
-                    value = svc.storage.element_detail(
-                        project_id, element_id, project_info.project_mode, project_info.project_version
-                    )
-                except Exception as e:
-                    raise BaseException(ELEMENT_FAIL_GET_FORMAL.format(element_id), "元素获取异常 {}".format(e)) from e
-                return InputParam(
-                    types=i.get("types", "Any"),
-                    key=i.get("name"),
-                    value=value,
-                    need_eval=False,
-                    special="callback_special_eval_element",
-                )
-            elif token and token.value.get("key") == "Script.module" and i.get("key") == "content":
-                # 普通流程的特殊数据2：子模块数据(原子能力可以枚举)
-                code_id = i.get("value")
-                try:
-                    project_info = svc.project_dict[project_id]
-                    value = svc.storage.module_detail(
-                        project_id, code_id, project_info.project_mode, project_info.project_version
-                    )
-                except Exception as e:
-                    raise BaseException(MODULE_FAIL_GET_FORMAL.format(code_id), "模块获取异常 {}".format(e)) from e
-                return InputParam(types=i.get("types", "Any"), key=i.get("name"), value=value, need_eval=False)
-            elif (
-                token
-                and token.value.get("key") == "Enterprise.get_shared_variable"
-                and i.get("key") == "shared_variable"
-            ):
-                # 远程参数
-                code_id = i.get("value", "")
-                try:
-                    key = svc.storage.get_remote_var_key()
-                    value = svc.storage.get_remote_var_value(code_id)
-                    if value:
-                        value["key"] = key
-                except Exception as e:
-                    raise BaseException(
-                        REMOTE_VARIABLE_FAIL_FORMAT.format(code_id), "远程参数获取异常 {}".format(e)
-                    ) from e
-                return InputParam(types=i.get("types", "Any"), key=i.get("name"), value=value, need_eval=False)
-            else:
-                # 普通流程的普通数据
-                # 1. 预处理
-                ls = pre_param_handler(
-                    i.get("value"),
-                    i.get("types", "Any").lower(),
-                    i.get("title", i.get("name", "")),
-                    self.svc.global_id2name,
-                )
-                # 2. 解析
-                value, need_eval = param_to_eval(ls)
-                return InputParam(types=i.get("types", "Any"), key=i.get("name"), value=value, need_eval=need_eval)
-
-    def parse_condition_input(self, token: Token) -> dict[str, InputParam]:
-        """参数解析比较输入 例如if while"""
-
-        res = {}
-        project_id = token.value.get("__project_id__")
-        input_list = token.value.get("inputList", [])
-        if len(input_list) > 0:
-            for i in input_list:
-                # 0. 显隐关系
-                if not i.get("show", True):
-                    continue
-
-                # 1. 解析
-                if i.get("name") == "condition":
-                    res[i.get("name")] = InputParam(
-                        types="Str", key=i.get("name"), value=i.get("value"), need_eval=False
-                    )
-                else:
-                    res[i.get("name")] = self.parse_param(project_id, i, self.svc)
-        return res
+            ls = [{"type": ParamType.OTHER.value, "data": param_value}]
+        return ls
 
     @staticmethod
-    def parse_output(token: Token) -> list[OutputParam]:
-        """参数解析 输出"""
-        res = []
-        output_list = token.value.get("outputList", [])
-        if len(output_list) > 0:
-            for i in output_list:
-                # 0. 显隐关系
-                if not i.get("show", True):
-                    continue
-                # 1. 预处理
-                ls = pre_param_handler(i.get("value", []))
-                # 2. 解析
-                res.append(OutputParam(types=i.get("types", "Any"), value=ls[0].get("value", "")))
-        return res
+    def _param_to_eval(ls: list, gv: dict = None) -> (Any, bool):
+        """
+        将参数解析成evaL能执行的状态,
+        need_eval=False是为了加速, 能够直接算出来就不经过eval处理, 直接输出结果
+        """
 
-    def parse_input(self, token: Token) -> dict[str, InputParam]:
-        """参数解析 输入"""
+        need_eval = False
+        for v in ls:
+            if v.get("type", "str") in [
+                ParamType.PYTHON.value,
+                ParamType.VAR.value,
+                ParamType.G_VAR.value,
+                ParamType.P_VAR.value,
+            ]:
+                need_eval = True
+                break
 
+        pieces = []
+        for v in ls:
+            types = v.get("type", "str")
+            data = v.get("data", v.get("value", ""))
+            if need_eval:
+                if types in [ParamType.STR.value, ParamType.OTHER.value]:
+                    pieces.append(f"{data!r}")
+                elif types in [ParamType.G_VAR.value]:
+                    pieces.append(f"gv[{data!r}]")
+                else:
+                    pieces.append(f"{data}")
+            else:
+                if gv and data in gv:  # 兜底
+                    pieces.append(f"gv[{data!r}]")
+                else:
+                    pieces.append(data)
+
+        if len(pieces) == 1:
+            return pieces[0], need_eval
+        if need_eval:
+            return "+".join(f"str({p})" for p in pieces), need_eval
+        else:
+            return "".join(pieces), need_eval, need_eval
+
+    def parse_param(self, i: dict, token=None) -> InputParam:
+        name = i.get("name", i.get("key"))
+        data = i.get("value")
+        parse = i.get("need_parse")
+        key = token.value.get("key") if token else ""
+        special = ""
+
+        if parse is not None:
+            if parse == "json_str":
+                data = json.loads(data)
+            return InputParam(key=name, value=data, need_eval=True, special="complex_param_parser")
+        else:
+            if isinstance(data, list) and len(data) == 1 and data[0].get("type", None) == ParamType.ELEMENT.value:
+                # 元素
+                special = "element"
+            elif key == "Script.process" and name == "process":
+                # 子模块
+                special = "module"
+            elif key == "Script.module" and name == "content":
+                # 子模块
+                special = "module"
+            elif key == "Script.component" and name == "component":
+                # 子模块
+                special = "component"
+            value, need_eval = self._param_to_eval(self.pre_param_handler(data))
+            return InputParam(key=name, value=value, need_eval=need_eval, special=special)
+
+    def parse_input(self, token: Token) -> Dict[str, InputParam]:
         res = {}
         params_name = {}
         input_list = token.value.get("inputList", [])
         for i in input_list:
-            # 优化:过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
+            # 优化: 过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
             if (
                 i.get("key")
                 in [
                     "__delay_before__",
-                    "__delay_after____",
+                    "__delay_after__",
                     "__retry_time__",
                     "__retry_interval__",
                 ]
@@ -190,37 +146,44 @@ class Params:
             ):
                 continue
 
-            # 0. 显隐关系
+            # 1. 显隐关系
             if not i.get("show", True):
                 continue
 
-            # 1. 收集key对应的名称
             if not i.get("key").startswith("__"):
-                params_name[i.get("name")] = i.get("title", "")
+                params_name[i.get("name", i.get("key"))] = i.get("title", "")
 
             # 2. 解析
-            project_id = token.value.get("__project_id__")
-            res[i.get("name")] = self.parse_param(project_id, i, self.svc, token)
+            res[i.get("name", i.get("key"))] = self.parse_param(i, token=token)
 
-        # 添加一些高级选项
-        if token.type not in token_type_key_dict:
-            res["__process_id__"] = InputParam(
-                types="Str", key="__process_id__", value=token.value.get("__process_id__", ""), need_eval=False
-            )
-            res["__process_name__"] = InputParam(
-                types="Str", key="__process_name__", value=token.value.get("__process_name__", ""), need_eval=False
-            )
-            res["__atomic_name__"] = InputParam(
-                types="Str",
-                key="__atomic_name__",
-                value=token.value.get("alias", token.value.get("title", "")),
-                need_eval=False,
-            )
-            res["__line__"] = InputParam(
-                types="Int", key="__line__", value=token.value.get("__line__", 0), need_eval=False
-            )
-            res["__line_id__"] = InputParam(
-                types="Str", key="__line_id__", value=token.value.get("id", ""), need_eval=False
-            )
-        res["__params_name__"] = InputParam(types="Str", key="__params_name__", value=params_name, need_eval=False)
+        # 高级选项
+        info = [
+            token.value.get("__line__", 0),
+            token.value.get("__process_id__", ""),
+        ]
+        res["info"] = InputParam(key="__info__", value=info, need_eval=True)
+        project_id = self.svc.ast_curr_info.get("__project_id__")
+        self.svc.add_atomic_info(project_id, token.value.get("key"), params_name)
+        return res
+
+    def parse_output(self, token: Token) -> List[OutputParam]:
+        res = []
+        output_list = token.value.get("outputList", [])
+        if len(output_list) > 0:
+            for i in output_list:
+                # 0. 显隐关系
+                if not i.get("show", True):
+                    continue
+
+                # 1. 预处理
+                ls = self.pre_param_handler(param_value=i.get("value", []))
+                value = ls[0].get("data", "")
+
+                project_id = self.svc.ast_curr_info.get("__project_id__")
+                global_var = self.svc.ast_globals_dict[project_id].project_info.global_var
+                if global_var and value in global_var:
+                    value = f"gv[{value!r}]"
+
+                # 2. 解析
+                res.append(OutputParam(value=value))
         return res

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 
 
@@ -7,6 +6,7 @@ class TokenType(Enum):
 
     Break = "Code.Break"
     Continue = "Code.Continue"
+    Return = "Code.Return"
 
     If = "Code.If"
     ElseIf = "Code.ElseIf"
@@ -28,12 +28,6 @@ class TokenType(Enum):
 
     Group = "Code.Group"
     GroupEnd = "Code.GroupEnd"
-
-    Process = "Code.Process"
-    ProcessEnd = "Code.ProcessEnd"
-
-    Component = "Code.Component"
-    ComponentEnd = "Code.ComponentEnd"
 
     @classmethod
     def to_dict(cls):
@@ -66,9 +60,3 @@ for_atomic_dict = [
     "Excel.loop_excel_content",
     "BrowserElement.loop_similar",
 ]
-
-
-@dataclass
-class Token:
-    type: str = None  # TokenType
-    value: dict = None

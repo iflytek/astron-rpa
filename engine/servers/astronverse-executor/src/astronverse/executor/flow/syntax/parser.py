@@ -1,39 +1,37 @@
-from typing import Optional, Union
-
-from astronverse.executor.error import *
+from astronverse.executor.error import (
+    ATOMIC_CAPABILITY_PARSE_ERROR_FORMAT,
+    LOOP_CONTROL_STATEMENT_ERROR,
+    ONLY_ONE_CATCH_CAN_BE_RETAINED,
+)
+from astronverse.executor.flow.syntax import Token
 from astronverse.executor.flow.syntax.ast import (
-    IF,
+    Program,
+    Node,
     Atomic,
+    Block,
+    IF,
+    Break,
+    Continue,
+    While,
+    Try,
+    For,
     AtomicExist,
     AtomicFor,
-    Block,
-    Break,
-    ChildProgram,
-    Component,
-    Continue,
-    For,
-    Node,
-    Program,
-    Try,
-    While,
+    Return,
 )
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.token import (
-    Token,
     TokenType,
-    exist_atomic_dict,
-    for_atomic_dict,
-    special_token_type_end,
     token_type_key_dict,
+    exist_atomic_dict,
+    special_token_type_end,
+    for_atomic_dict,
 )
+from typing import Union, Optional
 
 
 class Parser:
-    def __init__(
-        self,
-        lexer: Lexer,
-        end_tag: str = "{}End",
-    ):
+    def __init__(self, lexer: Lexer, end_tag: str = "{}End"):
         # 词法分析
         self.lexer: Lexer = lexer
 
@@ -53,6 +51,7 @@ class Parser:
         # 注册解析器
         self.break_and_continue_in_loop = 0
         self.register_prefix(TokenType.Break, self.__parse_break__)
+        self.register_prefix(TokenType.Return, self.__parse_return__)
         self.register_prefix(TokenType.Continue, self.__parse_continue__)
         self.register_prefix(TokenType.While, self.__parse_while__)
         self.register_prefix(TokenType.If, self.__parse_if__)
@@ -60,8 +59,6 @@ class Parser:
         self.register_prefix(TokenType.ForList, self.__parse_for__)
         self.register_prefix(TokenType.ForDict, self.__parse_for__)
         self.register_prefix(TokenType.Try, self.__parse_try__)
-        self.register_prefix(TokenType.Process, self.__parse_child_process__)
-        self.register_prefix(TokenType.Component, self.__parse_component__)
 
     def register_prefix(self, token_type: TokenType, fn):
         """注入token处理程序"""
@@ -114,7 +111,7 @@ class Parser:
             res = prefix()
         else:
             if self.cur_token.type in token_type_key_dict:
-                self.errors.append(NO_ATOMIC_FORMAT.format(self.cur_token.type))
+                self.errors.append(ATOMIC_CAPABILITY_PARSE_ERROR_FORMAT.format(self.cur_token.type))
                 return
             res = self.parse_atomic()
         return res
@@ -146,61 +143,22 @@ class Parser:
             stmt.token = self.cur_token
             return stmt
 
-    def __parse_component__(self) -> Optional[Node]:
-        program = Component()
-        program.token = self.cur_token
-        program.statements = []
-
-        self.next_token()
-
-        end_list = [self.end_tag.format(program.token.type)]
-        if program.token.type in special_token_type_end:
-            end_list = special_token_type_end[program.token.type]
-        elif program.token.type in exist_atomic_dict:
-            end_list = special_token_type_end[TokenType.If.value]
-        elif program.token.type in for_atomic_dict:
-            end_list = special_token_type_end[TokenType.ForStep.value]
-
-        while self.cur_token.type not in end_list and self.cur_token.type != TokenType.EOF.value:
-            stmt = self.parse_statement()
-            if stmt is not None:
-                program.statements.append(stmt)
-            self.next_token()
-        return program
-
-    def __parse_child_process__(self) -> Optional[Node]:
-        program = ChildProgram()
-        program.token = self.cur_token
-        program.statements = []
-
-        self.next_token()
-
-        end_list = [self.end_tag.format(program.token.type)]
-        if program.token.type in special_token_type_end:
-            end_list = special_token_type_end[program.token.type]
-        elif program.token.type in exist_atomic_dict:
-            end_list = special_token_type_end[TokenType.If.value]
-        elif program.token.type in for_atomic_dict:
-            end_list = special_token_type_end[TokenType.ForStep.value]
-
-        while self.cur_token.type not in end_list and self.cur_token.type != TokenType.EOF.value:
-            stmt = self.parse_statement()
-            if stmt is not None:
-                program.statements.append(stmt)
-            self.next_token()
-        return program
-
     def __parse_break__(self) -> Optional[Node]:
         if self.break_and_continue_in_loop <= 0:
-            self.errors.append(BreakSyntaxError)
+            self.errors.append(LOOP_CONTROL_STATEMENT_ERROR)
         stmt = Break()
         stmt.token = self.cur_token
         return stmt
 
     def __parse_continue__(self) -> Optional[Node]:
         if self.break_and_continue_in_loop <= 0:
-            self.errors.append(BreakSyntaxError)
+            self.errors.append(LOOP_CONTROL_STATEMENT_ERROR)
         stmt = Continue()
+        stmt.token = self.cur_token
+        return stmt
+
+    def __parse_return__(self) -> Optional[Node]:
+        stmt = Return()
         stmt.token = self.cur_token
         return stmt
 
@@ -246,7 +204,7 @@ class Parser:
             while self.cur_token.type == TokenType.Catch.value:
                 catch_block_list.append(self.parse_block())
             if len(catch_block_list) > 1:
-                self.errors.append("only one catch can be retained.")
+                self.errors.append(ONLY_ONE_CATCH_CAN_BE_RETAINED)
                 return
             if len(catch_block_list) > 0:
                 stmt.catch_block = catch_block_list[0]

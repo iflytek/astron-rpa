@@ -1,39 +1,130 @@
-import builtins
-from inspect import isfunction
-
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
+import sys
+import os
+import importlib.util
+import importlib
+import inspect
+from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.actionlib.report import report
+from astronverse.script.error import BaseException, MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND
 
 
 class Script:
+    @staticmethod
+    def _call(path: str, package: str, **kwargs):
+        try:
+            process_module = importlib.import_module(path, package=package)
+        except Exception as e:
+            raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
+
+        main_func = getattr(process_module, "main", None)
+        if not main_func or not callable(main_func):
+            raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+
+        # module_package = getattr(process_module, '__package__', None)
+        # if module_package != package:
+        #     process_module.__package__ = package
+
+        res = main_func(kwargs)
+
+        return res, kwargs
+
+    @staticmethod
+    def _get_auto_context() -> (dict, str):
+        """
+        自动获取调用者的上下文变量，收集所有调用栈中的变量
+        """
+        try:
+            frame = inspect.currentframe()
+            if frame is None:
+                return {}, ""
+
+            # 收集所有调用栈中的变量
+            all_vars = {}
+            package = ""
+
+            # 跳过当前帧（_get_auto_context 本身）
+            frame = frame.f_back
+            if frame is None:
+                return {}, ""
+
+            # 遍历所有调用栈，找到最外层为main的层
+            cframe = None
+            while frame is not None:
+                # 获取当前帧的局部变量
+                if frame.f_code.co_name == "main":
+                    # 找到 main 函数帧，使用该帧
+                    cframe = frame
+                    break
+                else:
+                    frame = frame.f_back
+
+            # 获取局部变量和全局变量
+            if cframe is not None:
+                local_vars = cframe.f_locals
+                # 合并变量，局部变量优先（覆盖全局变量）
+                all_vars.update(local_vars)
+                package = cframe.f_globals.get("__package__")
+            return all_vars, package
+        except Exception:
+            return {}, ""
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Script",
+        inputList=[
+            atomicMg.param(
+                "process",
+                types="Any",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["Process"]}),
+            ),
+            atomicMg.param(
+                "process_param",
+                types="List",
+                need_parse=True,
+                formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"}),
+            ),
+        ],
+        outputList=[atomicMg.param("process_res", types="Any")],
+    )
+    def process(process: str, process_param: list):
+        """动态调用流程"""
+
+        kwargs = {}
+        if process_param:
+            for p in process_param:
+                kwargs[p.get("varName")] = p.get("varValue")
+
+        _, package = Script._get_auto_context()
+        _, kwargs = Script._call(".{}".format(process), package=package, **kwargs)
+        return kwargs
+
     @staticmethod
     @atomicMg.atomic(
         "Script",
         inputList=[
             atomicMg.param(
                 "content",
-                formType=AtomicFormTypeMeta(
-                    type=AtomicFormType.SELECT.value,
-                    params={
-                        "filters": "PyModule",
-                    },
-                ),
+                types="Any",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": "PyModule"}),
             )
         ],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
-    def module(content: str = "", **kwargs):
-        env = kwargs.get("__env__", {})
-        project_id = kwargs.get("__project_id__")
-        env_dict = env.to_dict(project_id)
+    def module(content: str):
+        """动态调用模块"""
 
-        builtins.GLOBAL_RPA_REPORT = report
+        kwargs, package = Script._get_auto_context()
+        res, _ = Script._call(".{}".format(content), package=package, **kwargs)
+        return res
 
-        temp_dict = {}
-        exec(content, temp_dict, None)
-        temp_dict["logger"] = report
-        main_func = temp_dict.get("main")
-        if main_func and isfunction(main_func):
-            ret = main_func(**env_dict)
-            return ret
+    @staticmethod
+    @atomicMg.atomic("Script", inputList=[], outputList=[])
+    def component(component: str, **kwargs):
+        # 忽略掉所有__开头的kwargs值
+        kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
+
+        # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
+        package = component.split(".")[0] if "." in component else component
+        module_name = component.split(".")[-1] if "." in component else component
+        _, kwargs = Script._call(".{}".format(module_name), package=package, **kwargs)
+        return kwargs

@@ -5,18 +5,21 @@ import sys
 import psutil
 from astronverse.executor.logger import logger
 
-system_encoding = sys.getdefaultencoding()
+
+def platform_python_venv_run_dir(dir: str):
+    if sys.platform == "win32":
+        path = os.path.dirname(os.path.dirname(os.path.dirname(dir)))
+    else:
+        path = os.path.dirname(os.path.dirname(os.path.dirname(dir)))
+    return path
 
 
-def kill_proc_tree(pid, including_parent=True, exclude_pids=None):
+def kill_proc_tree(pid, including_parent=True):
     """
     递归地杀死指定PID的进程及其所有子进程。
     :param pid: 要杀死的进程的PID。
     :param including_parent: 是否包括父进程本身。
-    :param exclude_pids: 排出进程
     """
-    if exclude_pids is None:
-        exclude_pids = []
 
     work_dir = os.getcwd()
     try:
@@ -35,12 +38,6 @@ def kill_proc_tree(pid, including_parent=True, exclude_pids=None):
 
     if including_parent:
         try:
-            if pid in exclude_pids:
-                return
-            # 这里对进程名字做判断，避免关闭执行器启动的客户端程序
-            # name = proc.name()
-            # if name not in ["python.exe", "iflyrpa-log.exe"]:
-            #     return
             # 只会杀掉当前运行目录下的进程
             proc_cwd = proc.exe()
             if work_dir not in proc_cwd:
@@ -53,21 +50,28 @@ def kill_proc_tree(pid, including_parent=True, exclude_pids=None):
 
 
 def exec_run(exec_args: list, ignore_error: bool = False, timeout=-1):
-    """启动子进程，忽略日志"""
-    try:
-        logger.debug("exec_run res: {}".format(exec_args))
+    """启动子进程并处理错误日志"""
 
-        # 注意部分命令执行不能加env，对于拾取组件，加上env导致拾取进程启动异常
+    proc = None
+    try:
+        logger.debug("准备执行命令: %s", exec_args)
+
         current_env = os.environ.copy()
         current_env["no_proxy"] = "True"
-
         proc = subprocess.Popen(exec_args, shell=False, env=current_env)
-
         if timeout > 0:
-            _, stderr_data = proc.communicate(timeout=timeout)
+            stdout_data, stderr_data = proc.communicate(timeout=timeout)
         else:
-            _, stderr_data = proc.communicate()
+            stdout_data, stderr_data = proc.communicate()
+
         if stderr_data and not ignore_error:
-            raise Exception(stderr_data)
+            error_msg = f"命令执行失败!\nSTDERR:\n{stderr_data.decode('utf-8', errors='replace')}"
+            raise Exception(error_msg)
     except Exception as e:
-        raise e
+        detail_msg = (
+            f"[PID={proc.pid if proc else 'N/A'}] 进程异常终止! "
+            f"返回码={proc.returncode if proc else 'N/A'}\n"
+            f"错误详情:\n{str(e)}"
+        )
+        logger.error(detail_msg)
+        raise Exception(detail_msg) from e
