@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Astron Browser Plugin",
-  "description": "Astron Browser Plugin-360ChromeX",
+  "description": "Astron Browser Plugin-chromium",
   "homepage_url": "https://www.example.com/",
   "version": "5.2.1",
   "icons": {

@@ -18,7 +18,8 @@ function get_navigator_user_agent() {
 function custom_agent() {
   const modeAgent = {
     '360se': "$360se$",
-    '360ChromeX': "$360ChromeX$"
+    '360ChromeX': "$360ChromeX$",
+    'chromium': "$chromium$"
   }
   return modeAgent[__BUILD_MODE__] || '';
 }
