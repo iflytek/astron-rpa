@@ -38,10 +38,3 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
 
-
-async def create_db_and_tables():
-    """Create the database and tables."""
-    from app.models import load_models  # noqa: F401
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)

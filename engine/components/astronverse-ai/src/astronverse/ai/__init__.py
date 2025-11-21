@@ -36,7 +36,6 @@ class RatingSystemTypes(Enum):
 
 
 class LLMModelTypes(Enum):
-    """LLM model identifiers used across API calls."""
-
-    DS_CHAT = "deepseek-v3-0324"
-    DS_REASONER = "claude-4-sonnet"  # 先顶一下
+    DS_CHAT = "deepseek-chat"
+    DS_REASONER = "deepseek-reasoner"  # 先顶一下
+    CUSTOM_MODEL = "custom"

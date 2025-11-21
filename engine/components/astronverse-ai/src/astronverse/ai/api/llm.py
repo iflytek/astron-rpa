@@ -6,12 +6,19 @@ from typing import Any
 import requests
 import sseclient
 from astronverse.ai.error import *
+from astronverse.actionlib.atomic import atomicMg
+from astronverse.baseline.logger.logger import logger
 
-API_URL = "http://127.0.0.1:8003/api/rpa-ai-service/v1/chat/completions"
-PROMPT_URL = "http://127.0.0.1:8003/api/rpa-ai-service/v1/chat/prompt"
+API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"
+)
+PROMPT_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/prompt".format(
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"
+)
+DEFAULT_MODEL = "deepseek-v3.1"
 
 
-def chat_streamable(messages: Any, model: str = "deepseek-v3-0324"):
+def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
     """
     调用远端大模型
 
@@ -42,7 +49,7 @@ def chat_streamable(messages: Any, model: str = "deepseek-v3-0324"):
         raise BaseException(LLM_NO_RESPONSE_ERROR.format(response), "")
 
 
-def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
+def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
     """构建请求的 payload"""
     data = {
         "model": model,  # 选择大模型，替换为实际模型标识
@@ -59,20 +66,29 @@ def chat_normal(user_input, system_input="", model="deepseek-v3-0324"):
 
         # 返回模型生成的回复
         response_json = response.json()
-        return response_json["choices"][0]["message"]["content"]
+
+        # 兼容两种响应格式
+        if "data" in response_json and "choices" in response_json["data"]:
+            # 新格式
+            return response_json["data"]["choices"][0]["message"]["content"]
+        elif "choices" in response_json:
+            # 原格式
+            return response_json["choices"][0]["message"]["content"]
+        else:
+            raise ValueError("未知的响应格式")
 
     except requests.exceptions.RequestException as e:
-        print(f"请求错误: {e}")
+        logger.info(f"请求错误: {e}")
         return None
     except KeyError:
-        print("响应格式不正确")
+        logger.info("响应格式不正确")
         return None
 
 
-def chat_prompt(prompt_type, params, model="deepseek-v3-0324"):
+def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
     """chat_prompt"""
     data = {
-        # 'model': model,  # 选择大模型，替换为实际模型标识
+        "model": model,  # 选择大模型，替换为实际模型标识
         "prompt_type": prompt_type,
         "params": params,
     }
