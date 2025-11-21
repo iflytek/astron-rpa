@@ -50,7 +50,7 @@ async def create_db_and_tables():
     from app.models import load_models  # noqa: F401
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
 
 
 def with_db_retry(max_retries=3, delay=1):

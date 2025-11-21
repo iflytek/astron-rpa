@@ -12,6 +12,9 @@ atomic:
     - key: model
       title: 模型选择
       tip: 可以选择使用的模型。
+    - key: custom_model
+      title: 自定义模型ID
+      tip: ''
     outputList:
     - key: single_chat_res
       title: 答案输出
@@ -35,6 +38,9 @@ atomic:
     - key: model
       title: 模型选择
       tip: 可以选择使用的模型。
+    - key: custom_model
+      title: 自定义模型ID
+      tip: ''
     outputList:
     - key: chat_res
       title: 对话聊天记录输出
@@ -69,6 +75,9 @@ atomic:
     - key: text
       title: 主题
       tip: 输入您需要扩展的主题。
+    - key: model
+      title: 模型ID
+      tip: ''
     outputList:
     - key: theme_expand_res
       title: 主题扩展结果输出
@@ -83,6 +92,9 @@ atomic:
     - key: text
       title: 段落
       tip: 输入您需要扩展的段落。
+    - key: model
+      title: 模型ID
+      tip: ''
     outputList:
     - key: sentence_expand_res
       title: 段落扩展结果输出
@@ -97,6 +109,9 @@ atomic:
     - key: text
       title: 段落
       tip: 输入您需要缩写的段落。
+    - key: model
+      title: 模型ID
+      tip: ''
     outputList:
     - key: sentence_reduce_res
       title: 段落缩写结果输出
@@ -113,6 +128,9 @@ atomic:
     - key: app_token
       title: Dify流程密钥
       tip: Dify流程密钥
+    - key: app_url
+      title: Dify流程地址
+      tip: Dify流程地址
     - key: file_flag
       title: 是否上传文件
       tip: ''
@@ -132,6 +150,43 @@ atomic:
     - key: dify_result
       title: Dify流程结果输出
       tip: ''
+  Agent.call_dify_chatflow:
+    title: 调用Dify对话流
+    comment: 调用Dify对话流 @{app_token} ，完成您指定的任务。
+    icon: call-dify-workflow
+    helpManual: ''
+    inputList:
+      - key: user
+        title: 用户名
+        tip: ''
+      - key: app_token
+        title: Dify流程密钥
+        tip: Dify流程密钥
+      - key: app_url
+        title: Dify流程地址
+        tip: Dify流程地址
+      - key: query
+        title: 用户输入
+        tip: 对话式的用户输入
+      - key: file_flag
+        title: 是否上传文件
+        tip: ''
+      - key: variable_name
+        title: 变量名
+        tip: ''
+      - key: variable_value
+        title: 变量值
+        tip: ''
+      - key: file_path
+        title: 文件路径
+        tip: ''
+      - key: file_type
+        title: 文件类型
+        tip: ''
+    outputList:
+      - key: dify_result
+        title: Dify流程结果输出
+        tip: ''
   Agent.call_xcagent:
     title: 调用星辰Agent流程
     comment: 调用星辰Agent流程 @{flow_id} ，完成您指定的任务。
@@ -139,16 +194,28 @@ atomic:
     helpManual: ''
     inputList:
       - key: api_key
-        title: api_key
+        title: API Key
         tip: ''
       - key: api_secret
-        title: api_secret
+        title: API Secret
         tip: ''
       - key: flow_id
         title: 流程id
         tip: ''
       - key: input_value
         title: 工作流默认输入
+        tip: ''
+      - key: file_flag
+        title: 是否上传文件
+        tip: ''
+      - key: variable_name
+        title: 变量名
+        tip: ''
+      - key: variable_value
+        title: 变量值
+        tip: ''
+      - key: file_path
+        title: 文件路径
         tip: ''
     outputList:
       - key: xcagent_result
@@ -175,6 +242,9 @@ atomic:
     - key: contract_validate
       title: 效果验证
       tip: ''
+    - key: model
+      title: 模型ID
+      tip: ''
     outputList:
     - key: factor_result
       title: 返回要素结果
@@ -193,6 +263,9 @@ atomic:
       tip: ''
     - key: job_website
       title: 招聘网站
+      tip: ''
+    - key: model
+      title: 模型ID
       tip: ''
     outputList:
     - key: recruit_keywords
@@ -224,6 +297,9 @@ atomic:
       tip: ''
     - key: rating_dimensions
       title: 岗位评分画像
+      tip: ''
+    - key: model
+      title: 模型ID
       tip: ''
     outputList:
     - key: recruit_rating
@@ -264,7 +340,9 @@ options:
   - value: custom
     label: 自定义判断标准
   LLMModelTypes:
-  - value: deepseek-v3-0324
-    label: DeepSeek-V3
-  - value: claude-4-sonnet
-    label: DeepSeek-R1
+  - value: deepseek-chat
+    label: DeepSeek-Chat
+  - value: deepseek-reasoner
+    label: DeepSeek-Reasoner
+  - value: custom
+    label: 自定义模型

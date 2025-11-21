@@ -79,7 +79,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-ai"
-version = "1.0.2"
+version = "1.0.0"
 source = { editable = "components/astronverse-ai" }
 dependencies = [
     { name = "astronverse-actionlib" },
