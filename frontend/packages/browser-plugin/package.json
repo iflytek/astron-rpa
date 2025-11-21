@@ -15,6 +15,7 @@
     "build:firefox": "vite build --mode=firefox",
     "build:360se": "vite build --mode=360se",
     "build:360ChromeX": "vite build --mode=360ChromeX",
+    "build:chromium": "vite build --mode=chromium",
     "test:browser": "vitest --config=vitest.browser.config.js",
     "coverage": "vitest --config=vitest.browser.config.js run --coverage",
     "build:all": "npm run build && npm run build:firefox && npm run build:360se && npm run build:360ChromeX"

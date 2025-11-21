@@ -7,6 +7,8 @@ This repository is for the RPA browser plugin, which handles web-related automat
 # Build Instructions
 
 - Build command: `npm run build`
+- `npm run build:browser` is used to package the plugin for a specific browser. It supports any Chromium/Firefox-based browser variant. You only need to set `custom_agent` in `src/3rd/rpa_websocket.js` and add the corresponding command in `package.json`. The `browser` refers to the executable file name of the target browser.
+
 
 # Feature Overview
 

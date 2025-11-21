@@ -235,7 +235,7 @@ const ContentHandler = {
       const ele = await ContentHandler.ele.getDom(data)
       const outerHTML = ele ? ele.outerHTML : ''
       const abXpath = getXpath(ele, true)
-      return Utils.success({ ...data, abXpath, outerHTML })
+      return Utils.success({ ...data, abXpath, outerHTML, originXpath: abXpath })
     },
     checkElement: async (data: ElementInfo) => {
       let checkEles = null
