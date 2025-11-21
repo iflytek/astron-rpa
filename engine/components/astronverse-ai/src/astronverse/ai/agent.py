@@ -1,6 +1,6 @@
 """Agent related atomic operations and workflow integration for AI interactions."""
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem, AtomicLevel
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.ai import DifyFileTypes

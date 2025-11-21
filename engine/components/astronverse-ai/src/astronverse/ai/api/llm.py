@@ -7,6 +7,7 @@ import requests
 import sseclient
 from astronverse.ai.error import *
 from astronverse.actionlib.atomic import atomicMg
+from astronverse.baseline.logger.logger import logger
 
 API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"

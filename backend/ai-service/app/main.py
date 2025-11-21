@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.config import get_settings
-from app.database import create_db_and_tables
 from app.redis_op import init_redis_pool, close_redis_pool
 from app.internal import admin
 from app.routers.v1 import chat
@@ -19,7 +18,6 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize connections
-    await create_db_and_tables()
     await init_redis_pool()
 
     yield

@@ -5,7 +5,7 @@ import json
 import os
 
 import requests
-from rpaframe.logger.logger import logger
+from astronverse.baseline.logger.logger import logger
 
 
 class xcAgent:  # pylint: disable=invalid-name
