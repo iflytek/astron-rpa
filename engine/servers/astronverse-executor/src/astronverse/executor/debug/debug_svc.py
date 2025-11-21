@@ -99,10 +99,8 @@ class DebugSvc:
                         reason = MSG_TASK_EXECUTION_ERROR
                     self.report.info(
                         ReportFlow(
-                            log_type=ReportType.Flow,
-                            result=status,
-                            status=ReportFlowStatus.TASK_ERROR,
-                            msg_str=reason)
+                            log_type=ReportType.Flow, result=status, status=ReportFlowStatus.TASK_ERROR, msg_str=reason
+                        )
                     )
                 else:
                     raise NotImplementedError()
