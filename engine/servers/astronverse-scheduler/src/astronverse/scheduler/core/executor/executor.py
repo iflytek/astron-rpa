@@ -342,6 +342,9 @@ class ExecutorManager:
             ins.set_param("project_name", project_name)
         if version:
             ins.set_param("version", int(version))
+        if self.svc.config and self.svc.config.conf_file:
+            resource_dir = os.path.dirname(self.svc.config.conf_file)
+            ins.set_param("resource_dir", resource_dir)
 
         wait_web_ws = "y"
         wait_tip_ws = "y"
