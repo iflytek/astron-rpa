@@ -60,17 +60,17 @@ interface Attrs {
   text: string
 }
 
-export interface SimilarDataParams {
+interface SimilarDataParams {
   key: string
   data: SimilarDataType
 }
 
-export interface TableDataParams {
+interface TableDataParams {
   key: string
   data: TableDataType
 }
 
-export interface BatchElementParams extends ElementInfo {
+interface BatchElementParams extends ElementInfo {
   produceType: 'table' | 'similar'
   values?: SimilarValueType[]
   openSourcePage?: boolean

@@ -136,7 +136,7 @@ function sleep(ms) {
  *  firefox support pageshot
  */
 
-export function fullPageShotFirefox(tab) {
+function fullPageShotFirefox(tab) {
   return new Promise((resolve) => {
     chrome.tabs.sendMessage(
       tab.id,
@@ -181,15 +181,7 @@ export async function captureArea(tab: chrome.tabs.Tab, area: { x: number, y: nu
   return data
 }
 
-export function resetScale(tabId) {
-  return new Promise((resolve) => {
-    chrome.tabs.setZoom(tabId, 1, () => {
-      resolve(true)
-    })
-  })
-}
-
-export function getPageDevicePixelRatio(tab: chrome.tabs.Tab): Promise<number> {
+function getPageDevicePixelRatio(tab: chrome.tabs.Tab): Promise<number> {
   return new Promise((resolve) => {
     chrome.tabs.sendMessage(
       tab.id,

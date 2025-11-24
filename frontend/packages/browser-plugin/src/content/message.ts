@@ -7,7 +7,7 @@ function isExtensionContextValid() {
     return false
   }
 }
-export function sendToBackground(message) {
+function sendToBackground(message) {
   return new Promise((resolve, reject) => {
     if (!isExtensionContextValid()) {
       resolve('Extension context is not valid')
@@ -28,12 +28,5 @@ export function sendElementData(elementData) {
   sendToBackground({
     type: 'element',
     data: elementData,
-  })
-}
-
-export function sendLog(data) {
-  sendToBackground({
-    type: 'log',
-    data,
   })
 }

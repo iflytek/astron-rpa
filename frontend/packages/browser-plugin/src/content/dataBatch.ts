@@ -3,7 +3,7 @@ import type { SimilarDataType } from '../types/data_batch'
 /**
  * Data capture
  */
-import { getElementByElementInfo, getElementBySelector, getElementDirectory, getNthCssSelector, getXpath, textAttrFromElement } from './element'
+import { generateXPath, getElementByElementInfo, getElementBySelector, getElementDirectory, getNthCssSelector, textAttrFromElement } from './element'
 import { Utils } from './utils'
 
 function elementCountByXpath(xpath: string) {
@@ -20,6 +20,17 @@ function elementCountByCssSelector(cssSelector: string) {
   return getElementBySelector(cssSelector).length
 }
 
+/**
+ * Finds the most similar XPath by removing numeric indices from the original XPath,
+ * and returns the XPath that matches the largest number of elements in the DOM.
+ *
+ * Iterates through each segment of the given XPath, and for segments containing a numeric index,
+ * constructs a new XPath with the index removed. It then uses `elementCountByXpath` to determine
+ * how many elements match the new XPath, keeping track of the XPath with the highest match count.
+ *
+ * @param xpath - The original XPath string to analyze and generalize.
+ * @returns The most similar XPath (with numeric indices removed) that matches the largest number of elements.
+ */
 function similarXpathByXpath(xpath: string) {
   let similarXpath = ''
   let similarCount = 0
@@ -44,6 +55,15 @@ function similarXpathByXpath(xpath: string) {
   return similarXpath
 }
 
+/**
+ * Generates a similar CSS selector by removing the `:nth-child` pseudo-class from the given selector.
+ * Iterates through each part of the selector, and for every occurrence of `:nth-child`, 
+ * constructs a new selector without it and calculates the number of matching elements using `elementCountByCssSelector`.
+ * Returns the selector that matches the most elements after removing `:nth-child`.
+ *
+ * @param cssSelector - The original CSS selector string, potentially containing `:nth-child` pseudo-classes.
+ * @returns A similar CSS selector string with `:nth-child` removed, which matches the most elements.
+ */
 function similarCssSelectorByCssSelector(cssSelector: string) {
   let similarCssSelector = ''
   let similarCount = 0
@@ -68,6 +88,16 @@ function similarCssSelectorByCssSelector(cssSelector: string) {
   return similarCssSelector
 }
 
+/**
+ * Processes an array of `ElementDirectory` objects and updates their attributes based on a provided similar XPath string.
+ *
+ * - For each directory, disables the `checked` property for `id` attributes (except the first item), and for `text` or `innertext` attributes.
+ * - For each directory, if the corresponding segment in the XPath contains an index (e.g., `[2]`), sets the `checked` property and updates the `value` of the `index` attribute accordingly.
+ *
+ * @param pathDirs - An array of `ElementDirectory` objects representing element directories to process.
+ * @param similarXpath - An optional XPath string used to determine similarity and index values for each directory.
+ * @returns A new array of `ElementDirectory` objects with updated attribute states based on the provided XPath.
+ */
 function similarPathDirsByXpath(pathDirs: ElementDirectory[], similarXpath?: string) {
   let similarXpathArr = similarXpath ? similarXpath.split('/') : []
   similarXpathArr = similarXpathArr.filter(item => item)
@@ -99,6 +129,53 @@ function similarPathDirsByXpath(pathDirs: ElementDirectory[], similarXpath?: str
   return similarDirs
 }
 
+function similarPathDirs(pathDirs: ElementDirectory[]) {
+  if (!pathDirs) {
+    return []
+  }
+  pathDirs.forEach((dir) => {
+    dir.attrs.forEach((attr, index) => {
+      if (attr.name === 'id' && index !== 0) {
+        attr.checked = false
+      }
+      if (attr.name === 'text' || attr.name === 'innertext') {
+        attr.checked = false
+      }
+    })
+  })
+  let similarCount = 0
+  let similarDirs = JSON.parse(JSON.stringify(pathDirs))
+  for (let i = pathDirs.length - 1; i >= 0; i--) {
+    const pathDir = pathDirs[i]
+    const indexAttr = pathDir.attrs.find(item => item.name === 'index' && item.checked)
+    if (indexAttr) {
+      const checkedBackup = indexAttr.checked
+      indexAttr.checked = false
+      const newXpath = generateXPath(pathDirs)
+      const curSimilarCount = elementCountByXpath(newXpath)
+      if (curSimilarCount > similarCount) {
+        similarCount = curSimilarCount
+        similarDirs = JSON.parse(JSON.stringify(pathDirs))
+      }
+      indexAttr.checked = checkedBackup
+    }
+  }
+  return similarDirs
+}
+
+/**
+ * Updates the attributes of each `ElementDirectory` in the given `pathDirs` array based on the provided XPath string.
+ * 
+ * The function parses the XPath, splits it into segments, and applies the following logic for each segment:
+ * - Resets all attribute `checked` flags to `false`.
+ * - If the segment tag is '*', sets the directory's tag and value to '*'.
+ * - If the segment contains an index (e.g., `[2]` or `position()=2`), sets the `index` attribute's `checked` flag to `true` and updates its value.
+ * - If the segment contains an `id` attribute (e.g., `@id='foo'`), sets the `id` attribute's `checked` flag to `true` and updates its value.
+ * 
+ * @param pathDirs - An array of `ElementDirectory` objects representing the element hierarchy.
+ * @param xpath - The XPath string to parse and apply to the element directories.
+ * @returns A new array of `ElementDirectory` objects with updated attributes reflecting the XPath.
+ */
 function pathDirsByXpath(pathDirs: ElementDirectory[], xpath: string) {
   const xpathArr = xpath.split('/').reverse()
   const pathDirsArr = pathDirs.reverse()
@@ -140,6 +217,16 @@ function pathDirsByXpath(pathDirs: ElementDirectory[], xpath: string) {
   return pathDirsArr.reverse()
 }
 
+/**
+ * Generates a batch of similar element data based on the provided `ElementInfo` parameters.
+ *
+ * This function collects elements matching the given parameters, extracts their textual or attribute values,
+ * and returns an object containing the batch data. If all elements lack text but have `src` or `href` attributes,
+ * those attributes are used as the value and the `value_type` is updated accordingly.
+ *
+ * @param params - The information describing the target element(s), including attributes and value type.
+ * @returns An object containing the batch of similar element data, including extracted values and updated value type.
+ */
 function similarDataBatch(params: ElementInfo) {
   const value: SimilarDataValueT[] = []
   const similarElementData = { ...params, value, value_type: params.value_type || 'text' }
@@ -180,30 +267,39 @@ function similarDataBatch(params: ElementInfo) {
   }
 }
 
+/**
+ * Generates a batch of similar elements based on the provided `ElementInfo` parameters.
+ * 
+ * This function attempts to find elements similar to the one described by `params`.
+ * - If the XPath includes 'table', it delegates to `tableColumnDataBatch`.
+ * - For shadow DOM elements, it computes a similar CSS selector.
+ * - For non-shadow DOM elements, it computes similar XPath, CSS selector, and path directories.
+ * - If XPath or CSS selector is missing, it computes them from the current element.
+ * - Finally, it returns the result of `similarDataBatch` with the updated parameters.
+ * 
+ * @param params - The information about the target element, including shadow root, XPath, CSS selector, and path directories.
+ * @returns A batch of similar elements' data.
+ */
 export function similarBatch(params: ElementInfo) {
   let { shadowRoot, xpath, cssSelector, pathDirs } = params
-  const elements = getElementByElementInfo(params)
-  const currentElement = elements[0]
-
   if (params.xpath.includes('table')) {
     return tableColumnDataBatch(params)
   }
-  if (shadowRoot) {
-    cssSelector = similarCssSelectorByCssSelector(params.cssSelector)
+  cssSelector = similarCssSelectorByCssSelector(params.cssSelector)
+  if (!shadowRoot) {
+    pathDirs = similarPathDirs(params.pathDirs)
+    xpath = generateXPath(pathDirs)
   }
-  else {
-    xpath = similarXpathByXpath(params.xpath)
-    cssSelector = similarCssSelectorByCssSelector(params.cssSelector)
-    pathDirs = similarPathDirsByXpath(params.pathDirs, xpath)
-  }
-
   if (!xpath) {
-    const absoluteXpath = getXpath(currentElement, true)
+    const elements = getElementByElementInfo(params)
+    const currentElement = elements[0]
     const absolutePathDirs = getElementDirectory(currentElement, true)
-    xpath = similarXpathByXpath(absoluteXpath)
-    pathDirs = similarPathDirsByXpath(absolutePathDirs, xpath)
+    pathDirs = similarPathDirs(absolutePathDirs)
+    xpath = generateXPath(pathDirs)
   }
   if (!cssSelector) {
+    const elements = getElementByElementInfo(params)
+    const currentElement = elements[0]
     const absoluteCssSelector = getNthCssSelector(currentElement, true)
     cssSelector = similarCssSelectorByCssSelector(absoluteCssSelector)
   }
@@ -253,7 +349,19 @@ function getTableDom(dom: HTMLElement) {
   return tableDom as HTMLTableElement
 }
 
-export function getTableMaxTr(tableDom: HTMLTableElement, select = 'tbody') {
+/**
+ * Finds the table row (`<tr>`) within the specified section (`select`, defaults to `'tbody'`) of a given HTML table element
+ * that contains the maximum number of columns, accounting for `colspan` attributes.
+ *
+ * If no rows are found in the specified section and `select` is `'tbody'`, it falls back to searching all `<tr>` elements in the table.
+ *
+ * @param tableDom - The HTML table element to search within.
+ * @param select - The section of the table to search for rows (e.g., `'tbody'`, `'thead'`). Defaults to `'tbody'`.
+ * @returns An object containing:
+ *   - `maxNum`: The maximum number of columns found in a row.
+ *   - `maxTr`: The table row element with the maximum number of columns, or `null` if no rows are found.
+ */
+function getTableMaxTr(tableDom: HTMLTableElement, select = 'tbody') {
   let maxTr: HTMLTableRowElement = null
   let maxNum = 0
   let rows = tableDom.querySelectorAll(`${select} > tr`)
@@ -282,7 +390,7 @@ export function getTableMaxTr(tableDom: HTMLTableElement, select = 'tbody') {
   }
 }
 
-export function getTableHead(headTr: HTMLTableRowElement, maxHeadNum: number) {
+function getTableHead(headTr: HTMLTableRowElement, maxHeadNum: number) {
   if (!headTr || !headTr.cells || headTr.cells.length === 0) {
     return Array.from({ length: maxHeadNum }, () => '')
   }
@@ -293,6 +401,18 @@ export function getTableHead(headTr: HTMLTableRowElement, maxHeadNum: number) {
   return res
 }
 
+/**
+ * Formats and extracts table data from a given DOM element representing a table.
+ *
+ * This function processes the table's header and body, handling merged cells (rowSpan and colSpan),
+ * and returns a structured representation of the table's header (`thead`) and body (`tbody`).
+ * It ensures that the output arrays have consistent dimensions, filling in empty cells as needed.
+ *
+ * @param dom - The root HTMLElement containing the table to be processed.
+ * @returns An object containing:
+ * - `thead`: An array of strings representing the table header.
+ * - `tbody`: A 2D array of strings representing the table body, with merged cells expanded appropriately.
+ */
 export function tableDataFormatterProcure(dom: HTMLElement) {
   const tableDom = getTableDom(dom)
   const { maxNum: maxColNum } = getTableMaxTr(tableDom, 'tbody')
@@ -349,6 +469,18 @@ export function tableColumnDataBatch(params: ElementInfo) {
   return result
 }
 
+/**
+ * Transforms a given XPath string for a table column into a generalized XPath format.
+ *
+ * This function processes the input XPath by:
+ * - Replacing any segment containing 'tbody' with a wildcard '*'.
+ * - Replacing any segment containing 'tr[' with 'tr'.
+ * - Replacing any segment containing 'td[' or 'th[' with a wildcard selector using the extracted index (e.g., '*[2]').
+ * - Leaving other segments unchanged.
+ *
+ * @param xpath - The original XPath string targeting a table column.
+ * @returns The transformed XPath string with generalized selectors.
+ */
 function tableColumnXpath(xpath: string) {
   const xpathArray = xpath.split('/')
   const newXPathArray = xpathArray.map((item) => {
@@ -369,6 +501,17 @@ function tableColumnXpath(xpath: string) {
   return newXPathArray.join('/')
 }
 
+/**
+ * Generates a simplified CSS selector for a table column based on the provided selector string.
+ *
+ * This function processes the input CSS selector by removing 'tbody' and 'thead' elements,
+ * normalizing 'tr:nth-child' to 'tr', and converting 'td:nth-child' or 'th:nth-child' to
+ * '*:nth-child' with the corresponding index. The resulting selector is constructed to
+ * target table columns more generically.
+ *
+ * @param cssSelector - The original CSS selector string for a table column.
+ * @returns A simplified CSS selector string suitable for column selection.
+ */
 function tableColumnSelector(cssSelector: string) {
   let selector = ''
 
@@ -399,6 +542,16 @@ function tableColumnSelector(cssSelector: string) {
   return selector
 }
 
+/**
+ * Extracts the header row values from a table element based on the provided `ElementInfo` parameters.
+ *
+ * This function attempts to locate the closest table to the given element, and then retrieves the header row values.
+ * If a table is found, it first tries to get the header from the `<thead>` section. If no header is found, it falls back
+ * to the nearest `<tr>` element. If no table is found, it attempts to retrieve similar batch values as a fallback.
+ *
+ * @param params - The information used to locate the target element and table.
+ * @returns An array of strings representing the table header values.
+ */
 export function tableHeaderBatch(params: ElementInfo) {
   const eles = getElementByElementInfo(params)
   const dom = eles ? (eles[0] as HTMLElement) : null

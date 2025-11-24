@@ -1,7 +1,5 @@
 export const SUPPORTED_PROTOCOLS = ['http://', 'https://', 'file://', 'ftp://']
 
-export const IGNORE_KEYS = ['getElement', 'backgroundInject', 'contentInject']
-
 export const V2_EXTENSION_ID = 'dibfknoajiboamheempfppeapcedplgm'
 
 export const V3_EXTENSION_ID = 'gfpcfabhkgenjcmjgnldmkhjieekeeea'
