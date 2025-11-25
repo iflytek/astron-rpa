@@ -135,17 +135,18 @@ class HttpStorage(Storage):
 
         element_data = json.loads(res.get("elementData"))
         if not element_data.get("img"):
-            element_data["img"] = {}
-        element_data["img"]["self"] = res.get("imageUrl")
-        element_data["img"]["parent"] = res.get("parentImageUrl")
+            element_data["img"] = {"self": "", "parent": ""}
+        if element_data.get("type") == "cv":
+            element_data["img"]["self"] = self.element_vision_detail(res.get("imageUrl"))
+            element_data["img"]["parent"] = self.element_vision_detail(res.get("parentImageUrl"))
         res.update({"elementData": element_data})
-
         self.cache_manager.set("element", element_id, res)
         return res
 
     def element_vision_detail(self, url: str) -> str:
         """Get element image (base64 string) by URL"""
-
+        if not url:
+            return ""
         parsed = urlparse(url)
         qs = parse_qs(parsed.query)
         img_id = qs.get("fileId", [None])[0]
