@@ -28,6 +28,7 @@ from astronverse.browser import (
 )
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
+from astronverse.browser.core.browser_opener import BrowserOpener
 from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.error import (
     BROWSER_GET_TIMEOUT,
@@ -109,11 +110,12 @@ class BrowserSoftware:
         """
         open 打开浏览器
         """
-        open_args += " --remote-debugging-port=9555"
+        # open_args += " --remote-debugging-port=9555"
 
         if open_args and "--headless=old" in open_args:
             raise BaseException(BROWSER_OPEN_TIMEOUT, "浏览器不支持无头模式")
 
+        # 内置浏览器插件
         if browser_type.value == "chromium":
             open_args += ' --load-extension="./Extensions/rpa-extension"'
 
@@ -155,16 +157,11 @@ class BrowserSoftware:
             # 判断是否已经打开，没有打开的话起新的
             is_open = False
             if browser_type in CHROME_LIKE_BROWSERS:
-                webbrowser.BackgroundBrowser = GenericBrowser
-                webbrowser.register(
-                    browser_type.value,
-                    None,
-                    webbrowser.BackgroundBrowser(browser_abs_path),
-                )
-                webbrowser.get(browser_type.value).open(
-                    str(url),
+                BrowserOpener.open_browser(
+                    url=str(url),
+                    browser=browser_type.value,
+                    private=open_with_incognito,
                     open_args=open_args,
-                    open_with_incognito=open_with_incognito,
                 )
             else:
                 raise NotImplementedError()
@@ -183,18 +180,22 @@ class BrowserSoftware:
         time.sleep(1)
 
         # 置顶最大化
-        if browser_type in CHROME_LIKE_BROWSERS:
-            from astronverse.window import WindowSizeType
-            from astronverse.window.window import WindowsCore
+        # if browser_type in CHROME_LIKE_BROWSERS:
+        #     from astronverse.window import WindowSizeType
+        #     from astronverse.window.window import WindowsCore
 
-            WindowsCore.top(handler)
-            WindowsCore.size(handler, WindowSizeType.MAX)
-        else:
-            raise NotImplementedError()
+        #     WindowsCore.top(handler)
+        #     WindowsCore.size(handler, WindowSizeType.MAX)
+        # else:
+        #     raise NotImplementedError()
 
         if is_open:
-            # 打开新标签页
-            BrowserSoftware.web_open(browser_obj=res, new_tab_url=url)
+            BrowserOpener.open_browser(
+                url=str(url),
+                browser=browser_type.value,
+                private=open_with_incognito,
+                open_args=open_args,
+            )
         else:
             if browser_type in CHROME_LIKE_BROWSERS and not open_with_incognito:
                 res.send_browser_extension(
@@ -210,7 +211,6 @@ class BrowserSoftware:
             result = BrowserSoftware.wait_web_load(browser_obj=res, timeout=timeout)
             if not result and timeout_handle_type == CommonForTimeoutHandleType.ExecError:
                 BrowserSoftware.stop_web_load(browser_obj=res)
-                # raise BaseException(WEB_LOAD_TIMEOUT, "打开网页超时，请重试 {}".format(result))
         return res
 
     @staticmethod
