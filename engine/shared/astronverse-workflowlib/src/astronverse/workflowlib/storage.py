@@ -134,6 +134,8 @@ class HttpStorage(Storage):
             raise Exception("Failed to get element data for {}: empty response".format(element_id))
 
         element_data = json.loads(res.get("elementData"))
+        if not element_data.get("img"):
+            element_data["img"] = {}
         element_data["img"]["self"] = res.get("imageUrl")
         element_data["img"]["parent"] = res.get("parentImageUrl")
         res.update({"elementData": element_data})
