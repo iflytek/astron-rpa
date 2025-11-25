@@ -628,7 +628,7 @@ function checkElementsByRegular(searchElements: HTMLElement[], elementDirectory:
 function directoryFindElement(elementDirectory: ElementDirectory[], onlyPosition: boolean = false) {
   let searchElements: HTMLElement[] = []
   const xpath = generateXPath(elementDirectory, onlyPosition)
-  console.log('directoryFindElement generateXPath xpath: ', xpath)
+  // console.log('directoryFindElement generateXPath xpath: ', xpath)
   searchElements = getElementsByXpath(xpath, onlyPosition)
   if (searchElements && searchElements.length > 0) {
     searchElements = checkElementsByRegular(searchElements, elementDirectory)

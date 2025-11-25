@@ -392,6 +392,9 @@ export const Tabs = {
    */
   sendTabFrameMessage: (tabId: number, message, frameId: number): Promise<ContentResult> => {
     return new Promise<ContentResult>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error(`Message timeout: frameId ${frameId} not responding`))
+      }, 10 * 1000) // 10 seconds timeout
       try {
         chrome.tabs.sendMessage(
           tabId,
@@ -400,11 +403,17 @@ export const Tabs = {
             frameId,
           },
           (response) => {
+            clearTimeout(timeout)
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message))
+              return
+            }
             resolve(response)
           },
         )
       }
       catch (error) {
+        clearTimeout(timeout)
         reject(error)
       }
     })

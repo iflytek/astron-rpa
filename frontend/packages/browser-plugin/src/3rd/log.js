@@ -7,5 +7,8 @@ export const log = {
   },
   error: (...args) => {
     console.error('[error]', ...args)
+  },
+  time: (label) => {
+    console.time(label)
   }
 }

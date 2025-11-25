@@ -71,7 +71,9 @@ chrome.management.onEnabled.addListener((info) => {
 async function wsHandler(message) {
   const msgObject = typeof message === 'string' ? JSON.parse(message) : message
   log.info(msgObject.key, msgObject)
+  console.time(msgObject.key)
   const result = await bgHandler(msgObject)
+  console.timeEnd(msgObject.key)
   log.info(msgObject.key, result)
   return result
 }

@@ -285,8 +285,10 @@ const ContentHandler = {
     },
     checkElement: async (data: ElementInfo) => {
       let checkEles = null
+      console.time('checkElement')
       try {
         checkEles = await ContentHandler.ele.getElement(data)
+        console.timeLog('checkElement')
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
@@ -294,6 +296,7 @@ const ContentHandler = {
       frontCheckEnabled && checkEles && highlightElements(checkEles)
       if (checkEles && checkEles.length === 1) {
         const elementPos = getBoundingClientRect(checkEles[0])
+        console.timeEnd('checkElement')
         return Utils.success({ rect: [elementPos] })
       }
       else if (checkEles && checkEles.length > 1) {
