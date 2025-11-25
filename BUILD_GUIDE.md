@@ -282,30 +282,7 @@ swig -version
 
 AstronRPA adopts a **Server-Client** architecture:
 
-```
-┌─────────────────────────────────────┐
-│              Client                  │
-│  ┌─────────────┐ ┌─────────────────┐ │
-│  │Desktop App  │ │  RPA Engine     │ │
-│  │ (Tauri App) │ │(Python Engine)  │ │
-│  └─────────────┘ └─────────────────┘ │
-│             │                        │
-│             │ WebSocket/HTTP         │
-└─────────────┼────────────────────────┘
-              │
-              │ Network Connection
-              │
-┌─────────────┼────────────────────────┐
-│             ▼        Server          │
-│  ┌─────────────┐ ┌─────────────────┐ │
-│  │  Web UI     │ │  Backend        │ │
-│  │  (Vue App)  │ │(Java + Python)  │ │
-│  └─────────────┘ └─────────────────┘ │
-│         ┌─────────────────────────┐  │
-│         │   Database + Redis      │  │
-│         └─────────────────────────┘  │
-└─────────────────────────────────────┘
-```
+![](./docs/images/front-back.png)
 
 ### Deployment Overview
 
@@ -561,22 +538,14 @@ Double-click the MSI file to install.
 Modify the server address in `resources/conf.yaml` under the installation directory:
 
 ```yaml
-remote_addr: http://YOUR_SERVER_ADDRESS/
+# 32742 is the default port, modify if changed
+remote_addr: http://YOUR_SERVER_ADDRESS:32742/
 skip_engine_start: false
 ```
 
 > **💡 Tip:** Replace `YOUR_SERVER_ADDRESS` with your actual server address
 
 </details>
-
----
-
-### 📦 Deployment Output
-
-```
-src-tauri/resources/
-└── python_core.7z     # RPA execution engine package file
-```
 
 ---
 
@@ -599,13 +568,14 @@ src-tauri/resources/
 docker compose ps
 
 # 🔍 Verify API response
-curl http://localhost:32742/health
-(Return "healthy" means deployment successful)
+# Open in browser: http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check (32742 is default port, modify if changed)
+# If returns {"code":"900001","data":null,"message":"unauthorized"} then deployment is correct and connected
 ```
 
 ### ✅ Step 2: Casdoor Service Check
 
 ```bash
+# 🔍 Verify Casdoor service
 # Open http://localhost:8000 in browser
 # Casdoor authentication page should appear
 ```

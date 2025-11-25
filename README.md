@@ -51,7 +51,7 @@ cd docker
 # Copy .env
 cp .env.example .env
 
-# Modify casdoor service configuration in .env
+# Modify casdoor service configuration in .env (8000 is the default port)
 CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
 
 # 🚀 Start all services
@@ -61,7 +61,8 @@ docker compose up -d
 docker compose ps
 ```
 
-- Access the application at `http://localhost:8080`
+- After all services have started, open your browser and go to: `http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check` (32742 is the default port; change it if you modified the configuration).
+- If you see `{"code":"900001","data":null,"message":"unauthorized"}` , it means the deployment is correct and the connection is working properly.
 - For production deployment and security hardening, refer to [Deployment Guide](docker/QUICK_START.md)
 
 ### **Client**: Source Deployment/Binary Deployment
@@ -119,7 +120,8 @@ Download the latest [Release Package](https://github.com/iflytek/astron-rpa/rele
 4. ⚙️ After installation, modify the server address in `resources/conf.yaml` in the installation directory:
 
     ```yaml
-    remote_addr: http://YOUR_SERVER_ADDRESS/
+    # 32742 is the default port; change it if you modified the configuration
+    remote_addr: http://YOUR_SERVER_ADDRESS:32742/
     skip_engine_start: false
     ```
 
