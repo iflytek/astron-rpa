@@ -1524,7 +1524,7 @@ class ExcelCore(IExcelCore):
             starter = ws_obj.Range(f"{col}{str(start_row)}")
             starter.Value = formula
             starter.AutoFill(
-                ws_obj.Range(f"{col}{str(start_row)}:{str(start_row)}{str(end_row)}"),
+                ws_obj.Range(f"{col}{str(start_row)}:{col}{str(end_row)}"),
                 0,
             )
 
