@@ -50,7 +50,7 @@ cd docker
 # 复制.env
 cp .env.example .env
 
-# 修改.env中casdoor的服务配置
+# 修改.env中casdoor的服务配置（8000为默认端口）
 CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
 
 # 🚀 启动所有服务
@@ -60,7 +60,8 @@ docker compose up -d
 docker compose ps
 ```
 
-- 在浏览器访问 `http://localhost:8080`
+- 等服务都启动后，在浏览器访问 `http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check` （32742为默认端口，如有修改自行变更）
+- 如果显示 `{"code":"900001","data":null,"message":"unauthorized"}` 则表示部署正确且能正常联通。
 - 生产部署及安全加固请参考 [部署文档](docker/QUICK_START.md)
 
 ### **客户端**: 源码部署/安装包部署
@@ -118,7 +119,8 @@ docker compose ps
 4. ⚙️ 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
     ```yaml
-    remote_addr: http://YOUR_SERVER_ADDRESS/
+    # 32742为默认端口，如有修改自行变更
+    remote_addr: http://YOUR_SERVER_ADDRESS:32742/
     skip_engine_start: false
     ```
 

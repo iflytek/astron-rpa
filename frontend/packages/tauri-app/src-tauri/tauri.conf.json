@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "astron-rpa",
-    "version": "5.1.2"
+    "version": "1.0.1"
   },
   "tauri": {
     "allowlist": {

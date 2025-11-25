@@ -282,30 +282,7 @@ swig -version
 
 AstronRPA 采用 **服务端-客户端** 架构：
 
-```
-┌─────────────────────────────────────┐
-│              客户端                  │
-│  ┌─────────────┐ ┌─────────────────┐ │
-│  │  桌面应用    │ │   RPA 执行引擎   │ │
-│  │ (Tauri App) │ │  (Python Engine)│ │
-│  └─────────────┘ └─────────────────┘ │
-│             │                       │
-│             │ WebSocket/HTTP        │
-└─────────────┼───────────────────────┘
-              │
-              │ 网络连接
-              │
-┌─────────────┼───────────────────────┐
-│             ▼        服务端          │
-│  ┌─────────────┐ ┌─────────────────┐ │
-│  │   Web 界面   │ │   后端服务       │ │
-│  │  (Vue App)  │ │ (Java + Python) │ │
-│  └─────────────┘ └─────────────────┘ │
-│         ┌─────────────────────────┐   │
-│         │     数据库 + Redis      │   │
-│         └─────────────────────────┘   │
-└─────────────────────────────────────┘
-```
+![](./docs/images/front-back.png)
 
 ### 部署说明
 
@@ -561,7 +538,8 @@ pnpm build:tauri-debug
 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
 ```yaml
-remote_addr: http://YOUR_SERVER_ADDRESS/
+# 32742为默认端口，如有修改自行变更
+remote_addr: http://YOUR_SERVER_ADDRESS:32742/
 skip_engine_start: false
 ```
 
@@ -590,15 +568,16 @@ skip_engine_start: false
 docker compose ps
 
 # 🔍 验证 API 响应
-curl http://localhost:32742/health
-(返回"healthy"即为部署成功)
+在浏览器访问 http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check （32742为默认端口，如有修改自行变更）
+如果显示 {"code":"900001","data":null,"message":"unauthorized"} 则表示部署正确且能正常联通。
 ```
 
 ### ✅ 步骤 2: Casdoor服务检查
 
 ```bash
-# 浏览器打开http://localhost:8000
-# 出现casdoor认证页面
+# 🔍 验证 Casdoor 服务
+浏览器打开http://localhost:8000
+出现casdoor认证页面
 ```
 
 **后续验证：**
