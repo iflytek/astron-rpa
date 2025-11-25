@@ -449,24 +449,21 @@ function getShadowElementsBySelector(selector: string) {
   return filterVisibleElements(allElements)
 }
 
+
 /**
- * Determines and marks the most significant attribute(s) from a list of element attributes
- * based on a predefined priority: `id`, `text`, `type`, `class`, and `index`.
+ * Selects and marks the most significant attribute from a list of element attributes.
  *
- * - If an `id` attribute is present, it is marked as checked and all others are unchecked.
- * - If a `text` attribute is present and its value is not a control character, it is marked as checked and all others are unchecked.
- * - If a `type` attribute is present, it is marked as checked.
- * - If a `class` attribute is present and already checked, the attributes are returned as-is.
- * - If an `index` attribute with a value is present, it is marked as checked.
- * - Otherwise, the attributes are returned as-is.
+ * The function prioritizes the 'id' attribute, marking it as checked if present.
+ * If 'id' is not found, it checks for the 'text' attribute and marks it as checked.
+ * All other attributes are marked as unchecked.
+ * If neither 'id' nor 'text' is present, the attributes remain unchanged.
  *
- * @param attrs - An array of element attributes to evaluate and mark.
- * @returns The array of attributes with the most significant attribute(s) marked as checked.
+ * @param attrs - An array of `ElementAttrs` objects representing element attributes.
+ * @returns The updated array of `ElementAttrs` with the most significant attribute marked as checked.
  */
 function getWeightedAttrs(attrs: ElementAttrs[]) {
   const idAttr = attrs.find(attr => attr.name === 'id')
   const textAttr = attrs.find(attr => attr.name === 'text')
-  const textValue = (textAttr && textAttr.value) || ''
   if (idAttr) {
     attrs.forEach(attr => (attr.checked = false))
     idAttr.checked = true
@@ -477,47 +474,32 @@ function getWeightedAttrs(attrs: ElementAttrs[]) {
     textAttr.checked = true
     return attrs
   }
-  // if (typeAttr) {
-  //   typeAttr.checked = true
-  // }
-  // if (classAttr && classAttr.checked) {
-  //   return attrs
-  // }
-  // if (indexAttr && indexAttr.value) {
-  //   indexAttr.checked = true
-  // }
   return attrs
 }
 
+
 /**
- * Rebuilds the directory of element attributes by attempting to uncheck the 'index' attribute
- * for each directory entry if it does not affect the uniqueness of the element's XPath.
+ * Rebuilds the directory structure by re-evaluating the 'index' attribute of each node in the given directory list.
+ * For each directory, it temporarily unchecks the 'index' attribute and generates an XPath from the current state.
+ * If the XPath uniquely identifies the origin element, the 'index' remains unchecked; otherwise, it is checked again.
  *
- * For each directory entry, if the 'index' attribute is checked, the function temporarily unchecks it,
- * generates the XPath, and checks if the resulting elements uniquely identify the original element.
- * If so, the 'index' attribute remains unchecked; otherwise, its original state is restored.
- *
- * @param originElement - The original HTMLElement to be uniquely identified.
- * @param dirs - An array of ElementDirectory objects representing the attribute directories.
- * @returns The updated array of ElementDirectory objects with potentially modified 'index' attribute states.
+ * @param originElement - The original HTML element to match against the generated XPath.
+ * @param dirs - An array of `ElementDirectory` objects representing the directory structure and attributes.
+ * @returns The updated array of `ElementDirectory` objects with potentially modified 'index' attribute states.
  */
 function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) {
   // Re-weight dirs again, try to uncheck the index of each node
-  for (let i = 0; i < dirs.length; i++) {
+  for (let i = dirs.length - 1; i >= 0; i--) {
     const dir = dirs[i];
-    const indexAttr = dir.attrs.find(attr => attr.name === 'index' && attr.checked);
+    const indexAttr = dir.attrs.find(attr => attr.name === 'index');
     if (indexAttr) {
-      // Temporarily store the original state
-      const originalChecked = indexAttr.checked;
       indexAttr.checked = false;
       const xpath = generateXPath(dirs);
       const elements = getElementsByXpath(xpath);
       if (elements && elements.length === 1 && elements[0] === originElement) {
-        // index can be unchecked
-        // Keep indexAttr.checked = false
+
       } else {
-        // Restore original state
-        indexAttr.checked = originalChecked;
+        indexAttr.checked = true;
       }
     }
   }
