@@ -13,6 +13,8 @@ component_info = conf.get("component_info", {})
 
 storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
 
+os.environ.setdefault("GATEWAY_PORT", project_info.get("gateway_port"))
+
 
 def module(module_id) -> Optional[str]:
     if module_id not in process_info:
