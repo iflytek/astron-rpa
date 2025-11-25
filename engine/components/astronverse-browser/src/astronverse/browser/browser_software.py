@@ -28,7 +28,7 @@ from astronverse.browser import (
 )
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
-from astronverse.browser.core.browser_opener import BrowserOpener
+from astronverse.browser.browser_opener import BrowserOpener
 from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.error import (
     BROWSER_GET_TIMEOUT,
@@ -162,6 +162,7 @@ class BrowserSoftware:
                     browser=browser_type.value,
                     private=open_with_incognito,
                     open_args=open_args,
+                    browser_path=browser_abs_path
                 )
             else:
                 raise NotImplementedError()
@@ -195,6 +196,7 @@ class BrowserSoftware:
                 browser=browser_type.value,
                 private=open_with_incognito,
                 open_args=open_args,
+                browser_path=browser_abs_path
             )
         else:
             if browser_type in CHROME_LIKE_BROWSERS and not open_with_incognito:
