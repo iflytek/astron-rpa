@@ -21,38 +21,28 @@ function elementCountByCssSelector(cssSelector: string) {
 }
 
 /**
- * Finds the most similar XPath by removing numeric indices from the original XPath,
- * and returns the XPath that matches the largest number of elements in the DOM.
+ * Returns the column index of a table cell element specified by the given `ElementInfo` parameters.
  *
- * Iterates through each segment of the given XPath, and for segments containing a numeric index,
- * constructs a new XPath with the index removed. It then uses `elementCountByXpath` to determine
- * how many elements match the new XPath, keeping track of the XPath with the highest match count.
+ * This function locates the DOM element using `getElementByElementInfo`, finds its closest parent `<tr>`,
+ * and determines the cell's index within that row. If the element or row is not found, it returns -1.
  *
- * @param xpath - The original XPath string to analyze and generalize.
- * @returns The most similar XPath (with numeric indices removed) that matches the largest number of elements.
+ * @param params - The information used to locate the target table cell element.
+ * @returns The zero-based column index of the cell within its row, or -1 if not found.
  */
-function similarXpathByXpath(xpath: string) {
-  let similarXpath = ''
-  let similarCount = 0
-  const xpathArr = xpath.split('/')
-  for (let i = xpathArr.length - 1; i >= 0; i--) {
-    const tagValue = xpathArr[i].substring(xpathArr[i].indexOf('[') + 1, xpathArr[i].indexOf(']'))
-
-    if (/^\d+$/.test(tagValue)) {
-      const tag = xpathArr[i].split('[')[0]
-      const prePath = xpathArr.slice(0, i).join('/')
-      const nextPath = xpathArr.slice(i + 1).join('/')
-      let currentXpath = `${prePath}/${tag}/${nextPath}`
-      currentXpath = currentXpath.endsWith('/') ? currentXpath.slice(0, -1) : currentXpath
-      const currentSimilatCount = elementCountByXpath(currentXpath)
-
-      if (currentSimilatCount >= similarCount) {
-        similarCount = currentSimilatCount
-        similarXpath = currentXpath
+function getColumnIndex(params: ElementInfo) {
+  const eles = getElementByElementInfo(params)
+  const dom = eles ? (eles[0] as HTMLElement) : null
+  if (!dom) return -1;
+  const tr = dom.closest('tr');
+  let colIndex = -1;
+  if (tr) {
+    Array.from(tr.cells).forEach((cell, idx) => {
+      if (cell === dom) {
+        colIndex = idx;
       }
-    }
+    })
   }
-  return similarXpath
+  return colIndex;
 }
 
 /**
@@ -88,46 +78,6 @@ function similarCssSelectorByCssSelector(cssSelector: string) {
   return similarCssSelector
 }
 
-/**
- * Processes an array of `ElementDirectory` objects and updates their attributes based on a provided similar XPath string.
- *
- * - For each directory, disables the `checked` property for `id` attributes (except the first item), and for `text` or `innertext` attributes.
- * - For each directory, if the corresponding segment in the XPath contains an index (e.g., `[2]`), sets the `checked` property and updates the `value` of the `index` attribute accordingly.
- *
- * @param pathDirs - An array of `ElementDirectory` objects representing element directories to process.
- * @param similarXpath - An optional XPath string used to determine similarity and index values for each directory.
- * @returns A new array of `ElementDirectory` objects with updated attribute states based on the provided XPath.
- */
-function similarPathDirsByXpath(pathDirs: ElementDirectory[], similarXpath?: string) {
-  let similarXpathArr = similarXpath ? similarXpath.split('/') : []
-  similarXpathArr = similarXpathArr.filter(item => item)
-
-  const similarDirs = pathDirs.map((item, index) => {
-    return {
-      ...item,
-      attrs: item.attrs.map((attr) => {
-        if (attr.name === 'id' && index !== 0) {
-          attr.checked = false
-        }
-        if (attr.name === 'text' || attr.name === 'innertext') {
-          attr.checked = false
-        }
-        return attr
-      }),
-    }
-  })
-  similarDirs.forEach((item, index) => {
-    const xpathItem = similarXpathArr[index]
-    const num = xpathItem ? xpathItem.match(/\[(\d+)\]/)?.[1] : null
-    item.attrs.forEach((attr) => {
-      if (attr.name === 'index') {
-        attr.checked = !!num
-        attr.value = num || ''
-      }
-    })
-  })
-  return similarDirs
-}
 
 function similarPathDirs(pathDirs: ElementDirectory[]) {
   if (!pathDirs) {
@@ -161,60 +111,6 @@ function similarPathDirs(pathDirs: ElementDirectory[]) {
     }
   }
   return similarDirs
-}
-
-/**
- * Updates the attributes of each `ElementDirectory` in the given `pathDirs` array based on the provided XPath string.
- * 
- * The function parses the XPath, splits it into segments, and applies the following logic for each segment:
- * - Resets all attribute `checked` flags to `false`.
- * - If the segment tag is '*', sets the directory's tag and value to '*'.
- * - If the segment contains an index (e.g., `[2]` or `position()=2`), sets the `index` attribute's `checked` flag to `true` and updates its value.
- * - If the segment contains an `id` attribute (e.g., `@id='foo'`), sets the `id` attribute's `checked` flag to `true` and updates its value.
- * 
- * @param pathDirs - An array of `ElementDirectory` objects representing the element hierarchy.
- * @param xpath - The XPath string to parse and apply to the element directories.
- * @returns A new array of `ElementDirectory` objects with updated attributes reflecting the XPath.
- */
-function pathDirsByXpath(pathDirs: ElementDirectory[], xpath: string) {
-  const xpathArr = xpath.split('/').reverse()
-  const pathDirsArr = pathDirs.reverse()
-  let index = 0
-  while (index < pathDirsArr.length) {
-    const xpathItem = xpathArr[index]
-    pathDirsArr[index].attrs.forEach((attr) => {
-      attr.checked = false
-    })
-
-    const number = xpathItem.match(/\[(\d+)\]/)?.[1]
-    const tag = xpathItem.split('[')[0]
-    if (tag === '*') {
-      pathDirsArr[index].tag = '*'
-      pathDirsArr[index].value = '*'
-    }
-
-    const positionNumber = xpathItem.match(/position\(\)=\d+/)?.[0].match(/\d+/)?.[0]
-    if (number || positionNumber) {
-      pathDirsArr[index].attrs.forEach((attr) => {
-        if (attr.name === 'index') {
-          attr.checked = true
-          attr.value = number || positionNumber
-        }
-      })
-    }
-
-    const id = xpathItem.match(/@id=['"](.*)['"]/)?.[1]
-    if (id) {
-      pathDirsArr[index].attrs.forEach((attr) => {
-        if (attr.name === 'id') {
-          attr.checked = true
-          attr.value = id
-        }
-      })
-    }
-    index += 1
-  }
-  return pathDirsArr.reverse()
 }
 
 /**
@@ -461,44 +357,64 @@ export function tableDataFormatterProcure(dom: HTMLElement) {
 }
 
 export function tableColumnDataBatch(params: ElementInfo) {
-  const { xpath, cssSelector, pathDirs } = params
-  const newXpath = tableColumnXpath(xpath)
+  const { cssSelector } = params
   const newSelector = tableColumnSelector(cssSelector)
-  const newPathDirs = pathDirsByXpath(pathDirs, newXpath)
+  const newPathDirs = tableColumnPathDirs(params)
+  const newXpath = generateXPath(newPathDirs)
   const result = similarDataBatch({ ...params, xpath: newXpath, cssSelector: newSelector, pathDirs: newPathDirs })
   return result
 }
 
 /**
- * Transforms a given XPath string for a table column into a generalized XPath format.
+ * Generates a modified array of path directory objects for table column selection.
  *
- * This function processes the input XPath by:
- * - Replacing any segment containing 'tbody' with a wildcard '*'.
- * - Replacing any segment containing 'tr[' with 'tr'.
- * - Replacing any segment containing 'td[' or 'th[' with a wildcard selector using the extracted index (e.g., '*[2]').
- * - Leaving other segments unchanged.
+ * This function processes the `pathDirs` property from the given `ElementInfo` parameter,
+ * updating tag names, values, and attributes based on the type of HTML element (e.g., `td`, `th`, `thead`, `tbody`, `tr`).
+ * For table cells (`td` or `th`), it sets the tag and value to `*`, marks the `index` attribute as checked,
+ * and assigns the column index value. For header and body sections (`thead`, `tbody`), it sets the tag and value to `*`
+ * and unchecks all attributes. For table rows (`tr`), it unchecks all attributes. For other elements,
+ * it checks the `index` attribute if present.
  *
- * @param xpath - The original XPath string targeting a table column.
- * @returns The transformed XPath string with generalized selectors.
+ * @param params - The element information containing the path directories and other metadata.
+ * @returns An array of modified path directory objects reflecting the column selection logic.
  */
-function tableColumnXpath(xpath: string) {
-  const xpathArray = xpath.split('/')
-  const newXPathArray = xpathArray.map((item) => {
-    if (item.includes('tbody')) {
-      return '*'
+function tableColumnPathDirs(params: ElementInfo) {
+  const { pathDirs } = params;
+  const colIndex = getColumnIndex(params);
+
+  return pathDirs.map((dir) => {
+    let newDir = { ...dir, attrs: dir.attrs.map(attr => ({ ...attr })) };
+
+    if (dir.tag === 'td' || dir.tag === 'th') {
+      newDir.tag = '*';
+      newDir.value = '*';
+      newDir.attrs.forEach(attr => {
+        if (attr.name === 'index') {
+          attr.checked = true;
+          attr.value = (colIndex + 1).toString();
+        } else {
+          attr.checked = false;
+        }
+      });
+    } else if (dir.tag === 'thead' || dir.tag === 'tbody') {
+      newDir.tag = '*';
+      newDir.value = '*';
+      newDir.attrs.forEach(attr => {
+        attr.checked = false;
+      });
+    } else if (dir.tag === 'tr') {
+      newDir.attrs.forEach(attr => {
+        attr.checked = false;
+      });
+    } else {
+      newDir.attrs.forEach(attr => {
+        if (attr.name === 'index') {
+          attr.checked = true;
+        }
+      });
     }
-    else if (item.includes('tr[')) {
-      return 'tr'
-    }
-    else if (item.includes('td[') || item.includes('th[')) {
-      const num = item.match(/\d+/)?.[0]
-      return `*[${num}]`
-    }
-    else {
-      return item
-    }
-  })
-  return newXPathArray.join('/')
+    return newDir;
+  });
 }
 
 /**

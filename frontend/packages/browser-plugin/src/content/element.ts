@@ -52,7 +52,7 @@ export function textAttrFromElement(ele: HTMLElement) {
     },
   }
   for (const key in value.attrs) {
-    if (value.attrs[key] === null) {
+    if (!value.attrs[key]) {
       delete value.attrs[key]
     }
   }
@@ -795,58 +795,58 @@ export function generateXPath(dirs: ElementDirectory[], onlyPosition: boolean = 
  * // selector: "div#main>span.highlight"
  * ```
  */
-export function generateSelector(dirs: ElementDirectory[], onlyPosition: boolean = false): string {
-  if (dirs && dirs.length === 0) {
-    return ''
-  }
-  if (onlyPosition) {
-    dirs = JSON.parse(JSON.stringify(dirs)) // deep copy avoid modifying original dirs
-    dirs.forEach((item) => {
-      item.attrs.forEach((attr) => {
-        const attrValue = `${attr.value}`.trim()
-        if (attr.name === 'index' && attrValue !== '') {
-          attr.checked = true
-        }
-        else if (attr.name === 'id' && attrValue !== '') {
-          attr.checked = true
-        }
-        else {
-          attr.checked = false
-        }
-      })
-    })
-  }
-  const selector = dirs
-    .map((dir) => {
-      const tag = dir.tag
-      const attrs = dir.attrs
-        .filter((attr) => {
-          if (attr.type === 2 && attr.value && attr.checked) {
-            return false
-          }
-          else {
-            return attr.checked
-          }
-        })
-        .map((attr) => {
-          switch (attr.name) {
-            case 'id':
-              return `#${attr.value}`
-            case 'class':
-              return `.${attr.value}`
-            case 'index':
-              return `:nth-child(${attr.value})`
-            default:
-              return ''
-          }
-        })
-        .join('')
-      return `${tag}${attrs}`
-    })
-    .join('>')
+// function generateSelector(dirs: ElementDirectory[], onlyPosition: boolean = false): string {
+//   if (dirs && dirs.length === 0) {
+//     return ''
+//   }
+//   if (onlyPosition) {
+//     dirs = JSON.parse(JSON.stringify(dirs)) // deep copy avoid modifying original dirs
+//     dirs.forEach((item) => {
+//       item.attrs.forEach((attr) => {
+//         const attrValue = `${attr.value}`.trim()
+//         if (attr.name === 'index' && attrValue !== '') {
+//           attr.checked = true
+//         }
+//         else if (attr.name === 'id' && attrValue !== '') {
+//           attr.checked = true
+//         }
+//         else {
+//           attr.checked = false
+//         }
+//       })
+//     })
+//   }
+//   const selector = dirs
+//     .map((dir) => {
+//       const tag = dir.tag
+//       const attrs = dir.attrs
+//         .filter((attr) => {
+//           if (attr.type === 2 && attr.value && attr.checked) {
+//             return false
+//           }
+//           else {
+//             return attr.checked
+//           }
+//         })
+//         .map((attr) => {
+//           switch (attr.name) {
+//             case 'id':
+//               return `#${attr.value}`
+//             case 'class':
+//               return `.${attr.value}`
+//             case 'index':
+//               return `:nth-child(${attr.value})`
+//             default:
+//               return ''
+//           }
+//         })
+//         .join('')
+//       return `${tag}${attrs}`
+//     })
+//     .join('>')
 
-  return selector
-}
+//   return selector
+// }
 
 export function hasChildElement(element) {
   return element && element.children && element.children.length > 0
