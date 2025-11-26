@@ -43,7 +43,7 @@ class VerifyCode:
         input_flag: bool = False,
         input_box: WebPick = None,
     ) -> str:
-        element = Locator.locator(picture_pick.get("elementData"))
+        element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         code_result = VerifyCodeCore.get_api_result(api_type=code_type.value, pic_element_base64=image_base64)
@@ -89,7 +89,7 @@ class VerifyCode:
         move_pic_pick: WebPick = None,
         mini_step: int = 5,
     ) -> int:
-        element = Locator.locator(picture_pick.get("elementData"))
+        element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         drag_distance = int(VerifyCodeCore.get_api_result(api_type="22222", pic_element_base64=image_base64))
@@ -97,7 +97,7 @@ class VerifyCode:
         if not drag_distance:
             raise BaseException(MSG_EMPTY_FORMAT, "")
 
-        slider_element = Locator.locator(slider_pick.get("elementData"))
+        slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(slider_element.rect(), list):
             raise Exception("浏览器元素定位不唯一，请检查！")
         start_pos = slider_element.point()
@@ -138,7 +138,7 @@ class VerifyCode:
         picture_pick: WebPick = None,
         hint_position: HintPosition = HintPosition.BOTTOM,
     ):
-        element = Locator.locator(picture_pick.get("elementData"))
+        element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
         logger.info("rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())

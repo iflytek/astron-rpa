@@ -36,7 +36,7 @@ atomic:
     outputList:
     - key: element_exist
       title: 元素存在/不存在
-      tip: 输出元素是否存在，存在为true，不存在为false
+      tip: 输出元素是否存在，存在为True，不存在为False
   BrowserElement.click:
     title: 点击元素（web）
     comment: 通过 @{button_type:点击} 的形式点击浏览器对象 @{browser_obj} 中的元素 @{element_data}
