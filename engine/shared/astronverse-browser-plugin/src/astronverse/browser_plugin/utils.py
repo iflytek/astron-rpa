@@ -35,7 +35,12 @@ class FirefoxUtils:
             firefox_versions = ["firefox", "firefox-esr"]
 
             for version in firefox_versions:
-                result = subprocess.run(["which", version], capture_output=True, text=True)
+                result = subprocess.run(["which", version],
+                                        check=False,
+                                        stdin=subprocess.DEVNULL,
+                                        stdout=subprocess.DEVNULL,
+                                        stderr=subprocess.DEVNULL
+                                        )
                 if result.returncode == 0:
                     return version
             return ""

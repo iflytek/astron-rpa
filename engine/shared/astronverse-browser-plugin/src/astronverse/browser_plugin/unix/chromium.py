@@ -23,7 +23,12 @@ class ChromiumPluginManager(PluginManagerCore):
 
     def check_browser(self):
         try:
-            result = subprocess.run(["which", self.browser_name], capture_output=True, text=True)
+            result = subprocess.run(["which", self.browser_name],
+                                    check=False,
+                                    stdin=subprocess.DEVNULL,
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL
+                                    )
             if result.returncode == 0:
                 return True
             else:
@@ -48,7 +53,12 @@ class ChromiumPluginManager(PluginManagerCore):
 
     def close_browser(self):
         try:
-            subprocess.run(["killall", self.process_name], check=True)
+            subprocess.run(["killall", self.process_name],
+                           check=True,
+                           stdin=subprocess.DEVNULL,
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL
+                           )
         except subprocess.CalledProcessError:
             pass
         except Exception as e:
@@ -61,7 +71,12 @@ class ChromiumPluginManager(PluginManagerCore):
         read_write = os.access(self.root_path, os.R_OK | os.W_OK)
         if not read_write:
             try:
-                subprocess.run(["pkexec", "chmod", "777", self.root_path], check=True)
+                subprocess.run(["pkexec", "chmod", "777", self.root_path],
+                               check=True,
+                               stdin=subprocess.DEVNULL,
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL
+                               )
             except subprocess.CalledProcessError:
                 raise Exception("no permission to write /opt/google/chrome")
 
@@ -80,4 +95,9 @@ class ChromiumPluginManager(PluginManagerCore):
         policy_json_path = os.path.join(project_root, "policy", "policy.json")
         if not os.path.exists(policy_dir):
             os.makedirs(policy_dir)
-        subprocess.run(["sudo", "cp", policy_json_path, policy_dir], check=True)
+        subprocess.run(["sudo", "cp", policy_json_path, policy_dir],
+                       check=True,
+                       stdin=subprocess.DEVNULL,
+                       stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL
+                       )

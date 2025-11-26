@@ -4,6 +4,9 @@ from abc import ABC, abstractmethod
 
 import psutil
 
+import locale
+
+system_encoding = locale.getpreferredencoding()
 
 class IProcessCore(ABC):
     @staticmethod
@@ -52,8 +55,9 @@ class ProcessCoreWin(IProcessCore):
             # 使用runas命令请求管理员权限
             process = subprocess.Popen(
                 ["runas", "/user:Administrator", f'cmd /c "{full_cmd}"'],
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
             )
             return process
         except Exception as e:
@@ -79,8 +83,9 @@ class ProcessCoreWin(IProcessCore):
                 cmd,
                 cwd=cwd,
                 shell=True,
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
             )
             return process
         except Exception as e:
@@ -128,6 +133,9 @@ class ProcessCoreLinux(IProcessCore):
                 start_new_session=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                text=True,
+                encoding=system_encoding,
+                errors="replace"
             )
             return process
         except Exception as e:
@@ -148,6 +156,9 @@ class ProcessCoreLinux(IProcessCore):
                 start_new_session=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                text=True,
+                encoding=system_encoding,
+                errors="replace"
             )
             return process
         except Exception as e:

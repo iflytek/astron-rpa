@@ -92,7 +92,7 @@ class VenvManager:
             env_dir_temp,
             "--system-site-packages",
         ]
-        _, err = SubPopen(name="create_venv", cmd=cmd).run(log=True, encoding=None).logger_handler()
+        _, err = SubPopen(name="create_venv", cmd=cmd).run(log=True).logger_handler()
         if err:
             logger.error("create venv failed: {}".format(err))
 
