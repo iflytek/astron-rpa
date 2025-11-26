@@ -66,5 +66,5 @@ class Browser360XPluginManager(PluginManagerCore):
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0
+            creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0,
         )

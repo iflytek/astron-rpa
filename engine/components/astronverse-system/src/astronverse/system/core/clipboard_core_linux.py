@@ -19,11 +19,13 @@ class ClipBoardCore(IClipBoardCore):
 
     @staticmethod
     def copy_file_clip(file_path: str = ""):
-        subprocess.run(["xclip", "-selection", "clipboard"],
-                       input=file_path.encode(),
-                       stdin=subprocess.DEVNULL,
-                       stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL)
+        subprocess.run(
+            ["xclip", "-selection", "clipboard"],
+            input=file_path.encode(),
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     @staticmethod
     def paste_file_clip() -> str:
@@ -34,7 +36,7 @@ class ClipBoardCore(IClipBoardCore):
                 text=True,
                 capture_output=True,
                 encoding="utf-8",
-                errors="replace"
+                errors="replace",
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:

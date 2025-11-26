@@ -341,7 +341,7 @@ class ExcelCore(IExcelCore):
                 check=False,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
         else:
             proc = subprocess.run(
@@ -350,8 +350,9 @@ class ExcelCore(IExcelCore):
                 check=False,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
+
     @classmethod
     def read(
         cls,

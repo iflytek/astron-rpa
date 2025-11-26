@@ -150,7 +150,7 @@ class SubPopen:
             text=True,
             env=env,
             encoding=encoding,
-            errors="replace"
+            errors="replace",
         )
         return self
 

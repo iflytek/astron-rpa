@@ -26,11 +26,13 @@ class FirefoxPluginManager(PluginManagerCore):
 
     def close_browser(self):
         try:
-            subprocess.run(["killall", self.firefox_command],
-                           check=True,
-                           stdin=subprocess.DEVNULL,
-                           stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL)
+            subprocess.run(
+                ["killall", self.firefox_command],
+                check=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         except subprocess.CalledProcessError:
             pass
         except Exception as e:

@@ -54,7 +54,7 @@ class WordDocumentCore(IDocumentCore):
     def find_wps_excel(cls):
         """查看excel进程是否存在"""
         cmd = "ps -aux | grep 'wps -automation'"
-        output = subprocess.check_output(cmd, shell=True, encoding = "utf-8", errors="replace")
+        output = subprocess.check_output(cmd, shell=True, encoding="utf-8", errors="replace")
         lines = output.decode().split("\n")
         pids = []
         for line in lines:
@@ -505,12 +505,14 @@ class WordDocumentCore(IDocumentCore):
             # 使用xclip获取剪贴板中的数据
             try:
                 # 尝试获取文件路径
-                process = subprocess.Popen(["xclip", "-selection", "clipboard", "-o"],
-                                           stdin=subprocess.DEVNULL,
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.DEVNULL,
-                                           encoding = "utf-8",
-                                           errors="replace")
+                process = subprocess.Popen(
+                    ["xclip", "-selection", "clipboard", "-o"],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    encoding="utf-8",
+                    errors="replace",
+                )
                 clipboard_data = process.communicate()[0].strip()
             except subprocess.CalledProcessError as e:
                 raise BaseException("无法从剪贴板获取数据") from e

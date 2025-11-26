@@ -24,11 +24,12 @@ class ClipBoardCore(IClipBoardCore):
     @staticmethod
     def copy_file_clip(file_path: str = ""):
         pyperclip.copy(file_path)
-        subprocess.run(["powershell", "-command", f'set-Clipboard -Path "{file_path}"'],
-                       stdin=subprocess.DEVNULL,
-                       stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL
-                       )
+        subprocess.run(
+            ["powershell", "-command", f'set-Clipboard -Path "{file_path}"'],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     @staticmethod
     def paste_file_clip() -> str:

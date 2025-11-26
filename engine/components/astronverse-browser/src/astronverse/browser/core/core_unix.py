@@ -21,7 +21,9 @@ class BrowserCore(IBrowserCore):
     def get_browser_handler(browser_type: BrowserType) -> Any:
         class_names = BROWSER_XDOT_WINDOW_HANDLER_NAME[browser_type.value]
         try:
-            output = subprocess.check_output(["xdotool", "search", "--name", str(class_names)], encoding="utf-8", errors="replace")
+            output = subprocess.check_output(
+                ["xdotool", "search", "--name", str(class_names)], encoding="utf-8", errors="replace"
+            )
         except Exception:
             return None
         # 获取最后一个

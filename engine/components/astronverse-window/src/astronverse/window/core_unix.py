@@ -14,7 +14,9 @@ class WindowsCore(IWindowsCore):
 
         name = subprocess.check_output(["xdotool", "getwindowname", str(win_id)], encoding="utf-8", errors="replace")
         geom = {}
-        output = subprocess.check_output(["xdotool", "getwindowgeometry", "--shell", str(win_id)], shell=True, encoding="utf-8", errors="replace")
+        output = subprocess.check_output(
+            ["xdotool", "getwindowgeometry", "--shell", str(win_id)], shell=True, encoding="utf-8", errors="replace"
+        )
         for line in output.splitlines():
             key, value = line.split("=")
             geom[key] = int(value)
@@ -29,7 +31,7 @@ class WindowsCore(IWindowsCore):
     @staticmethod
     def find(pick: WinPick) -> Any:
         name = pick.get("name")
-        output = subprocess.check_output(["xdotool", "search", "--name", name], encoding = "utf-8", errors="replace")
+        output = subprocess.check_output(["xdotool", "search", "--name", name], encoding="utf-8", errors="replace")
         window_id = ""
         for line in output.splitlines():
             window_id = line
@@ -42,16 +44,17 @@ class WindowsCore(IWindowsCore):
     def top(handler: Any):
         assert isinstance(handler, int)
         win_id = handler
-        subprocess.check_output(["xdotool", "windowraise", str(win_id)],
-                                encoding = "utf-8",
-                                errors="replace",
-                                )
+        subprocess.check_output(
+            ["xdotool", "windowraise", str(win_id)],
+            encoding="utf-8",
+            errors="replace",
+        )
 
     @staticmethod
     def close(handler: Any):
         assert isinstance(handler, int)
         win_id = handler
-        subprocess.check_output(["xdotool", "windowclose", str(win_id)], encoding = "utf-8", errors="replace")
+        subprocess.check_output(["xdotool", "windowclose", str(win_id)], encoding="utf-8", errors="replace")
 
     @staticmethod
     def size(
@@ -64,11 +67,15 @@ class WindowsCore(IWindowsCore):
         win_id = handler
 
         if size_type == WindowSizeType.CUSTOM:
-            subprocess.check_output(["xdotool", "windowsize", str(win_id), str(width), str(height)], encoding = "utf-8", errors="replace")
+            subprocess.check_output(
+                ["xdotool", "windowsize", str(win_id), str(width), str(height)], encoding="utf-8", errors="replace"
+            )
         elif size_type == WindowSizeType.MAX:
-            subprocess.check_output(["xdotool", "windowsize", str(win_id), "100%", "100%"], encoding = "utf-8", errors="replace")
+            subprocess.check_output(
+                ["xdotool", "windowsize", str(win_id), "100%", "100%"], encoding="utf-8", errors="replace"
+            )
         elif size_type == WindowSizeType.MIN:
-            subprocess.check_output(["xdotool", "windowminimize", str(win_id)], encoding = "utf-8", errors="replace")
+            subprocess.check_output(["xdotool", "windowminimize", str(win_id)], encoding="utf-8", errors="replace")
 
     @staticmethod
     def toControl(handler: Any) -> Any:

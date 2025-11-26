@@ -29,6 +29,7 @@ else:
 SoftwareCore: ISoftwareCore = SoftwareCore()
 system_encoding = locale.getpreferredencoding()
 
+
 class Software:
     @staticmethod
     @atomicMg.atomic(
@@ -66,7 +67,7 @@ class Software:
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            close_fds=True
+            close_fds=True,
         )
         while not process.pid:
             time.sleep(0.3)
@@ -103,25 +104,29 @@ class Software:
             if sys.platform == "win32":
                 # 特殊处理
                 if exe_name == "ThunderStart.exe":
-                    subprocess.run(["taskkill", "/F", "/IM", "Thunder.exe"],
-                                   check=False,
-                                   stdin=subprocess.DEVNULL,
-                                   stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL)
+                    subprocess.run(
+                        ["taskkill", "/F", "/IM", "Thunder.exe"],
+                        check=False,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                     return
-                subprocess.run(["taskkill", "/F", "/IM", exe_name],
-                                   check=False,
-                                   stdin=subprocess.DEVNULL,
-                                   stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL
-                               )
+                subprocess.run(
+                    ["taskkill", "/F", "/IM", exe_name],
+                    check=False,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
             else:
-                subprocess.run(["pkill", exe_name],
-                               check=False,
-                               stdin=subprocess.DEVNULL,
-                               stdout=subprocess.DEVNULL,
-                               stderr=subprocess.DEVNULL
-                               )
+                subprocess.run(
+                    ["pkill", exe_name],
+                    check=False,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
         except (subprocess.SubprocessError, OSError) as error:
             logger.error(f"error: Software close {error}")
             return
@@ -170,13 +175,15 @@ class Software:
     @staticmethod
     @atomicMg.atomic("Software", outputList=[atomicMg.param("exec_cmd", types="Dict")])
     def cmd(cmd: str) -> dict:
-        with subprocess.Popen(cmd,
-                              shell=True,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE,
-                              text=True,
-                              encoding=system_encoding,
-                              errors="replace") as process:
+        with subprocess.Popen(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding=system_encoding,
+            errors="replace",
+        ) as process:
             stdout, stderr = process.communicate()
             return {
                 "status": process.returncode,

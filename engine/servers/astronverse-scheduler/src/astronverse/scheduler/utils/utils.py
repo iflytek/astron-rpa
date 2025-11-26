@@ -54,7 +54,7 @@ def emit_to_front(emit_type: EmitType, msg=None):
             shell=False,
             check=True,
             encoding=system_encoding,
-            errors="replace"
+            errors="replace",
         )
     else:
         subprocess.run(
@@ -62,7 +62,7 @@ def emit_to_front(emit_type: EmitType, msg=None):
             shell=False,
             check=True,
             encoding="utf-8",
-            errors="replace"
+            errors="replace",
         )
 
 

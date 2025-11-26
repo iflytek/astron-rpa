@@ -40,7 +40,8 @@ class Process:
             for process_name in process_names:
                 output = subprocess.check_output(
                     ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
-                    encoding=system_encoding,  errors="replace"
+                    encoding=system_encoding,
+                    errors="replace",
                 )
                 outputs.append(output)
 

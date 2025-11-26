@@ -8,6 +8,7 @@ import locale
 
 system_encoding = locale.getpreferredencoding()
 
+
 class IProcessCore(ABC):
     @staticmethod
     @abstractmethod
@@ -57,7 +58,7 @@ class ProcessCoreWin(IProcessCore):
                 ["runas", "/user:Administrator", f'cmd /c "{full_cmd}"'],
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
             return process
         except Exception as e:
@@ -80,12 +81,7 @@ class ProcessCoreWin(IProcessCore):
 
             # 在Windows上使用更稳定的配置
             process = subprocess.Popen(
-                cmd,
-                cwd=cwd,
-                shell=True,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                cmd, cwd=cwd, shell=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
             return process
         except Exception as e:
@@ -135,7 +131,7 @@ class ProcessCoreLinux(IProcessCore):
                 stderr=subprocess.PIPE,
                 text=True,
                 encoding=system_encoding,
-                errors="replace"
+                errors="replace",
             )
             return process
         except Exception as e:
@@ -158,7 +154,7 @@ class ProcessCoreLinux(IProcessCore):
                 stderr=subprocess.PIPE,
                 text=True,
                 encoding=system_encoding,
-                errors="replace"
+                errors="replace",
             )
             return process
         except Exception as e:

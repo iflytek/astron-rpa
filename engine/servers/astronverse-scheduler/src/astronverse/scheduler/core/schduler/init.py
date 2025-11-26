@@ -21,7 +21,7 @@ def linux_env_check():
             capture_output=True,
             text=True,
             encoding="utf-8",
-            errors = "replace"
+            errors="replace",
         )
         if result.stdout.strip() != "true":
             emit_to_front(EmitType.ALERT, msg={"msg": "首次安装，请手动重启电脑后重启打开", "type": "normal"})
@@ -37,7 +37,7 @@ def linux_env_check():
                 ],
                 check=True,
                 encoding="utf-8",
-                errors="replace"
+                errors="replace",
             )
             # qt写入
             result = subprocess.run(
@@ -46,7 +46,7 @@ def linux_env_check():
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
-                errors="replace"
+                errors="replace",
             )
             if not result.stdout:
                 subprocess.run(
@@ -61,7 +61,7 @@ def linux_env_check():
                     stderr=subprocess.PIPE,
                     text=True,
                     encoding="utf-8",
-                    errors="replace"
+                    errors="replace",
                 )
     except subprocess.CalledProcessError as e:
         pass

@@ -37,7 +37,9 @@ class LinuxVirtualDesk:
             ]
 
             # 使用获取到的分辨率启动Xephyr
-            self.xephyr = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            self.xephyr = subprocess.Popen(
+                cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
             time.sleep(2)  # 至少等待会话初始化
 
     def stop(self):

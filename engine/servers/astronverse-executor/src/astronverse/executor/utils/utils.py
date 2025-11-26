@@ -59,7 +59,7 @@ def exec_run(exec_args: list, ignore_error: bool = False, timeout=-1):
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         env={**os.environ, "no_proxy": "*"},
-        creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+        creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
     )
     try:
         proc.wait(timeout=timeout if timeout > 0 else None)
