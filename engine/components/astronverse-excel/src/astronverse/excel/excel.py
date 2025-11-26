@@ -49,6 +49,7 @@ from astronverse.excel.core import IExcelCore
 from astronverse.excel.error import (
     EXCEL_NOT_EXIST_ERROR_FORMAT,
     EXCEL_READ_ERROR_FORMAT,
+    EXCEL_START_ROW_ERROR_FORMAT,
     FILE_PATH_ERROR_FORMAT,
     INPUT_DATA_ERROR_FORMAT,
 )
@@ -389,6 +390,9 @@ class Excel:
         start_row: str = "1",
         value: str = "",
     ) -> ExcelObj:
+        if int(start_row) == 0:
+            raise BaseException(EXCEL_START_ROW_ERROR_FORMAT, "起始行不能等于0，请输入大于0的整数！")
+
         if not isinstance(value, list):
             if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
                 try:

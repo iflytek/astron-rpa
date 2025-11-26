@@ -3,6 +3,7 @@
 import json
 import os
 import urllib.parse
+from pathlib import Path
 
 import requests
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
@@ -67,6 +68,11 @@ class Enterprise:
                     info_response = requests.post(update_info_url, json=info_data, timeout=30)
                     if info_response.status_code == 200:
                         logger.info(info_response.text)
+                        if info_response.json().get("code") != "000000":
+                            raise BaseException(
+                                FILE_UPLOAD_FAILED_FORMAT.format(info_response.json().get("message")),
+                                "文件已存在或更新文件信息失败！",
+                            )
                         return "上传成功"
                     else:
                         logger.info(
@@ -107,14 +113,16 @@ class Enterprise:
     def download_from_sharefolder(file_path: int, save_folder: PATH = ""):
         """Download file from shared folder"""
         download_url = "http://127.0.0.1:8003/api/resource/file/download"
-
+        # 检查 save_folder 路径是否是绝对路径
+        if not Path(save_folder).is_absolute():
+            raise Exception(f"文件夹路径错误：{save_folder} 不是绝对路径")
         # 检查保存文件夹是否存在，如果不存在则创建
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
 
         # 检查保存路径是否为目录
         if not os.path.isdir(save_folder):
-            return BaseException(PATH_INVALID_FORMAT.format(save_folder), "请重新输入正确的文件夹路径")
+            raise Exception(f"文件夹路径错误：{save_folder} 不是文件夹路径")
 
         try:
             params = {"fileId": file_path}
@@ -137,6 +145,14 @@ class Enterprise:
 
                 # 构建完整的保存路径
                 save_path = os.path.join(save_folder, filename)
+                # 文件已存在，重命名文件
+                if os.path.exists(save_path):
+                    base, ext = os.path.splitext(filename)
+                    count = 1
+                    while os.path.exists(save_path):
+                        new_filename = f"{base}({count}){ext}"
+                        save_path = os.path.join(save_folder, new_filename)
+                        count += 1
                 # 保存文件
                 with open(save_path, "wb") as file:
                     for chunk in response.iter_content(chunk_size=8192):

@@ -200,6 +200,7 @@ class ElementGetAttributeTypeFlag(Enum):
     GetAttribute = "getAttribute"
     GetPosition = "getPosition"
     GetSelection = "getSelection"
+    GetStyle = "getStyle"
 
 
 class ElementGetAttributeHasSelfTypeFlag(Enum):
@@ -213,6 +214,7 @@ class ElementGetAttributeHasSelfTypeFlag(Enum):
     GetAttribute = "getAttribute"
     GetPosition = "getPosition"
     GetSelection = "getSelection"
+    GetStyle = "getStyle"
 
 
 class ElementCheckedTypeFlag(Enum):
@@ -316,6 +318,14 @@ class LocateType(Enum):
 
     Xpath = "xpath"
     CssSelector = "cssSelector"
+    Text = "text"
+
+
+class ElementCreateReturnType(Enum):
+    """创建元素对象返回类型"""
+
+    SINGLE = "single"  # 单个元素对象
+    LIST = "list"  # 元素对象列表
 
 
 class RelativeType(Enum):

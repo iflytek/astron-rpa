@@ -282,6 +282,7 @@ class BrowserSoftware:
         """
         browser_type = browser_obj.browser_type
         BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
+        result = ""
         if browser_type in CHROME_LIKE_BROWSERS:
             data = browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
@@ -289,10 +290,11 @@ class BrowserSoftware:
                 data={"url": str(url), "name": cookie_name},
             )
 
-            data = data["value"]
+            if data and "value" in data:
+                result = data["value"]
         else:
             raise NotImplementedError()
-        return str(data)
+        return str(result)
 
     @staticmethod
     @atomicMg.atomic(
@@ -350,9 +352,6 @@ class BrowserSoftware:
                 ],
             ),
         ],
-        outputList=[
-            atomicMg.param("toggle_tab", types="Str"),
-        ],
     )
     def web_switch(
         browser_obj: Browser,
@@ -360,7 +359,7 @@ class BrowserSoftware:
         tab_url: str = "",
         tab_title: str = "",
         tab_id: int = 0,
-    ) -> str:
+    ):
         """切换网页"""
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
             if switch_type == WebSwitchType.URL:

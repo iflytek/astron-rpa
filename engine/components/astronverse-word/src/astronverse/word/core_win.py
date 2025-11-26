@@ -8,7 +8,7 @@ import win32clipboard
 import win32com.client
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
-from astronverse.actionlib.utils import handle_existence
+from astronverse.actionlib.utils import FileExistenceType, handle_existence
 from astronverse.word import (
     ApplicationType,
     CloseRangeType,
@@ -190,11 +190,18 @@ class WordDocumentCore(IDocumentCore):
         if cls.word_application_instance is None:
             cls.initialize_word_application(default_application)
             cls.word_application_instance.Visible = True
-        new_file_path = os.path.join(file_path, file_name)
-        new_file_path = handle_existence(new_file_path, exist_handle_type)
-        doc = cls.word_application_instance.Documents.Add(Visible=visible_flag)
-        if new_file_path:
-            doc.SaveAs(FileName=new_file_path)
+
+        doc = cls.word_application_instance.Documents.Add()  # 去掉 Visible 参数以兼容 WPS
+        # 处理保存路径
+        new_file_path = ""
+        if file_path and file_name:
+            tentative_path = os.path.join(file_path, file_name)
+            new_file_path = IDocumentCore.handle_existence(tentative_path, exist_handle_type)
+            if new_file_path:
+                try:
+                    doc.SaveAs(FileName=new_file_path)
+                except Exception as e:
+                    raise RuntimeError(f"文档保存失败: {e}")
         return doc, new_file_path
 
     @classmethod

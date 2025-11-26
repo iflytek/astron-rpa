@@ -19,6 +19,7 @@ from astronverse.excel import (
     CreateCommentType,
     DeleteCellDirection,
     EditRangeType,
+    EditType,
     EnhancedInsertType,
     FileExistenceType,
     FontNameType,
@@ -476,6 +477,7 @@ class ExcelCore(IExcelCore):
         sheet_name: str = "",
         edit_range: EditRangeType = EditRangeType.ROW,
         value: list = [],
+        edit_type=EditType.OVERWRITE,
     ):
         """
         编辑Excel文件中的单元格
@@ -495,9 +497,13 @@ class ExcelCore(IExcelCore):
         start_row = cls._handle_row_input(start_row, used_range.Rows.Count)
 
         if edit_range == EditRangeType.ROW:
+            if edit_type == EditType.APPEND:
+                start_col = used_range.Columns.Count + 1
             for n in range(len(value)):
                 worksheet.Cells(start_row, start_col + n).Value = value[n]
         elif edit_range == EditRangeType.COLUMN:
+            if edit_type == EditType.APPEND:
+                start_row = used_range.Rows.Count + 1
             for n in range(len(value)):
                 worksheet.Cells(start_row + n, start_col).Value = value[n]
         elif edit_range == EditRangeType.AREA:

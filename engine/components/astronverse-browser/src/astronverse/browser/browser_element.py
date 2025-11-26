@@ -272,6 +272,8 @@ class BrowserElement:
         from astronverse.input.code.mouse import Mouse
 
         element = Locator.locator(element_data.get("elementData"))
+        if isinstance(element.rect(), list):
+            raise Exception("浏览器元素定位不唯一，请检查！")
         center = element.point()
         if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
             Keyboard.key_down(assistive_key.value)
@@ -379,6 +381,8 @@ class BrowserElement:
             text = ""
 
         element = Locator.locator(element_data.get("elementData"))
+        if isinstance(element.rect(), list):
+            raise Exception("浏览器元素定位不唯一，请检查！")
         center = element.point()
 
         # js输入
@@ -937,10 +941,14 @@ class BrowserElement:
         # 定位滑块和滑条元素
         # 滑块（要拖动的元素）
         element = Locator.locator(slider_element.get("elementData"))
+        if isinstance(element.rect(), list):
+            raise Exception("滑块元素定位不唯一，请检查！")
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
         element = Locator.locator(progress_element.get("elementData"), scroll_into_view=False)
+        if isinstance(element.rect(), list):
+            raise Exception("滑轨元素定位不唯一，请检查！")
         progress_rect = element.rect()
 
         # 计算滑条的尺寸和位置
@@ -1275,6 +1283,18 @@ class BrowserElement:
                     )
                 ],
             ),
+            atomicMg.param(
+                "get_ele_style",
+                types="Str",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.get_ele_style.show",
+                        expression="return $this.get_type.value == '{}'".format(
+                            ElementGetAttributeTypeFlag.GetStyle.value
+                        ),
+                    )
+                ],
+            ),
         ],
     )
     @wait_element_appear
@@ -1415,6 +1435,9 @@ class BrowserElement:
             df.columns = table_data["thead"]
             table_list = table_body
             if to_excel:
+                # 检查 excel_path 是否为 .xlsx 文件
+                if excel_path and not excel_path.endswith(".xlsx"):
+                    raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
                 if excel_path is None:
                     excel_path = f"{table_element['name']}.xlsx"
                 df.to_excel(excel_path, index=False)
@@ -1528,6 +1551,7 @@ class BrowserElement:
         element_timeout: int = 10,
         output_type: TablePickType = TablePickType.Row,
         output_head: bool = True,  # 是否输出表头
+        output_filter_empty_col: bool = False,  # 是否过滤空列
     ):
         """数据抓取（web）"""
         table_list = []
@@ -1617,8 +1641,15 @@ class BrowserElement:
         # 得到过滤后的 table_df
         table_df_out = table_df_to_out(data_json=data_filtered)
 
+        # 是否过滤空列
+        if output_filter_empty_col:
+            table_df_out = table_df_out.dropna(axis=1, how="all")
+
         if to_excel:
             # 将table_list 转换为excel
+            # 检查 excel_path 是否为 .xlsx 文件
+            if excel_path and not excel_path.endswith(".xlsx"):
+                raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
             if excel_path is None:
                 excel_path = f"{table_element['name']}.xlsx"
             table_df_out.to_excel(excel_path, index=False, header=output_head)
@@ -1649,8 +1680,9 @@ class BrowserElement:
     )
     def create_element(
         browser_obj: Browser = None,  # 浏览器对象
-        locate_type: LocateType = LocateType.Xpath,  # 定位方式 xpath / cssSelector
+        locate_type: LocateType = LocateType.Xpath,  # 定位方式 xpath / cssSelector / text
         locate_value: str = "",
+        return_type: ElementCreateReturnType = ElementCreateReturnType.LIST,
     ):
         """
         根据xpath或cssSelector生成元素对象
@@ -1666,7 +1698,7 @@ class BrowserElement:
         response = browser_obj.send_browser_extension(
             browser_type=browser_obj.browser_type.value,
             key="generateElement",
-            data={"type": locate_type.value, "value": locate_value},
+            data={"type": locate_type.value, "value": locate_value, "returnType": return_type.value},
         )
 
         # 判断 response 是否是列表，遍历列表，添加元素属性

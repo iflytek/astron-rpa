@@ -3,6 +3,7 @@ import re
 from abc import ABC
 from functools import wraps
 
+from astronverse.word import FileExistenceType
 from astronverse.word.error import DOCUMENT_PATH_ERROR_FORMAT
 
 
@@ -73,3 +74,29 @@ class IDocumentCore(ABC):
             return True
 
         return False
+
+    @staticmethod
+    def handle_existence(file_path, exist_type):
+        # 文件存在时的处理方式
+        if exist_type == FileExistenceType.OVERWRITE:
+            # 覆盖已存在文件，直接返回文件路径
+            # os.remove(file_path)
+            return file_path
+        elif exist_type == FileExistenceType.RENAME:
+            if os.path.exists(file_path):
+                full_file_name = os.path.basename(file_path)
+                file_name, file_ext = os.path.splitext(full_file_name)
+                count = 1
+                while True:
+                    new_full_file_name = f"{file_name}_{count}{file_ext}"
+                    new_file_path = os.path.join(os.path.dirname(file_path), new_full_file_name)
+                    if os.path.exists(new_file_path):
+                        count += 1
+                    else:
+                        return new_file_path
+            return file_path
+        elif exist_type == FileExistenceType.CANCEL:
+            if os.path.exists(file_path):
+                return ""
+            else:
+                return file_path
