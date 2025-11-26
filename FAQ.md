@@ -22,12 +22,6 @@
 
 ---
 
-### Q: Do I have to manually build the client?
-
-**A:** ✅ **No!** You can download the msi installer package directly from the [Release version](https://github.com/iflytek/astron-rpa/releases) and install it directly.
-
----
-
 ## 👥 Client Related
 
 ### Q: Do I need to install a client?
@@ -293,12 +287,12 @@ docker logs [container_name] > logs.txt
 
 | Channel | Link | Response Time |
 |------|------|---------|
-| 🐙 GitHub Issues | [Submit Issue](https://github.com/astronverse/astron-rpa/issues) | 24-48 hours |
-| 💬 Discussions | [Discussion Forum](https://github.com/astronverse/astron-rpa/discussions) | Within a week |
+| 🐙 GitHub Issues | [Submit Issue](https://github.com/iflytek/astron-rpa/issues) | 24-48 hours |
+| 💬 Discussions | [Discussion Forum](https://github.com/iflytek/astron-rpa/discussions) | Within a week |
 
 ### 📚 Useful Resources
 
-- 🏠 [Project Homepage](https://github.com/astronverse/astron-rpa)
+- 🏠 [Project Homepage](https://github.com/iflytek/astron-rpa)
 - 📖 [Project Introduction](./README.md)
 - 📝 [Complete Installation Guide](./BUILD_GUIDE.md)
 - 🐳 [Docker Deployment Guide](./docker/QUICK_START.md)

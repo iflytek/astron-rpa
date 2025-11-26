@@ -22,12 +22,6 @@
 
 ---
 
-### Q: 我是否一定需要手动构建客户端？
-
-**A:** ✅ **不需要！** 您可以直接下载 [Release 版本](https://github.com/iflytek/astron-rpa/releases) 的 msi 安装包直接安装。
-
----
-
 ## 👥 客户端相关
 
 ### Q: 是否需要安装客户端？
@@ -293,12 +287,12 @@ docker logs [container_name] > logs.txt
 
 | 渠道 | 链接 | 响应时间 |
 |------|------|---------|
-| 🐙 GitHub Issues | [提交问题](https://github.com/astronverse/astron-rpa/issues) | 24-48 小时 |
-| 💬 Discussions | [讨论区](https://github.com/astronverse/astron-rpa/discussions) | 一周内 |
+| 🐙 GitHub Issues | [提交问题](https://github.com/iflytek/astron-rpa/issues) | 24-48 小时 |
+| 💬 Discussions | [讨论区](https://github.com/iflytek/astron-rpa/discussions) | 一周内 |
 
 ### 📚 常用资源
 
-- 🏠 [项目主页](https://github.com/astronverse/astron-rpa)
+- 🏠 [项目主页](https://github.com/iflytek/astron-rpa)
 - 📖 [项目介绍](./README.zh.md)
 - 📝 [完整安装指南](./BUILD_GUIDE.zh.md)
 - 🐳 [Docker 部署指南](./docker/QUICK_START.md)

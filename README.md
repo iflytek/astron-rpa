@@ -8,9 +8,9 @@
 
 <p align="center">
   <a href="https://www.iflyrpa.com">Astron RPA Official Site</a> ·
-  <a href="./BUILD_GUIDE.zh.md">Deployment Guide</a> ·
+  <a href="./BUILD_GUIDE.md">Deployment Guide</a> ·
   <a href="https://www.iflyrpa.com/docs/">User Documentation</a> ·
-  <a href="./FAQ.zh.md">FAQ</a>
+  <a href="./FAQ.md">FAQ</a>
 </p>
 
 [![License](https://img.shields.io/badge/license-Open%20Source-blue.svg)](LICENSE)
