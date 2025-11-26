@@ -21,6 +21,7 @@ from astronverse.browser import (
     ChildElementType,
     ElementAttributeOpTypeFlag,
     ElementCheckedTypeFlag,
+    ElementCreateReturnType,
     ElementDragDirectionTypeFlag,
     ElementDragTypeFlag,
     ElementGetAttributeHasSelfTypeFlag,
