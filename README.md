@@ -6,6 +6,13 @@
 
 **🤖 Pioneering Open-Source Enterprise RPA Desktop Application**
 
+<p align="center">
+  <a href="https://www.iflyrpa.com">Astron RPA Official Site</a> ·
+  <a href="./BUILD_GUIDE.md">Deployment Guide</a> ·
+  <a href="https://www.iflyrpa.com/docs/">User Documentation</a> ·
+  <a href="./FAQ.md">FAQ</a>
+</p>
+
 [![License](https://img.shields.io/badge/license-Open%20Source-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/iflytek/astron-rpa)](https://github.com/iflytek/astron-rpa/releases)
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
@@ -208,6 +215,11 @@ We welcome any form of contribution! Please check [Contributing Guide](CONTRIBUT
 - 📧 **Technical Support**: [cbg_rpa_ml@iflytek.com](mailto:cbg_rpa_ml@iflytek.com)
 - 💬 **Community Discussion**: [GitHub Discussions](https://github.com/iflytek/astron-rpa/discussions)
 - 🐛 **Bug Reports**: [Issues](https://github.com/iflytek/astron-rpa/issues)
+- 👥 **WeChat Work Group**:
+
+<div align="center">
+  <img src="./docs/images/WeCom_Group.png" alt="WeChat Work Group" width="300">
+</div>
 
 ## 📄 License
 

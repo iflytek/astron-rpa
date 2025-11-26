@@ -5,6 +5,12 @@
 ![AstronRPA Logo](./docs/images/icon_128px.png)
 
 **🤖 首个完整开源的企业级RPA桌面应用**
+<p align="center">
+  <a href="https://www.iflyrpa.com">星辰RPA官网</a> ·
+  <a href="./BUILD_GUIDE.zh.md">部署文档</a> ·
+  <a href="https://www.iflyrpa.com/docs/">使用文档</a> ·
+  <a href="./FAQ.zh.md">常见问题</a>
+</p>
 
 [![License](https://img.shields.io/badge/license-Open%20Source-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/iflytek/astron-rpa)](https://github.com/iflytek/astron-rpa/releases)
@@ -207,6 +213,11 @@ docker compose ps
 - 📧 **技术支持**: [cbg_rpa_ml@iflytek.com](mailto:cbg_rpa_ml@iflytek.com)
 - 💬 **社区讨论**: [GitHub Discussions](https://github.com/iflytek/astron-rpa/discussions)
 - 🐛 **问题反馈**: [Issues](https://github.com/iflytek/astron-rpa/issues)
+- 👥 **企业微信群**:
+
+<div align="center">
+  <img src="./docs/images/WeCom_Group.png" alt="企业微信群" width="300">
+</div>
 
 ## 📄 开源协议
 
