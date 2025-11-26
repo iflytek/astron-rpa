@@ -35,7 +35,7 @@ class ChromiumPluginManager(PluginManagerCore):
     def check_plugin(self):
         plugin_config_path = os.path.join(self.extension_path, f"{self.plugin_data.plugin_id}.json")
         if os.path.exists(plugin_config_path):
-            with open(plugin_config_path) as file:
+            with open(plugin_config_path, encoding="utf-8") as file:
                 plugin_config_data = json.load(file)
                 installed_version = plugin_config_data.get("external_version")
                 latest_version = self.plugin_data.plugin_version
@@ -73,7 +73,7 @@ class ChromiumPluginManager(PluginManagerCore):
             "external_version": self.plugin_data.plugin_version,
         }
         plugin_config_path = os.path.join(self.extension_path, f"{self.plugin_data.plugin_id}.json")
-        with open(plugin_config_path, "w") as file:
+        with open(plugin_config_path, "w", encoding="utf-8") as file:
             json.dump(plugin_config_data, file, indent=4)
         policy_dir = "/etc/opt/chrome/policies/managed"
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
