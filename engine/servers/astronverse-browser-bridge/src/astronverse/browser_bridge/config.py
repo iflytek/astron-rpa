@@ -16,7 +16,7 @@ class HttpSettings:
 
     app_host: str = "0.0.0.0"
     app_port: int = 9082
-    gateway_port: int = 8003
+    gateway_port: int = 13159
 
 
 @Config(type=dict(app_settings=AppSettings, http_settings=HttpSettings))

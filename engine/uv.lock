@@ -123,7 +123,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-browser"
-version = "1.0.2"
+version = "1.0.3"
 source = { editable = "components/astronverse-browser" }
 dependencies = [
     { name = "astronverse-actionlib" },
@@ -760,7 +760,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-word"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "components/astronverse-word" }
 dependencies = [
     { name = "astronverse-actionlib" },

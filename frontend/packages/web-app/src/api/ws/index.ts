@@ -39,7 +39,7 @@ class Socket {
     url: 'ws://127.0.0.1',
     isHeart: false,
     heartTime: 60 * 1000, // 心跳时间间隔 60s
-    port: 8003, // 默认端口号
+    port: 13159, // 默认端口号
     heartMsg: 'ping', // 心跳信息,默认为'ping'
     isReconnect: true, // 是否自动重连
     isDestory: false, // 是否销毁

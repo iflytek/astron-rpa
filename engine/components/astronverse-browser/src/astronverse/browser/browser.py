@@ -72,7 +72,7 @@ class Browser:
     @staticmethod
     def send_browser_rpc(req: dict, timeout: float = 0.0) -> Any:
         """发送浏览器RPC请求。"""
-        gateway_port = atomicMg.cfg().get("GATEWAY_PORT") or "8003"
+        gateway_port = atomicMg.cfg().get("GATEWAY_PORT") or "13159"
         url = f"http://127.0.0.1:{gateway_port}"
         return requests.post(
             urljoin(

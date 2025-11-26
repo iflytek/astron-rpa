@@ -1,8 +1,11 @@
 from enum import Enum
+from astronverse.actionlib.atomic import atomicMg
 
 
 class VerifyCodeConfig:
-    url = "http://127.0.0.1:8003/api/rpa-ai-service/jfbym/customApi"
+    url = "http://127.0.0.1:{}/api/rpa-ai-service/jfbym/customApi".format(
+        atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+    )
 
 
 class PictureCodeType(Enum):
