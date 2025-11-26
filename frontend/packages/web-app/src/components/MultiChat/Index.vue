@@ -191,7 +191,7 @@ function handleSend() {
       message.warning('请输入指令')
       return
     }
-    // createSSE('http://localhost:8003/server/api/rpaai-service/chat', promptValue)
+    // createSSE('http://localhost:13159/server/api/rpaai-service/chat', promptValue)
     createSSE(`${getBaseURL()}/rpa-ai-service/v1/chat/completions`, promptValue)
     isThinking.value = true
     const responseId = nanoid()

@@ -32,8 +32,12 @@ class Enterprise:
     )
     def upload_to_sharefolder(file_path: PATH = ""):
         """Upload file to shared folder"""
-        upload_url = "http://127.0.0.1:8003/api/resource/file/shared-file-upload"
-        update_info_url = "http://127.0.0.1:8003/api/robot/robot-shared-file/addSharedFileInfo"
+        upload_url = "http://127.0.0.1:{}/api/resource/file/shared-file-upload".format(
+            atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+        )
+        update_info_url = "http://127.0.0.1:{}/api/robot/robot-shared-file/addSharedFileInfo".format(
+            atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+        )
         # 检查文件是否存在
         if not (os.path.exists(file_path) and os.path.isfile(file_path)):
             return BaseException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
@@ -112,7 +116,9 @@ class Enterprise:
     )
     def download_from_sharefolder(file_path: int, save_folder: PATH = ""):
         """Download file from shared folder"""
-        download_url = "http://127.0.0.1:8003/api/resource/file/download"
+        download_url = "http://127.0.0.1:{}/api/resource/file/download".format(
+            atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+        )
         # 检查 save_folder 路径是否是绝对路径
         if not Path(save_folder).is_absolute():
             raise Exception(f"文件夹路径错误：{save_folder} 不是绝对路径")

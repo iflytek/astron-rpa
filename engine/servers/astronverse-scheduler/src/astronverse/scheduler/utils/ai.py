@@ -124,7 +124,7 @@ def get_factors(
     contract_content: str = "",
     custom_factors: str = "",
     contract_validate: str = "",
-    route_port: int = 8003,
+    route_port: int = 13159,
 ):
     if contract_type == InputType.FILE:
         file_extension = contract_path.split(".")[-1]

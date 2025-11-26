@@ -10,10 +10,10 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.baseline.logger.logger import logger
 
 API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
-    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
 PROMPT_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/prompt".format(
-    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "8003"
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
 DEFAULT_MODEL = "deepseek-v3.1"
 
