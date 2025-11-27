@@ -80,6 +80,12 @@ class ChromePluginManager(PluginManagerCore):
             logger.error(f"set chrome plugin allowlist failed: {e}")
             self.register_policy()
             pass
+        
+        try:
+            self.open_browser()
+        except Exception as e:
+            logger.error(f"open chrome browser failed: {e}")
+            pass
 
     def register_policy(self):
         return run_reg_file(self.plugin_data.plugin_id)

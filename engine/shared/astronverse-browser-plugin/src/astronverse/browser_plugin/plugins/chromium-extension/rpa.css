@@ -1,0 +1,27 @@
+/** @format */
+
+.rpa-highlight {
+  background-color: #ffcc0020;
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  border: #ffcc00 solid 2px;
+  box-sizing: border-box;
+  top: -100px;
+}
+.rpa-animation {
+  animation: rpa-animation 1s ease infinite;
+}
+@keyframes rpa-animation {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}

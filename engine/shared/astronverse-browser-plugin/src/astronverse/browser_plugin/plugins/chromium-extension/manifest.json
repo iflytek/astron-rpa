@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Astron Browser Plugin",
+  "description": "Astron Browser Plugin-chromium",
+  "homepage_url": "https://www.example.com/",
+  "version": "5.2.1",
+  "icons": {
+    "16": "static/icon_16.png",
+    "48": "static/icon_48.png",
+    "128": "static/icon_128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file://*/*",
+        "ftp://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "rpa.css"
+      ],
+      "run_at": "document_start",
+      "match_about_blank": false,
+      "world": "ISOLATED"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';",
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
+  },
+  "permissions": [
+    "nativeMessaging",
+    "debugger",
+    "tabs",
+    "activeTab",
+    "contextMenus",
+    "webNavigation",
+    "cookies",
+    "storage",
+    "notifications",
+    "tabCapture",
+    "scripting",
+    "userScripts",
+    "management"
+  ]
+}
