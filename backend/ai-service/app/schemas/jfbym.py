@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -8,6 +10,7 @@ class JFBYMGeneralRequestBody(BaseModel):
         examples=["iVBORw0KGgoAAAANSUhEUgAA..."],
     )
     type: str = Field(..., description="验证码类型", examples=["..."])
+    direction: Optional[str] = Field("bottom", description="图片所处方向", examples=["bottom"])
 
 
 class JFBYMGeneralResponseInnerData(BaseModel):
