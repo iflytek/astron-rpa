@@ -285,10 +285,8 @@ const ContentHandler = {
     },
     checkElement: async (data: ElementInfo) => {
       let checkEles = null
-      console.time('checkElement')
       try {
         checkEles = await ContentHandler.ele.getElement(data)
-        console.timeLog('checkElement')
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
@@ -296,7 +294,6 @@ const ContentHandler = {
       frontCheckEnabled && checkEles && highlightElements(checkEles)
       if (checkEles && checkEles.length === 1) {
         const elementPos = getBoundingClientRect(checkEles[0])
-        console.timeEnd('checkElement')
         return Utils.success({ rect: [elementPos] })
       }
       else if (checkEles && checkEles.length > 1) {
@@ -474,12 +471,11 @@ const ContentHandler = {
       const preEles = await ContentHandler.ele.getElement(data.preData)
       const curEles = await ContentHandler.ele.getElement(data)
       if (preEles && curEles) {
-
         const preSelector = getNthCssSelector(preEles[0], true)
         const prePathDirs = getElementDirectory(preEles[0], true)
         const preXpath = generateXPath(prePathDirs)
         const preElementInfo = { ...data.preData, pathDirs: prePathDirs, xpath: preXpath, cssSelector: preSelector }
-        
+
         const curSelector = getNthCssSelector(curEles[0], true)
         const curPathDirs = getElementDirectory(curEles[0], true)
         const curXpath = generateXPath(curPathDirs)

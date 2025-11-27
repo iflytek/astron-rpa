@@ -10,5 +10,8 @@ export const log = {
   },
   time: (label) => {
     console.time(label)
+  },
+  timeEnd: (label) => {
+    console.timeEnd(label)
   }
 }

@@ -32,22 +32,23 @@ function elementCountByCssSelector(cssSelector: string) {
 function getColumnIndex(params: ElementInfo) {
   const eles = getElementByElementInfo(params)
   const dom = eles ? (eles[0] as HTMLElement) : null
-  if (!dom) return -1;
-  const tr = dom.closest('tr');
-  let colIndex = -1;
+  if (!dom)
+    return -1
+  const tr = dom.closest('tr')
+  let colIndex = -1
   if (tr) {
     Array.from(tr.cells).forEach((cell, idx) => {
       if (cell === dom) {
-        colIndex = idx;
+        colIndex = idx
       }
     })
   }
-  return colIndex;
+  return colIndex
 }
 
 /**
  * Generates a similar CSS selector by removing the `:nth-child` pseudo-class from the given selector.
- * Iterates through each part of the selector, and for every occurrence of `:nth-child`, 
+ * Iterates through each part of the selector, and for every occurrence of `:nth-child`,
  * constructs a new selector without it and calculates the number of matching elements using `elementCountByCssSelector`.
  * Returns the selector that matches the most elements after removing `:nth-child`.
  *
@@ -77,7 +78,6 @@ function similarCssSelectorByCssSelector(cssSelector: string) {
   }
   return similarCssSelector
 }
-
 
 function similarPathDirs(pathDirs: ElementDirectory[]) {
   if (!pathDirs) {
@@ -165,14 +165,14 @@ function similarDataBatch(params: ElementInfo) {
 
 /**
  * Generates a batch of similar elements based on the provided `ElementInfo` parameters.
- * 
+ *
  * This function attempts to find elements similar to the one described by `params`.
  * - If the XPath includes 'table', it delegates to `tableColumnDataBatch`.
  * - For shadow DOM elements, it computes a similar CSS selector.
  * - For non-shadow DOM elements, it computes similar XPath, CSS selector, and path directories.
  * - If XPath or CSS selector is missing, it computes them from the current element.
  * - Finally, it returns the result of `similarDataBatch` with the updated parameters.
- * 
+ *
  * @param params - The information about the target element, including shadow root, XPath, CSS selector, and path directories.
  * @returns A batch of similar elements' data.
  */
@@ -379,42 +379,46 @@ export function tableColumnDataBatch(params: ElementInfo) {
  * @returns An array of modified path directory objects reflecting the column selection logic.
  */
 function tableColumnPathDirs(params: ElementInfo) {
-  const { pathDirs } = params;
-  const colIndex = getColumnIndex(params);
+  const { pathDirs } = params
+  const colIndex = getColumnIndex(params)
 
   return pathDirs.map((dir) => {
-    let newDir = { ...dir, attrs: dir.attrs.map(attr => ({ ...attr })) };
+    const newDir = { ...dir, attrs: dir.attrs.map(attr => ({ ...attr })) }
 
     if (dir.tag === 'td' || dir.tag === 'th') {
-      newDir.tag = '*';
-      newDir.value = '*';
-      newDir.attrs.forEach(attr => {
+      newDir.tag = '*'
+      newDir.value = '*'
+      newDir.attrs.forEach((attr) => {
         if (attr.name === 'index') {
-          attr.checked = true;
-          attr.value = (colIndex + 1).toString();
-        } else {
-          attr.checked = false;
+          attr.checked = true
+          attr.value = (colIndex + 1).toString()
         }
-      });
-    } else if (dir.tag === 'thead' || dir.tag === 'tbody') {
-      newDir.tag = '*';
-      newDir.value = '*';
-      newDir.attrs.forEach(attr => {
-        attr.checked = false;
-      });
-    } else if (dir.tag === 'tr') {
-      newDir.attrs.forEach(attr => {
-        attr.checked = false;
-      });
-    } else {
-      newDir.attrs.forEach(attr => {
-        if (attr.name === 'index') {
-          attr.checked = true;
+        else {
+          attr.checked = false
         }
-      });
+      })
     }
-    return newDir;
-  });
+    else if (dir.tag === 'thead' || dir.tag === 'tbody') {
+      newDir.tag = '*'
+      newDir.value = '*'
+      newDir.attrs.forEach((attr) => {
+        attr.checked = false
+      })
+    }
+    else if (dir.tag === 'tr') {
+      newDir.attrs.forEach((attr) => {
+        attr.checked = false
+      })
+    }
+    else {
+      newDir.attrs.forEach((attr) => {
+        if (attr.name === 'index') {
+          attr.checked = true
+        }
+      })
+    }
+    return newDir
+  })
 }
 
 /**

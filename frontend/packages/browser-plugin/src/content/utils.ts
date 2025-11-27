@@ -59,7 +59,7 @@ export const Utils = {
   },
 
   isEffectCharacter(str: string) {
-    return /[0-9\a-z\u4E00-\u9FA5]/i.test(str)
+    return /[0-9a-z\u4E00-\u9FA5]/i.test(str)
   },
 
   isSpaceCharacter(str: string) {

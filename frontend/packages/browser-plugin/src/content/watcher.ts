@@ -3,7 +3,7 @@ import { generateXPath, getElementBySelector, getElementsByXpath } from './eleme
 /**
  * Watches for changes to a DOM element based on provided selection criteria.
  *
- * Depending on the `checkType` and available selectors (`xpath`, `cssSelector`), 
+ * Depending on the `checkType` and available selectors (`xpath`, `cssSelector`),
  * this function attempts to locate the target element using either XPath or CSS selectors,
  * optionally considering shadow DOM roots and position-only matching.
  *

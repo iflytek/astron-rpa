@@ -117,21 +117,15 @@ function generateSimilarSelector(preSelector: string, currentSelector: string) {
 }
 
 /**
- * Updates the `checked` and `value` properties of attributes in `prePathDirs` based on comparison with `currentPathDirs`.
- * 
- * For each directory in `prePathDirs`, the function:
- * - Iterates over its attributes and finds corresponding attributes in the same position of `currentPathDirs`.
- * - Unchecks all attributes by default.
- * - If a corresponding attribute with the same name exists:
- *   - For `id`, checks the attribute if its value matches and is not empty.
- *   - For `index`, checks the attribute if its value matches and is not empty.
- *   - For `innertext`, always unchecks and clears its value.
- * - If no corresponding attribute is found, clears the attribute's value.
- * - If any `id` attribute is checked, unchecks all other attributes in the same directory.
- * 
- * @param prePathDirs - The array of element directories to update.
- * @param currentPathDirs - The array of element directories to compare against.
- * @returns The updated `prePathDirs` array with modified attribute states.
+ * Compares two arrays of `ElementDirectory` objects (`prePathDirs` and `currentPathDirs`) and updates the attributes of `prePathDirs`
+ * based on the corresponding attributes in `currentPathDirs`. For each attribute in `prePathDirs`, if a matching attribute is not found
+ * in `currentPathDirs`, its value is cleared and its `checked` property is set to `false`. If a matching attribute is found, the function
+ * compares their types and values, updating the `checked` property accordingly. Special handling is applied for attributes named 'innertext'
+ * or 'text', which are always unchecked and cleared. The function returns the modified `prePathDirs` array.
+ *
+ * @param prePathDirs - The array of `ElementDirectory` objects to be updated.
+ * @param currentPathDirs - The array of `ElementDirectory` objects used as the reference for comparison.
+ * @returns The updated array of `ElementDirectory` objects (`prePathDirs`).
  */
 function generateSimilarPathDirs(prePathDirs: Array<ElementDirectory>, currentPathDirs: Array<ElementDirectory>) {
   for (let i = prePathDirs.length - 1; i >= 0; i--) {
@@ -142,14 +136,16 @@ function generateSimilarPathDirs(prePathDirs: Array<ElementDirectory>, currentPa
       if (!currentAttr) {
         attr.value = ''
         attr.checked = false
-      } else {
+      }
+      else {
         // handle value comparison and type
         const isSameType = currentAttr.type === attr.type
         const isSameValue = String(attr.value) === String(currentAttr.value) && attr.value !== ''
         // handle checked logic
         if (isSameValue && isSameType) {
           attr.checked = currentAttr.checked && attr.checked // both true to keep true
-        } else {
+        }
+        else {
           attr.checked = false
         }
         // special handling for text

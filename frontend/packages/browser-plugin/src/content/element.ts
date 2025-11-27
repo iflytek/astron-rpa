@@ -2,7 +2,6 @@ import { MAX_ATTRIBUTE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
 import { highLight, highLightRects } from './highlight'
 import { Utils } from './utils'
 
-
 function getSupportTag(tagName: string) {
   if (Utils.isSpecialCharacter(tagName)) {
     return '*'
@@ -81,9 +80,9 @@ export function getAttr(element: HTMLElement, attrName: string) {
 export function getAttrs(element: Element) {
   const attrs = {}
     ;['src', 'href', 'id', 'class', 'title', 'name'].forEach((key) => {
-      const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
-      attr && (attrs[key] = attr)
-    })
+    const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
+    attr && (attrs[key] = attr)
+  })
   return attrs
 }
 
@@ -370,7 +369,6 @@ export function getElementByXPath(xpath: string): HTMLElement | null {
   return element as HTMLElement
 }
 
-
 export function getElementBySelector(selector: string, onlyPosition: boolean = false): HTMLElement[] | null {
   if (!selector)
     return null
@@ -449,7 +447,6 @@ function getShadowElementsBySelector(selector: string) {
   return filterVisibleElements(allElements)
 }
 
-
 /**
  * Selects and marks the most significant attribute from a list of element attributes.
  *
@@ -477,7 +474,6 @@ function getWeightedAttrs(attrs: ElementAttrs[]) {
   return attrs
 }
 
-
 /**
  * Rebuilds the directory structure by re-evaluating the 'index' attribute of each node in the given directory list.
  * For each directory, it temporarily unchecks the 'index' attribute and generates an XPath from the current state.
@@ -490,20 +486,19 @@ function getWeightedAttrs(attrs: ElementAttrs[]) {
 function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) {
   // Re-weight dirs again, try to uncheck the index of each node
   for (let i = dirs.length - 1; i >= 0; i--) {
-    const dir = dirs[i];
-    const indexAttr = dir.attrs.find(attr => attr.name === 'index');
+    const dir = dirs[i]
+    const indexAttr = dir.attrs.find(attr => attr.name === 'index')
     if (indexAttr) {
-      indexAttr.checked = false;
-      const xpath = generateXPath(dirs);
-      const elements = getElementsByXpath(xpath);
-      if (elements && elements.length === 1 && elements[0] === originElement) {
-
-      } else {
-        indexAttr.checked = true;
+      indexAttr.checked = false
+      const xpath = generateXPath(dirs)
+      const elements = getElementsByXpath(xpath)
+      const ignoreIndex = elements && elements.length === 1 && elements[0] === originElement
+      if (!ignoreIndex) {
+        indexAttr.checked = true
       }
     }
   }
-  return dirs;
+  return dirs
 }
 
 /**
@@ -565,7 +560,6 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
       return rebuildDirectory(originElement, elementDirectory)
     }
     element = element.parentElement
-    // stop at body if not absolute
     if (element && element.tagName.toLowerCase() === 'body') {
       return rebuildDirectory(originElement, elementDirectory)
     }
@@ -754,81 +748,6 @@ export function generateXPath(dirs: ElementDirectory[], onlyPosition: boolean = 
   }
   return `//${xpath}`
 }
-
-/**
- * Generates a CSS-like selector string from an array of `ElementDirectory` objects.
- *
- * @param dirs - An array of `ElementDirectory` objects representing the hierarchy of elements.
- * @param onlyPosition - If `true`, only the `index` and `id` attributes are considered for selector generation.
- * @returns A string representing the selector for the given element hierarchy.
- *
- * @remarks
- * - When `onlyPosition` is `true`, the function deep copies the input and sets `checked` to `true` only for `index` and `id` attributes.
- * - Attributes with `type === 2` and `checked` are excluded from the selector.
- * - The selector is constructed by joining each element's tag and its selected attributes, separated by `>`.
- *
- * @example
- * ```typescript
- * const dirs = [
- *   { tag: 'div', attrs: [{ name: 'id', value: 'main', checked: true, type: 1 }] },
- *   { tag: 'span', attrs: [{ name: 'class', value: 'highlight', checked: true, type: 1 }] }
- * ];
- * const selector = generateSelector(dirs);
- * // selector: "div#main>span.highlight"
- * ```
- */
-// function generateSelector(dirs: ElementDirectory[], onlyPosition: boolean = false): string {
-//   if (dirs && dirs.length === 0) {
-//     return ''
-//   }
-//   if (onlyPosition) {
-//     dirs = JSON.parse(JSON.stringify(dirs)) // deep copy avoid modifying original dirs
-//     dirs.forEach((item) => {
-//       item.attrs.forEach((attr) => {
-//         const attrValue = `${attr.value}`.trim()
-//         if (attr.name === 'index' && attrValue !== '') {
-//           attr.checked = true
-//         }
-//         else if (attr.name === 'id' && attrValue !== '') {
-//           attr.checked = true
-//         }
-//         else {
-//           attr.checked = false
-//         }
-//       })
-//     })
-//   }
-//   const selector = dirs
-//     .map((dir) => {
-//       const tag = dir.tag
-//       const attrs = dir.attrs
-//         .filter((attr) => {
-//           if (attr.type === 2 && attr.value && attr.checked) {
-//             return false
-//           }
-//           else {
-//             return attr.checked
-//           }
-//         })
-//         .map((attr) => {
-//           switch (attr.name) {
-//             case 'id':
-//               return `#${attr.value}`
-//             case 'class':
-//               return `.${attr.value}`
-//             case 'index':
-//               return `:nth-child(${attr.value})`
-//             default:
-//               return ''
-//           }
-//         })
-//         .join('')
-//       return `${tag}${attrs}`
-//     })
-//     .join('>')
-
-//   return selector
-// }
 
 export function hasChildElement(element) {
   return element && element.children && element.children.length > 0

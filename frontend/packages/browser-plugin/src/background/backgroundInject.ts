@@ -27,7 +27,7 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
 
 /**
  * Processes a sequence of frames within a browser tab, executing a function on each frame to retrieve iframe element information.
- * 
+ *
  * For each frame in the `framePath`, this function calls `Tabs.executeFuncOnFrame` to execute a handler that retrieves iframe element data.
  * The position `p` is updated at each step based on the returned `nextPos` from the frame.
  * If an error occurs during processing, the function returns an array containing the `activeElement`.
