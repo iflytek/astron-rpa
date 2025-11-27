@@ -34,7 +34,7 @@ class Keyboard:
                     text=True,
                     check=False,
                     encoding="utf-8",
-                    errors="replace"
+                    errors="replace",
                 )
                 if result.returncode != 0:
                     logger.info("无法查询fcitx状态，可能fcitx未运行")
