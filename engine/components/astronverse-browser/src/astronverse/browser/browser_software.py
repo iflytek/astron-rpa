@@ -214,7 +214,7 @@ class BrowserSoftware:
                 while retry_count > 0:
                     try:
                         res.send_browser_extension(
-                            browser_type=res.browser_type.value,  #'{{' + res.browser_type.value + '}}',
+                            browser_type=res.browser_type.value,
                             key="updateTab",
                             data={"url": str(url)},
                         )
