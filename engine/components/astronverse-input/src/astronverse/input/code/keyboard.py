@@ -30,10 +30,11 @@ class Keyboard:
                 result = subprocess.run(
                     ["fcitx-remote"],
                     timeout=5,
+                    capture_output=True,
+                    text=True,
                     check=False,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
+                    encoding="utf-8",
+                    errors="replace"
                 )
                 if result.returncode != 0:
                     logger.info("无法查询fcitx状态，可能fcitx未运行")
