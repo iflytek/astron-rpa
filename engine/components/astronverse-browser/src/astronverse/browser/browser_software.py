@@ -28,7 +28,6 @@ from astronverse.browser import (
 )
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
-from astronverse.browser.browser_opener import BrowserOpener
 from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.error import (
     BROWSER_GET_TIMEOUT,
@@ -115,9 +114,13 @@ class BrowserSoftware:
         if open_args and "--headless=old" in open_args:
             raise BaseException(BROWSER_OPEN_TIMEOUT, "浏览器不支持无头模式")
 
-        # 内置浏览器插件
+        # 内置浏览器加载插件
         if browser_type.value == "chromium":
-            open_args += ' --load-extension="./Extensions/rpa-extension"'
+            extension_path = (
+                f"{os.getcwd()}/python_core/Lib/site-packages/astronverse/browser_plugin/plugins/chromium-extension"
+            )
+            extension_path = extension_path.replace("/", os.sep)
+            open_args += f" --load-extension='{extension_path}'"
 
         # 使用隐身模式时，需要添加 --incognito 参数
         if open_with_incognito:
@@ -157,12 +160,16 @@ class BrowserSoftware:
             # 判断是否已经打开，没有打开的话起新的
             is_open = False
             if browser_type in CHROME_LIKE_BROWSERS:
-                BrowserOpener.open_browser(
-                    url=str(url),
-                    browser=browser_type.value,
-                    private=open_with_incognito,
+                webbrowser.BackgroundBrowser = GenericBrowser
+                webbrowser.register(
+                    browser_type.value,
+                    None,
+                    webbrowser.BackgroundBrowser(browser_abs_path),
+                )
+                webbrowser.get(browser_type.value).open(
+                    str(url),
                     open_args=open_args,
-                    browser_path=browser_abs_path
+                    open_with_incognito=open_with_incognito,
                 )
             else:
                 raise NotImplementedError()
@@ -181,30 +188,40 @@ class BrowserSoftware:
         time.sleep(1)
 
         # 置顶最大化
-        # if browser_type in CHROME_LIKE_BROWSERS:
-        #     from astronverse.window import WindowSizeType
-        #     from astronverse.window.window import WindowsCore
+        if browser_type in CHROME_LIKE_BROWSERS:
+            from astronverse.window import WindowSizeType
+            from astronverse.window.window import WindowsCore
 
-        #     WindowsCore.top(handler)
-        #     WindowsCore.size(handler, WindowSizeType.MAX)
-        # else:
-        #     raise NotImplementedError()
+            WindowsCore.top(handler)
+            WindowsCore.size(handler, WindowSizeType.MAX)
+        else:
+            raise NotImplementedError()
 
+        # 插件通信重试
+        retry_count = 5
         if is_open:
-            BrowserOpener.open_browser(
-                url=str(url),
-                browser=browser_type.value,
-                private=open_with_incognito,
-                open_args=open_args,
-                browser_path=browser_abs_path
-            )
+            while retry_count > 0:
+                try:
+                    res.send_browser_extension(
+                        browser_type=res.browser_type.value, key="openNewTab", data={"url": str(url)}
+                    )
+                    break
+                except Exception:
+                    retry_count -= 1
+                time.sleep(2)
         else:
             if browser_type in CHROME_LIKE_BROWSERS and not open_with_incognito:
-                res.send_browser_extension(
-                    browser_type=res.browser_type.value,  # '{{' + res.browser_type.value + '}}',
-                    key="updateTab",
-                    data={"url": str(url)},
-                )
+                while retry_count > 0:
+                    try:
+                        res.send_browser_extension(
+                            browser_type=res.browser_type.value,  #'{{' + res.browser_type.value + '}}',
+                            key="updateTab",
+                            data={"url": str(url)},
+                        )
+                        break
+                    except Exception as e:
+                        retry_count -= 1
+                    time.sleep(2)
 
         BrowserSoftware.browser_max_window(browser_obj=res)
 
