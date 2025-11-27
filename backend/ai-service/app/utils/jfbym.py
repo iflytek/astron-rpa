@@ -17,9 +17,7 @@ class CaptchaVerificationError(Exception):
     pass
 
 
-async def verify_captcha(
-    type: str, image: str
-) -> JFBYMGeneralResponseBody:
+async def verify_captcha(type: str, image: str, direction: str = "") -> JFBYMGeneralResponseBody:
     """Verify a CAPTCHA image using the JFBYM service.
 
     Args:
@@ -34,6 +32,9 @@ async def verify_captcha(
         "type": type,
         "image": image,
     }
+
+    if direction:
+        payload["direction"] = direction
 
     async with httpx.AsyncClient() as client:
         try:
