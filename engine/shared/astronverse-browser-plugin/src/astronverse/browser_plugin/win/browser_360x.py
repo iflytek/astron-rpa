@@ -1,6 +1,7 @@
 import getpass
 import os
 import subprocess
+import sys
 import winreg
 
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
@@ -60,5 +61,10 @@ class Browser360XPluginManager(PluginManagerCore):
 
     def install_plugin(self):
         browser_path = self.get_browser_path()
-        command = [browser_path, self.plugin_data.plugin_path]
-        subprocess.Popen(command)
+        subprocess.Popen(
+            [browser_path, self.plugin_data.plugin_path],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0,
+        )

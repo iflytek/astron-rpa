@@ -93,7 +93,7 @@ class File:
                 file_path = generate_copy(dst_path, file_name)
             else:
                 raise NotImplementedError()
-        with open(file_path, "w") as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             pass
         return file_path
 
@@ -272,7 +272,7 @@ class File:
         SUPPORT_FORMAT = [".txt", ".docx", ".md", ".py", ".json", ".csv", ".html"]
         if not os.path.isfile(file_path):
             if file_option == StateType.CREATE:
-                with open(file_path, "w") as file:
+                with open(file_path, "w", encoding="utf-8") as file:
                     pass
             elif file_option == StateType.ERROR:
                 raise BaseException(

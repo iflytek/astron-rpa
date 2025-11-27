@@ -811,9 +811,22 @@ class GenericBrowser(webbrowser.GenericBrowser):
         logger.info(f"测试命令行{cmdline}")
         try:
             if sys.platform[:3] == "win":
-                p = subprocess.Popen(cmdline)
+                p = subprocess.Popen(
+                    cmdline,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW,  # 不闪黑框
+                )
             else:
-                p = subprocess.Popen(cmdline, close_fds=True, start_new_session=True)
+                p = subprocess.Popen(
+                    cmdline,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    close_fds=True,
+                    start_new_session=True,
+                )
             while not p.pid:
                 time.sleep(0.3)
             time.sleep(1)

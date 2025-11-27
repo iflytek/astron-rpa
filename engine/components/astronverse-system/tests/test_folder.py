@@ -21,7 +21,7 @@ class TestFolder(TestCase):
         # 在测试文件夹中创建一些文件
         for i in range(3):
             file_path = os.path.join(self.test_folder_path, f"file_{i}.txt")
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(f"文件 {i} 的内容")
 
     def tearDown(self):
@@ -82,7 +82,7 @@ class TestFolder(TestCase):
         os.makedirs(existing_folder, exist_ok=True)
 
         # 在文件夹中创建一些文件
-        with open(os.path.join(existing_folder, "test.txt"), "w") as f:
+        with open(os.path.join(existing_folder, "test.txt"), "w", encoding="utf-8") as f:
             f.write("原始内容")
 
         result = Folder.folder_create(
@@ -235,7 +235,7 @@ class TestFolder(TestCase):
 
         for i in range(3):
             file_path = os.path.join(self.test_folder_path, f"clear_file_{i}.txt")
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(f"文件 {i} 的内容")
 
         result = Folder.folder_clear(folder_path=self.test_folder_path)

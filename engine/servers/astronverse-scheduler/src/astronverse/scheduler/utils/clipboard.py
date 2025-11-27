@@ -27,6 +27,8 @@ class Clipboard:
                 ["xclip", "-selection", "clipboard", "-o", "-t", "text/html"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             html_data = result.stdout
             return html_data

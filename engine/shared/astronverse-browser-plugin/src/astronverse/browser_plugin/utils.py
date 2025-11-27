@@ -35,7 +35,13 @@ class FirefoxUtils:
             firefox_versions = ["firefox", "firefox-esr"]
 
             for version in firefox_versions:
-                result = subprocess.run(["which", version], capture_output=True, text=True)
+                result = subprocess.run(
+                    ["which", version],
+                    check=False,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
                 if result.returncode == 0:
                     return version
             return ""
@@ -68,7 +74,7 @@ class FirefoxUtils:
             # firefox extensions.json
             extensions_path = os.path.join(default_profile_path, "extensions.json")
             if os.path.exists(extensions_path):
-                with open(extensions_path, encoding="utf8") as f:
+                with open(extensions_path, encoding="utf-8") as f:
                     dict_msg = json.loads(f.read())
                     for addon in dict_msg["addons"]:
                         if addon["id"] == FirefoxUtils.firefox_plugin_id:
@@ -242,7 +248,7 @@ def check_chrome_plugin(preferences_path_list, extension_id):
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, encoding="utf8") as f:
+            with open(file, encoding="utf-8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 try:
@@ -264,7 +270,7 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, encoding="utf8") as f:
+            with open(file, encoding="utf-8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 uninstall_list = (
@@ -295,7 +301,7 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
                     is_update = True
 
                 if is_update:
-                    with open(file, "w", encoding="utf8") as f:
+                    with open(file, "w", encoding="utf-8") as f:
                         json.dump(dict_msg, f)
             break
 

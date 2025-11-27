@@ -62,7 +62,7 @@ class TestFile(TestCase):
         """测试文件创建 - 覆盖已存在文件"""
         # 先创建一个文件
         existing_file = os.path.join(self.temp_dir, "existing.txt")
-        with open(existing_file, "w") as f:
+        with open(existing_file, "w", encoding="utf-8") as f:
             f.write("原始内容")
 
         result = File.file_create(
@@ -72,7 +72,7 @@ class TestFile(TestCase):
         )
         self.assertEqual(result, existing_file)
         # 检查文件是否被清空
-        with open(existing_file) as f:
+        with open(existing_file, encoding="utf-8") as f:
             content = f.read()
         self.assertEqual(content, "")
 
@@ -203,7 +203,7 @@ class TestFile(TestCase):
         files = ["test1.txt", "test2.txt", "other.txt"]
         for file_name in files:
             file_path = os.path.join(self.temp_dir, file_name)
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write("content")
 
         result = File.file_search(folder_path=self.temp_dir, find_type=SearchType.FUZZY, search_pattern="test")
@@ -223,7 +223,7 @@ class TestFile(TestCase):
         """测试文件等待状态 - 创建状态"""
         # 创建一个新文件来测试等待
         wait_file = os.path.join(self.temp_dir, "wait_file.txt")
-        with open(wait_file, "w") as f:
+        with open(wait_file, "w", encoding="utf-8") as f:
             f.write("content")
 
         result = File.file_wait_status(file_path=wait_file, status_type=StatusType.CREATED, wait_time=1)
@@ -243,7 +243,7 @@ class TestFile(TestCase):
         files = ["file1.txt", "file2.txt", "file3.txt"]
         for file_name in files:
             file_path = os.path.join(self.temp_dir, file_name)
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write("content")
 
         result = File.get_file_list(

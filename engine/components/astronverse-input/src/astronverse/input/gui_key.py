@@ -99,7 +99,9 @@ class GuiKeyBoard:
             file_path = Keyboard.get_drive_path()
             cmd = [file_path, message, f"{interval}"]
             try:
-                subprocess.run(cmd, capture_output=True, check=True)
+                subprocess.run(
+                    cmd, check=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                )
             except subprocess.CalledProcessError as e:
                 raise BaseException(DRIVE_INPUT_ERROR, "键盘驱动输入没有管理员权限")
         elif keyboard_type == KeyboardType.GBLID:

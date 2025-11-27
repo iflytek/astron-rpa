@@ -27,7 +27,15 @@ class Keyboard:
         else:
             try:
                 # 先查询当前输入法状态
-                result = subprocess.run(["fcitx-remote"], capture_output=True, text=True, timeout=5)
+                result = subprocess.run(
+                    ["fcitx-remote"],
+                    timeout=5,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    encoding="utf-8",
+                    errors="replace",
+                )
                 if result.returncode != 0:
                     logger.info("无法查询fcitx状态，可能fcitx未运行")
                     return
@@ -48,7 +56,14 @@ class Keyboard:
                 if current_status != expected_status:
                     logger.info(f"需要切换输入法：从状态{current_status}切换到状态{expected_status}")
                     # 执行切换命令
-                    subprocess.run(["fcitx-remote", "-t"], timeout=5)
+                    subprocess.run(
+                        ["fcitx-remote", "-t"],
+                        timeout=5,
+                        check=False,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
             except Exception as e:
                 (logger.info(f"切换输入法时发生错误: {e}"))
 

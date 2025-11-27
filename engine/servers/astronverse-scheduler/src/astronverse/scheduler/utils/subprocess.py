@@ -3,12 +3,11 @@ import subprocess
 import sys
 import threading
 import time
+import shlex
 
 import psutil
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import kill_proc_tree
-
-system_encoding = sys.getdefaultencoding()
 
 
 def disable_cmd_quick_edit():
@@ -65,9 +64,12 @@ class SubPopen:
 
             def read_stdout(pipe, callback):
                 """读取标准输出的线程函数"""
-                for text in iter(pipe.readline, ""):
-                    if callback:
-                        callback(text.strip())
+                try:
+                    for text in iter(pipe.readline, ""):
+                        if callback:
+                            callback(text.strip())
+                except Exception:
+                    pass
 
             stdout_thread = threading.Thread(
                 target=read_stdout,
@@ -79,7 +81,7 @@ class SubPopen:
             self.proc.wait(timeout=timeout)
             stdout_thread.join()
 
-            _, stderr_data = self.proc.communicate()
+            stderr_data = self.proc.stderr.read()
             return "", stderr_data
         else:
             return self.proc.communicate(timeout=timeout)
@@ -95,13 +97,13 @@ class SubPopen:
                 for text in iter(proc.stdout.readline, ""):
                     if callback:
                         callback(text.strip())
-                proc.wait()
             except Exception as e:
                 pass
             finally:
-                _, stderr_data = proc.communicate()
-                if proc.returncode != 0:
-                    callback("", stderr_data)
+                proc.wait()
+                stderr = proc.stderr.read()
+                if proc.returncode != 0 and callback:
+                    callback("", stderr)
                 else:
                     pass
 
@@ -109,7 +111,7 @@ class SubPopen:
         stdout_thread.start()
         return
 
-    def run(self, shell: bool = None, log: bool = False, encoding="", env=None) -> "SubPopen":
+    def run(self, shell: bool = None, log: bool = False, encoding="utf-8", env=None) -> "SubPopen":
         disable_cmd_quick_edit()
 
         # shell 默认值
@@ -119,14 +121,8 @@ class SubPopen:
             else:
                 shell = False
 
-        # 配置encoding
-        if encoding == "":
-            encoding = system_encoding
-
         # 参数
-        param_list = list()
-        for key, value in self.params.items():
-            param_list.append("--{}={}".format(key, value))
+        param_list = [f"--{key}={shlex.quote(str(value))}" for key, value in self.params.items()]
         cmd = self.cmd + param_list
         logger.info(
             "cmd: {} env".format(
@@ -144,22 +140,18 @@ class SubPopen:
             env = current_env if "pip" in cmd else None
 
         self.__log__ = log
-        if log:
-            self.proc = subprocess.Popen(
-                cmd,
-                shell=shell,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env,
-                encoding=encoding,
-            )
-        else:
-            self.proc = subprocess.Popen(
-                cmd,
-                shell=shell,
-                env=env,
-            )
+
+        self.proc = subprocess.Popen(
+            cmd,
+            shell=shell,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE if log else subprocess.DEVNULL,
+            stderr=subprocess.PIPE if log else subprocess.DEVNULL,
+            text=True,
+            env=env,
+            encoding=encoding,
+            errors="replace",
+        )
         return self
 
     def set_param(self, key, val):
@@ -185,5 +177,6 @@ class SubPopen:
             try:
                 # 如果已经关闭可能报错
                 kill_proc_tree(psutil.Process(self.proc.pid), including_parent=True)
+                self.proc.wait()
             except Exception as e:
                 pass

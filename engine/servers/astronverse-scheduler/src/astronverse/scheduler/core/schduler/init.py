@@ -20,6 +20,8 @@ def linux_env_check():
             check=True,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.stdout.strip() != "true":
             emit_to_front(EmitType.ALERT, msg={"msg": "首次安装，请手动重启电脑后重启打开", "type": "normal"})
@@ -34,15 +36,19 @@ def linux_env_check():
                     "true",
                 ],
                 check=True,
+                encoding="utf-8",
+                errors="replace",
             )
             # qt写入
             result = subprocess.run(
                 ["grep", "^export QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1", "/etc/profile"],
-                check=True,
+                check=False,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
-            if result.stdout.strip() != "export QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1":
+            if not result.stdout:
                 subprocess.run(
                     [
                         "sudo",
@@ -51,6 +57,11 @@ def linux_env_check():
                         'echo "export QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1" >> /etc/profile',
                     ],
                     check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
     except subprocess.CalledProcessError as e:
         pass

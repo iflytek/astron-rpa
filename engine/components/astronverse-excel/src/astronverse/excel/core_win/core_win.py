@@ -335,25 +335,23 @@ class ExcelCore(IExcelCore):
     @classmethod
     def _close_process(cls):
         if cls.excel_obj.Path.lower().find("et") >= 0:
-            proc = subprocess.Popen(
+            proc = subprocess.run(
                 ["TaskKill", "/F", "/t", "/im", "et.exe"],
-                bufsize=-1,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                timeout=10,
+                check=False,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
-            proc.communicate(timeout=10)
-            proc.kill()
         else:
-            proc = subprocess.Popen(
+            proc = subprocess.run(
                 ["TaskKill", "/F", "/t", "/im", "EXCEL.EXE"],
-                bufsize=-1,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                timeout=10,
+                check=False,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
-            proc.communicate(timeout=10)
-            proc.kill()
 
     @classmethod
     def read(

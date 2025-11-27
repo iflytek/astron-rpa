@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 
 from astronverse.executor.logger import logger
 
-system_encoding = sys.getdefaultencoding()
-
 
 def folder_empty(folder_path) -> bool:
     contents = os.listdir(folder_path)
@@ -110,16 +108,23 @@ class RecordingTool:
                 stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                text=True,
-                encoding=system_encoding,
             )
 
             # 2. 收到结束信号
             self.event.wait()
 
             # 3. 关闭录制
-            output, error = proc_1.communicate(input="q")
-            logger.info("RecordingTool proc_1 output: {}, error: {}".format(output, error))
+            try:
+                proc_1.stdin.write(b"q")
+                proc_1.stdin.close()
+            except BrokenPipeError:
+                pass
+
+            try:
+                proc_1.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                proc_1.kill()
+                proc_1.wait()
 
             self.end_time = int(time.time())
 
@@ -162,15 +167,13 @@ class RecordingTool:
                     ]
                     proc_2 = subprocess.Popen(
                         exec_args_2,
-                        stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        text=True,
-                        encoding=system_encoding,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
                     )
-                    output, error = proc_2.communicate()
-                    logger.info("RecordingTool proc_2 output: {}, error: {}".format(output, error))
-
+                    proc_2.wait(timeout=120)
+                    if proc_2.returncode != 0:
+                        logger.warning("ffmpeg error，return code = {}".format(proc_2.returncode))
                     os.remove("{}".format(self.local_raw_file))
         except Exception as e:
             self.exec_res = False

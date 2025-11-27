@@ -16,7 +16,7 @@ class TestClipboard(TestCase):
         self.test_folder_path = os.path.join(self.temp_dir, "test_folder")
 
         # 创建测试文件和文件夹
-        with open(self.test_file_path, "w") as f:
+        with open(self.test_file_path, "w", encoding="utf-8") as f:
             f.write("测试文件内容")
         os.makedirs(self.test_folder_path, exist_ok=True)
 
@@ -220,7 +220,7 @@ class TestClipboard(TestCase):
         files = ["file1.txt", "file2.txt", "file3.txt"]
         for file_name in files:
             file_path = os.path.join(self.temp_dir, file_name)
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(f"content for {file_name}")
 
         # 测试复制第一个文件
@@ -248,7 +248,7 @@ class TestClipboard(TestCase):
     def test_copy_clip_file_with_spaces_in_path(self):
         """测试复制到剪贴板 - 路径包含空格的文件"""
         file_with_spaces = os.path.join(self.temp_dir, "file with spaces.txt")
-        with open(file_with_spaces, "w") as f:
+        with open(file_with_spaces, "w", encoding="utf-8") as f:
             f.write("content")
 
         # 复制包含空格的文件到剪贴板

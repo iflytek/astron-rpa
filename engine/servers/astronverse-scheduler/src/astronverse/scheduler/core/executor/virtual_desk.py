@@ -33,14 +33,17 @@ class LinuxVirtualDesk:
                 "-screen",
                 self.resolution,
                 "-title",
-                "IflyRPA",
+                "AstronRPA",
             ]
 
             # 使用获取到的分辨率启动Xephyr
-            self.xephyr = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.xephyr = subprocess.Popen(
+                cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
             time.sleep(2)  # 至少等待会话初始化
 
     def stop(self):
+        """关闭虚拟桌面: 用户手动关闭"""
         pass
 
 
@@ -64,10 +67,11 @@ class WindowVirtualDesk:
             ve_path = os.path.join(os.path.dirname(__file__), "virtual_desktop", "virtual-engine.exe")
             python_path = os.path.abspath(svc.config.python_base)
             port = svc.win_virtual_port
-            params = "{} --python-path={} --port={}".format(ve_path, python_path, port)
+
+            cmd = [vd_path, ve_path, f"--python-path={python_path}", f"--port={port}"]
             self.handler = subprocess.Popen(
-                [vd_path, params],
-                shell=False,
+                cmd,
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )

@@ -4,7 +4,14 @@ import os
 def linux_open_folder(folder_path: str = ""):
     import subprocess
 
-    subprocess.Popen(["xdg-open", folder_path])
+    subprocess.Popen(
+        ["xdg-open", folder_path],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,  # Linux 脱离终端会话
+        close_fds=True,  # 关闭无用 fd
+    )
 
 
 def windows_open_folder(folder_path: str = ""):

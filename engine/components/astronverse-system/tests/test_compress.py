@@ -17,14 +17,14 @@ class TestCompress(TestCase):
         self.compress_dir = os.path.join(self.temp_dir, "compress_output")
 
         # 创建测试文件和文件夹
-        with open(self.test_file_path, "w") as f:
+        with open(self.test_file_path, "w", encoding="utf-8") as f:
             f.write("测试文件内容")
         os.makedirs(self.test_folder_path, exist_ok=True)
 
         # 在测试文件夹中创建一些文件
         for i in range(3):
             file_path = os.path.join(self.test_folder_path, f"file_{i}.txt")
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(f"文件 {i} 的内容")
 
         os.makedirs(self.compress_dir, exist_ok=True)
@@ -219,7 +219,7 @@ class TestCompress(TestCase):
         """测试解压 - 成功"""
         # 先创建一个真实的压缩文件
         test_file = os.path.join(self.temp_dir, "test_content.txt")
-        with open(test_file, "w") as f:
+        with open(test_file, "w", encoding="utf-8") as f:
             f.write("测试内容")
 
         # 使用压缩方法创建zip文件
@@ -244,7 +244,7 @@ class TestCompress(TestCase):
         # 验证解压后的文件内容
         extracted_file = os.path.join(self.compress_dir, "test_content.txt")
         self.assertTrue(os.path.exists(extracted_file))
-        with open(extracted_file) as f:
+        with open(extracted_file, encoding="utf-8") as f:
             content = f.read()
         self.assertEqual(content, "测试内容")
 
@@ -348,7 +348,7 @@ class TestCompress(TestCase):
         file_paths = []
         for file_name in files:
             file_path = os.path.join(self.temp_dir, file_name)
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(f"content for {file_name}")
             file_paths.append(file_path)
 
@@ -381,7 +381,7 @@ class TestCompress(TestCase):
             # 在每个文件夹中创建一些文件
             for i in range(2):
                 file_path = os.path.join(folder_path, f"file_{i}.txt")
-                with open(file_path, "w") as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(f"content for {folder_name} file {i}")
 
             folder_paths.append(folder_path)

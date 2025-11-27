@@ -39,8 +39,10 @@ class Process:
             outputs = []
             for process_name in process_names:
                 output = subprocess.check_output(
-                    ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"]
-                ).decode(system_encoding)
+                    ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
+                    encoding=system_encoding,
+                    errors="replace",
+                )
                 outputs.append(output)
 
             pids = []

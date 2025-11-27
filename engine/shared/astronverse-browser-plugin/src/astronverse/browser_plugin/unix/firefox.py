@@ -26,7 +26,13 @@ class FirefoxPluginManager(PluginManagerCore):
 
     def close_browser(self):
         try:
-            subprocess.run(["killall", self.firefox_command], check=True)
+            subprocess.run(
+                ["killall", self.firefox_command],
+                check=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         except subprocess.CalledProcessError:
             pass
         except Exception as e:
@@ -36,5 +42,10 @@ class FirefoxPluginManager(PluginManagerCore):
         pass
 
     def install_plugin(self):
-        command = [self.firefox_command, self.plugin_data.plugin_path, "&"]
-        subprocess.Popen(command)
+        subprocess.Popen(
+            [self.firefox_command, self.plugin_data.plugin_path],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )

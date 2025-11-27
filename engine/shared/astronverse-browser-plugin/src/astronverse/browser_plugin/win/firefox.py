@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import winreg
 
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
@@ -42,5 +43,11 @@ class FirefoxPluginManager(PluginManagerCore):
 
     def install_plugin(self):
         firefox_path = self.get_browser_path()
-        command = [firefox_path, self.plugin_data.plugin_path]
-        subprocess.Popen(command)
+        subprocess.Popen(
+            [firefox_path, self.plugin_data.plugin_path],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0,
+            start_new_session=True,
+        )

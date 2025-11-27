@@ -9,14 +9,18 @@ class RectHandler(IRectHandler):
     def get_foreground_window_rect():
         try:
             # 获取当前活动窗口的 ID
-            window_id = subprocess.check_output(["xdotool", "getactivewindow"]).strip()
+            window_id = subprocess.check_output(
+                ["xdotool", "getactivewindow"], encoding="utf-8", errors="replace"
+            ).strip()
 
             # 获取窗口的标题
-            window_name = subprocess.check_output(["xdotool", "getwindowname", window_id]).strip().decode("utf-8")
+            window_name = subprocess.check_output(
+                ["xdotool", "getwindowname", window_id], encoding="utf-8", errors="replace"
+            ).strip()
 
             # 获取窗口的几何信息
-            window_geometry = subprocess.check_output(["xdotool", "getwindowgeometry", "--shell", window_id]).decode(
-                "utf-8"
+            window_geometry = subprocess.check_output(
+                ["xdotool", "getwindowgeometry", "--shell", window_id], encoding="utf-8", errors="replace"
             )
             geometry = {}
             for line in window_geometry.splitlines():

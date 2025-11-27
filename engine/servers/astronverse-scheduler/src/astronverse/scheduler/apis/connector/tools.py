@@ -148,7 +148,7 @@ def read_write(write_file: WriteFile):
 
     # 写入文件
     try:
-        with open(write_file.path, "w") as f:
+        with open(write_file.path, "w", encoding="utf-8") as f:
             f.write(write_file.content)
         return res_msg(code=ResCode.SUCCESS, msg="", data=None)
     except Exception as e:

@@ -1,5 +1,6 @@
 import base64
 import json
+import locale
 import os
 import socket
 import subprocess
@@ -9,6 +10,9 @@ from enum import Enum
 
 import psutil
 from astronverse.scheduler.logger import logger
+
+
+system_encoding = locale.getpreferredencoding()
 
 
 class EmitType(Enum):
@@ -47,14 +51,18 @@ def emit_to_front(emit_type: EmitType, msg=None):
     if sys.platform == "win32":
         subprocess.run(
             ["echo", "||emit|| {}".format(string_to_base64(data))],
-            shell=True,
+            shell=False,
             check=True,
+            encoding=system_encoding,
+            errors="replace",
         )
     else:
         subprocess.run(
             ["echo", "||emit|| {}".format(string_to_base64(data))],
             shell=False,
             check=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
 

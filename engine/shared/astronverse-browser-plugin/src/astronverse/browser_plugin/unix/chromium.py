@@ -23,7 +23,13 @@ class ChromiumPluginManager(PluginManagerCore):
 
     def check_browser(self):
         try:
-            result = subprocess.run(["which", self.browser_name], capture_output=True, text=True)
+            result = subprocess.run(
+                ["which", self.browser_name],
+                check=False,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             if result.returncode == 0:
                 return True
             else:
@@ -35,7 +41,7 @@ class ChromiumPluginManager(PluginManagerCore):
     def check_plugin(self):
         plugin_config_path = os.path.join(self.extension_path, f"{self.plugin_data.plugin_id}.json")
         if os.path.exists(plugin_config_path):
-            with open(plugin_config_path) as file:
+            with open(plugin_config_path, encoding="utf-8") as file:
                 plugin_config_data = json.load(file)
                 installed_version = plugin_config_data.get("external_version")
                 latest_version = self.plugin_data.plugin_version
@@ -48,7 +54,13 @@ class ChromiumPluginManager(PluginManagerCore):
 
     def close_browser(self):
         try:
-            subprocess.run(["killall", self.process_name], check=True)
+            subprocess.run(
+                ["killall", self.process_name],
+                check=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         except subprocess.CalledProcessError:
             pass
         except Exception as e:
@@ -61,7 +73,13 @@ class ChromiumPluginManager(PluginManagerCore):
         read_write = os.access(self.root_path, os.R_OK | os.W_OK)
         if not read_write:
             try:
-                subprocess.run(["pkexec", "chmod", "777", self.root_path], check=True)
+                subprocess.run(
+                    ["pkexec", "chmod", "777", self.root_path],
+                    check=True,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
             except subprocess.CalledProcessError:
                 raise Exception("no permission to write /opt/google/chrome")
 
@@ -73,11 +91,17 @@ class ChromiumPluginManager(PluginManagerCore):
             "external_version": self.plugin_data.plugin_version,
         }
         plugin_config_path = os.path.join(self.extension_path, f"{self.plugin_data.plugin_id}.json")
-        with open(plugin_config_path, "w") as file:
+        with open(plugin_config_path, "w", encoding="utf-8") as file:
             json.dump(plugin_config_data, file, indent=4)
         policy_dir = "/etc/opt/chrome/policies/managed"
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         policy_json_path = os.path.join(project_root, "policy", "policy.json")
         if not os.path.exists(policy_dir):
             os.makedirs(policy_dir)
-        subprocess.run(["sudo", "cp", policy_json_path, policy_dir], check=True)
+        subprocess.run(
+            ["sudo", "cp", policy_json_path, policy_dir],
+            check=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
