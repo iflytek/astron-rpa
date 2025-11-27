@@ -25,6 +25,20 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
   return true
 }
 
+/**
+ * Processes a sequence of frames within a browser tab, executing a function on each frame to retrieve iframe element information.
+ *
+ * For each frame in the `framePath`, this function calls `Tabs.executeFuncOnFrame` to execute a handler that retrieves iframe element data.
+ * The position `p` is updated at each step based on the returned `nextPos` from the frame.
+ * If an error occurs during processing, the function returns an array containing the `activeElement`.
+ * Otherwise, it returns an array of iframe depth information collected from each frame.
+ *
+ * @param tab - The Chrome tab object where the frames are located.
+ * @param framePath - An array of frame identifiers representing the path through nested iframes.
+ * @param p - The current position, which is updated as frames are processed.
+ * @param activeElement - Information about the currently active element, returned if processing fails.
+ * @returns A promise that resolves to an array of iframe depth information, or an array containing the active element if an error occurs.
+ */
 async function processFrames(tab: chrome.tabs.Tab, framePath: number[], p: Point, activeElement: ElementInfo) {
   const iframeDepthInfo = []
   for (const frame of framePath) {
@@ -49,6 +63,16 @@ async function processFrames(tab: chrome.tabs.Tab, framePath: number[], p: Point
   return iframeDepthInfo
 }
 
+/**
+ * Retrieves detailed information about an iframe element based on a given point and active element.
+ * This function calculates the iframe path and adjusts the element's rectangle coordinates relative to nested iframes.
+ * If the element is within nested iframes, it updates the `iframeXpath` and rectangle properties to reflect its position.
+ *
+ * @param p - The point (coordinates) used to locate the element within the frame hierarchy.
+ * @param activeElement - The information about the currently active element, including its frame and xpath.
+ * @returns A promise that resolves to an updated `ElementInfo` object with iframe path and adjusted rectangle,
+ *          or the original `activeElement` if no iframe nesting is detected.
+ */
 async function getIframeElement(p: Point, activeElement: ElementInfo) {
   const tab = await Tabs.getActiveTab()
   const frames = await Tabs.getAllFrames(tab.id)
@@ -101,6 +125,17 @@ function findFrameByUrl(frames: FrameDetails[], url: string) {
   return frames.find(frame => frame.url.includes(url))
 }
 
+/**
+ * Finds a frame within a list of frames by traversing the hierarchy using an iframe XPath.
+ *
+ * The function splits the provided `iframeXpath` into segments using the delimiter `/$iframe$`,
+ * then iteratively searches for child frames matching each segment, starting from the root frame
+ * (where `frameId === 0`). If any segment does not match a frame in the hierarchy, the function returns `null`.
+ *
+ * @param frames - An array of `FrameDetails` objects representing all available frames.
+ * @param iframeXpath - A string representing the hierarchical XPath to the target iframe, delimited by `/$iframe$`.
+ * @returns The `FrameDetails` object corresponding to the target frame if found; otherwise, `null`.
+ */
 function findFrameByXpath(frames: FrameDetails[], iframeXpath: string) {
   if (!iframeXpath || !Array.isArray(frames) || frames.length === 0)
     return null
@@ -135,6 +170,16 @@ function getFramePath(frames: FrameDetails[], targetFrame: FrameDetails) {
   return framePath
 }
 
+/**
+ * Calculates the absolute position of a nested frame within a browser tab by aggregating the positions of each frame in the provided `framePath`.
+ *
+ * For each frame (except the last one) in the `framePath`, this function executes a position retrieval function on the corresponding frame,
+ * then sums up all the positions to determine the absolute position relative to the top-level document.
+ *
+ * @param tabId - The ID of the browser tab containing the frames.
+ * @param framePath - An array of `FrameDetails` representing the hierarchy of frames, from the top-level frame to the target frame.
+ * @returns A promise that resolves to a `Point` object containing the absolute `x` and `y` coordinates.
+ */
 async function calculateAbsolutePosition(tabId: number, framePath: FrameDetails[]) {
   const posPromises = framePath.slice(0, -1).map((frame, index) => {
     const nextFrame = framePath[index + 1]
@@ -180,6 +225,16 @@ function adjustRectPosition(rect: DOMRectT, absolutePos: Point) {
   rect.bottom = rect.y + rect.height
 }
 
+/**
+ * Finds the target browser tab and frame based on the provided parameters.
+ *
+ * @param params - The parameters containing information about the tab and frame to locate.
+ * @returns An object containing the found tab and the corresponding frame ID.
+ *          If `isFrame` is false, returns the tab and frame ID 0.
+ *          If `isFrame` is true, attempts to locate the frame by XPath or URL.
+ *          If the frame is not found, returns the tab and `Number.NaN` as the frame ID.
+ * @throws {Error} If the active tab cannot be found or activated.
+ */
 async function findTabAndFrame(params: ElementParams) {
   const { url, iframeXpath, isFrame, tabUrl } = params.data
   let tab = await Tabs.getActiveTab()
@@ -894,4 +949,4 @@ async function bgHandler(params) {
   }
 }
 
-export { bgHandler, contentMessageHandler, Handlers }
+export { bgHandler, contentMessageHandler }

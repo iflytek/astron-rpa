@@ -16,29 +16,27 @@ export function getSimilarElement(preElementInfo: ElementInfo, currentElementInf
   return similarElementInfo
 }
 
-export function isSimilarElement(preElementInfo: ElementInfo, currentElementInfo: ElementInfo) {
-  const { xpath, cssSelector, pathDirs } = preElementInfo
-  const { xpath: currentXpath, cssSelector: currentCssSelector, pathDirs: currentPathDirs } = currentElementInfo
-  const xpathArr = xpath.split('/')
-  const currentXpathArr = currentXpath.split('/')
+/**
+ * Determines whether two elements are considered similar based on their XPath, CSS selector, path directories, and URL.
+ *
+ * The function compares the following properties of the provided `ElementInfo` objects:
+ * - `url`: Must be identical.
+ * - `xpath`: Must have the same number of segments, and each segment's tag name must match (wildcards '*' are allowed).
+ * - `cssSelector`: Must have the same number of segments.
+ * - `pathDirs`: Must have the same length.
+ *
+ * @param preElementInfo - The reference element information.
+ * @param currentElementInfo - The element information to compare against the reference.
+ * @returns `true` if the elements are considered similar; otherwise, `false`.
+ */
+function isSimilarElement(preElementInfo: ElementInfo, currentElementInfo: ElementInfo) {
+  const { cssSelector, pathDirs } = preElementInfo
+  const { cssSelector: currentCssSelector, pathDirs: currentPathDirs } = currentElementInfo
   const cssSelectorArr = cssSelector.split('>')
   const currentCssSelectorArr = currentCssSelector.split('>')
 
   if (preElementInfo.url !== currentElementInfo.url) {
     return false
-  }
-  if (xpathArr.length !== currentXpathArr.length) {
-    return false
-  }
-
-  if (xpathArr.length === currentXpathArr.length) {
-    for (let i = 0; i < xpathArr.length; i++) {
-      const leftTag = xpathArr[i]?.split('[')[0]
-      const rightTag = currentXpathArr[i]?.split('[')[0]
-      if (leftTag !== rightTag && leftTag !== '*' && rightTag !== '*') {
-        return false
-      }
-    }
   }
 
   if (cssSelectorArr.length !== currentCssSelectorArr.length) {
@@ -49,10 +47,27 @@ export function isSimilarElement(preElementInfo: ElementInfo, currentElementInfo
     return false
   }
 
+  if (pathDirs.length === currentPathDirs.length) {
+    for (let i = 0; i < pathDirs.length; i++) {
+      if (pathDirs[i].tag !== currentPathDirs[i].tag) {
+        return false
+      }
+    }
+  }
+
   return true
 }
 
-export function generateSimilarXapth(preXpath: string, currentXpath: string) {
+/**
+ * Generates a similar XPath by comparing two XPath strings and modifying the differing segments.
+ * If the two XPaths are identical, returns the original XPath.
+ * For each segment that differs, removes any index (e.g., `[1]`) from the segment in the first XPath.
+ *
+ * @param preXpath - The base XPath string to be modified.
+ * @param currentXpath - The XPath string to compare against.
+ * @returns A new XPath string with differing segments normalized (index removed).
+ */
+function generateSimilarXapth(preXpath: string, currentXpath: string) {
   if (preXpath === currentXpath) {
     return preXpath
   }
@@ -67,7 +82,17 @@ export function generateSimilarXapth(preXpath: string, currentXpath: string) {
   return xpath
 }
 
-export function generateSimilarSelector(preSelector: string, currentSelector: string) {
+/**
+ * Generates a similar CSS selector by comparing a previous selector with a current selector.
+ * If the selectors are identical, returns the previous selector.
+ * Otherwise, iterates through each selector segment and removes specific attributes
+ * (such as `:nth-child`, class names, and IDs) from segments that differ between the two selectors.
+ *
+ * @param preSelector - The previous CSS selector string.
+ * @param currentSelector - The current CSS selector string to compare against.
+ * @returns A CSS selector string that is similar to the previous selector, with differing attributes removed.
+ */
+function generateSimilarSelector(preSelector: string, currentSelector: string) {
   if (preSelector === currentSelector) {
     return preSelector
   }
@@ -91,39 +116,57 @@ export function generateSimilarSelector(preSelector: string, currentSelector: st
   return selector
 }
 
-export function generateSimilarPathDirs(prePathDirs: Array<ElementDirectory>, currentPathDirs: Array<ElementDirectory>) {
+/**
+ * Compares two arrays of `ElementDirectory` objects (`prePathDirs` and `currentPathDirs`) and updates the attributes of `prePathDirs`
+ * based on the corresponding attributes in `currentPathDirs`. For each attribute in `prePathDirs`, if a matching attribute is not found
+ * in `currentPathDirs`, its value is cleared and its `checked` property is set to `false`. If a matching attribute is found, the function
+ * compares their types and values, updating the `checked` property accordingly. Special handling is applied for attributes named 'innertext'
+ * or 'text', which are always unchecked and cleared. The function returns the modified `prePathDirs` array.
+ *
+ * @param prePathDirs - The array of `ElementDirectory` objects to be updated.
+ * @param currentPathDirs - The array of `ElementDirectory` objects used as the reference for comparison.
+ * @returns The updated array of `ElementDirectory` objects (`prePathDirs`).
+ */
+function generateSimilarPathDirs(prePathDirs: Array<ElementDirectory>, currentPathDirs: Array<ElementDirectory>) {
   for (let i = prePathDirs.length - 1; i >= 0; i--) {
     const prePathDir = prePathDirs[i]
     const currentPathDir = currentPathDirs[i]
     prePathDir.attrs.forEach((attr) => {
-      attr.checked = false
       const currentAttr = currentPathDir.attrs.find(item => item.name === attr.name)
       if (!currentAttr) {
         attr.value = ''
-      }
-      if (currentAttr && currentAttr.name === 'id' && attr.value === currentAttr.value && attr.value !== '') {
-        attr.checked = true
-      }
-      if (currentAttr && currentAttr.name === 'index' && attr.value !== '' && String(attr.value) === String(currentAttr.value)) {
-        attr.checked = true
-      }
-      if (currentAttr && currentAttr.name === 'innertext') {
         attr.checked = false
-        attr.value = ''
       }
-    })
-    const idChecked = prePathDir.attrs.some(item => item.name === 'id' && item.checked)
-    if (idChecked) {
-      prePathDir.attrs.forEach((attr) => {
-        if (attr.name !== 'id') {
+      else {
+        // handle value comparison and type
+        const isSameType = currentAttr.type === attr.type
+        const isSameValue = String(attr.value) === String(currentAttr.value) && attr.value !== ''
+        // handle checked logic
+        if (isSameValue && isSameType) {
+          attr.checked = currentAttr.checked && attr.checked // both true to keep true
+        }
+        else {
           attr.checked = false
         }
-      })
-    }
+        // special handling for text
+        if (currentAttr.name === 'innertext' || currentAttr.name === 'text') {
+          attr.checked = false
+          attr.value = ''
+        }
+      }
+    })
   }
   return prePathDirs
 }
 
+/**
+ * Determines whether the first directory in two arrays of `ElementDirectory` objects
+ * have the same checked and non-empty `id` attribute value.
+ *
+ * @param prePathDirs - The array of previous path directories to compare.
+ * @param currentPathDirs - The array of current path directories to compare.
+ * @returns `true` if both arrays are non-empty, and their first elements have a checked, non-empty `id` attribute with the same value; otherwise, `false`.
+ */
 export function isSameIdStart(prePathDirs: Array<ElementDirectory>, currentPathDirs: Array<ElementDirectory>) {
   if (!prePathDirs || !currentPathDirs) {
     return false
@@ -138,7 +181,8 @@ export function isSameIdStart(prePathDirs: Array<ElementDirectory>, currentPathD
   if (preIdAttr && currentIdAttr) {
     return preIdAttr.value === currentIdAttr.value
   }
-  else {
-    return false
+  if (!preIdAttr && !currentIdAttr) {
+    return true
   }
+  return false
 }

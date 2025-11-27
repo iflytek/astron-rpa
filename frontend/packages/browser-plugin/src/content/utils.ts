@@ -45,7 +45,7 @@ export const Utils = {
   isDynamicAttribute(attrName: string, attrValue: string) {
     const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     const longRandomPattern = /^[\w-]{20,}$/
-    const dynamicKeywords = ['session-', 'token-', 'uuid-', 'id-', 'key-', 'time-', 'rand-']
+    const dynamicKeywords = ['temp-', 'dynamic-', 'random-', 'unique-', 'session-', 'token-', 'uuid-', 'id-', 'key-', 'rand-', 'hover-', 'active-', 'focus-', 'selected-', '-open', '-active', '-hover', '-focus', '-selected']
     const lowerValue = attrValue.toLowerCase()
 
     if (attrName === 'id') {
@@ -59,7 +59,7 @@ export const Utils = {
   },
 
   isEffectCharacter(str: string) {
-    return /[a-z\u4E00-\u9FA5]/i.test(str)
+    return /[0-9a-z\u4E00-\u9FA5]/i.test(str)
   },
 
   isSpaceCharacter(str: string) {

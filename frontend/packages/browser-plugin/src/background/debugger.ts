@@ -93,6 +93,13 @@ const Debugger = {
       })
     })
   },
+  /**
+   * Execute code in the specified tab and frame
+   * @param tabId Tab ID
+   * @param code Code to be executed
+   * @param frameId Frame ID
+   * @returns Execution result
+   */
   evaluate: async (tabId: number, code: string, frameId: number) => {
     code = `(function() { ${code} })()`
 

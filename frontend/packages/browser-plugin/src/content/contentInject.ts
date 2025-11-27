@@ -1,7 +1,9 @@
 import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
+  filterVisibleElements,
   findElementByPoint,
+  generateXPath,
   getBoundingClientRect,
   getChildElementByType,
   getElementByElementInfo,
@@ -38,6 +40,18 @@ let currentFrameInfo = {
   },
 }
 
+/**
+ * Handles a mouse event to locate and process a DOM element at the event's coordinates.
+ *
+ * This function attempts to find the element under the mouse pointer using `findElementByPoint`.
+ * If no element is found, it falls back to the event's target. If the element contains a shadow root,
+ * it further searches within the shadow DOM using `shadowRootElement`. The function then formats
+ * the element's information and sends it for further processing, optionally highlighting the element.
+ *
+ * @param ev - The mouse event containing the coordinates to search for the element.
+ * @param docu - The document or shadow root context in which to search for the element.
+ * @param _extra - Additional data (unused in this function).
+ */
 function findElement(ev: MouseEvent, docu: Document | ShadowRoot, _extra) {
   if (typeof findElementByPoint !== 'function') {
     return
@@ -68,6 +82,19 @@ function findElement(ev: MouseEvent, docu: Document | ShadowRoot, _extra) {
   }
 }
 
+/**
+ * Handles mouse movement events to trigger element search logic with debouncing.
+ *
+ * This function clears any existing search timeouts, then sets a new timeout to
+ * perform a shallow element search after a short delay (`ELEMENT_SEARCH_TRIGGER`).
+ * After the shallow search, it sets another timeout to perform a deep element search
+ * after a longer delay (`DEEP_SEARCH_TRIGGER`). The deep search is enabled by toggling
+ * the `deepSearchEnabled` flag.
+ *
+ * @param ev - The mouse event that triggered the listener.
+ * @param docu - The document or shadow root context in which to search for elements.
+ * @param extra - Additional data to pass to the element search functions.
+ */
 function moveListener(ev: MouseEvent, docu: Document | ShadowRoot, extra) {
   timeoutId && clearTimeout(timeoutId)
   deepTimeoutId && clearTimeout(deepTimeoutId)
@@ -85,10 +112,19 @@ function moveListener(ev: MouseEvent, docu: Document | ShadowRoot, extra) {
   }, ELEMENT_SEARCH_TRIGGER)
 }
 
+/**
+ * Formats and collects detailed information about a given HTML element, including its selectors, directories, tag, text, and bounding rectangle.
+ *
+ * @param element - The target HTML element to extract information from.
+ * @param target - The document or shadow root context in which the element resides.
+ * @param shadowPath - (Optional) The CSS selector path representing the shadow DOM hierarchy.
+ * @param shadowDirs - (Optional) An array of element directories representing the shadow DOM structure.
+ * @returns An object containing various properties describing the element, such as selectors, directories, tag, text, bounding rectangle, URL, and shadow root status.
+ */
 function formatElementInfo(element: HTMLElement, target: Document | ShadowRoot, shadowPath = '', shadowDirs: ElementDirectory[] = []) {
-  const xpath = getXpath(element)
   const cssSelector = getNthCssSelector(element)
   const pathDirs = getElementDirectory(element)
+  const xpath = generateXPath(pathDirs) // generate xpath based on pathDirs
   const selector = shadowPath ? `${shadowPath}>$shadow$>${cssSelector}` : cssSelector
   const dirs = shadowDirs.length > 0 ? shadowDirs.concat([{ tag: '$shadow$', checked: true, value: '$shadow$', attrs: [] }], pathDirs) : pathDirs
   const tag = Utils.getTag(element)
@@ -119,6 +155,18 @@ function messageHandler(ev: MessageEvent) {
   }
 }
 
+/**
+ * Tags all iframe elements in the current window by sending their XPath and transform information
+ * to their respective content windows via `postMessage`. Additionally, if the current window is
+ * within a parent frame, requests the parent window for the current iframe information.
+ *
+ * This function relies on the helper functions `getIFramesElements`, `getXpath`, and `getIframeTransform`
+ * to gather and process iframe data.
+ *
+ * @remarks
+ * - Communicates with iframe content windows using the `setCurrentWindowIframeInfo` message key.
+ * - Communicates with the parent window using the `getCurrentWindowIframeInfo` message key.
+ */
 function tagFrame() {
   const iframes = getIFramesElements()
   iframes.forEach((iframe) => {
@@ -183,6 +231,16 @@ function elementNotFoundReason(data: ElementInfo) {
   return Utils.fail(message, StatusCode.ELEMENT_NOT_FOUND)
 }
 
+/**
+ * Dispatches a sequence of mouse events on a specified DOM element.
+ *
+ * Each event type in the `events` array is dispatched asynchronously using `queueMicrotask`.
+ * The mouse events are initialized with the provided coordinates (`clientX`, `clientY`), or default to (0, 0).
+ *
+ * @param dom - The target HTMLElement to dispatch mouse events on.
+ * @param events - An array of mouse event types (e.g., 'mousedown', 'mouseup', 'click') to dispatch in order.
+ * @param coords - Optional coordinates for the mouse events. If not provided, defaults to `{ clientX: 0, clientY: 0 }`.
+ */
 function dispatchMouseSequence(
   dom: HTMLElement,
   events: string[],
@@ -210,19 +268,7 @@ const ContentHandler = {
         tempEles = (await scrollFindElement(data)) as HTMLElement[]
       }
       // filter out elements that are not visible
-      if (tempEles && tempEles.length) {
-        tempEles = tempEles.filter((ele) => {
-          const rect = ele.getBoundingClientRect()
-          if (rect.width === 0 || rect.height === 0)
-            return false
-          const style = window.getComputedStyle(ele)
-          if (style.visibility === 'hidden' || style.visibility === 'collapse')
-            return false
-          return true
-        })
-        if (!tempEles.length)
-          tempEles = null
-      }
+      tempEles = filterVisibleElements(tempEles)
       return tempEles as HTMLElement[]
     },
 
@@ -425,14 +471,16 @@ const ContentHandler = {
       const preEles = await ContentHandler.ele.getElement(data.preData)
       const curEles = await ContentHandler.ele.getElement(data)
       if (preEles && curEles) {
-        const preXpath = getXpath(preEles[0], true)
         const preSelector = getNthCssSelector(preEles[0], true)
         const prePathDirs = getElementDirectory(preEles[0], true)
+        const preXpath = generateXPath(prePathDirs)
         const preElementInfo = { ...data.preData, pathDirs: prePathDirs, xpath: preXpath, cssSelector: preSelector }
-        const curXpath = getXpath(curEles[0], true)
+
         const curSelector = getNthCssSelector(curEles[0], true)
         const curPathDirs = getElementDirectory(curEles[0], true)
+        const curXpath = generateXPath(curPathDirs)
         const curElementInfo = { ...data, pathDirs: curPathDirs, xpath: curXpath, cssSelector: curSelector }
+
         return Utils.success({ ...curElementInfo, preData: preElementInfo })
       }
       else {
@@ -1131,4 +1179,4 @@ window.RpaExtGetElement = RpaExtGetElement
 // @ts-expect-error Mount to window
 window.currentFrameInfo = currentFrameInfo
 tagFrame()
-export { ContentHandler, dispatchMouseSequence, findElement, formatElementInfo, handle, messageHandler, moveListener, scrollFindElement }
+export { ContentHandler, dispatchMouseSequence, formatElementInfo, handle, moveListener }

@@ -20,13 +20,13 @@ interface TableValueType {
   colDataProcessConfig: DataProcessConfig[]
 }
 
-export interface FilterConfig {
+interface FilterConfig {
   filterAssociation: string
   logical: string
   parameter: string
 }
 
-export interface DataProcessConfig {
+interface DataProcessConfig {
   processType: string
   isEnable: number
   parameters: Parameter[]
@@ -36,7 +36,7 @@ interface Parameter {
   [key: string]: any
 }
 
-export interface SimilarDataType extends DataType {
+interface SimilarDataType extends DataType {
   batchType?: 'normal' | 'head'
   produceType: 'similar'
   values: SimilarValueType[]
@@ -60,17 +60,17 @@ interface Attrs {
   text: string
 }
 
-export interface SimilarDataParams {
+interface SimilarDataParams {
   key: string
   data: SimilarDataType
 }
 
-export interface TableDataParams {
+interface TableDataParams {
   key: string
   data: TableDataType
 }
 
-export interface BatchElementParams extends ElementInfo {
+interface BatchElementParams extends ElementInfo {
   produceType: 'table' | 'similar'
   values?: SimilarValueType[]
   openSourcePage?: boolean

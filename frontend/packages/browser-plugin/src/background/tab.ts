@@ -99,6 +99,14 @@ export const Tabs = {
       })
     })
   },
+  /**
+   * Executes a function in the context of a specific frame within a tab.
+   * @param tabId - The ID of the tab containing the frame.
+   * @param frameId - The ID of the frame where the function will be executed.
+   * @param funcCode - The function to be executed in the frame context.
+   * @param args - An array of arguments to be passed to the function.
+   * @returns A promise that resolves with the result of the function execution.
+   */
   executeFuncOnFrame: (
     tabId: number,
     frameId: number,
@@ -130,6 +138,13 @@ export const Tabs = {
       )
     })
   },
+  /**
+   *  Executes a script in a specific frame of a tab using the Debugger API.
+   * @param tabId - The ID of the tab containing the frame.
+   * @param frameId - The ID of the frame where the script will be executed.
+   * @param code - The JavaScript code to be executed as a string.
+   * @returns A promise that resolves with the result of the script execution.
+   */
   executeScriptOnFrame: (
     tabId: number,
     frameId: number,
@@ -146,6 +161,13 @@ export const Tabs = {
         })
     })
   },
+  /**
+   * Runs JavaScript code in a specified tab and frame, handling differences between Firefox and other browsers.
+   * @param tabId - The ID of the tab where the code will be executed.
+   * @param frameId - The ID of the frame within the tab where the code will be executed.
+   * @param params - An object containing the JavaScript code to be executed.
+   * @returns A promise that resolves with the result of the executed code.
+   */
   runJS: (
     tabId: number,
     frameId: number,
@@ -308,6 +330,11 @@ export const Tabs = {
       })
     })
   },
+  /**
+   * Retrieves detailed information about all frames within a specified tab, including additional frame info from the content script.
+   * @param tabId - The ID of the tab for which to retrieve frame details.
+   * @returns A promise that resolves with an array of FrameDetails, each containing information about a frame in the tab.
+   */
   getAllFrames: (tabId: number): Promise<FrameDetails[]> => {
     return new Promise<FrameDetails[]>((resolve) => {
       chrome.webNavigation.getAllFrames(
@@ -356,8 +383,18 @@ export const Tabs = {
       )
     })
   },
+  /**
+   * Sends a message to a specific frame within a tab and returns the response.
+   * @param tabId - The ID of the tab containing the target frame.
+   * @param frameId - The ID of the target frame to which the message will be sent.
+   * @param message - The message object to be sent to the frame.
+   * @returns A promise that resolves with the response from the frame.
+   */
   sendTabFrameMessage: (tabId: number, message, frameId: number): Promise<ContentResult> => {
     return new Promise<ContentResult>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error(`Message timeout: frameId ${frameId} not responding`))
+      }, 10 * 1000) // 10 seconds timeout
       try {
         chrome.tabs.sendMessage(
           tabId,
@@ -366,11 +403,17 @@ export const Tabs = {
             frameId,
           },
           (response) => {
+            clearTimeout(timeout)
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message))
+              return
+            }
             resolve(response)
           },
         )
       }
       catch (error) {
+        clearTimeout(timeout)
         reject(error)
       }
     })
@@ -453,21 +496,6 @@ export const Tabs = {
       chrome.tabs.setZoom(tabId, 1, () => {
         resolve(true)
       })
-    })
-  },
-}
-
-export const WebNavigation = {
-  getAllFrames: (tabId: number): Promise<FrameDetails[]> => {
-    return new Promise<FrameDetails[]>((resolve) => {
-      chrome.webNavigation.getAllFrames(
-        {
-          tabId,
-        },
-        (frames) => {
-          resolve(frames)
-        },
-      )
     })
   },
 }
