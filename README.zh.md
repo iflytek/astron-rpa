@@ -122,7 +122,7 @@ docker compose ps
 
 3. 📦 安装打包完成的客户端安装包
 
-4. ⚙️ 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
+#### ⚙️ 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
     ```yaml
     # 32742为默认端口，如有修改自行变更

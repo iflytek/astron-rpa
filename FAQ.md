@@ -13,9 +13,9 @@
 
 ## 🔧 Installation & Deployment
 
-### Q: Can the open-source version run on Linux?
+### Q: Can the open-source client run on Linux?
 
-**A:** ❌ **Not yet!** The open-source version of Astron RPA currently only supports Windows systems.
+**A:** ❌ **Not yet!** The open-source version of Astron RPA client currently only supports Windows systems.
 
 **Supported Systems:**
 - ✅ Windows 10/11
@@ -312,5 +312,4 @@ docker logs [container_name] > logs.txt
 > ⏰ **Last Updated:** 2025-11-26  
 > 👤 **Maintainer:** DoctorBruce  
 > 📜 **License:** Apache-2.0
-
 
