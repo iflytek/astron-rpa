@@ -79,7 +79,7 @@ class EdgePluginManager(PluginManagerCore):
             logger.error(f"set edge plugin allowlist failed: {e}")
             self.register_policy()
             pass
-        
+
         try:
             self.open_browser()
         except Exception as e:
