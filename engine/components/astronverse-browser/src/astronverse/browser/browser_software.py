@@ -109,13 +109,18 @@ class BrowserSoftware:
         """
         open 打开浏览器
         """
-        open_args += " --remote-debugging-port=9555"
+        # open_args += " --remote-debugging-port=9555"
 
         if open_args and "--headless=old" in open_args:
             raise BaseException(BROWSER_OPEN_TIMEOUT, "浏览器不支持无头模式")
 
+        # 内置浏览器加载插件
         if browser_type.value == "chromium":
-            open_args += ' --load-extension="./Extensions/rpa-extension"'
+            extension_path = (
+                f"{os.getcwd()}/python_core/Lib/site-packages/astronverse/browser_plugin/plugins/chromium-extension"
+            )
+            extension_path = extension_path.replace("/", os.sep)
+            open_args += f" --load-extension='{extension_path}'"
 
         # 使用隐身模式时，需要添加 --incognito 参数
         if open_with_incognito:
@@ -192,16 +197,31 @@ class BrowserSoftware:
         else:
             raise NotImplementedError()
 
+        # 插件通信重试
+        retry_count = 5
         if is_open:
-            # 打开新标签页
-            BrowserSoftware.web_open(browser_obj=res, new_tab_url=url)
+            while retry_count > 0:
+                try:
+                    res.send_browser_extension(
+                        browser_type=res.browser_type.value, key="openNewTab", data={"url": str(url)}
+                    )
+                    break
+                except Exception:
+                    retry_count -= 1
+                time.sleep(2)
         else:
             if browser_type in CHROME_LIKE_BROWSERS and not open_with_incognito:
-                res.send_browser_extension(
-                    browser_type=res.browser_type.value,  # '{{' + res.browser_type.value + '}}',
-                    key="updateTab",
-                    data={"url": str(url)},
-                )
+                while retry_count > 0:
+                    try:
+                        res.send_browser_extension(
+                            browser_type=res.browser_type.value,
+                            key="updateTab",
+                            data={"url": str(url)},
+                        )
+                        break
+                    except Exception as e:
+                        retry_count -= 1
+                    time.sleep(2)
 
         BrowserSoftware.browser_max_window(browser_obj=res)
 
@@ -210,7 +230,6 @@ class BrowserSoftware:
             result = BrowserSoftware.wait_web_load(browser_obj=res, timeout=timeout)
             if not result and timeout_handle_type == CommonForTimeoutHandleType.ExecError:
                 BrowserSoftware.stop_web_load(browser_obj=res)
-                # raise BaseException(WEB_LOAD_TIMEOUT, "打开网页超时，请重试 {}".format(result))
         return res
 
     @staticmethod

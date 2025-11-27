@@ -80,5 +80,11 @@ class EdgePluginManager(PluginManagerCore):
             self.register_policy()
             pass
 
+        try:
+            self.open_browser()
+        except Exception as e:
+            logger.error(f"open edge browser failed: {e}")
+            pass
+
     def register_policy(self):
         return run_reg_file(self.plugin_data.plugin_id)

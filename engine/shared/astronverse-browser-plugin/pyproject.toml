@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-browser-plugin"
-version = "1.0.2"
+version = "1.0.3"
 description = "astronverse-browser-plugin."
 requires-python = ">=3.13"
 
