@@ -1,5 +1,4 @@
-# from rpa_picker.logger import logger
-from typing import Any, Optional
+from typing import Tuple, Any, Optional, List
 
 import pyautogui
 import uiautomation as auto
@@ -94,6 +93,221 @@ class UIAElement(IElement):
             self.__tag = tag
         return self.__tag
 
+    def _is_same_control(self, control1, control2) -> bool:
+        """
+        判断两个 control 是否是同一个元素
+        优先使用 RuntimeId，降级使用其他方法
+        """
+        try:
+            # 方法1: RuntimeId (最可靠，UIA 规范保证唯一性)
+            if hasattr(control1, "GetRuntimeId") and hasattr(control2, "GetRuntimeId"):
+                rid1 = control1.GetRuntimeId()
+                rid2 = control2.GetRuntimeId()
+                if rid1 and rid2:
+                    return rid1 == rid2
+        except Exception:
+            pass
+
+        try:
+            # 方法2: NativeWindowHandle (次选)
+            h1 = getattr(control1, "NativeWindowHandle", None)
+            h2 = getattr(control2, "NativeWindowHandle", None)
+            if h1 and h2 and h1 != 0 and h2 != 0:
+                return h1 == h2
+        except Exception:
+            pass
+
+        try:
+            # 方法3: 属性组合 (兜底)
+            rect1 = control1.BoundingRectangle
+            rect2 = control2.BoundingRectangle
+            return (
+                control1.ControlTypeName == control2.ControlTypeName
+                and control1.ClassName == control2.ClassName
+                and control1.Name == control2.Name
+                and rect1.left == rect2.left
+                and rect1.top == rect2.top
+                and rect1.right == rect2.right
+                and rect1.bottom == rect2.bottom
+            )
+        except Exception:
+            return False
+
+    def _has_same_type_sibling(self, parent_control, current_control, tag_name) -> bool:
+        try:
+            children = parent_control.GetChildren()
+
+            for child in children:
+                # 跳过自身
+                if self._is_same_control(child, current_control):
+                    continue
+
+                # 跳过桌面节点
+                try:
+                    if UIAOperate._is_desktop_element(child):
+                        continue
+                except:
+                    pass
+
+                # 找到同类型兄弟
+                if child.ControlTypeName == tag_name:
+                    return True
+
+            return False
+        except Exception as e:
+            logger.warning(f"快速检查同类型兄弟失败: {e}")
+            return True  # 保守策略
+
+    def _get_siblings_by_tag(self, parent_control, current_control, tag_name) -> list:
+        try:
+            children = parent_control.GetChildren()
+
+            sibling_list = []
+            for i, child in enumerate(children):
+                # 跳过自身
+                if self._is_same_control(child, current_control):
+                    continue
+
+                # 跳过桌面节点
+                try:
+                    if UIAOperate._is_desktop_element(child):
+                        continue
+                except:
+                    pass
+
+                # 只收集同类型的兄弟
+                if child.ControlTypeName != tag_name:
+                    continue
+
+                try:
+                    sibling_value = child.GetValuePattern().Value
+                except Exception:
+                    sibling_value = None
+
+                sibling_attrs = {
+                    "cls": child.ClassName,
+                    "name": child.Name,
+                    "tag_name": child.ControlTypeName,
+                    "value": sibling_value,
+                    "index": i,
+                }
+                sibling_list.append(sibling_attrs)
+
+            return sibling_list
+        except Exception as e:
+            logger.warning(f"获取同类型兄弟节点失败: {e}")
+            return []
+
+    def _get_empty_attrs(self, current_attrs: dict) -> list:
+        """
+        获取空值属性列表
+
+        返回：空值属性名列表
+        """
+        priority_attrs = ["tag_name", "name", "cls", "value", "index"]
+        empty_attrs = []
+        for attr in priority_attrs:
+            attr_value = current_attrs.get(attr)
+            # 空字符串、None、空白字符串都视为空值
+            if attr_value is None or str(attr_value).strip() == "":
+                empty_attrs.append(attr)
+        return empty_attrs
+
+    def _calculate_disable_keys_without_siblings(self, current_attrs: dict) -> list:
+        """
+        计算没有兄弟节点时的 disable_keys（只勾选 tag_name）
+
+        返回：不需要勾选的属性名列表
+        """
+        priority_attrs = ["tag_name", "name", "cls", "value", "index"]
+        empty_attrs = self._get_empty_attrs(current_attrs)
+
+        # tag_name 如果非空，只勾选它；否则抛出异常
+        if "tag_name" not in empty_attrs:
+            # tag_name 非空，其他全部禁用
+            disable_keys = [attr for attr in priority_attrs if attr != "tag_name"]
+            return disable_keys
+        else:
+            # tag_name 为空（不应该出现）
+            raise Exception("tag_name 为空，无法唯一识别元素")
+
+    def _calculate_disable_keys_progressive(
+        self, current_attrs: dict, parent_control, current_control, is_root_level: bool = False
+    ) -> list:
+        priority_attrs = ["tag_name", "cls", "name", "value", "index"]
+
+        empty_attrs = self._get_empty_attrs(current_attrs)
+        available_attrs = [attr for attr in priority_attrs if attr not in empty_attrs]
+
+        logger.info(f"========== 开始计算 disable_keys ==========")
+        logger.info(f"当前元素: {current_attrs}")
+        logger.info(f"empty_attrs: {empty_attrs}")
+        logger.info(f"available_attrs: {available_attrs}")
+        logger.info(f"is_root_level: {is_root_level}")
+        logger.info(f"parent_control is None: {parent_control is None}")
+
+        if not available_attrs:
+            logger.info(f"没有可用属性，返回全部禁用")
+            return priority_attrs.copy()
+
+        if not parent_control:
+            if is_root_level:
+                logger.info(f"根节点且无父节点，只禁用空值属性: {empty_attrs}")
+                current_attrs.pop("index")
+                return []  # empty_attrs.copy()
+            else:
+                result = self._calculate_disable_keys_without_siblings(current_attrs)
+                logger.info(f"无父节点但非根节点，返回: {result}")
+                return result
+
+        tag_name = current_attrs.get("tag_name")
+        has_same_type = self._has_same_type_sibling(parent_control, current_control, tag_name)
+        logger.info(f"has_same_type: {has_same_type}")
+
+        if not has_same_type:
+            disable_keys = empty_attrs.copy()
+            disable_keys.extend([attr for attr in priority_attrs if attr != "tag_name" and attr not in empty_attrs])
+            logger.info(f"没有同类型兄弟，只需 tag_name，disable_keys: {disable_keys}")
+            return disable_keys
+
+        sibling_list = self._get_siblings_by_tag(parent_control, current_control, tag_name)
+        logger.info(f"获取到 {len(sibling_list)} 个同类型兄弟")
+
+        if not sibling_list:
+            disable_keys = empty_attrs.copy()
+            disable_keys.extend([attr for attr in priority_attrs if attr != "tag_name" and attr not in empty_attrs])
+            logger.info(f"兄弟列表为空，只需 tag_name，disable_keys: {disable_keys}")
+            return disable_keys
+
+        for i in range(len(available_attrs)):
+            check_attrs = available_attrs[: i + 1]
+            logger.info(f"第{i + 1}轮测试: {check_attrs}")
+
+            has_conflict = False
+            for sibling in sibling_list:
+                all_match = True
+                for attr in check_attrs:
+                    current_value = str(current_attrs.get(attr, "")).strip()
+                    sibling_value = str(sibling.get(attr, "")).strip()
+                    if current_value != sibling_value:
+                        all_match = False
+                        break
+
+                if all_match:
+                    logger.info(f"  发现冲突兄弟: name={sibling.get('name')}, cls={sibling.get('cls')}")
+                    has_conflict = True
+                    break
+
+            if not has_conflict:
+                disable_keys = empty_attrs.copy()
+                disable_keys.extend(available_attrs[i + 1 :])
+                logger.info(f"  找到最小属性集: {check_attrs}")
+                logger.info(f"  最终 disable_keys: {disable_keys}")
+                return disable_keys
+
+        logger.info(f"所有属性都需要，只禁用空值: {empty_attrs}")
+        return empty_attrs
+
     def path(self, svc=None, strategy_svc=None) -> dict:
         curr_ele = self
         path_list = []
@@ -101,29 +315,64 @@ class UIAElement(IElement):
         while True:
             # 添加元素信息到路径列表
             try:
-                value = curr_ele.control.GetValuePattern().Value
-            except Exception:
+                value = curr_ele.control.GetValuePattern().Value  # noqa
+            except Exception:  # noqa
                 value = None
-            current_attrs = {
-                "cls": curr_ele.control.ClassName,
-                "name": curr_ele.control.Name,
-                "tag_name": curr_ele.control.ControlTypeName,
-                "index": curr_ele.index(),
-                "value": value,
-                "checked": True,
-            }
-            path_list.append(current_attrs)
+
+            # 收集当前元素的所有属性（只添加非空属性）
+            current_attrs = {}
+
+            # tag_name
+            tag_name = curr_ele.control.ControlTypeName
+            if tag_name and str(tag_name).strip():
+                current_attrs["tag_name"] = tag_name
+
+            # cls
+            cls_name = curr_ele.control.ClassName
+            if cls_name and str(cls_name).strip():
+                current_attrs["cls"] = cls_name
+
+            # name
+            name = curr_ele.control.Name
+            current_attrs["name"] = name
+
+            # value
+            if value is not None and str(value).strip():
+                current_attrs["value"] = value
+
+            # index 总是添加
+            current_attrs["index"] = curr_ele.index()
 
             # 获取父元素
             parent_control = curr_ele.control.GetParentControl()
-            if not parent_control:
-                break
-            parent = UIAElement(control=parent_control)
-            parent_rects.append(parent.rect())
 
-            # 检查parent是否到达桌面层级
-            if UIAOperate._is_desktop_element(parent.control):
+            # 标记是否是根节点（没有父元素或到达桌面层级）
+            is_root_level = False
+            if not parent_control:
+                # 没有父元素，这是最顶层的节点
+                is_root_level = True
+                parent = None
+            else:
+                parent = UIAElement(control=parent_control)
+                parent_rects.append(parent.rect())
+
+                # 检查parent是否到达桌面层级
+                if UIAOperate._is_desktop_element(parent.control):
+                    is_root_level = True
+
+            # === 使用渐进式策略计算 disable_keys ===
+            disable_keys = self._calculate_disable_keys_progressive(
+                current_attrs, parent_control if not is_root_level else None, curr_ele.control, is_root_level
+            )
+
+            current_attrs["checked"] = True
+            current_attrs["disable_keys"] = disable_keys
+            path_list.append(current_attrs)
+
+            # 如果是根节点，结束循环
+            if is_root_level:
                 break
+
             curr_ele = parent
 
         # 构建返回结果

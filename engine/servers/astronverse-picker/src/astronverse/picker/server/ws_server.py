@@ -3,12 +3,13 @@ import json
 import time
 import uuid
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 import websockets
-from astronverse.picker import OperationResult, PickerSign, PickerType, RecordAction
+from astronverse.picker import OperationResult, PickerSign, PickerType, RecordAction, SmartComponentAction
 from astronverse.picker.logger import logger
 from pydantic import BaseModel
+from astronverse.picker.utils.browser import Browser
 
 
 class PickerRequire(BaseModel):
@@ -17,6 +18,7 @@ class PickerRequire(BaseModel):
     pick_sign: PickerSign = PickerSign.START
     pick_type: PickerType = PickerType.ELEMENT
     record_action: Optional[RecordAction] = None  # 仅在RECORD时使用
+    smart_component_action: Optional[SmartComponentAction] = None  # 仅在pick_sign是SMART_COMPONENT时使用
     data: str = None
     ext_data: dict = {}
 
@@ -97,9 +99,78 @@ class PickerRequestHandler:
                 return True  # 录制end请求不关闭连接
             else:
                 return False  # 录制非end请求不关闭连接
+        elif input_data.pick_sign == PickerSign.SMART_COMPONENT:
+            await self._handle_smart_component_request(ws, input_data)
+            return False
         else:
             await self._handle_picker_request(ws, input_data)
             return True  # 其他请求需要关闭连接
+
+    async def _handle_smart_component_request(self, ws, input_data: PickerRequire):
+        """处理普通拾取请求"""
+        if input_data.smart_component_action == SmartComponentAction.START:
+            result = await self._handle_smart_component_start(input_data)
+        elif input_data.smart_component_action in [SmartComponentAction.NEXT, SmartComponentAction.PREVIOUS]:
+            result = await self._handle_smart_component_next_previous(input_data)
+        elif input_data.smart_component_action in [SmartComponentAction.CANCEL, SmartComponentAction.END]:
+            result = await self._handle_smart_component_end(input_data)
+        else:
+            result = OperationResult.error("smart_component_start没有实现").to_dict()
+
+        await self._send_response(ws, result)
+
+    async def _handle_smart_component_start(self, input_data: PickerRequire) -> Dict[str, Any]:
+        """处理拾取开始"""
+        try:
+            from astronverse.picker.core.highlight_client import highlight_client
+
+            highlight_client.start_wnd("normal")
+
+            # 发送拾取开始信号
+            res = await self.svc.send_sign(PickerSign.START, input_data.model_dump())
+
+            # high_light.hide_wnd()
+            if res == "cancel":
+                return OperationResult.cancel().to_dict()
+            elif isinstance(res, dict):
+                res["picker_type"] = input_data.pick_type.name
+                return OperationResult.success(data=res).to_dict()
+            else:
+                return OperationResult.error(res).to_dict()
+
+        except Exception as e:
+            logger.error(f"智能组件开始处理失败: {e}")
+            return OperationResult.error(str(e)).to_dict()
+
+    async def _handle_smart_component_next_previous(self, input_data: PickerRequire) -> Dict[str, Any]:
+        """处理拾取开始"""
+        try:
+            from astronverse.picker.core.highlight_client import highlight_client
+
+            # 发送拾取开始信号
+            res = await self.svc.send_sign(PickerSign.SMART_COMPONENT, input_data.model_dump())
+            # high_light.hide_wnd()
+
+            if isinstance(res, dict):
+                res["picker_type"] = input_data.pick_type.name
+                return OperationResult.success(data=res).to_dict()
+            else:
+                return OperationResult.error(res).to_dict()
+
+        except Exception as e:
+            logger.error(f"智能组件拾取处理失败: {e}")
+            return OperationResult.error(str(e)).to_dict()
+
+    async def _handle_smart_component_end(self, input_data: PickerRequire) -> Dict[str, Any]:
+        """处理拾取开始"""
+        try:
+            from astronverse.picker.core.highlight_client import highlight_client
+
+            highlight_client.hide_wnd()
+            return OperationResult.success(data="").to_dict()
+        except Exception as e:
+            logger.error(f"智能组件拾取处理失败: {e}")
+            return OperationResult.error(str(e)).to_dict()
 
     async def _handle_record_request(self, ws, input_data: PickerRequire):
         """处理录制请求"""
@@ -200,16 +271,12 @@ class PickerRequestHandler:
                 else input_data.data
             )
 
-            url = f"http://127.0.0.1:{self.svc.route_port}/browser_connector/browser/transition"
-            payload = {
-                "browser_type": data.get("app"),
-                "data": data.get("path"),
-                "key": "highLightColumn",
-            }
-
-            import requests
-
-            requests.post(url, json=payload)
+            Browser.send_browser_extension(
+                browser_type=data.get("app"),
+                data=data.get("path"),
+                key="highLightColumn",
+                gate_way_port=self.svc.route_port,
+            )
 
             return OperationResult.success(data="高亮成功").to_dict()
 
@@ -232,19 +299,14 @@ class PickerRequestHandler:
                 else input_data.data
             )
 
-            url = f"http://127.0.0.1:{self.svc.route_port}/browser_connector/browser/transition"
-            batch_element = data.get("path")
-            payload = {
-                "browser_type": data.get("app"),
-                "data": batch_element,
-                "key": "getBatchData",
-            }
-
-            import requests
-
-            response = requests.post(url, json=payload)
-            web_info = response.json()["data"]["data"]
+            web_info = Browser.send_browser_extension(
+                browser_type=data.get("app"),
+                data=data.get("path"),
+                key="getBatchData",
+                gate_way_port=self.svc.route_port,
+            )
             values = web_info["values"]
+            batch_element = data.get("path")
             batch_element = table_json_merge_values(batch_element, values)
             locate_data = DataFilter(data_json=batch_element).get_filtered_data()
 

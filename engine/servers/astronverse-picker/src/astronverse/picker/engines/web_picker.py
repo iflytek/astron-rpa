@@ -6,6 +6,7 @@ from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, R
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
+from astronverse.picker.utils.browser import Browser
 
 
 class WEBElement(IElement):
@@ -57,102 +58,78 @@ class WEBElement(IElement):
 class WEBPicker:
     @classmethod
     def get_similar_path(cls, route_port: int, strategy_svc) -> Optional[dict]:
-        url = f"http://127.0.0.1:{route_port}/browser_connector/browser/transition"
-        payload = {
-            "browser_type": strategy_svc.app.value,
-            "data": strategy_svc.data.get("data", {}).get("path", []),
-            "key": "similarElement",
-        }
-
-        try:
-            response = requests.post(url, json=payload, timeout=10)
-            resp_json = response.json()
-        except (requests.RequestException, ValueError) as exc:
-            logger.error("Failed to request connector: %s", exc)
-            raise RuntimeError("Connector communication failed") from exc
-
-        code = resp_json.get("code", "")
-        if code != BizCode.LocalOK.value:
-            logger.error("Error from connector: %s", response.text)
-            raise RuntimeError("Connector communication error")
-
-        try:
-            web_info = resp_json["data"]["data"]
-            logger.info("检查返回数据: %s", resp_json)
-        except (KeyError, TypeError) as exc:
-            logger.warning("出现异常 %s, 返回: %s", exc, resp_json)
-            if resp_json.get("data", {}).get("code", "") != BizCode.LocalOK.value:
-                raise RuntimeError(resp_json.get("data", {}).get("msg", "插件查找相似元素出错"))
-            return None
-
-        if resp_json.get("data", {}).get("code", "") != BizCode.LocalOK.value:
-            raise RuntimeError(resp_json.get("data", {}).get("msg", "插件查找相似元素出错"))
-
-        return web_info or None
+        web_info = Browser.send_browser_extension(
+            browser_type=strategy_svc.app.value,
+            data=strategy_svc.data.get("data", {}).get("path", []),
+            key="similarElement",
+            gate_way_port=route_port,
+        )
+        return web_info
 
     @classmethod
     def get_batch_path(cls, route_port, strategy_svc, curr_ele: "WEBElement") -> Optional[dict]:
-        url = "http://127.0.0.1:{}/browser_connector/browser/transition".format(route_port)
         try:
             # 表头抓取
             batch_type = strategy_svc.data.get("data", {}).get("path", {}).get("batchType")
             if batch_type == "head":
-                data = {
-                    "browser_type": strategy_svc.app.value,
-                    "data": curr_ele.web_info,
-                    "key": "tableHeaderBatch",
-                }
-                response = requests.post(url, json=data, timeout=3)
-                return response.json()["data"]["data"]
+                web_info = Browser.send_browser_extension(
+                    browser_type=strategy_svc.app.value,
+                    data=curr_ele.web_info,
+                    key="tableHeaderBatch",
+                    gate_way_port=route_port,
+                    timeout=3,
+                )
+                return web_info
             # 补充相似元素
             if batch_type == "similarAdd":
-                data = {
-                    "browser_type": strategy_svc.app.value,
-                    "data": strategy_svc.data.get("data", {}).get("path"),
-                    "key": "similarBatch",
-                }
-                response = requests.post(url, json=data, timeout=3)
-                return response.json()["data"]["data"]
+                web_info = Browser.send_browser_extension(
+                    browser_type=strategy_svc.app.value,
+                    data=strategy_svc.data.get("data", {}).get("path"),
+                    key="similarBatch",
+                    gate_way_port=route_port,
+                    timeout=3,
+                )
+
+                return web_info
             # 是否是表格
-            data = {
-                "browser_type": strategy_svc.app.value,
-                "data": curr_ele.web_info,
-                "key": "elementIsTable",
-            }
-            response = requests.post(url, json=data, timeout=3)
-            res_data = response.json()["data"]["data"]
-            is_table = res_data["isTable"]
+            res_data = Browser.send_browser_extension(
+                browser_type=strategy_svc.app.value,
+                data=curr_ele.web_info,
+                key="elementIsTable",
+                gate_way_port=route_port,
+                timeout=3,
+            )
+            is_table = res_data.get("isTable")
             # is_table = True 直接抓取两种元素， False 继续执行
             if is_table and batch_type != "similar":  # 表格元素且不以相似元素拾取
-                # 抓取表格数据
-                tdb_data = {
-                    "browser_type": strategy_svc.app.value,
-                    "data": res_data,
-                    "key": "tableDataBatch",
-                }
-                tdb_response = requests.post(url, json=tdb_data, timeout=3)
-                # 抓取表格列数据
-                tcdb_data = {
-                    "browser_type": strategy_svc.app.value,
-                    "data": res_data,
-                    "key": "tableColumnDataBatch",
-                }
-                tcdb_response = requests.post(url, json=tcdb_data, timeout=3)
+                tdb_response = Browser.send_browser_extension(
+                    browser_type=strategy_svc.app.value,
+                    data=res_data,
+                    key="tableDataBatch",
+                    gate_way_port=route_port,
+                    timeout=3,
+                )
+
+                ###
+                tcdb_response = Browser.send_browser_extension(
+                    browser_type=strategy_svc.app.value,
+                    data=res_data,
+                    key="tableColumnDataBatch",
+                    gate_way_port=route_port,
+                    timeout=3,
+                )
                 # 整合两种数据
-                table_res_data = {
-                    "isTable": is_table,
-                    "tableData": tdb_response.json()["data"]["data"],
-                    "tableColumnData": tcdb_response.json()["data"]["data"],
-                }
+                table_res_data = {"isTable": is_table, "tableData": tdb_response, "tableColumnData": tcdb_response}
                 return table_res_data
             else:  # 普通元素
-                data = {
-                    "browser_type": strategy_svc.app.value,
-                    "data": res_data,
-                    "key": "similarBatch",
-                }
-                response = requests.post(url, json=data, timeout=3)
-                return response.json()["data"]["data"]
+                web_info = Browser.send_browser_extension(
+                    browser_type=strategy_svc.app.value,
+                    data=res_data,
+                    key="similarBatch",
+                    gate_way_port=route_port,
+                    timeout=3,
+                )
+                return web_info
         except Exception as e:
             raise Exception("插件响应出错", e)
 
@@ -160,28 +137,13 @@ class WEBPicker:
     def get_element(
         cls, root_control, route_port, strategy_svc, left_top_point: Point, **kwargs
     ) -> Optional[WEBElement]:
-        url = "http://127.0.0.1:{}/browser_connector/browser/transition".format(route_port)
-        data = {
-            "browser_type": strategy_svc.app.value,
-            "data": {
-                "x": strategy_svc.last_point.x - left_top_point.x,
-                "y": strategy_svc.last_point.y - left_top_point.y,
-            },
-            "key": "getElement",
-        }
-        response = requests.post(url, json=data, timeout=10)
-        data = response.json()
-        code = data.get("code", "")
-        if code != BizCode.LocalOK.value:
-            logger.error("error: get_element {}".format(response.text))
-            return None
-
-        try:
-            web_info = response.json()["data"]["data"]
-            if not web_info:
-                return None
-        except Exception as e:
-            logger.info(f"get_element获取输出出现异常{e}")
+        web_info = Browser.send_browser_extension(
+            browser_type=strategy_svc.app.value,
+            data={"x": strategy_svc.last_point.x - left_top_point.x, "y": strategy_svc.last_point.y - left_top_point.y},
+            key="getElement",
+            gate_way_port=route_port,
+        )
+        if not web_info:
             return None
 
         pid = root_control.ProcessId

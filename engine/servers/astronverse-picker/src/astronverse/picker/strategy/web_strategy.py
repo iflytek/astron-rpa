@@ -1,9 +1,12 @@
 from typing import TYPE_CHECKING, Optional
 
-from astronverse.picker import WEB_CLASS_NAMES, IElement, Point
+from astronverse.picker import WEB_CLASS_NAMES, IElement, Point, PickerSign, SmartComponentAction
+from astronverse.picker.engines.smart_component.web_picker_smart_component import web_picker_smart_component
 from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.engines.web_picker import web_picker
 from astronverse.picker.strategy.types import StrategySvc
+from astronverse.picker.logger import logger
+
 
 # 使用TYPE_CHECKING避免循环导入
 if TYPE_CHECKING:
@@ -15,14 +18,49 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
     if cache:
         is_document, menu_top, menu_left, hwnd = cache
     else:
-        web_control_result = UIAOperate().get_web_control(strategy_svc.start_control, WEB_CLASS_NAMES[strategy_svc.app])
-        is_document, menu_top, menu_left, hwnd = web_control_result
+        bound = strategy_svc.start_control.BoundingRectangle  ##专为智能拾取定制
+        is_document, menu_top, menu_left, hwnd = (
+            True,
+            bound.top,
+            bound.left,
+            strategy_svc.start_control.NativeWindowHandle,
+        )
     if not is_document:
         return None
-    ele = web_picker.get_element(
-        root_control=strategy_svc.start_control,
-        route_port=service.route_port,
-        strategy_svc=strategy_svc,
-        left_top_point=Point(menu_left, menu_top),
-    )
+
+    logger.info(f"测试data数据 {strategy_svc}")
+    if (
+        strategy_svc.data.get("pick_sign", "") != PickerSign.SMART_COMPONENT
+    ):  ##对于不是使用各类基础拾取的业务，需要走定制
+        ele = web_picker.get_element(
+            root_control=strategy_svc.start_control,
+            route_port=service.route_port,
+            strategy_svc=strategy_svc,
+            left_top_point=Point(menu_left, menu_top),
+        )
+    else:
+        smart_component_action = strategy_svc.data.get("smart_component_action", "")
+        if smart_component_action == SmartComponentAction.START:
+            ele = web_picker_smart_component.get_element(
+                root_control=strategy_svc.start_control,
+                route_port=service.route_port,
+                strategy_svc=strategy_svc,
+                left_top_point=Point(menu_left, menu_top),
+            )
+        elif smart_component_action == SmartComponentAction.PREVIOUS:
+            ele = web_picker_smart_component.getParentElement(
+                root_control=strategy_svc.start_control,
+                route_port=service.route_port,
+                strategy_svc=strategy_svc,
+                left_top_point=Point(menu_left, menu_top),
+            )
+        elif smart_component_action == SmartComponentAction.NEXT:
+            ele = web_picker_smart_component.getChildElement(
+                root_control=strategy_svc.start_control,
+                route_port=service.route_port,
+                strategy_svc=strategy_svc,
+                left_top_point=Point(menu_left, menu_top),
+            )
+        else:
+            raise Exception(f"拾取接口参数传递异常,不存在SmartComponentAction {smart_component_action}")
     return ele

@@ -50,6 +50,7 @@ def auto_default_strategy(
         except Exception as e:
             logger.error("堆栈信息:\n%s", traceback.format_exc())
             logger.error(f"auto_default_strategy web error: {e} {traceback.extract_stack()}")
+            raise e
     elif strategy_svc.app.value in MSAA_APPLICATIONS:
         preliminary_element = msaa_default_strategy(strategy_svc)
 

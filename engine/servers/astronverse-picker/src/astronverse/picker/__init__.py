@@ -183,6 +183,8 @@ class PickerSign(Enum):
 
     RECORD = "RECORD"  # 录制器专用
 
+    SMART_COMPONENT = "SMART_COMPONENT"
+
 
 class RecordAction(Enum):
     """录制动作 - 专门处理录制相关的子操作"""
@@ -194,6 +196,16 @@ class RecordAction(Enum):
     HOVER_END = "RECORD_AUTOMIC_HOVER_END"  # 原子能力放弃选择
     AUTOMIC_END = "RECORD_AUTOMIC_END"  # 原子能力选择操作结束
     END = "RECORD_END"  # 结束录制
+
+
+class SmartComponentAction(Enum):
+    """智能组件动作 - 专门处理智能组件拾取相关的子操作"""
+
+    START = "SMART_COMPONENT_START"  # 开始拾取
+    PREVIOUS = "SMART_COMPONENT_PREVIOUS"  # 获取拾取元素的父类元素
+    NEXT = "SMART_COMPONENT_NEXT"  # 获取拾取元素的子类元素
+    CANCEL = "SMART_COMPONENT_CANCEL"  # 取消拾取
+    END = "SMART_COMPONENT_END"  # 拾取完成结束
 
 
 class PickerDomain(Enum):

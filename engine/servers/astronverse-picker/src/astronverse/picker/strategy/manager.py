@@ -12,12 +12,11 @@ class Strategy:
         self.service_context = service_context
         self.strategy_env = StrategyEnv()
 
-    def gen_svc(self, process_id, last_point, data, start_control=None) -> StrategySvc:
+    def gen_svc(self, process_id, last_point, data, start_control=None, domain=PickerDomain.AUTO) -> StrategySvc:
         process_name = get_process_name(process_id)
         app = APP.init(process_name)
 
         # 默认自动选择AUTO模式
-        domain = PickerDomain.AUTO
 
         return StrategySvc(
             app=app,
