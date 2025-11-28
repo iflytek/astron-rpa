@@ -6127,8 +6127,8 @@ packages:
     peerDependencies:
       solid-js: ^1.3
 
-  sortable-dnd@0.7.0:
-    resolution: {integrity: sha512-HC4XlQrfGj7M00SOH2Gkk1NmsuLnlTSTagk9J3gMsOfqmpsptBWkQx+jkjYCgGDuuSYEl3RE96fyziYV4pU/Kg==}
+  sortable-dnd@0.7.1:
+    resolution: {integrity: sha512-4nBeglM4YtutmEAjdUiU2UaC+KkAtipyr8SMEXOxAIOdmq3iRHF1/w1OZhhg9WPBarnSD2G64DDZ6z9rilatkA==}
 
   sortablejs@1.14.0:
     resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
@@ -13413,7 +13413,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  sortable-dnd@0.7.0: {}
+  sortable-dnd@0.7.1: {}
 
   sortablejs@1.14.0: {}
 
@@ -14260,7 +14260,7 @@ snapshots:
 
   vue-virtual-draglist@3.3.2:
     dependencies:
-      sortable-dnd: 0.7.0
+      sortable-dnd: 0.7.1
 
   vue-virtual-scroller@2.0.0-beta.8(vue@3.5.18(typescript@5.9.3)):
     dependencies:
