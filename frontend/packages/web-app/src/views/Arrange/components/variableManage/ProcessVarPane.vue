@@ -5,7 +5,6 @@ import { ref } from 'vue'
 
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 import { paginationConfig } from '@/constants'
 
@@ -31,10 +30,10 @@ function handleSearchChange() {
 }
 function handleProcessChange() {
   console.log(processId.value)
-  getTableData(
-    useProjectDocStore().userFlowNode(processId.value).length,
-    processId.value,
-  )
+  // getTableData(
+  //   useProjectDocStore().userFlowNode(processId.value).length,
+  //   processId.value,
+  // )
 }
 
 function getTableData(len: number, processId?: string) {
@@ -44,7 +43,7 @@ function getTableData(len: number, processId?: string) {
     processId,
   )
 }
-getTableData(useProjectDocStore().userFlowNode().length)
+// getTableData(useProjectDocStore().userFlowNode().length)
 </script>
 
 <template>

@@ -6,16 +6,16 @@ import { cloneDeep } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
 import { GLOBAL_VAR_IN_TYPE } from '@/constants/atom'
-import { useFlowStore } from '@/stores/useFlowStore'
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
-import { getFlowVariable } from '@/views/Arrange/utils/generateData'
+// import { getFlowVariable } from '@/views/Arrange/utils/generateData'
 import { paginationConfig } from '@/constants'
-import { VariableType } from '@/corobot/type'
+
 
 const { t } = useTranslation()
-const flowStore = useFlowStore()
+// const flowStore = useFlowStore()
 const processStore = useProcessStore()
 const variableStore = useVariableStore()
 
@@ -72,11 +72,13 @@ const dataSource = computed(() => {
 
 const editableData = ref<LocalGlobalVariable | null>(null)
 
+// TODO: 待修复
 function judgeVarName({ varName, globalId }: RPA.GlobalVariable) {
-  const flowVar = getFlowVariable()
+  // const flowVar = getFlowVariable()
 
   // 判断是否存在同名的流程变量
-  const isFlowNameEqual = flowVar.some(item => item.name === varName)
+  // const isFlowNameEqual = flowVar.some(item => item.name === varName)
+  const isFlowNameEqual = false
 
   if (isFlowNameEqual)
     return true
@@ -93,12 +95,12 @@ async function handleSave(record: LocalGlobalVariable) {
 
   await variableStore.saveGlobalVariableList(editableData.value)
 
-  flowStore.flowVariableUpdate({
-    varName: record.varName,
-    newVarName: editableData.value.varName,
-    varType: GLOBAL_VAR_IN_TYPE,
-    type: 'rename',
-  })
+  // flowStore.flowVariableUpdate({
+  //   varName: record.varName,
+  //   newVarName: editableData.value.varName,
+  //   varType: GLOBAL_VAR_IN_TYPE,
+  //   type: 'rename',
+  // })
 
   editableData.value = null
 }
@@ -123,11 +125,11 @@ function handleEdit(record: LocalGlobalVariable) {
 async function handleReduceRecord(item: RPA.GlobalVariable) {
   await variableStore.deleteGlobalVariableList(item.globalId)
 
-  flowStore.flowVariableUpdate({
-    varName: item.varName,
-    varType: GLOBAL_VAR_IN_TYPE,
-    type: 'delete',
-  })
+  // flowStore.flowVariableUpdate({
+  //   varName: item.varName,
+  //   varType: GLOBAL_VAR_IN_TYPE,
+  //   type: 'delete',
+  // })
 }
 
 const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', 'varValue', 'varDescribe']
@@ -163,7 +165,7 @@ const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', '
             <VarValueEditor
               v-else-if="column.dataIndex === 'varValue'"
               v-model:var-value="editableData.varValue"
-              :var-type="editableData.varType as VariableType"
+              :var-type="editableData.varType as any"
             />
             <a-input v-else v-model:value="editableData[column.dataIndex as string]" />
           </template>

@@ -31,7 +31,7 @@ export function useToolsPublish() {
     show: true,
     disable: ({ status }) => ['debug', 'run'].includes(status),
     clickFn: () => {
-      processStore.saveProject()
+      // processStore.saveProject()
       publish()
     },
     validateFn: ({ disable }) => {

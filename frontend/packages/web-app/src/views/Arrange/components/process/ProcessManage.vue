@@ -28,7 +28,7 @@ const [sidebarWide, toggleSidebarWide] = useToggle(false)
 
 <template>
   <section
-    class="process-manage h-full bg-[#fff] dark:bg-[#1d1d1d]"
+    class="flex flex-col px-4 py-3 h-full bg-white dark:bg-[#1d1d1d]"
     :class="[sidebarWide ? 'w-[620px]' : 'w-80']"
   >
     <section class="flex items-center mb-[18px]">
@@ -57,11 +57,3 @@ const [sidebarWide, toggleSidebarWide] = useToggle(false)
     <ProcessTree class="flex-1 flex flex-col overflow-hidden" />
   </section>
 </template>
-
-<style lang="scss" scoped>
-.process-manage {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 16px;
-}
-</style>

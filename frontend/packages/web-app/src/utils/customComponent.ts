@@ -3,10 +3,7 @@ import { getComponentDetail } from '@/api/project'
 import { getProcessAndCodeList } from '@/api/resource'
 import { addComponentUse, deleteComponentUse, getEditComponentDetail } from '@/api/robot'
 import { OTHER_IN_TYPE } from '@/constants/atom'
-import type { ProcessNode } from '@/corobot/type'
-import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 import { isArray, difference, has, isEmpty, some } from 'lodash-es'
 
 export const COMPONENT_KEY_PREFIX = 'Code.Component'
@@ -133,7 +130,7 @@ export async function getComponentForm(params: {
     icon: info.icon,
     helpManual: '',
     noAdvanced: true,
-  } as unknown as ProcessNode
+  } as unknown
 }
 
 /**
@@ -195,68 +192,68 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
 
 export function getUsedComponentKeySet() {
   const processStore = useProcessStore()
-  const projectDocStore = useProjectDocStore()
+  // const projectDocStore = useProjectDocStore()
 
-  const usedkeySet = new Set(
-    processStore.processList
-      .flatMap(process => projectDocStore.getProcessNodes(process.resourceId))
-      .filter(node => isComponentKey(node.key))
-      .map(item => item.key),
-  )
+  // const usedkeySet = new Set(
+  //   processStore.processList
+  //     .flatMap(process => projectDocStore.getProcessNodes(process.resourceId))
+  //     .filter(node => isComponentKey(node.key))
+  //     .map(item => item.key),
+  // )
 
-  return usedkeySet
+  // return usedkeySet
 }
 
 export async function trackComponentUsageChange(operation: () => void | Promise<void>) {
   const beforeUsedKeys = getUsedComponentKeySet()
   await operation()
   const afterUsedKeys = getUsedComponentKeySet()
-  const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
-  const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
+  // const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
+  // const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
 
-  for (const key of addedKeys) {
-    await addComponentUse({
-      robotId: useProcessStore().project.id,
-      componentId: getComponentId(key),
-    })
-  }
+  // for (const key of addedKeys) {
+  //   await addComponentUse({
+  //     robotId: useProcessStore().project.id,
+  //     componentId: getComponentId(key),
+  //   })
+  // }
 
-  for (const key of deletedKeys) {
-    await deleteComponentUse({
-      robotId: useProcessStore().project.id,
-      componentId: getComponentId(key),
-    })
-  }
+  // for (const key of deletedKeys) {
+  //   await deleteComponentUse({
+  //     robotId: useProcessStore().project.id,
+  //     componentId: getComponentId(key),
+  //   })
+  // }
 }
 
 /**
  * 更新应用流程节点中使用到的组件数据
  */
-export function updateFlowNodesComponent(componentId: string, defaultNode: ProcessNode) {
-  const processStore = useProcessStore()
-  const projectDocStore = useProjectDocStore()
-  const flowStore = useFlowStore()
+export function updateFlowNodesComponent(componentId: string, defaultNode: RPA.Flow.FlowItemValue) {
+  // const processStore = useProcessStore()
+  // const projectDocStore = useProjectDocStore()
+  // const flowStore = useFlowStore()
 
-  const updateParams: { node: RPA.Atom, index: number, process: string }[] = []
+  // const updateParams: { node: RPA.Atom, index: number, process: string }[] = []
 
-  processStore.processList.forEach((process) => {
-    const nodes = projectDocStore.getProcessNodes(process.resourceId)
-    nodes.forEach((node, index) => {
-      if (isComponentKey(node.key) && getComponentId(node.key) === componentId) {
-        const oldFormItems = [...node.inputList, ...node.outputList]
-        const newNode = {
-          ...node,
-          icon: defaultNode.icon,
-          version: defaultNode.version,
-          inputList: defaultNode.inputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
-          outputList: defaultNode.outputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
-        }
-        updateParams.push({ node: newNode, index, process: process.resourceId })
-      }
-    })
-  })
+  // processStore.processList.forEach((process) => {
+  //   const nodes = projectDocStore.getProcessNodes(process.resourceId)
+  //   nodes.forEach((node, index) => {
+  //     if (isComponentKey(node.key) && getComponentId(node.key) === componentId) {
+  //       const oldFormItems = [...node.inputList, ...node.outputList]
+  //       const newNode = {
+  //         ...node,
+  //         icon: defaultNode.icon,
+  //         version: defaultNode.version,
+  //         inputList: defaultNode.inputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
+  //         outputList: defaultNode.outputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
+  //       }
+  //       updateParams.push({ node: newNode, index, process: process.resourceId })
+  //     }
+  //   })
+  // })
 
-  flowStore.updataOriginFlowData(updateParams)
+  // flowStore.updataOriginFlowData(updateParams)
 }
 
 function safeParse(str) {

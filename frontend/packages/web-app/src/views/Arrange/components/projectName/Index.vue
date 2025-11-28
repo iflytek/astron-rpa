@@ -46,7 +46,7 @@ async function editProjectName() {
     }
 
     message.success(t('common.renameSuccess'))
-    processStore.setProject({ ...processStore.project, name: formState.newName })
+    processStore.setProject({ name: formState.newName })
     setTimeout(() => toggleEdit(false), 100) // blur事件会先于click触发导致状态错乱，延迟修改以确保状态正常更新
   }
   catch (e) {

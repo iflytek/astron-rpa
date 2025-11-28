@@ -1,25 +1,18 @@
 import { CloseOutlined, DownOutlined } from '@ant-design/icons-vue'
 import { Button, DatePicker, Dropdown, Input, Menu, Select, Space } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { omit } from 'lodash-es'
 
 import FilterComp from '@/components/FilterComp/FilterComp.vue'
 
-export default function useTableFormItem() {
+export function useTableFormItem() {
   const { t } = useTranslation()
-
-  // 删除对象属性
-  function delObjProperty(obj, delArrs) {
-    delArrs.forEach((item) => {
-      delete obj[item]
-    })
-  }
 
   /**
    * 生成input
    */
   function renderInput(item, modelObj, searchFn) {
-    const { placeholder, ...nodeProps } = item
-    delObjProperty(nodeProps, ['componentType', 'bind', 'label'])
+    const nodeProps = omit(item, ['placeholder', 'componentType', 'bind', 'label'])
     const isHidden = item.hidden ? 'hide' : ''
 
     if (!modelObj)
@@ -30,14 +23,13 @@ export default function useTableFormItem() {
         <Input
           class={isHidden}
           placeholder={
-            placeholder
-              ? t(placeholder)
+            item.placeholder
+              ? t(item.placeholder)
               : t('common.enterPlaceholder', { name: t(item.label) })
           }
           allowClear
           style="width: 200px;"
           {...nodeProps}
-          onClick={() => item.clickFn?.()}
           onChange={() => searchFn()}
         />
       )
@@ -48,14 +40,13 @@ export default function useTableFormItem() {
         class={isHidden}
         v-model:value={modelObj[item.bind]}
         placeholder={
-          placeholder
-            ? t(placeholder)
+          item.placeholder
+            ? t(item.placeholder)
             : t('common.enterPlaceholder', { name: t(item.label) })
         }
         allowClear
         style="width: 200px;"
         {...nodeProps}
-        onClick={() => item.clickFn?.()}
         onChange={() => searchFn()}
       />
     )
@@ -64,9 +55,8 @@ export default function useTableFormItem() {
    * 生成select下拉框
    */
   function renderSelect(item, modelObj, searchFn) {
-    const { placeholder, ...nodeProps } = item
-
-    delObjProperty(nodeProps, [
+    const nodeProps = omit(item, [
+      'placeholder',
       'componentType',
       'bind',
       'label',
@@ -86,15 +76,13 @@ export default function useTableFormItem() {
         <Select
           v-model:value={modelObj[item.bind]}
           placeholder={
-            placeholder
-              ? t(placeholder)
+            item.placeholder
+              ? t(item.placeholder)
               : t('common.selectPlaceholder', { name: t(item.label) })
           }
           style={`${item.style ? item.style : 'min-width: 150px;'}`}
           {...nodeProps}
-          onChange={() => {
-            searchFn()
-          }}
+          onChange={() => searchFn()}
         >
           {item.options?.map(info => (
             <Select.Option
@@ -113,14 +101,11 @@ export default function useTableFormItem() {
    * 生成日期（时间）范围选择器
    */
   function renderDatePicker(item, modelObj, searchFn) {
-    const { placeholder, ...nodeProps } = item
-
-    delObjProperty(nodeProps, ['componentType', 'bind', 'label'])
-
+    const nodeProps= omit(item, ['placeholder','componentType', 'bind', 'label'])
+    
     return (
       modelObj && (
         <DatePicker.RangePicker
-          placeholder={placeholder ? t(placeholder) : undefined}
           v-model:value={modelObj[item.bind]}
           {...nodeProps}
           onChange={() => searchFn()}
@@ -133,8 +118,7 @@ export default function useTableFormItem() {
    * 生成按钮
    */
   function renderButton(item) {
-    const nodeProps = { ...item }
-    delObjProperty(nodeProps, [
+    const nodeProps = omit(item, [
       'btnType',
       'label',
       'action',
@@ -340,17 +324,14 @@ export default function useTableFormItem() {
   }
 
   return {
-    delObjProperty,
-    createHomeForm: {
-      input: renderInput,
-      select: renderSelect,
-      datePicker: renderDatePicker,
-      button: renderButton,
-      back: renderBack, // 返回按钮
-      filter: renderFilter, // 过滤组件
-      // dropdown: renderDropdown,
-      // buttonList: renderButtonList,
-      // treeSelect: renderTreeSelect,
-    },
+    input: renderInput,
+    select: renderSelect,
+    datePicker: renderDatePicker,
+    button: renderButton,
+    back: renderBack, // 返回按钮
+    filter: renderFilter, // 过滤组件
+    // dropdown: renderDropdown,
+    // buttonList: renderButtonList,
+    // treeSelect: renderTreeSelect,
   }
 }

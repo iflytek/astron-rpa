@@ -1,72 +1,47 @@
 <script lang="ts" setup>
-import { computed, provide, ref } from 'vue'
-import type { Ref } from 'vue'
+import { computed, provide, ref, type Ref } from 'vue'
 
-type Position = 'top' | 'left' | 'right' | 'bottom'
+import type { Tab, TabsContext, Position } from './types'
 
-interface Tab {
-  name: string
-  value: PropertyKey
-  size?: string | number
-}
-
-interface TabsContext {
-  activeTab: Ref<Tab['value']>
-  position: Ref<Position>
-  registerTab: (tab: Tab) => void
-}
+const activeTab = defineModel<PropertyKey>('modelValue')
 
 const props = withDefaults(defineProps<{
-  modelValue: string
   position?: Position
   doubleClickClear?: boolean
-  beforeSelectChange?: (tab: Tab['value']) => boolean | void // 返回值为false则取消更改
 }>(), {
   position: 'top',
 })
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: PropertyKey): void
-}>()
-
 const tabs = ref([]) as Ref<Tab[]>
-const activeTab = computed(() => props.modelValue)
 const positionClass = computed(() => `tabs-${props.position}`)
 
-const activeStyle = computed(() => {
-  // const isVertical = ['top', 'bottom'].includes(props.position || '')
-  // const mainDimension = isVertical ? 'height' : 'width'
-  // const activeSize = tabs.value.find(item => item.value === activeTab.value)?.size ?? 0
-  // const validSize = Number.isNaN(Number(activeSize)) ? activeSize : `${Number(activeSize)}px`
-
-  return {
-    // [mainDimension]: validSize,
-    // transition: 'all 0.3s ease',
-  }
-})
-
 function selectTab(value: Tab['value']) {
-  if (props.beforeSelectChange && props.beforeSelectChange(value) === false) {
-    return
-  }
   if (props.doubleClickClear && activeTab.value === value) {
-    emit('update:modelValue', '')
+    activeTab.value = ''
   }
   else {
-    emit('update:modelValue', value)
+    activeTab.value = value
   }
 }
 
-function registerTab(tab: Tab) {
-  if (tabs.value.find(item => item.value === tab.value))
-    return
-  tabs.value.push(tab)
+const registerTab: TabsContext['registerTab'] = (tab) => {
+  if (!tabs.value.find(item => item.value === tab.value)) {
+    tabs.value.push(tab)
+  }
+}
+
+const updateTab: TabsContext['updateTab'] = (key, tab) => {
+  const index = tabs.value.findIndex(item => item.value === key)
+  if (index !== -1) {
+    tabs.value[index] = { ...tabs.value[index], ...tab }
+  }
 }
 
 provide<TabsContext>('tabsContext', {
   activeTab,
   position: computed(() => props.position),
   registerTab,
+  updateTab,
 })
 </script>
 
@@ -74,15 +49,19 @@ provide<TabsContext>('tabsContext', {
   <div :class="positionClass" class="tabs">
     <div class="tabs-header">
       <div
-        v-for="(tab, index) in tabs" :key="tab.value ?? index" :class="{ active: activeTab === tab.value }"
-        class="tab-bar dark:text-[rgba(255,255,255,0.65)] text-[rgba(0,0,0,0.65)]" @click="selectTab(tab.value)"
+        v-for="(tab, index) in tabs"
+        :key="tab.value ?? index"
+        v-show="tab.show"
+        :class="{ active: activeTab === tab.value }"
+        class="tab-bar dark:text-[rgba(255,255,255,0.65)] text-[rgba(0,0,0,0.65)]"
+        @click="selectTab(tab.value)"
       >
         <slot name="bar" :tab="tab">
           <span>{{ tab.name }}</span>
         </slot>
       </div>
     </div>
-    <div :style="activeStyle" class="tabs-content">
+    <div class="flex relative">
       <slot />
     </div>
   </div>
@@ -132,11 +111,6 @@ provide<TabsContext>('tabsContext', {
       }
     }
   }
-
-  .tabs-content {
-    display: flex;
-    position: relative;
-  }
 }
 
 .tabs-top {
@@ -144,6 +118,7 @@ provide<TabsContext>('tabsContext', {
 
   .tabs-header {
     flex-direction: row;
+    gap: var(--tab-bar-gap);
 
     .tab-bar {
       padding: var(--tab-padding-cross) var(--tab-padding-main);
@@ -155,10 +130,6 @@ provide<TabsContext>('tabsContext', {
         width: 100%;
         height: 2px;
       }
-
-      &:not(:first-child) {
-        margin-left: var(--tab-bar-gap);
-      }
     }
   }
 }
@@ -168,6 +139,7 @@ provide<TabsContext>('tabsContext', {
 
   .tabs-header {
     flex-direction: column;
+    gap: var(--tab-bar-gap);
 
     .tab-bar {
       padding: 20px 10px;
@@ -182,10 +154,6 @@ provide<TabsContext>('tabsContext', {
         width: 2px;
         height: 100%;
       }
-
-      &:not(:first-child) {
-        margin-top: var(--tab-bar-gap);
-      }
     }
   }
 }
@@ -195,6 +163,7 @@ provide<TabsContext>('tabsContext', {
 
   .tabs-header {
     flex-direction: column;
+    gap: var(--tab-bar-gap);
 
     .tab-bar {
       padding: var(--tab-padding-main) var(--tab-padding-cross);
@@ -210,10 +179,6 @@ provide<TabsContext>('tabsContext', {
         width: 2px;
         height: 100%;
       }
-
-      &:not(:first-child) {
-        margin-top: var(--tab-bar-gap);
-      }
     }
   }
 }
@@ -223,6 +188,7 @@ provide<TabsContext>('tabsContext', {
 
   .tabs-header {
     flex-direction: row;
+    gap: var(--tab-bar-gap);
 
     .tab-bar {
       padding: var(--tab-padding-cross) var(--tab-padding-main);
@@ -233,10 +199,6 @@ provide<TabsContext>('tabsContext', {
         top: 0;
         width: 100%;
         height: 2px;
-      }
-
-      &:not(:first-child) {
-        margin-left: var(--tab-bar-gap);
       }
     }
   }

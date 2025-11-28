@@ -26,27 +26,26 @@ function cvPick() {
   emits('click')
   useCvPick().pick({ groupId, entry })
 }
+
 const cvPickStore = useCvPickStore()
 const pickLoading = ref(false)
-const pickBtnDisabled = computed(() => cvPickStore.isPicking)
-const defaultPickLoading = computed(() => cvPickStore.isPicking === true && pickLoading.value === true)
+const disabled = computed(() => cvPickStore.isPicking)
+const loading = computed(() => cvPickStore.isPicking === true && pickLoading.value === true)
 </script>
 
 <template>
   <rpa-hint-icon
     v-if="type === 'icon'"
-    placement="top"
-    title="拾取图像"
     name="excel-insert-image"
-    :loading="defaultPickLoading"
-    :disabled="pickBtnDisabled"
+    :loading="loading"
+    :disabled="disabled"
     @click="cvPick"
   />
   <span v-else-if="type === 'text'" @click="cvPick">拾取图像</span>
   <rpa-hint-icon
     v-else name="excel-insert-image"
-    :loading="defaultPickLoading"
-    :disabled="pickBtnDisabled"
+    :loading="loading"
+    :disabled="disabled"
     enable-hover-bg
     @click="cvPick"
   >

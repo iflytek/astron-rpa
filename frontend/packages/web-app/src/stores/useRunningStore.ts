@@ -14,7 +14,6 @@ import { closeDataTable, deleteDataTable, getDataTable, startDataTableListener, 
 import Socket from '@/api/ws'
 import { WINDOW_NAME } from '@/constants'
 import { windowManager, type CreateWindowOptions } from '@/platform'
-import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
@@ -26,7 +25,6 @@ export type RunState = 'run' | 'free' | 'debug' | 'silence' // 执行状态
 
 export const useRunningStore = defineStore('running', () => {
   const processStore = useProcessStore()
-  const flowStore = useFlowStore()
   const userSettingStore = useUserSettingStore()
   const runLogStore = useRunlogStore()
 
@@ -60,9 +58,9 @@ export const useRunningStore = defineStore('running', () => {
   }
 
   const setDebugData = (debugMsg, replyEventId: string) => {
-    if (debugMsg.process_id && debugMsg.process_id !== processStore.activeProcessId) {
-      processStore.checkActiveProcess(debugMsg.process_id)
-    }
+    // if (debugMsg.process_id && debugMsg.process_id !== processStore.activeProcessId) {
+      // processStore.checkActiveProcess(debugMsg.process_id)
+    // }
     if (debugMsg.debug_data?.data) {
       debugDataVar.value = debugMsg.debug_data.data
     }
@@ -87,8 +85,8 @@ export const useRunningStore = defineStore('running', () => {
   const breakpointAtom = computed(() => {
     changeDebugging(debugData.value.atomId)
     if (debugData.value.atomId) {
-      const findIdx = flowStore.simpleFlowUIData.findIndex(i => i.id === debugData.value.atomId)
-      return flowStore.simpleFlowUIData[findIdx]
+      // const findIdx = flowStore.simpleFlowUIData.findIndex(i => i.id === debugData.value.atomId)
+      // return flowStore.simpleFlowUIData[findIdx]
     }
     return null
   })

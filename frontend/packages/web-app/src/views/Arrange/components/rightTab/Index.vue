@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import { useTheme } from '@rpa/components'
 import { onClickOutside } from '@vueuse/core'
-import { message } from 'ant-design-vue'
-import { ref, useTemplateRef } from 'vue'
-
-import BUS from '@/utils/eventBus'
+import { computed, useTemplateRef } from 'vue'
+import { storeToRefs } from 'pinia'
 
 import PythonPackageManagement from '@/components/PythonPackageManagement/Index.vue'
-import { useFlowStore } from '@/stores/useFlowStore'
-import AtomForm from '@/views/Arrange/components/atomForm/AtomForm.vue'
-import ProcessManage from '@/views/Arrange/components/process/ProcessManage.vue'
-import CustomTabItem from '@/views/Arrange/components/rightTab/CustomTabItem.vue'
-import CustomTabs from '@/views/Arrange/components/rightTab/CustomTabs.vue'
-import VariableManage from '@/views/Arrange/components/variableManage/Index.vue'
+import { useProcessStore } from '@/stores/useProcessStore'
+
+import AtomForm from '../atomForm/AtomForm.vue'
+import ProcessManage from '../process/ProcessManage.vue'
+import CustomTabItem from '../rightTab/CustomTabItem.vue'
+import CustomTabs from '../rightTab/CustomTabs.vue'
+import VariableManage from '../variableManage/Index.vue'
+import { RIGHT_TAB_KEY } from '../../config'
+
+const processStore = useProcessStore()
+const { rightTabActiveKey } = storeToRefs(processStore)
 
 const { colorTheme } = useTheme()
-const flowStore = useFlowStore()
-const activeTab = ref('')
 const tabsRef = useTemplateRef('tabsRef')
+
+const hasNodeParameter = computed(() => !!processStore.canvasManager.activeTab?.nodeParameter)
 
 onClickOutside(tabsRef, (e) => {
   // 点击 "顶部工具栏/底部tab栏/流程切换栏/原子能力编辑页" 空白处关闭右侧tab
@@ -25,39 +28,30 @@ onClickOutside(tabsRef, (e) => {
   const target = e.target as HTMLElement
   const close = closeList.some(item => target.classList.contains(item)) && !!target.closest('.right-tab-close-area')
   if (close) {
-    activeTab.value = ''
+    rightTabActiveKey.value = ''
   }
 })
-
-BUS.$on('toggleAtomForm', (visible: boolean) => {
-  if (!visible && activeTab.value === 'node') {
-    activeTab.value = ''
-  }
-  else {
-    activeTab.value = 'node'
-  }
-})
-
-function beforeSelectChange(tab) {
-  if (tab === 'node' && !flowStore.activeAtom) {
-    message.warning('请选择一个原子能力')
-    return false
-  }
-}
 </script>
 
 <template>
-  <CustomTabs ref="tabsRef" v-model="activeTab" position="right" :before-select-change="beforeSelectChange" class="custom-tabs dark:text-[rgba(255,255,255,0.65)]]" :class="[colorTheme]" double-click-clear>
-    <CustomTabItem :name="$t('nodeParams')" value="node" size="320">
+  <CustomTabs
+    ref="tabsRef"
+    v-model="rightTabActiveKey"
+    position="right"
+    class="custom-tabs dark:text-[rgba(255,255,255,0.65)]]"
+    :class="[colorTheme]"
+    double-click-clear
+  >
+    <CustomTabItem :show="hasNodeParameter" :name="$t('nodeParams')" :value="RIGHT_TAB_KEY.NODE" size="320">
       <AtomForm />
     </CustomTabItem>
-    <CustomTabItem :name="$t('processManagement')" value="process" size="320">
+    <CustomTabItem :name="$t('processManagement')" :value="RIGHT_TAB_KEY.PROCESS" size="320">
       <ProcessManage />
     </CustomTabItem>
-    <CustomTabItem :name="$t('variableManagement')" value="variable" size="620">
+    <CustomTabItem :name="$t('variableManagement')" :value="RIGHT_TAB_KEY.VARIABLE" size="620">
       <VariableManage />
     </CustomTabItem>
-    <CustomTabItem :name="$t('pythonPackageManagement')" value="python" size="620">
+    <CustomTabItem :name="$t('pythonPackageManagement')" :value="RIGHT_TAB_KEY.PYTHON" size="620">
       <PythonPackageManagement />
     </CustomTabItem>
   </CustomTabs>
@@ -102,9 +96,6 @@ function beforeSelectChange(tab) {
   :deep(.tabs-header) {
     background-color: rgba(#ffffff, 0.04);
     border-left: 2px solid #141414;
-  }
-
-  :deep(.custom-tab-panel) {
   }
 }
 </style>

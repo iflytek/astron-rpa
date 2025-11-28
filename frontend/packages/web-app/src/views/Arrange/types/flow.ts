@@ -3,13 +3,6 @@ export interface ContextmenuInfo {
   $event?: MouseEvent
   atom?: any
 }
-export interface FlowItem {
-  processId: string
-  processName: string
-  isOpen?: boolean
-  isMain?: boolean
-  robotId: string
-}
 
 export interface FlowHistoryAtomItem {
   atoms?: Array<any>

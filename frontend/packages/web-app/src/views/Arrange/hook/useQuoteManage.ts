@@ -1,5 +1,4 @@
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 
 export function quoteManage(currentItem, callback: (args: any) => void, pickType = '') {
   console.time('quoteManage')
@@ -12,7 +11,7 @@ export function quoteManage(currentItem, callback: (args: any) => void, pickType
       resourceId: item.resourceId,
       name: item.name,
     })
-    obj[item.resourceId] = useProjectDocStore().userFlowNode(item.resourceId)
+    // obj[item.resourceId] = useProjectDocStore().userFlowNode(item.resourceId)
   })
   worker.postMessage({
     key: 'quoteManage',
@@ -44,7 +43,7 @@ export function gainUnUseQuote(callback: (args: any) => void, pickType = '') {
       resourceId: item.resourceId,
       name: item.name,
     })
-    obj[item.resourceId] = useProjectDocStore().userFlowNode(item.resourceId)
+    // obj[item.resourceId] = useProjectDocStore().userFlowNode(item.resourceId)
   })
   worker.postMessage({
     key: 'unUseQuoteManage',

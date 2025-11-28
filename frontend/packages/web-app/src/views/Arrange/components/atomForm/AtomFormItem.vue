@@ -5,18 +5,21 @@ import { computed } from 'vue'
 import { ProcessModal } from '@/views/Arrange/components/process'
 
 import AtomConfig from './AtomConfig.vue'
-import {
-  getLimitLengthTip,
-  useFormItemLimitLength,
-  useFormItemRequired,
-} from './hooks/useFormItemSort'
+import { useFormStore } from './hooks/useFormStore'
 
 const { atomFormItem } = defineProps<{ atomFormItem: RPA.AtomDisplayItem }>()
+const emit = defineEmits<{ (e: 'update', key: string, value: any): void }>()
+
+const { formValues } = useFormStore()
 
 // 是否展示 label
 const showLabel = computed(() => {
   return atomFormItem.formType?.type !== 'CHECKBOX'
 })
+
+function handleUpdate(key: string, value: any) {
+  emit('update', key, value)
+}
 </script>
 
 <template>
@@ -46,24 +49,13 @@ const showLabel = computed(() => {
         创建Python脚本
       </span>
     </label>
-    <AtomConfig :form-item="atomFormItem" class="mt-2" />
+    <AtomConfig :form-item="atomFormItem" :form-values="formValues" class="mt-2" @update="handleUpdate" />
     <article
-      v-if="useFormItemRequired(atomFormItem)"
+      v-for="value in atomFormItem.errors"
+      :key="value"
       class="form-container-context-required"
     >
-      {{ atomFormItem.title }}是必填的
-    </article>
-    <article
-      v-if="atomFormItem.customizeTip"
-      class="form-container-context-required"
-    >
-      {{ atomFormItem.customizeTip }}
-    </article>
-    <article
-      v-if="!useFormItemLimitLength(atomFormItem)"
-      class="form-container-context-required"
-    >
-      {{ atomFormItem.title }}长度{{ getLimitLengthTip(atomFormItem.limitLength) || "超出限制" }}
+      {{ value }}
     </article>
   </div>
 </template>

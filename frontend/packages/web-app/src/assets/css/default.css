@@ -13,6 +13,14 @@
   .n-table-container__dark {
     background: rgba(20, 20, 20, 0.8);
   }
+
+  .panel-bg {
+    background-color: #f3f3f7;
+  }
+  
+  .dark .panel-bg {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 }
 
 html,

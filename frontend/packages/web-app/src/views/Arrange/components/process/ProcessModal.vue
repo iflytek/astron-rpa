@@ -3,15 +3,16 @@ import { NiceModal } from '@rpa/components'
 import { Form, message } from 'ant-design-vue'
 import { computed, onBeforeMount, reactive } from 'vue'
 
-import useProjectDocStore from '@/stores/useProjectDocStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 
 const props = defineProps<{
-  type: RPA.Flow.ProcessModuleType
-  processItem?: RPA.Flow.ProcessModule
+  type: RPA.Process.ProcessModuleType
+  processItem?: RPA.Process.ProcessModule
 }>()
 
 const modal = NiceModal.useModal()
-const { addProcessOrModule, genProcessOrModuleName, renameProcessOrModule } = useProjectDocStore()
+
+const processStore = useProcessStore()
 
 const categoryTitle = computed(() => props.type === 'process' ? '子流程' : 'Python模块')
 const modalTitle = computed(() => props.processItem ? `编辑${categoryTitle.value}` : `新建${categoryTitle.value}`)
@@ -34,7 +35,7 @@ onBeforeMount(async () => {
     formState.name = props.processItem.name
   }
   else {
-    formState.name = await genProcessOrModuleName(props.type)
+    formState.name = await processStore.canvasManager.genTabName(props.type)
   }
 })
 
@@ -45,10 +46,10 @@ async function handleOkConfirm() {
 
   try {
     if (props.processItem) {
-      await renameProcessOrModule(props.type, formState.name, props.processItem.resourceId)
+      await processStore.canvasManager.renameTab(props.processItem.resourceId, formState.name)
     }
     else {
-      await addProcessOrModule(props.type, formState.name)
+      await processStore.canvasManager.createTab(props.type, formState.name)
     }
 
     message.success(`${msgPrefix}成功`)

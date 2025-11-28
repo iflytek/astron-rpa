@@ -1,100 +1,71 @@
 <script setup lang="ts">
-import { isEmpty } from 'lodash-es'
+import { isEmpty, isNil } from 'lodash-es'
 import { computed } from 'vue'
+import { createReusableTemplate } from '@vueuse/core'
 
-import { ATOM_FORM_TYPE, PY_IN_TYPE } from '@/constants/atom'
-import { PICK_TYPE_CV } from '@/views/Arrange/config/atom'
+import { getFormTypeArray, FORM_ITEM_REGISTER, FormItemRegisterWithType } from './formItems'
 
-import { useFormItemLimitLength, useFormItemRequired, useFormItemSort } from './hooks/useFormItemSort'
-import RenderFormType from './RenderFormType.vue'
+const { formItem, formValues, size = 'default' } = defineProps<{
+  formItem: RPA.AtomDisplayItem,
+  formValues?: Record<string, any>,
+  size?: 'default' | 'small'
+}>()
+const emit = defineEmits<{
+  (e: 'update', key: string, value: any): void
+}>()
 
-const { formItem, size = 'default' } = defineProps<{ formItem: RPA.AtomDisplayItem, size?: 'default' | 'small' }>()
-const emit = defineEmits(['update'])
+const [DefineTemplate, ReuseTemplate] = createReusableTemplate<{ items: FormItemRegisterWithType[] }>()
 
-// const mainColor = getComputedStyle(document.documentElement).getPropertyValue('--headerFontColorHover')
-const iconStyle = { fontSize: '16px', color: 'inherit' }
+const formTypeArray = computed(() => getFormTypeArray(formItem))
 
-const { extraItem, editItem } = useFormItemSort()
-
-const renderList = computed(() => {
-  const formType = formItem?.formType?.type ?? ''
-
-  if (Array.isArray(formItem.value)) {
-    formItem.value.forEach((i) => {
-      if (i.type === PY_IN_TYPE)
-        formItem.isExpr = true
-    })
-  }
-  let formTypeArr: string[] = []
-  if (Object.is(formType, ATOM_FORM_TYPE.RESULT)) {
-    formTypeArr = [ATOM_FORM_TYPE.INPUT, ATOM_FORM_TYPE.VARIABLE]
-  }
-  else if (Object.is(formType, ATOM_FORM_TYPE.PICK)) {
-    switch (formItem.formType.params.use) {
-      case PICK_TYPE_CV:
-        formTypeArr = [ATOM_FORM_TYPE.INPUT, ATOM_FORM_TYPE.CV_IMAGE, ATOM_FORM_TYPE.CVPICK]
-        break
-      default:
-        formTypeArr = [ATOM_FORM_TYPE.INPUT, ATOM_FORM_TYPE.ELEMENT, ATOM_FORM_TYPE.PICK, ATOM_FORM_TYPE.VARIABLE]
-        break
-    }
-  }
-  else if (Object.is(formType, ATOM_FORM_TYPE.CONTENTPASTE)) {
-    formTypeArr = [ATOM_FORM_TYPE.INPUT, ATOM_FORM_TYPE.PYTHON, ATOM_FORM_TYPE.VARIABLE, ATOM_FORM_TYPE.CONTENTPASTE]
-  }
-  else {
-    formTypeArr = formType.split('_')
-  }
-
-  return {
-    editList: editItem.filter(item => formTypeArr.includes(item.type)),
-    extraList: extraItem.filter(item => formTypeArr.includes(item.type)),
-  }
+// 根据 formTypeArray 输出对应的 component，按照 [addonBefore, prefix, inline, suffix, addonAfter] 的顺序排列后输出
+const layout = computed(() => {
+  const components = formTypeArray.value.map(type => ({ ...FORM_ITEM_REGISTER[type], type })).filter(it => !isNil(it))
+  const addonBefore = components.filter(component => component.position === 'addonBefore')
+  const prefix = components.filter(component => component.position === 'prefix')
+  const inline = components.filter(component => component.position === 'inline')
+  const suffix = components.filter(component => component.position === 'suffix')
+  const addonAfter = components.filter(component => component.position === 'addonAfter')
+  const input = [...prefix, ...inline, ...suffix]
+  return { addonBefore, input, addonAfter }
 })
+
+function handleUpdateValue(key: string, value: any) {
+  emit('update', key, value)
+}
 </script>
 
 <template>
-  <div class="form-item-container w-full flex items-center" :class="[`form-item-container__${size}`]">
-    <div
-      v-if="!isEmpty(renderList.editList)"
-      :style="{ width: `calc(100% - ${renderList.extraList.length * 40}px)` }"
-      class="same-container editor-container flex items-center  text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] bg-[#f3f3f7] dark:bg-[rgba(255,255,255,0.08)]"
-      :class="[useFormItemRequired(formItem) || !useFormItemLimitLength(formItem) ? 'tip-required' : 'active-container']"
-    >
-      <RenderFormType
-        v-for="item in renderList.editList"
+  <div class="form-item-container w-full flex gap-3 items-center" :class="[`form-item-container__${size}`]">
+    <DefineTemplate v-slot="{ items }">
+      <component
+        v-for="item in items"
         :key="item.type"
-        :item-type="item.type"
-        :item-data="formItem"
-        :icon-style="iconStyle"
-        :var-type="formItem.types"
-        @update="emit('update')"
+        :is="item.component" 
+        :item="formItem"
+        :values="formValues"
+        @update="handleUpdateValue"
       />
+    </DefineTemplate>
+
+    <div v-if="!isEmpty(layout.addonBefore)" class="flex items-center gap-3" :class="{ 'flex-1': isEmpty(layout.input) }">
+      <ReuseTemplate :items="layout.addonBefore" />
     </div>
     <div
-      v-if="!isEmpty(renderList.extraList)"
-      class="w-full cursor-pointer flex items-center flex-1"
-      :class="[!isEmpty(renderList.editList) ? 'same-container extra-btn justify-center ml-3  text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] bg-[#f3f3f7] dark:bg-[rgba(255,255,255,0.08)]' : '']"
+      v-if="!isEmpty(layout.input)"
+      class="rounded-lg overflow-hidden panel-bg editor-container flex items-center flex-1 gap-2 text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)]"
+      :class="!isEmpty(formItem.errors) ? 'tip-required' : 'active-container'"
     >
-      <RenderFormType
-        v-for="item in renderList.extraList"
-        :key="item.type"
-        :item-type="item.type"
-        :item-data="formItem"
-        :icon-style="iconStyle"
-        :var-type="formItem.types"
-        @update="emit('update')"
-      />
+      <ReuseTemplate :items="layout.input" />
+    </div>
+    <div v-if="!isEmpty(layout.addonAfter)" class="flex items-center gap-3" :class="{ 'flex-1': isEmpty(layout.input) }">
+      <ReuseTemplate :items="layout.addonAfter" />
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .form-item-container {
-  .same-container {
-    border-radius: 8px;
-  }
-
   .editor-container {
     position: relative;
     padding: 5px 11px;
@@ -110,10 +81,6 @@ const renderList = computed(() => {
 
   .tip-required {
     border-color: $color-error;
-  }
-
-  .extra-btn {
-    padding: 0px;
   }
 }
 

@@ -133,7 +133,12 @@ const configData = computed(() => filterActionData(initConfigData.value, element
     <template #overlay>
       <ElementMenu :selectd-id="groupId" :menus="configData[1].menus" @key-path="actionClick" />
     </template>
-    <div class="cv-item relative" :class="{ 'cv-item-active': itemChosed === itemData.id }" :name="itemChosed ? itemData.id : ''" @click.stop="itemClick">
+    <div
+      class="cv-item relative"
+      :class="{ 'cv-item-active': itemChosed === itemData.id }"
+      :name="itemChosed ? itemData.id : ''"
+      @click.stop="itemClick"
+    >
       <span class="cv-item-img inline-block"><Image wrapper-class-name="cv-img-mask" :title="$t('fullSizeImage')" :src="getImageURL(itemData.imageUrl)" @click.stop /></span>
       <div class="flex w-[64px]">
         <a-tooltip :title="itemData.name" class="flex-1">
@@ -156,10 +161,21 @@ const configData = computed(() => filterActionData(initConfigData.value, element
   height: 100px;
   width: 80px;
   border-radius: 5px;
-  &-active {
-    background: #f1f3f8;
-    border-color: #f1f3f8 !important;
+
+  &:hover {
+    opacity: 0.9;
+    background: rgba(93, 89, 255, 0.35);
+    :deep(.pick-item-action) {
+      display: flex;
+      gap: 4px;
+    }
   }
+
+  &-active {
+    opacity: 0.9;
+    background: rgba(93, 89, 255, 0.35);
+  }
+
   &-title {
     margin-right: 2px;
     font-size: 12px;
@@ -167,6 +183,7 @@ const configData = computed(() => filterActionData(initConfigData.value, element
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+
   &-img {
     width: 64px;
     height: 56px;
@@ -189,17 +206,11 @@ const configData = computed(() => filterActionData(initConfigData.value, element
       max-height: 100%;
     }
   }
+  
   :deep(.pick-item-action) {
     display: none;
   }
-  &:hover {
-    opacity: 0.9;
-    background: rgba(93, 89, 255, 0.35);
-    :deep(.pick-item-action) {
-      display: flex;
-      gap: 4px;
-    }
-  }
+  
 }
 :global(.ant-image-preview-root .ant-image-preview-mask) {
   z-index: 1060 !important;

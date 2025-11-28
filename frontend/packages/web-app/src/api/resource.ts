@@ -1,4 +1,3 @@
-import type { FlowItem } from '@/views/Arrange/types/flow'
 
 import type { RequestConfig } from './http'
 import http from './http'
@@ -38,13 +37,14 @@ export function flowSave(data: { robotId: string, processId: string, processJson
   return http.post('/api/robot/process/save', data, { timeout: 10 * 1000 })
 }
 
-// 获取当前流程数据
-export function getProcess(data: { robotId: string, processId: string }) {
-  return http.post('/api/robot/process/process-json', data)
+// 获取当前流程数据（表单项的值）
+export async function getProcessFormValue(data: { robotId: string, processId: string }): Promise<RPA.Flow.FlowItemValue[]> {
+  const res = await http.post('/api/robot/process/process-json', data)
+  return JSON.parse(res.data || '[]')
 }
 
-export async function getProcessAndCodeList(data: { robotId: string }): Promise<RPA.Flow.ProcessModule[]> {
-  const res = await http.post<RPA.Flow.ProcessModule[]>('/api/robot/module/processModuleList', data)
+export async function getProcessAndCodeList(data: { robotId: string }): Promise<RPA.Process.ProcessModule[]> {
+  const res = await http.post<RPA.Process.ProcessModule[]>('/api/robot/module/processModuleList', data)
   return res.data
 }
 
@@ -139,7 +139,7 @@ export function renameProcess(data: { robotId: string, processId: string, proces
 }
 
 // 删除子流程
-export async function delProcess(data: FlowItem) {
+export async function delProcess(data: RPA.Process.ProcessModule) {
   const res = await http.post<boolean>('/api/robot/process/delete', data)
   return res.data
 }

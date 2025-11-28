@@ -3,18 +3,11 @@ import { computed } from 'vue'
 
 import AtomFormItem from './AtomFormItem.vue'
 
-const { atomForm } = defineProps({
-  atomForm: {
-    type: Array<RPA.AtomDisplayItem>,
-    default: () => ([]),
-  },
-})
+const { atomForm } = defineProps<{ atomForm: RPA.AtomDisplayItem[] }>()
 
-const atomFormItem = computed(() => {
-  return atomForm.filter(item => !item.dynamics || [undefined, true].includes(item.show))
-})
+const atomFormItem = computed(() => atomForm.filter(item => item.show !== false))
 </script>
 
 <template>
-  <AtomFormItem v-for="atom in atomFormItem" :key="atom.key" :atom-form-item="atom" />
+  <AtomFormItem v-for="item in atomFormItem" :key="item.key" :atom-form-item="item" />
 </template>

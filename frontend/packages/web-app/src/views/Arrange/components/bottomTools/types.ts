@@ -1,10 +1,14 @@
-import type { Component } from 'vue'
+import type { Component, Ref } from 'vue'
+
+export interface TabContentProps {
+  height: number
+}
 
 export interface TabConfig {
-  text: string
+  text: string | Ref<string>
   key: string
   icon: string
-  component: Component
+  component: Component<TabContentProps>
   rightExtra?: Component
   hideCollapsed?: boolean
 }

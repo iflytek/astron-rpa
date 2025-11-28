@@ -12,13 +12,13 @@ const refs = useTemplateRefsList<HTMLDivElement>()
 const searchValue = ref<string>('')
 const expand = ref(true)
 
-const processStore = useProcessStore()
+const { canvasManager } = useProcessStore()
 
 const menuList = computed(() => {
-  return processStore.processList.filter(tab => tab.name.includes(searchValue.value))
+  return canvasManager.processList.map(item => item.state).filter(tab => tab.name.includes(searchValue.value))
 })
 
-function getCurrentProcessMenu(item: RPA.Flow.ProcessModule) {
+function getCurrentProcessMenu(item: RPA.Process.ProcessModule) {
   return useProcessMenuActions({
     item,
     disabled: () => item.isMain,
@@ -32,13 +32,12 @@ function getCurrentProcessMenu(item: RPA.Flow.ProcessModule) {
   })
 }
 
-async function handleClick(item: RPA.Flow.ProcessModule) {
-  await processStore.saveProject()
-  processStore.openProcess(item.resourceId)
+function handleClick(item: RPA.Process.ProcessModule) {
+  canvasManager.activateTab(item.resourceId)
 }
 
-function isActive(item: RPA.Flow.ProcessModule) {
-  return item.resourceId === processStore.activeProcessId
+function isActive(item: RPA.Process.ProcessModule) {
+  return item.resourceId === canvasManager.activeTabId
 }
 
 watchPostEffect(() => {

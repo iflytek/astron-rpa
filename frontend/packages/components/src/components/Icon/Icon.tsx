@@ -59,7 +59,7 @@ export const Icon = defineComponent({
         height={props.height || props.size || '1em'}
         fill={props.fill}
         stroke={props.stroke}
-        onClick={() => emit('click')}
+        onClick={(e) => emit('click', e)}
       >
         <use href={`#${currentIconName.value}`}></use>
       </svg>

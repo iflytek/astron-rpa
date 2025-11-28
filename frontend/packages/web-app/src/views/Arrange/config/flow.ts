@@ -1,29 +1,29 @@
 /**
  * 定义常量
  */
-import { Break, Catch, CatchEnd, Continue, Else, ElseEnd, ElseIfEnd, Finally, FinallyEnd, ForDictEnd, ForEnd, ForListEnd, ForStepEnd, Group, GroupEnd, IfEnd, Try, TryEnd, WhileEnd } from '@/views/Arrange/config/atomKeyMap'
+import { ATOM_KEY_MAP } from '@/constants/atom'
 
 export const DISABLED_BREAKPOINT_TYPE = [
-  Group,
-  GroupEnd,
-  IfEnd,
-  ElseIfEnd,
-  ElseEnd,
+  ATOM_KEY_MAP.Group,
+  ATOM_KEY_MAP.GroupEnd,
+  ATOM_KEY_MAP.IfEnd,
+  ATOM_KEY_MAP.ElseIfEnd,
+  ATOM_KEY_MAP.ElseEnd,
   // 'endloop',
-  WhileEnd,
-  ForStepEnd,
-  ForListEnd,
-  ForDictEnd,
-  ForEnd,
-  TryEnd,
-  CatchEnd,
-  FinallyEnd,
-  Else,
-  Try,
-  Catch,
-  Finally,
-  Break,
-  Continue,
+  ATOM_KEY_MAP.WhileEnd,
+  ATOM_KEY_MAP.ForStepEnd,
+  ATOM_KEY_MAP.ForListEnd,
+  ATOM_KEY_MAP.ForDictEnd,
+  ATOM_KEY_MAP.ForEnd,
+  ATOM_KEY_MAP.TryEnd,
+  ATOM_KEY_MAP.CatchEnd,
+  ATOM_KEY_MAP.FinallyEnd,
+  ATOM_KEY_MAP.Else,
+  ATOM_KEY_MAP.Try,
+  ATOM_KEY_MAP.Catch,
+  ATOM_KEY_MAP.Finally,
+  ATOM_KEY_MAP.Break,
+  ATOM_KEY_MAP.Continue,
 ]
 export const PAGE_INIT_INDENT = 82
 export const PAGE_LEVEL_INDENT = 25

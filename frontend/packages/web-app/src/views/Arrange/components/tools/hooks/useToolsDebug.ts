@@ -1,7 +1,7 @@
 import { message } from 'ant-design-vue'
 
 import { DEBUG } from '@/constants/shortcuts'
-import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
 
@@ -9,7 +9,7 @@ export function useToolsDebug() {
   const processStore = useProcessStore()
 
   const handleDebugBreakpoint = async () => {
-    await processStore.saveProject()
+    // await processStore.saveProject()
     useRunningStore().startDebug(processStore.project.id, processStore.activeProcessId)
   }
 
@@ -24,9 +24,9 @@ export function useToolsDebug() {
     hotkey: DEBUG,
     show: ({ status }) => ['free'].includes(status),
     disable: ({ status }) => {
-      const isPy = isPyModel(processStore.activeProcess?.resourceCategory)
+      // const isPy = isPyModel(processStore.activeProcess?.resourceCategory)
 
-      return isPy || processStore.operationDisabled || ['debug', 'run'].includes(status)
+      return processStore.operationDisabled || ['debug', 'run'].includes(status)
     },
     clickFn: handleDebugBreakpoint,
     validateFn: ({ disable, show }) => {

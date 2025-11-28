@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, markRaw } from 'vue'
 
 import { useElementsStore } from '@/stores/useElementsStore'
 
@@ -14,8 +14,8 @@ export function useElementManager() {
     text: 'elementManagement',
     key: 'elements',
     icon: 'bottom-menu-ele-manage',
-    component: ElementManager,
-    rightExtra: RightExtra,
+    component: markRaw(ElementManager),
+    rightExtra: markRaw(RightExtra),
   }
 
   onMounted(() => {

@@ -8,7 +8,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import { useProcessStore } from '@/stores/useProcessStore'
 import type { PickUseItemType } from '@/types/resource.d'
-import { clickAtom } from '@/views/Arrange/components/flow/hooks/useFlow'
+// import { clickAtom } from '@/views/Arrange/components/flow/hooks/useFlow'
 import ItemDesc from '@/views/Arrange/components/flow/ItemDesc.vue'
 import ItemTitle from '@/views/Arrange/components/flow/ItemTitle.vue'
 import { atomScrollIntoView } from '@/views/Arrange/utils'
@@ -60,20 +60,20 @@ watch(() => collapsed, (val) => {
 })
 
 function skipFlowAtom(processId: string, atomId: string) {
-  processStore.activeProcessId !== processId && processStore.checkActiveProcess(processId)
-  clickAtom(({ ctrlKey: false, shiftKey: false } as MouseEvent), {
-    id: atomId,
-    key: '',
-    icon: '',
-    title: '',
-    level: 1,
-    version: '',
-    alias: '',
-    advanced: [],
-    exception: [],
-    inputList: [],
-    outputList: [],
-  })
+  // processStore.activeProcessId !== processId && processStore.checkActiveProcess(processId)
+  // clickAtom(({ ctrlKey: false, shiftKey: false } as MouseEvent), {
+  //   id: atomId,
+  //   key: '',
+  //   icon: '',
+  //   title: '',
+  //   level: 1,
+  //   version: '',
+  //   alias: '',
+  //   advanced: [],
+  //   exception: [],
+  //   inputList: [],
+  //   outputList: [],
+  // })
   nextTick(() => atomScrollIntoView(atomId))
 }
 </script>

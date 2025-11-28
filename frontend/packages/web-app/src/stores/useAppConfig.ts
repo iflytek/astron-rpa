@@ -1,6 +1,6 @@
 import { useAsyncState, useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import type { IAppConfig, UpdateInfo } from '@rpa/shared/platform'
 import { NiceModal } from '@rpa/components'
 
@@ -28,6 +28,11 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     manifest: null, // 最新版本
     checkLoading: false, // 检查更新loading
   })
+  const appMode = ref('normal') // normal-普通模式 | scheduling-调度模式
+
+  const setAppMode = (mode: string) => {
+    appMode.value = mode
+  }
 
   // 当前版本
   const { state: appVersion } = useAsyncState<string>(utilsManager.getAppVersion, '')
@@ -148,9 +153,12 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   }
 
   return {
+    appMode,
     browserPlugins,
     appInfo,
     updaterState,
+    
+    setAppMode,
     checkUpdate,
     quitAndInstall,
     showUpdaterModal,

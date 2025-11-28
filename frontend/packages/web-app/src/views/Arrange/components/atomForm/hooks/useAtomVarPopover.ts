@@ -1,7 +1,6 @@
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import useCursorStore from '@/stores/useCursorStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import { generateHtmlVal } from '@/views/Arrange/components/atomForm/hooks/useRenderFormType'
 import { ORIGIN_SPECIAL, ORIGIN_VAR, SINGLE_VAR_TYPE_ARR } from '@/views/Arrange/config/atom'
 import type { FlowVariable, GlobalVariable, VariableFunction } from '@/views/Arrange/types/variable'
 
@@ -54,7 +53,7 @@ export function createDom(inputVal: any, renderData: RPA.AtomDisplayItem, origin
     hrElement = creaetHr(val, inputVal)
   }
   hrElement && cursorStore.setCursorPos(hrElement, editableDiv)
-  generateHtmlVal(editableDiv, renderData)
+  // generateHtmlVal(editableDiv, renderData)
   return true
 }
 
@@ -132,7 +131,3 @@ export function varListUnique(arr: any[]) {
 export function isSingleVar(type: string) {
   return SINGLE_VAR_TYPE_ARR.includes(type)
 }
-
-function useAtomVarPopover() { }
-
-export default useAtomVarPopover

@@ -1,7 +1,6 @@
 import { message, Modal } from 'ant-design-vue'
 
-import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
 
 export function useToolsClear() {
@@ -13,12 +12,13 @@ export function useToolsClear() {
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
-        useProjectDocStore().clear()
+        // useProjectDocStore().clear()
       },
       centered: true,
       keyboard: false,
     })
   }
+
   const item: ArrangeTools = {
     key: 'clear',
     title: 'clear',
@@ -28,7 +28,7 @@ export function useToolsClear() {
     action: '',
     loading: false,
     show: true,
-    disable: ({ status }) => ['debug', 'run'].includes(status) || isPyModel(useProcessStore().activeProcess?.resourceCategory),
+    disable: ({ status }) => ['debug', 'run'].includes(status),
     clickFn: handleClear,
     validateFn: ({ disable }) => {
       if (disable) {

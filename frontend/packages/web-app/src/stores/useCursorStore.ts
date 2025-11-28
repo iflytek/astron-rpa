@@ -4,14 +4,16 @@ import { ref } from 'vue'
 const cursorStore = defineStore('cursorStore', () => {
   const cursorEle = ref<Range | null>(null)
   const selection = ref<Selection | null>(null)
+
   function handleBlur() {
-    const sel = window.getSelection && window.getSelection()
+    const sel = window?.getSelection()
     if (sel && sel.rangeCount) {
       const range = sel.getRangeAt(0)
       selection.value = sel
       cursorEle.value = range
     }
   }
+
   function setCursorPos(dom: HTMLElement, editableDiv: Element) {
     if (!cursorEle.value) {
       editableDiv.appendChild(dom)
@@ -29,6 +31,7 @@ const cursorStore = defineStore('cursorStore', () => {
       editableDiv.appendChild(dom)
     }
   }
+
   return {
     cursorEle,
     handleBlur,

@@ -29,24 +29,3 @@ export function browerPluginInstall(params) {
     { toast: false },
   )
 }
-
-// 插件安装前浏览器是否正在运行的检测
-export function checkBrowerRunning(params) {
-  return http.post(
-    '/scheduler/browser/plugins/check_running',
-    {
-      browser: params.type,
-    },
-    { toast: false },
-  )
-}
-
-
-// 一键安装所有更新的浏览器插件
-export function installAllUpdateBrowerPlugin() {
-  return http.post(
-    '/scheduler/browser/plugins/install_all_updates',
-    {},
-    { toast: false },
-  )
-}

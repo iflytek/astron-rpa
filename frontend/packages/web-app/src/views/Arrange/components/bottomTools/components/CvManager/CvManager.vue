@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { Empty, message } from 'ant-design-vue'
-import { computed, inject, ref, watch } from 'vue'
-import type { Ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import { useCvStore } from '@/stores/useCvStore.ts'
@@ -10,19 +9,12 @@ import CvTree from '@/views/Arrange/components/cvPick/CvTree.vue'
 import { PICK_TYPE_CV } from '@/views/Arrange/config/atom'
 import { quoteManage } from '@/views/Arrange/hook/useQuoteManage'
 
-defineProps({
-  operates: {
-    type: Object,
-  },
-})
+import type { TabContentProps } from '../../types'
+import { useToolsStore } from '../../store'
 
-const collapsed = inject<Ref<boolean>>('collapsed')
-const searchText = inject<Ref<string>>('searchText')
-const moduleType = inject<Ref<string>>('moduleType')
-const refresh = inject<Ref<boolean>>('refresh')
-const unUseNum = inject<Ref<number>>('unUseNum')
-const activeTab = inject<Ref<string>>('activeTab')
-const height = inject<Ref<number>>('logTableHeight', ref(180))
+const props = defineProps<TabContentProps>()
+
+const { searchText, collapsed, moduleType, activeKey, refresh, unUseNum } = useToolsStore()
 
 const cvStore = useCvStore()
 const processStore = useProcessStore()
@@ -45,7 +37,7 @@ const flowItems = ref([])
 const unuseTreeData = ref([])
 
 function refreshData(moduleType: string) {
-  if (activeTab.value !== 'cvManagement')
+  if (activeKey.value !== 'cvManagement')
     return
   switch (moduleType) {
     case 'unuse':
@@ -69,7 +61,7 @@ watch(() => cvStore.cvTreeData, () => {
 }, { immediate: true })
 
 watch(() => refresh.value, () => {
-  if (activeTab.value !== 'cvManagement')
+  if (activeKey.value !== 'cvManagement')
     return
   refreshData(moduleType.value)
   message.success('刷新成功')
@@ -82,16 +74,19 @@ watch(() => cvStore.quotedItem?.id, (val) => {
 </script>
 
 <template>
-  <div class="cv-manager" :style="{ height: `${height}px` }">
+  <div class="cv-manager" :style="{ height: `${props.height}px` }">
     <!-- 图像管理及搜索 -->
     <template v-if="moduleType === 'default'">
-      <CvTree v-if="cvTreeData.length > 0" :storage-id="processStore.project.id" :tree-data="cvTreeData" :default-collapse="!searchText" :collapsed="collapsed" />
-      <a-empty v-else :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="searchText ? '未搜索到结果' : $t('noData')" />
+      <CvTree
+        :storage-id="processStore.project.id"
+        :tree-data="cvTreeData"
+        :collapsed="!searchText && collapsed"
+        :empty-text="searchText ? '未搜索到结果' : $t('noData')"
+      />
     </template>
     <!-- 查看未使用元素 -->
     <template v-else-if="moduleType === 'unuse'">
-      <CvTree v-if="unuseTreeData.length > 0" :tree-data="unuseTreeData" :default-collapse="false" :collapsed="collapsed" />
-      <a-empty v-else description="暂无未使用元素" />
+      <CvTree :tree-data="unuseTreeData" :collapsed="collapsed" />
     </template>
     <!-- 查找元素引用 -->
     <template v-else-if="moduleType === 'quoted'">
