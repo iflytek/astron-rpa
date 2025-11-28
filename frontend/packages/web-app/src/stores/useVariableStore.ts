@@ -4,16 +4,15 @@ import { ref, watch } from 'vue'
 
 import { addGlobalVariable, deleteGlobalVariable, getGlobalVariable, saveGlobalVariable } from '@/api/resource'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
-import { useFlowStore } from '@/stores/useFlowStore'
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
-import { caculateConditional } from '@/views/Arrange/utils/selfExecuting'
+// import useProjectDocStore from '@/stores/useProjectDocStore'
 
 // 定义流程变量store
 export const useVariableStore = defineStore('variable', () => {
-  const flowStore = useFlowStore()
+  // const flowStore = useFlowStore()
   const processStore = useProcessStore()
-  const projectDocStore = useProjectDocStore()
+  // const projectDocStore = useProjectDocStore()
 
   const globalVariableList = ref<RPA.GlobalVariable[]>([]) // 全局变量列表
 
@@ -21,38 +20,38 @@ export const useVariableStore = defineStore('variable', () => {
   const getFlowVariableList = (idx: number, processId: string) => {
     const localVariableList = [] // 流程变量列表
 
-    projectDocStore.userFlowNode(processId).slice(0, idx).forEach((flow: RPA.Atom, pos) => {
-      const { outputList, id, alias } = flow
-      const formItemList = [
-        ...get(flow, 'inputList', []),
-        ...get(flow, 'outputList', []),
-        ...get(flow, 'advanced', []),
-      ]
-      const formValues = formItemList.reduce((result, item) => {
-        return Object.assign(result, { [item.key]: typeof item.value === 'string' ? { value: item.value } : item.value })
-      }, {})
+    // projectDocStore.userFlowNode(processId).slice(0, idx).forEach((flow: RPA.Atom, pos) => {
+    //   const { outputList, id, alias } = flow
+    //   const formItemList = [
+    //     ...get(flow, 'inputList', []),
+    //     ...get(flow, 'outputList', []),
+    //     ...get(flow, 'advanced', []),
+    //   ]
+    //   const formValues = formItemList.reduce((result, item) => {
+    //     return Object.assign(result, { [item.key]: typeof item.value === 'string' ? { value: item.value } : item.value })
+    //   }, {})
 
-      outputList.forEach((item, index) => {
-        const { dynamics } = item
-        const isShow = !dynamics || caculateConditional(dynamics, formValues, item)
+    //   outputList.forEach((item, index) => {
+    //     const { dynamics } = item
+    //     const isShow = !dynamics || caculateConditional(dynamics, formValues, item)
 
-        if (isShow) {
-          const { value } = item
-          const notNullArr = Array.isArray(value) ? value.filter((item: RPA.AtomFormItemResult) => item.value) : []
-          const dialogResult = flow.key === 'Dialog.custom_box' ? flow.inputList.find(input => input.key === 'design_interface')?.value : ''
+    //     if (isShow) {
+    //       const { value } = item
+    //       const notNullArr = Array.isArray(value) ? value.filter((item: RPA.AtomFormItemResult) => item.value) : []
+    //       const dialogResult = flow.key === 'Dialog.custom_box' ? flow.inputList.find(input => input.key === 'design_interface')?.value : ''
 
-          notNullArr.length > 0 && localVariableList.push({
-            id: `${id}-${index}`,
-            types: item.types,
-            rowNum: pos + 1,
-            anotherName: alias,
-            atomId: id,
-            value: notNullArr,
-            dialogResult,
-          })
-        }
-      })
-    })
+    //       notNullArr.length > 0 && localVariableList.push({
+    //         id: `${id}-${index}`,
+    //         types: item.types,
+    //         rowNum: pos + 1,
+    //         anotherName: alias,
+    //         atomId: id,
+    //         value: notNullArr,
+    //         dialogResult,
+    //       })
+    //     }
+    //   })
+    // })
 
     return localVariableList
   }
@@ -130,7 +129,8 @@ export const useVariableStore = defineStore('variable', () => {
   }
 
   const getActiveAtomIndex = () => {
-    return flowStore.simpleFlowUIData.findIndex(flow => flow.id === flowStore.activeAtom.id)
+    // return flowStore.simpleFlowUIData.findIndex(flow => flow.id === flowStore.activeAtom.id)
+    return 0;
   }
 
   watch(() => processStore.project.id, (robotId) => {

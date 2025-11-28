@@ -3,7 +3,7 @@ import { throttle } from 'lodash-es'
 
 import { usePickStore } from '@/stores/usePickStore'
 
-import ElementManageHeader from '../ElementManageHeader.vue'
+import ManageHeader from '../ManageHeader.vue'
 
 import ElementBtns from './ElementBtns.vue'
 
@@ -16,9 +16,9 @@ const pickNewElement = throttle(() => {
 </script>
 
 <template>
-  <ElementManageHeader :placeholder="$t('searchElements')">
+  <ManageHeader :placeholder="$t('searchElements')">
     <template #btns>
       <ElementBtns :loading="usePick.isPicking" :disabled="usePick.isPicking" @click="pickNewElement" />
     </template>
-  </ElementManageHeader>
+  </ManageHeader>
 </template>

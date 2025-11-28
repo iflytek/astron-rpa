@@ -1,14 +1,14 @@
 import { message } from 'ant-design-vue'
 
 import { usePickStore } from '@/stores/usePickStore'
-import { addDataBatchAtomData } from '@/views/Arrange/components/flow/hooks/useFlow'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
 
 export function useToolsDataPick() {
+  // TODO: 智能录制后新增原子能力
   const handleOpenBatchPick = async () => {
     await useCreateWindow().openDataPickWindow()
-    addDataBatchAtomData()
+    // addDataBatchAtomData()
   }
 
   const item: ArrangeTools = {

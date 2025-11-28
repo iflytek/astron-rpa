@@ -1,17 +1,5 @@
 declare namespace RPA {
   namespace Flow {
-    type ProcessModuleType = 'process' | 'module'
-
-    interface ProcessModule {
-      resourceCategory: ProcessModuleType
-      name: string
-      resourceId: string
-      isOpen?: boolean
-      isSaveing?: boolean
-      isMain?: boolean // 是否是主流程
-      isLoading?: boolean // 是否正在加载
-    }
-
     interface Process {
       id: string
       name: string
@@ -27,6 +15,22 @@ declare namespace RPA {
       id: string
       name: string
       description: string
+    }
+
+    type ArgumentValueType = 'other' | 'python' | 'var'
+
+    interface FlowItemValue extends Record<string, any> {
+      key: string // 原子能力的key
+      version: string // 指向引用原子能力的版本
+      id: string // 节点唯一ID。但似乎不是必须的？
+      inputList: RPA.AtomDisplayItem[] // 默认值可不填充，下同
+      advanced: RPA.AtomDisplayItem[]
+      exception: RPA.AtomDisplayItem[]
+      outputList: RPA.AtomDisplayItem[]
+      alias: string // 别名
+      disabled?: boolean // 是否禁用
+      breakpoint?: boolean // 是否断点
+      // collapsed: boolean
     }
   }
 

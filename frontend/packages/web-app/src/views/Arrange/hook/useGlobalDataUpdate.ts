@@ -2,7 +2,7 @@
  * 全局数据更新导致的流程，配置更新
  * 全局变量， 元素等
  */
-import { useFlowStore } from '@/stores/useFlowStore'
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { getProjectAllFlow } from '@/views/Arrange/utils/flowUtils'
 
 export function useGlobalDataUpdate() {
@@ -29,7 +29,7 @@ export function useGlobalDataUpdate() {
     worker.onmessage = (e) => {
       const { key, params } = e.data
       if (key === 'flowDataElementUpdate') {
-        useFlowStore().updataOriginFlowData(params)
+        // useFlowStore().updataOriginFlowData(params)
         worker.terminate()
       }
     }
@@ -55,7 +55,7 @@ export function useGlobalDataUpdate() {
     worker.onmessage = (e) => {
       const { key, params } = e.data
       if (key === 'flowDataElementUpdate') {
-        useFlowStore().updataOriginFlowData(params)
+        // useFlowStore().updataOriginFlowData(params)
         worker.terminate()
       }
     }
@@ -71,7 +71,7 @@ export function useGlobalDataUpdate() {
         worker.postMessage({
           key: 'elementUsedInFlow',
           params: {
-            currentFlowData: useFlowStore().simpleFlowUIData,
+            // currentFlowData: useFlowStore().simpleFlowUIData,
           },
         })
         worker.onmessage = (e) => {

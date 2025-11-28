@@ -37,54 +37,28 @@ export const ORIGIN_VAR = 'var_input' // 变量输入框
 export const ORIGIN_SPECIAL = 'special' // 特殊混合输入框
 
 // 原子能力基础信息表单配置
-export const BASE_FORM = [
+export const BASE_FORM: RPA.AtomFormBaseForm[] = [
   {
     formType: {
-      type: 'INPUT',
-      params: {
-        values: [],
-      },
+      type: ATOM_FORM_TYPE.STR_INPUT,
+      params: { values: [] },
     },
     title: '任务名称',
     key: 'baseName',
+    sourceValue: 'title',
     noInput: true,
     value: '',
   },
   {
     formType: {
-      type: 'INPUT',
-      params: {
-        values: ['string'],
-      },
+      type: ATOM_FORM_TYPE.STR_INPUT,
+      params: { values: ['string'] },
     },
     title: '任务别名',
     key: 'anotherName',
+    sourceValue: 'alias',
     value: '',
   },
-]
-
-// 默认颜色列表
-export const DEFAULT_COLOR_LIST = [
-  '#ff7e79',
-  '#fefe7f',
-  '#00ff81',
-  '#007ffe',
-  '#ff80c0',
-  '#ff0104',
-  '#00fcff',
-  '#847cc2',
-  '#fe00fe',
-  '#7e0101',
-  '#fc7f01',
-  '#027e04',
-  '#65b2f3',
-  '#f9b714',
-  '#068081',
-  '#8305a1',
-  '#b0cf29',
-  '#0bfa49',
-  '#9e255e',
-  '#ffffff',
 ]
 
 // cv拾取匹配度

@@ -2,14 +2,14 @@
 import CvPickBtn from '@/views/Arrange/components/cvPick/CvPickBtn.vue'
 import CvUploadBtn from '@/views/Arrange/components/cvPick/CvUploadBtn.vue'
 
-import ElementManageHeader from '../ElementManageHeader.vue'
+import ManageHeader from '../ManageHeader.vue'
 </script>
 
 <template>
-  <ElementManageHeader element-type="cv">
+  <ManageHeader element-type="cv">
     <template #btns>
       <CvPickBtn class="mr-2" />
       <CvUploadBtn />
     </template>
-  </ElementManageHeader>
+  </ManageHeader>
 </template>

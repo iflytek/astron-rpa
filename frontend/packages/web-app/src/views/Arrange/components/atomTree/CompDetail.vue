@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import { COMPONENT_KEY_PREFIX, updateFlowNodesComponent } from '@/utils/customComponent'
 
 import { getComponentDetail, removeComponent, updateComponent } from '@/api/robot'
-import { createComponentAbility } from '@/views/Arrange/utils/generateData'
+// import { createComponentAbility } from '@/views/Arrange/utils/generateData'
 
 const props = defineProps<{ robotId: string, componentId: string }>()
 const emit = defineEmits(['refresh'])
@@ -50,8 +50,8 @@ function handleUpdate() {
       componentId: props.componentId,
       componentVersion: state.value.latestVersion,
     })
-    const node = await createComponentAbility(`${COMPONENT_KEY_PREFIX}.${props.componentId}`, state.value.latestVersion, 'update')
-    await updateFlowNodesComponent(props.componentId, node)
+    // const node = await createComponentAbility(`${COMPONENT_KEY_PREFIX}.${props.componentId}`, state.value.latestVersion, 'update')
+    // await updateFlowNodesComponent(props.componentId, node)
   })
 }
 </script>

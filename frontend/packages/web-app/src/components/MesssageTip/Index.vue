@@ -47,7 +47,7 @@ const {
             />
             <div class="message-item-desc" @click="readMessage(item)" v-html="extractBracketContent(item.messageInfo)" />
             <div class="message-item-other">
-              <span class="create-time text-black/65 dark:text-white/65">{{ item.createTime }}</span>
+              <span class="create-time text-[#000000]/[.65] dark:text-[#FFFFFF]/[.65]">{{ item.createTime }}</span>
               <div v-if="item.messageType !== TEAMMARKETUPDATE" class="btnArr mb-[8px]">
                 <template v-if="item.operateResult < JOINNUM">
                   <a-button size="small" class="mr-[8px]" @click="refuseTeam(item.id)">

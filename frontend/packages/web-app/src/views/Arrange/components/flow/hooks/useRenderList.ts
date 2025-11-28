@@ -5,7 +5,11 @@ import { computed, ref, unref, watch } from 'vue'
 type Position = 'top' | 'bottom' | ''
 
 const [useRenderListProvide, useRenderList] = createInjectionState((rawList: MaybeRef<RPA.Atom[]>) => {
-  const renderList = computed(() => [...unref(rawList).slice(0, insertItemIndex.value), unref(insertItem), ...unref(rawList).slice(insertItemIndex.value)]) // 包含额外插入项的待渲染列表
+  const renderList = computed(() => [
+    ...unref(rawList).slice(0, insertItemIndex.value),
+    unref(insertItem),
+    ...unref(rawList).slice(insertItemIndex.value)
+  ]) // 包含额外插入项的待渲染列表
   const insertItem = ref({ id: 'insertItem' } as RPA.Atom) // 额外插入项
   const insertItemIndex = ref(unref(rawList).length) // 额外插入项索引
   const insertItemLast = computed(() => renderList.value[insertItemIndex.value - 1]) // 插入项上一列表项

@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { inject, onBeforeMount, ref, watch } from 'vue'
+import { onBeforeMount, ref, watch } from 'vue'
 
 import RpaVxeTable from '@/components/RpaVxeTable.vue'
 import { clipboardManager } from '@/platform'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
+
+import type { TabContentProps } from '../../types'
+
+const props = defineProps<TabContentProps>()
 
 const columns = [
   {
@@ -30,7 +34,6 @@ const useRunning = useRunningStore()
 const processStore = useProcessStore()
 
 const dataSource = ref<any[]>([])
-const height = inject('logTableHeight', 200) // 若没有注入，默认值为200
 
 let tempData: { [key: string]: { value: any, types: string } } = {}
 
@@ -58,7 +61,7 @@ onBeforeMount(() => {
 <template>
   <div class="logs-manager">
     <RpaVxeTable
-      :height="height"
+      :height="props.height"
       :columns="columns"
       :data-source="dataSource"
       :is-scroll-bottom="true"

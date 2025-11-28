@@ -7,7 +7,7 @@ import { computed, inject, ref } from 'vue'
 
 import type { VARIABLE_TYPE } from '@/constants/atom'
 import { GLOBAL_VAR_IN_TYPE, LIMIT_VARIABLE_SELECT, PARAMETER_VAR_IN_TYPE, VAR_IN_TYPE } from '@/constants/atom'
-import { useFlowStore } from '@/stores/useFlowStore'
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 import { GLOBAL_VAR_TYPE, ORIGIN_VAR, PARAMETER_VAR_TYPE, PROCESS_VAR_TYPE } from '@/views/Arrange/config/atom'
@@ -36,7 +36,7 @@ let leafInputObj = {}
 
 const { t } = useTranslation()
 const variableStore = useVariableStore()
-const flowStore = useFlowStore()
+// const flowStore = useFlowStore()
 const processStore = useProcessStore()
 
 /**
@@ -197,7 +197,7 @@ function leafInput(val: Record<string, unknown>) {
 function handleJump(id: string) {
   if (activeKey.value === PROCESS_VAR_TYPE) {
     atomScrollIntoView(id)
-    flowStore.setJumpFlowId(id)
+    // flowStore.setJumpFlowId(id)
   }
 }
 </script>
@@ -286,21 +286,7 @@ function handleJump(id: string) {
   align-items: center;
 }
 
-:global(.ui-at) {
-  display: inline-flex;
-  align-items: center;
-  border: 0;
-  cursor: pointer;
-}
 
-:global(.ui-at::before) {
-  display: inline-block;
-  border-radius: 5px;
-  padding: 0 5px;
-  border: 1px solid #ccc;
-  line-height: 18px;
-  content: attr(data-name);
-}
 
 :deep(.ant-tree-list::-webkit-scrollbar) {
   width: 6px;

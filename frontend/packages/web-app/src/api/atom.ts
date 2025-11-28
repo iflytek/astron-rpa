@@ -3,14 +3,10 @@ import type { ITableResponse } from '@/types/normalTable'
 import http from './http'
 
 // 根据id和version获取原子能力的具体信息
-export function getAbilityInfo(atomList: { key: string, version: string }[]) {
-  return new Promise((resolve, reject) => {
-    http.post('/api/robot/atom-new/list', { keys: atomList.map(i => i.key) }).then((res) => {
-      const data = res.data || []
-      const result = data.map((atom: any) => atom.atomContent)
-      resolve(result)
-    }).catch(err => reject(err))
-  })
+export async function getAbilityInfo(atomList: { key: string, version: string }[]): Promise<RPA.Atom[]> {
+  const res = await http.post<string[]>('/api/robot/atom-new/list', { keys: atomList.map(i => i.key) })
+  const data = res.data || []
+  return data.map((atom: any) => JSON.parse(atom.atomContent))
 }
 
 // 获取原子能力左侧菜单数据
@@ -26,18 +22,16 @@ export async function getModuleMeta(): Promise<RPA.AtomTreeNode[]> {
   return data.atomicTreeExtend ?? []
 }
 
+// 获取指定父节点的原子能力列表
 export function getTreeByParentKey(parentKey: string) {
   return http.post('/api/robot/atom/getListByParentKey', null, { params: { parentKey } })
 }
 
-export function getNewAtomDesc(key: string): Promise<{ data: RPA.Atom }> {
-  return new Promise((resolve, reject) => {
-    http.post('/api/robot/atom-new/list', { keys: [key] }).then((res) => {
-      const atom = res.data && res.data.length > 0 ? res.data[0] : ''
-      const { atomContent = '{}' } = atom
-      resolve({ data: atomContent })
-    }).catch(err => reject(err))
-  })
+// 获取指定原子能力的最新元数据
+export async function getNewAtomDesc(key: string): Promise<RPA.Atom> {
+  const res = await http.post('/api/robot/atom-new/list', { keys: [key] })
+  const atom = res.data && res.data.length > 0 ? res.data[0] : ''
+  return JSON.parse(atom?.atomContent ?? '{}')
 }
 
 /**

@@ -50,17 +50,21 @@ declare namespace RPA {
     title?: string
     subTitle?: string
     key: string
+    sourceValue: string
     value: string | boolean | number | Array<AtomFormItemResult>
+    noInput?: boolean // 禁止编辑
   }
 
   interface AtomDisplayItem extends AtomFormBaseForm {
     rowIdx?: number
     required?: boolean
     types?: string
-    customizeTip?: string
     default?: string | boolean | number
     show?: boolean
     dynamics?: AtomFormItemConditional[]
+    options?: { label: string; value: string }[]
+    errors?: string[] // 校验错误信息
+    level?: 'advanced' // level = advanced 表示高级参数
     linkageValue?: {
       originKey: string
       updateKeyArr: number[]
@@ -81,9 +85,7 @@ declare namespace RPA {
     showInput?: boolean
     debugging?: boolean
     disabled?: boolean
-    checked?: boolean
     nodeError?: string[]
-    anotherName?: string
     isHide?: boolean
     isOpen?: boolean
     advanced: AtomDisplayItem[]

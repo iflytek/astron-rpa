@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted } from 'vue'
 
 import BUS from '@/utils/eventBus'
 
-import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import { useRecordWindow } from '@/views/Arrange/hook/useRecordWindow'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
 import { addRecordAtomData } from '@/views/Arrange/utils/record'
@@ -31,7 +31,7 @@ export function useToolsRecorder() {
     loading: false,
     show: true,
     disable: ({ status }) => {
-      return isPyModel(processStore.activeProcess?.resourceCategory) || ['debug', 'run'].includes(status)
+      // return isPyModel(processStore.activeProcess?.resourceCategory) || ['debug', 'run'].includes(status)
     },
     clickFn: open,
     validateFn: ({ disable }) => {

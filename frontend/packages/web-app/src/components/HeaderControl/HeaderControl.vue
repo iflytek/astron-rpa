@@ -42,6 +42,9 @@ function handleOpenSetting() {
   NiceModal.show(SettingCenterModal)
 }
 
+/**
+ * 跳转到控制中心
+ */
 function handleToControl() {
   utilsManager.openInBrowser(`${appInfo.value.remotePath}admin/`)
 }

@@ -90,3 +90,19 @@
     }
   }
 }
+
+.ui-at {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  cursor: pointer;
+
+  &::before {
+    display: inline-block;
+    border-radius: 5px;
+    padding: 0 5px;
+    border: 1px solid var(--color-border);
+    line-height: 18px;
+    content: attr(data-name);
+  }
+}

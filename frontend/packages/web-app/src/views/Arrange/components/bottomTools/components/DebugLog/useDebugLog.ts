@@ -1,3 +1,5 @@
+import { markRaw } from 'vue'
+
 import type { TabConfig } from '../../types.ts'
 
 import DebugLog from './DebugLog.vue'
@@ -7,7 +9,7 @@ export function useDebugLog() {
     text: 'debugLog',
     key: 'debugLog',
     icon: 'tools-debug',
-    component: DebugLog,
+    component: markRaw(DebugLog),
   }
   return item
 }

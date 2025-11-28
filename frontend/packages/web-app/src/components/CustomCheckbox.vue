@@ -1,16 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{
-  modelValue: boolean
-}>()
-
-const emit = defineEmits<{
-  (evt: 'update:modelValue', e: boolean): void
-  (evt: 'change', e: boolean): void
-}>()
+const model = defineModel({ type: Boolean, default: false })
 
 function handleClick() {
-  emit('update:modelValue', !props.modelValue)
-  emit('change', !props.modelValue)
+  model.value = !model.value
 }
 </script>
 
@@ -42,7 +34,7 @@ function handleClick() {
 
   &:hover {
     &::after {
-      border-color: #2c69ff;
+      border-color: var(--color-primary);
     }
   }
 }
@@ -57,11 +49,11 @@ function handleClick() {
 
 .check-box.active {
   &::after {
-    border-color: #2c69ff;
+    border-color: var(--color-primary);
   }
 
   .checkbox-inner {
-    background-color: #2c69ff;
+    background-color: var(--color-primary);
 
     &::after {
       content: '';

@@ -18,6 +18,7 @@ const projectName = useRoute()?.query?.projectName as string
 const projectVersion = Number(useRoute()?.query?.projectVersion) || 0
 
 processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
+processStore.canvasManager.init(projectId)
 
 let isStart = false
 

@@ -1,18 +1,9 @@
 <script lang="ts" setup>
-defineProps({
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = defineProps<{ loading: boolean, disabled: boolean }>()
 </script>
 
 <template>
-  <rpa-hint-icon name="add-circle" :loading="loading" :disabled="disabled" class="mr-1" enable-hover-bg>
+  <rpa-hint-icon name="add-circle" :loading="props.loading" :disabled="props.disabled" class="mr-1" enable-hover-bg>
     <template #suffix>
       <span class="ml-1">{{ $t("pickupNewElement") }}</span>
     </template>

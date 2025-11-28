@@ -1,37 +1,34 @@
 <script setup lang="ts">
-import type { PropType } from 'vue'
+import { isString } from 'lodash-es'
 
-import RenderFormItem from '@/views/Arrange/components/descForm/RenderFormItem.vue'
-import { decodeHtml } from '@/views/Arrange/utils/index'
-import { renderAtomRemark } from '@/views/Arrange/utils/renderAtomRemark'
+import { renderAtomRemark } from './utils/renderAtomRemark'
+import RenderFormItem from './descForm/RenderFormItem.vue'
+import { useFlowState } from './hooks'
 
-const { item } = defineProps({
-  item: {
-    type: Object as PropType<RPA.Atom>,
-  },
-  canEdit: {
-    type: Boolean,
-    default: true,
-  },
-  flowId: {
-    type: String,
-    default: '',
-  },
+const props = withDefaults(defineProps<{ item: RPA.Atom, canEdit?: boolean, flowId?: string }>(), {
+  canEdit: true,
+  flowId: '',
 })
+
+const { astParser } = useFlowState()
 </script>
 
 <template>
   <div class="desc textHidden text-[#000000]/[.65] dark:text-[#FFFFFF]/[.65]">
     <template
-      v-for="(result, idx) in renderAtomRemark(item)"
-      :key="item.id + idx"
+      v-for="(result, idx) in renderAtomRemark(props.item, astParser)"
+      :key="props.item.id + idx"
     >
-      <template v-if="result.variable && result.currentItem">
-        <RenderFormItem :id="item.id" :can-edit="canEdit" :form-item="result.currentItem" :desc="decodeHtml(result.sr[2])" />
+      <template v-if="isString(result)">
+        {{ result }}
       </template>
-      <template v-else>
-        <span>{{ result }}</span>
-      </template>
+      <RenderFormItem
+        v-else
+        :id="props.item.id"
+        :can-edit="props.canEdit"
+        :form-item="result.formItem"
+        :desc="result.displayValue"
+      />
     </template>
   </div>
 </template>
