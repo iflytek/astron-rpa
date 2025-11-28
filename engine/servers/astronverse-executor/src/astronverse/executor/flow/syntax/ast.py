@@ -148,8 +148,12 @@ class AtomicExist(Node):
 
         # import 块
         import_list = self.token.value.get("src").split(".")
-        svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
-
+        if len(import_list) == 4:
+            svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
+        elif len(import_list) == 5:
+            svc.add_import_python(
+                project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
+            )
         # if 原子能力块
         atomic_code = "if {}({}):".format(self.token.value.get("src"), ", ".join(arguments))
         code_lines.append(CodeLine(tab_num, atomic_code, self.token.value.get("__line__")))
@@ -197,8 +201,12 @@ class AtomicFor(Node):
 
         # import 块
         import_list = self.token.value.get("src").split(".")
-        svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
-
+        if len(import_list) == 4:
+            svc.add_import_python(project_id, process_id, "import {}.{}".format(import_list[0], import_list[1]))
+        elif len(import_list) == 5:
+            svc.add_import_python(
+                project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
+            )
         # for 原子能力块
         atomic_code = "for {} in {}({}):".format(
             ", ".join([r.show() for r in self.__returned__]), self.token.value.get("src"), ", ".join(arguments)
