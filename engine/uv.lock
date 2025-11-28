@@ -175,7 +175,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-browser-plugin"
-version = "1.0.2"
+version = "1.0.3"
 source = { editable = "shared/astronverse-browser-plugin" }
 dependencies = [
     { name = "astronverse-baseline" },
@@ -430,12 +430,13 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-picker"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "servers/astronverse-picker" }
 dependencies = [
     { name = "anyio" },
     { name = "astronverse-baseline" },
     { name = "astronverse-locator" },
+    { name = "beautifulsoup4" },
     { name = "pandas" },
     { name = "psutil" },
     { name = "pyautogui" },
@@ -453,6 +454,7 @@ requires-dist = [
     { name = "anyio" },
     { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
+    { name = "beautifulsoup4" },
     { name = "pandas" },
     { name = "psutil" },
     { name = "pyautogui" },
@@ -794,6 +796,19 @@ dependencies = [
 requires-dist = [
     { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
     { name = "requests" },
+]
+
+[[package]]
+name = "beautifulsoup4"
+version = "4.14.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "soupsieve" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/77/e9/df2358efd7659577435e2177bfa69cba6c33216681af51a707193dec162a/beautifulsoup4-4.14.2.tar.gz", hash = "sha256:2a98ab9f944a11acee9cc848508ec28d9228abfd522ef0fad6a02a72e0ded69e", size = 625822, upload-time = "2025-09-29T10:05:42.613Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/fe/3aed5d0be4d404d12d36ab97e2f1791424d9ca39c2f754a6285d59a3b01d/beautifulsoup4-4.14.2-py3-none-any.whl", hash = "sha256:5ef6fa3a8cbece8488d66985560f97ed091e22bbc4e9c2338508a9d5de6d4515", size = 106392, upload-time = "2025-09-29T10:05:43.771Z" },
 ]
 
 [[package]]
@@ -5002,6 +5017,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc", size = 20372, upload-time = "2024-02-25T23:20:04.057Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2", size = 10235, upload-time = "2024-02-25T23:20:01.196Z" },
+]
+
+[[package]]
+name = "soupsieve"
+version = "2.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/e6/21ccce3262dd4889aa3332e5a119a3491a95e8f60939870a3a035aabac0d/soupsieve-2.8.tar.gz", hash = "sha256:e2dd4a40a628cb5f28f6d4b0db8800b8f581b65bb380b97de22ba5ca8d72572f", size = 103472, upload-time = "2025-08-27T15:39:51.78Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/a0/bb38d3b76b8cae341dad93a2dd83ab7462e6dbcdd84d43f54ee60a8dc167/soupsieve-2.8-py3-none-any.whl", hash = "sha256:0cc76456a30e20f5d7f2e14a98a4ae2ee4e5abdc7c5ea0aafe795f344bc7984c", size = 36679, upload-time = "2025-08-27T15:39:50.179Z" },
 ]
 
 [[package]]

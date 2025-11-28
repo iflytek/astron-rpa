@@ -63,8 +63,11 @@ class PickerServer:
 
                         try:
                             # 1.隐藏画框
-                            highlight_client.hide_wnd()
-                            time.sleep(0.1)  # 等待画框真正隐藏
+                            # highlight_client.hide_wnd()
+                            # time.sleep(0.1)  # 等待画框真正隐藏
+                            if event_core.is_cancel():
+                                highlight_client.hide_wnd()
+                                time.sleep(0.1)
 
                             # 收集返回数据
                             if self.service_context.event_core.is_focus():
@@ -99,9 +102,40 @@ class PickerServer:
                         if not draw_result.success:
                             logger.warning(f"拾取绘图失败: {draw_result.error_message}")
                             # 记录警告并继续
+                            try:
+                                # 1. 隐藏画框
+                                highlight_client.hide_wnd()
+                                time.sleep(0.1)
+
+                                # 2. 准备异常信息
+                                res = "{}".format(draw_result.error_message)
+                            except Exception as cleanup_error:
+                                logger.error("清理资源时出错: {}".format(cleanup_error))
+                                res = "{}".format(draw_result.error_message)
+                            finally:
+                                # 3. 退出事件监听
+                                self.service_context.event_core.close()
+
+                            # 4. 设置响应信号，让 ws_server 能收到异常
+                            del sign[PickerSign.START.value]
+                            res_sign = "{}_RES".format(PickerSign.START.value)
+                            sign[res_sign] = res
+
+                            logger.info("拾取因异常结束")
 
                 except Exception as e:
                     logger.error("pick error: {} {}".format(e, traceback.format_exc()))
+            elif PickerSign.SMART_COMPONENT.value in sign:
+                try:
+                    logger.info("智能组件上下拾取开始")
+                    res = self.service_context.picker_core.call_pluguin(
+                        self.service_context, highlight_client, sign[PickerSign.SMART_COMPONENT.value]
+                    )
+                    del sign[PickerSign.SMART_COMPONENT.value]
+                    res_sign = "{}_RES".format(PickerSign.SMART_COMPONENT.value)
+                    sign[res_sign] = res
+                except Exception as e:
+                    logger.error("smart_component error: {} {}".format(e, traceback.format_exc()))
             else:
                 # 3 休眠
                 time.sleep(0.1)

@@ -10,9 +10,12 @@ from astronverse.picker import (
     PickerType,
     Point,
     Rect,
+    PickerSign,
+    SmartComponentAction,
 )
 from astronverse.picker.engines.uia_picker import UIAElement, UIAOperate
 from astronverse.picker.logger import logger
+from astronverse.picker.utils.browser import BrowserControlFinder
 
 
 class PickerCore(IPickerCore):
@@ -132,7 +135,7 @@ class PickerCore(IPickerCore):
         # 策略运行
         res = svc.strategy.run(self.last_strategy_svc)
         if not res:
-            return DrawResult(success=False, error_message="策略执行未返回元素")
+            return DrawResult(success=False, error_message="拾取取消，请确认目标元素后重新拾取")
 
         with self.lock:
             self.last_element = res
@@ -156,6 +159,66 @@ class PickerCore(IPickerCore):
             app=self.last_strategy_svc.app.value,
             domain=actual_domain,
         )
+
+    def call_pluguin(self, svc, high_light, data: dict):
+        """为单独向插件通信定制"""
+        import json, time
+
+        pick_type = data.get("pick_type", "")
+        pick_sign = data.get("pick_sign", "")
+        smart_component_action = data.get("smart_component_action", "")
+        # time.sleep(5)
+        p_x, p_y = UIAOperate.get_cursor_pos()
+        cur_point = Point(0, 0)
+        cur_point.x = p_x
+        cur_point.y = p_y
+        # start_control = UIAOperate.get_windows_by_point(cur_point)
+        data_str = data.get("data", "{}")
+        data_dict = json.loads(data_str) if isinstance(data_str, str) else data_str
+        data["data"] = data_dict
+        # 然后从解析后的字典中获取值
+        app = data_dict.get("app")
+        title = data_dict.get("path", {}).get("tabTitle", "")
+        parent_control = BrowserControlFinder.get_control_by_app_name(app, title)
+        start_control = BrowserControlFinder.get_document_control(parent_control)
+        if not start_control:
+            logger.info("拾取预处理 start_control 为空")
+            return "未找到起始控件"
+
+        process_id = UIAOperate.get_process_id(start_control)
+        if pick_type in [PickerType.ELEMENT]:
+            if pick_sign == PickerSign.SMART_COMPONENT:
+                # 上下文生成
+                if not svc.strategy:
+                    # 等待策略加载
+                    timeout = 10  # 10秒超时
+                    wait_time = 0
+                    while not svc.strategy and wait_time < timeout:
+                        time.sleep(0.1)
+                        wait_time += 0.1
+
+                    if not svc.strategy:
+                        return DrawResult(success=False, error_message="策略加载超时（10s）")
+
+                    logger.info("strategy 加载完成")
+
+                cur_strategy_svc = svc.strategy.gen_svc(
+                    process_id=process_id,
+                    last_point=cur_point,
+                    data=data,
+                    start_control=start_control,
+                    domain=PickerDomain.WEB,
+                )
+
+                # 策略运行
+                res = svc.strategy.run(cur_strategy_svc)
+                if res:
+                    cur_rect = res.rect()
+                    cur_tag = res.tag()
+                    if smart_component_action in [SmartComponentAction.PREVIOUS, SmartComponentAction.NEXT]:
+                        high_light.draw_wnd(cur_rect, msgs=cur_tag)
+                    return res.path(svc, cur_strategy_svc)
+                return "插件返回空"
 
     def element(self, svc, data: dict) -> dict:
         pick_type = data.get("pick_type")
