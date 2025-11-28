@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-locator"
-version = "1.0.1"
+version = "1.0.2"
 description = "astronverse-locator."
 requires-python = ">=3.13"
 

@@ -287,8 +287,8 @@ class UIAFactory:
             for path in path_list
         ]
 
-        first_cls = node_list[0].cls if node_list[0].cls not in node_list[0].disable_keys else None
-        first_name = node_list[0].name if node_list[0].name not in node_list[0].disable_keys else None
+        first_cls = node_list[0].cls if "cls" not in node_list[0].disable_keys else None
+        first_name = node_list[0].name if "name" not in node_list[0].disable_keys else None
         first_app_name = app_name if app_name not in node_list[0].disable_keys else None
 
         # 2. 获取所有可能的窗口句柄
