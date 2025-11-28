@@ -8,32 +8,24 @@ import { utilsManager } from '@/platform'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 
 import MessageTip from '../MesssageTip/Index.vue'
-
 import UserInfo from './UserInfo.vue'
 
+interface HeaderControlProps {
+  help?: boolean
+  setting?: boolean
+  control?: boolean
+  message?: boolean
+  userInfo?: boolean
+}
+
 // 控制按钮显示
-defineProps({
-  help: {
-    type: Boolean,
-    default: false,
-  },
-  setting: {
-    type: Boolean,
-    default: true,
-  },
-  control: {
-    type: Boolean,
-    default: false,
-  },
-  message: {
-    type: Boolean,
-    default: true,
-  },
-  userInfo: {
-    type: Boolean,
-    default: true,
-  },
-})
+const props = withDefaults(defineProps<HeaderControlProps>(), ({
+  help: true,
+  setting: true,
+  control: false,
+  message: true,
+  userInfo: true,
+}))
 
 useUserSettingStore()
 
@@ -42,8 +34,7 @@ function handleOpenSetting() {
 }
 
 function handleToControl() {
-  const url = location.hostname.includes('iflyrpa') ? `${location.origin}/admin/` : VUE_APP_COMMANDER
-  utilsManager.openInBrowser(url)
+  utilsManager.openInBrowser(VUE_APP_COMMANDER)
 }
 
 function handleHelpInfo() {
@@ -52,26 +43,26 @@ function handleHelpInfo() {
 </script>
 
 <template>
-  <Tooltip v-if="help" :title="$t('helperCenter')">
+  <Tooltip v-if="props.help" :title="$t('helperCenter')">
     <span class="app_control__item" @click="handleHelpInfo">
       <rpa-icon name="help-circle" />
     </span>
   </Tooltip>
-  <Tooltip v-if="setting" :title="$t('setting')">
+  <Tooltip v-if="props.setting" :title="$t('setting')">
     <span class="app_control__item" @click="handleOpenSetting">
       <rpa-icon name="setting" />
     </span>
   </Tooltip>
 
-  <Tooltip v-if="control" :title="$t('excellenceCenter')">
+  <Tooltip v-if="props.control" :title="$t('excellenceCenter')">
     <span class="app_control__item" @click="handleToControl">
       <rpa-icon name="desktop" />
     </span>
   </Tooltip>
-  <span v-if="message" class="app_control__item">
+  <span v-if="props.message" class="app_control__item">
     <MessageTip />
   </span>
-  <span v-if="userInfo" class="app_control__item">
+  <span v-if="props.userInfo" class="app_control__item">
     <UserInfo />
   </span>
 </template>
