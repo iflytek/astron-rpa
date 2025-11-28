@@ -111,6 +111,9 @@ class BrowserSoftware:
         """
         # open_args += " --remote-debugging-port=9555"
 
+        # 屏蔽 "Astron Browser Plugin 已开始调试此浏览器" 的提示条
+        open_args += " --silent-debugger-extension-api"
+
         if open_args and "--headless=old" in open_args:
             raise BaseException(BROWSER_OPEN_TIMEOUT, "浏览器不支持无头模式")
 
