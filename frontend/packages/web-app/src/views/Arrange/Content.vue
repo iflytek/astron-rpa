@@ -19,6 +19,7 @@ import FlowContent from './components/flow/FlowContent.vue'
 import ProcessHeader from './components/process/ProcessHeader.vue'
 import RightTab from './components/rightTab/Index.vue'
 import Tools from './components/tools/Tools.vue'
+import Search from './components/search/Index.vue'
 import useArrangeProvide from './hook/useArrangeProvide'
 
 useArrangeProvide() // 注册表单全局数据
@@ -83,6 +84,7 @@ function handleLeftToolsCollapsed(collapsed: boolean) {
               <Splitter.Panel :size="contentSplitterState.size[0]">
                 <div class="h-full flex flex-col">
                   <ProcessHeader />
+                  <Search />
                   <FlowContent />
                 </div>
               </Splitter.Panel>

@@ -1,34 +1,19 @@
-<!-- @format -->
 <script setup lang="ts">
 import { ArrowDownOutlined, ArrowUpOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { Divider } from 'ant-design-vue'
 import { isNil } from 'lodash-es'
-import { computed, ref } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
-const { total, active, value } = defineProps({
-  value: {
-    type: String,
-    default: '',
-  },
-  total: {
-    type: Number,
-    default: 0,
-  },
-  active: {
-    type: Number,
-    default: 0,
-  },
-})
+const props = defineProps<{ total: number, active: number }>()
+const inputText = defineModel<string>('value')
+const emits = defineEmits(['close', 'previous', 'next'])
 
-const emits = defineEmits(['close', 'input', 'previous', 'next'])
-
-const inputText = ref(value)
-const inputRef = ref(null)
+const inputRef = useTemplateRef<{ focus: () => void }>("inputRef")
 
 const calculateCount = computed(() => {
   if (!inputText.value)
     return undefined
-  return total === 0 ? '0/0' : `${active}/${total}`
+  return props.total === 0 ? '0/0' : `${props.active}/${props.total}`
 })
 
 function close() {
@@ -43,8 +28,14 @@ function down() {
   emits('next')
 }
 
-function updateValue() {
-  emits('input', inputText.value)
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    up()
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    down()
+  }
 }
 
 function focus() {
@@ -57,17 +48,19 @@ defineExpose({
 </script>
 
 <template>
-  <a-card class="search-widget">
+  <a-card class="search-widget" :bordered="true">
     <div class="search-widget-container">
       <a-input
         ref="inputRef"
         v-model:value="inputText"
         auto-focus
         :placeholder="$t('search')"
-        @input="updateValue"
         @press-enter="down"
+        @keydown="handleKeydown"
       />
-      <span v-if="!isNil(calculateCount)" class="search-widget-total">{{ calculateCount }}</span>
+      <span v-if="!isNil(calculateCount)" class="search-widget-total">
+        {{ calculateCount }}
+      </span>
       <Divider type="vertical" class="search-widget-divider" />
       <div class="search-widget-icon" @click="up">
         <ArrowUpOutlined />
@@ -87,12 +80,6 @@ defineExpose({
   :deep(.ant-card-body) {
     padding: 3px 10px 3px 0;
     width: 310px;
-    border-radius: 8px !important;
-    position: absolute;
-    right: 0;
-    top: 20px;
-    background-color: #fff;
-    box-shadow: 0px 0px 10px 0px #e7e8ec;
   }
 
   :deep(.ant-input) {
@@ -100,20 +87,20 @@ defineExpose({
     box-shadow: none;
     flex: 1;
     font-size: 12px;
+    background-color: transparent;
   }
 
   &-container {
     display: flex;
     align-items: center;
-  }
-
-  &-total {
-    margin-right: 15px;
+    gap: 5px;
+    line-height: 1;
   }
 
   &-divider {
-    margin: 0 5px 0 0;
-    height: 20px;
+    position: static;
+    height: 16px;
+    margin: 0 5px;
   }
 
   &-icon {
@@ -121,7 +108,6 @@ defineExpose({
     display: inline-flex;
     cursor: pointer;
     padding: 5px;
-    margin-left: 5px;
 
     &:hover {
       color: $color-primary;
