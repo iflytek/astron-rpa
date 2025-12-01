@@ -31,9 +31,11 @@ function down() {
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'ArrowUp') {
     e.preventDefault()
+    e.stopPropagation()
     up()
   } else if (e.key === 'ArrowDown') {
     e.preventDefault()
+    e.stopPropagation()
     down()
   }
 }

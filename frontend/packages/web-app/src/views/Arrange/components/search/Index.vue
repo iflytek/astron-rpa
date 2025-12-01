@@ -54,7 +54,7 @@ function expandContainingGroups(atomIndex: number) {
     const groupStartIdx = flowStore.simpleFlowUIData.findIndex(node => node.id === groupId)
     const groupEndIdx = backContainNodeIdx(groupId)
     
-    if (groupStartIdx <= atomIndex && groupEndIdx >= atomIndex) {
+    if (groupStartIdx > -1 && groupStartIdx <= atomIndex && groupEndIdx >= atomIndex) {
       toggleFold(flowStore.simpleFlowUIData[groupStartIdx])
     }
   })
@@ -67,7 +67,10 @@ function handleSearchResultChange(atomId: string | undefined) {
     return
   }
 
-  document.querySelector('.postTask-content-canvas')!.scrollTop = 0
+  const canvas = document.querySelector<HTMLElement>('.postTask-content-canvas');
+  if (canvas) {
+    canvas.scrollTop = 0;
+  }
   changeSelectAtoms(atomId, null, false)
   expandContainingGroups(activeSearchAtom.value.index)
   nextTick(() => atomScrollIntoView(atomId))
@@ -105,6 +108,7 @@ function previous() {
 
 // 上下键处理函数
 function handleArrowUp() {
+  console.log('handleArrowUp')
   previous()
 }
 
