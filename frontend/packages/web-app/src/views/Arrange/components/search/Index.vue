@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { SearchOutlined } from '@ant-design/icons-vue'
 import hotkeys from 'hotkeys-js'
-import { debounce, escapeRegExp, isArray, isEmpty, isNumber } from 'lodash-es'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { escapeRegExp, isArray } from 'lodash-es'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, useTemplateRef } from 'vue'
+import { refDebounced } from '@vueuse/core'
 
 import { SCOPE } from '@/constants/shortcuts'
 import { useFlowStore } from '@/stores/useFlowStore'
@@ -13,111 +13,167 @@ import { atomScrollIntoView, decodeHtml } from '@/views/Arrange/utils/index'
 import { renderAtomRemark } from '@/views/Arrange/utils/renderAtomRemark'
 import { changeSelectAtoms } from '@/views/Arrange/utils/selectItemByClick'
 
-const searchHotkey = 'Ctrl+F'
+const SEARCH_HOTKEY = 'Ctrl+F'
+const ARROW_UP_KEY = 'up'
+const ARROW_DOWN_KEY = 'down'
 
 const showSearch = ref(false)
-const searchWidget = ref(null)
-
-function showSearchWidget() {
-  showSearch.value = true
-  nextTick(() => {
-    searchWidget.value.focus()
-  })
-}
-function closeSearchWidget() {
-  showSearch.value = false
-}
-
-const activeSearchIndex = ref(0)
+const activeIndex = ref(0)
 const searchKeyword = ref('')
+const debouncedSearchKeyword = refDebounced(searchKeyword, 300)
+const searchWidget = useTemplateRef('searchWidget')
+const flowStore = useFlowStore()
 
-const search = debounce((val) => {
-  searchKeyword.value = val
-}, 300)
-
+// 搜索结果显示
 const searchResults = computed(() => {
-  if (!showSearch.value || isEmpty(searchKeyword.value))
-    return []
-  const datas = useFlowStore().simpleFlowUIData.map((item, index) => {
+  if (!showSearch.value || !debouncedSearchKeyword.value) return []
+
+  const searchRegex = new RegExp(escapeRegExp(debouncedSearchKeyword.value), 'i')
+  const dataWithComments = flowStore.simpleFlowUIData.map((item, index) => {
     const comment = renderAtomRemark(item)
     const commentText = isArray(comment)
-      ? comment.map(i => i.variable ? decodeHtml(i.sr[2]) : i).join('')
+      ? comment.map(i => (i.variable ? decodeHtml(i.sr[2]) : i)).join('')
       : comment
     return { id: item.id, title: item.alias, commentText, item, index }
   })
 
-  const reg = new RegExp(escapeRegExp(searchKeyword.value), 'i')
-  return datas
-    .filter(it => reg.test(it.title) || reg.test(it.commentText))
+  return dataWithComments.filter(
+    it => searchRegex.test(it.title) || searchRegex.test(it.commentText)
+  )
 })
+
+// 当前激活的搜索结果
+const activeSearchAtom = computed(() => {
+  return searchResults.value[activeIndex.value]
+})
+
+// 展开包含当前搜索结果的折叠组
+function expandContainingGroups(atomIndex: number) {
+  const groupKeys = Object.keys(flowStore.nodeContactMap)
+  groupKeys.forEach((groupId) => {
+    const groupStartIdx = flowStore.simpleFlowUIData.findIndex(node => node.id === groupId)
+    const groupEndIdx = backContainNodeIdx(groupId)
+    
+    if (groupStartIdx <= atomIndex && groupEndIdx >= atomIndex) {
+      toggleFold(flowStore.simpleFlowUIData[groupStartIdx])
+    }
+  })
+}
+
+// 处理搜索结果切换
+function handleSearchResultChange(atomId: string | undefined) {
+  if (!atomId) {
+    activeIndex.value = 0
+    return
+  }
+
+  document.querySelector('.postTask-content-canvas')!.scrollTop = 0
+  changeSelectAtoms(atomId, null, false)
+  expandContainingGroups(activeSearchAtom.value.index)
+  nextTick(() => atomScrollIntoView(atomId))
+}
+
+// 搜索控件操作
+function showSearchWidget() {
+  showSearch.value = true
+  // 绑定上下键快捷键
+  hotkeys(ARROW_UP_KEY, SCOPE, handleArrowUp)
+  hotkeys(ARROW_DOWN_KEY, SCOPE, handleArrowDown)
+  nextTick(() => searchWidget.value?.focus())
+}
+
+function closeSearchWidget() {
+  showSearch.value = false
+  searchKeyword.value = ''
+  activeIndex.value = 0
+  // 取消绑定上下键快捷键
+  hotkeys.unbind(ARROW_UP_KEY, SCOPE)
+  hotkeys.unbind(ARROW_DOWN_KEY, SCOPE)
+}
 
 function next() {
-  activeSearchIndex.value
-    = activeSearchIndex.value + 1 === searchResults.value.length
-      ? 0
-      : activeSearchIndex.value + 1
+  if (searchResults.value.length === 0) return
+  const total = searchResults.value.length
+  activeIndex.value = (activeIndex.value + 1) % total
 }
+
 function previous() {
-  activeSearchIndex.value
-    = activeSearchIndex.value === 0
-      ? searchResults.value.length - 1
-      : activeSearchIndex.value - 1
+  if (searchResults.value.length === 0) return
+  const total = searchResults.value.length
+  activeIndex.value = activeIndex.value === 0 ? total - 1 : activeIndex.value - 1
 }
 
-const activeSearchAtom = computed(() => {
-  return isNumber(activeSearchIndex.value)
-    ? searchResults.value[activeSearchIndex.value]
-    : undefined
-})
+// 上下键处理函数
+function handleArrowUp() {
+  previous()
+}
 
+function handleArrowDown() {
+  next()
+}
+
+// 监听搜索结果变化
 watch(
   () => activeSearchAtom.value?.id,
-  (val) => {
-    if (!val) {
-      activeSearchIndex.value = 0
-      return
-    }
-    const flowStore = useFlowStore()
-    document.querySelector(`.postTask-content-canvas`).scrollTop = 0
-    changeSelectAtoms(val, null, false)
-    const groupArr = Object.keys(flowStore.nodeContactMap)
-    groupArr.forEach((i) => {
-      const findIdx = flowStore.simpleFlowUIData.findIndex(node => node.id === i)
-      const endIdx = backContainNodeIdx(i)
-      if (findIdx <= activeSearchAtom.value.index && endIdx >= activeSearchAtom.value.index)
-        toggleFold(flowStore.simpleFlowUIData[findIdx])
-    })
-    nextTick(() => {
-      atomScrollIntoView(val)
-    })
-  },
+  handleSearchResultChange
 )
 
+// 快捷键绑定
 onMounted(() => {
-  hotkeys(searchHotkey, SCOPE, showSearchWidget)
+  hotkeys(SEARCH_HOTKEY, SCOPE, showSearchWidget)
 })
 
 onBeforeUnmount(() => {
-  hotkeys.unbind(searchHotkey, SCOPE)
+  hotkeys.unbind(SEARCH_HOTKEY, SCOPE)
+  hotkeys.unbind(ARROW_UP_KEY, SCOPE)
+  hotkeys.unbind(ARROW_DOWN_KEY, SCOPE)
 })
 </script>
 
 <template>
-  <div class="search fixed">
-    <a-tooltip placement="bottom" :title="$t('search')" overlay-class-name="editorTools-overlay">
-      <div class="search-btn cursor-pointer" @click="showSearchWidget">
-        <SearchOutlined class="editorTools-font" />
-      </div>
-    </a-tooltip>
-    <SearchWidget
-      v-if="showSearch" ref="searchWidget" :value="searchKeyword" :active="activeSearchIndex + 1"
-      :total="searchResults.length" @input="search" @next="next" @previous="previous" @close="closeSearchWidget"
-    />
+  <div class="search">
+    <Transition name="search-fade">
+      <SearchWidget
+        v-if="showSearch"
+        ref="searchWidget"
+        class="search-widget"
+        v-model:value="searchKeyword"
+        :active="activeIndex + 1"
+        :total="searchResults.length"
+        @next="next"
+        @previous="previous"
+        @close="closeSearchWidget"
+      />
+    </Transition>
   </div>
 </template>
 
 <style scoped lang="scss">
 .search {
+  width: 100%;
+  position: relative;
   z-index: 1;
+
+  .search-widget {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+  }
+}
+
+// 缓进缓出动画
+.search-fade-enter-active,
+.search-fade-leave-active {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.search-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.search-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>
