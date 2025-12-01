@@ -49,13 +49,10 @@ def emit_to_front(emit_type: EmitType, msg=None):
     logger.info("emit msg to front: {}".format(data))
     data = json.dumps(data)
     if sys.platform == "win32":
-        subprocess.run(
-            ["echo", "||emit|| {}".format(string_to_base64(data))],
-            shell=False,
-            check=True,
-            encoding=system_encoding,
-            errors="replace",
-        )
+        encoded_data = string_to_base64(data)
+        # 核心修改：使用 print 并强制 flush
+        # 这样可以确保内容立即被推送到标准输出，被 Tauri 捕获
+        print(f"||emit|| {encoded_data}", flush=True)
     else:
         subprocess.run(
             ["echo", "||emit|| {}".format(string_to_base64(data))],

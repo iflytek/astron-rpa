@@ -361,7 +361,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-locator"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "shared/astronverse-locator" }
 dependencies = [
     { name = "astronverse-baseline" },
