@@ -35,6 +35,10 @@ body {
   user-select: none;
 }
 
+a {
+  color: var(--color-primary);
+}
+
 .padT60 {
   padding-top: 60px;
 }

@@ -1,5 +1,4 @@
-import { DeleteOutlined } from '@ant-design/icons-vue'
-import { NiceModal } from '@rpa/components'
+import { NiceModal, HintIcon } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import type { ColumnsType } from 'ant-design-vue/es/table/interface'
 import dayjs from 'dayjs'
@@ -36,7 +35,6 @@ export function useApiKeyManage() {
       dataIndex: 'name',
       key: 'name',
       align: 'left',
-      width: 80,
       ellipsis: true,
     },
     {
@@ -60,7 +58,7 @@ export function useApiKeyManage() {
       key: 'oper',
       align: 'center',
       width: 60,
-      customRender: ({ record }) => h(DeleteOutlined, { onClick: () => deleteApiKey(record) }),
+      customRender: ({ record }) => h(HintIcon, { name: "market-del", class: "anticon", onClick: () => deleteApiKey(record) }),
     },
   ]
   const tableOption = reactive({

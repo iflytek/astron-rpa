@@ -1,0 +1,89 @@
+<script lang="ts" setup>
+import { h, computed, nextTick } from 'vue'
+import { InputNumber } from 'ant-design-vue'
+import { useTheme } from '@rpa/components'
+
+import type { Task } from '@/types/schedule'
+
+const exceptional = defineModel<Task['exceptional']>('exceptional')
+const retryTimes = defineModel<number>('retryTimes')
+
+const { colorTheme } = useTheme()
+
+const options = computed(() => {
+  const genNumber = (type: Task['exceptional']) => {
+    const times = retryTimes.value ?? 0;
+    return h('span', { class: 'text-primary' }, exceptional.value === type ? times : 0)
+  }
+
+  const genNumberInput = (type: Task['exceptional']) => {
+    return h(InputNumber, {
+      size: 'small',
+      min: 1,
+      max: 99,
+      class: ["input-number", colorTheme.value],
+      placeholder: '0 (不重试)',
+      value: exceptional.value === type ? retryTimes.value : undefined,
+      onChange: (value: number) => { retryTimes.value = value },
+      onMousedown: (e: MouseEvent) => {
+        e.stopPropagation()
+        exceptional.value = type
+        // 使用 nextTick 确保 DOM 更新后再聚焦
+        nextTick(() => {
+          const inputNumberEl = (e.target as HTMLElement).closest('.ant-input-number')
+          const input = inputNumberEl?.querySelector('input') as HTMLInputElement
+          input?.focus()
+        })
+      },
+      onClick: (e: MouseEvent) => {
+        e.stopPropagation()
+      },
+    })
+  }
+
+  return [
+    {
+      value: 'stop',
+      label: '终止任务',
+    },
+    {
+      value: 'jump',
+      label: '跳过异常机器人，继续执行任务',
+    },
+    {
+      value: 'retry_stop',
+      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_stop'), '次异常机器人后，终止任务']),
+      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_stop'), '次异常机器人后，终止任务']),
+    },
+    {
+      value: 'retry_jump',
+      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_jump'), '次异常机器人后，继续执行任务']),
+      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_jump'), '次异常机器人后，继续执行任务']),
+    },
+  ]
+})
+</script>
+
+<template>
+  <a-select v-model:value="exceptional" :dropdown-match-select-width="false" option-label-prop="label"
+    :options="options">
+    <template #option="{ label, render }">
+      <component v-if="render" :is="render" />
+      <span v-else>{{ label }}</span>
+    </template>
+  </a-select>
+</template>
+
+<style lang="scss" scoped>
+.input-number {
+  border: 1px solid #D9D9D9;
+}
+
+.dark.input-number {
+  border: 1px solid #424242;
+}
+
+:deep(.ant-input-number-focused) {
+  border-color: var(--color-primary);
+}
+</style>
