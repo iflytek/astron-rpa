@@ -114,10 +114,10 @@ class WordDocumentCore(IDocumentCore):
         try:
             wc.gencache.Rebuild()
             wc.gencache.EnsureModule("{00020813-0000-0000-C000-000000000046}", 0, 8, 7)
-            for key in keys:
-                cls.excel_obj = cls._create_app(key)
-                if cls.excel_obj:
-                    return cls.excel_obj
+            for application_key in keys:
+                cls.word_application_instance = cls._create_word_application(application_key)
+                if cls.word_application_instance:
+                    return cls.word_application_instance
         except:
             raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
 
