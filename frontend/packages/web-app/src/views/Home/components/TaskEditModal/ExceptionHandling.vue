@@ -44,7 +44,7 @@ const options = computed(() => {
   return [
     {
       value: 'stop',
-      label: '终止任务',
+      label: '中止任务',
     },
     {
       value: 'jump',
@@ -52,13 +52,13 @@ const options = computed(() => {
     },
     {
       value: 'retry_stop',
-      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_stop'), '次异常机器人后，终止任务']),
-      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_stop'), '次异常机器人后，终止任务']),
+      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_stop'), '次异常机器人后，中止任务']),
+      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_stop'), '次异常机器人后，中止任务']),
     },
     {
       value: 'retry_jump',
-      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_jump'), '次异常机器人后，继续执行任务']),
-      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_jump'), '次异常机器人后，继续执行任务']),
+      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_jump'), '次异常机器人后，跳过并继续任务']),
+      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_jump'), '次异常机器人后，跳过并继续任务']),
     },
   ]
 })
