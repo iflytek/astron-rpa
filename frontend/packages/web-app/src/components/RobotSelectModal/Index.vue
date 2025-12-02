@@ -3,6 +3,7 @@ import { NiceModal } from '@rpa/components'
 import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
 import { ref } from 'vue'
+import { SearchOutlined } from '@ant-design/icons-vue'
 
 import { getRobotList } from '@/api/task'
 
@@ -18,9 +19,7 @@ function handleSearch() {
   getRobots()
 }
 
-const handleChange = debounce(() => {
-  getRobots()
-}, 600, { trailing: true })
+const handleChange = debounce(() => getRobots(), 600, { trailing: true })
 
 function okhandle() {
   const checkedList = intenalRobotList.value.filter(item => item.checked)
@@ -42,42 +41,27 @@ getRobots()
 
 <template>
   <a-modal v-bind="NiceModal.antdModal(modal)" :title="t('selectRobots')" width="400px" @ok="okhandle">
-    <!-- 上面是个搜索框， 下面是个列表，每一项有名称和前面的checkbox -->
-    <div class="robot-select">
-      <a-input-search v-model:value="searchText" :placeholder="t('searchRobots')" @change="handleChange" @search="handleSearch" />
-      <div class="search-result">
-        <div v-for="item in intenalRobotList" :key="item.id" class="mb-2">
-          <a-checkbox :key="item.robotId" v-model:checked="item.checked" :value="item.robotId" class="robot-item">
-            {{ item.robotName }}
-          </a-checkbox>
-        </div>
-        <a-empty v-if="intenalRobotList.length === 0" />
+    <a-input v-model:value="searchText" :placeholder="t('searchRobots')" @change="handleChange" @search="handleSearch">
+      <template #prefix>
+        <SearchOutlined />
+      </template>
+    </a-input>
+    <div class="search-result">
+      <div v-for="item in intenalRobotList" :key="item.id" class="mb-2">
+        <a-checkbox :key="item.robotId" v-model:checked="item.checked" :value="item.robotId" class="robot-item">
+          {{ item.robotName }}
+        </a-checkbox>
       </div>
+      <a-empty v-if="intenalRobotList.length === 0" />
     </div>
   </a-modal>
 </template>
 
 <style scoped>
-.robot-select {
-  max-height: 500px;
-}
-
 .search-result {
-  padding-top: 10px;
+  margin-top: 10px;
   max-height: 400px;
   height: 200px;
   overflow-y: auto;
-}
-
-.ant-checkbox-group {
-  flex-direction: column;
-}
-:deep(.ant-input) {
-  height: 32px;
-}
-:deep(.ant-input-search-button) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 </style>

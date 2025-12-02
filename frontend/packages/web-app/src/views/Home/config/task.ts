@@ -1,13 +1,11 @@
-/** @format */
-
 // 计划任务触发器类型
-const TASK_FILE = 'file'
-const TASK_MAIL = 'mail'
-const TASK_TIME = 'schedule'
-const TASK_MANUAL = 'manual'
-const TASK_HOTKEY = 'hotKey'
+export const TASK_FILE = 'file'
+export const TASK_MAIL = 'mail'
+export const TASK_TIME = 'schedule'
+export const TASK_MANUAL = 'manual'
+export const TASK_HOTKEY = 'hotKey'
 
-enum TASK_TYPE {
+export enum TASK_TYPE {
   TASK_FILE = 'file',
   TASK_MAIL = 'mail',
   TASK_TIME = 'schedule',
@@ -15,7 +13,7 @@ enum TASK_TYPE {
   TASK_HOTKEY = 'hotKey',
 }
 
-const TASK_TYPE_TEXT = {
+export const TASK_TYPE_TEXT = {
   [TASK_FILE]: '文件触发',
   [TASK_MAIL]: '邮箱触发',
   [TASK_TIME]: '时间触发',
@@ -23,7 +21,7 @@ const TASK_TYPE_TEXT = {
   [TASK_HOTKEY]: '热键触发',
 }
 
-const TASK_TYPE_OPTION = [
+export const TASK_TYPE_OPTION = [
   { label: '手动触发', value: TASK_MANUAL },
   { label: '时间触发', value: TASK_TIME },
   { label: '文件触发', value: TASK_FILE },
@@ -31,17 +29,7 @@ const TASK_TYPE_OPTION = [
   { label: '热键触发', value: TASK_HOTKEY },
 ]
 
-const EXCEPTION_OPTION = [
-  {
-    label: '中止',
-    value: 'stop',
-  },
-  {
-    label: '跳过',
-    value: 'jump',
-  },
-]
-const FileEvents = [
+export const FileEvents = [
   {
     label: '创建',
     value: 'create',
@@ -60,7 +48,7 @@ const FileEvents = [
   },
 ]
 
-const WEEK_OPTIONS = [
+export const WEEK_OPTIONS = [
   { label: '周一', value: 0 },
   { label: '周二', value: 1 },
   { label: '周三', value: 2 },
@@ -70,7 +58,7 @@ const WEEK_OPTIONS = [
   { label: '周日', value: 6 },
 ]
 
-const WEEK_MAP = {
+export const WEEK_MAP = {
   0: '周一',
   1: '周二',
   2: '周三',
@@ -79,7 +67,7 @@ const WEEK_MAP = {
   5: '周六',
   6: '周日',
 }
-const WEEK_MAP_EN = {
+export const WEEK_MAP_EN = {
   0: 'monday',
   1: 'tuesday',
   2: 'wednesday',
@@ -88,7 +76,7 @@ const WEEK_MAP_EN = {
   5: 'saturday',
   6: 'sunday',
 }
-const WEEK_MAP_INDAYJS = {
+export const WEEK_MAP_INDAYJS = {
   0: 1,
   1: 2,
   2: 3,
@@ -98,7 +86,7 @@ const WEEK_MAP_INDAYJS = {
   6: 0,
 }
 
-const DAYJS_WEEK_MAP = {
+export const DAYJS_WEEK_MAP = {
   0: 6, // 周日
   1: 0, // 周一
   2: 1, // 周二
@@ -111,7 +99,7 @@ const DAYJS_WEEK_MAP = {
 /**
  * @returns F1-F12、0-9、A-Z
  */
-function Hotkeys() {
+export function Hotkeys() {
   const keys = []
   for (let i = 1; i <= 12; i++) {
     keys.push({ label: `F${i}`, value: `F${i}` })
@@ -124,5 +112,3 @@ function Hotkeys() {
   }
   return keys
 }
-
-export { DAYJS_WEEK_MAP, EXCEPTION_OPTION, FileEvents, Hotkeys, TASK_FILE, TASK_HOTKEY, TASK_MAIL, TASK_MANUAL, TASK_TIME, TASK_TYPE, TASK_TYPE_OPTION, TASK_TYPE_TEXT, WEEK_MAP, WEEK_MAP_EN, WEEK_MAP_INDAYJS, WEEK_OPTIONS }

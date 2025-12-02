@@ -200,7 +200,7 @@ onUnmounted(() => {
   &_text {
     padding-left: 16px;
     user-select: none;
-    width: 160px;
+    min-width: 160px;
   }
 }
 

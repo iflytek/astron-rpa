@@ -1,10 +1,10 @@
 <script setup>
 import { PlusCircleOutlined } from '@ant-design/icons-vue'
-import { NiceModal } from '@rpa/components'
+import { NiceModal, useTheme } from '@rpa/components'
 import { Popconfirm } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { throttle } from 'lodash-es'
-import { h, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 import VxeGrid from '@/plugins/VxeTable'
 
@@ -20,12 +20,12 @@ const props = defineProps({
 const emit = defineEmits(['update:robots'])
 const gridRef = ref()
 const { t } = useTranslation()
+const { colorTheme } = useTheme()
 
 /**
  * 表格配置
  */
 const gridOptions = reactive({
-  headerClassName: 'bg-fill',
   border: false,
   height: 180,
   rowConfig: {
@@ -38,11 +38,11 @@ const gridOptions = reactive({
   },
   size: 'small',
   columns: [
-    { field: 'none', title: '', width: 80, dragSort: true },
-    { field: 'index', title: t('sort'), width: 80, slots: { default: 'index' } },
+    { field: 'none', title: '', width: 48, dragSort: true },
+    { field: 'index', title: t('sort'), width: 60, slots: { default: 'index' } },
     { field: 'robotName', title: t('robot') },
     { field: 'robotVersion', title: t('packageVersion'), slots: { default: 'robotVersion' } },
-    { field: 'action', title: t('operate'), slots: { default: 'action' }, minWidth: 120 },
+    { field: 'action', title: t('operate'), width: 120, slots: { default: 'action' } },
   ],
   data: [],
   emptyText: t('noData'),
@@ -103,48 +103,55 @@ watch(() => props.robots, (val) => {
 </script>
 
 <template>
-  <div class="task-robot-table">
-    <div class="table-content">
-      <VxeGrid ref="gridRef" round class="robot-table" v-bind="gridOptions" size="mini" v-on="gridEvents">
-        <template #index="{ rowIndex }">
-          <span>{{ rowIndex + 1 }}</span>
-        </template>
-        <template #robotVersion="{ row }">
-          <span>{{ row.robotVersion || '--' }}</span>
-        </template>
-        <template #action="{ row, rowIndex }">
-          <a-button :disabled="!row.haveParam" type="link" class="ml-4 p-0" @click="configRobot(row)">
-            {{ t('configParams') }}
-          </a-button>
-          <Popconfirm :title="t('deleteConfirmTip')" @confirm="() => deleteRobot(rowIndex)">
-            <a-button type="link" class="ml-2 p-0">
-              {{ t('delete') }}
-            </a-button>
-          </Popconfirm>
-        </template>
-        <template #dragRowTip="{ row }">
-          <div>{{ t('moving') }}：{{ row.robotName }}</div>
-        </template>
-      </VxeGrid>
-    </div>
+  <div class="task-robot-table" :class="colorTheme">
+    <VxeGrid ref="gridRef" round v-bind="gridOptions" size="mini" v-on="gridEvents">
+      <template #index="{ rowIndex }">
+        <span>{{ rowIndex + 1 }}</span>
+      </template>
+      <template #robotVersion="{ row }">
+        <span>{{ row.robotVersion || '--' }}</span>
+      </template>
+      <template #action="{ row, rowIndex }">
+        <a @click="configRobot(row)" v-bind="row.haveParam ? undefined : { disabled: true }">
+          {{ t('configParams') }}
+        </a>
+        <Popconfirm :title="t('deleteConfirmTip')" @confirm="() => deleteRobot(rowIndex)">
+          <a class="ml-2">
+            {{ t('delete') }}
+          </a>
+        </Popconfirm>
+      </template>
+      <template #dragRowTip="{ row }">
+        <div>{{ t('moving') }}：{{ row.robotName }}</div>
+      </template>
+    </VxeGrid>
     <div class="text-center mt-2">
-      <a-button class="inline-flex items-center justify-center w-full" type="dashed" :icon="h(PlusCircleOutlined)" @click="addRobot">
-        {{ t('addRobots') }}
-      </a-button>
+      <div
+        class="flex items-center justify-center gap-2 text-xs h-8 cursor-pointer border-dashed border-x border-y rounded-lg border-[#00000040] dark:border-[#FFFFFF40] hover:text-primary hover:border-primary"
+        @click="addRobot"
+      >
+        <PlusCircleOutlined />
+        <span class="leading-[12px]">{{ t('addRobots') }}</span>
+      </div>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .task-robot-table {
   height: auto;
+
+  --vxe-ui-table-header-background-color: rgba(255, 255, 255, 0.08);
+  --vxe-ui-layout-background-color: transparent;
 }
-.bg-fill {
-  background-color: #d7d7ff66;
+.task-robot-table.dark {
+  --vxe-ui-table-header-background-color: rgba(0, 0, 0, 0.08);
 }
+
 :deep(.ant-btn-link) {
   color: var(--color-primary);
 }
+
 :deep(.ant-btn-link:disabled) {
   cursor: pointer;
   color: #00000040;

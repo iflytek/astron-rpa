@@ -50,9 +50,11 @@ export interface Task {
    */
   enable?: number
   /**
-   * 报错如何处理：跳过 jump、中止 stop
+   * 报错如何处理：跳过 jump、中止 stop、重试后跳过 retry_jump、重试后中止 retry_stop
    */
-  exceptional?: 'jump' | 'stop'
+  exceptional?: 'jump' | 'stop' | 'retry_stop' | 'retry_jump'
+  /** 异常时重试次数 */
+  retryNum?: number
   /**
    * 触发器计划任务名称
    */
