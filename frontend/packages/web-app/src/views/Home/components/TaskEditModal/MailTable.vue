@@ -70,7 +70,7 @@ defineExpose({
           <template #label>
             {{ t('mailRulesList') }}
             <a-tooltip placement="top" :title="t('mailRulesListPlaceholder')">
-              <QuestionCircleOutlined style="color: #1677ff; margin-left: 4px" />
+              <QuestionCircleOutlined style="margin-left: 4px" />
             </a-tooltip>
           </template>
           <a-radio-group v-model:value="formState.condition" class="mail-table__header__select" :options="conditionOptions" />

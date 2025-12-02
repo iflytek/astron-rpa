@@ -97,6 +97,7 @@ getMailList()
       :data-source="data"
       row-key="id"
       :pagination="pagination"
+      :bordered="true"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'action'">
@@ -141,9 +142,6 @@ getMailList()
 }
 
 .mail-list-table {
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--color-border-secondary);
-
   :deep(.ant-table-thead > tr > th) {
     background: #f3f3f7;
   }

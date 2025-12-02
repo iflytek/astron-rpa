@@ -298,7 +298,7 @@ defineExpose({
       <label for="form_item_cron_expression" class="custom-label mr-2">
         {{ t('taskTimeConfig.cronLabel') }}
         <a-tooltip :title="t('taskTimeConfig.cronTip')" placement="top">
-          <QuestionCircleOutlined style="color: #1677ff; margin-left: 4px" />
+          <QuestionCircleOutlined style="margin-left: 4px" />
         </a-tooltip>
       </label>
       <a-input v-model:value="formState.cron_expression" autocomplete="off" class="text-input" />
@@ -369,7 +369,7 @@ defineExpose({
 }
 
 .advance-link {
-  color: #1677ff;
+  color: var(--color-primary);
   cursor: pointer;
 }
 

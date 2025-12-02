@@ -258,7 +258,7 @@ assignEmailData(props.data)
         <template #label>
           {{ t("mailManageConfig.authorizationCode") }}
           <a-tooltip :title="t('mailManageConfig.authorizationCodeTip')">
-            <QuestionCircleOutlined class="ml-1" style="color: #1677ff" />
+            <QuestionCircleOutlined class="ml-1" />
           </a-tooltip>
         </template>
         <a-input-password
@@ -323,7 +323,7 @@ assignEmailData(props.data)
     color: var(--color-primary);
   }
   .primary {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .success {
     color: #52c41a;
