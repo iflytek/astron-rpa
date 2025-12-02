@@ -19,7 +19,7 @@ const options = computed(() => {
   const genNumberInput = (type: Task['exceptional']) => {
     return h(InputNumber, {
       size: 'small',
-      min: 1,
+      min: 0,
       max: 99,
       class: ["input-number", colorTheme.value],
       placeholder: '0 (不重试)',

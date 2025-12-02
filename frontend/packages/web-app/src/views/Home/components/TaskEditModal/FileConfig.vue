@@ -46,7 +46,7 @@ const fileEvents = FileEvents.map((it) => {
         <a-checkbox v-model:checked="formState.relative_sub_path" class="mt-4">
           {{ t('includeSubfolder') }}
           <a-tooltip :title="t('includeSubfolderTip')">
-            <QuestionCircleOutlined style="color: #1677ff; margin-left: 4px" />
+            <QuestionCircleOutlined style="margin-left: 4px" />
           </a-tooltip>
         </a-checkbox>
       </a-form-item>
@@ -57,7 +57,7 @@ const fileEvents = FileEvents.map((it) => {
         <template #label>
           <label for="form_item_files_or_type" class="custom-label" :title="t('fileType')">{{ t('fileType') }}</label>
           <a-tooltip :title="t('fileTypeTip')">
-            <QuestionCircleOutlined style="color: #1677ff; margin-left: 4px" />
+            <QuestionCircleOutlined style="margin-left: 4px" />
           </a-tooltip>
         </template>
         <a-input v-model:value="formState.files_or_type" class="text-[12px] h-[32px]" autocomplete="off" :placeholder="t('fileTypePlaceholder')" />

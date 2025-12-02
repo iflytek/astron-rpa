@@ -20,7 +20,7 @@ import RobotTable from './RobotTable.vue'
 import TimeConfig from './TimeConfig.vue'
 import ExceptionHandling from './ExceptionHandling.vue'
 
-const props = defineProps<{ taskId: string }>()
+const props = defineProps<{ taskId?: string }>()
 const emits = defineEmits(['refresh'])
 
 const modal = NiceModal.useModal()
@@ -55,14 +55,15 @@ const taskTypeOptions = TASK_TYPE_OPTION.map((it) => {
     :mask-closable="false"
   >
     <template #footer>
-      <div>
+      <div class="flex justify-between items-center">
         <a-checkbox
           v-if="taskInfoForm.taskType !== TASK_MANUAL"
           v-model:checked="taskInfoForm.taskEnable"
         >
           {{ t("enableTask") }}
         </a-checkbox>
-      
+        <div v-else />
+        
         <a-space>
           <a-button @click="modal.hide">
             {{ t("cancel") }}
