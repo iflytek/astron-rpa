@@ -5,7 +5,7 @@ import tempfile
 
 import psutil
 import win32clipboard
-import win32com.client
+import win32com.client as wc
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
 from astronverse.actionlib.utils import FileExistenceType, handle_existence
@@ -80,11 +80,11 @@ class WordDocumentCore(IDocumentCore):
     @staticmethod
     def _create_word_application(params: str):
         try:
-            word_application = win32com.client.gencache.EnsureDispatch(params)
+            word_application = wc.gencache.EnsureDispatch(params)
             return word_application
         except Exception:
             try:
-                word_application = win32com.client.Dispatch(params)
+                word_application = wc.Dispatch(params)
                 return word_application
             except Exception:
                 logger.debug(f"创建Word对象失败：{params}")
@@ -105,13 +105,22 @@ class WordDocumentCore(IDocumentCore):
             keys = []
 
         for application_key in keys:
-            try:
+            cls.word_application_instance = cls._create_word_application(application_key)
+            if cls.word_application_instance:
+                return cls.word_application_instance
+
+        # 尝试重建缓存兜底
+        try:
+            wc.gencache.Rebuild()
+            wc.gencache.EnsureModule("{00020905-0000-0000-C000-000000000046}", 0, 8, 7)
+            for application_key in keys:
                 cls.word_application_instance = cls._create_word_application(application_key)
                 if cls.word_application_instance:
                     return cls.word_application_instance
-            except Exception:
-                continue
-        raise Exception("未检测到所选程序的注册表信息，请检查是否安装！")
+        except Exception as e:
+            raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
+
+        raise Exception("未检测到wps和office注册表信息！")
 
     @classmethod
     def open(

@@ -7,7 +7,7 @@ import winreg
 
 import numpy as np
 import win32clipboard as cv
-import win32com.client
+import win32com.client as wc
 from astronverse.actionlib.logger import logger
 from astronverse.excel import (
     ApplicationType,
@@ -46,7 +46,7 @@ from astronverse.excel.core import IExcelCore
 from astronverse.excel.error import EXCEL_UNAVAILABLE_ERROR_FORMAT, INPUT_DATA_ERROR_FORMAT
 from win32api import RGB
 
-excel_constants = win32com.client.constants
+excel_constants = wc.constants
 
 
 class ExcelCore(IExcelCore):
@@ -55,15 +55,15 @@ class ExcelCore(IExcelCore):
     @staticmethod
     def _create_app(application_name: str):
         try:
-            excel_obj = win32com.client.gencache.EnsureDispatch(application_name)
-            # excel_obj = win32com.client.Dispatch(params)
+            excel_obj = wc.gencache.EnsureDispatch(application_name)
             return excel_obj
-        except Exception:
+        except Exception as err:
             try:
-                excel_obj = win32com.client.Dispatch(application_name)
+                excel_obj = wc.Dispatch(application_name)
                 return excel_obj
             except Exception as err:
                 logger.debug(f"创建Excel对象失败：{application_name}")
+                return None
 
     @staticmethod
     def get_default_excel_application():
@@ -85,7 +85,6 @@ class ExcelCore(IExcelCore):
 
     @classmethod
     def init_excel_app(cls, default_application: ApplicationType = ApplicationType.DEFAULT):
-        # excel_flag, wps_flag = cls.excel_is_exists()
         if default_application == ApplicationType.DEFAULT:
             default_application = cls.get_default_excel_application()
             if default_application == ApplicationType.WPS:
@@ -98,13 +97,21 @@ class ExcelCore(IExcelCore):
             keys = ["Excel.Application"]
 
         for key in keys:
-            try:
+            cls.excel_obj = cls._create_app(key)
+            if cls.excel_obj:
+                return cls.excel_obj
+
+        # 尝试重建缓存兜底
+        try:
+            wc.gencache.Rebuild()
+            wc.gencache.EnsureModule("{00020813-0000-0000-C000-000000000046}", 0, 8, 7)
+            for key in keys:
                 cls.excel_obj = cls._create_app(key)
                 if cls.excel_obj:
                     return cls.excel_obj
-            except:
-                pass
-            continue
+        except Exception as e:
+            raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
+
         raise Exception("未检测到wps和office注册表信息！")
 
     @staticmethod
@@ -266,7 +273,7 @@ class ExcelCore(IExcelCore):
             keys = ["Ket.Application", "et.Application"]
             for key in keys:
                 try:
-                    xl = win32com.client.gencache.EnsureDispatch(key)
+                    xl = wc.gencache.EnsureDispatch(key)
                     break
                 except Exception as e:
                     raise Exception("dispatch wps时报错了：{}".format(e))
@@ -276,7 +283,7 @@ class ExcelCore(IExcelCore):
             if excel_obj is not None:
                 excel_obj_list.append(excel_obj)
         if excel_flag:
-            xl = win32com.client.gencache.EnsureDispatch("Excel.Application")
+            xl = wc.gencache.EnsureDispatch("Excel.Application")
             excel_obj = cls._get_excel_obj(xl, file_name)
             if excel_obj is not None:
                 excel_obj_list.append(excel_obj)
@@ -1956,9 +1963,7 @@ class ExcelCore(IExcelCore):
             pvt_ws = excel_obj.Worksheets.Add()
             pvt_ws.Name = pivot_sheet
 
-        pivot_cache = excel_obj.PivotCaches().Create(
-            SourceType=win32com.client.constants.xlDatabase, SourceData=src_range
-        )
+        pivot_cache = excel_obj.PivotCaches().Create(SourceType=wc.constants.xlDatabase, SourceData=src_range)
         pivot_table = pivot_cache.CreatePivotTable(
             TableDestination=pvt_ws.Range(pivot_start_cell), TableName=pivot_table_name
         )
