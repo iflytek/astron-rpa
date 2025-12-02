@@ -1,6 +1,5 @@
 import io
 import os
-from posix import WCOREDUMP
 import re
 import tempfile
 
@@ -113,12 +112,12 @@ class WordDocumentCore(IDocumentCore):
         # 尝试重建缓存兜底
         try:
             wc.gencache.Rebuild()
-            wc.gencache.EnsureModule("{00020813-0000-0000-C000-000000000046}", 0, 8, 7)
+            wc.gencache.EnsureModule("{00020905-0000-0000-C000-000000000046}", 0, 8, 7)
             for application_key in keys:
                 cls.word_application_instance = cls._create_word_application(application_key)
                 if cls.word_application_instance:
                     return cls.word_application_instance
-        except:
+        except Exception as e:
             raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
 
         raise Exception("未检测到wps和office注册表信息！")

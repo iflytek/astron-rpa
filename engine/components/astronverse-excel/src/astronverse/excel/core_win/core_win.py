@@ -109,7 +109,7 @@ class ExcelCore(IExcelCore):
                 cls.excel_obj = cls._create_app(key)
                 if cls.excel_obj:
                     return cls.excel_obj
-        except:
+        except Exception as e:
             raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
 
         raise Exception("未检测到wps和office注册表信息！")
