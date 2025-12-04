@@ -14,10 +14,15 @@ public class InsertTaskDto {
     private String name;
 
     /**
-     * 报错如何处理：跳过 jump、中止 stop
+     * 报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop
      */
     @NotBlank
     private String exceptional;
+
+    /**
+     * 重试次数
+     */
+    private Integer retryNum;
 
     /**
      * 是否启用 1 启用 ；0 不启用

@@ -426,6 +426,7 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
         triggerTask.setExceptional(queryDto.getExceptional());
         triggerTask.setQueueEnable(queryDto.getQueueEnable());
         triggerTask.setTimeout(queryDto.getTimeout());
+        triggerTask.setRetryNum(queryDto.getRetryNum());
         triggerTask.setCreatorId(userId);
         triggerTask.setUpdaterId(userId);
         triggerTask.setTenantId(tenantId);
