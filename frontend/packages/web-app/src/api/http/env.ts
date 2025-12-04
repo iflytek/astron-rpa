@@ -46,7 +46,7 @@ export function unauthorize() {
     maskClosable: false,
     onOk: () => {
       sessionStorage.removeItem('tokenValue')
-      location.href = '/'
+      location.href = '/boot.html'
       isUnauthorized = null
     },
   })
