@@ -5247,7 +5247,13 @@ table "trigger_task" {
     null    = false
     type    = varchar(20)
     default = "stop"
-    comment = "报错如何处理：跳过jump、停止stop"
+    comment = "报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop"
+  }
+  column "retry_num" {
+    null    = true
+    type    = int
+    default = null
+    comment = "只有exceptional为retry时，记录的重试次数"
   }
   column "timeout" {
     null    = true
