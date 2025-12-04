@@ -12,7 +12,7 @@ const emit = defineEmits<{
   sendCaptcha: [phone: string]
 }>()
 
-const personal = useRegisterForm('personal', emit as any)
+const personal = useRegisterForm('PERSONAL', emit as any)
 
 </script>
 
@@ -22,7 +22,7 @@ const personal = useRegisterForm('personal', emit as any)
       :ref="personal.formRef"
       :config="personal.config"
       v-model="personal.formData"
-      :emitEvent="personal.emitEvent"
+      :handleEvents="personal.handleEvents"
       class="auth-register-personal-form"
     />
   </InviteFormLayout>

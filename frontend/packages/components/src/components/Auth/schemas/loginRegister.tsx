@@ -9,19 +9,19 @@ import { Button } from "ant-design-vue"
 // 账号登录表单配置
 export const accountLoginFormConfig: FormConfig = {
   fields: [
-    fieldFactories.loginName(),
+    {...fieldFactories.phone(), placeholder: '请输入账号(手机号)'},
     fieldFactories.password(),
     fieldFactories.agreement(),
     fieldFactories.remember(),
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents, loading }) => (
     <div class="w-full absolute bottom-0">
-      <Button type="primary" size="large"block onClick={() => emit && emit('submit')}>
-        登录
+      <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+        { loading ? '登录中' : '登录' }
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
         还没有账号？
-        <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => {console.log("switchToRegisterswitchToRegisterswitchToRegister");emit && emit('switchToRegister')}}>
+        <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => {console.log("switchToRegisterswitchToRegisterswitchToRegister");handleEvents && handleEvents('switchToRegister')}}>
           立即注册
         </Button>
       </div>
@@ -36,14 +36,14 @@ export const phoneLoginFormConfig: FormConfig = {
     fieldFactories.captcha(),
     fieldFactories.agreement(),
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents, loading  }) => (
     <div class="w-full absolute bottom-0">
-      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
-        登录
+      <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+        { loading ? '登录中' : '登录' }
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
         还没有账号？
-        <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => emit && emit('switchToRegister')}>
+        <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
           立即注册
         </Button>
       </div>
@@ -60,14 +60,14 @@ export const personalRegisterFormConfig: FormConfig = {
     fieldFactories.captcha(),
     fieldFactories.agreement()
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents, loading }) => (
     <div class="w-full absolute bottom-0">
-      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
-        注册
+      <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')}  loading={loading}>
+        { loading ? '注册中' : '注册' }
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
         已有账号？
-        <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => emit && emit('switchToLogin')}>
+        <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
           立即登录
         </Button>
       </div>
@@ -82,20 +82,19 @@ export const enterpriseRegisterFormConfig: FormConfig = {
     {
       ...fieldFactories.loginName(),
       key: 'contactName',
-      placeholder: '请输入您的姓名',
     },
     fieldFactories.companyName(),
     fieldFactories.teamSize(),
-    fieldFactories.email(),
     {
       ...fieldFactories.phone(), 
       placeholder: '请输入您的或者负责人的手机号'
     },
+    fieldFactories.email(),
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents, loading }) => (
     <div class="w-full absolute bottom-0">
-      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
-        提交申请
+      <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+        {loading ? '提交中...' : '提交申请'}
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
         企业已开通？请联系管理员为您创建账号
@@ -111,9 +110,9 @@ export const forgotPasswordFormConfig: FormConfig = {
     fieldFactories.phone(),
     fieldFactories.captcha(),
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents }) => (
     <div class="w-full absolute bottom-0">
-      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
+      <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')}>
         下一步
       </Button>
     </div>
@@ -139,9 +138,9 @@ export const createSetPasswordFormConfig = (formData: any): FormConfig => ({
     }
   ],
 
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents }) => (
     <div class="w-full absolute bottom-0">
-      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
+      <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')}>
         完成
       </Button>
     </div>

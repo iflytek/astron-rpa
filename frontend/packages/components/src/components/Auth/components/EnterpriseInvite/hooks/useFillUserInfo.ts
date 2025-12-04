@@ -27,10 +27,10 @@ export function useFillUserInfo(
     }
   }
 
-  const emitEvent = (event: string) => {
+  const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
     if (event === 'back') return emit('back')
   }
 
-  return { formRef, formData, config, emitEvent }
+  return { formRef, formData, config, handleEvents }
 }

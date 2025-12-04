@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Tabs, TabPane } from 'ant-design-vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useLoginForm } from './hooks/useLoginForm'
-import type { LoginMode } from '../../interface'
-import { loginProps } from '../../interface'
+import type { LoginMode, AsyncAction } from '../../interface'
 
-const props = defineProps(loginProps())
+const { running } = defineProps({
+  running: { type: String as () => AsyncAction, default: 'IDLE' },
+})
+
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
   sendCaptcha: [phone: string]
@@ -15,12 +17,16 @@ const emit = defineEmits<{
   forgetPassword: []
 }>()
 
-const account = useLoginForm('account', emit as any)
-const phone   = useLoginForm('phone', emit as any)
+const passwordLoading = computed(() => running === 'PASSWORD')
+const codeLoading = computed(() => running === 'CODE')
 
-const currentMode = ref<LoginMode>('account')
+const account = useLoginForm('PASSWORD', emit as any)
+const phone   = useLoginForm('CODE', emit as any)
 
-watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone).resetForm())
+const currentMode = ref<LoginMode>('PASSWORD')
+
+watch(() => currentMode.value, (_, old) => (old === 'PASSWORD' ? account : phone).clearValidates())
+
 </script>
 
 <template>
@@ -28,7 +34,7 @@ watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone)
     :wrap-class="'auth-login h-full'"
   >
     <template #header>
-      <div class="text-[24px] text-[#000000D9] mb-[24px] font-[600] text-center dark:text-[#FFFFFF]">欢迎使用星辰RPA</div>
+      <div class="text-[24px] text-[#000000D9] mb-[24px] font-[600] text-center dark:text-[#FFFFFF] font-sans">欢迎使用星辰RPA</div>
     </template>
     <Tabs
       v-model:activeKey="currentMode"
@@ -36,21 +42,23 @@ watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone)
       type="card"
       class="h-full"
     >
-      <TabPane key="account" tab="账号">
+      <TabPane key="PASSWORD" tab="账号">        
         <DynamicForm
+          :loading="passwordLoading"
           :ref="account.formRef"
           :config="account.config"
           v-model="account.formData"
-          :emitEvent="account.emitEvent"
+          :handleEvents="account.handleEvents"
         />
       </TabPane>
-  
-      <TabPane key="phone" tab="手机验证码">
+
+      <TabPane key="CODE" tab="手机验证码">
         <DynamicForm
+          :loading="codeLoading"
           :ref="phone.formRef"
           :config="phone.config"
           v-model="phone.formData"
-          :emitEvent="phone.emitEvent"
+          :handleEvents="phone.handleEvents"
         />
       </TabPane>
     </Tabs>

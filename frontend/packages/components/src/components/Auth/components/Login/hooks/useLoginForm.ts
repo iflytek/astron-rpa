@@ -1,7 +1,8 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import type { LoginFormData, LoginMode } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import { accountLoginFormConfig, phoneLoginFormConfig } from '../../../schemas/loginRegister'
+import { getRememberUser } from '../../../utils/remember'
 
 export type LoginEmitEvent =
   | 'submit'
@@ -11,7 +12,7 @@ export type LoginEmitEvent =
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,
-  emit: ((e: 'submit', data: any) => void) &
+  emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToRegister') => void) &
         ((e: 'forgetPassword') => void) &
         ((e: 'sendCaptcha', phone: string) => void)
@@ -19,7 +20,7 @@ export function useLoginForm<M extends LoginMode>(
   const formRef = ref()
 
   const initialData = (): LoginFormData =>
-    (mode === 'account'
+    (mode === 'PASSWORD'
       ? generateFormData(accountLoginFormConfig, { remember: false })
       : generateFormData(phoneLoginFormConfig))  as LoginFormData
 
@@ -28,7 +29,7 @@ export function useLoginForm<M extends LoginMode>(
   const handleSubmit = async () => {
     try {
       await formRef.value?.validateFields()
-      emit('submit', formData)
+      emit('submit', formData, mode)
     } catch (e) {
       console.error(`${mode} 表单校验失败`, e)
     }
@@ -39,15 +40,29 @@ export function useLoginForm<M extends LoginMode>(
     formRef.value?.resetFields()
   }
 
-  const emitEvent = (event: string) => {
+  const clearValidates = () => {
+    formRef.value?.clearValidates()
+  }
+
+  const handleEvents = async (event: string) => {
     if (event === 'submit') return handleSubmit()
     if (event === 'switchToRegister') return emit('switchToRegister')
     if (event === 'forgetPassword') return emit('forgetPassword')
-    if (event === 'sendCaptcha')
-      return emit('sendCaptcha', formData.phone)
+    if (event === 'sendCaptcha'){
+      return emit('sendCaptcha', formData.phone ?? '')
+    }
   }
 
-  const config = mode === 'account' ? accountLoginFormConfig : phoneLoginFormConfig
+  const config = mode === 'PASSWORD' ? accountLoginFormConfig : phoneLoginFormConfig
 
-  return { formRef, formData, config, resetForm, emitEvent }
+  onMounted(() => {
+    const remembered = getRememberUser()
+    if (mode === 'PASSWORD' && remembered) {
+      formData.phone = remembered.phone
+      formData.password  = remembered.password
+      formData.remember  = true
+    }
+  })
+
+  return { formRef, formData, config, resetForm, clearValidates, handleEvents }
 }

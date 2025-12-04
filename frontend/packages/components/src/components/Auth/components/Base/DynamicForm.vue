@@ -1,22 +1,23 @@
 <script setup lang="ts" >
-import { ref } from 'vue'
-import { Form, Input, Checkbox, Select, Textarea } from 'ant-design-vue'
+import { ref, h } from 'vue'
+import { Form, Input, Checkbox, Select, Textarea, message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { FieldSchema } from '../../schemas/factories.tsx'
 import PhoneCode from './PhoneCode.vue'
 import type { FormConfig } from '../../schemas/factories.tsx'
+import { Icon as RpaIcon } from '../../../Icon'
 
 interface Props<T = any> {
   config: FormConfig
   modelValue?: T
-  emitEvent?: (event: string, ...args: any[]) => void
+  loading?: boolean
+  handleEvents?: (event: string, ...args: any[]) => void
 }
 
-const {modelValue, config, emitEvent} = withDefaults(defineProps<Props>(), { })
+const { modelValue, loading, config, handleEvents } = defineProps<Props>()
 
 const emit = defineEmits<{
   submit: [value: any]
-  sendCaptcha: [phone: string]
 }>()
 
 const formRef = ref<FormInstance>()
@@ -39,19 +40,26 @@ const validateFields = async (fieldNames?: string[]) => {
 // 重置表单
 const resetFields = () => {
   formRef.value?.resetFields()
-  // 重置所有验证码组件
   Object.values(codeInputRefs.value).forEach(ref => {
     ref?.resetForm()
   })
 }
 
-const handleSendCode = (phone: string) => {
-  emit('sendCaptcha', phone)
+const clearValidates = () => {
+  formRef.value?.clearValidate()
+}
+
+const handleSendCaptcha = async (field: FieldSchema) => {
+  await validateFields([field.relationKey || 'phone'])      // 校验不通过会抛错
+  await handleEvents?.('sendCaptcha')       // 只有校验通过才走到这里
+  codeInputRefs.value[field.key]?.startCountdown()
+  message.success('验证码发送成功')
 }
 
 defineExpose({
   formRef,
   resetFields,
+  clearValidates,
   validateFields,
 })
 </script>
@@ -61,14 +69,15 @@ defineExpose({
     ref="formRef"
     :model="modelValue"
     :layout="config.layout || 'vertical'"
-    :label-col="config.labelCol || 0"
-    :wrapper-col="config.wrapperCol || 24"
+    :label-col="config.labelCol || { span: 0 }"
+    :wrapper-col="config.wrapperCol || { span: 24 }"
     class="dynamic-form h-full"
   >
     <template v-for="field in config.fields" :key="field.key">
       <Form.Item
         :name="field.key"
         :rules="field.rules"
+        :class="`form-item-${field.type} form-item-${field.key}`"
       >      
         <Input
           v-if="field.type === 'input'"
@@ -85,15 +94,18 @@ defineExpose({
           :placeholder="field.placeholder"
           size="large"
           v-bind="field.props"
+          :iconRender="(visible: boolean) => h(RpaIcon, {
+              name: visible ? 'password-eye' : 'password-eye-closed'
+            })
+          "
         />
         <PhoneCode
           v-else-if="field.type === 'captcha'"
           :ref="(el: any) => { if (el) codeInputRefs[field.key] = el }"
           v-model="modelValue[field.key]"
-          :phone="modelValue.phone"
           :placeholder="field.placeholder"
           v-bind="field.props"
-          @send="(phone: string) => handleSendCode(phone)"
+          :send-captcha="() => handleSendCaptcha(field)"
         />
         <Textarea
           v-else-if="field.type === 'textarea'"
@@ -106,6 +118,7 @@ defineExpose({
           v-model:value="modelValue[field.key]"
           :placeholder="field.placeholder"
           v-bind="field.props"
+          :options="field.options"
         />          
         <Checkbox
           v-else-if="field.type === 'checkbox'"
@@ -126,7 +139,8 @@ defineExpose({
                   return false
                 }
               },
-              emit: emitEvent
+              handleEvents,
+              loading
             })" 
           />
         </Checkbox>
@@ -145,7 +159,8 @@ defineExpose({
                   return false
                 }
               },
-              emit: emitEvent
+              handleEvents,
+              loading
             })" 
           />
         </template>
@@ -165,7 +180,8 @@ defineExpose({
               return false
             }
           },
-          emit: emitEvent
+          handleEvents,
+          loading,
         })"
       />
     </slot>

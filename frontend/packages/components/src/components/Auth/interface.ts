@@ -1,41 +1,35 @@
 import { functionType, stringType } from '../../utils/type'
 
-export type LoginMode = 'account' | 'phone'
-export type RegisterMode = 'personal' | 'enterprise'
-
-export interface ForgotPasswordFormData {
-  phone: string // 手机号或邮箱
-  captcha: string
-}
-
-export interface SetPasswordFormData {
-  password: string
-  confirmPassword: string
-}
-
-export interface TenantItem {
-  id: string
-  name: string
-  type: number // 0-个人版、1-企业版
-  memberCount?: number
-}
-
-export interface ForgotPasswordFormData {
-  phone: string // 手机号或邮箱
-  captcha: string
-}
-
-export interface SetPasswordFormData {
-  password: string
-  confirmPassword: string
+export type LoginMode = 'PASSWORD' | 'CODE'
+export type RegisterMode = 'PERSONAL' | 'ENTERPRISE'
+export type AuthFormMode = 'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect'
+export type AsyncAction = 'IDLE' | 'PASSWORD' | 'CODE' | 'PERSONAL' | 'ENTERPRISE' | 'FORGOT_PASSWORD' | 'SET_PASSWORD' | 'CHOOSE_TENANT'
+export interface LoginFormData {
+  loginName?: string
+  password?: string
+  remember?: boolean
+  agreement?: boolean
+  phone?: string,
+  captcha?: string,
+  loginType?: "CODE" | "PASSWORD",
+  tenantId?: string
+  confirmPassword?: string
 }
 
 export interface TenantItem {
   id: string
   name: string
-  avatar?: string
   description?: string
   memberCount?: number
+  tenantCode: string
+  tenantType: 'personal' | 'professional' | 'enterprise'
+  status: number
+  remark?: string
+  creator?: string
+  isDelete?: number
+  isDefaultTenant?: number
+  createTime?: string
+  updateTime?: string
 }
 
 export interface MarketInviteInfo {
@@ -50,17 +44,6 @@ export interface EnterpriseInviteInfo {
   userName: string
   enterpriseId: string
   enterpriseName: string
-}
-
-export interface LoginFormData {
-  loginName: string
-  password: string
-  remember?: boolean
-  agreement?: boolean
-  phone: string,
-  captcha: string,
-  loginType: "CODE" | "PASSWORD",
-  tenantId: string
 }
 
 export interface PersonalRegisterFormData {
@@ -99,30 +82,10 @@ export interface EnterpriseInvitFormData {
   loginName: string | undefined
 }
 
-export function authFormProps() {
-  return {
-    mode: stringType<'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect'>('login'),
-    loginMode: stringType<LoginMode>('account'),
-    registerMode: stringType<RegisterMode>('personal'),
-    title: String,
-    onLogin: functionType<(data: LoginFormData, mode: LoginMode) => void | Promise<void>>(),
-    onRegister: functionType<(data: RegisterFormData, mode: RegisterMode) => void | Promise<void>>(),
-    onModeChange: functionType<(mode: 'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect') => void>(),
-    onLoginModeChange: functionType<(mode: LoginMode) => void>(),
-    onRegisterModeChange: functionType<(mode: RegisterMode) => void>(),
-    onSendCode: functionType<(phone: string) => void | Promise<void>>(),
-    onForgotPassword: functionType<(data: ForgotPasswordFormData) => void | Promise<void>>(),
-    onSetPassword: functionType<(data: SetPasswordFormData) => void | Promise<void>>(),
-    onTenantSelect: functionType<(tenantId: string) => void | Promise<void>>(),
-  }
-}
-
 export function loginProps() {
   return {
-    loginBtnText: { type: String, default: '登录' },
     loading: { type: Boolean, default: false },
-    prefixCls: { type: String, default: 'auth-login' },
-    mode: stringType<LoginMode>('account'),
+    mode: stringType<LoginMode>('PASSWORD'),
     onSubmit: functionType<(data: LoginFormData, mode: LoginMode) => void | Promise<void>>(),
     onSwitchToRegister: functionType<() => void>(),
     onModeChange: functionType<(mode: LoginMode) => void>(),
@@ -133,7 +96,7 @@ export function loginProps() {
 export function registerProps() {
   return {
     loading: { type: Boolean, default: false },
-    mode: stringType<RegisterMode>('personal'),
+    mode: stringType<RegisterMode>('PERSONAL'),
     onSubmit: functionType<(data: RegisterFormData, mode: RegisterMode) => void | Promise<void>>(),
     onSwitchToLogin: functionType<() => void>(),
     onModeChange: functionType<(mode: RegisterMode) => void>(),
@@ -143,7 +106,6 @@ export function registerProps() {
 export function personalRegisterProps() {
   return {
     loading: { type: Boolean, default: false },
-    prefixCls: { type: String, default: 'auth-register-personal' },
     onSubmit: functionType<(data: PersonalRegisterFormData) => void | Promise<void>>(),
     onSwitchToLogin: functionType<() => void>(),
   }
@@ -152,7 +114,6 @@ export function personalRegisterProps() {
 export function enterpriseRegisterProps() {
   return {
     loading: { type: Boolean, default: false },
-    prefixCls: { type: String, default: 'auth-register-enterprise' },
     onSubmit: functionType<(data: EnterpriseRegisterFormData) => void | Promise<void>>(),
     onSwitchToLogin: functionType<() => void>(),
   }
@@ -161,8 +122,7 @@ export function enterpriseRegisterProps() {
 export function forgotPasswordProps() {
   return {
     loading: { type: Boolean, default: false },
-    prefixCls: { type: String, default: 'auth-forgot-password' },
-    onSubmit: functionType<(data: ForgotPasswordFormData) => void | Promise<void>>(),
+    onSubmit: functionType<(data: LoginFormData) => void | Promise<void>>(),
     onSwitchToLogin: functionType<() => void>(),
     onSendCode: functionType<(account: string) => void | Promise<void>>(),
   }
@@ -171,18 +131,7 @@ export function forgotPasswordProps() {
 export function setPasswordProps() {
   return {
     loading: { type: Boolean, default: false },
-    prefixCls: { type: String, default: 'auth-set-password' },
-    onSubmit: functionType<(data: SetPasswordFormData) => void | Promise<void>>(),
-    onSwitchToLogin: functionType<() => void>(),
-  }
-}
-
-export function tenantSelectProps() {
-  return {
-    loading: { type: Boolean, default: false },
-    prefixCls: { type: String, default: 'auth-tenant-select' },
-    tenants: { type: Array as () => TenantItem[], default: () => [] },
-    onSubmit: functionType<(tenantId: string) => void | Promise<void>>(),
+    onSubmit: functionType<(data: LoginFormData) => void | Promise<void>>(),
     onSwitchToLogin: functionType<() => void>(),
   }
 }

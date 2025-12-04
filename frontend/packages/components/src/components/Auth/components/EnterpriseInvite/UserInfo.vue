@@ -13,7 +13,7 @@ const emit = defineEmits<{
   back: []
 }>()
 
-const { formRef, formData, config, emitEvent } = useFillUserInfo(emit as any)
+const { formRef, formData, config, handleEvents } = useFillUserInfo(emit as any)
 </script>
 
 <template>
@@ -31,7 +31,7 @@ const { formRef, formData, config, emitEvent } = useFillUserInfo(emit as any)
       ref="formRef"
       :config="config"
       v-model="formData"
-      :emitEvent="emitEvent"
+      :handleEvents="handleEvents"
       class="auth-set-password-form my-[12px]"
     />
   </InviteFormLayout>

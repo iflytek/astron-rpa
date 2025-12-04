@@ -30,9 +30,9 @@ export const enterpriseInviteFillUserInfoFormConfig: FormConfig = {
       }
     }
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents }) => (
     <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => handleEvents && handleEvents('submit')}>
         确认加入
       </Button>
       <AgreementTxt type='invite' />
@@ -45,9 +45,9 @@ export const enterprisePhoneLoginFormConfig: FormConfig = {
     fieldFactories.phone(),
     fieldFactories.captcha(),
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents }) => (
     <div class="w-full ">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => handleEvents && handleEvents('submit')}>
         下一步
       </Button>
     </div>
@@ -73,9 +73,9 @@ export const createEnterpriseInviteSetPasswordFormConfig = (formData: any): Form
       }
     }
   ],
-  actionsRender: ({ emit }) => (
+  actionsRender: ({ handleEvents }) => (
     <div class="w-full ">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => handleEvents && handleEvents('submit')}>
         确认加入
       </Button>
     </div>

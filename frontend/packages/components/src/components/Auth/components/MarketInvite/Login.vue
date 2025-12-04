@@ -15,12 +15,12 @@ const emit = defineEmits<{
   forgetPassword: []
 }>()
 
-const account = useLoginForm('account', emit as any)
-const phone   = useLoginForm('phone', emit as any)
+const account = useLoginForm('PASSWORD', emit as any)
+const phone   = useLoginForm('CODE', emit as any)
 
-const currentMode = ref<LoginMode>('account')
+const currentMode = ref<LoginMode>('PASSWORD')
 
-watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone).resetForm())
+watch(() => currentMode.value, (_, old) => (old === 'PASSWORD' ? account : phone).resetForm())
 </script>
 
 <template>
@@ -33,21 +33,21 @@ watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone)
       type="card"
       class="h-[calc(100%-56px)]"
     >
-      <TabPane key="account" tab="账号">
+      <TabPane key="PASSWORD" tab="账号">
         <DynamicForm
           :ref="account.formRef"
           :config="account.config"
           v-model="account.formData"
-          :emitEvent="account.emitEvent"
+          :handleEvents="account.handleEvents"
         />
       </TabPane>
 
-      <TabPane key="phone" tab="手机验证码">
+      <TabPane key="CODE" tab="手机验证码">
         <DynamicForm
           :ref="phone.formRef"
           :config="phone.config"
           v-model="phone.formData"
-          :emitEvent="phone.emitEvent"
+          :handleEvents="phone.handleEvents"
         />
       </TabPane>
     </Tabs>

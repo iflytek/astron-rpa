@@ -8,11 +8,7 @@ interface Props {
   currentUser?: { name?: string; phone?: string }
 }
 
-const { type, userName, targetName } = withDefaults(defineProps<Props>(), {
-  type: 'market',
-  userName: '',
-  targetName: '',
-})
+const { type = 'market', userName = '', targetName = '' } = defineProps<Props>()
 
 const emit = defineEmits<{
   back: []

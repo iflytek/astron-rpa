@@ -7,7 +7,7 @@ interface Props {
   buttonTxt?: string
 }
 
-withDefaults(defineProps<Props>(), {})
+const { title, desc, buttonTxt } = defineProps<Props>()
 
 const emit = defineEmits<{
   click: []

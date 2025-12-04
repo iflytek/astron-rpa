@@ -1,4 +1,4 @@
-.auth-container-content{
+.auth-container-content, .login-form-layout{
   // 重置登录tab样式
   .ant-tabs-nav-wrap, .ant-tabs-nav-list {
     width: 100%;
@@ -20,7 +20,7 @@
     background-color: #ECEDF4;
     border: none;
     border-radius: 8px!important;
-    padding: 4px;
+    padding: 3px;
     .ant-tabs-tab {
       border: none;
       border-radius: 6px!important;
@@ -88,14 +88,30 @@
       font-size: 14px;
     }
   }
+  .ant-form label{
+    font-size: 14px;
+  }
+  .ant-form .ant-checkbox+span{
+    padding-inline-end: 0px!important;
+  }
   .ant-select-selection-placeholder {
     font-size: 14px;
   }
   .ant-form-item{
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .form-item-agreement {
+    margin-bottom: 8px!important;
+    .ant-form-item-control-input {
+      min-height: auto!important;
+    }
+  }
+  .form-item-remember{
+    margin-bottom: 0!important;
   }
   .ant-input-password{
     .ant-input{
+      border: none!important;
       background-color: transparent!important;
     }
     .ant-input-suffix{
@@ -114,17 +130,25 @@
     .ant-form-item-explain-error{
       position: absolute;
       font-size: 12px;
-      transform: scale(0.9);
-      bottom: -3px;
+      bottom: -2px;
+      color: #EC483E;
+    }
+    &.form-item-agreement{
+      .ant-form-item-explain-error {
+        bottom: -6px;
+      }
     }
   }
+  .ant-input-password .ant-input-suffix {
+    cursor: pointer;
+  }
 }
-
+    
 .dark {
   .auth-container-content {
     .ant-tabs-nav-list{
       background-color: #141414;
-      padding: 4px 4px 3px;
+      padding: 3px 3px 2px;
       .ant-tabs-tab {
         .ant-tabs-tab-btn {
           color: #FFFFFFA6;
@@ -178,5 +202,31 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background-color: #333333A6;
+  }
+}
+
+.text-upgrader-bg {
+  background: linear-gradient(90deg, rgba(199, 181, 252, 0.2) 0%, rgba(81, 71, 255, 0.1) 59.61%, rgba(199, 181, 252, 0.3) 100%)!important;
+  box-shadow: 0px -2px 4px 0px #FFFFFF33 inset;
+}
+.text-gradient-bg {
+  background: #C7B5FC33;
+  border-radius: 4px;
+  font-size: 12px;
+  height: 22px;
+  line-height: 22px;
+  border: 1px solid #726fff1a;
+  padding: 1px 8px; 
+}
+.text-gradient {
+  background-image: linear-gradient(90deg, #726FFF 39.9%, #996DC0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.tenant-dropdown {
+  .ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item {
+    padding: 0px !important;
   }
 }

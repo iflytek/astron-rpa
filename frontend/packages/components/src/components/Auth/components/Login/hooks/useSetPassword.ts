@@ -1,17 +1,16 @@
 import { reactive, ref } from 'vue'
-import type { SetPasswordFormData } from '../../../interface'
+import type { LoginFormData } from '../../../interface'
 import { createSetPasswordFormConfig } from '../../../schemas/loginRegister'
 
-/* 事件重载签名 */
 export type SetPasswordEmitEvent = 'submit' | 'switchToLogin'
 
 export function useSetPassword(
-  emit: ((e: 'submit', data: SetPasswordFormData) => void) &
+  emit: ((e: 'submit', data: LoginFormData) => void) &
         ((e: 'switchToLogin') => void)
 ) {
   const formRef = ref()
 
-  const formData = reactive<SetPasswordFormData>({
+  const formData = reactive<LoginFormData>({
     password: '',
     confirmPassword: '',
   })
@@ -27,10 +26,10 @@ export function useSetPassword(
     }
   }
 
-  const emitEvent = (event: string) => {
+  const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
     if (event === 'switchToLogin') return emit('switchToLogin')
   }
 
-  return { formRef, formData, config, emitEvent }
+  return { formRef, formData, config, handleEvents }
 }

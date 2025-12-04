@@ -29,7 +29,7 @@ const phone = usePhoneLogin(emit as any)
       :ref="phone.formRef"
       :config="phone.config"
       v-model="phone.formData"
-      :emitEvent="phone.emitEvent"
+      :handleEvents="phone.handleEvents"
       class="auth-invite-form"
     />
   </InviteFormLayout>

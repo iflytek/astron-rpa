@@ -6,9 +6,7 @@ interface Props {
   text?: string
 }
 
-const { text } = withDefaults(defineProps<Props>(), {
-  text: '返回',
-})
+const { text = '返回' } = defineProps<Props>()
 
 const emit = defineEmits<{
   click: []
