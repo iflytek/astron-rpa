@@ -1,15 +1,22 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useSetPassword } from './hooks/useSetPassword'
-import type { SetPasswordFormData } from '../../interface'
+import type { LoginFormData, AsyncAction } from '../../interface'
+
+const { running } = defineProps({
+  running: { type: String as () => AsyncAction, default: 'IDLE' },
+})
 
 const emit = defineEmits<{
-  submit: [data: SetPasswordFormData]
+  submit: [data: LoginFormData]
   switchToLogin: []
 }>()
 
-const { formRef, formData, config, emitEvent } = useSetPassword(emit as any)
+const loading = computed(() => running === 'SET_PASSWORD')
+ 
+const { formRef, formData, config, handleEvents } = useSetPassword(emit as any)
 </script>
 
 <template>
@@ -21,9 +28,10 @@ const { formRef, formData, config, emitEvent } = useSetPassword(emit as any)
   >
     <DynamicForm
       ref="formRef"
+      :loading="loading"
       :config="config"
       v-model="formData"
-      :emitEvent="emitEvent"
+      :handleEvents="handleEvents"
       class="auth-set-password-form"
     />
   </FormLayout>

@@ -7,9 +7,8 @@ interface Props {
   actionText?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  actionText: '',
-})
+
+const { actionText = '' } = defineProps<Props>()
 
 const emit = defineEmits<{
   actionClick: []

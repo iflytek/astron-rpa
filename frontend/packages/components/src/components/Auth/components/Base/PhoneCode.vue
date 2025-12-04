@@ -4,28 +4,22 @@ import { Input, Button, message } from 'ant-design-vue'
 
 interface Props {
   modelValue?: string
-  phone?: string
   placeholder?: string
   maxlength?: number
   codeLength?: number
   countdownSeconds?: number
   disabled?: boolean
-  loading?: boolean
+  sendCaptcha: () => Promise<void>
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  maxlength: 6,
-  codeLength: 6,
-  countdownSeconds: 60,
-  placeholder: '请输入验证码'
-})
+const { modelValue = '',  placeholder = '请输入验证码', maxlength = 6, codeLength = 6, countdownSeconds = 60, disabled, sendCaptcha } = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  send: [phone: string]
+  send: []
 }>()
 
-const captcha = ref(props.modelValue || '')
+const captcha = ref(modelValue || '')
 const countdown = ref(0)
 const isCodeSending = ref(false)
 let countdownTimer: number | null = null
@@ -33,7 +27,7 @@ let countdownTimer: number | null = null
 // 验证码按钮文本
 const codeButtonText = computed(() => {
   if (countdown.value > 0) {
-    return `${countdown.value}s 后重试`
+    return `验证码已发送(${countdown.value}s)`
   }
   if (isCodeSending.value) {
     return '发送中...'
@@ -43,28 +37,17 @@ const codeButtonText = computed(() => {
 
 // 验证码按钮是否禁用
 const codeButtonDisabled = computed(() => {
-  return isCodeSending.value || countdown.value > 0 || props.disabled
+  return isCodeSending.value || countdown.value > 0 || disabled
 })
 
 // 发送验证码
 const handleSendCode = async () => {
-  if (codeButtonDisabled.value) {
-    return
-  }
-
-  if (!props.phone) {
-    message.error('请填写手机号')
-    return
-  }
-
+  if (codeButtonDisabled.value) return
   isCodeSending.value = true
   try {
-    emit('send', props.phone)
-
-    // 开始倒计时
-    startCountdown()
-  } catch (error) {
-    console.error('发送验证码失败:', error)
+    await sendCaptcha()
+  } catch (e) {
+    console.log(e)
   } finally {
     isCodeSending.value = false
   }
@@ -74,7 +57,7 @@ const handleSendCode = async () => {
 const startCountdown = () => {
   if (countdownTimer) clearInterval(countdownTimer)
 
-  countdown.value = props.countdownSeconds
+  countdown.value = countdownSeconds
   countdownTimer = window.setInterval(() => {
     countdown.value--
     if (countdown.value <= 0) {
@@ -128,7 +111,7 @@ onBeforeUnmount(() => {
       size="large"
       @input="(e) => handleInput(e.target.value ?? '')"
     />
-    <Button size="large" type="link" class="absolute !w-auto !h-auto !m-0 !p-0 right-[10px] top-[7px] !text-[14px] text-[#000000D9] dark:text-[#FFFFFFD9]" @click="handleSendCode">
+    <Button size="large" type="link" class="absolute !w-auto !h-auto !m-0 !p-0 right-[10px] top-[7px] !text-[14px] text-[#000000D9] dark:text-[#FFFFFFD9]" :disabled="codeButtonDisabled" @click="handleSendCode">
       {{ codeButtonText }}
     </Button> 
   </div>
