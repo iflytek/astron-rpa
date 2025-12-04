@@ -19,7 +19,7 @@ export type RegisterEmitEvent =
 
 export function useRegisterForm<M extends RegisterMode>(
   mode: M,
-  emit: ((e: 'submit', data: any) => void) &
+  emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'sendCaptcha', phone: string) => void) &
         ((e: 'switchToLogin') => void) &
         ((e: 'switchToPersonal') => void) &
@@ -27,9 +27,9 @@ export function useRegisterForm<M extends RegisterMode>(
 ) {
   const formRef = ref()
 
-  type TData = M extends 'personal' ? PersonalRegisterFormData : EnterpriseRegisterFormData
+  type TData = M extends 'PERSONAL' ? PersonalRegisterFormData : EnterpriseRegisterFormData
   const initialData = (): TData =>
-    (mode === 'personal'
+    (mode === 'PERSONAL'
       ? generateFormData(personalRegisterFormConfig)
       : generateFormData(enterpriseRegisterFormConfig)) as TData
 
@@ -38,7 +38,7 @@ export function useRegisterForm<M extends RegisterMode>(
   const handleSubmit = async () => {
     try {
       await formRef.value?.validateFields()
-      emit('submit', formData)
+      emit('submit', formData, mode)
     } catch (e) {
       console.error(`${mode} 注册表单校验失败`, e)
     }
@@ -49,7 +49,7 @@ export function useRegisterForm<M extends RegisterMode>(
     formRef.value?.resetFields()
   }
 
-  const emitEvent = (event: string) => {
+  const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
 
     if (event === 'sendCaptcha') {
@@ -63,7 +63,7 @@ export function useRegisterForm<M extends RegisterMode>(
     if (event === 'switchToEnterprise') return emit('switchToEnterprise')
   }
 
-  const config = mode === 'personal' ? personalRegisterFormConfig : enterpriseRegisterFormConfig
+  const config = mode === 'PERSONAL' ? personalRegisterFormConfig : enterpriseRegisterFormConfig
 
-  return { formRef, formData, config, resetForm, emitEvent }
+  return { formRef, formData, config, resetForm, handleEvents }
 }

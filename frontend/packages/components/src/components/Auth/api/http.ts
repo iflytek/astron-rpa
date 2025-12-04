@@ -2,9 +2,15 @@ import axios from 'axios'
 import { message } from 'ant-design-vue'
 import type { AxiosRequestConfig } from 'axios'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
-const SUCCESS_CODE = '0000'
-const ERROR_CODES = ['500', '9999']
+
+let BASE_URL = localStorage.getItem('authBaseUrl') || import.meta.env.VITE_API_BASE_URL || '/api'
+export function setBaseUrl(url?: string) {
+  BASE_URL = url || import.meta.env.VITE_API_BASE_URL || '/api'
+  localStorage.setItem('authBaseUrl', BASE_URL || '')
+}
+
+const SUCCESS_CODE = '000000'
+const ERROR_CODES = ['500', '600000']
 export interface ResponseData<T = any> {
   code?: string
   data: T
@@ -34,7 +40,7 @@ export async function request<T = any, P = any>(
   } catch (err: any) {
     const msg = err.response
       ? `${err.response.status} ${err.response.statusText}`
-      : err.message || '网络异常'
+      : err.message || '服务异常'
     message.error(msg)
     return Promise.reject(err)
   }
@@ -46,6 +52,9 @@ export const http = {
 
   post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
           request<T>({ method: 'POST', url, data, ...config }),
+  
+  postparams: <T = any>(url: string, params?: any, config?: AxiosRequestConfig) =>
+          request<T>({ method: 'POST', url, params, ...config }),
 
   put:  <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
           request<T>({ method: 'PUT',  url, data, ...config }),

@@ -5,11 +5,7 @@ interface Props {
   targetName?: string
 }
 
-const { type, userName, targetName } = withDefaults(defineProps<Props>(), {
-  type: 'market',
-  userName: '',
-  targetName: '',
-})
+const { type = 'market', userName = '', targetName = '' } = defineProps<Props>()
 
 </script>
 

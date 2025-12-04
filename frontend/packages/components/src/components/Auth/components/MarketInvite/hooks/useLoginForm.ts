@@ -11,7 +11,7 @@ export type LoginEmitEvent =
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,
-  emit: ((e: 'submit', data: any) => void) &
+  emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToRegister') => void) &
         ((e: 'forgetPassword') => void) &
         ((e: 'sendCaptcha', phone: string) => void)
@@ -19,7 +19,7 @@ export function useLoginForm<M extends LoginMode>(
   const formRef = ref()
 
   const initialData = (): LoginFormData =>
-    (mode === 'account'
+    (mode === 'PASSWORD'
       ? generateFormData(marketInviteAccountLoginFormConfig, { remember: false })
       : generateFormData(marketInvitePhoneLoginFormConfig)) as LoginFormData
 
@@ -28,7 +28,7 @@ export function useLoginForm<M extends LoginMode>(
   const handleSubmit = async () => {
     try {
       await formRef.value?.validateFields()
-      emit('submit', formData)
+      emit('submit', formData, mode)
     } catch (e) {
       console.error(`${mode} 表单校验失败`, e)
     }
@@ -39,7 +39,7 @@ export function useLoginForm<M extends LoginMode>(
     formRef.value?.resetFields()
   }
 
-  const emitEvent = (event: string) => {
+  const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
     if (event === 'switchToRegister') return emit('switchToRegister')
     if (event === 'forgetPassword') return emit('forgetPassword')
@@ -47,7 +47,7 @@ export function useLoginForm<M extends LoginMode>(
       return emit('sendCaptcha', formData.phone)
   }
 
-  const config = mode === 'account' ? marketInviteAccountLoginFormConfig : marketInvitePhoneLoginFormConfig
+  const config = mode === 'PASSWORD' ? marketInviteAccountLoginFormConfig : marketInvitePhoneLoginFormConfig
 
-  return { formRef, formData, config, resetForm, emitEvent }
+  return { formRef, formData, config, resetForm, handleEvents }
 }

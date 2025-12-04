@@ -1,6 +1,6 @@
 import { reactive, ref } from 'vue'
-import type { LoginFormData } from '../../../interface'
-import { generateFormData } from '../../../schemas/factories'
+import type { LoginFormData, LoginMode } from '../../../interface'
+import { generateFormData  } from '../../../schemas/factories'
 import { enterprisePhoneLoginFormConfig } from '../../../schemas/enterpriseInvite'
 
 export type PhoneLoginEmitEvent =
@@ -9,7 +9,7 @@ export type PhoneLoginEmitEvent =
   | 'switchToRegister'
 
 export function usePhoneLogin(
-  emit: ((e: 'submit', data: LoginFormData) => void) &
+  emit: ((e: 'submit', data: LoginFormData, mode: LoginMode) => void) &
         ((e: 'sendCaptcha', phone: string) => void) &
         ((e: 'switchToRegister') => void)
 ) {
@@ -22,13 +22,13 @@ export function usePhoneLogin(
   const handleSubmit = async () => {
     try {
       await formRef.value?.validateFields()
-      emit('submit', formData)
+      emit('submit', formData, 'CODE')
     } catch (e) {
       console.error('手机登录表单校验失败', e)
     }
   }
 
-  const emitEvent = (event: string) => {
+  const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
     if (event === 'sendCaptcha') {
       const phone = formData.phone
@@ -38,5 +38,5 @@ export function usePhoneLogin(
     if (event === 'switchToRegister') return emit('switchToRegister')
   }
 
-  return { formRef, formData, config: enterprisePhoneLoginFormConfig, emitEvent }
+  return { formRef, formData, config: enterprisePhoneLoginFormConfig, handleEvents }
 }

@@ -2,72 +2,90 @@
 import { ref } from 'vue'
 import type { TenantItem } from '../../interface'
 import TenantItemComponent from '../Base/TenantItem.vue'
-import CreateTenantModal from './CreateTenantModal.vue'
-import { Dropdown, Button } from 'ant-design-vue'
-import { useRegisterForm } from './hooks/useRegisterForm.ts'
-import type { RegisterMode, PersonalRegisterFormData, EnterpriseRegisterFormData } from '../../interface.ts'
-import { registerProps } from '../../interface.ts'
- 
-const props = defineProps({
-  tenants: { type: Array as () => TenantItem[], default: () => [] },
-  selectedTenant: { type: Object as () => TenantItem, default: null },
-  ...registerProps()
-})
-const emit = defineEmits<{
-  submit: [data: PersonalRegisterFormData | EnterpriseRegisterFormData, mode: RegisterMode]
-  switchToLogin: []
-  sendCaptcha: [phone: string]
-  toggleTenant: [tenantId: string]
+import Loading from '../Base/Loading.vue'
+import { Dropdown,  Menu } from 'ant-design-vue'
+import { tenantList, switchTenant } from '../../api/login'
+import { getSelectedTenant } from '../../utils/remember'
+import TenantUpgradeBtn from '../Base/TenantUpgradeBtn.vue'
+
+const tenants = ref<TenantItem[]>([])
+
+const { beforeSwitch } = defineProps<{
+  beforeSwitch?: () => Promise<void> | void
 }>()
 
-const personal = useRegisterForm('personal', emit as any)
-const enterprise = useRegisterForm('enterprise', emit as any)
+const emit = defineEmits<{
+  switchTenant: [tenant: TenantItem]
+}>()
 
-const currentMode = ref<RegisterMode>('personal')
+const loadingRef = ref<InstanceType<typeof Loading>>()
+const selectedTenant = ref<TenantItem | null>(null)
 
-const changeMode = () => {
-  const next: RegisterMode = currentMode.value === 'personal' ? 'enterprise' : 'personal'
-  next === 'enterprise' ? personal.resetForm() : enterprise.resetForm()
-  console.log('dddd')
-  currentMode.value = next
+const getTenants = async () => {
+  const data = await tenantList()
+  tenants.value = data
+  const selectedId = getSelectedTenant()
+  const matchedTenant = tenants.value.find(tenant => tenant.id === selectedId)
+  if(!matchedTenant) {
+    toggleTenant(tenants.value[0])
+    return
+  }
+  selectedTenant.value = matchedTenant
+  emit('switchTenant', matchedTenant)
 }
 
- 
-const selectedTenant = ref<TenantItem | null>(props.selectedTenant)
-function toggleTenant (tenant: TenantItem) {
+getTenants()
+
+const toggleTenant = async (tenant: TenantItem) => {
+  if(beforeSwitch) {
+    await beforeSwitch()
+  }
   selectedTenant.value = tenant
-  emit('toggleTenant', tenant.id)
+  loadingRef.value?.isLoading({ isLoading: true, text: '环境加载中...' })
+  await switchTenant({ tenantId: tenant.id })
+  loadingRef.value?.isLoading({ isLoading: false, immediate: true })
+  emit('switchTenant', tenant)
 }
-const showModal = ref(false)
-const createTenantModal = async () => {
-  showModal.value = true
-}
+
+const open = ref(false)
 </script>
 
 <template>
-  <div class="bg-[#ffffff] w-[200px]">
-    <Button type="primary" block @click="createTenantModal()">
-      创建新的空间
-    </Button>
-    <Dropdown placement="bottom" :trigger="['click']">
-      <TenantItemComponent
-        v-if="selectedTenant"
-        :is-active="true"
-        :tenant-item="selectedTenant"
-      />
+  <div class="w-full px-[20px] tenant-dropdown relative">
+    <!-- TODO 专业版申请 -->
+    <TenantUpgradeBtn class="w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
+    <!-- <TenantUpgradeBtn v-if="selectedTenant?.tenantType === 'personal'" class="absolute top-[-60px] left-0" /> -->
+    <Dropdown placement="bottom" v-model:open="open">
+      <div class="relative">
+        
+        <TenantItemComponent
+          :custom-class="`!border-0 !mb-0 ${open ? '!bg-[#00000008] dark:!bg-[#FFFFFF08]' : 'dark:!bg-[transparent]'}`"
+          v-if="selectedTenant"
+          :right-icon="open ? 'tenant-arrow-down': 'tenant-arrow-up'"
+          :tenant-item="selectedTenant"
+         />
+      </div>
       <template #overlay>
-        <div class="bg-[#ffffff]">
-          <TenantItemComponent
-            :key="tenant.id"
-            v-for="tenant in tenants"
-            :is-active="selectedTenant?.id ===  tenant.id "
-            :tenant-item="tenant"
-            @click="() => toggleTenant(tenant)"
-          />
-          
-        </div>
-      </template>
+        <Menu class="tenant-dropdown-menu !p-0 !rounded-[12px] !p-[8px]">
+          <Menu.Item 
+            v-for="(tenant, idx) in tenants" 
+            :key="tenant.id" 
+            class="text-[14px] text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)] !p-[0] hover:!bg-[transparent]" 
+            >
+            <TenantItemComponent
+              :custom-class="`!border-0 ${idx === tenants.length -1 ? '!mb-0' : '!mb-[8px] '} ${selectedTenant?.id ===  tenant.id ? '!bg-[#F3F3F7] dark:!bg-[#FFFFFF14]' : 'dark:!bg-[transparent]'}`"
+              :tenant-item="tenant"
+              :right-icon="selectedTenant?.id ===  tenant.id ? 'checked' : ''"
+              @click="() => toggleTenant(tenant)"
+            />
+          </Menu.Item>
+          <!-- TODO 专业版申请 -->
+          <Menu.Item class="!border-0 !p-[0] !mt-[8px]">
+            <TenantUpgradeBtn :button-type="'button'" />
+          </Menu.Item>
+        </Menu>
+       </template>
     </Dropdown>
-    <CreateTenantModal :show-modal="showModal" />
+    <Loading ref="loading" />
   </div>
 </template>

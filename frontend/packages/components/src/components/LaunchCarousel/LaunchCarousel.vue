@@ -60,6 +60,7 @@ function onSwitch(idx: number) {
     <div class="mt-[6px] text-sm leading-[22px]">
       {{ randomIllustrationGroup?.[current]?.desc }}
     </div>
+    <slot name="footer"></slot>
   </div>
  </template>
 

@@ -17,7 +17,7 @@ export type RegisterEmitEvent =
 
 export function useRegisterForm<M extends RegisterMode>(
   mode: M,
-  emit: ((e: 'submit', data: any) => void) &
+  emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'sendCaptcha', phone: string) => void) &
         ((e: 'switchToLogin') => void) &
         ((e: 'switchToPersonal') => void) &
@@ -34,7 +34,7 @@ export function useRegisterForm<M extends RegisterMode>(
   const handleSubmit = async () => {
     try {
       await formRef.value?.validateFields()
-      emit('submit', formData)
+      emit('submit', formData, mode)
     } catch (e) {
       console.error(`${mode} 注册表单校验失败`, e)
     }
@@ -45,7 +45,7 @@ export function useRegisterForm<M extends RegisterMode>(
     formRef.value?.resetFields()
   }
 
-  const emitEvent = (event: string) => {
+  const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
 
     if (event === 'sendCaptcha') {
@@ -61,5 +61,5 @@ export function useRegisterForm<M extends RegisterMode>(
 
   const config = marketInvitePersonalRegisterFormConfig
 
-  return { formRef, formData, config, resetForm, emitEvent }
+  return { formRef, formData, config, resetForm, handleEvents }
 }
