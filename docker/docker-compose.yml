@@ -47,6 +47,19 @@ services:
     networks:
       - rpa-opensource-network
 
+  atlas:
+    image: arigaio/atlas:latest
+    container_name: rpa-opensource-atlas
+    volumes:
+      - ./volumes/atlas:/data/atlas
+    networks:
+      - rpa-opensource-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: schema apply --url "${ATLAS_URL}" --to "file:///data/atlas/schema.hcl" --auto-approve
+    env_file: *env_file
+
   redis:
     image: bitnami/redis:latest
     container_name: rpa-opensource-redis
