@@ -6,18 +6,18 @@ import { computed, ref } from 'vue'
 import { getTermianlStatus, startSchedulingMode } from '@/api/engine'
 import { sendTenantId } from '@/api/login/login'
 import { taskNotify } from '@/api/task'
-import authService from '@/auth/index'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { DESIGNER } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
+import { useTenantStore } from '@/stores/useTenantStore'
+import { Auth } from '@rpa/components/auth'
 
 const { t } = useTranslation()
-
+const tenantStore = useTenantStore()
 const userInfo = ref({ userName: '' })
-const auth = authService.getAuth()
 
 const menuData = computed(() => [
   // {
@@ -80,7 +80,8 @@ async function menuClick(item: any) {
 
 async function logout() {
   taskNotify({ event: 'exit' }) // 不阻塞
-  auth.logout()
+  await Auth.logout()
+  location.replace(`/boot.html`)
 }
 
 function modalTip() {
@@ -99,8 +100,8 @@ function modalTip() {
 
 // 获取用户信息
 async function getUserInfoFn() {
-  const userName = await auth.getUserName()
-  userInfo.value.userName = userName || ''
+  const user = Auth.getUserInfo()
+  userInfo.value.userName = user?.loginName || ''
   // menuData.value.forEach((item) => {
   //   if (item.key === 'userName') {
   //     item.label = res.data?.loginName || ''
@@ -143,6 +144,8 @@ getUserInfoFn()
             <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userInfo.userName }}</span>
           </div>
         </div>
+        <!-- TODO 专业版申请 -->
+        <Auth.TenantUpgradeBtn v-if="tenantStore.currentTenant?.tenantType === 'personal'" :custom-class="'upgrade-btn'"/>
         <a-menu-item v-for="item in menuData" :key="item.key">
           <template #icon>
             <rpa-icon :name="item.icon" class="w-[16px] h-[16px] text-[rgba(0,0,0)] dark:text-[rgba(255,255,255)]" />
@@ -159,5 +162,8 @@ getUserInfoFn()
 <style lang="scss" scoped>
 :deep(.ant-dropdown-menu) {
   background: red;
+}
+:deep(.upgrade-btn .tenant-upgrade-tag) {
+  height: 40px!important;
 }
 </style>
