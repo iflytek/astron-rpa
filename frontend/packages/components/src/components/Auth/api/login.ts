@@ -1,6 +1,7 @@
 import { http } from './http'
 import { LoginFormData, RegisterFormData, TenantItem } from '../interface'
 import { clearUserInfo } from '../utils/remember'
+import { message } from 'ant-design-vue'
 
 // 查询登录状态
 export const loginStatus = async () => {
@@ -28,10 +29,16 @@ export const preAuthenticate = async (params: LoginFormData) => {
 }
 
 // 发送验证码
-export const sendCaptcha = async (phone: string) => {
-  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone })
-  console.log('【6】请求成功', data)
-  return data
+export const sendCaptcha = async (phone: string, type: string = 'register') => {
+  if (type !== 'register') {
+    const registered = await checkRegistered({ phone });
+    if (!registered) {
+      message.warning('当前手机号未注册');
+      return Promise.reject();
+    }
+  }
+  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone });
+  return data;
 }
 
 // 获取租户列表
@@ -54,7 +61,7 @@ export const register = async (params: RegisterFormData) => {
 
 // 检查是否已注册
 export const checkRegistered = async ({ phone } : { phone: string }) => {
-  const { data } = await http.post<{phone: string}>('/rpa-auth/user/exist', { phone })
+  const { data } = await http.get('/rpa-auth/user/exist', { phone })
   return data
 }
 

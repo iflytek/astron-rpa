@@ -86,6 +86,7 @@ defineExpose({
           autocomplete="new-password"
           size="large"
           v-bind="field.props"
+          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
         />
         <Input.Password
           v-else-if="field.type === 'password'"
@@ -93,6 +94,7 @@ defineExpose({
           autocomplete="new-password"
           :placeholder="field.placeholder"
           size="large"
+          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
           v-bind="field.props"
           :iconRender="(visible: boolean) => h(RpaIcon, {
               name: visible ? 'password-eye' : 'password-eye-closed'
@@ -111,6 +113,7 @@ defineExpose({
           v-else-if="field.type === 'textarea'"
           v-model:value="modelValue[field.key]"
           :placeholder="field.placeholder"
+          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
           v-bind="field.props"
         />
         <Select

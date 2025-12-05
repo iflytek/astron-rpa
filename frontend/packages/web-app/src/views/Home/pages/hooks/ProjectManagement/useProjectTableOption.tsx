@@ -6,7 +6,7 @@ import type { VIEW_OTHER } from '@/constants/resource'
 import { VIEW_OWN } from '@/constants/resource'
 
 import { useProjectOperate } from './useProjectOperate'
-import { useTenantStore } from '@/stores/useTenantStore'
+import { useUserStore } from '@/stores/useUserStore'
 
 type DataSource = typeof VIEW_OWN | typeof VIEW_OTHER
 
@@ -14,7 +14,7 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
   const homeTableRef = ref(null)
 
   const { createColumns, currHoverId, handleEdit } = useProjectOperate(homeTableRef)
-  const tenantStore = useTenantStore()
+  const userStore = useUserStore()
 
   function refreshHomeTable() {
     if (homeTableRef.value) {
@@ -56,7 +56,7 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
   })
 
   // 切换租户后列表刷新
-  watch(() => tenantStore.currentTenant?.id, (val) => {
+  watch(() => userStore.currentTenant?.id, (val) => {
     if (val) {
       refreshHomeTable()
     }

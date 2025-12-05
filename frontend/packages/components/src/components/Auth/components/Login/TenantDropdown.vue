@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import type { TenantItem } from '../../interface'
 import TenantItemComponent from '../Base/TenantItem.vue'
 import Loading from '../Base/Loading.vue'
-import { Dropdown,  Menu } from 'ant-design-vue'
+import { Dropdown, Menu, message } from 'ant-design-vue'
 import { tenantList, switchTenant } from '../../api/login'
 import { getSelectedTenant } from '../../utils/remember'
 import TenantUpgradeBtn from '../Base/TenantUpgradeBtn.vue'
@@ -37,14 +37,22 @@ const getTenants = async () => {
 getTenants()
 
 const toggleTenant = async (tenant: TenantItem) => {
+  if(selectedTenant.value?.id === tenant.id) {
+    return
+  }
   if(beforeSwitch) {
     await beforeSwitch()
   }
   selectedTenant.value = tenant
-  loadingRef.value?.isLoading({ isLoading: true, text: '环境加载中...' })
-  await switchTenant({ tenantId: tenant.id })
+  loadingRef.value?.isLoading({ isLoading: true, text: '环境加载中', timeout: 200 })
+  try {
+    await switchTenant({ tenantId: tenant.id })
+  } catch (e) {
+    loadingRef.value?.isLoading({ isLoading: false, immediate: true })
+    return
+  }
+  await emit('switchTenant', tenant)
   loadingRef.value?.isLoading({ isLoading: false, immediate: true })
-  emit('switchTenant', tenant)
 }
 
 const open = ref(false)
@@ -53,7 +61,6 @@ const open = ref(false)
 <template>
   <div class="w-full px-[20px] tenant-dropdown relative">
     <!-- TODO 专业版申请 -->
-    <TenantUpgradeBtn class="w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
     <!-- <TenantUpgradeBtn v-if="selectedTenant?.tenantType === 'personal'" class="absolute top-[-60px] left-0" /> -->
     <Dropdown placement="bottom" v-model:open="open">
       <div class="relative">
@@ -80,12 +87,12 @@ const open = ref(false)
             />
           </Menu.Item>
           <!-- TODO 专业版申请 -->
-          <Menu.Item class="!border-0 !p-[0] !mt-[8px]">
+          <!-- <Menu.Item class="!border-0 !p-[0] !mt-[8px]">
             <TenantUpgradeBtn :button-type="'button'" />
-          </Menu.Item>
+          </Menu.Item> -->
         </Menu>
        </template>
     </Dropdown>
-    <Loading ref="loading" />
+    <Loading ref="loadingRef" />
   </div>
 </template>

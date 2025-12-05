@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, provide } from 'vue'
 import { Tabs, TabPane } from 'ant-design-vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
@@ -17,15 +17,29 @@ const emit = defineEmits<{
   forgetPassword: []
 }>()
 
+const sharedAgreement = ref(false)
+
 const passwordLoading = computed(() => running === 'PASSWORD')
 const codeLoading = computed(() => running === 'CODE')
 
 const account = useLoginForm('PASSWORD', emit as any)
-const phone   = useLoginForm('CODE', emit as any)
+const phone = useLoginForm('CODE', emit as any)
+
+account.formData.agreement = sharedAgreement.value
+phone.formData.agreement = sharedAgreement.value
 
 const currentMode = ref<LoginMode>('PASSWORD')
 
 watch(() => currentMode.value, (_, old) => (old === 'PASSWORD' ? account : phone).clearValidates())
+
+watch(() => account.formData.agreement, (v) => {
+  sharedAgreement.value = v || false
+  phone.formData.agreement = v || false
+})
+watch(() => phone.formData.agreement, (v) => {
+  sharedAgreement.value = v || false
+  account.formData.agreement = v || false
+})
 
 </script>
 
