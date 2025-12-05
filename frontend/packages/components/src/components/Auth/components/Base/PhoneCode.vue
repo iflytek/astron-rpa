@@ -79,8 +79,13 @@ const clearCountdown = () => {
 // 更新值
 const handleInput = (value: string) => {
   captcha.value = value
-  emit('update:modelValue', value)
+  emit('update:modelValue', captcha.value)
 }
+
+const trimInput = (e: Event) => {
+  captcha.value =  (e.target as HTMLInputElement).value.trim()
+  emit('update:modelValue', captcha.value)
+} 
 
 // 清空表单
 const resetForm = () => {
@@ -110,7 +115,8 @@ onBeforeUnmount(() => {
       :disabled="disabled"
       size="large"
       @input="(e) => handleInput(e.target.value ?? '')"
-    />
+      @blur="trimInput"
+     />
     <Button size="large" type="link" class="absolute !w-auto !h-auto !m-0 !p-0 right-[10px] top-[7px] !text-[14px] text-[#000000D9] dark:text-[#FFFFFFD9]" :disabled="codeButtonDisabled" @click="handleSendCode">
       {{ codeButtonText }}
     </Button> 

@@ -51,10 +51,6 @@ const validators = {
         reject(new Error('请输入您的姓名'))
         return
       }
-      if (value.length < 2) {
-        reject(new Error('姓名至少需要2个字符'))
-        return
-      }
       if (value.length > 30) {
         reject(new Error('姓名不能超过30个字符'))
         return
@@ -160,7 +156,7 @@ export const fieldFactories = {
           }
           
           if (value !== formData.password) {
-            reject(new Error('两次密码不一致'))
+            reject(new Error('两次输入密码不一致'))
             return
           }
           

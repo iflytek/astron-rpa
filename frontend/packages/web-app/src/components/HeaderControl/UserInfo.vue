@@ -13,26 +13,18 @@ import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
-import { useTenantStore } from '@/stores/useTenantStore'
-import { Auth } from '@rpa/components/auth'
+ import { Auth } from '@rpa/components/auth'
+ 
 const { t } = useTranslation()
-const { userNameState } = useUserStore()
-const runningStore = useRunningStore()
-const tenantStore = useTenantStore()
+ const runningStore = useRunningStore()
+ const userStore = useUserStore()
+
 
 const menuData = computed(() => [
   // {
   //   key: 'userRight',
   //   icon: 'rights',
   //   label: t('userInfo.userRight'),
-  // },
-  // UAP 暂时隐藏租户空间
-  // {
-  //   key: 'changeTenant',
-  //   icon: () => h(TeamOutlined),
-  //   title: t('changeSpace'),
-  //   label: t('changeSpace'),
-  //   children: [],
   // },
   // {
   //   key: 'changeMode',
@@ -80,7 +72,7 @@ async function menuClick(item: any) {
 
 async function logout() {
   taskNotify({ event: 'exit' }) // 不阻塞
-  await Auth.logout()
+  await userStore.logout()
   location.replace(`/boot.html`)
 }
  
@@ -112,11 +104,11 @@ function modalTip() {
           </div>
           <div class="flex flex-col">
             <span class="font-semibold">{{ t('userInfo.userName') }}</span>
-            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userNameState.state }}</span>
+            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.loginName }}</span>
           </div>
         </div>
-        <!-- TODO 专业版申请 -->
-        <Auth.TenantUpgradeBtn v-if="tenantStore.currentTenant?.tenantType === 'personal'" :custom-class="'upgrade-btn'"/>
+        <!-- TODO -->
+        <!-- <Auth.TenantUpgradeBtn v-if="userStore.currentTenant?.tenantType === 'personal'" :custom-class="'upgrade-btn'"/> -->
         <a-menu-item v-for="item in menuData" :key="item.key">
           <template #icon>
             <rpa-icon :name="item.icon" class="w-[16px] h-[16px] text-[rgba(0,0,0)] dark:text-[rgba(255,255,255)]" />
