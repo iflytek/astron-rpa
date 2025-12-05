@@ -83,7 +83,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="loading-mask" :class="[loadingShow ? 'loading-show' : 'loading-hide']">
+  <div class="loading-mask bg-[#00000059] dark:bg-[#ffffff59]" :class="[loadingShow ? 'loading-show' : 'loading-hide']">
       <div class="loading-box">
         <div class="lb-spinner" />
         <div class="lb-info text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)]">
@@ -105,8 +105,7 @@ defineExpose({
   right: 0;
   top: 0;
   bottom: 0;
-  // background: transparent;
-  z-index: 99;
+  z-index: 9999;
   display: none;
   align-items: center;
   justify-content: center;
@@ -128,7 +127,7 @@ defineExpose({
       height: 50px;
       margin: 0 auto;
       border-radius: 50%;
-      background-image: url('@/assets/img/loading.gif');
+      background-image: url('../../assets/imgs/loading.gif');
       background-size: 100% 100%;
     }
 

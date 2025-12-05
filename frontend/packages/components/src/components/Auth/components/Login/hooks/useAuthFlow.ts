@@ -50,29 +50,39 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     try {
       const isLogin = await loginStatus()
       if(isLogin) {
-        switchToTenants(getSelectedTenant())
+        checkTenant(getSelectedTenant())
       }
     } catch (e) {
       currentFormMode.value = 'login'
     }
   }
 
-  const switchToTenants = async (tenantId?: string | null) => {
+  const checkTenant = async (tenantId: string | null) => {
     try {
-      const data = await tenantList(tempToken.value)
+      const data = await tenantList()
       tenants.value = data
-      if(tenants.value.length === 1) {
-        handleLogin(tenants.value[0].id)
-        return
-      }
-
-      // 登录过再次打开客户端，自动进入
       if(tenantId) {
         const tenantExists = tenants.value.find(t => t.id === tenantId)
         if(tenantExists) {
-          handleLogin(tenantId)
+          emits('finish')
           return
         }
+      }
+      switchMode('login')
+    } catch (e) {
+      console.error('获取租户列表失败')
+    }
+  }
+  
+
+  const switchToTenants = async () => {
+    try {
+      const data = await tenantList(tempToken.value)
+      tenants.value = data
+
+      if(tenants.value.length === 1) {
+        handleLogin(tenants.value[0].id)
+        return
       }
 
       switchMode('tenantSelect')
@@ -143,7 +153,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
   }
 
   const handleSendCaptcha = async (phone: string) => {
-    return await sendCaptcha(phone)
+    return await sendCaptcha(phone, currentFormMode.value)
   }
 
   const switchMode = (mode: AuthFormMode) => (currentFormMode.value = mode)
