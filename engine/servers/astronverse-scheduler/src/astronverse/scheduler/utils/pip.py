@@ -74,15 +74,15 @@ class PipManager:
             exec_python,
             "-m",
             "pip",
-            "download",
+            "wheel",
             pck,
-            "-d",
+            "-w",
             pip_cache_dir,
             "--index-url={}".format(mirror),
             "--trusted-host",
             urlparse(mirror).hostname,
             "--disable-pip-version-check",
-            "--no-cache",
+            "--prefer-binary",
         ]
 
     @staticmethod
@@ -109,15 +109,15 @@ class PipManager:
             exec_python,
             "-m",
             "pip",
-            "download",
+            "wheel",
             pck,
-            "-d",
+            "-w",
             pip_cache_dir,
             "--index-url={}".format(mirror),
             "--trusted-host",
             urlparse(mirror).hostname,
             "--disable-pip-version-check",
-            "--no-cache",
+            "--prefer-binary",
         ]
         _, error_data = SubPopen(cmd=cmd).run(log=True).logger_handler()
         if error_data:
