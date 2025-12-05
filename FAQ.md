@@ -92,6 +92,26 @@ docker-compose logs -f
 > - Method 2️⃣ allows customization, suitable for developers
 > - Database data is preserved during updates (mysql container data in volumes)
 
+#### Server Update Method 3️⃣: Update Database with ATLAS
+
+Quickly update database schema by starting the ATLAS container for automatic migration.
+
+```bash
+# 1. Start the ATLAS container for database migration
+docker-compose up -d atlas
+
+# 2. View ATLAS migration logs (ensure migration succeeded)
+docker-compose logs -f atlas
+
+# 3. After migration completes, stop the ATLAS container
+docker-compose down atlas
+```
+
+> 💡 **About ATLAS:**
+> - ATLAS is a database version management tool for automatically executing database migration scripts
+> - Each server update may include database schema changes that need to be applied via ATLAS
+> - Existing data in the database is preserved; only table structures and schema are updated
+
 ---
 
 #### Client Update Method 1️⃣: Update Python Packages Directly

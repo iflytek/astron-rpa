@@ -121,7 +121,7 @@ class AsyncSchedulerTask(Task):
     async def callback(self, *args) -> bool:
         """回调，进行任务触发"""
 
-        # rtask是tasks里类的具体实现
+        # minor_task是tasks里类的具体实现
         flag = await self.minor_task.callback()
         if not flag:
             return False
