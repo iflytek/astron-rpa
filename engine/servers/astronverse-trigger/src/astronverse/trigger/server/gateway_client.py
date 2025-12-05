@@ -99,6 +99,10 @@ def list_trigger():
                 _d["open_virtual_desk"] = False
             if _d.get("screen_record_enable") is None:
                 _d["screen_record_enable"] = False
+            if _d.get("retry_num"):
+                _d["retry_num"] = int(_d.get("retry_num"))
+            else:
+                _d["retry_num"] = 0
 
             trigger_tasks[_d["trigger_id"]] = _d
 

@@ -109,6 +109,7 @@ CONVERT_COLUMN = {
     "taskJson": "trigger_json",
     "exceptional": "exceptional",
     "timeout": "timeout",
+    "retryNum": "retry_num",
     "mode": "mode",
     "queueEnable": "queue_enable",
     "robotInfoList": "callback_project_ids",

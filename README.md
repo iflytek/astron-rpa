@@ -124,7 +124,7 @@ Download the latest [Release Package](https://github.com/iflytek/astron-rpa/rele
 
 3. 📦 Install the packaged client installation package
 
-4. ⚙️ After installation, modify the server address in `resources/conf.yaml` in the installation directory:
+#### ⚙️ After installation, modify the server address in `resources/conf.yaml` in the installation directory:
 
     ```yaml
     # 32742 is the default port; change it if you modified the configuration

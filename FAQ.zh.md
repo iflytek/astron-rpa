@@ -92,6 +92,23 @@ docker-compose logs -f
 > - 方式 2️⃣ 允许自定义修改，适合开发者
 > - 更新过程中数据库数据会保留（mysql 容器数据在 volumes 中）
 
+#### 服务端更新方式 3️⃣：使用 ATLAS 更新数据库
+
+快速更新数据库模式，启动 ATLAS 容器进行自动迁移。
+
+```bash
+# 1. 启动 ATLAS 容器进行数据库迁移
+docker-compose up -d atlas
+
+# 2. 查看 ATLAS 迁移日志（确保迁移成功）
+docker-compose logs -f atlas
+```
+
+> 💡 **ATLAS 说明：**
+> - ATLAS 是数据库版本管理工具，用于自动执行数据库迁移脚本
+> - 每次服务端更新时，数据库模式可能会有变化，需要通过 ATLAS 进行更新
+> - 数据库中的现有数据会被保留，仅更新表结构和模式
+
 ---
 
 #### 客户端更新方式 1️⃣：直接更新 Python 包
