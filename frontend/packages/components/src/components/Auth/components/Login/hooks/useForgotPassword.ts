@@ -5,12 +5,10 @@ import { forgotPasswordFormConfig } from '../../../schemas/loginRegister'
 
 export type ForgotPasswordEmitEvent =
   | 'submit'
-  | 'sendCaptcha'
   | 'switchToLogin'
 
 export function useForgotPassword(
   emit: ((e: 'submit', data: LoginFormData) => void) &
-        ((e: 'sendCaptcha', phone: string) => void) &
         ((e: 'switchToLogin') => void)
 ) {
   const formRef = ref()
@@ -30,11 +28,6 @@ export function useForgotPassword(
 
   const handleEvents = (event: string) => {
     if (event === 'submit') return handleSubmit()
-    if (event === 'sendCaptcha') {
-      const phone = formData.phone
-      if (phone) emit('sendCaptcha', phone)
-      return
-    }
     if (event === 'switchToLogin') return emit('switchToLogin')
   }
 

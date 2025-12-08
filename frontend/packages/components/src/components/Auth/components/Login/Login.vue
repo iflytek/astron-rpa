@@ -1,18 +1,24 @@
 <script setup lang="ts">
-import { ref, computed, watch, provide } from 'vue'
+import { ref, computed, watch, provide, PropType } from 'vue'
 import { Tabs, TabPane } from 'ant-design-vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useLoginForm } from './hooks/useLoginForm'
 import type { LoginMode, AsyncAction } from '../../interface'
 
-const { running } = defineProps({
-  running: { type: String as () => AsyncAction, default: 'IDLE' },
+const { running, sendCaptcha } = defineProps({
+  running: { 
+    type: String as () => AsyncAction, 
+    default: 'IDLE' 
+  },
+  sendCaptcha: {
+    type: Function as PropType<(phone: string) => Promise<void>>,
+    default: (phone: string) => Promise.resolve()
+  }
 })
 
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
-  sendCaptcha: [phone: string]
   switchToRegister: []
   forgetPassword: []
 }>()
@@ -71,6 +77,7 @@ watch(() => phone.formData.agreement, (v) => {
           :loading="codeLoading"
           :ref="phone.formRef"
           :config="phone.config"
+          :send-captcha="sendCaptcha"
           v-model="phone.formData"
           :handleEvents="phone.handleEvents"
         />

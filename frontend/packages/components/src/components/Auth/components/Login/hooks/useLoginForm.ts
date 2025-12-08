@@ -48,9 +48,6 @@ export function useLoginForm<M extends LoginMode>(
     if (event === 'submit') return handleSubmit()
     if (event === 'switchToRegister') return emit('switchToRegister')
     if (event === 'forgetPassword') return emit('forgetPassword')
-    if (event === 'sendCaptcha') {
-      return await emit('sendCaptcha', formData.phone ?? '')
-    }
   }
 
   const config = mode === 'PASSWORD' ? accountLoginFormConfig : phoneLoginFormConfig
