@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 
 [[package]]
@@ -767,6 +767,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "pytz" },
     { name = "redis", extra = ["hiredis"] },
+    { name = "rpawebsocket" },
     { name = "sqlalchemy" },
 ]
 
@@ -791,6 +792,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "pytz" },
     { name = "redis", extras = ["hiredis"], specifier = ">=6.1.0" },
+    { name = "rpawebsocket", path = "app/utils/rpawebsocket-1.0.6-py3-none-any.whl" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
 ]
 
@@ -802,6 +804,20 @@ dev = [
     { name = "pytest-cov", specifier = ">=6.1.1" },
     { name = "ruff", specifier = ">=0.11.11" },
 ]
+
+[[package]]
+name = "rpawebsocket"
+version = "1.0.6"
+source = { path = "app/utils/rpawebsocket-1.0.6-py3-none-any.whl" }
+dependencies = [
+    { name = "anyio" },
+]
+wheels = [
+    { filename = "rpawebsocket-1.0.6-py3-none-any.whl", hash = "sha256:0542229bec45e635ea26458521f7e6c2c9af1446c3c2955fb7622a8d878092b8" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "anyio" }]
 
 [[package]]
 name = "rpds-py"

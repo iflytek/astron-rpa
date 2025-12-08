@@ -102,9 +102,6 @@ docker-compose up -d atlas
 
 # 2. View ATLAS migration logs (ensure migration succeeded)
 docker-compose logs -f atlas
-
-# 3. After migration completes, stop the ATLAS container
-docker-compose down atlas
 ```
 
 > 💡 **About ATLAS:**
