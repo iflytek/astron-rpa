@@ -10,7 +10,7 @@ import { loginProps } from '../../interface'
 const props = defineProps(loginProps())
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
   switchToRegister: []
   forgetPassword: []
 }>()
@@ -25,7 +25,7 @@ watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone)
 
 <template>
   <InviteFormLayout
-    :wrap-class="'auth-invite w-full h-full !p-0'"
+    :wrap-class="'auth-invite w-full h-full !p-0 !bg-[transparent]'"
   >
     <Tabs
       v-model:activeKey="currentMode"

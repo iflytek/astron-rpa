@@ -8,7 +8,7 @@ defineProps<{
   showBack?: boolean
   showAgreement?: boolean
   targetName?: string
-  username?: string
+  userName?: string
   type?: 'market' | 'enterprise'
 }>()
 
@@ -18,11 +18,11 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <div class="form-layout relative bg-[#ffffff] dark:bg-[#000000] shadow-lg rounded-[16px] w-[400px] h-[auto] p-[40px]" :class="wrapClass">
+  <div class="invite-form-layout relative bg-[#ffffff] dark:bg-[#000000] rounded-[16px] w-[400px] h-[auto] p-[40px]" :class="wrapClass">
     <BackButton v-if="showBack" @click="() => emit('back')" />
 
     <slot name="header">
-      <InviteHeader v-if="username && targetName" :type="type" :username="username" :targetName="targetName" />
+      <InviteHeader v-if="userName && targetName" :type="type" :userName="userName" :targetName="targetName" />
     </slot>
 
     <div class="h-[calc(100%-32px)]">

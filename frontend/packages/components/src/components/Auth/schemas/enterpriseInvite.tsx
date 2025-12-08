@@ -11,7 +11,7 @@ import AgreementTxt from '../components/Base/AgreementTxt.vue'
 export const enterpriseInviteFillUserInfoFormConfig: FormConfig = {
   layout: 'vertical',
   fields: [
-    fieldFactories.username(),
+    fieldFactories.loginName(),
     fieldFactories.phone(),
     fieldFactories.email(),
     {
@@ -43,7 +43,7 @@ export const enterpriseInviteFillUserInfoFormConfig: FormConfig = {
 export const enterprisePhoneLoginFormConfig: FormConfig = {
   fields: [
     fieldFactories.phone(),
-    fieldFactories.code(),
+    fieldFactories.captcha(),
   ],
   actionsRender: ({ emit }) => (
     <div class="w-full ">
@@ -58,7 +58,7 @@ export const enterprisePhoneLoginFormConfig: FormConfig = {
 export const createEnterpriseInviteSetPasswordFormConfig = (formData: any): FormConfig => ({
   layout: 'vertical',
   fields: [
-    fieldFactories.username(),
+    fieldFactories.loginName(),
     fieldFactories.password(),
     fieldFactories.confirmPassword(formData),
     {

@@ -10,7 +10,7 @@ import { enterpriseInviteProps } from '../../interface'
 const props = defineProps(enterpriseInviteProps())
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
   switchToRegister: []
 }>()
 
@@ -21,8 +21,8 @@ const phone = usePhoneLogin(emit as any)
   <InviteFormLayout
     :wrap-class="'auth-invite h-full'"
     :type="'enterprise'"
-    :username="props.inviteInfo.userName"
-    :targetName="props.inviteInfo.enterpriseName"
+    :user-name="props.inviteInfo.userName"
+    :target-name="props.inviteInfo.enterpriseName"
     :show-agreement="true"
   >
     <DynamicForm

@@ -29,7 +29,7 @@ const emit = defineEmits<{
     :show-back="type === 'enterprise'"
     @back="() => emit('back')"
     :type="type" 
-    :username="userName" 
+    :loginName="userName" 
     :target-name="targetName"
     :show-agreement="type === 'enterprise'"
   >

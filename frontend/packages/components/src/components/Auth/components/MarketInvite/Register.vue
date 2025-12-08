@@ -9,7 +9,7 @@ const props = defineProps(registerProps())
 const emit = defineEmits<{
   submit: [data: PersonalRegisterFormData | EnterpriseRegisterFormData, mode: RegisterMode]
   switchToLogin: []
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
 }>()
 
 const personal = useRegisterForm('personal', emit as any)

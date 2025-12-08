@@ -20,8 +20,8 @@ const text = computed(() => {
 </script>
 
 <template>
-  <div class="w-full flex justify-center items-center text-[12px] text-center text-[#000000D9] mt-[20px] dark:text-[#FFFFFFD9]">
+  <div class="w-full flex justify-start items-center text-[12px] text-center text-[#000000D9] dark:text-[#FFFFFFD9]" :class="type === 'invite' ? ' text-[12px] mt-[20px] ' : 'text-[14px]'">
     {{text}}
-    <Button class="text-[12px] mx-[2px] p-0 h-auto" type="link">服务协议</Button>与<Button class="text-[12px] ml-[2px] p-0 h-auto" type="link">隐私政策</Button>
+    <Button class="p-0 h-auto" :class="type === 'invite' ? ' text-[12px]' : 'text-[14px]'" type="link">服务协议</Button>与<Button class="p-0 h-auto" :class="type === 'invite' ? ' text-[12px]' : 'text-[14px]'" type="link">隐私政策</Button>
   </div>
 </template>

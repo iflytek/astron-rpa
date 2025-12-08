@@ -1,23 +1,23 @@
 import { reactive, ref } from 'vue'
-import type { PhoneLoginFormData } from '../../../interface'
+import type { LoginFormData } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import { enterprisePhoneLoginFormConfig } from '../../../schemas/enterpriseInvite'
 
 export type PhoneLoginEmitEvent =
   | 'submit'
-  | 'sendCode'
+  | 'sendCaptcha'
   | 'switchToRegister'
 
 export function usePhoneLogin(
-  emit: ((e: 'submit', data: PhoneLoginFormData) => void) &
-        ((e: 'sendCode', phone: string) => void) &
+  emit: ((e: 'submit', data: LoginFormData) => void) &
+        ((e: 'sendCaptcha', phone: string) => void) &
         ((e: 'switchToRegister') => void)
 ) {
   const formRef = ref()
 
-  const initialData = (): PhoneLoginFormData =>
+  const initialData = (): LoginFormData =>
     generateFormData(enterprisePhoneLoginFormConfig)
-  const formData = reactive<PhoneLoginFormData>(initialData())
+  const formData = reactive<LoginFormData>(initialData())
 
   const handleSubmit = async () => {
     try {
@@ -30,9 +30,9 @@ export function usePhoneLogin(
 
   const emitEvent = (event: string) => {
     if (event === 'submit') return handleSubmit()
-    if (event === 'sendCode') {
+    if (event === 'sendCaptcha') {
       const phone = formData.phone
-      if (phone) emit('sendCode', phone)
+      if (phone) emit('sendCaptcha', phone)
       return
     }
     if (event === 'switchToRegister') return emit('switchToRegister')

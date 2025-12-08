@@ -5,7 +5,7 @@ import { useForgotPassword } from './hooks/useForgotPassword'
 
 const emit = defineEmits<{
   submit: [data: ForgotPasswordFormData]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
   switchToLogin: []
 }>()
 

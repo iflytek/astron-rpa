@@ -22,10 +22,10 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  send: [phone: string | undefined]
+  send: [phone: string]
 }>()
 
-const code = ref(props.modelValue || '')
+const captcha = ref(props.modelValue || '')
 const countdown = ref(0)
 const isCodeSending = ref(false)
 let countdownTimer: number | null = null
@@ -95,13 +95,13 @@ const clearCountdown = () => {
 
 // 更新值
 const handleInput = (value: string) => {
-  code.value = value
+  captcha.value = value
   emit('update:modelValue', value)
 }
 
 // 清空表单
 const resetForm = () => {
-  code.value = ''
+  captcha.value = ''
   clearCountdown()
   isCodeSending.value = false
 }
@@ -119,9 +119,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="code-input-wrapper">
+  <div class="captcha-input-wrapper">
     <Input
-      :value="code"
+      :value="captcha"
       :placeholder="placeholder"
       :maxlength="maxlength"
       :disabled="disabled"
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.code-input-wrapper {
+.captcha-input-wrapper {
   width: 100%;
 }
 </style>

@@ -10,7 +10,7 @@ import { loginProps } from '../../interface'
 const props = defineProps(loginProps())
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
   switchToRegister: []
   forgetPassword: []
 }>()
@@ -34,7 +34,7 @@ watch(() => currentMode.value, (_, old) => (old === 'account' ? account : phone)
       v-model:activeKey="currentMode"
       centered
       type="card"
-      class="h-[calc(100%-56px)]"
+      class="h-full"
     >
       <TabPane key="account" tab="账号">
         <DynamicForm

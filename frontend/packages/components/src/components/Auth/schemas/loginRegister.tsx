@@ -9,14 +9,14 @@ import { Button } from "ant-design-vue"
 // 账号登录表单配置
 export const accountLoginFormConfig: FormConfig = {
   fields: [
-    fieldFactories.username(),
+    fieldFactories.loginName(),
     fieldFactories.password(),
     fieldFactories.agreement(),
     fieldFactories.remember(),
   ],
   actionsRender: ({ emit }) => (
-    <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+    <div class="w-full absolute bottom-0">
+      <Button type="primary" size="large"block onClick={() => emit && emit('submit')}>
         登录
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
@@ -33,12 +33,12 @@ export const accountLoginFormConfig: FormConfig = {
 export const phoneLoginFormConfig: FormConfig = {
   fields: [
     fieldFactories.phone(),
-    fieldFactories.code(),
+    fieldFactories.captcha(),
     fieldFactories.agreement(),
   ],
   actionsRender: ({ emit }) => (
-    <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+    <div class="w-full absolute bottom-0">
+      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
         登录
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
@@ -55,14 +55,14 @@ export const phoneLoginFormConfig: FormConfig = {
 export const personalRegisterFormConfig: FormConfig = {
   layout: 'vertical',
   fields: [
-    fieldFactories.username(),
+    fieldFactories.loginName(),
     fieldFactories.phone(),
-    fieldFactories.code(),
+    fieldFactories.captcha(),
     fieldFactories.agreement()
   ],
   actionsRender: ({ emit }) => (
-    <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+    <div class="w-full absolute bottom-0">
+      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
         注册
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
@@ -80,7 +80,7 @@ export const enterpriseRegisterFormConfig: FormConfig = {
   layout: 'vertical',
   fields: [
     {
-      ...fieldFactories.username(),
+      ...fieldFactories.loginName(),
       key: 'contactName',
       placeholder: '请输入您的姓名',
     },
@@ -93,8 +93,8 @@ export const enterpriseRegisterFormConfig: FormConfig = {
     },
   ],
   actionsRender: ({ emit }) => (
-    <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+    <div class="w-full absolute bottom-0">
+      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
         提交申请
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
@@ -109,11 +109,11 @@ export const forgotPasswordFormConfig: FormConfig = {
   layout: 'vertical',
   fields: [
     fieldFactories.phone(),
-    fieldFactories.code(),
+    fieldFactories.captcha(),
   ],
   actionsRender: ({ emit }) => (
-    <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+    <div class="w-full absolute bottom-0">
+      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
         下一步
       </Button>
     </div>
@@ -140,8 +140,8 @@ export const createSetPasswordFormConfig = (formData: any): FormConfig => ({
   ],
 
   actionsRender: ({ emit }) => (
-    <div class="w-full">
-      <Button type="primary" size="large" class="mt-[60px]" block onClick={() => emit && emit('submit')}>
+    <div class="w-full absolute bottom-0">
+      <Button type="primary" size="large" block onClick={() => emit && emit('submit')}>
         完成
       </Button>
     </div>
