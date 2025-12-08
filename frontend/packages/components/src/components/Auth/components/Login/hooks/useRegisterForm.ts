@@ -1,0 +1,69 @@
+import { reactive, ref } from 'vue'
+import type {
+  RegisterMode,
+  PersonalRegisterFormData,
+  EnterpriseRegisterFormData,
+} from '../../../interface'
+import { generateFormData } from '../../../schemas/factories'
+import {
+  personalRegisterFormConfig,
+  enterpriseRegisterFormConfig,
+} from '../../../schemas/loginRegister'
+
+export type RegisterEmitEvent =
+  | 'submit'
+  | 'sendCode'
+  | 'switchToLogin'
+  | 'switchToPersonal'
+  | 'switchToEnterprise'
+
+export function useRegisterForm<M extends RegisterMode>(
+  mode: M,
+  emit: ((e: 'submit', data: any) => void) &
+        ((e: 'sendCode', phone: string) => void) &
+        ((e: 'switchToLogin') => void) &
+        ((e: 'switchToPersonal') => void) &
+        ((e: 'switchToEnterprise') => void)
+) {
+  const formRef = ref()
+
+  type TData = M extends 'personal' ? PersonalRegisterFormData : EnterpriseRegisterFormData
+  const initialData = (): TData =>
+    (mode === 'personal'
+      ? generateFormData(personalRegisterFormConfig)
+      : generateFormData(enterpriseRegisterFormConfig)) as TData
+
+  const formData = reactive<TData>(initialData())
+
+  const handleSubmit = async () => {
+    try {
+      await formRef.value?.validateFields()
+      emit('submit', formData)
+    } catch (e) {
+      console.error(`${mode} 注册表单校验失败`, e)
+    }
+  }
+
+  const resetForm = () => {
+    Object.assign(formData, initialData())
+    formRef.value?.resetFields()
+  }
+
+  const emitEvent = (event: string) => {
+    if (event === 'submit') return handleSubmit()
+
+    if (event === 'sendCode') {
+      const phone = (formData as PersonalRegisterFormData).phone
+      if (phone) emit('sendCode', phone)
+      return
+    }
+
+    if (event === 'switchToLogin') return emit('switchToLogin')
+    if (event === 'switchToPersonal') return emit('switchToPersonal')
+    if (event === 'switchToEnterprise') return emit('switchToEnterprise')
+  }
+
+  const config = mode === 'personal' ? personalRegisterFormConfig : enterpriseRegisterFormConfig
+
+  return { formRef, formData, config, resetForm, emitEvent }
+}
