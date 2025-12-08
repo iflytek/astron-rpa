@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
+import { Modal } from 'ant-design-vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useRegisterForm } from './hooks/useRegisterForm.ts'
 import type { RegisterMode, PersonalRegisterFormData, EnterpriseRegisterFormData } from '../../interface.ts'
 import { registerProps } from '../../interface.ts'
  
-const props = defineProps(registerProps())
+const props = defineProps({
+  ...registerProps(),
+  showModal: true as any,
+})
+
 const emit = defineEmits<{
   submit: [data: PersonalRegisterFormData | EnterpriseRegisterFormData, mode: RegisterMode]
-  switchToLogin: []
   sendCaptcha: [phone: string]
 }>()
 
@@ -28,30 +32,32 @@ const changeMode = () => {
 </script>
 
 <template>
-  <FormLayout
-    :wrap-class="'auth-register h-full'"
-    :title="currentMode === 'personal' ? '注册个人版' : '申请开通企业版'"
-    :action-text="currentMode === 'personal' ? '申请开通企业版' : '注册个人版'"
-    @action="changeMode"
-    show-back
-    @back="() => emit('switchToLogin')"
+  <Modal
+    :open="showModal"
+    centered
+    title="创建新工作空间"
+    class="tenant-modal"
+    :z-index="19"
+    :footer="null"
   >
-    <DynamicForm
-      v-if="currentMode === 'personal'"
-      :ref="personal.formRef"
-      :config="personal.config"
-      v-model="personal.formData"
-      :emitEvent="personal.emitEvent"
-      class="auth-register-personal-form"
-    />
+    <FormLayout :wrap-class="'auth-set-password h-full relative'">
+      <DynamicForm
+        v-if="currentMode === 'personal'"
+        :ref="personal.formRef"
+        :config="personal.config"
+        v-model="personal.formData"
+        :emitEvent="personal.emitEvent"
+        class="auth-register-personal-form"
+      />
 
-    <DynamicForm
-      v-if="currentMode === 'enterprise'"
-      :ref="enterprise.formRef"
-      :config="enterprise.config"
-      v-model="enterprise.formData"
-      :emitEvent="enterprise.emitEvent"
-      class="auth-register-enterprise-form"
-    />
-  </FormLayout>
+      <DynamicForm
+        v-if="currentMode === 'enterprise'"
+        :ref="enterprise.formRef"
+        :config="enterprise.config"
+        v-model="enterprise.formData"
+        :emitEvent="enterprise.emitEvent"
+        class="auth-register-enterprise-form"
+      />
+    </FormLayout>
+  </Modal>
 </template>

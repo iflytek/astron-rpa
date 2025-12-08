@@ -7,9 +7,8 @@ import Register from './Register.vue'
 
 import { marketInviteProps } from '../../interface'
 import type { 
-  AccountLoginFormData, 
+  LoginFormData, 
   LoginMode, 
-  PhoneLoginFormData, 
   RegisterFormData, 
   RegisterMode,
 } from '../../interface'
@@ -17,19 +16,19 @@ import type {
 const props = defineProps(marketInviteProps())
 
 const emit = defineEmits<{
-  login: [data: AccountLoginFormData | PhoneLoginFormData, mode: LoginMode]
+  login: [data: LoginFormData, mode: LoginMode]
   register: [data: RegisterFormData, mode: RegisterMode]
   modeChange: [mode: 'login' | 'register' ]
   loginModeChange: [mode: LoginMode]
   registerModeChange: [mode: RegisterMode]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
 }>()
 
 // 当前界面模式
 type AuthFormMode = 'login' | 'register'  
 const currentFormMode = ref<AuthFormMode>('login')
 
-const handleLogin = async (data: AccountLoginFormData | PhoneLoginFormData, mode: LoginMode) => {
+const handleLogin = async (data: LoginFormData, mode: LoginMode) => {
   emit('login', data, mode)
 }
 
@@ -44,7 +43,7 @@ const handleSwitchMode = () => {
 }
  
 const handleSendCode = async (phone: string) => {
-  emit('sendCode', phone)
+  emit('sendCaptcha', phone)
 }
 
 </script>
@@ -52,14 +51,14 @@ const handleSendCode = async (phone: string) => {
 <template>
   <InviteFormLayout
     :wrap-class="'auth-invite h-full'"
-    :username="props.inviteInfo.userName"
-    :targetName="props.inviteInfo.marketName"
+    :user-name="props.inviteInfo.userName"
+    :target-name="props.inviteInfo.marketName"
   >
     <Login
       v-if="currentFormMode === 'login'"
       @submit="handleLogin"
       @switch-to-register="handleSwitchMode"
-      @send-code="handleSendCode"
+      @send-captcha="handleSendCode"
     >
     </Login>
     
@@ -67,7 +66,7 @@ const handleSendCode = async (phone: string) => {
       v-else-if="currentFormMode === 'register'"
       @submit="handleRegister"
       @switch-to-login="handleSwitchMode"
-      @send-code="handleSendCode"
+      @send-captcha="handleSendCode"
     />
   </InviteFormLayout>
  </template>

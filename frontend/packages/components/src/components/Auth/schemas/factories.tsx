@@ -3,7 +3,7 @@ import type { JSX } from 'vue/jsx-runtime'
 import AgreementTxt from '../components/Base/AgreementTxt.vue'
 import { Checkbox, Button } from "ant-design-vue"
 
-export type FieldType =  'input' | 'password' | 'code' | 'select' | 'checkbox' | 'textarea' | 'slot'
+export type FieldType =  'input' | 'password' | 'captcha' | 'select' | 'checkbox' | 'textarea' | 'slot'
 
 export interface FormConfig {
   fields: FieldSchema[]
@@ -43,7 +43,7 @@ const required = (msg: string) => ({ required: true, message: msg, trigger: 'cha
 // 自定义验证器
 const validators = {
   // 用户名验证
-  username: (_rule: any, value: string): Promise<void> => {
+  loginName: (_rule: any, value: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (!value) {
         reject(new Error('请输入用户名'))
@@ -110,13 +110,13 @@ const validators = {
 }
 
 export const fieldFactories = {
-  username: (): FieldSchema => ({
-    key: 'username',
+  loginName: (): FieldSchema => ({
+    key: 'loginName',
     label: '用户名',
     type: 'input',
     placeholder: '请输入用户名',
     rules: [
-      { validator: validators.username, trigger: 'change' }
+      { validator: validators.loginName, trigger: 'change' }
     ]
   }),
   
@@ -191,10 +191,10 @@ export const fieldFactories = {
     }
   }),
   
-  code: (): FieldSchema => ({
-    key: 'code',
+  captcha: (): FieldSchema => ({
+    key: 'captcha',
     label: '验证码',
-    type: 'code',
+    type: 'captcha',
     placeholder: '请输入验证码',
     rules: [
       required('请输入验证码'),
@@ -285,7 +285,7 @@ export const generateFormData = <T = Record<string, any>>(
         break
       case 'input':
       case 'password':
-      case 'code':
+      case 'captcha':
       case 'textarea':
       case 'slot':
       default:

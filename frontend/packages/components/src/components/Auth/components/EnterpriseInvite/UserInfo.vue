@@ -22,7 +22,7 @@ const { formRef, formData, config, emitEvent } = useFillUserInfo(emit as any)
     :show-back="true"
     @back="() => emit('back')"
     :type="'enterprise'"
-    :username="props.inviteInfo?.userName"
+    :user-name="props.inviteInfo?.userName"
     :target-name="props.inviteInfo?.enterpriseName"
     :show-agreement="true"
   >

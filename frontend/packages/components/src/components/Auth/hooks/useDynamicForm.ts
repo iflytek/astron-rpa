@@ -33,9 +33,9 @@ export function useDynamicForm<
 
   const emitEvent = (event: string, ...args: any[]) => {
     if (event === 'submit') return handleSubmit()
-    if (event === 'sendCode') {
+    if (event === 'sendCaptcha') {
       const phone = (formData as any).phone
-      if (phone) (emit as any)('sendCode', phone)
+      if (phone) (emit as any)('sendCaptcha', phone)
       return
     }
     ;(emit as any)(event, ...args)

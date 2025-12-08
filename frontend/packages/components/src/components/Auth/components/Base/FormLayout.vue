@@ -19,7 +19,7 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <div class="form-layout relative bg-[#ffffff] dark:bg-[#000000] shadow-lg rounded-[16px] w-[400px] h-[auto] p-[40px]" :class="wrapClass">
+  <div class="login-form-layout bg-[#ffffff] dark:bg-[#000000] rounded-[16px] w-[400px] h-[auto] p-[40px]" :class="wrapClass">
     <BackButton v-if="showBack" @click="() => emit('back')" />
 
     <slot name="header">
@@ -32,7 +32,7 @@ const emit = defineEmits<{
       />
     </slot>
 
-    <div class="h-[calc(100%-32px)]">
+    <div class="inner-content relative" :class="title ? 'h-[calc(100%-93px)]' : 'h-[calc(100%-60px)]'">
       <slot />
     </div>
 

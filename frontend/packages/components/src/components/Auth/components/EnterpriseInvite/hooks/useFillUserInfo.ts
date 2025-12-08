@@ -13,7 +13,7 @@ export function useFillUserInfo(
   const formData = reactive<EnterpriseInvitFormData>({
     password: '',
     confirmPassword: '',
-    username: '',
+    loginName: '',
   })
 
   const config = createEnterpriseInviteSetPasswordFormConfig(formData)

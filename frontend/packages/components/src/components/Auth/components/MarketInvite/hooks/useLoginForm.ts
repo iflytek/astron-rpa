@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import type { AccountLoginFormData, PhoneLoginFormData, LoginMode } from '../../../interface'
+import type { LoginFormData, LoginMode } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import { marketInviteAccountLoginFormConfig, marketInvitePhoneLoginFormConfig } from '../../../schemas/marketInvite'
 
@@ -7,24 +7,23 @@ export type LoginEmitEvent =
   | 'submit'
   | 'switchToRegister'
   | 'forgetPassword'
-  | 'sendCode'
+  | 'sendCaptcha'
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,
   emit: ((e: 'submit', data: any) => void) &
         ((e: 'switchToRegister') => void) &
         ((e: 'forgetPassword') => void) &
-        ((e: 'sendCode', phone: string) => void)
+        ((e: 'sendCaptcha', phone: string) => void)
 ) {
   const formRef = ref()
 
-  type TData = M extends 'account' ? AccountLoginFormData : PhoneLoginFormData
-  const initialData = (): TData =>
+  const initialData = (): LoginFormData =>
     (mode === 'account'
       ? generateFormData(marketInviteAccountLoginFormConfig, { remember: false })
-      : generateFormData(marketInvitePhoneLoginFormConfig)) as TData
+      : generateFormData(marketInvitePhoneLoginFormConfig)) as LoginFormData
 
-  const formData = reactive<TData>(initialData())
+  const formData = reactive<LoginFormData>(initialData())
 
   const handleSubmit = async () => {
     try {
@@ -44,8 +43,8 @@ export function useLoginForm<M extends LoginMode>(
     if (event === 'submit') return handleSubmit()
     if (event === 'switchToRegister') return emit('switchToRegister')
     if (event === 'forgetPassword') return emit('forgetPassword')
-    if (event === 'sendCode')
-      return emit('sendCode', (formData as PhoneLoginFormData).phone)
+    if (event === 'sendCaptcha')
+      return emit('sendCaptcha', formData.phone)
   }
 
   const config = mode === 'account' ? marketInviteAccountLoginFormConfig : marketInvitePhoneLoginFormConfig
