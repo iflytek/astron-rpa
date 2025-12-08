@@ -27,6 +27,11 @@
       "import": "./src/components/ConfigProvider/index.ts",
       "require": "./src/components/ConfigProvider/index.ts"
     },
+    "./launch-carousel": {
+      "types": "./src/components/LaunchCarousel/index.ts",
+      "import": "./src/components/LaunchCarousel/index.ts",
+      "require": "./src/components/LaunchCarousel/index.ts"
+    },
     "./icon": "./lib/iconpark.js",
     "./resolver": "./resolver.js"
   },
