@@ -7,18 +7,17 @@ import InviteUserInfo from '../Base/InviteUserInfo.vue'
 import StatusCard from '../Base/StatusCard.vue'
 
 import type { 
-  AccountLoginFormData, 
+  LoginFormData, 
   LoginMode, 
-  PhoneLoginFormData, 
   RegisterFormData, 
   RegisterMode,
 } from '../../interface'
 
 const emit = defineEmits<{
-  login: [data: AccountLoginFormData | PhoneLoginFormData, mode: LoginMode]
+  login: [data: LoginFormData, mode: LoginMode]
   register: [data: RegisterFormData, mode: RegisterMode]
   joinMarket: [marketId: string]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
 }>()
 
 // 页面状态管理
@@ -105,13 +104,13 @@ const checkJoinStatus = async () => {
 }
 
 // 处理登录成功
-const handleLoginSuccess = async (data: AccountLoginFormData | PhoneLoginFormData, mode: LoginMode) => {
+const handleLoginSuccess = async (data: LoginFormData, mode: LoginMode) => {
   try {
     emit('login', data, mode)
       // 模拟登录成功后获取用户信息
     currentUser.value = {
       name: '张三',
-      phone: (data as AccountLoginFormData).username || (data as PhoneLoginFormData).phone || '未知',
+      phone: (data as LoginFormData).loginName || (data as LoginFormData).phone || '未知',
     }
     
     // 登录成功后检查加入状态
@@ -127,7 +126,7 @@ const handleRegisterSuccess = async (data: RegisterFormData, mode: RegisterMode)
   try {
     emit('register', data, mode)    // 注册成功后自动登录
     currentUser.value = {
-      name: (data as any).username || '用户',
+      name: (data as any).loginName || '用户',
       phone: data.phone || '未知',
     }
     currentStatus.value = 'showUserInfo'
@@ -179,7 +178,7 @@ onMounted(() => {
     <FillUserInfo v-else-if="currentStatus === 'fillUserInfo'" :invite-info="inviteInfo" />
     <InviteUserInfo v-else-if="currentStatus === 'showUserInfo'" 
       :type="'enterprise'" 
-      :username="inviteInfo.userName" 
+      :user-name="inviteInfo.userName" 
       :target-name="inviteInfo.enterpriseName" 
       :current-user="currentUser"
       @back="handleBack"  

@@ -5,7 +5,7 @@ export type RegisterMode = 'personal' | 'enterprise'
 
 export interface ForgotPasswordFormData {
   phone: string // 手机号或邮箱
-  code: string
+  captcha: string
 }
 
 export interface SetPasswordFormData {
@@ -22,7 +22,7 @@ export interface TenantItem {
 
 export interface ForgotPasswordFormData {
   phone: string // 手机号或邮箱
-  code: string
+  captcha: string
 }
 
 export interface SetPasswordFormData {
@@ -52,29 +52,25 @@ export interface EnterpriseInviteInfo {
   enterpriseName: string
 }
 
-export interface AccountLoginFormData {
-  username: string
+export interface LoginFormData {
+  loginName: string
   password: string
   remember?: boolean
   agreement?: boolean
+  phone: string,
+  captcha: string,
+  loginType: "CODE" | "PASSWORD",
+  tenantId: string
 }
-
-export interface PhoneLoginFormData {
-  phone: string
-  code: string
-  agreement?: boolean
-}
-
-export type LoginFormData = AccountLoginFormData | PhoneLoginFormData
 
 export interface PersonalRegisterFormData {
-  username: string
-  email?: string
+  loginName: string
   phone?: string
-  code?: string
+  captcha?: string
   password?: string
   confirmPassword?: string
   agreement?: boolean
+  code?: string
 }
 
 export interface EnterpriseRegisterFormData {
@@ -92,7 +88,7 @@ export interface AuthResponse {
   token: string
   user: {
     id: string
-    username: string
+    loginName: string
     email: string
   }
 }
@@ -100,7 +96,7 @@ export interface AuthResponse {
 export interface EnterpriseInvitFormData {
   password: string
   confirmPassword: string
-  username: string | undefined
+  loginName: string | undefined
 }
 
 export function authFormProps() {
@@ -137,8 +133,6 @@ export function loginProps() {
 export function registerProps() {
   return {
     loading: { type: Boolean, default: false },
-    registerBtnText: { type: String, default: '注册' },
-    prefixCls: { type: String, default: 'auth-register' },
     mode: stringType<RegisterMode>('personal'),
     onSubmit: functionType<(data: RegisterFormData, mode: RegisterMode) => void | Promise<void>>(),
     onSwitchToLogin: functionType<() => void>(),

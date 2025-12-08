@@ -12,7 +12,7 @@ import {
 
 export type RegisterEmitEvent =
   | 'submit'
-  | 'sendCode'
+  | 'sendCaptcha'
   | 'switchToLogin'
   | 'switchToPersonal'
   | 'switchToEnterprise'
@@ -20,7 +20,7 @@ export type RegisterEmitEvent =
 export function useRegisterForm<M extends RegisterMode>(
   mode: M,
   emit: ((e: 'submit', data: any) => void) &
-        ((e: 'sendCode', phone: string) => void) &
+        ((e: 'sendCaptcha', phone: string) => void) &
         ((e: 'switchToLogin') => void) &
         ((e: 'switchToPersonal') => void) &
         ((e: 'switchToEnterprise') => void)
@@ -52,9 +52,9 @@ export function useRegisterForm<M extends RegisterMode>(
   const emitEvent = (event: string) => {
     if (event === 'submit') return handleSubmit()
 
-    if (event === 'sendCode') {
+    if (event === 'sendCaptcha') {
       const phone = (formData as PersonalRegisterFormData).phone
-      if (phone) emit('sendCode', phone)
+      if (phone) emit('sendCaptcha', phone)
       return
     }
 

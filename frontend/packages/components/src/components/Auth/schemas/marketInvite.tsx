@@ -9,7 +9,7 @@ import { Button } from "ant-design-vue"
 // 账号登录表单配置
 export const marketInviteAccountLoginFormConfig: FormConfig = {
   fields: [
-    fieldFactories.username(),
+    fieldFactories.loginName(),
     fieldFactories.password(),
   ],
   actionsRender: ({ emit }) => (
@@ -31,7 +31,7 @@ export const marketInviteAccountLoginFormConfig: FormConfig = {
 export const marketInvitePhoneLoginFormConfig: FormConfig = {
   fields: [
     fieldFactories.phone(),
-    fieldFactories.code(),
+    fieldFactories.captcha(),
   ],
   actionsRender: ({ emit }) => (
     <div class="w-full">
@@ -52,9 +52,9 @@ export const marketInvitePhoneLoginFormConfig: FormConfig = {
 export const marketInvitePersonalRegisterFormConfig: FormConfig = {
   layout: 'vertical',
   fields: [
-    fieldFactories.username(),
+    fieldFactories.loginName(),
     fieldFactories.phone(),
-    fieldFactories.code(),
+    fieldFactories.captcha(),
   ],
   actionsRender: ({ emit }) => (
     <div class="w-full">

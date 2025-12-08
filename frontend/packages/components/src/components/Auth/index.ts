@@ -16,8 +16,4 @@ export const Auth = {
   BackButton,
 }
 
-export type * from './interface'
-
-export { useAuth } from './hooks/useAuth'
-
 export default LoginForm

@@ -107,6 +107,17 @@
   .ant-input-affix-wrapper{
     padding: 6px 12px 7px!important;
   }
+  .ant-form-item .ant-form-item-explain{
+    transition: none;
+  }
+  .ant-form-item-has-error{
+    .ant-form-item-explain-error{
+      position: absolute;
+      font-size: 12px;
+      transform: scale(0.9);
+      bottom: -3px;
+    }
+  }
 }
 
 .dark {

@@ -16,7 +16,7 @@ const {modelValue, config, emitEvent} = withDefaults(defineProps<Props>(), { })
 
 const emit = defineEmits<{
   submit: [value: any]
-  sendCode: [phone: string]
+  sendCaptcha: [phone: string]
 }>()
 
 const formRef = ref<FormInstance>()
@@ -45,8 +45,8 @@ const resetFields = () => {
   })
 }
 
-const handleSendCode = (field: FieldSchema, phone: string) => {
-  emit('sendCode', phone)
+const handleSendCode = (phone: string) => {
+  emit('sendCaptcha', phone)
 }
 
 defineExpose({
@@ -63,7 +63,7 @@ defineExpose({
     :layout="config.layout || 'vertical'"
     :label-col="config.labelCol || 0"
     :wrapper-col="config.wrapperCol || 24"
-    class="dynamic-form relative"
+    class="dynamic-form h-full"
   >
     <template v-for="field in config.fields" :key="field.key">
       <Form.Item
@@ -87,13 +87,13 @@ defineExpose({
           v-bind="field.props"
         />
         <PhoneCode
-          v-else-if="field.type === 'code'"
-          :ref="(el: InstanceType<typeof PhoneCode>) => { if (el) codeInputRefs[field.key] = el }"
+          v-else-if="field.type === 'captcha'"
+          :ref="(el: any) => { if (el) codeInputRefs[field.key] = el }"
           v-model="modelValue[field.key]"
           :phone="modelValue.phone"
           :placeholder="field.placeholder"
           v-bind="field.props"
-          @send="(phone: string) => handleSendCode(field, phone)"
+          @send="(phone: string) => handleSendCode(phone)"
         />
         <Textarea
           v-else-if="field.type === 'textarea'"
@@ -175,10 +175,6 @@ defineExpose({
 <style scoped>
 .dynamic-form {
   width: 100%;
-}
-
-:deep(.ant-form-item) {
-  margin-bottom: 16px;
 }
 
 :deep(.ant-input-number) {
