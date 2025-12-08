@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, PropType } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useRegisterForm } from './hooks/useRegisterForm.ts'
 import type { RegisterMode, PersonalRegisterFormData, EnterpriseRegisterFormData } from '../../interface.ts'
 import { AsyncAction } from '../../interface.ts'
  
-const { running } = defineProps({
+const { running, sendCaptcha } = defineProps({
   running: { type: String as () => AsyncAction, default: 'IDLE' },
+  sendCaptcha: {
+    type: Function as PropType<(phone: string) => Promise<void>>,
+    default: (phone: string) => Promise.resolve()
+  }
 })
 
 const emit = defineEmits<{
   submit: [data: PersonalRegisterFormData | EnterpriseRegisterFormData, mode: RegisterMode]
   switchToLogin: []
-  sendCaptcha: [phone: string]
 }>()
 
 const personal = useRegisterForm('PERSONAL', emit as any)
@@ -49,6 +52,7 @@ const changeMode = () => {
       :ref="personal.formRef"
       :config="personal.config"
       v-model="personal.formData"
+      :send-captcha="sendCaptcha"
       :handleEvents="personal.handleEvents"
       class="auth-register-personal-form"
     />
@@ -58,6 +62,7 @@ const changeMode = () => {
       :loading="enterpriseLoading"
       :ref="enterprise.formRef"
       :config="enterprise.config"
+      :send-captcha="sendCaptcha"
       v-model="enterprise.formData"
       :handleEvents="enterprise.handleEvents"
       class="auth-register-enterprise-form"
