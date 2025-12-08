@@ -33,25 +33,25 @@ const {
     <Login
       v-if="currentFormMode === 'login'"
       :running="running"
+      :send-captcha="handleSendCaptcha"
       @submit="preLogin"
       @switch-to-register="() => switchMode('register')"
       @forget-password="() => switchMode('forgotPassword')"
-      @send-captcha="handleSendCaptcha"
     />
 
     <Register
       v-else-if="currentFormMode === 'register'"
+      :send-captcha="handleSendCaptcha"
       :running="running"
       @submit="handleRegister"
       @switch-to-login="() => switchMode('login')"
-      @send-captcha="handleSendCaptcha"
     />
 
     <ForgotPassword
       v-else-if="currentFormMode === 'forgotPassword'"
       :running="running"
+      :send-captcha="handleSendCaptcha"
       @submit="handleForgotPassword"
-      @send-captcha="handleSendCaptcha"
       @switch-to-login="() => switchMode('login')"
     />
 

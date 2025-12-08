@@ -11,10 +11,11 @@ interface Props<T = any> {
   config: FormConfig
   modelValue?: T
   loading?: boolean
+  sendCaptcha?: (phone: string) => Promise<void>
   handleEvents?: (event: string, ...args: any[]) => void
 }
 
-const { modelValue, loading, config, handleEvents } = defineProps<Props>()
+const { modelValue, loading, config, handleEvents, sendCaptcha } = defineProps<Props>()
 
 const emit = defineEmits<{
   submit: [value: any]
@@ -51,7 +52,7 @@ const clearValidates = () => {
 
 const handleSendCaptcha = async (field: FieldSchema) => {
   await validateFields([field.relationKey || 'phone'])      // 校验不通过会抛错
-  await handleEvents?.('sendCaptcha')       // 只有校验通过才走到这里
+  await sendCaptcha?.(modelValue[field.relationKey || 'phone'])       // 只有校验通过才走到这里
   codeInputRefs.value[field.key]?.startCountdown()
   message.success('验证码发送成功')
 }

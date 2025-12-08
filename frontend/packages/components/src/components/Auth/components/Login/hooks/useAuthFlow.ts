@@ -152,8 +152,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     await handleLogin(tenantId)
   }
 
-  const handleSendCaptcha = async (phone: string) => {
-    return await sendCaptcha(phone, currentFormMode.value)
+  const handleSendCaptcha = (phone: string) => {
+    return sendCaptcha(phone, currentFormMode.value)
   }
 
   const switchMode = (mode: AuthFormMode) => (currentFormMode.value = mode)
