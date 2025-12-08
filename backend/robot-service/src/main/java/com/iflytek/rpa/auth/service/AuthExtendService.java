@@ -1,10 +1,23 @@
 package com.iflytek.rpa.auth.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.oltu.oauth2.client.OAuthClient;
@@ -16,6 +29,7 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.casbin.casdoor.config.Config;
+import org.casbin.casdoor.entity.User;
 import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
 import org.casbin.casdoor.util.http.CasdoorResponse;
@@ -113,5 +127,55 @@ public class AuthExtendService extends AuthService {
         CasdoorResponse<String, Object> resp =
                 doGet("logout", params, new TypeReference<CasdoorResponse<String, Object>>() {});
         return resp;
+    }
+
+    /**
+     * 支持传证书的token解析方法
+     * @param token
+     * @param certificate
+     * @return
+     */
+    public User parseJwtTokenWithCertificate(String token, String certificate) {
+        // parse jwt token
+        SignedJWT parseJwt = null;
+        try {
+            parseJwt = SignedJWT.parse(token);
+        } catch (ParseException e) {
+            throw new AuthException("Cannot parse jwt token.", e);
+        }
+        // verify the jwt public key
+        try {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            X509Certificate cert =
+                    (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificate.getBytes()));
+            RSAPublicKey publicKey = (RSAPublicKey) cert.getPublicKey();
+            JWSVerifier verifier = new RSASSAVerifier(publicKey);
+            boolean verify = parseJwt.verify(verifier);
+            if (!verify) {
+                throw new AuthException("Cannot verify signature.");
+            }
+        } catch (CertificateException | JOSEException e) {
+            throw new AuthException("Cannot verify signature.", e);
+        }
+
+        // read "access_token" from payload and convert to CasdoorUser
+        try {
+            JWTClaimsSet claimsSet = parseJwt.getJWTClaimsSet();
+            String userJson = claimsSet == null ? null : claimsSet.toString();
+
+            if (userJson == null || userJson.isEmpty()) {
+                throw new AuthException("Cannot get claims from JWT payload");
+            }
+
+            // check if the token has expired
+            Date expireTime = claimsSet.getExpirationTime();
+            if (expireTime.before(new Date())) {
+                throw new AuthException("The token has expired");
+            }
+
+            return objectMapper.readValue(userJson, User.class);
+        } catch (JsonProcessingException | java.text.ParseException e) {
+            throw new AuthException("Cannot convert claims to User", e);
+        }
     }
 }
