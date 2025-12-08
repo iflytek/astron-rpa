@@ -1,0 +1,171 @@
+.auth-container-content{
+  // 重置登录tab样式
+  .ant-tabs-nav-wrap, .ant-tabs-nav-list {
+    width: 100%;
+    border-radius: 8px;
+    .ant-tabs-tab {
+      width: 50%;
+    }
+  }
+  .ant-tabs >.ant-tabs-nav{
+    margin-bottom: 24px;
+  }
+  .ant-tabs-content-holder{
+    height: 100%;
+  }
+  .ant-tabs-content{
+    height: 100%;
+  }
+  .ant-tabs-nav-list{
+    background-color: #ECEDF4;
+    border: none;
+    border-radius: 8px!important;
+    padding: 4px;
+    .ant-tabs-tab {
+      border: none;
+      border-radius: 6px!important;
+      text-align: center;
+      background: transparent;
+      .ant-tabs-tab-btn {
+        width: 100%;
+        color: #000000A6;
+      }
+      &.ant-tabs-tab-active {
+        background-color: #FFFFFF;
+        box-shadow: none;
+        .ant-tabs-tab-btn {
+          color: #000000D9;
+        }
+      }
+    }
+  }
+  
+
+  // 修改滚动条样式
+   ::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #bbbbbbA6;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #bbbbbbA6;
+  }
+
+  // 去除 input 自动填充时的蓝色背景
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  input:-internal-autofill-selected,
+  input:autofill {
+    background-color: #F3F3F780 !important;
+    box-shadow: 0 0 0 1000px #F3F3F780 inset !important;
+    -webkit-box-shadow: 0 0 0 1000px #F3F3F780 inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+   -webkit-text-fill-color: inherit !important;
+  }
+  
+  // Ant Design Vue Input 组件的自动填充样式
+  .ant-input:-webkit-autofill,
+  .ant-input:-webkit-autofill:hover,
+  .ant-input:-webkit-autofill:focus,
+  .ant-input:-webkit-autofill:active {
+    background-color: #F3F3F780 !important;
+    box-shadow: 0 0 0 1000px #F3F3F780 inset !important;
+    -webkit-box-shadow: 0 0 0 1000px #F3F3F780 inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;  
+    -webkit-text-fill-color: inherit !important;
+  }
+  
+  .ant-input {
+    font-size: 14px;
+    &::placeholder {
+      font-size: 14px;
+    }
+  }
+  .ant-select-selection-placeholder {
+    font-size: 14px;
+  }
+  .ant-form-item{
+    margin-bottom: 12px;
+  }
+  .ant-input-password{
+    .ant-input{
+      background-color: transparent!important;
+    }
+    .ant-input-suffix{
+      position: absolute;
+      right: 10px;
+      top: 12px;
+    }
+  }
+  .ant-input-affix-wrapper{
+    padding: 6px 12px 7px!important;
+  }
+}
+
+.dark {
+  .auth-container-content {
+    .ant-tabs-nav-list{
+      background-color: #141414;
+      padding: 4px 4px 3px;
+      .ant-tabs-tab {
+        .ant-tabs-tab-btn {
+          color: #FFFFFFA6;
+        }
+        &.ant-tabs-tab-active {
+          background-color: #FFFFFF1F;
+          box-shadow: 0px -1px 0px 0px rgba(255, 255, 255, 0.3);
+          .ant-tabs-tab-btn {
+            color: #FFFFFFD9;
+          }
+        }
+      }
+    }
+  }
+   // 去除 input 自动填充时的蓝色背景
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  input:-internal-autofill-selected,
+  input:autofill {
+    background-color: transparent !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+   -webkit-text-fill-color: inherit !important;
+  }
+  
+  // Ant Design Vue Input 组件的自动填充样式
+  .ant-input:-webkit-autofill,
+  .ant-input:-webkit-autofill:hover,
+  .ant-input:-webkit-autofill:focus,
+  .ant-input:-webkit-autofill:active {
+    background-color: transparent !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;  
+    -webkit-text-fill-color: inherit !important;
+  }
+
+  // 修改滚动条样式
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #333333A6;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #333333A6;
+  }
+}
