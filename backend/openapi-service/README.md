@@ -142,14 +142,7 @@ rpa-openapi-service/
 - Redis 7.0+
 - Docker & Docker Compose (optional)
 
-### 1. Clone Project
-
-```bash
-git clone <repository-url>
-cd rpa-openapi-service
-```
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 # Install using pip
@@ -161,7 +154,7 @@ uv sync
 
 > It is recommended to use [uv](https://github.com/astral-sh/uv) for dependency management. The `uv.lock` file has locked dependency versions to ensure environment consistency.
 
-### 3. Configure Environment Variables
+### 2. Configure Environment Variables
 
 There are three configuration files, sorted by priority from low to high: `.env.default` < `.env` < `.env.local`, where `.env.local` is only used for local debugging and should never be used in production.
 
@@ -178,68 +171,21 @@ REDIS_URL=redis://localhost:6379/0
 APP_NAME="RPA OpenAPI Service"
 ```
 
-### 4. Start Service
+### 3. Start Service
 
 ```bash
 # Use uvicorn directly (development environment)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8020
 
 # Or use uv
-uv run fastapi dev
+uv run python run.py dev
 ```
 
-### 5. Verify Service
+### 4. Verify Service
 
 Visit [http://localhost:8020/docs](http://localhost:8020/docs) to view API documentation.
 
-## 🐳 Docker Deployment
-
-### Production Environment Deployment
-
-1. **Configure Environment Variables**
-
-   Create `.env` file and configure relevant environment variables.
-
-2. **Start Service**
-
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Check Service Status**
-
-   ```bash
-   docker-compose ps
-   docker-compose logs -f app
-   ```
-
-### Unit Test Environment Deployment
-
-1. **Start Test Dependency Services**
-
-   ```bash
-   docker-compose -f docker-compose.test.yaml up -d
-   ```
-
-2. **Run Tests**
-
-   ```bash
-   pytest
-   ```
-
-## 📚 API Documentation and Authentication
-
-### Authentication
-
-The service implements simple user identification based on request headers. All API requests need to include user ID in request headers:
-
-```bash
-X-User-Id: 123
-# or
-user_id: 123
-```
-
-### Auto-generated API Documentation
+## 📚 API Documentation
 
 FastAPI automatically generates interactive documentation for your API:
 
@@ -354,13 +300,12 @@ A: Recommended production deployment solutions:
 3. Use environment variables to inject sensitive configurations
 4. Set appropriate log levels and monitoring
 
-## 🔄 Continuous Updates and Contributions
+## 🔄 Contributions
 
-This service will be continuously updated to stay synchronized with FastAPI ecosystem and best practices. If you have any improvement suggestions or questions, welcome to contribute through:
+If you have any improvement suggestions or questions, welcome to contribute through:
 
 1. Submit Issues to report problems or suggest new features
 2. Submit Pull Requests to contribute code improvements
-3. Improve documentation and example code
 
 ## 📜 License
 

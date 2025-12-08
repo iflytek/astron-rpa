@@ -15,7 +15,8 @@ dependencies = [
     "redis[hiredis]>=6.1.0",
     "sqlalchemy>=2.0.41",
     "pytz",
-    "mcp"
+    "mcp",
+    "rpawebsocket"
 ]
 
 [dependency-groups]
@@ -26,6 +27,9 @@ dev = [
     "pytest-cov>=6.1.1",
     "ruff>=0.11.11",
 ]
+
+[tool.uv.sources]
+rpawebsocket = {path = "./app/utils/rpawebsocket-1.0.6-py3-none-any.whl"}
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

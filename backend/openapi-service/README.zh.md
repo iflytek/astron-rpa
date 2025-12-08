@@ -142,24 +142,7 @@ rpa-openapi-service/
 - Redis 7.0+
 - Docker & Docker Compose (可选)
 
-### 1. 基于模板创建新项目
-
-```bash
-# 克隆模板项目
-git clone https://git.example.com/fastapi-boilerplate.git my-new-project
-cd my-new-project
-
-# 重置 Git 历史
-rm -rf .git
-git init
-git add .
-git commit -m "Initial commit from boilerplate"
-
-# 修改项目名称和描述
-sed -i '' 's/fastapi-boilerplate-service/my-service-name/g' pyproject.toml
-```
-
-### 2. 安装依赖
+### 1. 安装依赖
 
 ```bash
 # 使用 pip 安装
@@ -171,7 +154,7 @@ uv sync
 
 > 推荐使用 [uv](https://github.com/astral-sh/uv) 进行依赖管理，`uv.lock` 文件已锁定依赖版本，确保环境一致性。
 
-### 3. 配置环境变量
+### 2. 配置环境变量
 
 配置文件有三个，按优先级从低到高排序：`.env.default` < `.env` < `.env.local`，其中 `.env.local` 仅用于本地调试，切勿在生产环境使用。
 
@@ -188,168 +171,21 @@ REDIS_URL=redis://localhost:6379/0
 APP_NAME="My New Service"
 ```
 
-### 4. 启动服务
+### 3. 启动服务
 
 ```bash
 # 使用 uvicorn 直接启动（开发环境）
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8020
 
 # 或使用 uv 启动
-uv run fastapi dev
+uv run python run.py dev
 ```
 
-### 5. 验证服务
+### 4. 验证服务
 
 访问 [http://localhost:8020/docs](http://localhost:8020/docs) 查看 API 文档。
 
-## 🚀 基于模板开发新项目
-
-按照以下步骤，您可以快速基于此模板开发自己的 API 服务：
-
-### 1. 定义新的数据模型
-
-在 `app/models/` 目录下创建新的数据模型：
-
-```python
-# app/models/user.py
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, func
-from app.database import Base
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, index=True, nullable=False)
-    email = Column(String(100), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(200), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=func.now(), nullable=False)
-```
-
-### 2. 创建数据验证模式
-
-在 `app/schemas/` 目录下定义请求和响应模式：
-
-```python
-# app/schemas/user.py
-from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime
-from typing import Optional
-
-class UserCreate(BaseModel):
-    username: str = Field(..., min_length=3, max_length=50)
-    email: EmailStr
-    password: str = Field(..., min_length=8)
-
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    email: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-```
-
-### 3. 实现业务逻辑服务
-
-在 `app/services/` 目录下实现业务逻辑：
-
-```python
-# app/services/user.py
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
-from app.schemas.user import UserCreate
-import bcrypt
-
-class UserService:
-    def __init__(self, db: AsyncSession):
-        self.db = db
-
-    async def create_user(self, user_data: UserCreate) -> User:
-        # 加密密码
-        hashed_password = bcrypt.hashpw(
-            user_data.password.encode('utf-8'), 
-            bcrypt.gensalt()
-        ).decode('utf-8')
-        
-        # 创建用户
-        user = User(
-            username=user_data.username,
-            email=user_data.email,
-            hashed_password=hashed_password
-        )
-        
-        self.db.add(user)
-        await self.db.flush()
-        await self.db.refresh(user)
-        return user
-```
-
-在 `app/dependencies/__init__.py` 文件中添加服务依赖：
-
-```python
-# app/dependencies/__init__.py
-from app.database import get_db
-from app.services.user import UserService
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-# 其他现有代码...
-
-async def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
-    """提供 UserService 实例的依赖项"""
-    return UserService(db)
-```
-
-### 4. 创建API路由
-
-在 `app/routers/` 目录下创建新的路由文件：
-
-```python
-# app/routers/users.py
-from fastapi import APIRouter, Depends, HTTPException, status
-from app.schemas.user import UserCreate, UserResponse
-from app.services.user import UserService
-from app.dependencies import get_user_id_from_header, get_user_service
-from typing import Annotated
-
-router = APIRouter(
-    prefix="/users",
-    tags=["users"],
-    dependencies=[Depends(get_user_id_from_header)]
-)
-
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(
-    user_data: UserCreate,
-    user_service: Annotated[UserService, Depends(get_user_service)]
-):
-    try:
-        user = await user_service.create_user(user_data)
-        return user
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create user: {str(e)}"
-        )
-```
-
-### 5. 注册路由到主应用
-
-在 `app/main.py` 中导入并注册新路由：
-
-```python
-# app/main.py
-from app.routers import users
-
-# 在其他路由后添加
-app.include_router(users.router)
-```
-
-## 🐳 Docker 部署
+## 🚀 Docker 部署
 
 ### 生产环境部署
 
@@ -384,19 +220,7 @@ app.include_router(users.router)
    pytest
    ```
 
-## 📚 API 文档和认证
-
-### 认证说明
-
-模板项目默认实现了基于请求头的简单用户识别，所有 API 请求需要在请求头中包含用户 ID：
-
-```bash
-X-User-Id: 123
-# 或
-user_id: 123
-```
-
-### 自动生成的 API 文档
+## 📚 API 文档
 
 FastAPI 自动为您的 API 生成交互式文档：
 
@@ -443,104 +267,13 @@ tail -f logs/app.log
 
 ### 配置调整
 
-模板项目使用分层配置文件，可根据需要创建和修改：
+该项目使用分层配置文件，可根据需要创建和修改：
 
 1. `.env.default` - 默认配置，提交到版本控制
 2. `.env` - 环境特定配置，根据部署环境定制
 3. `.env.local` - 本地开发配置，不提交到版本控制
 
 配置项加载顺序：`.env.default` < `.env` < `.env.local`
-
-## 📝 扩展功能指南
-
-### 1. 添加身份认证和授权
-
-要添加 JWT 身份认证系统：
-
-1. 添加必要的依赖：
-   ```bash
-   pip install python-jose[cryptography] passlib
-   ```
-
-2. 创建认证服务和依赖：
-   ```python
-   # app/services/auth.py
-   from jose import JWTError, jwt
-   from datetime import datetime, timedelta
-   
-   SECRET_KEY = "your-secret-key"  # 生产环境使用环境变量
-   ALGORITHM = "HS256"
-   ACCESS_TOKEN_EXPIRE_MINUTES = 30
-   
-   def create_access_token(data: dict):
-       to_encode = data.copy()
-       expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-       to_encode.update({"exp": expire})
-       encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-       return encoded_jwt
-   ```
-
-3. 创建依赖项：
-   ```python
-   # app/dependencies/auth.py
-   from fastapi import Depends, HTTPException, status
-   from fastapi.security import OAuth2PasswordBearer
-   
-   oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-   
-   async def get_current_user(token: str = Depends(oauth2_scheme)):
-       # JWT 验证逻辑
-   ```
-
-### 2. 实现数据库迁移
-
-使用 Alembic 进行数据库迁移：
-
-1. 安装 Alembic：
-   ```bash
-   pip install alembic
-   ```
-
-2. 初始化 Alembic：
-   ```bash
-   alembic init migrations
-   ```
-
-3. 配置 `alembic.ini` 和 `migrations/env.py`
-
-4. 创建迁移脚本：
-   ```bash
-   alembic revision --autogenerate -m "Create initial tables"
-   ```
-
-5. 运行迁移：
-   ```bash
-   alembic upgrade head
-   ```
-
-### 3. 添加缓存机制
-
-利用已集成的 Redis 实现缓存：
-
-```python
-# app/services/cache.py
-from redis.asyncio import Redis
-from typing import Any, Optional
-import json
-
-class CacheService:
-    def __init__(self, redis: Redis):
-        self.redis = redis
-    
-    async def get(self, key: str) -> Optional[Any]:
-        data = await self.redis.get(key)
-        if data:
-            return json.loads(data)
-        return None
-        
-    async def set(self, key: str, value: Any, expire: int = 3600):
-        await self.redis.set(key, json.dumps(value), ex=expire)
-```
 
 ## 📝 日志说明
 
@@ -602,13 +335,12 @@ A: 推荐的生产部署方案：
 3. 使用环境变量注入敏感配置
 4. 设置适当的日志级别和监控
 
-## 🔄 持续更新与贡献
+## 🔄 贡献
 
-本模板项目会持续更新以保持与 FastAPI 生态系统和最佳实践的同步。如果您有任何改进建议或问题，欢迎通过以下方式参与贡献：
+如果您有任何改进建议或问题，欢迎通过以下方式参与贡献：
 
 1. 提交 Issue 报告问题或建议新功能
 2. 提交 Pull Request 贡献代码改进
-3. 完善文档和示例代码
 
 ## 📜 许可证
 
