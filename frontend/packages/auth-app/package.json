@@ -16,7 +16,7 @@
   "devDependencies": {
     "@types/node": "^24.10.0",
     "@vitejs/plugin-vue": "^6.0.1",
-    "@vitejs/plugin-vue-jsx": "^5.0.1",
+    "@vitejs/plugin-vue-jsx": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
     "tailwindcss": "^3.4.4",
     "typescript": "~5.9.3",
