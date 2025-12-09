@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { theme } from 'ant-design-vue'
-import { LaunchCarousel } from '@rpa/components/launch-carousel'
 import BootHeader from '@/components/Boot/Header.vue'
+import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
 
 const { token } = theme.useToken()
 
