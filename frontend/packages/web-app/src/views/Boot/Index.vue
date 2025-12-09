@@ -12,6 +12,10 @@ import Loading from '@/components/Loading.vue'
 import { utilsManager, windowManager } from '@/platform'
 import { Auth } from '@rpa/components/auth'
 import { getBaseURL } from '@/api/http/env'
+import { theme } from 'ant-design-vue'
+import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
+
+const { token } = theme.useToken()
 
 const progress = ref(0)
 const isLogin = ref(false)
@@ -73,12 +77,28 @@ onUnmounted(() => {
 
 <template>
   <ConfigProvider>
-    <Boot v-if="!isLogin" :progress="progress" />
-    <Auth.PageLayout v-else>
+    <Auth.PageLayout>
       <template #header>
         <BootHeader />
       </template>
-      <Auth.LoginForm :base-url="getBaseURL()" @finish="loginSuccess" />
+      <template v-if="!isLogin" #container>
+        <div
+          class="flex items-center justify-center"
+        >
+          <LaunchCarousel>
+            <template #footer>
+              <div class="mt-6 w-[280px]">
+                <a-progress
+                  :percent="progress"
+                  :show-info="false"
+                  :stroke-color="token.colorPrimary"
+                />
+              </div>
+            </template>
+          </LaunchCarousel>
+        </div>
+      </template>
+      <Auth.LoginForm v-if="isLogin" :base-url="getBaseURL()" @finish="loginSuccess" />
     </Auth.PageLayout>
     <Loading />
   </ConfigProvider>

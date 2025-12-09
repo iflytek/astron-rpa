@@ -1,41 +1,43 @@
 <script setup lang="ts">
-import LaunchCarousel from '../../../LaunchCarousel/LaunchCarousel.vue';
-import LoginBg from '../../assets/imgs/login_bg.png'
-// import LoginBgDark from '../../assets/imgs/login_bg_dark.png'
-// import LoginImg from '../../assets/imgs/login_img.svg'
+import { onBeforeUnmount } from 'vue'
+import LoginBgDark from '../../assets/imgs/login_bg_dark.png'
+import loginImgUrl from '../../assets/imgs/login_img.svg'
 import PageHeader from './PageHeader.vue'
-// import StarCanvas from './StarCanvas.vue'
+import StarCanvas from './StarCanvas.vue'
 import { useTheme } from '../../../../theme'
-// import { onBeforeUnmount } from 'vue'
-const { colorTheme } = useTheme()
-// const color = colorTheme.value
-// setColorMode('dark')
-// onBeforeUnmount(() => {
-//   setColorMode(color)
-// })
+const { colorTheme, setColorMode } = useTheme()
+
+const loginImg = loginImgUrl
+const loginBg = LoginBgDark
+
+const color = colorTheme.value
+setColorMode('light')
+onBeforeUnmount(() => {
+  setColorMode(color)
+})
 </script>
 
 <template>
-  <!-- <div class="auth-container w-full h-full bg-[#F4F4FF] dark:bg-[#141414]" :class="[colorTheme]" :style="{ backgroundImage: `url(${LoginBgDark})`, backgroundSize: 'cover' }"> -->
-  <div class="auth-container w-full h-full bg-[#F4F4FF] dark:bg-[#141414]" :class="[colorTheme]" :style="{ backgroundImage: `url(${LoginBg})`, backgroundSize: 'cover' }">
+  <div class="auth-container w-full h-full bg-[#141414]" :class="[colorTheme]" :style="{ backgroundImage: `url(${loginBg})`, backgroundSize: '100% 100%' }">
     <slot name="header">
       <PageHeader />
     </slot>
-    <div class="h-[calc(100%-40px)] relative z-[2] flex flex-1 items-center justify-center">
-      <div class="flex items-center justify-between w-[920px] h-[540px]">
-        <div class="text-[#000000D9] dark:text-[#FFFFFF] font-[600] font-sans">
-          <div class="w-[400px] px-[20px] mb-[32px] text-center text-[32px]">
-            <div class="w-full"><span class="text-[#726FFF] font-[600]">星辰RPA,</span>让重复自动化</div>
-            <div class="w-full">让决策更智能</div>
+    <div class="h-full relative z-[2] flex items-center justify-center">
+      <slot name="container">
+        <div class="flex items-center justify-between w-[920px] h-[540px]">
+          <div class="text-[#FFFFFF] font-[600] font-sans">
+            <div class="w-[480px] px-[20px] mb-[32px] text-center text-[32px]">
+              <div class="w-full"><span class="text-[#726FFF] font-[600]">星辰RPA,</span>让重复自动化</div>
+              <div class="w-full">让决策更智能</div>
+            </div>
+            <div class="w-[480px]">
+              <object :data="loginImg" type="image/svg+xml" style="width: 100%; height: auto;"></object>
+            </div>
           </div>
-          <LaunchCarousel />
-          <!-- <div class="svg-container w-[480px]">
-            <object :data="LoginImg" type="image/svg+xml" style="width: 100%; height: auto;"></object>
-          </div> -->
+          <slot></slot>
         </div>
-        <slot></slot>
-      </div>
+      </slot>
     </div>
-    <!-- <StarCanvas /> -->
+    <StarCanvas />
   </div>
 </template>

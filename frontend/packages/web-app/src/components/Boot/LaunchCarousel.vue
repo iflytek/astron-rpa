@@ -2,11 +2,10 @@
 import type { CarouselRef } from 'ant-design-vue/es/carousel'
 import { Carousel } from 'ant-design-vue'
 import { ref, useTemplateRef } from 'vue'
-import { useTheme } from '../../theme'
-import { illustrationList } from './launch'
-import { Icon as RpaIcon } from '../Icon'
+// import { useTheme } from '@rpa/components'
+import { illustrationList } from '@/constants/launch'
 
-const { colorTheme } = useTheme()
+// const { colorTheme } = useTheme()
 
 const carouselRef = useTemplateRef<CarouselRef>('carouselRef')
 const current = ref(0)
@@ -26,7 +25,7 @@ function onSwitch(idx: number) {
 </script>
 
 <template>
-  <div class="w-[400px] flex flex-col items-center">
+  <div class="w-[400px] flex flex-col items-center text-[#ffffff]">
     <Carousel
       ref="carouselRef"
       :after-change="onChange"
@@ -35,10 +34,10 @@ function onSwitch(idx: number) {
       effect="fade"
       class="w-[376px]"
     >
-      <RpaIcon
+      <rpa-icon
         v-for="(item, index) in randomIllustrationGroup"
         :key="index"
-        :name="`${colorTheme}-${item.img}`"
+        :name="`dark-${item.img}`"
         width="100%"
         height="235px"
       />
@@ -48,7 +47,7 @@ function onSwitch(idx: number) {
       <span
         v-for="(_, index) in randomIllustrationGroup"
         :key="index"
-        class="w-2 h-2 rounded cursor-pointer bg-[rgba(0,0,0,0.10)] dark:bg-[rgba(255,255,255,0.25)]"
+        class="w-2 h-2 rounded cursor-pointer bg-[rgba(255,255,255,0.25)]"
         :class="{ '!bg-primary': index === current }"
         @click="onSwitch(index)"
       />
