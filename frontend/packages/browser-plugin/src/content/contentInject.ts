@@ -672,7 +672,7 @@ const ContentHandler = {
       // if parent element found, return parent element info
       if (parentElement) {
         const elementInfo = formatElementInfo(parentElement, document)
-        const parentInfo = { ...data, ...elementInfo, abXpath: getXpath(parentElement,true), outerHTML: parentElement.outerHTML }
+        const parentInfo = { ...data, ...elementInfo, abXpath: getXpath(parentElement, true), outerHTML: parentElement.outerHTML }
         return Utils.success(parentInfo)
       }
       else {
@@ -680,7 +680,7 @@ const ContentHandler = {
       }
     },
     async getChildElement(data: ElementInfo) {
-      let { originXpath = '', abXpath } = data // origin element xpath
+      const { originXpath = '', abXpath } = data // origin element xpath
       let childElement = null
       if (!originXpath) {
         return Utils.fail(ErrorMessage.ELEMENT_CHILD_ORIGIN_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
@@ -695,7 +695,7 @@ const ContentHandler = {
         childElement = getElementByXPath(childXpath)
         if (childElement) {
           const elementInfo = formatElementInfo(childElement, document)
-          const childInfo = { ...data, ...elementInfo, abXpath: getXpath(childElement,true), outerHTML: childElement.outerHTML }
+          const childInfo = { ...data, ...elementInfo, abXpath: getXpath(childElement, true), outerHTML: childElement.outerHTML }
           return Utils.success(childInfo)
         }
         return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
@@ -711,7 +711,7 @@ const ContentHandler = {
           if (visiableChild) {
             childElement = visiableChild as HTMLElement
             const elementInfo = formatElementInfo(childElement, document)
-            const childInfo = { ...data, ...elementInfo, abXpath: getXpath(childElement,true), outerHTML: childElement.outerHTML }
+            const childInfo = { ...data, ...elementInfo, abXpath: getXpath(childElement, true), outerHTML: childElement.outerHTML }
             return Utils.success(childInfo)
           }
           else {

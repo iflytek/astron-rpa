@@ -10,13 +10,15 @@ export const Cookie = {
       if (details.path) {
         details.domain = new URL(details.url).hostname
         delete details.url
-      } else {
+      }
+      else {
         delete details.path
       }
       chrome.cookies.getAll({ ...details }, (cookies) => {
         if (cookies.length === 1) {
           resolve(Utils.success(cookies[0]))
-        } else {
+        }
+        else {
           resolve(Utils.success(cookies))
         }
       })

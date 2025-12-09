@@ -492,9 +492,10 @@ const Handlers = {
           const htmlResult = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
           const mergedInfo = { ...params.data, ...htmlResult.data }
           return Utils.success(mergedInfo)
-        } catch (error) {
-          // console.log('ignore getOuterHTML error: ', error)
-          const elementInfo = globalThis.activeElement 
+        }
+        catch (error) {
+          console.log('ignore getOuterHTML error: ', error)
+          const elementInfo = globalThis.activeElement
           return Utils.success(elementInfo)
         }
       },
