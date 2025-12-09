@@ -8,6 +8,7 @@ import {
   sendCaptcha,
   setPassword,
   tenantList,
+  isNewUser,
 } from '../../../api/login'
 import type {
   LoginFormData,
@@ -94,6 +95,11 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
   const preLogin = async (data: LoginFormData, mode: LoginMode) => run(mode, async () => {
     try {
       const params = {...data, loginType: mode}
+      const isNew = await isNewUser(params)
+      if(!isNew){
+        switchMode('forgotPasswordWithSysUpgrade')
+        return
+      }
       mode === 'PASSWORD' && params.remember && params.phone && params.password ? saveRememberUser(params.phone, params.password) : clearRememberUser()
       delete params.remember
       delete params.agreement
@@ -136,7 +142,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       delete params.agreement
       const token = await preAuthenticate(params)
       tempToken.value = token
-      switchMode('setPassword')
+      switchMode(currentFormMode.value === 'forgotPassword' ? 'setPassword' : 'setPasswordWithSysUpgrade')
     } catch (e) {
       console.log(e)
     }

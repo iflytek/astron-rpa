@@ -2,7 +2,7 @@ import { functionType, stringType } from '../../utils/type'
 
 export type LoginMode = 'PASSWORD' | 'CODE'
 export type RegisterMode = 'PERSONAL' | 'ENTERPRISE'
-export type AuthFormMode = 'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect'
+export type AuthFormMode = 'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect' | 'forgotPasswordWithSysUpgrade' | 'setPasswordWithSysUpgrade'
 export type AsyncAction = 'IDLE' | 'PASSWORD' | 'CODE' | 'PERSONAL' | 'ENTERPRISE' | 'FORGOT_PASSWORD' | 'SET_PASSWORD' | 'CHOOSE_TENANT'
 export interface LoginFormData {
   loginName?: string
