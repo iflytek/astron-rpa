@@ -2,12 +2,12 @@
 
 ## 📚 Table of Contents
 
-- [🔧 Installation & Deployment](#installation--deployment)
-- [👥 Client Related](#client-related)
-- [⚡ Performance & Loading](#performance--loading)
-- [📖 Feature Usage](#feature-usage)
-- [🐛 Troubleshooting](#troubleshooting)
-- [📞 Get Help](#get-help)
+- [🔧 Installation & Deployment](#-installation--deployment)
+- [👥 Client Related](#-client-related)
+- [⚡ Performance & Loading](#-performance--loading)
+- [📖 Feature Usage](#-feature-usage)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [📞 Get Help](#-get-help)
 
 ---
 

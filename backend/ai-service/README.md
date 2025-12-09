@@ -178,7 +178,7 @@ JFBYM_POINTS_COST=10
 ### 4. Start Service
 
 ```bash
-uv run fastapi dev
+uv run python run.py dev
 ```
 
 ### 5. Verify Service

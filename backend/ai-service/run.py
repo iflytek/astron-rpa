@@ -55,7 +55,7 @@ def main():
     uvicorn.run(
         "app.main:app",  # 在Docker容器中，从/app目录启动，所以是app.main:app
         host="0.0.0.0",
-        port=6688,
+        port=8010,
         proxy_headers=True,
         workers=4,
         reload=True if env_name == "dev" else False,  # 开发环境启用热重载
