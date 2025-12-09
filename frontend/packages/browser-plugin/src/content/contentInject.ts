@@ -672,7 +672,7 @@ const ContentHandler = {
       // if parent element found, return parent element info
       if (parentElement) {
         const elementInfo = formatElementInfo(parentElement, document)
-        const parentInfo = { ...data, ...elementInfo, outerHTML: parentElement.outerHTML }
+        const parentInfo = { ...data, ...elementInfo, abXpath: getXpath(parentElement, true), outerHTML: parentElement.outerHTML }
         return Utils.success(parentInfo)
       }
       else {
@@ -680,27 +680,26 @@ const ContentHandler = {
       }
     },
     async getChildElement(data: ElementInfo) {
-      let { originXpath = '', abXpath } = data // origin element xpath
+      const { originXpath = '', abXpath } = data // origin element xpath
       let childElement = null
-      if (!originXpath)
-        originXpath = abXpath
+      if (!originXpath) {
+        return Utils.fail(ErrorMessage.ELEMENT_CHILD_ORIGIN_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
+      }
       // compare current xpath with origin xpath to find changed child element
       const originXpathArr = originXpath.split('/')
       const currentXpathArr = abXpath.split('/')
       const currentElement = await ContentHandler.ele.getDom(data)
-      // if origin xpath longer than current xpath, find child by origin xpath
       if (originXpathArr.length > currentXpathArr.length) {
         const childXpath = originXpathArr.slice(0, currentXpathArr.length + 1).join('/')
         childElement = getElementByXPath(childXpath)
         if (childElement) {
           const elementInfo = formatElementInfo(childElement, document)
-          const childInfo = { ...data, ...elementInfo, outerHTML: childElement.outerHTML }
+          const childInfo = { ...data, ...elementInfo, abXpath: getXpath(childElement, true), outerHTML: childElement.outerHTML }
           return Utils.success(childInfo)
         }
         return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
       }
-      // if origin xpath equals current xpath, find visible child element
-      if (originXpath === abXpath) {
+      if (originXpathArr.length <= currentXpathArr.length) {
         const children = Array.from(currentElement.children)
         if (children.length > 0) {
           const visiableChild = children.find((child) => {
@@ -710,7 +709,7 @@ const ContentHandler = {
           if (visiableChild) {
             childElement = visiableChild as HTMLElement
             const elementInfo = formatElementInfo(childElement, document)
-            const childInfo = { ...data, ...elementInfo, outerHTML: childElement.outerHTML }
+            const childInfo = { ...data, ...elementInfo, abXpath: getXpath(childElement, true), outerHTML: childElement.outerHTML }
             return Utils.success(childInfo)
           }
           else {

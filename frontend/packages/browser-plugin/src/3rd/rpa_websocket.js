@@ -23,7 +23,6 @@ function custom_agent() {
   }
   return modeAgent[__BUILD_MODE__] || '';
 }
-
 function get_navigator_version() {
   const nu = navigator.userAgentData;
   let ver = 'unknown';
@@ -35,6 +34,12 @@ function get_navigator_version() {
     }
   }
   return ver
+}
+function gen_short_id() {
+  return "xxxxxxxx".replace(/[x]/g, function () {
+    let r = (Math.random() * 16) | 0;
+    return r.toString(16);
+  });
 }
 
 function gen_ack_msg(event_id = "") {
@@ -412,17 +417,22 @@ class WsApp {
     }
   }
 }
-const customAgent = custom_agent();
-const agent = customAgent ? customAgent : get_navigator_user_agent()
-console.info("userAgent:", agent);
-const token = btoa(agent);
-const ws_base_url = import.meta.env.VITE_APP_WS_URL
-const wsUrl = `${ws_base_url}?token=${token}&nv=${get_navigator_version()}`;
-export const wsApp = new WsApp(
-  wsUrl,
-  10,
-  10,
-  -1
-);
 
-
+export async function createWsApp() {
+  const { cid = gen_short_id() } = await chrome.storage.local.get('cid')
+  await chrome.storage.local.set({ cid })
+  const ws_base_url = import.meta.env.VITE_APP_WS_URL;
+  const customAgent = custom_agent();
+  const agent = customAgent ? customAgent : get_navigator_user_agent()
+  console.info("token:", agent);
+  const token = btoa(agent);
+  const version = get_navigator_version();
+  const wsUrl = `${ws_base_url}?token=${token}&nv=${version}&cid=${cid}`;
+  const wsApp = new WsApp(
+    wsUrl,
+    10,
+    10,
+    -1
+  );
+  return wsApp;
+}
