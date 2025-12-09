@@ -48,15 +48,17 @@ const {
     />
 
     <ForgotPassword
-      v-else-if="currentFormMode === 'forgotPassword'"
+      v-else-if="['forgotPasswordWithSysUpgrade', 'forgotPassword' ].includes(currentFormMode)"
       :running="running"
+      :title="currentFormMode === 'forgotPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
       :send-captcha="handleSendCaptcha"
       @submit="handleForgotPassword"
       @switch-to-login="() => switchMode('login')"
     />
 
     <SetPassword
-      v-else-if="currentFormMode === 'setPassword'"
+      v-else-if="['setPasswordWithSysUpgrade', 'setPassword' ].includes(currentFormMode)"
+      :title="currentFormMode === 'setPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
       :running="running"
       @submit="handleSetPassword"
       @switch-to-login="() => switchMode('login')"

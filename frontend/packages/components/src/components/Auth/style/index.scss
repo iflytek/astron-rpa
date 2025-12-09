@@ -67,7 +67,7 @@
     box-shadow: 0 0 0 1000px #F3F3F780 inset !important;
     -webkit-box-shadow: 0 0 0 1000px #F3F3F780 inset !important;
     transition: background-color 5000s ease-in-out 0s !important;
-   -webkit-text-fill-color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
   }
   
   // Ant Design Vue Input 组件的自动填充样式
@@ -174,7 +174,7 @@
     box-shadow: 0 0 0 1000px transparent inset !important;
     -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
     transition: background-color 5000s ease-in-out 0s !important;
-   -webkit-text-fill-color: inherit !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.65) !important;
   }
   
   // Ant Design Vue Input 组件的自动填充样式
@@ -186,9 +186,9 @@
     box-shadow: 0 0 0 1000px transparent inset !important;
     -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
     transition: background-color 5000s ease-in-out 0s !important;  
-    -webkit-text-fill-color: inherit !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.65) !important;
   }
-
+  
   // 修改滚动条样式
   ::-webkit-scrollbar {
     width: 4px;

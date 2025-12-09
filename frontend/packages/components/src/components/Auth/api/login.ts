@@ -22,6 +22,13 @@ export const logout = async () => {
   return data
 }
 
+// 检查新老用户
+export const isNewUser = async (params: LoginFormData) => {
+  // const { data } = await http.post('/rpa-auth/pre-authenticate', params)
+  // return data
+  return Promise.resolve(true)
+}
+
 // 预认证
 export const preAuthenticate = async (params: LoginFormData) => {
   const { data } = await http.post('/rpa-auth/pre-authenticate', params)
