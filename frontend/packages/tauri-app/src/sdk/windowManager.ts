@@ -2,8 +2,8 @@ import type { CreateWindowOptions, WindowManager } from '@rpa/shared/platform'
 import { appWindow, getCurrent, LogicalPosition, LogicalSize, PhysicalPosition, PhysicalSize, primaryMonitor, WebviewWindow } from '@tauri-apps/api/window'
 
 const loginWinState = {
-  width: 1200,
-  height: 718,
+  width: 1280,
+  height: 750,
   maximized: false,
   center: true,
 }

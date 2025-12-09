@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { isBrowser, windowManager } from '@/platform'
-import { useTheme } from '@rpa/components'
-
-const { setColorMode, colorTheme } = useTheme()
 
 // 控制窗口最小化、最大化、关闭
 function handleMinMaxClose(type: string) {
@@ -24,13 +21,13 @@ function handleMinMaxClose(type: string) {
 </script>
 
 <template>
-  <div data-tauri-drag-region class="app_control w-full drag">
+  <div data-tauri-drag-region class="app_control w-full drag fixed top-0 left-0">
     <div
       data-tauri-drag-region
       class="app_control_text flex items-center gap-2 drag whitespace-nowrap"
     >
       <img data-tauri-drag-region class="w-5" src="/icons/icon.png">
-      <span class="text-base leading-5 font-bold">
+      <span class="text-base text-[#ffffff] leading-5 font-bold">
         {{ $t('app') }}
       </span>
     </div>
@@ -38,24 +35,18 @@ function handleMinMaxClose(type: string) {
       data-tauri-drag-region
       class="flex items-center no-drag whitespace-nowrap h-full"
     >
-      <span
-        class="app_control__item"
-        @click="setColorMode(colorTheme === 'dark' ? 'light' : 'dark')"
-      >
-        <rpa-icon name="theme-icon" />
-      </span>
       <!-- 使用props控制显示 -->
       <span
         class="app_control__item"
         @click="handleMinMaxClose('minimize')"
       >
-        <rpa-icon name="remove" />
+        <rpa-icon name="remove" color="#ffffff" />
       </span>
       <span
         class="app_control__item"
         @click="handleMinMaxClose('close')"
       >
-        <rpa-icon name="close" />
+        <rpa-icon name="close" color="#ffffff" />
       </span>
     </div>
   </div>
@@ -63,8 +54,6 @@ function handleMinMaxClose(type: string) {
 
 <style lang="scss" scoped>
 .app_control {
-  position: relative;
-  top: 0;
   height: var(--headerHeight);
   z-index: var(--headerZindex);
   display: flex;
@@ -72,7 +61,6 @@ function handleMinMaxClose(type: string) {
   justify-content: space-between;
   user-select: none;
   transition: all ease 0.2s;
-
   &_text {
     padding-left: 16px;
     user-select: none;
@@ -88,7 +76,7 @@ function handleMinMaxClose(type: string) {
   height: 100%;
   width: 40px;
   &:hover {
-    background-color: $color-fill-secondary;
+    background-color: #ffffff1f;
   }
   &:last-child:hover {
     background-color: red;

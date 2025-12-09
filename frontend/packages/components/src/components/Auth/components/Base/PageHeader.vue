@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { Icon as RpaIcon } from '../../../Icon'
-
-import { useTheme } from '../../../../theme'
-const { setColorMode ,colorTheme } = useTheme()
 </script>
 
 <template>
@@ -15,9 +11,6 @@ const { setColorMode ,colorTheme } = useTheme()
       <span class="text-base leading-5 font-bold">
         星辰RPA
       </span>
-    </div>
-    <div class="flex items-center no-drag whitespace-nowrap h-full">
-      <RpaIcon class="cursor-pointer" name="theme-icon" @click="setColorMode(colorTheme === 'dark' ? 'light' : 'dark')"/>
     </div>
   </div>
 </template>
