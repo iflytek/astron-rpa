@@ -172,11 +172,8 @@ function isSvgElement(element: Element): boolean {
 export function filterVisibleElements(elements: HTMLElement[]) {
   if (elements && elements.length) {
     elements = elements.filter((ele) => {
-      const rect = ele.getBoundingClientRect()
-      if (rect.width === 0 || rect.height === 0)
-        return false
       const style = window.getComputedStyle(ele)
-      if (style.visibility === 'hidden' || style.visibility === 'collapse')
+      if (style.visibility === 'hidden' || style.visibility === 'collapse' || style.display === 'none')
         return false
       return true
     })
@@ -488,7 +485,7 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
   for (let i = dirs.length - 1; i >= 0; i--) {
     const dir = dirs[i]
     const indexAttr = dir.attrs.find(attr => attr.name === 'index')
-    if (indexAttr) {
+    if (indexAttr && indexAttr.checked) {
       indexAttr.checked = false
       const xpath = generateXPath(dirs)
       const elements = getElementsByXpath(xpath)

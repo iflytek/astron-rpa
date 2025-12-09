@@ -41,18 +41,13 @@
     "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
   },
   "permissions": [
-    "nativeMessaging",
     "debugger",
     "tabs",
     "activeTab",
-    "contextMenus",
     "webNavigation",
     "cookies",
     "storage",
-    "notifications",
-    "tabCapture",
     "scripting",
-    "userScripts",
     "management"
   ]
 }

@@ -7,6 +7,7 @@ coverage
 *.crx
 *.pem
 *.env
+*.env.local
 
 .vscode
 .idea

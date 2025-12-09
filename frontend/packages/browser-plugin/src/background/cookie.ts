@@ -2,21 +2,24 @@ import { ErrorMessage, SuccessMessage } from './constant'
 import { Utils } from './utils'
 
 export const Cookie = {
-  getCookie: (details: chrome.cookies.CookieDetails) => {
+  getCookie: (details: CookieDetails) => {
     return new Promise<unknown>((resolve) => {
       if (!details.url) {
         resolve(Utils.fail(ErrorMessage.PARAMS_URL_NOT_FOUND))
       }
-      if (details.name) {
-        chrome.cookies.get(details, (cookies) => {
-          resolve(Utils.success(cookies))
-        })
+      if (details.path) {
+        details.domain = new URL(details.url).hostname
+        delete details.url
+      } else {
+        delete details.path
       }
-      else {
-        chrome.cookies.getAll({ url: details.url }, (cookies) => {
+      chrome.cookies.getAll({ ...details }, (cookies) => {
+        if (cookies.length === 1) {
+          resolve(Utils.success(cookies[0]))
+        } else {
           resolve(Utils.success(cookies))
-        })
-      }
+        }
+      })
     })
   },
 
@@ -39,22 +42,14 @@ export const Cookie = {
       if (Array.isArray(details)) {
         const arr = details.map((cookie) => {
           return new Promise<unknown>((resolve1) => {
-            const { name, url, path, value, domain, expirationDate } = cookie
+            const { name, url, value } = cookie
             if (!url) {
               resolve(Utils.fail(ErrorMessage.PARAMS_URL_NOT_FOUND))
             }
             if (!name || !value) {
               resolve(Utils.fail(ErrorMessage.PARAMS_NAME_VALUE_NOT_FOUND))
             }
-            const data = {
-              name,
-              value,
-              url,
-              domain,
-              expirationDate,
-              path,
-            }
-            chrome.cookies.set(data, () => {
+            chrome.cookies.set(cookie, () => {
               resolve1(true)
             })
           })

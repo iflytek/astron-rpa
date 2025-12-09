@@ -31,6 +31,7 @@ export enum ErrorMessage {
   CONTEXT_NOT_FOUND = '未找到执行上下文，请确保页面已加载完成',
   EXECUTE_ERROR = '执行失败，未获取到结果',
   DEBUGGER_TIMOUT = '检测 Debugger 状态超时',
+  CONTENT_MESSAGE_ERROR = '内容脚本消息响应错误',
 }
 
 export enum SuccessMessage {
