@@ -8,7 +8,7 @@ import {
   sendCaptcha,
   setPassword,
   tenantList,
-  isNewUser,
+  isHistory,
 } from '../../../api/login'
 import type {
   LoginFormData,
@@ -95,8 +95,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
   const preLogin = async (data: LoginFormData, mode: LoginMode) => run(mode, async () => {
     try {
       const params = {...data, loginType: mode}
-      const isNew = await isNewUser(params)
-      if(!isNew){
+      const history = await isHistory({phone: params.phone})
+      if(history) {
         switchMode('forgotPasswordWithSysUpgrade')
         return
       }
