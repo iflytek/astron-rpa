@@ -5,7 +5,8 @@ import DynamicForm from '../Base/DynamicForm.vue'
 import { useSetPassword } from './hooks/useSetPassword'
 import type { LoginFormData, AsyncAction } from '../../interface'
 
-const { running } = defineProps({
+const { running, title } = defineProps({
+  title: { type: String, default: '设置密码' },
   running: { type: String as () => AsyncAction, default: 'IDLE' },
 })
 
@@ -22,7 +23,7 @@ const { formRef, formData, config, handleEvents } = useSetPassword(emit as any)
 <template>
   <FormLayout
     :wrap-class="'auth-set-password h-full relative'"
-    title="设置密码"
+    :title="title || '设置密码'"
     show-back
     @back="() => emit('switchToLogin')"
   >

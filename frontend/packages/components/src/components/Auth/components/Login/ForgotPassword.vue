@@ -5,7 +5,8 @@ import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useForgotPassword } from './hooks/useForgotPassword'
 
-const { running, sendCaptcha } = defineProps({
+const { title, running, sendCaptcha } = defineProps({
+  title: { type: String, default: '找回密码' },
   running: { type: String as () => AsyncAction, default: 'IDLE' },
   sendCaptcha: {
     type: Function as PropType<(phone: string) => Promise<void>>,
@@ -26,7 +27,7 @@ const { formRef, formData, config, handleEvents } = useForgotPassword(emit as an
 <template>
   <FormLayout
     :wrap-class="'auth-forgot-password h-full relative'"
-    title="找回密码"
+    :title="title || '找回密码'"
     show-back
     @back="() => emit('switchToLogin')"
   >
