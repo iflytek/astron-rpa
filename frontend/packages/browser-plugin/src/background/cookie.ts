@@ -17,7 +17,8 @@ export const Cookie = {
       chrome.cookies.getAll({ ...details }, (cookies) => {
         if (Array.isArray(cookies) && cookies.length) {
           resolve(Utils.success(cookies[0]))
-        } else {
+        }
+        else {
           resolve(Utils.success(null))
         }
       })
