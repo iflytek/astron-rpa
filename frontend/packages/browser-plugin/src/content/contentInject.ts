@@ -689,7 +689,6 @@ const ContentHandler = {
       const originXpathArr = originXpath.split('/')
       const currentXpathArr = abXpath.split('/')
       const currentElement = await ContentHandler.ele.getDom(data)
-      // if origin xpath longer than current xpath, find child by origin xpath
       if (originXpathArr.length > currentXpathArr.length) {
         const childXpath = originXpathArr.slice(0, currentXpathArr.length + 1).join('/')
         childElement = getElementByXPath(childXpath)
@@ -700,7 +699,6 @@ const ContentHandler = {
         }
         return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
       }
-      // if origin xpath equals current xpath, find visible child element
       if (originXpathArr.length <= currentXpathArr.length) {
         const children = Array.from(currentElement.children)
         if (children.length > 0) {
@@ -722,7 +720,6 @@ const ContentHandler = {
           return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
         }
       }
-      return Utils.fail(ErrorMessage.ELEMENT_CHILD_NOT_FOUND, StatusCode.ELEMENT_NOT_FOUND)
     },
 
     // ---v3

@@ -1,5 +1,4 @@
 import { log } from '../3rd/log'
-import type { BatchElementParams } from '../types/data_batch.d'
 
 import { ErrorMessage, StatusCode } from './constant'
 import { Cookie } from './cookie'
@@ -508,7 +507,7 @@ const Handlers = {
           return Utils.fail(`${tab.url} ${ErrorMessage.CURRENT_TAB_UNSUPPORT_ERROR}`)
         }
         const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
-        if (!result) {
+        if (result === null) {
           return Utils.fail(ErrorMessage.CONTENT_MESSAGE_ERROR, StatusCode.UNKNOWN_ERROR)
         }
         if (result.code !== StatusCode.SUCCESS) {

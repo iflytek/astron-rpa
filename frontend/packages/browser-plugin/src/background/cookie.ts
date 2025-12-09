@@ -15,11 +15,10 @@ export const Cookie = {
         delete details.path
       }
       chrome.cookies.getAll({ ...details }, (cookies) => {
-        if (cookies.length === 1) {
+        if (Array.isArray(cookies) && cookies.length) {
           resolve(Utils.success(cookies[0]))
-        }
-        else {
-          resolve(Utils.success(cookies))
+        } else {
+          resolve(Utils.success(null))
         }
       })
     })
@@ -39,38 +38,17 @@ export const Cookie = {
     })
   },
 
-  setCookies: (details: CookieDetails | CookieDetails[]) => {
+  setCookies: (details: CookieDetails) => {
     return new Promise<unknown>((resolve) => {
-      if (Array.isArray(details)) {
-        const arr = details.map((cookie) => {
-          return new Promise<unknown>((resolve1) => {
-            const { name, url, value } = cookie
-            if (!url) {
-              resolve(Utils.fail(ErrorMessage.PARAMS_URL_NOT_FOUND))
-            }
-            if (!name || !value) {
-              resolve(Utils.fail(ErrorMessage.PARAMS_NAME_VALUE_NOT_FOUND))
-            }
-            chrome.cookies.set(cookie, () => {
-              resolve1(true)
-            })
-          })
-        })
-        Promise.all(arr).then(() => {
-          resolve(Utils.success(SuccessMessage.SET_SUCCESS))
-        })
+      if (!details.url) {
+        resolve(Utils.fail(ErrorMessage.PARAMS_URL_NOT_FOUND))
       }
-      else {
-        if (!details.url) {
-          resolve(Utils.fail(ErrorMessage.PARAMS_URL_NOT_FOUND))
-        }
-        if (!details.name || !details.value) {
-          resolve(Utils.fail(ErrorMessage.PARAMS_NAME_VALUE_NOT_FOUND))
-        }
-        chrome.cookies.set(details, () => {
-          resolve(Utils.success(SuccessMessage.SET_SUCCESS))
-        })
+      if (!details.name || !details.value) {
+        resolve(Utils.fail(ErrorMessage.PARAMS_NAME_VALUE_NOT_FOUND))
       }
+      chrome.cookies.set(details, () => {
+        resolve(Utils.success(SuccessMessage.SET_SUCCESS))
+      })
     })
   },
 }

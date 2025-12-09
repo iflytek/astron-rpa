@@ -35,7 +35,7 @@ function get_navigator_version() {
   }
   return ver
 }
-function gen_uuid() {
+function gen_short_id() {
   return "xxxxxxxx".replace(/[x]/g, function () {
     let r = (Math.random() * 16) | 0;
     return r.toString(16);
@@ -419,7 +419,7 @@ class WsApp {
 }
 
 export async function createWsApp() {
-  const { cid = gen_uuid() } = await chrome.storage.local.get('cid')
+  const { cid = gen_short_id() } = await chrome.storage.local.get('cid')
   await chrome.storage.local.set({ cid })
   const ws_base_url = import.meta.env.VITE_APP_WS_URL;
   const customAgent = custom_agent();
