@@ -14,8 +14,8 @@ from astronverse.scheduler.utils.utils import get_settings
 class NotifyConfig:
     EMAIL_SERVER = "mail.iflytek.com"
     EMAIL_PORT = 465
-    EMAIL_ADDRESS = "rpa@iflytek.com"
-    EMAIL_PASSWORD = "hFwY6UfmpN2pwhMm"
+    EMAIL_ADDRESS = ""
+    EMAIL_PASSWORD = ""
 
 
 class NotifyUtils:
