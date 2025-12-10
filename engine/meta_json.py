@@ -43,7 +43,7 @@ def run_meta_json():
         if not os.path.isfile(meta_json_path):
             continue
         print(f"Loading meta.json from {verse_folder}")
-        with open(meta_json_path, "r", encoding="utf-8") as f:
+        with open(meta_json_path, encoding="utf-8") as f:
             data = json.load(f)
             result.update(data)
 
