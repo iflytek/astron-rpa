@@ -134,7 +134,7 @@
 <path id="Vector 921" opacity="0.3" d="M190 334H322" stroke="white"/>
 
 <!-- Flowing gradient lines -->
-<g id="flowing-lights" style="mix-blend-mode:plus-lighter">
+<g id="flowing-lights" style="mix-blend-mode:lighten">
   <path id="flow-916" d="M106 202L106 26" stroke="url(#flow-gradient-916)" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#flow-glow)"/>
   <path id="flow-917" d="M243 67L66 67" stroke="url(#flow-gradient-917)" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#flow-glow)"/>
   <path id="flow-918" d="M322 67H414" stroke="url(#flow-gradient-918)" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#flow-glow)"/>
@@ -349,7 +349,7 @@
 <feGaussianBlur stdDeviation="10"/>
 <feComposite in2="hardAlpha" operator="out"/>
 <feColorMatrix type="matrix" values="0 0 0 0 0.384314 0 0 0 0 0.211765 0 0 0 0 0.819608 0 0 0 1 0"/>
-<feBlend mode="plus-lighter" in2="BackgroundImageFix" result="effect1_dropShadow_533_11657"/>
+<feBlend mode="lighten" in2="BackgroundImageFix" result="effect1_dropShadow_533_11657"/>
 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_533_11657" result="shape"/>
 </filter>
 <filter id="filter1_iii_533_11657" x="166" y="-14.0869" width="148" height="368" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -372,7 +372,7 @@
 <feGaussianBlur stdDeviation="20"/>
 <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
 <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.74 0"/>
-<feBlend mode="plus-lighter" in2="effect2_innerShadow_533_11657" result="effect3_innerShadow_533_11657"/>
+<feBlend mode="lighten" in2="effect2_innerShadow_533_11657" result="effect3_innerShadow_533_11657"/>
 </filter>
 <filter id="filter2_f_533_11657" x="154.311" y="113.397" width="172.344" height="172.344" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>

@@ -6,7 +6,6 @@ import BUS from '@/utils/eventBus'
 import { storage } from '@/utils/storage'
 
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
-import Boot from '@/components/Boot/Index.vue'
 import BootHeader from '@/components/Boot/Header.vue'
 import Loading from '@/components/Loading.vue'
 import { utilsManager, windowManager } from '@/platform'
@@ -92,6 +91,7 @@ onUnmounted(() => {
                   :percent="progress"
                   :show-info="false"
                   :stroke-color="token.colorPrimary"
+                  trail-color="rgba(255, 255, 255, 0.12)"
                 />
               </div>
             </template>
