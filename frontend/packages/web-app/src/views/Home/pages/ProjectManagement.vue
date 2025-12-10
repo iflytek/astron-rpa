@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { ref } from 'vue'
 
 import { createProject, getDefaultName } from '@/api/project'
 import { ARRANGE } from '@/constants/menu'
@@ -13,20 +14,29 @@ import TableContainer from '../components/TableContainer.vue'
 const { t } = useTranslation()
 
 function createRobot() {
+  const loading = ref(false)
+
   newProjectModal.show({
     title: t('newProject'),
     name: t('projectName'),
+    loading,
     defaultName: getDefaultName,
     onConfirm: (name: string) => newProject(name),
   })
 
   const newProject = async (projectName: string) => {
-    const res = await createProject({ name: projectName })
-    const projectId = res.data.robotId
+    try {
+      loading.value = true
+      const res = await createProject({ name: projectName })
+      const projectId = res.data.robotId
 
-    useRoutePush({ name: ARRANGE, query: { projectId, projectName } })
-    newProjectModal.hide()
-    message.success('新建成功')
+      useRoutePush({ name: ARRANGE, query: { projectId, projectName } })
+      message.success('新建成功')
+    }
+    finally {
+      newProjectModal.hide()
+      loading.value = false
+    }
   }
 }
 </script>
