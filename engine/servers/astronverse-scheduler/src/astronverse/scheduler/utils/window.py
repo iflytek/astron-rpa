@@ -69,21 +69,21 @@ class AutoStart:
     AUTO_START_KEY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
 
     @staticmethod
-    def check(name="iflyrpa"):
+    def check(name="astron-rpa"):
         exe_path = Registry.get_registry_value(AutoStart.AUTO_START_KEY_PATH, name)
         if not exe_path or exe_path != exe_path:
             return False
         return True
 
     @staticmethod
-    def enable(exe_path: str, name="iflyrpa"):
+    def enable(exe_path: str, name="astron-rpa"):
         if AutoStart.check(name):
             return
         Registry.create(AutoStart.AUTO_START_KEY_PATH)
         Registry.add_string_value(AutoStart.AUTO_START_KEY_PATH, name, exe_path)
 
     @staticmethod
-    def disable(name="iflyrpa"):
+    def disable(name="astron-rpa"):
         if not AutoStart.check(name):
             return
         Registry.add_string_value(AutoStart.AUTO_START_KEY_PATH, name, "")

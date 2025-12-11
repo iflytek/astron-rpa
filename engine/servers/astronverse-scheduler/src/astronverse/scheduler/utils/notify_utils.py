@@ -94,7 +94,7 @@ class NotifyUtils:
 
         for i in range(len(receiver_list)):
             self.email_msg = MIMEMultipart()
-            self.email_msg["From"] = self.format_addr(f"星火数字员工 <{sender_mail}>")
+            self.email_msg["From"] = self.format_addr(f"星辰RPA <{sender_mail}>")
             self.email_msg["To"] = Header(receiver_list[i])
             self.email_msg["Cc"] = cc_list[i]
             self.email_msg["date"] = time.strftime("%a, %d %b %Y %H:%M:%S %z")
