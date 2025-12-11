@@ -13,6 +13,7 @@ import { useDebugLog } from './components/DebugLog/useDebugLog.ts'
 import { useElementManager } from './components/ElementManager/useElementManager.ts'
 import { useLog } from './components/Log/useLog.ts'
 import { useSubProcessUse } from './components/SubProcessSearch/useSubProcessUse'
+import { useDataSheet } from './components/DataSheet/useDataSheet'
 import type { TabConfig } from './types'
 
 const props = defineProps<{ height: number }>()
@@ -23,7 +24,13 @@ const { config: configParamsTabConfig } = useProvideConfigParameter()
 
 const processStore = useProcessStore()
 
-const initTabs = reactiveComputed(() => [useLog(), useElementManager(), useCVManager(), configParamsTabConfig])
+const initTabs = reactiveComputed(() => [
+  useLog(),
+  useElementManager(),
+  useCVManager(),
+  configParamsTabConfig,
+  useDataSheet(),
+])
 
 const tabs = shallowRef<TabConfig[]>(initTabs)
 const activeKey = ref(tabs.value[0].key)
