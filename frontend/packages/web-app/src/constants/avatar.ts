@@ -22,7 +22,7 @@ export const ROBOT_AVATAR_LIST: AvatarItem[] = [
   { name: 'avatar.manufacturing', icon: 'avatar-manufacturing' },
 ]
 
-export const ROBOT_DEFAULT_ICON = ROBOT_AVATAR_LIST[0].icon
+export const ROBOT_DEFAULT_ICON = 'avatar-internet-1'
 
 export const COMPONENT_AVATAR_LIST: AvatarItem[] = [
   { icon: 'avatar-comp-1' },
@@ -50,3 +50,71 @@ export const COMPONENT_DEFAULT_ICON = COMPONENT_AVATAR_LIST[0].icon
 export const COLOR_LIST = ['#726FFF', '#1677FF', '#13C2C2', '#2FCB64', '#A0D911', '#FADB14', '#FA8C16', '#FA541C', '#EB2F96']
 
 export const DEFAULT_COLOR = COLOR_LIST[0]
+
+export const NEW_ROBOT_AVATAR_LIST = [
+  {
+    type: 'internet',
+    typeName: '互联网',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-internet-${index + 1}`),
+  },
+
+  {
+    type: 'office-supplies',
+    typeName: '办公用品',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-office-supplies-${index + 1}`),
+  },
+
+  {
+    type: 'medical',
+    typeName: '卫生医疗',
+    list: Array.from({ length: 87 }, (_, index) => `avatar-medical-${index + 1}`),
+  },
+
+  {
+    type: 'business',
+    typeName: '商业',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-business-${index + 1}`),
+  },
+
+  {
+    type: 'navigation-map',
+    typeName: '导航地图',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-navigation-map-${index + 1}`),
+  },
+
+  {
+    type: 'industry-construction',
+    typeName: '工业建筑',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-industry-construction-${index + 1}`),
+  },
+
+  {
+    type: 'education',
+    typeName: '教育',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-education-${index + 1}`),
+  },
+
+  {
+    type: 'digital-electronics',
+    typeName: '数码电子',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-digital-electronics-${index + 1}`),
+  },
+
+  {
+    type: 'technology',
+    typeName: '科技',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-technology-${index + 1}`),
+  },
+
+  {
+    type: 'design-development',
+    typeName: '设计开发',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-design-development-${index + 1}`),
+  },
+
+  {
+    type: 'finance',
+    typeName: '金融',
+    list: Array.from({ length: 90 }, (_, index) => `avatar-finance-${index + 1}`),
+  },
+]

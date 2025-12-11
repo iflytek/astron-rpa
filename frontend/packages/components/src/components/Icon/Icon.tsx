@@ -1,4 +1,4 @@
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import '@rpa/components/icon'
 
 export const Icon = defineComponent({
@@ -20,12 +20,40 @@ export const Icon = defineComponent({
     stroke: { type: String },
     // 表示所渲染的 svg 图形中需要变色区域的 fill 颜色，优先级高于 color 。
     fill: { type: String },
+    // 默认图标，当指定图标不存在时使用
+    defaultName: { type: String, default: 'atom-default' },
   },
   emits: ['click'],
   setup(props, { emit }) {
+    const currentIconName = ref(props.name)
+
+    function checkIcon() {
+      if (!props.name)
+        return
+      if (!document.getElementById(props.name)) {
+        currentIconName.value = props.defaultName
+      }
+      else {
+        currentIconName.value = props.name
+      }
+    }
+
+    watch(() => props.name, () => {
+      currentIconName.value = props.name
+      checkIcon()
+    })
+
+    onMounted(() => {
+      // 延迟检查，确保 SVG sprite 已加载
+      setTimeout(() => {
+        checkIcon()
+      }, 100)
+    })
+
     return () => (
       <svg
-        class={['r-icon', { 'animate-spin': props.spin }]}
+        name={props.name}
+        class={['r-icon inline-block', { 'animate-spin': props.spin }]}
         style={props.color ? { color: props.color } : {}}
         width={props.width || props.size || '1em'}
         height={props.height || props.size || '1em'}
@@ -33,7 +61,7 @@ export const Icon = defineComponent({
         stroke={props.stroke}
         onClick={() => emit('click')}
       >
-        <use href={`#${props.name}`}></use>
+        <use href={`#${currentIconName.value}`}></use>
       </svg>
     )
   },

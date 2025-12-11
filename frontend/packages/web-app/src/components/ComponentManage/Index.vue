@@ -34,7 +34,7 @@ function handleRefresh() {
     centered
   >
     <div
-      class="mt-5 h-[520px]"
+      class="mt-5 h-[520px] overflow-y-auto"
       :class="{ 'flex items-center justify-center': isEmpty(componentList) }"
     >
       <a-empty

@@ -604,7 +604,18 @@
     "cancelCollect": "取消收藏",
     "versionNumber": "版本号",
     "remove": "移除",
-    "update": "更新"
+    "update": "更新",
+    "changeAvatar": "修改头像",
+    "random": "随机",
+    "default": "默认",
+    "custom": "自定义",
+    "icon": "图标",
+    "avatarIcon": "头像图标",
+    "avatarBgColor": "头像背景色",
+    "attachment": "附件",
+    "updateLog": "更新日志",
+    "versionDescription": "版本说明",
+    "intro": "简介"
 
   },
   "market": {
