@@ -5,6 +5,7 @@ import type { FormInstance } from 'ant-design-vue'
 import type { RuleObject } from 'ant-design-vue/es/form'
 import { useTranslation } from 'i18next-vue'
 import { isFunction } from 'lodash-es'
+import type { Ref } from 'vue'
 import { reactive, ref } from 'vue'
 
 interface FormState {
@@ -14,6 +15,7 @@ interface FormState {
 const props = defineProps<{
   title?: string
   name?: string
+  loading?: Ref<boolean>
   defaultName?: string | (() => Promise<string>)
   rules?: RuleObject[]
 }>()
@@ -50,6 +52,7 @@ watchImmediate(
     v-bind="NiceModal.antdModal(modal)"
     :width="400"
     :title="title"
+    :confirm-loading="loading"
     @ok="handleOk"
   >
     <a-form
