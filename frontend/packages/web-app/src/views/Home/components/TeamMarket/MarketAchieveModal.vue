@@ -5,7 +5,7 @@ import type { FormInstance } from 'ant-design-vue'
 import { Input, message, Tooltip } from 'ant-design-vue'
 import { h, reactive, ref } from 'vue'
 
-import { obtainApp } from '@/api/market'
+import { getAppDetails, obtainApp } from '@/api/market'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import type { AnyObj } from '@/types/common'
 import { SECURITY_RED } from '@/views/Home/components/TeamMarket/config/market.ts'
@@ -102,6 +102,20 @@ async function checkNumber() {
   }
   return Promise.resolve()
 }
+
+// 设置下拉框默认选中版本为当前启用版本
+async function setDefaultVersion() {
+  getAppDetails({
+    marketId: formState.marketId as string,
+    appId: formState.appId as string,
+  }).then(({ data }) => {
+    const enableVersion = data?.versionInfoList.find(item => item.online === 1).versionNum
+    formState.version = enableVersion
+    console.log('enableVersion', enableVersion)
+  })
+}
+
+setDefaultVersion()
 </script>
 
 <template>

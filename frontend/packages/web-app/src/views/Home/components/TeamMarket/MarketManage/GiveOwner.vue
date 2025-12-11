@@ -14,7 +14,7 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 
 const { userList, userListByPhone } = usePhoneInvite(props.marketId, 'leave', emit)
-const newOwner = ref('')
+const newOwner = ref()
 
 function changeGiveOwner(val) {
   newOwner.value = val
@@ -28,7 +28,7 @@ function changeGiveOwner(val) {
       你将离开团队，请选择新的团队所有者
     </div>
     <Select
-      placeholder="请选择新的团队所有者"
+      placeholder="通过手机号搜索"
       style="width: 100%"
       :get-popup-container="(triggerNode) => triggerNode.parentNode"
       show-search

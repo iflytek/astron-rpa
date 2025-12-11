@@ -55,7 +55,7 @@ function openChange(open) {
   <a-dropdown :disabled="!canEdit" @open-change="openChange">
     <span>{{ itemLabel }}</span>
     <template #overlay>
-      <a-menu mode="vertical" :items="menuItems" class="h-60 overflow-y-auto" @click="(item) => click(item)" />
+      <a-menu mode="vertical" :items="menuItems" class="overflow-y-auto" @click="(item) => click(item)" />
     </template>
   </a-dropdown>
 </template>

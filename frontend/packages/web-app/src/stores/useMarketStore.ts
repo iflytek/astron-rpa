@@ -62,7 +62,9 @@ export const useMarketStore = defineStore('market', () => {
   }
 
   // 设置当前选中的市场数据
-  const setCurrentMarketItem = (marketId: string) => {
+  const setCurrentMarketItem = (marketIdOrItem: string | Record<'marketId' | string, any>) => {
+    const marketId = typeof marketIdOrItem === 'string' ? marketIdOrItem : marketIdOrItem?.marketId
+
     if (!marketId) {
       activeMarket.value = null
       return
@@ -71,8 +73,14 @@ export const useMarketStore = defineStore('market', () => {
       item.active = (item.key === marketId || item.children.some(i => i.marketId === marketId)) || false
       return item
     })
-    const marketsItem = markets.value.find(item => item.active)
-    activeMarket.value = marketsItem.children.length > 0 ? (marketsItem.children.find(item => item.marketId === marketId) || null) : null
+
+    if (typeof marketIdOrItem === 'object') {
+      activeMarket.value = marketIdOrItem
+    }
+    else {
+      const marketsItem = markets.value.find(item => item.active)
+      activeMarket.value = marketsItem.children.length > 0 ? (marketsItem.children.find(item => item.marketId === marketId) || null) : null
+    }
   }
 
   const reset = () => {

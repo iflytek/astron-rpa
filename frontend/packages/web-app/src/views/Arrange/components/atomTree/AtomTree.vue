@@ -273,7 +273,7 @@ onBeforeMount(() => {
       >
         <template #title="item">
           <UseAtomItem
-            v-if="item.atomics?.length > 0 || item.key === 'favorite'"
+            v-if="item.atomics?.length > 0 || item.key === 'favorite' || item.key === 'customComponent'"
             :title="item.title"
             :icon="item.icon"
             :icon-color="item.iconColor"

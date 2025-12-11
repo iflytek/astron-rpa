@@ -72,6 +72,29 @@ function insertHtmlAtCaret(html: string) {
   range.deleteContents()
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = html
+
+  const startContainer = range.startContainer
+  const startOffset = range.startOffset
+  const textContent = tempDiv.textContent || tempDiv.innerText || ''
+  const isPlainText = tempDiv.children.length === 0 && textContent === html.trim()
+
+  // 如果前面是文本节点，且插入的是纯文本，则合并
+  if (startContainer.nodeType === Node.TEXT_NODE && isPlainText) {
+    const textNode = startContainer as Text
+    const beforeText = textNode.textContent?.substring(0, startOffset) || ''
+    const afterText = textNode.textContent?.substring(startOffset) || ''
+
+    textNode.textContent = beforeText + textContent + afterText
+
+    const newOffset = beforeText.length + textContent.length
+    range.setStart(textNode, newOffset)
+    range.collapse(true)
+    selection.removeAllRanges()
+    selection.addRange(range)
+    return
+  }
+
+  // 否则插入新节点
   const fragment = document.createDocumentFragment()
   let node = tempDiv.firstChild
   while (node) {

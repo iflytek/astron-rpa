@@ -105,7 +105,7 @@ export function useBaseInfo() {
   }
 
   const getTeamInfo = (id) => {
-    teamInfo({ marketId: id }).then((res: any) => {
+    return teamInfo({ marketId: id }).then((res: any) => {
       baseInfoData.value = {
         ...res.data,
         marketId: id,
@@ -115,7 +115,12 @@ export function useBaseInfo() {
 
   watch(() => marketStore.activeMarket?.marketId, (newVal) => {
     if (newVal) {
-      getTeamInfo(newVal)
+      getTeamInfo(newVal).then(() => {
+        // 若用户角色发生变化则更新视图
+        if (marketStore.activeMarket?.userType !== baseInfoData.value?.userType) {
+          marketStore.setCurrentMarketItem(baseInfoData.value)
+        }
+      })
     }
   }, {
     immediate: true,
