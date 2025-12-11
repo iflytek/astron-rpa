@@ -37,11 +37,11 @@ const changeMode = () => {
 </script>
 
 <template>
-  <!--TODO 企业版 :title="currentMode === 'PERSONAL' ? '注册' : '咨询企业版'" -->
-  <!--TODO 企业版 :action-text="currentMode === 'PERSONAL' ? '咨询企业版' : '注册'" -->
+  <!--TODO 企业版 :title="currentMode === 'PERSONAL' ? '注册讯飞账号' : '咨询企业版'" -->
+  <!--TODO 企业版 :action-text="currentMode === 'PERSONAL' ? '咨询企业版' : '注册讯飞账号'" -->
   <FormLayout
     :wrap-class="'auth-register h-full'"
-    :title="'注册'"
+    :title="'注册讯飞账号'"
     @action="changeMode"
     show-back
     @back="() => emit('switchToLogin')"
