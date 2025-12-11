@@ -645,7 +645,7 @@ atomic:
       tip: 初始网址
     - key: browser_type
       title: 浏览器类型
-      tip: 选择浏览器类型,需安装星火数字员工插件实现网页自动化,路径：设置-插件安装
+      tip: 选择浏览器类型,需安装星火星辰RPA插件实现网页自动化,路径：设置-插件安装
     - key: browser_abs_path
       title: 浏览器路径
       tip: 浏览器软件安装路径
@@ -654,7 +654,7 @@ atomic:
       tip: 浏览器启动参数，比如--incognito
     - key: open_with_incognito
       title: 使用隐私模式
-      tip: 请提前将浏览器中“星火数字员工插件”详情设置为"在无痕模式下启用"
+      tip: 请提前将浏览器中“星火星辰RPA插件”详情设置为"在无痕模式下启用"
     - key: wait_load_success
       title: 等待网页加载完成
       tip: ''

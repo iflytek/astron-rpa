@@ -549,7 +549,7 @@ class RecordManager:
                     logger.debug("鼠标离开draw区域，重置悬停状态")
                 if self.hover_triggered and (
                     not self.enable_record_blacklist or self.cur_app not in RECORDING_BLACKLIST
-                ):  # 还要判断当前的应用是不是iflyrpa是的话就不要通知
+                ):  # 还要判断当前的应用是不是astron-rpa是的话就不要通知
                     await self.push_callbacks["on_mouse_out"](self.ws_connection)
                     logger.debug(f"鼠标悬停后离开draw区域，通知前端收敛红框 当前红框是{self.cur_app}")
                 self.hover_start_time = None

@@ -327,4 +327,4 @@ CHROME_LIKE_BROWSER_TYPES = [
 
 MSAA_APPLICATIONS = [APP.Thunder.value]
 
-RECORDING_BLACKLIST = ["iflyrpa"]  # 录制绘框黑名单
+RECORDING_BLACKLIST = ["astron-rpa"]  # 录制绘框黑名单

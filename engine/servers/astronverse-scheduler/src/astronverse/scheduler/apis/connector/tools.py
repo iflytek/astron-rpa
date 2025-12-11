@@ -192,7 +192,7 @@ def auto_start_enable(svc: Svc = Depends(get_svc)):
 
     from astronverse.scheduler.utils.window import AutoStart
 
-    exe_path = os.path.join(os.path.dirname(os.path.dirname(svc.config.conf_file)), "iflyrpa.exe").lower()
+    exe_path = os.path.join(os.path.dirname(os.path.dirname(svc.config.conf_file)), "astron-rpa.exe").lower()
     AutoStart.enable(exe_path)
     return res_msg(msg="", data={"tips": "操作成功"})
 
