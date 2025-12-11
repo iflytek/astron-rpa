@@ -32,7 +32,7 @@ const emit = defineEmits<{
       />
     </slot>
 
-    <div class="inner-content relative" :class="title ? 'h-[calc(100%-93px)]' : 'h-[calc(100%-60px)]'">
+    <div class="inner-content relative h-[calc(100%-93px)]">
       <slot />
     </div>
 

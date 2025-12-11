@@ -20,7 +20,7 @@ export const accountLoginFormConfig: FormConfig = {
         { loading ? '登录中' : '登录' }
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-        还没有账号？
+        还没有讯飞账号？
         <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => {console.log("switchToRegisterswitchToRegisterswitchToRegister");handleEvents && handleEvents('switchToRegister')}}>
           立即注册
         </Button>
@@ -42,7 +42,7 @@ export const phoneLoginFormConfig: FormConfig = {
         { loading ? '登录中' : '登录' }
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-        还没有账号？
+        还没有讯飞账号？
         <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
           立即注册
         </Button>
@@ -66,7 +66,7 @@ export const personalRegisterFormConfig: FormConfig = {
         { loading ? '注册中' : '注册' }
       </Button>
       <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-        已有账号？
+        已有讯飞账号？
         <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
           立即登录
         </Button>

@@ -54,7 +54,8 @@ watch(() => phone.formData.agreement, (v) => {
     :wrap-class="'auth-login h-full'"
   >
     <template #header>
-      <div class="text-[24px] text-[#000000D9] mb-[24px] font-[600] text-center dark:text-[#FFFFFF] font-sans">欢迎使用星辰RPA</div>
+      <div class="text-[24px] text-[#000000D9] mb-[8px] font-[600] text-center dark:text-[#FFFFFF] font-sans">欢迎使用星辰RPA</div>
+      <div class="text-[12px] text-[#000000A6] mb-[24px] text-center dark:text-[#FFFFFF] font-sans">使用您的讯飞账号</div>
     </template>
     <Tabs
       v-model:activeKey="currentMode"
@@ -62,7 +63,7 @@ watch(() => phone.formData.agreement, (v) => {
       type="card"
       class="h-full"
     >
-      <TabPane key="PASSWORD" tab="账号">        
+      <TabPane key="PASSWORD" tab="密码登录">        
         <DynamicForm
           :loading="passwordLoading"
           :ref="account.formRef"
@@ -72,7 +73,7 @@ watch(() => phone.formData.agreement, (v) => {
         />
       </TabPane>
 
-      <TabPane key="CODE" tab="手机验证码">
+      <TabPane key="CODE" tab="验证码登录">
         <DynamicForm
           :loading="codeLoading"
           :ref="phone.formRef"
