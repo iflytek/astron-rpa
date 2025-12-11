@@ -240,7 +240,7 @@ class BrowserSoftware:
         """
         if not browser_obj.browser_abs_path:
             browser_obj.browser_abs_path = BrowserCore.get_browser_path(browser_obj.browser_type)
-        Software.close(app_abs_path=browser_obj.browser_abs_path)
+        Software.close(browser_obj.browser_abs_path)
 
     @staticmethod
     def browser_max_window(browser_obj: Browser) -> bool:
