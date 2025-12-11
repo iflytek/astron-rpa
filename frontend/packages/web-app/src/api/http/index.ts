@@ -10,12 +10,10 @@ import { isNil } from 'lodash-es'
 
 import { promiseWithResolvers } from '@/utils/common'
 
-import authService from '@/auth/index'
 import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 
 import { getBaseURL, unauthorize } from './env'
 
-const auth = authService.getAuth()
 
 export interface RequestConfig<T = any, P = any> extends AxiosRequestConfig<P> {
   toast?: boolean
@@ -108,9 +106,6 @@ class HttpClient {
           // 关闭loading
         }
 
-        if (auth.checkHttpResponse(response)) {
-          return
-        }
 
         if (response.config.responseType === 'blob') {
           response.data = { code: '0000', data: response.data }

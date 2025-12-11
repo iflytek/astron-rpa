@@ -16,6 +16,9 @@ const external = [
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue(), vueJsx()],
+  server: {
+    hmr: true,
+  },
   build: {
     sourcemap: true,
     lib: {

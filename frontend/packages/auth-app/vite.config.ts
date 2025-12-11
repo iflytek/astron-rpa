@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import { defineConfig } from 'vite'
 
 const basePublic = fileURLToPath(new URL('../../public', import.meta.url))
@@ -8,5 +9,35 @@ const basePublic = fileURLToPath(new URL('../../public', import.meta.url))
 // https://vite.dev/config/
 export default defineConfig({
   publicDir: basePublic,
-  plugins: [vue()],
+  plugins: [
+    vue({
+      include: [/\.vue$/, /\.md$/],
+    }),
+    vueJsx(),
+  ],
+  server: {
+    hmr: {
+      overlay: true,
+    },
+    watch: {
+      usePolling: false,
+      ignored: ['!**/node_modules/@rpa/**'],
+    },
+    host: true,
+    port: 3000,
+    cors: true,
+  },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  optimizeDeps: {
+    exclude: ['@rpa/components', '@rpa/shared'],
+    include: ['vue', 'ant-design-vue'],
+    force: true,
+  },
+  esbuild: {
+    target: 'esnext',
+  },
 })
