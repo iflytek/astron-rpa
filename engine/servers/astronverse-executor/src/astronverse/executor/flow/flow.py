@@ -89,9 +89,7 @@ class Flow:
                         project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
                     )
                 else:
-                    res, map_res = self._flow_display(
-                        project_id, mode, version, resource_id, name
-                    )
+                    res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
 
                 self.svc.add_process_info(project_id, resource_id, category, name, file_name)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
