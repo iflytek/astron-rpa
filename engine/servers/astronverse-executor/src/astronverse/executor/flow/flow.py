@@ -69,20 +69,26 @@ class Flow:
             # 生成python
             if category == "process":
                 file_name = ""
+                is_main_process = False
                 if process_id:
                     if resource_id == process_id:
                         main_process_name = True
+                        is_main_process = True
                         file_name = "main.py"
                 else:
                     if name == self.svc.conf.main_process_name:
                         main_process_name = True
+                        is_main_process = True
                         file_name = "main.py"
                 if not file_name:
                     file_name = "process{}.py".format(process_index)
                 process_index += 1
-                res, map_res = self._flow_display(
-                    project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
-                )
+                if is_main_process:
+                    res, map_res = self._flow_display(
+                        project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
+                    )
+                else:
+                    res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
 
                 self.svc.add_process_info(project_id, resource_id, category, name, file_name)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
