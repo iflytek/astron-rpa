@@ -38,9 +38,11 @@ class Lexer:
     def next_token(self) -> Token:
         """词法分析nex_token"""
 
-        if self.flow is None:
-            token = Token(TokenType.EOF.value)
-        else:
-            token = self.flow_to_token(self.flow)
-        self.read_flow()
-        return token
+        while True:
+            if self.flow is None:
+                token = Token(TokenType.EOF.value)
+            else:
+                token = self.flow_to_token(self.flow)
+            self.read_flow()
+            if token is not None:  # 如果token为None（被跳过的节点），继续读取下一个
+                return token

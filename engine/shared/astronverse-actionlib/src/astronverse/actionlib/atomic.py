@@ -126,7 +126,7 @@ class AtomicManager:
         delay_before = float(kwargs.get("__delay_before__", 0))
         delay_after = float(kwargs.get("__delay_after__", 0))
         skip_err = kwargs.get("__skip_err__", "exit")
-        retry_time = kwargs.get("__retry_time__", 0)
+        retry_time = int(kwargs.get("__retry_time__", 0))
         retry_interval = float(kwargs.get("__retry_interval__", 0))
 
         report.info(
