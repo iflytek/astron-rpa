@@ -4,9 +4,9 @@ import Sheet from './Sheet.vue'
 
 export function useDataSheet() {
   const item: TabConfig = {
-    text: 'debugLog',
-    key: 'debugLog',
-    icon: 'tools-debug',
+    text: 'dataSheet',
+    key: 'dataSheet',
+    icon: 'sheet',
     component: Sheet,
   }
 

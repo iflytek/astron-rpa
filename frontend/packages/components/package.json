@@ -21,6 +21,7 @@
     "./resolver": "./resolver.js"
   },
   "dependencies": {
+    "@ant-design/colors": "^7.2.1",
     "@guolao/vue-monaco-editor": "^1.5.4",
     "@rpa/components": "file:",
     "@rpa/shared": "workspace:*",
