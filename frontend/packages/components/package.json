@@ -37,6 +37,7 @@
     "@tiptap/starter-kit": "^2.7.2",
     "@tiptap/vue-3": "^2.7.2",
     "@univerjs/preset-sheets-core": "^0.12.4",
+    "@univerjs/preset-sheets-find-replace": "^0.12.4",
     "@univerjs/presets": "^0.12.4",
     "@vueuse/core": "^11.0.1",
     "lodash-es": "^4.17.21",

@@ -1,3 +1,5 @@
+import { markRaw } from 'vue'
+
 import type { TabConfig } from '../../types.ts'
 
 import Log from './Log.vue'
@@ -8,8 +10,8 @@ export function useLog() {
     text: 'log',
     key: 'logs',
     icon: 'bottom-menu-log-manage',
-    component: Log,
-    rightExtra: RightExtra,
+    component: markRaw(Log),
+    rightExtra: markRaw(RightExtra),
   }
   return item
 }

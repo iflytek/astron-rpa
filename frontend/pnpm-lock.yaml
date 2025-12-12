@@ -160,6 +160,9 @@ importers:
       '@univerjs/preset-sheets-core':
         specifier: ^0.12.4
         version: 0.12.4(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+      '@univerjs/preset-sheets-find-replace':
+        specifier: ^0.12.4
+        version: 0.12.4(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
       '@univerjs/presets':
         specifier: ^0.12.4
         version: 0.12.4(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
@@ -10357,6 +10360,7 @@ snapshots:
 
   '@rpa/components@file:packages/components(@ant-design/icons-vue@7.0.1(vue@3.5.18(typescript@5.9.3)))(@tiptap/core@2.7.4(@tiptap/pm@2.7.4))(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(ant-design-vue@4.2.6(vue@3.5.18(typescript@5.9.3)))(rxjs@7.8.2)(vue@3.5.18(typescript@5.9.3))':
     dependencies:
+      '@ant-design/colors': 7.2.1
       '@ant-design/icons-vue': 7.0.1(vue@3.5.18(typescript@5.9.3))
       '@guolao/vue-monaco-editor': 1.5.4(monaco-editor@0.52.2)(vue@3.5.18(typescript@5.9.3))
       '@rpa/shared': link:packages/shared

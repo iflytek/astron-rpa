@@ -5,10 +5,14 @@ import type { FUniver, Univer, IWorkbookData } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import UniverPresetSheetsCoreZhCN from '@univerjs/preset-sheets-core/locales/zh-CN'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
-import { createUniver, LocaleType, mergeLocales, defaultTheme } from '@univerjs/presets'
+import { createUniver, LocaleType, mergeLocales, defaultTheme, LogLevel } from '@univerjs/presets'
 import { generate } from '@ant-design/colors';
+import { UniverSheetsFindReplacePreset } from '@univerjs/preset-sheets-find-replace'
+import sheetsFindReplaceZhCN from '@univerjs/preset-sheets-find-replace/locales/zh-CN'
+import sheetsFindReplaceEnUS from '@univerjs/preset-sheets-find-replace/locales/en-US'
 
 import '@univerjs/preset-sheets-core/lib/index.css'
+import '@univerjs/preset-sheets-find-replace/lib/index.css'
 
 interface SheetProps {
   darkMode?: boolean
@@ -21,6 +25,10 @@ const props = withDefaults(defineProps<SheetProps>(), {
   locale: LocaleType.ZH_CN,
   data: () => ({}),
 })
+
+const emits = defineEmits<{
+  (e: 'ready'): void
+}>()
 
 const container = useTemplateRef<HTMLElement>('container')
 
@@ -49,15 +57,18 @@ onMounted(() => {
   }
 
   const { univer, univerAPI } = createUniver({
+    logLevel: LogLevel.VERBOSE,
     theme: themeToUse,
     darkMode: props.darkMode,
     locale: props.locale,
     locales: {
       [LocaleType.ZH_CN]: mergeLocales(
         UniverPresetSheetsCoreZhCN,
+        sheetsFindReplaceZhCN,
       ),
       [LocaleType.EN_US]: mergeLocales(
         UniverPresetSheetsCoreEnUS,
+        sheetsFindReplaceEnUS,
       ),
     },
     presets: [
@@ -65,14 +76,32 @@ onMounted(() => {
         header: false,
         container: container.value as HTMLElement,
       }),
+      UniverSheetsFindReplacePreset(),
     ],
   })
 
+  // 添加生命周期监听事件
+  univerAPI.addEvent(
+    univerAPI.Event.LifeCycleChanged,
+    ({ stage }) => {
+      if (stage === univerAPI.Enum.LifecycleStages.Steady) {
+        emits('ready')
+      }
+    },
+  )
+
   univerAPI.createWorkbook(props.data)
+
+  console.log('univerAPI', univerAPI)
 
   univerInstance = univer
   univerAPIInstance = univerAPI
 })
+
+// 打开查找替换弹窗
+const openFindDialog = () => {
+  univerAPIInstance?.executeCommand("ui.operation.open-find-dialog")
+}
 
 onBeforeUnmount(() => {
   univerInstance?.dispose()
@@ -87,6 +116,12 @@ watch(() => props.darkMode, (isDarkMode) => {
 
 watch(() => props.locale, (locale) => {
   univerAPIInstance?.setLocale(locale)
+})
+
+defineExpose({
+  undo: () => univerAPIInstance?.undo(),
+  redo: () => univerAPIInstance?.redo(),
+  openFindDialog,
 })
 </script>
 
