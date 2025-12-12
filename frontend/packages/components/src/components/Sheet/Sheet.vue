@@ -18,6 +18,7 @@ interface SheetProps {
   darkMode?: boolean
   data?: Partial<IWorkbookData>
   locale?: LocaleType
+  readonly?: boolean
 }
 
 const props = withDefaults(defineProps<SheetProps>(), {
@@ -74,6 +75,8 @@ onMounted(() => {
     presets: [
       UniverSheetsCorePreset({
         header: false,
+        contextMenu: !props.readonly,
+        footer: props.readonly ? false : undefined,
         container: container.value as HTMLElement,
       }),
       UniverSheetsFindReplacePreset(),
@@ -84,7 +87,20 @@ onMounted(() => {
   univerAPI.addEvent(
     univerAPI.Event.LifeCycleChanged,
     ({ stage }) => {
-      if (stage === univerAPI.Enum.LifecycleStages.Steady) {
+      if (stage === univerAPI.Enum.LifecycleStages.Rendered) {
+        if (!props.readonly) return
+
+        const fWorkbook = univerAPI.getActiveWorkbook()!
+        const unitId = fWorkbook.getId()
+
+        // disable selection
+        fWorkbook.disableSelection()
+
+        // set read only
+        const permission = fWorkbook.getPermission()
+        permission.setWorkbookEditPermission(unitId, false)
+        permission.setPermissionDialogVisible(false)
+      } else if (stage === univerAPI.Enum.LifecycleStages.Steady) {
         emits('ready')
       }
     },
