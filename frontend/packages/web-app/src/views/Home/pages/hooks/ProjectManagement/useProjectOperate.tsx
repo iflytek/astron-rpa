@@ -153,7 +153,7 @@ export function useProjectOperate(homeTableRef?: Ref) {
     },
     {
       key: 'detail',
-      text: 'checkDetails',
+      text: 'appDetails',
       icon: h(<Icon name="robot" size="16px" />),
       clickFn: openDetailModal,
     },
@@ -169,7 +169,7 @@ export function useProjectOperate(homeTableRef?: Ref) {
   function handleEdit(editObj: AnyObj) {
     const { robotId, robotName, editEnable } = editObj
     if (!editEnable) {
-      message.info('当前机器人未开放源码，无法进行编辑，升级账户后可获得编辑权限')
+      message.info('当前应用未开放源码，无法进行编辑，升级账户后可获得编辑权限')
       return
     }
     useRoutePush({ name: ARRANGE, query: { projectId: robotId, projectName: robotName } })
@@ -209,7 +209,7 @@ export function useProjectOperate(homeTableRef?: Ref) {
   // 分享
   function shareToMarket(editObj: AnyObj) {
     if (editObj.publishStatus === ROBOT_EDITING) {
-      message.info('机器人编辑中暂不支持分享')
+      message.info('应用编辑中暂不支持分享')
       return
     }
     $loading.open({ msg: '加载中...' })

@@ -3,35 +3,35 @@ import { pickBy } from 'lodash-es'
 import http from './http'
 
 /**
- * @description: 获取执行器机器人列表数据
+ * @description: 获取执行器应用列表数据
  */
 export function getRobotLst(data) {
   return http.post('/robot/robot-execute/execute-list', data)
 }
 
 /**
- * 检测机器人是否被计划任务引用被返回引用这个机器人的计划任务的数组
+ * 检测应用是否被计划任务引用被返回引用这个应用的计划任务的数组
  */
 export function isRobotInTask(params) {
   return http.get('/robot/robot-execute/delete-robot-res', params)
 }
 
 /**
- * @description: 删除机器人
+ * @description: 删除应用
  */
 export function deleteRobot(data) {
   return http.post('/robot/robot-execute/delete-robot', data)
 }
 
 /**
- * @description: 发布机器人
+ * @description: 发布应用
  */
 export function publishRobot<T = any>(data: T) {
   return http.post('/robot/robot-version/publish', data)
 }
 
 /**
- * @description: 获取机器人上次发版信息回显
+ * @description: 获取应用上次发版信息回显
  */
 export async function getRobotLastVersion(robotId: string) {
   const res = await http.post('/robot/robot-version/latest-info', { robotId })
@@ -39,7 +39,7 @@ export async function getRobotLastVersion(robotId: string) {
 }
 
 /**
- * @description: 获取该机器人是否允许外部调用
+ * @description: 获取该应用是否允许外部调用
  */
 
 export async function getRobotLastIsExternalCall(robotId: string) {
@@ -56,7 +56,7 @@ export function setRobotIsExternalCall(data) {
 }
 
 /**
- * @description: 获取机器人名称以英文翻译
+ * @description: 获取应用名称以英文翻译
  */
 export function getRobotEnglishName(name: string) {
   console.log('name', name)
@@ -64,28 +64,28 @@ export function getRobotEnglishName(name: string) {
 }
 
 /**
- * @description: 轮询执行器下机器人更新状态
+ * @description: 轮询执行器下应用更新状态
  */
 export function getRobotUpdateStatus(data) {
   return http.post('/robot/robot-execute/execute-update-check', data)
 }
 
 /**
- * @description: 更新执行器下机器人
+ * @description: 更新执行器下应用
  */
 export function updateRobot(data) {
   return http.post('/robot/robot-execute/update/pull', data)
 }
 
 /**
- * @description: 机器人重名校验
+ * @description: 应用重名校验
  */
 export function checkRobotName(data: { robotId: string, name: string }) {
   return http.post('/robot/robot-version/same-name', data)
 }
 
 /**
- * 我创建的机器人详情
+ * 我创建的应用详情
  */
 export async function getMyRobotDetail(robotId: string) {
   const res = await http.get('/robot/robot-design/my-robot-detail', { robotId })
@@ -93,7 +93,7 @@ export async function getMyRobotDetail(robotId: string) {
 }
 
 /**
- * 我获取的机器人详情
+ * 我获取的应用详情
  */
 export async function getMarketRobotDetail(robotId: string) {
   const res = await http.get('/robot/robot-design/market-robot-detail', { robotId })
@@ -103,7 +103,7 @@ export async function getMarketRobotDetail(robotId: string) {
 }
 
 /**
- * @description: 获取机器人详情
+ * @description: 获取应用详情
  */
 export async function getRobotRecordOverview(data: { robotId: string, version: number, deadline: string }) {
   const res = await http.post('/robot/robot-record/detail/overview', data)
@@ -111,7 +111,7 @@ export async function getRobotRecordOverview(data: { robotId: string, version: n
 }
 
 /**
- * @description: 查询机器人的所有流程数据
+ * @description: 查询应用的所有流程数据
  */
 export async function getRobotProcessList(robotId: string): Promise<any[]> {
   const res = await http.post('/robot/process/all-data', { robotId })
@@ -122,14 +122,14 @@ export async function getRobotProcessList(robotId: string): Promise<any[]> {
 }
 
 /**
- * 保存机器人自定义配置参数
+ * 保存应用自定义配置参数
  */
 export async function saveRobotConfigParamValue(data: RPA.CreateConfigParamData[], mode: string, robotId: string) {
   return http.post('/robot/param/saveUserParam', { paramList: data, mode, robotId })
 }
 
 /**
- * 执行器机器人详情基本信息
+ * 执行器应用详情基本信息
  */
 export async function getRobotBasicInfo(robotId: string) {
   const res = await http.get('/robot/robot-execute/robot-detail', { robotId })

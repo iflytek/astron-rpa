@@ -19,7 +19,7 @@ const columns: ColumnsType = [
     ellipsis: true,
   },
   {
-    title: '引用机器人',
+    title: '引用应用',
     key: 'robotNames',
     dataIndex: 'robotNames',
     customRender: ({ record }) => {
@@ -43,7 +43,7 @@ const columns: ColumnsType = [
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="机器人引用关系"
+    title="应用引用关系"
     class="referModal"
     :footer="null"
     :width="500"

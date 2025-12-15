@@ -50,7 +50,7 @@ export async function getProcessPyCode(data: { robotId: string, mode?: string, m
   // mode 为空时，默认值为 EDIT_PAGE
   // EDIT_PAGE - 编辑页
   // PROJECT_LIST - 设计器列表页
-  // EXECUTOR - 执行器机器人列表页
+  // EXECUTOR - 执行器应用列表页
   // CRONTAB - 触发器
   if (!data.mode) {
     data.mode = 'EDIT_PAGE'

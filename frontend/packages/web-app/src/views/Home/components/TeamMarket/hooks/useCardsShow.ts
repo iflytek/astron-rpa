@@ -64,7 +64,7 @@ export function useCardsShow(emits) {
       return
     // 红色密级和黄色密级但不是可使用部门的人员,需发起使用申请
     if (needApplication) {
-      useApplicationConfirm(`当前权限不足，需发起申请批准后方可使用该机器人，是否发起使用申请？`, () => {
+      useApplicationConfirm(`当前权限不足，需发起申请批准后方可使用该应用，是否发起使用申请？`, () => {
         useApplication({ appId, marketId }).then(() => {
           message.success('申请已发送')
         }).catch((e) => {

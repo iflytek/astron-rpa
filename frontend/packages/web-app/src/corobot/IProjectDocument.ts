@@ -68,7 +68,7 @@ export interface GlobalVariableActor extends BaseActor<GlobalVariableVM> {}
 export interface PythonPackageActor extends BaseActor<PythonPackageVM> {}
 
 /**
- * 把整个机器人工程当成一个文档，所有的操作都是对这个文档的操作
+ * 把整个应用工程当成一个文档，所有的操作都是对这个文档的操作
  * 操作文档后，文档数据的变更通过 emitter 回调给业务层
  * 业务层拿到回调的数据，更新 UI
  */

@@ -15,7 +15,7 @@ useProvideBasicStore(props.robotId, props.source)
 <template>
   <Drawer
     v-bind="NiceModal.antdDrawer(modal)"
-    title="机器人详情"
+    :title="$t('appDetails')"
     class="robotDetailsModal"
     placement="right"
     :width="628"

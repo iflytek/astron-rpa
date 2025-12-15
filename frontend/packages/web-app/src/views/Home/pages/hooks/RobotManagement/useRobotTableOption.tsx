@@ -47,7 +47,7 @@ export default function useRobotTableOption() {
     },
     {
       key: 'check',
-      text: 'checkDetails',
+      text: 'appDetails',
       icon: h(<Icon name="robot" size="16px" />),
       clickFn: openRobotDetailModal,
     },
@@ -68,7 +68,7 @@ export default function useRobotTableOption() {
     },
     {
       key: 'check',
-      text: 'checkDetails',
+      text: 'appDetails',
       icon: h(<Icon name="robot" size="16px" />),
       clickFn: openRobotDetailModal,
     },
@@ -94,7 +94,7 @@ export default function useRobotTableOption() {
     // 这块注释不要删，后期要上
     // buttonList: [ // 表格上方的按钮配置
     //   // {
-    //   //   label: '导入机器人',
+    //   //   label: '导入应用',
     //   //   clickFn: importRobot,
     //   //   type: 'primary',
     //   //   hidden: false,

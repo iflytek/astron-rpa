@@ -88,7 +88,7 @@ function handleSearch(value: string) {
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="部署机器人"
+    title="部署应用"
     :confirm-loading="confirmLoading"
     ok-text="确认部署"
     :width="600"

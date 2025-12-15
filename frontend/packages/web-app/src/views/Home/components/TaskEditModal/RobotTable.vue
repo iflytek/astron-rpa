@@ -49,7 +49,7 @@ const gridOptions = reactive({
 })
 
 /**
- * 添加机器人
+ * 添加应用
  */
 function addRobot() {
   NiceModal.show(RobotSelectModal, {
@@ -61,14 +61,14 @@ function addRobot() {
 }
 
 /**
- * 删除机器人
+ * 删除应用
  */
 function deleteRobot(rowIndex) {
   gridOptions.data.splice(rowIndex, 1)
   refresh()
 }
 /**
- * 配置机器人参数
+ * 配置应用参数
  */
 const configRobot = throttle((record) => {
   NiceModal.show(RobotConfigTaskModal, {
