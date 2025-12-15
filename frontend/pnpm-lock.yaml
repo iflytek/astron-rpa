@@ -10376,6 +10376,7 @@ snapshots:
       '@tiptap/starter-kit': 2.7.4
       '@tiptap/vue-3': 2.7.4(@tiptap/core@2.7.4(@tiptap/pm@2.7.4))(@tiptap/pm@2.7.4)(vue@3.5.18(typescript@5.9.3))
       '@univerjs/preset-sheets-core': 0.12.4(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
+      '@univerjs/preset-sheets-find-replace': 0.12.4(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
       '@univerjs/presets': 0.12.4(@types/react@19.2.7)(@wendellhu/redi@1.0.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.2)
       '@vueuse/core': 11.0.3(vue@3.5.18(typescript@5.9.3))
       ant-design-vue: 4.2.6(vue@3.5.18(typescript@5.9.3))
@@ -12631,26 +12632,6 @@ snapshots:
       - msw
       - utf-8-validate
       - vite
-
-  '@vitest/browser@3.2.4(playwright@1.55.1)(vite@7.0.6(@types/node@24.10.1)(jiti@2.6.1)(less@4.2.0)(lightningcss@1.30.2)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.1))(vitest@3.2.4)':
-    dependencies:
-      '@testing-library/dom': 10.4.0
-      '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.0)
-      '@vitest/mocker': 3.2.4(vite@7.0.6(@types/node@24.10.1)(jiti@2.6.1)(less@4.2.0)(lightningcss@1.30.2)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.1))
-      '@vitest/utils': 3.2.4
-      magic-string: 0.30.17
-      sirv: 3.0.2
-      tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(less@4.2.0)(lightningcss@1.30.2)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.1)
-      ws: 8.18.3
-    optionalDependencies:
-      playwright: 1.55.1
-    transitivePeerDependencies:
-      - bufferutil
-      - msw
-      - utf-8-validate
-      - vite
-    optional: true
 
   '@vitest/coverage-v8@3.2.4(@vitest/browser@3.2.4)(vitest@3.2.4)':
     dependencies:
@@ -17605,7 +17586,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 24.10.1
-      '@vitest/browser': 3.2.4(playwright@1.55.1)(vite@7.0.6(@types/node@24.10.1)(jiti@2.6.1)(less@4.2.0)(lightningcss@1.30.2)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.1))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.55.1)(vite@5.4.19(@types/node@24.10.1)(less@4.2.0)(lightningcss@1.30.2)(sass@1.77.8)(terser@5.39.0))(vitest@3.2.4)
       '@vitest/ui': 3.2.4(vitest@3.2.4)
       jsdom: 27.0.0(postcss@8.5.6)
     transitivePeerDependencies:
