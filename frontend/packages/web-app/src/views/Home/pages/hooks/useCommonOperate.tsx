@@ -160,20 +160,20 @@ export function useCommonOperate() {
   ) {
     switch (situation) {
       case 1:
-        return '机器人删除后不可恢复，确认删除么？'
+        return '应用删除后不可恢复，确认删除么？'
       case 2:
-        return `删除后执行器列表页中的机器人也将被删除，确认删除么？`
+        return `删除后执行器列表页中的应用也将被删除，确认删除么？`
       case 3:
         return (
           <div>
-            <div>{`${source === 'design' ? '删除后执行器列表页中的机器人也将被删除' : '机器人删除后不可恢复'}，确认删除么？`}</div>
-            <p style="color: #aaa; font-size: 14px;margin: 10px 0 0 0;">{`检测到该机器人被${taskReferInfoList[0].taskName}等计划任务引用，继续删除会同时解除计划任务中的引用关系，当计划任务仅存在一个引用关系时，计划任务也会被删除。`}</p>
+            <div>{`${source === 'design' ? '删除后执行器列表页中的应用也将被删除' : '应用删除后不可恢复'}，确认删除么？`}</div>
+            <p style="color: #aaa; font-size: 14px;margin: 10px 0 0 0;">{`检测到该应用被${taskReferInfoList[0].taskName}等计划任务引用，继续删除会同时解除计划任务中的引用关系，当计划任务仅存在一个引用关系时，计划任务也会被删除。`}</p>
             <Button
               type="link"
               style="padding: 0;"
               onClick={() => openTaskReferInfoModal(taskReferInfoList)}
             >
-              查看机器人的引用关系表
+              查看应用的引用关系表
             </Button>
           </div>
         )

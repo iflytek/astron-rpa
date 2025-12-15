@@ -11,7 +11,7 @@ const tabs = [
     value: 'taskrecord',
   },
   {
-    label: '机器人执行记录',
+    label: '应用执行记录',
     value: 'robotrecord',
   },
 ]

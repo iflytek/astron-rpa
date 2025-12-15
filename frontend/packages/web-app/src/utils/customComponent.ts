@@ -221,7 +221,7 @@ export async function trackComponentUsageChange(operation: () => void | Promise<
 }
 
 /**
- * 更新机器人流程节点中使用到的组件数据
+ * 更新应用流程节点中使用到的组件数据
  */
 export function updateFlowNodesComponent(componentId: string, defaultNode: ProcessNode) {
   const processStore = useProcessStore()

@@ -24,7 +24,7 @@ function handleSubmited() {
 <template>
   <Drawer
     v-bind="NiceModal.antdDrawer(modal)"
-    title="发布机器人"
+    title="发布应用"
     class="publish-modal"
     :width="568"
     :footer="null"

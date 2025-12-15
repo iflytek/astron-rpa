@@ -12,7 +12,7 @@ const { isEnable, videoRef, videoForm, handleOpenFile, handleSwitchChange } = us
 <template>
   <Card
     title="是否启用"
-    description="视频形式记录机器人运行过程"
+    description="视频形式记录应用运行过程"
     class="h-[84px] px-[20px] py-[17px]"
   >
     <template #suffix>
@@ -28,7 +28,7 @@ const { isEnable, videoRef, videoForm, handleOpenFile, handleSwitchChange } = us
   >
     <div class="space-y-6 py-6 px-5">
       <div class="flex items-center">
-        自动录制机器人
+        自动录制应用
         <Select
           v-model:value="videoForm.scene"
           class="w-[120px] mx-2"

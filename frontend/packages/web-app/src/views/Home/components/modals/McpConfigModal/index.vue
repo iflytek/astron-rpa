@@ -40,13 +40,13 @@ const formState = ref<FormState>({
 })
 const rules: FormRules = {
   name: [
-    { required: true, message: '请输入机器人名称', trigger: 'change' },
+    { required: true, message: '请输入应用名称', trigger: 'change' },
   ],
   english_name: [
-    { required: true, message: '请输入机器人英文名称', trigger: 'change' },
+    { required: true, message: '请输入应用英文名称', trigger: 'change' },
   ],
   description: [
-    { required: true, message: '请输入机器人简介', trigger: 'change' },
+    { required: true, message: '请输入应用简介', trigger: 'change' },
   ],
 }
 
@@ -159,10 +159,10 @@ function handleChange(varDescribe: string) {
         <a-switch v-model:checked="formState.status" />
       </a-form-item>
       <template v-if="formState.status">
-        <a-form-item label="机器人名称" name="name">
+        <a-form-item label="应用名称" name="name">
           <a-input v-model:value="formState.name" />
         </a-form-item>
-        <a-form-item label="机器人英文名" name="english_name">
+        <a-form-item label="应用英文名" name="english_name">
           <div class="flex items-center justify-between">
             <a-input v-model:value="formState.english_name" />
             <a-button size="small" class="ml-2" type="link" @click="handleAutoTranslate">
@@ -170,10 +170,10 @@ function handleChange(varDescribe: string) {
             </a-button>
           </div>
         </a-form-item>
-        <a-form-item label="机器人简介" name="description">
+        <a-form-item label="应用简介" name="description">
           <a-textarea v-model:value="formState.description" :rows="4" />
         </a-form-item>
-        <a-form-item label="机器人参数">
+        <a-form-item label="应用参数">
           <VxeGrid
             v-bind="gridOptions" :data="formState.parameters" class="params-table w-full overflow-hidden"
             border="none" :height="100"

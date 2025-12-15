@@ -27,7 +27,7 @@ async function validateName(_rule: Rule, value: string) {
     })
 
     // eslint-disable-next-line prefer-promise-reject-errors
-    return res.data ? Promise.reject('机器人名称已存在') : Promise.resolve()
+    return res.data ? Promise.reject('应用名称已存在') : Promise.resolve()
   }
 
   return Promise.resolve()
@@ -46,7 +46,7 @@ const formRef = ref()
 const formState = defineModel<Partial<FormState>>()
 const rules: Record<string, Rule[]> = {
   name: [
-    { required: true, message: '请输入机器人名称' },
+    { required: true, message: '请输入应用名称' },
     { validator: validateName, trigger: 'blur' },
   ],
   appendix: [
@@ -77,7 +77,7 @@ const isFirstVerison = computed(() => formState.value.version === 1)
     <div class="flex flex-col">
       <div :class="isFirstVerison ? 'order-1' : 'order-3'">
         <div class="font-semibold text-[14px] leading-6 pb-3">
-          基本信息
+          {{ $t('basicInformation') }}
         </div>
         <div class="flex gap-6">
           <Form.Item>
@@ -89,7 +89,7 @@ const isFirstVerison = computed(() => formState.value.version === 1)
           </Form.Item>
           <Form.Item
             name="name"
-            label="机器人名称"
+            :label="$t('projectName')"
             class="flex-1"
             required
           >
@@ -98,7 +98,7 @@ const isFirstVerison = computed(() => formState.value.version === 1)
         </div>
         <Form.Item
           name="introduction"
-          label="机器人简介"
+          :label="$t('projectIntroduction')"
         >
           <Textarea
             v-model:value="formState.introduction"

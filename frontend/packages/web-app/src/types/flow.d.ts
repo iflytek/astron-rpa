@@ -38,8 +38,8 @@ declare namespace RPA {
     varType: RPA.VariableType // 参数类型
     varValue: unknown // 参数默认值
     varDescribe: string // 参数描述
-    robotId: string // 机器人id
-    robotVersion?: number // 机器人版本
+    robotId: string // 应用id
+    robotVersion?: number // 应用版本
     processId: string // 流程id
   }
 

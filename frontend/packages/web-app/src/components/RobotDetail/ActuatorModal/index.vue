@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 import { Drawer, Segmented } from 'ant-design-vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useTranslation } from "i18next-vue"
 
 import BasicContent from './BasicContent.vue'
 import { useProvideBasicStore } from './basicStore'
@@ -11,17 +12,19 @@ const props = defineProps<{ robotId: string, version: number }>()
 
 const modal = NiceModal.useModal()
 
+const { t } = useTranslation()
 const currentTab = ref('info')
-const tabs = [
+
+const tabs = computed(() => [
   {
-    label: '基本信息',
+    label: t('basicInformation'),
     value: 'info',
   },
   {
-    label: '执行记录',
+    label: t('executionRecords'),
     value: 'record',
   },
-]
+])
 
 useProvideBasicStore(props.robotId)
 </script>
@@ -29,7 +32,7 @@ useProvideBasicStore(props.robotId)
 <template>
   <Drawer
     v-bind="NiceModal.antdDrawer(modal)"
-    title="机器人详情"
+    :title="$t('appDetails')"
     class="robotDetailsModal"
     placement="right"
     :width="628"

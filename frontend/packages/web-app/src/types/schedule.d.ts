@@ -60,7 +60,7 @@ export interface Task {
    */
   name: string
   /**
-   * 机器人执行序列
+   * 应用执行序列
    */
   robotInfoList?: RobotInfo[]
   /**

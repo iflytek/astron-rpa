@@ -48,17 +48,17 @@ const options = computed(() => {
     },
     {
       value: 'jump',
-      label: '跳过异常机器人，继续执行任务',
+      label: '跳过异常应用，继续执行任务',
     },
     {
       value: 'retry_stop',
-      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_stop'), '次异常机器人后，中止任务']),
-      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_stop'), '次异常机器人后，中止任务']),
+      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_stop'), '次异常应用后，中止任务']),
+      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_stop'), '次异常应用后，中止任务']),
     },
     {
       value: 'retry_jump',
-      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_jump'), '次异常机器人后，跳过并继续任务']),
-      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_jump'), '次异常机器人后，跳过并继续任务']),
+      label: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumber('retry_jump'), '次异常应用后，跳过并继续任务']),
+      render: h('div', { class: 'flex items-center gap-2' }, ['重试', genNumberInput('retry_jump'), '次异常应用后，跳过并继续任务']),
     },
   ]
 })
