@@ -57,7 +57,7 @@ export function isNameCopy(data: { name: string }) {
   return http.get('/robot/triggerTask/isNameCopy', data)
 }
 
-// 机器人列表
+// 应用列表
 export function getRobotList(data: { name: string }) {
   return http.get('/robot/triggerTask/robotExe/list', data)
 }

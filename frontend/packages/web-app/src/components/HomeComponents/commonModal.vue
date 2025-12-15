@@ -50,7 +50,7 @@ const FN = {
 const TYPE_TEXT_CONFIG = {
   [RESOURCE_PROJECT]: '工程名称',
   [RESOURCE_COMPONENT]: '组件名称',
-  [RESOURCE_ROBOT]: '机器人名称',
+  [RESOURCE_ROBOT]: '应用名称',
 }
 
 export default {

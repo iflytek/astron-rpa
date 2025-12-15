@@ -22,10 +22,9 @@ export function newTeam(data) {
 }
 
 /**
- * @description: 黄色密级的机器人，获取时校验是否是部门内部人员
+ * @description: 黄色密级的应用，获取时校验是否是部门内部人员
  */
 export function canAchieveApp(data) {
-  console.log('canAchieveApp', data)
   return http.post('/robot/application/use-permission-check', data, { toast: false })
 }
 
@@ -293,7 +292,7 @@ export function inviteMarketUser(data) {
   return http.post('/robot/market-user/invite', data)
 }
 
-// 应用获取为机器人时重命名检测
+// 应用获取为应用时重命名检测
 export function checkAppToRobotName(params) {
   return http.get('/market-resource/robot-name-duplicated', params)
 }

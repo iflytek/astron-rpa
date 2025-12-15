@@ -10,7 +10,7 @@ interface BasicContentData {
   createTime: string // 创建时间
   creatorName: string // 创建者姓名
   introduction: string // 简介
-  name: string // 机器人姓名
+  name: string // 应用姓名
   version: number // 版本号
   filePath: string // 文件路径
   fileName: string // 文件名

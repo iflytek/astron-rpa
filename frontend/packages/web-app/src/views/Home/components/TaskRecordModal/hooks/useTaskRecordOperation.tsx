@@ -28,13 +28,13 @@ export default function useTaskRecordOperation() {
   function handleExpandedRowRender({ record }) {
     const innerColumns = [
       {
-        title: '机器人名称',
+        title: '应用名称',
         dataIndex: 'robotName',
         key: 'robotName',
         ellipsis: true,
       },
       {
-        title: '机器人版本',
+        title: '应用版本',
         key: 'robotVersion',
         dataIndex: 'robotVersion',
         ellipsis: true,

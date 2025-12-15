@@ -66,7 +66,7 @@ const videoPath = computed(() =>
 
       <section class="panel">
         <div class="subtitle mb-4">
-          基本信息
+          {{ t('basicInformation') }}
         </div>
         <a-descriptions
           layout="vertical"
@@ -99,7 +99,7 @@ const videoPath = computed(() =>
             </video>
           </a-descriptions-item>
           <a-descriptions-item label="使用说明" :span="6">
-            <RichTextPreview :content="appDetail.useDescription || '暂无使用说明'" class="text-[12px]" />
+            <RichTextPreview :content="appDetail.useDescription || $t('noDescription-1')" class="text-[12px]" />
           </a-descriptions-item>
         </a-descriptions>
       </section>

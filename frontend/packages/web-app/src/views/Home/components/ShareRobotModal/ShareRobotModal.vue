@@ -89,7 +89,7 @@ function handleOk() {
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="分享机器人"
+    title="分享应用"
     :confirm-loading="confirmLoading"
     @ok="handleOk"
   >
@@ -98,7 +98,7 @@ function handleOk() {
       <div>{{ props.record.robotName }}</div>
     </div>
     <Form ref="formRef" label-align="left" :model="formState" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }" autocomplete="off">
-      <Form.Item label="机器人类型">
+      <Form.Item label="应用类型">
         <Select v-model:value="formState.category" :options="ROBOT_TYPE_OPTIONS" />
       </Form.Item>
       <Form.Item label="分享至市场" name="marketIdList" :rules="[{ required: true, message: '请选择市场' }]">

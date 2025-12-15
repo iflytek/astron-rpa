@@ -6,7 +6,7 @@ export function createProject(data) {
 }
 
 /**
- * 检测机器人是否被计划任务引用被返回引用这个机器人的计划任务的数组
+ * 检测应用是否被计划任务引用被返回引用这个应用的计划任务的数组
  */
 export function isInTask(params) {
   return http.get('/robot/robot-design/delete-robot-res', params)

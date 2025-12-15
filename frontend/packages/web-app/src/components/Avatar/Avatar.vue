@@ -23,7 +23,7 @@
   
   const sizeStyle = computed(() => sizeMap[props.size])
   
-  // 判断 icon 是否是新机器人头像格式 (如 avatar-internet-1 或 avatar-industry-construction-1)
+  // 判断 icon 是否是新应用头像格式 (如 avatar-internet-1 或 avatar-industry-construction-1)
   // 格式：avatar-{type1}-{type2?}-...-{number}，可以有多个类型部分
   const isNewRobotAvatar = computed(() => {
     if (!props.icon)
@@ -31,7 +31,7 @@
     return /^avatar-[a-z]+(?:-[a-z]+)*-\d+$/.test(props.icon)
   })
   
-  // 新机器人头像不显示背景色
+  // 新应用头像不显示背景色
   const backgroundColor = computed(() => {
     if (isNewRobotAvatar.value) {
       return 'transparent'

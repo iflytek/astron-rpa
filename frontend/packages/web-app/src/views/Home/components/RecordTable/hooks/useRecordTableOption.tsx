@@ -25,7 +25,7 @@ export default function useRecordTableOption(props?: { robotId: string }) {
           {
             componentType: 'input',
             bind: 'robotName',
-            placeholder: '请输入机器人名称',
+            placeholder: '请输入应用名称',
           },
           {
             componentType: 'datePicker',

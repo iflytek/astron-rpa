@@ -30,7 +30,7 @@ export function useApplicationTable() {
       {
         componentType: 'input',
         bind: 'robotName',
-        placeholder: '请输入机器人名称',
+        placeholder: '请输入应用名称',
         // prefix: <SearchOutlined />,
       },
       {
@@ -68,7 +68,7 @@ export function useApplicationTable() {
     tableProps: {
       columns: [
         {
-          title: '机器人名称',
+          title: '应用名称',
           dataIndex: 'robotName',
           key: 'robotName',
           ellipsis: true,

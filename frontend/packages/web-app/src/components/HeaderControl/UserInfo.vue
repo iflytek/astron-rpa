@@ -64,7 +64,7 @@ async function menuClick(item: any) {
   if (item.keyPath[0] === 'changeMode') {
     GlobalModal.confirm({
       title: '开始调度模式',
-      content: '开启后本机画面和机器人执行情况会被卓越中心监控，同时接受卓越中心下发的任务',
+      content: '开启后本机画面和应用执行情况会被卓越中心监控，同时接受卓越中心下发的任务',
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
@@ -86,7 +86,7 @@ async function logout() {
 function modalTip() {
   const modal = GlobalModal.confirm({
     title: '警告',
-    content: '当前有机器人/计划任务正在执行，是否立即停止',
+    content: '当前有应用/计划任务正在执行，是否立即停止',
     okText: '确定',
     cancelText: '取消',
     onOk() {

@@ -27,15 +27,18 @@ const props = defineProps<{
 
 const emit = defineEmits(['refresh'])
 
-const TYPE_ARR = [{
-  label: '设计器',
-  value: 'design',
-  tip: '创建为一个新副本，可以编辑；源机器人重新发版后不会收到更新',
-}, {
-  label: '执行器',
-  value: 'execute',
-  tip: '可执行任务，不支持编辑；源机器人重新发版后会收到更新',
-}]
+const TYPE_ARR = [
+  {
+    label: '设计器',
+    value: 'design',
+    tip: '创建为一个新副本，可以编辑；源应用重新发版后不会收到更新',
+  },
+  {
+    label: '执行器',
+    value: 'execute',
+    tip: '可执行任务，不支持编辑；源应用重新发版后会收到更新',
+  }
+]
 
 const modal = NiceModal.useModal()
 const confirmLoading = ref(false)
@@ -57,8 +60,8 @@ async function handleOk() {
     obtainApp(formState).then(() => {
       confirmLoading.value = false
       const commonMsg = '获取成功'
-      formState.obtainDirection.includes('design') && message.success(`${commonMsg}，已在设计器的我获取的列表中创建该机器人的副本`)
-      formState.obtainDirection.includes('execute') && message.success(`${commonMsg}，并自动启用该机器人获取的版本`)
+      formState.obtainDirection.includes('design') && message.success(`${commonMsg}，已在设计器的我获取的列表中创建该应用的副本`)
+      formState.obtainDirection.includes('execute') && message.success(`${commonMsg}，并自动启用该应用获取的版本`)
       emit('refresh')
       modal.hide()
     }).catch((err) => {
@@ -69,14 +72,14 @@ async function handleOk() {
         return
       }
       if ([600001, '600001'].includes(code)) {
-        message.error('执行器中该机器人当前版本已存在')
+        message.error('执行器中该应用当前版本已存在')
         return
       }
       if ([600000, '600000'].includes(code)) {
         const modal = GlobalModal.warning({
-          title: '获取机器人',
+          title: '获取应用',
           content: () => {
-            return h('div', [h('p', '设计器存在同名机器人，请修改名称'), h('span', '名称：'), h(Input, { defaultValue: formState.appName, onChange: (e) => { confirmAppName.value = e.target.value; !confirmAppName.value && message.error('请输入名称') }, style: 'width: 120px' })])
+            return h('div', [h('p', '设计器存在同名应用，请修改名称'), h('span', '名称：'), h(Input, { defaultValue: formState.appName, onChange: (e) => { confirmAppName.value = e.target.value; !confirmAppName.value && message.error('请输入名称') }, style: 'width: 120px' })])
           },
           onOk() {
             if (!confirmAppName.value) {
@@ -126,7 +129,7 @@ setDefaultVersion()
     centered
     @ok="handleOk"
   >
-    <a-form ref="formRef" :model="formState" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }" autocomplete="off">
+    <a-form ref="formRef" :model="formState" layout="vertical" autocomplete="off">
       <a-form-item label="获取版本">
         <a-select v-model:value="formState.version">
           <a-select-option v-for="version in props.versionLst" :key="version.version" :value="version.version">

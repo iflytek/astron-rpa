@@ -20,7 +20,7 @@ export function useCardsApp() {
       homePageListRef.value?.fetchTableData()
     }
   }
-  // 获取机器人更新ID的解构赋值
+  // 获取应用更新ID的解构赋值
   const { getInitUpdateIds } = useRobotUpdate('app', homePageListRef)
   /**
    * 获取卡片数据
