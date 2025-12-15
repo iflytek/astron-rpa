@@ -149,6 +149,7 @@ def start():
     Config.open_log_ws = args.log_ws == "y"
     Config.wait_web_ws = args.wait_web_ws == "y"
     Config.wait_tip_ws = args.wait_tip_ws == "y"
+    Config.debug_mode = args.debug == "y"
 
     if args.run_param:
         try:
