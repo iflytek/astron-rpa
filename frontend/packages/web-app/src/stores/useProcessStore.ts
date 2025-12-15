@@ -92,9 +92,12 @@ export const useProcessStore = defineStore('process', () => {
   // 依赖刷新后自动请求
   watchEffect(async () => {
     if (project.value.id && activeProcessId.value) {
+      const isPy = isPyModel(activeProcess.value?.resourceCategory);
+      const idParam = isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
+
       parameters.value = await getConfigParams({
+        ...idParam,
         robotId: project.value.id,
-        processId: activeProcessId.value,
       })
     }
   })
@@ -127,14 +130,17 @@ export const useProcessStore = defineStore('process', () => {
 
   // 添加参数
   const createParameter = async () => {
+    const isPy = isPyModel(activeProcess.value?.resourceCategory);
+    const idParam = isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
+
     const data: RPA.CreateConfigParamData = {
+      ...idParam,
       varName: generateParameterName(),
       varDirection: 0,
       varType: 'Str',
       varDescribe: '',
       varValue: '',
       robotId: project.value.id,
-      processId: activeProcessId.value,
     }
     const id = await createConfigParam(data)
 

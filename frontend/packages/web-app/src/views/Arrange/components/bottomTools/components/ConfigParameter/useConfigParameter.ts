@@ -1,8 +1,8 @@
 import { reactiveComputed, useToggle } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { find, isEmpty } from 'lodash-es'
-import type { Ref } from 'vue'
-import { inject, provide, ref, shallowRef, watch } from 'vue'
+import { ref, shallowRef, watch } from 'vue'
+import { createInjectionState } from '@vueuse/core'
 
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -13,18 +13,7 @@ import type { TabConfig } from '../../types.ts'
 import Manager from './Manager.vue'
 import RightExtra from './RightExtra.vue'
 
-const CONFIG_PARAMETER_INJECTION_KEY = Symbol('configParameter')
-
-interface ConfigParameterInstance {
-  configParamsTabConfig: TabConfig
-  searchText: Ref<string>
-  isQuoted: Ref<boolean>
-  toggleQuoted: (value?: boolean) => boolean
-  findQuoted: (row?: RPA.ConfigParamData) => void
-  quotedData: Ref<{ name: string, items: Array<PickUseItemType> } | undefined>
-}
-
-export function useConfigParameter(): ConfigParameterInstance {
+const [useProvideConfigParameter, useConfigParameter ] = createInjectionState(() => {
   const processStore = useProcessStore()
   const searchText = ref('')
 
@@ -33,7 +22,7 @@ export function useConfigParameter(): ConfigParameterInstance {
 
   let findQuotedRow: RPA.ConfigParamData | null = null
 
-  const configParamsTabConfig: TabConfig = reactiveComputed(() => ({
+  const config: TabConfig = reactiveComputed(() => ({
     text: processStore.isComponent && processStore.activeProcess?.isMain ? 'components.componentAttribute' : 'configParameters',
     key: 'config-params',
     icon: processStore.isComponent && processStore.activeProcess?.isMain ? 'bottom-menu-component-attribute-manage' : 'bottom-menu-config-param-manage',
@@ -48,6 +37,7 @@ export function useConfigParameter(): ConfigParameterInstance {
   const findQuoted = (row?: RPA.ConfigParamData) => {
     findQuotedRow = row || findQuotedRow
     const processData = useFlowStore().simpleFlowUIData
+
     const list = processData.reduce((acc, node, index) => {
       const formItems = [...node?.inputList, ...node?.outputList, ...node?.advanced]
       const findItem = formItems.find(item => Array.isArray(item.value) && find(item.value, { type: 'p_var', value: findQuotedRow.varName }))
@@ -60,6 +50,7 @@ export function useConfigParameter(): ConfigParameterInstance {
       }
       return acc
     }, [])
+
     const items = isEmpty(list)
       ? []
       : [{
@@ -75,26 +66,14 @@ export function useConfigParameter(): ConfigParameterInstance {
     toggleQuoted(true)
   }
 
-  const instance = {
-    configParamsTabConfig,
+  return {
+    quotedData,
+    config,
     searchText,
     isQuoted,
     toggleQuoted,
     findQuoted,
-    quotedData,
   }
+})
 
-  return instance
-}
-
-export function provideConfigParameter() {
-  const instance = useConfigParameter()
-  provide(CONFIG_PARAMETER_INJECTION_KEY, instance)
-  return instance
-}
-
-export function injectConfigParameter(): ConfigParameterInstance {
-  const instance = inject<ConfigParameterInstance>(CONFIG_PARAMETER_INJECTION_KEY)
-  if (instance)
-    return instance
-}
+export { useProvideConfigParameter, useConfigParameter }
