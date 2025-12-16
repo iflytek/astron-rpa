@@ -129,16 +129,21 @@ class AtomicManager:
         retry_time = int(kwargs.get("__retry_time__", 0))
         retry_interval = float(kwargs.get("__retry_interval__", 0))
 
-        report.info(
-            ReportCode(
-                log_type=ReportType.Code,
-                process_id=process_id,
-                key=key,
-                line=line,
-                status=ReportCodeStatus.START,
-                msg_str=ReportStartMsgFormat.format("{process}", line, "{atomic}"),
+        # 检测是否在外部重试块中（主要是处理设置了重试）
+        in_external_retry = kwargs.get("__in_external_retry__", False)
+
+        # START 上报（外部重试时跳过，因为已在外层上报）
+        if not in_external_retry:
+            report.info(
+                ReportCode(
+                    log_type=ReportType.Code,
+                    process_id=process_id,
+                    key=key,
+                    line=line,
+                    status=ReportCodeStatus.START,
+                    msg_str=ReportStartMsgFormat.format("{process}", line, "{atomic}"),
+                )
             )
-        )
 
         # 基础参数验证+转换
         if not self.atomic_dict[key].__end__:
@@ -189,6 +194,11 @@ class AtomicManager:
                     error_str = e.code.message
                 else:
                     error_str = str(e)
+
+                # 外部重试时，直接抛出让外层处理
+                if in_external_retry:
+                    raise
+
                 if skip_err == "skip":
                     report.warning(
                         ReportCode(

@@ -51,3 +51,6 @@ class Config:
 
     # 是否开启并等待右下角ws连接
     wait_tip_ws: bool = False
+
+    # 是否是 debug 模式
+    debug_mode: bool = False
