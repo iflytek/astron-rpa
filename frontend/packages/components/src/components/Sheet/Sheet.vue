@@ -141,11 +141,6 @@ onMounted(() => {
   })
 })
 
-// 打开查找替换弹窗
-const openFindDialog = () => {
-  univerAPIInstance?.executeCommand("ui.operation.open-find-dialog")
-}
-
 onBeforeUnmount(() => {
   univerInstance?.dispose()
   univerAPIInstance?.dispose()
@@ -164,7 +159,13 @@ watch(() => props.locale, (locale) => {
 defineExpose({
   undo: () => univerAPIInstance?.undo(),
   redo: () => univerAPIInstance?.redo(),
-  openFindDialog,
+  // 打开查找替换弹窗
+  openFindDialog: () => {
+    univerAPIInstance?.executeCommand("ui.operation.open-find-dialog")
+  },
+  createWorkbook: (workbookData: IWorkbookData) => {
+    univerAPIInstance?.createWorkbook(workbookData)
+  },
 })
 </script>
 
