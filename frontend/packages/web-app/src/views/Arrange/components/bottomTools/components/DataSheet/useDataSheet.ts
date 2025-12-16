@@ -1,11 +1,14 @@
 import { createInjectionState } from '@vueuse/core'
 import { shallowRef, markRaw, ref } from 'vue'
-import { Sheet as SheetComponent } from '@rpa/components'
+import { NiceModal, Sheet as SheetComponent, sheetUtils } from '@rpa/components'
 
+import _ImportModal from './ImportModal.vue'
 import type { TabConfig } from '../../types.ts'
 
 import Sheet from './Sheet.vue'
 import RightExtra from './RightExtra.vue'
+
+const ImportModal = NiceModal.create(_ImportModal)
 
 type SheetType = InstanceType<typeof SheetComponent>
 
@@ -31,7 +34,12 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     isReady.value = true
   }
 
-  return { isReady, dataSheetConfig, sheetRef, handleUndo, handleRedo, handleFind, handleReady }
+  const handleImport = async () => {
+    const workbookData = await sheetUtils.importExcelFile()
+    NiceModal.show(ImportModal, { workbookData })
+  }
+
+  return { isReady, dataSheetConfig, sheetRef, handleUndo, handleRedo, handleFind, handleReady, handleImport }
 })
 
 export { useProvideDataSheetStore, useDataSheetStore }
