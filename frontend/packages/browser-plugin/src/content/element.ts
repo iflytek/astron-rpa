@@ -159,7 +159,6 @@ function isSvgElement(element: Element): boolean {
   return element.namespaceURI === 'http://www.w3.org/2000/svg'
 }
 
-
 /**
  * Filters an array of HTML elements to return only the visible ones.
  *
@@ -177,7 +176,7 @@ export function filterVisibleElements(elements: HTMLElement[]) {
       let current: HTMLElement | null = ele
       while (current && current.tagName.toLowerCase() !== 'body') {
         const style = window.getComputedStyle(current)
-        if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse' )
+        if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse')
           return false
         current = current.parentElement
       }
@@ -1072,7 +1071,8 @@ export function getChildElementByType(element: HTMLElement, params: Options): HT
         node = result.iterateNext() as HTMLElement
       }
       return elements
-    } else {
+    }
+    else {
       return document.evaluate(`.${params.xpath}`, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement
     }
   }
