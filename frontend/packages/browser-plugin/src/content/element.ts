@@ -159,22 +159,28 @@ function isSvgElement(element: Element): boolean {
   return element.namespaceURI === 'http://www.w3.org/2000/svg'
 }
 
+
 /**
- * Filters an array of HTMLElements to include only those that are visible.
+ * Filters an array of HTML elements to return only the visible ones.
  *
- * An element is considered visible if:
- * - Its bounding rectangle has non-zero width and height.
- * - Its computed CSS `visibility` property is not `'hidden'` or `'collapse'`.
+ * An element is considered visible if neither it nor any of its parent elements
+ * up to the `<body>` have a computed style of `display: 'none'`,
+ * `visibility: 'hidden'`, or `visibility: 'collapse'`.
  *
- * @param elements - The array of HTMLElements to filter.
- * @returns A new array containing only the visible elements.
+ * @param elements - The array of HTML elements to filter.
+ * @returns A new array containing only the visible elements. If the input is
+ *          null or empty, it is returned as is.
  */
 export function filterVisibleElements(elements: HTMLElement[]) {
   if (elements && elements.length) {
     elements = elements.filter((ele) => {
-      const style = window.getComputedStyle(ele)
-      if (style.visibility === 'hidden' || style.visibility === 'collapse' || style.display === 'none')
-        return false
+      let current: HTMLElement | null = ele
+      while (current && current.tagName.toLowerCase() !== 'body') {
+        const style = window.getComputedStyle(current)
+        if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse' )
+          return false
+        current = current.parentElement
+      }
       return true
     })
   }
@@ -1049,7 +1055,7 @@ export function getElementByElementInfo(params: ElementInfo): HTMLElement[] | nu
 }
 
 export function getChildElementByType(element: HTMLElement, params: Options): HTMLElement[] | HTMLElement | null {
-  const { elementGetType } = params
+  const { elementGetType, multiple } = params
   if (elementGetType === 'index') {
     return element.children[params.index || 0] as HTMLElement
   }
@@ -1057,7 +1063,18 @@ export function getChildElementByType(element: HTMLElement, params: Options): HT
     return Array.from(element.children) as HTMLElement[]
   }
   if (elementGetType === 'xpath') {
-    return document.evaluate(`.${params.xpath}`, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement
+    if (multiple) {
+      const result = document.evaluate(`.${params.xpath}`, element, null, XPathResult.ANY_TYPE, null)
+      const elements: HTMLElement[] = []
+      let node = result.iterateNext() as HTMLElement
+      while (node) {
+        elements.push(node)
+        node = result.iterateNext() as HTMLElement
+      }
+      return elements
+    } else {
+      return document.evaluate(`.${params.xpath}`, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement
+    }
   }
   if (elementGetType === 'last') {
     return element.lastElementChild as HTMLElement
