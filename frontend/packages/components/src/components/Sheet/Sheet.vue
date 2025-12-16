@@ -16,15 +16,15 @@ import '@univerjs/preset-sheets-find-replace/lib/index.css'
 
 interface SheetProps {
   darkMode?: boolean
-  data?: Partial<IWorkbookData>
   locale?: LocaleType
   readonly?: boolean
 }
 
+const data = defineModel<Partial<IWorkbookData>>('data', { default: {} })
+
 const props = withDefaults(defineProps<SheetProps>(), {
   darkMode: false,
   locale: LocaleType.ZH_CN,
-  data: () => ({}),
 })
 
 const emits = defineEmits<{
@@ -58,7 +58,7 @@ onMounted(() => {
   }
 
   const { univer, univerAPI } = createUniver({
-    logLevel: LogLevel.VERBOSE,
+    logLevel: LogLevel.WARN,
     theme: themeToUse,
     darkMode: props.darkMode,
     locale: props.locale,
@@ -106,12 +106,39 @@ onMounted(() => {
     },
   )
 
-  univerAPI.createWorkbook(props.data)
+  univerAPI.createWorkbook(data.value)
 
   console.log('univerAPI', univerAPI)
 
   univerInstance = univer
   univerAPIInstance = univerAPI
+
+  // 将工作簿变更同步回父级 `data` 模型
+  const syncWorkbookToModel = () => {
+    try {
+      const fWorkbook = univerAPI.getActiveWorkbook()
+      if (!fWorkbook) return
+
+      const workbookData = fWorkbook.save()
+
+      console.log('syncWorkbookToModel', workbookData)
+
+      data.value = workbookData
+    } catch (e) {
+      // 保持容错，避免阻塞主流程
+      // eslint-disable-next-line no-console
+      console.warn('syncWorkbookToModel error', e)
+    }
+  }
+
+  const listenEvents = [
+    univerAPI.Event.SheetValueChanged,
+    univerAPI.Event.SheetNameChanged,
+  ]
+
+  listenEvents.forEach((eventName) => {
+    univerAPI.addEvent(eventName, syncWorkbookToModel)
+  })
 })
 
 // 打开查找替换弹窗
