@@ -47,7 +47,20 @@ const importExcelFile = () => {
   });
 }
 
+const exportExcelFile = (snapshot: IWorkbookData, fileName?: string) => {
+  return new Promise<void>((resolve, reject) => {
+    LuckyExcel.transformUniverToExcel({
+      snapshot,
+      fileName,
+      getBuffer: false,
+      success: () => resolve(),
+      error: (error) => reject(error),
+    })
+  })
+}
+
 export const sheetUtils = {
   waitUserSelectExcelFile,
   importExcelFile,
+  exportExcelFile,
 }

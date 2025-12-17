@@ -1,20 +1,19 @@
 import { createInjectionState } from '@vueuse/core'
 import { shallowRef, markRaw, ref } from 'vue'
-import { NiceModal, Sheet as SheetComponent, sheetUtils, type ISheetWorkbookData } from '@rpa/components'
+import { Sheet as SheetComponent, type ISheetWorkbookData } from '@rpa/components'
 
-import _ImportModal from './ImportModal.vue'
 import type { TabConfig } from '../../types.ts'
 
 import Sheet from './Sheet.vue'
 import RightExtra from './RightExtra.vue'
 
-const ImportModal = NiceModal.create(_ImportModal)
 
 type SheetType = InstanceType<typeof SheetComponent>
 
 const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() => {
   const sheetRef = shallowRef<SheetType>()
   const isReady = ref(false)
+  const sheetData = shallowRef<ISheetWorkbookData>()
 
   const dataSheetConfig: TabConfig = {
     text: 'dataSheet',
@@ -34,23 +33,11 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     isReady.value = true
   }
 
-  const handleImport = async () => {
-    const workbookData = await sheetUtils.importExcelFile()
-    NiceModal.show(ImportModal, {
-      workbookData,
-      onImport: ({ sheetId, firstRowAsHeader }) => {
-        const sheetData = workbookData.sheets[sheetId]
-        const filteredWorkbookData: ISheetWorkbookData = {
-          ...workbookData,
-          sheets: { [sheetId]: sheetData },
-          sheetOrder: [sheetId],
-        }
-        sheetRef.value?.createWorkbook(filteredWorkbookData)
-      }
-    })
+  const createWorkbook = (workbookData: ISheetWorkbookData) => {
+    sheetRef.value?.createWorkbook(workbookData)
   }
 
-  return { isReady, dataSheetConfig, sheetRef, handleUndo, handleRedo, handleFind, handleReady, handleImport }
+  return { sheetData, isReady, dataSheetConfig, sheetRef, handleUndo, handleRedo, handleFind, handleReady, createWorkbook }
 })
 
 export { useProvideDataSheetStore, useDataSheetStore }

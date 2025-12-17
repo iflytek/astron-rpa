@@ -19,6 +19,8 @@ import type { TabConfig } from './types'
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
+console.log('BottomTools props.height', props.height)
+
 // 创建并提供 configParameter 实例
 const { config: configParamsTabConfig } = useProvideConfigParameter()
 const { dataSheetConfig } = useProvideDataSheetStore()
@@ -40,7 +42,7 @@ const moduleType = ref('default')
 
 // 内容的最大高度
 const contentHeight = computed(() => {
-  return Math.max(props.height, BOTTOM_BOOTLS_HEIGHT_SIZE_MIN) - 50
+  return Math.max(props.height, BOTTOM_BOOTLS_HEIGHT_SIZE_MIN) - 46 - 8 // 减去 tab 高度和 margin-bottom
 })
 
 // provide 元素管理/图片管理

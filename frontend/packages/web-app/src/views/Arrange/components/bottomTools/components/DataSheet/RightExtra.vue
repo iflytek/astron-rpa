@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { useDataSheetStore } from './useDataSheet'
+import ImportAction from './ImportAction.vue';
+import ExportAction from './ExportAction.vue';
 
-const { isReady, handleUndo, handleRedo, handleFind, handleImport } = useDataSheetStore()
+const { isReady, handleUndo, handleRedo, handleFind } = useDataSheetStore()
 </script>
 
 <template>
@@ -9,16 +11,8 @@ const { isReady, handleUndo, handleRedo, handleFind, handleImport } = useDataShe
     <rpa-hint-icon name="tools-undo" :title="$t('undo')" enable-hover-bg :disabled="!isReady" @click="handleUndo" />
     <rpa-hint-icon name="tools-recover" :title="$t('redo')" enable-hover-bg :disabled="!isReady" @click="handleRedo" />
 
-    <rpa-hint-icon name="upload-folder" enable-hover-bg :disabled="!isReady" @click="handleImport">
-      <template #suffix>
-        <span class="ml-1 text-xs">导入</span>
-      </template>
-    </rpa-hint-icon>
-    <rpa-hint-icon name="move-folder" enable-hover-bg :disabled="!isReady" @click="handleRedo">
-      <template #suffix>
-        <span class="ml-1 text-xs">导出</span>
-      </template>
-    </rpa-hint-icon>
+    <ImportAction />
+    <ExportAction />
 
     <rpa-hint-icon name="bottom-pick-menu-search" enable-hover-bg :disabled="!isReady" @click="handleFind">
       <template #suffix>

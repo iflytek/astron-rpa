@@ -76,7 +76,7 @@ onMounted(() => {
       UniverSheetsCorePreset({
         header: false,
         contextMenu: !props.readonly,
-        footer: props.readonly ? false : undefined,
+        footer: false,
         container: container.value as HTMLElement,
       }),
       UniverSheetsFindReplacePreset(),

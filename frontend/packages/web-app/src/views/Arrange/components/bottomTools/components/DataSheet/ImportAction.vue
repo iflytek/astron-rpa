@@ -1,0 +1,69 @@
+<script lang="ts" setup>
+import { ref, shallowRef } from "vue"
+import { sheetUtils, type ISheetWorkbookData } from '@rpa/components'
+
+import { useDataSheetStore } from './useDataSheet'
+
+interface FormState {
+  open: boolean
+  workbookData: ISheetWorkbookData
+  sheetOptions: { label: string; value: string }[]
+  selectedSheet?: string
+  firstRowAsHeader: boolean
+}
+
+const { isReady, createWorkbook } = useDataSheetStore()
+
+const formRef = ref();
+const formState = shallowRef<FormState>({
+  open: false,
+  workbookData: null,
+  sheetOptions: [],
+  selectedSheet: undefined,
+  firstRowAsHeader: false,
+});
+
+const handleOk = async () => {
+  await formRef.value.validate();
+  const { workbookData, selectedSheet: sheetId } = formState.value
+
+  createWorkbook({
+    ...workbookData,
+    sheets: { [sheetId]: workbookData.sheets[sheetId] },
+    sheetOrder: [sheetId],
+  })
+};
+
+const handleImport = async () => {
+  const workbookData = await sheetUtils.importExcelFile()
+  const sheetOptions = Object.values(workbookData.sheets).map((sheet) => ({
+    label: sheet.name,
+    value: sheet.id,
+  }))
+
+  formState.value = {
+    open: true,
+    workbookData,
+    sheetOptions,
+    selectedSheet: sheetOptions[0]?.value,
+    firstRowAsHeader: false,
+  }
+}
+</script>
+
+<template>
+  <rpa-hint-icon name="upload-folder" enable-hover-bg :disabled="!isReady" @click="handleImport">
+    <template #suffix>
+      <span class="ml-1 text-xs">导入</span>
+    </template>
+  </rpa-hint-icon>
+
+  <a-modal :open="formState.open" title="数据导入" @cancel="formState.open = false" @ok="handleOk">
+    <a-form ref="formRef" layout="vertical" :model="formState">
+      <a-form-item label="请选择需要导入的 sheet 页" required>
+        <a-select v-model:value="formState.selectedSheet" :options="formState.sheetOptions" />
+      </a-form-item>
+      <a-checkbox v-model:checked="formState.firstRowAsHeader">设置第一行为列名</a-checkbox>
+    </a-form>
+  </a-modal>
+</template>
