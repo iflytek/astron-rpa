@@ -48,12 +48,12 @@ const importExcelFile = () => {
 }
 
 const exportExcelFile = (snapshot: IWorkbookData, fileName?: string) => {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<ArrayBuffer>((resolve, reject) => {
     LuckyExcel.transformUniverToExcel({
       snapshot,
       fileName,
-      getBuffer: false,
-      success: () => resolve(),
+      getBuffer: true,
+      success: (buffer) => buffer ? resolve(buffer) : reject(new Error('No buffer returned')),
       error: (error) => reject(error),
     })
   })

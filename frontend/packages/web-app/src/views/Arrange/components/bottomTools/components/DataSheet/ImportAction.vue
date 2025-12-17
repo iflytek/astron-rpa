@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { ref, shallowRef } from "vue"
+import { ref } from "vue"
 import { sheetUtils, type ISheetWorkbookData } from '@rpa/components'
 
 import { useDataSheetStore } from './useDataSheet'
 
+let workbookData: ISheetWorkbookData | null = null
+
 interface FormState {
   open: boolean
-  workbookData: ISheetWorkbookData
   sheetOptions: { label: string; value: string }[]
   selectedSheet?: string
   firstRowAsHeader: boolean
@@ -15,9 +16,8 @@ interface FormState {
 const { isReady, createWorkbook } = useDataSheetStore()
 
 const formRef = ref();
-const formState = shallowRef<FormState>({
+const formState = ref<FormState>({
   open: false,
-  workbookData: null,
   sheetOptions: [],
   selectedSheet: undefined,
   firstRowAsHeader: false,
@@ -25,17 +25,20 @@ const formState = shallowRef<FormState>({
 
 const handleOk = async () => {
   await formRef.value.validate();
-  const { workbookData, selectedSheet: sheetId } = formState.value
+  const { selectedSheet: sheetId } = formState.value
 
   createWorkbook({
     ...workbookData,
     sheets: { [sheetId]: workbookData.sheets[sheetId] },
     sheetOrder: [sheetId],
   })
+
+  handleCancel()
 };
 
 const handleImport = async () => {
-  const workbookData = await sheetUtils.importExcelFile()
+  workbookData = await sheetUtils.importExcelFile()
+
   const sheetOptions = Object.values(workbookData.sheets).map((sheet) => ({
     label: sheet.name,
     value: sheet.id,
@@ -43,11 +46,14 @@ const handleImport = async () => {
 
   formState.value = {
     open: true,
-    workbookData,
     sheetOptions,
     selectedSheet: sheetOptions[0]?.value,
     firstRowAsHeader: false,
   }
+}
+
+const handleCancel = () => {
+  formState.value.open = false
 }
 </script>
 
@@ -58,12 +64,12 @@ const handleImport = async () => {
     </template>
   </rpa-hint-icon>
 
-  <a-modal :open="formState.open" title="数据导入" @cancel="formState.open = false" @ok="handleOk">
+  <a-modal :open="formState.open" title="数据导入" @cancel="handleCancel" @ok="handleOk">
     <a-form ref="formRef" layout="vertical" :model="formState">
       <a-form-item label="请选择需要导入的 sheet 页" required>
         <a-select v-model:value="formState.selectedSheet" :options="formState.sheetOptions" />
       </a-form-item>
-      <a-checkbox v-model:checked="formState.firstRowAsHeader">设置第一行为列名</a-checkbox>
+      <a-checkbox v-model:checked="formState.firstRowAsHeader" class="leading-4">设置第一行为列名</a-checkbox>
     </a-form>
   </a-modal>
 </template>

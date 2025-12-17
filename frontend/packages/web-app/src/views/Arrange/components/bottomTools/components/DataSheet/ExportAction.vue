@@ -7,7 +7,8 @@ const { sheetData, isReady } = useDataSheetStore();
 
 const handleExport = async (widthIncludeHeader: boolean) => {
   console.log('export', sheetData, widthIncludeHeader);
-  await sheetUtils.exportExcelFile(sheetData.value);
+  const buffer = await sheetUtils.exportExcelFile(sheetData.value);
+  console.log('buffer', buffer);
 }
 </script>
 

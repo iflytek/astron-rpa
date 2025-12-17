@@ -2,9 +2,9 @@ import type { AppEnv, UtilsManager as UtilsManagerType } from '@rpa/shared/platf
 import { dialog } from '@tauri-apps/api'
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app'
 import { listen } from '@tauri-apps/api/event'
-import { BaseDirectory, readBinaryFile } from '@tauri-apps/api/fs'
+import { BaseDirectory, readBinaryFile, writeBinaryFile } from '@tauri-apps/api/fs'
 import { arch, platform, version } from '@tauri-apps/api/os'
-import { appDataDir, join, resourceDir } from '@tauri-apps/api/path'
+import { appDataDir, join, resourceDir, downloadDir } from '@tauri-apps/api/path'
 import { open } from '@tauri-apps/api/shell'
 import { invoke } from '@tauri-apps/api/tauri'
 
@@ -126,6 +126,19 @@ const showDialog: UtilsManagerType['showDialog'] = (dialogProps) => {
   })
 }
 
+const saveFile: UtilsManagerType['saveFile'] = async (filename, buffer) => {
+  const downloadDirPath = await downloadDir();
+  const defaultPath = await join(downloadDirPath, filename);
+  const savePath = await dialog.save({
+    title: '保存文件',
+    defaultPath,
+  })
+
+  if (savePath) {
+    await writeBinaryFile(savePath, buffer)
+  }
+}
+
 const getPluginPath: UtilsManagerType['getPluginPath'] = async (_filePath) => {
   console.log('getPluginPath')
   return ''
@@ -148,6 +161,7 @@ const UtilsManager: UtilsManagerType = {
   getSystemEnv,
   invoke: _invoke,
   readFile,
+  saveFile,
   playVideo,
   pathJoin,
   shellopen,

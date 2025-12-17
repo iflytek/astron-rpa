@@ -163,6 +163,7 @@ defineExpose({
   },
   createWorkbook: (workbookData: IWorkbookData) => {
     univerAPIInstance?.createWorkbook(workbookData)
+    data.value = workbookData
   },
   // 清空全部数据
   clearAll: () => {
