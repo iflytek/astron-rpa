@@ -80,9 +80,9 @@ export function getAttr(element: HTMLElement, attrName: string) {
 export function getAttrs(element: Element) {
   const attrs = {}
     ;['src', 'href', 'id', 'class', 'title', 'name'].forEach((key) => {
-    const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
-    attr && (attrs[key] = attr)
-  })
+      const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
+      attr && (attrs[key] = attr)
+    })
   return attrs
 }
 
@@ -527,6 +527,8 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
     const className = pickClass(element)
     const type = getAttr(element, 'type')
     const title = getAttr(element, 'title')
+    const placeholder = getAttr(element, 'placeholder')
+    const value = getAttr(element, 'value')
     let tagName = getSupportTag(element.tagName.toLowerCase())
     let index = getElementIndex(element)
     let hasSubling = hasSameTypeSiblings(element)
@@ -549,6 +551,12 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
     if (className) {
       const classChecked = isHighWeightClass(className)
       attrs.push({ name: 'class', value: className, checked: classChecked, type: 1 })
+    }
+    if (placeholder && placeholder.length < MAX_ATTRIBUTE_LENGTH) {
+      attrs.push({ name: 'placeholder', value: placeholder, checked: false, type: 0 })
+    }
+    if (value && value.length < MAX_ATTRIBUTE_LENGTH) {
+      attrs.push({ name: 'value', value: value, checked: false, type: 0 })
     }
     if (title && title.length < MAX_ATTRIBUTE_LENGTH)
       attrs.push({ name: 'title', value: title, checked: false, type: 0 })
