@@ -418,8 +418,10 @@ class WsApp {
   }
 }
 
+const storage = get_navigator_user_agent() === '$firefox$' ? browser.storage.local : chrome.storage.local;
+
 export async function createWsApp() {
-  const { cid = gen_short_id() } = await chrome.storage.local.get('cid')
+  const { cid = gen_short_id() } = await storage.get('cid')
   await chrome.storage.local.set({ cid })
   const ws_base_url = import.meta.env.VITE_APP_WS_URL;
   const customAgent = custom_agent();
