@@ -80,9 +80,9 @@ export function getAttr(element: HTMLElement, attrName: string) {
 export function getAttrs(element: Element) {
   const attrs = {}
     ;['src', 'href', 'id', 'class', 'title', 'name'].forEach((key) => {
-    const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
-    attr && (attrs[key] = attr)
-  })
+      const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
+      attr && (attrs[key] = attr)
+    })
   return attrs
 }
 
@@ -136,7 +136,7 @@ function hasSameClassSiblings(element: HTMLElement, className: string) {
 function pickClass(element: HTMLElement) {
   const classList = Array.from(element.classList)
   for (const cls of classList) {
-    if (isLegalClass(cls) && !hasSameClassSiblings(element, cls)) {
+    if (!hasSameClassSiblings(element, cls)) {
       return cls
     }
   }
@@ -152,9 +152,14 @@ function isUniqueIdFn(id: string) {
   return id && !Utils.isNumberString(id) && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
 }
 
-function isLegalClass(cls: string) {
+function isHighWeightClass(cls: string) {
   return cls && !Utils.isNumberString(cls) && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
 }
+
+// function isLowWeightClass(cls: string) {
+//   return cls && !Utils.isSpecialCharacter(cls)
+// }
+
 function isSvgElement(element: Element): boolean {
   return element.namespaceURI === 'http://www.w3.org/2000/svg'
 }
@@ -541,8 +546,10 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
       attrs.push({ name: 'index', value: index, checked: true, type: 0 })
     if (type)
       attrs.push({ name: 'type', value: type, checked: true, type: 0 })
-    if (className)
-      attrs.push({ name: 'class', value: className, checked: true, type: 1 })
+    if (className) {
+      const classChecked = isHighWeightClass(className)
+      attrs.push({ name: 'class', value: className, checked: classChecked, type: 1 })
+    }
     if (title && title.length < MAX_ATTRIBUTE_LENGTH)
       attrs.push({ name: 'title', value: title, checked: false, type: 0 })
     // text attr only for target element
