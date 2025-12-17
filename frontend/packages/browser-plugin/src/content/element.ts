@@ -80,9 +80,9 @@ export function getAttr(element: HTMLElement, attrName: string) {
 export function getAttrs(element: Element) {
   const attrs = {}
     ;['src', 'href', 'id', 'class', 'title', 'name'].forEach((key) => {
-      const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
-      attr && (attrs[key] = attr)
-    })
+    const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
+    attr && (attrs[key] = attr)
+  })
   return attrs
 }
 
