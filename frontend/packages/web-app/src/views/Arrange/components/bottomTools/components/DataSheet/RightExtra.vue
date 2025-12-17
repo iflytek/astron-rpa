@@ -2,6 +2,7 @@
 import { useDataSheetStore } from './useDataSheet'
 import ImportAction from './ImportAction.vue';
 import ExportAction from './ExportAction.vue';
+import DeleteAction from './DeleteAction.vue';
 
 const { isReady, handleUndo, handleRedo, handleFind } = useDataSheetStore()
 </script>
@@ -13,6 +14,8 @@ const { isReady, handleUndo, handleRedo, handleFind } = useDataSheetStore()
 
     <ImportAction />
     <ExportAction />
+
+    <DeleteAction />
 
     <rpa-hint-icon name="bottom-pick-menu-search" enable-hover-bg :disabled="!isReady" @click="handleFind">
       <template #suffix>

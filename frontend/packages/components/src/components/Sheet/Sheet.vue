@@ -108,8 +108,6 @@ onMounted(() => {
 
   univerAPI.createWorkbook(data.value)
 
-  console.log('univerAPI', univerAPI)
-
   univerInstance = univer
   univerAPIInstance = univerAPI
 
@@ -165,6 +163,22 @@ defineExpose({
   },
   createWorkbook: (workbookData: IWorkbookData) => {
     univerAPIInstance?.createWorkbook(workbookData)
+  },
+  // 清空全部数据
+  clearAll: () => {
+    univerAPIInstance?.createWorkbook({})
+    data.value = {}
+  },
+  // 删除选中区域内容
+  deleteSelection: () => {
+    const fWorkbook = univerAPIInstance?.getActiveWorkbook()
+    if (!fWorkbook) return
+
+    const fWorksheet = fWorkbook.getActiveSheet()
+    // 获取激活选区的范围
+    const fSelection = fWorksheet.getSelection()
+    const activeRange = fSelection?.getActiveRange()
+    activeRange?.clear()
   },
 })
 </script>
