@@ -42,6 +42,7 @@ export function generateManifest(mode: string, environment) {
       sandbox: 'sandbox allow-scripts allow-forms allow-popups allow-modals; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; child-src \'self\';',
     },
     permissions: [
+      'alarms',
       // 'nativeMessaging',
       'debugger',
       'tabs',
