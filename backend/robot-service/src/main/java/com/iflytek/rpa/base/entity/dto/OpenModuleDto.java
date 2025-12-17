@@ -11,4 +11,8 @@ public class OpenModuleDto extends ProcessModuleListDto {
 
     @NotBlank(message = "运行位置不能为空")
     private String mode = EDIT_PAGE;
+    /**
+     * python模块断点
+     */
+    private String breakpoint;
 }

@@ -73,6 +73,9 @@
             <if test="robotVersion!=null">
                 robot_version=#{robotVersion},
             </if>
+            <if test="moduleId!=null">
+                module_id = #{moduleId},
+            </if>
         </set>
         where id=#{id}
         and deleted = 0
@@ -93,7 +96,8 @@
         update_time,
         deleted,
         robot_id,
-        robot_version)
+        robot_version,
+        module_id)
         values
         <foreach collection="entities" separator="," item="param">
             (#{param.id},
@@ -109,7 +113,8 @@
             now(),
             #{param.deleted},
             #{param.robotId},
-            #{param.robotVersion})
+            #{param.robotVersion},
+            #{param.moduleId})
         </foreach>
 
     </insert>
@@ -214,6 +219,25 @@
         from c_param
         where deleted = 0
           and id = #{id}
+    </select>
+
+    <select id="getParamsByModuleId" resultType="com.iflytek.rpa.base.entity.CParam">
+        select *
+        from c_param
+        where
+        deleted = 0
+        and module_id = #{moduleId}
+        and robot_id = #{robotId}
+        and robot_version = #{robotVersion}
+    </select>
+
+    <select id="getSelfRobotParamByModuleId" resultType="com.iflytek.rpa.base.entity.CParam">
+        select *
+        from c_param
+        where robot_id = #{robotId}
+        and module_id = #{moduleId}
+        and robot_version = #{enabledVersion}
+        and deleted = 0
     </select>
 
 </mapper>

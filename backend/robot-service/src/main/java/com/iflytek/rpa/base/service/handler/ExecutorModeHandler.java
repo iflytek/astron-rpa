@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -47,11 +48,12 @@ public class ExecutorModeHandler implements ParamModeHandler {
     public AppResponse<List<ParamDto>> handle(QueryParamDto dto) throws JsonProcessingException, NoLoginException {
         RobotExecute executeInfo = getRobotExecute(dto.getRobotId());
 
-        return handleDataSource(executeInfo, dto.getProcessId(), dto.getRobotVersion());
+        return handleDataSource(executeInfo, dto.getProcessId(), dto.getModuleId(), dto.getRobotVersion());
     }
 
     /**
      * 内部调用获取参数
+     *
      * @param dto
      * @return
      * @throws JsonProcessingException
@@ -61,7 +63,7 @@ public class ExecutorModeHandler implements ParamModeHandler {
             throws JsonProcessingException {
         RobotExecute executeInfo = getRobotExecuteInside(dto.getRobotId(), userId, tenantId);
 
-        return handleDataSource(executeInfo, dto.getProcessId(), dto.getRobotVersion());
+        return handleDataSource(executeInfo, dto.getProcessId(), dto.getModuleId(), dto.getRobotVersion());
     }
 
     private RobotExecute getRobotExecuteInside(String robotId, String userId, String tenantId) {
@@ -82,24 +84,44 @@ public class ExecutorModeHandler implements ParamModeHandler {
     }
 
     private AppResponse<List<ParamDto>> handleDataSource(
-            RobotExecute executeInfo, String processId, Integer robotVersion) throws JsonProcessingException {
+            RobotExecute executeInfo, String processId, String moduleId, Integer robotVersion)
+            throws JsonProcessingException {
         if (robotVersion != null) {
             executeInfo.setAppVersion(robotVersion);
             executeInfo.setRobotVersion(robotVersion);
         }
-        if ("market".equals(executeInfo.getDataSource())) {
-            return handleMarketSource(executeInfo, processId);
-        } else if ("create".equals(executeInfo.getDataSource())) {
-            return handleCreateSource(executeInfo, processId);
+        if ("create".equals(executeInfo.getDataSource())) {
+            return handleCreateSource(executeInfo, processId, moduleId);
+        } else if ("market".equals(executeInfo.getDataSource())) {
+            return handleMarketSource(executeInfo, processId, moduleId);
         } else if ("deploy".equals(executeInfo.getDataSource())) {
-            return handleDeploySource(executeInfo, processId);
+            return handleDeploySource(executeInfo, processId, moduleId);
         }
 
         throw new ServiceException(ErrorCodeEnum.E_PARAM.getCode(), "未知数据来源类型");
     }
 
-    private AppResponse<List<ParamDto>> handleDeploySource(RobotExecute executeInfo, String processId) {
+    private AppResponse<List<ParamDto>> handleDeploySource(
+            RobotExecute executeInfo, String processId, String moduleId) {
         String originRobotId = cParamDao.getDeployOriginalRobotId(executeInfo);
+
+        // python模块
+        if (!StringUtils.isEmpty(moduleId)) {
+            return deployModuleHandle(executeInfo, moduleId, originRobotId);
+        }
+
+        return deployProcessHandle(executeInfo, processId, originRobotId);
+    }
+
+    private AppResponse<List<ParamDto>> deployModuleHandle(
+            RobotExecute executeInfo, String moduleId, String originRobotId) {
+        List<CParam> params = cParamDao.getParamsByModuleId(moduleId, originRobotId, executeInfo.getAppVersion());
+        return AppResponse.success(convertParams(params));
+    }
+
+    @NotNull
+    private AppResponse<List<ParamDto>> deployProcessHandle(
+            RobotExecute executeInfo, String processId, String originRobotId) {
         if (StringUtils.isBlank(processId)) {
             processId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
         }
@@ -107,9 +129,27 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    private AppResponse<List<ParamDto>> handleMarketSource(RobotExecute executeInfo, String processId) {
+    private AppResponse<List<ParamDto>> handleMarketSource(
+            RobotExecute executeInfo, String processId, String moduleId) {
         validateMarketInfo(executeInfo);
         String originRobotId = cParamDao.getMarketRobotId(executeInfo);
+        // python模块
+        if (!StringUtils.isEmpty(moduleId)) {
+            return marketModuleHandle(executeInfo, moduleId, originRobotId);
+        }
+        // 流程
+        return marketProcessHandle(executeInfo, processId, originRobotId);
+    }
+
+    private AppResponse<List<ParamDto>> marketModuleHandle(
+            RobotExecute executeInfo, String moduleId, String originRobotId) {
+        List<CParam> params = cParamDao.getParamsByModuleId(moduleId, originRobotId, executeInfo.getAppVersion());
+        return AppResponse.success(convertParams(params));
+    }
+
+    @NotNull
+    private AppResponse<List<ParamDto>> marketProcessHandle(
+            RobotExecute executeInfo, String processId, String originRobotId) {
         if (StringUtils.isBlank(processId)) {
             processId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
         }
@@ -117,13 +157,29 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    private AppResponse<List<ParamDto>> handleCreateSource(RobotExecute executeInfo, String processId)
+    private AppResponse<List<ParamDto>> handleCreateSource(RobotExecute executeInfo, String processId, String moduleId)
             throws JsonProcessingException {
         Integer enabledVersion = cParamDao.getRobotVersion(executeInfo.getRobotId());
         if (executeInfo.getRobotVersion() != null) {
             enabledVersion = executeInfo.getRobotVersion();
         }
-        // 如果是主流程 则返回 存储的 配置参数
+        // python模块
+        if (!StringUtils.isEmpty(moduleId)) {
+            return createModuleHandle(executeInfo, moduleId, enabledVersion);
+        }
+        // 流程
+        return createProcessHandle(executeInfo, processId, enabledVersion);
+    }
+
+    private AppResponse<List<ParamDto>> createModuleHandle(
+            RobotExecute executeInfo, String moduleId, Integer enabledVersion) {
+        List<CParam> params = cParamDao.getSelfRobotParamByModuleId(executeInfo.getRobotId(), moduleId, enabledVersion);
+        return AppResponse.success(convertParams(params));
+    }
+
+    @NotNull
+    private AppResponse<List<ParamDto>> createProcessHandle(
+            RobotExecute executeInfo, String processId, Integer enabledVersion) throws JsonProcessingException {
         String mainProcessId = cParamDao.getMianProcessId(executeInfo.getRobotId(), enabledVersion);
         if (processId == null || mainProcessId.equals(processId)) {
             if (executeInfo.getParamDetail() != null) {

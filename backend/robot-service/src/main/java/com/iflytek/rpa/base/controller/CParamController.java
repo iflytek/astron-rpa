@@ -49,7 +49,6 @@ public class CParamController {
      */
     @PostMapping("/add")
     public AppResponse<String> addParam(@RequestBody @Valid CParamDto ParamDto) throws NoLoginException {
-
         return cParamService.addParam(ParamDto);
     }
 

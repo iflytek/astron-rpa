@@ -20,7 +20,9 @@ public class QueryParamDto {
      * 运行位置，默认编辑页，EDIT_PAGE编辑页,PROJECT_LIST设计器列表页,EXECUTOR执行器机器人列表页,CRONTAB触发器（本地计划任务）
      */
     private String mode = EDIT_PAGE;
-
+    /**
+     * 流程ID
+     */
     private String processId;
 
     /**
@@ -31,4 +33,9 @@ public class QueryParamDto {
      * 调度模式计划任务机器人版本
      */
     private Integer robotVersion;
+
+    /**
+     * python模块ID
+     */
+    private String moduleId;
 }

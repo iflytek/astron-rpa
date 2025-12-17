@@ -55,7 +55,8 @@ public interface CModuleDao extends BaseMapper<CModule> {
             @Param("moduleId") String moduleId,
             @Param("userId") String userId,
             @Param("robotId") String robotId,
-            @Param("moduleContent") String moduleContent);
+            @Param("moduleContent") String moduleContent,
+            @Param("breakpoint") String breakpoint);
 
     @Select("select module_name " + "from c_module "
             + "where deleted = 0 "

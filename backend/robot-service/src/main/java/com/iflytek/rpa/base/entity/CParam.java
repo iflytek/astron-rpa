@@ -50,6 +50,11 @@ public class CParam implements Serializable {
      */
     private String processId;
 
+    /**
+     * 流程id
+     */
+    private String moduleId;
+
     private String creatorId;
 
     private String updaterId;
