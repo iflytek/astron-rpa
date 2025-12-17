@@ -224,6 +224,12 @@ public class CParamServiceImpl implements CParamService {
         // 新增参数只会在编辑时候才有，所以可以默认参数版本是0版本
         CParam cParam = new CParam();
         BeanUtils.copyProperties(cParamDto, cParam);
+        if (StringUtils.isEmpty(cParam.getProcessId())) {
+            cParam.setProcessId(null);
+        }
+        if (StringUtils.isEmpty(cParam.getModuleId())) {
+            cParam.setModuleId(null);
+        }
         // 利用雪花算法自动生成id
         String cParamId = idWorker.nextId() + "";
         cParam.setId(cParamId);
@@ -253,6 +259,12 @@ public class CParamServiceImpl implements CParamService {
     public AppResponse<Boolean> updateParam(CParamDto cParamDto) throws NoLoginException {
         CParam cParam = new CParam();
         BeanUtils.copyProperties(cParamDto, cParam);
+        if (StringUtils.isEmpty(cParam.getProcessId())) {
+            cParam.setProcessId(null);
+        }
+        if (StringUtils.isEmpty(cParam.getModuleId())) {
+            cParam.setModuleId(null);
+        }
         checkSameName(cParam);
         cParam.setUpdaterId(UserUtils.nowUserId());
         cParam.setUpdateTime(new Date());

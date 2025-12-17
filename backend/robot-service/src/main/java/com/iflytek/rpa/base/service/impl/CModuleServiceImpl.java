@@ -128,7 +128,7 @@ public class CModuleServiceImpl extends NextName implements CModuleService {
         resVo.setModuleContent(module.getModuleContent());
         resVo.setRobotId(robotId);
         resVo.setRobotVersion(robotVersion);
-
+        resVo.setBreakpoint(module.getBreakpoint());
         return AppResponse.success(resVo);
     }
 
@@ -150,6 +150,7 @@ public class CModuleServiceImpl extends NextName implements CModuleService {
         String moduleId = queryDto.getModuleId();
         String robotId = queryDto.getRobotId();
         String newModuleContent = queryDto.getModuleContent();
+        String breakpoint = queryDto.getBreakpoint();
 
         if (StringUtils.length(newModuleContent) > CONTENT_MAX_LENGTH) {
             throw new ServiceException(ErrorCodeEnum.E_PARAM_CHECK.getCode(), "模块代码长度超长");
@@ -164,7 +165,7 @@ public class CModuleServiceImpl extends NextName implements CModuleService {
         if (oldModuleContent != null && newModuleContent != null && !oldModuleContent.equals(newModuleContent)) {
             robotDesignDao.updateTransformStatus(userId, robotId, null, EDITING);
         }
-        boolean b = cModuleDao.saveModuleContent(moduleId, userId, robotId, newModuleContent);
+        boolean b = cModuleDao.saveModuleContent(moduleId, userId, robotId, newModuleContent, breakpoint);
 
         if (b) return AppResponse.success(true);
         else throw new SQLException();

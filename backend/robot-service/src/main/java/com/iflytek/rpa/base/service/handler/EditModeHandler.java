@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -39,7 +40,23 @@ public class EditModeHandler implements ParamModeHandler {
         if (dto.getRobotVersion() != null) {
             robotVersion = dto.getRobotVersion();
         }
+        // python模块获取配置参数
+        String moduleId = dto.getModuleId();
+        if (StringUtils.isNotBlank(moduleId)) {
+            return moduleHandle(dto, moduleId, robotVersion);
+        }
+        // 主/子流程获取配置参数
         String processId = dto.getProcessId();
+        return processHandle(dto, processId, robotVersion);
+    }
+
+    private AppResponse<List<ParamDto>> moduleHandle(QueryParamDto dto, String moduleId, Integer robotVersion) {
+        List<CParam> params = cParamDao.getParamsByModuleId(moduleId, dto.getRobotId(), robotVersion);
+        return AppResponse.success(convertParams(params));
+    }
+
+    @NotNull
+    private AppResponse<List<ParamDto>> processHandle(QueryParamDto dto, String processId, Integer robotVersion) {
         if (StringUtils.isBlank(dto.getProcessId())) {
             // 默认查主流程参数
             processId = cParamDao.getMianProcessId(dto.getRobotId(), robotVersion);

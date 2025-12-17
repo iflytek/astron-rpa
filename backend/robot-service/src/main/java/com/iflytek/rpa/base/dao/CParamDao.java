@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.*;
 
 /**
@@ -32,9 +33,9 @@ public interface CParamDao extends BaseMapper<CParam> {
     String getMianProcessId(String robotId, Integer robotVersion);
 
     @Insert(
-            "insert into c_param(id,var_direction,var_name,var_type,var_value,var_describe,process_id,creator_id,updater_id,create_time,update_time,deleted,robot_id,robot_version) "
+            "insert into c_param(id,var_direction,var_name,var_type,var_value,var_describe,process_id,creator_id,updater_id,create_time,update_time,deleted,robot_id,robot_version,module_id) "
                     + "values"
-                    + "(#{id},#{varDirection},#{varName},#{varType},#{varValue},#{varDescribe},#{processId},#{creatorId},#{updaterId},#{createTime},#{updateTime},#{deleted},#{robotId},#{robotVersion})")
+                    + "(#{id},#{varDirection},#{varName},#{varType},#{varValue},#{varDescribe},#{processId},#{creatorId},#{updaterId},#{createTime},#{updateTime},#{deleted},#{robotId},#{robotVersion},#{moduleId})")
     void addParam(CParam cParam);
 
     // 删除修改deleted不需要真正删除
@@ -95,4 +96,11 @@ public interface CParamDao extends BaseMapper<CParam> {
     void deleteParamByRobotId(String robotId);
 
     CParam getParamInfoById(@Param("id") String id);
+
+    List<CParam> getParamsByModuleId(
+            @NotBlank(message = "机器人ID不能为空") String moduleId,
+            @NotBlank(message = "机器人ID不能为空") String robotId,
+            Integer robotVersion);
+
+    List<CParam> getSelfRobotParamByModuleId(String robotId, String moduleId, Integer enabledVersion);
 }

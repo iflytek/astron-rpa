@@ -49,4 +49,6 @@ public class CModule implements Serializable {
 
     @NotBlank
     private Integer robotVersion;
+
+    private String breakpoint;
 }

@@ -265,7 +265,8 @@
         update_time,
         parent_image_id,
         robot_id,
-        robot_version
+        robot_version,
+        common_sub_type
         )
         values
         <foreach collection="entities" item="entity" separator=",">
@@ -283,7 +284,8 @@
             #{entity.updateTime},
             #{entity.parentImageId},
             #{entity.robotId},
-            #{entity.robotVersion}
+            #{entity.robotVersion},
+            #{entity.commonSubType}
             )
         </foreach>
     </insert>
