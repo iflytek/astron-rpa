@@ -62,6 +62,7 @@ export function useCardsApp() {
       marketId: '', // 市场ID
       appName: '',
       creatorId: undefined, // 创建者ID
+      category: undefined,
       sortKey: 'createTime', // 排序键
     },
   })

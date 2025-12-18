@@ -9,7 +9,7 @@ import { TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useMarketStore } from '@/stores/useMarketStore'
 import type { Fun } from '@/types/common'
-import { MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
+import { MARKET_TYPE_PUBLIC, MARKET_USER_ADMIN, MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
 import FireTeam from '@/views/Home/components/TeamMarket/MarketManage/FireTeam.vue'
 import GiveOwner from '@/views/Home/components/TeamMarket/MarketManage/GiveOwner.vue'
 import InviteUser from '@/views/Home/components/TeamMarket/MarketManage/InviteUser.vue'
@@ -242,7 +242,7 @@ export function useTeamUserTable() {
         action: 'design_cloud_pj_create',
         clickFn: () => inviteUser(),
         type: 'primary',
-        hidden: false,
+        hidden: activeMarket.value.marketType === MARKET_TYPE_PUBLIC && activeMarket.value.userType !== MARKET_USER_ADMIN,
       },
     ],
     tableProps: {
@@ -290,7 +290,7 @@ export function useTeamUserTable() {
                 <Button
                   type="link"
                   size="small"
-                  disabled={record.userType === MARKET_USER_OWNER}
+                  disabled={record.userType === MARKET_USER_OWNER || (activeMarket.value.marketType === MARKET_TYPE_PUBLIC && record.userType === MARKET_USER_ADMIN)}
                   onClick={() => removeUser(record)}
                 >
                   {t('market.removeUser')}

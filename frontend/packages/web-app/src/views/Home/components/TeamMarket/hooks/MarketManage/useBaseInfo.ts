@@ -5,7 +5,7 @@ import type { Ref } from 'vue'
 import { editTeamInfo, teamInfo } from '@/api/market'
 import { useMarketStore } from '@/stores/useMarketStore'
 import type { AnyObj } from '@/types/common'
-import { MARKET_USER_OWNER } from '@/views/Home/components/TeamMarket/config/market'
+import { MARKET_TYPE_PUBLIC, MARKET_USER_OWNER } from '@/views/Home/components/TeamMarket/config/market'
 
 export function useBaseInfo() {
   const marketStore = useMarketStore()
@@ -35,8 +35,8 @@ export function useBaseInfo() {
     tooltip: 'disbandTeamTip',
     isEditing: false,
     openModalType: '',
-    show: (userType) => {
-      return userType === MARKET_USER_OWNER
+    show: (userType: string, marketType: string) => {
+      return marketType !== MARKET_TYPE_PUBLIC && userType === MARKET_USER_OWNER
     },
   }
   const teamMarketConfig = ref([

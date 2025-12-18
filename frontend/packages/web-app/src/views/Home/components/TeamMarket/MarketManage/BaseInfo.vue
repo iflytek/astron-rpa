@@ -5,7 +5,7 @@ import { Descriptions } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 
 import { useMarketStore } from '@/stores/useMarketStore'
-import { MARKET_USER_OWNER } from '@/views/Home/components/TeamMarket/config/market'
+import { MARKET_TYPE_PUBLIC, MARKET_USER_OWNER } from '@/views/Home/components/TeamMarket/config/market'
 import { useBaseInfo } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useBaseInfo'
 import { useTeamUserTable } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useTeamUserTable'
 
@@ -36,7 +36,7 @@ function openModal(key: string) {
         v-for="subItem in (teamMarketConfig.find(item => item.type === 'buttons') as any).list"
         :key="subItem.key"
       >
-        <a-tooltip v-if="subItem.type === 'button' && subItem.show(baseInfoData.userType)" :title="t((subItem.tooltip || subItem.label || subItem.key) as string)">
+        <a-tooltip v-if="subItem.type === 'button' && subItem.show(baseInfoData.userType, baseInfoData.marketType)" :title="t((subItem.tooltip || subItem.label || subItem.key) as string)">
           <a-button :type="subItem.btnType || 'default'" size="middle" class="mr-2" @click="openModal(subItem.key)">
             {{ t(subItem.label) }}
           </a-button>
@@ -56,7 +56,7 @@ function openModal(key: string) {
         <a-input
           v-if="item.isEditing"
           ref="inputRef"
-          v-model:value="baseInfoData[item.key]"
+          v-model:value.trim="baseInfoData[item.key]"
           size="small"
           :auto-focus="true"
           :max-length="20"
@@ -68,7 +68,7 @@ function openModal(key: string) {
               {{ baseInfoData[item.key] }}
             </span>
           </a-tooltip>
-          <EditOutlined v-if="baseInfoData.userType === MARKET_USER_OWNER" class="cursor-pointer ml-1" @click="setEditing(item)" />
+          <EditOutlined v-if="baseInfoData.marketType !== MARKET_TYPE_PUBLIC && baseInfoData.userType === MARKET_USER_OWNER" class="cursor-pointer ml-1" @click="setEditing(item)" />
         </template>
       </Descriptions.Item>
       <Descriptions.Item v-if="item.type === 'label'" :key="item.key" :label="t(item.label)">
