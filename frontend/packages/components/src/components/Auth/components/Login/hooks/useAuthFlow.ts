@@ -99,8 +99,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       if(history) {
         if(mode === 'PASSWORD') switchMode('forgotPasswordWithSysUpgrade')
         if(mode === 'CODE'){
-          switchMode('setPasswordWithSysUpgrade')
-          handleForgotPassword(params)
+          await handleForgotPassword(params)
         }
         return
       }
