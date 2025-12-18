@@ -1,46 +1,43 @@
 <script setup lang="ts">
-import InviteFormLayout from './InviteFormLayout.vue'
+import { Button } from 'ant-design-vue'
+import FormLayout from './FormLayout.vue'
+import type { InviteInfo } from '../../interface'
 
 interface Props {
-  type?: 'market' | 'enterprise'
-  userName?: string
-  targetName?: string
+  inviteInfo: InviteInfo
   currentUser?: { name?: string; phone?: string }
 }
 
-const { type = 'market', userName = '', targetName = '' } = defineProps<Props>()
+const { inviteInfo } = defineProps<Props>()
+const { inviteType } = inviteInfo
 
 const emit = defineEmits<{
   back: []
-  joinEnterprise: []
-  joinMarket: []
+  join: []
   switchToLogin: []
 }>()
-
 
 </script>
 
 <template>
-  <InviteFormLayout
-    :show-back="type === 'enterprise'"
-    @back="() => emit('back')"
-    :type="type" 
-    :loginName="userName" 
-    :target-name="targetName"
-    :show-agreement="type === 'enterprise'"
+  <FormLayout
+    wrap-class="auth-invite-user-info"
+    :invite-info="inviteInfo"
+    :show-agreement="inviteType === 'enterprise'"
+    :agreement-type="'show'"
   >
-  <template v-if="type === 'enterprise'">
-    <div class="bg-[#F9FAFB] dark:bg-[#ffffff15] rounded-[8px] text-[14px] my-[20px] p-[16px] text-[#00000073] dark:text-[#FFFFFF73]">
-      将以下面身份加入：
-      <div>姓名：<span class="text-[#000000] dark:text-[#FFFFFF]">{{currentUser?.name }}</span></div>
-      <div>手机号：<span class="text-[#000000] dark:text-[#FFFFFF]">{{currentUser?.phone }}</span></div>
-    </div>
-    <Button type="primary" class="" block @click="emit('joinEnterprise')">
-      确认加入
-    </Button>
+    <template v-if="inviteType === 'enterprise'">
+      <div class="bg-[#F9FAFB] dark:bg-[#ffffff15] rounded-[8px] text-[14px] my-[20px] p-[16px] text-[#00000073] dark:text-[#FFFFFF73]">
+        将以下面身份加入：
+        <div class="my-[10px]">姓名：<span class="text-[#000000] dark:text-[#FFFFFF]">{{currentUser?.name }}</span></div>
+        <div>手机号：<span class="text-[#000000] dark:text-[#FFFFFF]">{{currentUser?.phone }}</span></div>
+      </div>
+      <Button type="primary" size="large" class="absolute bottom-0" block @click="emit('join')">
+        确认加入
+      </Button>
     </template>
     <template v-else>
-      <Button type="primary" class="" block @click="emit('joinMarket')">
+      <Button type="primary" size="large" class="" block @click="emit('join')">
         立即加入
       </Button>
       <div class="text-center text-[14px] border-t border-[#eeeeee] dark:border-[#ffffff15] mt-[20px] p-[16px] text-[#00000073] dark:text-[#FFFFFF73]">
@@ -48,5 +45,5 @@ const emit = defineEmits<{
         <div class="text-[#726FFF] mt-[10px] cursor-pointer" @click="emit('switchToLogin')">使用其他账号</div>
       </div>
     </template>
-  </InviteFormLayout>
+  </FormLayout>
 </template>

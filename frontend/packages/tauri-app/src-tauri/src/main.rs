@@ -143,6 +143,10 @@ fn conf(app_handle: Option<&tauri::AppHandle>) -> Result<AppConfig, String> {
 }
 
 fn main() -> Result<(), String> {
+    // 获取启动参数
+    let args: Vec<String> = env::args().collect();
+    log::error!("args: {:?}", args);
+    
     // 检测是否重复打开
     let process_name = env::current_exe()
         .ok()
@@ -153,7 +157,28 @@ fn main() -> Result<(), String> {
         .to_string();
     let r = check_if_running(&process_name)?;
     if r {
-        // 将窗口置顶, 并提前结束
+        // 查找协议URL参数
+        let protocol_url = args.iter()
+            .find(|arg| arg.starts_with("astronrpa://"))
+            .cloned();
+
+        if let Some(url) = protocol_url {
+            // 写入激活信号文件
+            let signal_dir = std::env::temp_dir().join("astron-rpa");
+            fs::create_dir_all(&signal_dir).ok();
+            let signal_file = signal_dir.join("activate.txt");
+            info!("已写入激活信号: {}", url);
+            fs::write(signal_file, url).ok();
+        } else {
+            // 只激活窗口
+            let signal_dir = std::env::temp_dir().join("astron-rpa");
+            fs::create_dir_all(&signal_dir).ok();
+            let signal_file = signal_dir.join("activate.txt");
+            info!("已写入激活信号");
+            fs::write(signal_file, "activate").ok();
+        }
+                
+        // std::process::exit(0);
         return Ok(());
     }
 
@@ -174,7 +199,7 @@ fn main() -> Result<(), String> {
 
             WindowBuilder::new(app, "main", window_url)
                 .title(PRO_NAME)
-                .inner_size(1200.0, 718.0)
+                .inner_size(1280.0, 750.0)
                 .center()
                 .decorations(false) // 设置窗口没有边框
                 .disable_file_drop_handler()  // 禁用文件拖放
@@ -183,6 +208,13 @@ fn main() -> Result<(), String> {
 
             // 设置窗口阴影
             utils::set_window_shadow(app);
+
+            // 启动激活信号监控线程
+            start_activation_monitor(app.handle().clone());
+
+            // 检查启动参数中的协议URL
+            let args: Vec<String> = env::args().collect();
+            handle_protocol_args(&args, &app.handle());
 
             // 异步启动
             thread::spawn(move || {
@@ -208,6 +240,96 @@ fn main() -> Result<(), String> {
             log::error!("error while running tauri application {}", e);
         });
     Ok(())
+}
+
+// 启动激活信号监控
+fn start_activation_monitor(app_handle: tauri::AppHandle) {
+    thread::spawn(move || {
+        let signal_dir = std::env::temp_dir().join("astron-rpa");
+        let signal_file = signal_dir.join("activate.txt");
+        let mut last_check_time = SystemTime::now();
+        
+        loop {
+            thread::sleep(Duration::from_millis(500));
+            
+            // 检查信号文件
+            if signal_file.exists() {
+                // 检查文件修改时间，避免重复处理
+                if let Ok(metadata) = fs::metadata(&signal_file) {
+                    if let Ok(modified_time) = metadata.modified() {
+                        if modified_time > last_check_time {
+                            last_check_time = modified_time;
+                            
+                            // 读取文件内容
+                            if let Ok(content) = fs::read_to_string(&signal_file) {
+                                info!("收到激活信号: {}", content);
+                                
+                                // 在主线程中处理激活
+                                let app_handle_clone = app_handle.clone();
+                                tauri::async_runtime::spawn(async move {
+                                    activate_window(&app_handle_clone, &content).await;
+                                });
+                            }
+                            
+                            // 删除信号文件
+                            fs::remove_file(&signal_file).ok();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 激活窗口
+async fn activate_window(app_handle: &tauri::AppHandle, content: &str) {
+    if let Some(window) = app_handle.get_window("main") {
+        // 激活窗口
+        let _ = window.set_focus();
+        let _ = window.show();
+        let _ = window.unminimize();
+        
+        // 短暂置顶
+        let window_clone = window.clone();
+        let _ = window_clone.set_always_on_top(true);
+        
+        // 延时后取消置顶
+        let window_clone2 = window.clone();
+        tauri::async_runtime::spawn(async move {
+            thread::sleep(Duration::from_secs(1));
+            let _ = window_clone2.set_always_on_top(false);
+        });
+        
+        // 处理协议URL
+        if content.starts_with("astronrpa://") {
+            let url = content.trim_start_matches("astronrpa://");
+            info!("处理协议URL: {}", url);
+            
+            // 发送到前端处理
+            let json_str = format!(
+                r#"{{"type": "protocol_open", "url": "{}"}}"#,
+                url
+            );
+            emit_to_window(&window, "protocol-event", &general_purpose::STANDARD.encode(&json_str));
+        }
+    }
+}
+
+// 处理启动参数中的协议URL
+fn handle_protocol_args(args: &[String], app_handle: &tauri::AppHandle) {
+    for arg in args {
+        if arg.starts_with("astronrpa://") {
+            info!("启动参数中包含协议URL: {}", arg);
+            
+            // 立即激活窗口并处理URL
+            let app_handle_clone = app_handle.clone();
+            let url = arg.clone();
+            tauri::async_runtime::spawn(async move {
+                activate_window(&app_handle_clone, &url).await;
+            });
+            break;
+        }
+    }
 }
 
 fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> {

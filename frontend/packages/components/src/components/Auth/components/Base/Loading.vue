@@ -117,7 +117,6 @@ defineExpose({
     width: fit-content;
     min-width: 120px;
     min-height: 68px;
-    background: $color-bg-elevated;
     align-items: center;
     border-radius: 4px;
     padding-top: 8px;

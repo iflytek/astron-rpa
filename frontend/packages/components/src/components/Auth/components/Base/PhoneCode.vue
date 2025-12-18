@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { Input, Button, message } from 'ant-design-vue'
+import type { FormInstance } from 'ant-design-vue'
 
 interface Props {
   modelValue?: string
@@ -9,10 +10,12 @@ interface Props {
   codeLength?: number
   countdownSeconds?: number
   disabled?: boolean
-  sendCaptcha: () => Promise<void>
+  wrapRef?: FormInstance | undefined
+  relationKey?: string
+  sendCaptcha?: (phone: string) => Promise<void>
 }
 
-const { modelValue = '',  placeholder = '请输入验证码', maxlength = 6, codeLength = 6, countdownSeconds = 60, disabled, sendCaptcha } = defineProps<Props>()
+const { modelValue = '',  placeholder = '请输入验证码', maxlength = 6, codeLength = 6, countdownSeconds = 60, disabled, wrapRef, relationKey, sendCaptcha } = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -45,7 +48,15 @@ const handleSendCode = async () => {
   if (codeButtonDisabled.value) return
   isCodeSending.value = true
   try {
-    await sendCaptcha()
+    await wrapRef?.validateFields([relationKey || 'phone'])
+    const phone = wrapRef?.getFieldsValue()[relationKey || 'phone']
+    if(sendCaptcha) {
+      await sendCaptcha?.(phone)
+      startCountdown()
+      message.success('验证码发送成功')
+    } else {
+      throw new Error('sendCaptcha 方法未定义')
+    }
   } catch (e) {
     console.log(e)
   } finally {

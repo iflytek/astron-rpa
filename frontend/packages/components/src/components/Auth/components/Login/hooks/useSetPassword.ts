@@ -1,10 +1,11 @@
 import { reactive, ref } from 'vue'
-import type { LoginFormData } from '../../../interface'
+import type { LoginFormData, InviteInfo } from '../../../interface'
 import { createSetPasswordFormConfig } from '../../../schemas/loginRegister'
 
 export type SetPasswordEmitEvent = 'submit' | 'switchToLogin'
 
 export function useSetPassword(
+  inviteInfo: InviteInfo | null,
   emit: ((e: 'submit', data: LoginFormData) => void) &
         ((e: 'switchToLogin') => void)
 ) {
@@ -15,7 +16,7 @@ export function useSetPassword(
     confirmPassword: '',
   })
 
-  const config = createSetPasswordFormConfig(formData)
+  const config = createSetPasswordFormConfig(formData, !!inviteInfo)
 
   const handleSubmit = async () => {
     try {

@@ -11,13 +11,13 @@ declare global {
 }
 
 interface Props {
-  type?: 'invite' | 'login'
+  type?: 'show' | 'check'
 }
 
-const { type = 'login' } = defineProps<Props>()
+const { type = 'check' } = defineProps<Props>()
 
 const text = computed(() => {
-  if (type === 'invite') {
+  if (type === 'show') {
     return '点击加入即代表您同意并接受'
   }
   return '勾选即代表您同意并接受'
@@ -38,8 +38,8 @@ const openLink = (linkType: 'service' | 'privacy') => {
 </script>
 
 <template>
-  <div class="w-full flex justify-start items-center text-center text-[#000000D9] dark:text-[#FFFFFFD9]" :class="type === 'invite' ? ' text-[12px] mt-[20px] ' : 'text-[14px]'">
+  <div class="flex justify-start items-center text-center text-[#000000D9] dark:text-[#FFFFFFD9] text-[14px]">
     {{text}}
-    <Button class="p-0 h-auto" :class="type === 'invite' ? ' text-[12px]' : 'text-[14px] mx-[4px]'" type="link" @click="openLink('service')">服务协议</Button>与<Button class="p-0 h-auto ml-[4px]" :class="type === 'invite' ? ' text-[12px]' : 'text-[14px]'" type="link" @click="openLink('privacy')">隐私政策</Button>
+    <Button class="p-0 h-auto" :class="type === 'show' ? '' : 'mx-[4px]'" type="link" @check="openLink('service')">服务协议</Button>与<Button class="p-0 h-auto ml-[4px]" type="link" @check="openLink('privacy')">隐私政策</Button>
   </div>
 </template>

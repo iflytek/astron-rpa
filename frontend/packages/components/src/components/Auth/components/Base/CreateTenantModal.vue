@@ -10,10 +10,9 @@ const visible = ref(false)
 
 const emit = defineEmits<{
   submit: [data: RegisterFormData, mode: RegisterMode]
-  sendCaptcha: [phone: string]
 }>()
 
-const enterprise = useRegisterForm('ENTERPRISE', emit as any)
+const enterprise = useRegisterForm('ENTERPRISE', null, emit as any)
 
 const showModal = () => {
   visible.value = true

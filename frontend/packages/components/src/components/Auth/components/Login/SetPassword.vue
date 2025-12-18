@@ -3,11 +3,15 @@ import { computed } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useSetPassword } from './hooks/useSetPassword'
-import type { LoginFormData, AsyncAction } from '../../interface'
+import type { LoginFormData, AsyncAction, InviteInfo } from '../../interface'
 
-const { running, title } = defineProps({
+const { running, title, inviteInfo } = defineProps({
   title: { type: String, default: '设置密码' },
   running: { type: String as () => AsyncAction, default: 'IDLE' },
+  inviteInfo: { 
+    type: Object as () => InviteInfo, 
+    default: () => null 
+  },
 })
 
 const emit = defineEmits<{
@@ -17,7 +21,7 @@ const emit = defineEmits<{
 
 const loading = computed(() => running === 'SET_PASSWORD')
  
-const { formRef, formData, config, handleEvents } = useSetPassword(emit as any)
+const { formRef, formData, config, handleEvents } = useSetPassword(inviteInfo, emit as any)
 </script>
 
 <template>

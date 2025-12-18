@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { ref, computed, watch, provide, PropType } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Tabs, TabPane } from 'ant-design-vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useLoginForm } from './hooks/useLoginForm'
-import type { LoginMode, AsyncAction } from '../../interface'
+import type { LoginMode, AsyncAction, InviteInfo } from '../../interface'
 
-const { running, sendCaptcha } = defineProps({
+const { running, inviteInfo } = defineProps({
   running: { 
     type: String as () => AsyncAction, 
     default: 'IDLE' 
   },
-  sendCaptcha: {
-    type: Function as PropType<(phone: string) => Promise<void>>,
-    default: (phone: string) => Promise.resolve()
-  }
+  inviteInfo: { 
+    type: Object as () => InviteInfo, 
+    default: () => null 
+  },
 })
 
 const emit = defineEmits<{
@@ -28,8 +28,8 @@ const sharedAgreement = ref(false)
 const passwordLoading = computed(() => running === 'PASSWORD')
 const codeLoading = computed(() => running === 'CODE')
 
-const account = useLoginForm('PASSWORD', emit as any)
-const phone = useLoginForm('CODE', emit as any)
+const account = useLoginForm('PASSWORD', inviteInfo, emit as any)
+const phone = useLoginForm('CODE', inviteInfo, emit as any)
 
 account.formData.agreement = sharedAgreement.value
 phone.formData.agreement = sharedAgreement.value
@@ -42,6 +42,7 @@ watch(() => account.formData.agreement, (v) => {
   sharedAgreement.value = v || false
   phone.formData.agreement = v || false
 })
+
 watch(() => phone.formData.agreement, (v) => {
   sharedAgreement.value = v || false
   account.formData.agreement = v || false
@@ -52,8 +53,9 @@ watch(() => phone.formData.agreement, (v) => {
 <template>
   <FormLayout
     :wrap-class="'auth-login h-full'"
+    :invite-info="inviteInfo"
   >
-    <template #header>
+    <template v-if="!inviteInfo" #header>
       <div class="text-[24px] text-[#000000D9] mb-[8px] font-[600] text-center dark:text-[#FFFFFF] font-sans">欢迎使用星辰RPA</div>
       <div class="text-[12px] text-[#000000A6] mb-[24px] text-center dark:text-[#FFFFFF] font-sans">使用您的讯飞账号</div>
     </template>
@@ -78,7 +80,6 @@ watch(() => phone.formData.agreement, (v) => {
           :loading="codeLoading"
           :ref="phone.formRef"
           :config="phone.config"
-          :send-captcha="sendCaptcha"
           v-model="phone.formData"
           :handleEvents="phone.handleEvents"
         />

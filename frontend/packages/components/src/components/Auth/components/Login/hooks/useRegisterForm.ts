@@ -3,6 +3,7 @@ import type {
   RegisterMode,
   PersonalRegisterFormData,
   EnterpriseRegisterFormData,
+  InviteInfo,
 } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import {
@@ -18,6 +19,7 @@ export type RegisterEmitEvent =
 
 export function useRegisterForm<M extends RegisterMode>(
   mode: M,
+  inviteInfo: InviteInfo | null,
   emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToLogin') => void) &
         ((e: 'switchToPersonal') => void) &
@@ -25,11 +27,12 @@ export function useRegisterForm<M extends RegisterMode>(
 ) {
   const formRef = ref()
 
+  const formConfig = mode === 'PERSONAL'
+    ? personalRegisterFormConfig(!!inviteInfo)
+    : enterpriseRegisterFormConfig()
+    
   type TData = M extends 'PERSONAL' ? PersonalRegisterFormData : EnterpriseRegisterFormData
-  const initialData = (): TData =>
-    (mode === 'PERSONAL'
-      ? generateFormData(personalRegisterFormConfig)
-      : generateFormData(enterpriseRegisterFormConfig)) as TData
+  const initialData = () => generateFormData(formConfig as any) as TData
 
   const formData = reactive<TData>(initialData())
 
@@ -54,7 +57,5 @@ export function useRegisterForm<M extends RegisterMode>(
     if (event === 'switchToEnterprise') return emit('switchToEnterprise')
   }
 
-  const config = mode === 'PERSONAL' ? personalRegisterFormConfig : enterpriseRegisterFormConfig
-
-  return { formRef, formData, config, resetForm, handleEvents }
+  return { formRef, formData, config: formConfig, resetForm, handleEvents }
 }

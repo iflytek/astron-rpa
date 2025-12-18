@@ -1,5 +1,5 @@
 import { reactive, ref, onMounted } from 'vue'
-import type { LoginFormData, LoginMode } from '../../../interface'
+import type { LoginFormData, LoginMode, InviteInfo } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import { accountLoginFormConfig, phoneLoginFormConfig } from '../../../schemas/loginRegister'
 import { getRememberUser } from '../../../utils/remember'
@@ -12,17 +12,16 @@ export type LoginEmitEvent =
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,
+  inviteInfo: InviteInfo,
   emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToRegister') => void) &
-        ((e: 'forgetPassword') => void) &
-        ((e: 'sendCaptcha', phone: string) => void)
-) {
+        ((e: 'forgetPassword') => void)
+ ) {
   const formRef = ref()
 
-  const initialData = (): LoginFormData =>
-    (mode === 'PASSWORD'
-      ? generateFormData(accountLoginFormConfig, { remember: false })
-      : generateFormData(phoneLoginFormConfig))  as LoginFormData
+  const formConfig = mode === 'PASSWORD' ? accountLoginFormConfig(!!inviteInfo) : phoneLoginFormConfig(!!inviteInfo)
+
+  const initialData = (): LoginFormData => generateFormData(formConfig, mode === 'PASSWORD' ? { remember: false } : {}) as LoginFormData
 
   const formData = reactive<LoginFormData>(initialData())
 
@@ -50,8 +49,6 @@ export function useLoginForm<M extends LoginMode>(
     if (event === 'forgetPassword') return emit('forgetPassword')
   }
 
-  const config = mode === 'PASSWORD' ? accountLoginFormConfig : phoneLoginFormConfig
-
   onMounted(() => {
     const remembered = getRememberUser()
     if (mode === 'PASSWORD' && remembered) {
@@ -62,5 +59,5 @@ export function useLoginForm<M extends LoginMode>(
     }
   })
 
-  return { formRef, formData, config, resetForm, clearValidates, handleEvents }
+  return { formRef, formData, config: formConfig, resetForm, clearValidates, handleEvents }
 }

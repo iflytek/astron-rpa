@@ -64,7 +64,6 @@ const open = ref(false)
     <!-- <TenantUpgradeBtn v-if="selectedTenant?.tenantType === 'personal'" class="absolute top-[-60px] left-0" /> -->
     <Dropdown placement="bottom" v-model:open="open">
       <div class="relative">
-        
         <TenantItemComponent
           :custom-class="`!border-0 !mb-0 ${open ? '!bg-[#00000008] dark:!bg-[#FFFFFF08]' : 'dark:!bg-[transparent]'}`"
           v-if="selectedTenant"
