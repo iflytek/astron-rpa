@@ -10,7 +10,6 @@ export function setBaseUrl(url?: string) {
 }
 
 const SUCCESS_CODE = '000000'
-const ERROR_CODES = ['500', '600000']
 export interface ResponseData<T = any> {
   code?: string
   data: T
@@ -33,7 +32,7 @@ export async function request<T = any, P = any>(
 
     if (res.code === SUCCESS_CODE) return res
 
-    if (ERROR_CODES.includes(res.code!)) {
+    if (res.code !== SUCCESS_CODE) {
       message.error(res.message || res.msg || '服务异常')
     }
     return Promise.reject(res)

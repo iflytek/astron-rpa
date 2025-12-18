@@ -97,7 +97,11 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       const params = {...data, loginType: mode}
       const history = await isHistory({phone: params.phone})
       if(history) {
-        switchMode('forgotPasswordWithSysUpgrade')
+        if(mode === 'PASSWORD') switchMode('forgotPasswordWithSysUpgrade')
+        if(mode === 'CODE'){
+          switchMode('setPasswordWithSysUpgrade')
+          handleForgotPassword(params)
+        }
         return
       }
       mode === 'PASSWORD' && params.remember && params.phone && params.password ? saveRememberUser(params.phone, params.password) : clearRememberUser()
