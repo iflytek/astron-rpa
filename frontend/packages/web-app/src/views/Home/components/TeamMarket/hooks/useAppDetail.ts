@@ -1,8 +1,7 @@
 import { ref } from 'vue'
 
-import { getAppDetails } from '@/api/market'
+import { getAllClassification, getAppDetails } from '@/api/market'
 import { fromIcon } from '@/components/PublishComponents/utils'
-import { ROBOT_TYPE_OPTIONS } from '@/views/Home/config'
 
 export function useAppDetail(params: { marketId: string, appId: string }) {
   const appDetail = ref({
@@ -21,16 +20,22 @@ export function useAppDetail(params: { marketId: string, appId: string }) {
     filePath: '',
     versionInfoList: [],
   })
-  getAppDetails(params).then((res) => {
-    const category = ROBOT_TYPE_OPTIONS.find(i => i.value === res.data.category)?.label
+
+  async function getAppDetailsInfo() {
+    const categoryRes = await getAllClassification()
+    const appDetailRes = await getAppDetails(params)
+    const category = categoryRes.data.find(i => i.id === appDetailRes.data.category)?.name
     appDetail.value = {
       ...params,
       ...appDetail.value,
-      ...res.data,
+      ...appDetailRes.data,
       category,
-      icon: fromIcon(res.data.url || res.data.iconUrl).icon,
-      color: fromIcon(res.data.url || res.data.iconUrl).color,
+      icon: fromIcon(appDetailRes.data.url || appDetailRes.data.iconUrl).icon,
+      color: fromIcon(appDetailRes.data.url || appDetailRes.data.iconUrl).color,
     }
-  })
+  }
+
+  getAppDetailsInfo()
+
   return appDetail
 }

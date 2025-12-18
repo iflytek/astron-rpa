@@ -404,3 +404,8 @@ export function cancelApplication(params: object) {
   console.log('cancelApplication', params)
   return http.post('/robot/application/my-application-cancel', params)
 }
+
+// 获取市场应用所有分类
+export async function getAllClassification() {
+  return http.get('/robot/classification/list')
+}
