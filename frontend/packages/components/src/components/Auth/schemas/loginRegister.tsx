@@ -10,7 +10,7 @@ import { Button } from "ant-design-vue"
 export const accountLoginFormConfig: FormConfig = {
   fields: [
     {...fieldFactories.phone(), placeholder: '请输入账号(手机号)'},
-    fieldFactories.password(),
+    fieldFactories.password(true),
     fieldFactories.agreement(),
     fieldFactories.remember(),
   ],

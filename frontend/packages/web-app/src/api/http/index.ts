@@ -120,8 +120,8 @@ class HttpClient {
         if (!SUCCESS_CODES.includes(response.data.code) && response.config.toast !== false) {
           message.error(response.data.message || response.data.msg)
         }
-
-        if (UN_AUTHORIZED_CODES.includes(response.data.code)) {
+        
+        if (UN_AUTHORIZED_CODES.includes(response.data.code) || response.data.ret === 302) {
           unauthorize()
         }
 

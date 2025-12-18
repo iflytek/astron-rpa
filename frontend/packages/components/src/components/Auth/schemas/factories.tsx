@@ -55,7 +55,7 @@ const validators = {
         reject(new Error('姓名不能超过30个字符'))
         return
       }
-      const pattern = /^[A-Za-z0-9_\u4e00-\u9fa5-]{4,30}$/
+      const pattern = /^[A-Za-z0-9_\u4e00-\u9fa5-]{1,30}$/
       if (!pattern.test(value)) {
         reject(new Error('姓名只能包含字母、数字、中划线、下划线和中文'))
         return
@@ -129,13 +129,13 @@ export const fieldFactories = {
     ]
   }),
   
-  password: (): FieldSchema => ({
+  password: (onlyRequired: boolean = false): FieldSchema => ({
     key: 'password',
     label: '密码',
     type: 'password',
     placeholder: '请输入密码',
     rules: [
-      { validator: validators.password, trigger: 'change' }
+      onlyRequired ? required('请输入密码') : { validator: validators.password, trigger: 'change' }
     ]
   }),
   confirmPassword: (formData: any): FieldSchema => ({

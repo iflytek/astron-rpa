@@ -43,7 +43,6 @@ const toggleTenant = async (tenant: TenantItem) => {
   if(beforeSwitch) {
     await beforeSwitch()
   }
-  selectedTenant.value = tenant
   loadingRef.value?.isLoading({ isLoading: true, text: '环境加载中', timeout: 200 })
   try {
     await switchTenant({ tenantId: tenant.id })
@@ -51,6 +50,7 @@ const toggleTenant = async (tenant: TenantItem) => {
     loadingRef.value?.isLoading({ isLoading: false, immediate: true })
     return
   }
+  selectedTenant.value = tenant
   await emit('switchTenant', tenant)
   loadingRef.value?.isLoading({ isLoading: false, immediate: true })
 }

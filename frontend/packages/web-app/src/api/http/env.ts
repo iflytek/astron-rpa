@@ -35,7 +35,7 @@ let isUnauthorized = null
  * 登录失效
  */
 export function unauthorize() {
-  if (isUnauthorized || location.pathname === '/') {
+  if (isUnauthorized) {
     return
   }
 
