@@ -1,6 +1,8 @@
 import { SearchOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
+import { ROBOT_TYPE_OPTIONS } from '@/views/Home/config'
+
 function filterOption(input: string, option: any) {
   return option.children().some((option) => {
     return option.toLowerCase().includes(input.toLowerCase())
@@ -26,6 +28,18 @@ export function useCardsTools() {
       style: 'width: 180px;',
       allowClear: true,
       placeholder: 'market.selectPublisher',
+    },
+    {
+      componentType: 'select',
+      bind: 'category',
+      options: ROBOT_TYPE_OPTIONS,
+      labelKey: 'label',
+      valueKey: 'value',
+      showSearch: true,
+      filterOption,
+      style: 'width: 180px;',
+      allowClear: true,
+      placeholder: 'market.selectCategory',
     },
     {
       componentType: 'select',

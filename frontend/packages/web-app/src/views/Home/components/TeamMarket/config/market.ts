@@ -2,6 +2,8 @@ export const MARKET_USER_OWNER = 'owner'
 export const MARKET_USER_ADMIN = 'admin'
 export const MARKET_USER_COMMON = 'acquirer'
 export const MARKET_USER_DEVELOPER = 'author'
+export const MARKET_TYPE_PUBLIC = 'public'
+export const MARKET_TYPE_TEAM = 'team'
 
 export const USER_TYPES = [
   {
