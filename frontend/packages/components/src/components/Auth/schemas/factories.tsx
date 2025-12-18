@@ -2,7 +2,6 @@ import { VNode, Component } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
 import AgreementTxt from '../components/Base/AgreementTxt.vue'
 import { Checkbox, Button, message } from "ant-design-vue"
-
 export type FieldType =  'input' | 'password' | 'captcha' | 'select' | 'checkbox' | 'textarea' | 'slot'
 
 export interface FormConfig {
@@ -27,6 +26,7 @@ export interface FieldSchema {
   relationKey?: string
   rules?: any[]
   props?: Record<string, any>
+  sendCaptcha?: (phone: string) => Promise<void>
   visible?: (model: any) => boolean
   disabled?: (model: any) => boolean
   customRender?: (ctx?: {
@@ -206,6 +206,7 @@ export const fieldFactories = {
     type: 'captcha',
     placeholder: '请输入验证码',
     relationKey: 'phone',
+    sendCaptcha: () => Promise.resolve(),
     rules: [
       required('请输入验证码'),
     ],

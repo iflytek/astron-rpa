@@ -2,5 +2,5 @@
 import { Auth } from '@rpa/components/auth'
 </script>
 <template>
-  <Auth.EnterpriseInvitePage />
+  <Auth.InvitePage />
 </template>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import MarketInviteForm from '../components/MarketInvite/Index.vue'
+import InviteForm from '../components/Invite/Index.vue'
 import PageLayout from '../components/Base/PageLayout.vue'
 
 </script>
 
 <template>
   <PageLayout>
-    <MarketInviteForm />
+    <InviteForm />
   </PageLayout>
 </template>

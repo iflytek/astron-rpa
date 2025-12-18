@@ -35,8 +35,8 @@ export const preAuthenticate = async (params: LoginFormData) => {
 }
 
 // 发送验证码
-export const sendCaptcha = async (phone: string, type: string = 'register') => {
-  if (type !== 'register') {
+export const sendCaptcha = async (phone: string, isRegister: boolean = true) => {
+  if (!isRegister) {
     const registered = await checkRegistered({ phone });
     if (!registered) {
       message.warning('当前手机号未注册');
@@ -83,5 +83,11 @@ export const setPassword = async (params: SetPasswordData) => {
 // 切换租户
 export const switchTenant = async (params: { tenantId: string }) => {
   const { data } = await http.postparams('/rpa-auth/tenant/switch', params)
+  return data
+}
+
+// 获取用户信息
+export const userInfo = async () => {
+  const { data } = await http.get('/rpa-auth/user/info')
   return data
 }

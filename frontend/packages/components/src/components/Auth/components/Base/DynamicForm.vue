@@ -1,8 +1,7 @@
 <script setup lang="ts" >
 import { ref, h } from 'vue'
-import { Form, Input, Checkbox, Select, Textarea, message } from 'ant-design-vue'
+import { Form, Input, Checkbox, Select, Textarea } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
-import type { FieldSchema } from '../../schemas/factories.tsx'
 import PhoneCode from './PhoneCode.vue'
 import type { FormConfig } from '../../schemas/factories.tsx'
 import { Icon as RpaIcon } from '../../../Icon'
@@ -11,11 +10,10 @@ interface Props<T = any> {
   config: FormConfig
   modelValue?: T
   loading?: boolean
-  sendCaptcha?: (phone: string) => Promise<void>
   handleEvents?: (event: string, ...args: any[]) => void
 }
 
-const { modelValue, loading, config, handleEvents, sendCaptcha } = defineProps<Props>()
+const { modelValue, loading, config, handleEvents } = defineProps<Props>()
 
 const emit = defineEmits<{
   submit: [value: any]
@@ -48,13 +46,6 @@ const resetFields = () => {
 
 const clearValidates = () => {
   formRef.value?.clearValidate()
-}
-
-const handleSendCaptcha = async (field: FieldSchema) => {
-  await validateFields([field.relationKey || 'phone'])      // 校验不通过会抛错
-  await sendCaptcha?.(modelValue[field.relationKey || 'phone'])       // 只有校验通过才走到这里
-  codeInputRefs.value[field.key]?.startCountdown()
-  message.success('验证码发送成功')
 }
 
 defineExpose({
@@ -107,8 +98,10 @@ defineExpose({
           :ref="(el: any) => { if (el) codeInputRefs[field.key] = el }"
           v-model="modelValue[field.key]"
           :placeholder="field.placeholder"
+          :wrap-ref="formRef"
+          :relation-key="field.relationKey"
+          :send-captcha="field.sendCaptcha"
           v-bind="field.props"
-          :send-captcha="() => handleSendCaptcha(field)"
         />
         <Textarea
           v-else-if="field.type === 'textarea'"

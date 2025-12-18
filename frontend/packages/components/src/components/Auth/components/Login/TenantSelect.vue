@@ -2,11 +2,12 @@
 import { ref } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
-import type { TenantItem } from '../../interface'
+import type { TenantItem, InviteInfo } from '../../interface'
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
   tenants: { type: Array as () => TenantItem[], default: () => [] },
+  inviteInfo: { type: Object as () => InviteInfo, default: () => null },
 })
 
 const emit = defineEmits<{
@@ -24,8 +25,8 @@ function handleSelect (tenant: TenantItem) {
 <template>
   <FormLayout
     :wrap-class="'auth-tenant-select h-full relative'"
-    title="请选择空间"
-    :sub-title="'您的账号与下列空间有关联，可进入任一空间'"
+    :title="inviteInfo ? '请选择关联的空间' : ' 请选择空间'"
+    :sub-title="inviteInfo ? '关联后即可在团队市场中共享和使用该空间的资产' : '您的账号与下列空间有关联，可进入任一空间'"
     show-back
     @back="() => emit('switchToLogin')"
   >
@@ -38,5 +39,5 @@ function handleSelect (tenant: TenantItem) {
         @click="() => handleSelect(tenant)"
       />
     </div>
-  </FormLayout>
+  </FormLayout> 
 </template>

@@ -2,29 +2,19 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 
-const AuthComponent = () => import('@/views/Auth/Index.vue')
-const MarketInviteComponent = () => import('@/views/MarketInvite/Index.vue')
-const EnterpriseInviteComponent = () => import('@/views/EnterpriseInvite/Index.vue')
+const LoginComponent = () => import('@/views/Login/Index.vue')
+const InviteComponent = () => import('@/views/Invite/Index.vue')
 
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: `/auth`,
+    name: `login`,
+    component: LoginComponent,
   },
   {
-    path: `/auth`,
-    name: `auth`,
-    component: AuthComponent,
-  },
-  {
-    path: `/marketInvite`,
-    name: `marketInvite`,
-    component: MarketInviteComponent,
-  },
-  {
-    path: `/enterpriseInvite`,
-    name: `enterpriseInvite`,
-    component: EnterpriseInviteComponent,
+    path: `/invite`,
+    name: `invite`,
+    component: InviteComponent,
   },
 ]
 // hash router

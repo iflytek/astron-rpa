@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, PropType } from 'vue'
+import { ref, computed } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useRegisterForm } from './hooks/useRegisterForm.ts'
-import type { RegisterMode, PersonalRegisterFormData, EnterpriseRegisterFormData } from '../../interface.ts'
+import type { RegisterMode, PersonalRegisterFormData, EnterpriseRegisterFormData, InviteInfo } from '../../interface.ts'
 import { AsyncAction } from '../../interface.ts'
  
-const { running, sendCaptcha } = defineProps({
+const { running, inviteInfo } = defineProps({
   running: { type: String as () => AsyncAction, default: 'IDLE' },
-  sendCaptcha: {
-    type: Function as PropType<(phone: string) => Promise<void>>,
-    default: (phone: string) => Promise.resolve()
-  }
+  inviteInfo: { 
+    type: Object as () => InviteInfo, 
+    default: () => null 
+  },
 })
 
 const emit = defineEmits<{
@@ -19,8 +19,8 @@ const emit = defineEmits<{
   switchToLogin: []
 }>()
 
-const personal = useRegisterForm('PERSONAL', emit as any)
-const enterprise = useRegisterForm('ENTERPRISE', emit as any)
+const personal = useRegisterForm('PERSONAL', inviteInfo, emit as any)
+const enterprise = useRegisterForm('ENTERPRISE', inviteInfo, emit as any)
 
 const currentMode = ref<RegisterMode>('PERSONAL')
 
@@ -30,7 +30,6 @@ const enterpriseLoading = computed(() => running === 'ENTERPRISE')
 const changeMode = () => {
   const next: RegisterMode = currentMode.value === 'PERSONAL' ? 'ENTERPRISE' : 'PERSONAL'
   next === 'ENTERPRISE' ? personal.resetForm() : enterprise.resetForm()
-  console.log('dddd')
   currentMode.value = next
 }
 
@@ -47,25 +46,23 @@ const changeMode = () => {
     @back="() => emit('switchToLogin')"
   >
     <DynamicForm
+      class="auth-register-personal-form"
       v-if="currentMode === 'PERSONAL'"
       :loading="personalLoading"
       :ref="personal.formRef"
       :config="personal.config"
       v-model="personal.formData"
-      :send-captcha="sendCaptcha"
       :handleEvents="personal.handleEvents"
-      class="auth-register-personal-form"
     />
 
     <DynamicForm
+      class="auth-register-enterprise-form"
       v-if="currentMode === 'ENTERPRISE'"
       :loading="enterpriseLoading"
       :ref="enterprise.formRef"
       :config="enterprise.config"
-      :send-captcha="sendCaptcha"
       v-model="enterprise.formData"
       :handleEvents="enterprise.handleEvents"
-      class="auth-register-enterprise-form"
     />
   </FormLayout>
 </template>

@@ -16,9 +16,7 @@ export default defineConfig({
     vueJsx(),
   ],
   server: {
-    hmr: {
-      overlay: true,
-    },
+    hmr: true,
     watch: {
       usePolling: false,
       ignored: ['!**/node_modules/@rpa/**'],
@@ -26,6 +24,14 @@ export default defineConfig({
     host: true,
     port: 3000,
     cors: true,
+    proxy: {
+      '/api': {
+        target: 'http://dev.iflyrpa.private:31680',
+        changeOrigin: true,
+        secure: false,
+        // rewrite: path => path.replace(/^\/api/, ''),
+      },
+    },
   },
   resolve: {
     alias: {

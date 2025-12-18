@@ -7,8 +7,7 @@ interface Props {
   actionText?: string
 }
 
-
-const { actionText = '' } = defineProps<Props>()
+const { actionText = '', title, subTitle = '' } = defineProps<Props>()
 
 const emit = defineEmits<{
   actionClick: []

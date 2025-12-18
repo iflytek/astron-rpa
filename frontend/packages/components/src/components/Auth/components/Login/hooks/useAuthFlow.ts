@@ -5,7 +5,6 @@ import {
   preAuthenticate,
   login,
   register,
-  sendCaptcha,
   setPassword,
   tenantList,
   isHistory,
@@ -21,9 +20,11 @@ import type {
 } from '../../../interface'
 import { saveRememberUser, clearRememberUser, saveSelectedTenant, getSelectedTenant, saveUserInfo } from '../../../utils/remember'
 import { message } from 'ant-design-vue'
+import type { InviteInfo } from '../../../interface'
 
 export interface UseAuthFlowOptions {
   baseUrl?: string
+  inviteInfo?: InviteInfo
 }
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish'): void}) {
@@ -161,13 +162,9 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     await handleLogin(tenantId)
   }
 
-  const handleSendCaptcha = (phone: string) => {
-    return sendCaptcha(phone, currentFormMode.value)
-  }
-
   const switchMode = (mode: AuthFormMode) => (currentFormMode.value = mode)
 
-  checkLoginStatus()
+  !opts.inviteInfo && checkLoginStatus()
 
   return {
     currentFormMode,
@@ -178,7 +175,6 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     handleForgotPassword,
     handleSetPassword,
     handleChooseTenant,
-    handleSendCaptcha,
     switchMode,
   }
 }
