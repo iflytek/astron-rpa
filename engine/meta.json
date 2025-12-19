@@ -4816,7 +4816,7 @@
         "key": "browser_type",
         "title": "浏览器类型",
         "name": "browser_type",
-        "tip": "选择浏览器类型,需安装星火数字员工插件实现网页自动化,路径：设置-插件安装",
+        "tip": "选择浏览器类型,需安装星火星辰RPA插件实现网页自动化,路径：设置-插件安装",
         "options": [
           {
             "label": "Chrome",
@@ -4889,7 +4889,7 @@
         "key": "open_with_incognito",
         "title": "使用隐私模式",
         "name": "open_with_incognito",
-        "tip": "请提前将浏览器中“星火数字员工插件”详情设置为\"在无痕模式下启用\"",
+        "tip": "请提前将浏览器中“星火星辰RPA插件”详情设置为\"在无痕模式下启用\"",
         "options": [
           {
             "label": "是",
@@ -22576,7 +22576,7 @@
     "title": "打开程序",
     "version": "1.0.1",
     "src": "astronverse.software.software.Software().open",
-    "comment": "打开应用程序路径(@{app_abs_path})，并设置运行参数为(@{app_args})，将结果输出为(@{software_open})",
+    "comment": "打开应用程序路径(@{app_absolute_path})，并设置运行参数为(@{app_args})，将结果输出为(@{software_open})",
     "inputList": [
       {
         "types": "Str",
@@ -22587,7 +22587,9 @@
           }
         },
         "key": "app_absolute_path",
+        "title": "应用程序路径",
         "name": "app_absolute_path",
+        "tip": "输入需要打开的应用程序文件路径",
         "default": "",
         "required": true
       },
@@ -22628,7 +22630,7 @@
     "title": "关闭程序",
     "version": "1.0.1",
     "src": "astronverse.software.software.Software().close",
-    "comment": "关闭应用程序路径为(@{app_abs_path})的程序",
+    "comment": "关闭应用程序路径为(@{app_absolute_path})的程序",
     "inputList": [
       {
         "types": "Str",
@@ -22639,7 +22641,9 @@
           }
         },
         "key": "app_absolute_path",
+        "title": "应用程序路径",
         "name": "app_absolute_path",
+        "tip": "需要被关闭的应用程序路径",
         "required": true
       }
     ],

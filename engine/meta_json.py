@@ -68,7 +68,15 @@ if __name__ == "__main__":
     if meta_data:
         gen_temp_json(meta_data)
         print("meta.json generated successfully.")
-        # upload to server
-        response = requests.post(upload_url, json=meta_data, timeout=10)
-        if response.status_code == 200:
-            print("meta.json uploaded successfully.")
+        choice = input("Do you want to upload meta.json to the server? (Y/N): ").strip().lower()
+        if choice == "y":
+            try:
+                response = requests.post(upload_url, json=meta_data, timeout=10)
+                if response.status_code == 200:
+                    print("meta.json uploaded successfully.")
+                else:
+                    print(f"Failed to upload meta.json. Status code: {response.status_code}")
+            except Exception as e:
+                print(f"Error uploading meta.json: {e}")
+        else:
+            print("Upload skipped.")

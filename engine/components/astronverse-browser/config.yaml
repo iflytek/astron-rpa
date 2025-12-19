@@ -645,7 +645,7 @@ atomic:
       tip: 初始网址
     - key: browser_type
       title: 浏览器类型
-      tip: 选择浏览器类型,需安装星火星辰RPA插件实现网页自动化,路径：设置-插件安装
+      tip: 选择浏览器类型,需安装星辰RPA插件实现网页自动化,路径：设置-插件安装
     - key: browser_abs_path
       title: 浏览器路径
       tip: 浏览器软件安装路径
