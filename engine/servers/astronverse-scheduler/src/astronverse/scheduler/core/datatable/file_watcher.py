@@ -253,12 +253,13 @@ class FileWatcher:
 class AsyncFileWatcher:
     """异步文件监听器，用于 SSE 流式推送"""
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, debounce_delay: float = 0.5):
         """
         初始化异步文件监听器
 
         Args:
             file_path: 要监听的文件路径
+            debounce_delay: 防抖延迟时间（秒），文件修改完成后等待此时间再触发事件
         """
         self.file_path = os.path.normpath(file_path)
         self._queue: asyncio.Queue = asyncio.Queue()
@@ -266,6 +267,9 @@ class AsyncFileWatcher:
         self._handler: Optional[ExcelFileHandler] = None
         self._running = False
         self._ignore_until = 0
+        self._debounce_delay = debounce_delay
+        self._pending_task: Optional[asyncio.Task] = None
+        self._event_loop: Optional[asyncio.AbstractEventLoop] = None
 
     def pause_watching(self, duration: float = 1.0):
         """
@@ -289,20 +293,43 @@ class AsyncFileWatcher:
             return
 
         self._running = True
+        self._event_loop = asyncio.get_event_loop()
+
+        # 延迟触发任务
+        async def _delayed_trigger(event_data: dict):
+            """延迟触发事件，等待防抖时间后放入队列"""
+            try:
+                await asyncio.sleep(self._debounce_delay)
+                # 检查是否仍在运行状态
+                if self._running:
+                    try:
+                        self._queue.put_nowait(event_data)
+                    except asyncio.QueueFull:
+                        logger.warning("Event queue is full, dropping event")
+            except asyncio.CancelledError:
+                # 任务被取消是正常的，不需要记录
+                pass
 
         # 创建回调函数
         def on_modified(path: str):
-            if time.time() >= self._ignore_until:
-                try:
-                    self._queue.put_nowait({"type": "file_changed", "path": path})
-                except asyncio.QueueFull:
-                    pass
+            """文件修改回调 - 使用延迟触发机制"""
+            if time.time() < self._ignore_until:
+                return
+
+            # 取消之前的延迟任务
+            if self._pending_task and not self._pending_task.done():
+                self._pending_task.cancel()
+
+            # 创建新的延迟任务
+            event_data = {"type": "file_changed", "path": path}
+            self._pending_task = self._event_loop.create_task(_delayed_trigger(event_data))
 
         def on_deleted(path: str):
+            """文件删除回调 - 立即触发，不需要延迟"""
             try:
                 self._queue.put_nowait({"type": "file_deleted", "path": path})
             except asyncio.QueueFull:
-                pass
+                logger.warning("Event queue is full, dropping delete event")
 
         # 获取文件所在目录
         watch_dir = os.path.dirname(self.file_path)
@@ -310,10 +337,13 @@ class AsyncFileWatcher:
             watch_dir = "."
 
         # 创建事件处理器
+        # 注意：ExcelFileHandler 的防抖时间设置为 0.1 秒，主要用于减少事件频率
+        # 真正的延迟触发由 AsyncFileWatcher 的延迟机制处理
         self._handler = ExcelFileHandler(
             target_file=self.file_path,
             on_modified=on_modified,
             on_deleted=on_deleted,
+            debounce_seconds=0.1,  # 缩短防抖时间，避免过滤掉最后一个事件
         )
 
         # 创建并启动观察者
@@ -342,12 +372,17 @@ class AsyncFileWatcher:
         """停止监听"""
         self._running = False
 
+        # 取消待处理的延迟任务
+        if self._pending_task and not self._pending_task.done():
+            self._pending_task.cancel()
+
         if self._observer:
             self._observer.stop()
             self._observer.join(timeout=2)
             self._observer = None
 
         self._handler = None
+        self._event_loop = None
         logger.info(f"AsyncFileWatcher stopped for: {self.file_path}")
 
 
