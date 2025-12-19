@@ -82,7 +82,7 @@ def merge_local_and_remote(local_meta: dict, remote_meta: list):
         found = False
         for remote_item in remote_meta:
             if remote_item.get("atomKey") == key:
-                remote_item["atomContent"] = str(value)
+                remote_item["atomContent"] = json.dumps(value, ensure_ascii=False)
                 found = True
                 break
         if not found:
