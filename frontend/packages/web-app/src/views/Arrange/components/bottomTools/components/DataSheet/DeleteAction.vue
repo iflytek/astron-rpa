@@ -13,7 +13,7 @@ const handleDeleteSelection = () => {
 </script>
 
 <template>
-  <a-dropdown>
+  <a-dropdown :disabled="!isReady">
     <rpa-hint-icon name="atom-delete" enable-hover-bg :disabled="!isReady">
       <template #suffix>
         <span class="ml-1 text-xs">删除</span>

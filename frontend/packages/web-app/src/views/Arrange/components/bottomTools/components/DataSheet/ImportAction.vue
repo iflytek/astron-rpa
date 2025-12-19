@@ -10,7 +10,6 @@ interface FormState {
   open: boolean
   sheetOptions: { label: string; value: string }[]
   selectedSheet?: string
-  firstRowAsHeader: boolean
 }
 
 const { isReady, createWorkbook } = useDataSheetStore()
@@ -20,7 +19,6 @@ const formState = ref<FormState>({
   open: false,
   sheetOptions: [],
   selectedSheet: undefined,
-  firstRowAsHeader: false,
 });
 
 const handleOk = async () => {
@@ -48,7 +46,6 @@ const handleImport = async () => {
     open: true,
     sheetOptions,
     selectedSheet: sheetOptions[0]?.value,
-    firstRowAsHeader: false,
   }
 }
 
@@ -69,7 +66,6 @@ const handleCancel = () => {
       <a-form-item label="请选择需要导入的 sheet 页" required>
         <a-select v-model:value="formState.selectedSheet" :options="formState.sheetOptions" />
       </a-form-item>
-      <a-checkbox v-model:checked="formState.firstRowAsHeader" class="leading-4">设置第一行为列名</a-checkbox>
     </a-form>
   </a-modal>
 </template>
