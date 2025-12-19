@@ -44,7 +44,7 @@ async function checkUpdate() {
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="w-full h-full relative">
     <Card
       class="h-[84px] px-[24px] py-[20px]"
       :title="$t('app')"
@@ -81,6 +81,9 @@ async function checkUpdate() {
           />
         </template>
       </div>
+    </div>
+    <div class="absolute w-full bottom-0 text-center text-text-tertiary text-xs">
+      生成式人工智能服务能力由 星火认知大模型 - Anhui-XingHuoRenZhiDaMoXing-20230823提供
     </div>
   </div>
 </template>

@@ -48,6 +48,7 @@ declare namespace RPA {
   interface AtomFormBaseForm extends AnyObj {
     formType?: AtomFormItemType
     title?: string
+    subTitle?: string
     key: string
     value: string | boolean | number | Array<AtomFormItemResult>
   }
