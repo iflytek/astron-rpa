@@ -34,15 +34,15 @@ class Flow:
                 self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
 
     def gen_code(
-            self,
-            path: str,
-            project_id: str,
-            project_name: str,
-            mode: str,
-            version: str,
-            process_id: str = "",
-            line=0,
-            end_line=0,
+        self,
+        path: str,
+        project_id: str,
+        project_name: str,
+        mode: str,
+        version: str,
+        process_id: str = "",
+        line=0,
+        end_line=0,
     ):
         os.makedirs(path, exist_ok=True)
 
@@ -188,12 +188,14 @@ class Flow:
         模块生成 python模块
         """
         # 1. 获取配置参数
-        param_list = self.svc.storage.param_list(project_id=project_id, mode=mode, version=version,
-                                                 process_id=module_id)
+        param_list = self.svc.storage.param_list(
+            project_id=project_id, mode=mode, version=version, process_id=module_id
+        )
 
         # 2. 获取模块原始代码
-        module_code = self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version,
-                                                     module_id=module_id)
+        module_code = self.svc.storage.module_detail(
+            project_id=project_id, mode=mode, version=version, module_id=module_id
+        )
 
         # 3. 如果没有配置参数，直接返回原始代码
         if not param_list:
@@ -215,7 +217,7 @@ class Flow:
         output_params = [p for p in param_list if p.get("varDirection") == 1]
 
         # 查找 def main(args): 的位置
-        main_pattern = r'(def\s+main\s*\(\s*args\s*\)\s*(?:->.*?)?\s*:)'
+        main_pattern = r"(def\s+main\s*\(\s*args\s*\)\s*(?:->.*?)?\s*:)"
         main_match = re.search(main_pattern, module_code)
 
         if not main_match:
@@ -229,47 +231,51 @@ class Flow:
         input_code_lines = []
         for p in input_params:
             var_name = p.get("varName")
-            param = self.svc.param.parse_param({
-                "value": p.get("varValue"),
-                "types": p.get("varType"),
-                "name": var_name,
-            })
+            param = self.svc.param.parse_param(
+                {
+                    "value": p.get("varValue"),
+                    "types": p.get("varType"),
+                    "name": var_name,
+                }
+            )
             input_code_lines.append(f'{indent}{var_name} = args.get("{var_name}", {param.show_value()})')
 
         # 生成输出参数初始化代码（输出参数也需要初始化）
         for p in output_params:
             var_name = p.get("varName")
-            param = self.svc.param.parse_param({
-                "value": p.get("varValue"),
-                "types": p.get("varType"),
-                "name": var_name,
-            })
+            param = self.svc.param.parse_param(
+                {
+                    "value": p.get("varValue"),
+                    "types": p.get("varType"),
+                    "name": var_name,
+                }
+            )
             input_code_lines.append(f'{indent}{var_name} = args.get("{var_name}", {param.show_value()})')
 
         if input_code_lines:
-            input_code_lines.append(f'{indent}# --- 配置参数初始化结束 ---')
-            input_code_lines.append('')
+            input_code_lines.append(f"{indent}# --- 配置参数初始化结束 ---")
+            input_code_lines.append("")
 
         # 在 main 函数定义后插入输入参数代码
-        input_code = '\n'.join(input_code_lines)
+        input_code = "\n".join(input_code_lines)
         main_end_pos = main_match.end()
 
         # 插入输入参数初始化代码
-        new_code = module_code[:main_end_pos] + '\n' + input_code + module_code[main_end_pos:]
+        new_code = module_code[:main_end_pos] + "\n" + input_code + module_code[main_end_pos:]
 
         # 如果有输出参数，需要在函数末尾写回
         if output_params:
             # 生成输出参数写回代码
-            output_code_lines = [f'{indent}# --- 输出参数写回 ---']
+            output_code_lines = [f"{indent}# --- 输出参数写回 ---"]
             for p in output_params:
                 var_name = p.get("varName")
                 output_code_lines.append(f'{indent}args["{var_name}"] = {var_name}')
 
-            output_code = '\n' + '\n'.join(output_code_lines)
+            output_code = "\n" + "\n".join(output_code_lines)
 
             # 找到 return 语句或函数末尾，在其前面插入输出参数写回代码
             # 简单处理：在最后一个 return 前插入（如果有的话）
-            return_pattern = r'(\n)([ \t]*)(return\b.*?)(\n|$)'
+            return_pattern = r"(\n)([ \t]*)(return\b.*?)(\n|$)"
             return_matches = list(re.finditer(return_pattern, new_code))
 
             if return_matches:
@@ -279,12 +285,12 @@ class Flow:
                 new_code = new_code[:insert_pos] + output_code + new_code[insert_pos:]
             else:
                 # 没有 return，在代码末尾添加
-                new_code = new_code.rstrip() + '\n' + output_code + '\n'
+                new_code = new_code.rstrip() + "\n" + output_code + "\n"
 
         return new_code
 
     def _flow_display(
-            self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0
+        self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0
     ):
         """
         流程生成 主流程 子流程
