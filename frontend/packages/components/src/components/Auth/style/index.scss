@@ -9,6 +9,9 @@
   }
   .ant-tabs >.ant-tabs-nav{
     margin-bottom: 24px;
+    &:before {
+      display: none;
+    }
   }
   .ant-tabs-content-holder{
     height: 100%;

@@ -14,6 +14,7 @@ import FireTeam from '@/views/Home/components/TeamMarket/MarketManage/FireTeam.v
 import GiveOwner from '@/views/Home/components/TeamMarket/MarketManage/GiveOwner.vue'
 import InviteUser from '@/views/Home/components/TeamMarket/MarketManage/InviteUser.vue'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
+import { clipboardManager } from '@/platform'
 
 const INIT_SCROLLY = window.innerHeight - 480
 
@@ -90,15 +91,32 @@ export function useTeamUserTable() {
 
   // 邀请用户
   const inviteUser = () => {
+    const inviteType = ref('link') // phone 组织架构 link 邀请链接
     const inviteUsers = ref([])
+    const inviteLink = ref('')
     try {
-      GlobalModal.confirm({
+      const m = GlobalModal.confirm({
         title: t('market.inviteMember'),
-        width: 450,
-        content: h(<InviteUser marketId={activeMarket.value.marketId} onChange={values => inviteUsers.value = values} />),
+        class: 'invite-user-modal',
+        icon: null,
+        width: 540,
+        content: h(<InviteUser marketId={activeMarket.value.marketId} 
+          onInviteTypeChange={(type: string) => {
+            inviteType.value = type; 
+            m.update({okText: inviteType.value === 'link' ? '复制链接' : '发送邀请'})
+          }}
+          onChange={values => inviteUsers.value = values} 
+          onLinkChange={(link: string) => inviteLink.value = link} />),
+        okText: inviteType.value === 'link' ? '复制链接' : '发送邀请',
         okButtonProps: { loading: false },
         onOk: () => {
           return new Promise((resolve, reject) => {
+            if(inviteType.value === 'link') {
+              clipboardManager.writeClipboardText(inviteLink.value)
+              message.success('复制成功')
+              reject()
+              return
+            }
             if (inviteUsers.value.length <= 0) {
               const error = t('market.noInviteMember')
               message.warn(error)
