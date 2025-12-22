@@ -1,4 +1,4 @@
-from astronverse.scheduler.apis.connector import executor, picker, terminal, tools, ws
+from astronverse.scheduler.apis.connector import datatable, executor, picker, terminal, tools, ws
 from astronverse.scheduler.core.lsp.routes import router as lsp_router
 from astronverse.scheduler.core.svc import get_svc
 from fastapi import Depends, FastAPI
@@ -47,3 +47,11 @@ def handler(app: FastAPI):
 
     # 绑定lsp路由
     app.include_router(lsp_router, prefix="/lsp", tags=["lsp"], dependencies=[Depends(get_svc)])
+
+    # 绑定数据表格路由
+    app.include_router(
+        datatable.router,
+        prefix="/datatable",
+        tags=["datatable"],
+        dependencies=[Depends(get_svc)],
+    )
