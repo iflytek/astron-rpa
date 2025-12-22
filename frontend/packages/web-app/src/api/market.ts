@@ -292,6 +292,22 @@ export function inviteMarketUser(data) {
   return http.post('/robot/market-user/invite', data)
 }
 
+export function getInviteLink(data: { marketId: string }) {
+  // return http.post('/robot/market-user/invite/link', data)
+  return Promise.resolve({
+    inviteLink: 'https://example.com/invite?code=123456',
+    expireDate: '2025-12-31 23:59:59',
+  })
+}
+
+export function generateInviteLink(data: { marketId: string, limit: number }) {
+  // return http.post('/robot/market-user/invite/link', data)
+  return Promise.resolve({
+    inviteLink: 'https://example.com/invite?code=123456',
+    expireDate: '2025-12-31 23:59:59',
+  })
+}
+
 // 应用获取为应用时重命名检测
 export function checkAppToRobotName(params) {
   return http.get('/market-resource/robot-name-duplicated', params)
