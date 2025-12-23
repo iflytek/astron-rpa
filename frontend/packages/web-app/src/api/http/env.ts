@@ -4,7 +4,7 @@ import { storage } from '@/utils/storage'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 
 const DEFAULT_PORT = 13159
-const DEFAULT_HOST = "127.0.0.1"
+const DEFAULT_HOST = import.meta.env.VITE_SERVICE_HOST ?? "localhost"
 
 /**
  * 获取接口基础URL

@@ -89,12 +89,18 @@ export const useProcessStore = defineStore('process', () => {
     flatAtomicTree(atomicTreeData.value, false),
   )
 
+  // 配置参数接口参数
+  const cofnigParamIdOption = computed(() => {
+    const isPy = isPyModel(activeProcess.value?.resourceCategory);
+    return isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
+  });
+
   // 依赖刷新后自动请求
   watchEffect(async () => {
     if (project.value.id && activeProcessId.value) {
       parameters.value = await getConfigParams({
+        ...cofnigParamIdOption.value,
         robotId: project.value.id,
-        processId: activeProcessId.value,
       })
     }
   })
@@ -128,13 +134,13 @@ export const useProcessStore = defineStore('process', () => {
   // 添加参数
   const createParameter = async () => {
     const data: RPA.CreateConfigParamData = {
+      ...cofnigParamIdOption.value,
       varName: generateParameterName(),
       varDirection: 0,
       varType: 'Str',
       varDescribe: '',
       varValue: '',
       robotId: project.value.id,
-      processId: activeProcessId.value,
     }
     const id = await createConfigParam(data)
 
@@ -149,7 +155,8 @@ export const useProcessStore = defineStore('process', () => {
 
   // 更新参数
   const updateParameter = async (data: RPA.ConfigParamData) => {
-    await updateConfigParam({ ...data, robotId: project.value.id })
+    await updateConfigParam({ ...data, ...cofnigParamIdOption.value, robotId: project.value.id })
+
     parameters.value.forEach((item) => {
       if (item.id === data.id) {
         item = { ...item, ...data }

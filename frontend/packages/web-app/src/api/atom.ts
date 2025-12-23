@@ -61,7 +61,13 @@ export async function getComponentList(data: {
 /**
  * 获取原子能力的配置参数
  */
-export async function getConfigParams(params: { robotId: string, robotVersion?: string | number, processId?: string, mode?: string }) {
+export async function getConfigParams(params: {
+  robotId: string,
+  robotVersion?: string | number,
+  processId?: string,
+  moduleId?: string,
+  mode?: string
+}) {
   const res = await http.post<RPA.ConfigParamData[]>('/robot/param/all', params)
   return res.data
 }

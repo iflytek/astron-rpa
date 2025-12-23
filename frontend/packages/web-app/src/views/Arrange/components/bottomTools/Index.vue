@@ -4,10 +4,10 @@ import { sum } from 'lodash-es'
 import { computed, provide, ref, shallowRef, watch } from 'vue'
 
 import { BOTTOM_BOOTLS_HEIGHT_SIZE_MIN } from '@/constants'
-import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 
-import { provideConfigParameter } from './components/ConfigParameter/useConfigParameter.ts'
+import { useProvideConfigParameter } from './components/ConfigParameter/useConfigParameter.ts'
 import { useCVManager } from './components/CvManager/useCVManager.ts'
 import { useDebugLog } from './components/DebugLog/useDebugLog.ts'
 import { useElementManager } from './components/ElementManager/useElementManager.ts'
@@ -19,8 +19,7 @@ const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
 // 创建并提供 configParameter 实例
-const configParameterInstance = provideConfigParameter()
-const { configParamsTabConfig } = configParameterInstance
+const { config: configParamsTabConfig } = useProvideConfigParameter()
 
 const processStore = useProcessStore()
 
@@ -85,19 +84,11 @@ watch(() => processStore.searchSubProcessId, (val) => {
   }
 })
 
-// 代码模块隐藏配置参数
+// 切换流程时，重置底部工具栏的标签页
 watch(() => processStore.activeProcessId, () => {
-  // 当前 tab 是否是代码模块
-  const isCodeModule = isPyModel(processStore.activeProcess?.resourceCategory)
-
-  if (isCodeModule) {
-    activeKey.value = activeKey.value === configParamsTabConfig.key ? tabs.value[0].key : activeKey.value
-    tabs.value = tabs.value.filter(tab => tab.key !== configParamsTabConfig.key)
-  }
-  else {
-    const otherTabs = tabs.value.filter(tab => !initTabs.map(item => item.key).includes(tab.key))
-    tabs.value = [...initTabs, ...otherTabs]
-  }
+  const initTabKeys = initTabs.map(item => item.key)
+  const otherTabs = tabs.value.filter(tab => !initTabKeys.includes(tab.key))
+  tabs.value = [...initTabs, ...otherTabs]
 })
 </script>
 
