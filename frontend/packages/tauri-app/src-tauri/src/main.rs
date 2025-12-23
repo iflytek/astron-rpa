@@ -271,7 +271,7 @@ fn start(app_handle: tauri::AppHandle, config: AppConfig) -> Result<(), String> 
         return Ok(());
     }
 
-    // 启动rpa_setup.py
+    // 启动引擎
     let python_exe = if env::consts::OS == "windows" {
         python_core.join("python.exe").display().to_string()
     } else {
