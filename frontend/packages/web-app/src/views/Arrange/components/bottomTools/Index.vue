@@ -84,7 +84,7 @@ watch(() => processStore.searchSubProcessId, (val) => {
   }
 })
 
-// 代码模块隐藏配置参数
+// 切换流程时，重置底部工具栏的标签页
 watch(() => processStore.activeProcessId, () => {
   const initTabKeys = initTabs.map(item => item.key)
   const otherTabs = tabs.value.filter(tab => !initTabKeys.includes(tab.key))

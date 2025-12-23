@@ -89,14 +89,17 @@ export const useProcessStore = defineStore('process', () => {
     flatAtomicTree(atomicTreeData.value, false),
   )
 
+  // 配置参数接口参数
+  const cofnigParamIdOption = computed(() => {
+    const isPy = isPyModel(activeProcess.value?.resourceCategory);
+    return isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
+  });
+
   // 依赖刷新后自动请求
   watchEffect(async () => {
     if (project.value.id && activeProcessId.value) {
-      const isPy = isPyModel(activeProcess.value?.resourceCategory);
-      const idParam = isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
-
       parameters.value = await getConfigParams({
-        ...idParam,
+        ...cofnigParamIdOption.value,
         robotId: project.value.id,
       })
     }
@@ -130,11 +133,8 @@ export const useProcessStore = defineStore('process', () => {
 
   // 添加参数
   const createParameter = async () => {
-    const isPy = isPyModel(activeProcess.value?.resourceCategory);
-    const idParam = isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
-
     const data: RPA.CreateConfigParamData = {
-      ...idParam,
+      ...cofnigParamIdOption.value,
       varName: generateParameterName(),
       varDirection: 0,
       varType: 'Str',
@@ -155,10 +155,7 @@ export const useProcessStore = defineStore('process', () => {
 
   // 更新参数
   const updateParameter = async (data: RPA.ConfigParamData) => {
-    const isPy = isPyModel(activeProcess.value?.resourceCategory);
-    const idParam = isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
-    
-    await updateConfigParam({ ...data, ...idParam, robotId: project.value.id })
+    await updateConfigParam({ ...data, ...cofnigParamIdOption.value, robotId: project.value.id })
 
     parameters.value.forEach((item) => {
       if (item.id === data.id) {
