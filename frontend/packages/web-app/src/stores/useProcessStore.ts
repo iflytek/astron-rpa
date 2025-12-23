@@ -155,7 +155,11 @@ export const useProcessStore = defineStore('process', () => {
 
   // 更新参数
   const updateParameter = async (data: RPA.ConfigParamData) => {
-    await updateConfigParam({ ...data, robotId: project.value.id })
+    const isPy = isPyModel(activeProcess.value?.resourceCategory);
+    const idParam = isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
+    
+    await updateConfigParam({ ...data, ...idParam, robotId: project.value.id })
+
     parameters.value.forEach((item) => {
       if (item.id === data.id) {
         item = { ...item, ...data }

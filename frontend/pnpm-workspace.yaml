@@ -6,3 +6,9 @@ packages:
   - 'components/**'
   # exclude packages that are inside test directories
   - '!**/test/**'
+
+catalog:
+  vite: ^7.3.0
+  "@vitejs/plugin-vue": ^6.0.1
+  "@vitejs/plugin-vue-jsx": ^5.0.1
+  ant-design-vue: ^4.2.6
