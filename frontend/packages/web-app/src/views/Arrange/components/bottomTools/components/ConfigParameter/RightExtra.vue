@@ -2,11 +2,11 @@
 import { useAsyncState } from '@vueuse/core'
 import { Input } from 'ant-design-vue'
 
-import { useProcessStore } from '@/stores/useProcessStore.ts'
+import { useProcessStore } from '@/stores/useProcessStore'
 
-import { injectConfigParameter } from './useConfigParameter.ts'
+import { useConfigParameter } from './useConfigParameter'
 
-const { searchText, isQuoted, findQuoted, toggleQuoted } = injectConfigParameter()
+const { searchText, isQuoted, findQuoted, toggleQuoted } = useConfigParameter()
 const processStore = useProcessStore()
 
 const { isLoading, execute } = useAsyncState(processStore.createParameter, undefined, { immediate: false })

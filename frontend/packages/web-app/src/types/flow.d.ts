@@ -40,7 +40,8 @@ declare namespace RPA {
     varDescribe: string // 参数描述
     robotId: string // 应用id
     robotVersion?: number // 应用版本
-    processId: string // 流程id
+    processId?: string // 流程id
+    moduleId?: string // 模块id
   }
 
   // 组件属性

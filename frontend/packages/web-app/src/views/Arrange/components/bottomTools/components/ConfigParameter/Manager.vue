@@ -15,7 +15,7 @@
   import { useProcessStore } from '@/stores/useProcessStore.ts'
   
   import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
-  import { injectConfigParameter } from './useConfigParameter.ts'
+  import { useConfigParameter } from './useConfigParameter.ts'
   
   interface LocalConfigParamData extends RPA.ConfigParamData {
     perVarName: string
@@ -26,7 +26,7 @@
   const { colorTheme } = useTheme()
   const flowStore = useFlowStore()
   const processStore = useProcessStore()
-  const { searchText, isQuoted, quotedData, findQuoted } = injectConfigParameter()
+  const { searchText, isQuoted, quotedData, findQuoted } = useConfigParameter()
   const [messageApi, contextHolder] = message.useMessage()
   
   const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
