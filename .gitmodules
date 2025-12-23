@@ -1,0 +1,3 @@
+[submodule "engine/components/astronverse-feishubase"]
+	path = engine/components/astronverse-feishubase
+	url = https://github.com/doctorbruce/astronverse-feishubase.git
