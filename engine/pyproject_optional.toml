@@ -39,7 +39,8 @@ dependencies = [
     "astronverse-window",
     "astronverse-winelement",
     "astronverse-word",
-    "astronverse-workflowlib"
+    "astronverse-workflowlib",
+    "astronverse-feishubase"
 ]
 
 [tool.uv.sources]
@@ -80,10 +81,15 @@ astronverse-excel = {path = "./components/astronverse-excel", editable = true}
 astronverse-window = {path = "./components/astronverse-window", editable = true}
 astronverse-winelement = {path = "./components/astronverse-winelement", editable = true}
 astronverse-word = {path = "./components/astronverse-word", editable = true}
+astronverse-feishubase = {path = "./components/astronverse-feishubase", editable = true}
 
 [dependency-groups]
 
 dev = [
   "pre-commit>=4.3.0",
   "ruff~=0.12.3",
+]
+
+optional = [
+  "astronverse-feishubase"
 ]
