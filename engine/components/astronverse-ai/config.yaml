@@ -18,6 +18,7 @@ atomic:
     outputList:
     - key: single_chat_res
       title: 答案输出
+      subTitle: AI生成
       tip: 将大模型生成的答案输出为变量。
   ChatAI.chat:
     title: 多轮会话
@@ -44,6 +45,7 @@ atomic:
     outputList:
     - key: chat_res
       title: 对话聊天记录输出
+      subTitle: AI生成
       tip: 将对话聊天记录输出为变量。
   ChatAI.knowledge_chat:
     title: 知识问答
@@ -64,6 +66,7 @@ atomic:
     outputList:
     - key: knowledge_chat_res
       title: 对话聊天记录输出
+      subTitle: AI生成
       tip: 将对话聊天记录输出为变量。
   DocumentAI.theme_expand:
     title: 主题扩写
@@ -81,6 +84,7 @@ atomic:
     outputList:
     - key: theme_expand_res
       title: 主题扩展结果输出
+      subTitle: AI生成
       tip: 将主题扩展结果输出为变量。
   DocumentAI.sentence_expand:
     title: 段落扩写
@@ -98,6 +102,7 @@ atomic:
     outputList:
     - key: sentence_expand_res
       title: 段落扩展结果输出
+      subTitle: AI生成
       tip: 将段落扩展结果输出为变量。
   DocumentAI.sentence_reduce:
     title: 段落缩写
@@ -115,6 +120,7 @@ atomic:
     outputList:
     - key: sentence_reduce_res
       title: 段落缩写结果输出
+      subTitle: AI生成
       tip: 将段落缩写结果输出为变量。
   Agent.call_dify:
     title: 调用Dify流程
@@ -149,6 +155,7 @@ atomic:
     outputList:
     - key: dify_result
       title: Dify流程结果输出
+      subTitle: AI生成
       tip: ''
   Agent.call_dify_chatflow:
     title: 调用Dify对话流
@@ -186,6 +193,7 @@ atomic:
     outputList:
       - key: dify_result
         title: Dify流程结果输出
+        subTitle: AI生成
         tip: ''
   Agent.call_xcagent:
     title: 调用星辰Agent流程
@@ -220,6 +228,7 @@ atomic:
     outputList:
       - key: xcagent_result
         title: 星辰Agent返回值
+        subTitle: AI生成
         tip: ''
   ContractAI.get_factors:
     title: 合同要素提取
@@ -248,6 +257,7 @@ atomic:
     outputList:
     - key: factor_result
       title: 返回要素结果
+      subTitle: AI生成
       tip: ''
   RecruitAI.generate_keywords:
     title: 职位关键词生成
@@ -270,6 +280,7 @@ atomic:
     outputList:
     - key: recruit_keywords
       title: 职位关键词
+      subTitle: AI生成
       tip: ''
   RecruitAI.rating_resume:
     title: 简历评分
@@ -304,6 +315,7 @@ atomic:
     outputList:
     - key: recruit_rating
       title: 简历匹配结果
+      subTitle: AI生成
       tip: ''
 options:
   Bool:
