@@ -197,9 +197,46 @@ REM ============================================
 
 echo Backing up original and adding workspace
 copy %ENGINE_DIR%\pyproject.toml %ENGINE_DIR%\pyproject.toml.backup >nul
+
+REM Dynamically build workspace members list
+echo Building workspace members list...
+set "WORKSPACE_MEMBERS="
+
+REM Check shared/* directories
+for /d %%d in ("%ENGINE_DIR%\shared\*") do (
+    if exist "%%d\pyproject.toml" (
+        set "MEMBER_PATH=%%~nxd"
+        set "WORKSPACE_MEMBERS=!WORKSPACE_MEMBERS! "shared/!MEMBER_PATH!","
+    )
+)
+
+REM Check servers/* directories
+for /d %%d in ("%ENGINE_DIR%\servers\*") do (
+    if exist "%%d\pyproject.toml" (
+        set "MEMBER_PATH=%%~nxd"
+        set "WORKSPACE_MEMBERS=!WORKSPACE_MEMBERS! "servers/!MEMBER_PATH!","
+    )
+)
+
+REM Check components/* directories
+for /d %%d in ("%ENGINE_DIR%\components\*") do (
+    if exist "%%d\pyproject.toml" (
+        set "MEMBER_PATH=%%~nxd"
+        set "WORKSPACE_MEMBERS=!WORKSPACE_MEMBERS! "components/!MEMBER_PATH!","
+    )
+)
+
+REM Remove trailing comma and build final members list
+if defined WORKSPACE_MEMBERS (
+    set "WORKSPACE_MEMBERS=!WORKSPACE_MEMBERS:~0,-1!"
+) else (
+    echo Warning: No valid workspace members found
+    set "WORKSPACE_MEMBERS=\"\""
+)
+
 echo. >> %ENGINE_DIR%\pyproject.toml
 echo [tool.uv.workspace] >> %ENGINE_DIR%\pyproject.toml
-echo members = ["shared/*", "servers/*", "components/*"] >> %ENGINE_DIR%\pyproject.toml
+echo members = [!WORKSPACE_MEMBERS!] >> %ENGINE_DIR%\pyproject.toml
 
 echo Starting batch build of all packages...
 uv build --project %ENGINE_DIR% --all-packages --wheel --out-dir "%DIST_DIR%"
