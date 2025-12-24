@@ -401,6 +401,8 @@ class AtomicManager:
                     a.title = inputMap[a.key].get("title", None)
                 if not a.tip and a.key in inputMap:
                     a.tip = inputMap[a.key].get("tip", None)
+                if not a.subTitle and a.key in inputMap:
+                    a.subTitle = inputMap[a.key].get("subTitle", None)
 
                 options = config.get("options", a.types)
                 if a.options and options:
@@ -425,6 +427,8 @@ class AtomicManager:
                         o.title = outputMap[o.key].get("title", None)
                     if not o.tip and o.key in outputMap:
                         o.tip = outputMap[o.key].get("tip", None)
+                    if not o.subTitle and o.key in outputMap:
+                        o.subTitle = outputMap[o.key].get("subTitle", None)
 
             # 6.1 检测comment
             if v.comment:

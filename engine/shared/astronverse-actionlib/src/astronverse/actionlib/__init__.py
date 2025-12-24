@@ -204,6 +204,8 @@ class AtomicParamMeta:
     key: str = None
     # [必须]名称
     title: str = None
+    # 子title
+    subTitle: str = None
     # 后端映射名称
     name: str = None
     # 用户提示
