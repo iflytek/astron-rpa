@@ -128,7 +128,15 @@ export const fieldFactories = {
       { validator: validators.loginName, trigger: 'change' }
     ]
   }),
-  
+  account: (): FieldSchema => ({
+    key: 'account',
+    label: '账号',
+    type: 'input',
+    placeholder: '请输入您的账号',
+    rules: [
+      required('请输入账号')
+    ]
+  }),
   password: (onlyRequired: boolean = false): FieldSchema => ({
     key: 'password',
     label: '密码',

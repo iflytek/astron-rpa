@@ -4,9 +4,9 @@ import { Tabs, TabPane } from 'ant-design-vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
 import { useLoginForm } from './hooks/useLoginForm'
-import type { LoginMode, AsyncAction, InviteInfo } from '../../interface'
+import type { Edition, AuthType, LoginMode, AsyncAction, InviteInfo } from '../../interface'
 
-const { running, inviteInfo } = defineProps({
+const { running, inviteInfo, edition, authType } = defineProps({
   running: { 
     type: String as () => AsyncAction, 
     default: 'IDLE' 
@@ -15,12 +15,21 @@ const { running, inviteInfo } = defineProps({
     type: Object as () => InviteInfo, 
     default: () => null 
   },
+  edition: { 
+    type: String as () => Edition, 
+    default: 'saas' 
+  },
+  authType: { 
+    type: String as () => AuthType, 
+    default: 'uap' 
+  },
 })
 
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
   switchToRegister: []
   forgetPassword: []
+  modifyPassword: []
 }>()
 
 const sharedAgreement = ref(false)
@@ -28,15 +37,15 @@ const sharedAgreement = ref(false)
 const passwordLoading = computed(() => running === 'PASSWORD')
 const codeLoading = computed(() => running === 'CODE')
 
-const account = useLoginForm('PASSWORD', inviteInfo, emit as any)
-const phone = useLoginForm('CODE', inviteInfo, emit as any)
-
-account.formData.agreement = sharedAgreement.value
-phone.formData.agreement = sharedAgreement.value
+const account = useLoginForm('PASSWORD', { inviteInfo, edition, authType }, emit as any)
+const phone = useLoginForm('CODE', { inviteInfo, edition, authType }, emit as any)
 
 const currentMode = ref<LoginMode>('PASSWORD')
 
 watch(() => currentMode.value, (_, old) => (old === 'PASSWORD' ? account : phone).clearValidates())
+
+account.formData.agreement = sharedAgreement.value
+phone.formData.agreement = sharedAgreement.value
 
 watch(() => account.formData.agreement, (v) => {
   sharedAgreement.value = v || false
@@ -62,10 +71,11 @@ watch(() => phone.formData.agreement, (v) => {
     <Tabs
       v-model:activeKey="currentMode"
       centered
+      :class="{'tab-pane-text-left': !phone.config || !account.config}"
       type="card"
       class="h-full"
     >
-      <TabPane key="PASSWORD" tab="密码登录">        
+      <TabPane v-if="account.config"  key="PASSWORD" tab="密码登录">        
         <DynamicForm
           :loading="passwordLoading"
           :ref="account.formRef"
@@ -75,7 +85,7 @@ watch(() => phone.formData.agreement, (v) => {
         />
       </TabPane>
 
-      <TabPane key="CODE" tab="验证码登录">
+      <TabPane v-if="phone.config" key="CODE" tab="验证码登录">
         <DynamicForm
           :loading="codeLoading"
           :ref="phone.formRef"

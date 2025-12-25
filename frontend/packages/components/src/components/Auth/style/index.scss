@@ -4,7 +4,14 @@
     width: 100%;
     border-radius: 8px;
     .ant-tabs-tab {
-      width: 50%;
+      width: 100%;
+    }
+  }
+  .tab-pane-text-left {
+    .ant-tabs-nav-list {
+      .ant-tabs-tab{
+        text-align: left!important;
+      }
     }
   }
   .ant-tabs >.ant-tabs-nav{

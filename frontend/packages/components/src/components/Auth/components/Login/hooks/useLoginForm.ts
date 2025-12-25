@@ -12,16 +12,19 @@ export type LoginEmitEvent =
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,
-  inviteInfo: InviteInfo,
+  opts: { inviteInfo: InviteInfo, edition?: string, authType?: string },
   emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToRegister') => void) &
-        ((e: 'forgetPassword') => void)
+        ((e: 'forgetPassword') => void) &
+        ((e: 'modifyPassword') => void)
  ) {
   const formRef = ref()
 
-  const formConfig = mode === 'PASSWORD' ? accountLoginFormConfig(!!inviteInfo) : phoneLoginFormConfig(!!inviteInfo)
+  let formConfig = mode === 'PASSWORD' ? accountLoginFormConfig(!!opts.inviteInfo, opts.edition, opts.authType) : phoneLoginFormConfig(!!opts.inviteInfo, opts.edition, opts.authType)
 
-  const initialData = (): LoginFormData => generateFormData(formConfig, mode === 'PASSWORD' ? { remember: false } : {}) as LoginFormData
+  const initialData = (): LoginFormData => formConfig
+    ? generateFormData(formConfig, mode === 'PASSWORD' ? { remember: false } : {}) as LoginFormData
+    : {} as LoginFormData
 
   const formData = reactive<LoginFormData>(initialData())
 
@@ -47,12 +50,14 @@ export function useLoginForm<M extends LoginMode>(
     if (event === 'submit') return handleSubmit()
     if (event === 'switchToRegister') return emit('switchToRegister')
     if (event === 'forgetPassword') return emit('forgetPassword')
+    if (event === 'modifyPassword') return emit('modifyPassword')
   }
 
   onMounted(() => {
     const remembered = getRememberUser()
-    if (mode === 'PASSWORD' && remembered) {
-      formData.phone = remembered.phone
+    if (mode === 'PASSWORD' && remembered && remembered.edition === opts.edition && remembered.authType === opts.authType) {
+      const accountKey = opts.authType === 'uap' ? 'phone' : 'loginName'
+      formData[accountKey] = remembered.account
       formData.password  = remembered.password
       formData.remember  = true
       formData.agreement = true

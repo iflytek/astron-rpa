@@ -1,10 +1,13 @@
 import CryptoJS from 'crypto-js'
+import type { Edition, AuthType } from '../interface'
 
 const KEY = 'Fh$8bR#mK2p@7vL!wQ9y^U4nE6j*T1&s'
 
 export interface RememberedUser {
-  phone: string
+  account: string
   password: string
+  edition: Edition 
+  authType: AuthType
 }
 
 export function saveSelectedTenant(tenantId: string) {
@@ -15,9 +18,9 @@ export function getSelectedTenant(): string | null {
   return localStorage.getItem('tenantId')
 }
 
-export function saveRememberUser(phone: string, pwdPlain: string) {
+export function saveRememberUser(account: string, pwdPlain: string, edition: Edition, authType: AuthType) {
   const encrypted = CryptoJS.AES.encrypt(pwdPlain, KEY).toString()
-  const val: RememberedUser = { phone, password: encrypted }
+  const val: RememberedUser = { account, password: encrypted, edition, authType }
   localStorage.setItem('user', JSON.stringify(val))
 }
 
@@ -25,9 +28,9 @@ export function getRememberUser(): RememberedUser | null {
   const raw = localStorage.getItem('user')
   if (!raw) return null
   try {
-    const { phone, password } = JSON.parse(raw) as RememberedUser
+    const { account, password, edition, authType } = JSON.parse(raw) as RememberedUser
     const decrypted = CryptoJS.AES.decrypt(password, KEY).toString(CryptoJS.enc.Utf8)
-    return { phone, password: decrypted }
+    return { account, password: decrypted, edition, authType }
   } catch {
     return null
   }
