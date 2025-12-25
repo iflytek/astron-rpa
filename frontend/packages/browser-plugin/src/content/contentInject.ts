@@ -326,7 +326,7 @@ const ContentHandler = {
     },
 
     scrollIntoView: async (data: ElementInfo) => {
-      const { matchTypes } = data
+      const { matchTypes, atomConfig } = data
       let scrollEle: HTMLElement[] | null
       try {
         scrollEle = await ContentHandler.ele.getElement(data)
@@ -335,10 +335,14 @@ const ContentHandler = {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
       if (scrollEle && scrollEle[0]) {
-        scrollEle[0].scrollIntoView({
-          behavior: 'instant',
-          block: 'center',
-        })
+        if (atomConfig && atomConfig.notCenter) {
+          scrollEle[0].scrollIntoView(false)
+        } else {
+          scrollEle[0].scrollIntoView({
+            behavior: 'instant',
+            block: 'center',
+          })
+        }
         return Utils.success(true)
       }
       else {
