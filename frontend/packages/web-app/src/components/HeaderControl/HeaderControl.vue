@@ -3,15 +3,15 @@ import { NiceModal } from '@rpa/components'
 import { Tooltip } from 'ant-design-vue'
 
 import { SettingCenterModal } from '@/components/SettingCenterModal'
-import { VUE_APP_COMMANDER, VUE_APP_HELP } from '@/constants'
+import { VUE_APP_COMMANDER } from '@/constants'
 import { utilsManager } from '@/platform'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 
 import MessageTip from '../MesssageTip/Index.vue'
 import UserInfo from './UserInfo.vue'
+import Help from './Help.vue'
 
 interface HeaderControlProps {
-  help?: boolean
   setting?: boolean
   control?: boolean
   message?: boolean
@@ -20,7 +20,6 @@ interface HeaderControlProps {
 
 // 控制按钮显示
 const props = withDefaults(defineProps<HeaderControlProps>(), ({
-  help: true,
   setting: true,
   control: false,
   message: true,
@@ -37,17 +36,12 @@ function handleToControl() {
   utilsManager.openInBrowser(VUE_APP_COMMANDER)
 }
 
-function handleHelpInfo() {
-  utilsManager.openInBrowser(VUE_APP_HELP)
-}
+
 </script>
 
 <template>
-  <Tooltip v-if="props.help" :title="$t('helperCenter')">
-    <span class="app_control__item" @click="handleHelpInfo">
-      <rpa-icon name="help-circle" />
-    </span>
-  </Tooltip>
+  <Help class="app_control__item" />
+
   <Tooltip v-if="props.setting" :title="$t('setting')">
     <span class="app_control__item" @click="handleOpenSetting">
       <rpa-icon name="setting" />

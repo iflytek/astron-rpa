@@ -23,6 +23,7 @@
     "@sentry/vue": "^9.22.0",
     "@vueuse/core": "^13.6.0",
     "ant-design-vue": "catalog:",
+    "await-to-js": "^3.0.0",
     "axios": "^1.7.4",
     "axios-retry": "^4.5.0",
     "casdoor-js-sdk": "^0.16.0",
