@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Dropdown } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { getTermianlStatus, startSchedulingMode } from '@/api/engine'
 import { sendTenantId } from '@/api/login/login'
@@ -13,10 +13,12 @@ import { useRoutePush } from '@/hooks/useCommonRoute'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
+import { useUserStore } from '@/stores/useUserStore'
 
 const { t } = useTranslation()
+const { userNameState } = useUserStore()
+const runningStore = useRunningStore()
 
-const userInfo = ref({ userName: '' })
 const auth = authService.getAuth()
 
 const menuData = computed(() => [
@@ -46,8 +48,7 @@ const menuData = computed(() => [
 ])
 
 async function menuClick(item: any) {
-  const res = await getTermianlStatus()
-  const { data: { running } } = res
+  const { data: { running } } = await getTermianlStatus()
   if (running) {
     modalTip()
     return
@@ -82,7 +83,7 @@ async function logout() {
   taskNotify({ event: 'exit' }) // 不阻塞
   auth.logout()
 }
-
+ 
 function modalTip() {
   const modal = GlobalModal.confirm({
     title: '警告',
@@ -92,39 +93,10 @@ function modalTip() {
     onOk() {
       console.log('User acknowledged the message')
       modal.destroy()
-      useRunningStore().stop(useRunningStore().getRunProjectId())
+      runningStore.stop(runningStore.getRunProjectId())
     },
   })
 }
-
-// 获取用户信息
-async function getUserInfoFn() {
-  const userName = await auth.getUserName()
-  userInfo.value.userName = userName || ''
-  // menuData.value.forEach((item) => {
-  //   if (item.key === 'userName') {
-  //     item.label = res.data?.loginName || ''
-  //     item.title = res.data?.loginName || ''
-  //   }
-  // })
-}
-// TODO 暂时隐藏租户空间
-// function getTenanListFn() {
-//   getTenanList().then((res: resOption) => {
-//     menuData.value[2].children = res.data.tenantDtos.map((item) => {
-//       return {
-//         key: item.id,
-//         icon: () => h(TeamOutlined),
-//         title: item.name,
-//         label: item.name,
-//       }
-//     })
-//   })
-// }
-
-getUserInfoFn()
-// TODO 暂时隐藏租户空间
-// getTenanListFn()
 </script>
 
 <template>
@@ -140,7 +112,7 @@ getUserInfoFn()
           </div>
           <div class="flex flex-col">
             <span class="font-semibold">{{ t('userInfo.userName') }}</span>
-            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userInfo.userName }}</span>
+            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userNameState.state }}</span>
           </div>
         </div>
         <a-menu-item v-for="item in menuData" :key="item.key">

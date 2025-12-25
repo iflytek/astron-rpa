@@ -17,7 +17,7 @@ function handleComplaint() {
 </script>
 
 <template>
-  <a-dropdown placement="bottomCenter">
+  <a-dropdown placement="bottom">
     <span :class="['cursor-pointer', props.class]">
       <rpa-icon name="help-circle" />
     </span>
@@ -25,7 +25,7 @@ function handleComplaint() {
     <template #overlay>
       <a-menu>
         <a-menu-item @click="handleHelpInfo">{{ $t('helperCenter') }}</a-menu-item>
-        <a-menu-item @click="handleComplaint">投诉举报</a-menu-item>
+        <a-menu-item @click="handleComplaint">{{ $t('complaint') }}</a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>

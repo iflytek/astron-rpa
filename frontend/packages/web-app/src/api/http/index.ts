@@ -17,6 +17,8 @@ import { getBaseURL, unauthorize } from './env'
 
 const auth = authService.getAuth()
 
+export type { AxiosProgressEvent } from 'axios'
+
 export interface RequestConfig<T = any, P = any> extends AxiosRequestConfig<P> {
   toast?: boolean
   loading?: boolean
