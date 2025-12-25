@@ -26,11 +26,11 @@ COPY backend/openapi-service/pyproject.toml backend/openapi-service/uv.lock ./
 # 复制rpawebsocket wheel文件
 COPY backend/openapi-service/app/utils/rpawebsocket-1.0.6-py3-none-any.whl ./
 
-# 安装项目依赖
-RUN pip install --no-cache-dir -e .
-
 # 安装本地rpawebsocket wheel文件
 RUN pip install --no-cache-dir rpawebsocket-1.0.6-py3-none-any.whl
+
+# 安装项目依赖
+RUN pip install --no-cache-dir -e .
 
 # 复制项目代码
 COPY backend/openapi-service/app/ ./app/
