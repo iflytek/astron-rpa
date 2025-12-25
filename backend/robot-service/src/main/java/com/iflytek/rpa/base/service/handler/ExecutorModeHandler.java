@@ -181,10 +181,12 @@ public class ExecutorModeHandler implements ParamModeHandler {
     private AppResponse<List<ParamDto>> createProcessHandle(
             RobotExecute executeInfo, String processId, Integer enabledVersion) throws JsonProcessingException {
         String mainProcessId = cParamDao.getMianProcessId(executeInfo.getRobotId(), enabledVersion);
-        if (processId == null || mainProcessId.equals(processId)) {
+        if (mainProcessId.equals(processId)) {
             if (executeInfo.getParamDetail() != null) {
                 return parseCustomParams(executeInfo.getParamDetail());
             }
+        } else {
+            processId = mainProcessId;
         }
         List<CParam> params = cParamDao.getSelfRobotParam(executeInfo.getRobotId(), processId, enabledVersion);
         return AppResponse.success(convertParams(params));
