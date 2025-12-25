@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Dropdown } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { getTermianlStatus, startSchedulingMode } from '@/api/engine'
 import { sendTenantId } from '@/api/login/login'
@@ -18,7 +18,7 @@ import { useUserStore } from '@/stores/useUserStore'
  
 const { t } = useTranslation()
 const userStore = useUserStore()
-const userInfo = ref({ userName: '' })
+const runningStore = useRunningStore()
 
 const menuData = computed(() => [
   // {
@@ -39,8 +39,7 @@ const menuData = computed(() => [
 ])
 
 async function menuClick(item: any) {
-  const res = await getTermianlStatus()
-  const { data: { running } } = res
+  const { data: { running } } = await getTermianlStatus()
   if (running) {
     modalTip()
     return
@@ -76,7 +75,7 @@ async function logout() {
   await userStore.logout()
   location.replace(`/boot.html`)
 }
-
+ 
 function modalTip() {
   const modal = GlobalModal.confirm({
     title: '警告',
@@ -86,18 +85,10 @@ function modalTip() {
     onOk() {
       console.log('User acknowledged the message')
       modal.destroy()
-      useRunningStore().stop(useRunningStore().getRunProjectId())
+      runningStore.stop(runningStore.getRunProjectId())
     },
   })
 }
-
-// 获取用户信息
-function getUserInfoFn() {
-  const user = userStore.getUserInfo()
-  userInfo.value.userName = user?.loginName || ''
-}
-
-getUserInfoFn() 
 </script>
 
 <template>
@@ -113,7 +104,7 @@ getUserInfoFn()
           </div>
           <div class="flex flex-col">
             <span class="font-semibold">{{ t('userInfo.userName') }}</span>
-            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userInfo.userName }}</span>
+            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.loginName }}</span>
           </div>
         </div>
         <!-- TODO -->

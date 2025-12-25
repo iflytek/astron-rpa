@@ -15,6 +15,8 @@ import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 import { getBaseURL, unauthorize } from './env'
 
 
+export type { AxiosProgressEvent } from 'axios'
+
 export interface RequestConfig<T = any, P = any> extends AxiosRequestConfig<P> {
   toast?: boolean
   loading?: boolean
