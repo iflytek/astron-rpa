@@ -19,7 +19,7 @@ export type RegisterEmitEvent =
 
 export function useRegisterForm<M extends RegisterMode>(
   mode: M,
-  inviteInfo: InviteInfo | null,
+  opts: { inviteInfo: InviteInfo, edition?: string, authType?: string },
   emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToLogin') => void) &
         ((e: 'switchToPersonal') => void) &
@@ -27,14 +27,25 @@ export function useRegisterForm<M extends RegisterMode>(
 ) {
   const formRef = ref()
 
+  type TData = M extends 'PERSONAL' ? PersonalRegisterFormData : EnterpriseRegisterFormData
+
+  const formData = reactive<TData>({
+    loginName: '',
+    phone: '',
+    oldPassword: '',
+    password: '',
+    confirmPassword: '',
+    captcha: '',
+    agreement: false,
+  } as unknown as TData)
+
   const formConfig = mode === 'PERSONAL'
-    ? personalRegisterFormConfig(!!inviteInfo)
+    ? personalRegisterFormConfig(formData, !!opts.inviteInfo, opts.edition, opts.authType)
     : enterpriseRegisterFormConfig()
     
-  type TData = M extends 'PERSONAL' ? PersonalRegisterFormData : EnterpriseRegisterFormData
   const initialData = () => generateFormData(formConfig as any) as TData
 
-  const formData = reactive<TData>(initialData())
+  Object.assign(formData, initialData())
 
   const handleSubmit = async () => {
     try {

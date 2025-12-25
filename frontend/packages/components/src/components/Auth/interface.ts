@@ -1,9 +1,11 @@
 import { functionType, stringType } from '../../utils/type'
 
+export type Edition = 'saas' | 'enterprise'
+export type AuthType = 'uap' | 'casdoor'
 export type LoginMode = 'PASSWORD' | 'CODE'
 export type RegisterMode = 'PERSONAL' | 'ENTERPRISE'
-export type AuthFormMode = 'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect' | 'forgotPasswordWithSysUpgrade' | 'setPasswordWithSysUpgrade'
-export type AsyncAction = 'IDLE' | 'PASSWORD' | 'CODE' | 'PERSONAL' | 'ENTERPRISE' | 'FORGOT_PASSWORD' | 'SET_PASSWORD' | 'CHOOSE_TENANT'
+export type AuthFormMode = 'login' | 'register' | 'forgotPassword' | 'setPassword' | 'tenantSelect' | 'forgotPasswordWithSysUpgrade' | 'setPasswordWithSysUpgrade' | 'modifyPassword'
+export type AsyncAction = 'IDLE' | 'PASSWORD' | 'CODE' | 'PERSONAL' | 'ENTERPRISE' | 'FORGOT_PASSWORD' | 'SET_PASSWORD' | 'MODIFY_PASSWORD' | 'CHOOSE_TENANT'
 
 export interface LoginFormData {
   loginName?: string
@@ -15,6 +17,7 @@ export interface LoginFormData {
   loginType?: "CODE" | "PASSWORD",
   tenantId?: string
   confirmPassword?: string
+  oldPassword?: string
 }
 
 export interface TenantItem {

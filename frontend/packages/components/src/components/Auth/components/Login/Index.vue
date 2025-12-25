@@ -3,14 +3,17 @@ import Login from './Login.vue'
 import Register from './Register.vue'
 import ForgotPassword from './ForgotPassword.vue'
 import SetPassword from './SetPassword.vue'
+import ModifyPassword from './ModifyPassword.vue'
 import TenantSelect from './TenantSelect.vue'
-import type { InviteInfo } from '../../interface'
+import type { Edition, AuthType, InviteInfo } from '../../interface'
 
 import { useAuthFlow } from './hooks/useAuthFlow'
 
 const props = defineProps({
   baseUrl: { type: String },
   inviteInfo: { type: Object as () => InviteInfo, default: () => null },
+  edition: { type: String as () => Edition, default: 'saas' },
+  authType: { type: String as () => AuthType, default: 'uap' },
 })
 const emits = defineEmits(['finish'])
 
@@ -22,6 +25,7 @@ const {
   handleRegister,
   handleForgotPassword,
   handleSetPassword,
+  handleModifyPassword,
   handleChooseTenant,
   switchMode,
 } = useAuthFlow(props, emits)
@@ -32,14 +36,19 @@ const {
     <Login
       v-if="currentFormMode === 'login'"
       :invite-info="inviteInfo"
+      :edition="edition"
+      :auth-type="authType"
       :running="running"
       @submit="preLogin"
       @switch-to-register="() => switchMode('register')"
       @forget-password="() => switchMode('forgotPassword')"
+      @modify-password="() => switchMode('modifyPassword')"
     />
 
     <Register
       v-else-if="currentFormMode === 'register'"
+      :edition="edition"
+      :auth-type="authType"
       :running="running"
       :invite-info="inviteInfo"
       @submit="handleRegister"
@@ -63,9 +72,21 @@ const {
       @switch-to-login="() => switchMode('login')"
     />
 
+    <ModifyPassword
+      v-else-if="['modifyPassword' ].includes(currentFormMode)"
+      :running="running"
+      :invite-info="inviteInfo"
+      :edition="edition"
+      :auth-type="authType"
+      @submit="handleModifyPassword"
+      @switch-to-login="() => switchMode('login')"
+    />
+
     <TenantSelect
       v-else-if="currentFormMode === 'tenantSelect'"
       :invite-info="inviteInfo"
+      :edition="edition"
+      :auth-type="authType"
       :running="running"
       :tenants="tenants"
       @submit="handleChooseTenant"

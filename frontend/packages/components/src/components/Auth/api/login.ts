@@ -91,3 +91,9 @@ export const userInfo = async () => {
   const { data } = await http.get('/rpa-auth/user/info')
   return data
 }
+
+// 修改密码
+export const modifyPassword = async (params: LoginFormData) => {
+  const { data } = await http.post('/rpa-auth/user/password/modify', params)
+  return data
+}

@@ -4,8 +4,12 @@ import StatusCard from '../Base/StatusCard.vue'
 import InviteUserInfo from '../Base/InviteUserInfo.vue'
 import { useInviteFlow } from './hooks/useInviteFlow'
 
-const { baseUrl } = defineProps({
+import type { Edition, AuthType } from '../../interface'
+
+const props = defineProps({
   baseUrl: { type: String },
+  edition: { type: String as () => Edition, default: 'saas' },
+  authType: { type: String as () => AuthType, default: 'uap' },
 })
 
 const emit = defineEmits<{
@@ -29,7 +33,7 @@ const {
       :title="'邀请链接已失效'"
       :desc="`请联系管理员获得新的链接`"
      />
-    <Login v-else-if="currentStatus === 'needLogin'" :base-url="baseUrl" :invite-info="inviteInfo" @finish="toJoin" />
+    <Login v-else-if="currentStatus === 'needLogin'" :base-url="baseUrl" :invite-info="inviteInfo" :edition="edition" :auth-type="authType" @finish="toJoin" />
     <InviteUserInfo v-else-if="currentStatus === 'showUserInfo'" 
       :invite-info="inviteInfo"
       :current-user="currentUser"

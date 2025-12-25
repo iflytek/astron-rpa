@@ -8,6 +8,7 @@ import {
   setPassword,
   tenantList,
   isHistory,
+  modifyPassword
 } from '../../../api/login'
 import type {
   LoginFormData,
@@ -20,11 +21,13 @@ import type {
 } from '../../../interface'
 import { saveRememberUser, clearRememberUser, saveSelectedTenant, getSelectedTenant, saveUserInfo } from '../../../utils/remember'
 import { message } from 'ant-design-vue'
-import type { InviteInfo } from '../../../interface'
+import type { Edition, AuthType, InviteInfo } from '../../../interface'
 
 export interface UseAuthFlowOptions {
   baseUrl?: string
   inviteInfo?: InviteInfo
+  authType?: AuthType
+  edition?: Edition
 }
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish'): void}) {
@@ -104,7 +107,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
         }
         return
       }
-      mode === 'PASSWORD' && params.remember && params.phone && params.password ? saveRememberUser(params.phone, params.password) : clearRememberUser()
+      const account = params.phone || params.loginName
+      mode === 'PASSWORD' && params.remember && account  && params.password ? saveRememberUser(account, params.password, opts.edition, opts.authType) : clearRememberUser()
       delete params.remember
       delete params.agreement
       const token = await preAuthenticate(params)
@@ -158,6 +162,12 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     switchToTenants()
   })
 
+  const handleModifyPassword = async (data: LoginFormData) => run('MODIFY_PASSWORD', async () => {
+    await modifyPassword(data)
+    message.success('密码修改成功')
+    switchToTenants()
+  })
+
   const handleChooseTenant = async (tenantId: string) => {
     await handleLogin(tenantId)
   }
@@ -174,6 +184,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     handleRegister,
     handleForgotPassword,
     handleSetPassword,
+    handleModifyPassword,
     handleChooseTenant,
     switchMode,
   }

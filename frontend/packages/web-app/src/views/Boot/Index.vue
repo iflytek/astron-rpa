@@ -13,6 +13,7 @@ import { Auth } from '@rpa/components/auth'
 import { getBaseURL } from '@/api/http/env'
 import { theme } from 'ant-design-vue'
 import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
+const ENV = import.meta.env
 
 const { token } = theme.useToken()
 
@@ -98,7 +99,7 @@ onUnmounted(() => {
           </LaunchCarousel>
         </div>
       </template>
-      <Auth.LoginForm v-if="isLogin" :base-url="getBaseURL()" @finish="loginSuccess" />
+      <Auth.LoginForm v-if="isLogin" :base-url="getBaseURL()" :auth-type="ENV.VITE_AUTH_TYPE" :edition="ENV.VITE_EDITION" @finish="loginSuccess" />
     </Auth.PageLayout>
     <Loading />
   </ConfigProvider>
