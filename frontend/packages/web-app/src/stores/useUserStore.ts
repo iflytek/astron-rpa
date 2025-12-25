@@ -12,8 +12,6 @@ export const useUserStore = defineStore('user', () => {
   // 获取用户名
   const userNameState = useAsyncState(() => auth.getUserName(), '')
 
-  console.log(userNameState)
-
   const loginStatus = computed(() => {
     return loginType.value !== 'offline'
   }) // 登录状态 false离线true在线

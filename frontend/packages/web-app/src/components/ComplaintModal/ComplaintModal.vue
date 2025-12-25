@@ -8,7 +8,7 @@ import { message } from 'ant-design-vue'
 
 import { useUserStore } from '@/stores/useUserStore'
 import { uploadFile } from '@/api/resource'
-import { AIfeedback } from '@/api/common'
+import { aiFeedback } from '@/api/common'
 
 const modal = NiceModal.useModal()
 const { userNameState } = useUserStore()
@@ -19,8 +19,8 @@ interface ICheckboxOption {
 }
 
 interface IFormData {
-  content: string[]
-  defect: string[]
+  contentSafety: string[]
+  functionalDefect: string[]
   description: string
   attachments: UploadFile[]
 }
@@ -69,8 +69,8 @@ const [DefineTemplate, ReuseTemplate] = createReusableTemplate<{ options: ICheck
 
 
 const formData = reactive<IFormData>({
-  content: [],
-  defect: [],
+  contentSafety: [],
+  functionalDefect: [],
   description: '',
   attachments: []
 })
@@ -108,14 +108,14 @@ const handleSubmit = async () => {
     return;
   }
 
-  const [error] = await to(AIfeedback({
+  const [error] = await to(aiFeedback({
     username: userNameState.state,
     categories: JSON.stringify({
-      "内容安全类": formData.content,
-      "功能缺陷类": formData.defect,
+      "内容安全类": formData.contentSafety,
+      "功能缺陷类": formData.functionalDefect,
     }),
     description: formData.description,
-    imageIds
+    imageIds: imageIds.filter(Boolean)
   }))
 
   error ? message.error('提交失败，请稍后重试') : message.success('举报已受理，感谢您的反馈')
@@ -141,12 +141,12 @@ const handleSubmit = async () => {
 
     <a-form layout="vertical">
       <a-form-item label="内容安全类">
-        <a-checkbox-group v-model:value="formData.content" class="grid grid-cols-2 gap-3">
+        <a-checkbox-group v-model:value="formData.contentSafety" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="CONTENT_OPTIONS" />
         </a-checkbox-group>
       </a-form-item>
       <a-form-item label="功能缺陷类">
-        <a-checkbox-group v-model:value="formData.defect" class="grid grid-cols-2 gap-3">
+        <a-checkbox-group v-model:value="formData.functionalDefect" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="DEFECT_OPTIONS" />
         </a-checkbox-group>
       </a-form-item>
