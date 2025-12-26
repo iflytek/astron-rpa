@@ -28,7 +28,12 @@ const {
   handleModifyPassword,
   handleChooseTenant,
   switchMode,
+  autoPreLogin,
 } = useAuthFlow(props, emits)
+
+defineExpose({
+  autoPreLogin,
+})
 </script>
 
 <template>

@@ -1,20 +1,21 @@
-import { useUserStore } from '@/stores/useUserStore'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 
 import { useRouteList } from './useCommonRoute'
 
 export function useTopMenu() {
-  const userStore = useUserStore()
+  const permStore = usePermissionStore()
   const routes = useRouteList()
 
-  const menuPermiss = {
-    APPLICATIONMARKET: () => userStore.loginStatus,
-    AIASSISTANT: () => userStore.loginStatus,
-  }
-
   return routes
-    .filter((route) => {
-      const isShow = menuPermiss[route.name]?.() ?? true
-      return route.meta?.show && isShow
+    .filter(route => {
+      if (!route.meta?.show) return false
+      if (route.meta?.permission) {
+        const res = typeof route.meta.resource === 'string'
+          ? route.meta.resource
+          : String(route.name)
+        return permStore.can(res, 'all')
+      }
+      return true
     })
     .map(route => ({
       group: route.name as string,

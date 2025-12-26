@@ -116,6 +116,7 @@ defineExpose({
           :placeholder="field.placeholder"
           v-bind="field.props"
           :options="field.options"
+          :get-popup-container="(triggerNode) => triggerNode.parentNode"
         />          
         <Checkbox
           v-else-if="field.type === 'checkbox'"

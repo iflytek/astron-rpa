@@ -18,7 +18,7 @@ export function getSelectedTenant(): string | null {
   return localStorage.getItem('tenantId')
 }
 
-export function saveRememberUser(account: string, pwdPlain: string, edition: Edition, authType: AuthType) {
+export function saveRememberUser(account: string, pwdPlain: string, edition: Edition = 'saas', authType: AuthType = 'uap') {
   const encrypted = CryptoJS.AES.encrypt(pwdPlain, KEY).toString()
   const val: RememberedUser = { account, password: encrypted, edition, authType }
   localStorage.setItem('user', JSON.stringify(val))

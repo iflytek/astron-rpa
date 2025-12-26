@@ -2,7 +2,7 @@ import PageLayout from './components/Base/PageLayout.vue'
 import LoginForm from './components/Login/Index.vue'
 import LoginPage from './pages/LoginPage.vue'
 import TenantDropdown from './components/Login/TenantDropdown.vue'
-import TenantUpgradeBtn from './components/Base/TenantUpgradeBtn.vue'
+import Consult from './components/Base/Consult.vue'
 import Invite from './components/Invite/Index.vue'
 import InvitePage from './pages/InvitePage.vue'
 import { logout } from './api/login'
@@ -13,7 +13,7 @@ export const Auth = {
   LoginForm,
   LoginPage,
   TenantDropdown,
-  TenantUpgradeBtn,
+  Consult,
   InvitePage,
   Invite,
   logout,

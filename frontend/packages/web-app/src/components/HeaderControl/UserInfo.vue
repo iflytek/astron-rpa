@@ -13,7 +13,7 @@ import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
- import { Auth } from '@rpa/components/auth'
+import { Auth } from '@rpa/components/auth'
  
 const { t } = useTranslation()
  const runningStore = useRunningStore()
@@ -107,8 +107,15 @@ function modalTip() {
             <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.loginName }}</span>
           </div>
         </div>
-        <!-- TODO -->
-        <!-- <Auth.TenantUpgradeBtn v-if="userStore.currentTenant?.tenantType === 'personal'" :custom-class="'upgrade-btn'"/> -->
+        <Auth.Consult 
+          v-if="userStore.currentTenant?.tenantType !== 'enterprise'" 
+          :trigger="'button'" 
+          :button-conf="{ buttonType: 'tag', currentEdition: userStore.currentTenant?.tenantType, expiredDate: userStore.currentTenant?.expiredDate }"
+          :custom-class="'upgrade-btn'" 
+          :consult="{
+            consultType: userStore.currentTenant?.expiredDate ? 'renewal' : 'consult',
+            consultEdition: userStore.currentTenant?.tenantType as 'professional' | 'enterprise',
+          }"/>
         <a-menu-item v-for="item in menuData" :key="item.key">
           <template #icon>
             <rpa-icon :name="item.icon" class="w-[16px] h-[16px] text-[rgba(0,0,0)] dark:text-[rgba(255,255,255)]" />

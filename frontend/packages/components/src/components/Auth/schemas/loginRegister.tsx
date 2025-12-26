@@ -211,8 +211,29 @@ export const personalRegisterFormConfig = (formData: any, isInvite = false, edit
   return conf
 }
 
-// 企业注册表单配置, 仅saas版uap认证体系有企业版注册功能
-export const enterpriseRegisterFormConfig = (): FormConfig => {
+// 企业注册咨询表单配置, 仅saas版uap认证体系有企业版注册咨询功能
+export const consultFormConfig = (consultType: 'renewal' | 'consult' = 'consult', consultEdition: 'professional' | 'enterprise'): FormConfig => {
+  if(consultType === 'renewal') {
+    // 企业咨询续费表单配置
+    return {
+      layout: 'vertical',
+      fields: [
+        fieldFactories.companyName(),
+        {
+          ...fieldFactories.phone(), 
+          placeholder: '请输入您的或者负责人的手机号'
+        },
+        fieldFactories.renewalDuration(consultEdition)
+      ],
+      actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void; loading?: boolean }) => (
+        <div class="w-full absolute bottom-0">
+          <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+            {loading ? '提交中...' : '提交申请'}
+          </Button>
+        </div>
+      )
+    }
+  }
   return {
     layout: 'vertical',
     fields: [

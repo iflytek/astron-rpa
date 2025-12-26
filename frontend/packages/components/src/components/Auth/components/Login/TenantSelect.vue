@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
+import Consult from '../Base/Consult.vue'
 import type { TenantItem, InviteInfo } from '../../interface'
 
 const props = defineProps({
@@ -15,9 +16,33 @@ const emit = defineEmits<{
   switchToLogin: []
 }>()
 
+const tenantTypeMap = {
+  personal: '个人免费版',
+  professional: '专业版',
+  enterprise: '企业版'
+}
 const selectedTenant = ref('')
+const consultRef = ref<InstanceType<typeof Consult> | null>(null)
+
 function handleSelect (tenant: TenantItem) {
   selectedTenant.value = tenant.id
+  if(tenant.isExpired) {
+    consultRef.value?.init({
+      trigger: 'modal',
+      modalConfirm: {
+        title: '租户已过期',
+        content: `该${tenantTypeMap[tenant.tenantType]}空间已到期，请续费办理`,
+        okText: '咨询办理',
+        cancelText: '我知道了',
+      },
+      consult: {
+        consultTitle: `续费`,
+        consultEdition: tenant.tenantType as 'professional' | 'enterprise',
+        consultType: 'renewal',
+      }
+    })
+    return
+  }
   emit('submit', tenant.id)
 }
 </script>
@@ -39,5 +64,6 @@ function handleSelect (tenant: TenantItem) {
         @click="() => handleSelect(tenant)"
       />
     </div>
-  </FormLayout> 
+    <Consult ref="consultRef" :trigger="'modal'"/>
+  </FormLayout>
 </template>
