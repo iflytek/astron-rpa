@@ -296,6 +296,25 @@ class OpenpyxlWrapper:
         for r_idx, row_data in enumerate(data):
             for c_idx, cell_value in enumerate(row_data):
                 self.sheet.cell(row=min_row + r_idx, column=min_col + c_idx, value=cell_value)
+                
+    def fill_data_table_by_import_file(self, import_file_path: str, delimiter: str = ",", include_header: bool = True):
+        ext = os.path.splitext(import_file_path)[1].lower()
+        if ext == ".csv":
+            with open(import_file_path, newline="", encoding="utf-8") as csvfile:
+                reader = csv.reader(csvfile, delimiter=delimiter)
+                for row_data in reader:
+                    self.sheet.append(row_data)
+        if ext in [".xlsx", ".xls"]:
+            import_wrapper = OpenpyxlWrapper(file_path=import_file_path)
+            data = import_wrapper.read_effective_area()
+            start_row = 1
+            if not include_header:
+                data = data[1:]
+            for r_idx, row_data in enumerate(data):
+                for c_idx, cell_value in enumerate(row_data):
+                    self.sheet.cell(row=start_row + r_idx, column=1 + c_idx, value=cell_value)
+            import_wrapper.close()
+        
 
     def insert_cells(self, row: int, col: int, amount: int = 1):
         """

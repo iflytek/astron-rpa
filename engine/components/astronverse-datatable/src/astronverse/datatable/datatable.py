@@ -978,6 +978,7 @@ class DataTable:
 
     @staticmethod
     @auto_save
+    @validate_cell
     @atomicMg.atomic(
         "DataTable",
         inputList=[
@@ -1025,6 +1026,8 @@ class DataTable:
         """
         find_data_positions = []
         if find_type == FindType.COLUMN:
+            if col is None:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列不能为空"), "列不能为空")
             col_index = col_to_index(col)
             column_data = PyxlWrapper.read_column(col_index=col_index)
             for r, cell_value in enumerate(column_data, start=1):
@@ -1032,13 +1035,13 @@ class DataTable:
                     cell_str = str(cell_value)
                     if is_case_sensitive:
                         if find_value in cell_str:
-                            find_data_positions.append((r, col_index))
+                            find_data_positions.append((r, col))
                             if is_repalce:
                                 new_value = cell_str.replace(find_value, replace_value)
                                 PyxlWrapper.write_cell(row=r, col=col_index, value=new_value)
                     else:
                         if find_value.lower() in cell_str.lower():
-                            find_data_positions.append((r, col_index))
+                            find_data_positions.append((r, col))
                             if is_repalce:
                                 new_value = cell_str.replace(find_value, replace_value)
                                 PyxlWrapper.write_cell(row=r, col=col_index, value=new_value)
@@ -1048,16 +1051,15 @@ class DataTable:
             for r in range(1, max_row + 1):
                 for c in range(1, max_col + 1):
                     cell_value = PyxlWrapper.read_cell(row=r, col=c)
-                    if cell_value is not None and find_value in str(cell_value):
+                    if cell_value is not None and str(find_value) in str(cell_value):
                         if is_case_sensitive:
-                            if find_value in str(cell_value):
-                                find_data_positions.append((r, c))
-                                if is_repalce:
-                                    new_value = str(cell_value).replace(find_value, replace_value)
-                                    PyxlWrapper.write_cell(row=r, col=c, value=new_value)
+                            find_data_positions.append((r, index_to_col(c - 1)))
+                            if is_repalce:
+                                new_value = str(cell_value).replace(find_value, replace_value)
+                                PyxlWrapper.write_cell(row=r, col=c, value=new_value)
                         else:
-                            if find_value.lower() in str(cell_value).lower():
-                                find_data_positions.append((r, c))
+                            if str(find_value).lower() in str(cell_value).lower():
+                                find_data_positions.append((r, index_to_col(c)))
                                 if is_repalce:
                                     new_value = str(cell_value).replace(find_value, replace_value)
                                     PyxlWrapper.write_cell(row=r, col=c, value=new_value)
@@ -1164,15 +1166,32 @@ class DataTable:
 
         if is_save_filtered:
             if filter_type == FilterType.COLUMN:
-                PyxlWrapper.write_column(col_index=col_index, data=data_filtered)
+                PyxlWrapper.empty_column(col_index=col_index)
+                DataTable.write_data(
+                    write_type=WriteType.COLUMN,
+                    col=col,
+                    start_row=1,
+                    data=data_filtered,
+                    write_mode=WriteMode.OVERWRITE,
+                )
             elif filter_type == FilterType.ROW:
-                PyxlWrapper.write_row(row_index=row, data=data_filtered)
+                PyxlWrapper.empty_row(row_index=row)
+                DataTable.write_data(
+                    write_type=WriteType.ROW,
+                    row=row,
+                    data=data_filtered,
+                    write_mode=WriteMode.OVERWRITE,
+                )
             else:
+                PyxlWrapper.clear_range(
+                    range_str=f"A1:{index_to_col(PyxlWrapper.get_max_column() - 1)}{PyxlWrapper.get_max_row()}",
+                )
                 DataTable.write_data(
                     write_type=WriteType.AREA,
                     start_row=1,
                     start_col="A",
                     data=data_filtered,
+                    write_mode=WriteMode.OVERWRITE,
                 )
 
         return data_filtered
@@ -1210,9 +1229,23 @@ class DataTable:
         """
         if not import_file_path:
             raise DATAFRAME_EXPECTION(IMPORT_FILE_ERROR_FORMAT.format("导入文件路径不能为空"), "导入文件路径不能为空")
+        if os.path.splitext(import_file_path)[1].lower() not in [".xlsx", ".xls", ".csv"]:
+            raise DATAFRAME_EXPECTION(
+                IMPORT_FILE_ERROR_FORMAT.format(""),
+                "仅支持导入Excel(.xlsx, .xls)和CSV(.csv)文件",
+            )
+        if not os.path.exists(import_file_path):
+            raise DATAFRAME_EXPECTION(
+                IMPORT_FILE_ERROR_FORMAT.format(""),
+                f"文件不存在: {import_file_path}",
+            )
 
-        global PyxlWrapper
-        PyxlWrapper = OpenpyxlWrapper(file_path=import_file_path, sheet_name=sheet_name)
+        PyxlWrapper.clear_range(
+            range_str=f"A1:{index_to_col(PyxlWrapper.get_max_column() - 1)}{PyxlWrapper.get_max_row()}",
+        )
+        PyxlWrapper.fill_data_table_by_import_file(
+            import_file_path=import_file_path,
+        )
 
     @staticmethod
     @atomicMg.atomic(

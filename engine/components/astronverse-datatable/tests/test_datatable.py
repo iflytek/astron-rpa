@@ -5,10 +5,12 @@ from astronverse.datatable import (
     CellInsertShift,
     ColumnInsertShift,
     CopyType,
+    ConditionType,
     DeleteCellMove,
     DeleteType,
     ExportFileType,
     FilterType,
+    FindType,
     InsertType,
     PasteType,
     PasteValueType,
@@ -216,7 +218,7 @@ class TestDataTable(TestCase):
     def test_sort_table(self):
         DataTable().sort_table(
             col="B",
-            sort_type=SortOrder.ASCENDING,
+            sort_type=SortOrder.DESCENDING,
         )
         
     def test_insert_row_column(self):
@@ -235,9 +237,9 @@ class TestDataTable(TestCase):
     def test_insert_formula(self):
         dt = DataTable()
         dt.insert_formula(
-            row=2,
+            row=3,
             col="D",
-            formula="=A2+B2+C2"
+            formula="=SUM(A3,B3)"
         )
     
     def test_set_column_title(self):
@@ -256,15 +258,62 @@ class TestDataTable(TestCase):
         
     def test_find_and_replace(self):
         dt = DataTable()
-        dt.find_and_replace(
-            find_value="old_value",
-            replace_value="new_value"
+        data = dt.find_and_replace(
+            find_type=FindType.COLUMN,
+            col='B',
+            find_value="third",
+            replace_value="3",
+            is_repalce=True,
+            is_case_sensitive=False,
         )
+        print(data)
     
-    def test_filter_data_table(self):
+    def test_filter_data_table_column(self):
         dt = DataTable()
         filtered_dt = dt.filter_data_table(
-            filter_type=FilterType.COLUMN
+            filter_type=FilterType.COLUMN,
+            col="F",
+            condition_type=ConditionType.GREATER_THAN,
+            condition_value="5",
+            is_case_sensitive=True,
+            is_save_filtered=True,
+        )
+        print(filtered_dt)
+        
+    def test_filter_data_table_row(self):
+        dt = DataTable()
+        filtered_dt = dt.filter_data_table(
+            filter_type=FilterType.ROW,
+            row=5,
+            condition_type=ConditionType.LESS_THAN,
+            condition_value="8",
+            is_case_sensitive=False,
+            is_save_filtered=True,
+        )
+        print(filtered_dt)
+        
+    def test_filter_data_table_table(self):
+        dt = DataTable()
+        filtered_dt = dt.filter_data_table(
+            filter_type=FilterType.TABLE,
+            condition_type=ConditionType.IS_NOT_EMPTY,
+            condition_value="",
+            is_case_sensitive=False,
+            is_save_filtered=True,
+        )
+        print(filtered_dt)
+        
+    def test_filter_data_table_date_range(self):
+        dt = DataTable()
+        filtered_dt = dt.filter_data_table(
+            filter_type=FilterType.COLUMN,
+            col="A",
+            condition_type=ConditionType.DATE_BETWEEN,
+            condition_value="",
+            date_value="2023-01-01",
+            date_range="2023-01-01,2023-12-31",
+            is_case_sensitive=False,
+            is_save_filtered=False,
         )
         print(filtered_dt)
         

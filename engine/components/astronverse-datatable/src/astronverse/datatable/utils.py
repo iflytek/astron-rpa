@@ -103,12 +103,14 @@ def filter_data(
                 date_ragne=date_range,
                 is_case_sensitive=is_case_sensitive,
             ):
+                if isinstance(item, datetime):
+                    item = item.strftime("%Y-%m-%d %H:%M:%S")
                 filtered_data.append(item)
     return filtered_data
 
 
 def value_check(
-    value: str, condition_type: ConditionType, condition_value: str, date_value, date_ragne, is_case_sensitive: bool
+    value: any, condition_type: ConditionType, condition_value: str, date_value, date_ragne, is_case_sensitive: bool
 ) -> bool:
     """过滤处理器"""
     val = value
@@ -120,46 +122,66 @@ def value_check(
         cond_val = cond_val.lower()
 
     if condition_type == ConditionType.EQUALS:
-        return val == cond_val
+        return str(val) == str(cond_val)
     elif condition_type == ConditionType.NOT_EQUALS:
-        return val != cond_val
+        return str(val) != str(cond_val)
     elif condition_type == ConditionType.GREATER_THAN:
-        return val > cond_val
+        try:
+            val_num = float(val)
+            cond_val_num = float(cond_val)
+            return val_num > cond_val_num
+        except (ValueError, TypeError):
+            return False
     elif condition_type == ConditionType.LESS_THAN:
-        return val < cond_val
+        try:
+            val_num = float(val)
+            cond_val_num = float(cond_val)
+            return val_num < cond_val_num
+        except (ValueError, TypeError):
+            return False
     elif condition_type == ConditionType.GREATER_THAN_OR_EQUAL:
-        return val >= cond_val
+        try:
+            val_num = float(val)
+            cond_val_num = float(cond_val)
+            return val_num >= cond_val_num
+        except (ValueError, TypeError):
+            return False
     elif condition_type == ConditionType.LESS_THAN_OR_EQUAL:
-        return val <= cond_val
+        try:
+            val_num = float(val)
+            cond_val_num = float(cond_val)
+            return val_num <= cond_val_num
+        except (ValueError, TypeError):
+            return False
     elif condition_type == ConditionType.CONTAINS:
-        return isinstance(val, str) and cond_val in val
+        return str(val).find(str(cond_val)) != -1
     elif condition_type == ConditionType.NOT_CONTAINS:
-        return isinstance(val, str) and cond_val not in val
+        return str(val).find(str(cond_val)) == -1
     elif condition_type == ConditionType.IS_EMPTY:
         return val is None or val == ""
     elif condition_type == ConditionType.IS_NOT_EMPTY:
         return val is not None and val != ""
     elif condition_type == ConditionType.STARTS_WITH:
-        return isinstance(val, str) and val.startswith(cond_val)
+        return str(val).startswith(str(cond_val))
     elif condition_type == ConditionType.ENDS_WITH:
-        return isinstance(val, str) and val.endswith(cond_val)
+        return str(val).endswith(str(cond_val))
     elif condition_type == ConditionType.DATE_AFTER:
         try:
-            val_date = datetime.strptime(val, "%Y-%m-%d")
+            val_date = val if isinstance(val, datetime) else datetime.strptime(val, "%Y-%m-%d")
             cond_date = datetime.strptime(date_value, "%Y-%m-%d")
             return val_date > cond_date
         except (ValueError, TypeError):
             return False
     elif condition_type == ConditionType.DATE_BEFORE:
         try:
-            val_date = datetime.strptime(val, "%Y-%m-%d")
+            val_date = val if isinstance(val, datetime) else datetime.strptime(val, "%Y-%m-%d")
             cond_date = datetime.strptime(date_value, "%Y-%m-%d")
             return val_date < cond_date
         except (ValueError, TypeError):
             return False
     elif condition_type == ConditionType.DATE_BETWEEN:
         try:
-            val_date = datetime.strptime(val, "%Y-%m-%d")
+            val_date = val if isinstance(val, datetime) else datetime.strptime(val, "%Y-%m-%d")
             start_date_str, end_date_str = date_ragne.split(",")
             start_date = datetime.strptime(start_date_str.strip(), "%Y-%m-%d")
             end_date = datetime.strptime(end_date_str.strip(), "%Y-%m-%d")
