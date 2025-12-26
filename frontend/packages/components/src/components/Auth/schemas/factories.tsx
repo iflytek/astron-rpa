@@ -274,6 +274,19 @@ export const fieldFactories = {
         </div>
       )
     }
+  }),
+  renewalDuration: (consultEdition: 'professional' | 'enterprise'): FieldSchema => ({
+    key: 'renewalDuration',
+    label: '续费时长',
+    type: 'select',
+    options: [
+      { label: '6个月', value: '6个月', consultEditions: ['professional'] },
+      { label: '1年', value: '1年', consultEditions: ['professional', 'enterprise'] },
+      { label: '2年', value: '2年', consultEditions: ['professional', 'enterprise'] },
+      { label: '3年', value: '3年', consultEditions: ['enterprise'] },
+    ].filter(opt => opt.consultEditions.includes(consultEdition)),
+    placeholder: '请选择续费时长',
+    rules: [required('请选择续费时长')]
   })
 }
 

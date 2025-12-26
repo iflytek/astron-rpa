@@ -122,7 +122,7 @@ class HttpClient {
         }
         
         if (UN_AUTHORIZED_CODES.includes(response.data.code) || response.data.ret === 302) {
-          unauthorize()
+          unauthorize(response)
         }
 
         if (response.headers.token) {

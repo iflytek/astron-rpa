@@ -54,7 +54,7 @@ export const tenantList = async (tempToken?: string) => {
 }
 
 // 正式登录
-export const login = async (params: { tempToken: string, tenantId: string }) => {
+export const login = async (params: { tempToken: string, tenantId: string, platform: string }) => {
   const { data } = await http.postparams('/rpa-auth/login', params)
   return data
 }

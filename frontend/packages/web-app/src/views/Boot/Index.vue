@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
@@ -13,13 +13,16 @@ import { Auth } from '@rpa/components/auth'
 import { getBaseURL } from '@/api/http/env'
 import { theme } from 'ant-design-vue'
 import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
+import { expiredModal } from '@/api/http/env'
+
 const ENV = import.meta.env
 
 const { token } = theme.useToken()
 
 const progress = ref(0)
 const isLogin = ref(false)
- 
+const loginFormRef = ref()
+
 function loginWindowStep() {
   windowManager.restoreLoginWindow()
 }
@@ -52,8 +55,19 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
 })
 
 function loginAuto() {
-  if(sessionStorage.getItem('launch') === '1')
+  if(sessionStorage.getItem('launch') === '1') {
     isLogin.value = true
+    const searchParams = new URLSearchParams(window.location.search)
+    const code = searchParams.get('code')
+    const tenantType = searchParams.get('tenantType')
+    if(code === '900005') {
+      expiredModal(tenantType)
+      nextTick(() => {
+        console.log(loginFormRef)
+        if(tenantType === 'professional') loginFormRef.value.autoPreLogin()
+      })
+    }
+  }
 }
 
 function loginSuccess(userInfo: any) {
@@ -99,7 +113,7 @@ onUnmounted(() => {
           </LaunchCarousel>
         </div>
       </template>
-      <Auth.LoginForm v-if="isLogin" :base-url="getBaseURL()" :auth-type="ENV.VITE_AUTH_TYPE" :edition="ENV.VITE_EDITION" @finish="loginSuccess" />
+      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getBaseURL()" :auth-type="ENV.VITE_AUTH_TYPE" :edition="ENV.VITE_EDITION" @finish="loginSuccess" />
     </Auth.PageLayout>
     <Loading />
   </ConfigProvider>

@@ -38,8 +38,8 @@ const currentMode = ref<RegisterMode>('PERSONAL')
 const headerTitle = computed(() => {
   if(edition === 'saas' && authType === 'uap') {
     return { 
-      title: currentMode.value === 'PERSONAL' ? '注册讯飞账号' : '咨询企业版',
-      actionText: currentMode.value === 'PERSONAL' ? '咨询企业版' : '注册讯飞账号'
+      title: currentMode.value === 'PERSONAL' ? '注册讯飞账号' : '咨询',
+      actionText: currentMode.value === 'PERSONAL' ? '咨询' : '注册讯飞账号'
     }
   }
   if(edition === 'saas' && authType === 'casdoor') {

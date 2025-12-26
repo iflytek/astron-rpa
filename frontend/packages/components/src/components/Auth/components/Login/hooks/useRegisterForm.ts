@@ -4,11 +4,12 @@ import type {
   PersonalRegisterFormData,
   EnterpriseRegisterFormData,
   InviteInfo,
+  AuthType
 } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import {
   personalRegisterFormConfig,
-  enterpriseRegisterFormConfig,
+  consultFormConfig,
 } from '../../../schemas/loginRegister'
 
 export type RegisterEmitEvent =
@@ -19,7 +20,7 @@ export type RegisterEmitEvent =
 
 export function useRegisterForm<M extends RegisterMode>(
   mode: M,
-  opts: { inviteInfo: InviteInfo, edition?: string, authType?: string },
+  opts: { inviteInfo?: InviteInfo, edition?: string, authType?: AuthType, consultEdition?:string, consultType?: string } | null,
   emit: ((e: 'submit', data: any, mode: M) => void) &
         ((e: 'switchToLogin') => void) &
         ((e: 'switchToPersonal') => void) &
@@ -40,8 +41,11 @@ export function useRegisterForm<M extends RegisterMode>(
   } as unknown as TData)
 
   const formConfig = mode === 'PERSONAL'
-    ? personalRegisterFormConfig(formData, !!opts.inviteInfo, opts.edition, opts.authType)
-    : enterpriseRegisterFormConfig()
+    ? personalRegisterFormConfig(formData, !!opts?.inviteInfo, opts?.edition, opts?.authType)
+    : consultFormConfig(
+        (opts?.consultType as 'renewal' | 'consult') ?? 'consult',
+        (opts?.consultEdition as 'professional' | 'enterprise') ?? 'professional'
+      )
     
   const initialData = () => generateFormData(formConfig as any) as TData
 

@@ -22,6 +22,7 @@ import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 
 export interface W2WType {
   from: string // 来源窗口
@@ -29,6 +30,7 @@ export interface W2WType {
   type: string // 类型
   data?: any // 数据
 }
+const permissionStore = usePermissionStore()
 
 const route = useRoute()
 // 主进程与渲染进程通信
@@ -196,6 +198,7 @@ window.onload = () => {
   taskNotify({ event: 'login' })
   http.init()
   http.resolveReadyPromise()
+  permissionStore.initPermission()
 
   utilsManager.invoke('main_window_onload').catch(() => {
     // 在浏览器中，默认引擎已经启动，可以发送 http 请求了

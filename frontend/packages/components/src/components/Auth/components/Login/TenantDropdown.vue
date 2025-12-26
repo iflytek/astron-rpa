@@ -6,7 +6,7 @@ import Loading from '../Base/Loading.vue'
 import { Dropdown, Menu, message } from 'ant-design-vue'
 import { tenantList, switchTenant } from '../../api/login'
 import { getSelectedTenant } from '../../utils/remember'
-import TenantUpgradeBtn from '../Base/TenantUpgradeBtn.vue'
+import Consult from '../Base/Consult.vue'
 
 const tenants = ref<TenantItem[]>([])
 
@@ -60,8 +60,7 @@ const open = ref(false)
 
 <template>
   <div class="w-full px-[20px] tenant-dropdown relative">
-    <!-- TODO 专业版申请 -->
-    <!-- <TenantUpgradeBtn v-if="selectedTenant?.tenantType === 'personal'" class="absolute top-[-60px] left-0" /> -->
+    <Consult v-if="selectedTenant?.tenantType === 'personal'" :trigger="'button'" class="absolute top-[-60px] left-0" />
     <Dropdown placement="bottom" v-model:open="open">
       <div class="relative">
         <TenantItemComponent
@@ -85,10 +84,9 @@ const open = ref(false)
               @click="() => toggleTenant(tenant)"
             />
           </Menu.Item>
-          <!-- TODO 专业版申请 -->
-          <!-- <Menu.Item class="!border-0 !p-[0] !mt-[8px]">
-            <TenantUpgradeBtn :button-type="'button'" />
-          </Menu.Item> -->
+          <Menu.Item class="!border-0 !p-[0] !mt-[8px]">
+            <Consult :trigger="'button'" :button-conf="{ buttonType: 'button', buttonTxt: '创建新的工作空间' }" :consult="{consultTitle: '创建新的工作空间', consultType: 'consult'}" />
+          </Menu.Item>
         </Menu>
        </template>
     </Dropdown>

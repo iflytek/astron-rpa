@@ -1,4 +1,4 @@
-import { ref, watch, type Ref } from 'vue'
+import { ref, watch, defineExpose } from 'vue'
 import { setBaseUrl } from '../../../api/http'
 import {
   loginStatus,
@@ -19,10 +19,9 @@ import type {
   AuthFormMode,
   AsyncAction,
 } from '../../../interface'
-import { saveRememberUser, clearRememberUser, saveSelectedTenant, getSelectedTenant, saveUserInfo } from '../../../utils/remember'
+import { getRememberUser, saveRememberUser, clearRememberUser, saveSelectedTenant, getSelectedTenant, saveUserInfo } from '../../../utils/remember'
 import { message } from 'ant-design-vue'
-import type { Edition, AuthType, InviteInfo } from '../../../interface'
-
+import type { Platform, Edition, AuthType, InviteInfo } from '../../../interface'
 export interface UseAuthFlowOptions {
   baseUrl?: string
   inviteInfo?: InviteInfo
@@ -31,6 +30,7 @@ export interface UseAuthFlowOptions {
 }
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish'): void}) {
+  const platform = ref<Platform>('admin')
   const currentFormMode = ref<AuthFormMode>('login')
   const tenants = ref<TenantItem[]>([])
   const tempToken = ref<string>('')
@@ -47,7 +47,10 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
 
   watch(
     () => opts.baseUrl,
-    (newVal) => newVal && setBaseUrl(newVal),
+    (newVal) => {
+      newVal && setBaseUrl(newVal)
+      platform.value = newVal && newVal.includes('127.0.0.1') ? 'client' : 'admin'
+    },
     { immediate: true }
   )
 
@@ -68,7 +71,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       tenants.value = data
       if(tenantId) {
         const tenantExists = tenants.value.find(t => t.id === tenantId)
-        if(tenantExists) {
+        if(tenantExists && !tenantExists.isExpired) {
           emits('finish')
           return
         }
@@ -80,12 +83,12 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
   }
   
 
-  const switchToTenants = async () => {
+  const switchToTenants = async (autoLogin = true) => {
     try {
       const data = await tenantList(tempToken.value)
       tenants.value = data
 
-      if(tenants.value.length === 1) {
+      if(autoLogin && tenants.value.length === 1) {
         handleLogin(tenants.value[0].id)
         return
       }
@@ -96,16 +99,18 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     }
   }
 
-  const preLogin = async (data: LoginFormData, mode: LoginMode) => run(mode, async () => {
+  const preLogin = async (data: LoginFormData, mode: LoginMode, autoLogin = true) => run(mode, async () => {
     try {
       const params = {...data, loginType: mode}
-      const history = await isHistory({phone: params.phone})
-      if(history) {
-        if(mode === 'PASSWORD') switchMode('forgotPasswordWithSysUpgrade')
-        if(mode === 'CODE'){
-          await handleForgotPassword(params)
+      if(opts.edition === 'saas') {
+        const history = await isHistory({phone: params.phone})
+        if(history) {
+          if(mode === 'PASSWORD') switchMode('forgotPasswordWithSysUpgrade')
+          if(mode === 'CODE'){
+            await handleForgotPassword(params)
+          }
+          return
         }
-        return
       }
       const account = params.phone || params.loginName
       mode === 'PASSWORD' && params.remember && account  && params.password ? saveRememberUser(account, params.password, opts.edition, opts.authType) : clearRememberUser()
@@ -113,7 +118,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       delete params.agreement
       const token = await preAuthenticate(params)
       tempToken.value = token
-      switchToTenants()
+      switchToTenants(autoLogin)
     } catch (e) {
       console.error('登录失败')
     }
@@ -121,7 +126,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
 
   const handleLogin = async (tenantId: string) => {
     try {
-      const userInfo = await login({ tenantId, tempToken: tempToken.value })
+      const userInfo = await login({ tenantId, tempToken: tempToken.value, platform: platform.value })
       console.log(userInfo)
       saveSelectedTenant(tenantId)
       saveUserInfo(userInfo)
@@ -174,6 +179,19 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
 
   const switchMode = (mode: AuthFormMode) => (currentFormMode.value = mode)
 
+  const autoPreLogin = () => {
+    const remembered = getRememberUser()
+    if(remembered) {
+      const accountKey = opts.authType === 'uap' ? 'phone' : 'loginName'
+      const params = {
+        [accountKey]: remembered.account,
+        password: remembered.password,
+        remember: true,
+      }
+
+      preLogin(params, 'PASSWORD', false)
+    }
+  }
   !opts.inviteInfo && checkLoginStatus()
 
   return {
@@ -187,5 +205,6 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     handleModifyPassword,
     handleChooseTenant,
     switchMode,
+    autoPreLogin,
   }
 }

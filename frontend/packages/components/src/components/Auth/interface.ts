@@ -1,5 +1,4 @@
-import { functionType, stringType } from '../../utils/type'
-
+export type Platform = 'client' | 'admin'
 export type Edition = 'saas' | 'enterprise'
 export type AuthType = 'uap' | 'casdoor'
 export type LoginMode = 'PASSWORD' | 'CODE'
@@ -30,6 +29,8 @@ export interface TenantItem {
   status: number
   remark?: string
   creator?: string
+  isExpired?: boolean
+  expiredDate?: string
   isDelete?: number
   isDefaultTenant?: number
   createTime?: string
