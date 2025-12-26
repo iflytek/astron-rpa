@@ -80,9 +80,9 @@ export function getAttr(element: HTMLElement, attrName: string) {
 export function getAttrs(element: Element) {
   const attrs = {}
     ;['src', 'href', 'id', 'class', 'title', 'name'].forEach((key) => {
-      const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
-      attr && (attrs[key] = attr)
-    })
+    const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
+    attr && (attrs[key] = attr)
+  })
   return attrs
 }
 
@@ -556,7 +556,7 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
       attrs.push({ name: 'placeholder', value: placeholder, checked: false, type: 0 })
     }
     if (value && value.length < MAX_ATTRIBUTE_LENGTH) {
-      attrs.push({ name: 'value', value: value, checked: false, type: 0 })
+      attrs.push({ name: 'value', value, checked: false, type: 0 })
     }
     if (title && title.length < MAX_ATTRIBUTE_LENGTH)
       attrs.push({ name: 'title', value: title, checked: false, type: 0 })
@@ -583,7 +583,6 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
   }
   return rebuildDirectory(originElement, elementDirectory)
 }
-
 
 /**
  * Generates a full XPath for a given HTML element by tracing its ancestry.

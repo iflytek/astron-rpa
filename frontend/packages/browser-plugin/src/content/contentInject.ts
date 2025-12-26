@@ -1,6 +1,7 @@
 import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
+  directoryXpath,
   filterVisibleElements,
   findElementByPoint,
   generateXPath,
@@ -21,7 +22,6 @@ import {
   highlightElements,
   isTable,
   shadowRootElement,
-  directoryXpath,
 } from './element'
 import { sendElementData } from './message'
 import { Utils } from './utils'
