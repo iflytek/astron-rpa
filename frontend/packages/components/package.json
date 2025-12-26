@@ -36,10 +36,10 @@
     "@tiptap/pm": "^2.7.2",
     "@tiptap/starter-kit": "^2.7.2",
     "@tiptap/vue-3": "^2.7.2",
-    "@univerjs/preset-sheets-core": "^0.12.4",
-    "@univerjs/preset-sheets-find-replace": "^0.12.4",
-    "@univerjs/presets": "^0.12.4",
-    "@univerjs/core": "^0.12.4",
+    "@univerjs/preset-sheets-core": "^0.14.0",
+    "@univerjs/preset-sheets-find-replace": "^0.14.0",
+    "@univerjs/presets": "^0.14.0",
+    "@univerjs/core": "^0.14.0",
     "@vueuse/core": "^11.0.1",
     "@zwight/luckyexcel": "^1.1.6",
     "lodash-es": "^4.17.21",
@@ -70,5 +70,10 @@
     "@ant-design/icons-vue": ">=7",
     "ant-design-vue": ">=4",
     "vue": ">=3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@univerjs/core": "$@univerjs/core"
+    }
   }
 }

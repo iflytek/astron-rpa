@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { theme } from 'ant-design-vue'
 import { useTemplateRef, onBeforeUnmount, onMounted, watch } from 'vue'
-import type { FUniver, Univer, IWorkbookData } from '@univerjs/presets'
+import type { FUniver, Univer, IWorkbookData, CellValue } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import UniverPresetSheetsCoreZhCN from '@univerjs/preset-sheets-core/locales/zh-CN'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
@@ -18,17 +18,18 @@ interface SheetProps {
   darkMode?: boolean
   locale?: LocaleType
   readonly?: boolean
+  deafaultValue?: Partial<IWorkbookData>
 }
-
-const data = defineModel<Partial<IWorkbookData>>('data', { default: {} })
 
 const props = withDefaults(defineProps<SheetProps>(), {
   darkMode: false,
   locale: LocaleType.ZH_CN,
+  deafaultValue: () => ({})
 })
 
 const emits = defineEmits<{
   (e: 'ready'): void
+  (e: 'cellUpdate', row: number, column: number, value: CellValue | null): void
 }>()
 
 const container = useTemplateRef<HTMLElement>('container')
@@ -106,37 +107,37 @@ onMounted(() => {
     },
   )
 
-  univerAPI.createWorkbook(data.value)
+  univerAPI.createWorkbook(props.deafaultValue)
+
+  // univerAPI.addEvent(univerAPI.Event.SheetEditEnded, (params) => {
+  //   const { worksheet, row, column } = params
+  //   const cellValue = worksheet.getRange(row, column).getValue();
+  //   emits('cellUpdate', row, column, cellValue)
+  // })
+
+  univerAPI.addEvent(univerAPI.Event.SheetValueChanged, (params) => {
+    const fWorkbook = univerAPIInstance?.getActiveWorkbook()
+    if (!fWorkbook) return
+
+    const fWorksheet = fWorkbook.getActiveSheet()
+    const values = params.effectedRanges.map(it => {
+      const { startRow, startColumn, endColumn, endRow } = it.getRange();
+      const values = it.getValues();
+    })
+    
+    console.log(1111, values)
+  })
+
+  // univerAPI.addEvent(univerAPI.Event.CommandExecuted, (params) => {
+  //   const { id } = params
+  //   console.log(params)
+  //   if (id === 'doc.command.insert-text' || id === 'doc.command.delete-text') {
+  //     console.log(id)
+  //   }
+  // })
 
   univerInstance = univer
   univerAPIInstance = univerAPI
-
-  // 将工作簿变更同步回父级 `data` 模型
-  const syncWorkbookToModel = () => {
-    try {
-      const fWorkbook = univerAPI.getActiveWorkbook()
-      if (!fWorkbook) return
-
-      const workbookData = fWorkbook.save()
-
-      console.log('syncWorkbookToModel', workbookData)
-
-      data.value = workbookData
-    } catch (e) {
-      // 保持容错，避免阻塞主流程
-      // eslint-disable-next-line no-console
-      console.warn('syncWorkbookToModel error', e)
-    }
-  }
-
-  const listenEvents = [
-    univerAPI.Event.SheetValueChanged,
-    univerAPI.Event.SheetNameChanged,
-  ]
-
-  listenEvents.forEach((eventName) => {
-    univerAPI.addEvent(eventName, syncWorkbookToModel)
-  })
 })
 
 onBeforeUnmount(() => {
@@ -163,12 +164,10 @@ defineExpose({
   },
   createWorkbook: (workbookData: IWorkbookData) => {
     univerAPIInstance?.createWorkbook(workbookData)
-    data.value = workbookData
   },
   // 清空全部数据
   clearAll: () => {
     univerAPIInstance?.createWorkbook({})
-    data.value = {}
   },
   // 删除选中区域内容
   deleteSelection: () => {

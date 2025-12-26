@@ -10,7 +10,7 @@ const props = defineProps<{ height: number }>()
 const { isDark } = useTheme()
 const { i18next } = useTranslation()
 
-const { sheetRef, sheetData, handleReady } = useDataSheetStore()
+const { sheetRef, sheetData, handleReady, handleCellUpdate } = useDataSheetStore()
 
 const locale = computed(() => {
   return i18next.language === 'zh-CN' ? SheetLocaleType.ZH_CN : SheetLocaleType.EN_US
@@ -20,10 +20,10 @@ const locale = computed(() => {
 <template>
   <Sheet
     ref="sheetRef"
-    v-model:data="sheetData"
     :style="{ height: `${props.height}px` }"
     :dark-mode="isDark"
     :locale="locale"
     @ready="handleReady"
+    @cell-update="handleCellUpdate"
   />
 </template>

@@ -1,16 +1,19 @@
 import { createInjectionState } from '@vueuse/core'
 import { shallowRef, markRaw, ref } from 'vue'
-import { Sheet as SheetComponent, type ISheetWorkbookData } from '@rpa/components'
+import { Sheet as SheetComponent, type ISheetWorkbookData, type ICellValue } from '@rpa/components'
+
+import { useRunningStore } from '@/stores/useRunningStore.ts'
 
 import type { TabConfig } from '../../types.ts'
 
 import Sheet from './Sheet.vue'
 import RightExtra from './RightExtra.vue'
 
-
 type SheetType = InstanceType<typeof SheetComponent>
 
 const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() => {
+  const runningStore = useRunningStore()
+
   const sheetRef = shallowRef<SheetType>()
   const isReady = ref(false)
   const sheetData = shallowRef<ISheetWorkbookData>()
@@ -37,7 +40,23 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     sheetRef.value?.createWorkbook(workbookData)
   }
 
-  return { sheetData, isReady, dataSheetConfig, sheetRef, handleUndo, handleRedo, handleFind, handleReady, createWorkbook }
+  const handleCellUpdate = (row: number, column: number, value: ICellValue | null) => {
+    // runningStore.updateDataTableCell({ row, col: column, value })
+    console.log(row, column, value)
+  }
+
+  return {
+    sheetData,
+    isReady,
+    dataSheetConfig,
+    sheetRef,
+    handleUndo,
+    handleRedo,
+    handleFind,
+    handleReady,
+    handleCellUpdate,
+    createWorkbook
+  }
 })
 
 export { useProvideDataSheetStore, useDataSheetStore }
