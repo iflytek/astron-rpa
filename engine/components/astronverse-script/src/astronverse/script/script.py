@@ -112,7 +112,7 @@ class Script:
                 types="List",
                 need_parse=True,
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "content"}),
-            )
+            ),
         ],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
