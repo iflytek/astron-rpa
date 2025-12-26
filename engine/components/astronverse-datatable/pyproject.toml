@@ -1,0 +1,22 @@
+[project]
+name = "astronverse-datatable"
+version = "1.0.1"
+description = "astronverse-datatable."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "openpyxl==3.1.5",
+    "pandas==2.3.3",
+    "pyperclip==1.11.0",
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
