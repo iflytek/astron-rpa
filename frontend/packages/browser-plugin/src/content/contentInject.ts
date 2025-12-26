@@ -337,7 +337,8 @@ const ContentHandler = {
       if (scrollEle && scrollEle[0]) {
         if (atomConfig && atomConfig.notCenter) {
           scrollEle[0].scrollIntoView(false)
-        } else {
+        }
+        else {
           scrollEle[0].scrollIntoView({
             behavior: 'instant',
             block: 'center',
