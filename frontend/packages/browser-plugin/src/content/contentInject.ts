@@ -21,6 +21,7 @@ import {
   highlightElements,
   isTable,
   shadowRootElement,
+  directoryXpath,
 } from './element'
 import { sendElementData } from './message'
 import { Utils } from './utils'
@@ -171,7 +172,7 @@ function tagFrame() {
   const iframes = getIFramesElements()
   iframes.forEach((iframe) => {
     const iframeInfo = {
-      iframeXpath: getXpath(iframe),
+      iframeXpath: directoryXpath(iframe),
       iframeTransform: getIframeTransform(iframe),
     }
     iframe.contentWindow?.postMessage(

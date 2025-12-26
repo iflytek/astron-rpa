@@ -584,6 +584,22 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
   return rebuildDirectory(originElement, elementDirectory)
 }
 
+
+/**
+ * Generates a full XPath for a given HTML element by tracing its ancestry.
+ *
+ * This function first determines the element's path from itself up to the root
+ * of the document by calling `getElementDirectory`. It then uses this path
+ * to construct a precise and unique XPath string.
+ *
+ * @param element The HTML element for which to generate the XPath.
+ * @returns A string representing the calculated XPath for the provided element.
+ */
+export function directoryXpath(element: HTMLElement): string {
+  const elementDirectory = getElementDirectory(element)
+  return generateXPath(elementDirectory)
+}
+
 /**
  * Filters a list of HTML elements based on a directory of element attributes, using regular expressions.
  *
@@ -868,7 +884,7 @@ export function getWindowFrames() {
   const frames = getAllFrames()
   const framesList = Array.from(frames).map((frame) => {
     return {
-      xpath: getXpath(frame),
+      xpath: directoryXpath(frame),
       src: frame.src,
       rect: getFrameContentRect(frame),
     }
