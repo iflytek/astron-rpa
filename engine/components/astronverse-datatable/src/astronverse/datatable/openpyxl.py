@@ -315,7 +315,6 @@ class OpenpyxlWrapper:
                     self.sheet.cell(row=start_row + r_idx, column=1 + c_idx, value=cell_value)
             import_wrapper.close()
         
-
     def insert_cells(self, row: int, col: int, amount: int = 1):
         """
         Inserts blank cells at a specific position.
