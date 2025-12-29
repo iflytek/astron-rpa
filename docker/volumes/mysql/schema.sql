@@ -376,6 +376,7 @@ CREATE TABLE `c_param` (
   `deleted` int(11) DEFAULT NULL,
   `robot_id` varchar(100) DEFAULT NULL,
   `robot_version` int(11) DEFAULT NULL,
+  `module_id` varchar(100) DEFAULT NULL COMMENT 'python模块id',
   KEY `c_param_id_IDX` (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
