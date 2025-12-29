@@ -261,10 +261,21 @@ export const useRunningStore = defineStore('running', () => {
    */
   const closeDataTableListener = () => closeDataTable(processStore.project.id)
 
+  /**
+   * 更新单元格数据
+   * @param cellData 
+   */
   const updateDataTableCell = async (cellData: Omit<RPA.IUpdateDataTableCell, 'sheet'>) => {
     const sheetName = dataTable.value.name;
     const res = await updateDataTable(processStore.project.id, [{ sheet: sheetName, ...cellData }])
     console.log(res)
+  }
+
+  /**
+   * 清空单元格数据
+   */
+  const clearDataTable = () => {
+
   }
 
   return {
@@ -286,5 +297,6 @@ export const useRunningStore = defineStore('running', () => {
     fetchDataTable,
     updateDataTableCell,
     closeDataTableListener,
+    clearDataTable,
   }
 })

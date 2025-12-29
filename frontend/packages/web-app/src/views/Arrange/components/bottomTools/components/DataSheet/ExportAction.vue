@@ -1,13 +1,24 @@
 <script lang="ts" setup>
 import { sheetUtils } from '@rpa/components'
+import { to } from 'await-to-js'
+import { message } from 'ant-design-vue'
 
+import { utilsManager } from '@/platform'
 import { useDataSheetStore } from './useDataSheet'
 
-const { sheetData, isReady } = useDataSheetStore();
+const { sheetRef, isReady } = useDataSheetStore();
 
 const handleExport = async () => {
-  const buffer = await sheetUtils.exportExcelFile(sheetData.value);
-  console.log('buffer', buffer);
+  const data = sheetRef.value?.getWorkbookData()
+  if (!data) return
+
+  const buffer = await sheetUtils.exportExcelFile(data);
+  const [error] = await to<void, string>(utilsManager.saveFile('data.xlsx', buffer));
+  if (error) {
+    message.error(error);
+  } else {
+    message.success('导出成功');
+  }
 }
 </script>
 

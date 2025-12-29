@@ -10,7 +10,7 @@ const props = defineProps<{ height: number }>()
 const { isDark } = useTheme()
 const { i18next } = useTranslation()
 
-const { sheetRef, sheetData, handleReady, handleCellUpdate } = useDataSheetStore()
+const { sheetRef, handleReady, handleCellUpdate } = useDataSheetStore()
 
 const locale = computed(() => {
   return i18next.language === 'zh-CN' ? SheetLocaleType.ZH_CN : SheetLocaleType.EN_US

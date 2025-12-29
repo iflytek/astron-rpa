@@ -16,7 +16,6 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
 
   const sheetRef = shallowRef<SheetType>()
   const isReady = ref(false)
-  const sheetData = shallowRef<ISheetWorkbookData>()
 
   const dataSheetConfig: TabConfig = {
     text: 'dataSheet',
@@ -40,13 +39,12 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     sheetRef.value?.createWorkbook(workbookData)
   }
 
-  const handleCellUpdate = (row: number, column: number, value: ICellValue | null) => {
+  const handleCellUpdate = (data: ICellValue[]) => {
     // runningStore.updateDataTableCell({ row, col: column, value })
-    console.log(row, column, value)
+    console.log(data)
   }
 
   return {
-    sheetData,
     isReady,
     dataSheetConfig,
     sheetRef,

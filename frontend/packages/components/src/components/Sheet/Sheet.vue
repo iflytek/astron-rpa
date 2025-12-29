@@ -21,6 +21,12 @@ interface SheetProps {
   deafaultValue?: Partial<IWorkbookData>
 }
 
+export interface ICellValue {
+  row: number
+  column: number
+  value: CellValue | null
+}
+
 const props = withDefaults(defineProps<SheetProps>(), {
   darkMode: false,
   locale: LocaleType.ZH_CN,
@@ -29,7 +35,7 @@ const props = withDefaults(defineProps<SheetProps>(), {
 
 const emits = defineEmits<{
   (e: 'ready'): void
-  (e: 'cellUpdate', row: number, column: number, value: CellValue | null): void
+  (e: 'cellUpdate', data: ICellValue[]): void
 }>()
 
 const container = useTemplateRef<HTMLElement>('container')
@@ -109,32 +115,30 @@ onMounted(() => {
 
   univerAPI.createWorkbook(props.deafaultValue)
 
-  // univerAPI.addEvent(univerAPI.Event.SheetEditEnded, (params) => {
-  //   const { worksheet, row, column } = params
-  //   const cellValue = worksheet.getRange(row, column).getValue();
-  //   emits('cellUpdate', row, column, cellValue)
-  // })
-
   univerAPI.addEvent(univerAPI.Event.SheetValueChanged, (params) => {
-    const fWorkbook = univerAPIInstance?.getActiveWorkbook()
-    if (!fWorkbook) return
-
-    const fWorksheet = fWorkbook.getActiveSheet()
-    const values = params.effectedRanges.map(it => {
-      const { startRow, startColumn, endColumn, endRow } = it.getRange();
+    const cellValues: ICellValue[] = params.effectedRanges.flatMap(it => {
+      const { startRow, startColumn } = it.getRange();
       const values = it.getValues();
+      
+      // 将二维数组转换为 ICellValue 数组
+      const result: ICellValue[] = []
+      for (let i = 0; i < values.length; i++) {
+        const row = startRow + i
+        const rowValues = values[i] || []
+        for (let j = 0; j < rowValues.length; j++) {
+          const column = startColumn + j
+          result.push({
+            row,
+            column,
+            value: rowValues[j] ?? null
+          })
+        }
+      }
+      return result
     })
     
-    console.log(1111, values)
+    emits('cellUpdate', cellValues)
   })
-
-  // univerAPI.addEvent(univerAPI.Event.CommandExecuted, (params) => {
-  //   const { id } = params
-  //   console.log(params)
-  //   if (id === 'doc.command.insert-text' || id === 'doc.command.delete-text') {
-  //     console.log(id)
-  //   }
-  // })
 
   univerInstance = univer
   univerAPIInstance = univerAPI
@@ -161,6 +165,11 @@ defineExpose({
   // 打开查找替换弹窗
   openFindDialog: () => {
     univerAPIInstance?.executeCommand("ui.operation.open-find-dialog")
+  },
+  getWorkbookData: () => {
+    const fWorkbook = univerAPIInstance?.getActiveWorkbook()
+    if (!fWorkbook) return
+    return fWorkbook.save()
   },
   createWorkbook: (workbookData: IWorkbookData) => {
     univerAPIInstance?.createWorkbook(workbookData)
