@@ -1117,8 +1117,8 @@ class DataTable:
         find_type: FindType = FindType.TABLE,
         col: str = "A",
         find_value: str = "",
-        is_repalce: bool = True,
         is_case_sensitive: bool = True,
+        is_repalce: bool = True,
         replace_value: str = "",
     ) -> list:
         """
@@ -1212,6 +1212,15 @@ class DataTable:
                     DynamicsItem(
                         key="$this.date_range.show",
                         expression=f"return $this.condition_type.value == '{ConditionType.DATE_BETWEEN.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "is_case_sensitive",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.is_case_sensitive.show",
+                        expression=f"return ['{ConditionType.EQUALS.value}', '{ConditionType.NOT_EQUALS.value}', '{ConditionType.CONTAINS.value}', '{ConditionType.NOT_CONTAINS.value}', '{ConditionType.STARTS_WITH.value}', '{ConditionType.ENDS_WITH.value}'].includes($this.condition_type.value)",
                     )
                 ],
             ),
