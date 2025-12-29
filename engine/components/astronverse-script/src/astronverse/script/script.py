@@ -106,16 +106,26 @@ class Script:
                 "content",
                 types="Any",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": "PyModule"}),
-            )
+            ),
+            atomicMg.param(
+                "module_param",
+                types="List",
+                need_parse=True,
+                formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "content"}),
+            ),
         ],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
-    def module(content: str):
+    def module(content: str, module_param: list):
         """动态调用模块"""
 
-        kwargs, package = Script._get_auto_context()
-        res, _ = Script._call(".{}".format(content), package=package, **kwargs)
-        return res
+        _, package = Script._get_auto_context()
+        kwargs = {}
+        if module_param:
+            for p in module_param:
+                kwargs[p.get("varName")] = p.get("varValue")
+        _, kwargs = Script._call(".{}".format(content), package=package, **kwargs)
+        return kwargs
 
     @staticmethod
     @atomicMg.atomic("Script", inputList=[], outputList=[])

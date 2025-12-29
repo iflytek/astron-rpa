@@ -1,7 +1,7 @@
 import os
 import subprocess
 import sys
-
+import ast
 import psutil
 from astronverse.executor.logger import logger
 
@@ -47,6 +47,25 @@ def kill_proc_tree(pid, including_parent=True):
             proc.wait(5)  # 等待进程结束，防止僵尸进程
         except psutil.NoSuchProcess:
             pass
+
+
+def _str_to_list_if_possible(s):
+    if not isinstance(s, str):
+        return s  # 如果不是字符串，直接返回
+
+    s = s.strip()  # 去除首尾空白
+    if not (s.startswith("[") and s.endswith("]")):
+        return s  # 明显不是列表字符串，直接返回
+
+    try:
+        # 安全地将字符串解析为 Python 字面量（支持列表、字典、元组、数字、字符串等）
+        result = ast.literal_eval(s)
+        if isinstance(result, list):
+            return result
+        else:
+            return s  # 虽然是 [] 形式，但解析后不是 list（如可能是 tuple）
+    except (ValueError, SyntaxError):
+        return s  # 解析失败，说明不是有效的列表字符串
 
 
 def exec_run(exec_args: list, ignore_error: bool = False, timeout=-1):
