@@ -855,23 +855,104 @@ class DataTable:
             PyxlWrapper.clear_range(range_str=col_range)
 
     @staticmethod
-    @validate_cell
-    @auto_save
     @atomicMg.atomic(
         "DataTable",
-        inputList=[],
-        outputList=[],
+        inputList=[
+            atomicMg.param(
+                "loop_type",
+                formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
+            ),
+            atomicMg.param(
+                "row",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.row.show",
+                        expression=f"return $this.loop_type.value == '{LoopType.ROW.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "col",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.col.show",
+                        expression=f"return $this.loop_type.value == '{LoopType.COLUMN.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "start_row",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.start_row.show",
+                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "start_col",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.start_col.show",
+                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "end_row",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.end_row.show",
+                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
+                    )
+                ],
+                required=False,
+            ),
+            atomicMg.param(
+                "end_col",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.end_col.show",
+                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
+                    )
+                ],
+                required=False,
+            ),
+        ],
+        outputList=[
+            atomicMg.param("index", types="Int"),
+            atomicMg.param("value", types="Any"),
+        ],
     )
-    def sort_table(
-        col: str,
-        sort_type: SortOrder = SortOrder.ASCENDING,
+    def loop_data_table(
+        loop_type: LoopType = LoopType.ROW,
+        row: int = 1,
+        col: str = "A",
+        start_row: int = 1,
+        start_col: str = "A",
+        end_row: int = 0,
+        end_col: str = "",
     ):
         """
-        数据表格排序
+        遍历数据表格内容
         """
-        col_index = col_to_index(col)
+        list_data = DataTable.read_data(
+            read_type=ReadType(loop_type.value),
+            row=row,
+            col=col,
+            start_row=start_row,
+            start_col=start_col,
+            end_row=end_row,
+            end_col=end_col,
+        )
 
-        PyxlWrapper.sort_column(col_index=col_index, order=sort_type.value)
+        if not list_data:
+            list_data = []
+
+        def table_generator():
+            yield from list_data  # type: ignore
+
+        return table_generator()
 
     @staticmethod
     @validate_cell
@@ -975,6 +1056,25 @@ class DataTable:
         """
         col_index = col_to_index(col)
         return str(PyxlHeadWrapper.read_cell(row=1, col=col_index))
+
+    @staticmethod
+    @validate_cell
+    @auto_save
+    @atomicMg.atomic(
+        "DataTable",
+        inputList=[],
+        outputList=[],
+    )
+    def sort_table(
+        col: str,
+        sort_type: SortOrder = SortOrder.ASCENDING,
+    ):
+        """
+        数据表格排序
+        """
+        col_index = col_to_index(col)
+
+        PyxlWrapper.sort_column(col_index=col_index, order=sort_type.value)
 
     @staticmethod
     @auto_save
@@ -1292,103 +1392,3 @@ class DataTable:
         else:
             PyxlWrapper.export_to_file(file_path=file_path)
         return file_path
-
-    @staticmethod
-    @atomicMg.atomic(
-        "DataTable",
-        inputList=[
-            atomicMg.param(
-                "loop_type",
-                formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
-            ),
-            atomicMg.param(
-                "row",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.row.show",
-                        expression=f"return $this.loop_type.value == '{LoopType.ROW.value}'",
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "col",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.col.show",
-                        expression=f"return $this.loop_type.value == '{LoopType.COLUMN.value}'",
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "start_row",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.start_row.show",
-                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "start_col",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.start_col.show",
-                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "end_row",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.end_row.show",
-                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
-                    )
-                ],
-                required=False,
-            ),
-            atomicMg.param(
-                "end_col",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.end_col.show",
-                        expression=f"return $this.loop_type.value == '{LoopType.AREA.value}'",
-                    )
-                ],
-                required=False,
-            ),
-        ],
-        outputList=[
-            atomicMg.param("index", types="Int"),
-            atomicMg.param("value", types="Any"),
-        ],
-    )
-    def loop_data_table(
-        loop_type: LoopType = LoopType.ROW,
-        row: int = 1,
-        col: str = "A",
-        start_row: int = 1,
-        start_col: str = "A",
-        end_row: int = 0,
-        end_col: str = "",
-    ):
-        """
-        遍历数据表格内容
-        """
-        list_data = DataTable.read_data(
-            read_type=ReadType(loop_type.value),
-            row=row,
-            col=col,
-            start_row=start_row,
-            start_col=start_col,
-            end_row=end_row,
-            end_col=end_col,
-        )
-
-        if not list_data:
-            list_data = []
-
-        def table_generator():
-            yield from list_data  # type: ignore
-
-        return table_generator()

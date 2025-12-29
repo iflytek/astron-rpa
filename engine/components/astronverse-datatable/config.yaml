@@ -78,13 +78,13 @@ atomic:
       - key: append_position
         title: 追加方式
         tip: 选择追加数据的方式（行追加、列追加）
-    outputList: [ ]
+    outputList: []
   DataTable.get_max_row:
     title: 获取数据表格最大行号
     comment: 获取数据表格中的最大行号
     icon: get_max_row
     helpManual: ''
-    inputList: [ ]
+    inputList: []
     outputList:
       - key: max_row
         title: 最大行号
@@ -94,7 +94,7 @@ atomic:
     comment: 获取数据表格中的最大列号
     icon: get_max_column
     helpManual: ''
-    inputList: [ ]
+    inputList: []
     outputList:
       - key: max_column
         title: 最大列号
@@ -197,7 +197,7 @@ atomic:
       - key: start_col
         title: 开始列号
         tip: 指定要粘贴的起始列号（例如A，B，C，AB...）
-    outputList: [ ]
+    outputList: []
   DataTable.delete_data:
     title: 删除数据表格
     comment: 删除数据表格中 @{delete_type} 的数据
@@ -234,7 +234,7 @@ atomic:
       - key: delete_row_move
         title: 行删除是否移动
         tip: 删除行时的移动方式（上移）
-    outputList: [ ]
+    outputList: []
   DataTable.sort_table:
     title: 排序数据表格
     comment: 对数据表格的 @{col} 列进行排序
@@ -247,9 +247,9 @@ atomic:
       - key: sort_type
         title: 排序方式
         tip: 选择排序方式（升序、降序）
-    outputList: [ ]
+    outputList: []
   DataTable.insert_row_column:
-    title: 插入行/列
+    title: 数据表格插入行/列
     comment: 在数据表格中插入 @{amount} @{insert_type}
     icon: insert_row_column
     helpManual: ''
@@ -266,10 +266,10 @@ atomic:
       - key: amount
         title: 插入数量
         tip: 要插入的行/列数量
-    outputList: [ ]
+    outputList: []
   DataTable.insert_formula:
-    title: 插入公式
-    comment: 在单元格 @{col}@{row} 中插入公式
+    title: 数据表格插入公式
+    comment: 在数据表格单元格 @{col}@{row} 中插入公式 @{formula}
     icon: insert_formula
     helpManual: ''
     inputList:
@@ -282,9 +282,9 @@ atomic:
       - key: formula
         title: 公式内容
         tip: 要插入的公式，例如"=SUM(A1:A5)"
-    outputList: [ ]
+    outputList: []
   DataTable.set_column_title:
-    title: 设置列标题
+    title: 数据表格设置列标题
     comment: 设置数据表格 @{col} 列的标题为 @{title}
     icon: set_column_title
     helpManual: ''
@@ -295,9 +295,9 @@ atomic:
       - key: title
         title: 标题内容
         tip: 要设置的列标题
-    outputList: [ ]
+    outputList: []
   DataTable.get_column_title:
-    title: 获取列标题
+    title: 数据表格获取列标题
     comment: 获取数据表格 @{col} 列的标题
     icon: get_column_title
     helpManual: ''
@@ -310,18 +310,33 @@ atomic:
         title: 列标题
         tip: 返回指定列的标题
   DataTable.find_and_replace:
-    title: 查找和替换
+    title: 数据表格查找和替换
     comment: 在数据表格中查找 @{find_value} 并替换为 @{replace_value}
     icon: find_and_replace
     helpManual: ''
     inputList:
+      - key: find_type
+        title: 查找类型
+        tip: 选择查找的方式，单列查找或全表查找
+      - key: col
+        title: 列号
+        tip: 指定要查找的列号（例如A，B，C...），仅在单列查找时使用
       - key: find_value
         title: 查找内容
-        tip: 要查找的数据
+        tip: 要查找的内容
+      - key: is_repalce
+        title: 是否替换
+        tip: 是否将查找到的内容进行替换
+      - key: is_case_sensitive
+        title: 区分大小写
+        tip: 查找时是否区分大小写
       - key: replace_value
         title: 替换内容
-        tip: 替换后的数据
-    outputList: [ ]
+        tip: 替换后的内容，仅在替换时使用
+    outputList:
+      - key: find_data_positions
+        title: 查找位置
+        tip: 返回查找到的内容所在的位置列表
   DataTable.filter_data_table:
     title: 筛选数据表格
     comment: 根据条件筛选数据表格
@@ -330,14 +345,35 @@ atomic:
     inputList:
       - key: filter_type
         title: 筛选类型
-        tip: 选择筛选类型（列筛选、表格筛选）
+        tip: 选择筛选类型（列筛选、行筛选、表格筛选）
+      - key: row
+        title: 行号
+        tip: 指定要筛选的行号
       - key: col
         title: 列号
         tip: 指定要筛选的列号
-      - key: condition
-        title: 筛选条件
-        tip: 输入筛选条件
-    outputList: [ ]
+      - key: condition_type
+        title: 条件类型
+        tip: 选择条件类型
+      - key : condition_value
+        title: 条件值
+        tip: 输入条件值
+      - key: date_value
+        title: 日期值
+        tip: 选择日期值
+      - key: date_range
+        title: 日期范围
+        tip: 选择日期范围
+      - key: is_case_sensitive
+        title: 区分大小写
+        tip: 筛选时是否区分大小写
+      - key: is_save_filtered
+        title: 保存筛选结果
+        tip: 是否保存筛选结果
+    outputList: 
+      - key: data_filtered
+        title: 筛选结果
+        tip: 返回筛选后的数据结果
   DataTable.import_data_table_from_file:
     title: 从文件导入数据表格
     comment: 从文件 @{import_file_path} 导入数据到数据表格
@@ -350,7 +386,7 @@ atomic:
       - key: sheet_name
         title: 工作表名称
         tip: 要导入的工作表名称
-    outputList: [ ]
+    outputList: []
   DataTable.export_data_table_to_file:
     title: 导出数据表格到文件
     comment: 将数据表格导出到文件 @{export_dest_path}
