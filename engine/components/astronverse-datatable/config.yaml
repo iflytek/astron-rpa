@@ -99,6 +99,40 @@ atomic:
       - key: max_column
         title: 最大列号
         tip: 返回数据表格中的最大列号，类型为整数
+  DataTable.loop_data_table:
+    title: 循环数据表格
+    comment: 循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
+    icon: loop_data_table
+    helpManual: ''
+    inputList:
+      - key: loop_type
+        title: 循环类型
+        tip: 选择循环遍历的方式（行、列、区域）
+      - key: row
+        title: 行号
+        tip: 指定要循环的行号
+      - key: col
+        title: 列号
+        tip: 指定要循环的列号
+      - key: start_row
+        title: 开始行号
+        tip: 指定循环区域的开始行号
+      - key: start_col
+        title: 开始列号
+        tip: 指定循环区域的开始列号
+      - key: end_row
+        title: 结束行号
+        tip: 指定循环区域的结束行号
+      - key: end_col
+        title: 结束列号
+        tip: 指定循环区域的结束列号
+    outputList:
+      - key: index
+        title: 当前索引
+        tip: 返回当前循环的索引
+      - key: value
+        title: 当前值
+        tip: 返回当前循环项的值
   DataTable.copy_data:
     title: 复制数据表格
     comment: 复制数据表格中的 @{copy_type} 数据到剪切板
@@ -336,40 +370,6 @@ atomic:
       - key: export_file_path
         title: 导出文件路径
         tip: 返回导出文件的完整路径
-  DataTable.loop_data_table:
-    title: 循环数据表格
-    comment: 循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
-    icon: loop_data_table
-    helpManual: ''
-    inputList:
-      - key: loop_type
-        title: 循环类型
-        tip: 选择循环遍历的方式（行、列、区域）
-      - key: row
-        title: 行号
-        tip: 指定要循环的行号
-      - key: col
-        title: 列号
-        tip: 指定要循环的列号
-      - key: start_row
-        title: 开始行号
-        tip: 指定循环区域的开始行号
-      - key: start_col
-        title: 开始列号
-        tip: 指定循环区域的开始列号
-      - key: end_row
-        title: 结束行号
-        tip: 指定循环区域的结束行号
-      - key: end_col
-        title: 结束列号
-        tip: 指定循环区域的结束列号
-    outputList:
-      - key: index
-        title: 当前索引
-        tip: 返回当前循环的索引
-      - key: value
-        title: 当前值
-        tip: 返回当前循环项的值
 options:
   BaseOperateType:
     - value: cell
