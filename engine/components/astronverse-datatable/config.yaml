@@ -80,8 +80,8 @@ atomic:
         tip: 选择追加数据的方式（行追加、列追加）
     outputList: []
   DataTable.get_max_row:
-    title: 获取数据表格最大行号
-    comment: 获取数据表格中的最大行号
+    title: 获取数据表格已用行
+    comment: 获取数据表格中已用的最大行号
     icon: get_max_row
     helpManual: ''
     inputList: []
@@ -90,8 +90,8 @@ atomic:
         title: 最大行号
         tip: 返回数据表格中的最大行号，类型为整数
   DataTable.get_max_column:
-    title: 获取数据表格最大列号
-    comment: 获取数据表格中的最大列号
+    title: 获取数据表格已用列
+    comment: 获取数据表格中已用的最大列号
     icon: get_max_column
     helpManual: ''
     inputList: []
@@ -235,19 +235,6 @@ atomic:
         title: 行删除是否移动
         tip: 删除行时的移动方式（上移）
     outputList: []
-  DataTable.sort_table:
-    title: 排序数据表格
-    comment: 对数据表格的 @{col} 列进行排序
-    icon: sort_table
-    helpManual: ''
-    inputList:
-      - key: col
-        title: 列号
-        tip: 指定要排序的列号（例如A，B，C...）
-      - key: sort_type
-        title: 排序方式
-        tip: 选择排序方式（升序、降序）
-    outputList: []
   DataTable.insert_row_column:
     title: 数据表格插入行/列
     comment: 在数据表格中插入 @{amount} @{insert_type}
@@ -284,31 +271,31 @@ atomic:
         tip: 要插入的公式，例如"=SUM(A1:A5)"
     outputList: []
   DataTable.set_column_title:
-    title: 数据表格设置列标题
-    comment: 设置数据表格 @{col} 列的标题为 @{title}
+    title: 数据表格设置列信息
+    comment: 设置数据表格 @{col} 列的信息为 @{title}
     icon: set_column_title
     helpManual: ''
     inputList:
       - key: col
         title: 列号
-        tip: 指定要设置标题的列号
+        tip: 指定要设置的列号
       - key: title
-        title: 标题内容
-        tip: 要设置的列标题
+        title: 列信息
+        tip: 要设置的列信息
     outputList: []
   DataTable.get_column_title:
-    title: 数据表格获取列标题
-    comment: 获取数据表格 @{col} 列的标题
+    title: 数据表格获取列信息
+    comment: 获取数据表格 @{col} 列的信息
     icon: get_column_title
     helpManual: ''
     inputList:
       - key: col
         title: 列号
-        tip: 指定要获取标题的列号
+        tip: 指定要获取的列号
     outputList:
       - key: colum_title
-        title: 列标题
-        tip: 返回指定列的标题
+        title: 列信息
+        tip: 返回指定列的信息
   DataTable.find_and_replace:
     title: 数据表格查找和替换
     comment: 在数据表格中查找 @{find_value} 并替换为 @{replace_value}
@@ -337,8 +324,21 @@ atomic:
       - key: find_data_positions
         title: 查找位置
         tip: 返回查找到的内容所在的位置列表
+  DataTable.sort_table:
+    title: 数据表格排序
+    comment: 对数据表格的 @{col} 列进行排序
+    icon: sort_table
+    helpManual: ''
+    inputList:
+      - key: col
+        title: 列号
+        tip: 指定要排序的列号（例如A，B，C...）
+      - key: sort_type
+        title: 排序方式
+        tip: 选择排序方式（升序、降序）
+    outputList: []
   DataTable.filter_data_table:
-    title: 筛选数据表格
+    title: 数据表格筛选
     comment: 根据条件筛选数据表格
     icon: filter_data_table
     helpManual: ''
@@ -375,7 +375,7 @@ atomic:
         title: 筛选结果
         tip: 返回筛选后的数据结果
   DataTable.import_data_table_from_file:
-    title: 从文件导入数据表格
+    title: 从文件导入数据到数据表格
     comment: 从文件 @{import_file_path} 导入数据到数据表格
     icon: import_data_table
     helpManual: ''
