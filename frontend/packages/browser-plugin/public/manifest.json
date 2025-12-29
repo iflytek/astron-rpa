@@ -3,7 +3,7 @@
   "name": "Astron Browser Plugin",
   "description": "Astron Browser Plugin",
   "homepage_url": "https://www.example.com/",
-  "version": "5.2.3",
+  "version": "5.2.4",
   "icons": {
     "16": "static/icon_16.png",
     "48": "static/icon_48.png",
@@ -41,6 +41,7 @@
     "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
   },
   "permissions": [
+    "alarms",
     "debugger",
     "tabs",
     "activeTab",

@@ -6,8 +6,9 @@
 
 # 打包说明
 
-- 打包命令：npm run build
+- 打包命令：`npm run build` 即可打包 Chrome/Edge 浏览器通用插件
 - npm run build:`browser` 为打包成对应浏览器的插件，可以是任何Chromium/Firefox 内核的变体浏览器，只需要在`src/3rd/rpa_websocket.js` 中设置 custom_agent，`package.json` 中添加命令即可，`browser` 为该浏览器可执行文件的文件名
+- node 版本说明：v20+
 
 # 部分功能说明
 

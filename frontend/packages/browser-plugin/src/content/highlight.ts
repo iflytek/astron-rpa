@@ -1,19 +1,22 @@
+let highlight: HTMLElement | null = null
+let timeoutId: number | null = null
 export function highLight(rect: DOMRectT) {
-  let highlight: HTMLElement | null = null
-  if (highlight)
-    return
-  clearHighlight()
-  highlight = document.createElement('div')
+  if (timeoutId) {
+    clearTimeout(timeoutId)
+  }
+  if (!highlight) {
+    highlight = document.createElement('div')
+    document.querySelector('html').appendChild(highlight)
+  }
   highlight.className = 'rpa-highlight'
-  document.querySelector('html').appendChild(highlight)
   const { width, height, left, top } = rect
   highlight.style.top = `${Math.round(top)}px`
   highlight.style.left = `${Math.round(left)}px`
   highlight.style.width = `${Math.round(width)}px`
   highlight.style.height = `${Math.round(height)}px`
   highlight.style.display = 'block'
-  setTimeout(() => {
-    document.querySelector('html').removeChild(highlight)
+  timeoutId = setTimeout(() => {
+    clearHighlight()
   }, 3000)
 }
 

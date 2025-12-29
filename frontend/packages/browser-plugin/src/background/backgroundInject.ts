@@ -248,6 +248,7 @@ async function findTabAndFrame(params: ElementParams) {
   }
   else {
     const frames = await Tabs.getAllFrames(tab.id)
+    log.info('frames: ', frames)
     const targetFrame = iframeXpath ? findFrameByXpath(frames, iframeXpath) : findFrameByUrl(frames, url)
     if (targetFrame) {
       return { tab, frameId: targetFrame.frameId }
