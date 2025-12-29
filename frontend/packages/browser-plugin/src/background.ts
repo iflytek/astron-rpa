@@ -46,6 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.runtime.onInstalled.addListener(() => {
   reloadAllTabs()
   disableOldExtensions()
+  chrome.alarms.create('weakAlarm', { delayInMinutes: 1, periodInMinutes: 1 })
 })
 chrome.runtime.onStartup.addListener(() => {
   reloadAllTabs()
@@ -54,6 +55,12 @@ chrome.management.onEnabled.addListener((info) => {
   if (info.id === chrome.runtime.id) {
     reloadAllTabs()
     disableOldExtensions()
+    chrome.alarms.create('weakAlarm', { delayInMinutes: 1, periodInMinutes: 1 })
+  }
+})
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === 'weakAlarm') {
+    log.info('Alive alarm triggered')
   }
 })
 

@@ -136,7 +136,7 @@ function hasSameClassSiblings(element: HTMLElement, className: string) {
 function pickClass(element: HTMLElement) {
   const classList = Array.from(element.classList)
   for (const cls of classList) {
-    if (isLegalClass(cls) && !hasSameClassSiblings(element, cls)) {
+    if (!hasSameClassSiblings(element, cls)) {
       return cls
     }
   }
@@ -152,29 +152,39 @@ function isUniqueIdFn(id: string) {
   return id && !Utils.isNumberString(id) && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
 }
 
-function isLegalClass(cls: string) {
+function isHighWeightClass(cls: string) {
   return cls && !Utils.isNumberString(cls) && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
 }
+
+// function isLowWeightClass(cls: string) {
+//   return cls && !Utils.isSpecialCharacter(cls)
+// }
+
 function isSvgElement(element: Element): boolean {
   return element.namespaceURI === 'http://www.w3.org/2000/svg'
 }
 
 /**
- * Filters an array of HTMLElements to include only those that are visible.
+ * Filters an array of HTML elements to return only the visible ones.
  *
- * An element is considered visible if:
- * - Its bounding rectangle has non-zero width and height.
- * - Its computed CSS `visibility` property is not `'hidden'` or `'collapse'`.
+ * An element is considered visible if neither it nor any of its parent elements
+ * up to the `<body>` have a computed style of `display: 'none'`,
+ * `visibility: 'hidden'`, or `visibility: 'collapse'`.
  *
- * @param elements - The array of HTMLElements to filter.
- * @returns A new array containing only the visible elements.
+ * @param elements - The array of HTML elements to filter.
+ * @returns A new array containing only the visible elements. If the input is
+ *          null or empty, it is returned as is.
  */
 export function filterVisibleElements(elements: HTMLElement[]) {
   if (elements && elements.length) {
     elements = elements.filter((ele) => {
-      const style = window.getComputedStyle(ele)
-      if (style.visibility === 'hidden' || style.visibility === 'collapse' || style.display === 'none')
-        return false
+      let current: HTMLElement | null = ele
+      while (current && current.tagName.toLowerCase() !== 'body') {
+        const style = window.getComputedStyle(current)
+        if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse')
+          return false
+        current = current.parentElement
+      }
       return true
     })
   }
@@ -517,6 +527,8 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
     const className = pickClass(element)
     const type = getAttr(element, 'type')
     const title = getAttr(element, 'title')
+    const placeholder = getAttr(element, 'placeholder')
+    const value = getAttr(element, 'value')
     let tagName = getSupportTag(element.tagName.toLowerCase())
     let index = getElementIndex(element)
     let hasSubling = hasSameTypeSiblings(element)
@@ -536,8 +548,16 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
       attrs.push({ name: 'index', value: index, checked: true, type: 0 })
     if (type)
       attrs.push({ name: 'type', value: type, checked: true, type: 0 })
-    if (className)
-      attrs.push({ name: 'class', value: className, checked: true, type: 1 })
+    if (className) {
+      const classChecked = isHighWeightClass(className)
+      attrs.push({ name: 'class', value: className, checked: classChecked, type: 1 })
+    }
+    if (placeholder && placeholder.length < MAX_ATTRIBUTE_LENGTH) {
+      attrs.push({ name: 'placeholder', value: placeholder, checked: false, type: 0 })
+    }
+    if (value && value.length < MAX_ATTRIBUTE_LENGTH) {
+      attrs.push({ name: 'value', value, checked: false, type: 0 })
+    }
     if (title && title.length < MAX_ATTRIBUTE_LENGTH)
       attrs.push({ name: 'title', value: title, checked: false, type: 0 })
     // text attr only for target element
@@ -562,6 +582,21 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
     }
   }
   return rebuildDirectory(originElement, elementDirectory)
+}
+
+/**
+ * Generates a full XPath for a given HTML element by tracing its ancestry.
+ *
+ * This function first determines the element's path from itself up to the root
+ * of the document by calling `getElementDirectory`. It then uses this path
+ * to construct a precise and unique XPath string.
+ *
+ * @param element The HTML element for which to generate the XPath.
+ * @returns A string representing the calculated XPath for the provided element.
+ */
+export function directoryXpath(element: HTMLElement): string {
+  const elementDirectory = getElementDirectory(element)
+  return generateXPath(elementDirectory)
 }
 
 /**
@@ -848,7 +883,7 @@ export function getWindowFrames() {
   const frames = getAllFrames()
   const framesList = Array.from(frames).map((frame) => {
     return {
-      xpath: getXpath(frame),
+      xpath: directoryXpath(frame),
       src: frame.src,
       rect: getFrameContentRect(frame),
     }
@@ -1049,7 +1084,7 @@ export function getElementByElementInfo(params: ElementInfo): HTMLElement[] | nu
 }
 
 export function getChildElementByType(element: HTMLElement, params: Options): HTMLElement[] | HTMLElement | null {
-  const { elementGetType } = params
+  const { elementGetType, multiple } = params
   if (elementGetType === 'index') {
     return element.children[params.index || 0] as HTMLElement
   }
@@ -1057,7 +1092,19 @@ export function getChildElementByType(element: HTMLElement, params: Options): HT
     return Array.from(element.children) as HTMLElement[]
   }
   if (elementGetType === 'xpath') {
-    return document.evaluate(`.${params.xpath}`, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement
+    if (multiple) {
+      const result = document.evaluate(`.${params.xpath}`, element, null, XPathResult.ANY_TYPE, null)
+      const elements: HTMLElement[] = []
+      let node = result.iterateNext() as HTMLElement
+      while (node) {
+        elements.push(node)
+        node = result.iterateNext() as HTMLElement
+      }
+      return elements
+    }
+    else {
+      return document.evaluate(`.${params.xpath}`, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement
+    }
   }
   if (elementGetType === 'last') {
     return element.lastElementChild as HTMLElement

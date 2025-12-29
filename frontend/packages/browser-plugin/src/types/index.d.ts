@@ -69,6 +69,7 @@ interface Options {
   elementGetType: 'index' | 'xpath' | 'last' | 'all' | 'next' | 'prev' | ''
   index?: number
   xpath?: string
+  multiple?: boolean // for xpath get single or multiple elements
 }
 
 interface ElementInfo {

@@ -1,6 +1,7 @@
 import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
+  directoryXpath,
   filterVisibleElements,
   findElementByPoint,
   generateXPath,
@@ -171,7 +172,7 @@ function tagFrame() {
   const iframes = getIFramesElements()
   iframes.forEach((iframe) => {
     const iframeInfo = {
-      iframeXpath: getXpath(iframe),
+      iframeXpath: directoryXpath(iframe),
       iframeTransform: getIframeTransform(iframe),
     }
     iframe.contentWindow?.postMessage(
@@ -325,7 +326,7 @@ const ContentHandler = {
     },
 
     scrollIntoView: async (data: ElementInfo) => {
-      const { matchTypes } = data
+      const { matchTypes, atomConfig } = data
       let scrollEle: HTMLElement[] | null
       try {
         scrollEle = await ContentHandler.ele.getElement(data)
@@ -334,10 +335,15 @@ const ContentHandler = {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
       if (scrollEle && scrollEle[0]) {
-        scrollEle[0].scrollIntoView({
-          behavior: 'instant',
-          block: 'center',
-        })
+        if (atomConfig && atomConfig.notCenter) {
+          scrollEle[0].scrollIntoView(false)
+        }
+        else {
+          scrollEle[0].scrollIntoView({
+            behavior: 'instant',
+            block: 'center',
+          })
+        }
         return Utils.success(true)
       }
       else {

@@ -6,9 +6,9 @@ This repository is for the RPA browser plugin, which handles web-related automat
 
 # Build Instructions
 
-- Build command: `npm run build`
+- Build command: `npm run build` to package the universal extension for Chrome/Edge browsers
 - `npm run build:browser` is used to package the plugin for a specific browser. It supports any Chromium/Firefox-based browser variant. You only need to set `custom_agent` in `src/3rd/rpa_websocket.js` and add the corresponding command in `package.json`. The `browser` refers to the executable file name of the target browser.
-
+- Node version requirement: v20+
 
 # Feature Overview
 
