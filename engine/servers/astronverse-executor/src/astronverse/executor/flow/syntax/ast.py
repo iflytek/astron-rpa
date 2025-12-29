@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from astronverse.executor.flow.syntax import InputParam, OutputParam, Token, Node
 from typing import List, Dict
 from astronverse.executor.flow.syntax.token import TokenType
+from astronverse.executor.utils.utils import _str_to_list_if_possible
 
 
 @dataclass
@@ -53,7 +54,7 @@ class Program(Node):
         for p in param_list:
             param = svc.param.parse_param(
                 {
-                    "value": p.get("varValue"),
+                    "value": _str_to_list_if_possible(p.get("varValue")),
                     "types": p.get("varType"),
                     "name": p.get("varName"),
                 }
