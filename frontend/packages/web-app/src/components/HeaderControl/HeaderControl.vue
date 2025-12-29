@@ -61,7 +61,7 @@ function handleToControl() {
   </span>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .app_control__item {
   cursor: pointer;
   display: inline-flex;

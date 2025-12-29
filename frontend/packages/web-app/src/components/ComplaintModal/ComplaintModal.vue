@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { NiceModal } from '@rpa/components'
 import { createReusableTemplate } from '@vueuse/core'
-import { reactive } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import type { UploadFile, UploadProps } from 'ant-design-vue';
+import { Upload, message } from 'ant-design-vue'
 import to from 'await-to-js'
-import { message } from 'ant-design-vue'
+import type { Rule } from 'ant-design-vue/es/form';
+import { isEmpty } from 'lodash-es'
 
 import { useUserStore } from '@/stores/useUserStore'
 import { uploadFile } from '@/api/resource'
@@ -67,6 +69,7 @@ const DEFECT_OPTIONS: ICheckboxOption[] = [
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate<{ options: ICheckboxOption[] }>()
 
+const formRef = ref();
 
 const formData = reactive<IFormData>({
   contentSafety: [],
@@ -75,11 +78,35 @@ const formData = reactive<IFormData>({
   attachments: []
 })
 
-const beforeUpload: UploadProps['beforeUpload'] = () => {
+const rules = computed<Record<string, Rule[]>>(() => {
+  const categories = [...formData.contentSafety, ...formData.functionalDefect];
+
+  const validateCategorie = async () => {
+    const values = [...formData.contentSafety, ...formData.functionalDefect];
+    return isEmpty(values) ? Promise.reject(new Error('请选择问题类型')) : Promise.resolve()
+  }
+
+  return {
+    description: [{ required: true }],
+    contentSafety: [{ required: isEmpty(categories) || !isEmpty(formData.contentSafety), validator: validateCategorie }],
+    functionalDefect: [{ required: isEmpty(categories) || !isEmpty(formData.functionalDefect), validator: validateCategorie }],
+  }
+})
+
+const beforeUpload: UploadProps['beforeUpload'] = (file) => {
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    message.error('文件大小不能超过 5MB');
+    // 返回 Upload.LIST_IGNORE 来阻止文件被添加到列表
+    return Upload.LIST_IGNORE;
+  }
+  // 返回 false 阻止自动上传，但允许文件添加到列表（手动上传）
   return false;
 };
 
 const handleSubmit = async () => {
+  await formRef.value.validate()
+
   // 上传附件
   const imageIds = await Promise.all(formData.attachments.map(async item => {
     // 避免重复提交
@@ -139,22 +166,28 @@ const handleSubmit = async () => {
       </div>
     </DefineTemplate>
 
-    <a-form layout="vertical">
-      <a-form-item label="内容安全类">
+    <a-form ref="formRef" layout="vertical" :model="formData" :rules="rules">
+      <a-form-item label="内容安全类" name="contentSafety">
         <a-checkbox-group v-model:value="formData.contentSafety" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="CONTENT_OPTIONS" />
         </a-checkbox-group>
       </a-form-item>
-      <a-form-item label="功能缺陷类">
+      <a-form-item label="功能缺陷类" name="functionalDefect">
         <a-checkbox-group v-model:value="formData.functionalDefect" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="DEFECT_OPTIONS" />
         </a-checkbox-group>
       </a-form-item>
-      <a-form-item label="问题描述">
-        <a-textarea v-model:value="formData.description" :rows="4" :maxlength="500" placeholder="请具体描述问题（如生成的内容情况、问题发生场景）" />
+      <a-form-item label="问题描述" name="description">
+        <a-textarea
+          v-model:value="formData.description"
+          :rows="4"
+          :maxlength="500"
+          show-count
+          placeholder="请具体描述问题（如生成的内容情况、问题发生场景）" />
       </a-form-item>
       <a-form-item>
-        <a-upload v-model:file-list="formData.attachments" accept="image/*" :before-upload="beforeUpload" :max-count="3" multiple>
+        <a-upload v-model:file-list="formData.attachments" accept="image/*" :before-upload="beforeUpload" :max-count="3"
+          multiple>
           <a-button class="text-xs">
             上传图片附件
           </a-button>
