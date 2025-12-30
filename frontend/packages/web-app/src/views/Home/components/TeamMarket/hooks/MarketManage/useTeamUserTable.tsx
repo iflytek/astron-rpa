@@ -103,12 +103,19 @@ export function useTeamUserTable() {
         content: h(<InviteUser marketId={activeMarket.value.marketId} 
           onInviteTypeChange={(type: string) => {
             inviteType.value = type; 
-            m.update({okText: inviteType.value === 'link' ? '复制链接' : '发送邀请'})
+            m.update({
+              okText: inviteType.value === 'link' ? '复制链接' : '发送邀请',
+            })
           }}
           onChange={values => inviteUsers.value = values} 
-          onLinkChange={(link: string) => inviteLink.value = link} />),
+          onLinkChange={(link: string) => {
+            inviteLink.value = link
+            m.update({
+              okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 }
+            })
+          }} />),
         okText: inviteType.value === 'link' ? '复制链接' : '发送邀请',
-        okButtonProps: { loading: false },
+        okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
         onOk: () => {
           return new Promise((resolve, reject) => {
             if(inviteType.value === 'link') {
@@ -260,7 +267,7 @@ export function useTeamUserTable() {
         action: 'design_cloud_pj_create',
         clickFn: () => inviteUser(),
         type: 'primary',
-        hidden: activeMarket.value.marketType === MARKET_TYPE_PUBLIC && activeMarket.value.userType !== MARKET_USER_ADMIN,
+        hidden: ![MARKET_USER_OWNER, MARKET_USER_ADMIN].includes(activeMarket.value.userType),
       },
     ],
     tableProps: {

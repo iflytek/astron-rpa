@@ -1,7 +1,15 @@
 import { http } from './http'
-import { LoginFormData, RegisterFormData, TenantItem } from '../interface'
+import { ConsultFormData, LoginFormData, RegisterFormData, TenantItem } from '../interface'
 import { clearUserInfo } from '../utils/remember'
 import { message } from 'ant-design-vue'
+
+interface PreAuthenticateData extends LoginFormData {
+  platform: string
+}
+
+interface SetPasswordData extends LoginFormData {
+  tempToken: string
+}
 
 // 查询登录状态
 export const loginStatus = async () => {
@@ -28,8 +36,8 @@ export const isHistory = async (params: LoginFormData) => {
   return data
 }
 
-// 预认证
-export const preAuthenticate = async (params: LoginFormData) => {
+// 预认
+export const preAuthenticate = async (params: PreAuthenticateData) => {
   const { data } = await http.post('/rpa-auth/pre-authenticate', params)
   return data
 }
@@ -54,7 +62,7 @@ export const tenantList = async (tempToken?: string) => {
 }
 
 // 正式登录
-export const login = async (params: { tempToken: string, tenantId: string, platform: string }) => {
+export const login = async (params: { tempToken: string, tenantId: string }) => {
   const { data } = await http.postparams('/rpa-auth/login', params)
   return data
 }
@@ -72,9 +80,6 @@ export const checkRegistered = async ({ phone } : { phone: string }) => {
 }
 
 // 设置密码
-interface SetPasswordData extends LoginFormData {
-  tempToken: string
-}
 export const setPassword = async (params: SetPasswordData) => {
   const { data } = await http.post('/rpa-auth/password/set', params)
   return data
@@ -94,6 +99,18 @@ export const userInfo = async () => {
 
 // 修改密码
 export const modifyPassword = async (params: LoginFormData) => {
-  const { data } = await http.post('/rpa-auth/user/password/modify', params)
+  const { data } = await http.post('/rpa-auth/password/change', params)
+  return data
+}
+
+// 提交咨询
+export const submitConsult = async (params: ConsultFormData) => {
+  const { data } = await http.post('/robot/feedback/consult/submit', params)
+  return data
+}
+
+// 提交续费
+export const submitRenewal = async (params: ConsultFormData) => {
+  const { data } = await http.post('/robot/feedback/renewal/submit', params)
   return data
 }

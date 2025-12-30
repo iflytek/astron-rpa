@@ -12,9 +12,9 @@ export function useModifyPassword(
   const formRef = ref()
 
   const formData = reactive<LoginFormData>({
-    phone: '',
+    loginName: '',
     oldPassword: '',
-    password: '',
+    newPassword: '',
     confirmPassword: '',
   })
 

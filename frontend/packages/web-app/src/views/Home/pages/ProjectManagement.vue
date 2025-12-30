@@ -19,8 +19,8 @@ const consultRef = ref<InstanceType<typeof Auth.Consult> | null>(null)
 
 async function createRobot() {
   if(userStore.currentTenant?.tenantType !== 'enterprise'){
-    const res = await checkProjectNum({ type: 'design' })
-    if(res.data){
+    const res = await checkProjectNum()
+    if(!res.data){
       consultRef.value?.init({
         trigger: 'modal',
         modalConfirm: {

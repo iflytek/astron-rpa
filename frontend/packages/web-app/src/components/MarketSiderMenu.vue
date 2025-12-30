@@ -10,7 +10,7 @@ import { TEAMMARKETMANAGE, TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useMarketStore } from '@/stores/useMarketStore'
 import GlobalModal from '@/components/GlobalModal/index.ts'
-import { checkProjectNum } from '@/api/project'
+import { checkMarketNum } from '@/api/market'
 import { useUserStore } from '@/stores/useUserStore'
 
 const userStore = useUserStore()
@@ -48,8 +48,8 @@ function jumpToTeamDetail(e, data: any) {
 
 async function createTeam() {
   if(userStore.currentTenant?.tenantType === 'personal'){
-    const res = await checkProjectNum({ type: 'market' })
-    if(res.data){
+    const res = await checkMarketNum()
+    if(!res.data){
       GlobalModal.warn({
         title: '提示',
         content: '个人版最多可创建3个团队市场，您已满额。',
@@ -66,8 +66,10 @@ async function createTeam() {
 const marketId = useRoute()?.query?.marketId as string
 useMarketStore().refreshTeamList(marketId)
 
-onBeforeUnmount(() => {
-  useMarketStore().reset()
+watch(() => userStore.currentTenant?.id, (val) => {
+  if (val) {
+    useMarketStore().refreshTeamList()
+  }
 })
 </script>
 

@@ -2,8 +2,9 @@
 import { ref, computed } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import DynamicForm from '../Base/DynamicForm.vue'
+import ConsultForm from '../Base/Consult/ConsultForm.vue'
 import { useRegisterForm } from './hooks/useRegisterForm.ts'
-import type { RegisterMode, PersonalRegisterFormData, EnterpriseRegisterFormData, InviteInfo } from '../../interface.ts'
+import type { RegisterMode, RegisterFormData, ConsultFormData, InviteInfo } from '../../interface.ts'
 import { Edition, AuthType, AsyncAction } from '../../interface.ts'
 
 const { running, inviteInfo, edition, authType } = defineProps({
@@ -26,20 +27,20 @@ const { running, inviteInfo, edition, authType } = defineProps({
 })
 
 const emit = defineEmits<{
-  submit: [data: PersonalRegisterFormData | EnterpriseRegisterFormData, mode: RegisterMode]
+  submit: [data: RegisterFormData | ConsultFormData, mode: RegisterMode]
   switchToLogin: []
 }>()
 
-const personal = useRegisterForm('PERSONAL', { inviteInfo, edition, authType }, emit as any)
-const enterprise = useRegisterForm('ENTERPRISE', { inviteInfo, edition, authType }, emit as any)
+const personal = useRegisterForm({ inviteInfo, edition, authType }, emit as any)
+const consultRef = ref<InstanceType<typeof ConsultForm> | null>(null)
 
-const currentMode = ref<RegisterMode>('PERSONAL')
+const currentMode = ref('REGISTER')
 
 const headerTitle = computed(() => {
   if(edition === 'saas' && authType === 'uap') {
     return { 
-      title: currentMode.value === 'PERSONAL' ? '注册讯飞账号' : '咨询',
-      actionText: currentMode.value === 'PERSONAL' ? '咨询' : '注册讯飞账号'
+      title: currentMode.value === 'REGISTER' ? '注册讯飞账号' : '咨询',
+      actionText: currentMode.value === 'REGISTER' ? '咨询' : '注册讯飞账号'
     }
   }
   if(edition === 'saas' && authType === 'casdoor') {
@@ -48,12 +49,12 @@ const headerTitle = computed(() => {
   return { title: '', actionText: '' }
 })
 
-const personalLoading = computed(() => running === 'PERSONAL')
-const enterpriseLoading = computed(() => running === 'ENTERPRISE')
+const personalLoading = computed(() => running === 'REGISTER')
+const enterpriseLoading = computed(() => running === 'CONSULT')
 
 const changeMode = () => {
-  const next: RegisterMode = currentMode.value === 'PERSONAL' ? 'ENTERPRISE' : 'PERSONAL'
-  next === 'ENTERPRISE' ? personal.resetForm() : enterprise.resetForm()
+  const next: RegisterMode = currentMode.value === 'REGISTER' ? 'CONSULT' : 'REGISTER'
+  next === 'CONSULT' ? personal.resetForm() : consultRef.value?.resetForm()
   currentMode.value = next
 }
 
@@ -69,8 +70,8 @@ const changeMode = () => {
     @back="() => emit('switchToLogin')"
   >
     <DynamicForm
-      class="auth-register-personal-form"
-      v-if="currentMode === 'PERSONAL' && personal.config"
+      class="auth-register-form"
+      v-if="currentMode === 'REGISTER' && personal.config"
       :loading="personalLoading"
       :ref="personal.formRef"
       :config="personal.config"
@@ -78,14 +79,11 @@ const changeMode = () => {
       :handleEvents="personal.handleEvents"
     />
 
-    <DynamicForm
-      class="auth-register-enterprise-form"
-      v-if="currentMode === 'ENTERPRISE' && enterprise.config"
+    <ConsultForm
+      v-if="currentMode === 'CONSULT'"
+      ref="consultRef"
       :loading="enterpriseLoading"
-      :ref="enterprise.formRef"
-      :config="enterprise.config"
-      v-model="enterprise.formData"
-      :handleEvents="enterprise.handleEvents"
+      @submit="(data) => emit('submit', data, 'CONSULT')"
     />
   </FormLayout>
 </template>

@@ -217,7 +217,7 @@ const router = createRouter({
   routes,
 })
 
-function findFirstPermittedRoute(permStore: ReturnType<typeof usePermissionStore>): RouteLocationAsRelativeGeneric | null {
+export function findFirstPermittedRoute(permStore: ReturnType<typeof usePermissionStore>): RouteLocationAsRelativeGeneric | null {
   const loop = (rs: RouteRecordRaw[]): RouteRecordRaw | null => {
     for (const r of rs) {
       if (r.meta?.permission) {
@@ -243,7 +243,6 @@ router.beforeEach(async (to, from, next) => {
   //   return next({ name: 'Login', query: { redirect: to.fullPath } })
 
   if (to.meta?.permission) {
-    debugger
     if (!permissionStore.fetched) await permissionStore.initPermission()
 
     const resource = (to.meta.resource as string) || (to.name as string)

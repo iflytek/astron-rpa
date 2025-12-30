@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import FormLayout from '../Base/FormLayout.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
-import Consult from '../Base/Consult.vue'
+import Consult from '../Base/Consult/Index.vue'
 import type { TenantItem, InviteInfo } from '../../interface'
 
 const props = defineProps({

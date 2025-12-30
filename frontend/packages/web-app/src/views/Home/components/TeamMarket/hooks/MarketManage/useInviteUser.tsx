@@ -2,7 +2,7 @@ import { Button, message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
 import { ref, reactive } from 'vue'
 
-import { getInviteUser, getTransferUser, getInviteLink, generateInviteLink } from '@/api/market'
+import { getInviteUser, getTransferUser, generateInviteLink, resetInviteLink, } from '@/api/market'
 import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
 import type { resOption } from '@/views/Home/types'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
@@ -165,43 +165,47 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 }
 
 export function useLinkInvite(marketId: string, emit?: any) {
-  const expireDate = ref('')
-  const timeLimits = ref([
-    { label: '4小时后过期', value: 4 },
-    { label: '24小时后过期', value: 24 },
-    { label: '7天后过期', value: 168 },
-    { label: '30天后过期', value: 720 },
+  const invitData = ref({
+    inviteKey: "",
+    expireTime: "",
+    overNumLimit: 0,
+    expireType: "24H",
+  })
+  const expireTypes = ref([
+    { label: '4小时后过期', value: '4H' },
+    { label: '24小时后过期', value: '24H' },
+    { label: '7天后过期', value: '7D' },
+    { label: '30天后过期', value: '30D' },
   ])
+
   const formState = reactive({
     inviteLink: '',
-    limit: 24,
+    expireType: '24H',
   })
 
-  const getLink = async () => {
-    const res = await getInviteLink({ marketId })
-    formState.inviteLink = res.inviteLink
-    if(!res.inviteLink) {
-      generateLink()
-      return
-    }
-    expireDate.value = res.expireDate
+  const retInviteLink = (data) => {
+    invitData.value = data
+    formState.inviteLink = !!data.overNumLimit ? '' : `?inviteKey=${data.inviteKey}`
+    formState.expireType = data.expireType || '24H'
     emit && emit('linkChange', formState.inviteLink)
   }
 
   const generateLink = async () => {
-    const res = await generateInviteLink({ marketId, limit: formState.limit })
-    formState.inviteLink = res.inviteLink
-    expireDate.value = res.expireDate
-    emit && emit('linkChange', formState.inviteLink)
+    const res = await generateInviteLink({ marketId, expireType: formState.expireType })
+    retInviteLink(res.data)
   }
 
+  const resetLink = async () => {
+    const res = await resetInviteLink({ marketId, expireType: formState.expireType })
+    retInviteLink(res.data)
+  }
 
-  getLink()
+  generateLink()
 
   return {
-    expireDate,
-    timeLimits,
+    invitData,
+    expireTypes,
     formState,
-    generateLink,
+    resetLink,
   }
 }

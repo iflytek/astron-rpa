@@ -6,9 +6,8 @@ export function createProject(data) {
 }
 
 // 新建工程-数量校验
-export function checkProjectNum({ type }: { type: 'design' | 'market'}) {
-  // return http.post('/robot/robot-design/number', { type }, { toast: true })
-  return Promise.resolve({ data: true })
+export function checkProjectNum() {
+  return http.get('/robot/quota/check-designer', { toast: true })
 }
 
 /**

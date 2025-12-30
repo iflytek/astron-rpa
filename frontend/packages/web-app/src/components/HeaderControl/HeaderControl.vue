@@ -52,7 +52,7 @@ function handleToControl() {
     </ControlButton>
   </Tooltip>
 
-  <Tooltip v-if="props.control && userStore.currentTenant?.tenantType !== 'personal' && permissionStore.can('admin', 'all')" :title="$t('excellenceCenter')">
+  <Tooltip v-if="props.control && userStore.currentTenant?.tenantType !== 'personal' && permissionStore.can('console', 'all')" :title="$t('excellenceCenter')">
     <ControlButton @click="handleToControl">
       <rpa-icon name="desktop" />
     </ControlButton>

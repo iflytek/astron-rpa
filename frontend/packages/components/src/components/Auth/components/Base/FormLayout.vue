@@ -7,6 +7,7 @@ import type { InviteInfo } from '../../interface'
 
 defineProps<{
   wrapClass?: string
+  contentClass?: string
   showBack?: boolean
   showAgreement?: boolean
   agreementType?: 'show' | 'check'
@@ -36,7 +37,13 @@ const emit = defineEmits<{
       />
     </slot>
 
-    <div class="inner-content relative h-[calc(100%-93px)]" :class="{'h-[calc(100%-113px)]': showAgreement}">
+    <div
+      class="inner-content relative h-[calc(100%-93px)]"
+      :class="[
+        { 'h-[calc(100%-113px)]': showAgreement },
+        contentClass
+      ]"
+    >
       <slot />
     </div>
 
