@@ -857,6 +857,7 @@ class DataTable:
     @staticmethod
     @atomicMg.atomic(
         "DataTable",
+        noAdvanced=True,
         inputList=[
             atomicMg.param(
                 "loop_type",
@@ -950,7 +951,9 @@ class DataTable:
             list_data = []
 
         def table_generator():
-            yield from list_data  # type: ignore
+            list_length = len(list_data)
+            for i in range(list_length):
+                yield (i, list_data[i])
 
         return table_generator()
 
