@@ -32,6 +32,10 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
 
   const handleFind = () => sheetRef.value?.openFindDialog()
 
+  const handleClearAll = () => {
+    runningStore.clearDataTable()
+  }
+
   const handleReady = () => {
     isReady.value = true
   }
@@ -47,7 +51,10 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
   watch(runningStore.dataTable, (newValue, oldValue) => {
     if (isEmpty(newValue) || isEmpty(oldValue)) {
       sheetRef.value?.clearAll()
-      return
+    }
+
+    if (isEmpty(newValue)) {
+      return;
     }
 
     const cellValue: ICellValue[] = [];
@@ -82,6 +89,7 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     handleFind,
     handleReady,
     handleCellUpdate,
+    handleClearAll,
     createWorkbook
   }
 })

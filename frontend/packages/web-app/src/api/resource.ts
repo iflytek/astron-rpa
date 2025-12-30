@@ -3,10 +3,11 @@ import type { FlowItem } from '@/views/Arrange/types/flow'
 import type { RequestConfig } from './http'
 import http from './http'
 import { getRootBaseURL } from './http/env'
+import { sseRequest } from './sse'
 
 const schedulerPost: typeof http.post = (url, data, config) => {
-  return http.post(url, data, { baseURL: getRootBaseURL(), ...config})
-}  
+  return http.post(url, data, { baseURL: getRootBaseURL(), ...config })
+}
 
 // 流程执行
 export function flowRun(data) {
@@ -299,10 +300,14 @@ export function getHTMLClip(data: { is_html: boolean }) {
  * @param projectId 
  */
 export async function getDataTable(projectId: string) {
-  const res = await schedulerPost<RPA.IDataTableSheets>('/scheduler/datatable/open', {
-    project_id: projectId,
-    filename: 'data_table', // 目前单个工程只会有一个数据表格文件，因此文件名先写死
-  })
+  const res = await schedulerPost<RPA.IDataTableSheets>(
+    '/scheduler/datatable/open', 
+    {
+      project_id: projectId,
+      filename: 'data_table', // 目前单个工程只会有一个数据表格文件，因此文件名先写死
+    },
+    { toast: false }
+  )
   return res.data
 }
 
@@ -313,11 +318,15 @@ export async function getDataTable(projectId: string) {
  * @returns 
  */
 export async function updateDataTable(projectId: string, data: RPA.IUpdateDataTableCell[]) {
-  const res = await schedulerPost('/scheduler/datatable/update-cells', {
-    project_id: projectId,
-    filename: 'data_table',
-    updates: data,
-  })
+  const res = await schedulerPost(
+    '/scheduler/datatable/update-cells',
+    {
+      project_id: projectId,
+      filename: 'data_table',
+      updates: data,
+    },
+    { toast: false }
+  )
   return res.data
 }
 
@@ -326,9 +335,41 @@ export async function updateDataTable(projectId: string, data: RPA.IUpdateDataTa
  * @param projectId 
  */
 export async function closeDataTable(projectId: string) {
-  const res = await schedulerPost('/scheduler/datatable/close', {
-    project_id: projectId,
-    filename: 'data_table',
-  })
+  const res = await schedulerPost(
+    '/scheduler/datatable/close',
+    {
+      project_id: projectId,
+      filename: 'data_table',
+    },
+    { toast: false }
+  )
   return res.data
+}
+
+/**
+ * 删除数据表格
+ * @param projectId 
+ * @returns 
+ */
+export async function deleteDataTable(projectId: string) {
+  const res = await schedulerPost(
+    '/scheduler/datatable/delete',
+    {
+      project_id: projectId,
+      filename: 'data_table',
+    },
+    { toast: false }
+  )
+  return res.data
+}
+
+export const startDataTableListenr = (projectId: string) => {
+  return sseRequest(
+    `${getRootBaseURL()}/datatable/stream/project_id=${projectId}&filename=data_table`,
+    null,
+    { method: 'GET' },
+    (data) => {
+      console.log(data)
+    }
+  )
 }

@@ -4,7 +4,7 @@
 import { message } from 'ant-design-vue'
 import { defineStore } from 'pinia'
 import { computed, ref, shallowRef } from 'vue'
-import { max, set } from 'lodash-es'
+import { set } from 'lodash-es'
 
 import { generateUUID } from '@/utils/common'
 
@@ -18,7 +18,7 @@ import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import type { Fun } from '@/types/common'
 import { changeDebugging } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
-import { getDataTable, closeDataTable, updateDataTable } from '@/api/resource'
+import { getDataTable, closeDataTable, updateDataTable, deleteDataTable, startDataTableListenr } from '@/api/resource'
 
 export type RunState = 'run' | 'free' | 'debug' // 执行状态
 
@@ -33,6 +33,7 @@ export const useRunningStore = defineStore('running', () => {
   const status = ref('')
   // 数据表格内容
   const dataTable = shallowRef<RPA.IDataTableSheet>(null)
+  let dataTableListenController: AbortController | null = null
 
   let debugReplyEventId = ''
   let runProjectId = null
@@ -43,6 +44,7 @@ export const useRunningStore = defineStore('running', () => {
     setRunning('free')
     debugData.value = {}
     RpaExecutor?.destroy()
+    dataTableListenController?.abort()
     dataTable.value = null
   }
 
@@ -172,17 +174,18 @@ export const useRunningStore = defineStore('running', () => {
       RpaExecutorUrl = res.data.addr
       // 连接 ws
       createSocket()
+      _startDataTableListenr()
     }
     catch {
       running.value = 'free'
       setStatus('startFailed')
       windowManager.maximizeWindow(true)
+      dataTableListenController?.abort()
     }
   }
 
   const stop = (projectId: string | number) => {
     setStatus('stopping')
-    RpaExecutor && RpaExecutor.destroy()
     stopExecutor({ project_id: projectId })
       .then(() => setStatus('stopSuccess'))
       .finally(() => reset())
@@ -278,8 +281,16 @@ export const useRunningStore = defineStore('running', () => {
   /**
    * 清空单元格数据
    */
-  const clearDataTable = () => {
+  const clearDataTable = async () => {
+    await deleteDataTable(processStore.project.id)
+    dataTable.value = null
+  }
 
+  /**
+   * 开启数据表格 sse 流式监听
+   */
+  const _startDataTableListenr = () => {
+    dataTableListenController = startDataTableListenr(processStore.project.id)
   }
 
   return {

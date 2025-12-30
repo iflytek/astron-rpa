@@ -11,19 +11,18 @@ import { pythonInstallModal } from '../modals'
 export function useManagePython() {
   const pythonPackageStore = usePythonPackageStore()
   const processStore = useProcessStore()
-  let controller = null
+  let controller: AbortController | null = null
 
   // 安装依赖包
   function installPackage(pacakgeOption, upgrade = false) {
     const params = { robotId: processStore.project.id, ...pacakgeOption }
-    controller = new AbortController()
     pythonPackageStore.setPyLoadingType(upgrade ? 'upgrading' : 'installing')
-    sseRequest(`${getRootBaseURL()}/scheduler/pip/install`, {
+    controller = sseRequest(`${getRootBaseURL()}/scheduler/pip/install`, {
       project_id: processStore.project.id,
       package: pacakgeOption.packageName,
       version: pacakgeOption.packageVersion,
       mirror: pacakgeOption.mirror,
-    }, { single: controller.single }, (res) => {
+    }, null, (res) => {
       if (!res)
         return
       let newData

@@ -1,11 +1,7 @@
 <script lang="ts" setup>
 import { useDataSheetStore } from './useDataSheet'
 
-const { sheetRef, isReady } = useDataSheetStore();
-
-const handleClearAll = () => {
-  sheetRef.value?.clearAll()
-}
+const { sheetRef, isReady, handleClearAll } = useDataSheetStore();
 
 const handleDeleteSelection = () => {
   sheetRef.value?.deleteSelection()
