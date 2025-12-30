@@ -17,6 +17,7 @@ export const ForDictEnd = 'Code.ForDictEnd'
 export const ForList = 'Code.ForList'
 export const ForExcelContent = 'Excel.loop_excel_content'
 export const ForBrowserSimilar = 'BrowserElement.loop_similar'
+export const ForDataTableLoop = 'DataTable.loop_data_table'
 export const ForListEnd = 'Code.ForListEnd'
 export const While = 'Code.While'
 export const WhileEnd = 'Code.WhileEnd'
@@ -45,6 +46,7 @@ export const FOR_DICT_TEXT = 'dictfor'
 export const FOR_LIST_TEXT = 'listfor'
 export const FOR_EXCEL_CONTENT = 'excelcontentfor'
 export const FOR_BRO_SIMILAR = 'borsimilarfor'
+export const FOR_DATA_TABLE_LOOP = 'datatablefor'
 export const FOR_END_TEXT = 'forend'
 export const TRY_TEXT = 'try'
 export const CATCH_TEXT = 'catch'
@@ -64,6 +66,7 @@ export const LOOP_END_MAP = {
   [ForList]: ForEnd,
   [ForExcelContent]: ForEnd,
   [ForBrowserSimilar]: ForEnd,
+  [ForDataTableLoop]: ForEnd,
   [While]: ForEnd,
   [Group]: GroupEnd,
   // [Netbreak]: NetbreakEnd,  // 网络断联检测 TODO
@@ -121,6 +124,7 @@ export const CONVERT_MAP = {
   [ForList]: FOR_LIST_TEXT,
   [ForExcelContent]: FOR_EXCEL_CONTENT,
   [ForBrowserSimilar]: FOR_BRO_SIMILAR,
+  [ForDataTableLoop]: FOR_DATA_TABLE_LOOP,
   [ForEnd]: FOR_END_TEXT,
   [While]: WHILE_TEXT,
   [Group]: GROUP_TEXT,

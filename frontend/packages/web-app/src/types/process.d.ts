@@ -71,7 +71,7 @@ declare namespace PROCESS {
     }
 
     interface ForNode extends ContainerNode<string | null> {
-      type: 'stepfor' | 'listfor' | 'dictfor' | 'excelcontentfor' | 'borsimilarfor'
+      type: 'stepfor' | 'listfor' | 'dictfor' | 'excelcontentfor' | 'borsimilarfor' | 'datatablefor'
       body: ASTNode[]
       forEnd: EndWhileNode | null
     }

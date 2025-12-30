@@ -11,7 +11,7 @@ import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import { changeChecked } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
 import { requiredItem } from '@/views/Arrange/components/flow/hooks/useValidate'
-import { Catch, CvImageExist, CvImageExistEnd, FileExist, FolderExist, ForBrowserSimilar, ForDict, ForEnd, ForExcelContent, ForList, ForStep, Group, GroupEnd, If, IfEnd, Try, TryEnd, While, WindowExist } from '@/views/Arrange/config/atomKeyMap'
+import { Catch, CvImageExist, CvImageExistEnd, FileExist, FolderExist, ForBrowserSimilar, ForDataTableLoop, ForDict, ForEnd, ForExcelContent, ForList, ForStep, Group, GroupEnd, If, IfEnd, Try, TryEnd, While, WindowExist } from '@/views/Arrange/config/atomKeyMap'
 import { atomScrollIntoView } from '@/views/Arrange/utils'
 import { getMultiSelectIds } from '@/views/Arrange/utils/flowUtils'
 import { changeSelectAtoms } from '@/views/Arrange/utils/selectItemByClick'
@@ -166,7 +166,7 @@ export const useFlowStore = defineStore('flow', () => {
       let tryRes
       if (i.key === Group)
         groupList.push(i)
-      else if ([ForStep, ForDict, ForList, ForExcelContent, ForBrowserSimilar, While].includes(i.key))
+      else if ([ForStep, ForDict, ForList, ForExcelContent, ForBrowserSimilar, ForDataTableLoop, While].includes(i.key))
         forList.push(i)
       else if ([If, CvImageExist, FileExist, FolderExist, WindowExist].includes(i.key))
         ifList.push(i)
