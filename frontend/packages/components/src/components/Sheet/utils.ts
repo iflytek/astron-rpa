@@ -1,5 +1,6 @@
-import { IWorkbookData } from '@univerjs/core';
-import LuckyExcel from '@zwight/luckyexcel'
+import { IWorkbookData } from '@univerjs/core'
+
+import LuckyExcel from './luckyexcel'
 
 const waitUserSelectExcelFile = (params: {
   onSelect?: (result: File) => void;
