@@ -3,7 +3,7 @@
 atomic:
   DataTable.read_data:
     title: 读取数据表格
-    comment: 读取数据表格 @{read_type} 中的数据
+    comment: 读取数据表格 @{read_type} 中的数据，输出到变量 @{cell_info||row_info||column_info||area_info}
     icon: read_data_table
     helpManual: ''
     inputList:
@@ -83,7 +83,7 @@ atomic:
     outputList: []
   DataTable.get_max_row:
     title: 获取数据表格已用行
-    comment: 获取数据表格中已用的最大行号
+    comment: 获取数据表格中已用的最大行号并输出到 @{max_row}
     icon: get_max_row
     helpManual: ''
     inputList: []
@@ -93,7 +93,7 @@ atomic:
         tip: 返回数据表格中的最大行号，类型为整数
   DataTable.get_max_column:
     title: 获取数据表格已用列
-    comment: 获取数据表格中已用的最大列号
+    comment: 获取数据表格中已用的最大列号并输出到 @{max_column}
     icon: get_max_column
     helpManual: ''
     inputList: []
@@ -239,7 +239,7 @@ atomic:
     outputList: []
   DataTable.insert_row_column:
     title: 数据表格插入行/列
-    comment: 在数据表格中插入 @{amount} @{insert_type}
+    comment: 在数据表格中插入 @{amount} @{insert_type} 空白@{insert_type}
     icon: insert_row_column
     helpManual: ''
     inputList:
@@ -287,7 +287,7 @@ atomic:
     outputList: []
   DataTable.get_column_title:
     title: 数据表格获取列信息
-    comment: 获取数据表格 @{col} 列的信息
+    comment: 获取数据表格 @{col} 列的信息并输出到 @{colum_title}
     icon: get_column_title
     helpManual: ''
     inputList:
@@ -300,7 +300,7 @@ atomic:
         tip: 返回指定列的信息
   DataTable.find_and_replace:
     title: 数据表格查找和替换
-    comment: 在数据表格中查找 @{find_value}，并 @{is_repalce} 替换内容
+    comment: 在数据表格中 @{find_type} 查找内容 @{find_value} @{is_repalce:不}替换内容
     icon: find_and_replace
     helpManual: ''
     inputList:
@@ -328,7 +328,7 @@ atomic:
         tip: 返回查找到的内容所在的位置列表
   DataTable.sort_table:
     title: 数据表格排序
-    comment: 对数据表格的 @{col} 列进行排序
+    comment: 对数据表格的 @{col} 列进行 @{sort_type} 排序
     icon: sort_table
     helpManual: ''
     inputList:
