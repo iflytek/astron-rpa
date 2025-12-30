@@ -6,6 +6,7 @@ import { getInviteUser, getTransferUser, generateInviteLink, resetInviteLink, } 
 import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
 import type { resOption } from '@/views/Home/types'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
+import { VUE_APP_AUTH } from '@/constants'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
   const userList = ref([])
@@ -185,7 +186,7 @@ export function useLinkInvite(marketId: string, emit?: any) {
 
   const retInviteLink = (data) => {
     invitData.value = data
-    formState.inviteLink = !!data.overNumLimit ? '' : `?inviteKey=${data.inviteKey}`
+    formState.inviteLink = !!data.overNumLimit ? '' : `${VUE_APP_AUTH}?inviteKey=${data.inviteKey}`
     formState.expireType = data.expireType || '24H'
     emit && emit('linkChange', formState.inviteLink)
   }

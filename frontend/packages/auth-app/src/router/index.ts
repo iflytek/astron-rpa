@@ -1,7 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-
 const LoginComponent = () => import('@/views/Login/Index.vue')
 const InviteComponent = () => import('@/views/Invite/Index.vue')
 

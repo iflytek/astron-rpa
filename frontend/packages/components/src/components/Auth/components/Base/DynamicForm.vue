@@ -1,10 +1,12 @@
-<script setup lang="ts" >
-import { ref, h } from 'vue'
-import { Form, Input, Checkbox, Select, Textarea } from 'ant-design-vue'
+<script setup lang="ts">
+import { Checkbox, Form, Input, Select, Textarea } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
-import PhoneCode from './PhoneCode.vue'
-import type { FormConfig } from '../../schemas/factories.tsx'
+import { h, ref } from 'vue'
+
 import { Icon as RpaIcon } from '../../../Icon'
+import type { FormConfig } from '../../schemas/factories.tsx'
+
+import PhoneCode from './PhoneCode.vue'
 
 interface Props<T = any> {
   config: FormConfig
@@ -15,36 +17,29 @@ interface Props<T = any> {
 
 const { modelValue, loading, config, handleEvents } = defineProps<Props>()
 
-const emit = defineEmits<{
-  submit: [value: any]
-}>()
-
 const formRef = ref<FormInstance>()
 const codeInputRefs = ref<Record<string, InstanceType<typeof PhoneCode>>>({})
 
-const validateFields = async (fieldNames?: string[]) => {
-  try {
-    if (fieldNames && fieldNames.length > 0) {
-      await formRef.value?.validateFields(fieldNames)
-      return true
-    } else {
-      await formRef.value?.validate()
-      return true
-    }
-  } catch (error) {
-    throw error
+async function validateFields(fieldNames?: string[]) {
+  if (fieldNames && fieldNames.length > 0) {
+    await formRef.value?.validateFields(fieldNames)
+    return true
+  }
+  else {
+    await formRef.value?.validate()
+    return true
   }
 }
 
 // 重置表单
-const resetFields = () => {
+function resetFields() {
   formRef.value?.resetFields()
-  Object.values(codeInputRefs.value).forEach(ref => {
+  Object.values(codeInputRefs.value).forEach((ref) => {
     ref?.resetForm()
   })
 }
 
-const clearValidates = () => {
+function clearValidates() {
   formRef.value?.clearValidate()
 }
 
@@ -56,7 +51,7 @@ defineExpose({
 })
 </script>
 
-<template>  
+<template>
   <Form
     ref="formRef"
     :model="modelValue"
@@ -70,7 +65,7 @@ defineExpose({
         :name="field.key"
         :rules="field.rules"
         :class="`form-item-${field.type} form-item-${field.key}`"
-      >      
+      >
         <Input
           v-if="field.type === 'input'"
           v-model:value="modelValue[field.key]"
@@ -86,12 +81,12 @@ defineExpose({
           autocomplete="new-password"
           :placeholder="field.placeholder"
           size="large"
-          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
           v-bind="field.props"
-          :iconRender="(visible: boolean) => h(RpaIcon, {
-              name: visible ? 'password-eye' : 'password-eye-closed'
-            })
+          :icon-render="(visible: boolean) => h(RpaIcon, {
+            name: visible ? 'password-eye' : 'password-eye-closed',
+          })
           "
+          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
         />
         <PhoneCode
           v-else-if="field.type === 'captcha'"
@@ -107,8 +102,8 @@ defineExpose({
           v-else-if="field.type === 'textarea'"
           v-model:value="modelValue[field.key]"
           :placeholder="field.placeholder"
-          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
           v-bind="field.props"
+          @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
         />
         <Select
           v-else-if="field.type === 'select'"
@@ -117,14 +112,13 @@ defineExpose({
           v-bind="field.props"
           :options="field.options"
           :get-popup-container="(triggerNode) => triggerNode.parentNode"
-        />          
+        />
         <Checkbox
           v-else-if="field.type === 'checkbox'"
           v-model:checked="modelValue[field.key]"
           v-bind="field.props"
-        >          
-          <component 
-            v-if="field.customRender" 
+        >
+          <component
             :is="field.customRender({
               field,
               value: modelValue[field.key],
@@ -133,18 +127,19 @@ defineExpose({
                 try {
                   await validateFields([field.key])
                   return true
-                } catch {
+                }
+                catch {
                   return false
                 }
               },
               handleEvents,
-              loading
-            })" 
+              loading,
+            })"
+            v-if="field.customRender"
           />
         </Checkbox>
         <template v-else-if="field.type === 'slot'">
-          <component 
-            v-if="field.customRender" 
+          <component
             :is="field.customRender({
               field,
               value: modelValue[field.key],
@@ -153,13 +148,15 @@ defineExpose({
                 try {
                   await validateFields([field.key])
                   return true
-                } catch {
+                }
+                catch {
                   return false
                 }
               },
               handleEvents,
-              loading
-            })" 
+              loading,
+            })"
+            v-if="field.customRender"
           />
         </template>
       </Form.Item>
@@ -167,20 +164,21 @@ defineExpose({
 
     <slot name="actions">
       <component
-        v-if="config.actionsRender"
         :is="() => config.actionsRender!({
           formData: modelValue,
           validate: async () => {
             try {
               await validateFields()
               return true
-            } catch {
+            }
+            catch {
               return false
             }
           },
           handleEvents,
           loading,
         })"
+        v-if="config.actionsRender"
       />
     </slot>
   </Form>

@@ -1,21 +1,22 @@
 <script setup lang="ts">
+import type { ConsultFormData, RegisterMode } from '../../../interface.ts'
 import DynamicForm from '../DynamicForm.vue'
+
 import { useConsultForm } from './hooks/useConsultForm.ts'
-import type { RegisterMode, ConsultFormData } from '../../../interface.ts'
 
 const { loading, consultEdition, consultType } = defineProps({
-  loading: { 
-    type: Boolean, 
-    default: false 
+  loading: {
+    type: Boolean,
+    default: false,
   },
   consultEdition: {
     type: String as () => 'professional' | 'enterprise' | '',
-    default: ''
+    default: '',
   },
   consultType: {
     type: String as () => 'consult' | 'renewal',
-    default: 'consult'
-  }
+    default: 'consult',
+  },
 })
 
 const emit = defineEmits<{
@@ -25,18 +26,18 @@ const emit = defineEmits<{
 const { config, formRef, formData, handleEvents, resetForm } = useConsultForm({ consultEdition, consultType }, emit as any)
 
 defineExpose({
-  resetForm
+  resetForm,
 })
 </script>
 
 <template>
   <DynamicForm
-    class="auth-consult-form"
     v-if="config"
-    :loading="loading"
     ref="formRef"
-    :config="config"
     v-model="formData"
-    :handleEvents="handleEvents"
+    class="auth-consult-form"
+    :loading="loading"
+    :config="config"
+    :handle-events="handleEvents"
   />
 </template>

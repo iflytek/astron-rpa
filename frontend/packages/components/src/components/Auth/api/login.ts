@@ -1,7 +1,9 @@
-import { http } from './http'
-import { ConsultFormData, LoginFormData, RegisterFormData, TenantItem } from '../interface'
-import { clearUserInfo } from '../utils/remember'
 import { message } from 'ant-design-vue'
+
+import type { ConsultFormData, LoginFormData, RegisterFormData, TenantItem } from '../interface'
+import { clearUserInfo } from '../utils/remember'
+
+import { http } from './http'
 
 interface PreAuthenticateData extends LoginFormData {
   platform: string
@@ -12,105 +14,105 @@ interface SetPasswordData extends LoginFormData {
 }
 
 // 查询登录状态
-export const loginStatus = async () => {
+export async function loginStatus() {
   const { data } = await http.get('/rpa-auth/login-status')
   return data
 }
 
 // 获取 token
-export const getToken = async () => {
+export async function getToken() {
   const { data } = await http.get('/rpa-auth/token')
   return data
 }
 
 // 退出登录
-export const logout = async () => {
+export async function logout() {
   const { data } = await http.post('/rpa-auth/logout')
   clearUserInfo()
   return data
 }
 
 // 检查是否是历史用户
-export const isHistory = async (params: LoginFormData) => {
+export async function isHistory(params: LoginFormData) {
   const { data } = await http.get('/rpa-auth/user/history', params)
   return data
 }
 
 // 预认
-export const preAuthenticate = async (params: PreAuthenticateData) => {
+export async function preAuthenticate(params: PreAuthenticateData) {
   const { data } = await http.post('/rpa-auth/pre-authenticate', params)
   return data
 }
 
 // 发送验证码
-export const sendCaptcha = async (phone: string, isRegister: boolean = true) => {
+export async function sendCaptcha(phone: string, isRegister: boolean = true) {
   if (!isRegister) {
-    const registered = await checkRegistered({ phone });
+    const registered = await checkRegistered({ phone })
     if (!registered) {
-      message.warning('当前手机号未注册');
-      return Promise.reject();
+      message.warning('当前手机号未注册')
+      return Promise.reject(new Error('当前手机号未注册'))
     }
   }
-  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone });
-  return data;
+  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone })
+  return data
 }
 
 // 获取租户列表
-export const tenantList = async (tempToken?: string) => {
+export async function tenantList(tempToken?: string) {
   const { data } = await http.get<TenantItem[]>('/rpa-auth/tenant/list', { tempToken })
   return data
 }
 
 // 正式登录
-export const login = async (params: { tempToken: string, tenantId: string }) => {
+export async function login(params: { tempToken: string, tenantId: string }) {
   const { data } = await http.postparams('/rpa-auth/login', params)
   return data
 }
 
 // 注册
-export const register = async (params: RegisterFormData) => {
+export async function register(params: RegisterFormData) {
   const { data } = await http.post('/rpa-auth/register', params)
   return data
 }
 
 // 检查是否已注册
-export const checkRegistered = async ({ phone } : { phone: string }) => {
+export async function checkRegistered({ phone }: { phone: string }) {
   const { data } = await http.get('/rpa-auth/user/exist', { phone })
   return data
 }
 
 // 设置密码
-export const setPassword = async (params: SetPasswordData) => {
+export async function setPassword(params: SetPasswordData) {
   const { data } = await http.post('/rpa-auth/password/set', params)
   return data
 }
 
 // 切换租户
-export const switchTenant = async (params: { tenantId: string }) => {
+export async function switchTenant(params: { tenantId: string }) {
   const { data } = await http.postparams('/rpa-auth/tenant/switch', params)
   return data
 }
 
 // 获取用户信息
-export const userInfo = async () => {
+export async function userInfo() {
   const { data } = await http.get('/rpa-auth/user/info')
   return data
 }
 
 // 修改密码
-export const modifyPassword = async (params: LoginFormData) => {
+export async function modifyPassword(params: LoginFormData) {
   const { data } = await http.post('/rpa-auth/password/change', params)
   return data
 }
 
 // 提交咨询
-export const submitConsult = async (params: ConsultFormData) => {
+export async function submitConsult(params: ConsultFormData) {
   const { data } = await http.post('/robot/feedback/consult/submit', params)
   return data
 }
 
 // 提交续费
-export const submitRenewal = async (params: ConsultFormData) => {
+export async function submitRenewal(params: ConsultFormData) {
   const { data } = await http.post('/robot/feedback/renewal/submit', params)
   return data
 }

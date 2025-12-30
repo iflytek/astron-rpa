@@ -1,12 +1,13 @@
 import CryptoJS from 'crypto-js'
-import type { Edition, AuthType } from '../interface'
+
+import type { AuthType, Edition } from '../interface'
 
 const KEY = 'Fh$8bR#mK2p@7vL!wQ9y^U4nE6j*T1&s'
 
 export interface RememberedUser {
   account: string
   password: string
-  edition: Edition 
+  edition: Edition
   authType: AuthType
 }
 
@@ -26,12 +27,14 @@ export function saveRememberUser(account: string, pwdPlain: string, edition: Edi
 
 export function getRememberUser(): RememberedUser | null {
   const raw = localStorage.getItem('user')
-  if (!raw) return null
+  if (!raw)
+    return null
   try {
     const { account, password, edition, authType } = JSON.parse(raw) as RememberedUser
     const decrypted = CryptoJS.AES.decrypt(password, KEY).toString(CryptoJS.enc.Utf8)
     return { account, password: decrypted, edition, authType }
-  } catch {
+  }
+  catch {
     return null
   }
 }
@@ -47,11 +50,13 @@ export function saveUserInfo(userInfo: any) {
 
 export function getUserInfo(): any | null {
   const raw = localStorage.getItem('userInfo')
-  if (!raw) return null
+  if (!raw)
+    return null
   try {
     const decrypted = CryptoJS.AES.decrypt(raw, KEY).toString(CryptoJS.enc.Utf8)
     return JSON.parse(decrypted)
-  } catch {
+  }
+  catch {
     return null
   }
 }

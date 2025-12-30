@@ -1,7 +1,6 @@
-import axios from 'axios'
 import { message } from 'ant-design-vue'
+import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
-
 
 let BASE_URL = localStorage.getItem('authBaseUrl') || import.meta.env.VITE_API_BASE_URL || '/api'
 export function setBaseUrl(url?: string) {
@@ -18,7 +17,7 @@ export interface ResponseData<T = any> {
 }
 
 export async function request<T = any, P = any>(
-  config: AxiosRequestConfig<P> & { url: string }
+  config: AxiosRequestConfig<P> & { url: string },
 ): Promise<ResponseData<T>> {
   try {
     const { data: res } = await axios<ResponseData<T>>({
@@ -30,13 +29,15 @@ export async function request<T = any, P = any>(
       data: config.data && JSON.parse(JSON.stringify(config.data, (_, v) => v ?? '')),
     })
 
-    if (res.code === SUCCESS_CODE) return res
+    if (res.code === SUCCESS_CODE)
+      return res
 
     if (res.code !== SUCCESS_CODE) {
       message.error(res.message || res.msg || '服务异常')
     }
     return Promise.reject(res)
-  } catch (err: any) {
+  }
+  catch (err: any) {
     const msg = err.response
       ? `${err.response.status} ${err.response.statusText}`
       : err.message || '服务异常'
@@ -46,20 +47,20 @@ export async function request<T = any, P = any>(
 }
 
 export const http = {
-  get:  <T = any>(url: string, params?: any, config?: AxiosRequestConfig) =>
-          request<T>({ method: 'GET',  url, params, ...config }),
+  get: <T = any>(url: string, params?: any, config?: AxiosRequestConfig) =>
+    request<T>({ method: 'GET', url, params, ...config }),
 
   post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-          request<T>({ method: 'POST', url, data, ...config }),
-  
+    request<T>({ method: 'POST', url, data, ...config }),
+
   postparams: <T = any>(url: string, params?: any, config?: AxiosRequestConfig) =>
-          request<T>({ method: 'POST', url, params, ...config }),
+    request<T>({ method: 'POST', url, params, ...config }),
 
-  put:  <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-          request<T>({ method: 'PUT',  url, data, ...config }),
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
+    request<T>({ method: 'PUT', url, data, ...config }),
 
-  del:  <T = any>(url: string, params?: any, config?: AxiosRequestConfig) =>
-          request<T>({ method: 'DELETE', url, params, ...config }),
+  del: <T = any>(url: string, params?: any, config?: AxiosRequestConfig) =>
+    request<T>({ method: 'DELETE', url, params, ...config }),
 }
 
 export default request

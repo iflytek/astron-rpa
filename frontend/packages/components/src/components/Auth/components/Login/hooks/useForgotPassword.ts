@@ -1,15 +1,16 @@
 import { reactive, ref } from 'vue'
+
 import type { LoginFormData } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import { forgotPasswordFormConfig } from '../../../schemas/loginRegister'
 
-export type ForgotPasswordEmitEvent =
-  | 'submit'
-  | 'switchToLogin'
+export type ForgotPasswordEmitEvent
+  = | 'submit'
+    | 'switchToLogin'
 
 export function useForgotPassword(
-  emit: ((e: 'submit', data: LoginFormData) => void) &
-        ((e: 'switchToLogin') => void)
+  emit: ((e: 'submit', data: LoginFormData) => void)
+    & ((e: 'switchToLogin') => void),
 ) {
   const formRef = ref()
 
@@ -21,14 +22,17 @@ export function useForgotPassword(
     try {
       await formRef.value?.validateFields()
       emit('submit', formData)
-    } catch (e) {
+    }
+    catch (e) {
       console.error('忘记密码表单校验失败', e)
     }
   }
 
   const handleEvents = (event: string) => {
-    if (event === 'submit') return handleSubmit()
-    if (event === 'switchToLogin') return emit('switchToLogin')
+    if (event === 'submit')
+      return handleSubmit()
+    if (event === 'switchToLogin')
+      return emit('switchToLogin')
   }
 
   return { formRef, formData, config: forgotPasswordFormConfig, handleEvents }

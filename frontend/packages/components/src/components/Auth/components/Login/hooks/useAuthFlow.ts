@@ -1,29 +1,34 @@
-import { ref, watch, defineExpose } from 'vue'
+import { message } from 'ant-design-vue'
+import { ref, watch } from 'vue'
+
 import { setBaseUrl } from '../../../api/http'
 import {
-  loginStatus,
-  preAuthenticate,
+  isHistory,
   login,
+  loginStatus,
+  modifyPassword,
+  preAuthenticate,
   register,
   setPassword,
+  submitConsult,
   tenantList,
-  isHistory,
-  modifyPassword,
-  submitConsult
 } from '../../../api/login'
 import type {
+  AsyncAction,
+  AuthFormMode,
+  AuthType,
+  ConsultFormData,
+  Edition,
+  InviteInfo,
   LoginFormData,
   LoginMode,
+  Platform,
   RegisterFormData,
-  ConsultFormData,
   RegisterMode,
   TenantItem,
-  AuthFormMode,
-  AsyncAction,
 } from '../../../interface'
-import { getRememberUser, saveRememberUser, clearRememberUser, saveSelectedTenant, getSelectedTenant, saveUserInfo } from '../../../utils/remember'
-import { message } from 'ant-design-vue'
-import type { Platform, Edition, AuthType, InviteInfo } from '../../../interface'
+import { clearRememberUser, getRememberUser, getSelectedTenant, saveRememberUser, saveSelectedTenant, saveUserInfo } from '../../../utils/remember'
+
 export interface UseAuthFlowOptions {
   baseUrl?: string
   inviteInfo?: InviteInfo
@@ -31,7 +36,7 @@ export interface UseAuthFlowOptions {
   edition?: Edition
 }
 
-export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish'): void}) {
+export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'): void }) {
   const platform = ref<Platform>('admin')
   const currentFormMode = ref<AuthFormMode>('login')
   const tenants = ref<TenantItem[]>([])
@@ -42,7 +47,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     running.value = action
     try {
       return await task()
-    } finally {
+    }
+    finally {
       running.value = 'IDLE'
     }
   }
@@ -53,16 +59,18 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       newVal && setBaseUrl(newVal)
       platform.value = newVal && newVal.includes('127.0.0.1') ? 'client' : 'admin'
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   const checkLoginStatus = async () => {
     try {
       const isLogin = await loginStatus()
-      if(isLogin) {
+      if (isLogin) {
         checkTenant(getSelectedTenant())
       }
-    } catch (e) {
+    }
+    catch (e) {
+      console.log(e)
       currentFormMode.value = 'login'
     }
   }
@@ -71,58 +79,61 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     try {
       const data = await tenantList()
       tenants.value = data
-      if(tenantId) {
+      if (tenantId) {
         const tenantExists = tenants.value.find(t => t.id === tenantId)
-        if(tenantExists && !tenantExists.isExpired) {
+        if (tenantExists && !tenantExists.isExpired) {
           emits('finish')
           return
         }
       }
       switchMode('login')
-    } catch (e) {
-      console.error('获取租户列表失败')
+    }
+    catch (e) {
+      console.error('获取租户列表失败', e)
     }
   }
-  
 
   const switchToTenants = async (autoLogin = true) => {
     try {
       const data = await tenantList(tempToken.value)
       tenants.value = data
 
-      if(autoLogin && tenants.value.length === 1) {
+      if (autoLogin && tenants.value.length === 1 && tenants.value[0]?.id) {
         handleLogin(tenants.value[0].id)
         return
       }
 
       switchMode('tenantSelect')
-    } catch (e) {
-      console.error('获取租户列表失败')
+    }
+    catch (e) {
+      console.error('获取租户列表失败', e)
     }
   }
 
   const preLogin = async (data: LoginFormData, mode: LoginMode, autoLogin = true) => run(mode, async () => {
     try {
-      const params = {...data, loginType: mode}
-      if(opts.edition === 'saas') {
-        const history = await isHistory({phone: params.phone})
-        if(history) {
-          if(mode === 'PASSWORD') switchMode('forgotPasswordWithSysUpgrade')
-          if(mode === 'CODE'){
+      const params = { ...data, loginType: mode }
+      if (opts.edition === 'saas') {
+        const history = await isHistory({ phone: params.phone })
+        if (history) {
+          if (mode === 'PASSWORD')
+            switchMode('forgotPasswordWithSysUpgrade')
+          if (mode === 'CODE') {
             await handleForgotPassword(params)
           }
           return
         }
       }
       const account = params.phone || params.loginName
-      mode === 'PASSWORD' && params.remember && account  && params.password ? saveRememberUser(account, params.password, opts.edition, opts.authType) : clearRememberUser()
+      mode === 'PASSWORD' && params.remember && account && params.password ? saveRememberUser(account, params.password, opts.edition, opts.authType) : clearRememberUser()
       delete params.remember
       delete params.agreement
-      const token = await preAuthenticate({...params, platform: platform.value })
+      const token = await preAuthenticate({ ...params, platform: platform.value })
       tempToken.value = token
       switchToTenants(autoLogin)
-    } catch (e) {
-      console.error('登录失败')
+    }
+    catch (e) {
+      console.error('登录失败', e)
     }
   })
 
@@ -133,30 +144,33 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       saveSelectedTenant(tenantId)
       saveUserInfo(userInfo)
       emits('finish')
-    } catch (e) {
-      console.error('进入空间失败')
+    }
+    catch (e) {
+      console.error('进入空间失败', e)
     }
   }
 
   const handleRegister = async (data: RegisterFormData | ConsultFormData, mode: RegisterMode) => run(mode, async () => {
     try {
-      if(mode === 'REGISTER') {
+      if (mode === 'REGISTER') {
         const token = await register(data as RegisterFormData)
         message.success('注册账号成功')
         tempToken.value = token
-        if(!data.hasOwnProperty('password')) switchMode('setPassword')
+        if (!Object.prototype.hasOwnProperty.call(data, 'password'))
+          switchMode('setPassword')
         else switchToTenants()
         return
       }
       await submitConsult(data as ConsultFormData)
       message.success('提交成功')
       switchMode('login')
-    } catch (e) {
+    }
+    catch (e) {
       console.log(e)
     }
   })
 
-  const handleForgotPassword = async (data: LoginFormData) => run('FORGOT_PASSWORD', async () =>{
+  const handleForgotPassword = async (data: LoginFormData) => run('FORGOT_PASSWORD', async () => {
     try {
       const params: LoginFormData = { ...data, loginType: 'CODE' }
       delete params.remember
@@ -164,7 +178,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       const token = await preAuthenticate({ ...params, platform: platform.value })
       tempToken.value = token
       switchMode(currentFormMode.value === 'forgotPassword' ? 'setPassword' : 'setPasswordWithSysUpgrade')
-    } catch (e) {
+    }
+    catch (e) {
       console.log(e)
     }
   })
@@ -189,7 +204,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
 
   const autoPreLogin = () => {
     const remembered = getRememberUser()
-    if(remembered) {
+    if (remembered) {
       const accountKey = opts.authType === 'uap' ? 'phone' : 'loginName'
       const params = {
         [accountKey]: remembered.account,

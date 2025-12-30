@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LoginFormData, AsyncAction } from '../../interface'
-import FormLayout from '../Base/FormLayout.vue'
+
+import type { AsyncAction, LoginFormData } from '../../interface'
 import DynamicForm from '../Base/DynamicForm.vue'
+import FormLayout from '../Base/FormLayout.vue'
+
 import { useForgotPassword } from './hooks/useForgotPassword'
 
 const { title, running } = defineProps({
@@ -22,17 +24,17 @@ const { formRef, formData, config, handleEvents } = useForgotPassword(emit as an
 
 <template>
   <FormLayout
-    :wrap-class="'auth-forgot-password h-full relative'"
+    wrap-class="auth-forgot-password h-full relative"
     :title="title || '找回密码'"
     show-back
     @back="() => emit('switchToLogin')"
   >
     <DynamicForm
       ref="formRef"
+      v-model="formData"
       :loading="loading"
       :config="config"
-      v-model="formData"
-      :handleEvents="handleEvents"
+      :handle-events="handleEvents"
       class="auth-forgot-password-form"
     />
   </FormLayout>

@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import InviteForm from '../components/Invite/Index.vue'
 import PageLayout from '../components/Base/PageLayout.vue'
-import type { Edition, AuthType } from '../interface'
+import InviteForm from '../components/Invite/Index.vue'
+import type { AuthType, Edition } from '../interface'
 
-const props = defineProps({
+const { baseUrl, edition, authType } = defineProps({
   baseUrl: { type: String },
   edition: { type: String as () => Edition, default: 'saas' },
   authType: { type: String as () => AuthType, default: 'uap' },
 })
-
 </script>
 
 <template>

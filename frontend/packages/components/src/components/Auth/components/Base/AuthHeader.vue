@@ -13,7 +13,7 @@ const emit = defineEmits<{
   actionClick: []
 }>()
 
-const handleActionClick = () => {
+function handleActionClick() {
   emit('actionClick')
 }
 </script>
@@ -27,10 +27,10 @@ const handleActionClick = () => {
           {{ subTitle }}
         </div>
       </div>
-      <Button 
+      <Button
         v-if="actionText"
-        type="link" 
-        class="!m-0 !p-0" 
+        type="link"
+        class="!m-0 !p-0"
         @click="handleActionClick"
       >
         {{ actionText }}

@@ -1,38 +1,38 @@
 <script setup lang="ts">
 import { Tooltip } from 'ant-design-vue'
-import type { TenantItem } from '../../interface'
-import { Icon as RpaIcon } from '../../../Icon'
 
-const props = defineProps({
+import { Icon as RpaIcon } from '../../../Icon'
+import type { TenantItem } from '../../interface'
+
+const { isActive, tenantItem, customClass, rightIcon } = defineProps({
   isActive: { type: Boolean, default: false },
   tenantItem: { type: Object as () => TenantItem, required: true },
   customClass: { type: String, default: '' },
-  rightIcon: { type: String, default: 'right' }
+  rightIcon: { type: String, default: 'right' },
 })
+
+const emit = defineEmits<{
+  click: []
+}>()
 
 const tenantTypeMap = {
   personal: '个人免费版',
   professional: '专业版',
-  enterprise: '企业版'
+  enterprise: '企业版',
 }
 
-const emit = defineEmits<{
-  click: []
- }>()
-
-function handleClick () {
+function handleClick() {
   emit('click')
 }
 </script>
 
 <template>
   <div
-    :class="[
-      'relative flex items-center cursor-pointer px-[12px] py-[8px] mb-[12px] border rounded-[12px] hover:border-[#6366f1]/50',
+    class="relative flex items-center cursor-pointer px-[12px] py-[8px] mb-[12px] border rounded-[12px] hover:border-[#6366f1]/50" :class="[
       customClass,
-      isActive 
-        ? 'border-[#6366f1] bg-[#6366f1]/5' 
-        : 'border-[#e5e7eb] dark:border-[#4B556380] hover:border-[#6366f1]/50'
+      isActive
+        ? 'border-[#6366f1] bg-[#6366f1]/5'
+        : 'border-[#e5e7eb] dark:border-[#4B556380] hover:border-[#6366f1]/50',
     ]"
     @click="handleClick"
   >
@@ -43,7 +43,9 @@ function handleClick () {
       <Tooltip :title="tenantItem.name" class="text-[14px] font-[500] mb-[4px] text-ellipsis inline-block whitespace-nowrap overflow-hidden max-w-[calc(100%-20px)]">
         {{ tenantItem.name }}
       </Tooltip>
-      <div class="w-[fit-content] h-[22px] leading-[22px] text-gradient-bg" ><span class="text-gradient">{{ tenantTypeMap[tenantItem.tenantType] }}</span></div>
+      <div class="w-[fit-content] h-[22px] leading-[22px] text-gradient-bg">
+        <span class="text-gradient">{{ tenantTypeMap[tenantItem.tenantType] }}</span>
+      </div>
     </div>
     <RpaIcon class="absolute right-[13px] top-[50%] transform -translate-y-1/2" :name="rightIcon" />
   </div>

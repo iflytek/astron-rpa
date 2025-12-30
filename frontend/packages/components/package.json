@@ -69,6 +69,7 @@
     "@storybook/addon-onboarding": "^9.1.1",
     "@storybook/addon-themes": "^9.1.1",
     "@storybook/vue3-vite": "^9.1.1",
+    "@types/crypto-js": "^4.2.2",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
     "ant-design-vue": "catalog:",
