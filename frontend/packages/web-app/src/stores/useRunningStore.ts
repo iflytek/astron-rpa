@@ -3,7 +3,8 @@
  */
 import { message } from 'ant-design-vue'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
+import { max, set } from 'lodash-es'
 
 import { generateUUID } from '@/utils/common'
 
@@ -31,7 +32,7 @@ export const useRunningStore = defineStore('running', () => {
   // 状态：starting 启动中， startSuccess 启动成功， startFailed 启动失败，running-运行中，runSuccess-运行成功，runFailed运行失败 stopping 停止中， stopSuccess 停止成功，  stopFailed 停止失败
   const status = ref('')
   // 数据表格内容
-  const dataTable = ref<RPA.IDataTableSheet>(null)
+  const dataTable = shallowRef<RPA.IDataTableSheet>(null)
 
   let debugReplyEventId = ''
   let runProjectId = null
@@ -265,10 +266,13 @@ export const useRunningStore = defineStore('running', () => {
    * 更新单元格数据
    * @param cellData 
    */
-  const updateDataTableCell = async (cellData: Omit<RPA.IUpdateDataTableCell, 'sheet'>) => {
-    const sheetName = dataTable.value.name;
-    const res = await updateDataTable(processStore.project.id, [{ sheet: sheetName, ...cellData }])
-    console.log(res)
+  const updateDataTableCell = async (cellData: Omit<RPA.IUpdateDataTableCell, 'sheet'>[]) => {
+    const sheetName = dataTable.value?.name;
+    await updateDataTable(processStore.project.id, cellData.map(it => ({ sheet: sheetName, ...it })))
+    // 同步到本地
+    cellData.forEach(it => set(dataTable.value, [it.row, it.col], it.value))
+    dataTable.value.max_row = dataTable.value.data.length;
+    dataTable.value.max_column = Math.max(...dataTable.value.data.map(it => it.length))
   }
 
   /**
@@ -279,6 +283,7 @@ export const useRunningStore = defineStore('running', () => {
   }
 
   return {
+    dataTable,
     running,
     debugData,
     breakpointAtom,

@@ -1,6 +1,7 @@
 import { createInjectionState } from '@vueuse/core'
-import { shallowRef, markRaw, ref } from 'vue'
+import { shallowRef, markRaw, ref, watch } from 'vue'
 import { Sheet as SheetComponent, type ISheetWorkbookData, type ICellValue } from '@rpa/components'
+import { isEmpty, get } from 'lodash-es'
 
 import { useRunningStore } from '@/stores/useRunningStore.ts'
 
@@ -40,9 +41,37 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
   }
 
   const handleCellUpdate = (data: ICellValue[]) => {
-    // runningStore.updateDataTableCell({ row, col: column, value })
-    console.log(data)
+    runningStore.updateDataTableCell(data.map(it => ({ row: it.row, col: it.column, value: it.value })))
   }
+
+  watch(runningStore.dataTable, (newValue, oldValue) => {
+    if (isEmpty(newValue) || isEmpty(oldValue)) {
+      sheetRef.value?.clearAll()
+      return
+    }
+
+    const cellValue: ICellValue[] = [];
+
+    const maxRow = Math.max(newValue.max_row, oldValue.max_row);
+    const maxCol = Math.max(oldValue.max_column, oldValue.max_column);
+
+    for (let row = 0; row < maxRow; row++) {
+      for (let col = 0; col < maxCol; col++) {
+        const newCellValue = get(newValue, [row, col])
+        const oldCellValue = get(oldValue, [row, col])
+        
+        if (newCellValue !== oldCellValue) {
+          cellValue.push({
+            row,
+            column: col,
+            value: newCellValue,
+          })
+        }
+      }      
+    }
+
+    sheetRef.value?.updateCellValues(cellValue)
+  })
 
   return {
     isReady,

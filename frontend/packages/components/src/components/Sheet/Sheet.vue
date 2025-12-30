@@ -10,6 +10,7 @@ import { generate } from '@ant-design/colors';
 import { UniverSheetsFindReplacePreset } from '@univerjs/preset-sheets-find-replace'
 import sheetsFindReplaceZhCN from '@univerjs/preset-sheets-find-replace/locales/zh-CN'
 import sheetsFindReplaceEnUS from '@univerjs/preset-sheets-find-replace/locales/en-US'
+import { set } from 'lodash-es'
 
 import '@univerjs/preset-sheets-core/lib/index.css'
 import '@univerjs/preset-sheets-find-replace/lib/index.css'
@@ -144,6 +145,27 @@ onMounted(() => {
   univerAPIInstance = univerAPI
 })
 
+const getWorkbookData = () => {
+  const fWorkbook = univerAPIInstance?.getActiveWorkbook()
+  if (!fWorkbook) return
+  return fWorkbook.save()
+}
+
+const createWorkbook = (workbookData: Partial<IWorkbookData>) => {
+  univerAPIInstance?.createWorkbook(workbookData)
+}
+
+const updateCellValues = (values: ICellValue[]) => {
+  const fWorkbook = univerAPIInstance?.getActiveWorkbook()
+  const fWorksheet = fWorkbook?.getActiveSheet()
+  const fRange = fWorksheet?.getRange('A1:B2')
+  
+  const cellValue: CellValue[][] = []
+  values.forEach(it => set(cellValue, [it.row, it.column], it.value));
+
+  fRange?.setValues(cellValue)
+}
+
 onBeforeUnmount(() => {
   univerInstance?.dispose()
   univerAPIInstance?.dispose()
@@ -160,24 +182,17 @@ watch(() => props.locale, (locale) => {
 })
 
 defineExpose({
+  getWorkbookData,
+  createWorkbook,
+  updateCellValues,
   undo: () => univerAPIInstance?.undo(),
   redo: () => univerAPIInstance?.redo(),
   // 打开查找替换弹窗
   openFindDialog: () => {
     univerAPIInstance?.executeCommand("ui.operation.open-find-dialog")
   },
-  getWorkbookData: () => {
-    const fWorkbook = univerAPIInstance?.getActiveWorkbook()
-    if (!fWorkbook) return
-    return fWorkbook.save()
-  },
-  createWorkbook: (workbookData: IWorkbookData) => {
-    univerAPIInstance?.createWorkbook(workbookData)
-  },
   // 清空全部数据
-  clearAll: () => {
-    univerAPIInstance?.createWorkbook({})
-  },
+  clearAll: () => createWorkbook({}),
   // 删除选中区域内容
   deleteSelection: () => {
     const fWorkbook = univerAPIInstance?.getActiveWorkbook()
