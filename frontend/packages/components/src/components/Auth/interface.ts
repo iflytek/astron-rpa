@@ -11,9 +11,9 @@ export interface LoginFormData {
   password?: string
   remember?: boolean
   agreement?: boolean
-  phone?: string,
-  captcha?: string,
-  loginType?: "CODE" | "PASSWORD",
+  phone?: string
+  captcha?: string
+  loginType?: 'CODE' | 'PASSWORD'
   tenantId?: string
   confirmPassword?: string
   oldPassword?: string
@@ -41,7 +41,7 @@ export interface TenantItem {
   updateTime?: string
 }
 
-export type InviteCode = '000' | '001' | '101' | '102' | '100' |'' // "000"-成功 "001"-重复加入 "101"-超出上限 "102"-链接失效 "100"-市场人数已满 
+export type InviteCode = '000' | '001' | '101' | '102' | '100' | '' // "000"-成功 "001"-重复加入 "101"-超出上限 "102"-链接失效 "100"-市场人数已满
 export interface InviteInfo {
   resultCode?: InviteCode
   inviteType?: 'market' | 'enterprise'

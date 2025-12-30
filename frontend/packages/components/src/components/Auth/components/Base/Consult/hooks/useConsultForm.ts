@@ -1,4 +1,5 @@
 import { reactive, ref } from 'vue'
+
 import type { ConsultFormData } from '../../../../interface'
 import { generateFormData } from '../../../../schemas/factories'
 import { consultFormConfig } from '../../../../schemas/loginRegister'
@@ -6,16 +7,16 @@ import { consultFormConfig } from '../../../../schemas/loginRegister'
 export type RegisterEmitEvent = 'submit'
 
 export function useConsultForm(
-  opts: { consultEdition?:string, consultType?: string } | null,
-  emit: ((e: 'submit', data: any) => void)
+  opts: { consultEdition?: string, consultType?: string } | null,
+  emit: ((e: 'submit', data: any) => void),
 ) {
   const formRef = ref()
 
   const formConfig = consultFormConfig(
     (opts?.consultType as 'renewal' | 'consult') ?? 'consult',
-    (opts?.consultEdition as 'professional' | 'enterprise') ?? 'professional'
+    (opts?.consultEdition as 'professional' | 'enterprise') ?? 'professional',
   )
-    
+
   const initialData = (): ConsultFormData =>
     generateFormData(formConfig)
   const formData = reactive<ConsultFormData>(initialData())
@@ -26,7 +27,8 @@ export function useConsultForm(
     try {
       await formRef.value?.validateFields()
       emit('submit', formData)
-    } catch (e) {
+    }
+    catch (e) {
       console.error(`咨询表单校验失败`, e)
     }
   }
@@ -37,7 +39,8 @@ export function useConsultForm(
   }
 
   const handleEvents = (event: string) => {
-    if (event === 'submit') return handleSubmit()
+    if (event === 'submit')
+      return handleSubmit()
   }
 
   return { formRef, formData, config: formConfig, resetForm, handleEvents }

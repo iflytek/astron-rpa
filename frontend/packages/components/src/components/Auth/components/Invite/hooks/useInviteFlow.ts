@@ -1,14 +1,13 @@
 import { ref } from 'vue'
-import { userInfo } from '../../../api/login'
-import { queryInviteData, acceptInvite } from '../../../api/invite'
-import { loginStatus, } from '../../../api/login'
-import { getQuery } from '../../../utils/index'
-import { message } from 'ant-design-vue'
+
+import { acceptInvite, queryInviteData } from '../../../api/invite'
+import { loginStatus, userInfo } from '../../../api/login'
 import type { InviteInfo } from '../../../interface'
+import { getQuery } from '../../../utils/index'
 
 type PageStatus = 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
 
-export function useInviteFlow(emits: {(e: 'joinSuccess'): void}) {
+export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   const inviteKey = getQuery().inviteKey as string
   const currentStatus = ref<PageStatus>()
   const inviteInfo = ref<InviteInfo>({
@@ -16,7 +15,7 @@ export function useInviteFlow(emits: {(e: 'joinSuccess'): void}) {
     inviteType: 'market',
     enterpriseName: '',
     marketName: '',
-    inviterName: ''
+    inviterName: '',
   })
   const currentUser = ref<{ userName: string, phone: string }>({ userName: '', phone: '' })
 
@@ -27,7 +26,7 @@ export function useInviteFlow(emits: {(e: 'joinSuccess'): void}) {
   const updateInviteInfo = async (data: InviteInfo, needLogin = true) => {
     inviteInfo.value = { ...data, inviteType: data.inviteType || 'market' }
     let pageStatus: PageStatus = 'needLogin'
-    switch(data.resultCode) {
+    switch (data.resultCode) {
       case '101':
         pageStatus = 'reachLimited'
         break
@@ -47,13 +46,13 @@ export function useInviteFlow(emits: {(e: 'joinSuccess'): void}) {
       default:
         break
     }
-    if(pageStatus !== 'needLogin') {
+    if (pageStatus !== 'needLogin') {
       switchPage(pageStatus)
       return
     }
-    if(needLogin) {
+    if (needLogin) {
       const isLogin = await loginStatus()
-      if(!isLogin) {
+      if (!isLogin) {
         switchPage('needLogin')
         return
       }
@@ -62,7 +61,7 @@ export function useInviteFlow(emits: {(e: 'joinSuccess'): void}) {
       switchPage('showUserInfo')
     }
   }
-  
+
   const getInviteInfo = async () => {
     if (!inviteKey) {
       switchPage('linkExpired')
@@ -80,7 +79,8 @@ export function useInviteFlow(emits: {(e: 'joinSuccess'): void}) {
     try {
       const data = await acceptInvite({ inviteKey })
       updateInviteInfo(data, false)
-    } catch (e) {
+    }
+    catch (e) {
       console.error('加入失败', e)
     }
   }

@@ -1,23 +1,24 @@
 import { reactive, ref } from 'vue'
+
 import type {
-  RegisterMode,
-  RegisterFormData,
+  AuthType,
   InviteInfo,
-  AuthType
+  RegisterFormData,
+  RegisterMode,
 } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
 import {
   personalRegisterFormConfig,
 } from '../../../schemas/loginRegister'
 
-export type RegisterEmitEvent =
-  | 'submit'
-  | 'switchToLogin'
+export type RegisterEmitEvent
+  = | 'submit'
+    | 'switchToLogin'
 
 export function useRegisterForm(
   opts: { inviteInfo?: InviteInfo, edition?: string, authType?: AuthType } | null,
-  emit: ((e: 'submit', data: any, mode: RegisterMode) => void) &
-        ((e: 'switchToLogin') => void)
+  emit: ((e: 'submit', data: any, mode: RegisterMode) => void)
+    & ((e: 'switchToLogin') => void),
 ) {
   const formRef = ref()
 
@@ -31,7 +32,7 @@ export function useRegisterForm(
   })
 
   const formConfig = personalRegisterFormConfig(formData, !!opts?.inviteInfo, opts?.edition, opts?.authType)
-    
+
   const initialData = () => generateFormData(formConfig as any)
 
   Object.assign(formData, initialData())
@@ -40,7 +41,8 @@ export function useRegisterForm(
     try {
       await formRef.value?.validateFields()
       emit('submit', formData, 'REGISTER')
-    } catch (e) {
+    }
+    catch (e) {
       console.error(`注册表单校验失败`, e)
     }
   }
@@ -51,8 +53,10 @@ export function useRegisterForm(
   }
 
   const handleEvents = (event: string) => {
-    if (event === 'submit') return handleSubmit()
-    if (event === 'switchToLogin') return emit('switchToLogin')
+    if (event === 'submit')
+      return handleSubmit()
+    if (event === 'switchToLogin')
+      return emit('switchToLogin')
   }
 
   return { formRef, formData, config: formConfig, resetForm, handleEvents }

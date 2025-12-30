@@ -1,13 +1,14 @@
 import { reactive, ref } from 'vue'
-import type { LoginFormData, InviteInfo } from '../../../interface'
+
+import type { InviteInfo, LoginFormData } from '../../../interface'
 import { createSetPasswordFormConfig } from '../../../schemas/loginRegister'
 
 export type SetPasswordEmitEvent = 'submit' | 'switchToLogin'
 
 export function useSetPassword(
   inviteInfo: InviteInfo | null,
-  emit: ((e: 'submit', data: LoginFormData) => void) &
-        ((e: 'switchToLogin') => void)
+  emit: ((e: 'submit', data: LoginFormData) => void)
+    & ((e: 'switchToLogin') => void),
 ) {
   const formRef = ref()
 
@@ -22,14 +23,17 @@ export function useSetPassword(
     try {
       await formRef.value?.validateFields()
       emit('submit', formData)
-    } catch (e) {
+    }
+    catch (e) {
       console.error('设置密码表单校验失败', e)
     }
   }
 
   const handleEvents = (event: string) => {
-    if (event === 'submit') return handleSubmit()
-    if (event === 'switchToLogin') return emit('switchToLogin')
+    if (event === 'submit')
+      return handleSubmit()
+    if (event === 'switchToLogin')
+      return emit('switchToLogin')
   }
 
   return { formRef, formData, config, handleEvents }

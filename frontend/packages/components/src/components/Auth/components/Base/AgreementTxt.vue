@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from 'ant-design-vue'
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 declare global {
   interface Window {
@@ -23,23 +23,28 @@ const text = computed(() => {
   return '勾选即代表您同意并接受'
 })
 
-const openLink = (linkType: 'service' | 'privacy') => {
+function openLink(linkType: 'service' | 'privacy') {
   const urls: Record<string, string> = {
     service: 'https://www.iflyrpa.com/resource/server.html',
     privacy: 'https://www.iflyrpa.com/resource/licence.html',
   }
-  if(window.UtilsManager){
-    window.UtilsManager.openInBrowser(urls[linkType])
-    return
+  if (urls[linkType]) {
+    if (window.UtilsManager) {
+      window.UtilsManager.openInBrowser(urls[linkType])
+      return
+    }
+    window.open(urls[linkType], '_blank')
   }
-  window.open(urls[linkType], '_blank')
 }
-
 </script>
 
 <template>
   <div class="flex justify-start items-center text-center text-[#000000D9] dark:text-[#FFFFFFD9] text-[14px]">
-    {{text}}
-    <Button class="p-0 h-auto" :class="type === 'show' ? '' : 'mx-[4px]'" type="link" @check="openLink('service')">服务协议</Button>与<Button class="p-0 h-auto ml-[4px]" type="link" @check="openLink('privacy')">隐私政策</Button>
+    {{ text }}
+    <Button class="p-0 h-auto" :class="type === 'show' ? '' : 'mx-[4px]'" type="link" @check="openLink('service')">
+      服务协议
+    </Button>与<Button class="p-0 h-auto ml-[4px]" type="link" @check="openLink('privacy')">
+      隐私政策
+    </Button>
   </div>
 </template>

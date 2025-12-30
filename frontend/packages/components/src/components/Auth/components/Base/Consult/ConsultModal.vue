@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import FormLayout from '../FormLayout.vue'
 import { message, Modal } from 'ant-design-vue'
-import ConsultForm from './ConsultForm.vue'
-import type { ConsultFormData } from '../../../interface.ts'
+import { computed, ref } from 'vue'
+
 import { submitConsult, submitRenewal } from '../../../api/login.ts'
+import type { ConsultFormData } from '../../../interface.ts'
+import FormLayout from '../FormLayout.vue'
+
+import ConsultForm from './ConsultForm.vue'
 
 const { consultTitle, consultEdition, consultType } = defineProps<{
   consultTitle?: string
@@ -12,31 +14,27 @@ const { consultTitle, consultEdition, consultType } = defineProps<{
   consultType?: 'consult' | 'renewal'
 }>()
 
-const formType = computed(()=>{
+const formType = computed(() => {
   return consultEdition === 'professional' ? 1 : 2
 })
 
-const emit = defineEmits<{
-  submit: [data: ConsultFormData]
-}>()
-
 const visible = ref(false)
 
-const showModal = () => {
+function showModal() {
   visible.value = true
 }
-const closeModal = () => {
+function closeModal() {
   visible.value = false
 }
 
 const loading = ref(false)
-const submit = async (data: ConsultFormData) => {
+async function submit(data: ConsultFormData) {
   loading.value = true
   const fn = consultType === 'renewal' ? submitRenewal : submitConsult
   const params = { ...data }
- if(consultType === 'renewal') {
-  params.formType = formType.value
- }
+  if (consultType === 'renewal') {
+    params.formType = formType.value
+  }
   await fn(params)
   message.success('提交成功')
   loading.value = false
@@ -59,9 +57,11 @@ defineExpose({
     :footer="null"
     @cancel="closeModal"
   >
-    <FormLayout :wrap-class="'auth-consult w-full !h-[460px] relative !px-[16px] !py-[20px] !bg-[transparent]'" :content-class="'!h-[calc(100%-52px)]'" :show-back="false">
+    <FormLayout wrap-class="auth-consult w-full !h-[460px] relative !px-[16px] !py-[20px] !bg-[transparent]" content-class="!h-[calc(100%-52px)]" :show-back="false">
       <template #header>
-        <div class="text-[18px] text-[#000000D9] mb-[24px] font-[600] text-center dark:text-[#FFFFFF]">{{ consultTitle || (consultType === 'renewal' ? '续费' : '咨询') }}</div>
+        <div class="text-[18px] text-[#000000D9] mb-[24px] font-[600] text-center dark:text-[#FFFFFF]">
+          {{ consultTitle || (consultType === 'renewal' ? '续费' : '咨询') }}
+        </div>
       </template>
       <ConsultForm
         v-if="visible"

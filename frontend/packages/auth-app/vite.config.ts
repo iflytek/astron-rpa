@@ -9,6 +9,7 @@ const basePublic = fileURLToPath(new URL('../../public', import.meta.url))
 // https://vite.dev/config/
 export default defineConfig({
   publicDir: basePublic,
+  base: './',
   plugins: [
     vue({
       include: [/\.vue$/, /\.md$/],

@@ -1,8 +1,10 @@
-import { VNode, Component } from 'vue'
+import { Button, Checkbox } from 'ant-design-vue'
+import type { Component, VNode } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
+
 import AgreementTxt from '../components/Base/AgreementTxt.vue'
-import { Checkbox, Button, message } from "ant-design-vue"
-export type FieldType =  'input' | 'password' | 'captcha' | 'select' | 'checkbox' | 'textarea' | 'slot'
+
+export type FieldType = 'input' | 'password' | 'captcha' | 'select' | 'checkbox' | 'textarea' | 'slot'
 
 export interface FormConfig {
   fields: FieldSchema[]
@@ -12,7 +14,7 @@ export interface FormConfig {
   actionsRender: (ctx: {
     formData: Record<string, any>
     validate: () => Promise<boolean>
-    loading? : boolean;
+    loading?: boolean
     handleEvents?: (event: string, ...args: any[]) => void
   }) => VNode | JSX.Element | null
 }
@@ -22,7 +24,7 @@ export interface FieldSchema {
   label?: string
   type: FieldType
   placeholder?: string
-  options?: { label: string; value: any }[]
+  options?: { label: string, value: any }[]
   relationKey?: string
   rules?: any[]
   props?: Record<string, any>
@@ -30,12 +32,12 @@ export interface FieldSchema {
   visible?: (model: any) => boolean
   disabled?: (model: any) => boolean
   customRender?: (ctx?: {
-    field?: FieldSchema;            
-    value?: any;                  
-    formData?: Record<string, any>;  
-    loading? : boolean;
-    validate?: () => Promise<boolean>;
-    handleEvents?: (event: string, ...args: any[]) => void;
+    field?: FieldSchema
+    value?: any
+    formData?: Record<string, any>
+    loading?: boolean
+    validate?: () => Promise<boolean>
+    handleEvents?: (event: string, ...args: any[]) => void
   }) => VNode | Component | JSX.Element | string | number | null
   helperText?: string
   dependencies?: string[]
@@ -55,7 +57,7 @@ const validators = {
         reject(new Error('姓名不能超过30个字符'))
         return
       }
-      const pattern = /^[A-Za-z0-9_\u4e00-\u9fa5-]{1,30}$/
+      const pattern = /^[\w\u4E00-\u9FA5-]{1,30}$/
       if (!pattern.test(value)) {
         reject(new Error('姓名只能包含字母、数字、中划线、下划线和中文'))
         return
@@ -81,16 +83,16 @@ const validators = {
         return
       }
       // 字符集：仅允许 大小写、数字、特殊字符
-      if (!/^[A-Za-z0-9!@#$%^&*()_+\-=\]{};':"\\|,.<>?/~`]+$/.test(value)) {
+      if (!/^[\w!@#$%^&*()+\-=\]{};':"\\|,.<>?/~`]+$/.test(value)) {
         reject(new Error('密码仅可包含大小写字母、数字和特殊字符'))
         return
       }
       // 统计类型
       const types = [
-        /[a-z]/,          // 小写
-        /[A-Z]/,          // 大写
-        /\d/,             // 数字
-        /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?/~`]/ // 特殊字符
+        /[a-z]/, // 小写
+        /[A-Z]/, // 大写
+        /\d/, // 数字
+        /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?/~`]/, // 特殊字符
       ].filter(re => re.test(value)).length
 
       if (types < 2) {
@@ -115,7 +117,7 @@ const validators = {
       }
       resolve()
     })
-  }
+  },
 }
 
 export const fieldFactories = {
@@ -125,8 +127,8 @@ export const fieldFactories = {
     type: 'input',
     placeholder: '请输入您的姓名',
     rules: [
-      { validator: validators.loginName, trigger: 'change' }
-    ]
+      { validator: validators.loginName, trigger: 'change' },
+    ],
   }),
   account: (): FieldSchema => ({
     key: 'account',
@@ -134,8 +136,8 @@ export const fieldFactories = {
     type: 'input',
     placeholder: '请输入您的账号',
     rules: [
-      required('请输入账号')
-    ]
+      required('请输入账号'),
+    ],
   }),
   password: (onlyRequired: boolean = false): FieldSchema => ({
     key: 'password',
@@ -143,8 +145,8 @@ export const fieldFactories = {
     type: 'password',
     placeholder: '请输入密码',
     rules: [
-      onlyRequired ? required('请输入密码') : { validator: validators.password, trigger: 'change' }
-    ]
+      onlyRequired ? required('请输入密码') : { validator: validators.password, trigger: 'change' },
+    ],
   }),
   confirmPassword: (formData: any, relationKey = 'password'): FieldSchema => ({
     key: 'confirmPassword',
@@ -152,7 +154,7 @@ export const fieldFactories = {
     type: 'password',
     placeholder: '再次输入密码',
     rules: [{
-      validator: (rule: any, value: string, callback: any) => {
+      validator: (_rule: any, value: string) => {
         return new Promise<void>((resolve, reject) => {
           if (!formData[relationKey]) {
             reject(new Error('请先输入密码'))
@@ -167,12 +169,12 @@ export const fieldFactories = {
             reject(new Error('两次输入密码不一致'))
             return
           }
-          
+
           resolve()
         })
       },
-      trigger: 'change'
-    }]
+      trigger: 'change',
+    }],
   }),
 
   agreement: (): FieldSchema => ({
@@ -190,10 +192,10 @@ export const fieldFactories = {
             resolve()
           })
         },
-        trigger: 'change'
-      }
+        trigger: 'change',
+      },
     ],
-    customRender: () => <AgreementTxt />
+    customRender: () => <AgreementTxt />,
   }),
   phone: (): FieldSchema => ({
     key: 'phone',
@@ -201,13 +203,13 @@ export const fieldFactories = {
     type: 'input',
     placeholder: '请输入手机号',
     rules: [
-      { validator: validators.phone, trigger: 'change' }
+      { validator: validators.phone, trigger: 'change' },
     ],
     props: {
-      maxlength: 11
-    }
+      maxlength: 11,
+    },
   }),
-  
+
   captcha: (): FieldSchema => ({
     key: 'captcha',
     label: '验证码',
@@ -219,10 +221,10 @@ export const fieldFactories = {
       required('请输入验证码'),
     ],
     props: {
-      maxlength: 6
-    }
+      maxlength: 6,
+    },
   }),
-  
+
   companyName: (): FieldSchema => ({
     key: 'companyName',
     label: '企业名称',
@@ -230,10 +232,10 @@ export const fieldFactories = {
     placeholder: '请输入您的企业名称',
     rules: [
       required('请输入您的企业名称'),
-      { min: 2, max: 50, message: '企业名称为2-50个字符', trigger: 'change' }
-    ]
+      { min: 2, max: 50, message: '企业名称为2-50个字符', trigger: 'change' },
+    ],
   }),
-  
+
   teamSize: (): FieldSchema => ({
     key: 'teamSize',
     label: '团队规模',
@@ -246,7 +248,7 @@ export const fieldFactories = {
       { label: '500人以上', value: '500人以上' },
     ],
     placeholder: '请选择团队规模',
-    rules: [required('请选择团队规模')]
+    rules: [required('请选择团队规模')],
   }),
 
   email: (): FieldSchema => ({
@@ -255,13 +257,13 @@ export const fieldFactories = {
     type: 'input',
     placeholder: '请输入您的邮箱(非必填)',
     rules: [
-      { type: 'email', message: '请输入正确的邮箱格式', trigger: 'change' }
-    ]
+      { type: 'email', message: '请输入正确的邮箱格式', trigger: 'change' },
+    ],
   }),
   remember: (): FieldSchema => ({
     type: 'slot',
     key: 'remember',
-    customRender: (ctx?: { formData?: any; handleEvents?: any }) => {
+    customRender: (ctx?: { formData?: any, handleEvents?: any }) => {
       const { formData = {}, handleEvents } = ctx ?? {}
       return (
         <div class="w-full flex justify-between items-center">
@@ -273,7 +275,7 @@ export const fieldFactories = {
           </Button>
         </div>
       )
-    }
+    },
   }),
   renewalDuration: (consultEdition: 'professional' | 'enterprise'): FieldSchema => ({
     key: 'renewalDuration',
@@ -286,8 +288,8 @@ export const fieldFactories = {
       { label: '3年', value: '3年', consultEditions: ['enterprise'] },
     ].filter(opt => opt.consultEditions.includes(consultEdition)),
     placeholder: '请选择续费时长',
-    rules: [required('请选择续费时长')]
-  })
+    rules: [required('请选择续费时长')],
+  }),
 }
 
 /**
@@ -296,16 +298,13 @@ export const fieldFactories = {
  * @param defaultValues 默认值覆盖
  * @returns 初始数据对象
  */
-export const generateFormData = <T = Record<string, any>>(
-  config: FormConfig, 
-  defaultValues: Partial<T> = {}
-): T => {
+export function generateFormData<T = Record<string, any>>(config: FormConfig, defaultValues: Partial<T> = {}): T {
   const formData = {} as T
-  
-  config.fields.forEach(field => {
+
+  config.fields.forEach((field) => {
     // 根据字段类型设置默认值
     let defaultValue: any
-    
+
     switch (field.type) {
       case 'checkbox':
         defaultValue = false
@@ -322,10 +321,10 @@ export const generateFormData = <T = Record<string, any>>(
         defaultValue = ''
         break
     }
-    
+
     // 使用提供的默认值覆盖，否则使用类型默认值
     ;(formData as any)[field.key] = defaultValues[field.key as keyof T] ?? defaultValue
   })
-  
+
   return formData
 }

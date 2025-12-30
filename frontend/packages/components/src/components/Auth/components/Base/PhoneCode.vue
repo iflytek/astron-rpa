@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue'
-import { Input, Button, message } from 'ant-design-vue'
+import { Button, Input, message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 
 interface Props {
   modelValue?: string
@@ -15,11 +15,11 @@ interface Props {
   sendCaptcha?: (phone: string) => Promise<void>
 }
 
-const { modelValue = '',  placeholder = '请输入验证码', maxlength = 6, codeLength = 6, countdownSeconds = 60, disabled, wrapRef, relationKey, sendCaptcha } = defineProps<Props>()
+const { modelValue = '', placeholder = '请输入验证码', maxlength = 6, countdownSeconds = 60, disabled, wrapRef, relationKey, sendCaptcha } = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  send: []
+  'send': []
 }>()
 
 const captcha = ref(modelValue || '')
@@ -44,42 +44,48 @@ const codeButtonDisabled = computed(() => {
 })
 
 // 发送验证码
-const handleSendCode = async () => {
-  if (codeButtonDisabled.value) return
+async function handleSendCode() {
+  if (codeButtonDisabled.value)
+    return
   isCodeSending.value = true
   try {
     await wrapRef?.validateFields([relationKey || 'phone'])
     const phone = wrapRef?.getFieldsValue()[relationKey || 'phone']
-    if(sendCaptcha) {
+    if (sendCaptcha) {
       await sendCaptcha?.(phone)
       startCountdown()
       message.success('验证码发送成功')
-    } else {
+    }
+    else {
       throw new Error('sendCaptcha 方法未定义')
     }
-  } catch (e) {
+  }
+  catch (e) {
     console.log(e)
-  } finally {
+  }
+  finally {
     isCodeSending.value = false
   }
 }
 
 // 开始倒计时
-const startCountdown = () => {
-  if (countdownTimer) clearInterval(countdownTimer)
+function startCountdown() {
+  if (countdownTimer)
+    clearInterval(countdownTimer)
 
   countdown.value = countdownSeconds
   countdownTimer = window.setInterval(() => {
     countdown.value--
     if (countdown.value <= 0) {
-      if (countdownTimer) clearInterval(countdownTimer)
+      if (countdownTimer)
+        clearInterval(countdownTimer)
       countdownTimer = null
     }
   }, 1000)
 }
 
 // 清空倒计时
-const clearCountdown = () => {
+function clearCountdown() {
   if (countdownTimer) {
     clearInterval(countdownTimer)
     countdownTimer = null
@@ -88,18 +94,18 @@ const clearCountdown = () => {
 }
 
 // 更新值
-const handleInput = (value: string) => {
+function handleInput(value: string) {
   captcha.value = value
   emit('update:modelValue', captcha.value)
 }
 
-const trimInput = (e: Event) => {
-  captcha.value =  (e.target as HTMLInputElement).value.trim()
+function trimInput(e: Event) {
+  captcha.value = (e.target as HTMLInputElement).value.trim()
   emit('update:modelValue', captcha.value)
-} 
+}
 
 // 清空表单
-const resetForm = () => {
+function resetForm() {
   captcha.value = ''
   clearCountdown()
   isCodeSending.value = false
@@ -127,10 +133,10 @@ onBeforeUnmount(() => {
       size="large"
       @input="(e) => handleInput(e.target.value ?? '')"
       @blur="trimInput"
-     />
+    />
     <Button size="large" type="link" class="absolute !w-auto !h-auto !m-0 !p-0 right-[10px] top-[7px] !text-[14px] text-[#000000D9] dark:text-[#FFFFFFD9]" :disabled="codeButtonDisabled" @click="handleSendCode">
       {{ codeButtonText }}
-    </Button> 
+    </Button>
   </div>
 </template>
 

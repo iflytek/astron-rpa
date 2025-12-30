@@ -1,14 +1,12 @@
-
-
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const props = withDefaults(defineProps<{
   starCount?: number
   movementFactor?: number
 }>(), {
   starCount: 300,
-  movementFactor: 0.08
+  movementFactor: 0.08,
 })
 
 const canvasEl = ref<HTMLCanvasElement>()
@@ -30,11 +28,11 @@ class Star {
   size = 0
   opacity = 0
 
-  constructor () {
+  constructor() {
     this.reset()
   }
 
-  reset () {
+  reset() {
     this.x = Math.random() * width
     this.y = Math.random() * height
     this.depth = Math.random() * 0.9 + 0.1
@@ -42,7 +40,7 @@ class Star {
     this.opacity = (Math.random() * 0.5 + 0.3) * this.depth
   }
 
-  draw (offsetX: number, offsetY: number) {
+  draw(offsetX: number, offsetY: number) {
     const moveX = offsetX * this.depth
     const moveY = offsetY * this.depth
     ctx.beginPath()
@@ -52,7 +50,7 @@ class Star {
   }
 }
 
-const resize = () => {
+function resize() {
   width = window.innerWidth
   height = window.innerHeight
   canvasEl.value!.width = width
@@ -60,12 +58,12 @@ const resize = () => {
   initStars()
 }
 
-const initStars = () => {
+function initStars() {
   stars = []
   for (let i = 0; i < props.starCount; i++) stars.push(new Star())
 }
 
-const animate = () => {
+function animate() {
   ctx.clearRect(0, 0, width, height)
   targetX += (mouseX - targetX) * 0.05
   targetY += (mouseY - targetY) * 0.05
@@ -76,7 +74,7 @@ const animate = () => {
   rafId = requestAnimationFrame(animate)
 }
 
-const onMouseMove = (e: MouseEvent) => {
+function onMouseMove(e: MouseEvent) {
   mouseX = e.clientX
   mouseY = e.clientY
 }
@@ -100,15 +98,17 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
 })
 </script>
+
 <template>
   <div class="w-full h-full pointer-events-none fixed top-0 left-0 z-0">
-    <div class="bottom-glow"></div>
+    <div class="bottom-glow" />
     <canvas
       ref="canvasEl"
       class="star-canvas block absolute top-0 left-0"
     />
   </div>
 </template>
+
 <style lang="scss" scoped>
 .bottom-glow {
   position: fixed;
@@ -116,14 +116,14 @@ onBeforeUnmount(() => {
   left: 50%;
   transform: translateX(-50%);
   width: 120vw;
-  height: 40vh; 
-  z-index: 2; 
+  height: 40vh;
+  z-index: 2;
   background: radial-gradient(
-      ellipse at bottom, 
-      rgba(200, 180, 255, 0.4) 0%, 
-      rgba(114, 111, 255, 0.4) 30%, 
-      rgba(50, 20, 100, 0.2) 60%, 
-      transparent 80%
+    ellipse at bottom,
+    rgba(200, 180, 255, 0.4) 0%,
+    rgba(114, 111, 255, 0.4) 30%,
+    rgba(50, 20, 100, 0.2) 60%,
+    transparent 80%
   );
   filter: blur(40px);
   mix-blend-mode: screen;
@@ -131,28 +131,28 @@ onBeforeUnmount(() => {
 }
 @keyframes glow-breathe {
   0% {
-    opacity: 0.6;                     
+    opacity: 0.6;
     transform: translateX(-85%) scale(0.8);
   }
 
   25% {
-    opacity: 1;                      
-    transform: translateX(-50%) scale(1.2); 
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2);
   }
 
   50% {
-    opacity: 0.6;                      
+    opacity: 0.6;
     transform: translateX(-15%) scale(0.8);
   }
 
   75% {
-    opacity: 1;                        
+    opacity: 1;
     transform: translateX(-50%) scale(1.2);
   }
 
   100% {
-    opacity: 0.6;                     
-    transform: translateX(-85%) scale(0.8); 
+    opacity: 0.6;
+    transform: translateX(-85%) scale(0.8);
   }
 }
 </style>

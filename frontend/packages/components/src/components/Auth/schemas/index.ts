@@ -1,2 +1,2 @@
-export * from './loginRegister'
 export * from './factories'
+export * from './loginRegister'

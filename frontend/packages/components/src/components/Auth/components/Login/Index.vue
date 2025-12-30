@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import Login from './Login.vue'
-import Register from './Register.vue'
-import ForgotPassword from './ForgotPassword.vue'
-import SetPassword from './SetPassword.vue'
-import ModifyPassword from './ModifyPassword.vue'
-import TenantSelect from './TenantSelect.vue'
-import type { Edition, AuthType, InviteInfo } from '../../interface'
+import type { AuthType, Edition, InviteInfo } from '../../interface'
 
+import ForgotPassword from './ForgotPassword.vue'
 import { useAuthFlow } from './hooks/useAuthFlow'
+import Login from './Login.vue'
+import ModifyPassword from './ModifyPassword.vue'
+import Register from './Register.vue'
+import SetPassword from './SetPassword.vue'
+import TenantSelect from './TenantSelect.vue'
 
 const props = defineProps({
   baseUrl: { type: String },
@@ -61,7 +61,7 @@ defineExpose({
     />
 
     <ForgotPassword
-      v-else-if="['forgotPasswordWithSysUpgrade', 'forgotPassword' ].includes(currentFormMode)"
+      v-else-if="['forgotPasswordWithSysUpgrade', 'forgotPassword'].includes(currentFormMode)"
       :running="running"
       :title="currentFormMode === 'forgotPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
       @submit="handleForgotPassword"
@@ -69,7 +69,7 @@ defineExpose({
     />
 
     <SetPassword
-      v-else-if="['setPasswordWithSysUpgrade', 'setPassword' ].includes(currentFormMode)"
+      v-else-if="['setPasswordWithSysUpgrade', 'setPassword'].includes(currentFormMode)"
       :title="currentFormMode === 'setPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
       :running="running"
       :invite-info="inviteInfo"
@@ -78,7 +78,7 @@ defineExpose({
     />
 
     <ModifyPassword
-      v-else-if="['modifyPassword' ].includes(currentFormMode)"
+      v-else-if="['modifyPassword'].includes(currentFormMode)"
       :running="running"
       :invite-info="inviteInfo"
       :edition="edition"

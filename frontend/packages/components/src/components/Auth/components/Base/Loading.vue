@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { Button } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { nextTick, ref, unref } from 'vue'
-import { Button } from 'ant-design-vue'
 
 interface LoadingProps {
   isLoading: boolean
@@ -72,30 +72,29 @@ function exitLoading() {
   })
 }
 
-const isLoading = (params: LoadingProps) => {
+function isLoading(params: LoadingProps) {
   fn(params)
 }
 
 defineExpose({
   isLoading,
 })
-
 </script>
 
 <template>
   <div class="loading-mask bg-[#00000059] dark:bg-[#ffffff59]" :class="[loadingShow ? 'loading-show' : 'loading-hide']">
-      <div class="loading-box">
-        <div class="lb-spinner" />
-        <div class="lb-info text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)]">
-          {{ loadingText }}...
-        </div>
-        <div v-if="loadingExit" class="loading-exit">
-          <Button size="small" type="link" @click="exitLoading">
-            {{ $t("quit") }}
-          </Button>
-        </div>
+    <div class="loading-box">
+      <div class="lb-spinner" />
+      <div class="lb-info text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)]">
+        {{ loadingText }}...
+      </div>
+      <div v-if="loadingExit" class="loading-exit">
+        <Button size="small" type="link" @click="exitLoading">
+          {{ $t("quit") }}
+        </Button>
       </div>
     </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>

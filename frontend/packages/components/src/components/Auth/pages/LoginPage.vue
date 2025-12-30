@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import Login from '../components/Login/Index.vue'
 import PageLayout from '../components/Base/PageLayout.vue'
-import type { Edition, AuthType } from '../interface'
+import Login from '../components/Login/Index.vue'
+import type { AuthType, Edition } from '../interface'
 
-const props = defineProps({
+const { baseUrl, edition, authType } = defineProps({
   baseUrl: { type: String },
   edition: { type: String as () => Edition, default: 'saas' },
   authType: { type: String as () => AuthType, default: 'uap' },
 })
 
+const emit = defineEmits<{
+  finish: []
+}>()
 </script>
 
 <template>
   <PageLayout>
-    <Login :base-url="baseUrl" :edition="edition" :auth-type="authType" />
+    <Login :base-url="baseUrl" :edition="edition" :auth-type="authType" @finish="() => emit('finish')" />
   </PageLayout>
 </template>
