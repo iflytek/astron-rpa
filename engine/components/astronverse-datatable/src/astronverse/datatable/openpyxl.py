@@ -296,7 +296,7 @@ class OpenpyxlWrapper:
         for r_idx, row_data in enumerate(data):
             for c_idx, cell_value in enumerate(row_data):
                 self.sheet.cell(row=min_row + r_idx, column=min_col + c_idx, value=cell_value)
-                
+
     def fill_data_table_by_import_file(self, import_file_path: str, delimiter: str = ",", include_header: bool = True):
         ext = os.path.splitext(import_file_path)[1].lower()
         if ext == ".csv":
@@ -314,7 +314,7 @@ class OpenpyxlWrapper:
                 for c_idx, cell_value in enumerate(row_data):
                     self.sheet.cell(row=start_row + r_idx, column=1 + c_idx, value=cell_value)
             import_wrapper.close()
-        
+
     def insert_cells(self, row: int, col: int, amount: int = 1):
         """
         Inserts blank cells at a specific position.
@@ -364,7 +364,7 @@ class OpenpyxlWrapper:
         for i, row in enumerate(source_range):
             for j, cell in enumerate(row):
                 self.sheet.cell(row=dest_start_row + i, column=dest_start_col + j, value=cell.value)
-                
+
     def delete_cell(self, row: int, col: int, move_direction: str = "up"):
         """
         Deletes a cell and shifts other cells.
@@ -402,7 +402,7 @@ class OpenpyxlWrapper:
             amount (int): The number of columns to delete.
         """
         self.sheet.delete_cols(idx=idx, amount=amount)
-        
+
     def empty_row(self, row_index: int):
         """
         Empties the content of a specific row.
@@ -412,7 +412,7 @@ class OpenpyxlWrapper:
         """
         for cell in self.sheet[row_index]:
             cell.value = None
-    
+
     def empty_column(self, col_name: str = None, col_index: int = None):
         """
         Empties the content of a specific column.
@@ -467,7 +467,7 @@ class OpenpyxlWrapper:
         for r_idx, row_data in enumerate(sorted_data):
             for c_idx, cell_value in enumerate(row_data):
                 self.sheet.cell(row=min_row + r_idx, column=min_col + c_idx, value=cell_value)
-                
+
     def sort_column(self, col_index: int, order: str = "ascending"):
         """
         Sorts a column in ascending or descending order.
@@ -602,7 +602,7 @@ class OpenpyxlWrapper:
 
         with open(json_file_path, "w", encoding="utf-8") as jsonfile:
             json.dump(data, jsonfile, indent=4)
-    
+
     def export_to_file(self, file_path: str):
         """
         Exports the workbook to a specified file.
