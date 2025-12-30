@@ -300,7 +300,7 @@ atomic:
         tip: 返回指定列的信息
   DataTable.find_and_replace:
     title: 数据表格查找和替换
-    comment: 在数据表格中查找 @{find_value} 并替换为 @{replace_value}
+    comment: 在数据表格中查找 @{find_value}，并 @{is_repalce} 替换内容
     icon: find_and_replace
     helpManual: ''
     inputList:
@@ -341,7 +341,7 @@ atomic:
     outputList: []
   DataTable.filter_data_table:
     title: 数据表格筛选
-    comment: 根据条件筛选数据表格
+    comment: 根据 @{filter_type} 条件筛选数据表格
     icon: filter_data_table
     helpManual: ''
     inputList:

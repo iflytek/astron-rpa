@@ -300,10 +300,16 @@ class OpenpyxlWrapper:
     def fill_data_table_by_import_file(self, import_file_path: str, delimiter: str = ",", include_header: bool = True):
         ext = os.path.splitext(import_file_path)[1].lower()
         if ext == ".csv":
-            with open(import_file_path, newline="", encoding="utf-8") as csvfile:
-                reader = csv.reader(csvfile, delimiter=delimiter)
-                for row_data in reader:
-                    self.sheet.append(row_data)
+            try:
+                with open(import_file_path, newline="", encoding="utf-8") as csvfile:
+                    reader = csv.reader(csvfile, delimiter=delimiter)
+                    for row_data in reader:
+                        self.append_row(row_data)
+            except UnicodeDecodeError:
+                with open(import_file_path, newline="", encoding="gbk") as csvfile:
+                    reader = csv.reader(csvfile, delimiter=delimiter)
+                    for row_data in reader:
+                        self.append_row(row_data)
         if ext in [".xlsx", ".xls"]:
             import_wrapper = OpenpyxlWrapper(file_path=import_file_path)
             data = import_wrapper.read_effective_area()
