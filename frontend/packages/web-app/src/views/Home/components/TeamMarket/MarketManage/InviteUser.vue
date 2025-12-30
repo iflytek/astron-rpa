@@ -4,15 +4,12 @@ import { ref } from 'vue'
 
 import LinkInvite from '@/views/Home/components/TeamMarket/MarketManage/LinkInvite.vue'
 import PhoneInvite from '@/views/Home/components/TeamMarket/MarketManage/PhoneInvite.vue'
+import { useUserStore } from '@/stores/useUserStore'
 
-const { marketId, inviteType } = defineProps({
+const { marketId } = defineProps({
   marketId: {
     type: String,
     default: '',
-  },
-  inviteType: {
-    type: String,
-    default: 'link',
   },
   users: {
     type: Array,
@@ -20,14 +17,21 @@ const { marketId, inviteType } = defineProps({
   },
 })
 
-const activeTab = ref(inviteType)
+const userStore = useUserStore()
+const addTypesMap = {
+  personal: ['link'],
+  professional: ['link', 'phone'],
+  enterprise: ['phone']
+}
+const addTypes = addTypesMap[userStore.currentTenant?.tenantType]
+const activeTab = ref(addTypes[0])
 const emit = defineEmits(['change', 'inviteTypeChange', 'linkChange'])
 
 </script>
 
 <template>
   <div class="modal-form invite-user-modal">
-    <Tabs type="card" size="small" v-model:active-key="activeTab" @change="(key) => emit('inviteTypeChange', key)">
+    <Tabs type="card" size="small" v-if="addTypes?.length > 1" v-model:active-key="activeTab" @change="(key) => emit('inviteTypeChange', key)">
       <TabPane key="add" tab="直接添加" />
       <TabPane key="link" tab="邀请链接" />
     </Tabs>

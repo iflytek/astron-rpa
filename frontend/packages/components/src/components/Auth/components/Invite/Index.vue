@@ -13,7 +13,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  joinSuccess: [marketId: string]
+  joinSuccess: []
 }>()
 
 const {
@@ -54,10 +54,15 @@ const {
       :buttonTxt="'进入星辰RPA'"
       @click="openApp"
     />
+    <StatusCard v-else-if="currentStatus === 'marketFull'"
+      :status="'reachLimited'"
+      :title="'当前市场人数已满'"
+      :desc="'请联系市场所有者处理'"
+    />
     <StatusCard  v-if="currentStatus === 'reachLimited'"
       :status="currentStatus"
       :title="'已达免费邀请人数上限'"
       :desc="`请联系管理员升级`"
-     /> 
+     />
   </div>
 </template>

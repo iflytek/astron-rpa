@@ -14,7 +14,7 @@ export const usePermissionStore = defineStore('permission', () => {
   const initPermission = async () => {
     if (fetched.value) return
     try {
-      const { data } = await permission() 
+      const data = await permission() 
       setPermission(data)
       fetched.value = true
     } catch (e) {

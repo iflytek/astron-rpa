@@ -38,7 +38,7 @@ export const accountLoginFormConfig = (isInvite = false, edition = 'saas', authT
     case 'enterprise_uap': // 企业版无注册、忘记密码功能，支持修改密码
       conf =  {
         fields: [
-          {...fieldFactories.phone(), placeholder: '请输入账号(手机号)'},
+          fieldFactories.phone(),
           fieldFactories.password(true),
           fieldFactories.agreement(),
           {
@@ -211,57 +211,6 @@ export const personalRegisterFormConfig = (formData: any, isInvite = false, edit
   return conf
 }
 
-// 企业注册咨询表单配置, 仅saas版uap认证体系有企业版注册咨询功能
-export const consultFormConfig = (consultType: 'renewal' | 'consult' = 'consult', consultEdition: 'professional' | 'enterprise'): FormConfig => {
-  if(consultType === 'renewal') {
-    // 企业咨询续费表单配置
-    return {
-      layout: 'vertical',
-      fields: [
-        fieldFactories.companyName(),
-        {
-          ...fieldFactories.phone(), 
-          placeholder: '请输入您的或者负责人的手机号'
-        },
-        fieldFactories.renewalDuration(consultEdition)
-      ],
-      actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void; loading?: boolean }) => (
-        <div class="w-full absolute bottom-0">
-          <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-            {loading ? '提交中...' : '提交申请'}
-          </Button>
-        </div>
-      )
-    }
-  }
-  return {
-    layout: 'vertical',
-    fields: [
-      {
-        ...fieldFactories.loginName(),
-        key: 'contactName',
-      },
-      fieldFactories.companyName(),
-      fieldFactories.teamSize(),
-      {
-        ...fieldFactories.phone(), 
-        placeholder: '请输入您的或者负责人的手机号'
-      },
-      fieldFactories.email(),
-    ],
-    actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void; loading?: boolean }) => (
-      <div class="w-full absolute bottom-0">
-        <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-          {loading ? '提交中...' : '提交申请'}
-        </Button>
-        <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-          企业已开通？请联系管理员为您创建账号
-        </div>
-      </div>
-    )
-  }
-}
-
 // 通过手机号验证码找回密码表单配置，仅saas版uap认证体系有找回密码功能
 export const forgotPasswordFormConfig: FormConfig = {
   layout: 'vertical',
@@ -315,10 +264,10 @@ export const createSetPasswordFormConfig = (formData: any, isInvite: boolean): F
 export const modifyPasswordFormConfig = (formData: any, isInvite: boolean): FormConfig => ({
   layout: 'vertical',
   fields: [
-    {...fieldFactories.phone(), placeholder: '请输入账号(手机号)'},
+    {...fieldFactories.account(), key:'loginName'},
     {...fieldFactories.password(true), key: 'oldPassword'},
-    fieldFactories.password(),
-    fieldFactories.confirmPassword(formData), 
+    {...fieldFactories.password(), key: 'newPassword', placeholder: '请输入新密码'},
+    {...fieldFactories.confirmPassword(formData, 'newPassword'), placeholder: '再次输入新密码'},
     {
       type: 'slot',
       key: 'tip',
@@ -340,3 +289,59 @@ export const modifyPasswordFormConfig = (formData: any, isInvite: boolean): Form
     </div>
   )
 })
+
+// 企咨询表单配置, 仅saas版uap认证体系有企业版注册咨询功能
+export const consultFormConfig = (consultType: 'renewal' | 'consult' = 'consult', consultEdition: 'professional' | 'enterprise'): FormConfig => {
+  if(consultType === 'renewal') {
+    // 企业咨询续费表单配置
+    return {
+      layout: 'vertical',
+      fields: [
+        fieldFactories.companyName(),
+        {
+          ...fieldFactories.phone(), 
+          key: 'mobile',
+          placeholder: '请输入您的或者负责人的手机号'
+        },
+        fieldFactories.renewalDuration(consultEdition)
+      ],
+      actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void; loading?: boolean }) => (
+        <div class="w-full absolute bottom-0">
+          <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+            {loading ? '提交中...' : '提交申请'}
+          </Button>
+          <div class="text-center text-[14px] mt-[12px] text-[#00000040] dark:text-[#FFFFFFD9]">
+            稍后会有工作人员联系
+          </div>
+        </div>
+      )
+    }
+  }
+  return {
+    layout: 'vertical',
+    fields: [
+      {
+        ...fieldFactories.loginName(),
+        key: 'contactName',
+      },
+      fieldFactories.companyName(),
+      fieldFactories.teamSize(),
+      {
+        ...fieldFactories.phone(), 
+        key: 'mobile',
+        placeholder: '请输入您的或者负责人的手机号'
+      },
+      fieldFactories.email(),
+    ],
+    actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void; loading?: boolean }) => (
+      <div class="w-full absolute bottom-0">
+        <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+          {loading ? '提交中...' : '提交申请'}
+        </Button>
+        <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
+          稍后会有工作人员联系
+        </div>
+      </div>
+    )
+  }
+}

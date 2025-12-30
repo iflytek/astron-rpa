@@ -7,8 +7,9 @@ import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { getTermianlStatus } from '@/api/engine'
 import { taskNotify } from '@/api/task'
-import { DESIGNER } from '@/constants/menu'
 import { Auth } from '@rpa/components/auth'
+import { usePermissionStore } from '@/stores/usePermissionStore'
+import { findFirstPermittedRoute } from '@/router'
 
 export const useUserStore = defineStore('user', () => {
   const currentUserInfo = ref()
@@ -54,8 +55,11 @@ export const useUserStore = defineStore('user', () => {
 
   async function switchTenant (tenant: TenantItem) {
     currentTenant.value = tenant
-    if(router.currentRoute.value.name !== DESIGNER) {
-      useRoutePush({ name: DESIGNER })
+    usePermissionStore().reset()
+    await usePermissionStore().initPermission()
+    const first = findFirstPermittedRoute(usePermissionStore())
+    if(first && router.currentRoute.value.name !== first.name) {
+      useRoutePush({ name: first.name })
     }
     return await taskNotify({ event: 'login' })
   }

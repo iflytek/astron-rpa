@@ -146,7 +146,7 @@ export const fieldFactories = {
       onlyRequired ? required('请输入密码') : { validator: validators.password, trigger: 'change' }
     ]
   }),
-  confirmPassword: (formData: any): FieldSchema => ({
+  confirmPassword: (formData: any, relationKey = 'password'): FieldSchema => ({
     key: 'confirmPassword',
     label: '确认密码',
     type: 'password',
@@ -154,7 +154,7 @@ export const fieldFactories = {
     rules: [{
       validator: (rule: any, value: string, callback: any) => {
         return new Promise<void>((resolve, reject) => {
-          if (!formData.password) {
+          if (!formData[relationKey]) {
             reject(new Error('请先输入密码'))
             return
           }
@@ -162,8 +162,8 @@ export const fieldFactories = {
             reject(new Error('请输入确认密码'))
             return
           }
-          
-          if (value !== formData.password) {
+
+          if (value !== formData[relationKey]) {
             reject(new Error('两次输入密码不一致'))
             return
           }
@@ -239,11 +239,11 @@ export const fieldFactories = {
     label: '团队规模',
     type: 'select',
     options: [
-      { label: '0-10人', value: '0-10' },
-      { label: '11-50人', value: '11-50' },
-      { label: '51-100人', value: '51-100' },
-      { label: '101-500人', value: '101-500' },
-      { label: '500人以上', value: '500+' },
+      { label: '1-10人', value: '1-10人' },
+      { label: '11-50人', value: '11-50人' },
+      { label: '51-100人', value: '51-100人' },
+      { label: '101-500人', value: '101-500人' },
+      { label: '500人以上', value: '500人以上' },
     ],
     placeholder: '请选择团队规模',
     rules: [required('请选择团队规模')]

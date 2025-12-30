@@ -6,7 +6,7 @@ import Loading from '../Base/Loading.vue'
 import { Dropdown, Menu, message } from 'ant-design-vue'
 import { tenantList, switchTenant } from '../../api/login'
 import { getSelectedTenant } from '../../utils/remember'
-import Consult from '../Base/Consult.vue'
+import Consult from '../Base/Consult/Index.vue'
 
 const tenants = ref<TenantItem[]>([])
 
@@ -60,7 +60,7 @@ const open = ref(false)
 
 <template>
   <div class="w-full px-[20px] tenant-dropdown relative">
-    <Consult v-if="selectedTenant?.tenantType === 'personal'" :trigger="'button'" class="absolute top-[-60px] left-0" />
+    <Consult v-if="selectedTenant?.tenantType === 'personal'" :trigger="'button'" :button-conf="{ buttonType: 'tag' }" class="!w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
     <Dropdown placement="bottom" v-model:open="open">
       <div class="relative">
         <TenantItemComponent

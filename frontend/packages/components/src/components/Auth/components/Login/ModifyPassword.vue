@@ -40,7 +40,7 @@ const { formRef, formData, config, handleEvents } = useModifyPassword(inviteInfo
 
 <template>
   <FormLayout
-    :wrap-class="'auth-set-password h-full relative'"
+    :wrap-class="'auth-modify-password h-full relative'"
     :title="title || '修改密码'"
     show-back
     @back="() => emit('switchToLogin')"
@@ -51,7 +51,7 @@ const { formRef, formData, config, handleEvents } = useModifyPassword(inviteInfo
       :config="config"
       v-model="formData"
       :handleEvents="handleEvents"
-      class="auth-set-password-form"
+      class="auth-modify-form"
     />
   </FormLayout>
 </template>

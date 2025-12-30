@@ -8,12 +8,14 @@ import {
   setPassword,
   tenantList,
   isHistory,
-  modifyPassword
+  modifyPassword,
+  submitConsult
 } from '../../../api/login'
 import type {
   LoginFormData,
   LoginMode,
   RegisterFormData,
+  ConsultFormData,
   RegisterMode,
   TenantItem,
   AuthFormMode,
@@ -116,7 +118,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       mode === 'PASSWORD' && params.remember && account  && params.password ? saveRememberUser(account, params.password, opts.edition, opts.authType) : clearRememberUser()
       delete params.remember
       delete params.agreement
-      const token = await preAuthenticate(params)
+      const token = await preAuthenticate({...params, platform: platform.value })
       tempToken.value = token
       switchToTenants(autoLogin)
     } catch (e) {
@@ -126,7 +128,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
 
   const handleLogin = async (tenantId: string) => {
     try {
-      const userInfo = await login({ tenantId, tempToken: tempToken.value, platform: platform.value })
+      const userInfo = await login({ tenantId, tempToken: tempToken.value })
       console.log(userInfo)
       saveSelectedTenant(tenantId)
       saveUserInfo(userInfo)
@@ -136,13 +138,19 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
     }
   }
 
-  const handleRegister = async (data: RegisterFormData, mode: RegisterMode) => run(mode, async () => {
-    console.log(data, mode)
+  const handleRegister = async (data: RegisterFormData | ConsultFormData, mode: RegisterMode) => run(mode, async () => {
     try {
-      const token = await register(data)
-      message.success('注册账号成功')
-      tempToken.value = token
-      switchMode('setPassword')
+      if(mode === 'REGISTER') {
+        const token = await register(data as RegisterFormData)
+        message.success('注册账号成功')
+        tempToken.value = token
+        if(!data.hasOwnProperty('password')) switchMode('setPassword')
+        else switchToTenants()
+        return
+      }
+      await submitConsult(data as ConsultFormData)
+      message.success('提交成功')
+      switchMode('login')
     } catch (e) {
       console.log(e)
     }
@@ -153,7 +161,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: {(e: 'finish')
       const params: LoginFormData = { ...data, loginType: 'CODE' }
       delete params.remember
       delete params.agreement
-      const token = await preAuthenticate(params)
+      const token = await preAuthenticate({ ...params, platform: platform.value })
       tempToken.value = token
       switchMode(currentFormMode.value === 'forgotPassword' ? 'setPassword' : 'setPasswordWithSysUpgrade')
     } catch (e) {
