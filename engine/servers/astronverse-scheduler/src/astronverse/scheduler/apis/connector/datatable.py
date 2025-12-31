@@ -262,8 +262,9 @@ def datatable_update_cells(req: UpdateCellsRequest, svc: Svc = Depends(get_svc))
     try:
         # 检查工程目录是否存在
         project_dir = get_project_dir(svc, req.project_id)
+        logger.info(f"Updating cells in {project_dir}")
         if not os.path.exists(project_dir):
-            return res_msg(code=ResCode.ERR, msg=f"Project directory not found: {req.project_id}")
+            return res_msg(code=ResCode.ERR, msg=f"Project directory not found: {project_dir}")
 
         excel_service = get_excel_service(svc, req.project_id)
 
@@ -319,4 +320,42 @@ def datatable_close(req: CloseDataTableRequest, svc: Svc = Depends(get_svc)):
 
     except Exception as e:
         logger.exception(f"Error closing datatable: {e}")
+        return res_msg(code=ResCode.ERR, msg=str(e))
+
+
+@router.post("/delete")
+def datatable_delete(req: CloseDataTableRequest, svc: Svc = Depends(get_svc)):
+    """
+    删除 Excel 文件
+
+    Args:
+        req: 包含 project_id 和 filename 的请求体
+
+    Returns:
+        操作结果
+    """
+    try:
+        excel_service = get_excel_service(svc, req.project_id)
+        file_path = excel_service.get_file_path(req.filename)
+
+        # 先停止文件监听
+        watcher = get_active_watcher(file_path)
+        if watcher:
+            watcher.stop()
+            remove_active_watcher(file_path)
+
+        # 删除文件
+        deleted = excel_service.delete_file(req.filename)
+
+        if deleted:
+            return res_msg(
+                code=ResCode.SUCCESS,
+                msg="ok",
+                data={"project_id": req.project_id, "filename": req.filename, "deleted": True},
+            )
+        else:
+            return res_msg(code=ResCode.ERR, msg="File not found")
+
+    except Exception as e:
+        logger.exception(f"Error deleting datatable: {e}")
         return res_msg(code=ResCode.ERR, msg=str(e))
