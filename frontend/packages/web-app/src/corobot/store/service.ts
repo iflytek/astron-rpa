@@ -69,7 +69,7 @@ export function deleteModule(_processId: string) {
 
 export function getAtomicSchemaByVersion(atomList: { key: string, version: string }[]): Promise<any[]> {
   return getAbilityInfo(atomList).then((res) => {
-    return res.data.map(i => JSON.parse(i))
+    return res.map(i => JSON.parse(i))
   })
 }
 

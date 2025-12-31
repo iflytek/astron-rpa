@@ -140,7 +140,8 @@ function toggleCollapsed() {
 
 const onExpand: TreeProps['onExpand'] = (_, { expanded, node }) => {
   if (expanded) {
-    useProjectDocStore().gainLastNodeAbility(node.key as unknown as string)
+    console.log('node: ', node);
+    // useProjectDocStore().gainLastNodeAbility(node.key as unknown as string)
   }
 }
 

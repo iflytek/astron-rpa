@@ -2,19 +2,26 @@ import http from './http'
 
 // 根据id和version获取原子能力的具体信息
 export function getAbilityInfo(atomList: { key: string, version: string }[]) {
-  return http.post('/robot/atom/getByVersionList', { atomList })
+
+  // return http.post('/robot/atom/getByVersionList', { atomList })
+  return new Promise((resolve) => {
+    http.post('/robot/atom-new/list', { keys: atomList.map(i => i.key) }).then((res) => {
+      const data = res.data || []
+      const result = data.map((atom: any) => atom.atomContent)
+      resolve(result)
+    })
+  })
 }
 
 // 获取原子能力左侧菜单数据
 export async function getAtomsMeta(): Promise<RPA.AtomMetaData> {
-  const res = await http.post('/robot/atom/tree')
-
+  const res = await http.post('/robot/atom-new/tree')
   return JSON.parse(res.data)
 }
 
 // 获取扩展组件左侧菜单数据
 export async function getModuleMeta(): Promise<RPA.AtomTreeNode[]> {
-  const res = await http.post('/robot/atom/tree')
+  const res = await http.post('/robot/atom-new/tree')
   const data = JSON.parse(res.data)
   return data.atomicTreeExtend ?? []
 }
@@ -23,8 +30,15 @@ export function getTreeByParentKey(parentKey: string) {
   return http.post('/robot/atom/getListByParentKey', null, { params: { parentKey } })
 }
 
-export function getNewAtomDesc(key: string) {
-  return http.post('/robot/atom/getLatestAtomByKey', null, { params: { key } })
+export function getNewAtomDesc(key: string): Promise<{ data: RPA.Atom }> {
+  // return http.post('/robot/atom/getLatestAtomByKey', null, { params: { key } })
+  return new Promise((resolve) => {
+    http.post('/robot/atom-new/list', { keys: [key] }).then((res) => {
+      const atom = res.data && res.data.length > 0 ? res.data[0] : ''
+      const { atomContent = '' } = atom
+      resolve({ data: atomContent })
+    })
+  })
 }
 
 /**

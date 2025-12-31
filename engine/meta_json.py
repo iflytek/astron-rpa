@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 upload_url = os.getenv("COMPONENTS_META_UPLOAD_URL", "your meta upload url address in .env file")
 remote_meta_url = os.getenv("REMOTE_META_URL", "your remote meta url address in .env file")
+tree_upload_url = os.getenv("TREE_UPLOAD_URL", "your tree upload url address in .env file")
 # Define the base directory for components
 base_dir = os.path.dirname(__file__) + "/components"
 # Define any directories to skip
@@ -110,6 +111,19 @@ def meta_upload(meta_data):
             print(f"Failed to upload meta. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error uploading meta: {e}")
+        
+
+def tree_upload():
+    with open(os.path.join(os.path.dirname(__file__), "temp_tree.json"), encoding="utf-8") as f:
+        tree_data = json.load(f)
+    try:
+        response = requests.post(tree_upload_url, json=tree_data, timeout=10)
+        if response.status_code == 200:
+            print("tree uploaded successfully.")
+        else:
+            print(f"Failed to upload tree. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error uploading tree: {e}")
 
 
 def save_json_to_file(data, file_path):
