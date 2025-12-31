@@ -557,7 +557,7 @@ curl -X POST 'http://127.0.0.1:9082/browser/transition' -H 'User-Agent: Reqable/
 
 ## 7. 常见问题解答
 
-- 部分浏览器会自动加载Chrome 浏览器的插件，弱加载了本插件，但存在token 与浏览器不匹配，也无法使用
+- 部分基于Chromium开发的浏览器会自动加载 Chrome 浏览器的插件，若加载了本插件，但存在 token 与浏览器不匹配，也无法使用
 
 ## 8. 附录
 
