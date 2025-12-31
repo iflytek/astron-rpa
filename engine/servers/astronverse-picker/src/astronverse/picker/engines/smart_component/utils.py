@@ -206,7 +206,7 @@ def parse_html(html: str = "", **kwargs) -> str:
         tag.clear()
         tag.extend(new_children)
 
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "html.parser", multi_valued_attributes=False)
 
     # 1. 移除 <script>, <style>, <noscript>, <meta>, <link> 等非 UI 元素
     for tag in soup(["script", "style", "noscript", "meta", "link", "head", "title"]):

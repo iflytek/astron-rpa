@@ -1,6 +1,6 @@
 import traceback
 from typing import TYPE_CHECKING, Optional
-
+from _ctypes import COMError
 from astronverse.picker import APP, MSAA_APPLICATIONS, WEB_CLASS_NAMES, IElement
 from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
@@ -35,18 +35,28 @@ def auto_default_strategy(
     if strategy_svc.app in chrome_like_apps:
         # 1. 如果是浏览器优先使用浏览器获取
         try:
-            web_control_result = UIAOperate().get_web_control(
-                strategy_svc.start_control,
-                WEB_CLASS_NAMES[strategy_svc.app],
-                strategy_svc.app,
-                strategy_svc.last_point,
-            )
-            is_document, menu_top, menu_left, hwnd = web_control_result
+            try:
+                web_control_result = UIAOperate().get_web_control(
+                    strategy_svc.start_control,
+                    WEB_CLASS_NAMES[strategy_svc.app],
+                    strategy_svc.app,
+                    strategy_svc.last_point,
+                )
+                is_document, menu_top, menu_left, hwnd = web_control_result
+            except Exception as e:
+                logger.error("堆栈信息:\n{}".format(traceback.format_exc()))
+                return None
+
             if is_document:
                 web_cache = (is_document, menu_top, menu_left, hwnd)
                 preliminary_element = web_default_strategy(service, strategy_svc, web_cache)
                 # web元素直接返回，不做兜底
                 return preliminary_element
+        except COMError as e:
+            # 忽略所有 COM 调用错误
+            logger.warning(f"忽略 COMError: {e}")
+            logger.debug("COMError 堆栈信息:\n{}".format(traceback.format_exc()))
+            return None
         except Exception as e:
             logger.error("堆栈信息:\n%s", traceback.format_exc())
             logger.error(f"auto_default_strategy web error: {e} {traceback.extract_stack()}")
