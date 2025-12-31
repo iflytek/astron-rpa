@@ -1,0 +1,531 @@
+# @format
+
+atomic:
+  DataTable.read_data:
+    title: 读取数据表格
+    comment: 读取数据表格 @{read_type} 中的数据，输出到变量 @{cell_info||row_info||column_info||area_info}
+    icon: read_data_table
+    helpManual: ''
+    inputList:
+      - key: read_type
+        title: 读取方式
+        tip: 选择读取数据的方式
+      - key: row
+        title: 行号
+        tip: 指定要读取的行号（例如1，2，3...）
+      - key: col
+        title: 列号
+        tip: 指定要读取的列号（例如A，B，C，AB...）
+      - key: start_row
+        title: 开始行号
+        tip: 指定要读取的起始行号（例如1，2，3...）
+      - key: start_col
+        title: 开始列号
+        tip: 指定要读取的起始列号（例如A，B，C，AB...）
+      - key: end_row
+        title: 结束行号
+        tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
+      - key: end_col
+        title: 结束列号
+        tip: 结束列号需要大于等于开始列号，不填则读取已编辑区域
+    outputList:
+      - key: cell_info
+        title: 单元格数据
+        tip: 返回指定单元格的数据信息, 类型为字符串
+      - key: row_info
+        title: 行数据
+        tip: 返回指定行的数据信息, 类型为数组
+      - key: column_info
+        title: 列数据
+        tip: 返回指定列的数据信息, 类型为数组
+      - key: area_info
+        title: 区域数据
+        tip: 返回指定区域的数据信息, 类型为二维数组
+  DataTable.write_data:
+    title: 写入数据表格
+    comment: 写入数据到数据表格的 @{write_type}
+    icon: write_data_table
+    helpManual: ''
+    inputList:
+      - key: write_type
+        title: 写入方式
+        tip: 选择写入数据的方式
+      - key: row
+        title: 行号
+        tip: 指定要写入的行号（例如1，2，3...）
+      - key: col
+        title: 列号
+        tip: 指定要写入的列号（例如A，B，C，AB...）
+      - key: data
+        title: 写入数据
+        tip: 需要写入的数据内容
+      - key: start_row
+        title: 开始行号
+        tip: 指定要写入的起始行号（例如1，2，3...）
+      - key: start_col
+        title: 开始列号
+        tip: 指定要写入的起始列号（例如A，B，C，AB...）
+      - key: write_mode
+        title: 写入模式
+        tip: 选择写入数据的模式（覆盖、插入、追加）
+      - key: cell_insert_shift
+        title: 单元格插入方式
+        tip: 插入单元格时原单元格移动方式（下移、右移）
+      - key: row_insert_shift
+        title: 行插入方式
+        tip: 插入行时的位置（上方插入、下方插入）
+      - key: column_insert_shift
+        title: 列插入方式
+        tip: 插入列时的位置（左边插入、右边插入）
+      - key: append_position
+        title: 追加方式
+        tip: 选择追加数据的方式（行追加、列追加）
+    outputList: []
+  DataTable.get_max_row:
+    title: 获取数据表格已用行
+    comment: 获取数据表格中已用的最大行号并输出到 @{max_row}
+    icon: get_max_row
+    helpManual: ''
+    inputList: []
+    outputList:
+      - key: max_row
+        title: 最大行号
+        tip: 返回数据表格中的最大行号，类型为整数
+  DataTable.get_max_column:
+    title: 获取数据表格已用列
+    comment: 获取数据表格中已用的最大列号并输出到 @{max_column}
+    icon: get_max_column
+    helpManual: ''
+    inputList: []
+    outputList:
+      - key: max_column
+        title: 最大列号
+        tip: 返回数据表格中的最大列号，类型为整数
+  DataTable.loop_data_table:
+    title: 循环数据表格
+    comment: 循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
+    icon: loop_data_table
+    helpManual: ''
+    inputList:
+      - key: loop_type
+        title: 循环类型
+        tip: 选择循环遍历的方式（行、列、区域）
+      - key: row
+        title: 行号
+        tip: 指定要循环的行号
+      - key: col
+        title: 列号
+        tip: 指定要循环的列号
+      - key: start_row
+        title: 开始行号
+        tip: 指定循环区域的开始行号
+      - key: start_col
+        title: 开始列号
+        tip: 指定循环区域的开始列号
+      - key: end_row
+        title: 结束行号
+        tip: 指定循环区域的结束行号
+      - key: end_col
+        title: 结束列号
+        tip: 指定循环区域的结束列号
+    outputList:
+      - key: index
+        title: 当前索引
+        tip: 返回当前循环的索引
+      - key: value
+        title: 当前值
+        tip: 返回当前循环项的值
+  DataTable.copy_data:
+    title: 复制数据表格
+    comment: 复制数据表格中的 @{copy_type} 数据到剪切板
+    icon: copy_data_table
+    helpManual: ''
+    inputList:
+      - key: copy_type
+        title: 复制方式
+        tip: 选择复制数据的方式（单元格、行、列、区域）
+      - key: row
+        title: 行号
+        tip: 指定要复制的行号（例如1，2，3...）
+      - key: col
+        title: 列号
+        tip: 指定要复制的列号（例如A，B，C，AB...）
+      - key: start_row
+        title: 开始行号
+        tip: 指定要复制的起始行号（例如1，2，3...）
+      - key: start_col
+        title: 开始列号
+        tip: 指定要复制的起始列号（例如A，B，C，AB...）
+      - key: end_row
+        title: 结束行号
+        tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
+      - key: end_col
+        title: 结束列号
+        tip: 结束列号需要大于等于开始列号，不填则读取已编辑区域
+    outputList:
+      - key: copied_cell
+        title: 复制的单元格
+        tip: 以字符串形式返回复制的单元格数据
+      - key: copied_row
+        title: 复制的行
+        tip: 以数组形式返回复制的行数据
+      - key: copied_column
+        title: 复制的列
+        tip: 以数组形式返回复制的列数据
+      - key: copied_area
+        title: 复制的区域
+        tip: 以二维数组形式返回复制的区域数据
+  DataTable.paste_data:
+    title: 粘贴数据表格
+    comment: 从剪切板粘贴数据到数据表格中的 @{paste_type}
+    icon: paste_data_table
+    helpManual: ''
+    inputList:
+      - key: paste_type
+        title: 粘贴方式
+        tip: 选择粘贴数据的方式（单元格、行、列、区域）
+      - key: paste_value_type
+        title: 粘贴值类型
+        tip: 选择粘贴内容类型（值、公式）
+      - key: row
+        title: 行号
+        tip: 指定要粘贴的行号（例如1，2，3...）
+      - key: col
+        title: 列号
+        tip: 指定要粘贴的列号（例如A，B，C，AB...）
+      - key: start_row
+        title: 开始行号
+        tip: 指定要粘贴的起始行号（例如1，2，3...）
+      - key: start_col
+        title: 开始列号
+        tip: 指定要粘贴的起始列号（例如A，B，C，AB...）
+    outputList: []
+  DataTable.delete_data:
+    title: 删除数据表格
+    comment: 删除数据表格中 @{delete_type} 的数据
+    icon: delete_data_table
+    helpManual: ''
+    inputList:
+      - key: delete_type
+        title: 删除方式
+        tip: 选择删除数据的方式（单元格、行、列、区域）
+      - key: row
+        title: 行号
+        tip: 指定要删除的行号（例如1，2，3...）
+      - key: col
+        title: 列号
+        tip: 指定要删除的列号（例如A，B，C，AB...）
+      - key: start_row
+        title: 开始行号
+        tip: 指定要删除的起始行号（例如1，2，3...）
+      - key: start_col
+        title: 开始列号
+        tip: 指定要删除的起始列号（例如A，B，C，AB...）
+      - key: end_row
+        title: 结束行号
+        tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
+      - key: end_col
+        title: 结束列号
+        tip: 结束列号需要大于等于开始列号，不填则读取已编辑区域
+      - key: delete_cell_move
+        title: 单元格删除后移动方式
+        tip: 删除单元格时的移动方式（左移、上移）
+      - key: delete_col_move
+        title: 列删除是否移动
+        tip: 删除列时的移动方式（左移）
+      - key: delete_row_move
+        title: 行删除是否移动
+        tip: 删除行时的移动方式（上移）
+    outputList: []
+  DataTable.insert_row_column:
+    title: 数据表格插入行/列
+    comment: 在数据表格中插入 @{amount} @{insert_type} 空白@{insert_type}
+    icon: insert_row_column
+    helpManual: ''
+    inputList:
+      - key: insert_type
+        title: 插入类型
+        tip: 选择插入行还是列
+      - key: row
+        title: 行号
+        tip: 指定插入位置的行号
+      - key: col
+        title: 列号
+        tip: 指定插入位置的列号
+      - key: amount
+        title: 插入数量
+        tip: 要插入的行/列数量
+    outputList: []
+  DataTable.insert_formula:
+    title: 数据表格插入公式
+    comment: 在数据表格单元格 @{col}@{row} 中插入公式 @{formula}
+    icon: insert_formula
+    helpManual: ''
+    inputList:
+      - key: row
+        title: 行号
+        tip: 指定要插入公式的行号
+      - key: col
+        title: 列号
+        tip: 指定要插入公式的列号
+      - key: formula
+        title: 公式内容
+        tip: 要插入的公式，例如"=SUM(A1:A5)"
+    outputList: []
+  DataTable.set_column_title:
+    title: 数据表格设置列信息
+    comment: 设置数据表格 @{col} 列的信息为 @{title}
+    icon: set_column_title
+    helpManual: ''
+    inputList:
+      - key: col
+        title: 列号
+        tip: 指定要设置的列号
+      - key: title
+        title: 列信息
+        tip: 要设置的列信息
+    outputList: []
+  DataTable.get_column_title:
+    title: 数据表格获取列信息
+    comment: 获取数据表格 @{col} 列的信息并输出到 @{column_title}
+    icon: get_column_title
+    helpManual: ''
+    inputList:
+      - key: col
+        title: 列号
+        tip: 指定要获取的列号
+    outputList:
+      - key: column_title
+        title: 列信息
+        tip: 返回指定列的信息
+  DataTable.find_and_replace:
+    title: 数据表格查找和替换
+    comment: 在数据表格中 @{find_type} 查找内容 @{find_value} @{is_replace:不}替换内容
+    icon: find_and_replace
+    helpManual: ''
+    inputList:
+      - key: find_type
+        title: 查找类型
+        tip: 选择查找的方式，单列查找或全表查找
+      - key: col
+        title: 列号
+        tip: 指定要查找的列号（例如A，B，C...），仅在单列查找时使用
+      - key: find_value
+        title: 查找内容
+        tip: 要查找的内容
+      - key: is_replace
+        title: 是否替换
+        tip: 是否将查找到的内容进行替换
+      - key: is_case_sensitive
+        title: 区分大小写
+        tip: 查找时是否区分大小写
+      - key: replace_value
+        title: 替换内容
+        tip: 替换后的内容，仅在替换时使用
+    outputList:
+      - key: find_data_positions
+        title: 查找位置
+        tip: 返回查找到的内容所在的位置列表
+  DataTable.sort_table:
+    title: 数据表格排序
+    comment: 对数据表格的 @{col} 列进行 @{sort_type} 排序
+    icon: sort_table
+    helpManual: ''
+    inputList:
+      - key: col
+        title: 列号
+        tip: 指定要排序的列号（例如A，B，C...）
+      - key: sort_type
+        title: 排序方式
+        tip: 选择排序方式（升序、降序）
+    outputList: []
+  DataTable.filter_data_table:
+    title: 数据表格筛选
+    comment: 根据 @{filter_type} 条件筛选数据表格
+    icon: filter_data_table
+    helpManual: ''
+    inputList:
+      - key: filter_type
+        title: 筛选类型
+        tip: 选择筛选类型（列筛选、行筛选、表格筛选）
+      - key: row
+        title: 行号
+        tip: 指定要筛选的行号
+      - key: col
+        title: 列号
+        tip: 指定要筛选的列号
+      - key: condition_type
+        title: 条件类型
+        tip: 选择条件类型
+      - key: condition_value
+        title: 条件值
+        tip: 输入条件值
+      - key: date_value
+        title: 日期值
+        tip: 选择日期值
+      - key: date_range
+        title: 日期范围
+        tip: 选择日期范围
+      - key: is_case_sensitive
+        title: 区分大小写
+        tip: 筛选时是否区分大小写
+      - key: is_save_filtered
+        title: 保存筛选结果
+        tip: 是否保存筛选结果
+    outputList:
+      - key: data_filtered
+        title: 筛选结果
+        tip: 返回筛选后的数据结果
+  DataTable.import_data_table_from_file:
+    title: 从文件导入数据到数据表格
+    comment: 从文件 @{import_file_path} 导入数据到数据表格
+    icon: import_data_table
+    helpManual: ''
+    inputList:
+      - key: import_file_path
+        title: 导入文件路径
+        tip: 要导入数据的文件路径
+      - key: sheet_name
+        title: 工作表名称
+        tip: 要导入的工作表名称
+    outputList: []
+  DataTable.export_data_table_to_file:
+    title: 导出数据表格到文件
+    comment: 将数据表格导出到文件 @{export_dest_path}
+    icon: export_data_table
+    helpManual: ''
+    inputList:
+      - key: export_dest_path
+        title: 导出目标路径
+        tip: 导出文件的存放路径
+      - key: export_file_name
+        title: 导出文件名
+        tip: 导出的文件名
+      - key: export_file_type
+        title: 导出文件类型
+        tip: 选择导出的文件类型
+    outputList:
+      - key: export_file_path
+        title: 导出文件路径
+        tip: 返回导出文件的完整路径
+options:
+  BaseOperateType:
+    - value: cell
+      label: 单元格
+    - value: row
+      label: 行
+    - value: column
+      label: 列
+    - value: area
+      label: 区域
+  WriteMode:
+    - value: overwrite
+      label: 覆盖
+    - value: insert
+      label: 插入
+    - value: append
+      label: 追加
+  CellInsertShift:
+    - value: down
+      label: 下移
+    - value: right
+      label: 右移
+  RowInsertShift:
+    - value: up
+      label: 上方插入
+    - value: down
+      label: 下方插入
+  ColumnInsertShift:
+    - value: left
+      label: 左边插入
+    - value: right
+      label: 右边插入
+  AppendShift:
+    - value: row
+      label: 行追加
+    - value: column
+      label: 列追加
+  PasteValueType:
+    - value: value
+      label: 值
+    - value: formula
+      label: 公式
+  DeleteCellMove:
+    - value: left
+      label: 单元格左移
+    - value: up
+      label: 单元格上移
+  Bool:
+    - value: true
+      label: 是
+    - value: false
+      label: 否
+  SortOrder:
+    - value: ascending
+      label: 升序
+    - value: descending
+      label: 降序
+  InsertType:
+    - value: row
+      label: 行
+    - value: column
+      label: 列
+  FilterType:
+    - value: column
+      label: 列筛选
+    - value: table
+      label: 表格筛选
+    - value: row
+      label: 行筛选
+  ExportFileType:
+    - value: xlsx
+      label: .xlsx文件
+    - value: xls
+      label: .xls文件
+    - value: csv
+      label: .csv文件
+    - value: json
+      label: .json文件
+  LoopType:
+    - value: row
+      label: 行
+    - value: column
+      label: 列
+    - value: area
+      label: 区域
+  FindType:
+    - value: column
+      label: 单列查找
+    - value: table
+      label: 全表查找
+  ConditionType:
+    - value: equals
+      label: 等于
+    - value: not_equals
+      label: 不等于
+    - value: greater_than
+      label: 大于
+    - value: less_than
+      label: 小于
+    - value: greater_than_or_equal
+      label: 大于等于
+    - value: less_than_or_equal
+      label: 小于等于
+    - value: contains
+      label: 包含
+    - value: not_contains
+      label: 不包含
+    - value: is_empty
+      label: 为空
+    - value: is_not_empty
+      label: 不为空
+    - value: starts_with
+      label: 开头是
+    - value: ends_with
+      label: 结尾是
+    - value: date_before
+      label: 在此日期之前
+    - value: date_after
+      label: 在此日期之后
+    - value: date_between
+      label: 在此日期之间
