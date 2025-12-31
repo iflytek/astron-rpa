@@ -7,6 +7,7 @@ import { dissolveTeamMarket, inviteMarketUser, leaveTeamMarket, marketUserList, 
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
+import { clipboardManager } from '@/platform'
 import { useMarketStore } from '@/stores/useMarketStore'
 import type { Fun } from '@/types/common'
 import { MARKET_TYPE_PUBLIC, MARKET_USER_ADMIN, MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
@@ -14,7 +15,6 @@ import FireTeam from '@/views/Home/components/TeamMarket/MarketManage/FireTeam.v
 import GiveOwner from '@/views/Home/components/TeamMarket/MarketManage/GiveOwner.vue'
 import InviteUser from '@/views/Home/components/TeamMarket/MarketManage/InviteUser.vue'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
-import { clipboardManager } from '@/platform'
 
 const INIT_SCROLLY = window.innerHeight - 480
 
@@ -100,28 +100,32 @@ export function useTeamUserTable() {
         class: 'invite-user-modal',
         icon: null,
         width: 540,
-        content: h(<InviteUser marketId={activeMarket.value.marketId} 
-          onInviteTypeChange={(type: string) => {
-            inviteType.value = type; 
-            m.update({
-              okText: inviteType.value === 'link' ? '复制链接' : '发送邀请',
-            })
-          }}
-          onChange={values => inviteUsers.value = values} 
-          onLinkChange={(link: string) => {
-            inviteLink.value = link
-            m.update({
-              okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 }
-            })
-          }} />),
-        okText: inviteType.value === 'link' ? '复制链接' : '发送邀请',
+        content: h(
+          <InviteUser
+            marketId={activeMarket.value.marketId}
+            onInviteTypeChange={(type: string) => {
+              inviteType.value = type
+              m.update({
+                okText: inviteType.value === 'link' ? '复制链接' : '确定',
+              })
+            }}
+            onChange={values => inviteUsers.value = values}
+            onLinkChange={(link: string) => {
+              inviteLink.value = link
+              m.update({
+                okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
+              })
+            }}
+          />,
+        ),
+        okText: inviteType.value === 'link' ? '复制链接' : '确定',
         okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
         onOk: () => {
           return new Promise((resolve, reject) => {
-            if(inviteType.value === 'link') {
+            if (inviteType.value === 'link') {
               clipboardManager.writeClipboardText(inviteLink.value)
               message.success('复制成功')
-              reject()
+              reject(new Error('复制成功'))
               return
             }
             if (inviteUsers.value.length <= 0) {
