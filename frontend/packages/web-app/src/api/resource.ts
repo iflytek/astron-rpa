@@ -363,13 +363,20 @@ export async function deleteDataTable(projectId: string) {
   return res.data
 }
 
-export function startDataTableListenr(projectId: string) {
+/**
+ * 监听数据表格
+ * @param projectId 
+ * @param callback 
+ * @returns 
+ */
+export const startDataTableListenr = <T>(projectId: string, callback?: (data: { event: string, data: T }) => void) => {
   return sseRequest(
     `${getRootBaseURL()}/datatable/stream/project_id=${projectId}&filename=data_table`,
     null,
     { method: 'GET' },
-    (data) => {
-      console.log(data)
-    },
+    (res) => {
+      const dataJson: T = JSON.parse(res.data);
+      callback?.({ event: res.event, data: dataJson })
+    }
   )
 }

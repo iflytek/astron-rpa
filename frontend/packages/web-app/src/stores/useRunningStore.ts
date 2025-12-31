@@ -289,7 +289,13 @@ export const useRunningStore = defineStore('running', () => {
    * 开启数据表格 sse 流式监听
    */
   const _startDataTableListenr = () => {
-    dataTableListenController = startDataTableListenr(processStore.project.id)
+    dataTableListenController = startDataTableListenr(processStore.project.id, (res) => {
+      if (res.event === 'file_deleted') {
+        dataTable.value = null
+      } else if (res.event === 'file_changed') {
+        fetchDataTable()
+      }
+    })
   }
 
   return {
