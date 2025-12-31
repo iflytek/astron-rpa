@@ -13,17 +13,27 @@ import { useDebugLog } from './components/DebugLog/useDebugLog.ts'
 import { useElementManager } from './components/ElementManager/useElementManager.ts'
 import { useLog } from './components/Log/useLog.ts'
 import { useSubProcessUse } from './components/SubProcessSearch/useSubProcessUse'
+import { useProvideDataSheetStore } from './components/DataSheet/useDataSheet'
 import type { TabConfig } from './types'
 
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
+console.log('BottomTools props.height', props.height)
+
 // 创建并提供 configParameter 实例
 const { config: configParamsTabConfig } = useProvideConfigParameter()
+const { dataSheetConfig } = useProvideDataSheetStore()
 
 const processStore = useProcessStore()
 
-const initTabs = reactiveComputed(() => [useLog(), useElementManager(), useCVManager(), configParamsTabConfig])
+const initTabs = reactiveComputed(() => [
+  useLog(),
+  useElementManager(),
+  useCVManager(),
+  configParamsTabConfig,
+  dataSheetConfig,
+])
 
 const tabs = shallowRef<TabConfig[]>(initTabs)
 const activeKey = ref(tabs.value[0].key)
@@ -32,7 +42,7 @@ const moduleType = ref('default')
 
 // 内容的最大高度
 const contentHeight = computed(() => {
-  return Math.max(props.height, BOTTOM_BOOTLS_HEIGHT_SIZE_MIN) - 50
+  return Math.max(props.height, BOTTOM_BOOTLS_HEIGHT_SIZE_MIN) - 46 - 8 // 减去 tab 高度和 margin-bottom
 })
 
 // provide 元素管理/图片管理
@@ -104,7 +114,8 @@ watch(() => processStore.activeProcessId, () => {
             v-if="!activeTab.hideCollapsed"
             name="caret-down-small"
             :title="collapsed ? '展开' : '收起'"
-            class="ml-3" :class="[collapsed ? '-rotate-180' : 'rotate-0']"
+            class="ml-1"
+            :class="[collapsed ? '-rotate-180' : 'rotate-0']"
             enable-hover-bg
             @click="() => expand(!collapsed)"
           />

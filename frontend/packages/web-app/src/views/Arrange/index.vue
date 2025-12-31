@@ -9,11 +9,13 @@ import HeaderControl from '@/components/HeaderControl/HeaderControl.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useSharedData } from '@/stores/useSharedData'
+import { useRunningStore } from '@/stores/useRunningStore'
 
 import ArrangeContent from './Content.vue'
 
 const processStore = useProcessStore()
 const sharedData = useSharedData()
+const runningStore = useRunningStore()
 
 const projectId = useRoute()?.query?.projectId as string
 const projectName = useRoute()?.query?.projectName as string
@@ -29,6 +31,7 @@ onMounted(() => {
     isStart = true
   })
   taskNotify({ event: 'login' })
+  runningStore.fetchDataTable()
 })
 
 onUnmounted(() => {
@@ -40,6 +43,7 @@ onUnmounted(() => {
 })
 onBeforeUnmount(() => {
   useRunlogStore().clearLogs() // 清空日志
+  runningStore.closeDataTableListener()
 })
 </script>
 

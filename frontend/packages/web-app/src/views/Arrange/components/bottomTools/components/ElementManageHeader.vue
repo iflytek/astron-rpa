@@ -81,7 +81,7 @@ function addGroup() {
             </a-menu-item>
           </a-menu>
         </template>
-        <rpa-hint-icon name="app" enable-hover-bg class="ml-2 mr-[-8px]" />
+        <rpa-hint-icon name="app" enable-hover-bg class="ml-2" />
       </a-dropdown>
     </template>
     <!-- 查找引用、查看未使用 header -->
