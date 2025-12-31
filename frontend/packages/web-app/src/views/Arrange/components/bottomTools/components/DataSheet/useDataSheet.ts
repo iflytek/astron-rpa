@@ -59,8 +59,8 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
 
     const cellValue: ICellValue[] = [];
 
-    const maxRow = Math.max(newValue.max_row, oldValue.max_row);
-    const maxCol = Math.max(oldValue.max_column, oldValue.max_column);
+    const maxRow = Math.max(newValue.max_row, oldValue?.max_row ?? 0);
+    const maxCol = Math.max(newValue.max_column, oldValue?.max_column ?? 0);
 
     for (let row = 0; row < maxRow; row++) {
       for (let col = 0; col < maxCol; col++) {

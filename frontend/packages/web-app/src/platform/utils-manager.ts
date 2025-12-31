@@ -36,14 +36,14 @@ const Utils: UtilsManager = {
     link.href = url;
     link.download = fileName;
     document.body.appendChild(link);
-    link.click();
-
     link.addEventListener('click', () => {
       link.remove();
       setTimeout(() => {
         URL.revokeObjectURL(url);
       }, 200);
     });
+
+    link.click();
   },
   playVideo: (videoPath: string) => {
     window.open(videoPath, '_blank')

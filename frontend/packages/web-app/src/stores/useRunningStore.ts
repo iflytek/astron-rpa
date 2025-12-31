@@ -273,9 +273,9 @@ export const useRunningStore = defineStore('running', () => {
     const sheetName = dataTable.value?.name;
     await updateDataTable(processStore.project.id, cellData.map(it => ({ sheet: sheetName, ...it })))
     // 同步到本地
-    cellData.forEach(it => set(dataTable.value, [it.row, it.col], it.value))
+    cellData.forEach(it => set(dataTable.value.data, [it.row, it.col], it.value))
     dataTable.value.max_row = dataTable.value.data.length;
-    dataTable.value.max_column = Math.max(...dataTable.value.data.map(it => it.length))
+    dataTable.value.max_column = dataTable.value.data.length > 0 ? Math.max(...dataTable.value.data.map(it => it.length)) : 0
   }
 
   /**

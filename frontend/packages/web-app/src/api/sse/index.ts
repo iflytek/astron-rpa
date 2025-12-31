@@ -31,7 +31,7 @@ export function sseRequest(
     onopen: async (res) => {
       console.log('sse open', res)
     },
-    ...options,
+    ...options || {},
     onmessage(msg) {
       console.log('sse msg', msg)
       sCB(msg)

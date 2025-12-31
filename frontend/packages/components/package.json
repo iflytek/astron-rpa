@@ -75,10 +75,5 @@
     "@ant-design/icons-vue": ">=7",
     "ant-design-vue": ">=4",
     "vue": ">=3"
-  },
-  "pnpm": {
-    "overrides": {
-      "@univerjs/core": "$@univerjs/core"
-    }
   }
 }

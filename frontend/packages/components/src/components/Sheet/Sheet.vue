@@ -19,7 +19,7 @@ interface SheetProps {
   darkMode?: boolean
   locale?: LocaleType
   readonly?: boolean
-  deafaultValue?: Partial<IWorkbookData>
+  defaultValue?: Partial<IWorkbookData>
 }
 
 export interface ICellValue {
@@ -31,7 +31,7 @@ export interface ICellValue {
 const props = withDefaults(defineProps<SheetProps>(), {
   darkMode: false,
   locale: LocaleType.ZH_CN,
-  deafaultValue: () => ({})
+  defaultValue: () => ({})
 })
 
 const emits = defineEmits<{
@@ -114,7 +114,7 @@ onMounted(() => {
     },
   )
 
-  univerAPI.createWorkbook(props.deafaultValue)
+  univerAPI.createWorkbook(props.defaultValue)
 
   univerAPI.addEvent(univerAPI.Event.SheetValueChanged, (params) => {
     const cellValues: ICellValue[] = params.effectedRanges.flatMap(it => {
