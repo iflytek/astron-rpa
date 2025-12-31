@@ -297,28 +297,33 @@ class OpenpyxlWrapper:
             for c_idx, cell_value in enumerate(row_data):
                 self.sheet.cell(row=min_row + r_idx, column=min_col + c_idx, value=cell_value)
 
-    def fill_data_table_by_import_file(self, import_file_path: str, delimiter: str = ",", include_header: bool = True):
+    def fill_data_table_by_import_file(self, import_file_path: str, delimiter: str = ",", include_header: bool = True, sheet_name = None):
         ext = os.path.splitext(import_file_path)[1].lower()
+        self.sheet.delete_rows(1, self.sheet.max_row)
         if ext == ".csv":
             try:
                 with open(import_file_path, newline="", encoding="utf-8") as csvfile:
                     reader = csv.reader(csvfile, delimiter=delimiter)
+                    start_row = 1
                     for row_data in reader:
-                        self.append_row(row_data)
+                        self.write_row(row_index=start_row, data=row_data)
+                        start_row += 1
             except UnicodeDecodeError:
                 with open(import_file_path, newline="", encoding="gbk") as csvfile:
                     reader = csv.reader(csvfile, delimiter=delimiter)
+                    start_row = 1
                     for row_data in reader:
-                        self.append_row(row_data)
+                        self.write_row(row_index=start_row, data=row_data)
+                        start_row += 1
         if ext in [".xlsx", ".xls"]:
-            import_wrapper = OpenpyxlWrapper(file_path=import_file_path)
+            import_wrapper = OpenpyxlWrapper(file_path=import_file_path, sheet_name=sheet_name)
             data = import_wrapper.read_effective_area()
             start_row = 1
             if not include_header:
                 data = data[1:]
             for r_idx, row_data in enumerate(data):
-                for c_idx, cell_value in enumerate(row_data):
-                    self.sheet.cell(row=start_row + r_idx, column=1 + c_idx, value=cell_value)
+                self.write_row(row_index=start_row, data=row_data)
+                start_row += 1
             import_wrapper.close()
 
     def insert_cells(self, row: int, col: int, amount: int = 1):

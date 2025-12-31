@@ -1352,11 +1352,9 @@ class DataTable:
                 f"文件不存在: {import_file_path}",
             )
 
-        PyxlWrapper.clear_range(
-            range_str=f"A1:{index_to_col(PyxlWrapper.get_max_column() - 1)}{PyxlWrapper.get_max_row()}",
-        )
         PyxlWrapper.fill_data_table_by_import_file(
             import_file_path=import_file_path,
+            sheet_name=sheet_name,
         )
 
     @staticmethod
