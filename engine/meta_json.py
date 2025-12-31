@@ -86,7 +86,7 @@ def merge_local_and_remote(local_meta: dict, remote_meta: list):
                 found = True
                 break
         if not found:
-            new_item = {"atomKey": key, "atomContent": str(value), "sort": None}
+            new_item = {"atomKey": key, "atomContent": json.dumps(value, ensure_ascii=False), "sort": None}
             new_items.append(new_item)
     print(f"Found {len(new_items)} new items to add to remote meta.json.")
     if new_items:
