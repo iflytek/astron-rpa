@@ -146,33 +146,11 @@ class WEBPicker:
         if not web_info:
             return None
 
-        pid = root_control.ProcessId
-        app_name = get_process_name(pid)
-
-        prev_control = None  # 用于保存根节点的子节点
-        # 向上遍历直到根节点
-        while True:
-            parent = root_control.GetParentControl()
-            if not parent:
-                break
-            prev_control = root_control  # 保存当前节点，作为根节点的子节点
-            root_control = parent  # 向上移动
-
-        root_control = prev_control
-
-        root_path = {
-            "cls": root_control.ClassName,
-            "name": root_control.Name,
-            "app": app_name,
-            "tag_name": "WindowControl",
-            "checked": True,
-        }
-
         return WEBElement(
             web_info=web_info,
             left_top_point=left_top_point,
             app=strategy_svc.app,
-            root_path=root_path,
+            root_path=None,
         )
 
 
