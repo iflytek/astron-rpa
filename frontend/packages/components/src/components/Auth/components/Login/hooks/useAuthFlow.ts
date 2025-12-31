@@ -57,7 +57,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
     () => opts.baseUrl,
     (newVal) => {
       newVal && setBaseUrl(newVal)
-      platform.value = newVal && newVal.includes('127.0.0.1') ? 'client' : 'admin'
+      platform.value = newVal && (newVal.includes('localhost') || newVal.includes('127.0.0.1')) ? 'client' : 'admin'
     },
     { immediate: true },
   )
