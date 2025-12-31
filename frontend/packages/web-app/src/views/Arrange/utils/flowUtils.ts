@@ -1,7 +1,7 @@
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
-import { Catch, CvImageExist, ForBrowserSimilar, ForDict, ForExcelContent, ForList, ForStep, Group, If, Try, TryEnd, While } from '@/views/Arrange/config/atomKeyMap'
+import { Catch, CvImageExist, ForBrowserSimilar, ForDataTableLoop, ForDict, ForExcelContent, ForList, ForStep, Group, If, Try, TryEnd, While } from '@/views/Arrange/config/atomKeyMap'
 import { ERR_PARENT_NOT_CONTAINS_ALL_CHILD } from '@/views/Arrange/config/errors'
 
 /**
@@ -133,6 +133,7 @@ function isComplexNode(key: string): boolean {
     ForList,
     ForExcelContent,
     ForBrowserSimilar,
+    ForDataTableLoop,
     While,
     If,
     Try,

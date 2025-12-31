@@ -82,5 +82,6 @@ export default antfu({
     'public/*.js',
     'packages/browser-plugin/src/3rd/*.js',
     'packages/browser-plugin/src/test/*.js',
+    'packages/components/src/components/Sheet/luckyexcel/**',
   ],
 })
