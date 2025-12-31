@@ -44,7 +44,7 @@
       "csp": null,
       "dangerousRemoteDomainIpcAccess": [
         {
-          "windows": ["main", "batch", "record", "record-menu"],
+          "windows": ["main", "batch", "record", "record-menu", "smart-comp-pick-menu"],
           "domain": "localhost",
           "enableTauriAPI": true
         }
