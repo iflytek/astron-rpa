@@ -1,0 +1,25 @@
+[project]
+name = "astronverse-smart"
+version = "1.0.1"
+description = "astronverse-smart."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-actionlib",
+    "astronverse-baseline",
+    "astronverse-browser",
+    "astronverse-system"
+]
+
+[tool.uv.sources]
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
+astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
+astronverse-system = {path = "../../components/astronverse-system", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

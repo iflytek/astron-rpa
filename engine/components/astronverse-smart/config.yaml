@@ -1,0 +1,15 @@
+atomic:
+  Smart.run_code:
+    title: 执行代码
+    comment: AI生成Python脚本
+    icon: magic-command
+    helpManual: ''
+    inputList:
+      - key: smart_info
+        title: 智能组件
+        tip: 包含smartCode（AI生成的代码字符串）和smartType（代码类型：web_auto网页自动化 | data_process数据处理）的字典
+      - key: code_params
+        title: 代码参数
+        tip: 传递给代码的参数
+    outputList: []
+options: {}

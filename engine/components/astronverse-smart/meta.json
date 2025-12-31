@@ -1,0 +1,44 @@
+{
+  "Smart.run_code": {
+    "key": "Smart.run_code",
+    "title": "执行代码",
+    "version": "1.0.1",
+    "src": "astronverse.smart.smart.Smart().run_code",
+    "comment": "AI生成Python脚本",
+    "inputList": [
+      {
+        "types": "Dict",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "smart_info",
+        "name": "smart_info",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Any",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "code_params",
+        "name": "code_params",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      }
+    ],
+    "outputList": [],
+    "icon": "magic-command",
+    "helpManual": ""
+  }
+}
