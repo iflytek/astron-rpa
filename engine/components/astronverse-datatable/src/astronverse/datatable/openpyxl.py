@@ -297,7 +297,9 @@ class OpenpyxlWrapper:
             for c_idx, cell_value in enumerate(row_data):
                 self.sheet.cell(row=min_row + r_idx, column=min_col + c_idx, value=cell_value)
 
-    def fill_data_table_by_import_file(self, import_file_path: str, delimiter: str = ",", include_header: bool = True, sheet_name = None):
+    def fill_data_table_by_import_file(
+        self, import_file_path: str, delimiter: str = ",", include_header: bool = True, sheet_name=None
+    ):
         ext = os.path.splitext(import_file_path)[1].lower()
         self.sheet.delete_rows(1, self.sheet.max_row)
         if ext == ".csv":
