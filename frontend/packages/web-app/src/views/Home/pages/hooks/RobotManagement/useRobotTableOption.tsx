@@ -2,11 +2,12 @@ import { SearchOutlined, SyncOutlined } from '@ant-design/icons-vue'
 import { Icon } from '@rpa/components'
 import { Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { h, reactive, ref } from 'vue'
+import { h, reactive, ref, watch } from 'vue'
 
 import type { AnyObj } from '@/types/common'
 import { ROBOT_SOURCE_LOCAL, ROBOT_SOURCE_TEXT } from '@/views/Home/config'
 import { handleRun } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
+import { useUserStore } from '@/stores/useUserStore'
 
 import OperMenu from '../../../components/OperMenu.vue'
 
@@ -21,6 +22,7 @@ export default function useRobotTableOption() {
   }
   const { t } = useTranslation()
   const { getTableData, handleToConfig, openRobotDetailModal, openMcpConfigModal, handleDeleteRobot, handleRobotUpdate, expiredTip } = useRobotOperation(homeTableRef, refreshHomeTable)
+  const userStore = useUserStore()
 
   const baseOpts = [
     {
@@ -194,6 +196,13 @@ export default function useRobotTableOption() {
     params: { // 绑定的表单配置的数据
       name: '',
     },
+  })
+
+  // 切换租户后列表刷新
+  watch(() => userStore.currentTenant?.id, (val) => {
+    if (val) {
+      refreshHomeTable()
+    }
   })
 
   return {

@@ -17,6 +17,16 @@
       "import": "./src/index.ts",
       "require": "./src/index.ts"
     },
+    "./auth": {
+      "types": "./src/components/Auth/index.ts",
+      "import": "./src/components/Auth/index.ts",
+      "require": "./src/components/Auth/index.ts"
+    },
+    "./config-provider": {
+      "types": "./src/components/ConfigProvider/index.ts",
+      "import": "./src/components/ConfigProvider/index.ts",
+      "require": "./src/components/ConfigProvider/index.ts"
+    },
     "./icon": "./lib/iconpark.js",
     "./resolver": "./resolver.js"
   },
@@ -59,6 +69,7 @@
     "@storybook/addon-onboarding": "^9.1.1",
     "@storybook/addon-themes": "^9.1.1",
     "@storybook/vue3-vite": "^9.1.1",
+    "@types/crypto-js": "^4.2.2",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
     "ant-design-vue": "catalog:",

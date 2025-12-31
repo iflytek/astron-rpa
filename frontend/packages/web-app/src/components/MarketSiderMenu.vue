@@ -9,6 +9,11 @@ import { COMMON_SIDER_WIDTH } from '@/constants'
 import { TEAMMARKETMANAGE, TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useMarketStore } from '@/stores/useMarketStore'
+import GlobalModal from '@/components/GlobalModal/index.ts'
+import { checkMarketNum } from '@/api/market'
+import { useUserStore } from '@/stores/useUserStore'
+
+const userStore = useUserStore()
 
 const { markets, setCurrentMarketItem } = useMarketStore()
 const openKeys = ref([markets.find(item => item.active)?.key])
@@ -41,15 +46,30 @@ function jumpToTeamDetail(e, data: any) {
   useRoutePush({ name: TEAMMARKETMANAGE })
 }
 
-function createTeam() {
+async function createTeam() {
+  if(userStore.currentTenant?.tenantType === 'personal'){
+    const res = await checkMarketNum()
+    if(!res.data){
+      GlobalModal.warn({
+        title: '提示',
+        content: '个人版最多可创建3个团队市场，您已满额。',
+        centered: true,
+        keyboard: false,
+        okText: '我知道了',
+      })
+      return
+    }
+  }
   NiceModal.show(CreateTeamMarketModal)
 }
 
 const marketId = useRoute()?.query?.marketId as string
 useMarketStore().refreshTeamList(marketId)
 
-onBeforeUnmount(() => {
-  useMarketStore().reset()
+watch(() => userStore.currentTenant?.id, (val) => {
+  if (val) {
+    useMarketStore().refreshTeamList()
+  }
 })
 </script>
 

@@ -1,0 +1,248 @@
+.auth-container-content,
+.login-form-layout {
+  // 重置登录tab样式
+  .ant-tabs-nav-wrap,
+  .ant-tabs-nav-list {
+    width: 100%;
+    border-radius: 8px;
+    .ant-tabs-tab {
+      width: 100%;
+    }
+  }
+  .tab-pane-text-left {
+    .ant-tabs-nav-list {
+      .ant-tabs-tab {
+        text-align: left !important;
+      }
+    }
+  }
+  .ant-tabs > .ant-tabs-nav {
+    margin-bottom: 24px;
+    &:before {
+      display: none;
+    }
+  }
+  .ant-tabs-content-holder {
+    height: 100%;
+  }
+  .ant-tabs-content {
+    height: 100%;
+  }
+  .ant-tabs-nav-list {
+    background-color: #ecedf4;
+    border: none;
+    border-radius: 8px !important;
+    padding: 3px;
+    .ant-tabs-tab {
+      border: none;
+      border-radius: 6px !important;
+      text-align: center;
+      background: transparent;
+      .ant-tabs-tab-btn {
+        width: 100%;
+        color: #000000a6;
+      }
+      &.ant-tabs-tab-active {
+        background-color: #ffffff;
+        box-shadow: none;
+        .ant-tabs-tab-btn {
+          color: #000000d9;
+        }
+      }
+    }
+  }
+
+  // 修改滚动条样式
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #bbbbbba6;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #bbbbbba6;
+  }
+
+  // 去除 input 自动填充时的蓝色背景
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  input:-internal-autofill-selected,
+  input:autofill {
+    background-color: #f3f3f780 !important;
+    box-shadow: 0 0 0 1000px #f3f3f780 inset !important;
+    -webkit-box-shadow: 0 0 0 1000px #f3f3f780 inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+    -webkit-text-fill-color: inherit !important;
+  }
+
+  // Ant Design Vue Input 组件的自动填充样式
+  .ant-input:-webkit-autofill,
+  .ant-input:-webkit-autofill:hover,
+  .ant-input:-webkit-autofill:focus,
+  .ant-input:-webkit-autofill:active {
+    background-color: #f3f3f780 !important;
+    box-shadow: 0 0 0 1000px #f3f3f780 inset !important;
+    -webkit-box-shadow: 0 0 0 1000px #f3f3f780 inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+    -webkit-text-fill-color: inherit !important;
+  }
+
+  .ant-input {
+    font-size: 14px;
+    &::placeholder {
+      font-size: 14px;
+    }
+  }
+  .ant-form label {
+    font-size: 14px;
+  }
+  .ant-form .ant-checkbox + span {
+    padding-inline-end: 0px !important;
+  }
+  .ant-select-selection-placeholder {
+    font-size: 14px;
+  }
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+  .form-item-agreement {
+    margin-bottom: 8px !important;
+    .ant-form-item-control-input {
+      min-height: auto !important;
+    }
+  }
+  .form-item-remember {
+    margin-bottom: 0 !important;
+  }
+  .ant-input-password {
+    .ant-input {
+      border: none !important;
+      background-color: transparent !important;
+    }
+    .ant-input-suffix {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+    }
+  }
+  .ant-input-affix-wrapper {
+    padding: 6px 12px 7px !important;
+  }
+  .ant-form-item .ant-form-item-explain {
+    transition: none;
+  }
+  .ant-form-item-has-error {
+    .ant-form-item-explain-error {
+      position: absolute;
+      font-size: 12px;
+      bottom: -2px;
+      color: #ec483e;
+    }
+    &.form-item-agreement {
+      .ant-form-item-explain-error {
+        bottom: -6px;
+      }
+    }
+  }
+  .ant-input-password .ant-input-suffix {
+    cursor: pointer;
+  }
+}
+
+.dark {
+  .auth-container-content {
+    .ant-tabs-nav-list {
+      background-color: #141414;
+      padding: 3px 3px 2px;
+      .ant-tabs-tab {
+        .ant-tabs-tab-btn {
+          color: #ffffffa6;
+        }
+        &.ant-tabs-tab-active {
+          background-color: #ffffff1f;
+          box-shadow: 0px -1px 0px 0px rgba(255, 255, 255, 0.3);
+          .ant-tabs-tab-btn {
+            color: #ffffffd9;
+          }
+        }
+      }
+    }
+  }
+  // 去除 input 自动填充时的蓝色背景
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  input:-internal-autofill-selected,
+  input:autofill {
+    background-color: transparent !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  // Ant Design Vue Input 组件的自动填充样式
+  .ant-input:-webkit-autofill,
+  .ant-input:-webkit-autofill:hover,
+  .ant-input:-webkit-autofill:focus,
+  .ant-input:-webkit-autofill:active {
+    background-color: transparent !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  // 修改滚动条样式
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #333333a6;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #333333a6;
+  }
+}
+
+.text-upgrader-bg {
+  background: linear-gradient(
+    90deg,
+    rgba(199, 181, 252, 0.2) 0%,
+    rgba(81, 71, 255, 0.1) 59.61%,
+    rgba(199, 181, 252, 0.3) 100%
+  ) !important;
+  box-shadow: 0px -2px 4px 0px #ffffff33 inset;
+}
+.text-gradient-bg {
+  background: #c7b5fc33;
+  border-radius: 4px;
+  font-size: 12px;
+  height: 22px;
+  line-height: 18px;
+  border: 1px solid #726fff1a;
+  padding: 1px 8px;
+}
+.text-gradient {
+  background-image: linear-gradient(90deg, #726fff 39.9%, #996dc0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.tenant-dropdown {
+  .ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item {
+    padding: 0px !important;
+  }
+}

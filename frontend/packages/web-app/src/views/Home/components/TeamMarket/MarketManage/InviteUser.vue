@@ -1,120 +1,112 @@
 <script setup lang="ts">
-import { /* TODO 暂时注释掉， 后续组织架构功能完善再打开 Button, */ Select, TreeSelect } from 'ant-design-vue'
+import { Tabs, TabPane } from 'ant-design-vue'
 import { ref } from 'vue'
 
-import { useCompanyInvite, usePhoneInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser'
-import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
+import LinkInvite from '@/views/Home/components/TeamMarket/MarketManage/LinkInvite.vue'
+import PhoneInvite from '@/views/Home/components/TeamMarket/MarketManage/PhoneInvite.vue'
+import { useUserStore } from '@/stores/useUserStore'
 
 const { marketId } = defineProps({
   marketId: {
     type: String,
     default: '',
   },
+  users: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const emit = defineEmits(['change'])
+const userStore = useUserStore()
+const addTypesMap = {
+  personal: ['link'],
+  professional: ['link', 'phone'],
+  enterprise: ['phone']
+}
+const addTypes = addTypesMap[userStore.currentTenant?.tenantType]
+const activeTab = ref(addTypes[0])
+const emit = defineEmits(['change', 'inviteTypeChange', 'linkChange'])
 
-const { phoneInviteArr, userList, clearUserList, userListByPhone, selectData, keyDownChange, changePhoneUserType /* TODO 暂时注释掉， 后续组织架构功能完善再打开resetPhoneInviteArr */ } = usePhoneInvite(marketId, 'invite', emit)
-
-const { companyInviteArr, companyTreeData, changeCompanyUserType, changeCompanySelect /* TODO 暂时注释掉， 后续组织架构功能完善再打开resetCompanyInviteArr */ } = useCompanyInvite(marketId, emit)
-
-const inviteType = ref('phone')
-// function changeInviteType() {
-//   inviteType.value = inviteType.value === 'phone' ? 'org' : 'phone'
-//   resetPhoneInviteArr()
-//   resetCompanyInviteArr()
-// }
 </script>
 
 <template>
-  <div class="modal-form">
-    <!-- TODO 暂时注释掉， 后续组织架构功能完善再打开 -->
-    <!-- <Button type="link" style="margin: 5px 0; padding: 0;" @click="changeInviteType">
-      切换到{{ inviteType === 'phone' ? "组织架构" : "手机号" }}搜索
-    </Button> -->
-    <Select
-      v-if="inviteType === 'phone'"
-      v-model:value="phoneInviteArr"
-      popup-class-name="invite"
-      placeholder="通过手机号邀请，可勾选确认添加多个"
-      style="width: 100%"
-      :get-popup-container="(triggerNode) => triggerNode.parentNode"
-      show-search
-      :show-arrow="false"
-      mode="multiple"
-      :default-active-first-option="false"
-      :filter-option="false"
-      option-label-prop="label"
-      @search="userListByPhone"
-      @change="selectData"
-      @blur="clearUserList"
-      @input-keydown="keyDownChange"
-    >
-      <Select.Option v-for="item in userList" :key="item.creatorId" :value="item.creatorId" :label="item.realName">
-        <div class="option-item">
-          <div class="option-item-value">
-            {{ item.realName }}
-          </div>
-          <div class="option-item-value">
-            {{ item.phone }}
-          </div>
-          <RoleDropdown pop-container-type="parent" :user-type="item.userType" @change="(userType) => changePhoneUserType(item, userType)" />
-        </div>
-      </Select.Option>
-    </Select>
-
-    <TreeSelect
-      v-else
-      v-model:value="companyInviteArr"
-      style="width: 100%;"
-      :get-popup-container="(triggerNode) => triggerNode.parentNode"
-      placeholder="通过组织架构搜索，可勾选确认添加多个"
-      tree-checkable
-      show-search
-      tree-node-filter-prop="name"
-      tree-node-label-prop="name"
-      :tree-data="companyTreeData"
-      :field-names="{ children: 'children', label: 'name', value: 'deptOrUserId' }"
-      @change="changeCompanySelect"
-    >
-      <template #title="item">
-        <span v-if="item.type === 'dept'"> {{ item.name }}</span>
-        <span v-else class="userNode">
-          <span class="name">{{ item.name }}  {{ item.phone }}</span>
-          <span><RoleDropdown pop-container-type="parent" :user-type="item.userType" @change="(userType) => changeCompanyUserType(item, userType)" /></span>
-        </span>
-      </template>
-    </TreeSelect>
+  <div class="modal-form invite-user-modal">
+    <Tabs type="card" size="small" v-if="addTypes?.length > 1" v-model:active-key="activeTab" @change="(key) => emit('inviteTypeChange', key)">
+      <TabPane key="add" tab="直接添加" />
+      <TabPane key="link" tab="邀请链接" />
+    </Tabs>
+    <LinkInvite v-if="activeTab === 'link'" :market-id="marketId" @link-change="(link: string) => emit('linkChange', link)"/>
+    <PhoneInvite v-if="activeTab === 'add'" :market-id="marketId" :selected-users="users" @change="(userList: any[]) => emit('change', userList)"/>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.option-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 300px;
-  &-value {
-    width: 110px;
-    margin-right: 10px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+<style lang="scss">
+.invite-user-modal{
+  .ant-modal-confirm-content {
+    width: 100%!important;
+    max-width: 100%!important;
+  }
+
+  .ant-tabs-nav-wrap, .ant-tabs-nav-list {
+    width: 100%;
+    border-radius: 8px;
+    .ant-tabs-tab {
+      width: 50%;
+    }
+  }
+  .ant-tabs >.ant-tabs-nav{
+    margin-bottom: 24px;
+    &:before {
+      display: none;
+    }
+  }
+  .ant-tabs-content-holder{
+    height: 100%;
+  }
+  .ant-tabs-content{
+    height: 100%;
+  }
+  .ant-tabs-nav-list{
+    background-color: #ECEDF4;
+    border: none;
+    border-radius: 8px!important;
+    padding: 3px;
+    
+    .ant-tabs-tab {
+      border: none;
+      border-radius: 6px!important;
+      text-align: center;
+      background: transparent;
+      .ant-tabs-tab-btn {
+        width: 100%;
+        color: #000000A6;
+      }
+      &.ant-tabs-tab-active {
+        background-color: #FFFFFF;
+        box-shadow: none;
+        .ant-tabs-tab-btn {
+          color: #000000D9;
+        }
+      }
+    }
   }
 }
-:deep(.ant-select-dropdown) {
-  min-height: 200px;
-}
-:deep(.ant-select-dropdown .ant-select-item) {
-  position: initial;
-}
-:deep(.ant-select-item-option) {
-  align-items: center;
-}
-:deep(.ant-select-item-option .ant-select-item-option-state) {
-  font-weight: bold;
-}
-:deep(ant-select-dropdown-menu-item) {
-  overflow: visible;
+.dark .invite-user-modal{
+  .ant-tabs-nav-list{
+    background-color: #141414;
+    padding: 3px 3px 2px;
+    .ant-tabs-tab {
+      .ant-tabs-tab-btn {
+        color: #FFFFFFA6;
+      }
+      &.ant-tabs-tab-active {
+        background-color: #FFFFFF1F;
+        box-shadow: 0px -1px 0px 0px rgba(255, 255, 255, 0.3);
+        .ant-tabs-tab-btn {
+          color: #FFFFFFD9;
+        }
+      }
+    }
+  }
 }
 </style>

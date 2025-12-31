@@ -28,9 +28,13 @@ export const LEFT_BOOTLS_WIDTH_SIZE_MIN = 200
 // 画布左侧操作栏最大宽度
 export const LEFT_BOOTLS_WIDTH_SIZE_MAX = 240
 
+export const SUCCES_MSG = 'Success'
+export const ERROR_MSG = 'Failed'
+
 export const SUCCESS_CODES = ['200', '000000', 200, '0000']
 export const ERROR_CODES = ['500', '5001', '1001']
-export const UN_AUTHORIZED_CODES = ['4001', '401', '403']
+export const UN_AUTHORIZED_CODES = ['302', '4001', '401', '403', '900005', '900001'] // 900005空间过期 900001被其他账号顶掉
 
+export const VUE_APP_AUTH = 'http://dev.iflyrpa.private:31680/login/#/invite'
 export const VUE_APP_COMMANDER = 'https://www.iflyrpa.com/admin/'
 export const VUE_APP_HELP = 'https://www.iflyrpa.com/docs/'

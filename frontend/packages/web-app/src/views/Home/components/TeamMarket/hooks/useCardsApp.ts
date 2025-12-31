@@ -1,7 +1,7 @@
 import { findIndex } from 'lodash-es'
 import { reactive, ref } from 'vue'
 
-import { getAppCards, marketUserList } from '@/api/market'
+import { getAllClassification, getAppCards, marketUserList } from '@/api/market'
 import { fromIcon } from '@/components/PublishComponents/utils'
 import { useCardsTools } from '@/views/Home/components/TeamMarket/hooks/useCardsTools'
 import type { resOption } from '@/views/Home/types'
@@ -62,6 +62,7 @@ export function useCardsApp() {
       marketId: '', // 市场ID
       appName: '',
       creatorId: undefined, // 创建者ID
+      category: undefined,
       sortKey: 'createTime', // 排序键
     },
   })
@@ -91,11 +92,19 @@ export function useCardsApp() {
       }
     })
   }
+
+  async function getAppCategory() {
+    const res = await getAllClassification()
+    const current = cardsOption.formList[findIndex(cardsOption.formList, { bind: 'category' })]
+    current.options = res.data || []
+  }
+
   // 返回所需的引用和方法
   return {
     homePageListRef,
     refreshHomeTable,
     cardsOption,
     getMembersByTeam,
+    getAppCategory,
   }
 }

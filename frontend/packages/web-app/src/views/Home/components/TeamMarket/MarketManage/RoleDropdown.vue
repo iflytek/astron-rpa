@@ -13,6 +13,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  type: {
+    type: String as any,
+    default: 'link',
+  },
 })
 
 const emit = defineEmits(['change'])
@@ -32,7 +36,7 @@ const getTypeName = userType => USER_TYPES.find(item => item.key === userType)?.
     :get-popup-container="getPopContainer"
     :disabled="userType === MARKET_USER_OWNER"
   >
-    <Button style="padding: 0 5px 0 0;" type="link" class="ant-dropdown-link inline-flex items-center" @click="e => e.preventDefault()">
+    <Button class="ant-dropdown-link inline-flex items-center" :class="props.type === 'link' ? 'p-0 !pr-[5px]' : 'ml-[5px] border border-[#000000]/[.15] dark:border-[#FFFFFF]/[.15]'" :type="props.type"  @click="e => e.preventDefault()">
       <span>{{ getTypeName(props.userType) }}</span>
       <DownOutlined />
     </Button>

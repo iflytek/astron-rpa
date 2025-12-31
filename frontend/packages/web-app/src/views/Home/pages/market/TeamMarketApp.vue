@@ -7,7 +7,7 @@ import CardsShow from '@/views/Home/components/TeamMarket/CardsShow.vue'
 import CreateMarket from '@/views/Home/components/TeamMarket/CreateMarket.vue'
 import { useCardsApp } from '@/views/Home/components/TeamMarket/hooks/useCardsApp.ts'
 
-const { homePageListRef, refreshHomeTable, cardsOption, getMembersByTeam } = useCardsApp()
+const { homePageListRef, refreshHomeTable, cardsOption, getMembersByTeam, getAppCategory } = useCardsApp()
 const marketStore = useMarketStore()
 
 function updateCheckNum(data) {
@@ -22,6 +22,8 @@ function updateCheckNum(data) {
 const hasMarkets = computed(() => {
   return marketStore.activeMarket?.marketId && marketStore.markets[0]?.children.length > 0
 })
+
+getAppCategory()
 
 watch(() => marketStore.activeMarket?.marketId, (val) => {
   if (val) {

@@ -1,37 +1,80 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useAsyncState } from '@vueuse/core'
-import authService from '@/auth/index'
+import type { TenantItem } from '@rpa/components/auth'
+import GlobalModal from '@/components/GlobalModal/index.ts'
+import router from '@/router'
+import { useRoutePush } from '@/hooks/useCommonRoute'
+import { useRunningStore } from '@/stores/useRunningStore'
+import { getTermianlStatus } from '@/api/engine'
+import { taskNotify } from '@/api/task'
+import { Auth } from '@rpa/components/auth'
+import { usePermissionStore } from '@/stores/usePermissionStore'
+import { findFirstPermittedRoute } from '@/router'
 
 export const useUserStore = defineStore('user', () => {
-  const auth = authService.getAuth()
-
-  const loginStep = ref('login') // 登录步骤
-  const loginType = ref('self') // 登录类型
-
-  // 获取用户名
-  const userNameState = useAsyncState(() => auth.getUserName(), '')
-
+  const currentUserInfo = ref()
+  const currentTenant = ref<TenantItem | null>(null) // 当前租户
+  
   const loginStatus = computed(() => {
-    return loginType.value !== 'offline'
-  }) // 登录状态 false离线true在线
+    return currentUserInfo.value
+  })
 
-  // 设置登录类型
-  const setLoginType = (val: string) => {
-    loginType.value = val
+  function getUserInfo() {
+    if(!currentUserInfo.value) {
+      currentUserInfo.value = Auth.getUserInfo()
+    }
+    return currentUserInfo.value
   }
 
-  // 设置登录步骤
-  const setLoginStep = (val: string) => {
-    loginStep.value = val
+  async function beforeSwitch(): Promise<void> {
+    const { data } = await getTermianlStatus()
+    if (!data.running) {
+      return Promise.resolve()
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const modal = GlobalModal.confirm({
+        title: '警告',
+        content: '切换工作空间将中断正在运行的应用，请确认？',
+        okText: '确定',
+        cancelText: '取消',
+        maskClosable: false,
+        onOk: async () => {
+          const runningStore = useRunningStore()
+          runningStore.stop(runningStore.getRunProjectId())
+          modal.destroy()
+          resolve()
+        },
+        onCancel: () => {
+          modal.destroy()
+          reject(new Error('用户取消切换'))
+        },
+      })
+    })
+  }
+
+  async function switchTenant (tenant: TenantItem) {
+    currentTenant.value = tenant
+    usePermissionStore().reset()
+    await usePermissionStore().initPermission()
+    const first = findFirstPermittedRoute(usePermissionStore())
+    if(first && router.currentRoute.value.name !== first.name) {
+      useRoutePush({ name: first.name })
+    }
+    return await taskNotify({ event: 'login' })
+  }
+
+  async function logout() {
+    await Auth.logout()
   }
 
   return {
-    userNameState,
-    loginStep,
-    loginType,
+    currentTenant,
+    currentUserInfo,
     loginStatus,
-    setLoginType,
-    setLoginStep,
+    getUserInfo,
+    beforeSwitch,
+    switchTenant,
+    logout,
   }
 })

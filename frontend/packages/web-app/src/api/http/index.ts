@@ -10,12 +10,10 @@ import { isNil } from 'lodash-es'
 
 import { promiseWithResolvers } from '@/utils/common'
 
-import authService from '@/auth/index'
 import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 
 import { getBaseURL, unauthorize } from './env'
 
-const auth = authService.getAuth()
 
 export type { AxiosProgressEvent } from 'axios'
 
@@ -110,9 +108,6 @@ class HttpClient {
           // 关闭loading
         }
 
-        if (auth.checkHttpResponse(response)) {
-          return
-        }
 
         if (response.config.responseType === 'blob') {
           response.data = { code: '0000', data: response.data }
@@ -125,9 +120,9 @@ class HttpClient {
         if (!SUCCESS_CODES.includes(response.data.code) && response.config.toast !== false) {
           message.error(response.data.message || response.data.msg)
         }
-
-        if (UN_AUTHORIZED_CODES.includes(response.data.code)) {
-          unauthorize()
+        
+        if (UN_AUTHORIZED_CODES.includes(response.data.code) || response.data.ret === 302) {
+          unauthorize(response)
         }
 
         if (response.headers.token) {

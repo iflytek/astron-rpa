@@ -25,16 +25,16 @@ const textItems = computed(() => ([
     id: 'userDirectory',
     content: appInfo.value.userPath,
   },
-  {
-    key: t('settingCenter.about.buildVersion'),
-    id: 'buildVersion',
-    content: appInfo.value.buildInfo,
-  },
-  {
-    key: t('settingCenter.about.systemEnvironment'),
-    id: 'systemEnvironment',
-    content: appInfo.value.systemInfo,
-  },
+  // {
+  //   key: t('settingCenter.about.buildVersion'),
+  //   id: 'buildVersion',
+  //   content: appInfo.value.buildInfo,
+  // },
+  // {
+  //   key: t('settingCenter.about.systemEnvironment'),
+  //   id: 'systemEnvironment',
+  //   content: appInfo.value.systemInfo,
+  // },
 ]))
 
 async function checkUpdate() {

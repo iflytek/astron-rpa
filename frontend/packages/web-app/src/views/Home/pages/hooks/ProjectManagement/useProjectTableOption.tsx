@@ -1,18 +1,27 @@
 import { SearchOutlined } from '@ant-design/icons-vue'
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 import { getDesignList } from '@/api/project'
 import type { VIEW_OTHER } from '@/constants/resource'
 import { VIEW_OWN } from '@/constants/resource'
 
 import { useProjectOperate } from './useProjectOperate'
+import { useUserStore } from '@/stores/useUserStore'
 
 type DataSource = typeof VIEW_OWN | typeof VIEW_OTHER
 
 export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN) {
   const homeTableRef = ref(null)
+  const consultRef = ref(null)
 
-  const { createColumns, currHoverId, handleEdit } = useProjectOperate(homeTableRef)
+  const { createColumns, currHoverId, handleEdit } = useProjectOperate(homeTableRef, consultRef)
+  const userStore = useUserStore()
+
+  function refreshHomeTable() {
+    if (homeTableRef.value) {
+      homeTableRef.value?.fetchTableData()
+    }
+  }
 
   const tableOption = reactive({
     refresh: false, // 控制表格数据刷新
@@ -47,8 +56,16 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
     },
   })
 
+  // 切换租户后列表刷新
+  watch(() => userStore.currentTenant?.id, (val) => {
+    if (val) {
+      refreshHomeTable()
+    }
+  })
+
   return {
     homeTableRef,
+    consultRef,
     tableOption,
   }
 }

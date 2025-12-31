@@ -29,6 +29,18 @@ export function useCardsTools() {
     },
     {
       componentType: 'select',
+      bind: 'category',
+      options: [],
+      labelKey: 'name',
+      valueKey: 'id',
+      showSearch: true,
+      filterOption,
+      style: 'width: 180px;',
+      allowClear: true,
+      placeholder: 'market.selectCategory',
+    },
+    {
+      componentType: 'select',
       bind: 'sortKey',
       options: [
         {

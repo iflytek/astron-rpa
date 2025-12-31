@@ -11,7 +11,8 @@ import type { AnyObj } from '@/types/common'
 import { SECURITY_RED } from '@/views/Home/components/TeamMarket/config/market.ts'
 
 import type { cardAppItem } from '../../types/market'
-
+import { usePermissionStore } from '@/stores/usePermissionStore'
+import { ACTUATOR, DESIGNER } from '@/constants/menu'
 interface FormState {
   marketId: string | number
   appId: string | number
@@ -26,19 +27,19 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['refresh'])
+const permissionStore = usePermissionStore()
 
-const TYPE_ARR = [
-  {
-    label: '设计器',
-    value: 'design',
-    tip: '创建为一个新副本，可以编辑；源应用重新发版后不会收到更新',
-  },
-  {
-    label: '执行器',
-    value: 'execute',
-    tip: '可执行任务，不支持编辑；源应用重新发版后会收到更新',
-  }
-]
+const TYPE_ARR = [{
+  label: '设计器',
+  value: 'design',
+  permission: DESIGNER,
+  tip: '创建为一个新副本，可以编辑；源应用重新发版后不会收到更新',
+}, {
+  label: '执行器',
+  value: 'execute',
+  permission: ACTUATOR,
+  tip: '可执行任务，不支持编辑；源应用重新发版后会收到更新',
+}]
 
 const modal = NiceModal.useModal()
 const confirmLoading = ref(false)
@@ -143,13 +144,16 @@ setDefaultVersion()
         :rules="[{ validator: checkNumber, trigger: 'change' }]"
       >
         <a-checkbox-group v-model:value="formState.obtainDirection">
-          <a-checkbox v-for="type in TYPE_ARR" :key="type.value" :value="type.value" :disabled="props.record.securityLevel === SECURITY_RED && type.value === 'design'">
+          <a-checkbox v-for="type in TYPE_ARR" class="leading-[32px]" :key="type.value" :value="type.value" :disabled="(props.record.securityLevel === SECURITY_RED && type.value === 'design') || !permissionStore.can(type.permission, 'all')">
             {{ type.label }}
             <Tooltip :title="type.tip">
               <QuestionCircleOutlined style="color: gray;" />
             </Tooltip>
           </a-checkbox>
         </a-checkbox-group>
+        <div v-if="TYPE_ARR.find(item => !permissionStore.can(item.permission, 'all'))" class="text-[12px] text-[rgba(0,0,0,0.45)] dark:text-[rgba(255,255,255,0.45)">
+          当前账号暂不开放{{TYPE_ARR.find(item => !permissionStore.can(item.permission, 'all'))?.label}}功能
+        </div>
       </a-form-item>
     </a-form>
   </a-modal>

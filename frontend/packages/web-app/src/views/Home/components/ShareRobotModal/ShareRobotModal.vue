@@ -4,11 +4,10 @@ import type { FormInstance } from 'ant-design-vue'
 import { Form, message, Select, Switch } from 'ant-design-vue'
 import { reactive, ref } from 'vue'
 
-import { releaseApplication } from '@/api/market'
+import { getAllClassification, releaseApplication } from '@/api/market'
 import { shareRobotToMarket } from '@/api/project'
 import Avatar from '@/components/Avatar/Avatar.vue'
 import type { AnyObj } from '@/types/common'
-import { ROBOT_TYPE_OPTIONS } from '@/views/Home/config'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate'
 
 const props = defineProps<{
@@ -29,12 +28,13 @@ interface FormState {
 
 const modal = NiceModal.useModal()
 const { applicationReleaseCheck } = useCommonOperate()
+const categoryOptions = ref([])
 
 const formRef = ref<FormInstance>()
 const formState = reactive<FormState>({
   robotId: props.record.robotId,
   appName: props.record.robotName,
-  category: 'finance',
+  category: undefined,
   marketIdList: [],
   editFlag: true,
 })
@@ -84,6 +84,11 @@ function handleOk() {
     })
   })
 }
+
+getAllClassification().then((res) => {
+  categoryOptions.value = res.data
+  formState.category = categoryOptions.value[0]?.id || ''
+})
 </script>
 
 <template>
@@ -99,7 +104,14 @@ function handleOk() {
     </div>
     <Form ref="formRef" label-align="left" :model="formState" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }" autocomplete="off">
       <Form.Item label="应用类型">
-        <Select v-model:value="formState.category" :options="ROBOT_TYPE_OPTIONS" />
+        <Select
+          v-model:value="formState.category"
+          :field-names="{
+            label: 'name',
+            value: 'id',
+          }"
+          :options="categoryOptions"
+        />
       </Form.Item>
       <Form.Item label="分享至市场" name="marketIdList" :rules="[{ required: true, message: '请选择市场' }]">
         <Select v-model:value="formState.marketIdList" mode="multiple" :options="marketList" :field-names="{ label: 'marketName', value: 'marketId' }" allow-clear />
