@@ -522,7 +522,7 @@ class Range:
         res = []
         import re
 
-        from rpaexcel.utils import column_letter_to_number
+        from astronverse.excel.utils import column_letter_to_number
 
         for address in positions:
             # 地址格式通常是 "$A$1" 或 "A1"，需要提取列和行

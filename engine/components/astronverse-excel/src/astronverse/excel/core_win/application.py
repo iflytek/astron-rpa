@@ -202,7 +202,7 @@ class Application:
             workbook = application.Workbooks(i)
             if match_name in workbook.Name:
                 return ExcelObj(obj=workbook)
-        raise None
+        return None
 
     @staticmethod
     def save_workbook(excel_obj: ExcelObj, file_path: str = "", password: str = ""):
