@@ -81,6 +81,9 @@ public class RobotVersionServiceImpl extends ServiceImpl<RobotVersionDao, RobotV
     private CModuleDao moduleDao;
 
     @Autowired
+    private CSmartComponentDao smartComponentDao;
+
+    @Autowired
     private IdWorker idWorker;
 
     @Resource
@@ -184,6 +187,8 @@ public class RobotVersionServiceImpl extends ServiceImpl<RobotVersionDao, RobotV
         requireDao.createRequireForCurrentVersion(robotVersionDto);
         // python模块 module数据
         moduleDao.createModuleForCurrentVersion(robotVersionDto);
+        // 智能组件
+        smartComponentDao.createSmartComponentForCurrentVersion(robotVersionDto);
         // 流程参数
         paramService.createParamForCurrentVersion(null, robotVersionDto, 0);
         // 组件引用数据
@@ -384,6 +389,7 @@ public class RobotVersionServiceImpl extends ServiceImpl<RobotVersionDao, RobotV
         processRecover(robotId, version, userId);
         requireRecover(robotId, version, userId);
         moduleRecover(robotId, version, userId);
+        smartComponentRecover(robotId, version, userId);
         // 恢复编辑参数
         paramRecover(robotId, version, userId);
         // 恢复组件引用数据
@@ -466,6 +472,25 @@ public class RobotVersionServiceImpl extends ServiceImpl<RobotVersionDao, RobotV
 
         moduleDao.insertBatch(moduleList);
     }
+
+
+    public void smartComponentRecover(String robotId, Integer version, String userId) throws Exception {
+        smartComponentDao.deleteOldEditVersion(robotId, userId);
+
+        List<CSmartComponent> smartComponentList = smartComponentDao.getAllSmartComponentList(robotId, version, userId);
+        if (CollectionUtils.isEmpty(smartComponentList)) {
+            return;
+        }
+
+        for (CSmartComponent smartComponent : smartComponentList) {
+            smartComponent.setRobotVersion(0);
+            smartComponent.setCreatorId(userId);
+            smartComponent.setUpdaterId(userId);
+        }
+
+        smartComponentDao.insertBatch(smartComponentList);
+    }
+
 
     public void requireRecover(String robotId, Integer version, String userId) {
         requireDao.deleteOldEditVersion(robotId, userId);

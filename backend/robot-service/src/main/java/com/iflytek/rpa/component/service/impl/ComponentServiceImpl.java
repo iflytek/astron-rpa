@@ -361,6 +361,8 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
         robotDesignServiceImpl.paramCopy(oldComponentId, newComponentId, userId);
         // python模块
         robotDesignServiceImpl.moduleCopy(oldComponentId, newComponentId, userId);
+        // 智能组件
+        robotDesignServiceImpl.smartComponentCopy(oldComponentId, newComponentId, userId);
     }
 
     /**

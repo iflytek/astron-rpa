@@ -109,6 +109,10 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
     private CModuleDao cModuleDao;
 
     @Autowired
+    private CSmartComponentDao cSmartComponentDao;
+
+
+    @Autowired
     private AppApplicationTenantDao appApplicationTenantDao;
 
     @Autowired
@@ -479,8 +483,10 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         globalVarDao.createGlobalVarForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
         // python依赖
         requireDao.createRequireForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
+        // 智能组件
+        cSmartComponentDao.createSmartComponentForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
         // python模块代码
-        createModuleForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
+        cModuleDao.createModuleForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
         // 配置参数
         createParamForCurrentVersion(obtainedRobotDesign, authorRobotVersion);
         // 组件引用
@@ -492,14 +498,8 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
                 obtainedRobotDesign.getCreatorId());
     }
 
-    public void createModuleForObtainedVersion(RobotDesign obtainedRobotDesign, RobotVersion authorRobotVersion) {
-        // 不需要 robotVersion 直接赋值 0
-        authorRobotVersion.setVersion(0);
-        cModuleDao.createModuleForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
-    }
-
     public void createParamForCurrentVersion(RobotDesign obtainedRobotDesign, RobotVersion authorRobotVersion) {
-        // 查询0版本机器人所有参数
+        //查询用户指定版本的所有参数
         List<CParam> cParamList =
                 paramDao.getAllParams(null, authorRobotVersion.getRobotId(), authorRobotVersion.getVersion());
         for (CParam cParam : cParamList) {
