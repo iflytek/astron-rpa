@@ -1,10 +1,11 @@
 import time
 import winreg
 from typing import Optional
+
 import win32com
 import win32com.client
-from astronverse.excel import ApplicationType
 from astronverse.actionlib.logger import logger
+from astronverse.excel import ApplicationType
 from astronverse.excel.excel_obj import ExcelObj
 
 
@@ -19,7 +20,7 @@ def get_default_excel_application():
     """
     try:
         key = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"Excel.Sheet.12\shell\open\command")
-        default_value, _ = winreg.QueryValueEx(key, None)  # noqa
+        default_value, _ = winreg.QueryValueEx(key, None)
         winreg.CloseKey(key)
 
         if "et.exe" in default_value.lower():
@@ -46,8 +47,10 @@ def _create_app(params: str, retry: int = 0, retry_delay: float = 0.5):
                 return win32com.client.Dispatch(params)
             except Exception as e:
                 if attempt < max_attempts - 1:
-                    logger.warning(f"创建Excel应用失败 (尝试 {attempt + 1}/{max_attempts}): {params}, "
-                                   f"错误: {e}, {retry_delay:.2f}秒后重试...")
+                    logger.warning(
+                        f"创建Excel应用失败 (尝试 {attempt + 1}/{max_attempts}): {params}, "
+                        f"错误: {e}, {retry_delay:.2f}秒后重试..."
+                    )
                     time.sleep(retry_delay)
                 else:
                     logger.error(f"创建Excel应用失败: {params}, 错误: {e}, 已达到最大重试次数")
@@ -65,8 +68,10 @@ def _get_app(params: str, retry: int = 0, retry_delay: float = 0.5):
             return win32com.client.GetObject(Class=params)
         except Exception as e:
             if attempt < max_attempts - 1:
-                logger.warning(f"获取Excel应用失败 (尝试 {attempt + 1}/{max_attempts}): {params}, "
-                               f"错误: {e}, {retry_delay:.2f}秒后重试...")
+                logger.warning(
+                    f"获取Excel应用失败 (尝试 {attempt + 1}/{max_attempts}): {params}, "
+                    f"错误: {e}, {retry_delay:.2f}秒后重试..."
+                )
                 time.sleep(retry_delay)
             else:
                 logger.error(f"获取Excel应用失败: {params}, 错误: {e}, 已达到最大重试次数")
@@ -94,10 +99,14 @@ def _get_key(default_application: ApplicationType = ApplicationType.DEFAULT):
 
 
 class Application:
-
     @staticmethod
-    def init_app(default_application: ApplicationType = ApplicationType.DEFAULT, visible_flag: bool = None,
-                 retry: int = 0, retry_delay: float = 0.5, prefer_existing: bool = True) -> object:
+    def init_app(
+        default_application: ApplicationType = ApplicationType.DEFAULT,
+        visible_flag: bool = None,
+        retry: int = 0,
+        retry_delay: float = 0.5,
+        prefer_existing: bool = True,
+    ) -> object:
         """初始化 Excel 应用"""
 
         application = None
@@ -119,7 +128,7 @@ class Application:
         if not application:
             try:
                 win32com.client.gencache.Rebuild()
-                win32com.client.gencache.EnsureModule('{00020813-0000-0000-C000-000000000046}', 0, 8, 7)
+                win32com.client.gencache.EnsureModule("{00020813-0000-0000-C000-000000000046}", 0, 8, 7)
             except Exception:
                 raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
 
@@ -174,14 +183,16 @@ class Application:
         workbook = application.Workbooks.Add()
         if file_path:
             workbook.SaveAs(Filename=file_path, ReadOnlyRecommended=False, ConflictResolution=2, Password=password)
-        return ExcelObj(obj=workbook, path=file_path if file_path else "")
+        return ExcelObj(obj=workbook, path=file_path or "")
 
     @staticmethod
     def open_workbook(application, file_path: str, password: str = "", update_links: bool = True) -> ExcelObj:
         """打开工作簿"""
 
-        workbook = application.Workbooks.Open(Filename=file_path, UpdateLinks=update_links, Password=password, ReadOnly=False, Format=None)
-        return ExcelObj(obj=workbook, path=file_path if file_path else "")
+        workbook = application.Workbooks.Open(
+            Filename=file_path, UpdateLinks=update_links, Password=password, ReadOnly=False, Format=None
+        )
+        return ExcelObj(obj=workbook, path=file_path or "")
 
     @staticmethod
     def get_existing_workbook(application, match_name: str) -> Optional[ExcelObj]:
@@ -205,4 +216,3 @@ class Application:
     def close_workbook(excel_obj: ExcelObj, save_changes: bool = True):
         workbook = excel_obj.obj
         workbook.Close(SaveChanges=save_changes)
-

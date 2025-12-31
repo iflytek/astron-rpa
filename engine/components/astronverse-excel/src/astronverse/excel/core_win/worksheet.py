@@ -1,10 +1,8 @@
-from typing import List
-from astronverse.excel.excel_obj import ExcelObj
 from astronverse.excel import CopySheetLocationType
+from astronverse.excel.excel_obj import ExcelObj
 
 
 class Worksheet:
-
     @staticmethod
     def get_worksheet(excel_obj: ExcelObj, sheet_name: str = "", default: int = 0) -> object:
         workbook = excel_obj.obj
@@ -28,7 +26,7 @@ class Worksheet:
             raise ValueError(f"工作表'{sheet_name}'不存在")
 
     @staticmethod
-    def get_all_worksheets(excel_obj: ExcelObj) -> List[object]:
+    def get_all_worksheets(excel_obj: ExcelObj) -> list[object]:
         """
         获取所有工作表对象列表
 
@@ -42,7 +40,7 @@ class Worksheet:
         return [ws for ws in workbook.Sheets]
 
     @staticmethod
-    def get_all_worksheet_names(excel_obj: ExcelObj) -> List[str]:
+    def get_all_worksheet_names(excel_obj: ExcelObj) -> list[str]:
         """
         获取所有工作表名称
 
@@ -132,10 +130,12 @@ class Worksheet:
         worksheet.Delete()
 
     @staticmethod
-    def copy_worksheet(worksheet, excel, location: CopySheetLocationType = CopySheetLocationType.LAST, is_same_workbook = False):
+    def copy_worksheet(
+        worksheet, excel, location: CopySheetLocationType = CopySheetLocationType.LAST, is_same_workbook=False
+    ):
         """
         复制工作表到指定工作簿
-        
+
         Args:
             worksheet: 要复制的工作表对象
             excel: 目标工作簿对象
@@ -183,12 +183,12 @@ class Worksheet:
     def get_cell(worksheet, row: int, col: int) -> object:
         """
         获取单元格 Range 对象
-        
+
         Args:
             worksheet: 工作表对象
             row: 行号（1-based）
             col: 列号（1-based）
-        
+
         Returns:
             单元格 Range 对象（worksheet.Cells 返回的就是 Range 对象）
         """
@@ -213,7 +213,7 @@ class Worksheet:
             return worksheet.Range(cell)
         except Exception as e:
             raise ValueError(f"获取区域 '{cell}' 失败: {e}")
-    
+
     @staticmethod
     def get_rows(worksheet, rows) -> object:
         try:
@@ -232,15 +232,15 @@ class Worksheet:
     def get_range_from_cells(worksheet, start_cell, end_cell) -> object:
         """
         通过两个 Range 对象（Cells 对象）获取区域 Range 对象
-        
+
         Args:
             worksheet: 工作表对象
             start_cell: 起始单元格 Range 对象（如 worksheet.Cells(row, col)）
             end_cell: 结束单元格 Range 对象（如 worksheet.Cells(row, col)）
-        
+
         Returns:
             区域 Range 对象
-        
+
         Example:
             start = worksheet.Cells(1, 1)
             end = worksheet.Cells(10, 5)
@@ -252,15 +252,7 @@ class Worksheet:
             raise ValueError(f"通过 Range 对象获取区域失败: {e}")
 
     @staticmethod
-    def insert_picture(
-            worksheet,
-            image_path,
-            pic_left=0,
-            pic_top=0,
-            pic_height=300,
-            pic_width=400,
-            pic_scale=1.0
-    ):
+    def insert_picture(worksheet, image_path, pic_left=0, pic_top=0, pic_height=300, pic_width=400, pic_scale=1.0):
         """
         插入图片，并设置图片大小
         """
@@ -276,6 +268,7 @@ class Worksheet:
         # 默认使用缩放比例
         if pic_scale != 1.0:
             from PIL import Image
+
             image = Image.open(image_path)
             width, height = image.size
             picture.Width = width * pic_scale
@@ -291,10 +284,10 @@ class Worksheet:
     def delete_all_comments(worksheet):
         """
         删除工作表中的所有批注
-        
+
         Args:
             worksheet: 工作表对象
-        
+
         Raises:
             ValueError: 当工作表中不存在批注时抛出异常
         """

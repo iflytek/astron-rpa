@@ -1,9 +1,18 @@
-from typing import Optional, Tuple, Any
-from astronverse.excel import ClearType, NumberFormatType, FontNameType, FontType, VerticalAlign, HorizontalAlign, ReadRangeType, SetType
+from typing import Any, Optional
+
+from astronverse.excel import (
+    ClearType,
+    FontNameType,
+    FontType,
+    HorizontalAlign,
+    NumberFormatType,
+    ReadRangeType,
+    SetType,
+    VerticalAlign,
+)
 
 
 class Range:
-
     @staticmethod
     def get_range_data(range_obj, use_text: bool = False) -> Any:
         """
@@ -19,7 +28,7 @@ class Range:
             raise ValueError(f"获取区域数据失败: {e}")
 
     @staticmethod
-    def get_range_color(range_obj) -> Tuple[int, int, int]:
+    def get_range_color(range_obj) -> tuple[int, int, int]:
         """
         获取单元格区域的背景颜色（RGB格式）
 
@@ -34,7 +43,7 @@ class Range:
             color_num = range_obj.Interior.Color
             # 将 BGR 转换为 RGB
             # Excel 颜色格式: B + (G * 256) + (R * 65536)
-            r = int(color_num) // (256 ** 2) % 256
+            r = int(color_num) // (256**2) % 256
             g = (int(color_num) // 256) % 256
             b = int(color_num) % 256
             return r, g, b
@@ -42,7 +51,7 @@ class Range:
             raise ValueError(f"获取单元格颜色失败: {e}")
 
     @staticmethod
-    def get_range_size(range_obj) -> Tuple[int, int, int, int]:
+    def get_range_size(range_obj) -> tuple[int, int, int, int]:
         """
         获取区域的位置
         """
@@ -64,21 +73,21 @@ class Range:
 
     @staticmethod
     def set_range_type(
-            range_obj,
-            col_width: Optional[str] = None,
-            bg_color: Optional[Tuple[int, int, int]] = None,
-            font_color: Optional[Tuple[int, int, int]] = None,
-            font_type: FontType = FontType.NO_CHANGE,
-            font_name: FontNameType = FontNameType.NO_CHANGE,
-            font_size: Optional[int] = None,
-            number_format: NumberFormatType = NumberFormatType.NO_CHANGE,
-            number_format_other: str = "",
-            horizontal_align: HorizontalAlign = HorizontalAlign.NO_CHANGE,
-            vertical_align: VerticalAlign = VerticalAlign.NO_CHANGE,
-            wrap_text: bool = True,
-            design_type: ReadRangeType = ReadRangeType.CELL,
-            auto_row_height: bool = False,
-            auto_column_width: bool = False
+        range_obj,
+        col_width: Optional[str] = None,
+        bg_color: Optional[tuple[int, int, int]] = None,
+        font_color: Optional[tuple[int, int, int]] = None,
+        font_type: FontType = FontType.NO_CHANGE,
+        font_name: FontNameType = FontNameType.NO_CHANGE,
+        font_size: Optional[int] = None,
+        number_format: NumberFormatType = NumberFormatType.NO_CHANGE,
+        number_format_other: str = "",
+        horizontal_align: HorizontalAlign = HorizontalAlign.NO_CHANGE,
+        vertical_align: VerticalAlign = VerticalAlign.NO_CHANGE,
+        wrap_text: bool = True,
+        design_type: ReadRangeType = ReadRangeType.CELL,
+        auto_row_height: bool = False,
+        auto_column_width: bool = False,
     ):
         """
         设置区域格式
@@ -195,10 +204,7 @@ class Range:
             range_obj.NumberFormat = format_str
 
     @staticmethod
-    def delete_range(
-            range_obj,
-            direction: str = ""
-    ) -> None:
+    def delete_range(range_obj, direction: str = "") -> None:
         """
         删除指定区域，可选择左移或上移
 
@@ -211,7 +217,7 @@ class Range:
                 "right_move_left": -4159,  # xlToLeft
                 "lower_move_up": -4162,  # xlUp
             }
-            shift = XlDeleteShiftDirection_map.get(direction, None)
+            shift = XlDeleteShiftDirection_map.get(direction)
             if shift:
                 range_obj.Delete(Shift=shift)
             else:
@@ -243,7 +249,7 @@ class Range:
 
     @staticmethod
     def copy_range(
-            range_obj,
+        range_obj,
     ):
         """
         拷贝单元格区域
@@ -254,10 +260,10 @@ class Range:
 
     @staticmethod
     def paste_range(
-            range_obj,
-            paste_type: str = "",
-            skip_blanks=False,
-            transpose=False,
+        range_obj,
+        paste_type: str = "",
+        skip_blanks=False,
+        transpose=False,
     ):
         """
         粘贴区域的内容，支持多种粘贴方式
@@ -276,18 +282,14 @@ class Range:
             "col_width_only": 8,  # 仅列宽
             "formula_only": -4123,  # 仅公式
             "formula_and_format": 11,  # 公式和数字格式
-            "paste_value": -4163  # 粘贴值
+            "paste_value": -4163,  # 粘贴值
         }
         paste_type_value = paste_type_conf.get(paste_type)
         if paste_type_value is None:
             raise ValueError(f"不支持的粘贴类型: {paste_type_value}")
 
         try:
-            range_obj.PasteSpecial(
-                Paste=paste_type_value,
-                SkipBlanks=bool(skip_blanks),
-                Transpose=bool(transpose)
-            )
+            range_obj.PasteSpecial(Paste=paste_type_value, SkipBlanks=bool(skip_blanks), Transpose=bool(transpose))
         except Exception as e:
             raise ValueError(f"区域粘贴失败: {e}")
 
@@ -311,8 +313,8 @@ class Range:
 
     @staticmethod
     def merge_range(
-            range_obj,
-            job_type: str,
+        range_obj,
+        job_type: str,
     ):
         """
         合并或拆分单元格区域
@@ -347,7 +349,7 @@ class Range:
     def set_row_height(range_obj, set_type: SetType, height_float: float):
         """
         设置行高
-        
+
         Args:
             range_obj: Range 对象（通常是 worksheet.Rows(row_num) 返回的 Range）
             set_type: 设置类型（VALUE 或 AUTO）
@@ -364,7 +366,7 @@ class Range:
     def set_column_width(range_obj, set_type: SetType, width_float: float):
         """
         设置列宽
-        
+
         Args:
             range_obj: Range 对象（通常是 worksheet.Columns(col_num) 返回的 Range）
             set_type: 设置类型（VALUE 或 AUTO）
@@ -381,7 +383,7 @@ class Range:
     def convert_text_to_number(range_obj, temp_range):
         """
         将范围内的文本格式转换为数值格式
-        
+
         Args:
             range_obj: Range 对象（要转换的范围）
             temp_range: 临时单元格 Range 对象（用于存储 VALUE 函数结果）
@@ -411,7 +413,7 @@ class Range:
     def convert_number_to_text(range_obj):
         """
         将范围内的数值格式转换为文本格式
-        
+
         Args:
             range_obj: Range 对象（要转换的范围）
         """
@@ -430,7 +432,7 @@ class Range:
     def add_comment(range_obj, comment_text: str):
         """
         为范围添加批注
-        
+
         Args:
             range_obj: Range 对象（要添加批注的单元格）
             comment_text: 批注文本内容
@@ -443,10 +445,10 @@ class Range:
     def delete_comment(range_obj):
         """
         删除范围的批注
-        
+
         Args:
             range_obj: Range 对象（要删除批注的单元格）
-        
+
         Raises:
             ValueError: 当单元格不存在批注时抛出异常
         """
@@ -456,12 +458,17 @@ class Range:
             raise ValueError("不存在批注")
 
     @staticmethod
-    def search_and_replace(range_obj, find_str: str, replace_str: str = "",
-                           exact_match: bool = False, case_flag: bool = False,
-                           match_all: bool = True) -> list:
+    def search_and_replace(
+        range_obj,
+        find_str: str,
+        replace_str: str = "",
+        exact_match: bool = False,
+        case_flag: bool = False,
+        match_all: bool = True,
+    ) -> list:
         """
         在范围内搜索并可选地替换文本
-        
+
         Args:
             range_obj: Range 对象（要搜索的范围）
             find_str: 要查找的字符串
@@ -469,7 +476,7 @@ class Range:
             exact_match: 是否精确匹配（True: 完全匹配, False: 部分匹配）
             case_flag: 是否区分大小写
             match_all: 是否查找所有匹配项（True: 所有, False: 仅第一个）
-        
+
         Returns:
             list: 匹配的单元格信息列表，每个元素包含 {"row": 行号, "col": 列字母}
         """
@@ -514,24 +521,25 @@ class Range:
         # 格式化结果
         res = []
         import re
+
         from rpaexcel.utils import column_letter_to_number
-        
+
         for address in positions:
             # 地址格式通常是 "$A$1" 或 "A1"，需要提取列和行
             # 去掉 $ 符号后，使用正则表达式提取列字母和行号
             address_clean = address.replace("$", "")
-            match = re.match(r'([A-Z]+)(\d+)', address_clean)
+            match = re.match(r"([A-Z]+)(\d+)", address_clean)
             if match:
                 col = match.group(1)
                 row = match.group(2)
                 res.append({"row": int(row), "col": col, "col_num": column_letter_to_number(col)})
-        
+
         # 按照行号优先，列号次之的顺序排序
         res.sort(key=lambda x: (x["row"], x["col_num"]))
-        
+
         # 将行号转换回字符串
         for item in res:
             item["row"] = str(item["row"])
             del item["col_num"]
-        
+
         return res

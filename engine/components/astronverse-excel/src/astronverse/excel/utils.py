@@ -1,9 +1,8 @@
 import os
 import re
-from typing import Any, List, Union
+from typing import Any
 
 import psutil
-
 from astronverse.excel import FileExistenceType, ReadRangeType
 
 
@@ -25,10 +24,10 @@ def get_excel_processes():
         try:
             p = psutil.Process(pid)
             p_name = p.name().lower()
-            if p_name == 'excel.exe':
+            if p_name == "excel.exe":
                 excel_flag = True
                 excel_pid = pid
-            elif p_name == 'et.exe':
+            elif p_name == "et.exe":
                 wps_flag = True
                 wps_pid = pid
         except Exception as e:
@@ -91,7 +90,7 @@ def column_letter_to_number(column_letter: str) -> int:
     column_letter = column_letter.upper()
     column_number = 0
     for i in range(len(column_letter)):
-        column_number += (ord(column_letter[i]) - ord('A') + 1) * (26 ** (len(column_letter) - i - 1))
+        column_number += (ord(column_letter[i]) - ord("A") + 1) * (26 ** (len(column_letter) - i - 1))
     return column_number
 
 
@@ -109,10 +108,10 @@ def column_number_to_letter(column: int) -> str:
     """
     if column <= 0:
         return "A"
-    result_str = ''
+    result_str = ""
     while column > 0:
         column -= 1
-        result_str = chr(ord('A') + column % 26) + result_str
+        result_str = chr(ord("A") + column % 26) + result_str
         column //= 26
     return result_str
 
@@ -194,10 +193,10 @@ def handle_used_range(address: str):
         starter = address_list[0]
         ender = address_list[1]
     if address.find("$") == -1:
-        start_col = re.findall(r'[A-Z]+', starter)[0]
-        start_row = re.findall(r'[0-9]+', starter)[0]
-        end_col = re.findall(r'[A-Z]+', ender)[0]
-        end_row = re.findall(r'[0-9]+', ender)[0]
+        start_col = re.findall(r"[A-Z]+", starter)[0]
+        start_row = re.findall(r"[0-9]+", starter)[0]
+        end_col = re.findall(r"[A-Z]+", ender)[0]
+        end_row = re.findall(r"[0-9]+", ender)[0]
     else:
         start_col = starter.split("$")[1]
         start_row = starter.split("$")[2]
@@ -209,13 +208,13 @@ def handle_used_range(address: str):
 def handle_multiple_inputs(inputs: str, used_row: int, used_col: int, is_row=True):
     """
     处理多个列或行输入，比如A:B,C,-1
-    
+
     Args:
         inputs: 输入字符串，支持逗号分隔和冒号范围，如 "1:3,5" 或 "A:B,C"
         used_row: 已使用的最大行号
         used_col: 已使用的最大列号
         is_row: 是否为行输入，True表示行，False表示列
-    
+
     Returns:
         List[int]: 处理后的行号或列号列表
     """
@@ -280,19 +279,19 @@ def util_replace_node(value):
 
 
 def calculate_cell_positions(
-        design_type: str,
-        cell_position: str = "",
-        range_position: str = "",
-        col: str = "",
-        row: str = "",
-        r_end_row: int = 0,
-        r_end_col: int = 0,
-        r_address: str = "",
-        support_comma: bool = True,
-        support_colon: bool = True,
-) -> List[str]:
+    design_type: str,
+    cell_position: str = "",
+    range_position: str = "",
+    col: str = "",
+    row: str = "",
+    r_end_row: int = 0,
+    r_end_col: int = 0,
+    r_address: str = "",
+    support_comma: bool = True,
+    support_colon: bool = True,
+) -> list[str]:
     end_col_letter = column_number_to_letter(r_end_col)
-    positions: List[str] = []
+    positions: list[str] = []
 
     def _handler(raw: str, single_fn, range_fn) -> None:
         raw = raw.replace("，", ",").replace("：", ":")
@@ -326,9 +325,9 @@ def calculate_cell_positions(
             _handler(
                 col,
                 lambda c: f"{column_number_to_letter(handle_column_input(c, r_end_col))}1:"
-                          f"{column_number_to_letter(handle_column_input(c, r_end_col))}{r_end_row}",
+                f"{column_number_to_letter(handle_column_input(c, r_end_col))}{r_end_row}",
                 lambda c1, c2: f"{column_number_to_letter(handle_column_input(c1, r_end_col))}1:"
-                               f"{column_number_to_letter(handle_column_input(c2, r_end_col))}{r_end_row}",
+                f"{column_number_to_letter(handle_column_input(c2, r_end_col))}{r_end_row}",
             )
         else:
             c = column_number_to_letter(handle_column_input(col, r_end_col))

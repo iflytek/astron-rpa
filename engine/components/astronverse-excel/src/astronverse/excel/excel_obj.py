@@ -1,7 +1,8 @@
 import sys
 from typing import Any
-from astronverse.actionlib.types import typesMg
+
 from astronverse.actionlib.error import PARAM_VERIFY_ERROR_FORMAT
+from astronverse.actionlib.types import typesMg
 from astronverse.excel.error import *
 
 
@@ -26,4 +27,4 @@ class ExcelObj:
 
     @typesMg.shortcut("ExcelObj", res_type="Str")
     def get_full_name(self) -> str:
-        return self.path if self.path else self.get_name()
+        return self.path or self.get_name()
