@@ -12,8 +12,9 @@ type DataSource = typeof VIEW_OWN | typeof VIEW_OTHER
 
 export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN) {
   const homeTableRef = ref(null)
+  const consultRef = ref(null)
 
-  const { createColumns, currHoverId, handleEdit } = useProjectOperate(homeTableRef)
+  const { createColumns, currHoverId, handleEdit } = useProjectOperate(homeTableRef, consultRef)
   const userStore = useUserStore()
 
   function refreshHomeTable() {
@@ -64,6 +65,7 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
 
   return {
     homeTableRef,
+    consultRef,
     tableOption,
   }
 }

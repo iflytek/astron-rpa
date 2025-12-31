@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-
 import { checkProjectNum, createProject, getDefaultName } from '@/api/project'
 import { ARRANGE } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'

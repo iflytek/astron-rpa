@@ -7,7 +7,7 @@ import { computed, h, ref } from 'vue'
 import $loading from '@/utils/globalLoading'
 
 import { getTeams } from '@/api/market'
-import { delectProject, isInTask } from '@/api/project'
+import { checkProjectNum, delectProject, isInTask } from '@/api/project'
 import { PublishModal } from '@/components/PublishComponents'
 import { fromIcon } from '@/components/PublishComponents/utils'
 import { DesignerRobotDetailModal } from '@/components/RobotDetail'
@@ -21,16 +21,18 @@ import { ShareRobotModal } from '@/views/Home/components/ShareRobotModal'
 import StatusCircle from '@/views/Home/components/StatusCircle.vue'
 import { PENDING } from '@/views/Home/components/TeamMarket/config/market'
 import type { resOption } from '@/views/Home/types'
+import { useUserStore } from '@/stores/useUserStore'
 
 import { handleRun, useCommonOperate } from '../useCommonOperate'
 
-export function useProjectOperate(homeTableRef?: Ref) {
+export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
   function refreshHomeTable() {
     if (homeTableRef.value) {
       homeTableRef.value?.fetchTableData()
     }
   }
   const { t } = useTranslation()
+  const userStore = useUserStore()
   const { handleDeleteConfirm, getSituationContent } = useCommonOperate()
 
   const currHoverId = ref('')
@@ -176,7 +178,27 @@ export function useProjectOperate(homeTableRef?: Ref) {
   }
 
   // 创建副本
-  function createCopy(editObj: AnyObj) {
+  async function createCopy(editObj: AnyObj) {
+    if(userStore.currentTenant?.tenantType !== 'enterprise'){
+    const res = await checkProjectNum()
+    if(!res.data){
+      consultRef.value?.init({
+        trigger: 'modal',
+        modalConfirm: {
+          title: '已达到应用数量上限',
+          content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
+          okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
+          cancelText: '我知道了',
+        },
+        consult: {
+          consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
+          consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
+          consultType: 'consult',
+        }
+      })
+      return
+    }
+  }
     NiceModal.show(CopyModal, {
       robotId: editObj.robotId,
       robotName: editObj.robotName,
