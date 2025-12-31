@@ -263,7 +263,7 @@ class TestDataTable(TestCase):
             col='B',
             find_value="third",
             replace_value="3",
-            is_repalce=True,
+            is_replace=True,
             is_case_sensitive=False,
         )
         print(data)

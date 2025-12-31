@@ -87,7 +87,7 @@ def filter_data(
                     condition_type=condition_type,
                     condition_value=condition_value,
                     date_value=date_value,
-                    date_ragne=date_range,
+                    date_range=date_range,
                     is_case_sensitive=is_case_sensitive,
                 ):
                     filtered_row.append(item)
@@ -100,7 +100,7 @@ def filter_data(
                 condition_type=condition_type,
                 condition_value=condition_value,
                 date_value=date_value,
-                date_ragne=date_range,
+                date_range=date_range,
                 is_case_sensitive=is_case_sensitive,
             ):
                 if isinstance(item, datetime):
@@ -110,7 +110,7 @@ def filter_data(
 
 
 def value_check(
-    value: any, condition_type: ConditionType, condition_value: str, date_value, date_ragne, is_case_sensitive: bool
+    value: any, condition_type: ConditionType, condition_value: str, date_value, date_range, is_case_sensitive: bool
 ) -> bool:
     """过滤处理器"""
     val = value
@@ -182,7 +182,7 @@ def value_check(
     elif condition_type == ConditionType.DATE_BETWEEN:
         try:
             val_date = val if isinstance(val, datetime) else datetime.strptime(val, "%Y-%m-%d")
-            start_date_str, end_date_str = date_ragne.split(",")
+            start_date_str, end_date_str = date_range.split(",")
             start_date = datetime.strptime(start_date_str.strip(), "%Y-%m-%d")
             end_date = datetime.strptime(end_date_str.strip(), "%Y-%m-%d")
             return start_date <= val_date <= end_date

@@ -1046,7 +1046,7 @@ class DataTable:
         inputList=[],
         outputList=[
             atomicMg.param(
-                "colum_title",
+                "column_title",
                 types="Str",
             ),
         ],
@@ -1104,7 +1104,7 @@ class DataTable:
                 dynamics=[
                     DynamicsItem(
                         key="$this.replace_value.show",
-                        expression="return $this.is_repalce.value == true",
+                        expression="return $this.is_replace.value == true",
                     )
                 ],
             ),
@@ -1121,7 +1121,7 @@ class DataTable:
         col: str = "A",
         find_value: str = "",
         is_case_sensitive: bool = True,
-        is_repalce: bool = True,
+        is_replace: bool = True,
         replace_value: str = "",
     ) -> list:
         """
@@ -1139,13 +1139,13 @@ class DataTable:
                     if is_case_sensitive:
                         if find_value in cell_str:
                             find_data_positions.append((r, col))
-                            if is_repalce:
+                            if is_replace:
                                 new_value = cell_str.replace(find_value, replace_value)
                                 PyxlWrapper.write_cell(row=r, col=col_index, value=new_value)
                     else:
                         if find_value.lower() in cell_str.lower():
                             find_data_positions.append((r, col))
-                            if is_repalce:
+                            if is_replace:
                                 new_value = cell_str.replace(find_value, replace_value)
                                 PyxlWrapper.write_cell(row=r, col=col_index, value=new_value)
         else:
@@ -1157,13 +1157,13 @@ class DataTable:
                     if cell_value is not None and str(find_value) in str(cell_value):
                         if is_case_sensitive:
                             find_data_positions.append((r, index_to_col(c - 1)))
-                            if is_repalce:
+                            if is_replace:
                                 new_value = str(cell_value).replace(find_value, replace_value)
                                 PyxlWrapper.write_cell(row=r, col=c, value=new_value)
                         else:
                             if str(find_value).lower() in str(cell_value).lower():
                                 find_data_positions.append((r, index_to_col(c)))
-                                if is_repalce:
+                                if is_replace:
                                     new_value = str(cell_value).replace(find_value, replace_value)
                                     PyxlWrapper.write_cell(row=r, col=c, value=new_value)
         return find_data_positions

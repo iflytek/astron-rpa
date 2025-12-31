@@ -287,7 +287,7 @@ atomic:
     outputList: []
   DataTable.get_column_title:
     title: 数据表格获取列信息
-    comment: 获取数据表格 @{col} 列的信息并输出到 @{colum_title}
+    comment: 获取数据表格 @{col} 列的信息并输出到 @{column_title}
     icon: get_column_title
     helpManual: ''
     inputList:
@@ -295,12 +295,12 @@ atomic:
         title: 列号
         tip: 指定要获取的列号
     outputList:
-      - key: colum_title
+      - key: column_title
         title: 列信息
         tip: 返回指定列的信息
   DataTable.find_and_replace:
     title: 数据表格查找和替换
-    comment: 在数据表格中 @{find_type} 查找内容 @{find_value} @{is_repalce:不}替换内容
+    comment: 在数据表格中 @{find_type} 查找内容 @{find_value} @{is_replace:不}替换内容
     icon: find_and_replace
     helpManual: ''
     inputList:
@@ -313,7 +313,7 @@ atomic:
       - key: find_value
         title: 查找内容
         tip: 要查找的内容
-      - key: is_repalce
+      - key: is_replace
         title: 是否替换
         tip: 是否将查找到的内容进行替换
       - key: is_case_sensitive
