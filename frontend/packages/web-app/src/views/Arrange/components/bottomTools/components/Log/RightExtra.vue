@@ -10,7 +10,6 @@ function clearLog() {
   <rpa-hint-icon
     name="clear-outlined"
     title="清除日志"
-    class="mr-[-8px]"
     enable-hover-bg
     @click="() => clearLog()"
   />

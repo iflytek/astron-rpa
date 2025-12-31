@@ -93,6 +93,7 @@ export interface UtilsManager {
   getSystemEnv: () => Promise<string>
   invoke: (channel: string, ...args: any[]) => Promise<any>
   readFile: (fileName: string, dir?: string) => Promise<any>
+  saveFile: (fileName: string, buffer: ArrayBuffer) => Promise<void>
   playVideo: (videoPath: string) => void
   pathJoin: (dirArr: Array<string>) => Promise<any>
   shellopen: (path: string) => Promise<void>

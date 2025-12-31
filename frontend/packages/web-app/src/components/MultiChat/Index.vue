@@ -18,7 +18,7 @@ const FILE_TYPE_IMG = {
   pdf: new URL('../../assets/img/pdf.png', import.meta.url).href,
 }
 
-let controller = null
+let controller: AbortController | null = null
 
 const chatType = ref('multi') // 交互类型 multi:多轮对话,file:知识问答
 const title = ref('AI Chat组件')
@@ -139,14 +139,13 @@ function createSSE(url, query) {
     queryLst.push({ role: 'user', content: fileInfo.value.content })
     queryLst.push({ role: 'user', content: query })
   }
-  controller = new AbortController()
-  sseRequest(url, chatType.value === 'multi'
+  controller = sseRequest(url, chatType.value === 'multi'
     ? {
         messages: queryLst,
         model: model.value,
         stream: true,
       }
-    : queryLst, { signal: controller.signal }, (res) => {
+    : queryLst, null, (res) => {
     if (res) {
     // if (res.data) {
       // const { data } = res // <$start>end<$end>

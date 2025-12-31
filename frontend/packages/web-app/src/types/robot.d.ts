@@ -31,4 +31,28 @@ declare namespace RPA {
     isLatest: number // 是否是最新版本：1 是 0 否
     latestVersion: number // 最新版本
   }
+
+  /**
+   * 数据表格
+   */
+  interface IDataTableSheets {
+    active_sheet: string;
+    filename: string;
+    project_id: string;
+    sheets: IDataTableSheet[]
+  }
+
+  interface IDataTableSheet {
+    name: string;
+    max_row: number
+    max_column: number
+    data: string[][]
+  }
+
+  interface IUpdateDataTableCell {
+    sheet: string,
+    row: number,
+    col: number,
+    value: number | string | boolean
+  }
 }

@@ -3,6 +3,11 @@ import type { FlowItem } from '@/views/Arrange/types/flow'
 import type { RequestConfig } from './http'
 import http from './http'
 import { getRootBaseURL } from './http/env'
+import { sseRequest } from './sse'
+
+const schedulerPost: typeof http.post = (url, data, config) => {
+  return http.post(url, data, { baseURL: getRootBaseURL(), ...config })
+}
 
 // 流程执行
 export function flowRun(data) {
@@ -19,13 +24,15 @@ export interface StartExecutorParams {
   hide_log_window?: boolean
   project_name?: string
   open_virtual_desk?: string
+  line?: string | number
+  end_line?: string | number
 }
 export function startExecutor(data: StartExecutorParams) {
-  return http.post('/scheduler/executor/run', data, { baseURL: getRootBaseURL(), timeout: 0 })
+  return schedulerPost('/scheduler/executor/run', data, { timeout: 0 })
 }
 
 export function stopExecutor(data: { project_id: string | number }) {
-  return http.post('/scheduler/executor/stop', data, { baseURL: getRootBaseURL() })
+  return schedulerPost('/scheduler/executor/stop', data)
 }
 
 // 流程保存
@@ -245,10 +252,10 @@ export async function uploadVideoFile(data: { file: File }, config: RequestConfi
 
 // 查询依赖包版本号
 export function packageVersion(params: { robotId: string, packageName: string }) {
-  return http.post('/scheduler/package/version', {
+  return schedulerPost('/scheduler/package/version', {
     project_id: params.robotId,
     package: params.packageName,
-  }, { baseURL: getRootBaseURL(), timeout: 0 })
+  }, { timeout: 0 })
 }
 
 // 新增依赖包
@@ -278,12 +285,91 @@ export function fileRead(data: { path: string }) {
  * @params { path: string, mode: 'w' | 'a', content: string } w 覆盖写 a 追加写
  */
 export function fileWrite(data: { path: string, mode: string, content: string }) {
-  return http.post('/scheduler/file/write', data, { baseURL: getRootBaseURL(), timeout: 5000000 })
+  return schedulerPost('/scheduler/file/write', data, { timeout: 5000000 })
 }
 /**
  * 获取HTML格式的粘贴板内容
  * @params { is_html: boolean }
  */
 export function getHTMLClip(data: { is_html: boolean }) {
-  return http.post('/scheduler/clipboard', data, { baseURL: getRootBaseURL() })
+  return schedulerPost('/scheduler/clipboard', data)
+}
+
+/**
+ * 获取数据表格内容
+ * @param projectId 
+ */
+export async function getDataTable(projectId: string) {
+  const res = await schedulerPost<RPA.IDataTableSheets>(
+    '/scheduler/datatable/open', 
+    {
+      project_id: projectId,
+      filename: 'data_table', // 目前单个工程只会有一个数据表格文件，因此文件名先写死
+    },
+    { toast: false }
+  )
+  return res.data
+}
+
+/**
+ * 更新数据表格单元格
+ * @param projectId 
+ * @param data 
+ * @returns 
+ */
+export async function updateDataTable(projectId: string, data: RPA.IUpdateDataTableCell[]) {
+  const res = await schedulerPost(
+    '/scheduler/datatable/update-cells',
+    {
+      project_id: projectId,
+      filename: 'data_table',
+      updates: data,
+    },
+    { toast: false }
+  )
+  return res.data
+}
+
+/**
+ * 关闭数据表格文件监听
+ * @param projectId 
+ */
+export async function closeDataTable(projectId: string) {
+  const res = await schedulerPost(
+    '/scheduler/datatable/close',
+    {
+      project_id: projectId,
+      filename: 'data_table',
+    },
+    { toast: false }
+  )
+  return res.data
+}
+
+/**
+ * 删除数据表格
+ * @param projectId 
+ * @returns 
+ */
+export async function deleteDataTable(projectId: string) {
+  const res = await schedulerPost(
+    '/scheduler/datatable/delete',
+    {
+      project_id: projectId,
+      filename: 'data_table',
+    },
+    { toast: false }
+  )
+  return res.data
+}
+
+export const startDataTableListenr = (projectId: string) => {
+  return sseRequest(
+    `${getRootBaseURL()}/datatable/stream/project_id=${projectId}&filename=data_table`,
+    null,
+    { method: 'GET' },
+    (data) => {
+      console.log(data)
+    }
+  )
 }

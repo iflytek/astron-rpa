@@ -21,7 +21,9 @@
     "./resolver": "./resolver.js"
   },
   "dependencies": {
+    "@ant-design/colors": "^7.2.1",
     "@guolao/vue-monaco-editor": "^1.5.4",
+    "@progress/jszip-esm": "^1.0.4",
     "@rpa/components": "file:",
     "@rpa/shared": "workspace:*",
     "@tiptap/extension-gapcursor": "^2.7.2",
@@ -35,10 +37,21 @@
     "@tiptap/pm": "^2.7.2",
     "@tiptap/starter-kit": "^2.7.2",
     "@tiptap/vue-3": "^2.7.2",
+    "@univerjs/core": "^0.14.0",
+    "@univerjs/preset-sheets-core": "^0.14.0",
+    "@univerjs/preset-sheets-find-replace": "^0.14.0",
+    "@univerjs/presets": "^0.14.0",
     "@vueuse/core": "^11.0.1",
+    "@zwight/exceljs": "^4.4.2",
+    "dayjs": "^1.11.19",
     "lodash-es": "^4.17.21",
     "monaco-editor": "^0.52.2",
-    "vscode-languageserver-types": "^3.17.5"
+    "nanoid": "^5.1.6",
+    "papaparse": "^5.5.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vscode-languageserver-types": "^3.17.5",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@ant-design/icons-vue": "^7.0.1",

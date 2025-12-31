@@ -3,7 +3,8 @@
  */
 import { message } from 'ant-design-vue'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
+import { set } from 'lodash-es'
 
 import { generateUUID } from '@/utils/common'
 
@@ -17,23 +18,39 @@ import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import type { Fun } from '@/types/common'
 import { changeDebugging } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
+import { getDataTable, closeDataTable, updateDataTable, deleteDataTable, startDataTableListenr } from '@/api/resource'
 
 export type RunState = 'run' | 'free' | 'debug' // 执行状态
 
 export const useRunningStore = defineStore('running', () => {
+  const processStore = useProcessStore()
+  const flowStore = useFlowStore()
+
   const running = ref<RunState>('free') // 全局运行状态 run-运行 debug-调试 free-停止  默认是free状态
   const debugData = ref<any>({}) // 调试信息, 包含当前调试的行号、断点等信息
   const debugDataVar = ref<any>({}) // 调试信息
+  // 状态：starting 启动中， startSuccess 启动成功， startFailed 启动失败，running-运行中，runSuccess-运行成功，runFailed运行失败 stopping 停止中， stopSuccess 停止成功，  stopFailed 停止失败
+  const status = ref('')
+  // 数据表格内容
+  const dataTable = shallowRef<RPA.IDataTableSheet>(null)
+  let dataTableListenController: AbortController | null = null
+
   let debugReplyEventId = ''
-  const status = ref('') // 状态：starting 启动中， startSuccess 启动成功， startFailed 启动失败，running-运行中，runSuccess-运行成功，runFailed运行失败 stopping 停止中， stopSuccess 停止成功，  stopFailed 停止失败
   let runProjectId = null
   let RpaExecutorUrl = null
   let RpaExecutor = null
+
+  const reset = () => {
+    setRunning('free')
+    debugData.value = {}
+    RpaExecutor?.destroy()
+    dataTableListenController?.abort()
+    dataTable.value = null
+  }
+
   const setRunning = (value: RunState) => {
     running.value = value
   }
-  const processStore = useProcessStore()
-  const flowStore = useFlowStore()
 
   const setDebugData = (debugMsg, replyEventId: string) => {
     if (debugMsg.process_id && debugMsg.process_id !== processStore.activeProcessId) {
@@ -71,11 +88,6 @@ export const useRunningStore = defineStore('running', () => {
 
   const setStatus = (value: string) => {
     status.value = value
-  }
-  const reset = () => {
-    setRunning('free')
-    debugData.value = {}
-    RpaExecutor && RpaExecutor.destroy()
   }
 
   const setRunProjectId = (id: string | number) => {
@@ -162,31 +174,29 @@ export const useRunningStore = defineStore('running', () => {
       RpaExecutorUrl = res.data.addr
       // 连接 ws
       createSocket()
+      _startDataTableListenr()
     }
     catch {
       running.value = 'free'
       setStatus('startFailed')
       windowManager.maximizeWindow(true)
+      dataTableListenController?.abort()
     }
   }
 
   const stop = (projectId: string | number) => {
     setStatus('stopping')
-    RpaExecutor && RpaExecutor.destroy()
-    stopExecutor({ project_id: projectId }).then(() => {
-      reset()
-      setStatus('stopSuccess')
-    }).catch(() => {
-      reset()
-    })
+    stopExecutor({ project_id: projectId })
+      .then(() => setStatus('stopSuccess'))
+      .finally(() => reset())
   }
 
   const startRun = (projectId: string | number, processId?: string | number, line?: string | number, end_line?: string | number) => {
-    const runParams = { project_id: projectId, process_id: processId, line, end_line }
-    if (!runParams.line)
-      delete runParams.line
-    if (!runParams.end_line)
-      delete runParams.end_line
+    const runParams: StartExecutorParams = { project_id: projectId, process_id: processId }
+    
+    line && (runParams.line = line)
+    end_line && (runParams.end_line = end_line)
+    
     start(runParams)
     running.value = 'run'
     windowManager.minimizeWindow()
@@ -241,7 +251,50 @@ export const useRunningStore = defineStore('running', () => {
     send(msg)
   }
 
+  /**
+   * 获取数据表格内容
+   */
+  const fetchDataTable = async () => {
+    const data = await getDataTable(processStore.project.id)
+    dataTable.value = data.sheets.find(it => it.name === data.active_sheet)
+  }
+
+  /**
+   * 关闭数据表格监听
+   * @returns 
+   */
+  const closeDataTableListener = () => closeDataTable(processStore.project.id)
+
+  /**
+   * 更新单元格数据
+   * @param cellData 
+   */
+  const updateDataTableCell = async (cellData: Omit<RPA.IUpdateDataTableCell, 'sheet'>[]) => {
+    const sheetName = dataTable.value?.name;
+    await updateDataTable(processStore.project.id, cellData.map(it => ({ sheet: sheetName, ...it })))
+    // 同步到本地
+    cellData.forEach(it => set(dataTable.value.data, [it.row, it.col], it.value))
+    dataTable.value.max_row = dataTable.value.data.length;
+    dataTable.value.max_column = dataTable.value.data.length > 0 ? Math.max(...dataTable.value.data.map(it => it.length)) : 0
+  }
+
+  /**
+   * 清空单元格数据
+   */
+  const clearDataTable = async () => {
+    await deleteDataTable(processStore.project.id)
+    dataTable.value = null
+  }
+
+  /**
+   * 开启数据表格 sse 流式监听
+   */
+  const _startDataTableListenr = () => {
+    dataTableListenController = startDataTableListenr(processStore.project.id)
+  }
+
   return {
+    dataTable,
     running,
     debugData,
     breakpointAtom,
@@ -257,5 +310,9 @@ export const useRunningStore = defineStore('running', () => {
     stop,
     setRunProjectId,
     getRunProjectId,
+    fetchDataTable,
+    updateDataTableCell,
+    closeDataTableListener,
+    clearDataTable,
   }
 })
