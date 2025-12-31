@@ -1,7 +1,7 @@
 import time
 import traceback
 
-from astronverse.picker import DrawResult, PickerSign
+from astronverse.picker import DrawResult, PickerSign, SVCSign
 from astronverse.picker.core.highlight_client import highlight_client
 from astronverse.picker.logger import logger
 
@@ -65,7 +65,9 @@ class PickerServer:
                             # 1.隐藏画框
                             # highlight_client.hide_wnd()
                             # time.sleep(0.1)  # 等待画框真正隐藏
-                            if event_core.is_cancel():
+                            if event_core.is_cancel() or (
+                                event_core.is_focus() and self.service_context.event_tag == SVCSign.PICKER
+                            ):
                                 highlight_client.hide_wnd()
                                 time.sleep(0.1)
 
@@ -99,7 +101,7 @@ class PickerServer:
                         self.end_time = time.time()
 
                         # 检查绘图结果
-                        if not draw_result.success:
+                        if not draw_result.success and draw_result.error_message:
                             logger.warning(f"拾取绘图失败: {draw_result.error_message}")
                             # 记录警告并继续
                             try:
@@ -126,16 +128,13 @@ class PickerServer:
                 except Exception as e:
                     logger.error("pick error: {} {}".format(e, traceback.format_exc()))
             elif PickerSign.SMART_COMPONENT.value in sign:
-                try:
-                    logger.info("智能组件上下拾取开始")
-                    res = self.service_context.picker_core.call_pluguin(
-                        self.service_context, highlight_client, sign[PickerSign.SMART_COMPONENT.value]
-                    )
-                    del sign[PickerSign.SMART_COMPONENT.value]
-                    res_sign = "{}_RES".format(PickerSign.SMART_COMPONENT.value)
-                    sign[res_sign] = res
-                except Exception as e:
-                    logger.error("smart_component error: {} {}".format(e, traceback.format_exc()))
+                logger.info("智能组件上下拾取开始")
+                res = self.service_context.picker_core.call_pluguin(
+                    self.service_context, highlight_client, sign[PickerSign.SMART_COMPONENT.value]
+                )
+                del sign[PickerSign.SMART_COMPONENT.value]
+                res_sign = "{}_RES".format(PickerSign.SMART_COMPONENT.value)
+                sign[res_sign] = res
             else:
                 # 3 休眠
                 time.sleep(0.1)

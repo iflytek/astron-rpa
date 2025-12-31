@@ -164,6 +164,13 @@ class PickerType(Enum):
 PICKER_TYPE_DICT = {p.value: True for p in PickerType}
 
 
+class SVCSign(Enum):
+    """定义键鼠监听启动方"""
+
+    PICKER = "PICKER"
+    SMARTCOMPONENT = "SMARTCOMPONENT"
+
+
 class MKSign(Enum):
     """定义键鼠监听启动方"""
 

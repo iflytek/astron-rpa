@@ -42,50 +42,63 @@ class Browser:
         browser_type: str, data: Any, key: str, gate_way_port: int, data_path: str = "", timeout: float = None
     ):
         """发送浏览器扩展请求。"""
-        response = Browser.send_browser_rpc(
-            {
-                "browser_type": browser_type,
-                "data": data,
-                "key": key,
-                "data_path": data_path,
-            },
-            timeout,
-            gateway_port=gate_way_port,
-        )
+        max_retries = 3
+        retry_interval = 0.5  # 每次重试间隔，可根据实际情况调整
 
-        if response.status_code != 200:
-            raise Exception("浏览器插件通信通道出错，请重试")
+        for attempt in range(1, max_retries + 1):
+            response = Browser.send_browser_rpc(
+                {
+                    "browser_type": browser_type,
+                    "data": data,
+                    "key": key,
+                    "data_path": data_path,
+                },
+                timeout,
+                gateway_port=gate_way_port,
+            )
 
-        res_json = response.json()
-        # logger.info(f"测试响应  [{browser_type}]  {res_json}")
-        res_code = res_json.get("code")
-        res_data = res_json.get("data") or {}
-        res_msg = res_data.get("msg") or "浏览器插件响应出错，请检查插件是否安装并已开启"
+            if response.status_code != 200:
+                raise Exception("浏览器插件连接器通信通道出错，请重试")
 
-        # 插件返回错误
-        if res_code != "0000":
-            raise Exception(f"[{browser_type}]  {res_msg}")
+            res_json = response.json()
+            res_code = res_json.get("code")
+            res_data = res_json.get("data") or {}
+            res_msg = res_data.get("msg")
 
-        if not res_data:
-            return None
+            # 如果是1001，则最多重试3次
+            if res_code == "1001":
+                if attempt < max_retries:
+                    time.sleep(retry_interval)
+                    continue
+                else:
+                    raise Exception(f"[{browser_type}] 浏览器插件响应出错，请检查插件是否安装并已开启")
 
-        data_code = res_data.get("code")
-        data_msg = res_data.get("msg", "")
-        # data_detail = res_data.get("data", {}).get("msg", "")
+            # 插件返回错误
+            if res_code != "0000":
+                raise Exception(f"[{browser_type}] {res_msg}")
 
-        # 定义错误码与对应异常映射表
-        error_map = {
-            "5001": (BaseException, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
-            "5002": (BaseException, WEB_GET_ElE_ERROR, "网页元素未找到"),
-            "5003": (BaseException, WEB_EXEC_ElE_ERROR, data_msg),
-            "5004": (Exception, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
-        }
+            if not res_data:
+                return None
 
-        if data_code in error_map:
-            exc_class, msg_tpl, fallback_msg = error_map[data_code]
-            raise Exception(fallback_msg)
+            data_code = res_data.get("code")
+            data_msg = res_data.get("msg", "")
 
-        return res_data.get("data")
+            # 定义错误码与对应异常映射表
+            error_map = {
+                "5001": (BaseException, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
+                "5002": (BaseException, WEB_GET_ElE_ERROR, data_msg),
+                "5003": (BaseException, WEB_EXEC_ElE_ERROR, data_msg),
+                "5004": (Exception, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
+            }
+
+            if data_code in error_map and key not in ["getElement"]:
+                _, _, fallback_msg = error_map[data_code]
+                raise Exception(fallback_msg)
+
+            return res_data.get("data", "")
+
+        # 理论上不会走到这里
+        return None
 
 
 class BrowserControlFinder:
