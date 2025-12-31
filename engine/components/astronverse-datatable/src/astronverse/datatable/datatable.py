@@ -39,8 +39,8 @@ from astronverse.datatable.openpyxl import OpenpyxlWrapper
 from astronverse.datatable.utils import col_to_index, filter_data, index_to_col, validate, validate_formula
 
 _clipboard = None
-_xlsx_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../data_table.xlsx"))
-_head_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../data_table_head.xlsx"))
+_xlsx_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table.xlsx"))
+_head_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table_head.xlsx"))
 
 
 logger.info(f"DataTable xlsx file path: {_xlsx_file_path}")
