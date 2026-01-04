@@ -8,6 +8,8 @@
     "declaration": true,
     "outDir": "dist",
     "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "isolatedDeclarations": true,
 
     /* modules */
     "module": "ESNext",
