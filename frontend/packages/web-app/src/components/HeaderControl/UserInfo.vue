@@ -108,6 +108,7 @@ function modalTip() {
         </div>
         <Auth.Consult
           v-if="userStore.currentTenant?.tenantType !== 'enterprise'"
+          :authType="userStore.authType"
           trigger="button"
           :button-conf="{ buttonType: 'tag', currentEdition: userStore.currentTenant?.tenantType, expirationDate: userStore.currentTenant?.expirationDate, shouldAlert: userStore.currentTenant?.shouldAlert }"
           custom-class="upgrade-btn"

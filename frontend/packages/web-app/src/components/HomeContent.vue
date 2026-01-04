@@ -22,7 +22,7 @@ const isMarket = computed(() => {
     <MarketSiderMenu v-if="isMarket" />
     <SiderMenu v-else />
     <div class="absolute bottom-[20px] left-0" :style="{ width: `${COMMON_SIDER_WIDTH}px` }">
-      <Auth.TenantDropdown :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant" />
+      <Auth.TenantDropdown :authType="userStore.authType" :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant"/>
     </div>
     <div class="flex-1 relative">
       <router-view />
