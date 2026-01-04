@@ -1,6 +1,6 @@
 from typing import Dict
 
-from astronverse.executor import AstGlobals, ProcessInfo, AtomicInfo, ComponentInfo
+from astronverse.executor import AstGlobals, ProcessInfo, AtomicInfo, ComponentInfo, SmartComponentInfo
 from astronverse.executor.config import Config
 from astronverse.executor.flow.params import Param
 from astronverse.executor.flow.storage import IStorage, HttpStorage
@@ -106,3 +106,15 @@ class FlowSvc:
             self.ast_globals_dict[project_id].atomic_info[atomic_key] = AtomicInfo()
         self.ast_globals_dict[project_id].atomic_info[atomic_key].key = atomic_key
         self.ast_globals_dict[project_id].atomic_info[atomic_key].params_name = atomic_params
+    
+    def add_smart_component(self, project_id: str, smart_id: str, smart_version: int):
+        if project_id not in self.ast_globals_dict:
+            self.ast_globals_dict[project_id] = AstGlobals()
+        smart_key = "{}-{}".format(smart_id, smart_version)
+        if smart_key not in self.ast_globals_dict[project_id].smart_component_info:
+            self.ast_globals_dict[project_id].smart_component_info[smart_key] = SmartComponentInfo()
+        self.ast_globals_dict[project_id].smart_component_info[smart_key].smart_id = smart_id
+        self.ast_globals_dict[project_id].smart_component_info[smart_key].version = smart_version
+
+
+    

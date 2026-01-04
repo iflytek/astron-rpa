@@ -137,3 +137,10 @@ class Script:
         module_name = component.split(".")[-1] if "." in component else component
         _, kwargs = Script._call(".{}".format(module_name), package=package, **kwargs)
         return kwargs
+
+    @staticmethod
+    @atomicMg.atomic("Script", inputList=[], outputList=[])
+    def smart_component(smart_component: str, **kwargs):
+        _, package = Script._get_auto_context()
+        kwargs = {}
+        return kwargs

@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from typing import Any, Optional
 import requests
 from astronverse.executor.error import *
+from astronverse.executor.flow.syntax.token import SmartComponent
 from astronverse.executor.logger import logger
 
 common_advanced = [
@@ -111,6 +112,11 @@ class IStorage(ABC):
         """获取工程的用户pip依赖详情"""
         pass
 
+    @abstractmethod
+    def smart_component_detail(self, project_id: str, smart_id: str, smart_version: int, mode: str, version: str = ""):
+        """获取智能组件详情"""
+        pass
+
 
 class HttpStorage(IStorage):
     def __init__(self, svc):
@@ -204,6 +210,17 @@ class HttpStorage(IStorage):
                     }
                 )
             # 兼容结束
+
+            # 特殊处理
+            if flow.get("key").startswith(SmartComponent):
+                smart_id = flow.get("key").split(".")[-1]
+                flow.update(
+                    {
+                        "inputList": [{"key": "smart_id", "name": "smart_info", "value": smart_id}] + flow.get("inputList", []),
+                    }
+                )
+            # 特殊处理结束
+
             atom_key_list.append(flow.get("key"))
 
         full = self.__process_json_full__(atom_key_list)
@@ -287,3 +304,24 @@ class HttpStorage(IStorage):
             data["robotVersion"] = int(version)
 
         return self.__http__("/api/robot/require/list", None, data)
+
+    def smart_component_detail(self, project_id: str, smart_id: str, smart_version: int, mode: str, version: str = ""):
+        data = {
+            "smartId": smart_id,
+            "version": smart_version,
+            "robotId": project_id,
+        }
+        if mode:
+            data["mode"] = mode
+        if version:
+            data["robotVersion"] = int(version)
+
+        details = self.__http__("/api/robot/smart/detail/version", None, data)
+        version_info = next(
+            filter(lambda item: item.get('version') == smart_version, details['detail']['versionList']),
+            {}
+        )
+        return {
+            'smartCode': version_info.get('smartCode'),
+            'smartType': version_info.get('smartType')
+        } if version_info else {}

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from astronverse.executor.flow.syntax import InputParam, OutputParam, Token, Node
 from typing import List, Dict
-from astronverse.executor.flow.syntax.token import TokenType
-from astronverse.executor.utils.utils import _str_to_list_if_possible
+from astronverse.executor.flow.syntax.token import TokenType, SmartComponent
+from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 @dataclass
@@ -54,7 +54,7 @@ class Program(Node):
         for p in param_list:
             param = svc.param.parse_param(
                 {
-                    "value": _str_to_list_if_possible(p.get("varValue")),
+                    "value": str_to_list_if_possible(p.get("varValue")),
                     "types": p.get("varType"),
                     "name": p.get("varName"),
                 }
@@ -113,6 +113,11 @@ class Atomic(Node):
             svc.add_import_python(
                 project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
             )
+        
+        # key特殊处理
+        key = self.token.value.get("key", "")
+        if key == SmartComponent:
+            svc.add_smart_component(project_id, self.__arguments__.get("smart_id"), self.token.value.get("version"))
 
         # 检测是否需要重试包装（debug 模式下不生成重试包装代码）
         advance_info = self._extract_advance_info()

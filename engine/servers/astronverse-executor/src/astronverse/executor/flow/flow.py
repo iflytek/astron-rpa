@@ -4,7 +4,7 @@ from astronverse.executor.error import BaseException, SYNTAX_ERROR_FORMAT, PROCE
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.parser import Parser
 from astronverse.executor.flow.syntax.ast import CodeLine
-from astronverse.executor.utils.utils import _str_to_list_if_possible
+from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 class Flow:
@@ -233,7 +233,7 @@ class Flow:
             var_name = p.get("varName")
             param = self.svc.param.parse_param(
                 {
-                    "value": _str_to_list_if_possible(p.get("varValue")),
+                    "value": str_to_list_if_possible(p.get("varValue")),
                     "types": p.get("varType"),
                     "name": var_name,
                 }
@@ -245,7 +245,7 @@ class Flow:
             var_name = p.get("varName")
             param = self.svc.param.parse_param(
                 {
-                    "value": _str_to_list_if_possible(p.get("varValue")),
+                    "value": str_to_list_if_possible(p.get("varValue")),
                     "types": p.get("varType"),
                     "name": var_name,
                 }
