@@ -10,6 +10,7 @@ conf = config({{PACKAGE_PATH}})
 project_info = conf.get("project_info", {})
 process_info = conf.get("process_info", {})
 component_info = conf.get("component_info", {})
+smart_component_info = conf.get("smart_component_info", {})
 
 storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
 
@@ -32,6 +33,19 @@ def component(component_id) -> Optional[str]:
     if not name:
         return name
     return os.path.splitext(name)[0]
+
+
+def smart_component(smart_component_key) -> dict:
+    if smart_component_key not in smart_component_info:
+        return {}
+    name = smart_component_info[smart_component_key].get("component_file_name")
+    smart_type = smart_component_info[smart_component_key].get("smart_type")
+    if name:
+        return {
+            "file_path": os.path.splitext(name)[0],
+            "smart_type": smart_type
+        }
+    return {}
 
 
 def complex_param_parser(complex_param: dict) -> dict:

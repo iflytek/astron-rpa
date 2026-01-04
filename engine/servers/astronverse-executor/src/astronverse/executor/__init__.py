@@ -113,22 +113,25 @@ class ComponentInfo:
 @dataclass
 class SmartComponentInfo:
     smart_id: str = ""
-    version: str = ""
+    smart_version: str = ""
     component_file_name: str = ""
+    smart_type: str = ""
 
     def __json__(self):
         return {
             "smart_id": self.smart_id,
-            "version": self.version,
+            "smart_version": self.smart_version,
             "component_file_name": self.component_file_name,
+            "smart_type": self.smart_type
         }
 
     @classmethod
     def from_dict(cls, data: dict):
         return cls(
             smart_id=data.get("smart_id", ""),
-            version=data.get("version", ""),
+            smart_version=data.get("smart_version", ""),
             component_file_name=data.get("component_file_name", ""),
+            smart_type=data.get("smart_type", "")
         )
 
 

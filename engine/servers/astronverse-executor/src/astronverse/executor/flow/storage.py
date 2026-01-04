@@ -5,7 +5,6 @@ from json import JSONDecodeError
 from typing import Any, Optional
 import requests
 from astronverse.executor.error import *
-from astronverse.executor.flow.syntax.token import SmartComponent
 from astronverse.executor.logger import logger
 
 common_advanced = [
@@ -212,15 +211,17 @@ class HttpStorage(IStorage):
             # 兼容结束
 
             # 特殊处理
-            if flow.get("key").startswith(SmartComponent):
+            if flow.get("key").startswith("Smart.run_code"):
                 smart_id = flow.get("key").split(".")[-1]
+                smart_version = flow.get("version")
+                smart_key = "{}_{}".format(smart_id, smart_version)
                 flow.update(
                     {
-                        "inputList": [{"key": "smart_id", "name": "smart_info", "value": smart_id}] + flow.get("inputList", []),
+                        "inputList": [{"key": "smart_component", "value": smart_key}] + flow.get("inputList", []),
+                        "key": "Smart.run_code",
                     }
                 )
             # 特殊处理结束
-
             atom_key_list.append(flow.get("key"))
 
         full = self.__process_json_full__(atom_key_list)
@@ -318,7 +319,7 @@ class HttpStorage(IStorage):
 
         details = self.__http__("/api/robot/smart/detail/version", None, data)
         version_info = next(
-            filter(lambda item: item.get('version') == smart_version, details['detail']['versionList']),
+            filter(lambda item: item.get('version') == int(smart_version), details['detail']['versionList']),
             {}
         )
         return {

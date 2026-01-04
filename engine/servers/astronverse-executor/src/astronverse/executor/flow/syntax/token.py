@@ -62,4 +62,3 @@ for_atomic_dict = [
     "DataTable.loop_data_table",
 ]
 
-SmartComponent = "Smart.run_code"

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from astronverse.executor.flow.syntax import InputParam, OutputParam, Token, Node
 from typing import List, Dict
-from astronverse.executor.flow.syntax.token import TokenType, SmartComponent
+from astronverse.executor.flow.syntax.token import TokenType
 from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
@@ -34,7 +34,7 @@ class Program(Node):
         # import 块
         code_lines = [
             CodeLine(
-                tab_num, "from .package import element, element_vision, module, component, gv, complex_param_parser"
+                tab_num, "from .package import element, element_vision, module, component, gv, complex_param_parser, smart_component"
             ),
             CodeLine(tab_num, "from astronverse.actionlib.types import *"),
             CodeLine(tab_num, "from astronverse.workflowlib.consequence import consequence"),
@@ -116,8 +116,8 @@ class Atomic(Node):
         
         # key特殊处理
         key = self.token.value.get("key", "")
-        if key == SmartComponent:
-            svc.add_smart_component(project_id, self.__arguments__.get("smart_id"), self.token.value.get("version"))
+        if key == "Smart.run_code":
+            svc.add_smart_component(project_id, self.__arguments__.get("smart_component").value)
 
         # 检测是否需要重试包装（debug 模式下不生成重试包装代码）
         advance_info = self._extract_advance_info()

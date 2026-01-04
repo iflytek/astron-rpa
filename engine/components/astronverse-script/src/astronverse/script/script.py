@@ -7,15 +7,14 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.script.error import MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND, BaseException
 
 
-class Script:
-    @staticmethod
+class Script:    @staticmethod
     def _call(path: str, package: str, **kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
-        main_func = getattr(process_module, "main", None)
+        main_func = next((obj for _, obj in inspect.getmembers(process_module, inspect.isfunction)), None)
         if not main_func or not callable(main_func):
             raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
@@ -26,6 +25,7 @@ class Script:
         res = main_func(kwargs)
 
         return res, kwargs
+
 
     @staticmethod
     def _get_auto_context() -> (dict, str):
@@ -136,11 +136,4 @@ class Script:
         package = component.split(".")[0] if "." in component else component
         module_name = component.split(".")[-1] if "." in component else component
         _, kwargs = Script._call(".{}".format(module_name), package=package, **kwargs)
-        return kwargs
-
-    @staticmethod
-    @atomicMg.atomic("Script", inputList=[], outputList=[])
-    def smart_component(smart_component: str, **kwargs):
-        _, package = Script._get_auto_context()
-        kwargs = {}
         return kwargs
