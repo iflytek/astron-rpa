@@ -34,7 +34,7 @@ export function getNewAtomDesc(key: string): Promise<{ data: RPA.Atom }> {
   return new Promise((resolve, reject) => {
     http.post('/robot/atom-new/list', { keys: [key] }).then((res) => {
       const atom = res.data && res.data.length > 0 ? res.data[0] : ''
-      const { atomContent = '' } = atom
+      const { atomContent = '{}' } = atom
       resolve({ data: atomContent })
     }).catch(err => reject(err))
   })
