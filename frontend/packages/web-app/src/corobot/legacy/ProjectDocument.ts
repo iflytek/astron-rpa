@@ -1,12 +1,14 @@
 import { getComponentForm, getComponentId, isComponentKey } from '@/utils/customComponent'
 import { Bus as Emittery } from '@/utils/eventBus'
 
+import { getSmartComp } from '@/api/component'
+import { getSmartComponentId, isSmartComponentKey } from '@/components/SmartComponent/utils'
 import type { IProjectDocument, ProcessActor, ProcessEvent, ProcessNodeActor, ProcessNodeEvent } from '@/corobot/IProjectDocument'
 import * as service from '@/corobot/store/service'
 import { shapeUIData } from '@/corobot/utils/processNode'
 import type { ProcessNodeVM, ProjectVM } from '@/corobot/vm'
 import { MAX_ATOM_NUM } from '@/views/Arrange/components/flow/hooks/useFlow'
-import { createComponentAbility } from '@/views/Arrange/utils/generateData'
+import { createComponentAbility, createSmartComponentAbility } from '@/views/Arrange/utils/generateData'
 
 import { ProcessEditor } from './ProcessEditor'
 
@@ -98,6 +100,9 @@ export class ProjectDocument implements IProjectDocument {
         if (isComponentKey(key)) {
           await createComponentAbility(key, version)
         }
+        if (isSmartComponentKey(key)) {
+          await createSmartComponentAbility(key, version)
+        }
       }
     }
     this.processEmitter.$emit('open', processId, list, type)
@@ -163,6 +168,19 @@ export class ProjectDocument implements IProjectDocument {
       ProjectDocument.noVersionMap[key] = node.version
       if (!ProjectDocument.nodeAbility[keys]) {
         ProjectDocument.nodeAbility[keys] = node
+      }
+      return node
+    })
+  }
+
+  static gainSmartComponentAbility(robotId: string, key: string, version?: string | number) {
+    const smartId = getSmartComponentId(key)
+    return getSmartComp({ smartId, robotId }).then((data) => {
+      const node = data.detail?.versionList.find(item => item.version === version) || data.detail?.versionList?.[0]
+      const keys = `${key}***${node.version}`
+      ProjectDocument.noVersionMap[key] = node.version
+      if (!ProjectDocument.nodeAbility[keys]) {
+        ProjectDocument.nodeAbility[keys] = { ...node, key }
       }
       return node
     })

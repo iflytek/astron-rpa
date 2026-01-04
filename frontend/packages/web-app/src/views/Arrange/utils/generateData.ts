@@ -1,5 +1,6 @@
 import { cloneDeep, unionWith } from 'lodash-es'
 
+import { isSmartComponentKey } from '@/components/SmartComponent/utils'
 import type { VARIABLE_TYPE } from '@/constants/atom'
 import { ATOM_FORM_TYPE, LIMIT_VARIABLE_SELECT, OTHER_IN_TYPE, VAR_IN_TYPE } from '@/constants/atom'
 import { ProjectDocument } from '@/corobot'
@@ -47,6 +48,16 @@ export async function loopAtomByKey(key: string) {
 export async function createComponentAbility(key: string, version?: string | number) {
   if (!getAtomByKey(key, version)) {
     const node = await ProjectDocument.gainComponentAbility(key, version)
+    return node
+  }
+}
+
+// 生成智能组件节点
+export async function createSmartComponentAbility(key: string, version?: string | number) {
+  const processStore = useProcessStore()
+
+  if (!getAtomByKey(key, version)) {
+    const node = await ProjectDocument.gainSmartComponentAbility(processStore.project.id, key, version)
     return node
   }
 }
@@ -102,10 +113,10 @@ export function getAllGlobalVariable() {
 }
 
 // 获取流程中所有输出流变量
-export function generateVarName(typeVarName, allVariable) {
-  // 查找出所有的typeVarName_1、typeVarName_2...的变量
+export function generateVarName(typeVarName, allVariable, excludeVariables: string[] = []) {
+  // 查找出所有的typeVarName_1、typeVarName_2...的变量，但排除指定的变量
   const regex = new RegExp(`${typeVarName}_` + `\\d`)
-  const variables = allVariable.filter(i => regex.test(i))
+  const variables = allVariable.filter(i => regex.test(i) && !excludeVariables.includes(i))
   // 通过对比，生成新的后缀名称
   const newVarName = generateName(variables, typeVarName, '_')
   // 将新生成的变量添加到所有流变量，便于下一个输出表单后缀正确生成
@@ -149,7 +160,7 @@ function generateFormItemDefaultVal(originArr: RPA.AtomDisplayItem[], targetArr:
 }
 
 // 生成输出信息表单
-export function generateOutItems(originArr = [], targetArr: any[] = []) {
+export function generateOutItems(originArr = [], targetArr: any[] = [], excludeVariables: string[] = []) {
   const allFlowVariable = getFlowVariable()
   const allGlobalVariable = getAllGlobalVariable()
   const allVariable = allFlowVariable.concat(allGlobalVariable)
@@ -166,7 +177,7 @@ export function generateOutItems(originArr = [], targetArr: any[] = []) {
       value: '',
     }
     if (i.formType?.type === ATOM_FORM_TYPE.RESULT) {
-      const newVarName = generateVarName(i.key, allVariable)
+      const newVarName = generateVarName(i.key, allVariable, excludeVariables)
       obj.value = newVarName
     }
     i.value = [obj]
@@ -227,7 +238,7 @@ export function generateInputMap(key: string, specialRender = false) {
     ...atom,
     alias: key === Group ? generateGroupName() : atom.title,
     id: generateId(key),
-    inputList: generateInItems(atom),
+    inputList: isSmartComponentKey(atom.key) ? atom.inputList : generateInItems(atom),
     outputList: generateOutItems(atom.outputList),
     advanced: generateAdvancedItems(atom),
     exception: generateExceptionItems(atom),
