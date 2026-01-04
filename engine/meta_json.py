@@ -111,7 +111,7 @@ def meta_upload(meta_data):
             print(f"Failed to upload meta. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error uploading meta: {e}")
-        
+
 
 def tree_upload():
     with open(os.path.join(os.path.dirname(__file__), "temp_tree.json"), encoding="utf-8") as f:
