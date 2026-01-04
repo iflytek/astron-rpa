@@ -369,12 +369,16 @@ export async function deleteDataTable(projectId: string) {
  * @param callback 
  * @returns 
  */
-export const startDataTableListenr = <T>(projectId: string, callback?: (data: { event: string, data: T }) => void) => {
+export const startDataTableListener = <T>(projectId: string, callback?: (data: { event: string, data: T }) => void) => {
   return sseRequest.get(
     `${getRootBaseURL()}/scheduler/datatable/stream?project_id=${projectId}&filename=data_table`,
     (res) => {
-      const dataJson: T = JSON.parse(res.data);
-      callback?.({ event: res.event, data: dataJson })
+      try {
+        const dataJson: T = JSON.parse(res.data);
+        callback?.({ event: res.event, data: dataJson })
+      } catch (error) {
+        console.error('解析 SSE 数据失败:', error, res.data);
+      }
     }
   )
 }

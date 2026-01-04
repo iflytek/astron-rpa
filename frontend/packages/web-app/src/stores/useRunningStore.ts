@@ -9,7 +9,7 @@ import { computed, ref, shallowRef } from 'vue'
 import { generateUUID } from '@/utils/common'
 
 import type { StartExecutorParams } from '@/api/resource'
-import { closeDataTable, deleteDataTable, getDataTable, startDataTableListenr, startExecutor, stopExecutor, updateDataTable } from '@/api/resource'
+import { closeDataTable, deleteDataTable, getDataTable, startDataTableListener, startExecutor, stopExecutor, updateDataTable } from '@/api/resource'
 import Socket from '@/api/ws'
 import { windowManager } from '@/platform'
 import { useFlowStore } from '@/stores/useFlowStore'
@@ -174,7 +174,7 @@ export const useRunningStore = defineStore('running', () => {
       RpaExecutorUrl = res.data.addr
       // 连接 ws
       createSocket()
-      _startDataTableListenr()
+      _startDataTableListener()
     }
     catch {
       running.value = 'free'
@@ -289,8 +289,8 @@ export const useRunningStore = defineStore('running', () => {
   /**
    * 开启数据表格 sse 流式监听
    */
-  const _startDataTableListenr = () => {
-    dataTableListenController = startDataTableListenr(processStore.project.id, (res) => {
+  const _startDataTableListener = () => {
+    dataTableListenController = startDataTableListener(processStore.project.id, (res) => {
       if (res.event === 'file_deleted') {
         dataTable.value = null
       } else if (res.event === 'file_changed') {

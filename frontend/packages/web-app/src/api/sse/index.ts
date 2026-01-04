@@ -21,7 +21,6 @@ function SSERequest(
   const controller = new AbortController()
 
   fetchEventSource(url, {
-    method: 'POST',
     signal: controller.signal,
     mode: 'cors',
     // mode: 'no-cors',
@@ -33,7 +32,7 @@ function SSERequest(
       console.log('sse open', res)
     },
     ...(options || {}),
-    ...(options.method === "GET" ? {} : {body: JSON.stringify(params)}),
+    ...(options?.method === "GET" ? {} : {body: JSON.stringify(params)}),
     onmessage(msg) {
       console.log('sse msg', msg)
       sCB(msg)

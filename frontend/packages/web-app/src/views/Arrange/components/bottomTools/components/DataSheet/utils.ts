@@ -10,6 +10,10 @@ const DEFAULT_EXCEL_NAME = 'datatable.xlsx'
  * @returns 
  */
 export const transformToWorkbookData = (data: RPA.IDataTableSheet): Partial<ISheetWorkbookData> => {
+  if (!data?.data) {
+    return {}
+  }
+
   const cellData: IWorksheetData['cellData'] = {}
 
   for (let row = 0; row < data.data.length; row++) {
@@ -27,7 +31,7 @@ export const transformToWorkbookData = (data: RPA.IDataTableSheet): Partial<IShe
 
   return {
     appVersion: '',
-    id: Date.now.toString(),
+    id: Date.now().toString(),
     locale: SheetLocaleType.ZH_CN,
     name: DEFAULT_EXCEL_NAME,
     resources: [],
