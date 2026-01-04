@@ -6,14 +6,19 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
     "./platform": {
-      "types": "./dist/platform.d.ts",
-      "import": "./dist/platform.js"
+      "types": "./dist/platform.d.mts",
+      "import": "./dist/platform.mjs",
+      "require": "./dist/platform.cjs"
     },
     "./tokens/light": {
       "types": "./dist/tokens/variables.d.ts",
@@ -30,14 +35,14 @@
     "./tokens/tailwind": "./dist/tokens/tailwind-preset.js"
   },
   "scripts": {
-    "build": "rslib build",
-    "dev": "rslib build --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "build:tokens": "node tokens/build-tokens.js",
     "postinstall": "npm run build && npm run build:tokens"
   },
   "devDependencies": {
-    "@rslib/core": "^0.14.0",
-    "style-dictionary": "^4.4.0"
+    "style-dictionary": "^4.4.0",
+    "tsdown": "^0.19.0-beta.2"
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.1.0"
