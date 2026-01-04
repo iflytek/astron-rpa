@@ -17,44 +17,49 @@ export function useManagePython() {
   function installPackage(pacakgeOption, upgrade = false) {
     const params = { robotId: processStore.project.id, ...pacakgeOption }
     pythonPackageStore.setPyLoadingType(upgrade ? 'upgrading' : 'installing')
-    controller = sseRequest(`${getRootBaseURL()}/scheduler/pip/install`, {
-      project_id: processStore.project.id,
-      package: pacakgeOption.packageName,
-      version: pacakgeOption.packageVersion,
-      mirror: pacakgeOption.mirror,
-    }, null, (res) => {
-      if (!res)
-        return
-      let newData
-      try {
-        newData = JSON.parse(res.data).stdout
-      }
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      catch (e) {
-        newData = res.data
-      }
+    controller = sseRequest.post(
+      `${getRootBaseURL()}/scheduler/pip/install`,
+      {
+        project_id: processStore.project.id,
+        package: pacakgeOption.packageName,
+        version: pacakgeOption.packageVersion,
+        mirror: pacakgeOption.mirror,
+      },
+      (res) => {
+        if (!res)
+          return
+        let newData
+        try {
+          newData = JSON.parse(res.data).stdout
+        }
+        // eslint-disable-next-line unused-imports/no-unused-vars
+        catch (e) {
+          newData = res.data
+        }
 
-      if (newData.includes('stderr')) {
+        if (newData.includes('stderr')) {
+          pythonPackageStore.setPyLoadingType(upgrade ? 'upgradeFail' : 'installFail')
+          controller.abort()
+          controller = null
+          return
+        }
+        if (newData.includes('[DONE]')) {
+          pythonPackageStore.setPyLoadingType(upgrade ? 'upgradeSuccess' : 'installSuccess')
+          pythonInstallModal.hide()
+          upgrade ? updatePackage(params) : addPackage(params)
+          controller.abort()
+          controller = null
+          return
+        }
+        if (newData) {
+          pacakgeOption.output += newData
+          handleScrollToBottom()
+        }
+      },
+      () => {
         pythonPackageStore.setPyLoadingType(upgrade ? 'upgradeFail' : 'installFail')
-        controller.abort()
-        controller = null
-        return
       }
-      if (newData.includes('[DONE]')) {
-        pythonPackageStore.setPyLoadingType(upgrade ? 'upgradeSuccess' : 'installSuccess')
-        pythonInstallModal.hide()
-        upgrade ? updatePackage(params) : addPackage(params)
-        controller.abort()
-        controller = null
-        return
-      }
-      if (newData) {
-        pacakgeOption.output += newData
-        handleScrollToBottom()
-      }
-    }, () => {
-      pythonPackageStore.setPyLoadingType(upgrade ? 'upgradeFail' : 'installFail')
-    })
+    )
   }
 
   function handleScrollToBottom() {

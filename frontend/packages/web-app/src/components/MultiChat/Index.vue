@@ -139,41 +139,40 @@ function createSSE(url, query) {
     queryLst.push({ role: 'user', content: fileInfo.value.content })
     queryLst.push({ role: 'user', content: query })
   }
-  controller = sseRequest(url, chatType.value === 'multi'
-    ? {
-        messages: queryLst,
-        model: model.value,
-        stream: true,
+  controller = sseRequest.post(
+    url,
+    chatType.value === 'multi' ? { messages: queryLst, model: model.value, stream: true }: queryLst,
+    (res) => {
+      if (res) {
+      // if (res.data) {
+        // const { data } = res // <$start>end<$end>
+        // if (data.includes(' ')) {
+        //   console.log('newData空格', data) // 后端返回的数据有空格
+        // }
+        // const newData = data.trim().replace(/<\$start>/g, '').replace(/<\$end>/g, '').replace(/\r\n/g, '<br/>').replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>')
+        console.log('res', res)
+        const newData = JSON.parse(res.data).choices[0].delta.content
+        console.log('newData', newData)
+        if (newData.includes('start')) {
+          return
+        }
+        // if (newData.includes('end')) {
+        if (newData.includes('[DONE]')) {
+          handleEnd()
+          return
+        }
+        if (newData) {
+          isThinking.value = false
+          updateMessagingChat('answer', newData)
+          handleScrollToBottom()
+        }
       }
-    : queryLst, null, (res) => {
-    if (res) {
-    // if (res.data) {
-      // const { data } = res // <$start>end<$end>
-      // if (data.includes(' ')) {
-      //   console.log('newData空格', data) // 后端返回的数据有空格
-      // }
-      // const newData = data.trim().replace(/<\$start>/g, '').replace(/<\$end>/g, '').replace(/\r\n/g, '<br/>').replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>')
-      console.log('res', res)
-      const newData = JSON.parse(res.data).choices[0].delta.content
-      console.log('newData', newData)
-      if (newData.includes('start')) {
-        return
-      }
-      // if (newData.includes('end')) {
-      if (newData.includes('[DONE]')) {
-        handleEnd()
-        return
-      }
-      if (newData) {
-        isThinking.value = false
-        updateMessagingChat('answer', newData)
-        handleScrollToBottom()
-      }
+    },
+    () => {
+      handleEnd() // 错误处理
+      updateMessagingChat('answer', '异常无法响应')
     }
-  }, () => {
-    handleEnd() // 错误处理
-    updateMessagingChat('answer', '异常无法响应')
-  })
+  )
 }
 function handleSend() {
   const promptValue = prompt.value

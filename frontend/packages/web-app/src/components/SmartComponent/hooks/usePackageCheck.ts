@@ -53,9 +53,7 @@ export function usePackageCheckContext() {
 
   function installPackageAsync(packageName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const controller = new AbortController()
-
-      sseRequest(
+      const controller = sseRequest.post(
         `${getRootBaseURL()}/scheduler/pip/install`,
         {
           project_id: processStore.project.id,
@@ -63,7 +61,6 @@ export function usePackageCheckContext() {
           version: '',
           mirror: mirrorList[0].value,
         },
-        { single: (controller as any).single },
         (res) => {
           if (!res)
             return

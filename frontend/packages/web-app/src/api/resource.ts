@@ -363,13 +363,22 @@ export async function deleteDataTable(projectId: string) {
   return res.data
 }
 
-export function startDataTableListenr(projectId: string) {
-  return sseRequest(
-    `${getRootBaseURL()}/datatable/stream/project_id=${projectId}&filename=data_table`,
-    null,
-    { method: 'GET' },
-    (data) => {
-      console.log(data)
-    },
+/**
+ * 监听数据表格
+ * @param projectId 
+ * @param callback 
+ * @returns 
+ */
+export const startDataTableListener = <T>(projectId: string, callback?: (data: { event: string, data: T }) => void) => {
+  return sseRequest.get(
+    `${getRootBaseURL()}/scheduler/datatable/stream?project_id=${projectId}&filename=data_table`,
+    (res) => {
+      try {
+        const dataJson: T = JSON.parse(res.data);
+        callback?.({ event: res.event, data: dataJson })
+      } catch (error) {
+        console.error('解析 SSE 数据失败:', error, res.data);
+      }
+    }
   )
 }
