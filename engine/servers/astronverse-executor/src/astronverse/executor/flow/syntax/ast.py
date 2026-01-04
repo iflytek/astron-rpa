@@ -34,7 +34,8 @@ class Program(Node):
         # import 块
         code_lines = [
             CodeLine(
-                tab_num, "from .package import element, element_vision, module, component, gv, complex_param_parser, smart_component"
+                tab_num,
+                "from .package import element, element_vision, module, component, gv, complex_param_parser, smart_component",
             ),
             CodeLine(tab_num, "from astronverse.actionlib.types import *"),
             CodeLine(tab_num, "from astronverse.workflowlib.consequence import consequence"),
@@ -113,7 +114,7 @@ class Atomic(Node):
             svc.add_import_python(
                 project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
             )
-        
+
         # key特殊处理
         key = self.token.value.get("key", "")
         if key == "Smart.run_code":

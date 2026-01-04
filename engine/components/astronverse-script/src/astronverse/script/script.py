@@ -7,7 +7,7 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.script.error import MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND, BaseException
 
 
-class Script:    @staticmethod
+class Script:
     def _call(path: str, package: str, **kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
@@ -25,7 +25,6 @@ class Script:    @staticmethod
         res = main_func(kwargs)
 
         return res, kwargs
-
 
     @staticmethod
     def _get_auto_context() -> (dict, str):

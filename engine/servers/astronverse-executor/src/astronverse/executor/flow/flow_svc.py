@@ -106,7 +106,7 @@ class FlowSvc:
             self.ast_globals_dict[project_id].atomic_info[atomic_key] = AtomicInfo()
         self.ast_globals_dict[project_id].atomic_info[atomic_key].key = atomic_key
         self.ast_globals_dict[project_id].atomic_info[atomic_key].params_name = atomic_params
-    
+
     def add_smart_component(self, project_id: str, smart_key: str):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
@@ -120,5 +120,3 @@ class FlowSvc:
     def update_smart_component(self, project_id: str, smart_key: str, component_file_name: str, smart_type: str):
         self.ast_globals_dict[project_id].smart_component_info[smart_key].component_file_name = component_file_name
         self.ast_globals_dict[project_id].smart_component_info[smart_key].smart_type = smart_type
-
-    

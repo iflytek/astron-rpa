@@ -61,4 +61,3 @@ for_atomic_dict = [
     "BrowserElement.loop_similar",
     "DataTable.loop_data_table",
 ]
-

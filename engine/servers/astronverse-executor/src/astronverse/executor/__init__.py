@@ -122,7 +122,7 @@ class SmartComponentInfo:
             "smart_id": self.smart_id,
             "smart_version": self.smart_version,
             "component_file_name": self.component_file_name,
-            "smart_type": self.smart_type
+            "smart_type": self.smart_type,
         }
 
     @classmethod
@@ -131,7 +131,7 @@ class SmartComponentInfo:
             smart_id=data.get("smart_id", ""),
             smart_version=data.get("smart_version", ""),
             component_file_name=data.get("component_file_name", ""),
-            smart_type=data.get("smart_type", "")
+            smart_type=data.get("smart_type", ""),
         )
 
 

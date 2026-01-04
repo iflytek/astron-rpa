@@ -319,10 +319,10 @@ class HttpStorage(IStorage):
 
         details = self.__http__("/api/robot/smart/detail/version", None, data)
         version_info = next(
-            filter(lambda item: item.get('version') == int(smart_version), details['detail']['versionList']),
-            {}
+            filter(lambda item: item.get("version") == int(smart_version), details["detail"]["versionList"]), {}
         )
-        return {
-            'smartCode': version_info.get('smartCode'),
-            'smartType': version_info.get('smartType')
-        } if version_info else {}
+        return (
+            {"smartCode": version_info.get("smartCode"), "smartType": version_info.get("smartType")}
+            if version_info
+            else {}
+        )

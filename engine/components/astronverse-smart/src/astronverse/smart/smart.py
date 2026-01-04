@@ -10,7 +10,6 @@ from astronverse.smart.browser_ai.web_browser import WebBrowser
 
 
 class Smart:
-
     @staticmethod
     def _smart_call(path: str, package: str, **kwargs):
         try:
@@ -29,7 +28,6 @@ class Smart:
         res = main_func(**kwargs)
 
         return res, kwargs
-
 
     @staticmethod
     def _get_auto_context() -> (dict, str):

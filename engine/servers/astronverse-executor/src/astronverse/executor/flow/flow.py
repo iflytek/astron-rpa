@@ -34,15 +34,15 @@ class Flow:
                 self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
 
     def gen_code(
-            self,
-            path: str,
-            project_id: str,
-            project_name: str,
-            mode: str,
-            version: str,
-            process_id: str = "",
-            line=0,
-            end_line=0,
+        self,
+        path: str,
+        project_id: str,
+        project_name: str,
+        mode: str,
+        version: str,
+        process_id: str = "",
+        line=0,
+        end_line=0,
     ):
         os.makedirs(path, exist_ok=True)
 
@@ -124,7 +124,9 @@ class Flow:
             file_name = "smart{}.py".format(smart_index)
             smart_index += 1
             with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
-                res = self._smart_component_display(project_id, mode, version, smart_info.smart_id, smart_info.smart_version)
+                res = self._smart_component_display(
+                    project_id, mode, version, smart_info.smart_id, smart_info.smart_version
+                )
                 if res:
                     self.svc.update_smart_component(project_id, smart_key, file_name, res.get("smartType"))
                     file.write(res.get("smartCode"))
@@ -215,9 +217,12 @@ class Flow:
         # 4. 注入配置参数到 main(args) 函数中
         return self._inject_params_to_module(module_code, param_list)
 
-    def _smart_component_display(self, project_id: str, mode: str, version: str, smart_id: str, smart_version: str) -> str:
-        return self.svc.storage.smart_component_detail(project_id=project_id, smart_id=smart_id, smart_version=smart_version, mode=mode, version=version)
-        
+    def _smart_component_display(
+        self, project_id: str, mode: str, version: str, smart_id: str, smart_version: str
+    ) -> str:
+        return self.svc.storage.smart_component_detail(
+            project_id=project_id, smart_id=smart_id, smart_version=smart_version, mode=mode, version=version
+        )
 
     def _inject_params_to_module(self, module_code: str, param_list: list) -> str:
         """
@@ -305,7 +310,7 @@ class Flow:
         return new_code
 
     def _flow_display(
-            self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0
+        self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0
     ):
         """
         流程生成 主流程 子流程
