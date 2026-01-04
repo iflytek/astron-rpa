@@ -6,10 +6,10 @@ import { VIEW_OWN } from '@/constants/resource'
 
 import useProjectTableOption from './hooks/ProjectManagement/useProjectTableOption'
 
-const { homeTableRef, consultRef, tableOption } = useProjectTableOption(VIEW_OWN)
+const { authType, homeTableRef, consultRef, tableOption } = useProjectTableOption(VIEW_OWN)
 </script>
 
 <template>
   <NormalTable ref="homeTableRef" :option="tableOption" />
-  <Auth.Consult ref="consultRef" trigger="modal" />
+  <Auth.Consult ref="consultRef" trigger="modal" :auth-type="authType" />
 </template>

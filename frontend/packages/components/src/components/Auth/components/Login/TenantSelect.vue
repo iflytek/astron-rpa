@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { InviteInfo, TenantItem } from '../../interface'
+import type { AuthType, InviteInfo, TenantItem } from '../../interface'
 import Consult from '../Base/Consult/Index.vue'
 import FormLayout from '../Base/FormLayout.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
 
-const { tenants, inviteInfo } = defineProps({
+const { tenants, inviteInfo, authType } = defineProps({
+  authType: { type: String as () => AuthType, default: () => 'uap' },
   tenants: { type: Array as () => TenantItem[], default: () => [] },
   inviteInfo: { type: Object as () => InviteInfo, default: () => null },
 })
@@ -28,6 +29,7 @@ function handleSelect(tenant: TenantItem) {
   selectedTenant.value = tenant.id
   if (tenant.isExpired) {
     consultRef.value?.init({
+      authType,
       trigger: 'modal',
       modalConfirm: {
         title: '租户已过期',
@@ -64,6 +66,6 @@ function handleSelect(tenant: TenantItem) {
         @click="() => handleSelect(tenant)"
       />
     </div>
-    <Consult ref="consultRef" trigger="modal" />
+    <Consult ref="consultRef" trigger="modal" :auth-type="authType" />
   </FormLayout>
 </template>

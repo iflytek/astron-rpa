@@ -32,7 +32,7 @@ const { invitData, expireTypes, formState, resetLink } = useLinkInvite(marketId,
       <div class="flex items-center w-full text-[12px] text-[#00000090] dark:text-[#FFFFFF99]">
         <span v-if="invitData.overNumLimit === 1 && userStore.currentTenant?.tenantType === 'personal'" class="flex items-center w-full">
           当前市场人数已满十人。开通专业版不限邀请人数，
-          <Auth.Consult trigger="button" custom-class="text-primary !w-auto cursor-pointer" :button-conf="{ buttonTxt: '去开通', buttonType: 'text' }" />
+          <Auth.Consult trigger="button" :auth-type="userStore.authType" custom-class="text-primary !w-auto cursor-pointer" :button-conf="{ buttonTxt: '去开通', buttonType: 'text' }" />
           。
         </span>
         <span v-else>邀请有效期至：{{ invitData.expireTime }} <span class="text-primary cursor-pointer hover:opacity-95" @click="resetLink">点击重置</span></span>

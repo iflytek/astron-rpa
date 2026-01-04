@@ -16,12 +16,14 @@ import TableContainer from '../components/TableContainer.vue'
 const { t } = useTranslation()
 const userStore = useUserStore()
 const consultRef = ref<InstanceType<typeof Auth.Consult> | null>(null)
+const { authType } = userStore
 
 async function createRobot() {
   if (userStore.currentTenant?.tenantType !== 'enterprise') {
     const res = await checkProjectNum()
     if (!res.data) {
       consultRef.value?.init({
+        authType,
         trigger: 'modal',
         modalConfirm: {
           title: '已达到应用数量上限',
@@ -75,6 +77,6 @@ async function createRobot() {
     <TableContainer>
       <router-view />
     </TableContainer>
-    <Auth.Consult ref="consultRef" trigger="modal" />
+    <Auth.Consult ref="consultRef" trigger="modal" :auth-type="authType" />
   </div>
 </template>

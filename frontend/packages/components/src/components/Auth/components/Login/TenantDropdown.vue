@@ -64,7 +64,7 @@ const open = ref(false)
 
 <template>
   <div class="w-full px-[20px] tenant-dropdown relative">
-    <Consult v-if="authType !== 'casdoor' && selectedTenant?.tenantType === 'personal'" trigger="button" :button-conf="{ buttonType: 'tag' }" class="!w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
+    <Consult v-if="authType !== 'casdoor' && selectedTenant?.tenantType === 'personal'" trigger="button" :auth-type="authType" :button-conf="{ buttonType: 'tag' }" class="!w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
     <Dropdown v-model:open="open" placement="bottom">
       <div class="relative">
         <TenantItemComponent
@@ -89,7 +89,7 @@ const open = ref(false)
             />
           </Menu.Item>
           <Menu.Item class="!border-0 !p-[0] !mt-[8px]" v-if="authType !== 'casdoor'">
-            <Consult trigger="button" :button-conf="{ buttonType: 'button', buttonTxt: '创建新的工作空间' }" :consult="{ consultTitle: '创建新的工作空间', consultType: 'consult' }" />
+            <Consult trigger="button" :auth-type="authType" :button-conf="{ buttonType: 'button', buttonTxt: '创建新的工作空间' }" :consult="{ consultTitle: '创建新的工作空间', consultType: 'consult' }" />
           </Menu.Item>
         </Menu>
       </template>

@@ -67,5 +67,6 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
     homeTableRef,
     consultRef,
     tableOption,
+    authType: userStore.authType,
   }
 }
