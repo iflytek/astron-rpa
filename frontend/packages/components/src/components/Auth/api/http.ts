@@ -26,7 +26,7 @@ export async function request<T = any, P = any>(
       withCredentials: false,
       headers: { 'Content-Type': 'application/json;charset=UTF-8' },
       ...config,
-      data: config.data && JSON.parse(JSON.stringify(config.data, (_, v) => v ?? '')),
+      data: config.data && JSON.parse(JSON.stringify(config.data)),
     })
 
     if (res.code === SUCCESS_CODE)

@@ -145,7 +145,7 @@ fn conf(app_handle: Option<&tauri::AppHandle>) -> Result<AppConfig, String> {
 fn main() -> Result<(), String> {
     // 获取启动参数
     let args: Vec<String> = env::args().collect();
-    log::error!("args: {:?}", args);
+    log::info!("args: {:?}", args);
     
     // 检测是否重复打开
     let process_name = env::current_exe()

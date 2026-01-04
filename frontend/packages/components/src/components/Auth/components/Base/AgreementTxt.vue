@@ -41,9 +41,9 @@ function openLink(linkType: 'service' | 'privacy') {
 <template>
   <div class="flex justify-start items-center text-center text-[#000000D9] dark:text-[#FFFFFFD9] text-[14px]">
     {{ text }}
-    <Button class="p-0 h-auto" :class="type === 'show' ? '' : 'mx-[4px]'" type="link" @check="openLink('service')">
+    <Button class="p-0 h-auto" :class="type === 'show' ? '' : 'mx-[4px]'" type="link" @click="openLink('service')">
       服务协议
-    </Button>与<Button class="p-0 h-auto ml-[4px]" type="link" @check="openLink('privacy')">
+    </Button>与<Button class="p-0 h-auto ml-[4px]" type="link" @click="openLink('privacy')">
       隐私政策
     </Button>
   </div>
