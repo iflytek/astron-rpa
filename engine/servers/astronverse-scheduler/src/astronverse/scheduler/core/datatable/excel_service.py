@@ -237,8 +237,8 @@ class ExcelService:
         try:
             for update in updates:
                 sheet_name = update.get("sheet")
-                row = update.get("row")
-                col = update.get("col")
+                row = update.get("row") + 1
+                col = update.get("col") + 1
                 value = update.get("value")
 
                 if sheet_name not in wb.sheetnames:
