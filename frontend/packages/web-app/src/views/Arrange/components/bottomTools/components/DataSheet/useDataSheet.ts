@@ -1,4 +1,4 @@
-import type { type ICellValue, type ISheetWorkbookData, Sheet as SheetComponent } from '@rpa/components'
+import type { ICellValue, ISheetWorkbookData, Sheet as SheetComponent } from '@rpa/components'
 import { createInjectionState } from '@vueuse/core'
 import { get, isEmpty } from 'lodash-es'
 import { markRaw, ref, shallowRef, watch } from 'vue'

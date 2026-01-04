@@ -19,8 +19,6 @@ import type { TabConfig } from './types'
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
-console.log('BottomTools props.height', props.height)
-
 // 创建并提供 configParameter 实例
 const { config: configParamsTabConfig } = useProvideConfigParameter()
 const { dataSheetConfig } = useProvideDataSheetStore()
@@ -121,7 +119,7 @@ watch(() => processStore.activeProcessId, () => {
           />
         </div>
       </template>
-      <a-tab-pane v-for="item in tabs" :key="item.key">
+      <a-tab-pane v-for="item in tabs" :key="item.key" class="z-0">
         <template #tab>
           <span class="flex items-center">
             <rpa-icon :name="item.icon" width="16px" height="16px" class="mr-1" />

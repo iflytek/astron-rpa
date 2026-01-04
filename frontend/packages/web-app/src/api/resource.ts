@@ -370,10 +370,8 @@ export async function deleteDataTable(projectId: string) {
  * @returns 
  */
 export const startDataTableListenr = <T>(projectId: string, callback?: (data: { event: string, data: T }) => void) => {
-  return sseRequest(
-    `${getRootBaseURL()}/datatable/stream/project_id=${projectId}&filename=data_table`,
-    null,
-    { method: 'GET' },
+  return sseRequest.get(
+    `${getRootBaseURL()}/scheduler/datatable/stream?project_id=${projectId}&filename=data_table`,
     (res) => {
       const dataJson: T = JSON.parse(res.data);
       callback?.({ event: res.event, data: dataJson })
