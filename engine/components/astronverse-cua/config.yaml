@@ -1,0 +1,70 @@
+atomic:
+  ComputerUseAgent.run:
+    title: 计算机使用代理
+    comment: 使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
+    description: 通过调用视觉大模型（如豆包、Qwen等）分析屏幕截图，自动执行鼠标点击、键盘输入、拖拽等操作，实现GUI自动化任务。
+    icon: computer-use
+    helpManual: |
+      使用说明：
+      1. 需要提供API密钥（可通过环境变量ARK_API_KEY或OPENAI_API_KEY设置）
+      2. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
+      3. Agent会自动循环执行直到任务完成或达到最大步数
+      4. 所有截图会保存在指定目录，可用于调试和验证
+    inputList:
+      - key: instruction
+        title: 用户指令
+        tip: 描述要执行的GUI自动化任务，例如"打开计算器并计算123+456"
+        required: true
+      - key: api_key
+        title: API密钥
+        tip: 视觉大模型的API密钥，如果不提供则从环境变量读取
+        required: false
+      - key: model
+        title: 模型ID
+        tip: 使用的视觉大模型ID，默认使用豆包模型
+        default: "doubao-1-5-ui-tars-250428"
+        required: false
+      - key: language
+        title: 交互语言
+        tip: Agent思考和交互使用的语言
+        default: "Chinese"
+        required: false
+      - key: max_steps
+        title: 最大执行步数
+        tip: 任务执行的最大步数限制，防止无限循环
+        default: 20
+        required: false
+      - key: screenshot_dir
+        title: 截图保存目录
+        tip: 截图保存的目录路径，如果不提供则使用临时目录
+        required: false
+      - key: temperature
+        title: 模型温度
+        tip: 模型生成时的温度参数，控制输出的随机性
+        default: 0.0
+        required: false
+      - key: provider
+        title: 模型提供商
+        tip: 选择使用的模型提供商，"doubao"或"openai"
+        default: "doubao"
+        required: false
+    outputList:
+      - key: success
+        title: 执行结果
+        tip: 任务是否成功完成
+      - key: steps
+        title: 总步数
+        tip: 任务执行的总步数
+      - key: action_steps
+        title: 有效动作步数
+        tip: 实际执行有效动作的步数
+      - key: duration
+        title: 执行耗时
+        tip: 任务执行的总耗时（秒）
+      - key: screenshots
+        title: 截图列表
+        tip: 执行过程中保存的所有截图路径列表
+      - key: error
+        title: 错误信息
+        tip: 如果任务失败，返回错误信息
+

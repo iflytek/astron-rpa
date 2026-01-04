@@ -1,0 +1,218 @@
+{
+  "ComputerUseAgent.run": {
+    "key": "ComputerUseAgent.run",
+    "title": "计算机使用代理",
+    "version": "1.0.1",
+    "src": "astronverse.cua.computer_use.ComputerUse().run",
+    "comment": "使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "instruction",
+        "title": "用户指令",
+        "name": "instruction",
+        "tip": "描述要执行的GUI自动化任务，例如\"打开计算器并计算123+456\"",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "api_key",
+        "title": "API密钥",
+        "name": "api_key",
+        "tip": "视觉大模型的API密钥，如果不提供则从环境变量读取",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "model",
+        "title": "模型ID",
+        "name": "model",
+        "tip": "使用的视觉大模型ID，默认使用豆包模型",
+        "default": "doubao-1-5-ui-tars-250428",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "language",
+        "title": "交互语言",
+        "name": "language",
+        "tip": "Agent思考和交互使用的语言",
+        "default": "Chinese",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Int",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "max_steps",
+        "title": "最大执行步数",
+        "name": "max_steps",
+        "tip": "任务执行的最大步数限制，防止无限循环",
+        "default": 20,
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "screenshot_dir",
+        "title": "截图保存目录",
+        "name": "screenshot_dir",
+        "tip": "截图保存的目录路径，如果不提供则使用临时目录",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Float",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "temperature",
+        "title": "模型温度",
+        "name": "temperature",
+        "tip": "模型生成时的温度参数，控制输出的随机性",
+        "default": 0.0,
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "provider",
+        "title": "模型提供商",
+        "name": "provider",
+        "tip": "选择使用的模型提供商，\"doubao\"或\"openai\"",
+        "default": "doubao",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Bool",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "success",
+        "title": "执行结果",
+        "subTitle": "",
+        "tip": "任务是否成功完成"
+      },
+      {
+        "types": "Int",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "steps",
+        "title": "总步数",
+        "subTitle": "",
+        "tip": "任务执行的总步数"
+      },
+      {
+        "types": "Int",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "action_steps",
+        "title": "有效动作步数",
+        "subTitle": "",
+        "tip": "实际执行有效动作的步数"
+      },
+      {
+        "types": "Float",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "duration",
+        "title": "执行耗时",
+        "subTitle": "",
+        "tip": "任务执行的总耗时（秒）"
+      },
+      {
+        "types": "List",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "screenshots",
+        "title": "截图列表",
+        "subTitle": "",
+        "tip": "执行过程中保存的所有截图路径列表"
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "error",
+        "title": "错误信息",
+        "subTitle": "",
+        "tip": "如果任务失败，返回错误信息",
+        "required": false
+      }
+    ],
+    "icon": "computer-use",
+    "helpManual": "使用说明：\n1. 需要提供API密钥（可通过环境变量ARK_API_KEY或OPENAI_API_KEY设置）\n2. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等\n3. Agent会自动循环执行直到任务完成或达到最大步数\n4. 所有截图会保存在指定目录，可用于调试和验证"
+  }
+}
+
