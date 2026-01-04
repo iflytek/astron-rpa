@@ -53,13 +53,10 @@ export async function createComponentAbility(key: string, version?: string | num
 }
 
 // 生成智能组件节点
-export async function createSmartComponentAbility(key: string, version?: string | number) {
+export async function loadSmartComponentAbility(key: string, version?: string | number) {
   const processStore = useProcessStore()
-
-  if (!getAtomByKey(key, version)) {
-    const node = await ProjectDocument.gainSmartComponentAbility(processStore.project.id, key, version)
-    return node
-  }
+  const node = getAtomByKey(key, version) || await ProjectDocument.gainSmartComponentAbility(processStore.project.id, key, version)
+  return node
 }
 
 // 通过key获取对应原子能力
