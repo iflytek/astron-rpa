@@ -7,8 +7,9 @@ export function useTopMenu() {
   const routes = useRouteList()
 
   return routes
-    .filter(route => {
-      if (!route.meta?.show) return false
+    .filter((route) => {
+      if (!route.meta?.show)
+        return false
       if (route.meta?.permission) {
         const res = typeof route.meta.resource === 'string'
           ? route.meta.resource

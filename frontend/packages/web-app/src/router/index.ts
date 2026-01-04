@@ -1,6 +1,5 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteLocationAsRelativeGeneric, RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 
 import {
   ACTUATOR,
@@ -114,7 +113,7 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       show: true,
       permission: true,
-      resource: ACTUATOR
+      resource: ACTUATOR,
     },
     redirect: `/${ACTUATOR}/${ROBOTLIST}`,
     component: () => import('@/views/Home/Index.vue'),
@@ -167,7 +166,7 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       show: true,
       permission: true,
-      resource: APPLICATIONMARKET
+      resource: APPLICATIONMARKET,
     },
     redirect: `/${APPLICATIONMARKET}/${TEAMMARKETS}`,
     component: () => import('@/views/Home/Index.vue'),
@@ -222,11 +221,13 @@ export function findFirstPermittedRoute(permStore: ReturnType<typeof usePermissi
     for (const r of rs) {
       if (r.meta?.permission) {
         const res = r.meta.resource || r.name
-        if (res && permStore.can(res as string, 'all')) return r
+        if (res && permStore.can(res as string, 'all'))
+          return r
       }
       if (r.children) {
         const child = loop(r.children)
-        if (child) return child
+        if (child)
+          return child
       }
     }
     return null
@@ -243,12 +244,15 @@ router.beforeEach(async (to, from, next) => {
   //   return next({ name: 'Login', query: { redirect: to.fullPath } })
 
   if (to.meta?.permission) {
-    if (!permissionStore.fetched) await permissionStore.initPermission()
+    if (!permissionStore.fetched)
+      await permissionStore.initPermission()
 
     const resource = (to.meta.resource as string) || (to.name as string)
-    if (permissionStore.can(resource, 'all')) return next()
+    if (permissionStore.can(resource, 'all'))
+      return next()
     const first = findFirstPermittedRoute(permissionStore)
-    if (first) return next(first)
+    if (first)
+      return next(first)
 
     window.location.href = '/boot.html'
     return

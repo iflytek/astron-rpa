@@ -267,6 +267,17 @@ if errorlevel 1 (
 )
 echo Batch installation successful
 
+@REM ===========================================
+@REM Run meta_json.py to generate temp.json
+@REM ===========================================
+@REM echo Running meta_json.py to generate temp.json...
+@REM %PYTHON_CORE_DIR%\python.exe %ENGINE_DIR%\meta_json.py
+@REM if errorlevel 1 (
+@REM     echo meta_json.py execution failed
+@REM     exit /b 1
+@REM )
+@REM echo meta_json.py executed successfully
+
 REM ============================================
 REM 4.4. Package and Release
 REM ============================================

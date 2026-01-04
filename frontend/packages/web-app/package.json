@@ -11,7 +11,8 @@
     "build:debug": "vite build --mode=debug",
     "publish": "vite build --mode=publish",
     "prepublish": "cross-env NODE_OPTIONS=--max_old_space_size=6144",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint-fix": "eslint --ext .ts,.vue,.js,.tsx src --fix"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",

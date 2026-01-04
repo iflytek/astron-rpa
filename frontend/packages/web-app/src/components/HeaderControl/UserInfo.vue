@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Auth } from '@rpa/components/auth'
 import { Dropdown } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
@@ -13,12 +14,10 @@ import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
-import { Auth } from '@rpa/components/auth'
- 
-const { t } = useTranslation()
- const runningStore = useRunningStore()
- const userStore = useUserStore()
 
+const { t } = useTranslation()
+const runningStore = useRunningStore()
+const userStore = useUserStore()
 
 const menuData = computed(() => [
   // {
@@ -75,7 +74,7 @@ async function logout() {
   await userStore.logout()
   location.replace(`/boot.html`)
 }
- 
+
 function modalTip() {
   const modal = GlobalModal.confirm({
     title: '警告',
@@ -107,15 +106,16 @@ function modalTip() {
             <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.loginName }}</span>
           </div>
         </div>
-        <Auth.Consult 
-          v-if="userStore.currentTenant?.tenantType !== 'enterprise'" 
-          :trigger="'button'" 
+        <Auth.Consult
+          v-if="userStore.currentTenant?.tenantType !== 'enterprise'"
+          trigger="button"
           :button-conf="{ buttonType: 'tag', currentEdition: userStore.currentTenant?.tenantType, expirationDate: userStore.currentTenant?.expirationDate, shouldAlert: userStore.currentTenant?.shouldAlert }"
-          :custom-class="'upgrade-btn'" 
+          custom-class="upgrade-btn"
           :consult="{
             consultType: userStore.currentTenant?.expirationDate ? 'renewal' : 'consult',
             consultEdition: userStore.currentTenant?.tenantType as 'professional' | 'enterprise',
-          }"/>
+          }"
+        />
         <a-menu-item v-for="item in menuData" :key="item.key">
           <template #icon>
             <rpa-icon :name="item.icon" class="w-[16px] h-[16px] text-[rgba(0,0,0)] dark:text-[rgba(255,255,255)]" />
@@ -134,6 +134,6 @@ function modalTip() {
   background: red;
 }
 :deep(.upgrade-btn .tenant-upgrade-tag) {
-  height: 40px!important;
+  height: 40px !important;
 }
 </style>

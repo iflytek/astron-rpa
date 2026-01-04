@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Select, Table, Empty } from 'ant-design-vue'
+import { Empty, Select, Table } from 'ant-design-vue'
 
 import { usePhoneInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser.tsx'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
@@ -18,7 +18,6 @@ const { marketId } = defineProps({
 const emit = defineEmits(['change'])
 
 const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, inviteUsersTableColumns, allSelectUsers, selectData, keyDownChange, changeDefaultUserType } = usePhoneInvite(marketId, 'invite', emit)
-
 </script>
 
 <template>
@@ -53,22 +52,24 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
         </Select.Option>
       </Select>
       <RoleDropdown pop-container-type="parent" type="ghost" :user-type="defaultUserType" @change="(userType) => changeDefaultUserType(userType)" />
-     </div>
-     <div>
-        <div class="my-[10px]" v-if="allSelectUsers.length > 0">选中成员（{{ allSelectUsers.length }}）</div>
-        <Table
-          :columns="inviteUsersTableColumns"
-          :data-source="allSelectUsers"
-          :show-header="false"
-          class="custom-table w-full"
-          :pagination="false"   
-          size='small'
-        >
-          <template #emptyText >
-            <Empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="'请输入关键词搜索成员, 支持按用户姓名或手机号搜索'"/>
-          </template>
-        </Table>
-     </div>
+    </div>
+    <div>
+      <div v-if="allSelectUsers.length > 0" class="my-[10px]">
+        选中成员（{{ allSelectUsers.length }}）
+      </div>
+      <Table
+        :columns="inviteUsersTableColumns"
+        :data-source="allSelectUsers"
+        :show-header="false"
+        class="custom-table w-full"
+        :pagination="false"
+        size="small"
+      >
+        <template #emptyText>
+          <Empty :image="Empty.PRESENTED_IMAGE_SIMPLE" description="请输入关键词搜索成员, 支持按用户姓名或手机号搜索" />
+        </template>
+      </Table>
+    </div>
   </div>
 </template>
 

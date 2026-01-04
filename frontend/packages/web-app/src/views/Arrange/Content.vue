@@ -18,8 +18,8 @@ import BottomTools from './components/bottomTools/Index.vue'
 import FlowContent from './components/flow/FlowContent.vue'
 import ProcessHeader from './components/process/ProcessHeader.vue'
 import RightTab from './components/rightTab/Index.vue'
-import Tools from './components/tools/Tools.vue'
 import Search from './components/search/Index.vue'
+import Tools from './components/tools/Tools.vue'
 import useArrangeProvide from './hook/useArrangeProvide'
 
 useArrangeProvide() // 注册表单全局数据

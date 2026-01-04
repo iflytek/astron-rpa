@@ -36,23 +36,23 @@ declare namespace RPA {
    * 数据表格
    */
   interface IDataTableSheets {
-    active_sheet: string;
-    filename: string;
-    project_id: string;
+    active_sheet: string
+    filename: string
+    project_id: string
     sheets: IDataTableSheet[]
   }
 
   interface IDataTableSheet {
-    name: string;
+    name: string
     max_row: number
     max_column: number
     data: string[][]
   }
 
   interface IUpdateDataTableCell {
-    sheet: string,
-    row: number,
-    col: number,
+    sheet: string
+    row: number
+    col: number
     value: number | string | boolean
   }
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { CarouselRef } from 'ant-design-vue/es/carousel'
 import { Carousel } from 'ant-design-vue'
+import type { CarouselRef } from 'ant-design-vue/es/carousel'
 import { ref, useTemplateRef } from 'vue'
+
 // import { useTheme } from '@rpa/components'
 import { illustrationList } from '@/constants/launch'
 
@@ -59,9 +60,9 @@ function onSwitch(idx: number) {
     <div class="mt-[6px] text-sm leading-[22px]">
       {{ randomIllustrationGroup?.[current]?.desc }}
     </div>
-    <slot name="footer"></slot>
+    <slot name="footer" />
   </div>
- </template>
+</template>
 
 <style lang="scss" scoped>
 </style>

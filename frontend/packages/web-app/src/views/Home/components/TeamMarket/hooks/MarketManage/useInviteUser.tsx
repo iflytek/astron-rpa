@@ -1,12 +1,12 @@
 import { Button, message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { getInviteUser, getTransferUser, generateInviteLink, resetInviteLink, } from '@/api/market'
-import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
-import type { resOption } from '@/views/Home/types'
-import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
+import { generateInviteLink, getInviteUser, getTransferUser, resetInviteLink } from '@/api/market'
 import { VUE_APP_AUTH } from '@/constants'
+import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
+import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
+import type { resOption } from '@/views/Home/types'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
   const userList = ref([])
@@ -62,13 +62,13 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
     const addIds = selectIds.value.filter(id => !tempSelectIds.value.includes(id))
     const delIds = tempSelectIds.value.filter(id => !selectIds.value.includes(id))
     const allData = allSelectUsers.value.concat(selectUsers)
-    addIds.forEach(id => {
+    addIds.forEach((id) => {
       const user = allData.find(i => i.creatorId === id)
       if (user) {
-        if(allSelectUsers.value.find(i => i.creatorId === id)) {
+        if (allSelectUsers.value.find(i => i.creatorId === id)) {
           allSelectUsers.value = allSelectUsers.value.filter(item => item.creatorId !== id)
         }
-        allSelectUsers.value.unshift({...user, userType: defaultUserType.value})
+        allSelectUsers.value.unshift({ ...user, userType: defaultUserType.value })
       }
     })
 
@@ -101,13 +101,13 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
   }
 
   const changeUserType = (record, userType) => {
-    allSelectUsers.value.find(i=>i.creatorId === record.creatorId).userType = userType
+    allSelectUsers.value.find(i => i.creatorId === record.creatorId).userType = userType
     triggerChange()
   }
 
   const removeUser = (record) => {
     allSelectUsers.value = allSelectUsers.value.filter(i => i.creatorId !== record.creatorId)
-    selectIds.value =  allSelectUsers.value.map(i => i.creatorId)
+    selectIds.value = allSelectUsers.value.map(i => i.creatorId)
     triggerChange()
   }
 
@@ -117,8 +117,15 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
       key: 'realName',
       ellipsis: true,
       customRender: ({ record }) => {
-        return <span>{record.realName}({record.phone})</span>
-      }
+        return (
+          <span>
+            {record.realName}
+            (
+            {record.phone}
+            )
+          </span>
+        )
+      },
     },
     {
       dataIndex: 'userType',
@@ -128,7 +135,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
         return (
           <RoleDropdown userType={record.userType} onChange={userType => changeUserType(record, userType)} />
         )
-      }
+      },
     },
     {
       dataIndex: 'oper',
@@ -149,7 +156,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
       },
     },
   ]
-  
+
   return {
     userList,
     userListByPhone,
@@ -167,10 +174,10 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 
 export function useLinkInvite(marketId: string, emit?: any) {
   const invitData = ref({
-    inviteKey: "",
-    expireTime: "",
+    inviteKey: '',
+    expireTime: '',
     overNumLimit: 0,
-    expireType: "24H",
+    expireType: '24H',
   })
   const expireTypes = ref([
     { label: '4小时后过期', value: '4H' },

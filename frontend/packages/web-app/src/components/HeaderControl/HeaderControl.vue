@@ -5,14 +5,15 @@ import { Tooltip } from 'ant-design-vue'
 import { SettingCenterModal } from '@/components/SettingCenterModal'
 import { VUE_APP_COMMANDER } from '@/constants'
 import { utilsManager } from '@/platform'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import { useUserStore } from '@/stores/useUserStore'
-import { usePermissionStore } from '@/stores/usePermissionStore'
 
 import MessageTip from '../MesssageTip/Index.vue'
-import UserInfo from './UserInfo.vue'
-import Help from './Help.vue'
+
 import ControlButton from './ControlButton.vue'
+import Help from './Help.vue'
+import UserInfo from './UserInfo.vue'
 
 interface HeaderControlProps {
   setting?: boolean

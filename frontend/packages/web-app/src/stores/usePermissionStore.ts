@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { permission } from '@/api/permission'   // 换成你的请求实例
+
+import { permission } from '@/api/permission' // 换成你的请求实例
 
 export interface PermItem {
   resource: string
@@ -12,12 +13,14 @@ export const usePermissionStore = defineStore('permission', () => {
   const fetched = ref(false)
 
   const initPermission = async () => {
-    if (fetched.value) return
+    if (fetched.value)
+      return
     try {
-      const data = await permission() 
+      const data = await permission()
       setPermission(data)
       fetched.value = true
-    } catch (e) {
+    }
+    catch (e) {
       console.error('[Permission] fetch failed', e)
     }
   }
@@ -28,7 +31,7 @@ export const usePermissionStore = defineStore('permission', () => {
 
   const can = (resource: string, action = 'all'): boolean => {
     return permissionAction.value.some(
-      p => p.resource === resource && p.actions?.includes(action)
+      p => p.resource === resource && p.actions?.includes(action),
     )
   }
 

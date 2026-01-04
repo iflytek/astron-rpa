@@ -1,21 +1,20 @@
 <script setup lang="ts">
+import { Auth } from '@rpa/components/auth'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 import MarketSiderMenu from '@/components/MarketSiderMenu.vue'
 import SiderMenu from '@/components/SiderMenu.vue'
-import { APPLICATIONMARKET } from '@/constants/menu'
-import { Auth } from '@rpa/components/auth'
-import { useUserStore } from '@/stores/useUserStore'
 import { COMMON_SIDER_WIDTH } from '@/constants'
+import { APPLICATIONMARKET } from '@/constants/menu'
+import { useUserStore } from '@/stores/useUserStore'
 
 const userStore = useUserStore()
 const route = useRoute()
- 
+
 const isMarket = computed(() => {
   return route.matched[0].name === APPLICATIONMARKET
 })
-
 </script>
 
 <template>
@@ -23,7 +22,7 @@ const isMarket = computed(() => {
     <MarketSiderMenu v-if="isMarket" />
     <SiderMenu v-else />
     <div class="absolute bottom-[20px] left-0" :style="{ width: `${COMMON_SIDER_WIDTH}px` }">
-      <Auth.TenantDropdown :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant"/>
+      <Auth.TenantDropdown :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant" />
     </div>
     <div class="flex-1 relative">
       <router-view />

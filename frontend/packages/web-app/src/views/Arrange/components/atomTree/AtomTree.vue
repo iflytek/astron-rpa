@@ -14,7 +14,6 @@ import { COMPONENT_KEY_PREFIX, isComponentKey } from '@/utils/customComponent'
 import { addFavorite, removeFavorite } from '@/api/atom'
 import { ComponentManageModal } from '@/components/ComponentManage'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 import { addAtomData, draggableAddStyle } from '@/views/Arrange/components/flow/hooks/useFlow'
 import type { ATOMTABKEYS } from '@/views/Arrange/config/atom'
 
@@ -140,7 +139,8 @@ function toggleCollapsed() {
 
 const onExpand: TreeProps['onExpand'] = (_, { expanded, node }) => {
   if (expanded) {
-    useProjectDocStore().gainLastNodeAbility(node.key as unknown as string)
+    console.log('node: ', node)
+    // useProjectDocStore().gainLastNodeAbility(node.key as unknown as string)
   }
 }
 

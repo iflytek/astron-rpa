@@ -1,19 +1,18 @@
 <script setup lang="ts">
+import { Auth } from '@rpa/components/auth'
+import { theme } from 'ant-design-vue'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
 import { storage } from '@/utils/storage'
 
-import ConfigProvider from '@/components/ConfigProvider/index.vue'
+import { expiredModal, getBaseURL } from '@/api/http/env'
 import BootHeader from '@/components/Boot/Header.vue'
+import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
+import ConfigProvider from '@/components/ConfigProvider/index.vue'
 import Loading from '@/components/Loading.vue'
 import { utilsManager, windowManager } from '@/platform'
-import { Auth } from '@rpa/components/auth'
-import { getBaseURL } from '@/api/http/env'
-import { theme } from 'ant-design-vue'
-import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
-import { expiredModal } from '@/api/http/env'
 
 const ENV = import.meta.env
 
@@ -55,16 +54,17 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
 })
 
 function loginAuto() {
-  if(sessionStorage.getItem('launch') === '1') {
+  if (sessionStorage.getItem('launch') === '1') {
     isLogin.value = true
     const searchParams = new URLSearchParams(window.location.search)
     const code = searchParams.get('code')
     const tenantType = searchParams.get('tenantType')
-    if(code === '900005') {
+    if (code === '900005') {
       expiredModal(tenantType)
       nextTick(() => {
         console.log(loginFormRef)
-        if(tenantType === 'professional') loginFormRef.value.autoPreLogin()
+        if (tenantType === 'professional')
+          loginFormRef.value.autoPreLogin()
       })
     }
   }

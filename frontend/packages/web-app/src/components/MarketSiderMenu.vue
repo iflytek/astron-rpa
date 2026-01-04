@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { checkMarketNum } from '@/api/market'
 import { CreateTeamMarketModal } from '@/components/CreateTeamMarketModal'
+import GlobalModal from '@/components/GlobalModal/index.ts'
 import { COMMON_SIDER_WIDTH } from '@/constants'
 import { TEAMMARKETMANAGE, TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useMarketStore } from '@/stores/useMarketStore'
-import GlobalModal from '@/components/GlobalModal/index.ts'
-import { checkMarketNum } from '@/api/market'
 import { useUserStore } from '@/stores/useUserStore'
 
 const userStore = useUserStore()
@@ -47,9 +47,9 @@ function jumpToTeamDetail(e, data: any) {
 }
 
 async function createTeam() {
-  if(userStore.currentTenant?.tenantType === 'personal'){
+  if (userStore.currentTenant?.tenantType === 'personal') {
     const res = await checkMarketNum()
-    if(!res.data){
+    if (!res.data) {
       GlobalModal.warn({
         title: '提示',
         content: '个人版最多可创建3个团队市场，您已满额。',

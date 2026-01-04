@@ -1,4 +1,5 @@
-import { fetchEventSource, type FetchEventSourceInit } from '@microsoft/fetch-event-source'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
+import type { FetchEventSourceInit } from '@microsoft/fetch-event-source'
 
 /**
  * SSE 流式接口
@@ -7,14 +8,14 @@ import { fetchEventSource, type FetchEventSourceInit } from '@microsoft/fetch-ev
  * @param options 请求配置
  * @param sCB 成功回调
  * @param eCB 失败回调
- * @returns 
+ * @returns
  */
 export function sseRequest(
-  url: string, 
-  params: Record<string, any>, 
+  url: string,
+  params: Record<string, any>,
   options: FetchEventSourceInit,
   sCB: FetchEventSourceInit['onmessage'],
-  eCB?: FetchEventSourceInit['onerror']
+  eCB?: FetchEventSourceInit['onerror'],
 ) {
   const controller = new AbortController()
 

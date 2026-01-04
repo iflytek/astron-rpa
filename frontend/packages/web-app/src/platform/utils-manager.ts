@@ -21,29 +21,30 @@ const Utils: UtilsManager = {
     return Promise.reject(new Error('readFile is not supported in browser environment'))
   },
   saveFile: async (fileName: string, buffer: ArrayBuffer) => {
-    const link = document.createElement('a');
+    const link = document.createElement('a')
 
-    let blob: Blob;
+    let blob: Blob
     if (typeof buffer === 'string') {
-      blob = new Blob([buffer], { type: 'text/csv;charset=utf-8;' });
-    } else {
+      blob = new Blob([buffer], { type: 'text/csv;charset=utf-8;' })
+    }
+    else {
       blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-      });
+      })
     }
 
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
+    const url = URL.createObjectURL(blob)
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
     link.addEventListener('click', () => {
-      link.remove();
+      link.remove()
       setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 200);
-    });
+        URL.revokeObjectURL(url)
+      }, 200)
+    })
 
-    link.click();
+    link.click()
   },
   playVideo: (videoPath: string) => {
     window.open(videoPath, '_blank')
