@@ -3,12 +3,12 @@ import http from './http'
 // 根据id和version获取原子能力的具体信息
 export function getAbilityInfo(atomList: { key: string, version: string }[]) {
   // return http.post('/robot/atom/getByVersionList', { atomList })
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     http.post('/robot/atom-new/list', { keys: atomList.map(i => i.key) }).then((res) => {
       const data = res.data || []
       const result = data.map((atom: any) => atom.atomContent)
       resolve(result)
-    })
+    }).catch(err => reject(err))
   })
 }
 
@@ -31,12 +31,12 @@ export function getTreeByParentKey(parentKey: string) {
 
 export function getNewAtomDesc(key: string): Promise<{ data: RPA.Atom }> {
   // return http.post('/robot/atom/getLatestAtomByKey', null, { params: { key } })
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     http.post('/robot/atom-new/list', { keys: [key] }).then((res) => {
       const atom = res.data && res.data.length > 0 ? res.data[0] : ''
       const { atomContent = '' } = atom
       resolve({ data: atomContent })
-    })
+    }).catch(err => reject(err))
   })
 }
 
