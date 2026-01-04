@@ -351,3 +351,16 @@ class SiblingElementType(Enum):
     All = "all"
     Next = "next"
     Prev = "prev"
+
+
+class WriteMode(Enum):
+    OVERWRITE = "overwrite"  # 覆盖写入
+    INSERT = "insert"  # 插入写入
+    APPEND = "append"  # 追加写入
+
+
+class WriteType(Enum):
+    CELL = "cell"  # 单元格操作
+    ROW = "row"  # 行操作
+    COLUMN = "column"  # 列操作
+    AREA = "area"  # 区域操作

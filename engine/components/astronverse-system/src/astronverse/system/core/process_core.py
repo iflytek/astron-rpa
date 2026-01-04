@@ -1,10 +1,9 @@
+import locale
 import os
 import subprocess
 from abc import ABC, abstractmethod
 
 import psutil
-
-import locale
 
 system_encoding = locale.getpreferredencoding()
 

@@ -1,11 +1,10 @@
-import sys
-import os
-import importlib.util
 import importlib
+import importlib.util
 import inspect
-from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType
+
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.script.error import BaseException, MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND
+from astronverse.script.error import MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND, BaseException
 
 
 class Script:
