@@ -183,6 +183,7 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
       const res = await checkProjectNum()
       if (!res.data) {
         consultRef.value?.init({
+          authType: userStore.authType,
           trigger: 'modal',
           modalConfirm: {
             title: '已达到应用数量上限',

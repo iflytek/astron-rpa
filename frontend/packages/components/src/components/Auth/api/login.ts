@@ -60,7 +60,12 @@ export async function sendCaptcha(phone: string, isRegister: boolean = true) {
 // 获取租户列表
 export async function tenantList(tempToken?: string) {
   const { data } = await http.get<TenantItem[]>('/rpa-auth/tenant/list', { tempToken })
-  return data
+  return data.map(i => {
+    return {
+      ...i,
+      tenantType: i.tenantType.includes('enterprise_') ? 'enterprise' : i.tenantType,
+    }
+  })
 }
 
 // 正式登录
