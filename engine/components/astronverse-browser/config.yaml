@@ -538,6 +538,9 @@ atomic:
     - key: output_filter_empty_col
       title: 是否过滤空列
       tip: 选择是否过滤表格中的空列
+    - key: is_save_to_data_table
+      title: 是否保存到数据表格
+      tip: 选择是否将数据抓取的结果保存到数据表格中
     outputList:
     - key: table_pick
       title: 表格对象
