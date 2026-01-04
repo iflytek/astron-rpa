@@ -13,6 +13,9 @@ import { COMPONENT_KEY_PREFIX, isComponentKey } from '@/utils/customComponent'
 
 import { addFavorite, removeFavorite } from '@/api/atom'
 import { ComponentManageModal } from '@/components/ComponentManage'
+import { SMARTCOMPONENT } from '@/constants/menu'
+import { useRoutePush } from '@/hooks/useCommonRoute'
+import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { addAtomData, draggableAddStyle } from '@/views/Arrange/components/flow/hooks/useFlow'
 import type { ATOMTABKEYS } from '@/views/Arrange/config/atom'
@@ -55,20 +58,30 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
 
   switch (menuKey.value) {
     case 'BASE_ATOM': {
-      const favorite: RPA.AtomTreeNode = {
-        key: 'favorite',
-        title: t('myFavorites'),
-        icon: 'atom-favorite',
-        iconColor: '#F39D09',
-        atomics: processStore.favorite.state,
-      }
-      list = [favorite, ...processStore.atomicTreeData]
+      list = [
+        {
+          key: 'smart-component',
+          title: t('smartComponent.smartComponent'),
+          icon: 'magic-wand',
+          iconColor: '#726FFF',
+          atomics: [],
+        },
+        {
+          key: 'favorite',
+          title: t('myFavorites'),
+          icon: 'atom-favorite',
+          iconColor: '#F39D09',
+          atomics: processStore.favorite.state,
+        },
+        ...processStore.atomicTreeData,
+      ]
       break
     }
     case 'EXT_ATOM': {
-      const customComps = {
+      const customComps: RPA.AtomTreeNode = {
         key: 'customComponent',
         title: t('components.customComponent'),
+        icon: 'custom-component',
         atomics: processStore.componentTree.state.map(item => ({
           key: `${COMPONENT_KEY_PREFIX}.${item.componentId}`,
           title: item.name,
@@ -77,7 +90,7 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
           dot: item.isLatest === 0,
         })),
       }
-      const businessComps = {
+      const businessComps: RPA.AtomTreeNode = {
         key: 'businessComponent',
         title: t('businessComponent'),
         atomics: processStore.extendTree.state,
@@ -184,6 +197,25 @@ function openComponentManageModal() {
 // 刷新自定义组件
 function refreshComponentTree() {
   processStore.componentTree.execute()
+}
+
+// 双击
+function doubleItemClick(item: AtomTreeNode) {
+  if (item.key === 'smart-component') {
+    const flowStore = useFlowStore()
+    const activeAtomIdx = (flowStore.simpleFlowUIData.findIndex(item => item.id === flowStore.activeAtom?.id) + 1) || 0
+    useRoutePush({
+      name: SMARTCOMPONENT,
+      query: {
+        projectId: processStore.project.id,
+        projectName: processStore.project.name,
+        newIndex: activeAtomIdx,
+      },
+    })
+  }
+  else {
+    addAtomData(item.key)
+  }
 }
 
 onBeforeMount(() => {
@@ -295,7 +327,7 @@ onBeforeMount(() => {
             <template #item="">
               <div
                 class="tree-node flex items-center px-2 hover:bg-[#5D59FF]/[.35] rounded"
-                @dblclick="() => addAtomData(item.key)"
+                @dblclick="doubleItemClick(item)"
               >
                 <UseAtomItem
                   :title="item.title"
@@ -318,7 +350,7 @@ onBeforeMount(() => {
                       class="!p-[2px]"
                     />
                   </CompDetail>
-                  <template v-if="menuKey === 'BASE_ATOM'">
+                  <template v-if="menuKey === 'BASE_ATOM' && item.key !== 'smart-component'">
                     <rpa-hint-icon
                       v-if="getLikeId(item)"
                       name="atom-favorite"

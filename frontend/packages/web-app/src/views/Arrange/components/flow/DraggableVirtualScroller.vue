@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<{
   minItemSize?: number // 列表项最小高度，动态高度需传入
   itemKey: PropertyKey // 唯一键
   buffer?: number // 缓冲数量
+  beforeAdd?: (e: any) => void | boolean // 返回 false 取消插入
 }>(), {
   buffer: 20,
 })
@@ -229,9 +230,13 @@ function initSortable() {
   const options = createSortableOptions({
     ...useAttrs(),
     onAdd: (e) => {
-      removeElement(e.item)
       const { element } = getContext(e.item)
       const newIndex = e.newIndex + start.value
+
+      if (props.beforeAdd?.({ element, newIndex }) === false)
+        return
+
+      removeElement(e.item)
       realItems.value.splice(newIndex, 0, element)
       emit('change', { added: { element, newIndex } })
     },

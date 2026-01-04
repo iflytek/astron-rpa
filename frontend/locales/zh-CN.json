@@ -1037,5 +1037,8 @@
     "126Email": "126邮箱",
     "qqEmail": "QQ邮箱",
     "customEmail": "其他邮箱"
+  },
+  "smartComponent": {
+    "smartComponent": "智能组件"
   }
 }

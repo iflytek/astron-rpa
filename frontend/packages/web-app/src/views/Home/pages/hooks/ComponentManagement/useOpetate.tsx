@@ -24,7 +24,7 @@ export function useOperate(refreshTable: () => void) {
 
   const handleEdit = (record: AnyObj) => {
     console.log(record)
-    useRoutePush({ name: ARRANGE, query: { projectId: record.componentId, projectName: record.name, type: 'component' } })
+    useRoutePush({ name: ARRANGE, query: { projectId: record.componentId, projectName: record.name, projectVersion: record.version, type: 'component' } })
   }
 
   const handleRename = (record: AnyObj) => {

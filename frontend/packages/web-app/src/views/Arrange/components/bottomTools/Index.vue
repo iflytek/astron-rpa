@@ -2,6 +2,7 @@
 import { reactiveComputed } from '@vueuse/core'
 import { sum } from 'lodash-es'
 import { computed, provide, ref, shallowRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import { BOTTOM_BOOTLS_HEIGHT_SIZE_MIN } from '@/constants'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -15,6 +16,7 @@ import { useElementManager } from './components/ElementManager/useElementManager
 import { useLog } from './components/Log/useLog.ts'
 import { useSubProcessUse } from './components/SubProcessSearch/useSubProcessUse'
 import type { TabConfig } from './types'
+import { SMARTCOMPONENT } from '@/constants/menu.ts'
 
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
@@ -25,6 +27,7 @@ console.log('BottomTools props.height', props.height)
 const { config: configParamsTabConfig } = useProvideConfigParameter()
 const { dataSheetConfig } = useProvideDataSheetStore()
 
+const route = useRoute()
 const processStore = useProcessStore()
 
 const initTabs = reactiveComputed(() => [
@@ -65,6 +68,9 @@ function expand(bool: boolean) {
 }
 
 watch(() => useRunningStore().running, (val) => {
+  if (route.name === SMARTCOMPONENT) {
+    return
+  }
   if (['run', 'debug'].includes(val)) {
     expand(false)
   }

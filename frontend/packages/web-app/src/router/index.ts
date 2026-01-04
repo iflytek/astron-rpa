@@ -9,11 +9,13 @@ import {
   COMPONENTCREATED,
   COMPONENTMANAGEMENT,
   DESIGNER,
+  EDITORPAGE,
   EXCUTELIST,
   PROJECTCREATED,
   PROJECTMANAGEMENT,
   PROJECTMARKET,
   ROBOTLIST,
+  SMARTCOMPONENT,
   TASKLIST,
   TEAMMARKETMANAGE,
   TEAMMARKETS,
@@ -38,7 +40,30 @@ export const routes: RouteRecordRaw[] = [
       show: false,
       closeConfirm: false, // 关闭确认框
     },
+    redirect: `/${ARRANGE}/${EDITORPAGE}`,
     component: () => import('@/views/Arrange/index.vue'),
+    children: [
+      {
+        path: EDITORPAGE,
+        name: EDITORPAGE,
+        meta: {
+          key: EDITORPAGE,
+          icon: EDITORPAGE,
+          group: ARRANGE,
+        },
+        component: () => import('@/views/Arrange/Content.vue'),
+      },
+      {
+        path: SMARTCOMPONENT,
+        name: SMARTCOMPONENT,
+        meta: {
+          key: SMARTCOMPONENT,
+          icon: SMARTCOMPONENT,
+          group: ARRANGE,
+        },
+        component: () => import('@/components/SmartComponent/Index.vue'),
+      }
+    ],
   },
   {
     path: `/${DESIGNER}`,
