@@ -149,10 +149,10 @@ class HttpStorage(IStorage):
             return []
 
         res = self.__http__(
-            "/api/robot/atom/getLatestAtomsByList",
+            "/api/robot/atom-new/list",
             None,
             {
-                "atomKeyList": atom_list,
+                "keys": atom_list,
             },
         )
         return res
