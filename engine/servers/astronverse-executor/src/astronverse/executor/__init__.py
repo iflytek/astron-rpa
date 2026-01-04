@@ -111,14 +111,41 @@ class ComponentInfo:
 
 
 @dataclass
+class SmartComponentInfo:
+    smart_id: str = ""
+    smart_version: str = ""
+    component_file_name: str = ""
+    smart_type: str = ""
+
+    def __json__(self):
+        return {
+            "smart_id": self.smart_id,
+            "smart_version": self.smart_version,
+            "component_file_name": self.component_file_name,
+            "smart_type": self.smart_type,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            smart_id=data.get("smart_id", ""),
+            smart_version=data.get("smart_version", ""),
+            component_file_name=data.get("component_file_name", ""),
+            smart_type=data.get("smart_type", ""),
+        )
+
+
+@dataclass
 class AstGlobals:
     project_info: ProjectInfo = None
+    smart_component_info: Dict[str, SmartComponentInfo] = None
     component_info: Dict[str, ComponentInfo] = None
     process_info: Dict[str, ProcessInfo] = None
     atomic_info: Dict[str, AtomicInfo] = None
 
     def __init__(self):
         self.project_info = ProjectInfo()
+        self.smart_component_info = {}
         self.process_info = {}
         self.component_info = {}
         self.atomic_info = {}
@@ -126,6 +153,7 @@ class AstGlobals:
     def __json__(self):
         return {
             "project_info": self.project_info.__json__(),
+            "smart_component_info": {k: v.__json__() for k, v in self.smart_component_info.items()},
             "component_info": {k: v.__json__() for k, v in self.component_info.items()},
             "process_info": {k: v.__json__() for k, v in self.process_info.items()},
             "atomic_info": {k: v.__json__() for k, v in self.atomic_info.items()},
@@ -135,6 +163,10 @@ class AstGlobals:
     def from_dict(cls, data: dict):
         instance = cls()
         instance.project_info = ProjectInfo.from_dict(data.get("project_info", {}))
+        instance.smart_component = {
+            smart_component_key: SmartComponentInfo.from_dict(smart_component_data)
+            for smart_component_key, smart_component_data in data.get("smart_component_info", {}).items()
+        }
         instance.component_info = {
             component_id: ComponentInfo.from_dict(component_data)
             for component_id, component_data in data.get("component_info", {}).items()

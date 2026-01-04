@@ -1,32 +1,74 @@
+import importlib
+import importlib.util
 import inspect
-import json
-import platform
+
 from typing import Any
-
-from astronverse.actionlib import AtomicFormTypeMeta, AtomicFormType, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.actionlib.types import WebPick
 from astronverse.browser.browser import Browser
-
-from astronverse.browser import *
-from astronverse.browser.browser import Browser
-from astronverse.browser.browser_software import BrowserSoftware
-from astronverse.browser.browser_element import get_browser_obj
-
+from astronverse.browser.browser_element import get_browser_instance
 from astronverse.smart.browser_ai.web_browser import WebBrowser
-from astronverse.smart.core.core import ISmartCore
-
-if platform.system() == "Windows":
-    from astronverse.smart.core.core_win import SmartCore
-elif platform.system() == "Linux":
-    from astronverse.smart.core.core_unix import SmartCore
-else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
-
-SmartCore: ISmartCore = SmartCore()
 
 
 class Smart:
+    @staticmethod
+    def _smart_call(path: str, package: str, **kwargs):
+        try:
+            process_module = importlib.import_module(path, package=package)
+        except Exception as e:
+            raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
+
+        main_func = next((obj for _, obj in inspect.getmembers(process_module, inspect.isfunction)), None)
+        if not main_func or not callable(main_func):
+            raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+
+        # module_package = getattr(process_module, '__package__', None)
+        # if module_package != package:
+        #     process_module.__package__ = package
+
+        res = main_func(**kwargs)
+
+        return res, kwargs
+
+    @staticmethod
+    def _get_auto_context() -> (dict, str):
+        """
+        自动获取调用者的上下文变量，收集所有调用栈中的变量
+        """
+        try:
+            frame = inspect.currentframe()
+            if frame is None:
+                return {}, ""
+
+            # 收集所有调用栈中的变量
+            all_vars = {}
+            package = ""
+
+            # 跳过当前帧（_get_auto_context 本身）
+            frame = frame.f_back
+            if frame is None:
+                return {}, ""
+
+            # 遍历所有调用栈，找到最外层为main的层
+            cframe = None
+            while frame is not None:
+                # 获取当前帧的局部变量
+                if frame.f_code.co_name == "main":
+                    # 找到 main 函数帧，使用该帧
+                    cframe = frame
+                    break
+                else:
+                    frame = frame.f_back
+
+            # 获取局部变量和全局变量
+            if cframe is not None:
+                local_vars = cframe.f_locals
+                # 合并变量，局部变量优先（覆盖全局变量）
+                all_vars.update(local_vars)
+                package = cframe.f_globals.get("__package__")
+            return all_vars, package
+        except Exception:
+            return {}, ""
+
     @staticmethod
     @atomicMg.atomic(
         "Smart",
@@ -35,80 +77,36 @@ class Smart:
             atomicMg.param("code_params", required=False),
         ],
     )
-    def run_code(smart_info: dict, **code_params) -> Any:
+    def run_code(smart_component: dict, **code_params) -> Any:
         """
         执行 AI 生成的代码，支持网页自动化和数据处理两种类型。
-        inputs:
-            smart_code：表示AI生成的代码
-            smart_type：区分代码类型，web_auto | data_process
-            code_params：代码入参
-        outputs:
-            result：代码执行结果
         """
-        smart_code = smart_info.get("smartCode", "")
-        smart_type = smart_info.get("smartType", "")
-
-        if not smart_code.strip():
-            return None
+        file_name = smart_component.get("file_path", "")
+        smart_type = smart_component.get("smart_type", "")
 
         if smart_type != "web_auto":
-            return Smart.run_core(smart_code, **code_params)
+            return Smart.run_core(file_name, **code_params)
+        else:
+            web_browser = None
+            for key, value in code_params.items():
+                if isinstance(value, Browser):
+                    web_browser = WebBrowser(value)
+                    code_params[key] = web_browser
+                    break
 
-        # Browser类型转为WebBrowser类型
-        web_browser = None
-        for key, value in code_params.items():
-            if isinstance(value, Browser):
-                web_browser = WebBrowser(value)
-                code_params[key] = web_browser
-                break
-        # 打开元素对应url
-        # if web_browser is None:
-        #     for key, value in code_params.items():
-        #         if isinstance(value, dict) and value.get("elementData"):
-        #             url = value.get("elementData").get("path").get("url")
-        #             browser_type = value.get("elementData").get("app")
-        #             break
-        #     web_browser = WebBrowser(
-        #         BrowserSoftware.browser_open(url=url, browser_type=CommonForBrowserType(browser_type)))
-        #     code_params["browser"] = web_browser
-        # 获取当前url
-        if web_browser is None:
-            web_browser = WebBrowser(get_browser_obj())
-            code_params["browser"] = web_browser
+            if web_browser is None:
+                web_browser = WebBrowser(get_browser_instance())
+                code_params["browser"] = web_browser
 
-        # WebPick类型转为WebElement类型
-        for key, value in code_params.items():
-            if isinstance(value, dict) and value.get("elementData"):
-                code_params[key] = web_browser.get_element_by_web_pick(value)
+            # WebPick类型转为WebElement类型
+            for key, value in code_params.items():
+                if isinstance(value, dict) and value.get("elementData"):
+                    code_params[key] = web_browser.get_element_by_web_pick(value)
 
-        return Smart.run_core(smart_code, **code_params)
+            return Smart.run_core(file_name, **code_params)
 
     @staticmethod
-    def run_core(smart_code_str, **code_params) -> Any:
-        # 动态执行环境（限制安全）
-        exec_globals = {"__builtins__": __builtins__}
-        exec(smart_code_str, exec_globals)
-
-        # 提取唯一的用户自定义顶级函数
-        func = next(
-            obj
-            for name, obj in exec_globals.items()
-            if (
-                callable(obj)
-                # 排除内置函数
-                and not inspect.isbuiltin(obj)
-                # 排除lambda
-                and not isinstance(obj, type(lambda: None).__class__)
-                # 排除模块
-                and not inspect.ismodule(obj)
-                # 确保是函数对象且有代码属性
-                and hasattr(obj, "__code__")
-                # 函数名与定义名一致
-                and obj.__code__.co_name == name
-                # 关键：用户在当前代码块中定义的函数，模块属性为__main__
-                and getattr(obj, "__module__") is None
-                # 额外保险：确保函数是在当前执行的代码中定义的
-                and obj.__code__.co_filename == "<string>"
-            )
-        )
-        return func(**code_params)
+    def run_core(file_name, **kwargs) -> Any:
+        _, package = Smart._get_auto_context()
+        res, _ = Smart._smart_call(".{}".format(file_name), package=package, **kwargs)
+        return res

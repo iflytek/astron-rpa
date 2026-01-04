@@ -1,6 +1,5 @@
 import platform
 import sys
-import os
 from typing import List, Union
 
 from astronverse.actionlib.types import WebPick

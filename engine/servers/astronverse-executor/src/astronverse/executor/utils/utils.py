@@ -45,7 +45,7 @@ def kill_proc_tree(pid, including_parent=True):
             pass
 
 
-def _str_to_list_if_possible(s):
+def str_to_list_if_possible(s):
     if not isinstance(s, str):
         return s  # 如果不是字符串，直接返回
 
