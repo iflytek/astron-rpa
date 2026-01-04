@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Splitter } from '@rpa/components'
 import { useElementSize } from '@vueuse/core'
-import { onBeforeUnmount, reactive, useTemplateRef } from 'vue'
+import { onActivated, onBeforeUnmount, reactive, useTemplateRef } from 'vue'
 
 import {
   BOTTOM_BOOTLS_HEIGHT_DEFAULT,
@@ -10,6 +10,7 @@ import {
   LEFT_BOOTLS_WIDTH_SIZE_MAX,
   LEFT_BOOTLS_WIDTH_SIZE_MIN,
 } from '@/constants'
+import { useElementsStore } from '@/stores/useElementsStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 
@@ -22,9 +23,14 @@ import Search from './components/search/Index.vue'
 import Tools from './components/tools/Tools.vue'
 import useArrangeProvide from './hook/useArrangeProvide'
 
+defineOptions({
+  name: 'EditorPage',
+})
+
 useArrangeProvide() // 注册表单全局数据
 
 const processStore = useProcessStore()
+const elementStore = useElementsStore()
 
 const contentContainer = useTemplateRef<HTMLElement>('contentContainer')
 const contentContainerSize = useElementSize(contentContainer)
@@ -42,6 +48,10 @@ useProjectDocStore().createProjectDoc() // 创建项目文档
 
 onBeforeUnmount(() => {
   processStore.reset()
+})
+
+onActivated(() => {
+  elementStore.requestAllElements()
 })
 
 function handleSplitterResize(sizes: number[]) {

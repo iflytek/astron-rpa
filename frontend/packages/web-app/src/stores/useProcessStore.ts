@@ -32,6 +32,7 @@ import {
 interface ProjectData {
   id: string
   name: string
+  version: number
 }
 
 // 判断是否是代码模块
@@ -54,7 +55,7 @@ export const useProcessStore = defineStore('process', () => {
     types: {},
   })
 
-  const project = ref<ProjectData>({ id: '', name: '工程名称' })
+  const project = ref<ProjectData>({ id: '', name: '工程名称', version: 0 })
   const activeProcessId = ref('')
   const processList = ref<RPA.Flow.ProcessModule[]>([])
   const searchSubProcessId = ref('')

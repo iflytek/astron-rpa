@@ -169,12 +169,12 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
 
   // 编辑
   function handleEdit(editObj: AnyObj) {
-    const { robotId, robotName, editEnable } = editObj
+    const { robotId, robotName, version, editEnable } = editObj
     if (!editEnable) {
       message.info('当前应用未开放源码，无法进行编辑，升级账户后可获得编辑权限')
       return
     }
-    useRoutePush({ name: ARRANGE, query: { projectId: robotId, projectName: robotName } })
+    useRoutePush({ name: ARRANGE, query: { projectId: robotId, projectName: robotName, projectVersion: version } })
   }
 
   // 创建副本
