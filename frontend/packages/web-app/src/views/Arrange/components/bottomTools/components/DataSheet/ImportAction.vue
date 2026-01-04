@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { ref } from "vue"
-import { sheetUtils, type ISheetWorkbookData } from '@rpa/components'
+import { sheetUtils } from '@rpa/components'
+import type { ISheetWorkbookData } from '@rpa/components'
+import { ref } from 'vue'
 
 import { useDataSheetStore } from './useDataSheet'
 
@@ -8,21 +9,21 @@ let workbookData: ISheetWorkbookData | null = null
 
 interface FormState {
   open: boolean
-  sheetOptions: { label: string; value: string }[]
+  sheetOptions: { label: string, value: string }[]
   selectedSheet?: string
 }
 
 const { isReady, createWorkbook } = useDataSheetStore()
 
-const formRef = ref();
+const formRef = ref()
 const formState = ref<FormState>({
   open: false,
   sheetOptions: [],
   selectedSheet: undefined,
-});
+})
 
-const handleOk = async () => {
-  await formRef.value.validate();
+async function handleOk() {
+  await formRef.value.validate()
   const { selectedSheet: sheetId } = formState.value
 
   createWorkbook({
@@ -32,12 +33,12 @@ const handleOk = async () => {
   })
 
   handleCancel()
-};
+}
 
-const handleImport = async () => {
+async function handleImport() {
   workbookData = await sheetUtils.importExcelFile()
 
-  const sheetOptions = Object.values(workbookData.sheets).map((sheet) => ({
+  const sheetOptions = Object.values(workbookData.sheets).map(sheet => ({
     label: sheet.name,
     value: sheet.id,
   }))
@@ -49,7 +50,7 @@ const handleImport = async () => {
   }
 }
 
-const handleCancel = () => {
+function handleCancel() {
   formState.value.open = false
 }
 </script>

@@ -5,10 +5,9 @@ import { isNil } from 'lodash-es'
 import { computed, useTemplateRef } from 'vue'
 
 const props = defineProps<{ total: number, active: number }>()
-const inputText = defineModel<string>('value')
 const emits = defineEmits(['close', 'previous', 'next'])
-
-const inputRef = useTemplateRef<{ focus: () => void }>("inputRef")
+const inputText = defineModel<string>('value')
+const inputRef = useTemplateRef<{ focus: () => void }>('inputRef')
 
 const calculateCount = computed(() => {
   if (!inputText.value)
@@ -33,7 +32,8 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault()
     e.stopPropagation()
     up()
-  } else if (e.key === 'ArrowDown') {
+  }
+  else if (e.key === 'ArrowDown') {
     e.preventDefault()
     e.stopPropagation()
     down()

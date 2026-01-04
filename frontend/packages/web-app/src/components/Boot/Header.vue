@@ -17,7 +17,6 @@ function handleMinMaxClose(type: string) {
       break
   }
 }
-
 </script>
 
 <template>

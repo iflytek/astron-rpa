@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 import { Drawer, Segmented } from 'ant-design-vue'
-import { ref, computed } from 'vue'
-import { useTranslation } from "i18next-vue"
+import { useTranslation } from 'i18next-vue'
+import { computed, ref } from 'vue'
 
 import BasicContent from './BasicContent.vue'
 import { useProvideBasicStore } from './basicStore'

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { h, computed, nextTick } from 'vue'
-import { InputNumber } from 'ant-design-vue'
 import { useTheme } from '@rpa/components'
+import { InputNumber } from 'ant-design-vue'
+import { computed, h, nextTick } from 'vue'
 
 import type { Task } from '@/types/schedule'
 
@@ -12,7 +12,7 @@ const { colorTheme } = useTheme()
 
 const options = computed(() => {
   const genNumber = (type: Task['exceptional']) => {
-    const times = retryTimes.value ?? 0;
+    const times = retryTimes.value ?? 0
     return h('span', { class: 'text-primary' }, exceptional.value === type ? times : 0)
   }
 
@@ -21,7 +21,7 @@ const options = computed(() => {
       size: 'small',
       min: 0,
       max: 99,
-      class: ["input-number", colorTheme.value],
+      class: ['input-number', colorTheme.value],
       placeholder: '0 (不重试)',
       value: exceptional.value === type ? retryTimes.value : undefined,
       onChange: (value: number) => { retryTimes.value = value },
@@ -65,10 +65,12 @@ const options = computed(() => {
 </script>
 
 <template>
-  <a-select v-model:value="exceptional" :dropdown-match-select-width="false" option-label-prop="label"
-    :options="options">
+  <a-select
+    v-model:value="exceptional" :dropdown-match-select-width="false" option-label-prop="label"
+    :options="options"
+  >
     <template #option="{ label, render }">
-      <component v-if="render" :is="render" />
+      <component :is="render" v-if="render" />
       <span v-else>{{ label }}</span>
     </template>
   </a-select>
@@ -76,7 +78,7 @@ const options = computed(() => {
 
 <style lang="scss" scoped>
 .input-number {
-  border: 1px solid #D9D9D9;
+  border: 1px solid #d9d9d9;
 }
 
 .dark.input-number {

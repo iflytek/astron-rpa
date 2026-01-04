@@ -9,11 +9,11 @@ import { useRunningStore } from '@/stores/useRunningStore'
 
 import { useProvideConfigParameter } from './components/ConfigParameter/useConfigParameter.ts'
 import { useCVManager } from './components/CvManager/useCVManager.ts'
+import { useProvideDataSheetStore } from './components/DataSheet/useDataSheet'
 import { useDebugLog } from './components/DebugLog/useDebugLog.ts'
 import { useElementManager } from './components/ElementManager/useElementManager.ts'
 import { useLog } from './components/Log/useLog.ts'
 import { useSubProcessUse } from './components/SubProcessSearch/useSubProcessUse'
-import { useProvideDataSheetStore } from './components/DataSheet/useDataSheet'
 import type { TabConfig } from './types'
 
 const props = defineProps<{ height: number }>()

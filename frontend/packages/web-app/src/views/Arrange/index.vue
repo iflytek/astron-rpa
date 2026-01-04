@@ -8,8 +8,8 @@ import Header from '@/components/Header.vue'
 import HeaderControl from '@/components/HeaderControl/HeaderControl.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
-import { useSharedData } from '@/stores/useSharedData'
 import { useRunningStore } from '@/stores/useRunningStore'
+import { useSharedData } from '@/stores/useSharedData'
 
 import ArrangeContent from './Content.vue'
 

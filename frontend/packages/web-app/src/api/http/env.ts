@@ -1,11 +1,12 @@
+import { message } from 'ant-design-vue'
+
 import { isBase64Image } from '@/utils/common'
 import { storage } from '@/utils/storage'
-import { message } from 'ant-design-vue'
 
 import GlobalModal from '@/components/GlobalModal/index.ts'
 
 const DEFAULT_PORT = 13159
-const DEFAULT_HOST = import.meta.env.VITE_SERVICE_HOST ?? "localhost"
+const DEFAULT_HOST = import.meta.env.VITE_SERVICE_HOST ?? 'localhost'
 
 /**
  * 获取接口基础URL
@@ -34,21 +35,23 @@ export function getImageURL(str: string): string {
  * 登录失效
  */
 export function unauthorize(response) {
-  if(response.config.toast === false) {
+  if (response.config.toast === false) {
     message.error(response.data.message || response.data.msg || '登录失效，请重新登录')
   }
   const code = response.data.code || response.data.ret
-  location.href = '/boot.html?code=' + code
+  location.href = `/boot.html?code=${code}`
 }
 
 let isUnauthorized = null
 export function unauthorizeModal(code?: string | number) {
-  if (isUnauthorized) return
+  if (isUnauthorized)
+    return
 
   let message = '登录失效，请重新登录'
-  if(code === '900001') {
+  if (code === '900001') {
     message = '账号已在其他地方登录，请重新登录'
-  } else if(code === '900005') {
+  }
+  else if (code === '900005') {
     message = '空间已到期，请重新登录'
   }
 
@@ -65,7 +68,8 @@ export function unauthorizeModal(code?: string | number) {
 
 let isExpired = null
 export function expiredModal(tenantType?: string | number) {
-  if (isExpired) return
+  if (isExpired)
+    return
 
   isExpired = GlobalModal.error({
     title: '空间到期',

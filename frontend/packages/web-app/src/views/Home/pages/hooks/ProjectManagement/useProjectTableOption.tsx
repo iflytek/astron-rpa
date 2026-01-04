@@ -4,9 +4,9 @@ import { reactive, ref, watch } from 'vue'
 import { getDesignList } from '@/api/project'
 import type { VIEW_OTHER } from '@/constants/resource'
 import { VIEW_OWN } from '@/constants/resource'
+import { useUserStore } from '@/stores/useUserStore'
 
 import { useProjectOperate } from './useProjectOperate'
-import { useUserStore } from '@/stores/useUserStore'
 
 type DataSource = typeof VIEW_OWN | typeof VIEW_OTHER
 

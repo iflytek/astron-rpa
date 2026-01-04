@@ -7,12 +7,13 @@ import { h, reactive, ref } from 'vue'
 
 import { getAppDetails, obtainApp } from '@/api/market'
 import GlobalModal from '@/components/GlobalModal/index.ts'
+import { ACTUATOR, DESIGNER } from '@/constants/menu'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 import type { AnyObj } from '@/types/common'
 import { SECURITY_RED } from '@/views/Home/components/TeamMarket/config/market.ts'
 
 import type { cardAppItem } from '../../types/market'
-import { usePermissionStore } from '@/stores/usePermissionStore'
-import { ACTUATOR, DESIGNER } from '@/constants/menu'
+
 interface FormState {
   marketId: string | number
   appId: string | number
@@ -144,7 +145,7 @@ setDefaultVersion()
         :rules="[{ validator: checkNumber, trigger: 'change' }]"
       >
         <a-checkbox-group v-model:value="formState.obtainDirection">
-          <a-checkbox v-for="type in TYPE_ARR" class="leading-[32px]" :key="type.value" :value="type.value" :disabled="(props.record.securityLevel === SECURITY_RED && type.value === 'design') || !permissionStore.can(type.permission, 'all')">
+          <a-checkbox v-for="type in TYPE_ARR" :key="type.value" class="leading-[32px]" :value="type.value" :disabled="(props.record.securityLevel === SECURITY_RED && type.value === 'design') || !permissionStore.can(type.permission, 'all')">
             {{ type.label }}
             <Tooltip :title="type.tip">
               <QuestionCircleOutlined style="color: gray;" />
@@ -152,7 +153,7 @@ setDefaultVersion()
           </a-checkbox>
         </a-checkbox-group>
         <div v-if="TYPE_ARR.find(item => !permissionStore.can(item.permission, 'all'))" class="text-[12px] text-[rgba(0,0,0,0.45)] dark:text-[rgba(255,255,255,0.45)">
-          当前账号暂不开放{{TYPE_ARR.find(item => !permissionStore.can(item.permission, 'all'))?.label}}功能
+          当前账号暂不开放{{ TYPE_ARR.find(item => !permissionStore.can(item.permission, 'all'))?.label }}功能
         </div>
       </a-form-item>
     </a-form>

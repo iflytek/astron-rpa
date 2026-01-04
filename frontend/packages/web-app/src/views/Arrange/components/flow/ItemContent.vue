@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DoubleRightOutlined } from '@ant-design/icons-vue'
-import { useEventBus } from '@vueuse/core'
 import { useTheme } from '@rpa/components'
+import { useEventBus } from '@vueuse/core'
 import { isEmpty, throttle } from 'lodash-es'
 import { nextTick, ref } from 'vue'
 import type { PropType } from 'vue'

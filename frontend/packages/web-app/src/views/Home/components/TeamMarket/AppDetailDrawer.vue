@@ -7,8 +7,9 @@ import { computed } from 'vue'
 import { getBaseURL } from '@/api/http/env'
 import Avatar from '@/components/Avatar/Avatar.vue'
 
-import { useAppDetail } from './hooks/useAppDetail'
 import type { cardAppItem } from '../../types/market'
+
+import { useAppDetail } from './hooks/useAppDetail'
 
 const { appData } = defineProps({
   appData: {

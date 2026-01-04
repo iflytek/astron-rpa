@@ -91,9 +91,9 @@ export const useProcessStore = defineStore('process', () => {
 
   // 配置参数接口参数
   const cofnigParamIdOption = computed(() => {
-    const isPy = isPyModel(activeProcess.value?.resourceCategory);
-    return isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
-  });
+    const isPy = isPyModel(activeProcess.value?.resourceCategory)
+    return isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value }
+  })
 
   // 依赖刷新后自动请求
   watchEffect(async () => {

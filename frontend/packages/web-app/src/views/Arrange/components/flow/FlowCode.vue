@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import { storeToRefs } from 'pinia'
 import { defineAsyncComponent, onBeforeMount, onUnmounted } from 'vue'
-import { useTheme } from '@rpa/components'
 
 import { getRootBaseURL } from '@/api/http/env'
 import { useProcessStore } from '@/stores/useProcessStore'

@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { Auth } from '@rpa/components/auth'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { ref } from 'vue'
+
 import { checkProjectNum, createProject, getDefaultName } from '@/api/project'
 import { ARRANGE } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
+import { useUserStore } from '@/stores/useUserStore'
 import { newProjectModal } from '@/views/Home/components/modals'
 
 import Banner from '../components/Banner.vue'
 import TableContainer from '../components/TableContainer.vue'
-import { Auth } from '@rpa/components/auth'
-import { useUserStore } from '@/stores/useUserStore'
 
 const { t } = useTranslation()
 const userStore = useUserStore()
 const consultRef = ref<InstanceType<typeof Auth.Consult> | null>(null)
 
 async function createRobot() {
-  if(userStore.currentTenant?.tenantType !== 'enterprise'){
+  if (userStore.currentTenant?.tenantType !== 'enterprise') {
     const res = await checkProjectNum()
-    if(!res.data){
+    if (!res.data) {
       consultRef.value?.init({
         trigger: 'modal',
         modalConfirm: {
@@ -32,7 +33,7 @@ async function createRobot() {
           consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
           consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
           consultType: 'consult',
-        }
+        },
       })
       return
     }
@@ -74,6 +75,6 @@ async function createRobot() {
     <TableContainer>
       <router-view />
     </TableContainer>
-    <Auth.Consult ref="consultRef" :trigger="'modal'"/>
+    <Auth.Consult ref="consultRef" trigger="modal" />
   </div>
 </template>

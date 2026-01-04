@@ -4,10 +4,10 @@ import { Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { h, reactive, ref, watch } from 'vue'
 
+import { useUserStore } from '@/stores/useUserStore'
 import type { AnyObj } from '@/types/common'
 import { ROBOT_SOURCE_LOCAL, ROBOT_SOURCE_TEXT } from '@/views/Home/config'
 import { handleRun } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
-import { useUserStore } from '@/stores/useUserStore'
 
 import OperMenu from '../../../components/OperMenu.vue'
 

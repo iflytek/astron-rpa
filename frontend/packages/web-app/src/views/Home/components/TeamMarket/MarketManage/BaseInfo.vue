@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useTheme } from '@rpa/components'
 import { EditOutlined } from '@ant-design/icons-vue'
+import { useTheme } from '@rpa/components'
 import { Descriptions } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 

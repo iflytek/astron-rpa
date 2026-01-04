@@ -12,13 +12,13 @@ import {
   TASK_TYPE_OPTION,
 } from '../../config/task'
 
+import ExceptionHandling from './ExceptionHandling.vue'
 import FileConfig from './FileConfig.vue'
 import { useTaskEdit } from './hooks/useTaskEdit'
 import HotkeyConfig from './HotkeyConfig.vue'
 import MailConfig from './MailConfig.vue'
 import RobotTable from './RobotTable.vue'
 import TimeConfig from './TimeConfig.vue'
-import ExceptionHandling from './ExceptionHandling.vue'
 
 const props = defineProps<{ taskId?: string }>()
 const emits = defineEmits(['refresh'])
@@ -63,7 +63,7 @@ const taskTypeOptions = TASK_TYPE_OPTION.map((it) => {
           {{ t("enableTask") }}
         </a-checkbox>
         <div v-else />
-        
+
         <a-space>
           <a-button @click="modal.hide">
             {{ t("cancel") }}
@@ -114,7 +114,7 @@ const taskTypeOptions = TASK_TYPE_OPTION.map((it) => {
           </template>
           <ExceptionHandling
             v-model:exceptional="taskInfoForm.exceptional"
-            v-model:retryTimes="taskInfoForm.retryNum"
+            v-model:retry-times="taskInfoForm.retryNum"
           />
         </a-form-item>
       </div>

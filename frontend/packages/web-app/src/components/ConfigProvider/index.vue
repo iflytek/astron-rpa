@@ -5,7 +5,6 @@ import { App } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { useTranslation } from 'i18next-vue'
 import { VxeUI } from 'vxe-table'
-
 import 'dayjs/locale/zh-cn'
 
 const NiceModalProvider = NiceModal.Provider

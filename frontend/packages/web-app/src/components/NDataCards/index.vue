@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { PropType } from 'vue'
 import { useTheme } from '@rpa/components'
+import type { PropType } from 'vue'
 
 export interface DataCardItem {
   id: number

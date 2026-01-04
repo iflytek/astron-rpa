@@ -1,14 +1,14 @@
+import type { type ICellValue, type ISheetWorkbookData, Sheet as SheetComponent } from '@rpa/components'
 import { createInjectionState } from '@vueuse/core'
-import { shallowRef, markRaw, ref, watch } from 'vue'
-import { Sheet as SheetComponent, type ISheetWorkbookData, type ICellValue } from '@rpa/components'
-import { isEmpty, get } from 'lodash-es'
+import { get, isEmpty } from 'lodash-es'
+import { markRaw, ref, shallowRef, watch } from 'vue'
 
 import { useRunningStore } from '@/stores/useRunningStore.ts'
 
 import type { TabConfig } from '../../types.ts'
 
-import Sheet from './Sheet.vue'
 import RightExtra from './RightExtra.vue'
+import Sheet from './Sheet.vue'
 
 type SheetType = InstanceType<typeof SheetComponent>
 
@@ -54,19 +54,19 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     }
 
     if (isEmpty(newValue)) {
-      return;
+      return
     }
 
-    const cellValue: ICellValue[] = [];
+    const cellValue: ICellValue[] = []
 
-    const maxRow = Math.max(newValue.max_row, oldValue?.max_row ?? 0);
-    const maxCol = Math.max(newValue.max_column, oldValue?.max_column ?? 0);
+    const maxRow = Math.max(newValue.max_row, oldValue?.max_row ?? 0)
+    const maxCol = Math.max(newValue.max_column, oldValue?.max_column ?? 0)
 
     for (let row = 0; row < maxRow; row++) {
       for (let col = 0; col < maxCol; col++) {
         const newCellValue = get(newValue, [row, col])
         const oldCellValue = get(oldValue, [row, col])
-        
+
         if (newCellValue !== oldCellValue) {
           cellValue.push({
             row,
@@ -74,7 +74,7 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
             value: newCellValue,
           })
         }
-      }      
+      }
     }
 
     sheetRef.value?.updateCellValues(cellValue)
@@ -90,8 +90,8 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     handleReady,
     handleCellUpdate,
     handleClearAll,
-    createWorkbook
+    createWorkbook,
   }
 })
 
-export { useProvideDataSheetStore, useDataSheetStore }
+export { useDataSheetStore, useProvideDataSheetStore }

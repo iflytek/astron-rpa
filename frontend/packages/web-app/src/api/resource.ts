@@ -297,25 +297,25 @@ export function getHTMLClip(data: { is_html: boolean }) {
 
 /**
  * 获取数据表格内容
- * @param projectId 
+ * @param projectId
  */
 export async function getDataTable(projectId: string) {
   const res = await schedulerPost<RPA.IDataTableSheets>(
-    '/scheduler/datatable/open', 
+    '/scheduler/datatable/open',
     {
       project_id: projectId,
       filename: 'data_table', // 目前单个工程只会有一个数据表格文件，因此文件名先写死
     },
-    { toast: false }
+    { toast: false },
   )
   return res.data
 }
 
 /**
  * 更新数据表格单元格
- * @param projectId 
- * @param data 
- * @returns 
+ * @param projectId
+ * @param data
+ * @returns
  */
 export async function updateDataTable(projectId: string, data: RPA.IUpdateDataTableCell[]) {
   const res = await schedulerPost(
@@ -325,14 +325,14 @@ export async function updateDataTable(projectId: string, data: RPA.IUpdateDataTa
       filename: 'data_table',
       updates: data,
     },
-    { toast: false }
+    { toast: false },
   )
   return res.data
 }
 
 /**
  * 关闭数据表格文件监听
- * @param projectId 
+ * @param projectId
  */
 export async function closeDataTable(projectId: string) {
   const res = await schedulerPost(
@@ -341,15 +341,15 @@ export async function closeDataTable(projectId: string) {
       project_id: projectId,
       filename: 'data_table',
     },
-    { toast: false }
+    { toast: false },
   )
   return res.data
 }
 
 /**
  * 删除数据表格
- * @param projectId 
- * @returns 
+ * @param projectId
+ * @returns
  */
 export async function deleteDataTable(projectId: string) {
   const res = await schedulerPost(
@@ -358,18 +358,18 @@ export async function deleteDataTable(projectId: string) {
       project_id: projectId,
       filename: 'data_table',
     },
-    { toast: false }
+    { toast: false },
   )
   return res.data
 }
 
-export const startDataTableListenr = (projectId: string) => {
+export function startDataTableListenr(projectId: string) {
   return sseRequest(
     `${getRootBaseURL()}/datatable/stream/project_id=${projectId}&filename=data_table`,
     null,
     { method: 'GET' },
     (data) => {
       console.log(data)
-    }
+    },
   )
 }

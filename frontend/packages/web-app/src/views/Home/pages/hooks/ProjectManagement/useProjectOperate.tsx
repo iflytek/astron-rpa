@@ -14,6 +14,7 @@ import { DesignerRobotDetailModal } from '@/components/RobotDetail'
 import { ARRANGE } from '@/constants/menu'
 import { ROBOT_EDITING } from '@/constants/resource'
 import { useRoutePush } from '@/hooks/useCommonRoute'
+import { useUserStore } from '@/stores/useUserStore'
 import type { AnyObj } from '@/types/common'
 import { CopyModal, RenameModal, VersionManagementModal } from '@/views/Home/components/modals/index'
 import OperMenu from '@/views/Home/components/OperMenu.vue'
@@ -21,7 +22,6 @@ import { ShareRobotModal } from '@/views/Home/components/ShareRobotModal'
 import StatusCircle from '@/views/Home/components/StatusCircle.vue'
 import { PENDING } from '@/views/Home/components/TeamMarket/config/market'
 import type { resOption } from '@/views/Home/types'
-import { useUserStore } from '@/stores/useUserStore'
 
 import { handleRun, useCommonOperate } from '../useCommonOperate'
 
@@ -179,26 +179,26 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
 
   // 创建副本
   async function createCopy(editObj: AnyObj) {
-    if(userStore.currentTenant?.tenantType !== 'enterprise'){
-    const res = await checkProjectNum()
-    if(!res.data){
-      consultRef.value?.init({
-        trigger: 'modal',
-        modalConfirm: {
-          title: '已达到应用数量上限',
-          content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
-          okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
-          cancelText: '我知道了',
-        },
-        consult: {
-          consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
-          consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
-          consultType: 'consult',
-        }
-      })
-      return
+    if (userStore.currentTenant?.tenantType !== 'enterprise') {
+      const res = await checkProjectNum()
+      if (!res.data) {
+        consultRef.value?.init({
+          trigger: 'modal',
+          modalConfirm: {
+            title: '已达到应用数量上限',
+            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
+            okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
+            cancelText: '我知道了',
+          },
+          consult: {
+            consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
+            consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
+            consultType: 'consult',
+          },
+        })
+        return
+      }
     }
-  }
     NiceModal.show(CopyModal, {
       robotId: editObj.robotId,
       robotName: editObj.robotName,

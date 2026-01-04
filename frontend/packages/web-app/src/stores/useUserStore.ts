@@ -1,26 +1,26 @@
+import type { TenantItem } from '@rpa/components/auth'
+import { Auth } from '@rpa/components/auth'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { TenantItem } from '@rpa/components/auth'
-import GlobalModal from '@/components/GlobalModal/index.ts'
-import router from '@/router'
-import { useRoutePush } from '@/hooks/useCommonRoute'
-import { useRunningStore } from '@/stores/useRunningStore'
+
 import { getTermianlStatus } from '@/api/engine'
 import { taskNotify } from '@/api/task'
-import { Auth } from '@rpa/components/auth'
+import GlobalModal from '@/components/GlobalModal/index.ts'
+import { useRoutePush } from '@/hooks/useCommonRoute'
+import router, { findFirstPermittedRoute } from '@/router'
 import { usePermissionStore } from '@/stores/usePermissionStore'
-import { findFirstPermittedRoute } from '@/router'
+import { useRunningStore } from '@/stores/useRunningStore'
 
 export const useUserStore = defineStore('user', () => {
   const currentUserInfo = ref()
   const currentTenant = ref<TenantItem | null>(null) // 当前租户
-  
+
   const loginStatus = computed(() => {
     return currentUserInfo.value
   })
 
   function getUserInfo() {
-    if(!currentUserInfo.value) {
+    if (!currentUserInfo.value) {
       currentUserInfo.value = Auth.getUserInfo()
     }
     return currentUserInfo.value
@@ -53,12 +53,12 @@ export const useUserStore = defineStore('user', () => {
     })
   }
 
-  async function switchTenant (tenant: TenantItem) {
+  async function switchTenant(tenant: TenantItem) {
     currentTenant.value = tenant
     usePermissionStore().reset()
     await usePermissionStore().initPermission()
     const first = findFirstPermittedRoute(usePermissionStore())
-    if(first && router.currentRoute.value.name !== first.name) {
+    if (first && router.currentRoute.value.name !== first.name) {
       useRoutePush({ name: first.name })
     }
     return await taskNotify({ event: 'login' })

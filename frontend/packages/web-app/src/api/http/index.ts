@@ -14,7 +14,6 @@ import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 
 import { getBaseURL, unauthorize } from './env'
 
-
 export type { AxiosProgressEvent } from 'axios'
 
 export interface RequestConfig<T = any, P = any> extends AxiosRequestConfig<P> {
@@ -108,7 +107,6 @@ class HttpClient {
           // 关闭loading
         }
 
-
         if (response.config.responseType === 'blob') {
           response.data = { code: '0000', data: response.data }
 
@@ -120,7 +118,7 @@ class HttpClient {
         if (!SUCCESS_CODES.includes(response.data.code) && response.config.toast !== false) {
           message.error(response.data.message || response.data.msg)
         }
-        
+
         if (UN_AUTHORIZED_CODES.includes(response.data.code) || response.data.ret === 302) {
           unauthorize(response)
         }

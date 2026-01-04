@@ -2,7 +2,6 @@ import http from './http'
 
 // 根据id和version获取原子能力的具体信息
 export function getAbilityInfo(atomList: { key: string, version: string }[]) {
-
   // return http.post('/robot/atom/getByVersionList', { atomList })
   return new Promise((resolve) => {
     http.post('/robot/atom-new/list', { keys: atomList.map(i => i.key) }).then((res) => {
@@ -76,10 +75,10 @@ export async function getComponentList(data: {
  * 获取原子能力的配置参数
  */
 export async function getConfigParams(params: {
-  robotId: string,
-  robotVersion?: string | number,
-  processId?: string,
-  moduleId?: string,
+  robotId: string
+  robotVersion?: string | number
+  processId?: string
+  moduleId?: string
   mode?: string
 }) {
   const res = await http.post<RPA.ConfigParamData[]>('/robot/param/all', params)
