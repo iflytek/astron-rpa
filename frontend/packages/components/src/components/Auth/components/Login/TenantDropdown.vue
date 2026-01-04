@@ -3,13 +3,14 @@ import { Dropdown, Menu } from 'ant-design-vue'
 import { ref } from 'vue'
 
 import { switchTenant, tenantList } from '../../api/login'
-import type { TenantItem } from '../../interface'
+import type { TenantItem, AuthType } from '../../interface'
 import { getSelectedTenant } from '../../utils/remember'
 import Consult from '../Base/Consult/Index.vue'
 import Loading from '../Base/Loading.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
 
-const { beforeSwitch } = defineProps<{
+const { beforeSwitch, authType } = defineProps<{
+  authType: AuthType
   beforeSwitch?: () => Promise<void> | void
 }>()
 
@@ -63,7 +64,7 @@ const open = ref(false)
 
 <template>
   <div class="w-full px-[20px] tenant-dropdown relative">
-    <Consult v-if="selectedTenant?.tenantType === 'personal'" trigger="button" :button-conf="{ buttonType: 'tag' }" class="!w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
+    <Consult v-if="authType !== 'casdoor' && selectedTenant?.tenantType === 'personal'" trigger="button" :button-conf="{ buttonType: 'tag' }" class="!w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
     <Dropdown v-model:open="open" placement="bottom">
       <div class="relative">
         <TenantItemComponent
@@ -87,7 +88,7 @@ const open = ref(false)
               @click="() => toggleTenant(tenant)"
             />
           </Menu.Item>
-          <Menu.Item class="!border-0 !p-[0] !mt-[8px]">
+          <Menu.Item class="!border-0 !p-[0] !mt-[8px]" v-if="authType !== 'casdoor'">
             <Consult trigger="button" :button-conf="{ buttonType: 'button', buttonTxt: '创建新的工作空间' }" :consult="{ consultTitle: '创建新的工作空间', consultType: 'consult' }" />
           </Menu.Item>
         </Menu>

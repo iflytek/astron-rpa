@@ -2,11 +2,16 @@
 import { Button, Modal } from 'ant-design-vue'
 import { ref } from 'vue'
 
+import type { AuthType } from '../../../interface'
 import { Icon as RpaIcon } from '../../../../Icon'
 
 import ConsultModal from './ConsultModal.vue'
 
 const props = defineProps({
+  authType: {
+    type: String as () => AuthType,
+    default: 'uap',
+  },
   trigger: {
     type: String as () => 'button' | 'modal',
     default: 'button',
@@ -53,7 +58,7 @@ const tenantTypeMap = {
 const confData = ref(props)
 const consultModalRef = ref<InstanceType<typeof ConsultModal> | null>(null)
 function openModal() {
-  consultModalRef.value?.showModal()
+  if(confData.value.authType !== 'casdoor') consultModalRef.value?.showModal()
 }
 
 function init(config: typeof props) {
@@ -93,7 +98,7 @@ defineExpose({
           <div v-if="confData?.buttonConf?.currentEdition" class="w-[fit-content] h-[22px] leading-[22px] font-bold">
             <span class="text-gradient">{{ tenantTypeMap[confData?.buttonConf?.currentEdition] }}</span>
           </div>
-          <div class="flex items-center justify-start" :class="confData?.buttonConf?.currentEdition ? 'text-[12px] mt-[2px]' : ''">
+          <div v-if="confData?.authType !== 'casdoor'" class="flex items-center justify-start" :class="confData?.buttonConf?.currentEdition ? 'text-[12px] mt-[2px]' : ''">
             <RpaIcon class="w-[26px] h-[26px] mr-[8px]" :class="confData?.buttonConf?.currentEdition ? '!w-[20px] !h-[20px] !mr-[4px]' : ''" name="upgrade-icon" />
             <span class="text-gradient">{{ confData?.buttonConf?.buttonTxt || '开通专业版/企业版' }}</span>
           </div>

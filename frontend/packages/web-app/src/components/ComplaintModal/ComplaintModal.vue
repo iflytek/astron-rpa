@@ -8,12 +8,11 @@ import to from 'await-to-js'
 import { isEmpty } from 'lodash-es'
 import { computed, reactive, ref } from 'vue'
 
-import { aiFeedback } from '@/api/common'
 import { uploadFile } from '@/api/resource'
+import { aiFeedback } from '@/api/common'
 import { useUserStore } from '@/stores/useUserStore'
 
 const modal = NiceModal.useModal()
-const { userNameState } = useUserStore()
 
 interface ICheckboxOption {
   label: string
@@ -136,7 +135,7 @@ async function handleSubmit() {
   }
 
   const [error] = await to(aiFeedback({
-    username: userNameState.state,
+    username: useUserStore().currentUserInfo?.loginName,
     categories: JSON.stringify({
       内容安全类: formData.contentSafety,
       功能缺陷类: formData.functionalDefect,
