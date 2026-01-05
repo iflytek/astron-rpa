@@ -876,6 +876,7 @@ class BrowserElement:
                     similar_count = data[0]["similarCount"]
                     if similar_count <= count:
                         break
+
             return get_iterator()
         else:
             raise NotImplementedError()

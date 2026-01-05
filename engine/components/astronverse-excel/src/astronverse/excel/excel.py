@@ -1332,7 +1332,7 @@ class Excel:
         if content:
             if cell_strip:
                 content = util_trim(content)
-    
+
             if content:
                 if not isinstance(content, (list, tuple)):
                     content = ((content,),)
@@ -1349,6 +1349,7 @@ class Excel:
         def table_generator():
             for i, v in content.items():
                 yield i, v
+
         return table_generator()
 
     @staticmethod
