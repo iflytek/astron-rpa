@@ -28,3 +28,25 @@ class ExcelObj:
     @typesMg.shortcut("ExcelObj", res_type="Str")
     def get_full_name(self) -> str:
         return self.path or self.get_name()
+
+    @typesMg.shortcut("ExcelObj", res_type="Int")
+    def get_first_free_row(self) -> int:
+        """同get_excel_first_available_row"""
+
+        if sys.platform == "win32":
+            from astronverse.excel.core_win.worksheet import Worksheet
+            from astronverse.excel.core_win.range import Range
+        else:
+            return 0
+        worksheet = Worksheet.get_worksheet(self, "", default=1)
+        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        r_start_row, r_start_col, r_end_row, r_end_col, r_address = used_range
+
+        for row in range(r_start_row, r_end_row + 1):
+            for col in range(r_start_col, r_end_col + 1):
+                val = Range.get_range_data(Worksheet.get_cell(worksheet, row, col), False)
+                if val not in (None, ""):
+                    break
+            else:
+                return row
+        return r_end_row + 1

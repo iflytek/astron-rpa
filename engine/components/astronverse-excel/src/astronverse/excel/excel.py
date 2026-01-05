@@ -344,7 +344,7 @@ class Excel:
         start_row: str = "1",
         value: str = "",
         edit_type: EditType = EditType.OVERWRITE,
-    ) -> ExcelObj:
+    ):
         if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
             try:
                 value = ast.literal_eval(value)
@@ -1329,23 +1329,28 @@ class Excel:
             raise ValueError("不支持的操作类型：{}".format(select_type))
 
         content = Range.get_range_data(Worksheet.get_range(worksheet, data_region), True if real_text else False)
-        if content is None:
-            return {}
-
-        if cell_strip:
-            content = util_trim(content)
-
         if content:
-            if not isinstance(content, (list, tuple)):
-                content = ((content,),)
-            if select_type == SearchRangeType.COLUMN:
-                keys = (column_number_to_letter(n) for n in range(start_col_num, end_col_num + 1))
-                vals = (list(col) for col in zip(*content))
-            else:
-                keys = range(start_row_num, start_row_num + len(content))
-                vals = (list(row) for row in content)
-            content = dict(zip(keys, vals))
-        return content
+            if cell_strip:
+                content = util_trim(content)
+
+            if content:
+                if not isinstance(content, (list, tuple)):
+                    content = ((content,),)
+                if select_type == SearchRangeType.COLUMN:
+                    keys = (column_number_to_letter(n) for n in range(start_col_num, end_col_num + 1))
+                    vals = (list(col) for col in zip(*content))
+                else:
+                    keys = range(start_row_num, start_row_num + len(content))
+                    vals = (list(row) for row in content)
+                content = dict(zip(keys, vals))
+        else:
+            content = {}
+
+        def table_generator():
+            for i, v in content.items():
+                yield i, v
+
+        return table_generator()
 
     @staticmethod
     @atomicMg.atomic(

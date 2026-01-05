@@ -150,11 +150,14 @@ class Application:
         if not application:
             raise Exception("未检测到Excel或WPS应用")
 
-        if visible_flag is not None:
-            application.Visible = visible_flag
-        # 始终禁用显示警告，避免弹窗中断自动化流程
-        # 这样可以自动处理文件覆盖、删除工作表等操作，提高脚本稳定性
-        application.DisplayAlerts = False
+        try:
+            if visible_flag is not None:
+                application.Visible = visible_flag
+            # 始终禁用显示警告，避免弹窗中断自动化流程
+            # 这样可以自动处理文件覆盖、删除工作表等操作，提高脚本稳定性
+            application.DisplayAlerts = False
+        except Exception as e:
+            raise Exception("Excel/WPS应用程序操作失败，可能正在被占用，无法设置属性")
         return application
 
     @staticmethod

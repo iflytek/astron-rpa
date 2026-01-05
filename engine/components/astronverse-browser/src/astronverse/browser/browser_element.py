@@ -829,7 +829,6 @@ class BrowserElement:
 
             def get_iterator():
                 count = 0
-                similar_count = 0
                 batch_size = 20
                 while True:
                     data = browser_obj.send_browser_extension(
@@ -841,7 +840,6 @@ class BrowserElement:
                             "count": batch_size,
                         },
                     )
-                    similar_count = data[0]["similarCount"]
                     if not data or len(data) <= 0:
                         break
                     for di in data:
@@ -861,22 +859,21 @@ class BrowserElement:
                                     "path": di,
                                 }
                             }
-                            yield di_wrapper
-                            continue
-
-                        data = browser_obj.send_browser_extension(
-                            browser_type=browser_obj.browser_type.value,
-                            key="getElementAttrs",
-                            data={
-                                **di,  # 解包内部字典的内容
-                                "atomConfig": {
-                                    "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
-                                    "attrName": attribute_name,
+                            yield count, di_wrapper
+                        else:
+                            res = browser_obj.send_browser_extension(
+                                browser_type=browser_obj.browser_type.value,
+                                key="getElementAttrs",
+                                data={
+                                    **di,  # 解包内部字典的内容
+                                    "atomConfig": {
+                                        "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
+                                        "attrName": attribute_name,
+                                    },
                                 },
-                            },
-                        )
-
-                        yield data
+                            )
+                            yield count, res
+                    similar_count = data[0]["similarCount"]
                     if similar_count <= count:
                         break
 
