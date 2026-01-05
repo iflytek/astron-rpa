@@ -1,0 +1,46 @@
+{
+  "name": "iflyrpa",
+  "version": "5.1.1",
+  "author": "iflyrpa",
+  "homepage": "https://www.iflyrpa.com",
+  "main": "./out/main/index.js",
+  "publisher": "https://www.iflyrpa.com",
+  "scripts": {
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "start": "electron-vite preview",
+    "dev:web": "pnpm --filter @rpa/web-app run dev",
+    "dev:client": "electron-vite dev --watch",
+    "dev": "node build-sdk.js && run-p dev:web dev:client",
+    "build": "node build-sdk.js && npm run typecheck && electron-vite build",
+    "build:legacy": "pnpm --filter @rpa/web-app run build:legacy",
+    "postinstall": "electron-builder install-app-deps",
+    "build:unpack": "npm run build && electron-builder --dir",
+    "build:win": "npm run build && electron-builder --win",
+    "build:win32": "npm run build && electron-builder --win --ia32",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux",
+    "build:subwin": "npm run build:win32 --mode=subwin"
+  },
+  "dependencies": {
+    "7zip-bin": "^5.2.0",
+    "@rpa/shared": "workspace:*",
+    "axios": "^1.7.4",
+    "lodash-es": "^4.17.21",
+    "node-7z": "^3.0.0",
+    "open": "^10.1.0",
+    "tree-kill": "^1.2.2"
+  },
+  "devDependencies": {
+    "@electron-toolkit/tsconfig": "^2.0.0",
+    "@rpa/web-app": "workspace:*",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.19.1",
+    "electron": "^39.2.6",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^5.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6"
+  }
+}

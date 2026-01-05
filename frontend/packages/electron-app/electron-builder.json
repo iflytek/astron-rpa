@@ -1,0 +1,46 @@
+{
+  "appId": "iflyrpa",
+  "productName": "iflyrpa",
+  "artifactName": "星辰RPA-${version}-${arch}-electron.${ext}",
+  "electronLanguages": [
+    "zh-CN",
+    "en-US"
+  ],
+  "asar": false,
+  "files": [
+    "node_modules/**",
+    "out/**",
+    "resources/**",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "resources/7zr.exe",
+      "to": "./7zr.exe"
+    }
+  ],
+  "win": {
+    "target": "nsis",
+    "icon": "../../public/icons/icon.ico",
+    "publisherName": "iflyrpa",
+    "requestedExecutionLevel": "requireAdministrator"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "../../public/icons/icon.png"
+  },
+  "linux": {
+    "target": "deb",
+    "icon": "../../public/icons/icon.png",
+    "category": "Utility"
+  },
+  "afterPack": "build/afterPack.js",
+  "nsis": {
+    "oneClick": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "星辰RPA"
+  }
+}
