@@ -154,7 +154,7 @@ atomic:
         tip: >-
           修改的内容以列表方式输入，当选择行或列时输入列表如[1,2,3]，表示在指定行依次写入1,2,3；当选择区域时输入列表如[[1,1],[2,2]]，表示在指定区域按行写入数据
       - key: edit_type
-        title:
+        title: 编辑类型
         tip: ''
     outputList: []
   Excel.read_excel:
