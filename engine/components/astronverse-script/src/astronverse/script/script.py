@@ -8,6 +8,7 @@ from astronverse.script.error import MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_N
 
 
 class Script:
+    @staticmethod
     def _call(path: str, package: str, **kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
