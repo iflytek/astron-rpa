@@ -102,15 +102,19 @@ def sort_meta_items(meta_items):
     return sorted(meta_items, key=lambda x: (x.get("atomKey") is None, x.get("atomKey")))
 
 
-def meta_upload(meta_data):
-    try:
-        response = requests.post(upload_url, json=meta_data, timeout=10)
-        if response.status_code == 200:
-            print("meta uploaded successfully.")
-        else:
-            print(f"Failed to upload meta. Status code: {response.status_code}")
-    except Exception as e:
-        print(f"Error uploading meta: {e}")
+def meta_upload():
+    update_json_path = os.path.join(os.path.dirname(__file__), "temp_update.json")
+    with open(update_json_path, encoding="utf-8") as f:
+        update_meta = json.load(f)
+        print(f"Uploading {len(update_meta)} meta items to server...")
+        try:
+            response = requests.post(upload_url, json=update_meta, timeout=10)
+            if response.status_code == 200:
+                print("meta uploaded successfully.")
+            else:
+                print(f"Failed to upload meta. Status code: {response.status_code}")
+        except Exception as e:
+            print(f"Error uploading meta: {e}")
 
 
 def tree_upload():
@@ -132,15 +136,38 @@ def save_json_to_file(data, file_path):
 
 
 if __name__ == "__main__":
-    run_meta_scripts()
-    local_meta = merge_local_meta()
-    if local_meta:
+    local_meta = None
+    remote_meta = None
+    # Prompt user for actions
+    choice = input("Do you want to run meta? (Y/N): ").strip().lower()
+    if choice == "y":
+        run_meta_scripts()
+        local_meta = merge_local_meta()
+    else:
+        print("Skipping run meta and merge. load from temp_local.json if exists.")
+        with open(os.path.join(os.path.dirname(__file__), "temp_local.json"), encoding="utf-8") as f:
+            local_meta = json.load(f)
+
+    choice = input("Do you want to get remote? (Y/N): ").strip().lower()
+    if choice == "y":
         remote_meta = get_remote_meta()
-        if remote_meta:
-            updated_meta = merge_local_and_remote(local_meta, remote_meta)
-            choice = input("Do you want to upload the updated meta to the server? (Y/N): ").strip().lower()
-            if choice == "y":
-                print("Uploading updated meta to the server...")
-                meta_upload(updated_meta)
-            else:
-                print("Upload skipped.")
+    else:
+        print("Skipping fetching remote meta.json. load from temp_remote.json if exists.")
+        with open(os.path.join(os.path.dirname(__file__), "temp_remote.json"), encoding="utf-8") as f:
+            remote_meta = json.load(f)
+
+    if local_meta and remote_meta:
+        updated_meta = merge_local_and_remote(local_meta, remote_meta)
+        choice = input("Do you want to upload the updated meta to the server? (Y/N): ").strip().lower()
+        if choice == "y":
+            print("Uploading updated meta to the server...")
+            meta_upload()
+        else:
+            print("Upload skipped.")
+
+    choice = input("Do you want to upload tree.json to the server? (Y/N): ").strip().lower()
+    if choice == "y":
+        print("Uploading tree.json to the server...")
+        tree_upload()
+    else:
+        print("Tree upload skipped.")
