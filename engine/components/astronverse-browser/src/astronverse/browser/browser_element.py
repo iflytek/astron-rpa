@@ -39,8 +39,6 @@ from astronverse.browser import (
     SiblingElementType,
     TablePickType,
     WaitElementForStatusFlag,
-    WriteMode,
-    WriteType,
 )
 from astronverse.browser.browser import Browser
 from astronverse.browser.core.core import IBrowserCore
@@ -1661,7 +1659,8 @@ class BrowserElement:
 
         if is_save_to_data_table:
             # 保存到数据表格
-            from astronverse.data_table.data_table import DataTable
+            from astronverse.datatable import WriteMode, WriteType
+            from astronverse.datatable.datatable import DataTable
 
             DataTable.write_data(
                 write_type=WriteType.AREA,
