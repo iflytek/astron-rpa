@@ -564,12 +564,9 @@ class ExecutorManager:
                 "{}.txt".format(executor.exec_id),
             )
             src_data_table_path = os.path.join(
-                self.svc.config.venv_base_dir,
-                executor.project_id,
-                "astron"
-                "data_table.xlsx"
+                self.svc.config.venv_base_dir, executor.project_id, "astron", "data_table.xlsx"
             )
-            if not os.path.exists(src_data_table_path):
+            if os.path.exists(src_data_table_path):
                 data_table_path = os.path.join(
                     r"logs",
                     "report",
