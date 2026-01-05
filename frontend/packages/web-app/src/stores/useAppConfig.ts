@@ -1,7 +1,8 @@
-import { useAsyncState } from '@vueuse/core'
+import { useAsyncState, watchOnce } from '@vueuse/core'
 import { useTranslation } from 'i18next-vue'
 import { defineStore } from 'pinia'
 import { computed, h, reactive } from 'vue'
+import { parse } from 'yaml'
 
 import { checkBrowerPlugin, getSupportBrowser } from '@/api/plugin'
 import GlobalModal from '@/components/GlobalModal/index.ts'
@@ -32,6 +33,18 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   const { state: systemInfo } = useAsyncState<string>(utilsManager.getSystemEnv, '')
   // 用户目录
   const { state: userPath } = useAsyncState<string>(utilsManager.getUserPath, '')
+
+  const { state: yamlData, execute } = useAsyncState(
+    async () => {
+      const path = appPath.value
+      if (!path) return {}
+      const buf  = await utilsManager.readFile(`${path}resources/conf.yaml`)
+      const text = new TextDecoder().decode(buf as Uint8Array)
+      return parse(text)
+    }, {}, { immediate: true, resetOnExecute: false }                          
+  )
+
+  watchOnce(appPath, () => execute())
 
   const updateBrowserPluginStatus = async (plugins: PLUGIN_ITEM[]) => {
     if (plugins.length === 0)
@@ -74,6 +87,7 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     buildInfo: buildInfo.value,
     systemInfo: systemInfo.value,
     userPath: userPath.value,
+    remotePath: yamlData.value.remote_addr,
   }))
 
   const checkUpdate = async () => {

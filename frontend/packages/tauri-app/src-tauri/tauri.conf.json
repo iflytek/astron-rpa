@@ -36,7 +36,11 @@
         "all": true
       },
       "fs": {
-        "writeFile": true
+        "writeFile": true,
+        "readFile": true,
+        "scope": [
+          "**"
+        ]
       }
     },
     "windows": [],

@@ -7,6 +7,7 @@ import { http } from './http'
 
 interface PreAuthenticateData extends LoginFormData {
   platform: string
+  scene: string,
 }
 
 interface SetPasswordData extends LoginFormData {
@@ -45,7 +46,7 @@ export async function preAuthenticate(params: PreAuthenticateData) {
 }
 
 // 发送验证码
-export async function sendCaptcha(phone: string, isRegister: boolean = true) {
+export async function sendCaptcha(phone: string, scene: string, isRegister: boolean = true) {
   if (!isRegister) {
     const registered = await checkRegistered({ phone })
     if (!registered) {
@@ -53,7 +54,7 @@ export async function sendCaptcha(phone: string, isRegister: boolean = true) {
       return Promise.reject(new Error('当前手机号未注册'))
     }
   }
-  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone })
+  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone, scene })
   return data
 }
 

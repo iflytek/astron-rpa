@@ -124,7 +124,7 @@ export function phoneLoginFormConfig(isInvite = false, edition = 'saas', authTyp
       {
         ...fieldFactories.captcha(),
         sendCaptcha: async (phone: string) => {
-          await sendCaptcha(phone, false)
+          await sendCaptcha(phone, 'login', false)
         },
       },
       fieldFactories.agreement(),
@@ -159,7 +159,7 @@ export function personalRegisterFormConfig(formData: any, isInvite = false, edit
           {
             ...fieldFactories.captcha(),
             sendCaptcha: async (phone: string) => {
-              await sendCaptcha(phone, true)
+              await sendCaptcha(phone, 'register', true)
             },
           },
           fieldFactories.agreement(),
@@ -222,7 +222,7 @@ export const forgotPasswordFormConfig: FormConfig = {
     {
       ...fieldFactories.captcha(),
       sendCaptcha: async (phone: string) => {
-        await sendCaptcha(phone, false)
+        await sendCaptcha(phone, 'set_password', false)
       },
     },
   ],

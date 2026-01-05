@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { AuthType, Edition } from '../../interface'
+import type { AuthType, Edition, Platform } from '../../interface'
 import InviteUserInfo from '../Base/InviteUserInfo.vue'
 import StatusCard from '../Base/StatusCard.vue'
 import Login from '../Login/Index.vue'
 
 import { useInviteFlow } from './hooks/useInviteFlow'
 
-const { baseUrl, edition, authType } = defineProps({
+const { baseUrl, edition, authType, platform } = defineProps({
+  platform: { type: String as () => Platform },
   baseUrl: { type: String },
   edition: { type: String as () => Edition, default: 'saas' },
   authType: { type: String as () => AuthType, default: 'uap' },
@@ -34,7 +35,7 @@ const {
       title="邀请链接已失效"
       desc="请联系管理员获得新的链接"
     />
-    <Login v-else-if="currentStatus === 'needLogin'" :base-url="baseUrl" :invite-info="inviteInfo" :edition="edition" :auth-type="authType" @finish="toJoin" />
+    <Login v-else-if="currentStatus === 'needLogin'" :platform="platform" :base-url="baseUrl" :invite-info="inviteInfo" :edition="edition" :auth-type="authType" @finish="toJoin" />
     <InviteUserInfo
       v-else-if="currentStatus === 'showUserInfo'"
       :invite-info="inviteInfo"

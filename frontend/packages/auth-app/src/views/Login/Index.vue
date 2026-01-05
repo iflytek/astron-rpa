@@ -10,5 +10,5 @@ function loginSuccess() {
 </script>
 
 <template>
-  <Auth.LoginPage :auth-type="ENV.VITE_AUTH_TYPE" :edition="ENV.VITE_EDITION" @finish="loginSuccess" />
+  <Auth.LoginPage platform="admin" :auth-type="ENV.VITE_AUTH_TYPE" :edition="ENV.VITE_EDITION" @finish="loginSuccess" />
 </template>
