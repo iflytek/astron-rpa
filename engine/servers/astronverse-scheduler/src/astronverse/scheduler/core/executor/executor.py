@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import shutil
 import sys
 import tempfile
 import threading
@@ -562,6 +563,20 @@ class ExecutorManager:
                 executor.project_id,
                 "{}.txt".format(executor.exec_id),
             )
+            src_data_table_path = os.path.join(
+                self.svc.config.venv_base_dir, executor.project_id, "astron", "data_table.xlsx"
+            )
+            if os.path.exists(src_data_table_path):
+                data_table_path = os.path.join(
+                    r"logs",
+                    "report",
+                    executor.project_id,
+                    "{}.xlsx".format(executor.exec_id),
+                )
+                shutil.copy2(src_data_table_path, data_table_path)
+            else:
+                data_table_path = ""
+
             log_content = ""
             execute_status = executor.execute_status
             execute_reason = executor.execute_reason
@@ -577,6 +592,7 @@ class ExecutorManager:
                             "exec_id": executor.exec_id,
                             "exec_position": executor.exec_position.name,
                             "log_path": log_file,
+                            "data_table_path": data_table_path,
                         },
                     )
 
@@ -631,6 +647,7 @@ class ExecutorManager:
                     "executeLog": log_content,
                     "terminalId": Terminal.get_terminal_id(),
                     "videoLocalPath": video_path,
+                    "dataTablePath": data_table_path,
                     "isDispatch": self.svc.terminal_mod,
                     "paramJson": executor.run_param,
                 }
