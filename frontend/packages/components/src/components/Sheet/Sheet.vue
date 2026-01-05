@@ -160,8 +160,13 @@ const updateCellValues = (values: ICellValue[]) => {
   const fWorksheet = fWorkbook?.getActiveSheet()
   const fRange = fWorksheet?.getRange('A1:B2')
   
-  const cellValue: CellValue[][] = []
-  values.forEach(it => set(cellValue, [it.row, it.column], it.value));
+  const cellValue: Record<number, Record<number, CellValue>> = {}
+  values.forEach(it => {
+    if (!cellValue[it.row]) {
+      cellValue[it.row] = {}
+    }
+    set(cellValue, [it.row, it.column], it.value)
+  });
 
   fRange?.setValues(cellValue)
 }

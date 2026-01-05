@@ -44,7 +44,6 @@ export const useRunningStore = defineStore('running', () => {
     debugData.value = {}
     RpaExecutor?.destroy()
     dataTableListenController?.abort()
-    dataTable.value = null
     closeDataTableListener()
   }
 

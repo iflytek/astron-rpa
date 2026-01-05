@@ -64,8 +64,8 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
 
     for (let row = 0; row < maxRow; row++) {
       for (let col = 0; col < maxCol; col++) {
-        const newCellValue = get(newValue, [row, col])
-        const oldCellValue = get(oldValue, [row, col])
+        const newCellValue = get(newValue?.data, [row, col])
+        const oldCellValue = get(oldValue?.data, [row, col])
 
         if (newCellValue !== oldCellValue) {
           cellValue.push({
