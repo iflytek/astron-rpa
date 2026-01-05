@@ -953,7 +953,7 @@ class DataTable:
         def table_generator():
             list_length = len(list_data)
             for i in range(list_length):
-                yield (i, list_data[i])
+                yield i, list_data[i]
 
         return table_generator()
 
