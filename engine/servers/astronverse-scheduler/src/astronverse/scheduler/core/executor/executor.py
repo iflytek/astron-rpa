@@ -573,7 +573,7 @@ class ExecutorManager:
                     executor.project_id,
                     "{}.xlsx".format(executor.exec_id),
                 )
-                shutil.move(src_data_table_path, data_table_path)
+                shutil.copy2(src_data_table_path, data_table_path)
             else:
                 data_table_path = ""
 
