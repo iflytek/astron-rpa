@@ -10,7 +10,7 @@ import { requiredItem } from '@/views/Arrange/components/flow/hooks/useValidate'
 import { useToolsClear } from '@/views/Arrange/components/tools/hooks/useToolsClear'
 import { Catch, Else, ElseIf, Finally, Group, GroupEnd, LOOP_END_MAP } from '@/views/Arrange/config/atomKeyMap'
 import { getMultiSelectIds } from '@/views/Arrange/utils/flowUtils'
-import { createComponentAbility, createSmartComponentAbility, generateInputMap, loopAtomByKey, setAddAtomIdx } from '@/views/Arrange/utils/generateData'
+import { createComponentAbility, loadSmartComponentAbility, generateInputMap, loopAtomByKey, setAddAtomIdx } from '@/views/Arrange/utils/generateData'
 import { changeSelectAtoms } from '@/views/Arrange/utils/selectItemByClick'
 import { promiseTimeout } from '@vueuse/core'
 
@@ -22,7 +22,7 @@ export async function createFlowNode(key: string, idx: number | number[], isDrag
     await createComponentAbility(key)
   }
   else if (isSmartComponentKey(key)) {
-    await createSmartComponentAbility(key)
+    await loadSmartComponentAbility(key)
   }
   else {
   // 加载原子能力配置

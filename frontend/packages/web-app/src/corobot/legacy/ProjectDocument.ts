@@ -8,7 +8,7 @@ import * as service from '@/corobot/store/service'
 import { shapeUIData } from '@/corobot/utils/processNode'
 import type { ProcessNodeVM, ProjectVM } from '@/corobot/vm'
 import { MAX_ATOM_NUM } from '@/views/Arrange/components/flow/hooks/useFlow'
-import { createComponentAbility, createSmartComponentAbility } from '@/views/Arrange/utils/generateData'
+import { createComponentAbility, loadSmartComponentAbility } from '@/views/Arrange/utils/generateData'
 
 import { ProcessEditor } from './ProcessEditor'
 
@@ -76,16 +76,28 @@ export class ProjectDocument implements IProjectDocument {
       ProjectDocument.nodeAbilityMap[processId].loadOver = true
       return
     }
-    const atomMap = list.slice(ProjectDocument.loadNumber * (ProjectDocument.nodeAbilityMap[processId].currentPage - 1), ProjectDocument.loadNumber * ProjectDocument.nodeAbilityMap[processId].currentPage).reduce((acc, node) => {
+    const currentPageNodes = list.slice(ProjectDocument.loadNumber * (ProjectDocument.nodeAbilityMap[processId].currentPage - 1), ProjectDocument.loadNumber * ProjectDocument.nodeAbilityMap[processId].currentPage)
+    
+    // 分离普通原子能力和智能组件
+    const atomMap: { key: string, version: string }[] = []
+    const smartComponentMap: { key: string, version: string }[] = []
+    
+    currentPageNodes.forEach((node) => {
       const { key, version } = node
       const keys = `${key}***${version}`
       if (!ProjectDocument.loadedKeys[keys]) {
-        acc.push({ key, version })
         ProjectDocument.loadedKeys[keys] = true
+        if (isSmartComponentKey(key)) {
+          smartComponentMap.push({ key, version })
+        }
+        else {
+          atomMap.push({ key, version })
+        }
       }
-      return acc
-    }, [])
+    })
+    
     ProjectDocument.nodeAbilityMap[processId].currentPage += 1
+    
     if (atomMap.length > 0) {
       const data = await service.getAtomicSchemaByVersion(atomMap)
       data.forEach((node) => {
@@ -100,9 +112,12 @@ export class ProjectDocument implements IProjectDocument {
         if (isComponentKey(key)) {
           await createComponentAbility(key, version)
         }
-        if (isSmartComponentKey(key)) {
-          await createSmartComponentAbility(key, version)
-        }
+      }
+    }
+    
+    if (smartComponentMap.length > 0) {
+      for (const { key, version } of smartComponentMap) {
+        await loadSmartComponentAbility(key, version)
       }
     }
     this.processEmitter.$emit('open', processId, list, type)
@@ -177,6 +192,10 @@ export class ProjectDocument implements IProjectDocument {
     const smartId = getSmartComponentId(key)
     return getSmartComp({ smartId, robotId }).then((data) => {
       const node = data.detail?.versionList.find(item => item.version === version) || data.detail?.versionList?.[0]
+      if (!node) {
+        console.error(`未找到 key 为 '${key}' 的智能组件`);
+        return null
+      }
       const keys = `${key}***${node.version}`
       ProjectDocument.noVersionMap[key] = node.version
       if (!ProjectDocument.nodeAbility[keys]) {
