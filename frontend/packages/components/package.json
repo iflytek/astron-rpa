@@ -7,8 +7,6 @@
   "module": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "storybook": "storybook dev -p 6006 --no-open",
-    "build-storybook": "storybook build",
     "build:icon": "node scripts/download-icons.js"
   },
   "exports": {
@@ -65,10 +63,6 @@
   },
   "devDependencies": {
     "@ant-design/icons-vue": "^7.0.1",
-    "@storybook/addon-links": "^9.1.1",
-    "@storybook/addon-onboarding": "^9.1.1",
-    "@storybook/addon-themes": "^9.1.1",
-    "@storybook/vue3-vite": "^9.1.1",
     "@types/crypto-js": "^4.2.2",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
@@ -77,7 +71,6 @@
     "axios": "^1.7.4",
     "postcss": "^8.4.38",
     "sass": "~1.77.4",
-    "storybook": "^9.1.1",
     "tailwindcss": "^3.4.4",
     "unplugin-vue-components": "^28.5.0",
     "vite": "catalog:"
