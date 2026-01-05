@@ -1661,6 +1661,7 @@ class BrowserElement:
             # 保存到数据表格
             from astronverse.datatable import WriteMode, WriteType
             from astronverse.datatable.datatable import DataTable
+
             DataTable.write_data(
                 write_type=WriteType.AREA,
                 start_row=1,

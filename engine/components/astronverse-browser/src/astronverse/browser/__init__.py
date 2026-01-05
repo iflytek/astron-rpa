@@ -351,4 +351,3 @@ class SiblingElementType(Enum):
     All = "all"
     Next = "next"
     Prev = "prev"
-
