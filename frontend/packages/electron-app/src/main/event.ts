@@ -228,12 +228,30 @@ export function listenRender() {
 
   ipcMain.handle('read-file', (_event, filePath) => {
     try {
-      const data = fs.readFileSync(filePath, 'utf-8')
-      return data
+      return fs.readFileSync(filePath, 'utf-8')
     }
     catch (err) {
       logger.error('Failed to read file:', filePath, err)
       throw err
+    }
+  })
+
+  ipcMain.handle('save-file', async (_event, fileName: string, buffer: Buffer) => {
+    try {
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: '保存文件',
+        defaultPath: fileName,
+      })
+
+      if (canceled || !filePath)
+        return false
+
+      fs.writeFileSync(filePath, buffer)
+      return true
+    }
+    catch (err) {
+      logger.error('Failed to save file:', fileName, err)
+      return false
     }
   })
 

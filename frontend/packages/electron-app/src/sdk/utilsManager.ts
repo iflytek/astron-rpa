@@ -95,12 +95,12 @@ function invoke(channel: string, ...args: any[]): Promise<any> {
   })
 }
 
-function readFile(fileName: string, dir?: string) {
-  return new Promise((resolve, reject) => {
-    ipcRenderer.invoke('read-file', `${dir}/${fileName}`).then((data) => {
-      resolve(data)
-    }).catch(err => reject(err))
-  })
+const readFile: UtilsManagerType['readFile'] = (fileName, dir) => {
+  return ipcRenderer.invoke('read-file', `${dir}/${fileName}`)
+}
+
+const saveFile: UtilsManagerType['saveFile'] = (fileName, buffer) => {
+  return ipcRenderer.invoke('save-file', fileName, buffer)
 }
 
 function playVideo(videoPath: string) {
@@ -160,7 +160,7 @@ async function openPlugins() {
   }
 }
 
-function showDialog(dialogProps) {
+const showDialog: UtilsManagerType['showDialog'] = (dialogProps) => {
   const { file_type, filters: dialogFilters, multiple, defaultPath = '' } = dialogProps
   let isDirectory = false // 默认打开文件
   let isMultiple = false // 默认单选
@@ -212,6 +212,7 @@ const UtilsManager: UtilsManagerType = {
   getUserPath,
   listenEvent,
   readFile,
+  saveFile,
   invoke,
   openInBrowser,
   openPlugins,

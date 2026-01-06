@@ -1,3 +1,5 @@
+import type { ClipboardManager } from '@rpa/shared/platform'
+
 const { clipboard } = window.electron
 
 function readClipboardText() {
@@ -14,7 +16,7 @@ function writeClipboardText(text: string) {
   })
 }
 
-const ClipboardManager = {
+const ClipboardManager: ClipboardManager = {
   readClipboardText,
   writeClipboardText,
 }
