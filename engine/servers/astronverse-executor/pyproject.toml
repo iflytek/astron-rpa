@@ -18,6 +18,8 @@ dependencies = [
     "astronverse-dataprocess",
     "astronverse-report",
     "astronverse-script",
+    "astronverse-browser",
+    "astronverse-system",
 ]
 
 [tool.uv.sources]
@@ -30,6 +32,8 @@ astronverse-workflowlib = {path = "../../shared/astronverse-workflowlib", editab
 astronverse-dataprocess = {path = "../../components/astronverse-dataprocess", editable = true}
 astronverse-report = {path = "../../components/astronverse-report", editable = true}
 astronverse-script = {path = "../../components/astronverse-script", editable = true}
+astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
+astronverse-system = {path = "../../components/astronverse-system", editable = true}
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
 
