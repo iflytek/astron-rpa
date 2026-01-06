@@ -53,7 +53,7 @@ def main():
 
     try:
         # 创建Agent（API Key从环境变量读取）
-        print(f"[初始化] 创建 ComputerUseAgent...")
+        print("[初始化] 创建 ComputerUseAgent...")
         agent = ComputerUseAgent(
             api_key=api_key,
             model="doubao-1-5-ui-tars-250428",

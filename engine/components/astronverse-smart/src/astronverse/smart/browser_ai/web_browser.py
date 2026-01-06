@@ -1,15 +1,14 @@
 import platform
 import sys
-from typing import List, Union
+from typing import Union
 
 from astronverse.actionlib.types import WebPick
+from astronverse.baseline.logger.logger import logger
 from astronverse.browser import *
 from astronverse.browser.browser import Browser
-from astronverse.browser.browser_software import BrowserSoftware
 from astronverse.browser.browser_element import BrowserElement
+from astronverse.browser.browser_software import BrowserSoftware
 from astronverse.browser.core.core import IBrowserCore
-from astronverse.baseline.logger.logger import logger
-
 from astronverse.smart.browser_ai.web_element import WebElement
 
 if sys.platform == "win32":
@@ -102,7 +101,7 @@ class WebBrowser:
             y_scroll_type=y_scroll_type,
         )
 
-    def find_elements_by_xpath(self, xpath_selector, *, timeout=3) -> List[WebElement]:
+    def find_elements_by_xpath(self, xpath_selector, *, timeout=3) -> list[WebElement]:
         """
         in the current page, use this method when you need to match multiple elements.
         return a list of document's elements（WebElement）that match the specific xpath, raise exception if match failed
@@ -130,7 +129,7 @@ class WebBrowser:
         return web_elements
 
     def screenshot(self, folder_path, *, file_name=None, full_size=True) -> None:
-        """
+        r"""
         screenshot the current page and save the image to the specified folder.
         * @param folder_path, the path to save the screenshot
         * @param file_name, the name of the screenshot file, note that the file name cannot contain the following characters: \ / : * ? " < > |
@@ -191,7 +190,7 @@ class WebBrowser:
 
         return web_element
 
-    def wait_all_elements_exist(self, xpath_selector: Union[WebElement, str], *, timeout=3) -> List[WebElement]:
+    def wait_all_elements_exist(self, xpath_selector: Union[WebElement, str], *, timeout=3) -> list[WebElement]:
         """
         Wait for all elements matching the specified XPath to appear in the current page.
         Returns a list of all matching WebElements. If no elements are found within the timeout,

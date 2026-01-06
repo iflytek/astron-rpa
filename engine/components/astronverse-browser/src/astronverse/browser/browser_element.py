@@ -301,7 +301,11 @@ class BrowserElement:
                 raise NotImplementedError()
 
         else:
-            element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_center=scroll_into_center)
+            element = Locator.locator(
+                element_data.get("elementData"),
+                cur_target_app=browser_obj.browser_type.value,
+                scroll_into_center=scroll_into_center,
+            )
             if isinstance(element.rect(), list):
                 raise Exception("浏览器元素定位不唯一，请检查！")
             center = element.point()
@@ -396,7 +400,9 @@ class BrowserElement:
 
         # js输入
         if not simulate_flag:
-            element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False)
+            element = Locator.locator(
+                element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+            )
             if isinstance(element.rect(), list):
                 raise Exception("浏览器元素定位不唯一，请检查！")
             if input_type == FillInputForInputTypeFlag.Append:
@@ -478,7 +484,11 @@ class BrowserElement:
                 PARAMETER_INVALID_FORMAT,
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
-        element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_center=scroll_into_center)
+        element = Locator.locator(
+            element_data.get("elementData"),
+            cur_target_app=browser_obj.browser_type.value,
+            scroll_into_center=scroll_into_center,
+        )
         element.move()
 
     @staticmethod
