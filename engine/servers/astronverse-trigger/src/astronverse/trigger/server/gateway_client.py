@@ -67,6 +67,16 @@ def send_stop_list(task_id: str = None):
         return None
 
 
+def send_stop_current():
+    url = "http://127.0.0.1:{}/scheduler/executor/stop_current".format(config.GATEWAY_PORT)
+    response = requests.post(url)
+    logger.info(f"当前调度器返回的结果的Json是：{response.text}")
+    if int(response.status_code) == 200 and response.json()["code"] == "0000":
+        return response.json()
+    else:
+        return {"code": "5001", "msg": "请求失败", "data": None}
+
+
 def list_trigger():
     def convert(recorder: list[dict]) -> dict:
         trigger_tasks = {}
