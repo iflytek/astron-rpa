@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { message } from 'ant-design-vue'
 /**
  *  全局主进程事件监听
  *  1、监听主进程事件，处理渲染进程需要执行的逻辑
  *  2、注意此文件中的代码以及导入的依赖尽量要干净，避免引入不必要的内容
  *  3、尽量使用BUS进行触发，减少导入
  */
+import { message } from 'ant-design-vue'
+import { isEmpty } from 'lodash-es'
 import { h } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { base64ToString } from '@/utils/common'
+import { baseUrl } from '@/utils/env'
 import BUS from '@/utils/eventBus'
 import $loading from '@/utils/globalLoading'
 
@@ -35,10 +37,25 @@ export interface W2WType {
 const permissionStore = usePermissionStore()
 const userSettingStore = useUserSettingStore()
 
+interface SchedulerEventType<T = any> {
+  type: string
+  msg: T
+}
+
+type SubWindowSchedulerEventType = SchedulerEventType<{
+  action: 'open' | 'close'
+  name: string
+  params?: Record<string, string>
+  height: string
+  pos: string
+  top: string
+  width: string
+}>
+
 const route = useRoute()
+
 // 主进程与渲染进程通信
 utilsManager.listenEvent('scheduler-event', (eventMsg) => {
-  console.log('message: ', eventMsg)
   const msgString = base64ToString(eventMsg)
   const msgObject = JSON.parse(msgString)
   const { type, msg } = msgObject
@@ -87,6 +104,10 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
     case 'terminal_status': {
       // 监听调度模式时，终端状态-运行中、空闲，通知主进程切换托盘菜单
       utilsManager.invoke('tray_change', { mode: 'scheduling', status: msg.type })
+      break
+    }
+    case 'sub_window': {
+      subWindowHandle(msg)
       break
     }
     default:
@@ -173,6 +194,34 @@ function openTaskCountDown(countDownInfo) {
 function executorHandle() {
   windowManager.showWindow()
   windowManager.maximizeWindow(true)
+}
+
+// 打开/关闭子窗口
+async function subWindowHandle(msg: SubWindowSchedulerEventType['msg']) {
+  if (msg.action === 'open') {
+    // 构建 URL，如果有 params 则添加查询参数
+    const baseUrlWithPath = `${baseUrl}/${msg.name}.html`
+    const queryString = isEmpty(msg.params) ? '' : `?${new URLSearchParams(msg.params).toString()}`
+    const options = {
+      url: `${baseUrlWithPath}${queryString}`,
+      title: 'iflyrpa-window',
+      label: msg.name,
+      alwaysOnTop: msg.top === 'true',
+      position: msg.pos,
+      width: Number(msg.width),
+      height: Number(msg.height),
+      resizable: false,
+      decorations: false,
+      fileDropEnabled: false,
+      transparent: true,
+      skipTaskbar: true,
+    }
+
+    await windowManager.createWindow(options)
+  }
+  else if (msg.action === 'close') {
+    windowManager.closeWindow(WINDOW_NAME.LOGWIN)
+  }
 }
 
 function logReportHandle(msg) {

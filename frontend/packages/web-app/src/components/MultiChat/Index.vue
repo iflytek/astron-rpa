@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CloseOutlined, LoadingOutlined, RightOutlined, SaveOutlined, StopOutlined, ZoomInOutlined } from '@ant-design/icons-vue'
-import { invoke } from '@tauri-apps/api/tauri'
 import { message } from 'ant-design-vue'
 import { nanoid } from 'nanoid'
 import PDF from 'pdf-vue3'
@@ -103,7 +102,7 @@ function handleSave() {
     return
   }
   const filterArr = chatDataList.value.filter(item => saveQAIds.value.includes(item.id))
-  invoke('page_handler', {
+  utilsManager.invoke('page_handler', {
     operType: 'AISave',
     data: JSON.stringify(filterArr),
   }).then(() => {
@@ -219,13 +218,11 @@ function handleClose() {
 }
 
 onMounted(() => {
-  setTimeout(async () => { // 通知主进程渲染进程准备就绪
-    await invoke('render_ready')
+  setTimeout(() => { // 通知主进程渲染进程准备就绪
+    utilsManager.invoke('render_ready')
   }, 1000)
 })
-onBeforeUnmount(() => {
-  clearAllData()
-})
+onBeforeUnmount(() => clearAllData())
 </script>
 
 <template>

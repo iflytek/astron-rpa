@@ -5,6 +5,9 @@ export enum WINDOW_NAME {
   RECORD = 'record',
   RECORD_MENU = 'record-menu',
   SMART_COMP_PICK_MENU = 'smart-comp-pick-menu',
+  LOGWIN = 'logwin',
+  MULTICHAT = 'multichat',
+  USERFORM = 'userform',
 }
 
 // 画布底部操作栏默认高度

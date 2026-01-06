@@ -7,10 +7,12 @@ import { defineStore } from 'pinia'
 import { computed, ref, shallowRef } from 'vue'
 
 import { generateUUID } from '@/utils/common'
+import { baseUrl } from '@/utils/env'
 
 import type { StartExecutorParams } from '@/api/resource'
 import { closeDataTable, deleteDataTable, getDataTable, startDataTableListener, startExecutor, stopExecutor, updateDataTable } from '@/api/resource'
 import Socket from '@/api/ws'
+import { WINDOW_NAME } from '@/constants'
 import { windowManager } from '@/platform'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -114,6 +116,24 @@ export const useRunningStore = defineStore('running', () => {
       const { data: msg, event_time, channel, reply_event_id } = result
       if (!['debug_start', 'end'].includes(msg.status) && !reply_event_id) {
         useRunlogStore().addLog({ ...msg, event_time }) // 添加日志
+      }
+
+      // 打开自定义表单窗口
+      if (result.key === 'sub_window' && msg.name === 'userform') {
+        // 构建 URL，如果有 params 则添加查询参数
+        const options = {
+          url: `${baseUrl}/${WINDOW_NAME.USERFORM}.html?option=${msg.option}`,
+          title: 'iflyrpa-window',
+          label: WINDOW_NAME.USERFORM,
+          alwaysOnTop: true,
+          position: 'center',
+          width: 500,
+          height: 400,
+          resizable: false,
+          skipTaskbar: true,
+        }
+
+        windowManager.createWindow(options)
       }
 
       running.value === 'debug' && setDebugData(msg, reply_event_id) // 处理调试数据
