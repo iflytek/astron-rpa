@@ -188,7 +188,7 @@ class Flow:
         for g in global_list:
             param = self.svc.param.parse_param(
                 {
-                    "value": g.get("varValue"),
+                    "value": str_to_list_if_possible(g.get("varValue")),
                     "types": g.get("varType"),
                     "name": g.get("varName"),
                 }
