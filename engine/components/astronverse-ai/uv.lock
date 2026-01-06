@@ -21,12 +21,11 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-ai"
-version = "1.0.2"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "astronverse-actionlib" },
     { name = "astronverse-browser", marker = "sys_platform == 'win32'" },
-    { name = "astronverse-tools" },
     { name = "dotenv" },
     { name = "pypdf" },
     { name = "python-docx" },
@@ -38,7 +37,6 @@ dependencies = [
 requires-dist = [
     { name = "astronverse-actionlib", editable = "../../shared/astronverse-actionlib" },
     { name = "astronverse-browser", marker = "sys_platform == 'win32'", editable = "../astronverse-browser" },
-    { name = "astronverse-tools", editable = "../../shared/astronverse-tools" },
     { name = "dotenv" },
     { name = "pypdf" },
     { name = "python-docx" },
@@ -65,7 +63,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-browser"
-version = "1.0.2"
+version = "1.0.4"
 source = { editable = "../astronverse-browser" }
 dependencies = [
     { name = "astronverse-actionlib" },
@@ -130,7 +128,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-locator"
-version = "1.0.1"
+version = "1.0.2"
 source = { editable = "../../shared/astronverse-locator" }
 dependencies = [
     { name = "astronverse-baseline" },
@@ -171,11 +169,6 @@ requires-dist = [
     { name = "psutil" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
 ]
-
-[[package]]
-name = "astronverse-tools"
-version = "1.0.1"
-source = { editable = "../../shared/astronverse-tools" }
 
 [[package]]
 name = "astronverse-window"

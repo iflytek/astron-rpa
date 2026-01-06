@@ -13,7 +13,6 @@ dependencies = [
     "astronverse-baseline",
     "astronverse-actionlib",
     "astronverse-websocket-server",
-    "astronverse-tools",
     "astronverse-workflowlib",
     "astronverse-dataprocess",
     "astronverse-report",
@@ -26,7 +25,6 @@ dependencies = [
 astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-websocket-server = {path = "../../shared/astronverse-websocket-server", editable = true}
-astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
 astronverse-workflowlib = {path = "../../shared/astronverse-workflowlib", editable = true}
 
 astronverse-dataprocess = {path = "../../components/astronverse-dataprocess", editable = true}

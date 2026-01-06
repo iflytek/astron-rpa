@@ -376,8 +376,14 @@ def send_tip(tip_data: dict, svc: Svc = Depends(get_svc)):
 
 
 @router.post("/send/alert")
-def send_tip(tip_data: dict, svc: Svc = Depends(get_svc)):
+def send_alert(tip_data: dict, svc: Svc = Depends(get_svc)):
     emit_to_front(EmitType.ALERT, msg=tip_data)
+    return res_msg(code=ResCode.SUCCESS, msg="", data=None)
+
+
+@router.post("/send/sub_window")
+def send_alert(sub_window_data: dict, svc: Svc = Depends(get_svc)):
+    emit_to_front(EmitType.SUB_WINDOW, msg=sub_window_data)
     return res_msg(code=ResCode.SUCCESS, msg="", data=None)
 
 
