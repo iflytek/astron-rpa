@@ -335,7 +335,7 @@ class BrowserSoftware:
         else:
             raise NotImplementedError()
         return result
-    
+
     @staticmethod
     @atomicMg.atomic(
         "BrowserSoftware",
@@ -366,7 +366,6 @@ class BrowserSoftware:
             )
         else:
             raise NotImplementedError()
-        return None
 
     @staticmethod
     @atomicMg.atomic(

@@ -61,6 +61,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList: []
   BrowserElement.input:
     title: 填写输入框（web）
@@ -96,6 +99,9 @@ atomic:
     - key: input_type
       title: 追加输入
       tip: 是否对输入框进行追加输入
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList:
     - key: form_input
       title: 用户输入内容
@@ -115,6 +121,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList: []
   BrowserElement.screenshot:
     title: 拾取元素截图（web）

@@ -337,7 +337,7 @@ const ContentHandler = {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
       if (scrollEle && scrollEle[0]) {
-        if (atomConfig && atomConfig.notCenter) {
+        if (atomConfig && !atomConfig.scrollIntoCenter) {
           scrollEle[0].scrollIntoView(false)
         }
         else {
