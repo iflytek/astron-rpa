@@ -153,6 +153,7 @@ class Executor:
         self.execute_status = ExecuteStatus.EXECUTE  # 执行状态
         self.execute_reason = None  # 执行原因
         self.execute_data = None  # 执行返回数据
+        self.execute_video_path = None  # 执行视频路径
 
     @property
     def ins(self):
@@ -623,6 +624,7 @@ class ExecutorManager:
             executor.execute_status = execute_status
             executor.execute_reason = execute_reason
             executor.execute_data = execute_data
+            executor.execute_video_path = video_path
 
             # 5. 日志上报
             if executor.exec_position in [

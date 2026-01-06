@@ -3,7 +3,7 @@ import time
 from typing import Optional, Union
 
 from astronverse.scheduler.apis.connector.terminal import Terminal
-from astronverse.scheduler.apis.response import ResCode, res_msg
+from astronverse.scheduler.apis.response import ResCode, exec_res_msg, res_msg
 from astronverse.scheduler.core.executor.executor import (
     ExecuteStatus,
     ProjectExecPosition,
@@ -270,10 +270,11 @@ def executor_run_sync(param: ExecutorProject, svc: Svc = Depends(get_svc)):
         execute_status = ExecuteStatus.FAIL
         execute_reason = "启动失败"
         execute_data = {}
+    video_path = executor.execute_video_path if executor else ""
     if execute_status == ExecuteStatus.SUCCESS:
-        return res_msg(code=ResCode.SUCCESS, msg="启动成功", data=execute_data)
+        return exec_res_msg(code=ResCode.SUCCESS, msg="运行成功", data=execute_data, video_path=video_path)
     else:
-        return res_msg(code=ResCode.ERR, msg=execute_reason)
+        return exec_res_msg(code=ResCode.ERR, msg=execute_reason, video_path=video_path)
 
 
 @router.post("/run")
