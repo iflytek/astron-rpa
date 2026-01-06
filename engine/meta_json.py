@@ -90,7 +90,7 @@ def merge_local_and_remote(local_meta: dict, remote_meta: list):
         if not found:
             new_item = {"atomKey": key, "atomContent": json.dumps(value, ensure_ascii=False), "sort": None}
             new_items.append(new_item)
-    print(f"Found {len(new_items)} new items to add to remote meta.json.")
+    print(f"Found {len(new_items)} new items")
     if new_items:
         remote_meta.extend(new_items)
 
@@ -122,8 +122,16 @@ def get_remote_tree():
     print("Fetching remote tree from server...")
     response = requests.post(remote_tree_url, timeout=10)
     if response.status_code == 200:
-        res = response.json()
-        save_json_to_file(res, os.path.join(os.path.dirname(__file__), "temp_tree.json"))
+        res = response.json().get("data", {})
+        # res may be a JSON string; parse it to a Python object
+        if isinstance(res, str):
+            try:
+                res_json = json.loads(res)
+                save_json_to_file(res_json, os.path.join(os.path.dirname(__file__), "temp_tree.json"))
+            except json.JSONDecodeError as e:
+                print(f"\033[31mError parsing remote tree JSON: {e}\033[0m")
+                return
+
     else:
         print(f"\033[31mFailed to get remote tree. Status code: {response.status_code}\033[0m")
 
@@ -159,13 +167,7 @@ if __name__ == "__main__":
         with open(os.path.join(os.path.dirname(__file__), "temp_local.json"), encoding="utf-8") as f:
             local_meta = json.load(f)
 
-    choice = input("Do you want to get remote meta? (Y/N): ").strip().lower()
-    if choice == "y":
-        remote_meta = get_remote_meta()
-    else:
-        print("\033[33mSkipping fetching remote meta. load from temp_remote.json if exists.\033[0m")
-        with open(os.path.join(os.path.dirname(__file__), "temp_remote.json"), encoding="utf-8") as f:
-            remote_meta = json.load(f)
+    remote_meta = get_remote_meta()
 
     if local_meta and remote_meta:
         updated_meta = merge_local_and_remote(local_meta, remote_meta)
