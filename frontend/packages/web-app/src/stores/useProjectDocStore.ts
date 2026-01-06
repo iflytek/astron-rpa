@@ -143,7 +143,8 @@ const useProjectDocStore = defineStore('projectDoc', () => {
     }
     listIdx.forEach((idx, i) => {
       const node = nodes[i]
-      const nodeAbility = ProjectDocument.nodeAbility[`${node.key}***${node.version}`]
+      const nodeAbility = ProjectDocument.getNodeAbilityWithFallback(node.key, node.version)
+      
       flowStore.setSimpleFlowUIDataByType(createSingleNode(node, parser.getNode(node.id), nodeAbility), idx, false)
     })
   }

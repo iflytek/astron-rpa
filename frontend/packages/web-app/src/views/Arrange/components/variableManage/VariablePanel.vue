@@ -5,13 +5,12 @@ import { useTranslation } from 'i18next-vue'
 import { cloneDeep } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
-import { GLOBAL_VAR_IN_TYPE, OTHER_IN_TYPE } from '@/constants/atom'
-import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
+import { GLOBAL_VAR_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 import { getFlowVariable } from '@/views/Arrange/utils/generateData'
-import { isArray, isEmpty } from 'lodash-es'
+import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 
 import { paginationConfig } from '../tools/components/constant'
 
@@ -22,58 +21,7 @@ const variableStore = useVariableStore()
 
 const keyword = ref('')
 
-interface LocalGlobalVariable extends RPA.GlobalVariable {
-  formItem?: RPA.AtomDisplayItem
-}
-
-// 由 String 转换成 Array
-function convertVarValueToArray(varValue: unknown): RPA.AtomFormItemResult[] {
-  if (isArray(varValue) && !isEmpty(varValue)) {
-    return varValue
-  }
-
-  if (typeof varValue === 'string') {
-    try {
-      const parsed = JSON.parse(varValue)
-      return isArray(parsed) ? parsed : [{ type: OTHER_IN_TYPE, value: varValue }]
-    }
-    catch {
-      return [{ type: OTHER_IN_TYPE, value: varValue }]
-    }
-  }
-
-  return [{ type: OTHER_IN_TYPE, value: '' }]
-}
-
-// 由 Array 转换成 String
-function convertArrayToVarValue(value: RPA.AtomFormItemResult[]): string {
-  if (!isArray(value) || value.length === 0) {
-    return ''
-  }
-  return JSON.stringify(value)
-}
-
-// 创建 formItem
-function createFormItem(item: RPA.GlobalVariable): RPA.AtomDisplayItem {
-  const varValueArray = convertVarValueToArray(item.varValue)
-  return {
-    types: item.varType || 'Any',
-    name: item.globalId || '',
-    key: item.globalId || '',
-    title: item.varName,
-    value: varValueArray,
-    formType: {
-      type: 'INPUT_PYTHON',
-    },
-  } as RPA.AtomDisplayItem
-}
-
-// 同步 formItem.value 到 varValue
-function syncVarValueFromFormItem(item: LocalGlobalVariable) {
-  if (isArray(item.formItem?.value)) {
-    item.varValue = convertArrayToVarValue(item.formItem.value)
-  }
-}
+interface LocalGlobalVariable extends RPA.GlobalVariable {}
 
 const columns: ColumnType<RPA.GlobalVariable>[] = [
   {
@@ -119,10 +67,7 @@ const dataSource = computed(() => {
     )
   }
 
-  return filteredList.map(item => ({
-    ...item,
-    formItem: createFormItem(item),
-  })) as LocalGlobalVariable[]
+  return filteredList as LocalGlobalVariable[]
 })
 
 const editableData = ref<LocalGlobalVariable | null>(null)
@@ -146,11 +91,6 @@ async function handleSave(record: LocalGlobalVariable) {
   if (judgeVarName(editableData.value))
     return message.error('变量名已存在')
 
-  // 同步 formItem 的值到 varValue
-  if (editableData.value?.formItem) {
-    syncVarValueFromFormItem(editableData.value)
-  }
-
   await variableStore.saveGlobalVariableList(editableData.value)
 
   flowStore.flowVariableUpdate({
@@ -173,17 +113,11 @@ function generateTableCellText(column: ColumnType<RPA.GlobalVariable>, text: str
 
 async function addGloablVar() {
   const newVar = await variableStore.addGlobalVariableList()
-  editableData.value = {
-    ...cloneDeep(newVar),
-    formItem: createFormItem(newVar),
-  }
+  editableData.value = cloneDeep(newVar)
 }
 
 function handleEdit(record: LocalGlobalVariable) {
-  editableData.value = {
-    ...cloneDeep(record),
-    formItem: record.formItem ? cloneDeep(record.formItem) : createFormItem(record),
-  }
+  editableData.value = cloneDeep(record)
 }
 
 async function handleReduceRecord(item: RPA.GlobalVariable) {
@@ -226,18 +160,21 @@ const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', '
               v-if="column.dataIndex === 'varType'" v-model:value="editableData.varType" class="w-full"
               :field-names="{ label: 'desc', value: 'key' }" :options="processStore.globalVarTypeOption"
             />
-            <AtomConfig
-              v-else-if="column.dataIndex === 'varValue' && editableData?.formItem" 
-              :form-item="editableData.formItem" 
-              size="small" 
+            <VarValueEditor
+              v-else-if="column.dataIndex === 'varValue'"
+              v-model:var-value="editableData.varValue"
+              :var-type="editableData.varType"
+              size="small"
             />
             <a-input v-else v-model:value="editableData[column.dataIndex as string]" />
           </template>
           <template v-else>
-            <AtomConfig
-              v-if="column.dataIndex === 'varValue' && record.formItem"
-              :form-item="{ ...record.formItem, noInput: true }"
+            <VarValueEditor
+              v-if="column.dataIndex === 'varValue'"
+              :var-value="record.varValue"
+              :var-type="record.varType"
               size="small"
+              :disabled="true"
             />
             <span v-else>{{ generateTableCellText(column, text, record as RPA.GlobalVariable) || "--" }}</span>
           </template>

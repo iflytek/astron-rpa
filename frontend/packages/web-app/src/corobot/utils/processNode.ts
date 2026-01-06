@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash-es'
 
 import type { ASTNode } from '@/ast/ASTNode'
 import type { ProcessNodeVM } from '@/corobot'
+import { ProjectDocument } from '@/corobot'
 import type { ArgumentValue, NodeArgument, ProcessNode } from '@/corobot/type'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { requiredItem } from '@/views/Arrange/components/flow/hooks/useValidate'
@@ -19,7 +20,7 @@ export function processNodeToList(astNodeList: Map<string, ASTNode>, node: Proce
     if (!n)
       break
     const nodeItem = astNodeList.get(n.id)
-    const nodeAbility = projectDoc.nodeAbility[`${n.key}***${n.version}`]
+    const nodeAbility = ProjectDocument.getNodeAbilityWithFallback(n.key, n.version)
     if (!nodeItem || !nodeAbility)
       break
     const gNode = createSingleNode(n, nodeItem, nodeAbility)

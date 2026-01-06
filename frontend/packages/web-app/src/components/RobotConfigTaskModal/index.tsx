@@ -9,6 +9,7 @@ import { getConfigParams } from '@/api/atom'
 import { saveRobotConfigParamValue } from '@/api/robot'
 import GlobalModal from '@/components/GlobalModal/index.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
+import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 
 const _RobotConfigTaskModal = defineComponent({
   props: {
@@ -36,7 +37,18 @@ const _RobotConfigTaskModal = defineComponent({
     const getConfig = async () => {
       loading.value = true
       const res = await getConfigParams({ robotId: props.robotId, mode })
-      data.value = res || []
+      const configData = res || []
+      
+      if (mode === 'CRONTAB' && props.params && props.params.length > 0) {
+        const paramMap = new Map(props.params.map(p => [p.varName, p.varValue]))
+        configData.forEach(param => {
+          if (paramMap.has(param.varName)) {
+            param.varValue = paramMap.get(param.varName)
+          }
+        })
+      }
+      
+      data.value = configData
       loading.value = false
     }
 
@@ -50,19 +62,7 @@ const _RobotConfigTaskModal = defineComponent({
       modal.hide()
     }
 
-    if (mode === 'CRONTAB' && props.params) {
-      getConfig().then(() => {
-        props.params.forEach((i) => {
-          const param = data.value.find(p => p.varName === i.varName)
-          if (param) {
-            param.varValue = i.varValue
-          }
-        })
-      })
-    }
-    else {
-      getConfig()
-    }
+    getConfig()
 
     const columns = [
       {
@@ -87,7 +87,7 @@ const _RobotConfigTaskModal = defineComponent({
         key: 'varValue',
         width: 200,
         customRender: ({ record }) => {
-          return <Input v-model={[record.varValue, 'value']} size="small" />
+          return <VarValueEditor varValue={record.varValue} var-type={record.varType} onUpdate:varValue={(value) => record.varValue = value} size="small" />
         },
       },
       {

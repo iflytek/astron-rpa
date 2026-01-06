@@ -159,6 +159,36 @@ export class ProjectDocument implements IProjectDocument {
     this.processNodeEmitter.$emit('update', index, node, options)
   }
 
+  /**
+   * 获取 nodeAbility，如果指定版本不存在，则使用最新版本
+   * @param key
+   * @param version
+   * @returns
+   */
+  static getNodeAbilityWithFallback(key: string, version: string): any {
+    const specificKey = `${key}***${version}`
+    if (ProjectDocument.nodeAbility[specificKey]) {
+      return ProjectDocument.nodeAbility[specificKey]
+    }
+
+    const latestVersion = ProjectDocument.noVersionMap[key]
+    if (latestVersion) {
+      const latestKey = `${key}***${latestVersion}`
+      if (ProjectDocument.nodeAbility[latestKey]) {
+        return ProjectDocument.nodeAbility[latestKey]
+      }
+    }
+
+    const keyPrefix = `${key}***`
+    for (const [abilityKey, ability] of Object.entries(ProjectDocument.nodeAbility)) {
+      if (abilityKey.startsWith(keyPrefix)) {
+        return ability
+      }
+    }
+
+    return undefined
+  }
+
   static gainLastNodeAbility(key: string, sigle: boolean = false) {
     if (ProjectDocument.loadedIds.includes(key))
       return
