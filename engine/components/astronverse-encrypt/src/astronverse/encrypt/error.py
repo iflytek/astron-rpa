@@ -7,6 +7,8 @@ from astronverse.baseline.error.error import BaseException as CoreBaseException
 from astronverse.baseline.error.error import BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
+BaseException = CoreBaseException
+
 __all__ = [
     "MSG_EMPTY_FORMAT",
     "BizCode",

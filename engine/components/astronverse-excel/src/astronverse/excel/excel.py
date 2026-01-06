@@ -1054,7 +1054,7 @@ class Excel:
                         Range.set_range_data(r_obj, val)
                     first_row += 1  # 写完一行，整体下移
         elif insert_type in [EnhancedInsertType.COLUMN, EnhancedInsertType.ADD_COLUMNS]:
-            start_col_num = handle_column_input(str(col), r_end_col)
+            start_col_num = handle_column_input(col, r_end_col)
             if col_direction == ColumnDirectionType.LEFT:  # 向上
                 for _ in range(insert_num):
                     r_obj = Worksheet.get_range(
