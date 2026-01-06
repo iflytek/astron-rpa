@@ -55,10 +55,11 @@ export const Cookie = {
 
   getAllCookies: (details: CookieDetails) => {
     return new Promise<unknown>((resolve) => {
-      if (details.path !== "") {
+      if (details.path !== '') {
         details.domain = new URL(details.url).hostname
         delete details.url
-      } else {
+      }
+      else {
         delete details.path
       }
       chrome.cookies.getAll(details, (cookies) => {
@@ -79,10 +80,11 @@ export const Cookie = {
           Promise.all(removePromises).then(() => {
             resolve(Utils.success(SuccessMessage.EMPTY_SUCCESS))
           })
-        } else {
+        }
+        else {
           resolve(Utils.success(SuccessMessage.EMPTY_SUCCESS))
         }
       })
     })
-  }
+  },
 }

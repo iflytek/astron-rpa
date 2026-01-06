@@ -385,7 +385,7 @@ const ContentHandler = {
     elementIsRender: async (data: ElementInfo) => {
       let ele = null
       try {
-        ele = await ContentHandler.ele.getElement({...data, filterVisiable: true })
+        ele = await ContentHandler.ele.getElement({ ...data, filterVisiable: true })
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
