@@ -270,12 +270,11 @@ def executor_run_sync(param: ExecutorProject, svc: Svc = Depends(get_svc)):
         execute_status = ExecuteStatus.FAIL
         execute_reason = "启动失败"
         execute_data = {}
+    video_path = executor.execute_video_path if executor else ""
     if execute_status == ExecuteStatus.SUCCESS:
-        return exec_res_msg(
-            code=ResCode.SUCCESS, msg="运行成功", data=execute_data, video_path=executor.execute_video_path
-        )
+        return exec_res_msg(code=ResCode.SUCCESS, msg="运行成功", data=execute_data, video_path=video_path)
     else:
-        return exec_res_msg(code=ResCode.ERR, msg=execute_reason, video_path=executor.execute_video_path)
+        return exec_res_msg(code=ResCode.ERR, msg=execute_reason, video_path=video_path)
 
 
 @router.post("/run")
