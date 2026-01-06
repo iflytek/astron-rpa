@@ -2,8 +2,8 @@
 import { Button, Modal } from 'ant-design-vue'
 import { ref } from 'vue'
 
-import type { AuthType } from '../../../interface'
 import { Icon as RpaIcon } from '../../../../Icon'
+import type { AuthType } from '../../../interface'
 
 import ConsultModal from './ConsultModal.vue'
 
@@ -58,7 +58,8 @@ const tenantTypeMap = {
 const confData = ref(props)
 const consultModalRef = ref<InstanceType<typeof ConsultModal> | null>(null)
 function openModal() {
-  if(confData.value.authType !== 'casdoor') consultModalRef.value?.showModal()
+  if (confData.value.authType !== 'casdoor')
+    consultModalRef.value?.showModal()
 }
 
 function init(config: typeof props) {

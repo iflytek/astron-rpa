@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AuthType, Edition, InviteInfo } from '../../interface'
+import type { AuthType, Edition, InviteInfo, Platform } from '../../interface'
 
 import ForgotPassword from './ForgotPassword.vue'
 import { useAuthFlow } from './hooks/useAuthFlow'
@@ -10,6 +10,7 @@ import SetPassword from './SetPassword.vue'
 import TenantSelect from './TenantSelect.vue'
 
 const props = defineProps({
+  platform: { type: String as () => Platform },
   baseUrl: { type: String },
   inviteInfo: { type: Object as () => InviteInfo, default: () => null },
   edition: { type: String as () => Edition, default: 'saas' },

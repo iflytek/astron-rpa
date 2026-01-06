@@ -3,10 +3,11 @@ import { debounce } from 'lodash-es'
 import { reactive, ref } from 'vue'
 
 import { generateInviteLink, getInviteUser, getTransferUser, resetInviteLink } from '@/api/market'
-import { VUE_APP_AUTH } from '@/constants'
 import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
 import type { resOption } from '@/views/Home/types'
+import { useAppConfigStore } from '@/stores/useAppConfig'
+import { storeToRefs } from 'pinia'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
   const userList = ref([])
@@ -107,7 +108,6 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 
   const removeUser = (record) => {
     allSelectUsers.value = allSelectUsers.value.filter(i => i.creatorId !== record.creatorId)
-    selectIds.value = allSelectUsers.value.map(i => i.creatorId)
     triggerChange()
   }
 
@@ -173,6 +173,8 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 }
 
 export function useLinkInvite(marketId: string, emit?: any) {
+  const appStore = useAppConfigStore()
+  const { appInfo } = storeToRefs(appStore)
   const invitData = ref({
     inviteKey: '',
     expireTime: '',
@@ -193,7 +195,7 @@ export function useLinkInvite(marketId: string, emit?: any) {
 
   const retInviteLink = (data) => {
     invitData.value = data
-    formState.inviteLink = data.overNumLimit === 1 ? '' : `${VUE_APP_AUTH}?inviteKey=${data.inviteKey}`
+    formState.inviteLink = data.overNumLimit === 1 ? '' : `${appInfo.value.remotePath}login/#/invite?inviteKey=${data.inviteKey}`
     formState.expireType = data.expireType || '24H'
     emit && emit('linkChange', formState.inviteLink)
   }

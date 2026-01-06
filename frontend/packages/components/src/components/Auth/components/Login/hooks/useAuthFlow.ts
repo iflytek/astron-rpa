@@ -31,13 +31,14 @@ import { clearRememberUser, getRememberUser, getSelectedTenant, saveRememberUser
 
 export interface UseAuthFlowOptions {
   baseUrl?: string
+  platform?: Platform
   inviteInfo?: InviteInfo
   authType?: AuthType
   edition?: Edition
 }
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'): void }) {
-  const platform = ref<Platform>('admin')
+  const platform = ref<Platform>(opts.platform || 'admin')
   const currentFormMode = ref<AuthFormMode>('login')
   const tenants = ref<TenantItem[]>([])
   const tempToken = ref<string>('')
@@ -57,7 +58,9 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
     () => opts.baseUrl,
     (newVal) => {
       newVal && setBaseUrl(newVal)
-      platform.value = newVal && (newVal.includes('localhost') || newVal.includes('127.0.0.1')) ? 'client' : 'admin'
+      if (!opts.platform) {
+        platform.value = newVal && (newVal.includes('localhost') || newVal.includes('127.0.0.1')) ? 'client' : 'admin'
+      }
     },
     { immediate: true },
   )
@@ -103,6 +106,11 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
         return
       }
 
+      if (tenants.value.length === 0) {
+        message.info('当前账号暂无可用空间，请联系管理员开通空间后再登录')
+        return
+      }
+
       switchMode('tenantSelect')
     }
     catch (e) {
@@ -128,7 +136,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       mode === 'PASSWORD' && params.remember && account && params.password ? saveRememberUser(account, params.password, opts.edition, opts.authType) : clearRememberUser()
       delete params.remember
       delete params.agreement
-      const token = await preAuthenticate({ ...params, platform: platform.value })
+      const token = await preAuthenticate({ ...params, scene: 'login', platform: platform.value })
       tempToken.value = token
       switchToTenants(autoLogin)
     }
@@ -175,7 +183,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       const params: LoginFormData = { ...data, loginType: 'CODE' }
       delete params.remember
       delete params.agreement
-      const token = await preAuthenticate({ ...params, platform: platform.value })
+      const token = await preAuthenticate({ ...params, scene: 'set_password', platform: platform.value })
       tempToken.value = token
       switchMode(currentFormMode.value === 'forgotPassword' ? 'setPassword' : 'setPasswordWithSysUpgrade')
     }

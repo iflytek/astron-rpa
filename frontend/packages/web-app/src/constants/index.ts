@@ -35,6 +35,5 @@ export const SUCCESS_CODES = ['200', '000000', 200, '0000']
 export const ERROR_CODES = ['500', '5001', '1001']
 export const UN_AUTHORIZED_CODES = ['302', '4001', '401', '403', '900005', '900001'] // 900005空间过期 900001被其他账号顶掉
 
-export const VUE_APP_AUTH = 'http://dev.iflyrpa.private:31680/login/#/invite'
 export const VUE_APP_COMMANDER = 'https://www.iflyrpa.com/admin/'
 export const VUE_APP_HELP = 'https://www.iflyrpa.com/docs/'

@@ -9,7 +9,6 @@ export type LoginEmitEvent
   = | 'submit'
     | 'switchToRegister'
     | 'forgetPassword'
-    | 'sendCaptcha'
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,

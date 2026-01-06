@@ -72,6 +72,8 @@ export const useUserStore = defineStore('user', () => {
     await Auth.logout()
   }
 
+  getUserInfo()
+
   return {
     edition,
     authType,
