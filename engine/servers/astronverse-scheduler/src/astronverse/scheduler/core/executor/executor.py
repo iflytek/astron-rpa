@@ -10,7 +10,7 @@ import traceback
 import uuid
 from enum import Enum
 from typing import Union
-
+from urllib.parse import quote
 import requests
 import websocket
 from astronverse.scheduler.core.executor.virtual_desk import (
@@ -328,9 +328,9 @@ class ExecutorManager:
                         f.write(run_param)
 
                 executor.run_param_file = temp_file_path
-                ins.set_param("run_param", temp_file_path)
+                ins.set_param("run_param", quote(temp_file_path))
             except Exception:
-                ins.set_param("run_param", run_param)
+                raise Exception("参数传递失败...")
         if process_id:
             ins.set_param("process_id", process_id)
         if line:
@@ -345,7 +345,7 @@ class ExecutorManager:
             ins.set_param("version", int(version))
         if self.svc.config and self.svc.config.conf_file:
             resource_dir = os.path.dirname(self.svc.config.conf_file)
-            ins.set_param("resource_dir", resource_dir)
+            ins.set_param("resource_dir", quote(resource_dir))
 
         wait_web_ws = "y"
         wait_tip_ws = "y"
@@ -371,7 +371,7 @@ class ExecutorManager:
                 if recording_config.get("enable", False):
                     ins.set_param(
                         "recording_config",
-                        json.dumps(recording_config, ensure_ascii=True),
+                        quote(json.dumps(recording_config, ensure_ascii=True)),
                     )
                     executor.recording_path = recording_config.get("filePath", "./logs/report")
             except Exception as e:

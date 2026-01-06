@@ -380,7 +380,7 @@ class WebElement:
         from rpa_locator import smooth_move
 
         # 获取元素中心位置
-        element = Locator.locator(self.element_data.get("elementData"))
+        element = Locator.locator(self.element_data.get("elementData"), cur_target_app=self.browser.browser_type.value)
         center = element.point()
 
         start_x, start_y = center.x, center.y
