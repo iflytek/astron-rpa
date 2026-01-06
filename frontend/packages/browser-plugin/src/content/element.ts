@@ -368,7 +368,7 @@ export function getElementsByXpath(path: string, onlyPosition: boolean = false):
     elements.push(element)
     element = result.iterateNext() as HTMLElement
   }
-  return elements.length > 0 ? filterVisibleElements(elements) : null
+  return elements.length > 0 ? elements : null
 }
 
 export function getElementByXPath(xpath: string): HTMLElement | null {
@@ -384,11 +384,11 @@ export function getElementBySelector(selector: string, onlyPosition: boolean = f
   }
   if (selector.includes('$shadow$')) {
     const sahdowElements = getShadowElementsBySelector(selector)
-    return sahdowElements.length > 0 ? filterVisibleElements(sahdowElements) : null
+    return sahdowElements.length > 0 ? sahdowElements : null
   }
   else {
     const elements = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
-    return elements.length > 0 ? filterVisibleElements(elements) : null
+    return elements.length > 0 ? elements : null
   }
 }
 function onlyPositionSelector(selector: string) {
@@ -451,7 +451,7 @@ function queryDeepShadow(selectorLevels: string[], currentHosts: [Document | Sha
 function getShadowElementsBySelector(selector: string) {
   const selectorLevels = selector.split('>$shadow$>')
   const allElements = queryDeepShadow(selectorLevels)
-  return filterVisibleElements(allElements)
+  return allElements
 }
 
 /**
