@@ -55,20 +55,15 @@ export const Cookie = {
 
   getAllCookies: (details: CookieDetails) => {
     return new Promise<unknown>((resolve) => {
-      const fetchCookies = () => {
-        chrome.cookies.getAll(details, (cookies) => {
-          resolve(Utils.success(cookies))
-        })
-      }
-      if (!details.url) {
-        chrome.tabs.query({ active: true, currentWindow: true }).then(tab => {
-          details.url = tab ? tab[0].url : ''
-        })
-      }
-      if (details.path) {
+      if (details.path !== "") {
         details.domain = new URL(details.url).hostname
         delete details.url
+      } else {
+        delete details.path
       }
+      chrome.cookies.getAll(details, (cookies) => {
+        resolve(Utils.success(cookies))
+      })
     })
   },
 
