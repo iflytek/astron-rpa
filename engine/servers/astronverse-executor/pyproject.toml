@@ -15,6 +15,9 @@ dependencies = [
     "astronverse-websocket-server",
     "astronverse-tools",
     "astronverse-workflowlib",
+    "astronverse-dataprocess",
+    "astronverse-report",
+    "astronverse-script",
 ]
 
 [tool.uv.sources]
@@ -23,6 +26,10 @@ astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable =
 astronverse-websocket-server = {path = "../../shared/astronverse-websocket-server", editable = true}
 astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
 astronverse-workflowlib = {path = "../../shared/astronverse-workflowlib", editable = true}
+
+astronverse-dataprocess = {path = "../../components/astronverse-dataprocess", editable = true}
+astronverse-report = {path = "../../components/astronverse-report", editable = true}
+astronverse-script = {path = "../../components/astronverse-script", editable = true}
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
 
