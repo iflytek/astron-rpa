@@ -193,8 +193,10 @@ class BrowserElement:
         """等待元素出现或消失。"""
         app = element_data["elementData"]["app"] if element_data["elementData"]["app"] != "iexplore" else "ie"
         browser_type = browser_obj.browser_type.value
-        if (app == 'ie' and browser_type != 'ie') or (app != 'ie' and browser_type == 'ie'):
-            raise Exception("拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value))
+        if (app == "ie" and browser_type != "ie") or (app != "ie" and browser_type == "ie"):
+            raise Exception(
+                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
+            )
         timeout = element_timeout
         if timeout < 0:
             raise BaseException(
@@ -277,7 +279,11 @@ class BrowserElement:
         if not simulate_flag:
             if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
                 # 发送给插件
-                element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False)
+                element = Locator.locator(
+                    element_data.get("elementData"),
+                    cur_target_app=browser_obj.browser_type.value,
+                    scroll_into_view=False,
+                )
                 if isinstance(element.rect(), list):
                     raise Exception("浏览器元素定位不唯一，请检查！")
                 center = element.point()
@@ -947,7 +953,9 @@ class BrowserElement:
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
-        element = Locator.locator(progress_element.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False)
+        element = Locator.locator(
+            progress_element.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+        )
         if isinstance(element.rect(), list):
             raise Exception("滑轨元素定位不唯一，请检查！")
         progress_rect = element.rect()
@@ -1413,7 +1421,9 @@ class BrowserElement:
             handler = BrowserCore.get_browser_handler(browser_obj.browser_type)
 
             # 定位
-            Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False)
+            Locator.locator(
+                element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+            )
             # 元素
             table_element = element_data["elementData"]
 
@@ -1883,8 +1893,10 @@ class BrowserElement:
         """检查元素是否存在。"""
         app = element_data["elementData"]["app"] if element_data["elementData"]["app"] != "iexplore" else "ie"
         browser_type = browser_obj.browser_type.value
-        if (app == 'ie' and browser_type != 'ie') or (app != 'ie' and browser_type == 'ie'):
-            raise Exception("拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value))
+        if (app == "ie" and browser_type != "ie") or (app != "ie" and browser_type == "ie"):
+            raise Exception(
+                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
+            )
         element_exist = False
         try:
             if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
