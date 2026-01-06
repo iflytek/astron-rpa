@@ -253,7 +253,17 @@ class BrowserElement:
                 "button_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
-            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
     )
     @wait_element_appear
@@ -362,7 +372,17 @@ class BrowserElement:
                 "input_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
-            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
         outputList=[
             atomicMg.param("form_input", types="Str"),
@@ -722,12 +742,19 @@ class BrowserElement:
 
     @staticmethod
     @get_default_browser
-    @atomicMg.atomic("BrowserElement")
+    @atomicMg.atomic(
+        "BrowserElement",
+        inputList=[
+            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+        ],
+        outputList=[],
+    )
     @wait_element_appear
     def scroll_into_view(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """滚动到元素可见位置。"""
         if not browser_obj:
@@ -736,10 +763,11 @@ class BrowserElement:
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
+            data = {**element_data["elementData"]["path"], "atomConfig": {"scrollIntoCenter": scroll_into_center}}
             _ = browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
                 key="scrollIntoView",
-                data=element_data["elementData"]["path"],
+                data=data,
             )
         else:
             raise NotImplementedError()
@@ -1551,6 +1579,17 @@ class BrowserElement:
             ),
             # 是否输出表头
             atomicMg.param("output_head", required=False),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
         outputList=[
             atomicMg.param("table_pick", types="List"),
@@ -1583,6 +1622,7 @@ class BrowserElement:
         output_head: bool = True,  # 是否输出表头
         output_filter_empty_col: bool = False,  # 是否过滤空列
         is_save_to_data_table: bool = False,  # 是否保存到数据表格
+        scroll_into_center: bool = True,
     ):
         """数据抓取（web）"""
         table_list = []
@@ -1652,6 +1692,7 @@ class BrowserElement:
                         assistive_key=ButtonForAssistiveKeyFlag.Nothing,
                         button_type=button_type,
                         element_timeout=element_timeout,
+                        scroll_into_center=scroll_into_center,
                     )
                 except Exception:
                     pass

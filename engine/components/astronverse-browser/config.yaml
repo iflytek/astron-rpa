@@ -225,6 +225,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList: []
   BrowserElement.similar:
     title: 获取相似元素列表（web）
@@ -550,6 +553,9 @@ atomic:
     - key: is_save_to_data_table
       title: 是否保存到数据表格
       tip: 选择是否将数据抓取的结果保存到数据表格中
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将翻页按钮元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList:
     - key: table_pick
       title: 表格对象

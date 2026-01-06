@@ -40,7 +40,9 @@ class WebFactory:
         menu_height, menu_left = cls.__get_web_top__(ele, app=app)
 
         # 通过插件获取元素位置信息
-        rect_res = cls.__get_rect_from_browser_plugin__(ele, app=app, scroll_into_view=scroll_into_view)
+        rect_res = cls.__get_rect_from_browser_plugin__(
+            ele, app=app, scroll_into_view=scroll_into_view, scroll_into_center=scroll_into_center
+        )
         if not rect_res:
             return None
         rect = Rect(
