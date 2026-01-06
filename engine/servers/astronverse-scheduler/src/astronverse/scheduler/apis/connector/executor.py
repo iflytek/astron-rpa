@@ -338,6 +338,14 @@ def executor_stop(exe_pro: ExecutorProject, svc: Svc = Depends(get_svc)):
     return res_msg(msg="停止成功", data=None)
 
 
+@router.post("/stop_current")
+def executor_stop_current(svc: Svc = Depends(get_svc)):
+    if svc.executor_mg:
+        svc.terminal_task_stop = True
+        svc.executor_mg.close_all()
+    return res_msg(msg="停止成功", data=None)
+
+
 @router.post("/stop_list")
 def executor_stop_list(stop_info: StopTask, svc: Svc = Depends(get_svc)):
     if svc.executor_mg:
