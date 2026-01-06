@@ -52,4 +52,42 @@ export const Cookie = {
       })
     })
   },
+
+  getAllCookies: (details: CookieDetails) => {
+    return new Promise<unknown>((resolve) => {
+      const fetchCookies = () => {
+        chrome.cookies.getAll(details, (cookies) => {
+          resolve(Utils.success(cookies))
+        })
+      }
+      if (!details.url) {
+        chrome.tabs.query({ active: true, currentWindow: true }).then(tab => {
+          details.url = tab ? tab[0].url : ''
+        })
+      }
+      if (details.path) {
+        details.domain = new URL(details.url).hostname
+        delete details.url
+      }
+    })
+  },
+
+  emptyCookies: (details: CookieDetails) => {
+    return new Promise<unknown>((resolve) => {
+      Cookie.getAllCookies(details).then((res: any) => {
+        const cookies = res.data
+        if (Array.isArray(cookies) && cookies.length) {
+          const removePromises = cookies.map((cookie: chrome.cookies.Cookie) => {
+            const url = `http${cookie.secure ? 's' : ''}://${cookie.domain.startsWith('.') ? cookie.domain.slice(1) : cookie.domain}${cookie.path}`
+            return Cookie.removeCookie({ url, name: cookie.name })
+          })
+          Promise.all(removePromises).then(() => {
+            resolve(Utils.success(SuccessMessage.EMPTY_SUCCESS))
+          })
+        } else {
+          resolve(Utils.success(SuccessMessage.EMPTY_SUCCESS))
+        }
+      })
+    })
+  }
 }
