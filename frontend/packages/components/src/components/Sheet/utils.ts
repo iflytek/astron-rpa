@@ -36,9 +36,9 @@ const importExcelFile = () => {
           const isCsv = /\.csv$/i.test(name) || file.type === 'text/csv';
 
           if (isCsv) {
-            LuckyExcel.transformCsvToUniver(file, resolve);
+            LuckyExcel.transformCsvToUniver(file, resolve, reject);
           } else {
-            LuckyExcel.transformExcelToUniver(file, resolve);
+            LuckyExcel.transformExcelToUniver(file, resolve, reject);
           }
         }
       })
@@ -60,8 +60,15 @@ const exportExcelFile = (snapshot: IWorkbookData, fileName?: string) => {
   })
 }
 
+const transformExcelToUniver = async (file: File) => {
+  return new Promise<IWorkbookData>((resolve, reject) => {
+    LuckyExcel.transformExcelToUniver(file, resolve, reject);
+  })
+}
+
 export const sheetUtils = {
   waitUserSelectExcelFile,
   importExcelFile,
   exportExcelFile,
+  transformExcelToUniver,
 }

@@ -167,23 +167,27 @@ export default function useRecordTableOption(props?: { robotId: string }) {
       size: 'middle',
       rowSelection,
       expandIcon: ({ expanded, onExpand, record }) => {
-        return record.robotExecuteRecordList
-          ? (
-              <Tooltip title={expanded ? '收起' : '展开'}>
-                <span
-                  class="cursor-pointer absolute inline-block left-[45px] top-1/2 z-10 -translate-y-1/2 border border-[#E6E6E6] hover:border-primary rounded-[2px] hover:!text-primary"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onExpand(record, e)
-                  }}
-                >
-                  <Icon name={expanded ? 'collapse' : 'uncollapse'} size="14px" />
-                </span>
-              </Tooltip>
-            )
-          : (
-              <span class="mr-2"></span>
-            )
+        if (record.robotExecuteRecordList) {
+          return (
+            <Tooltip title={expanded ? '收起' : '展开'}>
+              <span
+                class={[
+                  "cursor-pointer absolute left-[45px] top-1/2 z-10 -translate-y-1/2",
+                  "border border-[#E6E6E6] hover:border-primary rounded-[2px] hover:!text-primary",
+                  "w-4 h-4 inline-flex items-center justify-center"
+                ]}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onExpand(record, e)
+                }}
+              >
+                <Icon name={expanded ? 'collapse' : 'uncollapse'} size="14px" />
+              </span>
+            </Tooltip>
+          )
+        }
+
+        return <span class="mr-2" />
       },
       expandedRowRender: handleExpandedRowRender,
     },

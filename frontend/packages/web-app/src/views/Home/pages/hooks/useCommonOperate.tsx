@@ -14,7 +14,7 @@ import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import type { AnyObj, Fun } from '@/types/common'
-import { LogModal, TaskReferInfoModal } from '@/views/Home/components/modals'
+import { LogModal, DataTableModal, TaskReferInfoModal } from '@/views/Home/components/modals'
 
 // 当前tab值
 function tabValue(item: string) {
@@ -70,6 +70,10 @@ export async function handleRun(editObj: AnyObj) {
 }
 
 export function useCommonOperate() {
+  function handleOpenDataTable(record) {
+    NiceModal.show(DataTableModal, { record })
+  }
+
   function handleCheck({ type = 'modal', record }) {
     NiceModal.show(LogModal, {
       record,
@@ -185,6 +189,7 @@ export function useCommonOperate() {
     tabValue,
     handleCheck,
     handleDeleteConfirm,
+    handleOpenDataTable,
     applicationReleaseCheck,
     useApplicationConfirm,
     getSituationContent,
