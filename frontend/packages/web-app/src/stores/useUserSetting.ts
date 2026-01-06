@@ -2,7 +2,7 @@ import type { BasicColorSchema } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import deepmerge from 'deepmerge'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { autoStartDisable, autoStartEnable, autoStartStatus, getUserSetting, setUserSetting } from '@/api/setting'
 
@@ -75,10 +75,14 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
     })
   }
 
+  // 运行结束后是否打开日志弹窗
+  const openLogModalAfterRun = computed(() => !userSetting.value.commonSetting.hideDetailLogWindow)
+
   getSetting()
 
   return {
     userSetting,
+    openLogModalAfterRun,
     saveUserSetting,
     changeCommonConfig,
   }

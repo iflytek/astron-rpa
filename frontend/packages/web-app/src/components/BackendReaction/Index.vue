@@ -31,7 +31,9 @@ export interface W2WType {
   type: string // 类型
   data?: any // 数据
 }
+
 const permissionStore = usePermissionStore()
+const userSettingStore = useUserSettingStore()
 
 const route = useRoute()
 // 主进程与渲染进程通信
@@ -174,12 +176,13 @@ function executorHandle() {
 }
 
 function logReportHandle(msg) {
-  const { log_path } = msg
+  const { log_path, data_table_path } = msg
   // 设置中心的详细日志是否启用，如果启用，则打开日志弹窗
-  if (useUserSettingStore().userSetting.commonSetting.hideDetailLogWindow)
+  if (!userSettingStore.openLogModalAfterRun)
     return
+
   if (![EDITORPAGE, SMARTCOMPONENT].includes(route.name as string) && log_path) {
-    BUS.$emit('open-log-modal', log_path)
+    BUS.$emit('open-log-modal', log_path, data_table_path)
   }
 }
 

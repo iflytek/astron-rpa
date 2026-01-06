@@ -161,6 +161,16 @@ export function blob2Text<T>(blob: Blob) {
   })
 }
 
+/**
+ * blob转file
+ * @param blob blob对象
+ * @param fileName 文件名
+ * @returns 
+ */
+export function blob2File(blob: Blob, fileName: string) {
+  return new File([blob], fileName, { type: blob.type })
+}
+
 export function text2LogArray(text: string) {
   try {
     // 按行切割成数组

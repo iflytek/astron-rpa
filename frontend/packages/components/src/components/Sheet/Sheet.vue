@@ -36,6 +36,7 @@ const props = withDefaults(defineProps<SheetProps>(), {
 
 const emits = defineEmits<{
   (e: 'ready'): void
+  (e: 'rendered'): void
   (e: 'cellUpdate', data: ICellValue[]): void
 }>()
 
@@ -96,6 +97,8 @@ onMounted(() => {
     univerAPI.Event.LifeCycleChanged,
     ({ stage }) => {
       if (stage === univerAPI.Enum.LifecycleStages.Rendered) {
+        emits('rendered')
+        
         if (!props.readonly) return
 
         const fWorkbook = univerAPI.getActiveWorkbook()!

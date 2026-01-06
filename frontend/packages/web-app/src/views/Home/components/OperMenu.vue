@@ -38,9 +38,8 @@ function isDisabled(key: string) {
   return false
 }
 
-function disableFn(opt) {
-  const { row } = props
-  return opt.disableFn && opt.disableFn(row)
+function disableFn(opt: TableMoreAction): boolean {
+  return Boolean(opt.disableFn?.(props.row))
 }
 </script>
 
@@ -51,7 +50,7 @@ function disableFn(opt) {
         <a-button
           size="small"
           class="flex items-center justify-center border-none bg-transparent"
-          :disabled="isDisabled(opt.key)"
+          :disabled="isDisabled(opt.key) || disableFn(opt)"
           :icon="h(opt.icon)"
           @click="() => opt.clickFn(row)"
         />
