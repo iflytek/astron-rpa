@@ -157,20 +157,16 @@ class Dialog:
                 res_e = e
             done.set()
 
-        payload = urllib.parse.quote(
-            json.dumps(
-                {
-                    "key": "Dialog.message_box",
-                    "box_title": box_title,
-                    "message_type": message_type.value,
-                    "message_content": message_content,
-                    "button_type": button_type.value,
-                    "auto_check": auto_check,
-                    "wait_time": wait_time,
-                    "outputkey": "result_button",
-                }
-            )
-        )
+        payload = {
+            "key": "Dialog.message_box",
+            "box_title": box_title,
+            "message_type": message_type.value,
+            "message_content": message_content,
+            "button_type": button_type.value,
+            "auto_check": auto_check,
+            "wait_time": wait_time,
+            "outputkey": "result_button",
+        }
         ws = atomicMg.cfg().get("WS", None)
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)
@@ -256,18 +252,14 @@ class Dialog:
             default_input = default_input_pwd
         else:
             raise NotImplementedError()
-        payload = urllib.parse.quote(
-            json.dumps(
-                {
-                    "key": "Dialog.input_box",
-                    "box_title": box_title,
-                    "input_type": input_type.value,
-                    "input_title": input_title,
-                    "default_input": default_input,
-                    "outputkey": "input_content",
-                }
-            )
-        )
+        payload = {
+            "key": "Dialog.input_box",
+            "box_title": box_title,
+            "input_type": input_type.value,
+            "input_title": input_title,
+            "default_input": default_input,
+            "outputkey": "input_content",
+        }
         ws = atomicMg.cfg().get("WS", None)
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)
@@ -322,18 +314,14 @@ class Dialog:
                 res_e = e
             done.set()
 
-        payload = urllib.parse.quote(
-            json.dumps(
-                {
-                    "key": "Dialog.select_box",
-                    "box_title": box_title,
-                    "select_type": select_type.value,
-                    "options": options,
-                    "options_title": options_title,
-                    "outputkey": "select_result",
-                }
-            )
-        )
+        payload = {
+            "key": "Dialog.select_box",
+            "box_title": box_title,
+            "select_type": select_type.value,
+            "options": options,
+            "options_title": options_title,
+            "outputkey": "select_result",
+        }
         ws = atomicMg.cfg().get("WS", None)
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)
@@ -415,20 +403,16 @@ class Dialog:
                 res_e = e
             done.set()
 
-        payload = urllib.parse.quote(
-            json.dumps(
-                {
-                    "key": "Dialog.select_time_box",
-                    "box_title": box_title,
-                    "time_type": time_type.value,
-                    "time_format": time_format.value,
-                    "default_time": default_time,
-                    "default_time_range": default_time_range,
-                    "input_title": input_title,
-                    "outputkey": "select_time",
-                }
-            )
-        )
+        payload = {
+            "key": "Dialog.select_time_box",
+            "box_title": box_title,
+            "time_type": time_type.value,
+            "time_format": time_format.value,
+            "default_time": default_time,
+            "default_time_range": default_time_range,
+            "input_title": input_title,
+            "outputkey": "select_time",
+        }
         ws = atomicMg.cfg().get("WS", None)
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)
@@ -538,20 +522,16 @@ class Dialog:
             box_title = box_title_folder
         else:
             raise NotImplementedError()
-        payload = urllib.parse.quote(
-            json.dumps(
-                {
-                    "key": "Dialog.select_file_box",
-                    "box_title": box_title,
-                    "open_type": open_type.value,
-                    "file_type": file_type.value,
-                    "multiple_choice": multiple_choice,
-                    "select_title": select_title,
-                    "default_path": default_path,
-                    "outputkey": "select_file",
-                }
-            )
-        )
+        payload = {
+            "key": "Dialog.select_file_box",
+            "box_title": box_title,
+            "open_type": open_type.value,
+            "file_type": file_type.value,
+            "multiple_choice": multiple_choice,
+            "select_title": select_title,
+            "default_path": default_path,
+            "outputkey": "select_file",
+        }
         ws = atomicMg.cfg().get("WS", None)
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)
@@ -631,17 +611,13 @@ class Dialog:
                 res_e = e
             done.set()
 
-        payload = urllib.parse.quote(
-            json.dumps(
-                {
-                    "key": "Dialog.custom_box",
-                    "box_title": box_title,
-                    "design_interface": json.dumps(design_interface.get("value"), ensure_ascii=False),
-                    "result_button": default_button.value,
-                    "outputkey": "dialog_result",
-                }
-            )
-        )
+        payload = {
+            "key": "Dialog.custom_box",
+            "box_title": box_title,
+            "design_interface": json.dumps(design_interface.get("value"), ensure_ascii=False),
+            "result_button": default_button.value,
+            "outputkey": "dialog_result",
+        }
         ws = atomicMg.cfg().get("WS", None)
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)

@@ -226,7 +226,10 @@ class Ws:
 
         Ws.loop = loop
 
-        ws_server = websockets.serve(self.websocket_endpoint, "127.0.0.1", self.svc.conf.port)
-        loop.run_until_complete(ws_server)
-        logger.info("服务已启动 ws://127.0.0.1:%s", self.svc.conf.port)
-        loop.run_forever()
+        async def _start():
+            srv = await websockets.serve(self.websocket_endpoint, "127.0.0.1", self.svc.conf.port)
+            logger.info("服务已启动 ws://127.0.0.1:%s", self.svc.conf.port)
+            await asyncio.Event().wait()  # 永远挂起，等价于 run_forever
+            return srv
+
+        loop.run_until_complete(_start())  # 这里循环就转起来了

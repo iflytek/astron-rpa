@@ -30,7 +30,6 @@ def flow_start(args, conf):
     flow.gen_code(
         path=svc.conf.gen_core_path,
         project_id=args.project_id,
-        project_name=args.project_name,
         mode=args.mode,
         version=args.version,
         process_id=args.process_id,
@@ -116,7 +115,7 @@ def start():
     parser.add_argument("--port", default="13158", help="本地端口号", required=False)
     parser.add_argument("--gateway_port", default="13159", help="网关端口", required=False)
     parser.add_argument("--project_id", default="", help="启动的工程id", required=True)
-    parser.add_argument("--project_name", default="", help="启动的工程名称", required=False)
+    parser.add_argument("--project_name", default="", help="启动的工程名称[废弃]", required=False)
     parser.add_argument("--mode", default="EDIT_PAGE", help="运行场景", required=False)
     parser.add_argument("--version", default="", help="运行版本", required=False)
     parser.add_argument("--run_param", default="", help="运行参数", required=False)
@@ -128,8 +127,8 @@ def start():
     parser.add_argument("--debug", default="n", help="[调试]是否是debug模式 y/n", required=False)
 
     parser.add_argument("--log_ws", default="y", help="[ws通信]ws总开关 y/n", required=False)
-    parser.add_argument("--wait_web_ws", default="n", help="[ws通信]等待前端ws连接 y/n", required=False)
-    parser.add_argument("--wait_tip_ws", default="y", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
+    parser.add_argument("--wait_web_ws", default="y", help="[ws通信]等待前端ws连接 y/n", required=False)
+    parser.add_argument("--wait_tip_ws", default="n", help="[ws通信]开启并等待右下角ws连接 y/n", required=False)
 
     parser.add_argument("--resource_dir", default="", help="资源目录", required=False)
     parser.add_argument("--recording_config", default="", help="录屏", required=False)
@@ -142,8 +141,8 @@ def start():
     Config.gateway_port = args.gateway_port
     Config.exec_id = args.exec_id
     Config.project_id = args.project_id
-    if args.project_name:
-        Config.project_name = unquote(args.project_name)
+    # if args.project_name:
+    #     Config.project_name = unquote(args.project_name)
     if args.resource_dir:
         args.resource_dir = unquote(args.resource_dir)
         Config.resource_dir = args.resource_dir

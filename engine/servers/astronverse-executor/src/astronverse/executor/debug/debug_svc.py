@@ -60,6 +60,9 @@ class DebugSvc:
         """将字典数据转换为结构化对象"""
         self.ast_globals = AstGlobals.from_dict(data)
 
+    def get_project_info(self):
+        return self.ast_globals.project_info
+
     def get_process_info(self, process_id):
         if process_id not in self.ast_globals.process_info:
             return None

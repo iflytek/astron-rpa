@@ -9,25 +9,21 @@ class LogTool:
         self.starting = False
 
     def _send_msg(self, action: str):
-        icon = self.svc.start_project_icon
-        if icon:
-            from urllib.parse import quote
-
-            icon = quote(icon)
+        info = self.svc.get_project_info()
         sub_window = {
             "action": action,
             "name": "logwin",
             "params": {
-                "title": self.svc.start_project_name,
-                "icon": icon,
-                "ws": "ws://127.0.0.1:{}/?tag=tip".format(self.svc.port),
+                "title": info.project_name,
+                "icon": info.project_icon,
+                "ws": "ws://127.0.0.1:{}/?tag=tip".format(self.svc.conf.port),
             },
             "pos": "right_bottom",
             "width": "360",
             "height": "128",
             "top": "true",
         }
-        url = "http://127.0.0.1:{}/scheduler/send/sub_window".format(self.svc.gateway_port)
+        url = "http://127.0.0.1:{}/scheduler/send/sub_window".format(self.svc.conf.gateway_port)
         headers = {"Content-Type": "application/json"}
         response = requests.post(url, headers=headers, data=json.dumps(sub_window))
         logger.info(f"当前调度器返回的结果的Json是：{response.json()}")

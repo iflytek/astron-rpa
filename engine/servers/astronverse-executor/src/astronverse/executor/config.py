@@ -16,9 +16,6 @@ class Config:
     # 工程id
     project_id: str = ""
 
-    # 工程民初
-    project_name: str = "机器人"
-
     # 主流程名称（中文显示用）
     main_process_name: str = "主流程"
 

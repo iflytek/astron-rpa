@@ -20,6 +20,7 @@ class AtomicInfo:
 class ProjectInfo:
     project_id: str = ""
     project_name: str = ""
+    project_icon: str = ""
     mode: str = ""
     version: str = ""
     requirement: dict = None
@@ -30,6 +31,7 @@ class ProjectInfo:
         return {
             "project_id": self.project_id,
             "project_name": self.project_name,
+            "project_icon": self.project_icon,
             "mode": self.mode,
             "version": self.version,
             "requirement": self.requirement,
@@ -41,6 +43,7 @@ class ProjectInfo:
         return cls(
             project_id=data.get("project_id", ""),
             project_name=data.get("project_name", ""),
+            project_icon=data.get("project_icon", ""),
             mode=data.get("mode", ""),
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
