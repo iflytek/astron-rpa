@@ -1,10 +1,8 @@
 {
-  "name": "iflyrpa",
-  "version": "5.1.1",
-  "author": "iflyrpa",
+  "name": "astron-rpa",
+  "version": "1.1.2",
   "homepage": "https://www.iflyrpa.com",
   "main": "./out/main/index.js",
-  "publisher": "https://www.iflyrpa.com",
   "scripts": {
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
@@ -30,7 +28,8 @@
     "lodash-es": "^4.17.21",
     "node-7z": "^3.0.0",
     "open": "^10.1.0",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",

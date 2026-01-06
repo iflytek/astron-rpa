@@ -1,4 +1,4 @@
-import envConfig from '../../resources/conf.json'
+import path from 'node:path'
 
 const REQUEST_WHITE_URL = [
   'http://127.0.0.1:1420/*',
@@ -10,7 +10,8 @@ const REQUEST_WHITE_URL = [
 ]
 
 export const envJson = {
-  DEV_URL: envConfig!.dev_addr,
-  APP_URL: `${envConfig!.remote_addr}/client/`,
+  DEV_URL: "http://localhost:1420/boot.html",
+  APP_URL: path.join(__dirname, '../renderer/boot.html'),
   REQUEST_WHITE_URL,
+  SCHEDULER_NAME: 'astronverse.scheduler',
 }

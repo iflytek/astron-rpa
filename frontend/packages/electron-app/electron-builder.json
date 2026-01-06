@@ -1,6 +1,6 @@
 {
-  "appId": "iflyrpa",
-  "productName": "iflyrpa",
+  "appId": "astron-rpa",
+  "productName": "星辰RPA",
   "artifactName": "星辰RPA-${version}-${arch}-electron.${ext}",
   "electronLanguages": [
     "zh-CN",
@@ -13,16 +13,16 @@
     "resources/**",
     "package.json"
   ],
-  "extraResources": [
+  "extraFiles": [
     {
-      "from": "resources/7zr.exe",
-      "to": "./7zr.exe"
+      "from": "../../../resources",
+      "to": "resources"
     }
   ],
   "win": {
     "target": "nsis",
     "icon": "../../public/icons/icon.ico",
-    "publisherName": "iflyrpa",
+    "publisherName": "astron-rpa",
     "requestedExecutionLevel": "requireAdministrator"
   },
   "mac": {

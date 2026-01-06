@@ -2,16 +2,16 @@ import path from 'node:path'
 
 import { app } from 'electron'
 
-export const resourcePath = path.join(app.getAppPath(), 'resources')
-export const userDataPath = app.getPath('userData')
 export const appPath = app.getAppPath()
+export const userDataPath = app.getPath('userData')
 export const appDataPath = app.getPath('appData')
-export const notFoundPath = path.join(resourcePath, '404.html')
-export const appWorkPath = path.join(appDataPath, 'iflyrpa')
+
+export const resourcePath = path.join(appPath, 'resources')
+// 打包后，数据存储在 userDataPath ，否则存储在 appPath 下的 data 目录
+export const appWorkPath = app.isPackaged ? userDataPath : path.join(appPath, 'data')
 export const pythonCore = path.join(appWorkPath, 'python_core')
-export const pythonBase = path.join(appWorkPath, 'python_base')
 export const pythonExe = path.join(pythonCore, 'python.exe')
-export const confPath = path.join(resourcePath, 'conf.json')
+export const confPath = path.join(resourcePath, 'conf.yaml')
 export const d7zrPath = path.join(resourcePath, '7zr.exe')
 
 export function openPath(targetPath: string): Promise<void> {
@@ -26,10 +26,7 @@ export function openPath(targetPath: string): Promise<void> {
     const openCommand = process.platform === 'win32' ? `start "" "${targetPath}"` : `xdg-open "${targetPath}"`
 
     exec(openCommand, (error) => {
-      if (error) {
-        reject(error)
-      }
-      resolve()
+      error ? reject(error) : resolve()
     })
   })
 }

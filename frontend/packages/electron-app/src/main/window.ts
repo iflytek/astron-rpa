@@ -8,7 +8,6 @@ import type { WindowOptions } from '../types'
 import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
 import { envJson } from './env'
 import logger from './log'
-import { notFoundPath } from './path'
 
 export const WindowStack: Map<string, number> = new Map()
 
@@ -125,7 +124,7 @@ export function createSubWindow(options: WindowOptions) {
   }
 
   const window = createWindow(subWindowOptions, options.label)
-  window.loadURL(url).then(() => electronInfo(window)).catch(() => window.loadFile(notFoundPath))
+  window.loadURL(url).then(() => electronInfo(window)).catch(() => logger.error('Failed to load URL'))
   window.on('ready-to-show', () => {
     if (options?.visible !== false) {
       window.show()

@@ -4,13 +4,12 @@ import { join } from 'node:path'
 
 import { toUnicode } from '../common'
 
-import { readConfig } from './config'
-import { axiosRequest, downloadWithAxiosProgress } from './download'
 import { mainToRender } from './event'
-import { extract7z, rename } from './file'
+import { extract7z } from './file'
 import logger from './log'
 import { appWorkPath, confPath, pythonExe, resourcePath } from './path'
 import { getMainWindow } from './window'
+import { envJson } from './env'
 
 let setupProcessId
 
@@ -19,13 +18,13 @@ process.on('uncaughtException', (err) => {
 })
 
 /**
- * 检查 python rpa_setup是否正在运行
+ * 检查 python envJson.SCHEDULER_NAME 是否正在运行
  */
 export function checkPythonRpaProcess() {
   return new Promise((resolve, reject) => {
-    // linux 上检测 python 进程中 命令行中包含 rpa_setup 的进程
+    // linux 上检测 python 进程中 命令行中包含 envJson.SCHEDULER_NAME 的进程
     if (process.platform !== 'win32') {
-      exec('ps aux | grep "rpa_setup"', (error, stdout) => {
+      exec(`ps aux | grep "${envJson.SCHEDULER_NAME}"`, (error, stdout) => {
         logger.info('11', stdout)
         if (error) {
           return resolve(false)
@@ -39,7 +38,7 @@ export function checkPythonRpaProcess() {
         if (error) {
           return reject(error)
         }
-        const isRunning = stdout.includes('rpa_setup')
+        const isRunning = stdout.includes(envJson.SCHEDULER_NAME)
         resolve(isRunning)
       })
     }
@@ -50,17 +49,17 @@ export function checkPythonRpaProcess() {
  * 启动服务
  */
 export async function startServer() {
-  // 查看是否已经启动 rpa_setup.exe
+  // 查看是否已经启动 envJson.SCHEDULER_NAME
   const isRunning = await checkPythonRpaProcess()
   if (isRunning) {
-    logger.info('rpa_setup is running')
+    logger.info(`${envJson.SCHEDULER_NAME} is running`)
     return
-  }
+  } 
   mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
 
-  const rpaSetup = exec(`${pythonExe} -m rpa_setup --conf=${confPath}`, { cwd: appWorkPath }, (error) => {
+  const rpaSetup = exec(`${pythonExe} -m ${envJson.SCHEDULER_NAME} --conf=${confPath}`, { cwd: appWorkPath }, (error) => {
     if (error) {
-      logger.error(`rpa_setup error: ${error}`)
+      logger.error(`${envJson.SCHEDULER_NAME} error: ${error}`)
     }
   })
   rpaSetup.stdout?.on('data', (data) => {
@@ -68,19 +67,19 @@ export async function startServer() {
   })
 
   rpaSetup.stderr?.on('data', (data) => {
-    logger.info(`rpa_setup stderr: ${data.toString()}`)
+    logger.info(`${envJson.SCHEDULER_NAME} stderr: ${data.toString()}`)
   })
 
   rpaSetup.on('close', (code) => {
     if (code === 0) {
-      logger.info('rpa_setup exited successfully.')
+      logger.info(`${envJson.SCHEDULER_NAME} exited successfully.`)
     }
     else {
-      logger.error(`rpa_setup exited with error code: ${code}`)
+      logger.error(`${envJson.SCHEDULER_NAME} exited with error code: ${code}`)
     }
   })
   rpaSetup.on('error', (error) => {
-    logger.error(`Failed to start rpa_setup: ${error.message}`)
+    logger.error(`Failed to start ${envJson.SCHEDULER_NAME}: ${error.message}`)
   })
   await checkOld7zFilesProcess()
 }
@@ -91,7 +90,7 @@ export function stopServer(callback?: () => void) {
   const treeKill = require('tree-kill')
   treeKill(setupProcessId, 'SIGTERM', (err) => {
     if (err)
-      logger.error(`Failed to stop rpa_setup: ${err.message}`)
+      logger.error(`Failed to stop ${envJson.SCHEDULER_NAME}: ${err.message}`)
     callback && callback()
   })
 }
@@ -124,6 +123,7 @@ function pythonExist() {
       })
   })
 }
+
 // 检查是否已经下载 python 包
 function pythonPackageDownloaded(): Promise<Array<string>> {
   return new Promise((resolve, reject) => {
@@ -140,6 +140,7 @@ function pythonPackageDownloaded(): Promise<Array<string>> {
       })
   })
 }
+
 // 获取资源目录下的 python 包
 function getPythonInResources() {
   return new Promise<boolean>((resolve, reject) => {
@@ -166,6 +167,7 @@ function getPythonInResources() {
     }
   })
 }
+
 // 删除 旧的7z文件
 function checkOld7zFilesProcess() {
   return new Promise((resolve, reject) => {
@@ -199,114 +201,39 @@ function checkOld7zFilesProcess() {
   })
 }
 
-export function startBackend() {
-  ; (async () => {
-    if (globalThis.serverRunning)
-      return
-    const msg = `{"type":"sync","msg":{"msg":"${toUnicode('正在初始化')}","step":1}}`
-    mainToRender('scheduler-event', msg, undefined, true)
+export async function startBackend() {
+  if (globalThis.serverRunning)
+    return
+  const msg = `{"type":"sync","msg":{"msg":"${toUnicode('正在初始化')}","step":1}}`
+  mainToRender('scheduler-event', msg, undefined, true)
 
-    // 检查 python rpa_setup是否正在运行
-    const isRunning = await checkPythonRpaProcess()
-    if (isRunning) {
-      logger.info('rpa is already running')
-      return
-    }
+  // 检查 python envJson.SCHEDULER_NAME 是否正在运行
+  const isRunning = await checkPythonRpaProcess()
+  if (isRunning) {
+    logger.info('rpa is already running')
+    return
+  }
 
-    // 检查是否存在 python 环境
-    const pythonExistFlag = await pythonExist()
-    if (pythonExistFlag) {
-      logger.info(`${pythonExe} is exist, start server...`)
-      startServer()
-      return
-    }
-
-    await getPythonInResources()
-
-    // 已存在 python 包
-    const packagesDownloaded = await pythonPackageDownloaded()
-    if (packagesDownloaded) {
-      logger.info('Python package is downloaded, start extracting...')
-      const msg = `{"type":"sync","msg":{"msg":"${toUnicode('正在解压Python包')}","step": 30 }}`
-      mainToRender('scheduler-event', msg, undefined, true)
-      await Promise.all(packagesDownloaded.map((file) => {
-        return extract7z(file, file.replace('.7z', ''))
-      }))
-      startServer()
-      return
-    }
-
-    const data = await getPythonUrl()
-    logger.info('getPythonUrl data ', JSON.stringify(data))
-    const downloadPromise: Array<Promise<any>> = []
-    for (const key in data) {
-      downloadPromise.push(downloadPython(key, data[key]))
-    }
-    await Promise.all(downloadPromise)
+  // 检查是否存在 python 环境
+  const pythonExistFlag = await pythonExist()
+  if (pythonExistFlag) {
+    logger.info(`${pythonExe} is exist, start server...`)
     startServer()
-  })()
-}
+    return
+  }
 
-async function getPythonUrl() {
-  try {
-    const config = await readConfig()
-    const base = config.remote_addr
-    const url = `${base}/api/rpa_update/v2/rpa_soft/python?platform=${process.platform}&version=$arch=${process.arch}`
-    logger.info(`getPythonUrl url: ${url}`)
-    const data = await axiosRequest(url, 'get', {}, {})
-    return data
-  }
-  catch (error) {
-    logger.error('getPythonUrl error: ', error)
-    mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('获取Python下载地址失败')}","step":""}}`, undefined, true)
-    return null
-  }
-}
+  await getPythonInResources()
 
-async function downloadPython(name, url) {
-  const tempName = `${name}_temp`
-  const pythonPath = join(appWorkPath, name)
-  const pythonFile = join(appWorkPath, `${name}.7z`)
-  const tempPythonPath = join(appWorkPath, tempName)
-  const tempPythonFile = join(appWorkPath, `${tempName}.7z`)
+  // 已存在 python 包
+  const packagesDownloaded = await pythonPackageDownloaded()
+  if (packagesDownloaded) {
+    logger.info('Python package is downloaded, start extracting...')
+    const msg = `{"type":"sync","msg":{"msg":"${toUnicode('正在解压Python包')}","step": 30 }}`
+    mainToRender('scheduler-event', msg, undefined, true)
+    await Promise.all(packagesDownloaded.map((file) => extract7z(file, file.replace('.7z', ''))))
+    startServer()
+    return
+  }
 
-  const coreExist = await pythonExist()
-  //  判断python 下载包是否存在， 存在则跳过下载
-  if (coreExist) {
-    logger.info(`${pythonFile} is already downloaded, start extracting...`)
-    logger.info(`extract ${pythonFile} start...`)
-    mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在解压Python包')}","step": 30 }}`, undefined, true)
-    //  解压python
-    await extract7z(pythonFile, tempPythonPath) // 解压到临时目录
-    await rename(tempPythonPath, pythonPath) //  重命名目录
-    logger.info(`extract ${pythonFile} finished `)
-    return true
-  }
-  //  判断python路径是否存在，不存在则创建
-  if (!pythonPath) {
-    await fs.mkdir(pythonPath)
-  }
-  try {
-    // 下载python
-    logger.info(`download ${tempPythonFile} start...`)
-    await downloadWithAxiosProgress(url, tempPythonFile) //  下载python 临时压缩包
-    logger.info(`download ${tempPythonFile} finished `)
-    await rename(tempPythonFile, pythonFile) //   重命名文件
-    logger.info(`rename ${tempPythonFile} finished `)
-
-    // 解压python
-    logger.info(`extract ${name} start...`)
-    await extract7z(pythonFile, tempPythonPath) //  解压到临时目录
-    logger.info(`extract ${name} finished `)
-    await rename(tempPythonPath, pythonPath) //   重命名目录
-    logger.info(`rename ${name} finished `)
-
-    await fs.unlink(pythonFile) //   删除压缩包
-    logger.info(`delete ${pythonFile} finished `)
-  }
-  catch (error) {
-    logger.error(`downloadPython error: ${error}`)
-    mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('下载Python包失败')}","step":""}}`, undefined, true)
-  }
-  return true
+  logger.error('No python package found, start server failed')
 }
