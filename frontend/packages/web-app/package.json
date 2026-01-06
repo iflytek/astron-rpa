@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "tsc": "vue-tsc --noEmit",
+    "set-env": "node ./env.js",
     "build": "vite build",
     "build:analyze": "vite build --mode=analyze",
     "build:debug": "vite build --mode=debug",

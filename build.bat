@@ -349,18 +349,6 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
-echo Configuring environment variables...
-if not exist "packages\web-app\.env" (
-    if exist "packages\web-app\.env.example" (
-        copy packages\web-app\.env.example packages\web-app\.env
-        echo Environment file created from .env.example
-    ) else (
-        echo Warning: .env.example not found, skipping environment configuration
-    )
-) else (
-    echo Environment file already exists, skipping copy
-)
-
 echo Building web application...
 call pnpm build:web
 if !errorlevel! neq 0 (
