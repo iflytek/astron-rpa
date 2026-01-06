@@ -2,6 +2,7 @@
 import { Auth } from '@rpa/components/auth'
 import { Dropdown } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 import { getTermianlStatus, startSchedulingMode } from '@/api/engine'
@@ -12,12 +13,15 @@ import { DESIGNER } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
 
 const { t } = useTranslation()
 const runningStore = useRunningStore()
 const userStore = useUserStore()
+const appStore = useAppConfigStore()
+const { appInfo } = storeToRefs(appStore)
 
 const menuData = computed(() => [
   // {
@@ -108,7 +112,7 @@ function modalTip() {
         </div>
         <Auth.Consult
           v-if="userStore.currentTenant?.tenantType !== 'enterprise'"
-          :authType="userStore.authType"
+          :authType="appInfo.appAuthType"
           trigger="button"
           :button-conf="{ buttonType: 'tag', currentEdition: userStore.currentTenant?.tenantType, expirationDate: userStore.currentTenant?.expirationDate, shouldAlert: userStore.currentTenant?.shouldAlert }"
           custom-class="upgrade-btn"

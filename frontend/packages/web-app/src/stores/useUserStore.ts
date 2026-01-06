@@ -11,12 +11,8 @@ import router, { findFirstPermittedRoute } from '@/router'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 
-const ENV = import.meta.env
-
 export const useUserStore = defineStore('user', () => {
   const currentUserInfo = ref()
-  const edition = ref(ENV.VITE_EDITION || 'saas')
-  const authType = ref(ENV.VITE_AUTH_TYPE || 'casdoor')
   const currentTenant = ref<TenantItem | null>(null) // 当前租户
 
   const loginStatus = computed(() => {
@@ -75,8 +71,6 @@ export const useUserStore = defineStore('user', () => {
   getUserInfo()
 
   return {
-    edition,
-    authType,
     currentTenant,
     currentUserInfo,
     loginStatus,

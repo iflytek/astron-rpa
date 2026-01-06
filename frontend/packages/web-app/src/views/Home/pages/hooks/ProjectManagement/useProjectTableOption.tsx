@@ -1,9 +1,11 @@
 import { SearchOutlined } from '@ant-design/icons-vue'
+import { storeToRefs } from 'pinia'
 import { reactive, ref, watch } from 'vue'
 
 import { getDesignList } from '@/api/project'
 import type { VIEW_OTHER } from '@/constants/resource'
 import { VIEW_OWN } from '@/constants/resource'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
 
 import { useProjectOperate } from './useProjectOperate'
@@ -15,7 +17,9 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
   const consultRef = ref(null)
 
   const { createColumns, currHoverId, handleEdit } = useProjectOperate(homeTableRef, consultRef)
+  const appStore = useAppConfigStore()
   const userStore = useUserStore()
+  const { appInfo } = storeToRefs(appStore)
 
   function refreshHomeTable() {
     if (homeTableRef.value) {
@@ -67,6 +71,6 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
     homeTableRef,
     consultRef,
     tableOption,
-    authType: userStore.authType,
+    authType: appInfo.value.appAuthType,
   }
 }
