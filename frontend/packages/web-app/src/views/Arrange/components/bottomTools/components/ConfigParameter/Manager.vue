@@ -2,7 +2,7 @@
 import { useTheme } from '@rpa/components'
 import { computedWithControl } from '@vueuse/core'
 import { Button, Input, message, Select } from 'ant-design-vue'
-import { debounce, isArray, isEmpty } from 'lodash-es'
+import { debounce } from 'lodash-es'
 import { computed } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
@@ -10,17 +10,16 @@ import VxeGrid from '@/plugins/VxeTable'
 
 import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import GlobalModal from '@/components/GlobalModal/index.ts'
-import { OTHER_IN_TYPE, PARAMETER_VAR_IN_TYPE } from '@/constants/atom'
+import { PARAMETER_VAR_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
-import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
 
 import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
 import { useConfigParameter } from './useConfigParameter.ts'
+import VarValueEditor from './VarValueEditor.vue'
 
 interface LocalConfigParamData extends RPA.ConfigParamData {
   perVarName: string
-  formItem?: RPA.AtomDisplayItem
 }
 
 const props = defineProps<{ height?: number }>()
@@ -48,48 +47,6 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   ],
 }
 
-// 由 String 转换成 Array
-function convertVarValueToArray(varValue: unknown): RPA.AtomFormItemResult[] {
-  if (isArray(varValue) && !isEmpty(varValue)) {
-    return varValue
-  }
-
-  if (typeof varValue === 'string') {
-    try {
-      const parsed = JSON.parse(varValue)
-      return isArray(parsed) ? parsed : [{ type: OTHER_IN_TYPE, value: varValue }]
-    }
-    catch {
-      return [{ type: OTHER_IN_TYPE, value: varValue }]
-    }
-  }
-
-  return [{ type: OTHER_IN_TYPE, value: '' }]
-}
-
-// 由 Array 转换成 String
-function convertArrayToVarValue(value: RPA.AtomFormItemResult[]): string {
-  if (!isArray(value) || value.length === 0) {
-    return ''
-  }
-  return JSON.stringify(value)
-}
-
-// 创建 formItem
-function createFormItem(item: RPA.ConfigParamData): RPA.AtomDisplayItem {
-  const varValueArray = convertVarValueToArray(item.varValue)
-  return {
-    types: item.varType || 'Any',
-    name: item.id,
-    key: item.id,
-    title: item.varName,
-    value: varValueArray,
-    formType: {
-      type: 'INPUT_PYTHON',
-    },
-  } as RPA.AtomDisplayItem
-}
-
 const searchedData = computedWithControl(() => processStore.parameters.length, () => {
   let list = processStore.parameters
 
@@ -101,7 +58,6 @@ const searchedData = computedWithControl(() => processStore.parameters.length, (
   return list.map(item => ({
     ...item,
     perVarName: item.varName,
-    formItem: createFormItem(item),
   }))
 })
 
@@ -159,26 +115,8 @@ async function handleBlur(row: LocalConfigParamData) {
   row.perVarName = row.varName
 }
 
-// 同步 formItem.value 到 varValue
-function syncVarValueFromFormItem(row: LocalConfigParamData) {
-  if (isArray(row.formItem?.value)) {
-    row.varValue = convertArrayToVarValue(row.formItem.value)
-  }
-}
-
 const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateParameter(row), 300, { leading: true })
 
-function handleFormItemBlur(event: FocusEvent, row: LocalConfigParamData) {
-  // 检查焦点是否还在容器内（relatedTarget 是获得焦点的元素）
-  const currentTarget = event.currentTarget as HTMLElement
-  const relatedTarget = event.relatedTarget as HTMLElement | null
-
-  // 焦点移到了容器外则触发保存
-  if (!currentTarget.contains(relatedTarget)) {
-    syncVarValueFromFormItem(row)
-    processStore.updateParameter(row)
-  }
-}
 </script>
 
 <template>
@@ -202,9 +140,13 @@ function handleFormItemBlur(event: FocusEvent, row: LocalConfigParamData) {
       <Select v-model:value="row.varType" :options="varTypeOptions" class="w-full" size="small" :bordered="false" @change="handleChange(row)" />
     </template>
     <template #default_default="{ row }">
-      <div v-if="row.formItem" @focusout="(e) => handleFormItemBlur(e, row)">
-        <AtomConfig :form-item="row.formItem" size="small" />
-      </div>
+      <VarValueEditor
+        v-model:var-value="row.varValue"
+        :var-type="row.varType"
+        size="small"
+        @blur="handleChange(row)"
+        @model-change="handleChange(row)"
+      />
     </template>
     <template #desc_default="{ row }">
       <Input v-model:value="row.varDescribe" :bordered="false" class="text-xs text-inherit" @blur="handleChange(row)" />

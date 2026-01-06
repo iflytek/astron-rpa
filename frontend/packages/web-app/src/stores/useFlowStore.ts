@@ -102,6 +102,10 @@ export const useFlowStore = defineStore('flow', () => {
       console.error('simpleFlowUIData.value[idx] is undefined!', idx)
     }
 
+    if (!curAtom) {
+      return
+    }
+
     if (key === 'anotherName') {
       curAtom.alias = value
     }
