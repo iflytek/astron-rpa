@@ -8,6 +8,7 @@ import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
 const props = defineProps<{
   varValue: string | unknown
   varType?: string
+  formType?: string
   size?: 'default' | 'small'
   disabled?: boolean
 }>()
@@ -18,7 +19,7 @@ const emit = defineEmits<{
   (e: 'model-change', model: string): void
 }>()
 
-const instanceId = `var-value-${Date.now()}-${performance.now().toString(36).replace('.', '')}`
+const instanceId = `var-value-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
 // 由 String 转换成 Array
 function convertVarValueToArray(varValue: unknown): RPA.AtomFormItemResult[] {
@@ -68,7 +69,7 @@ const formItem = computed(() => {
     title: '',
     value: convertVarValueToArray(props.varValue),
     formType: {
-      type: 'INPUT_PYTHON',
+      type: props.formType || 'INPUT_PYTHON',
     },
     noInput: props.disabled, // 禁用编辑
   } as RPA.AtomDisplayItem

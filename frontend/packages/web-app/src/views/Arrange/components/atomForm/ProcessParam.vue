@@ -1,6 +1,6 @@
 <!-- 子流程选择组件 -->
 <script setup lang="ts">
-import { find, fromPairs, get, isArray, isEqual } from 'lodash-es'
+import { find, get, isArray, isEqual } from 'lodash-es'
 import { computed, ref, toRaw, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
@@ -10,7 +10,7 @@ import { getConfigParams } from '@/api/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
 
-import AtomConfig from './AtomConfig.vue'
+import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 
 interface ParamItemValue {
   rpa: 'special'
@@ -22,7 +22,7 @@ type ParamValues = Array<{ varId: string, varName: string, varValue: ParamItemVa
 const props = defineProps<{ renderData: RPA.AtomDisplayItem }>()
 const emits = defineEmits<{ refresh: [value: ParamValues] }>()
 
-const gridData = ref<Array<RPA.ConfigParamData & { form: RPA.AtomDisplayItem }>>([])
+const gridData = ref<RPA.ConfigParamData[]>([])
 
 const flowStore = useFlowStore()
 const processStore = useProcessStore()
@@ -50,6 +50,14 @@ const linkageFormItem = computed(() => {
 
 const linkageKey = computed(() => linkageFormItem.value?.value)
 
+function safeParse(str) {
+  try {
+    return JSON.parse(str)
+  } catch {
+    return str
+  }
+}
+
 watch(linkageKey, async (newLinkageKey) => {
   if (!newLinkageKey) {
     gridData.value = []
@@ -61,31 +69,15 @@ watch(linkageKey, async (newLinkageKey) => {
   const idParams = processType === 'PyModule' ? { moduleId: newLinkageKey } : { processId: newLinkageKey }
   const list = await getConfigParams({ robotId: processStore.project.id, ...idParams })
 
-  const preValues: Record<string, ParamItemValue> = fromPairs(list.map(it => ([
-    it.id,
-    { rpa: 'special', value: [{ type: 'other', value: it.varValue }] },
-  ])))
-
-  if (isArray(props.renderData.value)) {
-    const values = props.renderData.value as unknown as ParamValues
-    // 将当前流程的参数值设置到 preValues 中
-    values.forEach((it) => {
-      preValues[it.varId] = it.varValue
-    })
-  }
+  const values = props.renderData.value as unknown as ParamValues
+  // 当前保存的参数值
+  const currentParamMap = new Map((isArray(values) && values.map(p => [p.varId, p.varValue.value])) || [])
+  // 配置参数默认值
+  const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
 
   gridData.value = list.filter(item => item.varDirection === 0).map(item => ({
     ...item,
-    form: {
-      types: 'Any',
-      name: item.id,
-      key: item.id,
-      title: item.varName,
-      value: preValues[item.id]?.value ?? [],
-      formType: {
-        type: 'INPUT_VARIABLE_PYTHON',
-      },
-    },
+    varValue: currentParamMap.get(item.id) || defaultParamMap.get(item.id)
   }))
 }, { immediate: true })
 
@@ -95,7 +87,7 @@ watch(() => gridData.value, (newGridData) => {
     varName: item.varName,
     varValue: {
       rpa: 'special',
-      value: toRaw(item.form.value) as Array<any>,
+      value: safeParse(item.varValue as unknown as string) as Array<any>,
     },
   }))
 
@@ -111,7 +103,12 @@ watch(() => gridData.value, (newGridData) => {
 <template>
   <VxeGrid v-bind="gridOptions" class="params-table" :data="gridData">
     <template #value_default="{ row }">
-      <AtomConfig :key="row.id" :form-item="row.form" size="small" />
+      <VarValueEditor
+        v-model:var-value="row.varValue"
+        :var-type="row.varType"
+        form-type="INPUT_VARIABLE_PYTHON"
+        size="small"
+      />
     </template>
   </VxeGrid>
 </template>
