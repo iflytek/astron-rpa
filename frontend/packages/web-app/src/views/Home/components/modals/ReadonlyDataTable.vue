@@ -7,7 +7,7 @@ import { useAsyncState } from '@vueuse/core'
 import { blob2File } from '@/utils/common'
 import { fileRead } from '@/api/resource'
 
-const props = defineProps<{ dataTablePath: string }>()
+const props = defineProps<{ dataTablePath: string, class?: string }>()
 
 const { isDark } = useTheme()
 const { i18next } = useTranslation()
@@ -27,8 +27,9 @@ const locale = computed(() => {
   <Sheet
     v-if="workbookData"
     readonly
+    :class="props.class"
     :default-value="workbookData"
-    :dark-mode="isDark.value"
+    :dark-mode="isDark"
     :locale="locale"
   />
 </template>
