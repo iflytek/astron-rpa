@@ -29,6 +29,8 @@ from astronverse.actionlib.utils import InspectType
 class AtomicManager:
     """原子能力，运行"""
 
+    _cfg = {"GATEWAY_PORT": "", "WS": None, "PROJECT_JSON": None}
+
     def __init__(self):
         self.atomic_dict = {}
         self.model_cache = {}
@@ -36,7 +38,7 @@ class AtomicManager:
 
     @staticmethod
     def cfg() -> dict:
-        return {"GATEWAY_PORT": os.environ.get("GATEWAY_PORT", "")}
+        return AtomicManager._cfg
 
     @staticmethod
     def cfg_from_file(key: str = "", file: str = "") -> dict:

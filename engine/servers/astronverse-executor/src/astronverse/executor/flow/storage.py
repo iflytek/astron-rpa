@@ -255,13 +255,16 @@ class HttpStorage(IStorage):
         else:
             return ""
 
-    def param_list(self, project_id: str, mode: str, version: str, process_id: str) -> list:
+    def param_list(self, project_id: str, mode: str, version: str, process_id: str = "", module_id: str = "") -> list:
         """运行参数列表"""
 
         data = {
             "robotId": project_id,
-            "processId": process_id,
         }
+        if process_id:
+            data["processId"] = process_id
+        if module_id:
+            data["moduleId"] = module_id
         if mode:
             data["mode"] = mode
         if version:

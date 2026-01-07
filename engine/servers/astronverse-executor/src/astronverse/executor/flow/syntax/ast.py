@@ -115,10 +115,11 @@ class Atomic(Node):
                 project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
             )
 
-        # key特殊处理
+        # 特殊处理开始
         key = self.token.value.get("key", "")
         if key == "Smart.run_code":
             svc.add_smart_component(project_id, self.__arguments__.get("smart_component").value)
+        # 特殊处理结束
 
         # 检测是否需要重试包装（debug 模式下不生成重试包装代码）
         advance_info = self._extract_advance_info()
