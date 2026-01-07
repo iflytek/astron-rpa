@@ -761,9 +761,6 @@ atomic:
     - key: url
       title: 目标url
       tip: ''
-    - key: cookie_name
-      title: cookie名称
-      tip: ''
     - key: cookie_path
       title: cookie路径
       tip: 使用cookie 的path属性，会根据url得到domain后自动设置path, 会忽略url中的path部分
