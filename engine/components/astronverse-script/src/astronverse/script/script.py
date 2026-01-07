@@ -5,24 +5,28 @@ import inspect
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, ReportTip
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.report import report
-from astronverse.script.error import MODULE_IMPORT_ERROR, MODULE_MAIN_FUNCTION_NOT_FOUND, BaseException, MSG_MODULE_VERSION_WARRING
+from astronverse.script.error import (
+    MODULE_IMPORT_ERROR,
+    MODULE_MAIN_FUNCTION_NOT_FOUND,
+    BaseException,
+    MSG_MODULE_VERSION_WARRING,
+)
 
 
 class Script:
-
     process_info_dict = None
 
     @staticmethod
     def _params(path):
         if not Script.process_info_dict:
             cfg = atomicMg.cfg()
-            process_info = cfg['PROJECT_JSON'].get('process_info', {})
+            process_info = cfg["PROJECT_JSON"].get("process_info", {})
             process_info_dict = {}
             for _, process in process_info.items():
-                process_params = process.get('process_params', [])
+                process_params = process.get("process_params", [])
                 process_params_dict = {}
                 for param in process_params:
-                    process_params_dict[param.get('varName')] = param.get('varValue')
+                    process_params_dict[param.get("varName")] = param.get("varValue")
                 process_info_dict[".{}".format(process.get("process_file_name"))] = process_params_dict
             Script.process_info_dict = process_info_dict
 
@@ -61,19 +65,21 @@ class Script:
             # main(args) 是第二版
             # main(*args, **kwargs) 是第一版本
             params = list(sig.parameters.values())
-            return len(params) == 1 and params[0].name == 'args'
+            return len(params) == 1 and params[0].name == "args"
 
         if is_v2():
             out_params = Script._params(path)
             out_params_res = {}
             for k, v in out_params.items():
                 out_params_res[k] = eval(v, process_module.__dict__)
-            
+
             out_kwargs = {**out_params, **out_kwargs}
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+                raise BaseException(
+                    MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
+                )
 
             res = main_func(out_kwargs)
             return out_kwargs
@@ -82,7 +88,9 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+                raise BaseException(
+                    MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
+                )
 
             res = main_func(**inn_kwargs)
             return res
@@ -191,7 +199,7 @@ class Script:
         inn_kwargs = {**global_vars, **inn_kwargs}
 
         # 为了兼容老版本独立出来
-        res = Script._module_call(".{}".format(content), package=package, out_kwargs=out_kwargs,  inn_kwargs=inn_kwargs)
+        res = Script._module_call(".{}".format(content), package=package, out_kwargs=out_kwargs, inn_kwargs=inn_kwargs)
         return res
 
     @staticmethod

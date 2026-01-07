@@ -108,7 +108,9 @@ class Flow:
                 module_index += 1
                 res = self._module_display(project_id, mode, version, resource_id, name)
 
-                param_list = self.svc.storage.param_list(project_id=project_id, mode=mode, version=version, module_id=resource_id)
+                param_list = self.svc.storage.param_list(
+                    project_id=project_id, mode=mode, version=version, module_id=resource_id
+                )
                 for p in param_list:
                     param = self.svc.param.parse_param(
                         {
@@ -210,7 +212,9 @@ class Flow:
         模块生成 python模块
         """
         # 获取模块数据
-        module_code = self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version, module_id=module_id)
+        module_code = self.svc.storage.module_detail(
+            project_id=project_id, mode=mode, version=version, module_id=module_id
+        )
 
         # 兼容开始
         if "rpahelper" in module_code:

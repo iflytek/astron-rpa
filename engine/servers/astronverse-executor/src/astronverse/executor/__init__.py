@@ -73,7 +73,7 @@ class ProcessInfo:
             "process_name": self.process_name,
             "breakpoint": list(self.breakpoint),
             "process_meta": self.process_meta,
-            "process_params": self.process_params
+            "process_params": self.process_params,
         }
 
     @classmethod
