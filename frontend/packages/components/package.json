@@ -58,7 +58,7 @@
     "papaparse": "^5.5.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "tailwind-merge": "catalog:",
+    "tailwind-merge": "^3.4.0",
     "vscode-languageserver-types": "^3.17.5",
     "xml2js": "^0.6.2"
   },
