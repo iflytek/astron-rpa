@@ -40,14 +40,58 @@ def msaa_factory_callback():
     return msaa_factory.find
 
 
+def web_ie_factory_callback():
+    try:
+        from astronverse.locator.core.web_ie_locator import web_ie_factory
+
+        return web_ie_factory.find
+    except Exception as e:
+        logger.info(f" 导入ie模块出现问题 {e}")
+        from astronverse.locator.core.web_locator import (
+            web_factory,
+        )
+
+        return web_factory.find
+
+
+def jab_factory_callback():
+    try:
+        from astronverse.locator.core.jab_locator import jab_factory
+
+        return jab_factory.find
+    except Exception as e:
+        logger.info(f" 导入jab模块出现问题 {e}")
+        from astronverse.locator.core.uia_locator import (
+            uia_factory,
+        )
+
+        return uia_factory.find
+
+
+def sap_factory_callback():
+    try:
+        from astronverse.locator.core.sap_locator import sap_factory
+
+        return sap_factory.find
+    except Exception as e:
+        logger.info(f" 导入sap模块出现问题 {e}")
+        from astronverse.locator.core.uia_locator import (
+            uia_factory,
+        )
+
+        return uia_factory.find
+
+
 class LocatorManager:
     """管理器"""
 
     def __init__(self):
         self.locator_handler = {
             PickerDomain.UIA.value: [uia_factory_callback],
-            PickerDomain.WEB.value: [web_factory_callback],
+            PickerDomain.WEB.value: [web_factory_callback, web_ie_factory_callback],
             PickerDomain.MSAA.value: [msaa_factory_callback],
+            PickerDomain.JAB.value: [jab_factory_callback],
+            PickerDomain.SAP.value: [sap_factory_callback],
         }
 
     @staticmethod
