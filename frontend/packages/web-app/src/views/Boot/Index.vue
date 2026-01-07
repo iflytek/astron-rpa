@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Auth } from '@rpa/components/auth'
 import { theme } from 'ant-design-vue'
+import { storeToRefs } from 'pinia'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 import { base64ToString } from '@/utils/common'
@@ -14,10 +15,11 @@ import ConfigProvider from '@/components/ConfigProvider/index.vue'
 import Loading from '@/components/Loading.vue'
 import { utilsManager, windowManager } from '@/platform'
 
-import { useUserStore } from '@/stores/useUserStore'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const { token } = theme.useToken()
-const userStore = useUserStore()
+const appStore = useAppConfigStore()
+const { appInfo } = storeToRefs(appStore)
 const progress = ref(0)
 const isLogin = ref(false)
 const loginFormRef = ref()
@@ -113,7 +115,7 @@ onUnmounted(() => {
           </LaunchCarousel>
         </div>
       </template>
-      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getBaseURL()" :auth-type="userStore.authType" :edition="userStore.edition" @finish="loginSuccess" />
+      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getBaseURL()" :auth-type="appInfo.appAuthType" :edition="appInfo.appEdition" @finish="loginSuccess" />
     </Auth.PageLayout>
     <Loading />
   </ConfigProvider>

@@ -40,7 +40,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
     case 'enterprise_uap': // 企业版无注册、忘记密码功能，支持修改密码
       conf = {
         fields: [
-          fieldFactories.phone(),
+          { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)' },
           fieldFactories.password(true),
           fieldFactories.agreement(),
           {
@@ -270,7 +270,8 @@ export function modifyPasswordFormConfig(formData: any, isInvite: boolean): Form
   return {
     layout: 'vertical',
     fields: [
-      { ...fieldFactories.account(), key: 'loginName' },
+      // { ...fieldFactories.account(), key: 'loginName' },
+      { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)' },
       { ...fieldFactories.password(true), key: 'oldPassword' },
       { ...fieldFactories.password(), key: 'newPassword', placeholder: '请输入新密码' },
       { ...fieldFactories.confirmPassword(formData, 'newPassword'), placeholder: '再次输入新密码' },

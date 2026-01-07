@@ -2,11 +2,13 @@
 import { Auth } from '@rpa/components/auth'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 
 import { checkProjectNum, createProject, getDefaultName } from '@/api/project'
 import { ARRANGE } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
 import { newProjectModal } from '@/views/Home/components/modals'
 
@@ -14,16 +16,17 @@ import Banner from '../components/Banner.vue'
 import TableContainer from '../components/TableContainer.vue'
 
 const { t } = useTranslation()
+const appStore = useAppConfigStore()
 const userStore = useUserStore()
+const { appInfo } = storeToRefs(appStore)
 const consultRef = ref<InstanceType<typeof Auth.Consult> | null>(null)
-const { authType } = userStore
 
 async function createRobot() {
   if (userStore.currentTenant?.tenantType !== 'enterprise') {
     const res = await checkProjectNum()
     if (!res.data) {
       consultRef.value?.init({
-        authType,
+        authType: appInfo.value.appAuthType,
         trigger: 'modal',
         modalConfirm: {
           title: '已达到应用数量上限',
@@ -77,6 +80,6 @@ async function createRobot() {
     <TableContainer>
       <router-view />
     </TableContainer>
-    <Auth.Consult ref="consultRef" trigger="modal" :auth-type="authType" />
+    <Auth.Consult ref="consultRef" trigger="modal" :auth-type="appInfo.appAuthType" />
   </div>
 </template>

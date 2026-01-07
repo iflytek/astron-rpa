@@ -2,6 +2,7 @@ import { Icon, NiceModal } from '@rpa/components'
 import { Button, message, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import type { Ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { computed, h, ref } from 'vue'
 
 import $loading from '@/utils/globalLoading'
@@ -13,6 +14,7 @@ import { fromIcon } from '@/components/PublishComponents/utils'
 import { DesignerRobotDetailModal } from '@/components/RobotDetail'
 import { ARRANGE } from '@/constants/menu'
 import { ROBOT_EDITING } from '@/constants/resource'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useUserStore } from '@/stores/useUserStore'
 import type { AnyObj } from '@/types/common'
@@ -32,7 +34,9 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
     }
   }
   const { t } = useTranslation()
+  const appStore = useAppConfigStore()
   const userStore = useUserStore()
+  const { appInfo } = storeToRefs(appStore)
   const { handleDeleteConfirm, getSituationContent } = useCommonOperate()
 
   const currHoverId = ref('')
@@ -183,7 +187,7 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
       const res = await checkProjectNum()
       if (!res.data) {
         consultRef.value?.init({
-          authType: userStore.authType,
+          authType: appInfo.value.appAuthType,
           trigger: 'modal',
           modalConfirm: {
             title: '已达到应用数量上限',

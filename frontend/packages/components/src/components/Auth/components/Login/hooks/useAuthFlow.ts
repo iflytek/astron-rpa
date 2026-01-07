@@ -121,7 +121,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
   const preLogin = async (data: LoginFormData, mode: LoginMode, autoLogin = true) => run(mode, async () => {
     try {
       const params = { ...data, loginType: mode }
-      if (opts.edition === 'saas') {
+      if (opts.edition === 'saas' && opts.authType === 'uap') {
         const history = await isHistory({ phone: params.phone })
         if (history) {
           if (mode === 'PASSWORD')
@@ -199,8 +199,9 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
   })
 
   const handleModifyPassword = async (data: LoginFormData) => run('MODIFY_PASSWORD', async () => {
-    await modifyPassword(data)
+    const token = await modifyPassword(data)
     message.success('密码修改成功')
+    tempToken.value = token
     switchToTenants()
   })
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Auth } from '@rpa/components/auth'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -8,9 +9,12 @@ import SiderMenu from '@/components/SiderMenu.vue'
 import { COMMON_SIDER_WIDTH } from '@/constants'
 import { APPLICATIONMARKET } from '@/constants/menu'
 import { useUserStore } from '@/stores/useUserStore'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
+const appStore = useAppConfigStore()
 const userStore = useUserStore()
 const route = useRoute()
+const { appInfo } = storeToRefs(appStore)
 
 const isMarket = computed(() => {
   return route.matched[0].name === APPLICATIONMARKET
@@ -22,7 +26,7 @@ const isMarket = computed(() => {
     <MarketSiderMenu v-if="isMarket" />
     <SiderMenu v-else />
     <div class="absolute bottom-[20px] left-0" :style="{ width: `${COMMON_SIDER_WIDTH}px` }">
-      <Auth.TenantDropdown :authType="userStore.authType" :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant"/>
+      <Auth.TenantDropdown :authType="appInfo.appAuthType" :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant"/>
     </div>
     <div class="flex-1 relative">
       <router-view />

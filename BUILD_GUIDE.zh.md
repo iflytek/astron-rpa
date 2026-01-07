@@ -501,7 +501,7 @@ cd frontend
 pnpm install
 
 # ⚙️ 配置环境变量
-copy packages\web-app\.env.example packages\web-app\.env
+pnpm set-env
 
 # 🏗️ 构建 Web 应用
 pnpm build:web

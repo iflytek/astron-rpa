@@ -10,6 +10,7 @@ import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_PLUGIN_LIST } from '@/constants/plugin'
 import { updaterManager, utilsManager } from '@/platform'
 
+const ENV = import.meta.env
 // app config 信息
 export const useAppConfigStore = defineStore('appConfig', () => {
   let updateModal: ReturnType<typeof GlobalModal.confirm> = null
@@ -82,6 +83,8 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   }
 
   const appInfo = computed(() => ({
+    appEdition: ['saas', 'enterprise'].includes(yamlData.value.app_edition) ? yamlData.value.app_edition : (ENV.VITE_EDITION || 'saas'),
+    appAuthType: ['casdoor', 'uap'].includes(yamlData.value.app_auth_type) ? yamlData.value.app_auth_type : (ENV.VITE_AUTH_TYPE || 'casdoor'),
     appVersion: appVersion.value,
     appPath: appPath.value,
     buildInfo: buildInfo.value,

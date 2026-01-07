@@ -501,7 +501,7 @@ cd frontend
 pnpm install
 
 # ⚙️ Configure environment variables
-copy packages\web-app\.env.example packages\web-app\.env
+pnpm set-env
 
 # 🏗️ Build web application
 pnpm build:web
