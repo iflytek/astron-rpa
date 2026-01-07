@@ -164,7 +164,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
         const token = await register(data as RegisterFormData)
         message.success('注册账号成功')
         tempToken.value = token
-        if (!Object.prototype.hasOwnProperty.call(data, 'password'))
+        if (!Object.prototype.hasOwnProperty.call(data, 'password') || !(data as RegisterFormData).password)
           switchMode('setPassword')
         else switchToTenants()
         return

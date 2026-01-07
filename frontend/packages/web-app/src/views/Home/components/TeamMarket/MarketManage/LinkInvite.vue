@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { Auth } from '@rpa/components/auth'
 
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
 import { useLinkInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser.tsx'
 
@@ -11,7 +13,9 @@ const { marketId } = defineProps({
   },
 })
 const emit = defineEmits(['linkChange'])
+const appStore = useAppConfigStore()
 const userStore = useUserStore()
+const { appInfo } = storeToRefs(appStore)
 const { invitData, expireTypes, formState, resetLink } = useLinkInvite(marketId, emit)
 </script>
 
@@ -32,7 +36,7 @@ const { invitData, expireTypes, formState, resetLink } = useLinkInvite(marketId,
       <div class="flex items-center w-full text-[12px] text-[#00000090] dark:text-[#FFFFFF99]">
         <span v-if="invitData.overNumLimit === 1 && userStore.currentTenant?.tenantType === 'personal'" class="flex items-center w-full">
           当前市场人数已满十人。开通专业版不限邀请人数，
-          <Auth.Consult trigger="button" :auth-type="userStore.authType" custom-class="text-primary !w-auto cursor-pointer" :button-conf="{ buttonTxt: '去开通', buttonType: 'text' }" />
+          <Auth.Consult trigger="button" :auth-type="appInfo.appAuthType" custom-class="text-primary !w-auto cursor-pointer" :button-conf="{ buttonTxt: '去开通', buttonType: 'text' }" />
           。
         </span>
         <span v-else>邀请有效期至：{{ invitData.expireTime }} <span class="text-primary cursor-pointer hover:opacity-95" @click="resetLink">点击重置</span></span>

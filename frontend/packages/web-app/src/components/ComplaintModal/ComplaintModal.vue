@@ -135,7 +135,7 @@ async function handleSubmit() {
   }
 
   const [error] = await to(aiFeedback({
-    username: useUserStore().currentUserInfo?.loginName,
+    username: useUserStore().currentUserInfo?.name || useUserStore().currentUserInfo?.loginName,
     categories: JSON.stringify({
       内容安全类: formData.contentSafety,
       功能缺陷类: formData.functionalDefect,

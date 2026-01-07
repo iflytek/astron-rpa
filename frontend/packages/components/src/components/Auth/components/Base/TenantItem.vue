@@ -43,7 +43,7 @@ function handleClick() {
       <Tooltip :title="tenantItem.name" class="text-[14px] font-[500] mb-[4px] text-ellipsis inline-block whitespace-nowrap overflow-hidden max-w-[calc(100%-20px)]">
         {{ tenantItem.name }}
       </Tooltip>
-      <div class="w-[fit-content] h-[22px] leading-[22px] text-gradient-bg">
+      <div class="w-[fit-content] text-gradient-bg !py-[1px]">
         <span class="text-gradient">{{ tenantTypeMap[tenantItem.tenantType] }}</span>
       </div>
     </div>

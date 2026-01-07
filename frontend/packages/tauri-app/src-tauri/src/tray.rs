@@ -120,7 +120,7 @@ pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
                 }
                 // 调起系统 confirm 对话框与用户交互
                 let app_clone = app.clone();
-                ask(Some(&app_clone.get_window("main").unwrap()), "退出调度模式", "退出后卓越中心无法下发任务到本机，当前的调度任务同时取消", move |answer| {
+                ask(Some(&app_clone.get_window("main").unwrap()), "退出调度模式", "退出后控制台无法下发任务到本机，当前的调度任务同时取消", move |answer| {
                     println!("用户选择了: {}", answer);
                     ASK_DIALOG_SHOWING.store(false, Ordering::SeqCst);
                     if answer {

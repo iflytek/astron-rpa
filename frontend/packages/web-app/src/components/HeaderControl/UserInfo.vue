@@ -59,7 +59,7 @@ async function menuClick(item: any) {
   if (item.keyPath[0] === 'changeMode') {
     GlobalModal.confirm({
       title: '开始调度模式',
-      content: '开启后本机画面和应用执行情况会被卓越中心监控，同时接受卓越中心下发的任务',
+      content: '开启后本机画面和应用执行情况会被控制台监控，同时接受控制台下发的任务',
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
@@ -107,7 +107,7 @@ function modalTip() {
           </div>
           <div class="flex flex-col">
             <span class="font-semibold">{{ t('userInfo.userName') }}</span>
-            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.loginName }}</span>
+            <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.name || userStore.currentUserInfo?.loginName }}</span>
           </div>
         </div>
         <Auth.Consult
@@ -137,8 +137,5 @@ function modalTip() {
 <style lang="scss" scoped>
 :deep(.ant-dropdown-menu) {
   background: red;
-}
-:deep(.upgrade-btn .tenant-upgrade-tag) {
-  height: 40px !important;
 }
 </style>

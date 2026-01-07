@@ -35,7 +35,7 @@ async function createRobot() {
           cancelText: '我知道了',
         },
         consult: {
-          consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
+          consultTitle: '咨询',
           consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
           consultType: 'consult',
         },

@@ -14,35 +14,27 @@ const extractKeys = lines => {
   return set;
 };
 
-// 把模板行转成“去注释”后的形式
-const stripCommentLines = tplLines =>
-  tplLines.map(line => {
-    const m = line.match(/^#?\s*([\w\-\.]+)\s*=(.*)$/);
-    return m ? `${m[1]}=${m[2]}` : line;
-  });
-
-// 配置合并：模板顺序优先，本地独有追加，空/注释保留
+// 配置合并：用模板行（去注释）覆盖本地，本地独有追加，
 function mergeEnvLines(tplLines, localLines) {
   const tplKeys = extractKeys(tplLines);
-  const localKeys = extractKeys(localLines);
-
   const merged = [];
 
-  localLines.forEach(line => {
-    const m = line.match(/^#?\s*([\w\-\.]+)\s*=/);
-    if (m && tplKeys.has(m[1])) {
+  tplLines.forEach(line => {
+    const m = line.match(/^#?\s*([\w\-\.]+)\s*=(.*)$/);
+    if (m) {
+      merged.push(`${m[1]}=${m[2]}`);
+    } else {
       merged.push(line);
     }
   });
-  stripCommentLines(tplLines).forEach(line => {
-    const m = line.match(/^([\w\-\.]+)\s*=/);
-    if (m && !localKeys.has(m[1])) merged.push(line);
-  });
 
   localLines.forEach(line => {
     const m = line.match(/^#?\s*([\w\-\.]+)\s*=/);
-    if (m && !tplKeys.has(m[1])) merged.push(line);
-    if (!m) merged.push(line);
+    if (m && !tplKeys.has(m[1])) {
+      merged.push(line);
+    } else if (!m) {
+      merged.push(line);
+    }
   });
 
   return merged;

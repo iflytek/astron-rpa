@@ -232,7 +232,7 @@ export const fieldFactories = {
     placeholder: '请输入您的企业名称',
     rules: [
       required('请输入您的企业名称'),
-      { min: 2, max: 50, message: '企业名称为2-50个字符', trigger: 'change' },
+      { min: 1, max: 50, message: '企业名称不能超过50个字符', trigger: 'change' },
     ],
   }),
 
