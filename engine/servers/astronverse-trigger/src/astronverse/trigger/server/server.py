@@ -61,7 +61,7 @@ class WebSocketManager:
         logger.info(msg)
         if get_executor_status():
             return send_stop_current()
-        return {"code": "5001", "msg": "有任务在运行中", "data": None}
+        return {"code": "5001", "msg": "没有任务在运行中", "data": None}
 
     def start(self):
         """启动 WebSocket 连接"""
