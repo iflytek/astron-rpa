@@ -18,10 +18,10 @@ atomic:
         tip: 指定要读取的列号（例如A，B，C，AB...）
       - key: start_row
         title: 开始行号
-        tip: 指定要读取的起始行号（例如1，2，3...）
+        tip: 指定要读取的开始行号（例如1，2，3...）
       - key: start_col
         title: 开始列号
-        tip: 指定要读取的起始列号（例如A，B，C，AB...）
+        tip: 指定要读取的开始列号（例如A，B，C，AB...）
       - key: end_row
         title: 结束行号
         tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
@@ -61,10 +61,10 @@ atomic:
         tip: 需要写入的数据内容，单元格写入字符串，行或列写入数组，区域写入二维数组，格式不符合要求则按字符串处理
       - key: start_row
         title: 开始行号
-        tip: 指定要写入的起始行号（例如1，2，3...）
+        tip: 指定要写入的开始行号（例如1，2，3...）
       - key: start_col
         title: 开始列号
-        tip: 指定要写入的起始列号（例如A，B，C，AB...）
+        tip: 指定要写入的开始列号（例如A，B，C，AB...）
       - key: write_mode
         title: 写入模式
         tip: 选择写入数据的模式（覆盖、插入、追加）
@@ -152,10 +152,10 @@ atomic:
         tip: 指定要复制的列号（例如A，B，C，AB...）
       - key: start_row
         title: 开始行号
-        tip: 指定要复制的起始行号（例如1，2，3...）
+        tip: 指定要复制的开始行号（例如1，2，3...）
       - key: start_col
         title: 开始列号
-        tip: 指定要复制的起始列号（例如A，B，C，AB...）
+        tip: 指定要复制的开始列号（例如A，B，C，AB...）
       - key: end_row
         title: 结束行号
         tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
@@ -195,10 +195,10 @@ atomic:
         tip: 指定要粘贴的列号（例如A，B，C，AB...）
       - key: start_row
         title: 开始行号
-        tip: 指定要粘贴的起始行号（例如1，2，3...）
+        tip: 指定要粘贴的开始行号（例如1，2，3...）
       - key: start_col
         title: 开始列号
-        tip: 指定要粘贴的起始列号（例如A，B，C，AB...）
+        tip: 指定要粘贴的开始列号（例如A，B，C，AB...）
     outputList: []
   DataTable.delete_data:
     title: 删除数据表格
@@ -217,10 +217,10 @@ atomic:
         tip: 指定要删除的列号（例如A，B，C，AB...）
       - key: start_row
         title: 开始行号
-        tip: 指定要删除的起始行号（例如1，2，3...）
+        tip: 指定要删除的开始行号（例如1，2，3...）
       - key: start_col
         title: 开始列号
-        tip: 指定要删除的起始列号（例如A，B，C，AB...）
+        tip: 指定要删除的开始列号（例如A，B，C，AB...）
       - key: end_row
         title: 结束行号
         tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
@@ -404,6 +404,9 @@ atomic:
       - key: export_file_type
         title: 导出文件类型
         tip: 选择导出的文件类型
+      - key: is_overwrite
+        title: 是否覆盖同名文件
+        tip: 如果存在同名文件，是否覆盖该文件，否则自动重命名
     outputList:
       - key: export_file_path
         title: 导出文件路径

@@ -2,6 +2,7 @@ import ast
 import json
 import os
 import sys
+from datetime import datetime
 from functools import wraps
 
 from astronverse.actionlib import DynamicsItem
@@ -75,6 +76,29 @@ def validate_cell(func):
         end_row = kwargs.get("end_row")
         read_type = kwargs.get("read_type")
         write_type = kwargs.get("write_type")
+
+        cols_to_validate = [c for c in [col, start_col, end_col] if c]
+        for c in cols_to_validate:
+            if not isinstance(c, str) or not c.isalpha() or not c.isupper():
+                raise DATAFRAME_EXPECTION(
+                    PARAMS_ERROR.format("列号格式错误，应为A, B, C..."),
+                    "列号'{c}'格式错误，应为A, B, C...",
+                )
+        rows_to_validate = [r for r in [row, start_row, end_row] if r]
+        for r in rows_to_validate:
+            try:
+                r = int(r)
+            except (ValueError, TypeError):
+                raise DATAFRAME_EXPECTION(
+                    PARAMS_ERROR.format("行号格式错误，应为大于0的整数"),
+                    f"行号'{r}'格式错误，应为大于0的整数",
+                )
+            if not isinstance(r, int) or r < 1:
+                raise DATAFRAME_EXPECTION(
+                    PARAMS_ERROR.format("行号格式错误，应为大于0的整数"),
+                    "行号'{r}'格式错误，应为大于0的整数",
+                )
+
         if read_type == ReadType.CELL or write_type == WriteType.CELL:
             if row and col:
                 validate(col=col, row=row)
@@ -91,14 +115,14 @@ def validate_cell(func):
             if col:
                 validate(col=col)
             else:
-                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列读/写需要指定列标"), "列读/写需要指定列标")
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列读/写需要指定列号"), "列读/写需要指定列号")
             if start_row:
                 validate(row=start_row)
         if read_type == ReadType.AREA or write_type == WriteType.AREA:
             if start_row and start_col:
                 validate(col=start_col, row=start_row)
             else:
-                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("区域读/写需要指定起始行列"), "区域读/写需要指定起始行列")
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("区域读/写需要指定开始行列"), "区域读/写需要指定开始行列")
             if end_col:
                 validate(col=end_col)
             if end_row:
@@ -235,17 +259,25 @@ class DataTable:
         读取数据表格内容
         """
         if read_type == ReadType.CELL:
+            if not row or not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("读取单元格需要指定行列"), "读取单元格需要指定行列")
             col_index = col_to_index(col)
             return PyxlWrapper.read_cell(row=row, col=col_index)
 
         if read_type == ReadType.ROW:
+            if not row:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("读取行需要指定行号"), "读取行需要指定行号")
             return PyxlWrapper.read_row(row_index=row)
 
         if read_type == ReadType.COLUMN:
+            if not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("读取列需要指定列号"), "读取列需要指定列号")
             col_index = col_to_index(col)
             return PyxlWrapper.read_column(col_index=col_index)
 
         if read_type == ReadType.AREA:
+            if not start_row or not start_col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("读取区域需要指定开始行列"), "读取区域需要指定开始行列")
             if not end_col:
                 end_col_index = PyxlWrapper.get_max_column()
                 end_col = index_to_col(end_col_index - 1)
@@ -368,7 +400,18 @@ class DataTable:
         """
         if data is None:
             raise DATAFRAME_EXPECTION(DATAFRAME_ERROR.format("数据不能为空"), "写入数据不能为空")
+
+        if isinstance(data, str):
+            try:
+                # 尝试将字符串解析为 Python 字面量 (例如列表)
+                evaluated_data = ast.literal_eval(data)
+                data = evaluated_data
+            except (ValueError, SyntaxError):
+                pass
+
         if write_type == WriteType.CELL:
+            if not row or not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("写入单元格需要指定行列"), "写入单元格需要指定行列")
             col_index = col_to_index(col)
             if not isinstance(data, str):
                 data = str(data)
@@ -396,6 +439,8 @@ class DataTable:
                     PyxlWrapper.write_row(row_index=row, data=new_row)
             return
         if write_type == WriteType.ROW:
+            if not row:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
             col_index = col_to_index(start_col)
             if not isinstance(data, list):
                 data = [data]
@@ -421,6 +466,8 @@ class DataTable:
                         PyxlWrapper.write_row(row_index=row_index, data=data, start_col=col_index)
 
         if write_type == WriteType.COLUMN:
+            if not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
             col_index = col_to_index(col)
             if not isinstance(data, list):
                 data = [data]
@@ -446,6 +493,8 @@ class DataTable:
                     sync_data_table_head()
 
         if write_type == WriteType.AREA:
+            if not start_row or not start_col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("区域写入需要指定开始行列"), "区域写入需要指定开始行列")
             if not isinstance(data, list):
                 try:
                     # 尝试将字符串解析为列表
@@ -614,6 +663,16 @@ class DataTable:
             end_row=end_row,
             end_col=end_col,
         )
+        if copy_type == CopyType.CELL:
+            if not row or not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("复制单元格需要指定行列"), "复制单元格需要指定行列")
+        if copy_type == CopyType.ROW and not row:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("复制行需要指定行号"), "复制行需要指定行号")
+        if copy_type == CopyType.COLUMN and not col:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("复制列需要指定列号"), "复制列需要指定列号")
+        if copy_type == CopyType.AREA:
+            if not start_row or not start_col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("复制区域需要指定开始行列"), "复制区域需要指定开始行列")
 
         # 写入到系统剪切板
         import pyperclip
@@ -822,6 +881,8 @@ class DataTable:
         删除数据表格内容
         """
         if delete_type == DeleteType.CELL:
+            if not row or not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("删除单元格需要指定行列"), "删除单元格需要指定行列")
             col_index = col_to_index(col)
             PyxlWrapper.delete_cell(
                 row=row,
@@ -829,6 +890,8 @@ class DataTable:
                 move_direction=delete_cell_move.value,
             )
         if delete_type == DeleteType.ROW:
+            if not row:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("删除行需要指定行号"), "删除行需要指定行号")
             if delete_row_move:
                 PyxlWrapper.delete_rows(idx=row, amount=1)
             else:
@@ -836,6 +899,8 @@ class DataTable:
                     row_index=row,
                 )
         if delete_type == DeleteType.COLUMN:
+            if not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("删除列需要指定列号"), "删除列需要指定列号")
             col_index = col_to_index(col)
             if delete_col_move:
                 PyxlWrapper.delete_cols(idx=col_index, amount=1)
@@ -846,6 +911,8 @@ class DataTable:
                     col_index=col_index,
                 )
         if delete_type == DeleteType.AREA:
+            if not start_row or not start_col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("删除区域需要指定开始行列"), "删除区域需要指定开始行列")
             if not end_col:
                 end_col_index = PyxlWrapper.get_max_column()
                 end_col = index_to_col(end_col_index - 1)
@@ -855,6 +922,7 @@ class DataTable:
             PyxlWrapper.clear_range(range_str=col_range)
 
     @staticmethod
+    @validate_cell
     @atomicMg.atomic(
         "DataTable",
         noAdvanced=True,
@@ -993,9 +1061,17 @@ class DataTable:
         """
         插入行或列
         """
+        if amount < 0:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("插入行列数量必须大于0"), "插入行列数量必须大于0")
+        if amount == 0:
+            return
         if insert_type == InsertType.ROW:
+            if not row:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
             PyxlWrapper.insert_rows(idx=row, amount=amount)
         if insert_type == InsertType.COLUMN:
+            if not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
             col_index = col_to_index(col)
             PyxlWrapper.insert_cols(idx=col_index, amount=amount)
             PyxlHeadWrapper.insert_cols(idx=col_index, amount=amount)
@@ -1017,6 +1093,12 @@ class DataTable:
         """
         插入公式到指定单元格
         """
+        if not row:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
+        if not col:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+        if not formula:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("公式不能为空"), "公式不能为空")
         validate_formula(formula)
         col_index = col_to_index(col)
         PyxlWrapper.write_cell(row=row, col=col_index, value=formula)
@@ -1033,8 +1115,12 @@ class DataTable:
         title: str = "",
     ):
         """
-        设置列标题
+        设置列号题
         """
+        if not col:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+        if not title:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列信息不能为空"), "列信息不能为空")
         col_index = col_to_index(col)
         PyxlHeadWrapper.write_cell(row=1, col=col_index, value=title)
         sync_data_table_head()
@@ -1055,8 +1141,10 @@ class DataTable:
         col: str = "A",
     ) -> str:
         """
-        获取列标题
+        获取列号题
         """
+        if not col:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
         col_index = col_to_index(col)
         return str(PyxlHeadWrapper.read_cell(row=1, col=col_index))
 
@@ -1075,6 +1163,8 @@ class DataTable:
         """
         数据表格排序
         """
+        if not col:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
         col_index = col_to_index(col)
 
         PyxlWrapper.sort_column(col_index=col_index, order=sort_type.value)
@@ -1127,10 +1217,13 @@ class DataTable:
         """
         查找并替换数据表格中的指定内容, 返回查找到的数据位置列表[(row, col), ...]
         """
+        if not find_value:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("查找内容不能为空"), "查找内容不能为空")
+
         find_data_positions = []
         if find_type == FindType.COLUMN:
-            if col is None:
-                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列不能为空"), "列不能为空")
+            if not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
             col_index = col_to_index(col)
             column_data = PyxlWrapper.read_column(col_index=col_index)
             for r, cell_value in enumerate(column_data, start=1):
@@ -1169,6 +1262,7 @@ class DataTable:
         return find_data_positions
 
     @staticmethod
+    @validate_cell
     @atomicMg.atomic(
         "DataTable",
         inputList=[
@@ -1260,8 +1354,12 @@ class DataTable:
         col_index = col_to_index(col)
         data = []
         if filter_type == FilterType.COLUMN:
+            if not col:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
             data = PyxlWrapper.read_column(col_index=col_index)
         elif filter_type == FilterType.ROW:
+            if not row:
+                raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
             data = PyxlWrapper.read_row(row_index=row)
         else:
             data = PyxlWrapper.read_effective_area()
@@ -1384,10 +1482,23 @@ class DataTable:
         export_dest_path: str,
         export_file_name: str = "data_table",
         export_file_type: ExportFileType = ExportFileType.XLSX,
+        is_overwrite: bool = True,
     ) -> str:
         """
         导出数据表格到指定文件
         """
+        if not export_dest_path:
+            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("导出文件夹路径不能为空"), "导出文件夹路径不能为空")
+        if not export_file_name:
+            export_file_name = "data_table"
+        if not os.path.exists(export_dest_path):
+            raise DATAFRAME_EXPECTION(
+                PARAMS_ERROR.format(f"导出文件夹路径不存在: {export_dest_path}"),
+                "导出文件夹路径不存在",
+            )
+        if not is_overwrite:
+            export_file_name = export_file_name + "_" + datetime.now().strftime("%Y%m%d%H%M%S")
+
         file_path = os.path.join(export_dest_path, f"{export_file_name}.{export_file_type.value}")
         if export_file_type == ExportFileType.JSON:
             data = DataTable.read_data(
