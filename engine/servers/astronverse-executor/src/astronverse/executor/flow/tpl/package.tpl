@@ -48,7 +48,7 @@ def smart_component(smart_component_key) -> dict:
     return {}
 
 
-def complex_param_parser(complex_param: dict) -> dict:
+def complex_param_parser(complex_param: Any) -> dict:
     return ComplexParamParser.evaluate_params(ComplexParamParser.parse_params(complex_param))
 
 
