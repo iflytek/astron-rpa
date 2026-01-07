@@ -207,7 +207,7 @@ inputListListener(itemData, itemType)
   </AtomPopover>
   <!-- CV图片拾取按钮 -->
   <CvPickBtn v-if="itemType === ATOM_FORM_TYPE.CVPICK" type="icon" entry="atomFormBtn" class="h-[32px] w-[32px] justify-center" @click="clickHandle" />
-  <!-- 卓越中心共享文件选择 -->
+  <!-- 控制台共享文件选择 -->
   <AtomRemoteFiles
     v-if="itemType === ATOM_FORM_TYPE.REMOTEFOLDERS"
     :render-data="itemData"

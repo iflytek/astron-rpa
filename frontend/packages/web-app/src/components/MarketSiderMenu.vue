@@ -74,7 +74,7 @@ watch(() => userStore.currentTenant?.id, (val) => {
 </script>
 
 <template>
-  <a-layout-sider :width="COMMON_SIDER_WIDTH" class="market-sider">
+  <a-layout-sider :width="COMMON_SIDER_WIDTH" class="market-sider h-[calc(100%-80px)]" :class="{ 'market-sider-all': markets.length > 1, '!h-[calc(100%-140px)]': userStore.currentTenant?.tenantType === 'personal' }" >
     <a-menu trigger-sub-menu-action="click" :selected-keys="selectedKeys" :open-keys="openKeys" mode="inline" class="marketList-container">
       <template v-for="marketsItem in markets">
         <div v-if="marketsItem.key === 'teamMarket'" :key="marketsItem.key" class="market-menu-item flex items-center justify-between h-[40px] leading-[40px]">
@@ -112,6 +112,21 @@ watch(() => userStore.currentTenant?.id, (val) => {
 <style lang="scss">
 .market-sider {
   padding: 20px;
+  .ant-layout-sider-children, .ant-menu-root{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .ant-menu-root .ant-menu-submenu {
+    max-height: calc(100% - 40px);
+  }
+  &.market-sider-all .ant-menu-root .ant-menu-submenu {
+    max-height: calc(100% - 100px);
+  }
+  .ant-menu-root .ant-menu-submenu .ant-menu-sub {
+    max-height: calc(100% - 40px);
+    overflow: auto;
+  }
   .ant-menu {
     background-color: transparent;
   }

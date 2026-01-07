@@ -84,19 +84,19 @@ defineExpose({
     <template v-if="confData?.trigger === 'button'">
       <div
         v-if="confData?.buttonConf?.buttonType === 'tag'"
-        class="tenant-upgrade-tag cursor-pointer flex items-center justify-start text-gradient-bg text-upgrader-bg !rounded-[12px] !min-h-[56px] !w-full !text-[14px] hover:!opacity-90"
+        class="cursor-pointer flex items-center justify-start text-gradient-bg text-upgrader-bg !rounded-[12px] !w-full !text-[14px] hover:!opacity-90"
       >
         <div v-if="confData?.buttonConf?.currentEdition && confData?.buttonConf?.currentEdition !== 'personal'">
-          <div class="w-[fit-content] h-[22px] leading-[22px] font-bold">
+          <div class="w-[fit-content] font-bold">
             <span class="text-gradient">{{ tenantTypeMap[confData?.buttonConf?.currentEdition] }}</span>
           </div>
-          <span v-if="confData?.buttonConf?.expirationDate" class="text-[12px] mt-[4px]">
+          <span v-if="confData?.buttonConf?.expirationDate" class="text-[12px] mt-[8px]">
             到期时间： {{ confData?.buttonConf?.expirationDate }}
             <span v-if="confData?.buttonConf?.shouldAlert" class="bg-[#ec483e] text-white px-[6px] py-[1px] !text-[12px] rounded-[3px]">即将到期</span>
           </span>
         </div>
-        <div v-else class="w-full text-left" @click="openModal">
-          <div v-if="confData?.buttonConf?.currentEdition" class="w-[fit-content] h-[22px] leading-[22px] font-bold">
+        <div v-else class="w-full text-left" :class="{'min-h-[38px] leading-[38px]': !confData?.buttonConf?.currentEdition }" @click="openModal">
+          <div v-if="confData?.buttonConf?.currentEdition" class="w-[fit-content] font-bold">
             <span class="text-gradient">{{ tenantTypeMap[confData?.buttonConf?.currentEdition] }}</span>
           </div>
           <div v-if="confData?.authType !== 'casdoor'" class="flex items-center justify-start" :class="confData?.buttonConf?.currentEdition ? 'text-[12px] mt-[2px]' : ''">

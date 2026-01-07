@@ -41,6 +41,7 @@ defineExpose({
   <div class="auth-container-content h-[540px]">
     <Login
       v-if="currentFormMode === 'login'"
+      :key="`${edition}_${authType}_login`"
       :invite-info="inviteInfo"
       :edition="edition"
       :auth-type="authType"
@@ -53,6 +54,7 @@ defineExpose({
 
     <Register
       v-else-if="currentFormMode === 'register'"
+      :key="`${edition}_${authType}_register`"
       :edition="edition"
       :auth-type="authType"
       :running="running"
@@ -63,6 +65,7 @@ defineExpose({
 
     <ForgotPassword
       v-else-if="['forgotPasswordWithSysUpgrade', 'forgotPassword'].includes(currentFormMode)"
+      :key="`${edition}_${authType}_forgotPassword`"
       :running="running"
       :title="currentFormMode === 'forgotPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
       @submit="handleForgotPassword"
@@ -71,6 +74,7 @@ defineExpose({
 
     <SetPassword
       v-else-if="['setPasswordWithSysUpgrade', 'setPassword'].includes(currentFormMode)"
+      :key="`${edition}_${authType}_setPassword`"
       :title="currentFormMode === 'setPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
       :running="running"
       :invite-info="inviteInfo"
@@ -80,6 +84,7 @@ defineExpose({
 
     <ModifyPassword
       v-else-if="['modifyPassword'].includes(currentFormMode)"
+      :key="`${edition}_${authType}_modifyPassword`"
       :running="running"
       :invite-info="inviteInfo"
       :edition="edition"
@@ -90,6 +95,7 @@ defineExpose({
 
     <TenantSelect
       v-else-if="currentFormMode === 'tenantSelect'"
+      :key="`${edition}_${authType}_tenantSelect`"
       :invite-info="inviteInfo"
       :edition="edition"
       :auth-type="authType"

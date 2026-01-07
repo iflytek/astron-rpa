@@ -64,7 +64,7 @@ export async function tenantList(tempToken?: string) {
   return data.map(i => {
     return {
       ...i,
-      tenantType: i.tenantType.includes('enterprise_') ? 'enterprise' : i.tenantType,
+      tenantType: i.tenantType?.includes('enterprise_') ? 'enterprise' : i.tenantType,
     }
   })
 }
