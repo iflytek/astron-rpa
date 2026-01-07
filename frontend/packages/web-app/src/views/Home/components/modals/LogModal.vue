@@ -90,14 +90,16 @@ const modalConfigProps: Record<ModalType, Record<string, any>> = {
   },
 }
 
+const isDrawer = computed(() => props.type === 'drawer')
+
 const componentProps = computed(() => {
-  const bindProps = props.type === 'drawer' ? NiceModal.antdDrawer(modal) : NiceModal.antdModal(modal)
+  const bindProps = isDrawer.value ? NiceModal.antdDrawer(modal) : NiceModal.antdModal(modal)
   return { ...modalConfigProps[props.type], ...bindProps }
 })
 </script>
 
 <template>
-  <component v-bind="componentProps" :is="props.type === 'drawer' ? Drawer : GlobalModal" :footer="null">
+  <component v-bind="componentProps" :is="isDrawer ? Drawer : GlobalModal" :footer="null">
     <template #title>
       <a-segmented v-if="props.dataTablePath" v-model:value="segmentValue" :options="segmentOptions" />
       <template v-else>
@@ -111,7 +113,11 @@ const componentProps = computed(() => {
     </div>
 
     <template v-if="props.dataTablePath">
-      <ReadonlyDataTable v-show="segmentValue === SegmentValue.Table" class="h-[320px]" :data-table-path="props.dataTablePath" />
+      <ReadonlyDataTable
+        v-show="segmentValue === SegmentValue.Table"
+        :class="isDrawer ? 'h-full' : 'h-[320px]'"
+        :data-table-path="props.dataTablePath"
+      />
     </template>
   </component>
 </template>
