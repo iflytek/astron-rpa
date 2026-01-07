@@ -73,7 +73,7 @@ class Script:
             for k, v in out_params.items():
                 out_params_res[k] = eval(v, process_module.__dict__)
 
-            out_kwargs = {**out_params, **out_kwargs}
+            out_kwargs = {**out_params_res, **out_kwargs}
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
