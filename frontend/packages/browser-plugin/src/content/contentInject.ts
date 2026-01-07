@@ -262,14 +262,16 @@ function dispatchMouseSequence(
 const ContentHandler = {
   ele: {
     getElement: async (data: ElementInfo, isSelf = false, atomRun = false): Promise<null | HTMLElement[]> => {
-      const { matchTypes } = data
+      const { matchTypes, filterVisible = false } = data
       const isScrollFind = matchTypes && matchTypes.includes('scrollPosition') && !isSelf && !atomRun
       let tempEles: HTMLElement[] | null = getElementByElementInfo(data)
       if (!tempEles && isScrollFind) {
         tempEles = (await scrollFindElement(data)) as HTMLElement[]
       }
-      // filter out elements that are not visible
-      tempEles = filterVisibleElements(tempEles)
+      if (filterVisible && tempEles) {
+        // filter out elements that are not visible
+        tempEles = filterVisibleElements(tempEles)
+      }
       return tempEles as HTMLElement[]
     },
 
@@ -335,7 +337,7 @@ const ContentHandler = {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
       if (scrollEle && scrollEle[0]) {
-        if (atomConfig && atomConfig.notCenter) {
+        if (atomConfig && !atomConfig.scrollIntoCenter) {
           scrollEle[0].scrollIntoView(false)
         }
         else {
@@ -381,6 +383,22 @@ const ContentHandler = {
     },
 
     elementIsRender: async (data: ElementInfo) => {
+      let ele = null
+      try {
+        ele = await ContentHandler.ele.getElement({ ...data, filterVisible: true })
+      }
+      catch (error) {
+        return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
+      }
+      if (ele) {
+        return Utils.success(true)
+      }
+      else {
+        return Utils.success(false)
+      }
+    },
+
+    elementIsReady: async (data: ElementInfo) => {
       let ele = null
       try {
         ele = await ContentHandler.ele.getElement(data)

@@ -37,4 +37,5 @@ export enum ErrorMessage {
 export enum SuccessMessage {
   DELETE_SUCCESS = '删除成功',
   SET_SUCCESS = '设置成功',
+  EMPTY_SUCCESS = '清空成功',
 }

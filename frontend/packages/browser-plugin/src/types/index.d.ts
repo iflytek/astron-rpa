@@ -87,6 +87,7 @@ interface ElementInfo {
   isFrame?: boolean
   checkType?: 'visualization' | 'customization'
   matchTypes?: Array<string>
+  filterVisible?: boolean
 
   frameId?: number
   iframeXpath?: string

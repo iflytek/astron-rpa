@@ -15,7 +15,7 @@ atomic:
       title: 等待类型
       tip: 等待出现或者等待消失
     - key: element_timeout
-      title: 等待元素出现时间（秒）
+      title: 等待元素时间（秒）
       tip: 超过该时间停止等待
     outputList:
     - key: wait_element
@@ -61,6 +61,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList: []
   BrowserElement.input:
     title: 填写输入框（web）
@@ -96,6 +99,9 @@ atomic:
     - key: input_type
       title: 追加输入
       tip: 是否对输入框进行追加输入
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList:
     - key: form_input
       title: 用户输入内容
@@ -115,6 +121,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList: []
   BrowserElement.screenshot:
     title: 拾取元素截图（web）
@@ -216,6 +225,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList: []
   BrowserElement.similar:
     title: 获取相似元素列表（web）
@@ -541,6 +553,9 @@ atomic:
     - key: is_save_to_data_table
       title: 是否保存到数据表格
       tip: 选择是否将数据抓取的结果保存到数据表格中
+    - key: scroll_into_center
+      title: 元素滚动到可视区域中心
+      tip: 选择是否将翻页按钮元素滚动到可视区域中心位置，若部分网页可能错位，可选择关闭此功能
     outputList:
     - key: table_pick
       title: 表格对象
@@ -699,6 +714,9 @@ atomic:
     - key: cookie_val
       title: cookie值
       tip: ''
+    - key: cookie_path
+      title: cookie路径
+      tip: 使用cookie 的path属性，会根据url得到domain后自动设置path, 会忽略url中的path部分
     - key: page_timeout
       title: 等待页面加载时间（秒）
       tip: 超过该时间停止等待
@@ -708,7 +726,7 @@ atomic:
       tip: ''
   BrowserSoftware.get_cookies:
     title: 获取Cookie
-    comment: 获取浏览器对象 @{browser_obj} 的Cookie值，输出至 @{get_cookie}
+    comment: 获取浏览器对象 @{browser_obj} 的 @{url} 的Cookie名称 @{cookie_name} 的值，输出至 @{get_cookie}
     icon: get-cookie
     helpManual: ''
     inputList:
@@ -721,6 +739,9 @@ atomic:
     - key: cookie_name
       title: cookie名称
       tip: ''
+    - key: cookie_path
+      title: cookie路径
+      tip: 使用cookie 的path属性，会根据url得到domain后自动设置path, 会忽略url中的path部分
     - key: page_timeout
       title: 等待页面加载时间（秒）
       tip: 超过该时间停止等待
@@ -728,6 +749,25 @@ atomic:
     - key: get_cookie
       title: cookie值
       tip: ''
+  BrowserSoftware.empty_cookies:
+    title: 清除Cookie
+    comment: 清除浏览器对象 @{browser_obj} @{url} 的Cookie数据
+    icon: clear-cookie
+    helpManual: ''
+    inputList:
+    - key: browser_obj
+      title: 浏览器对象
+      tip: 选择要清除cookie值的浏览器对象
+    - key: url
+      title: 目标url
+      tip: ''
+    - key: cookie_path
+      title: cookie路径
+      tip: 使用cookie 的path属性，会根据url得到domain后自动设置path, 会忽略url中的path部分
+    - key: page_timeout
+      title: 等待页面加载时间（秒）
+      tip: 超过该时间停止等待
+    outputList: []
   BrowserSoftware.web_open:
     title: 打开新网页
     comment: 打开浏览器对象 @{browser_obj} 并进入网址 @{new_tab_url} ，将结果输出为浏览器对象 @{web_new_page}

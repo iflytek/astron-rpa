@@ -636,7 +636,6 @@ const Handlers = {
         if (Number.isNaN(frameId)) {
           return Utils.success(false)
         }
-        params.key = 'elementIsRender'
         const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
         const complete = activeTab.status === 'complete'
         if (result) {

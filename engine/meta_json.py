@@ -10,6 +10,7 @@ load_dotenv()
 upload_url = os.getenv("COMPONENTS_META_UPLOAD_URL", "your meta upload url address in .env file")
 remote_meta_url = os.getenv("REMOTE_META_URL", "your remote meta url address in .env file")
 tree_upload_url = os.getenv("TREE_UPLOAD_URL", "your tree upload url address in .env file")
+remote_tree_url = os.getenv("REMOTE_TREE_URL", "your remote tree url address in .env file")
 # Define the base directory for components
 base_dir = os.path.dirname(__file__) + "/components"
 # Define any directories to skip
@@ -31,7 +32,7 @@ def run_meta_scripts():
         try:
             subprocess.run([sys.executable, "meta.py"], cwd=verse_folder, check=True)
         except subprocess.CalledProcessError as e:
-            print(f"Failed to run meta.py in {verse_folder}: {e}")
+            print(f"\033[31mFailed to run meta.py in {verse_folder}: {e}\033[0m")
 
 
 # Aggregate meta.json files from each component directory
@@ -69,10 +70,10 @@ def get_remote_meta():
             save_json_to_file(response.json(), os.path.join(os.path.dirname(__file__), "temp_remote.json"))
             return response.json()
         else:
-            print(f"Failed to get remote meta. Status code: {response.status_code}")
+            print(f"\033[31mFailed to get remote meta. Status code: {response.status_code}\033[0m")
             return None
     except Exception as e:
-        print(f"Error getting remote meta.json: {e}")
+        print(f"\033[31mError getting remote meta.json: {e}\033[0m")
         return None
 
 
@@ -89,7 +90,7 @@ def merge_local_and_remote(local_meta: dict, remote_meta: list):
         if not found:
             new_item = {"atomKey": key, "atomContent": json.dumps(value, ensure_ascii=False), "sort": None}
             new_items.append(new_item)
-    print(f"Found {len(new_items)} new items to add to remote meta.json.")
+    print(f"Found {len(new_items)} new items")
     if new_items:
         remote_meta.extend(new_items)
 
@@ -110,11 +111,29 @@ def meta_upload():
         try:
             response = requests.post(upload_url, json=update_meta, timeout=10)
             if response.status_code == 200:
-                print("meta uploaded successfully.")
+                print("\033[32mmeta uploaded successfully.\033[0m")
             else:
-                print(f"Failed to upload meta. Status code: {response.status_code}")
+                print(f"\033[31mFailed to upload meta. Status code: {response.status_code}\033[0m")
         except Exception as e:
-            print(f"Error uploading meta: {e}")
+            print(f"\033[31mError uploading meta: {e}\033[0m")
+
+
+def get_remote_tree():
+    print("Fetching remote tree from server...")
+    response = requests.post(remote_tree_url, timeout=10)
+    if response.status_code == 200:
+        res = response.json().get("data", {})
+        # res may be a JSON string; parse it to a Python object
+        if isinstance(res, str):
+            try:
+                res_json = json.loads(res)
+                save_json_to_file(res_json, os.path.join(os.path.dirname(__file__), "temp_tree.json"))
+            except json.JSONDecodeError as e:
+                print(f"\033[31mError parsing remote tree JSON: {e}\033[0m")
+                return
+
+    else:
+        print(f"\033[31mFailed to get remote tree. Status code: {response.status_code}\033[0m")
 
 
 def tree_upload():
@@ -123,11 +142,11 @@ def tree_upload():
     try:
         response = requests.post(tree_upload_url, json=tree_data, timeout=10)
         if response.status_code == 200:
-            print("tree uploaded successfully.")
+            print("\033[32mtree uploaded successfully.\033[0m")
         else:
-            print(f"Failed to upload tree. Status code: {response.status_code}")
+            print(f"\033[31mFailed to upload tree. Status code: {response.status_code}\033[0m")
     except Exception as e:
-        print(f"Error uploading tree: {e}")
+        print(f"\033[31mError uploading tree: {e}\033[0m")
 
 
 def save_json_to_file(data, file_path):
@@ -144,17 +163,11 @@ if __name__ == "__main__":
         run_meta_scripts()
         local_meta = merge_local_meta()
     else:
-        print("Skipping run meta and merge. load from temp_local.json if exists.")
+        print("\033[33mSkipping run meta and merge. load from temp_local.json if exists.\033[0m")
         with open(os.path.join(os.path.dirname(__file__), "temp_local.json"), encoding="utf-8") as f:
             local_meta = json.load(f)
 
-    choice = input("Do you want to get remote? (Y/N): ").strip().lower()
-    if choice == "y":
-        remote_meta = get_remote_meta()
-    else:
-        print("Skipping fetching remote meta.json. load from temp_remote.json if exists.")
-        with open(os.path.join(os.path.dirname(__file__), "temp_remote.json"), encoding="utf-8") as f:
-            remote_meta = json.load(f)
+    remote_meta = get_remote_meta()
 
     if local_meta and remote_meta:
         updated_meta = merge_local_and_remote(local_meta, remote_meta)
@@ -163,11 +176,12 @@ if __name__ == "__main__":
             print("Uploading updated meta to the server...")
             meta_upload()
         else:
-            print("Upload skipped.")
+            print("\033[33mUpload skipped.\033[0m")
 
-    choice = input("Do you want to upload tree.json to the server? (Y/N): ").strip().lower()
+    get_remote_tree()
+    choice = input("Do you want to update tree to the server? (Y/N): ").strip().lower()
     if choice == "y":
-        print("Uploading tree.json to the server...")
+        print("Uploading tree to the server...")
         tree_upload()
     else:
-        print("Tree upload skipped.")
+        print("\033[33mTree upload skipped.\033[0m")

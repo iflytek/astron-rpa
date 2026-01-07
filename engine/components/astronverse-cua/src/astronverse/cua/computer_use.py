@@ -3,20 +3,20 @@ Computer Use Agent - 使用视觉大模型操作电脑
 实现完整的自动化流程：用户指令 → 截图 → 模型分析 → 执行操作 → 循环直到任务完成
 """
 
-import os
-import time
-import tempfile
 import base64
-import re
-from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Callable
+import os
+import tempfile
+import time
+from collections.abc import Callable
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 import pyautogui
-from PIL import Image, ImageDraw
 from openai import OpenAI
-# from volcenginesdkarkruntime import Ark
+from PIL import Image, ImageDraw
 
+# from volcenginesdkarkruntime import Ark
 from astronverse.cua.action_parser import (
     parse_action_to_structure_output,
     parsing_response_to_pyautogui_code,
@@ -24,9 +24,9 @@ from astronverse.cua.action_parser import (
 
 # 尝试导入actionlib（如果可用）
 try:
+    from astronverse.actionlib import ReportCode, ReportCodeStatus, ReportType
     from astronverse.actionlib.atomic import atomicMg
     from astronverse.actionlib.report import report
-    from astronverse.actionlib import ReportType, ReportCode, ReportCodeStatus
 
     HAS_ACTIONLIB = True
 except ImportError:
@@ -125,15 +125,15 @@ class ComputerUseAgent:
         self.screenshot_dir.mkdir(parents=True, exist_ok=True)
 
         # 历史记录
-        self.action_history: List[Dict] = []
-        self.screenshots: List[str] = []
+        self.action_history: list[dict] = []
+        self.screenshots: list[str] = []
         # 保存对话历史：(assistant响应, (base64_image, image_format) 或 None)
-        self.conversation_history: List[Tuple[str, Optional[Tuple[str, str]]]] = []
+        self.conversation_history: list[tuple[str, Optional[tuple[str, str]]]] = []
         self.pending_response: Optional[str] = None  # 待保存的响应（等待下一步的截图）
         self.instruction: Optional[str] = None  # 保存用户指令
 
         # 保存上一次点击的坐标，用于在下一次截图上标记
-        self.last_click_coords: Optional[Tuple[int, int]] = None
+        self.last_click_coords: Optional[tuple[int, int]] = None
 
         # 屏幕尺寸缓存，避免每次都打开Image文件
         self.screen_width = None
@@ -154,7 +154,7 @@ class ComputerUseAgent:
 
         print(f"[初始化] 截图保存目录: {self.screenshot_dir}")
 
-    def take_screenshot(self) -> Tuple[str, str]:
+    def take_screenshot(self) -> tuple[str, str]:
         """
         截取当前屏幕，并在截图上标记上一次点击的位置（如果有）
 
@@ -223,8 +223,8 @@ class ComputerUseAgent:
             return image_path  # 如果出错，返回原始路径
 
     def _extract_click_coordinates(
-        self, action: Dict, image_height: int, image_width: int
-    ) -> Optional[Tuple[int, int]]:
+        self, action: dict, image_height: int, image_width: int
+    ) -> Optional[tuple[int, int]]:
         """
         从动作中提取点击坐标
 
@@ -270,7 +270,7 @@ class ComputerUseAgent:
             print(f"[警告] 无法解析坐标: {e}")
             return None
 
-    def build_messages(self, instruction: str, screenshot_path: str, base64_image: str) -> List[Dict]:
+    def build_messages(self, instruction: str, screenshot_path: str, base64_image: str) -> list[dict]:
         """
         构建发送给模型的消息（包含完整对话历史）
 
@@ -289,7 +289,7 @@ class ComputerUseAgent:
         # 构建系统提示词
         system_prompt = COMPUTER_USE_PROMPT.format(instruction=self.instruction, language=self.language)
 
-        messages: List[Dict] = []
+        messages: list[dict] = []
 
         # 第一步：只有system_prompt和第一张截图
         if not self.conversation_history:
@@ -338,7 +338,7 @@ class ComputerUseAgent:
 
         return messages
 
-    def inference(self, messages: List[Dict], stream_callback: Optional[Callable[[str], None]] = None) -> str:
+    def inference(self, messages: list[dict], stream_callback: Optional[Callable[[str], None]] = None) -> str:
         """
         调用模型进行推理
 
@@ -476,7 +476,7 @@ class ComputerUseAgent:
             traceback.print_exc()
             return False
 
-    def run(self, instruction: str) -> Dict:
+    def run(self, instruction: str) -> dict:
         """
         运行自动化任务
 

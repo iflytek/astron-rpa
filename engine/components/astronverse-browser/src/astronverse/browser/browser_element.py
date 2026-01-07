@@ -9,7 +9,7 @@ import time
 from functools import wraps
 
 import pandas as pd
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
@@ -253,6 +253,17 @@ class BrowserElement:
                 "button_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
     )
     @wait_element_appear
@@ -263,6 +274,7 @@ class BrowserElement:
         assistive_key: ButtonForAssistiveKeyFlag = ButtonForAssistiveKeyFlag.Nothing,
         button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """点击"""
         if not browser_obj:
@@ -299,7 +311,11 @@ class BrowserElement:
                 raise NotImplementedError()
 
         else:
-            element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+            element = Locator.locator(
+                element_data.get("elementData"),
+                cur_target_app=browser_obj.browser_type.value,
+                scroll_into_center=scroll_into_center,
+            )
             if isinstance(element.rect(), list):
                 raise Exception("浏览器元素定位不唯一，请检查！")
             center = element.point()
@@ -356,6 +372,17 @@ class BrowserElement:
                 "input_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
         outputList=[
             atomicMg.param("form_input", types="Str"),
@@ -372,6 +399,7 @@ class BrowserElement:
         focus_time: float = 1000,
         write_gap_time: float = 0,
         input_type: FillInputForInputTypeFlag = FillInputForInputTypeFlag.Overwrite,
+        scroll_into_center: bool = True,
     ):
         """
         填写输入框(web)
@@ -390,13 +418,13 @@ class BrowserElement:
         else:
             text = ""
 
-        element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(element.rect(), list):
-            raise Exception("浏览器元素定位不唯一，请检查！")
-        center = element.point()
-
         # js输入
         if not simulate_flag:
+            element = Locator.locator(
+                element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+            )
+            if isinstance(element.rect(), list):
+                raise Exception("浏览器元素定位不唯一，请检查！")
             if input_type == FillInputForInputTypeFlag.Append:
                 origin_text = BrowserElement.element_text(
                     browser_obj=browser_obj,
@@ -421,6 +449,11 @@ class BrowserElement:
         else:
             from astronverse.input.code.keyboard import Keyboard
             from astronverse.input.code.mouse import Mouse
+
+            element = Locator.locator(element_data.get("elementData"), scroll_into_center=scroll_into_center)
+            if isinstance(element.rect(), list):
+                raise Exception("浏览器元素定位不唯一，请检查！")
+            center = element.point()
 
             smooth_move(center.x, center.y, duration=0.4)
             Mouse.click(x=center.x, y=center.y)
@@ -449,12 +482,19 @@ class BrowserElement:
 
     @staticmethod
     @get_default_browser
-    @atomicMg.atomic("BrowserElement")
+    @atomicMg.atomic(
+        "BrowserElement",
+        inputList=[
+            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+        ],
+        outputList=[],
+    )
     @wait_element_appear
     def hover_over(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """
         鼠标悬停在元素上（web）
@@ -464,7 +504,11 @@ class BrowserElement:
                 PARAMETER_INVALID_FORMAT,
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
-        element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        element = Locator.locator(
+            element_data.get("elementData"),
+            cur_target_app=browser_obj.browser_type.value,
+            scroll_into_center=scroll_into_center,
+        )
         element.move()
 
     @staticmethod
@@ -698,12 +742,19 @@ class BrowserElement:
 
     @staticmethod
     @get_default_browser
-    @atomicMg.atomic("BrowserElement")
+    @atomicMg.atomic(
+        "BrowserElement",
+        inputList=[
+            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+        ],
+        outputList=[],
+    )
     @wait_element_appear
     def scroll_into_view(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """滚动到元素可见位置。"""
         if not browser_obj:
@@ -712,10 +763,11 @@ class BrowserElement:
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
+            data = {**element_data["elementData"]["path"], "atomConfig": {"scrollIntoCenter": scroll_into_center}}
             _ = browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
                 key="scrollIntoView",
-                data=element_data["elementData"]["path"],
+                data=data,
             )
         else:
             raise NotImplementedError()
@@ -1418,12 +1470,7 @@ class BrowserElement:
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            handler = BrowserCore.get_browser_handler(browser_obj.browser_type)
-
-            # 定位
-            Locator.locator(
-                element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
-            )
+            BrowserCore.get_browser_handler(browser_obj.browser_type)
             # 元素
             table_element = element_data["elementData"]
 
@@ -1532,6 +1579,17 @@ class BrowserElement:
             ),
             # 是否输出表头
             atomicMg.param("output_head", required=False),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
         outputList=[
             atomicMg.param("table_pick", types="List"),
@@ -1564,6 +1622,7 @@ class BrowserElement:
         output_head: bool = True,  # 是否输出表头
         output_filter_empty_col: bool = False,  # 是否过滤空列
         is_save_to_data_table: bool = False,  # 是否保存到数据表格
+        scroll_into_center: bool = True,
     ):
         """数据抓取（web）"""
         table_list = []
@@ -1582,8 +1641,6 @@ class BrowserElement:
                 )
                 if not wait:
                     raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
-                # 定位
-                Locator.locator(batch_element, cur_target_app=browser_obj.browser_type.value, scroll_into_view=False)
                 # 发送给插件
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
@@ -1635,6 +1692,7 @@ class BrowserElement:
                         assistive_key=ButtonForAssistiveKeyFlag.Nothing,
                         button_type=button_type,
                         element_timeout=element_timeout,
+                        scroll_into_center=scroll_into_center,
                     )
                 except Exception:
                     pass

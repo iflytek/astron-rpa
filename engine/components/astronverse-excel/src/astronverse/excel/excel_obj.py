@@ -34,8 +34,8 @@ class ExcelObj:
         """同get_excel_first_available_row"""
 
         if sys.platform == "win32":
-            from astronverse.excel.core_win.worksheet import Worksheet
             from astronverse.excel.core_win.range import Range
+            from astronverse.excel.core_win.worksheet import Worksheet
         else:
             return 0
         worksheet = Worksheet.get_worksheet(self, "", default=1)

@@ -1,28 +1,25 @@
 from __future__ import annotations
 
 import platform
+import re
 import sys
 import time
-import re
-from typing import List
 
-from astronverse.actionlib.types import WebPick, PATH
+from astronverse.actionlib.types import PATH, WebPick
+from astronverse.baseline.logger.logger import logger
 from astronverse.browser import *
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
 from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.js.base import BaseBuilder
 from astronverse.browser.js.chrome import CodeChromeBuilder
-from astronverse.baseline.logger.logger import logger
 
 if sys.platform == "win32":
     from astronverse.browser.core.core_win import BrowserCore
     from astronverse.locator.locator import locator
-    from astronverse.locator import smooth_move
 elif platform.system() == "Linux":
     from astronverse.browser.core.core_unix import BrowserCore
     from astronverse.locator.locator import locator
-    from astronverse.locator import smooth_move
 else:
     raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
 
@@ -36,7 +33,7 @@ class WebElement:
         self.browser = browser
         self.element_data = element_data
 
-    def find_elements_by_xpath(self, xpath_selector: str, *, timeout=3) -> List[WebElement]:
+    def find_elements_by_xpath(self, xpath_selector: str, *, timeout=3) -> list[WebElement]:
         """
         in the current element, use this method when you need to match multiple elements.
         return a list of document's elements（WebElement）that match the specific xpath, raise exception if match failed
@@ -155,7 +152,7 @@ class WebElement:
 
         return WebElement(browser=self.browser, element_data=elements)
 
-    def wait_all_elements_exist(self, xpath_selector: str, timeout=3) -> List[WebElement]:
+    def wait_all_elements_exist(self, xpath_selector: str, timeout=3) -> list[WebElement]:
         """
         Wait for all elements matching the specified XPath to appear in the current page.
         Returns a list of all matching WebElements. If no elements are found within the timeout,
@@ -190,7 +187,7 @@ class WebElement:
         return web_elements
 
     def screenshot(self, folder_path: str, *, filename=None) -> None:
-        """
+        r"""
         screenshot the element and save the image to the specified folder.
         * @param folder_path, the path to save the screenshot
         * @param filename, the name of the screenshot file, note that the file name cannot contain the following characters: \ / : * ? " < > |
@@ -267,7 +264,7 @@ class WebElement:
 
         return WebElement(browser=self.browser, element_data=elements)
 
-    def children(self) -> List[WebElement]:
+    def children(self) -> list[WebElement]:
         """
         returns a list[WebElement] which contains all the child elements of the WebElement upon which it was called
         * @return `List[WebElement]`, return the list of the child WebElement objects
@@ -317,8 +314,8 @@ class WebElement:
         * @param drag_type, 拖拽类型（"start" 从起点开始, "current" 相对当前位置）
         * @param duration, 拖拽持续时间
         """
-        from rpabrowser.browser_element import BrowserElement
         from rpabrowser import ElementDragDirectionTypeFlag, ElementDragTypeFlag
+        from rpabrowser.browser_element import BrowserElement
 
         # 转换字符串参数为枚举
         direction_map = {
@@ -350,7 +347,7 @@ class WebElement:
             * `'bottom'`, scroll to the bottom of the element
             * `'top'`, scroll to the top of the element
         """
-        from rpabrowser import ScrollbarType, ScrollDirection, ScrollbarForYScrollTypeFlag
+        from rpabrowser import ScrollbarForYScrollTypeFlag, ScrollbarType, ScrollDirection
 
         if location == "bottom":
             y_scroll_type = ScrollbarForYScrollTypeFlag.Bottom
@@ -376,8 +373,8 @@ class WebElement:
         * @param delay_after, the delay time after the drag operation, please specify the value as 0.3, it is important to use this value.
         """
         # 尝试使用现有的Mouse API和smooth_move
-        from rpagui.code.mouse import Mouse
         from rpa_locator import smooth_move
+        from rpagui.code.mouse import Mouse
 
         # 获取元素中心位置
         element = Locator.locator(self.element_data.get("elementData"), cur_target_app=self.browser.browser_type.value)
@@ -417,8 +414,8 @@ class WebElement:
         * @param execution_world, the execution environment, support value "ISOLATED"(plugin environment) or "MAIN"(web page environment), default is "ISOLATED"
         * @return `str`, return the str result of the javascript execution
         """
-        from rpabrowser.browser_script import BrowserScript
         from rpabrowser import InputType
+        from rpabrowser.browser_script import BrowserScript
 
         # === 新增：自动修复常见的错误输入 ===
         # 匹配 function(...) { ... } 或 function (...) { ... }
