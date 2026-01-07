@@ -19,6 +19,7 @@ from astronverse.trigger.core.logger import logger
 from astronverse.trigger.server.gateway_client import (
     execute_single_project,
     get_executor_status,
+    send_stop_current,
 )
 from astronverse.trigger.tasks.base_task import AsyncImmediateTask, AsyncSchedulerTask
 from astronverse.trigger.tasks.mail_task import MailTask
@@ -54,6 +55,14 @@ class WebSocketManager:
                 time.sleep(2)
         return {"code": "5001", "msg": "有任务在运行中", "data": None}
 
+    @staticmethod
+    def remote_stop_current(msg: BaseMsg):
+        """处理远程停止消息"""
+        logger.info(msg)
+        if get_executor_status():
+            return send_stop_current()
+        return {"code": "5001", "msg": "没有任务在运行中", "data": None}
+
     def start(self):
         """启动 WebSocket 连接"""
         try:
@@ -63,6 +72,7 @@ class WebSocketManager:
                 reconnect_max_time=-1,
             )
             self.ws_app.event("remote", "run", self.remote_run)
+            self.ws_app.event("remote", "stop_current", self.remote_stop_current)
 
             self._thread = threading.Thread(target=self._ws_worker, daemon=True)
             self._thread.start()
