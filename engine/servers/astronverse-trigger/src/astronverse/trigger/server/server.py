@@ -59,9 +59,8 @@ class WebSocketManager:
     def remote_stop_current(msg: BaseMsg):
         """处理远程停止消息"""
         logger.info(msg)
-        data = msg.data
-        if not get_executor_status():
-            return send_stop_current(data)
+        if get_executor_status():
+            return send_stop_current()
         return {"code": "5001", "msg": "有任务在运行中", "data": None}
 
     def start(self):
