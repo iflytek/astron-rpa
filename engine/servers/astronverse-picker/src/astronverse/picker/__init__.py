@@ -226,6 +226,8 @@ class PickerDomain(Enum):
     MSAA = "msaa"
 
     AUTO = "auto"  # 拾取的时候 无他
+    AUTO_DESK = "auto_desk"  # 自动桌面
+    AUTO_WEB = "auto_web"  # 自动桌面
 
 
 class IEventCore(ABC):

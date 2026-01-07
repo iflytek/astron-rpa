@@ -20,6 +20,7 @@ class PickerRequire(BaseModel):
     record_action: Optional[RecordAction] = None  # 仅在RECORD时使用
     smart_component_action: Optional[SmartComponentAction] = None  # 仅在pick_sign是SMART_COMPONENT时使用
     data: str = None
+    pick_mode: str = None
     ext_data: dict = {}
 
 
