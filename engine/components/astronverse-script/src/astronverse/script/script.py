@@ -81,11 +81,12 @@ class Script:
                 types="List",
                 need_parse=True,
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"}),
+                required=False,
             ),
         ],
         outputList=[atomicMg.param("process_res", types="Any")],
     )
-    def process(process: str, process_param: list):
+    def process(process: str, process_param: list = None):
         """动态调用流程"""
 
         kwargs = {}
@@ -111,11 +112,12 @@ class Script:
                 types="List",
                 need_parse=True,
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "content"}),
+                required=False,
             ),
         ],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
-    def module(content: str, module_param: list):
+    def module(content: str, module_param: list = None):
         """动态调用模块"""
 
         _, package = Script._get_auto_context()
