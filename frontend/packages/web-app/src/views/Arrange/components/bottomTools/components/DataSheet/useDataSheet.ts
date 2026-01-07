@@ -48,7 +48,7 @@ const [useProvideDataSheetStore, useDataSheetStore] = createInjectionState(() =>
     runningStore.updateDataTableCell(data.map(it => ({ row: it.row, col: it.column, value: it.value })))
   }
 
-  watch(runningStore.dataTable, (newValue, oldValue) => {
+  watch(() => runningStore.dataTable, (newValue, oldValue) => {
     if (isEmpty(newValue) || isEmpty(oldValue)) {
       sheetRef.value?.clearAll()
     }
