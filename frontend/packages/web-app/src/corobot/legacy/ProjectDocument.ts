@@ -77,11 +77,11 @@ export class ProjectDocument implements IProjectDocument {
       return
     }
     const currentPageNodes = list.slice(ProjectDocument.loadNumber * (ProjectDocument.nodeAbilityMap[processId].currentPage - 1), ProjectDocument.loadNumber * ProjectDocument.nodeAbilityMap[processId].currentPage)
-    
+
     // 分离普通原子能力和智能组件
     const atomMap: { key: string, version: string }[] = []
     const smartComponentMap: { key: string, version: string }[] = []
-    
+
     currentPageNodes.forEach((node) => {
       const { key, version } = node
       const keys = `${key}***${version}`
@@ -95,9 +95,9 @@ export class ProjectDocument implements IProjectDocument {
         }
       }
     })
-    
+
     ProjectDocument.nodeAbilityMap[processId].currentPage += 1
-    
+
     if (atomMap.length > 0) {
       const data = await service.getAtomicSchemaByVersion(atomMap)
       data.forEach((node) => {
@@ -114,7 +114,7 @@ export class ProjectDocument implements IProjectDocument {
         }
       }
     }
-    
+
     if (smartComponentMap.length > 0) {
       for (const { key, version } of smartComponentMap) {
         await loadSmartComponentAbility(key, version)
@@ -223,7 +223,7 @@ export class ProjectDocument implements IProjectDocument {
     return getSmartComp({ smartId, robotId }).then((data) => {
       const node = data.detail?.versionList.find(item => item.version === version) || data.detail?.versionList?.[0]
       if (!node) {
-        console.error(`未找到 key 为 '${key}' 的智能组件`);
+        console.error(`未找到 key 为 '${key}' 的智能组件`)
         return null
       }
       const keys = `${key}***${node.version}`

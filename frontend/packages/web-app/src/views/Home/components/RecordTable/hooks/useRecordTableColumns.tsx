@@ -5,9 +5,9 @@ import { h } from 'vue'
 import { getDurationText } from '@/utils/dayjsUtils'
 
 import { utilsManager } from '@/platform'
+import OperMenu from '@/views/Home/components/OperMenu.vue'
 import StatusCircle from '@/views/Home/components/StatusCircle.vue'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
-import OperMenu from '@/views/Home/components/OperMenu.vue'
 
 import useRecordOperation from './useRecordOperation.tsx'
 
@@ -21,28 +21,28 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
       key: 'runningLog',
       text: '日志详情',
       icon: h(<Icon name="log" size="16px" />),
-      clickFn: (record) => handleCheck({ type: !props.robotId ? 'drawer' : 'modal', record }),
+      clickFn: record => handleCheck({ type: !props.robotId ? 'drawer' : 'modal', record }),
     },
     {
       key: 'runningDataTable',
       text: '数据表格',
       icon: h(<Icon name="sheet" size="16px" />),
-      disableFn: (record) => !record.dataTablePath,
-      clickFn: (record) => handleOpenDataTable(record),
+      disableFn: record => !record.dataTablePath,
+      clickFn: record => handleOpenDataTable(record),
     },
     {
       key: 'runningVideo',
       text: '视频播放',
       icon: h(<Icon name="video-play" size="16px" />),
-      disableFn: (record) => !(record?.videoExist === '0'), // '0': 本地存在 '1': 本地不存在
-      clickFn: (record) => utilsManager.playVideo(record.videoLocalPath)
+      disableFn: record => !(record?.videoExist === '0'), // '0': 本地存在 '1': 本地不存在
+      clickFn: record => utilsManager.playVideo(record.videoLocalPath),
     },
     {
       key: 'delete',
       text: '删除',
       icon: h(<Icon name="market-del" size="16px" />),
-      clickFn: (record) => batchDelete([record.executeId]),
-    }
+      clickFn: record => batchDelete([record.executeId]),
+    },
   ]
 
   const conditionColumns = []
@@ -61,7 +61,7 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
         key: 'robotVersion',
         width: 60,
         ellipsis: true,
-      }
+      },
     )
   }
 
@@ -73,7 +73,7 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
         key: 'taskName',
         ellipsis: true,
         customRender: ({ record }) => record.taskName || '--',
-      }
+      },
     )
   }
 

@@ -6,7 +6,7 @@ import { useElementsStore } from '@/stores/useElementsStore'
 import { usePickStore } from '@/stores/usePickStore'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 
-function useFormPick(type: string = '', status?: Ref<boolean>, elementPickModal?: () => void) {
+function useFormPick(type: string = '', status?: Ref<boolean>, elementPickModal?: () => void, itemData?: any) {
   const { openDataPickWindow } = useCreateWindow()
   const usePick = usePickStore()
   const useElements = useElementsStore()
@@ -31,7 +31,7 @@ function useFormPick(type: string = '', status?: Ref<boolean>, elementPickModal?
 
     useElements.setTempElement(res.data)
     elementPickModal?.()
-  })
+  }, itemData.types)
 }
 
 export default useFormPick

@@ -34,6 +34,7 @@ const props = withDefaults(
   }>(),
   { type: 'modal' },
 )
+
 const emit = defineEmits(['clearLogs'])
 
 const modal = NiceModal.useModal()

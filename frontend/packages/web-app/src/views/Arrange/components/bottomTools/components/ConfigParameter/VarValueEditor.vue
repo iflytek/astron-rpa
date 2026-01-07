@@ -101,4 +101,3 @@ watch(
     <AtomConfig :form-item="formItem" :size="size" />
   </div>
 </template>
-

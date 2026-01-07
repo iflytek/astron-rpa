@@ -114,6 +114,7 @@ export interface PickParams {
   record_action?: RecordAction
   data: string
   ext_data?: any
+  pick_mode?: string // 可选，拾取时指定桌面/web等
 }
 
 /**

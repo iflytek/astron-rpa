@@ -14,7 +14,6 @@ import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
 import Loading from '@/components/Loading.vue'
 import { utilsManager, windowManager } from '@/platform'
-
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const { token } = theme.useToken()

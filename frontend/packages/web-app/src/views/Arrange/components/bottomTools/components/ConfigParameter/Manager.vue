@@ -116,7 +116,6 @@ async function handleBlur(row: LocalConfigParamData) {
 }
 
 const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateParameter(row), 300, { leading: true })
-
 </script>
 
 <template>

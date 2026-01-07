@@ -141,7 +141,7 @@ function createSSE(url, query) {
   }
   controller = sseRequest.post(
     url,
-    chatType.value === 'multi' ? { messages: queryLst, model: model.value, stream: true }: queryLst,
+    chatType.value === 'multi' ? { messages: queryLst, model: model.value, stream: true } : queryLst,
     (res) => {
       if (res) {
       // if (res.data) {
@@ -171,7 +171,7 @@ function createSSE(url, query) {
     () => {
       handleEnd() // 错误处理
       updateMessagingChat('answer', '异常无法响应')
-    }
+    },
   )
 }
 function handleSend() {

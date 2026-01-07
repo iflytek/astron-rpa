@@ -14,7 +14,7 @@ import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import type { AnyObj, Fun } from '@/types/common'
-import { LogModal, DataTableModal, TaskReferInfoModal } from '@/views/Home/components/modals'
+import { DataTableModal, LogModal, TaskReferInfoModal } from '@/views/Home/components/modals'
 
 // 当前tab值
 function tabValue(item: string) {

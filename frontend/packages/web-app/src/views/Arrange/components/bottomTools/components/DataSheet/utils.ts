@@ -6,10 +6,10 @@ const DEFAULT_EXCEL_NAME = 'datatable.xlsx'
 
 /**
  * 将后端保存的 datatable 数据转成 univer 工作簿数据
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
-export const transformToWorkbookData = (data: RPA.IDataTableSheet): Partial<ISheetWorkbookData> => {
+export function transformToWorkbookData(data: RPA.IDataTableSheet): Partial<ISheetWorkbookData> {
   if (!data?.data) {
     return {}
   }
@@ -19,14 +19,14 @@ export const transformToWorkbookData = (data: RPA.IDataTableSheet): Partial<IShe
   for (let row = 0; row < data.data.length; row++) {
     const rowArray = data.data[row]
     for (let col = 0; col < rowArray.length; col++) {
-      const cellValue = rowArray[col];
+      const cellValue = rowArray[col]
 
       if (!cellData[row]) {
         cellData[row] = {}
       }
 
       cellData[row][col] = { v: cellValue }
-    }    
+    }
   }
 
   return {
@@ -39,8 +39,8 @@ export const transformToWorkbookData = (data: RPA.IDataTableSheet): Partial<IShe
     sheets: {
       [DEFAULT_SHEET_NAME]: {
         id: DEFAULT_SHEET_NAME,
-        cellData: cellData
-      }
-    }
+        cellData,
+      },
+    },
   }
 }

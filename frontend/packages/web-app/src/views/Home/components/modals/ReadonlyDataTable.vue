@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { Sheet, SheetLocaleType, useTheme, sheetUtils, type ISheetWorkbookData } from '@rpa/components'
+import { Sheet, SheetLocaleType, sheetUtils, useTheme } from '@rpa/components'
+import type { ISheetWorkbookData } from '@rpa/components'
+import { useAsyncState } from '@vueuse/core'
 import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
-import { useAsyncState } from '@vueuse/core'
 
 import { blob2File } from '@/utils/common'
+
 import { fileRead } from '@/api/resource'
 
 const props = defineProps<{ dataTablePath: string, class?: string }>()

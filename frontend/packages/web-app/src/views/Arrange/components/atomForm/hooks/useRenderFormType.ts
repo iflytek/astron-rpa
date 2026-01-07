@@ -205,7 +205,7 @@ export function formBtnHandle(itemData: RPA.AtomDisplayItem, itemType: string, e
         itemData.value = [{ type: ELEMENT_IN_TYPE, value: res.value, data: res.data }]
         flowStore.setFormItemValue(itemData.key, itemData.value, id || flowStore.activeAtom.id)
       })
-      useFormPick(itemData.formType.params.use, pickLoading, elementPickModal)
+      useFormPick(itemData.formType.params.use, pickLoading, elementPickModal, itemData)
       break
     case ATOM_FORM_TYPE.CVPICK:
       BUS.$once('cv-pick-done', (res: any) => {

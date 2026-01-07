@@ -1,3 +1,4 @@
+import { promiseTimeout } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { last } from 'lodash-es'
 
@@ -10,9 +11,8 @@ import { requiredItem } from '@/views/Arrange/components/flow/hooks/useValidate'
 import { useToolsClear } from '@/views/Arrange/components/tools/hooks/useToolsClear'
 import { Catch, Else, ElseIf, Finally, Group, GroupEnd, LOOP_END_MAP } from '@/views/Arrange/config/atomKeyMap'
 import { getMultiSelectIds } from '@/views/Arrange/utils/flowUtils'
-import { createComponentAbility, loadSmartComponentAbility, generateInputMap, loopAtomByKey, setAddAtomIdx } from '@/views/Arrange/utils/generateData'
+import { createComponentAbility, generateInputMap, loadSmartComponentAbility, loopAtomByKey, setAddAtomIdx } from '@/views/Arrange/utils/generateData'
 import { changeSelectAtoms } from '@/views/Arrange/utils/selectItemByClick'
-import { promiseTimeout } from '@vueuse/core'
 
 export async function createFlowNode(key: string, idx: number | number[], isDrag: boolean) {
   const flowStore = useFlowStore()

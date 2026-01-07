@@ -292,7 +292,8 @@ export const useRunningStore = defineStore('running', () => {
     dataTableListenController = startDataTableListener(processStore.project.id, (res) => {
       if (res.event === 'file_deleted') {
         dataTable.value = null
-      } else if (res.event === 'file_changed') {
+      }
+      else if (res.event === 'file_changed') {
         fetchDataTable()
       }
     })

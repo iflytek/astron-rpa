@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Sheet, SheetLocaleType, useTheme } from '@rpa/components'
 import { useTranslation } from 'i18next-vue'
-import { computed, shallowRef, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 
 import { useRunningStore } from '@/stores/useRunningStore.ts'
 
@@ -24,7 +24,7 @@ const locale = computed(() => {
   return i18next.language === 'zh-CN' ? SheetLocaleType.ZH_CN : SheetLocaleType.EN_US
 })
 
-const handleRendered = () => {
+function handleRendered() {
   loading.value = false
 }
 </script>
