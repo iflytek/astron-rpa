@@ -24,6 +24,9 @@ atomic:
       - key: content
         title: 选择Python模块
         tip: ''
+      - key: module_param
+        title: 输入参数
+        tip: ''
     outputList:
       - key: program_script
         title: ''
