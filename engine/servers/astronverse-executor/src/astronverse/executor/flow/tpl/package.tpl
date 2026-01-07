@@ -1,6 +1,7 @@
 import os.path
 from typing import Optional, Any
 from astronverse.actionlib.types import Pick
+from astronverse.actionlib.atomic import atomicMg
 from astronverse.workflowlib.storage import HttpStorage
 from astronverse.workflowlib.config import config
 from astronverse.workflowlib.params import ComplexParamParser
@@ -14,7 +15,8 @@ smart_component_info = conf.get("smart_component_info", {})
 
 storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
 
-os.environ.setdefault("GATEWAY_PORT", project_info.get("gateway_port"))
+atomicMg.cfg()["GATEWAY_PORT"] = project_info.get("gateway_port")
+atomicMg.cfg()["PROJECT_JSON"] = conf
 
 
 def module(module_id) -> Optional[str]:

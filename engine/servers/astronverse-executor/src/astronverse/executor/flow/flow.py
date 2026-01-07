@@ -89,8 +89,7 @@ class Flow:
                     )
                 else:
                     res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
-
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name)
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name, [])
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
@@ -109,7 +108,17 @@ class Flow:
                 module_index += 1
                 res = self._module_display(project_id, mode, version, resource_id, name)
 
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name)
+                param_list = self.svc.storage.param_list(project_id=project_id, mode=mode, version=version, module_id=resource_id)
+                for p in param_list:
+                    param = self.svc.param.parse_param(
+                        {
+                            "value": str_to_list_if_possible(p.get("varValue")),
+                            "types": p.get("varType"),
+                            "name": p.get("varName"),
+                        }
+                    )
+                    p["varValue"] = param.show_value()
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name, param_list)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
@@ -200,11 +209,8 @@ class Flow:
         """
         模块生成 python模块
         """
-        # 1. 获取模块数据
+        # 获取模块数据
         module_code = self.svc.storage.module_detail(project_id=project_id, mode=mode, version=version, module_id=module_id)
-
-        # 2. 获取模块参数
-        param_list = self.svc.storage.param_list(project_id=project_id, mode=mode, version=version, process_id=module_id)
 
         # 兼容开始
         if "rpahelper" in module_code:
