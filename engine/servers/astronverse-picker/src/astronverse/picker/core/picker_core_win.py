@@ -16,6 +16,7 @@ from astronverse.picker import (
 from astronverse.picker.engines.uia_picker import UIAElement, UIAOperate
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import BrowserControlFinder
+from astronverse.picker import APP
 
 
 class PickerCore(IPickerCore):
@@ -90,7 +91,6 @@ class PickerCore(IPickerCore):
             last_point=self.last_point,
             data=data,
             start_control=start_control,
-            domain=PickerDomain.UIA,
         )
         rect = self.last_element.rect()
         tag = self.last_element.tag()
@@ -126,20 +126,18 @@ class PickerCore(IPickerCore):
 
             logger.info("strategy 加载完成")
 
-        domain = PickerDomain.AUTO
-        pick_mode = data.get("pick_mode", None)
-        if pick_mode:
-            if pick_mode == "WebPick":
-                domain = PickerDomain.AUTO_WEB
-            else:
-                domain = PickerDomain.AUTO_DESK
         self.last_strategy_svc = svc.strategy.gen_svc(
-            process_id=process_id, last_point=self.last_point, data=data, start_control=start_control, domain=domain
+            process_id=process_id,
+            last_point=self.last_point,
+            data=data,
+            start_control=start_control,
         )
 
         # 策略运行
         res = svc.strategy.run(self.last_strategy_svc)
         if not res:
+            if self.last_strategy_svc.app in [APP.IE]:
+                return DrawResult(success=False, error_message="")
             return DrawResult(success=False, error_message="拾取取消，请确认目标元素后重新拾取")
 
         with self.lock:
