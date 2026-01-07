@@ -100,7 +100,7 @@ class WEBPicker:
         web_info = Browser.send_browser_extension(
             browser_type=strategy_svc.app.value,
             data={"x": strategy_svc.last_point.x - left_top_point.x, "y": strategy_svc.last_point.y - left_top_point.y},
-            key="getOuterHTML",
+            key="getElement",
             gate_way_port=route_port,
         )
         if not web_info:
