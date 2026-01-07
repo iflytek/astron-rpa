@@ -281,8 +281,8 @@ export const useRunningStore = defineStore('running', () => {
    * 清空单元格数据
    */
   const clearDataTable = async () => {
-    await deleteDataTable(processStore.project.id)
     dataTable.value = null
+    await deleteDataTable(processStore.project.id)
   }
 
   /**
