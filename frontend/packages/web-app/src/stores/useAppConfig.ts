@@ -38,11 +38,14 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   const { state: yamlData, execute } = useAsyncState(
     async () => {
       const path = appPath.value
-      if (!path) return {}
-      const buf  = await utilsManager.readFile(`${path}resources/conf.yaml`)
+      if (!path)
+        return {}
+      const buf = await utilsManager.readFile(`${path}resources/conf.yaml`)
       const text = new TextDecoder().decode(buf as Uint8Array)
       return parse(text)
-    }, {}, { immediate: true, resetOnExecute: false }                          
+    },
+    {},
+    { immediate: true, resetOnExecute: false },
   )
 
   watchOnce(appPath, () => execute())

@@ -58,7 +58,7 @@ export function useManagePython() {
       },
       () => {
         pythonPackageStore.setPyLoadingType(upgrade ? 'upgradeFail' : 'installFail')
-      }
+      },
     )
   }
 

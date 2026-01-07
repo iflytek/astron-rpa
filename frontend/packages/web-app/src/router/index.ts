@@ -62,7 +62,7 @@ export const routes: RouteRecordRaw[] = [
           group: ARRANGE,
         },
         component: () => import('@/components/SmartComponent/Index.vue'),
-      }
+      },
     ],
   },
   {

@@ -172,9 +172,9 @@ export default function useRecordTableOption(props?: { robotId: string }) {
             <Tooltip title={expanded ? '收起' : '展开'}>
               <span
                 class={[
-                  "cursor-pointer absolute left-[45px] top-1/2 z-10 -translate-y-1/2",
-                  "border border-[#E6E6E6] hover:border-primary rounded-[2px] hover:!text-primary",
-                  "w-4 h-4 inline-flex items-center justify-center"
+                  'cursor-pointer absolute left-[45px] top-1/2 z-10 -translate-y-1/2',
+                  'border border-[#E6E6E6] hover:border-primary rounded-[2px] hover:!text-primary',
+                  'w-4 h-4 inline-flex items-center justify-center',
                 ]}
                 onClick={(e) => {
                   e.stopPropagation()

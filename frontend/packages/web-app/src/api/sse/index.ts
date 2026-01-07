@@ -32,7 +32,7 @@ function SSERequest(
       console.log('sse open', res)
     },
     ...(options || {}),
-    ...(options?.method === "GET" ? {} : {body: JSON.stringify(params)}),
+    ...(options?.method === 'GET' ? {} : { body: JSON.stringify(params) }),
     onmessage(msg) {
       console.log('sse msg', msg)
       sCB(msg)
@@ -48,23 +48,12 @@ function SSERequest(
   return controller
 };
 
-const get = (
-  url: string,
-  callback: FetchEventSourceInit['onmessage'],
-  errorCallback?: FetchEventSourceInit['onerror'],
-  options?: FetchEventSourceInit,
-) => {
-  return SSERequest(url, null, { method: "GET", ...options }, callback, errorCallback);
+function get(url: string, callback: FetchEventSourceInit['onmessage'], errorCallback?: FetchEventSourceInit['onerror'], options?: FetchEventSourceInit) {
+  return SSERequest(url, null, { method: 'GET', ...options }, callback, errorCallback)
 }
 
-const post = (
-  url: string,
-  data: Record<string, any>,
-  callback: FetchEventSourceInit['onmessage'],
-  errorCallback?: FetchEventSourceInit['onerror'],
-  options?: FetchEventSourceInit,
-) => {
-  return SSERequest(url, data, { method: "POST", ...options }, callback, errorCallback);
+function post(url: string, data: Record<string, any>, callback: FetchEventSourceInit['onmessage'], errorCallback?: FetchEventSourceInit['onerror'], options?: FetchEventSourceInit) {
+  return SSERequest(url, data, { method: 'POST', ...options }, callback, errorCallback)
 }
 
 export const sseRequest = { get, post }

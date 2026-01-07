@@ -1,7 +1,7 @@
 import { NiceModal } from '@rpa/components'
 
-import _DataTableModal from './DataTableModal.vue'
 import _CopyModal from './CopyModal.vue'
+import _DataTableModal from './DataTableModal.vue'
 import _LogModal from './LogModal.vue'
 import _McpConfigModal from './McpConfigModal/index.vue'
 import _NewProjectModal from './NewProjectModal.vue'

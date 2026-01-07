@@ -12,8 +12,8 @@ import GlobalModal from '@/components/GlobalModal/index.ts'
 import { DESIGNER } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { utilsManager, windowManager } from '@/platform'
-import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useAppConfigStore } from '@/stores/useAppConfig'
+import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
 
@@ -112,7 +112,7 @@ function modalTip() {
         </div>
         <Auth.Consult
           v-if="userStore.currentTenant?.tenantType !== 'enterprise'"
-          :authType="appInfo.appAuthType"
+          :auth-type="appInfo.appAuthType"
           trigger="button"
           :button-conf="{ buttonType: 'tag', currentEdition: userStore.currentTenant?.tenantType, expirationDate: userStore.currentTenant?.expirationDate, shouldAlert: userStore.currentTenant?.shouldAlert }"
           custom-class="upgrade-btn"

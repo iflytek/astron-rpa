@@ -116,8 +116,9 @@ export const usePickStore = defineStore('pickStore', () => {
    * @param type  类型 '' 普通拾取， ''similar' 相似度拾取, 'cv' cv拾取
    * @param element  元素数据， 相似度拾取时，element不能为空
    * @param callback 成功/失败回调
+   * @param mode 可选，拾取可指定桌面/web等，仅原子能力配置中拾取
    */
-  const startPick = (type: string, element: any, callback: (params: { success: boolean, data: any }) => void) => {
+  const startPick = (type: string, element: any, callback: (params: { success: boolean, data: any }) => void, mode = '') => {
     type = type.toUpperCase()
     isPicking.value = true
     // 启动拾取
@@ -133,8 +134,10 @@ export const usePickStore = defineStore('pickStore', () => {
         const sendParams: PickParams = {
           pick_sign: 'START',
           pick_type: _pickType,
+          pick_mode: mode,
           data,
         }
+        console.log('startPick sendParams: ', sendParams)
         if (_pickType === 'SIMILAR') { // 相似拾取 带上ext_data
           sendParams.ext_data = ext_data
         }

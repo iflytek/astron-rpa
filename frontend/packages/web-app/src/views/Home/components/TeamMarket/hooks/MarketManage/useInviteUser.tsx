@@ -1,13 +1,13 @@
 import { Button, message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
+import { storeToRefs } from 'pinia'
 import { reactive, ref } from 'vue'
 
 import { generateInviteLink, getInviteUser, getTransferUser, resetInviteLink } from '@/api/market'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
 import type { resOption } from '@/views/Home/types'
-import { useAppConfigStore } from '@/stores/useAppConfig'
-import { storeToRefs } from 'pinia'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
   const userList = ref([])

@@ -8,8 +8,8 @@ import to from 'await-to-js'
 import { isEmpty } from 'lodash-es'
 import { computed, reactive, ref } from 'vue'
 
-import { uploadFile } from '@/api/resource'
 import { aiFeedback } from '@/api/common'
+import { uploadFile } from '@/api/resource'
 import { useUserStore } from '@/stores/useUserStore'
 
 const modal = NiceModal.useModal()

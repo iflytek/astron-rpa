@@ -9,8 +9,8 @@ import { GLOBAL_VAR_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
-import { getFlowVariable } from '@/views/Arrange/utils/generateData'
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
+import { getFlowVariable } from '@/views/Arrange/utils/generateData'
 
 import { paginationConfig } from '../tools/components/constant'
 
