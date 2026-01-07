@@ -34,7 +34,7 @@ const handleRendered = () => {
     <div :style="{ height: `${props.height}px` }">
       <Sheet
         ref="sheetRef"
-        :dark-mode="isDark.value"
+        :dark-mode="isDark"
         :locale="locale"
         :default-value="defaultValue"
         @rendered="handleRendered"

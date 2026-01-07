@@ -24,7 +24,7 @@ const segmentOptions = [
   { label: '详细日志', value: SegmentValue.Log },
   { label: '数据表格', value: SegmentValue.Table },
 ]
-// logs\\report\\1967827945331949568\\d897ef1c-eac4-11f0-8330-ec63d7ade83b.xlsx
+
 const props = withDefaults(
   defineProps<{
     record?: AnyObj
@@ -111,7 +111,7 @@ const componentProps = computed(() => {
     </div>
 
     <template v-if="props.dataTablePath">
-      <ReadonlyDataTable v-show="segmentValue === SegmentValue.Table" :data-table-path="props.dataTablePath" />
+      <ReadonlyDataTable v-show="segmentValue === SegmentValue.Table" class="h-[320px]" :data-table-path="props.dataTablePath" />
     </template>
   </component>
 </template>
