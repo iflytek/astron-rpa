@@ -10,8 +10,8 @@
     "start": "electron-vite preview",
     "dev:web": "pnpm --filter @rpa/web-app run dev",
     "dev:client": "electron-vite dev --watch",
-    "dev": "node build-sdk.js && run-p dev:web dev:client",
-    "build": "node build-sdk.js && npm run typecheck && electron-vite build",
+    "dev": "npm run build:sdk && run-p dev:web dev:client",
+    "build": "npm run build:sdk && npm run typecheck && electron-vite build",
     "build:legacy": "pnpm --filter @rpa/web-app run build:legacy",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
@@ -19,7 +19,8 @@
     "build:win32": "npm run build && electron-builder --win --ia32",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux",
-    "build:subwin": "npm run build:win32 --mode=subwin"
+    "build:subwin": "npm run build:win32 --mode=subwin",
+    "build:sdk": "tsdown --config tsdown.config.mts"
   },
   "dependencies": {
     "7zip-bin": "^5.2.0",
@@ -39,6 +40,7 @@
     "electron": "22.3.27",
     "electron-builder": "^24.13.3",
     "electron-vite": "^2.3.0",
+    "tsdown": "catalog:",
     "typescript": "^5.5.2",
     "vite": "^5.3.1"
   }

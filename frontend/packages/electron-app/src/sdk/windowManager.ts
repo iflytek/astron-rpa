@@ -39,8 +39,7 @@ class ElectronWindowManager implements WindowManager {
     data?: any // 消息内容
     from?: string // 发送方
   }): Promise<any> {
-    const data = await ipcRenderer.invoke('w2w', message)
-    return data
+    return ipcRenderer.invoke('w2w', message)
   }
 
   /**

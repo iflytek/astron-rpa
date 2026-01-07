@@ -27,8 +27,9 @@ export interface StartExecutorParams {
   line?: string | number
   end_line?: string | number
 }
-export function startExecutor(data: StartExecutorParams) {
-  return schedulerPost('/scheduler/executor/run', data, { timeout: 0 })
+export async function startExecutor(data: StartExecutorParams) {
+  const res = await schedulerPost<{ addr: string }>('/scheduler/executor/run', data, { timeout: 0 })
+  return res.data.addr
 }
 
 export function stopExecutor(data: { project_id: string | number }) {

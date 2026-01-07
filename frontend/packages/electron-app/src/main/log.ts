@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { userDataPath } from './path'
+import { appWorkPath } from './path'
 
-const logPath = join(userDataPath, 'logs')
+const logPath = join(appWorkPath, 'logs')
 fs.mkdir(logPath, { recursive: true })
 const today = new Date().toLocaleDateString().replaceAll('/', '-')
-const logFile = join(logPath, `main_${today}.log`)
+const logFile = join(logPath, `main-${today}.log`)
 
 const logger = {
   info: (...args: any[]) => {

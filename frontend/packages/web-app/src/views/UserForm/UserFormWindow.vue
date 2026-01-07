@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { Rule } from 'ant-design-vue/es/form'
 import { clamp } from 'lodash-es'
-import { onMounted } from 'vue'
+import { onMounted, toRaw } from 'vue'
 
 import { WINDOW_NAME } from '@/constants'
 import { utilsManager, windowManager } from '@/platform'
 import type { AnyObj } from '@/types/common'
 import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
 
-import UserFormDialog from './userFormDialog.vue'
+import UserFormDialog from '@/views/Arrange/components/customDialog/components/userFormDialog.vue'
 
 const PICKER_MIN_HEIGHT = 340
 const OTHER_MIN_HEIGHT = 200
@@ -120,6 +120,7 @@ async function resizeWindow(minWinHeight: number) {
 
 const targetInfo = new URL(location.href).searchParams
 const windowOption = transformBasic(JSON.parse(targetInfo.get('option'))) as DialogOption
+const replyBaseData = JSON.parse(targetInfo.get('reply')) ?? {}
 
 onMounted(() => {
   // 调整弹窗高度
@@ -133,7 +134,12 @@ function handleClose() {
 }
 
 function handleSave(data: AnyObj) {
-  console.log('handleSave', data)
+  windowManager.emitTo({
+    from: WINDOW_NAME.USERFORM,
+    target: WINDOW_NAME.MAIN,
+    type: 'userFormSave',
+    data: { ...replyBaseData, data: toRaw(data) },
+  })
 }
 </script>
 

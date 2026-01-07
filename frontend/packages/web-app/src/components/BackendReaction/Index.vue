@@ -36,6 +36,7 @@ export interface W2WType {
 
 const permissionStore = usePermissionStore()
 const userSettingStore = useUserSettingStore()
+const runningStore = useRunningStore()
 
 interface SchedulerEventType<T = any> {
   type: string
@@ -79,7 +80,7 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
     case 'executor_end': {
       if (useAppModeStore().appMode === 'normal') {
         executorHandle()
-        useRunningStore().reset()
+        runningStore.reset()
       }
       break
     }
@@ -137,6 +138,10 @@ utilsManager.listenEvent('w2w', (eventMsg: W2WType) => {
     }
     else if (type === 'save') {
       BUS.$emit('record-save', data)
+    }
+  } else if (from === WINDOW_NAME.USERFORM) {
+    if (type === 'userFormSave') {
+      runningStore.sendUserFormData(data)
     }
   }
 })

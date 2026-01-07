@@ -487,3 +487,13 @@ export function getTableScrollY(tableMaxSize: number, rowLength: number) {
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+/**
+ * 获取cookie值
+ * @param name cookie名称
+ * @returns cookie值
+ */
+export function getCookie(name: string) {
+  const arr = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`))
+  return arr != null ? unescape(arr[2]) : ''
+}
