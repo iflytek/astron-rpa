@@ -113,11 +113,9 @@ const componentProps = computed(() => {
     </div>
 
     <template v-if="props.dataTablePath">
-      <ReadonlyDataTable
-        v-show="segmentValue === SegmentValue.Table"
-        :class="isDrawer ? 'h-full' : 'h-[320px]'"
-        :data-table-path="props.dataTablePath"
-      />
+      <div v-show="segmentValue === SegmentValue.Table" :class="isDrawer ? 'h-full' : 'h-[320px]'">
+        <ReadonlyDataTable :data-table-path="props.dataTablePath" />
+      </div>
     </template>
   </component>
 </template>
