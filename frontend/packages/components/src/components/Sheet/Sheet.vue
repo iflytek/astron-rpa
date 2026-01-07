@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge'
 import { set } from 'lodash-es'
 import { generate } from '@ant-design/colors';
 
-import type { FUniver, Univer, IWorkbookData, CellValue } from '@univerjs/presets'
+import type { FUniver, Univer, IWorkbookData, CellValue, Theme } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import UniverPresetSheetsCoreZhCN from '@univerjs/preset-sheets-core/locales/zh-CN'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
@@ -53,7 +53,7 @@ let univerAPIInstance: FUniver | null = null
 onMounted(() => {
   const colors = generate(token.value.colorPrimary);
 
-  const themeToUse = {
+  const themeToUse: Theme = {
     ...defaultTheme,
     primary: {
       50: colors[0],
