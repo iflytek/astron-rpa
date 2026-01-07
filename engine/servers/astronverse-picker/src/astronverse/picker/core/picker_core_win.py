@@ -90,7 +90,7 @@ class PickerCore(IPickerCore):
             last_point=self.last_point,
             data=data,
             start_control=start_control,
-            domain=PickerDomain.UIA
+            domain=PickerDomain.UIA,
         )
         rect = self.last_element.rect()
         tag = self.last_element.tag()
@@ -134,11 +134,7 @@ class PickerCore(IPickerCore):
             else:
                 domain = PickerDomain.AUTO_DESK
         self.last_strategy_svc = svc.strategy.gen_svc(
-            process_id=process_id,
-            last_point=self.last_point,
-            data=data,
-            start_control=start_control,
-            domain = domain
+            process_id=process_id, last_point=self.last_point, data=data, start_control=start_control, domain=domain
         )
 
         # 策略运行
