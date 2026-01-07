@@ -15,6 +15,9 @@ catalogs:
     ant-design-vue:
       specifier: ^4.2.6
       version: 4.2.6
+    tailwindcss:
+      specifier: ^3.4.4
+      version: 3.4.17
     vite:
       specifier: ^8.0.0-beta.5
       version: 8.0.0-beta.5
@@ -230,6 +233,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      tailwind-merge:
+        specifier: ^3.4.0
+        version: 3.4.0
       vscode-languageserver-types:
         specifier: ^3.17.5
         version: 3.17.5
@@ -268,7 +274,7 @@ importers:
         specifier: ~1.77.4
         version: 1.77.8
       tailwindcss:
-        specifier: ^3.4.4
+        specifier: 'catalog:'
         version: 3.4.17(ts-node@10.9.2(@types/node@24.10.1)(typescript@5.9.3))
       unplugin-vue-components:
         specifier: ^28.5.0
@@ -7710,6 +7716,9 @@ packages:
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
 
+  tailwind-merge@3.4.0:
+    resolution: {integrity: sha512-uSaO4gnW+b3Y2aWoWfFpX62vn2sR3skfhbjsEnaBI81WD1wBLlHZe5sWf0AqjksNdYTbGBEd0UasQMT3SNV15g==}
+
   tailwindcss@3.4.17:
     resolution: {integrity: sha512-w33E2aCvSDP0tW9RZuNXadXlkHXqFzSkQew/aIa2i/Sj8fThxwovwlXHSPXTbAHwEIhBFXAedUhP2tueAKP8Og==}
     engines: {node: '>=14.0.0'}
@@ -10787,6 +10796,7 @@ snapshots:
       papaparse: 5.5.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+      tailwind-merge: 3.4.0
       vscode-languageserver-types: 3.17.5
       vue: 3.5.24(typescript@5.9.3)
       xml2js: 0.6.2
@@ -17277,6 +17287,8 @@ snapshots:
       tslib: 2.8.1
 
   tailwind-merge@2.6.0: {}
+
+  tailwind-merge@3.4.0: {}
 
   tailwindcss@3.4.17(ts-node@10.9.2(@types/node@24.10.1)(typescript@5.9.3)):
     dependencies:

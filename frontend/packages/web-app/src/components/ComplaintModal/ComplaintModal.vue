@@ -144,7 +144,12 @@ async function handleSubmit() {
     imageIds: imageIds.filter(Boolean),
   }))
 
-  error ? message.error('提交失败，请稍后重试') : message.success('举报已受理，感谢您的反馈')
+  if (error) {
+    message.error('提交失败，请稍后重试')
+  } else {
+    message.success('举报已受理，感谢您的反馈')
+    modal.hide()
+  }
 }
 </script>
 

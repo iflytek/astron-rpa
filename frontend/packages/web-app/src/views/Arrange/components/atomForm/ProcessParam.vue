@@ -41,14 +41,14 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   ],
 }
 
-const linkageKey = computed(() => {
-  // 获取联动的选择子流程 id
+const linkageFormItem = computed(() => {
+  // 获取联动的选择子流程/子模块 id
   const linkageKey = get(props.renderData, ['formType', 'params', 'linkage'])
   // 只从输入信息中查找联动
-  const targetFormValue = find(flowStore.activeAtom.inputList, { key: linkageKey })
-
-  return targetFormValue?.value
+  return find(flowStore.activeAtom.inputList, { key: linkageKey })
 })
+
+const linkageKey = computed(() => linkageFormItem.value?.value)
 
 watch(linkageKey, async (newLinkageKey) => {
   if (!newLinkageKey) {
@@ -56,7 +56,10 @@ watch(linkageKey, async (newLinkageKey) => {
     return
   }
 
-  const list = await getConfigParams({ robotId: processStore.project.id, processId: newLinkageKey })
+  // 判断是子流程还是 python 子模块
+  const processType = get(linkageFormItem.value, ['formType', 'params', 'filters'])
+  const idParams = processType === 'PyModule' ? { moduleId: newLinkageKey } : { processId: newLinkageKey }
+  const list = await getConfigParams({ robotId: processStore.project.id, ...idParams })
 
   const preValues: Record<string, ParamItemValue> = fromPairs(list.map(it => ([
     it.id,

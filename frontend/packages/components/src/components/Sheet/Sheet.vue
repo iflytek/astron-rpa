@@ -1,16 +1,18 @@
 <script lang="ts" setup>
 import { theme } from 'ant-design-vue'
 import { useTemplateRef, onBeforeUnmount, onMounted, watch } from 'vue'
+import { twMerge } from 'tailwind-merge'
+import { set } from 'lodash-es'
+import { generate } from '@ant-design/colors';
+
 import type { FUniver, Univer, IWorkbookData, CellValue } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import UniverPresetSheetsCoreZhCN from '@univerjs/preset-sheets-core/locales/zh-CN'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { createUniver, LocaleType, mergeLocales, defaultTheme, LogLevel } from '@univerjs/presets'
-import { generate } from '@ant-design/colors';
 import { UniverSheetsFindReplacePreset } from '@univerjs/preset-sheets-find-replace'
 import sheetsFindReplaceZhCN from '@univerjs/preset-sheets-find-replace/locales/zh-CN'
 import sheetsFindReplaceEnUS from '@univerjs/preset-sheets-find-replace/locales/en-US'
-import { set } from 'lodash-es'
 
 import '@univerjs/preset-sheets-core/lib/index.css'
 import '@univerjs/preset-sheets-find-replace/lib/index.css'
@@ -19,6 +21,7 @@ interface SheetProps {
   darkMode?: boolean
   locale?: LocaleType
   readonly?: boolean
+  class?: string
   defaultValue?: Partial<IWorkbookData>
 }
 
@@ -216,5 +219,5 @@ defineExpose({
 </script>
 
 <template>
-  <div ref="container" class="h-full" />
+  <div ref="container" :class="twMerge('h-full', props.class)" />
 </template>
