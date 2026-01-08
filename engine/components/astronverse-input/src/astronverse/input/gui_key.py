@@ -71,18 +71,18 @@ class GuiKeyBoard:
         if keyboard_type == KeyboardType.NORMAL:
             message = str(message)
             if simulate_flag == Simulate_flag.YES:
-                Keyboard.change_language(ENGLISH)
+                # Keyboard.change_language(ENGLISH)
                 for char in message:
                     random_num = random.uniform(0, interval)
-                    Keyboard.write_char(char)
+                    Keyboard.write_unicode(char)
                     time.sleep(random_num)
-                Keyboard.change_language(CHINESE)
+                # Keyboard.change_language(CHINESE)
             elif simulate_flag == Simulate_flag.NO:
-                Keyboard.change_language(ENGLISH)
+                # Keyboard.change_language(ENGLISH)
                 for char in message:
-                    Keyboard.write_char(char)
+                    Keyboard.write_unicode(char)
                     time.sleep(interval)
-                Keyboard.change_language(CHINESE)
+                # Keyboard.change_language(CHINESE)
             else:
                 raise NotImplementedError()
         elif keyboard_type == KeyboardType.CLIP:

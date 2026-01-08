@@ -472,8 +472,7 @@ class BrowserElement:
             write_gap_time = write_gap_time if write_gap_time > 0 else 0.03
             if fill_type == FillInputForFillTypeFlag.Text:
                 for item in text:
-                    Keyboard.write_char(item)
-                    # pyautogui.write(item)
+                    Keyboard.write_unicode(item)
                     time.sleep(write_gap_time)
             elif fill_type == FillInputForFillTypeFlag.Clipboard:
                 Clipboard.copy(data=text)

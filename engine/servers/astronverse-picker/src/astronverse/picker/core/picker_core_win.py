@@ -136,9 +136,7 @@ class PickerCore(IPickerCore):
         # 策略运行
         res = svc.strategy.run(self.last_strategy_svc)
         if not res:
-            if self.last_strategy_svc.app in [APP.IE]:
-                return DrawResult(success=False, error_message="")
-            return DrawResult(success=False, error_message="拾取取消，请确认目标元素后重新拾取")
+            return DrawResult(success=False, error_message="")
 
         with self.lock:
             self.last_element = res
