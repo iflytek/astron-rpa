@@ -76,9 +76,7 @@ class Smart:
             atomicMg.param("smart_info"),
             atomicMg.param("code_params", required=False),
         ],
-        outputList=[
-            atomicMg.param("smart_result", types="Any")
-        ]
+        outputList=[atomicMg.param("smart_result", types="Any")],
     )
     def run_code(smart_component: dict, **code_params) -> Any:
         """
