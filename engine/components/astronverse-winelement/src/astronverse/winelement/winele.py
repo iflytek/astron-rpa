@@ -139,7 +139,7 @@ class WinEle:
         clear_first: bool = True,
         wait_time: float = 10.0,
     ):
-        if pick.get("type", None) != PickerDomain.UIA.value:
+        if pick.get("elementData", {}).get("type", None) != PickerDomain.UIA.value:
             raise BaseException(UNPICKABLE, "类型不支持{}".format(pick.get("type", None)))
 
         locator = WinEleCore.find(pick, wait_time)

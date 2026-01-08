@@ -77,6 +77,28 @@ class Keyboard:
         return keyboard.type(char)
 
     @staticmethod
+    def write_unicode(text: str, delay: float = 0):
+        """
+        使用 Windows API 输入 Unicode 文本
+        支持中英文、emoji等所有Unicode字符，不依赖输入法状态
+
+        Args:
+            text: 要输入的文本
+            delay: 每个字符之间的延迟（秒），默认0.01秒
+
+        Example:
+            Keyboard.write_unicode("Hello世界！😀")
+        """
+        if sys.platform == "win32":
+            from astronverse.input.code.windows_input import type_text
+
+            return type_text(text, delay=delay)
+        else:
+            # Linux/Mac 回退到 pynput
+            keyboard = Controller()
+            return keyboard.type(text)
+
+    @staticmethod
     def press(keys, presses: int = 1, interval: float = 0.0):
         """
         敲键
