@@ -77,6 +77,7 @@ class Execution(Base):
     error = Column(Text, nullable=True)
     user_id = Column(String(50), nullable=False, index=True)
     exec_position = Column(String(50), default="EXECUTOR", nullable=False)  # 执行位置
+    recording_config = Column(Text, nullable=True)  # 录制配置
     version = Column(Integer, nullable=True)  # 工作流版本
     start_time = Column(DateTime, default=func.now(), nullable=False)
     end_time = Column(DateTime, nullable=True)
