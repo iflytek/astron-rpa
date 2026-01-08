@@ -847,6 +847,7 @@ CREATE TABLE `openai_executions` (
   `error` text COMMENT '错误信息',
   `user_id` varchar(50) NOT NULL COMMENT '用户ID',
   `exec_position` varchar(50) NOT NULL DEFAULT 'EXECUTOR' COMMENT '执行位置',
+  `recording_config` text COMMENT '录制配置',
   `version` int(11) DEFAULT NULL COMMENT '工作流版本号',
   `start_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
   `end_time` datetime DEFAULT NULL COMMENT '结束时间',

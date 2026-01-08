@@ -51,6 +51,7 @@ class ExecutionCreate(BaseModel):
     project_id: str = Field(..., description="项目ID")
     params: Optional[Dict[str, Any]] = Field(None, description="执行参数")
     exec_position: str = Field("EXECUTOR", description="执行位置")
+    recording_config: Optional[str] = Field(None, description="录制配置")
     version: Optional[int] = Field(None, description="工作流版本号")
 
 

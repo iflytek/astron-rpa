@@ -2909,6 +2909,11 @@ table "openai_executions" {
     default = "EXECUTOR"
     comment = "执行位置"
   }
+  column "recording_config" {
+    null    = true
+    type    = text
+    comment = "录制配置"
+  }
   column "version" {
     null    = true
     type    = int
