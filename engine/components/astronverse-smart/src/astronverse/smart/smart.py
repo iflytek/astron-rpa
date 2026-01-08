@@ -72,10 +72,8 @@ class Smart:
     @staticmethod
     @atomicMg.atomic(
         "Smart",
-        inputList=[
-            atomicMg.param("smart_info"),
-            atomicMg.param("code_params", required=False),
-        ],
+        inputList=[atomicMg.param("smart_component")],
+        outputList=[atomicMg.param("smart_result", types="Any")],
     )
     def run_code(smart_component: dict, **code_params) -> Any:
         """
