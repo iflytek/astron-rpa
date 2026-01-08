@@ -143,7 +143,7 @@ class ExcelService:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
 
-        wb = load_workbook(file_path, read_only=True, data_only=True)
+        wb = load_workbook(file_path, read_only=True, data_only=False)
 
         try:
             result = {
