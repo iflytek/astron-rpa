@@ -5,11 +5,14 @@ atomic:
     icon: magic-command
     helpManual: ''
     inputList:
-      - key: smart_info
-        title: 智能组件
-        tip: 包含smartCode（AI生成的代码字符串）和smartType（代码类型：web_auto网页自动化 | data_process数据处理）的字典
+      - key: smart_component
+        title: 代码[无效，动态生成]
+        tip: ''
       - key: code_params
-        title: 代码参数
-        tip: 传递给代码的参数
-    outputList: []
+        title: 代码参数[无效，动态生成]
+        tip: ''
+    outputList:
+      - key: smart_result
+        title: 返回值[无效，动态生成]
+        tip: ''
 options: {}
