@@ -108,10 +108,10 @@ class TestDataTable(TestCase):
         dt.write_data(
             write_type=WriteType.COLUMN,
             row=1,
-            col="C",
-            start_row=2,
-            data=["A11", "B11", "C11"],
-            write_mode=WriteMode.INSERT,
+            col="A",
+            start_row=1,
+            data=["ai", "AI", "Ai"],
+            write_mode=WriteMode.OVERWRITE,
             column_insert_shift=ColumnInsertShift.RIGHT,
         )
         
@@ -260,9 +260,9 @@ class TestDataTable(TestCase):
         dt = DataTable()
         data = dt.find_and_replace(
             find_type=FindType.COLUMN,
-            col='B',
-            find_value="third",
-            replace_value="3",
+            col='A',
+            find_value="ai",
+            replace_value="",
             is_replace=True,
             is_case_sensitive=False,
         )

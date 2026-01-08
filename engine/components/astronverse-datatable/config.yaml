@@ -28,6 +28,12 @@ atomic:
       - key: end_col
         title: 结束列号
         tip: 结束列号需要大于等于开始列号，不填则读取已编辑区域
+      - key: is_trim_spaces
+        title: 是否去除空格
+        tip: 读取数据时是否去除字符串前后空格
+      - key: is_replace_none
+        title: 是否替换空值
+        tip: 读取数据时是否将None替换为空字符串
     outputList:
       - key: cell_info
         title: 单元格数据
@@ -184,9 +190,6 @@ atomic:
       - key: paste_type
         title: 粘贴方式
         tip: 选择粘贴数据的方式（单元格、行、列、区域）
-      - key: paste_value_type
-        title: 粘贴值类型
-        tip: 选择粘贴内容类型（值、公式）
       - key: row
         title: 行号
         tip: 指定要粘贴的行号（例如1，2，3...）
@@ -255,6 +258,12 @@ atomic:
       - key: amount
         title: 插入数量
         tip: 要插入的行/列数量
+      - key: row_insert_shift
+        title: 行插入方式
+        tip: 插入行时的位置（上方插入、下方插入）
+      - key: column_insert_shift
+        title: 列插入方式
+        tip: 插入列时的位置（左边插入、右边插入）
     outputList: []
   DataTable.insert_formula:
     title: 数据表格插入公式
