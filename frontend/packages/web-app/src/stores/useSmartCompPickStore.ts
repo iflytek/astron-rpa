@@ -150,6 +150,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
       }
     }
 
+    console.log('smartpick position', { x, y })
     return { x, y }
   }
 
