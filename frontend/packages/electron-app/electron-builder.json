@@ -34,7 +34,6 @@
     "icon": "../../public/icons/icon.png",
     "category": "Utility"
   },
-  "afterPack": "build/afterPack.js",
   "nsis": {
     "oneClick": false,
     "allowElevation": true,

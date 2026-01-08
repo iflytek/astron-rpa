@@ -11,7 +11,7 @@
     "dev:web": "pnpm --filter @rpa/web-app run dev",
     "dev:client": "electron-vite dev --watch",
     "dev": "npm run build:sdk && run-p dev:web dev:client",
-    "build": "npm run build:sdk && npm run typecheck && electron-vite build",
+    "build": "npm run build:sdk && npm run typecheck && electron-vite build && npm run build:web",
     "build:legacy": "pnpm --filter @rpa/web-app run build:legacy",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
@@ -20,21 +20,19 @@
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux",
     "build:subwin": "npm run build:win32 --mode=subwin",
-    "build:sdk": "tsdown --config tsdown.config.mts"
+    "build:sdk": "tsdown --config tsdown.config.mts",
+    "build:web": "pnpm --filter @rpa/web-app run build && npm run copy:renderer",
+    "copy:renderer": "node scripts/copy-dist.js"
   },
   "dependencies": {
-    "7zip-bin": "^5.2.0",
-    "@rpa/shared": "workspace:*",
     "axios": "^1.7.4",
     "lodash-es": "^4.17.21",
-    "node-7z": "^3.0.0",
-    "open": "^10.1.0",
     "tree-kill": "^1.2.2",
     "yaml": "^2.8.2"
   },
   "devDependencies": {
+    "@rpa/shared": "workspace:*",
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@rpa/web-app": "workspace:*",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^16.18.126",
     "electron": "22.3.27",
