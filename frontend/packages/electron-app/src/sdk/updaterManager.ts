@@ -1,15 +1,13 @@
 import type { UpdateInfo, UpdaterManager as UpdaterManagerType } from '@rpa/shared/platform'
 
+const { ipcRenderer } = window.electron
+
 async function checkUpdate(): Promise<UpdateInfo> {
-  console.warn('electron checkUpdate not implemented')
-  return {
-    shouldUpdate: false,
-    manifest: null,
-  }
+  return await ipcRenderer.invoke('check-for-updates')
 }
 
 async function installUpdate(_progressCallback: (percent: number) => void) {
-  console.warn('electron installUpdate not implemented')
+  ipcRenderer.send('quit-and-install-updates')
 }
 
 const UpdaterManager: UpdaterManagerType = {

@@ -1,0 +1,86 @@
+<script setup lang="ts">
+import { NiceModal } from '@rpa/components'
+
+import bgImage from '@/assets/img/updater/bg.svg'
+import bgSmallImage from '@/assets/img/updater/bg-small.svg'
+import iconImage from '@/assets/img/updater/icon.svg'
+
+const modal = NiceModal.useModal()
+
+interface UpdaterModalProps {
+  needUpdate: boolean
+  latestVersion: string
+  updateNote?: string
+}
+
+const props = defineProps<UpdaterModalProps>()
+
+const handleClose = () => modal.hide()
+</script>
+
+<template>
+  <a-modal v-bind="NiceModal.antdModal(modal)" class="updater-modal" :footer="null"
+    :width="props.needUpdate ? 600 : 400">
+    <img :src="props.needUpdate ? bgImage : bgSmallImage" class="h-[317px]" />
+
+    <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">
+      <img :src="iconImage" class="w-[120px] h-[120px]" />
+      <div class="text-[28px] font-semibold leading-[39px]">
+        {{ props.needUpdate ? '发现新版本！' : '你使用的已是最新版本' }}
+      </div>
+      <div class="text-[14px] leading-5 text-text-secondary">
+        {{ props.needUpdate ? `${props.latestVersion} 体验全新升级，更新包已就绪` : props.latestVersion }}
+      </div>
+    </div>
+
+    <div v-if="props.updateNote && props.needUpdate" class="p-4">
+      {{ props.updateNote }}
+    </div>
+
+    <div class="p-4 flex gap-[10px]">
+      <template v-if="props.needUpdate">
+        <div class="flex-1 action-button" @click="handleClose">
+          稍后更新
+        </div>
+        <div class="flex-1 action-button action-button__confirm" @click="handleClose">
+          重启升级
+        </div>
+      </template>
+      <div v-else class="flex-1 action-button action-button__confirm" @click="handleClose">
+        好
+      </div>
+    </div>
+  </a-modal>
+</template>
+
+<style lang="scss">
+.updater-modal {
+  .ant-modal-content {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    height: 40px;
+    background-color: #F3F3F7;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .action-button__confirm {
+    background: linear-gradient(108deg, #599EFF 0%, #726FFF 30.23%, #856FFF 56.48%, #986ADC 98.95%);
+    color: #fff;
+  }
+}
+</style>

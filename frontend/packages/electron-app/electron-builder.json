@@ -23,7 +23,11 @@
     "target": "nsis",
     "icon": "../../public/icons/icon.ico",
     "publisherName": "astron-rpa",
-    "requestedExecutionLevel": "requireAdministrator"
+    "requestedExecutionLevel": "requireAdministrator",
+    "publish": {
+      "provider": "generic",
+      "url": ""
+    }
   },
   "mac": {
     "target": "dmg",

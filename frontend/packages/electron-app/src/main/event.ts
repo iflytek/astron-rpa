@@ -9,6 +9,7 @@ import throttle from 'lodash/throttle'
 import logger from './log'
 import { openPath } from './path'
 import { getMainWindow, getWindow } from './window'
+import { checkForUpdates, quitAndInstallUpdates } from './updater'
 
 type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?: boolean) => void
 
@@ -327,5 +328,13 @@ export function listenRender() {
         reject(err)
       })
     })
+  })
+
+  ipcMain.handle('check-for-updates', async () => {
+    return await checkForUpdates()
+  })
+
+  ipcMain.on('quit-and-install-updates', () => {
+    quitAndInstallUpdates()
   })
 }
