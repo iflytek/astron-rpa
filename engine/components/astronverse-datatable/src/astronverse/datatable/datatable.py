@@ -1068,7 +1068,8 @@ class DataTable:
                     PyxlWrapper.insert_rows(idx=1, amount=amount)
                 else:
                     PyxlWrapper.insert_rows(idx=row - 1, amount=amount)
-            PyxlWrapper.insert_rows(idx=row, amount=amount)
+            if row_insert_shift == RowInsertShift.DOWN:
+                PyxlWrapper.insert_rows(idx=row + 1, amount=amount)
         if insert_type == InsertType.COLUMN:
             if not col:
                 raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
