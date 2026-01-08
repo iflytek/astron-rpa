@@ -4,8 +4,8 @@ import { noop } from 'lodash-es'
 const { ipcRenderer } = window.electron
 
 const loginWinState = {
-  width: 1000,
-  height: 575,
+  width: 1280,
+  height: 750,
   maximized: false,
   center: true,
 }

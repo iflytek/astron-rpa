@@ -1,6 +1,5 @@
 import path from 'node:path'
 
-import type { CreateWindowOptions } from '@rpa/shared/platform'
 import { app, BrowserWindow, screen } from 'electron'
 
 import type { WindowOptions } from '../types'
@@ -45,22 +44,18 @@ function createWindow(options: Electron.BrowserWindowConstructorOptions, label?:
   return win
 }
 
-export function createMainWindow(options: CreateWindowOptions) {
-  const show = options?.visible !== false
-  const frame = options?.decorations !== false
+export function createMainWindow() {
   const mainWindowOptions: Electron.BrowserWindowConstructorOptions = {
     title: 'iflyrpa',
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    width: 1000,
-    height: 575,
-    minWidth: 0,
-    minHeight: 0,
+    width: 1280,
+    height: 750,
     icon: APP_ICON_PATH,
     resizable: true,
-    show,
-    frame,
-    ...options,
+    center: true,
+    show: false,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,

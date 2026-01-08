@@ -16,10 +16,11 @@ app.commandLine.appendSwitch('ignore-certificate-errors')
 app.commandLine.appendSwitch('disable-web-security')
 app.disableHardwareAcceleration()
 
-function createMainWindow(options?: any) {
-  const mainWindow = createWindow(options)
+function createMainWindow() {
+  const mainWindow = createWindow()
   const url = app.isPackaged ? envJson.APP_URL : envJson.DEV_URL
   logger.info(`app load url: ${url}`)
+
   mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => logger.error('Failed to load URL'))
   mainWindow.once('ready-to-show', () => {
     WindowStack.set('main', mainWindow.id)
@@ -27,12 +28,7 @@ function createMainWindow(options?: any) {
     logger.info(`app show: ${`${Date.now() - startTime}ms`}`)
   })
   mainWindow.on('close', () => {
-    if (process.platform !== 'darwin') {
-      app.quit()
-    }
-    else {
-      app.exit()
-    }
+    process.platform !== 'darwin' ? app.quit() : app.exit()
   })
   createTray(mainWindow)
 }
