@@ -1,13 +1,7 @@
-# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-# SPDX-License-Identifier: Apache-2.0
-"""
-动作解析模块
-用于解析视觉大模型输出的动作指令，并转换为可执行的pyautogui代码
-"""
-
+import re
 import ast
 import math
-import re
+from astronverse.baseline.logger.logger import logger
 
 IMAGE_FACTOR = 28
 MIN_PIXELS = 100 * 28 * 28
@@ -74,7 +68,7 @@ def parse_action(action_str):
         return {"function": func_name, "args": kwargs}
 
     except Exception as e:
-        print(f"Failed to parse action '{action_str}': {e}")
+        logger.info(f"Failed to parse action '{action_str}': {e}")
         return None
 
 
@@ -259,7 +253,7 @@ def parse_action_to_structure_output(
     actions = []
     for action_instance, raw_str in zip(parsed_actions, all_action):
         if action_instance == None:
-            print(f"Action can't parse: {raw_str}")
+            logger.info(f"Action can't parse: {raw_str}")
             raise ValueError(f"Action can't parse: {raw_str}")
         action_type = action_instance["function"]
         params = action_instance["args"]
@@ -323,7 +317,7 @@ def parsing_response_to_pyautogui_code(responses, image_height: int, image_width
         生成的pyautogui代码字符串
     """
 
-    pyautogui_code = "import pyautogui\nimport time\n"
+    pyautogui_code = f"import pyautogui\nimport time\n"
     if isinstance(responses, dict):
         responses = [responses]
     for response_id, response in enumerate(responses):
@@ -340,7 +334,7 @@ def parsing_response_to_pyautogui_code(responses, image_height: int, image_width
         if response_id == 0:
             pyautogui_code += f"'''\nObservation:\n{observation}\n\nThought:\n{thought}\n'''\n"
         else:
-            pyautogui_code += "\ntime.sleep(1)\n"
+            pyautogui_code += f"\ntime.sleep(1)\n"
 
         action_dict = response
         action_type = action_dict.get("action_type")
@@ -436,17 +430,17 @@ def parsing_response_to_pyautogui_code(responses, image_height: int, image_width
                 stripped_content = stripped_content.rstrip("\\n").rstrip("\n")
             if content:
                 if input_swap:
-                    pyautogui_code += "\nimport pyperclip"
+                    pyautogui_code += f"\nimport pyperclip"
                     pyautogui_code += f"\npyperclip.copy('{stripped_content}')"
-                    pyautogui_code += "\npyautogui.hotkey('ctrl', 'v')"
-                    pyautogui_code += "\ntime.sleep(0.5)\n"
+                    pyautogui_code += f"\npyautogui.hotkey('ctrl', 'v')"
+                    pyautogui_code += f"\ntime.sleep(0.5)\n"
                     if content.endswith("\n") or content.endswith("\\n"):
-                        pyautogui_code += "\npyautogui.press('enter')"
+                        pyautogui_code += f"\npyautogui.press('enter')"
                 else:
                     pyautogui_code += f"\npyautogui.write('{stripped_content}', interval=0.1)"
-                    pyautogui_code += "\ntime.sleep(0.5)\n"
+                    pyautogui_code += f"\ntime.sleep(0.5)\n"
                     if content.endswith("\n") or content.endswith("\\n"):
-                        pyautogui_code += "\npyautogui.press('enter')"
+                        pyautogui_code += f"\npyautogui.press('enter')"
 
         elif action_type in ["drag", "select"]:
             # Parsing drag or select action based on start and end_boxes
@@ -475,9 +469,9 @@ def parsing_response_to_pyautogui_code(responses, image_height: int, image_width
 
             if x == None:
                 if "up" in direction.lower():
-                    pyautogui_code += "\npyautogui.scroll(5)"
+                    pyautogui_code += f"\npyautogui.scroll(5)"
                 elif "down" in direction.lower():
-                    pyautogui_code += "\npyautogui.scroll(-5)"
+                    pyautogui_code += f"\npyautogui.scroll(-5)"
             else:
                 if "up" in direction.lower():
                     pyautogui_code += f"\npyautogui.scroll(5, x={x}, y={y})"
@@ -507,8 +501,8 @@ def parsing_response_to_pyautogui_code(responses, image_height: int, image_width
                 elif action_type == "hover":
                     pyautogui_code += f"\npyautogui.moveTo({x}, {y})"
 
-        elif action_type == "finished":
-            pyautogui_code = "DONE"
+        elif action_type in ["finished"]:
+            pyautogui_code = f"DONE"
 
         else:
             pyautogui_code += f"\n# Unrecognized action type: {action_type}"

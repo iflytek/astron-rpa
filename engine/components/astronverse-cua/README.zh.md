@@ -115,20 +115,7 @@ CUA组件已设计为可以嵌入到RPA软件中，通过前端界面调用。
 
 ### 集成步骤
 
-1. **安装组件**：
-   ```bash
-   cd engine/components/astronverse-cua
-   pip install -e .
-   ```
-
-2. **生成元数据**：
-   ```bash
-   python meta.py
-   ```
-
-3. **重启RPA系统**：系统会自动加载新注册的原子能力
-
-4. **在前端使用**：
+1. **在前端使用**：
    - 在流程编排界面中找到 "ComputerUseAgent" 或 "计算机使用代理"
    - 拖拽到流程中
    - 配置参数（至少需要 `instruction`）
@@ -144,46 +131,10 @@ CUA组件已设计为可以嵌入到RPA软件中，通过前端界面调用。
 - `screenshots` (List): 截图文件路径列表
 - `error` (Str, 可选): 错误信息（如果失败）
 
-### 实时流式输出
-
-CUA组件支持实时流式输出大模型的响应，前端可以通过RPA系统的日志系统实时显示模型返回的内容。
-
-**在RPA流程中使用时**：
-- 自动获取流程上下文（`__process_id__`和`__line__`）
-- 自动启用实时流式输出
-- 在执行日志窗口中实时显示模型响应，格式如下：
-  ```
-  [CUA模型响应] [模型响应开始]
-  [CUA模型响应] Thought: 我需要分析屏幕内容...
-  [CUA模型响应] Action: click(point='<point>100 200</point>')
-  [CUA模型响应] [模型响应结束]
-  ```
-
 **独立使用时**：
 ```python
-agent = ComputerUseAgent(
-    api_key="your_api_key",
-    enable_stream_output=True,  # 启用流式输出（默认True）
-    process_id="test_process",   # 流程ID（可选）
-    line=1,                      # 行号（可选）
-)
+agent = ComputerUseAgent(api_key="your_api_key")
 ```
-
-### 故障排查
-
-**组件未出现在前端**：
-1. 运行 `python meta.py` 生成元数据
-2. 检查 `meta.json` 文件是否存在
-3. 重启RPA系统
-
-**执行时报错 "API Key未提供"**：
-1. 设置环境变量 `ARK_API_KEY`
-2. 或在组件参数中直接提供 `api_key`
-
-**前端没有显示实时输出**：
-1. 确保 `enable_stream_output=True`
-2. 在RPA流程中使用时，系统会自动注入上下文参数
-3. 检查执行日志窗口是否打开
 
 ## 测试
 
@@ -193,11 +144,12 @@ agent = ComputerUseAgent(
 # 方法1: 先安装组件（推荐）
 pip install -e .
 python example.py
-
-# 方法2: 在RPA项目根目录运行
-# 从项目根目录运行，系统会自动找到依赖
 ```
 
+```
+# 方法2: 在RPA项目根目录运行
+# 从项目根目录运行，系统会自动找到依赖
 如果遇到 `No module named 'astronverse'` 错误：
 1. 运行 `pip install -e .` 安装组件
 2. 或在完整的RPA项目环境中运行
+```

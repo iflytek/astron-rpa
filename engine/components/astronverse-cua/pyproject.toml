@@ -2,13 +2,14 @@
 name = "astronverse-cua"
 version = "1.0.1"
 description = "astronverse-cua."
-requires-python = ">=3.9"
+requires-python = ">=3.13"
 
 dependencies = [
     "pyautogui",
     "pillow",
     "openai",
     "pyperclip",
+    "astronverse-actionlib"
 ]
 
 [tool.uv.sources]

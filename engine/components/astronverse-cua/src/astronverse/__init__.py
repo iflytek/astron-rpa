@@ -1,1 +1,0 @@
-"""Astronverse package"""

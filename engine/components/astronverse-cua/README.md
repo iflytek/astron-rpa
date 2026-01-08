@@ -138,29 +138,10 @@ The component returns the following output parameters that can be used in subseq
 - `screenshots` (List): List of screenshot file paths
 - `error` (Str, optional): Error message (if failed)
 
-### Real-time Streaming Output
-
-CUA component supports real-time streaming output of model responses. The frontend can display model return content in real-time through the RPA system's logging system.
-
-**When used in RPA process**:
-- Automatically obtains process context (`__process_id__` and `__line__`)
-- Automatically enables real-time streaming output
-- Displays model responses in real-time in the execution log window:
-  ```
-  [CUA模型响应] [模型响应开始]
-  [CUA模型响应] Thought: I need to analyze screen content...
-  [CUA模型响应] Action: click(point='<point>100 200</point>')
-  [CUA模型响应] [模型响应结束]
-  ```
 
 **When used standalone**:
 ```python
-agent = ComputerUseAgent(
-    api_key="your_api_key",
-    enable_stream_output=True,  # Enable streaming output (default True)
-    process_id="test_process",   # Process ID (optional)
-    line=1,                      # Line number (optional)
-)
+agent = ComputerUseAgent(api_key="your_api_key")
 ```
 
 ### Troubleshooting
@@ -174,10 +155,6 @@ agent = ComputerUseAgent(
 1. Set environment variable `ARK_API_KEY`
 2. Or provide `api_key` directly in component parameters
 
-**No real-time output in frontend**:
-1. Ensure `enable_stream_output=True`
-2. When used in RPA process, system automatically injects context parameters
-3. Check if execution log window is open
 
 ## License
 

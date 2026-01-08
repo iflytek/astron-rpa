@@ -3,43 +3,27 @@ Computer Use Agent - 使用视觉大模型操作电脑
 实现完整的自动化流程：用户指令 → 截图 → 模型分析 → 执行操作 → 循环直到任务完成
 """
 
-import base64
 import os
-import tempfile
 import time
-from collections.abc import Callable
-from datetime import datetime
+import tempfile
+import base64
+import requests
+import json
 from pathlib import Path
-from typing import Optional
-
+from typing import List, Dict, Optional, Tuple, Callable
+from datetime import datetime
 import pyautogui
-from openai import OpenAI
+import pyperclip
 from PIL import Image, ImageDraw
-
-# from volcenginesdkarkruntime import Ark
+from openai import OpenAI
 from astronverse.cua.action_parser import (
     parse_action_to_structure_output,
     parsing_response_to_pyautogui_code,
 )
-
-# 尝试导入actionlib（如果可用）
-try:
-    from astronverse.actionlib import ReportCode, ReportCodeStatus, ReportType
-    from astronverse.actionlib.atomic import atomicMg
-    from astronverse.actionlib.report import report
-
-    HAS_ACTIONLIB = True
-except ImportError:
-    HAS_ACTIONLIB = False
-    # 定义占位符，避免运行时错误
-    report = None
-    ReportType = None
-    ReportCode = None
-    ReportCodeStatus = None
-
-# 设置PyAutoGUI安全设置
-pyautogui.FAILSAFE = False  # 鼠标移到左上角会触发异常停止
-pyautogui.PAUSE = 0.5  # 每个操作之间暂停0.5秒
+from astronverse.actionlib.atomic import atomicMg
+from astronverse.actionlib.report import report
+from astronverse.actionlib import ReportType, ReportCode, ReportCodeStatus
+from astronverse.baseline.logger.logger import logger
 
 
 # 电脑 GUI 任务场景的提示词模板
@@ -70,6 +54,10 @@ finished(content='xxx') # Use escape characters \\', \\", and \\n in content par
 {instruction}
 """
 
+API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/cua/chat/completions".format(
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+)
+
 
 class ComputerUseAgent:
     """计算机使用代理类 - 使用视觉大模型操作电脑"""
@@ -83,9 +71,6 @@ class ComputerUseAgent:
         screenshot_dir: Optional[str] = None,
         temperature: float = 0.0,
         provider: str = "doubao",  # "doubao" or "openai"
-        enable_stream_output: bool = True,  # 是否启用实时流式输出
-        process_id: Optional[str] = None,  # 流程ID，用于日志输出
-        line: Optional[int] = None,  # 当前行号，用于日志输出
     ):
         """
         初始化Agent
@@ -105,7 +90,6 @@ class ComputerUseAgent:
 
         self.provider = provider
         if provider == "doubao":
-            # self.client = Ark(api_key=self.api_key)
             self.client = OpenAI(api_key=self.api_key, base_url="https://ark.cn-beijing.volces.com/api/v3")
         elif provider == "openai":
             self.client = OpenAI(api_key=self.api_key, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
@@ -125,15 +109,15 @@ class ComputerUseAgent:
         self.screenshot_dir.mkdir(parents=True, exist_ok=True)
 
         # 历史记录
-        self.action_history: list[dict] = []
-        self.screenshots: list[str] = []
+        self.action_history: List[Dict] = []
+        self.screenshots: List[str] = []
         # 保存对话历史：(assistant响应, (base64_image, image_format) 或 None)
-        self.conversation_history: list[tuple[str, Optional[tuple[str, str]]]] = []
+        self.conversation_history: List[Tuple[str, Optional[Tuple[str, str]]]] = []
         self.pending_response: Optional[str] = None  # 待保存的响应（等待下一步的截图）
         self.instruction: Optional[str] = None  # 保存用户指令
 
         # 保存上一次点击的坐标，用于在下一次截图上标记
-        self.last_click_coords: Optional[tuple[int, int]] = None
+        self.last_click_coords: Optional[Tuple[int, int]] = None
 
         # 屏幕尺寸缓存，避免每次都打开Image文件
         self.screen_width = None
@@ -147,14 +131,9 @@ class ComputerUseAgent:
         self.last_action = None  # 保存上一次的action
         self.consecutive_same_action = 1  # 连续相同action的次数
 
-        # 实时输出相关
-        self.enable_stream_output = enable_stream_output
-        self.process_id = process_id
-        self.line = line
+        logger.info(f"[初始化] 截图保存目录: {self.screenshot_dir}")
 
-        print(f"[初始化] 截图保存目录: {self.screenshot_dir}")
-
-    def take_screenshot(self) -> tuple[str, str]:
+    def take_screenshot(self) -> Tuple[str, str]:
         """
         截取当前屏幕，并在截图上标记上一次点击的位置（如果有）
 
@@ -171,13 +150,13 @@ class ComputerUseAgent:
         # 第一次截图时保存屏幕尺寸，避免后续每次都打开Image文件
         if self.screen_width is None or self.screen_height is None:
             self.screen_width, self.screen_height = screenshot.size
-            print(f"[初始化] 保存屏幕尺寸: {self.screen_width}x{self.screen_height}")
+            logger.info(f"[初始化] 保存屏幕尺寸: {self.screen_width}x{self.screen_height}")
 
         # 如果有上一次点击坐标，在截图上标记
         final_screenshot_path = str(screenshot_path)
         if self.last_click_coords:
             x, y = self.last_click_coords
-            final_screenshot_path = self._mark_click_on_image(str(screenshot_path), x, y)
+            final_screenshot_path = self.mark_click_on_image(str(screenshot_path), x, y)
 
         # 编码为Base64（使用标记后的图片）
         with open(final_screenshot_path, "rb") as f:
@@ -185,7 +164,8 @@ class ComputerUseAgent:
 
         return final_screenshot_path, base64_image
 
-    def _mark_click_on_image(self, image_path: str, x: int, y: int, radius: int = 20) -> str:
+    @staticmethod
+    def mark_click_on_image(image_path: str, x: int, y: int, radius: int = 20) -> str:
         """
         在截图上绘制红色圆点标记，表示上一次点击的位置
 
@@ -222,9 +202,8 @@ class ComputerUseAgent:
         except Exception as e:
             return image_path  # 如果出错，返回原始路径
 
-    def _extract_click_coordinates(
-        self, action: dict, image_height: int, image_width: int
-    ) -> Optional[tuple[int, int]]:
+    @staticmethod
+    def extract_click_coordinates(action: Dict, image_height: int, image_width: int) -> Optional[Tuple[int, int]]:
         """
         从动作中提取点击坐标
 
@@ -267,10 +246,10 @@ class ComputerUseAgent:
 
             return (x, y)
         except Exception as e:
-            print(f"[警告] 无法解析坐标: {e}")
+            logger.info(f"[警告] 无法解析坐标: {e}")
             return None
 
-    def build_messages(self, instruction: str, screenshot_path: str, base64_image: str) -> list[dict]:
+    def build_messages(self, instruction: str, screenshot_path: str, base64_image: str) -> List[Dict]:
         """
         构建发送给模型的消息（包含完整对话历史）
 
@@ -289,7 +268,7 @@ class ComputerUseAgent:
         # 构建系统提示词
         system_prompt = COMPUTER_USE_PROMPT.format(instruction=self.instruction, language=self.language)
 
-        messages: list[dict] = []
+        messages: List[Dict] = []
 
         # 第一步：只有system_prompt和第一张截图
         if not self.conversation_history:
@@ -338,74 +317,56 @@ class ComputerUseAgent:
 
         return messages
 
-    def inference(self, messages: list[dict], stream_callback: Optional[Callable[[str], None]] = None) -> str:
+    def inference(self, messages: List[Dict] = None) -> str:
         """
         调用模型进行推理
 
         Args:
             messages: 消息列表
-            stream_callback: 流式输出回调函数，接收(content: str)参数，用于实时输出模型响应
 
         Returns:
             模型响应文本
         """
-        if self.provider == "doubao":
-            response = self.client.chat.completions.create(
-                model=self.model, messages=messages, temperature=self.temperature, stream=True
-            )
+        data = {
+            "model": "doubao-1-5-ui-tars-250428",  # 选择大模型，替换为实际模型标识
+            "messages": messages,
+        }
 
-            # 流式响应拼接
-            full_response = ""
-            print("\n[模型响应]")
+        try:
+            # 发送 API 请求
+            response = requests.post(API_URL, data=json.dumps(data))
+            response.raise_for_status()  # 检查请求是否成功
 
-            # 如果提供了回调函数，实时输出
-            if stream_callback:
-                stream_callback("[模型响应开始]\n")
+            # 返回模型生成的回复
+            response_json = response.json()
 
-            for chunk in response:
-                if hasattr(chunk, "choices") and chunk.choices:
-                    delta = chunk.choices[0].delta
-                    if hasattr(delta, "content") and delta.content:
-                        content = delta.content
-                        full_response += content
-                        print(content, end="", flush=True)
-
-                        # 实时回调输出
-                        if stream_callback:
-                            stream_callback(content)
-
-            print("\n")
-
-            # 如果提供了回调函数，通知结束
-            if stream_callback:
-                stream_callback("\n[模型响应结束]\n")
-
-            return full_response
-        else:  # openai
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=self.temperature,
-                stream=True if stream_callback else False,
-            )
-
-            if stream_callback:
-                # OpenAI流式输出
-                full_response = ""
-                stream_callback("[模型响应开始]\n")
-                for chunk in response:
-                    if hasattr(chunk, "choices") and chunk.choices:
-                        delta = chunk.choices[0].delta
-                        if hasattr(delta, "content") and delta.content:
-                            content = delta.content
-                            full_response += content
-                            stream_callback(content)
-                stream_callback("\n[模型响应结束]\n")
-                return full_response
+            # 兼容两种响应格式
+            if "data" in response_json and "choices" in response_json["data"]:
+                # 新格式
+                return response_json["data"]["choices"][0]["message"]["content"]
+            elif "choices" in response_json:
+                # 原格式
+                return response_json["choices"][0]["message"]["content"]
             else:
-                return response.choices[0].message.content
+                raise ValueError("未知的响应格式")
 
-    def _limit_screenshots_in_history(self) -> None:
+        except requests.exceptions.RequestException as e:
+            logger.info(f"请求错误: {e}")
+            return None
+        except KeyError:
+            logger.info("响应格式不正确")
+            return None
+
+        # response = self.client.chat.completions.create(
+        #     model=self.model,
+        #     temperature=self.temperature,
+        #     stream=False,
+        #     messages=messages,
+        # )
+        # logger.info(response.choices[0].message.content)
+        # return response.choices[0].message.content
+
+    def limit_screenshots_in_history(self) -> None:
         """
         限制对话历史中的截图数量，最多保留max_screenshots-1个截图
         """
@@ -416,7 +377,6 @@ class ComputerUseAgent:
             for i, (assistant_response, screenshot_info) in enumerate(self.conversation_history):
                 if screenshot_info is not None:
                     self.conversation_history[i] = (assistant_response, None)
-                    remaining_count = screenshots_count - 1
                     break
 
     def execute_action(self, action, image_height, image_width) -> bool:
@@ -441,7 +401,7 @@ class ComputerUseAgent:
 
             # 在执行前提取点击坐标（如果是点击操作）
             if isinstance(action_to_process, dict):
-                click_coords = self._extract_click_coordinates(action_to_process, image_height, image_width)
+                click_coords = self.extract_click_coordinates(action_to_process, image_height, image_width)
                 if click_coords:
                     self.last_click_coords = click_coords
 
@@ -451,15 +411,7 @@ class ComputerUseAgent:
                 return True
 
             # 创建执行环境
-            exec_globals = {"pyautogui": pyautogui, "time": time, "pyperclip": None}
-
-            # 尝试导入pyperclip（用于type动作的粘贴）
-            try:
-                import pyperclip
-
-                exec_globals["pyperclip"] = pyperclip
-            except ImportError:
-                print("[警告] pyperclip未安装，type动作可能使用write方式")
+            exec_globals = {"pyautogui": pyautogui, "time": time, "pyperclip": pyperclip}
 
             # 执行代码
             exec(py_code, exec_globals)
@@ -470,13 +422,13 @@ class ComputerUseAgent:
             return False  # 未完成，继续循环
 
         except Exception as e:
-            print(f"[错误] 执行动作时出错: {e}")
+            logger.info(f"[错误] 执行动作时出错: {e}")
             import traceback
 
-            traceback.print_exc()
+            traceback.logger.info_exc()
             return False
 
-    def run(self, instruction: str) -> dict:
+    def run(self, instruction: str) -> Dict:
         """
         运行自动化任务
 
@@ -486,19 +438,25 @@ class ComputerUseAgent:
         Returns:
             执行结果字典
         """
-        print(f"\n{'=' * 60}")
-        print(f"[任务开始] {instruction}")
-        print(f"{'=' * 60}\n")
+        logger.info(f"{'=' * 60}")
+        logger.info(f"[任务开始] {instruction}")
+        logger.info(f"{'=' * 60}\n")
 
         step = 0
         action_step = 0
         start_time = time.time()
 
+        # 设置PyAutoGUI安全设置
+        current_failsafe = pyautogui.FAILSAFE
+        current_pause = pyautogui.PAUSE
+        pyautogui.FAILSAFE = False  # 鼠标移到左上角会触发异常停止
+        pyautogui.PAUSE = 0.5  # 每个操作之间暂停0.5秒
+
         try:
             while step < self.max_steps:
                 step += 1
-                print(f"\n[步骤 {step}/{self.max_steps}]")
-                print("-" * 60)
+                logger.info(f"[步骤 {step}/{self.max_steps}]")
+                logger.info("-" * 60)
 
                 # 1. 截图（执行动作后的新状态）
                 screenshot_path, base64_image = self.take_screenshot()
@@ -507,7 +465,7 @@ class ComputerUseAgent:
                 # 如果有待保存的响应，现在保存（因为有了新的截图）
                 if self.pending_response:
                     # 在添加新历史前，先清理旧的截图以限制数量
-                    self._limit_screenshots_in_history()
+                    self.limit_screenshots_in_history()
 
                     image_format = Path(screenshot_path).suffix[1:] or "png"
                     self.conversation_history.append(
@@ -519,27 +477,11 @@ class ComputerUseAgent:
                     self.pending_response = None
 
                 # 2. 构建消息并调用模型
-                print("模型分析中...")
+                logger.info("模型分析中...")
                 messages = self.build_messages(instruction, screenshot_path, base64_image)
 
-                # 创建流式输出回调函数
-                def stream_callback(content: str):
-                    """实时输出模型响应的回调函数"""
-                    if self.enable_stream_output and HAS_ACTIONLIB and report and self.process_id:
-                        # 使用report模块输出实时日志，前端可以通过WebSocket接收
-                        report.info(
-                            ReportCode(
-                                log_type=ReportType.User,
-                                process_id=self.process_id,
-                                line=self.line or 0,
-                                status=ReportCodeStatus.RES,
-                                msg_str=f"[CUA模型响应] {content}",
-                            )
-                        )
-
-                response = self.inference(
-                    messages, stream_callback=stream_callback if self.enable_stream_output else None
-                )
+                response = self.inference(messages)
+                logger.info(response)
 
                 # 保存响应，等待下一步的截图再一起保存到历史
                 self.pending_response = response
@@ -584,16 +526,16 @@ class ComputerUseAgent:
                         self.last_action = current_action_key
 
                 # 4. 执行动作
-                print("执行动作...")
+                logger.info("执行动作...")
 
                 is_finished = self.execute_action(action, image_height, image_width)
 
                 if is_finished:
-                    print("\n" + "=" * 60)
-                    print("[任务成功完成]")
-                    print(f"总步骤数: {step}")
-                    print(f"总耗时: {time.time() - start_time:.2f}秒")
-                    print("=" * 60)
+                    logger.info("=" * 60)
+                    logger.info("[任务成功完成]")
+                    logger.info(f"总步骤数: {step}")
+                    logger.info(f"总耗时: {time.time() - start_time:.2f}秒")
+                    logger.info("=" * 60)
                     return {
                         "success": True,
                         "steps": step,
@@ -603,15 +545,14 @@ class ComputerUseAgent:
                     }
 
                 # 等待界面响应
-                print("等待界面响应...")
+                logger.info("等待界面响应...")
                 time.sleep(1)
-
             # 达到最大步数
-            print("\n" + "=" * 60)
-            print("[任务未完成] 已达到最大步数限制")
-            print(f"总步骤数: {step}")
-            print(f"总耗时: {time.time() - start_time:.2f}秒")
-            print("=" * 60)
+            logger.info("=" * 60)
+            logger.info("[任务未完成] 已达到最大步数限制")
+            logger.info(f"总步骤数: {step}")
+            logger.info(f"总耗时: {time.time() - start_time:.2f}秒")
+            logger.info("=" * 60)
             return {
                 "success": False,
                 "steps": step,
@@ -620,9 +561,8 @@ class ComputerUseAgent:
                 "screenshots": self.screenshots,
                 "error": "达到最大步数限制",
             }
-
         except KeyboardInterrupt:
-            print("\n\n[任务中断] 用户手动停止")
+            logger.info("\n\n[任务中断] 用户手动停止")
             return {
                 "success": False,
                 "steps": step,
@@ -632,10 +572,7 @@ class ComputerUseAgent:
                 "error": "用户中断",
             }
         except Exception as e:
-            print(f"\n\n[任务失败] 发生错误: {e}")
-            import traceback
-
-            traceback.print_exc()
+            logger.info(f"\n\n[任务失败] 发生错误: {e}")
             return {
                 "success": False,
                 "steps": step,
@@ -644,88 +581,76 @@ class ComputerUseAgent:
                 "screenshots": self.screenshots,
                 "error": str(e),
             }
+        finally:
+            # 设置PyAutoGUI安全设置
+            pyautogui.FAILSAFE = current_failsafe  # 鼠标移到左上角会触发异常停止
+            pyautogui.PAUSE = current_pause  # 每个操作之间暂停0.5秒
 
 
-# 为了兼容原子能力注册系统，创建一个包装类
-if HAS_ACTIONLIB:
+class ComputerUse:
+    """Computer Use Agent包装类，用于原子能力注册"""
 
-    class ComputerUse:
-        """Computer Use Agent包装类，用于原子能力注册"""
+    @staticmethod
+    @atomicMg.atomic(
+        "ComputerUse",
+        inputList=[
+            atomicMg.param("instruction", types="Str"),
+            atomicMg.param("api_key", types="Str", required=False),
+            atomicMg.param("model", types="Str", required=False),
+            atomicMg.param("language", types="Str", required=False),
+            atomicMg.param("max_steps", types="Int", required=False),
+            atomicMg.param("screenshot_dir", types="Str", required=False),
+            atomicMg.param("temperature", types="Float", required=False),
+            atomicMg.param("provider", types="Str", required=False),
+        ],
+        outputList=[
+            atomicMg.param("computer_use_res", types="Dict"),
+        ],
+    )
+    def run(
+        instruction: str,
+        api_key: str = None,
+        model: str = "doubao-1-5-ui-tars-250428",
+        language: str = "Chinese",
+        max_steps: int = 20,
+        screenshot_dir: str = None,
+        temperature: float = 0.0,
+        provider: str = "doubao",
+    ):
+        """
+        运行计算机使用代理任务
 
-        @staticmethod
-        @atomicMg.atomic(
-            "ComputerUseAgent",
-            inputList=[
-                atomicMg.param("instruction", types="Str"),
-                atomicMg.param("api_key", types="Str", required=False),
-                atomicMg.param("model", types="Str", required=False),
-                atomicMg.param("language", types="Str", required=False),
-                atomicMg.param("max_steps", types="Int", required=False),
-                atomicMg.param("screenshot_dir", types="Str", required=False),
-                atomicMg.param("temperature", types="Float", required=False),
-                atomicMg.param("provider", types="Str", required=False),
-            ],
-            outputList=[
-                atomicMg.param("success", types="Bool"),
-                atomicMg.param("steps", types="Int"),
-                atomicMg.param("action_steps", types="Int"),
-                atomicMg.param("duration", types="Float"),
-                atomicMg.param("screenshots", types="List"),
-                atomicMg.param("error", types="Str", required=False),
-            ],
+        Args:
+            instruction: 用户指令
+            api_key: API密钥
+            model: 模型ID
+            language: 交互语言
+            max_steps: 最大执行步数
+            screenshot_dir: 截图保存目录
+            temperature: 模型温度参数
+            provider: 模型提供商
+
+        Returns:
+            执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
+        """
+
+        agent = ComputerUseAgent(
+            api_key=api_key,
+            model=model,
+            language=language,
+            max_steps=max_steps,
+            screenshot_dir=screenshot_dir,
+            temperature=temperature,
+            provider=provider,
         )
-        def run(
-            instruction: str,
-            api_key: Optional[str] = None,
-            model: str = "doubao-1-5-ui-tars-250428",
-            language: str = "Chinese",
-            max_steps: int = 20,
-            screenshot_dir: Optional[str] = None,
-            temperature: float = 0.0,
-            provider: str = "doubao",
-            enable_stream_output: bool = True,
-            **kwargs,  # 接收RPA系统注入的上下文参数，如__process_id__, __line__等
-        ):
-            """
-            运行计算机使用代理任务
+        result = agent.run(instruction)
 
-            Args:
-                instruction: 用户指令
-                api_key: API密钥
-                model: 模型ID
-                language: 交互语言
-                max_steps: 最大执行步数
-                screenshot_dir: 截图保存目录
-                temperature: 模型温度参数
-                provider: 模型提供商
-
-            Returns:
-                执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
-            """
-            # 从kwargs中提取RPA系统注入的上下文参数
-            process_id = kwargs.get("__process_id__") or kwargs.get("process_id")
-            line = kwargs.get("__line__") or kwargs.get("line")
-
-            agent = ComputerUseAgent(
-                api_key=api_key,
-                model=model,
-                language=language,
-                max_steps=max_steps,
-                screenshot_dir=screenshot_dir,
-                temperature=temperature,
-                provider=provider,
-                enable_stream_output=enable_stream_output,
-                process_id=process_id,
-                line=line,
-            )
-            result = agent.run(instruction)
-
-            # 返回结果，确保所有输出参数都有值
-            return {
-                "success": result.get("success", False),
-                "steps": result.get("steps", 0),
-                "action_steps": result.get("action_steps", 0),
-                "duration": result.get("duration", 0.0),
-                "screenshots": result.get("screenshots", []),
-                "error": result.get("error", ""),
-            }
+        # 返回结果，确保所有输出参数都有值
+        return {
+            "success": result.get("success", False),
+            "steps": result.get("steps", 0),
+            "action_steps": result.get("action_steps", 0),
+            "duration": result.get("duration", 0.0),
+            "screenshots": result.get("screenshots", []),
+            "error": result.get("error", ""),
+        }
