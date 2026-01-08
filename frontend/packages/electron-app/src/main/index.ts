@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, session } from 'electron'
+import { app, BrowserWindow, ipcMain, protocol, session } from 'electron'
+import path from 'node:path'
 
 import type { W2WType } from '../types'
 
@@ -8,6 +9,7 @@ import { listenRender } from './event'
 import { checkPythonRpaProcess, startBackend } from './server'
 import { changeTray, createTray } from './tray'
 import { createSubWindow, createMainWindow as createWindow, electronInfo, getMainWindow, WindowStack } from './window'
+import { rendererPath, windowBaseUrl } from './path'
 
 const startTime = Date.now()
 globalThis.MainWindowLoaded = false
@@ -15,10 +17,26 @@ globalThis.MainWindowLoaded = false
 app.commandLine.appendSwitch('ignore-certificate-errors')
 app.commandLine.appendSwitch('disable-web-security')
 app.disableHardwareAcceleration()
+/**
+ * 把 rpa 协议注册为“特权协议”，赋予 standard 和 secure 等权限
+ * 使其拥有完整的浏览器上下文（localStorage、fetch、ServiceWorker 等）。
+ */
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'rpa',
+    privileges: {
+      secure: true,
+      standard: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      allowServiceWorkers: true,
+    },
+  },
+])
 
 function createMainWindow() {
   const mainWindow = createWindow()
-  const url = app.isPackaged ? envJson.APP_URL : envJson.DEV_URL
+  const url = windowBaseUrl + 'boot.html'
   logger.info(`app load url: ${url}`)
 
   mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => logger.error('Failed to load URL'))
@@ -71,10 +89,25 @@ function sessionHanlder() {
   )
 }
 
+function registerRpaProtocol() {
+  // 注册自定义协议 rpa://localhost/boot.html 映射到本地 rendererPath/boot.html
+  protocol.registerFileProtocol('rpa', (request, callback) => {
+    try {
+      const u = new URL(request.url)
+      const filePath = path.join(rendererPath, u.pathname)
+      callback({ path: filePath })
+    }
+    catch (err) {
+      logger.error('rpa protocol file resolve error:', err)
+    }
+  })
+}
+
 async function ready() {
   logger.info('app ready')
   await checkProcess()
   sessionHanlder()
+  registerRpaProtocol()
   listenRender()
   createMainWindow()
 }

@@ -15,6 +15,9 @@ export const pythonExe = path.join(pythonCore, 'python.exe')
 export const confPath = path.join(resourcePath, 'conf.yaml')
 export const d7zrPath = path.join(resourcePath, '7zr.exe')
 
+export const rendererPath = path.join(__dirname, '../renderer')
+export const windowBaseUrl  = app.isPackaged ? 'rpa://localhost/' : 'http://localhost:1420/'
+
 export function openPath(targetPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const { exec } = require('node:child_process')

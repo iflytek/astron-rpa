@@ -5,7 +5,6 @@ import { app, BrowserWindow, screen } from 'electron'
 import type { WindowOptions } from '../types'
 
 import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
-import { envJson } from './env'
 import logger from './log'
 
 export const WindowStack: Map<string, number> = new Map()
@@ -67,7 +66,7 @@ export function createMainWindow() {
 
 export function createSubWindow(options: WindowOptions) {
   logger.info('createSubWindow', JSON.stringify(options))
-  const { width = 800, height = 600, name = 'SubWindow', url = envJson.APP_URL, position = 'center' } = options
+  const { width = 800, height = 600, name = 'SubWindow', url, position = 'center' } = options
 
   const display = screen.getPrimaryDisplay()
   const { width: screenWidth, height: screenHeight } = display.workAreaSize

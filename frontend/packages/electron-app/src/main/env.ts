@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 const REQUEST_WHITE_URL = [
   'http://127.0.0.1:1420/*',
   'http://127.0.0.1:8003/*',
@@ -10,8 +8,6 @@ const REQUEST_WHITE_URL = [
 ]
 
 export const envJson = {
-  DEV_URL: "http://localhost:1420/boot.html",
-  APP_URL: path.join(__dirname, '../renderer/boot.html'),
   REQUEST_WHITE_URL,
   SCHEDULER_NAME: 'astronverse.scheduler',
 }
