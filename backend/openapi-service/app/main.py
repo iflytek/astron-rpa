@@ -9,7 +9,7 @@ from app.routers.streamable_mcp import (
 )
 from app.redis import init_redis_pool, close_redis_pool
 from app.internal import admin
-from app.routers import websocket, workflows, executions, api_keys, user
+from app.routers import api_keys, executions, healthcheck, user, websocket, workflows
 from app.middlewares.tracing import RequestTracingMiddleware
 from app.logger import get_logger
 from app.dependencies import get_ws_service
@@ -54,6 +54,7 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(workflows.router)
 app.include_router(executions.router)
 app.include_router(api_keys.router)
+app.include_router(healthcheck.router)
 app.include_router(user.router)
 app.include_router(websocket.router)
 app.mount("/mcp", handle_streamable_http)  # APISIX增加路由，解决307重定向问题
