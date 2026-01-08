@@ -362,7 +362,7 @@ atomic:
         title: 遍历子目录
         tip: 选择是否遍历子目录
       - key: tempfile_include
-        title: 是否包含临时目录
+        title: 是否包含临时文件
         tip: ''
       - key: output_type
         title: 输出方式

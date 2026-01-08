@@ -10,7 +10,7 @@ import base64
 import requests
 import json
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Callable
+from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 import pyautogui
 import pyperclip
@@ -21,8 +21,6 @@ from astronverse.cua.action_parser import (
     parsing_response_to_pyautogui_code,
 )
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.actionlib.report import report
-from astronverse.actionlib import ReportType, ReportCode, ReportCodeStatus
 from astronverse.baseline.logger.logger import logger
 
 
