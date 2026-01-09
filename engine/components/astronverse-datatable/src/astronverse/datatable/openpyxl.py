@@ -390,7 +390,7 @@ class OpenpyxlWrapper:
         Args:
             row (int): The row index (1-based) of the cell to delete.
             col (int): The column index (1-based) of the cell to delete.
-            move_direction (str): The direction to shift cells ('up' or 'left').
+            move_direction (str): The direction to shift cells ('up' or 'left' or 'no' ).
         """
         if move_direction == "up":
             for r in range(row, self.sheet.max_row):
@@ -400,6 +400,8 @@ class OpenpyxlWrapper:
             for c in range(col, self.sheet.max_column):
                 self.sheet.cell(row=row, column=c).value = self.sheet.cell(row=row, column=c + 1).value
             self.sheet.cell(row=row, column=self.sheet.max_column).value = None
+        else:
+            self.sheet.cell(row=row, column=col).value = None
 
     def delete_rows(self, idx: int, amount: int = 1):
         """
