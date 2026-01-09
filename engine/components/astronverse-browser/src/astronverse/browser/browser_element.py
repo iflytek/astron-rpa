@@ -1866,7 +1866,8 @@ class BrowserElement:
                         key="$this.is_multiple.show",
                         expression=f"return $this.child_element_type.value == '{ChildElementType.Xpath.value}' && $this.relative_type.value == '{RelativeType.Child.value}'",
                     )
-                ]),
+                ],
+            ),
         ],
         outputList=[atomicMg.param("element_obj", types="Any")],
     )
