@@ -11,7 +11,7 @@ import {
   setAllRead,
   setMessageReadById,
 } from '@/api/market'
-import { ARRANGE, TEAMMARKETS } from '@/constants/menu'
+import { EDITORPAGE, TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import router from '@/router'
 import { useMarketStore } from '@/stores/useMarketStore'
@@ -127,7 +127,7 @@ export function useMessageTip() {
   const readMessage = async ({ operateResult, id, messageType, marketId }) => {
     if (messageType === TEAMMARKETUPDATE) {
       // 编排页面，点击消息，保存编排页面数据，并跳转到对应市场应用
-      if (router.currentRoute.value.name === ARRANGE) {
+      if (router.currentRoute.value.name === EDITORPAGE) {
         await processStore.saveProject()
       }
       toMarket(marketId)

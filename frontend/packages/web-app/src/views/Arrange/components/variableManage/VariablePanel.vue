@@ -9,6 +9,7 @@ import { GLOBAL_VAR_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
+import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 import { getFlowVariable } from '@/views/Arrange/utils/generateData'
 
 import { paginationConfig } from '../tools/components/constant'
@@ -19,6 +20,8 @@ const processStore = useProcessStore()
 const variableStore = useVariableStore()
 
 const keyword = ref('')
+
+interface LocalGlobalVariable extends RPA.GlobalVariable {}
 
 const columns: ColumnType<RPA.GlobalVariable>[] = [
   {
@@ -55,18 +58,19 @@ const columns: ColumnType<RPA.GlobalVariable>[] = [
 const dataSource = computed(() => {
   const variableList = toRaw(variableStore.globalVariableList)
 
+  let filteredList = variableList
   if (keyword.value.trim()) {
-    return variableList.filter(item =>
+    filteredList = variableList.filter(item =>
       item.varName
         .toLocaleLowerCase()
         .includes(keyword.value.toLocaleLowerCase()),
     )
   }
 
-  return variableList
+  return filteredList as LocalGlobalVariable[]
 })
 
-const editableData = ref<RPA.GlobalVariable | null>(null)
+const editableData = ref<LocalGlobalVariable | null>(null)
 
 function judgeVarName({ varName, globalId }: RPA.GlobalVariable) {
   const flowVar = getFlowVariable()
@@ -81,7 +85,7 @@ function judgeVarName({ varName, globalId }: RPA.GlobalVariable) {
   return dataSource.value.some(item => item.varName === varName && item.globalId !== globalId)
 }
 
-async function handleSave(record: RPA.GlobalVariable) {
+async function handleSave(record: LocalGlobalVariable) {
   if (!editableData.value.varName.trim())
     return message.error('变量名不能为空')
   if (judgeVarName(editableData.value))
@@ -108,10 +112,11 @@ function generateTableCellText(column: ColumnType<RPA.GlobalVariable>, text: str
 }
 
 async function addGloablVar() {
-  editableData.value = cloneDeep(await variableStore.addGlobalVariableList())
+  const newVar = await variableStore.addGlobalVariableList()
+  editableData.value = cloneDeep(newVar)
 }
 
-function handleEdit(record: RPA.GlobalVariable) {
+function handleEdit(record: LocalGlobalVariable) {
   editableData.value = cloneDeep(record)
 }
 
@@ -155,21 +160,34 @@ const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', '
               v-if="column.dataIndex === 'varType'" v-model:value="editableData.varType" class="w-full"
               :field-names="{ label: 'desc', value: 'key' }" :options="processStore.globalVarTypeOption"
             />
+            <VarValueEditor
+              v-else-if="column.dataIndex === 'varValue'"
+              v-model:var-value="editableData.varValue"
+              :var-type="editableData.varType"
+              size="small"
+            />
             <a-input v-else v-model:value="editableData[column.dataIndex as string]" />
           </template>
           <template v-else>
-            {{ generateTableCellText(column, text, record as RPA.GlobalVariable) || "--" }}
+            <VarValueEditor
+              v-if="column.dataIndex === 'varValue'"
+              :var-value="record.varValue"
+              :var-type="record.varType"
+              size="small"
+              :disabled="true"
+            />
+            <span v-else>{{ generateTableCellText(column, text, record as RPA.GlobalVariable) || "--" }}</span>
           </template>
         </template>
         <template v-else>
           <div class="space-x-2">
             <a
               v-if="editableData?.globalId === record.globalId" class="!text-primary hover:opacity-80"
-              @click="handleSave(record as RPA.GlobalVariable)"
+              @click="handleSave(record as LocalGlobalVariable)"
             >
               {{ t("save") }}
             </a>
-            <a v-else class="!text-primary hover:opacity-80" @click="() => handleEdit(record as RPA.GlobalVariable)">
+            <a v-else class="!text-primary hover:opacity-80" @click="() => handleEdit(record as LocalGlobalVariable)">
               {{ t("edit") }}
             </a>
             <a-popconfirm

@@ -38,9 +38,9 @@ export function useCardsShow(emits) {
   function handleDeleteApp(item) {
     console.log(item)
     const { appId, marketId } = item
-    handleDeleteConfirm(`将要删除：${item.appName}, 删除后将无法恢复，是否仍要删除？`, () => {
+    handleDeleteConfirm(`将要下架：${item.appName}, 下架后将无法恢复，是否仍要下架？`, () => {
       deleteApp({ appId, marketId }).then(() => {
-        message.success('删除成功')
+        message.success('下架成功')
         emits('refreshHomeTable')
       })
     })
@@ -97,7 +97,7 @@ export function useCardsShow(emits) {
     },
     {
       key: 'delete',
-      label: t('delete'),
+      label: t('unpublish'),
       icon: h(Icon, { name: 'market-del' }),
     },
   ],

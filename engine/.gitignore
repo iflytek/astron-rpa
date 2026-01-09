@@ -1,9 +1,10 @@
 pip_cache
 .cookie.json
 .setting.json
+.env
 imgs
 venvs
 build
 python313
 log.txt
-meta_json.py
+temp_*.json

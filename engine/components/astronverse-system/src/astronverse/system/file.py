@@ -793,6 +793,7 @@ class File:
     def get_file_list(
         folder_path: str = "",
         traverse_subfolder: TraverseType = TraverseType.NO,
+        tempfile_include: bool = True,
         output_type: OutputType = OutputType.LIST,
         excel_path: str = "",
         state_type: StateType = StateType.ERROR,
@@ -802,6 +803,7 @@ class File:
     ) -> list:
         """
         获取文件列表
+
         """
         if not folder_is_exists(folder_path):
             raise BaseException(
@@ -822,6 +824,15 @@ class File:
             ]
         else:
             raise NotImplementedError()
+
+        # 过滤临时文件
+        if not tempfile_include:
+            temp_file_patterns = [r"^~", r"^\.~\$", r".*\.tmp$"]
+            filtered_file_list = []
+            for file in file_list:
+                if not any(re.search(pattern, os.path.basename(file)) for pattern in temp_file_patterns):
+                    filtered_file_list.append(file)
+            file_list = filtered_file_list
 
         # 排序
         if sort_method == SortMethod.NONE:

@@ -7,9 +7,10 @@ import { dissolveTeamMarket, inviteMarketUser, leaveTeamMarket, marketUserList, 
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
+import { clipboardManager } from '@/platform'
 import { useMarketStore } from '@/stores/useMarketStore'
 import type { Fun } from '@/types/common'
-import { MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
+import { MARKET_TYPE_PUBLIC, MARKET_USER_ADMIN, MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
 import FireTeam from '@/views/Home/components/TeamMarket/MarketManage/FireTeam.vue'
 import GiveOwner from '@/views/Home/components/TeamMarket/MarketManage/GiveOwner.vue'
 import InviteUser from '@/views/Home/components/TeamMarket/MarketManage/InviteUser.vue'
@@ -90,15 +91,43 @@ export function useTeamUserTable() {
 
   // 邀请用户
   const inviteUser = () => {
+    const inviteType = ref('link') // phone 组织架构 link 邀请链接
     const inviteUsers = ref([])
+    const inviteLink = ref('')
     try {
-      GlobalModal.confirm({
+      const m = GlobalModal.confirm({
         title: t('market.inviteMember'),
-        width: 450,
-        content: h(<InviteUser marketId={activeMarket.value.marketId} onChange={values => inviteUsers.value = values} />),
-        okButtonProps: { loading: false },
+        class: 'invite-user-modal',
+        icon: null,
+        width: 540,
+        content: h(
+          <InviteUser
+            marketId={activeMarket.value.marketId}
+            onInviteTypeChange={(type: string) => {
+              inviteType.value = type
+              m.update({
+                okText: inviteType.value === 'link' ? '复制链接' : '确定',
+              })
+            }}
+            onChange={values => inviteUsers.value = values}
+            onLinkChange={(link: string) => {
+              inviteLink.value = link
+              m.update({
+                okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
+              })
+            }}
+          />,
+        ),
+        okText: inviteType.value === 'link' ? '复制链接' : '确定',
+        okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
         onOk: () => {
           return new Promise((resolve, reject) => {
+            if (inviteType.value === 'link') {
+              clipboardManager.writeClipboardText(inviteLink.value)
+              message.success('复制成功')
+              reject(new Error('复制成功'))
+              return
+            }
             if (inviteUsers.value.length <= 0) {
               const error = t('market.noInviteMember')
               message.warn(error)
@@ -242,7 +271,7 @@ export function useTeamUserTable() {
         action: 'design_cloud_pj_create',
         clickFn: () => inviteUser(),
         type: 'primary',
-        hidden: false,
+        hidden: ![MARKET_USER_OWNER, MARKET_USER_ADMIN].includes(activeMarket.value.userType),
       },
     ],
     tableProps: {
@@ -290,7 +319,7 @@ export function useTeamUserTable() {
                 <Button
                   type="link"
                   size="small"
-                  disabled={record.userType === MARKET_USER_OWNER}
+                  disabled={record.userType === MARKET_USER_OWNER || (activeMarket.value.marketType === MARKET_TYPE_PUBLIC && record.userType === MARKET_USER_ADMIN)}
                   onClick={() => removeUser(record)}
                 >
                   {t('market.removeUser')}

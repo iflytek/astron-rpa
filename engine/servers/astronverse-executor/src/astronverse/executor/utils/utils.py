@@ -38,10 +38,6 @@ def kill_proc_tree(pid, including_parent=True):
 
     if including_parent:
         try:
-            # 只会杀掉当前运行目录下的进程
-            proc_cwd = proc.exe()
-            if work_dir not in proc_cwd:
-                return
             # 尝试杀死父进程
             proc.kill()
             proc.wait(5)  # 等待进程结束，防止僵尸进程
@@ -49,7 +45,7 @@ def kill_proc_tree(pid, including_parent=True):
             pass
 
 
-def _str_to_list_if_possible(s):
+def str_to_list_if_possible(s):
     if not isinstance(s, str):
         return s  # 如果不是字符串，直接返回
 

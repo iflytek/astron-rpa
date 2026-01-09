@@ -51,6 +51,7 @@ export default defineConfig((env) => {
           userform: './userform.html',
           record: './record.html',
           recordmenu: './recordmenu.html',
+          smartcompickmenu: './smartcompickmenu.html'
         },
       },
       minify: 'terser',

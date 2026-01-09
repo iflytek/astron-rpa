@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { SearchOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
 import { ref } from 'vue'
-import { SearchOutlined } from '@ant-design/icons-vue'
 
 import { getRobotList } from '@/api/task'
 

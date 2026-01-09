@@ -18,8 +18,10 @@ import http from '@/api/http'
 import { taskCancel, taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { WINDOW_NAME } from '@/constants'
+import { EDITORPAGE, SMARTCOMPONENT } from '@/constants/menu'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 
@@ -29,6 +31,9 @@ export interface W2WType {
   type: string // 类型
   data?: any // 数据
 }
+
+const permissionStore = usePermissionStore()
+const userSettingStore = useUserSettingStore()
 
 const route = useRoute()
 // 主进程与渲染进程通信
@@ -171,12 +176,13 @@ function executorHandle() {
 }
 
 function logReportHandle(msg) {
-  const { log_path } = msg
+  const { log_path, data_table_path } = msg
   // 设置中心的详细日志是否启用，如果启用，则打开日志弹窗
-  if (useUserSettingStore().userSetting.commonSetting.hideDetailLogWindow)
+  if (!userSettingStore.openLogModalAfterRun)
     return
-  if (route.name !== 'arrange' && log_path) {
-    BUS.$emit('open-log-modal', log_path)
+
+  if (![EDITORPAGE, SMARTCOMPONENT].includes(route.name as string) && log_path) {
+    BUS.$emit('open-log-modal', log_path, data_table_path)
   }
 }
 
@@ -196,6 +202,7 @@ window.onload = () => {
   taskNotify({ event: 'login' })
   http.init()
   http.resolveReadyPromise()
+  permissionStore.initPermission()
 
   utilsManager.invoke('main_window_onload').catch(() => {
     // 在浏览器中，默认引擎已经启动，可以发送 http 请求了

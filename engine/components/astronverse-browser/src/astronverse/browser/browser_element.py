@@ -9,7 +9,7 @@ import time
 from functools import wraps
 
 import pandas as pd
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
@@ -192,9 +192,10 @@ class BrowserElement:
     ) -> bool:
         """等待元素出现或消失。"""
         app = element_data["elementData"]["app"] if element_data["elementData"]["app"] != "iexplore" else "ie"
-        if app != browser_obj.browser_type.value:
+        browser_type = browser_obj.browser_type.value
+        if (app == "ie" and browser_type != "ie") or (app != "ie" and browser_type == "ie"):
             raise Exception(
-                f"拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{browser_obj.browser_type.value}"
+                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
             )
         timeout = element_timeout
         if timeout < 0:
@@ -252,6 +253,17 @@ class BrowserElement:
                 "button_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
     )
     @wait_element_appear
@@ -262,6 +274,7 @@ class BrowserElement:
         assistive_key: ButtonForAssistiveKeyFlag = ButtonForAssistiveKeyFlag.Nothing,
         button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """点击"""
         if not browser_obj:
@@ -272,16 +285,20 @@ class BrowserElement:
         from astronverse.input.code.keyboard import Keyboard
         from astronverse.input.code.mouse import Mouse
 
-        element = Locator.locator(element_data.get("elementData"))
-        if isinstance(element.rect(), list):
-            raise Exception("浏览器元素定位不唯一，请检查！")
-        center = element.point()
         if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
             Keyboard.key_down(assistive_key.value)
 
         if not simulate_flag:
             if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
                 # 发送给插件
+                element = Locator.locator(
+                    element_data.get("elementData"),
+                    cur_target_app=browser_obj.browser_type.value,
+                    scroll_into_view=False,
+                )
+                if isinstance(element.rect(), list):
+                    raise Exception("浏览器元素定位不唯一，请检查！")
+                center = element.point()
                 browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
                     key="clickElement",
@@ -294,6 +311,14 @@ class BrowserElement:
                 raise NotImplementedError()
 
         else:
+            element = Locator.locator(
+                element_data.get("elementData"),
+                cur_target_app=browser_obj.browser_type.value,
+                scroll_into_center=scroll_into_center,
+            )
+            if isinstance(element.rect(), list):
+                raise Exception("浏览器元素定位不唯一，请检查！")
+            center = element.point()
             smooth_move(center.x, center.y, duration=0.5)
             Mouse.click(
                 x=center.x,
@@ -347,6 +372,17 @@ class BrowserElement:
                 "input_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
         outputList=[
             atomicMg.param("form_input", types="Str"),
@@ -363,6 +399,7 @@ class BrowserElement:
         focus_time: float = 1000,
         write_gap_time: float = 0,
         input_type: FillInputForInputTypeFlag = FillInputForInputTypeFlag.Overwrite,
+        scroll_into_center: bool = True,
     ):
         """
         填写输入框(web)
@@ -381,13 +418,13 @@ class BrowserElement:
         else:
             text = ""
 
-        element = Locator.locator(element_data.get("elementData"))
-        if isinstance(element.rect(), list):
-            raise Exception("浏览器元素定位不唯一，请检查！")
-        center = element.point()
-
         # js输入
         if not simulate_flag:
+            element = Locator.locator(
+                element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+            )
+            if isinstance(element.rect(), list):
+                raise Exception("浏览器元素定位不唯一，请检查！")
             if input_type == FillInputForInputTypeFlag.Append:
                 origin_text = BrowserElement.element_text(
                     browser_obj=browser_obj,
@@ -413,6 +450,11 @@ class BrowserElement:
             from astronverse.input.code.keyboard import Keyboard
             from astronverse.input.code.mouse import Mouse
 
+            element = Locator.locator(element_data.get("elementData"), scroll_into_center=scroll_into_center)
+            if isinstance(element.rect(), list):
+                raise Exception("浏览器元素定位不唯一，请检查！")
+            center = element.point()
+
             smooth_move(center.x, center.y, duration=0.4)
             Mouse.click(x=center.x, y=center.y)
             if input_type == FillInputForInputTypeFlag.Overwrite:
@@ -430,8 +472,7 @@ class BrowserElement:
             write_gap_time = write_gap_time if write_gap_time > 0 else 0.03
             if fill_type == FillInputForFillTypeFlag.Text:
                 for item in text:
-                    Keyboard.write_char(item)
-                    # pyautogui.write(item)
+                    Keyboard.write_unicode(item)
                     time.sleep(write_gap_time)
             elif fill_type == FillInputForFillTypeFlag.Clipboard:
                 Clipboard.copy(data=text)
@@ -440,12 +481,19 @@ class BrowserElement:
 
     @staticmethod
     @get_default_browser
-    @atomicMg.atomic("BrowserElement")
+    @atomicMg.atomic(
+        "BrowserElement",
+        inputList=[
+            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+        ],
+        outputList=[],
+    )
     @wait_element_appear
     def hover_over(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """
         鼠标悬停在元素上（web）
@@ -455,7 +503,11 @@ class BrowserElement:
                 PARAMETER_INVALID_FORMAT,
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
-        element = Locator.locator(element_data.get("elementData"))
+        element = Locator.locator(
+            element_data.get("elementData"),
+            cur_target_app=browser_obj.browser_type.value,
+            scroll_into_center=scroll_into_center,
+        )
         element.move()
 
     @staticmethod
@@ -503,7 +555,7 @@ class BrowserElement:
             with open(path, "wb") as f:
                 f.write(base64.b64decode(data))
         else:
-            element = Locator.locator(element_data.get("elementData"))
+            element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
             rect = element.rect()
             from astronverse.input.code.screenshot import Screenshot
 
@@ -541,7 +593,7 @@ class BrowserElement:
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
         path = os.path.join(file_path, image_name)
-        element = Locator.locator(element_data.get("elementData"))
+        element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
 
         Screenshot.screenshot(region=(rect.left, rect.top, rect.width(), rect.height()), file_path=path)
@@ -689,12 +741,19 @@ class BrowserElement:
 
     @staticmethod
     @get_default_browser
-    @atomicMg.atomic("BrowserElement")
+    @atomicMg.atomic(
+        "BrowserElement",
+        inputList=[
+            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+        ],
+        outputList=[],
+    )
     @wait_element_appear
     def scroll_into_view(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """滚动到元素可见位置。"""
         if not browser_obj:
@@ -703,10 +762,11 @@ class BrowserElement:
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
+            data = {**element_data["elementData"]["path"], "atomConfig": {"scrollIntoCenter": scroll_into_center}}
             _ = browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
                 key="scrollIntoView",
-                data=element_data["elementData"]["path"],
+                data=data,
             )
         else:
             raise NotImplementedError()
@@ -825,7 +885,6 @@ class BrowserElement:
 
             def get_iterator():
                 count = 0
-                similar_count = 0
                 batch_size = 20
                 while True:
                     data = browser_obj.send_browser_extension(
@@ -837,7 +896,6 @@ class BrowserElement:
                             "count": batch_size,
                         },
                     )
-                    similar_count = data[0]["similarCount"]
                     if not data or len(data) <= 0:
                         break
                     for di in data:
@@ -857,22 +915,21 @@ class BrowserElement:
                                     "path": di,
                                 }
                             }
-                            yield di_wrapper
-                            continue
-
-                        data = browser_obj.send_browser_extension(
-                            browser_type=browser_obj.browser_type.value,
-                            key="getElementAttrs",
-                            data={
-                                **di,  # 解包内部字典的内容
-                                "atomConfig": {
-                                    "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
-                                    "attrName": attribute_name,
+                            yield count, di_wrapper
+                        else:
+                            res = browser_obj.send_browser_extension(
+                                browser_type=browser_obj.browser_type.value,
+                                key="getElementAttrs",
+                                data={
+                                    **di,  # 解包内部字典的内容
+                                    "atomConfig": {
+                                        "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
+                                        "attrName": attribute_name,
+                                    },
                                 },
-                            },
-                        )
-
-                        yield data
+                            )
+                            yield count, res
+                    similar_count = data[0]["similarCount"]
                     if similar_count <= count:
                         break
 
@@ -941,13 +998,15 @@ class BrowserElement:
         percent_value = max(0.0, min(1.0, percent_value / 100))
         # 定位滑块和滑条元素
         # 滑块（要拖动的元素）
-        element = Locator.locator(slider_element.get("elementData"))
+        element = Locator.locator(slider_element.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(element.rect(), list):
             raise Exception("滑块元素定位不唯一，请检查！")
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
-        element = Locator.locator(progress_element.get("elementData"), scroll_into_view=False)
+        element = Locator.locator(
+            progress_element.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+        )
         if isinstance(element.rect(), list):
             raise Exception("滑轨元素定位不唯一，请检查！")
         progress_rect = element.rect()
@@ -1410,10 +1469,7 @@ class BrowserElement:
                 "浏览器元素为空，请检查当前界面浏览器是否正常打开",
             )
         if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            handler = BrowserCore.get_browser_handler(browser_obj.browser_type)
-
-            # 定位
-            Locator.locator(element_data.get("elementData"))
+            BrowserCore.get_browser_handler(browser_obj.browser_type)
             # 元素
             table_element = element_data["elementData"]
 
@@ -1522,6 +1578,17 @@ class BrowserElement:
             ),
             # 是否输出表头
             atomicMg.param("output_head", required=False),
+            atomicMg.param(
+                "scroll_into_center",
+                level=AtomicLevel.ADVANCED,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scroll_into_center.show",
+                        expression="return $this.simulate_flag.value == true",
+                    )
+                ],
+                required=False,
+            ),
         ],
         outputList=[
             atomicMg.param("table_pick", types="List"),
@@ -1553,6 +1620,8 @@ class BrowserElement:
         output_type: TablePickType = TablePickType.Row,
         output_head: bool = True,  # 是否输出表头
         output_filter_empty_col: bool = False,  # 是否过滤空列
+        is_save_to_data_table: bool = False,  # 是否保存到数据表格
+        scroll_into_center: bool = True,
     ):
         """数据抓取（web）"""
         table_list = []
@@ -1571,8 +1640,6 @@ class BrowserElement:
                 )
                 if not wait:
                     raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
-                # 定位
-                Locator.locator(batch_element)
                 # 发送给插件
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
@@ -1624,6 +1691,7 @@ class BrowserElement:
                         assistive_key=ButtonForAssistiveKeyFlag.Nothing,
                         button_type=button_type,
                         element_timeout=element_timeout,
+                        scroll_into_center=scroll_into_center,
                     )
                 except Exception:
                     pass
@@ -1646,6 +1714,25 @@ class BrowserElement:
         if output_filter_empty_col:
             table_df_out = table_df_out.dropna(axis=1, how="all")
 
+        output_data = []
+        if output_head:
+            output_data = [table_df_out.columns.tolist()] + table_df_out.values.tolist()
+        else:
+            output_data = table_df_out.values.tolist()
+
+        if is_save_to_data_table:
+            # 保存到数据表格
+            from astronverse.datatable import WriteMode, WriteType
+            from astronverse.datatable.datatable import DataTable
+
+            DataTable.write_data(
+                write_type=WriteType.AREA,
+                start_row=1,
+                start_col="A",
+                data=output_data,
+                write_mode=WriteMode.OVERWRITE,
+            )
+
         if to_excel:
             # 将table_list 转换为excel
             # 检查 excel_path 是否为 .xlsx 文件
@@ -1657,17 +1744,12 @@ class BrowserElement:
             # logger.info(f'表格数据已保存到 {excel_path}')
             table_path = excel_path
             if output_type == TablePickType.Row:
-                if output_head:
-                    return [table_df_out.columns.tolist()] + table_df_out.values.tolist(), table_path
-                return table_df_out.values.tolist(), table_path
+                return output_data, table_path
             return table_df_out.to_dict(orient="list"), table_path
 
         # 返回表格数据 按行/列 返回
         if output_type == TablePickType.Row:
-            if output_head:
-                return [table_df_out.columns.tolist()] + table_df_out.values.tolist()
-            else:
-                return table_df_out.values.tolist()
+            return output_data
         else:
             return table_df_out.to_dict(orient="list")
 
@@ -1867,9 +1949,10 @@ class BrowserElement:
     ) -> bool:
         """检查元素是否存在。"""
         app = element_data["elementData"]["app"] if element_data["elementData"]["app"] != "iexplore" else "ie"
-        if app != browser_obj.browser_type.value:
+        browser_type = browser_obj.browser_type.value
+        if (app == "ie" and browser_type != "ie") or (app != "ie" and browser_type == "ie"):
             raise Exception(
-                f"拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{browser_obj.browser_type.value}"
+                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
             )
         element_exist = False
         try:

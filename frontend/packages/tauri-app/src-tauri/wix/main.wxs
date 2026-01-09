@@ -157,6 +157,15 @@
 							   Value="1"
 							   KeyPath="yes" />
             </Component>
+            <Component Id="AstronRPAProtocol" Guid="*" Win64="$(var.Win64)">
+                <RegistryKey Root="HKCR" Key="AstronRPA" Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Value="URL:astronrpa"/>
+                    <RegistryValue Name="URL Protocol" Type="string" Value=""/>
+                </RegistryKey>
+                <RegistryKey Root="HKCR" Key="AstronRPA\shell\Open\command" Action="createAndRemoveOnUninstall">
+                    <RegistryValue Type="string" Value="[!Path] %1" />
+                </RegistryKey>
+            </Component>
         </DirectoryRef>
 
         <DirectoryRef Id="ApplicationProgramsFolder">
@@ -195,6 +204,7 @@
                 Absent="disallow">
 
             <ComponentRef Id="RegistryEntries"/>
+            <ComponentRef Id="AstronRPAProtocol"/>
 
             {{#each resource_file_ids as |resource_file_id| ~}}
                 <ComponentRef Id="{{ resource_file_id }}"/>

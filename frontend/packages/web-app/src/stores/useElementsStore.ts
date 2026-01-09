@@ -166,28 +166,32 @@ export const useElementsStore = defineStore('elements', () => {
       isBase64Image(parentImageUrl) ? uploadFile({ file: base64ToFile(parentImageUrl, `parent_${fileName}`) }) : '',
     ])
 
+    let newElement: ElementsType
+
     // 判断是否是新元素, 则新增
     if (isNew) {
+      newElement = {
+        commonSubType: 'single',
+        name,
+        icon,
+        imageId,
+        parentImageId,
+        elementData,
+      }
       const { data } = await addElement({
         type: 'common',
         robotId,
         groupName,
-        element: {
-          commonSubType: 'single',
-          name,
-          icon,
-          imageId,
-          parentImageId,
-          elementData,
-        },
+        element: newElement,
       })
+      newElement.id = data.elementId
       emit && BUS.$emit('pick-done', { data: data.elementId, value: name }) // 通知其他组件拾取已完成
     }
     else {
       // 更新当前元素
       const oldName = currentElement.value.name
       const elementId = currentElement.value.id
-      const newElement: ElementsType = {
+      newElement = {
         ...currentElement.value,
         name,
         elementData,
@@ -209,6 +213,7 @@ export const useElementsStore = defineStore('elements', () => {
     }
     resetCurrentElement()
     await requestAllElements()
+    return newElement
   }
   // 删除当前元素
   const deleteElement = async (data: ElementsType) => {

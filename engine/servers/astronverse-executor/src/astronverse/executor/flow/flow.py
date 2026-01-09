@@ -4,7 +4,7 @@ from astronverse.executor.error import BaseException, SYNTAX_ERROR_FORMAT, PROCE
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.parser import Parser
 from astronverse.executor.flow.syntax.ast import CodeLine
-from astronverse.executor.utils.utils import _str_to_list_if_possible
+from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 class Flow:
@@ -89,8 +89,7 @@ class Flow:
                     )
                 else:
                     res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
-
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name)
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name, [])
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
@@ -109,7 +108,19 @@ class Flow:
                 module_index += 1
                 res = self._module_display(project_id, mode, version, resource_id, name)
 
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name)
+                param_list = self.svc.storage.param_list(
+                    project_id=project_id, mode=mode, version=version, module_id=resource_id
+                )
+                for p in param_list:
+                    param = self.svc.param.parse_param(
+                        {
+                            "value": str_to_list_if_possible(p.get("varValue")),
+                            "types": p.get("varType"),
+                            "name": p.get("varName"),
+                        }
+                    )
+                    p["varValue"] = param.show_value()
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name, param_list)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
@@ -117,6 +128,19 @@ class Flow:
                 raise NotImplementedError()
         if not main_process_name:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
+
+        # 2.1 生成智能组件
+        smart_index = 1
+        for smart_key, smart_info in self.svc.ast_globals_dict[project_id].smart_component_info.items():
+            file_name = "smart{}.py".format(smart_index)
+            smart_index += 1
+            with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
+                res = self._smart_component_display(
+                    project_id, mode, version, smart_info.smart_id, smart_info.smart_version
+                )
+                if res:
+                    self.svc.update_smart_component(project_id, smart_key, file_name, res.get("smartType"))
+                    file.write(res.get("smartCode"))
 
         # 3. 生成project.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
@@ -175,7 +199,7 @@ class Flow:
         for g in global_list:
             param = self.svc.param.parse_param(
                 {
-                    "value": g.get("varValue"),
+                    "value": str_to_list_if_possible(g.get("varValue")),
                     "types": g.get("varType"),
                     "name": g.get("varName"),
                 }
@@ -187,22 +211,25 @@ class Flow:
         """
         模块生成 python模块
         """
-        # 1. 获取配置参数
-        param_list = self.svc.storage.param_list(
-            project_id=project_id, mode=mode, version=version, process_id=module_id
-        )
-
-        # 2. 获取模块原始代码
+        # 获取模块数据
         module_code = self.svc.storage.module_detail(
             project_id=project_id, mode=mode, version=version, module_id=module_id
         )
 
-        # 3. 如果没有配置参数，直接返回原始代码
-        if not param_list:
-            return module_code
+        # 兼容开始
+        if "rpahelper" in module_code:
+            # 老代码
+            module_code = module_code.replace("rpahelper", "astronverse.workflowlib")
+        # 兼容结束
 
-        # 4. 注入配置参数到 main(args) 函数中
-        return self._inject_params_to_module(module_code, param_list)
+        return module_code
+
+    def _smart_component_display(
+        self, project_id: str, mode: str, version: str, smart_id: str, smart_version: str
+    ) -> str:
+        return self.svc.storage.smart_component_detail(
+            project_id=project_id, smart_id=smart_id, smart_version=smart_version, mode=mode, version=version
+        )
 
     def _inject_params_to_module(self, module_code: str, param_list: list) -> str:
         """
@@ -233,7 +260,7 @@ class Flow:
             var_name = p.get("varName")
             param = self.svc.param.parse_param(
                 {
-                    "value": _str_to_list_if_possible(p.get("varValue")),
+                    "value": str_to_list_if_possible(p.get("varValue")),
                     "types": p.get("varType"),
                     "name": var_name,
                 }
@@ -245,7 +272,7 @@ class Flow:
             var_name = p.get("varName")
             param = self.svc.param.parse_param(
                 {
-                    "value": _str_to_list_if_possible(p.get("varValue")),
+                    "value": str_to_list_if_possible(p.get("varValue")),
                     "types": p.get("varType"),
                     "name": var_name,
                 }

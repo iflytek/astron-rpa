@@ -1,6 +1,7 @@
 import os.path
 from typing import Optional, Any
 from astronverse.actionlib.types import Pick
+from astronverse.actionlib.atomic import atomicMg
 from astronverse.workflowlib.storage import HttpStorage
 from astronverse.workflowlib.config import config
 from astronverse.workflowlib.params import ComplexParamParser
@@ -10,10 +11,12 @@ conf = config({{PACKAGE_PATH}})
 project_info = conf.get("project_info", {})
 process_info = conf.get("process_info", {})
 component_info = conf.get("component_info", {})
+smart_component_info = conf.get("smart_component_info", {})
 
 storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
 
-os.environ.setdefault("GATEWAY_PORT", project_info.get("gateway_port"))
+atomicMg.cfg()["GATEWAY_PORT"] = project_info.get("gateway_port")
+atomicMg.cfg()["PROJECT_JSON"] = conf
 
 
 def module(module_id) -> Optional[str]:
@@ -34,7 +37,20 @@ def component(component_id) -> Optional[str]:
     return os.path.splitext(name)[0]
 
 
-def complex_param_parser(complex_param: dict) -> dict:
+def smart_component(smart_component_key) -> dict:
+    if smart_component_key not in smart_component_info:
+        return {}
+    name = smart_component_info[smart_component_key].get("component_file_name")
+    smart_type = smart_component_info[smart_component_key].get("smart_type")
+    if name:
+        return {
+            "file_path": os.path.splitext(name)[0],
+            "smart_type": smart_type
+        }
+    return {}
+
+
+def complex_param_parser(complex_param: Any) -> dict:
     return ComplexParamParser.evaluate_params(ComplexParamParser.parse_params(complex_param))
 
 

@@ -35,11 +35,14 @@ class WebFactory:
             return None
         # 获取外部配置
         scroll_into_view = kwargs.get("scroll_into_view", True)
+        scroll_into_center = kwargs.get("scroll_into_center", True)
 
         menu_height, menu_left = cls.__get_web_top__(ele, app=app)
 
         # 通过插件获取元素位置信息
-        rect_res = cls.__get_rect_from_browser_plugin__(ele, app=app, scroll_into_view=scroll_into_view)
+        rect_res = cls.__get_rect_from_browser_plugin__(
+            ele, app=app, scroll_into_view=scroll_into_view, scroll_into_center=scroll_into_center
+        )
         if not rect_res:
             return None
         rect = Rect(
@@ -62,7 +65,7 @@ class WebFactory:
         return WEBLocator(rect=rect, rects=rects)
 
     @classmethod
-    def __get_rect_from_browser_plugin__(cls, element: dict, app: str, scroll_into_view=True):
+    def __get_rect_from_browser_plugin__(cls, element: dict, app: str, scroll_into_view=True, scroll_into_center=True):
         """通过浏览器插件获取rect"""
         url = "http://127.0.0.1:9082/browser/transition"
         browser_type = app
@@ -70,6 +73,7 @@ class WebFactory:
         try:
             # 如果需要滚动到视图中
             if scroll_into_view:
+                path_data = {**path_data, "atomConfig": {"scrollIntoCenter": scroll_into_center}}
                 requests.post(
                     url, json={"browser_type": browser_type, "data": path_data, "key": "scrollIntoView"}, timeout=10
                 )
@@ -112,29 +116,29 @@ class WebFactory:
 
         ct = None
         for control, _ in auto.WalkControl(root_control, includeTop=True, maxDepth=1):
-            if app_name in [BrowserType.CHROME.value]:
+            if app_name == BrowserType.CHROME.value:
                 if (control.Name == "Chrome Legacy Window") or (
                     ("- Google Chrome" in control.Name) or ("- Chrome" in control.Name)
                 ):
                     ct = control
                     break
-            if app_name in [BrowserType.EDGE.value]:
+            if app_name == BrowserType.EDGE.value:
                 if "- Microsoft​ Edge" in control.Name:
                     ct = control
                     break
-            if app_name in [BrowserType.CHROME_360_SE.value]:
+            if app_name == BrowserType.CHROME_360_SE.value:
                 if "360安全浏览器" in control.Name:
                     ct = control
                     break
-            if app_name in [BrowserType.CHROME_360_X.value]:
+            if app_name == BrowserType.CHROME_360_X.value:
                 if "360极速浏览器X" in control.Name:
                     ct = control
                     break
-            if app_name in [BrowserType.FIREFOX.value]:
+            if app_name == BrowserType.FIREFOX.value:
                 if "Mozilla Firefox" in control.Name:
                     ct = control
                     break
-            if app_name in [BrowserType.CHROMIUM.value]:
+            if app_name == BrowserType.CHROMIUM.value:
                 if (control.Name == "Chrome Legacy Window") or ("- Chromium" in control.Name):
                     ct = control
                     break
@@ -142,10 +146,10 @@ class WebFactory:
             raise Exception(f"未找到{app_name}浏览器窗口，请确认浏览器是否已启动")
 
         # 置顶
-        # ct.SetActive()  # noqa 会调用SetForegroundWindow，后者会触发焦点事件
+        # ct.SetActive()
         handle = ct.NativeWindowHandle
         top_browser(handle, ct)
-        if app_name in [BrowserType.FIREFOX.value]:
+        if app_name == BrowserType.FIREFOX.value:
             for child, _ in auto.WalkControl(ct, includeTop=True, maxDepth=100):
                 if child.AutomationId == "tabbrowser-tabpanels":
                     bounding_rect = child.BoundingRectangle

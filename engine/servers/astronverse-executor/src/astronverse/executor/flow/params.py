@@ -106,7 +106,8 @@ class Param(IParam):
 
         if parse is not None:
             if parse == "json_str":
-                data = json.loads(data)
+                if data:
+                    data = json.loads(data)
             return InputParam(key=name, value=data, need_eval=True, special="complex_param_parser")
         else:
             if isinstance(data, list) and len(data) == 1 and data[0].get("type", None) == ParamType.ELEMENT.value:
@@ -121,6 +122,9 @@ class Param(IParam):
             elif key == "Script.component" and name == "component":
                 # 子模块
                 special = "component"
+            elif key == "Smart.run_code" and name == "smart_component":
+                # 子组件的子模块
+                special = "smart_component"
             value, need_eval = self._param_to_eval(self.pre_param_handler(data))
             return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 

@@ -1,6 +1,6 @@
 import type { NodeID, ProcessNode } from '@/ast/ASTNode'
 import { ASTNode } from '@/ast/ASTNode'
-import { CATCH_TEXT, ELSE_IF_TEXT, ELSE_TEXT, FINALLY_TEXT, FOR_BRO_SIMILAR, FOR_DICT_TEXT, FOR_END_TEXT, FOR_EXCEL_CONTENT, FOR_LIST_TEXT, FOR_STEP_TEXT, GROUP_END_TEXT, GROUP_TEXT, IF_END_TEXT, IF_TEXT, TRY_END_TEXT, TRY_TEXT, WHILE_TEXT } from '@/views/Arrange/config/atomKeyMap'
+import { CATCH_TEXT, ELSE_IF_TEXT, ELSE_TEXT, FINALLY_TEXT, FOR_BRO_SIMILAR, FOR_DATA_TABLE_LOOP, FOR_DICT_TEXT, FOR_END_TEXT, FOR_EXCEL_CONTENT, FOR_LIST_TEXT, FOR_STEP_TEXT, GROUP_END_TEXT, GROUP_TEXT, IF_END_TEXT, IF_TEXT, TRY_END_TEXT, TRY_TEXT, WHILE_TEXT } from '@/views/Arrange/config/atomKeyMap'
 
 export class IncrementalASTParser {
   private root: ASTNode
@@ -275,13 +275,14 @@ export class IncrementalASTParser {
       case FOR_DICT_TEXT:
       case FOR_EXCEL_CONTENT:
       case FOR_BRO_SIMILAR:
+      case FOR_DATA_TABLE_LOOP:
       case FOR_LIST_TEXT:
       case WHILE_TEXT:
         if (!this.hasRelatedChild(node, FOR_END_TEXT))
           node.raw.error = `${node.type}缺少${FOR_END_TEXT}结束标记`
         break
       case FOR_END_TEXT:
-        this.hasRelatedParent(node, [FOR_STEP_TEXT, FOR_DICT_TEXT, FOR_EXCEL_CONTENT, FOR_BRO_SIMILAR, FOR_LIST_TEXT, WHILE_TEXT])
+        this.hasRelatedParent(node, [FOR_STEP_TEXT, FOR_DICT_TEXT, FOR_EXCEL_CONTENT, FOR_BRO_SIMILAR, FOR_DATA_TABLE_LOOP, FOR_LIST_TEXT, WHILE_TEXT])
         break
       case GROUP_TEXT:
         if (!this.hasRelatedChild(node, GROUP_END_TEXT))
@@ -327,7 +328,7 @@ export class IncrementalASTParser {
     if ([ELSE_IF_TEXT, ELSE_TEXT, CATCH_TEXT, FINALLY_TEXT].includes(raw.type)) {
       return [IF_END_TEXT, ELSE_TEXT, ELSE_IF_TEXT, TRY_END_TEXT].includes(newNodeType) ? targetNode.parent : targetNode
     }
-    else if ([IF_TEXT, TRY_TEXT, FOR_STEP_TEXT, FOR_DICT_TEXT, FOR_EXCEL_CONTENT, FOR_BRO_SIMILAR, FOR_LIST_TEXT, WHILE_TEXT, GROUP_TEXT].includes(raw.type)) {
+    else if ([IF_TEXT, TRY_TEXT, FOR_STEP_TEXT, FOR_DICT_TEXT, FOR_EXCEL_CONTENT, FOR_BRO_SIMILAR, FOR_DATA_TABLE_LOOP, FOR_LIST_TEXT, WHILE_TEXT, GROUP_TEXT].includes(raw.type)) {
       return targetNode
     }
     else if ([IF_END_TEXT, FOR_END_TEXT, GROUP_END_TEXT, TRY_END_TEXT].includes(raw.type)) {
@@ -339,7 +340,7 @@ export class IncrementalASTParser {
   }
 
   private isContainerType(type: string): boolean {
-    return [IF_TEXT, FOR_STEP_TEXT, FOR_DICT_TEXT, FOR_EXCEL_CONTENT, FOR_BRO_SIMILAR, FOR_LIST_TEXT, WHILE_TEXT, TRY_TEXT, GROUP_TEXT].includes(type)
+    return [IF_TEXT, FOR_STEP_TEXT, FOR_DICT_TEXT, FOR_EXCEL_CONTENT, FOR_BRO_SIMILAR, FOR_DATA_TABLE_LOOP, FOR_LIST_TEXT, WHILE_TEXT, TRY_TEXT, GROUP_TEXT].includes(type)
   }
 
   private isEndType(type: string): boolean {

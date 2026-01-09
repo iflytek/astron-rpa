@@ -1,4 +1,5 @@
 <script lang="tsx" setup>
+import { useTheme } from '@rpa/components'
 import { message, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { debounce, isNil, last, noop } from 'lodash-es'
@@ -9,7 +10,6 @@ import type {
   VxeGridInstance,
   VxeGridProps,
 } from 'vxe-table'
-import { useTheme } from '@rpa/components'
 
 import VxeGrid from '@/plugins/VxeTable'
 

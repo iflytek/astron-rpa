@@ -1,6 +1,6 @@
 from typing import Dict
 
-from astronverse.executor import AstGlobals, ProcessInfo, AtomicInfo, ComponentInfo
+from astronverse.executor import AstGlobals, ProcessInfo, AtomicInfo, ComponentInfo, SmartComponentInfo
 from astronverse.executor.config import Config
 from astronverse.executor.flow.params import Param
 from astronverse.executor.flow.storage import IStorage, HttpStorage
@@ -60,7 +60,7 @@ class FlowSvc:
         self.ast_globals_dict[project_id].component_info[component_id].component_file_name = component_file_name
 
     def add_process_info(
-        self, project_id: str, process_id: str, process_category: str, process_name, process_file_name
+        self, project_id: str, process_id: str, process_category: str, process_name, process_file_name, process_params
     ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
@@ -70,6 +70,7 @@ class FlowSvc:
         self.ast_globals_dict[project_id].process_info[process_id].process_category = process_category
         self.ast_globals_dict[project_id].process_info[process_id].process_name = process_name
         self.ast_globals_dict[project_id].process_info[process_id].process_file_name = process_file_name
+        self.ast_globals_dict[project_id].process_info[process_id].process_params = process_params
 
     def add_import_python(self, project_id: str, process_id: str, import_python: str):
         if project_id not in self.ast_globals_dict:
@@ -106,3 +107,17 @@ class FlowSvc:
             self.ast_globals_dict[project_id].atomic_info[atomic_key] = AtomicInfo()
         self.ast_globals_dict[project_id].atomic_info[atomic_key].key = atomic_key
         self.ast_globals_dict[project_id].atomic_info[atomic_key].params_name = atomic_params
+
+    def add_smart_component(self, project_id: str, smart_key: str):
+        if project_id not in self.ast_globals_dict:
+            self.ast_globals_dict[project_id] = AstGlobals()
+        if smart_key not in self.ast_globals_dict[project_id].smart_component_info:
+            self.ast_globals_dict[project_id].smart_component_info[smart_key] = SmartComponentInfo()
+
+        smart_id, smart_version = smart_key.split("_")
+        self.ast_globals_dict[project_id].smart_component_info[smart_key].smart_id = smart_id
+        self.ast_globals_dict[project_id].smart_component_info[smart_key].smart_version = smart_version
+
+    def update_smart_component(self, project_id: str, smart_key: str, component_file_name: str, smart_type: str):
+        self.ast_globals_dict[project_id].smart_component_info[smart_key].component_file_name = component_file_name
+        self.ast_globals_dict[project_id].smart_component_info[smart_key].smart_type = smart_type

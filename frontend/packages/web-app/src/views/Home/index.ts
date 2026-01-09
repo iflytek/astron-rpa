@@ -17,7 +17,6 @@ import router from '@/router/index'
 
 // 组件导入
 import App from './App.vue'
-import '@/auth/index'
 
 const app = createApp(App)
 

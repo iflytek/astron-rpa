@@ -32,6 +32,7 @@ import {
 interface ProjectData {
   id: string
   name: string
+  version: number
 }
 
 // 判断是否是代码模块
@@ -54,7 +55,7 @@ export const useProcessStore = defineStore('process', () => {
     types: {},
   })
 
-  const project = ref<ProjectData>({ id: '', name: '工程名称' })
+  const project = ref<ProjectData>({ id: '', name: '工程名称', version: 0 })
   const activeProcessId = ref('')
   const processList = ref<RPA.Flow.ProcessModule[]>([])
   const searchSubProcessId = ref('')
@@ -91,9 +92,9 @@ export const useProcessStore = defineStore('process', () => {
 
   // 配置参数接口参数
   const cofnigParamIdOption = computed(() => {
-    const isPy = isPyModel(activeProcess.value?.resourceCategory);
-    return isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value };
-  });
+    const isPy = isPyModel(activeProcess.value?.resourceCategory)
+    return isPy ? { moduleId: activeProcessId.value } : { processId: activeProcessId.value }
+  })
 
   // 依赖刷新后自动请求
   watchEffect(async () => {
@@ -156,12 +157,8 @@ export const useProcessStore = defineStore('process', () => {
   // 更新参数
   const updateParameter = async (data: RPA.ConfigParamData) => {
     await updateConfigParam({ ...data, ...cofnigParamIdOption.value, robotId: project.value.id })
-
-    parameters.value.forEach((item) => {
-      if (item.id === data.id) {
-        item = { ...item, ...data }
-      }
-    })
+    const target = parameters.value.find(item => item.id === data.id)
+    Object.assign(target, data)
   }
 
   // 生成唯一的组件属性名称

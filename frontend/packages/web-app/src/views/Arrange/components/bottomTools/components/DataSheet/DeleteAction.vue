@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { useDataSheetStore } from './useDataSheet'
 
-const { sheetRef, isReady, handleClearAll } = useDataSheetStore();
+const { sheetRef, isReady, handleClearAll } = useDataSheetStore()
 
-const handleDeleteSelection = () => {
+function handleDeleteSelection() {
   sheetRef.value?.deleteSelection()
 }
 </script>
@@ -18,8 +18,12 @@ const handleDeleteSelection = () => {
 
     <template #overlay>
       <a-menu>
-        <a-menu-item @click="handleDeleteSelection">删除选中区域</a-menu-item>
-        <a-menu-item @click="handleClearAll">清除全部数据</a-menu-item>
+        <a-menu-item @click="handleDeleteSelection">
+          删除选中区域
+        </a-menu-item>
+        <a-menu-item @click="handleClearAll">
+          清除全部数据
+        </a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>

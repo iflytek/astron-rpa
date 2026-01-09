@@ -16,6 +16,7 @@ from astronverse.picker import (
 from astronverse.picker.engines.uia_picker import UIAElement, UIAOperate
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import BrowserControlFinder
+from astronverse.picker import APP
 
 
 class PickerCore(IPickerCore):
@@ -81,7 +82,7 @@ class PickerCore(IPickerCore):
         start_control = UIAOperate.get_windows_by_point(self.last_point)
         result_control = UIAOperate.get_app_windows(start_control)
         if not result_control:
-            return DrawResult(success=False, error_message="未找到窗口控件")
+            return DrawResult(success=False, error_message="")
         with self.lock:
             self.last_element = UIAElement(control=result_control)
         process_id = UIAOperate.get_process_id(start_control)
@@ -90,6 +91,7 @@ class PickerCore(IPickerCore):
             last_point=self.last_point,
             data=data,
             start_control=start_control,
+            domain=PickerDomain.UIA,
         )
         rect = self.last_element.rect()
         tag = self.last_element.tag()
@@ -125,17 +127,21 @@ class PickerCore(IPickerCore):
 
             logger.info("strategy 加载完成")
 
+        domain = PickerDomain.AUTO
+        pick_mode = data.get("pick_mode", None)
+        if pick_mode:
+            if pick_mode == "WebPick":
+                domain = PickerDomain.AUTO_WEB
+            else:
+                domain = PickerDomain.AUTO_DESK
         self.last_strategy_svc = svc.strategy.gen_svc(
-            process_id=process_id,
-            last_point=self.last_point,
-            data=data,
-            start_control=start_control,
+            process_id=process_id, last_point=self.last_point, data=data, start_control=start_control, domain=domain
         )
 
         # 策略运行
         res = svc.strategy.run(self.last_strategy_svc)
         if not res:
-            return DrawResult(success=False, error_message="拾取取消，请确认目标元素后重新拾取")
+            return DrawResult(success=False, error_message="")
 
         with self.lock:
             self.last_element = res
@@ -183,7 +189,7 @@ class PickerCore(IPickerCore):
         start_control = BrowserControlFinder.get_document_control(parent_control)
         if not start_control:
             logger.info("拾取预处理 start_control 为空")
-            return "未找到起始控件"
+            return "未找到浏览器，请重试"
 
         process_id = UIAOperate.get_process_id(start_control)
         if pick_type in [PickerType.ELEMENT]:
@@ -198,7 +204,7 @@ class PickerCore(IPickerCore):
                         wait_time += 0.1
 
                     if not svc.strategy:
-                        return DrawResult(success=False, error_message="策略加载超时（10s）")
+                        return "策略加载超时（10s）"
 
                     logger.info("strategy 加载完成")
 
@@ -211,14 +217,18 @@ class PickerCore(IPickerCore):
                 )
 
                 # 策略运行
-                res = svc.strategy.run(cur_strategy_svc)
-                if res:
-                    cur_rect = res.rect()
-                    cur_tag = res.tag()
-                    if smart_component_action in [SmartComponentAction.PREVIOUS, SmartComponentAction.NEXT]:
-                        high_light.draw_wnd(cur_rect, msgs=cur_tag)
-                    return res.path(svc, cur_strategy_svc)
-                return "插件返回空"
+                try:
+                    res = svc.strategy.run(cur_strategy_svc)
+                    if res:
+                        cur_rect = res.rect()
+                        cur_tag = res.tag()
+                        if smart_component_action in [SmartComponentAction.PREVIOUS, SmartComponentAction.NEXT]:
+                            high_light.draw_wnd(cur_rect, msgs=cur_tag)
+                        return res.path(svc, cur_strategy_svc)
+                except Exception as e:
+                    logger.info(f"智能组件出现异常 {e}")
+                    res = str(e)
+                return res
 
     def element(self, svc, data: dict) -> dict:
         pick_type = data.get("pick_type")

@@ -262,14 +262,16 @@ function dispatchMouseSequence(
 const ContentHandler = {
   ele: {
     getElement: async (data: ElementInfo, isSelf = false, atomRun = false): Promise<null | HTMLElement[]> => {
-      const { matchTypes } = data
+      const { matchTypes, filterVisible = false } = data
       const isScrollFind = matchTypes && matchTypes.includes('scrollPosition') && !isSelf && !atomRun
       let tempEles: HTMLElement[] | null = getElementByElementInfo(data)
       if (!tempEles && isScrollFind) {
         tempEles = (await scrollFindElement(data)) as HTMLElement[]
       }
-      // filter out elements that are not visible
-      tempEles = filterVisibleElements(tempEles)
+      if (filterVisible && tempEles) {
+        // filter out elements that are not visible
+        tempEles = filterVisibleElements(tempEles)
+      }
       return tempEles as HTMLElement[]
     },
 
@@ -327,19 +329,19 @@ const ContentHandler = {
 
     scrollIntoView: async (data: ElementInfo) => {
       const { matchTypes, atomConfig } = data
-      let scrollEle: HTMLElement[] | null
+      let scrollEle: HTMLElement | null
       try {
-        scrollEle = await ContentHandler.ele.getElement(data)
+        scrollEle = await ContentHandler.ele.getDom(data)
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
-      if (scrollEle && scrollEle[0]) {
-        if (atomConfig && atomConfig.notCenter) {
-          scrollEle[0].scrollIntoView(false)
+      if (scrollEle) {
+        if (atomConfig && !atomConfig.scrollIntoCenter) {
+          scrollEle.scrollIntoView(false)
         }
         else {
-          scrollEle[0].scrollIntoView({
+          scrollEle.scrollIntoView({
             behavior: 'instant',
             block: 'center',
           })
@@ -381,35 +383,32 @@ const ContentHandler = {
     },
 
     elementIsRender: async (data: ElementInfo) => {
-      let ele = null
       try {
-        ele = await ContentHandler.ele.getElement(data)
+        const ele = await ContentHandler.ele.getDom({ ...data, filterVisible: true })
+        return Utils.success(!!ele)
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
-      }
-      if (ele) {
-        return Utils.success(true)
-      }
-      else {
-        return Utils.success(false)
       }
     },
 
-    elementIsTable: async (data: ElementInfo) => {
-      let ele = null
+    elementIsReady: async (data: ElementInfo) => {
       try {
-        ele = await ContentHandler.ele.getElement(data)
+        const ele = await ContentHandler.ele.getDom(data)
+        return Utils.success(!!ele)
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
-      if (ele && ele[0]) {
-        const res = isTable(ele[0])
+    },
+    elementIsTable: async (data: ElementInfo) => {
+      try {
+        const ele = await ContentHandler.ele.getDom(data)
+        const res = ele ? isTable(ele) : false
         return Utils.success(res)
       }
-      else {
-        return Utils.success(false)
+      catch (error) {
+        return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
     },
 

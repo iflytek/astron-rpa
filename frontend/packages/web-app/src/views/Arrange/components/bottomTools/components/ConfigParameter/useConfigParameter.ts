@@ -1,8 +1,7 @@
-import { reactiveComputed, useToggle } from '@vueuse/core'
+import { createInjectionState, reactiveComputed, useToggle } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { find, isEmpty } from 'lodash-es'
 import { ref, shallowRef, watch } from 'vue'
-import { createInjectionState } from '@vueuse/core'
 
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -13,7 +12,7 @@ import type { TabConfig } from '../../types.ts'
 import Manager from './Manager.vue'
 import RightExtra from './RightExtra.vue'
 
-const [useProvideConfigParameter, useConfigParameter ] = createInjectionState(() => {
+const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() => {
   const processStore = useProcessStore()
   const searchText = ref('')
 
@@ -76,4 +75,4 @@ const [useProvideConfigParameter, useConfigParameter ] = createInjectionState(()
   }
 })
 
-export { useProvideConfigParameter, useConfigParameter }
+export { useConfigParameter, useProvideConfigParameter }

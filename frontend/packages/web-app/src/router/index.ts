@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteLocationAsRelativeGeneric, RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import {
@@ -9,15 +9,19 @@ import {
   COMPONENTCREATED,
   COMPONENTMANAGEMENT,
   DESIGNER,
+  EDITORPAGE,
   EXCUTELIST,
   PROJECTCREATED,
   PROJECTMANAGEMENT,
   PROJECTMARKET,
   ROBOTLIST,
+  SMARTCOMPONENT,
   TASKLIST,
   TEAMMARKETMANAGE,
   TEAMMARKETS,
 } from '@/constants/menu'
+import { usePermissionStore } from '@/stores/usePermissionStore'
+// import { useUserStore } from '@/stores/useUserStore'
 
 const ComponentManagement = () => import('@/views/Home/pages/ComponentManagement.vue')
 const MyCreatedComponent = () => import('@/views/Home/pages/MyCreatedComponent.vue')
@@ -36,7 +40,30 @@ export const routes: RouteRecordRaw[] = [
       show: false,
       closeConfirm: false, // 关闭确认框
     },
+    redirect: `/${ARRANGE}/${EDITORPAGE}`,
     component: () => import('@/views/Arrange/index.vue'),
+    children: [
+      {
+        path: EDITORPAGE,
+        name: EDITORPAGE,
+        meta: {
+          key: EDITORPAGE,
+          icon: EDITORPAGE,
+          group: ARRANGE,
+        },
+        component: () => import('@/views/Arrange/Content.vue'),
+      },
+      {
+        path: SMARTCOMPONENT,
+        name: SMARTCOMPONENT,
+        meta: {
+          key: SMARTCOMPONENT,
+          icon: SMARTCOMPONENT,
+          group: ARRANGE,
+        },
+        component: () => import('@/components/SmartComponent/Index.vue'),
+      },
+    ],
   },
   {
     path: `/${DESIGNER}`,
@@ -44,6 +71,8 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       show: true,
       illustration: 'robot1',
+      permission: true,
+      resource: DESIGNER,
     },
     redirect: `/${DESIGNER}/${PROJECTMANAGEMENT}`,
     component: DesignerComponent,
@@ -108,6 +137,8 @@ export const routes: RouteRecordRaw[] = [
     name: ACTUATOR,
     meta: {
       show: true,
+      permission: true,
+      resource: ACTUATOR,
     },
     redirect: `/${ACTUATOR}/${ROBOTLIST}`,
     component: () => import('@/views/Home/Index.vue'),
@@ -159,6 +190,8 @@ export const routes: RouteRecordRaw[] = [
     name: APPLICATIONMARKET,
     meta: {
       show: true,
+      permission: true,
+      resource: APPLICATIONMARKET,
     },
     redirect: `/${APPLICATIONMARKET}/${TEAMMARKETS}`,
     component: () => import('@/views/Home/Index.vue'),
@@ -206,6 +239,50 @@ export const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+})
+
+export function findFirstPermittedRoute(permStore: ReturnType<typeof usePermissionStore>): RouteLocationAsRelativeGeneric | null {
+  const loop = (rs: RouteRecordRaw[]): RouteRecordRaw | null => {
+    for (const r of rs) {
+      if (r.meta?.permission) {
+        const res = r.meta.resource || r.name
+        if (res && permStore.can(res as string, 'all'))
+          return r
+      }
+      if (r.children) {
+        const child = loop(r.children)
+        if (child)
+          return child
+      }
+    }
+    return null
+  }
+  const found = loop(routes)
+  return found ? { name: found.name } : null
+}
+
+router.beforeEach(async (to, from, next) => {
+  // const userStore = useUserStore()
+  const permissionStore = usePermissionStore()
+
+  // if (!userStore.loginStatus && to.name !== 'Login')
+  //   return next({ name: 'Login', query: { redirect: to.fullPath } })
+
+  if (to.meta?.permission) {
+    if (!permissionStore.fetched)
+      await permissionStore.initPermission()
+
+    const resource = (to.meta.resource as string) || (to.name as string)
+    if (permissionStore.can(resource, 'all'))
+      return next()
+    const first = findFirstPermittedRoute(permissionStore)
+    if (first)
+      return next(first)
+
+    window.location.href = '/boot.html'
+    return
+  }
+  next()
 })
 
 window.addEventListener('load', () => {

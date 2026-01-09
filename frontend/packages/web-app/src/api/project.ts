@@ -5,6 +5,11 @@ export function createProject(data) {
   return http.post('/robot/robot-design/create', data, { toast: true })
 }
 
+// 新建工程-数量校验
+export function checkProjectNum() {
+  return http.get('/robot/quota/check-designer', { toast: true })
+}
+
 /**
  * 检测应用是否被计划任务引用被返回引用这个应用的计划任务的数组
  */

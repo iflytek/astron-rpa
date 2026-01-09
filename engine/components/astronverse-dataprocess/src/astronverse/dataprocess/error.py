@@ -2,8 +2,10 @@
 错误码与异常定义。
 """
 
-from astronverse.baseline.error.error import BizCode, ErrorCode
+from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
+
+BaseException = BaseException
 
 VALUE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("输入数据类型有误，无法设置为变量") + ": {}")
 INVALID_REGEX_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("输入的正则表达式有误") + ": {}")

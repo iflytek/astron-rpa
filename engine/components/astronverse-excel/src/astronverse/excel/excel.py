@@ -344,7 +344,7 @@ class Excel:
         start_row: str = "1",
         value: str = "",
         edit_type: EditType = EditType.OVERWRITE,
-    ) -> ExcelObj:
+    ):
         if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
             try:
                 value = ast.literal_eval(value)
@@ -468,10 +468,10 @@ class Excel:
         start_col: str = "",
         end_col: str = "",
         cell: str = "",
-        row: int = 1,
+        row: str = 1,
         column: str = "",
-        start_row: int = 1,
-        end_row: int = 1,
+        start_row: str = 1,
+        end_row: str = 1,
         read_display: bool = True,
         trim_spaces: bool = False,
         replace_none: bool = True,
@@ -993,9 +993,9 @@ class Excel:
         excel: ExcelObj,
         sheet_name: str = "",
         insert_type: EnhancedInsertType = EnhancedInsertType.ROW,
-        row: int = 1,
+        row: str = 1,
         row_direction: RowDirectionType = RowDirectionType.LOWER,
-        col: int = 1,
+        col: str = 1,
         col_direction: ColumnDirectionType = ColumnDirectionType.RIGHT,
         blank_rows: bool = False,
         insert_num: int = 1,
@@ -1054,7 +1054,7 @@ class Excel:
                         Range.set_range_data(r_obj, val)
                     first_row += 1  # 写完一行，整体下移
         elif insert_type in [EnhancedInsertType.COLUMN, EnhancedInsertType.ADD_COLUMNS]:
-            start_col_num = handle_column_input(str(col), r_end_col)
+            start_col_num = handle_column_input(col, r_end_col)
             if col_direction == ColumnDirectionType.LEFT:  # 向上
                 for _ in range(insert_num):
                     r_obj = Worksheet.get_range(
@@ -1329,23 +1329,28 @@ class Excel:
             raise ValueError("不支持的操作类型：{}".format(select_type))
 
         content = Range.get_range_data(Worksheet.get_range(worksheet, data_region), True if real_text else False)
-        if content is None:
-            return {}
-
-        if cell_strip:
-            content = util_trim(content)
-
         if content:
-            if not isinstance(content, (list, tuple)):
-                content = ((content,),)
-            if select_type == SearchRangeType.COLUMN:
-                keys = (column_number_to_letter(n) for n in range(start_col_num, end_col_num + 1))
-                vals = (list(col) for col in zip(*content))
-            else:
-                keys = range(start_row_num, start_row_num + len(content))
-                vals = (list(row) for row in content)
-            content = dict(zip(keys, vals))
-        return content
+            if cell_strip:
+                content = util_trim(content)
+
+            if content:
+                if not isinstance(content, (list, tuple)):
+                    content = ((content,),)
+                if select_type == SearchRangeType.COLUMN:
+                    keys = (column_number_to_letter(n) for n in range(start_col_num, end_col_num + 1))
+                    vals = (list(col) for col in zip(*content))
+                else:
+                    keys = range(start_row_num, start_row_num + len(content))
+                    vals = (list(row) for row in content)
+                content = dict(zip(keys, vals))
+        else:
+            content = {}
+
+        def table_generator():
+            for i, v in content.items():
+                yield i, v
+
+        return table_generator()
 
     @staticmethod
     @atomicMg.atomic(

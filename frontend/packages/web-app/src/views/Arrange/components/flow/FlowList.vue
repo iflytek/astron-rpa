@@ -5,7 +5,10 @@ import { message } from 'ant-design-vue'
 import { computed, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 
 import { atomScrollIntoViewKey } from '@/constants/eventBusKey'
+import { SMARTCOMPONENT } from '@/constants/menu'
+import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useFlowStore } from '@/stores/useFlowStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import { clearDraggable } from '@/views/Arrange/utils/drag'
 
 import ContextMenu from './ContextMunus.vue'
@@ -19,6 +22,7 @@ const { colorTheme } = useTheme()
 const flowContainer = useTemplateRef<HTMLElement>('flowContainer')
 const draggableRef = useTemplateRef('draggableRef')
 const flowStore = useFlowStore()
+const processStore = useProcessStore()
 const rawList = computed(() => flowStore.simpleFlowUIData)
 
 useRenderListProvide(rawList)
@@ -59,6 +63,23 @@ function handleDragChange(e: any) {
   }
 }
 
+function handleBeforeAdd(e: { element: any, newIndex: number }) {
+  if (e.element?.key === 'smart-component') {
+    useRoutePush({
+      name: SMARTCOMPONENT,
+      query: {
+        projectId: processStore.project.id,
+        projectName: processStore.project.name,
+        newIndex: Math.min(e.newIndex, flowStore.simpleFlowUIData.length),
+      },
+    })
+    return false
+  }
+  else {
+    return true
+  }
+}
+
 async function triggerAdd(key: string, preIndex?: number) {
   addAtomData(key, preIndex)
 }
@@ -87,6 +108,7 @@ onBeforeUnmount(() => {
       :items="renderList"
       :min-item-size="40"
       :class="[colorTheme]"
+      :before-add="handleBeforeAdd"
       item-key="id"
       filter=".forbid"
       group="postTree"

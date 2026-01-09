@@ -3,6 +3,7 @@ import json
 import os
 import threading
 import time
+from urllib.parse import unquote
 from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.debug.apis.ws import Ws
@@ -144,6 +145,7 @@ def start():
     if args.project_name:
         Config.project_name = args.project_name
     if args.resource_dir:
+        args.resource_dir = unquote(args.resource_dir)
         Config.resource_dir = args.resource_dir
 
     Config.open_log_ws = args.log_ws == "y"
@@ -153,6 +155,7 @@ def start():
 
     if args.run_param:
         try:
+            args.run_param = unquote(args.run_param)
             if os.path.exists(args.run_param):
                 with open(args.run_param, "r", encoding="utf-8") as f:
                     args.run_param = json.load(f)
@@ -164,6 +167,7 @@ def start():
         args.run_param = {}
     if args.recording_config:
         try:
+            args.recording_config = unquote(args.recording_config)
             args.recording_config = json.loads(args.recording_config)
         except Exception as e:
             args.recording_config = {}

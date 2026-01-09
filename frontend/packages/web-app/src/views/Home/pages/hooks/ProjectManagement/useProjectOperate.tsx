@@ -1,19 +1,22 @@
 import { Icon, NiceModal } from '@rpa/components'
 import { Button, message, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { storeToRefs } from 'pinia'
 import type { Ref } from 'vue'
 import { computed, h, ref } from 'vue'
 
 import $loading from '@/utils/globalLoading'
 
 import { getTeams } from '@/api/market'
-import { delectProject, isInTask } from '@/api/project'
+import { checkProjectNum, delectProject, isInTask } from '@/api/project'
 import { PublishModal } from '@/components/PublishComponents'
 import { fromIcon } from '@/components/PublishComponents/utils'
 import { DesignerRobotDetailModal } from '@/components/RobotDetail'
 import { ARRANGE } from '@/constants/menu'
 import { ROBOT_EDITING } from '@/constants/resource'
 import { useRoutePush } from '@/hooks/useCommonRoute'
+import { useAppConfigStore } from '@/stores/useAppConfig'
+import { useUserStore } from '@/stores/useUserStore'
 import type { AnyObj } from '@/types/common'
 import { CopyModal, RenameModal, VersionManagementModal } from '@/views/Home/components/modals/index'
 import OperMenu from '@/views/Home/components/OperMenu.vue'
@@ -24,13 +27,16 @@ import type { resOption } from '@/views/Home/types'
 
 import { handleRun, useCommonOperate } from '../useCommonOperate'
 
-export function useProjectOperate(homeTableRef?: Ref) {
+export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
   function refreshHomeTable() {
     if (homeTableRef.value) {
       homeTableRef.value?.fetchTableData()
     }
   }
   const { t } = useTranslation()
+  const appStore = useAppConfigStore()
+  const userStore = useUserStore()
+  const { appInfo } = storeToRefs(appStore)
   const { handleDeleteConfirm, getSituationContent } = useCommonOperate()
 
   const currHoverId = ref('')
@@ -167,16 +173,37 @@ export function useProjectOperate(homeTableRef?: Ref) {
 
   // 编辑
   function handleEdit(editObj: AnyObj) {
-    const { robotId, robotName, editEnable } = editObj
+    const { robotId, robotName, version, editEnable } = editObj
     if (!editEnable) {
       message.info('当前应用未开放源码，无法进行编辑，升级账户后可获得编辑权限')
       return
     }
-    useRoutePush({ name: ARRANGE, query: { projectId: robotId, projectName: robotName } })
+    useRoutePush({ name: ARRANGE, query: { projectId: robotId, projectName: robotName, projectVersion: version } })
   }
 
   // 创建副本
-  function createCopy(editObj: AnyObj) {
+  async function createCopy(editObj: AnyObj) {
+    if (userStore.currentTenant?.tenantType !== 'enterprise') {
+      const res = await checkProjectNum()
+      if (!res.data) {
+        consultRef.value?.init({
+          authType: appInfo.value.appAuthType,
+          trigger: 'modal',
+          modalConfirm: {
+            title: '已达到应用数量上限',
+            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
+            okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
+            cancelText: '我知道了',
+          },
+          consult: {
+            consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
+            consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
+            consultType: 'consult',
+          },
+        })
+        return
+      }
+    }
     NiceModal.show(CopyModal, {
       robotId: editObj.robotId,
       robotName: editObj.robotName,

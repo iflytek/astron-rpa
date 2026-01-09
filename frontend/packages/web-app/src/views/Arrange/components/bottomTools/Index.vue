@@ -2,29 +2,30 @@
 import { reactiveComputed } from '@vueuse/core'
 import { sum } from 'lodash-es'
 import { computed, provide, ref, shallowRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import { BOTTOM_BOOTLS_HEIGHT_SIZE_MIN } from '@/constants'
+import { SMARTCOMPONENT } from '@/constants/menu.ts'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 
 import { useProvideConfigParameter } from './components/ConfigParameter/useConfigParameter.ts'
 import { useCVManager } from './components/CvManager/useCVManager.ts'
+import { useProvideDataSheetStore } from './components/DataSheet/useDataSheet'
 import { useDebugLog } from './components/DebugLog/useDebugLog.ts'
 import { useElementManager } from './components/ElementManager/useElementManager.ts'
 import { useLog } from './components/Log/useLog.ts'
 import { useSubProcessUse } from './components/SubProcessSearch/useSubProcessUse'
-import { useProvideDataSheetStore } from './components/DataSheet/useDataSheet'
 import type { TabConfig } from './types'
 
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
-console.log('BottomTools props.height', props.height)
-
 // 创建并提供 configParameter 实例
 const { config: configParamsTabConfig } = useProvideConfigParameter()
 const { dataSheetConfig } = useProvideDataSheetStore()
 
+const route = useRoute()
 const processStore = useProcessStore()
 
 const initTabs = reactiveComputed(() => [
@@ -65,6 +66,9 @@ function expand(bool: boolean) {
 }
 
 watch(() => useRunningStore().running, (val) => {
+  if (route.name === SMARTCOMPONENT) {
+    return
+  }
   if (['run', 'debug'].includes(val)) {
     expand(false)
   }
@@ -121,7 +125,7 @@ watch(() => processStore.activeProcessId, () => {
           />
         </div>
       </template>
-      <a-tab-pane v-for="item in tabs" :key="item.key">
+      <a-tab-pane v-for="item in tabs" :key="item.key" class="z-0">
         <template #tab>
           <span class="flex items-center">
             <rpa-icon :name="item.icon" width="16px" height="16px" class="mr-1" />

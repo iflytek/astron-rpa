@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useTheme } from '@rpa/components'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useTheme } from '@rpa/components'
 
 import { COMMON_SIDER_WIDTH } from '@/constants'
 import { useRoutePush } from '@/hooks/useCommonRoute'

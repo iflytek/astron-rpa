@@ -1,15 +1,17 @@
+import { promiseTimeout } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { last } from 'lodash-es'
 
 import { isComponentKey } from '@/utils/customComponent'
 
+import { isSmartComponentKey } from '@/components/SmartComponent/utils'
 import { useFlowStore } from '@/stores/useFlowStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import { requiredItem } from '@/views/Arrange/components/flow/hooks/useValidate'
 import { useToolsClear } from '@/views/Arrange/components/tools/hooks/useToolsClear'
 import { Catch, Else, ElseIf, Finally, Group, GroupEnd, LOOP_END_MAP } from '@/views/Arrange/config/atomKeyMap'
 import { getMultiSelectIds } from '@/views/Arrange/utils/flowUtils'
-import { createComponentAbility, generateInputMap, loopAtomByKey, setAddAtomIdx } from '@/views/Arrange/utils/generateData'
+import { createComponentAbility, generateInputMap, loadSmartComponentAbility, loopAtomByKey, setAddAtomIdx } from '@/views/Arrange/utils/generateData'
 import { changeSelectAtoms } from '@/views/Arrange/utils/selectItemByClick'
 
 export async function createFlowNode(key: string, idx: number | number[], isDrag: boolean) {
@@ -18,6 +20,9 @@ export async function createFlowNode(key: string, idx: number | number[], isDrag
 
   if (isComponentKey(key)) {
     await createComponentAbility(key)
+  }
+  else if (isSmartComponentKey(key)) {
+    await loadSmartComponentAbility(key)
   }
   else {
   // 加载原子能力配置
@@ -61,10 +66,10 @@ export async function createFlowNode(key: string, idx: number | number[], isDrag
     curIdx++
   })
 
-  setTimeout(() => {
-    projectDocStore.addProcessNode(idx, atom)
-    changeSelectAtoms(atom[0].id, atom.map(i => i.id).concat(groupSelectIds), true)
-  })
+  await promiseTimeout(0)
+
+  projectDocStore.addProcessNode(idx, atom)
+  changeSelectAtoms(atom[0].id, atom.map(i => i.id).concat(groupSelectIds), true)
 
   return atom
 }

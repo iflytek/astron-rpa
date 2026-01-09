@@ -267,6 +267,17 @@ if errorlevel 1 (
 )
 echo Batch installation successful
 
+@REM ===========================================
+@REM Run meta_json.py to generate temp.json
+@REM ===========================================
+@REM echo Running meta_json.py to generate temp.json...
+@REM %PYTHON_CORE_DIR%\python.exe %ENGINE_DIR%\meta_json.py
+@REM if errorlevel 1 (
+@REM     echo meta_json.py execution failed
+@REM     exit /b 1
+@REM )
+@REM echo meta_json.py executed successfully
+
 REM ============================================
 REM 4.4. Package and Release
 REM ============================================
@@ -336,18 +347,6 @@ if !errorlevel! neq 0 (
     echo pnpm install failed
     cd /d "%SCRIPT_DIR%"
     exit /b 1
-)
-
-echo Configuring environment variables...
-if not exist "packages\web-app\.env" (
-    if exist "packages\web-app\.env.example" (
-        copy packages\web-app\.env.example packages\web-app\.env
-        echo Environment file created from .env.example
-    ) else (
-        echo Warning: .env.example not found, skipping environment configuration
-    )
-) else (
-    echo Environment file already exists, skipping copy
 )
 
 echo Building web application...

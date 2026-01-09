@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any, Optional, Dict
 
 import websockets
-from astronverse.picker import OperationResult, PickerSign, PickerType, RecordAction, SmartComponentAction
+from astronverse.picker import OperationResult, PickerSign, PickerType, RecordAction, SmartComponentAction, SVCSign
 from astronverse.picker.logger import logger
 from pydantic import BaseModel
 from astronverse.picker.utils.browser import Browser
@@ -20,6 +20,7 @@ class PickerRequire(BaseModel):
     record_action: Optional[RecordAction] = None  # 仅在RECORD时使用
     smart_component_action: Optional[SmartComponentAction] = None  # 仅在pick_sign是SMART_COMPONENT时使用
     data: str = None
+    pick_mode: str = None
     ext_data: dict = {}
 
 
@@ -126,6 +127,7 @@ class PickerRequestHandler:
 
             highlight_client.start_wnd("normal")
 
+            self.svc.tag(SVCSign.SMARTCOMPONENT)
             # 发送拾取开始信号
             res = await self.svc.send_sign(PickerSign.START, input_data.model_dump())
 
@@ -209,8 +211,11 @@ class PickerRequestHandler:
                 # 处理拾取数据
                 if input_data.pick_type in [PickerType.SIMILAR, PickerType.BATCH]:
                     input_data.data = self._process_element_data(input_data)
+                    if input_data.get("pick_mode"):
+                        input_data.data["pick_mode"] = input_data.get("pick_mode")
 
                 # 发送拾取开始信号
+                self.svc.tag(SVCSign.PICKER)
                 res = await self.svc.send_sign(PickerSign.START, input_data.model_dump())
                 highlight_client.hide_wnd()
 

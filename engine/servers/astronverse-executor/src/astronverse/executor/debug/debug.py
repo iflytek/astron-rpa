@@ -116,6 +116,10 @@ class Debug:
         """单步执行"""
         return self.bdb.cmd_next()
 
+    def cmd_force_stop(self):
+        """强制中断执行"""
+        return self.bdb.cmd_force_stop()
+
     def set_breakpoint(self, filename, flow_line: int):
         """设置断点 - 支持多文件"""
         if self.svc.debug_model:

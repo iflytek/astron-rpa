@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { refDebounced } from '@vueuse/core'
 import hotkeys from 'hotkeys-js'
 import { escapeRegExp, isArray } from 'lodash-es'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, useTemplateRef } from 'vue'
-import { refDebounced } from '@vueuse/core'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { SCOPE } from '@/constants/shortcuts'
 import { useFlowStore } from '@/stores/useFlowStore'
@@ -26,7 +26,8 @@ const flowStore = useFlowStore()
 
 // 搜索结果显示
 const searchResults = computed(() => {
-  if (!showSearch.value || !debouncedSearchKeyword.value) return []
+  if (!showSearch.value || !debouncedSearchKeyword.value)
+    return []
 
   const searchRegex = new RegExp(escapeRegExp(debouncedSearchKeyword.value), 'i')
   const dataWithComments = flowStore.simpleFlowUIData.map((item, index) => {
@@ -38,7 +39,7 @@ const searchResults = computed(() => {
   })
 
   return dataWithComments.filter(
-    it => searchRegex.test(it.title) || searchRegex.test(it.commentText)
+    it => searchRegex.test(it.title) || searchRegex.test(it.commentText),
   )
 })
 
@@ -53,7 +54,7 @@ function expandContainingGroups(atomIndex: number) {
   groupKeys.forEach((groupId) => {
     const groupStartIdx = flowStore.simpleFlowUIData.findIndex(node => node.id === groupId)
     const groupEndIdx = backContainNodeIdx(groupId)
-    
+
     if (groupStartIdx > -1 && groupStartIdx <= atomIndex && groupEndIdx >= atomIndex) {
       toggleFold(flowStore.simpleFlowUIData[groupStartIdx])
     }
@@ -67,9 +68,9 @@ function handleSearchResultChange(atomId: string | undefined) {
     return
   }
 
-  const canvas = document.querySelector<HTMLElement>('.postTask-content-canvas');
+  const canvas = document.querySelector<HTMLElement>('.postTask-content-canvas')
   if (canvas) {
-    canvas.scrollTop = 0;
+    canvas.scrollTop = 0
   }
   changeSelectAtoms(atomId, null, false)
   expandContainingGroups(activeSearchAtom.value.index)
@@ -95,13 +96,15 @@ function closeSearchWidget() {
 }
 
 function next() {
-  if (searchResults.value.length === 0) return
+  if (searchResults.value.length === 0)
+    return
   const total = searchResults.value.length
   activeIndex.value = (activeIndex.value + 1) % total
 }
 
 function previous() {
-  if (searchResults.value.length === 0) return
+  if (searchResults.value.length === 0)
+    return
   const total = searchResults.value.length
   activeIndex.value = activeIndex.value === 0 ? total - 1 : activeIndex.value - 1
 }
@@ -119,7 +122,7 @@ function handleArrowDown() {
 // 监听搜索结果变化
 watch(
   () => activeSearchAtom.value?.id,
-  handleSearchResultChange
+  handleSearchResultChange,
 )
 
 // 快捷键绑定
@@ -140,8 +143,8 @@ onBeforeUnmount(() => {
       <SearchWidget
         v-if="showSearch"
         ref="searchWidget"
-        class="search-widget"
         v-model:value="searchKeyword"
+        class="search-widget"
         :active="activeIndex + 1"
         :total="searchResults.length"
         @next="next"
@@ -168,7 +171,9 @@ onBeforeUnmount(() => {
 // 缓进缓出动画
 .search-fade-enter-active,
 .search-fade-leave-active {
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
 }
 
 .search-fade-enter-from {

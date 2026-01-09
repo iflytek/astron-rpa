@@ -22,6 +22,13 @@ export function newTeam(data) {
 }
 
 /**
+ * @description: 创建团队-数量校验
+ */
+export function checkMarketNum() {
+  return http.get('/robot/quota/check-market-join', { toast: true })
+}
+
+/**
  * @description: 黄色密级的应用，获取时校验是否是部门内部人员
  */
 export function canAchieveApp(data) {
@@ -292,6 +299,14 @@ export function inviteMarketUser(data) {
   return http.post('/robot/market-user/invite', data)
 }
 
+export function generateInviteLink(data: { marketId: string, expireType: string }) {
+  return http.post('/robot/market-invite/generate-invite-link', data)
+}
+
+export function resetInviteLink(data: { marketId: string, expireType: string }) {
+  return http.post('/robot/market-invite/reset-invite-link', data)
+}
+
 // 应用获取为应用时重命名检测
 export function checkAppToRobotName(params) {
   return http.get('/market-resource/robot-name-duplicated', params)
@@ -403,4 +418,9 @@ export function deleteApplication(params: object) {
 export function cancelApplication(params: object) {
   console.log('cancelApplication', params)
   return http.post('/robot/application/my-application-cancel', params)
+}
+
+// 获取市场应用所有分类
+export async function getAllClassification() {
+  return http.get('/robot/classification/list')
 }

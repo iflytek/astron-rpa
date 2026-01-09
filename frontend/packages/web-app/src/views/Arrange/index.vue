@@ -8,10 +8,8 @@ import Header from '@/components/Header.vue'
 import HeaderControl from '@/components/HeaderControl/HeaderControl.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
-import { useSharedData } from '@/stores/useSharedData'
 import { useRunningStore } from '@/stores/useRunningStore'
-
-import ArrangeContent from './Content.vue'
+import { useSharedData } from '@/stores/useSharedData'
 
 const processStore = useProcessStore()
 const sharedData = useSharedData()
@@ -19,8 +17,9 @@ const runningStore = useRunningStore()
 
 const projectId = useRoute()?.query?.projectId as string
 const projectName = useRoute()?.query?.projectName as string
+const projectVersion = Number(useRoute()?.query?.projectVersion) || 0
 
-processStore.setProject({ id: projectId, name: projectName })
+processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
 sharedData.getSharedVariables()
 sharedData.getSharedFiles()
 
@@ -54,6 +53,10 @@ onBeforeUnmount(() => {
         <HeaderControl :user-info="false" />
       </template>
     </Header>
-    <ArrangeContent />
+    <router-view v-slot="{ Component }">
+      <keep-alive :include="['EditorPage']">
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
   </div>
 </template>

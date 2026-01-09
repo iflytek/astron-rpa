@@ -7,6 +7,8 @@
     "useDefineForClassFields": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "isolatedModules": true,
     "strict": true,
     "jsx": "preserve",

@@ -262,6 +262,9 @@ class BrowserSoftware:
     @staticmethod
     @atomicMg.atomic(
         "BrowserSoftware",
+        inputList=[
+            atomicMg.param("cookie_path", required=False),
+        ],
         outputList=[
             atomicMg.param("cookie_input", types="Str"),
         ],
@@ -271,6 +274,7 @@ class BrowserSoftware:
         url: URL,
         cookie_name: str,
         cookie_val: str,
+        cookie_path: str = "",
         page_timeout: float = 10,
     ):
         """
@@ -282,7 +286,12 @@ class BrowserSoftware:
             browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
                 key="setCookies",
-                data={"url": str(url), "name": cookie_name, "value": cookie_val},
+                data={
+                    "url": str(url),
+                    "name": cookie_name,
+                    "value": cookie_val,
+                    "path": cookie_path,
+                },
             )
         else:
             raise NotImplementedError()
@@ -291,11 +300,16 @@ class BrowserSoftware:
     @staticmethod
     @atomicMg.atomic(
         "BrowserSoftware",
+        inputList=[
+            atomicMg.param("cookie_path", required=False),
+        ],
         outputList=[
             atomicMg.param("get_cookie", types="Str"),
         ],
     )
-    def get_cookies(browser_obj: Browser, url: URL, cookie_name: str, page_timeout: float = 10) -> str:
+    def get_cookies(
+        browser_obj: Browser, url: URL, cookie_name: str, cookie_path: str = "", page_timeout: float = 10
+    ) -> str:
         """
         获取cookies
         """
@@ -306,14 +320,52 @@ class BrowserSoftware:
             data = browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
                 key="getCookie",
-                data={"url": str(url), "name": cookie_name},
+                data={
+                    "url": str(url),
+                    "name": cookie_name,
+                    "path": cookie_path,
+                },
             )
-
-            if data and "value" in data:
-                result = data["value"]
+            if isinstance(data, list):
+                result = str(data)
+            elif isinstance(data, dict):
+                result = data.get("value", "")
+            else:
+                result = ""
         else:
             raise NotImplementedError()
-        return str(result)
+        return result
+
+    @staticmethod
+    @atomicMg.atomic(
+        "BrowserSoftware",
+        inputList=[
+            atomicMg.param("cookie_path", required=False),
+        ],
+        outputList=[],
+    )
+    def empty_cookies(
+        browser_obj: Browser,
+        url: URL,
+        cookie_path: str = "",
+        page_timeout: float = 10,
+    ):
+        """
+        清空cookies
+        """
+        BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
+        browser_type = browser_obj.browser_type
+        if browser_type in CHROME_LIKE_BROWSERS:
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="emptyCookies",
+                data={
+                    "url": str(url),
+                    "path": cookie_path,
+                },
+            )
+        else:
+            raise NotImplementedError()
 
     @staticmethod
     @atomicMg.atomic(

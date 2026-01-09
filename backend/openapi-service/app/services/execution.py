@@ -37,6 +37,7 @@ class ExecutionService:
             user_id=user_id,
             exec_position=execution_data.exec_position,  # 保存执行位置
             version=execution_data.version,  # 保存版本号
+            recording_config=execution_data.recording_config,  # 保存录制配置
             status=ExecutionStatus.PENDING.value,
         )
 
@@ -256,19 +257,23 @@ class ExecutionService:
                 run_param.append({"varName": key, "varValue": value})
             run_param = json.dumps(run_param, ensure_ascii=False)
 
+            executor_data = {
+                "project_id": execution.project_id,
+                "exec_position": execution.exec_position,
+                "jwt": "",
+                "run_param": run_param,
+                "version": execution.version,
+            }
+            if execution.recording_config:
+                executor_data["recording_config"] = execution.recording_config
+
             base_msg = BaseMsg(
                 channel="remote",
                 key="run",
                 uuid="$root$",
                 send_uuid=f"{user_id}",
                 need_reply=True,
-                data={
-                    "project_id": execution.project_id,
-                    "exec_position": execution.exec_position,
-                    "jwt": "",
-                    "run_param": run_param,
-                    "version": execution.version,
-                },
+                data=executor_data,
             ).init()
 
             logger.info(f"Sending WebSocket message for execution {execution.id}: {base_msg.data}")

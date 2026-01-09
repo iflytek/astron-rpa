@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { checkMarketNum } from '@/api/market'
 import { CreateTeamMarketModal } from '@/components/CreateTeamMarketModal'
+import GlobalModal from '@/components/GlobalModal/index.ts'
 import { COMMON_SIDER_WIDTH } from '@/constants'
 import { TEAMMARKETMANAGE, TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useMarketStore } from '@/stores/useMarketStore'
+import { useUserStore } from '@/stores/useUserStore'
+
+const userStore = useUserStore()
 
 const { markets, setCurrentMarketItem } = useMarketStore()
 const openKeys = ref([markets.find(item => item.active)?.key])
@@ -41,20 +46,35 @@ function jumpToTeamDetail(e, data: any) {
   useRoutePush({ name: TEAMMARKETMANAGE })
 }
 
-function createTeam() {
+async function createTeam() {
+  if (userStore.currentTenant?.tenantType === 'personal') {
+    const res = await checkMarketNum()
+    if (!res.data) {
+      GlobalModal.warn({
+        title: '提示',
+        content: '个人版最多可创建3个团队市场，您已满额。',
+        centered: true,
+        keyboard: false,
+        okText: '我知道了',
+      })
+      return
+    }
+  }
   NiceModal.show(CreateTeamMarketModal)
 }
 
 const marketId = useRoute()?.query?.marketId as string
 useMarketStore().refreshTeamList(marketId)
 
-onBeforeUnmount(() => {
-  useMarketStore().reset()
+watch(() => userStore.currentTenant?.id, (val) => {
+  if (val) {
+    useMarketStore().refreshTeamList()
+  }
 })
 </script>
 
 <template>
-  <a-layout-sider :width="COMMON_SIDER_WIDTH" class="market-sider">
+  <a-layout-sider :width="COMMON_SIDER_WIDTH" class="market-sider h-[calc(100%-80px)]" :class="{ 'market-sider-all': markets.length > 1, '!h-[calc(100%-140px)]': userStore.currentTenant?.tenantType === 'personal' }" >
     <a-menu trigger-sub-menu-action="click" :selected-keys="selectedKeys" :open-keys="openKeys" mode="inline" class="marketList-container">
       <template v-for="marketsItem in markets">
         <div v-if="marketsItem.key === 'teamMarket'" :key="marketsItem.key" class="market-menu-item flex items-center justify-between h-[40px] leading-[40px]">
@@ -92,6 +112,21 @@ onBeforeUnmount(() => {
 <style lang="scss">
 .market-sider {
   padding: 20px;
+  .ant-layout-sider-children, .ant-menu-root{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .ant-menu-root .ant-menu-submenu {
+    max-height: calc(100% - 40px);
+  }
+  &.market-sider-all .ant-menu-root .ant-menu-submenu {
+    max-height: calc(100% - 100px);
+  }
+  .ant-menu-root .ant-menu-submenu .ant-menu-sub {
+    max-height: calc(100% - 40px);
+    overflow: auto;
+  }
   .ant-menu {
     background-color: transparent;
   }

@@ -1,15 +1,21 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { NiceModal } from '@rpa/components'
 import { Tooltip } from 'ant-design-vue'
 
 import { SettingCenterModal } from '@/components/SettingCenterModal'
 import { VUE_APP_COMMANDER } from '@/constants'
 import { utilsManager } from '@/platform'
+import { usePermissionStore } from '@/stores/usePermissionStore'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
+import { useUserStore } from '@/stores/useUserStore'
 
 import MessageTip from '../MesssageTip/Index.vue'
-import UserInfo from './UserInfo.vue'
+
+import ControlButton from './ControlButton.vue'
 import Help from './Help.vue'
+import UserInfo from './UserInfo.vue'
 
 interface HeaderControlProps {
   setting?: boolean
@@ -21,58 +27,45 @@ interface HeaderControlProps {
 // 控制按钮显示
 const props = withDefaults(defineProps<HeaderControlProps>(), ({
   setting: true,
-  control: false,
+  control: true,
   message: true,
   userInfo: true,
 }))
 
 useUserSettingStore()
 
+const appStore = useAppConfigStore()
+const userStore = useUserStore()
+const permissionStore = usePermissionStore()
+const { appInfo } = storeToRefs(appStore)
+
 function handleOpenSetting() {
   NiceModal.show(SettingCenterModal)
 }
 
 function handleToControl() {
-  utilsManager.openInBrowser(VUE_APP_COMMANDER)
+  utilsManager.openInBrowser(`${appInfo.value.remotePath}admin/`)
 }
-
-
 </script>
 
 <template>
-  <Help class="app_control__item" />
+  <Help />
 
   <Tooltip v-if="props.setting" :title="$t('setting')">
-    <span class="app_control__item" @click="handleOpenSetting">
+    <ControlButton @click="handleOpenSetting">
       <rpa-icon name="setting" />
-    </span>
+    </ControlButton>
   </Tooltip>
 
-  <Tooltip v-if="props.control" :title="$t('excellenceCenter')">
-    <span class="app_control__item" @click="handleToControl">
+  <Tooltip v-if="props.control && userStore.currentTenant?.tenantType !== 'personal' && permissionStore.can('console', 'all')" :title="$t('excellenceCenter')">
+    <ControlButton @click="handleToControl">
       <rpa-icon name="desktop" />
-    </span>
+    </ControlButton>
   </Tooltip>
-  <span v-if="props.message" class="app_control__item">
+  <ControlButton v-if="props.message">
     <MessageTip />
-  </span>
-  <span v-if="props.userInfo" class="app_control__item">
+  </ControlButton>
+  <ControlButton v-if="props.userInfo">
     <UserInfo />
-  </span>
+  </ControlButton>
 </template>
-
-<style lang="scss">
-.app_control__item {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 28px;
-  width: 28px;
-  margin-left: 12px;
-  &:hover {
-    background-color: $color-fill-secondary;
-    border-radius: 8px;
-  }
-}
-</style>

@@ -7,7 +7,7 @@ import threading
 import time
 from typing import Any
 
-from astronverse.picker import IEventCore, IPickerCore, PickerSign
+from astronverse.picker import IEventCore, IPickerCore, PickerSign, SVCSign
 from astronverse.picker.error import TIMEOUT, TIMEOUT_LAG
 from astronverse.picker.error import BaseException as RpaBaseException
 from astronverse.picker.logger import logger
@@ -65,6 +65,9 @@ class ServiceContext:
         self.sapguiauto = None
         self.application = None
 
+        # highlight关闭用
+        self.event_tag = None
+
     def load_modules(self):
         """加载系统模块组件"""
 
@@ -96,6 +99,9 @@ class ServiceContext:
         except ImportError:
             logger.info("无法导入rpa_locator模块，如非必要请忽略")
             self.locator = None
+
+    def tag(self, tag=SVCSign.PICKER):
+        self.event_tag = tag
 
     def sign(self) -> SyncMap:
         """获取信号映射对象"""

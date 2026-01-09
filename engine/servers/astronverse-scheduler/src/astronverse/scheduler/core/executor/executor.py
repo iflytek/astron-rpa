@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import shutil
 import sys
 import tempfile
 import threading
@@ -9,7 +10,7 @@ import traceback
 import uuid
 from enum import Enum
 from typing import Union
-
+from urllib.parse import quote
 import requests
 import websocket
 from astronverse.scheduler.core.executor.virtual_desk import (
@@ -152,6 +153,8 @@ class Executor:
         self.execute_status = ExecuteStatus.EXECUTE  # 执行状态
         self.execute_reason = None  # 执行原因
         self.execute_data = None  # 执行返回数据
+        self.execute_video_path = None  # 执行视频路径
+        self.execute_data_table_path = None  # 数据表路径
 
     @property
     def ins(self):
@@ -327,9 +330,9 @@ class ExecutorManager:
                         f.write(run_param)
 
                 executor.run_param_file = temp_file_path
-                ins.set_param("run_param", temp_file_path)
+                ins.set_param("run_param", quote(temp_file_path))
             except Exception:
-                ins.set_param("run_param", run_param)
+                raise Exception("参数传递失败...")
         if process_id:
             ins.set_param("process_id", process_id)
         if line:
@@ -344,7 +347,7 @@ class ExecutorManager:
             ins.set_param("version", int(version))
         if self.svc.config and self.svc.config.conf_file:
             resource_dir = os.path.dirname(self.svc.config.conf_file)
-            ins.set_param("resource_dir", resource_dir)
+            ins.set_param("resource_dir", quote(resource_dir))
 
         wait_web_ws = "y"
         wait_tip_ws = "y"
@@ -370,7 +373,7 @@ class ExecutorManager:
                 if recording_config.get("enable", False):
                     ins.set_param(
                         "recording_config",
-                        json.dumps(recording_config, ensure_ascii=True),
+                        quote(json.dumps(recording_config, ensure_ascii=True)),
                     )
                     executor.recording_path = recording_config.get("filePath", "./logs/report")
             except Exception as e:
@@ -554,8 +557,34 @@ class ExecutorManager:
             if executor.is_send_log_event:
                 emit_to_front(EmitType.EXECUTOR_END)
 
-            # 2. 日志收集
+            # 2. 日志扩展数据收集
+            # 2.1 数据表路径收集
+            src_data_table_path = os.path.join(
+                self.svc.config.venv_base_dir, executor.project_id, "astron", "data_table.xlsx"
+            )
+            if os.path.exists(src_data_table_path):
+                data_table_path = os.path.join(
+                    r"logs",
+                    "report",
+                    executor.project_id,
+                    "{}.xlsx".format(executor.exec_id),
+                )
+                shutil.copy2(src_data_table_path, data_table_path)
+            else:
+                data_table_path = ""
+            executor.execute_data_table_path = data_table_path
 
+            # 2.2 视频路径收集
+            video_path = os.path.join(
+                executor.recording_path,
+                executor.project_id,
+                "{}.mp4".format(executor.exec_id),
+            )
+            if not os.path.exists(video_path):
+                video_path = ""
+            executor.execute_video_path = video_path
+
+            # 3. 日志收集
             log_file = os.path.join(
                 r"logs",
                 "report",
@@ -563,13 +592,9 @@ class ExecutorManager:
                 "{}.txt".format(executor.exec_id),
             )
             log_content = ""
-            execute_status = executor.execute_status
-            execute_reason = executor.execute_reason
-            execute_data = executor.execute_data
             if os.path.exists(log_file):
-                # 2.1 日志文件存在
-
-                # 2.2 发送给前端显示
+                # 3.1 日志文件存在
+                # 3.2 发送给前端显示
                 if executor.is_send_log_event:
                     emit_to_front(
                         EmitType.LOG_REPORT,
@@ -577,10 +602,11 @@ class ExecutorManager:
                             "exec_id": executor.exec_id,
                             "exec_position": executor.exec_position.name,
                             "log_path": log_file,
+                            "data_table_path": data_table_path,
                         },
                     )
 
-                # 2.3 读取日志
+                # 3.3 读取日志
                 log_path_size = os.path.getsize(log_file)
                 if log_path_size < 10 * 1024 * 1024:
                     # 小于10M的才读取
@@ -591,24 +617,13 @@ class ExecutorManager:
                 else:
                     logger.warning(f"{log_file} size is {log_path_size / (10 * 1024 * 1024)}, will ignore report.")
 
-                # 2.4 状态收集
+                # 3.4 状态收集
                 execute_status, execute_reason, execute_data = read_status(log_file)
+                executor.execute_status = execute_status
+                executor.execute_reason = execute_reason
+                executor.execute_data = execute_data
 
-            # 3. 视频路径收集
-            video_path = os.path.join(
-                executor.recording_path,
-                executor.project_id,
-                "{}.mp4".format(executor.exec_id),
-            )
-            if not os.path.exists(video_path):
-                video_path = ""
-
-            # 4. 状态汇总
-            executor.execute_status = execute_status
-            executor.execute_reason = execute_reason
-            executor.execute_data = execute_data
-
-            # 5. 日志上报
+            # 4. 日志上报
             if executor.exec_position in [
                 ProjectExecPosition.CRONTAB,
                 ProjectExecPosition.DISPATCH,
@@ -631,6 +646,7 @@ class ExecutorManager:
                     "executeLog": log_content,
                     "terminalId": Terminal.get_terminal_id(),
                     "videoLocalPath": video_path,
+                    "dataTablePath": data_table_path,
                     "isDispatch": self.svc.terminal_mod,
                     "paramJson": executor.run_param,
                 }

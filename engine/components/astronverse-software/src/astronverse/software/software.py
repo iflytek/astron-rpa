@@ -1,10 +1,12 @@
+import locale
 import os
 import platform
+import shlex
 import subprocess
 import sys
 import time
 import warnings
-import shlex
+
 import psutil
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel
 from astronverse.actionlib.atomic import atomicMg
@@ -16,8 +18,6 @@ from astronverse.software.error import (
 from astronverse.software.error import (
     BaseException as SoftwareBaseException,
 )
-
-import locale
 
 if sys.platform == "win32":
     from astronverse.software.core_win import SoftwareCore

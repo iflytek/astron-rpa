@@ -1,2 +1,4 @@
 remote_addr: http://172.29.231.250:32742/
 skip_engine_start: false
+app_auth_type: casdoor
+app_edition: saas

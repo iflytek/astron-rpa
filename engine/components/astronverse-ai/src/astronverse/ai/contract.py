@@ -2,7 +2,7 @@
 
 import ast
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem, AtomicLevel
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.ai import InputType

@@ -1,7 +1,8 @@
-import { useAsyncState } from '@vueuse/core'
+import { useAsyncState, watchOnce } from '@vueuse/core'
 import { useTranslation } from 'i18next-vue'
 import { defineStore } from 'pinia'
 import { computed, h, reactive } from 'vue'
+import { parse } from 'yaml'
 
 import { checkBrowerPlugin, getSupportBrowser } from '@/api/plugin'
 import GlobalModal from '@/components/GlobalModal/index.ts'
@@ -9,6 +10,7 @@ import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_PLUGIN_LIST } from '@/constants/plugin'
 import { updaterManager, utilsManager } from '@/platform'
 
+const ENV = import.meta.env
 // app config 信息
 export const useAppConfigStore = defineStore('appConfig', () => {
   let updateModal: ReturnType<typeof GlobalModal.confirm> = null
@@ -32,6 +34,21 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   const { state: systemInfo } = useAsyncState<string>(utilsManager.getSystemEnv, '')
   // 用户目录
   const { state: userPath } = useAsyncState<string>(utilsManager.getUserPath, '')
+
+  const { state: yamlData, execute } = useAsyncState(
+    async () => {
+      const path = appPath.value
+      if (!path)
+        return {}
+      const buf = await utilsManager.readFile(`${path}resources/conf.yaml`)
+      const text = new TextDecoder().decode(buf as Uint8Array)
+      return parse(text)
+    },
+    {},
+    { immediate: true, resetOnExecute: false },
+  )
+
+  watchOnce(appPath, () => execute())
 
   const updateBrowserPluginStatus = async (plugins: PLUGIN_ITEM[]) => {
     if (plugins.length === 0)
@@ -69,11 +86,14 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   }
 
   const appInfo = computed(() => ({
+    appEdition: ['saas', 'enterprise'].includes(yamlData.value.app_edition) ? yamlData.value.app_edition : (ENV.VITE_EDITION || 'saas'),
+    appAuthType: ['casdoor', 'uap'].includes(yamlData.value.app_auth_type) ? yamlData.value.app_auth_type : (ENV.VITE_AUTH_TYPE || 'casdoor'),
     appVersion: appVersion.value,
     appPath: appPath.value,
     buildInfo: buildInfo.value,
     systemInfo: systemInfo.value,
     userPath: userPath.value,
+    remotePath: yamlData.value.remote_addr,
   }))
 
   const checkUpdate = async () => {

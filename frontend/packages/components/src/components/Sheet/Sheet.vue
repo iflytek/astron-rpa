@@ -1,16 +1,18 @@
 <script lang="ts" setup>
 import { theme } from 'ant-design-vue'
 import { useTemplateRef, onBeforeUnmount, onMounted, watch } from 'vue'
-import type { FUniver, Univer, IWorkbookData, CellValue } from '@univerjs/presets'
+import { twMerge } from 'tailwind-merge'
+import { set } from 'lodash-es'
+import { generate } from '@ant-design/colors';
+
+import type { FUniver, Univer, IWorkbookData, CellValue, Theme } from '@univerjs/presets'
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core'
 import UniverPresetSheetsCoreZhCN from '@univerjs/preset-sheets-core/locales/zh-CN'
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US'
 import { createUniver, LocaleType, mergeLocales, defaultTheme, LogLevel } from '@univerjs/presets'
-import { generate } from '@ant-design/colors';
 import { UniverSheetsFindReplacePreset } from '@univerjs/preset-sheets-find-replace'
 import sheetsFindReplaceZhCN from '@univerjs/preset-sheets-find-replace/locales/zh-CN'
 import sheetsFindReplaceEnUS from '@univerjs/preset-sheets-find-replace/locales/en-US'
-import { set } from 'lodash-es'
 
 import '@univerjs/preset-sheets-core/lib/index.css'
 import '@univerjs/preset-sheets-find-replace/lib/index.css'
@@ -19,6 +21,7 @@ interface SheetProps {
   darkMode?: boolean
   locale?: LocaleType
   readonly?: boolean
+  class?: string
   defaultValue?: Partial<IWorkbookData>
 }
 
@@ -36,6 +39,7 @@ const props = withDefaults(defineProps<SheetProps>(), {
 
 const emits = defineEmits<{
   (e: 'ready'): void
+  (e: 'rendered'): void
   (e: 'cellUpdate', data: ICellValue[]): void
 }>()
 
@@ -49,7 +53,7 @@ let univerAPIInstance: FUniver | null = null
 onMounted(() => {
   const colors = generate(token.value.colorPrimary);
 
-  const themeToUse = {
+  const themeToUse: Theme = {
     ...defaultTheme,
     primary: {
       50: colors[0],
@@ -96,6 +100,8 @@ onMounted(() => {
     univerAPI.Event.LifeCycleChanged,
     ({ stage }) => {
       if (stage === univerAPI.Enum.LifecycleStages.Rendered) {
+        emits('rendered')
+        
         if (!props.readonly) return
 
         const fWorkbook = univerAPI.getActiveWorkbook()!
@@ -160,8 +166,13 @@ const updateCellValues = (values: ICellValue[]) => {
   const fWorksheet = fWorkbook?.getActiveSheet()
   const fRange = fWorksheet?.getRange('A1:B2')
   
-  const cellValue: CellValue[][] = []
-  values.forEach(it => set(cellValue, [it.row, it.column], it.value));
+  const cellValue: Record<number, Record<number, CellValue>> = {}
+  values.forEach(it => {
+    if (!cellValue[it.row]) {
+      cellValue[it.row] = {}
+    }
+    set(cellValue, [it.row, it.column], it.value)
+  });
 
   fRange?.setValues(cellValue)
 }
@@ -208,5 +219,5 @@ defineExpose({
 </script>
 
 <template>
-  <div ref="container" class="h-full" />
+  <div ref="container" :class="twMerge('h-full', props.class)" />
 </template>

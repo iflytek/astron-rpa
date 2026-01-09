@@ -17,12 +17,15 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
     """默认策略"""
     if cache:
         is_document, menu_top, menu_left, hwnd = cache
+        menu_right, menu_bottom = None, None
     else:
         bound = strategy_svc.start_control.BoundingRectangle  ##专为智能拾取定制
-        is_document, menu_top, menu_left, hwnd = (
+        is_document, menu_top, menu_left, menu_right, menu_bottom, hwnd = (
             True,
             bound.top,
             bound.left,
+            bound.right,
+            bound.bottom,
             strategy_svc.start_control.NativeWindowHandle,
         )
     if not is_document:
@@ -37,6 +40,7 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
             route_port=service.route_port,
             strategy_svc=strategy_svc,
             left_top_point=Point(menu_left, menu_top),
+            right_bottom_point=Point(menu_right, menu_bottom),
         )
     else:
         smart_component_action = strategy_svc.data.get("smart_component_action", "")
@@ -46,6 +50,7 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
                 route_port=service.route_port,
                 strategy_svc=strategy_svc,
                 left_top_point=Point(menu_left, menu_top),
+                right_bottom_point=Point(menu_right, menu_bottom),
             )
         elif smart_component_action == SmartComponentAction.PREVIOUS:
             ele = web_picker_smart_component.getParentElement(
@@ -53,6 +58,7 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
                 route_port=service.route_port,
                 strategy_svc=strategy_svc,
                 left_top_point=Point(menu_left, menu_top),
+                right_bottom_point=Point(menu_right, menu_bottom),
             )
         elif smart_component_action == SmartComponentAction.NEXT:
             ele = web_picker_smart_component.getChildElement(

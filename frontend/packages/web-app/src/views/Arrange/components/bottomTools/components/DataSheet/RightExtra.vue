@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import DeleteAction from './DeleteAction.vue'
+import ExportAction from './ExportAction.vue'
+import ImportAction from './ImportAction.vue'
 import { useDataSheetStore } from './useDataSheet'
-import ImportAction from './ImportAction.vue';
-import ExportAction from './ExportAction.vue';
-import DeleteAction from './DeleteAction.vue';
 
 const { isReady, handleUndo, handleRedo, handleFind } = useDataSheetStore()
 </script>

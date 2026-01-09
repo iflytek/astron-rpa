@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 
+import { ComplaintModal } from '@/components/ComplaintModal'
 import { VUE_APP_HELP } from '@/constants'
 import { utilsManager } from '@/platform'
-import { ComplaintModal } from '@/components/ComplaintModal'
 
-const props = defineProps<{ class: string }>()
+import ControlButton from './ControlButton.vue'
 
 function handleHelpInfo() {
   utilsManager.openInBrowser(VUE_APP_HELP)
@@ -18,14 +18,18 @@ function handleComplaint() {
 
 <template>
   <a-dropdown placement="bottom">
-    <span :class="['cursor-pointer', props.class]">
+    <ControlButton class="cursor-pointer">
       <rpa-icon name="help-circle" />
-    </span>
+    </ControlButton>
 
     <template #overlay>
       <a-menu>
-        <a-menu-item @click="handleHelpInfo">{{ $t('helperCenter') }}</a-menu-item>
-        <a-menu-item @click="handleComplaint">{{ $t('complaint') }}</a-menu-item>
+        <a-menu-item @click="handleHelpInfo">
+          {{ $t('helperCenter') }}
+        </a-menu-item>
+        <a-menu-item @click="handleComplaint">
+          {{ $t('complaint') }}
+        </a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>

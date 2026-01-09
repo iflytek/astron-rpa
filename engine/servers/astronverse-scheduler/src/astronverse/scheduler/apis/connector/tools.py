@@ -6,6 +6,10 @@ import os
 import sys
 from dataclasses import field
 from enum import Enum
+import re
+import ast
+import json
+from typing import Dict
 
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
@@ -399,3 +403,311 @@ def get_clipboard_html(params: ClipboardParams, svc: Svc = Depends(get_svc)):
     else:
         content = Clipboard.paste_str_clip()
     return res_msg(code=ResCode.SUCCESS, msg="", data={"content": content})
+
+
+@router.post("/smart/code-to-meta")
+def code_to_meta(pycode: PythonCode):
+    python_code = pycode.code
+
+    # 0. 提取安装包
+    def extract_pip_packages(code: str) -> list:
+        """
+        解析代码中通过注释声明的pip安装包名
+        :param code: 包含pip安装注释的代码字符串
+        :return: 去重后的第三方包名列表
+        """
+        # 初始化集合（自动去重）
+        package_set = set()
+        # 按行分割代码
+        lines = code.splitlines()
+
+        for line in lines:
+            # 去除行首尾空白字符（空格/制表符/换行符等）
+            stripped_line = line.strip()
+            # 筛选以"# pip install "开头的注释行
+            if stripped_line.startswith("# pip install "):
+                # 截取"# pip install "之后的部分并再次去除空白
+                pkg_str = stripped_line[len("# pip install ") :].strip()
+                # 按空格分割成包名列表（兼容多包一行的情况）
+                pkg_list = pkg_str.split()
+                # 添加到集合中去重
+                package_set.update(pkg_list)
+
+        # 集合转列表返回（保证结果有序，Python3.7+集合有序）
+        return list(package_set)
+
+    pip_packages = extract_pip_packages(python_code)
+
+    # 1. 提取函数定义和 docstring
+    try:
+        func_pattern = re.compile(
+            r"def\s+\w+\([\s\S]*?\)(?:\s*->\s*[\s\S]*?)?:\s*\n"  # 匹配def函数定义行（含参数）
+            r"(?P<indent> {4}|\t)"  # 捕获函数体的缩进（4空格/制表符）
+            r'(?P<docstring>["\']{3}[\s\S]*?["\']{3})',  # 匹配三引号包裹的docstring
+            re.MULTILINE,
+        )
+
+        # 匹配第一个函数的docstring
+        match = func_pattern.search(python_code)
+        docstring = "title: 网页自动化"
+        if match:
+            # 步骤2：提取并清理docstring（去掉三引号、多余缩进/空白）
+            docstring = match.group("docstring")
+            # 去掉首尾的三引号
+            docstring = docstring.strip('"""').strip("'''")
+            # 去掉每行开头的缩进（保持原格式的同时清理多余空格）
+            indent = match.group("indent")
+            docstring_lines = [line.lstrip(indent).rstrip() for line in docstring.split("\n")]
+            # 拼接并清理空行
+            docstring = "\n".join([line for line in docstring_lines if line.strip()])
+    except Exception as e:
+        raise ValueError(f"解析 Python 代码失败: {e}")
+
+    # 2. 解析 docstring
+    lines = [line.strip() for line in docstring.split("\n") if line.strip()]
+
+    # 提取 title
+    try:
+        title_match = re.match(r"^title[:：]\s*(.+)$", lines[0])
+        title = title_match.group(1).strip()
+    except Exception as e:
+        raise ValueError("docstring 第一行应为 'title: ...'")
+
+    # 提取 description（可能多行）
+    desc_lines = []
+    i = 1
+    while i < len(lines) and not lines[i].startswith(("inputs:", "outputs:")):
+        desc_lines.append(lines[i])
+        i += 1
+    description = " ".join(desc_lines).strip()
+    if description.startswith("description:"):
+        description = description[len("description:") :].strip()
+
+    # 初始化输入输出列表
+    input_list = []
+    output_list = []
+
+    # 辅助函数：解析参数行
+    def parse_param_line(line: str):
+        pattern = re.compile(
+            r"^-\s*(?P<name>\w+)\s*"
+            r"\((?P<type>[^)]+)\):\s*"
+            r"「(?P<description>[^」]*)」"
+            r"(?P<extra>(?:(?!id:|options:|eg:).)*)"
+            r"(?:\s*[，,]?\s*id:\s*(?P<element_id>\d*))?"
+            r"(?:[，, ]\s*options:\s*(?P<options>\[[^\]]*\]))?"
+            r"(?:[，, ]\s*eg:\s*(?P<example>\S.*?))?"
+            r"\s*$"
+        )
+        match = pattern.match(line.strip())
+        if match:
+            result = {k: v or "" for k, v in match.groupdict().items()}
+            return result
+        else:
+            raise ValueError(f"无法解析参数行: {line}")
+
+    def safe_str_to_type(value_str: str, target_type: str):
+        """
+        将字符串 value_str 转换为 target_type 指定的类型。
+
+        支持的 target_type: 'str', 'int', 'float', 'bool', 'list', 'dict'
+        """
+        type_mapping = {
+            "str": lambda x: x,  # 字符串本身
+            "int": int,
+            "float": float,
+            "bool": lambda x: x.lower() in ("true", "1", "yes", "on"),
+            "list": lambda x: (ast.literal_eval(x) if x.strip().startswith(("[",)) else [x]),
+            "dict": ast.literal_eval,
+            "tuple": ast.literal_eval,
+        }
+
+        if target_type not in type_mapping or target_type == "str":
+            return value_str  # 不做转换
+        try:
+            if target_type in ("list", "dict", "tuple"):
+                # 直接尝试解析，让 ast.literal_eval 报错（如果格式不对）
+                result = ast.literal_eval(value_str)
+                # 可选：严格校验结果类型（防止 "(42)" 被解析为 int 而不是 tuple）
+                if target_type == "list" and not isinstance(result, list):
+                    raise ValueError("Not a list")
+                elif target_type == "dict" and not isinstance(result, dict):
+                    raise ValueError("Not a dict")
+                elif target_type == "tuple" and not isinstance(result, tuple):
+                    raise ValueError("Not a tuple")
+                return result
+            else:
+                return type_mapping[target_type](value_str)
+        except Exception as e:
+            return value_str
+
+    # 解析 inputs
+    if i < len(lines) and lines[i] == "inputs:":
+        i += 1
+        while i < len(lines) and not lines[i].startswith("outputs:"):
+            if "None" in lines[i]:
+                i += 1
+                continue
+            result = parse_param_line(lines[i])
+            name, type_hint, chinese_name, extra, element_id, options, case = (
+                result["name"],
+                result["type"],
+                result["description"],
+                result["extra"],
+                result["element_id"],
+                result["options"],
+                result["example"],
+            )
+            input_list.append(
+                {
+                    "name": name,
+                    "type_hint": type_hint,
+                    "title": chinese_name,
+                    "extra_info": extra,
+                    "element_id": element_id,
+                    "options": options,
+                    "case": case,
+                }
+            )
+            i += 1
+
+    # 解析 outputs
+    if i < len(lines) and lines[i] == "outputs:":
+        i += 1
+        while i < len(lines):
+            if "None" in lines[i]:
+                i += 1
+                continue
+            result = parse_param_line(lines[i])
+            name, type_hint, chinese_name, extra, options, case = (
+                result["name"],
+                result["type"],
+                result["description"],
+                result["extra"],
+                result["options"],
+                result["example"],
+            )
+            output_list.append({"name": name, "type_hint": type_hint, "title": chinese_name, "case": case})
+            i += 1
+
+    # 3. 构建 inputList 和 outputList 的最终结构
+    type_map = {
+        "bool": "Bool",
+        "str": "Str",
+        "int": "Int",
+        "float": "Float",
+        "list": "List",
+        "tuple": "Tuple",
+        "dict": "Dict",
+    }
+
+    def map_type_to_meta_type(type_str: str) -> str:
+        base_type = type_str.split("[")[0].split(".")[-1]  # 支持泛型如 List[str]
+        return type_map.get(base_type.lower(), "Str")
+
+    def build_input_item(param: Dict) -> Dict:
+        name = param["name"]
+        type_hint = param["type_hint"]
+        title = param["title"]
+        element_id = param["element_id"]
+        case = param["case"].strip('"')
+        options = param["options"]
+        item = {"types": "", "key": name, "title": title, "name": name, "required": True}
+        # 特殊处理 formType
+        if type_hint == "Browser":
+            item["types"] = "Browser"
+            item["formType"] = {"type": "INPUT_VARIABLE_PYTHON"}
+            item["value"] = []
+        elif type_hint == "WebPick":
+            item["types"] = "WebPick"
+            item["formType"] = {"type": "PICK", "params": {"use": "WebPick"}}
+            item["noInput"] = True
+            item["value"] = []
+            if element_id is not None and element_id != "":
+                item["default"] = element_id
+                value = {"data": element_id, "type": "element", "value": case}
+                item["value"].append(value)
+        elif type_hint in type_map:
+            item["formType"] = {"type": "INPUT_VARIABLE_PYTHON"}
+            item["types"] = type_map[type_hint]
+            item["value"] = []
+            # 设置默认值
+            if case is not None and case != "" and type_hint in ("list", "tuple", "dict", "int", "bool", "float"):
+                item["value"].append({"type": "python", "value": safe_str_to_type(case, type_hint)})
+            else:
+                item["value"].append({"type": "other", "value": case})
+        else:
+            try:
+                python_types, control_types = type_hint.split("-")
+                item["types"] = map_type_to_meta_type(python_types)
+            except Exception as e:
+                raise ValueError(f"解析字段类型失败: {e}")
+            if control_types == "file":
+                item["formType"] = {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"file_type": "file"}}
+            elif control_types == "folder":
+                item["formType"] = {"type": "INPUT_VARIABLE_PYTHON_FOLDER", "params": {"file_type": "folder"}}
+            elif control_types == "textbox":
+                item["formType"] = {"type": "INPUT_VARIABLE_PYTHON"}
+            elif control_types == "checkbox":
+                item["formType"] = {"type": "CHECKBOX"}
+                item["options"] = [{"label": "是", "value": True}, {"label": "否", "value": False}]
+            elif control_types == "select" or control_types == "multi_select":
+                item["formType"] = {"type": "SELECT"}
+                item["options"] = safe_str_to_type(options, "list")
+
+            # 设置默认值
+            item["value"] = []
+            if case is not None and case != "":
+                if python_types in ("list", "tuple", "dict", "int", "bool", "float"):
+                    item["value"].append({"type": "python", "value": safe_str_to_type(case, type_hint)})
+                else:
+                    item["value"].append({"type": "other", "value": case})
+
+            # 设置types
+            item["types"] = map_type_to_meta_type(python_types)
+
+        return item
+
+    def build_output_item(param: Dict) -> Dict:
+        name = param["name"]
+        type_hint = param["type_hint"]
+        title = param["title"]
+        case = param["case"].strip('"')
+        meta_type = type_hint
+        if meta_type in type_map:
+            meta_type = map_type_to_meta_type(type_hint)
+        item = {
+            "types": meta_type,
+            "formType": {"type": "RESULT"},
+            "key": name,
+            "title": title,
+            "value": [{"type": "var", "value": None}],
+        }
+        return item
+
+    # 4. 构建最终 meta 结构
+    meta = {
+        "key": "Smart.run_code",
+        "title": title,
+        "version": "1.0.1",
+        "src": "astronverse.smart.smart.Smart().run_code",
+        "comment": description,
+        "packages": [],
+        "inputList": [],
+        "outputList": [],
+        "icon": "magic-command",
+    }
+
+    # 添加pip packages
+    for package in pip_packages:
+        meta["packages"].append(package)
+
+    # 添加用户定义的输入参数
+    for param in input_list:
+        meta["inputList"].append(build_input_item(param))
+
+    # 添加输出参数
+    for param in output_list:
+        meta["outputList"].append(build_output_item(param))
+
+    return res_msg(code=ResCode.SUCCESS, msg="", data=meta)

@@ -5,7 +5,11 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 
 import BUS from '@/utils/eventBus'
 
+import { getSmartComponentId, isSmartComponentKey } from '@/components/SmartComponent/utils'
+import { SMARTCOMPONENT } from '@/constants/menu'
+import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useFlowStore } from '@/stores/useFlowStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import { renderBaseConfig, useBaseConfig } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
 import type { AtomTabs } from '@/views/Arrange/types/atomForm'
 
@@ -45,6 +49,21 @@ function renderForm(val) {
   atomTab.value = val ? useBaseConfig(val, t) : []
 }
 
+function editSmartComp() {
+  const processStore = useProcessStore()
+  const smartId = getSmartComponentId(flowStore.activeAtom.key)
+  const version = flowStore.activeAtom.version
+  useRoutePush({
+    name: SMARTCOMPONENT,
+    query: {
+      projectId: processStore.project.id,
+      projectName: processStore.project.name,
+      smartId,
+      version,
+    },
+  })
+}
+
 onMounted(() => {
   if (flowStore.activeAtom)
     renderForm(flowStore.activeAtom)
@@ -54,6 +73,13 @@ onMounted(() => {
 <template>
   <section class="atom-config h-full relative bg-[#fff] dark:bg-[#1d1d1d]" :class="sidebarWide ? 'w-[620px]' : 'w-80'">
     <section v-if="atomTab.length > 0" class="relative atom-config-container h-full overflow-y-auto py-3 px-4">
+      <div v-if="isSmartComponentKey(flowStore.activeAtom.key)" class="flex items-center mb-4">
+        <rpa-icon name="magic-wand" size="20" class="text-primary" />
+        <span class="ml-1 mr-auto text-[16px] font-medium">{{ $t('smartComponent.smartComponent') }}</span>
+        <a-button type="primary" @click="editSmartComp">
+          {{ $t('edit') }}
+        </a-button>
+      </div>
       <div class="flex items-center mb-4">
         <a-segmented v-model:value="activeKey" block :options="formattedTabs" class="flex-1">
           <template #label="{ title }">

@@ -1,0 +1,18 @@
+atomic:
+  Smart.run_code:
+    title: 执行代码
+    comment: AI生成Python脚本
+    icon: magic-command
+    helpManual: ''
+    inputList:
+      - key: smart_component
+        title: 代码[无效，动态生成]
+        tip: ''
+      - key: code_params
+        title: 代码参数[无效，动态生成]
+        tip: ''
+    outputList:
+      - key: smart_result
+        title: 返回值[无效，动态生成]
+        tip: ''
+options: {}

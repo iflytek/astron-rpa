@@ -112,7 +112,7 @@ watch(() => props.robots, (val) => {
         <span>{{ row.robotVersion || '--' }}</span>
       </template>
       <template #action="{ row, rowIndex }">
-        <a @click="row.haveParam && configRobot(row)" v-bind="row.haveParam ? undefined : { disabled: true }">
+        <a v-bind="row.haveParam ? undefined : { disabled: true }" @click="row.haveParam && configRobot(row)">
           {{ t('configParams') }}
         </a>
         <Popconfirm :title="t('deleteConfirmTip')" @confirm="() => deleteRobot(rowIndex)">

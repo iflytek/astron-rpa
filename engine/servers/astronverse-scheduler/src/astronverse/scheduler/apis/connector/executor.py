@@ -3,7 +3,7 @@ import time
 from typing import Optional, Union
 
 from astronverse.scheduler.apis.connector.terminal import Terminal
-from astronverse.scheduler.apis.response import ResCode, res_msg
+from astronverse.scheduler.apis.response import ResCode, exec_res_msg, res_msg
 from astronverse.scheduler.core.executor.executor import (
     ExecuteStatus,
     ProjectExecPosition,
@@ -270,10 +270,11 @@ def executor_run_sync(param: ExecutorProject, svc: Svc = Depends(get_svc)):
         execute_status = ExecuteStatus.FAIL
         execute_reason = "启动失败"
         execute_data = {}
+    video_path = executor.execute_video_path if executor else ""
     if execute_status == ExecuteStatus.SUCCESS:
-        return res_msg(code=ResCode.SUCCESS, msg="启动成功", data=execute_data)
+        return exec_res_msg(code=ResCode.SUCCESS, msg="运行成功", data=execute_data, video_path=video_path)
     else:
-        return res_msg(code=ResCode.ERR, msg=execute_reason)
+        return exec_res_msg(code=ResCode.ERR, msg=execute_reason, video_path=video_path)
 
 
 @router.post("/run")
@@ -334,6 +335,14 @@ def executor_stop(exe_pro: ExecutorProject, svc: Svc = Depends(get_svc)):
     if not project_id:
         return res_msg(code=ResCode.ERR, msg="工程id为空", data=None)
     svc.executor_mg.close_by_project(project_id=project_id)
+    return res_msg(msg="停止成功", data=None)
+
+
+@router.post("/stop_current")
+def executor_stop_current(svc: Svc = Depends(get_svc)):
+    if svc.executor_mg:
+        svc.terminal_task_stop = True
+        svc.executor_mg.close_all()
     return res_msg(msg="停止成功", data=None)
 
 

@@ -5,8 +5,10 @@ astronverse-baseline
 astronverse-browser
 astronverse-browser-bridge
 astronverse-browser-plugin
+astronverse-cua
 astronverse-database
 astronverse-dataprocess
+astronverse-datatable
 astronverse-dialog
 astronverse-email
 astronverse-encrypt
@@ -22,6 +24,7 @@ astronverse-picker
 astronverse-report
 astronverse-scheduler
 astronverse-script
+astronverse-smart
 astronverse-software
 astronverse-system
 astronverse-tools
