@@ -279,7 +279,7 @@ atomic:
         tip: 指定要插入公式的列号
       - key: formula
         title: 公式内容
-        tip: 要插入的公式，例如"=SUM(A1:A5)"
+        tip: 要插入的公式，例如"=SUM(A1:A5)"，支持公式包括数学、统计、逻辑、文本、日期和时间、查找和引用、工程、金融和信息公式。取决于打开表格文件的软件对公式的支持情况。
     outputList: []
   DataTable.set_column_title:
     title: 数据表格设置列信息
@@ -396,7 +396,7 @@ atomic:
         tip: 要导入数据的文件路径
       - key: sheet_name
         title: 工作表名称
-        tip: 要导入的工作表名称
+        tip: 要导入的工作表名称，不填则为默认为活动工作表
     outputList: []
   DataTable.export_data_table_to_file:
     title: 导出数据表格到文件
@@ -457,16 +457,13 @@ options:
       label: 行追加
     - value: column
       label: 列追加
-  PasteValueType:
-    - value: value
-      label: 值
-    - value: formula
-      label: 公式
   DeleteCellMove:
     - value: left
       label: 单元格左移
     - value: up
       label: 单元格上移
+    - value: no
+      label: 单元格不移动
   Bool:
     - value: true
       label: 是
