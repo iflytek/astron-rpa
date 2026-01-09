@@ -15,9 +15,7 @@ function openInBrowser(url: string) {
 }
 
 function listenEvent(eventName: string, callback: (data: any) => void) {
-  ipcRenderer.on(eventName, (_event, data) => {
-    callback(data)
-  })
+  ipcRenderer.on(eventName, (_event, data) => callback(data))
 }
 
 function getAppVersion() {

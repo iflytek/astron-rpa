@@ -3,19 +3,20 @@ import type { UpdaterManager as UpdaterManagerType } from '@rpa/shared/platform'
 const checkUpdate: UpdaterManagerType['checkUpdate'] = async () => {
   console.warn('checkUpdate not implemented')
   return {
-    shouldUpdate: false,
+    couldUpdate: false,
+    downloaded: false,
     manifest: null,
   }
 }
 
-const installUpdate: UpdaterManagerType['installUpdate'] = (_progressCallback) => {
-  console.warn('installUpdate not implemented')
+const quitAndInstall: UpdaterManagerType['quitAndInstall'] = () => {
+  console.warn('quitAndInstall not implemented')
   return Promise.resolve()
 }
 
 const UpdaterManager: UpdaterManagerType = {
   checkUpdate,
-  installUpdate,
+  quitAndInstall,
 }
 
 export default UpdaterManager

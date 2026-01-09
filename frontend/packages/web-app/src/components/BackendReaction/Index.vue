@@ -26,6 +26,7 @@ import { useAppModeStore } from '@/stores/useAppModeStore'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
 export interface W2WType {
   from: string // 来源窗口
@@ -37,6 +38,7 @@ export interface W2WType {
 const permissionStore = usePermissionStore()
 const userSettingStore = useUserSettingStore()
 const runningStore = useRunningStore()
+const appConfigStore = useAppConfigStore()
 
 interface SchedulerEventType<T = any> {
   type: string
@@ -150,6 +152,10 @@ utilsManager.listenEvent('exit_scheduling_mode', () => {
   console.log('exit_scheduling_mode')
   useAppModeStore().setAppMode('normal') // 设置为正常模式
   endSchedulingMode()
+})
+
+utilsManager.listenEvent('update-downloaded', () => {
+  appConfigStore.onUpdaterDownloaded()
 })
 
 // 调度模式，停止当前任务

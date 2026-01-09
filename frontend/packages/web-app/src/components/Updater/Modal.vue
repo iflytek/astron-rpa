@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 
+import { useAppConfigStore } from '@/stores/useAppConfig'
+
 import bgImage from '@/assets/img/updater/bg.svg'
 import bgSmallImage from '@/assets/img/updater/bg-small.svg'
 import iconImage from '@/assets/img/updater/icon.svg'
 
 const modal = NiceModal.useModal()
+const appStore = useAppConfigStore()
 
 interface UpdaterModalProps {
   needUpdate: boolean
@@ -16,6 +19,8 @@ interface UpdaterModalProps {
 const props = defineProps<UpdaterModalProps>()
 
 const handleClose = () => modal.hide()
+
+const handleQuitAndInstall = () => appStore.quitAndInstall()
 </script>
 
 <template>
@@ -29,7 +34,7 @@ const handleClose = () => modal.hide()
         {{ props.needUpdate ? '发现新版本！' : '你使用的已是最新版本' }}
       </div>
       <div class="text-[14px] leading-5 text-text-secondary">
-        {{ props.needUpdate ? `${props.latestVersion} 体验全新升级，更新包已就绪` : props.latestVersion }}
+        {{ props.needUpdate ? `v${props.latestVersion} 体验全新升级，更新包已就绪` : `v${props.latestVersion}` }}
       </div>
     </div>
 
@@ -42,7 +47,7 @@ const handleClose = () => modal.hide()
         <div class="flex-1 action-button" @click="handleClose">
           稍后更新
         </div>
-        <div class="flex-1 action-button action-button__confirm" @click="handleClose">
+        <div class="flex-1 action-button action-button__confirm" @click="handleQuitAndInstall">
           重启升级
         </div>
       </template>

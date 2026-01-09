@@ -1,31 +1,29 @@
 import { useAsyncState, watchOnce } from '@vueuse/core'
-import { useTranslation } from 'i18next-vue'
 import { defineStore } from 'pinia'
 import { computed, reactive } from 'vue'
 import { parse } from 'yaml'
-import type { UpdateManifest } from '@rpa/shared/platform'
+import type { UpdateInfo } from '@rpa/shared/platform'
 import { NiceModal } from '@rpa/components'
 
 import { checkBrowerPlugin, getSupportBrowser } from '@/api/plugin'
-import GlobalModal from '@/components/GlobalModal/index.ts'
 import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_PLUGIN_LIST } from '@/constants/plugin'
 import { updaterManager, utilsManager } from '@/platform'
 import { UpdaterModal } from '@/components/Updater'
 
 const ENV = import.meta.env
+
+interface UpdaterState extends UpdateInfo {
+  checkLoading: boolean, // 检查更新loading
+}
+
 // app config 信息
 export const useAppConfigStore = defineStore('appConfig', () => {
-  let updateModal: ReturnType<typeof GlobalModal.confirm> = null
-
-  const { t } = useTranslation()
-
-  const updaterState = reactive({
-    shouldUpdate: false, // 是否需要更新
-    manifest: null as UpdateManifest, // 最新版本
+  const updaterState = reactive<UpdaterState>({
+    couldUpdate: false, // 是否需要更新
+    downloaded: false, // 是否下载完成
+    manifest: null, // 最新版本
     checkLoading: false, // 检查更新loading
-    progress: 0, // 下载进度
-    installLoading: false, // 安装更新loading
   })
 
   // 当前版本
@@ -100,20 +98,39 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     remotePath: yamlData.value.remote_addr,
   }))
 
-  const checkUpdate = async () => {
+  const checkUpdate = async (showModal = false) => {
     if (updaterState.checkLoading)
       return
 
     updaterState.checkLoading = true
-    const { shouldUpdate, manifest = null } = await updaterManager.checkUpdate()
-    updaterState.checkLoading = false
+    const { couldUpdate, downloaded, manifest = null } = await updaterManager.checkUpdate()
 
-    updaterState.shouldUpdate = shouldUpdate
+    updaterState.checkLoading = false
+    updaterState.couldUpdate = couldUpdate
+    updaterState.downloaded = downloaded
     updaterState.manifest = manifest
+
+    showModal && showUpdaterModal()
   }
 
-  const installUpdate = async () => {
-    
+  const quitAndInstall = async () => {
+    updaterManager.quitAndInstall()
+  }
+
+  const showUpdaterModal = () => {
+    const needUpdate = updaterState.couldUpdate && updaterState.downloaded;
+    const latestVersion = needUpdate ? updaterState.manifest?.version : appInfo.value.appVersion
+
+    NiceModal.show(UpdaterModal, {
+      needUpdate,
+      latestVersion: latestVersion || appInfo.value.appVersion,
+      updateNote: updaterState.manifest?.body,
+    })
+  }
+
+  const onUpdaterDownloaded = () => {
+    updaterState.downloaded = true
+    showUpdaterModal()
   }
 
   return {
@@ -121,6 +138,9 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     appInfo,
     updaterState,
     checkUpdate,
+    quitAndInstall,
+    showUpdaterModal,
     refreshBrowserPluginStatus,
+    onUpdaterDownloaded,
   }
 })

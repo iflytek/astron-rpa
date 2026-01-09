@@ -6,13 +6,13 @@ async function checkUpdate(): Promise<UpdateInfo> {
   return await ipcRenderer.invoke('check-for-updates')
 }
 
-async function installUpdate(_progressCallback: (percent: number) => void) {
+async function quitAndInstall() {
   ipcRenderer.send('quit-and-install-updates')
 }
 
 const UpdaterManager: UpdaterManagerType = {
   checkUpdate,
-  installUpdate,
+  quitAndInstall,
 }
 
 export default UpdaterManager

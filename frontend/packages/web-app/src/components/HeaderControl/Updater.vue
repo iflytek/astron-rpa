@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { NiceModal } from '@rpa/components'
+import { computed } from 'vue';
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
-import { UpdaterModal } from '@/components/Updater'
+const appConfigStore = useAppConfigStore()
 
-const handleClick = () => {
-  NiceModal.show(UpdaterModal, {
-    needUpdate: true,
-    latestVersion: 'v1.1.3'
-  })
-}
+const handleClick = () => appConfigStore.showUpdaterModal()
+
+const needUpdate = computed(() => appConfigStore.updaterState.couldUpdate && appConfigStore.updaterState.downloaded)
 </script>
 
 <template>
-  <a-tooltip title="点击查看新版本">
+  <a-tooltip v-if="needUpdate" title="点击查看新版本">
     <div class="w-[22px] h-[22px] rounded-3xl bg-primary flex items-center justify-center cursor-pointer" @click="handleClick">
       <rpa-icon name="arrow-up" class="w-[14px] h-[14px] text-white" />
     </div>
