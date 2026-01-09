@@ -318,15 +318,20 @@ class OpenpyxlWrapper:
                         self.write_row(row_index=start_row, data=row_data)
                         start_row += 1
         if ext in [".xlsx", ".xls"]:
-            import_wrapper = OpenpyxlWrapper(file_path=import_file_path, sheet_name=sheet_name)
-            data = import_wrapper.read_effective_area()
+            wb = openpyxl.load_workbook(import_file_path)
+            wb_sheet = wb[sheet_name] if sheet_name else wb.active
+            max_row = wb_sheet.max_row
+            max_col = wb_sheet.max_column
+            data = [
+                [wb_sheet.cell(row=r, column=c).value for c in range(1, max_col + 1)] for r in range(1, max_row + 1)
+            ]
             start_row = 1
             if not include_header:
                 data = data[1:]
             for r_idx, row_data in enumerate(data):
                 self.write_row(row_index=start_row, data=row_data)
                 start_row += 1
-            import_wrapper.close()
+            wb.close()
 
     def insert_cells(self, row: int, col: int, amount: int = 1):
         """
@@ -509,7 +514,7 @@ class OpenpyxlWrapper:
 
         # Sort the column data
         try:
-            sorted_data = sorted(col_data, key=sort_key, reverse=reverse)
+            sorted_data = col_data.reverse() if reverse else col_data.copy()
         except TypeError:
             # Fallback for un-sortable types, though the key should handle most cases.
             # In this case, we do nothing.

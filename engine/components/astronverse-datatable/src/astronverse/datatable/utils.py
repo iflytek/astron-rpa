@@ -1,5 +1,7 @@
+import os
 from datetime import datetime
 
+import openpyxl
 from astronverse.datatable import ConditionType, FilterType
 from astronverse.datatable.error import COL_FORMAT_ERROR, DATAFRAME_EXPECTION, FORMULA_FORMAT_ERROR, ROW_FORMAT_ERROR
 
@@ -188,3 +190,18 @@ def value_check(
         except (ValueError, TypeError):
             return False
     return False
+
+
+def ensure_xlsx_file(file_path):
+    # 如果文件不存在或不是合法xlsx，则新建一个
+    if not os.path.exists(file_path) or not is_valid_xlsx(file_path):
+        wb = openpyxl.Workbook()
+        wb.save(file_path)
+
+
+def is_valid_xlsx(file_path):
+    try:
+        openpyxl.load_workbook(file_path)
+        return True
+    except Exception:
+        return False
