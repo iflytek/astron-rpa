@@ -16,6 +16,6 @@ BROWSER_EXTENSION_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏�
 
 WEB_GET_ElE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("网页元素查找失败") + " {}")
 
-WEB_EXEC_ElE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("脚本执行错误") + ": {}")
+WEB_EXEC_ElE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("插件执行错误") + ": {}")
 
 BROWSER_EXTENSION_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器插件错误") + ": {}")

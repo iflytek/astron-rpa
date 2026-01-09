@@ -25,7 +25,7 @@ WEB_GET_CHECKBOX_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器获�
 WEB_PAGES_NUM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("页面数量必须是整数"))
 WEB_WAIT_TIME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("等待时间不能小于0！"))
 WEB_ELE_ATTR_NAME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("请输入元素属性名称"))
-WEB_EXEC_ELE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("脚本执行错误") + ": {}")
+WEB_EXEC_ELE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("插件执行错误") + ": {}")
 
 
 DOWNLOAD_WINDOW_NO_FIND: ErrorCode = ErrorCode(
