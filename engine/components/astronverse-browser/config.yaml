@@ -616,6 +616,9 @@ atomic:
     - key: element_timeout
       title: 等待元素出现时间（秒）
       tip: 超过该时间停止等待
+    - key: is_multiple
+      title: 是否返回多个元素
+      tip: 控制使用xpath获取子元素时返回单个/多个元素
     outputList:
     - key: element_obj
       title: 元素对象
