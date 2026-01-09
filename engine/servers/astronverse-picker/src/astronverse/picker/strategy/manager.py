@@ -65,7 +65,10 @@ class Strategy:
 
         if strategy_func:
             try:
-                result = strategy_func(self.service_context, self, strategy_svc)
+                if strategy_svc.domain == PickerDomain.WEB:
+                    result = strategy_func(self.service_context, strategy_svc)  # 只传 2 个参数
+                else:
+                    result = strategy_func(self.service_context, self, strategy_svc)
                 if result is not None:
                     return result
             except Exception as e:
