@@ -45,14 +45,14 @@ wait() #Sleep for 5s and take a screenshot to check for any changes.
 finished(content='xxx') # Use escape characters \\', \\", and \\n in content part to ensure we can parse the content in normal python string format.
 
 ## Note
-- Use {language} in `Thought` part.
+- Use Chinese in `Thought` part.
 - Write a small plan and finally summarize your next action (with its target element) in one sentence in `Thought` part.
 
 ## User Instruction
 {instruction}
 """
 
-API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/cua/chat/completions".format(
+API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/cua/chat".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
 
@@ -62,48 +62,22 @@ class ComputerUseAgent:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        model: str = "doubao-1-5-ui-tars-250428",
-        language: str = "Chinese",
         max_steps: int = 20,
-        screenshot_dir: Optional[str] = None,
         temperature: float = 0.0,
-        provider: str = "doubao",  # "doubao" or "openai"
     ):
         """
         初始化Agent
 
         Args:
-            api_key: API密钥，如果不提供则从环境变量读取（ARK_API_KEY 或 OPENAI_API_KEY）
-            model: 使用的模型ID
-            language: 交互语言
             max_steps: 最大执行步数
-            screenshot_dir: 截图保存目录，默认使用临时目录
             temperature: 模型温度参数
-            provider: 模型提供商，"doubao" 或 "openai"
         """
-        self.api_key = api_key or os.getenv("ARK_API_KEY") or os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("API Key未提供，请设置环境变量ARK_API_KEY/OPENAI_API_KEY或传入api_key参数")
 
-        self.provider = provider
-        if provider == "doubao":
-            self.client = OpenAI(api_key=self.api_key, base_url="https://ark.cn-beijing.volces.com/api/v3")
-        elif provider == "openai":
-            self.client = OpenAI(api_key=self.api_key, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
-        else:
-            raise ValueError(f"不支持的provider: {provider}")
-
-        self.model = model
-        self.language = language
         self.max_steps = max_steps
         self.temperature = temperature
 
         # 设置截图目录
-        if screenshot_dir:
-            self.screenshot_dir = Path(screenshot_dir)
-        else:
-            self.screenshot_dir = Path(tempfile.mkdtemp(prefix="cua_agent_"))
+        self.screenshot_dir = Path(tempfile.mkdtemp(prefix="cua_agent_"))
         self.screenshot_dir.mkdir(parents=True, exist_ok=True)
 
         # 历史记录
@@ -264,7 +238,7 @@ class ComputerUseAgent:
         image_format = Path(screenshot_path).suffix[1:] or "png"
 
         # 构建系统提示词
-        system_prompt = COMPUTER_USE_PROMPT.format(instruction=self.instruction, language=self.language)
+        system_prompt = COMPUTER_USE_PROMPT.format(instruction=self.instruction)
 
         messages: List[Dict] = []
 
@@ -325,14 +299,10 @@ class ComputerUseAgent:
         Returns:
             模型响应文本
         """
-        data = {
-            "model": "doubao-1-5-ui-tars-250428",  # 选择大模型，替换为实际模型标识
-            "messages": messages,
-        }
 
         try:
             # 发送 API 请求
-            response = requests.post(API_URL, data=json.dumps(data))
+            response = requests.post(API_URL, data=json.dumps(messages, ensure_ascii=False))
             response.raise_for_status()  # 检查请求是否成功
 
             # 返回模型生成的回复
@@ -354,15 +324,6 @@ class ComputerUseAgent:
         except KeyError:
             logger.info("响应格式不正确")
             return None
-
-        # response = self.client.chat.completions.create(
-        #     model=self.model,
-        #     temperature=self.temperature,
-        #     stream=False,
-        #     messages=messages,
-        # )
-        # logger.info(response.choices[0].message.content)
-        # return response.choices[0].message.content
 
     def limit_screenshots_in_history(self) -> None:
         """
@@ -487,9 +448,8 @@ class ComputerUseAgent:
                 # 3. 解析响应
                 # 直接使用缓存的屏幕尺寸，避免每次都打开Image文件
                 image_width, image_height = self.screen_width, self.screen_height
-                model_type = "doubao" if self.provider == "doubao" else "qwen25vl"
                 action = parse_action_to_structure_output(
-                    response, 1000, image_height, image_width, model_type=model_type
+                    response, 1000, image_height, image_width, model_type="doubao"
                 )
                 if not action:
                     # 更新连续无action计数器
@@ -537,9 +497,8 @@ class ComputerUseAgent:
                     return {
                         "success": True,
                         "steps": step,
-                        "action_steps": action_step,
                         "duration": time.time() - start_time,
-                        "screenshots": self.screenshots,
+                        "screenshots": self.screenshot_dir,
                     }
 
                 # 等待界面响应
@@ -554,9 +513,8 @@ class ComputerUseAgent:
             return {
                 "success": False,
                 "steps": step,
-                "action_steps": action_step,
                 "duration": time.time() - start_time,
-                "screenshots": self.screenshots,
+                "screenshots": self.screenshot_dir,
                 "error": "达到最大步数限制",
             }
         except KeyboardInterrupt:
@@ -564,9 +522,8 @@ class ComputerUseAgent:
             return {
                 "success": False,
                 "steps": step,
-                "action_steps": action_step,
                 "duration": time.time() - start_time,
-                "screenshots": self.screenshots,
+                "screenshots": self.screenshot_dir,
                 "error": "用户中断",
             }
         except Exception as e:
@@ -574,9 +531,8 @@ class ComputerUseAgent:
             return {
                 "success": False,
                 "steps": step,
-                "action_steps": action_step,
                 "duration": time.time() - start_time,
-                "screenshots": self.screenshots,
+                "screenshots": self.screenshot_dir,
                 "error": str(e),
             }
         finally:
@@ -593,13 +549,8 @@ class ComputerUse:
         "ComputerUse",
         inputList=[
             atomicMg.param("instruction", types="Str"),
-            atomicMg.param("api_key", types="Str", required=False),
-            atomicMg.param("model", types="Str", required=False),
-            atomicMg.param("language", types="Str", required=False),
             atomicMg.param("max_steps", types="Int", required=False),
-            atomicMg.param("screenshot_dir", types="Str", required=False),
             atomicMg.param("temperature", types="Float", required=False),
-            atomicMg.param("provider", types="Str", required=False),
         ],
         outputList=[
             atomicMg.param("computer_use_res", types="Dict"),
@@ -607,39 +558,24 @@ class ComputerUse:
     )
     def run(
         instruction: str,
-        api_key: str = None,
-        model: str = "doubao-1-5-ui-tars-250428",
-        language: str = "Chinese",
         max_steps: int = 20,
-        screenshot_dir: str = None,
         temperature: float = 0.0,
-        provider: str = "doubao",
     ):
         """
         运行计算机使用代理任务
 
         Args:
             instruction: 用户指令
-            api_key: API密钥
-            model: 模型ID
-            language: 交互语言
             max_steps: 最大执行步数
-            screenshot_dir: 截图保存目录
             temperature: 模型温度参数
-            provider: 模型提供商
 
         Returns:
             执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
         """
 
         agent = ComputerUseAgent(
-            api_key=api_key,
-            model=model,
-            language=language,
             max_steps=max_steps,
-            screenshot_dir=screenshot_dir,
             temperature=temperature,
-            provider=provider,
         )
         result = agent.run(instruction)
 
@@ -647,7 +583,6 @@ class ComputerUse:
         return {
             "success": result.get("success", False),
             "steps": result.get("steps", 0),
-            "action_steps": result.get("action_steps", 0),
             "duration": result.get("duration", 0.0),
             "screenshots": result.get("screenshots", []),
             "error": result.get("error", ""),

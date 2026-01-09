@@ -5,6 +5,7 @@ description = "astronverse-cua."
 requires-python = ">=3.13"
 
 dependencies = [
+    "requests",
     "pyautogui",
     "pillow",
     "openai",
