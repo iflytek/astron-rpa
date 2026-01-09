@@ -98,17 +98,17 @@ def consequence(args1: Any, condition: str, args2: Any = None, **kwargs):
             else:
                 return not res
         case CondType.C_IN.value | CondType.C_NOT_IN.value:
-            if isinstance(args2, str) and str_is_list(args2):
-                args2 = list(List.__validate__("args2", args2))
-            elif isinstance(args2, str) and str_is_dict(args2):
-                args2 = dict(Dict.__validate__("args2", args2))
+            if isinstance(args1, str) and str_is_list(args1):
+                args1 = list(List.__validate__("args1", args1))
+            elif isinstance(args1, str) and str_is_dict(args1):
+                args1 = dict(Dict.__validate__("args1", args1))
             else:
                 pass
 
-            if isinstance(args2, list):
-                args2 = [str(x) for x in args2]
+            if isinstance(args1, list):
+                args1 = [str(x) for x in args1]
 
-            if str(args1) in args2:
+            if str(args2) in args1:
                 res = True
             else:
                 res = False

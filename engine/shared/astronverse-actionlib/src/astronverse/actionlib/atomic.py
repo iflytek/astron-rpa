@@ -175,9 +175,12 @@ class AtomicManager:
                 for name, value in model_res.items():
                     base_kwargs[name] = value
 
-                # 只有**kwargs的原子能力才接受高级参数
+                # 只有**kwargs的原子能力才接受高级参数,且过滤掉多余的参数,保证兼容
                 if not self.atomic_dict[key].__has_kwargs__:
                     advance_kwargs = {}
+                    sig = inspect.signature(func)
+                    base_kwargs = {k: v for k, v in base_kwargs.items() if k in set(sig.parameters.keys())}
+
                 res = func(*args, **base_kwargs, **advance_kwargs)
                 if res_print and has_result:
                     report.info(
