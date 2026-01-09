@@ -4,10 +4,6 @@ import sys
 import threading
 import time
 from datetime import datetime, timedelta
-
-from astronverse.actionlib import ReportTip
-
-from astronverse.executor.error import MSG_NO_FFMPEG
 from astronverse.executor.logger import logger
 
 
@@ -58,7 +54,6 @@ class RecordingTool:
                 return
             url = os.path.join(os.path.abspath(self.svc.conf.resource_dir), "ffmpeg.exe")
             if not os.path.exists(url):
-                self.svc.report.warning(ReportTip(msg_str=MSG_NO_FFMPEG))
                 return
 
             self.start_time = int(time.time())

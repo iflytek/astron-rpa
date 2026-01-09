@@ -17,6 +17,7 @@ from astronverse.executor.error import (
     MSG_TASK_EXECUTION_ERROR,
     MSG_TASK_USER_CANCELLED,
     MSG_VIDEO_PROCESSING_WAIT,
+    MSG_NO_FFMPEG,
 )
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import kill_proc_tree
@@ -70,7 +71,11 @@ class DebugSvc:
             if not self.sys_exit_lock_end:
                 # 提示录制
                 if self.recording_tool.config.get("open"):
-                    self.report.info(ReportTip(msg_str=MSG_VIDEO_PROCESSING_WAIT))
+                    url = os.path.join(os.path.abspath(self.conf.resource_dir), "ffmpeg.exe")
+                    if not os.path.exists(url):
+                        self.report.info(ReportTip(msg_str=MSG_NO_FFMPEG))
+                    else:
+                        self.report.info(ReportTip(msg_str=MSG_VIDEO_PROCESSING_WAIT))
 
                 # 同步状态
                 if status == ExecuteStatus.SUCCESS:
