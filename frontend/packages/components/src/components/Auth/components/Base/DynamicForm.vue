@@ -62,6 +62,7 @@ defineExpose({
   >
     <template v-for="field in config.fields" :key="field.key">
       <Form.Item
+        v-if="!field.hidden || !field.hidden(modelValue)"
         :name="field.key"
         :rules="field.rules"
         :class="`form-item-${field.type} form-item-${field.key}`"

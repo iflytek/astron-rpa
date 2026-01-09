@@ -42,25 +42,3 @@ export function getRememberUser(): RememberedUser | null {
 export function clearRememberUser() {
   localStorage.removeItem('user')
 }
-
-export function saveUserInfo(userInfo: any) {
-  const encrypted = CryptoJS.AES.encrypt(JSON.stringify(userInfo), KEY).toString()
-  localStorage.setItem('userInfo', encrypted)
-}
-
-export function getUserInfo(): any | null {
-  const raw = localStorage.getItem('userInfo')
-  if (!raw)
-    return null
-  try {
-    const decrypted = CryptoJS.AES.decrypt(raw, KEY).toString(CryptoJS.enc.Utf8)
-    return JSON.parse(decrypted)
-  }
-  catch {
-    return null
-  }
-}
-
-export function clearUserInfo() {
-  localStorage.removeItem('userInfo')
-}

@@ -27,7 +27,7 @@ const props = defineProps<{
   versionLst: AnyObj
 }>()
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'limit'])
 const permissionStore = usePermissionStore()
 
 const TYPE_ARR = [{
@@ -59,8 +59,13 @@ async function handleOk() {
   formRef.value.validate().then(() => {
     console.log(formState)
     confirmLoading.value = true
-    obtainApp(formState).then(() => {
+    obtainApp(formState).then((res) => {
       confirmLoading.value = false
+      if (res.data?.resultCode === '101') {
+        emit('limit')
+        modal.hide()
+        return
+      }
       const commonMsg = '获取成功'
       formState.obtainDirection.includes('design') && message.success(`${commonMsg}，已在设计器的我获取的列表中创建该应用的副本`)
       formState.obtainDirection.includes('execute') && message.success(`${commonMsg}，并自动启用该应用获取的版本`)

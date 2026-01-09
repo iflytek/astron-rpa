@@ -4,7 +4,6 @@ import { NiceModal } from '@rpa/components'
 import { Tooltip } from 'ant-design-vue'
 
 import { SettingCenterModal } from '@/components/SettingCenterModal'
-import { VUE_APP_COMMANDER } from '@/constants'
 import { utilsManager } from '@/platform'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useAppConfigStore } from '@/stores/useAppConfig'

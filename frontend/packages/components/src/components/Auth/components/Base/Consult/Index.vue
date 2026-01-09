@@ -95,7 +95,7 @@ defineExpose({
             <span v-if="confData?.buttonConf?.shouldAlert" class="bg-[#ec483e] text-white px-[6px] py-[1px] !text-[12px] rounded-[3px]">即将到期</span>
           </span>
         </div>
-        <div v-else class="w-full text-left" :class="{'min-h-[38px] leading-[38px]': !confData?.buttonConf?.currentEdition }" @click="openModal">
+        <div v-else class="w-full text-left" :class="{ 'min-h-[38px] leading-[38px]': !confData?.buttonConf?.currentEdition }" @click="openModal">
           <div v-if="confData?.buttonConf?.currentEdition" class="w-[fit-content] font-bold">
             <span class="text-gradient">{{ tenantTypeMap[confData?.buttonConf?.currentEdition] }}</span>
           </div>

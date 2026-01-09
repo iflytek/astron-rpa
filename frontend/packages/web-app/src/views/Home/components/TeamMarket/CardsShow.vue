@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ClockCircleOutlined, EllipsisOutlined } from '@ant-design/icons-vue'
+import { Auth } from '@rpa/components/auth'
 import { useTranslation } from 'i18next-vue'
 import { computed, defineAsyncComponent } from 'vue'
 
@@ -36,6 +37,8 @@ const AppDetailDrawer = defineAsyncComponent(() => import('@/views/Home/componen
 
 const { t } = useTranslation()
 const {
+  consultRef,
+  appInfo,
   appDrawerData,
   menus,
   showAppDrawer,
@@ -142,6 +145,7 @@ const loading = computed(() => props.loading)
       </div>
     </div>
     <AppDetailDrawer v-if="appDrawerData?.visible" :app-data="appDrawerData?.data" @close="(data) => { closeAppDrawer(data) }" />
+    <Auth.Consult ref="consultRef" trigger="modal" :auth-type="appInfo.appAuthType" />
   </div>
 </template>
 

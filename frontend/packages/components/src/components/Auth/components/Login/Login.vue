@@ -30,7 +30,7 @@ const { running, inviteInfo, edition, authType } = defineProps({
 const emit = defineEmits<{
   submit: [data: any, mode: LoginMode]
   switchToRegister: []
-  forgetPassword: []
+  forgotPassword: []
   modifyPassword: []
 }>()
 

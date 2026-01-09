@@ -20,6 +20,8 @@ const emits = defineEmits(['finish'])
 
 const {
   currentFormMode,
+  cacheFormData,
+  preFormMode,
   tenants,
   running,
   preLogin,
@@ -48,7 +50,7 @@ defineExpose({
       :running="running"
       @submit="preLogin"
       @switch-to-register="() => switchMode('register')"
-      @forget-password="() => switchMode('forgotPassword')"
+      @forgot-password="() => switchMode('forgotPassword')"
       @modify-password="() => switchMode('modifyPassword')"
     />
 
@@ -68,6 +70,7 @@ defineExpose({
       :key="`${edition}_${authType}_forgotPassword`"
       :running="running"
       :title="currentFormMode === 'forgotPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
+      v-model="cacheFormData[currentFormMode]"
       @submit="handleForgotPassword"
       @switch-to-login="() => switchMode('login')"
     />
@@ -79,7 +82,11 @@ defineExpose({
       :running="running"
       :invite-info="inviteInfo"
       @submit="handleSetPassword"
-      @switch-to-login="() => switchMode('login')"
+      @back="() => {
+        ['forgotPasswordWithSysUpgrade', 'forgotPassword'].includes(preFormMode)
+          ? switchMode(preFormMode)
+          : switchMode('login')
+      }"
     />
 
     <ModifyPassword

@@ -1,3 +1,4 @@
+import { Modal } from 'ant-design-vue'
 import { ref } from 'vue'
 
 import { acceptInvite, queryInviteData } from '../../../api/invite'
@@ -67,8 +68,14 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
       switchPage('linkExpired')
       return
     }
-    const data = await queryInviteData({ inviteKey })
-    updateInviteInfo(data)
+    try {
+      const data = await queryInviteData({ inviteKey })
+      updateInviteInfo(data)
+    }
+    catch (e) {
+      console.error('获取邀请信息失败', e)
+      switchPage('linkExpired')
+    }
   }
 
   const switchToLogin = () => {
@@ -85,8 +92,33 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     }
   }
 
+  const tryOpenApp = (scheme: string, timeout = 2000) => {
+    const start = Date.now()
+    const clear: () => void = () => {
+      clearTimeout(timer)
+      window.removeEventListener('blur', clear)
+    }
+    window.addEventListener('blur', clear)
+
+    window.location.href = scheme
+
+    const timer = setTimeout(() => {
+      if (Date.now() - start >= timeout + 100)
+        return
+
+      Modal.warn({
+        title: '安装提示',
+        content: '您当前未安装星辰RPA应用，是否前往下载？',
+        okText: '去下载',
+        onOk() {
+          window.open('https://www.iflyrpa.com', '_blank')
+        },
+      })
+    }, timeout)
+  }
+
   const openApp = () => {
-    window.open('astronrpa://')
+    tryOpenApp('astronrpa://')
   }
 
   getInviteInfo()

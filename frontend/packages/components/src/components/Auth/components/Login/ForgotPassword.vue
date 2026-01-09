@@ -7,8 +7,9 @@ import FormLayout from '../Base/FormLayout.vue'
 
 import { useForgotPassword } from './hooks/useForgotPassword'
 
-const { title, running } = defineProps({
+const { title, running, modelValue } = defineProps({
   title: { type: String, default: '找回密码' },
+  modelValue: { type: Object as () => LoginFormData, default: () => ({}) },
   running: { type: String as () => AsyncAction, default: 'IDLE' },
 })
 
@@ -19,7 +20,7 @@ const emit = defineEmits<{
 
 const loading = computed(() => running === 'SET_PASSWORD')
 
-const { formRef, formData, config, handleEvents } = useForgotPassword(emit as any)
+const { formRef, formData, config, handleEvents } = useForgotPassword(modelValue, emit as any)
 </script>
 
 <template>

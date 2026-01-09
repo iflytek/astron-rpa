@@ -29,7 +29,7 @@ export interface FieldSchema {
   rules?: any[]
   props?: Record<string, any>
   sendCaptcha?: (phone: string) => Promise<void>
-  visible?: (model: any) => boolean
+  hidden?: (model: any) => boolean
   disabled?: (model: any) => boolean
   customRender?: (ctx?: {
     field?: FieldSchema
@@ -270,7 +270,7 @@ export const fieldFactories = {
           <Checkbox v-model:checked={formData.remember} class="text-[#000000D9] dark:text-[#FFFFFFD9]">
             记住账号密码
           </Checkbox>
-          <Button type="link" class="m-0 p-0 h-auto" onClick={() => handleEvents && handleEvents('forgetPassword')}>
+          <Button type="link" class="m-0 p-0 h-auto" onClick={() => handleEvents && handleEvents('forgotPassword')}>
             忘记密码
           </Button>
         </div>
