@@ -23,23 +23,26 @@ const userStore = useUserStore()
 const appStore = useAppConfigStore()
 const { appInfo } = storeToRefs(appStore)
 
-const menuData = computed(() => [
-  // {
-  //   key: 'userRight',
-  //   icon: 'rights',
-  //   label: t('userInfo.userRight'),
-  // },
-  // {
-  //   key: 'changeMode',
-  //   icon: 'rights',
-  //   label: t('changeMode'),
-  // },
-  {
-    key: 'logout',
-    icon: 'logout',
-    label: t('logout'),
-  },
-])
+const menuData = computed(() => {
+  return [
+    // {
+    //   key: 'userRight',
+    //   icon: 'rights',
+    //   label: t('userInfo.userRight'),
+    // },
+    {
+      key: 'changeMode',
+      icon: 'rights',
+      label: t('changeMode'),
+      hidden: () => userStore.currentTenant?.tenantType === 'personal',
+    },
+    {
+      key: 'logout',
+      icon: 'logout',
+      label: t('logout'),
+    }
+  ].filter(item => !item.hidden || !item.hidden())
+})
 
 async function menuClick(item: any) {
   const { data: { running } } = await getTermianlStatus()
