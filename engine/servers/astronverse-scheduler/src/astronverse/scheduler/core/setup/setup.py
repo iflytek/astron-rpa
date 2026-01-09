@@ -25,28 +25,29 @@ class Process:
     def get_python_proc_in_current_dir():
         """获取所有在当前目录Python进程"""
 
-        python_tag_window = "python.exe"
-        python_tag_linux = "python3.7"
+        rpa_setup_pid = []
+        try:
+            proc = psutil.Process(os.getpid())
+            while proc:
+                rpa_setup_pid.append(proc.pid)
+                proc = proc.parent()
+        except psutil.NoSuchProcess:
+            pass
 
-        rpa_setup_pid = os.getpid()
         work_dir = os.getcwd()
 
         all_process = list()
         if sys.platform == "win32":
             # 他们的名称是否包含python
-            process_names = [python_tag_window, "route.exe", "ConsoleApp1.exe", "winvnc.exe"]
+            process_names = ["python.exe", "route.exe", "ConsoleApp1.exe", "winvnc.exe"]
 
-            outputs = []
+            pids = []
             for process_name in process_names:
                 output = subprocess.check_output(
                     ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
                     encoding=system_encoding,
                     errors="replace",
                 )
-                outputs.append(output)
-
-            pids = []
-            for output in outputs:
                 for line in output.splitlines()[1:]:
                     parts = line.split(",")
                     if len(parts) > 1:
@@ -55,13 +56,15 @@ class Process:
             for pid in pids:
                 try:
                     # 忽略自己
-                    if pid == rpa_setup_pid:
+                    if pid in rpa_setup_pid:
                         continue
-                    # 查看他们的cwd
+
+                    # 查看他们的cwd[只有python需要验证，其他不需要验证]
                     proc = psutil.Process(pid)
-                    proc_cwd = proc.cwd()
-                    if work_dir not in proc_cwd:
-                        continue
+                    if "python" in proc.name().lower():
+                        if work_dir not in proc.cwd():
+                            continue
+
                     # 都符合条件
                     all_process.append(proc)
                 except Exception as e:
@@ -71,9 +74,9 @@ class Process:
                 try:
                     # 他们的名称是否包含python
                     proc_name = proc.name()
-                    if python_tag_linux in proc_name or "route.exe" in proc_name or "winvnc" in proc_name:
+                    if "python3.7" in proc_name or "route.exe" in proc_name or "winvnc" in proc_name:
                         # 忽略自己
-                        if proc.pid == rpa_setup_pid:
+                        if proc.pid in rpa_setup_pid:
                             continue
                         # 查看他们的cwd
                         proc_cwd = proc.cwd()
