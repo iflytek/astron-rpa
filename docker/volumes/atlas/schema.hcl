@@ -1261,6 +1261,11 @@ table "c_param" {
     null = true
     type = int
   }
+  column "module_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "python模块id"
+  }
   index "c_param_id_IDX" {
     columns = [column.id]
   }
