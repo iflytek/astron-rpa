@@ -288,9 +288,15 @@ importers:
 
   packages/electron-app:
     dependencies:
+      await-to-js:
+        specifier: ^3.0.0
+        version: 3.0.0
       axios:
         specifier: ^1.7.4
         version: 1.7.4
+      builder-util-runtime:
+        specifier: ^9.5.1
+        version: 9.5.1
       electron-updater:
         specifier: ^6.7.3
         version: 6.7.3
@@ -10225,7 +10231,7 @@ snapshots:
       '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
       '@babel/types': 7.28.2
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 

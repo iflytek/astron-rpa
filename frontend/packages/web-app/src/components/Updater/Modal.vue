@@ -4,8 +4,9 @@ import { NiceModal } from '@rpa/components'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import bgImage from '@/assets/img/updater/bg.svg'
-import bgSmallImage from '@/assets/img/updater/bg-small.svg'
 import iconImage from '@/assets/img/updater/icon.svg'
+import cloudLeftImage from '@/assets/img/updater/cloud-1.png'
+import cloudRightImage from '@/assets/img/updater/cloud-2.png'
 
 const modal = NiceModal.useModal()
 const appStore = useAppConfigStore()
@@ -24,9 +25,17 @@ const handleQuitAndInstall = () => appStore.quitAndInstall()
 </script>
 
 <template>
-  <a-modal v-bind="NiceModal.antdModal(modal)" class="updater-modal" :footer="null"
-    :width="props.needUpdate ? 600 : 400">
-    <img :src="props.needUpdate ? bgImage : bgSmallImage" class="h-[317px]" />
+  <a-modal
+    v-bind="NiceModal.antdModal(modal)"
+    class="updater-modal"
+    :footer="null"
+    :width="props.needUpdate ? 600 : 400"
+  >
+    <div class="h-[317px] w-full overflow-hidden relative">
+      <img :src="bgImage" class="w-[600px] h-full" />
+      <img :src="cloudLeftImage" class="absolute left-0 bottom-0" />
+      <img :src="cloudRightImage" class="absolute right-0 bottom-0" />
+    </div>
 
     <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">
       <img :src="iconImage" class="w-[120px] h-[120px]" />

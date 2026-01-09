@@ -1,4 +1,5 @@
 import { autoUpdater, type UpdateInfo as ElectronUpdateInfo } from "electron-updater"
+import { to } from 'await-to-js'
 // import { app } from 'electron'
 import type { UpdateInfo, UpdateManifest } from '@rpa/shared/platform'
 import { withTimeout } from '@rpa/shared'
@@ -49,7 +50,10 @@ autoUpdater.on("update-downloaded", (event) => {
 
 //检测更新
 export const checkForUpdates = async (): Promise<UpdateInfo> => {
-  const result = await autoUpdater.checkForUpdates();
+  const [error, result] = await to(autoUpdater.checkForUpdates());
+  if (error) {
+    return { couldUpdate: false }
+  }
 
   let couldUpdate = result?.isUpdateAvailable ?? false
   let downloaded = false
