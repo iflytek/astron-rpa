@@ -486,44 +486,6 @@ class OpenpyxlWrapper:
             for c_idx, cell_value in enumerate(row_data):
                 self.sheet.cell(row=min_row + r_idx, column=min_col + c_idx, value=cell_value)
 
-    def sort_column(self, col_index: int, order: str = "ascending"):
-        """
-        Sorts a column in ascending or descending order.
-
-        Args:
-            col_index (int): The column index (1-based) to sort.
-            order (str): The sort order ('ascending' or 'descending').
-        """
-        max_row = self.sheet.max_row
-        if max_row == 0:
-            return  # Nothing to sort
-
-        # Read the data from the specified column
-        col_data = [self.sheet.cell(row=r, column=col_index).value for r in range(1, max_row + 1)]
-
-        # Determine sort order
-        reverse = order.lower() == "descending"
-
-        # Define a sort key to handle mixed types (numbers, strings, None) to avoid TypeErrors
-        def sort_key(x):
-            if x is None:
-                return (2, None)  # Nones last
-            if isinstance(x, (int, float)):
-                return (0, x)  # Numbers first
-            return (1, str(x))  # Other types (converted to string) second
-
-        # Sort the column data
-        try:
-            sorted_data = col_data.reverse() if reverse else col_data.copy()
-        except TypeError:
-            # Fallback for un-sortable types, though the key should handle most cases.
-            # In this case, we do nothing.
-            return
-
-        # Write the sorted data back to the column, leaving other columns unaffected
-        for i, value in enumerate(sorted_data):
-            self.sheet.cell(row=i + 1, column=col_index, value=value)
-
     def find_and_replace(self, find_value, replace_value, range_str: str = None):
         """
         Finds and replaces values within a specified range or the entire sheet.

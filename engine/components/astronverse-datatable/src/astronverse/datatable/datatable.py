@@ -25,7 +25,6 @@ from astronverse.datatable import (
     PasteType,
     ReadType,
     RowInsertShift,
-    SortOrder,
     WriteMode,
     WriteType,
 )
@@ -1158,26 +1157,6 @@ class DataTable:
             raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
         col_index = col_to_index(col)
         return str(PyxlHeadWrapper.read_cell(row=1, col=col_index))
-
-    @staticmethod
-    @validate_cell
-    @auto_save
-    @atomicMg.atomic(
-        "DataTable",
-        inputList=[],
-        outputList=[],
-    )
-    def sort_table(
-        col: str,
-        sort_type: SortOrder = SortOrder.ASCENDING,
-    ):
-        """
-        数据表格排序
-        """
-        if not col:
-            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
-        col_index = col_to_index(col)
-        PyxlWrapper.sort_column(col_index=col_index, order=sort_type.value)
 
     @staticmethod
     @auto_save
