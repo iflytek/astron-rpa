@@ -11,10 +11,6 @@ def validate(row=1, col="A"):
     :param col: 列标
     """
     print(f"Validating row: {row}, col: {col}")
-    if col is None:
-        raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
-    if row is None:
-        raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(row), "行格式错误")
     try:
         row = int(row)
     except ValueError:
@@ -39,12 +35,15 @@ def col_to_index(col="A") -> int:
     except ValueError:
         pass
     if isinstance(col, int):
-        return col - 1
-    col = col.upper()
-    index = 0
-    for i, char in enumerate(reversed(col)):
-        index += (ord(char) - ord("A") + 1) * (26**i)
-    return index
+        if col < 1:
+            raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
+        return col
+    else:
+        col = col.upper()
+        index = 0
+        for i, char in enumerate(reversed(col)):
+            index += (ord(char) - ord("A") + 1) * (26**i)
+        return index
 
 
 def index_to_col(index=1) -> str:
