@@ -22,6 +22,11 @@ const props = defineProps<UpdaterModalProps>()
 const handleClose = () => modal.hide()
 
 const handleQuitAndInstall = () => appStore.quitAndInstall()
+
+const handleRejectUpdate = () => {
+  appStore.rejectUpdate(props.latestVersion)
+  handleClose()
+}
 </script>
 
 <template>
@@ -53,7 +58,7 @@ const handleQuitAndInstall = () => appStore.quitAndInstall()
 
     <div class="p-4 flex gap-[10px]">
       <template v-if="props.needUpdate">
-        <div class="flex-1 action-button" @click="handleClose">
+        <div class="flex-1 action-button" @click="handleRejectUpdate">
           稍后更新
         </div>
         <div class="flex-1 action-button action-button__confirm" @click="handleQuitAndInstall">
