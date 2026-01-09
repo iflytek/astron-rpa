@@ -5,8 +5,8 @@ import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import bgImage from '@/assets/img/updater/bg.svg'
 import iconImage from '@/assets/img/updater/icon.svg'
-import cloudLeftImage from '@/assets/img/updater/cloud-1.png'
-import cloudRightImage from '@/assets/img/updater/cloud-2.png'
+// import cloudLeftImage from '@/assets/img/updater/cloud-1.png'
+// import cloudRightImage from '@/assets/img/updater/cloud-2.png'
 
 const modal = NiceModal.useModal()
 const appStore = useAppConfigStore()
@@ -32,9 +32,9 @@ const handleQuitAndInstall = () => appStore.quitAndInstall()
     :width="props.needUpdate ? 600 : 400"
   >
     <div class="h-[317px] w-full overflow-hidden relative">
-      <img :src="bgImage" class="w-[600px] h-full" />
-      <img :src="cloudLeftImage" class="absolute left-0 bottom-0" />
-      <img :src="cloudRightImage" class="absolute right-0 bottom-0" />
+      <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max" />
+      <!-- <img :src="cloudLeftImage" class="absolute left-0 bottom-0" /> -->
+      <!-- <img :src="cloudRightImage" class="absolute right-0 bottom-0" /> -->
     </div>
 
     <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">

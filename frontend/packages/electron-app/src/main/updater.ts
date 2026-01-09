@@ -10,11 +10,11 @@ import { mainToRender } from './event'
 
 autoUpdater.logger = logger
 // autoUpdater.forceDevUpdateConfig = true
-// 退出后自动安装
-autoUpdater.autoInstallOnAppQuit = true
+// 退出后不自动安装
+autoUpdater.autoInstallOnAppQuit = false
 
 // const server = 'https://your-deployment-url.com'
-// const url = `${server}/update/${process.platform}/${app.getVersion()}`
+// const url = `${server}/update/${process.platform}/${app.getVersion()}\xxxx.exe
 const url = 'http://localhost:9000'
 autoUpdater.setFeedURL(url)
 
