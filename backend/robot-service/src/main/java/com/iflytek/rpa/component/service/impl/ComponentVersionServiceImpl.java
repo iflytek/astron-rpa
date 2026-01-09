@@ -58,9 +58,6 @@ public class ComponentVersionServiceImpl extends ServiceImpl<ComponentVersionDao
     private CModuleDao moduleDao;
 
     @Autowired
-    private CSmartComponentDao smartComponentDao;
-
-    @Autowired
     private CParamService paramService;
 
     @Override
@@ -114,8 +111,6 @@ public class ComponentVersionServiceImpl extends ServiceImpl<ComponentVersionDao
         requireDao.createRequireForCurrentVersion(robotVersionDto);
         // python模块 module数据
         moduleDao.createModuleForCurrentVersion(robotVersionDto);
-        // 智能组件
-        smartComponentDao.createSmartComponentForCurrentVersion(robotVersionDto);
         // 流程参数
         paramService.createParamForCurrentVersion(null, robotVersionDto, 0);
     }

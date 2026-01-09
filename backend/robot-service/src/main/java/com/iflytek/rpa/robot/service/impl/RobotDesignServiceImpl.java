@@ -102,9 +102,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     private CModuleDao cModuleDao;
 
     @Autowired
-    private CSmartComponentDao cSmartComponentDao;
-
-    @Autowired
     private ComponentRobotUseDao componentRobotUseDao;
 
     @Autowired
@@ -588,72 +585,7 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         componentUseCopy(oldRobotId, newRobotId, userId);
         // 组件屏蔽数据
         componentBlockCopy(oldRobotId, newRobotId, userId);
-        // 智能组件拷贝
-        smartComponentCopy(oldRobotId, newRobotId, userId);
     }
-
-
-    public void smartComponentCopy(String oldRobotId, String newRobotId, String userId) {
-        // 先查询旧机器人的smartComponent列表
-        List<CSmartComponent> oldSmartComponentList = cSmartComponentDao.getAllSmartComponentList(oldRobotId, 0, userId);
-
-        if (CollectionUtils.isEmpty(oldSmartComponentList)) {
-            return;
-        }
-
-        // 创建旧id到新id的映射
-        Map<String, String> oldNewSmartComponentIdMap = new HashMap<>();
-
-        // 复制smartComponent并建立映射关系
-        List<CSmartComponent> smartComponentList = new ArrayList<>();
-        for (CSmartComponent oldSmartComponent : oldSmartComponentList) {
-            CSmartComponent newSmartComponent = new CSmartComponent();
-            newSmartComponent.setSmartId(String.valueOf(idWorker.nextId()));
-            newSmartComponent.setRobotId(newRobotId);
-            newSmartComponent.setContent(oldSmartComponent.getContent());
-            newSmartComponent.setSmartType(oldSmartComponent.getSmartType());
-            newSmartComponent.setRobotVersion(oldSmartComponent.getRobotVersion());
-            newSmartComponent.setCreatorId(oldSmartComponent.getCreatorId());
-            newSmartComponent.setUpdaterId(oldSmartComponent.getUpdaterId());
-
-            oldNewSmartComponentIdMap.put(oldSmartComponent.getSmartId(), newSmartComponent.getSmartId());
-            smartComponentList.add(newSmartComponent);
-        }
-
-        // 获取旧机器人的process内容
-        List<CProcess> oldProcessList = processDao.getProcess(oldRobotId, 0, userId);
-
-        // 如果没有process，直接插入smartComponent并返回
-        if (CollectionUtils.isEmpty(oldProcessList)) {
-            cSmartComponentDao.insertBatch(smartComponentList);
-            return;
-        }
-
-        // 获取新机器人的process列表（需要更新smartId引用）
-        List<CProcess> newProcessList = processDao.getProcess(newRobotId, 0, userId);
-        // 如果没有process，直接插入smartComponent并返回
-        if (CollectionUtils.isEmpty(newProcessList)) {
-            cSmartComponentDao.insertBatch(smartComponentList);
-            return;
-        }
-
-        // 更新所有process content中的smart ID引用（主流程和子流程）
-        for (int i = 0; i < newProcessList.size() && i < oldProcessList.size(); i++) {
-            String currentContent = newProcessList.get(i).getProcessContent();
-            // 如果content为空或null，跳过处理
-            if (currentContent == null || currentContent.trim().isEmpty()) {
-                continue;
-            }
-
-            // 使用映射关系更新smartComponent引用（currentContent已经是更新过process ID的版本）
-            String newContent = replaceSmartIdsWithMap(currentContent, oldNewSmartComponentIdMap);
-            newProcessList.get(i).setProcessContent(newContent);
-            processDao.updateById(newProcessList.get(i));
-        }
-
-        cSmartComponentDao.insertBatch(smartComponentList);
-    }
-
 
     public void moduleCopy(String oldRobotId, String newRobotId, String userId) {
         List<CModule> moduleList = cModuleDao.getAllModuleList(oldRobotId, 0, userId);
@@ -792,44 +724,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
         // 替换回去
         processList.get(0).setProcessContent(newProcessContent);
-    }
-
-    /**
-     * 使用ID映射替换smartComponent引用，支持同一个smartComponent被多次引用
-     */
-    private String replaceSmartIdsWithMap(String processContent, Map<String, String> oldNewSmartComponentIdMap) {
-        if (processContent == null || oldNewSmartComponentIdMap == null || oldNewSmartComponentIdMap.isEmpty()) {
-            if (processContent == null) {
-                throw new IllegalArgumentException("processContent cannot be null.");
-            }
-            return processContent;
-        }
-
-        String patternString = "\"key\":\"Smart\\.run_code\\.(\\d+)\"";
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(processContent);
-
-        StringBuffer resultBuffer = new StringBuffer();
-
-        // 查找所有匹配项
-        while (matcher.find()) {
-            String oldSmartId = matcher.group(1);
-            String newSmartId = oldNewSmartComponentIdMap.get(oldSmartId);
-
-            // 如果找到映射关系，使用新的ID；否则保持原ID
-            if (newSmartId != null) {
-                String replacementText = String.format("\"key\":\"Smart.run_code.%s\"", newSmartId);
-                matcher.appendReplacement(resultBuffer, replacementText);
-            } else {
-                // 如果没有找到映射关系，保持原样
-                matcher.appendReplacement(resultBuffer, matcher.group(0));
-            }
-        }
-
-        // 将剩余的字符串追加到结果中
-        matcher.appendTail(resultBuffer);
-
-        return resultBuffer.toString();
     }
 
     private String replaceProcessIds(String processContent, List<String> processIdList) {
