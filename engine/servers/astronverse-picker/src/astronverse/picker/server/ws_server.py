@@ -211,6 +211,8 @@ class PickerRequestHandler:
                 # 处理拾取数据
                 if input_data.pick_type in [PickerType.SIMILAR, PickerType.BATCH]:
                     input_data.data = self._process_element_data(input_data)
+                    if input_data.get("pick_mode"):
+                        input_data.data["pick_mode"] = input_data.get("pick_mode")
 
                 # 发送拾取开始信号
                 self.svc.tag(SVCSign.PICKER)

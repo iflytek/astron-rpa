@@ -51,9 +51,9 @@ class Strategy:
 
             strategy_func = msaa_default_strategy
         elif strategy_svc.domain == PickerDomain.AUTO_DESK:
-            from astronverse.picker.strategy.auto_strategy_desk import auto_default_strategyaaaa_desk
+            from astronverse.picker.strategy.auto_strategy_desk import auto_default_strategy_desk
 
-            strategy_func = auto_default_strategyaaaa_desk
+            strategy_func = auto_default_strategy_desk
         elif strategy_svc.domain == PickerDomain.AUTO_WEB:
             from astronverse.picker.strategy.auto_strategy_web import auto_default_strategy_web
 
