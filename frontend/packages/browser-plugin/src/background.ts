@@ -71,9 +71,9 @@ setInterval(() => {
   }
 }, 10 * 1000) // every 10 seconds
 
-self.addEventListener('error', () => {
+globalThis.addEventListener('error', () => {
   log.info('Background error event triggered')
-});
+})
 
 ; (async function () {
   const wsApp = await createWsApp()
