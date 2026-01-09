@@ -16,7 +16,8 @@ from astronverse.executor.error import (
     MSG_TASK_EXECUTION_END,
     MSG_TASK_EXECUTION_ERROR,
     MSG_TASK_USER_CANCELLED,
-    MSG_VIDEO_PROCESSING_WAIT, MSG_NO_FFMPEG,
+    MSG_VIDEO_PROCESSING_WAIT,
+    MSG_NO_FFMPEG,
 )
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import kill_proc_tree
