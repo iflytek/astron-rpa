@@ -7,7 +7,7 @@ import uvicorn
 from astronverse.baseline.config.config import load_config
 from astronverse.scheduler.apis import route
 from astronverse.scheduler.config import Config
-from astronverse.scheduler.core.schduler.init import linux_env_check
+from astronverse.scheduler.core.schduler.init import linux_env_check, win_env_check
 from astronverse.scheduler.core.server import ServerManager
 from astronverse.scheduler.core.servers.async_server import (
     CheckPickProcessAliveServer,
@@ -18,6 +18,7 @@ from astronverse.scheduler.core.servers.core_server import (
     RpaBrowserConnectorServer,
     RpaRouteServer,
 )
+from astronverse.scheduler.core.setup.setup import Process
 from astronverse.scheduler.core.svc import get_svc
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import check_port
@@ -48,8 +49,8 @@ def start():
         svc.set_config(Config)
 
         # 3. 环境检测
-
-        # Process.kill_all_zombie()
+        Process.kill_all_zombie()
+        win_env_check(svc)
         linux_env_check()
 
         # 4. 服务注册与启动
