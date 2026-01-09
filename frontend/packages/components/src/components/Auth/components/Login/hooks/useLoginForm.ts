@@ -8,14 +8,14 @@ import { getRememberUser } from '../../../utils/remember'
 export type LoginEmitEvent
   = | 'submit'
     | 'switchToRegister'
-    | 'forgetPassword'
+    | 'forgotPassword'
 
 export function useLoginForm<M extends LoginMode>(
   mode: M,
   opts: { inviteInfo: InviteInfo, edition?: string, authType?: string },
   emit: ((e: 'submit', data: any, mode: M) => void)
     & ((e: 'switchToRegister') => void)
-    & ((e: 'forgetPassword') => void)
+    & ((e: 'forgotPassword') => void)
     & ((e: 'modifyPassword') => void),
 ) {
   const formRef = ref()
@@ -52,8 +52,8 @@ export function useLoginForm<M extends LoginMode>(
       return handleSubmit()
     if (event === 'switchToRegister')
       return emit('switchToRegister')
-    if (event === 'forgetPassword')
-      return emit('forgetPassword')
+    if (event === 'forgotPassword')
+      return emit('forgotPassword')
     if (event === 'modifyPassword')
       return emit('modifyPassword')
   }

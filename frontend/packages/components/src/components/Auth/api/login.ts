@@ -1,13 +1,12 @@
 import { message } from 'ant-design-vue'
 
 import type { ConsultFormData, LoginFormData, RegisterFormData, TenantItem } from '../interface'
-import { clearUserInfo } from '../utils/remember'
 
 import { http } from './http'
 
 interface PreAuthenticateData extends LoginFormData {
   platform: string
-  scene: string,
+  scene: string
 }
 
 interface SetPasswordData extends LoginFormData {
@@ -29,7 +28,6 @@ export async function getToken() {
 // 退出登录
 export async function logout() {
   const { data } = await http.post('/rpa-auth/logout')
-  clearUserInfo()
   return data
 }
 
@@ -61,7 +59,7 @@ export async function sendCaptcha(phone: string, scene: string, isRegister: bool
 // 获取租户列表
 export async function tenantList(tempToken?: string) {
   const { data } = await http.get<TenantItem[]>('/rpa-auth/tenant/list', { tempToken })
-  return data.map(i => {
+  return data.map((i) => {
     return {
       ...i,
       tenantType: i.tenantType?.includes('enterprise_') ? 'enterprise' : i.tenantType,

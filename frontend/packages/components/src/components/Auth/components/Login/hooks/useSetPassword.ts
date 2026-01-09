@@ -3,12 +3,12 @@ import { reactive, ref } from 'vue'
 import type { InviteInfo, LoginFormData } from '../../../interface'
 import { createSetPasswordFormConfig } from '../../../schemas/loginRegister'
 
-export type SetPasswordEmitEvent = 'submit' | 'switchToLogin'
+export type SetPasswordEmitEvent = 'submit' | 'back'
 
 export function useSetPassword(
   inviteInfo: InviteInfo | null,
   emit: ((e: 'submit', data: LoginFormData) => void)
-    & ((e: 'switchToLogin') => void),
+    & ((e: 'back') => void),
 ) {
   const formRef = ref()
 
@@ -32,8 +32,8 @@ export function useSetPassword(
   const handleEvents = (event: string) => {
     if (event === 'submit')
       return handleSubmit()
-    if (event === 'switchToLogin')
-      return emit('switchToLogin')
+    if (event === 'back')
+      return emit('back')
   }
 
   return { formRef, formData, config, handleEvents }

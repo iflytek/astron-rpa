@@ -67,7 +67,7 @@ function changeMode() {
     :action-text="headerTitle.actionText"
     show-back
     @action="changeMode"
-    @back="() => emit('switchToLogin')"
+    @back="() => currentMode === 'REGISTER' ? emit('switchToLogin') : changeMode()"
   >
     <DynamicForm
       v-if="currentMode === 'REGISTER' && personal.config"

@@ -1,4 +1,4 @@
-export type Platform = 'client' | 'admin'
+export type Platform = 'client' | 'admin' | 'invite'
 export type Edition = 'saas' | 'enterprise'
 export type AuthType = 'uap' | 'casdoor'
 export type LoginMode = 'PASSWORD' | 'CODE'

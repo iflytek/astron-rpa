@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 import type { LoginFormData } from '../../../interface'
 import { generateFormData } from '../../../schemas/factories'
@@ -9,6 +9,7 @@ export type ForgotPasswordEmitEvent
     | 'switchToLogin'
 
 export function useForgotPassword(
+  modelValue: LoginFormData,
   emit: ((e: 'submit', data: LoginFormData) => void)
     & ((e: 'switchToLogin') => void),
 ) {
@@ -17,6 +18,16 @@ export function useForgotPassword(
   const initialData = (): LoginFormData =>
     generateFormData(forgotPasswordFormConfig)
   const formData = reactive<LoginFormData>(initialData())
+
+  const setFormData = (data: LoginFormData) => {
+    Object.assign(formData, { ...data, captcha: '' })
+  }
+
+  setFormData(modelValue)
+
+  watch(() => modelValue, (newVal) => {
+    setFormData(newVal)
+  })
 
   const handleSubmit = async () => {
     try {

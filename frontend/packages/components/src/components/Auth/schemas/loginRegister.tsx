@@ -20,7 +20,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
           { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)' },
           fieldFactories.password(true),
           fieldFactories.agreement(),
-          fieldFactories.remember(),
+          { ...fieldFactories.remember(), hidden: () => isInvite },
         ],
         actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
           <div class="w-full absolute bottom-0">

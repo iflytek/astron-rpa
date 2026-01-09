@@ -1,9 +1,12 @@
 import { Icon, NiceModal } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
+import { storeToRefs } from 'pinia'
 import { computed, h, ref } from 'vue'
 
 import { canAchieveApp, deleteApp, getPushHistoryVersions, useApplication } from '@/api/market'
+import { useAppConfigStore } from '@/stores/useAppConfig'
+import { useUserStore } from '@/stores/useUserStore'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
 import type { resOption } from '../../../types'
@@ -12,6 +15,11 @@ import { DeployRobotModal, MarketAchieveModal, VersionPushModal } from '../index
 
 export function useCardsShow(emits) {
   const { t } = useTranslation()
+  const consultRef = ref(null)
+  const appStore = useAppConfigStore()
+  const userStore = useUserStore()
+  const { appInfo } = storeToRefs(appStore)
+
   const { handleDeleteConfirm, useApplicationConfirm } = useCommonOperate()
 
   const appDrawerData = ref({
@@ -80,6 +88,23 @@ export function useCardsShow(emits) {
         record: item,
         versionLst: data,
         onRefresh: () => emits('refreshHomeTable'),
+        onLimit: () => {
+          consultRef.value?.init({
+            authType: appInfo.value.appAuthType,
+            trigger: 'modal',
+            modalConfirm: {
+              title: '已达到应用数量上限',
+              content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
+              okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
+              cancelText: '我知道了',
+            },
+            consult: {
+              consultTitle: '咨询',
+              consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
+              consultType: 'consult',
+            },
+          })
+        },
       })
     })
   }
@@ -127,6 +152,8 @@ export function useCardsShow(emits) {
     }
   }
   return {
+    consultRef,
+    appInfo,
     appDrawerData,
     showAppDrawer,
     closeAppDrawer,

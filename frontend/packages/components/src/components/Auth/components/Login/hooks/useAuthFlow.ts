@@ -27,7 +27,7 @@ import type {
   RegisterMode,
   TenantItem,
 } from '../../../interface'
-import { clearRememberUser, getRememberUser, getSelectedTenant, saveRememberUser, saveSelectedTenant, saveUserInfo } from '../../../utils/remember'
+import { clearRememberUser, getRememberUser, getSelectedTenant, saveRememberUser, saveSelectedTenant } from '../../../utils/remember'
 
 export interface UseAuthFlowOptions {
   baseUrl?: string
@@ -39,10 +39,21 @@ export interface UseAuthFlowOptions {
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'): void }) {
   const platform = ref<Platform>(opts.platform || 'admin')
+  const preFormMode = ref<AuthFormMode>('login')
   const currentFormMode = ref<AuthFormMode>('login')
   const tenants = ref<TenantItem[]>([])
   const tempToken = ref<string>('')
   const running = ref<AsyncAction>('IDLE')
+  const cacheFormData = ref<Record<string, any>>({})
+
+  const setCacheFormData = (data: any) => {
+    const cacheKey = currentFormMode.value
+    cacheFormData.value[cacheKey] = data
+  }
+
+  const resetCacheFormData = () => {
+    cacheFormData.value = {}
+  }
 
   const run = async <T>(action: AsyncAction, task: () => Promise<T>) => {
     running.value = action
@@ -147,10 +158,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
 
   const handleLogin = async (tenantId: string) => {
     try {
-      const userInfo = await login({ tenantId, tempToken: tempToken.value })
-      console.log(userInfo)
+      await login({ tenantId, tempToken: tempToken.value })
       saveSelectedTenant(tenantId)
-      saveUserInfo(userInfo)
       emits('finish')
     }
     catch (e) {
@@ -180,6 +189,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
 
   const handleForgotPassword = async (data: LoginFormData) => run('FORGOT_PASSWORD', async () => {
     try {
+      setCacheFormData(data)
       const params: LoginFormData = { ...data, loginType: 'CODE' }
       delete params.remember
       delete params.agreement
@@ -209,7 +219,12 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
     await handleLogin(tenantId)
   }
 
-  const switchMode = (mode: AuthFormMode) => (currentFormMode.value = mode)
+  const switchMode = (mode: AuthFormMode) => {
+    preFormMode.value = currentFormMode.value
+    currentFormMode.value = mode
+    if (mode === 'login')
+      resetCacheFormData()
+  }
 
   const autoPreLogin = () => {
     const remembered = getRememberUser()
@@ -228,6 +243,8 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
 
   return {
     currentFormMode,
+    cacheFormData,
+    preFormMode,
     tenants,
     running,
     preLogin,

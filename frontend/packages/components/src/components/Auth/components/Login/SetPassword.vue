@@ -18,7 +18,7 @@ const { running, title, inviteInfo } = defineProps({
 
 const emit = defineEmits<{
   submit: [data: LoginFormData]
-  switchToLogin: []
+  back: []
 }>()
 
 const loading = computed(() => running === 'SET_PASSWORD')
@@ -31,7 +31,7 @@ const { formRef, formData, config, handleEvents } = useSetPassword(inviteInfo, e
     wrap-class="auth-set-password h-full relative"
     :title="title || '设置密码'"
     show-back
-    @back="() => emit('switchToLogin')"
+    @back="() => emit('back')"
   >
     <DynamicForm
       ref="formRef"

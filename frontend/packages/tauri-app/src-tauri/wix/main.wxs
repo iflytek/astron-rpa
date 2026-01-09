@@ -163,7 +163,7 @@
                     <RegistryValue Name="URL Protocol" Type="string" Value=""/>
                 </RegistryKey>
                 <RegistryKey Root="HKCR" Key="AstronRPA\shell\Open\command" Action="createAndRemoveOnUninstall">
-                    <RegistryValue Type="string" Value="[!Path] %1" />
+                    <RegistryValue Type="string" Value="&quot;[INSTALLDIR]{{product_name}}.exe&quot; %1" />
                 </RegistryKey>
             </Component>
         </DirectoryRef>
