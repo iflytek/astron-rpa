@@ -42,7 +42,7 @@ async function checkUpdate() {
 
 <template>
   <div class="w-full h-full relative">
-    <Card class="h-[84px] px-[24px] py-[20px] !gap-4" :title="$t('app')" :description="appInfo.appVersion">
+    <Card class="h-[84px] px-[24px] py-[20px] !gap-4" :title="$t('app')" :description="`v${appInfo.appVersion}`">
       <template #prefix>
         <img src="/icons/icon.png" width="40" height="40">
       </template>

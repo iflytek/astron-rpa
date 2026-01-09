@@ -1,14 +1,14 @@
 import { autoUpdater, type UpdateInfo as ElectronUpdateInfo } from "electron-updater"
-import { app } from 'electron'
+// import { app } from 'electron'
 import type { UpdateInfo, UpdateManifest } from '@rpa/shared/platform'
 import { withTimeout } from '@rpa/shared'
 
 import logger from "./log"
-import { version } from "os"
+// import { version } from "os"
 import { mainToRender } from './event'
 
 autoUpdater.logger = logger
-autoUpdater.forceDevUpdateConfig = true
+// autoUpdater.forceDevUpdateConfig = true
 // 退出后自动安装
 autoUpdater.autoInstallOnAppQuit = true
 
