@@ -91,6 +91,7 @@ class PickerCore(IPickerCore):
             last_point=self.last_point,
             data=data,
             start_control=start_control,
+            domain=PickerDomain.UIA,
         )
         rect = self.last_element.rect()
         tag = self.last_element.tag()
@@ -126,11 +127,15 @@ class PickerCore(IPickerCore):
 
             logger.info("strategy 加载完成")
 
+        domain = PickerDomain.AUTO
+        pick_mode = data.get("pick_mode", None)
+        if pick_mode:
+            if pick_mode == "WebPick":
+                domain = PickerDomain.AUTO_WEB
+            else:
+                domain = PickerDomain.AUTO_DESK
         self.last_strategy_svc = svc.strategy.gen_svc(
-            process_id=process_id,
-            last_point=self.last_point,
-            data=data,
-            start_control=start_control,
+            process_id=process_id, last_point=self.last_point, data=data, start_control=start_control, domain=domain
         )
 
         # 策略运行

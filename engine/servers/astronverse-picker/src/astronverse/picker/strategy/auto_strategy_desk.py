@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from astronverse.picker.svc import ServiceContext
 
 
-def auto_default_strategyaaaa_desk(
+def auto_default_strategy_desk(
     service: "ServiceContext", strategy: "Strategy", strategy_svc: "StrategySvc"
 ) -> Optional[IElement]:
     """自动选择策略"""

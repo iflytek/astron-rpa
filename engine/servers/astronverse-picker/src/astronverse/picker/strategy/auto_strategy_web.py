@@ -77,43 +77,4 @@ def auto_default_strategy_web(
             logger.error("堆栈信息:\n%s", traceback.format_exc())
             logger.error(f"auto_default_strategy web error: {e} {traceback.extract_stack()}")
             raise e
-    elif strategy_svc.app.value in MSAA_APPLICATIONS:
-        preliminary_element = msaa_default_strategy(strategy_svc)
-    elif strategy_svc.app in [APP.SAP]:
-        # 2. 判断是否是sap
-        try:
-            preliminary_element = sap_default_strategy(service, strategy, strategy_svc)
-        except Exception as e:
-            logger.error(f"auto_default_strategy sap_picker error: {e} {traceback.extract_stack()}")
-    else:
-        # 3. 如果不是浏览器就优先使用JAB
-        try:
-            preliminary_element = jab_default_strategy(service, strategy, strategy_svc)
-        except Exception as e:
-            logger.error(f"auto_default_strategy jab_picker error: {e} {traceback.extract_stack()}")
-
-    # 3. 兜底使用uia
-    uia_element = None
-    try:
-        uia_element = uia_default_strategy(strategy_svc)
-    except Exception as e:
-        logger.error("堆栈信息:\n%s", traceback.format_exc())
-        logger.error(f"auto_default_strategy uia_picker error: {e} {traceback.extract_stack()}")
-
-    # 4. 结果优先选取
-    if uia_element is None and preliminary_element is not None:
-        return preliminary_element
-    if preliminary_element is None and uia_element is not None:
-        return uia_element
-    if uia_element is None and preliminary_element is None:
-        return None
-    # 优先使用面积小的，如果相同使用preliminary_element
-    logger.info(
-        "pk: uia %s preliminary %s",
-        uia_element.rect().area(),
-        preliminary_element.rect().area(),
-    )
-    if preliminary_element.rect().area() <= uia_element.rect().area():
-        return preliminary_element
-    else:
-        return uia_element
+    return None
