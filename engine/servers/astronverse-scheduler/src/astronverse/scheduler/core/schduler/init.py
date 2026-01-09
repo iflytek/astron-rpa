@@ -18,7 +18,7 @@ def win_env_check(svc):
         try:
             vc_redist_exe = os.path.join(resource_dir, "VC_redist.x64.exe")
             if os.path.exists(vc_redist_exe):
-                subprocess.run([vc_redist_exe, '-quiet'], check=True)
+                subprocess.run([vc_redist_exe, "-quiet"], check=True)
         except Exception as e:
             pass
 
