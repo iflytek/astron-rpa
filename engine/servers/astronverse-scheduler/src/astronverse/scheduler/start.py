@@ -12,7 +12,7 @@ from astronverse.scheduler.core.server import ServerManager
 from astronverse.scheduler.core.servers.async_server import (
     CheckPickProcessAliveServer,
     CheckStartPidExitsServer,
-    RpaSchedulerAsyncServer,
+    RpaSchedulerAsyncServer, TerminalAsyncServer,
 )
 from astronverse.scheduler.core.servers.core_server import (
     RpaBrowserConnectorServer,
@@ -58,6 +58,7 @@ def start():
         server_mg.register(RpaRouteServer(svc))
         server_mg.register(RpaBrowserConnectorServer(svc))
         server_mg.register(RpaSchedulerAsyncServer(svc))
+        server_mg.register(TerminalAsyncServer(svc))
         server_mg.register(CheckPickProcessAliveServer(svc))
         server_mg.register(CheckStartPidExitsServer(svc))
         server_mg.register(svc.trigger_server)
