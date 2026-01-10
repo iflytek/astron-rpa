@@ -156,9 +156,13 @@ export const useProcessStore = defineStore('process', () => {
 
   // 更新参数
   const updateParameter = async (data: RPA.ConfigParamData) => {
-    await updateConfigParam({ ...data, ...cofnigParamIdOption.value, robotId: project.value.id })
+    const newParameter = { ...data, robotId: project.value.id }
+    if (!data.processId && !data.moduleId) {
+      Object.assign(newParameter, cofnigParamIdOption.value)
+    }
+    await updateConfigParam(newParameter)
     const target = parameters.value.find(item => item.id === data.id)
-    Object.assign(target, data)
+    target && Object.assign(target, data)
   }
 
   // 生成唯一的组件属性名称
