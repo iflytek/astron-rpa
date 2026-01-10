@@ -61,6 +61,8 @@ def start():
         server_mg.register(CheckPickProcessAliveServer(svc))
         server_mg.register(CheckStartPidExitsServer(svc))
         server_mg.register(svc.trigger_server)
+        if svc.vnc_server:
+            server_mg.register(svc.vnc_server)
         server_mg.run()
 
         # 5. 等待本地网关加载完成，并注册服务
