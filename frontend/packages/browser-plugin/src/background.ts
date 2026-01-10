@@ -63,6 +63,17 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     log.info('Alive alarm triggered')
   }
 })
+// Check every 10 seconds if the runtime is valid
+setInterval(() => {
+  if (!chrome.runtime?.id) {
+    log.info('Background runtime invalid, reloading extension')
+    chrome.runtime.reload()
+  }
+}, 10 * 1000) // every 10 seconds
+
+globalThis.addEventListener('error', () => {
+  log.info('Background error event triggered')
+})
 
 ; (async function () {
   const wsApp = await createWsApp()

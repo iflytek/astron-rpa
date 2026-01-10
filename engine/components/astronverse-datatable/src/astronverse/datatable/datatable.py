@@ -25,7 +25,6 @@ from astronverse.datatable import (
     PasteType,
     ReadType,
     RowInsertShift,
-    SortOrder,
     WriteMode,
     WriteType,
 )
@@ -36,14 +35,20 @@ from astronverse.datatable.error import (
     PARAMS_ERROR,
 )
 from astronverse.datatable.openpyxl import OpenpyxlWrapper
-from astronverse.datatable.utils import col_to_index, filter_data, index_to_col, validate, validate_formula
+from astronverse.datatable.utils import (
+    col_to_index,
+    ensure_xlsx_file,
+    filter_data,
+    index_to_col,
+    validate,
+    validate_formula,
+)
 
 _xlsx_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table.xlsx"))
 _head_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table_head.xlsx"))
-
-
 logger.info(f"DataTable xlsx file path: {_xlsx_file_path}")
-
+ensure_xlsx_file(_xlsx_file_path)
+ensure_xlsx_file(_head_file_path)
 
 PyxlWrapper = OpenpyxlWrapper(file_path=_xlsx_file_path, sheet_name=None)
 PyxlHeadWrapper = OpenpyxlWrapper(file_path=_head_file_path, sheet_name=None)
@@ -1154,26 +1159,6 @@ class DataTable:
         return str(PyxlHeadWrapper.read_cell(row=1, col=col_index))
 
     @staticmethod
-    @validate_cell
-    @auto_save
-    @atomicMg.atomic(
-        "DataTable",
-        inputList=[],
-        outputList=[],
-    )
-    def sort_table(
-        col: str,
-        sort_type: SortOrder = SortOrder.ASCENDING,
-    ):
-        """
-        数据表格排序
-        """
-        if not col:
-            raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
-        col_index = col_to_index(col)
-        PyxlWrapper.sort_column(col_index=col_index, order=sort_type.value)
-
-    @staticmethod
     @auto_save
     @validate_cell
     @atomicMg.atomic(
@@ -1201,6 +1186,7 @@ class DataTable:
                         expression="return $this.is_replace.value == true",
                     )
                 ],
+                required=False,
             ),
         ],
         outputList=[

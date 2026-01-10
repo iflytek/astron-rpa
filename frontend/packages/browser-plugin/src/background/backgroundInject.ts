@@ -954,6 +954,9 @@ async function bgHandler(params) {
     }
   }
   catch (error) {
+    if (error.toString().includes('connection')) {
+      return Utils.fail(ErrorMessage.CONTEXT_NOT_FOUND, StatusCode.UNKNOWN_ERROR)
+    }
     return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
   }
 }
