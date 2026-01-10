@@ -4,6 +4,7 @@ from astronverse.scheduler import ServerLevel
 from astronverse.scheduler.core.schduler.venv import VenvManager
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.setup.setup import Process
+from astronverse.scheduler.core.terminal.terminal import Terminal
 from astronverse.scheduler.logger import logger
 
 
@@ -35,6 +36,29 @@ class RpaSchedulerAsyncServer(IServer):
                     logger.exception("register_server error: {}".format(e))
             except Exception as e:
                 pass
+            finally:
+                i += 1
+                if i > 60:
+                    i = 0
+                time.sleep(1)
+
+
+class TerminalAsyncServer(IServer):
+    def __init__(self, svc):
+        super().__init__(svc=svc, name="terminal_async", level=ServerLevel.NORMAL, run_is_async=True)
+
+    def run(self):
+        i = 1
+        while True:
+            try:
+                if i % 10 == 0:
+                    # 创建空的虚拟环境
+                    res = Terminal.upload(self.svc)
+                    if res == "TERMINAL_NOT_FOUND":
+                        # 未注册，先去注册
+                        Terminal.register(self.svc)
+            except Exception as e:
+                logger.exception("Terminal upload error: {}".format(e))
             finally:
                 i += 1
                 if i > 60:
