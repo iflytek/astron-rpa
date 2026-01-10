@@ -1,12 +1,19 @@
 import json
 import os.path
 import platform
+import random
 import socket
+import string
 import sys
-
 import psutil
 import requests
 from astronverse.scheduler.logger import logger
+
+
+def generate_password(length=8):
+    """生成指定长度的随机密码（数字+英文字母）"""
+    chars = string.ascii_letters + string.digits
+    return "".join(random.choice(chars) for _ in range(length))
 
 
 class Terminal:
@@ -22,6 +29,7 @@ class Terminal:
                 "name": Terminal.get_device_name(),  # 终端名称
                 "account": Terminal.get_account(),  # 设备账号
                 "os": Terminal.get_os_info(),  # 操作系统
+                "osPwd": terminal_pwd,
                 "port": svc.rpa_route_port,
                 "ip": ",".join(ips),  # IP地址
                 "status": "busy"
@@ -103,7 +111,7 @@ class Terminal:
 
         try:
             active_net = []
-            addrs = psutil.net_if_addrs()
+            addrs = psutil.net_if_addrs()  # noqa
             stats = psutil.net_if_stats()
             for iface, addresses in addrs.items():
                 if not stats[iface].isup:
@@ -223,3 +231,4 @@ class Terminal:
 ip_address = Terminal.get_ip_address()
 ips = [v.get("ipv4") for v in ip_address]
 terminal_id = Terminal.get_terminal_id()
+terminal_pwd = generate_password(8)
