@@ -41,7 +41,7 @@ function convertVarValueToArray(varValue: unknown): RPA.AtomFormItemResult[] {
 // 由 Array 转换成 String
 function convertArrayToVarValue(value: RPA.AtomFormItemResult[]): string {
   if (!isArray(value) || value.length === 0) {
-    return ''
+    return JSON.stringify([{ type: OTHER_IN_TYPE, value: '' }])
   }
   return JSON.stringify(value)
 }

@@ -1,6 +1,6 @@
 <!-- 子流程选择组件 -->
 <script setup lang="ts">
-import { find, get, isArray, isEqual } from 'lodash-es'
+import { some, find, get, has, isArray, isEmpty, isEqual } from 'lodash-es'
 import { computed, ref, toRaw, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
@@ -11,6 +11,7 @@ import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
 
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
+import { OTHER_IN_TYPE } from '@/constants/atom'
 
 interface ParamItemValue {
   rpa: 'special'
@@ -75,10 +76,15 @@ watch(linkageKey, async (newLinkageKey) => {
   // 配置参数默认值
   const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
 
-  gridData.value = list.filter(item => item.varDirection === 0).map(item => ({
-    ...item,
-    varValue: currentParamMap.get(item.id) || defaultParamMap.get(item.id)
-  }))
+  gridData.value = list.filter(item => item.varDirection === 0).map(item => {
+    const varValue = safeParse(currentParamMap.get(item.id) || defaultParamMap.get(item.id))
+    const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
+
+    return {
+      ...item,
+      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue
+    }
+  })
 }, { immediate: true })
 
 watch(() => gridData.value, (newGridData) => {
