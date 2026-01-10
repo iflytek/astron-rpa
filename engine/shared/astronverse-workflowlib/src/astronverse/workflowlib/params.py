@@ -98,13 +98,14 @@ class ComplexParamParser:
         """
         if isinstance(data, dict):
             if data.get("rpa") == "special" and "value" in data:
-                if not data["value"]:
-                    data["value"] = []
-                expr_str, need_eval = cls._param_to_eval(data["value"])
-                if need_eval:
-                    return _compile_expression(expr_str)
+                if isinstance(data["value"], list) and len(data["value"]) > 0:
+                    expr_str, need_eval = cls._param_to_eval(data["value"])
+                    if need_eval:
+                        return _compile_expression(expr_str)
+                    else:
+                        return expr_str
                 else:
-                    return expr_str
+                    return data["value"]
             return {k: cls._recursive_convert_params(v) for k, v in data.items()}
         if isinstance(data, list):
             return [cls._recursive_convert_params(item) for item in data]
@@ -164,13 +165,14 @@ class ComplexParamParser:
                 return {}
 
             # 遍历所有调用栈，找到最外层为main的层
-            cframe = frame
+            cframe = None
             while frame is not None:
                 # 获取当前帧的局部变量
-                if frame.f_locals.get("main"):
+                if frame.f_code.co_name == "main":
+                    # 找到 main 函数帧，使用该帧
+                    cframe = frame
                     break
                 else:
-                    cframe = frame
                     frame = frame.f_back
 
             # 获取局部变量和全局变量
