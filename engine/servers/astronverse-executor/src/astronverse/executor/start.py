@@ -143,7 +143,7 @@ def start():
     Config.exec_id = args.exec_id
     Config.project_id = args.project_id
     if args.project_name:
-        Config.project_name = args.project_name
+        Config.project_name = unquote(args.project_name)
     if args.resource_dir:
         args.resource_dir = unquote(args.resource_dir)
         Config.resource_dir = args.resource_dir

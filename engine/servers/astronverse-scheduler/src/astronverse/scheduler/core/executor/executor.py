@@ -342,7 +342,7 @@ class ExecutorManager:
         if debug:
             ins.set_param("debug", debug)
         if project_name:
-            ins.set_param("project_name", project_name)
+            ins.set_param("project_name", quote(project_name))
         if version:
             ins.set_param("version", int(version))
         if self.svc.config and self.svc.config.conf_file:
