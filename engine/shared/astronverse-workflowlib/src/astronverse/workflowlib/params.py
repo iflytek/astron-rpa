@@ -97,7 +97,9 @@ class ComplexParamParser:
         递归转换复杂参数结构
         """
         if isinstance(data, dict):
-            if data.get("rpa") == "special" and isinstance(data.get("value"), list):
+            if data.get("rpa") == "special" and "value" in data:
+                if not data["value"]:
+                    data["value"] = []
                 expr_str, need_eval = cls._param_to_eval(data["value"])
                 if need_eval:
                     return _compile_expression(expr_str)
