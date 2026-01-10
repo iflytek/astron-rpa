@@ -279,7 +279,7 @@ router.beforeEach(async (to, from, next) => {
     if (first)
       return next(first)
 
-    window.location.href = '/boot.html'
+    window.location.href = '/boot.html?code=403' // 无权限访问，跳转到登录页
     return
   }
   next()

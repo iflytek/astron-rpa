@@ -35,6 +35,7 @@ export interface UseAuthFlowOptions {
   inviteInfo?: InviteInfo
   authType?: AuthType
   edition?: Edition
+  autoLogin?: boolean
 }
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'): void }) {
@@ -239,7 +240,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       preLogin(params, 'PASSWORD', false)
     }
   }
-  !opts.inviteInfo && checkLoginStatus()
+  (!opts.inviteInfo || !opts.autoLogin) && checkLoginStatus()
 
   return {
     currentFormMode,

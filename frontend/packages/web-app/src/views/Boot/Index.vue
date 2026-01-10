@@ -22,6 +22,7 @@ const { appInfo } = storeToRefs(appStore)
 const progress = ref(0)
 const isLogin = ref(false)
 const loginFormRef = ref()
+const autoLogin = ref(true)
 
 function loginWindowStep() {
   windowManager.restoreLoginWindow()
@@ -60,6 +61,7 @@ function loginAuto() {
     const searchParams = new URLSearchParams(window.location.search)
     const code = searchParams.get('code')
     const tenantType = searchParams.get('tenantType')
+    autoLogin.value = !code
     if (code === '900005') {
       expiredModal(tenantType)
       nextTick(() => {
@@ -114,7 +116,7 @@ onUnmounted(() => {
           </LaunchCarousel>
         </div>
       </template>
-      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getBaseURL()" :auth-type="appInfo.appAuthType" :edition="appInfo.appEdition" @finish="loginSuccess" />
+      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getBaseURL()" :auto-login="autoLogin" :auth-type="appInfo.appAuthType" :edition="appInfo.appEdition" @finish="loginSuccess" />
     </Auth.PageLayout>
     <Loading />
   </ConfigProvider>
