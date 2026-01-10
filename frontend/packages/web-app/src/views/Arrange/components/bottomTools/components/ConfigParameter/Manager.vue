@@ -47,19 +47,22 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   ],
 }
 
-const searchedData = computedWithControl(() => processStore.parameters.length, () => {
-  let list = processStore.parameters
+const searchedData = computedWithControl(
+  () => [processStore.parameters.length, processStore.activeProcessId, searchText.value], 
+  () => {
+    let list = processStore.parameters
 
-  // 根据参数名称查询
-  if (searchText.value) {
-    list = processStore.parameters.filter(item => item.varName.includes(searchText.value))
+    // 根据参数名称查询
+    if (searchText.value) {
+      list = processStore.parameters.filter(item => item.varName.includes(searchText.value))
+    }
+
+    return list.map(item => ({
+      ...item,
+      perVarName: item.varName,
+    }))
   }
-
-  return list.map(item => ({
-    ...item,
-    perVarName: item.varName,
-  }))
-})
+)
 
 const emptyText = computed(() => searchText.value ? '未搜索到配置参数' : undefined)
 
