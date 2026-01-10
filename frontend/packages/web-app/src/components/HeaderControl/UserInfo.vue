@@ -53,12 +53,6 @@ async function menuClick(item: any) {
   if (item.key === 'logout') {
     await logout()
   }
-  if (item.keyPath[0] === 'changeTenant') {
-    // 回传租户Id后重新跳转到首页
-    await sendTenantId({ tenantId: item.key })
-    taskNotify({ event: 'switch' })
-    useRoutePush({ name: DESIGNER })
-  }
   if (item.keyPath[0] === 'changeMode') {
     GlobalModal.confirm({
       title: '开始调度模式',
@@ -77,8 +71,8 @@ async function menuClick(item: any) {
 }
 
 async function logout() {
-  taskNotify({ event: 'exit' }) // 不阻塞
   await userStore.logout()
+  taskNotify({ event: 'exit' }) // 不阻塞
   location.replace(`/boot.html`)
 }
 

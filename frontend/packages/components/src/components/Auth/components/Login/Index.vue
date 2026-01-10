@@ -15,6 +15,7 @@ const props = defineProps({
   inviteInfo: { type: Object as () => InviteInfo, default: () => null },
   edition: { type: String as () => Edition, default: 'saas' },
   authType: { type: String as () => AuthType, default: 'uap' },
+  autoLogin: { type: Boolean, default: true },
 })
 const emits = defineEmits(['finish'])
 

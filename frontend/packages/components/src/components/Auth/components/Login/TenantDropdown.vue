@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 import { switchTenant, tenantList } from '../../api/login'
 import type { AuthType, TenantItem } from '../../interface'
-import { getSelectedTenant } from '../../utils/remember'
+import { getSelectedTenant, saveSelectedTenant } from '../../utils/remember'
 import Consult from '../Base/Consult/Index.vue'
 import Loading from '../Base/Loading.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
@@ -56,6 +56,7 @@ async function toggleTenant(tenant: TenantItem) {
   }
   selectedTenant.value = tenant
   await emit('switchTenant', tenant)
+  saveSelectedTenant(tenant.id)
   loadingRef.value?.isLoading({ isLoading: false, immediate: true })
 }
 
