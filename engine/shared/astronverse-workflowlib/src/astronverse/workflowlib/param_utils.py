@@ -46,9 +46,6 @@ def __special_eval__(value: Any, env: dict, id2name: dict = None) -> Any:
 
     if value.get("rpa", "") != "special":
         return
-    if "value" in value and not value.get("value"):
-        # 兼容前端逻辑
-        value["value"] = []
 
     ls = pre_param_handler(value.get("value", []), None, "", id2name)
     value, need_eval = param_to_eval(ls)
