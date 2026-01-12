@@ -1,33 +1,42 @@
-import sys
-import threading
-from astronverse.tools.tools import RpaTools
-from astronverse.executor.utils.utils import exec_run
+import json
+import requests
+from astronverse.executor.logger import logger
 
 
 class LogTool:
     def __init__(self, svc):
         self.svc = svc
-        self.thread = None
+        self.starting = False
 
-    def __tool__(self):
-        if sys.platform == "win32":
-            url = RpaTools.get_window_dir()
+    def _send_msg(self, action: str):
+        info = self.svc.get_project_info()
+        sub_window = {
+            "action": action,
+            "name": "logwin",
+            "params": {
+                "title": info.project_name,
+                "icon": info.project_icon,
+                "ws": "ws://127.0.0.1:{}/?tag=tip".format(self.svc.conf.port),
+            },
+            "pos": "right_bottom",
+            "width": "360",
+            "height": "128",
+            "top": "true",
+        }
+        url = "http://127.0.0.1:{}/scheduler/send/sub_window".format(self.svc.conf.gateway_port)
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(url, headers=headers, data=json.dumps(sub_window))
+        logger.info(f"当前调度器返回的结果的Json是：{response.json()}")
+        if int(response.status_code) == 200 and response.json()["code"] == "0000":
+            return response.json()
         else:
-            url = RpaTools.get_window_dir()
-        exec_run(
-            [
-                url,
-                "--url=tauri://localhost/logwin.html?title={}&ws=ws://127.0.0.1:{}/?tag=tip".format(
-                    self.svc.conf.project_name, self.svc.conf.port
-                ),
-                "--pos=right_bottom",
-                "--width=288",
-                "--height=102",
-                "--top=true",
-            ],
-            True,
-        )
+            return None
+
+    def close(self):
+        if self.starting:
+            self._send_msg(action="close")
+            self.starting = False
 
     def start(self):
-        self.thread = threading.Thread(target=self.__tool__, daemon=True)
-        self.thread.start()
+        self.starting = True
+        self._send_msg(action="open")

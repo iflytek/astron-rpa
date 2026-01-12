@@ -27,7 +27,6 @@ astronverse-script
 astronverse-smart
 astronverse-software
 astronverse-system
-astronverse-tools
 astronverse-trigger
 astronverse-verifycode
 astronverse-vision

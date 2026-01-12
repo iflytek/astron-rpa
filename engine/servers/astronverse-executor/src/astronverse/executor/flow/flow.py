@@ -31,13 +31,12 @@ class Flow:
                 )
 
                 component_path = os.path.join(path, "c{}".format(component_id))
-                self.gen_code(path=component_path, project_id=component_id, project_name="", mode="", version=version)
+                self.gen_code(path=component_path, project_id=component_id, mode="", version=version)
 
     def gen_code(
         self,
         path: str,
         project_id: str,
-        project_name: str,
         mode: str,
         version: str,
         process_id: str = "",
@@ -49,8 +48,15 @@ class Flow:
         # 1. 获取全局变量
         global_var = self._global_display(project_id, mode, version)
         requirement = self._requirement_display(project_id, mode, version)
+        project_info = self.svc.storage.project_info(project_id=project_id, mode=mode, version=version)
+        if project_info:
+            project_name = project_info.get("name", "机器人")
+            project_icon = project_info.get("iconUrl", "")
+        else:
+            project_name = "机器人"
+            project_icon = ""
         self.svc.add_project_info(
-            project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port, global_var
+            project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port, global_var, project_icon
         )
 
         # 2. 生成流程相关数据

@@ -60,6 +60,9 @@ class DebugSvc:
         """将字典数据转换为结构化对象"""
         self.ast_globals = AstGlobals.from_dict(data)
 
+    def get_project_info(self):
+        return self.ast_globals.project_info
+
     def get_process_info(self, process_id):
         if process_id not in self.ast_globals.process_info:
             return None
@@ -85,7 +88,7 @@ class DebugSvc:
                         ReportFlow(
                             log_type=ReportType.Flow,
                             status=ReportFlowStatus.TASK_END,
-                            result=status,
+                            result=status.value,
                             data=data,
                             msg_str=MSG_TASK_EXECUTION_END,
                         )
@@ -95,7 +98,7 @@ class DebugSvc:
                         ReportFlow(
                             log_type=ReportType.Flow,
                             status=ReportFlowStatus.TASK_ERROR,
-                            result=status,
+                            result=status.value,
                             msg_str=MSG_TASK_USER_CANCELLED,
                         )
                     )
@@ -104,11 +107,19 @@ class DebugSvc:
                         reason = MSG_TASK_EXECUTION_ERROR
                     self.report.info(
                         ReportFlow(
-                            log_type=ReportType.Flow, result=status, status=ReportFlowStatus.TASK_ERROR, msg_str=reason
+                            log_type=ReportType.Flow,
+                            result=status.value,
+                            status=ReportFlowStatus.TASK_ERROR,
+                            msg_str=reason,
                         )
                     )
                 else:
                     raise NotImplementedError()
+
+                # 结束log_tool
+                if status in [ExecuteStatus.SUCCESS, ExecuteStatus.CANCEL, ExecuteStatus.FAIL]:
+                    if self.log_tool:
+                        self.log_tool.close()
 
                 # 关闭日志
                 if self.report:

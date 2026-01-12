@@ -4,8 +4,11 @@ import json
 import os
 import shutil
 import subprocess
+import threading
 import time
-
+import urllib
+from typing import Callable, Optional
+import urllib.parse
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import LLMModelTypes
@@ -15,7 +18,34 @@ from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
 from astronverse.baseline.logger.logger import logger
-from astronverse.tools.tools import RpaTools
+
+
+def wait_with_timeout(check_done: Callable[[], bool], reset_timeout_on_activity: bool, wait_time: int):
+    """
+    等待对话框结果，支持用户活动检测和超时保护
+
+    Args:
+        check_done: 回调函数，返回 True 表示完成，False 表示继续等待
+        reset_timeout_on_activity: 是否在检测到用户活动（鼠标移动）时重置超时计时器
+        wait_time: 超时时间（秒）
+    """
+    from pynput.mouse import Controller as MouseController
+
+    mouse_controller: Optional[MouseController] = None
+    if reset_timeout_on_activity:
+        mouse_controller = MouseController()
+
+    last_pos = None
+    start = time.time()
+    while not check_done():
+        if reset_timeout_on_activity and mouse_controller:
+            pos = mouse_controller.position
+            if pos != last_pos:
+                last_pos = pos
+                start = time.time()
+        if time.time() - start > wait_time:
+            break
+        time.sleep(0.1)
 
 
 class ChatAI:
@@ -84,45 +114,33 @@ class ChatAI:
             `dict`, 选择导出的记录
         """
 
-        # 拉起窗口
-        exe_path = RpaTools.get_window_dir()
-        args = [
-            exe_path,
-            f"--url=tauri://localhost/multichat.html?max_turns={str(max_turns)}&is_save={str(int(is_save))}&title={title}&model={model.value}",
-            "--height=600",
-        ]
-        process = subprocess.Popen(  # pylint: disable=consider-using-with
-            args,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding="utf-8",
-        )
+        done = threading.Event()
+        res = {}
+        res_e = None
 
-        # 数据输出
-        save_dict = {}
-        while True:
-            if process.stdout is None:
-                break
-            output = process.stdout.readline()
-            if output == "" and process.poll() is not None:
-                break
-            if not output:
-                continue
-            save_str = output.strip()
-            try:
-                save_dict = json.loads(save_str)
-            except Exception:  # 保留宽泛捕获用于健壮性日志
-                logger.error("save_dict JSON parse error: %s", save_str)
+        def callback_func(watch_msg, e: Exception = None):
+            nonlocal done, res, res_e
+            if watch_msg:
+                res = watch_msg.data
+            if e:
+                res_e = e
+            done.set()
 
-        try:
-            time.sleep(1)
-            process.kill()
-        except Exception:  # 宽泛捕获：仅做进程清理
-            logger.debug("process already terminated")
+        ws = atomicMg.cfg().get("WS", None)
+        if ws:
+            params = {
+                "max_turns": str(max_turns),
+                "is_save": str(int(is_save)),
+                "title": title,
+                "model": model.value,
+            }
+            ws.send_reply({"data": {"name": "multichat", "params": params, "height": 600}}, 600, callback_func)
 
-        return save_dict
+        done.wait()
+        if res_e:
+            raise Exception(res_e)
+
+        return res
 
     @staticmethod
     def _extract_file_content(file_path: str) -> str:
@@ -209,56 +227,41 @@ class ChatAI:
         dest_file = ChatAI._setup_file_cache(file_path)
 
         # 拉起窗口
-        exe_path = RpaTools.get_window_dir()
-        url_params = (
-            f"max_turns={str(max_turns)}&is_save={str(int(is_save))}"
-            f"&questions={'$-$'.join(output)}&file_path={file_path}"
-        )
-        args = [
-            exe_path,
-            f"--url=tauri://localhost/multichat.html?{url_params}",
-            f"--content={file_content[:5000]}",
-            "--height=700",
-        ]
-        # args = [exe_path, f"--url=https://tauri.localhost/multichat.html?max_turns={str(max_turns)}&is_save={str(int(is_save))}&questions={'$-$'.join(output)}&file_path={file_path}", f"--content={file_content[:5000]}", "--height=700"]
-        process = subprocess.Popen(  # pylint: disable=consider-using-with
-            args,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding="utf-8",
-        )
+        done = threading.Event()
+        res = {}
+        res_e = None
 
-        # 数据输出
-        save_dict = {}
-        while True:
-            if process.stdout is None:
-                break
-            output = process.stdout.readline()
-            if output == "" and process.poll() is not None:
-                break
-            if not output:
-                continue
+        def callback_func(watch_msg, e: Exception = None):
+            nonlocal done, res, res_e
+            if watch_msg:
+                res = watch_msg.data
+            if e:
+                res_e = e
+            done.set()
 
-            save_str = output.strip()
-            try:
-                save_dict = json.loads(save_str)
-            except Exception:  # 宽泛捕获：日志调试
-                logger.debug("save_dict JSON parse error: %s", save_str)
+        ws = atomicMg.cfg().get("WS", None)
+        if ws:
+            params = {
+                "max_turns": str(max_turns),
+                "is_save": str(int(is_save)),
+                "questions": "$-$".join(output),
+                "file_path": file_path,
+            }
+            ws.send_reply(
+                {"data": {"name": "multichat", "params": params, "content": file_content[:5000], "height": 700}},
+                600,
+                callback_func,
+            )
+
+        done.wait()
 
         # 文件清空
         if os.path.exists(dest_file):
             os.remove(dest_file)
 
-        # 结束子进程
-        try:
-            time.sleep(1)
-            process.kill()
-        except Exception:  # 进程可能已退出
-            logger.debug("process already terminated (knowledge_chat)")
-
-        return save_dict
+        if res_e:
+            raise Exception(res_e)
+        return res
 
     @staticmethod
     def streamable_response(inputs: list, model: str = DEFAULT_MODEL):

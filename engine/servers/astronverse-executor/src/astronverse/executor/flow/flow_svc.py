@@ -29,12 +29,14 @@ class FlowSvc:
         requirement: dict,
         gateway_port: int,
         global_var: dict,
+        project_icon: str = "",
     ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
 
         self.ast_globals_dict[project_id].project_info.project_id = project_id
         self.ast_globals_dict[project_id].project_info.project_name = project_name
+        self.ast_globals_dict[project_id].project_info.project_icon = project_icon
         self.ast_globals_dict[project_id].project_info.mode = mode
         self.ast_globals_dict[project_id].project_info.version = version
         self.ast_globals_dict[project_id].project_info.requirement = requirement

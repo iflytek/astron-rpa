@@ -9,7 +9,6 @@ dependencies = [
     "astronverse-baseline",
     "astronverse-browser-plugin",
     "astronverse-locator ",
-    "astronverse-tools",
     "astronverse-websocket-client",
     "astronverse-websocket-server",
     "astronverse-workflowlib",
@@ -51,7 +50,6 @@ astronverse-actionlib = {path = "./shared/astronverse-actionlib", editable = tru
 astronverse-baseline = {path = "./shared/astronverse-baseline", editable = true}
 astronverse-browser-plugin = {path = "./shared/astronverse-browser-plugin", editable = true}
 astronverse-locator = {path = "./shared/astronverse-locator", editable = true}
-astronverse-tools = {path = "./shared/astronverse-tools", editable = true}
 astronverse-websocket-client = {path = "./shared/astronverse-websocket-client", editable = true}
 astronverse-websocket-server = {path = "./shared/astronverse-websocket-server", editable = true}
 astronverse-workflowlib = {path = "./shared/astronverse-workflowlib", editable = true}

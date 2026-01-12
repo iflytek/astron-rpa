@@ -37,6 +37,7 @@ MSG_VIDEO_PROCESSING_WAIT = _("录屏数据处理中，可能时间较长，请�
 MSG_DOWNLOAD_FORMAT = _("{}动态下载中...")
 MSG_DOWNLOAD_SUCCESS_FORMAT = _("{}下载完成")
 MSG_NO_FFMPEG = _("资源目录不存在ffmpeg，录屏功能无法使用")
+MSG_SUB_WINDOW = _("子窗口启动")
 
 
 def python_base_error(func):

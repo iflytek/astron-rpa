@@ -5,6 +5,7 @@ import traceback
 from dataclasses import dataclass
 from typing import Any
 import websockets
+from astronverse.actionlib.atomic import atomicMg
 from astronverse.websocket_server.ws import IWebSocket, BaseMsg, Conn
 from astronverse.websocket_server.ws_service import WsManager, AsyncOnce
 from websockets import ServerConnection
@@ -63,8 +64,12 @@ class WsSocket(IWebSocket):
 
 
 class Ws:
+    loop = None
+
     def __init__(self, svc):
         self.svc = svc
+
+        atomicMg.cfg()["WS"] = self
 
         self.is_open_web_link = False
         self.is_web_link = False
@@ -84,6 +89,29 @@ class Ws:
     @staticmethod
     async def send_text(conn: Conn, msg: str):
         await conn.send_text(msg)
+
+    @staticmethod
+    def send_reply(msg, timeout, callback_func=None):
+        """发送消息并等待回复"""
+
+        raw_data = msg.get("data") or {}  # 防 None
+        raw_data["msg_str"] = MSG_SUB_WINDOW  # 任意增删改
+
+        msg = BaseMsg(
+            channel="flow",
+            key="sub_window",
+            uuid="$root$",
+            send_uuid="$executor$",
+            need_reply=True,
+            data=msg.get("data"),
+        ).init()
+
+        async def raw_send_reply():
+            await wsmg.send_reply(msg, timeout, callback_func)
+
+        msg = msg.init()
+        future = asyncio.run_coroutine_threadsafe(raw_send_reply(), Ws.loop)
+        future.result(timeout)  # 阻塞直到协程完成或超时
 
     async def send_report(self, q: queue.Queue):
         async def inner_send_report():
@@ -185,13 +213,23 @@ class Ws:
                 error_str = str(e)
             self.svc.end(ExecuteStatus.FAIL, reason=error_str)
 
-    async def run_server(self):
-        async with websockets.serve(self.websocket_endpoint, "127.0.0.1", self.svc.conf.port):
-            logger.info("服务已启动 ws://127.0.0.1:{}".format(self.svc.conf.port))
-            await asyncio.Future()
-
     def server(self):
         from astronverse.executor.debug.apis.apis import route_init
 
         route_init()
-        asyncio.run(self.run_server())
+
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        Ws.loop = loop
+
+        async def _start():
+            srv = await websockets.serve(self.websocket_endpoint, "127.0.0.1", self.svc.conf.port)
+            logger.info("服务已启动 ws://127.0.0.1:%s", self.svc.conf.port)
+            await asyncio.Event().wait()  # 永远挂起，等价于 run_forever
+            return srv
+
+        loop.run_until_complete(_start())  # 这里循环就转起来了

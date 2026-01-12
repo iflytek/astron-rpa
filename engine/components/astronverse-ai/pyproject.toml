@@ -11,14 +11,12 @@ dependencies = [
     "python-docx",
     "sseclient-py",
     "astronverse-actionlib",
-    "astronverse-tools",
     "astronverse-browser; sys_platform == 'win32'"
 ]
 
 [tool.uv.sources]
 astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
-astronverse-tools = {path = "../../shared/astronverse-tools", editable = true}
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
