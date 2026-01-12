@@ -1,5 +1,0 @@
-{
-  "build": {
-    "beforeBuildCommand": "pnpm build:web:debug"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "tauri": {
-    "updater": {
-      "active": true,
-      "endpoints": ["https://xxxx.com/update/{{target}}/{{arch}}/{{current_version}}"],
-      "dialog": false
-    }
-  }
-}

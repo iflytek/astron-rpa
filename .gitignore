@@ -157,6 +157,7 @@ coverage.out
 /docker/data/
 
 resources/*.7z
+resources/*.sha256.txt
 frontend/pnpm-lock.yaml
 frontend/packages/tauri-app/src-tauri/Cargo.toml
 frontend/public/client-sdk.js

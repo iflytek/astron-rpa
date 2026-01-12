@@ -1,0 +1,4 @@
+provider: generic
+url: 'http://localhost:9000'
+updaterCacheDirName: astron-rpa-updater
+

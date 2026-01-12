@@ -1,22 +1,30 @@
 <script lang="tsx">
 import { CheckCircleFilled, ClockCircleOutlined, CloseCircleFilled, CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, IssuesCloseOutlined, LoadingOutlined, MinusOutlined } from '@ant-design/icons-vue'
-import { invoke } from '@tauri-apps/api/tauri'
 import { Tooltip } from 'ant-design-vue'
 import { isEmpty } from 'lodash-es'
 
-import { generateUUID } from '@/utils/common'
+import { generateUUID, sleep } from '@/utils/common'
 
 import { getUserSetting } from '@/api/setting'
 import Socket from '@/api/ws'
-import { windowManager } from '@/platform'
+import { WINDOW_NAME } from '@/constants'
+import { utilsManager, windowManager } from '@/platform'
 
 import { DEFAULT_STOPRUN_SHORTKEY } from './config'
 
 const iconStatusMap = {
   current: <LoadingOutlined class="text-[rgba(0,0,0,0.85) ] dark:text-[#fff]" />,
-  success: <CheckCircleFilled class="color-primary" />,
-  error: <CloseCircleFilled class="color-error" />,
+  success: <CheckCircleFilled class="text-primary" />,
+  error: <CloseCircleFilled class="text-error" />,
   error_skip: <IssuesCloseOutlined />,
+}
+
+async function closeWindow(immediate: boolean) {
+  if (!immediate) {
+    await sleep(500)
+  }
+
+  windowManager.closeWindow(WINDOW_NAME.LOGWIN)
 }
 
 export default {
@@ -39,16 +47,15 @@ export default {
   mounted() {
     this.clearLogData()
     this.startCount()
-    const targetInfo = new URL(location.href).searchParams
-    this.createWs(targetInfo.get('ws'))
-    this.setProjectName(targetInfo.get('title'))
-    this.isSiderMinimized = targetInfo.get('mini') === '1'
-    setTimeout(async () => {
-      await invoke('render_ready')
-    }, 1000)
+    const searchParams = new URLSearchParams(window.location.search)
+    this.createWs(searchParams.get('ws'))
+    this.projectName = searchParams.get('title') || '执行日志'
+    this.isSiderMinimized = searchParams.get('mini') === '1'
+
+    setTimeout(() => utilsManager.invoke('render_ready'), 1000)
   },
   methods: {
-    createWs(url) {
+    createWs(url: string) {
       this.ws = new Socket('', {
         url,
         isReconnect: true,
@@ -56,24 +63,16 @@ export default {
         isHeart: true,
         heartTime: 30 * 1000,
       })
-      this.ws.bindMessage((res) => { // 处理ws消息
-        const result = JSON.parse(res)
-        // console.log('result: ', result)
-        const { data, channel } = result
+      this.ws.bindMessage((res: string) => { // 处理ws消息
+        const { data, channel } = JSON.parse(res)
+
         this.getLogData(data)
 
         // 执行结束、执行出错、执行器报错等异常退出时，关闭socket并重置状态
         if (['task_end', 'task_error'].includes(data.status) || channel === 'exit') {
-          windowManager.closeWindow()
+          closeWindow(true)
         }
       })
-      this.ws.bindClose(() => {
-        console.log('bindClose: ')
-      })
-    },
-
-    setProjectName(name = '') {
-      this.projectName = name || '执行日志'
     },
     // 开始计时
     startCount() {
@@ -142,30 +141,24 @@ export default {
     },
     // 右侧收起最小化
     async siderMinimize() {
-      if (this.isSiderMinimized) {
-        await windowManager.minLogWindow(false)
-      }
-      else {
-        await windowManager.minLogWindow(true)
-      }
       this.isSiderMinimized = !this.isSiderMinimized
+      windowManager.minLogWindow(this.isSiderMinimized)
     },
     // 停止按钮
     clickStop() {
       // 发送停止请求后关闭窗口
-
-      this.ws && this.ws.send({
+      this.ws?.send({
         event_id: generateUUID(),
         event_time: new Date().getTime(),
         channel: 'flow',
         key: 'close', // 关键标识key
         data: {},
       })
-      setTimeout(() => windowManager.closeWindow(), 500)
+      closeWindow(false)
     },
     clickHide() {
       // 不停止，只关闭窗口
-      windowManager.closeWindow()
+      closeWindow(true)
     },
     clickMinimize() {
       windowManager.minimizeWindow()
@@ -221,8 +214,8 @@ export default {
         <div class={this.isSiderMinimized ? 'logData-sider sider-min' : 'logData-sider'} onClick={this.siderMinimize}>
           {
             this.isSiderMinimized
-              ? <DoubleLeftOutlined class="color-white" />
-              : <DoubleRightOutlined class="color-white" />
+              ? <DoubleLeftOutlined class="text-white" />
+              : <DoubleRightOutlined class="text-white" />
           }
         </div>
         <div class={this.isSiderMinimized ? 'hide' : 'logData-container'} style={this.getProcessStyle()}>
@@ -280,10 +273,6 @@ export default {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-
-    .sider-icon {
-      color: white;
-    }
   }
 
   .sider-min {
@@ -359,18 +348,5 @@ export default {
       font-size: 14px;
     }
   }
-}
-
-.color-white {
-  color: white;
-}
-.color-primary {
-  color: $color-primary;
-}
-.color-error {
-  color: $color-error;
-}
-.bg-primary {
-  background-color: $color-primary;
 }
 </style>

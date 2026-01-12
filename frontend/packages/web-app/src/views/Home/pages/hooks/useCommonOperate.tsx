@@ -1,18 +1,15 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
-import { Button, message } from 'ant-design-vue'
+import { Button } from 'ant-design-vue'
 import { h } from 'vue'
 
 import $loading from '@/utils/globalLoading'
 
 import { releaseCheck, releaseCheckWithPublish } from '@/api/market'
-import { startExecutor } from '@/api/resource'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { VIEW_ALL, VIEW_OTHER, VIEW_OWN } from '@/constants/resource'
-import { windowManager } from '@/platform'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
-import useUserSettingStore from '@/stores/useUserSetting.ts'
 import type { AnyObj, Fun } from '@/types/common'
 import { DataTableModal, LogModal, TaskReferInfoModal } from '@/views/Home/components/modals'
 
@@ -33,39 +30,10 @@ function tabValue(item: string) {
   return viewType
 }
 
-function getCookie(name: string) {
-  const arr = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`))
-  if (arr != null)
-    return unescape(arr[2])
-  return null
-}
-
 // 运行
 export async function handleRun(editObj: AnyObj) {
   $loading.open({ msg: '加载中' })
-  // 获取日志窗口隐藏和录屏配置数据
-  try {
-    await startExecutor({
-      project_id: editObj.robotId,
-      exec_position: editObj.exec_position || 'PROJECT_LIST',
-      jwt: getCookie('jwt'),
-      recording_config: JSON.stringify(
-        useUserSettingStore().userSetting.videoForm,
-      ),
-      hide_log_window:
-        useUserSettingStore().userSetting.commonSetting?.hideLogWindow || false,
-      project_name: editObj.robotName,
-      open_virtual_desk: editObj.open_virtual_desk || false,
-    })
-    message.info('开始运行')
-    windowManager.minimizeWindow()
-    useRunningStore().setRunning('run')
-    useRunningStore().setRunProjectId(editObj.robotId)
-  }
-  catch (error) {
-    console.error(error)
-  }
-
+  await useRunningStore().startSlice(editObj)
   $loading.close()
 }
 

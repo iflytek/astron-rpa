@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 
+import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
+
 import UserFormDialog from './userFormDialog.vue'
 
-const props = defineProps<{ option: object }>()
+const props = defineProps<{ option: DialogOption }>()
 
 const modal = NiceModal.useModal()
 </script>

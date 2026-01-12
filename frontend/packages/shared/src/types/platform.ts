@@ -121,12 +121,13 @@ export interface UpdateManifest {
 
 // 更新信息
 export interface UpdateInfo {
-  shouldUpdate: boolean
+  couldUpdate: boolean
+  downloaded?: boolean
   manifest?: UpdateManifest | null
 }
 
 // 更新管理器
 export interface UpdaterManager {
   checkUpdate: () => Promise<UpdateInfo>
-  installUpdate: (progressCallback: (percent: number) => void) => Promise<void>
+  quitAndInstall: () => void
 }

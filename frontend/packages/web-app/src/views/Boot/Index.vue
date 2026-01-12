@@ -75,7 +75,7 @@ function loginAuto() {
 
 function loginSuccess(userInfo: any) {
   console.log('登录成功: ', userInfo)
-  location.replace(`/`)
+  location.replace(`/index.html`)
 }
 
 onMounted(() => {

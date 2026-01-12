@@ -1,16 +1,25 @@
 packages:
   - locales
-  # all packages in direct subdirs of packages/
-  - 'packages/*'
-  # all packages in subdirs of components/
-  - 'components/**'
-  # exclude packages that are inside test directories
+  - packages/*
+  - components/**
   - '!**/test/**'
 
 catalog:
-  vite: ^8.0.0-beta.5
-  "@vitejs/plugin-vue": ^6.0.3
-  "@vitejs/plugin-vue-jsx": ^5.1.3
+  '@vitejs/plugin-vue': ^6.0.3
+  '@vitejs/plugin-vue-jsx': ^5.1.3
   ant-design-vue: ^4.2.6
+  vite: ^8.0.0-beta.5
   tailwind-merge: ^3.4.0
   tailwindcss: "^3.4.4"
+  tsdown: "^0.19.0-beta.2"
+
+ignoredBuiltDependencies:
+  - '@bundled-es-modules/glob'
+  - '@sentry/cli'
+  - core-js
+  - esbuild
+  - style-dictionary
+  - vue-demi
+
+onlyBuiltDependencies:
+  - electron

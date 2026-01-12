@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
-import UserForm from '@/views/Arrange/components/customDialog/components/userFormDialog.vue'
+
+import UserFormWindow from './UserFormWindow.vue'
 </script>
 
 <template>
   <ConfigProvider>
-    <UserForm />
+    <UserFormWindow />
   </ConfigProvider>
 </template>
 

@@ -1,0 +1,9 @@
+node_modules
+dist
+out
+data
+resources
+.DS_Store
+*.log*
+/resources/*.7z
+.env

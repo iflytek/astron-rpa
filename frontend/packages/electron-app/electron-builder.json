@@ -1,0 +1,50 @@
+{
+  "appId": "astron-rpa",
+  "productName": "星辰RPA",
+  "artifactName": "星辰RPA-${version}-${arch}-electron.${ext}",
+  "electronLanguages": [
+    "zh-CN",
+    "en-US"
+  ],
+  "asar": false,
+  "files": [
+    "node_modules/**",
+    "out/**",
+    "resources/**",
+    "package.json"
+  ],
+  "extraFiles": [
+    {
+      "from": "../../../resources",
+      "to": "resources"
+    }
+  ],
+  "win": {
+    "target": "nsis",
+    "icon": "../../public/icons/icon.ico",
+    "publisherName": "astron-rpa",
+    "verifyUpdateCodeSignature": false,
+    "requestedExecutionLevel": "requireAdministrator",
+    "publish": {
+      "provider": "generic",
+      "url": ""
+    }
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "../../public/icons/icon.png"
+  },
+  "linux": {
+    "target": "deb",
+    "icon": "../../public/icons/icon.png",
+    "category": "Utility"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "星辰RPA"
+  }
+}

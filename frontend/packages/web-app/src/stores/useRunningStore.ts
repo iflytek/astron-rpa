@@ -7,25 +7,31 @@ import { defineStore } from 'pinia'
 import { computed, ref, shallowRef } from 'vue'
 
 import { generateUUID } from '@/utils/common'
+import { baseUrl } from '@/utils/env'
 
 import type { StartExecutorParams } from '@/api/resource'
 import { closeDataTable, deleteDataTable, getDataTable, startDataTableListener, startExecutor, stopExecutor, updateDataTable } from '@/api/resource'
 import Socket from '@/api/ws'
+import { WINDOW_NAME } from '@/constants'
 import { windowManager } from '@/platform'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
-import type { Fun } from '@/types/common'
+import type { Fun, AnyObj } from '@/types/common'
 import { changeDebugging } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
+import { getCookie } from '@/utils/common'
 
-export type RunState = 'run' | 'free' | 'debug' // 执行状态
+export type RunState = 'run' | 'free' | 'debug' | 'silence' // 执行状态
 
 export const useRunningStore = defineStore('running', () => {
   const processStore = useProcessStore()
   const flowStore = useFlowStore()
+  const userSettingStore = useUserSettingStore()
+  const runLogStore = useRunlogStore()
 
-  const running = ref<RunState>('free') // 全局运行状态 run-运行 debug-调试 free-停止  默认是free状态
+  // 全局运行状态 run-运行 debug-调试 free-停止 silence-静默（在执行器列表执行） 默认是free状态
+  const running = ref<RunState>('free')
   const debugData = ref<any>({}) // 调试信息, 包含当前调试的行号、断点等信息
   const debugDataVar = ref<any>({}) // 调试信息
   // 状态：starting 启动中， startSuccess 启动成功， startFailed 启动失败，running-运行中，runSuccess-运行成功，runFailed运行失败 stopping 停止中， stopSuccess 停止成功，  stopFailed 停止失败
@@ -37,7 +43,7 @@ export const useRunningStore = defineStore('running', () => {
   let debugReplyEventId = ''
   let runProjectId = null
   let RpaExecutorUrl = null
-  let RpaExecutor = null
+  let RpaExecutor: Socket | null = null
 
   const reset = () => {
     setRunning('free')
@@ -106,17 +112,45 @@ export const useRunningStore = defineStore('running', () => {
       isHeart: true,
       heartTime: 30 * 1000,
     })
-    RpaExecutor.create(() => {
-      callback && callback()
-    })
-    RpaExecutor.bindMessage((res) => { // 处理ws消息
+    RpaExecutor.bindMessage((res: string) => { // 处理ws消息
       const result = JSON.parse(res)
       const { data: msg, event_time, channel, reply_event_id } = result
-      if (!['debug_start', 'end'].includes(msg.status) && !reply_event_id) {
-        useRunlogStore().addLog({ ...msg, event_time }) // 添加日志
+
+      if (running.value !== 'silence' && !['debug_start', 'end'].includes(msg.status) && !reply_event_id) {
+        runLogStore.addLog({ ...msg, event_time }) // 添加日志
       }
 
-      running.value === 'debug' && setDebugData(msg, reply_event_id) // 处理调试数据
+      // 打开自定义表单窗口
+      if (result.key === 'sub_window' && msg.name === 'userform') {
+        // 打开自定义表单窗口后，点击表单提交，有一个消息回复
+        const replyEventData = {
+          key: result.key,
+          channel: result.channel,
+          reply_event_id: result.event_id,
+          // 回复消息，方向正好相反
+          uuid: result.send_uuid,
+          send_uuid: result.uuid,
+        }
+
+        // 构建 URL，如果有 params 则添加查询参数
+        const options = {
+          url: `${baseUrl}/${WINDOW_NAME.USERFORM}.html?option=${JSON.stringify(msg.option)}&reply=${JSON.stringify(replyEventData)}`,
+          title: 'iflyrpa-window',
+          label: WINDOW_NAME.USERFORM,
+          alwaysOnTop: true,
+          position: 'center',
+          width: 500,
+          height: 400,
+          resizable: false,
+          skipTaskbar: true,
+        }
+
+        windowManager.createWindow(options)
+      }
+
+      if (running.value === 'debug') {
+        setDebugData(msg, reply_event_id) // 处理调试数据
+      }
 
       // 执行结束、执行出错、执行器报错等异常退出时，关闭socket并重置状态
       if (['task_end', 'task_error'].includes(msg.status) || channel === 'exit') {
@@ -126,9 +160,8 @@ export const useRunningStore = defineStore('running', () => {
         }, 1000)
       }
     })
-    RpaExecutor.bindOpen(() => {
-      setStatus('startSuccess')
-    })
+    RpaExecutor.create(() => callback?.())
+    RpaExecutor.bindOpen(() => setStatus('startSuccess'))
     RpaExecutor.bindClose(() => {
       if (RpaExecutor.OPTIONS.reconnectCount === 0) {
         setStatus('startFailed')
@@ -137,23 +170,19 @@ export const useRunningStore = defineStore('running', () => {
     })
   }
 
-  function getCookie(name: string) {
-    const arr = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`))
-    if (arr != null)
-      return unescape(arr[2])
-    return ''
-  }
-
   // 发送ws消息
   const send = (sendMsg) => {
-    if (!RpaExecutor.isConnect()) {
-      createSocket(() => {
-        RpaExecutor.send(sendMsg)
-      })
-    }
-    else {
+    if (RpaExecutor.isConnect()) {
       RpaExecutor.send(sendMsg)
     }
+    else {
+      createSocket(() => RpaExecutor.send(sendMsg))
+    }
+  }
+
+  // 发送自定义表单数据
+  const sendUserFormData = (data: AnyObj) => {
+    send({ ...data, event_id: generateUUID(), event_time: Date.now() })
   }
 
   // 启动执行器并建立ws连接
@@ -163,17 +192,19 @@ export const useRunningStore = defineStore('running', () => {
     setStatus('starting')
     setRunProjectId(params.project_id)
     try {
-      const res = await startExecutor({
+      RpaExecutorUrl = await startExecutor({
         ...params,
         jwt: getCookie('jwt'),
-        hide_log_window: !!useUserSettingStore().userSetting.commonSetting?.hideLogWindow,
-        project_name: processStore.project.name,
+        hide_log_window: !userSettingStore.openLogModalAfterRun,
+        project_name: params.project_name || processStore.project.name,
       })
-      useRunlogStore().clearLogs()
-      RpaExecutorUrl = res.data.addr
       // 连接 ws
       createSocket()
-      _startDataTableListener()
+
+      if (running.value !== 'silence') {
+        runLogStore.clearLogs()
+        _startDataTableListener()
+      }
     }
     catch {
       running.value = 'free'
@@ -196,8 +227,8 @@ export const useRunningStore = defineStore('running', () => {
     line && (runParams.line = line)
     end_line && (runParams.end_line = end_line)
 
-    start(runParams)
     running.value = 'run'
+    start(runParams)
     windowManager.minimizeWindow()
   }
 
@@ -205,6 +236,18 @@ export const useRunningStore = defineStore('running', () => {
     const debugParams = { project_id: projectId, process_id: processId, debug: 'y' }
     running.value = 'debug'
     start(debugParams)
+  }
+
+  const startSlice = async (editObj: AnyObj) => {
+    running.value = 'silence'
+    await start({
+      project_id: editObj.robotId,
+      exec_position: editObj.exec_position || 'PROJECT_LIST',
+      recording_config: JSON.stringify(userSettingStore.userSetting.videoForm),
+      project_name: editObj.robotName,
+      open_virtual_desk: editObj.open_virtual_desk || false,
+    })
+    windowManager.minimizeWindow()
   }
 
   const nextStepDebug = () => {
@@ -310,15 +353,16 @@ export const useRunningStore = defineStore('running', () => {
     setRunning,
     startRun,
     startDebug,
+    startSlice,
     nextStepDebug,
     continueDebug,
     breakPointDebug,
     stop,
-    setRunProjectId,
     getRunProjectId,
     fetchDataTable,
     updateDataTableCell,
     closeDataTableListener,
     clearDataTable,
+    sendUserFormData,
   }
 })

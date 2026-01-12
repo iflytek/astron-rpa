@@ -277,10 +277,10 @@ export default function useUserFormItem() {
 
   function renderMessageContent(item) {
     const MESSAGE_ICON_CONFIG = {
-      question: <QuestionCircleOutlined style="color: #52c41a;font-size: 28px;" />,
-      error: <CloseCircleOutlined style="color: #f5222d;font-size: 28px;" />,
-      warning: <ExclamationCircleOutlined style="color: #faad14;font-size: 28px;" />,
-      message: <InfoCircleOutlined style="color: #1890ff;font-size: 28px;" />,
+      question: <QuestionCircleOutlined class="text-green" style="font-size: 20px;" />,
+      error: <CloseCircleOutlined class="text-error" style="font-size: 20px;" />,
+      warning: <ExclamationCircleOutlined class="text-warning" style="font-size: 20px;" />,
+      message: <InfoCircleOutlined class="text-primary" style="font-size: 20px;" />,
     }
     return (
       <div style="display: flex; justify-content: flex-start; align-items: center;">
