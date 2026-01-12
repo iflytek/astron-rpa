@@ -1,8 +1,6 @@
 import { exec } from 'node:child_process'
-import { createHash } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
-import { to } from 'await-to-js'
 
 import { toUnicode } from '../common'
 
@@ -112,19 +110,6 @@ function msgFilter(msg: string) {
 }
 
 /**
- * 检查Python环境是否存在
- * @returns Python可执行文件是否存在
- */
-// @ts-ignore - 暂时未使用，但保留以备将来使用
-async function pythonExist(): Promise<boolean> {
-  const [error] = await to(fs.access(pythonExe))
-  if (error) {
-    logger.info(`${pythonExe} is not exist`)
-  }
-  return !error
-}
-
-/**
  * 检查资源目录中需要解压的Python包
  * @returns 需要解压的压缩包文件名数组
  */
@@ -135,24 +120,6 @@ async function checkNeedExtractPythonPackage() {
   }
   logger.info('No python package in resources for non-windows platform')
   return []
-}
-
-/**
- * 计算文件的SHA256哈希值
- * @param filePath - 要计算哈希的文件路径
- * @returns 文件的SHA256哈希值（十六进制字符串）
- */
-// @ts-ignore - 暂时未使用，但保留以备将来使用
-async function calculateFileHash(filePath: string): Promise<string> {
-  try {
-    const hash = createHash('sha256')
-    const fileBuffer = await fs.readFile(filePath)
-    hash.update(fileBuffer)
-    return hash.digest('hex')
-  } catch (error) {
-    logger.error(`计算文件hash失败: ${filePath}`, error)
-    throw error
-  }
 }
 
 /**
