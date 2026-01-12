@@ -6,7 +6,7 @@ export default defineConfig({
   dts: false,
   clean: false,
   platform: 'browser',
-  sourcemap: 'inline',
+  sourcemap: true,
   outDir: '../../public/',
   noExternal: ['lodash-es'],
   minify: true,
