@@ -57,6 +57,19 @@ function getUserPath() {
   })
 }
 
+function getResourcePath() {
+  return new Promise<string>((resolve) => {
+    const electronInfo = localStorage.getItem('electron')
+    if (electronInfo) {
+      const { resourcePath } = JSON.parse(electronInfo)
+      resolve(resourcePath)
+    }
+    else {
+      resolve('')
+    }
+  })
+}
+
 function getBuildInfo() {
   return new Promise<string>((resolve) => {
     const electronInfo = localStorage.getItem('electron')
@@ -220,6 +233,7 @@ const UtilsManager: UtilsManagerType = {
   showDialog,
   getPluginPath,
   getPluginList,
+  getResourcePath,
 }
 
 export default UtilsManager

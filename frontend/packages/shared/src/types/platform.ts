@@ -82,6 +82,7 @@ export type AppEnv = 'tauri' | 'electron' | 'browser'
 
 // 工具管理器
 export interface UtilsManager {
+  getResourcePath: () => string
   getAppEnv: () => AppEnv
   isBrowser?: boolean
   openInBrowser: (url: string, browser?: string) => void
