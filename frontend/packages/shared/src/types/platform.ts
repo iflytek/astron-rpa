@@ -82,7 +82,6 @@ export type AppEnv = 'tauri' | 'electron' | 'browser'
 
 // 工具管理器
 export interface UtilsManager {
-  getResourcePath: () => string
   getAppEnv: () => AppEnv
   isBrowser?: boolean
   openInBrowser: (url: string, browser?: string) => void
@@ -92,6 +91,7 @@ export interface UtilsManager {
   getUserPath: () => Promise<string>
   getBuildInfo: () => Promise<string>
   getSystemEnv: () => Promise<string>
+  getResourcePath: () => Promise<string>
   invoke: (channel: string, ...args: any[]) => Promise<any>
   readFile: (fileName: string, dir?: string) => Promise<any>
   saveFile: (fileName: string, buffer: ArrayBuffer) => Promise<void>

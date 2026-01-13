@@ -6,7 +6,7 @@ const Utils: UtilsManager = {
   getUserPath: () => Promise.resolve('/unknown'),
   getBuildInfo: () => Promise.resolve('browser'),
   getSystemEnv: () => Promise.resolve('browser'),
-  getResourcePath: () => '',
+  getResourcePath: () => Promise.resolve(''),
   getAppEnv: () => 'browser',
   isBrowser: true,
   openInBrowser: (url: string) => {

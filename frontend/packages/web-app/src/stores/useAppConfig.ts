@@ -47,8 +47,8 @@ export const useAppConfigStore = defineStore('appConfig', () => {
       const path = resourcePath.value
       if (!path)
         return {}
-      const buf = await utilsManager.readFile(`conf.yaml`, `${path}`)
-      return parse(buf)
+      const yamlContent  = await utilsManager.readFile(`conf.yaml`, `${path}`)
+      return parse(yamlContent)
     },
     {},
     { immediate: true, resetOnExecute: false },
