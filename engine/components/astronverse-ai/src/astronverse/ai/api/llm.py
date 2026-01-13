@@ -15,7 +15,7 @@ API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
 PROMPT_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/prompt".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
-DEFAULT_MODEL = "deepseek-v3.1"
+DEFAULT_MODEL = "maas/deepseek-v3.2"
 
 
 def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
@@ -125,9 +125,6 @@ if __name__ == "__main__":
     s = []
     r = []
     for i in chat_streamable(inputs):
-        if i.get("content"):
-            s.append(i.get("content"))
-        if i.get("reasoning_content"):
-            r.append(i.get("reasoning_content"))
+        s.append(i)
     print("".join(r))
     print("".join(s))

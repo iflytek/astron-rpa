@@ -69,6 +69,7 @@ class RecruitAI:
             job_name: job title
             job_description: free text JD
             job_website: target job board type
+            model: model ID
         Returns:
             Raw model reply string containing keyword groups.
         """
@@ -131,7 +132,7 @@ class RecruitAI:
         job_description: str = "",
         rating_system: RatingSystemTypes = RatingSystemTypes.DEFAULT,
         rating_dimensions: str = "",
-        model: LLMModelTypes = LLMModelTypes.DS_CHAT,
+        model: str = "",
     ):
         """Score a resume against a job description.
 
@@ -145,6 +146,7 @@ class RecruitAI:
             job_description: JD text
             rating_system: default or custom rating style
             rating_dimensions: custom rating dimensions when custom mode
+            model: model id
         Returns:
             Rating result reply string.
         """
@@ -169,7 +171,7 @@ class RecruitAI:
             prompt_type = "recruit_rating_custom"
 
         if model:
-            reply = chat_prompt(prompt_type=prompt_type, params=params, model=model.value)
+            reply = chat_prompt(prompt_type=prompt_type, params=params, model=model)
         else:
             reply = chat_prompt(prompt_type=prompt_type, params=params)
 

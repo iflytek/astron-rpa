@@ -22,7 +22,7 @@ class DocumentAI:
     @atomicMg.atomic(
         "DocumentAI",
         inputList=[
-            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED),
+            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("theme_expand_res", types="Str")],
     )
@@ -46,7 +46,7 @@ class DocumentAI:
     @atomicMg.atomic(
         "DocumentAI",
         inputList=[
-            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED),
+            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("sentence_expand_res", types="Str")],
     )
@@ -79,7 +79,7 @@ class DocumentAI:
     @atomicMg.atomic(
         "DocumentAI",
         inputList=[
-            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED),
+            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("sentence_reduce_res", types="Str")],
     )

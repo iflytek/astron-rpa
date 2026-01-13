@@ -46,7 +46,7 @@ class xcAgent:  # pylint: disable=invalid-name
         }
         payload = json.dumps(data)
 
-        conn = http.client.HTTPSConnection("xingchen-api.xf-yun.com", timeout=120)
+        conn = http.client.HTTPSConnection("xingchen-api.xf-yun.com", timeout=600)
         conn.request(
             "POST",
             "/workflow/v1/chat/completions",
@@ -151,7 +151,11 @@ class xcAgent:  # pylint: disable=invalid-name
 
 
 if __name__ == "__main__":
-    api_key = "2075eb7e0dd13201048ae915b0083741"
-    api_secret = "Zjc4ZjJiZjJmODI3ZjI4MTc0ZTUyNjI2"
+    api_key = "20xxxxxxxxxxxx0083741"
+    api_secret = "ZjcxxxxxxxxxxxUyNjI2"
     agent = xcAgent(api_key, api_secret)
-    agent.upload_file(r"C:\Users\zyzhou23\Downloads\RPAAI.pdf")
+    inputs = [
+        {"key": "AGENT_USER_INPUT", "value": "value1", "type": "string"},
+        {"key": "nihao", "value": r"C:\Users\xxxx\Downloads\中环项目运行问题.pdf", "type": "file"},
+    ]
+    agent.run_astron_flow("735xxxxxxx170", False, inputs)
