@@ -14,6 +14,8 @@ from astronverse.executor.error import (
     MSG_FLOW_INIT_SUCCESS,
     MSG_TASK_EXECUTION_START,
     MSG_TASK_EXECUTION_END,
+    BaseException,
+    MSG_EXECUTION_ERROR,
 )
 from astronverse.executor.flow.flow_svc import FlowSvc
 from astronverse.executor.logger import logger
@@ -38,9 +40,7 @@ def flow_start(args, conf):
     )
 
 
-def debug_start(args, conf):
-    svc = DebugSvc(conf=conf, debug_model=args.debug == "y")
-
+def debug_start(args, svc):
     # Ws服务
     ws = Ws(svc=svc)
     if Config.open_log_ws:
@@ -173,10 +173,18 @@ def start():
     else:
         args.recording_config = {}
 
-    # 生成代码
-    flow_start(conf=Config, args=args)
+    svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
+    try:
+        # 生成代码
+        flow_start(conf=Config, args=args)
+        # 执行代码
+        debug_start(svc=svc, args=args)
+    except BaseException as e:
+        svc.end(ExecuteStatus.FAIL, reason=e.message)
+        return
+    except Exception as e:
+        svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
+        return
 
-    # 执行代码
-    debug_start(conf=Config, args=args)
 
-    logger.debug("end")
+logger.debug("end")
