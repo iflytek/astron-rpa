@@ -567,11 +567,7 @@ class Dialog:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.wait_time.show", expression="return $this.auto_check.value == true"
-                    )
-                ],
+                dynamics=[DynamicsItem(key="$this.wait_time.show", expression="return $this.auto_check.value == true")],
                 level=AtomicLevel.ADVANCED,
                 required=False,
             ),
@@ -596,7 +592,6 @@ class Dialog:
         wait_time: int = 60,
         default_button: DefaultButtonCN = DefaultButtonCN.CONFIRM,
     ) -> dict:
-
         if wait_time is None:
             wait_time = 60 if auto_check else 620
 
