@@ -134,7 +134,7 @@ class Dialog:
         message_content: str = "",
         button_type: ButtonType = ButtonType.CONFIRM,
         auto_check: bool = False,
-        wait_time: int = None,
+        wait_time: int = 60,
         default_button_c: DefaultButtonC = DefaultButtonC.CONFIRM,
         default_button_cn: DefaultButtonCN = DefaultButtonCN.CONFIRM,
         default_button_y: DefaultButtonY = DefaultButtonY.YES,
@@ -559,7 +559,7 @@ class Dialog:
                 need_parse="json_str",
             ),
             atomicMg.param(
-                "reset_timeout_on_activity",
+                "auto_check",
                 formType=AtomicFormTypeMeta(AtomicFormType.SWITCH.value),
                 level=AtomicLevel.ADVANCED,
                 required=False,
@@ -567,11 +567,7 @@ class Dialog:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.wait_time.show", expression="return $this.reset_timeout_on_activity.value == true"
-                    )
-                ],
+                dynamics=[DynamicsItem(key="$this.wait_time.show", expression="return $this.auto_check.value == true")],
                 level=AtomicLevel.ADVANCED,
                 required=False,
             ),
@@ -582,7 +578,7 @@ class Dialog:
                 dynamics=[
                     DynamicsItem(
                         key="$this.default_button.show",
-                        expression="return $this.reset_timeout_on_activity.value == true",
+                        expression="return $this.auto_check.value == true",
                     )
                 ],
             ),
@@ -592,12 +588,12 @@ class Dialog:
     def custom_box(
         box_title: str = "自定义对话框",
         design_interface: dict = None,
-        reset_timeout_on_activity: bool = False,
-        wait_time: int = None,
+        auto_check: bool = False,
+        wait_time: int = 60,
         default_button: DefaultButtonCN = DefaultButtonCN.CONFIRM,
     ) -> dict:
         if wait_time is None:
-            wait_time = 60 if reset_timeout_on_activity else 620
+            wait_time = 60 if auto_check else 620
 
         done = threading.Event()
         res = {}
@@ -622,11 +618,11 @@ class Dialog:
         if ws:
             ws.send_reply({"data": {"name": "userform", "option": payload}}, 600, callback_func)
 
-        wait_with_timeout(lambda: done.is_set(), reset_timeout_on_activity, wait_time)
+        wait_with_timeout(lambda: done.is_set(), auto_check, wait_time)
         if res_e:
             raise Exception(res_e)
 
-        if not res and reset_timeout_on_activity:
+        if not res and auto_check:
             if design_interface.get("value").get("table_required"):
                 res["result_button"] = DefaultButtonCN.CANCEL.value
             else:
