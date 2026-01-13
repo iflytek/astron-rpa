@@ -91,6 +91,7 @@ export interface UtilsManager {
   getUserPath: () => Promise<string>
   getBuildInfo: () => Promise<string>
   getSystemEnv: () => Promise<string>
+  getResourcePath: () => Promise<string>
   invoke: (channel: string, ...args: any[]) => Promise<any>
   readFile: (fileName: string, dir?: string) => Promise<any>
   saveFile: (fileName: string, buffer: ArrayBuffer) => Promise<void>

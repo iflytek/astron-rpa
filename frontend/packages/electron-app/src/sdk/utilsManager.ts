@@ -18,57 +18,42 @@ function listenEvent(eventName: string, callback: (data: any) => void) {
   ipcRenderer.on(eventName, (_event, data) => callback(data))
 }
 
-function getAppVersion() {
-  return new Promise<string>((resolve) => {
-    const electronInfo = localStorage.getItem('electron')
+function getFromElectronInfo<T>(key: string, defaultValue: T): Promise<T> {
+  return new Promise((resolve) => {
+    const electronInfo = localStorage.getItem('electron');
     if (electronInfo) {
-      const { appVersion } = JSON.parse(electronInfo)
-      resolve(appVersion)
+      try {
+        const info = JSON.parse(electronInfo);
+        resolve(info[key] ?? defaultValue);
+      } catch (e) {
+        console.error('Failed to parse electron info from localStorage', e);
+        resolve(defaultValue);
+      }
+    } else {
+      resolve(defaultValue);
     }
-    else {
-      resolve('latest')
-    }
-  })
+  });
+}
+
+function getAppVersion() {
+  return getFromElectronInfo<string>('appVersion', 'latest')
 }
 
 function getAppPath() {
-  return new Promise<string>((resolve) => {
-    const electronInfo = localStorage.getItem('electron')
-    if (electronInfo) {
-      const { appPath } = JSON.parse(electronInfo)
-      resolve(appPath)
-    }
-    else {
-      resolve('')
-    }
-  })
+  return getFromElectronInfo<string>('appPath', '')
 }
 
 function getUserPath() {
-  return new Promise<string>((resolve) => {
-    const electronInfo = localStorage.getItem('electron')
-    if (electronInfo) {
-      const { userDataPath } = JSON.parse(electronInfo)
-      resolve(userDataPath)
-    }
-    else {
-      resolve('')
-    }
-  })
+  return getFromElectronInfo<string>('userDataPath', '')
 }
 
-function getBuildInfo() {
-  return new Promise<string>((resolve) => {
-    const electronInfo = localStorage.getItem('electron')
-    if (electronInfo) {
-      const { electronVersion } = JSON.parse(electronInfo)
-      const buildInfo = `Build by Electron ${electronVersion}`
-      resolve(buildInfo)
-    }
-    else {
-      resolve('')
-    }
-  })
+function getResourcePath() {
+  return getFromElectronInfo<string>('resourcePath', '')
+}
+
+async function getBuildInfo() {
+  const electronVersion = await getFromElectronInfo<string>('electronVersion', '')
+  return `Build by Electron ${electronVersion}`
 }
 
 function getSystemEnv() {
@@ -220,6 +205,7 @@ const UtilsManager: UtilsManagerType = {
   showDialog,
   getPluginPath,
   getPluginList,
+  getResourcePath,
 }
 
 export default UtilsManager

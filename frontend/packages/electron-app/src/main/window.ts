@@ -5,6 +5,7 @@ import { app, BrowserWindow, screen } from 'electron'
 import type { WindowOptions } from '../types'
 
 import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
+import { resourcePath } from './path'
 import logger from './log'
 
 export const WindowStack: Map<string, number> = new Map()
@@ -29,6 +30,7 @@ export function electronInfo(win: BrowserWindow) {
     arch: process.arch,
     platform: process.platform,
     preload: path.join(__dirname, '../preload/index.js'),
+    resourcePath,
   })
   win.webContents.send('electron-info', electronInfo)
 }

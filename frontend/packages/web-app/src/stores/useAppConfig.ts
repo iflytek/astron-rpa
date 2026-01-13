@@ -40,21 +40,21 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   const { state: systemInfo } = useAsyncState<string>(utilsManager.getSystemEnv, '')
   // 用户目录
   const { state: userPath } = useAsyncState<string>(utilsManager.getUserPath, '')
+  const { state: resourcePath } = useAsyncState<string>(utilsManager.getResourcePath, '')
 
   const { state: yamlData, execute } = useAsyncState(
     async () => {
-      const path = appPath.value
+      const path = resourcePath.value
       if (!path)
         return {}
-      const buf = await utilsManager.readFile(`${path}resources/conf.yaml`)
-      const text = new TextDecoder().decode(buf as Uint8Array)
-      return parse(text)
+      const yamlContent  = await utilsManager.readFile(`conf.yaml`, `${path}`)
+      return parse(yamlContent)
     },
     {},
     { immediate: true, resetOnExecute: false },
   )
 
-  watchOnce(appPath, () => execute())
+  watchOnce(resourcePath, () => execute())
 
   const updateBrowserPluginStatus = async (plugins: PLUGIN_ITEM[]) => {
     if (plugins.length === 0)
