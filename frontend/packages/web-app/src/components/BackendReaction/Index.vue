@@ -91,12 +91,14 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
       break
     }
     case 'edit_show_hide': {
-      if (msg.type === 'hide') {
-        windowManager.minimizeWindow()
-      }
-      else {
-        windowManager.showWindow()
-        windowManager.maximizeWindow(true)
+      if (useAppModeStore().appMode === 'normal') {
+        if (msg.type === 'hide') {
+          windowManager.minimizeWindow()
+        }
+        else {
+          windowManager.showWindow()
+          windowManager.maximizeWindow(true)
+        }
       }
       break
     }
