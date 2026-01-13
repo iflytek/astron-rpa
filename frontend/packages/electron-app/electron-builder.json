@@ -1,7 +1,7 @@
 {
   "appId": "astron-rpa",
-  "productName": "星辰RPA",
-  "artifactName": "星辰RPA-${version}-${arch}-electron.${ext}",
+  "productName": "astron-rpa",
+  "artifactName": "星辰RPA-${version}-${arch}.${ext}",
   "electronLanguages": [
     "zh-CN",
     "en-US"
