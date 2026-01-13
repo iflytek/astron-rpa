@@ -365,14 +365,6 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
-echo Building web application...
-call pnpm build:web
-if !errorlevel! neq 0 (
-    echo Web application build failed
-    cd /d "%SCRIPT_DIR%"
-    exit /b 1
-)
-
 echo Building desktop application...
 call pnpm build:desktop
 if !errorlevel! neq 0 (

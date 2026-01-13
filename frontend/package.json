@@ -18,7 +18,7 @@
     "dev:web": "pnpm --filter @rpa/web-app run dev",
     "dev:desktop": "pnpm --filter @rpa/desktop-app run dev",
     "build:web": "pnpm --filter @rpa/web-app run build",
-    "build:desktop": "pnpm --filter @rpa/desktop-app run build",
+    "build:desktop": "pnpm --filter @rpa/desktop-app run build:win",
     "i18n": "env-cmd lobe-i18n locale",
     "test": "vitest",
     "test:ui": "vitest --ui",
