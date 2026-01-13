@@ -79,6 +79,8 @@ class Smart:
         """
         执行 AI 生成的代码，支持网页自动化和数据处理两种类型。
         """
+        code_params = {k: v for k, v in code_params.items() if v is not None and not k.startswith("__")}
+
         file_name = smart_component.get("file_path", "")
         smart_type = smart_component.get("smart_type", "")
 
