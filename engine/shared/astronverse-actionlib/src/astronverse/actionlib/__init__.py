@@ -78,6 +78,8 @@ class AtomicFormType(Enum):
     REMOTEFOLDERS = "REMOTEFOLDERS"
     # 流程参数
     PROCESSPARAM = "PROCESSPARAM"
+    # 星辰Agent控件
+    AIWORKFLOW = "AIWORKFLOW"
 
 
 class AtomicFormTypeParam(Enum):
