@@ -51,7 +51,7 @@ body:
       description: 选择性能问题影响的主要组件
       options:
         - 前端 Web 应用
-        - 前端 Tauri 桌面应用
+        - 前端桌面应用
         - 前端浏览器插件
         - 后端 robot-service
         - 后端 ai-service

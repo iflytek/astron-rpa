@@ -8,7 +8,7 @@
 [![Vue](https://img.shields.io/badge/vue-3+-4FC08D.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.9+-blue.svg)](https://www.typescriptlang.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-9+-orange.svg)](https://pnpm.io/)
-[![Tauri](https://img.shields.io/badge/tauri-1.6+-purple.svg)](https://tauri.app/)
+[![Electron](https://img.shields.io/badge/electron-22+-purple.svg)](https://www.electronjs.org/)
 
 [English](README.md) | 简体中文
 
@@ -35,7 +35,7 @@
 
 AstronRPA 前端是一个专为 RPA 应用构建的现代化前端平台。它提供了构建基于 Web 和桌面 RPA 应用的完整解决方案，采用统一代码库。
 
-该平台采用 pnpm workspaces 的单体仓库架构，支持多种应用类型，包括 Web 应用、桌面应用（通过 Tauri）和浏览器插件，所有应用共享通用组件和工具。
+该平台采用 pnpm workspaces 的单体仓库架构，支持多种应用类型，包括 Web 应用、桌面应用和浏览器插件，所有应用共享通用组件和工具。
 
 ## ✨ 核心特性
 
@@ -43,14 +43,14 @@ AstronRPA 前端是一个专为 RPA 应用构建的现代化前端平台。它�
 - 🔒 **类型安全** - 完整的 TypeScript 支持，严格类型检查
 - 🔧 **易于集成** - 模块化包结构，支持工作区依赖
 - 📊 **实时开发** - 热模块替换和快速刷新
-- 🌍 **多平台支持** - 支持 Web、桌面（Tauri）和浏览器扩展
+- 🌍 **多平台支持** - 支持 Web、桌面和浏览器扩展
 - 📈 **可扩展架构** - 单体仓库，共享组件和工具
 
 ## 🛠️ 技术栈
 
 **前端框架**: Vue 3 + TypeScript + Vite
 **UI 组件**: Ant Design Vue + VXE Table
-**桌面应用**: Tauri（Rust + Web 技术栈）
+**桌面应用**: Electron
 **状态管理**: Pinia
 **包管理**: pnpm workspaces
 **测试框架**: Vitest + Vue Test Utils
@@ -65,7 +65,6 @@ AstronRPA 前端是一个专为 RPA 应用构建的现代化前端平台。它�
 
 - **Node.js**: >= 22
 - **pnpm**: >= 9
-- **Rust**: >= 1.90.0（用于 Tauri 桌面应用）
 - **操作系统**: Windows 10/11、macOS 或 Linux
 
 ### 开发环境搭建
@@ -84,11 +83,8 @@ pnpm set-env
 # 启动 Web 开发服务器
 pnpm dev:web
 
-# 启动 Tauri 桌面应用（开发模式）
-pnpm dev:tauri
-
-# 启动 Tauri 日志窗口（开发模式）
-pnpm dev:tauri-logwin
+# 启动桌面应用（开发模式）
+pnpm dev:desktop
 ```
 
 ### 构建与部署
@@ -97,11 +93,8 @@ pnpm dev:tauri-logwin
 # 构建 Web 应用
 pnpm build:web
 
-# 构建 Tauri 桌面应用
-pnpm build:tauri
-
-# 构建 Tauri 桌面应用（调试模式）
-pnpm build:tauri-debug
+# 构建桌面应用
+pnpm build:desktop
 
 # 运行测试
 pnpm test
@@ -121,8 +114,7 @@ pnpm i18n
 ### 核心包
 
 - **@rpa/web-app**: 主 Web 应用
-- **@rpa/tauri-app**: 桌面应用（Tauri）
-- **@rpa/tauri-app-window**: Tauri 日志窗口应用
+- **@rpa/electron-app**: 桌面应用
 - **@rpa/browser-plugin**: 浏览器扩展
 - **@rpa/components**: 共享 UI 组件
 - **@rpa/shared**: 共享工具库
@@ -141,8 +133,7 @@ pnpm i18n
 前端单体仓库
 ├── packages/
 │   ├── web-app/           # Vue 3 Web 应用
-│   ├── tauri-app/         # Tauri 桌面应用
-│   ├── tauri-app-window/  # Tauri 日志窗口
+│   ├── electron-app/      # Electron 桌面应用
 │   ├── browser-plugin/    # 浏览器扩展
 │   ├── components/        # 共享组件
 │   ├── types/            # 类型定义
@@ -167,8 +158,8 @@ pnpm i18n
 
 **桌面应用**
 
-- Tauri 提供原生桌面功能
-- Rust 后端与 Web 前端
+- Electron 提供原生桌面功能
+- Node 后端与 Web 前端
 - 原生系统集成
 - 跨平台兼容性
 

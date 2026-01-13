@@ -31,3 +31,6 @@ components.d.ts
 .env
 
 .cursor/
+
+./public/client-sdk.js
+./public/client-sdk.js.map

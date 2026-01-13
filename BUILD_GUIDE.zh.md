@@ -47,7 +47,6 @@
 | **Python** | 3.13.x | RPA 引擎核心 |
 | **Java** | JDK 8+ | 后端服务运行时 |
 | **pnpm** | >= 9 | Node.js 包管理器 |
-| **rustc** | >= 1.90.0 | Tauri 应用构建 |
 | **UV** | 0.8+ | Python 包管理工具 |
 | **7-Zip** | - | 创建部署归档文件 |
 | **SWIG** | - | 连接 Python 与 C/C++ |
@@ -151,64 +150,7 @@ pnpm --version
 
 **📖 了解更多**: [pnpm 官方文档](https://pnpm.io/)
 
-
-### 4️⃣ Tauri
-
-> 🪟 **桌面应用框架** · 用于构建跨平台桌面应用
-
-#### 🔧 前置工具安装
-
-<details>
-<summary><b>步骤 1: Microsoft Visual Studio C++ 生成工具</b></summary>
-
-<br>
-
-您需要安装 Microsoft C++ 生成工具。最简单的方法是下载 [Visual Studio 2022 生成工具](https://visualstudio.microsoft.com/visual-cpp-build-tools/)。
-推荐下载到非系统盘，因为可能会占用较大存储空间。
-
-**安装时请勾选：**
-- ✅ C++ 生成工具
-- ✅ Windows 10 SDK
-
-> **💡 提示：** ![VS Hint](./docs/images/visual_studio_install.png "VS 安装提示")
-
-</details>
-
-<details>
-<summary><b>步骤 2: WebView2</b></summary>
-
-<br>
-
-> **📝 备注**  
-> Windows 10 (Version 1803+) 和 Windows 11 已预装 WebView2
-
-Tauri 需要 WebView2 才能在 Windows 上呈现网页内容。从[微软网站](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/#download-section)下载和运行**常青版引导程序**即可。
-
-**🔍 故障排除：** 如果遇到问题（特别是 Windows on ARM），请手动选择适合您架构的版本。
-
-</details>
-
-<details>
-<summary><b>步骤 3: Rust</b></summary>
-
-<br>
-
-前往 [Rust 安装地址](https://www.rust-lang.org/zh-CN/tools/install) 来安装 rustup (Rust 安装程序)。
-
-**或者可以在 PowerShell 中使用 winget 安装：**
-```bash
-winget install --id Rustlang.Rustup
-```
-
-> **⚠️ 重要提醒**  
-> 安装后必须重新启动终端，某些情况下需要重新启动 Windows。
-
-</details>
-
-**📖 了解更多**: [Tauri 官方文档](https://v1.tauri.app/zh-cn/v1/guides/getting-started/prerequisites/)
-
-
-### 5️⃣ Docker
+### 4️⃣ Docker
 
 > 🐳 **容器化平台** · 用于服务端快速部署
 
@@ -231,7 +173,7 @@ docker compose --version
 
 ---
 
-### 6️⃣ 7-Zip
+### 5️⃣ 7-Zip
 
 > 📦 **压缩工具** · 用于创建部署归档文件
 
@@ -255,7 +197,7 @@ docker compose --version
 
 ---
 
-### 7️⃣ SWIG
+### 6️⃣ SWIG
 
 > 🔗 **接口生成器** · 用于连接 Python 与 C/C++ 程序
 
@@ -448,8 +390,7 @@ Python313/
 2. ✅ 安装 RPA 引擎依赖包
 3. ✅ 压缩 Python 包到目录 `resources/python_core.7z`
 4. ✅ 安装前端依赖
-5. ✅ 构建前端 Web 应用
-6. ✅ 构建 Tauri 桌面应用
+5. ✅ 构建桌面应用
 
 ### 高级选项
 
@@ -503,11 +444,8 @@ pnpm install
 # ⚙️ 配置环境变量
 pnpm set-env
 
-# 🏗️ 构建 Web 应用
-pnpm build:web
-
 # 🖥️ 构建桌面应用
-pnpm build:tauri-debug
+pnpm build:desktop
 ```
 
 > **提示：** 使用 `build.bat --skip-engine` 可以自动完成上述前端构建步骤。
@@ -517,21 +455,21 @@ pnpm build:tauri-debug
 </details>
 
 <details>
-<summary><b>步骤 3️⃣: 安装 MSI 安装包</b></summary>
+<summary><b>步骤 3️⃣: 安装 Exe 安装包</b></summary>
 
 <br>
 
 **打包完成路径：**
 ```
-./frontend/packages/tauri-app/src-tauri/target/debug/bundle/msi/
+/frontend/packages/electron-app/dist/
 ```
 
-双击 MSI 文件进行安装。
+双击 Exe 文件进行安装。
 
 </details>
 
 <details>
-<summary><b>步骤 6️⃣: 配置服务端地址</b></summary>
+<summary><b>步骤 4️⃣: 配置服务端地址</b></summary>
 
 <br>
 
@@ -553,7 +491,7 @@ skip_engine_start: false
 
 | 服务 | 地址 | 说明 |
 |-----|------|------|
-| 🖥️ **桌面应用** | 自动启动窗口 | Tauri 桌面客户端 |
+| 🖥️ **桌面应用** | 自动启动窗口 | 桌面客户端 |
 | 🔌 **后端服务 API** | http://localhost:32742 | 后端网关服务Nginx |
 | 🔑 **Casdoor服务 API** | http://localhost:8000 | 认证服务Casdoor |
 
@@ -751,26 +689,6 @@ node --version  # 需要 22+
 - ❌ 缓存损坏
 
 </details>
-
-<details>
-<summary><b>Q: Tauri 构建失败？</b></summary>
-
-<br>
-
-```bash
-# ⬆️ 更新 Rust 工具链
-rustup update
-
-# 🧹 清理构建缓存
-cargo clean
-
-# 📦 检查系统依赖 (Linux)
-sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget \
-  libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
-```
-
-</details>
-
 
 ## 📞 获取帮助
 

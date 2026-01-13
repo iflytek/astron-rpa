@@ -79,7 +79,6 @@ docker compose ps
 | **Python** | 3.13.x | RPA 引擎核心 |
 | **Java** | JDK 8+ | 后端服务运行时 |
 | **pnpm** | >= 9 | Node.js 包管理器 |
-| **rustc** | >= 1.90.0 | Tauri 应用构建 |
 | **UV** | 0.8+ | Python 包管理工具 |
 | **7-Zip** | - | 创建部署归档文件 |
 | **SWIG** | - | 连接 Python 与 C/C++ |
@@ -118,7 +117,7 @@ docker compose ps
    3. ✅ 压缩 Python 核心到 `resources/python_core.7z`
    4. ✅ 安装前端依赖
    5. ✅ 构建前端 Web 应用
-   6. ✅ 构建 Tauri 桌面应用
+   6. ✅ 构建桌面应用
 
 3. 📦 安装打包完成的客户端安装包
 
@@ -132,7 +131,7 @@ docker compose ps
 
 ## 🏗️ 架构概览
 
-本项目采用前后端分离架构，前端基于 Vue 3 + TypeScript 与 Tauri 构建桌面应用；后端以 Java Spring Boot 与 Python FastAPI 构建微服务，支撑业务与 AI 能力；引擎层基于 Python，集成 20+ RPA 组件，支持图像识别与 UI 自动化；整体通过 Docker 部署，具备高可观测性与扩展性，专为复杂 RPA 场景设计。
+本项目采用前后端分离架构，前端基于 Vue 3 + TypeScript 与 Electron 构建桌面应用；后端以 Java Spring Boot 与 Python FastAPI 构建微服务，支撑业务与 AI 能力；引擎层基于 Python，集成 20+ RPA 组件，支持图像识别与 UI 自动化；整体通过 Docker 部署，具备高可观测性与扩展性，专为复杂 RPA 场景设计。
 
 ![Architecture Overview](./docs/images/Structure-zh.png "Architecture Overview")
 

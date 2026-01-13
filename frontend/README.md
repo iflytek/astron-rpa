@@ -8,7 +8,7 @@
 [![Vue](https://img.shields.io/badge/vue-3+-4FC08D.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.9+-blue.svg)](https://www.typescriptlang.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-9+-orange.svg)](https://pnpm.io/)
-[![Tauri](https://img.shields.io/badge/tauri-1.6+-purple.svg)](https://tauri.app/)
+[![Electron](https://img.shields.io/badge/electron-22+-purple.svg)](https://www.electronjs.org/)
 
 English | [简体中文](README.zh.md)
 
@@ -35,7 +35,7 @@ English | [简体中文](README.zh.md)
 
 AstronRPA Frontend is a modern frontend platform built for RPA applications. It provides a comprehensive solution for building both web-based and desktop RPA applications with a unified codebase.
 
-The platform features a monorepo architecture using pnpm workspaces, supporting multiple application types including web applications, desktop applications (via Tauri), and browser plugins, all sharing common components and utilities.
+The platform features a monorepo architecture using pnpm workspaces, supporting multiple application types including web applications, desktop applications, and browser plugins, all sharing common components and utilities.
 
 ## ✨ Key Features
 
@@ -43,14 +43,14 @@ The platform features a monorepo architecture using pnpm workspaces, supporting 
 - 🔒 **Type Safety** - Full TypeScript support with strict type checking
 - 🔧 **Easy Integration** - Modular package structure with workspace dependencies
 - 📊 **Real-time Development** - Hot module replacement and fast refresh
-- 🌍 **Multi-Platform Support** - Web, desktop (Tauri), and browser extension support
+- 🌍 **Multi-Platform Support** - Web, desktop, and browser extension support
 - 📈 **Scalable Architecture** - Monorepo with shared components and utilities
 
 ## 🛠️ Tech Stack
 
 **Frontend Framework**: Vue 3 + TypeScript + Vite
 **UI Components**: Ant Design Vue + VXE Table
-**Desktop App**: Tauri (Rust + Web Technologies)
+**Desktop App**: Electron
 **State Management**: Pinia
 **Package Manager**: pnpm workspaces
 **Testing**: Vitest + Vue Test Utils
@@ -65,7 +65,6 @@ The platform features a monorepo architecture using pnpm workspaces, supporting 
 
 - **Node.js**: >= 22
 - **pnpm**: >= 9
-- **Rust**: >= 1.90.0 (for Tauri desktop app)
 - **Operating System**: Windows 10/11, macOS, or Linux
 
 ### Development Setup
@@ -84,11 +83,8 @@ pnpm set-env
 # Start web development server
 pnpm dev:web
 
-# Start Tauri desktop app (development mode)
-pnpm dev:tauri
-
-# Start Tauri log window (development mode)
-pnpm dev:tauri-logwin
+# Start desktop app (development mode)
+pnpm dev:desktop
 ```
 
 ### Build & Deploy
@@ -97,11 +93,8 @@ pnpm dev:tauri-logwin
 # Build web application
 pnpm build:web
 
-# Build Tauri desktop application
-pnpm build:tauri
-
-# Build Tauri desktop application (debug mode)
-pnpm build:tauri-debug
+# Build desktop application
+pnpm build:desktop
 
 # Run tests
 pnpm test
@@ -121,8 +114,7 @@ pnpm i18n
 ### Core Packages
 
 - **@rpa/web-app**: Main web application
-- **@rpa/tauri-app**: Desktop application (Tauri)
-- **@rpa/tauri-app-window**: Tauri log window application
+- **@rpa/electron-app**: Desktop application
 - **@rpa/browser-plugin**: Browser extension
 - **@rpa/components**: Shared UI components
 - **@rpa/shared**: Shared tools
@@ -141,8 +133,7 @@ pnpm i18n
 Frontend Monorepo
 ├── packages/
 │   ├── web-app/           # Vue 3 Web Application
-│   ├── tauri-app/         # Tauri Desktop App
-│   ├── tauri-app-window/  # Tauri Log Window
+│   ├── electron-app/      # Electron Desktop App
 │   ├── browser-plugin/    # Browser Extension
 │   ├── components/        # Shared Components
 │   ├── types/            # Type Definitions
@@ -167,8 +158,8 @@ Frontend Monorepo
 
 **Desktop Application**
 
-- Tauri for native desktop capabilities
-- Rust backend with Web frontend
+- Electron for native desktop capabilities
+- Node backend with Web frontend
 - Native system integration
 - Cross-platform compatibility
 

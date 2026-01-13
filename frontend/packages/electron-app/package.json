@@ -1,5 +1,5 @@
 {
-  "name": "astron-rpa",
+  "name": "@rpa/desktop-app",
   "version": "1.1.2",
   "homepage": "https://www.iflyrpa.com",
   "main": "./out/main/index.js",
@@ -19,7 +19,6 @@
     "build:win32": "npm run build && electron-builder --win --ia32",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux",
-    "build:subwin": "npm run build:win32 --mode=subwin",
     "build:sdk": "tsdown --config tsdown.config.mts",
     "build:web": "pnpm --filter @rpa/web-app run build && npm run copy:renderer",
     "copy:renderer": "node scripts/copy-dist.js"
