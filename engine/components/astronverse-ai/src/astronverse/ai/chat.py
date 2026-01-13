@@ -276,8 +276,9 @@ class ChatAI:
         content: list[str] = []
         reason: list[str] = []
         for item in chat_streamable(inputs, model):
-            if item.get("content"):
-                content.append(item.get("content"))
-            if item.get("reasoning_content"):
-                reason.append(item.get("reasoning_content"))
+            # if item.get("content"):
+            #     content.append(item.get("content"))
+            # if item.get("reasoning_content"):
+            #     reason.append(item.get("reasoning_content"))
+            content.append(item)
         return content, reason

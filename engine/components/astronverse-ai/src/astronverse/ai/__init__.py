@@ -36,6 +36,6 @@ class RatingSystemTypes(Enum):
 
 
 class LLMModelTypes(Enum):
-    DS_CHAT = "deepseek-chat"
-    DS_REASONER = "deepseek-reasoner"  # 先顶一下
+    DS_CHAT = "maas/deepseek-v3.2"
+    DS_REASONER = "maas/kimi-k2-thinking"
     CUSTOM_MODEL = "custom"

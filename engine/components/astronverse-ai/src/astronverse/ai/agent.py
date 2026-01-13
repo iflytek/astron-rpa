@@ -1,5 +1,6 @@
 """Agent related atomic operations and workflow integration for AI interactions."""
 
+import requests
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
@@ -7,6 +8,10 @@ from astronverse.ai import DifyFileTypes
 from astronverse.ai.api.dify import Dify
 from astronverse.ai.api.xcagent import xcAgent
 from astronverse.baseline.logger.logger import logger
+
+AUTH_URL = "http://127.0.0.1:{}/api/rpa-openapi/api-keys/get-astron-by-id".format(
+    atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+)
 
 
 class Agent:
@@ -215,4 +220,29 @@ class Agent:
         xc_agent_result = xc_agent.run_flow(
             flow_id, input_value, False, file_flag, variable_name, variable_value, file_path
         )
+        return xc_agent_result
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Agent",
+        inputList=[
+            atomicMg.param(
+                "astron_workflow",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.AIWORKFLOW.value),
+                need_parse="json_str",
+            )
+        ],
+        outputList=[atomicMg.param("astron_agent_result", types="Str")],
+    )
+    def call_astron_agent(astron_workflow: dict = {}):
+        auth_id = astron_workflow.get("authId")
+        workflow_id = astron_workflow.get("agentId")
+        inputs = astron_workflow.get("inputs")
+
+        response = requests.get(AUTH_URL, params={"id": auth_id})
+        response_data = response.json().get("data")
+        logger.info(response_data)
+
+        xc_agent = xcAgent(response_data.get("api_key"), response_data.get("api_secret"))
+        xc_agent_result = xc_agent.run_astron_flow(workflow_id, False, inputs)
         return xc_agent_result
