@@ -390,7 +390,7 @@ Python313/
 2. ✅ 安装 RPA 引擎依赖包
 3. ✅ 压缩 Python 包到目录 `resources/python_core.7z`
 4. ✅ 安装前端依赖
-6. ✅ 构建桌面应用
+5. ✅ 构建桌面应用
 
 ### 高级选项
 
@@ -469,7 +469,7 @@ pnpm build:desktop
 </details>
 
 <details>
-<summary><b>步骤 6️⃣: 配置服务端地址</b></summary>
+<summary><b>步骤 4️⃣: 配置服务端地址</b></summary>
 
 <br>
 

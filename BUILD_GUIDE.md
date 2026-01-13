@@ -390,8 +390,7 @@ Execute the build script from the project root directory:
 2. ✅ Install RPA engine dependencies
 3. ✅ Compress Python core to `resources/python_core.7z`
 4. ✅ Install frontend dependencies
-5. ✅ Build frontend web application
-6. ✅ Build desktop application
+5. ✅ Build desktop application
 
 ### Advanced Options
 
@@ -470,7 +469,7 @@ Double-click the Exe file to install.
 </details>
 
 <details>
-<summary><b>Step 6️⃣: Configure Server Address</b></summary>
+<summary><b>Step 4️⃣: Configure Server Address</b></summary>
 
 <br>
 
