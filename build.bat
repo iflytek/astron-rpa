@@ -374,7 +374,7 @@ if !errorlevel! neq 0 (
 )
 
 echo Building desktop application...
-call pnpm build:tauri-debug
+call pnpm build:desktop
 if !errorlevel! neq 0 (
     echo Desktop application build failed
     cd /d "%SCRIPT_DIR%"

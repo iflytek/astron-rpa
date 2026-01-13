@@ -75,8 +75,6 @@ export default antfu({
     'unicorn/prefer-dom-node-text-content': 'off',
   },
   ignores: [
-    'packages/tauri-app/**',
-    'packages/tauri-app-window/**',
     'packages/electron-app/resources/**/*.js',
     'packages/components/lib/**/*.js',
     'public/*.js',

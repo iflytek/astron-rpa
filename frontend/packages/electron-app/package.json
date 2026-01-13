@@ -1,5 +1,5 @@
 {
-  "name": "astron-rpa",
+  "name": "@rpa/desktop-app",
   "version": "1.1.2",
   "homepage": "https://www.iflyrpa.com",
   "main": "./out/main/index.js",

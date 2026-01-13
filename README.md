@@ -81,7 +81,6 @@ docker compose ps
 | **Python** | 3.13.x | RPA engine core |
 | **Java** | JDK 8+ | Backend runtime |
 | **pnpm** | >= 9 | Node.js package manager |
-| **rustc** | >= 1.90.0 | Tauri build framework |
 | **UV** | 0.8+ | Python package management tool |
 | **7-Zip** | - | Create deployment archives |
 | **SWIG** | - | Connect Python with C/C++ |
@@ -120,7 +119,7 @@ Download the latest [Release Package](https://github.com/iflytek/astron-rpa/rele
    3. ✅ Compress Python core to `resources/python_core.7z`
    4. ✅ Install frontend dependencies
    5. ✅ Build frontend web application
-   6. ✅ Build Tauri desktop application
+   6. ✅ Build desktop application
 
 3. 📦 Install the packaged client installation package
 
@@ -134,7 +133,7 @@ Download the latest [Release Package](https://github.com/iflytek/astron-rpa/rele
 
 ## 🏗️ Architecture Overview
 
-The project adopts a frontend-backend separation architecture. The frontend is built with Vue 3 + TypeScript and Tauri for desktop applications; the backend uses Java Spring Boot and Python FastAPI to build microservices supporting business and AI capabilities. The engine layer is based on Python, integrating 20+ RPA components with support for image recognition and UI automation. The entire system is deployed via Docker with high observability and scalability, designed for complex RPA scenarios.
+The project adopts a frontend-backend separation architecture. The frontend is built with Vue 3 + TypeScript and Electron for desktop applications; the backend uses Java Spring Boot and Python FastAPI to build microservices supporting business and AI capabilities. The engine layer is based on Python, integrating 20+ RPA components with support for image recognition and UI automation. The entire system is deployed via Docker with high observability and scalability, designed for complex RPA scenarios.
 
 ![Architecture Overview](./docs/images/Structure.png "Architecture Overview")
 

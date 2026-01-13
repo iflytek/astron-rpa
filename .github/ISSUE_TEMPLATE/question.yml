@@ -60,7 +60,7 @@ body:
       options:
         - 不确定/通用问题
         - 前端 Web 应用
-        - 前端 Tauri 桌面应用
+        - 前端桌面应用
         - 前端浏览器插件
         - 后端 robot-service
         - 后端 ai-service

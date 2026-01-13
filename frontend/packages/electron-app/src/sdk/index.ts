@@ -32,7 +32,7 @@ function init() {
   }
   else {
     setTimeout(() => {
-      maxRetries-- > 0 ? init() : console.warn('Tauri SDK initialization failed: __TAURI_METADATA__ not found')
+      maxRetries-- > 0 ? init() : console.warn('Electron SDK initialization failed: electron not found')
     }, 0)
   }
 }

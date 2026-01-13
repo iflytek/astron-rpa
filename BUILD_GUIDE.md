@@ -47,7 +47,6 @@
 | **Python** | 3.13.x | RPA engine core |
 | **Java** | JDK 8+ | Backend service runtime |
 | **pnpm** | >= 9 | Node.js package manager |
-| **rustc** | >= 1.90.0 | Tauri app build |
 | **UV** | 0.8+ | Python package manager |
 | **7-Zip** | - | Create deployment archives |
 | **SWIG** | - | Connect Python with C/C++ |
@@ -151,64 +150,7 @@ pnpm --version
 
 **📖 Learn More**: [pnpm Official Documentation](https://pnpm.io/)
 
-
-### 4️⃣ Tauri
-
-> 🪟 **Desktop Application Framework** · For building cross-platform desktop applications
-
-#### 🔧 Prerequisites Installation
-
-<details>
-<summary><b>Step 1: Microsoft Visual Studio C++ Build Tools</b></summary>
-
-<br>
-
-You need to install Microsoft C++ Build Tools. The easiest way is to download [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
-It's recommended to install on a non-system drive as it may take up significant storage space.
-
-**During installation, check:**
-- ✅ C++ Build Tools
-- ✅ Windows 10 SDK
-
-> **💡 Tip:** ![VS Hint](./docs/images/visual_studio_install.png "VS Installation Hint")
-
-</details>
-
-<details>
-<summary><b>Step 2: WebView2</b></summary>
-
-<br>
-
-> **📝 Note**  
-> Windows 10 (Version 1803+) and Windows 11 come with WebView2 pre-installed
-
-Tauri needs WebView2 to render web content on Windows. Download and run the **Evergreen Bootstrapper** from [Microsoft's website](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section).
-
-**🔍 Troubleshooting:** If you encounter issues (especially on Windows on ARM), manually select the version that matches your architecture.
-
-</details>
-
-<details>
-<summary><b>Step 3: Rust</b></summary>
-
-<br>
-
-Visit [Rust Installation](https://www.rust-lang.org/tools/install) to install rustup (Rust installer).
-
-**Or install using winget in PowerShell:**
-```bash
-winget install --id Rustlang.Rustup
-```
-
-> **⚠️ Important**  
-> You must restart your terminal after installation, and in some cases, restart Windows itself.
-
-</details>
-
-**📖 Learn More**: [Tauri Official Documentation](https://v1.tauri.app/v1/guides/getting-started/prerequisites/)
-
-
-### 5️⃣ Docker
+### 4️⃣ Docker
 
 > 🐳 **Containerization Platform** · For rapid server deployment
 
@@ -231,7 +173,7 @@ docker compose --version
 
 ---
 
-### 6️⃣ 7-Zip
+### 5️⃣ 7-Zip
 
 > 📦 **Compression Tool** · For creating deployment archive files
 
@@ -255,7 +197,7 @@ Download and install to system, or extract to a custom directory
 
 ---
 
-### 7️⃣ SWIG
+### 6️⃣ SWIG
 
 > 🔗 **Interface Generator** · For connecting Python with C/C++ programs
 
@@ -449,7 +391,7 @@ Execute the build script from the project root directory:
 3. ✅ Compress Python core to `resources/python_core.7z`
 4. ✅ Install frontend dependencies
 5. ✅ Build frontend web application
-6. ✅ Build Tauri desktop application
+6. ✅ Build desktop application
 
 ### Advanced Options
 
@@ -503,11 +445,8 @@ pnpm install
 # ⚙️ Configure environment variables
 pnpm set-env
 
-# 🏗️ Build web application
-pnpm build:web
-
 # 🖥️ Build desktop application
-pnpm build:tauri-debug
+pnpm build:desktop
 ```
 
 > **Tip:** Use `build.bat --skip-engine` to automatically complete the frontend build steps above.
@@ -517,16 +456,16 @@ pnpm build:tauri-debug
 </details>
 
 <details>
-<summary><b>Step 3️⃣: Install MSI Package</b></summary>
+<summary><b>Step 3️⃣: Install Exe Package</b></summary>
 
 <br>
 
 **Package completion path:**
 ```
-\frontend\packages\tauri-app\src-tauri\target\debug\bundle\msi\
+/frontend/packages/electron-app/dist/
 ```
 
-Double-click the MSI file to install.
+Double-click the Exe file to install.
 
 </details>
 
@@ -553,7 +492,7 @@ skip_engine_start: false
 
 | Service | Address | Description |
 |-----|------|------|
-| 🖥️ **Desktop App** | Auto-launch window | Tauri desktop client |
+| 🖥️ **Desktop App** | Auto-launch window | Desktop client |
 | 🔌 **Backend Service API** | http://localhost:32742 | Backend Gateway Service Nginx |
 | 🔑 **Casdoor Service API** | http://localhost:8000 | Authentication Service Casdoor |
 
@@ -749,25 +688,6 @@ node --version  # Requires 22+
 - ❌ Node.js version not meeting requirements
 - ❌ Dependency version conflicts
 - ❌ Cache corruption
-
-</details>
-
-<details>
-<summary><b>Q: Tauri build failed?</b></summary>
-
-<br>
-
-```bash
-# ⬆️ Update Rust toolchain
-rustup update
-
-# 🧹 Clear build cache
-cargo clean
-
-# 📦 Check system dependencies (Linux)
-sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget \
-  libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
-```
 
 </details>
 
