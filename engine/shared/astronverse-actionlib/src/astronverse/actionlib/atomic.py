@@ -315,9 +315,7 @@ class AtomicManager:
 
         # 处理输入
         inputList = []
-        __has_kwargs__ = any(
-            p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
-        )
+        __has_kwargs__ = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values())
         for k, v in sig.parameters.items():
             if k in ("self", "cls", "args"):
                 continue
