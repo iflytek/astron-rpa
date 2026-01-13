@@ -5,6 +5,7 @@ import { addComponentUse, deleteComponentUse } from '@/api/robot'
 import type { ProcessNode } from '@/corobot/type'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
+import { difference } from 'lodash-es'
 
 export const COMPONENT_KEY_PREFIX = 'Code.Component'
 
@@ -201,9 +202,8 @@ export async function trackComponentUsageChange(operation: () => void | Promise<
   const beforeUsedKeys = getUsedComponentKeySet()
   await operation()
   const afterUsedKeys = getUsedComponentKeySet()
-
-  const deletedKeys = beforeUsedKeys.difference(afterUsedKeys)
-  const addedKeys = afterUsedKeys.difference(beforeUsedKeys)
+  const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
+  const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
 
   for (const key of addedKeys) {
     await addComponentUse({
