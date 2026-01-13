@@ -51,8 +51,6 @@ export default {
     this.createWs(searchParams.get('ws'))
     this.projectName = searchParams.get('title') || '执行日志'
     this.isSiderMinimized = searchParams.get('mini') === '1'
-
-    setTimeout(() => utilsManager.invoke('render_ready'), 1000)
   },
   methods: {
     createWs(url: string) {

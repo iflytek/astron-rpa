@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HintIcon } from '@rpa/components'
-import { Form, Spin } from 'ant-design-vue'
+import { Form, Empty } from 'ant-design-vue'
 import { isEmpty } from 'lodash-es'
 
 import type { AnyObj } from '@/types/common'
@@ -8,6 +8,8 @@ import type { DialogOption } from '@/views/Arrange/components/customDialog/types
 
 import createUserFormItem from '../hooks/createUserFormItem'
 import useUserFormDialog from '../hooks/useUserFormDialog'
+
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
 const props = defineProps<{ option: DialogOption, draggable?: boolean }>()
 const emit = defineEmits<{
@@ -41,7 +43,7 @@ const {
       class="userform-content"
       :style="option.mode === 'modal' ? { maxHeight: '350px' } : {}"
     >
-      <Form :ref="formRef" layout="vertical" :model="formState">
+      <Form ref="formRef" layout="vertical" :model="formState">
         <template v-if="!isEmpty(option?.itemList)">
           <Form.Item
             v-for="formItem in option.itemList"
@@ -57,7 +59,7 @@ const {
             <component :is="createItemFn[formItem.dialogFormType](formItem, formState)" />
           </Form.Item>
         </template>
-        <Spin v-else tip="加载中..." />
+        <a-empty v-else :image="simpleImage" />
       </Form>
     </div>
     <div class="userform-footer">
@@ -70,7 +72,6 @@ const {
 .userform {
   background: $color-bg-container;
   width: 100%;
-  height: 100%;
   border-radius: 4px;
   padding: 0 10px 10px 10px;
 
@@ -88,15 +89,6 @@ const {
     .ant-select-dropdown {
       position: relative;
       z-index: 9999;
-    }
-
-    .ant-spin-spinning {
-      position: relative;
-      display: inline-block;
-      opacity: 1;
-      top: 50%;
-      left: 40%;
-      margin-top: 20%;
     }
   }
 

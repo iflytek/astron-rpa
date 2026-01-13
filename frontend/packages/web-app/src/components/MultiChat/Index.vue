@@ -102,12 +102,8 @@ function handleSave() {
     return
   }
   const filterArr = chatDataList.value.filter(item => saveQAIds.value.includes(item.id))
-  utilsManager.invoke('page_handler', {
-    operType: 'AISave',
-    data: JSON.stringify(filterArr),
-  }).then(() => {
-    handleClose()
-  })
+  console.log(JSON.stringify(filterArr))
+  handleClose()
 }
 function handleScrollToBottom() {
   if (messagingId.value) {
@@ -208,20 +204,17 @@ function handlePresetClick(item: string) {
   prompt.value = item
   handleSend()
 }
+
 function handlePreview() {
   if (['doc', 'docx'].includes(fileInfo.value.suffix))
     return false
   showPreview.value = true
 }
+
 function handleClose() {
   windowManager.closeWindow()
 }
 
-onMounted(() => {
-  setTimeout(() => { // 通知主进程渲染进程准备就绪
-    utilsManager.invoke('render_ready')
-  }, 1000)
-})
 onBeforeUnmount(() => clearAllData())
 </script>
 

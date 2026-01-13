@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process'
+import { exec, spawn } from 'node:child_process'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -10,8 +10,6 @@ import logger from './log'
 import { appWorkPath, confPath, pythonExe, resourcePath } from './path'
 import { getMainWindow } from './window'
 import { envJson } from './env'
-
-let setupProcessId
 
 process.on('uncaughtException', (err) => {
   logger.error(`uncaughtException: ${err.message}`)
@@ -25,7 +23,6 @@ export function checkPythonRpaProcess() {
     // linux 上检测 python 进程中 命令行中包含 envJson.SCHEDULER_NAME 的进程
     if (process.platform !== 'win32') {
       exec(`ps aux | grep "${envJson.SCHEDULER_NAME}"`, (error, stdout) => {
-        logger.info('11', stdout)
         if (error) {
           return resolve(false)
         }
@@ -57,11 +54,8 @@ export async function startServer() {
   }
   mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
 
-  const rpaSetup = exec(`${pythonExe} -m ${envJson.SCHEDULER_NAME} --conf=${confPath}`, { cwd: appWorkPath }, (error) => {
-    if (error) {
-      logger.error(`${envJson.SCHEDULER_NAME} error: ${error}`)
-    }
-  })
+  const rpaSetup = spawn(pythonExe, ['-m', envJson.SCHEDULER_NAME, '--conf', confPath], { cwd: appWorkPath })
+ 
   rpaSetup.stdout?.on('data', (data) => {
     msgFilter(data.toString())
   })
@@ -78,21 +72,12 @@ export async function startServer() {
       logger.error(`${envJson.SCHEDULER_NAME} exited with error code: ${code}`)
     }
   })
+
   rpaSetup.on('error', (error) => {
     logger.error(`Failed to start ${envJson.SCHEDULER_NAME}: ${error.message}`)
   })
 }
-/**
- * 关闭服务
- */
-export function stopServer(callback?: () => void) {
-  const treeKill = require('tree-kill')
-  treeKill(setupProcessId, 'SIGTERM', (err) => {
-    if (err)
-      logger.error(`Failed to stop ${envJson.SCHEDULER_NAME}: ${err.message}`)
-    callback && callback()
-  })
-}
+
 /**
  * 消息过滤器，处理从Python进程接收到的消息
  * @param msg - 从Python进程输出的原始消息字符串

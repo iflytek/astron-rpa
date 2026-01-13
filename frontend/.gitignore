@@ -32,5 +32,5 @@ components.d.ts
 
 .cursor/
 
-./public/client-sdk.js
-./public/client-sdk.js.map
+/public/client-sdk.js
+/public/client-sdk.js.map
