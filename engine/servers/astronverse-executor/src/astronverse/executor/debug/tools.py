@@ -26,7 +26,6 @@ class LogTool:
         url = "http://127.0.0.1:{}/scheduler/send/sub_window".format(self.svc.conf.gateway_port)
         headers = {"Content-Type": "application/json"}
         response = requests.post(url, headers=headers, data=json.dumps(sub_window))
-        logger.info(f"当前调度器返回的结果的Json是：{response.json()}")
         if int(response.status_code) == 200 and response.json()["code"] == "0000":
             return response.json()
         else:

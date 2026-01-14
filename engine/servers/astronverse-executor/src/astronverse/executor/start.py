@@ -173,18 +173,19 @@ def start():
     else:
         args.recording_config = {}
 
-    svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
+    svc = None
     try:
         # 生成代码
         flow_start(conf=Config, args=args)
         # 执行代码
+        svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
         debug_start(svc=svc, args=args)
     except BaseException as e:
-        svc.end(ExecuteStatus.FAIL, reason=e.message)
+        if svc:
+            svc.end(ExecuteStatus.FAIL, reason=e.message)
         return
     except Exception as e:
-        svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
+        if svc:
+            svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
         return
-
-
-logger.debug("end")
+    logger.debug("end")
