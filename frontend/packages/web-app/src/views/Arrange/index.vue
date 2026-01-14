@@ -48,7 +48,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex flex-col w-full h-full bg-[#ecedf4] dark:bg-[#141414]">
-    <Header class="!relative">
+    <Header>
       <template #headControl>
         <HeaderControl :user-info="false" />
       </template>

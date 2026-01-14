@@ -150,8 +150,6 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .app_control {
-  position: fixed;
-  top: 0;
   height: var(--headerHeight);
   z-index: var(--headerZindex);
   display: flex;

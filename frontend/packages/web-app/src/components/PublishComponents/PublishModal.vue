@@ -25,7 +25,8 @@ function handleSubmited() {
   <Drawer
     v-bind="NiceModal.antdDrawer(modal)"
     title="发布应用"
-    class="publish-modal"
+    class="no-drag"
+    :body-style="{ padding: '0px' }"
     :width="568"
     :footer="null"
   >
@@ -35,13 +36,3 @@ function handleSubmited() {
     <Publish v-else :robot-id="props.robotId" :default-data="toFrontData(state)" @submited="handleSubmited" />
   </Drawer>
 </template>
-
-<style lang="scss">
-.publish-modal {
-  padding: 0;
-
-  .ant-drawer-body {
-    padding: 0;
-  }
-}
-</style>
