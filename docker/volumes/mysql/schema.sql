@@ -813,6 +813,22 @@ CREATE TABLE `openapi_auth` (
   UNIQUE KEY `UNIQUE` (`api_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='openapi鉴权储存';
 
+-- rpa.astron_agent_auth definition
+
+CREATE TABLE `astron_agent_auth` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(50) DEFAULT NULL,
+  `astron_user_name` varchar(50) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `app_id` varchar(50) DEFAULT NULL,
+  `api_key` varchar(100) DEFAULT NULL,
+  `api_secret` varchar(100) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_astron_agent_auth_id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 -- rpa.openai_workflows definition
 

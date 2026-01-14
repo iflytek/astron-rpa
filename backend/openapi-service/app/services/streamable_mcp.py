@@ -1,11 +1,9 @@
-import os
 import json
-from pathlib import Path
-from mcp.server.fastmcp.tools import Tool
+from typing import Optional
+
+from mcp import types
 
 from app.logger import get_logger
-from typing import Dict, List, Optional, Tuple
-import mcp.types as types
 
 logger = get_logger(__name__)
 
@@ -26,7 +24,7 @@ class ToolsConfig:
                     self.redis = redis_conn
                     break
             except Exception as e:
-                logger.warning(f"Failed to initialize Redis connection: {e}")
+                logger.warning("Failed to initialize Redis connection: %s", e)
                 self.redis = None
 
     async def _get_workflow_service(self):
@@ -59,10 +57,11 @@ class ToolsConfig:
         if not api_key:
             return None
 
+        from sqlalchemy.future import select
+
+        from app.database import AsyncSessionLocal
         from app.models.api_key import OpenAPIDB
         from app.utils.api_key import APIKeyUtils
-        from sqlalchemy.future import select
-        from app.database import AsyncSessionLocal
 
         db = None
         try:
@@ -78,7 +77,7 @@ class ToolsConfig:
                     return str(key.user_id)
             return None
         except Exception as e:
-            logger.error(f"Error getting user ID from API key: {e}")
+            logger.exception("Error getting user ID from API key")
             if db:
                 await db.rollback()
             return None
@@ -87,7 +86,7 @@ class ToolsConfig:
             if db:
                 await db.close()
 
-    async def get_user_workflows(self, user_id: str) -> List[Dict]:
+    async def get_user_workflows(self, user_id: str) -> list[dict]:
         """获取用户允许使用的工具列表"""
         db = None
         try:
@@ -100,14 +99,14 @@ class ToolsConfig:
                 workflows.append(workflow.to_dict())
             return workflows
         except Exception as e:
-            logger.error(f"Error getting user workflows: {e}")
+            logger.exception("Error getting user workflows")
             return []
         finally:
             # 确保数据库会话被关闭
             if db:
                 await db.close()
 
-    async def get_project_id_by_name(self, name: str, user_id: str) -> Optional[Tuple[str, int]]:
+    async def get_project_id_by_name(self, name: str, user_id: str) -> Optional[tuple[str, int]]:
         """根据工具名称和用户ID查找对应的工作流项目ID"""
         db = None
         try:
@@ -119,13 +118,13 @@ class ToolsConfig:
             # 查找匹配的工作流
             for workflow in user_workflows:
                 # 优先使用 english_name，如果没有则使用 name
-                workflow_name = workflow.english_name if workflow.english_name else workflow.name
+                workflow_name = workflow.english_name or workflow.name
                 if workflow_name == name:
                     return workflow.project_id, workflow.version
 
             return None
         except Exception as e:
-            logger.error(f"Error getting project_id for name '{name}' and user_id '{user_id}': {e}")
+            logger.exception("Error getting project_id for name '%s' and user_id '%s'", name, user_id)
             return None
         finally:
             # 确保数据库会话被关闭
@@ -153,12 +152,12 @@ class ToolsConfig:
             )
 
             # 创建执行服务并执行工作流
-            from app.services.execution import ExecutionService
             from app.database import AsyncSessionLocal
+            from app.services.execution import ExecutionService
 
             async with AsyncSessionLocal() as db_session:
                 execution_service = ExecutionService(db_session)
-                logger.info(f"[execute_workflow_by_name] user_id '{user_id}'")
+                logger.info("[execute_workflow_by_name] user_id '%s'", user_id)
                 # 异步执行工作流
                 execution = await execution_service.execute_workflow(
                     execution_data=execution_data,
@@ -176,11 +175,11 @@ class ToolsConfig:
                 }
 
         except Exception as e:
-            logger.error(f"Error executing workflow for tool '{name}': {e}")
+            logger.exception("Error executing workflow for tool '%s'", name)
             return {"success": False, "error": f"Failed to execute workflow: {str(e)}"}
 
     @staticmethod
-    def workflow_to_tool(workflow: Dict):
+    def workflow_to_tool(workflow: dict):
         """将工作流配置转换为MCP工具配置"""
         # 优先使用english_name作为工具名称
         tool_name = workflow.get("english_name") or workflow.get("name")
@@ -202,7 +201,7 @@ class ToolsConfig:
         return tool_config
 
     @staticmethod
-    def _convert_parameters_to_schema(parameters: List[Dict]) -> Dict:
+    def _convert_parameters_to_schema(parameters: list[dict]) -> dict:
         """将工作流参数数组转换为JSON Schema格式"""
         schema = {"type": "object", "properties": {}, "required": []}
 
@@ -255,7 +254,7 @@ class ToolsConfig:
 
         return schema
 
-    async def get_tools_for_user(self, user_id: str) -> List[types.Tool]:
+    async def get_tools_for_user(self, user_id: str) -> list[types.Tool]:
         """获取用户可用的工具配置列表"""
         user_workflows = await self.get_user_workflows(user_id)
         user_tools = []

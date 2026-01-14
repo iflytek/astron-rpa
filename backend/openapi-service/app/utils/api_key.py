@@ -1,6 +1,8 @@
 import secrets
 import string
+
 import bcrypt
+
 from app.logger import get_logger
 
 logger = get_logger(__name__)

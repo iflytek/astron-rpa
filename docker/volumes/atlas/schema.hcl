@@ -647,6 +647,66 @@ table "app_market_version" {
     columns = [column.market_id]
   }
 }
+table "astron_agent_auth" {
+  schema = schema.rpa
+  comment = "星辰Agent鉴权储存"
+  charset = "utf8mb4"
+  collate = "utf8mb4_0900_ai_ci"
+  column "id" {
+    null           = false
+    type           = int
+    auto_increment = true
+  }
+  
+  column "user_id" {
+    null = true
+    type = varchar(50)
+  }
+  
+  column "astron_user_name" {
+    null = true
+    type = varchar(50)
+  }
+  
+  column "name" {
+    null = true
+    type = varchar(50)
+  }
+  
+  column "app_id" {
+    null = true
+    type = varchar(50)
+  }
+  
+  column "api_key" {
+    null = true
+    type = varchar(100)
+  }
+  
+  column "api_secret" {
+    null = true
+    type = varchar(100)
+  }
+  
+  column "created_at" {
+    null = true
+    type = datetime
+  }
+  
+  column "updated_at" {
+    null = true
+    type = datetime
+  }
+  
+  column "is_active" {
+    null = true
+    type = tinyint(1)
+  }
+  
+  primary_key {
+    columns = [column.id]
+  }
+}
 table "atom_like" {
   schema  = schema.rpa
   comment = "原子能力收藏"

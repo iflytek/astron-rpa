@@ -1,14 +1,15 @@
-from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
-from mcp.server.lowlevel import Server
-import mcp.types as types
-from starlette.types import Receive, Scope, Send
 import json
+
+from mcp import types
+from mcp.server.lowlevel import Server
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+from starlette.types import Receive, Scope, Send
 
 from app.logger import get_logger
 
 logger = get_logger(__name__)
-from app.services.streamable_mcp import ToolsConfig
 from app.dependencies import extract_api_key_from_request
+from app.services.streamable_mcp import ToolsConfig
 
 app = Server("iflyrpa-mcp")
 
