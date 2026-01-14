@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { app, BrowserWindow, screen } from 'electron'
 import type { CreateWindowOptions } from '@rpa/shared/platform'
+import { isUndefined } from 'lodash-es'
 
 import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
 import { resourcePath } from './path'
@@ -73,16 +74,16 @@ export function createSubWindow(options: CreateWindowOptions) {
     url,
     offset = 0,
     position,
-    x: _x = 0,
-    y: _y = 0,
+    x: _x,
+    y: _y,
     ...restOptions
   } = options
 
   const display = screen.getPrimaryDisplay()
   const { width: screenWidth, height: screenHeight } = display.workAreaSize
 
-  let x: number = _x
-  let y: number = _y
+  let x: number | undefined = _x
+  let y: number | undefined = _y
 
   switch (position) {
     case 'left_top':
@@ -119,7 +120,7 @@ export function createSubWindow(options: CreateWindowOptions) {
 
   const subWindowOptions: Electron.BrowserWindowConstructorOptions = {
     ...restOptions,
-    ...(x + y > 0 ? { x, y } : { center: true }),
+    ...(isUndefined(x) && isUndefined(y) ? { center: true } : { x, y }),
     width,
     height,
     webPreferences: {

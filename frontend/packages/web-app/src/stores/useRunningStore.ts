@@ -151,7 +151,7 @@ export const useRunningStore = defineStore('running', () => {
 
       // 打开多轮对话窗口
       if (result.key === 'sub_window' && msg.name === 'multichat') {
-        const queryString = Object.entries(msg.params).map(it => it.join('=')).join('&')
+        const queryString = new URLSearchParams(msg.params as Record<string, string>).toString()
         const options: CreateWindowOptions = {
           url: `${baseUrl}/${WINDOW_NAME.MULTICHAT}.html?${queryString}`,
           label: WINDOW_NAME.MULTICHAT,
