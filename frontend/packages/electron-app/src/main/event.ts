@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer'
+import fsPromises from 'node:fs/promises'
 import fs from 'node:fs'
 import { join } from 'node:path'
 
@@ -237,7 +238,7 @@ export function listenRender() {
     }
   })
 
-  ipcMain.handle('save-file', async (_event, fileName: string, buffer: Buffer) => {
+  ipcMain.handle('save-file', async (_event, fileName: string, buffer: Buffer | string): Promise<boolean> => {
     try {
       const { canceled, filePath } = await dialog.showSaveDialog({
         title: '保存文件',
@@ -247,7 +248,7 @@ export function listenRender() {
       if (canceled || !filePath)
         return false
 
-      fs.writeFileSync(filePath, buffer)
+      await fsPromises.writeFile(filePath, buffer)
       return true
     }
     catch (err) {

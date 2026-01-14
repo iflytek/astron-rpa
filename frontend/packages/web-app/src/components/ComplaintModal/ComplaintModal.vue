@@ -172,7 +172,7 @@ async function handleSubmit() {
       </div>
     </DefineTemplate>
 
-    <a-form ref="formRef" layout="vertical" :model="formData" :rules="rules">
+    <a-form ref="formRef" layout="vertical" :model="formData" :rules="rules" class="max-h-[60vh] overflow-y-auto">
       <a-form-item label="内容安全类" name="contentSafety">
         <a-checkbox-group v-model:value="formData.contentSafety" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="CONTENT_OPTIONS" />
@@ -194,8 +194,12 @@ async function handleSubmit() {
       </a-form-item>
       <a-form-item>
         <a-upload
-          v-model:file-list="formData.attachments" accept="image/*" :before-upload="beforeUpload" :max-count="3"
+          v-model:file-list="formData.attachments"
+          accept="image/*"
+          :before-upload="beforeUpload"
+          :max-count="3"
           multiple
+          list-type="picture"
         >
           <a-button class="text-xs">
             上传图片附件
