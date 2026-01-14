@@ -28,8 +28,9 @@ import AtomScriptParams from './AtomScriptParams.vue'
 import AtomSlider from './AtomSlider.vue'
 import { createDom } from './hooks/useAtomVarPopover'
 import { isConditionalKeys } from './hooks/useBaseConfig'
-import useRenderFormType, { formBtnHandle, generateInputVal, handleInput, handlePaste, inputListListener, syncCurrentAtomData } from './hooks/useRenderFormType'
+import useRenderFormType, { formBtnHandle, generateHtmlVal, generateInputVal, handlePaste, inputListListener, syncCurrentAtomData } from './hooks/useRenderFormType'
 import ProcessParam from './ProcessParam.vue'
+import { debounce } from 'lodash-es'
 
 const { iconStyle, itemData, itemType, varType } = defineProps({
   iconStyle: {
@@ -122,6 +123,11 @@ function handleAtomRemoteSelect(val: any) {
   itemData.value = val.value
   syncCurrentAtomData(itemData, false)
 }
+
+const handleInput = debounce((event: Event, itemData: RPA.AtomDisplayItem) => {
+  const target = event.target as HTMLDivElement
+  generateHtmlVal(target, itemData)
+}, 500)
 
 inputListListener(itemData, itemType)
 </script>
