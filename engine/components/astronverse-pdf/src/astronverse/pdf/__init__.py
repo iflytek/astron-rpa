@@ -1,6 +1,6 @@
 from enum import Enum
 import ast
-from rpapdf.error import *
+from astronverse.pdf.error import *
 
 
 def _handle_files_input(files_path):
