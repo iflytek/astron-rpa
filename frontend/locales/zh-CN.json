@@ -51,7 +51,7 @@
   "enterProjectNameKeyword": "请输入工程名称关键字",
   "enterComponentNameKeyword": "请输入组件名称关键字",
   "enterTemplateNameKeyword": "请输入模板名称关键字",
-  "newProject": "新建工程",
+  "newProject": "新建应用",
   "newComponent": "新建组件",
   "importProject": "导入工程",
   "importComponent": "导入组件",
