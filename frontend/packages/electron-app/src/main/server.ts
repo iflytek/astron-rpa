@@ -123,105 +123,65 @@ async function readHashFile(hashFilePath: string): Promise<string> {
 }
 
 /**
- * 删除解压文件并记录日志
- * @param archivePath - 要删除的解压文件路径
- * @param reason - 删除原因（用于日志记录）
- */
-async function deleteExtractedArchive(archivePath: string, reason: string): Promise<void> {
-  try {
-    await fs.rm(archivePath, { recursive: true, force: true })
-    logger.info(`已删除解压文件: ${archivePath}，原因: ${reason}`)
-  } catch (deleteError) {
-    logger.error(`删除解压文件失败: ${archivePath}`, deleteError)
-    throw deleteError
-  }
-}
-
-/**
- * 处理需要重新解压的情况
- * @param packageFile - 包文件名
- * @param archivePath - 解压文件路径
- * @param reason - 重新解压的原因
- * @param deleteArchive - 是否需要删除现有文件
- * @param needExtractFiles - 需要重新解压的文件列表
- */
-async function handleNeedExtract(
-  packageFile: string,
-  archivePath: string,
-  reason: string,
-  deleteArchive: boolean,
-  needExtractFiles: string[]
-): Promise<void> {
-  if (deleteArchive) {
-    try {
-      await deleteExtractedArchive(archivePath, reason)
-    } catch {
-      // 错误已在deleteExtractedArchive中记录，继续执行
-    }
-  }
-  needExtractFiles.push(packageFile)
-}
-
-/**
  * 检查单个文件是否需要重新解压
  * @param packageFile - 压缩包文件名
- * @param needExtractFiles - 需要解重新压的文件列表
- */
-async function checkSingleFile(packageFile: string, needExtractFiles: string[]): Promise<void> {
+ * @returns 是否需要重新解压
+ * */
+async function checkSingleFile(packageFile: string): Promise<boolean> {
   const archiveName = packageFile.replace('.7z', '')
   const archivePath = join(appWorkPath, archiveName)
   const hashFileName = `${packageFile}.sha256.txt`
   const resourceHashPath = join(resourcePath, hashFileName)
   const appWorkHashPath = join(appWorkPath, hashFileName)
 
+  logger.info(`检查文件: ${packageFile}`)
+
   try {
-    logger.info(`检查文件: ${packageFile}`)
+    // 1. 检查资源目录中的hash文件是否存在
+    await fs.access(resourceHashPath)
 
-    // 检查资源目录中的hash文件是否存在
-    try {
-      await fs.access(resourceHashPath)
-    } catch {
-      logger.warn(`资源目录hash文件不存在: ${hashFileName}`)
-      await handleNeedExtract(packageFile, archivePath, '资源目录hash文件不存在', false, needExtractFiles)
-      return
-    }
-
+    // 2. 并行检查解压文件和用户数据目录中的hash文件是否存在
     const [archiveExists, hashFileExists] = await Promise.all([
       fs.access(archivePath).then(() => true).catch(() => false),
       fs.access(appWorkHashPath).then(() => true).catch(() => false)
     ])
 
+    // 3. 如果解压文件不存在，需要重新解压
     if (!archiveExists) {
-      await handleNeedExtract(packageFile, archivePath, '解压文件不存在', false, needExtractFiles)
-      return
+      logger.warn(`解压文件不存在: ${packageFile}`)
+      return true
     }
 
+    // 4. 如果用户数据目录中的hash文件不存在，需要重新解压
     if (!hashFileExists) {
-      logger.warn(`用户数据目录hash文件不存在: ${hashFileName}`)
-      await handleNeedExtract(packageFile, archivePath, '用户数据目录hash文件不存在', true, needExtractFiles)
-      return
+      logger.warn(`用户数据目录hash文件不存在: ${packageFile}`)
+      return true
     }
 
+    // 5. 并行读取两个hash文件的内容
     const [resourceHash, appWorkHash] = await Promise.all([
       readHashFile(resourceHashPath),
       readHashFile(appWorkHashPath)
     ])
 
+    // 6. 如果任何一个hash文件内容为空，需要重新解压
     if (!resourceHash || !appWorkHash) {
       logger.warn(`hash文件内容为空: ${packageFile}`)
-      await handleNeedExtract(packageFile, archivePath, 'hash文件内容为空', true, needExtractFiles)
-      return
+      return true
     }
 
+    // 7. 比较hash值，如果不匹配则需要重新解压
     if (resourceHash !== appWorkHash) {
       logger.warn(`hash不匹配: ${packageFile}`)
-      await handleNeedExtract(packageFile, archivePath, 'hash不匹配', true, needExtractFiles)
+      return true
     } else {
       logger.info(`hash验证通过: ${packageFile}`)
     }
+
+    return false
   } catch (error) {
     logger.error(`检查解压文件失败: ${packageFile}`, error)
-    needExtractFiles.push(packageFile)
+    return true
   }
 }
 
@@ -234,7 +194,10 @@ async function checkAndCleanExtractedFiles(packageFiles: string[]): Promise<stri
   const needExtractFiles: string[] = []
 
   for (const packageFile of packageFiles) {
-    await checkSingleFile(packageFile, needExtractFiles)
+    const needExtract = await checkSingleFile(packageFile)
+    if (needExtract) {
+      needExtractFiles.push(packageFile)
+    }
   }
 
   logger.info(`需要重新解压的文件数量: ${needExtractFiles.length}`)
@@ -369,19 +332,9 @@ export async function startBackend() {
   mainToRender('scheduler-event', extractMsg, undefined, true)
 
   // 解压所有文件
-  await extractAllFiles(needExtractFiles)
+  await Promise.all(needExtractFiles.map(file => extractAndCleanFile(file)))
 
   startServer()
-}
-
-/**
- * 解压所有文件并清理压缩文件
- * @param files - 需要解压的文件名数组
- */
-async function extractAllFiles(files: string[]): Promise<void> {
-  for (const file of files) {
-    await extractAndCleanFile(file)
-  }
 }
 
 /**
@@ -391,13 +344,33 @@ async function extractAllFiles(files: string[]): Promise<void> {
 async function extractAndCleanFile(file: string): Promise<void> {
   const archivePath = join(appWorkPath, file)
   const outputDir = join(appWorkPath, file.replace('.7z', ''))
+  const tempOutputDir = `${outputDir}.temp`
+
+  const clearAll = () => Promise.all([
+    fs.rm(tempOutputDir, { recursive: true, force: true }),
+    fs.rm(outputDir, { recursive: true, force: true })
+  ])
 
   try {
-    await extract7z(archivePath, outputDir)
-    logger.info(`成功解压: ${file}`)
+    // 1. 确保临时目录/目标目录不存在
+    logger.info("删除已解压目录")
+    await clearAll()
+
+    // 2. 解压到临时目录
+    logger.info(`开始解压到临时目录: ${tempOutputDir}`)
+    await extract7z(archivePath, tempOutputDir)
+    logger.info(`临时目录解压成功: ${tempOutputDir}`)
+
+    // 3. 将临时目录重命名为目标目录
+    await fs.rename(tempOutputDir, outputDir)
+    logger.info(`成功解压: ${outputDir}`)
+
+    // 4. 删除原始压缩文件
     await deleteArchiveFile(archivePath, file)
   } catch (error) {
     logger.error(`解压失败: ${file}`, error)
+    // 清理所有解压目录
+    clearAll()
   }
 }
 
