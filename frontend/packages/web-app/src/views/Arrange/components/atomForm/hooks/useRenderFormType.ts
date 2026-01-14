@@ -1,6 +1,5 @@
 import { NiceModal } from '@rpa/components'
 import { message } from 'ant-design-vue'
-import { throttle } from 'lodash-es'
 
 import BUS from '@/utils/eventBus'
 
@@ -106,11 +105,6 @@ function insertHtmlAtCaret(html: string) {
   selection.removeAllRanges()
   selection.addRange(range)
 }
-
-export const handleInput = throttle((event: Event, itemData: RPA.AtomDisplayItem) => {
-  const target = event.target as HTMLDivElement
-  generateHtmlVal(target, itemData)
-}, 500)
 
 export function generateHtmlVal(target: HTMLDivElement, itemData: RPA.AtomDisplayItem) {
   const { isExpr, formType, types } = itemData

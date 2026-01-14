@@ -121,7 +121,7 @@ async function handleBlur(row: LocalConfigParamData) {
   row.perVarName = row.varName
 }
 
-const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateParameter(row), 300, { leading: true })
+const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateParameter(row), 500, { leading: true })
 </script>
 
 <template>
@@ -149,8 +149,7 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
         v-model:var-value="row.varValue"
         :var-type="row.varType"
         size="small"
-        @blur="handleChange(row)"
-        @model-change="handleChange(row)"
+        @changed="handleChange(row)"
       />
     </template>
     <template #desc_default="{ row }">
