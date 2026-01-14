@@ -12,27 +12,6 @@ export interface W2WType {
   data?: any // 数据
 }
 
-export interface WindowOptions {
-  width?: number
-  height?: number
-  url: string
-  name?: string
-  title?: 'SubWindow'
-  position?: 'center' | 'left_top' | 'right_top' | 'left_bottom' | 'right_bottom' | 'top_center'
-  top?: boolean
-  resizable?: boolean
-  label?: string
-  alwaysOnTop?: boolean
-  decorations?: boolean
-  fileDropEnabled?: boolean
-  maximizable?: boolean
-  transparent?: boolean
-  visible?: boolean
-  skipTaskbar?: boolean
-  x?: number
-  y?: number
-}
-
 export interface DialogObj {
   title: string
   multiple?: boolean
@@ -42,10 +21,10 @@ export interface DialogObj {
   defaultPath?: string
 }
 
-export interface AxiosResponse {
+export interface AxiosResponse<T = any> {
   code: string | number
   message: string
-  data: any
+  data: T
 }
 
 declare global {
@@ -71,5 +50,3 @@ declare global {
     api: unknown
   }
 }
-
-export interface ElectronPreloadApi {}

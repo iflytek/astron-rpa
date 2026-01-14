@@ -1,4 +1,4 @@
-remote_addr: http://172.29.231.250:32742/
+remote_addr: http://dev.iflyrpa.private:31680/
 skip_engine_start: false
-app_auth_type: casdoor
+app_auth_type: uap
 app_edition: saas

@@ -18,14 +18,12 @@ class ElectronWindowManager implements WindowManager {
    * 创建窗口
    */
   public async createWindow(options: any, closeCallback?: () => void): Promise<number | string> {
-    const { label } = options
-    options.title = label
-    const winId = await ipcRenderer.invoke('ipcCreateWindow', options)
+    const winId = await ipcRenderer.invoke('ipcCreateWindow', {
+      ...options,
+      title: options.title || options.label,
+    })
     ipcRenderer.on('window-close', (_ev, id) => {
-      console.log('window-close id: ', id)
-      if (id === winId && closeCallback) {
-        closeCallback()
-      }
+      id === winId && closeCallback?.()
     })
     return winId
   }
