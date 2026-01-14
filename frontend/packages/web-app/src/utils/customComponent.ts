@@ -2,10 +2,11 @@ import { getConfigParams } from '@/api/atom'
 import { getComponentDetail } from '@/api/project'
 import { getProcessAndCodeList } from '@/api/resource'
 import { addComponentUse, deleteComponentUse } from '@/api/robot'
+import { OTHER_IN_TYPE } from '@/constants/atom'
 import type { ProcessNode } from '@/corobot/type'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
-import { difference } from 'lodash-es'
+import { isArray, difference, has, isEmpty, some } from 'lodash-es'
 
 export const COMPONENT_KEY_PREFIX = 'Code.Component'
 
@@ -172,14 +173,17 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
     }
   }
   else {
+    const varValue = safeParse(attr.varValue)
+    const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
+    
     return {
       types: attr.varType,
       formType: varTypeToFormTypeMap[attr.varType],
       key: attr.varName,
       title: attr.varDescribe,
       name: attr.varName,
-      default: attr.varValue,
       required: true,
+      value: illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue
     }
   }
 }
@@ -242,4 +246,12 @@ export function updateFlowNodesComponent(componentId: string, defaultNode: Proce
       }
     })
   })
+}
+
+function safeParse(str) {
+  try {
+    return JSON.parse(str)
+  } catch {
+    return str
+  }
 }

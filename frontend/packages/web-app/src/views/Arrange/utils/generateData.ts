@@ -13,6 +13,7 @@ import { Group, GroupEnd, LOOP_END_MAP } from '@/views/Arrange/config/atomKeyMap
 import { pickProcessAndModuleOptions } from '@/views/Arrange/utils'
 
 import { generateName, genNonDuplicateID } from './index'
+import { isComponentKey } from '@/utils/customComponent'
 
 export const exceptionKeys = [
   '__skip_err__',
@@ -235,7 +236,7 @@ export function generateInputMap(key: string, specialRender = false) {
     ...atom,
     alias: key === Group ? generateGroupName() : atom.title,
     id: generateId(key),
-    inputList: isSmartComponentKey(atom.key) ? atom.inputList : generateInItems(atom),
+    inputList: isComponentKey(atom.key) || isSmartComponentKey(atom.key)? atom.inputList : generateInItems(atom),
     outputList: generateOutItems(atom.outputList),
     advanced: generateAdvancedItems(atom),
     exception: generateExceptionItems(atom),
