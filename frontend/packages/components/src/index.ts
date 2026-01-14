@@ -9,6 +9,7 @@ export * from './components/NiceModal'
 export * from './components/RichTextEditor'
 export * from './components/Splitter'
 export * from './components/Sheet'
+export * from './components/StarMotion'
 
 export { default } from './install'
 export * from './theme'

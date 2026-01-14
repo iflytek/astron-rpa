@@ -1,21 +1,25 @@
 import { autoUpdater, type UpdateInfo as ElectronUpdateInfo } from "electron-updater"
 import { to } from 'await-to-js'
-// import { app } from 'electron'
+import { app } from 'electron'
 import type { UpdateInfo, UpdateManifest } from '@rpa/shared/platform'
 import { withTimeout } from '@rpa/shared'
 
 import logger from "./log"
-// import { version } from "os"
 import { mainToRender } from './event'
+import { config } from './config'
+import urlJoin from './utils';
 
 autoUpdater.logger = logger
-// autoUpdater.forceDevUpdateConfig = true
+// 开启后，可以在开发环境调试更新
+autoUpdater.forceDevUpdateConfig = false
 // 退出后不自动安装
 autoUpdater.autoInstallOnAppQuit = false
 
-// const server = 'https://your-deployment-url.com'
-// const url = `${server}/update/${process.platform}/${app.getVersion()}\xxxx.exe
-const url = 'http://localhost:9000'
+const url = urlJoin(
+  config.remote_addr,
+  '/api/robot/client-version-update/update-check',
+  `${process.platform}/${process.arch}/${app.getVersion()}`
+)
 autoUpdater.setFeedURL(url)
 
 //监听'error'事件
