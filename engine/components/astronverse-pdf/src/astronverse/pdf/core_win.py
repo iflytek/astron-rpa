@@ -1,4 +1,3 @@
-import ast
 import os
 
 import pandas as pd
@@ -123,20 +122,7 @@ class PDFCore(IPDFCore):
                     pdf_files.append(os.path.join(file_folder_path, file))
                     merger.append(os.path.join(file_folder_path, file))
         else:
-            if isinstance(files_path, str):
-                if files_path.startswith("[") and files_path.endswith("]"):
-                    files_path = ast.literal_eval(files_path)
-                else:
-                    files_path = files_path.split(".pdf,")
-                    for i in range(len(files_path)):
-                        if i != len(files_path) - 1:
-                            # 最后一项是正常路径
-                            files_path[i] = files_path[i].strip() + ".pdf"
-            elif not isinstance(files_path, list):
-                raise BaseException(
-                    FILE_PATH_ERROR_FORMAT.format(str(files_path)),
-                    "PDF文件路径有误，请输入正确的路径",
-                )
+            files_path = _handle_files_input(files_path)
 
             # 合并指定PDF文件
             for file in files_path:
