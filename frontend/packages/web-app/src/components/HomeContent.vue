@@ -22,7 +22,7 @@ const isMarket = computed(() => {
 </script>
 
 <template>
-  <div class="home-content flex h-full">
+  <div class="flex">
     <MarketSiderMenu v-if="isMarket" />
     <SiderMenu v-else />
     <div class="absolute bottom-[20px] left-0" :style="{ width: `${COMMON_SIDER_WIDTH}px` }">
@@ -37,9 +37,5 @@ const isMarket = computed(() => {
 <style lang="scss" scoped>
 :deep(.ant-menu-light.ant-menu-root.ant-menu-inline) {
   border-inline-end: none;
-}
-
-.home-content {
-  padding-top: var(--headerHeight);
 }
 </style>

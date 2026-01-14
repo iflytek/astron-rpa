@@ -39,7 +39,7 @@ taskNotify({ event: 'login' })
 <template>
   <BgIllustration v-if="illustration" :illustration="illustration" />
 
-  <div class="w-full h-full bg-[#f6f8ff] dark:bg-[#141414]">
+  <div class="w-full h-full flex flex-col bg-[#f6f8ff] dark:bg-[#141414]">
     <Header>
       <template #headMenu>
         <HeaderMenu />
@@ -48,6 +48,6 @@ taskNotify({ event: 'login' })
         <HeaderControl />
       </template>
     </Header>
-    <Content />
+    <Content class="flex-1" />
   </div>
 </template>

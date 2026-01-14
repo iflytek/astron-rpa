@@ -25,8 +25,9 @@ import { usePermissionStore } from '@/stores/usePermissionStore'
 
 const ComponentManagement = () => import('@/views/Home/pages/ComponentManagement.vue')
 const MyCreatedComponent = () => import('@/views/Home/pages/MyCreatedComponent.vue')
-const DesignerComponent = () => import('@/views/Home/Index.vue')
+const HomeComponent = () => import('@/views/Home/Index.vue')
 const ProjectManagementComponent = () => import('@/views/Home/pages/ProjectManagement.vue')
+const ArrangeComponent = () => import('@/views/Arrange/index.vue')
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -41,7 +42,7 @@ export const routes: RouteRecordRaw[] = [
       closeConfirm: false, // 关闭确认框
     },
     redirect: `/${ARRANGE}/${EDITORPAGE}`,
-    component: () => import('@/views/Arrange/index.vue'),
+    component: ArrangeComponent,
     children: [
       {
         path: EDITORPAGE,
@@ -75,7 +76,7 @@ export const routes: RouteRecordRaw[] = [
       resource: DESIGNER,
     },
     redirect: `/${DESIGNER}/${PROJECTMANAGEMENT}`,
-    component: DesignerComponent,
+    component: HomeComponent,
     children: [
       {
         path: PROJECTMANAGEMENT,
@@ -141,7 +142,7 @@ export const routes: RouteRecordRaw[] = [
       resource: ACTUATOR,
     },
     redirect: `/${ACTUATOR}/${ROBOTLIST}`,
-    component: () => import('@/views/Home/Index.vue'),
+    component: HomeComponent,
     children: [
       {
         path: ROBOTLIST,
@@ -194,7 +195,7 @@ export const routes: RouteRecordRaw[] = [
       resource: APPLICATIONMARKET,
     },
     redirect: `/${APPLICATIONMARKET}/${TEAMMARKETS}`,
-    component: () => import('@/views/Home/Index.vue'),
+    component: HomeComponent,
     children: [
       {
         path: TEAMMARKETS,
