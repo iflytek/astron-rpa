@@ -96,10 +96,7 @@ async def get_user_api_key(
             )
 
         # 构建返回数据
-        response_data = UserAPIKeyResponse(
-            user_id=result.get("user_id") or "",
-            api_key=result.get("api_key") or ""
-        )
+        response_data = UserAPIKeyResponse(user_id=result.get("user_id") or "", api_key=result.get("api_key") or "")
 
         logger.info(f"用户获取API_KEY成功，phone: {phone}, user_id: {result.get('user_id')}")
 

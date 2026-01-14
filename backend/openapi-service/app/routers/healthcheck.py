@@ -38,6 +38,7 @@ async def local_check(
             data={"equality": equality},
         )
 
+
 @router.get(
     "/remote-check",
     response_model=StandardResponse,

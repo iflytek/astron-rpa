@@ -289,7 +289,7 @@ class ExecutionService:
                 "project_id": execution.project_id,
                 "exec_position": execution.exec_position,
                 "jwt": "",
-                "run_param": run_param
+                "run_param": run_param,
             }
             if execution.recording_config:
                 executor_data["recording_config"] = execution.recording_config

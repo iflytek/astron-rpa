@@ -1,14 +1,15 @@
+from contextlib import asynccontextmanager
+
 import pytest
 import pytest_asyncio
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from httpx import ASGITransport, AsyncClient
 from redis.asyncio import ConnectionPool, Redis
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
+from app.database import Base, get_db
 from app.main import app
-from app.database import get_db, Base
 from app.redis import get_redis
 
 # 测试环境配置
@@ -136,9 +137,10 @@ async def client(test_app: FastAPI, test_get_db, test_get_redis):
 
 async def create_api_key(user_id: str, test_get_db, test_get_redis=None):
     """为测试创建临时的 API Key"""
-    from app.services.api_key import ApiKeyService
-    from app.schemas.api_key import ApiKeyCreate
     import random
+
+    from app.schemas.api_key import ApiKeyCreate
+    from app.services.api_key import ApiKeyService
 
     # 创建服务实例
     service = ApiKeyService(test_get_db, test_get_redis)

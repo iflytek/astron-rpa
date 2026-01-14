@@ -13,8 +13,9 @@ AI Service 启动脚本
     ENV=dev               # 通过环境变量指定环境
 """
 
-import sys
 import os
+import sys
+
 import uvicorn
 from dotenv import load_dotenv
 

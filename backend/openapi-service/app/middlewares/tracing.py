@@ -1,8 +1,9 @@
-import uuid
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
 import contextvars
 import logging
+import uuid
+
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
 
 request_id_ctx_var = contextvars.ContextVar("request_id", default=None)
 

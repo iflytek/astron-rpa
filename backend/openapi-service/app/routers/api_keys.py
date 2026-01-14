@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from app.services.api_key import ApiKeyService, XcApiKeyService
-from app.schemas.api_key import ApiKeyCreate, ApiKeyDelete, XCAgentCreate
-from app.dependencies import get_user_id_from_header, get_api_key_service, get_xc_api_key_service
+
+from app.dependencies import get_api_key_service, get_user_id_from_header
 from app.logger import get_logger
-from app.schemas import StandardResponse, ResCode
+from app.schemas import ResCode, StandardResponse
+from app.schemas.api_key import ApiKeyCreate, ApiKeyDelete
+from app.services.api_key import ApiKeyService
 
 logger = get_logger(__name__)
 
@@ -153,7 +154,9 @@ async def get_astron_agents(
     """获取星辰Agent列表"""
     try:
         astron_agents = await service.get_astron_agents(user_id, pageNo, pageSize)
-        return StandardResponse(code=ResCode.SUCCESS, msg="获取成功", data={"total": len(astron_agents), "records": astron_agents})
+        return StandardResponse(
+            code=ResCode.SUCCESS, msg="获取成功", data={"total": len(astron_agents), "records": astron_agents}
+        )
     except Exception as e:
         logger.error(f"Error getting AstronAgents: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get AstronAgents")

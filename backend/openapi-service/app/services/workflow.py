@@ -267,7 +267,7 @@ class WorkflowService:
             headers = {
                 "X-Consumer-Username": app_id,
                 "Authorization": f"Bearer {api_key}:{api_secret}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
 
             async with httpx.AsyncClient(timeout=30.0) as client:
@@ -290,16 +290,18 @@ class WorkflowService:
                 # 格式化返回数据，只保留关键信息
                 formatted_workflows = []
                 for workflow in workflows:
-                    formatted_workflows.append({
-                        "authId": auth_id,
-                        "flowId": workflow.get("flowId"),
-                        "name": workflow.get("name"),
-                        "description": workflow.get("description", ""),
-                        "inputs": workflow.get("ioParams", {}).get("inputs", []),
-                        "outputs": workflow.get("ioParams", {}).get("outputs", []),
-                        "createTime": workflow.get("createTime"),
-                        "updateTime": workflow.get("updateTime")
-                    })
+                    formatted_workflows.append(
+                        {
+                            "authId": auth_id,
+                            "flowId": workflow.get("flowId"),
+                            "name": workflow.get("name"),
+                            "description": workflow.get("description", ""),
+                            "inputs": workflow.get("ioParams", {}).get("inputs", []),
+                            "outputs": workflow.get("ioParams", {}).get("outputs", []),
+                            "createTime": workflow.get("createTime"),
+                            "updateTime": workflow.get("updateTime"),
+                        }
+                    )
 
                 return formatted_workflows
 

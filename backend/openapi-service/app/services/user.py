@@ -116,10 +116,7 @@ class UserService:
 
                 # 发送 POST 请求，phone通过JSON传递
                 response = await client.post(
-                    url,
-                    json={"phone": phone},
-                    headers={"X-API-Key": "zyzhou666!"},
-                    timeout=10.0
+                    url, json={"phone": phone}, headers={"X-API-Key": "zyzhou666!"}, timeout=10.0
                 )
 
                 # 检查 HTTP 状态码
@@ -295,10 +292,7 @@ class UserService:
         logger.info("用户注册成功，phone: %s, user_id: %s", phone, user_id)
 
         # 返回包含 User 对象和完整用户数据的字典
-        return {
-            "user_id": user_id,
-            "api_key": default_api_key
-        }
+        return {"user_id": user_id, "api_key": default_api_key}
 
     async def get_user_by_phone(self, phone: str) -> Optional[User]:
         """根据手机号获取用户信息"""

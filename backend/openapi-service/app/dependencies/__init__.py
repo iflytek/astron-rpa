@@ -1,20 +1,22 @@
+import os
+from datetime import datetime
+from typing import Dict, List, Optional
+
 from fastapi import Depends, Header, HTTPException, Security, status  # Added status
 from fastapi.security import APIKeyHeader
-from sqlalchemy.ext.asyncio import AsyncSession
 from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from app.database import get_db
+from app.models.api_key import OpenAPIDB
+from app.redis import get_redis
+from app.services.api_key import ApiKeyService, XcApiKeyService
+from app.services.execution import ExecutionService
+from app.services.user import UserService
 from app.services.websocket import WsManagerService, WsService
 from app.services.workflow import WorkflowService
-from app.services.execution import ExecutionService
-from app.services.api_key import ApiKeyService, XcApiKeyService
-from app.services.user import UserService
-from app.database import get_db
-from app.redis import get_redis
-from app.models.api_key import OpenAPIDB
 from app.utils.api_key import APIKeyUtils
-from sqlalchemy.future import select
-from typing import Dict, List, Optional
-from datetime import datetime
-import os
 
 # 全局 WsManagerService 单例实例
 _ws_manager_service: WsManagerService | None = None
@@ -295,6 +297,7 @@ async def check_user_id_equality(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+
 # 注意：get_uid_from_raw_key 函数已经被移动到 app.services.streamable_mcp.ToolsConfig 类中
 # 以避免创建多个数据库连接实例
 
@@ -345,4 +348,3 @@ async def get_ws_service() -> WsManagerService:
         # 可以在这里添加worker标识，便于调试
         _ws_manager_service.worker_id = worker_id
     return _ws_manager_service
-

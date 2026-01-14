@@ -38,8 +38,8 @@ async def get_executions(
                 "total": total,
                 "pageNo": pageNo,
                 "pageSize": pageSize,
-                "total_pages": (total + pageSize - 1) // pageSize  # 向上取整计算总页数
-            }
+                "total_pages": (total + pageSize - 1) // pageSize,  # 向上取整计算总页数
+            },
         )
     except Exception as e:
         logger.error(f"Error getting executions for user {user_id}: {str(e)}")

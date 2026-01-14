@@ -1,4 +1,5 @@
 import json
+
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
@@ -8,7 +9,8 @@ from app.dependencies import (
     get_user_id_from_api_key,
     get_user_id_from_header,
     get_user_id_with_fallback,
-    get_workflow_service, get_user_service,
+    get_user_service,
+    get_workflow_service,
 )
 from app.logger import get_logger
 from app.schemas import ResCode, StandardResponse
@@ -25,10 +27,7 @@ from app.services.workflow import WorkflowService
 
 logger = get_logger(__name__)
 
-router = APIRouter(
-    prefix="/workflows",
-    tags=["workflow"]
-)
+router = APIRouter(prefix="/workflows", tags=["workflow"])
 
 
 @router.post(
@@ -235,9 +234,9 @@ async def execute_workflow_async(
                     json={
                         "robotId": str(execution_data.project_id),
                         "version": execution_data.version,
-                        "targetPhone": execution_data.phone_number
+                        "targetPhone": execution_data.phone_number,
                     },
-                    headers={"X-API-Key": "zyzhou666!"}
+                    headers={"X-API-Key": "zyzhou666!"},
                 )
                 if response.status_code == 200:
                     result = response.json().get("data")
@@ -250,11 +249,7 @@ async def execute_workflow_async(
                         )
                 else:
                     logger.error(f"Failed to copy workflow: HTTP {response.status_code}, {response.text}")
-                    return StandardResponse(
-                        code=ResCode.ERR,
-                        msg="请求后端拷贝工作流接口失败",
-                        data=None
-                    )
+                    return StandardResponse(code=ResCode.ERR, msg="请求后端拷贝工作流接口失败", data=None)
 
             workflow_data = WorkflowBase(
                 project_id=result.get("robotId"),
@@ -263,7 +258,7 @@ async def execute_workflow_async(
                 english_name=result.get("english_name", ""),
                 description=result.get("description", ""),
                 status=result.get("status", 1),
-                parameters=json.dumps(result.get("parameters", []), ensure_ascii=False)
+                parameters=json.dumps(result.get("parameters", []), ensure_ascii=False),
             )
 
             # 先检查是否已存在相同 project_id 的工作流
@@ -402,11 +397,9 @@ async def get_astron_workflows(
             workflows = await workflow_service.get_astron_workflows(auth_id, app_id, api_key, api_secret)
             total_workflows.extend(workflows)
 
-        return StandardResponse(code=ResCode.SUCCESS, msg="获取成功",
-        data={
-            "total": len(total_workflows),
-            "records": total_workflows
-        })
+        return StandardResponse(
+            code=ResCode.SUCCESS, msg="获取成功", data={"total": len(total_workflows), "records": total_workflows}
+        )
     except Exception as e:
         logger.error(f"Error getting Astron workflows: {str(e)}")
         return StandardResponse(code=ResCode.ERR, msg="Failed to get Astron workflows", data=None)
@@ -432,24 +425,16 @@ async def copy_workflow(
                 json={
                     "robotId": str(copy_data.project_id),
                     "version": copy_data.version,
-                    "targetPhone": copy_data.phone_number
-                }
+                    "targetPhone": copy_data.phone_number,
+                },
             )
 
             if response.status_code == 200:
                 result = response.json()
-                return StandardResponse(
-                    code=ResCode.SUCCESS,
-                    msg="工作流复制成功",
-                    data=result
-                )
+                return StandardResponse(code=ResCode.SUCCESS, msg="工作流复制成功", data=result)
             else:
                 logger.error(f"Failed to copy workflow: HTTP {response.status_code}, {response.text}")
-                return StandardResponse(
-                    code=ResCode.ERR,
-                    msg=f"复制失败: HTTP {response.status_code}",
-                    data=None
-                )
+                return StandardResponse(code=ResCode.ERR, msg=f"复制失败: HTTP {response.status_code}", data=None)
 
     except httpx.RequestError as e:
         logger.error(f"Request error copying workflow: {str(e)}")

@@ -171,12 +171,10 @@ class AstronApiKeyService:
         """软删除星辰Agent（设置is_active为0）"""
         try:
             # 更新指定用户和ID的星辰Agent，将is_active设置为0
-            stmt = update(AstronAgentDB).where(
-                AstronAgentDB.id == astron_agent_id,
-                AstronAgentDB.user_id == user_id
-            ).values(
-                is_active=0,
-                updated_at=datetime.now(pytz.timezone("Asia/Shanghai")).replace(tzinfo=None)
+            stmt = (
+                update(AstronAgentDB)
+                .where(AstronAgentDB.id == astron_agent_id, AstronAgentDB.user_id == user_id)
+                .values(is_active=0, updated_at=datetime.now(pytz.timezone("Asia/Shanghai")).replace(tzinfo=None))
             )
 
             result = await self.db.execute(stmt)
@@ -216,15 +214,17 @@ class AstronApiKeyService:
             # 格式化返回数据
             formatted_agents = []
             for agent in astron_agents:
-                formatted_agents.append({
-                    "id": agent.id,
-                    "name": agent.name,
-                    "app_id": agent.app_id,
-                    "api_key": agent.api_key,
-                    "api_secret": agent.api_secret,
-                    "createTime": agent.created_at,
-                    "recentTime": agent.updated_at,
-                })
+                formatted_agents.append(
+                    {
+                        "id": agent.id,
+                        "name": agent.name,
+                        "app_id": agent.app_id,
+                        "api_key": agent.api_key,
+                        "api_secret": agent.api_secret,
+                        "createTime": agent.created_at,
+                        "recentTime": agent.updated_at,
+                    }
+                )
 
             return formatted_agents
 
@@ -249,15 +249,17 @@ class AstronApiKeyService:
             # 格式化返回数据
             formatted_agents = []
             for agent in astron_agents:
-                formatted_agents.append({
-                    "id": agent.id,
-                    "name": agent.name,
-                    "app_id": agent.app_id,
-                    "api_key": agent.api_key,
-                    "api_secret": agent.api_secret,
-                    "createTime": agent.created_at,
-                    "recentTime": agent.updated_at,
-                })
+                formatted_agents.append(
+                    {
+                        "id": agent.id,
+                        "name": agent.name,
+                        "app_id": agent.app_id,
+                        "api_key": agent.api_key,
+                        "api_secret": agent.api_secret,
+                        "createTime": agent.created_at,
+                        "recentTime": agent.updated_at,
+                    }
+                )
 
             return formatted_agents
 
@@ -269,25 +271,27 @@ class AstronApiKeyService:
         """更新星辰Agent"""
         try:
             # 更新指定用户和ID的星辰Agent
-            update_values = {
-                "updated_at": datetime.now(pytz.timezone("Asia/Shanghai")).replace(tzinfo=None)
-            }
+            update_values = {"updated_at": datetime.now(pytz.timezone("Asia/Shanghai")).replace(tzinfo=None)}
 
             # 只更新提供的字段
-            if hasattr(update_data, 'name') and update_data.name is not None:
+            if hasattr(update_data, "name") and update_data.name is not None:
                 update_values["name"] = update_data.name
-            if hasattr(update_data, 'app_id') and update_data.app_id is not None:
+            if hasattr(update_data, "app_id") and update_data.app_id is not None:
                 update_values["app_id"] = update_data.app_id
-            if hasattr(update_data, 'api_key') and update_data.api_key is not None:
+            if hasattr(update_data, "api_key") and update_data.api_key is not None:
                 update_values["api_key"] = update_data.api_key
-            if hasattr(update_data, 'api_secret') and update_data.api_secret is not None:
+            if hasattr(update_data, "api_secret") and update_data.api_secret is not None:
                 update_values["api_secret"] = update_data.api_secret
 
-            stmt = update(AstronAgentDB).where(
-                AstronAgentDB.id == astron_agent_id,
-                AstronAgentDB.user_id == user_id,
-                AstronAgentDB.is_active == 1  # 只更新活跃的记录
-            ).values(update_values)
+            stmt = (
+                update(AstronAgentDB)
+                .where(
+                    AstronAgentDB.id == astron_agent_id,
+                    AstronAgentDB.user_id == user_id,
+                    AstronAgentDB.is_active == 1,  # 只更新活跃的记录
+                )
+                .values(update_values)
+            )
 
             result = await self.db.execute(stmt)
             await self.db.commit()
