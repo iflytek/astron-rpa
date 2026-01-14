@@ -384,3 +384,6 @@ echo.
 echo ============================================
 echo Full Build Complete!
 echo ============================================
+echo.
+echo Installation package location:
+echo   Frontend installer: frontend\packages\electron-app\dist\

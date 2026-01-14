@@ -62,10 +62,10 @@ def gen_type(__annotation__):
 
 def handle_existence(file_path, exist_type):
     # 文件存在时的处理方式
-    if exist_type == FileExistenceType.OVERWRITE:
+    if exist_type.value == FileExistenceType.OVERWRITE.value:
         # 覆盖已存在文件，直接返回文件路径
         return file_path
-    elif exist_type == FileExistenceType.RENAME:
+    elif exist_type.value == FileExistenceType.RENAME.value:
         if os.path.exists(file_path):
             full_file_name = os.path.basename(file_path)
             file_name, file_ext = os.path.splitext(full_file_name)
@@ -78,11 +78,13 @@ def handle_existence(file_path, exist_type):
                 else:
                     return new_file_path
         return file_path
-    elif exist_type == FileExistenceType.CANCEL:
+    elif exist_type.value == FileExistenceType.CANCEL.value:
         if os.path.exists(file_path):
             return ""
         else:
             return file_path
+    logger.info("类型匹配失败，原路返回文件路径：{}".format(file_path))
+    return file_path
 
 
 class ParamModel:
