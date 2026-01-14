@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { app, BrowserWindow, screen } from 'electron'
 import type { CreateWindowOptions } from '@rpa/shared/platform'
-import { isUndefined } from 'lodash-es'
+import { isUndefined } from 'lodash'
 
 import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
 import { resourcePath } from './path'

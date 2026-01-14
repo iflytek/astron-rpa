@@ -33,15 +33,15 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
-    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@electron-toolkit/tsconfig": "^2.0.0",
     "@rpa/shared": "workspace:*",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^16.18.126",
     "electron": "22.3.27",
     "electron-builder": "^24.13.3",
-    "electron-vite": "^2.3.0",
+    "electron-vite": "^5.0.0",
     "tsdown": "catalog:",
     "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "vite": "catalog:"
   }
 }
