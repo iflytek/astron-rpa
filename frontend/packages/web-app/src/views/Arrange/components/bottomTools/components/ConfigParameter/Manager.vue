@@ -12,7 +12,7 @@ import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { PARAMETER_VAR_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
-import { useProcessStore } from '@/stores/useProcessStore.ts'
+import { useProcessStore, isPyModel } from '@/stores/useProcessStore.ts'
 
 import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
 import { useConfigParameter } from './useConfigParameter.ts'
@@ -74,6 +74,9 @@ const varTypeOptions = computed(() => {
 
   return getChildProcessParameterOption()
 })
+
+// 是否是 python 模块
+const isPyProcessModule = computed(() => isPyModel(processStore.activeProcess.resourceCategory))
 
 // 删除事件
 function deleteEvent(row: RPA.ConfigParamData) {
@@ -154,7 +157,7 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
       <Input v-model:value="row.varDescribe" :bordered="false" class="text-xs text-inherit" @blur="handleChange(row)" />
     </template>
     <template #operation_default="{ row }">
-      <Button type="link" size="small" class="!text-xs" @click="findQuoted(row)">
+      <Button v-if="!isPyProcessModule" type="link" size="small" class="!text-xs" @click="findQuoted(row)">
         查找引用
       </Button>
       <Button type="link" size="small" class="!text-xs" @click="deleteEvent(row)">

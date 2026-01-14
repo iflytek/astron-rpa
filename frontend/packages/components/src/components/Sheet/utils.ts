@@ -48,13 +48,25 @@ const importExcelFile = () => {
   });
 }
 
-const exportExcelFile = (snapshot: IWorkbookData, fileName?: string) => {
+const exportToExcelFile = (snapshot: IWorkbookData, fileName?: string) => {
   return new Promise<ArrayBuffer>((resolve, reject) => {
     LuckyExcel.transformUniverToExcel({
       snapshot,
       fileName,
       getBuffer: true,
       success: (buffer) => buffer ? resolve(buffer) : reject(new Error('No buffer returned')),
+      error: (error) => reject(error),
+    })
+  })
+}
+
+const exportToCsvFile = (snapshot: IWorkbookData, fileName?: string) => {
+  return new Promise<string | { [key: string]: string }>((resolve, reject) => {
+    LuckyExcel.transformUniverToCsv({
+      snapshot,
+      fileName,
+      getBuffer: true,
+      success: (csvContent) => csvContent ? resolve(csvContent) : reject(new Error('No csv content returned')),
       error: (error) => reject(error),
     })
   })
@@ -69,6 +81,7 @@ const transformExcelToUniver = async (file: File) => {
 export const sheetUtils = {
   waitUserSelectExcelFile,
   importExcelFile,
-  exportExcelFile,
+  exportToExcelFile,
+  exportToCsvFile,
   transformExcelToUniver,
 }

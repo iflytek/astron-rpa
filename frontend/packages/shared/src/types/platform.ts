@@ -98,7 +98,7 @@ export interface UtilsManager {
   getResourcePath: () => Promise<string>
   invoke: (channel: string, ...args: any[]) => Promise<any>
   readFile: (fileName: string, dir?: string) => Promise<any>
-  saveFile: (fileName: string, buffer: ArrayBuffer) => Promise<void>
+  saveFile: (fileName: string, buffer: ArrayBuffer | string) => Promise<boolean>
   playVideo: (videoPath: string) => void
   pathJoin: (dirArr: Array<string>) => Promise<any>
   shellopen: (path: string) => Promise<void>
