@@ -2,7 +2,6 @@
 import { NiceModal } from '@rpa/components'
 
 import { useAppConfigStore } from '@/stores/useAppConfig'
-
 import bgImage from '@/assets/img/updater/bg.svg'
 import iconImage from '@/assets/img/updater/icon.svg'
 // import cloudLeftImage from '@/assets/img/updater/cloud-1.png'
@@ -38,6 +37,7 @@ const handleRejectUpdate = () => {
   >
     <div class="h-[317px] w-full overflow-hidden relative">
       <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max" />
+      <rpa-star-motion class="absolute w-full h-full left-0 top-0" />
       <!-- <img :src="cloudLeftImage" class="absolute left-0 bottom-0" /> -->
       <!-- <img :src="cloudRightImage" class="absolute right-0 bottom-0" /> -->
     </div>
