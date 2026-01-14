@@ -95,7 +95,7 @@ class Docx:
             atomicMg.param("doc_obj", types="DocumentObject"),
         ],
     )
-    def open_document(
+    def open_docx(
         file_path: PATH = "",
         default_application: ApplicationType = ApplicationType.DEFAULT,
         visible_flag: bool = True,
@@ -135,7 +135,7 @@ class Docx:
             atomicMg.param("doc_data", types="Str"),
         ],
     )
-    def read_document_content(doc: DocumentObject, select_range: SelectRangeType = SelectRangeType.ALL):
+    def read_docx(doc: DocumentObject, select_range: SelectRangeType = SelectRangeType.ALL):
         if not doc:
             raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
         try:
