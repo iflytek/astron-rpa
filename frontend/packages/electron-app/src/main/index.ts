@@ -128,6 +128,14 @@ if (!gotTheLock) {
   app.quit()
 }
 else {
+  app.on('second-instance', () => {
+    // 聚焦到已有窗口
+    const mainWindow = getMainWindow()
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  });
   // 在Electron完成初始化时被触发
   app.whenReady().then(ready).catch((err) => {
     logger.error('app ready error', err.toString())

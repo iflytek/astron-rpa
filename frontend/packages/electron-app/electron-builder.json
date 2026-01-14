@@ -32,14 +32,26 @@
   },
   "mac": {
     "target": "dmg",
-    "icon": "../../public/icons/icon.png"
+    "icon": "../../public/icons/icon.png",
+    "extendInfo": {
+      "CFBundleURLTypes": [
+        {
+          "CFBundleURLName": "com.iflytek.astronrpa",
+          "CFBundleURLSchemes": ["astronrpa"]
+        }
+      ]
+    }
   },
   "linux": {
     "target": "deb",
     "icon": "../../public/icons/icon.png",
-    "category": "Utility"
+    "category": "Utility",
+    "desktop": {
+      "MimeType": "x-scheme-handler/astronrpa;"
+    }
   },
   "nsis": {
+    "include": "./installer.nsh",
     "oneClick": false,
     "allowElevation": true,
     "allowToChangeInstallationDirectory": true,
