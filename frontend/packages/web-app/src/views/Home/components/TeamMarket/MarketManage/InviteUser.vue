@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TabPane, Tabs } from 'ant-design-vue'
-import { ref } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
 import { useUserStore } from '@/stores/useUserStore'
 import LinkInvite from '@/views/Home/components/TeamMarket/MarketManage/LinkInvite.vue'
@@ -19,23 +19,26 @@ const { marketId } = defineProps({
 
 const emit = defineEmits(['change', 'inviteTypeChange', 'linkChange'])
 const userStore = useUserStore()
-const addTypesMap = {
-  personal: ['link'],
-  professional: ['link', 'phone'],
-  enterprise: ['phone'],
-}
-const addTypes = addTypesMap[userStore.currentTenant?.tenantType]
-const activeTab = ref(addTypes[0])
+const tabs = computed(()=>{
+  return [
+    { key: 'phone', tab: '直接添加', show: userStore.currentTenant?.tenantType !== 'personal' },
+    { key: 'link', tab: '邀请链接', show: userStore.currentTenant?.tenantType !== 'enterprise' },
+  ].filter(i=>i.show)
+})
+
+const activeTab = ref(tabs.value[0].key)
+nextTick(() => {
+  emit('inviteTypeChange', activeTab.value)
+})
 </script>
 
 <template>
   <div class="modal-form invite-user-modal">
-    <Tabs v-if="addTypes?.length > 1" v-model:active-key="activeTab" type="card" size="small" @change="(key) => emit('inviteTypeChange', key)">
-      <TabPane key="add" tab="直接添加" />
-      <TabPane key="link" tab="邀请链接" />
+    <Tabs v-if="tabs?.length > 1" v-model:active-key="activeTab" type="card" size="small" @change="(key) => emit('inviteTypeChange', key)">
+      <TabPane v-for="tab in tabs" :key="tab.key" :tab="tab.tab" />
     </Tabs>
     <LinkInvite v-if="activeTab === 'link'" :market-id="marketId" @link-change="(link: string) => emit('linkChange', link)" />
-    <PhoneInvite v-if="activeTab === 'add'" :market-id="marketId" :selected-users="users" @change="(userList: any[]) => emit('change', userList)" />
+    <PhoneInvite v-if="activeTab === 'phone'" :market-id="marketId" :selected-users="users" @change="(userList: any[]) => emit('change', userList)" />
   </div>
 </template>
 

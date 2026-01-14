@@ -1,5 +1,5 @@
 import type { BrowserWindow } from 'electron'
-import { app, Menu, Tray } from 'electron'
+import { app, dialog, Menu, Tray } from 'electron'
 
 import { APP_ICON_PATH } from './config'
 
@@ -91,8 +91,20 @@ export function changeTray(win: BrowserWindow, mode: 'scheduling' | 'normal', st
       options.push({
         label: '中止当前任务',
         click: () => {
-          changeTray(win, 'scheduling', 'idle')
-          win.webContents.send('stop_task', {})
+          dialog.showMessageBox(win, {
+            type: 'warning',
+            title: '中止任务',
+            message: '是否确认中止当前任务？',
+            buttons: ['确定', '取消'],
+            defaultId: 0,
+            cancelId: 1,
+            noLink: true,
+          }).then((result) => {
+            if (result.response === 0) {
+              changeTray(win, 'scheduling', 'idle')
+              win.webContents.send('stop_task', {})
+            }
+          })
         },
       })
     }
@@ -100,9 +112,21 @@ export function changeTray(win: BrowserWindow, mode: 'scheduling' | 'normal', st
       {
         label: '退出调度模式',
         click: () => {
-          changeTray(win, 'normal')// 改变托盘菜单
-          win.webContents.send('exit_scheduling_mode', {}) // 退出调度模式通知引擎
-          win.show() // 显示主界面
+          dialog.showMessageBox(win, {
+            type: 'warning',
+            title: '退出调度模式',
+            message: '退出后卓越中心无法下发任务到本机，当前的调度任务同时取消',
+            buttons: ['确定', '取消'],
+            defaultId: 0,
+            cancelId: 1,
+            noLink: true,
+          }).then((result) => {
+            if (result.response === 0) {
+              changeTray(win, 'normal')// 改变托盘菜单
+              win.webContents.send('exit_scheduling_mode', {}) // 退出调度模式通知引擎
+              win.show() // 显示主界面
+            }
+          })
         },
       },
       {

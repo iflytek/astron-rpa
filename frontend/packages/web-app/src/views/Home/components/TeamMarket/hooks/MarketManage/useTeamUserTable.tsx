@@ -94,6 +94,18 @@ export function useTeamUserTable() {
     const inviteType = ref('link') // phone 组织架构 link 邀请链接
     const inviteUsers = ref([])
     const inviteLink = ref('')
+
+    const updateModalState = (modal) => {
+      const isLinkMode = inviteType.value === 'link'
+      modal.update({
+        okText: isLinkMode ? '复制链接' : '确定',
+        okButtonProps: { 
+          loading: false, 
+          disabled: isLinkMode ? !inviteLink.value : inviteUsers.value.length <= 0 
+        },
+      })
+    }
+
     try {
       const m = GlobalModal.confirm({
         title: t('market.inviteMember'),
@@ -105,21 +117,20 @@ export function useTeamUserTable() {
             marketId={activeMarket.value.marketId}
             onInviteTypeChange={(type: string) => {
               inviteType.value = type
-              m.update({
-                okText: inviteType.value === 'link' ? '复制链接' : '确定',
-              })
+              updateModalState(m)
             }}
-            onChange={values => inviteUsers.value = values}
+            onChange={values => {
+              inviteUsers.value = values
+              updateModalState(m)
+            }}
             onLinkChange={(link: string) => {
               inviteLink.value = link
-              m.update({
-                okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
-              })
+              updateModalState(m)
             }}
           />,
         ),
-        okText: inviteType.value === 'link' ? '复制链接' : '确定',
-        okButtonProps: { loading: false, disabled: inviteType.value === 'link' ? !inviteLink.value : inviteUsers.value.length <= 0 },
+        okText: '确定',
+        okButtonProps: { loading: false, disabled: true },
         onOk: () => {
           return new Promise((resolve, reject) => {
             if (inviteType.value === 'link') {

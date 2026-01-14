@@ -1,15 +1,16 @@
 import { Modal } from 'ant-design-vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import { acceptInvite, queryInviteData } from '../../../api/invite'
 import { loginStatus, userInfo } from '../../../api/login'
 import type { InviteInfo } from '../../../interface'
-import { getQuery } from '../../../utils/index'
 
 type PageStatus = 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
 
 export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
-  const inviteKey = getQuery().inviteKey as string
+  const route = useRoute()
+  const inviteKey = ref(route.query.inviteKey as string)
   const currentStatus = ref<PageStatus>()
   const inviteInfo = ref<InviteInfo>({
     resultCode: '',
@@ -62,14 +63,13 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
       switchPage('showUserInfo')
     }
   }
-
   const getInviteInfo = async () => {
-    if (!inviteKey) {
+    if (!inviteKey.value) {
       switchPage('linkExpired')
       return
     }
     try {
-      const data = await queryInviteData({ inviteKey })
+      const data = await queryInviteData({ inviteKey: inviteKey.value })
       updateInviteInfo(data)
     }
     catch (e) {
@@ -84,7 +84,7 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
 
   const toJoin = async () => {
     try {
-      const data = await acceptInvite({ inviteKey })
+      const data = await acceptInvite({ inviteKey: inviteKey.value })
       updateInviteInfo(data, false)
     }
     catch (e) {
@@ -120,6 +120,13 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   const openApp = () => {
     tryOpenApp('astronrpa://')
   }
+
+  watch(() => route.query.inviteKey, (newKey) => {
+    if (newKey && newKey !== inviteKey.value) {
+      inviteKey.value = newKey as string
+      getInviteInfo()
+    }
+  })
 
   getInviteInfo()
 
