@@ -36,7 +36,7 @@ utilsManager.listenEvent('w2w', async ({ from, target, type, data }: W2WType) =>
     await windowManager.setWindowAlwaysOnTop()
   }
   else if (type === SMART_COMP_PICK_EVENT.HIDE_MENU) {
-    await windowManager.closeWindow()
+    await windowManager.closeWindow(WINDOW_NAME.SMART_COMP_PICK_MENU)
   }
   else if (type === SMART_COMP_PICK_EVENT.SHOW_ERROR_DIALOG) {
     // 显示错误对话框
