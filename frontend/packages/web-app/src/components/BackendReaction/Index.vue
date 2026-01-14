@@ -21,7 +21,7 @@ import { taskCancel, taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { WINDOW_NAME } from '@/constants'
 import { EDITORPAGE, SMARTCOMPONENT } from '@/constants/menu'
-import { utilsManager, windowManager } from '@/platform'
+import { utilsManager, windowManager, type CreateWindowOptions, type WindowPosition } from '@/platform'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
@@ -215,12 +215,12 @@ async function subWindowHandle(msg: SubWindowSchedulerEventType['msg']) {
     // 构建 URL，如果有 params 则添加查询参数
     const baseUrlWithPath = `${baseUrl}/${msg.name}.html`
     const queryString = isEmpty(msg.params) ? '' : `?${new URLSearchParams(msg.params).toString()}`
-    const options = {
+    const options: CreateWindowOptions = {
       url: `${baseUrlWithPath}${queryString}`,
       title: 'iflyrpa-window',
       label: msg.name,
       alwaysOnTop: msg.top === 'true',
-      position: msg.pos,
+      position: msg.pos as WindowPosition,
       width: Number(msg.width),
       height: Number(msg.height),
       resizable: false,

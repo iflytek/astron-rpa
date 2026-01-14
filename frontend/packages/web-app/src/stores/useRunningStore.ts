@@ -13,7 +13,7 @@ import type { StartExecutorParams } from '@/api/resource'
 import { closeDataTable, deleteDataTable, getDataTable, startDataTableListener, startExecutor, stopExecutor, updateDataTable } from '@/api/resource'
 import Socket from '@/api/ws'
 import { WINDOW_NAME } from '@/constants'
-import { windowManager } from '@/platform'
+import { windowManager, type CreateWindowOptions } from '@/platform'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
@@ -133,7 +133,7 @@ export const useRunningStore = defineStore('running', () => {
         }
 
         // 构建 URL，如果有 params 则添加查询参数
-        const options = {
+        const options: CreateWindowOptions = {
           url: `${baseUrl}/${WINDOW_NAME.USERFORM}.html?option=${JSON.stringify(msg.option)}&reply=${JSON.stringify(replyEventData)}`,
           title: 'iflyrpa-window',
           label: WINDOW_NAME.USERFORM,
@@ -146,6 +146,22 @@ export const useRunningStore = defineStore('running', () => {
           transparent: true,
         }
 
+        windowManager.createWindow(options)
+      }
+
+      // 打开多轮对话窗口
+      if (result.key === 'sub_window' && msg.name === 'multichat') {
+        const queryString = new URLSearchParams(msg.params as Record<string, string>).toString()
+        const options: CreateWindowOptions = {
+          url: `${baseUrl}/${WINDOW_NAME.MULTICHAT}.html?${queryString}`,
+          label: WINDOW_NAME.MULTICHAT,
+          alwaysOnTop: true,
+          position: 'center',
+          width: 800,
+          height: 600,
+          skipTaskbar: true,
+          transparent: true,
+        }
         windowManager.createWindow(options)
       }
 

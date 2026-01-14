@@ -26,20 +26,20 @@ export const mainToRender: MainToRender = throttle<MainToRender>(
 
 export function listenRender() {
   // window-show
-  ipcMain.on('window-show', (_event) => {
-    const win = getWindow('', _event.sender.id)
+  ipcMain.on('window-show', (event) => {
+    const win = getWindow('', event.sender.id)
     win?.show()
     win?.focus()
   })
   // window-hide
-  ipcMain.on('window-hide', (_event) => {
-    const win = getWindow('', _event.sender.id)
+  ipcMain.on('window-hide', (event) => {
+    const win = getWindow('', event.sender.id)
     win?.hide()
   })
   // window-close
-  ipcMain.on('window-close', (_event, data) => {
-    const { label = 'main', confirm = false } = data
-    const win = getWindow(label)
+  ipcMain.on('window-close', (event, data) => {
+    const { label, confirm = false } = data
+    const win = label ? getWindow(label) : getWindow('', event.sender.id)
 
     if (confirm) {
       // 如果 confirm 为 true，则不关闭窗口

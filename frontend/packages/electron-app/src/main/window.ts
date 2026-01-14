@@ -1,8 +1,8 @@
 import path from 'node:path'
 
 import { app, BrowserWindow, screen } from 'electron'
-
-import type { WindowOptions } from '../types'
+import type { CreateWindowOptions } from '@rpa/shared/platform'
+import { isUndefined } from 'lodash-es'
 
 import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
 import { resourcePath } from './path'
@@ -66,15 +66,24 @@ export function createMainWindow() {
   return createWindow(mainWindowOptions, MAIN_WINDOW_LABEL)
 }
 
-export function createSubWindow(options: WindowOptions) {
+export function createSubWindow(options: CreateWindowOptions) {
   logger.info('createSubWindow', JSON.stringify(options))
-  const { width = 800, height = 600, name = 'SubWindow', url, position = 'center' } = options
+  const {
+    width = 800,
+    height = 600,
+    url,
+    offset = 0,
+    position,
+    x: _x,
+    y: _y,
+    ...restOptions
+  } = options
 
   const display = screen.getPrimaryDisplay()
   const { width: screenWidth, height: screenHeight } = display.workAreaSize
 
-  let x: number
-  let y: number
+  let x: number | undefined = _x
+  let y: number | undefined = _y
 
   switch (position) {
     case 'left_top':
@@ -98,19 +107,22 @@ export function createSubWindow(options: WindowOptions) {
       y = 2
       break
     case 'center':
-    default:
       x = Math.round((screenWidth - width) / 2)
       y = Math.round((screenHeight - height) / 2)
+      break
+    case 'right_center':
+      x = screenWidth - width - offset
+      y = screenHeight / 2 - height / 2
+      break
+    default:
       break
   }
 
   const subWindowOptions: Electron.BrowserWindowConstructorOptions = {
-    ...options,
-    x,
-    y,
+    ...restOptions,
+    ...(isUndefined(x) && isUndefined(y) ? { center: true } : { x, y }),
     width,
     height,
-    title: name,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -122,7 +134,7 @@ export function createSubWindow(options: WindowOptions) {
   const window = createWindow(subWindowOptions, options.label)
   window.loadURL(url).then(() => electronInfo(window)).catch(() => logger.error('Failed to load URL'))
   window.on('ready-to-show', () => {
-    if (options?.visible !== false) {
+    if (options?.show !== false) {
       window.show()
     }
     window.focus()

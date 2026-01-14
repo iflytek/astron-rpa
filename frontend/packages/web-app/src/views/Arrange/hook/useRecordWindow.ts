@@ -3,14 +3,14 @@ import { useTranslation } from 'i18next-vue'
 import { baseUrl } from '@/utils/env'
 
 import { WINDOW_NAME } from '@/constants'
-import { windowManager } from '@/platform'
+import { windowManager, type CreateWindowOptions } from '@/platform'
 
 export function useRecordWindow() {
   const { t } = useTranslation()
 
   // 智能录制窗口
   const openRecordWindow = async () => {
-    const options = {
+    const options: CreateWindowOptions = {
       url: `${baseUrl}/record.html`,
       title: t('smartRecording'),
       label: WINDOW_NAME.RECORD,
@@ -34,7 +34,7 @@ export function useRecordWindow() {
   }
 
   const openRecordMenuWindow = async () => {
-    const options = {
+    const options: CreateWindowOptions = {
       url: `${baseUrl}/recordmenu.html`,
       title: t('smartRecording'),
       label: WINDOW_NAME.RECORD_MENU,
@@ -47,7 +47,7 @@ export function useRecordWindow() {
       fileDropEnabled: false,
       maximizable: false,
       transparent: true,
-      visible: false,
+      show: false,
       skipTaskbar: true,
     }
 

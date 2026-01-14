@@ -1,7 +1,7 @@
 import { baseUrl } from '@/utils/env'
 
 import { WINDOW_NAME } from '@/constants'
-import { windowManager } from '@/platform'
+import { windowManager, CreateWindowOptions } from '@/platform'
 import { usePickStore } from '@/stores/usePickStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 
@@ -28,7 +28,7 @@ export function useCreateWindow() {
       url = `${url}&noEmit=true`
     }
 
-    const options = {
+    const options: CreateWindowOptions = {
       url,
       title: '数据抓取',
       label: WINDOW_NAME.BATCH,
