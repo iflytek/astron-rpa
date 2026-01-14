@@ -973,8 +973,8 @@ class BrowserElement:
     @atomicMg.atomic("BrowserElement")
     def slider_hover(
         browser_obj: Browser = None,
-        slider_element: WebPick = None,
-        progress_element: WebPick = None,
+        element_slider: WebPick = None,
+        element_progress: WebPick = None,
         percent_value: float = 0.0,
         drag_direction: ElementDragDirectionTypeFlag = ElementDragDirectionTypeFlag.Left,
         drag_type: ElementDragTypeFlag = ElementDragTypeFlag.Start,
@@ -998,14 +998,14 @@ class BrowserElement:
         percent_value = max(0.0, min(1.0, percent_value / 100))
         # 定位滑块和滑条元素
         # 滑块（要拖动的元素）
-        element = Locator.locator(slider_element.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        element = Locator.locator(element_slider.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(element.rect(), list):
             raise Exception("滑块元素定位不唯一，请检查！")
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
         element = Locator.locator(
-            progress_element.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
+            element_progress.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
         )
         if isinstance(element.rect(), list):
             raise Exception("滑轨元素定位不唯一，请检查！")
