@@ -26,20 +26,14 @@ const starCount = 400
 let animationId: number | null = null
 
 class StarImpl implements Star {
-  x: number
-  y: number
-  speed: number
-  size: number
-  opacity: number
-  currentOpacity: number
+  x = 0
+  y = 0
+  speed = 0
+  size = 0
+  opacity = 0
+  currentOpacity = 0
 
   constructor() {
-    this.x = 0
-    this.y = 0
-    this.speed = 0
-    this.size = 0
-    this.opacity = 0
-    this.currentOpacity = 0
     this.init(true)
   }
 

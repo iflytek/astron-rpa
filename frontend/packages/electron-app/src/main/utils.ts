@@ -65,7 +65,7 @@ function normalize (strArray: string[]) {
     const prevPart = resultArray[i - 1]
 
     // Do not add a slash if the previous part ends with start of the query param or hash.
-    if (prevPart && prevPart.endsWith('?') || prevPart.endsWith('#')) {
+    if (prevPart && (prevPart.endsWith('?') || prevPart.endsWith('#'))) {
       str += part;
       continue;
     }

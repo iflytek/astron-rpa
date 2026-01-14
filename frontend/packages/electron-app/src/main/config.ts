@@ -11,5 +11,14 @@ export const APP_ICON_PATH = nativeImage.createFromPath(appIcon)
 
 export const MAIN_WINDOW_LABEL = 'main'
 
-const yamlData = fs.readFileSync(confPath, { encoding: 'utf-8' })
-export const config = parseYAML(yamlData) as IConfig
+function loadConfig(): IConfig {
+  try {
+    const yamlData = fs.readFileSync(confPath, { encoding: 'utf-8' });
+    return parseYAML(yamlData) as IConfig;
+  } catch (error) {
+    console.error(`FATAL: Failed to load config file at ${confPath}. App cannot start.`, error);
+    process.exit(1);
+  }
+}
+
+export const config = loadConfig();
