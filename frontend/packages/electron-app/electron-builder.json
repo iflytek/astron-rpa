@@ -19,10 +19,6 @@
       "to": "resources"
     }
   ],
-  "protocols": {
-    "name": "astronrpa-protocol",
-    "schemes": ["astronrpa"]
-  },
   "win": {
     "target": "nsis",
     "icon": "../../public/icons/icon.ico",
