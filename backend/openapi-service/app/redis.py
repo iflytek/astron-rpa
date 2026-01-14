@@ -1,5 +1,7 @@
+from collections.abc import AsyncGenerator
+
 from redis.asyncio import ConnectionPool, Redis
-from typing import AsyncGenerator
+
 from app.config import get_settings
 
 redis_pool: ConnectionPool = None
@@ -22,7 +24,7 @@ async def close_redis_pool():
         redis_pool = None
 
 
-async def get_redis() -> AsyncGenerator[Redis, None]:
+async def get_redis() -> AsyncGenerator[Redis]:
     global redis_pool
     if redis_pool is None:
         raise RuntimeError("Redis pool is not initialized. Call init_redis_pool() first.")

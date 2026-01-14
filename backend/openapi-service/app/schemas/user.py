@@ -15,3 +15,10 @@ class UserRegisterResponse(BaseModel):
     account: str = Field(..., description="账号")
     password: str = Field(..., description="密码")
     url: str = Field(..., description="下载链接")
+
+
+class UserAPIKeyResponse(BaseModel):
+    """用户注册响应模型"""
+
+    user_id: str = Field(..., description="用户ID")
+    api_key: str = Field(..., description="API Key")

@@ -1,13 +1,17 @@
-from sqlalchemy import select, update, delete
+from typing import Optional
+
+import httpx
+from redis.asyncio import Redis
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.logger import get_logger
 from app.models.workflow import Workflow
 from app.schemas.workflow import WorkflowBase
-from typing import List, Optional
-from redis.asyncio import Redis
-import httpx
-from app.logger import get_logger
 
 logger = get_logger(__name__)
+
+ASTRON_AGENT_WORKFLOWS_URL = "https://xingchen-api.xf-yun.com/manage/workflow/get_info"
 
 
 class WorkflowService:
@@ -48,11 +52,11 @@ class WorkflowService:
             existing_list = json.loads(existing_params)
             robot_params = json.loads(robot_params)
         except (json.JSONDecodeError, TypeError):
-            logger.error("解析现有参数失败")
+            logger.exception("解析现有参数失败")
             return None
 
-        logger.info(f"现有参数数量: {len(existing_list)}")
-        logger.info(f"新参数数量: {len(robot_params)}")
+        logger.info("现有参数数量: %s", len(existing_list))
+        logger.info("新参数数量: %s", len(robot_params))
 
         # 创建现有参数的id映射便于查询
         existing_params_map = {param.get("id"): param for param in existing_list}
@@ -77,7 +81,7 @@ class WorkflowService:
                     or existing_param.get("varDescribe") != robot_param.get("varDescribe")
                 ):
                     # 更新这条记录（保留其他字段）
-                    logger.info(f"参数 {robot_param_id} 检测到变化，进行更新")
+                    logger.info("参数 %s 检测到变化，进行更新", robot_param_id)
 
                     # 对于描述字段，如果两个都不为空，用新的描述
                     varDescribe = robot_param.get("varDescribe")
@@ -104,7 +108,7 @@ class WorkflowService:
                     updated_list.append(existing_param)
             else:
                 # 现有参数中不存在，这是新参数，直接添加
-                logger.info(f"检测到新参数 {robot_param_id}，直接添加")
+                logger.info("检测到新参数 %s，直接添加", robot_param_id)
                 updated_list.append(robot_param)
                 added_count += 1
 
@@ -113,10 +117,14 @@ class WorkflowService:
             [p for p in existing_list if p.get("id") in {rp.get("id") for rp in robot_params}]
         )
         if deleted_count > 0:
-            logger.info(f"检测到 {deleted_count} 个已删除的参数")
+            logger.info("检测到 %s 个已删除的参数", deleted_count)
 
         logger.info(
-            f"参数更新完成 - 更新: {updated_count}, 新增: {added_count}, 删除: {deleted_count}, 最终参数数量: {len(updated_list)}"
+            "参数更新完成 - 更新: %s, 新增: %s, 删除: %s, 最终参数数量: %s",
+            updated_count,
+            added_count,
+            deleted_count,
+            len(updated_list),
         )
 
         # 返回更新后的参数JSON
@@ -144,7 +152,7 @@ class WorkflowService:
 
         return workflow
 
-    async def get_workflow(self, project_id: str, user_id: str = None) -> Optional[Workflow]:
+    async def get_workflow(self, project_id: str, user_id: str | None = None) -> Optional[Workflow]:
         """获取指定工作流"""
         query = select(Workflow).where(Workflow.project_id == project_id)
         if user_id is not None:
@@ -165,7 +173,9 @@ class WorkflowService:
 
         return workflow
 
-    async def get_workflows(self, user_id: str = None, skip: int = 0, limit: int = None) -> List[Workflow]:
+    async def get_workflows(
+        self, user_id: str | None = None, skip: int = 0, limit: int | None = None
+    ) -> list[Workflow]:
         """获取工作流列表（仅返回状态为1的项目）"""
         base_query = select(Workflow).where(Workflow.status == 1)
 
@@ -236,7 +246,7 @@ class WorkflowService:
 
         return True
 
-    async def get_workflow_stats(self, user_id: str = None) -> dict:
+    async def get_workflow_stats(self, user_id: str | None = None) -> dict:
         """获取工作流统计信息"""
         query = select(Workflow)
         if user_id is not None:
@@ -250,3 +260,57 @@ class WorkflowService:
         inactive = sum(1 for w in workflows if w.status == 0)
 
         return {"total": total, "active": active, "inactive": inactive}
+
+    async def get_astron_workflows(self, auth_id: int, app_id: str, api_key: str, api_secret: str):
+        """获取星辰Agent所有工作流"""
+        try:
+            headers = {
+                "X-Consumer-Username": app_id,
+                "Authorization": f"Bearer {api_key}:{api_secret}",
+                "Content-Type": "application/json",
+            }
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(ASTRON_AGENT_WORKFLOWS_URL, headers=headers)
+                response.raise_for_status()
+
+                result = response.json()
+
+                # 检查API响应是否成功
+                if result.get("code") != 0:
+                    logger.error("Astron API error: %s", result.get("message", "Unknown error"))
+                    return []
+
+                # 提取工作流数据
+                workflows_data = result.get("data", {})
+                logger.info(f"workflows_data: {workflows_data}")
+                workflows = workflows_data.get("pageData", [])
+                logger.info(f"workflows: {workflows}")
+
+                # 格式化返回数据，只保留关键信息
+                formatted_workflows = []
+                for workflow in workflows:
+                    formatted_workflows.append(
+                        {
+                            "authId": auth_id,
+                            "flowId": workflow.get("flowId"),
+                            "name": workflow.get("name"),
+                            "description": workflow.get("description", ""),
+                            "inputs": workflow.get("ioParams", {}).get("inputs", []),
+                            "outputs": workflow.get("ioParams", {}).get("outputs", []),
+                            "createTime": workflow.get("createTime"),
+                            "updateTime": workflow.get("updateTime"),
+                        }
+                    )
+
+                return formatted_workflows
+
+        except httpx.TimeoutException:
+            logger.error("Timeout when calling Astron API for app_id: %s", app_id)
+            return []
+        except httpx.HTTPStatusError as e:
+            logger.error("HTTP error when calling Astron API for app_id %s: %s", app_id, str(e))
+            return []
+        except Exception as e:
+            logger.error("Error calling Astron API for app_id %s: %s", app_id, str(e))
+            return []

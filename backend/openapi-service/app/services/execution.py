@@ -1,18 +1,18 @@
+import asyncio
 import json
+from datetime import datetime
+from typing import Any, Optional
+from uuid import uuid4
+
+from redis.asyncio import Redis
+from rpawebsocket.ws import BaseMsg
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.workflow import Execution
-from app.schemas.workflow import ExecutionCreate, ExecutionStatus
-from typing import List, Optional, Dict, Any
-from uuid import uuid4
-from datetime import datetime
-from redis.asyncio import Redis
-import asyncio
 
-from app.services.websocket import WsManagerService
-from rpawebsocket.ws import Conn, IWebSocket, BaseMsg
 from app.database import AsyncSessionLocal
 from app.logger import get_logger
+from app.models.workflow import Execution
+from app.schemas.workflow import ExecutionCreate, ExecutionStatus
 
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ class ExecutionService:
     async def create_execution(self, execution_data: ExecutionCreate, user_id: str) -> Execution:
         """创建执行记录"""
         execution_id = str(uuid4())
-        parameters = execution_data.params if execution_data.params else {}
+        parameters = execution_data.params or {}
 
         # 使用json.dumps确保参数以有效的JSON格式存储
         parameters_json = json.dumps(parameters, ensure_ascii=False) if parameters else "{}"
@@ -47,22 +47,24 @@ class ExecutionService:
 
         return execution
 
-    async def get_execution(self, execution_id: str, user_id: str = None) -> Optional[Execution]:
+    async def get_execution(self, execution_id: str, user_id: str | None = None) -> Optional[Execution]:
         """获取执行记录"""
         query = select(Execution).where(Execution.id == execution_id)
-        if user_id is not None:
-            query = query.where(Execution.user_id == user_id)
+
+        # 不校验user_id
+        # if user_id is not None:
+        #     query = query.where(Execution.user_id == user_id)
 
         result = await self.db.execute(query)
         return result.scalars().first()
 
     async def get_executions(
         self,
-        project_id: str = None,
-        user_id: str = None,
+        project_id: str | None = None,
+        user_id: str | None = None,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[Execution]:
+    ) -> list[Execution]:
         """获取执行记录列表"""
         query = select(Execution).order_by(Execution.start_time.desc()).offset(skip).limit(limit)
 
@@ -74,12 +76,39 @@ class ExecutionService:
         result = await self.db.execute(query)
         return result.scalars().all()
 
+    async def get_executions_by_user(
+        self,
+        user_id: str,
+        pageNo: int = 1,
+        pageSize: int = 10,
+    ) -> tuple[list[Execution], int]:
+        """分页获取用户的执行记录"""
+        skip = (pageNo - 1) * pageSize
+
+        # 查询总数
+        count_query = select(Execution).where(Execution.user_id == user_id)
+        count_result = await self.db.execute(count_query)
+        total = len(count_result.scalars().all())
+
+        # 查询分页数据
+        query = (
+            select(Execution)
+            .where(Execution.user_id == user_id)
+            .order_by(Execution.start_time.desc())
+            .offset(skip)
+            .limit(pageSize)
+        )
+        result = await self.db.execute(query)
+        executions = result.scalars().all()
+
+        return executions, total
+
     async def update_execution_status(
         self,
         execution_id: str,
         status: str,
-        result: Dict[str, Any] = None,
-        error: str = None,
+        result: dict[str, Any] | None = None,
+        error: str | None = None,
     ) -> Optional[Execution]:
         """更新执行记录状态"""
         try:
@@ -114,9 +143,7 @@ class ExecutionService:
                 await self.db.rollback()
             except:
                 pass  # 如果回滚失败，忽略错误
-            import traceback
-
-            logger.error(f"Failed to update execution {execution_id}: {e}\n{traceback.format_exc()}")
+            logger.exception("Failed to update execution %s", execution_id)
             return None
 
     async def execute_workflow(
@@ -132,8 +159,8 @@ class ExecutionService:
 
         # 确保执行记录已经提交到数据库
         await self.db.commit()
-        logger.info(f"Created execution {execution.id} and committed to database")
-        logger.info(f"[execute_workflow] user_id: {user_id} ")
+        logger.info("Created execution %s and committed to database", execution.id)
+        logger.info("[execute_workflow] user_id: %s ", user_id)
 
         # 保存 execution_id，后续需要用
         execution_id = execution.id
@@ -160,15 +187,15 @@ class ExecutionService:
             # 获取执行记录
             execution = await self.get_execution(execution_id)
             if not execution:
-                logger.info(f"Execution not found for execution_id: {execution_id}")
+                logger.info("Execution not found for execution_id: %s", execution_id)
                 raise Exception(f"Execution not found for execution_id: {execution_id}")
-            logger.info(f"[_run_workflow] user_id: {user_id} ")
+            logger.info("[_run_workflow] user_id: %s ", user_id)
             # 设置超时
             await asyncio.wait_for(
                 self._execute_workflow_logic(execution, user_id),
                 timeout=workflow_timeout,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # 超时处理 - 使用update_execution_status方法避免会话问题
             await self.update_execution_status(execution_id, ExecutionStatus.RUNNING.value)
             raise
@@ -179,7 +206,7 @@ class ExecutionService:
         """使用新的数据库会话运行工作流（同步版本，会抛出异常）"""
         async with AsyncSessionLocal() as db:
             execution_service = ExecutionService(db, self.redis)
-            logger.info(f"Running workflow execution {execution_id}")
+            logger.info("Running workflow execution %s", execution_id)
             await execution_service._run_workflow(execution_id, workflow_timeout, user_id)
 
     async def _run_workflow_with_new_session(self, execution_id: str, workflow_timeout: int, user_id: str) -> None:
@@ -187,11 +214,11 @@ class ExecutionService:
         async with AsyncSessionLocal() as db:
             try:
                 execution_service = ExecutionService(db, self.redis)
-                logger.info(f"Running background workflow execution {execution_id}")
+                logger.info("Running background workflow execution %s", execution_id)
                 await execution_service._run_workflow(execution_id, workflow_timeout, user_id)
             except Exception as e:
                 # 记录错误日志
-                logger.error(f"Error in background workflow execution {execution_id}: {str(e)}")
+                logger.exception("Error in background workflow execution %s", execution_id)
 
                 # 更新执行状态为失败，确保用户能看到错误
                 try:
@@ -202,7 +229,7 @@ class ExecutionService:
                             execution_id, ExecutionStatus.FAILED.value, error=str(e)
                         )
                 except Exception as update_error:
-                    logger.error(f"Failed to update execution status for {execution_id}: {str(update_error)}")
+                    logger.exception("Failed to update execution status for %s", execution_id)
 
     async def _execute_workflow_logic(self, execution: Execution, user_id: str) -> None:
         """
@@ -211,7 +238,7 @@ class ExecutionService:
         """
         import json
 
-        logger.info(f"Starting workflow execution logic for execution {execution.id}")
+        logger.info("Starting workflow execution logic for execution %s", execution.id)
 
         try:
             # 模拟异步工作流执行
@@ -220,23 +247,24 @@ class ExecutionService:
             from app.dependencies import get_ws_service
 
             websocket_service = await get_ws_service()
-            logger.info(f"Got websocket service for execution {execution.id}")
-            logger.info(f"execution.user_id: {execution.user_id}")
-            logger.info(f"input user_id: {user_id}")
+            logger.info("Got websocket service for execution %s", execution.id)
+            logger.info("execution.user_id: %s", execution.user_id)
+            logger.info("input user_id: %s", user_id)
 
             wait = asyncio.Event()
             res = {}
             res_e = None
 
-            def callback(watch_msg: BaseMsg = None, e: Exception = None):
+            def callback(watch_msg: BaseMsg | None = None, e: Exception | None = None):
                 nonlocal wait, res, res_e
                 if watch_msg:
                     res = watch_msg.data
-                    logger.info(f"Received response for execution {execution.id}: {res}")
-                    # Received response for execution 71e3147f-55cd-43f5-b7a8-b734d1075618: {'code': '5001', 'msg': '', 'data': None}
+                    logger.info("Received response for execution %s: %s", execution.id, res)
+                    # Received response for execution 71e3147f-55cd-43f5-b7a8-b734d1075618:
+                    # {'code': '5001', 'msg': '', 'data': None}
                 if e:
                     res_e = e
-                    logger.error(f"Received error for execution {execution.id}: {e}")
+                    logger.error("Received error for execution %s: %s", execution.id, e)
                 wait.set()
 
             # 解析参数，确保是字典格式
@@ -246,14 +274,14 @@ class ExecutionService:
                 try:
                     parameters_dict = json.loads(execution.parameters)
                 except json.JSONDecodeError as e:
-                    logger.error(f"Failed to parse parameters JSON for execution {execution.id}: {e}")
+                    logger.exception("Failed to parse parameters JSON for execution %s", execution.id)
                     parameters_dict = {}
             else:
                 parameters_dict = execution.parameters
 
             run_param = []
             for key, value in parameters_dict.items():
-                logger.debug(f"参数: {key}={value}")
+                logger.debug("参数: %s=%s", key, value)
                 run_param.append({"varName": key, "varValue": value})
             run_param = json.dumps(run_param, ensure_ascii=False)
 
@@ -262,10 +290,11 @@ class ExecutionService:
                 "exec_position": execution.exec_position,
                 "jwt": "",
                 "run_param": run_param,
-                "version": execution.version,
             }
             if execution.recording_config:
                 executor_data["recording_config"] = execution.recording_config
+            if execution.version:
+                executor_data["version"] = execution.version
 
             base_msg = BaseMsg(
                 channel="remote",
@@ -276,13 +305,13 @@ class ExecutionService:
                 data=executor_data,
             ).init()
 
-            logger.info(f"Sending WebSocket message for execution {execution.id}: {base_msg.data}")
+            logger.info("Sending WebSocket message for execution %s: %s", execution.id, base_msg.data)
             await websocket_service.ws_manager.send_reply(base_msg, 10 * 3600, callback)
 
             # 等待
-            logger.info(f"Waiting for response for execution {execution.id}")
+            logger.info("Waiting for response for execution %s", execution.id)
             await wait.wait()
-            logger.info(f"Received response for execution {execution.id}")
+            logger.info("Received response for execution %s", execution.id)
 
             # 假设工作流执行成功
             if res.get("code") == "0000":
@@ -292,7 +321,7 @@ class ExecutionService:
                     result=res,
                     error=str(res_e) if res_e else None,
                 )
-                logger.info(f"Updated execution {execution.id} status to COMPLETED")
+                logger.info("Updated execution %s status to COMPLETED", execution.id)
             elif res.get("code") == "5001":
                 await self.update_execution_status(
                     execution.id,
@@ -300,10 +329,10 @@ class ExecutionService:
                     result=res,
                     error=str(res_e) if res_e else None,
                 )
-                logger.info(f"Updated execution {execution.id} status to FAILED")
+                logger.info("Updated execution %s status to FAILED", execution.id)
 
         except Exception as e:
-            logger.error(f"Error in workflow execution logic for {execution.id}: {str(e)}")
+            logger.exception("Error in workflow execution logic for %s", execution.id)
             raise
 
     async def cancel_execution(self, execution_id: str, user_id: str) -> bool:
@@ -321,5 +350,5 @@ class ExecutionService:
 
             return updated_execution is not None
         except Exception as e:
-            logger.error(f"Failed to cancel execution {execution_id}: {str(e)}")
+            logger.exception("Failed to cancel execution %s", execution_id)
             return False

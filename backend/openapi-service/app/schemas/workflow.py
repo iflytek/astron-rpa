@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Any, Optional, Union
+from typing import Any, Optional, Union
+
 from pydantic import BaseModel, Field
 
 
@@ -42,17 +43,20 @@ class WorkflowResponse(WorkflowBase):
 class WorkflowListResponse(BaseModel):
     """工作流列表响应模型"""
 
-    data: List[WorkflowResponse] = Field(..., description="工作流列表")
+    data: list[WorkflowResponse] = Field(..., description="工作流列表")
 
 
 class ExecutionCreate(BaseModel):
     """创建工作流执行记录请求模型"""
 
     project_id: str = Field(..., description="项目ID")
-    params: Optional[Dict[str, Any]] = Field(None, description="执行参数")
+    params: Optional[dict[str, Any]] = Field(None, description="执行参数")
     exec_position: str = Field("EXECUTOR", description="执行位置")
     recording_config: Optional[str] = Field(None, description="录制配置")
     version: Optional[int] = Field(None, description="工作流版本号")
+
+    # 2026-01-12 新增手机号参数，用于星辰Agent的复制调用
+    phone_number: Optional[str] = Field(None, description="手机号")
 
 
 class ExecutionResponse(BaseModel):
@@ -61,8 +65,8 @@ class ExecutionResponse(BaseModel):
     id: str = Field(..., description="执行记录ID")
     project_id: str = Field(..., description="项目ID")
     status: str = Field(..., description="执行状态")
-    parameters: Optional[Dict[str, Any]] = Field(None, description="执行参数")
-    result: Optional[Dict[str, Any]] = Field(None, description="执行结果")
+    parameters: Optional[dict[str, Any]] = Field(None, description="执行参数")
+    result: Optional[dict[str, Any]] = Field(None, description="执行结果")
     error: Optional[str] = Field(None, description="错误信息")
     exec_position: str = Field(..., description="执行位置")
     version: Optional[int] = Field(None, description="工作流版本号")
@@ -70,3 +74,11 @@ class ExecutionResponse(BaseModel):
     end_time: Optional[datetime] = Field(None, description="结束时间")
 
     model_config = {"from_attributes": True}
+
+
+class WorkflowCopyRequest(BaseModel):
+    """复制工作流请求模型"""
+
+    project_id: Union[str, int] = Field(..., description="项目ID")
+    version: int = Field(..., description="工作流版本号")
+    phone_number: str = Field(..., description="目标手机号码")

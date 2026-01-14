@@ -1,5 +1,6 @@
-import pytest
 import random
+
+import pytest
 from httpx import AsyncClient
 
 
@@ -86,9 +87,9 @@ async def test_list_items(client: AsyncClient):
     # Create a few items
     for i in range(5):
         item_data = {
-            "name": f"Item {i+1}",
-            "description": f"Description for item {i+1}",
-            "price": (i+1) * 10.5,
+            "name": f"Item {i + 1}",
+            "description": f"Description for item {i + 1}",
+            "price": (i + 1) * 10.5,
             "is_available": i % 2 == 0
         }
         await client.post("/items/", json=item_data, headers=headers)

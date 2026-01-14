@@ -1,20 +1,22 @@
+import os
+from datetime import datetime
+from typing import Dict, List, Optional
+
 from fastapi import Depends, Header, HTTPException, Security, status  # Added status
 from fastapi.security import APIKeyHeader
-from sqlalchemy.ext.asyncio import AsyncSession
 from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from app.database import get_db
+from app.models.api_key import OpenAPIDB
+from app.redis import get_redis
+from app.services.api_key import ApiKeyService, XcApiKeyService
+from app.services.execution import ExecutionService
+from app.services.user import UserService
 from app.services.websocket import WsManagerService, WsService
 from app.services.workflow import WorkflowService
-from app.services.execution import ExecutionService
-from app.services.api_key import ApiKeyService, XcApiKeyService
-from app.services.user import UserService
-from app.database import get_db
-from app.redis import get_redis
-from app.models.api_key import OpenAPIDB
 from app.utils.api_key import APIKeyUtils
-from sqlalchemy.future import select
-from typing import Dict, List, Optional
-from datetime import datetime
-import os
 
 # 全局 WsManagerService 单例实例
 _ws_manager_service: WsManagerService | None = None
@@ -55,6 +57,35 @@ async def verify_register_bearer_token(
     ):
         ...
     """
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing Authorization header",
+        )
+
+    # 验证 Bearer 格式
+    parts = token.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Authorization header format",
+        )
+
+    bearer_token = parts[1]
+
+    # 验证 Token 是否正确
+    if bearer_token != "opensource-register-token":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        )
+
+    return bearer_token
+
+
+async def verify_getkey_bearer_token(
+    token: str = Security(API_KEY_HEADER),
+) -> str:
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -162,6 +193,8 @@ async def get_user_id_with_fallback(
     2. 如果没有API key，则从X-User-Id或user_id header中获取
     3. 如果都没有，则抛出401错误
 
+    用于get_workflows（既有可能本地调用，又有可能外部调用）
+
     使用示例：
     @router.get("/example")
     async def example_endpoint(
@@ -186,6 +219,7 @@ async def get_user_id_with_fallback(
                     hashed_key = key.api_key
                     if APIKeyUtils.verify_api_key(api_key, hashed_key):
                         return str(key.user_id)
+
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Authentication failed. Your API_KEY is not correct.",
@@ -241,13 +275,13 @@ async def check_user_id_equality(
                         detail="Authentication required. Please provide either a valid API key in Authorization header",
                         headers={"WWW-Authenticate": "Bearer"},
                     )
-                    
+
                 for key in api_keys:
                     hashed_key = key.api_key
                     if APIKeyUtils.verify_api_key(api_key, hashed_key):
                         if str(key.user_id) == user_id:
                             return True
-                
+
                 return False
 
         except Exception as e:
@@ -287,11 +321,11 @@ async def get_api_key_service(db: AsyncSession = Depends(get_db), redis: Redis =
     return ApiKeyService(db, redis)
 
 
-async def get_xc_api_key_service(
+async def get_astron_api_key_service(
     db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
-) -> XcApiKeyService:
+) -> AstronApiKeyService:
     """提供XcApiKeyService实例的依赖项"""
-    return XcApiKeyService(db, redis)
+    return AstronApiKeyService(db, redis)
 
 
 async def get_user_service(

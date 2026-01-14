@@ -1,8 +1,8 @@
-from sqlalchemy import Column, String, DateTime, func, Integer, Text
-from sqlalchemy.orm import relationship
-from app.database import Base
-from app.schemas.workflow import ExecutionStatus
 import json
+
+from sqlalchemy import Column, DateTime, Integer, String, Text, func
+
+from app.database import Base
 
 
 class Workflow(Base):
