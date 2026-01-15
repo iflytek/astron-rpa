@@ -877,7 +877,9 @@ const Handlers = {
         if (Number.isNaN(frameId)) {
           return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
         }
-        await Tabs.getAllFrames(tab.id)
+        if (frameId !== 0) { // get frames when frameId not 0
+          await Tabs.getAllFrames(tab.id)
+        }
         try {
           const result = await Tabs.runJS(tab.id, frameId, params)
           return Utils.success(result)
