@@ -30,7 +30,7 @@ const replyBaseData = JSON.parse(targetInfo.get('reply')) ?? {}
 onMounted(() => resizeWindow())
 
 function handleClose() {
-  windowManager.closeWindow(WINDOW_NAME.USERFORM)
+  windowManager.closeWindow()
 }
 
 function handleSave(data: AnyObj) {
