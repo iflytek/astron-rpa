@@ -20,7 +20,7 @@ import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import type { Fun, AnyObj } from '@/types/common'
 import { changeDebugging } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
-import { getCookie } from '@/utils/common'
+import { getCookie, sleep } from '@/utils/common'
 
 export type RunState = 'run' | 'free' | 'debug' | 'silence' // 执行状态
 
@@ -30,6 +30,8 @@ export const useRunningStore = defineStore('running', () => {
   const userSettingStore = useUserSettingStore()
   const runLogStore = useRunlogStore()
 
+  // 执行过程中创建的窗口 label (后续用于关闭窗口)
+  let createdWindowLabels: string[] = []
   // 全局运行状态 run-运行 debug-调试 free-停止 silence-静默（在执行器列表执行） 默认是free状态
   const running = ref<RunState>('free')
   const debugData = ref<any>({}) // 调试信息, 包含当前调试的行号、断点等信息
@@ -112,7 +114,7 @@ export const useRunningStore = defineStore('running', () => {
       isHeart: true,
       heartTime: 30 * 1000,
     })
-    RpaExecutor.bindMessage((res: string) => { // 处理ws消息
+    RpaExecutor.bindMessage(async (res: string) => { // 处理ws消息
       const result = JSON.parse(res)
       const { data: msg, event_time, channel, reply_event_id } = result
 
@@ -122,6 +124,9 @@ export const useRunningStore = defineStore('running', () => {
 
       // 打开自定义表单窗口
       if (result.key === 'sub_window' && msg.name === 'userform') {
+        const windowLabel = `${WINDOW_NAME.USERFORM}-${generateUUID()}`
+        createdWindowLabels.push(windowLabel)
+
         // 打开自定义表单窗口后，点击表单提交，有一个消息回复
         const replyEventData = {
           key: result.key,
@@ -136,7 +141,7 @@ export const useRunningStore = defineStore('running', () => {
         const options: CreateWindowOptions = {
           url: `${baseUrl}/${WINDOW_NAME.USERFORM}.html?option=${JSON.stringify(msg.option)}&reply=${JSON.stringify(replyEventData)}`,
           title: 'iflyrpa-window',
-          label: WINDOW_NAME.USERFORM,
+          label: windowLabel,
           alwaysOnTop: true,
           position: 'center',
           width: 500,
@@ -151,10 +156,12 @@ export const useRunningStore = defineStore('running', () => {
 
       // 打开多轮对话窗口
       if (result.key === 'sub_window' && msg.name === 'multichat') {
+        const windowLabel = `${WINDOW_NAME.MULTICHAT}-${generateUUID()}`
+        createdWindowLabels.push(windowLabel)
         const queryString = new URLSearchParams(msg.params as Record<string, string>).toString()
         const options: CreateWindowOptions = {
           url: `${baseUrl}/${WINDOW_NAME.MULTICHAT}.html?${queryString}`,
-          label: WINDOW_NAME.MULTICHAT,
+          label: windowLabel,
           alwaysOnTop: true,
           position: 'center',
           width: 800,
@@ -171,10 +178,9 @@ export const useRunningStore = defineStore('running', () => {
 
       // 执行结束、执行出错、执行器报错等异常退出时，关闭socket并重置状态
       if (['task_end', 'task_error'].includes(msg.status) || channel === 'exit') {
-        setTimeout(() => {
-          setStatus(msg.status === 'task_end' ? 'runSuccess' : 'runFailed')
-          reset()
-        }, 1000)
+        await sleep(1000)
+        setStatus(msg.status === 'task_end' ? 'runSuccess' : 'runFailed')
+        reset()
       }
     })
     RpaExecutor.create(() => callback?.())
@@ -185,6 +191,14 @@ export const useRunningStore = defineStore('running', () => {
         reset()
       }
     })
+  }
+
+  // 关闭执行过程中创建的窗口
+  const closeCreatedWindows = () => {
+    createdWindowLabels.forEach(label => {
+      windowManager.closeWindow(label)
+    })
+    createdWindowLabels = []
   }
 
   // 发送ws消息
@@ -381,5 +395,6 @@ export const useRunningStore = defineStore('running', () => {
     closeDataTableListener,
     clearDataTable,
     sendUserFormData,
+    closeCreatedWindows,
   }
 })

@@ -39,6 +39,7 @@ const permissionStore = usePermissionStore()
 const userSettingStore = useUserSettingStore()
 const runningStore = useRunningStore()
 const appConfigStore = useAppConfigStore()
+const appModeStore = useAppModeStore()
 
 interface SchedulerEventType<T = any> {
   type: string
@@ -80,7 +81,8 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
       break
     }
     case 'executor_end': {
-      if (useAppModeStore().appMode === 'normal') {
+      runningStore.closeCreatedWindows()
+      if (appModeStore.appMode === 'normal') {
         executorHandle()
         runningStore.reset()
       }
@@ -91,7 +93,7 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
       break
     }
     case 'edit_show_hide': {
-      if (useAppModeStore().appMode === 'normal') {
+      if (appModeStore.appMode === 'normal') {
         if (msg.type === 'hide') {
           windowManager.minimizeWindow()
         }
@@ -152,7 +154,7 @@ utilsManager.listenEvent('w2w', (eventMsg: W2WType) => {
 
 utilsManager.listenEvent('exit_scheduling_mode', () => {
   console.log('exit_scheduling_mode')
-  useAppModeStore().setAppMode('normal') // 设置为正常模式
+  appModeStore.setAppMode('normal') // 设置为正常模式
   endSchedulingMode()
 })
 
@@ -213,10 +215,8 @@ function executorHandle() {
 async function subWindowHandle(msg: SubWindowSchedulerEventType['msg']) {
   if (msg.action === 'open') {
     // 构建 URL，如果有 params 则添加查询参数
-    const baseUrlWithPath = `${baseUrl}/${msg.name}.html`
-    const queryString = isEmpty(msg.params) ? '' : `?${new URLSearchParams(msg.params).toString()}`
     const options: CreateWindowOptions = {
-      url: `${baseUrlWithPath}${queryString}`,
+      url: `${baseUrl}/${msg.name}.html?${new URLSearchParams(msg.params).toString()}`,
       title: 'iflyrpa-window',
       label: msg.name,
       alwaysOnTop: msg.top === 'true',

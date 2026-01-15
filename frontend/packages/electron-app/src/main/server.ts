@@ -1,4 +1,4 @@
-import { exec, spawn } from 'node:child_process'
+import { exec } from 'node:child_process'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -52,10 +52,19 @@ export async function startServer() {
     logger.info(`${envJson.SCHEDULER_NAME} is running`)
     return
   }
-  mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
 
-  const rpaSetup = spawn(pythonExe, ['-m', envJson.SCHEDULER_NAME, '--conf', confPath], { cwd: appWorkPath, detached: true, windowsHide: true })
- 
+  mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
+  
+  const rpaSetup = exec(
+    `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
+    { cwd: appWorkPath },
+    (error) => {
+      if (error) {
+        logger.error(`${envJson.SCHEDULER_NAME} error: ${error}`)
+      }
+    }
+  )
+
   rpaSetup.stdout?.on('data', (data) => msgFilter(data.toString()))
 
   rpaSetup.stderr?.on('data', (data) => {
@@ -254,7 +263,7 @@ function logCopyResults(copyResults: Array<{ fileName: string, success: boolean,
 }
 
 /**
- * 从资源目录复制Python包及其哈希文件到用户数据目录
+ * 从资源目录复制Python哈希文件到用户数据目录
  * @param fileNames - 需要复制的压缩包文件名数组
  */
 async function copyPythonFromResources(fileNames: string[]) {
@@ -265,14 +274,8 @@ async function copyPythonFromResources(fileNames: string[]) {
 
   logger.info(`开始复制文件到用户数据目录: ${fileNames.join(', ')}`)
 
-  // 确保目标目录存在
-  await ensureAppWorkPathExists()
-
   // 将压缩包和他的校验文件复制到 appWorkPath
-  const copyFileNames = [
-    ...fileNames,
-    ...fileNames.map(fileName => `${fileName}.sha256.txt`)
-  ]
+  const copyFileNames = fileNames.map(fileName => `${fileName}.sha256.txt`)
 
   const copyResults: Array<{ fileName: string, success: boolean, error?: string }> = []
 
@@ -323,14 +326,17 @@ export async function startBackend() {
     return
   }
 
+  await ensureAppWorkPathExists()
+
   logger.info(`需要解压的文件: ${needExtractFiles.join(', ')}`)
 
-  await copyPythonFromResources(needExtractFiles)
   const extractMsg = `{"type":"sync","msg":{"msg":"${toUnicode('正在解压Python包')}","step": 30 }}`
   mainToRender('scheduler-event', extractMsg, undefined, true)
 
   // 解压所有文件
   await Promise.all(needExtractFiles.map(file => extractAndCleanFile(file)))
+
+  await copyPythonFromResources(needExtractFiles)
 
   startServer()
 }
@@ -340,7 +346,7 @@ export async function startBackend() {
  * @param file - 需要解压的文件名
  */
 async function extractAndCleanFile(file: string): Promise<void> {
-  const archivePath = join(appWorkPath, file)
+  const archivePath = join(resourcePath, file)
   const outputDir = join(appWorkPath, file.replace('.7z', ''))
   const tempOutputDir = `${outputDir}.temp`
 
@@ -362,26 +368,9 @@ async function extractAndCleanFile(file: string): Promise<void> {
     // 3. 将临时目录重命名为目标目录
     await fs.rename(tempOutputDir, outputDir)
     logger.info(`成功解压: ${outputDir}`)
-
-    // 4. 删除原始压缩文件
-    await deleteArchiveFile(archivePath, file)
   } catch (error) {
     logger.error(`解压失败: ${file}`, error)
     // 清理所有解压目录
     clearAll()
-  }
-}
-
-/**
- * 删除压缩文件
- * @param archivePath - 压缩文件路径
- * @param fileName - 文件名（用于日志）
- */
-async function deleteArchiveFile(archivePath: string, fileName: string): Promise<void> {
-  try {
-    await fs.unlink(archivePath)
-    logger.info(`已删除压缩文件: ${fileName}`)
-  } catch (error) {
-    logger.warn(`删除压缩文件失败: ${fileName}`, error)
   }
 }
