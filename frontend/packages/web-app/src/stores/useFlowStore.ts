@@ -207,6 +207,11 @@ export const useFlowStore = defineStore('flow', () => {
     const startIdx = params.processId ? params.startIndex : 0
     const processIds = params.processId ? [params.processId] : processStore.processList.filter(it => it.resourceCategory === 'process').map(it => it.resourceId)
 
+    // 创建正则表达式匹配变量名
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const varNamePattern = `(?<![a-zA-Z0-9_])${escapeRegex(params.varName)}(?![a-zA-Z0-9_])`
+    const varNameRegex = new RegExp(varNamePattern, 'g')
+
     for (const processId of processIds) {
       const processNodeList = docStore.userFlowNode(processId).slice(startIdx)
       const changedNodeList = []
@@ -222,13 +227,38 @@ export const useFlowStore = defineStore('flow', () => {
             continue
 
           const findIsMached = (i: ArgumentValue) => {
-            const matched = i.type === params.varType && i.value === params.varName
-            matched && (isMached = true)
-            return matched
+            if (i.type !== params.varType)
+              return false
+
+            // 完全匹配
+            if (i.value === params.varName) {
+              isMached = true
+              return true
+            }
+
+            // 表达式匹配：检查字符串中是否包含变量名
+            if (typeof i.value === 'string' && new RegExp(varNamePattern).test(i.value)) {
+              isMached = true
+              return true
+            }
+
+            return false
           }
 
           if (params.type === 'rename') {
-            item.value = item.value.map(it => findIsMached(it) ? Object.assign(it, { value: params.newVarName }) : it)
+            item.value = item.value.map(it => {
+              if (!findIsMached(it))
+                return it
+
+              // 完全匹配直接替换，表达式匹配使用正则替换
+              const newValue = it.value === params.varName
+                ? params.newVarName
+                : typeof it.value === 'string'
+                  ? it.value.replace(varNameRegex, params.newVarName)
+                  : it.value
+
+              return Object.assign(it, { value: newValue })
+            })
           }
           else if (params.type === 'delete') {
             item.value = item.value.filter(it => !findIsMached(it))
