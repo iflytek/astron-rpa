@@ -23,7 +23,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
     }
 
     
-    if (type !=='invite' && Object.is(Number(keyword), Number.NaN) || keyword.length > 11) {
+    if (type !== 'invite' && (Object.is(Number(keyword), Number.NaN) || keyword.length > 11)) {
       message.destroy()
       message.error('请输入正确的手机号')
       userList.value = []
