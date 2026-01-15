@@ -17,6 +17,7 @@ import { useProcessStore, isPyModel } from '@/stores/useProcessStore.ts'
 import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
 import { useConfigParameter } from './useConfigParameter.ts'
 import VarValueEditor from './VarValueEditor.vue'
+import VarInput from './VarInput.vue'
 
 interface LocalConfigParamData extends RPA.ConfigParamData {
   perVarName: string
@@ -136,7 +137,7 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
     :empty-text="emptyText"
   >
     <template #name_default="{ row }">
-      <Input v-model:value="row.varName" :bordered="false" class="text-xs text-inherit" @blur="handleBlur(row)" />
+      <VarInput v-model:value="row.varName" class="text-xs" @blur="handleBlur(row)" />
     </template>
     <template #usage_default="{ row }">
       <Select v-model:value="row.varDirection" :options="usageOptions" class="w-full" size="small" :bordered="false" @change="handleChange(row)" />
