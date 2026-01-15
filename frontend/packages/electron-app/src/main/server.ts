@@ -56,7 +56,7 @@ export async function startServer() {
   mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
   
   const rpaSetup = exec(
-    `${pythonExe} -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
+    `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
     { cwd: appWorkPath },
     (error) => {
       if (error) {
