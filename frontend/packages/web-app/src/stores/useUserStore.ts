@@ -55,6 +55,8 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function switchTenant(tenant: TenantItem) {
+    if (currentTenant.value?.id === tenant.id) return
+
     currentTenant.value = tenant
     usePermissionStore().reset()
     await usePermissionStore().initPermission()
