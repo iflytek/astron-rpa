@@ -13,6 +13,7 @@ import VarValueEditor from '@/views/Arrange/components/bottomTools/components/Co
 import { getFlowVariable } from '@/views/Arrange/utils/generateData'
 
 import { paginationConfig } from '../tools/components/constant'
+import { VariableType } from '@/corobot/type'
 
 const { t } = useTranslation()
 const flowStore = useFlowStore()
@@ -163,7 +164,7 @@ const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', '
             <VarValueEditor
               v-else-if="column.dataIndex === 'varValue'"
               v-model:var-value="editableData.varValue"
-              :var-type="editableData.varType"
+              :var-type="editableData.varType as VariableType"
               size="small"
             />
             <a-input v-else v-model:value="editableData[column.dataIndex as string]" />

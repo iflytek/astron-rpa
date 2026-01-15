@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { has, isArray, isEmpty, isEqual, some } from 'lodash-es'
-import { ref, watch, watchEffect } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
-import { OTHER_IN_TYPE } from '@/constants/atom'
+import { OTHER_IN_TYPE, PY_IN_TYPE } from '@/constants/atom'
 import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
+import { VariableType } from '@/corobot/type';
 
 const props = defineProps<{
   varValue: string | unknown
-  varType?: string
+  varType?: VariableType
   formType?: string
   size?: 'default' | 'small'
   disabled?: boolean
@@ -56,19 +57,11 @@ function handleBlur(event: FocusEvent) {
   }
 }
 
-const formItem = ref({
-  types: props.varType || 'Any',
-  name: instanceId,
-  key: instanceId,
-  title: '',
-  value: convertStringToArray(props.varValue),
-  formType: {
-    type: props.formType || 'INPUT_PYTHON',
-  },
-  noInput: props.disabled, // 禁用编辑
-})
+const formItem = ref<RPA.AtomDisplayItem>()
 
-watchEffect(() => {
+let externalChange = false // 标记是否是外部变化导致的 formItem.value.value 变化
+watch(() => [props.varValue, props.disabled], () => {
+  externalChange = true
   formItem.value = {
     types: props.varType || 'Any',
     name: instanceId,
@@ -80,11 +73,21 @@ watchEffect(() => {
     },
     noInput: props.disabled,
   }
+  nextTick(() => externalChange = false)
+}, { immediate: true })
+
+watch(() => props.varType, (varType) => {
+  externalChange = true
+  const type = varType === 'Str' ? OTHER_IN_TYPE : PY_IN_TYPE
+  const value = isArray(formItem.value.value) ? formItem.value.value.map(i => i.value).join() : formItem.value.value
+  const newVarValue = syncVarValue([{ type, value }])
+  emit('changed', newVarValue)
+  nextTick(() => externalChange = false)
 })
 
 watch(() => formItem.value.value, (newVal, oldVal) => {
-  if (!isEqual(newVal, oldVal)) {
-    const newVarValue = syncVarValue(newVal)
+  if (!externalChange && !isEqual(newVal, oldVal)) {
+    const newVarValue = syncVarValue(newVal as RPA.AtomFormItemResult[])
     emit('changed', newVarValue)
   }
 })
