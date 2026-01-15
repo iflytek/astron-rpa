@@ -14,13 +14,13 @@ from astronverse.script.error import (
 
 
 class Script:
-    process_info_dict = None
+    process_info_dict = {}
 
     @staticmethod
-    def _params(path):
-        if not Script.process_info_dict:
+    def _params(package, path):
+        if package not in Script.process_info_dict:
             cfg = atomicMg.cfg()
-            process_info = cfg["PROJECT_JSON"].get("process_info", {})
+            process_info = cfg["PROJECT_JSON_{}".format(package)].get("process_info", {})
             process_info_dict = {}
             for _, process in process_info.items():
                 process_params = process.get("process_params", [])
@@ -28,9 +28,9 @@ class Script:
                 for param in process_params:
                     process_params_dict[param.get("varName")] = param.get("varValue")
                 process_info_dict[".{}".format(process.get("process_file_name"))] = process_params_dict
-            Script.process_info_dict = process_info_dict
+            Script.process_info_dict[package] = process_info_dict
 
-        return Script.process_info_dict.get("{}.py".format(path), [])
+        return Script.process_info_dict[package].get("{}.py".format(path), [])
 
     @staticmethod
     def _call(path: str, package: str, **kwargs):
@@ -68,7 +68,7 @@ class Script:
             return len(params) == 1 and params[0].name == "args"
 
         if is_v2():
-            out_params = Script._params(path)
+            out_params = Script._params(package, path)
             out_params_res = {}
             for k, v in out_params.items():
                 out_params_res[k] = eval(v, process_module.__dict__)

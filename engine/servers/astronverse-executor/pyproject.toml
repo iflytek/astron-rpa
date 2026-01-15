@@ -20,6 +20,7 @@ dependencies = [
     "astronverse-browser",
     "astronverse-system",
     "astronverse-dialog",
+    "astronverse-smart",
 ]
 
 [tool.uv.sources]
@@ -34,6 +35,7 @@ astronverse-script = {path = "../../components/astronverse-script", editable = t
 astronverse-browser = {path = "../../components/astronverse-browser", editable = true}
 astronverse-system = {path = "../../components/astronverse-system", editable = true}
 astronverse-dialog = {path = "../../components/astronverse-dialog", editable = true}
+astronverse-smart = {path = "../../components/astronverse-smart", editable = true}
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
 
