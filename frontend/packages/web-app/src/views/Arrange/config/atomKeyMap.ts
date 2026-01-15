@@ -33,7 +33,7 @@ export const CvImageExistEnd = 'CV.is_image_exist_end' // 判断图像存在结�
 export const FileExist = 'File.file_exist'
 export const FolderExist = 'Folder.folder_exist'
 export const WindowExist = 'Window.exist'
-export const Process = 'Code.Process' // 运行子流程
+export const Process = 'Script.process' // 运行子流程
 export const Module = 'Script.module' // 运行子模块
 
 export const IF_TEXT = 'if'
