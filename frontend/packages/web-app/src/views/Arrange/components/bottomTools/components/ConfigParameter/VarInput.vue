@@ -1,24 +1,36 @@
 <template>
-  <input ref="feeInputRef" :value="modelValue" @input="handleChange" class="px-[12px] py-[5px] outline-none bg-transparent" />
+  <input
+    :value="modelValue"
+    class="px-[12px] py-[5px] outline-none bg-transparent"
+    @input="handleInput"
+    @compositionstart="isComposing = true"
+    @compositionend="handleCompositionEnd"
+  />
 </template>
 
 <script setup lang="ts">
-import { nextTick, useTemplateRef } from 'vue'
+import { ref } from 'vue'
 
 const modelValue = defineModel<string>('value')
+const isComposing = ref(false)
 
-const feeInputRef = useTemplateRef('feeInputRef')
+function handleInput(event: Event) {
+  if (isComposing.value) return
+
+  const target = event.target as HTMLInputElement
+  const filteredValue = target.value.replace(/[^a-zA-Z0-9_]/g, '')
+
+  if (target.value !== filteredValue) {
+    target.value = filteredValue
+  }
   
-function handleChange(event: InputEvent) {
-  const inputValue = (event.target as HTMLInputElement).value
-  // 使用正则表达式替换非数字、字母、下划线的字符
-  modelValue.value = inputValue.replace(/[^a-zA-Z0-9_]/g, '')
+  if (modelValue.value !== filteredValue) {
+    modelValue.value = filteredValue
+  }
+}
 
-  nextTick(() => {
-    const actualValue = feeInputRef.value.value
-    if (actualValue !== modelValue.value) {
-      feeInputRef.value.value = modelValue.value
-    }
-  });
+function handleCompositionEnd(event: CompositionEvent) {
+  isComposing.value = false
+  handleInput(event)
 }
 </script>
