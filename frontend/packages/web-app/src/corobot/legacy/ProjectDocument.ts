@@ -206,9 +206,9 @@ export class ProjectDocument implements IProjectDocument {
     })
   }
 
-  static gainComponentAbility(key: string, version?: string | number) {
+  static gainComponentAbility(key: string, version?: string | number, context?: 'add' | 'get' | 'update') {
     const componentId = getComponentId(key)
-    return getComponentForm({ componentId, version }).then((node) => {
+    return getComponentForm({ componentId, version, context }).then((node) => {
       const keys = `${node.key}***${node.version}`
       ProjectDocument.noVersionMap[key] = node.version
       if (!ProjectDocument.nodeAbility[keys]) {

@@ -50,7 +50,7 @@ function handleUpdate() {
       componentId: props.data.componentId,
       componentVersion: props.data.latestVersion,
     })
-    const node = await createComponentAbility(`${COMPONENT_KEY_PREFIX}.${props.data.componentId}`, props.data.latestVersion)
+    const node = await createComponentAbility(`${COMPONENT_KEY_PREFIX}.${props.data.componentId}`, props.data.latestVersion, 'update')
     await updateFlowNodesComponent(props.data.componentId, node)
   })
 }
