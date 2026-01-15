@@ -54,11 +54,9 @@ export async function startServer() {
   }
   mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
 
-  const rpaSetup = spawn(pythonExe, ['-m', envJson.SCHEDULER_NAME, '--conf', confPath], { cwd: appWorkPath })
+  const rpaSetup = spawn(pythonExe, ['-m', envJson.SCHEDULER_NAME, '--conf', confPath], { cwd: appWorkPath, detached: true, windowsHide: true })
  
-  rpaSetup.stdout?.on('data', (data) => {
-    msgFilter(data.toString())
-  })
+  rpaSetup.stdout?.on('data', (data) => msgFilter(data.toString()))
 
   rpaSetup.stderr?.on('data', (data) => {
     logger.info(`${envJson.SCHEDULER_NAME} stderr: ${data.toString()}`)
