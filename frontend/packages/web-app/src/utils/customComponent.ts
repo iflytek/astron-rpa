@@ -178,7 +178,7 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
     
     return {
       types: attr.varType,
-      formType: varTypeToFormTypeMap[attr.varType],
+      formType: varTypeToFormTypeMap[attr.varType] || { type: 'INPUT_VARIABLE_PYTHON' },
       key: attr.varName,
       title: attr.varDescribe,
       name: attr.varName,
