@@ -86,7 +86,7 @@ defineExpose({
       @back="() => {
         ['forgotPasswordWithSysUpgrade', 'forgotPassword'].includes(preFormMode)
           ? switchMode(preFormMode)
-          : switchMode('login')
+          : switchMode('register')
       }"
     />
 
