@@ -99,6 +99,12 @@ function deleteEvent(row: RPA.ConfigParamData) {
   })
 }
 
+// 过滤输入，只允许数字、字母和下划线
+function filterVarNameInput(row: LocalConfigParamData, value: string) {
+  // 使用正则表达式替换非数字、字母、下划线的字符
+  row.varName = value.replace(/[^a-zA-Z0-9_]/g, '') 
+}
+
 async function handleBlur(row: LocalConfigParamData) {
   // 检查是否存在重名的参数
   const index = processStore.parameters.findIndex(item => item.varName === row.varName && item.id !== row.id)
@@ -136,7 +142,13 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
     :empty-text="emptyText"
   >
     <template #name_default="{ row }">
-      <Input v-model:value="row.varName" :bordered="false" class="text-xs text-inherit" @blur="handleBlur(row)" />
+      <Input
+        :value="row.varName"
+        :bordered="false"
+        class="text-xs text-inherit"
+        @update:value="(value) => filterVarNameInput(row, value)"
+        @blur="handleBlur(row)"
+      />
     </template>
     <template #usage_default="{ row }">
       <Select v-model:value="row.varDirection" :options="usageOptions" class="w-full" size="small" :bordered="false" @change="handleChange(row)" />
