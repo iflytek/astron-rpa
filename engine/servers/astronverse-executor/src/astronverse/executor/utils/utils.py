@@ -41,8 +41,9 @@ def kill_proc_tree(pid, including_parent=True):
             # 只会杀掉当前运行目录下的进程
             proc_cwd = proc.exe()
             logger.debug("当前进程工作目录: {} {}", proc_cwd, work_dir)
-            if work_dir not in proc_cwd:
+            if "astron-rpa" not in proc_cwd:
                 return
+
             # 尝试杀死父进程
             proc.kill()
             proc.wait(5)  # 等待进程结束，防止僵尸进程

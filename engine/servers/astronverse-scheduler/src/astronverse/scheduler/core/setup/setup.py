@@ -111,7 +111,8 @@ class Process:
 
                 # 只会杀掉启动当期运行目录下的进程
                 proc_cwd = proc.exe()
-                if work_dir not in proc_cwd:
+                logger.debug("当前进程工作目录: {} {}", proc_cwd, work_dir)
+                if "astron-rpa" not in proc_cwd:
                     return
 
                 # 尝试杀死父进程
