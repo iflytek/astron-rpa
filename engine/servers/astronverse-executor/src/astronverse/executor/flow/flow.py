@@ -44,7 +44,7 @@ class Flow:
         end_line=0,
     ):
         os.makedirs(path, exist_ok=True)
-        package = path.rstrip('/').split('/')[-1]
+        package = path.rstrip("/").split("/")[-1]
 
         # 1. 获取全局变量
         global_var = self._global_display(project_id, mode, version)

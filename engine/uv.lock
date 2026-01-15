@@ -355,6 +355,7 @@ dependencies = [
     { name = "astronverse-dialog" },
     { name = "astronverse-report" },
     { name = "astronverse-script" },
+    { name = "astronverse-smart" },
     { name = "astronverse-system" },
     { name = "astronverse-websocket-server" },
     { name = "astronverse-workflowlib" },
@@ -374,6 +375,7 @@ requires-dist = [
     { name = "astronverse-dialog", editable = "components/astronverse-dialog" },
     { name = "astronverse-report", editable = "components/astronverse-report" },
     { name = "astronverse-script", editable = "components/astronverse-script" },
+    { name = "astronverse-smart", editable = "components/astronverse-smart" },
     { name = "astronverse-system", editable = "components/astronverse-system" },
     { name = "astronverse-websocket-server", editable = "shared/astronverse-websocket-server" },
     { name = "astronverse-workflowlib", editable = "shared/astronverse-workflowlib" },
@@ -496,7 +498,7 @@ version = "1.0.2"
 source = { editable = "servers/astronverse-picker" }
 dependencies = [
     { name = "anyio" },
-    { name = "astronverse-baseline" },
+    { name = "astronverse-actionlib" },
     { name = "astronverse-locator" },
     { name = "beautifulsoup4" },
     { name = "pandas" },
@@ -514,7 +516,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "anyio" },
-    { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
     { name = "beautifulsoup4" },
     { name = "pandas" },
