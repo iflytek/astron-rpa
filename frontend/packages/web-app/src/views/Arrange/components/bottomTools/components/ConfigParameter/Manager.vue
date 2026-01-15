@@ -17,6 +17,7 @@ import { useProcessStore, isPyModel } from '@/stores/useProcessStore.ts'
 import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
 import { useConfigParameter } from './useConfigParameter.ts'
 import VarValueEditor from './VarValueEditor.vue'
+import VarInput from './VarInput.vue'
 
 interface LocalConfigParamData extends RPA.ConfigParamData {
   perVarName: string
@@ -101,8 +102,10 @@ function deleteEvent(row: RPA.ConfigParamData) {
 
 // 过滤输入，只允许数字、字母和下划线
 function filterVarNameInput(row: LocalConfigParamData, value: string) {
+  console.log('filterVarNameInput', value)
   // 使用正则表达式替换非数字、字母、下划线的字符
-  row.varName = value.replace(/[^a-zA-Z0-9_]/g, '') 
+  row.varName = value.replace(/[^a-zA-Z0-9_]/g, '')
+  console.log('filterVarNameInput', row.varName)
 }
 
 async function handleBlur(row: LocalConfigParamData) {
@@ -142,13 +145,7 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
     :empty-text="emptyText"
   >
     <template #name_default="{ row }">
-      <Input
-        :value="row.varName"
-        :bordered="false"
-        class="text-xs text-inherit"
-        @update:value="(value) => filterVarNameInput(row, value)"
-        @blur="handleBlur(row)"
-      />
+      <VarInput v-model:value="row.varName" class="text-xs" @blur="handleBlur(row)" />
     </template>
     <template #usage_default="{ row }">
       <Select v-model:value="row.varDirection" :options="usageOptions" class="w-full" size="small" :bordered="false" @change="handleChange(row)" />
