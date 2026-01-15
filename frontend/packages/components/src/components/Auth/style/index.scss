@@ -136,12 +136,12 @@
   }
   .ant-form-item .ant-form-item-explain {
     transition: none;
+    line-height: 16px;
   }
   .ant-form-item-has-error {
     .ant-form-item-explain-error {
       position: absolute;
       font-size: 12px;
-      bottom: -2px;
       color: #ec483e;
     }
     &.form-item-agreement {

@@ -16,13 +16,14 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
   const allSelectUsers = ref([])
   const defaultUserType = ref(MARKET_USER_COMMON)
 
-  const userListByPhone = debounce((phone) => {
-    if (!phone) {
+  const userListByPhone = debounce((keyword) => {
+    if (!keyword) {
       userList.value = []
       return
     }
 
-    if (Object.is(Number(phone), Number.NaN) || phone.length > 11) {
+    
+    if (type !== 'invite' && (Object.is(Number(keyword), Number.NaN) || keyword.length > 11)) {
       message.destroy()
       message.error('请输入正确的手机号')
       userList.value = []
@@ -30,7 +31,8 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
     }
 
     const func = type === 'invite' ? getInviteUser : getTransferUser
-    func({ phone, marketId }).then((res: resOption) => {
+    const params = type === 'invite' ? { keyword, marketId } : { phone: keyword, marketId }
+    func(params).then((res: resOption) => {
       const { data } = res
       if (Array.isArray(data)) {
         userList.value = data.map((item) => {
@@ -39,6 +41,8 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
           return item
         })
       }
+    }).catch(()=> {
+      userList.value = []
     })
   }, 200)
 
