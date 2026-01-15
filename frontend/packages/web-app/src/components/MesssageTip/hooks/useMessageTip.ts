@@ -11,9 +11,9 @@ import {
   setAllRead,
   setMessageReadById,
 } from '@/api/market'
-import { EDITORPAGE, TEAMMARKETS } from '@/constants/menu'
+import { EDITORPAGE, TEAMMARKETS, APPLICATIONMARKET } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
-import router from '@/router'
+import { useRoute } from 'vue-router'
 import { useMarketStore } from '@/stores/useMarketStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import type { resOption } from '@/views/Home/types'
@@ -23,7 +23,7 @@ import { ALLREADNUM, JOINNUM, NOREADNUM, READNUM, REFUSENUM, TEAMMARKETUPDATE } 
 export function useMessageTip() {
   const processStore = useProcessStore()
   const { t } = useTranslation()
-
+  const route = useRoute()
   let loopTimer = null
   const showMessage = ref(false)
   const messageData = ref([])
@@ -127,7 +127,7 @@ export function useMessageTip() {
   const readMessage = async ({ operateResult, id, messageType, marketId }) => {
     if (messageType === TEAMMARKETUPDATE) {
       // 编排页面，点击消息，保存编排页面数据，并跳转到对应市场应用
-      if (router.currentRoute.value.name === EDITORPAGE) {
+      if (route.name === EDITORPAGE) {
         await processStore.saveProject()
       }
       toMarket(marketId)
@@ -165,7 +165,7 @@ export function useMessageTip() {
   const joinTeam = (id) => {
     acceptJoinTeam({ notifyId: id }).then((res: resOption) => {
       toastMessage(res, JOINNUM, id)
-      if (router.currentRoute.value.name === TEAMMARKETS) {
+      if (route.meta.resource === APPLICATIONMARKET) {
         useMarketStore().refreshTeamList()
       }
     })

@@ -109,7 +109,7 @@
     font-size: 14px;
   }
   .ant-form-item {
-    margin-bottom: 16px;
+    margin-bottom: 16px!important;
   }
   .form-item-agreement {
     margin-bottom: 8px !important;
@@ -136,12 +136,12 @@
   }
   .ant-form-item .ant-form-item-explain {
     transition: none;
+    line-height: 16px;
   }
   .ant-form-item-has-error {
     .ant-form-item-explain-error {
       position: absolute;
       font-size: 12px;
-      bottom: -2px;
       color: #ec483e;
     }
     &.form-item-agreement {

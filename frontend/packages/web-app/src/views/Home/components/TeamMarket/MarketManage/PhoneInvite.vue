@@ -26,7 +26,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
       <Select
         v-model:value="selectIds"
         popup-class-name="invite"
-        placeholder="请输入用户名或手机号"
+        placeholder="请输入用户姓名或手机号"
         style="width: 100%"
         :get-popup-container="(triggerNode) => triggerNode.parentNode"
         show-search
