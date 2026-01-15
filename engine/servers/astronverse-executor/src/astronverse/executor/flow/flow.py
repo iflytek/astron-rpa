@@ -44,6 +44,7 @@ class Flow:
         end_line=0,
     ):
         os.makedirs(path, exist_ok=True)
+        package = path.rstrip("/").split("/")[-1]
 
         # 1. 获取全局变量
         global_var = self._global_display(project_id, mode, version)
@@ -157,7 +158,8 @@ class Flow:
         for k, v in global_var.items():
             global_code += f"gv[{k!r}] = {v}\n"
         tpl_content = tpl_content.replace("{{GLOBAL}}", global_code)
-        package_py_content = tpl_content.replace("{{PACKAGE_PATH}}", repr(os.path.join(path, "package.json")))
+        tpl_content = tpl_content.replace("{{PACKAGE_PATH}}", repr(os.path.join(path, "package.json")))
+        package_py_content = tpl_content.replace("{{PACKAGE}}", package)
         with open(os.path.join(path, "package.py"), "w", encoding="utf-8") as file:
             file.write(package_py_content)
 

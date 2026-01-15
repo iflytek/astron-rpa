@@ -16,7 +16,7 @@ smart_component_info = conf.get("smart_component_info", {})
 storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
 
 atomicMg.cfg()["GATEWAY_PORT"] = project_info.get("gateway_port")
-atomicMg.cfg()["PROJECT_JSON"] = conf
+atomicMg.cfg()["PROJECT_JSON_{{PACKAGE}}"] = conf
 
 
 def module(module_id) -> Optional[str]:

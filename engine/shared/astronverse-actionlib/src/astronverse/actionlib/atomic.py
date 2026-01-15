@@ -29,7 +29,7 @@ from astronverse.actionlib.utils import InspectType
 class AtomicManager:
     """原子能力，运行"""
 
-    _cfg = {"GATEWAY_PORT": "", "WS": None, "PROJECT_JSON": None}
+    _cfg = {"GATEWAY_PORT": "", "WS": None}
 
     def __init__(self):
         self.atomic_dict = {}

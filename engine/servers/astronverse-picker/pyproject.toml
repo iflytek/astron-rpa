@@ -5,7 +5,7 @@ description = "astronverse-picker."
 requires-python = ">=3.13"
 
 dependencies = [
-    "astronverse-baseline",
+    "astronverse-actionlib",
     "astronverse-locator",
     "websockets",
     "anyio",
@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}
 astronverse-locator = {path = "../../shared/astronverse-locator", editable = true}
 
 [tool.hatch.build.targets.wheel]
