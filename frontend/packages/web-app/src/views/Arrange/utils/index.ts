@@ -224,7 +224,7 @@ export function pickProcessAndModuleOptions(item: RPA.AtomDisplayItem) {
 export function querySubProcessQuote(processId: string) {
   // console.time('useSearchSubProcess')
   const processStore = useProcessStore()
-  const processList = processStore.processList
+  const processList = processStore.processList.filter(item => item.resourceCategory !== 'module')
   const result = []
   processList.forEach((pItem: any) => {
     const searchProcessItem = useProjectDocStore().userFlowNode(pItem.resourceId).reduce((acc, item, index) => {
@@ -252,7 +252,7 @@ export function querySubProcessQuote(processId: string) {
 export function delectSubProcessQuote(processId: string) {
   const processStore = useProcessStore()
   const flowStore = useFlowStore()
-  const processList = processStore.processList
+  const processList = processStore.processList.filter(item => item.resourceCategory !== 'module')
   processList.forEach((pItem: any) => {
     useProjectDocStore().userFlowNode(pItem.resourceId).forEach((item, index) => {
       const findIdx = item.inputList.findIndex(i => i.value === processId)

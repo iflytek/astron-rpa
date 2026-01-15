@@ -396,13 +396,15 @@ inputListListener(itemData, itemType)
 .editor {
   width: calc(100% - 42px);
   padding: 0 5px;
-  white-space: pre-wrap;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 24px;
+  line-height: 24px;
   --custom-cursor-size: 18px;
   margin-right: 3px;
-  max-height: 300px;
-  overflow: auto;
   &::-webkit-scrollbar {
-    width: 4px;
+    height: 0px;
   }
 
   &:focus {
