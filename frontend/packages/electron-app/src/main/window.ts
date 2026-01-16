@@ -15,6 +15,10 @@ export function getWindow(label: string, id?: number) {
   return winId ? BrowserWindow.fromId(winId) : null
 }
 
+export function getWindowById(id: number) {
+  return getWindow('', id)
+}
+
 export function getMainWindow() {
   return getWindow(MAIN_WINDOW_LABEL)
 }

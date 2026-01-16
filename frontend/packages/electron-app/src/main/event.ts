@@ -9,7 +9,7 @@ import throttle from 'lodash/throttle'
 
 import logger from './log'
 import { openPath } from './path'
-import { getMainWindow, getWindow } from './window'
+import { getMainWindow, getWindow, getWindowById } from './window'
 import { checkForUpdates, quitAndInstallUpdates } from './updater'
 
 type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?: boolean) => void
@@ -28,19 +28,18 @@ export const mainToRender: MainToRender = throttle<MainToRender>(
 export function listenRender() {
   // window-show
   ipcMain.on('window-show', (event) => {
-    const win = getWindow('', event.sender.id)
+    const win = getWindowById(event.sender.id)
     win?.show()
-    win?.focus()
   })
   // window-hide
   ipcMain.on('window-hide', (event) => {
-    const win = getWindow('', event.sender.id)
+    const win = getWindowById(event.sender.id)
     win?.hide()
   })
   // window-close
   ipcMain.on('window-close', (event, data) => {
     const { label, confirm = false } = data
-    const win = label ? getWindow(label) : getWindow('', event.sender.id)
+    const win = label ? getWindow(label) : getWindowById(event.sender.id)
 
     if (confirm) {
       // 如果 confirm 为 true，则不关闭窗口
@@ -52,146 +51,109 @@ export function listenRender() {
     }
   })
   // window-destroy
-  ipcMain.on('window-destroy', (_event) => {
-    const win = getWindow('', _event.sender.id)
+  ipcMain.on('window-destroy', (event) => {
+    const win = getWindowById(event.sender.id)
     win?.destroy()
   })
   // window-maximize
-  ipcMain.handle('window-maximize', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.maximize()
-      return true
-    }
-    return false
+  ipcMain.handle('window-maximize', (event) => {
+    const win = getWindowById(event.sender.id)
+    win?.maximize()
+    return !!win
   })
   // window-minimize
-  ipcMain.handle('window-minimize', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.minimize()
-      return true
-    }
-    return false
+  ipcMain.handle('window-minimize', (event) => {
+    const win = getWindowById(event.sender.id)
+    win?.minimize()
+    return !!win
   })
 
   // window-unmaximize
-  ipcMain.handle('window-unmaximize', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.unmaximize()
-      return true
-    }
-    return false
+  ipcMain.handle('window-unmaximize', (event) => {
+    const win = getWindowById(event.sender.id)
+    win?.unmaximize()
+    return !!win
   })
   // window-restore
-  ipcMain.handle('window-restore', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.restore()
-      win.focus()
-      return true
-    }
-    return false
+  ipcMain.handle('window-restore', (event) => {
+    const win = getWindowById(event.sender.id)
+    win?.restore()
+    win?.focus()
+    return !!win
   })
 
   // window-focus
-  ipcMain.handle('window-focus', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.focus()
-      return true
-    }
-    return false
+  ipcMain.handle('window-focus', (event) => {
+    const win = getWindowById(event.sender.id)
+    win?.focus()
+    return !!win
   })
 
   // window-set-title
-  ipcMain.on('window-set-title', (_event, title) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.setTitle(title)
-    }
+  ipcMain.on('window-set-title', (event, title) => {
+    const win = getWindowById(event.sender.id)
+    win?.setTitle(title)
   })
 
   // window-set-size
-  ipcMain.on('window-set-size', (_event, width, height) => {
-    const win = getWindow('', _event.sender.id)
+  ipcMain.on('window-set-size', (event, width, height) => {
+    const win = getWindowById(event.sender.id)
     win?.setBounds({ width, height })
   })
 
   // window-set-position
-  ipcMain.on('window-set-position', (_event, x, y) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.setPosition(Math.floor(x), Math.floor(y))
-    }
+  ipcMain.on('window-set-position', (event, x, y) => {
+    const win = getWindowById(event.sender.id)
+    win?.setPosition(Math.floor(x), Math.floor(y))
   })
 
   // window-set-resizable
-  ipcMain.handle('window-set-resizable', (_event, resizable) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.setResizable(resizable)
-      return true
-    }
-    return false
+  ipcMain.handle('window-set-resizable', (event, resizable) => {
+    const win = getWindowById(event.sender.id)
+    win?.setResizable(resizable)
+    return !!win
   })
 
   // window-is-maximized
-  ipcMain.handle('window-is-maximized', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      return win.isMaximized()
-    }
-    return false
+  ipcMain.handle('window-is-maximized', (event) => {
+    const win = getWindowById(event.sender.id)
+    return win ? win.isMaximized() : false
   })
 
   // window-is-minimized
-  ipcMain.handle('window-is-minimized', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      return win.isMinimized()
-    }
-    return false
+  ipcMain.handle('window-is-minimized', (event) => {
+    const win = getWindowById(event.sender.id)
+    return win ? win.isMinimized() : false
   })
 
   // window-is-focused
-  ipcMain.handle('window-is-focused', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      return win.isFocused()
-    }
-    return false
+  ipcMain.handle('window-is-focused', (event) => {
+    const win = getWindowById(event.sender.id)
+    return win ? win.isFocused() : false
   })
 
   // window-center
-  ipcMain.on('window-center', (_event) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.center()
-    }
+  ipcMain.on('window-center', (event) => {
+    const win = getWindowById(event.sender.id)
+    win?.center()
   })
 
   // window-set-menubar not effective
-  ipcMain.on('window-set-titlebar', (_event, visible) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.setMenuBarVisibility(visible)
-      win.setAutoHideMenuBar(!visible)
-    }
+  ipcMain.on('window-set-titlebar', (event, visible) => {
+    const win = getWindowById(event.sender.id)
+    win?.setMenuBarVisibility(visible)
+    win?.setAutoHideMenuBar(!visible)
   })
+
   // window-set-always-on-top
-  ipcMain.on('window-set-always-on-top', (_event, alwaysOnTop) => {
-    const win = getWindow('', _event.sender.id)
-    if (win) {
-      win.setAlwaysOnTop(alwaysOnTop, 'pop-up-menu')
-    }
+  ipcMain.on('window-set-always-on-top', (event, alwaysOnTop) => {
+    const win = getWindowById(event.sender.id)
+    win?.setAlwaysOnTop(alwaysOnTop, 'pop-up-menu')
   })
 
   // get-workarea
   ipcMain.handle('get-workarea', () => {
-    const workArea = screen.getPrimaryDisplay().workArea
-    return workArea
+    return screen.getPrimaryDisplay().workArea
   })
 
   ipcMain.on('open-in-browser', (_event, url) => {
