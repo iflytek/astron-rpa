@@ -33,7 +33,7 @@ const parseDialogData = (dataText: string): IDialogData => {
     const data = JSON.parse(dataText);
     // 需要兼容老的数据结构 { value: dialogData.value, rpa: 'special' }
     return get(data, 'rpa') === 'special' ? data.value : data;
-  } catch (error) {
+  } catch {
     return DEFAULT_DIALOG_DATA()
   }
 }
@@ -50,7 +50,7 @@ provide('dialogData', {
   dialogData,
   updateDialogDataFormList: (type: 'splice' | 'push', ...params: any) => {
     // TODO: 这里需要拆成两个函数
-    // @ts-ignore
+    // @ts-expect-error
     dialogData.value?.formList[type](...params)
   },
 })
