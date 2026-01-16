@@ -107,7 +107,10 @@ class Browser:
             raise BrowserBaseException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
         res_data = res.json()
         if not res_data.get("data"):
-            return "插件无返回消息"
+            raise BrowserBaseException(
+                BROWSER_EXTENSION_INSTALL_ERROR,
+                "插件无响应",
+            )
         if res_data.get("data").get("code") == "5001":
             raise BrowserBaseException(
                 BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")),
