@@ -287,6 +287,11 @@ async function copyPythonFromResources(fileNames: string[]) {
   logCopyResults(copyResults)
 }
 
+function sendToRender(message: string, percent: number) {
+  const unicodeMessage = `{"type":"sync","msg":{"msg":"${toUnicode(message)}","step":${percent}}}`
+  mainToRender('scheduler-event', unicodeMessage, undefined, true)
+}
+
 /**
  * 启动后端服务的主入口函数
  */
@@ -294,8 +299,7 @@ export async function startBackend() {
   if (globalThis.serverRunning)
     return
 
-  const initMsg = `{"type":"sync","msg":{"msg":"${toUnicode('正在初始化')}","step":1}}`
-  mainToRender('scheduler-event', initMsg, undefined, true)
+  sendToRender('正在初始化', 1)
 
   // 检查 python envJson.SCHEDULER_NAME 是否正在运行
   const isRunning = await checkPythonRpaProcess()
@@ -329,9 +333,7 @@ export async function startBackend() {
   await ensureAppWorkPathExists()
 
   logger.info(`需要解压的文件: ${needExtractFiles.join(', ')}`)
-
-  const extractMsg = `{"type":"sync","msg":{"msg":"${toUnicode('正在解压Python包')}","step": 30 }}`
-  mainToRender('scheduler-event', extractMsg, undefined, true)
+  sendToRender('正在解压Python包', 30)
 
   // 解压所有文件
   await Promise.all(needExtractFiles.map(file => extractAndCleanFile(file)))

@@ -17,9 +17,8 @@ type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?
 export const mainToRender: MainToRender = throttle<MainToRender>(
   (channel, msg, _win, encode) => {
     const win = _win || getMainWindow()
-    if (encode)
-      msg = Buffer.from(msg).toString('base64')
-    win?.webContents.send(channel, msg)
+    const message = encode ? Buffer.from(msg).toString('base64') : msg
+    win?.webContents.send(channel, message)
   },
   1000,
   { leading: true, trailing: false },

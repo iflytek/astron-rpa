@@ -27,6 +27,7 @@
     "await-to-js": "^3.0.0",
     "axios": "^1.7.4",
     "builder-util-runtime": "^9.5.1",
+    "electron-log": "^5.4.3",
     "electron-updater": "^6.7.3",
     "lodash-es": "^4.17.21",
     "tree-kill": "^1.2.2",
