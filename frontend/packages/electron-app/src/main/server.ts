@@ -1,6 +1,7 @@
 import { exec } from 'node:child_process'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
+import { to } from 'await-to-js'
 
 import { toUnicode } from '../common'
 
@@ -14,6 +15,11 @@ import { envJson } from './env'
 process.on('uncaughtException', (err) => {
   logger.error(`uncaughtException: ${err.message}`)
 })
+
+function sendToRender(message: string, percent: number) {
+  const unicodeMessage = `{"type":"sync","msg":{"msg":"${toUnicode(message)}","step":${percent}}}`
+  mainToRender('scheduler-event', unicodeMessage, undefined, true)
+}
 
 /**
  * 检查 python envJson.SCHEDULER_NAME 是否正在运行
@@ -53,8 +59,9 @@ export async function startServer() {
     return
   }
 
-  mainToRender('scheduler-event', `{"type":"sync","msg":{"msg":"${toUnicode('正在启动服务')}","step":51 }}`, undefined, true)
-  
+  logger.info('正在启动服务')
+  sendToRender('正在启动服务', 90)
+
   const rpaSetup = exec(
     `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
     { cwd: appWorkPath },
@@ -216,7 +223,7 @@ async function checkAndCleanExtractedFiles(packageFiles: string[]): Promise<stri
  * @param fileName - 文件名
  * @returns 复制结果
  */
-async function copySingleFile(fileName: string): Promise<{ fileName: string, success: boolean, error?: string }> {
+async function copySingleFile(fileName: string): Promise<boolean> {
   const sourcePath = join(resourcePath, fileName)
   const targetPath = join(appWorkPath, fileName)
 
@@ -225,11 +232,10 @@ async function copySingleFile(fileName: string): Promise<{ fileName: string, suc
     await fs.access(sourcePath)
     logger.info(`复制文件: ${fileName}`)
     await fs.copyFile(sourcePath, targetPath)
-    return { fileName, success: true }
+    return true
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
     logger.error(`复制文件失败: ${fileName}`, error)
-    return { fileName, success: false, error: errorMessage }
+    throw error
   }
 }
 
@@ -246,60 +252,13 @@ async function ensureAppWorkPathExists(): Promise<void> {
 }
 
 /**
- * 记录复制结果
- * @param copyResults - 复制结果数组
- */
-function logCopyResults(copyResults: Array<{ fileName: string, success: boolean, error?: string }>): void {
-  const successfulCopies = copyResults.filter(r => r.success).length
-  const failedCopies = copyResults.filter(r => !r.success).length
-
-  if (failedCopies === 0) {
-    logger.info(`所有文件复制完成，共${successfulCopies}个文件`)
-  } else {
-    logger.warn(`文件复制完成，成功${successfulCopies}个，失败${failedCopies}个`)
-    const failedFiles = copyResults.filter(r => !r.success).map(r => r.fileName)
-    logger.warn(`失败的文件: ${failedFiles.join(', ')}`)
-  }
-}
-
-/**
- * 从资源目录复制Python哈希文件到用户数据目录
- * @param fileNames - 需要复制的压缩包文件名数组
- */
-async function copyPythonFromResources(fileNames: string[]) {
-  if (fileNames.length === 0) {
-    logger.info('没有需要复制的文件')
-    return
-  }
-
-  logger.info(`开始复制文件到用户数据目录: ${fileNames.join(', ')}`)
-
-  // 将压缩包和他的校验文件复制到 appWorkPath
-  const copyFileNames = fileNames.map(fileName => `${fileName}.sha256.txt`)
-
-  const copyResults: Array<{ fileName: string, success: boolean, error?: string }> = []
-
-  for (const fileName of copyFileNames) {
-    const result = await copySingleFile(fileName)
-    copyResults.push(result)
-  }
-
-  logCopyResults(copyResults)
-}
-
-function sendToRender(message: string, percent: number) {
-  const unicodeMessage = `{"type":"sync","msg":{"msg":"${toUnicode(message)}","step":${percent}}}`
-  mainToRender('scheduler-event', unicodeMessage, undefined, true)
-}
-
-/**
  * 启动后端服务的主入口函数
  */
 export async function startBackend() {
   if (globalThis.serverRunning)
     return
 
-  sendToRender('正在初始化', 1)
+  sendToRender('正在初始化', 10)
 
   // 检查 python envJson.SCHEDULER_NAME 是否正在运行
   const isRunning = await checkPythonRpaProcess()
@@ -333,12 +292,16 @@ export async function startBackend() {
   await ensureAppWorkPathExists()
 
   logger.info(`需要解压的文件: ${needExtractFiles.join(', ')}`)
-  sendToRender('正在解压Python包', 30)
+
+  let preStep = 30;
+  const singlePercentStep = (90 - preStep) / needExtractFiles.length;
+  sendToRender('正在解压Python包', preStep)
 
   // 解压所有文件
-  await Promise.all(needExtractFiles.map(file => extractAndCleanFile(file)))
-
-  await copyPythonFromResources(needExtractFiles)
+  await Promise.allSettled(needExtractFiles.map(file => extractAndCleanFile(file, (percent) => {
+    const newStep = preStep + (percent / 100 * singlePercentStep);
+    sendToRender('解压中...', newStep)
+  })))
 
   startServer()
 }
@@ -347,32 +310,30 @@ export async function startBackend() {
  * 解压单个文件并清理压缩文件
  * @param file - 需要解压的文件名
  */
-async function extractAndCleanFile(file: string): Promise<void> {
-  const archivePath = join(resourcePath, file)
-  const outputDir = join(appWorkPath, file.replace('.7z', ''))
+async function extractAndCleanFile(fileName: string, percentCallback: (percent: number) => void): Promise<void> {
+  const archivePath = join(resourcePath, fileName)
+  const outputDir = join(appWorkPath, fileName.replace('.7z', ''))
   const tempOutputDir = `${outputDir}.temp`
 
-  const clearAll = () => Promise.all([
+  // 1. 确保临时目录/目标目录不存在
+  const [error] = await to(Promise.all([
     fs.rm(tempOutputDir, { recursive: true, force: true }),
     fs.rm(outputDir, { recursive: true, force: true })
-  ])
-
-  try {
-    // 1. 确保临时目录/目标目录不存在
-    logger.info("删除已解压目录")
-    await clearAll()
-
-    // 2. 解压到临时目录
-    logger.info(`开始解压到临时目录: ${tempOutputDir}`)
-    await extract7z(archivePath, tempOutputDir)
-    logger.info(`临时目录解压成功: ${tempOutputDir}`)
-
-    // 3. 将临时目录重命名为目标目录
-    await fs.rename(tempOutputDir, outputDir)
-    logger.info(`成功解压: ${outputDir}`)
-  } catch (error) {
-    logger.error(`解压失败: ${file}`, error)
-    // 清理所有解压目录
-    clearAll()
+  ]))
+  if (error) {
+    logger.error(`文件被占用: ${error}`)
+    return
   }
+  logger.info("删除已解压目录")
+
+  // 2. 解压到临时目录
+  logger.info(`开始解压到临时目录: ${tempOutputDir}`)
+  await extract7z(archivePath, tempOutputDir, percentCallback)
+
+  // 3. 将临时目录重命名为目标目录
+  logger.info(`重命名为目标目录: ${outputDir}`)
+  await fs.rename(tempOutputDir, outputDir)
+
+  // 4. 复制 hash 文件
+  await copySingleFile(`${fileName}.sha256.txt`)
 }
