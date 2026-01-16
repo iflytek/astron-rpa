@@ -610,7 +610,7 @@ class Dialog:
         payload = {
             "key": "Dialog.custom_box",
             "box_title": box_title,
-            "design_interface": json.dumps(design_interface.get("value"), ensure_ascii=False),
+            "design_interface": json.dumps(design_interface, ensure_ascii=False),
             "result_button": default_button.value,
             "outputkey": "dialog_result",
         }
