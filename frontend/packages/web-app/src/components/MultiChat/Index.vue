@@ -5,7 +5,9 @@ import { nanoid } from 'nanoid'
 import PDF from 'pdf-vue3'
 import { computed, h, nextTick, onBeforeUnmount, ref } from 'vue'
 import { useAsyncState } from '@vueuse/core'
+import { get } from 'lodash-es'
 
+import { WINDOW_NAME } from '@/constants'
 import { getBaseURL } from '@/api/http/env'
 import { sseRequest } from '@/api/sse'
 import { utilsManager, windowManager } from '@/platform'
@@ -25,6 +27,9 @@ const showSave = ['1', 1].includes(targetInfo.get('is_save'))
 const limitTurns = Number(targetInfo.get('max_turns')) || 20
 // 预设列表
 const presetList = targetInfo.get('questions')?.split('$-$') || []
+// 对话模型
+const model = targetInfo.get('model')
+const replyBaseData = JSON.parse(targetInfo.get('reply') || '{}') ?? {}
 // 交互类型 multi:多轮对话,file:知识问答
 const chatType = filePath ? 'file' : 'multi'
 
@@ -37,7 +42,6 @@ const messagingId = ref('') // 当前消息ID
 const isSave = ref(false) // 是否在保存过程中
 const saveQAIds = ref([]) // 保存的promptIds
 const showPreview = ref(false) // 是否显示预览弹窗，默认不显示
-const model = ref('deepseek-chat')
 
 // 文件信息
 const { state: fileInfo } = useAsyncState<FileInfo | null>(async () => {
@@ -95,8 +99,14 @@ function handleSave() {
     message.warning('请选择要保存的对话')
     return
   }
+
   const filterArr = chatDataList.value.filter(item => saveQAIds.value.includes(item.id))
-  console.log(JSON.stringify(filterArr))
+  windowManager.emitTo({
+    from: WINDOW_NAME.MULTICHAT,
+    target: WINDOW_NAME.MAIN,
+    type: 'chatContentSave',
+    data: { ...replyBaseData, data: JSON.stringify(filterArr) },
+  })
   handleClose()
 }
 
@@ -130,25 +140,28 @@ function createSSE(url: string, query: string) {
     queryLst.push({ role: 'user', content: fileInfo.value.content })
     queryLst.push({ role: 'user', content: query })
   }
+
   controller = sseRequest.post(
     url,
-    chatType === 'multi' ? { messages: queryLst, model: model.value, stream: true } : queryLst,
+    chatType === 'multi' ? { messages: queryLst, model, stream: true } : queryLst,
     (res) => {
-      if (res) {
-        console.log('res', res)
-        const newData = JSON.parse(res.data).choices[0].delta.content
-        if (newData.includes('start')) {
-          return
-        }
-        if (newData.includes('[DONE]')) {
-          handleEnd()
-          return
-        }
-        if (newData) {
+      console.log('res', res)
+      if (!res) return;
+
+      if (res.data === '[DONE]') {
+        handleEnd()
+        return
+      }
+
+      try {
+        const content = get(JSON.parse(res.data), ['choices', 0, 'delta', 'content'])
+        if (content) {
           isThinking.value = false
-          updateMessagingChat('answer', newData)
+          updateMessagingChat('answer', content)
           handleScrollToBottom()
         }
+      } catch (error) {
+        console.error('Failed to parse SSE data:', error, res.data)
       }
     },
     () => {
@@ -221,9 +234,9 @@ onBeforeUnmount(() => clearAllData())
       </div>
     </div>
     <div class="chat-main" :style="`width: ${showPreview ? '480px;' : '800px;'}`">
-      <div class="chat-header drag">
-        {{ title }}
-        <CloseOutlined style="float: right;" @click="handleClose" />
+      <div class="chat-header flex items-center pr-[18px]">
+        <div class="drag flex-1 px-[18px] pt-[18px]">{{ title }}</div>
+        <CloseOutlined @click="handleClose" />
       </div>
       <div class="chat-content">
         <div v-if="chatType === 'file'" class="chat-list-preset">
@@ -308,7 +321,7 @@ onBeforeUnmount(() => clearAllData())
         <a-button v-else @click="handleCancel">
           取消
         </a-button>
-        <a-tooltip title="保存为输出参数">
+        <a-tooltip title="保存为输出参数" placement="topRight">
           <a-button
             v-if="showSave"
             :type="isSave ? 'primary' : 'default'"

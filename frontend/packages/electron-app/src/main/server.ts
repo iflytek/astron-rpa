@@ -90,14 +90,14 @@ export async function startServer() {
  * @param msg - 从Python进程输出的原始消息字符串
  */
 function msgFilter(msg: string) {
+  const win = getMainWindow()
   // 匹配以 ||emit|| 开头的字符串
-  const reg = /\|\|emit\|\|(.*)/
-  const match = msg.match(reg)
-  if (match) {
+  const match = msg.match(/\|\|emit\|\|(.*)/)
+  if (match && win) {
     // 发送到渲染进程
-    const matchMsg = match[1].trim().replaceAll('"', '')
-    const win = getMainWindow()
-    win?.webContents.send('scheduler-event', matchMsg)
+    const message = match[1].trim().replaceAll('"', '')
+    logger.info(`${envJson.SCHEDULER_NAME} message: `, message)
+    win.webContents.send('scheduler-event', message)
   }
 }
 

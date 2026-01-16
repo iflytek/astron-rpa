@@ -25,7 +25,7 @@ async function resizeWindow() {
 
 const targetInfo = new URL(location.href).searchParams
 const windowOption = transformData(JSON.parse(targetInfo.get('option'))) as DialogOption
-const replyBaseData = JSON.parse(targetInfo.get('reply')) ?? {}
+const replyBaseData = JSON.parse(targetInfo.get('reply') || '{}') ?? {}
 
 onMounted(() => resizeWindow())
 

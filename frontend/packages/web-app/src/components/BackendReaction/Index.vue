@@ -147,7 +147,11 @@ utilsManager.listenEvent('w2w', (eventMsg: W2WType) => {
     }
   } else if (from === WINDOW_NAME.USERFORM) {
     if (type === 'userFormSave') {
-      runningStore.sendUserFormData(data)
+      runningStore.sendReplyMessage(data)
+    }
+  } else if (from === WINDOW_NAME.MULTICHAT) {
+    if (type === 'chatContentSave') {
+      runningStore.sendReplyMessage(data)
     }
   }
 })
