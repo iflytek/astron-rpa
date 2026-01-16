@@ -62,9 +62,11 @@ function handleUpdate() {
     <!-- 卡片头部 -->
     <div class="flex items-center gap-[6px] mb-[6px]">
       <rpa-icon :name="data.icon" size="20" />
-      <span class="font-medium text-[16px] leading-[22px]">
-        {{ data.name }}
-      </span>
+      <a-tooltip :title="data.name">
+        <span class="font-medium text-[16px] leading-[22px] max-w-[calc(100%-70px)] text-ellipsis whitespace-nowrap overflow-hidden">
+          {{ data.name }}
+        </span>
+      </a-tooltip>
       <span
         class="px-2 rounded"
         :class="[
@@ -79,9 +81,11 @@ function handleUpdate() {
 
     <!-- 卡片描述 -->
 
-    <div class="leading-5 h-10 whitespace-pre-line line-clamp-2 truncate mb-3">
-      {{ data?.introduction || '--' }}
-    </div>
+    <a-tooltip :title="data?.introduction">
+      <div class="leading-5 h-10 whitespace-pre-line line-clamp-2 truncate mb-3">
+        {{ data?.introduction || '--' }}
+      </div>
+    </a-tooltip>
 
     <!-- 卡片操作按钮 -->
     <div class="flex space-x-2">
