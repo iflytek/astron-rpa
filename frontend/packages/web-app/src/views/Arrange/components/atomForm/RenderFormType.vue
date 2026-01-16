@@ -53,11 +53,12 @@ const { iconStyle, itemData, itemType, varType } = defineProps({
 
 const { handleModalButton, handleTextareaModal, handleHTMLContentPaste } = useRenderFormType()
 const isShowFormItem = inject<Ref<boolean>>('showAtomFormItem', ref(true))
+const atomFormDisabled = inject<Ref<boolean>>('atomFormDisabled', ref(false))
 const cursorStore = useCursorStore()
 const container = ref(generateInputVal(itemData))
 const selectValue = ref(generateInputVal(itemData))
 const pickLoading = ref(false)
-const isEdit = computed(() => !itemData?.noInput) // 是否能编辑 noInput为true时不能编辑
+const isEdit = computed(() => !itemData?.noInput && !atomFormDisabled.value) // 是否能编辑
 
 function updateItemToFlowData() {
   syncCurrentAtomData(itemData)
@@ -133,8 +134,9 @@ inputListListener(itemData, itemType)
 </script>
 
 <template>
-  <!-- python表达式 -->
-  <span
+<div class="contents" :class="{ 'after:absolute after:inset-0 after:cursor-not-allowed': !isEdit }">
+    <!-- python表达式 -->
+    <span
     v-if="itemType === ATOM_FORM_TYPE.PYTHON"
     class="cursor-pointer leading-none"
     @click="clickHandle"
@@ -145,7 +147,7 @@ inputListListener(itemData, itemType)
   <div
     v-if="itemType === ATOM_FORM_TYPE.INPUT"
     :id="`rpa_input_${itemData.key}`"
-    class="editor flex-1 min-h-5" :class="{ 'cursor-not-allowed': !isEdit }"
+    class="editor flex-1 min-h-5"
     :contenteditable="isEdit"
     @input="(e) => handleInput(e, itemData)"
     @paste="(e) => handlePaste(e, itemData)"
@@ -390,6 +392,7 @@ inputListListener(itemData, itemType)
     :params="itemData"
     @refresh="handleSetFormDataNF"
   />
+</div>
 </template>
 
 <style lang="scss" scoped>

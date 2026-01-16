@@ -2,7 +2,7 @@
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
 import type { Ref } from 'vue'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, provide, ref, watch } from 'vue'
 
 import { getComponentPreviewForm } from '@/utils/customComponent'
 
@@ -19,6 +19,9 @@ const emit = defineEmits<{
 const { i18next, t } = useTranslation()
 const isShowFormItem = inject<Ref<boolean>>('showAtomFormItem', ref(true))
 const { parameters } = storeToRefs(useProcessStore())
+
+// 自定义组件设置预览禁止表单输入
+provide('atomFormDisabled', ref(true))
 
 const activeKey = ref<number>(0)
 const sidebarWide = ref(false)
