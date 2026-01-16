@@ -25,7 +25,9 @@ export function useToolsRun() {
     hotkey: RUN,
     show: ({ status }) => ['free'].includes(status),
     disable: ({ status }) => {
-      return processStore.operationDisabled || ['debug', 'run'].includes(status)
+      const isPy = isPyModel(processStore.activeProcess?.resourceCategory)
+
+      return isPy || processStore.operationDisabled || ['debug', 'run'].includes(status)
     },
     clickFn: handleConfirmRun,
     validateFn: ({ disable, show }) => {

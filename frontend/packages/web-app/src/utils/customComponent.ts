@@ -170,7 +170,7 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
       types: attr.varType,
       formType: { type: 'RESULT' },
       key: varName,
-      title: attr.varDescribe,
+      title: attr.varDescribe || attr.varName,
       name: varName,
       default: attr.varValue,
       required: false,
@@ -185,7 +185,7 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
       types: attr.varType,
       formType: varTypeToFormTypeMap[attr.varType] || { type: 'INPUT_VARIABLE_PYTHON' },
       key: attr.varName,
-      title: attr.varDescribe,
+      title: attr.varDescribe || attr.varName,
       name: attr.varName,
       required: true,
       value: illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue
