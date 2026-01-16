@@ -298,7 +298,7 @@ class CVPicker:
         time.sleep(0.1)  # 等待0.1s,防止截图时高亮提示框未隐藏
         if self.pick_type == PickType.TARGET:
             self.desktop_image = pyautogui.screenshot()
-            self.desktop_image.save(desktop_filepath)
+            # self.desktop_image.save(desktop_filepath)
         elif self.pick_type == PickType.ANCHOR:
             if not desktop_image:
                 raise NotImplementedError("桌面截图不存在")
@@ -322,7 +322,7 @@ class CVPicker:
 
                 # self.partial_screenshot = self.desktop_image
                 # self.partial_rect = (0, 0, self.screen_width, self.screen_height)
-                self.partial_screenshot.save(partial_filepath)
+                # self.partial_screenshot.save(partial_filepath)
             elif self.pick_type == PickType.ANCHOR:
                 self.partial_rect = (0, 0, self.desktop_image.width, self.desktop_image.height)
                 self.partial_screenshot = self.desktop_image
@@ -344,7 +344,7 @@ class CVPicker:
         elif self.__status == Status.CV_CTRL:
             # 普通模式，仅保存界面截图
             self.partial_screenshot = self.desktop_image
-            self.partial_screenshot.save(partial_filepath)
+            # self.partial_screenshot.save(partial_filepath)
 
         else:
             pass
@@ -536,7 +536,7 @@ class CVPicker:
             target_img = self.desktop_image.crop(target_rect)
             print("target_rect:{}".format(target_rect))
             print("desktop_image:{}".format(self.desktop_image.size))
-            target_img.save(target_filepath)
+            # target_img.save(target_filepath)
             res = None
 
             if not AnchorMatch.check_if_multiple_elements(self.desktop_image, target_img, match_similarity=0.80):
@@ -550,7 +550,7 @@ class CVPicker:
                     anchor_img = self.desktop_image.crop((box[0], box[1], box[0] + box[2], box[1] + box[3]))
                     if AnchorMatch.check_if_multiple_elements(self.desktop_image, anchor_img, match_similarity=0.95):
                         self.anchor_rect = box
-                        anchor_img.save(anchor_filepath)
+                        # anchor_img.save(anchor_filepath)
                         res = PickCore.json_res(target_img, target_rect, anchor_img, box, self.desktop_image)
                         break
             else:
@@ -564,7 +564,7 @@ class CVPicker:
             start_time = time.time()
             print("进入锚点唯一校验阶段:{}".format(start_time))
             anchor_img = self.desktop_image.crop(anchor_rect)
-            anchor_img.save(anchor_filepath)
+            # anchor_img.save(anchor_filepath)
             res = None
             if not AnchorMatch.check_if_multiple_elements(self.desktop_image, anchor_img, match_similarity=0.95):
                 print("锚点必须为唯一元素，请重新选取")

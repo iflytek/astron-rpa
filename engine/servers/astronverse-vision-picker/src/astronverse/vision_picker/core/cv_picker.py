@@ -184,20 +184,64 @@ class ImageDetector:
         if not boxes:
             return []
 
-        # 排序算法以边界框的宽度为标准降序排列
-        boxes = sorted(boxes, key=lambda x: x[2], reverse=False)
-        print(boxes)
+        # 转换为 numpy 数组以加速计算
+        boxes_array = np.array(boxes, dtype=np.float32)
+        # 计算面积
+        areas = boxes_array[:, 2] * boxes_array[:, 3]
+        # 按宽度排序（保持原有逻辑）
+        order = np.argsort(boxes_array[:, 2])
+
         keep_boxes = []
+        suppressed = np.zeros(len(boxes), dtype=bool)
 
-        while boxes:
-            base_box = boxes.pop()
-            keep_boxes.append(base_box)
+        iteration = 0
+        iou_calc_count = 0
 
-            for box in boxes[:]:
-                # 设置合适的阈值对交并比大的边界框进行筛选
-                iou = ImageDetector.compute_iou(base_box, box)
-                if iou > 0 and (iou >= iou_threshold or iou < 0.0003):
-                    boxes.remove(box)
+        # 从后往前遍历（从大框到小框）
+        for idx in range(len(order) - 1, -1, -1):
+            i = order[idx]
+            if suppressed[i]:
+                continue
+
+            # 保留当前框
+            keep_boxes.append(boxes[i])
+            iteration += 1
+
+            # 获取当前框的坐标
+            x1, y1, w1, h1 = boxes_array[i]
+            x1_max, y1_max = x1 + w1, y1 + h1
+            area1 = areas[i]
+
+            # 批量检查需要抑制的框
+            for jdx in range(idx):
+                j = order[jdx]
+                if suppressed[j]:
+                    continue
+
+                # 快速空间剪枝：如果两个框完全不相交，跳过IoU计算
+                x2, y2, w2, h2 = boxes_array[j]
+                x2_max, y2_max = x2 + w2, y2 + h2
+
+                # 检查是否有重叠
+                if x1_max <= x2 or x2_max <= x1 or y1_max <= y2 or y2_max <= y1:
+                    continue  # 不相交，跳过
+
+                # 计算IoU（内联优化）
+                iou_calc_count += 1
+                inter_x1 = max(x1, x2)
+                inter_y1 = max(y1, y2)
+                inter_x2 = min(x1_max, x2_max)
+                inter_y2 = min(y1_max, y2_max)
+
+                inter_area = (inter_x2 - inter_x1) * (inter_y2 - inter_y1)
+
+                if inter_area > 0:
+                    area2 = areas[j]
+                    union_area = area1 + area2 - inter_area
+                    iou = inter_area / union_area
+
+                    if iou >= iou_threshold or iou < 0.0003:
+                        suppressed[j] = True
 
         return keep_boxes
 
@@ -218,9 +262,10 @@ class ImageDetector:
             thresh = self.apply_threshold_and_blur(gradient)
 
         closed = self.apply_morphology(thresh)
-        contours = self.fill_hole(closed)
-        contours, _ = cv2.findContours(contours, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)
 
+        contours = self.fill_hole(closed)
+
+        contours, _ = cv2.findContours(contours, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)
         return contours
 
     # def qcolor_to_bgr(self, qcolor):
@@ -245,14 +290,19 @@ class ImageDetector:
         # self.original_img = o_image
 
         start_time = time.time()
+
+        # 高斯模糊和锐化
         blurred = cv2.GaussianBlur(self.gray_img, (3, 3), 0)
+
         kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         sharpened = cv2.filter2D(blurred, -1, kernel)
+
         # 计算边缘梯度
         canny_gradient = self.compute_canny_edge(sharpened)
+
         sobel_gradient = self.compute_sobel_gradient(sharpened)
 
-        # Step1 前景检测，筛选
+        ## Step1 前景检测，筛选
         _, fore_g = cv2.threshold(canny_gradient, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         kernel = np.ones((3, 3), np.uint8)
         # 膨胀函数
@@ -261,13 +311,12 @@ class ImageDetector:
         fore_markers = fore_markers.astype(np.uint8)
         fore_contours, _ = cv2.findContours(fore_markers.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Step2 Sobel算子检测常规边框
+        ## Step2 Sobel算子检测常规边框
         sobel_contours = self.preprocess_stage(sobel_gradient, False)
-
-        # Step3 Canny算子检测细节内容
+        ## Step3 Canny算子检测细节内容
         canny_contours = self.preprocess_stage(canny_gradient, False)
 
-        # 边框筛选
+        ## 边框筛选
         fore_boxes = [
             (x, y, w, h)
             for x, y, w, h in (cv2.boundingRect(contour) for contour in fore_contours)
@@ -294,7 +343,8 @@ class ImageDetector:
         ]
 
         self.output_img = copy.deepcopy(self.original_img)
-        # 边框融合&非极大值抑制
+
+        ## 边框融合&非极大值抑制
         all_boxes = fore_boxes + sobel_boxes
         selected_boxes = self.apply_nms(all_boxes)
 
@@ -306,17 +356,17 @@ class ImageDetector:
 
         dash_color = tuple(int(dash_color[i : i + 2], 16) for i in (0, 2, 4))
 
-        # dash_color = self.qcolor_to_bgr(dash_color)
-
         for box in selected_boxes:
             x, y, w, h = box
             boxes_with_coordinates.append(box)
             self.draw_dashed_rectangle((x, y), (x + w, y + h), dash_color, line_width, 5)
+
         selected_boxes = selected_boxes
         # + self.detect_ocr_text(line_width)
 
         end_time = time.time()
-        print(end_time - start_time)
+        total_time = end_time - start_time
+        print(f"detect_objects 总耗时: {total_time:.3f}秒")
         return self.output_img, selected_boxes
 
     # def detect_ocr_text(self, line_width):

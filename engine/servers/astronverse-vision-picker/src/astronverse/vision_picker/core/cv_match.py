@@ -225,8 +225,16 @@ class AnchorMatch:
                 else:
                     print("当前屏幕目标元素不存在或发生了变化")
                     match_box = None
+            # 当锚点相对位移发生变化时，ROI 可能不再包含目标。尝试全局匹配兜底，避免命中旧位置。
+            if match_box is None:
+                fallback_res = cv2.matchTemplate(gray, small_gray, cv2.TM_CCOEFF_NORMED)
+                _, fallback_max_val, _, fallback_loc = cv2.minMaxLoc(fallback_res)
+                fallback_threshold = match_similarity if not canny_flag else 0.40
+                if fallback_max_val >= fallback_threshold:
+                    match_box = (fallback_loc[0], fallback_loc[1], w, h)
+
         else:
-            return print("请选择目标元素")
+            return None
 
         return image, match_box
 
