@@ -221,9 +221,9 @@ onBeforeUnmount(() => clearAllData())
       </div>
     </div>
     <div class="chat-main" :style="`width: ${showPreview ? '480px;' : '800px;'}`">
-      <div class="chat-header drag">
-        {{ title }}
-        <CloseOutlined style="float: right;" @click="handleClose" />
+      <div class="chat-header flex items-center pr-[18px]">
+        <div class="drag flex-1 px-[18px] pt-[18px]">{{ title }}</div>
+        <CloseOutlined @click="handleClose" />
       </div>
       <div class="chat-content">
         <div v-if="chatType === 'file'" class="chat-list-preset">

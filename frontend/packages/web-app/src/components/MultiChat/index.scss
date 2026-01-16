@@ -4,42 +4,45 @@ body {
     width: 0;
   }
 }
+
 .chatModal {
   width: 100%;
   height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .chat-main {
-    // height: 550px;
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     border-radius: 16px;
-    padding: 18px;
     background-image: url('../../assets/img/chatBg.png');
     background-repeat: no-repeat;
     background-color: #fff;
     margin: 30px auto;
+    display: flex;
+    flex-direction: column;
+
     .chat-header {
-      height: 28px;
       font-size: 20px;
       font-weight: 500;
       text-align: left;
       color: rgba(0, 0, 0, 0.85);
-      line-height: 23px;
+      line-height: 28px;
       margin: 0 0 8px 0;
     }
+
     .chat-content {
-      // height: 414px;
-      height: 82%;
-      overflow: hidden;
+      flex: 1;
       overflow-y: auto;
+      padding: 0 18px;
+
       &::-webkit-scrollbar {
         width: 0;
       }
+
       .chat-list-preset {
-        // position: fixed;
         .basic {
           background: #ffffff;
           border: 1px solid rgba(0, 0, 0, 0.15);
@@ -55,11 +58,13 @@ body {
           padding: 10px 12px;
           cursor: pointer;
         }
+
         .preset-file {
           max-width: 770px;
           min-width: 180px;
           height: 64px;
           font-weight: 500;
+
           .filename {
             max-width: 710px;
             overflow: hidden;
@@ -68,15 +73,18 @@ body {
             padding-right: 5px;
           }
         }
+
         .preset-item {
           display: inline-flex;
           min-height: 40px;
           font-weight: 400;
+
           &:hover {
             background-color: #f0f0f0;
           }
         }
       }
+
       .chat-list-empty {
         .title {
           height: 45px;
@@ -87,6 +95,7 @@ body {
           line-height: 38px;
           margin: 8px 0;
         }
+
         .copyright {
           height: 20px;
           font-size: 14px;
@@ -94,12 +103,14 @@ body {
           text-align: left;
           color: rgba(0, 0, 0, 0.45);
           line-height: 16px;
+
           img {
             display: inline-block;
             margin: 0 3px;
           }
         }
       }
+
       .chat-list {
         .listitem {
           padding: 10px 0;
@@ -110,10 +121,12 @@ body {
           justify-content: space-between;
           align-items: center;
         }
+
         .question {
           display: flex;
           justify-content: flex-end;
           margin-bottom: 15px;
+
           .promptText {
             padding: 10px;
             font-size: 16px;
@@ -123,9 +136,11 @@ body {
             border-radius: 8px 8px 2px 8px;
           }
         }
+
         .answer {
           display: flex;
           justify-content: flex-start;
+
           .message {
             white-space: pre-line;
             padding: 10px;
@@ -139,6 +154,7 @@ body {
             flex-direction: column;
             justify-content: flex-start;
           }
+
           .thinking {
             display: inline-flex;
             width: 90px;
@@ -146,6 +162,7 @@ body {
             color: $color-primary;
           }
         }
+
         .stopBtn {
           width: 96px;
           height: 28px;
@@ -156,6 +173,7 @@ body {
         }
       }
     }
+
     .limitTip {
       width: 100%;
       height: 16px;
@@ -167,17 +185,22 @@ body {
       // margin: 0 auto;
       text-align: center;
     }
+
     .chat-footer {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       margin-top: 10px;
+      padding: 0 18px 18px 18px;
+
       .promptInput {
         height: 36px;
+
         img {
           cursor: pointer;
         }
       }
+
       .saveBtn {
         min-width: 36px;
         height: 36px;
@@ -188,6 +211,7 @@ body {
       }
     }
   }
+
   .chat-side {
     position: relative;
     // width: 320px;
@@ -197,10 +221,12 @@ body {
     overflow: hidden;
     overflow-y: auto;
     white-space: pre-line;
+
     &::-webkit-scrollbar {
       width: 0;
       height: 0;
     }
+
     .txt {
       width: 100%;
       height: 100%;
@@ -212,6 +238,7 @@ body {
     }
   }
 }
+
 .pdf-vue3-canvas-container {
   // width: 360px !important;
   width: 100% !important;
