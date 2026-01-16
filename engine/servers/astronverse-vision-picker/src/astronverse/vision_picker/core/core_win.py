@@ -13,10 +13,11 @@ class RectHandler(IRectHandler):
         # 获取窗口标题
         title = win32gui.GetWindowText(hwnd)
         # 获取窗口的矩形区域
-        rect = win32gui.GetWindowRect(hwnd)
+        # rect = win32gui.GetWindowRect(hwnd)
         # if rect.x < 0: rect.x = 0
         # if rect.y < 0: rect.y = 0
-        return hwnd, title, rect
+        width, height = pyautogui.size()
+        return hwnd, title, (0, 0, width, height)  # rect
 
     # @staticmethod
     # def find_window_by_title(window_title):
