@@ -19,7 +19,7 @@ export async function createFlowNode(key: string, idx: number | number[], isDrag
   const projectDocStore = useProjectDocStore()
 
   if (isComponentKey(key)) {
-    await createComponentAbility(key)
+    await createComponentAbility(key, undefined, 'add')
   }
   else if (isSmartComponentKey(key)) {
     await loadSmartComponentAbility(key)

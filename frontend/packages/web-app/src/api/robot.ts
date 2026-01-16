@@ -191,3 +191,11 @@ export async function getComponentDetail(data: { robotId: string, componentId: s
   const res = await http.post<RPA.ComponentManageItem>('/robot/component/editing/info', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
+
+/**
+ * 查询编辑页引入的组件详情
+ */
+export async function getEditComponentDetail(data: { robotId: string, componentId: string }) {
+  const res = await http.post('/robot/component-robot-use/edit', { ...data, mode: 'EDIT_PAGE' })
+  return res.data
+}

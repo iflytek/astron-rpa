@@ -46,9 +46,9 @@ export async function loopAtomByKey(key: string) {
 }
 
 // 生成组件节点
-export async function createComponentAbility(key: string, version?: string | number) {
+export async function createComponentAbility(key: string, version?: string | number, context?: 'add' | 'get' | 'update') {
   if (!getAtomByKey(key, version)) {
-    const node = await ProjectDocument.gainComponentAbility(key, version)
+    const node = await ProjectDocument.gainComponentAbility(key, version, context)
     return node
   }
 }
