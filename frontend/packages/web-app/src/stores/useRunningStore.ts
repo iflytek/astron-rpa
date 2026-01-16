@@ -158,7 +158,18 @@ export const useRunningStore = defineStore('running', () => {
       if (result.key === 'sub_window' && msg.name === 'multichat') {
         const windowLabel = `${WINDOW_NAME.MULTICHAT}-${generateUUID()}`
         createdWindowLabels.push(windowLabel)
-        const queryString = new URLSearchParams(msg.params as Record<string, string>).toString()
+
+        // 打开AI对话窗口后，点击保存，有一个消息回复
+        const replyEventData = {
+          key: result.key,
+          channel: result.channel,
+          reply_event_id: result.event_id,
+          // 回复消息，方向正好相反
+          uuid: result.send_uuid,
+          send_uuid: result.uuid,
+        }
+
+        const queryString = new URLSearchParams({ ...msg.params, reply: JSON.stringify(replyEventData) }).toString()
         const options: CreateWindowOptions = {
           url: `${baseUrl}/${WINDOW_NAME.MULTICHAT}.html?${queryString}`,
           label: windowLabel,
@@ -211,8 +222,8 @@ export const useRunningStore = defineStore('running', () => {
     }
   }
 
-  // 发送自定义表单数据
-  const sendUserFormData = (data: AnyObj) => {
+  // 发送回复数据
+  const sendReplyMessage = (data: AnyObj) => {
     send({ ...data, event_id: generateUUID(), event_time: Date.now() })
   }
 
@@ -394,7 +405,7 @@ export const useRunningStore = defineStore('running', () => {
     updateDataTableCell,
     closeDataTableListener,
     clearDataTable,
-    sendUserFormData,
+    sendReplyMessage,
     closeCreatedWindows,
   }
 })
