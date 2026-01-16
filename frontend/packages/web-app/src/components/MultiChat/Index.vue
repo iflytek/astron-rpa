@@ -29,7 +29,7 @@ const limitTurns = Number(targetInfo.get('max_turns')) || 20
 const presetList = targetInfo.get('questions')?.split('$-$') || []
 // 对话模型
 const model = targetInfo.get('model')
-const replyBaseData = JSON.parse(targetInfo.get('reply')) ?? {}
+const replyBaseData = JSON.parse(targetInfo.get('reply') || '{}') ?? {}
 // 交互类型 multi:多轮对话,file:知识问答
 const chatType = filePath ? 'file' : 'multi'
 
@@ -153,11 +153,15 @@ function createSSE(url: string, query: string) {
         return
       }
 
-      const content = get(JSON.parse(res.data), ['choices', 0, 'delta', 'content'])
-      if (content) {
-        isThinking.value = false
-        updateMessagingChat('answer', content)
-        handleScrollToBottom()
+      try {
+        const content = get(JSON.parse(res.data), ['choices', 0, 'delta', 'content'])
+        if (content) {
+          isThinking.value = false
+          updateMessagingChat('answer', content)
+          handleScrollToBottom()
+        }
+      } catch (error) {
+        console.error('Failed to parse SSE data:', error, res.data)
       }
     },
     () => {

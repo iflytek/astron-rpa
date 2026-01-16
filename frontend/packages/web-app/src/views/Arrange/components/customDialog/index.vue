@@ -50,7 +50,7 @@ provide('dialogData', {
   dialogData,
   updateDialogDataFormList: (type: 'splice' | 'push', ...params: any) => {
     // TODO: 这里需要拆成两个函数
-    // @ts-expect-error
+    // @ts-expect-error Dynamic method call on array with string index
     dialogData.value?.formList[type](...params)
   },
 })
