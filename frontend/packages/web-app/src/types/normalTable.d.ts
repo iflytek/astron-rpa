@@ -72,8 +72,9 @@ export interface TableColumnConfig {
   width?: number | string
   ellipsis?: boolean
   sorter?: boolean | ((a: any, b: any) => number)
+  resizable?: boolean
   customRender?: (params: { record: any, text: any, index: number }) => any
-} 
+}
 
 // 表格属性配置接口
 export interface TablePropsConfig {
