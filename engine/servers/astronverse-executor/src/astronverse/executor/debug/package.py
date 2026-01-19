@@ -1,11 +1,12 @@
 import os
 import sys
 from urllib.parse import urlparse
+
 from astronverse.actionlib import ReportTip
-from importlib_metadata import version as check_version
 from astronverse.executor.error import MSG_DOWNLOAD_FORMAT, MSG_DOWNLOAD_SUCCESS_FORMAT
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import exec_run
+from importlib_metadata import version as check_version
 
 
 def compare_versions(v1, v2):

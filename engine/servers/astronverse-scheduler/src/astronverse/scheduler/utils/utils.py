@@ -11,7 +11,6 @@ from enum import Enum
 import psutil
 from astronverse.scheduler.logger import logger
 
-
 system_encoding = locale.getpreferredencoding()
 
 

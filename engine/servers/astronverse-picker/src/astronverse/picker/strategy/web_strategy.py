@@ -1,12 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
-from astronverse.picker import WEB_CLASS_NAMES, IElement, Point, PickerSign, SmartComponentAction
+from astronverse.picker import IElement, PickerSign, Point, SmartComponentAction
 from astronverse.picker.engines.smart_component.web_picker_smart_component import web_picker_smart_component
-from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.engines.web_picker import web_picker
-from astronverse.picker.strategy.types import StrategySvc
 from astronverse.picker.logger import logger
-
+from astronverse.picker.strategy.types import StrategySvc
 
 # 使用TYPE_CHECKING避免循环导入
 if TYPE_CHECKING:
@@ -19,7 +17,7 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
         is_document, menu_top, menu_left, hwnd = cache
         menu_right, menu_bottom = None, None
     else:
-        bound = strategy_svc.start_control.BoundingRectangle  ##专为智能拾取定制
+        bound = strategy_svc.start_control.BoundingRectangle  # 专为智能拾取定制
         is_document, menu_top, menu_left, menu_right, menu_bottom, hwnd = (
             True,
             bound.top,
@@ -34,7 +32,7 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
     logger.info(f"测试data数据 {strategy_svc}")
     if (
         strategy_svc.data.get("pick_sign", "") != PickerSign.SMART_COMPONENT
-    ):  ##对于不是使用各类基础拾取的业务，需要走定制
+    ):  # 对于不是使用各类基础拾取的业务，需要走定制
         ele = web_picker.get_element(
             root_control=strategy_svc.start_control,
             route_port=service.route_port,

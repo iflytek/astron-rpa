@@ -1,11 +1,11 @@
 import bdb
+import glob
 import importlib
 import os
 import sys
-import glob
 import threading
 from collections import defaultdict
-from typing import List, Callable
+from collections.abc import Callable
 
 
 class CustomBdb(bdb.Bdb):
@@ -77,7 +77,7 @@ class CustomBdb(bdb.Bdb):
         """把Python行号转成流程行号"""
         return self.file_line_maps.get(filename, {}).get(py_line, py_line)
 
-    def _to_py_lines(self, filename: str, flow_line: int) -> List[int]:
+    def _to_py_lines(self, filename: str, flow_line: int) -> list[int]:
         """把流程行号转成Python行号列表"""
         return self.file_rev_maps.get(filename, {}).get(flow_line, [flow_line])
 

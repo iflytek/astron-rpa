@@ -7,16 +7,15 @@ from astronverse.picker import (
     IElement,
     IPickerCore,
     PickerDomain,
+    PickerSign,
     PickerType,
     Point,
     Rect,
-    PickerSign,
     SmartComponentAction,
 )
 from astronverse.picker.engines.uia_picker import UIAElement, UIAOperate
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import BrowserControlFinder
-from astronverse.picker import APP
 
 
 class PickerCore(IPickerCore):
@@ -128,7 +127,7 @@ class PickerCore(IPickerCore):
             logger.info("strategy 加载完成")
 
         domain = PickerDomain.AUTO
-        pick_mode = data.get("pick_mode", None)
+        pick_mode = data.get("pick_mode")
         if pick_mode:
             if pick_mode == "WebPick":
                 domain = PickerDomain.AUTO_WEB
@@ -168,7 +167,8 @@ class PickerCore(IPickerCore):
 
     def call_pluguin(self, svc, high_light, data: dict):
         """为单独向插件通信定制"""
-        import json, time
+        import json
+        import time
 
         pick_type = data.get("pick_type", "")
         pick_sign = data.get("pick_sign", "")
@@ -192,7 +192,7 @@ class PickerCore(IPickerCore):
             return "未找到浏览器，请重试"
 
         process_id = UIAOperate.get_process_id(start_control)
-        if pick_type in [PickerType.ELEMENT]:
+        if pick_type == PickerType.ELEMENT:
             if pick_sign == PickerSign.SMART_COMPONENT:
                 # 上下文生成
                 if not svc.strategy:

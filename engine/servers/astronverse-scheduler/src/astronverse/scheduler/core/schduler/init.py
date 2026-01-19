@@ -10,8 +10,7 @@ def win_env_check(svc):
         return
 
     try:
-        import win32api
-        import win32gui
+        pass
     except Exception as e:
         emit_to_front(EmitType.ALERT, msg={"msg": "系统依赖缺失，执行修复中...", "type": "normal"})
         resource_dir = os.path.dirname(svc.config.conf_file)

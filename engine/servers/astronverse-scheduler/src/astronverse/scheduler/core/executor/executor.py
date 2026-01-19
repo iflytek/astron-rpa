@@ -11,6 +11,7 @@ import uuid
 from enum import Enum
 from typing import Union
 from urllib.parse import quote
+
 import requests
 import websocket
 from astronverse.scheduler.core.executor.virtual_desk import (

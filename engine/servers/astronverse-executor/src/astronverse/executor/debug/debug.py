@@ -1,13 +1,10 @@
-import json
 import traceback
-from typing import List
 
-from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus, ReportFlow, ReportFlowStatus
-from astronverse.actionlib.error import IgnoreException, ParamException, BaseException
-
+from astronverse.actionlib import ReportCode, ReportCodeStatus, ReportFlow, ReportFlowStatus, ReportType
+from astronverse.actionlib.error import BaseException, IgnoreException, ParamException
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.debug.bdb import CustomBdb
-from astronverse.executor.error import python_base_error, MSG_DEBUG_INSTRUCTION_START_FORMAT, MSG_EXECUTION_ERROR
+from astronverse.executor.error import MSG_DEBUG_INSTRUCTION_START_FORMAT, MSG_EXECUTION_ERROR, python_base_error
 
 
 class Debug:
@@ -53,11 +50,7 @@ class Debug:
             )
         else:
             exc = kw.get("exc")
-            if isinstance(exc, IgnoreException):
-                error_str = exc.code.message
-            elif isinstance(exc, ParamException):
-                error_str = exc.code.message
-            elif isinstance(exc, BaseException):
+            if isinstance(exc, IgnoreException) or isinstance(exc, ParamException) or isinstance(exc, BaseException):
                 error_str = exc.code.message
             else:
                 error_str = str(exc)
@@ -101,7 +94,7 @@ class Debug:
                 self.set_breakpoint(v.process_id, b)
 
         args = {}
-        if params and isinstance(params, List):
+        if params and isinstance(params, list):
             for p in params:
                 args[p.get("varName")] = p.get("varValue")
         shared = {"_args": args}

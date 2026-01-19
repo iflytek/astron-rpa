@@ -1,12 +1,12 @@
 import asyncio
 import os
 import time
-from typing import AsyncGenerator, Callable, Optional
-
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
-from watchdog.observers import Observer
+from collections.abc import AsyncGenerator, Callable
+from typing import Optional
 
 from astronverse.scheduler.logger import logger
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.observers import Observer
 
 
 class ExcelFileHandler(FileSystemEventHandler):
@@ -282,7 +282,7 @@ class AsyncFileWatcher:
         if self._handler:
             self._handler.pause_watching(duration)
 
-    async def start(self) -> AsyncGenerator[dict, None]:
+    async def start(self) -> AsyncGenerator[dict]:
         """
         启动监听并异步生成事件
 
@@ -359,7 +359,7 @@ class AsyncFileWatcher:
                     # 等待事件，设置超时以便定期检查运行状态
                     event = await asyncio.wait_for(self._queue.get(), timeout=1.0)
                     yield event
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # 发送心跳保持连接
                     yield {"type": "heartbeat"}
                 except Exception as e:

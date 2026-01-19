@@ -1,9 +1,7 @@
-from typing import Dict
-
-from astronverse.executor import AstGlobals, ProcessInfo, AtomicInfo, ComponentInfo, SmartComponentInfo
+from astronverse.executor import AstGlobals, AtomicInfo, ComponentInfo, ProcessInfo, SmartComponentInfo
 from astronverse.executor.config import Config
 from astronverse.executor.flow.params import Param
-from astronverse.executor.flow.storage import IStorage, HttpStorage
+from astronverse.executor.flow.storage import HttpStorage, IStorage
 from astronverse.executor.flow.syntax import IParam
 
 
@@ -17,7 +15,7 @@ class FlowSvc:
         self.storage: IStorage = HttpStorage(self)
 
         # 解析树变量
-        self.ast_globals_dict: Dict[str, AstGlobals] = {}
+        self.ast_globals_dict: dict[str, AstGlobals] = {}
         self.ast_curr_info = {}
 
     def add_project_info(

@@ -5,7 +5,6 @@ from enum import Enum
 
 from astronverse.actionlib.error import *
 from astronverse.actionlib.logger import logger
-from astronverse.actionlib.types import Ciphertext
 
 
 class InspectType(Enum):
@@ -183,7 +182,7 @@ class ParamModel:
             elif hasattr(i.__annotation__, "__validate__"):
                 # 转换
                 try:
-                    value = i.__annotation__.__validate__(i.name, value)  # noqa
+                    value = i.__annotation__.__validate__(i.name, value)
                 except Exception as e:
                     raise ParamException(
                         PARAM_CONVERT_ERROR_FORMAT.format(i.name, i.types, value),

@@ -1,22 +1,20 @@
-from typing import Any
+import ctypes
+import time
+from ctypes import wintypes
+from typing import Any, Optional
 from urllib.parse import urljoin
-from astronverse.picker.logger import logger
+
+import psutil
 import requests
 import uiautomation as auto
-from typing import Optional, Set, List
-import psutil
-import ctypes
-from ctypes import wintypes
-import time
 
 # --- Win32 API 初始化 (全局加载一次) ---
 user32 = ctypes.windll.user32
 
 from astronverse.picker.error import (
-    BROWSER_EXTENSION_INSTALL_ERROR,
     BROWSER_EXTENSION_ERROR_FORMAT,
-    WEB_GET_ElE_ERROR,
     WEB_EXEC_ElE_ERROR,
+    WEB_GET_ElE_ERROR,
 )
 
 
@@ -91,7 +89,7 @@ class Browser:
                 "5004": (Exception, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
             }
 
-            if data_code in error_map and key not in ["getElement"]:
+            if data_code in error_map and key != "getElement":
                 _, _, fallback_msg = error_map[data_code]
                 raise Exception(fallback_msg)
 
@@ -129,7 +127,7 @@ class BrowserControlFinder:
     }
 
     @staticmethod
-    def _get_hwnds_by_pid(target_pid: int) -> List[int]:
+    def _get_hwnds_by_pid(target_pid: int) -> list[int]:
         """
         【核心优化】使用 Win32 API 快速获取指定 PID 的所有 *可见* 顶层窗口句柄
         """
@@ -153,7 +151,7 @@ class BrowserControlFinder:
         return hwnds
 
     @classmethod
-    def _get_process_ids(cls, process_name: str) -> Set[int]:
+    def _get_process_ids(cls, process_name: str) -> set[int]:
         """获取所有匹配的进程ID集合"""
         pids = set()
         try:

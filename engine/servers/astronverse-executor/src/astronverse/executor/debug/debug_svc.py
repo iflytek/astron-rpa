@@ -3,9 +3,10 @@ import os.path
 import threading
 import time
 from typing import Optional
-from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus, ReportTip
+
+from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportTip, ReportType
 from astronverse.actionlib.report import report
-from astronverse.executor import ExecuteStatus, AstGlobals
+from astronverse.executor import AstGlobals, ExecuteStatus
 from astronverse.executor.config import Config
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.package import Package
@@ -13,11 +14,11 @@ from astronverse.executor.debug.recording import RecordingTool
 from astronverse.executor.debug.report import Report
 from astronverse.executor.debug.tools import LogTool
 from astronverse.executor.error import (
+    MSG_NO_FFMPEG,
     MSG_TASK_EXECUTION_END,
     MSG_TASK_EXECUTION_ERROR,
     MSG_TASK_USER_CANCELLED,
     MSG_VIDEO_PROCESSING_WAIT,
-    MSG_NO_FFMPEG,
 )
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import kill_proc_tree
@@ -52,7 +53,7 @@ class DebugSvc:
         """从 package.json 加载项目信息并转换为结构化对象"""
         package_json = os.path.join(self.conf.gen_core_path, "package.json")
         if os.path.exists(package_json):
-            with open(package_json, "r", encoding="utf-8") as f:
+            with open(package_json, encoding="utf-8") as f:
                 package_info = json.load(f)
             self._load_ast_globals_from_dict(package_info)
 
@@ -127,9 +128,7 @@ class DebugSvc:
 
                 # 结束录制
                 if self.recording_tool.config.get("open"):
-                    if status == ExecuteStatus.SUCCESS:
-                        self.recording_tool.close(True)
-                    elif status == ExecuteStatus.CANCEL:
+                    if status == ExecuteStatus.SUCCESS or status == ExecuteStatus.CANCEL:
                         self.recording_tool.close(True)
                     elif status == ExecuteStatus.FAIL:
                         self.recording_tool.close(False)

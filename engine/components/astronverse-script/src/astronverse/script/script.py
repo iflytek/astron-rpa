@@ -8,8 +8,8 @@ from astronverse.actionlib.report import report
 from astronverse.script.error import (
     MODULE_IMPORT_ERROR,
     MODULE_MAIN_FUNCTION_NOT_FOUND,
-    BaseException,
     MSG_MODULE_VERSION_WARRING,
+    BaseException,
 )
 
 

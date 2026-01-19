@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from astronverse.executor.flow.syntax import InputParam, OutputParam, Token, Node
-from typing import List, Dict
+
+from astronverse.executor.flow.syntax import InputParam, Node, OutputParam, Token
 from astronverse.executor.flow.syntax.token import TokenType
 from astronverse.executor.utils.utils import str_to_list_if_possible
 
@@ -17,7 +17,7 @@ class CodeLine:
 @dataclass
 class Program(Node):
     token: Token = None
-    statements: List[Node] = None
+    statements: list[Node] = None
 
     def display(self, svc, tab_num=0):
         statement_code_lines = []
@@ -84,7 +84,7 @@ class Program(Node):
 @dataclass
 class Block(Node):
     token: Token = None
-    statements: List[Node] = None
+    statements: list[Node] = None
 
     def display(self, svc, tab_num=0):
         code_lines = []
@@ -97,8 +97,8 @@ class Block(Node):
 @dataclass
 class Atomic(Node):
     token: Token = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     def display(self, svc, tab_num=0):
         project_id = svc.ast_curr_info.get("__project_id__")
@@ -275,10 +275,10 @@ class AtomicExist(Node):
     """缝合原子能力和IF"""
 
     token: Token = None
-    __arguments__: Dict[str, InputParam] = None
+    __arguments__: dict[str, InputParam] = None
 
     consequence: Block = None
-    conditions_and_blocks: List["IF"] = None
+    conditions_and_blocks: list["IF"] = None
     alternative: Block = None
 
     def display(self, svc, tab_num=0):
@@ -491,8 +491,8 @@ class AtomicFor(Node):
     token: Token = None
 
     body: Block = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     def display(self, svc, tab_num=0):
         project_id = svc.ast_curr_info.get("__project_id__")
@@ -705,10 +705,10 @@ class Return(Node):
 @dataclass
 class IF(Node):
     token: Token = None
-    __arguments__: Dict[str, InputParam] = None
+    __arguments__: dict[str, InputParam] = None
 
     consequence: Block = None
-    conditions_and_blocks: List["IF"] = None
+    conditions_and_blocks: list["IF"] = None
     alternative: Block = None
 
     def display(self, svc, tab_num=0, is_else_if: bool = False):
@@ -750,7 +750,7 @@ class IF(Node):
 @dataclass
 class While(Node):
     token: Token = None
-    __arguments__: Dict[str, InputParam] = None
+    __arguments__: dict[str, InputParam] = None
 
     body: Block = None
 
@@ -820,8 +820,8 @@ class Try(Node):
 class For(Node):
     token: Token = None
     body: Block = None
-    __arguments__: Dict[str, InputParam] = None
-    __returned__: List[OutputParam] = None
+    __arguments__: dict[str, InputParam] = None
+    __returned__: list[OutputParam] = None
 
     def display(self, svc, tab_num=0):
         code_lines = []

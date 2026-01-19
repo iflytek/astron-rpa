@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from astronverse.executor.error import (
     ATOMIC_CAPABILITY_PARSE_ERROR_FORMAT,
     LOOP_CONTROL_STATEMENT_ERROR,
@@ -5,29 +7,28 @@ from astronverse.executor.error import (
 )
 from astronverse.executor.flow.syntax import Token
 from astronverse.executor.flow.syntax.ast import (
-    Program,
-    Node,
-    Atomic,
-    Block,
     IF,
-    Break,
-    Continue,
-    While,
-    Try,
-    For,
+    Atomic,
     AtomicExist,
     AtomicFor,
+    Block,
+    Break,
+    Continue,
+    For,
+    Node,
+    Program,
     Return,
+    Try,
+    While,
 )
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.token import (
     TokenType,
-    token_type_key_dict,
     exist_atomic_dict,
-    special_token_type_end,
     for_atomic_dict,
+    special_token_type_end,
+    token_type_key_dict,
 )
-from typing import Union, Optional
 
 
 class Parser:

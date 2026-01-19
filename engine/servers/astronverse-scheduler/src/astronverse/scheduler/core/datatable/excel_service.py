@@ -1,10 +1,9 @@
 import os
-from typing import Any, Generator, Optional
-
-from openpyxl import Workbook, load_workbook
-from openpyxl.worksheet.worksheet import Worksheet
+from collections.abc import Generator
+from typing import Any
 
 from astronverse.scheduler.logger import logger
+from openpyxl import Workbook, load_workbook
 
 
 class ExcelService:
@@ -71,7 +70,7 @@ class ExcelService:
         logger.info(f"Created Excel file: {file_path}")
         return file_path
 
-    def read_file_stream(self, filename: str) -> Generator[dict, None, None]:
+    def read_file_stream(self, filename: str) -> Generator[dict]:
         """
         流式读取 Excel 文件，逐行返回数据
 

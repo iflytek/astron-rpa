@@ -1,10 +1,11 @@
 import base64
 import json
 import os
-from urllib.parse import urlparse, parse_qs
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
 from typing import Any, Optional
+from urllib.parse import parse_qs, urlparse
+
 import requests
 from astronverse.actionlib.logger import logger
 
@@ -49,7 +50,7 @@ class StorageCache:
                     raw_bytes = f.read()
                 data = base64.b64encode(raw_bytes).decode("utf-8")
             else:
-                with open(local_data_path, "r", encoding="utf-8") as f:
+                with open(local_data_path, encoding="utf-8") as f:
                     data = json.load(f)
             self.memory[resource_type][resource_id] = data
             return data

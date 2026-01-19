@@ -1,8 +1,8 @@
 import json
 import threading
 import time
-import urllib.parse
-from typing import Callable, Optional
+from collections.abc import Callable
+from typing import Optional
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -183,7 +183,7 @@ class Dialog:
                 ButtonType.YES_NO_CANCEL: default_button_yn.value,
             }
             return default_mapping[button_type]
-        return res.get("result_button", None)
+        return res.get("result_button")
 
     @staticmethod
     @atomicMg.atomic(
@@ -268,7 +268,7 @@ class Dialog:
         if res_e:
             raise Exception(res_e)
 
-        return res.get("input_content", None)
+        return res.get("input_content")
 
     @staticmethod
     @atomicMg.atomic(
@@ -330,7 +330,7 @@ class Dialog:
         if res_e:
             raise Exception(res_e)
 
-        return res.get("select_result", None)
+        return res.get("select_result")
 
     @staticmethod
     @atomicMg.atomic(
@@ -539,7 +539,7 @@ class Dialog:
         done.wait()
         if res_e:
             raise Exception(res_e)
-        return res.get("select_file", None)
+        return res.get("select_file")
 
     @staticmethod
     @atomicMg.atomic(

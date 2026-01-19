@@ -1,7 +1,7 @@
 import re
 from enum import Enum
 
-from astronverse.actionlib.types import Bool, List, Dict, Any
+from astronverse.actionlib.types import Any, Bool, Dict, List
 
 
 class CondType(Enum):

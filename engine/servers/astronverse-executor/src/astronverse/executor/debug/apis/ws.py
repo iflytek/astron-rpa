@@ -1,18 +1,17 @@
 import asyncio
 import json
 import queue
-import traceback
 from dataclasses import dataclass
 from typing import Any
+
 import websockets
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.websocket_server.ws import IWebSocket, BaseMsg, Conn
-from astronverse.websocket_server.ws_service import WsManager, AsyncOnce
-from websockets import ServerConnection
-
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.error import *
 from astronverse.executor.logger import logger
+from astronverse.websocket_server.ws import BaseMsg, Conn, IWebSocket
+from astronverse.websocket_server.ws_service import AsyncOnce, WsManager
+from websockets import ServerConnection
 
 
 @dataclass

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from pprint import pprint
+
 from astronverse.workflowlib.params import ComplexParamParser
 
 

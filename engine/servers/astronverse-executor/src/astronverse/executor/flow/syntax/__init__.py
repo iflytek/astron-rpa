@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 @dataclass
@@ -58,9 +58,9 @@ class IParam(ABC):
         pass
 
     @abstractmethod
-    def parse_input(self, token: Token) -> Dict[str, InputParam]:
+    def parse_input(self, token: Token) -> dict[str, InputParam]:
         pass
 
     @abstractmethod
-    def parse_output(self, token: Token) -> List[OutputParam]:
+    def parse_output(self, token: Token) -> list[OutputParam]:
         pass
