@@ -16,11 +16,13 @@ function geneLogItem(it: RPA.ServerLogItem, index: number): RPA.LogItem {
     id: it.line_id || it.event_id || `row_${index}`,
     logLevel: it.log_level,
     logLevelText: LOG_LEVEL_MAP[it.log_level],
+    logType: it.log_type,
     timestamp: dayjs(it.event_time * 1000).format('YYYY-MM-DD HH:mm:ss'),
     content: it.msg_str,
     lineNum: it.line,
     processName: it.process,
     processId: it.process_id,
+    error_traceback: it.error_traceback,
   }
 }
 
