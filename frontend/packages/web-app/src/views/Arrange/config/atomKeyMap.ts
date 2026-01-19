@@ -34,6 +34,7 @@ export const FileExist = 'File.file_exist'
 export const FolderExist = 'Folder.folder_exist'
 export const WindowExist = 'Window.exist'
 export const Process = 'Script.process' // 运行子流程
+export const ProcessOld = 'Code.Process' // 运行子流程（旧版子流程Key）
 export const Module = 'Script.module' // 运行子模块
 
 export const IF_TEXT = 'if'
