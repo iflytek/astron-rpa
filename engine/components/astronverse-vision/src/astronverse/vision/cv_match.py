@@ -122,8 +122,8 @@ class AnchorMatch:
         logger.info(f"当前屏幕与原始比例为{rw},{rh}")
         if center_coords_anchor != "" and anchor is not None:
             # 提取并转换坐标
-            aim_x, aim_y = map(int, center_coords_aim.split(","))
-            anchor_x, anchor_y = map(int, center_coords_anchor.split(","))
+            aim_x, aim_y = map(lambda x: int(float(x)), center_coords_aim.split(","))
+            anchor_x, anchor_y = map(lambda x: int(float(x)), center_coords_anchor.split(","))
 
             # 计算距离
             dis_x = (aim_x - anchor_x) * rw
