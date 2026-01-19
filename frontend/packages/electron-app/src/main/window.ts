@@ -8,19 +8,14 @@ import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
 import { resourcePath } from './path'
 import logger from './log'
 
-export const WindowStack: Map<string, number> = new Map()
+export const WindowStack: Map<string, BrowserWindow> = new Map()
 
-export function getWindow(label: string, id?: number) {
-  const winId = id ?? WindowStack.get(label)
-  return winId ? BrowserWindow.fromId(winId) : null
-}
-
-export function getWindowById(id: number) {
-  return getWindow('', id)
+export function getWindowFromLabel(label: string) {
+  return WindowStack.get(label)
 }
 
 export function getMainWindow() {
-  return getWindow(MAIN_WINDOW_LABEL)
+  return getWindowFromLabel(MAIN_WINDOW_LABEL)
 }
 
 export function electronInfo(win: BrowserWindow) {
@@ -43,7 +38,7 @@ function createWindow(options: Electron.BrowserWindowConstructorOptions, label?:
   const win = new BrowserWindow(options)
 
   if (label) {
-    WindowStack.set(label, win.id)
+    WindowStack.set(label, win)
   }
 
   return win
