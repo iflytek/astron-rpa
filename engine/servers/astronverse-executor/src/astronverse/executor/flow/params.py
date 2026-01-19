@@ -84,7 +84,10 @@ class Param(IParam):
                 elif types == ParamType.G_VAR.value:
                     pieces.append(f"gv[{data!r}]")
                 else:
-                    pieces.append(f"{data}")
+                    if gv and data in gv:  # 兜底
+                        pieces.append(f"gv[{data!r}]")
+                    else:
+                        pieces.append(f"{data}")
             else:
                 if gv and data in gv:  # 兜底
                     pieces.append(f"gv[{data!r}]")
@@ -98,7 +101,7 @@ class Param(IParam):
         else:
             return "".join(pieces), need_eval, need_eval
 
-    def parse_param(self, i: dict, token=None) -> InputParam:
+    def parse_param(self, i: dict, token=None, gv: dict = None) -> InputParam:
         name = i.get("name", i.get("key"))
         data = i.get("value")
         parse = i.get("need_parse")
@@ -123,13 +126,15 @@ class Param(IParam):
             elif key == "Smart.run_code" and name == "smart_component":
                 # 子组件的子模块
                 special = "smart_component"
-            value, need_eval = self._param_to_eval(self.pre_param_handler(data))
+            value, need_eval = self._param_to_eval(self.pre_param_handler(data), gv=gv)
             return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 
     def parse_input(self, token: Token) -> dict[str, InputParam]:
         res = {}
         params_name = {}
         input_list = token.value.get("inputList", [])
+        project_id = self.svc.ast_curr_info.get("__project_id__")
+        global_var = self.svc.ast_globals_dict[project_id].project_info.global_var
         for i in input_list:
             # 优化: 过滤高级选项中的默认值，减少参数传递[可以剔除这段优化代码]
             if (
@@ -156,7 +161,7 @@ class Param(IParam):
                 params_name[i.get("name", i.get("key"))] = i.get("title", "")
 
             # 2. 解析
-            res[i.get("name", i.get("key"))] = self.parse_param(i, token=token)
+            res[i.get("name", i.get("key"))] = self.parse_param(i, token=token, gv=global_var)
 
         # 高级选项
         info = [
@@ -164,7 +169,6 @@ class Param(IParam):
             token.value.get("__process_id__", ""),
         ]
         res["info"] = InputParam(key="__info__", value=info, need_eval=True)
-        project_id = self.svc.ast_curr_info.get("__project_id__")
         self.svc.add_atomic_info(project_id, token.value.get("key"), params_name)
         return res
 
@@ -182,8 +186,8 @@ class Param(IParam):
                 value = ls[0].get("data", "")
 
                 project_id = self.svc.ast_curr_info.get("__project_id__")
-                global_var = self.svc.ast_globals_dict[project_id].project_info.global_var
-                if global_var and value in global_var:
+                gv = self.svc.ast_globals_dict[project_id].project_info.global_var
+                if gv and value in gv:
                     value = f"gv[{value!r}]"
 
                 # 2. 解析
