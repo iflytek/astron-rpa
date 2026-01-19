@@ -1,12 +1,13 @@
+import json
 from enum import Enum
 from typing import Optional
-from astronverse.picker import IElement, Point, Rect, PickerDomain, PickerType, SmartComponentAction
-from astronverse.picker.logger import logger
+
+import pyautogui
+from astronverse.picker import APP, IElement, PickerDomain, PickerSign, PickerType, Point, Rect, SmartComponentAction
 from astronverse.picker.engines.smart_component.utils import parse_html
-from astronverse.picker.utils.cv import screenshot
-from astronverse.picker import APP, PickerSign
-import json, pyautogui
+from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import Browser
+from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
 
 

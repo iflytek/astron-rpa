@@ -1,8 +1,7 @@
 import traceback
 from typing import TYPE_CHECKING, Optional
-from _ctypes import COMError
-from astronverse.picker import APP, MSAA_APPLICATIONS, WEB_CLASS_NAMES, IElement
-from astronverse.picker.engines.uia_picker import UIAOperate
+
+from astronverse.picker import APP, MSAA_APPLICATIONS, IElement
 from astronverse.picker.logger import logger
 
 if TYPE_CHECKING:
@@ -18,10 +17,8 @@ def auto_default_strategy_desk(
     # 延迟导入策略函数避免循环依赖
     from astronverse.picker.strategy.msaa_strategy import msaa_default_strategy
     from astronverse.picker.strategy.uia_strategy import uia_default_strategy
-    from astronverse.picker.strategy.web_strategy import web_default_strategy
 
     try:
-        from astronverse.picker.strategy.web_ie_strategy import web_ie_default_strategy
         from astronverse.picker.strategy.jab_strategy import jab_default_strategy
         from astronverse.picker.strategy.sap_default_strategy import sap_default_strategy
     except Exception as e:
@@ -32,7 +29,7 @@ def auto_default_strategy_desk(
 
     if strategy_svc.app.value in MSAA_APPLICATIONS:
         preliminary_element = msaa_default_strategy(strategy_svc)
-    elif strategy_svc.app in [APP.SAP]:
+    elif strategy_svc.app == APP.SAP:
         # 2. 判断是否是sap
         try:
             preliminary_element = sap_default_strategy(service, strategy, strategy_svc)

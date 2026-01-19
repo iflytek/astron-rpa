@@ -1,4 +1,4 @@
-from typing import Tuple, Any, Optional, List
+from typing import Any, Optional
 
 import pyautogui
 import uiautomation as auto
@@ -239,7 +239,7 @@ class UIAElement(IElement):
         empty_attrs = self._get_empty_attrs(current_attrs)
         available_attrs = [attr for attr in priority_attrs if attr not in empty_attrs]
 
-        logger.info(f"========== 开始计算 disable_keys ==========")
+        logger.info("========== 开始计算 disable_keys ==========")
         logger.info(f"当前元素: {current_attrs}")
         logger.info(f"empty_attrs: {empty_attrs}")
         logger.info(f"available_attrs: {available_attrs}")
@@ -247,7 +247,7 @@ class UIAElement(IElement):
         logger.info(f"parent_control is None: {parent_control is None}")
 
         if not available_attrs:
-            logger.info(f"没有可用属性，返回全部禁用")
+            logger.info("没有可用属性，返回全部禁用")
             return priority_attrs.copy()
 
         if not parent_control:
@@ -315,8 +315,8 @@ class UIAElement(IElement):
         while True:
             # 添加元素信息到路径列表
             try:
-                value = curr_ele.control.GetValuePattern().Value  # noqa
-            except Exception:  # noqa
+                value = curr_ele.control.GetValuePattern().Value
+            except Exception:
                 value = None
 
             # 收集当前元素的所有属性（只添加非空属性）

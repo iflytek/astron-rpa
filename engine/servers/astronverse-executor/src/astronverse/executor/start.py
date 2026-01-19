@@ -4,23 +4,23 @@ import os
 import threading
 import time
 from urllib.parse import unquote
-from astronverse.actionlib import ReportFlow, ReportType, ReportFlowStatus
+
+from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
 from astronverse.executor import ExecuteStatus
+from astronverse.executor.config import Config
 from astronverse.executor.debug.apis.ws import Ws
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.debug_svc import DebugSvc
 from astronverse.executor.error import (
+    MSG_EXECUTION_ERROR,
     MSG_FLOW_INIT_START,
     MSG_FLOW_INIT_SUCCESS,
     MSG_TASK_EXECUTION_START,
-    MSG_TASK_EXECUTION_END,
     BaseException,
-    MSG_EXECUTION_ERROR,
 )
+from astronverse.executor.flow.flow import Flow
 from astronverse.executor.flow.flow_svc import FlowSvc
 from astronverse.executor.logger import logger
-from astronverse.executor.config import Config
-from astronverse.executor.flow.flow import Flow
 
 
 def flow_start(args, conf):
@@ -156,7 +156,7 @@ def start():
         try:
             args.run_param = unquote(args.run_param)
             if os.path.exists(args.run_param):
-                with open(args.run_param, "r", encoding="utf-8") as f:
+                with open(args.run_param, encoding="utf-8") as f:
                     args.run_param = json.load(f)
             else:
                 args.run_param = json.loads(args.run_param)

@@ -2,7 +2,7 @@
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.ai import InputType, JobWebsitesTypes, LLMModelTypes, RatingSystemTypes
+from astronverse.ai import InputType, JobWebsitesTypes, RatingSystemTypes
 from astronverse.ai.api.llm import chat_prompt
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.baseline.logger.logger import logger

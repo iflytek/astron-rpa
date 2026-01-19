@@ -1,9 +1,10 @@
 import json
 import os
-from astronverse.executor.error import BaseException, SYNTAX_ERROR_FORMAT, PROCESS_ACCESS_ERROR_FORMAT
+
+from astronverse.executor.error import PROCESS_ACCESS_ERROR_FORMAT, SYNTAX_ERROR_FORMAT, BaseException
+from astronverse.executor.flow.syntax.ast import CodeLine
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.parser import Parser
-from astronverse.executor.flow.syntax.ast import CodeLine
 from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
@@ -151,7 +152,7 @@ class Flow:
 
         # 3. 生成project.py
         tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
-        with open(tpl_path, "r", encoding="utf-8") as tpl_file:
+        with open(tpl_path, encoding="utf-8") as tpl_file:
             tpl_content = tpl_file.read()
 
         global_code = ""
@@ -344,7 +345,7 @@ class Flow:
                 continue
             if start_line > 0 and line < start_line:
                 continue
-            if end_line > 0 and line > end_line:  # noqa
+            if end_line > 0 and line > end_line:
                 continue
             v.update(
                 {

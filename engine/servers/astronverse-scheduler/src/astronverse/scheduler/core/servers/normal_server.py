@@ -2,9 +2,8 @@ import requests
 from astronverse.scheduler import ComponentType, ServerLevel
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.terminal.terminal import terminal_id, terminal_pwd
-from astronverse.scheduler.utils.subprocess import SubPopen
-from astronverse.scheduler.utils.utils import check_port
 from astronverse.scheduler.logger import logger
+from astronverse.scheduler.utils.subprocess import SubPopen
 
 
 class TriggerServer(IServer):
@@ -76,7 +75,7 @@ class TriggerServer(IServer):
                 return False
             return True
         except Exception as e:
-            self.svc.logger.error(f"update_config error: {e}")
+            self.svc.logger.error("update_config error: %s", e)
 
 
 class VNCServer(IServer):

@@ -3,13 +3,13 @@ import json
 import time
 import uuid
 from enum import Enum
-from typing import Any, Optional, Dict
+from typing import Any, Optional
 
 import websockets
 from astronverse.picker import OperationResult, PickerSign, PickerType, RecordAction, SmartComponentAction, SVCSign
 from astronverse.picker.logger import logger
-from pydantic import BaseModel
 from astronverse.picker.utils.browser import Browser
+from pydantic import BaseModel
 
 
 class PickerRequire(BaseModel):
@@ -120,7 +120,7 @@ class PickerRequestHandler:
 
         await self._send_response(ws, result)
 
-    async def _handle_smart_component_start(self, input_data: PickerRequire) -> Dict[str, Any]:
+    async def _handle_smart_component_start(self, input_data: PickerRequire) -> dict[str, Any]:
         """处理拾取开始"""
         try:
             from astronverse.picker.core.highlight_client import highlight_client
@@ -144,11 +144,9 @@ class PickerRequestHandler:
             logger.error(f"智能组件开始处理失败: {e}")
             return OperationResult.error(str(e)).to_dict()
 
-    async def _handle_smart_component_next_previous(self, input_data: PickerRequire) -> Dict[str, Any]:
+    async def _handle_smart_component_next_previous(self, input_data: PickerRequire) -> dict[str, Any]:
         """处理拾取开始"""
         try:
-            from astronverse.picker.core.highlight_client import highlight_client
-
             # 发送拾取开始信号
             res = await self.svc.send_sign(PickerSign.SMART_COMPONENT, input_data.model_dump())
             # high_light.hide_wnd()
@@ -163,7 +161,7 @@ class PickerRequestHandler:
             logger.error(f"智能组件拾取处理失败: {e}")
             return OperationResult.error(str(e)).to_dict()
 
-    async def _handle_smart_component_end(self, input_data: PickerRequire) -> Dict[str, Any]:
+    async def _handle_smart_component_end(self, input_data: PickerRequire) -> dict[str, Any]:
         """处理拾取开始"""
         try:
             from astronverse.picker.core.highlight_client import highlight_client

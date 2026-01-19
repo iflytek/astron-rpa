@@ -302,7 +302,7 @@ class ImageDetector:
 
         sobel_gradient = self.compute_sobel_gradient(sharpened)
 
-        ## Step1 前景检测，筛选
+        # Step1 前景检测，筛选
         _, fore_g = cv2.threshold(canny_gradient, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         kernel = np.ones((3, 3), np.uint8)
         # 膨胀函数
@@ -311,12 +311,12 @@ class ImageDetector:
         fore_markers = fore_markers.astype(np.uint8)
         fore_contours, _ = cv2.findContours(fore_markers.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        ## Step2 Sobel算子检测常规边框
+        # Step2 Sobel算子检测常规边框
         sobel_contours = self.preprocess_stage(sobel_gradient, False)
-        ## Step3 Canny算子检测细节内容
+        # Step3 Canny算子检测细节内容
         canny_contours = self.preprocess_stage(canny_gradient, False)
 
-        ## 边框筛选
+        # 边框筛选
         fore_boxes = [
             (x, y, w, h)
             for x, y, w, h in (cv2.boundingRect(contour) for contour in fore_contours)
@@ -344,7 +344,7 @@ class ImageDetector:
 
         self.output_img = copy.deepcopy(self.original_img)
 
-        ## 边框融合&非极大值抑制
+        # 边框融合&非极大值抑制
         all_boxes = fore_boxes + sobel_boxes
         selected_boxes = self.apply_nms(all_boxes)
 

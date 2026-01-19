@@ -1,7 +1,8 @@
 import json
 from enum import Enum
-from typing import Any, Dict, List
-from astronverse.executor.flow.syntax import IParam, InputParam, Token, OutputParam
+from typing import Any
+
+from astronverse.executor.flow.syntax import InputParam, IParam, OutputParam, Token
 
 
 class ParamType(Enum):
@@ -80,7 +81,7 @@ class Param(IParam):
             if need_eval:
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
                     pieces.append(f"{data!r}")
-                elif types in [ParamType.G_VAR.value]:
+                elif types == ParamType.G_VAR.value:
                     pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(f"{data}")
@@ -113,10 +114,7 @@ class Param(IParam):
             if isinstance(data, list) and len(data) == 1 and data[0].get("type", None) == ParamType.ELEMENT.value:
                 # 元素
                 special = "element"
-            elif key == "Script.process" and name == "process":
-                # 子模块
-                special = "module"
-            elif key == "Script.module" and name == "content":
+            elif key == "Script.process" and name == "process" or key == "Script.module" and name == "content":
                 # 子模块
                 special = "module"
             elif key == "Script.component" and name == "component":
@@ -128,7 +126,7 @@ class Param(IParam):
             value, need_eval = self._param_to_eval(self.pre_param_handler(data))
             return InputParam(key=name, value=value, need_eval=need_eval, special=special)
 
-    def parse_input(self, token: Token) -> Dict[str, InputParam]:
+    def parse_input(self, token: Token) -> dict[str, InputParam]:
         res = {}
         params_name = {}
         input_list = token.value.get("inputList", [])
@@ -170,7 +168,7 @@ class Param(IParam):
         self.svc.add_atomic_info(project_id, token.value.get("key"), params_name)
         return res
 
-    def parse_output(self, token: Token) -> List[OutputParam]:
+    def parse_output(self, token: Token) -> list[OutputParam]:
         res = []
         output_list = token.value.get("outputList", [])
         if len(output_list) > 0:

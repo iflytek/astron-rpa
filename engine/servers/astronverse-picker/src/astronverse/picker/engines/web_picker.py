@@ -1,12 +1,9 @@
 from typing import Optional
 
 import requests as requests
-from astronverse.baseline.error.error import BizCode
 from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect
-from astronverse.picker.logger import logger
-from astronverse.picker.utils.cv import screenshot
-from astronverse.picker.utils.process import get_process_name
 from astronverse.picker.utils.browser import Browser
+from astronverse.picker.utils.cv import screenshot
 
 
 class WEBElement(IElement):

@@ -145,10 +145,10 @@ class SmartComponentInfo:
 @dataclass
 class AstGlobals:
     project_info: ProjectInfo = None
-    smart_component_info: Dict[str, SmartComponentInfo] = None
-    component_info: Dict[str, ComponentInfo] = None
-    process_info: Dict[str, ProcessInfo] = None
-    atomic_info: Dict[str, AtomicInfo] = None
+    smart_component_info: dict[str, SmartComponentInfo] = None
+    component_info: dict[str, ComponentInfo] = None
+    process_info: dict[str, ProcessInfo] = None
+    atomic_info: dict[str, AtomicInfo] = None
 
     def __init__(self):
         self.project_info = ProjectInfo()

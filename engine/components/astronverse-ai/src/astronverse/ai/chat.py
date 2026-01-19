@@ -1,14 +1,12 @@
 import ast
 import copy
-import json
 import os
 import shutil
-import subprocess
 import threading
 import time
-import urllib
-from typing import Callable, Optional
-import urllib.parse
+from collections.abc import Callable
+from typing import Optional
+
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import LLMModelTypes
@@ -17,7 +15,6 @@ from astronverse.ai.error import LLM_NO_RESPONSE_ERROR  # noqa: F401 (示例: �
 from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
-from astronverse.baseline.logger.logger import logger
 
 
 def wait_with_timeout(check_done: Callable[[], bool], reset_timeout_on_activity: bool, wait_time: int):

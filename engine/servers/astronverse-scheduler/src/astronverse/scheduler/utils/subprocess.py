@@ -1,9 +1,9 @@
 import os
+import shlex
 import subprocess
 import sys
 import threading
 import time
-import shlex
 
 import psutil
 from astronverse.scheduler.logger import logger

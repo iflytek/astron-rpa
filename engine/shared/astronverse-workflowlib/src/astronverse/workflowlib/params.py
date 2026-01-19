@@ -74,7 +74,7 @@ class ComplexParamParser:
             if need_eval:
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
                     pieces.append(f"{data!r}")
-                elif types in [ParamType.G_VAR.value]:
+                elif types == ParamType.G_VAR.value:
                     pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(f"{data}")

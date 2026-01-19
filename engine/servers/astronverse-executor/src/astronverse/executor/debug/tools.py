@@ -1,6 +1,6 @@
 import json
+
 import requests
-from astronverse.executor.logger import logger
 
 
 class LogTool:

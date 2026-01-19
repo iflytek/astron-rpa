@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any
+from typing import Any, Optional
+
 from bs4 import BeautifulSoup, Comment, NavigableString
 
 
@@ -10,7 +11,7 @@ class HTMLProcessor(ABC):
     """
 
     @abstractmethod
-    def parse_html(self, html: str, **kwargs) -> Dict[str, Any]:
+    def parse_html(self, html: str, **kwargs) -> dict[str, Any]:
         """
         解析HTML内容，提取元素信息
 
@@ -30,7 +31,7 @@ class DefaultHTMLProcessor(HTMLProcessor):
     提供基础的HTML处理能力，可作为参考实现
     """
 
-    def parse_html(self, html: str, **kwargs) -> Dict[str, Any]:
+    def parse_html(self, html: str, **kwargs) -> dict[str, Any]:
         """默认实现：返回基础结构"""
 
         # 这里可以实现基础的HTML解析逻辑
@@ -46,7 +47,7 @@ class HTMLProcessorManager:
     """
 
     def __init__(self):
-        self._processors: Dict[str, HTMLProcessor] = {}
+        self._processors: dict[str, HTMLProcessor] = {}
         self._current_processor: Optional[HTMLProcessor] = None
 
         # 注册默认处理器
@@ -85,7 +86,7 @@ class HTMLProcessorManager:
 
         return self._current_processor
 
-    def get_available_processors(self) -> List[str]:
+    def get_available_processors(self) -> list[str]:
         """获取所有可用处理器名称"""
         return list(self._processors.keys())
 

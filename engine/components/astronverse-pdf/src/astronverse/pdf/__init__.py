@@ -1,5 +1,6 @@
-from enum import Enum
 import ast
+from enum import Enum
+
 from astronverse.pdf.error import *
 
 

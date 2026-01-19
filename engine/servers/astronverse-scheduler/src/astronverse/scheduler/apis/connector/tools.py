@@ -1,15 +1,13 @@
+import ast
 import asyncio
 import datetime
 import json
 import mimetypes
 import os
+import re
 import sys
 from dataclasses import field
 from enum import Enum
-import re
-import ast
-import json
-from typing import Dict
 
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
@@ -611,7 +609,7 @@ def code_to_meta(pycode: PythonCode):
         base_type = type_str.split("[")[0].split(".")[-1]  # 支持泛型如 List[str]
         return type_map.get(base_type.lower(), "Str")
 
-    def build_input_item(param: Dict) -> Dict:
+    def build_input_item(param: dict) -> dict:
         name = param["name"]
         type_hint = param["type_hint"]
         title = param["title"]
@@ -674,7 +672,7 @@ def code_to_meta(pycode: PythonCode):
 
         return item
 
-    def build_output_item(param: Dict) -> Dict:
+    def build_output_item(param: dict) -> dict:
         name = param["name"]
         type_hint = param["type_hint"]
         title = param["title"]
