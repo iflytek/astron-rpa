@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { message } from 'ant-design-vue'
 import { Bubble } from 'ant-design-x-vue'
-import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { getSmartComp, optimizeQuestion } from '@/api/component'
 import { clipboardManager } from '@/platform'
-import { useAppConfigStore } from '@/stores/useAppConfig'
+import { useTheme } from '@rpa/components'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 
@@ -26,7 +25,7 @@ const smartComp = useSmartComp()
 const processStore = useProcessStore()
 const flowStore = useFlowStore()
 const route = useRoute()
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 
 const {
   realMsgs,

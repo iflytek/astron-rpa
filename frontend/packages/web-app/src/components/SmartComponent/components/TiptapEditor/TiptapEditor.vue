@@ -2,10 +2,9 @@
 import { Icon } from '@rpa/components'
 import StarterKit from '@tiptap/starter-kit'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
-import { storeToRefs } from 'pinia'
 import { computed, h, nextTick, ref, watch } from 'vue'
 
-import { useAppConfigStore } from '@/stores/useAppConfig'
+import { useTheme } from '@rpa/components'
 
 import type { DocNode } from '../../types'
 
@@ -25,7 +24,7 @@ const emit = defineEmits<{
 
 const model = defineModel('value')
 const editorContentRef = ref<InstanceType<typeof EditorContent>>()
-const { colorTheme } = storeToRefs(useAppConfigStore())
+const { colorTheme } = useTheme()
 
 function isValidDocNode(text: string): boolean {
   try {
