@@ -2,6 +2,9 @@ import json
 from enum import Enum
 from typing import Any
 
+from astronverse.actionlib import ReportTip
+
+from astronverse.executor.error import MSG_GLOBAL_USE_ERROR_TIP
 from astronverse.executor.flow.syntax import InputParam, IParam, OutputParam, Token
 
 
@@ -56,8 +59,7 @@ class Param(IParam):
             ls = [{"type": ParamType.OTHER.value, "data": param_value}]
         return ls
 
-    @staticmethod
-    def _param_to_eval(ls: list, gv: dict = None) -> (Any, bool):
+    def _param_to_eval(self, ls: list, gv: dict = None) -> (Any, bool):
         """
         将参数解析成evaL能执行的状态,
         need_eval=False是为了加速, 能够直接算出来就不经过eval处理, 直接输出结果
@@ -85,11 +87,13 @@ class Param(IParam):
                     pieces.append(f"gv[{data!r}]")
                 else:
                     if gv and data in gv:  # 兜底
+                        self.svc.report.warning(ReportTip(msg_str=MSG_GLOBAL_USE_ERROR_TIP))
                         pieces.append(f"gv[{data!r}]")
                     else:
                         pieces.append(f"{data}")
             else:
                 if gv and data in gv:  # 兜底
+                    self.svc.report.warning(ReportTip(msg_str=MSG_GLOBAL_USE_ERROR_TIP))
                     pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(data)
@@ -187,7 +191,8 @@ class Param(IParam):
 
                 project_id = self.svc.ast_curr_info.get("__project_id__")
                 gv = self.svc.ast_globals_dict[project_id].project_info.global_var
-                if gv and value in gv:
+                if gv and value in gv:  # 兜底
+                    self.svc.report.warning(ReportTip(msg_str=MSG_GLOBAL_USE_ERROR_TIP))
                     value = f"gv[{value!r}]"
 
                 # 2. 解析
