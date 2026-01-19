@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, protocol, session } from 'electron'
+import { app, ipcMain, protocol, session } from 'electron'
 import path from 'node:path'
 
 import type { W2WType } from '../types'
@@ -41,7 +41,7 @@ function createMainWindow() {
 
   mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => logger.error('Failed to load URL'))
   mainWindow.once('ready-to-show', () => {
-    WindowStack.set('main', mainWindow.id)
+    WindowStack.set('main', mainWindow)
     mainWindow.show()
     logger.info(`app show: ${`${Date.now() - startTime}ms`}`)
   })
@@ -146,22 +146,20 @@ app.on('window-all-closed', () => {
   app.quit()
 })
 
-ipcMain.handle('ipcCreateWindow', (event, options) => {
+ipcMain.handle('ipcCreateWindow', (_event, options) => {
   const local_win = createSubWindow(options)
   const id = local_win.id
   const mainWindow = getMainWindow()
   local_win.once('close', () => {
     mainWindow?.webContents.send('window-close', id)
-    WindowStack.delete(options.label)
+    options.label && WindowStack.delete(options.label)
   })
   return id
 })
 
 ipcMain.handle('w2w', (_event, arg: W2WType) => {
   logger.info('w2w', JSON.stringify(arg))
-  const { target } = arg
-  const targetWinId = WindowStack.get(target)
-  const targetWin = BrowserWindow.fromId(targetWinId || 1)
+  const targetWin = WindowStack.get(arg.target)
   targetWin?.webContents.send('w2w', arg)
   return true
 })
