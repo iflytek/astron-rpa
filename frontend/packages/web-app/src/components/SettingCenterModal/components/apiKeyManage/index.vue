@@ -19,7 +19,13 @@ const options = computed(() => ([
 </script>
 
 <template>
-  <a-segmented v-model:value="activeKey" :options="options" class="mb-3" />
-  <ApiKeyManage v-show="activeKey === 'apiKey'" />
-  <AgentKeyManage v-show="activeKey === 'starAgent'" />
+  <div class="flex flex-col h-full overflow-hidden">
+    <div class="mb-3">
+      <a-segmented v-model:value="activeKey" :options="options" />
+    </div>
+    <div class="flex-1">
+      <ApiKeyManage v-show="activeKey === 'apiKey'" />
+      <AgentKeyManage v-show="activeKey === 'starAgent'" />
+    </div>
+  </div>
 </template>
