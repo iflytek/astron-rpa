@@ -159,7 +159,8 @@ def start():
                 with open(args.run_param, encoding="utf-8") as f:
                     args.run_param = json.load(f)
             else:
-                args.run_param = json.loads(args.run_param)
+                if args.run_param:
+                    args.run_param = json.loads(args.run_param)
         except Exception as e:
             args.run_param = {}
     else:
@@ -183,9 +184,11 @@ def start():
     except BaseException as e:
         if svc:
             svc.end(ExecuteStatus.FAIL, reason=e.message)
+        logger.debug("error {}".format(e))
         return
     except Exception as e:
         if svc:
             svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
+        logger.debug("error {}".format(e))
         return
     logger.debug("end")
