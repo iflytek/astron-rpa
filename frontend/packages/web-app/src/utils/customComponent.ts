@@ -188,7 +188,7 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
       title: attr.varDescribe || attr.varName,
       name: attr.varName,
       required: true,
-      value: illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue
+      value: illegal ? [{ type: OTHER_IN_TYPE, value: attr.varValue ?? '' }] : varValue
     }
   }
 }
