@@ -164,7 +164,6 @@ const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', '
               v-else-if="column.dataIndex === 'varValue'"
               v-model:var-value="editableData.varValue"
               :var-type="editableData.varType as VariableType"
-              size="small"
             />
             <a-input v-else v-model:value="editableData[column.dataIndex as string]" />
           </template>
@@ -173,7 +172,6 @@ const editableColumn: Array<keyof RPA.GlobalVariable> = ['varName', 'varType', '
               v-if="column.dataIndex === 'varValue'"
               :var-value="record.varValue"
               :var-type="record.varType"
-              size="small"
               :disabled="true"
             />
             <span v-else>{{ generateTableCellText(column, text, record as RPA.GlobalVariable) || "--" }}</span>

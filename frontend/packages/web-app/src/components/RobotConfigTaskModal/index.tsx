@@ -87,7 +87,7 @@ const _RobotConfigTaskModal = defineComponent({
         key: 'varValue',
         width: 200,
         customRender: ({ record }) => {
-          return <VarValueEditor varValue={record.varValue} var-type={record.varType} onUpdate:varValue={value => record.varValue = value} size="small" />
+          return <VarValueEditor varValue={record.varValue} var-type={record.varType} onUpdate:varValue={value => record.varValue = value} class="max-w-[180px]" />
         },
       },
       {

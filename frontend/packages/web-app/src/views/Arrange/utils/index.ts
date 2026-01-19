@@ -6,7 +6,7 @@ import { atomScrollIntoViewKey } from '@/constants/eventBusKey'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
-import { Catch, CONVERT_MAP, CvImageExist, Else, ElseIf, FileExist, Finally, FolderExist, ForDict, ForEnd, ForList, ForStep, Group, GroupEnd, If, IfEnd, Module, Process, Try, TryEnd, While, WindowExist } from '@/views/Arrange/config/atomKeyMap'
+import { Catch, CONVERT_MAP, CvImageExist, Else, ElseIf, FileExist, Finally, FolderExist, ForDict, ForEnd, ForList, ForStep, Group, GroupEnd, If, IfEnd, Module, Process, ProcessOld, Try, TryEnd, While, WindowExist } from '@/views/Arrange/config/atomKeyMap'
 
 import { defaultValueText, elementTag } from '../config/flow'
 
@@ -228,7 +228,7 @@ export function querySubProcessQuote(processId: string) {
   const result = []
   processList.forEach((pItem: any) => {
     const searchProcessItem = useProjectDocStore().userFlowNode(pItem.resourceId).reduce((acc, item, index) => {
-      if ([Process, Module].includes(item.key) && item.inputList.find(i => i.value === processId)) {
+      if ([Process, ProcessOld, Module].includes(item.key) && item.inputList.find(i => i.value === processId)) {
         acc.push({
           id: item.id, // 运行子流程节点id
           alias: item.alias, // 运行子流程节点名称
@@ -256,7 +256,7 @@ export function delectSubProcessQuote(processId: string) {
   processList.forEach((pItem: any) => {
     useProjectDocStore().userFlowNode(pItem.resourceId).forEach((item, index) => {
       const findIdx = item.inputList.findIndex(i => i.value === processId)
-      if ([Process, Module].includes(item.key) && findIdx > -1) {
+      if ([Process, ProcessOld, Module].includes(item.key) && findIdx > -1) {
         item.inputList[findIdx].value = ''
         if (processStore.activeProcessId === pItem.resourceId) {
           const uiData = flowStore.simpleFlowUIData[index]
