@@ -139,7 +139,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
           if (mode === 'PASSWORD')
             switchMode('forgotPasswordWithSysUpgrade')
           if (mode === 'CODE') {
-            await handleForgotPassword(params)
+            await handleForgotPassword(params, 'login')
           }
           return
         }
@@ -188,13 +188,13 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
     }
   })
 
-  const handleForgotPassword = async (data: LoginFormData) => run('FORGOT_PASSWORD', async () => {
+  const handleForgotPassword = async (data: LoginFormData, scene?: string) => run('FORGOT_PASSWORD', async () => {
     try {
       setCacheFormData(data)
       const params: LoginFormData = { ...data, loginType: 'CODE' }
       delete params.remember
       delete params.agreement
-      const token = await preAuthenticate({ ...params, scene: 'set_password', platform: platform.value })
+      const token = await preAuthenticate({ ...params, scene: (scene || 'set_password'), platform: platform.value })
       tempToken.value = token
       switchMode(currentFormMode.value === 'forgotPassword' ? 'setPassword' : 'setPasswordWithSysUpgrade')
     }
