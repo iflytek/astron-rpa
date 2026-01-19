@@ -213,7 +213,10 @@ class HttpStorage(IStorage):
 
         res = self.__http__("/api/robot/process/process-json", None, data)
         try:
-            flow_list = json.loads(res)
+            if res:
+                flow_list = json.loads(res)
+            else:
+                flow_list = []
         except Exception as e:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT.format(process_id), "工程数据异常 {}".format(e))
 
