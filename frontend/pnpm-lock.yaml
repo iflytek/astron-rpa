@@ -318,7 +318,7 @@ importers:
     devDependencies:
       '@electron-toolkit/tsconfig':
         specifier: ^2.0.0
-        version: 2.0.0(@types/node@16.18.126)
+        version: 2.0.0(@types/node@18.19.120)
       '@rpa/shared':
         specifier: workspace:*
         version: link:../shared
@@ -326,20 +326,20 @@ importers:
         specifier: ^4.17.12
         version: 4.17.12
       '@types/node':
-        specifier: ^16.18.126
-        version: 16.18.126
+        specifier: ^18.15.0
+        version: 18.19.120
       '@types/node-7z':
         specifier: ^2.1.11
         version: 2.1.11
       electron:
-        specifier: 22.3.27
-        version: 22.3.27
+        specifier: ^25.9.8
+        version: 25.9.8
       electron-builder:
         specifier: ^24.13.3
         version: 24.13.3(electron-builder-squirrel-windows@24.13.3)
       electron-vite:
         specifier: ^5.0.0
-        version: 5.0.0(vite@8.0.0-beta.5(@types/node@16.18.126)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2))
+        version: 5.0.0(vite@8.0.0-beta.5(@types/node@18.19.120)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2))
       tsdown:
         specifier: 'catalog:'
         version: 0.19.0-beta.2(typescript@5.9.3)
@@ -348,7 +348,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: 'catalog:'
-        version: 8.0.0-beta.5(@types/node@16.18.126)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)
+        version: 8.0.0-beta.5(@types/node@18.19.120)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)
 
   packages/shared:
     dependencies:
@@ -3182,9 +3182,6 @@ packages:
   '@types/node@14.18.63':
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
 
-  '@types/node@16.18.126':
-    resolution: {integrity: sha512-OTcgaiwfGFBKacvfwuHzzn1KLxH/er8mluiy8/uM3sGXHaRe73RrSIj01jow9t4kJEW633Ov+cOexXeiApTyAw==}
-
   '@types/node@18.19.120':
     resolution: {integrity: sha512-WtCGHFXnVI8WHLxDAt5TbnCM4eSE+nI0QN2NJtwzcgMhht2eNz6V9evJrk+lwC8bCY8OWV5Ym8Jz7ZEyGnKnMA==}
 
@@ -5075,8 +5072,8 @@ packages:
       '@swc/core':
         optional: true
 
-  electron@22.3.27:
-    resolution: {integrity: sha512-7Rht21vHqj4ZFRnKuZdFqZFsvMBCmDqmjetiMqPtF+TmTBiGne1mnstVXOA/SRGhN2Qy5gY5bznJKpiqogjM8A==}
+  electron@25.9.8:
+    resolution: {integrity: sha512-PGgp6PH46QVENHuAHc2NT1Su8Q1qov7qIl2jI5tsDpTibwV2zD8539AeWBQySeBU4dhbj9onIl7+1bXQ0wefBg==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -10126,9 +10123,9 @@ snapshots:
 
   '@dprint/toml@0.6.4': {}
 
-  '@electron-toolkit/tsconfig@2.0.0(@types/node@16.18.126)':
+  '@electron-toolkit/tsconfig@2.0.0(@types/node@18.19.120)':
     dependencies:
-      '@types/node': 16.18.126
+      '@types/node': 18.19.120
 
   '@electron/asar@3.4.1':
     dependencies:
@@ -11776,8 +11773,6 @@ snapshots:
       form-data: 4.0.0
 
   '@types/node@14.18.63': {}
-
-  '@types/node@16.18.126': {}
 
   '@types/node@18.19.120':
     dependencies:
@@ -14837,7 +14832,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron-vite@5.0.0(vite@8.0.0-beta.5(@types/node@16.18.126)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)):
+  electron-vite@5.0.0(vite@8.0.0-beta.5(@types/node@18.19.120)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)):
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-arrow-functions': 7.27.1(@babel/core@7.28.5)
@@ -14845,14 +14840,14 @@ snapshots:
       esbuild: 0.25.12
       magic-string: 0.30.21
       picocolors: 1.1.1
-      vite: 8.0.0-beta.5(@types/node@16.18.126)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)
+      vite: 8.0.0-beta.5(@types/node@18.19.120)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
-  electron@22.3.27:
+  electron@25.9.8:
     dependencies:
       '@electron/get': 2.0.3
-      '@types/node': 16.18.126
+      '@types/node': 18.19.120
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -18976,7 +18971,7 @@ snapshots:
       terser: 5.39.0
       yaml: 2.8.2
 
-  vite@8.0.0-beta.5(@types/node@16.18.126)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2):
+  vite@8.0.0-beta.5(@types/node@18.19.120)(esbuild@0.25.12)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2):
     dependencies:
       '@oxc-project/runtime': 0.103.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -18986,7 +18981,7 @@ snapshots:
       rolldown: 1.0.0-beta.57
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 16.18.126
+      '@types/node': 18.19.120
       esbuild: 0.25.12
       fsevents: 2.3.3
       jiti: 2.6.1
