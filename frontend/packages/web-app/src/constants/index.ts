@@ -1,3 +1,5 @@
+import type { TablePaginationConfig } from 'ant-design-vue'
+
 // 窗口名称
 export enum WINDOW_NAME {
   MAIN = 'main',
@@ -40,3 +42,9 @@ export const ERROR_CODES = ['500', '5001', '1001']
 export const UN_AUTHORIZED_CODES = ['302', '4001', '401', '403', '900005', '900001'] // 900005空间过期 900001被其他账号顶掉
 
 export const VUE_APP_HELP = 'https://www.iflyrpa.com/docs/'
+
+export const paginationConfig: TablePaginationConfig = {
+  hideOnSinglePage: true,
+  defaultPageSize: 10,
+  pageSizeOptions: ['10'],
+}

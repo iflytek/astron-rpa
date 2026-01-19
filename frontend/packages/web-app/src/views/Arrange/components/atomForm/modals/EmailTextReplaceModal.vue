@@ -7,8 +7,8 @@ import { nanoid } from 'nanoid'
 import type { UnwrapRef } from 'vue'
 import { reactive, ref } from 'vue'
 
-import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
-import { getRealValue } from '@/views/Arrange/components/atomForm/hooks/usePreview'
+import AtomConfig from '../AtomConfig.vue'
+import { getRealValue } from '../hooks/usePreview'
 
 const props = defineProps<{ option: string }>()
 const emits = defineEmits(['ok'])

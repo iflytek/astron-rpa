@@ -5,7 +5,8 @@ import { useTranslation } from 'i18next-vue'
 import { isEmpty } from 'lodash-es'
 import { computed, onMounted, reactive, ref, useTemplateRef } from 'vue'
 
-// import type { TableOption } from '@/types/normalTable'
+import type { TableOption } from '@/types/normalTable'
+
 import useTable from './hooks/useTable'
 
 const PAGE_SIZE_OPTIONS = ['15', '30', '50', '100']
@@ -41,16 +42,12 @@ export default {
   name: 'NormalTable',
   props: {
     option: {
-      // type: Object as () => TableOption,
-      // default(): TableOption {
-      //   return {
-      //     getData: async () => ({ records: [], total: 0 }),
-      //     tableProps: { columns: [] },
-      //   }
-      // },
-      type: Object,
-      default() {
-        return {}
+      type: Object as () => TableOption,
+      default(): TableOption {
+        return {
+          getData: async () => ({ records: [], total: 0 }),
+          tableProps: { columns: [] },
+        }
       },
     },
   },
@@ -217,7 +214,13 @@ export default {
             {/* 头部 */}
             {
               (hasBtns || hasForm) && (
-                <div class={['nTable-header', { 'flex-row-reverse': option.formListAlign === 'right' || option.buttonListAlign === 'left' }]}>
+                <div
+                  class={[
+                    'nTable-header',
+                    { 'flex-row-reverse': option.formListAlign === 'right' || option.buttonListAlign === 'left' },
+                    option.headerClass,
+                  ]}
+                >
                   {/* 左侧form */}
                   {hasForm && renderHeaderForm(formOption)}
                   {/* 右侧button */}

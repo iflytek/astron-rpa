@@ -35,6 +35,7 @@ export enum ATOM_FORM_TYPE {
   SCRIPTPARAMS = 'SCRIPTPARAMS', // 脚本参数管理
   REMOTEPARAMS = 'REMOTEPARAMS', // 远程参数
   REMOTEFOLDERS = 'REMOTEFOLDERS', // 远程文件夹选择
+  AIWORKFLOW = 'AIWORKFLOW', // 选择AI工作流
 }
 
 // 保存到py端的类型

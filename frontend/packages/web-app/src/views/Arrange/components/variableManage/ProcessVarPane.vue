@@ -7,8 +7,7 @@ import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import { useVariableStore } from '@/stores/useVariableStore'
-
-import { paginationConfig } from '../tools/components/constant'
+import { paginationConfig } from '@/constants'
 
 const processStore = useProcessStore()
 const { t } = useTranslation()

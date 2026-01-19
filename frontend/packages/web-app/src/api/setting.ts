@@ -60,7 +60,6 @@ export function toolsInterfacePost(data) {
  * @description: 获取Api Key列表数据
  */
 export function getApis(params) {
-  // return http.get('/rpaai/get-key', params)
   return http.get('/rpa-openapi/api-keys/get', params)
 }
 
@@ -68,7 +67,6 @@ export function getApis(params) {
  * @description: 删除API Key
  */
 export function deleteAPI(params) {
-  // return http.post('/rpaai/remove-key', params)
   return http.post('/rpa-openapi/api-keys/remove', params)
 }
 
@@ -76,6 +74,38 @@ export function deleteAPI(params) {
  * @description: 新增API Key
  */
 export function createAPI(params) {
-  // return http.post('/rpaai/add-key', params)
   return http.post('/rpa-openapi/api-keys/create', params)
+}
+
+/**
+ * @description: 获取Agent Api Key列表数据
+ */
+export async function getAgentApis(params) {
+  const res = await http.get('/rpa-openapi/api-keys/get-astron', params)
+  return res.data
+}
+
+/**
+ * @description: 删除Agent API Key
+ */
+export function deleteAgentAPI(id: number) {
+  return http.post('/rpa-openapi/api-keys/remove-astron', { id })
+}
+
+/**
+ * @description: 新增Agent API Key
+ */
+export async function createAgentAPI<T>(params: T) {
+  const res = await http.post<{ id: number }>('/rpa-openapi/api-keys/create-astron', params)
+  return res.data
+}
+
+/**
+ * @description: 更新Agent API Key
+ * @param params
+ * @returns
+ */
+export async function updateAgentApi<T>(params: T) {
+  const res = await http.post<{ id: number }>('/rpa-openapi/api-keys/update-astron', params)
+  return res.data
 }

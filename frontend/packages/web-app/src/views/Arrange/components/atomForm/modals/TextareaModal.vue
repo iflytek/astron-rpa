@@ -2,7 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import { ref } from 'vue'
 
-import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
+import AtomFormItem from '../AtomFormItem.vue'
 
 const props = defineProps<{ itemDataVal: Array<RPA.AtomFormItemResult> }>()
 const emit = defineEmits(['ok'])

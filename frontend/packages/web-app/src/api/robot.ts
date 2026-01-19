@@ -56,6 +56,14 @@ export function setRobotIsExternalCall(data) {
 }
 
 /**
+ * 获取AI工作流列表
+ */
+export async function getWorkflowList() {
+  const res = await http.get('/rpa-openapi/workflows/get-astron')
+  return res.data?.records || []
+}
+
+/**
  * @description: 获取应用名称以英文翻译
  */
 export function getRobotEnglishName(name: string) {

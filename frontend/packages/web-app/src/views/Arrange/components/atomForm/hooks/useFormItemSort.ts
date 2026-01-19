@@ -100,6 +100,9 @@ export function useFormItemSort() {
       type: ATOM_FORM_TYPE.SCRIPTPARAMS,
     },
     {
+      type: ATOM_FORM_TYPE.AIWORKFLOW,
+    },
+    {
       type: ATOM_FORM_TYPE.REMOTEPARAMS,
     },
   ]
