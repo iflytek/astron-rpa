@@ -77,12 +77,13 @@ watch(linkageKey, async (newLinkageKey) => {
   const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
 
   gridData.value = list.filter(item => item.varDirection === 0).map(item => {
-    const varValue = safeParse(currentParamMap.get(item.id) || defaultParamMap.get(item.id))
+    const _varValue = currentParamMap.get(item.id) || defaultParamMap.get(item.id)
+    const varValue = safeParse(_varValue)
     const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
 
     return {
       ...item,
-      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue
+      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue
     }
   })
 }, { immediate: true })

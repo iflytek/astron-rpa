@@ -33,12 +33,12 @@ function safeParse(str) {
 function convertStringToArray(_varValue: unknown): RPA.AtomFormItemResult[] {
   const varValue = safeParse(_varValue)
   const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
-  return illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue
+  return illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue
 }
 
 function convertArrayToString(varValue: RPA.AtomFormItemResult[]): string {
   const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
-  return JSON.stringify(illegal ? [{ type: OTHER_IN_TYPE, value: varValue || '' }] : varValue)
+  return JSON.stringify(illegal ? [{ type: OTHER_IN_TYPE, value: varValue ?? '' }] : varValue)
 }
 
 function syncVarValue(varValue: RPA.AtomFormItemResult[]) {
