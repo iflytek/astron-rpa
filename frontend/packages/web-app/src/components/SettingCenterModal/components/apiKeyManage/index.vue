@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import NormalTable from '@/components/NormalTable/index.vue'
+import { computed, ref } from 'vue'
 
-import { useApiKeyManage } from './useApiKeyManage'
+import AgentKeyManage from './AgentKeyManage.vue'
+import ApiKeyManage from './ApiKeyManage.vue'
 
-const { currTableRef, tableOption } = useApiKeyManage()
+const activeKey = ref('apiKey')
+
+const options = computed(() => ([
+  {
+    label: '星辰RPA授权管理',
+    value: 'apiKey',
+  },
+  {
+    label: '星辰Agent授权管理',
+    value: 'starAgent',
+  },
+]))
 </script>
 
 <template>
-  <NormalTable ref="currTableRef" :option="tableOption" />
+  <a-segmented v-model:value="activeKey" :options="options" class="mb-3" />
+  <ApiKeyManage v-show="activeKey === 'apiKey'" />
+  <AgentKeyManage v-show="activeKey === 'starAgent'" />
 </template>

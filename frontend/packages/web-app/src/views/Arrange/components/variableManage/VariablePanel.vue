@@ -11,8 +11,7 @@ import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 import { getFlowVariable } from '@/views/Arrange/utils/generateData'
-
-import { paginationConfig } from '../tools/components/constant'
+import { paginationConfig } from '@/constants'
 import { VariableType } from '@/corobot/type'
 
 const { t } = useTranslation()

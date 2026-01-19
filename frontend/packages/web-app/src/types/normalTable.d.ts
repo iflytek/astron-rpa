@@ -66,19 +66,18 @@ export interface ButtonItemConfig {
 
 // 表格列配置接口
 export interface TableColumnConfig {
-  title: string
-  dataIndex: string
   key: string
+  title: string
+  dataIndex?: string
   width?: number | string
   ellipsis?: boolean
   sorter?: boolean | ((a: any, b: any) => number)
   customRender?: (params: { record: any, text: any, index: number }) => any
-  [key: string]: any
-}
+} 
 
 // 表格属性配置接口
 export interface TablePropsConfig {
-  columns: TableColumnConfig[]
+  columns: TableColumnConfig[] | Ref<TableColumnConfig[]>
   rowKey?: string
   size?: TableSize
   customRow?: (record: any) => any
@@ -124,6 +123,9 @@ export interface TableOption {
   page?: boolean
   size?: TableSize
   emptyText?: string
+
+  // class
+  headerClass?: string
 
   // 数据相关
   getData: GetDataFunction

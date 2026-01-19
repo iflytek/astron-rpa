@@ -4,7 +4,7 @@ import { NiceModal } from '@rpa/components'
 import { Empty, Tag } from 'ant-design-vue'
 import { ref, watch, watchEffect } from 'vue'
 
-import { ContractEleModal } from '@/views/Arrange/components/tools/components'
+import { ContractEleModal } from './modals'
 
 const { renderData } = defineProps({
   renderData: {

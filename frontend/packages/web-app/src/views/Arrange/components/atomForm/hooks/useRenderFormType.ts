@@ -6,11 +6,9 @@ import BUS from '@/utils/eventBus'
 import { validateContractResult } from '@/api/contract'
 import { getHTMLClip } from '@/api/resource'
 import { ATOM_FORM_TYPE, ELEMENT_IN_TYPE, GLOBAL_VAR_IN_TYPE, OTHER_IN_TYPE, PARAMETER_VAR_IN_TYPE, PY_IN_TYPE, VAR_IN_TYPE } from '@/constants/atom'
-import { utilsManager } from '@/platform'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { CustomDialog } from '@/views/Arrange/components/customDialog'
 import { UserFormDialogModal } from '@/views/Arrange/components/customDialog/components'
-import { ContractValidateModal, EmailTextReplaceModal, TextareaModal } from '@/views/Arrange/components/tools/components'
 import { INPUT_NUMBER_TYPE_ARR, ORIGIN_SPECIAL, ORIGIN_VAR, PROCESS_VAR_TYPE } from '@/views/Arrange/config/atom'
 import { backContainNodeIdx } from '@/views/Arrange/utils/flowUtils'
 import type { resOption } from '@/views/Home/types'
@@ -18,6 +16,7 @@ import type { resOption } from '@/views/Home/types'
 import { createDom, setEditTextContent } from './useAtomVarPopover'
 import useFormPick from './useFormPick'
 import { getRealValue, getUserFormOption } from './usePreview'
+import { ContractValidateModal, EmailTextReplaceModal, TextareaModal } from '../modals'
 
 const hasDataCategoryType = [VAR_IN_TYPE, GLOBAL_VAR_IN_TYPE, PARAMETER_VAR_IN_TYPE, ELEMENT_IN_TYPE]
 
@@ -220,14 +219,6 @@ export function formBtnHandle(itemData: RPA.AtomDisplayItem, itemType: string, e
         })
       })
       useFormPick('POINT')
-      break
-    case ATOM_FORM_TYPE.FILE:
-      utilsManager.showDialog(itemData.formType.params).then((res) => {
-        if (res) {
-          const strVal = Array.isArray(res) ? res.join(',') : res
-          flowStore.setFormItemValue(itemData.key, strVal, id || flowStore.activeAtom.id)
-        }
-      })
       break
     default:
       break
