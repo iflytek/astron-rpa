@@ -41,12 +41,14 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
 
   const currHoverId = ref('')
 
-  const createColumns = computed(() => ([
+  const createColumns = ref([
     {
       title: t('projectName'),
       dataIndex: 'robotName',
       key: 'robotName',
       ellipsis: true,
+      width: 150,
+      resizable: true,
       customRender: ({ record }) => (
         <div class="flex items-center gap-2 overflow-hidden w-full">
           <Tooltip title={`ID：${record.robotId}`}>
@@ -111,7 +113,7 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
         return <OperMenu moreOpts={projectMoreOpts} baseOpts={projectBaseOpts} row={record} />
       },
     },
-  ]))
+  ])
 
   const projectBaseOpts = [
     {

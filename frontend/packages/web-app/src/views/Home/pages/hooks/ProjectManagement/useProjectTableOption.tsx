@@ -40,6 +40,9 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
     ],
     tableProps: { // 表格配置，即antd中的Table组件的属性
       columns: createColumns,
+      onResizeColumn: (w, col) => {
+        createColumns.value.find(item => item.key === col.key).width = w
+      },
       rowKey: 'robotId',
       size: 'middle',
       customRow: record => ({
