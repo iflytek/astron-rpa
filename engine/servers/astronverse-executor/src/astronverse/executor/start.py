@@ -3,6 +3,7 @@ import json
 import os
 import threading
 import time
+import traceback
 from urllib.parse import unquote
 
 from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
@@ -184,11 +185,11 @@ def start():
     except BaseException as e:
         if svc:
             svc.end(ExecuteStatus.FAIL, reason=e.message)
-        logger.debug("error {}".format(e))
+        logger.debug("error {} traceback {}".format(e, traceback.format_exc()))
         return
     except Exception as e:
         if svc:
             svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
-        logger.debug("error {}".format(e))
+        logger.debug("error {} traceback {}".format(e, traceback.format_exc()))
         return
     logger.debug("end")
