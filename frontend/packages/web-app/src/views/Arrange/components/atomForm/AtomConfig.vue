@@ -97,8 +97,9 @@ const renderList = computed(() => {
 
   .editor-container {
     position: relative;
-    padding: 6px 10px;
-    line-height: 20px;
+    padding: 5px 11px;
+    font-size: 14px;
+    line-height: 22px;
   }
 
   .active-container {
@@ -118,7 +119,7 @@ const renderList = computed(() => {
 
 .form-item-container__small {
   .editor-container {
-    padding: 2px 7px;
+    padding: 1px 7px;
   }
 }
 </style>
