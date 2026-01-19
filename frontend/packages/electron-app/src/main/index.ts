@@ -8,7 +8,7 @@ import { envJson } from './env'
 import { listenRender } from './event'
 import { checkPythonRpaProcess, startBackend } from './server'
 import { changeTray, createTray } from './tray'
-import { createSubWindow, createMainWindow as createWindow, electronInfo, getMainWindow, WindowStack } from './window'
+import { createSubWindow, createMainWindow as createWindow, electronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
 import { rendererPath, windowBaseUrl } from './path'
 
 const startTime = Date.now()
@@ -159,7 +159,7 @@ ipcMain.handle('ipcCreateWindow', (_event, options) => {
 
 ipcMain.handle('w2w', (_event, arg: W2WType) => {
   logger.info('w2w', JSON.stringify(arg))
-  const targetWin = WindowStack.get(arg.target)
+  const targetWin = getWindowFromLabel(arg.target) || getMainWindow()
   targetWin?.webContents.send('w2w', arg)
   return true
 })
