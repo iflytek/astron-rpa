@@ -14,7 +14,7 @@ import DataBatch from '@/components/DataBatch/Index.vue'
 </template>
 
 <style lang="scss">
-#app-batch {
+#app {
   width: 100%;
   height: 100%;
   background-color: transparent;

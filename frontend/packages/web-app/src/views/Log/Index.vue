@@ -10,7 +10,7 @@ import LogWindow from '@/components/LogWindow/Index.vue'
 </template>
 
 <style lang="scss">
-#app-log {
+#app {
   width: 100vw;
   height: 100vh;
 }

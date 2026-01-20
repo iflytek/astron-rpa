@@ -10,7 +10,7 @@ import MultiChat from '@/components/MultiChat/Index.vue'
 </template>
 
 <style lang="scss">
-#multi-chat {
+#app {
   width: 100%;
   height: 100%;
 }

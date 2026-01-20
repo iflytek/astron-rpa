@@ -3,14 +3,13 @@ import { onBeforeUnmount } from 'vue'
 
 import { useTheme } from '../../../../theme'
 import LoginBgDark from '../../assets/imgs/login_bg_dark.png'
-import loginImgUrl from '../../assets/imgs/login_img.svg'
+import LoginSvg from '../../assets/imgs/login_img.svg?component'
 
 import PageHeader from './PageHeader.vue'
 import StarCanvas from './StarCanvas.vue'
 
 const { colorTheme, setColorMode } = useTheme()
 
-const loginImg = loginImgUrl
 const loginBg = LoginBgDark
 
 const color = colorTheme.value
@@ -21,7 +20,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="auth-container w-full h-full bg-[#141414]" :class="[colorTheme]" :style="{ backgroundImage: `url(${loginBg})`, backgroundSize: '100% 100%' }">
+  <div
+    class="auth-container w-full h-full bg-[#141414]"
+    :class="[colorTheme]"
+    :style="{ backgroundImage: `url(${loginBg})`, backgroundSize: '100% 100%' }"
+  >
     <slot name="header">
       <PageHeader />
     </slot>
@@ -37,9 +40,7 @@ onBeforeUnmount(() => {
                 让决策更智能
               </div>
             </div>
-            <div class="w-[480px]">
-              <object :data="loginImg" type="image/svg+xml" style="width: 100%; height: auto;" />
-            </div>
+            <LoginSvg class="w-[480px] h-[400px]" />
           </div>
           <slot />
         </div>

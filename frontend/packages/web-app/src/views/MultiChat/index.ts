@@ -12,4 +12,4 @@ const app = createApp(Index)
 app.use(createPinia())
 
 app.use(i18next)
-app.mount('#multi-chat')
+app.mount('#app')
