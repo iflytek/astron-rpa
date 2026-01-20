@@ -6,7 +6,6 @@ import { useRoute } from 'vue-router'
 
 import { codeToMeta } from '@/api/component'
 import { getRootBaseURL } from '@/api/http/env'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
@@ -17,8 +16,9 @@ import AtomForm from '../components/AtomForm.vue'
 import { modeOptions } from '../config/constants'
 import { usePackageCheck, useSmartComp } from '../hooks'
 import { generateComponentForm } from '../utils'
+import { useDark } from '@vueuse/core'
 
-const appStore = useAppConfigStore()
+const isDark = useDark()
 const processStore = useProcessStore()
 const flowStore = useFlowStore()
 const smartComp = useSmartComp()
@@ -210,7 +210,7 @@ const handleReset = throttle(() => {
       :project-id="processStore.project.id"
       :base-url="baseUrl"
       :value="currentCode"
-      :is-dark="appStore.isDark"
+      :is-dark="isDark"
       style="height: calc(100% - 52px); padding-bottom: 16px"
       @update:value="handleCodeUpdate"
     />

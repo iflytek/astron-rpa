@@ -28,10 +28,12 @@ declare namespace RPA {
     id: string | number
     logLevel: LogLevel
     logLevelText: string
+    logType: LogType
     timestamp: string
     content: string
     lineNum: number
     processName?: string
     processId?: string
+    error_traceback?: string
   }
 }

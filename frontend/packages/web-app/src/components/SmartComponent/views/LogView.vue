@@ -26,31 +26,28 @@ const hasErrors = computed(() => {
 
 const errorLogs = computed(() => {
   return runlogStore.logList
-    .filter(log => log.logLevel === 'error' && log.error_traceback)
+    .filter(log => log.logLevel === 'error' && log.error_traceback && log.logType === 'code')
     .map((log) => {
       const traceback = log.error_traceback || ''
       const lines = traceback.split('\n').filter(line => line.trim())
 
-      // 找到最后一个包含 "File " 的行
+      // 找到最后一个包含 "File " 和 "smart" 的行
       let lastFileLine: string | null = null
       for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i]
-        if (line.includes('File ')) {
+        if (line.includes('File ') && line.includes('smart')) {
           lastFileLine = line
           break
         }
       }
 
-      // 后端约定只有 "File "<string>", line 32" 格式的报错为可修复的智能组件报错
-      const canFix = lastFileLine?.includes('"<string>"') || false
-
       // 解析错误信息
       let formattedContent = log.content
-      if (canFix && lastFileLine) {
+      if (lastFileLine) {
         const lineMatch = lastFileLine.match(/line\s+(\d+)/i)
         if (lineMatch) {
           const lineNumber = Number.parseInt(lineMatch[1], 10)
-          const execErrorMatch = log.content.match(/执行失败\s*(.+)/)
+          const execErrorMatch = log.content.match(/执行错误\s*(.+)/)
           const errorMessage = execErrorMatch ? execErrorMatch[1].trim() : log.content
           formattedContent = `源代码第【${lineNumber}】行出错: ${errorMessage}`
         }
@@ -59,7 +56,6 @@ const errorLogs = computed(() => {
       return {
         ...log,
         formattedContent,
-        canFix,
       }
     })
 })
@@ -115,7 +111,7 @@ onBeforeMount(() => closeLogView())
         >
           <rpa-icon name="error" size="16" />
           <span class="ml-2 flex-1 dark:text-[#000000]/[.85]">{{ log.formattedContent }}</span>
-          <a-button v-if="log.canFix" type="link" class="text-primary" @click="fixCode(log)">
+          <a-button type="link" class="text-primary" @click="fixCode(log)">
             一键修复
           </a-button>
         </div>

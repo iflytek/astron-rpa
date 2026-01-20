@@ -54,7 +54,7 @@ useElementManager()
 
     <section class="flex-1 flex gap-[2px] overflow-y-hidden">
       <NewChat :style="{ width: hasEditingComp ? '480px' : '100%' }" />
-      <div class="flex-1 flex flex-col gap-[2px]">
+      <div class="flex-1 flex flex-col gap-[2px] overflow-x-hidden">
         <Preview v-if="hasEditingComp" />
         <LogView />
       </div>
