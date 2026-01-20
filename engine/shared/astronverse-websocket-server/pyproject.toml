@@ -1,6 +1,6 @@
 [project]
 name = "astronverse-websocket-server"
-version = "1.0.1"
+version = "1.0.7"
 description = "astronverse-websocket-server."
 requires-python = ">=3.13"
 
