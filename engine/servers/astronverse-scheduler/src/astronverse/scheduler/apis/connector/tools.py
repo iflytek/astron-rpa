@@ -265,6 +265,24 @@ def browser_check(options: CheckBrowserPlugin):
     return res_msg(code=ResCode.ERR, msg="检测失败", data=None)
 
 
+@router.post("/browser/plugins/check_running")
+def browser_check_running(plugin_op: BrowserPlugin):
+    """
+    检测浏览器是否运行
+    """
+    try:
+        from astronverse.browser_plugin import BrowserType
+        from astronverse.browser_plugin.browser import ExtensionManager
+
+        browser = BrowserType.init(plugin_op.browser)
+        ex_manager = ExtensionManager(browser_type=browser)
+        running = ex_manager.check_browser_running()
+        return res_msg(msg="", data={"running": running})
+    except Exception as e:
+        logger.exception(e)
+    return res_msg(code=ResCode.ERR, msg="检测失败", data=None)
+
+
 @router.post("/clipboard/get")
 def clipboard_get(is_html: bool):
     """

@@ -170,7 +170,11 @@ if __name__ == "__main__":
     remote_meta = get_remote_meta()
 
     if local_meta and remote_meta:
-        updated_meta = merge_local_and_remote(local_meta, remote_meta)
+        choice = input("Do you want to merge local meta with remote meta? (Y/N): ").strip().lower()
+        if choice == "y":
+            merge_local_and_remote(local_meta, remote_meta)
+        else:
+            print("\033[33mSkipping merge. load from temp_update.json if exists.\033[0m")
         choice = input("Do you want to upload the updated meta to the server? (Y/N): ").strip().lower()
         if choice == "y":
             print("Uploading updated meta to the server...")

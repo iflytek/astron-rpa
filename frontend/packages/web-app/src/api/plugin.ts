@@ -32,6 +32,17 @@ export function browerPluginInstall(params) {
   )
 }
 
+// 插件安装前浏览器是否正在运行的检测
+export function checkBrowerRunning(params) {
+  return http.post(
+    '/scheduler/browser/plugins/check_running',
+    {
+      browser: params.type,
+    },
+    { toast: false, baseURL: getRootBaseURL() },
+  )
+}
+
 // 驱动插件查询状态
 export function checkDriverPlugin() {
   return http.post('/tools/driver_check')

@@ -85,3 +85,9 @@ class ExtensionManager:
         open browser
         """
         self.browser_plugin_manager.open_browser()
+
+    def check_browser_running(self):
+        """
+        check browser running
+        """
+        return self.browser_plugin_manager.check_browser_running()

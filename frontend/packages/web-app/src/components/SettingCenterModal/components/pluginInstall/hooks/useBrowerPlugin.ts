@@ -3,7 +3,7 @@ import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { onBeforeMount } from 'vue'
 
-import { browerPluginInstall } from '@/api/plugin'
+import { browerPluginInstall, checkBrowerRunning } from '@/api/plugin'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_LIST } from '@/constants/plugin'
@@ -35,9 +35,6 @@ export function useBrowerPlugin() {
       },
       centered: true,
       keyboard: false,
-    }
-    if (!['microsoftedge', 'chrome'].includes(pluginItem.type)) {
-      modelConf.content = `未知插件${type}`
     }
 
     GlobalModal.confirm(modelConf)
@@ -105,13 +102,29 @@ export function useBrowerPlugin() {
       case BROWER_LIST['360X']:
         install(pluginItem, action)
         break
-      // case '2345':
-      //   openHelp()
-      //   break
       default:
         message.info('敬请期待')
     }
   }
 
-  return { pluginList: appConfigStore.browserPlugins, install: installBrowerPlugin }
+  const safeInstallBrowerPlugin = async (pluginItem: PLUGIN_ITEM) => {
+    pluginItem.loading = true
+    try {
+      const { data } = await checkBrowerRunning({ type: pluginItem.type })
+      if (data && data.running) {
+        pluginItem.loading = false
+        killBrowerReinstall(pluginItem)
+      }
+      else {
+        installBrowerPlugin(pluginItem)
+      }
+    }
+    catch (error) {
+      console.error('checkBrowerRunning error: ', error)
+      // 出错则默认浏览器未运行，直接安装
+      installBrowerPlugin(pluginItem)
+    }
+  }
+
+  return { pluginList: appConfigStore.browserPlugins, install: installBrowerPlugin, safeInstallBrowerPlugin }
 }

@@ -24,7 +24,7 @@ export enum ErrorMessage {
   SIMILAR_NOT_FOUND = '未找到相似元素',
   RELATIVE_ELEMENT_PARAMS_ERROR = '关联元素参数错误',
   ELEMENT_NOT_FOUND = '未找到元素',
-  UNSUPPORT_ERROR = '暂未实现',
+  UNSUPPORT_ERROR = '暂未实现,请升级到最新版本',
   PARAMS_URL_NOT_FOUND = '缺少url字段！',
   PARAMS_NAME_NOT_FOUND = '缺少name字段！',
   PARAMS_NAME_VALUE_NOT_FOUND = '缺少必填字段name, value！',

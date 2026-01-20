@@ -6,6 +6,7 @@ from astronverse.browser_plugin.utils import (
     Registry,
     check_chrome_plugin,
     get_app_path,
+    is_browser_running,
     kill_process,
     remove_browser_setting,
     start_browser,
@@ -88,3 +89,9 @@ class EdgePluginManager(PluginManagerCore):
 
     def register_policy(self):
         return run_reg_file(self.plugin_data.plugin_id)
+
+    def check_browser_running(self):
+        """
+        check browser running
+        """
+        return is_browser_running("msedge")

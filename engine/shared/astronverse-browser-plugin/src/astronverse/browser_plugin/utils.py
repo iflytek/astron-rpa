@@ -308,3 +308,16 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
     # delete secure preferences
     if os.path.exists(secure_preferences):
         os.remove(secure_preferences)
+
+
+def is_browser_running(browser_name: str) -> bool:
+    """
+    check browser process running
+    """
+    for proc in psutil.process_iter(attrs=["pid", "name"]):
+        try:
+            if "{}.exe".format(browser_name) == proc.info["name"].lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False
