@@ -12,6 +12,8 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import { lazyImport, VxeResolver } from 'vite-plugin-lazy-import'
+import PageHtml from 'vite-plugin-page-html'
+import { svg4VuePlugin } from 'vite-plugin-svg4vue'
 
 import { ModalReplacementResolver } from './src/plugins/component-resolver'
 
@@ -28,7 +30,6 @@ const sentryConfig: SentryVitePluginOptions = {
 
 // https://vitejs.dev/config/
 export default defineConfig((env) => {
-  const isServe = env.command === 'serve'
   const isPublish = env.mode === 'publish'
   const isDebug = env.mode === 'debug'
 
@@ -37,34 +38,14 @@ export default defineConfig((env) => {
 
   return {
     publicDir: basePublic,
-    base: isServe ? '/' : './',
     build: {
       sourcemap: isDebug ? 'inline' : isPublish,
-      rollupOptions: {
-        input: {
-          boot: './boot.html',
-          index: './index.html',
-          404: './404.html',
-          logwin: './logwin.html',
-          batch: './batch.html',
-          multichat: './multichat.html',
-          userform: './userform.html',
-          record: './record.html',
-          recordmenu: './recordmenu.html',
-          smartcompickmenu: './smartcompickmenu.html'
-        },
-      },
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: isPublish,
-          drop_debugger: true,
-        },
-      },
+      minify: 'oxc',
     },
     plugins: [
       vue(),
       vueJsx(),
+      svg4VuePlugin({ assetsDirName: false }),
       // Inspect(),
       Components({
         dirs: [],
@@ -87,17 +68,20 @@ export default defineConfig((env) => {
           }),
         ],
       }),
-      {
-        name: 'client-sdk-inject',
-        transformIndexHtml(html) {
-          // 找到head 标签，并在其后插入<script>标签, 不区分环境
-          return html.replace(
-            /<head>/,
-            `<head>
-              <script src="client-sdk.js"></script>`,
-          )
-        },
-      },
+      PageHtml({
+        template: 'src/index.html',
+        page: { // Note: paths here must be absolute from project root, starting with '/src/...'
+          index: '/src/views/Home/index.ts',
+          boot: '/src/views/Boot/index.ts',
+          logwin: '/src/views/Log/index.ts',
+          batch: '/src/views/Batch/index.ts',
+          multichat: '/src/views/MultiChat/index.ts',
+          userform: '/src/views/UserForm/index.ts',
+          record: '/src/views/Record/index.ts',
+          recordmenu: '/src/views/RecordMenu/index.ts',
+          smartcompickmenu: '/src/views/SmartCompPickMenu/index.ts'
+        }
+      }),
       enableSentry ? sentryVitePlugin(sentryConfig) : null,
       enableAnalyze ? analyzer() : null,
     ],

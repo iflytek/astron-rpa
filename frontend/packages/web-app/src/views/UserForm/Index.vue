@@ -11,7 +11,7 @@ import UserFormWindow from './UserFormWindow.vue'
 </template>
 
 <style lang="scss">
-#user-form {
+#app {
   width: 100%;
   height: 100%;
 }
