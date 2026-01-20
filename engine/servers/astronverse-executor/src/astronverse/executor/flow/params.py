@@ -1,10 +1,6 @@
 import json
 from enum import Enum
 from typing import Any
-
-from astronverse.actionlib import ReportTip
-
-from astronverse.executor.error import MSG_GLOBAL_USE_ERROR_TIP
 from astronverse.executor.flow.syntax import InputParam, IParam, OutputParam, Token
 
 
@@ -87,13 +83,11 @@ class Param(IParam):
                     pieces.append(f"gv[{data!r}]")
                 else:
                     if gv and data in gv:  # 兜底
-                        self.svc.report.warning(ReportTip(msg_str=MSG_GLOBAL_USE_ERROR_TIP))
                         pieces.append(f"gv[{data!r}]")
                     else:
                         pieces.append(f"{data}")
             else:
                 if gv and data in gv:  # 兜底
-                    self.svc.report.warning(ReportTip(msg_str=MSG_GLOBAL_USE_ERROR_TIP))
                     pieces.append(f"gv[{data!r}]")
                 else:
                     pieces.append(data)
@@ -116,6 +110,8 @@ class Param(IParam):
             if parse == "json_str":
                 if data:
                     data = json.loads(data)
+            if data == "":
+                data = []
             return InputParam(key=name, value=data, need_eval=True, special="complex_param_parser")
         else:
             if isinstance(data, list) and len(data) == 1 and data[0].get("type", None) == ParamType.ELEMENT.value:
@@ -192,7 +188,6 @@ class Param(IParam):
                 project_id = self.svc.ast_curr_info.get("__project_id__")
                 gv = self.svc.ast_globals_dict[project_id].project_info.global_var
                 if gv and value in gv:  # 兜底
-                    self.svc.report.warning(ReportTip(msg_str=MSG_GLOBAL_USE_ERROR_TIP))
                     value = f"gv[{value!r}]"
 
                 # 2. 解析
