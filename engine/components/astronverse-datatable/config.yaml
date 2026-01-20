@@ -455,8 +455,39 @@ options:
       label: 单元格左移
     - value: up
       label: 单元格上移
-    - value: 'no'
-      label: 'no'
+    - value: not
+      label: 单元格不移动
+  Bool:
+    - value: true
+      label: 是
+    - value: false
+      label: 否
+  SortOrder:
+    - value: ascending
+      label: 升序
+    - value: descending
+      label: 降序
+  InsertType:
+    - value: row
+      label: 行
+    - value: column
+      label: 列
+  FilterType:
+    - value: column
+      label: 列筛选
+    - value: table
+      label: 表格筛选
+    - value: row
+      label: 行筛选
+  ExportFileType:
+    - value: xlsx
+      label: .xlsx文件
+    - value: xls
+      label: .xls文件
+    - value: csv
+      label: .csv文件
+    - value: json
+      label: .json文件
   LoopType:
     - value: row
       label: 行
