@@ -797,7 +797,7 @@ requires-dist = [{ name = "websocket-client" }]
 
 [[package]]
 name = "astronverse-websocket-server"
-version = "1.0.1"
+version = "1.0.7"
 source = { editable = "shared/astronverse-websocket-server" }
 dependencies = [
     { name = "anyio" },

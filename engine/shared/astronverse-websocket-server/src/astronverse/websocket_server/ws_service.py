@@ -68,6 +68,11 @@ class WsManager:
     ):
         # 统一处理事件
         self.error_format = error_format
+        # wrap logger to include timestamp prefix
+        # def _log_with_ts(msg, *args, **kwargs):
+        #     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #     return log("[{}] {}".format(ts, msg), *args, **kwargs)
+        # self.log = _log_with_ts
         self.log = log
 
         # ping_check
@@ -92,7 +97,14 @@ class WsManager:
         self.clear_ack_once = AsyncOnce()
 
     async def _send_text(self, conn: Conn, msg: str):
-        self.log(">>>{}".format(msg))
+        # ping/pong消息不输出日志，避免日志过多
+        try:
+            data = json.loads(msg)
+            channel = data.get("channel")
+        except Exception:
+            channel = None
+        if channel not in (PingMsg.channel, PongMsg.channel):
+            self.log(">>>{}".format(msg))
         await conn.send_text(msg)
 
     async def _call_route(self, channel: str, key: str, *args, **kwargs):
@@ -220,7 +232,6 @@ class WsManager:
         try:
             while True:
                 text = await conn.ws.receive_text()
-                self.log("<<<{}".format(text))
                 # 验证
                 try:
                     data = json.loads(text)
@@ -236,38 +247,40 @@ class WsManager:
                     if not msg.send_uuid:
                         msg.send_uuid = "$root$"
                 except Exception as e:
+                    # 非法消息仍记录日志便于排查
+                    self.log("<<<{}".format(text))
                     await self._send_exit(conn, MsgUnlawfulnessError("msg unlawfulness, {}".format(text)))
                     continue
+                # ping/pong消息不输出日志，避免日志过多
+                if msg.channel not in (PingMsg.channel, PongMsg.channel):
+                    self.log("<<<{}".format(text))
 
                 # 处理
-                await asyncio.create_task(_listen())
+                asyncio.create_task(_listen())
         except Exception as e:
             self.log("listen error {}".format(uuid))
             await self._send_exit(conn, e)
+        finally:
+            # 连接断开时统一清理
+            if self._del_conn(conn.uuid, conn):
+                try:
+                    await conn.ws.close()
+                except Exception as e:
+                    pass
 
     async def _send_exit(self, conn: Conn, e: Exception = None):
         """
         _send_exit 发送exit
         """
-        if isinstance(e, WsError):
-            if self._del_conn(conn.uuid, conn):
-                try:
-                    err_msg = self.error_format(e)
-                    if err_msg:
-                        await self._send_text(conn, gen_exit_msg(err_msg).tojson())
-                except Exception as e:
-                    pass
-                try:
-                    await conn.ws.close()
-                except Exception as e:
-                    pass
-        else:
-            try:
-                err_msg = self.error_format(e)
-                if err_msg:
-                    await self._send_text(conn, gen_exit_msg(err_msg).tojson())
-            except Exception as e:
-                pass
+        # 仅业务错误尝试发送exit，清理放在listen的finally
+        if not isinstance(e, WsError):
+            return
+        try:
+            err_msg = self.error_format(e)
+            if err_msg:
+                await self._send_text(conn, gen_exit_msg(err_msg).tojson())
+        except Exception as e:
+            pass
 
     def _add_watch(self, watch: Watch):
         """
