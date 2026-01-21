@@ -50,6 +50,9 @@ atomic:
       - key: mini_step
         title: 微调步长（px）
         tip: ''
+      - key: offset
+        title: 偏移量（px）
+        tip: 可以根据实际情况设置偏移量
     outputList:
       - key: drag_distance
         title: 移动距离
@@ -71,8 +74,8 @@ atomic:
         tip: 如果指示顺序的图片相对大图在下，则选择下，反之选择上
     outputList:
       - key: click_positions
-        title: ''
-        tip: ''
+        title: 点击位置
+        tip: 返回验证码点击的坐标位置
 options:
   PictureCodeType:
     - value: '10110'
