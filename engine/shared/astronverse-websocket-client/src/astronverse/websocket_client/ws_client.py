@@ -320,8 +320,12 @@ class WsApp:
         self.running = False
         self._close_ping()
         self._close_watch()
-        self.ws_app = None
+        if self.ws_app:
+            # Unregister the on_close callback to prevent reconnection attempts.
+            self.ws_app.on_close = None
+            self.ws_app.close()
+            self.ws_app = None
         try:
             self._call_route("close", "", None)
         except Exception as e:
-            self.log("error: _on_close _call_route {}".format(e))
+            self.log("error: close _call_route {}".format(e))
