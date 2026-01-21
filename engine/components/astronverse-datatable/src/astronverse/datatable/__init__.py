@@ -60,7 +60,7 @@ class PasteValueType(Enum):
 class DeleteCellMove(Enum):
     LEFT = "left"  # 向左移动
     UP = "up"  # 向上移动
-    NO = "no"  # 不移动
+    NOT_MOVE = "not"  # 不移动
 
 
 class SortOrder(Enum):

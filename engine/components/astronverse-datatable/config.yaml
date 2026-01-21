@@ -455,8 +455,13 @@ options:
       label: 单元格左移
     - value: up
       label: 单元格上移
-    - value: 'no'
-      label: 'no'
+    - value: not
+      label: 单元格不移动
+  SortOrder:
+    - value: ascending
+      label: 升序
+    - value: descending
+      label: 降序
   LoopType:
     - value: row
       label: 行
