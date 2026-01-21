@@ -1,9 +1,9 @@
-# @format
-
 atomic:
   DataTable.read_data:
     title: 读取数据表格
-    comment: 读取数据表格 @{read_type} 中的数据，输出到变量 @{cell_info||row_info||column_info||area_info}
+    comment: >-
+      读取数据表格 @{read_type} 中的数据，输出到变量
+      @{cell_info||row_info||column_info||area_info}
     icon: read_data_table
     helpManual: ''
     inputList:
@@ -107,40 +107,6 @@ atomic:
       - key: max_column
         title: 最大列号
         tip: 返回数据表格中的最大列号，类型为整数
-  DataTable.loop_data_table:
-    title: 循环数据表格
-    comment: 循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
-    icon: loop_data_table
-    helpManual: ''
-    inputList:
-      - key: loop_type
-        title: 循环类型
-        tip: 选择循环遍历的方式（行、列、区域）
-      - key: row
-        title: 行号
-        tip: 指定要循环的行号
-      - key: col
-        title: 列号
-        tip: 指定要循环的列号
-      - key: start_row
-        title: 开始行号
-        tip: 指定循环区域的开始行号
-      - key: start_col
-        title: 开始列号
-        tip: 指定循环区域的开始列号
-      - key: end_row
-        title: 结束行号
-        tip: 指定循环区域的结束行号
-      - key: end_col
-        title: 结束列号
-        tip: 指定循环区域的结束列号
-    outputList:
-      - key: index
-        title: 当前索引
-        tip: 返回当前循环的索引
-      - key: value
-        title: 当前值
-        tip: 返回当前循环项的值
   DataTable.copy_data:
     title: 复制数据表格
     comment: 复制数据表格中的 @{copy_type} 数据到剪切板
@@ -240,6 +206,40 @@ atomic:
         title: 行删除是否移动
         tip: 删除行时的移动方式（上移）
     outputList: []
+  DataTable.loop_data_table:
+    title: 循环数据表格
+    comment: 循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
+    icon: loop_data_table
+    helpManual: ''
+    inputList:
+      - key: loop_type
+        title: 循环类型
+        tip: 选择循环遍历的方式（行、列、区域）
+      - key: row
+        title: 行号
+        tip: 指定要循环的行号
+      - key: col
+        title: 列号
+        tip: 指定要循环的列号
+      - key: start_row
+        title: 开始行号
+        tip: 指定循环区域的开始行号
+      - key: start_col
+        title: 开始列号
+        tip: 指定循环区域的开始列号
+      - key: end_row
+        title: 结束行号
+        tip: 指定循环区域的结束行号
+      - key: end_col
+        title: 结束列号
+        tip: 指定循环区域的结束列号
+    outputList:
+      - key: index
+        title: 当前索引
+        tip: 返回当前循环的索引
+      - key: value
+        title: 当前值
+        tip: 返回当前循环项的值
   DataTable.insert_row_column:
     title: 数据表格插入行/列
     comment: 在数据表格中插入 @{amount} @{insert_type} 空白@{insert_type}
@@ -279,7 +279,8 @@ atomic:
         tip: 指定要插入公式的列号
       - key: formula
         title: 公式内容
-        tip: 要插入的公式，例如"=SUM(A1:A5)"，支持公式包括数学、统计、逻辑、文本、日期和时间、查找和引用、工程、金融和信息公式。取决于打开表格文件的软件对公式的支持情况。
+        tip: >-
+          要插入的公式，例如"=SUM(A1:A5)"，支持公式包括数学、统计、逻辑、文本、日期和时间、查找和引用、工程、金融和信息公式。取决于打开表格文件的软件对公式的支持情况。
     outputList: []
   DataTable.set_column_title:
     title: 数据表格设置列信息
@@ -322,12 +323,12 @@ atomic:
       - key: find_value
         title: 查找内容
         tip: 要查找的内容
-      - key: is_replace
-        title: 是否替换
-        tip: 是否将查找到的内容进行替换
       - key: is_case_sensitive
         title: 区分大小写
         tip: 查找时是否区分大小写
+      - key: is_replace
+        title: 是否替换
+        tip: 是否将查找到的内容进行替换
       - key: replace_value
         title: 替换内容
         tip: 替换后的内容，仅在替换时使用
@@ -335,19 +336,6 @@ atomic:
       - key: find_data_positions
         title: 查找位置
         tip: 返回查找到的内容所在的位置列表
-  DataTable.sort_table:
-    title: 数据表格排序
-    comment: 对数据表格的 @{col} 列进行 @{sort_type} 排序
-    icon: sort_table
-    helpManual: ''
-    inputList:
-      - key: col
-        title: 列号
-        tip: 指定要排序的列号（例如A，B，C...）
-      - key: sort_type
-        title: 排序方式
-        tip: 选择排序方式（升序、降序）
-    outputList: []
   DataTable.filter_data_table:
     title: 数据表格筛选
     comment: 根据 @{filter_type} 条件筛选数据表格
@@ -430,6 +418,11 @@ options:
       label: 列
     - value: area
       label: 区域
+  Bool:
+    - value: true
+      label: 是
+    - value: false
+      label: 否
   WriteMode:
     - value: overwrite
       label: 覆盖
@@ -462,39 +455,8 @@ options:
       label: 单元格左移
     - value: up
       label: 单元格上移
-    - value: no
-      label: 单元格不移动
-  Bool:
-    - value: true
-      label: 是
-    - value: false
-      label: 否
-  SortOrder:
-    - value: ascending
-      label: 升序
-    - value: descending
-      label: 降序
-  InsertType:
-    - value: row
-      label: 行
-    - value: column
-      label: 列
-  FilterType:
-    - value: column
-      label: 列筛选
-    - value: table
-      label: 表格筛选
-    - value: row
-      label: 行筛选
-  ExportFileType:
-    - value: xlsx
-      label: .xlsx文件
-    - value: xls
-      label: .xls文件
-    - value: csv
-      label: .csv文件
-    - value: json
-      label: .json文件
+    - value: 'no'
+      label: 'no'
   LoopType:
     - value: row
       label: 行
@@ -502,11 +464,23 @@ options:
       label: 列
     - value: area
       label: 区域
+  InsertType:
+    - value: row
+      label: 行
+    - value: column
+      label: 列
   FindType:
     - value: column
       label: 单列查找
     - value: table
       label: 全表查找
+  FilterType:
+    - value: row
+      label: 行筛选
+    - value: column
+      label: 列筛选
+    - value: table
+      label: 表格筛选
   ConditionType:
     - value: equals
       label: 等于
@@ -538,3 +512,12 @@ options:
       label: 在此日期之后
     - value: date_between
       label: 在此日期之间
+  ExportFileType:
+    - value: xlsx
+      label: .xlsx文件
+    - value: xls
+      label: .xls文件
+    - value: csv
+      label: .csv文件
+    - value: json
+      label: .json文件

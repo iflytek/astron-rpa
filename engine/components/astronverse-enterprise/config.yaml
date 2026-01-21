@@ -2,7 +2,7 @@ atomic:
   Enterprise.upload_to_sharefolder:
     title: 上传文件至共享文件夹
     comment: 上传 @{file_path} 的文件，返回上传结果 @{upload_result}
-    icon: ''
+    icon: upload-to-shared-folder
     helpManual: ''
     inputList:
       - key: file_path
@@ -15,7 +15,7 @@ atomic:
   Enterprise.download_from_sharefolder:
     title: 从共享文件夹下载文件
     comment: 下载 @{file_path} 的文件到 @{save_folder}，返回下载结果 @{download_result}
-    icon: ''
+    icon: download-from-shared-folder
     helpManual: ''
     inputList:
       - key: file_path
@@ -42,4 +42,3 @@ atomic:
         title: 保存共享变量至
         tip: ''
 options: {}
-
