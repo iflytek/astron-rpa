@@ -1162,7 +1162,7 @@ options:
     - value: getSelection
       label: 获取元素选中状态
     - value: getStyle
-      label: getStyle
+      label: 获取元素样式
   RelativePosition:
     - value: screenLeft
       label: 屏幕左上

@@ -1,6 +1,6 @@
 atomic:
   Window.exist:
-    title: IF 窗口存在
+    title: IF窗口存在
     comment: 判断拾取窗口(@{pick})是否(@{check_type})，是就执行以下操作
     icon: check-window-exists
     helpManual: ''

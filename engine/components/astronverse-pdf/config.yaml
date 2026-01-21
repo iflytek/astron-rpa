@@ -180,8 +180,8 @@ atomic:
         tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作
     outputList:
       - key: forms_file_path
-        title: 提取后的Excel文件路径
-        tip: 提取后的Excel文件路径
+        title: 提取后的Excel路径
+        tip: 提取后的Excel路径
   PDF.convert_pdf_to_img:
     title: PDF页面转图片
     comment: 转换路径为 @{file_path} 的PDF文档为图片，并保存到 @{save_dir} 文件夹

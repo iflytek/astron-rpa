@@ -167,7 +167,7 @@ class Docx:
     def create_docx(
         file_path: str = "",
         file_name: str = "",
-        default_application: ApplicationType = ApplicationType.WORD,
+        default_application: ApplicationType = ApplicationType.DEFAULT,
         visible_flag: bool = True,
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
     ) -> tuple[DocumentObject, PATH]:

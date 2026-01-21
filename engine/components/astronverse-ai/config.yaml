@@ -1,7 +1,7 @@
 atomic:
   Agent.call_dify:
-    title: 调用Dify流程
-    comment: 调用Dify流程 @{app_token} ，完成您指定的任务。
+    title: 调用Dify工作流
+    comment: 调用Dify工作流 @{app_token} ，完成您指定的任务。
     icon: call-dify-workflow
     helpManual: ''
     inputList:
