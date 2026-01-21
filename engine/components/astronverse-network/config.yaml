@@ -301,7 +301,7 @@ options:
       label: 文件夹
   StateType:
     - value: create
-      label: 新建
+      label: 创建
     - value: error
       label: 提示并报错
   RequestType:

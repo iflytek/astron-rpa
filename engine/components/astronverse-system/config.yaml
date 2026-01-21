@@ -112,7 +112,7 @@ atomic:
         title: 输出解压后文件路径
         tip: ''
   File.file_exist:
-    title: IF 文件存在
+    title: IF文件存在
     comment: 判断文件 @{file_path} 是否存在，存在就执行以下操作
     icon: check-file-exists
     helpManual: 判断文件是否存在并将判断结果输出至变量
@@ -125,10 +125,10 @@ atomic:
         tip: 选择判断类型
     outputList: []
   File.file_create:
-    title: 新建文件
-    comment: 在指定目录 @{dst_path} 下创建文件 @{file_name} ，并保存新建文件路径到 @{new_file_path}
+    title: 创建文件
+    comment: 在指定目录 @{dst_path} 下创建文件 @{file_name} ，并保存创建文件路径到 @{new_file_path}
     icon: create-new-file
-    helpManual: 在指定目录下新建文件
+    helpManual: 在指定目录下创建文件
     inputList:
       - key: dst_path
         title: 指定目录
@@ -139,11 +139,11 @@ atomic:
       - key: exist_options
         title: 文件存在时
         tip: >-
-          选择新建文件已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1).txt，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件并重新创建；跳过:返回当前已存在文件路径
+          选择创建文件已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1).txt，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件并重新创建；跳过:返回当前已存在文件路径
     outputList:
       - key: new_file_path
-        title: 新建文件路径
-        tip: 输出新建文件路径，并保存到变量中，数据类型为字符串
+        title: 创建文件路径
+        tip: 输出创建文件路径，并保存到变量中，数据类型为字符串
   File.file_delete:
     title: 删除文件
     comment: 删除文件 @{file_path} ，并将结果输出至变量 @{delete_file_result}
@@ -368,11 +368,11 @@ atomic:
         title: 输出方式
         tip: 设置输出方式
       - key: excel_path
-        title: Excel文件保存目录
-        tip: 选择或输入保存的Excel文件保存目录
+        title: Excel保存目录
+        tip: 选择或输入保存的Excel保存目录
       - key: state_type
         title: 目录不存在时
-        tip: 选择Excel文件保存目录不存在时执行的操作
+        tip: 选择Excel保存目录不存在时执行的操作
       - key: excel_name
         title: Excel文件名
         tip: 输入保存的Excel文件名，不需输入文件扩展名，默认扩展名为.xlsx
@@ -387,7 +387,7 @@ atomic:
         title: 获取文件列表为
         tip: 输出获取到的文件列表到变量，数据类型为列表
   Folder.folder_exist:
-    title: IF 文件夹存在
+    title: IF文件夹存在
     comment: 判断文件夹 @{folder_path}  @{exist_type}，存在就执行以下操作
     icon: check-folder-exists
     helpManual: 判断文件夹是否存在
@@ -413,7 +413,7 @@ atomic:
     title: 创建文件夹
     comment: 在指定目录 @{target_path} 创建文件夹 @{folder_name} ，并保存新文件夹路径至变量 @{new_folder_path}
     icon: create-folder
-    helpManual: 在指定目录下创建文件夹，并保存新建文件夹路径到输出变量
+    helpManual: 在指定目录下创建文件夹，并保存创建文件夹路径到输出变量
     inputList:
       - key: target_path
         title: 指定目录
@@ -424,7 +424,7 @@ atomic:
       - key: exist_options
         title: 文件夹存在时
         tip: >-
-          选择新建文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件夹并重新创建；跳过:返回当前已存在文件夹路径
+          选择创建文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件夹并重新创建；跳过:返回当前已存在文件夹路径
     outputList:
       - key: new_folder_path
         title: 创建文件夹路径
@@ -552,8 +552,8 @@ atomic:
         title: 输出类型
         tip: 选择文件夹列表的输出类型
       - key: excel_path
-        title: Excel文件保存目录
-        tip: 选择或输入保存的Excel文件保存目录
+        title: Excel保存目录
+        tip: 选择或输入保存的Excel保存目录
       - key: state_type
         title: 目录不存在时
         tip: 选择Excel文件保存目录不存在时执行的操作

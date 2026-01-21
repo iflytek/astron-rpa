@@ -266,9 +266,9 @@ options:
     - value: '*'
       label: 所有文件
     - value: .xls,.xlsx
-      label: Excel文件
+      label: Excel
     - value: .doc,.docx
-      label: Word文件
+      label: Word
     - value: .txt
       label: 文本文件
     - value: .png,.jpg,.jpeg,.bmp,.gif

@@ -74,7 +74,7 @@ atomic:
         tip: 超过该时间停止等待，默认为10秒
     outputList: []
   CV.is_image_exist:
-    title: IF 图像存在
+    title: IF图像存在
     comment: 判断图像(@{input_data})在当前界面(@{exist_type})
     icon: if-image-exists
     helpManual: 在当前(激活)窗口检索图像，判断是否存在。
