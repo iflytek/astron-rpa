@@ -5,19 +5,18 @@ atomic:
     icon: log-print
     helpManual: ''
     inputList:
-    - key: report_type
-      title: 日志类型
-    - key: msg
-      title: 日志内容
-      tip: 打印运行过程中输出的流变量
-    outputList: null
+      - key: report_type
+        title: 日志类型
+        tip: ''
+      - key: msg
+        title: 日志内容
+        tip: 打印运行过程中输出的流变量
+    outputList: []
 options:
   ReportLevelType:
-  - value: debug
-    label: 调试
-  - value: info
-    label: 信息
-  - value: warning
-    label: 警告
-  - value: error
-    label: 错误
+    - value: info
+      label: 信息
+    - value: warning
+      label: 警告
+    - value: error
+      label: 错误

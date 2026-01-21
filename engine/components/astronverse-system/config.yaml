@@ -363,7 +363,7 @@ atomic:
         tip: 选择是否遍历子目录
       - key: tempfile_include
         title: 是否包含临时文件
-        tip: ''
+        tip: 选择是否包含临时文件，例如~,~$开头或.tmp结尾的文件
       - key: output_type
         title: 输出方式
         tip: 设置输出方式
@@ -809,7 +809,7 @@ options:
     - value: overwrite
       label: 覆盖原有文件夹
     - value: skip
-      label: 取消保存操作
+      label: 跳过保存操作
     - value: generate
       label: 创建文件夹副本
   DeleteType:

@@ -20,6 +20,6 @@ atomic:
         tip: 模型生成时的温度参数，控制输出的随机性，默认0
     outputList:
       - key: computer_use_res
-        title: '执行结果'
-        tip: '包含任务执行状态、步数、耗时、截图目录和错误信息的字典'
+        title: 执行结果
+        tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
 options: {}

@@ -44,14 +44,17 @@ from astronverse.datatable.utils import (
     validate_formula,
 )
 
-_xlsx_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table.xlsx"))
-_head_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table_head.xlsx"))
-logger.info(f"DataTable xlsx file path: {_xlsx_file_path}")
-ensure_xlsx_file(_xlsx_file_path)
-ensure_xlsx_file(_head_file_path)
+try:
+    _xlsx_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table.xlsx"))
+    _head_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table_head.xlsx"))
+    logger.info(f"DataTable xlsx file path: {_xlsx_file_path}")
+    ensure_xlsx_file(_xlsx_file_path)
+    ensure_xlsx_file(_head_file_path)
 
-PyxlWrapper = OpenpyxlWrapper(file_path=_xlsx_file_path, sheet_name=None)
-PyxlHeadWrapper = OpenpyxlWrapper(file_path=_head_file_path, sheet_name=None)
+    PyxlWrapper = OpenpyxlWrapper(file_path=_xlsx_file_path, sheet_name=None)
+    PyxlHeadWrapper = OpenpyxlWrapper(file_path=_head_file_path, sheet_name=None)
+except Exception as e:
+    pass
 
 
 def auto_save(func):

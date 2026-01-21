@@ -1,7 +1,7 @@
 atomic:
   Excel.open_excel:
-    title: 打开Excel文件
-    comment: 打开路径为 @{file_path} 的Excel文件，返回Excel对象 @{open_excel_obj}
+    title: 打开Excel
+    comment: 打开路径为 @{file_path} 的Excel，返回Excel对象 @{open_excel_obj}
     icon: excel-open-file
     helpManual: ''
     inputList:
@@ -38,9 +38,9 @@ atomic:
         title: 获取的Excel对象
         tip: ''
   Excel.create_excel:
-    title: 创建Excel文件
+    title: 创建Excel
     comment: >-
-      在路径为 @{file_path} 下创建文件名为 @{file_name} 的Excel文件，返回Excel对象
+      在路径为 @{file_path} 下创建文件名为 @{file_name} 的Excel，返回Excel对象
       @{create_excel_obj}
     icon: excel-create-file
     helpManual: ''
@@ -68,10 +68,10 @@ atomic:
         title: 创建的Excel对象
         tip: ''
       - key: excel_path
-        title: 创建的Excel文件路径
+        title: 创建的Excel路径
         tip: ''
   Excel.save_excel:
-    title: 保存Excel文件
+    title: 保存Excel
     comment: 保存Excel对象 @{excel} ，保存方式为 @{save_type}
     icon: excel-save-file
     helpManual: ''
@@ -96,7 +96,7 @@ atomic:
         tip: 选择保存后是否关闭文件，可选关闭或不关闭
     outputList: []
   Excel.close_excel:
-    title: 关闭Excel文件
+    title: 关闭Excel
     comment: >-
       关闭 @{close_range_flag}，当前Excel对象 @{excel}，保存类型为
       @{save_type_one||save_type_all}
@@ -129,7 +129,7 @@ atomic:
         tip: 选择是否关闭进程，可选关闭或不关闭
     outputList: []
   Excel.edit_excel:
-    title: 写入Excel文件
+    title: 写入Excel
     comment: 编辑Excel对象 @{excel} ，写入内容 @{value}
     icon: excel-write-file
     helpManual: ''
@@ -142,7 +142,7 @@ atomic:
         tip: 选择编辑范围，可选行、列、区域
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: start_col
         title: 起始列
         tip: 输入要编辑的起始列位置，支持字母(如'A')或数字(如1)格式。
@@ -150,16 +150,16 @@ atomic:
         title: 起始行
         tip: 输入要编辑的起始行号，从1开始计数。当选择列(COLUMN)时可不填，当选择行(ROW)或区域(AREA)时必填
       - key: value
-        title: 插入内容
+        title: 写入内容
         tip: >-
           修改的内容以列表方式输入，当选择行或列时输入列表如[1,2,3]，表示在指定行依次写入1,2,3；当选择区域时输入列表如[[1,1],[2,2]]，表示在指定区域按行写入数据
       - key: edit_type
-        title: 编辑类型
-        tip: ''
+        title: 写入方式
+        tip: 选择写入类型，可选覆盖或追加
     outputList: []
   Excel.read_excel:
-    title: 读取Excel文件内容
-    comment: 读取Excel对象 @{excel} 中工作表 @{sheet_name} 的Excel文件内容
+    title: 读取Excel内容
+    comment: 读取Excel对象 @{excel} 中工作表 @{sheet_name} 的Excel内容
     icon: excel-read-content
     helpManual: ''
     inputList:
@@ -168,7 +168,7 @@ atomic:
         tip: 输入Excel对象
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: read_range
         title: 读取范围
         tip: 选择读取范围，可选单元格、行、列、区域、已编辑区域
@@ -219,7 +219,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名称
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: design_type
         title: 设置范围
         tip: 选择设置范围，可选单元格、行、列、区域
@@ -288,7 +288,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: copy_range_type
         title: 复制范围
         tip: ''
@@ -319,7 +319,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: paste_type
         title: 粘贴类型
         tip: ''
@@ -344,7 +344,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: delete_range_excel
         title: 删除范围
         tip: ''
@@ -375,7 +375,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: select_type
         title: 区域选择
         tip: 选择需要删除的区域内容
@@ -406,7 +406,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: insert_type
         title: 插入类型
         tip: ''
@@ -446,7 +446,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: get_col_type
         title: 获取类型
         tip: ''
@@ -468,7 +468,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: get_row_type
         title: 获取类型
         tip: ''
@@ -495,7 +495,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
     outputList:
       - key: get_first_available_row
         title: 第一个可用行
@@ -513,7 +513,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: output_type
         title: 输出格式
         tip: ''
@@ -532,7 +532,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: select_type
         title: 循环范围
         tip: ''
@@ -577,7 +577,7 @@ atomic:
         tip: 输入单元格位置，如A1
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
     outputList:
       - key: get_cell_color
         title: 单元格颜色
@@ -593,7 +593,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: job_type
         title: 合并或拆分类型
         tip: ''
@@ -615,7 +615,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: insert_type
         title: 插入位置
         tip: ''
@@ -714,7 +714,7 @@ atomic:
     outputList:
       - key: sheet_names
         title: 工作表名称
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
   Excel.search_and_replace_excel_content:
     title: 查找或替换Excel内容
     comment: >-
@@ -740,7 +740,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: search_range
         title: 工作表内查找范围
         tip: ''
@@ -794,7 +794,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: insert_pos
         title: 插入位置
         tip: 可填写单元格位置，如'A1'；也可填写范围位置，如'A1:B2'
@@ -825,7 +825,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: insert_direction
         title: 公式插入方向
         tip: ''
@@ -868,7 +868,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: cell_position
         title: 单元格位置
         tip: 输入单元格位置，如A1
@@ -896,7 +896,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: cell_position
         title: 单元格位置
         tip: 输入单元格位置，如A1
@@ -912,7 +912,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: select_type
         title: 区域选择
         tip: ''
@@ -940,7 +940,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: select_type
         title: 区域选择
         tip: ''
@@ -968,7 +968,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: set_type
         title: 设置类型
         tip: ''
@@ -990,7 +990,7 @@ atomic:
         tip: ''
       - key: sheet_name
         title: 工作表名
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel文件中的第一个工作表对象
+        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: set_type
         title: 设置类型
         tip: ''
@@ -1020,7 +1020,7 @@ options:
     - value: rename
       label: 创建文件副本
     - value: cancel
-      label: 取消保存操作
+      label: 跳过保存操作
   SaveType:
     - value: save
       label: 保存
