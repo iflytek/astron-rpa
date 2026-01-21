@@ -11,7 +11,8 @@ dependencies = [
     "pdfplumber",
     "pandas",
     "openpyxl",
-    "pypdfium2"
+    "pypdfium2",
+    "Pillow"
 ]
 
 [tool.uv.sources]

@@ -515,3 +515,63 @@ class PDF:
         if select_range == SelectRangeType.ALL:
             page_range = ""
         PDFCore.pdf_to_image(file_path, pwd, save_dir, page_range, image_type, prefix, exist_handle_type)
+
+    @staticmethod
+    @atomicMg.atomic(
+        "PDF",
+        inputList=[
+            atomicMg.param(
+                "image_files",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
+                    params={"filters": ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif"], "file_type": "files"},
+                ),
+            ),
+            atomicMg.param(
+                "save_dir",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "folder"}
+                ),
+            ),
+            atomicMg.param("new_file_name", required=False),
+            atomicMg.param("new_pwd_flag", level=AtomicLevel.ADVANCED),
+            atomicMg.param(
+                "new_pwd",
+                dynamics=[DynamicsItem(key="$this.new_pwd.show", expression="return $this.new_pwd_flag.value == true")],
+                level=AtomicLevel.ADVANCED,
+                required=False,
+            ),
+            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
+        ],
+        outputList=[atomicMg.param("pdf_file_path", types="Str")],
+    )
+    def convert_img_to_pdf(
+        image_files: str = "",
+        save_dir: str = "",
+        new_file_name: str = "",
+        layout_type: ImageLayoutType = ImageLayoutType.SINGLE_PAGE,
+        new_pwd_flag: bool = False,
+        new_pwd: str = "",
+        exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
+    ) -> str:
+        """
+        将图片文件转换为PDF文件
+        :param image_files: 图片文件路径列表
+        :param save_dir: PDF保存路径
+        :param new_file_name: PDF文件名
+        :param layout_type: 布局类型（单页或多页）
+        :param new_pwd_flag: 是否设置新密码
+        :param new_pwd: 新密码
+        :param exist_handle_type: 文件存在处理类型
+        :return: 生成的PDF文件路径
+        """
+        if not new_pwd_flag:
+            new_pwd = ""
+
+        # 处理image_files参数（可能是字符串或列表）
+        image_files = _handle_files_input(image_files)
+
+        pdf_file_path = PDFCore.images_to_pdf(
+            image_files, save_dir, new_file_name, layout_type, new_pwd, exist_handle_type
+        )
+        return pdf_file_path
