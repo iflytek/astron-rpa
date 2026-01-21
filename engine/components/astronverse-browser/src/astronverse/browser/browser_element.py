@@ -1249,7 +1249,7 @@ class BrowserElement:
                 dynamics=[
                     DynamicsItem(
                         key="$this.attribute_name.show",
-                        expression=f"return $this.get_type.value == '{ElementGetAttributeTypeFlag.GetAttribute.value}' || ['{ElementAttributeOpTypeFlag.Set.value}', '{ElementAttributeOpTypeFlag.Del.value}'].includes($this.operation_type.value)",
+                        expression=f"return ['{ElementGetAttributeTypeFlag.GetAttribute.value}', '{ElementGetAttributeTypeFlag.GetStyle.value}'].includes($this.get_type.value) || ['{ElementAttributeOpTypeFlag.Set.value}', '{ElementAttributeOpTypeFlag.Del.value}'].includes($this.operation_type.value)",
                     )
                 ],
             ),
