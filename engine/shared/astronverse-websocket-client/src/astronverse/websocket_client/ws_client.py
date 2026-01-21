@@ -312,3 +312,16 @@ class WsApp:
             on_open=self._on_open,
         )
         self.ws_app.run_forever(reconnect=None)
+
+    def close(self):
+        """
+        close 关闭websocket连接
+        """
+        self.running = False
+        self._close_ping()
+        self._close_watch()
+        self.ws_app = None
+        try:
+            self._call_route("close", "", None)
+        except Exception as e:
+            self.log("error: _on_close _call_route {}".format(e))
