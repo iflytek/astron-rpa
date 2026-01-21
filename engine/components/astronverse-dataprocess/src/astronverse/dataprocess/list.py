@@ -73,10 +73,20 @@ class ListProcess:
                     )
                 ],
             ),
+            atomicMg.param(
+                "custom_list",
+                types="Any",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.custom_list.show",
+                        expression="return $this.list_type.value == '{}'".format(ListType.USER_DEFINED.value),
+                    )
+                ],
+            ),
         ],
         outputList=[atomicMg.param("created_list_data", types="List")],
     )
-    def create_new_list(list_type: ListType = ListType.EMPTY, size: int = 0, value: Any = ""):
+    def create_new_list(list_type: ListType = ListType.EMPTY, size: int = 0, value: Any = "", custom_list: Any = ""):
         """
         创建新列表
         """
@@ -91,9 +101,18 @@ class ListProcess:
         elif list_type == ListType.SAME_DATA:
             new_array = [value] * size
         elif list_type == ListType.USER_DEFINED:
-            if not isinstance(value, list):
+            if isinstance(custom_list, str):
+                if custom_list.startswith("[") and custom_list.endswith("]"):
+                    try:
+                        new_array = ast.literal_eval(custom_list)
+                    except Exception as e:
+                        new_array = [custom_list]
+                else:
+                    new_array = [custom_list]
+            elif isinstance(custom_list, list):
+                new_array = custom_list
+            else:
                 raise ValueError("用户自定义列表类型错误!")
-            new_array = value
         return new_array
 
     @staticmethod

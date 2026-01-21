@@ -331,9 +331,9 @@ options:
       label: 其他格式
   LLMModelTypes:
     - value: maas/deepseek-v3.2
-      label: maas/deepseek-v3.2
+      label: DeepSeek-V3.2
     - value: maas/kimi-k2-thinking
-      label: maas/kimi-k2-thinking
+      label: Kimi-K2-Thinking
     - value: custom
       label: 自定义模型
   InputType:

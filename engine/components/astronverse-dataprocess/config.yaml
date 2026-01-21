@@ -173,8 +173,10 @@ atomic:
         title: 列表长度
         tip: ''
       - key: value
-        title: 初始值
+        title: 列表初始值
         tip: ''
+      - key: custom_list
+        title: 自定义列表
     outputList:
       - key: created_list_data
         title: 创建的列表
