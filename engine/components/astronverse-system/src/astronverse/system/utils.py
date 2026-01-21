@@ -80,3 +80,27 @@ def get_exe_path():
         atoms_dir, "astronverse.input", "src", "astronverse.input", "VK", "bin", "debug", "VK.exe"
     )
     return driver_path
+
+
+def get_files_in_folder(folder_path: str = "", general=False) -> list:
+    """
+    获取文件夹下所有文件列表
+    Args:
+        folder_path: 文件夹路径
+        general: 是否包含隐藏文件 False 包含 True 不包含 默认False
+    """
+    try:
+        files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        if general:
+            files = [f for f in files if not f.startswith(".") and not f.startswith("~$")]
+        return files
+    except Exception:
+        raise Exception(f"获取文件夹下文件列表失败，文件夹路径：{folder_path}")
+
+
+def file_is_exists(file_path: str = "") -> bool:
+    return os.path.exists(file_path) and os.path.isfile(file_path)
+
+
+def path_join(*paths: str) -> str:
+    return os.path.join(*paths)

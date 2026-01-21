@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Gui.keyboard:
     title: 键盘输入
@@ -82,6 +84,34 @@ atomic:
       - key: window_position
         title: 窗口左上角位置
         tip: ''
+      - key: get_mouse_position
+        title: 获取鼠标位置
+        tip: ''
+      - key: position_x
+        title: 鼠标x位置
+        tip: ''
+      - key: position_y
+        title: 鼠标y位置
+        tip: ''
+      - key: move_type
+        title: 鼠标移动方式
+        tip: 选择鼠标移动方式
+      - key: move_speed
+        title: 鼠标移动速度
+        tip: ''
+    outputList: []
+  Gui.mouse_move_new:
+    title: 鼠标移动
+    comment: 在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})
+    icon: mouse-move
+    helpManual: ''
+    inputList:
+      - key: window_type
+        title: 窗口类型
+        tip: 整个屏幕：以屏幕左上角为坐标相对位置；激活窗口：以激活窗口左上角为相对坐标位置
+      - key: window_pick
+        title: 窗口拾取
+        tip: 选择需要操作的窗口
       - key: get_mouse_position
         title: 获取鼠标位置
         tip: ''
