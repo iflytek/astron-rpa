@@ -4,6 +4,7 @@ import os
 import platform
 import re
 import subprocess
+import sys
 import winreg as reg
 
 import psutil
@@ -314,9 +315,10 @@ def is_browser_running(browser_name: str) -> bool:
     """
     check browser process running
     """
+    proc_name = f"{browser_name}.exe" if sys.platform == "win32" else browser_name
     for proc in psutil.process_iter(attrs=["pid", "name"]):
         try:
-            if "{}.exe".format(browser_name) == proc.info["name"].lower():
+            if proc_name.lower() == proc.info["name"].lower():
                 return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
