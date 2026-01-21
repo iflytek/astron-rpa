@@ -3,12 +3,12 @@ import os
 import pandas as pd
 import pdfplumber
 import pypdfium2
-from PIL import Image
 from astronverse.actionlib.utils import FileExistenceType, handle_existence
-from astronverse.pdf import MergeType, PictureType, SelectRangeType, ImageLayoutType, _handle_files_input
+from astronverse.pdf import ImageLayoutType, MergeType, PictureType, SelectRangeType, _handle_files_input
 from astronverse.pdf.core import IPDFCore
 from astronverse.pdf.error import *
 from pdfminer.pdfdocument import PDFPasswordIncorrect
+from PIL import Image
 from pypdf import PdfReader, PdfWriter
 
 

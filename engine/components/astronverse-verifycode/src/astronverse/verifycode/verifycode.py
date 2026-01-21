@@ -1,7 +1,7 @@
 import time
 
 import pyautogui
-from astronverse.actionlib import DynamicsItem
+from astronverse.actionlib import AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WebPick
 from astronverse.baseline.logger.logger import logger
@@ -78,6 +78,7 @@ class VerifyCode:
                     )
                 ],
             ),
+            atomicMg.param("offset", level=AtomicLevel.ADVANCED, required=False),
         ],
         outputList=[atomicMg.param("drag_distance", types="Int")],
     )
@@ -88,12 +89,15 @@ class VerifyCode:
         unmatched_flag: bool = False,
         move_pic_pick: WebPick = None,
         mini_step: int = 5,
+        offset: int = 0,
     ) -> int:
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         drag_distance = int(VerifyCodeCore.get_api_result(api_type="22222", pic_element_base64=image_base64))
         logger.info("验证码返回值: {}".format(drag_distance))
+        drag_distance = drag_distance + offset
+        logger.info("加入偏移量之后的移动量: {}".format(drag_distance))
         if not drag_distance:
             raise BaseException(MSG_EMPTY_FORMAT, "")
 
