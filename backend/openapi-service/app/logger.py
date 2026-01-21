@@ -21,18 +21,21 @@ def get_logger(name=None, log_level=LOG_LEVEL):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    uvicorn_logger = logging.getLogger("uvicorn")
-    # 一行式写法
-    uvicorn_formatter = (
-        uvicorn_logger.handlers[0].formatter
-        if uvicorn_logger.handlers and uvicorn_logger.handlers[0].formatter
-        else default_formatter
-    )
+    # uvicorn_logger = logging.getLogger("uvicorn")
+    # # 一行式写法
+    # uvicorn_formatter = (
+    #     uvicorn_logger.handlers[0].formatter
+    #     if uvicorn_logger.handlers and uvicorn_logger.handlers[0].formatter
+    #     else default_formatter
+    # )
 
     filter = RequestIdFilter()
 
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(uvicorn_formatter)
+    console_handler.setFormatter(default_formatter)
+
+    console_handler.addFilter(filter)
+
     logger.addHandler(console_handler)
 
     log_dir = get_settings().LOG_DIR

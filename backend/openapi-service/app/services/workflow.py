@@ -283,9 +283,7 @@ class WorkflowService:
 
                 # 提取工作流数据
                 workflows_data = result.get("data", {})
-                logger.info(f"workflows_data: {workflows_data}")
                 workflows = workflows_data.get("pageData", [])
-                logger.info(f"workflows: {workflows}")
 
                 # 格式化返回数据，只保留关键信息
                 formatted_workflows = []

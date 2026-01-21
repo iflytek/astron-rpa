@@ -91,8 +91,8 @@ async def get_user_api_key(
         if not result:
             logger.error(f"用户获取API_KEY失败，phone: {phone}")
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="用户获取API_KEY失败",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="用户未注册",
             )
 
         # 构建返回数据

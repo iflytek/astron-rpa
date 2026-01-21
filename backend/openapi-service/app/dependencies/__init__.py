@@ -11,7 +11,7 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models.api_key import OpenAPIDB
 from app.redis import get_redis
-from app.services.api_key import ApiKeyService, XcApiKeyService
+from app.services.api_key import ApiKeyService, AstronApiKeyService
 from app.services.execution import ExecutionService
 from app.services.user import UserService
 from app.services.websocket import WsManagerService, WsService

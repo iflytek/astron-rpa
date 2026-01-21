@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from app.dependencies import get_api_key_service, get_user_id_from_header
+from app.dependencies import get_api_key_service, get_astron_api_key_service, get_user_id_from_header
 from app.logger import get_logger
 from app.schemas import ResCode, StandardResponse
-from app.schemas.api_key import ApiKeyCreate, ApiKeyDelete
-from app.services.api_key import ApiKeyService
+from app.schemas.api_key import ApiKeyCreate, ApiKeyDelete, AstronAgentCreate, AstronAgentDelete, AstronAgentUpdate
+from app.services.api_key import ApiKeyService, AstronApiKeyService
 
 logger = get_logger(__name__)
 
@@ -16,10 +16,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/get",
-    response_model=StandardResponse,
-    summary="获取所有 API Key",
-    description="获取当前用户的所有 API Key 列表",
+    "/get", response_model=StandardResponse, summary="获取所有 API Key", description="获取当前用户的所有 API Key 列表"
 )
 async def get_api_keys(
     pageNo: int = Query(1, ge=1, description="获取哪一页"),
@@ -33,10 +30,7 @@ async def get_api_keys(
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"total": len(api_keys), "records": api_keys})
     except Exception as e:
         logger.error(f"Error getting API keys: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get API keys",
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get API keys")
 
 
 @router.post(

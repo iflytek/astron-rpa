@@ -26,10 +26,26 @@ class ApiKeyDelete(BaseModel):
 #     model_config = {"from_attributes": True}
 
 
-class XCAgentCreate(BaseModel):
+class AstronAgentCreate(BaseModel):
     """创建星辰Agent请求模型"""
 
     api_key: str = Field(..., description="API Key", min_length=1, max_length=100)
     api_secret: str = Field(..., description="API Secret", min_length=1, max_length=100)
     app_id: Optional[str] = Field(None, description="应用ID", min_length=1, max_length=100)
-    user_name: Optional[str] = Field(None, description="星辰Agent用户名", min_length=1, max_length=100)
+    name: str = Field(..., description="用户名称", min_length=1, max_length=100)
+
+
+class AstronAgentDelete(BaseModel):
+    """删除星辰Agent请求模型"""
+
+    id: Union[int, str] = Field(..., description="星辰Agent ID")
+
+
+class AstronAgentUpdate(BaseModel):
+    """更新星辰Agent请求模型"""
+
+    id: Union[int, str] = Field(..., description="星辰Agent ID")
+    name: Optional[str] = Field(None, description="用户名称", min_length=1, max_length=100)
+    app_id: Optional[str] = Field(None, description="应用ID", min_length=1, max_length=100)
+    api_key: Optional[str] = Field(None, description="API Key", min_length=1, max_length=100)
+    api_secret: Optional[str] = Field(None, description="API Secret", min_length=1, max_length=100)

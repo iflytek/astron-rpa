@@ -116,7 +116,7 @@ class UserService:
 
                 # 发送 POST 请求，phone通过JSON传递
                 response = await client.post(
-                    url, json={"phone": phone}, headers={"X-API-Key": ""}, timeout=10.0
+                    url, json={"phone": phone}, headers={"X-API-Key": "opensource666!"}, timeout=10.0
                 )
 
                 # 检查 HTTP 状态码
@@ -255,7 +255,7 @@ class UserService:
             }
 
         # 调用外部接口获取user_id及相关信息
-        logger.info("开始注册新用户，phone: %s", phone)
+        logger.info("开始获取新用户，phone: %s", phone)
         user_data = await self._call_user_info_api(phone)
 
         if not user_data:
@@ -289,7 +289,7 @@ class UserService:
         await self.db.flush()
         await self.db.refresh(new_user)
 
-        logger.info("用户注册成功，phone: %s, user_id: %s", phone, user_id)
+        logger.info("用户获取key成功，phone: %s, user_id: %s", phone, user_id)
 
         # 返回包含 User 对象和完整用户数据的字典
         return {"user_id": user_id, "api_key": default_api_key}
