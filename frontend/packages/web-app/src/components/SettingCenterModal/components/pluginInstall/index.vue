@@ -5,7 +5,7 @@ import { useBrowerPlugin } from './hooks/useBrowerPlugin'
 import PluginButton from './pluginButton.vue'
 
 // 插件列表
-const { pluginList, install } = useBrowerPlugin()
+const { pluginList, safeInstallBrowerPlugin } = useBrowerPlugin()
 </script>
 
 <template>
@@ -24,7 +24,7 @@ const { pluginList, install } = useBrowerPlugin()
         <PluginButton
           :item="plugin"
           :index="index"
-          @click="() => install(plugin)"
+          @click="() => safeInstallBrowerPlugin(plugin)"
         />
       </template>
     </Card>

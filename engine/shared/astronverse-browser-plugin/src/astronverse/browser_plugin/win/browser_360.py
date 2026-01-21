@@ -4,7 +4,7 @@ import sys
 import winreg
 
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
-from astronverse.browser_plugin.utils import Registry, check_chrome_plugin, kill_process
+from astronverse.browser_plugin.utils import Registry, check_chrome_plugin, is_browser_running, kill_process
 
 
 class Browser360PluginManager(PluginManagerCore):
@@ -66,3 +66,9 @@ class Browser360PluginManager(PluginManagerCore):
             stderr=subprocess.DEVNULL,
             creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0,
         )
+
+    def check_browser_running(self):
+        """
+        check browser running
+        """
+        return is_browser_running("360se")

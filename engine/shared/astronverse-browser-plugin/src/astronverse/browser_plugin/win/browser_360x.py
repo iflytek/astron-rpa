@@ -5,7 +5,7 @@ import sys
 import winreg
 
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
-from astronverse.browser_plugin.utils import Registry, check_chrome_plugin, kill_process
+from astronverse.browser_plugin.utils import Registry, check_chrome_plugin, is_browser_running, kill_process
 
 
 class Browser360XPluginManager(PluginManagerCore):
@@ -33,7 +33,7 @@ class Browser360XPluginManager(PluginManagerCore):
             return default_path
 
         try:
-            key_path = r"Software\Microsoft\Windows\CurrentVersion\App Paths\360chromeX.exe"
+            key_path = r"Software\Microsoft\Windows\CurrentVersion\App Paths\360ChromeX.exe"
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
             value, _ = winreg.QueryValueEx(key, "")
             return value
@@ -68,3 +68,9 @@ class Browser360XPluginManager(PluginManagerCore):
             stderr=subprocess.DEVNULL,
             creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0,
         )
+
+    def check_browser_running(self):
+        """
+        check browser running
+        """
+        return is_browser_running("360ChromeX")

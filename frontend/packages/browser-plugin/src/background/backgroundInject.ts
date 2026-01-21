@@ -914,7 +914,7 @@ const Handlers = {
   },
 
   noHandler() {
-    return Utils.fail(ErrorMessage.UNSUPPORT_ERROR)
+    return Utils.fail(ErrorMessage.UNSUPPORT_ERROR, StatusCode.VERSION_ERROR)
   },
 }
 

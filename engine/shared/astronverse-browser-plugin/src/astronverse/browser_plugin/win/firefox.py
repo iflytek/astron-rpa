@@ -3,7 +3,7 @@ import sys
 import winreg
 
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
-from astronverse.browser_plugin.utils import FirefoxUtils, Registry, kill_process
+from astronverse.browser_plugin.utils import FirefoxUtils, Registry, is_browser_running, kill_process
 
 
 class FirefoxPluginManager(PluginManagerCore):
@@ -51,3 +51,9 @@ class FirefoxPluginManager(PluginManagerCore):
             creationflags=subprocess.DETACHED_PROCESS if sys.platform == "win32" else 0,
             start_new_session=True,
         )
+
+    def check_browser_running(self):
+        """
+        check browser running
+        """
+        return is_browser_running("firefox")
