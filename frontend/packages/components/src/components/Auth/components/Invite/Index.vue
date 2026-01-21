@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AuthType, Edition, Platform } from '../../interface'
+import InviteHeader from '../Base/InviteHeader.vue'
 import InviteUserInfo from '../Base/InviteUserInfo.vue'
 import StatusCard from '../Base/StatusCard.vue'
 import Login from '../Login/Index.vue'
@@ -28,7 +29,10 @@ const {
 </script>
 
 <template>
-  <div class="auth-container-content invite-container h-[540px]">
+  <div class="auth-container-content invite-container
+    w-full h-[480px]
+    md:w-[400px] md:h-[540px]">
+    <InviteHeader v-if="inviteInfo" class="block text-[#FFFFFF] pt-[84px] md:hidden" :invite-info="inviteInfo" />
     <StatusCard
       v-if="currentStatus === 'linkExpired'"
       :status="currentStatus"
@@ -54,7 +58,7 @@ const {
     <StatusCard
       v-else-if="currentStatus === 'joined'"
       :status="currentStatus"
-      title="您已经加入，无需重复加入。"
+      title="您已经加入，无需重复加入"
       :desc="inviteInfo.marketName || inviteInfo.enterpriseName"
       button-txt="进入星辰RPA"
       @click="openApp"

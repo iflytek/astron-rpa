@@ -26,7 +26,7 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   }
 
   const updateInviteInfo = async (data: InviteInfo, needLogin = true) => {
-    inviteInfo.value = { ...data, inviteType: data.inviteType || 'market' }
+    inviteInfo.value = { ...inviteInfo.value, ...data, inviteType: data.inviteType || 'market' }
     let pageStatus: PageStatus = 'needLogin'
     switch (data.resultCode) {
       case '101':

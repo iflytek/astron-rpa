@@ -41,7 +41,9 @@ defineExpose({
 </script>
 
 <template>
-  <div class="auth-container-content h-[540px]">
+  <div class="auth-container-content bg-[#ffffff]
+    w-full h-[480px] fixed left-0 bottom-0 z-[999] rounded-t-[24px]
+    md:w-[400px] md:h-[540px] md:static md:rounded-[16px]">
     <Login
       v-if="currentFormMode === 'login'"
       :key="`${edition}_${authType}_login`"
