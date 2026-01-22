@@ -10,7 +10,7 @@ from astronverse.browser import CHROME_LIKE_BROWSERS, InputType
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import CodeChromeBuilder
 from astronverse.browser.core.core import IBrowserCore
-from astronverse.browser.error import CODE_EMPTY, CODE_NO_MAIN_FUNC
+from astronverse.browser.error import *
 
 if sys.platform == "win32":
     from astronverse.browser.core.core_win import BrowserCore

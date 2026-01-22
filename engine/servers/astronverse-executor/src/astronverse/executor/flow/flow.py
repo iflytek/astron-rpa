@@ -1,7 +1,7 @@
 import json
 import os
 
-from astronverse.executor.error import PROCESS_ACCESS_ERROR_FORMAT, SYNTAX_ERROR_FORMAT, BaseException
+from astronverse.executor.error import *
 from astronverse.executor.flow.syntax.ast import CodeLine
 from astronverse.executor.flow.syntax.lexer import Lexer
 from astronverse.executor.flow.syntax.parser import Parser

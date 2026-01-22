@@ -8,7 +8,7 @@ import time
 from typing import Any
 
 from astronverse.picker import IEventCore, IPickerCore, PickerSign, SVCSign
-from astronverse.picker.error import TIMEOUT, TIMEOUT_LAG
+from astronverse.picker.error import *
 from astronverse.picker.error import BaseException as RpaBaseException
 from astronverse.picker.logger import logger
 

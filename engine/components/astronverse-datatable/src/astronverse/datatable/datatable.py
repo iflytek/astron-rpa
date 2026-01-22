@@ -28,12 +28,7 @@ from astronverse.datatable import (
     WriteMode,
     WriteType,
 )
-from astronverse.datatable.error import (
-    DATAFRAME_ERROR,
-    DATAFRAME_EXPECTION,
-    IMPORT_FILE_ERROR_FORMAT,
-    PARAMS_ERROR,
-)
+from astronverse.datatable.error import *
 from astronverse.datatable.openpyxl import OpenpyxlWrapper
 from astronverse.datatable.utils import (
     col_to_index,

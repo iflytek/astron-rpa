@@ -1,6 +1,6 @@
 from typing import Any
 
-from astronverse.actionlib.error import PARAM_VERIFY_ERROR_FORMAT
+from astronverse.actionlib.error import *
 
 
 class DocumentObject:

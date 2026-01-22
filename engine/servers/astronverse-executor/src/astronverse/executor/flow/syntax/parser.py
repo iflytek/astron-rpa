@@ -1,10 +1,6 @@
 from typing import Optional, Union
 
-from astronverse.executor.error import (
-    ATOMIC_CAPABILITY_PARSE_ERROR_FORMAT,
-    LOOP_CONTROL_STATEMENT_ERROR,
-    ONLY_ONE_CATCH_CAN_BE_RETAINED,
-)
+from astronverse.executor.error import *
 from astronverse.executor.flow.syntax import Token
 from astronverse.executor.flow.syntax.ast import (
     IF,

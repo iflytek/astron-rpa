@@ -5,18 +5,10 @@ from urllib.parse import urljoin
 
 import requests
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.actionlib.error import PARAM_VERIFY_ERROR_FORMAT
+from astronverse.actionlib.error import *
 from astronverse.actionlib.types import typesMg
 from astronverse.browser import CHROME_LIKE_BROWSERS, CommonForBrowserType
-from astronverse.browser.error import (
-    BROWSER_EXTENSION_ERROR_FORMAT,
-    BROWSER_EXTENSION_INSTALL_ERROR,
-    WEB_EXEC_ELE_ERROR,
-    WEB_GET_ELE_ERROR,
-)
-from astronverse.browser.error import (
-    BaseException as BrowserBaseException,
-)
+from astronverse.browser.error import *
 
 
 class Browser:

@@ -9,7 +9,7 @@ from typing import Any
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dataprocess import DeleteMethodType, InsertMethodType, ListType, SortMethodType
-from astronverse.dataprocess.error import INVALID_INDEX_ERROR_FORMAT, INVALID_LIST_FORMAT_ERROR_FORMAT
+from astronverse.dataprocess.error import *
 
 
 def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True):

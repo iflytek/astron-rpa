@@ -4,7 +4,7 @@ from abc import ABC
 from functools import wraps
 
 from astronverse.word import FileExistenceType
-from astronverse.word.error import DOCUMENT_PATH_ERROR_FORMAT
+from astronverse.word.error import *
 
 
 class IDocumentCore(ABC):

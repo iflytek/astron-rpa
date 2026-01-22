@@ -13,13 +13,7 @@ from astronverse.executor.debug.package import Package
 from astronverse.executor.debug.recording import RecordingTool
 from astronverse.executor.debug.report import Report
 from astronverse.executor.debug.tools import LogTool
-from astronverse.executor.error import (
-    MSG_NO_FFMPEG,
-    MSG_TASK_EXECUTION_END,
-    MSG_TASK_EXECUTION_ERROR,
-    MSG_TASK_USER_CANCELLED,
-    MSG_VIDEO_PROCESSING_WAIT,
-)
+from astronverse.executor.error import *
 from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import kill_proc_tree
 

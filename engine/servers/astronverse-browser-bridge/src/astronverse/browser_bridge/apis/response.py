@@ -2,7 +2,7 @@ import traceback
 from dataclasses import dataclass
 from typing import Any
 
-from astronverse.browser_bridge.error import CODE_INNER, CODE_OK, BaseException
+from astronverse.browser_bridge.error import *
 from astronverse.browser_bridge.logger import logger
 from starlette.requests import Request
 from starlette.responses import JSONResponse

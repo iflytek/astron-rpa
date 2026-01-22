@@ -42,14 +42,7 @@ from astronverse.browser import (
 )
 from astronverse.browser.browser import Browser
 from astronverse.browser.core.core import IBrowserCore
-from astronverse.browser.error import (
-    CODE_EMPTY,
-    FOCUS_TIMEOUT_MUST_BE_POSITIVE,
-    KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE,
-    PARAMETER_INVALID_FORMAT,
-    WEB_GET_ELE_ERROR,
-    BaseException,
-)
+from astronverse.browser.error import *
 from astronverse.browser.js.base import BaseBuilder
 from astronverse.browser.js.chrome import CodeChromeBuilder
 from astronverse.browser.utils.table_filter import (

@@ -11,11 +11,7 @@ import uiautomation as auto
 # --- Win32 API 初始化 (全局加载一次) ---
 user32 = ctypes.windll.user32
 
-from astronverse.picker.error import (
-    BROWSER_EXTENSION_ERROR_FORMAT,
-    WEB_EXEC_ElE_ERROR,
-    WEB_GET_ElE_ERROR,
-)
+from astronverse.picker.error import *
 
 
 class Browser:
