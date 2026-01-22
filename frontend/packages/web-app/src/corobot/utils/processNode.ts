@@ -9,6 +9,7 @@ import { requiredItem } from '@/views/Arrange/components/flow/hooks/useValidate'
 import { CONVERT_MAP, Else, ElseIf, LOOP_END_MAP, Module, Process, ProcessOld } from '@/views/Arrange/config/atomKeyMap'
 import { pickProcessAndModuleOptions } from '@/views/Arrange/utils'
 import { exceptionKeys } from '@/views/Arrange/utils/generateData'
+import { VAR_IN_TYPE } from '@/constants/atom'
 
 export function processNodeToList(astNodeList: Map<string, ASTNode>, node: ProcessNodeVM[] | RPA.Atom[], projectDoc, processId: string): RPA.Atom[] {
   const start = projectDoc.loadNumber * (projectDoc.nodeAbilityMap[processId].currentPage - 2)
@@ -53,7 +54,14 @@ export function createSingleNode(node: ProcessNodeVM, astNode: ASTNode, nodeAbil
   })
   nodeAbility.outputList?.forEach((item, idx) => {
     const findItem = node.outputList[idx]
-    outputForm.push({ ...item, ...findItem })
+    if (!findItem || !findItem.value) {
+      outputForm.push({
+        ...item,
+        ...{ value: [{ type: VAR_IN_TYPE, value: '_' }] }
+      })
+    } else {
+      outputForm.push({ ...item, ...findItem })
+    }
   })
   if ([Process, ProcessOld, Module].includes(node.key)) {
     for (const item of inputForm as RPA.AtomDisplayItem[]) {

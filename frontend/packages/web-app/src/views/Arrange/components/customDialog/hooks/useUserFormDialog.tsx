@@ -19,7 +19,7 @@ export default function useUserFormDialog(option: DialogOption, onClose: () => v
     onClose()
   }
 
-  const handleBtns = (btnOpt: string) => {
+  const handleBtns = async (btnOpt: string) => {
     // 只要是预览弹窗没有任何业务逻辑直接关闭
     if (option.mode !== 'modal') {
       const itemList = option.itemList
@@ -28,7 +28,7 @@ export default function useUserFormDialog(option: DialogOption, onClose: () => v
         onSave?.(formState.value)
       }
       else if (btnOpt === 'confirm') {
-        formRef.value.validate()
+        await formRef.value.validate()
           .then(() => {
             formState.value.result_button = btnOpt
             onSave?.(formState.value)
