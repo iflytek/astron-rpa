@@ -21,9 +21,12 @@ class Settings(BaseSettings):
     AICHAT_BASE_URL: str
     AICHAT_API_KEY: str
 
+    CUA_BASE_URL: str
+    CUA_API_KEY: str
+
     XFYUN_APP_ID: str
     XFYUN_API_SECRET: str
-    XFYUN_API_KEY: str 
+    XFYUN_API_KEY: str
 
     JFBYM_ENDPOINT: str = "http://api.jfbym.com/api/YmServer/customApi"
     JFBYM_API_TOKEN: str
