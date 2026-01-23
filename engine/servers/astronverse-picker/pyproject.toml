@@ -9,6 +9,7 @@ dependencies = [
     "astronverse-locator",
     "websockets",
     "anyio",
+    "astor",
     "pydantic",
     "psutil",
     "requests",
