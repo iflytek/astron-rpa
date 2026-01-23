@@ -99,23 +99,23 @@
             <version>${cloud.version}</version>
             <scope>compile</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.iflytek.sec</groupId>-->
-<!--            <artifactId>uap-starter</artifactId>-->
-<!--            <version>V3.3.1</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>com.iflytek.tuling</groupId>-->
-<!--                    <artifactId>tuling-isvp-sdk</artifactId>-->
-<!--                </exclusion>-->
-<!--                &lt;!&ndash; 注意：排除 okhttp 是因为 uap-starter 可能依赖了旧版本，我们使用统一管理的版本 4.9.1 &ndash;&gt;-->
-<!--                &lt;!&ndash; 但 AuthenticationClient 需要 okhttp，所以必须在下面显式添加 &ndash;&gt;-->
-<!--                <exclusion>-->
-<!--                    <groupId>com.squareup.okhttp3</groupId>-->
-<!--                    <artifactId>okhttp</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.iflytek.sec</groupId>
+            <artifactId>uap-starter</artifactId>
+            <version>V3.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.iflytek.tuling</groupId>
+                    <artifactId>tuling-isvp-sdk</artifactId>
+                </exclusion>
+                <!-- 注意：排除 okhttp 是因为 uap-starter 可能依赖了旧版本，我们使用统一管理的版本 4.9.1 -->
+                <!-- 但 AuthenticationClient 需要 okhttp，所以必须在下面显式添加 -->
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- 
             添加 okhttp 依赖说明：
             1. uap-starter 排除了 okhttp，可能是为了避免版本冲突（uap-starter 可能依赖旧版本）
