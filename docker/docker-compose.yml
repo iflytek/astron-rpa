@@ -14,8 +14,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE_NAME}
     env_file: *env_file
-    # ports:
-    #   - "${DATABASE_PORT}:3306"
+    ports:
+      - "${DATABASE_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./volumes/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
@@ -72,8 +72,8 @@ services:
       - REDIS_PORT_NUMBER=${REDIS_PORT}
       - REDIS_IO_THREADS=4
       - ALLOW_EMPTY_PASSWORD=yes
-    # ports:
-    #   - "${REDIS_PORT}:6379"
+    ports:
+      - "${REDIS_PORT}:6379"
     volumes:
       - ./data/bitnami/redis:/bitnami/redis/data:rw,Z
     command: >
@@ -158,6 +158,7 @@ services:
       - robot-service
       - ai-service
       - openapi-service
+      - rpa-auth
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/health"]
       interval: 30s
@@ -265,10 +266,10 @@ services:
       - rpa-opensource-network
 
   robot-service:
-    image: ghcr.io/iflytek/astron-rpa/robot-service:latest
-    # build:
-    #   context: ..
-    #   dockerfile: backend/robot-service/Dockerfile
+    #image: ghcr.io/iflytek/astron-rpa/robot-service:latest
+    build:
+      context: ..
+      dockerfile: backend/robot-service/Dockerfile
     container_name: rpa-opensource-robot-service
     restart: always
     env_file: *env_file
@@ -276,6 +277,28 @@ services:
     #   - "8040:8040"
     volumes:
       - ./logs/robot-service:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    networks:
+      - rpa-opensource-network
+
+  rpa-auth:
+    #image: ghcr.io/iflytek/astron-rpa/rpa-auth:latest
+    build:
+      context: ..
+      dockerfile: backend/rpa-auth/Dockerfile
+    container_name: rpa-opensource-rpa-auth
+    restart: always
+    env_file: *env_file
+    # ports:
+    #   - "10251:10251"
+    volumes:
+      - ./logs/rpa-auth:/app/logs
     depends_on:
       mysql:
         condition: service_healthy
