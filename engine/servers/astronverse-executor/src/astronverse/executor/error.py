@@ -39,7 +39,7 @@ MSG_DOWNLOAD_FORMAT = _("{}动态下载中...")
 MSG_DOWNLOAD_SUCCESS_FORMAT = _("{}下载完成")
 MSG_NO_FFMPEG = _("资源目录不存在ffmpeg，录屏功能无法使用")
 MSG_SUB_WINDOW = _("子窗口启动")
-MSG_GLOBAL_USE_ERROR_TIP = _('全局变量使用方式过时，推荐使用gv["变量名称"]')
+MSG_GLOBAL_USE_ERROR_TIP_FORMAT = _('全局变量使用方式过时，推荐使用gv["{}"]')
 
 
 def python_base_error(func):

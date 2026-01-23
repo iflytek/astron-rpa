@@ -2,6 +2,8 @@ import functools
 import json
 from enum import Enum
 from typing import Any, Optional
+import ast
+import astor
 
 
 class ParamType(Enum):
@@ -19,6 +21,30 @@ class ParamType(Enum):
 
 
 param_type_dict = ParamType.to_dict()
+
+
+class GlobalVarRewriter(ast.NodeTransformer):
+    """
+    把白名单里的变量名全部改成 gv["原名"]
+    """
+
+    def __init__(self, glist):
+        self.glist = set(glist)
+
+    def visit_Name(self, node: ast.Name):
+        if node.id in self.glist:
+            new_node = ast.Subscript(
+                value=ast.Name(id="gv", ctx=ast.Load()), slice=ast.Constant(value=node.id), ctx=node.ctx
+            )
+            return ast.copy_location(new_node, node)
+        return node
+
+
+def refactor_globals(code: str, glist) -> str:
+    tree = ast.parse(code)
+    tree = GlobalVarRewriter(glist).visit(tree)
+    ast.fix_missing_locations(tree)
+    return astor.to_source(tree).rstrip("\n")
 
 
 class RpaExpression:
@@ -104,15 +130,13 @@ class ComplexParamParser:
             if need_eval:
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
                     pieces.append(f"{data!r}")
-                elif types == ParamType.G_VAR.value:
-                    pieces.append(f"gv[{data!r}]")
                 else:
+                    if gv:
+                        # 兼容gv
+                        data = refactor_globals(data, gv.keys())
                     pieces.append(f"{data}")
             else:
-                if gv and data in gv:  # 兜底[目前没有兜底策略]
-                    pieces.append(f"gv[{data!r}]")
-                else:
-                    pieces.append(data)
+                pieces.append(f"{data}")
 
         if len(pieces) == 1:
             return pieces[0], need_eval
@@ -122,33 +146,33 @@ class ComplexParamParser:
             return "".join(pieces), need_eval, need_eval
 
     @classmethod
-    def _recursive_convert_params(cls, data: Any) -> Any:
+    def _recursive_convert_params(cls, data: Any, gv=None) -> Any:
         """
         递归转换复杂参数结构
         """
         if isinstance(data, dict):
             if data.get("rpa") == "special" and "value" in data:
                 if isinstance(data["value"], list) and len(data["value"]) > 0:
-                    expr_str, need_eval = cls.param_to_eval(data["value"])
+                    expr_str, need_eval = cls.param_to_eval(data["value"], gv=gv)
                     if need_eval:
                         return _compile_expression(expr_str)
                     else:
                         return expr_str
                 else:
                     return data["value"]
-            return {k: cls._recursive_convert_params(v) for k, v in data.items()}
+            return {k: cls._recursive_convert_params(v, gv=gv) for k, v in data.items()}
         if isinstance(data, list):
-            return [cls._recursive_convert_params(item) for item in data]
+            return [cls._recursive_convert_params(item, gv=gv) for item in data]
         return data
 
     @classmethod
-    def parse_params(cls, source: Any, context_vars: Optional[dict] = None) -> Any:
+    def parse_params(cls, source: Any, context_vars: Optional[dict] = None, gv: dict = None) -> Any:
         """
         解析复杂参数结构
         """
         # context_vars 参数保留用于向后兼容，但在转换阶段不需要使用
         # 真正的变量解析在 evaluate_params 阶段进行
-        return cls._recursive_convert_params(source)
+        return cls._recursive_convert_params(source, gv=gv)
 
     @classmethod
     def evaluate_params(cls, converted: Any, ctx: Optional[dict] = None) -> Any:
@@ -185,9 +209,14 @@ class ComplexParamParser:
 
 
 def complex_param_parser(complex_param: Any, global_data: Any) -> dict:
-    res = ComplexParamParser.parse_params(complex_param)
+    glist = {}
+    for g in global_data:
+        glist[g.get("varName")] = g.get("varValue", "")
+
+    res = ComplexParamParser.parse_params(complex_param, gv=glist)
 
     ctx = {}
+
     for g in global_data:
         var_value = g.get("varValue", "")
         try:
@@ -195,7 +224,7 @@ def complex_param_parser(complex_param: Any, global_data: Any) -> dict:
         except Exception as e:
             pass
         var_value = ComplexParamParser.pre_param_handler(var_value)
-        code, need_eval = ComplexParamParser.param_to_eval(var_value)
+        code, need_eval = ComplexParamParser.param_to_eval(var_value, gv=glist)
         if not need_eval:
             code = repr(code)
         ctx[g.get("varName")] = eval(code)

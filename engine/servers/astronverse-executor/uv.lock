@@ -19,6 +19,15 @@ wheels = [
 ]
 
 [[package]]
+name = "astor"
+version = "0.8.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/21/75b771132fee241dfe601d39ade629548a9626d1d39f333fde31bc46febe/astor-0.8.1.tar.gz", hash = "sha256:6a6effda93f4e1ce9f618779b2dd1d9d84f1e32812c23a29b3fff6fd7f63fa5e", size = 35090, upload-time = "2019-12-10T01:50:35.51Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/88/97eef84f48fa04fbd6750e62dcceafba6c63c81b7ac1420856c8dcc0a3f9/astor-0.8.1-py2.py3-none-any.whl", hash = "sha256:070a54e890cefb5b3739d19f30f5a5ec840ffc9c50ffa7d23cc9fc1a38ebbfc5", size = 27488, upload-time = "2019-12-10T01:50:33.628Z" },
+]
+
+[[package]]
 name = "astronverse-actionlib"
 version = "1.0.1"
 source = { editable = "../../shared/astronverse-actionlib" }
@@ -134,6 +143,7 @@ version = "1.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
+    { name = "astor" },
     { name = "astronverse-actionlib" },
     { name = "astronverse-baseline" },
     { name = "astronverse-browser" },
@@ -141,6 +151,7 @@ dependencies = [
     { name = "astronverse-dialog" },
     { name = "astronverse-report" },
     { name = "astronverse-script" },
+    { name = "astronverse-smart" },
     { name = "astronverse-system" },
     { name = "astronverse-websocket-server" },
     { name = "astronverse-workflowlib" },
@@ -153,6 +164,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "anyio" },
+    { name = "astor" },
     { name = "astronverse-actionlib", editable = "../../shared/astronverse-actionlib" },
     { name = "astronverse-baseline", editable = "../../shared/astronverse-baseline" },
     { name = "astronverse-browser", editable = "../../components/astronverse-browser" },
@@ -160,6 +172,7 @@ requires-dist = [
     { name = "astronverse-dialog", editable = "../../components/astronverse-dialog" },
     { name = "astronverse-report", editable = "../../components/astronverse-report" },
     { name = "astronverse-script", editable = "../../components/astronverse-script" },
+    { name = "astronverse-smart", editable = "../../components/astronverse-smart" },
     { name = "astronverse-system", editable = "../../components/astronverse-system" },
     { name = "astronverse-websocket-server", editable = "../../shared/astronverse-websocket-server" },
     { name = "astronverse-workflowlib", editable = "../../shared/astronverse-workflowlib" },
@@ -246,6 +259,25 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-smart"
+version = "1.0.1"
+source = { editable = "../../components/astronverse-smart" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "astronverse-baseline" },
+    { name = "astronverse-browser" },
+    { name = "astronverse-system" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "../../shared/astronverse-actionlib" },
+    { name = "astronverse-baseline", editable = "../../shared/astronverse-baseline" },
+    { name = "astronverse-browser", editable = "../../components/astronverse-browser" },
+    { name = "astronverse-system", editable = "../../components/astronverse-system" },
+]
+
+[[package]]
 name = "astronverse-software"
 version = "1.0.1"
 source = { editable = "../../components/astronverse-software" }
@@ -300,7 +332,7 @@ requires-dist = [
 
 [[package]]
 name = "astronverse-websocket-server"
-version = "1.0.1"
+version = "1.0.7"
 source = { editable = "../../shared/astronverse-websocket-server" }
 dependencies = [
     { name = "anyio" },

@@ -1,3 +1,5 @@
+import ast
+import astor
 import json
 from enum import Enum
 from typing import Any
@@ -20,6 +22,30 @@ class ParamType(Enum):
 
 
 param_type_dict = ParamType.to_dict()
+
+
+class GlobalVarRewriter(ast.NodeTransformer):
+    """
+    把白名单里的变量名全部改成 gv["原名"]
+    """
+
+    def __init__(self, glist):
+        self.glist = set(glist)
+
+    def visit_Name(self, node: ast.Name):
+        if node.id in self.glist:
+            new_node = ast.Subscript(
+                value=ast.Name(id="gv", ctx=ast.Load()), slice=ast.Constant(value=node.id), ctx=node.ctx
+            )
+            return ast.copy_location(new_node, node)
+        return node
+
+
+def refactor_globals(code: str, glist) -> str:
+    tree = ast.parse(code)
+    tree = GlobalVarRewriter(glist).visit(tree)
+    ast.fix_missing_locations(tree)
+    return astor.to_source(tree).rstrip("\n")
 
 
 class Param(IParam):
@@ -80,18 +106,13 @@ class Param(IParam):
             if need_eval:
                 if types in [ParamType.STR.value, ParamType.OTHER.value]:
                     pieces.append(f"{data!r}")
-                elif types == ParamType.G_VAR.value:
-                    pieces.append(f"gv[{data!r}]")
                 else:
-                    if gv and data in gv:  # 兜底
-                        pieces.append(f"gv[{data!r}]")
-                    else:
-                        pieces.append(f"{data}")
+                    if gv:
+                        # 兼容gv
+                        data = refactor_globals(data, gv.keys())
+                    pieces.append(f"{data}")
             else:
-                if gv and data in gv:  # 兜底
-                    pieces.append(f"gv[{data!r}]")
-                else:
-                    pieces.append(data)
+                pieces.append(f"{data}")
 
         if len(pieces) == 1:
             return pieces[0], need_eval
@@ -188,8 +209,9 @@ class Param(IParam):
 
                 project_id = self.svc.ast_curr_info.get("__project_id__")
                 gv = self.svc.ast_globals_dict[project_id].project_info.global_var
-                if gv and value in gv:  # 兜底
-                    value = f"gv[{value!r}]"
+                if gv:
+                    # 兼容gv
+                    value = refactor_globals(value, gv.keys())
 
                 # 2. 解析
                 res.append(OutputParam(value=value))
