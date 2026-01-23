@@ -8,12 +8,13 @@ import com.iflytek.rpa.component.entity.dto.EditPageCompInfoDto;
 import com.iflytek.rpa.component.entity.dto.GetComponentUseDto;
 import com.iflytek.rpa.component.entity.vo.*;
 import com.iflytek.rpa.component.service.ComponentService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import java.util.List;
-import javax.validation.Valid;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 组件表(Component)表控制层
@@ -30,7 +31,6 @@ public class ComponentController {
 
     /**
      * 新建组件-获取默认组件名称
-     *
      * @return
      * @throws Exception
      */
@@ -60,8 +60,7 @@ public class ComponentController {
      * 重命名组件
      */
     @GetMapping("/rename")
-    public AppResponse<Boolean> renameComponent(@RequestParam String componentId, @RequestParam String newName)
-            throws Exception {
+    public AppResponse<Boolean> renameComponent(@RequestParam String componentId, @RequestParam String newName) throws Exception {
         return componentService.renameComponent(componentId, newName);
     }
 
@@ -69,7 +68,6 @@ public class ComponentController {
      * 检查组件名称是否重复，
      * 改名字的时候传 componentId
      * 新建的时候不穿 componentId
-     *
      * @param checkNameDto
      * @return
      * @throws Exception
@@ -81,35 +79,31 @@ public class ComponentController {
 
     /**
      * 获取组件详情（列表页的详细版本）
-     *
      * @param componentId 组件ID
      * @return 组件详情信息
      * @throws NoLoginException
      */
     @GetMapping("/info")
-    public AppResponse<ComponentInfoVo> getComponentInfo(@RequestParam("componentId") String componentId)
-            throws NoLoginException {
+    public AppResponse<ComponentInfoVo> getComponentInfo(@RequestParam("componentId") String componentId) throws NoLoginException {
         return componentService.getComponentInfo(componentId);
     }
 
     /**
      * 创建副本
-     *
      * @param componentId
      * @param name
      * @return
      * @throws NoLoginException
      */
     @GetMapping("/copy")
-    public AppResponse<Boolean> copyComponent(
-            @RequestParam("componentId") String componentId, @RequestParam("name") String name) throws Exception {
+    public AppResponse<Boolean> copyComponent(@RequestParam("componentId") String componentId,
+                                              @RequestParam("name") String name) throws Exception {
         return componentService.copyComponent(componentId, name);
     }
 
     /**
      * 创建副本组件名称
      * 根据原组件名称生成新的副本名称，自动添加"-副本"后缀，如果重名则添加数字
-     *
      * @param componentId 原组件ID
      * @return 新的组件名称
      * @throws Exception
@@ -121,45 +115,38 @@ public class ComponentController {
 
     /**
      * 分页查询组件列表
-     *
      * @param componentListDto 查询条件
      * @return 分页组件列表
      * @throws Exception
      */
     @PostMapping("/page-list")
-    public AppResponse<IPage<ComponentVo>> getComponentPageList(@RequestBody @Valid ComponentListDto componentListDto)
-            throws Exception {
+    public AppResponse<IPage<ComponentVo>> getComponentPageList(@RequestBody @Valid ComponentListDto componentListDto) throws Exception {
         return componentService.getComponentPageList(componentListDto);
     }
 
     /**
      * 机器人编辑页左侧组件列表
-     *
      * @param queryDto
      * @return
      * @throws Exception
      */
     @PostMapping("/editing/list")
-    public AppResponse<List<EditingPageCompVo>> getEditingPageCompList(@RequestBody GetComponentUseDto queryDto)
-            throws Exception {
+    public AppResponse<List<EditingPageCompVo>> getEditingPageCompList(@RequestBody GetComponentUseDto queryDto) throws Exception {
         return componentService.getEditingPageCompList(queryDto);
     }
 
     /**
      * 编辑页里面的组件详情
-     *
      * @param queryDto
      * @return
      */
     @PostMapping("/editing/info")
-    public AppResponse<EditingPageCompInfoVo> editingPageCompInfo(@RequestBody EditPageCompInfoDto queryDto)
-            throws Exception {
+    public AppResponse<EditingPageCompInfoVo> editingPageCompInfo(@RequestBody EditPageCompInfoDto queryDto) throws Exception {
         return componentService.getEditingPageCompInfo(queryDto);
     }
 
     /**
      * 组件管理列表
-     *
      * @param queryDto
      * @return
      * @throws Exception
@@ -168,4 +155,6 @@ public class ComponentController {
     public AppResponse<List<CompManageVo>> CompManageList(@RequestBody GetComponentUseDto queryDto) throws Exception {
         return componentService.getCompManageList(queryDto);
     }
+
+
 }

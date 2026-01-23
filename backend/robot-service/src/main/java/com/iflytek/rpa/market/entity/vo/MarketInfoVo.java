@@ -1,7 +1,8 @@
 package com.iflytek.rpa.market.entity.vo;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class MarketInfoVo {
@@ -19,4 +20,4 @@ public class MarketInfoVo {
      * 分类
      */
     private String category;
-}
+} 

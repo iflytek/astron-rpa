@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.dispatch.dao.DispatchTaskExecuteRecordDao">
+
+    <resultMap type="com.iflytek.rpa.dispatch.entity.DispatchTaskExecuteRecord" id="DispatchTaskExecuteRecordMap">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="dispatchTaskId" column="dispatch_task_id" jdbcType="BIGINT"/>
+        <result property="dispatchTaskExecuteId" column="dispatch_task_execute_id" jdbcType="BIGINT"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+        <result property="dispatchTaskType" column="dispatch_task_type" jdbcType="VARCHAR"/>
+        <result property="result" column="result" jdbcType="VARCHAR"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="executeTime" column="execute_time" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="VARCHAR"/>
+        <result property="updaterId" column="updater_id" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="taskDetailJson" column="task_detail_json" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <!-- DispatchTaskExecuteRecordListVo 结果映射 -->
+    <resultMap type="com.iflytek.rpa.dispatch.entity.vo.DispatchTaskExecuteRecordListVo" id="DispatchTaskExecuteRecordListVoMap">
+        <result property="dispatchTaskExecuteId" column="dispatch_task_execute_id" jdbcType="VARCHAR"/>
+        <result property="dispatchTaskId" column="dispatch_task_id" jdbcType="VARCHAR"/>
+        <result property="taskName" column="task_name" jdbcType="VARCHAR"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+        <result property="dispatchTaskType" column="type" jdbcType="VARCHAR"/>
+        <result property="taskStartTime" column="task_start_time" jdbcType="VARCHAR"/>
+        <result property="taskEndTime" column="task_end_time" jdbcType="VARCHAR"/>
+        <result property="taskExecuteTime" column="execute_time" jdbcType="VARCHAR"/>
+        <result property="taskExecuteStatus" column="task_status" jdbcType="VARCHAR"/>
+        <!-- 终端信息映射 -->
+        <association property="terminalInfo" javaType="com.iflytek.rpa.dispatch.entity.vo.DispatchTaskExecuteRecordListVo$TerminalInfo">
+            <result property="terminalId" column="terminal_id" jdbcType="VARCHAR"/>
+            <result property="userName" column="username" jdbcType="VARCHAR"/>
+            <result property="os" column="os" jdbcType="VARCHAR"/>
+            <result property="osName" column="os_name" jdbcType="VARCHAR"/>
+            <result property="osPwd" column="os_pwd" jdbcType="VARCHAR"/>
+            <result property="terminalName" column="terminal_name" jdbcType="VARCHAR"/>
+            <result property="port" column="port" jdbcType="INTEGER"/>
+            <result property="customPort" column="custom_port" jdbcType="INTEGER"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="customIp" column="custom_ip" jdbcType="VARCHAR"/>
+            <result property="actualClientIp" column="actual_client_ip" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+
+    <select id="getMaxBatch" resultType="java.lang.Integer">
+        select
+        max(count)
+        from
+        dispatch_task_execute_record
+        where
+        deleted = 0
+        and dispatch_task_id = #{dispatchTaskId}
+    </select>
+
+    <insert id="insertTaskExecuteRecord">
+        insert into dispatch_task_execute_record
+        (dispatch_task_id,
+        count,
+        result,
+        dispatch_task_type,
+        start_time,
+        end_time,
+        terminal_id,
+        tenant_id,
+        creator_id,
+        dispatch_task_execute_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted)
+        values
+        (#{dispatchTaskId},
+        #{count},
+        #{result},
+        #{dispatchTaskType},
+        #{startTime},
+        null,
+        #{terminalId},
+        #{tenantId},
+        #{creatorId},
+        #{dispatchTaskExecuteId},
+        now(),
+        #{updaterId},
+        now(),
+        0)
+    </insert>
+
+    <insert id="insertRobotExecuteRecord">
+        insert into
+        dispatch_task_robot_execute_record
+        (
+        execute_id,
+        robot_id,
+        robot_version,
+        start_time,
+        end_time,
+        execute_time,
+        dispatch_task_execute_id,
+        result,
+        param_json,
+        error_reason,
+        execute_log,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted,
+        tenant_id,
+        video_local_path,
+        dept_id_path,
+        terminal_id,
+        data_table_path)
+        values(#{executeId},
+        #{robotId},
+        #{robotVersion},
+        #{startTime},
+        #{endTime},
+        #{executeTime},
+        #{dispatchTaskExecuteId},
+        #{result},
+        #{paramJson},
+        #{errorReason},
+        #{executeLog},
+        #{creatorId},
+        now(),
+        #{updaterId},
+        now(),
+        0,
+        #{tenantId},
+        #{videoLocalPath},
+        #{deptIdPath},
+        #{terminalId},
+        #{dataTablePath})
+    </insert>
+
+    <select id="selectTaskById" resultType="com.iflytek.rpa.dispatch.entity.DispatchTask">
+        select
+        *
+        from
+        dispatch_task
+        where
+        deleted = 0
+        and dispatch_task_id = #{dispatchTaskId}
+    </select>
+
+    <update id="updateTaskExecuteStatus">
+        update
+        dispatch_task_execute_record
+        set
+        result = #{entity.result},
+        task_detail_json = #{entity.taskDetailJson},
+        end_time = #{entity.endTime},
+        execute_time = #{entity.executeTime},
+        update_time = now()
+        where
+        deleted = 0
+        and dispatch_task_id = #{entity.dispatchTaskId}
+        and dispatch_task_execute_id = #{entity.dispatchTaskExecuteId}
+    </update>
+
+    <update id="updateRobotExecuteRecord" parameterType="com.iflytek.rpa.dispatch.entity.dto.RobotExecuteStatusDto">
+        update dispatch_task_robot_execute_record
+        set
+            end_time = #{endTime},
+            execute_time = #{executeTime},
+            result = #{result},
+            error_reason = #{errorReason},
+            execute_log = #{executeLog},
+            video_local_path = #{videoLocalPath},
+            update_time = now(),
+            updater_id = #{updaterId},
+            data_table_path = #{dataTablePath}
+        where
+            execute_id = #{executeId}
+            and dispatch_task_execute_id = #{dispatchTaskExecuteId}
+            and tenant_id = #{tenantId}
+            and deleted = 0
+    </update>
+
+    <select id="getRobotExecuteLog" resultType="com.iflytek.rpa.robot.entity.vo.RecordLogVo">
+        select execute_log
+        from dispatch_task_robot_execute_record
+        where execute_id = #{executeId}
+            and tenant_id = #{tenantId}
+            and deleted = 0
+        limit 1
+    </select>
+
+    <select id="selectByExecuteId" resultMap="DispatchTaskExecuteRecordMap">
+        select *
+        from dispatch_task_execute_record
+        where dispatch_task_execute_id = #{taskExecuteId}
+        and deleted = 0
+    </select>
+
+    <select id="getRobotExecuteRecord" resultType="com.iflytek.rpa.dispatch.entity.DispatchTaskRobotExecuteRecord">
+        select  *
+        from dispatch_task_robot_execute_record
+        where
+        deleted=0
+        and execute_id = #{executeId}
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
+    </select>
+
+
+</mapper>

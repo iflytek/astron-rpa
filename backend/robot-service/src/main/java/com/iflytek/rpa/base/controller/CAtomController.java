@@ -6,11 +6,12 @@ import com.iflytek.rpa.base.entity.dto.AtomKeyListDto;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
 import com.iflytek.rpa.base.entity.dto.SaveAtomicsDto;
 import com.iflytek.rpa.base.service.CAtomMetaService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import java.util.Map;
-import javax.validation.Valid;
+import com.iflytek.rpa.utils.response.AppResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Map;
 
 /**
  * 原子能力定义信息
@@ -34,9 +35,10 @@ public class CAtomController {
      * 查询指定目录的原子能力定义
      */
     @PostMapping("/getListByParentKey")
-    public AppResponse<?> getAtomListByParentKey(@RequestParam(name = "parentKey") String parentKey) {
+    public AppResponse<?> getAtomListByParentKey(@RequestParam(name = "parentKey") String parentKey)  {
         return cAtomMetaService.getAtomListByParentKey(parentKey);
     }
+
 
     /**
      * 根据key和version列表批量获取原子能力定义
@@ -53,7 +55,6 @@ public class CAtomController {
     public AppResponse<?> getLatestAtomByKey(@RequestParam(name = "key") String atomKey) throws Exception {
         return cAtomMetaService.getLatestAtomByKey(atomKey);
     }
-
     /**
      * 根据 List[key] 批量查询原子能力最新定义
      */
@@ -61,6 +62,7 @@ public class CAtomController {
     public AppResponse<?> getLatestAtomsByList(@RequestBody AtomKeyListDto dto) throws Exception {
         return cAtomMetaService.getLatestAtomsByList(dto);
     }
+
 
     /**
      * 新增原子能力公共数据（types、commonAdvancedParameter、atomicTree、atomicTreeExtend）
@@ -72,15 +74,16 @@ public class CAtomController {
         return cAtomMetaService.addAtomCommonInfo(atomCommon);
     }
 
+
     /**
+     *
      * 更新原子能力公共数据（types、commonAdvancedParameter、atomicTree、atomicTreeExtend）
      *
      * @param atomCommon
      * @return
      */
     @PostMapping("/update-common")
-    public AppResponse<?> updateAtomCommonInfo(@Valid @RequestBody AtomCommon atomCommon)
-            throws JsonProcessingException {
+    public AppResponse<?> updateAtomCommonInfo(@Valid @RequestBody AtomCommon atomCommon) throws JsonProcessingException {
         // todo 加密码，限流
         return cAtomMetaService.updateAtomCommonInfo(atomCommon);
     }
@@ -98,7 +101,7 @@ public class CAtomController {
      * 原子能力最新定义全量查询接口
      */
     @GetMapping("/getLatestAllAtoms")
-    public Map getLatestAllAtoms() throws Exception {
+    public Map getLatestAllAtoms() throws Exception{
         return cAtomMetaService.getLatestAllAtoms();
     }
 }

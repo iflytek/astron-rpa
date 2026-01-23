@@ -1,7 +1,8 @@
 package com.iflytek.rpa.component.entity.dto;
 
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 @Data
 public class EditPageCompInfoDto {

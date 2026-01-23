@@ -2,9 +2,10 @@ package com.iflytek.rpa.task.entity.dto;
 
 import com.iflytek.rpa.robot.entity.RobotExecuteRecord;
 import com.iflytek.rpa.task.entity.ScheduleTaskExecute;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Data
 public class TaskExecuteDto extends ScheduleTaskExecute {
@@ -42,4 +43,5 @@ public class TaskExecuteDto extends ScheduleTaskExecute {
      * 终端ID
      */
     private String terminalId;
+
 }

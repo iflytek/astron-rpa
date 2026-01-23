@@ -13,10 +13,10 @@ public class ListBatchUtil {
     /**
      * 批量操作列表数据
      *
-     * @param dataList        数据列表
-     * @param batchSize       每批次大小
-     * @param operationMethod 数据操作的函数
-     * @param <T>             数据类型
+     * @param dataList  数据列表
+     * @param batchSize 每批次大小
+     * @param operationMethod  数据操作的函数
+     * @param <T>       数据类型
      */
     public static <T> void process(List<T> dataList, int batchSize, Consumer<List<T>> operationMethod) {
         if (dataList == null || dataList.isEmpty()) {

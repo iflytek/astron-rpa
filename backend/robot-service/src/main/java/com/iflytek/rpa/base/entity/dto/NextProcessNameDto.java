@@ -11,4 +11,5 @@ import lombok.Data;
 public class NextProcessNameDto {
 
     private String robotId;
+
 }

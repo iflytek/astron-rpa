@@ -28,28 +28,6 @@
         ORDER BY id ASC
     </select>
 
-    <select id="getUserListBySharedVarIds" resultType="com.iflytek.rpa.robot.entity.SharedVarUser">
-        SELECT
-        id,
-        shared_var_id,
-        user_id,
-        user_name,
-        user_phone
-        FROM shared_var_user
-        WHERE deleted = 0
-        AND shared_var_id IN
-        <foreach collection="sharedVarIds" item="sharedVarId" open="(" close=")" separator=",">
-            #{sharedVarId}
-        </foreach>
-        ORDER BY id ASC
-    </select>
-    <select id="getAllTenantId" resultType="java.lang.String">
-        select id
-        from ${databaseName}.t_uap_tenant
-        where is_delete = 0
-          and id != 'default-tenant'
-    </select>
-
     <select id="getAvailableSharedVars" resultType="com.iflytek.rpa.robot.entity.SharedVar">
         SELECT *
         FROM shared_var
@@ -74,7 +52,7 @@
     <select id="getAvailableByIds" resultType="com.iflytek.rpa.robot.entity.SharedVar">
         SELECT *
         FROM shared_var
-        WHERE deleted = 0
+        WHERE deleted = 0 and status = 1
         <if test="ids != null and ids.size() > 0">
             and (id IN
             <foreach collection="ids" item="id" open="(" close=")" separator=",">

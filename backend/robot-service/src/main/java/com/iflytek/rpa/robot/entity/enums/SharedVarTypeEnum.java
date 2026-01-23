@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum SharedVarTypeEnum {
+
     TEXT("text", "文本"),
     PASSWORD("password", "密码"),
     ARRAY("array", "数组"),

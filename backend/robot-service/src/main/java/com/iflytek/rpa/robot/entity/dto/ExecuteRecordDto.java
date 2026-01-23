@@ -1,8 +1,9 @@
 package com.iflytek.rpa.robot.entity.dto;
 
 import com.iflytek.rpa.robot.entity.RobotExecuteRecord;
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 @Data
 public class ExecuteRecordDto extends RobotExecuteRecord {
@@ -73,4 +74,8 @@ public class ExecuteRecordDto extends RobotExecuteRecord {
      * 机器人配置参数
      */
     private String paramJson;
+    /**
+     * 数据抓取上报路径
+     */
+    private String dataTablePath;
 }

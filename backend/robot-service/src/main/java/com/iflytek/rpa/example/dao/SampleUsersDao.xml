@@ -5,6 +5,7 @@
     <resultMap type="com.iflytek.rpa.example.entity.SampleUsers" id="SampleUsersResultMap">
         <id column="id" property="id" />
         <result column="creator_id" property="creatorId" />
+        <result column="tenant_id" property="tenantId" />
         <result column="sample_id" property="sampleId" />
         <result column="name" property="name" />
         <result column="data" property="data" />
@@ -15,7 +16,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, creator_id, sample_id, name, data, source, version_injected, created_time, updated_time
+        id, creator_id, tenant_id, sample_id, name, data, source, version_injected, created_time, updated_time
     </sql>
 
     <select id="selectByCreatorIdAndSampleId" resultMap="SampleUsersResultMap">
@@ -33,10 +34,10 @@
     </select>
 
     <insert id="insertBatch">
-        insert into sample_users (creator_id, sample_id, name, data, source, version_injected, created_time, updated_time)
+        insert into sample_users (creator_id, tenant_id, sample_id, name, data, source, version_injected, created_time, updated_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.creatorId}, #{entity.sampleId}, #{entity.name}, #{entity.data}, #{entity.source}, #{entity.versionInjected}, #{entity.createdTime}, #{entity.updatedTime})
+            (#{entity.creatorId}, #{entity.tenantId}, #{entity.sampleId}, #{entity.name}, #{entity.data}, #{entity.source}, #{entity.versionInjected}, #{entity.createdTime}, #{entity.updatedTime})
         </foreach>
     </insert>
 

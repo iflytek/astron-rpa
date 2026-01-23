@@ -19,41 +19,41 @@
 
 
     <insert id="createRequireForCurrentVersion">
-        insert into c_require(project_id, package_name, package_version,
+        insert into c_require(
+                              project_id, package_name, package_version,
                               mirror, creator_id, create_time, updater_id,
-                              update_time, deleted, robot_id, robot_version)
-        select project_id,
-               package_name,
-               package_version,
-               mirror,
-               creator_id,
-               create_time,
-               updater_id,
-               update_time,
-               deleted,
-               robot_id,
-               #{version}
-        from c_require
-        where robot_id = #{robotId}
-          and robot_version = 0
+                              update_time, deleted,robot_id, robot_version)
+        select project_id, package_name,
+               package_version, mirror,
+               creator_id, create_time,
+               updater_id, update_time,
+               deleted, robot_id, #{version}
+        from
+            c_require
+        where
+            robot_id = #{robotId}
+        and robot_version = 0
           and creator_id = #{creatorId}
-          and deleted = 0
+        and deleted = 0
     </insert>
+
 
 
     <insert id="createRequireForObtainedVersion">
         insert into c_require
-        (project_id,
-         package_name,
-         package_version,
-         mirror,
-         creator_id,
-         create_time,
-         updater_id,
-         update_time,
-         deleted,
-         robot_id,
-         robot_version)
+            (
+            project_id,
+
+             package_name,
+             package_version,
+             mirror,
+             creator_id,
+             create_time,
+             updater_id,
+            update_time,
+             deleted,
+             robot_id,
+             robot_version)
         select project_id,
                package_name,
                package_version,
@@ -65,10 +65,12 @@
                0,
                #{obtainedRobotDesign.robotId},
                0
-        from c_require
-        where robot_id = #{authorRobotVersion.robotId}
-          and robot_version = #{authorRobotVersion.version}
-          and creator_id = #{authorRobotVersion.creatorId}
+        from
+            c_require
+        where
+            robot_id = #{authorRobotVersion.robotId}
+            and robot_version = #{authorRobotVersion.version}
+            and creator_id = #{authorRobotVersion.creatorId}
     </insert>
 
 
@@ -102,43 +104,47 @@
         </foreach>
     </insert>
     <insert id="addRequire">
-        INSERT INTO c_require (robot_id,
-                               package_name,
-                               package_version,
-                               mirror,
-                               creator_id,
-                               create_time,
-                               updater_id,
-                               update_time,
-                               deleted,
-                               robot_version)
-        VALUES (#{robotId},
-                #{packageName},
-                #{packageVersion},
-                #{mirror},
-                #{creatorId},
-                NOW(),
-                #{updaterId},
-                NOW(),
-                #{deleted},
-                #{robotVersion})
+        INSERT INTO c_require (
+            robot_id,
+            package_name,
+            package_version,
+            mirror,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted,
+            robot_version
+        ) VALUES (
+            #{robotId},
+            #{packageName},
+            #{packageVersion},
+            #{mirror},
+            #{creatorId},
+            NOW(),
+            #{updaterId},
+            NOW(),
+            #{deleted},
+            #{robotVersion}
+        )
     </insert>
     <update id="updateRequire">
         UPDATE c_require
-        SET package_name    = #{packageName},
+        SET
+            package_name = #{packageName},
             package_version = #{packageVersion},
-            mirror          = #{mirror},
-            updater_id      = #{updaterId},
-            update_time     = NOW()
+            mirror = #{mirror},
+            updater_id = #{updaterId},
+            update_time = NOW()
         WHERE id = #{id}
-          AND robot_id = #{robotId}
-          AND deleted = 0
+            AND robot_id = #{robotId}
+            AND deleted = 0
     </update>
     <delete id="deleteRequire">
         UPDATE c_require
         SET deleted = 1
-        WHERE robot_id = #{robotId}
-        AND creator_id = #{creatorId}
+            WHERE robot_id = #{robotId}
+            AND creator_id = #{creatorId}
         AND id IN
         <foreach collection="idList" item="id" open="(" separator="," close=")">
             #{id}
@@ -148,10 +154,10 @@
         SELECT COUNT(*)
         FROM c_require
         WHERE creator_id = #{creatorId}
-          AND robot_id = #{robotId}
-          AND package_name = #{packageName}
-          AND robot_version = 0
-          AND deleted = 0
+            AND robot_id = #{robotId}
+            AND package_name = #{packageName}
+            AND robot_version = 0
+            AND deleted = 0
     </select>
 </mapper>
 

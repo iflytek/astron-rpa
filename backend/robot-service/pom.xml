@@ -29,6 +29,20 @@
 
     <repositories>
         <repository>
+            <id>cbgmaven</id>
+            <name>cbg maven</name>
+            <url>https://depend.iflytek.com/artifactory/cbg-mvn-release-private/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>mvn-repo</id>
+            <name>mvn-repo</name>
+            <url>https://depend.iflytek.com/artifactory/mvn-repo/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
             <id>alimaven</id>
             <name>aliyun maven</name>
             <url>https://maven.aliyun.com/repository/central</url>
@@ -47,42 +61,6 @@
     </dependencyManagement>
 
     <dependencies>
-
-<!--        <dependency>-->
-<!--            <groupId>com.iflytek.sec</groupId>-->
-<!--            <artifactId>uap-starter</artifactId>-->
-<!--            <version>V3.3.1</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>com.iflytek.tuling</groupId>-->
-<!--                    <artifactId>tuling-isvp-sdk</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>com.squareup.okhttp3</groupId>-->
-<!--                    <artifactId>okhttp</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>com.squareup.okhttp3</groupId>-->
-<!--            <artifactId>okhttp</artifactId>-->
-<!--            <version>4.9.1</version>-->
-<!--        </dependency>-->
-
-
-        <!-- S3工具包 -->
-<!--        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
-            <version>${aws-java-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${aws-java-sdk.version}</version>
-        </dependency>-->
-
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -202,16 +180,12 @@
             <artifactId>velocity-engine-core</artifactId>
             <version>2.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.casbin/casdoor-spring-boot-starter -->
-        <dependency>
-            <groupId>org.casbin</groupId>
-            <artifactId>casdoor-spring-boot-starter</artifactId>
-            <version>1.15.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.casbin</groupId>-->
+<!--            <artifactId>casdoor-spring-boot-starter</artifactId>-->
+<!--            <version>1.15.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
@@ -252,6 +226,56 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
             <version>2.3.0.RELEASE</version>
+        </dependency>
+
+        <!-- Spring Cloud 核心依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter</artifactId>
+            <version>${cloud.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Feign 相关依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-openfeign-core</artifactId>
+            <version>${cloud.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-core</artifactId>
+            <version>${feign.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-slf4j</artifactId>
+            <version>${feign.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-hystrix</artifactId>
+            <version>${feign.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-java8</artifactId>
+            <version>${feign.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-gson</artifactId>
+            <version>${feign.version}</version>
         </dependency>
 
     </dependencies>

@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 云端机器人执行记录表(RobotExecuteRecord)实体类
@@ -24,6 +25,7 @@ public class RobotExecuteRecord implements Serializable {
     private Long id;
 
     private String executeId;
+
 
     /**
      * 机器人id
@@ -106,4 +108,7 @@ public class RobotExecuteRecord implements Serializable {
 
     @TableField(exist = false)
     private String taskName;
+
+    private String dataTablePath;
 }
+

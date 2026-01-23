@@ -1,7 +1,8 @@
 package com.iflytek.rpa.base.entity;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author mjren

@@ -81,7 +81,8 @@
     <select id="getComponentNameList" resultType="java.lang.String">
         select name
         from component
-        where deleted = 0
+        where
+            deleted = 0
           and is_shown = 1
           and creator_id = #{userId}
           and tenant_id = #{tenantId}

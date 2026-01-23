@@ -11,4 +11,5 @@ public class WorkflowsUpsertDto {
     Integer version;
     Integer status;
     String parameters;
+    String example_project_id;
 }

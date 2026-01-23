@@ -1,7 +1,5 @@
 package com.iflytek.rpa.base.service.handler;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.DISPATCH;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,19 +9,21 @@ import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.iflytek.rpa.robot.constants.RobotConstant.DISPATCH;
 
 /**
  * @author jqfang3
@@ -88,7 +88,6 @@ public class DispatchModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> deployProcessHandle(
             RobotExecute executeInfo, String processId, String originRobotId) {
         String mainProcessId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
@@ -114,7 +113,6 @@ public class DispatchModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> marketProcessHandle(
             RobotExecute executeInfo, String processId, String originRobotId) {
         String mainProcessId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
@@ -138,7 +136,6 @@ public class DispatchModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> createProcessHandle(
             RobotExecute executeInfo, String processId, Integer enabledVersion) {
         String mainProcessId = cParamDao.getMianProcessId(executeInfo.getRobotId(), enabledVersion);
@@ -157,7 +154,8 @@ public class DispatchModeHandler implements ParamModeHandler {
     }
 
     private AppResponse<List<ParamDto>> parseCustomParams(String paramDetail) throws JsonProcessingException {
-        List<CParam> params = objectMapper.readValue(paramDetail, new TypeReference<List<CParam>>() {});
+        List<CParam> params = objectMapper.readValue(paramDetail, new TypeReference<List<CParam>>() {
+        });
         return AppResponse.success(convertParams(params));
     }
 

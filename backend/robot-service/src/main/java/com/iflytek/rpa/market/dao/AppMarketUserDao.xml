@@ -14,24 +14,32 @@
         <result property="deleted" column="deleted" jdbcType="INTEGER"/>
     </resultMap>
 
-    <select id="getUserListForUpdate" resultMap="AppMarketUserMap">
-        select
-        amu.*
-        from
-        app_market_user amu, component_manage cm
-
-        where
-        amu.market_id = #{marketId}
-        and amu.deleted = 0
-        and amu.creator_id = cm.creator_id
-        and cm.deleted = 0
-        and cm.app_id = #{appId}
-    </select>
-
-
     <insert id="addDefaultUser">
         insert into app_market_user
-        (tenant_id,
+            (
+            market_id,
+            user_type,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted,
+            tenant_id)
+        values
+            (
+            #{entity.marketId},
+           'owner',
+            #{entity.creatorId},
+            now(),
+            #{entity.updaterId},
+            now(),
+            0,
+             #{entity.tenantId})
+    </insert>
+
+    <insert id="addUser">
+        insert into app_market_user
+        (
         market_id,
         user_type,
         creator_id,
@@ -40,9 +48,8 @@
         update_time,
         deleted)
         values
-        (#{entity.tenantId},
-        #{entity.marketId},
-        'owner',
+        (#{entity.marketId},
+        #{entity.userType},
         #{entity.creatorId},
         now(),
         #{entity.updaterId},
@@ -50,64 +57,77 @@
         0)
     </insert>
 
+    <insert id="insertBatch">
+        insert into app_market_user
+        (
 
+            market_id,
+            user_type,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted
+        )
+        values
+        <foreach collection="list" item="entity" separator=",">
+            (
 
+                #{entity.marketId},
+                #{entity.userType},
+                #{entity.creatorId},
+                now(),
+                #{entity.updaterId},
+                now(),
+                #{entity.deleted}
+            )
+        </foreach>
+    </insert>
 
 
     <select id="getUserList" resultType="com.iflytek.rpa.market.entity.MarketDto">
         select
-        amu.id id,
-        amu.user_type userType,
-        amu.creator_id creatorId,
-        amu.create_time createTime,
-        tu.name userName,
-        tu.display_name realName,
-        tu.email email,
-        tu.phone phone
+            amu.id id,
+            amu.user_type userType,
+            amu.creator_id creatorId,
+            amu.create_time createTime,
+            tu.login_name userName,
+            tu.name realName,
+            tu.email email,
+            tu.phone phone
         from app_market_user amu
-        left join ${databaseName}.user tu on tu.id = amu.creator_id and tu.is_deleted = 0
+            inner join ${databaseName}.t_uap_user tu on tu.id = amu.creator_id and tu.is_delete = 0
         where
-        amu.market_id = #{entity.marketId}
-        and amu.deleted = 0
-        <if test="entity.userName != null and entity.userName != ''">
-            and upper(tu.name) like concat('%', upper(#{entity.userName}), '%')
-        </if>
-        <if test="entity.realName != null and entity.realName != ''">
-            and upper(tu.display_name) like concat('%', upper(#{entity.realName}), '%')
-        </if>
-        <choose>
-            <when test="entity.sortBy !=null and entity.sortBy != ''">
-                <if test="entity.sortType == 'descend'.toString()">
-                    order by ${entity.sortBy} desc
-                </if>
-                <if test="entity.sortType == 'ascend'.toString() ">
-                    order by ${entity.sortBy} asc
-                </if>
-            </when>
-            <otherwise>
-                order by createTime desc
-            </otherwise>
-        </choose>
+            amu.market_id = #{entity.marketId}
+            and amu.deleted = 0
+            <if test="entity.userName != null and entity.userName != ''">
+                and upper(tu.login_name) like concat('%', upper(#{entity.userName}), '%')
+            </if>
+            <if test="entity.realName != null and entity.realName != ''">
+                and upper(tu.name) like concat('%', upper(#{entity.realName}), '%')
+            </if>
+            <choose>
+                <when test="entity.sortBy !=null and entity.sortBy != ''">
+                    <if test="entity.sortType == 'descend'.toString()">
+                        order by ${entity.sortBy} desc
+                    </if>
+                    <if test="entity.sortType == 'ascend'.toString() ">
+                        order by ${entity.sortBy} asc
+                    </if>
+                </when>
+                <otherwise>
+                    order by createTime desc
+                </otherwise>
+            </choose>
     </select>
-
-
-    <update id="deleteUser">
-        update app_market_user
-        set deleted = 1
-        where
-        market_id = #{entity.marketId}
-        and user_type != 'owner'
-        and creator_id = #{entity.creatorId}
-    </update>
-
 
     <update id="roleSet">
         update app_market_user
         set user_type = #{entity.userType}
         where
-        market_id = #{entity.marketId}
-        and creator_id = #{entity.creatorId}
-        and deleted = 0
+            market_id = #{entity.marketId}
+            and creator_id = #{entity.creatorId}
+            and deleted = 0
     </update>
 
     <select id="getOwnerByRole"  resultType="java.lang.String">
@@ -125,78 +145,84 @@
         select user_type
         from app_market_user
         where
-        market_id = #{marketId}
-        and creator_id = #{userId}
-        and deleted = 0
+            market_id = #{marketId}
+            and creator_id = #{userId}
+            and deleted = 0
         limit 1
     </select>
 
 
     <select id="getUserUnDeployed" resultType="com.iflytek.rpa.market.entity.MarketDto">
         select
-        phone,
-        display_name realName,
-        id creatorId
-        from ${databaseName}.user tu
+            phone,
+            name realName,
+            id creatorId
+        from ${databaseName}.t_uap_user tu
         where
-        exists(select id
-        from app_market_user amu
-        where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{entity.marketId} and amu.tenant_id = #{entity.tenantId})
-        and not exists(select id
-        from robot_execute re
-        where re.deleted = 0
-        and re.creator_id = tu.id
-        and re.data_source = 'market'
-        and re.market_id = #{entity.marketId}
-        and re.app_id = #{entity.appId})
-        <if test="entity.phone != null and entity.phone != ''">
-            and phone like CONCAT('%',#{entity.phone},'%')
-        </if>
-        and is_deleted = 0
-        limit 20
+          exists(select id
+                       from app_market_user amu
+                       where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{entity.marketId} and amu.tenant_id = #{entity.tenantId})
+          and not exists(select id
+                         from robot_execute re
+                         where re.deleted = 0
+                           and re.creator_id = tu.id
+                           and re.data_source = 'market'
+                           and re.market_id = #{entity.marketId}
+                           and re.app_id = #{entity.appId})
+          <if test="entity.phone != null and entity.phone != ''">
+              and phone like CONCAT('%',#{entity.phone},'%')
+          </if>
+          and is_delete = 0
+            limit 20
     </select>
 
 
 
-    <!--    已经在团队内的不再查询, 已禁用的不再查询-->
+<!--    已经在团队内的不再查询, 已禁用的不再查询-->
     <select id="getUserByPhone" resultType="com.iflytek.rpa.market.entity.MarketDto">
         select
-        phone,
-        display_name realName,
-        id creatorId
-        from ${databaseName}.user tu
+            tu.phone,
+            tu.name realName,
+            tu.id creatorId
+        from ${databaseName}.t_uap_user tu
+        inner join ${databaseName}.t_uap_tenant_user tutu on tu.id = tutu.user_id and tutu.tenant_id = #{entity.tenantId}
         where
-        not exists(select id
-        from app_market_user amu
-        where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{entity.marketId} and amu.tenant_id = #{entity.tenantId})
-        and phone like CONCAT('%',#{entity.phone},'%')
-        and is_deleted = 0
-        limit 20
+            not exists(select id
+                            from app_market_user amu
+                            where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{entity.marketId} )
+            and phone like CONCAT('%',#{entity.phone},'%')
+            and is_delete = 0
+            limit 20
     </select>
 
     <select id="getUserByPhoneForOwner" resultType="com.iflytek.rpa.market.entity.MarketDto">
         select
-        uu.phone phone,
-        uu.display_name realName,
-        uu.id creatorId
+            uu.phone phone,
+            uu.name realName,
+            utu.user_id creatorId
         from
-        ${databaseName}.user uu
+            ${databaseName}.t_uap_user uu
+            inner join ${databaseName}.t_uap_tenant_user utu on uu.id = utu.user_id
+            INNER JOIN app_market_user amu ON utu.user_id = amu.creator_id
         where
-        uu.phone like CONCAT('%',#{entity.phone},'%')
-        and uu.owner = #{entity.tenantId}
-        and uu.is_deleted = 0
-        limit 20
+            uu.phone like CONCAT('%',#{entity.phone},'%')
+            and utu.tenant_id = #{entity.tenantId}
+            and uu.is_delete = 0
+            AND amu.deleted = 0
+            AND amu.market_id = #{marketId}
+            AND utu.user_id != #{userId}
     </select>
 
     <select id="getTenantUser" resultType="com.iflytek.rpa.market.entity.TenantUser">
         select
-        uu.owner tenantId,
-        uu.id userId
+            utu.tenant_id tenantId,
+            uu.id userId
         from
-        ${databaseName}.user uu
+            ${databaseName}.t_uap_user uu
+            inner join ${databaseName}.t_uap_tenant_user utu on uu.id = utu.user_id
         where
-        uu.is_deleted = 0
-        and uu.owner = #{tenantId}
+        uu.is_delete = 0
+        and utu.tenant_id = #{tenantId}
         and uu.id in
         <foreach collection="entities" item="entity" open="(" close=")" separator=",">
             #{entity.creatorId}
@@ -208,20 +234,20 @@
         update app_market_user
         set deleted = 1
         where
-        market_id = #{entity.marketId}
-        and creator_id = #{entity.creatorId}
-        and deleted = 0
+            market_id = #{entity.marketId}
+            and creator_id = #{entity.creatorId}
+            and deleted = 0
     </update>
 
 
     <update id="updateToOwner">
         update
-        app_market_user
+            app_market_user
         set user_type = 'owner'
         where
-        market_id = #{marketId}
-        and creator_id = #{newOwnerId}
-        and deleted = 0
+            market_id = #{marketId}
+            and creator_id = #{newOwnerId}
+            and deleted = 0
 
     </update>
 
@@ -230,30 +256,30 @@
         update app_market_user
         set deleted = 1
         where
-        market_id = #{marketId}
-        and deleted = 0
+            market_id = #{marketId}
+            and deleted = 0
     </update>
 
 
-    <select id="getMarketUserListForDeploy" resultType="java.lang.String">
+     <select id="getMarketUserListForDeploy" resultType="java.lang.String">
         select
-        creator_id
+            creator_id
         from
-        app_market_user
+            app_market_user
         where
-        deleted = 0
-        and market_id = #{marketId}
-        and creator_id in
-        <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
-            #{userId}
-        </foreach>
+            deleted = 0
+            and market_id = #{marketId}
+            and creator_id in
+            <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
     </select>
 
     <select id="getMarketUserInList" resultType="java.lang.String">
         select creator_id
         from app_market_user
         where
-        deleted = 0 and market_id = #{marketId} and tenant_id = #{tenantId}
+        deleted = 0 and market_id = #{marketId}
         and creator_id in
         <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
             #{userId}
@@ -268,9 +294,6 @@
         <where>
             <if test="id != null">
                 and id = #{id}
-            </if>
-            <if test="tenantId != null">
-                and tenant_id = #{tenantId}
             </if>
             <if test="marketId != null and marketId != ''">
                 and market_id = #{marketId}
@@ -296,6 +319,75 @@
         </where>
     </select>
 
+    <select id="getUserListByPublic" resultType="com.iflytek.rpa.market.entity.MarketDto">
+        select
+        amu.id id,
+        amu.user_type userType,
+        amu.creator_id creatorId,
+        amu.create_time createTime,
+        tu.login_name userName,
+        tu.name realName,
+        tu.email email,
+        tu.phone phone
+        from app_market_user amu
+        inner join ${databaseName}.t_uap_user tu on tu.id = amu.creator_id and tu.is_delete = 0
+        where
+        amu.market_id = #{entity.marketId}
+        and amu.deleted = 0 and amu.user_type != 'owner'
+        <if test="nowUserid != null and nowUserid != ''">
+            and amu.creator_id != #{nowUserid}
+        </if>
+        <if test="entity.userName != null and entity.userName != ''">
+            and upper(tu.login_name) like concat('%', upper(#{entity.userName}), '%')
+        </if>
+        <if test="entity.realName != null and entity.realName != ''">
+            and upper(tu.name) like concat('%', upper(#{entity.realName}), '%')
+        </if>
+        <choose>
+            <when test="entity.sortBy !=null and entity.sortBy != ''">
+                <if test="entity.sortType == 'descend'.toString()">
+                    order by ${entity.sortBy} desc
+                </if>
+                <if test="entity.sortType == 'ascend'.toString() ">
+                    order by ${entity.sortBy} asc
+                </if>
+            </when>
+            <otherwise>
+                order by createTime desc
+            </otherwise>
+        </choose>
+    </select>
 
+    <delete id="deleteById">
+        delete from app_market_user
+        where id = #{id}
+    </delete>
+
+    <select id="getTenantUserByIds" resultType="com.iflytek.rpa.market.entity.TenantUser">
+        select
+            utu.tenant_id tenantId,
+            uu.id userId
+        from
+        ${databaseName}.t_uap_user uu
+        inner join ${databaseName}.t_uap_tenant_user utu on uu.id = utu.user_id
+        where
+            uu.is_delete = 0
+        and utu.tenant_id = #{tenantId}
+        and uu.id in
+        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+
+    <!-- 查询用户在当前租户下已加入的市场数量（未删除的） -->
+    <select id="getMarketJoinCount" resultType="java.lang.Integer">
+        select count(1)
+        from app_market_user as amu
+        inner join app_market as am on am.market_id = amu.market_id
+        where amu.tenant_id = #{tenantId}
+          and amu.creator_id = #{userId}
+          and amu.deleted = 0
+          and am.deleted = 0
+    </select>
 </mapper>
 

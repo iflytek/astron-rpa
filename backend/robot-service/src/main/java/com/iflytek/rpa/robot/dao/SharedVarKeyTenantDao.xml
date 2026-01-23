@@ -15,8 +15,8 @@
     <select id="selectByTenantId" resultType="com.iflytek.rpa.robot.entity.SharedVarKeyTenant">
         SELECT id, tenant_id, `key`, deleted
         FROM shared_var_key_tenant
-        WHERE tenant_id = #{tenantId}
-          AND deleted = 0 LIMIT 1
+        WHERE tenant_id = #{tenantId} AND deleted = 0
+        LIMIT 1
     </select>
 
 </mapper>

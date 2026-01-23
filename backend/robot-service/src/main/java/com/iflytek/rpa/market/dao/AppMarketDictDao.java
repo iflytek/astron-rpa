@@ -1,9 +1,10 @@
 package com.iflytek.rpa.market.dao;
 
 import com.iflytek.rpa.market.entity.AppMarketDict;
-import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author mjren
@@ -15,7 +16,7 @@ public interface AppMarketDictDao {
 
     List<AppMarketDict> getAppType();
 
-    AppMarketDict getDictValueByCodeAndType(@Param("dictCode") String dictCode, @Param("userType") String userType);
+    AppMarketDict getDictValueByCodeAndType(@Param("dictCode") String dictCode, @Param("userType") String  userType);
 
-    String getCodeInfo(@Param("dictCode") String dictCode);
+    String getCodeInfo(@Param("dictCode")  String dictCode);
 }

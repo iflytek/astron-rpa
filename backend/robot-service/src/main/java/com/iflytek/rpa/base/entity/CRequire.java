@@ -2,10 +2,11 @@ package com.iflytek.rpa.base.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
-import javax.validation.constraints.NotBlank;
-import lombok.Data;
 
 /**
  * python依赖管理(CRequire)实体类
@@ -56,3 +57,4 @@ public class CRequire implements Serializable {
     @NotBlank
     private Integer robotVersion;
 }
+

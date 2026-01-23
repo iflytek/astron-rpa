@@ -3,11 +3,12 @@ package com.iflytek.rpa.example.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)实体类
@@ -56,6 +57,11 @@ public class SampleUsers implements Serializable {
      * 注入时所用模板的版本号，用于后续升级判断
      */
     private String versionInjected;
+
+    /**
+     * 租户ID
+     */
+    private String tenantId;
 
     /**
      * 创建时间

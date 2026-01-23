@@ -6,7 +6,7 @@ import com.iflytek.rpa.robot.entity.vo.RobotPageListVo;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ResourceRobotManageDao {
+public interface ResourceRobotManageDao{
 
     IPage<RobotPageListVo> getRobotPageList(IPage<RobotPageListVo> pageConfig, RobotPageListDto queryDto);
 }

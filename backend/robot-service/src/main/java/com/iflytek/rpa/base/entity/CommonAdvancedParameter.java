@@ -1,11 +1,12 @@
 package com.iflytek.rpa.base.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
+import lombok.Data;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import lombok.Data;
+import java.util.List;
 
 /**
  * @author mjren
@@ -40,11 +41,11 @@ public class CommonAdvancedParameter {
     @Valid
     private List<Option> options;
 
+
     @Data
     public static class FormType {
         @NotBlank(message = "FormType.type 不能为空")
         private String type;
-
         private Object params;
     }
 
@@ -52,24 +53,23 @@ public class CommonAdvancedParameter {
     public static class Option {
         @NotBlank(message = "Option.label 不能为空")
         private String label;
-
         private Object value;
     }
 
     @Data
-    public static class Dynamic {
+    public static class Dynamic{
         private String key;
         private String expression;
     }
 
-    /*    @Data
+/*    @Data
     public static class Conditional{
         private String operators;
         private OperandItem[] Operands;
     }*/
 
     @Data
-    public static class OperandItem {
+    public static class OperandItem{
         private String left;
         private String right;
         private Object operator;

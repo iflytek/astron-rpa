@@ -18,6 +18,18 @@
         <result property="appName" column="app_name" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <resultMap type="com.iflytek.rpa.market.entity.vo.AppListVo" id="AppListVoMap">
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="appName" column="app_name" jdbcType="VARCHAR"/>
+        <result property="creatorName" column="creator_name" jdbcType="VARCHAR"/>
+        <result property="creatorPhone" column="creator_phone" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+    </resultMap>
+
     <update id="updateDownloadNum">
         update app_market_resource
         set
@@ -130,7 +142,6 @@
         where
             app_id = #{appId}
           and market_id = #{marketId}
-          and tenant_id = #{tenantId}
 --           and deleted = 0
     </select>
 
@@ -143,5 +154,126 @@
     </update>
 
 
+    <select id="pageAllAppList" resultMap="AppMarketResourceMap">
+        select
+            amr.*
+        from app_market_resource amr
+        inner join (
+            select app_id,market_id,category,max(app_version)
+            from app_market_version
+            where deleted = 0
+            group by app_id,market_id,category
+        ) as al on al.app_id = amr.app_id and al.market_id = amr.market_id
+        <where>
+            amr.deleted = 0
+            <if test="category != null and category != ''">
+                and al.category = #{category}
+            </if>
+            <if test="marketId != null and marketId != ''">
+                and amr.market_id = #{marketId}
+            </if>
+            <if test="creatorId != null and creatorId != ''">
+                and amr.creator_id = #{creatorId}
+            </if>
+            <if test="appName != null and appName != ''">
+                and amr.app_name like concat('%', #{appName}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="sortKey == 'downloadNum'">
+                order by amr.download_num desc
+            </when>
+            <when test="sortKey == 'checkNum'">
+                order by amr.check_num desc
+            </when>
+            <otherwise>
+                order by amr.create_time desc
+            </otherwise>
+        </choose>
+    </select>
+
+<select id="getAppListByMarketId" resultMap="AppListVoMap">
+        SELECT
+            amr.app_id,
+            amr.market_id,
+            amr.app_name,
+            u.name as creator_name,
+            u.phone as creator_phone,
+            amr.update_time,
+            CASE 
+                WHEN amr.deleted = 0 THEN '已上架'
+                WHEN amr.deleted = 1 THEN '已下架'
+                ELSE '未知状态'
+            END as status,
+            amr.robot_id,
+            amv.version
+        FROM app_market_resource amr
+        LEFT JOIN ${databaseName}.t_uap_user u ON amr.creator_id = u.id
+        LEFT JOIN (
+        SELECT
+            amv1.app_id,
+            amv1.market_id,
+            amv1.app_version AS version,
+            amv1.category
+        FROM
+            app_market_version amv1
+        LEFT JOIN app_market_version amv2 ON (
+            amv1.app_id = amv2.app_id
+            AND amv1.market_id = amv2.market_id
+            AND amv1.app_version <![CDATA[ <  ]]> amv2.app_version
+        )
+        WHERE amv2.app_version IS NULL
+        ) amv ON amr.app_id = amv.app_id AND amr.market_id = amv.market_id
+        <where>
+            amr.market_id = #{request.marketId} and amr.tenant_id = #{tenantId}
+            <if test="request.appName != null and request.appName != ''">
+                AND amr.app_name LIKE CONCAT('%', #{request.appName}, '%')
+            </if>
+            <if test="request.creatorId != null and request.creatorId != ''">
+                AND u.id = #{request.creatorId}
+            </if>
+            <if test="request.categoryId != null and request.categoryId != ''">
+                AND amv.category = #{request.categoryId}
+            </if>
+            <if test="request.status != null">
+                AND amr.deleted = #{request.status}
+            </if>
+            <if test="request.updateTimeStart != null and request.updateTimeStart != ''">
+                AND DATE_FORMAT(amr.update_time, '%Y-%m-%d') <![CDATA[ >= ]]>  #{request.updateTimeStart}
+            </if>
+            <if test="request.updateTimeEnd != null and request.updateTimeEnd != ''">
+                AND DATE_FORMAT(amr.update_time, '%Y-%m-%d') <![CDATA[ <= ]]>  #{request.updateTimeEnd}
+            </if>
+        </where>
+        ORDER BY amr.update_time DESC
+    </select>
+
+    <select id="getBatchAppStatus" resultMap="AppMarketResourceMap">
+        SELECT 
+            app_id,
+            market_id,
+            deleted,
+            robot_id
+        FROM app_market_resource
+        WHERE tenant_id = #{tenantId} AND market_id = #{marketId}
+        AND app_id in
+        <foreach collection="appList" item="appId" open="(" close=")" separator=",">
+                #{appId}
+        </foreach>
+    </select>
+
+    <select id="getIdByAppIdAndMarketIdAndTenantId" resultType="java.lang.String">
+        SELECT id
+        FROM app_market_resource
+        WHERE app_id = #{appId}
+        AND market_id = #{marketId}
+        AND tenant_id = #{tenantId}
+        AND deleted = 1
+    </select>
+
+    <delete id="realDeleteAppById">
+        DELETE FROM app_market_resource
+        WHERE id = #{id}
+    </delete>
 </mapper>
 

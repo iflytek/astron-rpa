@@ -1,11 +1,11 @@
 package com.iflytek.rpa.task.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
 import com.iflytek.rpa.task.entity.ScheduleTask;
 import com.iflytek.rpa.task.entity.dto.ScheduleTaskDto;
 import com.iflytek.rpa.task.entity.dto.TaskDto;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 
 /**
  * <p>
@@ -17,13 +17,14 @@ import com.iflytek.rpa.task.entity.dto.TaskDto;
  */
 public interface ScheduleTaskService extends IService<ScheduleTask> {
 
+
     AppResponse<?> getTaskList(TaskDto taskDto) throws NoLoginException;
 
     AppResponse<?> saveTask(ScheduleTaskDto task) throws NoLoginException;
 
     AppResponse<?> getTaskInfoByTaskId(String taskId) throws NoLoginException;
 
-    AppResponse<?> getNextTimeInfoAndUpdate() throws NoLoginException;
+    AppResponse<?>  getNextTimeInfoAndUpdate() throws NoLoginException;
 
     AppResponse<?> enableTask(ScheduleTask task);
 

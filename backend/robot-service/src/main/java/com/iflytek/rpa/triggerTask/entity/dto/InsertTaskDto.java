@@ -1,9 +1,10 @@
 package com.iflytek.rpa.triggerTask.entity.dto;
 
 import com.iflytek.rpa.task.entity.dto.RobotInfo;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Data
 public class InsertTaskDto {
@@ -14,15 +15,10 @@ public class InsertTaskDto {
     private String name;
 
     /**
-     * 报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop
+     * 报错如何处理：跳过 jump、中止 stop
      */
     @NotBlank
     private String exceptional;
-
-    /**
-     * 重试次数
-     */
-    private Integer retryNum;
 
     /**
      * 是否启用 1 启用 ；0 不启用
@@ -55,4 +51,5 @@ public class InsertTaskDto {
      * 是否启用排队 1:启用 0:不启用
      */
     private Integer queueEnable;
+
 }

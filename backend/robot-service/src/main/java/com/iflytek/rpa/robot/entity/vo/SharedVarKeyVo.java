@@ -10,9 +10,9 @@ import lombok.Data;
  */
 @Data
 public class SharedVarKeyVo {
-
+    
     /**
      * 密钥
      */
     private String key;
-}
+} 

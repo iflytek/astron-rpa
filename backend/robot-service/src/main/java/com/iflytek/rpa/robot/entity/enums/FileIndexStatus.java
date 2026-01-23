@@ -20,3 +20,4 @@ public enum FileIndexStatus {
         this.value = value;
     }
 }
+

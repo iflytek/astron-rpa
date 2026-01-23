@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.dispatch.dao.DispatchTaskDao">
+
+    <resultMap type="com.iflytek.rpa.dispatch.entity.DispatchTask" id="DispatchTaskMap">
+        <result property="dispatchTaskId" column="dispatch_task_id" javaType="String" jdbcType="BIGINT"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="cronJson" column="cron_json" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="exceptional" column="exceptional" jdbcType="VARCHAR"/>
+        <result property="timeout" column="timeout" jdbcType="INTEGER"/>
+        <result property="queueEnable" column="queue_enable" javaType="BOOLEAN"  jdbcType="INTEGER"/>
+        <result property="timeoutEnable" column="timeout_enable" javaType="BOOLEAN"  jdbcType="INTEGER"/>
+        <result property="retryNum" column="retry_num" jdbcType="INTEGER"/>
+        <result property="screenRecordEnable" column="screen_record_enable" javaType="BOOLEAN" jdbcType="INTEGER"/>
+        <result property="virtualDesktopEnable" column="virtual_desktop_enable" javaType="BOOLEAN" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="VARCHAR"/>
+        <result property="updaterId" column="updater_id" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 终端任务详情相关的结果映射 -->
+    <resultMap type="com.iflytek.rpa.dispatch.entity.vo.TerminalTaskDetailVo$DispatchTaskInfo" id="TaskInfoMap">
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="taskName" column="task_name" jdbcType="VARCHAR"/>
+        <result property="taskType" column="task_type" jdbcType="VARCHAR"/>
+        <result property="cronJson" column="cron_json" jdbcType="VARCHAR"/>
+        <result property="taskStatus" column="task_status" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap type="com.iflytek.rpa.dispatch.entity.vo.TerminalTaskDetailVo$DispatchRobotInfo" id="RobotInfoWithTaskIdMap">
+        <result property="taskId" column="task_id" jdbcType="VARCHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="robotVersion" column="robot_version" jdbcType="VARCHAR"/>
+        <result property="online" column="online" jdbcType="INTEGER"/>
+        <result property="paramJson" column="param_json" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 根据终端ID查询任务信息 -->
+    <select id="selectTaskInfoByTerminalId" resultMap="TaskInfoMap">
+        SELECT
+            dt.dispatch_task_id as task_id,
+            dt.name as task_name,
+            dt.retry_num as retryNum,
+            dt.timeout_enable as timeoutEnable,
+            dt.type as task_type,
+            dt.cron_json as cron_json,
+            dt.status as task_status,
+            dt.exceptional as exceptional,
+            dt.timeout as timeout,
+            dt.queue_enable as queue_enable,
+            dt.screen_record_enable as screen_record_enable,
+            dt.virtual_desktop_enable as virtual_desktop_enable
+        FROM dispatch_task dt
+        INNER JOIN dispatch_task_terminal dtt ON dt.dispatch_task_id = dtt.dispatch_task_id
+        WHERE FIND_IN_SET(#{terminalId}, dtt.value)
+        AND dt.status = 'active'
+        AND dt.type != 'manual'
+        AND dt.deleted = 0
+        AND dtt.deleted = 0
+    </select>
+
+    <!-- 根据任务ID查询手动任务详情 -->
+    <select id="selectTaskInfoByTaskId" resultMap="TaskInfoMap">
+        SELECT
+            dt.dispatch_task_id as task_id,
+            dt.name as task_name,
+            dt.type as task_type,
+            dt.cron_json as cron_json,
+            dt.status as task_status,
+            dt.exceptional as exceptional,
+            dt.retry_num as retry_num,
+            dt.timeout as timeout,
+            dt.queue_enable as queue_enable,
+            dt.screen_record_enable as screen_record_enable,
+            dt.virtual_desktop_enable as virtual_desktop_enable
+        FROM dispatch_task dt
+        WHERE dt.dispatch_task_id = #{taskId}
+        AND dt.deleted = 0
+    </select>
+
+    <!-- 根据任务ID列表批量查询机器人信息 -->
+    <select id="selectRobotInfoByTaskIds" resultMap="RobotInfoWithTaskIdMap">
+        SELECT 
+            dtr.dispatch_task_id as task_id,
+            dtr.robot_id as robot_id,
+            rd.name,
+            CASE
+                WHEN dtr.online = 1 THEN (
+                    SELECT rv.version 
+                    FROM robot_version rv 
+                    WHERE rv.robot_id = dtr.robot_id 
+                    AND rv.online = 1 
+                    AND rv.deleted = 0 
+                    LIMIT 1
+                )
+                ELSE dtr.version
+            END as robot_version,
+            dtr.online as online,
+            dtr.param_json as param_json,
+            dtr.sort as sort
+        FROM dispatch_task_robot dtr
+        inner join robot_design rd on dtr.robot_id = rd.robot_id
+        WHERE dtr.dispatch_task_id IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+        AND dtr.deleted = 0
+        ORDER BY dtr.dispatch_task_id, dtr.sort
+    </select>
+
+</mapper> 

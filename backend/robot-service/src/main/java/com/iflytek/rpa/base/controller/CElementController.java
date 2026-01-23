@@ -1,17 +1,18 @@
 package com.iflytek.rpa.base.controller;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
-
 import com.iflytek.rpa.base.entity.CElement;
 import com.iflytek.rpa.base.entity.dto.FrontElementCreateDto;
 import com.iflytek.rpa.base.entity.dto.FrontElementDto;
 import com.iflytek.rpa.base.entity.dto.ServerBaseDto;
 import com.iflytek.rpa.base.service.CElementService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import javax.annotation.Resource;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
 
 /**
  * 元素或图像信息
@@ -28,36 +29,33 @@ public class CElementController {
     @Resource
     private CElementService cElementService;
 
-    //    /**
-    //     * 获取元素名称列表
-    //     * @param robotId
-    //     * @param mode
-    //     * @return
-    //     * @throws Exception
-    //     */
-    //    @PostMapping("/all")
-    //    public AppResponse<?> getElementNameList(@RequestParam("robotId") String robotId, @RequestParam(required =
-    // false, name = "mode", defaultValue = EDIT_PAGE) String mode) throws Exception {
-    //        BaseDto baseDto = new BaseDto();
-    //        baseDto.setRobotId(robotId);
-    //        baseDto.setMode(mode);
-    //        return cElementService.getElementNameList(baseDto);
-    //    }
+
+//    /**
+//     * 获取元素名称列表
+//     * @param robotId
+//     * @param mode
+//     * @return
+//     * @throws Exception
+//     */
+//    @PostMapping("/all")
+//    public AppResponse<?> getElementNameList(@RequestParam("robotId") String robotId, @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode) throws Exception {
+//        BaseDto baseDto = new BaseDto();
+//        baseDto.setRobotId(robotId);
+//        baseDto.setMode(mode);
+//        return cElementService.getElementNameList(baseDto);
+//    }
 
     /**
      * 元素、图像-查询详情
-     *
      * @param
      * @return
      * @throws Exception
      */
     @PostMapping("/detail")
-    public AppResponse<?> getElementDetail(
-            @RequestParam("robotId") String robotId,
-            @RequestParam("elementId") String elementId,
-            @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode,
-            @RequestParam(required = false, name = "robotVersion") Integer robotVersion)
-            throws Exception {
+    public AppResponse<?> getElementDetail(@RequestParam("robotId") String robotId,
+                                           @RequestParam("elementId") String elementId,
+                                           @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode,
+                                           @RequestParam(required = false, name ="robotVersion") Integer robotVersion) throws Exception {
         ServerBaseDto serverBaseDto = new ServerBaseDto();
         serverBaseDto.setRobotId(robotId);
         serverBaseDto.setElementId(elementId);
@@ -66,19 +64,17 @@ public class CElementController {
         return cElementService.getElementDetail(serverBaseDto);
     }
 
+
     /**
      * 元素、图像-移动至其他分组
-     *
      * @param
      * @return
      * @throws Exception
      */
     @PostMapping("/move")
-    public AppResponse<?> moveElementOrImage(
-            @RequestParam("robotId") String robotId,
-            @RequestParam("elementId") String elementId,
-            @RequestParam("groupId") String groupId)
-            throws Exception {
+    public AppResponse<?> moveElementOrImage(@RequestParam("robotId") String robotId,
+                                             @RequestParam("elementId") String elementId,
+                                             @RequestParam("groupId") String groupId) throws Exception {
         ServerBaseDto serverBaseDto = new ServerBaseDto();
         serverBaseDto.setRobotId(robotId);
         serverBaseDto.setRobotVersion(0);
@@ -88,15 +84,13 @@ public class CElementController {
     }
 
     /**
-     * 元素、图像-删除
-     *
+     *  元素、图像-删除
      * @param
      * @return
      * @throws Exception
      */
     @PostMapping("/delete")
-    public AppResponse<?> deleteElementOrImage(
-            @RequestParam("robotId") String robotId, @RequestParam("elementId") String elementId) throws Exception {
+    public AppResponse<?> deleteElementOrImage(@RequestParam("robotId") String robotId, @RequestParam("elementId") String elementId) throws Exception {
         ServerBaseDto serverBaseDto = new ServerBaseDto();
         serverBaseDto.setRobotId(robotId);
         serverBaseDto.setRobotVersion(0);
@@ -104,9 +98,9 @@ public class CElementController {
         return cElementService.deleteElementOrImage(serverBaseDto);
     }
 
+
     /**
      * 生成默认图像名称
-     *
      * @param
      * @return
      * @throws Exception
@@ -119,18 +113,16 @@ public class CElementController {
         return cElementService.createImageName(serverBaseDto);
     }
 
+
     /**
      * 元素、图像-创建
-     *
      * @param
      * @return
      * @throws Exception
      */
     @PostMapping("/create")
     public AppResponse<?> createElement(@RequestBody FrontElementCreateDto frontElementCreateDto) throws Exception {
-        if (null == frontElementCreateDto.getType()
-                || null == frontElementCreateDto.getRobotId()
-                || null == frontElementCreateDto.getGroupName()) {
+        if(null == frontElementCreateDto.getType() || null == frontElementCreateDto.getRobotId() || null == frontElementCreateDto.getGroupName()){
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
         ServerBaseDto serverBaseDto = new ServerBaseDto();
@@ -138,8 +130,7 @@ public class CElementController {
         return cElementService.createElement(serverBaseDto);
     }
 
-    public void transFrontParamToServerParamForElement(
-            FrontElementCreateDto frontElementCreateDto, ServerBaseDto serverBaseDto) {
+    public void transFrontParamToServerParamForElement(FrontElementCreateDto frontElementCreateDto, ServerBaseDto serverBaseDto){
         serverBaseDto.setElementType(frontElementCreateDto.getType());
         serverBaseDto.setRobotId(frontElementCreateDto.getRobotId());
         serverBaseDto.setRobotVersion(0);
@@ -155,16 +146,16 @@ public class CElementController {
         serverBaseDto.setElement(cElement);
     }
 
+
     /**
      * 元素、图像-更新信息
-     *
      * @param frontElementCreateDto
      * @return
      * @throws Exception
      */
     @PostMapping("/update")
     public AppResponse<?> updateElement(@RequestBody FrontElementCreateDto frontElementCreateDto) throws Exception {
-        if (null == frontElementCreateDto.getRobotId() || null == frontElementCreateDto.getElement()) {
+        if(null == frontElementCreateDto.getRobotId() || null == frontElementCreateDto.getElement()){
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
         ServerBaseDto serverBaseDto = new ServerBaseDto();
@@ -172,17 +163,16 @@ public class CElementController {
         return cElementService.updateElement(serverBaseDto);
     }
 
+
     /**
      * 元素-创建副本
-     *
      * @param
      * @return
      * @throws Exception
      */
     @PostMapping("/copy")
-    public AppResponse<?> copyElement(
-            @RequestParam("robotId") String robotId, @RequestParam("elementId") String elementId) throws Exception {
-        // 在当前分组下创建副本
+    public AppResponse<?> copyElement(@RequestParam("robotId") String robotId, @RequestParam("elementId") String elementId) throws Exception {
+        //在当前分组下创建副本
         ServerBaseDto serverBaseDto = new ServerBaseDto();
         serverBaseDto.setRobotId(robotId);
         serverBaseDto.setRobotVersion(0);
@@ -192,22 +182,23 @@ public class CElementController {
 
     /**
      * 元素、图像-查询所有分组名称及组内元素信息
-     *
      * @param robotId
      * @param elementType
      * @return
      * @throws Exception
      */
     @PostMapping("/all")
-    public AppResponse<?> getAllGroupInfo(
-            @RequestParam(name = "robotId") String robotId,
-            @RequestParam("elementType") String elementType,
-            @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode)
-            throws Exception {
+    public AppResponse<?> getAllGroupInfo(@RequestParam(name = "robotId") String robotId,
+                                          @RequestParam("elementType") String elementType,
+                                          @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode) throws Exception {
         ServerBaseDto serverBaseDto = new ServerBaseDto();
         serverBaseDto.setRobotId(robotId);
         serverBaseDto.setElementType(elementType);
         serverBaseDto.setMode(mode);
         return cElementService.getAllGroupInfo(serverBaseDto);
     }
+
+
+
 }
+

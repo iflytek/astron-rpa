@@ -69,7 +69,7 @@
 
 
     <update id="updateAppVersionBatch">
-        <foreach collection="entity.appUpdateInfoList" item="item">
+        <foreach collection="entity.appUpdateInfoList" item="item" separator=";">
             update app_market_version
             set
                 category = #{entity.category},
@@ -101,17 +101,6 @@
         order by app_version desc limit 1
     </select>
 
-    <select id="getAppVersionList" resultMap="AppMarketVersionMap">
-        select *
-        from app_market_version
-        where deleted = 0 and market_id = #{marketId}
-          and app_id in
-            <foreach collection="appIdList" item="appId" open="(" close=")" separator=",">
-                #{appId}
-            </foreach>
-        order by app_version desc;
-    </select>
-
     <select id="getResVerJoin" resultType="com.iflytek.rpa.market.entity.dto.ResVerDto">
         SELECT sub.appId,
             sub.latestAppVersion,
@@ -135,7 +124,7 @@
             GROUP BY amv.app_id, amv.market_id
             ORDER BY latestAppVersion DESC
         ) AS sub
-        LEFT JOIN robot_version rv ON sub.robotId = rv.robot_id and sub.latestAppVersion = rv.version;
+        LEFT JOIN robot_version rv ON sub.robotId = rv.robot_id and rv.online = 1;
     </select>
 
 

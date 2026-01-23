@@ -1,7 +1,8 @@
 package com.iflytek.rpa.robot.entity.vo;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 客户端共享变量VO
@@ -41,4 +42,4 @@ public class ClientSharedVarVo {
      * 子变量列表
      */
     private List<ClientSharedSubVarVo> subVarList;
-}
+} 

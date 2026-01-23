@@ -3,9 +3,10 @@ package com.iflytek.rpa.market.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * (TenantUser)实体类
@@ -19,11 +20,11 @@ public class TenantUser implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
+    
     private String tenantId;
-
+    
     private String userId;
-
+    
     private String phone;
     /**
      * 用户名
@@ -33,7 +34,7 @@ public class TenantUser implements Serializable {
      * 姓名
      */
     private String realName;
-
+    
     private String jobNo;
     /**
      * 邮箱
@@ -51,7 +52,7 @@ public class TenantUser implements Serializable {
      * 0启用 1禁用
      */
     private Integer status;
-
+    
     private Integer deleted;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -59,10 +60,14 @@ public class TenantUser implements Serializable {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
-
+    
     private String creatorId;
-
+    
     private Long updateBy;
-
+    
     private String deptIdPath;
+
+
+
 }
+

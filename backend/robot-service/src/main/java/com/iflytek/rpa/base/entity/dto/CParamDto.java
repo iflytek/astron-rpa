@@ -1,9 +1,12 @@
 package com.iflytek.rpa.base.entity.dto;
 
-import com.iflytek.rpa.starter.utils.StringUtils;
+
+import com.iflytek.rpa.utils.StringUtils;
+import lombok.Data;
+
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
-import lombok.Data;
+
 
 @Data
 public class CParamDto {
@@ -47,7 +50,7 @@ public class CParamDto {
     /**
      * 机器人版本
      */
-    // 机器人版本可以为null，因为新增指挥发生在编辑状态
+    //机器人版本可以为null，因为新增指挥发生在编辑状态
     private Integer robotVersion;
 
     /**

@@ -1,7 +1,8 @@
 package com.iflytek.rpa.component.entity.vo;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class ComponentInfoVo {

@@ -6,15 +6,16 @@ import com.iflytek.rpa.market.entity.dto.AppUpdateCheckDto;
 import com.iflytek.rpa.market.entity.dto.MarketResourceDto;
 import com.iflytek.rpa.market.entity.dto.ShareRobotDto;
 import com.iflytek.rpa.market.service.AppMarketResourceService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import java.util.List;
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 团队市场-资源映射表(AppMarketResource)表控制层
@@ -31,6 +32,9 @@ public class AppMarketResourceController {
     @Resource
     private AppMarketResourceService appMarketResourceService;
 
+
+
+
     /**
      * 机器人分享到团队市场
      * @paramMarketResourceDto
@@ -41,6 +45,7 @@ public class AppMarketResourceController {
     public AppResponse<?> shareRobot(@Valid @RequestBody ShareRobotDto marketResourceDto) throws Exception {
         return appMarketResourceService.shareRobot(marketResourceDto);
     }
+
 
     /**
      * 获取
@@ -55,7 +60,7 @@ public class AppMarketResourceController {
         if (StringUtils.isBlank(robotName)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "机器人名称不能为空");
         }
-        //        Integer editFlag = marketResourceDto.getEditFlag();
+//        Integer editFlag = marketResourceDto.getEditFlag();
         List<String> obtainDirectory = marketResourceDto.getObtainDirection();
         if (CollectionUtils.isEmpty(obtainDirectory)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "缺少获取去向");
@@ -69,6 +74,7 @@ public class AppMarketResourceController {
         return appMarketResourceService.obtainRobot(marketResourceDto);
     }
 
+
     /**
      * 已部署账号列表查询
      * @param marketDto
@@ -79,6 +85,8 @@ public class AppMarketResourceController {
     public AppResponse<?> getDeployedUserList(@RequestBody MarketDto marketDto) throws Exception {
         return appMarketResourceService.getDeployedUserList(marketDto);
     }
+
+
 
     /**
      * 部署(客户端团队市场)
@@ -91,6 +99,10 @@ public class AppMarketResourceController {
         return appMarketResourceService.deployRobot(marketDto);
     }
 
+
+
+
+
     /**
      * 更新-管理员推送更新(客户端团队市场)
      * @paramMarketResourceDto
@@ -101,6 +113,7 @@ public class AppMarketResourceController {
     public AppResponse<?> updateRobotByPush(@RequestBody MarketDto marketDto) throws Exception {
         return appMarketResourceService.updateRobotByPush(marketDto);
     }
+
 
     /**
      * 推送版本-历史版本列表查询
@@ -121,7 +134,7 @@ public class AppMarketResourceController {
      * @throws Exception
      */
     @GetMapping("/delete-app")
-    public AppResponse<?> deleteApp(@RequestParam String appId, @RequestParam String marketId) throws Exception {
+    public AppResponse<?> deleteApp(@RequestParam String appId, @RequestParam String marketId) throws Exception{
         return appMarketResourceService.deleteApp(appId, marketId);
     }
 
@@ -143,12 +156,14 @@ public class AppMarketResourceController {
      * @throws Exception
      */
     @PostMapping("/app-update-check")
-    public AppResponse<?> appUpdateCheck(@RequestBody AppUpdateCheckDto queryDto) throws Exception {
+    public AppResponse<?> appUpdateCheck(@RequestBody AppUpdateCheckDto queryDto) throws Exception{
         return appMarketResourceService.appUpdateCheck(queryDto);
     }
 
     @GetMapping("/app-detail")
-    public AppResponse<?> appDetail(@RequestParam String appId, @RequestParam String marketId) throws Exception {
+    public AppResponse<?> appDetail(@RequestParam String appId, @RequestParam String marketId) throws Exception{
         return appMarketResourceService.appDetail(appId, marketId);
     }
+
 }
+

@@ -1,13 +1,14 @@
 package com.iflytek.rpa.base.entity;
 
+import lombok.Data;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import lombok.Data;
 
 /**
  * @author mjren
@@ -43,17 +44,6 @@ public class AtomCommon {
     @Valid
     @NotNull(message = "types 不能为空")
     private Map<String, TypeInfo> types;
-
-    public static List<String> getPropertyNames() {
-        List<String> propertyNames = new ArrayList<>();
-        Field[] fields = AtomCommon.class.getDeclaredFields();
-
-        for (Field field : fields) {
-            propertyNames.add(field.getName());
-        }
-
-        return propertyNames;
-    }
 
     @Data
     public static class TypeInfo {
@@ -93,4 +83,19 @@ public class AtomCommon {
         @NotBlank(message = "funcList.useSrc 不能为空")
         private String useSrc;
     }
+
+
+    public static List<String> getPropertyNames() {
+        List<String> propertyNames = new ArrayList<>();
+        Field[] fields = AtomCommon.class.getDeclaredFields();
+
+        for (Field field : fields) {
+            propertyNames.add(field.getName());
+        }
+
+        return propertyNames;
+    }
+
+
+
 }

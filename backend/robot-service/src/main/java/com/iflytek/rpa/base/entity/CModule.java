@@ -2,19 +2,21 @@ package com.iflytek.rpa.base.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import java.util.Date;
+import lombok.Data;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
-import lombok.Data;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 客户端-python模块
- *
  * @author bywei4
  */
+
 @Data
 public class CModule implements Serializable {
+
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
@@ -49,6 +51,7 @@ public class CModule implements Serializable {
 
     @NotBlank
     private Integer robotVersion;
+
 
     private String breakpoint;
 }

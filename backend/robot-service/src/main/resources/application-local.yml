@@ -117,51 +117,34 @@ allowed:
 
 # 短信配置
 sms:
-  apiUrl: ""
-  secretKey: ""
-  appId: ""
-  tid: ""
+  apiUrl: https://dripsms.xfpaas.com/sms
+  secretKey: 9a530169680ac3428c7ae3125391b5e8
+  appId: KVQ8D5K11R
+  tid: 16696
   # 告警消息模板
   alarmTemplate: 告警通知：{0} 触发规则【{1}】告警，操作者【{2}】，角色【{3}】，请登录平台查看。
 
-casdoor:
-  endpoint: ${CASDOOR_ENDPOINT}
-  # 用于外部访问的endpoint，返回给前端的登录地址使用（服务器IP或公网域名）
-  external-endpoint: ${CASDOOR_EXTERNAL_ENDPOINT}
-  client-id: ${CASDOOR_CLIENT_ID}
-  client-secret: ${CASDOOR_CLIENT_SECRET}
-  certificate: |-
-    -----BEGIN CERTIFICATE-----
-    MIIE3TCCAsWgAwIBAgIDAeJAMA0GCSqGSIb3DQEBCwUAMCgxDjAMBgNVBAoTBWFk
-    bWluMRYwFAYDVQQDEw1jZXJ0LWJ1aWx0LWluMB4XDTI1MDkyMDEwNDcxOFoXDTQ1
-    MDkyMDEwNDcxOFowKDEOMAwGA1UEChMFYWRtaW4xFjAUBgNVBAMTDWNlcnQtYnVp
-    bHQtaW4wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDL9L2vPZEXUP4z
-    mbVhlgpQx35HzCvQGr+Hbi+ENf5rUadq2X8JVJ5Js3vsi/dMXoXuw2wScltgayEp
-    Ouyh775uXC/gOrKgfnwANE9VRU9jwBdpZcLeQBfZB2gVQZDYt2wZBSpCwp78I2AS
-    eWgpvBDXDTp8fV2bJBu7yaLPTdysXVCpdHEkEan7xCAY9yHl9psiqn8aVD4f9T+U
-    /oHRIvyAVLpxgQ6w/Lsk2Zcw7lI4feRlF0PYQouoof91gnOIjkYEyFvF/imuL+Xg
-    QuA6yMfJ04lfLt8lwu3jAwGw7VIA8LE2pQ6DmJ4pEbFBMU3H626HNel1dxEjW/j+
-    Tv47nkCPpXGI0w17fc54fbZ7VmtZ6LizxkBfhWf+j8Rm3hpMr6tJ6ISjUajyB17U
-    1w9QWU9pOJa/cehOVczEehQLjhX5MZGAUovlmMNojKAtOO/tdcRsDMwOHJyXBqHa
-    oCykyJ00eIguTtmTTboAqdx3cpom8wNjRh5sUB+YkpsYTVVe/a5r0olfZHDos5bf
-    knJXi9X+ppD7nvoCtwrki6AH5Dw9prsrql3sagUHgBKBVLG3EIhDIlkRTQDOO55C
-    8OzuyVbDkIbcEX8BIFj8yoUAP/DcpazHHOGhjHRRcFvVHAGRtz8fH6qB9hX3N3a+
-    TevIZoANOYLgN6ACWJ0bODLAO9pwWwIDAQABoxAwDjAMBgNVHRMBAf8EAjAAMA0G
-    CSqGSIb3DQEBCwUAA4ICAQAT63JAwjc151XNWbMSr5ClNGd+bwEx+zDnQh/YD8V7
-    8Wqj2E4r8B+wysDVu7YdOQkoIjtlFOLACg0469F7oC+kPi6N8vMFFZ+xXWk6qLed
-    OFYsdUyH+l643GfMprFMA1qbJvqcOnymggeMA1rSJMu9PJ5g7WfoEg6UTKh7H9HV
-    vHvgVzLweiZCS37FCC5+RDt/rOCzIrI2DfwDbf4CLKXft7mr3mnA3kVRuT+ufI9X
-    +e6UqmM7EBFYeZAHi8/GXIQ8/j34ag5hiIISMhjuFYKEfMtqLYUCTH6X7NTGbGrv
-    As8YB2x5QnUj89N7IRv2hr1uJnaZOIx5feLRmuRmo35scLopAnNu0VT75TOS0Ifh
-    yrouqlep4grk4DMFSWEMNodpkHHLr4pOVE8vCYphli75/beOkiilUpxGI6/osKKo
-    SOC5CuC6hDarVBF3q6zpNEnqalQf9Vf2d4zeCKMfV2IuUOqKRaRFpVZfVJsbiYTi
-    YF1VUCTFdfrIFsC5V9LknxvLyq8ubzpXHnIV6m/l95OxxCEDvI47l5RmwkblKk57
-    H9IRmr6l66Ar2WRGQYAxpiOz3aF8IMg8f0+Vk91FNTsgNrSsk9uovQrrDDtm3KyO
-    EzhOO4NA9WgaE1c6GzZD87GhrZukHWHE4KvTpkiQ3pGmTqUjIHvon+0lKtG8E5fz
-    Kg==
-    -----END CERTIFICATE-----
-  organization-name: ${CASDOOR_ORGANIZATION_NAME}
-  application-name: ${CASDOOR_APPLICATION_NAME}
+example:
+  expoUserId: b6306b95-ebf2-4aed-97ff-e65d463958fe
+
+uap:
   database:
-    name: casdoor
-  redirect-url: ${CASDOOR_REDIRECT_URL}
+    name: uap_db
+
+auth:
+  base-url: http://rpa-opensource-rpa-auth:10251
+  check-session-path: /api/rpa-auth/check-session
+
+# 团队市场相关配置
+market:
+  maxCreateCount: 3 # 个人版-团队市场创建个数限制
+  invite:
+    maxJoinCount: 10  # 邀请链接最大加入人数
+
+package:
+  download: https://www.iflyrpa.com/api/resource/cloud/s3/downloadDataExe
+
+astron:
+  agent:
+    api:
+      key: "zyzhou666!"

@@ -1,7 +1,8 @@
 package com.iflytek.rpa.market.entity.dto;
 
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * 客户端发版后提交上架申请DTO

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.terminal.dao.TerminalDao">
+    <resultMap id="TerminalResult" type="com.iflytek.rpa.terminal.entity.Terminal">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="VARCHAR"/>
+        <result column="dept_id" property="deptId" jdbcType="VARCHAR"/>
+        <result column="dept_id_path" property="deptIdPath" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="account" property="account" jdbcType="VARCHAR"/>
+        <result column="os" property="os" jdbcType="VARCHAR"/>
+        <result column="ip" property="ip" jdbcType="VARCHAR"/>
+        <result column="port" property="port" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="os_name" property="osName" jdbcType="VARCHAR"/>
+        <result column="os_pwd" property="osPwd" jdbcType="VARCHAR"/>
+<!--        <result column="cpu" property="cpu" jdbcType="INTEGER"/>-->
+<!--        <result column="memory" property="memory" jdbcType="INTEGER"/>-->
+<!--        <result column="disk" property="disk" jdbcType="INTEGER"/>-->
+        <result column="is_dispatch" property="isDispatch" jdbcType="SMALLINT"/>
+        <result column="monitor_url" property="monitorUrl" jdbcType="VARCHAR"/>
+        <result column="custom_ip" property="customIp" jdbcType="VARCHAR"/>
+        <result column="custom_port" property="customPort" jdbcType="VARCHAR"/>
+        <result column="actual_client_ip" property="actualClientIp" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="deleted" property="deleted" jdbcType="SMALLINT"/>
+    </resultMap>
+
+    <select id="getByTerminalId" resultMap="TerminalResult">
+        select *
+        from terminal
+        where terminal_id = #{terminalId}
+        and deleted = 0
+    </select>
+
+
+    <update id="updateByTerminalId">
+        update terminal
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="account != null and account != ''">
+                account = #{account},
+            </if>
+            <if test="os != null and os != ''">
+                os = #{os},
+            </if>
+            <if test="ip != null and ip != ''">
+                ip = #{ip},
+            </if>
+            <if test="port != null and port != ''">
+                port = #{port},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="osName != null and osName != ''">
+                os_name = #{osName},
+            </if>
+            <if test="osPwd != null and osPwd != ''">
+                os_pwd = #{osPwd},
+            </if>
+            <if test="isDispatch != null and isDispatch != ''">
+                is_dispatch = #{isDispatch},
+            </if>
+            <if test="monitorUrl != null and monitorUrl != ''">
+                monitor_url = #{monitorUrl},
+            </if>
+        </set>
+        where
+        deleted = 0
+        and terminal_id = #{terminalId}
+    </update>
+
+
+    <update id="updateStatusByTerminalIdList">
+        update terminal
+        <set>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            update_time = now()
+        </set>
+        where
+        deleted = 0
+            and terminal_id in
+            <foreach collection="terminalIdList" item="terminalId" open="(" separator="," close=")">
+                #{terminalId}
+            </foreach>
+    </update>
+</mapper>

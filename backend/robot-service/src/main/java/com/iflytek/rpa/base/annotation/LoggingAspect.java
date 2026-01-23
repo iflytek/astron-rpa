@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class LoggingAspect {
 
     @Around("@annotation(logExecutionTime)")
-    public Object logExecutionTime(ProceedingJoinPoint joinPoint, LogExecutionTime logExecutionTime) throws Throwable {
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint, LogExecutionTime logExecutionTime) throws Throwable{
 
         // 切入点方法执行之前的处理
         long startTime = System.currentTimeMillis();

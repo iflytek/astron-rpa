@@ -2,8 +2,9 @@ package com.iflytek.rpa.market.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author mjren
@@ -35,7 +36,6 @@ public class AppApplication {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-
     private String updaterId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -56,7 +56,7 @@ public class AppApplication {
      */
     @TableField(exist = false)
     private String marketId;
-
+    
     /**
      * 市场信息JSON字符串，包含marketIdList、editFlag、category等信息
      */

@@ -1,18 +1,20 @@
 package com.iflytek.rpa.market.controller;
 
-import static com.iflytek.rpa.market.constants.RightConstant.*;
-
+import com.iflytek.rpa.common.feign.entity.dto.GetMarketUserByPhoneDto;
 import com.iflytek.rpa.market.annotation.RightCheck;
 import com.iflytek.rpa.market.entity.MarketDto;
 import com.iflytek.rpa.market.service.AppMarketUserService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import java.util.List;
-import javax.annotation.Resource;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+import static com.iflytek.rpa.market.constants.RightConstant.*;
 
 /**
  * 团队市场-人员
@@ -29,6 +31,8 @@ public class AppMarketUserController {
     @Resource
     private AppMarketUserService appMarketUserService;
 
+
+
     /**
      * 未部署账号列表查询
      * @param marketDto
@@ -36,11 +40,14 @@ public class AppMarketUserController {
      * @throws NoLoginException
      */
     @PostMapping("/undeploy-user")
-    //    @RightCheck(dictCode = market_user_get_user)
+//    @RightCheck(dictCode = market_user_get_user)
     public AppResponse<?> getUserUnDeployed(@RequestBody MarketDto marketDto) throws NoLoginException {
 
         return appMarketUserService.getUserUnDeployed(marketDto);
     }
+
+
+
 
     /**
      * 成员管理-成员列表
@@ -49,7 +56,7 @@ public class AppMarketUserController {
      * @return
      */
     @PostMapping("/list")
-    public AppResponse<List<MarketDto>> getUserList(@RequestBody MarketDto marketUserDto) {
+    public AppResponse<List<MarketDto>> getUserList(@RequestBody MarketDto marketUserDto) throws NoLoginException {
         return appMarketUserService.getUserList(marketUserDto);
     }
 
@@ -87,7 +94,7 @@ public class AppMarketUserController {
      */
     @PostMapping("/get/user")
     @RightCheck(dictCode = market_user_get_user)
-    public AppResponse<List<MarketDto>> getUserByPhone(@RequestBody MarketDto marketDto) throws NoLoginException {
+    public AppResponse<List<MarketDto>> getUserByPhone(@RequestBody GetMarketUserByPhoneDto marketDto) throws NoLoginException {
 
         return appMarketUserService.getUserByPhone(marketDto);
     }
@@ -100,8 +107,7 @@ public class AppMarketUserController {
      */
     @PostMapping("/leave/user")
     @RightCheck(dictCode = market_user_get_user)
-    public AppResponse<List<MarketDto>> getUserByPhoneForOwner(@RequestBody MarketDto marketDto)
-            throws NoLoginException {
+    public AppResponse<List<MarketDto>> getUserByPhoneForOwner(@RequestBody MarketDto marketDto) throws NoLoginException {
         return appMarketUserService.getUserByPhoneForOwner(marketDto);
     }
 
@@ -117,26 +123,5 @@ public class AppMarketUserController {
 
         return appMarketUserService.inviteUser(marketDto);
     }
-
-    //
-    //    /**
-    //     * 成员管理-邀请-查询部门和员工
-    //     *
-    //     * @param
-    //     * @return
-    //     */
-    //    @PostMapping("/dept/user")
-    //    public AppResponse<?> getDeptAndUser(@RequestBody MarketDto marketDto) throws NoLoginException {
-    //        if(null == marketDto.getMarketId()){
-    //            return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
-    //        }
-    //        String tenantId = TenantUtils.getTenantId();
-    //
-    //        AppResponse response = uacFeign.getDeptUserForInvite(tenantId, marketDto.getMarketId());
-    //        if(! response.ok()){
-    //            return AppResponse.error(ErrorCodeEnum.E_SERVICE);
-    //        }
-    //        return response;
-    //    }
-
 }
+

@@ -1,17 +1,18 @@
 package com.iflytek.rpa.market.controller;
 
-import static com.iflytek.rpa.market.constants.RightConstant.*;
-
 import com.iflytek.rpa.market.annotation.RightCheck;
 import com.iflytek.rpa.market.entity.AppMarket;
 import com.iflytek.rpa.market.entity.AppMarketDict;
 import com.iflytek.rpa.market.entity.AppMarketDo;
 import com.iflytek.rpa.market.service.AppMarketService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import java.util.List;
-import javax.annotation.Resource;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+import static com.iflytek.rpa.market.constants.RightConstant.*;
 
 /**
  * 团队市场-团队
@@ -63,6 +64,16 @@ public class AppMarketTeamController {
     }
 
     /**
+     * 团队市场数量检查
+     * @return 0-满额
+     * @throws NoLoginException
+     */
+    @GetMapping("/market-num-check")
+    public AppResponse<Integer> marketNumCheck() throws NoLoginException {
+        return appMarketService.marketNumCheck();
+    }
+
+    /**
      * 创建团队市场
      *
      * @param
@@ -80,7 +91,7 @@ public class AppMarketTeamController {
      * @return
      */
     @PostMapping("/info")
-    AppResponse<AppMarket> getMarketInfo(@RequestParam("marketId") String marketId) throws NoLoginException {
+    AppResponse<AppMarket> getMarketInfo (@RequestParam("marketId") String marketId) throws NoLoginException {
         return appMarketService.getMarketInfo(marketId);
     }
 
@@ -122,4 +133,6 @@ public class AppMarketTeamController {
 
         return appMarketService.dissolveTeamMarket(appMarket);
     }
+
 }
+

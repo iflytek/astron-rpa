@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.iflytek.rpa.robot.dao.ResourceRobotManageDao">
     <resultMap type="com.iflytek.rpa.robot.entity.vo.RobotPageListVo" id="RobotPageListVoMap">
-        <result property="robotId" column="robot_id"/>
-        <result property="robotName" column="name"/>
-        <result property="createTime" column="create_time"/>
-        <result property="latestReleaseTime" column="latest_release_time"/>
-        <result property="type" column="type"/>
-        <result property="creatorId" column="creator_id"/>
-        <result property="tenantId" column="tenant_id"/>
-        <result property="appVersion" column="app_version"/>
-        <result property="securityLevel" column="security_level"/>
+        <result property="robotId" column="robot_id" />
+        <result property="robotName" column="name" />
+        <result property="createTime" column="create_time" />
+        <result property="latestReleaseTime" column="latest_release_time" />
+        <result property="type" column="type" />
+        <result property="creatorId" column="creator_id" />
+        <result property="tenantId" column="tenant_id" />
+        <result property="appVersion" column="app_version" />
+        <result property="securityLevel" column="security_level" />
     </resultMap>
 
     <select id="getRobotPageList" resultMap="RobotPageListVoMap">
@@ -43,7 +43,7 @@
             <if test="queryDto.latestReleaseTimeEnd != null">
                 and re.latest_release_time &lt;= #{queryDto.latestReleaseTimeEnd}
             </if>
-            <if test="queryDto.robotName != null and queryDto.robotName != ''">
+            <if test="queryDto.robotName != null and queryDto.robotName != ''" >
                 and re.name like concat( "%", #{queryDto.robotName},"%")
             </if>
         </where>

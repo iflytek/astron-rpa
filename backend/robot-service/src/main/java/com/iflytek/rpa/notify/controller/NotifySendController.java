@@ -1,12 +1,14 @@
 package com.iflytek.rpa.notify.controller;
 
+import com.iflytek.rpa.base.annotation.NoApiLog;
 import com.iflytek.rpa.notify.entity.dto.CreateNotifyDto;
 import com.iflytek.rpa.notify.entity.dto.NotifyListDto;
 import com.iflytek.rpa.notify.service.NotifySendService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import javax.annotation.Resource;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/notify")
@@ -36,8 +38,9 @@ public class NotifySendController {
         return notifySendService.notifyList(notifyListDto);
     }
 
+    @NoApiLog("轮询接口-检查是否有通知")
     @GetMapping("/hasNotify")
-    public AppResponse<?> hasNotify() throws NoLoginException {
+    public AppResponse<?> hasNotify() throws NoLoginException{
         return notifySendService.hasNotify();
     }
 
@@ -60,17 +63,21 @@ public class NotifySendController {
      * @throws NoLoginException
      */
     @GetMapping("/set-selected-notify-read")
-    public AppResponse<?> setSelectedNotifyRead(@RequestParam("notifyId") Long notifyId) throws NoLoginException {
+    public AppResponse<?> setSelectedNotifyRead(@RequestParam("notifyId") Long notifyId) throws NoLoginException{
         return notifySendService.setSelectedNotifyRead(notifyId);
     }
 
     @GetMapping("/reject-join-team")
-    public AppResponse<?> rejectJoinTeam(@RequestParam("notifyId") Long notifyId) throws NoLoginException {
+    public AppResponse<?> rejectJoinTeam(@RequestParam("notifyId") Long notifyId) throws NoLoginException{
         return notifySendService.rejectJoinTeam(notifyId);
     }
 
     @GetMapping("/accept-join-team")
-    public AppResponse<?> acceptJoinTeam(@RequestParam("notifyId") Long notifyId) throws NoLoginException {
+    public AppResponse<?> acceptJoinTeam(@RequestParam("notifyId") Long notifyId) throws NoLoginException{
         return notifySendService.acceptJoinTeam(notifyId);
     }
+
+
+
+
 }

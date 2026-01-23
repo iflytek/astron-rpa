@@ -19,26 +19,28 @@
     <select id="getGroupByGroupName" resultMap="CGroupMap">
         select *
         from c_group
-        where group_name = #{groupName}
+        where
+            group_name = #{groupName}
           and deleted = 0
           and creator_id = #{creatorId}
           and robot_id = #{robotId}
           and robot_version = #{robotVersion}
-          and element_type = #{elementType} limit 1
+          and element_type = #{elementType}
+        limit 1
     </select>
 
     <insert id="insertGroup">
         insert into c_group
-        (group_id,
-         group_name,
-         creator_id,
-         create_time,
-         updater_id,
-         update_time,
-         deleted,
-         robot_id,
-         robot_version,
-         element_type)
+            (group_id,
+             group_name,
+             creator_id,
+             create_time,
+             updater_id,
+             update_time,
+             deleted,
+             robot_id,
+             robot_version,
+             element_type)
         values (#{groupId},
                 #{groupName},
                 #{creatorId},
@@ -53,13 +55,15 @@
 
     <update id="updateGroup">
         update c_group
-        set group_name  = #{groupName},
+        set
+            group_name = #{groupName},
             update_time = now()
-        where deleted = 0
-          and robot_id = #{robotId}
-          and robot_version = #{robotVersion}
-          and group_id = #{groupId}
-          and creator_id = #{creatorId}
+        where
+           deleted = 0
+           and robot_id = #{robotId}
+           and robot_version = #{robotVersion}
+           and group_id = #{groupId}
+           and creator_id = #{creatorId}
     </update>
 
 
@@ -67,15 +71,15 @@
         update c_group
         set deleted = 1
         where
-        deleted = 0
-        and robot_id = #{robotId}
-        and robot_version = #{robotVersion}
-        <if test="groupId != null and groupId != ''">
-            and group_id = #{groupId}
-        </if>
-        <if test="creatorId != null">
-            and creator_id = #{creatorId}
-        </if>
+           deleted = 0
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion}
+            <if test="groupId != null and groupId != ''">
+                and group_id = #{groupId}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
     </update>
 
 
@@ -83,34 +87,38 @@
         select *
         from c_group
         where
-        BINARY group_name = #{groupName}
-        and element_type = #{elementType}
-        and deleted = 0
-        and creator_id = #{creatorId}
-        <if test="groupId != null and groupId != ''">
-            and group_id != #{groupId}
-        </if>
-        and robot_id = #{robotId}
-        and robot_version = #{robotVersion}
+          BINARY group_name = #{groupName}
+          and element_type = #{elementType}
+          and deleted = 0
+          and creator_id = #{creatorId}
+          <if test="groupId != null and groupId != ''">
+              and group_id != #{groupId}
+          </if>
+          and robot_id = #{robotId}
+          and robot_version = #{robotVersion}
         limit 1
     </select>
 
     <select id="getGroupById" resultMap="CGroupMap">
         select *
         from c_group
-        where group_id = #{groupId}
+        where
+            group_id = #{groupId}
           and deleted = 0
           and robot_id = #{robotId}
-          and robot_version = #{robotVersion} limit 1
+          and robot_version = #{robotVersion}
+        limit 1
     </select>
 
     <select id="getGroupByRobotId" resultMap="CGroupMap">
         select *
-        from c_group
-        where robot_id = #{robotId}
-          and robot_version = #{robotVersion}
-          and deleted = 0
-          and element_type = #{elementType}
+        from
+            c_group
+        where
+            robot_id = #{robotId}
+            and robot_version = #{robotVersion}
+            and deleted = 0
+            and element_type = #{elementType}
     </select>
 
 
@@ -126,25 +134,28 @@
          robot_id,
          robot_version,
          element_type)
-        select group_id,
-               group_name,
-               creator_id,
-               now(),
-               updater_id,
-               now(),
-               deleted,
-               robot_id,
-               #{version},
-               element_type
-        from c_group
-        where robot_id = #{robotId}
+        select
+            group_id,
+            group_name,
+            creator_id,
+            now(),
+            updater_id,
+            now(),
+            deleted,
+            robot_id,
+            #{version},
+            element_type
+        from
+            c_group
+        where
+            robot_id = #{robotId}
           and robot_version = 0
           and creator_id = #{creatorId}
           and deleted = 0
 
     </insert>
 
-
+    
     <insert id="createGroupForObtainedVersion">
         insert into c_group
         (group_id,
@@ -157,18 +168,21 @@
          robot_id,
          robot_version,
          element_type)
-        select group_id,
-               group_name,
-               #{obtainedRobotDesign.creatorId},
-               now(),
-               #{obtainedRobotDesign.updaterId},
-               now(),
-               0,
-               #{obtainedRobotDesign.robotId},
-               0,
-               element_type
-        from c_group
-        where robot_id = #{authorRobotVersion.robotId}
+        select
+            group_id,
+            group_name,
+            #{obtainedRobotDesign.creatorId},
+            now(),
+            #{obtainedRobotDesign.updaterId},
+            now(),
+            0,
+            #{obtainedRobotDesign.robotId},
+            0,
+            element_type
+        from
+            c_group
+        where
+            robot_id = #{authorRobotVersion.robotId}
           and robot_version = #{authorRobotVersion.version}
           and creator_id = #{authorRobotVersion.creatorId}
     </insert>
@@ -186,48 +200,54 @@
          robot_id,
          robot_version,
          element_type)
-        select group_id,
-               group_name,
-               creator_id,
-               now(),
-               updater_id,
-               now(),
-               0,
-               #{newRobotId},
-               0,
-               element_type
-        from c_group
-        where robot_id = #{oldRobotId}
+        select
+            group_id,
+            group_name,
+            creator_id,
+            now(),
+            updater_id,
+            now(),
+            0,
+            #{newRobotId},
+            0,
+            element_type
+        from
+            c_group
+        where
+            robot_id = #{oldRobotId}
           and robot_version = 0
           and creator_id = #{userId}
           and deleted = 0
     </insert>
     <insert id="shareGroupBatch">
-        insert into c_group (group_id,
-                             group_name,
-                             creator_id,
-                             create_time,
-                             updater_id,
-                             update_time,
-                             deleted,
-                             robot_id,
-                             robot_version,
-                             element_type)
-        select group_id,
-               group_name,
-               #{receivedUserId},
-               now(),
-               #{receivedUserId},
-               now(),
-               0,
-               #{newRobotId},
-               0,
-               element_type
+        insert into c_group (
+            group_id,
+            group_name,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted,
+            robot_id,
+            robot_version,
+            element_type)
+        select
+            group_id,
+            group_name,
+            #{receivedUserId},
+            now(),
+            #{receivedUserId},
+            now(),
+            0,
+            #{newRobotId},
+            0,
+            element_type
         from c_group
-        where robot_id = #{oldRobotId}
-          and creator_id = #{sharedUserId}
-          and robot_version = 0
-          and deleted = 0
+        where
+            robot_id = #{oldRobotId}
+            and creator_id = #{sharedUserId}
+            and robot_version = 0
+            and deleted = 0
     </insert>
 </mapper>
 

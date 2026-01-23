@@ -1,7 +1,8 @@
 package com.iflytek.rpa.component.entity.dto;
 
-import javax.validation.constraints.NotBlank;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * 添加组件引用DTO
@@ -34,4 +35,5 @@ public class AddCompUseDto {
      */
     @NotBlank(message = "组件ID不能为空")
     private String componentId;
+
 }

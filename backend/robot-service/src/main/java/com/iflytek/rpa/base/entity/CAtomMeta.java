@@ -2,8 +2,9 @@ package com.iflytek.rpa.base.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author mjren
@@ -37,4 +38,6 @@ public class CAtomMeta {
     private String updaterId;
 
     private Date updateTime;
+
+
 }

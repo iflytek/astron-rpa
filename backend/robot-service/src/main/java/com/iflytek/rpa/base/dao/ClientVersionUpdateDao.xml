@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.ClientVersionUpdateDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.ClientUpdateVersion" id="ClientUpdateVersionMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="version" column="version" jdbcType="CHAR"/>
+        <result property="versionNum" column="version_num" jdbcType="INTEGER"/>
+        <result property="downloadUrl" column="download_url" jdbcType="VARCHAR"/>
+        <result property="updateInfo" column="update_info" jdbcType="LONGVARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <!-- 插入版本信息 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO client_update_version (
+            version,
+            version_num,
+            download_url,
+            update_info,
+            deleted
+        ) VALUES (
+            #{version},
+            #{versionNum},
+            #{downloadUrl},
+            #{updateInfo},
+            #{deleted}
+        )
+    </insert>
+
+    <!-- 根据版本号查询版本信息 -->
+    <select id="getByVersionNum" resultMap="ClientUpdateVersionMap">
+        SELECT
+            *
+        FROM client_update_version
+        WHERE version_num = #{versionNum} AND deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- 查询最新版本 -->
+    <select id="getLatestVersion" resultMap="ClientUpdateVersionMap">
+        SELECT
+            *
+        FROM client_update_version
+        WHERE deleted = 0
+        AND os = #{os}
+        AND arch = #{arch}
+        ORDER BY version_num DESC
+        LIMIT 1
+    </select>
+
+    <!-- 查询全局最新版本 -->
+    <select id="getGlobalLatestVersion" resultMap="ClientUpdateVersionMap">
+        SELECT
+            *
+        FROM client_update_version
+        WHERE deleted = 0
+        ORDER BY version_num DESC
+        LIMIT 1
+    </select>
+
+</mapper>
+

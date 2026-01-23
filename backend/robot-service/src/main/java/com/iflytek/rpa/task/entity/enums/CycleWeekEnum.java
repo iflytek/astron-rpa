@@ -1,8 +1,9 @@
 package com.iflytek.rpa.task.entity.enums;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
 
 /**
  * @author keler
@@ -19,31 +20,28 @@ public enum CycleWeekEnum {
     SUN("SUN", "星期日"),
     ;
 
-    public static Map<Integer, String> weekNumCodeMap = new HashMap<>();
-
-    static {
-        initWeekNumCodeMap();
-    }
-
-    private final String code;
-    private final String name;
+    private String code;
+    private String name;
 
     CycleWeekEnum(String code, String name) {
         this.code = code;
         this.name = name;
     }
-
-    public static void initWeekNumCodeMap() {
-        weekNumCodeMap.put(1, MON.getCode());
-        weekNumCodeMap.put(2, TUE.getCode());
-        weekNumCodeMap.put(3, WED.getCode());
-        weekNumCodeMap.put(4, THU.getCode());
-        weekNumCodeMap.put(5, FRI.getCode());
-        weekNumCodeMap.put(6, SAT.getCode());
-        weekNumCodeMap.put(0, SUN.getCode());
+    public static Map<Integer,String> weekNumCodeMap = new HashMap<>();
+    static {
+        initWeekNumCodeMap();
+    }
+    public static void initWeekNumCodeMap(){
+        weekNumCodeMap.put(1,MON.getCode());
+        weekNumCodeMap.put(2,TUE.getCode());
+        weekNumCodeMap.put(3,WED.getCode());
+        weekNumCodeMap.put(4,THU.getCode());
+        weekNumCodeMap.put(5,FRI.getCode());
+        weekNumCodeMap.put(6,SAT.getCode());
+        weekNumCodeMap.put(0,SUN.getCode());
+    }
+    public static String getCodeByNum(Integer num){
+        return weekNumCodeMap.getOrDefault(num,MON.getCode());
     }
 
-    public static String getCodeByNum(Integer num) {
-        return weekNumCodeMap.getOrDefault(num, MON.getCode());
-    }
 }

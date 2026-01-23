@@ -1,7 +1,8 @@
 package com.iflytek.rpa.base.entity.vo;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class GroupInfoVo {
@@ -18,5 +19,5 @@ public class GroupInfoVo {
     /**
      * 该组内所有图片对象
      */
-    private List<com.iflytek.rpa.base.entity.vo.ElementInfoVo> elements;
+    private List<ElementInfoVo> elements;
 }

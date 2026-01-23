@@ -2,8 +2,6 @@ package com.iflytek.rpa.triggerTask.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
 import com.iflytek.rpa.triggerTask.entity.dto.InsertTaskDto;
 import com.iflytek.rpa.triggerTask.entity.dto.TaskPageDto;
 import com.iflytek.rpa.triggerTask.entity.dto.UpdateTaskDto;
@@ -12,10 +10,13 @@ import com.iflytek.rpa.triggerTask.entity.vo.TaskPage4TriggerVo;
 import com.iflytek.rpa.triggerTask.entity.vo.TaskPageVo;
 import com.iflytek.rpa.triggerTask.entity.vo.TriggerTaskVo;
 import com.iflytek.rpa.triggerTask.service.TriggerTaskService;
-import java.util.List;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/triggerTask")
@@ -26,7 +27,6 @@ public class TriggerTaskController {
 
     /**
      * 重命名校验
-     *
      * @param name
      * @return
      * @throws NoLoginException
@@ -38,21 +38,18 @@ public class TriggerTaskController {
 
     /**
      * 选择机器人-机器人列表，支持模糊查询
-     *
      * @param name
      * @return
      * @throws NoLoginException
      */
     @GetMapping("/robotExe/list")
-    AppResponse<List<Executor>> getRobotExeList(@RequestParam String name)
-            throws NoLoginException, JsonProcessingException {
+    AppResponse<List<Executor>> getRobotExeList(@RequestParam String name) throws NoLoginException, JsonProcessingException {
         return triggerTaskService.getRobotExeList(name);
     }
 
     /**
      * 新建计划任务
      * 同时插入计划任务相关param参数 到schedule_task_robot
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -64,30 +61,26 @@ public class TriggerTaskController {
 
     /**
      * 计划任务-编辑-任务信息回显
-     *
      * @param taskId
      * @return
      */
     @GetMapping("/get")
-    AppResponse<TriggerTaskVo> getTriggerTask(@RequestParam String taskId)
-            throws NoLoginException, JsonProcessingException {
+    AppResponse<TriggerTaskVo> getTriggerTask(@RequestParam String taskId) throws NoLoginException, JsonProcessingException {
         return triggerTaskService.getTriggerTask(taskId);
     }
 
     /**
      * 删除单个计划任务接口
-     *
      * @param taskId
      * @return
      */
     @GetMapping("/delete")
-    AppResponse<Boolean> deleteTriggerTask(@RequestParam String taskId) throws NoLoginException {
+    AppResponse<Boolean> deleteTriggerTask(@RequestParam String taskId) throws NoLoginException{
         return triggerTaskService.deleteTriggerTask(taskId);
     }
 
     /**
      * 更新计划任务及配置参数
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -99,7 +92,6 @@ public class TriggerTaskController {
 
     /**
      * 启用，禁用计划任务接口
-     *
      * @param taskId
      * @return
      * @throws NoLoginException
@@ -111,26 +103,24 @@ public class TriggerTaskController {
 
     /**
      * 计划任务列表分页查询接口 - 前端请求
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
      */
     @PostMapping("/page/list")
-    AppResponse<IPage<TaskPageVo>> triggerTaskPage(@Valid @RequestBody TaskPageDto queryDto) throws NoLoginException {
+    AppResponse<IPage<TaskPageVo>> triggerTaskPage(@Valid @RequestBody TaskPageDto queryDto) throws NoLoginException{
         return triggerTaskService.triggerTaskPage(queryDto);
     }
 
     /**
      * 计划任务列表分页查询接口 - 本地触发器请求(pageSize 设置为100条即可)
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
      */
     @PostMapping("/page/list4Trigger")
-    AppResponse<IPage<TaskPage4TriggerVo>> triggerTaskPage4Trigger(@Valid @RequestBody TaskPageDto queryDto)
-            throws NoLoginException {
+    AppResponse<IPage<TaskPage4TriggerVo>> triggerTaskPage4Trigger(@Valid @RequestBody TaskPageDto queryDto) throws NoLoginException{
         return triggerTaskService.triggerTaskPage4Trigger(queryDto);
     }
+
 }

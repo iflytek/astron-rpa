@@ -1,7 +1,11 @@
 package com.iflytek.rpa.base.entity.dto;
 
-import javax.validation.constraints.NotBlank;
+
+
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+
 
 @Data
 public class CGlobalDto {

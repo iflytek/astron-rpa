@@ -1,7 +1,8 @@
 package com.iflytek.rpa.base.entity.dto;
 
-import javax.validation.constraints.NotNull;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author mjren
@@ -46,4 +47,5 @@ public class ParamDto {
      */
     @NotNull(message = "processId不能为null")
     private String processId;
+
 }

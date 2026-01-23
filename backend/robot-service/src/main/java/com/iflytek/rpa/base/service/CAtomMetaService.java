@@ -5,21 +5,23 @@ import com.iflytek.rpa.base.entity.AtomCommon;
 import com.iflytek.rpa.base.entity.Atomic;
 import com.iflytek.rpa.base.entity.dto.AtomKeyListDto;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import java.util.Map;
+import com.iflytek.rpa.utils.response.AppResponse;
+
 import javax.validation.Valid;
+import java.util.Map;
 
 public interface CAtomMetaService {
 
     AppResponse<?> getAtomTree(String atomKey);
 
-    AppResponse<?> getAtomListByParentKey(String parentKey);
+    AppResponse<?> getAtomListByParentKey(String parentKey) ;
 
     AppResponse<?> getLatestAtomByKey(String atomKey);
 
     AppResponse<?> getLatestAtomsByList(@Valid AtomKeyListDto dto);
 
-    AppResponse<?> getAtomList(AtomListDto atomListVo);
+    AppResponse<?> getAtomList(AtomListDto atomListVo) ;
+
 
     AppResponse<?> addAtomCommonInfo(AtomCommon atomCommon) throws JsonProcessingException;
 
@@ -28,4 +30,5 @@ public interface CAtomMetaService {
     AppResponse<?> saveAtomicsInfo(Map<String, Atomic> atomMap, String saveWay) throws JsonProcessingException;
 
     Map getLatestAllAtoms() throws JsonProcessingException;
+
 }

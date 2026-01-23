@@ -1,8 +1,9 @@
 package com.iflytek.rpa.market.entity.dto;
 
+import lombok.Data;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import lombok.Data;
 
 @Data
 public class PreReleaseCheckDto {
@@ -17,4 +18,4 @@ public class PreReleaseCheckDto {
      */
     @NotNull(message = "机器人版本不能为空")
     private Integer version;
-}
+} 

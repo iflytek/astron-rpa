@@ -1,15 +1,15 @@
 package com.iflytek.rpa.notify.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 @Data
 public class NotifyVo {
     Long id;
     String messageInfo;
     String messageType;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
@@ -19,4 +19,5 @@ public class NotifyVo {
     String appName;
 
     String marketId;
+
 }

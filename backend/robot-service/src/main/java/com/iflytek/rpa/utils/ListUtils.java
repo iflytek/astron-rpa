@@ -7,7 +7,7 @@ public class ListUtils {
 
     public static void dealIfHasNullElement(List<?> list) {
         boolean haveNull = list.stream().anyMatch(Objects::isNull);
-        if (haveNull) {
+        if(haveNull){
             list.clear();
         }
     }

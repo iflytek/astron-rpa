@@ -12,7 +12,7 @@ public class RedisConfig {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Bean
-    public void getRedisTemplate() {
+    public void getRedisTemplate(){
         stringRedisTemplate.setEnableTransactionSupport(true);
     }
 }

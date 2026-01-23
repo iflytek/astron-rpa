@@ -10,4 +10,5 @@ public class AllAppListDto {
     String appName;
     String creatorId;
     String sortKey;
+    String category;
 }

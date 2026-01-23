@@ -2,10 +2,11 @@ package com.iflytek.rpa.triggerTask.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
-import javax.validation.constraints.NotBlank;
-import lombok.Data;
 
 @Data
 public class TriggerTask implements Serializable {
@@ -42,15 +43,10 @@ public class TriggerTask implements Serializable {
     private Integer enable;
 
     /**
-     * 报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop
+     * 报错如何处理：跳过 jump、中止 stop
      */
     @NotBlank
     private String exceptional;
-
-    /**
-     * 重试次数
-     */
-    private Integer retryNum;
 
     /**
      * 超时时间
@@ -61,6 +57,7 @@ public class TriggerTask implements Serializable {
      * 是否启用排队 1:启用 0:不启用
      */
     private Integer queueEnable;
+
 
     private Integer deleted = 0;
 

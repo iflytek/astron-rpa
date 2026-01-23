@@ -3,8 +3,10 @@ package com.iflytek.rpa.base.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
+
 
 /**
  * 收藏的原子表
@@ -23,7 +25,6 @@ public class AtomLike {
 
     @TableLogic(value = "0", delval = "1")
     Integer isDeleted;
-
     Date createTime;
     Date updateTime;
 }

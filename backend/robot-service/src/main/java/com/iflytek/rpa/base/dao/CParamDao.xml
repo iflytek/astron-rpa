@@ -3,6 +3,7 @@
 <mapper namespace="com.iflytek.rpa.base.dao.CParamDao">
 
 
+
     <select id="getAllParams" resultType="com.iflytek.rpa.base.entity.CParam">
         select * from c_param
         <where>
@@ -15,22 +16,23 @@
             <if test="version!=null">
                 and robot_version = #{version}
             </if>
-            and deleted = 0
+                and deleted = 0
         </where>
     </select>
 
     <select id="countParamByName" resultType="java.lang.Long">
         select count(*)
         from c_param
-        where deleted = 0
-          and creator_id = #{creatorId}
-          and robot_id = #{robotId}
-          and robot_version = #{robotVersion}
-          and process_id = #{processId}
-          and var_name = #{varName}
+        where
+        deleted = 0
+        and creator_id = #{creatorId}
+        and robot_id = #{robotId}
+        and robot_version = #{robotVersion}
+        and process_id = #{processId}
+        and var_name = #{varName}
     </select>
 
-    <!-- 判断是否为空字符串-->
+<!-- 判断是否为空字符串-->
     <update id="updateParam">
         update c_param
         <set>
@@ -70,11 +72,11 @@
             <if test="robotId!=null">
                 robot_id=#{robotId},
             </if>
+            <if test="moduleId!=null">
+                module_id=#{moduleId},
+            </if>
             <if test="robotVersion!=null">
                 robot_version=#{robotVersion},
-            </if>
-            <if test="moduleId!=null">
-                module_id = #{moduleId},
             </if>
         </set>
         where id=#{id}
@@ -123,61 +125,63 @@
         select *
         from c_param
         where robot_id = #{robotId}
-          and process_id = #{processId}
-          and robot_version = #{robotVersion}
-          and deleted = 0
+        and process_id = #{processId}
+        and robot_version = #{robotVersion}
+        and deleted = 0
     </select>
 
     <select id="getMarketRobotId" resultType="java.lang.String">
         select rv.robot_id
         from robot_version rv
-                 inner join app_market_resource amr on rv.robot_id = amr.robot_id
+        inner join app_market_resource amr on rv.robot_id = amr.robot_id
         where rv.version = #{appVersion}
-          and amr.market_id = #{marketId}
-          and amr.app_id = #{appId}
+        and amr.market_id = #{marketId}
+        and amr.app_id = #{appId}
     </select>
 
     <select id="getDeployOriginalRobotId" resultType="java.lang.String">
         select re.app_id as robot_id
         from robot_execute re
         where re.app_version = #{appVersion}
-          and re.robot_id = #{robotId}
+        and re.robot_id = #{robotId}
     </select>
 
     <select id="getRobotVersion" resultType="java.lang.Integer">
         select version
         from robot_version
         where robot_id = #{robotId}
-          and online = 1
-          and deleted = 0 limit 1
+        and online = 1
+        and deleted = 0
+        limit 1
     </select>
 
     <insert id="insertParam">
         insert into c_param
         (id,
-         var_direction,
-         var_name,
-         var_type,
-         var_value,
-         var_describe,
-         process_id,
-         creator_id,
-         updater_id,
-         create_time,
-         update_time,
-         deleted,
-         robot_id,
-         robot_version)
+        var_direction,
+        var_name,
+        var_type,
+        var_value,
+        var_describe,
+        process_id,
+        creator_id,
+        updater_id,
+        create_time,
+        update_time,
+        deleted,
+        robot_id,
+        robot_version)
 
 
     </insert>
     <select id="getParams" resultType="com.iflytek.rpa.base.entity.CParam">
         select *
         from c_param
-        where robot_id = #{robotId}
-          and creator_id = #{userId}
-          and robot_version = 0
-          and deleted = 0
+        where
+        robot_id = #{robotId}
+        and creator_id = #{userId}
+        and robot_version = 0
+        and deleted = 0
     </select>
     <insert id="insertParamBatch">
         insert into c_param
@@ -194,7 +198,8 @@
         update_time,
         deleted,
         robot_id,
-        robot_version)
+        robot_version,
+        module_id)
         values
         <foreach collection="params" separator="," item="param">
             (#{param.id},
@@ -210,15 +215,17 @@
             #{param.updateTime},
             #{param.deleted},
             #{param.robotId},
-            #{param.robotVersion})
+            #{param.robotVersion},
+            #{param.moduleId})
         </foreach>
     </insert>
 
     <select id="getParamInfoById" resultType="com.iflytek.rpa.base.entity.CParam">
         select *
         from c_param
-        where deleted = 0
-          and id = #{id}
+        where
+        deleted = 0
+        and id = #{id}
     </select>
 
     <select id="getParamsByModuleId" resultType="com.iflytek.rpa.base.entity.CParam">
@@ -238,6 +245,22 @@
         and module_id = #{moduleId}
         and robot_version = #{enabledVersion}
         and deleted = 0
+    </select>
+    <select id="getAllParamsByModuleId" resultType="com.iflytek.rpa.base.entity.CParam">
+
+        select * from c_param
+        <where>
+            <if test="moduleId!=null">
+                and module_id = #{moduleId}
+            </if>
+            <if test="robotId!=null">
+                and robot_id = #{robotId}
+            </if>
+            <if test="version!=null">
+                and robot_version = #{version}
+            </if>
+            and deleted = 0
+        </where>
     </select>
 
 </mapper>

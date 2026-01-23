@@ -1,21 +1,21 @@
 package com.iflytek.rpa.base.service.handler;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
-import static com.iflytek.rpa.robot.constants.RobotConstant.PROJECT_LIST;
-
 import com.iflytek.rpa.base.dao.CParamDao;
 import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.iflytek.rpa.utils.response.AppResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
+import static com.iflytek.rpa.robot.constants.RobotConstant.PROJECT_LIST;
 
 /**
  * @author mjren
@@ -55,7 +55,6 @@ public class EditModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> processHandle(QueryParamDto dto, String processId, Integer robotVersion) {
         if (StringUtils.isBlank(dto.getProcessId())) {
             // 默认查主流程参数

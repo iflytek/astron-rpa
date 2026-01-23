@@ -25,4 +25,5 @@ public class FrontElementDto extends FrontCommonDto {
     private String elementData;
 
     private String commonSubType;
+
 }

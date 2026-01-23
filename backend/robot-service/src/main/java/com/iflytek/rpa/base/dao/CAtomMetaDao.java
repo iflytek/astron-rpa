@@ -3,16 +3,14 @@ package com.iflytek.rpa.base.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.base.entity.CAtomMeta;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
-import java.util.List;
-import java.util.Set;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+import java.util.Set;
+
 @Mapper
 public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
-
-    //    List<CAtomMeta> getAtomTreeLast(@Param("atomKeyList") List<String> atomKeyList);
-
     List<String> getLatestAtomListByParentKey(@Param("parentKey") String parentKey);
 
     String getLatestAtomByKey(@Param("atomKey") String atomKey);
@@ -20,8 +18,6 @@ public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
     List<CAtomMeta> selectAtomList(@Param("atomList") List<AtomListDto.Atom> atomList);
 
     CAtomMeta getAtomCommonBaseInfoByAtomKey(@Param("atomKey") String atomCommon);
-
-    //    Integer insertAtomMeta(CAtomMeta atomMeta);
 
     List<CAtomMeta> getLatestAtomListByKeySet(@Param("atomKeySet") Set<String> atomKeySet);
 
@@ -31,7 +27,12 @@ public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
 
     List<CAtomMeta> getKeyAndParentKeyByKeySet(@Param("atomKeySet") Set<String> atomKeySet);
 
-    Integer updateBatchParentKey(@Param("updateBatchList") List<CAtomMeta> updateBatchList);
+    Integer updateBatchParentKey(@Param("updateBatchList")List<CAtomMeta> updateBatchList);
 
     List<CAtomMeta> getLatestAtomsByList(List<String> atomKeyList);
+
+    /**
+     * 根据 atomKey 和 version 查询未删除的数据（XML 中实现）
+     */
+    List<CAtomMeta> selectByKeyAndVersion(@Param("atomKey") String atomKey, @Param("version") String version);
 }

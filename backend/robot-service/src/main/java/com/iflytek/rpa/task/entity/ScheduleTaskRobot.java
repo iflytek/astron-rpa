@@ -2,9 +2,10 @@ package com.iflytek.rpa.task.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 计划任务机器人列表(ScheduleTaskRobot)实体类
@@ -12,6 +13,7 @@ import lombok.Data;
  * @author mjren
  * @since 2024-10-15 14:59:09
  */
+
 @Data
 public class ScheduleTaskRobot implements Serializable {
     private static final long serialVersionUID = -98756982211004692L;
@@ -69,3 +71,4 @@ public class ScheduleTaskRobot implements Serializable {
      */
     private String paramJson;
 }
+

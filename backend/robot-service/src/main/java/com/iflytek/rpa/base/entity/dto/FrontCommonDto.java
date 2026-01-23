@@ -14,4 +14,5 @@ public class FrontCommonDto {
      * 资源名字
      */
     private String name;
+
 }
