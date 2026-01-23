@@ -5,12 +5,7 @@ import inspect
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, ReportTip
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.report import report
-from astronverse.script.error import (
-    MODULE_IMPORT_ERROR,
-    MODULE_MAIN_FUNCTION_NOT_FOUND,
-    MSG_MODULE_VERSION_WARRING,
-    BaseException,
-)
+from astronverse.script.error import *
 
 
 class Script:

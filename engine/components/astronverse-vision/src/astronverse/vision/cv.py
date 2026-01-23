@@ -9,7 +9,7 @@ from astronverse.input import MoveType, Simulate_flag, Speed
 from astronverse.input.code.clipboard import Clipboard
 from astronverse.input.code.keyboard import Keyboard
 from astronverse.input.code.mouse import Mouse
-from astronverse.input.error import CLIP_PASTE_ERROR, REGION_ERROR
+from astronverse.input.error import *
 from astronverse.vision import *
 from astronverse.vision.core import CvCore
 from astronverse.vision.error import *

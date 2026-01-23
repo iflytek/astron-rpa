@@ -29,14 +29,7 @@ from astronverse.browser import (
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
 from astronverse.browser.core.core import IBrowserCore
-from astronverse.browser.error import (
-    BROWSER_GET_TIMEOUT,
-    BROWSER_NO_INSTALL,
-    BROWSER_OPEN_TIMEOUT,
-    BROWSER_PATH_EMPTY,
-    PARAMETER_INVALID_FORMAT,
-    SELECT_MATCHING_APP_PATH,
-)
+from astronverse.browser.error import *
 from astronverse.software.software import Software
 
 if sys.platform == "win32":

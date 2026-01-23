@@ -6,7 +6,7 @@ from typing import Any
 
 from astronverse.browser_bridge.apis.context import ServiceContext, get_svc
 from astronverse.browser_bridge.apis.response import CustomResponse
-from astronverse.browser_bridge.error import CODE_INNER, ERROR_FORMAT, BaseException
+from astronverse.browser_bridge.error import *
 from astronverse.browser_bridge.logger import logger
 from astronverse.websocket_server.ws import BaseMsg, Conn, IWebSocket, WsException
 from astronverse.websocket_server.ws_service import WsManager

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from astronverse.executor.error import MISSING_REQUIRED_KEY_ERROR_FORMAT, BaseException
+from astronverse.executor.error import *
 from astronverse.executor.flow.syntax import Token
 from astronverse.executor.flow.syntax.token import TokenType
 

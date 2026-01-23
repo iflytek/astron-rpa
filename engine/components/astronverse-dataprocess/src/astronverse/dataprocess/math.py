@@ -7,11 +7,7 @@ from typing import Any
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dataprocess import AddSubType, MathOperatorType, MathRoundType, NumberType
-from astronverse.dataprocess.error import (
-    INVALID_MATH_EXPRESSION_ERROR_FORMAT,
-    INVALID_NUMBER_FORMAT_ERROR_FORMAT,
-    INVALID_NUMBER_RANGE_ERROR_FORMAT,
-)
+from astronverse.dataprocess.error import *
 
 
 def random_number(

@@ -5,7 +5,7 @@
 """
 
 from astronverse.baseline.error.error import BaseException as FrameworkBaseException
-from astronverse.baseline.error.error import BizCode, ErrorCode
+from astronverse.baseline.error.error import *
 from astronverse.baseline.i18n.i18n import _
 
 # 对外仍然暴露 BaseException 名称

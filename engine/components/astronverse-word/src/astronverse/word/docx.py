@@ -35,13 +35,7 @@ from astronverse.word import (
 )
 from astronverse.word.core import IDocumentCore
 from astronverse.word.docx_obj import DocumentObject
-from astronverse.word.error import (
-    CONTENT_FORMAT_ERROR_FORMAT,
-    DOCUMENT_NOT_EXIST_ERROR_FORMAT,
-    DOCUMENT_PATH_ERROR_FORMAT,
-    DOCUMENT_READ_ERROR_FORMAT,
-    FILENAME_ALREADY_EXISTS_ERROR,
-)
+from astronverse.word.error import *
 
 if sys.platform == "win32":
     from astronverse.word.core_win import WordDocumentCore
