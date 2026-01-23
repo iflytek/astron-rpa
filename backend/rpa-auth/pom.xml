@@ -281,12 +281,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.iflytek.rpa</groupId>
-            <artifactId>tools</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.iflytek.account</groupId>
             <artifactId>account-sdk-java</artifactId>
             <version>1.0.3</version>
