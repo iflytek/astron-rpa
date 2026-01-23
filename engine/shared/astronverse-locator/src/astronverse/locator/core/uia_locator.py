@@ -157,6 +157,10 @@ class UIAFactory:
                 continue
             v1 = getattr(node, key, None)
             v2 = getattr(uia_ele, key, None)
+            if v1 is not None:
+                v1 = str(v1)
+            if v2 is not None:
+                v2 = str(v2)
             if not v1 and not v2:
                 continue
             if v1 != v2:
