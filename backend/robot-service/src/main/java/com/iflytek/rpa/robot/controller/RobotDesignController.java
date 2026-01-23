@@ -1,14 +1,19 @@
 package com.iflytek.rpa.robot.controller;
 
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.example.service.SampleUsersService;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.dto.DeleteDesignDto;
 import com.iflytek.rpa.robot.entity.dto.DesignListDto;
-import com.iflytek.rpa.robot.entity.dto.ShareDesignDto;
 import com.iflytek.rpa.robot.service.RobotDesignService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -23,6 +28,15 @@ public class RobotDesignController {
 
     @Resource
     private RobotDesignService robotDesignService;
+
+    @Autowired
+    SampleUsersService sampleUsersService;
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * 创建机器人
@@ -56,6 +70,20 @@ public class RobotDesignController {
      */
     @PostMapping("/design-list")
     public AppResponse<?> designList(@RequestBody DesignListDto queryDto) throws NoLoginException {
+        AppResponse<User> res = rpaAuthFeign.getLoginUser();
+        if (res == null || res.getData() == null) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = res.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        // 触发示例注入
+        AppResponse<Boolean> response = sampleUsersService.insertUserSample(userId, tenantId);
+
         return robotDesignService.designList(queryDto);
     }
 
@@ -146,17 +174,5 @@ public class RobotDesignController {
     @PostMapping("/delete-robot")
     public AppResponse<?> deleteRobot(@RequestBody DeleteDesignDto queryDto) throws Exception {
         return robotDesignService.deleteRobot(queryDto);
-    }
-
-    /**
-     * 设计器-分享机器人
-     *
-     * @param queryDto
-     * @return 新增的机器人ID
-     * @throws NoLoginException
-     */
-    @PostMapping("/share-robot")
-    public AppResponse<?> shareRobot(@RequestBody ShareDesignDto queryDto) throws Exception {
-        return robotDesignService.shareRobot(queryDto);
     }
 }

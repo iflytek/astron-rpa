@@ -10,9 +10,6 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
-
-    //    List<CAtomMeta> getAtomTreeLast(@Param("atomKeyList") List<String> atomKeyList);
-
     List<String> getLatestAtomListByParentKey(@Param("parentKey") String parentKey);
 
     String getLatestAtomByKey(@Param("atomKey") String atomKey);
@@ -20,8 +17,6 @@ public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
     List<CAtomMeta> selectAtomList(@Param("atomList") List<AtomListDto.Atom> atomList);
 
     CAtomMeta getAtomCommonBaseInfoByAtomKey(@Param("atomKey") String atomCommon);
-
-    //    Integer insertAtomMeta(CAtomMeta atomMeta);
 
     List<CAtomMeta> getLatestAtomListByKeySet(@Param("atomKeySet") Set<String> atomKeySet);
 
@@ -34,4 +29,9 @@ public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
     Integer updateBatchParentKey(@Param("updateBatchList") List<CAtomMeta> updateBatchList);
 
     List<CAtomMeta> getLatestAtomsByList(List<String> atomKeyList);
+
+    /**
+     * 根据 atomKey 和 version 查询未删除的数据（XML 中实现）
+     */
+    List<CAtomMeta> selectByKeyAndVersion(@Param("atomKey") String atomKey, @Param("version") String version);
 }

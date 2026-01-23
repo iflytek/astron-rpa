@@ -1,5 +1,8 @@
 package com.iflytek.rpa.example.constants;
 
+import com.iflytek.rpa.base.entity.CElement;
+import com.iflytek.rpa.base.entity.CGroup;
+import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.RobotExecute;
@@ -16,10 +19,13 @@ public class ExampleConstants {
             put("robot_execute", RobotExecute.class);
             put("robot_version", RobotVersion.class);
             put("c_process", CProcess.class);
+            put("c_element", CElement.class);
+            put("c_group", CGroup.class);
+            put("c_param", CParam.class);
         }
     };
 
     public static final String EXAMPLE_USER_NAME = "example-user";
 
-    public static final String WORKFLOWS_UPSERT_URL = "http://openapi-service:8020/workflows/upsert";
+    public static final String WORKFLOWS_UPSERT_URL = "http://rpa-openapi:6699/workflows/upsert";
 }

@@ -10,10 +10,10 @@
         </foreach>
     </insert>
     <select id="getAvailableSharedVarIds" resultType="java.lang.String">
-        select shared_var_id
+        select
+            shared_var_id
         from shared_var_user
-        where deleted = 0
-          and user_id = #{userId}
+        where deleted = 0 and user_id = #{userId}
     </select>
 
 </mapper> 

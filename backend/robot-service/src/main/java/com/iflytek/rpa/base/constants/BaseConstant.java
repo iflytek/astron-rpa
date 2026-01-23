@@ -12,26 +12,5 @@ public class BaseConstant {
 
     public static final String PROCESS_TYPE_MODULE = "module";
 
-    public static final Integer ATOM_LIST_MAX_SIZE = 500;
-
-    public static final Integer INIT_VERSION_NUM = 1000000;
-
-    public static final Integer MAJOR_SIZE = 1000000;
-
-    public static final Integer MINOR_SIZE = 1000;
-
-    public static final Integer BATCH_SIZE = 50;
-
-    // 实际数据库中medium text 支持的最大长度是 16777215
-    public static final Integer CONTENT_MAX_LENGTH = 10000000;
-
-    public static final Integer MAX_PROCESS_SIZE = 14;
-
-    public static final String MODULE_INIT_CONTENT =
-            "from typing import Any\n" + "from astronverse.workflowlib import print, logger\n"
-                    + "from .package import element, element_vision, gv\n"
-                    + "\n"
-                    + "\n"
-                    + "def main(args) -> Any:\n"
-                    + "    return True";
+    public static final String ACCESS_TOKEN_CACHE_KEY_PREFIX = "uap:user:access:token:";
 }

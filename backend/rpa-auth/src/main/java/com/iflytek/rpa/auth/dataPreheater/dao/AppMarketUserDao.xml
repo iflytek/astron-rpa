@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.auth.dataPreheater.dao.AppMarketUserDao">
+
+    <resultMap type="com.iflytek.rpa.auth.dataPreheater.entity.AppMarketUser" id="AppMarketUserMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="userType" column="user_type" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="addDefaultUser">
+        insert into app_market_user
+            (
+            market_id,
+            user_type,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted,
+            tenant_id)
+        values
+            (
+            #{entity.marketId},
+           'owner',
+            #{entity.creatorId},
+            now(),
+            #{entity.updaterId},
+            now(),
+            0,
+             #{entity.tenantId})
+    </insert>
+
+    <insert id="addUser">
+        insert into app_market_user
+        (
+        market_id,
+        user_type,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted)
+        values
+        (#{entity.marketId},
+        #{entity.userType},
+        #{entity.creatorId},
+        now(),
+        #{entity.updaterId},
+        now(),
+        0)
+    </insert>
+
+    <insert id="insertBatch">
+        insert into app_market_user
+        (
+
+            market_id,
+            user_type,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            deleted
+        )
+        values
+        <foreach collection="list" item="entity" separator=",">
+            (
+
+                #{entity.marketId},
+                #{entity.userType},
+                #{entity.creatorId},
+                now(),
+                #{entity.updaterId},
+                now(),
+                #{entity.deleted}
+            )
+        </foreach>
+    </insert>
+
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from app_market_user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="marketId != null and marketId != ''">
+                and market_id = #{marketId}
+            </if>
+            <if test="userType != null and userType != ''">
+                and user_type = #{userType}
+            </if>
+            <if test="creatorId != null">
+                and creator_id = #{creatorId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updaterId != null">
+                and updater_id = #{updaterId}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="deleted != null">
+                and deleted = #{deleted}
+            </if>
+        </where>
+    </select>
+
+
+    <delete id="deleteById">
+        delete from app_market_user
+        where id = #{id}
+    </delete>
+
+
+</mapper>
+

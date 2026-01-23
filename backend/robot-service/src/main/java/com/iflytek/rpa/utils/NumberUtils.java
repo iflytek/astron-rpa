@@ -1,7 +1,6 @@
 package com.iflytek.rpa.utils;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class NumberUtils {
 
@@ -10,7 +9,7 @@ public class NumberUtils {
             return new BigDecimal(0);
         } else {
             num = num.multiply(new BigDecimal("100"));
-            BigDecimal rate = num.divide(totalNum, 2, RoundingMode.HALF_UP);
+            BigDecimal rate = num.divide(totalNum, 2, BigDecimal.ROUND_HALF_UP);
             return rate;
         }
     }
@@ -19,7 +18,7 @@ public class NumberUtils {
         if (totalNum.equals(BigDecimal.ZERO)) {
             return new BigDecimal(0);
         } else {
-            BigDecimal rate = num.divide(totalNum, 2, RoundingMode.HALF_UP);
+            BigDecimal rate = num.divide(totalNum, 2, BigDecimal.ROUND_HALF_UP);
             return rate;
         }
     }

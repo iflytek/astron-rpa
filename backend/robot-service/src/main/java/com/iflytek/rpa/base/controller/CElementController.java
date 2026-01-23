@@ -7,8 +7,8 @@ import com.iflytek.rpa.base.entity.dto.FrontElementCreateDto;
 import com.iflytek.rpa.base.entity.dto.FrontElementDto;
 import com.iflytek.rpa.base.entity.dto.ServerBaseDto;
 import com.iflytek.rpa.base.service.CElementService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import javax.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +46,6 @@ public class CElementController {
 
     /**
      * 元素、图像-查询详情
-     *
      * @param
      * @return
      * @throws Exception
@@ -68,7 +67,6 @@ public class CElementController {
 
     /**
      * 元素、图像-移动至其他分组
-     *
      * @param
      * @return
      * @throws Exception
@@ -88,8 +86,7 @@ public class CElementController {
     }
 
     /**
-     * 元素、图像-删除
-     *
+     *  元素、图像-删除
      * @param
      * @return
      * @throws Exception
@@ -106,7 +103,6 @@ public class CElementController {
 
     /**
      * 生成默认图像名称
-     *
      * @param
      * @return
      * @throws Exception
@@ -121,7 +117,6 @@ public class CElementController {
 
     /**
      * 元素、图像-创建
-     *
      * @param
      * @return
      * @throws Exception
@@ -157,7 +152,6 @@ public class CElementController {
 
     /**
      * 元素、图像-更新信息
-     *
      * @param frontElementCreateDto
      * @return
      * @throws Exception
@@ -174,7 +168,6 @@ public class CElementController {
 
     /**
      * 元素-创建副本
-     *
      * @param
      * @return
      * @throws Exception
@@ -192,7 +185,6 @@ public class CElementController {
 
     /**
      * 元素、图像-查询所有分组名称及组内元素信息
-     *
      * @param robotId
      * @param elementType
      * @return

@@ -38,4 +38,6 @@ public class ReleaseApplicationDto {
      * 分类
      */
     private String category;
+
+    private String appName;
 }

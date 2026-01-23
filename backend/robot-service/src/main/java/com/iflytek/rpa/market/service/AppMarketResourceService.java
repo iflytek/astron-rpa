@@ -5,8 +5,8 @@ import com.iflytek.rpa.market.entity.dto.AllAppListDto;
 import com.iflytek.rpa.market.entity.dto.AppUpdateCheckDto;
 import com.iflytek.rpa.market.entity.dto.MarketResourceDto;
 import com.iflytek.rpa.market.entity.dto.ShareRobotDto;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 
 /**
  * 团队市场-资源映射表(AppMarketResource)表服务接口

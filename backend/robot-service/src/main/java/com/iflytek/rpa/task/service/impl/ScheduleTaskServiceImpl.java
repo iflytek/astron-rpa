@@ -1,17 +1,12 @@
 package com.iflytek.rpa.task.service.impl;
 
-import static com.iflytek.rpa.task.constants.TaskConstant.TASK_MAX_SIZE;
-
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iflytek.rpa.robot.dao.RobotVersionDao;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.task.dao.ScheduleTaskDao;
-import com.iflytek.rpa.task.dao.ScheduleTaskExecuteDao;
 import com.iflytek.rpa.task.dao.ScheduleTaskPullLogDao;
 import com.iflytek.rpa.task.dao.ScheduleTaskRobotDao;
 import com.iflytek.rpa.task.entity.ScheduleTask;
@@ -26,8 +21,10 @@ import com.iflytek.rpa.task.entity.enums.CycleWeekEnum;
 import com.iflytek.rpa.task.service.CronExpression;
 import com.iflytek.rpa.task.service.ScheduleTaskService;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -57,16 +54,15 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
     private ScheduleTaskRobotDao scheduleTaskRobotDao;
 
     @Autowired
-    private ScheduleTaskExecuteDao scheduleTaskExecuteDao;
-
-    @Autowired
     private ScheduleTaskPullLogDao scheduleTaskPullLogDao;
 
     @Autowired
-    private RobotVersionDao robotVersionDao;
+    private IdWorker idWorker;
+
+    private int taskMaxSize = 100;
 
     @Autowired
-    private IdWorker idWorker;
+    private RpaAuthFeign rpaAuthFeign;
 
     public Date generateNextValidTimeNew(ScheduleTask task, Date fromTime) throws Exception {
         if ("fixed".equals(task.getRunMode()) || "custom".equals(task.getRunMode())) {
@@ -149,7 +145,14 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
         if (null == taskDto.getPageNo() || null == taskDto.getPageSize()) {
             return AppResponse.success(pages);
         }
-        taskDto.setUserId(UserUtils.nowUserId());
+        AppResponse<User> resp = rpaAuthFeign.getLoginUser();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = resp.getData();
+        String userId = loginUser.getId();
+
+        taskDto.setUserId(userId);
         IPage<ScheduleTask> pageConfig = new Page<>(taskDto.getPageNo(), taskDto.getPageSize(), true);
         pages = scheduleTaskDao.getTaskList(pageConfig, taskDto);
         List<ScheduleTask> taskList = pages.getRecords();
@@ -266,8 +269,18 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
                 scheduleTask.setScheduleRule(JSONObject.toJSONString(timeTask.getScheduleRule()));
             }
         }
-        scheduleTask.setTenantId(TenantUtils.getTenantId());
-        String userId = UserUtils.nowUserId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        scheduleTask.setTenantId(tenantId);
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         scheduleTask.setCreatorId(userId);
         scheduleTask.setUpdaterId(userId);
         // 设置下次执行时间
@@ -281,6 +294,11 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
         if (CollectionUtils.isEmpty(taskRobotIdList)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "请选择机器人");
         }
+        AppResponse<String> res = rpaAuthFeign.getTenantId();
+        if (res == null || res.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String nowTenantId = res.getData();
         // 设置执行顺序
         List<ScheduleTaskRobot> taskRobotList = new ArrayList<>();
         for (int i = 0; i < taskRobotIdList.size(); i++) {
@@ -290,7 +308,8 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
             ScheduleTaskRobot scheduleTaskRobot = new ScheduleTaskRobot();
             scheduleTaskRobot.setRobotId(taskRobotIdList.get(i));
             scheduleTaskRobot.setSort(i + 1);
-            scheduleTaskRobot.setTenantId(TenantUtils.getTenantId());
+
+            scheduleTaskRobot.setTenantId(nowTenantId);
             scheduleTaskRobot.setCreatorId(userId);
             scheduleTaskRobot.setUpdaterId(userId);
             taskRobotList.add(scheduleTaskRobot);
@@ -327,8 +346,17 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
         if (StringUtils.isBlank(taskId)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "缺少计划任务id");
         }
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         TaskInfoDto taskInfoDto = new TaskInfoDto();
         ScheduleTask task = scheduleTaskDao.getTaskInfoByTaskId(taskId, userId, tenantId);
         if (null == task) {
@@ -354,8 +382,17 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
         /**
          * 本次计划任务还没执行完，下次的执行时间就到了，那下次的直接记为失败
          */
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         // 查询启用状态的计划任务
         ScheduleTask task = getRecentlyTask(userId, tenantId);
         //        ScheduleTask task = scheduleTaskDao.getTaskListOrderByNextTime(userId, tenantId);
@@ -391,8 +428,8 @@ public class ScheduleTaskServiceImpl extends ServiceImpl<ScheduleTaskDao, Schedu
         if (0 == total) {
             return null;
         }
-        if (total > TASK_MAX_SIZE) {
-            throw new IllegalStateException("启用中计划任务数量超过" + TASK_MAX_SIZE + "个" + ", 请将部分任务禁用");
+        if (total > taskMaxSize) {
+            throw new IllegalStateException("启用中计划任务数量超过" + taskMaxSize + "个" + ", 请将部分任务禁用");
         }
         //        PageBatch pageBatch = new PageBatch();
         // 批量操作，防止数据量过大，内存溢出或mybatis报错

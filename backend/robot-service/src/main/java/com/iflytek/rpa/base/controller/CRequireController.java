@@ -4,7 +4,7 @@ import com.iflytek.rpa.base.entity.dto.BaseDto;
 import com.iflytek.rpa.base.entity.dto.CRequireDeleteDto;
 import com.iflytek.rpa.base.entity.dto.CRequireDto;
 import com.iflytek.rpa.base.service.CRequireService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.AppResponse;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;

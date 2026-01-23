@@ -133,7 +133,42 @@
             and aa.client_deleted = 0
             and aa.status = 'approved'
             and aa.application_type = "release"
+            and exists(select 1 from app_market_user where deleted = 0 and creator_id = #{userId} and market_id = amr.market_id)
         </where>
+        order by aa.create_time desc
+        limit 1
+    </select>
+
+    <select id="getLatestApplicationByRobotId" resultType="com.iflytek.rpa.market.entity.AppApplication">
+        select
+            aa.*
+        from app_application as aa
+        where
+        aa.robot_id = #{robotId}
+        and aa.tenant_id = #{tenantId}
+        and aa.deleted = 0
+        and aa.cloud_deleted = 0
+        and aa.client_deleted = 0
+        and aa.application_type = "release"
+        and aa.status = 'approved'
+        order by aa.robot_version desc
+        limit 1
+    </select>
+
+
+    <select id="getPendingMarketInfoJson" resultType="java.lang.String">
+        select
+            aa.market_info
+        from app_application as aa
+        inner join robot_execute as re on aa.robot_id = re.robot_id
+        where
+            re.deleted = 0
+            and aa.tenant_id = #{tenantId}
+            and aa.deleted = 0
+            and aa.cloud_deleted = 0
+            and aa.client_deleted = 0
+            and aa.status = 'pending'
+            and aa.application_type = "release"
     </select>
 
     <!-- 自动审批未审核的上架申请 -->

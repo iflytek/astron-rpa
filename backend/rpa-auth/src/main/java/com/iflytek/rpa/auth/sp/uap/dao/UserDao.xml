@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.uap.dao.UserDao">
+
+    <select id="queryUapUserByIds" resultType="com.iflytek.sec.uap.client.core.dto.user.UapUser">
+        SELECT 
+            tuu.id,
+            tuu.login_name as loginName,
+            tuu.name,
+            tuu.phone,
+            tuuo.org_id as orgId,
+            tuo.name as orgName
+        FROM ${databaseName}.t_uap_user tuu
+        INNER JOIN ${databaseName}.t_uap_user_org tuuo ON tuu.id = tuuo.user_id
+        INNER JOIN ${databaseName}.t_uap_organization tuo ON tuo.id = tuuo.org_id
+        WHERE tuuo.tenant_id = #{tenantId} and tuu.is_delete = 0 AND
+            tuu.id IN
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+    </select>
+
+
+    <select id="queryUserIdsByRole" resultType="java.lang.String">
+        SELECT tuur.user_id
+        FROM ${databaseName}.t_uap_user_role tuur
+        INNER JOIN ${databaseName}.t_uap_user tuu on tuu.id =  tuur.user_id
+        WHERE tuur.role_id = #{listUserByRoleDto.roleId} and tuu.is_delete = 0
+        ORDER BY tuur.id
+    </select>
+
+    <select id="queryUapUserByName" resultType="com.iflytek.sec.uap.client.core.dto.user.UapUser">
+        SELECT
+            tuu.id,
+            tuu.login_name as loginName,
+            tuu.name,
+            tuu.phone,
+            tuuo.org_id as orgId,
+            tuo.name as orgName
+        FROM ${databaseName}.t_uap_user tuu
+        INNER join ${databaseName}.t_uap_tenant_user tutu on tuu.id = tutu.user_id
+        INNER JOIN ${databaseName}.t_uap_user_org tuuo ON tuu.id = tuuo.user_id
+        INNER JOIN ${databaseName}.t_uap_organization tuo ON tuo.id = tuuo.org_id
+        WHERE  tuu.is_delete = 0
+        and tutu.tenant_id = #{tenantId}
+        <if test="userName != null and userName != ''">
+            and tuu.name like CONCAT('%', #{userName}, '%')
+        </if>
+        limit 1000
+    </select>
+
+    <update id="updateThirdExtInfo">
+        UPDATE ${databaseName}.t_uap_user
+        SET third_ext_info = #{thirdExtInfo}
+        WHERE login_name = #{loginName}
+        AND is_delete = 0
+    </update>
+
+    <update id="updateExtInfo">
+        UPDATE ${databaseName}.t_uap_user
+        SET ext_info = #{extInfo}
+        WHERE phone = #{phone}
+        AND is_delete = 0
+    </update>
+
+    <select id="queryThirdExtInfoByPhone" resultType="java.lang.String">
+        SELECT third_ext_info
+        FROM ${databaseName}.t_uap_user
+        WHERE phone = #{phone}
+        AND is_delete = 0
+        LIMIT 1
+    </select>
+
+    <select id="queryExtInfoByPhone" resultType="java.lang.String">
+        SELECT ext_info
+        FROM ${databaseName}.t_uap_user
+        WHERE phone = #{phone}
+        AND is_delete = 0
+        LIMIT 1
+    </select>
+
+    <select id="queryLoginNameByPhone" resultType="java.lang.String">
+        SELECT login_name
+        FROM ${databaseName}.t_uap_user
+        WHERE phone = #{phone}
+        AND is_delete = 0
+        LIMIT 1
+    </select>
+
+    <select id="queryPhoneByLoginName" resultType="java.lang.String">
+        SELECT phone
+        FROM ${databaseName}.t_uap_user
+        WHERE login_name = #{loginName}
+        AND is_delete = 0
+        LIMIT 1
+    </select>
+
+    <select id="queryUsersToSync" resultType="com.iflytek.rpa.auth.sp.uap.entity.SyncUserInfo">
+        SELECT 
+            id,
+            login_name as loginName,
+            name,
+            phone,
+            address
+        FROM ${databaseName}.t_uap_user
+        WHERE phone > '' 
+        AND (third_ext_info IS NULL OR third_ext_info = '')
+        AND is_delete = 0
+        <if test="loginNames != null and loginNames.size() > 0">
+            AND login_name IN
+            <foreach collection="loginNames" item="loginName" open="(" separator="," close=")">
+                #{loginName}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getUserIdByPhone" resultType="java.lang.String">
+        SELECT id
+        FROM ${databaseName}.t_uap_user
+        WHERE phone = #{phone}
+        AND is_delete = 0
+        LIMIT 1
+    </select>
+
+    <select id="getNameById" resultType="java.lang.String">
+        SELECT
+            CASE
+                WHEN name IS NULL OR name = '' THEN login_name
+                ELSE name
+            END AS name
+            FROM ${databaseName}.t_uap_user
+        WHERE is_delete = 0 AND id = #{id}
+    </select>
+
+    <update id="batchUpdateUserType">
+        UPDATE ${databaseName}.t_uap_user
+        SET user_type = #{userType}
+        WHERE is_delete = 0
+        <if test="userIds != null and userIds.size() > 0">
+            AND id IN
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test="userIds == null or userIds.size() == 0">
+            AND 1 = 0
+        </if>
+    </update>
+
+    <update id="batchUpdateNameFromLoginName">
+        UPDATE ${databaseName}.t_uap_user
+        SET name = login_name
+        WHERE is_delete = 0
+        AND (name IS NULL OR name = '')
+        <if test="userIds != null and userIds.size() > 0">
+            AND id IN
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test="userIds == null or userIds.size() == 0">
+            AND 1 = 0
+        </if>
+    </update>
+
+    <resultMap type="com.iflytek.rpa.auth.core.entity.RobotExecute" id="RobotExecuteMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="resourceStatus" column="resource_status" jdbcType="VARCHAR"/>
+        <result property="dataSource" column="data_source" jdbcType="VARCHAR"/>
+        <result property="paramDetail" column="param_detail" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getDeployedUserList" resultMap="RobotExecuteMap">
+        select
+            re.id,
+            re.creator_id,
+            tu.name as name,
+            re.update_time,
+            re.app_version
+        from robot_execute re
+            inner join ${databaseName}.t_uap_user tu on re.creator_id = tu.id and tu.is_delete = 0
+        where
+            re.deleted = 0
+            and re.app_id = #{dto.appId}
+            and re.market_id = #{dto.marketId}
+            and re.data_source = 'market'
+            <if test="dto.realName != null and dto.realName != '' ">
+                and UPPER(tu.name) like concat('%',UPPER(#{dto.realName}),'%')
+            </if>
+    </select>
+
+    <resultMap type="com.iflytek.rpa.auth.core.entity.MarketDto" id="MarketDtoMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="userType" column="user_type" jdbcType="VARCHAR"/>
+        <result property="creatorId" column="creator_id" jdbcType="CHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="appName" column="app_name" jdbcType="VARCHAR"/>
+        <result property="appId" column="app_id" jdbcType="VARCHAR"/>
+        <result property="appVersion" column="app_version" jdbcType="INTEGER"/>
+        <result property="dictName" column="dict_name" jdbcType="VARCHAR"/>
+        <result property="appIntro" column="app_intro" jdbcType="VARCHAR"/>
+        <result property="useIntro" column="use_intro" jdbcType="VARCHAR"/>
+        <result property="isCreator" column="is_creator" jdbcType="BOOLEAN"/>
+        <result property="ownerName" column="owner_name" jdbcType="VARCHAR"/>
+        <result property="ownerId" column="owner_id" jdbcType="BIGINT"/>
+        <result property="marketName" column="market_name" jdbcType="VARCHAR"/>
+        <result property="isAdded" column="is_added" jdbcType="BOOLEAN"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="realName" column="real_name" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="isAdmin" column="is_admin" jdbcType="BOOLEAN"/>
+        <result property="haveSharePrivate" column="have_share_private" jdbcType="BOOLEAN"/>
+        <result property="pageNo" column="page_no" jdbcType="INTEGER"/>
+        <result property="pageSize" column="page_size" jdbcType="INTEGER"/>
+        <result property="sortBy" column="sort_by" jdbcType="VARCHAR"/>
+        <result property="sortType" column="sort_type" jdbcType="VARCHAR"/>
+        <result property="resourceStatus" column="resource_status" jdbcType="VARCHAR"/>
+        <result property="robotId" column="robot_id" jdbcType="VARCHAR"/>
+        <result property="componentId" column="component_id" jdbcType="VARCHAR"/>
+        <result property="updateVersionNum" column="update_version_num" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getUserUnDeployed" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            phone,
+            name realName,
+            id creatorId
+        from ${databaseName}.t_uap_user tu
+        where
+          exists(select id
+                       from app_market_user amu
+                       where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{dto.marketId})
+          and not exists(select id
+                         from robot_execute re
+                         where re.deleted = 0
+                           and re.creator_id = tu.id
+                           and re.data_source = 'market'
+                           and re.market_id = #{dto.marketId}
+                           and re.app_id = #{dto.appId})
+          <if test="dto.phone != null and dto.phone != ''">
+              and phone like CONCAT('%',#{dto.phone},'%')
+          </if>
+          and is_delete = 0
+            limit 20
+    </select>
+
+    <select id="getMarketUserList" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            amu.id id,
+            amu.user_type userType,
+            amu.creator_id creatorId,
+            amu.create_time createTime,
+            tu.login_name userName,
+            tu.name realName,
+            tu.email email,
+            tu.phone phone
+        from app_market_user amu
+            inner join ${databaseName}.t_uap_user tu on tu.id = amu.creator_id and tu.is_delete = 0
+        where
+            amu.market_id = #{dto.marketId}
+            and amu.deleted = 0
+            <if test="dto.userName != null and dto.userName != ''">
+                and upper(tu.login_name) like concat('%', upper(#{dto.userName}), '%')
+            </if>
+            <if test="dto.realName != null and dto.realName != ''">
+                and upper(tu.name) like concat('%', upper(#{dto.realName}), '%')
+            </if>
+            <choose>
+                <when test="dto.sortBy !=null and dto.sortBy != ''">
+                    <if test="dto.sortType == 'descend'.toString()">
+                        order by ${dto.sortBy} desc
+                    </if>
+                    <if test="dto.sortType == 'ascend'.toString() ">
+                        order by ${dto.sortBy} asc
+                    </if>
+                </when>
+                <otherwise>
+                    order by createTime desc
+                </otherwise>
+            </choose>
+    </select>
+
+    <select id="getMarketUserListByPublic" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+        amu.id id,
+        amu.user_type userType,
+        amu.creator_id creatorId,
+        amu.create_time createTime,
+        tu.login_name userName,
+        tu.name realName,
+        tu.email email,
+        tu.phone phone
+        from app_market_user amu
+        inner join ${databaseName}.t_uap_user tu on tu.id = amu.creator_id and tu.is_delete = 0
+        where
+        amu.market_id = #{dto.marketId}
+        and amu.deleted = 0 and amu.user_type != 'owner'
+        <if test="dto.nowUserid != null and dto.nowUserid != ''">
+            and amu.creator_id != #{dto.nowUserid}
+        </if>
+        <if test="dto.userName != null and dto.userName != ''">
+            and upper(tu.login_name) like concat('%', upper(#{dto.userName}), '%')
+        </if>
+        <if test="dto.realName != null and dto.realName != ''">
+            and upper(tu.name) like concat('%', upper(#{dto.realName}), '%')
+        </if>
+        <choose>
+            <when test="dto.sortBy !=null and dto.sortBy != ''">
+                <if test="dto.sortType == 'descend'.toString()">
+                    order by ${dto.sortBy} desc
+                </if>
+                <if test="dto.sortType == 'ascend'.toString() ">
+                    order by ${dto.sortBy} asc
+                </if>
+            </when>
+            <otherwise>
+                order by createTime desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--    已经在团队内的不再查询, 已禁用的不再查询-->
+    <select id="getMarketUserByPhone" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            tu.phone,
+            tu.name realName,
+            tu.id creatorId
+        from ${databaseName}.t_uap_user tu
+        inner join ${databaseName}.t_uap_tenant_user tutu on tu.id = tutu.user_id and tutu.tenant_id = #{dto.tenantId}
+        where
+            not exists(select id
+                            from app_market_user amu
+                            where amu.creator_id = tu.id and amu.deleted = 0 and amu.market_id = #{dto.marketId} )
+            and (phone like CONCAT('%',#{dto.keyword},'%') or tu.name like CONCAT('%',#{dto.keyword},'%'))
+            and is_delete = 0
+            limit 20
+    </select>
+
+    <select id="getMarketUserByPhoneForOwner" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            uu.phone phone,
+            uu.name realName,
+            uu.id creatorId
+        from
+            ${databaseName}.t_uap_user uu
+            INNER JOIN app_market_user amu ON uu.id = amu.creator_id
+        where
+            uu.phone like CONCAT('%',#{dto.phone},'%')
+            and uu.is_delete = 0
+            AND amu.deleted = 0
+            AND amu.market_id = #{dto.marketId}
+            AND uu.id != #{dto.userId}
+    </select>
+
+    <select id="getMarketTenantUserList" resultType="com.iflytek.rpa.auth.core.entity.TenantUser">
+        select
+            utu.tenant_id tenantId,
+            uu.id userId
+        from
+            ${databaseName}.t_uap_user uu
+            inner join ${databaseName}.t_uap_tenant_user utu on uu.id = utu.user_id
+        where
+        uu.is_delete = 0
+        and utu.tenant_id = #{dto.tenantId}
+        and uu.id in
+        <foreach collection="dto.userIdList" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+
+    <select id="getUserById" resultType="com.iflytek.sec.uap.client.core.dto.user.UapUser">
+        SELECT
+            tuu.id,
+            tuu.login_name as loginName,
+            tuu.name,
+            tuu.phone
+        FROM ${databaseName}.t_uap_user tuu
+        WHERE  tuu.is_delete = 0 AND tuu.id = #{id}
+    </select>
+
+    <select id="getDeployedUserListWithoutTenantId" resultType="com.iflytek.rpa.auth.core.entity.RobotExecute">
+            select
+            re.id,
+            re.creator_id,
+            tu.name as name,
+            re.update_time,
+            re.app_version
+            from robot_execute re
+            inner join ${databaseName}.t_uap_user tu on re.creator_id = tu.id and tu.is_delete = 0
+            where
+            re.deleted = 0
+            and re.app_id = #{dto.appId}
+            and re.market_id = #{dto.marketId}
+            and re.data_source = 'market'
+            <if test="dto.realName != null and dto.realName != '' ">
+                and UPPER(tu.name) like concat('%',UPPER(#{dto.realName}),'%')
+            </if>
+    </select>
+</mapper>

@@ -1,11 +1,12 @@
 package com.iflytek.rpa.robot.controller;
 
+import com.iflytek.rpa.dispatch.service.DispatchTaskExecuteRecordService;
 import com.iflytek.rpa.monitor.entity.RobotMonitorDto;
 import com.iflytek.rpa.robot.entity.dto.ExecuteRecordDto;
 import com.iflytek.rpa.robot.entity.dto.RobotExecuteRecordsBatchDeleteDto;
 import com.iflytek.rpa.robot.service.RobotExecuteRecordService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +26,11 @@ public class RobotExecuteRecordController {
     @Autowired
     private RobotExecuteRecordService robotExecuteRecordService;
 
+    @Autowired
+    private DispatchTaskExecuteRecordService dispatchTaskExecuteRecordService;
+
     /**
      * 执行记录列表
-     *
      * @param recordDto
      * @return
      * @throws NoLoginException
@@ -39,22 +42,23 @@ public class RobotExecuteRecordController {
 
     /**
      * 查询执行日志
-     *
      * @param recordDto
      * @return
      * @throws NoLoginException
      */
     @PostMapping("/log")
     public AppResponse<?> getExecuteLog(@RequestBody ExecuteRecordDto recordDto) throws NoLoginException {
+        if (recordDto.getIsDispatch()) {
+            return dispatchTaskExecuteRecordService.getRobotExecuteLog(Long.valueOf(recordDto.getExecuteId()));
+        }
         return robotExecuteRecordService.getExecuteLog(recordDto);
     }
 
     /**
      * 执行器-机器人详情-执行概况
-     *
+     * @paramMarketResourceDto
      * @return
      * @throws Exception
-     * @paramMarketResourceDto
      */
     @PostMapping("/detail/overview")
     public AppResponse<?> getOverViewData(@RequestBody RobotMonitorDto robotMonitorDto) {
@@ -63,7 +67,6 @@ public class RobotExecuteRecordController {
 
     /**
      * 上传机器人执行结果
-     *
      * @param recordDto
      * @return
      * @throws NoLoginException
@@ -75,20 +78,7 @@ public class RobotExecuteRecordController {
     }
 
     /**
-     * 上传机器人执行日志
-     * @param recordDto
-     * @return
-     * @throws NoLoginException
-     */
-    //    @PostMapping("/save-log")
-    //    public AppResponse<?> saveExecuteLog(@RequestBody ExecuteRecordDto recordDto) throws NoLoginException {
-    //        return robotExecuteRecordService.saveExecuteLog(recordDto);
-    //    }
-
-    /**
      * 批量删除机器人执行记录
-     *
-     * @param batchDeleteDto
      * @return
      * @throws NoLoginException
      */

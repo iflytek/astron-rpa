@@ -20,7 +20,6 @@ public class DateUtils {
 
     /**
      * 通过时间秒毫秒数判断两个时间的间隔（不足24小时算0天）
-     *
      * @param date1
      * @param date2
      * @return
@@ -32,7 +31,6 @@ public class DateUtils {
 
     /**
      * 通过时间秒毫秒数判断两个时间的间隔（不足24小时算0天）
-     *
      * @param date1
      * @param date2
      * @return
@@ -44,7 +42,6 @@ public class DateUtils {
 
     /**
      * 通过时间秒毫秒数判断两个时间的间隔（不足24小时算0天）
-     *
      * @param date1
      * @param date2
      * @return
@@ -56,7 +53,6 @@ public class DateUtils {
 
     /**
      * 通过时间秒毫秒数判断两个时间的间隔（不足24小时算0天）
-     *
      * @param date1
      * @param date2
      * @return
@@ -167,6 +163,14 @@ public class DateUtils {
         String endOfDay = getEndStrOfDay(date);
         List<String> startAndEndOfDay = new ArrayList<>();
         startAndEndOfDay.add(startOfDay);
+        startAndEndOfDay.add(endOfDay);
+        return startAndEndOfDay;
+    }
+
+    public static List<String> getStartToDate(Date date) {
+        String endOfDay = getEndStrOfDay(date);
+        List<String> startAndEndOfDay = new ArrayList<>();
+        startAndEndOfDay.add("1970-01-01 00:00:00");
         startAndEndOfDay.add(endOfDay);
         return startAndEndOfDay;
     }

@@ -58,6 +58,11 @@ public class SampleUsers implements Serializable {
     private String versionInjected;
 
     /**
+     * 租户ID
+     */
+    private String tenantId;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

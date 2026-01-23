@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorRoleDao">
+
+    <!-- 根据名称模糊查询角色 -->
+    <select id="searchRoleByName" resultType="org.casbin.casdoor.entity.Role">
+        SELECT
+            r.owner,
+            r.name,
+            r.created_time as createdTime,
+            r.display_name as displayName,
+            r.description
+        FROM ${databaseName}.`role` r
+        WHERE r.is_enabled = 1
+        <if test="owner != null and owner != ''">
+            AND r.owner = #{owner}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                r.display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR r.name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY r.created_time DESC
+        LIMIT 1000
+    </select>
+
+</mapper>
+
+

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.market.dao.AppMarketInviteDao">
+
+    <resultMap type="com.iflytek.rpa.market.entity.AppMarketInvite" id="AppMarketInviteMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
+        <result property="inviteKey" column="invite_key" jdbcType="VARCHAR"/>
+        <result property="expireTime" column="expire_time" jdbcType="TIMESTAMP"/>
+        <result property="maxJoinCount" column="max_join_count" jdbcType="INTEGER"/>
+        <result property="currentJoinCount" column="current_join_count" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="VARCHAR"/>
+        <result property="inviterId" column="inviter_id" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updaterId" column="updater_id" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+    <delete id="cancelById">
+        update app_market_invite set deleted = 1 where id = #{id}
+    </delete>
+
+
+    <select id="selectByInviteKey" resultMap="AppMarketInviteMap">
+        select
+            *
+        from
+            app_market_invite
+        where
+            invite_key = #{inviteKey}
+        limit 1
+    </select>
+
+    <select id="selectByMarketIdAndInviterId" resultType="com.iflytek.rpa.market.entity.AppMarketInvite">
+        select
+            *
+        from
+        app_market_invite
+        where
+        market_id = #{marketId} and inviter_id = #{userId}
+        and deleted = 0
+    </select>
+
+</mapper>
+

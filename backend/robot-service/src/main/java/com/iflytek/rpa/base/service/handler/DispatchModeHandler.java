@@ -11,16 +11,15 @@ import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -88,7 +87,6 @@ public class DispatchModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> deployProcessHandle(
             RobotExecute executeInfo, String processId, String originRobotId) {
         String mainProcessId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
@@ -114,7 +112,6 @@ public class DispatchModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> marketProcessHandle(
             RobotExecute executeInfo, String processId, String originRobotId) {
         String mainProcessId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
@@ -138,7 +135,6 @@ public class DispatchModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> createProcessHandle(
             RobotExecute executeInfo, String processId, Integer enabledVersion) {
         String mainProcessId = cParamDao.getMianProcessId(executeInfo.getRobotId(), enabledVersion);

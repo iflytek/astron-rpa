@@ -76,7 +76,6 @@ public interface ComponentVersionDao extends BaseMapper<ComponentVersion> {
 
     /**
      * 获取已发过版本的组件ID列表
-     *
      * @param tenantId 租户ID
      * @return 组件ID列表
      */
@@ -85,9 +84,8 @@ public interface ComponentVersionDao extends BaseMapper<ComponentVersion> {
 
     /**
      * 批量获取组件的最新版本信息
-     *
      * @param componentIds 组件ID列表
-     * @param tenantId     租户ID
+     * @param tenantId 租户ID
      * @return 组件最新版本信息列表
      */
     List<ComponentVersion> getLatestVersionInfoBatch(

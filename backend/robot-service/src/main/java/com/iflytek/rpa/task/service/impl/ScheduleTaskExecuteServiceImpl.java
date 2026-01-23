@@ -5,11 +5,12 @@ import static com.iflytek.rpa.task.constants.TaskConstant.TASK_RESULT_EXECUTE;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.dispatch.entity.dto.TaskExecuteStatusDto;
+import com.iflytek.rpa.dispatch.service.DispatchTaskExecuteRecordService;
 import com.iflytek.rpa.robot.dao.RobotExecuteRecordDao;
 import com.iflytek.rpa.robot.entity.RobotExecuteRecord;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.task.dao.ScheduleTaskExecuteDao;
 import com.iflytek.rpa.task.entity.ScheduleTaskExecute;
 import com.iflytek.rpa.task.entity.dto.ScheduleTaskRecordDeleteDto;
@@ -19,8 +20,10 @@ import com.iflytek.rpa.task.entity.vo.TaskRecordListVo;
 import com.iflytek.rpa.task.service.ScheduleTaskExecuteService;
 import com.iflytek.rpa.utils.DateUtils;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -51,19 +54,45 @@ public class ScheduleTaskExecuteServiceImpl extends ServiceImpl<ScheduleTaskExec
     @Autowired
     private IdWorker idWorker;
 
+    @Autowired
+    private DispatchTaskExecuteRecordService dispatchTaskExecuteRecordService;
+
     /**
      * 任务执行超时时间（小时），默认24小时
      */
     @Value("${schedule.task.timeout.hours:24}")
     private Integer taskTimeoutHours;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse<?> setTaskExecuteStatus(TaskExecuteDto executeDto) throws NoLoginException {
+        // 判断是否为dispatch模式
+        if (executeDto.getIsDispatch() != null && executeDto.getIsDispatch()) {
+            // 调用dispatch服务
+            TaskExecuteStatusDto statusDto = new TaskExecuteStatusDto();
+            statusDto.setDispatchTaskId(executeDto.getDispatchTaskId());
+            statusDto.setDispatchTaskExecuteId(executeDto.getDispatchTaskExecuteId());
+            statusDto.setTerminalId(executeDto.getTerminalId());
+            statusDto.setResult(executeDto.getResult());
+
+            return dispatchTaskExecuteRecordService.reportTaskStatus(statusDto);
+        }
 
         // 原有业务逻辑
         // 生成executeId
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         String taskExecuteId = executeDto.getTaskExecuteId();
         if (null == executeDto.getTaskId()) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "任务ID不能为空");
@@ -113,8 +142,19 @@ public class ScheduleTaskExecuteServiceImpl extends ServiceImpl<ScheduleTaskExec
         if (null == executeDto.getPageNo() || null == executeDto.getPageSize()) {
             return AppResponse.success(pages);
         }
-        executeDto.setCreatorId(UserUtils.nowUserId());
-        executeDto.setTenantId(TenantUtils.getTenantId());
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        executeDto.setCreatorId(userId);
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        executeDto.setTenantId(tenantId);
         IPage<TaskExecuteDto> pageConfig = new Page<>(executeDto.getPageNo(), executeDto.getPageSize(), true);
         pages = scheduleTaskExecuteDao.getTaskExecuteRecordList(pageConfig, executeDto);
         List<TaskExecuteDto> taskList = pages.getRecords();
@@ -158,8 +198,17 @@ public class ScheduleTaskExecuteServiceImpl extends ServiceImpl<ScheduleTaskExec
         }
 
         // 获取用户和租户信息
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         recordDto.setUserId(userId);
         recordDto.setTenantId(tenantId);
 
@@ -188,7 +237,7 @@ public class ScheduleTaskExecuteServiceImpl extends ServiceImpl<ScheduleTaskExec
             // 将机器人执行记录分组并设置到对应的任务记录中
             if (!CollectionUtils.isEmpty(executeRecordList)) {
                 // 按任务执行ID分组
-                java.util.Map<String, List<RobotExecuteRecord>> recordMap =
+                Map<String, List<RobotExecuteRecord>> recordMap =
                         executeRecordList.stream().collect(Collectors.groupingBy(RobotExecuteRecord::getTaskExecuteId));
 
                 // 为每个任务记录设置对应的机器人执行记录
@@ -212,8 +261,17 @@ public class ScheduleTaskExecuteServiceImpl extends ServiceImpl<ScheduleTaskExec
         if (CollectionUtils.isEmpty(taskExecuteIdList)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, "任务执行ID列表不能为空");
         }
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 1. 逻辑删除 schedule_task_execute 表中的记录
         Integer scheduleDeleted =

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.uap.dao.TenantExpirationDao">
+
+    <!-- 根据租户ID查询租户到期信息 -->
+    <select id="queryByTenantId" resultType="com.iflytek.rpa.auth.sp.uap.entity.TenantExpiration">
+        SELECT
+            id,
+            tenant_id AS tenantId,
+            expiration_date AS expirationDate,
+            create_time AS createTime,
+            update_time AS updateTime,
+            is_delete AS isDelete
+        FROM
+            t_tenant_expiration
+        WHERE
+            tenant_id = #{tenantId}
+            AND is_delete = 0
+        LIMIT 1
+    </select>
+
+</mapper>
+

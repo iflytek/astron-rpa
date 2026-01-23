@@ -33,11 +33,6 @@ public interface AppMarketVersionDao extends BaseMapper<AppMarketVersion> {
     AppMarketVersion getLatestAppVersionInfo(MarketResourceDto marketResourceDto);
 
     @Select("select * " + "from app_market_version "
-            + "where app_id = #{appId} and market_id = #{marketId} and deleted = 0 "
-            + "order by app_version desc")
-    List<AppMarketVersion> getAllAppVersion(@Param("appId") String appId, @Param("marketId") String marketId);
-
-    @Select("select * " + "from app_market_version "
             + "where app_id = #{appId} and market_id = #{marketId} "
             + "order by app_version desc")
     List<AppMarketVersion> getAllAppVersionRegardlessDel(
@@ -47,9 +42,6 @@ public interface AppMarketVersionDao extends BaseMapper<AppMarketVersion> {
             + "where app_id = #{appId} and market_id = #{marketId} and deleted = 0 "
             + "order by app_version desc limit 1")
     AppMarketVersion getLatestAppVersion(@Param("appId") String appId, @Param("marketId") String marketId);
-
-    List<AppMarketVersion> getAppVersionList(
-            @Param("marketId") String marketId, @Param("appIdList") List<String> appIdList);
 
     List<ResVerDto> getResVerJoin(@Param("marketId") String marketId, @Param("appIdList") List<String> appIdList);
 }

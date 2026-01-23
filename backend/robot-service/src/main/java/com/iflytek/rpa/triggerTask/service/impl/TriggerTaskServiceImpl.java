@@ -1,6 +1,6 @@
 package com.iflytek.rpa.triggerTask.service.impl;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.*;
+import static com.iflytek.rpa.robot.constants.RobotConstant.CREATE;
 import static com.iflytek.rpa.utils.DeBounceUtils.deBounce;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -12,14 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.base.service.CParamService;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.robot.constants.RobotConstant;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
+import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.task.dao.ScheduleTaskRobotDao;
 import com.iflytek.rpa.task.entity.ScheduleTaskRobot;
 import com.iflytek.rpa.task.entity.dto.RobotInfo;
@@ -33,8 +32,10 @@ import com.iflytek.rpa.triggerTask.entity.enums.TaskTypeEnum;
 import com.iflytek.rpa.triggerTask.entity.vo.*;
 import com.iflytek.rpa.triggerTask.service.TriggerTaskService;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +66,9 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
     private CParamService paramService;
 
     @Autowired
+    RobotVersionDao robotVersionDao;
+
+    @Autowired
     private IdWorker idWorker;
 
     @Value("${deBounce.prefix}")
@@ -73,10 +77,22 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
     @Value("${deBounce.window}")
     private Long deBounceWindow; // 防抖窗口
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse<Boolean> isTaskNameCopy(String name) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         return AppResponse.success(checkNameCopy(name, userId, tenantId));
     }
 
@@ -88,8 +104,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
      */
     @Override
     public AppResponse<List<Executor>> getRobotExeList(String name) throws NoLoginException, JsonProcessingException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         name = StringUtils.trim(name);
         List<RobotExecute> robotExecuteList = robotExecuteDao.getRobotExecuteByName(name, userId, tenantId);
         packageCreateRobotVersion(robotExecuteList);
@@ -127,8 +152,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> insertTriggerTask(InsertTaskDto queryDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         checkInsertParam(queryDto); // 参数校验
 
@@ -155,8 +189,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
      */
     @Override
     public AppResponse<TriggerTaskVo> getTriggerTask(String taskId) throws NoLoginException, JsonProcessingException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         if (StringUtils.isBlank(taskId)) throw new ServiceException(ErrorCodeEnum.E_PARAM_CHECK.getCode(), "参数缺失");
         TriggerTask triggerTask = baseMapper.getTaskById(userId, tenantId, taskId);
@@ -170,8 +213,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> deleteTriggerTask(String taskId) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         if (StringUtils.isBlank(taskId)) throw new ServiceException(ErrorCodeEnum.E_PARAM_CHECK.getCode(), "参数缺失");
         TriggerTask triggerTask = baseMapper.getTaskById(userId, tenantId, taskId);
@@ -188,8 +240,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> updateTriggerTask(UpdateTaskDto queryDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         TriggerTask oldTriggerTask = baseMapper.getTaskById(userId, tenantId, queryDto.getTaskId());
         if (oldTriggerTask == null) throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode(), "该计划任务不存在，无法编辑");
@@ -216,8 +277,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
 
     @Override
     public AppResponse<Boolean> enableTriggerTask(String taskId, Integer enable) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         TriggerTask oldTriggerTask = baseMapper.getTaskById(userId, tenantId, taskId);
         if (oldTriggerTask == null) throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode(), "该计划任务不存在，无法编辑");
@@ -229,8 +299,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
 
     @Override
     public AppResponse<IPage<TaskPageVo>> triggerTaskPage(TaskPageDto queryDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         IPage<TaskPageVo> resPage = new Page<>();
         IPage<TaskPageVo> pageConfig = new Page<>(queryDto.getPageNo(), queryDto.getPageSize(), true);
@@ -246,8 +325,17 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
     @Override
     public AppResponse<IPage<TaskPage4TriggerVo>> triggerTaskPage4Trigger(TaskPageDto queryDto)
             throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         IPage<TaskPage4TriggerVo> resPage = new Page<>();
         IPage<TaskPage4TriggerVo> pageConfig = new Page<>(queryDto.getPageNo(), queryDto.getPageSize(), true);
@@ -369,10 +457,19 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
             setParam(robotInfoVo, scheduleTaskRobot.getRobotId());
             robotInfoVo.setParamJson(scheduleTaskRobot.getParamJson());
             robotInfoVo.setRobotId(scheduleTaskRobot.getRobotId());
-
+            packageVersion(robotInfoVo, scheduleTaskRobot.getRobotId());
             robotInfoVoList.add(robotInfoVo);
         }
         return robotInfoVoList;
+    }
+
+    private void packageVersion(RobotInfoVo robotInfoVo, String robotId) {
+        Integer onlineVersionByRobotId = robotVersionDao.getOnlineVersionByRobotId(robotId);
+        if (onlineVersionByRobotId != null) {
+            robotInfoVo.setRobotVersion(onlineVersionByRobotId);
+        } else {
+            robotInfoVo.setRobotVersion(0);
+        }
     }
 
     private void setParam(RobotInfoVo robotInfoVo, String robotId) throws JsonProcessingException, NoLoginException {
@@ -426,7 +523,6 @@ public class TriggerTaskServiceImpl extends ServiceImpl<TriggerTaskDao, TriggerT
         triggerTask.setExceptional(queryDto.getExceptional());
         triggerTask.setQueueEnable(queryDto.getQueueEnable());
         triggerTask.setTimeout(queryDto.getTimeout());
-        triggerTask.setRetryNum(queryDto.getRetryNum());
         triggerTask.setCreatorId(userId);
         triggerTask.setUpdaterId(userId);
         triggerTask.setTenantId(tenantId);

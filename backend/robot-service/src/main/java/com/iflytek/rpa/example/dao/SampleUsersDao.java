@@ -5,6 +5,7 @@ import com.iflytek.rpa.example.entity.SampleUsers;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)表数据库访问层
@@ -47,4 +48,9 @@ public interface SampleUsersDao extends BaseMapper<SampleUsers> {
      * @return 用户样例列表
      */
     List<SampleUsers> selectByCreatorId(@Param("creatorId") String creatorId);
+
+    @Select(
+            "select count(1) from sample_users where creator_id = #{creatorId} and tenant_id = #{tenantId} and version_injected = #{version}")
+    Integer getExistSampleUsers(
+            @Param("creatorId") String creatorId, @Param("tenantId") String tenantId, @Param("version") String version);
 }

@@ -1,13 +1,13 @@
 package com.iflytek.rpa.triggerTask.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.triggerTask.entity.TaskMail;
 import com.iflytek.rpa.triggerTask.entity.dto.EnableBo;
 import com.iflytek.rpa.triggerTask.service.ITaskMailService;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +23,6 @@ public class TaskMailController {
 
     /**
      * 邮箱列表分页
-     *
      * @param pageNo
      * @param pageSize
      * @param userId
@@ -41,7 +40,6 @@ public class TaskMailController {
 
     /**
      * 邮箱链接测试 todo 时间紧迫，这是搬运老客户端，后续还需要规整
-     *
      * @param mail
      * @return
      */
@@ -59,7 +57,6 @@ public class TaskMailController {
 
     /**
      * 保存邮箱接口
-     *
      * @param mail
      * @return
      * @throws NoLoginException
@@ -72,7 +69,6 @@ public class TaskMailController {
 
     /**
      * 删除邮箱接口
-     *
      * @param enableBo
      * @return
      */

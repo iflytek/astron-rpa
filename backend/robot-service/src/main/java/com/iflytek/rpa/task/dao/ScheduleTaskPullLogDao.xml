@@ -13,19 +13,22 @@
     </resultMap>
 
     <insert id="insetLog">
-        insert into schedule_task_pull_log
-        (task_id,
-         last_time,
-         next_time,
-         creator_id,
-         create_time,
-         pull_time)
-        values (#{taskId},
-                #{lastTime},
-                #{nextTime},
-                #{creatorId},
-                now(),
-                #{pullTime})
+        insert into
+        schedule_task_pull_log
+            (
+               task_id,
+               last_time,
+               next_time,
+               creator_id,
+               create_time,
+               pull_time)
+        values(
+               #{taskId},
+               #{lastTime},
+               #{nextTime},
+               #{creatorId},
+               now(),
+              #{pullTime})
     </insert>
 
 

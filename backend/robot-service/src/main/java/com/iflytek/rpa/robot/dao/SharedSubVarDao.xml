@@ -6,8 +6,7 @@
         INSERT INTO shared_sub_var(shared_var_id, var_name, var_type, var_value, encrypt, deleted)
         VALUES
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.sharedVarId}, #{entity.varName}, #{entity.varType}, #{entity.varValue}, #{entity.encrypt},
-            #{entity.deleted})
+            (#{entity.sharedVarId}, #{entity.varName}, #{entity.varType}, #{entity.varValue}, #{entity.encrypt}, #{entity.deleted})
         </foreach>
     </insert>
 

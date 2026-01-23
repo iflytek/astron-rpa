@@ -87,13 +87,12 @@ public interface ComponentDao extends BaseMapper<Component> {
 
     /**
      * 分页查询组件列表
-     *
-     * @param page       分页参数
-     * @param name       组件名称（模糊查询）
+     * @param page 分页参数
+     * @param name 组件名称（模糊查询）
      * @param dataSource 数据来源
-     * @param sortType   排序类型
-     * @param tenantId   租户ID
-     * @param userId     用户ID
+     * @param sortType 排序类型
+     * @param tenantId 租户ID
+     * @param userId 用户ID
      * @return 分页组件列表
      */
     IPage<ComponentVo> getComponentPageList(
@@ -106,18 +105,16 @@ public interface ComponentDao extends BaseMapper<Component> {
 
     /**
      * 获取用户权限内可获取的组件列表（shown = 1）
-     *
      * @param tenantId 租户ID
-     * @param userId   用户ID
+     * @param userId 用户ID
      * @return 组件列表
      */
     List<Component> getAvailableComponentsByUser(@Param("tenantId") String tenantId, @Param("userId") String userId);
 
     /**
      * 根据组件ID列表查询组件信息
-     *
      * @param componentIds 组件ID列表
-     * @param tenantId     租户ID
+     * @param tenantId 租户ID
      * @return 组件列表
      */
     List<Component> getComponentsByIds(

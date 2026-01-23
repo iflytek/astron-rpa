@@ -8,7 +8,6 @@ import com.iflytek.rpa.robot.entity.dto.SharedFilePageDto;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface SharedFileDao extends BaseMapper<SharedFile> {
@@ -21,10 +20,6 @@ public interface SharedFileDao extends BaseMapper<SharedFile> {
 
     List<SharedFileTag> selectTags(String tenantId);
 
-    @Select(
-            "SELECT COUNT(*) FROM shared_file_tag WHERE tag_name = #{tagName} AND tenant_id = #{tenantId} AND deleted = 0")
-    Integer selectTagsCountByName(String tagName, String tenantId);
-
     Integer addTag(@Param("entity") SharedFileTag newTag);
 
     // 在 SharedFileDao 接口中添加
@@ -33,14 +28,6 @@ public interface SharedFileDao extends BaseMapper<SharedFile> {
             @Param("tagName") String tagName,
             @Param("updaterId") String updaterId,
             @Param("tenantId") String tenantId);
-
-    @Select(
-            "SELECT EXISTS(SELECT 1 FROM shared_file_tag WHERE tag_id = #{tagId} AND tenant_id = #{tenantId} AND deleted = 0)")
-    boolean containsTagById(@Param("tagId") Long tagId, @Param("tenantId") String tenantId);
-
-    @Select("select * " + "from shared_file_tag "
-            + "where tag_id = #{tagId} and tenant_id = #{tenantId} and deleted = 0")
-    SharedFileTag selectTagById(Long tagId, String tenantId);
 
     List<SharedFile> selectFilesByTag(@Param("tagName") String tagName, @Param("tenantId") String tenantId);
 
@@ -53,5 +40,7 @@ public interface SharedFileDao extends BaseMapper<SharedFile> {
     IPage<SharedFile> selectSharedFilePageList(
             IPage<SharedFile> page, @Param("queryDto") SharedFilePageDto queryDto, @Param("tenantId") String tenantId);
 
-    SharedFile selectFileByName(String fileName, String userId, String tenantId);
+    SharedFile selectFileByName(String fileName, String tenantId);
+
+    void deleteByFileIds(List<String> fileIds);
 }

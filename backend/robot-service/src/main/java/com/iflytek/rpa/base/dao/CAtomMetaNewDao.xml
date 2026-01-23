@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.base.dao.CAtomMetaNewDao">
+
+    <resultMap type="com.iflytek.rpa.base.entity.CAtomMetaNew" id="CAtomMetaNewMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="atomKey" column="atom_key" jdbcType="VARCHAR"/>
+        <result property="atomContent" column="atom_content" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap type="com.iflytek.rpa.base.entity.vo.CAtomMetaNewVo" id="CAtomMetaNewVoMap">
+        <result property="atomKey" column="atom_key" jdbcType="VARCHAR"/>
+        <result property="atomContent" column="atom_content" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getAtomContentByKey" resultType="java.lang.String">
+        SELECT atom_content
+        FROM c_atom_meta_new
+        WHERE atom_key = #{atomKey}
+    </select>
+
+    <select id="getListByKeys" resultMap="CAtomMetaNewVoMap">
+        SELECT atom_key, atom_content, sort
+        FROM c_atom_meta_new
+        WHERE atom_key IN
+        <foreach collection="keys" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+        ORDER BY sort
+    </select>
+
+
+    <select id="getAll" resultType="com.iflytek.rpa.base.entity.vo.CAtomMetaNewVo">
+        SELECT atom_key, atom_content, sort
+        FROM c_atom_meta_new
+        WHERE atom_key != 'atomCommon'
+        ORDER BY sort
+    </select>
+
+    <select id="getAtomListByKeySet" resultType="com.iflytek.rpa.base.entity.CAtomMetaNew">
+        SELECT *
+        FROM c_atom_meta_new
+        WHERE atom_key IN
+        <foreach collection="atomKeySet" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+    </select>
+
+    <delete id="deleteByAtomKey">
+        DELETE FROM c_atom_meta_new
+        WHERE atom_key = #{atomKey}
+    </delete>
+
+    <update id="updateByAtomKey">
+        UPDATE c_atom_meta_new
+        SET atom_content = #{atomContent},
+            sort = #{sort},
+            update_time = now()
+        WHERE atom_key = #{atomKey}
+    </update>
+
+</mapper>

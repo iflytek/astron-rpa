@@ -1,6 +1,6 @@
 package com.iflytek.rpa.base.entity.dto;
 
-import com.iflytek.rpa.starter.utils.StringUtils;
+import com.iflytek.rpa.utils.StringUtils;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import lombok.Data;

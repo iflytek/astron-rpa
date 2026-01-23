@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.iflytek.rpa.base.entity.CParam;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -14,6 +15,9 @@ import lombok.Data;
 public class CParamListDto {
     @JsonProperty("paramList")
     private List<CParam> paramList = new ArrayList<>();
+
+    @NotBlank
+    private String robotId;
 
     //    /**
     //     * 运行位置，默认编辑页，EDIT_PAGE编辑页,PROJECT_LIST设计器列表页,EXECUTOR执行器机器人列表页,CRONTAB触发器（本地计划任务）

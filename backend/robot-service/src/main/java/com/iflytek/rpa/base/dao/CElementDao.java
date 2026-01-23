@@ -52,9 +52,6 @@ public interface CElementDao extends BaseMapper<CElement> {
 
     List<CElement> getElementsByGroupIds(@Param("entity") CElement celement, @Param("groupIds") List<String> groupIds);
 
-    // 删除之前的编辑态
-    // 查询指定版本 ,  查询出来之后把 robot_version set 为 0，id set 为null
-    //
     @Update("update c_element " + "set deleted = 1 "
             + "where robot_id = #{robotId} and robot_version = 0 and creator_id = #{userId}")
     boolean deleteOldEditVersion(@Param("robotId") String robotId, @Param("userId") String userId);
@@ -65,4 +62,8 @@ public interface CElementDao extends BaseMapper<CElement> {
             @Param("robotId") String robotId, @Param("version") Integer version, @Param("userId") String userId);
 
     Integer insertEleBatch(@Param("entities") List<CElement> entities);
+
+    Long getId(CElement element);
+
+    void updateElementById(CElement element);
 }

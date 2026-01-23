@@ -9,23 +9,23 @@ import com.iflytek.rpa.base.dao.CParamDao;
 import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.task.entity.ScheduleTaskRobot;
 import com.iflytek.rpa.task.service.ScheduleTaskRobotService;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -41,6 +41,9 @@ public class TriggerModeHandler implements ParamModeHandler {
     private final RobotExecuteDao robotExecuteDao;
     private final CParamDao cParamDao;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Override
     public boolean supports(String mode) {
@@ -75,8 +78,20 @@ public class TriggerModeHandler implements ParamModeHandler {
     }
 
     private RobotExecute getRobotExecute(String robotId) throws NoLoginException {
-        RobotExecute executeInfo =
-                robotExecuteDao.getRobotInfoByRobotId(robotId, UserUtils.nowUserId(), TenantUtils.getTenantId());
+        AppResponse<User> resp = rpaAuthFeign.getLoginUser();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = resp.getData();
+        String userId = loginUser.getId();
+
+        AppResponse<String> res = rpaAuthFeign.getTenantId();
+        if (res == null || res.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = res.getData();
+
+        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(robotId, userId, tenantId);
         if (executeInfo == null) {
             throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "无法获取执行器机器人信息");
         }
@@ -112,7 +127,6 @@ public class TriggerModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> marketProcessHandle(
             RobotExecute executeInfo, String processId, String originRobotId) {
         String mainProcessId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
@@ -127,26 +141,17 @@ public class TriggerModeHandler implements ParamModeHandler {
         if (executeInfo.getRobotVersion() != null) {
             enabledVersion = executeInfo.getRobotVersion();
         }
-        if (!StringUtils.isEmpty(moduleId)) {
-            return createModuleHandle(executeInfo, moduleId, enabledVersion);
-        }
-        return createProcessHandle(executeInfo, processId, enabledVersion);
-    }
-
-    private AppResponse<List<ParamDto>> createModuleHandle(
-            RobotExecute executeInfo, String moduleId, Integer enabledVersion) {
-        List<CParam> params = cParamDao.getSelfRobotParamByModuleId(executeInfo.getRobotId(), moduleId, enabledVersion);
-        return AppResponse.success(convertParams(params));
-    }
-
-    @NotNull
-    private AppResponse<List<ParamDto>> createProcessHandle(
-            RobotExecute executeInfo, String processId, Integer enabledVersion) {
         String mainProcessId = cParamDao.getMianProcessId(executeInfo.getRobotId(), enabledVersion);
         List<CParam> params = cParamDao.getSelfRobotParam(
                 executeInfo.getRobotId(),
                 StringUtils.isNotBlank(processId) ? processId : mainProcessId,
                 enabledVersion);
+        return AppResponse.success(convertParams(params));
+    }
+
+    private AppResponse<List<ParamDto>> createModuleHandle(
+            RobotExecute executeInfo, String moduleId, Integer enabledVersion) {
+        List<CParam> params = cParamDao.getSelfRobotParamByModuleId(executeInfo.getRobotId(), moduleId, enabledVersion);
         return AppResponse.success(convertParams(params));
     }
 

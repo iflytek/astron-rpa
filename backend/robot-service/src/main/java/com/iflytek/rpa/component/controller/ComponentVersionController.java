@@ -2,8 +2,8 @@ package com.iflytek.rpa.component.controller;
 
 import com.iflytek.rpa.component.entity.dto.CreateVersionDto;
 import com.iflytek.rpa.component.service.ComponentVersionService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +22,6 @@ public class ComponentVersionController {
 
     /**
      * 发版
-     *
      * @param createVersionDto
      * @return
      * @throws NoLoginException
@@ -36,7 +35,6 @@ public class ComponentVersionController {
 
     /**
      * 获取组件下一个版本号
-     *
      * @param componentId 组件ID
      * @return 下一个版本号
      * @throws NoLoginException

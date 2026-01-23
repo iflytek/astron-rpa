@@ -6,7 +6,7 @@ import com.iflytek.rpa.base.entity.dto.AtomKeyListDto;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
 import com.iflytek.rpa.base.entity.dto.SaveAtomicsDto;
 import com.iflytek.rpa.base.service.CAtomMetaService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,6 @@ public class CAtomController {
     public AppResponse<?> getLatestAtomByKey(@RequestParam(name = "key") String atomKey) throws Exception {
         return cAtomMetaService.getLatestAtomByKey(atomKey);
     }
-
     /**
      * 根据 List[key] 批量查询原子能力最新定义
      */
@@ -73,6 +72,7 @@ public class CAtomController {
     }
 
     /**
+     *
      * 更新原子能力公共数据（types、commonAdvancedParameter、atomicTree、atomicTreeExtend）
      *
      * @param atomCommon

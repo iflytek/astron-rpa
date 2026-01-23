@@ -3,8 +3,8 @@ package com.iflytek.rpa.base.controller;
 import com.iflytek.rpa.base.entity.dto.FrontGroupReNameDto;
 import com.iflytek.rpa.base.entity.dto.ServerBaseDto;
 import com.iflytek.rpa.base.service.CGroupService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,6 @@ public class CGroupController {
 
     /**
      * 分组-新建
-     *
      * @param
      * @return
      * @throws Exception
@@ -47,7 +46,6 @@ public class CGroupController {
 
     /**
      * 分组-重命名
-     *
      * @param
      * @return
      * @throws Exception
@@ -69,7 +67,6 @@ public class CGroupController {
 
     /**
      * 分组-删除
-     *
      * @param
      * @return
      * @throws Exception

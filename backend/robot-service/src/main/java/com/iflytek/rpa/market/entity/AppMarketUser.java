@@ -22,10 +22,6 @@ public class AppMarketUser implements Serializable {
     private Long id;
 
     /**
-     * 根据id找在对应租户的信息
-     */
-    private String tenantId;
-    /**
      * 市场id
      */
     private String marketId;
@@ -56,4 +52,9 @@ public class AppMarketUser implements Serializable {
      */
     @TableLogic(value = "0", delval = "1")
     private Integer deleted;
+
+    /**
+     * 目标租户id
+     */
+    private String tenantId;
 }

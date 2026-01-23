@@ -21,23 +21,24 @@
 
     <delete id="deleteByTaskId">
         delete
-        from schedule_task_robot
+        from
+            schedule_task_robot
         where task_id = #{taskId}
-          and deleted = 0
+        and deleted = 0
     </delete>
 
     <update id="deleteByTaskIdLogically">
         update schedule_task_robot
         set deleted = 1
-        where task_id = #{taskId}
-          and deleted = 0
+        where task_id = #{taskId} and deleted = 0
     </update>
 
     <select id="queryHisRobotIdListByTaskId" resultType="java.lang.String">
-        select robot_id
+        select
+            robot_id
         from schedule_task_robot
         where task_id = #{taskId}
-          and deleted = 0
+        and deleted = 0
     </select>
 
 
@@ -83,12 +84,15 @@
     </insert>
 
     <select id="queryRobotIdListByTaskId" resultType="java.lang.String">
-        select robot_id
+        select
+            robot_id
         from schedule_task_robot
         where task_id = #{taskId}
-          and deleted = 0
+        and deleted = 0
         order by sort asc
     </select>
+
+
 
 
     <!--查询单个-->
@@ -97,6 +101,7 @@
         from schedule_task_robot
         where id = #{id}
     </select>
+
 
 
     <select id="getScheduleRobotByTaskIds" resultMap="ScheduleTaskRobotMap">
@@ -136,19 +141,21 @@
     </select>
 
     <select id="queryByTaskId" resultMap="ScheduleTaskRobotMap">
-        select str.id,
-               str.task_id,
-               str.robot_id,
-               str.param_json,
-               str.sort,
-               re.name as robot_name
+        select
+            str.id,
+            str.task_id,
+            str.robot_id,
+            str.param_json,
+            str.sort,
+            re.name as robot_name
         from schedule_task_robot str
-                 left join robot_execute re
-                           on re.robot_id = str.robot_id and re.deleted = 0
-        where str.deleted = 0
-          and str.task_id = #{taskId}
-          and str.creator_id = #{userId}
-          and str.tenant_id = #{tenantId}
+        left join robot_execute re
+            on re.robot_id = str.robot_id and re.deleted = 0
+        where
+            str.deleted = 0
+            and str.task_id = #{taskId}
+            and str.creator_id = #{userId}
+            and str.tenant_id = #{tenantId}
         order by str.sort asc
     </select>
 
@@ -171,22 +178,6 @@
         order by str.task_id, str.sort asc
     </select>
 
-    <!-- 根据机器人列表获取所有任务机器人信息 -->
-    <select id="getAllTaskRobotByList" resultMap="ScheduleTaskRobotMap">
-        select
-            str.*
-        from schedule_task_robot str
-        where
-            str.deleted = 0 and str.tenant_id = #{tenantId}
-            <if test="list != null and list.size() > 0">
-                and (
-                <foreach collection="list" item="robot" open="(" close=")" separator=" or ">
-                    (str.robot_id = #{robot.robotId} and str.creator_id = #{robot.creatorId})
-                </foreach>
-                )
-            </if>
-        order by str.task_id, str.sort asc
-    </select>
 
 
 </mapper>

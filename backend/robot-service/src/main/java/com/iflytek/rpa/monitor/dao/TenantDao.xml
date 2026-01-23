@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.monitor.dao.TenantDao">
+
+    <select id="getAllTenantId" resultType="java.lang.String">
+        select
+            id
+        from
+        ${databaseName}.t_uap_tenant
+        where is_delete = 0 and id != 'default-tenant'
+    </select>
+
+    <select id="getUserByTenantId" resultType="com.iflytek.rpa.terminal.entity.vo.UserVo">
+        select
+        tuu.name as userName,
+        tuu.id as userId,
+        tuu.phone as userPhone
+        from
+        ${databaseName}.t_uap_user tuu
+        inner join ${databaseName}.t_uap_tenant_user tutu on tuu.id = tutu.user_id
+        where
+        tutu.tenant_id = #{tenantId}
+        and tuu.is_delete = 0
+        <if test="userName != null and userName != ''">
+            and tuu.name like CONCAT('%', #{userName}, '%')
+        </if>
+    </select>
+
+    <select id="getManagerUserIds" resultType="java.lang.String">
+        select user_id
+        from ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId} and tenant_user_type = 1
+    </select>
+
+    <select id="getNormalUserIds" resultType="java.lang.String">
+        select user_id
+        from ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId} and tenant_user_type != 1
+    </select>
+    
+<!--    <select id="getTenantById" resultType="com.iflytek.sec.uap.client.core.dto.tenant.UapTenant">
+        select
+            id,
+            name,
+            tenant_code as tenantCode,
+            status,
+            create_time as createTime,
+            update_time as updateTime,
+            remark,
+            creator,
+            is_delete as isDelete
+        from
+        ${databaseName}.t_uap_tenant
+        where id = #{tenantId}
+        and is_delete = 0
+    </select>-->
+    <select id="getAllTenantIdWithoutClassify" resultType="java.lang.String">
+        select
+            id
+        from
+            ${databaseName}.t_uap_tenant
+        where
+        is_delete = 0 and classification = 0
+    </select>
+
+    <select id="getAllEnterpriseTenantId" resultType="java.lang.String">
+        select
+            id
+        from
+            ${databaseName}.t_uap_tenant
+        where is_delete = 0 and id != 'default-tenant' and (tenant_code like 'ep_%' or tenant_code like 'es_%')
+    </select>
+    <update id="updateTenantClassifyFlag">
+        update ${databaseName}.t_uap_tenant
+        set classification = 1
+        where id in
+        <foreach collection="tenantIds" item="tenantId" open="(" separator="," close=")">
+            #{tenantId}
+        </foreach>
+    </update>
+</mapper>
+

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorGroupDao">
+
+    <!-- 根据名称模糊查询群组（部门） -->
+    <select id="searchDeptByName" resultType="org.casbin.casdoor.entity.Group">
+        SELECT
+            g.owner,
+            g.name,
+            g.created_time as createdTime,
+            g.updated_time as updatedTime,
+            g.display_name as displayName,
+            g.manager,
+            g.contact_email as contactEmail,
+            g.type,
+            g.parent_id as parentId,
+            g.is_top_group as isTopGroup,
+            g.title,
+            g.key
+        FROM ${databaseName}.`group` g
+        WHERE g.is_enabled = 1
+        <if test="owner != null and owner != ''">
+            AND g.owner = #{owner}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                g.display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR g.name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY g.created_time DESC
+        LIMIT 1000
+    </select>
+
+</mapper>
+

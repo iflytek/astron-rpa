@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.iflytek.rpa.notify.entity.NotifySend;
 import com.iflytek.rpa.notify.entity.dto.CreateNotifyDto;
 import com.iflytek.rpa.notify.entity.dto.NotifyListDto;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 
 public interface NotifySendService extends IService<NotifySend> {
     AppResponse<?> createNotify(CreateNotifyDto createNotifyDto) throws NoLoginException;

@@ -9,21 +9,21 @@ import com.iflytek.rpa.base.dao.CParamDao;
 import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -38,6 +38,9 @@ public class ExecutorModeHandler implements ParamModeHandler {
     private final CParamDao cParamDao;
     private final RobotExecuteDao robotExecuteDao;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Override
     public boolean supports(String mode) {
@@ -75,8 +78,19 @@ public class ExecutorModeHandler implements ParamModeHandler {
     }
 
     private RobotExecute getRobotExecute(String robotId) throws NoLoginException {
-        RobotExecute executeInfo =
-                robotExecuteDao.getRobotInfoByRobotId(robotId, UserUtils.nowUserId(), TenantUtils.getTenantId());
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+
+        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(robotId, userId, tenantId);
         if (executeInfo == null) {
             throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "无法获取执行器机器人信息");
         }
@@ -101,8 +115,8 @@ public class ExecutorModeHandler implements ParamModeHandler {
         throw new ServiceException(ErrorCodeEnum.E_PARAM.getCode(), "未知数据来源类型");
     }
 
-    private AppResponse<List<ParamDto>> handleDeploySource(
-            RobotExecute executeInfo, String processId, String moduleId) {
+    private AppResponse<List<ParamDto>> handleDeploySource(RobotExecute executeInfo, String processId, String moduleId)
+            throws JsonProcessingException {
         String originRobotId = cParamDao.getDeployOriginalRobotId(executeInfo);
 
         // python模块
@@ -119,9 +133,11 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> deployProcessHandle(
-            RobotExecute executeInfo, String processId, String originRobotId) {
+            RobotExecute executeInfo, String processId, String originRobotId) throws JsonProcessingException {
+        if (executeInfo.getParamDetail() != null) {
+            return parseCustomParams(executeInfo.getParamDetail());
+        }
         if (StringUtils.isBlank(processId)) {
             processId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
         }
@@ -129,8 +145,8 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    private AppResponse<List<ParamDto>> handleMarketSource(
-            RobotExecute executeInfo, String processId, String moduleId) {
+    private AppResponse<List<ParamDto>> handleMarketSource(RobotExecute executeInfo, String processId, String moduleId)
+            throws JsonProcessingException {
         validateMarketInfo(executeInfo);
         String originRobotId = cParamDao.getMarketRobotId(executeInfo);
         // python模块
@@ -147,9 +163,11 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> marketProcessHandle(
-            RobotExecute executeInfo, String processId, String originRobotId) {
+            RobotExecute executeInfo, String processId, String originRobotId) throws JsonProcessingException {
+        if (executeInfo.getParamDetail() != null) {
+            return parseCustomParams(executeInfo.getParamDetail());
+        }
         if (StringUtils.isBlank(processId)) {
             processId = cParamDao.getMianProcessId(originRobotId, executeInfo.getAppVersion());
         }
@@ -177,16 +195,16 @@ public class ExecutorModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    @NotNull
     private AppResponse<List<ParamDto>> createProcessHandle(
             RobotExecute executeInfo, String processId, Integer enabledVersion) throws JsonProcessingException {
         String mainProcessId = cParamDao.getMianProcessId(executeInfo.getRobotId(), enabledVersion);
-        if (mainProcessId.equals(processId)) {
+        // processId == null 不能改 执行器配置参数获取有用
+        if (processId == null || mainProcessId.equals(processId)) {
             if (executeInfo.getParamDetail() != null) {
                 return parseCustomParams(executeInfo.getParamDetail());
+            } else {
+                processId = mainProcessId;
             }
-        } else {
-            processId = mainProcessId;
         }
         List<CParam> params = cParamDao.getSelfRobotParam(executeInfo.getRobotId(), processId, enabledVersion);
         return AppResponse.success(convertParams(params));
@@ -215,5 +233,21 @@ public class ExecutorModeHandler implements ParamModeHandler {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 内部调用获取参数
+     * @param dto
+     * @return
+     * @throws JsonProcessingException
+     * @throws NoLoginException
+     */
+    public AppResponse<List<ParamDto>> getParamInside4NewVersion(
+            QueryParamDto dto, String userId, String tenantId, Integer version) throws JsonProcessingException {
+        RobotExecute executeInfo = getRobotExecuteInside(dto.getRobotId(), userId, tenantId);
+        dto.setRobotVersion(version);
+        String processId = robotExecuteDao.getProcessId(executeInfo.getRobotId());
+
+        return handleDataSource(executeInfo, processId, dto.getModuleId(), dto.getRobotVersion());
     }
 }

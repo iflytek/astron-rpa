@@ -1,11 +1,13 @@
 package com.iflytek.rpa.market.annotation;
 
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.market.dao.AppMarketDictDao;
 import com.iflytek.rpa.market.dao.AppMarketUserDao;
 import com.iflytek.rpa.market.entity.AppMarketDict;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -27,6 +29,9 @@ public class RightCheckAop {
 
     @Autowired
     private AppMarketDictDao appMarketDictDao;
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Around("@annotation(rightCheck)")
     public Object process(ProceedingJoinPoint joinPoint, RightCheck rightCheck) throws Throwable {
@@ -55,6 +60,16 @@ public class RightCheckAop {
                     log.error("获取marketId失败,message:{}", e.getMessage());
                     return AppResponse.error(ErrorCodeEnum.E_PARAM);
                 }
+            } else {
+                try {
+                    marketId = argValue.getClass()
+                            .getMethod("getMarketId")
+                            .invoke(argValue)
+                            .toString();
+                } catch (Exception e) {
+                    log.error("获取marketId失败,message:{}", e.getMessage());
+                    return AppResponse.error(ErrorCodeEnum.E_PARAM);
+                }
             }
         }
 
@@ -62,7 +77,12 @@ public class RightCheckAop {
             log.info("获取marketId失败");
             return AppResponse.error(ErrorCodeEnum.E_PARAM);
         }
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         // 查询角色
         String userType = appMarketUserDao.getUserTypeForCheck(userId, marketId);
         if (null == userType) {

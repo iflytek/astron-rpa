@@ -5,7 +5,7 @@ import com.iflytek.rpa.base.entity.AtomCommon;
 import com.iflytek.rpa.base.entity.Atomic;
 import com.iflytek.rpa.base.entity.dto.AtomKeyListDto;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.Map;
 import javax.validation.Valid;
 

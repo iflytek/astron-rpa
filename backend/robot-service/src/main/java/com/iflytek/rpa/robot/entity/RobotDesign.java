@@ -1,5 +1,6 @@
 package com.iflytek.rpa.robot.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -30,6 +31,7 @@ public class RobotDesign implements Serializable {
     /**
      * 机器人唯一id，获取的应用id
      */
+    @JSONField(name = "robot_id")
     private String robotId;
     /**
      * 机器人名称

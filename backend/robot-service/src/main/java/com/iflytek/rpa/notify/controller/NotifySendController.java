@@ -1,10 +1,11 @@
 package com.iflytek.rpa.notify.controller;
 
+import com.iflytek.rpa.base.annotation.NoApiLog;
 import com.iflytek.rpa.notify.entity.dto.CreateNotifyDto;
 import com.iflytek.rpa.notify.entity.dto.NotifyListDto;
 import com.iflytek.rpa.notify.service.NotifySendService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,7 @@ public class NotifySendController {
         return notifySendService.notifyList(notifyListDto);
     }
 
+    @NoApiLog("轮询接口-检查是否有通知")
     @GetMapping("/hasNotify")
     public AppResponse<?> hasNotify() throws NoLoginException {
         return notifySendService.hasNotify();

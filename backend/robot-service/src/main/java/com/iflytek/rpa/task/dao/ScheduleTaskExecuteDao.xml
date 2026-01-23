@@ -41,32 +41,38 @@
          updater_id,
          update_time,
          deleted)
-        values (#{taskId},
-                #{count},
-                #{result},
-                #{startTime},
-                null,
-                #{tenantId},
-                #{creatorId},
-                #{taskExecuteId},
-                now(),
-                #{updaterId},
-                now(),
-                0)
+        values
+        (#{taskId},
+         #{count},
+         #{result},
+         #{startTime},
+         null,
+         #{tenantId},
+         #{creatorId},
+         #{taskExecuteId},
+         now(),
+         #{updaterId},
+         now(),
+         0)
     </insert>
 
 
     <select id="countExecuteRecord" resultType="java.lang.Integer">
-        select count(*)
+        select
+            count(*)
         from schedule_task_execute
-        where deleted = 0
+        where
+            deleted = 0
           and task_execute_id = #{taskExecuteId}
     </select>
 
     <select id="getMaxBatch" resultType="java.lang.Integer">
-        select max(count)
-        from schedule_task_execute
-        where deleted = 0
+        select
+            max(count)
+        from
+            schedule_task_execute
+        where
+            deleted = 0
           and task_id = #{taskId}
 
     </select>
@@ -74,12 +80,14 @@
     <update id="updateExecuteStatus">
         update
             schedule_task_execute
-        set result      = #{entity.result},
-            end_time    = #{entity.endTime},
+        set
+            result = #{entity.result},
+            end_time = #{entity.endTime},
             update_time = now()
-        where deleted = 0
-          and task_id = #{entity.taskId}
-          and task_execute_id = #{entity.taskExecuteId}
+        where
+            deleted = 0
+            and task_id = #{entity.taskId}
+            and task_execute_id = #{entity.taskExecuteId}
     </update>
 
     <select id="getTaskExecuteRecordList" resultType="com.iflytek.rpa.task.entity.dto.TaskExecuteDto">
@@ -116,12 +124,9 @@
         from schedule_task_execute ste
         inner join trigger_task tt on ste.task_id = tt.task_id
         <where>
-            ste.deleted = 0
-            and ste.creator_id = #{dto.userId}
+            <!-- 优化：将选择性高的条件放在前面，deleted放在最后，与索引顺序一致 -->
             and ste.tenant_id = #{dto.tenantId}
-            <if test="dto.taskName != null and dto.taskName != ''">
-                and tt.name like concat('%', #{dto.taskName}, '%')
-            </if>
+            and ste.creator_id = #{dto.userId}
             <if test="dto.startDate != null">
                 and ste.start_time &gt;= #{dto.startDate}
             </if>
@@ -131,9 +136,13 @@
             <if test="dto.status != null and dto.status != ''">
                 and ste.result = #{dto.status}
             </if>
+            <if test="dto.taskName != null and dto.taskName != ''">
+                and tt.name like concat('%', #{dto.taskName}, '%')
+            </if>
             <if test="dto.taskType != null and dto.taskType != ''">
                 and tt.task_type = #{dto.taskType}
             </if>
+            and ste.deleted = 0
         </where>
         <choose>
             <when test="dto.sortBy != null and dto.sortBy != ''">
@@ -181,7 +190,7 @@
     <!-- 查询超时的执行记录 -->
     <select id="getTimeoutExecutingRecords" resultMap="ScheduleTaskExecuteMap">
         select id
-        from schedule_task_execute
+        from schedule_task_execute 
         where deleted = 0
           and result = 'executing'
           and end_time is null
@@ -190,7 +199,7 @@
 
     <!-- 根据ID列表更新执行记录为取消状态 -->
     <update id="updateExecutingRecordsToCancelByIds">
-        update schedule_task_execute
+        update schedule_task_execute 
         set result = 'cancel',
             end_time = now(),
             update_time = now()

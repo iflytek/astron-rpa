@@ -14,6 +14,7 @@ public class ExecuteListVo {
     Integer version; // 版本号
     String sourceName; // 来源名称 : 市场名称(团队市场名称或者官方市场)、本地
     String robotId; // 机器人
+    Integer appVersion; // 如果是从市场获取，对应appVersion
     String appId; // 如果是从市场获取，对应appId
     Integer updateStatus; // 是否有更新 标识位 1 是 0 无
     Integer usePermission; // 使用权限 0 无 1 有

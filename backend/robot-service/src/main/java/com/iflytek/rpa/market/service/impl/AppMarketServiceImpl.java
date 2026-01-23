@@ -2,6 +2,9 @@ package com.iflytek.rpa.market.service.impl;
 
 import static com.iflytek.rpa.robot.constants.RobotConstant.OBTAINED;
 
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.TenantExpirationDto;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.market.dao.AppMarketDao;
 import com.iflytek.rpa.market.dao.AppMarketDictDao;
 import com.iflytek.rpa.market.dao.AppMarketUserDao;
@@ -9,18 +12,22 @@ import com.iflytek.rpa.market.entity.AppMarket;
 import com.iflytek.rpa.market.entity.AppMarketDo;
 import com.iflytek.rpa.market.entity.AppMarketUser;
 import com.iflytek.rpa.market.service.AppMarketService;
+import com.iflytek.rpa.quota.service.QuotaCheckService;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -42,17 +49,20 @@ public class AppMarketServiceImpl implements AppMarketService {
     @Autowired
     private AppMarketUserDao appMarketUserDao;
 
-    //    @Autowired
-    //    private AppMarketResourceDao appMarketResourceDao;
-
-    //    @Autowired
-    //    private AppMarketVersionDao appMarketVersionDao;
-
     @Autowired
     private IdWorker idWorker;
 
     @Autowired
     private RobotExecuteDao robotExecuteDao;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private QuotaCheckService quotaCheckService;
+
+    @Value("${market.maxCreateCount:3}")
+    private Integer maxCreateCount;
 
     @Override
     public AppResponse getAppType() {
@@ -60,42 +70,97 @@ public class AppMarketServiceImpl implements AppMarketService {
         return AppResponse.success(appMarketDictDao.getAppType());
     }
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse getListForPublish() throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
-        List<AppMarket> joinedMarketList = appMarketDao.getJoinedMarketList(tenantId, userId);
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        List<AppMarket> joinedMarketList = appMarketDao.getJoinedMarketList(userId);
         List<AppMarket> createdMarketList = appMarketDao.getCreatedMarketList(tenantId, userId);
         AppMarketDo appMarketDo = new AppMarketDo();
         appMarketDo.setJoinedMarketList(joinedMarketList);
         appMarketDo.setCreatedMarketList(createdMarketList);
-        if (CollectionUtils.isEmpty(joinedMarketList) && CollectionUtils.isEmpty(createdMarketList)) {
-            appMarketDo.setNoMarket(true);
-        } else {
-            appMarketDo.setNoMarket(false);
-        }
+        appMarketDo.setNoMarket(
+                CollectionUtils.isEmpty(joinedMarketList) && CollectionUtils.isEmpty(createdMarketList));
         return AppResponse.success(appMarketDo);
     }
 
     @Override
     public AppResponse getMarketList() throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+
         List<AppMarket> marketList = appMarketDao.getMarketList(tenantId, userId);
+
         return AppResponse.success(marketList);
+    }
+
+    public AppResponse<Integer> marketNumCheck() throws NoLoginException {
+        AppResponse<TenantExpirationDto> resp = rpaAuthFeign.getExpiration();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        TenantExpirationDto data = resp.getData();
+        String tenantId = data.getTenantId();
+        String tenantType = data.getTenantType();
+        // 个人版  团队市场创建次数限制
+        if (tenantType.equals("personal")) {
+            Integer marketCount = appMarketDao.getMarketCount(tenantId);
+            if (marketCount > maxCreateCount) {
+                return AppResponse.success(0);
+            }
+        }
+        return AppResponse.success(1);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse addMarket(AppMarket appMarket) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<TenantExpirationDto> resp = rpaAuthFeign.getExpiration();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        TenantExpirationDto data = resp.getData();
+        String tenantId = data.getTenantId();
+
         String marketName = appMarket.getMarketName();
         marketName = marketName.trim();
         appMarket.setMarketName(marketName);
         if (StringUtils.isBlank(marketName)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "市场名称不能为空");
         }
+
+        // 校验市场加入数量配额
+        if (!quotaCheckService.checkMarketJoinQuota()) {
+            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "已加入的市场数量已达上限，无法创建更多团队市场");
+        }
+
         appMarket.setCreatorId(userId);
         appMarket.setUpdaterId(userId);
         Integer marketCount = appMarketDao.getMarketNameByName(tenantId, appMarket.getMarketName());
@@ -110,9 +175,9 @@ public class AppMarketServiceImpl implements AppMarketService {
         // 加默认成员
         AppMarketUser appMarketUser = new AppMarketUser();
         appMarketUser.setMarketId(marketId);
-        appMarketUser.setTenantId(tenantId);
         appMarketUser.setCreatorId(userId);
         appMarketUser.setUpdaterId(userId);
+        appMarketUser.setTenantId(tenantId);
         appMarketUserDao.addDefaultUser(appMarketUser);
         return AppResponse.success(true);
     }
@@ -122,17 +187,44 @@ public class AppMarketServiceImpl implements AppMarketService {
         if (null == marketId) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        String tenantId = TenantUtils.getTenantId();
-        AppMarket appMarket = appMarketDao.getMarketInfo(tenantId, marketId);
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        AppMarket appMarket = appMarketDao.getMarketInfo(marketId);
         if (null == appMarket || null == appMarket.getCreatorId()) {
             return AppResponse.error(ErrorCodeEnum.E_SQL);
         }
-        String userName = UserUtils.getRealNameById(appMarket.getCreatorId());
+
+        AppResponse<String> realNameResp = rpaAuthFeign.getNameById(appMarket.getCreatorId());
+        if (realNameResp == null || realNameResp.getData() == null) {
+            throw new ServiceException("用户名获取失败");
+        }
+        String userName = realNameResp.getData();
+
         appMarket.setUserName(userName);
-        String userId = UserUtils.nowUserId();
+
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         // 获取角色
         String userType = appMarketUserDao.getUserTypeForCheck(userId, marketId);
         appMarket.setUserType(userType);
+
+        // 如果是企业公共市场 不查询创建者
+        if (appMarket.getMarketType().equals("public")) {
+            appMarket.setUserName("系统默认创建");
+            // 租户创建时间
+
+            // UapTenant uapTenant = tenantDao.getTenantById(databaseName,tenantId);
+            Date createTime = new Date();
+            appMarket.setCreateTime(createTime);
+            appMarket.setMarketDescribe("该市场为企业共享市场");
+        }
         return AppResponse.success(appMarket);
     }
 
@@ -146,8 +238,17 @@ public class AppMarketServiceImpl implements AppMarketService {
         if (null == marketId) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // marketName 不为空时，判断重名
         if (StringUtils.isNotBlank(appMarket.getMarketName())) {
@@ -168,8 +269,7 @@ public class AppMarketServiceImpl implements AppMarketService {
                         && !appMarket.getMarketId().equals(marketId)))
                 .collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(marketListAfterFilter)) return false;
-        else return true;
+        return !CollectionUtils.isEmpty(marketListAfterFilter);
     }
 
     @Override
@@ -179,17 +279,30 @@ public class AppMarketServiceImpl implements AppMarketService {
         if (null == appMarket || null == appMarket.getMarketId()) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        String oldOwnerId = UserUtils.nowUserId();
+        AppResponse<User> resp = rpaAuthFeign.getLoginUser();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = resp.getData();
+        String userId = loginUser.getId();
+
+        String oldOwnerId = userId;
         appMarket.setCreatorId(oldOwnerId);
 
         // 如果自己是所有者，且离开的时候没有移交所有权， 直接报错
-        String userType = appMarketUserDao.getUserType(appMarket.getMarketId(), UserUtils.nowUserId());
+        String userType = appMarketUserDao.getUserType(appMarket.getMarketId(), userId);
         if (userType.equals("owner") && StringUtils.isBlank(appMarket.getNewOwner())) {
             return AppResponse.error("您已经为团队所有者，已为您刷新页面");
         }
 
         if (StringUtils.isNotBlank(appMarket.getNewOwner())) {
-            String newOwnerId = UserUtils.getRealNameByPhone(appMarket.getNewOwner());
+
+            AppResponse<User> userResp = rpaAuthFeign.getUserInfoByPhone(appMarket.getNewOwner());
+            if (userResp == null || userResp.getData() == null) {
+                throw new ServiceException("获取用户信息获取失败");
+            }
+            User user = userResp.getData();
+            String newOwnerId = Optional.ofNullable(user).map(User::getId).orElse(null);
             if (null == newOwnerId) {
                 return AppResponse.error(ErrorCodeEnum.E_SERVICE, "新团队负责人不存在");
             }

@@ -6,7 +6,6 @@ import lombok.Data;
 
 /**
  * 计划任务执行记录列表DTO
- *
  * @author jqfang3
  * @since 2025-08-05
  */

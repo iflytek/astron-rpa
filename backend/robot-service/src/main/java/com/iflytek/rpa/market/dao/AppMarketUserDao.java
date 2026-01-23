@@ -21,16 +21,14 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface AppMarketUserDao extends BaseMapper<AppMarketUser> {
 
-    List<AppMarketUser> getUserListForUpdate(@Param("marketId") String marketId, @Param("appId") String appId);
-
     Integer addDefaultUser(@Param("entity") AppMarketUser appMarketUser);
+
+    Integer addUser(@Param("entity") AppMarketUser appMarketUser);
 
     IPage<MarketDto> getUserList(
             IPage<MarketDto> pageConfig,
             @Param("entity") MarketDto marketDto,
             @Param("databaseName") String databaseName);
-
-    Integer deleteUser(@Param("entity") MarketDto marketDto);
 
     Integer roleSet(@Param("entity") MarketDto marketDto);
 
@@ -43,11 +41,14 @@ public interface AppMarketUserDao extends BaseMapper<AppMarketUser> {
     List<MarketDto> getUserByPhone(@Param("entity") MarketDto marketDto, @Param("databaseName") String databaseName);
 
     List<MarketDto> getUserByPhoneForOwner(
-            @Param("entity") MarketDto marketDto, @Param("databaseName") String databaseName);
+            @Param("entity") MarketDto marketDto,
+            @Param("marketId") String marketId,
+            @Param("userId") String userId,
+            @Param("databaseName") String databaseName);
 
     @Select("select creator_id " + "from app_market_user "
             + "where deleted = 0 and market_id = #{marketId} and tenant_id = #{tenantId}")
-    List<Long> getAllUserId(@Param("tenantId") String tenantId, @Param("marketId") String marketId);
+    List<String> getAllUserId(@Param("tenantId") String tenantId, @Param("marketId") String marketId);
 
     List<TenantUser> getTenantUser(
             @Param("tenantId") String tenantId,
@@ -75,13 +76,6 @@ public interface AppMarketUserDao extends BaseMapper<AppMarketUser> {
             "select user_type from app_market_user where deleted=0 and market_id=#{marketId} and creator_id=#{creatorId}")
     String getUserType(@Param("marketId") String marketId, @Param("creatorId") String creatorId);
 
-    @Select(
-            "select count(id) from app_market_user where deleted=0 and market_id=#{marketId} and creator_id=#{creatorId} and tenant_id=#{tenantId}")
-    Integer isInMarket(
-            @Param("marketId") String marketId,
-            @Param("creatorId") String creatorId,
-            @Param("tenantId") String tenantId);
-
     @Select("select * from app_market_user where deleted=0 and market_id=#{marketId} and creator_id=#{creatorId}")
     AppMarketUser getMarketUser(@Param("marketId") String marketId, @Param("creatorId") String creatorId);
 
@@ -94,4 +88,27 @@ public interface AppMarketUserDao extends BaseMapper<AppMarketUser> {
             @Param("marketId") String marketId,
             @Param("userIdList") List<String> userIdList,
             @Param("tenantId") String tenantId);
+
+    void insertBatch(List<AppMarketUser> insertBatchList);
+
+    @Select(
+            "select id from app_market_user where deleted=0 and market_id=#{marketId} and creator_id=#{creatorId} and user_type != 'owner' and deleted = 0")
+    String getIdByMarketIdAndCreatorId(@Param("marketId") String marketId, @Param("creatorId") String creatorId);
+
+    Integer deleteById(@Param("id") String id);
+
+    IPage<MarketDto> getUserListByPublic(
+            IPage<MarketDto> pageConfig,
+            @Param("entity") MarketDto marketDto,
+            @Param("nowUserid") String nowUserid,
+            @Param("databaseName") String databaseName);
+
+    /**
+     * 查询用户在当前租户下已加入的市场数量（未删除的）
+     *
+     * @param tenantId 租户ID
+     * @param userId   用户ID
+     * @return 市场数量
+     */
+    Integer getMarketJoinCount(@Param("tenantId") String tenantId, @Param("userId") String userId);
 }

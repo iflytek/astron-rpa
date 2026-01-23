@@ -2,8 +2,6 @@ package com.iflytek.rpa.triggerTask.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
 import com.iflytek.rpa.triggerTask.entity.dto.InsertTaskDto;
 import com.iflytek.rpa.triggerTask.entity.dto.TaskPageDto;
 import com.iflytek.rpa.triggerTask.entity.dto.UpdateTaskDto;
@@ -12,6 +10,8 @@ import com.iflytek.rpa.triggerTask.entity.vo.TaskPage4TriggerVo;
 import com.iflytek.rpa.triggerTask.entity.vo.TaskPageVo;
 import com.iflytek.rpa.triggerTask.entity.vo.TriggerTaskVo;
 import com.iflytek.rpa.triggerTask.service.TriggerTaskService;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -26,7 +26,6 @@ public class TriggerTaskController {
 
     /**
      * 重命名校验
-     *
      * @param name
      * @return
      * @throws NoLoginException
@@ -38,7 +37,6 @@ public class TriggerTaskController {
 
     /**
      * 选择机器人-机器人列表，支持模糊查询
-     *
      * @param name
      * @return
      * @throws NoLoginException
@@ -52,7 +50,6 @@ public class TriggerTaskController {
     /**
      * 新建计划任务
      * 同时插入计划任务相关param参数 到schedule_task_robot
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -64,7 +61,6 @@ public class TriggerTaskController {
 
     /**
      * 计划任务-编辑-任务信息回显
-     *
      * @param taskId
      * @return
      */
@@ -76,7 +72,6 @@ public class TriggerTaskController {
 
     /**
      * 删除单个计划任务接口
-     *
      * @param taskId
      * @return
      */
@@ -87,7 +82,6 @@ public class TriggerTaskController {
 
     /**
      * 更新计划任务及配置参数
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -99,7 +93,6 @@ public class TriggerTaskController {
 
     /**
      * 启用，禁用计划任务接口
-     *
      * @param taskId
      * @return
      * @throws NoLoginException
@@ -111,7 +104,6 @@ public class TriggerTaskController {
 
     /**
      * 计划任务列表分页查询接口 - 前端请求
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -123,7 +115,6 @@ public class TriggerTaskController {
 
     /**
      * 计划任务列表分页查询接口 - 本地触发器请求(pageSize 设置为100条即可)
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException

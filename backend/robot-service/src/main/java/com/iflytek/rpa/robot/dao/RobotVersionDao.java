@@ -6,10 +6,8 @@ import com.iflytek.rpa.market.entity.dto.MarketResourceDto;
 import com.iflytek.rpa.robot.entity.File;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.RobotVersion;
-import com.iflytek.rpa.robot.entity.dto.ExecuteRecordDto;
 import com.iflytek.rpa.robot.entity.dto.RobotVersionDto;
-import com.iflytek.rpa.robot.entity.vo.ResourceVersionListVo;
-import com.iflytek.rpa.task.entity.bo.TaskRobotBo;
+import com.iflytek.rpa.robot.entity.vo.RobotIconVo;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -24,25 +22,13 @@ import org.apache.ibatis.annotations.Update;
  */
 @Mapper
 public interface RobotVersionDao extends BaseMapper<RobotVersion> {
-
-    RobotVersion getLatestRobotVersionByRobotId(@Param("robotId") String robotId);
-
-    RobotVersion getRobotInfoForExecute(ExecuteRecordDto executeRecordDto);
+    Integer getOnlineVersionByRobotId(@Param("robotId") String robotId);
 
     RobotVersion getVersionInfo(MarketResourceDto marketResourceDto);
 
     List<RobotVersion> getVersionListForApp(MarketDto marketDto);
 
-    Integer getVersionCount(@Param("robotId") String robotId);
-
-    List<RobotVersion> getRobotNameList(@Param("entities") List<TaskRobotBo> allRobotList);
-
-    Integer updateOnline(
-            @Param("userId") String userId, @Param("robotId") String robotId, @Param("online") Integer online);
-
     Integer addRobotVersion(RobotVersion robotVersion);
-
-    //    RobotVersion getRobotVersionInfo(MarketResourceDto marketResourceDto);
 
     RobotVersionDto getLatestRobotVersion(@Param("appId") String appId);
 
@@ -50,10 +36,6 @@ public interface RobotVersionDao extends BaseMapper<RobotVersion> {
             @Param("robotId") String robotId, @Param("userId") String userId, @Param("tenantId") String tenantId);
 
     List<File> getFileNameInfo(@Param("fileIdList") List<String> fileIdList);
-
-    String getParamDetailInMarket(RobotExecute robotExecute);
-
-    String getParamDetailWithOnLine(@Param("robotId") String robotId);
 
     Integer getLatestVersionNum(RobotVersionDto robotVersionDto);
 
@@ -79,6 +61,11 @@ public interface RobotVersionDao extends BaseMapper<RobotVersion> {
             + "order by version desc")
     List<RobotVersion> getAllVersion(
             @Param("robotId") String robotId, @Param("userId") String userId, @Param("tenantId") String tenantId);
+
+    @Select("select * " + "from robot_version "
+            + "where robot_id = #{robotId} and tenant_id = #{tenantId} "
+            + "order by version desc")
+    List<RobotVersion> getAllVersionWithoutUserId(@Param("robotId") String robotId, @Param("tenantId") String tenantId);
 
     @Select("select * " + "from robot_version "
             + "where robot_id = #{robotId}  and tenant_id = #{tenantId} "
@@ -108,6 +95,9 @@ public interface RobotVersionDao extends BaseMapper<RobotVersion> {
             + "limit 1")
     RobotVersion getLatestVersionRegardlessDel(@Param("robotId") String robotId);
 
+    @Select("select * " + "from robot_version " + "where robot_id = #{robotId} and online = 1 ")
+    RobotVersion getOnlineVersionRegardlessDel(@Param("robotId") String robotId);
+
     @Select("select * " + "from robot_version "
             + "where robot_id = #{robotId} and version = #{versionNum} and deleted = 0")
     RobotVersion getVersion(@Param("robotId") String robotId, @Param("versionNum") Integer versionNum);
@@ -120,7 +110,9 @@ public interface RobotVersionDao extends BaseMapper<RobotVersion> {
             + "order by version desc")
     List<RobotVersion> getAllVersionWithoutUser(@Param("robotId") String robotId);
 
-    @Select("select version, update_time, update_log, online, robot_id " + "from robot_version "
-            + "where robot_id = #{robotId} and tenant_id = #{tenantId} and deleted = 0")
-    List<ResourceVersionListVo.ResourceVersion> getRobotVersions(String robotId, String userId, String tenantId);
+    RobotIconVo getMarketInfo(RobotExecute executeInfo);
+
+    RobotIconVo getDeployInfo(RobotExecute executeInfo);
+
+    Integer getRobotVersion(String robotId);
 }

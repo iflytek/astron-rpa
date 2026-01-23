@@ -7,36 +7,35 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.iflytek.rpa.base.dao.*;
 import com.iflytek.rpa.base.entity.CParam;
-import com.iflytek.rpa.base.service.CParamService;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.common.feign.entity.dto.GetDeployedUserListDto;
+import com.iflytek.rpa.common.feign.entity.dto.PageDto;
 import com.iflytek.rpa.component.dao.ComponentRobotUseDao;
 import com.iflytek.rpa.component.entity.ComponentRobotUse;
 import com.iflytek.rpa.market.dao.*;
 import com.iflytek.rpa.market.entity.*;
 import com.iflytek.rpa.market.entity.dto.*;
-import com.iflytek.rpa.market.entity.vo.AppDetailVersionInfo;
-import com.iflytek.rpa.market.entity.vo.AppDetailVo;
-import com.iflytek.rpa.market.entity.vo.AppInfoVo;
-import com.iflytek.rpa.market.entity.vo.AppUpdateCheckVo;
+import com.iflytek.rpa.market.entity.vo.*;
 import com.iflytek.rpa.market.service.AppApplicationService;
 import com.iflytek.rpa.market.service.AppMarketResourceService;
+import com.iflytek.rpa.quota.service.QuotaCheckService;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotDesign;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.RobotVersion;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.IdWorker;
 import com.iflytek.rpa.utils.PrePage;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.response.QuotaCodeEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -44,7 +43,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +58,9 @@ import org.springframework.util.CollectionUtils;
 @RequiredArgsConstructor
 public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceDao, AppMarketResource>
         implements AppMarketResourceService {
+    private final StringRedisTemplate stringRedisTemplate;
+    private final String filePathPrefix = "/api/resource/file/download?fileId=";
+
     @Resource
     private AppMarketResourceDao appMarketResourceDao;
 
@@ -100,35 +101,43 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
     private CRequireDao requireDao;
 
     @Autowired
-    private CParamService paramService;
-
-    @Autowired
     private CParamDao paramDao;
 
     @Autowired
     private CModuleDao cModuleDao;
 
     @Autowired
-    private AppApplicationTenantDao appApplicationTenantDao;
+    private CSmartComponentDao cSmartComponentDao;
 
     @Autowired
     private ComponentRobotUseDao componentUseDao;
 
     @Autowired
+    private AppApplicationTenantDao appApplicationTenantDao;
+
+    @Autowired
     private AppApplicationService appApplicationService;
 
-    @Value("${casdoor.database.name:casdoor}")
-    private String databaseName;
+    @Autowired
+    private QuotaCheckService quotaCheckService;
 
-    private String filePathPrefix = "/api/resource/file/download?fileId=";
-
-    private final StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> shareRobot(ShareRobotDto marketResourceDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 如果开启了上架审核功能
         if (isAuditFunctionEnabled(tenantId)) {
@@ -167,9 +176,9 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
                 .orderByDesc(AppApplication::getCreateTime)
                 .last("LIMIT 1"));
 
-        // 获取机器人最新版本
+        // 获取机器人的启用版本
         RobotVersion robotVersion =
-                robotVersionDao.getLastRobotVersionInfo(marketResourceDto.getRobotId(), userId, tenantId);
+                robotVersionDao.getOriEnableVersion(marketResourceDto.getRobotId(), userId, tenantId);
         if (null == robotVersion || null == robotVersion.getVersion()) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "机器人无版本信息");
         }
@@ -211,9 +220,9 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "缺少机器人名称");
         }
 
-        // 获取机器人最新版本
+        // 获取机器人的启用版本
         RobotVersion robotVersion =
-                robotVersionDao.getLastRobotVersionInfo(marketResourceDto.getRobotId(), userId, tenantId);
+                robotVersionDao.getOriEnableVersion(marketResourceDto.getRobotId(), userId, tenantId);
         if (null == robotVersion || null == robotVersion.getVersion()) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "机器人无版本信息");
         }
@@ -264,39 +273,6 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
     }
 
     /**
-     * 将市场信息转换为JSON字符串
-     */
-    private String convertMarketInfoToJson(List<String> marketIdList, Integer editFlag, String category) {
-        try {
-            MarketInfoDto marketInfoDto = new MarketInfoDto();
-            marketInfoDto.setMarketIdList(marketIdList);
-            marketInfoDto.setEditFlag(editFlag);
-            marketInfoDto.setCategory(category);
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(marketInfoDto);
-        } catch (JsonProcessingException e) {
-            log.error("转换市场信息为JSON失败", e);
-            return null;
-        }
-    }
-
-    /**
-     * 从JSON字符串解析市场信息
-     */
-    private MarketInfoDto parseMarketInfoFromJson(String marketInfoJson) {
-        if (StringUtils.isBlank(marketInfoJson)) {
-            return null;
-        }
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(marketInfoJson, MarketInfoDto.class);
-        } catch (JsonProcessingException e) {
-            log.error("解析市场信息JSON失败", e);
-            return null;
-        }
-    }
-
-    /**
      * 检查是否开启了上架审核功能
      */
     public boolean isAuditFunctionEnabled(String tenantId) {
@@ -316,13 +292,21 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         Integer appVersion = marketResourceDto.getVersion();
         String marketId = marketResourceDto.getMarketId();
 
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         marketResourceDto.setCreatorId(userId);
         marketResourceDto.setUpdaterId(userId);
         marketResourceDto.setTenantId(tenantId);
 
-        String newRobotId = idWorker.nextId() + "";
         // 判断该版本机器人是否存在
         RobotVersion robotVersion = robotVersionDao.getVersionInfo(marketResourceDto);
         if (null == robotVersion) {
@@ -330,6 +314,12 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         }
         // 获取到设计器
         if (obtainDirectory.contains("design")) {
+            // 校验设计器配额
+            if (!quotaCheckService.checkDesignerQuota()) {
+                AcceptResultVo resultVo = new AcceptResultVo(QuotaCodeEnum.E_OVER_LIMIT);
+                return AppResponse.success(resultVo);
+            }
+
             // 插入机器人表，
             RobotDesign robotDesign = new RobotDesign();
             robotDesign.setName(robotName);
@@ -341,6 +331,7 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
             if (null != count && count > 0) {
                 return AppResponse.error(ErrorCodeEnum.E_SERVICE, "设计器存在同名机器人，请修改名称");
             }
+            String newRobotId = idWorker.nextId() + "";
             robotDesign.setRobotId(newRobotId);
             robotDesign.setAppId(marketResourceDto.getAppId());
             robotDesign.setAppVersion(appVersion);
@@ -394,6 +385,7 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
                 // 更新
                 robotExecuteDao.updateObtainedRobot(robotExecute);
             } else {
+                String newRobotId = idWorker.nextId() + "";
                 // 插入
                 robotExecute.setRobotId(newRobotId);
                 robotExecuteDao.insertObtainedRobot(robotExecute);
@@ -479,8 +471,10 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         globalVarDao.createGlobalVarForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
         // python依赖
         requireDao.createRequireForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
+        // 智能组件
+        cSmartComponentDao.createSmartComponentForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
         // python模块代码
-        createModuleForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
+        cModuleDao.createModuleForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
         // 配置参数
         createParamForCurrentVersion(obtainedRobotDesign, authorRobotVersion);
         // 组件引用
@@ -492,14 +486,8 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
                 obtainedRobotDesign.getCreatorId());
     }
 
-    public void createModuleForObtainedVersion(RobotDesign obtainedRobotDesign, RobotVersion authorRobotVersion) {
-        // 不需要 robotVersion 直接赋值 0
-        authorRobotVersion.setVersion(0);
-        cModuleDao.createModuleForObtainedVersion(obtainedRobotDesign, authorRobotVersion);
-    }
-
     public void createParamForCurrentVersion(RobotDesign obtainedRobotDesign, RobotVersion authorRobotVersion) {
-        // 查询0版本机器人所有参数
+        // 查询用户指定版本的所有参数
         List<CParam> cParamList =
                 paramDao.getAllParams(null, authorRobotVersion.getRobotId(), authorRobotVersion.getVersion());
         for (CParam cParam : cParamList) {
@@ -531,7 +519,11 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         if (StringUtils.isBlank(appId)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         // 判断获取者是否在本团队内
         Set<String> marketUserSet = appMarketUserDao.getMarketUserListForDeploy(marketId, userIdList);
 
@@ -593,7 +585,12 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         MarketResourceDto marketResourceDto = new MarketResourceDto();
         marketResourceDto.setAppId(appId);
         marketResourceDto.setMarketId(marketDto.getMarketId());
-        marketResourceDto.setTenantId(TenantUtils.getTenantId());
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        marketResourceDto.setTenantId(tenantId);
         marketResourceDto.setVersion(appVersion);
         RobotVersion robotVersion = robotVersionDao.getVersionInfo(marketResourceDto);
         if (null == robotVersion) {
@@ -620,8 +617,17 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         if (StringUtils.isBlank(appId) || StringUtils.isBlank(marketId)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM);
         }
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         marketDto.setCreatorId(userId);
         marketDto.setTenantId(tenantId);
         // 查询原始robotid
@@ -638,7 +644,11 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         if (null == robotExecute) {
             return AppResponse.error(ErrorCodeEnum.E_SQL, "获取不到创建者信息");
         }
-        String authorName = UserUtils.getRealNameById(appMarketResource.getCreatorId());
+        AppResponse<String> realNameResp = rpaAuthFeign.getNameById(appMarketResource.getCreatorId());
+        if (realNameResp == null || realNameResp.getData() == null) {
+            throw new ServiceException("用户名获取失败");
+        }
+        String authorName = realNameResp.getData();
         if (StringUtils.isBlank(authorName)) {
             return AppResponse.error(ErrorCodeEnum.E_SQL, "未获取到创建者姓名");
         }
@@ -657,9 +667,23 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
             if (null == marketDto.getPageNo() || null == marketDto.getPageSize()) {
                 return AppResponse.success(pages);
             }
-            PrePage<RobotExecute> pageConfig = new PrePage<>(marketDto.getPageNo(), marketDto.getPageSize(), true);
-            // 查询获取者信息
-            pages = robotExecuteDao.getDeployedUserList(pageConfig, marketDto, databaseName);
+            // 通过Feign调用rpa-auth服务获取已部署用户列表
+            GetDeployedUserListDto queryDto = new GetDeployedUserListDto();
+            queryDto.setAppId(marketDto.getAppId());
+            queryDto.setMarketId(marketDto.getMarketId());
+            queryDto.setTenantId(marketDto.getTenantId());
+            queryDto.setRealName(marketDto.getRealName());
+            queryDto.setPageNo(marketDto.getPageNo());
+            queryDto.setPageSize(marketDto.getPageSize());
+            AppResponse<PageDto<com.iflytek.rpa.common.feign.entity.RobotExecute>> deployedUserResponse =
+                    rpaAuthFeign.getDeployedUserListWithoutTenantId(queryDto);
+            if (deployedUserResponse == null || !deployedUserResponse.ok()) {
+                PrePage<RobotExecute> pageConfig = new PrePage<>(marketDto.getPageNo(), marketDto.getPageSize(), true);
+                return AppResponse.success(pageConfig);
+            }
+            PageDto<com.iflytek.rpa.common.feign.entity.RobotExecute> pageDto = deployedUserResponse.getData();
+            // 转换为PrePage<RobotExecute>
+            pages = convertToPrePage(pageDto);
             return AppResponse.success(pages);
         }
         // 查全部
@@ -668,16 +692,34 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
 
     private AppResponse<?> getResultWitchHaveAuthor(MarketDto marketDto, RobotExecute robotExecute) {
         PrePage<RobotExecute> pages = new PrePage<>(1L);
+        //        if (null == marketDto.getPageNo() || null == marketDto.getPageSize()) {
+        //            List<RobotExecute> oneResult = new ArrayList<>();
+        //            oneResult.add(robotExecute);
+        //            pages.setRecords(oneResult);
+        //            pages.setTotal(1);
+        ////            return AppResponse.success(pages);
+        //        }
         if (null == marketDto.getPageNo() || null == marketDto.getPageSize()) {
-            List<RobotExecute> oneResult = new ArrayList<>();
-            oneResult.add(robotExecute);
-            pages.setRecords(oneResult);
-            pages.setTotal(1);
-            return AppResponse.success(pages);
+            marketDto.setPageNo(1);
+            marketDto.setPageSize(10);
         }
-        PrePage<RobotExecute> pageConfig = new PrePage<>(marketDto.getPageNo(), marketDto.getPageSize(), true);
-        // 查询获取者信息
-        pages = robotExecuteDao.getDeployedUserList(pageConfig, marketDto, databaseName);
+        // 通过Feign调用rpa-auth服务获取已部署用户列表
+        GetDeployedUserListDto queryDto = new GetDeployedUserListDto();
+        queryDto.setAppId(marketDto.getAppId());
+        queryDto.setMarketId(marketDto.getMarketId());
+        queryDto.setTenantId(marketDto.getTenantId());
+        queryDto.setRealName(marketDto.getRealName());
+        queryDto.setPageNo(marketDto.getPageNo());
+        queryDto.setPageSize(marketDto.getPageSize());
+        AppResponse<PageDto<com.iflytek.rpa.common.feign.entity.RobotExecute>> deployedUserResponse =
+                rpaAuthFeign.getDeployedUserListWithoutTenantId(queryDto);
+        if (deployedUserResponse == null || !deployedUserResponse.ok()) {
+            PrePage<RobotExecute> pageConfig = new PrePage<>(marketDto.getPageNo(), marketDto.getPageSize(), true);
+            return AppResponse.success(pageConfig);
+        }
+        PageDto<com.iflytek.rpa.common.feign.entity.RobotExecute> pageDto = deployedUserResponse.getData();
+        // 转换为PrePage<RobotExecute>
+        pages = convertToPrePage(pageDto);
         List<RobotExecute> robotExecuteList = pages.getRecords();
         robotExecuteList = new ArrayList<>(robotExecuteList);
         if (CollectionUtils.isEmpty(robotExecuteList)) {
@@ -701,8 +743,19 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         if (StringUtils.isBlank(appId) || StringUtils.isBlank(marketId)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM);
         }
-        marketDto.setCreatorId(UserUtils.nowUserId());
-        marketDto.setTenantId(TenantUtils.getTenantId());
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        marketDto.setCreatorId(userId);
+        marketDto.setTenantId(tenantId);
         // 获取市场中的最大版本
         MarketResourceDto marketResourceDto = new MarketResourceDto();
         marketResourceDto.setAppId(appId);
@@ -717,194 +770,180 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         return AppResponse.success(robotVersionList);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> deleteApp(String appId, String marketId) throws Exception {
-        AppResponse<?> response = UserUtils.nowLoginUserResponse();
-        if (response.ok()) {
-            String userId = UserUtils.nowUserId();
-            String tenantId = TenantUtils.getTenantId();
-
-            MarketDto marketDto = new MarketDto();
-            marketDto.setTenantId(tenantId);
-            marketDto.setAppId(appId);
-            marketDto.setMarketId(marketId);
-
-            AppMarketResource appResource = appMarketResourceDao.getAppInfoByAppId(marketDto);
-
-            // app_resource 删除
-            Integer i = appMarketResourceDao.deleteApp(appId, marketId, tenantId);
-            Integer j = appMarketVersionDao.deleteAppVersion(appId, marketId);
-
-            // 更新robotDesign表和robotExecute表
-            RobotDesign robotDesign =
-                    robotDesignDao.getRobotRegardlessLogicDel(appResource.getRobotId(), userId, tenantId);
-            if (robotDesign != null) {
-                String transformStatus = robotDesign.getTransformStatus();
-                transformStatus = transformStatus.equals("shared") ? "published" : transformStatus;
-                robotDesign.setUpdateTime(new Date());
-                robotDesign.setTransformStatus(transformStatus);
-                Integer z = robotDesignDao.updateById(robotDesign);
-                if (!i.equals(0) && !j.equals(0) && !z.equals(0)) {
-                    return AppResponse.success("删除机器人成功");
-                } else {
-                    throw new Exception();
-                }
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        MarketDto marketDto = new MarketDto();
+        marketDto.setTenantId(tenantId);
+        marketDto.setAppId(appId);
+        marketDto.setMarketId(marketId);
+        AppMarketResource appResource = appMarketResourceDao.getAppInfoByAppId(marketDto);
+        // app_resource 删除
+        Integer i = appMarketResourceDao.deleteApp(appId, marketId, tenantId);
+        Integer j = appMarketVersionDao.deleteAppVersion(appId, marketId);
+        // 更新robotDesign表和robotExecute表
+        RobotDesign robotDesign = robotDesignDao.getRobotRegardlessLogicDel(appResource.getRobotId(), userId, tenantId);
+        if (robotDesign != null) {
+            String transformStatus = robotDesign.getTransformStatus();
+            transformStatus = transformStatus.equals("shared") ? "published" : transformStatus;
+            robotDesign.setUpdateTime(new Date());
+            robotDesign.setTransformStatus(transformStatus);
+            Integer z = robotDesignDao.updateById(robotDesign);
+            if (!i.equals(0) && !j.equals(0) && !z.equals(0)) {
+                return AppResponse.success("删除机器人成功");
             } else {
-                if (!i.equals(0) && !j.equals(0)) {
-                    return AppResponse.success("删除机器人成功");
-                } else {
-                    throw new Exception();
-                }
+                throw new Exception();
+            }
+        } else {
+            if (!i.equals(0) && !j.equals(0)) {
+                return AppResponse.success("删除机器人成功");
+            } else {
+                throw new Exception();
             }
         }
-        return response;
     }
 
     @Override
     public AppResponse<?> getALlAppList(AllAppListDto allAppListDto) throws NoLoginException {
 
-        AppResponse<?> response = UserUtils.nowLoginUserResponse();
-        if (response.ok()) {
-            Long pageNo = allAppListDto.getPageNo();
-            Long pageSize = allAppListDto.getPageSize();
-            String appName = allAppListDto.getAppName();
-            String marketId = allAppListDto.getMarketId();
+        Long pageNo = allAppListDto.getPageNo();
+        Long pageSize = allAppListDto.getPageSize();
+        String appName = allAppListDto.getAppName();
+        String marketId = allAppListDto.getMarketId();
+        String category = allAppListDto.getCategory();
 
-            String userId = UserUtils.nowUserId();
-            String tenantId = TenantUtils.getTenantId();
-
-            IPage<AppMarketResource> page = new Page<>(pageNo, pageSize);
-            LambdaQueryWrapper<AppMarketResource> wrapper = new LambdaQueryWrapper<>();
-
-            // 市场筛选
-            if (StringUtils.isBlank(marketId)) {
-                return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
-            }
-            wrapper.eq(AppMarketResource::getMarketId, marketId);
-
-            // 根据creatorId筛选
-            if (StringUtils.isNotBlank(allAppListDto.getCreatorId())) {
-                wrapper.eq(AppMarketResource::getCreatorId, allAppListDto.getCreatorId());
-            }
-
-            // 模糊匹配
-            if (StringUtils.isNotBlank(appName)) {
-                wrapper.like(AppMarketResource::getAppName, appName);
-            }
-
-            // 排序方式
-            HashSet<String> set = Sets.newHashSet("createTime", "downloadNum", "checkNum");
-            String sortKey = allAppListDto.getSortKey();
-            sortKey = StringUtils.isBlank(sortKey) ? "createTime" : sortKey; // 默认为createTime 倒序
-            if (StringUtils.isNotBlank(sortKey) && !set.contains(sortKey)) {
-                AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
-            }
-
-            switch (sortKey) {
-                case "createTime":
-                    wrapper.orderByDesc(AppMarketResource::getCreateTime);
-                    break;
-                case "downloadNum":
-                    wrapper.orderByDesc(AppMarketResource::getDownloadNum);
-                    break;
-                case "checkNum":
-                    wrapper.orderByDesc(AppMarketResource::getCheckNum);
-                    break;
-                default:
-                    AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
-            }
-
-            // 初次分页
-            IPage<AppMarketResource> rePage = this.page(page, wrapper);
-
-            if (CollectionUtils.isEmpty(rePage.getRecords())) return AppResponse.success(rePage);
-
-            // 得到结果页
-            IPage<AppInfoVo> ansPage = getAppListAnsPage(rePage, userId, tenantId, pageNo, pageSize, marketId);
-
-            return AppResponse.success(ansPage);
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
         }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
-        return response;
+        IPage<AppMarketResource> page = new Page<>(pageNo, pageSize);
+        // 市场筛选
+        if (StringUtils.isBlank(marketId)) {
+            return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
+        }
+        // 排序方式
+        HashSet<String> set = Sets.newHashSet("createTime", "downloadNum", "checkNum");
+        String sortKey = allAppListDto.getSortKey();
+        sortKey = StringUtils.isBlank(sortKey) ? "createTime" : sortKey; // 默认为createTime 倒序
+        if (StringUtils.isNotBlank(sortKey) && !set.contains(sortKey)) {
+            AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
+        }
+        // 初次分页
+        Page<AppMarketResource> rePage = appMarketResourceDao.pageAllAppList(
+                page, marketId, allAppListDto.getCreatorId(), appName, category, sortKey);
+
+        if (CollectionUtils.isEmpty(rePage.getRecords())) return AppResponse.success(rePage);
+
+        // 得到结果页
+        IPage<AppInfoVo> ansPage = getAppListAnsPage(rePage, userId, tenantId, pageNo, pageSize, marketId);
+
+        return AppResponse.success(ansPage);
     }
 
     @Override
     public AppResponse<?> appUpdateCheck(AppUpdateCheckDto queryDto) throws NoLoginException {
 
-        AppResponse<?> response = UserUtils.nowLoginUserResponse();
-        if (response.ok()) {
-            String userId = UserUtils.nowUserId();
-            String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
-            String marketId = queryDto.getMarketId();
-            String appIdListStr = queryDto.getAppIdListStr();
+        String marketId = queryDto.getMarketId();
+        String appIdListStr = queryDto.getAppIdListStr();
 
-            if (StringUtils.isBlank(appIdListStr)) return AppResponse.error(ErrorCodeEnum.E_PARAM);
+        if (StringUtils.isBlank(appIdListStr)) return AppResponse.error(ErrorCodeEnum.E_PARAM);
 
-            // appIdList
-            List<String> appIdList = Arrays.stream(appIdListStr.split(",")).collect(Collectors.toList());
+        // appIdList
+        List<String> appIdList = Arrays.stream(appIdListStr.split(",")).collect(Collectors.toList());
 
-            // 获取
-            List<RobotExecute> robotExecuteList =
-                    robotExecuteDao.getExecuteByAppIdList(userId, tenantId, marketId, appIdList);
-            List<RobotDesign> robotDesignList =
-                    robotDesignDao.getDesignByAppIdList(userId, tenantId, marketId, appIdList);
+        // 获取
+        List<RobotExecute> robotExecuteList =
+                robotExecuteDao.getExecuteByAppIdList(userId, tenantId, marketId, appIdList);
+        List<RobotDesign> robotDesignList = robotDesignDao.getDesignByAppIdList(userId, tenantId, marketId, appIdList);
 
-            List<AppUpdateCheckVo> appUpdateCheckVos = new ArrayList<>();
+        List<AppUpdateCheckVo> appUpdateCheckVos = new ArrayList<>();
 
-            for (String appId : appIdList) {
-                AppUpdateCheckVo appUpdateCheckVo = new AppUpdateCheckVo();
-                appUpdateCheckVo.setAppId(appId);
-                appUpdateCheckVo.setUpdateStatus(0);
+        for (String appId : appIdList) {
+            AppUpdateCheckVo appUpdateCheckVo = new AppUpdateCheckVo();
+            appUpdateCheckVo.setAppId(appId);
+            appUpdateCheckVo.setUpdateStatus(0);
 
-                List<RobotExecute> robotExecuteListTmp = robotExecuteList.stream()
-                        .filter(robotExecute -> robotExecute.getAppId().equals(appId))
-                        .collect(Collectors.toList());
+            List<RobotExecute> robotExecuteListTmp = robotExecuteList.stream()
+                    .filter(robotExecute -> robotExecute.getAppId().equals(appId))
+                    .collect(Collectors.toList());
 
-                // 是否提示更新
-                // 只有其中一个获取过
-                if (!CollectionUtils.isEmpty(robotExecuteListTmp)) {
-                    RobotExecute robotExecute = robotExecuteListTmp.get(0);
-                    if (robotExecute.getResourceStatus().equals("toUpdate")) appUpdateCheckVo.setUpdateStatus(1);
-                    else appUpdateCheckVo.setUpdateStatus(0);
-                }
-
-                appUpdateCheckVos.add(appUpdateCheckVo);
+            // 是否提示更新
+            // 只有其中一个获取过
+            if (!CollectionUtils.isEmpty(robotExecuteListTmp)) {
+                RobotExecute robotExecute = robotExecuteListTmp.get(0);
+                if (robotExecute.getResourceStatus().equals("toUpdate")) appUpdateCheckVo.setUpdateStatus(1);
+                else appUpdateCheckVo.setUpdateStatus(0);
             }
 
-            return AppResponse.success(appUpdateCheckVos);
+            appUpdateCheckVos.add(appUpdateCheckVo);
         }
 
-        return response;
+        return AppResponse.success(appUpdateCheckVos);
     }
 
     @Override
     public AppResponse<?> appDetail(String appId, String marketId) throws Exception {
-        AppResponse<?> response = UserUtils.nowLoginUserResponse();
-        if (response.ok()) {
-            String userId = UserUtils.nowUserId();
-            String tenantId = TenantUtils.getTenantId();
 
-            if (StringUtils.isBlank(appId) || StringUtils.isBlank(marketId))
-                return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
-
-            AppDetailVo appDetailVo = new AppDetailVo();
-
-            AppMarketResource appResource = appMarketResourceDao.getAppResource(appId, marketId);
-            AppMarketVersion latestAppVersion = appMarketVersionDao.getLatestAppVersion(appId, marketId);
-
-            if (appResource == null || latestAppVersion == null) return AppResponse.error(ErrorCodeEnum.E_SQL_EMPTY);
-
-            // 查看数目加一
-            appResource.setCheckNum(appResource.getCheckNum() + 1);
-            appMarketResourceDao.updateById(appResource);
-
-            setAppDetailVo(appDetailVo, appResource, latestAppVersion, userId, tenantId);
-
-            return AppResponse.success(appDetailVo);
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
         }
-        return response;
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+
+        if (StringUtils.isBlank(appId) || StringUtils.isBlank(marketId))
+            return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
+
+        AppDetailVo appDetailVo = new AppDetailVo();
+
+        AppMarketResource appResource = appMarketResourceDao.getAppResource(appId, marketId);
+        AppMarketVersion latestAppVersion = appMarketVersionDao.getLatestAppVersion(appId, marketId);
+
+        if (appResource == null || latestAppVersion == null) return AppResponse.error(ErrorCodeEnum.E_SQL_EMPTY);
+
+        // 查看数目加一
+        appResource.setCheckNum(appResource.getCheckNum() + 1);
+        appMarketResourceDao.updateById(appResource);
+
+        setAppDetailVo(appDetailVo, appResource, latestAppVersion, userId, tenantId);
+
+        return AppResponse.success(appDetailVo);
     }
 
     private void setAppDetailVo(
@@ -920,10 +959,15 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         String robotId = appResource.getRobotId();
         Integer appVersionNum = latestAppVersion.getAppVersion();
 
-        RobotVersion robotVersion = robotVersionDao.getLatestVersionRegardlessDel(robotId);
+        RobotVersion robotVersion = robotVersionDao.getOnlineVersionRegardlessDel(robotId);
         List<RobotVersion> robotVersionList = robotVersionDao.getAllVersionWithoutUser(robotId);
         String fileName = robotVersionDao.getFileName(robotVersion.getAppendixId());
-        String creatorName = UserUtils.getRealNameById(robotVersion.getCreatorId());
+
+        AppResponse<String> realNameResp = rpaAuthFeign.getNameById(robotVersion.getCreatorId());
+        if (realNameResp == null || realNameResp.getData() == null) {
+            throw new ServiceException("用户名获取失败");
+        }
+        String creatorName = realNameResp.getData();
         RobotExecute robotExecute = robotExecuteDao.getExecuteByAppId(userId, tenantId, marketId, appId);
         RobotDesign robotDesign = robotDesignDao.getDesignByAppId(userId, tenantId, marketId, appId);
 
@@ -948,39 +992,17 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
 
         for (int i = 0; i < robotVersionList.size(); i++) {
             RobotVersion rVersion = robotVersionList.get(i);
-            Integer online = Integer.MIN_VALUE;
-
-            // online 设置
-            if (userId.equals(appResource.getCreatorId())) {
-                // 如果发布者就是当前的userId
-                online = i == 0 ? 1 : 0;
-            } else {
-                // 如果发布者不是当前的userId
-                Integer obtainedLatestVersionNum = getObtainedLatestVersionNum(robotExecute, robotDesign);
-                if (obtainedLatestVersionNum.equals(rVersion.getVersion())) online = 1;
-            }
 
             AppDetailVersionInfo appDetailVersionInfo = new AppDetailVersionInfo();
 
             appDetailVersionInfo.setUpdateLog(rVersion.getUpdateLog());
             appDetailVersionInfo.setVersionNum(rVersion.getVersion());
             appDetailVersionInfo.setCreateTime(rVersion.getCreateTime());
-            appDetailVersionInfo.setOnline(online);
+            appDetailVersionInfo.setOnline(rVersion.getOnline());
             appDetailVersionInfoList.add(appDetailVersionInfo);
         }
 
         appDetailVo.setVersionInfoList(appDetailVersionInfoList);
-    }
-
-    private Integer getObtainedLatestVersionNum(RobotExecute robotExecute, RobotDesign robotDesign) {
-        Integer obtainedLatestVersionNum = Integer.MIN_VALUE;
-
-        Integer robotExecuteAppVersionNum = robotExecute == null ? Integer.MIN_VALUE : robotExecute.getAppVersion();
-        Integer robotDesignAppVersionNum = robotDesign == null ? Integer.MIN_VALUE : robotDesign.getAppVersion();
-
-        obtainedLatestVersionNum = Math.max(robotExecuteAppVersionNum, robotDesignAppVersionNum);
-
-        return obtainedLatestVersionNum;
     }
 
     private IPage<AppInfoVo> getAppListAnsPage(
@@ -1007,7 +1029,7 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
         // 获取在市场中的角色
         Integer allowOperate = 0; // 初始不允许操作
         String userType = appMarketUserDao.getMarketUserType(marketId, userId, tenantId);
-        allowOperate = userType.equals("acquirer") ? 0 : 1;
+        allowOperate = (userType != null && userType.equals("acquirer")) ? 0 : 1;
 
         // 获取robotExecuteList
         List<RobotExecute> robotExecuteList =
@@ -1083,5 +1105,28 @@ public class AppMarketResourceServiceImpl extends ServiceImpl<AppMarketResourceD
                     && StringUtils.isNotBlank(robotExecute.getResourceStatus())) appInfoVo.setUpdateStatus(1);
             else appInfoVo.setUpdateStatus(0);
         }
+    }
+
+    /**
+     * 将PageDto<RobotExecute>转换为PrePage<RobotExecute>
+     */
+    private PrePage<RobotExecute> convertToPrePage(PageDto<com.iflytek.rpa.common.feign.entity.RobotExecute> pageDto) {
+        PrePage<RobotExecute> prePage = new PrePage<>(pageDto.getCurrentPageNo(), pageDto.getPageSize(), true);
+        prePage.setTotal(pageDto.getTotalCount());
+
+        List<RobotExecute> robotExecuteList = new ArrayList<>();
+        if (pageDto.getResult() != null) {
+            for (com.iflytek.rpa.common.feign.entity.RobotExecute feignRobotExecute : pageDto.getResult()) {
+                RobotExecute robotExecute = new RobotExecute();
+                robotExecute.setId(feignRobotExecute.getId());
+                robotExecute.setCreatorId(feignRobotExecute.getCreatorId());
+                robotExecute.setName(feignRobotExecute.getName());
+                robotExecute.setUpdateTime(feignRobotExecute.getUpdateTime());
+                robotExecute.setAppVersion(feignRobotExecute.getAppVersion());
+                robotExecuteList.add(robotExecute);
+            }
+        }
+        prePage.setRecords(robotExecuteList);
+        return prePage;
     }
 }

@@ -8,12 +8,14 @@ import com.iflytek.rpa.base.entity.CElement;
 import com.iflytek.rpa.base.entity.CGroup;
 import com.iflytek.rpa.base.entity.dto.ServerBaseDto;
 import com.iflytek.rpa.base.service.CGroupService;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import javax.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +42,17 @@ public class CGroupServiceImpl implements CGroupService {
     @Autowired
     private IdWorker idWorker;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse<?> createGroup(ServerBaseDto serverBaseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         CGroup cGroup = new CGroup();
         BeanUtils.copyProperties(serverBaseDto, cGroup);
         cGroup.setCreatorId(userId);
@@ -60,7 +70,12 @@ public class CGroupServiceImpl implements CGroupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> renameGroup(ServerBaseDto serverBaseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         serverBaseDto.setCreatorId(userId);
         CGroup cGroup = new CGroup();
         BeanUtils.copyProperties(serverBaseDto, cGroup);
@@ -78,7 +93,12 @@ public class CGroupServiceImpl implements CGroupService {
 
     @Override
     public AppResponse<?> deleteGroup(ServerBaseDto serverBaseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         serverBaseDto.setCreatorId(userId);
         CGroup cGroup = new CGroup();
         BeanUtils.copyProperties(serverBaseDto, cGroup);

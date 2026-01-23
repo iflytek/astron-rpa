@@ -2,6 +2,8 @@ package com.iflytek.rpa.component.service.impl;
 
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
 import com.iflytek.rpa.base.entity.dto.BaseDto;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.component.dao.ComponentRobotBlockDao;
 import com.iflytek.rpa.component.dao.ComponentRobotUseDao;
 import com.iflytek.rpa.component.entity.ComponentRobotBlock;
@@ -9,11 +11,9 @@ import com.iflytek.rpa.component.entity.ComponentRobotUse;
 import com.iflytek.rpa.component.entity.dto.AddRobotBlockDto;
 import com.iflytek.rpa.component.entity.dto.GetRobotBlockDto;
 import com.iflytek.rpa.component.service.ComponentRobotBlockService;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +38,9 @@ public class ComponentRobotBlockServiceImpl implements ComponentRobotBlockServic
     @Autowired
     private ComponentRobotBlockServiceImpl self;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     /**
      * 添加机器人对组件的屏蔽记录
      *
@@ -49,8 +52,17 @@ public class ComponentRobotBlockServiceImpl implements ComponentRobotBlockServic
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> addRobotBlock(AddRobotBlockDto addRobotBlockDto) throws Exception {
         // 获取当前租户ID
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         Integer robotVersion = getRobotVersion(
                 addRobotBlockDto.getRobotId(),
@@ -60,8 +72,7 @@ public class ComponentRobotBlockServiceImpl implements ComponentRobotBlockServic
 
         // 检查componentRobotUse表中是否存在该记录
         ComponentRobotUse existingUse = componentRobotUseDao.getByRobotIdVersionAndComponentId(
-                addRobotBlockDto.getRobotId(), robotVersion,
-                addRobotBlockDto.getComponentId(), userId);
+                addRobotBlockDto.getRobotId(), robotVersion, addRobotBlockDto.getComponentId(), userId);
         if (existingUse != null) throw new ServiceException(ErrorCodeEnum.E_SQL_REPEAT.getCode(), "该机器人已使用此组件，无法屏蔽");
 
         // 检查是否已经存在屏蔽记录
@@ -102,8 +113,17 @@ public class ComponentRobotBlockServiceImpl implements ComponentRobotBlockServic
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> deleteRobotBlock(AddRobotBlockDto addRobotBlockDto) throws Exception {
         // 获取当前租户ID和用户ID
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         Integer robotVersion = getRobotVersion(
                 addRobotBlockDto.getRobotId(),
@@ -139,7 +159,11 @@ public class ComponentRobotBlockServiceImpl implements ComponentRobotBlockServic
     @Override
     public AppResponse<List<String>> getBlockedComponentIds(GetRobotBlockDto queryDto) throws Exception {
         // 获取当前租户ID
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         Integer robotVersion =
                 getRobotVersion(queryDto.getRobotId(), queryDto.getMode(), queryDto.getRobotVersion(), new BaseDto());

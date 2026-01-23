@@ -2,8 +2,8 @@ package com.iflytek.rpa.triggerTask.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
 import com.iflytek.rpa.triggerTask.entity.TaskMail;
+import com.iflytek.rpa.utils.exception.NoLoginException;
 import java.util.List;
 
 /**

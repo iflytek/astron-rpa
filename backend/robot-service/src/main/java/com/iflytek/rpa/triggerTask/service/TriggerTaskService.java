@@ -2,8 +2,6 @@ package com.iflytek.rpa.triggerTask.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
 import com.iflytek.rpa.triggerTask.entity.dto.InsertTaskDto;
 import com.iflytek.rpa.triggerTask.entity.dto.TaskPageDto;
 import com.iflytek.rpa.triggerTask.entity.dto.UpdateTaskDto;
@@ -11,6 +9,8 @@ import com.iflytek.rpa.triggerTask.entity.vo.Executor;
 import com.iflytek.rpa.triggerTask.entity.vo.TaskPage4TriggerVo;
 import com.iflytek.rpa.triggerTask.entity.vo.TaskPageVo;
 import com.iflytek.rpa.triggerTask.entity.vo.TriggerTaskVo;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 
 public interface TriggerTaskService {

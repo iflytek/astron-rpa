@@ -11,10 +11,13 @@ public class RobotConstant {
     public static final String LOCKED = "locked";
 
     public static final String CREATE = "create";
+    public static final String CREATE_NAME = "本地";
 
     public static final String MARKET = "market";
+    public static final String MARKET_NAME = "企业市场";
 
     public static final String DEPLOY = "deploy";
+    public static final String DEPLOY_NAME = "部署";
 
     public static final String TO_OBTAIN = "toObtain";
 
@@ -49,9 +52,4 @@ public class RobotConstant {
     public static final String ROBOT_RESULT_CANCEL = "robotCancel";
 
     public static final String ROBOT_RESULT_EXECUTE = "robotExecute";
-
-    /**
-     * file download
-     */
-    public static final String FILE_PATH_PREFIX = "/api/resource/file/download?fileId=";
 }

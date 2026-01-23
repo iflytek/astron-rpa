@@ -45,7 +45,6 @@
             enable,
             task_json,
             exceptional,
-            retry_num,
             timeout,
             queue_enable
         from trigger_task

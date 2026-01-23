@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.auth.blacklist.dao.UserBlacklistDao">
+
+    <resultMap id="BaseResultMap" type="com.iflytek.rpa.auth.blacklist.entity.UserBlacklist">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="ban_reason" property="banReason" jdbcType="VARCHAR"/>
+        <result column="ban_level" property="banLevel" jdbcType="INTEGER"/>
+        <result column="ban_count" property="banCount" jdbcType="INTEGER"/>
+        <result column="ban_duration" property="banDuration" jdbcType="BIGINT"/>
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="operator" property="operator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 查询用户当前生效的封禁记录 -->
+    <select id="findActiveBlacklist" resultMap="BaseResultMap">
+        SELECT *
+        FROM user_blacklist
+        WHERE user_id = #{userId}
+          AND status = 1
+          AND end_time > NOW()
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 查询已过期的封禁记录 -->
+    <select id="findExpiredBlacklist" resultMap="BaseResultMap">
+        SELECT *
+        FROM user_blacklist
+        WHERE status = 1
+          AND end_time &lt;= #{now}
+        LIMIT #{limit}
+    </select>
+
+    <!-- 解封用户 -->
+    <update id="unban">
+        UPDATE user_blacklist
+        SET status = 0,
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 查询用户的封禁历史记录 -->
+    <select id="findHistoryByUserId" resultMap="BaseResultMap">
+        SELECT *
+        FROM user_blacklist
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
+

@@ -73,4 +73,8 @@ public class ExecuteRecordDto extends RobotExecuteRecord {
      * 机器人配置参数
      */
     private String paramJson;
+    /**
+     * 数据抓取上报路径
+     */
+    private String dataTablePath;
 }

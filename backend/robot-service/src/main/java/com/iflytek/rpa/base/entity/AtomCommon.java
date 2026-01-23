@@ -44,17 +44,6 @@ public class AtomCommon {
     @NotNull(message = "types 不能为空")
     private Map<String, TypeInfo> types;
 
-    public static List<String> getPropertyNames() {
-        List<String> propertyNames = new ArrayList<>();
-        Field[] fields = AtomCommon.class.getDeclaredFields();
-
-        for (Field field : fields) {
-            propertyNames.add(field.getName());
-        }
-
-        return propertyNames;
-    }
-
     @Data
     public static class TypeInfo {
         @NotBlank(message = "types.key 不能为空")
@@ -92,5 +81,16 @@ public class AtomCommon {
 
         @NotBlank(message = "funcList.useSrc 不能为空")
         private String useSrc;
+    }
+
+    public static List<String> getPropertyNames() {
+        List<String> propertyNames = new ArrayList<>();
+        Field[] fields = AtomCommon.class.getDeclaredFields();
+
+        for (Field field : fields) {
+            propertyNames.add(field.getName());
+        }
+
+        return propertyNames;
     }
 }

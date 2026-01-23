@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.uap.dao.TenantDao">
+
+
+    <select id="getUserByTenantId" resultType="com.iflytek.rpa.auth.core.entity.UserVo">
+        select
+            tuu.name as userName,
+            tuu.id as userId,
+            tuu.phone as userPhone
+        from
+        ${databaseName}.t_uap_user tuu
+        inner join ${databaseName}.t_uap_tenant_user tutu on tuu.id = tutu.user_id
+        where
+        tutu.tenant_id = #{tenantId}
+        and tuu.is_delete = 0
+        <if test="userName != null and userName != ''">
+            and (tuu.name like CONCAT('%', #{userName}, '%') or tuu.phone like CONCAT('%', #{userName}, '%') )
+        </if>
+        limit 1000
+    </select>
+
+    <select id="getAllTenantId" resultType="java.lang.String">
+        select
+        id
+        from
+        ${databaseName}.t_uap_tenant
+        where is_delete = 0 and id != 'default-tenant'
+    </select>
+
+    <!--根据手机号查询用户所属的租户列表-->
+    <select id="queryTenantListByPhone" resultType="com.iflytek.sec.uap.client.core.dto.tenant.UapTenant">
+        select
+            t.id,
+            t.name,
+            t.tenant_code as tenantCode,
+            t.status,
+            t.remark
+        from
+            ${databaseName}.t_uap_user u
+        inner join ${databaseName}.t_uap_tenant_user tu on u.id = tu.user_id
+        inner join ${databaseName}.t_uap_tenant t on tu.tenant_id = t.id
+        where
+            u.phone = #{phone}
+            and tu.status = 1
+            and u.is_delete = 0
+            and t.is_delete = 0
+        order by tu.last_login_time desc,t.create_time desc
+    </select>
+
+    <select id="getTenantUserId" resultType="java.lang.String">
+        select id
+        from
+        ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId}
+        and user_id = #{userId}
+    </select>
+    <select id="getTenantUserStatus" resultType="java.lang.Integer">
+            select status
+            from
+            ${databaseName}.t_uap_tenant_user
+            where tenant_id = #{tenantId}
+            and user_id = #{userId}
+    </select>
+
+
+    <update id="enableTenantUser">
+        update ${databaseName}.t_uap_tenant_user set status = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateLoginTime">
+        update ${databaseName}.t_uap_tenant_user set last_login_time = now()
+        where id = #{id}
+    </update>
+
+    <update id="updateTenantClassifyCompleted">
+        update ${databaseName}.t_uap_tenant
+        set classification = 1
+        where id in
+        <foreach collection="tenantIds" item="tenantId" open="(" separator="," close=")">
+            #{tenantId}
+        </foreach>
+    </update>
+
+    <delete id="deleteTenantUser">
+        delete from ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId}
+          and user_id = #{userId}
+    </delete>
+
+    <select id="getTenantUserIdsByType" resultType="java.lang.String">
+        select user_id
+        from ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId} and tenant_user_type = #{tenantUserType}
+    </select>
+
+    <select id="getNoClassifyTenantIds" resultType="java.lang.String">
+        select
+            id
+        from ${databaseName}.t_uap_tenant
+        where
+            is_delete = 0 and id != 'default-tenant' and classification = 0
+    </select>
+
+    <select id="getAllEnterpriseTenantId" resultType="java.lang.String">
+        select
+            id
+        from
+            ${databaseName}.t_uap_tenant
+        where is_delete = 0 and id != 'default-tenant' and (tenant_code like 'ep_%' or tenant_code like 'es_%')
+    </select>
+
+    <select id="getTenantUserType" resultType="java.lang.Integer">
+        select
+            utu.tenant_user_type
+        from
+            ${databaseName}.t_uap_tenant_user utu
+        where
+        utu.user_id = #{userId}
+        and utu.tenant_id = #{tenantId}
+    </select>
+
+    <select id="getTablesWithTenantId" resultType="java.lang.String">
+        SELECT TABLE_NAME
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = #{databaseName}
+          AND COLUMN_NAME IN ('tenant_id', 'creator_id')
+          AND TABLE_NAME NOT LIKE 't_uap%'
+        GROUP BY TABLE_NAME
+        HAVING COUNT(DISTINCT COLUMN_NAME) = 2
+    </select>
+
+    <update id="updateTableTenantId">
+        UPDATE ${databaseName}.${tableName}
+        SET tenant_id = #{newTenantId}
+        WHERE tenant_id = #{oldTenantId}
+          AND creator_id = #{userId}
+    </update>
+
+    <select id="getAllTenantIdWithoutClassify" resultType="java.lang.String">
+        select
+        id
+        from
+        ${databaseName}.t_uap_tenant
+        where
+        is_delete = 0 and classification = 0
+    </select>
+    <select id="getManagerUserIds" resultType="java.lang.String">
+        select user_id
+        from ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId} and tenant_user_type = 1
+    </select>
+
+    <select id="getNormalUserIds" resultType="java.lang.String">
+        select user_id
+        from ${databaseName}.t_uap_tenant_user
+        where tenant_id = #{tenantId} and tenant_user_type != 1
+    </select>
+
+    <update id="updateTenantClassifyFlag">
+        update ${databaseName}.t_uap_tenant
+        set classification = 1
+        where id in
+        <foreach collection="tenantIds" item="tenantId" open="(" separator="," close=")">
+            #{tenantId}
+        </foreach>
+    </update>
+
+    <select id="queryTenantUsersForSync" resultType="com.iflytek.rpa.auth.core.entity.TenantUser">
+        SELECT
+            tutu.user_id as userId,
+            tutu.tenant_id as tenantId
+        FROM ${databaseName}.t_uap_tenant_user tutu
+        INNER JOIN ${databaseName}.t_uap_user tuu ON tutu.user_id = tuu.id
+        WHERE tuu.is_delete = 0
+        <if test="excludeTenantIds != null and excludeTenantIds.size() > 0">
+            AND tutu.tenant_id NOT IN
+            <foreach collection="excludeTenantIds" item="tenantId" open="(" separator="," close=")">
+                #{tenantId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="queryRobotExecuteRecordIds" resultType="java.lang.Long">
+        SELECT id
+        FROM ${databaseName}.robot_execute_record
+        WHERE tenant_id = #{oldTenantId}
+          AND creator_id = #{userId}
+    </select>
+
+    <update id="updateRobotExecuteRecordTenantIdByIds">
+        UPDATE ${databaseName}.robot_execute_record
+        SET tenant_id = #{newTenantId}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>
+

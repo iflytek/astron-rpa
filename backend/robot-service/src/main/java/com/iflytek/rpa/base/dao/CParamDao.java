@@ -17,17 +17,13 @@ public interface CParamDao extends BaseMapper<CParam> {
     List<CParam> getAllParams(
             @Param("processId") String processId, @Param("robotId") String robotId, @Param("version") Integer version);
 
+    List<CParam> getAllParamsByModuleId(
+            @Param("moduleId") String moduleId, @Param("robotId") String robotId, @Param("version") Integer version);
+
     List<CParam> getParams(@Param("robotId") String robotId, @Param("userId") String userId);
 
     void insertParamBatch(List<CParam> params);
 
-    /**
-     * 根据robotId在c_process查询主流程id
-     *
-     * @param robotId
-     * @param robotVersion
-     * @return
-     */
     @Select(
             "select process_id from c_process where process_name = '主流程' and robot_id=#{robotId} and robot_version=#{robotVersion} and deleted = 0")
     String getMianProcessId(String robotId, Integer robotVersion);
@@ -46,11 +42,6 @@ public interface CParamDao extends BaseMapper<CParam> {
 
     void updateParam(CParam cParamDto);
 
-    /**
-     * 批量插入新版本配置参数
-     *
-     * @param cParamList
-     */
     void createParamForCurrentVersion(@Param("entities") List<CParam> cParamList);
 
     /**
@@ -65,15 +56,12 @@ public interface CParamDao extends BaseMapper<CParam> {
 
     /**
      * 查询原始机器人的robot_id
-     *
      * @param robotExecute
      * @return
      */
     String getMarketRobotId(RobotExecute robotExecute);
-
     /**
      * 查询部署的原始机器人的robot_id
-     *
      * @param robotExecute
      * @return
      */
@@ -81,7 +69,6 @@ public interface CParamDao extends BaseMapper<CParam> {
 
     /**
      * 查询在线机器人版本号
-     *
      * @param robotId
      * @return
      */
@@ -89,7 +76,6 @@ public interface CParamDao extends BaseMapper<CParam> {
 
     /**
      * 根据robotId删除对应参数
-     *
      * @param robotId
      */
     @Update("update c_param set deleted = 1 where robot_id =#{robotId} and robot_version = 0")
@@ -98,8 +84,8 @@ public interface CParamDao extends BaseMapper<CParam> {
     CParam getParamInfoById(@Param("id") String id);
 
     List<CParam> getParamsByModuleId(
-            @NotBlank(message = "机器人ID不能为空") String moduleId,
-            @NotBlank(message = "机器人ID不能为空") String robotId,
+            @NotBlank(message = "moduleId不能为空") String moduleId,
+            @NotBlank(message = "robotId不能为空") String robotId,
             Integer robotVersion);
 
     List<CParam> getSelfRobotParamByModuleId(String robotId, String moduleId, Integer enabledVersion);

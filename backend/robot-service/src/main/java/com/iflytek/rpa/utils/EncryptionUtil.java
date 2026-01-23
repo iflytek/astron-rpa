@@ -10,7 +10,6 @@ public class EncryptionUtil {
 
     /**
      * 加密字符串
-     *
      * @param plaintext 明文
      * @return 编码后的密文
      */
@@ -24,10 +23,8 @@ public class EncryptionUtil {
         byte[] encrypted = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(encrypted);
     }
-
     /**
      * 解密字符串
-     *
      * @param ciphertext Base64编码的密文
      * @return 明文
      * @throws Exception
@@ -42,5 +39,9 @@ public class EncryptionUtil {
         byte[] decoded = Base64.getDecoder().decode(ciphertext);
         byte[] decrypted = cipher.doFinal(decoded);
         return new String(decrypted, StandardCharsets.UTF_8);
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println(decrypt("90/gZdamVIOz8v/0xcAclw==", "rF9iTEzQegxmNTiOjDQjWQZREXALlMXO"));
     }
 }

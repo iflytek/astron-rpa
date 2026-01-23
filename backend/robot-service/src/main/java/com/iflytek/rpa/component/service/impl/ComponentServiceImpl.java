@@ -7,6 +7,8 @@ import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
 import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.base.entity.dto.BaseDto;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.component.dao.ComponentDao;
 import com.iflytek.rpa.component.dao.ComponentRobotBlockDao;
 import com.iflytek.rpa.component.dao.ComponentRobotUseDao;
@@ -23,13 +25,11 @@ import com.iflytek.rpa.component.service.ComponentService;
 import com.iflytek.rpa.robot.constants.RobotConstant;
 import com.iflytek.rpa.robot.service.RobotDesignService;
 import com.iflytek.rpa.robot.service.impl.RobotDesignServiceImpl;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -74,16 +74,33 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Autowired
     private RobotDesignServiceImpl robotDesignServiceImpl;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<CProcess> createComponent(String componentName) throws NoLoginException {
         // 获取当前用户信息
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 检查名称是否重复
         Long count = componentDao.countByName(componentName, tenantId, userId, null);
         if (count > 0) throw new ServiceException("组件名称已存在");
+
+        // 检查组件名称长度
+        if (componentName.length() > 50) {
+            throw new ServiceException("组件名称长度不能超过50个字符");
+        }
 
         // 设置组件信息
         String componentId = String.valueOf(idWorker.nextId());
@@ -122,8 +139,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> deleteComponent(String componentId) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 检查组件是否存在
         Component shownComponent = componentDao.getShownComponentById(componentId, userId, tenantId);
@@ -144,8 +170,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> renameComponent(String componentId, String newName) throws NoLoginException {
 
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 检查组件是否存在
         Component existingComponent = componentDao.getComponentById(componentId, userId, tenantId);
@@ -172,8 +207,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Override
     public AppResponse<Boolean> checkNameDuplicate(CheckNameDto checkNameDto) throws NoLoginException {
 
-        String tenantId = TenantUtils.getTenantId();
-        String userId = UserUtils.nowUserId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         String componentId = checkNameDto.getComponentId();
         String name = checkNameDto.getName();
         Long excludeId = null;
@@ -193,8 +237,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     @Override
     public AppResponse<String> createComponentName() throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         String componentNameBase = "组件";
         List<String> componentNameList = componentDao.getComponentNameList(tenantId, userId, componentNameBase);
         int componetNameIndex = 1;
@@ -220,8 +273,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     @Override
     public AppResponse<ComponentInfoVo> getComponentInfo(String componentId) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取组件基本信息
         Component component = componentDao.getComponentById(componentId, userId, tenantId);
@@ -235,9 +297,12 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
         // 获取最新版本号
         Integer latestVersion = componentVersionDao.getLatestVersion(componentId, tenantId);
-
         // 获取创建者名称
-        String creatorName = UserUtils.getRealNameById(component.getCreatorId());
+        AppResponse<String> realNameResp = rpaAuthFeign.getNameById(component.getCreatorId());
+        if (realNameResp == null || realNameResp.getData() == null) {
+            throw new ServiceException("用户名获取失败");
+        }
+        String creatorName = realNameResp.getData();
 
         // 获取最新版本的简介和图标
         String introduction = "";
@@ -279,8 +344,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> copyComponent(String componentId, String name) throws Exception {
         // 获取当前用户信息
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取原组件信息
         Component originalComponent = componentDao.getComponentById(componentId, userId, tenantId);
@@ -323,8 +397,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Override
     public AppResponse<String> copyCreateName(String componentId) throws Exception {
         // 获取当前用户信息
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取原组件信息
         Component originalComponent = componentDao.getComponentById(componentId, userId, tenantId);
@@ -340,7 +423,6 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     /**
      * 拷贝组件相关的基础数据
-     *
      * @param oldComponentId
      * @param newComponentId
      * @param userId
@@ -357,17 +439,18 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
         robotDesignServiceImpl.processCopy(oldComponentId, newComponentId, userId);
         // python依赖
         robotDesignServiceImpl.requireCopy(oldComponentId, newComponentId, userId);
-        // 配置参数
-        robotDesignServiceImpl.paramCopy(oldComponentId, newComponentId, userId);
         // python模块
         robotDesignServiceImpl.moduleCopy(oldComponentId, newComponentId, userId);
+        // 配置参数
+        robotDesignServiceImpl.paramCopy(oldComponentId, newComponentId, userId);
+        // 智能组件
+        robotDesignServiceImpl.smartComponentCopy(oldComponentId, newComponentId, userId);
     }
 
     /**
      * 生成副本组件名称
-     *
      * @param originalName 原组件名称
-     * @param tenantId     租户ID
+     * @param tenantId 租户ID
      * @return 新的组件名称
      */
     private String generateCopyComponentName(String originalName, String tenantId, String userId) {
@@ -386,8 +469,7 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     /**
      * 检查组件名称是否存在
-     *
-     * @param name     组件名称
+     * @param name 组件名称
      * @param tenantId 租户ID
      * @return 是否存在
      */
@@ -398,8 +480,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     @Override
     public AppResponse<IPage<ComponentVo>> getComponentPageList(ComponentListDto componentListDto) throws Exception {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 创建分页对象
         Page<ComponentVo> page = new Page<>(componentListDto.getPageNum(), componentListDto.getPageSize());
@@ -419,8 +510,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
     @Override
     public AppResponse<List<EditingPageCompVo>> getEditingPageCompList(GetComponentUseDto queryDto) throws Exception {
 
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         Integer robotVersion =
                 getRobotVersion(queryDto.getRobotId(), queryDto.getMode(), queryDto.getVersion(), new BaseDto());
@@ -610,8 +710,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     @Override
     public AppResponse<EditingPageCompInfoVo> getEditingPageCompInfo(EditPageCompInfoDto queryDto) throws Exception {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取机器人版本号
         Integer robotVersion =
@@ -635,9 +744,15 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
             String componentId, ComponentRobotUse componentRobotUse, String tenantId) throws NoLoginException {
         EditingPageCompInfoVo vo = new EditingPageCompInfoVo();
         vo.setComponentId(componentId);
+        AppResponse<User> res = rpaAuthFeign.getLoginUser();
+        if (res == null || !res.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = res.getData();
+        String userId = loginUser.getId();
 
         // 获取组件基本信息
-        Component component = componentDao.getComponentById(componentId, UserUtils.nowUserId(), tenantId);
+        Component component = componentDao.getComponentById(componentId, userId, tenantId);
         if (component == null) throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode(), "获取组件失败，数据异常");
         vo.setName(component.getName());
 
@@ -685,8 +800,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentDao, Component> i
 
     @Override
     public AppResponse<List<CompManageVo>> getCompManageList(GetComponentUseDto queryDto) throws Exception {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取机器人版本号
         Integer robotVersion =

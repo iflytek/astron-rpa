@@ -3,6 +3,8 @@ package com.iflytek.rpa.base.annotation;
 import static com.iflytek.rpa.robot.constants.RobotConstant.*;
 
 import com.iflytek.rpa.base.entity.dto.BaseDto;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.market.dao.AppMarketResourceDao;
 import com.iflytek.rpa.market.entity.AppMarketResource;
 import com.iflytek.rpa.market.entity.MarketDto;
@@ -10,12 +12,11 @@ import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.RobotVersion;
-import com.iflytek.rpa.starter.exception.NoDataException;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoDataException;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -40,6 +41,9 @@ public class RobotVersionAop {
 
     @Autowired
     private AppMarketResourceDao appMarketResourceDao;
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Around("@annotation(robotVersionAnnotation)")
     public Object process(ProceedingJoinPoint joinPoint, RobotVersionAnnotation robotVersionAnnotation)
@@ -108,8 +112,17 @@ public class RobotVersionAop {
             return;
         }
 
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
         if (PROJECT_LIST.equals(mode) || EDIT_PAGE.equals(mode)) {
             baseDto.setRobotId(robotId);
             baseDto.setRobotVersion(0);

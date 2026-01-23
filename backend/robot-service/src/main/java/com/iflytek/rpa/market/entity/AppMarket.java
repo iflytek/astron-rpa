@@ -41,7 +41,7 @@ public class AppMarket implements Serializable {
      */
     private String marketDescribe;
     /**
-     * 市场类型：team,official
+     * 市场类型：team,official,public(企业公共市场)
      */
     private String marketType;
     /**
@@ -73,6 +73,8 @@ public class AppMarket implements Serializable {
     private String userType;
 
     private String userName;
+
+    private String userPhone;
 
     private String tenantId;
 

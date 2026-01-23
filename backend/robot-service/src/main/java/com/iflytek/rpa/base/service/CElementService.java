@@ -1,8 +1,8 @@
 package com.iflytek.rpa.base.service;
 
 import com.iflytek.rpa.base.entity.dto.ServerBaseDto;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 
 /**
  * 客户端，元素信息(CElement)表服务接口
@@ -11,8 +11,6 @@ import com.iflytek.rpa.starter.utils.response.AppResponse;
  * @since 2024-10-14 17:21:34
  */
 public interface CElementService {
-
-    //    AppResponse<?> getElementNameList(BaseDto baseDto) throws NoLoginException;
 
     AppResponse<?> getElementDetail(ServerBaseDto serverBaseDto) throws NoLoginException;
 

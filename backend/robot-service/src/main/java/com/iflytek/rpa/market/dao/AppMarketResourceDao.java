@@ -1,16 +1,16 @@
 package com.iflytek.rpa.market.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.iflytek.rpa.market.entity.AppMarketResource;
 import com.iflytek.rpa.market.entity.MarketDto;
-import com.iflytek.rpa.market.entity.dto.MarketResourceDto;
 import com.iflytek.rpa.market.entity.dto.ShareRobotDto;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 /**
  * 团队市场-资源映射表(AppMarketResource)表数据库访问层
@@ -20,8 +20,6 @@ import org.apache.ibatis.annotations.Update;
  */
 @Mapper
 public interface AppMarketResourceDao extends BaseMapper<AppMarketResource> {
-
-    Integer updateDownloadNum(MarketResourceDto marketResourceDto);
 
     Integer addAppResource(@Param("entity") ShareRobotDto marketResourceDto);
 
@@ -47,9 +45,14 @@ public interface AppMarketResourceDao extends BaseMapper<AppMarketResource> {
     @Select("select * " + "from app_market_resource " + "where app_id = #{appId} and market_id = #{marketId}")
     AppMarketResource getAppResourceRegardlessDel(@Param("appId") String appId, @Param("marketId") String marketId);
 
-    @Update("update app_market_resource set download_num=#{downloadNum} where deleted=0 and id=#{resourceId}")
-    void syncDownloadNumsWithRedis(@Param("downloadNum") Long downloadNum, @Param("resourceId") Long resourceId);
-
-    @Update("update app_market_resource set check_num=#{checkNum} where deleted=0 and id=#{resourceId}")
-    void syncCheckNumsWithRedis(@Param("checkNum") Long checkNum, @Param("resourceId") Long resourceId);
+    /**
+     * 分页查询市场应用资源
+     */
+    Page<AppMarketResource> pageAllAppList(
+            IPage<AppMarketResource> pageConfig,
+            @Param("marketId") String marketId,
+            @Param("creatorId") String creatorId,
+            @Param("appName") String appName,
+            @Param("category") String category,
+            @Param("sortKey") String sortKey);
 }

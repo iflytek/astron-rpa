@@ -25,14 +25,26 @@ public interface CModuleDao extends BaseMapper<CModule> {
             @Param("robotVersion") Integer robotVersion,
             @Param("userId") String userId);
 
-    @Select("select * " + "from c_process "
+    @Select("select * " + "from c_module "
             + "where deleted = 0 "
             + "and creator_id = #{userId} and robot_id = #{robotId} and robot_version = #{robotVersion} "
-            + "order by create_time desc")
-    List<CProcess> getAllProcessList(
+            + "order by id asc")
+    List<CModule> getAllModuleListOrderByIdAsc(
             @Param("robotId") String robotId,
             @Param("robotVersion") Integer robotVersion,
             @Param("userId") String userId);
+
+    @Select("select * " + "from c_module "
+            + "where deleted = 0 "
+            + "and robot_id = #{robotId} and robot_version = #{robotVersion} "
+            + "order by id asc")
+    List<CModule> getAllModuleListWithoutUserId(
+            @Param("robotId") String robotId, @Param("robotVersion") Integer robotVersion);
+
+    @Select(
+            "select * from c_process where deleted = 0 and robot_id = #{robotId} and robot_version = #{robotVersion} order by create_time desc")
+    List<CProcess> getAllProcessListWithOutUserId(
+            @Param("robotId") String robotId, @Param("robotVersion") Integer robotVersion);
 
     @Select("select * " + "from c_module "
             + "where deleted = 0 "
@@ -46,17 +58,6 @@ public interface CModuleDao extends BaseMapper<CModule> {
             + "where deleted = 0 "
             + "and creator_id = #{userId} and module_id = #{moduleId}")
     boolean deleteOneModule(@Param("moduleId") String moduleId, @Param("userId") String userId);
-
-    @Update("update c_module " + "set module_content = #{moduleContent} "
-            + "where deleted = 0 "
-            + "and creator_id = #{userId} and module_id = #{moduleId}"
-            + "and robot_id = #{robotId} and robot_version = 0")
-    boolean saveModuleContent(
-            @Param("moduleId") String moduleId,
-            @Param("userId") String userId,
-            @Param("robotId") String robotId,
-            @Param("moduleContent") String moduleContent,
-            @Param("breakpoint") String breakpoint);
 
     @Select("select module_name " + "from c_module "
             + "where deleted = 0 "
@@ -111,9 +112,6 @@ public interface CModuleDao extends BaseMapper<CModule> {
             @Param("robotId") String robotId,
             @Param("robotVersion") Integer robotVersion);
 
-    @Select("select *" + "from c_module " + "where deleted = 0 " + "and module_id = #{moduleId}")
-    CModule getModuleByModuleId(@Param("moduleId") String moduleId);
-
     void insertBatch(List<CModule> moduleList);
 
     Integer createModuleForCurrentVersion(RobotVersionDto robotVersionDto);
@@ -121,4 +119,14 @@ public interface CModuleDao extends BaseMapper<CModule> {
     @Update("update c_module " + "set deleted = 1 "
             + "where robot_id = #{robotId} and robot_version = 0 and creator_id = #{userId}")
     boolean deleteOldEditVersion(@Param("robotId") String robotId, @Param("userId") String userId);
+
+    @Select("select id " + "from c_module "
+            + "where deleted = 0 "
+            + "and creator_id = #{userId} and module_id = #{moduleId}"
+            + "and robot_id = #{robotId} and robot_version = 0")
+    Long getIdByModuleId(
+            @Param("moduleId") String moduleId, @Param("userId") String userId, @Param("robotId") String robotId);
+
+    boolean updateModuleContentById(
+            @Param("id") Long id, @Param("moduleContent") String moduleContent, @Param("breakpoint") String breakpoint);
 }

@@ -1,32 +1,33 @@
 package com.iflytek.rpa.component.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.DISPATCH;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
 import com.iflytek.rpa.base.dao.CProcessDao;
 import com.iflytek.rpa.base.entity.dto.BaseDto;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.component.dao.ComponentDao;
 import com.iflytek.rpa.component.dao.ComponentRobotUseDao;
 import com.iflytek.rpa.component.dao.ComponentVersionDao;
+import com.iflytek.rpa.component.entity.Component;
 import com.iflytek.rpa.component.entity.ComponentRobotUse;
 import com.iflytek.rpa.component.entity.ComponentVersion;
 import com.iflytek.rpa.component.entity.bo.ComponentRobotUseDeleteBo;
 import com.iflytek.rpa.component.entity.bo.ComponentRobotUseUpdateBo;
-import com.iflytek.rpa.component.entity.dto.AddCompUseDto;
-import com.iflytek.rpa.component.entity.dto.DelComponentUseDto;
-import com.iflytek.rpa.component.entity.dto.GetComponentUseDto;
-import com.iflytek.rpa.component.entity.dto.UpdateComponentUseDto;
+import com.iflytek.rpa.component.entity.dto.*;
 import com.iflytek.rpa.component.entity.vo.ComponentUseVo;
+import com.iflytek.rpa.component.entity.vo.EditCompUseVo;
 import com.iflytek.rpa.component.service.ComponentRobotUseService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -48,12 +49,17 @@ public class ComponentRobotUseServiceImpl extends ServiceImpl<ComponentRobotUseD
     private ComponentVersionDao componentVersionDao;
 
     @Autowired
+    private ComponentDao componentDao;
+
+    @Autowired
     private CProcessDao cProcessDao;
 
     @Autowired
     private ComponentRobotUseServiceImpl self;
 
-    @NotNull
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     private static List<ComponentUseVo> getComponentUseVos(List<ComponentRobotUse> componentRobotUses) {
         List<ComponentUseVo> componentUseVos = new ArrayList<>();
         if (componentRobotUses != null && !componentRobotUses.isEmpty()) {
@@ -70,9 +76,15 @@ public class ComponentRobotUseServiceImpl extends ServiceImpl<ComponentRobotUseD
     @Override
     public AppResponse<List<ComponentUseVo>> getComponentUse(GetComponentUseDto getComponentUseDto)
             throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
+        if (getComponentUseDto.getMode().equals(DISPATCH)) {
+            getComponentUseDto.setVersion(getComponentUseDto.getRobotVersion());
+        }
         Integer robotVersion = getRobotVersion(
                 getComponentUseDto.getRobotId(),
                 getComponentUseDto.getMode(),
@@ -91,8 +103,17 @@ public class ComponentRobotUseServiceImpl extends ServiceImpl<ComponentRobotUseD
 
     @Override
     public AppResponse<String> addComponentUse(AddCompUseDto addCompUseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取机器人版本号
         Integer robotVersion = getRobotVersion(
@@ -133,8 +154,17 @@ public class ComponentRobotUseServiceImpl extends ServiceImpl<ComponentRobotUseD
 
     @Override
     public AppResponse<String> deleteComponentUse(DelComponentUseDto delComponentUseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取机器人版本号
         Integer robotVersion = getRobotVersion(
@@ -163,8 +193,17 @@ public class ComponentRobotUseServiceImpl extends ServiceImpl<ComponentRobotUseD
 
     @Override
     public AppResponse<String> updateComponentUse(UpdateComponentUseDto updateComponentUseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
 
         // 获取机器人版本号
         Integer robotVersion = getRobotVersion(
@@ -269,5 +308,36 @@ public class ComponentRobotUseServiceImpl extends ServiceImpl<ComponentRobotUseD
         if (processId == null) throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode(), "流程id查询为空");
 
         return AppResponse.success(processId);
+    }
+
+    @Override
+    public AppResponse<EditCompUseVo> getEditCompUse(EditCompUseDto queryDto) throws NoLoginException {
+        String componentId = queryDto.getComponentId();
+        String robotId = queryDto.getRobotId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+
+        ComponentRobotUse componentRobotUse =
+                componentRobotUseDao.getByRobotIdVersionAndComponentId(robotId, 0, componentId, userId);
+        ComponentVersion componentVersion = componentVersionDao.getVersionByComponentIdAndVersion(
+                componentId, componentRobotUse.getComponentVersion(), tenantId);
+        Component component = componentDao.getComponentById(componentId, userId, tenantId);
+
+        EditCompUseVo editCompUseVo = new EditCompUseVo();
+        editCompUseVo.setName(component.getName());
+        editCompUseVo.setIcon(componentVersion.getIcon());
+        editCompUseVo.setComponentId(componentId);
+        editCompUseVo.setComponentVersion(componentVersion.getVersion());
+
+        return AppResponse.success(editCompUseVo);
     }
 }

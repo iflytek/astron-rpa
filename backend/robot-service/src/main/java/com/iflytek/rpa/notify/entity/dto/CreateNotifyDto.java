@@ -12,4 +12,5 @@ public class CreateNotifyDto {
     String messageType;
     String marketId;
     String appId;
+    Integer operateResult;
 }

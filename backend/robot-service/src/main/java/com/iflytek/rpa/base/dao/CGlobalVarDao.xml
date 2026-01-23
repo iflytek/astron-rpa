@@ -20,34 +20,37 @@
     </resultMap>
 
     <insert id="createGlobalVarForCurrentVersion">
-        insert into c_global_var(project_id,
-                                 global_id,
-                                 var_name,
-                                 var_type,
-                                 var_value,
-                                 var_describe,
-                                 deleted,
-                                 creator_id,
-                                 create_time,
-                                 updater_id,
-                                 update_time,
-                                 robot_id,
-                                 robot_version)
-        select project_id,
-               global_id,
-               var_name,
-               var_type,
-               var_value,
-               var_describe,
-               deleted,
-               creator_id,
-               now(),
-               updater_id,
-               now(),
-               robot_id,
-               #{version}
+        insert into c_global_var(
+                        project_id,
+                        global_id,
+                        var_name,
+                        var_type,
+                        var_value,
+                        var_describe,
+                        deleted,
+                        creator_id,
+                        create_time,
+                        updater_id,
+                        update_time,
+                        robot_id,
+                        robot_version)
+        select
+            project_id,
+            global_id,
+            var_name,
+            var_type,
+            var_value,
+            var_describe,
+            deleted,
+            creator_id,
+            now(),
+            updater_id,
+            now(),
+            robot_id,
+            #{version}
         from c_global_var
-        where robot_id = #{robotId}
+        where
+          robot_id = #{robotId}
           and robot_version = 0
           and creator_id = #{creatorId}
           and deleted = 0
@@ -55,34 +58,37 @@
 
 
     <insert id="createGlobalVarForObtainedVersion">
-        insert into c_global_var(project_id,
-                                 global_id,
-                                 var_name,
-                                 var_type,
-                                 var_value,
-                                 var_describe,
-                                 deleted,
-                                 creator_id,
-                                 create_time,
-                                 updater_id,
-                                 update_time,
-                                 robot_id,
-                                 robot_version)
-        select project_id,
-               global_id,
-               var_name,
-               var_type,
-               var_value,
-               var_describe,
-               0,
-               #{obtainedRobotDesign.creatorId},
-               now(),
-               #{obtainedRobotDesign.updaterId},
-               now(),
-               #{obtainedRobotDesign.robotId},
-               0
+        insert into c_global_var(
+            project_id,
+            global_id,
+            var_name,
+            var_type,
+            var_value,
+            var_describe,
+            deleted,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time,
+            robot_id,
+            robot_version)
+        select
+            project_id,
+            global_id,
+            var_name,
+            var_type,
+            var_value,
+            var_describe,
+            0,
+            #{obtainedRobotDesign.creatorId},
+            now(),
+           #{obtainedRobotDesign.updaterId},
+            now(),
+            #{obtainedRobotDesign.robotId},
+            0
         from c_global_var
-        where robot_id = #{authorRobotVersion.robotId}
+        where
+            robot_id = #{authorRobotVersion.robotId}
           and robot_version = #{authorRobotVersion.version}
           and creator_id = #{authorRobotVersion.creatorId}
     </insert>
@@ -90,16 +96,19 @@
         UPDATE c_global_var
         SET deleted = 1
         WHERE robot_id = #{robotId}
-          AND global_id = #{globalId}
-          AND creator_id = #{creatorId}
-          AND robot_version = 0
-          AND deleted = 0
+            AND global_id = #{globalId}
+            AND creator_id = #{creatorId}
+            AND robot_version = 0
+            AND deleted = 0
     </update>
 
     <select id="getGlobalVarInfoList" resultMap="CGlobalVarMap">
-        select *
-        from c_global_var
-        where robot_id = #{robotId}
+        select
+            *
+        from
+            c_global_var
+        where
+            robot_id = #{robotId}
           and robot_version = #{robotVersion}
           and deleted = 0
     </select>
@@ -107,26 +116,27 @@
         SELECT COUNT(*)
         FROM c_global_var
         WHERE robot_id = #{robotId}
-          AND var_name = #{varName}
-          AND robot_version = 0
-          AND deleted = 0
+            AND var_name = #{varName}
+            AND robot_version = 0
+            AND deleted = 0
     </select>
     <select id="getGlobalVarOne" resultMap="CGlobalVarMap">
         SELECT robot_id, global_id, var_name
         FROM c_global_var
         WHERE robot_id = #{robotId}
-          AND creator_id = #{updaterId}
-          AND var_name = #{varName}
-          AND robot_version = 0
-          AND deleted = 0 LIMIT 1
+            AND creator_id = #{updaterId}
+            AND var_name = #{varName}
+            AND robot_version = 0
+            AND deleted = 0
+        LIMIT 1
     </select>
     <select id="getGlobalVarNameList" resultMap="CGlobalVarMap">
         SELECT robot_id, global_id, var_name, var_type, var_describe
         FROM c_global_var
         WHERE robot_id = #{robotId}
-          AND creator_id = #{userId}
-          AND robot_version = 0
-          AND deleted = 0
+            AND creator_id = #{userId}
+            AND robot_version = 0
+            AND deleted = 0
     </select>
     <insert id="insertGloBatch">
         insert into c_global_var(
@@ -162,38 +172,43 @@
         </foreach>
     </insert>
     <insert id="createGlobalVar">
-        INSERT INTO c_global_var (robot_id,
-                                  robot_version,
-                                  global_id,
-                                  var_name,
-                                  var_type,
-                                  var_value,
-                                  var_describe,
-                                  creator_id,
-                                  updater_id,
-                                  deleted)
-        VALUES (#{robotId},
-                0,
-                #{globalId},
-                #{varName},
-                #{varType},
-                #{varValue},
-                #{varDescribe},
-                #{creatorId},
-                #{updaterId},
-                0)
+        INSERT INTO c_global_var (
+            robot_id,
+            robot_version,
+            global_id,
+            var_name,
+            var_type,
+            var_value,
+            var_describe,
+            creator_id,
+            updater_id,
+            deleted
+        ) VALUES (
+            #{robotId},
+            0,
+            #{globalId},
+            #{varName},
+            #{varType},
+            #{varValue},
+            #{varDescribe},
+            #{creatorId},
+            #{updaterId},
+            0
+        )
     </insert>
     <update id="saveGlobalVar">
         UPDATE c_global_var
-        SET var_name     = #{varName},
-            var_type     = #{varType},
-            var_value    = #{varValue},
+        SET
+            var_name = #{varName},
+            var_type = #{varType},
+            var_value = #{varValue},
             var_describe = #{varDescribe},
-            updater_id   = #{updaterId}
-        WHERE robot_id = #{robotId}
-          AND global_id = #{globalId}
-          AND robot_version = 0
-          AND deleted = 0
+            updater_id = #{updaterId}
+        WHERE
+            robot_id = #{robotId}
+            AND global_id = #{globalId}
+            AND robot_version = 0
+            AND deleted = 0
     </update>
 
 </mapper>

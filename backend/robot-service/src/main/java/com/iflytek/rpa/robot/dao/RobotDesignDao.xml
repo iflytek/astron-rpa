@@ -25,44 +25,49 @@
     <select id="getRobotNameList" resultType="java.lang.String">
         select name
         from robot_design
-        where deleted = 0
-          and creator_id = #{userId}
-          and tenant_id = #{tenantId}
-          and name like concat(#{robotNameBase}, '%')
+        where
+            deleted = 0
+        and creator_id = #{userId}
+        and tenant_id = #{tenantId}
+        and name like concat(#{robotNameBase}, '%')
     </select>
 
     <select id="getRobotDesignInfo" resultMap="RobotMap">
         select *
         from robot_design
-        where deleted = 0
-          and creator_id = #{userId}
-          and tenant_id = #{tenantId}
-          and robot_id = #{robotId}
+        where
+            deleted = 0
+        and creator_id = #{userId}
+        and tenant_id = #{tenantId}
+        and robot_id = #{robotId}
     </select>
 
     <select id="countByName" resultType="java.lang.Integer">
         select count(*)
         from robot_design
-        where deleted = 0
-          and robot_id != #{robotId}
-          and creator_id = #{creatorId}
-          and tenant_id = #{tenantId}
-          and name = #{name}
+        where
+            deleted = 0
+        and robot_id != #{robotId}
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
+        and name = #{name}
     </select>
 
     <select id="countRobotByName" resultType="java.lang.Long">
         select count(*)
         from robot_design
-        where deleted = 0
-          and creator_id = #{creatorId}
-          and tenant_id = #{tenantId}
-          and name = #{name}
+        where
+            deleted = 0
+        and creator_id = #{creatorId}
+        and tenant_id = #{tenantId}
+        and name = #{name}
     </select>
 
     <select id="countRobotVersionByName" resultType="java.lang.Long">
         select count(*)
         from robot_version
-        where deleted = 0
+        where
+            deleted = 0
           and creator_id = #{creatorId}
           and tenant_id = #{tenantId}
           and name = #{name}
@@ -81,7 +86,7 @@
             update_time = now()
         </set>
         where
-        robot_id = #{robotId}
+            robot_id = #{robotId}
         and creator_id = #{userId}
         and deleted = 0
     </update>
@@ -124,45 +129,42 @@
     <insert id="obtainRobotToDesign">
         insert into robot_design
         (robot_id,
-         name,
-         creator_id,
-         create_time,
-         updater_id,
-         update_time,
-         deleted,
-         tenant_id,
-         app_id,
-         app_version,
-         market_id,
-         data_source,
-         resource_status,
-         edit_enable,
-         transform_status)
-        values (#{robotId},
-                #{name},
-                #{creatorId},
-                now(),
-                #{updaterId},
-                now(),
-                0,
-                #{tenantId},
-                #{appId},
-                #{appVersion},
-                #{marketId},
-                #{dataSource},
-                #{resourceStatus},
-                #{editEnable},
-                #{transformStatus})
+          name,
+          creator_id,
+          create_time,
+          updater_id,
+          update_time,
+          deleted,
+          tenant_id,
+          app_id,
+          app_version,
+          market_id,
+          data_source,
+          resource_status,
+          edit_enable,
+          transform_status)
+        values
+            (#{robotId},
+            #{name},
+            #{creatorId},
+            now(),
+            #{updaterId},
+            now(),
+            0,
+            #{tenantId},
+            #{appId},
+            #{appVersion},
+            #{marketId},
+            #{dataSource},
+            #{resourceStatus},
+            #{editEnable},
+            #{transformStatus})
     </insert>
 
     <update id="deleteDesign">
         update robot_design
-        set deleted     = 1,
-            update_time = now()
-        where robot_id = #{robotId}
-          and creator_id = #{userId}
-          and tenant_id = #{tenantId}
-          and deleted = 0
+            set deleted = 1, update_time = now()
+            where robot_id = #{robotId} and creator_id = #{userId} and tenant_id = #{tenantId} and deleted = 0
     </update>
 
     <select id="getDesignByAppIdList" resultMap="RobotMap">

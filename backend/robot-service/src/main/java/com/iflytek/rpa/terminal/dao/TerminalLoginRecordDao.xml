@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.terminal.dao.TerminalLoginRecordDao">
+    <resultMap id="TerminalLoginRecordMap" type="com.iflytek.rpa.terminal.entity.TerminalLoginRecord">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="terminal_id" property="terminalId" jdbcType="VARCHAR"/>
+        <result column="dept_id" property="deptId" jdbcType="VARCHAR"/>
+        <result column="dept_id_path" property="deptIdPath" jdbcType="VARCHAR"/>
+        <result column="ip" property="ip" jdbcType="VARCHAR"/>
+        <result column="login_time" property="loginTime" jdbcType="TIMESTAMP"/>
+        <result column="logout_time" property="logoutTime" jdbcType="TIMESTAMP"/>
+        <result column="login_status" property="loginStatus" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="creator_id" property="creatorId" jdbcType="VARCHAR"/>
+        <result column="updater_id" property="updaterId" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="deleted" property="deleted" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+
+
+    <select id="countUnLogoutRecordByTerminalId" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            terminal_login_record
+        where
+            deleted = 0
+            and terminal_id = #{terminalId}
+            and login_time IS NOT NULL
+            AND logout_time IS NULL
+    </select>
+
+
+    <update id="setLogout">
+        update
+            terminal_login_record
+        SET
+            logout_time = #{logoutTime},
+            update_time = now()
+        WHERE
+            logout_time IS NULL
+            and id = #{id}
+            and deleted = 0
+        order by create_time desc
+        limit 1
+    </update>
+
+
+    <select id="selectLogoutCandidates" resultMap="TerminalLoginRecordMap">
+        SELECT *
+        FROM terminal_login_record
+        WHERE
+        logout_time IS NULL
+        AND creator_id = #{userId}
+        AND deleted = 0
+        order by create_time desc
+        limit 1
+    </select>
+
+
+
+
+</mapper>

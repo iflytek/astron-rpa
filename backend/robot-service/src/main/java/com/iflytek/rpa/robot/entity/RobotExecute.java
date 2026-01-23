@@ -1,5 +1,6 @@
 package com.iflytek.rpa.robot.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -25,6 +26,7 @@ public class RobotExecute implements Serializable {
     /**
      * 机器人唯一id，获取的应用id
      */
+    @JSONField(name = "robot_id")
     private String robotId;
     /**
      * 当前名字，用于列表展示
@@ -33,6 +35,7 @@ public class RobotExecute implements Serializable {
     /**
      * 创建者id
      */
+    @JSONField(name = "creator_id")
     private String creatorId;
     /**
      * 创建时间
@@ -42,6 +45,7 @@ public class RobotExecute implements Serializable {
     /**
      * 更新者id
      */
+    @JSONField(name = "updater_id")
     private String updaterId;
     /**
      * 更新时间
@@ -53,33 +57,41 @@ public class RobotExecute implements Serializable {
      */
     private Integer deleted;
 
+    @JSONField(name = "tenant_id")
     private String tenantId;
     /**
      * appmarketResource中的应用id
      */
+    @JSONField(name = "app_id")
     private String appId;
     /**
      * 获取的应用：应用市场版本
      */
+    @JSONField(name = "app_version")
     private Integer appVersion;
     /**
      * 获取的应用：市场id
      */
+    @JSONField(name = "market_id")
     private String marketId;
     /**
      * 资源状态：toObtain, obtaining, obtained, toUpdate, updating
      */
+    @JSONField(name = "resource_status")
     private String resourceStatus;
     /**
      * 来源：create 自己创建 ； market 市场获取
      */
+    @JSONField(name = "data_source")
     private String dataSource;
 
+    @JSONField(name = "param_detail")
     private String paramDetail;
 
     /**
      * 部门id路径，用于根据部门统计机器人数量
      */
+    @JSONField(name = "dept_id_path")
     private String deptIdPath;
 
     @TableField(exist = false)
@@ -93,9 +105,11 @@ public class RobotExecute implements Serializable {
     /**
      * 最新版本 发版时间
      */
+    @JSONField(name = "latest_release_time")
     private Date latestReleaseTime;
 
     @TableField(exist = false)
+    @JSONField(name = "robot_version")
     private Integer robotVersion;
 
     @TableField(exist = false)

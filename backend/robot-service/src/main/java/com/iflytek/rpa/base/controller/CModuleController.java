@@ -6,8 +6,8 @@ import com.iflytek.rpa.base.entity.vo.OpenModuleVo;
 import com.iflytek.rpa.base.entity.vo.ProcessModuleListVo;
 import com.iflytek.rpa.base.service.CModuleService;
 import com.iflytek.rpa.robot.entity.dto.SaveModuleDto;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.sql.SQLException;
 import java.util.List;
 import javax.annotation.Resource;
@@ -24,7 +24,6 @@ public class CModuleController {
 
     /**
      * 流程和代码模块列表
-     *
      * @param queryDto
      * @throws NoLoginException
      */
@@ -36,7 +35,6 @@ public class CModuleController {
 
     /**
      * 代码模块列表
-     *
      * @param queryDto
      * @throws NoLoginException
      */
@@ -48,7 +46,6 @@ public class CModuleController {
 
     /**
      * 新建代码模块
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -60,7 +57,6 @@ public class CModuleController {
 
     /**
      * 新建代码模块名称
-     *
      * @param robotId
      * @return
      * @throws NoLoginException
@@ -72,7 +68,6 @@ public class CModuleController {
 
     /**
      * 重命名代码模块
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -84,7 +79,6 @@ public class CModuleController {
 
     /**
      * 删除模块接口
-     *
      * @param moduleId
      * @return
      * @throws NoLoginException
@@ -96,7 +90,6 @@ public class CModuleController {
 
     /**
      * 打开模块文件
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -110,7 +103,6 @@ public class CModuleController {
 
     /**
      * 保存指定代码模块
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException

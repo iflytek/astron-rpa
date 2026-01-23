@@ -7,10 +7,10 @@ import com.iflytek.rpa.base.entity.dto.CParamListDto;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.base.service.CParamService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -27,7 +27,6 @@ public class CParamController {
 
     /**
      * 查询流程参数
-     *
      * @param
      * @return
      */
@@ -43,23 +42,22 @@ public class CParamController {
 
     /**
      * 新增流程参数
-     *
      * @param ParamDto
      * @return
      */
     @PostMapping("/add")
     public AppResponse<String> addParam(@RequestBody @Valid CParamDto ParamDto) throws NoLoginException {
+
         return cParamService.addParam(ParamDto);
     }
 
     /**
      * 删除流程参数
-     *
      * @param id
      * @return
      */
     @PostMapping("/delete")
-    public AppResponse<Boolean> deleteParam(@RequestParam(value = "id") String id) {
+    public AppResponse<Boolean> deleteParam(@RequestParam(value = "id") String id) throws NoLoginException {
         // 判断id是否为空
         if (StringUtils.isBlank(id)) {
             throw new ServiceException((ErrorCodeEnum.E_SQL.getCode()), "参数id不能为空");
@@ -69,7 +67,6 @@ public class CParamController {
 
     /**
      * 修改流程参数
-     *
      * @param paramDto
      * @return
      */
@@ -80,7 +77,6 @@ public class CParamController {
 
     /**
      * 保存用户自定义参数
-     *
      * @param paramListDto
      * @return
      * @throws NoLoginException
@@ -90,6 +86,6 @@ public class CParamController {
     public AppResponse<Boolean> saveUserParam(@RequestBody CParamListDto paramListDto)
             throws NoLoginException, JsonProcessingException {
 
-        return cParamService.saveUserParam(paramListDto.getParamList());
+        return cParamService.saveUserParam(paramListDto);
     }
 }

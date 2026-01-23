@@ -16,6 +16,7 @@
         <result property="deleted" column="deleted" jdbcType="INTEGER"/>
         <result property="marketId" column="market_id" jdbcType="VARCHAR"/>
         <result property="tenantId" column="tenant_id" jdbcType="CHAR"/>
+        <result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
     </resultMap>
 
 
@@ -29,7 +30,6 @@
             amu.creator_id = #{userId}
             and amu.deleted = 0
             and am.deleted = 0
-            and am.tenant_id = #{tenantId}
             and amu.user_type != 'acquirer'
             and am.creator_id != #{userId}
     </select>
@@ -60,7 +60,8 @@
             and amu.tenant_id = #{tenantId}
             and amu.deleted = 0
             and am.deleted = 0
-        order by amu.update_time desc
+        order by
+            am.market_type asc,amu.update_time desc
     </select>
 
     <!--    租户下的所有团队市场-->
@@ -95,6 +96,29 @@
             0)
     </insert>
 
+    <insert id="addMarketWithType" keyProperty="id" useGeneratedKeys="true">
+        insert into app_market (tenant_id,
+        market_id,
+        market_name,
+        market_describe,
+        market_type,
+        creator_id,
+        create_time,
+        updater_id,
+        update_time,
+        deleted)
+        values
+        (#{entity.tenantId},
+        #{entity.marketId},
+        #{entity.marketName},
+        #{entity.marketDescribe},
+        #{entity.marketType},
+        #{entity.creatorId},
+        now(),
+        #{entity.updaterId},
+        now(),
+        0)
+    </insert>
 
     <select id="getMarketNameByName" resultType="java.lang.Integer">
         select count(1)
@@ -130,12 +154,12 @@
         select market_name,
                market_describe,
                create_time,
-               creator_id
+               creator_id,
+               market_type
         from
             app_market
         where
             market_id = #{marketId}
-            and tenant_id = #{tenantId}
             and deleted = 0
            limit 1
     </select>
@@ -277,6 +301,25 @@ idmarket_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_tim
         </where>
     </select>
 
+    <select id="selectPublicMarket" resultMap="AppMarketMap">
+        select
+            market_name,
+            market_id,
+            market_describe,
+            create_time,
+            creator_id
+            market_type,
+            creator_id,
+            create_time,
+            updater_id,
+            update_time
+        from
+            app_market
+        where
+            market_type = 'public' and deleted = 0 and tenant_id = #{tenantId}
+        limit 1
+    </select>
+
     <!--新增所有列-->
     <insert id="insertxxx" keyProperty="id" useGeneratedKeys="true">
         insert into app_market(market_namemarket_shareapp_sharemarket_describemarket_typecreator_idcreate_timeupdater_idupdate_timedeleted)
@@ -343,6 +386,13 @@ market_name = values(market_name)market_share = values(market_share)app_share = 
     <delete id="deleteById">
         delete from app_market where id = #{id}
     </delete>
+
+    <select id="getMarketCount" resultType="java.lang.Integer">
+        select count(1)
+        from app_market as am
+        inner join app_market_user amu on amu.market_id = am.market_id and amu.tenant_id = am.tenant_id and amu.user_type = 'owner'
+        where am.deleted = 0 and amu.deleted = 0  and am.tenant_id = #{tenantId}
+    </select>
 
 </mapper>
 

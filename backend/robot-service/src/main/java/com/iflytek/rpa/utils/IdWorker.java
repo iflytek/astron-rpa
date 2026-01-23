@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
  * 并且效率较高，经测试，snowflake每秒能够产生26万ID左右，完全满足需要。
  * <p>
  * 64位ID (42(毫秒)+5(机器ID)+5(业务编码)+12(重复累加))
+ *
  */
 @Component
 public class IdWorker {
@@ -45,20 +46,22 @@ public class IdWorker {
     private static final long sequenceMask = -1L ^ (-1L << sequenceBits);
     /* 上次生产id时间戳 */
     private static long lastTimestamp = -1L;
+    // 0，并发控制
+    private long sequence = 0L;
+
     private final long workerId;
     // 数据标识id部分
     private final long datacenterId;
-    // 0，并发控制
-    private long sequence = 0L;
 
     public IdWorker() {
         this.datacenterId = getDatacenterId(maxDatacenterId);
         this.workerId = getMaxWorkerId(datacenterId, maxWorkerId);
     }
-
     /**
-     * @param workerId     工作机器ID
-     * @param datacenterId 序列号
+     * @param workerId
+     *            工作机器ID
+     * @param datacenterId
+     *            序列号
      */
     public IdWorker(long workerId, long datacenterId) {
         if (workerId > maxWorkerId || workerId < 0) {
@@ -71,6 +74,49 @@ public class IdWorker {
         }
         this.workerId = workerId;
         this.datacenterId = datacenterId;
+    }
+    /**
+     * 获取下一个ID
+     *
+     * @return
+     */
+    public synchronized long nextId() {
+        long timestamp = timeGen();
+        if (timestamp < lastTimestamp) {
+            throw new RuntimeException(String.format(
+                    "Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
+        }
+
+        if (lastTimestamp == timestamp) {
+            // 当前毫秒内，则+1
+            sequence = (sequence + 1) & sequenceMask;
+            if (sequence == 0) {
+                // 当前毫秒内计数满了，则等待下一秒
+                timestamp = tilNextMillis(lastTimestamp);
+            }
+        } else {
+            sequence = 0L;
+        }
+        lastTimestamp = timestamp;
+        // ID偏移组合生成最终的ID，并返回ID
+        long nextId = ((timestamp - twepoch) << timestampLeftShift)
+                | (datacenterId << datacenterIdShift)
+                | (workerId << workerIdShift)
+                | sequence;
+
+        return nextId;
+    }
+
+    private long tilNextMillis(final long lastTimestamp) {
+        long timestamp = this.timeGen();
+        while (timestamp <= lastTimestamp) {
+            timestamp = this.timeGen();
+        }
+        return timestamp;
+    }
+
+    private long timeGen() {
+        return System.currentTimeMillis();
     }
 
     /**
@@ -126,49 +172,5 @@ public class IdWorker {
             long nextId = idWorker.nextId();
             System.out.println(nextId);
         }
-    }
-
-    /**
-     * 获取下一个ID
-     *
-     * @return
-     */
-    public synchronized long nextId() {
-        long timestamp = timeGen();
-        if (timestamp < lastTimestamp) {
-            throw new RuntimeException(String.format(
-                    "Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
-        }
-
-        if (lastTimestamp == timestamp) {
-            // 当前毫秒内，则+1
-            sequence = (sequence + 1) & sequenceMask;
-            if (sequence == 0) {
-                // 当前毫秒内计数满了，则等待下一秒
-                timestamp = tilNextMillis(lastTimestamp);
-            }
-        } else {
-            sequence = 0L;
-        }
-        lastTimestamp = timestamp;
-        // ID偏移组合生成最终的ID，并返回ID
-        long nextId = ((timestamp - twepoch) << timestampLeftShift)
-                | (datacenterId << datacenterIdShift)
-                | (workerId << workerIdShift)
-                | sequence;
-
-        return nextId;
-    }
-
-    private long tilNextMillis(final long lastTimestamp) {
-        long timestamp = this.timeGen();
-        while (timestamp <= lastTimestamp) {
-            timestamp = this.timeGen();
-        }
-        return timestamp;
-    }
-
-    private long timeGen() {
-        return System.currentTimeMillis();
     }
 }

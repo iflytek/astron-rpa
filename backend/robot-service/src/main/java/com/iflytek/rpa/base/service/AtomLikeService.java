@@ -1,8 +1,8 @@
 package com.iflytek.rpa.base.service;
 
 import com.iflytek.rpa.base.entity.vo.AtomLikeVo;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 
 public interface AtomLikeService {

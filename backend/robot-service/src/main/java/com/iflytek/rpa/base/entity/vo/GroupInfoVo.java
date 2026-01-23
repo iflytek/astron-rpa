@@ -18,5 +18,5 @@ public class GroupInfoVo {
     /**
      * 该组内所有图片对象
      */
-    private List<com.iflytek.rpa.base.entity.vo.ElementInfoVo> elements;
+    private List<ElementInfoVo> elements;
 }

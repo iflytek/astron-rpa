@@ -7,11 +7,14 @@ import com.iflytek.rpa.base.entity.dto.BaseDto;
 import com.iflytek.rpa.base.entity.dto.CRequireDeleteDto;
 import com.iflytek.rpa.base.entity.dto.CRequireDto;
 import com.iflytek.rpa.base.service.CRequireService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +29,18 @@ public class CRequireServiceImpl implements CRequireService {
     @Resource
     private CRequireDao cRequireDao;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     @RobotVersionAnnotation
     public AppResponse<?> getRequireInfoList(BaseDto baseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         baseDto.setCreatorId(userId);
         List<CRequire> requireList = cRequireDao.getRequireList(baseDto.getRobotId(), baseDto.getRobotVersion());
         return AppResponse.success(requireList);
@@ -38,7 +49,12 @@ public class CRequireServiceImpl implements CRequireService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> addRequire(CRequireDto crequireDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         crequireDto.setCreatorId(userId);
         crequireDto.setUpdaterId(userId);
         crequireDto.setRobotVersion(0);
@@ -53,7 +69,12 @@ public class CRequireServiceImpl implements CRequireService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> deleteProject(CRequireDeleteDto cRequireDeleteDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         cRequireDeleteDto.setCreatorId(userId);
         if (cRequireDeleteDto.getIdList() == null
                 || cRequireDeleteDto.getIdList().isEmpty()) {
@@ -66,7 +87,12 @@ public class CRequireServiceImpl implements CRequireService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> updateRequire(CRequireDto crequireDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         crequireDto.setUpdaterId(userId);
         boolean result = cRequireDao.updateRequire(crequireDto);
         return AppResponse.success(result);

@@ -1,28 +1,32 @@
 package com.iflytek.rpa.base.service.impl;
 
 import static com.iflytek.rpa.robot.constants.RobotConstant.DISPATCH;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iflytek.rpa.base.dao.CParamDao;
 import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.dto.CParamDto;
+import com.iflytek.rpa.base.entity.dto.CParamListDto;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.base.service.CParamService;
 import com.iflytek.rpa.base.service.handler.ParamHandlerFactory;
 import com.iflytek.rpa.base.service.handler.ParamModeHandler;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
 import com.iflytek.rpa.robot.entity.dto.RobotVersionDto;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.task.service.ScheduleTaskRobotService;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
@@ -31,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author tzzhang
@@ -40,19 +43,25 @@ import org.springframework.util.CollectionUtils;
 @Service("CParamService")
 @RequiredArgsConstructor
 public class CParamServiceImpl implements CParamService {
-    private final ParamHandlerFactory paramHandlerFactory;
+    @Resource
+    private final CParamDao cParamDao;
 
     @Resource
-    private CParamDao cParamDao;
+    private final IdWorker idWorker;
 
     @Resource
-    private IdWorker idWorker;
+    private final RobotExecuteDao robotExecuteDao;
 
-    @Resource
-    private RobotExecuteDao robotExecuteDao;
+    @Autowired
+    private final RobotDesignDao robotDesignDao;
 
     @Autowired
     private ScheduleTaskRobotService scheduleTaskRobotService;
+
+    private final ParamHandlerFactory paramHandlerFactory;
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Override
     public AppResponse<List<ParamDto>> getAllParams(QueryParamDto queryParamDto)
@@ -79,15 +88,6 @@ public class CParamServiceImpl implements CParamService {
             }
         }
     }
-
-    //    @Override
-    //    public AppResponse<List<ParamDto>> getAllParams(QueryParamDto queryParamDto) throws JsonProcessingException,
-    // NoLoginException {
-    //        //根据流程id和机器人id进行查询参数还有机器人版本号查询参数
-    //        //robotId不能为空，判断是否为空
-    //        String robotId = queryParamDto.getRobotId();
-    //        String userId = UserUtils.nowUserId();
-    //        String tenantId = TenantUtils.getTenantId();
     //        List<CParam> cParamList = new ArrayList<CParam>();
     //        String mode = queryParamDto.getMode();
     //        //默认前端是不传递robot_version给后端
@@ -234,7 +234,12 @@ public class CParamServiceImpl implements CParamService {
         String cParamId = idWorker.nextId() + "";
         cParam.setId(cParamId);
         // 获取用户id
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         cParam.setCreatorId(userId);
         cParam.setUpdaterId(userId);
         cParam.setCreateTime(new Date());
@@ -246,17 +251,39 @@ public class CParamServiceImpl implements CParamService {
         }
         checkSameName(cParam);
         cParamDao.addParam(cParam);
+
+        AppResponse<User> resp = rpaAuthFeign.getLoginUser();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User user = resp.getData();
+        String nowUserId = user.getId();
+        robotDesignDao.updateTransformStatus(nowUserId, cParam.getRobotId(), null, EDITING);
         return AppResponse.success(cParamId);
     }
 
     @Override
-    public AppResponse<Boolean> deleteParam(String id) {
+    public AppResponse<Boolean> deleteParam(String id) throws NoLoginException {
+        CParam paramInfoById = cParamDao.getParamInfoById(id);
+        AppResponse<User> resp = rpaAuthFeign.getLoginUser();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User user = resp.getData();
+        String nowUserId = user.getId();
+        robotDesignDao.updateTransformStatus(nowUserId, paramInfoById.getRobotId(), null, EDITING);
         cParamDao.deleteParam(id);
         return AppResponse.success(true);
     }
 
     @Override
     public AppResponse<Boolean> updateParam(CParamDto cParamDto) throws NoLoginException {
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         CParam cParam = new CParam();
         BeanUtils.copyProperties(cParamDto, cParam);
         if (StringUtils.isEmpty(cParam.getProcessId())) {
@@ -265,10 +292,24 @@ public class CParamServiceImpl implements CParamService {
         if (StringUtils.isEmpty(cParam.getModuleId())) {
             cParam.setModuleId(null);
         }
+
         checkSameName(cParam);
-        cParam.setUpdaterId(UserUtils.nowUserId());
-        cParam.setUpdateTime(new Date());
-        cParamDao.updateParam(cParam);
+
+        // 检查新旧参数信息是否一致
+        CParam oldParamInfo = cParamDao.getParamInfoById(cParamDto.getId());
+
+        // 如果新旧参数信息不一致，将设计器机器人或组件的状态设置为编辑中
+        if (!StringUtils.equals(oldParamInfo.getVarName(), cParam.getVarName())
+                || !StringUtils.equals(oldParamInfo.getVarDescribe(), cParam.getVarDescribe())
+                || !StringUtils.equals(oldParamInfo.getVarType(), cParam.getVarType())
+                || !StringUtils.equals(oldParamInfo.getVarValue(), cParam.getVarValue())
+                || oldParamInfo.getVarDirection() != cParam.getVarDirection()) {
+            cParam.setUpdaterId(userId);
+            cParam.setUpdateTime(new Date());
+            cParamDao.updateParam(cParam);
+            robotDesignDao.updateTransformStatus(userId, cParamDto.getRobotId(), null, EDITING);
+        }
+
         return AppResponse.success(true);
     }
 
@@ -279,36 +320,88 @@ public class CParamServiceImpl implements CParamService {
             throw new ServiceException("参数名称不能为空");
         }
         cParam.setVarName(varName);
-        cParam.setCreatorId(UserUtils.nowUserId());
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        cParam.setCreatorId(userId);
         Long countRobot = cParamDao.countParamByName(cParam);
         if (countRobot > 0) {
             throw new ServiceException("存在同名参数，请重新命名");
         }
     }
 
-    public AppResponse<Boolean> saveUserParam(List<CParam> cParamList)
+    public AppResponse<Boolean> saveUserParam(CParamListDto cParamListDto)
             throws NoLoginException, JsonProcessingException {
+        List<CParam> cParamList = cParamListDto.getParamList();
+        AppResponse<String> resp = rpaAuthFeign.getTenantId();
+        if (resp == null || resp.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String tenantId = resp.getData();
+        RobotExecute robotExecuteTmp = robotExecuteDao.getRobotExecuteByTenantId(cParamListDto.getRobotId(), tenantId);
+        if (robotExecuteTmp != null) // 就地修改 执行器的参数
+        return updateExecutorParamDetail(robotExecuteTmp, cParamListDto.getParamList());
+
         RobotExecute robotExecute = new RobotExecute();
-        if (CollectionUtils.isEmpty(cParamList)) {
+        if (CollectionUtil.isEmpty(cParamList)) {
             throw new ServiceException(ErrorCodeEnum.E_PARAM_LOSE.getCode(), "参数信息不能为空");
         }
         // 根据参数id查询机器人id
         CParam paramInfo = cParamDao.getParamInfoById(cParamList.get(0).getId());
         String robotId = paramInfo.getRobotId();
+
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+
         for (CParam cParam : cParamList) {
             cParam.setCreateTime(new Date());
             cParam.setUpdateTime(new Date());
-            cParam.setCreatorId(UserUtils.nowUserId());
+            cParam.setCreatorId(userId);
         }
         robotExecute.setRobotId(robotId);
-        robotExecute.setCreatorId(UserUtils.nowUserId());
-        robotExecute.setTenantId(TenantUtils.getTenantId());
+        robotExecute.setCreatorId(userId);
+        AppResponse<String> res = rpaAuthFeign.getTenantId();
+        if (res == null || res.getData() == null) {
+            throw new ServiceException("租户信息获取失败");
+        }
+        String nowTenantId = res.getData();
+        robotExecute.setTenantId(nowTenantId);
         ObjectMapper mapper = new ObjectMapper();
         // 对传入cParamList进行序列化操作
         String cParamListJson = mapper.writeValueAsString(cParamList);
         robotExecute.setParamDetail(cParamListJson);
         robotExecute.setUpdateTime(new Date());
         robotExecuteDao.saveParamInfo(robotExecute);
+        return AppResponse.success(true);
+    }
+
+    private AppResponse<Boolean> updateExecutorParamDetail(RobotExecute robotExecute, List<CParam> cParamList)
+            throws NoLoginException, JsonProcessingException {
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+        for (CParam cParam : cParamList) {
+            cParam.setCreateTime(new Date());
+            cParam.setUpdateTime(new Date());
+            cParam.setCreatorId(userId);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        String cParamListJson = mapper.writeValueAsString(cParamList);
+        robotExecute.setParamDetail(cParamListJson);
+        robotExecute.setUpdateTime(new Date());
+
+        robotExecuteDao.saveParamInfo(robotExecute);
+
         return AppResponse.success(true);
     }
 

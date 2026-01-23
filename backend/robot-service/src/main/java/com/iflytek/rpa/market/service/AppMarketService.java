@@ -1,8 +1,8 @@
 package com.iflytek.rpa.market.service;
 
 import com.iflytek.rpa.market.entity.AppMarket;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 
 /**
  * 团队市场-团队表(AppMarket)表服务接口
@@ -17,6 +17,8 @@ public interface AppMarketService {
     AppResponse getListForPublish() throws NoLoginException;
 
     AppResponse getMarketList() throws NoLoginException;
+
+    AppResponse<Integer> marketNumCheck() throws NoLoginException;
 
     AppResponse addMarket(AppMarket appMarket) throws NoLoginException;
 

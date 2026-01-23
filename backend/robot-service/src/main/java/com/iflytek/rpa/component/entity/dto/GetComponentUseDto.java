@@ -28,4 +28,9 @@ public class GetComponentUseDto {
      * 机器人版本（允许为空）
      */
     private Integer version;
+
+    /**
+     * 调度模式 的 version
+     */
+    private Integer robotVersion;
 }

@@ -19,23 +19,10 @@ public interface TriggerTaskDao extends BaseMapper<TriggerTask> {
             + "where deleted=0 and creator_id = #{userId} and tenant_id = #{tenantId} ")
     List<String> getAllTaskName(@Param("userId") String userId, @Param("tenantId") String tenantId);
 
-    @Update("update trigger_task " + "set enable = #{enable} "
-            + "where deleted=0 and creator_id = #{userId} and tenant_id = #{tenantId} and task_id = #{taskId}")
-    Boolean enableTask(
-            @Param("userId") String userId,
-            @Param("tenantId") String tenantId,
-            @Param("taskId") String taskId,
-            @Param("enable") Integer enable);
-
     @Select("select * " + "from trigger_task "
             + "where deleted=0 and creator_id = #{userId} and tenant_id = #{tenantId} and task_id = #{taskId} "
             + "limit 1")
     TriggerTask getTaskById(
-            @Param("userId") String userId, @Param("tenantId") String tenantId, @Param("taskId") String taskId);
-
-    @Update("update trigger_task " + "set deleted = 1 "
-            + "where creator_id = #{userId} and tenant_id = #{tenantId} and task_id = #{taskId}")
-    Integer deleteTaskById(
             @Param("userId") String userId, @Param("tenantId") String tenantId, @Param("taskId") String taskId);
 
     IPage<TaskPageVo> getExecuteDataList(
@@ -51,4 +38,17 @@ public interface TriggerTaskDao extends BaseMapper<TriggerTask> {
             @Param("tenantId") String tenantId);
 
     Integer deleteTasks(@Param("taskIdList") Set<String> taskIdList);
+
+    @Update("update trigger_task " + "set deleted = 1 "
+            + "where creator_id = #{userId} and tenant_id = #{tenantId} and task_id = #{taskId}")
+    Integer deleteTaskById(
+            @Param("userId") String userId, @Param("tenantId") String tenantId, @Param("taskId") String taskId);
+
+    @Update("update trigger_task " + "set enable = #{enable} "
+            + "where deleted=0 and creator_id = #{userId} and tenant_id = #{tenantId} and task_id = #{taskId}")
+    Boolean enableTask(
+            @Param("userId") String userId,
+            @Param("tenantId") String tenantId,
+            @Param("taskId") String taskId,
+            @Param("enable") Integer enable);
 }

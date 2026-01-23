@@ -22,8 +22,6 @@ public interface ScheduleTaskDao extends BaseMapper<ScheduleTask> {
     ScheduleTask getTaskInfoByTaskId(
             @Param("taskId") String taskId, @Param("userId") String userId, @Param("tenantId") String tenantId);
 
-    ScheduleTask getTaskListOrderByNextTime(@Param("userId") String userId, @Param("tenantId") String tenantId);
-
     Integer updateTask(ScheduleTask task);
 
     Integer countByTaskName(ScheduleTask task);

@@ -1,5 +1,6 @@
 package com.iflytek.rpa.base.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -25,33 +26,40 @@ public class CProcess implements Serializable {
      * 流程id
      */
     @Null
+    @JSONField(name = "process_id")
     private String processId;
     /**
      * 全量流程数据
      */
     @Null
+    @JSONField(name = "process_content")
     private String processContent;
     /**
      * 流程名称
      */
     @Null
+    @JSONField(name = "process_name")
     private String processName;
 
     private Integer deleted;
 
+    @JSONField(name = "creator_id")
     private String creatorId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
+    @JSONField(name = "updater_id")
     private String updaterId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
     @NotBlank
+    @JSONField(name = "robot_id")
     private String robotId;
 
     @NotBlank
+    @JSONField(name = "robot_version")
     private Integer robotVersion;
 }

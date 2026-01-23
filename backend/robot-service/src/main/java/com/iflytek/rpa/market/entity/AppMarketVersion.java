@@ -57,6 +57,11 @@ public class AppMarketVersion implements Serializable {
      */
     private Integer deleted;
 
+    /**
+     * 分类id
+     */
+    private Long categoryId;
+
     public Long getId() {
         return id;
     }
@@ -143,5 +148,13 @@ public class AppMarketVersion implements Serializable {
 
     public void setDeleted(Integer deleted) {
         this.deleted = deleted;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 }

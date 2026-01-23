@@ -1,5 +1,6 @@
 package com.iflytek.rpa.robot.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -27,13 +28,14 @@ public class RobotVersion implements Serializable {
      * 机器人id
      */
     @NotBlank(message = "机器人id不能为空")
+    @JSONField(name = "robot_id")
     private String robotId;
 
     // 表名该字段不在数据库中
     @TableField(exist = false)
     private String name;
 
-    @NotBlank(message = "机器人图标不能为空")
+    //    @NotBlank(message = "机器人图标不能为空")
     private String icon;
 
     /**
@@ -47,10 +49,12 @@ public class RobotVersion implements Serializable {
     /**
      * 更新日志
      */
+    @JSONField(name = "update_log")
     private String updateLog;
     /**
      * 使用说明
      */
+    @JSONField(name = "use_description")
     private String useDescription;
     /**
      * 是否启用 0:未启用,1:已启用
@@ -59,6 +63,7 @@ public class RobotVersion implements Serializable {
     /**
      * 创建者id
      */
+    @JSONField(name = "creator_id")
     private String creatorId;
     /**
      * 创建时间
@@ -68,6 +73,7 @@ public class RobotVersion implements Serializable {
     /**
      * 更新者id
      */
+    @JSONField(name = "updater_id")
     private String updaterId;
     /**
      * 更新时间
@@ -79,6 +85,7 @@ public class RobotVersion implements Serializable {
      */
     private Integer deleted;
 
+    @JSONField(name = "tenant_id")
     private String tenantId;
 
     private String param;
@@ -86,13 +93,16 @@ public class RobotVersion implements Serializable {
     /**
      * 视频地址id
      */
+    @JSONField(name = "video_id")
     private String videoId;
     /**
      * 附件地址id
      */
+    @JSONField(name = "appendix_id")
     private String appendixId;
 
     @TableField(exist = false)
+    @JSONField(name = "edit_flag")
     private Integer editFlag;
 
     @TableField(exist = false)

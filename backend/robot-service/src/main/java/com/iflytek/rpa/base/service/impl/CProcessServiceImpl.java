@@ -1,10 +1,15 @@
 package com.iflytek.rpa.base.service.impl;
 
-import static com.iflytek.rpa.base.constants.BaseConstant.*;
+import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_MODULE;
+import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_PROCESS;
 import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
+import com.iflytek.rpa.base.dao.CParamDao;
 import com.iflytek.rpa.base.dao.CProcessDao;
+import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.base.entity.dto.BaseDto;
 import com.iflytek.rpa.base.entity.dto.CProcessDto;
@@ -13,24 +18,29 @@ import com.iflytek.rpa.base.entity.dto.RenameProcessDto;
 import com.iflytek.rpa.base.service.CModuleService;
 import com.iflytek.rpa.base.service.CProcessService;
 import com.iflytek.rpa.base.service.NextName;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.component.dao.ComponentDao;
 import com.iflytek.rpa.component.entity.Component;
+import com.iflytek.rpa.market.constants.AuditConstant;
+import com.iflytek.rpa.market.dao.AppApplicationDao;
+import com.iflytek.rpa.market.dao.AppApplicationTenantDao;
+import com.iflytek.rpa.market.dao.AppMarketResourceDao;
+import com.iflytek.rpa.market.entity.AppApplication;
+import com.iflytek.rpa.market.entity.AppApplicationTenant;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotDesign;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.TenantUtils;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,10 +69,25 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
     private RobotVersionDao robotVersionDao;
 
     @Autowired
+    private AppMarketResourceDao appMarketResourceDao;
+
+    @Autowired
     private CModuleService cModuleService;
 
     @Autowired
     private IdWorker idWorker;
+
+    @Autowired
+    private AppApplicationDao appApplicationDao;
+
+    @Autowired
+    private AppApplicationTenantDao appApplicationTenantDao;
+
+    @Autowired
+    private CParamDao cParamDao;
+
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
 
     @Override
     public AppResponse<String> getProcessNextName(String robotId) {
@@ -89,9 +114,14 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
 
     public AppResponse<Map> createNewProcess(CreateProcessDto processDto) throws NoLoginException {
         CProcess searchDto = new CProcess();
-        BeanUtils.copyProperties(processDto, searchDto);
+        BeanUtil.copyProperties(processDto, searchDto);
         searchDto.setRobotVersion(0);
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         searchDto.setCreatorId(userId);
         // 检查同名流程
         Integer count = cProcessDao.countProcessByName(searchDto);
@@ -123,9 +153,14 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
     @Override
     public AppResponse<Boolean> renameProcess(RenameProcessDto processDto) throws NoLoginException {
         CProcess searchDto = new CProcess();
-        BeanUtils.copyProperties(processDto, searchDto);
+        BeanUtil.copyProperties(processDto, searchDto);
         searchDto.setRobotVersion(0);
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         searchDto.setCreatorId(userId);
         // 检查同名流程
         Integer count = cProcessDao.countProcessByName(searchDto);
@@ -150,10 +185,15 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> saveProcessContent(CProcessDto process) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         process.setCreatorId(userId);
         BaseDto baseDto = new BaseDto();
-        BeanUtils.copyProperties(process, baseDto);
+        BeanUtil.copyProperties(process, baseDto);
         CProcess oldProcess = cProcessDao.getProcessById(baseDto);
         if (null == oldProcess) {
             return AppResponse.error(ErrorCodeEnum.E_SQL_EMPTY, "流程数据不存在");
@@ -172,7 +212,7 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             int byteLength = newProcessContent.getBytes().length;
             // 将字节长度转换为兆字节（MB）
             double megabytes = byteLength / (1024.0 * 1024.0);
-            if (megabytes > MAX_PROCESS_SIZE) {
+            if (megabytes > 14) {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM, "流程数据不能超过15M");
             }
         }
@@ -184,14 +224,19 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
     @Override
     @RobotVersionAnnotation
     public AppResponse<?> getProcessDataByProcessId(BaseDto baseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
-        String tenantId = TenantUtils.getTenantId();
-
-        // 权限检查
-        AppResponse<?> permissionCheck = checkRobotPermission(baseDto.getRobotId(), userId, tenantId);
-        if (!permissionCheck.ok()) {
-            return permissionCheck;
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
         }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
+
+        // String tenantId = TenantUtils.getTenantId();
+        // 权限检查
+        //        AppResponse<?> permissionCheck = checkRobotPermission(baseDto.getRobotId(), userId, tenantId);
+        //        if (!permissionCheck.ok()) {
+        //            return permissionCheck;
+        //        }
 
         baseDto.setCreatorId(userId);
         CProcess process = cProcessDao.getProcessById(baseDto);
@@ -205,6 +250,10 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
      * 检查机器人权限
      */
     private AppResponse<?> checkRobotPermission(String robotId, String userId, String tenantId) {
+        // 检查是否开启了审核功能
+        if (!isAuditFunctionEnabled(tenantId)) {
+            return AppResponse.success("审核功能未开启");
+        }
 
         // 获取机器人信息
         RobotDesign robotDesign = robotDesignDao.getRobotInfoAll(robotId, tenantId);
@@ -223,13 +272,105 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             return AppResponse.success("自己创建的组件");
         }
 
+        // 如果是部署的或获取的机器人，需要检查权限
+        if ("market".equals(robotDesign.getDataSource())) {
+            return checkMarketRobotPermission(robotId, userId, tenantId);
+        }
+
         return AppResponse.success("权限检查通过");
+    }
+
+    /**
+     * 检查市场机器人的权限
+     */
+    private AppResponse<?> checkMarketRobotPermission(String robotId, String userId, String tenantId) {
+        // 检查是否有待审核的上架申请
+        AppApplication pendingApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, robotId)
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_PENDING)
+                .eq(AppApplication::getDeleted, 0));
+
+        if (pendingApplication != null) {
+            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人在上架审核中，暂时无法使用");
+        }
+
+        // 获取已审核通过的上架申请
+        AppApplication approvedReleaseApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, robotId)
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getDeleted, 0)
+                .orderByDesc(AppApplication::getCreateTime)
+                .last("LIMIT 1"));
+
+        if (approvedReleaseApplication == null) {
+            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人未通过上架审核，无法使用");
+        }
+
+        String securityLevel = approvedReleaseApplication.getSecurityLevel();
+        if (StringUtils.isBlank(securityLevel)) {
+            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人密级信息缺失，无法使用");
+        }
+
+        // 检查红色密级是否过期
+        if ("red".equals(securityLevel)) {
+            if (approvedReleaseApplication.getExpireTime() != null
+                    && approvedReleaseApplication.getExpireTime().before(new Date())) {
+                return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人密级已过期，无法使用");
+            }
+        }
+
+        // 检查黄色密级权限
+        if ("yellow".equals(securityLevel)) {
+            String allowedDept = approvedReleaseApplication.getAllowedDept();
+            if (StringUtils.isNotBlank(allowedDept)) {
+                // 检查用户是否在允许的部门范围内
+                AppResponse<String> deptIdRes = rpaAuthFeign.getDeptIdByUserId(userId, tenantId);
+                if (!deptIdRes.ok()) throw new ServiceException("rpa-auth 服务未响应");
+                String userDeptId = deptIdRes.getData();
+                if (!allowedDept.contains(userDeptId)) {
+                    // 检查是否有通过的使用申请
+                    AppApplication useApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                            .eq(AppApplication::getRobotId, robotId)
+                            .eq(AppApplication::getCreatorId, userId)
+                            .eq(AppApplication::getApplicationType, "use")
+                            .eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_APPROVED)
+                            .eq(AppApplication::getDeleted, 0)
+                            .last("LIMIT 1"));
+
+                    if (useApplication == null) {
+                        return AppResponse.error(ErrorCodeEnum.E_SERVICE, "您不在允许的部门范围内，且没有通过的使用申请，无法使用该机器人");
+                    }
+                }
+            }
+        }
+
+        return AppResponse.success("权限检查通过");
+    }
+
+    /**
+     * 检查是否开启了上架审核功能
+     */
+    private boolean isAuditFunctionEnabled(String tenantId) {
+        AppApplicationTenant currentConfig = appApplicationTenantDao.getByTenantId(tenantId);
+        if (currentConfig == null) {
+            return false; // 默认关闭，避免影响现有功能
+        }
+        return currentConfig.getAuditEnable() == 1;
     }
 
     @Override
     @RobotVersionAnnotation
     public AppResponse<?> getProcessNameList(BaseDto baseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         baseDto.setCreatorId(userId);
         List<CProcess> processNameList = cProcessDao.getProcessNameList(baseDto);
         // 将主流程排在第一个
@@ -271,6 +412,10 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             process.setCreateTime(new Date());
             process.setUpdateTime(new Date());
             cProcessDao.insert(process);
+
+            String newProcessId = process.getProcessId();
+            copyCParam(newProcessId, processId, process.getRobotId(), process.getRobotVersion());
+
             result.put("id", process.getProcessId());
             result.put("name", process.getProcessName());
         } else if (PROCESS_TYPE_MODULE.equals(type)) {
@@ -280,6 +425,20 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         return AppResponse.success(result);
     }
 
+    private void copyCParam(String newProcessId, String oldProcessId, String robotId, Integer version) {
+        List<CParam> params = cParamDao.getAllParams(oldProcessId, robotId, version);
+        for (CParam cParam : params) {
+            cParam.setId(idWorker.nextId() + "");
+            cParam.setProcessId(newProcessId);
+            cParam.setCreateTime(new Date());
+            cParam.setUpdateTime(new Date());
+            cParam.setDeleted(0);
+        }
+        if (!params.isEmpty()) {
+            cParamDao.insertParamBatch(params);
+        }
+    }
+
     @Override
     public List<String> getNameList(BaseDto baseDto) {
         return cProcessDao.getProcessNameListByPrefix(baseDto);
@@ -287,7 +446,12 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
 
     @Override
     public AppResponse<Boolean> deleteProcess(CProcessDto processDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         processDto.setCreatorId(userId);
         boolean result = cProcessDao.deleteProcessByProcessId(processDto);
         return AppResponse.success(result);

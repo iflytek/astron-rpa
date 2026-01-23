@@ -8,8 +8,8 @@ import com.iflytek.rpa.component.entity.dto.EditPageCompInfoDto;
 import com.iflytek.rpa.component.entity.dto.GetComponentUseDto;
 import com.iflytek.rpa.component.entity.vo.*;
 import com.iflytek.rpa.component.service.ComponentService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,6 @@ public class ComponentController {
 
     /**
      * 新建组件-获取默认组件名称
-     *
      * @return
      * @throws Exception
      */
@@ -69,7 +68,6 @@ public class ComponentController {
      * 检查组件名称是否重复，
      * 改名字的时候传 componentId
      * 新建的时候不穿 componentId
-     *
      * @param checkNameDto
      * @return
      * @throws Exception
@@ -81,7 +79,6 @@ public class ComponentController {
 
     /**
      * 获取组件详情（列表页的详细版本）
-     *
      * @param componentId 组件ID
      * @return 组件详情信息
      * @throws NoLoginException
@@ -94,7 +91,6 @@ public class ComponentController {
 
     /**
      * 创建副本
-     *
      * @param componentId
      * @param name
      * @return
@@ -109,7 +105,6 @@ public class ComponentController {
     /**
      * 创建副本组件名称
      * 根据原组件名称生成新的副本名称，自动添加"-副本"后缀，如果重名则添加数字
-     *
      * @param componentId 原组件ID
      * @return 新的组件名称
      * @throws Exception
@@ -121,7 +116,6 @@ public class ComponentController {
 
     /**
      * 分页查询组件列表
-     *
      * @param componentListDto 查询条件
      * @return 分页组件列表
      * @throws Exception
@@ -134,7 +128,6 @@ public class ComponentController {
 
     /**
      * 机器人编辑页左侧组件列表
-     *
      * @param queryDto
      * @return
      * @throws Exception
@@ -147,7 +140,6 @@ public class ComponentController {
 
     /**
      * 编辑页里面的组件详情
-     *
      * @param queryDto
      * @return
      */
@@ -159,7 +151,6 @@ public class ComponentController {
 
     /**
      * 组件管理列表
-     *
      * @param queryDto
      * @return
      * @throws Exception

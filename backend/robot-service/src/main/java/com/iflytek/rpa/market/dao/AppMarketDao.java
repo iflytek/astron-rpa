@@ -5,7 +5,6 @@ import com.iflytek.rpa.market.entity.AppMarket;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 /**
  * 团队市场-团队表(AppMarket)表数据库访问层
@@ -16,7 +15,7 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface AppMarketDao extends BaseMapper<AppMarket> {
 
-    List<AppMarket> getJoinedMarketList(@Param("tenantId") String tenantId, @Param("userId") String userId);
+    List<AppMarket> getJoinedMarketList(@Param("userId") String userId);
 
     List<AppMarket> getCreatedMarketList(@Param("tenantId") String tenantId, @Param("userId") String userId);
 
@@ -30,7 +29,7 @@ public interface AppMarketDao extends BaseMapper<AppMarket> {
 
     Integer updateTeamMarket(AppMarket appMarket);
 
-    AppMarket getMarketInfo(@Param("tenantId") String tenantId, @Param("marketId") String marketId);
+    AppMarket getMarketInfo(@Param("marketId") String marketId);
 
     Integer deleteMarket(@Param("marketId") String marketId);
 
@@ -40,6 +39,9 @@ public interface AppMarketDao extends BaseMapper<AppMarket> {
 
     String getMarketNameById(@Param("marketId") String marketId);
 
-    @Select("select * from app_market where market_id=#{marketId}")
-    AppMarket getTeamMarketByMarketId(@Param("marketId") String marketId);
+    Integer getMarketCount(String tenantId);
+
+    AppMarket selectPublicMarket(String tenantId);
+
+    Integer addMarketWithType(@Param("entity") AppMarket appMarket);
 }

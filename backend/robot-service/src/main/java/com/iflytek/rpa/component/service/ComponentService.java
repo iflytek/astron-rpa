@@ -7,8 +7,8 @@ import com.iflytek.rpa.component.entity.dto.ComponentListDto;
 import com.iflytek.rpa.component.entity.dto.EditPageCompInfoDto;
 import com.iflytek.rpa.component.entity.dto.GetComponentUseDto;
 import com.iflytek.rpa.component.entity.vo.*;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 
 /**
@@ -46,7 +46,6 @@ public interface ComponentService {
 
     /**
      * 获取组件详情
-     *
      * @param componentId 组件ID
      * @return 组件详情信息
      * @throws NoLoginException
@@ -57,7 +56,6 @@ public interface ComponentService {
 
     /**
      * 创建副本组件名称
-     *
      * @param componentId 原组件ID
      * @return 新的组件名称
      * @throws Exception
@@ -66,7 +64,6 @@ public interface ComponentService {
 
     /**
      * 分页查询组件列表
-     *
      * @param componentListDto 查询条件
      * @return 分页组件列表
      * @throws Exception
@@ -75,7 +72,6 @@ public interface ComponentService {
 
     /**
      * 获取编辑页组件列表
-     *
      * @param queryDto 查询条件
      * @return 编辑页组件列表
      * @throws Exception
@@ -84,7 +80,6 @@ public interface ComponentService {
 
     /**
      * 获取编辑页组件详情
-     *
      * @param queryDto 查询条件
      * @return 编辑页组件详情
      * @throws Exception
@@ -93,7 +88,6 @@ public interface ComponentService {
 
     /**
      * 获取组件管理列表
-     *
      * @param queryDto 查询条件
      * @return 组件管理列表
      * @throws Exception

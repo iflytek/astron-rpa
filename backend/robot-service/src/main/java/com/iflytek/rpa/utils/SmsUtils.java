@@ -1,9 +1,8 @@
 package com.iflytek.rpa.utils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.iflytek.rpa.starter.utils.StringUtils;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.*;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 /**
+ *
  * @author jqfang3
  * @since 2025-08-21
  */

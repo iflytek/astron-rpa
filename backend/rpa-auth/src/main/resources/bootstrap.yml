@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: rpa-auth
+  profiles:
+    active: casdoor
+
+server:
+  port: 10251
+  servlet:
+    context-path: /api/rpa-auth

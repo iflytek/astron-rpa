@@ -64,8 +64,7 @@ public interface CProcessDao extends BaseMapper<CProcess> {
 
     /**
      * 根据组件ID和版本查询流程ID
-     *
-     * @param componentId      组件ID
+     * @param componentId 组件ID
      * @param componentVersion 组件版本
      * @return 流程ID
      */

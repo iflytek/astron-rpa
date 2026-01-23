@@ -7,9 +7,9 @@ import com.iflytek.rpa.robot.entity.dto.ExecuteListDto;
 import com.iflytek.rpa.robot.entity.dto.RobotExecuteByNameNDeptDto;
 import com.iflytek.rpa.robot.entity.vo.RobotExecuteByNameNDeptVo;
 import com.iflytek.rpa.robot.service.RobotExecuteService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.List;
 import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,6 @@ public class RobotExecuteController {
 
     /**
      * 执行器机器人列表
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -41,7 +40,6 @@ public class RobotExecuteController {
 
     /**
      * 设计器-删除机器人-初次响应
-     *
      * @param robotId
      * @return
      * @throws NoLoginException
@@ -53,7 +51,6 @@ public class RobotExecuteController {
 
     /**
      * 设计器-删除机器人- 真实删除
-     *
      * @param queryDto
      * @return
      * @throws NoLoginException
@@ -65,10 +62,9 @@ public class RobotExecuteController {
 
     /**
      * 更新-在执行器主动点击更新
-     *
+     * @paramMarketResourceDto
      * @return
      * @throws Exception
-     * @paramMarketResourceDto
      */
     @PostMapping("/update/pull")
     public AppResponse<?> updateRobotByPull(@RequestBody RobotExecute robotExecute) throws Exception {
@@ -93,17 +89,4 @@ public class RobotExecuteController {
             @RequestBody RobotExecuteByNameNDeptDto queryDto) throws NoLoginException {
         return robotExecuteService.getRobotExecuteList(queryDto);
     }
-
-    //    /**
-    //     * 卓越中心-机器人分析看板-机器人名称下拉选择-查询接口
-    //     * @param robotName
-    //     * @return
-    //     * @throws NoLoginException
-    //     */
-    //    @PostMapping("/list/robot-name")
-    //    public AppResponse<List<RobotNameDto>> getRobotNameListByName(@RequestParam("name") String robotName,
-    // @RequestParam("deptId") String deptId) throws NoLoginException {
-    //        return robotExecuteService.getRobotNameListByName(robotName, deptId);
-    //    }
-
 }

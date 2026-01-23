@@ -3,13 +3,10 @@ package com.iflytek.rpa.market.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.iflytek.rpa.market.entity.dto.*;
 import com.iflytek.rpa.market.entity.vo.MyApplicationPageListVo;
-import com.iflytek.rpa.market.entity.vo.ReleasePageListVo;
-import com.iflytek.rpa.market.entity.vo.UsePageListVo;
 import com.iflytek.rpa.market.service.AppApplicationService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import java.io.IOException;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -24,85 +21,6 @@ public class AppApplicationController {
 
     @Autowired
     private AppApplicationService appApplicationService;
-
-    /**
-     * 管理端-上架申请列表
-     *
-     * @param queryDto
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/release-page-list")
-    public AppResponse<IPage<ReleasePageListVo>> getReleasePageList(@RequestBody ReleasePageListDto queryDto)
-            throws Exception {
-        return appApplicationService.getReleasePageList(queryDto);
-    }
-
-    /**
-     * 管理端-上架申请删除
-     *
-     * @param releaseDeleteDto
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/release-delete")
-    public AppResponse<String> releaseDelete(@RequestBody ReleaseDeleteDto releaseDeleteDto) throws Exception {
-        return appApplicationService.releaseDelete(releaseDeleteDto);
-    }
-
-    /**
-     * 管理端-使用申请列表
-     *
-     * @param queryDto
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/use-page-list")
-    public AppResponse<IPage<UsePageListVo>> getUsePageList(@RequestBody UsePageListDto queryDto) throws Exception {
-        return appApplicationService.getUsePageList(queryDto);
-    }
-
-    /**
-     * 管理端-使用申请删除
-     *
-     * @param useDeleteDto
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/use-delete")
-    public AppResponse<String> useDelete(@RequestBody UseDeleteDto useDeleteDto) throws Exception {
-        return appApplicationService.useDelete(useDeleteDto);
-    }
-
-    /**
-     * 上架、使用申请审核-驳回、批准
-     */
-    @PostMapping("/audit-status")
-    public AppResponse<String> auditApplication(@Valid @RequestBody AuditApplicationDto auditApplicationDto)
-            throws Exception {
-
-        return appApplicationService.auditApplication(auditApplicationDto);
-    }
-
-    /**
-     * 上架申请-变更
-     */
-    @PostMapping("/change-status")
-    public AppResponse<String> changeAudit(@Valid @RequestBody ChangeAuditDto changeAuditDto)
-            throws NoLoginException, IOException {
-
-        return appApplicationService.changeAudit(changeAuditDto);
-    }
-
-    /**
-     * 开启、关闭审核
-     */
-    @PostMapping("/enable-audit")
-    public AppResponse<String> enableAudit(
-            @RequestParam("status") String status, @RequestParam(value = "reason", required = false) String reason)
-            throws NoLoginException {
-        return appApplicationService.enableAudit(status, reason);
-    }
 
     /**
      * 查询审核开关状态
@@ -127,6 +45,7 @@ public class AppApplicationController {
 
     /**
      * 客户端-撤销 我的申请
+     *
      * @param dto
      * @return
      * @throws Exception
@@ -138,6 +57,7 @@ public class AppApplicationController {
 
     /**
      * 客户端-删除 我的申请
+     *
      * @param dto
      * @return
      * @throws Exception
@@ -149,6 +69,7 @@ public class AppApplicationController {
 
     /**
      * 客户端-提交上架申请前，查询当前版本机器人是否需要上架审核
+     *
      * @param dto
      * @return
      * @throws Exception
@@ -172,6 +93,7 @@ public class AppApplicationController {
 
     /**
      * 客户端-发版后，提交上架申请前，查询是否需要上架审核
+     *
      * @param dto
      * @return
      * @throws Exception
@@ -180,8 +102,10 @@ public class AppApplicationController {
     public AppResponse<?> preSubmitAfterPublishCheck(@Valid @RequestBody PreReleaseCheckDto dto) throws Exception {
         return appApplicationService.preSubmitAfterPublishCheck(dto);
     }
+
     /**
      * 客户端-发版后，提交上架申请
+     *
      * @param dto
      * @return
      * @throws Exception
@@ -195,13 +119,16 @@ public class AppApplicationController {
     }
 
     /**
-     * 卓越中心-部署前权限检查
+     * 客户端-提交使用申请
+     *
+     * @param dto
+     * @return
+     * @throws Exception
      */
-    //    @PostMapping("/excellence-deploy-check")
-    //    public AppResponse<?> excellenceDeployCheck(@Valid @RequestBody ExcellenceDeployDto deployDto) throws
-    // Exception {
-    //        return appApplicationService.excellenceDeployCheck(deployDto);
-    //    }
+    @PostMapping("/submit-use-application")
+    public AppResponse<String> submitUseApplication(@Valid @RequestBody UsePermissionCheckDto dto) throws Exception {
+        return appApplicationService.submitUseApplication(dto);
+    }
 
     /**
      * 客户端-使用前权限检查
@@ -212,16 +139,5 @@ public class AppApplicationController {
     @PostMapping("/use-permission-check")
     public AppResponse<Integer> usePermissionCheck(@Valid @RequestBody UsePermissionCheckDto dto) throws Exception {
         return appApplicationService.usePermissionCheck(dto);
-    }
-
-    /**
-     * 客户端-提交使用申请
-     * @param dto
-     * @return
-     * @throws Exception
-     */
-    @PostMapping("/submit-use-application")
-    public AppResponse<String> submitUseApplication(@Valid @RequestBody UsePermissionCheckDto dto) throws Exception {
-        return appApplicationService.submitUseApplication(dto);
     }
 }

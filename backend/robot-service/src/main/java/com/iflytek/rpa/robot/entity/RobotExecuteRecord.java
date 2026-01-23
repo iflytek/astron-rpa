@@ -106,4 +106,6 @@ public class RobotExecuteRecord implements Serializable {
 
     @TableField(exist = false)
     private String taskName;
+
+    private String dataTablePath;
 }

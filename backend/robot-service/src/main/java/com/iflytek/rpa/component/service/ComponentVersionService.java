@@ -1,8 +1,8 @@
 package com.iflytek.rpa.component.service;
 
 import com.iflytek.rpa.component.entity.dto.CreateVersionDto;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 
 /**
  * 组件版本表(ComponentVersion)表服务接口

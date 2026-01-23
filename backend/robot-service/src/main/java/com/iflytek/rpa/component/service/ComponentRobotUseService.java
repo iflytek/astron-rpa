@@ -1,12 +1,10 @@
 package com.iflytek.rpa.component.service;
 
-import com.iflytek.rpa.component.entity.dto.AddCompUseDto;
-import com.iflytek.rpa.component.entity.dto.DelComponentUseDto;
-import com.iflytek.rpa.component.entity.dto.GetComponentUseDto;
-import com.iflytek.rpa.component.entity.dto.UpdateComponentUseDto;
+import com.iflytek.rpa.component.entity.dto.*;
 import com.iflytek.rpa.component.entity.vo.ComponentUseVo;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
+import com.iflytek.rpa.component.entity.vo.EditCompUseVo;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.List;
 
 /**
@@ -21,7 +19,6 @@ public interface ComponentRobotUseService {
 
     /**
      * 添加组件引用
-     *
      * @param addCompUseDto 添加组件引用DTO
      * @return 操作结果
      * @throws NoLoginException
@@ -30,7 +27,6 @@ public interface ComponentRobotUseService {
 
     /**
      * 删除组件引用
-     *
      * @param delComponentUseDto 删除组件引用DTO
      * @return 操作结果
      * @throws NoLoginException
@@ -39,7 +35,6 @@ public interface ComponentRobotUseService {
 
     /**
      * 更新组件引用版本
-     *
      * @param updateComponentUseDto 更新组件引用DTO
      * @return 操作结果
      * @throws NoLoginException
@@ -48,11 +43,12 @@ public interface ComponentRobotUseService {
 
     /**
      * 根据组件ID和版本查询流程ID
-     *
      * @param componentId
      * @param componentVersion
      * @return 流程ID
      * @throws NoLoginException
      */
     AppResponse<String> getProcessId(String componentId, Integer componentVersion) throws NoLoginException;
+
+    AppResponse<EditCompUseVo> getEditCompUse(EditCompUseDto queryDto) throws NoLoginException;
 }

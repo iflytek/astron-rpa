@@ -36,26 +36,26 @@
         order by create_time desc
     </select>
 
+
     <select id="getCompUseInfoList" resultType="com.iflytek.rpa.component.entity.vo.CompUseInfo">
         select
-            cru.component_id as componentId,
-            cru.component_version as componentVersion,
-            cv.icon as icon
+          cru.component_id as componentId,
+          cru.component_version as componentVersion,
+          cv.icon as icon
         from component_robot_use cru
-                 left join component_version cv
-                           on cru.component_id = cv.component_id and cru.component_version = cv.version
+        left join component_version cv
+          on cru.component_id = cv.component_id and cru.component_version = cv.version
         where cru.deleted = 0
           and cru.robot_id = #{robotId}
           and cru.robot_version = #{robotVersion}
           and cru.tenant_id = #{tenantId}
     </select>
 
-
     <!-- 删除组件引用（逻辑删除） -->
     <update id="deleteComponentUse">
         update component_robot_use
-        set deleted     = 1,
-            updater_id  = #{updaterId},
+        set deleted = 1,
+            updater_id = #{updaterId},
             update_time = now()
         where deleted = 0
           and robot_id = #{robotId}
@@ -68,8 +68,8 @@
     <update id="updateComponentUse">
         update component_robot_use
         set component_version = #{newComponentVersion},
-            updater_id        = #{updaterId},
-            update_time       = now()
+            updater_id = #{updaterId},
+            update_time = now()
         where deleted = 0
           and robot_id = #{robotId}
           and robot_version = #{robotVersion}

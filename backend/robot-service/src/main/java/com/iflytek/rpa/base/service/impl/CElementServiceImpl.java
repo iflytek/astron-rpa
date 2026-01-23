@@ -3,6 +3,7 @@ package com.iflytek.rpa.base.service.impl;
 import static com.iflytek.rpa.base.constants.BaseConstant.*;
 import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
 import com.iflytek.rpa.base.dao.CElementDao;
@@ -14,12 +15,14 @@ import com.iflytek.rpa.base.entity.vo.ElementInfoVo;
 import com.iflytek.rpa.base.entity.vo.ElementVo;
 import com.iflytek.rpa.base.entity.vo.GroupInfoVo;
 import com.iflytek.rpa.base.service.CElementService;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.IdWorker;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -29,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 /**
  * 客户端，元素信息(CElement)表服务实现类
@@ -54,6 +56,8 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
     @Autowired
     private IdWorker idWorker;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
     //    @Override
     //    @RobotVersionAnnotation
     //    public AppResponse<?> getElementNameList(BaseDto baseDto) throws NoLoginException {
@@ -110,7 +114,12 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
     @Override
     @RobotVersionAnnotation
     public AppResponse<?> moveElementOrImage(ServerBaseDto serverBaseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         serverBaseDto.setCreatorId(userId);
         CGroup cGroup = new CGroup();
         BeanUtils.copyProperties(serverBaseDto, cGroup);
@@ -130,7 +139,12 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
         if (null == serverBaseDto.getElementId()) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "元素id不能为空");
         }
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         serverBaseDto.setCreatorId(userId);
         CElement cElement = new CElement();
         BeanUtils.copyProperties(serverBaseDto, cElement);
@@ -145,7 +159,12 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
     }
 
     private String createNextName(ServerBaseDto serverBaseDto, String elementNameBase) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         serverBaseDto.setCreatorId(userId);
         serverBaseDto.setElementName(elementNameBase);
         CElement cElement = new CElement();
@@ -191,7 +210,12 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
     }
 
     public AppResponse<?> createElementByType(ServerBaseDto serverBaseDto) throws NoLoginException {
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         String elementId = idWorker.nextId() + "";
         String groupName = serverBaseDto.getGroupName();
         CGroup cGroup = new CGroup();
@@ -247,7 +271,12 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> updateElement(ServerBaseDto serverBaseDto) throws NoLoginException {
         CElement element = serverBaseDto.getElement();
-        String userId = UserUtils.nowUserId();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        if (response == null || !response.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = response.getData();
+        String userId = loginUser.getId();
         element.setCreatorId(userId);
         // 获取元素信息
         CElement elementInfo = cElementDao.getElementByElementId(element);
@@ -279,7 +308,9 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
         // robotDesign 变成editing状态
         robotDesignDao.updateTransformStatus(userId, serverBaseDto.getRobotId(), null, EDITING);
 
-        cElementDao.updateElement(element);
+        Long id = cElementDao.getId(element);
+        element.setId(id);
+        cElementDao.updateElementById(element);
         return AppResponse.success(true);
     }
 
@@ -307,7 +338,7 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
         // 查询 group 表，获取所有分组信息
         List<CGroup> groupList = cGroupDao.getGroupByRobotId(
                 serverBaseDto.getRobotId(), serverBaseDto.getRobotVersion(), serverBaseDto.getElementType());
-        if (CollectionUtils.isEmpty(groupList)) {
+        if (CollectionUtil.isEmpty(groupList)) {
             return AppResponse.success(result); // 如果没有分组信息，直接返回空列表
         }
 

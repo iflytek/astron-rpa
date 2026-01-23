@@ -1,15 +1,15 @@
 package com.iflytek.rpa.component.controller;
 
-import com.iflytek.rpa.component.entity.dto.AddCompUseDto;
-import com.iflytek.rpa.component.entity.dto.DelComponentUseDto;
-import com.iflytek.rpa.component.entity.dto.GetComponentUseDto;
-import com.iflytek.rpa.component.entity.dto.UpdateComponentUseDto;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
+
+import com.iflytek.rpa.component.entity.dto.*;
 import com.iflytek.rpa.component.entity.vo.ComponentUseVo;
+import com.iflytek.rpa.component.entity.vo.EditCompUseVo;
 import com.iflytek.rpa.component.service.ComponentRobotUseService;
-import com.iflytek.rpa.starter.exception.NoLoginException;
-import com.iflytek.rpa.starter.exception.ServiceException;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.utils.exception.NoLoginException;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,6 @@ public class ComponentRobotUseController {
 
     /**
      * 机器人引用的组件id 和 对应的version
-     *
      * @param getComponentUseDto 查询组件使用情况DTO
      * @return 组件使用情况列表
      * @throws NoLoginException
@@ -43,7 +42,6 @@ public class ComponentRobotUseController {
 
     /**
      * 添加组件引用
-     *
      * @param addCompUseDto 添加组件引用DTO
      * @return 操作结果
      * @throws NoLoginException
@@ -55,7 +53,6 @@ public class ComponentRobotUseController {
 
     /**
      * 删除组件引用
-     *
      * @param delComponentUseDto 删除组件引用DTO
      * @return 操作结果
      * @throws NoLoginException
@@ -68,7 +65,6 @@ public class ComponentRobotUseController {
 
     /**
      * 更新组件引用版本
-     *
      * @param updateComponentUseDto 更新组件引用DTO
      * @return 操作结果
      * @throws NoLoginException
@@ -81,8 +77,7 @@ public class ComponentRobotUseController {
 
     /**
      * 根据组件ID和版本查询流程ID
-     *
-     * @param componentId      组件ID
+     * @param componentId 组件ID
      * @param componentVersion 组件版本
      * @return 流程ID
      * @throws NoLoginException
@@ -100,5 +95,17 @@ public class ComponentRobotUseController {
         }
 
         return componentRobotUseService.getProcessId(componentId, componentVersion);
+    }
+
+    /**
+     * 画布区域获取组件的相关信息
+     * @param queryDto
+     * @return
+     * @throws NoLoginException
+     */
+    @PostMapping("/edit")
+    public AppResponse<EditCompUseVo> getEditCompUse(@RequestBody EditCompUseDto queryDto) throws NoLoginException {
+        if (!queryDto.getMode().equals(EDIT_PAGE)) throw new ServiceException("此接口应在编辑页被请求");
+        return componentRobotUseService.getEditCompUse(queryDto);
     }
 }

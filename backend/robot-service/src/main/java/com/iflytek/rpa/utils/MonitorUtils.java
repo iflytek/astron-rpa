@@ -22,11 +22,7 @@ import org.jsoup.Jsoup;
 @Slf4j
 public class MonitorUtils {
 
-    public static final String RECEIVED_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
-    public static final String RECEIVED_HEADER_DATE_FORMAT1 = "E, dd MMM yyyy HH:mm:ss z";
-    public static final String RECEIVED_HEADER_REGEXP = "^[^;]+;(.+)$";
-
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         System.out.println(connectMail("imap", 993, "imap.qq.com", true, "1144317879@qq.com", "vwczfdxnrwgbied"));
         //        System.out.println(connectMail("pop3",995,"pop.qq.com",true,"1144317879@qq.com","vwczfdxnrwgbiedg"));
         //        getMailInfos("imap",993,"imap.qq.com",true,"1144317879@qq.com","vwczfdxnrwgbiedg");
@@ -41,6 +37,10 @@ public class MonitorUtils {
         //        getMailInfos("pop3",995,"pop.qq.com",true,"1130305549@qq.com","alffclnvnmgrffgi");
     }
 
+    public static final String RECEIVED_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
+    public static final String RECEIVED_HEADER_DATE_FORMAT1 = "E, dd MMM yyyy HH:mm:ss z";
+    public static final String RECEIVED_HEADER_REGEXP = "^[^;]+;(.+)$";
+
     public static Date resolveReceivedDate(MimeMessage message) throws MessagingException {
         if (message.getReceivedDate() != null) {
             return message.getReceivedDate();
@@ -52,7 +52,7 @@ public class MonitorUtils {
         }
         SimpleDateFormat sdf = new SimpleDateFormat(RECEIVED_HEADER_DATE_FORMAT1, Locale.ENGLISH);
         Date finalDate = Calendar.getInstance().getTime();
-        finalDate.setTime(0L);
+        finalDate.setTime(0l);
         boolean found = false;
         for (String receivedHeader : receivedHeaders) {
             Pattern pattern = Pattern.compile(RECEIVED_HEADER_REGEXP);
@@ -219,7 +219,7 @@ public class MonitorUtils {
 
                 }
                 System.out.println(mailInfos);
-                log.info("mailInfos---" + mailInfos);
+                log.info("mailInfos---" + String.valueOf(mailInfos));
                 return mailInfos;
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.iflytek.rpa.auth.sp.uap.dao.DeptDao">
+
+    <select id="queryChildrenOrgList" resultType="com.iflytek.rpa.auth.core.entity.DeptTreeNodeVo">
+        select
+            tuo.id,
+            tuo.higher_org as pid,
+            tuo.name
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        where
+            tut.tenant_id = #{tenantId} and
+            tuo.higher_org = #{pid} and
+            tuo.is_delete = 0
+        order by
+            tuo.create_time asc
+    </select>
+
+    <select id="queryDeptIdsWithChildren" resultType="java.lang.String">
+        select distinct tuo.higher_org
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        where
+            tut.tenant_id = #{tenantId} and
+            tuo.higher_org in
+            <foreach collection="deptIds" item="deptId" open="(" separator="," close=")">
+                #{deptId}
+            </foreach>
+            and tuo.is_delete = 0
+    </select>
+
+    <select id="queryDeptNameByDeptId" resultType="java.lang.String">
+        select
+            tuo.name
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        where
+        tut.tenant_id = #{tenantId} and
+        tuo.id = #{deptId} and
+        tuo.is_delete = 0
+    </select>
+    <select id="queryByHigherDeptId" resultType="java.lang.String">
+        select
+            tuo.id
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        where
+        tut.tenant_id = #{tenantId} and
+        tuo.higher_org = #{higherDeptId} and
+        tuo.is_delete = 0
+        limit 1
+    </select>
+    <select id="queryUserNumByOrgIds" resultType="com.iflytek.rpa.auth.core.entity.DeptPersonInfoBo">
+        select
+            tuuo.org_id, count(*) as userNum
+        from ${databaseName}.t_uap_user_org as tuuo
+        inner join ${databaseName}.t_uap_user as tuu on tuu.id = tuuo.user_id
+        inner join ${databaseName}.t_uap_organization as tuo on tuo.id = tuuo.org_id
+        where
+        tuu.is_delete = 0
+        and tuo.is_delete = 0
+        and tuuo.tenant_id = #{tenantId}
+        and
+        tuuo.org_id in
+        <foreach collection="childrenIds" item="deptId" open="(" separator="," close=")">
+            #{deptId}
+        </foreach>
+        group by tuuo.org_id
+    </select>
+    <select id="getMatchedIds" resultType="java.lang.String">
+        SELECT tuo.id
+        FROM ${databaseName}.t_uap_organization AS tuo
+        WHERE tuo.is_delete = 0
+        AND tuo.level_code LIKE CONCAT(
+            ( SELECT level_code
+            FROM ${databaseName}.t_uap_organization
+            WHERE id = #{deptId}
+            limit 1),
+
+            '%'
+        );
+    </select>
+
+    <select id="queryUserListByDeptId" resultType="com.iflytek.rpa.auth.core.entity.UserVo">
+        select
+            tuu.id   as userId,
+            tuu.name as userName,
+            tuu.phone as userPhone
+        from ${databaseName}.t_uap_user_org as tuuo
+        inner join ${databaseName}.t_uap_user as tuu on tuu.id = tuuo.user_id
+        inner join ${databaseName}.t_uap_organization as tuo on tuo.id = tuuo.org_id
+        where
+            tuuo.org_id = #{deptId}
+            and tuuo.tenant_id = #{tenantId}
+            and tuu.is_delete = 0
+            and tuo.is_delete = 0
+            <if test="name != null and name != ''">
+                and tuu.name like concat('%', #{name}, '%')
+            </if>
+        order by tuu.update_time desc
+    </select>
+
+    <select id="queryFirstLevelOrgIdByLoginName" resultType="java.lang.String">
+        select
+            tuo.first_level_id
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        inner join ${databaseName}.t_uap_user_org as tuuo on tuo.id = tuuo.org_id
+        inner join ${databaseName}.t_uap_user as tuu on tuu.id = tuuo.user_id
+        where
+            tut.tenant_id = #{tenantId}
+            and tuuo.tenant_id = #{tenantId}
+            and tuu.login_name = #{loginName}
+            and tuu.is_delete = 0
+            and tuo.is_delete = 0
+        limit 1
+    </select>
+
+    <select id="queryChildOrgsByParentOrgId" resultType="com.iflytek.rpa.auth.core.entity.UserVo">
+        select
+            tuo.id as userId,
+            tuo.name as userName,
+            '' as userPhone
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        where
+            tut.tenant_id = #{tenantId}
+            and tuo.higher_org = #{parentOrgId}
+            and tuo.is_delete = 0
+        order by tuo.create_time asc
+    </select>
+
+    <select id="queryUserIdsWithRoles" resultType="com.iflytek.rpa.auth.core.entity.UserRoleDto">
+        select distinct
+            tur.user_id as userId,
+            tur_role.name as roleName
+        from ${databaseName}.t_uap_user_role as tur
+        inner join ${databaseName}.t_uap_tenant_user as tutu on tur.user_id = tutu.user_id
+        inner join ${databaseName}.t_uap_role as tur_role on tur.role_id = tur_role.id
+        where
+            tutu.tenant_id = #{tenantId}
+            and tur.role_id != '0'
+            and tur.user_id in
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+    </select>
+
+    <select id="queryUapOrgByName" resultType="com.iflytek.sec.uap.client.core.dto.org.UapOrg">
+        select
+            tuo.id,
+            tuo.name
+        from ${databaseName}.t_uap_organization as tuo
+        inner join ${databaseName}.t_uap_tenant_org as tut on tuo.id = tut.org_id
+        where
+            tut.tenant_id = #{tenantId}
+            and tuo.is_delete = 0
+            <if test="name != null and name != ''">
+                and tuo.name like concat('%', #{name}, '%')
+            </if>
+    </select>
+
+</mapper>

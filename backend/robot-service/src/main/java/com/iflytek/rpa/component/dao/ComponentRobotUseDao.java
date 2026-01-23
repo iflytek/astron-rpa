@@ -40,7 +40,6 @@ public interface ComponentRobotUseDao extends BaseMapper<ComponentRobotUse> {
             @Param("robotId") String robotId,
             @Param("robotVersion") Integer robotVersion,
             @Param("tenantId") String tenantId);
-
     /**
      * 根据机器人ID和版本号查询组件引用，以及其对应引用的版本
      */

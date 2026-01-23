@@ -5,12 +5,15 @@ import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
 import com.iflytek.rpa.base.entity.dto.BaseDto;
 import com.iflytek.rpa.base.entity.dto.CGlobalDto;
 import com.iflytek.rpa.base.service.CGlobalVarService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
-import com.iflytek.rpa.utils.UserUtils;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.entity.User;
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,12 +25,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/global")
 public class CGlobalVarController {
-    private static final Logger logger = LoggerFactory.getLogger(CGlobalVarController.class);
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
     /**
      * 服务对象
      */
     @Resource
     private CGlobalVarService cGlobalVarService;
+
+    private static final Logger logger = LoggerFactory.getLogger(CGlobalVarController.class);
 
     @PostMapping("/all")
     public AppResponse<?> getGlobalVarInfoList(
@@ -67,7 +73,14 @@ public class CGlobalVarController {
         if (globalDto.getRobotId() == null || globalDto.getGlobalId() == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        globalDto.setUpdaterId(String.valueOf(UserUtils.nowUserId()));
+        AppResponse<User> resp = rpaAuthFeign.getLoginUser();
+        if (resp == null || !resp.ok()) {
+            throw new ServiceException("用户信息获取失败");
+        }
+        User loginUser = resp.getData();
+        String userId = loginUser.getId();
+
+        globalDto.setUpdaterId(String.valueOf(userId));
 
         return cGlobalVarService.saveGlobalVar(globalDto);
     }

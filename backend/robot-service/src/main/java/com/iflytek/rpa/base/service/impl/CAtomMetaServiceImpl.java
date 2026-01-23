@@ -1,7 +1,6 @@
 package com.iflytek.rpa.base.service.impl;
 
-import static com.iflytek.rpa.base.constants.BaseConstant.*;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,9 +12,10 @@ import com.iflytek.rpa.base.entity.*;
 import com.iflytek.rpa.base.entity.dto.AtomKeyListDto;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
 import com.iflytek.rpa.base.service.CAtomMetaService;
-import com.iflytek.rpa.starter.utils.response.AppResponse;
-import com.iflytek.rpa.starter.utils.response.ErrorCodeEnum;
+import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.utils.ListBatchUtil;
+import com.iflytek.rpa.utils.response.AppResponse;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +24,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author mjren
@@ -40,25 +39,12 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
     @Autowired
     private AtomMetaDuplicateLogDao atomMetaDuplicateLogDao;
 
+    @Autowired
+    private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse<?> getAtomTree(String atomKey) {
-
-        // 查询最新信息
-
-        //        List<String> atomKeySearch = new ArrayList<>();
-        //        atomKeySearch.add("types");
-        //        atomKeySearch.add("commonAdvancedParameter");
-        //        atomKeySearch.add("atomicTree");
-        //        atomKeySearch.add("atomicTreeExtend");
         String atomCommonInfo = cAtomMetaDao.getLatestAtomByKey(atomKey);
-        // 根据atomkey分组
-        //        Map<String, String> atomMap = atomList.stream().collect(Collectors.toMap(CAtomMeta::getAtomKey,
-        // CAtomMeta::getAtomContent));
-        //        AtomTreeDto atomTreeDto = new AtomTreeDto();
-        //        atomTreeDto.setAtomicTree(atomMap.get("atomicTree"));
-        //        atomTreeDto.setAtomicTreeExtend(atomMap.get("atomicTreeExtend"));
-        //        atomTreeDto.setCommonAdvancedParameter(atomMap.get("commonAdvancedParameter"));
-        //        atomTreeDto.setTypes(atomMap.get("types"));
         return AppResponse.success(atomCommonInfo);
     }
 
@@ -92,10 +78,10 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
 
     @Override
     public AppResponse<?> getAtomList(AtomListDto atomListDto) {
-        if (atomListDto == null || CollectionUtils.isEmpty(atomListDto.getAtomList())) {
+        if (atomListDto == null || CollectionUtil.isEmpty(atomListDto.getAtomList())) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        if (atomListDto.getAtomList().size() > ATOM_LIST_MAX_SIZE) {
+        if (atomListDto.getAtomList().size() > 500) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE_NOT_SUPPORT, "一次最多查询500条");
         }
 
@@ -136,7 +122,7 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
             atomMeta.setCreatorId("1");
             atomMeta.setUpdaterId("1");
             atomMeta.setVersion("1");
-            atomMeta.setVersionNum(INIT_VERSION_NUM);
+            atomMeta.setVersionNum(1000000);
             atomMeta.setDeleted(0);
             cAtomMetaDao.insert(atomMeta);
         }
@@ -199,7 +185,7 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
             // 当前原子能力的key
             String key = atomicTree.getKey();
             // 如果有子节点，则递归处理
-            if (!CollectionUtils.isEmpty(atomicTree.getAtomics())) {
+            if (!CollectionUtil.isEmpty(atomicTree.getAtomics())) {
                 List<AtomicTree> atomics = atomicTree.getAtomics();
                 if (parentKey.isEmpty()) {
                     processTreeListToMapWithAllPath(atomics, key, resultMap);
@@ -216,11 +202,11 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> saveAtomicsInfo(Map<String, Atomic> atomNewMap, String saveWay)
             throws JsonProcessingException {
-        if (CollectionUtils.isEmpty(atomNewMap)) {
+        if (CollectionUtil.isEmpty(atomNewMap)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "json数据为空");
         }
         Set<String> atomKeySet = atomNewMap.keySet();
-        if (CollectionUtils.isEmpty(atomNewMap)) {
+        if (CollectionUtil.isEmpty(atomNewMap)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "key数据为空");
         }
         List<CAtomMeta> insertOrUpdateAtomList = new ArrayList<>();
@@ -237,8 +223,8 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
         // 原子能力 的层级关系
         AtomCommon atomCommon = mapper.readValue(atomCommonInfoStr, AtomCommon.class);
         if (atomCommon == null
-                || CollectionUtils.isEmpty(atomCommon.getAtomicTree())
-                || CollectionUtils.isEmpty(atomCommon.getAtomicTreeExtend())) {
+                || CollectionUtil.isEmpty(atomCommon.getAtomicTree())
+                || CollectionUtil.isEmpty(atomCommon.getAtomicTreeExtend())) {
             return AppResponse.error(ErrorCodeEnum.E_SQL, "无层级关系等信息");
         }
         List<AtomicTree> atomicTree = atomCommon.getAtomicTree();
@@ -249,7 +235,7 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
         processTreeListToMapWithAllPath(atomicTree, "", atomParentKeyMap);
 
         // 对于的原子能力有没有老数据  这里 只会 取出 最新版本的原子能力 进行比较
-        if (!CollectionUtils.isEmpty(atomMetaOldList)) {
+        if (!CollectionUtil.isEmpty(atomMetaOldList)) {
             // 根据atomkey分组
             Map<String, CAtomMeta> atomMetaOldMap = atomMetaOldList.stream()
                     .collect(Collectors.toMap(
@@ -281,15 +267,15 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
             });
         }
 
-        if (!CollectionUtils.isEmpty(insertOrUpdateAtomList)) {
+        if (!CollectionUtil.isEmpty(insertOrUpdateAtomList)) {
             if ("insert".equals(saveWay)) {
                 // 批量插入
-                ListBatchUtil.process(insertOrUpdateAtomList, BATCH_SIZE, this::saveBatch);
+                ListBatchUtil.process(insertOrUpdateAtomList, 50, this::saveBatch);
 
                 // 根据本次查询的 key  和版本号 查询 数据库中是否有 复的数据，如果有重复的数据就记录本次的完整请求
                 checkDuplicateData(insertOrUpdateAtomList, atomNewMap, saveWay);
             } else if ("update".equals(saveWay)) {
-                ListBatchUtil.process(insertOrUpdateAtomList, BATCH_SIZE, updateBatchList -> {
+                ListBatchUtil.process(insertOrUpdateAtomList, 50, updateBatchList -> {
                     cAtomMetaDao.UpdateBatchByKeyAndVersion(updateBatchList);
                 });
             }
@@ -303,11 +289,8 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
         for (CAtomMeta cAtomMeta : insertOrUpdateAtomList) {
             String atomKey = cAtomMeta.getAtomKey();
             String version = cAtomMeta.getVersion();
-            // 查询数据库中是否有重复的数据
-            List<CAtomMeta> existingAtomMeta = cAtomMetaDao.selectList(new LambdaQueryWrapper<CAtomMeta>()
-                    .eq(CAtomMeta::getAtomKey, atomKey)
-                    .eq(CAtomMeta::getVersion, version)
-                    .eq(CAtomMeta::getDeleted, 0));
+            // 使用 MyBatis XML 映射，根据 atomKey 和 version 查询未删除的数据
+            List<CAtomMeta> existingAtomMeta = cAtomMetaDao.selectByKeyAndVersion(atomKey, version);
             if (existingAtomMeta.size() > 1) {
                 // 获取完整请求
                 Map map = new HashMap();
@@ -332,7 +315,6 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
 
     /**
      * 递归获取key，parentKey键值对
-     *
      * @param atomicTreeList
      * @param parentKey
      * @param resultMap
@@ -343,7 +325,7 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
             String key = atomicTree.getKey();
             resultMap.put(key, parentKey);
 
-            if (!CollectionUtils.isEmpty(atomicTree.getAtomics())) {
+            if (!CollectionUtil.isEmpty(atomicTree.getAtomics())) {
                 List<AtomicTree> atomics = atomicTree.getAtomics();
                 processTreeListToMap(atomics, key, resultMap);
             }
@@ -393,7 +375,7 @@ public class CAtomMetaServiceImpl extends ServiceImpl<CAtomMetaDao, CAtomMeta> i
             patch = Integer.parseInt(versionSplit[2]);
         }
         // 计算转换后的版本号
-        return major * MAJOR_SIZE + minor * MINOR_SIZE + patch;
+        return major * 1_000_000 + minor * 1_000 + patch;
     }
 
     private Boolean isAtomContentDifferent(Atomic newAtom, CAtomMeta oldAtomMeta) throws JsonProcessingException {

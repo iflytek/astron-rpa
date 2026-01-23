@@ -1,5 +1,66 @@
+table "agent_table" {
+  schema  = schema.rpa
+  comment = "RPA Agent配置表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "自增主键"
+    auto_increment = true
+  }
+  column "agent_id" {
+    null    = false
+    type    = varchar(100)
+    comment = "RPA Agent ID"
+  }
+  column "content" {
+    null    = true
+    type    = mediumtext
+    comment = "Agent配置信息（超长文本）"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "删除标识：0-未删除，1-已删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = varchar(36)
+    comment = "创建人ID"
+  }
+  column "create_time" {
+    null    = false
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间，插入时自动生成"
+  }
+  column "updater_id" {
+    null    = true
+    type    = varchar(36)
+    comment = "更新人ID"
+  }
+  column "update_time" {
+    null      = false
+    type      = timestamp
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间，更新时自动更新"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "uk_agent_id" {
+    unique  = true
+    columns = [column.agent_id]
+    comment = "AgentId全局唯一"
+  }
+}
 table "alarm_rule" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -94,7 +155,9 @@ table "alarm_rule" {
   }
 }
 table "alarm_rule_user" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -128,6 +191,8 @@ table "alarm_rule_user" {
 table "app_application" {
   schema  = schema.rpa
   comment = "上架/使用审核表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -196,30 +261,30 @@ table "app_application" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
   }
   column "tenant_id" {
     null    = true
     type    = char(36)
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "client_deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "客户端的申请记录-是否删除"
   }
   column "cloud_deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "卓越中心的申请记录-是否删除"
   }
   column "default_pass" {
     null    = true
-    type    = smallint
+    type    = bool
     comment = "选择绿色密级时，后续更新发版是否默认通过"
   }
   column "market_info" {
@@ -228,9 +293,8 @@ table "app_application" {
     comment = "团队市场id等信息，用于第一次发起上架申请，审核通过后自动分享到该市场"
   }
   column "publish_info" {
-    null    = true
-    type    = varchar(500)
-    comment = "发版JSON信息"
+    null = true
+    type = varchar(500)
   }
   primary_key {
     columns = [column.id]
@@ -242,6 +306,8 @@ table "app_application" {
 table "app_application_tenant" {
   schema  = schema.rpa
   comment = "租户是否开启审核配置表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "tenant_id" {
     null = false
     type = varchar(36)
@@ -270,6 +336,8 @@ table "app_application_tenant" {
 table "app_market" {
   schema  = schema.rpa
   comment = "团队市场-团队表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -324,7 +392,7 @@ table "app_market" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -341,10 +409,78 @@ table "app_market" {
     columns = [column.tenant_id]
   }
 }
-table "app_market_dict" {
+table "app_market_classification" {
+  schema = schema.rpa
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "name" {
+    null    = true
+    type    = varchar(64)
+    comment = "分类名"
+  }
+  column "source" {
+    null    = true
+    type    = bool
+    comment = "来源: 0-系统预置, 1-自定义"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "排序"
+  }
+  column "tenant_id" {
+    null    = true
+    type    = char(36)
+    comment = "租户id"
+  }
+  column "creator_id" {
+    null = true
+    type = char(36)
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null = true
+    type = char(36)
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "name_IDX" {
+    columns = [column.name]
+  }
+}
+table "app_market_classification_map" {
   schema  = schema.rpa
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "english" {
+    null = false
+    type = varchar(255)
+  }
+  column "name" {
+    null = false
+    type = varchar(255)
+  }
+}
+table "app_market_dict" {
+  schema = schema.rpa
   column "id" {
     null           = false
     type           = bigint
@@ -407,7 +543,7 @@ table "app_market_dict" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
   }
   primary_key {
@@ -417,9 +553,94 @@ table "app_market_dict" {
     columns = [column.dict_code]
   }
 }
+table "app_market_invite" {
+  schema  = schema.rpa
+  comment = "团队市场-邀请链接表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键id"
+    auto_increment = true
+  }
+  column "invite_key" {
+    null    = true
+    type    = varchar(20)
+    comment = "邀请链接key"
+  }
+  column "inviter_id" {
+    null    = true
+    type    = varchar(50)
+    comment = "邀请人id"
+  }
+  column "market_id" {
+    null    = true
+    type    = varchar(50)
+    comment = "市场id"
+  }
+  column "current_join_count" {
+    null    = true
+    type    = int
+    comment = "当前已加入人数"
+  }
+  column "max_join_count" {
+    null    = true
+    type    = int
+    comment = "最大加入人数"
+  }
+  column "expire_time" {
+    null    = true
+    type    = timestamp
+    comment = "失效时间"
+  }
+  column "expire_type" {
+    null    = true
+    type    = varchar(50)
+    comment = "失效类型"
+  }
+  column "creator_id" {
+    null    = true
+    type    = varchar(50)
+    comment = "创建者id"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "updater_id" {
+    null    = true
+    type    = varchar(50)
+    comment = "更新者id"
+  }
+  column "update_time" {
+    null      = true
+    type      = timestamp
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  column "deleted" {
+    null    = true
+    type    = int
+    default = 0
+    comment = "是否删除 0：未删除，1：已删除"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "uk_invite_key" {
+    unique  = true
+    columns = [column.invite_key]
+  }
+}
 table "app_market_resource" {
   schema  = schema.rpa
   comment = "团队市场-资源映射表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -472,7 +693,7 @@ table "app_market_resource" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -484,15 +705,15 @@ table "app_market_resource" {
     null    = true
     type    = varchar(100)
     comment = "机器人id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "app_name" {
     null    = true
     type    = varchar(64)
     comment = "资源名称"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   primary_key {
     columns = [column.id]
@@ -513,6 +734,8 @@ table "app_market_resource" {
 table "app_market_user" {
   schema  = schema.rpa
   comment = "团队市场-人员表，n:n的关系"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -521,12 +744,12 @@ table "app_market_user" {
   column "tenant_id" {
     null    = true
     type    = char(36)
-    comment = "根据id找在对应租户的信息"
+    comment = "租户id"
   }
   column "market_id" {
     null    = true
     type    = varchar(20)
-    comment = "团队市场id"
+    comment = "市场id"
   }
   column "user_type" {
     null    = true
@@ -558,7 +781,7 @@ table "app_market_user" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -578,6 +801,8 @@ table "app_market_user" {
 table "app_market_version" {
   schema  = schema.rpa
   comment = "团队市场-应用版本表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -586,7 +811,7 @@ table "app_market_version" {
   column "market_id" {
     null    = true
     type    = varchar(100)
-    comment = "团队市场id"
+    comment = "市场id"
   }
   column "app_id" {
     null = true
@@ -621,7 +846,92 @@ table "app_market_version" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
+    default = 0
+    comment = "是否删除 0：未删除，1：已删除"
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    comment = "更新者id"
+  }
+  column "update_time" {
+    null      = true
+    type      = timestamp
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  column "category_id" {
+    null    = true
+    type    = bigint
+    comment = "分类id"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "app_market_version_app_id_IDX" {
+    columns = [column.app_id]
+  }
+  index "app_market_version_market_id_IDX" {
+    columns = [column.market_id]
+  }
+  index "idx_app_id_version_deleted" {
+    columns = [column.app_id, column.app_version, column.deleted]
+  }
+  index "idx_market_app_version" {
+    columns = [column.market_id, column.app_id, column.app_version]
+  }
+}
+table "app_market_version_bak" {
+  schema  = schema.rpa
+  comment = "团队市场-应用版本表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "market_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "市场id"
+  }
+  column "app_id" {
+    null = true
+    type = varchar(50)
+  }
+  column "app_version" {
+    null    = true
+    type    = int
+    comment = "应用版本，同机器人版本"
+  }
+  column "edit_flag" {
+    null    = true
+    type    = bool
+    default = 1
+    comment = "自己创建的分享到市场，是否支持编辑/开放源码；0不支持，1支持"
+  }
+  column "category" {
+    null    = true
+    type    = varchar(100)
+    comment = "分享到市场的机器人行业：政务、医疗、商业等"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "发布人"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "发布时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -647,71 +957,9 @@ table "app_market_version" {
     columns = [column.market_id]
   }
 }
-table "astron_agent_auth" {
-  schema = schema.rpa
-  comment = "星辰Agent鉴权储存"
-  charset = "utf8mb4"
-  collate = "utf8mb4_0900_ai_ci"
-  column "id" {
-    null           = false
-    type           = int
-    auto_increment = true
-  }
-  
-  column "user_id" {
-    null = true
-    type = varchar(50)
-  }
-  
-  column "astron_user_name" {
-    null = true
-    type = varchar(50)
-  }
-  
-  column "name" {
-    null = true
-    type = varchar(50)
-  }
-  
-  column "app_id" {
-    null = true
-    type = varchar(50)
-  }
-  
-  column "api_key" {
-    null = true
-    type = varchar(100)
-  }
-  
-  column "api_secret" {
-    null = true
-    type = varchar(100)
-  }
-  
-  column "created_at" {
-    null = true
-    type = datetime
-  }
-  
-  column "updated_at" {
-    null = true
-    type = datetime
-  }
-  
-  column "is_active" {
-    null = true
-    type = tinyint(1)
-  }
-  
-  primary_key {
-    columns = [column.id]
-  }
-}
 table "atom_like" {
   schema  = schema.rpa
   comment = "原子能力收藏"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = int
@@ -737,7 +985,7 @@ table "atom_like" {
   }
   column "is_deleted" {
     null    = false
-    type    = smallint
+    type    = bool
     default = 0
   }
   column "updater_id" {
@@ -759,7 +1007,9 @@ table "atom_like" {
   }
 }
 table "atom_meta_duplicate_log" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null    = false
     type    = bigint
@@ -781,7 +1031,7 @@ table "atom_meta_duplicate_log" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除"
   }
@@ -809,6 +1059,8 @@ table "atom_meta_duplicate_log" {
 table "audit_checkpoint" {
   schema  = schema.rpa
   comment = "监控管理统计断点表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -843,7 +1095,7 @@ table "audit_checkpoint" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "删除标识"
   }
@@ -852,16 +1104,17 @@ table "audit_checkpoint" {
   }
 }
 table "audit_record" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
     auto_increment = true
   }
   column "event_module_code" {
-    null    = true
-    type    = int
-    comment = "事件模块代码"
+    null = true
+    type = int
   }
   column "event_module_name" {
     null    = true
@@ -869,649 +1122,122 @@ table "audit_record" {
     comment = "事件模块"
   }
   column "event_type_code" {
-    null    = true
-    type    = int
-    comment = "事件代码"
+    null = true
+    type = int
   }
   column "event_type_name" {
     null    = true
     type    = varchar(255)
     comment = "事件类型"
   }
-  column "creator_id" {
-    null    = true
-    type    = char(36)
-    comment = "创建者id"
-  }
-  column "creator_name" {
-    null    = true
-    type    = varchar(255)
-    comment = "创建者名称"
-  }
-  column "create_time" {
-    null      = false
-    type      = timestamp
-    default   = sql("CURRENT_TIMESTAMP")
-    comment   = "创建时间"
-    on_update = sql("CURRENT_TIMESTAMP")
-  }
-  column "tenant_id" {
-    null    = true
-    type    = char(36)
-    comment = "租户id"
-  }
   column "event_detail" {
     null    = true
     type    = varchar(255)
     comment = "事件详情"
   }
+  column "creator_id" {
+    null = true
+    type = char(36)
+  }
+  column "creator_name" {
+    null = true
+    type = varchar(255)
+  }
+  column "create_time" {
+    null      = true
+    type      = timestamp
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  column "tenant_id" {
+    null = true
+    type = char(36)
+  }
   column "process_id_list" {
-    null    = true
-    type    = mediumtext
-    comment = "processId"
+    null = true
+    type = mediumtext
   }
   column "role_id_list" {
-    null    = true
-    type    = mediumtext
-    comment = "角色id列表"
+    null = true
+    type = mediumtext
   }
   primary_key {
     columns = [column.id]
   }
 }
-table "c_atom_meta" {
-  schema = schema.rpa
+table "client_update_version" {
+  schema  = schema.rpa
+  comment = "客户端版本检查表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
     auto_increment = true
-  }
-  column "parent_key" {
-    null = true
-    type = varchar(100)
-  }
-  column "atom_key" {
-    null = true
-    type = varchar(100)
-  }
-  column "atom_content" {
-    null    = true
-    type    = mediumtext
-    comment = "原子能力所有配置信息，json"
-  }
-  column "deleted" {
-    null    = true
-    type    = smallint
-    default = 0
-    comment = "是否删除"
-  }
-  column "creator_id" {
-    null    = true
-    type    = char(36)
-    default = "73"
-  }
-  column "create_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updater_id" {
-    null    = true
-    type    = bigint
-    default = 73
-  }
-  column "update_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
   }
   column "version" {
-    null    = true
-    type    = varchar(20)
-    comment = "原子能力版本"
-  }
-  column "sort" {
-    null    = true
-    type    = int
-    comment = "原子能力展示顺序"
+    null    = false
+    type    = char(15)
+    comment = "版本"
   }
   column "version_num" {
-    null    = true
-    type    = varchar(100)
-    comment = "大版本"
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "c_element" {
-  schema  = schema.rpa
-  comment = "客户端，元素信息"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "element_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "元素id"
-  }
-  column "element_name" {
-    null    = true
-    type    = varchar(100)
-    comment = "元素名称"
-  }
-  column "icon" {
-    null    = true
-    type    = varchar(100)
-    comment = "图标"
-  }
-  column "image_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "图片下载地址"
-  }
-  column "parent_image_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "元素的父级图片下载地址"
-  }
-  column "element_data" {
-    null    = true
-    type    = mediumtext
-    comment = "元素内容"
-  }
-  column "deleted" {
-    null    = true
-    type    = smallint
-    default = 0
-  }
-  column "creator_id" {
-    null = true
-    type = char(36)
-  }
-  column "create_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updater_id" {
-    null = true
-    type = char(36)
-  }
-  column "update_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  column "group_id" {
-    null = true
-    type = varchar(30)
-  }
-  column "common_sub_type" {
-    null    = true
-    type    = varchar(50)
-    comment = "cv图像, sigle普通拾取，batch数据抓取"
-  }
-  column "group_name" {
-    null = true
-    type = varchar(100)
-  }
-  column "element_type" {
-    null = true
-    type = varchar(20)
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "c_global_var" {
-  schema  = schema.rpa
-  comment = "客户端-全局变量"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "project_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "global_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "var_name" {
-    null = true
-    type = varchar(100)
-  }
-  column "var_type" {
-    null = true
-    type = varchar(100)
-  }
-  column "var_value" {
-    null = true
-    type = varchar(100)
-  }
-  column "var_describe" {
-    null = true
-    type = varchar(100)
-  }
-  column "deleted" {
-    null = true
-    type = smallint
-  }
-  column "creator_id" {
-    null = true
-    type = char(36)
-  }
-  column "create_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updater_id" {
-    null = true
-    type = char(36)
-  }
-  column "update_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "c_group" {
-  schema  = schema.rpa
-  comment = "元素或图像的分组"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "group_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "group_name" {
-    null = true
-    type = varchar(100)
-  }
-  column "creator_id" {
-    null = true
-    type = char(36)
-  }
-  column "create_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updater_id" {
-    null = true
-    type = char(36)
-  }
-  column "update_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "deleted" {
-    null    = true
-    type    = smallint
-    default = 0
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  column "element_type" {
-    null    = true
-    type    = varchar(20)
-    comment = "cv：cv拾取; common:普通元素拾取"
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "c_module" {
-  schema  = schema.rpa
-  comment = "客户端-python模块数据"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "module_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "流程id"
-  }
-  column "module_content" {
-    null    = true
-    type    = mediumtext
-    comment = "全量python代码数据"
-  }
-  column "module_name" {
-    null    = true
-    type    = varchar(100)
-    comment = "python文件名"
-  }
-  column "deleted" {
-    null    = true
-    type    = smallint
-    default = 0
-  }
-  column "creator_id" {
-    null    = true
-    type    = char(36)
-    default = "73"
-  }
-  column "create_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updater_id" {
-    null    = true
-    type    = char(36)
-    default = "73"
-  }
-  column "update_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "c_param" {
-  schema = schema.rpa
-  column "id" {
     null    = false
-    type    = varchar(20)
-    comment = "参数id"
+    type    = mediumint
+    comment = "版本数字"
   }
-  column "var_direction" {
-    null    = true
-    type    = int
-    comment = "输入/输出"
+  column "download_url" {
+    null    = false
+    type    = varchar(255)
+    comment = "下载链接"
   }
-  column "var_name" {
-    null    = true
-    type    = varchar(100)
-    comment = "参数名称"
-  }
-  column "var_type" {
-    null    = true
-    type    = varchar(100)
-    comment = "参数类型"
-  }
-  column "var_value" {
-    null    = true
-    type    = varchar(100)
-    comment = "参数内容"
-  }
-  column "var_describe" {
-    null    = true
-    type    = varchar(100)
-    comment = "参数描述"
-  }
-  column "process_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "流程id"
-  }
-  column "creator_id" {
-    null = true
-    type = char(36)
-  }
-  column "updater_id" {
-    null = true
-    type = char(36)
-  }
-  column "create_time" {
-    null = true
-    type = timestamp
-  }
-  column "update_time" {
-    null = true
-    type = timestamp
-  }
-  column "deleted" {
-    null = true
-    type = int
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  column "module_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "python模块id"
-  }
-  index "c_param_id_IDX" {
-    columns = [column.id]
-  }
-}
-table "c_process" {
-  schema  = schema.rpa
-  comment = "客户端-流程数据"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "project_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "工程id"
-  }
-  column "process_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "流程id"
-  }
-  column "process_content" {
+  column "update_info" {
     null    = true
     type    = mediumtext
-    comment = "全量流程数据"
-  }
-  column "process_name" {
-    null    = true
-    type    = varchar(100)
-    comment = "流程名称"
-  }
-  column "deleted" {
-    null    = true
-    type    = smallint
-    default = 0
-  }
-  column "creator_id" {
-    null    = true
-    type    = char(36)
-    default = "73"
-  }
-  column "create_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updater_id" {
-    null    = true
-    type    = char(36)
-    default = "73"
-  }
-  column "update_time" {
-    null    = true
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "c_project" {
-  schema  = schema.rpa
-  comment = "工程表"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "project_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "project_name" {
-    null    = true
-    type    = varchar(200)
-    comment = "项目名称"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
-  }
-  column "creator_id" {
-    null    = true
-    type    = char(36)
-    comment = "创建者id"
+    comment = "更新内容"
   }
   column "create_time" {
     null    = true
     type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
     comment = "创建时间"
-  }
-  column "updater_id" {
-    null    = true
-    type    = char(36)
-    comment = "更新者id"
   }
   column "update_time" {
-    null    = true
-    type    = datetime
-    comment = "创建时间"
+    null      = true
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
   }
   column "deleted" {
     null    = true
     type    = bool
     default = 0
-    comment = "逻辑删除 0：未删除 1：已删除"
+    comment = "是否删除 0：未删除，1：已删除"
+  }
+  column "os" {
+    null    = true
+    type    = varchar(255)
+    comment = "系统"
+  }
+  column "arch" {
+    null    = true
+    type    = varchar(255)
+    comment = "架构"
   }
   primary_key {
     columns = [column.id]
   }
-}
-table "c_require" {
-  schema  = schema.rpa
-  comment = "python依赖管理"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
+  index "idx_version" {
+    columns = [column.version]
   }
-  column "project_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "package_name" {
-    null    = true
-    type    = varchar(100)
-    comment = "项目名称"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
-  }
-  column "package_version" {
-    null = true
-    type = varchar(20)
-  }
-  column "mirror" {
-    null = true
-    type = varchar(100)
-  }
-  column "creator_id" {
-    null    = true
-    type    = char(36)
-    comment = "创建者id"
-  }
-  column "create_time" {
-    null    = true
-    type    = datetime
-    comment = "创建时间"
-  }
-  column "updater_id" {
-    null    = true
-    type    = char(36)
-    comment = "更新者id"
-  }
-  column "update_time" {
-    null    = true
-    type    = datetime
-    comment = "创建时间"
-  }
-  column "deleted" {
-    null    = true
-    type    = bool
-    default = 0
-    comment = "逻辑删除 0：未删除 1：已删除"
-  }
-  column "robot_id" {
-    null = true
-    type = varchar(100)
-  }
-  column "robot_version" {
-    null = true
-    type = int
-  }
-  primary_key {
-    columns = [column.id]
+  index "idx_version_num" {
+    columns = [column.version_num]
   }
 }
 table "cloud_terminal" {
   schema  = schema.rpa
   comment = "终端表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -1598,7 +1324,7 @@ table "cloud_terminal" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -1631,8 +1357,6 @@ table "cloud_terminal" {
 table "component" {
   schema  = schema.rpa
   comment = "组件表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -1674,13 +1398,13 @@ table "component" {
   }
   column "is_shown" {
     null    = false
-    type    = smallint
+    type    = bool
     default = 1
     comment = "是否在用户列表页显示 0：不显示，1：显示"
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -1693,7 +1417,7 @@ table "component" {
     type    = varchar(50)
     comment = "appmarketResource中的应用id"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   column "app_version" {
     null    = true
@@ -1705,7 +1429,7 @@ table "component" {
     type    = varchar(20)
     comment = "获取的应用：市场id"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   column "resource_status" {
     null    = true
@@ -1729,6 +1453,8 @@ table "component" {
 table "component_robot_block" {
   schema  = schema.rpa
   comment = "机器人对组件屏蔽表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -1739,8 +1465,8 @@ table "component_robot_block" {
     null    = false
     type    = varchar(100)
     comment = "机器人id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "robot_version" {
     null    = false
@@ -1751,8 +1477,8 @@ table "component_robot_block" {
     null    = false
     type    = varchar(100)
     comment = "组件id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "creator_id" {
     null    = true
@@ -1779,7 +1505,7 @@ table "component_robot_block" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -1794,6 +1520,8 @@ table "component_robot_block" {
 table "component_robot_use" {
   schema  = schema.rpa
   comment = "机器人对组件引用表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -1804,8 +1532,8 @@ table "component_robot_use" {
     null    = false
     type    = varchar(100)
     comment = "机器人id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "robot_version" {
     null    = false
@@ -1816,8 +1544,8 @@ table "component_robot_use" {
     null    = false
     type    = varchar(100)
     comment = "组件id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "component_version" {
     null    = false
@@ -1849,7 +1577,7 @@ table "component_robot_use" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -1864,6 +1592,8 @@ table "component_robot_use" {
 table "component_version" {
   schema  = schema.rpa
   comment = "组件版本表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -1874,8 +1604,8 @@ table "component_version" {
     null    = false
     type    = varchar(100)
     comment = "机器人id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "version" {
     null    = false
@@ -1886,15 +1616,15 @@ table "component_version" {
     null    = true
     type    = longtext
     comment = "简介"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "update_log" {
     null    = true
     type    = longtext
     comment = "更新日志"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "creator_id" {
     null    = true
@@ -1921,7 +1651,7 @@ table "component_version" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -1932,13 +1662,14 @@ table "component_version" {
   column "param" {
     null    = true
     type    = text
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "param_detail" {
     null    = true
     type    = text
     comment = "发版时拖的表单参数信息"
+    collate = "utf8mb4_unicode_ci"
   }
   column "icon" {
     null    = false
@@ -1949,11 +1680,1560 @@ table "component_version" {
     columns = [column.id]
   }
 }
+table "consult_form" {
+  schema = schema.rpa
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "form_type" {
+    null    = true
+    type    = tinyint
+    comment = "1=专业版 2=企业版 预留 3~99"
+  }
+  column "company_name" {
+    null = false
+    type = varchar(128)
+  }
+  column "contact_name" {
+    null = false
+    type = varchar(64)
+  }
+  column "mobile" {
+    null = false
+    type = varchar(20)
+  }
+  column "email" {
+    null    = true
+    type    = varchar(128)
+    comment = "非必填"
+  }
+  column "team_size" {
+    null    = true
+    type    = varchar(32)
+    comment = "人数区间，字典值"
+  }
+  column "status" {
+    null    = false
+    type    = tinyint
+    default = 0
+    comment = "0=待处理 1=已处理 2=已忽略"
+  }
+  column "remark" {
+    null    = true
+    type    = varchar(512)
+    comment = "客服备注"
+  }
+  column "created_at" {
+    null    = false
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updated_at" {
+    null      = false
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_created" {
+    columns = [column.created_at]
+  }
+  index "idx_type_status" {
+    columns = [column.form_type, column.status]
+  }
+}
+table "contact" {
+  schema  = schema.rpa
+  comment = "留咨信息表"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键ID"
+    auto_increment = true
+  }
+  column "name" {
+    null    = false
+    type    = varchar(100)
+    comment = "姓名"
+  }
+  column "phone" {
+    null    = false
+    type    = varchar(11)
+    comment = "手机号"
+  }
+  column "company_name" {
+    null    = false
+    type    = varchar(200)
+    comment = "企业名称"
+  }
+  column "company_size" {
+    null    = false
+    type    = varchar(50)
+    comment = "团队规模 参照CompanySizeEnum"
+  }
+  column "email" {
+    null    = true
+    type    = varchar(100)
+    comment = "邮箱"
+  }
+  column "demand_desc" {
+    null    = true
+    type    = text
+    comment = "需求描述"
+  }
+  column "contact_kind" {
+    null    = false
+    type    = varchar(50)
+    comment = "咨询类型 参照ContactKindEnum"
+  }
+  column "agreement" {
+    null    = true
+    type    = bool
+    default = 1
+    comment = "是否同意协议 0-不同意 1-同意"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "创建人ID"
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    comment = "更新人ID"
+  }
+  column "create_time" {
+    null    = false
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null    = false
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "更新时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除 0-未删除 1-已删除"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_company_name" {
+    columns = [column.company_name]
+  }
+  index "idx_create_time" {
+    columns = [column.create_time]
+  }
+  index "idx_deleted" {
+    columns = [column.deleted]
+  }
+  index "idx_phone" {
+    columns = [column.phone]
+  }
+}
+table "c_atom_meta" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_2" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_2025_06_13" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_2025_06_13_bak" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_bak" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_bak_2025" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = bigint
+    default = 73
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = bigint
+    default = 73
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_bak_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_bak_20250731_1" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
+table "c_atom_meta_bak_2025_06_13" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_bak_2025_09_30" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_atom_meta_atom_key_IDX" {
+    columns = [column.atom_key]
+  }
+}
+table "c_atom_meta_dev" {
+  schema  = schema.rpa
+  comment = "客户端-左侧树原子能力定义"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "parent_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "version" {
+    null    = true
+    type    = varchar(20)
+    comment = "原子能力版本"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "version_num" {
+    null    = true
+    type    = varchar(100)
+    comment = "大版本"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
+table "c_atom_meta_new" {
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "atom_key" {
+    null = true
+    type = varchar(100)
+  }
+  column "atom_content" {
+    null    = true
+    type    = mediumtext
+    comment = "原子能力所有配置信息，json"
+  }
+  column "sort" {
+    null    = true
+    type    = int
+    comment = "原子能力展示顺序"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_atom_key" {
+    unique  = true
+    columns = [column.atom_key]
+    comment = "atom_key索引"
+  }
+}
+table "c_element" {
+  schema  = schema.rpa
+  comment = "客户端，元素信息"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "element_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "元素id"
+  }
+  column "element_name" {
+    null    = true
+    type    = varchar(100)
+    comment = "元素名称"
+  }
+  column "icon" {
+    null    = true
+    type    = varchar(100)
+    comment = "图标"
+  }
+  column "image_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "图片下载地址"
+  }
+  column "parent_image_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "元素的父级图片下载地址"
+  }
+  column "element_data" {
+    null    = true
+    type    = mediumtext
+    comment = "元素内容"
+  }
+  column "deleted" {
+    null    = true
+    type    = smallint
+    default = 0
+  }
+  column "creator_id" {
+    null = true
+    type = char(36)
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null = true
+    type = char(36)
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  column "group_id" {
+    null = true
+    type = varchar(30)
+  }
+  column "common_sub_type" {
+    null    = true
+    type    = varchar(50)
+    comment = "cv图像, sigle普通拾取，batch数据抓取"
+  }
+  column "group_name" {
+    null = true
+    type = varchar(100)
+  }
+  column "element_type" {
+    null = true
+    type = varchar(20)
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_element_id" {
+    columns = [column.element_id]
+  }
+  index "idx_element_name" {
+    columns = [column.element_name]
+  }
+  index "idx_element_robot_version" {
+    columns = [column.element_id, column.robot_id, column.robot_version]
+  }
+  index "idx_group_id" {
+    columns = [column.group_id]
+  }
+  index "idx_robot_info" {
+    columns = [column.robot_id, column.robot_version]
+  }
+}
+table "c_global_var" {
+  schema  = schema.rpa
+  comment = "客户端-全局变量"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "project_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "global_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "var_name" {
+    null = true
+    type = varchar(100)
+  }
+  column "var_type" {
+    null = true
+    type = varchar(100)
+  }
+  column "var_value" {
+    null = true
+    type = varchar(100)
+  }
+  column "var_describe" {
+    null = true
+    type = varchar(100)
+  }
+  column "deleted" {
+    null = true
+    type = smallint
+  }
+  column "creator_id" {
+    null = true
+    type = char(36)
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null = true
+    type = char(36)
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
+table "c_group" {
+  schema  = schema.rpa
+  comment = "元素或图像的分组"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "group_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "group_name" {
+    null = true
+    type = varchar(100)
+  }
+  column "creator_id" {
+    null = true
+    type = char(36)
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null = true
+    type = char(36)
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "deleted" {
+    null    = true
+    type    = smallint
+    default = 0
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  column "element_type" {
+    null    = true
+    type    = varchar(20)
+    comment = "cv：cv拾取; common:普通元素拾取"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_element_type" {
+    columns = [column.element_type]
+  }
+  index "idx_group_id" {
+    columns = [column.group_id]
+  }
+  index "idx_robot_info" {
+    columns = [column.robot_id, column.robot_version]
+  }
+}
+table "c_module" {
+  schema  = schema.rpa
+  comment = "客户端-python模块数据"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "module_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "流程id"
+  }
+  column "module_content" {
+    null    = true
+    type    = mediumtext
+    comment = "全量python代码数据"
+  }
+  column "module_name" {
+    null    = true
+    type    = varchar(100)
+    comment = "python文件名"
+  }
+  column "deleted" {
+    null    = true
+    type    = smallint
+    default = 0
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  column "breakpoint" {
+    null    = true
+    type    = mediumtext
+    comment = "断点信息"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "c_module_module_id_IDX" {
+    columns = [column.module_id]
+  }
+}
+table "c_param" {
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null    = false
+    type    = varchar(20)
+    comment = "参数id"
+  }
+  column "var_direction" {
+    null    = true
+    type    = int
+    comment = "输入/输出"
+  }
+  column "var_name" {
+    null    = true
+    type    = varchar(100)
+    comment = "参数名称"
+  }
+  column "var_type" {
+    null    = true
+    type    = varchar(100)
+    comment = "参数类型"
+  }
+  column "var_value" {
+    null    = true
+    type    = varchar(1000)
+    comment = "参数内容"
+  }
+  column "var_describe" {
+    null    = true
+    type    = varchar(100)
+    comment = "参数描述"
+  }
+  column "process_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "流程id"
+  }
+  column "creator_id" {
+    null = true
+    type = char(36)
+  }
+  column "updater_id" {
+    null = true
+    type = char(36)
+  }
+  column "create_time" {
+    null = true
+    type = timestamp
+  }
+  column "update_time" {
+    null = true
+    type = timestamp
+  }
+  column "deleted" {
+    null = true
+    type = int
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  column "module_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "python模块id"
+  }
+  index "c_param_id_IDX" {
+    columns = [column.id]
+  }
+}
+table "c_process" {
+  schema  = schema.rpa
+  comment = "客户端-流程数据"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "project_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "工程id"
+  }
+  column "process_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "流程id"
+  }
+  column "process_content" {
+    null    = true
+    type    = mediumtext
+    comment = "全量流程数据"
+  }
+  column "process_name" {
+    null    = true
+    type    = varchar(100)
+    comment = "流程名称"
+  }
+  column "deleted" {
+    null    = true
+    type    = smallint
+    default = 0
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    default = "73"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
+table "c_project" {
+  schema  = schema.rpa
+  comment = "工程表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "project_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "project_name" {
+    null    = true
+    type    = varchar(200)
+    comment = "项目名称"
+    charset = "utf8"
+    collate = "utf8_general_ci"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "创建者id"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    comment = "创建时间"
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    comment = "更新者id"
+  }
+  column "update_time" {
+    null    = true
+    type    = datetime
+    comment = "创建时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "逻辑删除 0：未删除 1：已删除"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
+table "c_require" {
+  schema  = schema.rpa
+  comment = "python依赖管理"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "project_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "package_name" {
+    null    = true
+    type    = varchar(100)
+    comment = "项目名称"
+    charset = "utf8"
+    collate = "utf8_general_ci"
+  }
+  column "package_version" {
+    null = true
+    type = varchar(20)
+  }
+  column "mirror" {
+    null = true
+    type = varchar(100)
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "创建者id"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    comment = "创建时间"
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    comment = "更新者id"
+  }
+  column "update_time" {
+    null    = true
+    type    = datetime
+    comment = "创建时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "逻辑删除 0：未删除 1：已删除"
+  }
+  column "robot_id" {
+    null = true
+    type = varchar(100)
+  }
+  column "robot_version" {
+    null = true
+    type = int
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
+table "c_smart_version" {
+  schema  = schema.rpa
+  comment = "智能组件版本表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "自增主键"
+    auto_increment = true
+  }
+  column "smart_id" {
+    null    = false
+    type    = varchar(100)
+    comment = "智能组件Id"
+  }
+  column "smart_type" {
+    null    = true
+    type    = varchar(100)
+    comment = "智能组件的类型"
+  }
+  column "content" {
+    null    = true
+    type    = mediumtext
+    comment = "组件内容（超长文本）"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "删除标识：0-未删除，1-已删除"
+  }
+  column "robot_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "机器人Id"
+  }
+  column "robot_version" {
+    null    = true
+    type    = int
+    comment = "机器人版本号"
+  }
+  column "creator_id" {
+    null    = true
+    type    = varchar(36)
+    comment = "创建人ID"
+  }
+  column "create_time" {
+    null    = false
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间，插入时自动生成"
+  }
+  column "updater_id" {
+    null    = true
+    type    = varchar(36)
+    comment = "更新人ID"
+  }
+  column "update_time" {
+    null      = false
+    type      = timestamp
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间，更新时自动更新"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_smart_id_robot_id" {
+    columns = [column.smart_id, column.robot_id]
+  }
+}
 table "dispatch_day_task_info" {
   schema  = schema.rpa
   comment = "调度模式:终端每日上传的任务情况信息"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2002,11 +3282,11 @@ table "dispatch_day_task_info" {
   }
   column "tenant_id" {
     null = true
-    type = bigint
+    type = varchar(36)
   }
   column "creator_id" {
     null    = true
-    type    = bigint
+    type    = varchar(36)
     comment = "创建者id"
   }
   column "create_time" {
@@ -2017,7 +3297,7 @@ table "dispatch_day_task_info" {
   }
   column "updater_id" {
     null    = true
-    type    = bigint
+    type    = varchar(36)
     comment = "更新者id"
   }
   column "update_time" {
@@ -2029,7 +3309,7 @@ table "dispatch_day_task_info" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -2044,7 +3324,9 @@ table "dispatch_day_task_info" {
   }
 }
 table "dispatch_task" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "dispatch_task_id" {
     null           = false
     type           = bigint
@@ -2151,7 +3433,9 @@ table "dispatch_task" {
   }
 }
 table "dispatch_task_execute_record" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2250,7 +3534,9 @@ table "dispatch_task_execute_record" {
   }
 }
 table "dispatch_task_robot" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2329,7 +3615,9 @@ table "dispatch_task_robot" {
   }
 }
 table "dispatch_task_robot_execute_record" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2440,12 +3728,19 @@ table "dispatch_task_robot_execute_record" {
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
+  column "data_table_path" {
+    null    = true
+    type    = varchar(255)
+    comment = "数据抓取存储位置"
+  }
   primary_key {
     columns = [column.id]
   }
 }
 table "dispatch_task_terminal" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2513,9 +3808,86 @@ table "dispatch_task_terminal" {
     columns = [column.dispatch_task_id]
   }
 }
+table "feedback_report" {
+  schema  = schema.rpa
+  comment = "反馈举报表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键ID"
+    auto_increment = true
+  }
+  column "report_no" {
+    null    = false
+    type    = varchar(32)
+    comment = "唯一编号"
+  }
+  column "username" {
+    null    = false
+    type    = varchar(100)
+    comment = "用户登录名"
+  }
+  column "categories" {
+    null    = false
+    type    = text
+    comment = "问题分类列表（JSON格式）"
+  }
+  column "description" {
+    null    = false
+    type    = text
+    comment = "问题描述"
+  }
+  column "image_ids" {
+    null    = true
+    type    = varchar(500)
+    comment = "图片文件ID列表（逗号分隔）"
+  }
+  column "create_time" {
+    null    = false
+    type    = datetime
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null    = true
+    type    = datetime
+    comment = "更新时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = tinyint
+    default = 0
+    comment = "逻辑删除标志 0:未删除 1:已删除"
+  }
+  column "processed" {
+    null    = true
+    type    = tinyint
+    default = 0
+    comment = "是否已处理 0:未处理 1:已处理"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_create_time" {
+    columns = [column.create_time]
+  }
+  index "idx_processed" {
+    columns = [column.processed]
+  }
+  index "idx_username" {
+    columns = [column.username]
+  }
+  index "uk_report_no" {
+    unique  = true
+    columns = [column.report_no]
+  }
+}
 table "file" {
   schema  = schema.rpa
   comment = "文件表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = int
@@ -2545,7 +3917,6 @@ table "file" {
   column "deleted" {
     null    = true
     type    = int
-    default = 0
     comment = "逻辑删除标志位"
   }
   column "file_name" {
@@ -2560,8 +3931,6 @@ table "file" {
 table "his_base" {
   schema  = schema.rpa
   comment = "全部机器人和全部终端趋势表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2632,7 +4001,7 @@ table "his_base" {
   }
   column "deleted" {
     null    = false
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -2653,8 +4022,6 @@ table "his_base" {
 table "his_data_enum" {
   schema  = schema.rpa
   comment = "监控管理数据概览卡片配置数据枚举"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2703,8 +4070,6 @@ table "his_data_enum" {
 table "his_robot" {
   schema  = schema.rpa
   comment = "单个机器人趋势表,当日数据"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2760,7 +4125,7 @@ table "his_robot" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -2785,8 +4150,6 @@ table "his_robot" {
 table "his_terminal" {
   schema  = schema.rpa
   comment = "单个终端趋势表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -2831,7 +4194,7 @@ table "his_terminal" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -2848,15 +4211,72 @@ table "his_terminal" {
     columns = [column.terminal_id]
   }
 }
+table "install_package" {
+  schema  = schema.rpa
+  comment = "安装包表"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键ID"
+    auto_increment = true
+  }
+  column "name" {
+    null    = false
+    type    = varchar(255)
+    comment = "姓名"
+  }
+  column "download_path" {
+    null    = false
+    type    = varchar(500)
+    comment = "下载链接"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "创建人ID"
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    comment = "更新人ID"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "更新时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = tinyint
+    default = 0
+    comment = "是否删除 0-未删除 1-已删除"
+  }
+  column "is_online" {
+    null    = true
+    type    = tinyint
+    default = 0
+    comment = "是否上线 0-不上线 1-上线"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+}
 table "notify_send" {
   schema  = schema.rpa
   comment = "消息通知-消息表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "tenant_id" {
     null    = true
-    type    = varchar(100)
-    comment = "接受者所在租户"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    type    = char(36)
+    comment = "租户id"
   }
   column "id" {
     null           = false
@@ -2867,22 +4287,22 @@ table "notify_send" {
     null    = true
     type    = varchar(50)
     comment = "接收者"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "message_info" {
     null    = true
     type    = varchar(100)
     comment = "消息体id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "message_type" {
     null    = true
     type    = varchar(20)
     comment = "消息类型：邀人消息teamMarketInvite，更新消息teamMarketUpdate"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "operate_result" {
     null    = true
@@ -2893,8 +4313,8 @@ table "notify_send" {
     null    = true
     type    = varchar(500)
     comment = "市场id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "create_time" {
     null    = true
@@ -2918,8 +4338,8 @@ table "notify_send" {
     null    = true
     type    = varchar(10)
     comment = "成员类型：owner,admin,consumer"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "app_name" {
     null = true
@@ -2929,178 +4349,9 @@ table "notify_send" {
     columns = [column.id]
   }
 }
-table "openai_executions" {
-  schema  = schema.rpa
-  collate = "utf8mb4_0900_ai_ci"
-  column "id" {
-    null    = false
-    type    = varchar(36)
-    comment = "执行记录ID（UUID）"
-  }
-  column "project_id" {
-    null    = false
-    type    = varchar(100)
-    comment = "项目ID（关联工作流）"
-  }
-  column "status" {
-    null    = false
-    type    = varchar(20)
-    default = "PENDING"
-    comment = "执行状态（PENDING/RUNNING/COMPLETED/FAILED/CANCELLED）"
-  }
-  column "parameters" {
-    null    = true
-    type    = text
-    comment = "执行参数（JSON格式）"
-  }
-  column "result" {
-    null    = true
-    type    = text
-    comment = "执行结果（JSON格式）"
-  }
-  column "error" {
-    null    = true
-    type    = text
-    comment = "错误信息"
-  }
-  column "user_id" {
-    null    = false
-    type    = varchar(50)
-    comment = "用户ID"
-  }
-  column "exec_position" {
-    null    = false
-    type    = varchar(50)
-    default = "EXECUTOR"
-    comment = "执行位置"
-  }
-  column "recording_config" {
-    null    = true
-    type    = text
-    comment = "录制配置"
-  }
-  column "version" {
-    null    = true
-    type    = int
-    comment = "工作流版本号"
-  }
-  column "start_time" {
-    null    = false
-    type    = datetime
-    default = sql("CURRENT_TIMESTAMP")
-    comment = "开始时间"
-  }
-  column "end_time" {
-    null    = true
-    type    = datetime
-    comment = "结束时间"
-  }
-  primary_key {
-    columns = [column.id]
-  }
-  foreign_key "openai_executions_ibfk_1" {
-    columns     = [column.project_id]
-    ref_columns = [table.openai_workflows.column.project_id]
-    on_update   = NO_ACTION
-    on_delete   = CASCADE
-  }
-  index "idx_project_id" {
-    columns = [column.project_id]
-  }
-  index "idx_start_time" {
-    columns = [column.start_time]
-  }
-  index "idx_status" {
-    columns = [column.status]
-  }
-  index "idx_user_id" {
-    columns = [column.user_id]
-  }
-}
-table "openai_workflows" {
-  schema  = schema.rpa
-  collate = "utf8mb4_0900_ai_ci"
-  column "project_id" {
-    null    = false
-    type    = varchar(100)
-    comment = "项目ID（主键）"
-  }
-  column "name" {
-    null    = false
-    type    = varchar(100)
-    comment = "工作流名称"
-  }
-  column "description" {
-    null    = true
-    type    = varchar(500)
-    comment = "工作流描述"
-  }
-  column "version" {
-    null    = false
-    type    = int
-    default = 1
-    comment = "工作流版本号"
-  }
-  column "status" {
-    null    = false
-    type    = int
-    default = 1
-    comment = "工作流状态（1=激活，0=禁用）"
-  }
-  column "user_id" {
-    null    = false
-    type    = varchar(50)
-    comment = "用户ID"
-  }
-  column "example_project_id" {
-    null    = true
-    type    = varchar(100)
-    comment = "示例用户账号下的project_id，用于执行时映射"
-  }
-  column "created_at" {
-    null    = false
-    type    = datetime
-    default = sql("CURRENT_TIMESTAMP")
-    comment = "创建时间"
-  }
-  column "updated_at" {
-    null      = false
-    type      = datetime
-    default   = sql("CURRENT_TIMESTAMP")
-    comment   = "更新时间"
-    on_update = sql("CURRENT_TIMESTAMP")
-  }
-  column "english_name" {
-    null    = true
-    type    = varchar(100)
-    comment = "翻译后的英文名称"
-  }
-  column "parameters" {
-    null    = true
-    type    = text
-    comment = "存储JSON字符串格式的参数"
-  }
-  primary_key {
-    columns = [column.project_id]
-  }
-  index "idx_created_at" {
-    columns = [column.created_at]
-  }
-  index "idx_name" {
-    columns = [column.name]
-  }
-  index "idx_status" {
-    columns = [column.status]
-  }
-  index "idx_user_id" {
-    columns = [column.user_id]
-  }
-}
 table "openapi_auth" {
   schema  = schema.rpa
   comment = "openapi鉴权储存"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3143,201 +4394,8 @@ table "openapi_auth" {
     columns = [column.api_key]
   }
 }
-table "openapi_users" {
-  schema  = schema.rpa
-  collate = "utf8mb4_0900_ai_ci"
-  column "id" {
-    null           = false
-    type           = int
-    auto_increment = true
-  }
-  column "user_id" {
-    null = false
-    type = varchar(50)
-  }
-  column "phone" {
-    null = false
-    type = varchar(20)
-  }
-  column "default_api_key" {
-    null = true
-    type = varchar(100)
-  }
-  column "created_at" {
-    null    = false
-    type    = datetime
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "updated_at" {
-    null      = false
-    type      = datetime
-    default   = sql("CURRENT_TIMESTAMP")
-    on_update = sql("CURRENT_TIMESTAMP")
-  }
-  primary_key {
-    columns = [column.id]
-  }
-  index "idx_phone" {
-    columns = [column.phone]
-  }
-  index "idx_user_id" {
-    columns = [column.user_id]
-  }
-  index "phone" {
-    unique  = true
-    columns = [column.phone]
-  }
-  index "user_id" {
-    unique  = true
-    columns = [column.user_id]
-  }
-}
-table "point_allocations" {
-  schema  = schema.rpa
-  collate = "utf8mb4_0900_ai_ci"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "user_id" {
-    null = false
-    type = varchar(50)
-  }
-  column "initial_amount" {
-    null    = false
-    type    = int
-    comment = "原始分配数量"
-  }
-  column "remaining_amount" {
-    null    = false
-    type    = int
-    comment = "当前剩余数量"
-  }
-  column "allocation_type" {
-    null    = false
-    type    = varchar(100)
-    comment = "积分来源"
-  }
-  column "priority" {
-    null    = false
-    type    = int
-    default = 0
-    comment = "优先级，数值越高优先级越高"
-  }
-  column "created_at" {
-    null    = false
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  column "expires_at" {
-    null    = false
-    type    = datetime
-    comment = "积分过期时间"
-  }
-  column "description" {
-    null    = true
-    type    = varchar(255)
-    comment = "描述"
-  }
-  primary_key {
-    columns = [column.id]
-  }
-  index "idx_expires_at" {
-    columns = [column.expires_at]
-  }
-  index "idx_user_expiry" {
-    columns = [column.user_id, column.expires_at]
-  }
-  index "idx_user_id" {
-    columns = [column.user_id]
-  }
-}
-table "point_consumptions" {
-  schema  = schema.rpa
-  collate = "utf8mb4_0900_ai_ci"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "transaction_id" {
-    null    = false
-    type    = bigint
-    comment = "关联的交易ID"
-  }
-  column "allocation_id" {
-    null    = false
-    type    = bigint
-    comment = "关联的分配ID"
-  }
-  column "amount" {
-    null    = false
-    type    = int
-    comment = "从此分配中使用的积分数量"
-  }
-  column "created_at" {
-    null    = false
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  primary_key {
-    columns = [column.id]
-  }
-}
-table "point_transactions" {
-  schema  = schema.rpa
-  collate = "utf8mb4_0900_ai_ci"
-  column "id" {
-    null           = false
-    type           = bigint
-    auto_increment = true
-  }
-  column "user_id" {
-    null = false
-    type = varchar(100)
-  }
-  column "amount" {
-    null    = false
-    type    = int
-    comment = "交易总金额（正数或负数）"
-  }
-  column "transaction_type" {
-    null    = false
-    type    = varchar(50)
-    comment = "交易类型"
-  }
-  column "related_entity_type" {
-    null    = true
-    type    = varchar(50)
-    comment = "关联实体类型"
-  }
-  column "related_entity_id" {
-    null    = true
-    type    = bigint
-    comment = "关联实体ID"
-  }
-  column "description" {
-    null    = true
-    type    = varchar(255)
-    comment = "描述"
-  }
-  column "created_at" {
-    null    = false
-    type    = timestamp
-    default = sql("CURRENT_TIMESTAMP")
-  }
-  primary_key {
-    columns = [column.id]
-  }
-  index "idx_user_id" {
-    columns = [column.user_id]
-  }
-}
 table "pypi_packages" {
-  schema  = schema.rpa
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
+  schema = schema.rpa
   column "id" {
     null           = false
     type           = bigint
@@ -3382,11 +4440,71 @@ table "pypi_packages" {
     columns = [column.package_name, column.visibility, column.user_id]
   }
 }
+table "renewal_form" {
+  schema  = schema.rpa
+  comment = "续费表单表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "form_type" {
+    null    = false
+    type    = tinyint
+    comment = "1=专业版 2=企业版 预留 3~99"
+  }
+  column "company_name" {
+    null    = false
+    type    = varchar(128)
+    comment = "企业名称"
+  }
+  column "mobile" {
+    null    = false
+    type    = varchar(20)
+    comment = "负责人手机号"
+  }
+  column "renewal_duration" {
+    null    = false
+    type    = varchar(32)
+    comment = "续费时长"
+  }
+  column "status" {
+    null    = false
+    type    = tinyint
+    default = 0
+    comment = "0=待处理 1=已处理 2=已忽略"
+  }
+  column "remark" {
+    null    = true
+    type    = varchar(512)
+    comment = "客服备注"
+  }
+  column "created_at" {
+    null    = false
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updated_at" {
+    null      = false
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_created" {
+    columns = [column.created_at]
+  }
+  index "idx_type_status" {
+    columns = [column.form_type, column.status]
+  }
+}
 table "robot_design" {
   schema  = schema.rpa
   comment = "云端机器人表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3428,7 +4546,7 @@ table "robot_design" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -3441,7 +4559,7 @@ table "robot_design" {
     type    = varchar(50)
     comment = "appmarketResource中的应用id"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   column "app_version" {
     null    = true
@@ -3453,7 +4571,7 @@ table "robot_design" {
     type    = varchar(20)
     comment = "获取的应用：市场id"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   column "resource_status" {
     null    = true
@@ -3482,8 +4600,6 @@ table "robot_design" {
 table "robot_execute" {
   schema  = schema.rpa
   comment = "云端机器人表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3525,7 +4641,7 @@ table "robot_execute" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -3538,7 +4654,7 @@ table "robot_execute" {
     type    = varchar(50)
     comment = "appmarketResource中的应用id"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   column "app_version" {
     null    = true
@@ -3550,7 +4666,7 @@ table "robot_execute" {
     type    = varchar(20)
     comment = "获取的应用：市场id"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   column "resource_status" {
     null    = true
@@ -3560,14 +4676,14 @@ table "robot_execute" {
   column "data_source" {
     null    = true
     type    = varchar(20)
-    comment = "来源：create 自己创建 ； market 市场获取 ；deploy卓越中心部署"
+    comment = "来源：create 自己创建 ； market 市场获取 "
   }
   column "param_detail" {
     null    = true
     type    = text
     comment = "运行前用户自定义的表单参数"
     charset = "utf8mb4"
-    collate = "utf8mb4_general_ci"
+    collate = "utf8mb4_unicode_ci"
   }
   column "dept_id_path" {
     null    = true
@@ -3587,12 +4703,13 @@ table "robot_execute" {
   primary_key {
     columns = [column.id]
   }
+  index "idx_robot_id" {
+    columns = [column.robot_id]
+  }
 }
 table "robot_execute_record" {
   schema  = schema.rpa
   comment = "云端机器人执行记录表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3632,7 +4749,7 @@ table "robot_execute_record" {
   column "mode" {
     null    = true
     type    = varchar(60)
-    comment = "运行位置：工程列表页PROJECT_LIST ； 工程编辑页EDIT_PAGE； 计划任务CRONTAB ； 执行器运行 EXECUTOR"
+    comment = "工程列表页PROJECT_LIST ； 工程编辑页EDIT_PAGE； 计划任务启动CRONTAB ； 执行器运行 EXECUTOR"
   }
   column "task_execute_id" {
     null    = true
@@ -3679,7 +4796,7 @@ table "robot_execute_record" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -3702,15 +4819,31 @@ table "robot_execute_record" {
     type    = char(36)
     comment = "终端唯一标识，如设备mac地址"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
+  }
+  column "data_table_path" {
+    null    = true
+    type    = varchar(255)
+    comment = "数据抓取存储位置"
   }
   primary_key {
     columns = [column.id]
+  }
+  index "idx_rer_task_execute_id" {
+    columns = [column.task_execute_id, column.deleted]
+  }
+  index "idx_robot_id" {
+    columns = [column.robot_id]
+  }
+  index "robot_execute_record_execute_id_IDX" {
+    columns = [column.execute_id, column.creator_id, column.tenant_id]
   }
 }
 table "robot_version" {
   schema  = schema.rpa
   comment = "云端机器人版本表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3721,8 +4854,8 @@ table "robot_version" {
     null    = true
     type    = varchar(100)
     comment = "机器人id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "version" {
     null    = true
@@ -3733,22 +4866,22 @@ table "robot_version" {
     null    = true
     type    = longtext
     comment = "简介"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "update_log" {
     null    = true
     type    = longtext
     comment = "更新日志"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "use_description" {
     null    = true
     type    = longtext
     comment = "使用说明"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "online" {
     null    = true
@@ -3781,7 +4914,7 @@ table "robot_version" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -3792,13 +4925,14 @@ table "robot_version" {
   column "param" {
     null    = true
     type    = text
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "param_detail" {
     null    = true
     type    = text
     comment = "发版时拖的表单参数信息"
+    collate = "utf8mb4_unicode_ci"
   }
   column "video_id" {
     null    = true
@@ -3822,7 +4956,8 @@ table "robot_version" {
 table "sample_templates" {
   schema  = schema.rpa
   comment = "系统预定义的模板库，用于注入用户初始化数据。支持 robot、project、task 等多种类型。"
-  collate = "utf8mb4_0900_ai_ci"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3853,7 +4988,7 @@ table "sample_templates" {
   }
   column "data" {
     null    = false
-    type    = text
+    type    = mediumtext
     comment = "模板配置数据（JSON 格式），数据库一行的数据"
   }
   column "description" {
@@ -3891,7 +5026,8 @@ table "sample_templates" {
 table "sample_users" {
   schema  = schema.rpa
   comment = "记录用户从系统模板中注入的样例数据，是模板工程的核心中间层。"
-  collate = "utf8mb4_0900_ai_ci"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -3903,6 +5039,10 @@ table "sample_users" {
     null    = false
     type    = char(36)
     comment = "用户唯一标识（如 UUID）"
+  }
+  column "tenant_id" {
+    null = true
+    type = varchar(36)
   }
   column "sample_id" {
     null    = false
@@ -3916,7 +5056,7 @@ table "sample_users" {
   }
   column "data" {
     null    = false
-    type    = text
+    type    = mediumtext
     comment = "从模板中注入的配置数据（JSON 字符串，由 Java 序列化）"
   }
   column "source" {
@@ -3946,16 +5086,10 @@ table "sample_users" {
   primary_key {
     columns = [column.id]
   }
-  index "sample_users_creator_id_sample_id_uindex" {
-    unique  = true
-    columns = [column.creator_id, column.sample_id]
-  }
 }
 table "schedule_task" {
   schema  = schema.rpa
   comment = "调度任务"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4094,7 +5228,7 @@ table "schedule_task" {
     default = "F"
     comment = "是否开启日志记录"
     charset = "utf8mb4"
-    collate = "utf8mb4_0900_ai_ci"
+    collate = "utf8mb4_general_ci"
   }
   primary_key {
     columns = [column.id]
@@ -4103,8 +5237,6 @@ table "schedule_task" {
 table "schedule_task_execute" {
   schema  = schema.rpa
   comment = "计划任务执行记录"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4170,16 +5302,24 @@ table "schedule_task_execute" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
   primary_key {
     columns = [column.id]
   }
+  index "idx_ste_query" {
+    columns = [column.tenant_id, column.creator_id, column.start_time, column.deleted]
+  }
+  index "idx_ste_status" {
+    columns = [column.tenant_id, column.creator_id, column.result, column.start_time, column.deleted]
+  }
 }
 table "schedule_task_pull_log" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null = true
     type = bigint
@@ -4188,8 +5328,8 @@ table "schedule_task_pull_log" {
     null    = true
     type    = varchar(100)
     comment = "计划任务id"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "pull_time" {
     null    = true
@@ -4221,8 +5361,6 @@ table "schedule_task_pull_log" {
 table "schedule_task_robot" {
   schema  = schema.rpa
   comment = "计划任务机器人列表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4273,7 +5411,7 @@ table "schedule_task_robot" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4289,6 +5427,8 @@ table "schedule_task_robot" {
 table "shared_file" {
   schema  = schema.rpa
   comment = "共享文件表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4319,7 +5459,7 @@ table "shared_file" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4367,9 +5507,90 @@ table "shared_file" {
     columns = [column.id]
   }
 }
+table "shared_file_bak" {
+  schema  = schema.rpa
+  comment = "共享文件表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "file_id" {
+    null           = false
+    type           = bigint
+    unsigned       = true
+    comment        = "文件对应的uuid"
+    auto_increment = true
+  }
+  column "path" {
+    null    = true
+    type    = varchar(500)
+    comment = "文件在s3上对应的路径"
+  }
+  column "create_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null    = true
+    type    = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "更新时间"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除 0：未删除，1：已删除"
+  }
+  column "file_name" {
+    null    = true
+    type    = varchar(1000)
+    comment = "文件真实名称"
+  }
+  column "tags" {
+    null    = true
+    type    = varchar(512)
+    comment = "文件标签名称集合"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "创建者ID"
+  }
+  column "updater_id" {
+    null    = true
+    type    = char(36)
+    comment = "更新者id"
+  }
+  column "tenant_id" {
+    null    = true
+    type    = char(36)
+    comment = "租户id"
+  }
+  column "file_type" {
+    null    = true
+    type    = tinyint
+    comment = "文件类型: 0-位置类型 1-文本 2-WORD 3-PDF"
+  }
+  column "file_index_status" {
+    null    = true
+    type    = tinyint
+    comment = "文件向量化状态:1-初始化 2-完成 3-失败"
+  }
+  column "dept_id" {
+    null    = true
+    type    = varchar(100)
+    comment = "部门id"
+  }
+  primary_key {
+    columns = [column.file_id]
+  }
+}
 table "shared_file_tag" {
   schema  = schema.rpa
   comment = "共享文件标签表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "tag_id" {
     null           = false
     type           = bigint
@@ -4401,7 +5622,7 @@ table "shared_file_tag" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4422,8 +5643,6 @@ table "shared_file_tag" {
 table "shared_sub_var" {
   schema  = schema.rpa
   comment = "共享变量-子变量"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4459,7 +5678,7 @@ table "shared_sub_var" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4473,8 +5692,6 @@ table "shared_sub_var" {
 table "shared_var" {
   schema  = schema.rpa
   comment = "共享变量信息"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4536,7 +5753,7 @@ table "shared_var" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4555,8 +5772,6 @@ table "shared_var" {
 table "shared_var_key_tenant" {
   schema  = schema.rpa
   comment = "共享变量租户密钥表"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4574,7 +5789,7 @@ table "shared_var_key_tenant" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4588,8 +5803,6 @@ table "shared_var_key_tenant" {
 table "shared_var_user" {
   schema  = schema.rpa
   comment = "共享变量与用户的映射表；N:N映射"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4619,7 +5832,7 @@ table "shared_var_user" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4634,7 +5847,9 @@ table "shared_var_user" {
   }
 }
 table "sms_record" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = int
@@ -4645,29 +5860,29 @@ table "sms_record" {
     null    = true
     type    = varchar(30)
     comment = "短信接收者"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "send_type" {
     null    = true
     type    = varchar(30)
     comment = "短信类型"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "send_result" {
     null    = true
     type    = varchar(20)
     comment = "发送结果"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "fail_reason" {
     null    = true
     type    = varchar(3000)
     comment = "失败原因"
-    charset = "utf8mb3"
-    collate = "utf8mb3_general_ci"
+    charset = "utf8"
+    collate = "utf8_general_ci"
   }
   column "create_by" {
     null    = true
@@ -4698,8 +5913,174 @@ table "sms_record" {
     columns = [column.id]
   }
 }
+table "sys_product_version" {
+  schema  = schema.rpa
+  comment = "产品版本表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键ID"
+    auto_increment = true
+  }
+  column "version_code" {
+    null    = false
+    type    = varchar(50)
+    comment = "版本代码（如：personal, professional, enterprise）"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "删除标识：0-未删除，1-已删除"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "uk_version_code" {
+    unique  = true
+    columns = [column.version_code]
+  }
+}
+table "sys_tenant_config" {
+  schema  = schema.rpa
+  comment = "租户配置表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键ID"
+    auto_increment = true
+  }
+  column "tenant_id" {
+    null    = false
+    type    = varchar(64)
+    comment = "租户ID"
+  }
+  column "version_id" {
+    null    = false
+    type    = bigint
+    comment = "版本ID，关联sys_product_version.id"
+  }
+  column "extra_config_json" {
+    null    = false
+    type    = text
+    comment = "配置快照（JSON格式，只包含type、base、final字段）"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "删除标识：0-未删除，1-已删除"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null      = true
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "uk_tenant_id" {
+    unique  = true
+    columns = [column.tenant_id]
+  }
+}
+table "sys_version_default_config" {
+  schema  = schema.rpa
+  comment = "版本默认配置表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null           = false
+    type           = bigint
+    comment        = "主键ID"
+    auto_increment = true
+  }
+  column "version_id" {
+    null    = false
+    type    = bigint
+    comment = "版本ID，关联sys_product_version.id"
+  }
+  column "resource_code" {
+    null    = false
+    type    = varchar(100)
+    comment = "资源代码（如：designer_count, component_count等）"
+  }
+  column "resource_type" {
+    null    = false
+    type    = bool
+    comment = "资源类型：1-Quota（配额），2-Switch（开关）"
+  }
+  column "parent_code" {
+    null    = true
+    type    = varchar(100)
+    comment = "父级资源代码（用于层级关系）"
+  }
+  column "default_value" {
+    null    = false
+    type    = int
+    comment = "默认值（对于Quota是数量，对于Switch是0或1）"
+  }
+  column "url_patterns" {
+    null    = true
+    type    = text
+    comment = "URL路由模式（JSON数组格式，如：[\"/api/v1/design/**\"]）"
+  }
+  column "description" {
+    null    = true
+    type    = varchar(500)
+    comment = "资源描述"
+  }
+  column "deleted" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "删除标识：0-未删除，1-已删除"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null      = true
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_resource_code" {
+    columns = [column.resource_code]
+  }
+  index "idx_version_id" {
+    columns = [column.version_id]
+  }
+}
 table "task_mail" {
-  schema = schema.rpa
+  schema  = schema.rpa
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4765,6 +6146,8 @@ table "task_mail" {
 table "terminal" {
   schema  = schema.rpa
   comment = "终端表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4876,7 +6259,7 @@ table "terminal" {
   }
   column "deleted" {
     null    = false
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4901,8 +6284,6 @@ table "terminal" {
 table "terminal_group" {
   schema  = schema.rpa
   comment = "终端分组-分组与终端的映射表；N:N映射"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -4944,7 +6325,7 @@ table "terminal_group" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -4961,8 +6342,6 @@ table "terminal_group" {
 table "terminal_group_info" {
   schema  = schema.rpa
   comment = "终端分组"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -5014,7 +6393,7 @@ table "terminal_group_info" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -5036,8 +6415,6 @@ table "terminal_group_info" {
 table "terminal_group_user" {
   schema  = schema.rpa
   comment = "终端分组-分组与用户的映射表；N:N映射"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -5079,7 +6456,7 @@ table "terminal_group_user" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -5106,8 +6483,6 @@ table "terminal_group_user" {
 table "terminal_login_history" {
   schema  = schema.rpa
   comment = "终端登录账号历史记录"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -5164,7 +6539,7 @@ table "terminal_login_history" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -5175,10 +6550,26 @@ table "terminal_login_history" {
 table "terminal_login_record" {
   schema  = schema.rpa
   comment = "终端登录账号历史记录"
+  charset = "utf8mb4"
   collate = "utf8mb4_bin"
   column "id" {
     null = false
     type = char(36)
+  }
+  column "login_user_id" {
+    null    = true
+    type    = char(36)
+    comment = "登录用户id"
+  }
+  column "login_phone" {
+    null    = true
+    type    = varchar(40)
+    comment = "登录手机号"
+  }
+  column "login_name" {
+    null    = true
+    type    = varchar(40)
+    comment = "登录名称"
   }
   column "login_time" {
     null    = true
@@ -5206,8 +6597,14 @@ table "terminal_login_record" {
     comment = "部门全路径id"
   }
   column "ip" {
-    null = true
-    type = varchar(255)
+    null    = true
+    type    = varchar(40)
+    comment = "登录IP"
+  }
+  column "user_agent" {
+    null    = true
+    type    = varchar(512)
+    comment = "user-agent"
   }
   column "login_status" {
     null    = false
@@ -5244,7 +6641,7 @@ table "terminal_login_record" {
   }
   column "deleted" {
     null    = true
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否删除 0：未删除，1：已删除"
   }
@@ -5255,8 +6652,6 @@ table "terminal_login_record" {
 table "trigger_task" {
   schema  = schema.rpa
   comment = "触发器计划任务"
-  charset = "utf8mb3"
-  collate = "utf8mb3_general_ci"
   column "id" {
     null           = false
     type           = bigint
@@ -5287,7 +6682,7 @@ table "trigger_task" {
   }
   column "deleted" {
     null    = false
-    type    = smallint
+    type    = bool
     default = 0
   }
   column "create_time" {
@@ -5309,7 +6704,7 @@ table "trigger_task" {
   }
   column "enable" {
     null    = false
-    type    = smallint
+    type    = bool
     default = 0
     comment = "是否启用"
   }
@@ -5317,13 +6712,7 @@ table "trigger_task" {
     null    = false
     type    = varchar(20)
     default = "stop"
-    comment = "报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop"
-  }
-  column "retry_num" {
-    null    = true
-    type    = int
-    default = null
-    comment = "只有exceptional为retry时，记录的重试次数"
+    comment = "报错如何处理：跳过jump、停止stop"
   }
   column "timeout" {
     null    = true
@@ -5342,11 +6731,230 @@ table "trigger_task" {
     default = 0
     comment = "是否启用排队 1:启用 0:不启用"
   }
+  column "retry_num" {
+    null    = true
+    type    = int
+    comment = "只有exceptional为retry时，记录的重试次数"
+  }
   primary_key {
     columns = [column.id]
   }
 }
-schema "rpa" {
+table "t_tenant_expiration" {
+  schema  = schema.rpa
+  comment = "租户到期信息表"
   charset = "utf8mb4"
   collate = "utf8mb4_general_ci"
+  column "id" {
+    null    = false
+    type    = varchar(64)
+    comment = "主键ID"
+  }
+  column "tenant_id" {
+    null    = false
+    type    = varchar(64)
+    comment = "租户ID"
+  }
+  column "expiration_date" {
+    null    = true
+    type    = varchar(64)
+    comment = "到期时间（格式：YYYY-MM-DD，非买断企业版为加密数据，专业版为明文）"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null      = true
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  column "is_delete" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除（0-否，1-是）"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_is_delete" {
+    columns = [column.is_delete]
+  }
+  index "idx_tenant_id" {
+    columns = [column.tenant_id]
+  }
+  index "uk_tenant_id" {
+    unique  = true
+    columns = [column.tenant_id]
+  }
+}
+table "user_blacklist" {
+  schema = schema.rpa
+  column "id" {
+    null           = false
+    type           = bigint
+    auto_increment = true
+  }
+  column "user_id" {
+    null    = false
+    type    = varchar(50)
+    comment = "用户ID"
+  }
+  column "username" {
+    null    = false
+    type    = varchar(100)
+    comment = "用户名"
+  }
+  column "ban_reason" {
+    null    = true
+    type    = varchar(500)
+    comment = "封禁原因"
+  }
+  column "ban_level" {
+    null    = true
+    type    = int
+    default = 1
+    comment = "封禁等级(1,2,3...)"
+  }
+  column "ban_count" {
+    null    = true
+    type    = int
+    default = 1
+    comment = "封禁次数"
+  }
+  column "ban_duration" {
+    null    = true
+    type    = bigint
+    comment = "封禁时长(秒)"
+  }
+  column "start_time" {
+    null    = false
+    type    = datetime
+    comment = "封禁开始时间"
+  }
+  column "end_time" {
+    null    = false
+    type    = datetime
+    comment = "封禁结束时间"
+  }
+  column "status" {
+    null    = true
+    type    = tinyint
+    default = 1
+    comment = "状态(1:生效中, 0:已解封)"
+  }
+  column "operator" {
+    null    = true
+    type    = varchar(50)
+    comment = "操作人"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "update_time" {
+    null      = true
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_end_time_status" {
+    columns = [column.end_time, column.status]
+  }
+  index "idx_user_id" {
+    columns = [column.user_id]
+  }
+}
+table "user_entitlement" {
+  schema  = schema.rpa
+  comment = "用户权益表"
+  charset = "utf8mb4"
+  collate = "utf8mb4_general_ci"
+  column "id" {
+    null    = false
+    type    = varchar(64)
+    comment = "主键ID"
+  }
+  column "user_id" {
+    null    = false
+    type    = varchar(64)
+    comment = "用户ID"
+  }
+  column "tenant_id" {
+    null    = false
+    type    = varchar(64)
+    comment = "租户ID"
+  }
+  column "module_designer" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "设计器权限（0-无权限，1-有权限）"
+  }
+  column "module_executor" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "执行器权限（0-无权限，1-有权限）"
+  }
+  column "module_console" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "控制台权限（0-无权限，1-有权限）"
+  }
+  column "module_market" {
+    null    = true
+    type    = bool
+    default = 1
+    comment = "团队市场权限（0-无权限，1-有权限，默认1）"
+  }
+  column "create_time" {
+    null    = true
+    type    = datetime
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "创建时间"
+  }
+  column "update_time" {
+    null      = true
+    type      = datetime
+    default   = sql("CURRENT_TIMESTAMP")
+    comment   = "更新时间"
+    on_update = sql("CURRENT_TIMESTAMP")
+  }
+  column "is_delete" {
+    null    = true
+    type    = bool
+    default = 0
+    comment = "是否删除（0-否，1-是）"
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "idx_is_delete" {
+    columns = [column.is_delete]
+  }
+  index "idx_tenant_id" {
+    columns = [column.tenant_id]
+  }
+  index "idx_user_id" {
+    columns = [column.user_id]
+  }
+  index "uk_user_tenant" {
+    unique  = true
+    columns = [column.user_id, column.tenant_id, column.is_delete]
+  }
+}
+schema "rpa" {
+  charset = "utf8"
+  collate = "utf8_general_ci"
 }

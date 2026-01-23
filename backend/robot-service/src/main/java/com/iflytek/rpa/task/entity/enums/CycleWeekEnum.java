@@ -19,18 +19,18 @@ public enum CycleWeekEnum {
     SUN("SUN", "星期日"),
     ;
 
-    public static Map<Integer, String> weekNumCodeMap = new HashMap<>();
-
-    static {
-        initWeekNumCodeMap();
-    }
-
-    private final String code;
-    private final String name;
+    private String code;
+    private String name;
 
     CycleWeekEnum(String code, String name) {
         this.code = code;
         this.name = name;
+    }
+
+    public static Map<Integer, String> weekNumCodeMap = new HashMap<>();
+
+    static {
+        initWeekNumCodeMap();
     }
 
     public static void initWeekNumCodeMap() {

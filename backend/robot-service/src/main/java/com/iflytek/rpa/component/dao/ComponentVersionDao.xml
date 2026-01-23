@@ -55,7 +55,7 @@
             GROUP BY component_id
         ) latest ON cv.component_id = latest.component_id AND cv.version = latest.max_version
         WHERE cv.deleted = 0
-        AND cv.tenant_id = #{tenantId}
+          AND cv.tenant_id = #{tenantId}
     </select>
 
 </mapper> 
