@@ -946,11 +946,11 @@ options:
     - value: picture
       label: 图片
     - value: word
-      label: word
+      label: Word 文档
     - value: pdf
-      label: pdf
+      label: PDF 文档
     - value: excel
-      label: excel
+      label: Excel 文档
   BatchType:
     - value: batch
       label: 批量打印

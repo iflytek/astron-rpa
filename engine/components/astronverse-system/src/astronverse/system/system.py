@@ -357,8 +357,8 @@ class System:
     )
     def printer(
         file_type: FileType = FileType.WORD,
-        doc_app_type: DocAppType = DocAppType.WORD,
-        xls_app_type: XlsAppType = XlsAppType.EXCEL,
+        doc_app_type: DocAppType = DocAppType.DEFAULT,
+        xls_app_type: XlsAppType = XlsAppType.DEFAULT,
         batch_print: BatchType = BatchType.SINGLE,
         file_path: str = "",
         folder_path: str = "",
