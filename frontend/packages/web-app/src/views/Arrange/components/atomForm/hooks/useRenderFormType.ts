@@ -35,8 +35,10 @@ export function generateInputVal(itemData: RPA.AtomDisplayItem) {
     // 是变量类型且不是输出变量那才加样式
     if (hasDataCategoryType.includes(item.type) && !Object.is(type, ATOM_FORM_TYPE.RESULT)) {
       const { data, type, value } = item
-      const dataId = data ? `data-id='${data}'` : ''
-      result += `<hr class="ui-at" ${dataId} data-category='${type}' data-name='${value}'></hr>`
+      const dataId = data ? `data-id="${data}"` : ''
+      // 对双引号进行 HTML 转义
+      const escapedValue = value.replace(/"/g, '&quot;')
+      result += `<hr class="ui-at" ${dataId} data-category="${type}" data-name="${escapedValue}"></hr>`
     }
     else {
       result += item.value
