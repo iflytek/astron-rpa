@@ -158,10 +158,10 @@ class OrientationType(Enum):
 
 
 class FileType(Enum):
-    PICTURE = "picture"
-    WORD = "word"
     PDF = "pdf"
+    WORD = "word"
     EXCEL = "excel"
+    PICTURE = "picture"
 
 
 class MarginType(Enum):
@@ -185,3 +185,19 @@ class FileFolderType(Enum):
     FILE = "file"
     FOLDER = "folder"
     BOTH = "both"  # 文件和文件夹一起压缩
+
+
+class DocAppType(Enum):
+    """doc 文档处理软件"""
+
+    WORD = "Word"
+    WPS = "WPS"
+    DEFAULT = "Default"
+
+
+class XlsAppType(Enum):
+    """xls 文档处理软件"""
+
+    EXCEL = "Excel"
+    WPS = "WPS"
+    DEFAULT = "Default"

@@ -3,9 +3,10 @@ import os
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
+from astronverse.system.core.printer_core import PrinterCore
 from astronverse.system.core.screenshot_core import ScreenShotCore
 from astronverse.system.error import *
-from astronverse.system.utils import folder_is_exists
+from astronverse.system.utils import file_is_exists, folder_is_exists, get_files_in_folder, path_join
 
 ScreenShotCore = ScreenShotCore()
 
@@ -192,30 +193,46 @@ class System:
         "System",
         inputList=[
             atomicMg.param("file_type"),
+            atomicMg.param(
+                "doc_app_type",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.doc_app_type.show",
+                        expression=f"return $this.file_type.value == '{FileType.WORD.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "xls_app_type",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.xls_app_type.show",
+                        expression=f"return $this.file_type.value == '{FileType.EXCEL.value}'",
+                    )
+                ],
+            ),
             atomicMg.param("batch_print"),
             atomicMg.param(
                 "file_path",
                 formType=AtomicFormTypeMeta(
-                    AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={"filters": [], "file_type": "file"},
+                    AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "file"}
                 ),
                 dynamics=[
                     DynamicsItem(
                         key="$this.file_path.show",
-                        expression="return $this.batch_print.value == '{}'".format(BatchType.SINGLE.value),
+                        expression=f"return $this.batch_print.value == '{BatchType.SINGLE.value}'",
                     )
                 ],
             ),
             atomicMg.param(
                 "folder_path",
                 formType=AtomicFormTypeMeta(
-                    AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={"filters": [], "file_type": "folder"},
+                    AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "folder"}
                 ),
                 dynamics=[
                     DynamicsItem(
                         key="$this.folder_path.show",
-                        expression="return $this.batch_print.value == '{}'".format(BatchType.BATCH.value),
+                        expression=f"return $this.batch_print.value == '{BatchType.BATCH.value}'",
                     )
                 ],
             ),
@@ -226,7 +243,7 @@ class System:
                 dynamics=[
                     DynamicsItem(
                         key="$this.paper_size.show",
-                        expression="return $this.printer_type.value == '{}'".format(PrinterType.CUSTOM.value),
+                        expression=f"return $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
                     )
                 ],
             ),
@@ -236,7 +253,7 @@ class System:
                 dynamics=[
                     DynamicsItem(
                         key="$this.page_weight.show",
-                        expression="return $this.paper_size.value == '{}'".format(PaperType.CUSTOM.value),
+                        expression=f"return $this.paper_size.value == '{PaperType.CUSTOM.value}' && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
                     )
                 ],
             ),
@@ -246,7 +263,7 @@ class System:
                 dynamics=[
                     DynamicsItem(
                         key="$this.page_height.show",
-                        expression="return $this.paper_size.value == '{}'".format(PaperType.CUSTOM.value),
+                        expression=f"return $this.paper_size.value == '{PaperType.CUSTOM.value}' && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
                     )
                 ],
             ),
@@ -255,70 +272,7 @@ class System:
                 dynamics=[
                     DynamicsItem(
                         key="$this.print_num.show",
-                        expression="return $this.printer_type.value == '{}'".format(PrinterType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "orientation_type",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.orientation_type.show",
-                        expression="return $this.printer_type.value == '{}'".format(PrinterType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "scale",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.scale.show",
-                        expression="return $this.printer_type.value == '{}'".format(PrinterType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "margin_type",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.margin_type.show",
-                        expression="return $this.printer_type.value == '{}'".format(PrinterType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "left_margin",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.left_margin.show",
-                        expression="return $this.margin_type.value == '{}'".format(MarginType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "right_margin",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.right_margin.show",
-                        expression="return $this.margin_type.value == '{}'".format(MarginType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "top_margin",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.top_margin.show",
-                        expression="return $this.margin_type.value == '{}'".format(MarginType.CUSTOM.value),
-                    )
-                ],
-            ),
-            atomicMg.param(
-                "bottom_margin",
-                dynamics=[
-                    DynamicsItem(
-                        key="$this.bottom_margin.show",
-                        expression="return $this.margin_type.value == '{}'".format(MarginType.CUSTOM.value),
+                        expression=f"return $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
                     )
                 ],
             ),
@@ -328,10 +282,73 @@ class System:
                 dynamics=[
                     DynamicsItem(
                         key="$this.page.show",
-                        expression="return $this.file_type.value == '{}'".format(FileType.EXCEL.value),
+                        expression=f"return ($this.file_type.value == '{FileType.WORD.value}' || $this.file_type.value == '{FileType.EXCEL.value}') && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
                     )
                 ],
                 required=False,
+            ),
+            atomicMg.param(
+                "orientation_type",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.orientation_type.show",
+                        expression=f"return $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "scale",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.scale.show",
+                        expression=f"return $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "margin_type",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.margin_type.show",
+                        expression=f"return $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "left_margin",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.left_margin.show",
+                        expression=f"return $this.margin_type.value == '{MarginType.CUSTOM.value}' && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "right_margin",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.right_margin.show",
+                        expression=f"return $this.margin_type.value == '{MarginType.CUSTOM.value}' && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "top_margin",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.top_margin.show",
+                        expression=f"return $this.margin_type.value == '{MarginType.CUSTOM.value}' && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "bottom_margin",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.bottom_margin.show",
+                        expression=f"return $this.margin_type.value == '{MarginType.CUSTOM.value}' && $this.printer_type.value == '{PrinterType.CUSTOM.value}'",
+                    )
+                ],
             ),
         ],
         outputList=[
@@ -339,16 +356,19 @@ class System:
         ],
     )
     def printer(
-        file_type: FileType = FileType.WORD,
+        file_type: FileType = FileType.PDF,
+        doc_app_type: DocAppType = DocAppType.DEFAULT,
+        xls_app_type: XlsAppType = XlsAppType.DEFAULT,
         batch_print: BatchType = BatchType.SINGLE,
         file_path: str = "",
         folder_path: str = "",
-        printer_type: PrinterType = PrinterType.DEFAULT,
+        printer_type: PrinterType = PrinterType.DEFAULT,  # 打印设置  系统设置和自定义设置
         printer_name: str = "",
         paper_size: PaperType = PaperType.A4,
         page_weight: str = "",
         page_height: str = "",
         print_num: int = 1,
+        page: str = "",
         orientation_type: OrientationType = OrientationType.VERTICAL,
         scale: int = 100,
         margin_type: MarginType = MarginType.DEFAULT,
@@ -356,6 +376,54 @@ class System:
         top_margin: float = 9.5,
         right_margin: float = 10,
         bottom_margin: float = 9.5,
-        page: str = "",
     ):
-        raise NotImplementedError()
+        """打印机打印"""
+        if batch_print == BatchType.SINGLE:
+            if not file_is_exists(file_path):
+                raise BaseException(
+                    FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息"
+                )
+            print_file = file_path
+        elif batch_print == BatchType.BATCH:
+            if not folder_is_exists(folder_path):
+                raise BaseException(
+                    FOLDER_PATH_ERROR_FORMAT.format(folder_path), "文件夹不存在或路径信息有误，请检查路径信息"
+                )
+            print_file = []
+            files = get_files_in_folder(folder_path, general=True)
+            for file in files:
+                file_path = path_join(folder_path, file)
+                print_file.append(file_path)
+        else:
+            raise NotImplementedError()
+
+        if file_type == FileType.WORD:
+            printer_app = str(doc_app_type.value)
+        elif file_type == FileType.EXCEL:
+            printer_app = str(xls_app_type.value)
+        else:
+            printer_app = ""
+
+        try:
+            prc = PrinterCore()
+            printer_status = prc.run(
+                printer_name=printer_name,
+                print_file=print_file,
+                batch_print=str(batch_print.value),
+                file_type=str(file_type.value),
+                printer_type=str(printer_type.value),
+                paper_size=str(paper_size.value),
+                print_num=print_num,
+                scale=scale,
+                margin_type=str(margin_type.value),
+                margin=[left_margin, top_margin, right_margin, bottom_margin],
+                orientation_type=str(orientation_type.value),
+                page_weight=page_weight,
+                page_height=page_height,
+                pages=page,
+                printer_app=printer_app,
+            )
+        except Exception as e:
+            raise e
+
+        return printer_status

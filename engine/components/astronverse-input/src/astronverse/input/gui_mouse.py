@@ -1,6 +1,7 @@
 import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
+from astronverse.actionlib.types import WinPick
 from astronverse.input import (
     BtnModel,
     BtnType,
@@ -13,6 +14,7 @@ from astronverse.input import (
 )
 from astronverse.input.code.keyboard import Keyboard
 from astronverse.input.code.mouse import Mouse
+from astronverse.input.code.win32gui import window_find, window_info, window_top
 from astronverse.input.error import *
 
 
@@ -216,6 +218,96 @@ class GuiMouse:
         elif move_type == MoveType.SIMULATION:
             duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
             Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)  # type: ignore
+        elif move_type == MoveType.TELEPORTATION:
+            Mouse.move(position_x, position_y, duration=0)
+        else:
+            raise NotImplementedError()
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Gui",
+        inputList=[
+            atomicMg.param(
+                "window_pick",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.PICK.value, params={"use": "WINDOW"}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.window_pick.show",
+                        expression="return $this.window_type.value == '{}'".format(WindowType.ACTIVE_WINDOW.value),
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "get_mouse_position",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.MOUSEPOSITION.value, params={"size": "middle"}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.get_mouse_position.show",
+                        expression="return $this.window_type.value == '{}'".format(WindowType.FULL_SCREEN.value),
+                    )
+                ],
+                required=False,
+            ),
+            atomicMg.param(
+                "position_x",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value, params={"size": "middle"}),
+            ),
+            atomicMg.param(
+                "position_y",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value, params={"size": "middle"}),
+            ),
+            atomicMg.param(
+                "move_speed",
+                level=AtomicLevel.ADVANCED.value,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.move_speed.show",
+                        expression="return ['{}', '{}'].includes($this.move_type.value)".format(
+                            MoveType.LINEAR.value, MoveType.SIMULATION.value
+                        ),
+                    )
+                ],
+            ),
+        ],
+    )
+    def mouse_move_new(
+        window_type: WindowType = WindowType.FULL_SCREEN,
+        window_pick: WinPick = None,
+        get_mouse_position: str = "",
+        position_x: int = 0,
+        position_y: int = 0,
+        move_type: MoveType = MoveType.LINEAR,
+        move_speed: Speed = Speed.NORMAL,
+    ):
+        """
+        :param window_type: 窗口类型  全屏/活动窗口
+        :param pick: 目标窗口
+        :param position_x: 移动终点位置x坐标
+        :param position_y: 移动终点位置y坐标
+        :param move_speed: 移动速度    高/中/低
+        :param move_type: 移动方式     LINEAR:线性移动，SIMULATION:模拟移动，TELEPORTATION:瞬移
+        """
+        if window_type == WindowType.ACTIVE_WINDOW and window_pick is not None:
+            handler = window_find(window_pick)
+            window_top(handler)
+            info = window_info(handler)
+            position = info.position
+            position_x = position[0] + position_x
+            position_y = position[1] + position_y
+
+        screen_weight, screen_height = Mouse.screen_size()
+        if position_x < 0 or position_x > screen_weight or position_y < 0 or position_y > screen_height:
+            raise BaseException(REGION_ERROR, "坐标参数不合法！")
+
+        # Get current mouse position
+        current_x, current_y = Mouse.position()
+
+        if move_type == MoveType.LINEAR:
+            duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
+            Mouse.move(position_x, position_y, duration=duration, tween=pyautogui.linear)
+        elif move_type == MoveType.SIMULATION:
+            duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
+            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)
         elif move_type == MoveType.TELEPORTATION:
             Mouse.move(position_x, position_y, duration=0)
         else:

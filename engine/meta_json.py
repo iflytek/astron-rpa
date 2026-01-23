@@ -66,11 +66,12 @@ def get_remote_meta():
     print("Fetching remote meta list from server...")
     try:
         response = requests.post(remote_meta_url, timeout=10)
-        if response.status_code == 200:
-            save_json_to_file(response.json(), os.path.join(os.path.dirname(__file__), "temp_remote.json"))
-            return response.json()
+        result = response.json()
+        if response.status_code == 200 and isinstance(result, list):
+            save_json_to_file(result, os.path.join(os.path.dirname(__file__), "temp_remote.json"))
+            return result
         else:
-            print(f"\033[31mFailed to get remote meta. Status code: {response.status_code}\033[0m")
+            print(f"\033[31mFailed to get remote meta. Status code: {response.status_code}. response: {result} \033[0m")
             return None
     except Exception as e:
         print(f"\033[31mError getting remote meta.json: {e}\033[0m")

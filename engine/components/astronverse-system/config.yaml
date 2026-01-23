@@ -710,23 +710,29 @@ atomic:
   System.printer:
     title: 打印机打印
     comment: >-
-      使用打印机 @{printer_name} @{batch_print} 打印指定文件 @{file_path||folder_path}
-      ，并保存执行结果至输出变量 @{printer_status}
+      使用打印机 @{printer_name} 打印指定文件 @{file_path||folder_path} ，并保存执行结果至输出变量
+      @{printer_status}
     icon: printer-print
     helpManual: 连接指定打印机进行文档打印
     inputList:
       - key: file_type
         title: 打印对象
-        tip: 指定打印对象，支持打印WORD、EXCEL、PDF和图像文件，或批量打印文件夹中文件
+        tip: 指定打印对象，支持打印Word、Excel、PDF和图片文件，或批量打印文件夹中文件
+      - key: doc_app_type
+        title: Word文档应用
+        tip: 打开Word文档选择的应用
+      - key: xls_app_type
+        title: Excel文档应用
+        tip: 打开Excel文档选择的应用
       - key: batch_print
-        title: 批量打印
-        tip: 设置批量打印
+        title: 打印方式
+        tip: 设置打印方式，批量打印仅支持文件夹下的文件，不支持文件夹下文件夹的文件
       - key: file_path
         title: 待打印文件路径
         tip: 选择或输入待打印文件路径
       - key: folder_path
         title: 待打印文件目录
-        tip: 选择或输入待打印文件目录
+        tip: 选择或输入待打印文件目录，仅支持该文件夹下的文件，不包括文件夹下文件夹的文件，且文件类型满足打印对象类型，例如选择图片，仅会打印文件夹下的图片文件
       - key: printer_type
         title: 打印设置
         tip: 设置打印相关参数
@@ -747,28 +753,28 @@ atomic:
         tip: 输入打印份数，默认1份
       - key: orientation_type
         title: 打印版式
-        tip: ''
+        tip: 选择打印版式，横向/纵向
       - key: scale
         title: 缩放(%)
-        tip: ''
+        tip: 默认100%，输入缩放比例
       - key: margin_type
         title: 边距（单位毫米）
         tip: ''
       - key: left_margin
-        title: 左
+        title: 左边距
         tip: ''
       - key: top_margin
-        title: 上
+        title: 上边距
         tip: ''
       - key: right_margin
-        title: 右
+        title: 右边距
         tip: ''
       - key: bottom_margin
-        title: 下
+        title: 下边距
         tip: ''
       - key: page
         title: 页码范围
-        tip: ''
+        tip: 例如：1,3-5 表示打印第1页和第3页到第5页的内容，留空表示打印全部页码
     outputList:
       - key: printer_status
         title: 打印结果
@@ -940,11 +946,25 @@ options:
     - value: picture
       label: 图片
     - value: word
-      label: word
+      label: Word 文档
     - value: pdf
-      label: pdf
+      label: PDF 文档
     - value: excel
-      label: excel
+      label: Excel 文档
+  DocAppType:
+    - value: Word
+      label: Word
+    - value: WPS
+      label: WPS
+    - value: Default
+      label: 默认软件
+  XlsAppType:
+    - value: Excel
+      label: Excel
+    - value: WPS
+      label: WPS
+    - value: Default
+      label: 默认软件
   BatchType:
     - value: batch
       label: 批量打印
