@@ -717,13 +717,13 @@ atomic:
     inputList:
       - key: file_type
         title: 打印对象
-        tip: 指定打印对象，支持打印WORD、EXCEL、PDF和图像文件，或批量打印文件夹中文件
+        tip: 指定打印对象，支持打印Word、Excel、PDF和图片文件，或批量打印文件夹中文件
       - key: doc_app_type
-        title: word文档应用
-        tip: 打开word文档选择的应用
+        title: Word文档应用
+        tip: 打开Word文档选择的应用
       - key: xls_app_type
-        title: excel文档应用
-        tip: 打开excel文档选择的应用
+        title: Excel文档应用
+        tip: 打开Excel文档选择的应用
       - key: batch_print
         title: 打印方式
         tip: 设置打印方式，批量打印仅支持文件夹下的文件，不支持文件夹下文件夹的文件

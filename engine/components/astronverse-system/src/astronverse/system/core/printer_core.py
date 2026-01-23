@@ -23,7 +23,7 @@ from astronverse.system import BatchType, DocAppType, FileType, XlsAppType
 from PIL import Image, ImageWin
 
 
-class PrinterCore(object):
+class PrinterCore:
     """
     打印核心服务主类。
 
@@ -116,7 +116,7 @@ class PrinterCore(object):
                 if self.word_obj:
                     return self.word_obj
         except:
-            raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise Exception(r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
         raise Exception("未检测到wps和office注册表信息！")
 
@@ -148,7 +148,7 @@ class PrinterCore(object):
                 if self.excel_obj:
                     return self.excel_obj
         except:
-            raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise Exception(r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
         raise Exception("未检测到wps和office注册表信息！")
 
@@ -780,9 +780,14 @@ class PrinterCore(object):
         filtered_files = []
         for file in print_file:
             lower_suffix = file.lower()
-            if (file_type == FileType.WORD.value and lower_suffix.endswith((".doc", ".docx", ".wps"))) or \
-               (file_type == FileType.EXCEL.value and lower_suffix.endswith((".xls", ".xlsx", ".et"))) or \
-               (file_type == FileType.PDF.value and lower_suffix.endswith(".pdf")) or \
-               (file_type == FileType.PICTURE.value and any(lower_suffix.endswith(img) for img in PrinterCore.IMAGE_TYPES)):
+            if (
+                (file_type == FileType.WORD.value and lower_suffix.endswith((".doc", ".docx", ".wps")))
+                or (file_type == FileType.EXCEL.value and lower_suffix.endswith((".xls", ".xlsx", ".et")))
+                or (file_type == FileType.PDF.value and lower_suffix.endswith(".pdf"))
+                or (
+                    file_type == FileType.PICTURE.value
+                    and any(lower_suffix.endswith(img) for img in PrinterCore.IMAGE_TYPES)
+                )
+            ):
                 filtered_files.append(file)
         return filtered_files

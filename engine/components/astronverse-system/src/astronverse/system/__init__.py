@@ -158,10 +158,10 @@ class OrientationType(Enum):
 
 
 class FileType(Enum):
-    PICTURE = "picture"
-    WORD = "word"
     PDF = "pdf"
+    WORD = "word"
     EXCEL = "excel"
+    PICTURE = "picture"
 
 
 class MarginType(Enum):
