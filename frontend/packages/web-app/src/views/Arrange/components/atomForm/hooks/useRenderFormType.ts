@@ -36,9 +36,7 @@ export function generateInputVal(itemData: RPA.AtomDisplayItem) {
     if (hasDataCategoryType.includes(item.type) && !Object.is(type, ATOM_FORM_TYPE.RESULT)) {
       const { data, type, value } = item
       const dataId = data ? `data-id="${data}"` : ''
-      // 对双引号进行 HTML 转义
-      const escapedValue = value.replace(/"/g, '&quot;')
-      result += `<hr class="ui-at" ${dataId} data-category="${type}" data-name="${escapedValue}"></hr>`
+      result += `<hr class="ui-at" ${escapeHTML(dataId)} data-category="${escapeHTML(type)}" data-name="${escapeHTML(value)}"></hr>`
     }
     else {
       result += item.value
@@ -46,6 +44,18 @@ export function generateInputVal(itemData: RPA.AtomDisplayItem) {
   })
 
   return result
+}
+
+function escapeHTML(str: string) {
+  const entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;'
+  };
+  return String(str).replace(/[&<>"'/]/g, (s) => entityMap[s]);
 }
 
 export function handlePaste(event: ClipboardEvent, itemData: RPA.AtomDisplayItem) {
