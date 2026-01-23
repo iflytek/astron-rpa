@@ -32,7 +32,7 @@
     "chrome-types": "^0.1.290",
     "jsdom": "^27.0.0",
     "playwright": "^1.55.0",
-    "vite": "catalog:",
+    "vite": "^5.4.21",
     "vitest": "^3.2.4",
     "ws": "^8.18.0"
   }

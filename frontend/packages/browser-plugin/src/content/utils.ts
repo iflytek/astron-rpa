@@ -45,7 +45,7 @@ export const Utils = {
   isDynamicAttribute(attrName: string, attrValue: string) {
     const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     const longRandomPattern = /^[\w-]{20,}$/
-    const dynamicKeywords = ['temp-', 'dynamic-', 'random-', 'unique-', 'session-', 'token-', 'uuid-', 'id-', 'key-', 'rand-', 'hover-', 'active-', 'focus-', 'selected-', '-open', '-active', '-hover', '-focus', '-selected']
+    const dynamicKeywords = ['temp-', 'dynamic-', 'random-', 'unique-', 'session-', 'token-', 'uuid-', 'id-', 'key-', 'rand-', 'hover-', 'active-', 'focus-', 'selected-', '-open', '-active', '-hover', '-focus', '-selected', 'show', 'hide', 'hidden']
     const lowerValue = attrValue.toLowerCase()
 
     if (attrName === 'id') {

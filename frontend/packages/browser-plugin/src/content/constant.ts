@@ -1,4 +1,5 @@
 export const MAX_TEXT_LENGTH = 10
+export const MAX_TEXT_INCLUDE_LENGTH = 64
 export const MAX_ATTRIBUTE_LENGTH = 32
 export const DEEP_SEARCH_TRIGGER = 5 * 1000
 export const ELEMENT_SEARCH_TRIGGER = 200

@@ -1,5 +1,4 @@
 import { log } from './3rd/log'
-/** @format */
 import { createWsApp } from './3rd/rpa_websocket'
 import { bgHandler, contentMessageHandler } from './background/backgroundInject'
 import { V2_EXTENSION_ID, V3_EXTENSION_ID } from './background/constant'
