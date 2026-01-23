@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorUserDao">
+
+    <!-- 根据姓名模糊查询用户 -->
+    <select id="searchUserByName" resultType="org.casbin.casdoor.entity.User">
+        SELECT
+            u.id,
+            u.name,
+            u.display_name as displayName,
+            u.phone,
+            u.email,
+            u.created_time as createdTime,
+            u.updated_time as updatedTime,
+            u.is_forbidden as isForbidden,
+            u.owner,
+            u.email_verified as emailVerified,
+            u.avatar,
+            u.permanent_avatar as permanentAvatar,
+            u.first_name as firstName,
+            u.last_name as lastName,
+            u.location,
+            u.id_card as idCard,
+            u.birthday
+        FROM ${databaseName}.`user` u
+        WHERE u.is_deleted = 0
+        <if test="owner != null and owner != ''">
+            AND u.owner = #{owner}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                u.display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR u.name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY u.created_time DESC
+        LIMIT 1000
+    </select>
+
+    <!-- 根据手机号模糊查询用户 -->
+    <select id="searchUserByPhone" resultType="org.casbin.casdoor.entity.User">
+        SELECT
+            u.id,
+            u.name,
+            u.display_name as displayName,
+            u.phone,
+            u.email,
+            u.created_time as createdTime,
+            u.updated_time as updatedTime,
+            u.is_forbidden as isForbidden,
+            u.owner,
+            u.email_verified as emailVerified,
+            u.avatar,
+            u.permanent_avatar as permanentAvatar,
+            u.first_name as firstName,
+            u.last_name as lastName,
+            u.location,
+            u.id_card as idCard,
+            u.birthday
+        FROM ${databaseName}.`user` u
+        WHERE u.is_deleted = 0
+        <if test="owner != null and owner != ''">
+            AND u.owner = #{owner}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND u.phone LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY u.created_time DESC
+        LIMIT 1000
+    </select>
+
+    <!-- 根据姓名或手机号模糊查询用户 -->
+    <select id="searchUserByNameOrPhone" resultType="org.casbin.casdoor.entity.User">
+        SELECT
+            u.id,
+            u.name,
+            u.display_name as displayName,
+            u.phone,
+            u.email,
+            u.created_time as createdTime,
+            u.updated_time as updatedTime,
+            u.is_forbidden as isForbidden,
+            u.owner,
+            u.email_verified as emailVerified,
+            u.avatar,
+            u.permanent_avatar as permanentAvatar,
+            u.first_name as firstName,
+            u.last_name as lastName,
+            u.location,
+            u.id_card as idCard,
+            u.birthday
+        FROM ${databaseName}.`user` u
+        WHERE u.is_deleted = 0
+        <if test="owner != null and owner != ''">
+            AND u.owner = #{owner}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                u.display_name LIKE CONCAT('%', #{keyword}, '%')
+                OR u.name LIKE CONCAT('%', #{keyword}, '%')
+                OR u.phone LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY u.created_time DESC
+        LIMIT 1000
+    </select>
+
+    <!-- 获取市场用户列表（分页） -->
+    <select id="getMarketUserList" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            amu.id id,
+            amu.user_type userType,
+            amu.creator_id creatorId,
+            amu.create_time createTime,
+            u.name userName,
+            u.display_name realName,
+            u.email email,
+            u.phone phone
+        from app_market_user amu
+            inner join ${databaseName}.`user` u on u.id = amu.creator_id and u.is_deleted = 0
+        where
+            amu.market_id = #{dto.marketId}
+            and amu.deleted = 0
+            <if test="dto.userName != null and dto.userName != ''">
+                and upper(u.name) like concat('%', upper(#{dto.userName}), '%')
+            </if>
+            <if test="dto.realName != null and dto.realName != ''">
+                and upper(u.display_name) like concat('%', upper(#{dto.realName}), '%')
+            </if>
+            <choose>
+                <when test="dto.sortBy !=null and dto.sortBy != ''">
+                    <if test="dto.sortType == 'descend'.toString()">
+                        order by ${dto.sortBy} desc
+                    </if>
+                    <if test="dto.sortType == 'ascend'.toString() ">
+                        order by ${dto.sortBy} asc
+                    </if>
+                </when>
+                <otherwise>
+                    order by createTime desc
+                </otherwise>
+            </choose>
+    </select>
+
+</mapper>
+

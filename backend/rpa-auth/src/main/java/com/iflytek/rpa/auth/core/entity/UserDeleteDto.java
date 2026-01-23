@@ -1,0 +1,17 @@
+package com.iflytek.rpa.auth.core.entity;
+
+import lombok.Data;
+
+import java.util.List;
+
+/**
+ * @author mjren
+ * @date 2025-02-28 16:22
+ * @copyright Copyright (c) 2025 mjren
+ */
+@Data
+public class UserDeleteDto {
+
+    private List<String> userIdList;
+
+}

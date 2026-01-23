@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.uap.dao.UserEntitlementDao">
+
+    <!-- 根据用户ID和租户ID查询用户权益 -->
+    <select id="queryByUserIdAndTenantId" resultType="com.iflytek.rpa.auth.core.entity.UserEntitlement">
+        SELECT
+            id,
+            user_id AS userId,
+            tenant_id AS tenantId,
+            module_designer AS moduleDesigner,
+            module_executor AS moduleExecutor,
+            module_console AS moduleConsole,
+            module_market AS moduleMarket,
+            create_time AS createTime,
+            update_time AS updateTime,
+            is_delete AS isDelete
+        FROM
+            user_entitlement
+        WHERE
+            user_id = #{userId}
+            AND tenant_id = #{tenantId}
+            AND is_delete = 0
+        LIMIT 1
+    </select>
+
+</mapper>
+

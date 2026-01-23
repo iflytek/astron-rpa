@@ -1,0 +1,146 @@
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.casbin.casdoor.config.CasdoorAutoConfigure
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+  servlet:
+    multipart:
+      max-request-size: 110MB
+      max-file-size: 100MB
+      file-size-threshold: 100MB
+  redis:
+    database: ${REDIS_DB}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    pool:
+      max-active: 200
+      max-idle: 10
+      max-wait: -1
+      min-idle: 0
+    timeout: 5000
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save    # 每次响应结束刷到 Redis
+      namespace: uap:session # key 前缀，避免冲突
+
+  datasource:
+    url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 1
+    minIdle: 3
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,slf4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000;druid.stat.logSlowSql=true;druid.stat.enabled=true
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+druid:
+  initParams:
+    loginUsername: admin
+    loginPassword: 123456
+    allows:
+    denys:
+    resetEnable: false
+
+
+#日志相关配置
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure: info
+  config: classpath:logback-delayed.xml
+
+redis:
+  open: "true"
+
+
+#  UAP  Server 地址，配置成具体部署的  uap-server 的地址
+uap:
+  cache-use-redis: true
+  cas-server-context: http://172.30.11.127:8280/uap-server/
+  ##  UAP  Server  服务的接口地址
+  rest-server-url: http://172.30.11.127:8280/uap-server/rest/
+  ##  集成方应用的后台服务的  ip 和端口地址和上下文地址  注意前后端分离项目
+  # 此配置为后台服务上下文地址
+  cas-client-context: http://10.10.114.143:10251/rpa-auth/
+
+  ##  前后端分离项目，此处配置为前端应用首页地址，例如：  http://127.0.0.1:8880/web
+  ##  此配置为登录后跳转的统一首页地址，如果没有使用前后端分离的虚拟路由时可以不配置，不配置时登陆候会恢复之前访问的页面
+#  client-redirect-url: https://dev.iflyrpa.com/scenarioCase
+  ##  集成方应用的应用编码，在 uap-manager 的应用管理中查看
+  app-code: yy_1737616718387
+  ##  集成方应用的应用授权码，在 uap-manager 的应用管理中查看
+  app-auth-code: 5WQSUYCAX7CQVGFD0W80YU7RJZYJG829
+
+  ## feign 调用的也不需要拦截 /user/info,/logout,/role/getUserRoleList,/role/queryDetail,/dataAuth/getAuthorityListByRoleId,/tenant/getAllOrgList,/user/getUserExtendInfo
+  session-filter-exclude: /tenant/getAllEnterpriseTenantId,/tenant/getNoClassifyTenantIds,/tenant/updateTenantClassifyCompleted,/tenant/getAllTenantId,/tenant/getTenantManagerIds,/tenant/getTenantNormalUserIds,/user/history,/pre-authenticate,/tenant/list,/login,/verification-code/send,/password/set,/user/exist,/register,/login-status,/logout,/iflytek-account/delete,/user/info,password/change,/market-invite/get-invite-info-by-invite-key,/user/getNameById,/client-version-update
+##    uap  拦截白名单，登录后不需要授权拦截白名单(多个逗号隔开),这个白名单使用得是contains比较，白名单里配置/loginStatus也能通过
+  access-auth-exclude: /tenant/getAllEnterpriseTenantId,/tenant/getNoClassifyTenantIds,/tenant/updateTenantClassifyCompleted,/tenant/getAllTenantId,/tenant/getTenantManagerIds,/tenant/getTenantNormalUserIds,/user/history,/login-status,/logout,/register,/pre-authenticate,/tenant/list,/login,/iflytek-account/delete,/verification-code/send,/password/set,/user/exist,/user/info,password/change,/market-invite/get-invite-info-by-invite-key,/user/getNameById,/client-version-update
+##    未配置为资源    是否有权访问开关    0  不开启-未配置成资源的  url  有权限访问(默认值)    1  开启-未配置成资源的  url  全部无权限访问
+#  access-resource-switch=0
+  ##    自定义  403  无权限访问页面地址
+#  custom.403.page=
+
+  client_jump_white_list: localhost,dev.iflyrpa.com
+  database:
+    name: uap_db
+
+
+
+cas:
+  client:
+    #  uap 管理后台中应用管理的相应的应用地址应该为后台地址而不是前端地址
+    #  此地址应该为在  uap 管理后台的应用管理中配置的地址
+    #  集成方应用的后台服务的 ip 和端口地址和上下文地址  例如 http://10.*.*.20:8880/uap-manager/
+    #  注意前后端分离项目此配置为后台服务上下文地址
+    context: http://10.10.114.143:10251/rpa-auth/
+    #  集成方应用的首页路径，去除前面的上下文地址，
+    #  注意前后端分离项目此应该配置为 /
+    index: /
+
+#  允许配置在此处的地址跨域请求接口
+#  前后端分离时如果前端的域和后端不一样，请将前端的域配置在此处,注意是域名或ip即可，不需要端口号
+allowed:
+  origins: localhost,dev.iflyrpa.com
+
+iflytek:
+  account:
+    host: https://account.xfinfr.com
+    appid: RPA931JX
+    accessKey: RPA931JX1ID547W6
+    accessSecret: 74l8ibs44279u0y6571h529z63200uj6
+
+# RPA 认证服务配置
+rpa:
+  auth:
+    # 部署模式：saas | private-enterprise | private-uap
+    deployment-mode: saas
+    # 本地调试模式：true-本地调试，使用固定IP；false-服务器部署，使用服务器真实IP
+    local-debug: false
+    # 本地调试时使用的IP地址（默认：172.31.114.36）
+    local-ip: 172.31.114.36

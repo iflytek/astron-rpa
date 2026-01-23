@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iflytek.rpa.auth.dataPreheater.dao.AppMarketClassificationDao">
+
+    <insert id="insertDefaultClassification">
+        INSERT INTO app_market_classification (name,source,sort,tenant_id,creator_id,create_time,updater_id,update_time,deleted)
+        VALUES
+        ('财务','0','1',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('教育','0','2',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('医疗','0','3',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('游戏','0','4',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('电商','0','5',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('直播','0','6',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('电信','0','7',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('政府/事业单位','0','8',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('生产制造','0','9',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('建筑/地产','0','10',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('烟草','0','11',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('运营','0','12',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('人事','0','13',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('城市服务','0','14',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('汽车业','0','15',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('人事','0','16',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('新能源','0','17',#{tenantId},NULL,now(),NULL,now(),'0'),
+        ('其他','0','18',#{tenantId},NULL,now(),NULL,now(),'0')
+    </insert>
+
+    <select id="countByTenantId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM app_market_classification
+        WHERE tenant_id = #{tenantId}
+        AND deleted = '0'
+    </select>
+</mapper>
+

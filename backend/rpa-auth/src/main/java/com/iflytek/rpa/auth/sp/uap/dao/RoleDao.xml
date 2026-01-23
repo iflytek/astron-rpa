@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.iflytek.rpa.auth.sp.uap.dao.RoleDao">
+
+
+    <insert id="insertUnspecifiedRole">
+        INSERT INTO ${databaseName}.t_uap_role
+        (id,name,code,status,app_id,app_name,higher_role,higher_name,first_level_id,app_module_id,app_module_name,sort,remark,is_must_bind,create_time,update_time)
+        VALUES
+        ('1','未指定','1','1',#{appId},#{appName},'0',NULL,'0','',NULL,'1',NULL,'1',now(),now());
+    </insert>
+
+    <insert id="insertUnspecifiedTenantBind">
+        INSERT INTO ${databaseName}.t_uap_tenant_role (id,tenant_id,role_id)
+        VALUES
+        (UUID(),#{tenantId},'1');
+    </insert>
+    <delete id="batchDeleteUnspecifiedRoleBind">
+        DELETE FROM ${databaseName}.t_uap_user_role
+        WHERE role_id = '1'
+        AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getUnspecifiedRoleWithTenant" resultType="java.lang.Integer">
+        select count(*)
+        from ${databaseName}.t_uap_tenant_role as utr
+        inner join ${databaseName}.t_uap_role as ur on utr.role_id = ur.id
+        where utr.role_id = "1" and utr.tenant_id = #{tenantId};
+    </select>
+
+    <select id="selectAppInfo" resultType="com.iflytek.rpa.auth.core.entity.AppInfoBo">
+        select
+        id as appId,
+        name as appName
+        from ${databaseName}.t_uap_app
+        where name = '卓越中心'
+    </select>
+
+    <select id="getUnspecifiedRole" resultType="java.lang.Integer">
+        select count(*)
+        from ${databaseName}.t_uap_role
+        where id = "1"
+    </select>
+
+    <select id="getUserIdsByRoleId" resultType="java.lang.String">
+        SELECT user_id
+        FROM ${databaseName}.t_uap_user_role
+        WHERE role_id = #{roleId}
+        AND tenant_id = #{tenantId}
+    </select>
+
+    <select id="getBindUnspecifiedRoleIds" resultType="java.lang.String">
+        SELECT id
+        FROM ${databaseName}.t_uap_user_role
+        WHERE role_id = '1'
+        AND tenant_id = #{tenantId}
+        AND user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <update id="migrateUsersToUnspecifiedRole">
+        UPDATE ${databaseName}.t_uap_user_role 
+        SET role_id = '1'
+        WHERE user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+        AND tenant_id = #{tenantId}
+    </update>
+
+    <select id="getRoleIdByName" resultType="java.lang.String">
+        SELECT id
+        FROM ${databaseName}.t_uap_role
+        WHERE name = #{roleName}
+        AND status = 1
+        LIMIT 1
+    </select>
+
+    <select id="checkTenantRoleExists" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ${databaseName}.t_uap_tenant_role
+        WHERE tenant_id = #{tenantId}
+        AND role_id = #{roleId}
+    </select>
+
+    <insert id="insertTenantRole">
+        INSERT INTO ${databaseName}.t_uap_tenant_role (id, tenant_id, role_id)
+        VALUES (UUID(), #{tenantId}, #{roleId})
+    </insert>
+
+    <update id="updateUserRoleTenant">
+        UPDATE ${databaseName}.t_uap_user_role
+        SET tenant_id = #{tenantId}
+        WHERE user_id = #{userId}
+          AND role_id = #{roleId}
+    </update>
+
+    <select id="checkUserRoleExists" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ${databaseName}.t_uap_user_role
+        WHERE tenant_id = #{tenantId}
+          AND user_id = #{userId}
+          AND role_id = #{roleId}
+    </select>
+
+    <select id="checkUserRoleExistsByUserAndRole" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ${databaseName}.t_uap_user_role
+        WHERE user_id = #{userId}
+          AND role_id = #{roleId}
+    </select>
+
+    <insert id="insertUserRole">
+        INSERT INTO ${databaseName}.t_uap_user_role (id, tenant_id, user_id, role_id)
+        VALUES (UUID(), #{tenantId}, #{userId}, #{roleId})
+    </insert>
+
+</mapper>
