@@ -20,6 +20,7 @@ from astronverse.cua.action_parser import (
     parse_action_to_structure_output,
     parsing_response_to_pyautogui_code,
 )
+from astronverse.cua.custom_action_screen import CustomActionScreen
 from PIL import Image, ImageDraw
 
 # 电脑 GUI 任务场景的提示词模板
@@ -584,4 +585,188 @@ class ComputerUse:
             "duration": result.get("duration", 0.0),
             "screenshots": result.get("screenshots", []),
             "error": result.get("error", ""),
+        }
+
+    @staticmethod
+    @atomicMg.atomic(
+        "ComputerUse",
+        inputList=[
+            atomicMg.param("instruction", types="Str"),
+            atomicMg.param("max_steps", types="Int", required=False),
+            atomicMg.param("temperature", types="Float", required=False),
+        ],
+        outputList=[
+            atomicMg.param("computer_use_res", types="Dict"),
+        ],
+    )
+    def custom_action_screen(
+        instruction: str,
+        max_steps: int = 20,
+        temperature: float = 0.0,
+    ):
+        """
+        自定义AI操作屏幕
+
+        Args:
+            instruction: 用户指令
+            max_steps: 最大执行步数
+            temperature: 模型温度参数
+
+        Returns:
+            执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
+        """
+
+        agent = CustomActionScreen(
+            max_steps=max_steps,
+            temperature=temperature,
+        )
+        result = agent.run(instruction)
+
+        # 返回结果，确保所有输出参数都有值
+        return {
+            "success": result.get("success", False),
+            "steps": result.get("steps", 0),
+            "duration": result.get("duration", 0.0),
+            "screenshots": result.get("screenshots", []),
+            "error": result.get("error", ""),
+            "thought": result.get("thought", ""),
+            "data": result.get("data", ""),
+        }
+
+    @staticmethod
+    @atomicMg.atomic(
+        "ComputerUse",
+        inputList=[
+            atomicMg.param("instruction", types="Str", default="帮我从屏幕中提取数据，并返回 JSON 格式。"),
+            atomicMg.param("max_steps", types="Int", required=False),
+            atomicMg.param("temperature", types="Float", required=False),
+        ],
+        outputList=[
+            atomicMg.param("computer_use_res", types="Dict"),
+        ],
+    )
+    def extract_data(
+        instruction: str,
+        max_steps: int = 1,
+        temperature: float = 0.0,
+    ):
+        """
+        提取屏幕数据
+
+        Args:
+            instruction: 用户指令
+            max_steps: 最大执行步数
+            temperature: 模型温度参数
+
+        Returns:
+            执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
+        """
+
+        agent = CustomActionScreen(
+            max_steps=max_steps,
+            temperature=temperature,
+        )
+        result = agent.run(instruction)
+
+        # 返回结果，确保所有输出参数都有值
+        return {
+            "success": result.get("success", False),
+            "steps": result.get("steps", 0),
+            "duration": result.get("duration", 0.0),
+            "screenshots": result.get("screenshots", []),
+            "error": result.get("error", ""),
+            "thought": result.get("thought", ""),
+            "data": result.get("data", ""),
+        }
+
+    @staticmethod
+    @atomicMg.atomic(
+        "ComputerUse",
+        inputList=[
+            atomicMg.param("instruction", types="Str", default="帮我将 [数据内容] 填写到屏幕中的表单。数据内容："),
+            atomicMg.param("max_steps", types="Int", required=False),
+            atomicMg.param("temperature", types="Float", required=False),
+        ],
+        outputList=[
+            atomicMg.param("computer_use_res", types="Dict"),
+        ],
+    )
+    def fill_form(
+        instruction: str,
+        max_steps: int = 20,
+        temperature: float = 0.0,
+    ):
+        """
+        填写表单
+
+        Args:
+            instruction: 用户指令
+            max_steps: 最大执行步数
+            temperature: 模型温度参数
+
+        Returns:
+            执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
+        """
+
+        agent = CustomActionScreen(
+            max_steps=max_steps,
+            temperature=temperature,
+        )
+        result = agent.run(instruction)
+
+        # 返回结果，确保所有输出参数都有值
+        return {
+            "success": result.get("success", False),
+            "steps": result.get("steps", 0),
+            "duration": result.get("duration", 0.0),
+            "screenshots": result.get("screenshots", []),
+            "error": result.get("error", ""),
+            "thought": result.get("thought", ""),
+            "data": result.get("data", ""),
+        }
+
+    @staticmethod
+    @atomicMg.atomic(
+        "ComputerUse",
+        inputList=[
+            atomicMg.param("instruction", types="Str", default="帮我处理并关闭屏幕中的验证码。"),
+            atomicMg.param("max_steps", types="Int", required=False),
+            atomicMg.param("temperature", types="Float", required=False),
+        ],
+        outputList=[
+            atomicMg.param("computer_use_res", types="Dict"),
+        ],
+    )
+    def process_captcha(
+        instruction: str,
+        max_steps: int = 20,
+        temperature: float = 0.0,
+    ):
+        """
+        处理验证码
+
+        Args:
+            instruction: 用户指令
+            max_steps: 最大执行步数
+            temperature: 模型温度参数
+
+        Returns:
+            执行结果，包含success, steps, action_steps, duration, screenshots, error等字段
+        """
+
+        agent = CustomActionScreen(
+            max_steps=max_steps,
+            temperature=temperature,
+        )
+        result = agent.run(instruction)
+
+        # 返回结果，确保所有输出参数都有值
+        return {
+            "success": result.get("success", False),
+            "steps": result.get("steps", 0),
+            "duration": result.get("duration", 0.0),
+            "screenshots": result.get("screenshots", []),
+            "error": result.get("error", ""),
+            "thought": result.get("thought", ""),
+            "data": result.get("data", ""),
         }
