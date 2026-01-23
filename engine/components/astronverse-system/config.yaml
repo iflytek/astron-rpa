@@ -951,6 +951,20 @@ options:
       label: PDF 文档
     - value: excel
       label: Excel 文档
+  DocAppType:
+    - value: Word
+      label: Word
+    - value: WPS
+      label: WPS
+    - value: Default
+      label: 默认软件
+  XlsAppType:
+    - value: Excel
+      label: Excel
+    - value: WPS
+      label: WPS
+    - value: Default
+      label: 默认软件
   BatchType:
     - value: batch
       label: 批量打印
