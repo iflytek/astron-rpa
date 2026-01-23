@@ -30,7 +30,7 @@ export interface FieldSchema {
   props?: Record<string, any>
   sendCaptcha?: (phone: string) => Promise<void>
   hidden?: (model: any) => boolean
-  disabled?: (model: any) => boolean
+  disabled?: boolean | ((model: any) => boolean)
   customRender?: (ctx?: {
     field?: FieldSchema
     value?: any

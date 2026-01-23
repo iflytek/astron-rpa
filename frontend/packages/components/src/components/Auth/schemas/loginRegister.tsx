@@ -353,3 +353,26 @@ export function consultFormConfig(consultType: 'renewal' | 'consult' = 'consult'
     ),
   }
 }
+
+// 账号登录表单配置
+export function inviteUserInfoFormConfig(): FormConfig {
+  return {
+    fields: [
+      {...fieldFactories.loginName(), key: 'name', placeholder: '请输入姓名', disabled: () => true },
+      { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)', disabled: () => true },
+      { ...fieldFactories.agreement(), disabled: () => true }
+    ],
+    actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
+      <div class="w-full absolute bottom-0">
+        <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+          确认加入
+        </Button>
+        <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
+          <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
+            使用其他账号
+          </Button>
+        </div>
+      </div>
+    ),
+  } 
+}

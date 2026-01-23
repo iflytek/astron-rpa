@@ -5,10 +5,12 @@ import { useRoute } from 'vue-router'
 import { acceptInvite, queryInviteData } from '../../../api/invite'
 import { loginStatus, userInfo } from '../../../api/login'
 import type { InviteInfo } from '../../../interface'
+import { useMediaQuery } from '@vueuse/core'
 
-type PageStatus = 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
+type PageStatus = 'init' | 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
 
 export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
+  const isMobile = useMediaQuery('(max-width: 768px)')
   const route = useRoute()
   const inviteKey = ref(route.query.inviteKey as string)
   const currentStatus = ref<PageStatus>()
@@ -52,17 +54,20 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
       switchPage(pageStatus)
       return
     }
-    if (needLogin) {
-      const isLogin = await loginStatus()
-      if (!isLogin) {
-        switchPage('needLogin')
-        return
-      }
-      const user = await userInfo()
-      currentUser.value = user
-      switchPage('showUserInfo')
-    }
+    if (needLogin) login()
   }
+
+  const login = async () => {
+    const isLogin = await loginStatus()
+    if (!isLogin) {
+      switchPage('needLogin')
+      return
+    }
+    const user = await userInfo()
+    currentUser.value = user
+    switchPage('showUserInfo')
+  }
+
   const getInviteInfo = async () => {
     if (!inviteKey.value) {
       switchPage('linkExpired')
@@ -70,16 +75,16 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     }
     try {
       const data = await queryInviteData({ inviteKey: inviteKey.value })
-      updateInviteInfo(data)
+      const needLogin = !isMobile.value
+      updateInviteInfo(data, needLogin)
+      if(isMobile.value) {
+        switchPage('init')
+      }
     }
     catch (e) {
       console.error('获取邀请信息失败', e)
       switchPage('linkExpired')
     }
-  }
-
-  const switchToLogin = () => {
-    switchPage('needLogin')
   }
 
   const toJoin = async () => {
@@ -134,7 +139,8 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     currentStatus,
     inviteInfo,
     currentUser,
-    switchToLogin,
+    switchPage,
+    login,
     toJoin,
     openApp,
   }

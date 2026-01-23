@@ -17,6 +17,7 @@
     "@types/node": "^24.10.0",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
+    "vite-plugin-svg4vue": "^4.5.1",
     "@vue/tsconfig": "^0.8.1",
     "tailwindcss": "^3.4.4",
     "typescript": "~5.9.3",
