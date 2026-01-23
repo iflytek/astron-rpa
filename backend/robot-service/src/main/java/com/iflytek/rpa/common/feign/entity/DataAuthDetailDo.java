@@ -1,8 +1,7 @@
 package com.iflytek.rpa.common.feign.entity;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class DataAuthDetailDo {

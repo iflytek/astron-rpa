@@ -60,6 +60,4 @@ public class ListUserByRoleDto extends PageQueryDto {
     public void setKeyWord(String keyWord) {
         this.keyWord = keyWord;
     }
-
 }
-

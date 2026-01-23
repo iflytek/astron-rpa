@@ -1,5 +1,7 @@
 package com.iflytek.rpa.market.controller;
 
+import static com.iflytek.rpa.market.constants.RightConstant.*;
+
 import com.iflytek.rpa.market.annotation.RightCheck;
 import com.iflytek.rpa.market.entity.AppMarket;
 import com.iflytek.rpa.market.entity.AppMarketDict;
@@ -7,12 +9,9 @@ import com.iflytek.rpa.market.entity.AppMarketDo;
 import com.iflytek.rpa.market.service.AppMarketService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
 import java.util.List;
-
-import static com.iflytek.rpa.market.constants.RightConstant.*;
+import javax.annotation.Resource;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 团队市场-团队
@@ -91,7 +90,7 @@ public class AppMarketTeamController {
      * @return
      */
     @PostMapping("/info")
-    AppResponse<AppMarket> getMarketInfo (@RequestParam("marketId") String marketId) throws NoLoginException {
+    AppResponse<AppMarket> getMarketInfo(@RequestParam("marketId") String marketId) throws NoLoginException {
         return appMarketService.getMarketInfo(marketId);
     }
 
@@ -133,6 +132,4 @@ public class AppMarketTeamController {
 
         return appMarketService.dissolveTeamMarket(appMarket);
     }
-
 }
-

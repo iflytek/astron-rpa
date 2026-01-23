@@ -22,4 +22,3 @@ public interface AppMarketInviteDao extends BaseMapper<AppMarketInvite> {
 
     int cancelById(Long id);
 }
-

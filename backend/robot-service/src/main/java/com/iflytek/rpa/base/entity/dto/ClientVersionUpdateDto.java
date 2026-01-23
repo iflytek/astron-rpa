@@ -1,8 +1,7 @@
 package com.iflytek.rpa.base.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 /**
  * 客户端版本更新DTO
@@ -45,4 +44,3 @@ public class ClientVersionUpdateDto {
      */
     private String updateInfo;
 }
-

@@ -1,10 +1,9 @@
 package com.iflytek.rpa.auth.core.entity;
 
 import com.iflytek.rpa.auth.sp.uap.annotation.Password;
-import lombok.Data;
-
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 /**
  * 修改密码请求 DTO
@@ -15,13 +14,13 @@ public class ChangePasswordDto {
     /**
      * 账号（登录名）
      */
-//    @NotBlank(message = "账号不能为空")
+    //    @NotBlank(message = "账号不能为空")
     private String loginName;
 
     /**
      * 登录手机号
      */
-//    @NotBlank(message = "手机号不能为空")
+    //    @NotBlank(message = "手机号不能为空")
     private String phone;
 
     /**
@@ -54,4 +53,3 @@ public class ChangePasswordDto {
         return newPassword.equals(confirmPassword);
     }
 }
-

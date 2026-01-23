@@ -6,12 +6,11 @@ import com.iflytek.rpa.auth.core.entity.BindRoleDataAuthDto;
 import com.iflytek.rpa.auth.core.entity.DataAuthorityWithDimDictDto;
 import com.iflytek.rpa.auth.core.service.DataAuthService;
 import com.iflytek.rpa.auth.utils.AppResponse;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * 数据权限
@@ -24,7 +23,6 @@ public class DataAuthController {
     @Autowired
     private DataAuthService dataAuthService;
 
-
     /**
      * 查询勾选的数据权限
      * @param roleId 角色ID
@@ -32,10 +30,10 @@ public class DataAuthController {
      * @return 数据权限列表
      */
     @GetMapping("/queryCheckedDataAuth")
-    public AppResponse<List<DataAuthorityWithDimDictDto>> getCheckedDataAuth(@RequestParam("roleId") String roleId, HttpServletRequest request) {
+    public AppResponse<List<DataAuthorityWithDimDictDto>> getCheckedDataAuth(
+            @RequestParam("roleId") String roleId, HttpServletRequest request) {
         return dataAuthService.getCheckedDataAuth(roleId, request);
     }
-
 
     /**
      * 角色绑定数据权限
@@ -45,7 +43,8 @@ public class DataAuthController {
      */
     @PostMapping("/bindDataAuth")
     @AuditLog(moduleName = "管理员权限", typeName = "编辑权限")
-    public AppResponse<String> bindDataAuth(@RequestBody BindRoleDataAuthDto bindRoleDataAuthDto, HttpServletRequest request) {
+    public AppResponse<String> bindDataAuth(
+            @RequestBody BindRoleDataAuthDto bindRoleDataAuthDto, HttpServletRequest request) {
         return dataAuthService.bindDataAuth(bindRoleDataAuthDto, request);
     }
 
@@ -57,8 +56,10 @@ public class DataAuthController {
      * @return 权限列表
      */
     @GetMapping("/getAuthorityListByRoleId")
-    public AppResponse<List<Authority>> getAuthorityListByRoleId(@RequestParam("tenantId") String tenantId, @RequestParam("roleId") String roleId, HttpServletRequest request) {
+    public AppResponse<List<Authority>> getAuthorityListByRoleId(
+            @RequestParam("tenantId") String tenantId,
+            @RequestParam("roleId") String roleId,
+            HttpServletRequest request) {
         return dataAuthService.getAuthorityListByRoleId(tenantId, roleId, request);
     }
-
 }

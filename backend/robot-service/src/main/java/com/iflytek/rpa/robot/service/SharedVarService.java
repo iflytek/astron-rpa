@@ -5,7 +5,6 @@ import com.iflytek.rpa.robot.entity.vo.ClientSharedVarVo;
 import com.iflytek.rpa.robot.entity.vo.SharedVarKeyVo;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-
 import java.util.List;
 
 /**

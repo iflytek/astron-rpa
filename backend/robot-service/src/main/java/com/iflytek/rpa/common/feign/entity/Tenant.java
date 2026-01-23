@@ -2,7 +2,6 @@ package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -147,5 +146,4 @@ public class Tenant implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
-
 }

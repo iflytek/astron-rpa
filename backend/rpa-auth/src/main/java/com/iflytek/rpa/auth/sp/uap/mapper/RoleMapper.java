@@ -2,11 +2,10 @@ package com.iflytek.rpa.auth.sp.uap.mapper;
 
 import com.iflytek.rpa.auth.core.entity.Role;
 import com.iflytek.sec.uap.client.core.dto.role.UapRole;
-import org.springframework.stereotype.Component;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
 /**
  * @desc: UapRole到Role的映射器
@@ -51,8 +50,6 @@ public class RoleMapper {
             return Collections.emptyList();
         }
 
-        return uapRoles.stream()
-                .map(this::fromUapRole)
-                .collect(Collectors.toList());
+        return uapRoles.stream().map(this::fromUapRole).collect(Collectors.toList());
     }
 }

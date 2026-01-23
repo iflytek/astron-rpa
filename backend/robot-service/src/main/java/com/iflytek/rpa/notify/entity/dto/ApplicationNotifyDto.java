@@ -1,4 +1,5 @@
 package com.iflytek.rpa.notify.entity.dto;
+
 import lombok.Data;
 
 @Data

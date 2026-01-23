@@ -1,11 +1,9 @@
 package com.iflytek.rpa.monitor.dao;
 
 import com.iflytek.rpa.terminal.entity.vo.UserVo;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
 
 @Mapper
 public interface TenantDao {
@@ -19,9 +17,8 @@ public interface TenantDao {
 
     List<String> getAllEnterpriseTenantId(String databaseName);
 
-
     List<String> getAllTenantIdWithoutClassify(String databaseName);
 
-    Integer updateTenantClassifyFlag(@Param("databaseName") String databaseName, @Param("tenantIds") List<String> tenantIds);
+    Integer updateTenantClassifyFlag(
+            @Param("databaseName") String databaseName, @Param("tenantIds") List<String> tenantIds);
 }
-

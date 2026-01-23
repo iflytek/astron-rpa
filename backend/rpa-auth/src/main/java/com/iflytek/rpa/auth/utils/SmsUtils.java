@@ -1,13 +1,12 @@
 package com.iflytek.rpa.auth.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import java.util.*;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.*;
 
 /**
  *
@@ -18,10 +17,13 @@ import java.util.*;
 public class SmsUtils {
     @Value("${sms.apiUrl:https://dripsms.xfpaas.com/sms}")
     public String apiSendSms;
+
     @Value("${sms.secretKey:9a530169680ac3428c7ae3125391b5e8}")
     public String secretKey;
+
     @Value("${sms.appId:L1YEV826A5}")
     public String appId;
+
     @Value("${sms.tid:18883}")
     public String tid;
 
@@ -40,7 +42,6 @@ public class SmsUtils {
         tpMap.put("sendContent", text);
         return sendSms(phone, tid, tpMap);
     }
-
 
     /**
      * 发送短信
@@ -82,7 +83,6 @@ public class SmsUtils {
         ResponseEntity<String> response = restTemplate.exchange(apiSendSms, method, requestEntity, String.class);
         return JSONObject.parseObject(response.getBody(), AppResponse.class);
     }
-
 
     /**
      * 获取签名

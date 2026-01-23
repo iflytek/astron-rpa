@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 @Setter
-
 @EqualsAndHashCode(callSuper = true)
 public class InitDataEvent extends ApplicationEvent {
     private String tenantId;

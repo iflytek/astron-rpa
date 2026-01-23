@@ -2,9 +2,8 @@ package com.iflytek.rpa.common.feign.entity.dto;
 
 import com.iflytek.rpa.common.feign.entity.Org;
 import com.iflytek.rpa.common.feign.entity.User;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -17,5 +16,4 @@ public class GetDeptOrUserDto {
     private List<User> userList;
 
     private List<Org> deptList;
-
 }

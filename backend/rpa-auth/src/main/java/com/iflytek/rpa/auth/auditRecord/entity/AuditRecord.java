@@ -4,11 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 
 /**
  * 审计日志表
@@ -19,7 +18,7 @@ import java.util.List;
 @TableName("audit_record")
 public class AuditRecord implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * 主键ID
      */

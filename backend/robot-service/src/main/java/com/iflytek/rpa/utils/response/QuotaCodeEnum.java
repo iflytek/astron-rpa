@@ -1,6 +1,5 @@
 package com.iflytek.rpa.utils.response;
 
-
 public enum QuotaCodeEnum {
     S_SUCCESS("000", "成功"),
 

@@ -5,10 +5,8 @@ import com.iflytek.rpa.auth.core.entity.DeptTreeNodeVo;
 import com.iflytek.rpa.auth.core.entity.UserRoleDto;
 import com.iflytek.rpa.auth.core.entity.UserVo;
 import com.iflytek.sec.uap.client.core.dto.org.UapOrg;
-import org.apache.ibatis.annotations.Mapper;
-
 import java.util.List;
-
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  *

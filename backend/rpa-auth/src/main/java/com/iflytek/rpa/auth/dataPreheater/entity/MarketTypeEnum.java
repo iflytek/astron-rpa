@@ -1,6 +1,5 @@
 package com.iflytek.rpa.auth.dataPreheater.entity;
 
-
 import lombok.Getter;
 
 @Getter

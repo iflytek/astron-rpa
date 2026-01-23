@@ -21,4 +21,3 @@ public interface FeedbackService {
      */
     AppResponse<?> submitFeedback(FeedbackSubmitDto dto) throws NoLoginException;
 }
-

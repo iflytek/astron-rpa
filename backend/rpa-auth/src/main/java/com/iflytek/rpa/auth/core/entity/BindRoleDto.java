@@ -34,5 +34,4 @@ public class BindRoleDto {
     public void setRoleIdList(List<String> roleIdList) {
         this.roleIdList = roleIdList;
     }
-
 }

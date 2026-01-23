@@ -1,16 +1,15 @@
 package com.iflytek.rpa.auth.sp.uap.mapper;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * DeleteCommonDto映射器
  * 用于将core包下的DeleteCommonDto转换为UAP客户端包下的DeleteCommonDto
- * 
+ *
  * @author xqcao2
  */
 @Component
@@ -18,7 +17,7 @@ public class DeleteCommonDtoMapper {
 
     /**
      * 将core包下的DeleteCommonDto转换为UAP客户端的DeleteCommonDto
-     * 
+     *
      * @param source core包下的DeleteCommonDto
      * @return UAP客户端的DeleteCommonDto
      */
@@ -39,7 +38,7 @@ public class DeleteCommonDtoMapper {
 
     /**
      * 将UAP客户端的DeleteCommonDto转换为核心实体DeleteCommonDto
-     * 
+     *
      * @param source UAP客户端的DeleteCommonDto
      * @return core包下的DeleteCommonDto
      */
@@ -60,7 +59,7 @@ public class DeleteCommonDtoMapper {
 
     /**
      * 批量将core包下的DeleteCommonDto列表转换为UAP客户端的DeleteCommonDto列表
-     * 
+     *
      * @param sourceList core包下的DeleteCommonDto列表
      * @return UAP客户端的DeleteCommonDto列表
      */
@@ -70,14 +69,12 @@ public class DeleteCommonDtoMapper {
             return Collections.emptyList();
         }
 
-        return sourceList.stream()
-                .map(this::toUapDeleteCommonDto)
-                .collect(Collectors.toList());
+        return sourceList.stream().map(this::toUapDeleteCommonDto).collect(Collectors.toList());
     }
 
     /**
      * 批量将UAP客户端的DeleteCommonDto列表转换为核心实体DeleteCommonDto列表
-     * 
+     *
      * @param sourceList UAP客户端的DeleteCommonDto列表
      * @return core包下的DeleteCommonDto列表
      */
@@ -87,9 +84,6 @@ public class DeleteCommonDtoMapper {
             return Collections.emptyList();
         }
 
-        return sourceList.stream()
-                .map(this::toCoreDeleteCommonDto)
-                .collect(Collectors.toList());
+        return sourceList.stream().map(this::toCoreDeleteCommonDto).collect(Collectors.toList());
     }
 }
-

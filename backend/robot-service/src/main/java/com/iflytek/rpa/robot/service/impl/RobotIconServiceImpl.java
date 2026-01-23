@@ -1,6 +1,5 @@
 package com.iflytek.rpa.robot.service.impl;
 
-
 import com.iflytek.rpa.robot.entity.dto.RobotIconDto;
 import com.iflytek.rpa.robot.service.RobotIconService;
 import com.iflytek.rpa.robot.service.handler.RobotIconHandlerFactory;

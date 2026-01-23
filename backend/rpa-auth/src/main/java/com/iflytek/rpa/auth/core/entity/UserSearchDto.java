@@ -21,5 +21,4 @@ public class UserSearchDto {
     private String name;
 
     private String phone;
-
 }

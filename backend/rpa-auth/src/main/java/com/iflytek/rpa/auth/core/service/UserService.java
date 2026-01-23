@@ -2,11 +2,10 @@ package com.iflytek.rpa.auth.core.service;
 
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.utils.AppResponse;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 用户服务
@@ -51,7 +50,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 分页用户列表
      */
-    AppResponse<PageDto<DeptUserDto>> queryUserListByOrgId(ListUserDto listUserDto, HttpServletRequest request) throws IOException;
+    AppResponse<PageDto<DeptUserDto>> queryUserListByOrgId(ListUserDto listUserDto, HttpServletRequest request)
+            throws IOException;
 
     /**
      * 角色管理-根据部门id查询部门下的人员和子部门
@@ -67,7 +67,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 用户列表
      */
-    AppResponse<List<CurrentDeptUserDto>> searchUserWithStatus(String keyWord,  HttpServletRequest request) throws IOException;
+    AppResponse<List<CurrentDeptUserDto>> searchUserWithStatus(String keyWord, HttpServletRequest request)
+            throws IOException;
 
     /**
      * 角色管理-添加成员
@@ -75,7 +76,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 操作结果
      */
-    AppResponse<String> bindUserListRole(BindUserListDto bindUserListDto, HttpServletRequest request) throws IOException;
+    AppResponse<String> bindUserListRole(BindUserListDto bindUserListDto, HttpServletRequest request)
+            throws IOException;
 
     /**
      * 人员解绑角色
@@ -91,7 +93,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 分页用户列表
      */
-    AppResponse<PageDto<User>> queryBindListByRole(ListUserByRoleDto listUserByRoleDto, HttpServletRequest request) throws IOException;
+    AppResponse<PageDto<User>> queryBindListByRole(ListUserByRoleDto listUserByRoleDto, HttpServletRequest request)
+            throws IOException;
 
     /**
      * 获取当前登录用户
@@ -266,7 +269,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 用户扩展信息
      */
-    AppResponse<UserExtendDto> queryUserExtendInfo(String tenantId, GetUserDto getUserDto, HttpServletRequest request) throws IOException;
+    AppResponse<UserExtendDto> queryUserExtendInfo(String tenantId, GetUserDto getUserDto, HttpServletRequest request)
+            throws IOException;
 
     /**
      * 获取当前用户权限列表
@@ -347,7 +351,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 公共市场用户分页列表
      */
-    AppResponse<PageDto<MarketDto>> getMarketUserListByPublic(GetMarketUserListByPublicDto dto, HttpServletRequest request);
+    AppResponse<PageDto<MarketDto>> getMarketUserListByPublic(
+            GetMarketUserListByPublicDto dto, HttpServletRequest request);
 
     /**
      * 根据手机号查询市场用户（不在市场中的用户）
@@ -363,7 +368,8 @@ public interface UserService {
      * @param request HTTP请求
      * @return 用户列表
      */
-    AppResponse<List<MarketDto>> getMarketUserByPhoneForOwner(GetMarketUserByPhoneForOwnerDto dto, HttpServletRequest request);
+    AppResponse<List<MarketDto>> getMarketUserByPhoneForOwner(
+            GetMarketUserByPhoneForOwnerDto dto, HttpServletRequest request);
 
     /**
      * 根据用户ID列表查询租户用户列表
@@ -373,5 +379,6 @@ public interface UserService {
      */
     AppResponse<List<TenantUser>> getMarketTenantUserList(GetMarketTenantUserListDto dto, HttpServletRequest request);
 
-    AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(GetDeployedUserListDto dto, HttpServletRequest request);
+    AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(
+            GetDeployedUserListDto dto, HttpServletRequest request);
 }

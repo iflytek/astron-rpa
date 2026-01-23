@@ -9,12 +9,14 @@ public class EnableBo {
     private String name;
     private String userId;
 
-    public EnableBo(){}
-    public EnableBo(String resourceId, Boolean enable){
+    public EnableBo() {}
+
+    public EnableBo(String resourceId, Boolean enable) {
         this.resourceId = resourceId;
         this.enable = enable;
     }
-    public EnableBo(String resourceId, String name, String userId){
+
+    public EnableBo(String resourceId, String name, String userId) {
         this.resourceId = resourceId;
         this.name = name;
         this.userId = userId;

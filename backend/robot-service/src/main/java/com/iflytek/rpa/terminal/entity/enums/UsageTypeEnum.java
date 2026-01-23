@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum UsageTypeEnum {
-
     ALL("all", "所有人"),
     DEPT("dept", "所属部门所有人"),
     SELECT("select", "指定人"),

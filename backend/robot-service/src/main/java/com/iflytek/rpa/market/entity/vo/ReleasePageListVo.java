@@ -56,4 +56,3 @@ public class ReleasePageListVo {
      */
     private String allowedDept;
 }
-

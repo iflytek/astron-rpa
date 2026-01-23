@@ -1,7 +1,6 @@
 package com.iflytek.rpa.base.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -42,7 +41,6 @@ public class CGroup implements Serializable {
 
     @JSONField(name = "element_type")
     private String elementType;
-
 
     public Long getId() {
         return id;
@@ -132,4 +130,3 @@ public class CGroup implements Serializable {
         this.elementType = elementType;
     }
 }
-

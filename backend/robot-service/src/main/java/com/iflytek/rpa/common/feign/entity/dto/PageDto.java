@@ -1,7 +1,6 @@
 package com.iflytek.rpa.common.feign.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -60,6 +59,4 @@ public class PageDto<T> implements Serializable {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
-
 }
-

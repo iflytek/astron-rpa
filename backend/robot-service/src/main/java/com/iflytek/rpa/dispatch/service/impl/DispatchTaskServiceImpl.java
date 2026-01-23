@@ -16,14 +16,13 @@ import com.iflytek.rpa.utils.IdWorker;
 import com.iflytek.rpa.utils.RedisKeyUtils;
 import com.iflytek.rpa.utils.RedisUtils;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service("dispatchTaskService")
 @Slf4j
@@ -31,14 +30,15 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
     @Autowired
     private DispatchTaskDao dispatchTaskDao;
 
-
     @Autowired
     private IdWorker idWorker;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
     @Autowired
-    private DispatchTaskService self;  // 自注入
+    private DispatchTaskService self; // 自注入
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
 
@@ -58,7 +58,8 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
 
         for (DispatchTask task : tasks) {
             // 只处理active和expired状态的任务
-            if (!DispatchTaskStatus.ACTIVE.getValue().equals(task.getStatus()) && !DispatchTaskStatus.EXPIRED.getValue().equals(task.getStatus())) {
+            if (!DispatchTaskStatus.ACTIVE.getValue().equals(task.getStatus())
+                    && !DispatchTaskStatus.EXPIRED.getValue().equals(task.getStatus())) {
                 continue;
             }
 
@@ -69,7 +70,8 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
                     CronJson cronJson = objectMapper.readValue(task.getCronJson(), CronJson.class);
 
                     // 如果有end_time且不为空
-                    if (cronJson.getEndTime() != null && !cronJson.getEndTime().trim().isEmpty()) {
+                    if (cronJson.getEndTime() != null
+                            && !cronJson.getEndTime().trim().isEmpty()) {
                         // 解析时间表达式
                         Date taskEndTime = DateUtils.sdfdaytime.parse(cronJson.getEndTime());
 
@@ -81,13 +83,21 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
                             // 如果当前是active状态，但时间已过期，则更新为expired
                             if (taskEndTime.before(currentTime)) {
                                 newStatus = DispatchTaskStatus.EXPIRED.getValue();
-                                log.info("任务{}从active更新为expired，结束时间：{}，当前时间：{}", task.getDispatchTaskId(), cronJson.getTimeExpression(), DateUtils.getDayTimeFormat(currentTime));
+                                log.info(
+                                        "任务{}从active更新为expired，结束时间：{}，当前时间：{}",
+                                        task.getDispatchTaskId(),
+                                        cronJson.getTimeExpression(),
+                                        DateUtils.getDayTimeFormat(currentTime));
                             }
                         } else if (DispatchTaskStatus.EXPIRED.getValue().equals(currentStatus)) {
                             // 如果当前是expired状态，但时间还未过期，则更新为active
                             if (taskEndTime.after(currentTime) || taskEndTime.equals(currentTime)) {
                                 newStatus = DispatchTaskStatus.ACTIVE.getValue();
-                                log.info("任务{}从expired更新为active，结束时间：{}，当前时间：{}", task.getDispatchTaskId(), cronJson.getTimeExpression(), DateUtils.getDayTimeFormat(currentTime));
+                                log.info(
+                                        "任务{}从expired更新为active，结束时间：{}，当前时间：{}",
+                                        task.getDispatchTaskId(),
+                                        cronJson.getTimeExpression(),
+                                        DateUtils.getDayTimeFormat(currentTime));
                             }
                         }
 
@@ -112,7 +122,6 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
                 task.setUpdateTime(currentTime);
                 tasksToUpdate.add(task);
             }
-
         }
 
         // 批量更新需要修改状态的任务
@@ -148,7 +157,8 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
      * @return 终端任务详情
      */
     private TerminalTaskDetailVo buildTerminalTaskDetail(String terminalId) {
-        TerminalTaskDetailVo terminalTaskDetail = TerminalTaskDetailVo.builder().terminalId(terminalId).build();
+        TerminalTaskDetailVo terminalTaskDetail =
+                TerminalTaskDetailVo.builder().terminalId(terminalId).build();
 
         // 1. 查询数据库中的正常任务
         terminalTaskDetail.getDispatchTaskInfos().addAll(dispatchTaskDao.selectTaskInfoByTerminalId(terminalId));
@@ -190,8 +200,15 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
         List<String> allTaskIds = new ArrayList<>();
 
         // 使用Stream API简化收集逻辑，添加null安全检查
-        Stream.of(terminalTaskDetail.getDispatchTaskInfos(), terminalTaskDetail.getRetryTaskInfos(), terminalTaskDetail.getStopTaskInfos()).filter(Objects::nonNull).flatMap(List::stream).filter(Objects::nonNull)  // 额外保护，防止taskInfo为null
-                .map(TerminalTaskDetailVo.DispatchTaskInfo::getTaskId).filter(Objects::nonNull)  // 额外保护，防止taskId为null
+        Stream.of(
+                        terminalTaskDetail.getDispatchTaskInfos(),
+                        terminalTaskDetail.getRetryTaskInfos(),
+                        terminalTaskDetail.getStopTaskInfos())
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .filter(Objects::nonNull) // 额外保护，防止taskInfo为null
+                .map(TerminalTaskDetailVo.DispatchTaskInfo::getTaskId)
+                .filter(Objects::nonNull) // 额外保护，防止taskId为null
                 .forEach(allTaskIds::add);
 
         return allTaskIds;
@@ -203,21 +220,31 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
     private Map<String, List<TerminalTaskDetailVo.DispatchRobotInfo>> buildTaskRobotInfoMap(List<String> taskIds) {
         List<TerminalTaskDetailVo.DispatchRobotInfo> allRobotInfos = dispatchTaskDao.selectRobotInfoByTaskIds(taskIds);
 
-        return allRobotInfos.stream().filter(robotInfo -> robotInfo.getTaskId() != null).collect(Collectors.groupingBy(TerminalTaskDetailVo.DispatchRobotInfo::getTaskId, Collectors.toList()));
+        return allRobotInfos.stream()
+                .filter(robotInfo -> robotInfo.getTaskId() != null)
+                .collect(Collectors.groupingBy(TerminalTaskDetailVo.DispatchRobotInfo::getTaskId, Collectors.toList()));
     }
 
     /**
      * 为所有任务列表设置机器人信息
      */
-    private void setRobotInfoForAllTaskLists(TerminalTaskDetailVo terminalTaskDetail, Map<String, List<TerminalTaskDetailVo.DispatchRobotInfo>> taskRobotInfoMap) {
-        Stream.of(terminalTaskDetail.getDispatchTaskInfos(), terminalTaskDetail.getRetryTaskInfos(), terminalTaskDetail.getStopTaskInfos()).filter(Objects::nonNull)  // 确保List不为null
+    private void setRobotInfoForAllTaskLists(
+            TerminalTaskDetailVo terminalTaskDetail,
+            Map<String, List<TerminalTaskDetailVo.DispatchRobotInfo>> taskRobotInfoMap) {
+        Stream.of(
+                        terminalTaskDetail.getDispatchTaskInfos(),
+                        terminalTaskDetail.getRetryTaskInfos(),
+                        terminalTaskDetail.getStopTaskInfos())
+                .filter(Objects::nonNull) // 确保List不为null
                 .forEach(taskList -> setRobotInfoForTaskList(taskList, taskRobotInfoMap));
     }
 
     /**
      * 为任务列表设置机器人信息
      */
-    private void setRobotInfoForTaskList(List<TerminalTaskDetailVo.DispatchTaskInfo> taskList, Map<String, List<TerminalTaskDetailVo.DispatchRobotInfo>> taskRobotInfoMap) {
+    private void setRobotInfoForTaskList(
+            List<TerminalTaskDetailVo.DispatchTaskInfo> taskList,
+            Map<String, List<TerminalTaskDetailVo.DispatchRobotInfo>> taskRobotInfoMap) {
         if (taskList == null || taskList.isEmpty()) {
             return;
         }
@@ -228,7 +255,8 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
                 taskInfo.setDispatchRobotInfos(new ArrayList<>());
             }
 
-            List<TerminalTaskDetailVo.DispatchRobotInfo> robotInfos = taskRobotInfoMap.getOrDefault(taskInfo.getTaskId(), new ArrayList<>());
+            List<TerminalTaskDetailVo.DispatchRobotInfo> robotInfos =
+                    taskRobotInfoMap.getOrDefault(taskInfo.getTaskId(), new ArrayList<>());
             taskInfo.setDispatchRobotInfos(robotInfos);
         });
     }
@@ -284,7 +312,13 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
      */
     private void processAndSetRedisTasks(List<Object> redisTasks, TerminalTaskDetailVo terminalTaskDetail) {
         // 按任务类型分组
-        Map<DispatchTaskFromType, List<String>> taskTypeMap = redisTasks.stream().filter(Objects::nonNull).map(this::extractTaskInfo).filter(Objects::nonNull).collect(Collectors.groupingBy(taskInfo -> taskInfo.getDispatchTaskFromType(), Collectors.mapping(taskInfo -> taskInfo.getDispatchTaskId(), Collectors.toList())));
+        Map<DispatchTaskFromType, List<String>> taskTypeMap = redisTasks.stream()
+                .filter(Objects::nonNull)
+                .map(this::extractTaskInfo)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(
+                        taskInfo -> taskInfo.getDispatchTaskFromType(),
+                        Collectors.mapping(taskInfo -> taskInfo.getDispatchTaskId(), Collectors.toList())));
 
         // 批量查询并设置任务信息
         taskTypeMap.forEach((taskType, taskIds) -> {
@@ -365,6 +399,4 @@ public class DispatchTaskServiceImpl extends ServiceImpl<DispatchTaskDao, Dispat
             return false;
         }
     }
-
-
 }

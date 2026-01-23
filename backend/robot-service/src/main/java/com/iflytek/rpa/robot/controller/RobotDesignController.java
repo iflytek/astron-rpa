@@ -10,12 +10,11 @@ import com.iflytek.rpa.robot.service.RobotDesignService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.annotation.Resource;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
 
 /**
  * 云端机器人表(RobotDesign)表控制层
@@ -32,8 +31,10 @@ public class RobotDesignController {
 
     @Autowired
     SampleUsersService sampleUsersService;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
@@ -86,7 +87,6 @@ public class RobotDesignController {
         return robotDesignService.designList(queryDto);
     }
 
-
     /**
      * 设计器重命名接口
      *
@@ -96,7 +96,8 @@ public class RobotDesignController {
      * @throws NoLoginException
      */
     @GetMapping("/rename")
-    public AppResponse<?> rename(@RequestParam("newName") String newName, @RequestParam("robotId") String robotId) throws NoLoginException {
+    public AppResponse<?> rename(@RequestParam("newName") String newName, @RequestParam("robotId") String robotId)
+            throws NoLoginException {
         return robotDesignService.rename(newName, robotId);
     }
 
@@ -108,7 +109,8 @@ public class RobotDesignController {
      * @throws NoLoginException
      */
     @GetMapping("/design-name-dup")
-    public AppResponse<?> designNameDup(@RequestParam("newName") String newName, @RequestParam("robotId") String robotId) throws NoLoginException {
+    public AppResponse<?> designNameDup(
+            @RequestParam("newName") String newName, @RequestParam("robotId") String robotId) throws NoLoginException {
 
         return robotDesignService.designNameDup(newName, robotId);
     }
@@ -145,7 +147,8 @@ public class RobotDesignController {
      * @throws NoLoginException
      */
     @GetMapping("/copy-design-robot")
-    public AppResponse<?> copyRobot(@RequestParam("robotId") String robotId, @RequestParam("robotName") String robotName) throws Exception {
+    public AppResponse<?> copyRobot(
+            @RequestParam("robotId") String robotId, @RequestParam("robotName") String robotName) throws Exception {
         return robotDesignService.copyDesignRobot(robotId, robotName);
     }
 
@@ -173,4 +176,3 @@ public class RobotDesignController {
         return robotDesignService.deleteRobot(queryDto);
     }
 }
-

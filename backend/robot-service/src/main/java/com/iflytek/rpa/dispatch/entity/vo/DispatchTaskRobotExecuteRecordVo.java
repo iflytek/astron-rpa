@@ -1,9 +1,8 @@
 package com.iflytek.rpa.dispatch.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.Date;
+import lombok.Data;
 
 @Data
 public class DispatchTaskRobotExecuteRecordVo {

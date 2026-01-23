@@ -2,10 +2,9 @@ package com.iflytek.rpa.market.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.market.entity.AppMarket;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 团队市场-团队表(AppMarket)表数据库访问层
@@ -26,7 +25,6 @@ public interface AppMarketDao extends BaseMapper<AppMarket> {
 
     Integer addMarket(@Param("entity") AppMarket appMarket);
 
-
     Integer getMarketNameByName(@Param("tenantId") String tenantId, @Param("marketName") String marketName);
 
     Integer updateTeamMarket(AppMarket appMarket);
@@ -41,12 +39,9 @@ public interface AppMarketDao extends BaseMapper<AppMarket> {
 
     String getMarketNameById(@Param("marketId") String marketId);
 
-
     Integer getMarketCount(String tenantId);
 
     AppMarket selectPublicMarket(String tenantId);
 
     Integer addMarketWithType(@Param("entity") AppMarket appMarket);
-
 }
-

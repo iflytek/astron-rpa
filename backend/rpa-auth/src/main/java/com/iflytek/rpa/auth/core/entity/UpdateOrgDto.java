@@ -201,6 +201,4 @@ public class UpdateOrgDto {
     public void setRemark(String remark) {
         this.remark = remark;
     }
-
 }
-

@@ -18,4 +18,3 @@ public class IflytekUpdatePasswordParam {
     private String npwd;
     private String pwdtype;
 }
-

@@ -14,7 +14,6 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface ClientVersionUpdateDao extends BaseMapper<ClientUpdateVersion> {
 
-
     /**
      * 根据版本号查询版本信息
      *
@@ -38,4 +37,3 @@ public interface ClientVersionUpdateDao extends BaseMapper<ClientUpdateVersion> 
      */
     ClientUpdateVersion getGlobalLatestVersion();
 }
-

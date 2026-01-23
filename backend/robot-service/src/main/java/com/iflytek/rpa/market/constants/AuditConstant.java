@@ -18,17 +18,18 @@ public class AuditConstant {
     public static final String AUDIT_STATUS_CANCELED = "canceled";
 
     public static final String AUDIT_STATUS_NULLIFY = "nullify";
-    
+
     /**
      * 审核开关状态
      */
-    public static final Short AUDIT_ENABLE_ON = 1;  // 启用审核
+    public static final Short AUDIT_ENABLE_ON = 1; // 启用审核
+
     public static final Short AUDIT_ENABLE_OFF = 0; // 禁用审核
-    
+
     /**
      * 审核开关状态字符串
      */
-    public static final String AUDIT_ENABLE_STATUS_ON = "on";   // 启用
-    public static final String AUDIT_ENABLE_STATUS_OFF = "off"; // 禁用
+    public static final String AUDIT_ENABLE_STATUS_ON = "on"; // 启用
 
+    public static final String AUDIT_ENABLE_STATUS_OFF = "off"; // 禁用
 }

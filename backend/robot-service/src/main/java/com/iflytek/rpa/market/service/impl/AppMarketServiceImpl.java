@@ -1,5 +1,7 @@
 package com.iflytek.rpa.market.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.OBTAINED;
+
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.common.feign.entity.TenantExpirationDto;
 import com.iflytek.rpa.common.feign.entity.User;
@@ -17,6 +19,11 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,14 +31,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.OBTAINED;
 
 /**
  * 团队市场-团队表(AppMarket)表服务实现类
@@ -43,16 +42,22 @@ import static com.iflytek.rpa.robot.constants.RobotConstant.OBTAINED;
 public class AppMarketServiceImpl implements AppMarketService {
     @Resource
     private AppMarketDao appMarketDao;
+
     @Autowired
     private AppMarketDictDao appMarketDictDao;
+
     @Autowired
     private AppMarketUserDao appMarketUserDao;
+
     @Autowired
     private IdWorker idWorker;
+
     @Autowired
     private RobotExecuteDao robotExecuteDao;
+
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
     @Autowired
     private QuotaCheckService quotaCheckService;
 
@@ -86,7 +91,8 @@ public class AppMarketServiceImpl implements AppMarketService {
         AppMarketDo appMarketDo = new AppMarketDo();
         appMarketDo.setJoinedMarketList(joinedMarketList);
         appMarketDo.setCreatedMarketList(createdMarketList);
-        appMarketDo.setNoMarket(CollectionUtils.isEmpty(joinedMarketList) && CollectionUtils.isEmpty(createdMarketList));
+        appMarketDo.setNoMarket(
+                CollectionUtils.isEmpty(joinedMarketList) && CollectionUtils.isEmpty(createdMarketList));
         return AppResponse.success(appMarketDo);
     }
 
@@ -103,7 +109,6 @@ public class AppMarketServiceImpl implements AppMarketService {
             throw new ServiceException("租户信息获取失败");
         }
         String tenantId = resp.getData();
-
 
         List<AppMarket> marketList = appMarketDao.getMarketList(tenantId, userId);
 
@@ -162,12 +167,12 @@ public class AppMarketServiceImpl implements AppMarketService {
         if (marketCount > 0) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "该租户内存在同名市场，请重新命名");
         }
-        //产生marketId
+        // 产生marketId
         String marketId = idWorker.nextId() + "";
         appMarket.setMarketId(marketId);
         appMarket.setTenantId(tenantId);
         appMarketDao.addMarket(appMarket);
-        //加默认成员
+        // 加默认成员
         AppMarketUser appMarketUser = new AppMarketUser();
         appMarketUser.setMarketId(marketId);
         appMarketUser.setCreatorId(userId);
@@ -192,7 +197,6 @@ public class AppMarketServiceImpl implements AppMarketService {
             return AppResponse.error(ErrorCodeEnum.E_SQL);
         }
 
-
         AppResponse<String> realNameResp = rpaAuthFeign.getNameById(appMarket.getCreatorId());
         if (realNameResp == null || realNameResp.getData() == null) {
             throw new ServiceException("用户名获取失败");
@@ -207,10 +211,9 @@ public class AppMarketServiceImpl implements AppMarketService {
         }
         User loginUser = response.getData();
         String userId = loginUser.getId();
-        //获取角色
+        // 获取角色
         String userType = appMarketUserDao.getUserTypeForCheck(userId, marketId);
         appMarket.setUserType(userType);
-
 
         // 如果是企业公共市场 不查询创建者
         if (appMarket.getMarketType().equals("public")) {
@@ -224,7 +227,6 @@ public class AppMarketServiceImpl implements AppMarketService {
         }
         return AppResponse.success(appMarket);
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -262,9 +264,9 @@ public class AppMarketServiceImpl implements AppMarketService {
 
     private boolean isMarketNameRepeat(String marketName, String marketId, String userId, String tenantId) {
         List<AppMarket> marketList = appMarketDao.getTenantMarketList(tenantId);
-        List<AppMarket> marketListAfterFilter = marketList
-                .stream()
-                .filter(appMarket -> (appMarket.getMarketName().equals(marketName) && !appMarket.getMarketId().equals(marketId)))
+        List<AppMarket> marketListAfterFilter = marketList.stream()
+                .filter(appMarket -> (appMarket.getMarketName().equals(marketName)
+                        && !appMarket.getMarketId().equals(marketId)))
                 .collect(Collectors.toList());
 
         return !CollectionUtils.isEmpty(marketListAfterFilter);
@@ -304,14 +306,14 @@ public class AppMarketServiceImpl implements AppMarketService {
             if (null == newOwnerId) {
                 return AppResponse.error(ErrorCodeEnum.E_SERVICE, "新团队负责人不存在");
             }
-            //更新团队表
+            // 更新团队表
             appMarketDao.updateTeamMarketOwner(appMarket.getMarketId(), newOwnerId);
-            //更新团队人员表
+            // 更新团队人员表
             appMarketUserDao.updateToOwner(appMarket.getMarketId(), newOwnerId);
         }
-        //离开团队市场
+        // 离开团队市场
         appMarketUserDao.leaveTeamMarket(appMarket);
-        //若从市场中获取过应用，将待更新应用的状态置为已获取
+        // 若从市场中获取过应用，将待更新应用的状态置为已获取
         robotExecuteDao.updateResourceStatusByMarketId(OBTAINED, appMarket.getCreatorId(), appMarket.getMarketId());
         return AppResponse.success(true);
     }
@@ -330,16 +332,14 @@ public class AppMarketServiceImpl implements AppMarketService {
         if (!marketName.equals(appMarket.getMarketName())) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "团队市场名称不正确");
         }
-        //删除市场,删除关联的应用，删除关联的成员
+        // 删除市场,删除关联的应用，删除关联的成员
         appMarketDao.deleteMarket(appMarket.getMarketId());
         appMarketUserDao.deleteAllUser(appMarket.getMarketId());
 
         // TODO : v 5.0 后续添加  删除所有的resource 和 关联的version
-//        appMarketResourceDao.deleteResource(appMarket.getMarketId());
-//        appMarketVersionDao.deletVersion(appMarket.getMarketId());
+        //        appMarketResourceDao.deleteResource(appMarket.getMarketId());
+        //        appMarketVersionDao.deletVersion(appMarket.getMarketId());
 
         return AppResponse.success(true);
     }
-
-
 }

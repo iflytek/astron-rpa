@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.sp.uap.utils;
 
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.utils.HttpUtils;
 import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.client.ManagementClient;
@@ -10,7 +11,6 @@ import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 
 /**
  * @author mjren
@@ -21,9 +21,7 @@ import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 public class TenantUtils {
     private static final Logger log = LoggerFactory.getLogger(TenantUtils.class);
 
-    public TenantUtils() {
-    }
-
+    public TenantUtils() {}
 
     /**
      * 获取当前登录的租户id
@@ -32,7 +30,6 @@ public class TenantUtils {
     public static String getTenantId() {
         return UapUserInfoAPI.getTenantId(HttpUtils.getRequest());
     }
-
 
     /**
      * 获取当前登录的租户名称
@@ -48,19 +45,17 @@ public class TenantUtils {
         }
     }
 
-
-
     /**
      * 根据租户id查询租户信息
      * @param tenantId
      * @return
      */
-    public static UapTenant queryTenantInfoById(String tenantId){
+    public static UapTenant queryTenantInfoById(String tenantId) {
         UapTenant tenant = new UapTenant();
         GetTenantDto getTenantDto = new GetTenantDto();
         getTenantDto.setId(tenantId);
         ManagementClient managementClient = UapManagementClientUtil.getManagementClient(HttpUtils.getRequest());
-        ResponseDto<TenantDetailDto> tenantDetailResponse =  managementClient.queryTenantDetailInfo(getTenantDto);
+        ResponseDto<TenantDetailDto> tenantDetailResponse = managementClient.queryTenantDetailInfo(getTenantDto);
         if (tenantDetailResponse.isFlag()) {
             TenantDetailDto tenantDetailDto = tenantDetailResponse.getData();
             BeanUtils.copyProperties(tenantDetailDto, tenant);
@@ -70,5 +65,4 @@ public class TenantUtils {
             return null;
         }
     }
-
 }

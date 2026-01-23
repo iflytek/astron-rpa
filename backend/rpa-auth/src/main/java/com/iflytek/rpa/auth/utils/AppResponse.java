@@ -1,9 +1,7 @@
 package com.iflytek.rpa.auth.utils;
 
-import org.springframework.util.StringUtils;
-
 import java.io.Serializable;
-
+import org.springframework.util.StringUtils;
 
 public class AppResponse<T> implements Serializable {
     /**
@@ -19,8 +17,7 @@ public class AppResponse<T> implements Serializable {
      */
     private String message;
 
-    private AppResponse() {
-    }
+    private AppResponse() {}
 
     /**
      * 返回错误信息

@@ -26,5 +26,4 @@ public class PageQueryDto {
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
-
 }

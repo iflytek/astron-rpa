@@ -11,44 +11,31 @@ import com.iflytek.rpa.auth.core.entity.RegisterDto;
 import com.iflytek.rpa.auth.core.entity.Tenant;
 import com.iflytek.rpa.auth.core.entity.User;
 import com.iflytek.rpa.auth.core.entity.enums.LoginTypeEnum;
+import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.exception.ServiceException;
 import com.iflytek.rpa.auth.idp.AuthenticationService;
 import com.iflytek.rpa.auth.idp.iflytekIdentity.dto.*;
 import com.iflytek.rpa.auth.idp.iflytekIdentity.enums.IflytekLoginModeEnum;
+import com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant;
+import com.iflytek.rpa.auth.sp.uap.constants.UAPConstant;
 import com.iflytek.rpa.auth.sp.uap.dao.TenantDao;
 import com.iflytek.rpa.auth.sp.uap.dao.UserDao;
 import com.iflytek.rpa.auth.sp.uap.mapper.UserMapper;
 import com.iflytek.rpa.auth.sp.uap.service.impl.UserServiceImpl;
-import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
 import com.iflytek.rpa.auth.utils.MenuPermissionValidator;
 import com.iflytek.rpa.auth.utils.RedisUtils;
-import com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant;
-import com.iflytek.rpa.auth.sp.uap.constants.UAPConstant;
 import com.iflytek.sec.uap.base.util.ClientConfigUtil;
 import com.iflytek.sec.uap.client.api.ClientAuthenticationAPI;
+import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.dto.ResponseDto;
 import com.iflytek.sec.uap.client.core.dto.authentication.LoginTokenResponseDto;
 import com.iflytek.sec.uap.client.core.dto.pwd.UpdatePwdDto;
 import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
-import com.iflytek.sec.uap.client.util.Oauth2Util;
-import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.util.CommonValidateUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.util.CollectionUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.iflytek.sec.uap.client.util.Oauth2Util;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -58,6 +45,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -68,7 +67,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private final UserServiceImpl userService;
 
     private final UserMapper userMapper;
-    
+
     private final UserDao userDao;
 
     private final PasswordErrorService passwordErrorService;
@@ -94,7 +93,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     // 服务器IP地址，支持从环境变量或配置文件读取（K8s环境使用）
     @Value("${rpa.auth.server-ip:#{null}}")
     private String serverIp;
-    
+
     @Value("${uap.database.name:uap_db}")
     private String databaseName;
 
@@ -118,7 +117,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private static final String DEFAULT_COUNTRY_CODE = "86";
     private static final int DEFAULT_LOGIN_TYPE = 1;
     private static final String DEFAULT_PASSWORD_TYPE = "md5";
-    
+
     // 临时凭证缓存前缀和过期时间（10分钟）
     private static final String TEMP_TOKEN_PREFIX = "auth:temp_token:";
     private static final int TEMP_TOKEN_EXPIRE_SECONDS = 600;
@@ -127,7 +126,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private static final String VERIFY_CODE_PREFIX = "auth:verify_code:";
     private final ObjectMapper objectMapper;
     private final IflytekAccountClientFactory accountClientFactory;
-    
+
     // 讯飞账号客户端实例（单例复用，避免重复创建）
     private CAccountClient accountClient;
 
@@ -138,24 +137,24 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         }
         try {
             log.info("开始预验证，手机号：{}", loginDto.getPhone());
-            
+
             // 1. 调用讯飞账号验证用户身份
             CAccountClient client = getAccountClient();
             String traceId = generateTraceId();
             IflytekLoginModeEnum loginMode = resolveLoginMode(loginDto);
             String scene = resolveScene(loginDto.getScene(), AuthenticationService.SCENE_LOGIN);
-            
+
             if (loginMode == IflytekLoginModeEnum.FREE) {
                 if (!verifyCode(loginDto.getPhone(), loginDto.getCaptcha(), scene)) {
                     throw new ServiceException("验证码错误或已失效");
                 }
             }
-            
+
             byte[] requestBody = buildLoginRequest(loginDto, traceId, loginMode);
             byte[] responseBytes = executePost(client, LOGIN_PATH, requestBody, "预验证");
             IflytekAccountResponse<IflytekLoginData> responseDto = parseResponse(responseBytes, IflytekLoginData.class);
             String respCode = responseDto.getCode();
-            
+
             if ("000000".equals(respCode)) {
                 IflytekLoginData data = responseDto.getData();
                 if (data == null || !StringUtils.hasText(data.getUserid())) {
@@ -165,18 +164,18 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
 
                 // 2. 根据手机号验证用户是否在UAP存在，如果不存在则立即注册
                 ensureUapUserExistsAndRegister(loginDto, data.getUserid(), request);
-                
+
                 // 3. 生成临时凭证并缓存用户信息
                 String tempToken = UUID.randomUUID().toString().replace("-", "");
                 String cacheKey = TEMP_TOKEN_PREFIX + tempToken;
-                
+
                 // 缓存用户手机号和其他必要信息（JSON格式）
                 String userInfo = objectMapper.writeValueAsString(loginDto);
                 RedisUtils.set(cacheKey, userInfo, TEMP_TOKEN_EXPIRE_SECONDS);
-                
+
                 log.info("预验证成功，手机号：{}，临时凭证已生成", loginDto.getPhone());
                 return tempToken;
-                
+
             } else if ("720101".equals(respCode)) {
                 log.warn("预验证失败：账号不存在，手机号 {}", loginDto.getPhone());
                 throw new ServiceException("账号不存在，请先注册");
@@ -201,10 +200,10 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                 // 如果没有抛出 ShouldBeBlackException，说明未达到阈值，返回普通错误
                 throw new ServiceException("账号或密码错误");
             }
-            
+
             log.error("预验证失败，错误码：{}，错误信息：{}", respCode, responseDto.getDesc());
             throw new ServiceException("预验证失败：" + responseDto.getDesc());
-            
+
         } catch (ShouldBeBlackException e) {
             // 封禁异常直接向上抛出，让全局异常处理器处理
             throw e;
@@ -225,16 +224,16 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         if (!StringUtils.hasText(phone)) {
             throw new ServiceException("手机号不能为空");
         }
-        
+
         try {
             log.info("开始删除讯飞账号，手机号：{}", phone);
-            
+
             // 1. 根据手机号获取讯飞账号的 userid（从 UAP 用户的 third_ext_info 字段获取）
             String iflytekUserId = getIflytekUserIdByPhone(phone);
             if (!StringUtils.hasText(iflytekUserId)) {
                 throw new ServiceException("未找到该手机号对应的讯飞账号ID");
             }
-            
+
             // 2. 调用讯飞账号删除接口
             CAccountClient client = getAccountClient();
             String traceId = generateTraceId();
@@ -242,18 +241,18 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             byte[] responseBytes = executePost(client, DELETE_USER_PATH, requestBody, "删除用户");
             IflytekAccountResponse<Void> responseDto = parseResponse(responseBytes, Void.class);
             String code = responseDto.getCode();
-            
+
             if (isSuccessCode(code)) {
                 log.info("删除讯飞账号成功，手机号：{}，userid：{}", phone, iflytekUserId);
                 return;
             }
-            
+
             if ("750101".equals(code)) {
                 throw new ServiceException("用户不存在");
             }
-            
+
             throw new ServiceException("删除用户失败：" + responseDto.getDesc());
-            
+
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -261,7 +260,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             throw new ServiceException("删除讯飞账号异常：" + e.getMessage());
         }
     }
-    
+
     /**
      * 根据手机号获取讯飞账号的 userid（从 UAP 用户的 third_ext_info 字段获取）
      *
@@ -272,14 +271,14 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         try {
             // 直接查询数据库获取 third_ext_info
             String thirdExtInfo = userDao.queryThirdExtInfoByPhone(phone, databaseName);
-            
+
             if (!StringUtils.hasText(thirdExtInfo)) {
                 log.warn("用户未绑定讯飞账号ID，手机号：{}", phone);
                 return null;
             }
-            
+
             return thirdExtInfo;
-            
+
         } catch (Exception e) {
             log.error("获取讯飞账号ID失败，手机号：{}", phone, e);
             return null;
@@ -314,44 +313,46 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
      * @param loginAccounts 登录账号列表
      * @param userInfo 用户详细信息
      */
-    public void syncUserInfo(String userid, String password, 
-                            List<IflytekSyncUserInfoAccount> loginAccounts,
-                            IflytekSyncUserInfoUserInfo userInfo) {
+    public void syncUserInfo(
+            String userid,
+            String password,
+            List<IflytekSyncUserInfoAccount> loginAccounts,
+            IflytekSyncUserInfoUserInfo userInfo) {
         if (!StringUtils.hasText(userid)) {
             throw new ServiceException("用户ID不能为空");
         }
         if (loginAccounts == null || loginAccounts.isEmpty()) {
             throw new ServiceException("登录账号列表不能为空");
         }
-        
+
         try {
             log.info("开始同步用户信息，用户ID：{}", userid);
-            
+
             CAccountClient client = getAccountClient();
             String traceId = generateTraceId();
             byte[] requestBody = buildSyncUserInfoRequest(userid, password, loginAccounts, userInfo, traceId);
             byte[] responseBytes = executePost(client, SYNC_USER_INFO_PATH, requestBody, "同步用户信息");
             IflytekAccountResponse<Void> responseDto = parseResponse(responseBytes, Void.class);
             String code = responseDto.getCode();
-            
+
             if ("000000".equals(code)) {
                 log.info("同步用户信息成功，用户ID：{}", userid);
                 return;
             }
-            
+
             if ("740103".equals(code)) {
                 log.warn("同步用户信息失败：用户已存在，用户ID {}", userid);
                 throw new ServiceException("用户已存在");
             }
-            
+
             if ("740101".equals(code)) {
                 log.warn("同步用户信息失败：登录方式重复，用户ID {}", userid);
                 throw new ServiceException("登录方式重复");
             }
-            
+
             log.error("同步用户信息失败，错误码：{}，错误信息：{}", code, responseDto.getDesc());
             throw new ServiceException("同步用户信息失败：" + responseDto.getDesc());
-            
+
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -459,7 +460,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         if (!StringUtils.hasText(tenantId)) {
             throw new ServiceException("租户ID不能为空");
         }
-        
+
         try {
             log.info("开始正式登录，临时凭证：{}，租户ID：{}", tempToken, tenantId);
 
@@ -479,8 +480,8 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             // 2. 同步到UAP并建立session（用户已在预验证阶段注册）
             UapUser uapUser = syncAndLoginUap(loginDto, servletRequest);
             // 更新租户用户的最后登录时间
-            String tenantUserId = tenantDao.getTenantUserId(databaseName, uapUser.getId(),tenantId);
-            tenantDao.updateLoginTime(databaseName,tenantUserId);
+            String tenantUserId = tenantDao.getTenantUserId(databaseName, uapUser.getId(), tenantId);
+            tenantDao.updateLoginTime(databaseName, tenantUserId);
 
             // 3. 将platform存储到session
             if (StringUtils.hasText(platform)) {
@@ -504,10 +505,10 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
 
             // 6. 删除临时凭证
             RedisUtils.del(cacheKey);
-            
+
             log.info("正式登录成功，用户ID：{}，租户ID：{}", uapUser.getId(), tenantId);
             return userMapper.fromUapUser(uapUser);
-            
+
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -539,8 +540,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             if (loginDto.getPhone() == null) {
                 Map<String, Object> dataMap = objectMapper.readValue(
                         cachedUserInfo.toString(),
-                        objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class)
-                );
+                        objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class));
 
                 RegisterDto registerDto = objectMapper.convertValue(dataMap.get("registerDto"), RegisterDto.class);
                 loginDto.setPhone(registerDto.getPhone());
@@ -574,8 +574,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             if (loginDto.getPhone() == null) {
                 Map<String, Object> dataMap = objectMapper.readValue(
                         cachedUserInfo.toString(),
-                        objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class)
-                );
+                        objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class));
 
                 RegisterDto registerDto = objectMapper.convertValue(dataMap.get("registerDto"), RegisterDto.class);
                 loginDto.setPhone(registerDto.getPhone());
@@ -643,7 +642,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             // 如果platform是client或invite，返回全部租户列表（不需要过滤）
 
             return AppResponse.success(tenantList);
-            
+
         } catch (ServiceException e) {
             log.error("获取租户列表失败，临时凭证：{}", tempToken, e);
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "获取租户列表失败：" + e.getMessage());
@@ -739,8 +738,8 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         }
 
         // 验证当前登录的租户id是否在所属列表
-        boolean hasPermission = tenantList.stream()
-                .anyMatch(tenant -> loginDto.getTenantId().equals(tenant.getId()));
+        boolean hasPermission =
+                tenantList.stream().anyMatch(tenant -> loginDto.getTenantId().equals(tenant.getId()));
 
         if (!hasPermission) {
             log.warn("用户没有该租户权限，登录名：{}，租户ID：{}", loginName, loginDto.getTenantId());
@@ -766,20 +765,20 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         if (!StringUtils.hasText(loginName)) {
             // 用户不存在，立即注册到UAP
             log.info("用户不存在于UAP，开始注册，手机号：{}，讯飞账号userId：{}", phone, iflytekUserId);
-            
+
             RegisterDto registerDto = RegisterDto.builder()
                     .phone(phone)
                     .loginName(phone) // 默认使用手机号作为登录名
                     .password(null) // 预验证阶段不需要密码
                     .build();
-            
+
             AppResponse<String> registerResponse = userService.register(registerDto, request);
             if (registerResponse == null || !registerResponse.ok()) {
                 String message = registerResponse == null ? "注册失败：UAP未返回响应" : registerResponse.getMessage();
                 log.error("注册UAP用户失败，手机号：{}，错误：{}", phone, message);
                 throw new ServiceException("注册UAP用户失败：" + message);
             }
-            
+
             // 将讯飞账号的userId保存到UAP用户的third_ext_info字段
             if (StringUtils.hasText(iflytekUserId)) {
                 try {
@@ -790,7 +789,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                     // 不抛出异常，因为注册已经成功，只是扩展信息保存失败
                 }
             }
-            
+
             log.info("UAP用户注册成功，手机号：{}，租户ID：{}", phone, registerResponse.getData());
         } else {
             log.debug("用户已存在于UAP，登录名：{}，手机号：{}", loginName, phone);
@@ -814,8 +813,8 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     }
 
     private UapUser loginUapByPhone(LoginDto loginDto, HttpServletRequest servletRequest) {
-        AppResponse<UapUser> loginResponse = userService.loginNoPasswordByPhone(
-                loginDto.getPhone(), loginDto.getTenantId(), servletRequest);
+        AppResponse<UapUser> loginResponse =
+                userService.loginNoPasswordByPhone(loginDto.getPhone(), loginDto.getTenantId(), servletRequest);
         if (loginResponse == null || !loginResponse.ok() || loginResponse.getData() == null) {
             log.error("账号登录失败，UAP未返回有效用户信息");
             throw new ServiceException("账号登录失败：UAP未返回用户信息");
@@ -841,28 +840,30 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         } else {
             throw new ServiceException("验证码不能为空");
         }
-        
+
         try {
             log.info("开始注册，手机号：{}", registerDto.getPhone());
-            
+
             // 1. 在讯飞账号注册（使用空密码）
             CAccountClient client = getAccountClient();
             String traceId = generateTraceId();
             byte[] requestBody = buildRegisterRequest(registerDto, traceId);
             byte[] responseBytes = executePost(client, REGISTER_SUBMIT_PATH, requestBody, "提交注册");
-            IflytekAccountResponse<IflytekRegisterData> responseDto = parseResponse(responseBytes, IflytekRegisterData.class);
+            IflytekAccountResponse<IflytekRegisterData> responseDto =
+                    parseResponse(responseBytes, IflytekRegisterData.class);
             String respCode = responseDto.getCode();
-            
+
             if ("000000".equals(respCode) || "00000".equals(respCode)) {
-                if (responseDto.getData() == null || !StringUtils.hasText(responseDto.getData().getUserid())) {
+                if (responseDto.getData() == null
+                        || !StringUtils.hasText(responseDto.getData().getUserid())) {
                     log.warn("注册成功但未返回userid");
                     throw new ServiceException("注册失败：未返回用户ID");
                 }
-                
+
                 String iflytekUserId = responseDto.getData().getUserid();
                 String phone = registerDto.getPhone();
                 String tenantId;
-                
+
                 // 2. 检查UAP中是否已存在该用户
                 String loginName = userDao.queryLoginNameByPhone(phone, databaseName);
                 if (StringUtils.hasText(loginName)) {
@@ -883,7 +884,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                     log.info("用户不存在于UAP，开始注册，手机号：{}", phone);
                     tenantId = registerUapUser(registerDto, request);
                 }
-                
+
                 // 2.1 将讯飞账号的 userId 存储到 UAP 用户的 third_ext_info 字段
                 String finalLoginName = StringUtils.hasText(loginName) ? loginName : phone;
                 try {
@@ -893,25 +894,27 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                     log.error("保存讯飞账号 userId 到 UAP 用户扩展字段失败，登录名：{}，userId：{}", finalLoginName, iflytekUserId, e);
                     // 不抛出异常，因为注册已经成功，只是扩展信息保存失败
                 }
-                
+
                 // 3. 生成临时凭证并缓存注册信息
                 String tempToken = UUID.randomUUID().toString().replace("-", "");
                 String cacheKey = TEMP_TOKEN_PREFIX + tempToken;
-                
+
                 // 将注册信息和租户ID缓存（用于后续设置密码）
                 registerDto.setPassword(null); // 清空密码字段，只缓存必要信息
-                
+
                 // 缓存租户ID和注册信息
-                String cacheData = objectMapper.writeValueAsString(new HashMap<String, Object>() {{
-                    put("registerDto", registerDto);
-                    put("tenantId", tenantId);
-                }});
-                
+                String cacheData = objectMapper.writeValueAsString(new HashMap<String, Object>() {
+                    {
+                        put("registerDto", registerDto);
+                        put("tenantId", tenantId);
+                    }
+                });
+
                 RedisUtils.set(cacheKey, cacheData, TEMP_TOKEN_EXPIRE_SECONDS);
-                
+
                 log.info("注册成功，手机号：{}，临时凭证已生成，租户ID：{}", registerDto.getPhone(), tenantId);
                 return tempToken;
-                
+
             } else if ("710201".equals(respCode)) {
                 log.warn("提交注册失败：手机号格式不正确，手机号 {}", registerDto.getPhone());
                 throw new ServiceException("手机号格式不正确");
@@ -919,10 +922,10 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                 log.warn("提交注册失败：账号已注册，手机号 {}", registerDto.getPhone());
                 throw new ServiceException("账号已注册");
             }
-            
+
             log.error("提交注册失败，错误码：{}，错误信息：{}", respCode, responseDto.getDesc());
             throw new ServiceException("提交注册失败：" + responseDto.getDesc());
-            
+
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -954,47 +957,46 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         if (!StringUtils.hasText(password)) {
             throw new ServiceException("密码不能为空");
         }
-        
+
         try {
             log.info("开始设置密码并登录，临时凭证：{}", tempToken);
-            
+
             // 1. 从缓存中获取注册信息
             String cacheKey = TEMP_TOKEN_PREFIX + tempToken;
             Object cachedData = RedisUtils.get(cacheKey);
-            
+
             if (cachedData == null) {
                 throw new ServiceException("临时凭证已过期或无效，请重新注册");
             }
-            
+
             // 2. 解析缓存的数据
             Map<String, Object> dataMap = objectMapper.readValue(
-                cachedData.toString(), 
-                objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class)
-            );
-            
+                    cachedData.toString(),
+                    objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class));
+
             RegisterDto registerDto = objectMapper.convertValue(dataMap.get("registerDto"), RegisterDto.class);
             String cachedTenantId = (String) dataMap.get("tenantId");
-            
+
             String phone = registerDto.getPhone();
             String loginName = phone;
-            
+
             log.info("设置密码，手机号：{}，登录名：{}", phone, loginName);
-            
+
             // 3. 更新讯飞账号密码
             updateIflytekPassword(loginName, password);
-            
+
             // 4. 更新UAP密码
             updateUapPassword(loginName, password);
-            
+
             // 5. 确定租户ID
             if (!StringUtils.hasText(tenantId)) {
                 tenantId = cachedTenantId;
             }
-            
+
             if (!StringUtils.hasText(tenantId)) {
                 throw new ServiceException("未找到用户租户，请联系管理员");
             }
-            
+
             // 6. 自动登录（使用新密码）
             LoginDto loginDto = new LoginDto();
             loginDto.setPhone(phone);
@@ -1002,15 +1004,15 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             loginDto.setPassword(password);
             loginDto.setTenantId(tenantId);
             loginDto.setLoginType(LoginTypeEnum.PASSWORD);
-            
+
             UapUser uapUser = syncAndLoginUap(loginDto, request);
-            
+
             // 7. 删除临时凭证
             RedisUtils.del(cacheKey);
-            
+
             log.info("设置密码并登录成功，用户ID：{}，租户ID：{}", uapUser.getId(), tenantId);
             return userMapper.fromUapUser(uapUser);
-            
+
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -1042,8 +1044,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             // 2. 解析缓存的数据
             Map<String, Object> dataMap = objectMapper.readValue(
                     cachedData.toString(),
-                    objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class)
-            );
+                    objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class));
 
             RegisterDto registerDto = objectMapper.convertValue(dataMap.get("registerDto"), RegisterDto.class);
             String phone;
@@ -1054,7 +1055,6 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             }
             String loginName = phone;
 
-
             log.info("设置密码，手机号：{}，登录名：{}", phone, loginName);
 
             // 3. 更新讯飞账号密码
@@ -1062,7 +1062,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
 
             // 4. 更新UAP密码，login接口中使用的UAP免密登录，所以这一步去掉
             // 该方法内部需要使用旧密码修改，会因为旧密码不正确而更新失败
-//            updateUapPassword(loginName, password);
+            //            updateUapPassword(loginName, password);
 
             // 如果 ext_info 为 1（历史用户），更新为 0
             String extInfo = userDao.queryExtInfoByPhone(phone, databaseName);
@@ -1080,7 +1080,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             throw new ServiceException("设置密码异常：" + e.getMessage());
         }
     }
-    
+
     /**
      * 更新讯飞账号密码（注册后首次设置密码）
      * 注册时使用的是空密码，所以旧密码使用空字符串
@@ -1088,34 +1088,34 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private void updateIflytekPassword(String loginName, String newPassword) {
         try {
             log.info("更新讯飞账号密码，登录名：{}", loginName);
-            
+
             // 注册时如果没有提供密码，使用的是空字符串
             // 所以旧密码使用空字符串
             String oldPassword = "";
             String oldPwdMd5 = oldPassword;
             String newPwdMd5 = toMd5Hex(newPassword);
-            
+
             CAccountClient client = getAccountClient();
             String traceId = generateTraceId();
             byte[] requestBody = buildUpdatePasswordRequest(loginName, traceId, oldPwdMd5, newPwdMd5);
             byte[] responseBytes = executePost(client, UPDATE_PASSWORD_PATH, requestBody, "更新讯飞账号密码");
             IflytekAccountResponse<Void> responseDto = parseResponse(responseBytes, Void.class);
             String code = responseDto.getCode();
-            
+
             if (isSuccessCode(code)) {
                 log.info("更新讯飞账号密码成功，登录名：{}", loginName);
                 return;
             }
-            
+
             if ("0100100".equals(code)) {
                 throw new ServiceException("更新密码失败：参数错误");
             }
             if ("0402200".equals(code)) {
                 throw new ServiceException("账号不存在");
             }
-            
+
             throw new ServiceException("更新密码失败：" + responseDto.getDesc());
-            
+
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -1123,24 +1123,23 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             throw new ServiceException("更新讯飞账号密码失败：" + e.getMessage());
         }
     }
-    
+
     /**
      * 更新UAP密码
      */
     private void updateUapPassword(String loginName, String newPassword) {
         try {
             log.info("更新UAP密码，登录名：{}", loginName);
-            
+
             // 调用UserService的密码更新逻辑
             // 使用默认初始密码作为旧密码
             userService.updatePasswordAfterRegister(loginName, newPassword);
-            
+
         } catch (Exception e) {
             log.error("更新UAP密码失败", e);
             throw new ServiceException("更新UAP密码失败：" + e.getMessage());
         }
     }
-
 
     /**
      * 获取验证码
@@ -1249,9 +1248,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         if (queryUserExist(phone)) {
             return;
         }
-        RegisterDto autoRegisterDto = RegisterDto.builder()
-                .phone(phone)
-                .build();
+        RegisterDto autoRegisterDto = RegisterDto.builder().phone(phone).build();
         String userId = register(autoRegisterDto, request);
         if (!StringUtils.hasText(userId)) {
             throw new ServiceException("自动注册失败");
@@ -1272,7 +1269,8 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             String traceId = generateTraceId();
             byte[] requestBody = buildCheckLoginIdRequest(loginName, traceId);
             byte[] responseBytes = executePost(client, CHECK_LOGIN_ID_PATH, requestBody, "查询用户信息");
-            IflytekAccountResponse<IflytekCheckLoginIdData> responseDto = parseResponse(responseBytes, IflytekCheckLoginIdData.class);
+            IflytekAccountResponse<IflytekCheckLoginIdData> responseDto =
+                    parseResponse(responseBytes, IflytekCheckLoginIdData.class);
             if ("000000".equals(responseDto.getCode())) {
                 return responseDto.getData() != null && responseDto.getData().isExist();
             }
@@ -1295,8 +1293,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         try {
             IflytekAccountRequest<IflytekCheckLoginIdParam> request = new IflytekAccountRequest<>(
                     new IflytekAccountBase(appid, traceId),
-                    new IflytekCheckLoginIdParam(loginName, DEFAULT_COUNTRY_CODE, DEFAULT_LOGIN_TYPE)
-            );
+                    new IflytekCheckLoginIdParam(loginName, DEFAULT_COUNTRY_CODE, DEFAULT_LOGIN_TYPE));
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建请求体失败", e);
@@ -1308,8 +1305,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         try {
             IflytekAccountRequest<IflytekSendMsgCodeParam> request = new IflytekAccountRequest<>(
                     new IflytekAccountBase(appid, traceId),
-                    new IflytekSendMsgCodeParam(DEFAULT_COUNTRY_CODE, phone, expireSeconds)
-            );
+                    new IflytekSendMsgCodeParam(DEFAULT_COUNTRY_CODE, phone, expireSeconds));
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建验证码请求体失败", e);
@@ -1320,9 +1316,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private byte[] buildVerifyCodeRequest(String phone, String code, String traceId) {
         try {
             IflytekAccountRequest<IflytekVerifyCodeParam> request = new IflytekAccountRequest<>(
-                    new IflytekAccountBase(appid, traceId),
-                    new IflytekVerifyCodeParam(phone, code)
-            );
+                    new IflytekAccountBase(appid, traceId), new IflytekVerifyCodeParam(phone, code));
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建验证码校验请求体失败", e);
@@ -1334,8 +1328,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         try {
             return objectMapper.readValue(
                     responseBytes,
-                    objectMapper.getTypeFactory().constructParametricType(IflytekAccountResponse.class, dataClass)
-            );
+                    objectMapper.getTypeFactory().constructParametricType(IflytekAccountResponse.class, dataClass));
         } catch (Exception e) {
             log.error("解析响应失败", e);
             throw new ServiceException("解析响应失败：" + e.getMessage());
@@ -1350,16 +1343,9 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             }
             String password = StringUtils.isEmpty(registerDto.getPassword()) ? "" : toMd5Hex(registerDto.getPassword());
             IflytekRegisterParam param = new IflytekRegisterParam(
-                    loginId,
-                    DEFAULT_LOGIN_TYPE,
-                    DEFAULT_COUNTRY_CODE,
-                    password,
-                    DEFAULT_PASSWORD_TYPE
-            );
-            IflytekAccountRequest<IflytekRegisterParam> request = new IflytekAccountRequest<>(
-                    new IflytekAccountBase(appid, traceId),
-                    param
-            );
+                    loginId, DEFAULT_LOGIN_TYPE, DEFAULT_COUNTRY_CODE, password, DEFAULT_PASSWORD_TYPE);
+            IflytekAccountRequest<IflytekRegisterParam> request =
+                    new IflytekAccountRequest<>(new IflytekAccountBase(appid, traceId), param);
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建注册请求体失败", e);
@@ -1376,17 +1362,10 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             }
             String lgType = loginMode.getValue();
             String password = usePassword ? toMd5Hex(loginDto.getPassword()) : "";
-            IflytekLoginParam param = new IflytekLoginParam(
-                    loginId,
-                    DEFAULT_COUNTRY_CODE,
-                    lgType,
-                    password,
-                    DEFAULT_PASSWORD_TYPE
-            );
-            IflytekAccountRequest<IflytekLoginParam> request = new IflytekAccountRequest<>(
-                    new IflytekAccountBase(appid, traceId),
-                    param
-            );
+            IflytekLoginParam param =
+                    new IflytekLoginParam(loginId, DEFAULT_COUNTRY_CODE, lgType, password, DEFAULT_PASSWORD_TYPE);
+            IflytekAccountRequest<IflytekLoginParam> request =
+                    new IflytekAccountRequest<>(new IflytekAccountBase(appid, traceId), param);
             return objectMapper.writeValueAsBytes(request);
         } catch (ServiceException e) {
             throw e;
@@ -1397,9 +1376,9 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     }
 
     private String resolveLoginId(String loginName, String phone) {
-//        if (StringUtils.hasText(loginName)) {
-//            return loginName;
-//        }
+        //        if (StringUtils.hasText(loginName)) {
+        //            return loginName;
+        //        }
         if (StringUtils.hasText(phone)) {
             return phone;
         }
@@ -1423,14 +1402,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             IflytekAccountRequest<IflytekUpdatePasswordParam> request = new IflytekAccountRequest<>(
                     new IflytekAccountBase(appid, traceId),
                     new IflytekUpdatePasswordParam(
-                            loginId,
-                            DEFAULT_COUNTRY_CODE,
-                            "phone",
-                            oldPwdMd5,
-                            newPwdMd5,
-                            DEFAULT_PASSWORD_TYPE
-                    )
-            );
+                            loginId, DEFAULT_COUNTRY_CODE, "phone", oldPwdMd5, newPwdMd5, DEFAULT_PASSWORD_TYPE));
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建修改密码请求体失败", e);
@@ -1441,7 +1413,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private boolean isSuccessCode(String code) {
         return "000000".equals(code) || "00000".equals(code);
     }
-    
+
     /**
      * 构建删除用户请求体
      *
@@ -1452,9 +1424,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     private byte[] buildDeleteUserRequest(String userid, String traceId) {
         try {
             IflytekAccountRequest<IflytekDeleteUserParam> request = new IflytekAccountRequest<>(
-                    new IflytekAccountBase(appid, traceId),
-                    new IflytekDeleteUserParam(userid)
-            );
+                    new IflytekAccountBase(appid, traceId), new IflytekDeleteUserParam(userid));
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建删除用户请求体失败", e);
@@ -1472,31 +1442,26 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
      * @param traceId 追踪ID
      * @return 请求体字节数组
      */
-    private byte[] buildSyncUserInfoRequest(String userid, String password,
-                                           List<IflytekSyncUserInfoAccount> loginAccounts,
-                                           IflytekSyncUserInfoUserInfo userInfo,
-                                           String traceId) {
+    private byte[] buildSyncUserInfoRequest(
+            String userid,
+            String password,
+            List<IflytekSyncUserInfoAccount> loginAccounts,
+            IflytekSyncUserInfoUserInfo userInfo,
+            String traceId) {
         try {
             // 如果密码不为空，转换为MD5
             String passwordMd5 = StringUtils.hasText(password) ? toMd5Hex(password) : "";
-            
+
             // 构建登录信息
             IflytekSyncUserInfoLogin login = new IflytekSyncUserInfoLogin(loginAccounts);
-            
+
             // 构建请求参数
-            IflytekSyncUserInfoParam param = new IflytekSyncUserInfoParam(
-                    userid,
-                    passwordMd5,
-                    login,
-                    userInfo
-            );
-            
+            IflytekSyncUserInfoParam param = new IflytekSyncUserInfoParam(userid, passwordMd5, login, userInfo);
+
             // 构建完整请求
-            IflytekAccountRequest<IflytekSyncUserInfoParam> request = new IflytekAccountRequest<>(
-                    new IflytekAccountBase(appid, traceId),
-                    param
-            );
-            
+            IflytekAccountRequest<IflytekSyncUserInfoParam> request =
+                    new IflytekAccountRequest<>(new IflytekAccountBase(appid, traceId), param);
+
             return objectMapper.writeValueAsBytes(request);
         } catch (Exception e) {
             log.error("构建同步用户信息请求体失败", e);
@@ -1512,15 +1477,10 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
     @javax.annotation.PostConstruct
     private void initAccountClient() {
         log.info("初始化讯飞账号客户端，accountHost: {}", accountHost);
-        this.accountClient = accountClientFactory.create(
-                accountHost,
-                TIME_OUT,
-                accessKey,
-                accessSecret,
-                USE_AES_ENCRYPT
-        );
+        this.accountClient =
+                accountClientFactory.create(accountHost, TIME_OUT, accessKey, accessSecret, USE_AES_ENCRYPT);
     }
-    
+
     /**
      * 获取讯飞账号客户端实例（单例复用）
      */
@@ -1546,13 +1506,13 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             log.debug("本地调试模式，使用配置的IP：{}", localDebugIp);
             return localDebugIp;
         }
-        
+
         // 2. 如果配置了服务器IP，直接使用（适用于K8s环境）
         if (serverIp != null && !serverIp.trim().isEmpty()) {
             log.debug("使用配置的服务器IP：{}", serverIp);
             return serverIp;
         }
-        
+
         // 3. 尝试自动获取本机IP（适用于物理机/虚拟机部署）
         try {
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -1562,12 +1522,13 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                 if (networkInterface.isLoopback() || !networkInterface.isUp()) {
                     continue;
                 }
-                
+
                 Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
                     // 只获取IPv4地址，且不是回环地址
-                    if (!inetAddress.isLoopbackAddress() && inetAddress.getHostAddress().indexOf(':') == -1) {
+                    if (!inetAddress.isLoopbackAddress()
+                            && inetAddress.getHostAddress().indexOf(':') == -1) {
                         String ip = inetAddress.getHostAddress();
                         log.debug("自动获取到IP：{}", ip);
                         return ip;
@@ -1577,7 +1538,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
         } catch (SocketException e) {
             log.error("自动获取IP失败", e);
         }
-        
+
         // 4. 如果获取失败，返回默认值
         log.warn("无法获取服务器IP，使用默认值：{}", localDebugIp);
         return localDebugIp;
@@ -1621,13 +1582,14 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public AppResponse<Boolean> refreshToken(HttpServletRequest request, String accessToken) {
-        try{
+        try {
             String refreshToken = Oauth2Util.getRefreshTokenFromRequest(request);
             if (org.apache.commons.lang3.StringUtils.isBlank(refreshToken)) {
                 return AppResponse.success(false);
             }
             boolean flag = true;
-            ResponseDto<LoginTokenResponseDto> responseDto = ClientAuthenticationAPI.refreshToken(accessToken, refreshToken, null);
+            ResponseDto<LoginTokenResponseDto> responseDto =
+                    ClientAuthenticationAPI.refreshToken(accessToken, refreshToken, null);
             if (responseDto.isFlag()) {
                 String userFlag = null;
                 if (ClientConfigUtil.instance().isUseSession()) {
@@ -1640,7 +1602,7 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
                 flag = false;
             }
             return AppResponse.success((flag));
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("刷新access token失败", e);
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "刷新access token失败：" + e.getMessage());
         }
@@ -1671,8 +1633,11 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
 
                             // 如果当前sessionId与Redis中存储的不一致，说明在其他地方登录了
                             if (!storedSessionId.equals(currentSessionId)) {
-                                log.warn("检测到账号在其他地方登录，当前sessionId：{}，存储的sessionId：{}，用户ID：{}",
-                                        currentSessionId, storedSessionId, userId);
+                                log.warn(
+                                        "检测到账号在其他地方登录，当前sessionId：{}，存储的sessionId：{}，用户ID：{}",
+                                        currentSessionId,
+                                        storedSessionId,
+                                        userId);
 
                                 // 清除当前session，强制退出登录
                                 try {
@@ -1778,8 +1743,11 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
 
                 // 如果旧sessionId与当前sessionId不同，清除旧session
                 if (!oldSessionId.equals(currentSessionId)) {
-                    log.info("检测到用户在其他地方登录，清除旧session，用户ID：{}，旧sessionId：{}，新sessionId：{}",
-                            userId, oldSessionId, currentSessionId);
+                    log.info(
+                            "检测到用户在其他地方登录，清除旧session，用户ID：{}，旧sessionId：{}，新sessionId：{}",
+                            userId,
+                            oldSessionId,
+                            currentSessionId);
 
                     // 清除旧session（Spring Session在Redis中的key格式：uap:session:sessions:{sessionId}）
                     String oldSessionRedisKey = "uap:session:sessions:" + oldSessionId;
@@ -1802,5 +1770,4 @@ public class IflytekAuthenticationServiceImpl implements AuthenticationService {
             // 不抛出异常，避免影响登录流程
         }
     }
-
 }

@@ -3,6 +3,7 @@ package com.iflytek.rpa.common.feign;
 import com.iflytek.rpa.common.feign.entity.*;
 import com.iflytek.rpa.common.feign.entity.dto.*;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,12 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
-
-@FeignClient( name="rpa-auth",
-        url = "${auth.base-url:http://localhost:10251}"
-        , configuration = FeignAutoConfiguration.class)
+@FeignClient(
+        name = "rpa-auth",
+        url = "${auth.base-url:http://localhost:10251}",
+        configuration = FeignAutoConfiguration.class)
 public interface RpaAuthFeign {
 
     // ==================== UserController 用户相关接口 ====================
@@ -34,7 +33,8 @@ public interface RpaAuthFeign {
      * @return
      */
     @PostMapping("/api/rpa-auth/user/getUserExtendInfo")
-    AppResponse<UserExtendDto> getUserExtendInfo(@RequestParam("tenantId")String tenantId, @RequestBody GetUserDto dto);
+    AppResponse<UserExtendDto> getUserExtendInfo(
+            @RequestParam("tenantId") String tenantId, @RequestBody GetUserDto dto);
 
     /**
      * 注册(Uap的注册接口，仅作兼容备用)
@@ -156,7 +156,8 @@ public interface RpaAuthFeign {
      * @return 用户列表
      */
     @PostMapping("/api/rpa-auth/user/getUserByNameOrPhone")
-    AppResponse<List<User>> getUserByNameOrPhone(@RequestParam("keyword") String keyword, @RequestParam(value = "deptId", required = false) String deptId);
+    AppResponse<List<User>> getUserByNameOrPhone(
+            @RequestParam("keyword") String keyword, @RequestParam(value = "deptId", required = false) String deptId);
 
     /**
      * 获取当前登录用户
@@ -213,7 +214,6 @@ public interface RpaAuthFeign {
 
     @PostMapping("/api/rpa-auth/user/getDeployedUserListWithoutTenantId")
     AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(@RequestBody GetDeployedUserListDto dto);
-
 
     /**
      * 获取未部署用户列表
@@ -310,8 +310,8 @@ public interface RpaAuthFeign {
      * @return 用户信息列表
      */
     @GetMapping("/api/rpa-auth/user/search/name")
-    AppResponse<List<User>> searchUserByName(@RequestParam("keyword") String keyword, 
-                                              @RequestParam(value = "deptId", required = false) String deptId);
+    AppResponse<List<User>> searchUserByName(
+            @RequestParam("keyword") String keyword, @RequestParam(value = "deptId", required = false) String deptId);
 
     /**
      * 根据手机号模糊查询人员
@@ -320,8 +320,8 @@ public interface RpaAuthFeign {
      * @return 用户信息列表
      */
     @GetMapping("/api/rpa-auth/user/search/phone")
-    AppResponse<List<User>> searchUserByPhone(@RequestParam("keyword") String keyword, 
-                                              @RequestParam(value = "deptId", required = false) String deptId);
+    AppResponse<List<User>> searchUserByPhone(
+            @RequestParam("keyword") String keyword, @RequestParam(value = "deptId", required = false) String deptId);
 
     /**
      * 根据姓名或手机号模糊查询人员
@@ -330,8 +330,8 @@ public interface RpaAuthFeign {
      * @return 用户信息列表
      */
     @GetMapping("/api/rpa-auth/user/search")
-    AppResponse<List<User>> searchUserByNameOrPhone(@RequestParam("keyword") String keyword, 
-                                                      @RequestParam(value = "deptId", required = false) String deptId);
+    AppResponse<List<User>> searchUserByNameOrPhone(
+            @RequestParam("keyword") String keyword, @RequestParam(value = "deptId", required = false) String deptId);
 
     // ==================== TenantController 租户相关接口 ====================
     /**
@@ -347,7 +347,7 @@ public interface RpaAuthFeign {
      * @return
      */
     @GetMapping("/api/rpa-auth/tenant/getAllOrgList")
-    AppResponse<List<Org>> queryAllOrgList(@RequestParam("tenantId")String tenantId);
+    AppResponse<List<Org>> queryAllOrgList(@RequestParam("tenantId") String tenantId);
 
     /**
      * 当前登录用户在此应用的租户列表
@@ -461,7 +461,8 @@ public interface RpaAuthFeign {
      * @return 租户用户类型（可能为null）
      */
     @GetMapping("/api/rpa-auth/tenant/getTenantUserType")
-    AppResponse<Integer> getTenantUserType(@RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId);
+    AppResponse<Integer> getTenantUserType(
+            @RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId);
 
     // ==================== RoleController 角色相关接口 ====================
 
@@ -572,7 +573,6 @@ public interface RpaAuthFeign {
     @GetMapping("/api/rpa-auth/tenant/list")
     AppResponse<List<Tenant>> getTenantList(@RequestParam(value = "tempToken", required = false) String tempToken);
 
-
     @GetMapping("/api/rpa-auth/tenant/expiration")
     AppResponse<TenantExpirationDto> getExpiration();
 
@@ -585,8 +585,7 @@ public interface RpaAuthFeign {
      * @return 登录成功返回用户信息
      */
     @PostMapping("/api/rpa-auth/login")
-    AppResponse<User> login(@RequestParam("tempToken") String tempToken,
-                            @RequestParam("tenantId") String tenantId);
+    AppResponse<User> login(@RequestParam("tempToken") String tempToken, @RequestParam("tenantId") String tenantId);
 
     /**
      * 发送短信验证码
@@ -781,7 +780,8 @@ public interface RpaAuthFeign {
      * @return 部门ID
      */
     @GetMapping("/api/rpa-auth/dept/user/deptId")
-    AppResponse<String> getDeptIdByUserId(@RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId);
+    AppResponse<String> getDeptIdByUserId(
+            @RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId);
 
     /**
      * 查询数据权限，是一个部门列表
@@ -799,7 +799,8 @@ public interface RpaAuthFeign {
      * @return
      */
     @GetMapping("/api/rpa-auth/dataAuth/getAuthorityListByRoleId")
-    AppResponse<List<Authority>> queryAuthorityListByRoleId(@RequestParam("tenantId") String tenantId, @RequestParam("roleId") String roleId);
+    AppResponse<List<Authority>> queryAuthorityListByRoleId(
+            @RequestParam("tenantId") String tenantId, @RequestParam("roleId") String roleId);
 
     /**
      * 查询勾选的数据权限

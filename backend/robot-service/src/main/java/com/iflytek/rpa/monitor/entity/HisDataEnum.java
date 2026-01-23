@@ -10,27 +10,26 @@ import java.io.Serializable;
  */
 public class HisDataEnum implements Serializable {
     private static final long serialVersionUID = 551053183001272527L;
-    
-    private Long id;
-    
-    private String parentCode;
-    
-    private String icon;
-    
-    private String field;
-    
-    private String text;
-    
-    private String num;
-    
-    private String unit;
-    
-    private String percent;
-    
-    private String tip;
-    
-    private Long order;
 
+    private Long id;
+
+    private String parentCode;
+
+    private String icon;
+
+    private String field;
+
+    private String text;
+
+    private String num;
+
+    private String unit;
+
+    private String percent;
+
+    private String tip;
+
+    private Long order;
 
     public Long getId() {
         return id;
@@ -111,6 +110,4 @@ public class HisDataEnum implements Serializable {
     public void setOrder(Long order) {
         this.order = order;
     }
-
 }
-

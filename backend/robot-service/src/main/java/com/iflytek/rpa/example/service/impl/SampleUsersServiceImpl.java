@@ -1,5 +1,8 @@
 package com.iflytek.rpa.example.service.impl;
 
+import static com.iflytek.rpa.example.constants.ExampleConstants.WORKFLOWS_UPSERT_URL;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -34,6 +37,11 @@ import com.iflytek.rpa.utils.IdWorker;
 import com.iflytek.rpa.utils.RedisUtils;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,15 +52,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.example.constants.ExampleConstants.WORKFLOWS_UPSERT_URL;
-import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
 
 /**
  * 用户从系统模板中注入的样例数据(SampleUsers)表服务实现类
@@ -116,7 +115,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
     }
 
     @Override
-//    @Transactional(rollbackFor = Exception.class)
+    //    @Transactional(rollbackFor = Exception.class)
     public AppResponse<Boolean> insertUserSample(String userId, String tenantId) {
         // 1. 读取sample_templates表中version最大的且is_active = 1 的所有记录
         List<SampleTemplates> latestActiveTemplates = getLatestActiveTemplates();
@@ -161,7 +160,8 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      */
     @Override
     @Async
-    public void sendOpenApi(String robotId, Integer version, String userId, String tenantId) throws JsonProcessingException {
+    public void sendOpenApi(String robotId, Integer version, String userId, String tenantId)
+            throws JsonProcessingException {
 
         log.info("机器人发版的时候请求openapi upsert");
         QueryParamDto queryParamDto = new QueryParamDto();
@@ -247,12 +247,12 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         }
 
         // 批量插入sample_users表
-        if (!CollectionUtils.isEmpty(sampleUsersList)){
+        if (!CollectionUtils.isEmpty(sampleUsersList)) {
             sampleUsersDao.insertBatch(sampleUsersList);
         }
     }
 
-    private HashMap<String, List<SampleTemplates>> getSampleTemplatesMap(List<SampleTemplates> latestActiveTemplates){
+    private HashMap<String, List<SampleTemplates>> getSampleTemplatesMap(List<SampleTemplates> latestActiveTemplates) {
         Set<String> sampleIdSet = new HashSet<>();
         for (SampleTemplates sampleTemplates : latestActiveTemplates) {
             sampleIdSet.add(sampleTemplates.getSampleId());
@@ -270,7 +270,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         return ansMap;
     }
 
-    private NewExampleDo getNewExampleDo(){
+    private NewExampleDo getNewExampleDo() {
         NewExampleDo newExampleDo = new NewExampleDo();
         newExampleDo.setElementId(String.valueOf(idWorker.nextId()));
         newExampleDo.setParamId(String.valueOf(idWorker.nextId()));
@@ -342,7 +342,8 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
      * @param tenantId
      * @param newExampleDo
      */
-    public void processTemplateDataByType(SampleTemplates template, String userId, String tenantId, NewExampleDo newExampleDo) {
+    public void processTemplateDataByType(
+            SampleTemplates template, String userId, String tenantId, NewExampleDo newExampleDo) {
         if (template == null || StringUtils.isBlank(template.getType()) || StringUtils.isBlank(template.getData()))
             return;
 
@@ -363,7 +364,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
                     Function<Object, Integer> insertFunction = typeInsertMap.get(businessType);
                     if (insertFunction != null) {
                         // param_id特殊处理
-                        if (businessType.equals("c_param")){
+                        if (businessType.equals("c_param")) {
                             CParam param = (CParam) businessObject;
                             param.setId(String.valueOf(idWorker.nextId()));
                             businessObject = param;
@@ -475,7 +476,7 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
                 jsonObject.put("tenant_id", tenantId);
                 jsonObject.put("robot_id", newExampleDo.getRobotId());
                 jsonObject.put("process_id", newExampleDo.getProcessId());
-//                jsonObject.put("element_id", idWorker.nextId());
+                //                jsonObject.put("element_id", idWorker.nextId());
                 jsonObject.put("group_id", newExampleDo.getGroupId());
             }
         }

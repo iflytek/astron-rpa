@@ -9,7 +9,6 @@ import java.util.List;
  * @author: weilai <laiwei3@iflytek.com>
  * @create: 2025/11/28 9:51
  */
-
 public class TreeNode implements Serializable {
 
     /**
@@ -149,6 +148,4 @@ public class TreeNode implements Serializable {
     public void setNodes(List<TreeNode> nodes) {
         this.nodes = nodes;
     }
-
 }
-

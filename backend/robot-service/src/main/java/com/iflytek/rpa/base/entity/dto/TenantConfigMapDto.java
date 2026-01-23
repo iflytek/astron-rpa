@@ -1,9 +1,8 @@
 package com.iflytek.rpa.base.entity.dto;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Map;
+import lombok.Data;
 
 /**
  * 租户配置Map DTO
@@ -21,4 +20,3 @@ public class TenantConfigMapDto implements Serializable {
      */
     private Map<String, ResourceConfigDto> configs;
 }
-

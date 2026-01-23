@@ -6,12 +6,11 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.iflytek.rpa.conf.LongJsonSerializer;
+import java.io.Serializable;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -56,5 +55,4 @@ public class NotifySend implements Serializable {
     private Integer deleted;
 
     private String appName;
-
 }

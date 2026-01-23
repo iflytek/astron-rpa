@@ -1,5 +1,7 @@
 package com.iflytek.rpa.robot.service.handler;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.DISPATCH;
+
 import com.iflytek.rpa.robot.dao.RobotExecuteDao;
 import com.iflytek.rpa.robot.dao.RobotVersionDao;
 import com.iflytek.rpa.robot.entity.RobotExecute;
@@ -13,14 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.DISPATCH;
-
-
 @Component
 @RequiredArgsConstructor
 public class IconDispatchModeHandler implements RobotIconModeHandler {
     @Autowired
     RobotExecuteDao robotExecuteDao;
+
     @Autowired
     private RobotVersionDao robotVersionDao;
 

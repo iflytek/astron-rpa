@@ -10,29 +10,29 @@ import lombok.Data;
  */
 @Data
 public class ComponentRobotUseQueryBo {
-    
+
     /**
      * 机器人ID
      */
     private String robotId;
-    
+
     /**
      * 机器人版本号
      */
     private Integer robotVersion;
-    
+
     /**
      * 组件ID
      */
     private String componentId;
-    
+
     /**
      * 组件版本号
      */
     private Integer componentVersion;
-    
+
     /**
      * 租户ID
      */
     private String tenantId;
-} 
+}

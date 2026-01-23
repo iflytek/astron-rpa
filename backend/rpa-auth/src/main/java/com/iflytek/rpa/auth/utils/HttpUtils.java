@@ -1,18 +1,16 @@
 package com.iflytek.rpa.auth.utils;
 
-
 import com.alibaba.fastjson.JSONObject;
 import com.iflytek.rpa.auth.constant.CommonConstants;
+import java.io.PrintWriter;
+import java.util.Objects;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.PrintWriter;
-import java.util.Objects;
 
 /**
  * @author keler
@@ -57,7 +55,8 @@ public class HttpUtils {
      * @return HttpServletRequest
      */
     public static HttpServletRequest getRequest() {
-        return ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        return ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+                .getRequest();
     }
 
     /**
@@ -73,7 +72,7 @@ public class HttpUtils {
      * @param response 错误信息
      * @param servletResponse servlet
      */
-    public static void print(AppResponse<String> response, ServletResponse servletResponse){
+    public static void print(AppResponse<String> response, ServletResponse servletResponse) {
         print(JSONObject.toJSONString(response), servletResponse);
     }
 
@@ -82,7 +81,7 @@ public class HttpUtils {
      * @param response 错误信息
      * @param servletResponse servlet
      */
-    public static void print(String response, ServletResponse servletResponse){
+    public static void print(String response, ServletResponse servletResponse) {
         PrintWriter out = null;
         try {
             servletResponse.setCharacterEncoding("UTF-8");
@@ -91,8 +90,8 @@ public class HttpUtils {
             out.println(response);
         } catch (Exception e) {
             LOGGER.error("输出JSON报错", e);
-        }finally{
-            if(null != out){
+        } finally {
+            if (null != out) {
                 out.flush();
                 out.close();
             }

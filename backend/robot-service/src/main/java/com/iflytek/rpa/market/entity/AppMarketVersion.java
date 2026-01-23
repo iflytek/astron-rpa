@@ -3,10 +3,9 @@ package com.iflytek.rpa.market.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 团队市场-应用版本表(AppMarketVersion)实体类
@@ -62,7 +61,6 @@ public class AppMarketVersion implements Serializable {
      * 分类id
      */
     private Long categoryId;
-
 
     public Long getId() {
         return id;
@@ -159,6 +157,4 @@ public class AppMarketVersion implements Serializable {
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
-
 }
-

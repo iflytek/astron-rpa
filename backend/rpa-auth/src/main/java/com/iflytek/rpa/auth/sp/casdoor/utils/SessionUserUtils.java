@@ -1,11 +1,10 @@
 package com.iflytek.rpa.auth.sp.casdoor.utils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.casbin.casdoor.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * @desc: Session用户工具类，用于从session中获取用户信息
@@ -75,4 +74,3 @@ public class SessionUserUtils {
         return user != null && user.name != null && !user.name.isEmpty();
     }
 }
-

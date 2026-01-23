@@ -5,13 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-//import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-
+// import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @SpringBootApplication
 @EnableFeignClients
 @EnableScheduling
-//@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 604800)
+// @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 604800)
 @EnableAsync
 public class RobotApplication {
     public static void main(String[] args) {

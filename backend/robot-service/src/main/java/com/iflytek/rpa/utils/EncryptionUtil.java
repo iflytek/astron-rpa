@@ -1,9 +1,9 @@
 package com.iflytek.rpa.utils;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptionUtil {
     private static final String ALGORITHM = "AES";
@@ -13,7 +13,7 @@ public class EncryptionUtil {
      * @param plaintext 明文
      * @return 编码后的密文
      */
-    public static String encrypt(String plaintext,String AES_KEY) throws Exception {
+    public static String encrypt(String plaintext, String AES_KEY) throws Exception {
         if (plaintext == null) {
             return null;
         }
@@ -29,7 +29,7 @@ public class EncryptionUtil {
      * @return 明文
      * @throws Exception
      */
-    public static String decrypt(String ciphertext,String AES_KEY) throws Exception {
+    public static String decrypt(String ciphertext, String AES_KEY) throws Exception {
         if (ciphertext == null) {
             return null;
         }

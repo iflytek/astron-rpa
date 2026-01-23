@@ -1,9 +1,8 @@
 package com.iflytek.rpa.terminal.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -45,5 +44,4 @@ public class BeatDto {
      * 硬盘占用率（百分比)
      */
     private Integer disk;
-
 }

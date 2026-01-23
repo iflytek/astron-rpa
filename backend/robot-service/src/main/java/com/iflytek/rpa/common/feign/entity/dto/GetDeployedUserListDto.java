@@ -1,8 +1,7 @@
 package com.iflytek.rpa.common.feign.entity.dto;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 获取已部署用户列表查询DTO
@@ -43,4 +42,3 @@ public class GetDeployedUserListDto implements Serializable {
      */
     private Integer pageSize;
 }
-

@@ -3,6 +3,9 @@ package com.iflytek.rpa.common.handler;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.Optional;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -16,10 +19,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.Optional;
-
 /**
  * 全局异常处理，将常见异常包装成统一的 AppResponse 返回。
  */
@@ -32,7 +31,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public AppResponse<String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         String msg = Optional.ofNullable(ex.getBindingResult().getFieldError())
-                .map(error -> StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : error.toString())
+                .map(error ->
+                        StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : error.toString())
                 .orElse("参数校验失败");
         log.warn("MethodArgumentNotValidException: {}", msg);
         return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, msg);
@@ -42,7 +42,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public AppResponse<String> handleBindException(BindException ex) {
         String msg = Optional.ofNullable(ex.getFieldError())
-                .map(error -> StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : error.toString())
+                .map(error ->
+                        StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : error.toString())
                 .orElse("参数绑定失败");
         log.warn("BindException: {}", msg);
         return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, msg);
@@ -89,4 +90,3 @@ public class GlobalExceptionHandler {
         return AppResponse.error(ErrorCodeEnum.E_COMMON, "系统异常，请稍后重试");
     }
 }
-

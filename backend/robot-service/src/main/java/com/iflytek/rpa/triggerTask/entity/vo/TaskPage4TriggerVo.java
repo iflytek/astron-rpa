@@ -1,11 +1,10 @@
 package com.iflytek.rpa.triggerTask.entity.vo;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class TaskPage4TriggerVo extends TaskPageVo{
+public class TaskPage4TriggerVo extends TaskPageVo {
     String taskJson; // 计划任务灵活配置参数
     String exceptional;
     Integer timeout;

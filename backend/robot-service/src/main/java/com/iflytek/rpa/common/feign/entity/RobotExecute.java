@@ -2,10 +2,9 @@ package com.iflytek.rpa.common.feign.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 云端机器人表(RobotExecute)实体类 - 用于Feign传输
@@ -76,7 +75,7 @@ public class RobotExecute implements Serializable {
     @JSONField(name = "resource_status")
     private String resourceStatus;
     /**
-     * 来源：create 自己创建 ； market 市场获取 
+     * 来源：create 自己创建 ； market 市场获取
      */
     @JSONField(name = "data_source")
     private String dataSource;
@@ -108,4 +107,3 @@ public class RobotExecute implements Serializable {
 
     private String introduction;
 }
-

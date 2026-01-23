@@ -1,21 +1,20 @@
 package com.iflytek.rpa.base.service.handler;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
+import static com.iflytek.rpa.robot.constants.RobotConstant.PROJECT_LIST;
+
 import com.iflytek.rpa.base.dao.CParamDao;
 import com.iflytek.rpa.base.entity.CParam;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
-import static com.iflytek.rpa.robot.constants.RobotConstant.PROJECT_LIST;
 
 /**
  * @author mjren

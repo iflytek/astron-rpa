@@ -2,13 +2,12 @@ package com.iflytek.rpa.auth.idp;
 
 import com.iflytek.rpa.auth.core.entity.LoginDto;
 import com.iflytek.rpa.auth.core.entity.RegisterDto;
-import com.iflytek.rpa.auth.core.entity.User;
 import com.iflytek.rpa.auth.core.entity.Tenant;
+import com.iflytek.rpa.auth.core.entity.User;
 import com.iflytek.rpa.auth.utils.AppResponse;
-
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 public interface AuthenticationService {
 
@@ -86,7 +85,7 @@ public interface AuthenticationService {
      * @return 临时凭证（用于后续设置密码）
      */
     String register(RegisterDto registerDto, HttpServletRequest request);
-    
+
     /**
      * 设置密码并自动登录（注册第二步）
      * 用户设置密码后，更新讯飞账号和UAP密码，并自动登录

@@ -3,10 +3,9 @@ package com.iflytek.rpa.market.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -51,7 +50,6 @@ public class MarketDto {
 
     private String appId;
 
-
     private Integer appVersion;
 
     /**
@@ -68,7 +66,6 @@ public class MarketDto {
      * 使用说明
      */
     private String useIntro;
-
 
     private Boolean isCreator;
 
@@ -128,11 +125,9 @@ public class MarketDto {
 
     private Integer updateVersionNum;
 
-
     private List<String> userIdList;
 
-    public MarketDto() {
-    }
+    public MarketDto() {}
 
     public MarketDto(String tenantId, String marketId, String appId) {
         this.marketId = marketId;

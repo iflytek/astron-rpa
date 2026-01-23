@@ -1,8 +1,8 @@
 package com.iflytek.rpa.auth.utils;
 
+import java.nio.charset.StandardCharsets;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 
 /**
  * SHA256 工具类
@@ -42,4 +42,3 @@ public class Sha256Utils {
         return result.toString();
     }
 }
-

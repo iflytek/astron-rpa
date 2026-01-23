@@ -4,9 +4,8 @@ import com.iflytek.rpa.auth.core.entity.Authority;
 import com.iflytek.rpa.auth.core.entity.BindRoleDataAuthDto;
 import com.iflytek.rpa.auth.core.entity.DataAuthorityWithDimDictDto;
 import com.iflytek.rpa.auth.utils.AppResponse;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 数据权限服务
@@ -37,6 +36,4 @@ public interface DataAuthService {
      * @return 权限列表
      */
     AppResponse<List<Authority>> getAuthorityListByRoleId(String tenantId, String roleId, HttpServletRequest request);
-
 }
-

@@ -4,12 +4,11 @@ import com.iflytek.rpa.market.entity.vo.AppMarketClassificationVo;
 import com.iflytek.rpa.market.service.AppMarketClassificationService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * 应用市场-分类
@@ -33,6 +32,4 @@ public class AppApplicationClassificationController {
     public AppResponse<List<AppMarketClassificationVo>> getClassificationList() throws NoLoginException {
         return appMarketClassificationService.getClassificationList();
     }
-
 }
-

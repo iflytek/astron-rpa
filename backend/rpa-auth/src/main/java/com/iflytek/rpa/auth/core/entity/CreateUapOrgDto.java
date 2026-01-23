@@ -34,5 +34,4 @@ public class CreateUapOrgDto {
     public void setExtands(List<UapExtendPropertyDto> extands) {
         this.extands = extands;
     }
-
 }

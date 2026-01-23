@@ -1,17 +1,16 @@
 package com.iflytek.rpa.dispatch.entity.dto;
 
 import com.iflytek.rpa.dispatch.entity.DispatchTaskRobotExecuteRecord;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class RobotExecuteStatusDto extends DispatchTaskRobotExecuteRecord {
     /*
      * 机器人执行id
      */
-//    @NotNull(message = "机器人执行ID不能为空")
+    //    @NotNull(message = "机器人执行ID不能为空")
     private Long executeId;
 
     /*

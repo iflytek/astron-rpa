@@ -6,14 +6,12 @@ import com.iflytek.rpa.auth.auditRecord.entity.AuditRecord;
 import com.iflytek.rpa.auth.auditRecord.entity.enums.EventMoudleEnum;
 import com.iflytek.rpa.auth.auditRecord.entity.enums.EventTypeEnum;
 import com.iflytek.rpa.auth.auditRecord.service.AuditRecordService;
-
 import com.iflytek.rpa.auth.exception.NoLoginException;
 import com.iflytek.rpa.auth.sp.uap.utils.TenantUtils;
 import com.iflytek.rpa.auth.sp.uap.utils.UserUtils;
 import com.iflytek.rpa.auth.utils.StringUtils;
-import org.springframework.stereotype.Service;
-
 import java.util.Date;
+import org.springframework.stereotype.Service;
 
 /**
  * @author jqfang3
@@ -25,9 +23,11 @@ public class AuditRecordServiceImpl extends ServiceImpl<AuditRecordDao, AuditRec
     public void saveAuditRecord(String moduleName, String typeName, String message) throws NoLoginException {
         AuditRecord auditRecord = new AuditRecord();
         auditRecord.setEventModuleCode(EventMoudleEnum.getEnum(moduleName).getCode());
-        auditRecord.setEventModuleName(String.valueOf(EventMoudleEnum.getEnum(moduleName).getName()));
+        auditRecord.setEventModuleName(
+                String.valueOf(EventMoudleEnum.getEnum(moduleName).getName()));
         auditRecord.setEventTypeCode(EventTypeEnum.getEnum(typeName).getCode());
-        auditRecord.setEventTypeName(String.valueOf(EventTypeEnum.getEnum(typeName).getName()));
+        auditRecord.setEventTypeName(
+                String.valueOf(EventTypeEnum.getEnum(typeName).getName()));
         auditRecord.setEventDetail(message);
         String userId = UserUtils.nowUserId();
         String tenantId = TenantUtils.getTenantId();

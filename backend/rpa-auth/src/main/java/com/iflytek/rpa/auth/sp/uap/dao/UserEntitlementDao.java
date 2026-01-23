@@ -21,4 +21,3 @@ public interface UserEntitlementDao {
      */
     UserEntitlement queryByUserIdAndTenantId(@Param("userId") String userId, @Param("tenantId") String tenantId);
 }
-

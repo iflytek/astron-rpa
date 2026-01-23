@@ -3,7 +3,7 @@ package com.iflytek.rpa.base.entity.vo;
 import lombok.Data;
 
 @Data
-public class ElementInfoVo{
+public class ElementInfoVo {
 
     /**
      * 元素id

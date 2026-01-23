@@ -10,7 +10,6 @@ import lombok.Getter;
  */
 @Getter
 public enum TerminalOrGroupType {
-
     TERMINAL("terminal", "终端"),
     GROUP("group", "终端分组"),
     ;
@@ -18,9 +17,8 @@ public enum TerminalOrGroupType {
     private final String value;
     private final String name;
 
-
     TerminalOrGroupType(String value, String name) {
         this.value = value;
         this.name = name;
     }
-} 
+}

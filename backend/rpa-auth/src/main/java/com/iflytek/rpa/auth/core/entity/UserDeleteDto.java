@@ -1,8 +1,7 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -13,5 +12,4 @@ import java.util.List;
 public class UserDeleteDto {
 
     private List<String> userIdList;
-
 }

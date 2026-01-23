@@ -21,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
  * 客户端版本更新服务
  */
 @Service
-public class ClientVersionUpdateServiceImpl extends ServiceImpl<ClientVersionUpdateDao, ClientUpdateVersion> implements ClientVersionUpdateService {
+public class ClientVersionUpdateServiceImpl extends ServiceImpl<ClientVersionUpdateDao, ClientUpdateVersion>
+        implements ClientVersionUpdateService {
     @Autowired
     private IdWorker idWorker;
 
@@ -73,7 +74,9 @@ public class ClientVersionUpdateServiceImpl extends ServiceImpl<ClientVersionUpd
         // 如果版本号有变化，需要检查新版本号是否已存在
         if (!existing.getVersion().equals(dto.getVersion())) {
             ClientUpdateVersion versionCheck = baseMapper.getByVersionNum(versionNum);
-            if (versionCheck != null && versionCheck.getDeleted() == 0 && !versionCheck.getId().equals(dto.getId())) {
+            if (versionCheck != null
+                    && versionCheck.getDeleted() == 0
+                    && !versionCheck.getId().equals(dto.getId())) {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM, "版本号已存在");
             }
         }
@@ -188,4 +191,3 @@ public class ClientVersionUpdateServiceImpl extends ServiceImpl<ClientVersionUpd
         return major * 1_000_000 + minor * 1_000 + patch;
     }
 }
-

@@ -1,17 +1,15 @@
 package com.iflytek.rpa.base.controller;
 
-
 import com.iflytek.rpa.base.entity.dto.BaseDto;
 import com.iflytek.rpa.base.entity.dto.CSmartComponentDto;
 import com.iflytek.rpa.base.entity.vo.SmartComponentVo;
 import com.iflytek.rpa.base.service.CSmartComponentService;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/smart")
@@ -25,7 +23,8 @@ public class CSmartComponentController {
     }
 
     @PostMapping("/detail/all")
-    public AppResponse<SmartComponentVo> getBySmartId(@RequestBody CSmartComponentDto smartComponentDto) throws Exception {
+    public AppResponse<SmartComponentVo> getBySmartId(@RequestBody CSmartComponentDto smartComponentDto)
+            throws Exception {
         BaseDto baseDto = new BaseDto();
         baseDto.setMode(smartComponentDto.getMode());
         baseDto.setRobotId(smartComponentDto.getRobotId());
@@ -35,9 +34,9 @@ public class CSmartComponentController {
         return smartComponentService.getBySmartId(baseDto, smartId);
     }
 
-
     @PostMapping("/detail/version")
-    public AppResponse<SmartComponentVo> getBySmartIdAndVersion(@RequestBody CSmartComponentDto smartComponentDto) throws Exception {
+    public AppResponse<SmartComponentVo> getBySmartIdAndVersion(@RequestBody CSmartComponentDto smartComponentDto)
+            throws Exception {
         BaseDto baseDto = new BaseDto();
         baseDto.setMode(smartComponentDto.getMode());
         baseDto.setRobotId(smartComponentDto.getRobotId());
@@ -52,5 +51,4 @@ public class CSmartComponentController {
     public AppResponse<Integer> delete(@RequestBody CSmartComponentDto smartComponentDto) throws Exception {
         return smartComponentService.delete(smartComponentDto);
     }
-
 }

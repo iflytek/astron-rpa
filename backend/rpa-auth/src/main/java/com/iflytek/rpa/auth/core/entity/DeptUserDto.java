@@ -13,5 +13,4 @@ public class DeptUserDto extends User {
     private String roleId;
 
     private String roleName;
-
 }

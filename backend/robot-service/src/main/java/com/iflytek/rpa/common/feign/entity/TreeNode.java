@@ -21,8 +21,7 @@ public class TreeNode implements Serializable {
     private Boolean checked;
     private List<TreeNode> nodes = new ArrayList();
 
-    public TreeNode() {
-    }
+    public TreeNode() {}
 
     public String getId() {
         return this.id;
@@ -136,4 +135,3 @@ public class TreeNode implements Serializable {
         this.nodes = nodes;
     }
 }
-

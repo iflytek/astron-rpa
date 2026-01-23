@@ -1,10 +1,9 @@
 package com.iflytek.rpa.market.entity.dto;
 
 import com.iflytek.rpa.market.entity.AppMarketResource;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -17,15 +16,13 @@ public class ShareRobotDto {
     @NotBlank(message = "机器人id不能为空")
     private String robotId;
 
-    //@NotNull(message = "版本号不能为空")
+    // @NotNull(message = "版本号不能为空")
     private Integer version;
-
 
     private Integer editFlag;
 
     @NotBlank(message = "行业分类不能为空")
     private String category;
-
 
     private List<String> marketIdList;
 
@@ -51,6 +48,4 @@ public class ShareRobotDto {
      * 资源名称
      */
     private String appName;
-
-
 }

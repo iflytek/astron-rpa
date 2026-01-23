@@ -15,15 +15,13 @@ import com.iflytek.rpa.utils.IdWorker;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
+import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CSmartComponentServiceImpl implements CSmartComponentService {
@@ -59,10 +57,7 @@ public class CSmartComponentServiceImpl implements CSmartComponentService {
         // smartId不存在，则创建新的smartId
         if (StringUtils.isEmpty(smartId)) {
             smartId = String.valueOf(idWorker.nextId());
-            smartComponent
-                    .setCreatorId(userId)
-                    .setSmartId(smartId)
-                    .setRobotVersion(0);
+            smartComponent.setCreatorId(userId).setSmartId(smartId).setRobotVersion(0);
             create(smartComponent);
             return AppResponse.success(new SmartComponentVo().setSmartId(smartId));
         }
@@ -86,7 +81,8 @@ public class CSmartComponentServiceImpl implements CSmartComponentService {
             throw new RuntimeException("Smart component not found");
         }
 
-        CSmartComponentDto.SmartDetail smartDetail = JSON.parseObject(smartComponent.getContent(), CSmartComponentDto.SmartDetail.class);
+        CSmartComponentDto.SmartDetail smartDetail =
+                JSON.parseObject(smartComponent.getContent(), CSmartComponentDto.SmartDetail.class);
 
         SmartComponentVo smartComponentVo = new SmartComponentVo()
                 .setRobotId(robotId)
@@ -99,7 +95,8 @@ public class CSmartComponentServiceImpl implements CSmartComponentService {
 
     @Override
     @RobotVersionAnnotation
-    public AppResponse<SmartComponentVo> getBySmartIdAndVersion(BaseDto baseDto, String smartId, Integer version) throws NoLoginException {
+    public AppResponse<SmartComponentVo> getBySmartIdAndVersion(BaseDto baseDto, String smartId, Integer version)
+            throws NoLoginException {
         String robotId = baseDto.getRobotId();
         Integer robotVersion = baseDto.getRobotVersion();
         CSmartComponent smartComponent = cSmartComponentDao.getBySmartId(smartId, robotId, robotVersion);
@@ -107,11 +104,12 @@ public class CSmartComponentServiceImpl implements CSmartComponentService {
             throw new RuntimeException("Smart component not found");
         }
 
-        CSmartComponentDto.SmartDetail smartDetail = JSON.parseObject(smartComponent.getContent(), CSmartComponentDto.SmartDetail.class);
+        CSmartComponentDto.SmartDetail smartDetail =
+                JSON.parseObject(smartComponent.getContent(), CSmartComponentDto.SmartDetail.class);
 
         // 过滤出指定版本的智能组件信息
-        List<JSONObject> versionList = Optional.ofNullable(smartDetail.getVersionList())
-                .orElse(Collections.emptyList());
+        List<JSONObject> versionList =
+                Optional.ofNullable(smartDetail.getVersionList()).orElse(Collections.emptyList());
 
         JSONObject smartInfoByVersion = versionList.stream()
                 .filter(item -> Objects.equals(version, item.getInteger("version")))

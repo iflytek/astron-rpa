@@ -10,10 +10,9 @@ import com.iflytek.rpa.robot.service.RobotExecuteService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
 import java.util.List;
+import javax.annotation.Resource;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 云端机器人表(RobotExecute)表控制层
@@ -61,7 +60,6 @@ public class RobotExecuteController {
         return robotExecuteService.deleteRobot(queryDto);
     }
 
-
     /**
      * 更新-在执行器主动点击更新
      * @paramMarketResourceDto
@@ -70,8 +68,8 @@ public class RobotExecuteController {
      */
     @PostMapping("/update/pull")
     public AppResponse<?> updateRobotByPull(@RequestBody RobotExecute robotExecute) throws Exception {
-        if(null == robotExecute.getRobotId()){
-            return AppResponse.error(ErrorCodeEnum.E_PARAM,"机器人ID不能为空");
+        if (null == robotExecute.getRobotId()) {
+            return AppResponse.error(ErrorCodeEnum.E_PARAM, "机器人ID不能为空");
         }
         return robotExecuteService.updateRobotByPull(robotExecute.getRobotId());
     }
@@ -82,22 +80,13 @@ public class RobotExecuteController {
     }
 
     @PostMapping("/execute-update-check")
-    public AppResponse<?> executeUpdateCheck(@RequestBody ExeUpdateCheckDto queryDto) throws Exception{
+    public AppResponse<?> executeUpdateCheck(@RequestBody ExeUpdateCheckDto queryDto) throws Exception {
         return robotExecuteService.executeUpdateCheck(queryDto);
     }
 
     @PostMapping("/list/NameNDept")
-    public AppResponse<List<RobotExecuteByNameNDeptVo>> getRobotExecuteList(@RequestBody RobotExecuteByNameNDeptDto queryDto) throws NoLoginException{
+    public AppResponse<List<RobotExecuteByNameNDeptVo>> getRobotExecuteList(
+            @RequestBody RobotExecuteByNameNDeptDto queryDto) throws NoLoginException {
         return robotExecuteService.getRobotExecuteList(queryDto);
     }
-
-
-
-
-
-
-
-
-
 }
-

@@ -3,9 +3,8 @@ package com.iflytek.rpa.terminal.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -104,23 +103,23 @@ public class Terminal {
      */
     private String osPwd;
 
-//    /**
-//     * CPU占用率（百分比)
-//     */
-//    @TableField(exist = false)
-//    private Integer cpu;
-//
-//    /**
-//     * 内存占用率（百分比)
-//     */
-//    @TableField(exist = false)
-//    private Integer memory;
-//
-//    /**
-//     * 硬盘占用率（百分比)
-//     */
-//    @TableField(exist = false)
-//    private Integer disk;
+    //    /**
+    //     * CPU占用率（百分比)
+    //     */
+    //    @TableField(exist = false)
+    //    private Integer cpu;
+    //
+    //    /**
+    //     * 内存占用率（百分比)
+    //     */
+    //    @TableField(exist = false)
+    //    private Integer memory;
+    //
+    //    /**
+    //     * 硬盘占用率（百分比)
+    //     */
+    //    @TableField(exist = false)
+    //    private Integer disk;
 
     /**
      * 是否调度模式 (0: 否, 1: 是)
@@ -148,5 +147,4 @@ public class Terminal {
      * 是否删除 (0: 未删除, 1: 已删除)
      */
     private Short deleted;
-
 }

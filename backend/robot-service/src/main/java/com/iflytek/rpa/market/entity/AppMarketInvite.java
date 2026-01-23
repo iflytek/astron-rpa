@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 团队市场-邀请链接表(AppMarketInvite)实体类
@@ -81,4 +80,3 @@ public class AppMarketInvite implements Serializable {
     @TableLogic(value = "0", delval = "1")
     private Integer deleted;
 }
-

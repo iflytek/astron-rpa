@@ -3,12 +3,11 @@ package com.iflytek.rpa.auth.core.controller;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.utils.AppResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 租户
@@ -30,7 +29,6 @@ public class TenantController {
         return tenantService.getTenantListInApp(request);
     }
 
-
     /**
      * 企业信息查询
      * @param request
@@ -51,7 +49,6 @@ public class TenantController {
         return tenantService.getTenantId(request);
     }
 
-
     /**
      * 更改企业管理员（暂不支持）
      * @param request
@@ -62,9 +59,8 @@ public class TenantController {
         return tenantService.changeManager(id, request);
     }
 
-
     @PostMapping("/all-user")
-    public AppResponse<List<UserVo>>  getAllUser(@RequestParam String userName) throws Exception {
+    public AppResponse<List<UserVo>> getAllUser(@RequestParam String userName) throws Exception {
         return tenantService.getAllUser(userName);
     }
 
@@ -75,7 +71,8 @@ public class TenantController {
      * @return
      */
     @GetMapping("/getAllOrgList")
-    public AppResponse<List<Org>> getAllOrgList(@RequestParam("tenantId") String tenantId, HttpServletRequest request) throws IOException {
+    public AppResponse<List<Org>> getAllOrgList(@RequestParam("tenantId") String tenantId, HttpServletRequest request)
+            throws IOException {
         return tenantService.getAllOrgList(tenantId, request);
     }
 
@@ -106,7 +103,8 @@ public class TenantController {
      * @return 租户信息
      */
     @GetMapping("/info")
-    public AppResponse<Tenant> queryTenantInfoById(@RequestParam("tenantId") String tenantId, HttpServletRequest request) throws IOException {
+    public AppResponse<Tenant> queryTenantInfoById(
+            @RequestParam("tenantId") String tenantId, HttpServletRequest request) throws IOException {
         return tenantService.queryTenantInfoById(tenantId, request);
     }
 
@@ -156,7 +154,7 @@ public class TenantController {
     }
 
     @PostMapping("/updateTenantClassifyCompleted")
-    public AppResponse<Integer>  updateTenantClassifyCompleted(@RequestBody List<String> ids) throws Exception {
+    public AppResponse<Integer> updateTenantClassifyCompleted(@RequestBody List<String> ids) throws Exception {
         return tenantService.updateTenantClassifyCompleted(ids);
     }
 
@@ -176,7 +174,8 @@ public class TenantController {
      * @return 租户用户类型（可能为null）
      */
     @GetMapping("/getTenantUserType")
-    public AppResponse<Integer> getTenantUserType(@RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId) {
+    public AppResponse<Integer> getTenantUserType(
+            @RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId) {
         return tenantService.getTenantUserType(userId, tenantId);
     }
 
@@ -189,6 +188,5 @@ public class TenantController {
     @GetMapping("/expiration")
     public AppResponse<TenantExpirationDto> getTenantExpiration(HttpServletRequest request) {
         return tenantService.getTenantExpiration(request);
-
     }
 }

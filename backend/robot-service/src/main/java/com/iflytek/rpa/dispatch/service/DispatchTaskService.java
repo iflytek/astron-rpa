@@ -19,5 +19,4 @@ public interface DispatchTaskService {
      * @return true表示有数据更新，false表示无数据更新
      */
     boolean checkTaskUpdate(String terminalId);
-
 }

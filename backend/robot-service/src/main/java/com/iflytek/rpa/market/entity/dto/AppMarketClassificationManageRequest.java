@@ -1,8 +1,7 @@
 package com.iflytek.rpa.market.entity.dto;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 应用市场分类管理查询请求DTO

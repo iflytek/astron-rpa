@@ -1,19 +1,18 @@
 package com.iflytek.rpa.auth.sp.uap.service.impl;
 
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.core.entity.AppInfoBo;
 import com.iflytek.rpa.auth.sp.uap.dao.RoleDao;
 import com.iflytek.rpa.auth.sp.uap.dao.TenantDao;
+import java.util.List;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 启动检查是否有角色【未指定】
@@ -28,6 +27,7 @@ public class RolePreheater implements CommandLineRunner {
 
     @Resource
     private RoleDao roleDao;
+
     @Autowired
     private TenantDao tenantDao;
 
@@ -41,7 +41,7 @@ public class RolePreheater implements CommandLineRunner {
         if (exist <= 0) {
             AppInfoBo info = roleDao.selectAppInfo(databaseName);
             String appId = info.getAppId();
-            String appName = info.getAppName();// 拿不到appId
+            String appName = info.getAppName(); // 拿不到appId
             if (StringUtils.isBlank(appId)) {
                 return;
             }

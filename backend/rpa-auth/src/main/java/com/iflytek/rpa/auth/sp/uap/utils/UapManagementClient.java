@@ -1,6 +1,7 @@
 package com.iflytek.rpa.auth.sp.uap.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.core.entity.BindResourceDto;
 import com.iflytek.rpa.auth.core.entity.OrgListDto;
 import com.iflytek.sec.uap.client.core.client.BaseClient;
@@ -12,13 +13,11 @@ import com.iflytek.sec.uap.client.core.enums.MethodEnum;
 import com.iflytek.sec.uap.client.core.model.ManagementClientOptions;
 import com.iflytek.sec.uap.client.core.model.UapRequestConfig;
 import com.iflytek.sec.uap.client.core.util.JsonUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author mjren
@@ -49,24 +48,20 @@ public class UapManagementClient extends BaseClient {
     public ResponseDto<Object> unbindRoleSource(BindResourceDto dto) {
         UapRequestConfig config = new UapRequestConfig("/rest/v2/role/unBindResource", MethodEnum.JSON_POST, dto);
         String response = this.request(config);
-        return (ResponseDto) JsonUtils.parseObject(response, new TypeReference<ResponseDto<Object>>() {
-        });
+        return (ResponseDto) JsonUtils.parseObject(response, new TypeReference<ResponseDto<Object>>() {});
     }
 
-    public ResponseDto<Object> dataAuthSearchPage(Map<String,Object> searchDto) {
+    public ResponseDto<Object> dataAuthSearchPage(Map<String, Object> searchDto) {
 
         UapRequestConfig config = new UapRequestConfig("/rest/v3/dataAuth/search", MethodEnum.JSON_POST, searchDto);
         String response = this.request(config);
-        return (ResponseDto) JsonUtils.parseObject(response, new TypeReference<ResponseDto<Object>>() {
-        });
+        return (ResponseDto) JsonUtils.parseObject(response, new TypeReference<ResponseDto<Object>>() {});
     }
-
 
     public ResponseDto<PageDto<UapOrg>> queryOrgPageList(OrgListDto dto) {
         UapRequestConfig config = new UapRequestConfig("/rest/v4/org/queryList", MethodEnum.JSON_POST, dto);
         String response = this.request(config);
-        return (ResponseDto)JsonUtils.parseObject(response, new TypeReference<ResponseDto<PageDto<UapOrg>>>() {
-        });
+        return (ResponseDto) JsonUtils.parseObject(response, new TypeReference<ResponseDto<PageDto<UapOrg>>>() {});
     }
 
     /**
@@ -80,8 +75,8 @@ public class UapManagementClient extends BaseClient {
         param.put("roleId", roleId);
         UapRequestConfig config = new UapRequestConfig("/rest/dataAuth/get/byRoleId/", MethodEnum.GET, param);
         String response = this.request(config);
-        ResponseDto<List<DataAuthorityWithDimDictDto>> responseDto = (ResponseDto)JsonUtils.parseObject(response, new TypeReference<ResponseDto<List<DataAuthorityWithDimDictDto>>>() {
-        });
+        ResponseDto<List<DataAuthorityWithDimDictDto>> responseDto = (ResponseDto)
+                JsonUtils.parseObject(response, new TypeReference<ResponseDto<List<DataAuthorityWithDimDictDto>>>() {});
         if (responseDto.isFlag()) {
             return responseDto.getData();
         } else {
@@ -89,5 +84,4 @@ public class UapManagementClient extends BaseClient {
             return null;
         }
     }
-
 }

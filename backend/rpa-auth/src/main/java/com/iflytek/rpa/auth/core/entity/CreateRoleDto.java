@@ -110,5 +110,4 @@ public class CreateRoleDto {
     public void setIsMustBind(Integer isMustBind) {
         this.isMustBind = isMustBind;
     }
-
 }

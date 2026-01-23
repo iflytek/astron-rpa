@@ -1,6 +1,5 @@
 package com.iflytek.rpa.base.controller;
 
-
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.base.entity.dto.CParamDto;
@@ -12,11 +11,10 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
-import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 参数管理
@@ -33,10 +31,11 @@ public class CParamController {
      * @return
      */
     @PostMapping("/all")
-    public AppResponse<List<ParamDto>> getAllParams(@RequestBody @Valid QueryParamDto queryParamDto) throws JsonProcessingException, NoLoginException {
-        //判断机器人robotId是否为null
-        if(StringUtils.isBlank(queryParamDto.getRobotId())){
-            throw new ServiceException((ErrorCodeEnum.E_SQL.getCode()),"机器人id不能为空");
+    public AppResponse<List<ParamDto>> getAllParams(@RequestBody @Valid QueryParamDto queryParamDto)
+            throws JsonProcessingException, NoLoginException {
+        // 判断机器人robotId是否为null
+        if (StringUtils.isBlank(queryParamDto.getRobotId())) {
+            throw new ServiceException((ErrorCodeEnum.E_SQL.getCode()), "机器人id不能为空");
         }
         return cParamService.getAllParams(queryParamDto);
     }
@@ -50,7 +49,6 @@ public class CParamController {
     public AppResponse<String> addParam(@RequestBody @Valid CParamDto ParamDto) throws NoLoginException {
 
         return cParamService.addParam(ParamDto);
-
     }
 
     /**
@@ -59,10 +57,10 @@ public class CParamController {
      * @return
      */
     @PostMapping("/delete")
-    public AppResponse<Boolean> deleteParam(@RequestParam(value="id") String id) throws NoLoginException{
-        //判断id是否为空
-        if(StringUtils.isBlank(id)){
-            throw new ServiceException((ErrorCodeEnum.E_SQL.getCode()),"参数id不能为空");
+    public AppResponse<Boolean> deleteParam(@RequestParam(value = "id") String id) throws NoLoginException {
+        // 判断id是否为空
+        if (StringUtils.isBlank(id)) {
+            throw new ServiceException((ErrorCodeEnum.E_SQL.getCode()), "参数id不能为空");
         }
         return cParamService.deleteParam(id);
     }
@@ -85,10 +83,9 @@ public class CParamController {
      * @throws JsonProcessingException
      */
     @PostMapping("/saveUserParam")
-    public AppResponse<Boolean> saveUserParam(@RequestBody CParamListDto paramListDto) throws NoLoginException, JsonProcessingException {
+    public AppResponse<Boolean> saveUserParam(@RequestBody CParamListDto paramListDto)
+            throws NoLoginException, JsonProcessingException {
 
         return cParamService.saveUserParam(paramListDto);
     }
-
-
 }

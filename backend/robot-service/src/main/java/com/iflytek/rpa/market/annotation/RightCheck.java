@@ -1,7 +1,6 @@
 package com.iflytek.rpa.market.annotation;
 
 import com.iflytek.rpa.market.entity.MarketDto;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,5 +14,4 @@ public @interface RightCheck {
     Class<?> clazz() default MarketDto.class;
 
     boolean printLog() default true;
-
 }

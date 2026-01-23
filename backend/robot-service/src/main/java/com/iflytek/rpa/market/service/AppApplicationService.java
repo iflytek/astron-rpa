@@ -8,9 +8,8 @@ import com.iflytek.rpa.market.entity.vo.MyApplicationPageListVo;
 import com.iflytek.rpa.robot.entity.vo.ExecuteListVo;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-
-import javax.validation.Valid;
 import java.util.List;
+import javax.validation.Valid;
 
 public interface AppApplicationService {
     /**
@@ -23,12 +22,12 @@ public interface AppApplicationService {
 
     List<LatestVersionRobotVo> getRobotListApplicationStatus(List<LatestVersionRobotVo> voList);
 
-    AppResponse<IPage<MyApplicationPageListVo>> getMyApplicationPageList(MyApplicationPageListDto queryDto) throws NoLoginException;
+    AppResponse<IPage<MyApplicationPageListVo>> getMyApplicationPageList(MyApplicationPageListDto queryDto)
+            throws NoLoginException;
 
     AppResponse<String> cancelMyApplication(MyApplicationDto dto) throws NoLoginException;
 
     AppResponse<String> deleteMyApplication(MyApplicationDto dto) throws NoLoginException;
-
 
     /**
      * 获取 密级标识 和 截止时间
@@ -36,7 +35,7 @@ public interface AppApplicationService {
      * @param appResourceList
      * @param resVerDtoList
      */
-    void packageApplicationInfo(List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList,String userId);
+    void packageApplicationInfo(List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList, String userId);
 
     /**
      * 客户端 - 执行器-使用权限校验
@@ -44,7 +43,6 @@ public interface AppApplicationService {
      * @param ansRecords
      */
     void packageUsePermission(List<ExecuteListVo> ansRecords) throws NoLoginException;
-
 
     /**
      * 查询当前版本机器人是否需要上架审核
@@ -59,7 +57,6 @@ public interface AppApplicationService {
      * @throws NoLoginException
      */
     AppResponse<String> submitReleaseApplication(ReleaseApplicationDto applicationDto) throws Exception;
-
 
     AppResponse<?> preSubmitAfterPublishCheck(@Valid PreReleaseCheckDto dto) throws NoLoginException;
     /**
@@ -79,7 +76,6 @@ public interface AppApplicationService {
      */
     AppResponse<String> submitUseApplication(UsePermissionCheckDto dto) throws Exception;
 
-
     /**
      * 客户端使用权限检查
      *
@@ -88,5 +84,4 @@ public interface AppApplicationService {
      * @throws Exception
      */
     AppResponse<Integer> usePermissionCheck(UsePermissionCheckDto dto) throws Exception;
-
 }

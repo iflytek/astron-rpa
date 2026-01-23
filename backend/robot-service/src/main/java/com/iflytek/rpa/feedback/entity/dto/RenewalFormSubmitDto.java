@@ -1,11 +1,10 @@
 package com.iflytek.rpa.feedback.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import lombok.Data;
 
 /**
  * 续费表单提交DTO
@@ -44,4 +43,3 @@ public class RenewalFormSubmitDto {
     @Size(max = 32, message = "续费时长长度不能超过32字符")
     private String renewalDuration;
 }
-

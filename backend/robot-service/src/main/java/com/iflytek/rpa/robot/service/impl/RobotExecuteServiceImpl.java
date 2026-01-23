@@ -30,14 +30,13 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 云端机器人表(RobotExecute)表服务实现类
@@ -105,7 +104,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
     @Override
     public AppResponse<?> executeList(ExecuteListDto queryDto) throws NoLoginException {
 
-
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
             throw new ServiceException("用户信息获取失败");
@@ -153,7 +151,10 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
             String sourceName;
             String appId = "";
             Integer updateStatus = 0;
-            updateStatus = StringUtils.isNotBlank(record.getResourceStatus()) && record.getResourceStatus().equals("toUpdate") ? 1 : 0;
+            updateStatus = StringUtils.isNotBlank(record.getResourceStatus())
+                            && record.getResourceStatus().equals("toUpdate")
+                    ? 1
+                    : 0;
 
             if (dataSource.equals("create")) {
                 sourceName = RobotConstant.CREATE_NAME;
@@ -187,15 +188,19 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         ansPage.setRecords(ansRecords);
 
         return AppResponse.success(ansPage);
-
     }
 
     private void setExecuteListRecord(List<ExecuteListVo> ansRecords, List<RobotExecute> robotList) {
 
         // 只查询自己创建的机器人的版本信息，避免市场机器人的版本污染
-        List<String> createRobotIdList = robotList.stream().filter(robot -> RobotConstant.CREATE.equals(robot.getDataSource())).map(RobotExecute::getRobotId).collect(Collectors.toList());
+        List<String> createRobotIdList = robotList.stream()
+                .filter(robot -> RobotConstant.CREATE.equals(robot.getDataSource()))
+                .map(RobotExecute::getRobotId)
+                .collect(Collectors.toList());
 
-        List<RobotVersion> robotVersionList = CollectionUtils.isEmpty(createRobotIdList) ? new ArrayList<>() : robotDesignDao.getRobotVersionList(createRobotIdList);
+        List<RobotVersion> robotVersionList = CollectionUtils.isEmpty(createRobotIdList)
+                ? new ArrayList<>()
+                : robotDesignDao.getRobotVersionList(createRobotIdList);
 
         for (ExecuteListVo ansRecord : ansRecords) {
             String robotId = ansRecord.getRobotId();
@@ -203,11 +208,16 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
             // 根据数据来源决定版本获取方式
             if (RobotConstant.CREATE_NAME.equals(ansRecord.getSourceName())) {
                 // 自己创建的机器人，从robot_version表查询版本
-                List<RobotVersion> robotVersionsTmp = robotVersionList.stream().filter(robotVersion -> robotVersion.getRobotId().equals(robotId)).collect(Collectors.toList());
+                List<RobotVersion> robotVersionsTmp = robotVersionList.stream()
+                        .filter(robotVersion -> robotVersion.getRobotId().equals(robotId))
+                        .collect(Collectors.toList());
 
                 if (!CollectionUtils.isEmpty(robotVersionsTmp)) {
                     // 展示启用版本
-                    RobotVersion robotVersion = robotVersionsTmp.stream().filter(robotVersion1 -> robotVersion1.getOnline().equals(1)).collect(Collectors.toList()).get(0);
+                    RobotVersion robotVersion = robotVersionsTmp.stream()
+                            .filter(robotVersion1 -> robotVersion1.getOnline().equals(1))
+                            .collect(Collectors.toList())
+                            .get(0);
 
                     ansRecord.setVersion(robotVersion.getVersion());
                 } else {
@@ -223,7 +233,7 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
     @Override
     public AppResponse<?> updateRobotByPull(String robotId) throws NoLoginException {
-        //更新robotID机器人的appVersion,name,updatetime,obtained,
+        // 更新robotID机器人的appVersion,name,updatetime,obtained,
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
             throw new ServiceException("用户信息获取失败");
@@ -239,7 +249,7 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         if (robotExecute == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "机器人不存在");
         }
-        //查询是否已退出市场
+        // 查询是否已退出市场
         String marketId = robotExecute.getMarketId();
         if (StringUtils.isBlank(marketId)) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "市场信息缺失");
@@ -248,7 +258,7 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         if (null == appMarketUser) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "当前未加入该机器人所在的团队市场，且点击后按钮消失");
         }
-        //查询市场中机器人的版本信息
+        // 查询市场中机器人的版本信息
         RobotVersionDto robotVersion = robotVersionDao.getLatestRobotVersion(robotExecute.getAppId());
         if (null == robotVersion) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "应用市场机器人不存在");
@@ -261,7 +271,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
     @Override
     public AppResponse<?> deleteRobotRes(String robotId) throws NoLoginException {
-
 
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
@@ -289,12 +298,10 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         DelExecuteRobotVo resVo = getDeleteRobotVo(robotExecute, taskRobotList, robotId);
 
         return AppResponse.success(resVo);
-
     }
 
     @Override
     public AppResponse<?> deleteRobot(DeleteDesignDto queryDto) throws Exception {
-
 
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
@@ -339,7 +346,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
             default:
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
         }
-
     }
 
     @Override
@@ -366,7 +372,8 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
             robotVersion = robotVersionDao.getEnableVersion(robotId, userId, tenantId);
         } else if (robotExecute.getDataSource().equals("market")) {
             // 如果是市场中获取的，用溯源的最新版本
-            AppMarketResource appResource = appResourceDao.getAppResourceRegardlessDel(robotExecute.getAppId(), robotExecute.getMarketId());
+            AppMarketResource appResource =
+                    appResourceDao.getAppResourceRegardlessDel(robotExecute.getAppId(), robotExecute.getMarketId());
             robotVersion = robotVersionDao.getLatestVersionRegardlessDel(appResource.getRobotId());
         } else if (robotExecute.getDataSource().equals("deploy")) {
             String oriRobotId = robotExecute.getAppId();
@@ -383,7 +390,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         setVersionNCreatorInfo(robotExecute, resVo, robotExecute.getDataSource(), userId, tenantId);
 
         return AppResponse.success(resVo);
-
     }
 
     @Override
@@ -419,8 +425,6 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         List<ExeUpdateCheckVo> resVoList = getExeUpdateCheckVos(robotExecuteList);
 
         return AppResponse.success(resVoList);
-
-
     }
 
     private List<RobotExecute> getQueryInfo(List<String> appIdList, List<String> robotIdList) {
@@ -439,7 +443,9 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         return robotExecuteList;
     }
 
-    private void setVersionNCreatorInfo(RobotExecute robotExecute, ExecuteDetailVo resVo, String dataSource, String userId, String tenantId) throws Exception {
+    private void setVersionNCreatorInfo(
+            RobotExecute robotExecute, ExecuteDetailVo resVo, String dataSource, String userId, String tenantId)
+            throws Exception {
 
         if (dataSource.equals("create")) resVo.setSourceName("本地");
         else if (dataSource.equals("market")) resVo.setSourceName("企业市场");
@@ -447,12 +453,12 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
         List<VersionInfo> versionInfoList = new ArrayList<>();
 
-
         switch (dataSource) {
             case "create": // 自己创建的应用
 
                 // 版本信息
-                List<RobotVersion> robotVersionList = robotVersionDao.getAllVersion(robotExecute.getRobotId(), userId, tenantId);
+                List<RobotVersion> robotVersionList =
+                        robotVersionDao.getAllVersion(robotExecute.getRobotId(), userId, tenantId);
                 for (RobotVersion robotVersion : robotVersionList) {
                     VersionInfo versionInfo = new VersionInfo();
 
@@ -465,10 +471,10 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
 
                 // 创建者信息
                 AppResponse<String> realNameResp = rpaAuthFeign.getNameById(userId);
-                if (realNameResp == null || realNameResp .getData() == null) {
+                if (realNameResp == null || realNameResp.getData() == null) {
                     throw new ServiceException("用户名获取失败");
                 }
-                String creatorName = realNameResp .getData();
+                String creatorName = realNameResp.getData();
 
                 resVo.setCreateTime(robotExecute.getCreateTime());
                 resVo.setCreatorName(creatorName);
@@ -497,10 +503,10 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
                 }
                 // 创建者信息
                 AppResponse<String> realNameResp1 = rpaAuthFeign.getNameById(appResource.getCreatorId());
-                if (realNameResp1 == null || realNameResp1 .getData() == null) {
+                if (realNameResp1 == null || realNameResp1.getData() == null) {
                     throw new ServiceException("用户名获取失败");
                 }
-                String creatorName1 = realNameResp1 .getData();
+                String creatorName1 = realNameResp1.getData();
 
                 resVo.setCreateTime(appResource.getCreateTime());
                 resVo.setCreatorName(creatorName1);
@@ -519,10 +525,10 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
                 }
                 // 创建者信息
                 AppResponse<String> realNameRes = rpaAuthFeign.getNameById(userId);
-                if (realNameRes == null || realNameRes .getData() == null) {
+                if (realNameRes == null || realNameRes.getData() == null) {
                     throw new ServiceException("用户名获取失败");
                 }
-                String creatorName2 = realNameRes .getData();
+                String creatorName2 = realNameRes.getData();
                 resVo.setCreateTime(robotExecute.getCreateTime());
                 resVo.setCreatorName(creatorName2);
                 break;
@@ -560,7 +566,9 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         Set<String> taskIdNotInList = new HashSet<>();
 
         for (String taskId : taskIdList) {
-            List<TaskRobotCountDto> collect = taskRobotCountDtoList.stream().filter(taskRobotCountDto -> taskRobotCountDto.getTaskId().equals(taskId)).collect(Collectors.toList());
+            List<TaskRobotCountDto> collect = taskRobotCountDtoList.stream()
+                    .filter(taskRobotCountDto -> taskRobotCountDto.getTaskId().equals(taskId))
+                    .collect(Collectors.toList());
 
             if (collect == null || collect.size() == 0) {
                 taskIdNotInList.add(taskId);
@@ -574,14 +582,15 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         if (!i.equals(taskIdNotInList.size())) throw new Exception();
     }
 
-    private DelExecuteRobotVo getDeleteRobotVo(RobotExecute robotExecute, List<ScheduleTaskRobot> taskRobotList, String robotId) {
+    private DelExecuteRobotVo getDeleteRobotVo(
+            RobotExecute robotExecute, List<ScheduleTaskRobot> taskRobotList, String robotId) {
         DelExecuteRobotVo resVo = new DelExecuteRobotVo();
         resVo.setRobotId(robotId);
 
         // 1 : 执行器中出现
         if (robotExecute != null && (CollectionUtils.isEmpty(taskRobotList))) resVo.setSituation(1);
 
-            // 3 : 执行器 被计划任务引用
+        // 3 : 执行器 被计划任务引用
         else {
             resVo.setSituation(3);
             setDelExecuteRobotVo(resVo, taskRobotList, robotId);
@@ -594,7 +603,8 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         List<TaskReferInfo> taskReferInfoList = new ArrayList<>();
 
         // 获取所有引用该执行器的taskId
-        List<String> taskIdList = taskRobotList.stream().map(ScheduleTaskRobot::getTaskId).collect(Collectors.toList());
+        List<String> taskIdList =
+                taskRobotList.stream().map(ScheduleTaskRobot::getTaskId).collect(Collectors.toList());
 
         // 查询数据
         List<ScheduleTaskRobot> taskRobots = scheduleTaskRobotDao.getScheduleRobotByTaskIds(taskIdList);
@@ -604,7 +614,9 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
             TaskReferInfo taskReferInfo = new TaskReferInfo();
 
             // 筛选出当前taskId的taskRobot
-            List<ScheduleTaskRobot> taskRobotsTmp = taskRobots.stream().filter(taskRobot -> taskRobot.getTaskId().equals(taskId)).collect(Collectors.toList());
+            List<ScheduleTaskRobot> taskRobotsTmp = taskRobots.stream()
+                    .filter(taskRobot -> taskRobot.getTaskId().equals(taskId))
+                    .collect(Collectors.toList());
 
             // 通过sort字段排序  正序
             taskRobotsTmp.sort((o1, o2) -> o1.getSort().compareTo(o2.getSort()));
@@ -632,10 +644,9 @@ public class RobotExecuteServiceImpl extends ServiceImpl<RobotExecuteDao, RobotE
         resVo.setTaskReferInfoList(taskReferInfoList);
     }
 
-
-
     @Override
-    public AppResponse<List<RobotExecuteByNameNDeptVo>> getRobotExecuteList(RobotExecuteByNameNDeptDto queryDto) throws NoLoginException {
+    public AppResponse<List<RobotExecuteByNameNDeptVo>> getRobotExecuteList(RobotExecuteByNameNDeptDto queryDto)
+            throws NoLoginException {
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
             throw new ServiceException("租户信息获取失败");

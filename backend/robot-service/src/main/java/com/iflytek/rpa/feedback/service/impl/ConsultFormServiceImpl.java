@@ -10,11 +10,10 @@ import com.iflytek.rpa.feedback.service.ConsultFormService;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 /**
  * 咨询表单服务实现类
@@ -31,7 +30,7 @@ public class ConsultFormServiceImpl extends ServiceImpl<ConsultFormDao, ConsultF
     public AppResponse<?> submitConsultForm(ConsultFormSubmitDto dto) {
         try {
             // 1. 参数校验
-//            validateDto(dto);
+            //            validateDto(dto);
 
             // 2. 保存咨询表单记录
             ConsultForm consultForm = new ConsultForm();
@@ -71,4 +70,3 @@ public class ConsultFormServiceImpl extends ServiceImpl<ConsultFormDao, ConsultF
         }
     }
 }
-

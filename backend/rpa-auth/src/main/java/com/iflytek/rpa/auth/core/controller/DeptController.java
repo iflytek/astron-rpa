@@ -1,14 +1,13 @@
 package com.iflytek.rpa.auth.core.controller;
 
-import com.iflytek.rpa.auth.core.service.DeptService;
 import com.iflytek.rpa.auth.core.entity.*;
+import com.iflytek.rpa.auth.core.service.DeptService;
 import com.iflytek.rpa.auth.utils.AppResponse;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * 部门
@@ -29,7 +28,7 @@ public class DeptController {
      */
     @GetMapping("/queryTreeList")
     public AppResponse<TreeNode> queryTreeList(HttpServletRequest request) throws Exception {
-       return deptService.queryTreeList(request);
+        return deptService.queryTreeList(request);
     }
 
     /**
@@ -39,8 +38,9 @@ public class DeptController {
      * @throws Exception
      */
     @PostMapping("queryDeptNodeByPid")
-    public AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(@RequestBody QueryDeptNodeDto dto, HttpServletRequest request) throws Exception {
-        return deptService.queryDeptTreeByPid(dto,request);
+    public AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(
+            @RequestBody QueryDeptNodeDto dto, HttpServletRequest request) throws Exception {
+        return deptService.queryDeptTreeByPid(dto, request);
     }
 
     /**
@@ -57,10 +57,10 @@ public class DeptController {
      * 通过deptId查询部门名
      */
     @PostMapping("queryDeptNameByDeptId")
-    public AppResponse<DeptNameVo> queryDeptNameByDeptId(@RequestBody QueryDeptIdDto dto, HttpServletRequest request) throws Exception {
-        return deptService.queryDeptNameByDeptId(dto,request);
+    public AppResponse<DeptNameVo> queryDeptNameByDeptId(@RequestBody QueryDeptIdDto dto, HttpServletRequest request)
+            throws Exception {
+        return deptService.queryDeptNameByDeptId(dto, request);
     }
-
 
     /**
      * 新增部门
@@ -84,7 +84,6 @@ public class DeptController {
         return deptService.editDept(editOrgDto, request);
     }
 
-
     /**
      * 删除部门
      * @param
@@ -96,8 +95,6 @@ public class DeptController {
         return deptService.deleteDept(deleteCommonDto, request);
     }
 
-
-    
     /**
      * 查询部门树、人数、负责人
      * @param
@@ -109,7 +106,6 @@ public class DeptController {
         return deptService.treeAndPersonOptimized(request);
     }
 
-
     /**
      * 部门人数信息查询
      * @param request
@@ -117,9 +113,10 @@ public class DeptController {
      * @throws Exception
      */
     @PostMapping("queryDeptPersonNodeByPid")
-    public AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(@RequestBody QueryDeptNodeDto dto, HttpServletRequest request) throws Exception {
+    public AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(
+            @RequestBody QueryDeptNodeDto dto, HttpServletRequest request) throws Exception {
 
-        return deptService.queryDeptPersonNodeByPid(dto,request);
+        return deptService.queryDeptPersonNodeByPid(dto, request);
     }
 
     /**
@@ -129,7 +126,8 @@ public class DeptController {
      * @return
      */
     @PostMapping("/queryUserListByDeptId")
-    public AppResponse<List<UserVo>> queryAllUserByDeptId(@RequestBody QueryDeptIdDto dto, HttpServletRequest request) throws Exception {
+    public AppResponse<List<UserVo>> queryAllUserByDeptId(@RequestBody QueryDeptIdDto dto, HttpServletRequest request)
+            throws Exception {
         return deptService.queryAllUserByDeptId(dto, request);
     }
 
@@ -215,7 +213,10 @@ public class DeptController {
      * @return 部门ID
      */
     @GetMapping("/user/deptId")
-    public AppResponse<String> getDeptIdByUserId(@RequestParam("userId") String userId, @RequestParam("tenantId") String tenantId, HttpServletRequest request) {
+    public AppResponse<String> getDeptIdByUserId(
+            @RequestParam("userId") String userId,
+            @RequestParam("tenantId") String tenantId,
+            HttpServletRequest request) {
         return deptService.getDeptIdByUserId(userId, tenantId, request);
     }
 

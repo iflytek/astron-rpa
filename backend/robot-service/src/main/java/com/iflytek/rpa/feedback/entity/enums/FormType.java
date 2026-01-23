@@ -39,4 +39,3 @@ public enum FormType {
         return null;
     }
 }
-

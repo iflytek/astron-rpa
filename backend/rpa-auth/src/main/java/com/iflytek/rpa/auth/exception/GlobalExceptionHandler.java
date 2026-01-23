@@ -5,6 +5,9 @@ import com.iflytek.rpa.auth.blacklist.exception.UserBlockedException;
 import com.iflytek.rpa.auth.blacklist.service.BlackListService;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
+import java.util.stream.Collectors;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,10 +16,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.stream.Collectors;
 
 /**
  * 统一捕获控制层未处理的异常，确保响应体始终为 AppResponse 结构。
@@ -34,22 +33,21 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ShouldBeBlackException.class)
     public AppResponse<String> handleShouldBeBlackException(ShouldBeBlackException e) {
-        log.warn("触发封禁规则，userId: {}, username: {}, reason: {}, type: {}", 
-                e.getUserId(), e.getUsername(), e.getReason(), e.getBlackType());
-        
+        log.warn(
+                "触发封禁规则，userId: {}, username: {}, reason: {}, type: {}",
+                e.getUserId(),
+                e.getUsername(),
+                e.getReason(),
+                e.getBlackType());
+
         try {
             // 自动添加到黑名单
-            blackListService.add(
-                    e.getUserId(), 
-                    e.getUsername(), 
-                    e.getReason(), 
-                    "SYSTEM"
-            );
+            blackListService.add(e.getUserId(), e.getUsername(), e.getReason(), "SYSTEM");
             log.info("用户已自动添加到黑名单，userId: {}", e.getUserId());
         } catch (Exception ex) {
             log.error("添加黑名单失败", ex);
         }
-        
+
         return AppResponse.error(ErrorCodeEnum.E_NO_POWER, "您的账号已被封禁：" + e.getReason());
     }
 
@@ -58,8 +56,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserBlockedException.class)
     public AppResponse<String> handleUserBlockedException(UserBlockedException e) {
-        log.warn("用户被封禁，userId: {}, username: {}, reason: {}", 
-                e.getUserId(), e.getUsername(), e.getReason());
+        log.warn("用户被封禁，userId: {}, username: {}, reason: {}", e.getUserId(), e.getUsername(), e.getReason());
         return AppResponse.error(ErrorCodeEnum.E_NO_POWER, e.getMessage());
     }
 
@@ -73,7 +70,8 @@ public class GlobalExceptionHandler {
     public AppResponse<String> handleMethodArgumentNotValidException(Exception e) {
         FieldError fieldError = null;
         if (e instanceof MethodArgumentNotValidException) {
-            fieldError = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
+            fieldError =
+                    ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
         } else if (e instanceof BindException) {
             fieldError = ((BindException) e).getBindingResult().getFieldError();
         }
@@ -84,8 +82,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public AppResponse<String> handleConstraintViolationException(ConstraintViolationException e) {
-        String message = e.getConstraintViolations()
-                .stream()
+        String message = e.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining("; "));
         log.warn("参数约束异常: {}", message);
@@ -105,4 +102,3 @@ public class GlobalExceptionHandler {
         return AppResponse.error(ErrorCodeEnum.E_SERVICE.getCode(), message);
     }
 }
-

@@ -1,7 +1,6 @@
 package com.iflytek.rpa.base.service;
 
 import com.iflytek.rpa.base.entity.dto.ResourceConfigDto;
-
 import java.util.Map;
 
 /**
@@ -38,4 +37,3 @@ public interface TenantResourceService {
      */
     ResourceConfigDto getResourceConfig(String tenantId, String resourceCode);
 }
-

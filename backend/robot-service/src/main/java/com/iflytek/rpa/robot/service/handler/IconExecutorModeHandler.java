@@ -1,5 +1,7 @@
 package com.iflytek.rpa.robot.service.handler;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.common.feign.entity.User;
@@ -18,9 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
-
-
 @Component
 @RequiredArgsConstructor
 public class IconExecutorModeHandler implements RobotIconModeHandler {
@@ -38,7 +37,6 @@ public class IconExecutorModeHandler implements RobotIconModeHandler {
         return EXECUTOR.equals(mode);
     }
 
-
     @Override
     public AppResponse<RobotIconVo> handle(RobotIconDto dto) throws Exception {
         RobotExecute robotExecute = getRobotExecute(dto.getRobotId());
@@ -51,25 +49,22 @@ public class IconExecutorModeHandler implements RobotIconModeHandler {
             throw new ServiceException("用户信息获取失败");
         }
         User loginUser = response.getData();
-        String userId= loginUser.getId();
+        String userId = loginUser.getId();
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
             throw new ServiceException("租户信息获取失败");
         }
         String tenantId = resp.getData();
 
-        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(
-                robotId,
-                userId,
-                tenantId
-        );
+        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(robotId, userId, tenantId);
         if (executeInfo == null) {
             throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "无法获取执行器机器人信息");
         }
         return executeInfo;
     }
 
-    private AppResponse<RobotIconVo> handleDataSource(RobotExecute robotExecute, Integer robotVersion) throws JsonProcessingException {
+    private AppResponse<RobotIconVo> handleDataSource(RobotExecute robotExecute, Integer robotVersion)
+            throws JsonProcessingException {
         if (robotVersion != null) {
             robotExecute.setAppVersion(robotVersion);
             robotExecute.setRobotVersion(robotVersion);
@@ -97,7 +92,7 @@ public class IconExecutorModeHandler implements RobotIconModeHandler {
 
         RobotVersion version = robotVersionDao.getVersion(robotId, enabledVersion);
         String icon = version.getIcon();
-        if(StringUtils.isEmpty(icon)){
+        if (StringUtils.isEmpty(icon)) {
             icon = "";
         }
         String name = robotExecute.getName();

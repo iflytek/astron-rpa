@@ -1,7 +1,6 @@
 package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,19 +19,14 @@ public class Resource implements Serializable {
     private Integer operation;
     private String remark;
     private String ico;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
-    public Resource() {
-    }
+    public Resource() {}
 
     public String getId() {
         return this.id;

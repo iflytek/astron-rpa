@@ -1,5 +1,7 @@
 package com.iflytek.rpa.market.service.impl;
 
+import static com.iflytek.rpa.market.constants.AuditConstant.*;
+
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -34,6 +36,9 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +47,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.market.constants.AuditConstant.*;
-
 /**
  * @author mjren
  * @date 2025-07-02 11:00
@@ -55,11 +54,11 @@ import static com.iflytek.rpa.market.constants.AuditConstant.*;
  */
 @Slf4j
 @Service("appApplicationService")
-public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, AppApplication> implements AppApplicationService {
+public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, AppApplication>
+        implements AppApplicationService {
 
     @Autowired
     private AppApplicationDao appApplicationDao;
-
 
     @Resource
     private NotifySendServiceImpl notifySendService;
@@ -79,7 +78,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     @Autowired
     private RobotDesignDao robotDesignDao;
 
-
     @Autowired
     private AppMarketResourceService appMarketResourceService;
 
@@ -89,22 +87,25 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
 
-
-    private void releaseHandle(AuditApplicationDto auditApplicationDto, AppApplication awaitingUpdate) throws Exception {
+    private void releaseHandle(AuditApplicationDto auditApplicationDto, AppApplication awaitingUpdate)
+            throws Exception {
         // 获取上架申请信息
         AppApplication application = this.getById(auditApplicationDto.getId());
         if (AUDIT_STATUS_APPROVED.equals(auditApplicationDto.getStatus())) {
             if (application != null) {
-                if (StringUtils.isBlank(application.getPublishInfo()) && StringUtils.isNotBlank(application.getMarketInfo())) {
+                if (StringUtils.isBlank(application.getPublishInfo())
+                        && StringUtils.isNotBlank(application.getMarketInfo())) {
                     // 分享
                     shareHandle(awaitingUpdate, application);
                 }
-                if (StringUtils.isBlank(application.getMarketInfo()) && StringUtils.isNotBlank(application.getPublishInfo())) {
+                if (StringUtils.isBlank(application.getMarketInfo())
+                        && StringUtils.isNotBlank(application.getPublishInfo())) {
                     // 发版
                     publishHandle(awaitingUpdate, application);
                 }
                 // 第一次发版
-                if (StringUtils.isNotBlank(application.getMarketInfo()) && StringUtils.isNotBlank(application.getPublishInfo())) {
+                if (StringUtils.isNotBlank(application.getMarketInfo())
+                        && StringUtils.isNotBlank(application.getPublishInfo())) {
                     publishHandle(awaitingUpdate, application);
                     shareHandle(awaitingUpdate, application);
                 }
@@ -134,13 +135,15 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
             marketResourceDto.setCategory(marketInfo.getCategory());
 
             // 获取机器人信息
-            RobotDesign robotDesign = robotDesignDao.getRobotRegardlessLogicDel(application.getRobotId(), application.getCreatorId(), application.getTenantId());
+            RobotDesign robotDesign = robotDesignDao.getRobotRegardlessLogicDel(
+                    application.getRobotId(), application.getCreatorId(), application.getTenantId());
             if (robotDesign == null) {
                 throw new ServiceException("无法获取机器人信息");
             }
             marketResourceDto.setAppName(robotDesign.getName());
             // 执行分享逻辑
-            AppResponse<?> shareResponse = appMarketResourceService.executeShareRobotLogic(marketResourceDto, application.getCreatorId(), application.getTenantId());
+            AppResponse<?> shareResponse = appMarketResourceService.executeShareRobotLogic(
+                    marketResourceDto, application.getCreatorId(), application.getTenantId());
             if (!shareResponse.ok()) {
                 throw new ServiceException(shareResponse.getMessage());
             }
@@ -164,7 +167,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         notifySendService.createNotify4Application(applicationNotifyDto);
     }
 
-
     @Override
     public AppResponse<String> getAuditStatus() throws NoLoginException {
         // 1. 获取当前租户ID
@@ -187,8 +189,9 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
             }
 
             // 4. 根据数据库中的状态返回对应的字符串
-            String status = AUDIT_ENABLE_ON.equals(currentConfig.getAuditEnable()) ?
-                    AUDIT_ENABLE_STATUS_ON : AUDIT_ENABLE_STATUS_OFF;
+            String status = AUDIT_ENABLE_ON.equals(currentConfig.getAuditEnable())
+                    ? AUDIT_ENABLE_STATUS_ON
+                    : AUDIT_ENABLE_STATUS_OFF;
 
             return AppResponse.success(status);
 
@@ -196,7 +199,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
             return AppResponse.error(ErrorCodeEnum.E_SQL_EXCEPTION, "查询审核开关状态异常：" + e.getMessage());
         }
     }
-
 
     @Override
     public AppResponse<Integer> preReleaseCheck(PreReleaseCheckDto dto) throws Exception {
@@ -211,16 +213,14 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
             return AppResponse.success(0);
         }
         // 2. 租户开启上架审核；检查是否有未删除通过的上架审核？
-        AppApplication approvedApplication = this.getOne(
-                new LambdaQueryWrapper<AppApplication>()
-                        .eq(AppApplication::getRobotId, dto.getRobotId())
-                        .eq(AppApplication::getApplicationType, "release")
-                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-                        .eq(AppApplication::getDeleted, 0)
-                        .eq(AppApplication::getCloudDeleted, 0)
-                        .orderByDesc(AppApplication::getRobotVersion)
-                        .last("LIMIT 1")
-        );
+        AppApplication approvedApplication = this.getOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, dto.getRobotId())
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getDeleted, 0)
+                .eq(AppApplication::getCloudDeleted, 0)
+                .orderByDesc(AppApplication::getRobotVersion)
+                .last("LIMIT 1"));
         if (approvedApplication != null) {
             // 如果是现在版本的，直接返回0
             if (Objects.equals(dto.getVersion(), approvedApplication.getRobotVersion())) {
@@ -238,7 +238,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         // 4. 如果没有上架审核记录，则返回1
         return AppResponse.success(1);
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -273,7 +272,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         application.setUpdateTime(new Date());
         application.setDeleted(0);
         // 保存市场信息
-        String marketInfoJson = convertMarketInfoToJson(applicationDto.getMarketIdList(), applicationDto.getEditFlag(), applicationDto.getCategory());
+        String marketInfoJson = convertMarketInfoToJson(
+                applicationDto.getMarketIdList(), applicationDto.getEditFlag(), applicationDto.getCategory());
         application.setMarketInfo(marketInfoJson);
 
         appApplicationDao.insert(application);
@@ -281,19 +281,20 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         return AppResponse.success("上架申请提交成功，请等待审核");
     }
 
-    private AppResponse<String> greenPassHandle(ReleaseApplicationDto applicationDto, String userId, String tenantId) throws Exception {
+    private AppResponse<String> greenPassHandle(ReleaseApplicationDto applicationDto, String userId, String tenantId)
+            throws Exception {
         // 先检查 上一个申请单 -> 密级为绿色并勾选自动通过的 已批准的申请单
-        AppApplication greenPass = appApplicationDao.selectOne(
-                new LambdaQueryWrapper<AppApplication>()
-                        .eq(AppApplication::getRobotId, applicationDto.getRobotId())
-                        .eq(AppApplication::getRobotVersion, applicationDto.getRobotVersion() > 1 ? applicationDto.getRobotVersion() - 1 : 1)
-                        .eq(AppApplication::getCreatorId, userId)
-                        .eq(AppApplication::getApplicationType, "release")
-                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-                        .eq(AppApplication::getDeleted, 0)
-                        .eq(AppApplication::getSecurityLevel, "green")
-                        .eq(AppApplication::getDefaultPass, 1)
-        );
+        AppApplication greenPass = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, applicationDto.getRobotId())
+                .eq(
+                        AppApplication::getRobotVersion,
+                        applicationDto.getRobotVersion() > 1 ? applicationDto.getRobotVersion() - 1 : 1)
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getDeleted, 0)
+                .eq(AppApplication::getSecurityLevel, "green")
+                .eq(AppApplication::getDefaultPass, 1));
         if (greenPass != null) {
             AppApplication application = createGreenPassApplication(applicationDto, userId, tenantId);
             appApplicationDao.insert(application);
@@ -305,8 +306,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         return null;
     }
 
-
-    private AppApplication createGreenPassApplication(ReleaseApplicationDto applicationDto, String userId, String tenantId) throws JsonProcessingException {
+    private AppApplication createGreenPassApplication(
+            ReleaseApplicationDto applicationDto, String userId, String tenantId) throws JsonProcessingException {
         AppApplication application = new AppApplication();
         application.setDeleted(0);
         String robotId = applicationDto.getRobotId();
@@ -335,36 +336,34 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         application.setPublishInfo(publishInfo);
 
         // 保存市场信息
-        String marketInfoJson = convertMarketInfoToJson(applicationDto.getMarketIdList(), applicationDto.getEditFlag(), applicationDto.getCategory());
+        String marketInfoJson = convertMarketInfoToJson(
+                applicationDto.getMarketIdList(), applicationDto.getEditFlag(), applicationDto.getCategory());
         application.setMarketInfo(marketInfoJson);
         return application;
     }
 
-
     private AppResponse<String> beforeSubmitCheck(ReleaseApplicationDto applicationDto, String userId) {
         // 作废该机器人已审核通过的历史上架申请，使已获取或部署的机器人不可用，直到这一次申请通过审核
         // status 设置为 null
-//        this.update(
-//                new LambdaUpdateWrapper<AppApplication>()
-//                        .eq(AppApplication::getRobotId, applicationDto.getRobotId())
-//                        .eq(AppApplication::getCreatorId, userId)
-//                        .eq(AppApplication::getApplicationType, "release")
-//                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-//                        .eq(AppApplication::getDeleted, 0)
-//                        .set(AppApplication::getStatus, AUDIT_STATUS_NULLIFY)
-//                        .set(AppApplication::getUpdateTime, new Date())
-//                        .set(AppApplication::getUpdaterId, userId)
-//        );
+        //        this.update(
+        //                new LambdaUpdateWrapper<AppApplication>()
+        //                        .eq(AppApplication::getRobotId, applicationDto.getRobotId())
+        //                        .eq(AppApplication::getCreatorId, userId)
+        //                        .eq(AppApplication::getApplicationType, "release")
+        //                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+        //                        .eq(AppApplication::getDeleted, 0)
+        //                        .set(AppApplication::getStatus, AUDIT_STATUS_NULLIFY)
+        //                        .set(AppApplication::getUpdateTime, new Date())
+        //                        .set(AppApplication::getUpdaterId, userId)
+        //        );
 
         // 检查是否已有待审核的申请
-        AppApplication existingApplication = appApplicationDao.selectOne(
-                new LambdaQueryWrapper<AppApplication>()
-                        .eq(AppApplication::getRobotId, applicationDto.getRobotId())
-                        .eq(AppApplication::getCreatorId, userId)
-                        .eq(AppApplication::getApplicationType, "release")
-                        .eq(AppApplication::getStatus, "pending")
-                        .eq(AppApplication::getDeleted, 0)
-        );
+        AppApplication existingApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, applicationDto.getRobotId())
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, "pending")
+                .eq(AppApplication::getDeleted, 0));
 
         if (existingApplication != null) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "当前已存在正在上架审核的申请单，请先处理后再进行分享");
@@ -410,7 +409,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
             AppMarketVersion latestAppVersion = appMarketVersionDao.getLatestAppVersionInfo(marketResourceDto);
             String category = latestAppVersion.getCategory();
             Integer editFlag = latestAppVersion.getEditFlag();
-            List<String> marketIdList = appInfoList.stream().map(AppMarketResource::getMarketId).collect(Collectors.toList());
+            List<String> marketIdList =
+                    appInfoList.stream().map(AppMarketResource::getMarketId).collect(Collectors.toList());
             MarketInfoVo vo = new MarketInfoVo();
             vo.setMarketIdList(marketIdList);
             vo.setEditFlag(editFlag);
@@ -462,7 +462,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         // 如果是第一次 发版的
         if (dto.getRobotVersion() <= 1) {
             // 保存市场信息
-            String marketInfoJson = convertMarketInfoToJson(dto.getMarketIdList(), dto.getEditFlag(), dto.getCategory());
+            String marketInfoJson =
+                    convertMarketInfoToJson(dto.getMarketIdList(), dto.getEditFlag(), dto.getCategory());
             application.setMarketInfo(marketInfoJson);
         }
 
@@ -487,7 +488,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
             return null;
         }
     }
-
 
     /**
      * 将市场信息转换为JSON字符串
@@ -533,7 +533,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         return objectMapper.readValue(PublishInfoBoJson, PublishInfoBo.class);
     }
 
-
     /**
      * 检查是否开启了上架审核功能
      */
@@ -545,7 +544,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         }
         return currentConfig.getAuditEnable() == 1;
     }
-
 
     public List<LatestVersionRobotVo> getRobotListApplicationStatus(List<LatestVersionRobotVo> voList) {
         voList.removeIf(Objects::isNull);
@@ -572,7 +570,7 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
                         .eq(AppApplication::getDeleted, 0)
                         .eq(AppApplication::getCloudDeleted, 0)
                         .eq(AppApplication::getApplicationType, "release") // 只查询上架申请
-        );
+                );
 
         // 构建Map便于查找: robotId_robotVersion -> status
         Map<String, String> robotVersionStatusMap = applications.stream()
@@ -580,7 +578,7 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
                         app -> app.getRobotId() + "_" + app.getRobotVersion(),
                         AppApplication::getStatus,
                         (existing, replacement) -> existing // 如果有重复，保留现有的
-                ));
+                        ));
 
         // 设置applicationStatus
         voList.forEach(vo -> {
@@ -598,7 +596,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     }
 
     @Override
-    public AppResponse<IPage<MyApplicationPageListVo>> getMyApplicationPageList(MyApplicationPageListDto queryDto) throws NoLoginException {
+    public AppResponse<IPage<MyApplicationPageListVo>> getMyApplicationPageList(MyApplicationPageListDto queryDto)
+            throws NoLoginException {
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
             throw new ServiceException("租户信息获取失败");
@@ -619,7 +618,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         }
 
         IPage<MyApplicationPageListVo> pageConfig = new Page<>(queryDto.getPageNo(), queryDto.getPageSize(), true);
-        IPage<MyApplicationPageListVo> myApplicationPage = appApplicationDao.getMyApplicationPageList(pageConfig, queryDto);
+        IPage<MyApplicationPageListVo> myApplicationPage =
+                appApplicationDao.getMyApplicationPageList(pageConfig, queryDto);
         List<MyApplicationPageListVo> records = myApplicationPage.getRecords();
         records.removeIf(Objects::isNull);
 
@@ -645,7 +645,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         }
         User loginUser = res.getData();
         String userId = loginUser.getId();
-
 
         if (!userId.equals(application.getCreatorId())) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, "只能撤销自己的申请");
@@ -711,9 +710,9 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     }
 
     @Override
-    public void packageApplicationInfo(List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList, String userId) {
-        if (appResourceList == null || resVerDtoList == null ||
-                appResourceList.isEmpty() || resVerDtoList.isEmpty()) {
+    public void packageApplicationInfo(
+            List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList, String userId) {
+        if (appResourceList == null || resVerDtoList == null || appResourceList.isEmpty() || resVerDtoList.isEmpty()) {
             return;
         }
         List<String> robotIds = resVerDtoList.stream()
@@ -730,26 +729,22 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         packageUseApplicationInfo(appResourceList, resVerDtoList, robotIds, userId);
     }
 
-    private void packageReleaseApplicationInfo(List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList, List<String> robotIds) {
-        List<AppApplication> releaseApplicationList = this.list(
-                new LambdaQueryWrapper<AppApplication>()
-                        .in(AppApplication::getRobotId, robotIds)
-                        .eq(AppApplication::getApplicationType, "release")
-                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-                        .eq(AppApplication::getDeleted, 0)
-                        .eq(AppApplication::getCloudDeleted, 0)
-        );
-        Map<String, AppApplication> appMap = releaseApplicationList.stream().collect(Collectors.toMap(
-                app -> app.getRobotId() + "_" + app.getRobotVersion(),
-                app -> app,
-                (existing, replacement) -> existing
-        ));
+    private void packageReleaseApplicationInfo(
+            List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList, List<String> robotIds) {
+        List<AppApplication> releaseApplicationList = this.list(new LambdaQueryWrapper<AppApplication>()
+                .in(AppApplication::getRobotId, robotIds)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getDeleted, 0)
+                .eq(AppApplication::getCloudDeleted, 0));
+        Map<String, AppApplication> appMap = releaseApplicationList.stream()
+                .collect(Collectors.toMap(
+                        app -> app.getRobotId() + "_" + app.getRobotVersion(),
+                        app -> app,
+                        (existing, replacement) -> existing));
         Map<String, Integer> robotVersionMap = resVerDtoList.stream()
                 .collect(Collectors.toMap(
-                        ResVerDto::getRobotId,
-                        ResVerDto::getLatestAppVersion,
-                        (existing, replacement) -> existing
-                ));
+                        ResVerDto::getRobotId, ResVerDto::getLatestAppVersion, (existing, replacement) -> existing));
         appResourceList.forEach(resource -> {
             String robotId = resource.getRobotId();
             if (StringUtils.isBlank(robotId)) return;
@@ -762,27 +757,26 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         });
     }
 
-    private void packageUseApplicationInfo(List<AppMarketResource> appResourceList, List<ResVerDto> resVerDtoList, List<String> robotIds, String userId) {
-        List<AppApplication> useApplicationList = this.list(
-                new LambdaQueryWrapper<AppApplication>()
-                        .in(AppApplication::getRobotId, robotIds)
-                        .eq(AppApplication::getApplicationType, "use")
-                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-                        .eq(AppApplication::getCreatorId, userId)
-                        .eq(AppApplication::getDeleted, 0)
-                        .eq(AppApplication::getCloudDeleted, 0)
-        );
-        Map<String, AppApplication> appMap = useApplicationList.stream().collect(Collectors.toMap(
-                app -> app.getRobotId() + "_" + app.getRobotVersion(),
-                app -> app,
-                (existing, replacement) -> existing
-        ));
+    private void packageUseApplicationInfo(
+            List<AppMarketResource> appResourceList,
+            List<ResVerDto> resVerDtoList,
+            List<String> robotIds,
+            String userId) {
+        List<AppApplication> useApplicationList = this.list(new LambdaQueryWrapper<AppApplication>()
+                .in(AppApplication::getRobotId, robotIds)
+                .eq(AppApplication::getApplicationType, "use")
+                .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getDeleted, 0)
+                .eq(AppApplication::getCloudDeleted, 0));
+        Map<String, AppApplication> appMap = useApplicationList.stream()
+                .collect(Collectors.toMap(
+                        app -> app.getRobotId() + "_" + app.getRobotVersion(),
+                        app -> app,
+                        (existing, replacement) -> existing));
         Map<String, Integer> robotVersionMap = resVerDtoList.stream()
                 .collect(Collectors.toMap(
-                        ResVerDto::getRobotId,
-                        ResVerDto::getLatestAppVersion,
-                        (existing, replacement) -> existing
-                ));
+                        ResVerDto::getRobotId, ResVerDto::getLatestAppVersion, (existing, replacement) -> existing));
         appResourceList.forEach(resource -> {
             String robotId = resource.getRobotId();
             if (StringUtils.isBlank(robotId)) return;
@@ -871,7 +865,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
      * 但通过预先收集和去重，减少了总的查询次数
      * 只查询用户仍在团队市场中的应用的上架申请
      */
-    private Map<String, AppApplication> batchGetApprovedApplications(List<String> appIds, String tenantId, String userId) {
+    private Map<String, AppApplication> batchGetApprovedApplications(
+            List<String> appIds, String tenantId, String userId) {
         Map<String, AppApplication> resultMap = new HashMap<>();
 
         for (String appId : appIds) {
@@ -891,30 +886,28 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
      * 批量查询用户使用申请
      */
     private Map<String, AppApplication> batchGetUserApplications(Set<String> robotIds, String currentUserId) {
-        List<AppApplication> userApplications = this.list(
-                new LambdaQueryWrapper<AppApplication>()
-                        .in(AppApplication::getRobotId, robotIds)
-                        .eq(AppApplication::getApplicationType, "use")
-                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-                        .eq(AppApplication::getCreatorId, currentUserId)
-                        .eq(AppApplication::getDeleted, 0)
-                        .eq(AppApplication::getCloudDeleted, 0)
-        );
+        List<AppApplication> userApplications = this.list(new LambdaQueryWrapper<AppApplication>()
+                .in(AppApplication::getRobotId, robotIds)
+                .eq(AppApplication::getApplicationType, "use")
+                .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getCreatorId, currentUserId)
+                .eq(AppApplication::getDeleted, 0)
+                .eq(AppApplication::getCloudDeleted, 0));
 
         return userApplications.stream()
                 .collect(Collectors.toMap(
-                        AppApplication::getRobotId,
-                        app -> app,
-                        (existing, replacement) -> existing // 保留第一个匹配的记录
-                ));
+                        AppApplication::getRobotId, app -> app, (existing, replacement) -> existing // 保留第一个匹配的记录
+                        ));
     }
 
     /**
      * 检查市场应用的使用权限（优化版本，使用预查询的数据）
      */
-    private void checkMarketAppPermissionOptimized(ExecuteListVo record, String currentUserId,
-                                                   Map<String, AppApplication> approvedApplicationMap,
-                                                   Map<String, AppApplication> userApplicationMap) {
+    private void checkMarketAppPermissionOptimized(
+            ExecuteListVo record,
+            String currentUserId,
+            Map<String, AppApplication> approvedApplicationMap,
+            Map<String, AppApplication> userApplicationMap) {
         String appId = record.getAppId();
         if (StringUtils.isBlank(appId)) {
             record.setUsePermission(0);
@@ -944,8 +937,7 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
                 securityLevel,
                 approvedApplication.getAllowedDept(),
                 useApplicationRobotId,
-                userApplicationMap
-        );
+                userApplicationMap);
         record.setUsePermission(hasPermission ? 1 : 0);
 
         // 填充过期时间
@@ -963,9 +955,12 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     /**
      * 根据密级标识检查用户权限（优化版本，用于批量处理）
      */
-    private boolean checkUserPermissionForSecurityLevelOptimized(String currentUserId, String securityLevel,
-                                                                 String allowedDept, String robotId,
-                                                                 Map<String, AppApplication> userApplicationMap) {
+    private boolean checkUserPermissionForSecurityLevelOptimized(
+            String currentUserId,
+            String securityLevel,
+            String allowedDept,
+            String robotId,
+            Map<String, AppApplication> userApplicationMap) {
         switch (securityLevel) {
             case "green":
                 return true;
@@ -981,8 +976,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     /**
      * 检查黄色密级权限（优化版本）
      */
-    private boolean checkYellowLevelPermissionOptimized(String currentUserId, String allowedDept, String robotId,
-                                                        Map<String, AppApplication> userApplicationMap) {
+    private boolean checkYellowLevelPermissionOptimized(
+            String currentUserId, String allowedDept, String robotId, Map<String, AppApplication> userApplicationMap) {
         if (StringUtils.isBlank(allowedDept)) {
             throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode(), "部门ID不存在");
         }
@@ -997,8 +992,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
     /**
      * 检查红色密级权限（优化版本）
      */
-    private boolean checkRedLevelPermissionOptimized(String currentUserId, String robotId,
-                                                     Map<String, AppApplication> userApplicationMap) {
+    private boolean checkRedLevelPermissionOptimized(
+            String currentUserId, String robotId, Map<String, AppApplication> userApplicationMap) {
         // 从预查询映射中获取用户申请
         AppApplication userApplication = userApplicationMap.get(robotId);
         if (userApplication == null) {
@@ -1009,7 +1004,6 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         Date expireDate = userApplication.getExpireTime();
         return expireDate == null || expireDate.after(new Date());
     }
-
 
     /**
      * 计算过期时间字符串
@@ -1023,11 +1017,11 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         return "已过期";
     }
 
-
     /**
      * 根据密级标识检查用户权限（用于权限检查接口）
      */
-    private boolean checkUserPermissionForSecurityLevel(String currentUserId, String securityLevel, String allowedDept, String robotId) {
+    private boolean checkUserPermissionForSecurityLevel(
+            String currentUserId, String securityLevel, String allowedDept, String robotId) {
         switch (securityLevel) {
             case "green":
                 return true;
@@ -1074,7 +1068,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
      * 检查用户是否属于指定部门
      */
     private boolean isUserInAllowedDept(String currentUserId, String allowedDept) {
-        AppResponse<String> appResponse = rpaAuthFeign.getDeptIdByUserId(currentUserId, rpaAuthFeign.getTenantId().getData());
+        AppResponse<String> appResponse = rpaAuthFeign.getDeptIdByUserId(
+                currentUserId, rpaAuthFeign.getTenantId().getData());
         String userDeptId = appResponse.getData();
         return StringUtils.isNotBlank(userDeptId) && allowedDept.contains(userDeptId);
     }
@@ -1090,16 +1085,14 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
      * 获取对于机器人,用户的使用申请
      */
     private AppApplication getUserUseApplication(String currentUserId, String robotId) {
-        return this.getOne(
-                new LambdaQueryWrapper<AppApplication>()
-                        .eq(AppApplication::getRobotId, robotId)
-                        .eq(AppApplication::getApplicationType, "use")
-                        .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
-                        .eq(AppApplication::getCreatorId, currentUserId)
-                        .eq(AppApplication::getDeleted, 0)
-                        .eq(AppApplication::getCloudDeleted, 0)
-                        .last("LIMIT 1")
-        );
+        return this.getOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, robotId)
+                .eq(AppApplication::getApplicationType, "use")
+                .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getCreatorId, currentUserId)
+                .eq(AppApplication::getDeleted, 0)
+                .eq(AppApplication::getCloudDeleted, 0)
+                .last("LIMIT 1"));
     }
 
     @Override
@@ -1135,8 +1128,7 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
                 .eq(AppApplication::getDeleted, 0)
                 .eq(AppApplication::getCloudDeleted, 0)
                 .in(AppApplication::getStatus, Arrays.asList(AUDIT_STATUS_PENDING, AUDIT_STATUS_APPROVED))
-                .last("LIMIT 1")
-        );
+                .last("LIMIT 1"));
         if (existingUseApplication != null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, "您已经有该应用的使用申请，请勿重复提交");
         }
@@ -1147,8 +1139,7 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
                 .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
                 .eq(AppApplication::getDeleted, 0)
                 .eq(AppApplication::getCloudDeleted, 0)
-                .last("LIMIT 1")
-        );
+                .last("LIMIT 1"));
         if (approvedReleaseApplication == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, "上架申请不存在");
         }
@@ -1219,8 +1210,7 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
                 .eq(AppApplication::getStatus, AUDIT_STATUS_APPROVED)
                 .eq(AppApplication::getDeleted, 0)
                 .eq(AppApplication::getCloudDeleted, 0)
-                .last("LIMIT 1")
-        );
+                .last("LIMIT 1"));
         // 如果没有通过的上架审核，但是应用已经上架
         if (approvedApplication == null) {
             return AppResponse.success(1);
@@ -1237,7 +1227,8 @@ public class AppApplicationServiceImpl extends ServiceImpl<AppApplicationDao, Ap
         User nowUser = response.getData();
         String nowUserId = nowUser.getId();
         // 根据密级标识检查用户使用权限
-        boolean hasPermission = checkUserPermissionForSecurityLevel(nowUserId, securityLevel, approvedApplication.getAllowedDept(), robotId);
+        boolean hasPermission = checkUserPermissionForSecurityLevel(
+                nowUserId, securityLevel, approvedApplication.getAllowedDept(), robotId);
         return AppResponse.success(hasPermission ? 1 : 0);
     }
 }

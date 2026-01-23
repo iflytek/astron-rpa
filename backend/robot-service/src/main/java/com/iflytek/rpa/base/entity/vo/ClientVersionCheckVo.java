@@ -1,8 +1,7 @@
 package com.iflytek.rpa.base.entity.vo;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 客户端版本检查VO
@@ -12,7 +11,6 @@ import java.io.Serializable;
  */
 @Data
 public class ClientVersionCheckVo implements Serializable {
-
 
     /**
      * 是否需要更新：1-需要更新，0-不需要更新
@@ -43,4 +41,3 @@ public class ClientVersionCheckVo implements Serializable {
      */
     private String arch;
 }
-

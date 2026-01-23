@@ -8,12 +8,11 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/taskMail")
@@ -32,11 +31,11 @@ public class TaskMailController {
      */
     @GetMapping("/page/list")
     public AppResponse<IPage<TaskMail>> getTaskExecute(
-            @RequestParam(value = "pageNo",defaultValue = "1") Long pageNo ,
-            @RequestParam(value = "pageSize",defaultValue = "20") Long pageSize,
-            @RequestParam(value = "userId",required = false) String userId
-    ) throws NoLoginException {
-        return AppResponse.success(taskMailService.getTaskMailPage(pageNo,pageSize,userId));
+            @RequestParam(value = "pageNo", defaultValue = "1") Long pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "20") Long pageSize,
+            @RequestParam(value = "userId", required = false) String userId)
+            throws NoLoginException {
+        return AppResponse.success(taskMailService.getTaskMailPage(pageNo, pageSize, userId));
     }
 
     /**
@@ -45,13 +44,15 @@ public class TaskMailController {
      * @return
      */
     @PostMapping("/connect")
-    public Map<String,String> connectMail( @RequestBody TaskMail mail){
+    public Map<String, String> connectMail(@RequestBody TaskMail mail) {
         String msg = taskMailService.connectMail(mail);
-        return new HashMap<String,String>(){{
-            put("code", "000000");
-            put("data", StringUtils.isEmpty(msg) ? "1":"0");
-            put("message", msg);
-        }};
+        return new HashMap<String, String>() {
+            {
+                put("code", "000000");
+                put("data", StringUtils.isEmpty(msg) ? "1" : "0");
+                put("message", msg);
+            }
+        };
     }
 
     /**
@@ -61,7 +62,7 @@ public class TaskMailController {
      * @throws NoLoginException
      */
     @PostMapping("/save")
-    public AppResponse<ErrorCodeEnum> saveMail( @RequestBody TaskMail mail ) throws NoLoginException {
+    public AppResponse<ErrorCodeEnum> saveMail(@RequestBody TaskMail mail) throws NoLoginException {
         taskMailService.saveMail(mail);
         return AppResponse.success(ErrorCodeEnum.S_SUCCESS);
     }
@@ -72,11 +73,10 @@ public class TaskMailController {
      * @return
      */
     @PostMapping("/delete")
-    public AppResponse<ErrorCodeEnum> deleteMail( @RequestBody EnableBo enableBo ){
-        if(taskMailService.deleteMail(enableBo.getResourceId())){
+    public AppResponse<ErrorCodeEnum> deleteMail(@RequestBody EnableBo enableBo) {
+        if (taskMailService.deleteMail(enableBo.getResourceId())) {
             return AppResponse.success(ErrorCodeEnum.S_SUCCESS);
         }
         throw new ServiceException("邮箱被计划任务占用");
     }
-
 }

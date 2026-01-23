@@ -1,6 +1,5 @@
 package com.iflytek.rpa.auth.exception;
 
-
 public class NoFileException extends Exception {
 
     public NoFileException() {

@@ -1,16 +1,16 @@
 package com.iflytek.rpa.auth.sp.uap.annotation;
 
+import java.lang.annotation.*;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.*;
 
 /**
  * 手机号验证正则
  */
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.TYPE})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = {PhoneValidator.class})// 指定约束处理器，也就是手机号格式验证是哪个类来做校验
+@Constraint(validatedBy = {PhoneValidator.class}) // 指定约束处理器，也就是手机号格式验证是哪个类来做校验
 public @interface Phone {
 
     String pattern() default "^(?:(?:\\+|00)86)?1\\d{10}$";
@@ -21,8 +21,5 @@ public @interface Phone {
 
     Class<? extends Payload>[] payload() default {};
 
-    interface Default {
-
-    }
-
+    interface Default {}
 }

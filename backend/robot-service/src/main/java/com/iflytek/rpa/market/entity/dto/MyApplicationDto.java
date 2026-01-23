@@ -1,8 +1,7 @@
 package com.iflytek.rpa.market.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Data
 public class MyApplicationDto {

@@ -1,11 +1,10 @@
 package com.iflytek.rpa.dispatch.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 
 /**
  * 调度管理计划任务分页查询响应DTO
@@ -45,14 +44,12 @@ public class DispatchTaskPageListVo {
      */
     private String cronJson;
 
-
     /**
      * 执行终端/分组
      */
     private List<TerminalOrGroup> terminalOrGroupList = new ArrayList<>();
 
     private List<DispatchRobot> dispatchRobotList = new ArrayList<>();
-
 
     @Data
     public static class TerminalOrGroup {
@@ -112,7 +109,7 @@ public class DispatchTaskPageListVo {
     }
 
     /**
-    * 报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop
+     * 报错如何处理：跳过jump、停止stop、重试后跳过retry_jump、重试后停止retry_stop
      */
     private String exceptional;
     /**
@@ -143,4 +140,4 @@ public class DispatchTaskPageListVo {
      * 是否开启虚拟桌面 1:启用 0:不启用
      */
     private Boolean virtualDesktopEnable;
-} 
+}

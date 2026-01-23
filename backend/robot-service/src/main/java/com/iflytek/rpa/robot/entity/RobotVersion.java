@@ -5,11 +5,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
+import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 /**
  * 云端机器人版本表(RobotVersion)实体类
@@ -32,11 +31,11 @@ public class RobotVersion implements Serializable {
     @JSONField(name = "robot_id")
     private String robotId;
 
-    //表名该字段不在数据库中
+    // 表名该字段不在数据库中
     @TableField(exist = false)
     private String name;
 
-//    @NotBlank(message = "机器人图标不能为空")
+    //    @NotBlank(message = "机器人图标不能为空")
     private String icon;
 
     /**
@@ -105,7 +104,7 @@ public class RobotVersion implements Serializable {
     @TableField(exist = false)
     @JSONField(name = "edit_flag")
     private Integer editFlag;
+
     @TableField(exist = false)
     private String category;
 }
-

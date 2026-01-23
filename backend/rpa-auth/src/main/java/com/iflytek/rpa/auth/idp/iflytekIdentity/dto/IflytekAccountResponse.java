@@ -8,4 +8,3 @@ public class IflytekAccountResponse<T> {
     private String desc;
     private T data;
 }
-

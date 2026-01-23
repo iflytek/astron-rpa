@@ -4,7 +4,6 @@ import com.iflytek.rpa.terminal.entity.dto.BeatDto;
 import com.iflytek.rpa.terminal.entity.dto.RegistryDto;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-
 import java.util.List;
 
 public interface TerminalService {

@@ -1,9 +1,8 @@
 package com.iflytek.rpa.auth.sp.uap.annotation;
 
-
+import java.lang.annotation.*;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.*;
 
 /**
  * 密码校验 注解
@@ -25,9 +24,5 @@ public @interface Password {
     // 集合校验
     Class<? extends Payload>[] payload() default {};
 
-    interface Default {
-
-    }
-
-
+    interface Default {}
 }

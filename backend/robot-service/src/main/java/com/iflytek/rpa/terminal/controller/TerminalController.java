@@ -6,13 +6,12 @@ import com.iflytek.rpa.terminal.entity.dto.RegistryDto;
 import com.iflytek.rpa.terminal.service.TerminalService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 /**
  * 终端信息
@@ -36,7 +35,6 @@ public class TerminalController {
         return terminalService.registry(registryDto);
     }
 
-
     /**
      * 终端指标数据-心跳
      * @param beatDto
@@ -48,5 +46,4 @@ public class TerminalController {
 
         return terminalService.processBeat(beatDto);
     }
-
 }

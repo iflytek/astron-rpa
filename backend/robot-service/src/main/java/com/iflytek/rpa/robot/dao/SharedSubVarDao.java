@@ -2,10 +2,9 @@ package com.iflytek.rpa.robot.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.robot.entity.SharedSubVar;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 共享变量子变量DAO
@@ -23,4 +22,4 @@ public interface SharedSubVarDao extends BaseMapper<SharedSubVar> {
      * @return 影响行数
      */
     Integer insertBatch(@Param("entities") List<SharedSubVar> entities);
-} 
+}

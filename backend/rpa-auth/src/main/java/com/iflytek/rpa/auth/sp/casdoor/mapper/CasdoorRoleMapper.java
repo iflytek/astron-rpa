@@ -1,12 +1,10 @@
 package com.iflytek.rpa.auth.sp.casdoor.mapper;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 /**
  * @desc: Casdoor Role 与通用 Role 实体类之间的映射器，仅在casdoor profile下生效
@@ -41,8 +39,10 @@ public class CasdoorRoleMapper {
 
         // 基本字段映射
         // 显示名称映射到角色名称，如果为空则使用name
-        role.setName(casdoorRole.displayName != null && !casdoorRole.displayName.isEmpty() 
-                ? casdoorRole.displayName : casdoorRole.name);
+        role.setName(
+                casdoorRole.displayName != null && !casdoorRole.displayName.isEmpty()
+                        ? casdoorRole.displayName
+                        : casdoorRole.name);
         role.setCode(casdoorRole.name); // Casdoor的name作为角色编码
 
         // 状态字段转换：isEnabled (true -> status=1启用, false -> status=0停用)
@@ -97,8 +97,9 @@ public class CasdoorRoleMapper {
         }
 
         // 显示名称映射，如果name为空则使用code
-        casdoorRole.displayName = role.getName() != null && !role.getName().isEmpty() 
-                ? role.getName() : (role.getCode() != null ? role.getCode() : "");
+        casdoorRole.displayName = role.getName() != null && !role.getName().isEmpty()
+                ? role.getName()
+                : (role.getCode() != null ? role.getCode() : "");
 
         // 状态字段转换：status (1启用 -> isEnabled=true, 0停用 -> isEnabled=false)
         casdoorRole.isEnabled = role.getStatus() != null && role.getStatus() == 1;
@@ -174,4 +175,3 @@ public class CasdoorRoleMapper {
         }
     }
 }
-

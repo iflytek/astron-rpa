@@ -2,7 +2,6 @@ package com.iflytek.rpa.auth.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -18,7 +17,6 @@ public class User implements Serializable {
      *
      */
     private static final long serialVersionUID = -8814389360599851366L;
-
 
     /**
      * 主键
@@ -101,7 +99,7 @@ public class User implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date birthday;
 
-    //创建时间
+    // 创建时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
@@ -326,4 +324,3 @@ public class User implements Serializable {
         this.profile = profile;
     }
 }
-

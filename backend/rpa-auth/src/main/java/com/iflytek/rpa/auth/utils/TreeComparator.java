@@ -1,15 +1,14 @@
 package com.iflytek.rpa.auth.utils;
 
+import static com.iflytek.rpa.auth.sp.uap.constants.AuthConstant.NODE_TYPE_MENU;
+import static com.iflytek.rpa.auth.sp.uap.constants.AuthConstant.NODE_TYPE_RESOURCE;
+
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.exception.ServiceException;
 import com.iflytek.sec.uap.client.core.dto.TreeNode;
 import com.iflytek.sec.uap.client.core.dto.authority.BindAuthorityResourceDto;
-import lombok.Data;
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
-
 import java.util.*;
-
-import static com.iflytek.rpa.auth.sp.uap.constants.AuthConstant.NODE_TYPE_MENU;
-import static com.iflytek.rpa.auth.sp.uap.constants.AuthConstant.NODE_TYPE_RESOURCE;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -27,7 +26,6 @@ public class TreeComparator {
     // 节点ID -> 节点对象的映射（用于快速查找）
     private Map<String, TreeNode> modifiedNodeMap = new HashMap<>();
 
-
     /**
      * 两颗TreeNode树，第一颗是用户编辑之前的数据，第二颗是用户对菜单和资源取消或新增勾选后的数据，
      * 树结构完全相同，但是每个节点中的checked属性值（true,false）不同，
@@ -44,7 +42,6 @@ public class TreeComparator {
         traverseAndCompare(originalRoot, modifiedRoot);
         return new CompareResult(resourceCancel, menuCancel, authMap);
     }
-
 
     // 构建节点映射表
     private void buildNodeMap(TreeNode root) {
@@ -86,10 +83,7 @@ public class TreeComparator {
         List<TreeNode> originalChildren = originalNode.getNodes();
         List<TreeNode> modifiedChildren = modifiedNode.getNodes();
         for (int i = 0; i < modifiedChildren.size(); i++) {
-            traverseAndCompare(
-                    i < originalChildren.size() ? originalChildren.get(i) : null,
-                    modifiedChildren.get(i)
-            );
+            traverseAndCompare(i < originalChildren.size() ? originalChildren.get(i) : null, modifiedChildren.get(i));
         }
     }
 
@@ -98,28 +92,25 @@ public class TreeComparator {
     }
 
     private void processNewCheckedLeaf(TreeNode leafNode) {
-        if(NODE_TYPE_MENU.equals(leafNode.getValue())){
+        if (NODE_TYPE_MENU.equals(leafNode.getValue())) {
             BindAuthorityResourceDto bindAuthorityResourceDto = new BindAuthorityResourceDto();
             bindAuthorityResourceDto.setAuthId(leafNode.getId());
             bindAuthorityResourceDto.setResourceIds(new ArrayList<>());
             authMap.put(leafNode.getId(), bindAuthorityResourceDto);
-        }else if(NODE_TYPE_RESOURCE.equals(leafNode.getValue())){
+        } else if (NODE_TYPE_RESOURCE.equals(leafNode.getValue())) {
             TreeNode parent = findNearestMenuParent(leafNode);
             if (parent != null) {
-                BindAuthorityResourceDto dto = authMap.computeIfAbsent(
-                        parent.getId(),
-                        k -> new BindAuthorityResourceDto()
-                );
+                BindAuthorityResourceDto dto =
+                        authMap.computeIfAbsent(parent.getId(), k -> new BindAuthorityResourceDto());
                 dto.setAuthId(parent.getId());
                 if (dto.getResourceIds() == null) {
                     dto.setResourceIds(new ArrayList<>());
                 }
                 dto.getResourceIds().add(leafNode.getId());
             }
-        }else {
+        } else {
             throw new ServiceException("未知菜单资源节点类型: " + leafNode.getValue());
         }
-        
     }
 
     private TreeNode findNearestMenuParent(TreeNode node) {
@@ -140,9 +131,8 @@ public class TreeComparator {
         private List<String> menuCancel;
         private Map<String, BindAuthorityResourceDto> authMap;
 
-        public CompareResult(List<String> resourceCancel,
-                             List<String> menuCancel,
-                             Map<String, BindAuthorityResourceDto> authMap) {
+        public CompareResult(
+                List<String> resourceCancel, List<String> menuCancel, Map<String, BindAuthorityResourceDto> authMap) {
             this.resourceCancel = resourceCancel;
             this.menuCancel = menuCancel;
             this.authMap = authMap;

@@ -1,18 +1,17 @@
 package com.iflytek.rpa.auth.sp.casdoor.filter;
 
 import com.iflytek.rpa.auth.sp.casdoor.utils.ResponseUtils;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @desc: 认证过滤器，替代Spring Security的认证功能
@@ -40,8 +39,7 @@ public class AuthenticationFilter implements Filter {
             "/api/rpa-auth/login-status",
             "/api/rpa-auth/refresh-token",
             "/api/rpa-auth/user/search/name",
-            "/api/rpa-auth/user/history"
-    );
+            "/api/rpa-auth/user/history");
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -99,14 +97,13 @@ public class AuthenticationFilter implements Filter {
         }
 
         // 静态资源路径
-        if (path.startsWith("/static/") || 
-            path.startsWith("/public/") || 
-            path.startsWith("/error") ||
-            path.equals("/favicon.ico")) {
+        if (path.startsWith("/static/")
+                || path.startsWith("/public/")
+                || path.startsWith("/error")
+                || path.equals("/favicon.ico")) {
             return true;
         }
 
         return false;
     }
 }
-

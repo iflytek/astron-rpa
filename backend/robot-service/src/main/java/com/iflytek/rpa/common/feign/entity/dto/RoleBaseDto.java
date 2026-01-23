@@ -2,16 +2,13 @@ package com.iflytek.rpa.common.feign.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(
-        ignoreUnknown = true
-)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoleBaseDto {
     private String id;
     private String code;
     private String name;
 
-    public RoleBaseDto() {
-    }
+    public RoleBaseDto() {}
 
     public String getId() {
         return this.id;

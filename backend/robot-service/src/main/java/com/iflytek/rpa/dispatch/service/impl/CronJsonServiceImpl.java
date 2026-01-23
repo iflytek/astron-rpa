@@ -5,14 +5,13 @@ import com.iflytek.rpa.dispatch.entity.CronJson;
 import com.iflytek.rpa.dispatch.service.CronJsonService;
 import com.iflytek.rpa.task.service.CronExpression;
 import com.iflytek.rpa.utils.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service("CronJsonService")
@@ -31,7 +30,6 @@ public class CronJsonServiceImpl implements CronJsonService {
         // 使用解析出的CronJson对象计算执行时间
         return calculateFutureExecuteTime(object, times);
     }
-
 
     @Override
     public List<String> calculateFutureExecuteTime(CronJson cron, Integer times) throws ParseException {
@@ -203,8 +201,12 @@ public class CronJsonServiceImpl implements CronJsonService {
      * 生成按月执行的cron表达式
      */
     private String generateMonthsCron(Integer minutes, Integer hours, List<Integer> weeks, List<Integer> months) {
-        if (minutes == null || hours == null || weeks == null ||
-                months == null || weeks.isEmpty() || months.isEmpty()) {
+        if (minutes == null
+                || hours == null
+                || weeks == null
+                || months == null
+                || weeks.isEmpty()
+                || months.isEmpty()) {
             throw new IllegalArgumentException("分钟、小时、星期和月份不能为空");
         }
         if (minutes < 0 || minutes >= 60) {
@@ -232,7 +234,10 @@ public class CronJsonServiceImpl implements CronJsonService {
             springWeeks.add(String.valueOf(week + 2));
         }
         String weekExpression = String.join(",", springWeeks);
-        String monthExpression = months.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
+        String monthExpression = months.stream()
+                .map(String::valueOf)
+                .reduce((a, b) -> a + "," + b)
+                .orElse("");
         return String.format("0 %d %d ? %s %s", minutes, hours, monthExpression, weekExpression);
     }
 }

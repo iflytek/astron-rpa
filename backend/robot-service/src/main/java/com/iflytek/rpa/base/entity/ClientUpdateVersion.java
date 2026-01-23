@@ -2,10 +2,9 @@ package com.iflytek.rpa.base.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 客户端版本检查表(ClientUpdateVersion)实体类
@@ -68,4 +67,3 @@ public class ClientUpdateVersion implements Serializable {
      */
     private Integer deleted;
 }
-

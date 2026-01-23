@@ -13,16 +13,13 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface DispatchTaskExecuteRecordDao extends BaseMapper<DispatchTaskExecuteRecord> {
 
-
     Integer getMaxBatch(Long dispatchTaskId);
 
     void insertTaskExecuteRecord(DispatchTaskExecuteRecord taskExecuteRecord);
 
-
     Integer updateTaskExecuteStatus(@Param("entity") TaskExecuteStatusDto statusDto);
 
     DispatchTask selectTaskById(Long dispatchTaskId);
-
 
     DispatchTaskExecuteRecord selectByExecuteId(Long taskExecuteId);
 
@@ -33,6 +30,4 @@ public interface DispatchTaskExecuteRecordDao extends BaseMapper<DispatchTaskExe
     Integer updateRobotExecuteRecord(RobotExecuteStatusDto recordDto);
 
     RecordLogVo getRobotExecuteLog(@Param("executeId") Long executeId, @Param("tenantId") String tenantId);
-
-
 }

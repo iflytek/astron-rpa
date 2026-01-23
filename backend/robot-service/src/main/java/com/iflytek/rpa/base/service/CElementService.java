@@ -27,6 +27,4 @@ public interface CElementService {
     AppResponse<?> copyElement(ServerBaseDto serverBaseDto) throws NoLoginException;
 
     AppResponse<?> getAllGroupInfo(ServerBaseDto serverBaseDto);
-
-
 }

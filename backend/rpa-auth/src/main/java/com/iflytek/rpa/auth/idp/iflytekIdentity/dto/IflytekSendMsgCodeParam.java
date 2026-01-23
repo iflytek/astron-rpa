@@ -12,4 +12,3 @@ public class IflytekSendMsgCodeParam {
     private String phone;
     private int expire;
 }
-

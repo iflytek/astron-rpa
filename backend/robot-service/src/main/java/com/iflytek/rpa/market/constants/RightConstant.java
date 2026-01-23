@@ -20,7 +20,6 @@ public class RightConstant {
 
     public static final String market_user_delete = "market_user_delete";
 
-
     public static final String public_market_edit = "public_market_edit";
 
     public static final String public_market_user_manage = "public_market_user_manage";

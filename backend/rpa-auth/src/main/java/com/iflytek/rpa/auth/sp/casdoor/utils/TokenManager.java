@@ -5,7 +5,6 @@ import com.iflytek.rpa.auth.utils.RedisUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
@@ -118,16 +117,15 @@ public class TokenManager {
      * @throws NoLoginException 如果用户未登录
      */
     public static String getCurrentUserAccessToken() throws NoLoginException {
-//        todo 补充以下代码！！！
-//        User currentUser = UserUtils.nowLoginUser();
-//        String accessToken = getAccessToken(currentUser.name);
-//
-//        if (accessToken == null) {
-//            throw new NoLoginException("用户AccessToken不存在，请重新登录");
-//        }
-//
-//        return accessToken;
+        //        todo 补充以下代码！！！
+        //        User currentUser = UserUtils.nowLoginUser();
+        //        String accessToken = getAccessToken(currentUser.name);
+        //
+        //        if (accessToken == null) {
+        //            throw new NoLoginException("用户AccessToken不存在，请重新登录");
+        //        }
+        //
+        //        return accessToken;
         return null;
     }
 }
-

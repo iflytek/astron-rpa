@@ -1,5 +1,7 @@
 package com.iflytek.rpa.base.controller;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
+
 import com.iflytek.rpa.base.entity.dto.BaseDto;
 import com.iflytek.rpa.base.entity.dto.CGlobalDto;
 import com.iflytek.rpa.base.service.CGlobalVarService;
@@ -8,14 +10,11 @@ import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
 
 /**
  * 客户端-全局变量(CGlobalVar)表控制层
@@ -37,9 +36,11 @@ public class CGlobalVarController {
     private static final Logger logger = LoggerFactory.getLogger(CGlobalVarController.class);
 
     @PostMapping("/all")
-    public AppResponse<?> getGlobalVarInfoList(@RequestParam("robotId") String robotId,
-                                               @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode,
-                                               @RequestParam(required = false, name = "robotVersion") Integer robotVersion) throws Exception {
+    public AppResponse<?> getGlobalVarInfoList(
+            @RequestParam("robotId") String robotId,
+            @RequestParam(required = false, name = "mode", defaultValue = EDIT_PAGE) String mode,
+            @RequestParam(required = false, name = "robotVersion") Integer robotVersion)
+            throws Exception {
         BaseDto baseDto = new BaseDto();
         baseDto.setRobotId(robotId);
         baseDto.setMode(mode);
@@ -58,7 +59,7 @@ public class CGlobalVarController {
         if (globalDto.getRobotId() == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        return  cGlobalVarService.createGlobalVar(globalDto);
+        return cGlobalVarService.createGlobalVar(globalDto);
     }
 
     /**
@@ -77,12 +78,11 @@ public class CGlobalVarController {
             throw new ServiceException("用户信息获取失败");
         }
         User loginUser = resp.getData();
-        String userId= loginUser.getId();
+        String userId = loginUser.getId();
 
         globalDto.setUpdaterId(String.valueOf(userId));
 
         return cGlobalVarService.saveGlobalVar(globalDto);
-
     }
 
     /**
@@ -92,7 +92,7 @@ public class CGlobalVarController {
      * @return AppResponse
      */
     @PostMapping("/name-list")
-    public AppResponse<?> getGlobalVarNameList(@RequestParam("robotId") String robotId) throws Exception{
+    public AppResponse<?> getGlobalVarNameList(@RequestParam("robotId") String robotId) throws Exception {
         return cGlobalVarService.getGlobalVarNameList(robotId);
     }
 

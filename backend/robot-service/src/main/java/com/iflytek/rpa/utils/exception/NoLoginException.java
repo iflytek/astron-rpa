@@ -4,9 +4,12 @@ public class NoLoginException extends Exception {
     public NoLoginException() {
         super();
     }
+
     public NoLoginException(String message) {
         super(message);
     }
 
-    public NoLoginException(Exception e){super(e);}
+    public NoLoginException(Exception e) {
+        super(e);
+    }
 }

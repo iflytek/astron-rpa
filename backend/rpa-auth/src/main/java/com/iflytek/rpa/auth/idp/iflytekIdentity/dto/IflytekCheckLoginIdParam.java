@@ -12,4 +12,3 @@ public class IflytekCheckLoginIdParam {
     private String ccode;
     private int lgtype;
 }
-

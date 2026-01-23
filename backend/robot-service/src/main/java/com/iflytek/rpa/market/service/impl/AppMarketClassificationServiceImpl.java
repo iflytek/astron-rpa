@@ -18,15 +18,14 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 应用市场分类服务实现类
@@ -42,8 +41,10 @@ public class AppMarketClassificationServiceImpl implements AppMarketClassificati
 
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
     @Resource
     private AppApplicationService appApplicationService;
+
     @Autowired
     private AppApplicationDao appApplicationDao;
 
@@ -54,30 +55,38 @@ public class AppMarketClassificationServiceImpl implements AppMarketClassificati
             throw new ServiceException("租户信息获取失败");
         }
         String tenantId = resp.getData();
-        List<AppMarketClassificationVo> classificationList = appMarketClassificationDao.getClassificationListByTenantId(tenantId);
+        List<AppMarketClassificationVo> classificationList =
+                appMarketClassificationDao.getClassificationListByTenantId(tenantId);
         return AppResponse.success(classificationList);
     }
 
     @Override
-    public AppResponse<List<AppMarketClassificationManageVo>> getClassificationManageList(AppMarketClassificationManageRequest request) throws NoLoginException, JsonProcessingException {
+    public AppResponse<List<AppMarketClassificationManageVo>> getClassificationManageList(
+            AppMarketClassificationManageRequest request) throws NoLoginException, JsonProcessingException {
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
             throw new ServiceException("租户信息获取失败");
         }
         String tenantId = resp.getData();
-        List<AppMarketClassificationManageVo> classificationList = appMarketClassificationDao.getClassificationManageList(tenantId, request.getName(), request.getSource());
+        List<AppMarketClassificationManageVo> classificationList =
+                appMarketClassificationDao.getClassificationManageList(
+                        tenantId, request.getName(), request.getSource());
         // 填充引用
         packageReference(classificationList);
         return AppResponse.success(classificationList);
     }
 
-    private void packageReference(List<AppMarketClassificationManageVo> classificationList) throws NoLoginException, JsonProcessingException {
+    private void packageReference(List<AppMarketClassificationManageVo> classificationList)
+            throws NoLoginException, JsonProcessingException {
         if (classificationList == null || classificationList.isEmpty()) {
             return;
         }
         // 获取分类引用统计
         List<Map> referenceCountList = appMarketClassificationDao.getCategoryReferenceCount();
-        Map<Long, Integer> referenceCountMap = referenceCountList.stream().collect(Collectors.toMap(map -> Long.valueOf(map.get("category").toString()), map -> Integer.valueOf(map.get("reference_count").toString())));
+        Map<Long, Integer> referenceCountMap = referenceCountList.stream()
+                .collect(Collectors.toMap(
+                        map -> Long.valueOf(map.get("category").toString()),
+                        map -> Integer.valueOf(map.get("reference_count").toString())));
 
         // 开启上架审核
         AppResponse<String> auditStatus = appApplicationService.getAuditStatus();
@@ -133,17 +142,22 @@ public class AppMarketClassificationServiceImpl implements AppMarketClassificati
         User loginUser = response.getData();
         String userId = loginUser.getId();
 
-
         // 检查分类名是否已存在
-        List<AppMarketClassificationVo> existingClassifications = appMarketClassificationDao.getClassificationListByTenantId(tenantId);
-        boolean nameExists = existingClassifications.stream().anyMatch(classification -> request.getName().equals(classification.getName()));
+        List<AppMarketClassificationVo> existingClassifications =
+                appMarketClassificationDao.getClassificationListByTenantId(tenantId);
+        boolean nameExists = existingClassifications.stream()
+                .anyMatch(classification -> request.getName().equals(classification.getName()));
         if (nameExists) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, "分类名已存在");
         }
 
         int maxSort = 0;
         if (!existingClassifications.isEmpty()) {
-            maxSort = existingClassifications.stream().map(AppMarketClassificationVo::getSort).filter(Objects::nonNull).max(Integer::compareTo).orElse(0);
+            maxSort = existingClassifications.stream()
+                    .map(AppMarketClassificationVo::getSort)
+                    .filter(Objects::nonNull)
+                    .max(Integer::compareTo)
+                    .orElse(0);
         }
 
         // 创建新分类
@@ -196,8 +210,10 @@ public class AppMarketClassificationServiceImpl implements AppMarketClassificati
         }
 
         // 检查分类名是否已存在（排除当前分类）
-        List<AppMarketClassificationVo> existingClassifications = appMarketClassificationDao.getClassificationListByTenantId(tenantId);
-        boolean nameExists = existingClassifications.stream().anyMatch(classification -> request.getName().equals(classification.getName()));
+        List<AppMarketClassificationVo> existingClassifications =
+                appMarketClassificationDao.getClassificationListByTenantId(tenantId);
+        boolean nameExists = existingClassifications.stream()
+                .anyMatch(classification -> request.getName().equals(classification.getName()));
         if (nameExists) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK, "分类名已存在");
         }
@@ -251,4 +267,3 @@ public class AppMarketClassificationServiceImpl implements AppMarketClassificati
         }
     }
 }
-

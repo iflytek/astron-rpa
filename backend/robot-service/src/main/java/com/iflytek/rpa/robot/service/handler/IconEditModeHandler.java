@@ -1,5 +1,8 @@
 package com.iflytek.rpa.robot.service.handler;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
+import static com.iflytek.rpa.robot.constants.RobotConstant.PROJECT_LIST;
+
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.robot.dao.RobotVersionDao;
@@ -9,17 +12,12 @@ import com.iflytek.rpa.robot.entity.dto.RobotIconDto;
 import com.iflytek.rpa.robot.entity.vo.RobotIconVo;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
-import static com.iflytek.rpa.robot.constants.RobotConstant.PROJECT_LIST;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -43,13 +41,13 @@ public class IconEditModeHandler implements RobotIconModeHandler {
     @Override
     public AppResponse<RobotIconVo> handle(RobotIconDto dto) throws Exception {
         Integer robotVersion = 0;
-        if (dto.getRobotVersion() != null){
+        if (dto.getRobotVersion() != null) {
             robotVersion = dto.getRobotVersion();
         }
         String robotId = dto.getRobotId();
         RobotVersion version = robotVersionDao.getVersion(robotId, robotVersion);
-        String icon = "",name="";
-        if(version!= null) {
+        String icon = "", name = "";
+        if (version != null) {
             icon = version.getIcon();
         }
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
@@ -58,14 +56,14 @@ public class IconEditModeHandler implements RobotIconModeHandler {
         }
         String tenantId = resp.getData();
         RobotDesign robot = robotDesignDao.getRobotInfoAll(robotId, tenantId);
-        if(robot!=null){
+        if (robot != null) {
             name = robot.getName();
         }
-//        RobotVersion version = robotVersionDao.getVersion(robotId, robotVersion);
-//        if(version == null){
-//            return AppResponse.success(new RobotIconVo(name, ""));
-//        }
-//        String icon = version.getIcon();
+        //        RobotVersion version = robotVersionDao.getVersion(robotId, robotVersion);
+        //        if(version == null){
+        //            return AppResponse.success(new RobotIconVo(name, ""));
+        //        }
+        //        String icon = version.getIcon();
         return AppResponse.success(new RobotIconVo(name, icon));
     }
 }

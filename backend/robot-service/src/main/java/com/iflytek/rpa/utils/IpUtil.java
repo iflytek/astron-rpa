@@ -1,14 +1,12 @@
 package com.iflytek.rpa.utils;
 
-
+import java.net.InetAddress;
+import java.util.Objects;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import java.net.InetAddress;
-import java.util.Objects;
 
 /**
  * @ClassName IpUtil
@@ -27,11 +25,12 @@ public class IpUtil {
      * X-Real-IP：nginx服务代理
      * HTTP_CLIENT_IP：有些代理服务器
      */
-    static final String[] PROXYS = {"X-Real-IP", "X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP"};
+    static final String[] PROXYS = {
+        "X-Real-IP", "X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP"
+    };
 
     static final String LOCALHOST_IP_V4 = "127.0.0.1";
     static final String LOCALHOST_IP_V6 = "0:0:0:0:0:0:0:1";
-
 
     /**
      * 获取客户端ip reactive
@@ -48,7 +47,9 @@ public class IpUtil {
         }
 
         if (StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = Objects.requireNonNull(request.getRemoteAddress()).getAddress().getHostAddress();
+            ipAddress = Objects.requireNonNull(request.getRemoteAddress())
+                    .getAddress()
+                    .getHostAddress();
         }
 
         String ipSeparator = ",";
@@ -74,7 +75,7 @@ public class IpUtil {
 
         if (StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getRemoteAddr();
-            //根据网卡取本机配置的IP
+            // 根据网卡取本机配置的IP
             if (LOCALHOST_IP_V4.equals(ipAddress) || LOCALHOST_IP_V6.equals(ipAddress)) {
                 InetAddress inet = null;
                 try {

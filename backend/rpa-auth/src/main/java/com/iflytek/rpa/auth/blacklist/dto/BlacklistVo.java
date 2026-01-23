@@ -1,16 +1,15 @@
 package com.iflytek.rpa.auth.blacklist.dto;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 /**
  * 黑名单视图对象
- * 
+ *
  * @author system
  * @date 2025-12-16
  */
@@ -102,4 +101,3 @@ public class BlacklistVo implements Serializable {
      */
     private LocalDateTime createTime;
 }
-

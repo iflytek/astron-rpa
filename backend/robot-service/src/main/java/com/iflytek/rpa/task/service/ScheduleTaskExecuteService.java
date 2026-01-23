@@ -16,7 +16,6 @@ import com.iflytek.rpa.utils.response.AppResponse;
  */
 public interface ScheduleTaskExecuteService {
 
-
     AppResponse<?> setTaskExecuteStatus(TaskExecuteDto executeDto) throws NoLoginException;
 
     AppResponse<?> getTaskExecuteRecordList(TaskExecuteDto executeDto) throws NoLoginException;

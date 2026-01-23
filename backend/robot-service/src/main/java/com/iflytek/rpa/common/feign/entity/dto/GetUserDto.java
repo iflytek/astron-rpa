@@ -4,8 +4,7 @@ public class GetUserDto {
     private String userId;
     private String loginName;
 
-    public GetUserDto() {
-    }
+    public GetUserDto() {}
 
     public String getUserId() {
         return this.userId;

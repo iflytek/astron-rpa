@@ -5,8 +5,6 @@ import com.iflytek.rpa.auth.dataPreheater.entity.AppMarket;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
 /**
  * 团队市场-团队表(AppMarket)表数据库访问层
  *
@@ -18,6 +16,4 @@ public interface AppMarketDao extends BaseMapper<AppMarket> {
     AppMarket selectPublicMarket(String tenantId);
 
     Integer addMarketWithType(@Param("entity") AppMarket appMarket);
-
 }
-

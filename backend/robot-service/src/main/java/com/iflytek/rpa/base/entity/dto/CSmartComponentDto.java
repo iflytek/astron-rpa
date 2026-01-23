@@ -1,14 +1,12 @@
 package com.iflytek.rpa.base.entity.dto;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
 
 import com.alibaba.fastjson.JSONObject;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import javax.validation.constraints.NotBlank;
-import java.util.List;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDIT_PAGE;
 
 @Data
 public class CSmartComponentDto {

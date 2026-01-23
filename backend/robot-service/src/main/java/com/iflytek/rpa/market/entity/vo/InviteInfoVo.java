@@ -17,4 +17,3 @@ public class InviteInfoVo extends AcceptResultVo {
      */
     private String marketName;
 }
-

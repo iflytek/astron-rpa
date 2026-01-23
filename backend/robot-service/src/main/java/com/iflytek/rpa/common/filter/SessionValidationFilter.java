@@ -1,5 +1,15 @@
 package com.iflytek.rpa.common.filter;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,17 +24,6 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 通过调用认证服务的 session 校验接口，复用 UAP 的认证结果。
@@ -97,12 +96,12 @@ public class SessionValidationFilter extends OncePerRequestFilter {
             return true;
         }
         String uri = request.getRequestURI();
-        
+
         // astron-agent接口使用API Key认证，不需要session校验
         if (uri.contains("/astron-agent")) {
             return true;
         }
-        
+
         if (StringUtils.isBlank(sessionFilterExclude)) {
             return false;
         }
@@ -131,7 +130,7 @@ public class SessionValidationFilter extends OncePerRequestFilter {
 
         HttpStatus status = authResponse.getStatusCode();
         byte[] body = authResponse.getBody();
-        
+
         // 如果状态码是2xx，需要检查响应体是否是重定向JSON或空间到期响应
         if (status.is2xxSuccessful()) {
             // 检查是否是包含 ret:302 的重定向JSON响应
@@ -181,7 +180,7 @@ public class SessionValidationFilter extends OncePerRequestFilter {
         // 传递可能参与认证的 header
         copyHeaderIfPresent(request, headers, "Authorization");
         copyHeaderIfPresent(request, headers, "X-User-Id");
-        
+
         // 添加 x-requested-with header，标识为 AJAX 请求
         headers.add("x-requested-with", "XMLHttpRequest");
     }
@@ -243,16 +242,15 @@ public class SessionValidationFilter extends OncePerRequestFilter {
         try {
             String bodyStr = new String(body, java.nio.charset.StandardCharsets.UTF_8).trim();
             // 判断错误码900001（E_NOT_LOGIN），并且包含"其他地方登录"的提示
-            return bodyStr.contains("\"code\":\"900001\"") && 
-                   (bodyStr.contains("其他地方登录") || bodyStr.contains("会话已失效"));
+            return bodyStr.contains("\"code\":\"900001\"") && (bodyStr.contains("其他地方登录") || bodyStr.contains("会话已失效"));
         } catch (Exception e) {
             log.debug("解析响应体失败，不视为单点登录失效响应", e);
             return false;
         }
     }
 
-    private void writeBackResponse(HttpServletResponse response, int status,
-                                   HttpHeaders headers, byte[] body) throws IOException {
+    private void writeBackResponse(HttpServletResponse response, int status, HttpHeaders headers, byte[] body)
+            throws IOException {
         response.setStatus(status);
         if (headers != null) {
             headers.forEach((name, values) -> {
@@ -270,4 +268,3 @@ public class SessionValidationFilter extends OncePerRequestFilter {
         }
     }
 }
-

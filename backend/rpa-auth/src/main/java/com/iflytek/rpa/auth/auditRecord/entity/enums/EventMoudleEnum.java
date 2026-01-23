@@ -3,7 +3,6 @@ package com.iflytek.rpa.auth.auditRecord.entity.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ public enum EventMoudleEnum implements IEnum<Integer> {
     PROJECT(12, "工程管理"),
     TASK(13, "任务管理"),
     TERMINAL(14, "终端管理"),
-
     ;
 
     EventMoudleEnum(int code, String name) {
@@ -40,7 +38,6 @@ public enum EventMoudleEnum implements IEnum<Integer> {
         initEventModuleList();
     }
 
-
     public static void initEventModuleMap() {
         for (EventMoudleEnum eventMoudleEnum : EventMoudleEnum.values()) {
             eventModuleMap.put(eventMoudleEnum.getCode(), eventMoudleEnum.getName());
@@ -49,10 +46,12 @@ public enum EventMoudleEnum implements IEnum<Integer> {
 
     public static void initEventModuleList() {
         for (EventMoudleEnum eventMoudleEnum : EventMoudleEnum.values()) {
-            eventModuleList.add(new HashMap<String, String>() {{
-                put("typeCode", String.valueOf(eventMoudleEnum.getCode()));
-                put("typeName", eventMoudleEnum.getName());
-            }});
+            eventModuleList.add(new HashMap<String, String>() {
+                {
+                    put("typeCode", String.valueOf(eventMoudleEnum.getCode()));
+                    put("typeName", eventMoudleEnum.getName());
+                }
+            });
         }
     }
 

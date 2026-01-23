@@ -1,11 +1,10 @@
 package com.iflytek.rpa.monitor.entity;
 
-import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.Date;
+import javax.validation.constraints.NotBlank;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 public class RobotMonitorDto {
@@ -29,7 +28,6 @@ public class RobotMonitorDto {
     private Long executeSuccess = 0L;
 
     private BigDecimal executeSuccessRate = new BigDecimal(0);
-
 
     /**
      * 执行失败次数

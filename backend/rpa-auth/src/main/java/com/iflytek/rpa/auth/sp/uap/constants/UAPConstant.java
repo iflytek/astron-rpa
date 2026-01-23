@@ -2,17 +2,17 @@ package com.iflytek.rpa.auth.sp.uap.constants;
 
 public class UAPConstant {
     public static final String PERSONAL_TENANT_CODE = "pe_";
-    
+
     /**
      * 专业版租户前缀
      */
     public static final String PROFESSIONAL_TENANT_CODE = "pr_";
-    
+
     /**
      * 买断企业版租户前缀
      */
     public static final String ENTERPRISE_PURCHASED_TENANT_CODE = "ep_";
-    
+
     /**
      * 非买断企业版租户前缀
      */

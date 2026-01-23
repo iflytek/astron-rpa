@@ -30,7 +30,8 @@ public class TenantMapper {
         // 使用BeanUtils复制属性
         BeanUtils.copyProperties(uapTenant, tenant);
 
-        if (uapTenant.getTenantCode() == null || uapTenant.getTenantCode().startsWith(UAPConstant.PERSONAL_TENANT_CODE)) {
+        if (uapTenant.getTenantCode() == null
+                || uapTenant.getTenantCode().startsWith(UAPConstant.PERSONAL_TENANT_CODE)) {
             tenant.setTenantType(UAPConstant.TENANT_TYPE_PERSONAL);
         } else if (uapTenant.getTenantCode().startsWith(UAPConstant.PROFESSIONAL_TENANT_CODE)) {
             tenant.setTenantType(UAPConstant.TENANT_TYPE_PROFESSIONAL);
@@ -43,4 +44,3 @@ public class TenantMapper {
         return tenant;
     }
 }
-

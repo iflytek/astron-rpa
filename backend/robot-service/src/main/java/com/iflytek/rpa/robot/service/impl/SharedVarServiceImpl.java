@@ -22,17 +22,16 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * 共享变量服务实现类
@@ -45,15 +44,18 @@ import java.util.stream.Collectors;
 public class SharedVarServiceImpl extends ServiceImpl<SharedVarDao, SharedVar> implements SharedVarService {
     @Resource
     private SharedVarDao sharedVarDao;
+
     @Resource
     private SharedSubVarDao sharedSubVarDao;
+
     @Resource
     private SharedVarUserDao sharedVarUserDao;
+
     @Resource
     private SharedVarKeyTenantDao sharedVarKeyTenantDao;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
-
 
     /**
      * 获取共享变量租户密钥
@@ -122,7 +124,8 @@ public class SharedVarServiceImpl extends ServiceImpl<SharedVarDao, SharedVar> i
     private List<ClientSharedVarVo> packageResultVo(List<SharedVar> availableVars, String aesKey) {
         List<Long> sharedVarIds = availableVars.stream().map(SharedVar::getId).collect(Collectors.toList());
         List<SharedSubVarVo> subVarList = baseMapper.getSubVarListBySharedVarIds(sharedVarIds);
-        Map<Long, List<SharedSubVarVo>> sharedVarId2SubVarMap = subVarList.stream().collect(Collectors.groupingBy(SharedSubVarVo::getSharedVarId));
+        Map<Long, List<SharedSubVarVo>> sharedVarId2SubVarMap =
+                subVarList.stream().collect(Collectors.groupingBy(SharedSubVarVo::getSharedVarId));
 
         List<ClientSharedVarVo> result = new ArrayList<>();
         for (SharedVar sharedVar : availableVars) {

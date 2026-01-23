@@ -1,12 +1,10 @@
 package com.iflytek.rpa.utils;
 
-import com.iflytek.rpa.utils.exception.ServiceException;
-import com.iflytek.rpa.utils.response.ErrorCodeEnum;
-
-import java.util.concurrent.TimeUnit;
-
 import static com.iflytek.rpa.utils.RedisUtils.redisTemplate;
 
+import com.iflytek.rpa.utils.exception.ServiceException;
+import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 防抖相关
@@ -20,14 +18,14 @@ public class DeBounceUtils {
      */
     public static void deBounce(String createLikeKey, Long deBounceWindow) {
         Boolean b = redisTemplate.hasKey(createLikeKey);
-        if (b != null && b){
+        if (b != null && b) {
             // 已经存在了
             redisTemplate.expire(createLikeKey, deBounceWindow, TimeUnit.MILLISECONDS);
             throw new ServiceException(ErrorCodeEnum.E_SERVICE.getCode(), "操作太快了，稍后再试");
-        }{
+        }
+        {
             // 不存在
             redisTemplate.opsForValue().set(createLikeKey, "1", deBounceWindow, TimeUnit.MILLISECONDS);
         }
     }
-
 }

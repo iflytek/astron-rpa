@@ -7,7 +7,6 @@ import com.iflytek.rpa.market.entity.dto.AppMarketClassificationManageVo;
 import com.iflytek.rpa.market.entity.vo.AppMarketClassificationVo;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-
 import java.util.List;
 
 /**
@@ -32,7 +31,8 @@ public interface AppMarketClassificationService {
      * @return 分类列表（按sort和创建时间排序）
      * @throws NoLoginException 未登录异常
      */
-    AppResponse<List<AppMarketClassificationManageVo>> getClassificationManageList(AppMarketClassificationManageRequest request) throws NoLoginException, JsonProcessingException;
+    AppResponse<List<AppMarketClassificationManageVo>> getClassificationManageList(
+            AppMarketClassificationManageRequest request) throws NoLoginException, JsonProcessingException;
 
     /**
      * 分类管理-新增分类
@@ -60,7 +60,4 @@ public interface AppMarketClassificationService {
      * @throws NoLoginException 未登录异常
      */
     AppResponse<String> deleteClassification(AppMarketClassificationEditDto request) throws NoLoginException;
-
-
 }
-

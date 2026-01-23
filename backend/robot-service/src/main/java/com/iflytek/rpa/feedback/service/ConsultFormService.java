@@ -19,4 +19,3 @@ public interface ConsultFormService {
      */
     AppResponse<?> submitConsultForm(ConsultFormSubmitDto dto);
 }
-

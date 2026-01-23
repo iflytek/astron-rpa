@@ -1,8 +1,7 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -15,6 +14,4 @@ public class UserChangeDeptDto {
     private List<UpdateUserDto> userList;
 
     private String deptId;
-
-
 }

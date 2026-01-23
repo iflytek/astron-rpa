@@ -2,7 +2,6 @@ package com.iflytek.rpa.auth.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -11,7 +10,6 @@ import java.util.Date;
  * @author: weilai <laiwei3@iflytek.com>
  * @create: 2025/11/24 16:22
  */
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Role implements Serializable {
 
@@ -203,5 +201,4 @@ public class Role implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
-
 }

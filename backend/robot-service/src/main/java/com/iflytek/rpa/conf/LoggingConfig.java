@@ -10,7 +10,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class LoggingConfig {
-    
+
     // 该配置类确保AOP切面能够正常工作
     // @EnableAspectJAutoProxy(proxyTargetClass = true) 启用CGLIB代理，
     // 这样可以对没有实现接口的类也进行代理

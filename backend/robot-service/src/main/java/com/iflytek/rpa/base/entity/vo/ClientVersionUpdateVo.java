@@ -1,10 +1,9 @@
 package com.iflytek.rpa.base.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 客户端版本更新VO
@@ -41,7 +40,7 @@ public class ClientVersionUpdateVo implements Serializable {
      */
     private String updateInfo;
 
-        /**
+    /**
      * 操作系统
      */
     private String os;
@@ -63,4 +62,3 @@ public class ClientVersionUpdateVo implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 }
-

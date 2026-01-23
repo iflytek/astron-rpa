@@ -18,4 +18,3 @@ public interface SysTenantConfigDao extends BaseMapper<SysTenantConfig> {
     @Select("SELECT * FROM sys_tenant_config WHERE tenant_id = #{tenantId} AND deleted = 0 LIMIT 1")
     SysTenantConfig selectByTenantId(@Param("tenantId") String tenantId);
 }
-

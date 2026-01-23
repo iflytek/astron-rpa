@@ -2,6 +2,16 @@ package com.iflytek.rpa.auth.conf;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.UUID;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
@@ -11,17 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * 统一请求日志过滤器，记录请求/响应信息与耗时。
@@ -61,29 +60,46 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             hasException = true;
             capturedException = ex;
             long duration = System.currentTimeMillis() - startTime;
-            log.error("{} requestId={} method={} path={} duration={}ms error={}",
+            log.error(
+                    "{} requestId={} method={} path={} duration={}ms error={}",
                     EXCEPTION_PREFIX,
-                    requestId, method, path, duration, ex.getMessage(), ex);
+                    requestId,
+                    method,
+                    path,
+                    duration,
+                    ex.getMessage(),
+                    ex);
             throw ex;
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            String reqBody = shouldLogBody(requestWrapper.getContentType())
-                    ? getRequestBody(requestWrapper)
-                    : "[ignored]";
-            String respBody = shouldLogBody(responseWrapper.getContentType())
-                    ? getResponseBody(responseWrapper)
-                    : "[ignored]";
+            String reqBody =
+                    shouldLogBody(requestWrapper.getContentType()) ? getRequestBody(requestWrapper) : "[ignored]";
+            String respBody =
+                    shouldLogBody(responseWrapper.getContentType()) ? getResponseBody(responseWrapper) : "[ignored]";
 
-            log.info("{} requestId={} time={} method={} path={} query={} params={} reqBody={} duration={}ms hasException={}",
+            log.info(
+                    "{} requestId={} time={} method={} path={} query={} params={} reqBody={} duration={}ms hasException={}",
                     REQUEST_PREFIX,
-                    requestId, startTimeText, method, path, query,
+                    requestId,
+                    startTimeText,
+                    method,
+                    path,
+                    query,
                     truncate(buildParameterJson(requestWrapper)),
-                    truncate(reqBody), duration, hasException);
+                    truncate(reqBody),
+                    duration,
+                    hasException);
 
-            log.info("{} requestId={} method={} path={} status={} duration={}ms respBody={} hasException={} error={}",
+            log.info(
+                    "{} requestId={} method={} path={} status={} duration={}ms respBody={} hasException={} error={}",
                     RESPONSE_PREFIX,
-                    requestId, method, path, responseWrapper.getStatus(), duration,
-                    truncate(respBody), hasException,
+                    requestId,
+                    method,
+                    path,
+                    responseWrapper.getStatus(),
+                    duration,
+                    truncate(respBody),
+                    hasException,
                     capturedException == null ? "" : truncate(capturedException.getMessage()));
 
             responseWrapper.copyBodyToResponse();
@@ -159,4 +175,3 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         return false;
     }
 }
-

@@ -1,10 +1,9 @@
 package com.iflytek.rpa.feedback.entity.dto;
 
-import lombok.Data;
-
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.List;
+import lombok.Data;
 
 /**
  * 反馈提交DTO
@@ -42,4 +41,3 @@ public class FeedbackSubmitDto {
     @Size(max = 3, message = "最多只能上传3张图片")
     private List<@NotBlank(message = "图片文件ID不能为空") String> imageIds;
 }
-

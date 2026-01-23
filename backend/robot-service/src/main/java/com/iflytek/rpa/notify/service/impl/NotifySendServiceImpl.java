@@ -27,17 +27,15 @@ import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.response.QuotaCodeEnum;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -58,10 +56,8 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
     @Autowired
     private QuotaCheckService quotaCheckService;
 
-
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
-
 
     @Override
     public AppResponse<?> createNotify(CreateNotifyDto createNotifyDto) throws NoLoginException {
@@ -176,7 +172,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         wrapper.eq(NotifySend::getTenantId, tenantId);
         wrapper.last(" and create_time >= DATE_SUB(NOW(), INTERVAL 6 MONTH) " + "order by create_time desc");
 
-
         IPage<NotifySend> rePage = this.page(page, wrapper);
 
         // 结果拼接
@@ -202,8 +197,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         res.setCurrent(rePage.getCurrent());
 
         return AppResponse.success(res);
-
-
     }
 
     @Override
@@ -215,7 +208,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         }
         User loginUser = response.getData();
         String userId = loginUser.getId();
-
 
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
@@ -232,14 +224,12 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
     @Override
     public AppResponse<?> setAllNotifyRead() throws NoLoginException {
 
-
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
             throw new ServiceException("用户信息获取失败");
         }
         User loginUser = response.getData();
         String userId = loginUser.getId();
-
 
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
@@ -268,7 +258,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         } else {
             return AppResponse.error(ErrorCodeEnum.E_SQL_EXCEPTION);
         }
-
     }
 
     @Override
@@ -286,7 +275,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         } else {
             return AppResponse.error(ErrorCodeEnum.E_SQL_EXCEPTION);
         }
-
     }
 
     @Transactional
@@ -299,7 +287,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         }
         User loginUser = response.getData();
         String userId = loginUser.getId();
-
 
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
@@ -315,7 +302,8 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
             return AppResponse.error("越权访问");
         }
 
-        if (notifySend.getOperateResult().equals(3) || notifySend.getOperateResult().equals(4)) {
+        if (notifySend.getOperateResult().equals(3)
+                || notifySend.getOperateResult().equals(4)) {
             return AppResponse.error("已经操作，请勿重复动作");
         }
 
@@ -330,7 +318,7 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
                 AcceptResultVo resultVo = new AcceptResultVo(QuotaCodeEnum.E_OVER_LIMIT);
                 return AppResponse.success(resultVo);
             }
-            
+
             AppMarketUser appMarketUser = new AppMarketUser();
             appMarketUser.setMarketId(notifySend.getMarketId());
             appMarketUser.setUserType(notifySend.getUserType());
@@ -346,8 +334,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
                 return AppResponse.error("加入团队失败");
             }
         }
-
-
     }
 
     private String buildMessageInfo4Invite(String userId, String marketId) {
@@ -371,7 +357,6 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         String marketName = baseMapper.getMarketName(marketId);
         String appName = baseMapper.getAppName(marketId, appId);
 
-
         String res = "你在团队市场[" + marketName + "]获取的应用/模板/组件[" + appName + "]有更新，去看看吧";
         return res;
     }
@@ -391,7 +376,10 @@ public class NotifySendServiceImpl extends ServiceImpl<NotifySendMapper, NotifyS
         } else if ("release".equals(applicationType)) {
             applicationTypeStr = "上架";
         }
-        RobotExecute robotExecute = robotExecuteDao.queryByRobotId(applicationNotifyDto.getRobotId(), applicationNotifyDto.getUserId(), applicationNotifyDto.getTenantId());
+        RobotExecute robotExecute = robotExecuteDao.queryByRobotId(
+                applicationNotifyDto.getRobotId(),
+                applicationNotifyDto.getUserId(),
+                applicationNotifyDto.getTenantId());
         String robotStr = robotExecute != null ? robotExecute.getName() : "";
 
         return String.format("您的%s机器人%s申请流程%s，请至应用市场查看", robotStr, applicationTypeStr, statusStr);

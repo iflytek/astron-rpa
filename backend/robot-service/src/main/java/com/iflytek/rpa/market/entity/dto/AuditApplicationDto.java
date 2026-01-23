@@ -1,9 +1,8 @@
 package com.iflytek.rpa.market.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -33,7 +32,6 @@ public class AuditApplicationDto {
     @NotBlank(message = "审核结果不能为空")
     private String status;
 
-
     /**
      * 审核设置的密级red,green,yellow
      */
@@ -54,11 +52,8 @@ public class AuditApplicationDto {
      */
     private String auditOpinion;
 
-
     /**
      * 选择绿色密级时，后续更新发版是否默认通过
      */
     private Short defaultPass;
-
-
 }

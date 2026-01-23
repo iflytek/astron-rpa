@@ -21,4 +21,3 @@ public class UserRegisterVo {
 
     private String url;
 }
-

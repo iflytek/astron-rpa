@@ -16,4 +16,3 @@ public class FeedbackSubmitResponse {
      */
     private String reportNo;
 }
-

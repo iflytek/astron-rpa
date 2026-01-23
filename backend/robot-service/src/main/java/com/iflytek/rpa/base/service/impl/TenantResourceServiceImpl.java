@@ -16,21 +16,21 @@ import com.iflytek.rpa.common.feign.entity.TenantExpirationDto;
 import com.iflytek.rpa.utils.RedisUtils;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * 租户资源服务实现类
  */
 @Slf4j
 @Service
-public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, SysTenantConfig> implements TenantResourceService {
+public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, SysTenantConfig>
+        implements TenantResourceService {
 
     private static final String REDIS_KEY_PREFIX = "tenant:resource:config:";
     private static final long CACHE_EXPIRE_SECONDS = 3600; // 缓存1小时
@@ -178,7 +178,7 @@ public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, S
      */
     private Map<String, ResourceConfigDto> buildFullConfig(SysTenantConfig tenantConfig) {
         Long versionId = tenantConfig.getVersionId();
-        
+
         // 获取版本默认配置
         List<SysVersionDefaultConfig> defaultConfigs = sysVersionDefaultConfigDao.selectByVersionId(versionId);
         if (defaultConfigs.isEmpty()) {
@@ -189,13 +189,12 @@ public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, S
         // 解析修改项（extraConfigJson），只存储有修改的资源
         // extraConfigJson只包含type、base、final字段，不包含urls和parent
         Map<String, ResourceConfigDto> modifiedConfigMap = new HashMap<>();
-        if (StringUtils.isNotBlank(tenantConfig.getExtraConfigJson()) && !"{}".equals(tenantConfig.getExtraConfigJson())) {
+        if (StringUtils.isNotBlank(tenantConfig.getExtraConfigJson())
+                && !"{}".equals(tenantConfig.getExtraConfigJson())) {
             try {
                 // 先解析为Map<String, Map<String, Object>>
                 Map<String, Map<String, Object>> rawMap = JSON.parseObject(
-                        tenantConfig.getExtraConfigJson(),
-                        new TypeReference<Map<String, Map<String, Object>>>() {}
-                );
+                        tenantConfig.getExtraConfigJson(), new TypeReference<Map<String, Map<String, Object>>>() {});
                 // 转换为ResourceConfigDto（只包含type、base、final）
                 for (Map.Entry<String, Map<String, Object>> entry : rawMap.entrySet()) {
                     Map<String, Object> configMap = entry.getValue();
@@ -272,12 +271,11 @@ public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, S
 
             // 解析现有的修改项
             Map<String, ResourceConfigDto> currentModifiedMap = new HashMap<>();
-            if (StringUtils.isNotBlank(tenantConfig.getExtraConfigJson()) && !"{}".equals(tenantConfig.getExtraConfigJson())) {
+            if (StringUtils.isNotBlank(tenantConfig.getExtraConfigJson())
+                    && !"{}".equals(tenantConfig.getExtraConfigJson())) {
                 try {
                     currentModifiedMap = JSON.parseObject(
-                            tenantConfig.getExtraConfigJson(),
-                            new TypeReference<Map<String, ResourceConfigDto>>() {}
-                    );
+                            tenantConfig.getExtraConfigJson(), new TypeReference<Map<String, ResourceConfigDto>>() {});
                 } catch (Exception e) {
                     log.warn("解析现有修改配置失败，tenantId: {}", tenantId, e);
                 }
@@ -313,7 +311,8 @@ public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, S
             for (Map.Entry<String, ResourceConfigDto> entry : currentModifiedMap.entrySet()) {
                 ResourceConfigDto config = entry.getValue();
                 // 只存储final值不等于base的资源
-                if (config.getFinalValue() != null && config.getBase() != null 
+                if (config.getFinalValue() != null
+                        && config.getBase() != null
                         && !config.getFinalValue().equals(config.getBase())) {
                     Map<String, Object> configMap = new HashMap<>();
                     configMap.put("type", config.getType());
@@ -357,4 +356,3 @@ public class TenantResourceServiceImpl extends ServiceImpl<SysTenantConfigDao, S
         return configMap.get(resourceCode);
     }
 }
-

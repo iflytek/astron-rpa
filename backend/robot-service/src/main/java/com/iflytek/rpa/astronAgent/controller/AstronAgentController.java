@@ -6,10 +6,9 @@ import com.iflytek.rpa.astronAgent.entity.dto.GetUserIdDto;
 import com.iflytek.rpa.astronAgent.entity.dto.GetUserIdResponseDto;
 import com.iflytek.rpa.astronAgent.service.AstronAgentService;
 import com.iflytek.rpa.utils.response.AppResponse;
-import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * AstronAgent控制器
@@ -17,10 +16,10 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/astron-agent")
 public class AstronAgentController {
-    
+
     @Resource
     private AstronAgentService astronAgentService;
-    
+
     /**
      * 复制机器人到目标用户的个人租户下
      * @param copyRobotDto 复制机器人请求参数
@@ -30,7 +29,7 @@ public class AstronAgentController {
     public AppResponse<CopyRobotResponseDto> copyRobot(@Valid @RequestBody CopyRobotDto copyRobotDto) {
         return astronAgentService.copyRobot(copyRobotDto);
     }
-    
+
     /**
      * 通过手机号获取用户ID
      * @param getUserIdDto 获取用户ID请求参数

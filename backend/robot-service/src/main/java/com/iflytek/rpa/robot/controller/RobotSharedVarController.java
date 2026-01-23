@@ -6,10 +6,9 @@ import com.iflytek.rpa.robot.entity.vo.SharedVarKeyVo;
 import com.iflytek.rpa.robot.service.SharedVarService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
 import java.util.List;
+import javax.annotation.Resource;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 共享变量管理
@@ -54,7 +53,8 @@ public class RobotSharedVarController {
      * @throws NoLoginException
      */
     @PostMapping("/get-batch-shared-var")
-    public AppResponse<List<ClientSharedVarVo>> getBatchSharedVar(@RequestBody SharedVarBatchDto dto) throws NoLoginException {
+    public AppResponse<List<ClientSharedVarVo>> getBatchSharedVar(@RequestBody SharedVarBatchDto dto)
+            throws NoLoginException {
         return sharedVarService.getBatchSharedVar(dto);
     }
 }

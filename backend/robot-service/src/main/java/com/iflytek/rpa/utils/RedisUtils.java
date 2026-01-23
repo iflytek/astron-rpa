@@ -1,14 +1,12 @@
 package com.iflytek.rpa.utils;
 
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.CollectionUtils;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.CollectionUtils;
 
 public class RedisUtils {
     public static RedisTemplate<String, Object> redisTemplate;
@@ -73,7 +71,7 @@ public class RedisUtils {
         }
     }
 
-    //============================String=============================
+    // ============================String=============================
 
     /**
      * 普通缓存获取
@@ -186,7 +184,7 @@ public class RedisUtils {
         return redisTemplate.opsForValue().increment(key, -delta);
     }
 
-    //================================Map=================================
+    // ================================Map=================================
 
     /**
      * HashGet
@@ -332,7 +330,7 @@ public class RedisUtils {
         return redisTemplate.opsForHash().increment(key, item, -by);
     }
 
-    //============================set=============================
+    // ============================set=============================
 
     /**
      * 根据key获取Set中的所有值
@@ -432,7 +430,7 @@ public class RedisUtils {
             return 0;
         }
     }
-    //===============================list=================================
+    // ===============================list=================================
 
     /**
      * 获取list缓存的内容
@@ -593,8 +591,7 @@ public class RedisUtils {
         }
     }
 
-
-    //===============================ZSet=================================
+    // ===============================ZSet=================================
 
     /**
      * 获取有序集合的成员数
@@ -829,6 +826,4 @@ public class RedisUtils {
             return null;
         }
     }
-
-
 }

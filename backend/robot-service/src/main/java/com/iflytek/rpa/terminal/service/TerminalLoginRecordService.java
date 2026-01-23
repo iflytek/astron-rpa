@@ -1,6 +1,5 @@
 package com.iflytek.rpa.terminal.service;
 
-
 import com.iflytek.rpa.terminal.entity.TerminalLoginRecord;
 
 /**
@@ -9,13 +8,11 @@ import com.iflytek.rpa.terminal.entity.TerminalLoginRecord;
  * @copyright Copyright (c) 2025 mjren
  */
 public interface TerminalLoginRecordService {
-   Integer countUnLogoutRecordByTerminalId(String terminalId);
+    Integer countUnLogoutRecordByTerminalId(String terminalId);
 
-   Integer insertRecord(TerminalLoginRecord loginRecord);
+    Integer insertRecord(TerminalLoginRecord loginRecord);
 
-   Integer setLogout(TerminalLoginRecord loginRecord);
+    Integer setLogout(TerminalLoginRecord loginRecord);
 
-   TerminalLoginRecord selectLogoutCandidates(String userId);
-
-
+    TerminalLoginRecord selectLogoutCandidates(String userId);
 }

@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class GetUserIdResponseDto {
-    
+
     /**
      * 用户ID
      */

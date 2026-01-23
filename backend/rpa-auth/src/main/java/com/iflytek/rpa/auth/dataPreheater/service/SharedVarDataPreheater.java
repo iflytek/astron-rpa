@@ -1,19 +1,16 @@
 package com.iflytek.rpa.auth.dataPreheater.service;
 
-
 import com.iflytek.rpa.auth.dataPreheater.dao.SharedVarKeyTenantDao;
 import com.iflytek.rpa.auth.dataPreheater.entity.InitDataEvent;
 import com.iflytek.rpa.auth.dataPreheater.entity.SharedVarKeyTenant;
 import com.iflytek.rpa.auth.utils.IdWorker;
 import com.iflytek.rpa.auth.utils.StringUtils;
+import java.security.SecureRandom;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.security.SecureRandom;
-
 
 @Slf4j
 @Service

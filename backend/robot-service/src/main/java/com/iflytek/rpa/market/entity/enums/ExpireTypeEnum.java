@@ -1,6 +1,5 @@
 package com.iflytek.rpa.market.entity.enums;
 
-
 import lombok.Getter;
 
 @Getter
@@ -37,4 +36,3 @@ public enum ExpireTypeEnum {
         return null;
     }
 }
-

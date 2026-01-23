@@ -4,8 +4,7 @@ public class TenantModeExtendDto {
     private String tenantId;
     private String requestUrl;
 
-    public TenantModeExtendDto() {
-    }
+    public TenantModeExtendDto() {}
 
     public String getTenantId() {
         return this.tenantId;

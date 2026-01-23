@@ -46,6 +46,4 @@ public interface AppMarketInviteService {
      * @throws NoLoginException 未登录异常
      */
     AppResponse<AcceptResultVo> acceptInvite(String inviteKey) throws NoLoginException;
-
 }
-

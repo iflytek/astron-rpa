@@ -1,5 +1,8 @@
 package com.iflytek.rpa.robot.service.impl;
 
+import static com.iflytek.rpa.market.constants.AuditConstant.AUDIT_ENABLE_STATUS_OFF;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
+
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -40,6 +43,11 @@ import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.response.QuotaCodeEnum;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,15 +56,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.market.constants.AuditConstant.AUDIT_ENABLE_STATUS_OFF;
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
 /**
  * 云端机器人表(Robot)表服务实现类
@@ -125,12 +124,12 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     private AppApplicationService appApplicationService;
 
     private final String filePathPrefix = "/api/resource/file/download?fileId=";
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
 
     @Autowired
     private QuotaCheckService quotaCheckService;
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -177,7 +176,7 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         String cacheKey = "quota:count:designer:" + tenantId + ":" + userId;
         com.iflytek.rpa.utils.RedisUtils.del(cacheKey);
 
-        //新建默认流程,机器人版本是0
+        // 新建默认流程,机器人版本是0
         CProcess cProcess = new CProcess();
         cProcess.setRobotId(robotId);
         cProcess.setProcessId(idWorker.nextId() + "");
@@ -191,7 +190,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         cProcess1.setProcessId(cProcess.getProcessId());
         return AppResponse.success(cProcess1);
     }
-
 
     @Override
     public AppResponse<?> createRobotName() throws NoLoginException {
@@ -228,7 +226,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
         return AppResponse.success(robotNameBase + robotNameIndex);
     }
-
 
     @Override
     public AppResponse<?> designList(DesignListDto queryDto) throws NoLoginException {
@@ -301,8 +298,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         ansPage.setRecords(ansRecords);
 
         return AppResponse.success(ansPage);
-
-
     }
 
     private void packageApplicationStatus(List<DesignListVo> ansRecords) throws NoLoginException {
@@ -315,17 +310,23 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
                 return;
             }
             // 开启了上架审核，查询上架状态
-            List<LatestVersionRobotVo> robotVoList = ansRecords.stream().map(record -> {
-                LatestVersionRobotVo vo = new LatestVersionRobotVo();
-                vo.setRobotId(record.getRobotId());
-                vo.setLatestVersion(record.getLatestVersion());
-                return vo;
-            }).collect(Collectors.toList());
+            List<LatestVersionRobotVo> robotVoList = ansRecords.stream()
+                    .map(record -> {
+                        LatestVersionRobotVo vo = new LatestVersionRobotVo();
+                        vo.setRobotId(record.getRobotId());
+                        vo.setLatestVersion(record.getLatestVersion());
+                        return vo;
+                    })
+                    .collect(Collectors.toList());
 
             // 调用方法获取上架申请状态
             List<LatestVersionRobotVo> resultList = appApplicationService.getRobotListApplicationStatus(robotVoList);
 
-            Map<String, String> robotStatusMap = resultList.stream().collect(Collectors.toMap(vo -> vo.getRobotId() + "_" + vo.getLatestVersion(), LatestVersionRobotVo::getApplicationStatus, (existing, replacement) -> existing));
+            Map<String, String> robotStatusMap = resultList.stream()
+                    .collect(Collectors.toMap(
+                            vo -> vo.getRobotId() + "_" + vo.getLatestVersion(),
+                            LatestVersionRobotVo::getApplicationStatus,
+                            (existing, replacement) -> existing));
             ansRecords.forEach(record -> {
                 String key = record.getRobotId() + "_" + record.getLatestVersion();
                 String status = robotStatusMap.get(key);
@@ -350,8 +351,7 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
         String tenantId = resp.getData();
 
-        if (StringUtils.isBlank(newName) || StringUtils.isBlank(robotId))
-            return AppResponse.error("更新失败，新名字或机器人Id为空");
+        if (StringUtils.isBlank(newName) || StringUtils.isBlank(robotId)) return AppResponse.error("更新失败，新名字或机器人Id为空");
 
         // 去掉首尾的空格
         newName = trimSpaces(newName);
@@ -373,13 +373,10 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
         if (b) return AppResponse.success("更新成功");
         else return AppResponse.error("更新失败");
-
-
     }
 
     @Override
     public AppResponse<?> designNameDup(String newName, String robotId) throws NoLoginException {
-
 
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
@@ -395,8 +392,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
         if (StringUtils.isNotBlank(newName)) {
 
-//                String oriRobotName = robotDesignDao.getRobotName(robotId, userId, tenantId);
-//                if (newName.equals(oriRobotName)) return AppResponse.error("不能和原名相同");
+            //                String oriRobotName = robotDesignDao.getRobotName(robotId, userId, tenantId);
+            //                if (newName.equals(oriRobotName)) return AppResponse.error("不能和原名相同");
             trimSpaces(newName); // 去除首尾空格
             if (StringUtils.isBlank(newName)) return AppResponse.error("新名字不能为空");
 
@@ -406,7 +403,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
 
         return AppResponse.error("校验失败，新名字为空");
-
     }
 
     @Override
@@ -434,7 +430,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         MyRobotDetailVo resVo = getMyRobotDetailRes(robot, enableVersion);
 
         return AppResponse.success(resVo);
-
     }
 
     @Override
@@ -460,13 +455,11 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         MarketRobotDetailVo resVo = getMarketRobotDetailRes(robot, enableVersion, userId, tenantId);
 
         return AppResponse.success(resVo);
-
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public AppResponse<?> copyDesignRobot(String robotId, String robotName) throws Exception {
-
 
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
@@ -502,12 +495,10 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         designRobotCopy(robot, userId, robotId, newName);
 
         return AppResponse.success("创建副本成功");
-
     }
 
     @Override
     public AppResponse<?> deleteRobotRes(String robotId) throws Exception {
-
 
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || !response.ok()) {
@@ -529,7 +520,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         DelDesignRobotVo resVo = getDeleteRobotVo(robotExecute, taskRobotList, robotId, userId, tenantId);
 
         return AppResponse.success(resVo);
-
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -593,7 +583,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
                 if (executeId3 != null) {
                     robotExecuteDao.deleteExecuteById(executeId3);
                 }
-                List<Integer> taskRobotIdList = scheduleTaskRobotDao.getTaskRobotIds(robotId, userId, tenantId, taskIdList);
+                List<Integer> taskRobotIdList =
+                        scheduleTaskRobotDao.getTaskRobotIds(robotId, userId, tenantId, taskIdList);
                 if (taskRobotIdList != null && !taskRobotIdList.isEmpty()) {
                     z = scheduleTaskRobotDao.taskRobotDeleteByIds(taskRobotIdList);
                 }
@@ -608,7 +599,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             default:
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_CHECK);
         }
-
     }
 
     /**
@@ -620,43 +610,38 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     private void sendDeleteRequestToOpenApi(String robotId, String userId) {
         try {
             log.info("删除机器人时请求openapi，robotId: {}", robotId);
-            
+
             // 构建请求体
             JSONObject requestBody = new JSONObject();
             requestBody.put("project_id", robotId);
             requestBody.put("status", 0);
-            
+
             String requestBodyStr = requestBody.toJSONString();
             log.info("请求openapi参数: {}", requestBodyStr);
-            
+
             // 创建 RestTemplate 实例
             RestTemplate restTemplate = new RestTemplate();
-            
+
             // 设置请求头
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("user_id", userId);
-            
+
             // 创建请求实体
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyStr, headers);
-            
+
             // openapi URL
             String openApiUrl = ExampleConstants.WORKFLOWS_UPSERT_URL;
-            
+
             // 发起 POST 请求
-            ResponseEntity<String> response = restTemplate.exchange(
-                    openApiUrl, 
-                    HttpMethod.POST, 
-                    requestEntity, 
-                    String.class
-            );
-            
+            ResponseEntity<String> response =
+                    restTemplate.exchange(openApiUrl, HttpMethod.POST, requestEntity, String.class);
+
             log.info(
                     "OpenAPI 请求成功，URL: {}, 响应状态: {}, 响应体: {}",
                     openApiUrl,
                     response.getStatusCode(),
-                    response.getBody()
-            );
+                    response.getBody());
         } catch (Exception e) {
             log.error("OpenAPI 请求失败，robotId: {}, 错误信息: {}", robotId, e.getMessage(), e);
             // 不抛出异常，避免影响删除操作
@@ -667,7 +652,11 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     public void taskRobotDeleteAfter(List<String> taskIdList) throws Exception {
         List<TaskRobotCountDto> taskRobotCountDtoList = scheduleTaskRobotDao.taskRobotCount(taskIdList);
         // 求 taskRobotCountDtoList 与  taskIdList 的 差集，  taskIdNotInList中存放差集元素
-        Set<String> taskIdNotInList = taskIdList.stream().filter(taskId -> taskRobotCountDtoList.stream().noneMatch(taskRobotCountDto -> taskRobotCountDto.getTaskId().equals(taskId))).collect(Collectors.toSet());
+        Set<String> taskIdNotInList = taskIdList.stream()
+                .filter(taskId -> taskRobotCountDtoList.stream()
+                        .noneMatch(taskRobotCountDto ->
+                                taskRobotCountDto.getTaskId().equals(taskId)))
+                .collect(Collectors.toSet());
         /*for (String taskId : taskIdList) {
             List<TaskRobotCountDto> collect = taskRobotCountDtoList
                     .stream()
@@ -689,17 +678,22 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
     }
 
-
-    private DelDesignRobotVo getDeleteRobotVo(RobotExecute robotExecute, List<ScheduleTaskRobot> taskRobotList, String robotId, String userId, String tenantId) throws Exception {
+    private DelDesignRobotVo getDeleteRobotVo(
+            RobotExecute robotExecute,
+            List<ScheduleTaskRobot> taskRobotList,
+            String robotId,
+            String userId,
+            String tenantId)
+            throws Exception {
 
         DelDesignRobotVo resVo = new DelDesignRobotVo();
         resVo.setRobotId(robotId);
 
         // 1：设计器
         if (robotExecute == null) resVo.setSituation(1);
-            // 2：设计器 执行器
+        // 2：设计器 执行器
         else if (robotExecute != null && (CollectionUtils.isEmpty(taskRobotList))) resVo.setSituation(2);
-            // 3：设计器 执行器 被计划任务引用
+        // 3：设计器 执行器 被计划任务引用
         else {
             resVo.setSituation(3);
             setDelDesignRobotVo(resVo, taskRobotList, robotId);
@@ -709,12 +703,14 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     }
 
     // 第三种情况
-    public void setDelDesignRobotVo(DelDesignRobotVo resVo, List<ScheduleTaskRobot> taskRobotList, String robotId) throws Exception {
+    public void setDelDesignRobotVo(DelDesignRobotVo resVo, List<ScheduleTaskRobot> taskRobotList, String robotId)
+            throws Exception {
 
         List<TaskReferInfo> taskReferInfoList = new ArrayList<>();
 
         // 获取所有引用该执行器的taskId
-        List<String> taskIdList = taskRobotList.stream().map(ScheduleTaskRobot::getTaskId).collect(Collectors.toList());
+        List<String> taskIdList =
+                taskRobotList.stream().map(ScheduleTaskRobot::getTaskId).collect(Collectors.toList());
 
         // 查询数据
         List<ScheduleTaskRobot> taskRobots = scheduleTaskRobotDao.getScheduleRobotByTaskIds(taskIdList);
@@ -727,7 +723,9 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             TaskReferInfo taskReferInfo = new TaskReferInfo();
 
             // 筛选出当前taskId的taskRobot
-            List<ScheduleTaskRobot> taskRobotsTmp = taskRobots.stream().filter(taskRobot -> taskRobot.getTaskId().equals(taskId)).collect(Collectors.toList());
+            List<ScheduleTaskRobot> taskRobotsTmp = taskRobots.stream()
+                    .filter(taskRobot -> taskRobot.getTaskId().equals(taskId))
+                    .collect(Collectors.toList());
 
             // 通过sort字段排序  正序
             taskRobotsTmp.sort((o1, o2) -> o1.getSort().compareTo(o2.getSort()));
@@ -753,7 +751,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
 
         resVo.setTaskReferInfoList(taskReferInfoList);
-
     }
 
     public void designRobotCopy(RobotDesign robot, String userId, String robotId, String robotName) throws Exception {
@@ -797,10 +794,10 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         smartComponentCopy(oldRobotId, newRobotId, userId);
     }
 
-
     public void smartComponentCopy(String oldRobotId, String newRobotId, String userId) {
         // 先查询旧机器人的smartComponent列表
-        List<CSmartComponent> oldSmartComponentList = cSmartComponentDao.getAllSmartComponentList(oldRobotId, 0, userId);
+        List<CSmartComponent> oldSmartComponentList =
+                cSmartComponentDao.getAllSmartComponentList(oldRobotId, 0, userId);
 
         if (CollectionUtils.isEmpty(oldSmartComponentList)) {
             return;
@@ -921,7 +918,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         cModuleDao.insertBatch(moduleList);
     }
 
-
     public void paramCopy(String oldRobotId, String newRobotId, String userId) {
         List<CParam> params = cParamDao.getParams(oldRobotId, userId);
         copyProcessParam(oldRobotId, newRobotId, userId, params);
@@ -929,7 +925,9 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     }
 
     private void copyProcessParam(String oldRobotId, String newRobotId, String userId, List<CParam> params) {
-        List<CParam> processParams = params.stream().filter(param -> StringUtils.isNotEmpty(param.getProcessId())).collect(Collectors.toList());
+        List<CParam> processParams = params.stream()
+                .filter(param -> StringUtils.isNotEmpty(param.getProcessId()))
+                .collect(Collectors.toList());
         processParams.removeIf(Objects::isNull);
         if (CollectionUtils.isEmpty(processParams)) return;
         // 原机器人的流程id  和  副本机器人的流程id 的映射Map:（k,v） 为 （oldProcessId,newProcessId）
@@ -954,7 +952,9 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
     }
 
     private void copyModuleParam(String oldRobotId, String newRobotId, String userId, List<CParam> params) {
-        List<CParam> moduleParams = params.stream().filter(param -> StringUtils.isNotEmpty(param.getModuleId())).collect(Collectors.toList());
+        List<CParam> moduleParams = params.stream()
+                .filter(param -> StringUtils.isNotEmpty(param.getModuleId()))
+                .collect(Collectors.toList());
         moduleParams.removeIf(Objects::isNull);
         if (CollectionUtils.isEmpty(moduleParams)) return;
         // 原机器人的流程id  和  副本机器人的流程id 的映射Map:（k,v） 为 （oldProcessId,newProcessId）
@@ -978,13 +978,13 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
     }
 
-
     private Map<String, String> getOldNewModuleIdMap(List<CModule> newModuleList, List<CModule> oldModuleList) {
         if (newModuleList.size() != oldModuleList.size()) throw new ServiceException(ErrorCodeEnum.E_SQL.getCode());
 
         Map<String, String> OldNewModuleIdMap = new HashMap<>();
         for (int i = 0; i < oldModuleList.size(); i++) {
-            OldNewModuleIdMap.put(oldModuleList.get(i).getModuleId(), newModuleList.get(i).getModuleId());
+            OldNewModuleIdMap.put(
+                    oldModuleList.get(i).getModuleId(), newModuleList.get(i).getModuleId());
         }
 
         return OldNewModuleIdMap;
@@ -995,7 +995,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
         Map<String, String> oldNewProcessIdMap = new HashMap<>();
         for (int i = 0; i < oldProcessList.size(); i++) {
-            oldNewProcessIdMap.put(oldProcessList.get(i).getProcessId(), newProcessList.get(i).getProcessId());
+            oldNewProcessIdMap.put(
+                    oldProcessList.get(i).getProcessId(), newProcessList.get(i).getProcessId());
         }
 
         return oldNewProcessIdMap;
@@ -1011,10 +1012,10 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         if (CollectionUtils.isEmpty(elementList)) return;
 
         for (CElement element : elementList) {
-//            String nextId = String.valueOf(idWorker.nextId());
+            //            String nextId = String.valueOf(idWorker.nextId());
 
             element.setId(null);
-//            element.setElementId(nextId);
+            //            element.setElementId(nextId);
             element.setRobotId(newRobotId);
             element.setCreateTime(new Date());
             element.setUpdateTime(new Date());
@@ -1083,7 +1084,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
      * @param oldProcessList
      * @param oldNewProcessIdMap
      */
-    public void subProcessWrite(List<CProcess> processList, List<CProcess> oldProcessList, Map<String, String> oldNewProcessIdMap) {
+    public void subProcessWrite(
+            List<CProcess> processList, List<CProcess> oldProcessList, Map<String, String> oldNewProcessIdMap) {
         // 说明不存在子流程
         if (processList.size() == 1) return;
         if (processList.size() != oldProcessList.size())
@@ -1121,7 +1123,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             matchCount++;
             if (matchCount > moduleIdList.size()) {
                 // 如果匹配到的位置数量超过了提供的ID数量，说明不匹配
-                throw new IllegalArgumentException("Number of matched positions (" + matchCount + ") exceeds the size of moduleIdList (" + moduleIdList.size() + ").");
+                throw new IllegalArgumentException("Number of matched positions (" + matchCount
+                        + ") exceeds the size of moduleIdList (" + moduleIdList.size() + ").");
             }
             // 获取当前匹配到的ID
             String replacementId = moduleIdList.get(moduleIdList.size() - matchCount); // moduleIdList 是0-indexed
@@ -1233,7 +1236,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             matchCount++;
             if (matchCount > processIdList.size()) {
                 // 如果匹配到的位置数量超过了提供的ID数量，说明不匹配
-                throw new IllegalArgumentException("Number of matched positions (" + matchCount + ") exceeds the size of processIdList (" + processIdList.size() + ").");
+                throw new IllegalArgumentException("Number of matched positions (" + matchCount
+                        + ") exceeds the size of processIdList (" + processIdList.size() + ").");
             }
             // 获取当前匹配到的ID
             String replacementId = processIdList.get(matchCount - 1); // processIdList 是0-indexed
@@ -1290,7 +1294,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         return resultBuffer.toString();
     }
 
-
     public void requireCopy(String oldRobotId, String newRobotId, String userId) {
         List<CRequire> requireList = requireDao.getRequire(oldRobotId, 0, userId);
         if (CollectionUtils.isEmpty(requireList)) return;
@@ -1306,7 +1309,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         requireDao.insertReqBatch(requireList);
     }
 
-    private MarketRobotDetailVo getMarketRobotDetailRes(RobotDesign robot, RobotVersion enableVersion, String userId, String tenantId) throws Exception {
+    private MarketRobotDetailVo getMarketRobotDetailRes(
+            RobotDesign robot, RobotVersion enableVersion, String userId, String tenantId) throws Exception {
 
         String appId = robot.getAppId();
         Integer appVersion = robot.getAppVersion();
@@ -1404,12 +1408,12 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         return resVo;
     }
 
-
     private void setAnsRecords(IPage<RobotDesign> rePage, List<DesignListVo> ansRecords) {
 
         List<RobotDesign> robotDesignList = rePage.getRecords();
 
-        List<String> robotIdList = robotDesignList.stream().map(RobotDesign::getRobotId).collect(Collectors.toList());
+        List<String> robotIdList =
+                robotDesignList.stream().map(RobotDesign::getRobotId).collect(Collectors.toList());
 
         List<RobotVersion> robotVersionList = robotDesignDao.getRobotVersionList(robotIdList);
 
@@ -1417,14 +1421,18 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             String robotId = ansRecord.getRobotId();
 
             // 过滤出当前robotId的robotVersion
-            List<RobotVersion> robotVersionsTmp = robotVersionList.stream().filter(robotVersion -> robotVersion.getRobotId().equals(robotId)).collect(Collectors.toList());
+            List<RobotVersion> robotVersionsTmp = robotVersionList.stream()
+                    .filter(robotVersion -> robotVersion.getRobotId().equals(robotId))
+                    .collect(Collectors.toList());
 
             if (robotVersionsTmp.size() == 0 || robotVersionsTmp == null) {
                 // 说明没有发过版本， 团队市场获取的设计器没有版本，和产品确认过了
                 ansRecord.setVersion(0);
             } else {
 
-                List<RobotVersion> enableList = robotVersionsTmp.stream().filter(robotVersion1 -> robotVersion1.getOnline().equals(1)).collect(Collectors.toList());
+                List<RobotVersion> enableList = robotVersionsTmp.stream()
+                        .filter(robotVersion1 -> robotVersion1.getOnline().equals(1))
+                        .collect(Collectors.toList());
 
                 if (CollectionUtils.isEmpty(enableList))
                     throw new ServiceException(ErrorCodeEnum.E_SQL_EXCEPTION.getCode(), "数据异常，发过版本的机器人无启用版本");
@@ -1433,7 +1441,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
                 RobotVersion enableRobotVersion = enableList.get(0);
 
                 // 发过版本的，设置最新版本
-                Optional<RobotVersion> optionalRobotVersion = robotVersionsTmp.stream().max(Comparator.comparing(RobotVersion::getVersion));
+                Optional<RobotVersion> optionalRobotVersion =
+                        robotVersionsTmp.stream().max(Comparator.comparing(RobotVersion::getVersion));
 
                 ansRecord.setLatestVersion(optionalRobotVersion.get().getVersion());
                 ansRecord.setVersion(enableRobotVersion.getVersion());
@@ -1441,7 +1450,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             }
         }
     }
-
 
     public String trimSpaces(String input) {
         if (input == null) {
@@ -1473,7 +1481,6 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
         String newRobotId = designRobotShare(robot, sharedUserId, receivedUserId, receivedTenantId, receivedRobotName);
         return AppResponse.success(newRobotId);
-
     }
 
     /**
@@ -1484,7 +1491,13 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
      * @param receivedTenantId  接收机器人的用户的租户id
      * @param receivedRobotName 机器人名称
      */
-    public String designRobotShare(RobotDesign robot, String sharedUserId, String receivedUserId, String receivedTenantId, String receivedRobotName) throws Exception {
+    public String designRobotShare(
+            RobotDesign robot,
+            String sharedUserId,
+            String receivedUserId,
+            String receivedTenantId,
+            String receivedRobotName)
+            throws Exception {
         String oldRobotId = robot.getRobotId();
         // 修改 robotDesign 的 信息
         robot.setId(null);
@@ -1507,7 +1520,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         return robot.getRobotId();
     }
 
-    public void shareRobotBaseInfo(String oldRobotId, String newRobotId, String sharedUserId, String receivedUserId) throws Exception {
+    public void shareRobotBaseInfo(String oldRobotId, String newRobotId, String sharedUserId, String receivedUserId)
+            throws Exception {
         // 分组
         groupShare(oldRobotId, sharedUserId, newRobotId, receivedUserId);
         // 元素
@@ -1556,7 +1570,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         globalVarDao.insertGloBatch(globalVarList);
     }
 
-    private void processShare(String oldRobotId, String sharedUserId, String newRobotId, String receivedUserId) throws Exception {
+    private void processShare(String oldRobotId, String sharedUserId, String newRobotId, String receivedUserId)
+            throws Exception {
         List<CProcess> processList = processDao.getProcess(oldRobotId, 0, sharedUserId);
         if (CollectionUtils.isEmpty(processList)) throw new Exception();
         for (CProcess process : processList) {
@@ -1618,7 +1633,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
      */
     private void componentUseCopy(String oldRobotId, String newRobotId, String userId) {
         // 查询原机器人的组件引用记录（版本0）
-        List<ComponentRobotUse> componentRobotUseList = componentRobotUseDao.getComponentRobotUse(oldRobotId, 0, userId);
+        List<ComponentRobotUse> componentRobotUseList =
+                componentRobotUseDao.getComponentRobotUse(oldRobotId, 0, userId);
         if (CollectionUtils.isEmpty(componentRobotUseList)) return;
 
         // 处理每条记录：id置为null，robotId改为新ID，更新时间
@@ -1647,7 +1663,8 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
         }
         String tenantId = resp.getData();
         // 查询原机器人的组件屏蔽记录（版本0）
-        List<ComponentRobotBlock> componentRobotBlockList = componentRobotBlockDao.getComponentRobotBlockForCopy(oldRobotId, 0, tenantId);
+        List<ComponentRobotBlock> componentRobotBlockList =
+                componentRobotBlockDao.getComponentRobotBlockForCopy(oldRobotId, 0, tenantId);
         if (CollectionUtils.isEmpty(componentRobotBlockList)) return;
 
         // 处理每条记录：id置为null，robotId改为新ID，更新时间

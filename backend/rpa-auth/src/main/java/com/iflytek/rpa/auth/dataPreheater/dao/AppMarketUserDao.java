@@ -2,11 +2,10 @@ package com.iflytek.rpa.auth.dataPreheater.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.auth.dataPreheater.entity.AppMarketUser;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * 团队市场-人员表，n:n的关系(AppMarketUser)表数据库访问层
@@ -21,9 +20,8 @@ public interface AppMarketUserDao extends BaseMapper<AppMarketUser> {
 
     Integer addUser(@Param("entity") AppMarketUser appMarketUser);
 
-    @Select("select creator_id " +
-            "from app_market_user " +
-            "where deleted = 0 and market_id = #{marketId} and tenant_id = #{tenantId}")
+    @Select("select creator_id " + "from app_market_user "
+            + "where deleted = 0 and market_id = #{marketId} and tenant_id = #{tenantId}")
     List<String> getAllUserId(@Param("tenantId") String tenantId, @Param("marketId") String marketId);
 
     /**
@@ -34,8 +32,5 @@ public interface AppMarketUserDao extends BaseMapper<AppMarketUser> {
      */
     long count(AppMarketUser appMarketUser);
 
-
     void insertBatch(List<AppMarketUser> insertBatchList);
-
 }
-

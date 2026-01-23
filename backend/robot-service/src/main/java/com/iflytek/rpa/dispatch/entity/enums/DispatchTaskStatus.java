@@ -10,7 +10,6 @@ import lombok.Getter;
  */
 @Getter
 public enum DispatchTaskStatus {
-
     ACTIVE("active", "启用中"),
     STOP("stop", "关闭"),
     EXPIRED("expired", "已过期"),
@@ -23,4 +22,4 @@ public enum DispatchTaskStatus {
         this.value = value;
         this.name = name;
     }
-} 
+}

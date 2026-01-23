@@ -3,10 +3,9 @@ package com.iflytek.rpa.base.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 租户配置表实体类
@@ -61,4 +60,3 @@ public class SysTenantConfig implements Serializable {
      */
     private Date updateTime;
 }
-

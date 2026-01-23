@@ -19,4 +19,3 @@ public interface RenewalFormService {
      */
     AppResponse<?> submitRenewalForm(RenewalFormSubmitDto dto);
 }
-

@@ -38,4 +38,4 @@ public class MyApplicationPageListDto {
      * 每页大小
      */
     private Integer pageSize;
-} 
+}

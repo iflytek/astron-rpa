@@ -11,8 +11,7 @@ public class DataAuthorityWithDimDictDto implements Serializable {
     private boolean checked;
     private List<Dim> dimList;
 
-    public DataAuthorityWithDimDictDto() {
-    }
+    public DataAuthorityWithDimDictDto() {}
 
     public String getDataAuthId() {
         return this.dataAuthId;
@@ -60,8 +59,7 @@ public class DataAuthorityWithDimDictDto implements Serializable {
         private String dictName;
         private String dictValue;
 
-        public DimDict() {
-        }
+        public DimDict() {}
 
         public DimDict(String dictId, String dictName, String dictValue) {
             this.dictId = dictId;
@@ -100,8 +98,7 @@ public class DataAuthorityWithDimDictDto implements Serializable {
         private String dimName;
         private List<DimDict> dimDictList;
 
-        public Dim() {
-        }
+        public Dim() {}
 
         public Dim(String dimId, String dimName, List<DimDict> list) {
             this.dimId = dimId;
@@ -134,4 +131,3 @@ public class DataAuthorityWithDimDictDto implements Serializable {
         }
     }
 }
-

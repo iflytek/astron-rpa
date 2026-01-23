@@ -169,6 +169,4 @@ public class CreateUserDto {
     public void setIdNumber(String idNumber) {
         this.idNumber = idNumber;
     }
-
 }
-

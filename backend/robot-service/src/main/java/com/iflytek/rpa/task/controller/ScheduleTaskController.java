@@ -6,13 +6,12 @@ import com.iflytek.rpa.task.entity.dto.TaskDto;
 import com.iflytek.rpa.task.service.ScheduleTaskService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.annotation.Resource;
+import javax.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
 
 /**
  * 计划任务(ScheduleTask)表控制层
@@ -29,7 +28,6 @@ public class ScheduleTaskController {
     @Resource
     private ScheduleTaskService scheduleTaskService;
 
-
     /**
      * 计划任务列表查询
      * @param taskDto
@@ -37,10 +35,9 @@ public class ScheduleTaskController {
      * @throws NoLoginException
      */
     @PostMapping("/list")
-    public AppResponse<?> cloudTaskList(@RequestBody TaskDto taskDto ) throws NoLoginException {
+    public AppResponse<?> cloudTaskList(@RequestBody TaskDto taskDto) throws NoLoginException {
         return scheduleTaskService.getTaskList(taskDto);
     }
-
 
     /**
      * 保存/更新计划任务
@@ -53,7 +50,6 @@ public class ScheduleTaskController {
         return scheduleTaskService.saveTask(task);
     }
 
-
     /**
      * 计划任务详细信息
      * @return
@@ -62,7 +58,6 @@ public class ScheduleTaskController {
     public AppResponse<?> getTaskInfoByTaskId(@RequestBody ScheduleTaskDto task) throws NoLoginException {
         return scheduleTaskService.getTaskInfoByTaskId(task.getTaskId());
     }
-
 
     /**
      * 获取计划任务下次执行时间及机器人信息
@@ -75,8 +70,6 @@ public class ScheduleTaskController {
         return scheduleTaskService.getNextTimeInfoAndUpdate();
     }
 
-
-
     /**
      * 计划任务-启用、禁用
      * @param
@@ -87,8 +80,6 @@ public class ScheduleTaskController {
     public AppResponse<?> enableTask(@RequestBody ScheduleTask task) throws NoLoginException {
         return scheduleTaskService.enableTask(task);
     }
-
-
 
     /**
      * 计划任务-删除
@@ -101,7 +92,6 @@ public class ScheduleTaskController {
         return scheduleTaskService.deleteTask(task);
     }
 
-
     /**
      * 计划任务-重命名校验
      * @param task
@@ -113,8 +103,6 @@ public class ScheduleTaskController {
         return scheduleTaskService.checkSameName(task);
     }
 
-
-
     /**
      * 计划任务-corn表达式校验
      * @param task
@@ -125,6 +113,4 @@ public class ScheduleTaskController {
     public AppResponse<?> checkCorn(@RequestBody ScheduleTask task) throws NoLoginException {
         return scheduleTaskService.checkCorn(task);
     }
-
 }
-

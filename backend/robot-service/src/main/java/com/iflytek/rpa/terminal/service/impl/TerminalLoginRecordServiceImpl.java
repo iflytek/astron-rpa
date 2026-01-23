@@ -23,36 +23,30 @@ public class TerminalLoginRecordServiceImpl implements TerminalLoginRecordServic
 
     @Override
     public Integer countUnLogoutRecordByTerminalId(String terminalId) {
-        if(StringUtils.isBlank(terminalId)){
+        if (StringUtils.isBlank(terminalId)) {
             return 0;
         }
         return terminalLoginRecordDao.countUnLogoutRecordByTerminalId(terminalId);
     }
 
-
     @Override
-    public Integer insertRecord(TerminalLoginRecord loginRecord){
-        if(null == loginRecord){
+    public Integer insertRecord(TerminalLoginRecord loginRecord) {
+        if (null == loginRecord) {
             return 0;
         }
         return terminalLoginRecordDao.insert(loginRecord);
     }
 
-
-
     @Override
-    public Integer setLogout(TerminalLoginRecord loginRecord){
+    public Integer setLogout(TerminalLoginRecord loginRecord) {
         return terminalLoginRecordDao.setLogout(loginRecord);
     }
 
-
     @Override
-    public TerminalLoginRecord selectLogoutCandidates(String userId){
-        if(StringUtils.isBlank(userId)){
+    public TerminalLoginRecord selectLogoutCandidates(String userId) {
+        if (StringUtils.isBlank(userId)) {
             throw new ServiceException("无法获取用户id");
         }
         return terminalLoginRecordDao.selectLogoutCandidates(userId);
     }
-
-
 }

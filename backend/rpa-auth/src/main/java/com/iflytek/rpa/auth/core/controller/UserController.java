@@ -5,16 +5,13 @@ import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.entity.CreateUapUserDto;
 import com.iflytek.rpa.auth.core.entity.UpdateUapUserDto;
 import com.iflytek.rpa.auth.core.service.UserService;
-
 import com.iflytek.rpa.auth.utils.AppResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 员工
@@ -26,19 +23,17 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     /**
      * 注册
      * @param request
      * @return
      */
     @PostMapping("/register")
-    public AppResponse<String> register(@RequestBody @Valid RegisterDto registerDto, HttpServletRequest request) throws IOException {
+    public AppResponse<String> register(@RequestBody @Valid RegisterDto registerDto, HttpServletRequest request)
+            throws IOException {
 
         return userService.register(registerDto, request);
     }
-    
-
 
     /**
      * 查询当前登录的用户信息
@@ -59,13 +54,10 @@ public class UserController {
      */
     @AuditLog(moduleName = "管理员权限", typeName = "添加成员")
     @PostMapping("/add")
-    public AppResponse<String> addUser(@RequestBody CreateUapUserDto createUapUserDto, HttpServletRequest request) throws IOException {
+    public AppResponse<String> addUser(@RequestBody CreateUapUserDto createUapUserDto, HttpServletRequest request)
+            throws IOException {
         return userService.addUser(createUapUserDto, request);
     }
-
-
-
-
 
     /**
      * 编辑员工
@@ -74,10 +66,10 @@ public class UserController {
      * @return
      */
     @PostMapping("/edit")
-    public AppResponse<String> editUser(@RequestBody UpdateUapUserDto updateUapUserDto, HttpServletRequest request) throws IOException {
+    public AppResponse<String> editUser(@RequestBody UpdateUapUserDto updateUapUserDto, HttpServletRequest request)
+            throws IOException {
         return userService.editUser(updateUapUserDto, request);
     }
-
 
     /**
      * 删除员工
@@ -87,10 +79,10 @@ public class UserController {
      */
     @AuditLog(moduleName = "管理员权限", typeName = "移除成员")
     @PostMapping("/delete")
-    public AppResponse<String> deleteUser(@RequestBody UserDeleteDto userDto, HttpServletRequest request) throws IOException {
+    public AppResponse<String> deleteUser(@RequestBody UserDeleteDto userDto, HttpServletRequest request)
+            throws IOException {
         return userService.deleteUser(userDto, request);
     }
-
 
     /**
      * 启用/禁用员工
@@ -103,7 +95,6 @@ public class UserController {
         return userService.enableUser(userDto, request);
     }
 
-
     /**
      * 变更部门
      * @param
@@ -115,8 +106,6 @@ public class UserController {
         return userService.changeDept(userDto, request);
     }
 
-
-    
     /**
      * 查询当前机构的全部用户(部门新增，部门负责人下拉框)
      * @param
@@ -124,13 +113,10 @@ public class UserController {
      * @return
      */
     @GetMapping("/queryAllListByOrgId")
-    public AppResponse<List<User>> queryUserDetailListByOrgId(@RequestParam("orgId") String orgId, HttpServletRequest request) throws IOException {
+    public AppResponse<List<User>> queryUserDetailListByOrgId(
+            @RequestParam("orgId") String orgId, HttpServletRequest request) throws IOException {
         return userService.queryUserDetailListByOrgId(orgId, request);
     }
-
-
-
-
 
     /**
      * 分页查询当前机构的用户
@@ -139,14 +125,11 @@ public class UserController {
      * @return
      */
     @PostMapping("/queryListByOrgId")
-    public AppResponse<PageDto<DeptUserDto>> queryUserListByOrgId(@RequestBody ListUserDto listUserDto, HttpServletRequest request) throws IOException {//
+    public AppResponse<PageDto<DeptUserDto>> queryUserListByOrgId(
+            @RequestBody ListUserDto listUserDto, HttpServletRequest request) throws IOException { //
 
         return userService.queryUserListByOrgId(listUserDto, request);
-
     }
-
-
-
 
     /**
      * 分页获取角色绑定的用户列表，可根据登录名或姓名模糊查询
@@ -155,7 +138,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/queryBindListByRole")
-    public AppResponse<PageDto<User>> queryBindListByRole(@RequestBody ListUserByRoleDto listUserByRoleDto, HttpServletRequest request) throws IOException {
+    public AppResponse<PageDto<User>> queryBindListByRole(
+            @RequestBody ListUserByRoleDto listUserByRoleDto, HttpServletRequest request) throws IOException {
         return userService.queryBindListByRole(listUserByRoleDto, request);
     }
 
@@ -166,11 +150,10 @@ public class UserController {
      * @return
      */
     @PostMapping("/unbindRole")
-    public AppResponse<String> unbindRole(@RequestBody BindRoleDto bindRoleDto, HttpServletRequest request) throws IOException {
+    public AppResponse<String> unbindRole(@RequestBody BindRoleDto bindRoleDto, HttpServletRequest request)
+            throws IOException {
         return userService.unbindRole(bindRoleDto, request);
     }
-
-
 
     /**
      * 按名称模糊搜索所有员工或部门
@@ -179,10 +162,10 @@ public class UserController {
      * @return
      */
     @GetMapping("/searchDeptOrUser")
-    public AppResponse<GetDeptOrUserDto> searchDeptOrUser(@RequestParam("name") String name, HttpServletRequest request) {
+    public AppResponse<GetDeptOrUserDto> searchDeptOrUser(
+            @RequestParam("name") String name, HttpServletRequest request) {
         return userService.searchDeptOrUser(name, request);
     }
-
 
     /**
      * 角色管理-根据部门id查询部门下的人员和子部门
@@ -191,11 +174,11 @@ public class UserController {
      * @return
      */
     @GetMapping("/queryUserAndDept")
-    public AppResponse<List<CurrentDeptUserDto>> queryUserAndDept(@RequestParam("id") String id, HttpServletRequest request) {
+    public AppResponse<List<CurrentDeptUserDto>> queryUserAndDept(
+            @RequestParam("id") String id, HttpServletRequest request) {
 
         return userService.queryUserAndDept(id, request);
     }
-
 
     /**
      * 角色管理-根据名字或手机号模糊查询员工
@@ -204,7 +187,8 @@ public class UserController {
      * @return
      */
     @GetMapping("/searchUserWithStatus")
-    public AppResponse<List<CurrentDeptUserDto>> searchUserWithStatus(@RequestParam("keyWord") String keyWord,  HttpServletRequest request) throws IOException {
+    public AppResponse<List<CurrentDeptUserDto>> searchUserWithStatus(
+            @RequestParam("keyWord") String keyWord, HttpServletRequest request) throws IOException {
 
         return userService.searchUserWithStatus(keyWord, request);
     }
@@ -216,11 +200,11 @@ public class UserController {
      * @return
      */
     @PostMapping("/batchBindRole")
-    AppResponse<String> bindUserListRole(@RequestBody BindUserListDto bindUserListDto, HttpServletRequest request) throws IOException {
+    AppResponse<String> bindUserListRole(@RequestBody BindUserListDto bindUserListDto, HttpServletRequest request)
+            throws IOException {
 
         return userService.bindUserListRole(bindUserListDto, request);
     }
-
 
     /**
      * 卓越中心-机器人看板-所有者下拉选择-查询接口
@@ -230,7 +214,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/getUserByNameOrPhone")
-    AppResponse<List<UserSearchDto>> getUserByNameOrPhone(String keyword, String deptId, HttpServletRequest request){
+    AppResponse<List<UserSearchDto>> getUserByNameOrPhone(String keyword, String deptId, HttpServletRequest request) {
         return userService.getUserByNameOrPhone(keyword, deptId, request);
     }
 
@@ -242,7 +226,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/getUserExtendInfo")
-    public AppResponse<UserExtendDto> queryUserExtendInfo(@RequestParam("tenantId") String tenantId, @RequestBody GetUserDto getUserDto, HttpServletRequest request) throws IOException {
+    public AppResponse<UserExtendDto> queryUserExtendInfo(
+            @RequestParam("tenantId") String tenantId, @RequestBody GetUserDto getUserDto, HttpServletRequest request)
+            throws IOException {
         return userService.queryUserExtendInfo(tenantId, getUserDto, request);
     }
 
@@ -337,8 +323,7 @@ public class UserController {
      * @return 是否历史用户
      */
     @GetMapping("/history")
-    public AppResponse<Boolean> isHistoryUser(
-            @RequestParam(required = false) String phone) {
+    public AppResponse<Boolean> isHistoryUser(@RequestParam(required = false) String phone) {
         return userService.isHistoryUser(phone);
     }
 
@@ -360,7 +345,8 @@ public class UserController {
      * @return 用户信息列表
      */
     @PostMapping("/queryByIds")
-    public AppResponse<List<User>> queryUserListByIds(@RequestBody List<String> userIdList, HttpServletRequest request) {
+    public AppResponse<List<User>> queryUserListByIds(
+            @RequestBody List<String> userIdList, HttpServletRequest request) {
         return userService.queryUserListByIds(userIdList, request);
     }
 
@@ -372,9 +358,10 @@ public class UserController {
      * @return 用户信息列表
      */
     @GetMapping("/search/name")
-    public AppResponse<List<User>> searchUserByName(@RequestParam("keyword") String keyword, 
-                                                    @RequestParam(value = "deptId", required = false) String deptId, 
-                                                    HttpServletRequest request) {
+    public AppResponse<List<User>> searchUserByName(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "deptId", required = false) String deptId,
+            HttpServletRequest request) {
         return userService.searchUserByName(keyword, deptId, request);
     }
 
@@ -386,9 +373,10 @@ public class UserController {
      * @return 用户信息列表
      */
     @GetMapping("/search/phone")
-    public AppResponse<List<User>> searchUserByPhone(@RequestParam("keyword") String keyword, 
-                                                      @RequestParam(value = "deptId", required = false) String deptId, 
-                                                      HttpServletRequest request) {
+    public AppResponse<List<User>> searchUserByPhone(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "deptId", required = false) String deptId,
+            HttpServletRequest request) {
         return userService.searchUserByPhone(keyword, deptId, request);
     }
 
@@ -400,9 +388,10 @@ public class UserController {
      * @return 用户信息列表
      */
     @GetMapping("/search")
-    public AppResponse<List<User>> searchUserByNameOrPhone(@RequestParam("keyword") String keyword, 
-                                                            @RequestParam(value = "deptId", required = false) String deptId, 
-                                                            HttpServletRequest request) {
+    public AppResponse<List<User>> searchUserByNameOrPhone(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "deptId", required = false) String deptId,
+            HttpServletRequest request) {
         return userService.searchUserByNameOrPhone(keyword, deptId, request);
     }
 
@@ -434,9 +423,9 @@ public class UserController {
      * @return 用户信息
      */
     @PostMapping("/sign/in")
-    public AppResponse<User> signIn(@RequestParam("code") String code, 
-                                    @RequestParam("state") String state, 
-                                    HttpServletRequest request) throws IOException {
+    public AppResponse<User> signIn(
+            @RequestParam("code") String code, @RequestParam("state") String state, HttpServletRequest request)
+            throws IOException {
         return userService.signIn(code, state, request);
     }
 
@@ -492,7 +481,8 @@ public class UserController {
      * @return 已部署用户分页列表
      */
     @PostMapping("/getDeployedUserList")
-    public AppResponse<PageDto<RobotExecute>> getDeployedUserList(@RequestBody GetDeployedUserListDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<RobotExecute>> getDeployedUserList(
+            @RequestBody GetDeployedUserListDto dto, HttpServletRequest request) {
         return userService.getDeployedUserList(dto, request);
     }
 
@@ -503,7 +493,8 @@ public class UserController {
      * @return 已部署用户分页列表
      */
     @PostMapping("/getDeployedUserListWithoutTenantId")
-    public AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(@RequestBody GetDeployedUserListDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(
+            @RequestBody GetDeployedUserListDto dto, HttpServletRequest request) {
         return userService.getDeployedUserListWithoutTenantId(dto, request);
     }
 
@@ -514,7 +505,8 @@ public class UserController {
      * @return 未部署用户列表
      */
     @PostMapping("/getUserUnDeployed")
-    public AppResponse<List<MarketDto>> getUserUnDeployed(@RequestBody GetUserUnDeployedDto dto, HttpServletRequest request) {
+    public AppResponse<List<MarketDto>> getUserUnDeployed(
+            @RequestBody GetUserUnDeployedDto dto, HttpServletRequest request) {
         return userService.getUserUnDeployed(dto, request);
     }
 
@@ -525,7 +517,8 @@ public class UserController {
      * @return 市场用户分页列表
      */
     @PostMapping("/getMarketUserList")
-    public AppResponse<PageDto<MarketDto>> getMarketUserList(@RequestBody GetMarketUserListDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<MarketDto>> getMarketUserList(
+            @RequestBody GetMarketUserListDto dto, HttpServletRequest request) {
         return userService.getMarketUserList(dto, request);
     }
 
@@ -536,7 +529,8 @@ public class UserController {
      * @return 公共市场用户分页列表
      */
     @PostMapping("/getMarketUserListByPublic")
-    public AppResponse<PageDto<MarketDto>> getMarketUserListByPublic(@RequestBody GetMarketUserListByPublicDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<MarketDto>> getMarketUserListByPublic(
+            @RequestBody GetMarketUserListByPublicDto dto, HttpServletRequest request) {
         return userService.getMarketUserListByPublic(dto, request);
     }
 
@@ -547,7 +541,8 @@ public class UserController {
      * @return 用户列表
      */
     @PostMapping("/getMarketUserByPhone")
-    public AppResponse<List<MarketDto>> getMarketUserByPhone(@RequestBody GetMarketUserByPhoneDto dto, HttpServletRequest request) {
+    public AppResponse<List<MarketDto>> getMarketUserByPhone(
+            @RequestBody GetMarketUserByPhoneDto dto, HttpServletRequest request) {
         return userService.getMarketUserByPhone(dto, request);
     }
 
@@ -558,7 +553,8 @@ public class UserController {
      * @return 用户列表
      */
     @PostMapping("/getMarketUserByPhoneForOwner")
-    public AppResponse<List<MarketDto>> getMarketUserByPhoneForOwner(@RequestBody GetMarketUserByPhoneForOwnerDto dto, HttpServletRequest request) {
+    public AppResponse<List<MarketDto>> getMarketUserByPhoneForOwner(
+            @RequestBody GetMarketUserByPhoneForOwnerDto dto, HttpServletRequest request) {
         return userService.getMarketUserByPhoneForOwner(dto, request);
     }
 
@@ -569,8 +565,8 @@ public class UserController {
      * @return 租户用户列表
      */
     @PostMapping("/getMarketTenantUserList")
-    public AppResponse<List<TenantUser>> getMarketTenantUserList(@RequestBody GetMarketTenantUserListDto dto, HttpServletRequest request) {
+    public AppResponse<List<TenantUser>> getMarketTenantUserList(
+            @RequestBody GetMarketTenantUserListDto dto, HttpServletRequest request) {
         return userService.getMarketTenantUserList(dto, request);
     }
-
 }

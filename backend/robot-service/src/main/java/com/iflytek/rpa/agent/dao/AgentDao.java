@@ -2,9 +2,8 @@ package com.iflytek.rpa.agent.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.agent.entity.Agent;
-import org.apache.ibatis.annotations.*;
-
 import java.util.List;
+import org.apache.ibatis.annotations.*;
 
 /**
  * Agent DAO接口
@@ -18,8 +17,8 @@ public interface AgentDao extends BaseMapper<Agent> {
      * @param agent Agent实体
      * @return 影响的行数
      */
-    @Insert("INSERT INTO agent_table (agent_id, content, creator_id, updater_id) " +
-            "VALUES (#{agentId}, #{content}, #{creatorId}, #{updaterId})")
+    @Insert("INSERT INTO agent_table (agent_id, content, creator_id, updater_id) "
+            + "VALUES (#{agentId}, #{content}, #{creatorId}, #{updaterId})")
     int insertAgent(Agent agent);
 
     /**
@@ -28,9 +27,8 @@ public interface AgentDao extends BaseMapper<Agent> {
      * @param agent Agent实体
      * @return 影响的行数：1-更新成功，0-未找到符合条件的记录或内容未变更
      */
-    @Update("UPDATE agent_table " +
-            "SET content = #{content}, updater_id = #{updaterId} " +
-            "WHERE agent_id = #{agentId} AND deleted = 0")
+    @Update("UPDATE agent_table " + "SET content = #{content}, updater_id = #{updaterId} "
+            + "WHERE agent_id = #{agentId} AND deleted = 0")
     int updateContent(Agent agent);
 
     /**
@@ -39,8 +37,7 @@ public interface AgentDao extends BaseMapper<Agent> {
      * @param agentId Agent ID
      * @return Agent实体，不存在则返回null
      */
-    @Select("SELECT * FROM agent_table " +
-            "WHERE agent_id = #{agentId} AND deleted = 0")
+    @Select("SELECT * FROM agent_table " + "WHERE agent_id = #{agentId} AND deleted = 0")
     Agent getByAgentId(@Param("agentId") String agentId);
 
     /**
@@ -67,9 +64,7 @@ public interface AgentDao extends BaseMapper<Agent> {
      * @param updaterId 更新人ID
      * @return 影响的行数
      */
-    @Update("UPDATE agent_table " +
-            "SET deleted = 1, updater_id = #{updaterId} " +
-            "WHERE agent_id = #{agentId} AND deleted = 0")
-    int deleteAgent(@Param("agentId") String agentId,
-                   @Param("updaterId") String updaterId);
+    @Update("UPDATE agent_table " + "SET deleted = 1, updater_id = #{updaterId} "
+            + "WHERE agent_id = #{agentId} AND deleted = 0")
+    int deleteAgent(@Param("agentId") String agentId, @Param("updaterId") String updaterId);
 }

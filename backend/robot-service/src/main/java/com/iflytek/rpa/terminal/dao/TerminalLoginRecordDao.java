@@ -14,9 +14,7 @@ public interface TerminalLoginRecordDao extends BaseMapper<TerminalLoginRecord> 
 
     Integer countUnLogoutRecordByTerminalId(@Param("terminalId") String terminalId);
 
-
     Integer setLogout(TerminalLoginRecord loginRecord);
 
     TerminalLoginRecord selectLogoutCandidates(@Param("userId") String userId);
-
 }

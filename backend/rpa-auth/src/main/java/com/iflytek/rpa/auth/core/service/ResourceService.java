@@ -2,9 +2,8 @@ package com.iflytek.rpa.auth.core.service;
 
 import com.iflytek.rpa.auth.core.entity.Resource;
 import com.iflytek.rpa.auth.utils.AppResponse;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 资源权限服务
@@ -18,4 +17,3 @@ public interface ResourceService {
      */
     AppResponse<List<Resource>> getUserResourceList(HttpServletRequest request);
 }
-

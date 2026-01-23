@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 调度模式-计划任务执行记录实体类
@@ -109,4 +108,4 @@ public class DispatchTaskExecuteRecord implements Serializable {
      * 是否删除 0：未删除，1：已删除
      */
     private Integer deleted;
-} 
+}

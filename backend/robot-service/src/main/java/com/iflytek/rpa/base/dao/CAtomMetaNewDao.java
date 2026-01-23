@@ -1,14 +1,12 @@
 package com.iflytek.rpa.base.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.iflytek.rpa.base.entity.CAtomMeta;
 import com.iflytek.rpa.base.entity.CAtomMetaNew;
 import com.iflytek.rpa.base.entity.vo.CAtomMetaNewVo;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 import java.util.Set;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 新原子能力DAO
@@ -39,7 +37,8 @@ public interface CAtomMetaNewDao extends BaseMapper<CAtomMetaNew> {
     /**
      * 根据atomKey更新记录
      */
-    int updateByAtomKey(@Param("atomKey") String atomKey, @Param("atomContent") String atomContent, @Param("sort") Integer sort);
+    int updateByAtomKey(
+            @Param("atomKey") String atomKey, @Param("atomContent") String atomContent, @Param("sort") Integer sort);
 
     List<CAtomMetaNew> getAtomListByKeySet(Set<String> atomKeySet);
 }

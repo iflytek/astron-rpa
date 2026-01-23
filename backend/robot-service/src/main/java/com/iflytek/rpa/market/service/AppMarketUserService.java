@@ -23,11 +23,9 @@ public interface AppMarketUserService extends IService<AppMarketUser> {
 
     AppResponse roleSet(MarketDto marketDto) throws NoLoginException;
 
-
     AppResponse getUserByPhone(GetMarketUserByPhoneDto marketDto);
 
     AppResponse getUserByPhoneForOwner(MarketDto marketDto) throws NoLoginException;
 
     AppResponse inviteUser(MarketDto marketDto) throws NoLoginException;
-
 }

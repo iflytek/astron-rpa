@@ -22,7 +22,7 @@ public class RedisConfig {
     /**
      * 创建RedisTemplate Bean
      * 并在创建后立即设置到RedisUtils的静态字段
-     * 
+     *
      * @param factory Redis连接工厂，Spring会自动注入
      * @return 配置好的RedisTemplate实例
      */
@@ -33,7 +33,8 @@ public class RedisConfig {
         template.setConnectionFactory(factory);
 
         // 使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =
+                new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
         // 指定要序列化的域，field,get和set,以及修饰符范围，ANY是都有包括private和public
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
@@ -55,17 +56,17 @@ public class RedisConfig {
         // template.setEnableTransactionSupport(true);
 
         template.afterPropertiesSet();
-        
+
         // 将RedisTemplate设置到RedisUtils的静态字段
         RedisUtils.redisTemplate = template;
-        
+
         return template;
     }
-    
+
     /**
      * 创建UAP兼容的RedisTemplate Bean
      * 使用与UAP相同的JDK序列化方式，用于存储UAP的token
-     * 
+     *
      * @param factory Redis连接工厂，Spring会自动注入
      * @return 配置好的UAP兼容RedisTemplate实例
      */
@@ -77,10 +78,10 @@ public class RedisConfig {
 
         // 使用StringRedisSerializer来序列化key（与UAP一致）
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        
+
         // 使用JdkSerializationRedisSerializer来序列化value（与UAP一致）
-        org.springframework.data.redis.serializer.JdkSerializationRedisSerializer jdkSerializer = 
-            new org.springframework.data.redis.serializer.JdkSerializationRedisSerializer();
+        org.springframework.data.redis.serializer.JdkSerializationRedisSerializer jdkSerializer =
+                new org.springframework.data.redis.serializer.JdkSerializationRedisSerializer();
 
         template.setKeySerializer(stringRedisSerializer);
         template.setValueSerializer(jdkSerializer);
@@ -88,8 +89,7 @@ public class RedisConfig {
         template.setHashValueSerializer(jdkSerializer);
 
         template.afterPropertiesSet();
-        
+
         return template;
     }
 }
-

@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 团队市场-资源映射表(AppMarketResource)实体类
@@ -25,7 +24,7 @@ public class AppMarketResource implements Serializable {
     /**
      * 团队市场id
      */
-//    @NotBlank(message = "市场id不能为空")
+    //    @NotBlank(message = "市场id不能为空")
     private String marketId;
     /**
      * 应用id，模板id，组件id
@@ -73,7 +72,6 @@ public class AppMarketResource implements Serializable {
      */
     private String appName;
 
-
     /**
      * 密级标识: red,yellow,green
      */
@@ -90,4 +88,3 @@ public class AppMarketResource implements Serializable {
     @TableField(exist = false)
     private String expiry_date_str;
 }
-

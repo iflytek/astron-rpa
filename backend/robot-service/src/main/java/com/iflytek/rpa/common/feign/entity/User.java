@@ -2,13 +2,10 @@ package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.Date;
 
-@JsonIgnoreProperties(
-        ignoreUnknown = true
-)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements Serializable {
     private static final long serialVersionUID = -8814389360599851366L;
     private String id;
@@ -25,34 +22,26 @@ public class User implements Serializable {
     private String orgCode;
     private String orgName;
     private String remark;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date birthday;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date pwdUpdateTime;
+
     private String idNumber;
     private Integer isDelete;
     private String extInfo;
     private String thirdExtInfo;
     private String profile;
 
-    public User() {
-    }
+    public User() {}
 
     public String getId() {
         return this.id;
@@ -238,4 +227,3 @@ public class User implements Serializable {
         this.profile = profile;
     }
 }
-

@@ -17,6 +17,4 @@ public interface ScheduleTaskRobotService {
      * @return 实例对象
      */
     ScheduleTaskRobot queryById(Long id);
-
-
 }

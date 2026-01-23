@@ -14,7 +14,6 @@ public class ListUserDto extends PageQueryDto {
      */
     private List<String> userIds;
 
-
     /**
      * 角色ID 集合  用于查询角色下的用户
      */
@@ -126,5 +125,4 @@ public class ListUserDto extends PageQueryDto {
     public void setQueryPageCount(boolean queryPageCount) {
         this.queryPageCount = queryPageCount;
     }
-
 }

@@ -9,7 +9,7 @@ import lombok.Getter;
  * @since 2025-08-15
  */
 @Getter
-public enum DispatchTaskType{
+public enum DispatchTaskType {
     MANUAL("manual", "手动触发"),
     SCHEDULE("schedule", "定时"),
     TRIGGER("trigger", "定时触发"),
@@ -31,4 +31,4 @@ public enum DispatchTaskType{
         }
         throw new IllegalArgumentException("未知的任务类型: " + value);
     }
-} 
+}

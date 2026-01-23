@@ -1,19 +1,23 @@
 package com.iflytek.rpa.auth.sp.uap.service.impl;
 
+import static com.iflytek.rpa.auth.sp.uap.constants.AuthConstant.ORG_TYPE_DEPT;
+import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.*;
+import static com.iflytek.rpa.auth.utils.RedisUtil.deleteRedisKeysByPrefix;
+
 import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.DeptService;
 import com.iflytek.rpa.auth.sp.uap.dao.DeptDao;
 import com.iflytek.rpa.auth.sp.uap.mapper.*;
 import com.iflytek.rpa.auth.sp.uap.utils.DeptUtils;
 import com.iflytek.rpa.auth.sp.uap.utils.TenantUtils;
-import com.iflytek.rpa.auth.utils.RedisUtils;
 import com.iflytek.rpa.auth.sp.uap.utils.UapManagementClientUtil;
-
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
+import com.iflytek.rpa.auth.utils.RedisUtils;
 import com.iflytek.sec.uap.client.api.ClientManagementAPI;
 import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.client.ManagementClient;
@@ -23,28 +27,22 @@ import com.iflytek.sec.uap.client.core.dto.TreeNode;
 import com.iflytek.sec.uap.client.core.dto.extand.UapExtendPropertyDto;
 import com.iflytek.sec.uap.client.core.dto.org.GetOrgTreeDto;
 import com.iflytek.sec.uap.client.core.dto.org.UapOrg;
+import com.iflytek.sec.uap.client.core.dto.org.UpdateOrgDto;
+import com.iflytek.sec.uap.client.core.dto.org.UpdateUapOrgDto;
 import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
 import com.iflytek.sec.uap.client.core.dto.user.ListUserDto;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
-import com.iflytek.sec.uap.client.core.dto.org.UpdateOrgDto;
-import com.iflytek.sec.uap.client.core.dto.org.UpdateUapOrgDto;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.auth.sp.uap.constants.AuthConstant.ORG_TYPE_DEPT;
-import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.*;
-import static com.iflytek.rpa.auth.utils.RedisUtil.deleteRedisKeysByPrefix;
 
 /**
  * @author mjren
@@ -79,19 +77,18 @@ public class DeptServiceImpl implements DeptService {
     @Autowired
     private UapExtendPropertyDtoMapper uapExtendPropertyDtoMapper;
 
-
-//    @Override
-//    public PageDto<UapOrg> queryOrgPageList(String tenantId, OrgListDto dto, HttpServletRequest request) {
-////        ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
-////        ResponseDto<PageDto<UapOrg>> orgPageResponse = managementClient.queryOrgPageList(dto);
-//        ResponseDto<PageDto<UapOrg>> orgPageResponse = UapManagementClientUtil.queryOrgPageList(tenantId, dto, request);
-//        if (!orgPageResponse.isFlag()) {
-//            log.error("queryOrgPageList error, msg:{}", orgPageResponse.getMessage());
-//            throw new ServiceException(orgPageResponse.getMessage());
-//        }
-//        return orgPageResponse.getData();
-//    }
-
+    //    @Override
+    //    public PageDto<UapOrg> queryOrgPageList(String tenantId, OrgListDto dto, HttpServletRequest request) {
+    ////        ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
+    ////        ResponseDto<PageDto<UapOrg>> orgPageResponse = managementClient.queryOrgPageList(dto);
+    //        ResponseDto<PageDto<UapOrg>> orgPageResponse = UapManagementClientUtil.queryOrgPageList(tenantId, dto,
+    // request);
+    //        if (!orgPageResponse.isFlag()) {
+    //            log.error("queryOrgPageList error, msg:{}", orgPageResponse.getMessage());
+    //            throw new ServiceException(orgPageResponse.getMessage());
+    //        }
+    //        return orgPageResponse.getData();
+    //    }
 
     /**
      * 查询部门树、人数、负责人
@@ -102,21 +99,23 @@ public class DeptServiceImpl implements DeptService {
     public AppResponse<?> treeAndPerson(HttpServletRequest request) {
         String tenantId = UapUserInfoAPI.getTenantId(request);
         UapUser uapUser = UapUserInfoAPI.getLoginUser(request);
-        UapOrg uapOrg = ClientManagementAPI.queryOrgByLoginName(tenantId, null == uapUser ? null : uapUser.getLoginName());
+        UapOrg uapOrg =
+                ClientManagementAPI.queryOrgByLoginName(tenantId, null == uapUser ? null : uapUser.getLoginName());
         if (null == uapOrg) {
             log.info("treeAndPerson,用户未绑定部门");
             return AppResponse.success(null);
         }
         String firstLevelId = uapOrg.getFirstLevelId();
-        //根据id查最顶层部门信息
-        List<UapOrg> firstDeptList = ClientManagementAPI.queryOrgListByOrgIds(tenantId, Collections.singletonList(firstLevelId));
+        // 根据id查最顶层部门信息
+        List<UapOrg> firstDeptList =
+                ClientManagementAPI.queryOrgListByOrgIds(tenantId, Collections.singletonList(firstLevelId));
         List<UapOrg> deptList = ClientManagementAPI.queryOrgListByParentOrgId(tenantId, firstLevelId);
         deptList.addAll(firstDeptList);
         Map<String, Long> deptPersonNumMap = new HashMap<>();
         List<String> deptUserIdList = new ArrayList<>();
         Map<String, UapUser> deptLeaderMap = new HashMap<>();
-        //查询每个部门有多少人 多线程
-//        分页查用户基本信息列表
+        // 查询每个部门有多少人 多线程
+        //        分页查用户基本信息列表
         deptList.parallelStream().forEach(dept -> {
             ListUserDto listUserDto = new ListUserDto();
             listUserDto.setStatus(null);
@@ -131,21 +130,22 @@ public class DeptServiceImpl implements DeptService {
             }
         });
 
-        //查询每个部门的负责人名称
+        // 查询每个部门的负责人名称
         ListUserDto listUserDto = new ListUserDto();
         listUserDto.setStatus(null);
         listUserDto.setUserIds(deptUserIdList);
-        PageDto<UapUser> userListPage = ClientManagementAPI.queryUserPageList(UapUserInfoAPI.getTenantId(request), listUserDto);
+        PageDto<UapUser> userListPage =
+                ClientManagementAPI.queryUserPageList(UapUserInfoAPI.getTenantId(request), listUserDto);
         if (!CollectionUtils.isEmpty(userListPage.getResult())) {
             for (UapUser deptLeader : userListPage.getResult()) {
                 deptLeaderMap.put(deptLeader.getId(), deptLeader);
             }
         }
 
-        //构建部门树，并将人数和人名组装到部门树中
+        // 构建部门树，并将人数和人名组装到部门树中
         List<DeptTreeNodeDto> treeNodeList = buildMenuTree("0", deptList, deptPersonNumMap, deptLeaderMap);
 
-        //查询租户名称
+        // 查询租户名称
         UapTenant tenantInfo = UapUserInfoAPI.getTenant(request);
         if (null == tenantInfo) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "无租户信息");
@@ -172,7 +172,8 @@ public class DeptServiceImpl implements DeptService {
         UapUser uapUser = UapUserInfoAPI.getLoginUser(request);
 
         // 构建缓存key（两层限制版本）
-        String cacheKey = "dept:tree:two-level:" + tenantId + ":" + (uapUser != null ? uapUser.getLoginName() : "anonymous");
+        String cacheKey =
+                "dept:tree:two-level:" + tenantId + ":" + (uapUser != null ? uapUser.getLoginName() : "anonymous");
 
         // 先尝试从Redis获取缓存数据
         try {
@@ -188,7 +189,8 @@ public class DeptServiceImpl implements DeptService {
             log.warn("Redis缓存读取失败，继续查询数据库: {}", e.getMessage());
         }
 
-        UapOrg uapOrg = ClientManagementAPI.queryOrgByLoginName(tenantId, null == uapUser ? null : uapUser.getLoginName());
+        UapOrg uapOrg =
+                ClientManagementAPI.queryOrgByLoginName(tenantId, null == uapUser ? null : uapUser.getLoginName());
         if (null == uapOrg) {
             log.info("treeAndPersonOptimized,用户未绑定部门");
             return AppResponse.success(null);
@@ -203,7 +205,8 @@ public class DeptServiceImpl implements DeptService {
         }
 
         // 只查询顶级部门和次级部门，减少数据量
-        List<UapOrg> topLevelDepts = ClientManagementAPI.queryOrgListByOrgIds(tenantId, Collections.singletonList(firstLevelId));
+        List<UapOrg> topLevelDepts =
+                ClientManagementAPI.queryOrgListByOrgIds(tenantId, Collections.singletonList(firstLevelId));
         List<UapOrg> secondLevelDepts = ClientManagementAPI.queryOrgListByParentOrgId(tenantId, firstLevelId);
 
         // 合并顶级和次级部门
@@ -249,7 +252,8 @@ public class DeptServiceImpl implements DeptService {
         }
 
         // 构建简化的部门树（限制为两层）
-        List<SimpleDeptTreeNodeDto> treeNodeList = buildSimpleTwoLevelDeptTree(firstLevelId, deptList, deptPersonNumMap, deptLeaderMap);
+        List<SimpleDeptTreeNodeDto> treeNodeList =
+                buildSimpleTwoLevelDeptTree(firstLevelId, deptList, deptPersonNumMap, deptLeaderMap);
 
         // 构建响应结果
         Map<String, Object> result = new HashMap<>();
@@ -269,8 +273,11 @@ public class DeptServiceImpl implements DeptService {
         return AppResponse.success(result);
     }
 
-
-    public List<DeptTreeNodeDto> buildMenuTree(String rootId, List<UapOrg> deptList, Map<String, Long> deptPersonNumMap, Map<String, UapUser> deptLeaderMap) {
+    public List<DeptTreeNodeDto> buildMenuTree(
+            String rootId,
+            List<UapOrg> deptList,
+            Map<String, Long> deptPersonNumMap,
+            Map<String, UapUser> deptLeaderMap) {
 
         Map<String, DeptTreeNodeDto> nodeMap = new HashMap<>(deptList.size() * 2);
         List<DeptTreeNodeDto> allNodes = new ArrayList<>();
@@ -303,9 +310,7 @@ public class DeptServiceImpl implements DeptService {
             if (!CollectionUtil.isEmpty(children)) {
                 // 使用 sort 字段升序排序
                 children.sort(Comparator.comparing(
-                        DeptTreeNodeDto::getSort,
-                        Comparator.nullsFirst(Comparator.naturalOrder())
-                ));
+                        DeptTreeNodeDto::getSort, Comparator.nullsFirst(Comparator.naturalOrder())));
             }
         }
         return rootNodes;
@@ -314,9 +319,11 @@ public class DeptServiceImpl implements DeptService {
     /**
      * 构建简化的两层部门树（顶级部门 + 次级部门）
      */
-    public List<SimpleDeptTreeNodeDto> buildSimpleTwoLevelDeptTree(String topLevelId, List<UapOrg> deptList,
-                                                                   Map<String, Long> deptPersonNumMap,
-                                                                   Map<String, UapUser> deptLeaderMap) {
+    public List<SimpleDeptTreeNodeDto> buildSimpleTwoLevelDeptTree(
+            String topLevelId,
+            List<UapOrg> deptList,
+            Map<String, Long> deptPersonNumMap,
+            Map<String, UapUser> deptLeaderMap) {
         List<SimpleDeptTreeNodeDto> rootNodes = new ArrayList<>();
 
         // 找到顶级部门
@@ -350,9 +357,11 @@ public class DeptServiceImpl implements DeptService {
     /**
      * 构建简化的部门树（只包含必要字段）
      */
-    public List<SimpleDeptTreeNodeDto> buildSimpleDeptTree(String rootId, List<UapOrg> deptList,
-                                                           Map<String, Long> deptPersonNumMap,
-                                                           Map<String, UapUser> deptLeaderMap) {
+    public List<SimpleDeptTreeNodeDto> buildSimpleDeptTree(
+            String rootId,
+            List<UapOrg> deptList,
+            Map<String, Long> deptPersonNumMap,
+            Map<String, UapUser> deptLeaderMap) {
         Map<String, SimpleDeptTreeNodeDto> nodeMap = new HashMap<>(deptList.size() * 2);
         List<SimpleDeptTreeNodeDto> allNodes = new ArrayList<>();
 
@@ -394,9 +403,8 @@ public class DeptServiceImpl implements DeptService {
     /**
      * 将 UapOrg 转换为 SimpleDeptTreeNodeDto
      */
-    private SimpleDeptTreeNodeDto convertToSimpleTreeNode(UapOrg dept,
-                                                          Map<String, Long> deptPersonNumMap,
-                                                          Map<String, UapUser> deptLeaderMap) {
+    private SimpleDeptTreeNodeDto convertToSimpleTreeNode(
+            UapOrg dept, Map<String, Long> deptPersonNumMap, Map<String, UapUser> deptLeaderMap) {
         SimpleDeptTreeNodeDto node = new SimpleDeptTreeNodeDto();
         node.setId(dept.getId());
         node.setOrgId(dept.getId()); // orgId与id保持一致
@@ -414,7 +422,8 @@ public class DeptServiceImpl implements DeptService {
     }
 
     // 辅助方法：将 UapAuthority 转换为 DeptTreeNodeDto
-    private DeptTreeNodeDto convertToTreeNode(UapOrg dept, Map<String, Long> deptPersonNumMap, Map<String, UapUser> deptLeaderMap) {
+    private DeptTreeNodeDto convertToTreeNode(
+            UapOrg dept, Map<String, Long> deptPersonNumMap, Map<String, UapUser> deptLeaderMap) {
         DeptTreeNodeDto node = new DeptTreeNodeDto();
         node.setId(dept.getId());
         node.setName(dept.getName());
@@ -429,7 +438,6 @@ public class DeptServiceImpl implements DeptService {
         return node;
     }
 
-
     /**
      * 新增部门
      * @param createUapOrgDto 创建部门DTO
@@ -438,16 +446,18 @@ public class DeptServiceImpl implements DeptService {
      */
     @Override
     public AppResponse<String> addDept(CreateUapOrgDto createUapOrgDto, HttpServletRequest request) {
-        if (null == createUapOrgDto.getUapOrg() ||
-                StringUtils.isBlank(createUapOrgDto.getUapOrg().getName()) || StringUtils.isBlank(createUapOrgDto.getUapOrg().getHigherOrg())) {
+        if (null == createUapOrgDto.getUapOrg()
+                || StringUtils.isBlank(createUapOrgDto.getUapOrg().getName())
+                || StringUtils.isBlank(createUapOrgDto.getUapOrg().getHigherOrg())) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
         createUapOrgDto.getUapOrg().setOrgType(ORG_TYPE_DEPT);
         ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
 
-        //通用实体类转换到uap实体类
+        // 通用实体类转换到uap实体类
         CreateUapOrgDtoMapper createUapOrgDtoMapper = new CreateUapOrgDtoMapper();
-        com.iflytek.sec.uap.client.core.dto.org.CreateUapOrgDto uapCreateUapOrgDto = createUapOrgDtoMapper.toUapCreateUapOrgDto(createUapOrgDto);
+        com.iflytek.sec.uap.client.core.dto.org.CreateUapOrgDto uapCreateUapOrgDto =
+                createUapOrgDtoMapper.toUapCreateUapOrgDto(createUapOrgDto);
 
         ResponseDto<String> addResponse = managementClient.addOrg(uapCreateUapOrgDto);
         if (!addResponse.isFlag()) {
@@ -460,7 +470,6 @@ public class DeptServiceImpl implements DeptService {
         return AppResponse.success(addResponse.getData());
     }
 
-
     /**
      * 获取部门树 todo 只返回有权限的
      * @param request HTTP请求
@@ -468,7 +477,8 @@ public class DeptServiceImpl implements DeptService {
      * @throws Exception 异常
      */
     @Override
-    public AppResponse<com.iflytek.rpa.auth.core.entity.TreeNode> queryTreeList(HttpServletRequest request) throws Exception {
+    public AppResponse<com.iflytek.rpa.auth.core.entity.TreeNode> queryTreeList(HttpServletRequest request)
+            throws Exception {
         String tenantId = UapUserInfoAPI.getTenantId(request);
         String key = REDIS_KEY_DEPT_PREFIX + tenantId;
         log.info("redis查询部门信息[dept:tenantId]：" + key);
@@ -499,7 +509,6 @@ public class DeptServiceImpl implements DeptService {
         return AppResponse.success(coreData);
     }
 
-
     /**
      * 通过部门父节点的id查询所有部门子节点
      * @param dto 查询参数
@@ -508,7 +517,8 @@ public class DeptServiceImpl implements DeptService {
      * @throws Exception 异常
      */
     @Override
-    public AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(QueryDeptNodeDto dto, HttpServletRequest request) throws Exception {
+    public AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(QueryDeptNodeDto dto, HttpServletRequest request)
+            throws Exception {
         String tenantId = UapUserInfoAPI.getTenantId(request);
         // 顶级节点
         String pid = dto.getPid();
@@ -520,8 +530,7 @@ public class DeptServiceImpl implements DeptService {
             ObjectMapper objectMapper = new ObjectMapper();
             List<DeptTreeNodeVo> cachedList = objectMapper.readValue(
                     cachedDeptTree.toString(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, DeptTreeNodeVo.class)
-            );
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, DeptTreeNodeVo.class));
             // 返回缓存数据
             return AppResponse.success(cachedList);
         }
@@ -534,7 +543,8 @@ public class DeptServiceImpl implements DeptService {
         List<DeptTreeNodeVo> deptTreeNodeVos = deptDao.queryChildrenOrgList(pid, tenantId, databaseName);
         // 设置hasNodes字段
         if (!CollectionUtil.isEmpty(deptTreeNodeVos)) {
-            List<String> childrenIds = deptTreeNodeVos.stream().map(DeptTreeNodeVo::getId).collect(Collectors.toList());
+            List<String> childrenIds =
+                    deptTreeNodeVos.stream().map(DeptTreeNodeVo::getId).collect(Collectors.toList());
             List<String> deptIdsWithChildren = deptDao.queryDeptIdsWithChildren(childrenIds, tenantId, databaseName);
             Set<String> hasChildrenSet = new HashSet<>(deptIdsWithChildren);
             for (DeptTreeNodeVo deptNode : deptTreeNodeVos) {
@@ -556,15 +566,16 @@ public class DeptServiceImpl implements DeptService {
         if (null == updateOrgDto || StringUtils.isBlank(updateOrgDto.getId())) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
-        //更新部门负责人
+        // 更新部门负责人
         updateOrgDto.setRemark(userId);
         editOrgDto.setUapOrg(updateOrgDto);
 
-        //转化UpdateUapOrgDto为uap实体类
+        // 转化UpdateUapOrgDto为uap实体类
         UpdateUapOrgDto updateUapOrgDto = new UpdateUapOrgDto();
         UpdateOrgDto uapUpdateOrgDto = updateOrgDtoMapper.toUapUpdateOrgDto(updateOrgDto);
         updateUapOrgDto.setUapOrg(uapUpdateOrgDto);
-        List<UapExtendPropertyDto> uapExtendPropertyDtoList = uapExtendPropertyDtoMapper.toUapExtendPropertyDtoList(editOrgDto.getExtands());
+        List<UapExtendPropertyDto> uapExtendPropertyDtoList =
+                uapExtendPropertyDtoMapper.toUapExtendPropertyDtoList(editOrgDto.getExtands());
         updateUapOrgDto.setExtands(uapExtendPropertyDtoList);
 
         ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
@@ -584,7 +595,8 @@ public class DeptServiceImpl implements DeptService {
         }
         ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
 
-        com.iflytek.sec.uap.client.core.dto.DeleteCommonDto uapDeleteCommonDto = deleteCommonDtoMapper.toUapDeleteCommonDto(deleteCommonDto);
+        com.iflytek.sec.uap.client.core.dto.DeleteCommonDto uapDeleteCommonDto =
+                deleteCommonDtoMapper.toUapDeleteCommonDto(deleteCommonDto);
         ResponseDto<String> deleteResponse = managementClient.deleteOrg(uapDeleteCommonDto);
         if (!deleteResponse.isFlag()) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, deleteResponse.getMessage());
@@ -593,7 +605,6 @@ public class DeptServiceImpl implements DeptService {
         deleteRedisKeysByPrefix(REDIS_KEY_DEPT_PREFIX);
         return AppResponse.success(deleteResponse.getData());
     }
-
 
     /**
      * 通过deptId查询部门名
@@ -636,20 +647,20 @@ public class DeptServiceImpl implements DeptService {
      * @throws JsonProcessingException JSON处理异常
      */
     @Override
-    public AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(QueryDeptNodeDto dto, HttpServletRequest request) throws JsonProcessingException {
+    public AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(
+            QueryDeptNodeDto dto, HttpServletRequest request) throws JsonProcessingException {
         String tenantId = UapUserInfoAPI.getTenantId(request);
         // 顶级节点
         String pid = dto.getPid();
         // 将 deptTreeNodeVos 存储到 redis
-        String redisKey = REDIS_KEY_DEPT_PERSON_CHILD_NODES_PREFIX + tenantId+":"+pid;
+        String redisKey = REDIS_KEY_DEPT_PERSON_CHILD_NODES_PREFIX + tenantId + ":" + pid;
         // 查询 redis 是否有缓存，如果有则直接从缓存中取
         Object cachedDeptTree = RedisUtils.get(redisKey);
         if (cachedDeptTree != null && StringUtils.isNotBlank(cachedDeptTree.toString())) {
             ObjectMapper objectMapper = new ObjectMapper();
             List<DeptPersonTreeNodeVo> cachedList = objectMapper.readValue(
                     cachedDeptTree.toString(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, DeptPersonTreeNodeVo.class)
-            );
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, DeptPersonTreeNodeVo.class));
             // 返回缓存数据
             return AppResponse.success(cachedList);
         }
@@ -664,10 +675,10 @@ public class DeptServiceImpl implements DeptService {
 
         List<DeptPersonTreeNodeVo> deptPersonTreeNodeVos = new ArrayList<>();
 
-
         if (!CollectionUtil.isEmpty(deptTreeNodeVos)) {
             // 设置hasNodes字段
-            List<String> childrenIds = deptTreeNodeVos.stream().map(DeptTreeNodeVo::getId).collect(Collectors.toList());
+            List<String> childrenIds =
+                    deptTreeNodeVos.stream().map(DeptTreeNodeVo::getId).collect(Collectors.toList());
             List<String> deptIdsWithChildren = deptDao.queryDeptIdsWithChildren(childrenIds, tenantId, databaseName);
             Set<String> hasChildrenSet = new HashSet<>(deptIdsWithChildren);
             for (DeptTreeNodeVo deptNode : deptTreeNodeVos) {
@@ -725,7 +736,8 @@ public class DeptServiceImpl implements DeptService {
      * @throws Exception 异常
      */
     @Override
-    public AppResponse<List<UserVo>> queryAllUserByDeptId(QueryDeptIdDto dto, HttpServletRequest request) throws Exception {
+    public AppResponse<List<UserVo>> queryAllUserByDeptId(QueryDeptIdDto dto, HttpServletRequest request)
+            throws Exception {
         String deptId = dto.getDeptId();
         String name = dto.getName();
         if (StringUtils.isBlank(deptId)) {
@@ -740,8 +752,7 @@ public class DeptServiceImpl implements DeptService {
             ObjectMapper objectMapper = new ObjectMapper();
             List<UserVo> cachedList = objectMapper.readValue(
                     cachedObj.toString(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, UserVo.class)
-            );
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, UserVo.class));
             return AppResponse.success(cachedList);
         }
 
@@ -756,9 +767,9 @@ public class DeptServiceImpl implements DeptService {
     public AppResponse<String> getCurrentLevelCode(HttpServletRequest request) {
         try {
             String levelCode = DeptUtils.getLevelCode();
-//            if (StringUtils.isBlank(levelCode)) {
-//                return AppResponse.error(ErrorCodeEnum.E_SERVICE, "获取部门levelCode失败");
-//            }
+            //            if (StringUtils.isBlank(levelCode)) {
+            //                return AppResponse.error(ErrorCodeEnum.E_SERVICE, "获取部门levelCode失败");
+            //            }
             return AppResponse.success(levelCode);
         } catch (Exception e) {
             log.error("获取当前登录用户的部门levelCode失败", e);

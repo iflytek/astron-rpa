@@ -11,6 +11,4 @@ public class CasdoorOrganizationExtendService extends OrganizationService {
     public CasdoorOrganizationExtendService(Config config) {
         super(config);
     }
-
-
 }

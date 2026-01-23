@@ -1,8 +1,7 @@
 package com.iflytek.rpa.market.entity;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -14,8 +13,7 @@ public class AppMarketDo {
 
     private Boolean noMarket;
 
-    private List<AppMarket> joinedMarketList ;
+    private List<AppMarket> joinedMarketList;
 
     private List<AppMarket> createdMarketList;
-
 }

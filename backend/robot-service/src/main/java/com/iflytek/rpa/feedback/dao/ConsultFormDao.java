@@ -11,6 +11,4 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2024-12-15
  */
 @Mapper
-public interface ConsultFormDao extends BaseMapper<ConsultForm> {
-}
-
+public interface ConsultFormDao extends BaseMapper<ConsultForm> {}

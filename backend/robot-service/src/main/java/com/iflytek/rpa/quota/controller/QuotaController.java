@@ -48,4 +48,3 @@ public class QuotaController {
         return AppResponse.success(result);
     }
 }
-

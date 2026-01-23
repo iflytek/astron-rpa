@@ -1,13 +1,11 @@
 package com.iflytek.rpa.auth.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 /**
  * Permission 通用模型
  */
-
 public class Permission implements Serializable {
     public String owner;
     public String name;
@@ -25,17 +23,32 @@ public class Permission implements Serializable {
     public String[] resources;
     public String[] actions;
     public String effect;
+
     @JsonProperty("isEnabled")
     public boolean isEnabled;
+
     public String submitter;
     public String approver;
     public String approveTime;
     public String state;
 
-    public Permission() {
-    }
+    public Permission() {}
 
-    public Permission(String owner, String name, String createdTime, String displayName, String description, String[] users, String[] roles, String[] domains, String model, String resourceType, String[] resources, String[] actions, String effect, boolean isEnabled) {
+    public Permission(
+            String owner,
+            String name,
+            String createdTime,
+            String displayName,
+            String description,
+            String[] users,
+            String[] roles,
+            String[] domains,
+            String model,
+            String resourceType,
+            String[] resources,
+            String[] actions,
+            String effect,
+            boolean isEnabled) {
         this.owner = owner;
         this.name = name;
         this.createdTime = createdTime;
@@ -52,4 +65,3 @@ public class Permission implements Serializable {
         this.isEnabled = isEnabled;
     }
 }
-

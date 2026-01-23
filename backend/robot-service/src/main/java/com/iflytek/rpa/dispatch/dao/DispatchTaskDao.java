@@ -3,10 +3,9 @@ package com.iflytek.rpa.dispatch.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.dispatch.entity.DispatchTask;
 import com.iflytek.rpa.dispatch.entity.vo.TerminalTaskDetailVo;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 调度模式-计划任务 Mapper 接口

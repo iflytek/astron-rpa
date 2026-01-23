@@ -2,10 +2,9 @@ package com.iflytek.rpa.agent.entity.dto;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * Agent操作DTO

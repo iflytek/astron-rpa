@@ -3,9 +3,8 @@ package com.iflytek.rpa.task.service.impl;
 import com.iflytek.rpa.task.dao.ScheduleTaskRobotDao;
 import com.iflytek.rpa.task.entity.ScheduleTaskRobot;
 import com.iflytek.rpa.task.service.ScheduleTaskRobotService;
-import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
+import org.springframework.stereotype.Service;
 
 /**
  * 计划任务机器人列表(ScheduleTaskRobot)表服务实现类
@@ -28,6 +27,4 @@ public class ScheduleTaskRobotServiceImpl implements ScheduleTaskRobotService {
     public ScheduleTaskRobot queryById(Long id) {
         return this.scheduleTaskRobotDao.queryById(id);
     }
-
-
 }

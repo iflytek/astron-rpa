@@ -2,10 +2,9 @@ package com.iflytek.rpa.auth.core.service;
 
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.utils.AppResponse;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 角色服务接口

@@ -8,12 +8,11 @@ import com.iflytek.rpa.market.entity.vo.InviteLinkVo;
 import com.iflytek.rpa.market.service.AppMarketInviteService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 /**
  * 团队市场-链接邀请
@@ -33,7 +32,8 @@ public class AppMarketInviteController {
      * @throws NoLoginException
      */
     @PostMapping("/generate-invite-link")
-    public AppResponse<InviteLinkVo> generateInviteLink(@RequestBody InviteLinkDto inviteLinkDto) throws NoLoginException {
+    public AppResponse<InviteLinkVo> generateInviteLink(@RequestBody InviteLinkDto inviteLinkDto)
+            throws NoLoginException {
         return appMarketInviteService.generateInviteLink(inviteLinkDto);
     }
 
@@ -72,4 +72,3 @@ public class AppMarketInviteController {
         return appMarketInviteService.acceptInvite(inviteKeyDto.getInviteKey());
     }
 }
-

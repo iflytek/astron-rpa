@@ -1,14 +1,13 @@
 package com.iflytek.rpa.base.entity;
 
-import lombok.Data;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -84,7 +83,6 @@ public class AtomCommon {
         private String useSrc;
     }
 
-
     public static List<String> getPropertyNames() {
         List<String> propertyNames = new ArrayList<>();
         Field[] fields = AtomCommon.class.getDeclaredFields();
@@ -95,7 +93,4 @@ public class AtomCommon {
 
         return propertyNames;
     }
-
-
-
 }

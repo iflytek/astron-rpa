@@ -1,10 +1,9 @@
 package com.iflytek.rpa.base.entity.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.Data;
 
 /**
  * 资源配置DTO
@@ -46,4 +45,3 @@ public class ResourceConfigDto implements Serializable {
     @JSONField(serialize = true, deserialize = true)
     private String parent;
 }
-

@@ -4,6 +4,12 @@ import com.iflytek.rpa.base.entity.dto.ResourceConfigDto;
 import com.iflytek.rpa.base.service.TenantResourceService;
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.io.IOException;
+import java.util.Map;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map;
 
 /**
  * 租户资源配额校验Filter
@@ -43,13 +42,7 @@ public class TenantResourceFilter extends OncePerRequestFilter {
      * 白名单路径，不需要进行资源校验
      */
     private static final String[] EXCLUDE_PATHS = {
-            "/login",
-            "/logout",
-            "/error",
-            "/actuator",
-            "/swagger",
-            "/v2/api-docs",
-            "/favicon.ico"
+        "/login", "/logout", "/error", "/actuator", "/swagger", "/v2/api-docs", "/favicon.ico"
     };
 
     @Override
@@ -128,15 +121,16 @@ public class TenantResourceFilter extends OncePerRequestFilter {
                     return;
                 }
             }
-//            else if ("QUOTA".equals(resourceType)) {
-//                // 配额类型：将final限制值存入request属性，供后续业务层使用
-//                Integer finalValue = matchedResource.getFinalValue();
-//                if (finalValue != null) {
-//                    String attributeName = QUOTA_ATTRIBUTE_PREFIX + resourceCode;
-//                    request.setAttribute(attributeName, finalValue);
-//                    log.debug("设置配额限制，tenantId: {}, resourceCode: {}, quota: {}", tenantId, resourceCode, finalValue);
-//                }
-//            }
+            //            else if ("QUOTA".equals(resourceType)) {
+            //                // 配额类型：将final限制值存入request属性，供后续业务层使用
+            //                Integer finalValue = matchedResource.getFinalValue();
+            //                if (finalValue != null) {
+            //                    String attributeName = QUOTA_ATTRIBUTE_PREFIX + resourceCode;
+            //                    request.setAttribute(attributeName, finalValue);
+            //                    log.debug("设置配额限制，tenantId: {}, resourceCode: {}, quota: {}", tenantId, resourceCode,
+            // finalValue);
+            //                }
+            //            }
 
             // 校验通过，继续执行
             filterChain.doFilter(request, response);
@@ -179,15 +173,19 @@ public class TenantResourceFilter extends OncePerRequestFilter {
      * 2. 匹配路径后缀（去除/api/robot等前缀）
      * 3. 支持AntPathMatcher通配符
      */
-    private ResourceConfigDto findMatchingResource(String requestUri, Map<String, ResourceConfigDto> resourceConfigMap) {
+    private ResourceConfigDto findMatchingResource(
+            String requestUri, Map<String, ResourceConfigDto> resourceConfigMap) {
         for (Map.Entry<String, ResourceConfigDto> entry : resourceConfigMap.entrySet()) {
             ResourceConfigDto config = entry.getValue();
             if (config.getUrls() != null && !config.getUrls().isEmpty()) {
                 for (String urlPattern : config.getUrls()) {
                     // 1. 直接匹配完整路径
                     if (pathMatcher.match(urlPattern, requestUri)) {
-                        log.debug("匹配到资源（完整路径），requestUri: {}, urlPattern: {}, resourceCode: {}",
-                                requestUri, urlPattern, entry.getKey());
+                        log.debug(
+                                "匹配到资源（完整路径），requestUri: {}, urlPattern: {}, resourceCode: {}",
+                                requestUri,
+                                urlPattern,
+                                entry.getKey());
                         return config;
                     }
 
@@ -196,8 +194,11 @@ public class TenantResourceFilter extends OncePerRequestFilter {
                         // 从requestUri中提取路径部分进行匹配
                         String normalizedPattern = "/" + urlPattern;
                         if (pathMatcher.match(normalizedPattern, requestUri)) {
-                            log.debug("匹配到资源（规范化路径），requestUri: {}, urlPattern: {}, resourceCode: {}",
-                                    requestUri, normalizedPattern, entry.getKey());
+                            log.debug(
+                                    "匹配到资源（规范化路径），requestUri: {}, urlPattern: {}, resourceCode: {}",
+                                    requestUri,
+                                    normalizedPattern,
+                                    entry.getKey());
                             return config;
                         }
                     }
@@ -208,16 +209,24 @@ public class TenantResourceFilter extends OncePerRequestFilter {
                     if (pathSuffix != null) {
                         // 匹配完整路径模式
                         if (pathMatcher.match(urlPattern, pathSuffix)) {
-                            log.debug("匹配到资源（路径后缀），requestUri: {}, pathSuffix: {}, urlPattern: {}, resourceCode: {}",
-                                    requestUri, pathSuffix, urlPattern, entry.getKey());
+                            log.debug(
+                                    "匹配到资源（路径后缀），requestUri: {}, pathSuffix: {}, urlPattern: {}, resourceCode: {}",
+                                    requestUri,
+                                    pathSuffix,
+                                    urlPattern,
+                                    entry.getKey());
                             return config;
                         }
                         // 如果urlPattern不以/开头，也尝试匹配
                         if (!urlPattern.startsWith("/")) {
                             String normalizedPattern = "/" + urlPattern;
                             if (pathMatcher.match(normalizedPattern, pathSuffix)) {
-                                log.debug("匹配到资源（路径后缀规范化），requestUri: {}, pathSuffix: {}, urlPattern: {}, resourceCode: {}",
-                                        requestUri, pathSuffix, normalizedPattern, entry.getKey());
+                                log.debug(
+                                        "匹配到资源（路径后缀规范化），requestUri: {}, pathSuffix: {}, urlPattern: {}, resourceCode: {}",
+                                        requestUri,
+                                        pathSuffix,
+                                        normalizedPattern,
+                                        entry.getKey());
                                 return config;
                             }
                         }
@@ -225,8 +234,11 @@ public class TenantResourceFilter extends OncePerRequestFilter {
 
                     // 4. 支持包含匹配（如果urlPattern是路径的一部分）
                     if (requestUri.contains(urlPattern) || requestUri.endsWith(urlPattern)) {
-                        log.debug("匹配到资源（包含匹配），requestUri: {}, urlPattern: {}, resourceCode: {}",
-                                requestUri, urlPattern, entry.getKey());
+                        log.debug(
+                                "匹配到资源（包含匹配），requestUri: {}, urlPattern: {}, resourceCode: {}",
+                                requestUri,
+                                urlPattern,
+                                entry.getKey());
                         return config;
                     }
                 }
@@ -278,8 +290,8 @@ public class TenantResourceFilter extends OncePerRequestFilter {
      * 检查父级资源是否有效
      * 如果资源有父级，则检查父级资源的final值（对于SWITCH类型，final必须为1）
      */
-    private boolean checkParentResource(String resourceCode, ResourceConfigDto resourceConfig,
-                                       Map<String, ResourceConfigDto> resourceConfigMap) {
+    private boolean checkParentResource(
+            String resourceCode, ResourceConfigDto resourceConfig, Map<String, ResourceConfigDto> resourceConfigMap) {
         String parentCode = resourceConfig.getParent();
         if (StringUtils.isBlank(parentCode)) {
             // 没有父级，直接返回true
@@ -323,4 +335,3 @@ public class TenantResourceFilter extends OncePerRequestFilter {
         response.getWriter().flush();
     }
 }
-

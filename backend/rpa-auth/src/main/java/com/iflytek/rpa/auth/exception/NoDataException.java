@@ -1,6 +1,5 @@
 package com.iflytek.rpa.auth.exception;
 
-
 public class NoDataException extends Exception {
 
     public NoDataException() {
@@ -14,5 +13,4 @@ public class NoDataException extends Exception {
     public NoDataException(Exception e) {
         super(e);
     }
-
 }

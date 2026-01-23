@@ -1,7 +1,6 @@
 package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -23,19 +22,14 @@ public class Authority implements Serializable {
     private Integer sort = 1;
     private String ico;
     private String remark;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
-    public Authority() {
-    }
+    public Authority() {}
 
     public String getId() {
         return this.id;
@@ -181,4 +175,3 @@ public class Authority implements Serializable {
         this.updateTime = updateTime;
     }
 }
-

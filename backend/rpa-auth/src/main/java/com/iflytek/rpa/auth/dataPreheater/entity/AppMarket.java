@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 团队市场-团队表(AppMarket)实体类
@@ -69,7 +68,6 @@ public class AppMarket implements Serializable {
     @TableLogic(value = "0", delval = "1")
     private Integer deleted;
 
-
     private Boolean toDissolve;
 
     private String userType;
@@ -81,6 +79,4 @@ public class AppMarket implements Serializable {
     private String tenantId;
 
     private String newOwner;
-
 }
-

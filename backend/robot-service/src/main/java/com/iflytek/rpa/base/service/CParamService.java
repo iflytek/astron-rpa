@@ -8,9 +8,8 @@ import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.robot.entity.dto.RobotVersionDto;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-
-import javax.validation.Valid;
 import java.util.List;
+import javax.validation.Valid;
 
 /**
  * 模板参数表服务接口
@@ -23,7 +22,8 @@ public interface CParamService {
      * @param
      * @return
      */
-    AppResponse<List<ParamDto>> getAllParams(QueryParamDto queryParamDto) throws JsonProcessingException, NoLoginException;
+    AppResponse<List<ParamDto>> getAllParams(QueryParamDto queryParamDto)
+            throws JsonProcessingException, NoLoginException;
 
     /**
      * @param cParamDto

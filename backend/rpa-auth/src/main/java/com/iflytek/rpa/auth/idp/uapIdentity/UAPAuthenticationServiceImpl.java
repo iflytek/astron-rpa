@@ -7,45 +7,43 @@ import com.iflytek.rpa.auth.core.entity.RegisterDto;
 import com.iflytek.rpa.auth.core.entity.Tenant;
 import com.iflytek.rpa.auth.core.entity.User;
 import com.iflytek.rpa.auth.core.service.TenantService;
+import com.iflytek.rpa.auth.idp.AuthenticationService;
+import com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant;
+import com.iflytek.rpa.auth.sp.uap.constants.UAPConstant;
 import com.iflytek.rpa.auth.sp.uap.dao.UserDao;
 import com.iflytek.rpa.auth.sp.uap.mapper.TenantMapper;
 import com.iflytek.rpa.auth.sp.uap.mapper.UserMapper;
-import com.iflytek.rpa.auth.idp.AuthenticationService;
 import com.iflytek.rpa.auth.sp.uap.service.impl.UserServiceImpl;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
 import com.iflytek.rpa.auth.utils.MenuPermissionValidator;
 import com.iflytek.rpa.auth.utils.RedisUtils;
 import com.iflytek.rpa.auth.utils.SmsUtils;
-import com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant;
-import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.base.util.ClientConfigUtil;
 import com.iflytek.sec.uap.client.api.ClientAuthenticationAPI;
+import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.dto.ResponseDto;
 import com.iflytek.sec.uap.client.core.dto.authentication.LoginResultDto;
 import com.iflytek.sec.uap.client.core.dto.authentication.UapLoginByPasswordDto;
+import com.iflytek.sec.uap.client.core.dto.pwd.UpdatePwdDto;
+import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
 import com.iflytek.sec.uap.client.util.CommonValidateUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.util.CollectionUtils;
-
-import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
-import com.iflytek.rpa.auth.sp.uap.constants.UAPConstant;
-import com.iflytek.sec.uap.client.core.dto.pwd.UpdatePwdDto;
-import org.springframework.util.Base64Utils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * UAP认证服务实现
@@ -112,8 +110,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
 
             Map<String, Object> dataMap = objectMapper.readValue(
                     cachedData.toString(),
-                    objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class)
-            );
+                    objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class));
 
             if (dataMap.containsKey("loginDto")) {
                 LoginDto loginDto = objectMapper.convertValue(dataMap.get("loginDto"), LoginDto.class);
@@ -135,7 +132,8 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
     public String preAuthenticate(LoginDto loginDto, HttpServletRequest request) {
         try {
             // 判断是密码登录还是验证码登录
-            boolean isCodeLogin = StringUtils.hasText(loginDto.getCaptcha()) && StringUtils.hasText(loginDto.getPhone());
+            boolean isCodeLogin =
+                    StringUtils.hasText(loginDto.getCaptcha()) && StringUtils.hasText(loginDto.getPhone());
             String phone = loginDto.getPhone();
             String loginName = StringUtils.hasText(loginDto.getLoginName()) ? loginDto.getLoginName() : phone;
 
@@ -178,7 +176,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
                 // 1. 查询租户列表，根据租户数量决定是否传入tenantId
                 List<UapTenant> tenantList = ClientAuthenticationAPI.getTenantListInAppByLoginName(loginName);
                 String tenantId = null;
-                
+
                 if (CollectionUtils.isEmpty(tenantList)) {
                     // 租户列表为空，账号异常
                     log.error("账号异常：根据登录名未找到租户信息，登录名：{}", loginName);
@@ -196,14 +194,17 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
                 UapLoginByPasswordDto uapLoginByPasswordDto = buildUapLoginByPasswordDto(loginDto, tenantId);
 
                 // 3. 调用UAP登录接口验证账号密码
-                ResponseDto<LoginResultDto> uapLoginByPasswordResponse = ClientAuthenticationAPI.loginUapByPassword(uapLoginByPasswordDto);
-                log.info("UAP登录响应：flag={}, message={}",
+                ResponseDto<LoginResultDto> uapLoginByPasswordResponse =
+                        ClientAuthenticationAPI.loginUapByPassword(uapLoginByPasswordDto);
+                log.info(
+                        "UAP登录响应：flag={}, message={}",
                         uapLoginByPasswordResponse != null ? uapLoginByPasswordResponse.isFlag() : false,
                         uapLoginByPasswordResponse != null ? uapLoginByPasswordResponse.getMessage() : "响应为空");
 
                 // 4. 检查登录响应（成功即表示账号密码正确）
                 if (uapLoginByPasswordResponse == null || !uapLoginByPasswordResponse.isFlag()) {
-                    String errorMsg = uapLoginByPasswordResponse != null ? uapLoginByPasswordResponse.getMessage() : "UAP登录响应为空";
+                    String errorMsg =
+                            uapLoginByPasswordResponse != null ? uapLoginByPasswordResponse.getMessage() : "UAP登录响应为空";
                     log.error("UAP登录失败：{}", errorMsg);
                     throw new RuntimeException("登录失败：" + errorMsg);
                 }
@@ -217,14 +218,13 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
 
             // 5. 构建缓存数据
             Map<String, Object> cacheData = new HashMap<>();
-            cacheData.put("loginDto", loginDto);  // 保存登录信息（验证码登录时密码为空）
+            cacheData.put("loginDto", loginDto); // 保存登录信息（验证码登录时密码为空）
 
             // 6. 将数据序列化为JSON并存储到Redis
             String cacheDataJson = objectMapper.writeValueAsString(cacheData);
             RedisUtils.set(cacheKey, cacheDataJson, TEMP_TOKEN_EXPIRE_SECONDS);
 
-            log.info("第一步预验证成功，登录名：{}，临时凭证已生成，过期时间：{}秒",
-                    loginName, TEMP_TOKEN_EXPIRE_SECONDS);
+            log.info("第一步预验证成功，登录名：{}，临时凭证已生成，过期时间：{}秒", loginName, TEMP_TOKEN_EXPIRE_SECONDS);
 
             return tempToken;
 
@@ -269,10 +269,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             if (StringUtils.hasText(loginDto.getPassword())) {
                 // 密码登录
                 uapUser = userServiceImpl.loginUapByPasswordWithTenant(
-                        loginDto.getLoginName(),
-                        loginDto.getPassword(),
-                        tenantId,
-                        servletRequest);
+                        loginDto.getLoginName(), loginDto.getPassword(), tenantId, servletRequest);
             } else if (StringUtils.hasText(loginDto.getPhone())) {
                 // 验证码登录（无密码登录）
                 log.info("使用验证码登录（无密码），手机号：{}", loginDto.getPhone());
@@ -315,8 +312,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             // 6. 转换为业务实体并返回
             User user = userMapper.fromUapUser(uapUser);
 
-            log.info("第三步正式登录成功，用户ID：{}，登录名：{}，租户ID：{}",
-                    uapUser.getId(), uapUser.getLoginName(), tenantId);
+            log.info("第三步正式登录成功，用户ID：{}，登录名：{}，租户ID：{}", uapUser.getId(), uapUser.getLoginName(), tenantId);
 
             return user;
 
@@ -408,7 +404,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             // 如果platform是client或invite，返回全部租户列表（不需要过滤）
 
             return AppResponse.success(tenantList);
-            
+
         } catch (Exception e) {
             log.error("获取租户列表失败，临时凭证：{}", tempToken, e);
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "获取租户列表失败：" + e.getMessage());
@@ -420,7 +416,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
         // TODO: 实现UAP注册逻辑
         throw new UnsupportedOperationException("UAP注册功能待实现");
     }
-    
+
     @Override
     public User setPasswordAndLogin(String tempToken, String password, String tenantId, HttpServletRequest request) {
         // TODO: 实现UAP设置密码并登录逻辑
@@ -472,8 +468,7 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             String cacheKey = buildVerifyCodeKey(phone, scene);
             RedisUtils.set(cacheKey, code, VERIFY_CODE_EXPIRE_SECONDS);
 
-            log.info("验证码已生成并存储到Redis，手机号：{}，验证码：{}，场景：{}，过期时间：{}秒",
-                    phone, code, scene, VERIFY_CODE_EXPIRE_SECONDS);
+            log.info("验证码已生成并存储到Redis，手机号：{}，验证码：{}，场景：{}，过期时间：{}秒", phone, code, scene, VERIFY_CODE_EXPIRE_SECONDS);
 
             // 4. 构建短信模板参数
             Map<String, Object> tpMap = new HashMap<>();
@@ -593,8 +588,11 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
 
                             // 如果当前sessionId与Redis中存储的不一致，说明在其他地方登录了
                             if (!storedSessionId.equals(currentSessionId)) {
-                                log.warn("检测到账号在其他地方登录，当前sessionId：{}，存储的sessionId：{}，用户ID：{}",
-                                        currentSessionId, storedSessionId, userId);
+                                log.warn(
+                                        "检测到账号在其他地方登录，当前sessionId：{}，存储的sessionId：{}，用户ID：{}",
+                                        currentSessionId,
+                                        storedSessionId,
+                                        userId);
 
                                 // 清除当前session，强制退出登录
                                 try {
@@ -692,8 +690,10 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             // 直接调用UAP更新密码接口，UAP会校验旧密码是否正确
             UpdatePwdDto updatePwdDto = new UpdatePwdDto();
             updatePwdDto.setLoginName(loginName);
-            updatePwdDto.setOldPwd(Base64Utils.encodeToString(changePasswordDto.getOldPassword().getBytes(StandardCharsets.UTF_8)));
-            updatePwdDto.setNewPwd(Base64Utils.encodeToString(changePasswordDto.getNewPassword().getBytes(StandardCharsets.UTF_8)));
+            updatePwdDto.setOldPwd(Base64Utils.encodeToString(
+                    changePasswordDto.getOldPassword().getBytes(StandardCharsets.UTF_8)));
+            updatePwdDto.setNewPwd(Base64Utils.encodeToString(
+                    changePasswordDto.getNewPassword().getBytes(StandardCharsets.UTF_8)));
 
             ResponseDto<String> updatePwdResponse = ClientAuthenticationAPI.updateUserPwd(updatePwdDto);
             if (updatePwdResponse == null || !updatePwdResponse.isFlag()) {
@@ -762,8 +762,11 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
 
                 // 如果旧sessionId与当前sessionId不同，清除旧session
                 if (!oldSessionId.equals(currentSessionId)) {
-                    log.info("检测到用户在其他地方登录，清除旧session，用户ID：{}，旧sessionId：{}，新sessionId：{}",
-                            userId, oldSessionId, currentSessionId);
+                    log.info(
+                            "检测到用户在其他地方登录，清除旧session，用户ID：{}，旧sessionId：{}，新sessionId：{}",
+                            userId,
+                            oldSessionId,
+                            currentSessionId);
 
                     // 清除旧session（Spring Session在Redis中的key格式：uap:session:sessions:{sessionId}）
                     String oldSessionRedisKey = "uap:session:sessions:" + oldSessionId;
@@ -785,5 +788,4 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             // 不抛出异常，避免影响登录流程
         }
     }
-
 }

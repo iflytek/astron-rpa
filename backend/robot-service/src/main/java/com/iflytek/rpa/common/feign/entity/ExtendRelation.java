@@ -2,9 +2,7 @@ package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(
-        ignoreUnknown = true
-)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExtendRelation extends Extand {
     private static final long serialVersionUID = 346092851185314557L;
     private String relationId;
@@ -12,8 +10,7 @@ public class ExtendRelation extends Extand {
     private String value;
     private String text;
 
-    public ExtendRelation() {
-    }
+    public ExtendRelation() {}
 
     public String getRelationId() {
         return this.relationId;

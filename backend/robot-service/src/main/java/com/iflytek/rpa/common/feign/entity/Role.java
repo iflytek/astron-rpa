@@ -2,13 +2,10 @@ package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.Date;
 
-@JsonIgnoreProperties(
-        ignoreUnknown = true
-)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
     private String id;
@@ -23,19 +20,14 @@ public class Role implements Serializable {
     private String remark;
     private Integer isMustBind = 1;
     private String firstLevelId;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
-    public Role() {
-    }
+    public Role() {}
 
     public String getId() {
         return this.id;
@@ -149,4 +141,3 @@ public class Role implements Serializable {
         this.updateTime = updateTime;
     }
 }
-

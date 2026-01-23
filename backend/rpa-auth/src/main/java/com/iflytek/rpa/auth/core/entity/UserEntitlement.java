@@ -2,10 +2,9 @@ package com.iflytek.rpa.auth.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 用户权益实体类
@@ -70,4 +69,3 @@ public class UserEntitlement implements Serializable {
      */
     private Integer isDelete;
 }
-

@@ -2,11 +2,10 @@ package com.iflytek.rpa.robot.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.robot.entity.SharedVarKeyTenant;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * 共享变量租户密钥DAO
@@ -16,7 +15,6 @@ import java.util.List;
  */
 @Mapper
 public interface SharedVarKeyTenantDao extends BaseMapper<SharedVarKeyTenant> {
-
 
     @Select("SELECT id from shared_var_key_tenant WHERE deleted = 0")
     List<String> getExistsTenantIds();
@@ -32,4 +30,4 @@ public interface SharedVarKeyTenantDao extends BaseMapper<SharedVarKeyTenant> {
      * @return 密钥实体
      */
     SharedVarKeyTenant selectByTenantId(@Param("tenantId") String tenantId);
-} 
+}

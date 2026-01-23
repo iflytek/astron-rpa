@@ -1,5 +1,8 @@
 package com.iflytek.rpa.dispatch.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.ROBOT_RESULT_EXECUTE;
+import static com.iflytek.rpa.task.constants.TaskConstant.TASK_RESULT_EXECUTE;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.common.feign.entity.User;
@@ -16,22 +19,19 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.time.Duration;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.util.Date;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.ROBOT_RESULT_EXECUTE;
-import static com.iflytek.rpa.task.constants.TaskConstant.TASK_RESULT_EXECUTE;
-
 @Service
-public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTaskExecuteRecordDao, DispatchTaskExecuteRecord> implements DispatchTaskExecuteRecordService {
+public class DispatchTaskExecuteRecordServiceImpl
+        extends ServiceImpl<DispatchTaskExecuteRecordDao, DispatchTaskExecuteRecord>
+        implements DispatchTaskExecuteRecordService {
 
     @Autowired
     private IdWorker idWorker;
-
 
     @Value("${deBounce.prefix}")
     private String doBouncePrefix; // 防抖前缀
@@ -44,7 +44,7 @@ public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTa
 
     @Override
     public AppResponse<String> reportTaskStatus(TaskExecuteStatusDto statusDto) throws NoLoginException {
-        //生成executeId
+        // 生成executeId
         String terminalId = statusDto.getTerminalId();
         if (terminalId == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "终端ID不能为空");
@@ -66,7 +66,7 @@ public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTa
         String tenantId = resp.getData();
         Long taskExecuteId = statusDto.getDispatchTaskExecuteId();
         if (null == taskExecuteId) {
-            //第一次执行
+            // 第一次执行
             taskExecuteId = idWorker.nextId();
             DispatchTaskExecuteRecord taskExecuteRecord = new DispatchTaskExecuteRecord();
             taskExecuteRecord.setDispatchTaskId(statusDto.getDispatchTaskId());
@@ -78,30 +78,30 @@ public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTa
             taskExecuteRecord.setTerminalId(terminalId);
             taskExecuteRecord.setUpdaterId(userId);
             taskExecuteRecord.setStartTime(new Date());
-            //获取最大批次号
+            // 获取最大批次号
             Integer maxBatch = baseMapper.getMaxBatch(statusDto.getDispatchTaskId());
             if (null == maxBatch || 0 == maxBatch) {
                 taskExecuteRecord.setCount(1);
             } else {
                 taskExecuteRecord.setCount(maxBatch + 1);
             }
-            //插入
+            // 插入
             baseMapper.insertTaskExecuteRecord(taskExecuteRecord);
-            //返回执行id
+            // 返回执行id
             return AppResponse.success(taskExecuteId + "");
         }
         DispatchTaskExecuteRecord record = baseMapper.selectByExecuteId(taskExecuteId);
-//        Integer executeCount = baseMapper.countExecuteRecord(taskExecuteId);
+        //        Integer executeCount = baseMapper.countExecuteRecord(taskExecuteId);
         if (record == null) {
             return AppResponse.error(ErrorCodeEnum.E_SQL, "计划任务执行记录数据异常");
         }
-        //不是第一次执行，更新执行状态
+        // 不是第一次执行，更新执行状态
         if (null == statusDto.getResult()) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "计划任务执行结果不能为空");
         }
-//        if(null == statusDto.getTaskDetailJson() || "".equals(statusDto.getTaskDetailJson())){
-//            return AppResponse.error(ErrorCodeEnum.E_PARAM, "请传入计划任务详情");
-//        }
+        //        if(null == statusDto.getTaskDetailJson() || "".equals(statusDto.getTaskDetailJson())){
+        //            return AppResponse.error(ErrorCodeEnum.E_PARAM, "请传入计划任务详情");
+        //        }
         Date startTime = record.getStartTime();
         Date endTime = new Date();
         statusDto.setEndTime(endTime);
@@ -133,7 +133,7 @@ public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTa
         if (!currentLevelCodeRes.ok()) throw new ServiceException("rpa-auth 服务未响应");
         String deptIdPath = currentLevelCodeRes.getData();
         recordDto.setDeptIdPath(deptIdPath);
-        //根据executeId，是否是第一次，是第一次，设置开始时间
+        // 根据executeId，是否是第一次，是第一次，设置开始时间
         if (null == executeId) {
             if (null == recordDto.getResult() || !ROBOT_RESULT_EXECUTE.equals(recordDto.getResult())) {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "执行结果为空或数据错误");
@@ -141,7 +141,7 @@ public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTa
             executeId = idWorker.nextId();
             recordDto.setExecuteId(executeId);
             recordDto.setStartTime(new Date());
-            //插入
+            // 插入
             baseMapper.insertRobotExecuteRecord(recordDto);
             return AppResponse.success(executeId + "");
         } else {
@@ -155,8 +155,9 @@ public class DispatchTaskExecuteRecordServiceImpl extends ServiceImpl<DispatchTa
 
             Date endTime = new Date();
             recordDto.setEndTime(endTime);
-            //计算执行耗时
-            recordDto.setExecuteTime(endTime.toInstant().getEpochSecond() - executeRecord.getStartTime().toInstant().getEpochSecond());
+            // 计算执行耗时
+            recordDto.setExecuteTime(endTime.toInstant().getEpochSecond()
+                    - executeRecord.getStartTime().toInstant().getEpochSecond());
             baseMapper.updateRobotExecuteRecord(recordDto);
         }
         return AppResponse.success("任务结束");

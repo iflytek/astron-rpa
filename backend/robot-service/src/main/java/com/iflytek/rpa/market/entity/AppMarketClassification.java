@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 应用市场分类表(AppMarketClassification)实体类
@@ -72,4 +71,3 @@ public class AppMarketClassification implements Serializable {
      */
     private Integer deleted;
 }
-

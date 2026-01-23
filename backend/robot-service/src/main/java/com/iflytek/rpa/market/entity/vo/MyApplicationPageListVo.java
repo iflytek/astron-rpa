@@ -24,7 +24,7 @@ public class MyApplicationPageListVo {
      * 机器人名称
      */
     private String robotName;
-    
+
     /**
      * 密级标识
      */
@@ -34,7 +34,7 @@ public class MyApplicationPageListVo {
      * 提交审核时间
      */
     private String submitAuditTime;
-    
+
     /**
      * 审核意见
      */
@@ -47,5 +47,4 @@ public class MyApplicationPageListVo {
      * 申请状态: pending(待审核)/approved(已通过)/rejected(未通过)/canceled(已撤销)
      */
     private String status;
-
-} 
+}

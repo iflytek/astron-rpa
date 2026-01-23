@@ -1,9 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
 import com.iflytek.rpa.auth.sp.uap.annotation.Password;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 /**
  * 管理端更新用户密码请求
@@ -30,4 +29,3 @@ public class UpdateUserPasswordDto {
     @Password
     private String newPassword;
 }
-

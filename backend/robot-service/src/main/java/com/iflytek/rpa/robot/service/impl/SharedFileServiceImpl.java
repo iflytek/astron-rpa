@@ -22,21 +22,19 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import javax.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 共享文件服务实现类
@@ -49,13 +47,15 @@ import java.util.stream.Stream;
 public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile> implements SharedFileService {
     @Autowired
     private IdWorker idWorker;
+
     @Autowired
     private SharedFileDao sharedFileDao;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
 
     @Override
-//    @Transactional(readOnly = true)
+    //    @Transactional(readOnly = true)
     public AppResponse<IPage<SharedFilePageVo>> getSharedFilePageList(SharedFilePageDto queryDto) {
         // 创建分页对象
         IPage<SharedFile> page = new Page<>(queryDto.getPageNo(), queryDto.getPageSize());
@@ -86,14 +86,13 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
 
                 // 查询并设置标签名称列表
                 List<SharedFileTag> tags = baseMapper.selectTagsByIds(tagIds, tenantId);
-                List<String> tagNames = tags.stream()
-                        .map(SharedFileTag::getTagName)
-                        .collect(Collectors.toList());
+                List<String> tagNames =
+                        tags.stream().map(SharedFileTag::getTagName).collect(Collectors.toList());
                 vo.setTagsNames(tagNames);
             }
-            if(sharedFile.getTags() != null && !sharedFile.getTags().isEmpty()){
+            if (sharedFile.getTags() != null && !sharedFile.getTags().isEmpty()) {
                 vo.setTags(Arrays.asList(sharedFile.getTags().split(",")));
-            }else{
+            } else {
                 vo.setTags(null);
             }
             vo.setFilePath("/api/resource/file/download?fileId=" + sharedFile.getFileId());
@@ -104,10 +103,10 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
             String deptId = deptIdRes.getData();
 
             AppResponse<String> realNameResp = rpaAuthFeign.getNameById(sharedFile.getCreatorId());
-            if (realNameResp == null || realNameResp .getData() == null) {
+            if (realNameResp == null || realNameResp.getData() == null) {
                 throw new ServiceException("用户名获取失败");
             }
-            String creatorName= realNameResp .getData();
+            String creatorName = realNameResp.getData();
             vo.setCreatorName(creatorName);
 
             AppResponse<User> userResp = rpaAuthFeign.getUserInfoById(creatorId);
@@ -130,7 +129,7 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
         return AppResponse.success(resultPage);
     }
 
-    //判断用户有无文件处理权限
+    // 判断用户有无文件处理权限
     private boolean hasFileManagementPermission(HttpServletRequest request) throws NoLoginException {
         // 如果是租户管理员，直接返回true
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
@@ -138,7 +137,7 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
             throw new ServiceException("用户信息获取失败");
         }
         User loginUser = response.getData();
-        String userId= loginUser.getId();
+        String userId = loginUser.getId();
         AppResponse<String> resp = rpaAuthFeign.getTenantId();
         if (resp == null || resp.getData() == null) {
             throw new ServiceException("租户信息获取失败");
@@ -161,7 +160,8 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
         List<Authority> authList = roleList.stream()
                 .map(Role::getId)
                 .flatMap(roleId -> {
-                    AppResponse<List<Authority>> listAppResponse = rpaAuthFeign.queryAuthorityListByRoleId(tenantId, roleId);
+                    AppResponse<List<Authority>> listAppResponse =
+                            rpaAuthFeign.queryAuthorityListByRoleId(tenantId, roleId);
                     if (!listAppResponse.ok()) throw new ServiceException("rpa-auth服务响应异常");
                     List<Authority> authorities = listAppResponse.getData();
                     return authorities != null ? authorities.stream() : Stream.empty();
@@ -180,12 +180,12 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
             throw new ServiceException("租户信息获取失败");
         }
         String tenantId = resp.getData();
-                AppResponse<User> response = rpaAuthFeign.getLoginUser();
+        AppResponse<User> response = rpaAuthFeign.getLoginUser();
         if (response == null || response.getData() == null) {
             throw new ServiceException("用户信息获取失败");
         }
         User loginUser = response.getData();
-        String userId= loginUser.getId();
+        String userId = loginUser.getId();
         AppResponse<String> deptIdRes = rpaAuthFeign.getDeptIdByUserId(userId, tenantId);
         if (!deptIdRes.ok()) throw new ServiceException("rpa-auth 服务未响应");
         String deptId = deptIdRes.getData();
@@ -193,21 +193,18 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
         String fileName = dto.getFileName();
 
         SharedFile file = baseMapper.selectFileByName(fileName, tenantId);
-        if(file != null){
+        if (file != null) {
             return AppResponse.error("请勿上传同名文件");
         }
         // 检查标签是否存在并去重
         List<Long> uniqueTagIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(dto.getTags())) {
             // 去重
-            uniqueTagIds = dto.getTags().stream()
-                    .distinct()
-                    .collect(Collectors.toList());
+            uniqueTagIds = dto.getTags().stream().distinct().collect(Collectors.toList());
             // 查询这些标签是否都存在
             List<SharedFileTag> existingTags = baseMapper.selectTagsByIds(uniqueTagIds, tenantId);
-            List<Long> existingTagIds = existingTags.stream()
-                    .map(SharedFileTag::getTagId)
-                    .collect(Collectors.toList());
+            List<Long> existingTagIds =
+                    existingTags.stream().map(SharedFileTag::getTagId).collect(Collectors.toList());
             // 检查是否有不存在的标签
             List<Long> nonExistingTagIds = uniqueTagIds.stream()
                     .filter(tagId -> !existingTagIds.contains(tagId))
@@ -219,9 +216,7 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
         } else {
             uniqueTagIds = new ArrayList<>();
         }
-        String tagsString = uniqueTagIds.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+        String tagsString = uniqueTagIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         // 构造sharedFile对象
         SharedFile sharedFile = new SharedFile();
         sharedFile.setId(idWorker.nextId());
@@ -246,4 +241,3 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
         return AppResponse.success("新增成功");
     }
 }
-

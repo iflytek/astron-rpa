@@ -3,9 +3,8 @@ package com.iflytek.rpa.auth.core.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.utils.AppResponse;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 部门服务
@@ -26,7 +25,7 @@ public interface DeptService {
      * 2. 使用Redis缓存，缓存时间1小时
      * 3. 严格限制只返回顶级部门和次级部门（两层结构）
      * 4. 优化并行查询逻辑
-     * 
+     *
      * @param request HTTP请求
      * @return 优化后的响应结果，最多包含两层部门结构
      */
@@ -38,9 +37,9 @@ public interface DeptService {
      * @param request HTTP请求
      * @return 操作结果
      */
-    AppResponse<String> addDept( CreateUapOrgDto createUapOrgDto, HttpServletRequest request);
+    AppResponse<String> addDept(CreateUapOrgDto createUapOrgDto, HttpServletRequest request);
 
-//    PageDto<Org> queryOrgPageList(String tenantId, OrgListDto orgListDto, HttpServletRequest request);
+    //    PageDto<Org> queryOrgPageList(String tenantId, OrgListDto orgListDto, HttpServletRequest request);
 
     /**
      * 获取部门树 todo 只返回有权限的
@@ -57,7 +56,8 @@ public interface DeptService {
      * @return 部门子节点列表
      * @throws Exception 异常
      */
-    AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(QueryDeptNodeDto dto, HttpServletRequest request) throws Exception;
+    AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(QueryDeptNodeDto dto, HttpServletRequest request)
+            throws Exception;
 
     /**
      * 编辑部门
@@ -97,7 +97,8 @@ public interface DeptService {
      * @return 部门人数节点列表
      * @throws JsonProcessingException JSON处理异常
      */
-    AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(QueryDeptNodeDto dto, HttpServletRequest request) throws JsonProcessingException;
+    AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(QueryDeptNodeDto dto, HttpServletRequest request)
+            throws JsonProcessingException;
 
     /**
      * 查询当前机构的所有用户

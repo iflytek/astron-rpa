@@ -1,15 +1,14 @@
 package com.iflytek.rpa.auth.auditRecord.entity.enums;
 
+import static com.iflytek.rpa.auth.auditRecord.entity.enums.EventMoudleEnum.*;
+
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.iflytek.rpa.auth.auditRecord.entity.enums.EventMoudleEnum.*;
 
 public enum EventTypeEnum implements IEnum<Integer> {
 
@@ -166,10 +165,12 @@ public enum EventTypeEnum implements IEnum<Integer> {
 
     public static void initEventTypeList() {
         for (EventTypeEnum eventTypeEnum : EventTypeEnum.values()) {
-            eventTypeList.add(new HashMap<String, String>() {{
-                put("typeCode", String.valueOf(eventTypeEnum.getCode()));
-                put("typeName", eventTypeEnum.getName());
-            }});
+            eventTypeList.add(new HashMap<String, String>() {
+                {
+                    put("typeCode", String.valueOf(eventTypeEnum.getCode()));
+                    put("typeName", eventTypeEnum.getName());
+                }
+            });
         }
     }
 

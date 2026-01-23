@@ -12,4 +12,3 @@ public class InviteKeyDto {
      */
     private String inviteKey;
 }
-

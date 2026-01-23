@@ -1,13 +1,12 @@
 package com.iflytek.rpa.auth.utils;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 菜单权限验证工具类
@@ -62,7 +61,7 @@ public class MenuPermissionValidator {
 
     /**
      * 从referer中提取菜单路径
-     * 
+     *
      * @param referer Referer头内容
      * @return 菜单路径，如果解析失败返回null
      */
@@ -70,7 +69,7 @@ public class MenuPermissionValidator {
         try {
             URI uri = new URI(referer);
             String path = uri.getPath();
-            
+
             if (StringUtils.isBlank(path)) {
                 return null;
             }
@@ -79,7 +78,7 @@ public class MenuPermissionValidator {
             if (path.startsWith("/admin")) {
                 path = path.substring("/admin".length());
             }
-            
+
             // 如果路径为空或只有斜杠，返回null
             if (StringUtils.isBlank(path) || "/".equals(path)) {
                 return null;
@@ -100,7 +99,7 @@ public class MenuPermissionValidator {
     /**
      * 检查路径是否在允许的菜单路径列表中
      * 支持精确匹配和前缀匹配
-     * 
+     *
      * @param path 要检查的路径
      * @param allowedPaths 允许的菜单路径集合
      * @return 如果允许返回true，否则返回false
@@ -147,4 +146,3 @@ public class MenuPermissionValidator {
         return path;
     }
 }
-

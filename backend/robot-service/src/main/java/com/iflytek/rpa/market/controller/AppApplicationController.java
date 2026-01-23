@@ -7,11 +7,10 @@ import com.iflytek.rpa.market.service.AppApplicationService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 /**
  * 上架、使用申请管理
@@ -22,7 +21,6 @@ public class AppApplicationController {
 
     @Autowired
     private AppApplicationService appApplicationService;
-
 
     /**
      * 查询审核开关状态
@@ -40,7 +38,8 @@ public class AppApplicationController {
      * @throws Exception
      */
     @PostMapping("/my-application-page-list")
-    public AppResponse<IPage<MyApplicationPageListVo>> getMyApplicationPageList(@RequestBody MyApplicationPageListDto queryDto) throws Exception {
+    public AppResponse<IPage<MyApplicationPageListVo>> getMyApplicationPageList(
+            @RequestBody MyApplicationPageListDto queryDto) throws Exception {
         return appApplicationService.getMyApplicationPageList(queryDto);
     }
 
@@ -84,13 +83,13 @@ public class AppApplicationController {
      * 客户端-提交上架申请
      */
     @PostMapping("/submit-release-application")
-    public AppResponse<String> submitReleaseApplication(@Valid @RequestBody ReleaseApplicationDto applicationDto) throws Exception {
+    public AppResponse<String> submitReleaseApplication(@Valid @RequestBody ReleaseApplicationDto applicationDto)
+            throws Exception {
         if (CollectionUtils.isEmpty(applicationDto.getMarketIdList())) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "市场id不能为空");
         }
         return appApplicationService.submitReleaseApplication(applicationDto);
     }
-
 
     /**
      * 客户端-发版后，提交上架申请前，查询是否需要上架审核
@@ -118,8 +117,6 @@ public class AppApplicationController {
         }
         return appApplicationService.submitAfterPublish(dto);
     }
-
-
 
     /**
      * 客户端-提交使用申请

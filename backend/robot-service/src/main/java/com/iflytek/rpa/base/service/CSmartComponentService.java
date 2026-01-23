@@ -11,7 +11,8 @@ public interface CSmartComponentService {
 
     AppResponse<SmartComponentVo> getBySmartId(BaseDto baseDto, String smartId) throws NoLoginException;
 
-    AppResponse<SmartComponentVo> getBySmartIdAndVersion(BaseDto baseDto, String smartId, Integer version) throws NoLoginException;
+    AppResponse<SmartComponentVo> getBySmartIdAndVersion(BaseDto baseDto, String smartId, Integer version)
+            throws NoLoginException;
 
     AppResponse<Integer> delete(CSmartComponentDto smartComponentDto) throws NoLoginException;
 }

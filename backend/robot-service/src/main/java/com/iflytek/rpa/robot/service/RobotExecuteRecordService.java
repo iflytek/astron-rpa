@@ -14,8 +14,7 @@ import com.iflytek.rpa.utils.response.AppResponse;
  * @author makejava
  * @since 2024-09-29 15:27:41
  */
-public interface RobotExecuteRecordService  extends IService<RobotExecuteRecord> {
-
+public interface RobotExecuteRecordService extends IService<RobotExecuteRecord> {
 
     AppResponse<?> recordList(ExecuteRecordDto recordDto) throws NoLoginException;
 
@@ -25,5 +24,6 @@ public interface RobotExecuteRecordService  extends IService<RobotExecuteRecord>
 
     AppResponse<?> saveExecuteResult(ExecuteRecordDto recordDto, String currentRobotId) throws NoLoginException;
 
-    AppResponse<String> deleteRobotExecuteRecords(RobotExecuteRecordsBatchDeleteDto batchDeleteDto) throws NoLoginException;
+    AppResponse<String> deleteRobotExecuteRecords(RobotExecuteRecordsBatchDeleteDto batchDeleteDto)
+            throws NoLoginException;
 }

@@ -12,13 +12,12 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * 反馈服务实现类
@@ -99,8 +98,8 @@ public class FeedbackServiceImpl extends ServiceImpl<FeedbackReportDao, Feedback
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String timestamp = sdf.format(new Date());
         long snowflakeId = idWorker.nextId();
-        String lastSixDigits = String.valueOf(snowflakeId).substring(Math.max(0, String.valueOf(snowflakeId).length() - 6));
+        String lastSixDigits = String.valueOf(snowflakeId)
+                .substring(Math.max(0, String.valueOf(snowflakeId).length() - 6));
         return "FB" + timestamp + lastSixDigits;
     }
 }
-

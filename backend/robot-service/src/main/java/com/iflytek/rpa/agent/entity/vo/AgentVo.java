@@ -3,10 +3,9 @@ package com.iflytek.rpa.agent.entity.vo;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.iflytek.rpa.agent.entity.dto.ChatMessage;
+import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * Agent返回VO

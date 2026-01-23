@@ -1,11 +1,9 @@
 package com.iflytek.rpa.auth.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggerUtils {
 

@@ -2,7 +2,6 @@ package com.iflytek.rpa.common.feign.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -358,6 +357,4 @@ public class Org implements Serializable {
     public void setThirdExtInfo(String thirdExtInfo) {
         this.thirdExtInfo = thirdExtInfo;
     }
-
 }
-

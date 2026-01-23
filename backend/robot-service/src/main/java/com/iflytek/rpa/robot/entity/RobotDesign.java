@@ -4,14 +4,13 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.io.Serializable;
+import java.util.Date;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotBlank;
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 云端机器人表(Robot)实体类
@@ -32,7 +31,6 @@ public class RobotDesign implements Serializable {
     /**
      * 机器人唯一id，获取的应用id
      */
-
     @JSONField(name = "robot_id")
     private String robotId;
     /**
@@ -87,10 +85,8 @@ public class RobotDesign implements Serializable {
     // 来源：create 自己创建 ； market 市场获取
     private String dataSource;
 
-//    @TableField(exist = false)
+    //    @TableField(exist = false)
     private Integer editEnable;
 
     private String transformStatus;
-
 }
-

@@ -1,11 +1,10 @@
 package com.iflytek.rpa.feedback.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import lombok.Data;
 
 /**
  * 咨询表单提交DTO
@@ -19,7 +18,7 @@ public class ConsultFormSubmitDto {
     /**
      * 表单类型 1=专业版 2=企业版
      */
-//    @NotNull(message = "表单类型不能为空")
+    //    @NotNull(message = "表单类型不能为空")
     private Integer formType;
 
     /**
@@ -57,4 +56,3 @@ public class ConsultFormSubmitDto {
     @Size(max = 32, message = "团队人数区间长度不能超过32字符")
     private String teamSize;
 }
-

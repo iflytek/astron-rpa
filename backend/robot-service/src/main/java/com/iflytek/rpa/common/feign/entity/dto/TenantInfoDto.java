@@ -33,6 +33,4 @@ public class TenantInfoDto {
      * 管理员名称
      */
     private String managerName;
-
 }
-

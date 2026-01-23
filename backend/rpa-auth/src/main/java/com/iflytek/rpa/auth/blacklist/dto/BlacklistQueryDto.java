@@ -1,14 +1,13 @@
 package com.iflytek.rpa.auth.blacklist.dto;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 /**
  * 黑名单查询 DTO
- * 
+ *
  * @author system
  * @date 2025-12-16
  */
@@ -44,4 +43,3 @@ public class BlacklistQueryDto implements Serializable {
      */
     private Integer pageSize = 10;
 }
-

@@ -11,6 +11,4 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2024-12-15
  */
 @Mapper
-public interface FeedbackReportDao extends BaseMapper<FeedbackReport> {
-}
-
+public interface FeedbackReportDao extends BaseMapper<FeedbackReport> {}

@@ -23,4 +23,3 @@ public interface QuotaCountService {
      */
     Integer getMarketJoinCount(String tenantId, String userId);
 }
-

@@ -4,11 +4,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.market.entity.AppMarketClassification;
 import com.iflytek.rpa.market.entity.dto.AppMarketClassificationManageVo;
 import com.iflytek.rpa.market.entity.vo.AppMarketClassificationVo;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 应用市场分类表(AppMarketClassification)数据库访问层
@@ -34,12 +33,10 @@ public interface AppMarketClassificationDao extends BaseMapper<AppMarketClassifi
      * @param source 来源
      * @return 分类列表（按sort和创建时间排序）
      */
-    List<AppMarketClassificationManageVo> getClassificationManageList(@Param("tenantId") String tenantId,
-                                                                      @Param("name") String name,
-                                                                      @Param("source") Integer source);
+    List<AppMarketClassificationManageVo> getClassificationManageList(
+            @Param("tenantId") String tenantId, @Param("name") String name, @Param("source") Integer source);
 
     List<Map> getCategoryReferenceCount();
 
     Integer insertDefaultClassification(@Param("tenantId") String tenantId);
 }
-

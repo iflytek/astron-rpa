@@ -4,18 +4,17 @@ import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.dataPreheater.entity.InitDataEvent;
 import com.iflytek.rpa.auth.idp.AuthenticationService;
 import com.iflytek.rpa.auth.utils.AppResponse;
+import java.io.IOException;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotBlank;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * 登陆登出相关
@@ -27,6 +26,7 @@ public class LoginController {
 
     @Autowired
     private AuthenticationService authenticationService;
+
     @Autowired
     private ApplicationEventPublisher eventPublisher;
     /**
@@ -59,7 +59,6 @@ public class LoginController {
         }
     }
 
-
     /**
      * 获取token
      *
@@ -69,9 +68,8 @@ public class LoginController {
     @GetMapping("/token")
     public String getToken(HttpServletRequest request) {
         return "Not supported in SaaS";
-//        return UapManagementClientUtil.getToken(request);
+        //        return UapManagementClientUtil.getToken(request);
     }
-
 
     /**
      * 退出登录
@@ -85,7 +83,6 @@ public class LoginController {
         return authenticationService.logout(request, response);
     }
 
-
     /**
      * 第一步：预验证
      * 验证用户身份（手机号+密码 或 手机号+验证码）
@@ -96,8 +93,7 @@ public class LoginController {
      * @return 临时凭证
      */
     @PostMapping("/pre-authenticate")
-    public AppResponse<String> preAuthenticate(@RequestBody @Validated LoginDto loginDto,
-                                               HttpServletRequest request) {
+    public AppResponse<String> preAuthenticate(@RequestBody @Validated LoginDto loginDto, HttpServletRequest request) {
         try {
             log.info("预验证请求，手机号：{}", loginDto.getPhone());
             String tempToken = authenticationService.preAuthenticate(loginDto, request);
@@ -125,8 +121,8 @@ public class LoginController {
      * @return 租户列表
      */
     @GetMapping("/tenant/list")
-    public AppResponse<List<Tenant>> getTenantList(@RequestParam(required = false) String tempToken,
-                                                   HttpServletRequest request) {
+    public AppResponse<List<Tenant>> getTenantList(
+            @RequestParam(required = false) String tempToken, HttpServletRequest request) {
         try {
             log.info("获取租户列表，临时凭证：{}", tempToken);
             return authenticationService.getTenantList(tempToken, request);
@@ -147,15 +143,16 @@ public class LoginController {
      * @return 登录成功返回用户信息
      */
     @PostMapping("/login")
-    public AppResponse<User> login(@RequestParam @NotBlank(message = "临时凭证不能为空") String tempToken,
-                                   @RequestParam @NotBlank(message = "租户ID不能为空") String tenantId,
-                                   HttpServletRequest request) {
+    public AppResponse<User> login(
+            @RequestParam @NotBlank(message = "临时凭证不能为空") String tempToken,
+            @RequestParam @NotBlank(message = "租户ID不能为空") String tenantId,
+            HttpServletRequest request) {
         try {
             log.info("正式登录请求，临时凭证：{}，租户ID：{}", tempToken, tenantId);
             User user = authenticationService.loginWithTenant(tempToken, tenantId, request);
             log.info("正式登录成功，用户ID：{}，租户ID：{}", user.getId(), tenantId);
             // 初始化团队市场分类 企业团队市场
-            eventPublisher.publishEvent(new InitDataEvent(this,tenantId));
+            eventPublisher.publishEvent(new InitDataEvent(this, tenantId));
             return AppResponse.success(user);
         } catch (Exception e) {
             log.error("正式登录失败", e);
@@ -172,8 +169,7 @@ public class LoginController {
      */
     @PostMapping("/verification-code/send")
     public AppResponse<String> sendVerificationCode(
-            @RequestParam @NotBlank(message = "手机号不能为空") String phone,
-            @RequestParam(required = false) String scene) {
+            @RequestParam @NotBlank(message = "手机号不能为空") String phone, @RequestParam(required = false) String scene) {
         try {
             log.info("发送验证码，手机号：{}", phone);
 
@@ -201,8 +197,7 @@ public class LoginController {
      * @return 临时凭证
      */
     @PostMapping("/register")
-    public AppResponse<String> register(@RequestBody @Validated RegisterDto registerDto,
-                                        HttpServletRequest request) {
+    public AppResponse<String> register(@RequestBody @Validated RegisterDto registerDto, HttpServletRequest request) {
         try {
             log.info("用户注册请求，手机号：{}", registerDto.getPhone());
 
@@ -226,8 +221,8 @@ public class LoginController {
      * @return 是否成功
      */
     @PostMapping("/password/set")
-    public AppResponse<Boolean> setPasswordAndLogin(@RequestBody @Validated SetPasswordDto setPasswordDto,
-                                                    HttpServletRequest request) {
+    public AppResponse<Boolean> setPasswordAndLogin(
+            @RequestBody @Validated SetPasswordDto setPasswordDto, HttpServletRequest request) {
         try {
             log.info("设置密码并登录请求，临时凭证：{}", setPasswordDto.getTempToken());
 
@@ -238,11 +233,7 @@ public class LoginController {
 
             // 设置密码并自动登录
             boolean res = authenticationService.setPassword(
-                    setPasswordDto.getTempToken(),
-                    setPasswordDto.getPassword(),
-                    setPasswordDto.getTenantId(),
-                    request
-            );
+                    setPasswordDto.getTempToken(), setPasswordDto.getPassword(), setPasswordDto.getTenantId(), request);
 
             log.info("设置密码成功");
             return AppResponse.success(res);
@@ -260,8 +251,7 @@ public class LoginController {
      * @return 是否已注册
      */
     @GetMapping("/user/exist")
-    public AppResponse<Boolean> checkUserExist(
-            @RequestParam @NotBlank(message = "手机号不能为空") String phone) {
+    public AppResponse<Boolean> checkUserExist(@RequestParam @NotBlank(message = "手机号不能为空") String phone) {
         try {
             boolean exist = authenticationService.queryUserExist(phone);
             return AppResponse.success(exist);
@@ -278,8 +268,7 @@ public class LoginController {
      * @return 删除结果
      */
     @PostMapping("/iflytek-account/delete")
-    public AppResponse<String> deleteIflytekAccount(
-            @RequestParam @NotBlank(message = "手机号不能为空") String phone) {
+    public AppResponse<String> deleteIflytekAccount(@RequestParam @NotBlank(message = "手机号不能为空") String phone) {
         return AppResponse.error("当前部署模式不支持删除用户");
     }
 
@@ -291,7 +280,8 @@ public class LoginController {
      * @return 刷新结果
      */
     @PostMapping("/refresh-token")
-    public AppResponse<Boolean> refreshToken(@RequestParam("accessToken") String accessToken, HttpServletRequest request) {
+    public AppResponse<Boolean> refreshToken(
+            @RequestParam("accessToken") String accessToken, HttpServletRequest request) {
         try {
             log.info("刷新Token请求");
             AppResponse<Boolean> response = authenticationService.refreshToken(request, accessToken);
@@ -334,7 +324,4 @@ public class LoginController {
             return AppResponse.error(com.iflytek.rpa.auth.utils.ErrorCodeEnum.E_SERVICE, "修改密码失败：" + e.getMessage());
         }
     }
-
-
 }
-

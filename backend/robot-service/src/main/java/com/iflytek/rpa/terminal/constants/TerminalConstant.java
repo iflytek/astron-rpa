@@ -9,7 +9,6 @@ public class TerminalConstant {
 
     public static final String TERMINAL_NOT_FOUND = "TERMINAL_NOT_FOUND";
 
-
     /**
      * 设备状态，运行中busy，空闲free，离线offline，单机中standalone
      */
@@ -20,7 +19,6 @@ public class TerminalConstant {
     public static final String TERMINAL_STATUS_OFFLINE = "offline";
 
     public static final String TERMINAL_STATUS_STANDALONE = "standalone";
-
 
     /**
      * redis key

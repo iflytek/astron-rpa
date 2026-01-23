@@ -70,5 +70,4 @@ public interface AppMarketResourceService {
      * 执行分享逻辑（供审核通过后自动调用）
      */
     AppResponse<?> executeShareRobotLogic(ShareRobotDto marketResourceDto, String userId, String tenantId);
-
 }

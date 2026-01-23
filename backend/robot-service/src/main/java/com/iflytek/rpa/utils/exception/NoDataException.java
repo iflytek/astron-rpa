@@ -7,15 +7,17 @@ package com.iflytek.rpa.utils.exception;
  * 创建时间： 2020/4/1 5:27 下午
  * 创 建 人： shzhang7
  **/
-public class NoDataException extends Exception{
+public class NoDataException extends Exception {
 
     public NoDataException() {
         super();
     }
+
     public NoDataException(String message) {
         super(message);
     }
 
-    public NoDataException(Exception e){super(e);}
-
+    public NoDataException(Exception e) {
+        super(e);
+    }
 }

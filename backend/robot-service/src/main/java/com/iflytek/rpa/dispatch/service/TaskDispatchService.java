@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class TaskDispatchService {
-    
+
     @Autowired
     private ApplicationEventPublisher eventPublisher;
-    
+
     /**
      * 手动发布任务分派事件
      */
@@ -27,9 +27,11 @@ public class TaskDispatchService {
         log.info("手动发布任务分派事件: {}", taskDispatchDto);
 
         DispatchTaskType dispatchTaskType = DispatchTaskType.valueOf(taskDispatchDto.getDispatchTaskType());
-        DispatchTaskFromType dispatchTaskFromType = DispatchTaskFromType.valueOf(taskDispatchDto.getDispatchTaskFromType());
+        DispatchTaskFromType dispatchTaskFromType =
+                DispatchTaskFromType.valueOf(taskDispatchDto.getDispatchTaskFromType());
 
-        TaskDispatchEvent taskDispatchEvent = new TaskDispatchEvent(this,
+        TaskDispatchEvent taskDispatchEvent = new TaskDispatchEvent(
+                this,
                 taskDispatchDto.getDispatchTaskId(),
                 dispatchTaskType,
                 dispatchTaskFromType,

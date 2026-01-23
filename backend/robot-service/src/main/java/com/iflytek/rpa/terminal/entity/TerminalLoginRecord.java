@@ -3,9 +3,8 @@ package com.iflytek.rpa.terminal.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * @author jqfang3
@@ -52,7 +51,6 @@ public class TerminalLoginRecord {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date logoutTime;
 
-
     /**
      * 是否登录成功 (0: 登录失败, 1: 登录成功)
      */
@@ -89,5 +87,4 @@ public class TerminalLoginRecord {
      * 是否删除 (0: 未删除, 1: 已删除)
      */
     private Integer deleted;
-
 }

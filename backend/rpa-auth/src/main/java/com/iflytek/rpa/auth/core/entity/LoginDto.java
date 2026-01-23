@@ -1,7 +1,6 @@
 package com.iflytek.rpa.auth.core.entity;
 
 import com.iflytek.rpa.auth.core.entity.enums.LoginTypeEnum;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ public class LoginDto {
     /**
      * 手机号
      */
-     private String phone;
+    private String phone;
 
     /**
      * 登录名
@@ -34,11 +33,11 @@ public class LoginDto {
     /**
      * 登录类型
      */
-     private LoginTypeEnum loginType;
+    private LoginTypeEnum loginType;
 
     /**
-      * 租户ID
-      */
+     * 租户ID
+     */
     private String tenantId;
 
     /**

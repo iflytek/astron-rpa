@@ -16,22 +16,17 @@ public interface AppMarketService {
 
     AppResponse getListForPublish() throws NoLoginException;
 
-
     AppResponse getMarketList() throws NoLoginException;
 
     AppResponse<Integer> marketNumCheck() throws NoLoginException;
 
     AppResponse addMarket(AppMarket appMarket) throws NoLoginException;
 
-    AppResponse getMarketInfo (String marketId) throws NoLoginException;
+    AppResponse getMarketInfo(String marketId) throws NoLoginException;
 
-    AppResponse editTeamMarket (AppMarket appMarket) throws NoLoginException;
-
+    AppResponse editTeamMarket(AppMarket appMarket) throws NoLoginException;
 
     AppResponse leaveTeamMarket(AppMarket appMarket) throws NoLoginException;
 
     AppResponse dissolveTeamMarket(AppMarket appMarket);
-
-
-
 }

@@ -1,10 +1,9 @@
 package com.iflytek.rpa.dispatch.entity.dto;
 
-import lombok.Data;
-
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import java.util.List;
+import lombok.Data;
 
 @Data
 public class TaskDispatchDto {

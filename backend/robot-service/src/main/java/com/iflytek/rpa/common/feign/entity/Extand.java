@@ -3,13 +3,10 @@ package com.iflytek.rpa.common.feign.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.iflytek.rpa.common.feign.entity.dto.TenantModeExtendDto;
-
 import java.io.Serializable;
 import java.util.Date;
 
-@JsonIgnoreProperties(
-        ignoreUnknown = true
-)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Extand extends TenantModeExtendDto implements Serializable {
     private static final long serialVersionUID = -542509006960020555L;
     private String id;
@@ -25,19 +22,14 @@ public class Extand extends TenantModeExtendDto implements Serializable {
     private Integer status = 1;
     private Integer sort;
     private String remark;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
-    @JsonFormat(
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            timezone = "GMT+8"
-    )
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
-    public Extand() {
-    }
+    public Extand() {}
 
     public String getId() {
         return this.id;

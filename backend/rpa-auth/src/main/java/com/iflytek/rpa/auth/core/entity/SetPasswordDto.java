@@ -1,9 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
 import com.iflytek.rpa.auth.sp.uap.annotation.Password;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 /**
  * 设置密码请求 DTO（用于注册后首次设置密码）
@@ -29,10 +28,9 @@ public class SetPasswordDto {
      */
     @NotBlank(message = "确认密码不能为空")
     private String confirmPassword;
-    
+
     /**
      * 选择的租户ID（可选，如果用户只有一个租户可以自动选择）
      */
     private String tenantId;
 }
-

@@ -1,7 +1,6 @@
 package com.iflytek.rpa.task.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -30,12 +29,12 @@ public class ScheduleTaskExecute implements Serializable {
     /**
      * 执行开始时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
     /**
      * 执行结束时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
 
     private String tenantId;
@@ -66,7 +65,6 @@ public class ScheduleTaskExecute implements Serializable {
      */
     private String taskExecuteId;
 
-
     public Long getId() {
         return id;
     }
@@ -74,7 +72,6 @@ public class ScheduleTaskExecute implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-
 
     public Integer getCount() {
         return count;
@@ -172,4 +169,3 @@ public class ScheduleTaskExecute implements Serializable {
         this.deleted = deleted;
     }
 }
-

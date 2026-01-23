@@ -1,5 +1,9 @@
 package com.iflytek.rpa.base.service.impl;
 
+import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_MODULE;
+import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_PROCESS;
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
+
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.iflytek.rpa.base.annotation.RobotVersionAnnotation;
@@ -33,18 +37,13 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_MODULE;
-import static com.iflytek.rpa.base.constants.BaseConstant.PROCESS_TYPE_PROCESS;
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
 /**
  * 流程项id数据(CProcess)表服务实现类
@@ -86,6 +85,7 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
 
     @Autowired
     private CParamDao cParamDao;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
 
@@ -111,7 +111,6 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         }
         return AppResponse.success(nextName);
     }
-
 
     public AppResponse<Map> createNewProcess(CreateProcessDto processDto) throws NoLoginException {
         CProcess searchDto = new CProcess();
@@ -151,7 +150,6 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         return AppResponse.success(responseData);
     }
 
-
     @Override
     public AppResponse<Boolean> renameProcess(RenameProcessDto processDto) throws NoLoginException {
         CProcess searchDto = new CProcess();
@@ -172,7 +170,6 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         cProcessDao.renameProcess(searchDto);
         return AppResponse.success(true);
     }
-
 
     @Override
     public AppResponse<?> getAllProcessData(CProcess process) {
@@ -204,11 +201,10 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         String oldProcessContent = oldProcess.getProcessContent();
         String newProcessContent = process.getProcessJson();
         if ((null == oldProcessContent || null == newProcessContent) || !oldProcessContent.equals(newProcessContent)) {
-            //内容发生了变化
-            //将设计器机器人或组件的状态设置为编辑中
+            // 内容发生了变化
+            // 将设计器机器人或组件的状态设置为编辑中
             robotDesignDao.updateTransformStatus(userId, process.getRobotId(), null, EDITING);
             Integer i = componentDao.updateTransformStatus(userId, process.getRobotId(), null, EDITING);
-
         }
         if (null != newProcessContent) {
             // 限制流程数据的大小
@@ -220,7 +216,7 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM, "流程数据不能超过15M");
             }
         }
-        //如果没有更改，则不更改编辑状态
+        // 如果没有更改，则不更改编辑状态
         cProcessDao.updateProcessContent(process);
         return AppResponse.success(true);
     }
@@ -235,12 +231,12 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         User loginUser = response.getData();
         String userId = loginUser.getId();
 
-        //String tenantId = TenantUtils.getTenantId();
+        // String tenantId = TenantUtils.getTenantId();
         // 权限检查
-//        AppResponse<?> permissionCheck = checkRobotPermission(baseDto.getRobotId(), userId, tenantId);
-//        if (!permissionCheck.ok()) {
-//            return permissionCheck;
-//        }
+        //        AppResponse<?> permissionCheck = checkRobotPermission(baseDto.getRobotId(), userId, tenantId);
+        //        if (!permissionCheck.ok()) {
+        //            return permissionCheck;
+        //        }
 
         baseDto.setCreatorId(userId);
         CProcess process = cProcessDao.getProcessById(baseDto);
@@ -289,14 +285,26 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
      */
     private AppResponse<?> checkMarketRobotPermission(String robotId, String userId, String tenantId) {
         // 检查是否有待审核的上架申请
-        AppApplication pendingApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>().eq(AppApplication::getRobotId, robotId).eq(AppApplication::getCreatorId, userId).eq(AppApplication::getApplicationType, "release").eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_PENDING).eq(AppApplication::getDeleted, 0));
+        AppApplication pendingApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, robotId)
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_PENDING)
+                .eq(AppApplication::getDeleted, 0));
 
         if (pendingApplication != null) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人在上架审核中，暂时无法使用");
         }
 
         // 获取已审核通过的上架申请
-        AppApplication approvedReleaseApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>().eq(AppApplication::getRobotId, robotId).eq(AppApplication::getCreatorId, userId).eq(AppApplication::getApplicationType, "release").eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_APPROVED).eq(AppApplication::getDeleted, 0).orderByDesc(AppApplication::getCreateTime).last("LIMIT 1"));
+        AppApplication approvedReleaseApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                .eq(AppApplication::getRobotId, robotId)
+                .eq(AppApplication::getCreatorId, userId)
+                .eq(AppApplication::getApplicationType, "release")
+                .eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_APPROVED)
+                .eq(AppApplication::getDeleted, 0)
+                .orderByDesc(AppApplication::getCreateTime)
+                .last("LIMIT 1"));
 
         if (approvedReleaseApplication == null) {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人未通过上架审核，无法使用");
@@ -309,7 +317,8 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
 
         // 检查红色密级是否过期
         if ("red".equals(securityLevel)) {
-            if (approvedReleaseApplication.getExpireTime() != null && approvedReleaseApplication.getExpireTime().before(new Date())) {
+            if (approvedReleaseApplication.getExpireTime() != null
+                    && approvedReleaseApplication.getExpireTime().before(new Date())) {
                 return AppResponse.error(ErrorCodeEnum.E_SERVICE, "机器人密级已过期，无法使用");
             }
         }
@@ -324,7 +333,13 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
                 String userDeptId = deptIdRes.getData();
                 if (!allowedDept.contains(userDeptId)) {
                     // 检查是否有通过的使用申请
-                    AppApplication useApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>().eq(AppApplication::getRobotId, robotId).eq(AppApplication::getCreatorId, userId).eq(AppApplication::getApplicationType, "use").eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_APPROVED).eq(AppApplication::getDeleted, 0).last("LIMIT 1"));
+                    AppApplication useApplication = appApplicationDao.selectOne(new LambdaQueryWrapper<AppApplication>()
+                            .eq(AppApplication::getRobotId, robotId)
+                            .eq(AppApplication::getCreatorId, userId)
+                            .eq(AppApplication::getApplicationType, "use")
+                            .eq(AppApplication::getStatus, AuditConstant.AUDIT_STATUS_APPROVED)
+                            .eq(AppApplication::getDeleted, 0)
+                            .last("LIMIT 1"));
 
                     if (useApplication == null) {
                         return AppResponse.error(ErrorCodeEnum.E_SERVICE, "您不在允许的部门范围内，且没有通过的使用申请，无法使用该机器人");
@@ -358,7 +373,7 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         String userId = loginUser.getId();
         baseDto.setCreatorId(userId);
         List<CProcess> processNameList = cProcessDao.getProcessNameList(baseDto);
-        //将主流程排在第一个
+        // 将主流程排在第一个
         processNameList.sort((p1, p2) -> {
             if ("主流程".equals(p1.getProcessName())) {
                 // p1 是 "主流程"，放在前面
@@ -374,12 +389,11 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
         return AppResponse.success(processNameList);
     }
 
-
     @Override
     public AppResponse<?> copySubProcess(String robotId, String processId, String type) {
         Map<String, String> result = new HashMap<>();
         if (PROCESS_TYPE_PROCESS.equals(type)) {
-            //查询原流程数据
+            // 查询原流程数据
             BaseDto baseDto = new BaseDto();
             baseDto.setRobotId(robotId);
             baseDto.setRobotVersion(0);
@@ -390,9 +404,9 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             }
             String processName = process.getProcessName();
             baseDto.setName(processName);
-            //产生副本名称
+            // 产生副本名称
             String nextName = createNextName(baseDto, processName + "副本");
-            //复制流程
+            // 复制流程
             process.setProcessId(idWorker.nextId() + "");
             process.setProcessName(nextName);
             process.setCreateTime(new Date());
@@ -424,7 +438,6 @@ public class CProcessServiceImpl extends NextName implements CProcessService {
             cParamDao.insertParamBatch(params);
         }
     }
-
 
     @Override
     public List<String> getNameList(BaseDto baseDto) {

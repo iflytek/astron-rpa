@@ -18,4 +18,3 @@ public class InviteLinkDto {
      */
     private String expireType;
 }
-

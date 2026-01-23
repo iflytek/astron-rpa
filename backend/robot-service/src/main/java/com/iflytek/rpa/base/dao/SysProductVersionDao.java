@@ -18,4 +18,3 @@ public interface SysProductVersionDao extends BaseMapper<SysProductVersion> {
     @Select("SELECT * FROM sys_product_version WHERE version_code = #{versionCode} AND deleted = 0 LIMIT 1")
     SysProductVersion selectByVersionCode(@Param("versionCode") String versionCode);
 }
-

@@ -16,4 +16,3 @@ public class IflytekSyncUserInfoParam {
     private IflytekSyncUserInfoLogin login;
     private IflytekSyncUserInfoUserInfo userinfo;
 }
-

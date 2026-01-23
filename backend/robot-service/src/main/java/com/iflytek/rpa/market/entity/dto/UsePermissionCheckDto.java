@@ -1,8 +1,7 @@
 package com.iflytek.rpa.market.entity.dto;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Data
 public class UsePermissionCheckDto {
@@ -27,4 +26,4 @@ public class UsePermissionCheckDto {
      * 租户ID
      */
     private String tenantId;
-} 
+}

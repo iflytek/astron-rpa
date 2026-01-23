@@ -1,5 +1,7 @@
 package com.iflytek.rpa.base.service.impl;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
+
 import com.iflytek.rpa.base.dao.CElementDao;
 import com.iflytek.rpa.base.dao.CGroupDao;
 import com.iflytek.rpa.base.entity.CElement;
@@ -14,14 +16,11 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import javax.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.EDITING;
 
 /**
  * 元素或图像的分组(CGroup)表服务实现类
@@ -42,8 +41,10 @@ public class CGroupServiceImpl implements CGroupService {
 
     @Autowired
     private IdWorker idWorker;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse<?> createGroup(ServerBaseDto serverBaseDto) throws NoLoginException {
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
@@ -90,7 +91,6 @@ public class CGroupServiceImpl implements CGroupService {
         return AppResponse.success(true);
     }
 
-
     @Override
     public AppResponse<?> deleteGroup(ServerBaseDto serverBaseDto) throws NoLoginException {
         AppResponse<User> response = rpaAuthFeign.getLoginUser();
@@ -108,6 +108,4 @@ public class CGroupServiceImpl implements CGroupService {
         celementDao.deleteByGroupId(cElement);
         return AppResponse.success(true);
     }
-
-
 }

@@ -3,10 +3,9 @@ package com.iflytek.rpa.base.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 产品版本表实体类
@@ -38,4 +37,3 @@ public class SysProductVersion implements Serializable {
      */
     private Date createTime;
 }
-

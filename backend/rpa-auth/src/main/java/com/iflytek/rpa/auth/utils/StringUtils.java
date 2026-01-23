@@ -1,8 +1,7 @@
 package com.iflytek.rpa.auth.utils;
 
-import org.springframework.util.DigestUtils;
-
 import java.time.LocalDate;
+import org.springframework.util.DigestUtils;
 
 /**
  * @author keler
@@ -14,8 +13,8 @@ public class StringUtils extends org.springframework.util.StringUtils {
      * 获取gateway token
      * @return String
      */
-    public static String getGlobalToken(){
-        int month = LocalDate.now().getMonthValue()+1;
+    public static String getGlobalToken() {
+        int month = LocalDate.now().getMonthValue() + 1;
         int day = LocalDate.now().getDayOfMonth();
 
         String key = LocalDate.now().toString() + month * day % 100;
@@ -36,9 +35,9 @@ public class StringUtils extends org.springframework.util.StringUtils {
             for (int i = 0; i < string.length(); i++) {
                 char ch = string.charAt(i);
                 // 首字母大写
-                if(i == 0 && underscore != ch) {
+                if (i == 0 && underscore != ch) {
                     sb.append(Character.toUpperCase(string.charAt(0)));
-                }else{
+                } else {
                     if (underscore == ch) {
                         flag = true;
                     } else {
@@ -56,7 +55,6 @@ public class StringUtils extends org.springframework.util.StringUtils {
         return sb.toString();
     }
 
-
     /**
      * 下划线 转 驼峰
      * 首字母小写
@@ -72,9 +70,9 @@ public class StringUtils extends org.springframework.util.StringUtils {
             for (int i = 0; i < string.length(); i++) {
                 char ch = string.charAt(i);
                 // 首字母大写
-                if(i == 0 && underscore != ch){
+                if (i == 0 && underscore != ch) {
                     sb.append(Character.toLowerCase(string.charAt(0)));
-                }else{
+                } else {
                     if (underscore == ch) {
                         flag = true;
                     } else {

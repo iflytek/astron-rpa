@@ -1,9 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -11,7 +10,7 @@ import java.util.List;
  * @copyright Copyright (c) 2025 mjren
  */
 @Data
-public class DeptTreeNodeDto{
+public class DeptTreeNodeDto {
 
     private String id;
     private String appId;
@@ -43,5 +42,4 @@ public class DeptTreeNodeDto{
     private String userName;
 
     private List<DeptTreeNodeDto> nodes = new ArrayList();
-
 }

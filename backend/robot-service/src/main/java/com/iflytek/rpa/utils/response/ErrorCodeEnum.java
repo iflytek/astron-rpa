@@ -15,7 +15,6 @@ public enum ErrorCodeEnum {
     OPEN_AUTH_XFYUN_OPEN_PLATFORM_BINDING_DATA_IS_EMPTY("005002002", "讯飞开放平台绑定数据为空"),
     OPEN_AUTH_XFYUN_OPEN_PLATFORM_ALREADY_IS_BINDING("005002003", "您已绑定讯飞开放平台"),
 
-
     E_PARAM("500000", "参数异常"),
     E_PARAM_LOSE("500001", "参数缺失"),
     E_PARAM_PARSE("500002", "参数解析失败"),

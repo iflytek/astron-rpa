@@ -40,7 +40,6 @@ public class RobotExecuteRecordController {
         return robotExecuteRecordService.recordList(recordDto);
     }
 
-
     /**
      * 查询执行日志
      * @param recordDto
@@ -49,12 +48,11 @@ public class RobotExecuteRecordController {
      */
     @PostMapping("/log")
     public AppResponse<?> getExecuteLog(@RequestBody ExecuteRecordDto recordDto) throws NoLoginException {
-        if(recordDto.getIsDispatch()){
+        if (recordDto.getIsDispatch()) {
             return dispatchTaskExecuteRecordService.getRobotExecuteLog(Long.valueOf(recordDto.getExecuteId()));
         }
         return robotExecuteRecordService.getExecuteLog(recordDto);
     }
-
 
     /**
      * 执行器-机器人详情-执行概况
@@ -63,10 +61,9 @@ public class RobotExecuteRecordController {
      * @throws Exception
      */
     @PostMapping("/detail/overview")
-    public AppResponse<?> getOverViewData(@RequestBody RobotMonitorDto robotMonitorDto){
+    public AppResponse<?> getOverViewData(@RequestBody RobotMonitorDto robotMonitorDto) {
         return robotExecuteRecordService.robotOverview(robotMonitorDto);
     }
-
 
     /**
      * 上传机器人执行结果
@@ -86,8 +83,8 @@ public class RobotExecuteRecordController {
      * @throws NoLoginException
      */
     @PostMapping("/delete-robot-execute-records")
-    public AppResponse<String> deleteRobotExecuteRecords( @RequestBody RobotExecuteRecordsBatchDeleteDto batchDeleteDto) throws NoLoginException {
+    public AppResponse<String> deleteRobotExecuteRecords(@RequestBody RobotExecuteRecordsBatchDeleteDto batchDeleteDto)
+            throws NoLoginException {
         return robotExecuteRecordService.deleteRobotExecuteRecords(batchDeleteDto);
     }
 }
-

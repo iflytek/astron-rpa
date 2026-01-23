@@ -8,6 +8,9 @@ import com.iflytek.rpa.auth.core.entity.LoginDto;
 import com.iflytek.rpa.auth.sp.uap.dao.UserDao;
 import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
+import java.time.LocalDateTime;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -19,10 +22,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 
 /**
  * 黑名单 AOP 切面
@@ -50,22 +49,19 @@ public class BlacklistAspect {
      * 定义切点：拦截 LoginController 的 loginStatus 方法（/login-status 接口）
      */
     @Pointcut("execution(* com.iflytek.rpa.auth.core.controller.LoginController.loginStatus(..))")
-    public void loginStatusPointcut() {
-    }
+    public void loginStatusPointcut() {}
 
     /**
      * 定义切点：拦截 LoginController 的 preAuthenticate 方法（/pre-authenticate 接口）
      */
     @Pointcut("execution(* com.iflytek.rpa.auth.core.controller.LoginController.preAuthenticate(..))")
-    public void preAuthenticatePointcut() {
-    }
+    public void preAuthenticatePointcut() {}
 
     /**
      * 组合切点：loginStatus 或 preAuthenticate
      */
     @Pointcut("loginStatusPointcut() || preAuthenticatePointcut()")
-    public void loginCheckPointcut() {
-    }
+    public void loginCheckPointcut() {}
 
     /**
      * 环绕通知：在登录相关方法执行前检查黑名单
@@ -74,7 +70,8 @@ public class BlacklistAspect {
     public Object checkBlacklist(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
             // 获取当前请求
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes == null) {
                 // 非 Web 请求，直接放行
                 return joinPoint.proceed();
@@ -121,8 +118,11 @@ public class BlacklistAspect {
 
                 if (blacklist != null) {
                     // 用户在黑名单中，拒绝登录
-                    log.warn("AOP 拦截到黑名单用户尝试登录，userId: {}, username: {}, reason: {}",
-                            userId, username, blacklist.getReason());
+                    log.warn(
+                            "AOP 拦截到黑名单用户尝试登录，userId: {}, username: {}, reason: {}",
+                            userId,
+                            username,
+                            blacklist.getReason());
 
                     // 如果是已登录用户（/login-status），强制注销会话
                     // /pre-authenticate 接口本身还没有登录，无需注销会话
@@ -131,16 +131,17 @@ public class BlacklistAspect {
                     }
 
                     // 将时间戳转换为 LocalDateTime
-                    LocalDateTime endTime = blacklist.getEndTimeMillis() != null ?
-                            LocalDateTime.ofInstant(
+                    LocalDateTime endTime = blacklist.getEndTimeMillis() != null
+                            ? LocalDateTime.ofInstant(
                                     java.time.Instant.ofEpochMilli(blacklist.getEndTimeMillis()),
-                                    java.time.ZoneId.systemDefault()
-                            ) : null;
+                                    java.time.ZoneId.systemDefault())
+                            : null;
 
                     // 动态计算剩余封禁时间（秒）
                     long remainingSeconds = 0;
                     if (endTime != null) {
-                        remainingSeconds = java.time.Duration.between(LocalDateTime.now(), endTime).getSeconds();
+                        remainingSeconds = java.time.Duration.between(LocalDateTime.now(), endTime)
+                                .getSeconds();
                         if (remainingSeconds < 0) {
                             remainingSeconds = 0;
                         }
@@ -152,8 +153,7 @@ public class BlacklistAspect {
                             blacklist.getUsername(),
                             blacklist.getReason(),
                             endTime,
-                            remainingSeconds
-                    );
+                            remainingSeconds);
                 }
             }
 
@@ -186,4 +186,3 @@ public class BlacklistAspect {
         }
     }
 }
-

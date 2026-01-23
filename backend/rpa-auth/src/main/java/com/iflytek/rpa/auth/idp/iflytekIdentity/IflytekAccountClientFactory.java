@@ -9,11 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class IflytekAccountClientFactory {
 
-    public CAccountClient create(String kongUrl,
-                                 int timeOut,
-                                 String accessKeyId,
-                                 String accessKeySecret,
-                                 boolean useAesEncrypt) {
+    public CAccountClient create(
+            String kongUrl, int timeOut, String accessKeyId, String accessKeySecret, boolean useAesEncrypt) {
         return new CAccountClient.Builder()
                 .setKongUrl(kongUrl)
                 .setTimeOut(timeOut)
@@ -23,4 +20,3 @@ public class IflytekAccountClientFactory {
                 .build();
     }
 }
-

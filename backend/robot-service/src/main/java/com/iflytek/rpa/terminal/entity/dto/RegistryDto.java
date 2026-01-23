@@ -1,8 +1,8 @@
 package com.iflytek.rpa.terminal.entity.dto;
-import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -53,7 +53,6 @@ public class RegistryDto {
     @NotBlank(message = "设备状态本能为空")
     private String status;
 
-
     /**
      * CPU占用率（百分比)
      */
@@ -79,6 +78,4 @@ public class RegistryDto {
      * 视频监控URL
      */
     private String monitorUrl;
-
-
 }

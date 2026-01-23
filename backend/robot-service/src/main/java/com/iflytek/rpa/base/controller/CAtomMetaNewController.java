@@ -5,14 +5,13 @@ import com.iflytek.rpa.base.entity.dto.CAtomMetaNewListDto;
 import com.iflytek.rpa.base.entity.vo.CAtomMetaNewVo;
 import com.iflytek.rpa.base.service.CAtomMetaNewService;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.List;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * 新原子能力接口
@@ -39,7 +38,6 @@ public class CAtomMetaNewController {
     public AppResponse<String> updateAtomTree(@RequestBody String treeContent) {
         return cAtomMetaNewService.updateAtomTree(treeContent);
     }
-
 
     /**
      * 根据key列表获取原子能力

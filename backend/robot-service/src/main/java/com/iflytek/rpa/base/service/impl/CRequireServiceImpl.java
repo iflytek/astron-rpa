@@ -12,12 +12,11 @@ import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.List;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * python依赖管理(CRequire)表服务实现类
@@ -29,6 +28,7 @@ import java.util.List;
 public class CRequireServiceImpl implements CRequireService {
     @Resource
     private CRequireDao cRequireDao;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
 
@@ -76,7 +76,8 @@ public class CRequireServiceImpl implements CRequireService {
         User loginUser = response.getData();
         String userId = loginUser.getId();
         cRequireDeleteDto.setCreatorId(userId);
-        if (cRequireDeleteDto.getIdList() == null || cRequireDeleteDto.getIdList().isEmpty()) {
+        if (cRequireDeleteDto.getIdList() == null
+                || cRequireDeleteDto.getIdList().isEmpty()) {
             return AppResponse.error("删除失败，id不能为空");
         }
         boolean result = cRequireDao.deleteRequire(cRequireDeleteDto);

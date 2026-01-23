@@ -1,8 +1,7 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -15,5 +14,4 @@ public class BindUserListDto {
     private String roleId;
 
     private List<String> userIds;
-
 }

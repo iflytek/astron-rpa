@@ -1,6 +1,5 @@
 package com.iflytek.rpa.robot.controller;
 
-
 import com.iflytek.rpa.robot.entity.dto.RobotIconDto;
 import com.iflytek.rpa.robot.service.RobotIconService;
 import com.iflytek.rpa.utils.response.AppResponse;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class RobotIconController {
     @Autowired
     RobotIconService robotIconService;
-
 
     @PostMapping("/info")
     public AppResponse<?> getIconAndNameInfo(@RequestBody RobotIconDto dto) throws Exception {

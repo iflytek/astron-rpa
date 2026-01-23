@@ -14,4 +14,3 @@ public class IflytekRegisterParam {
     private String password;
     private String pwdtype;
 }
-

@@ -8,13 +8,12 @@ import com.iflytek.rpa.feedback.service.FeedbackService;
 import com.iflytek.rpa.feedback.service.RenewalFormService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 /**
  * 反馈举报控制器
@@ -71,4 +70,3 @@ public class FeedbackController {
         return renewalFormService.submitRenewalForm(dto);
     }
 }
-

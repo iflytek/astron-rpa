@@ -3,19 +3,15 @@ package com.iflytek.rpa.common.feign.entity.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.iflytek.rpa.common.feign.entity.ExtendRelation;
 import com.iflytek.rpa.common.feign.entity.User;
-
 import java.util.List;
 
-@JsonIgnoreProperties(
-        ignoreUnknown = true
-)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserExtendDto extends TenantModeExtendDto {
     private User user;
     private List<ExtendRelation> extands;
     private List<RoleBaseDto> roles;
 
-    public UserExtendDto() {
-    }
+    public UserExtendDto() {}
 
     public User getUser() {
         return this.user;

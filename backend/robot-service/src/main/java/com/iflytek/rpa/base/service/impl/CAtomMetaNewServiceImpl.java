@@ -16,13 +16,12 @@ import com.iflytek.rpa.common.feign.entity.TenantExpirationDto;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 新原子能力Service实现
@@ -39,7 +38,7 @@ public class CAtomMetaNewServiceImpl extends ServiceImpl<CAtomMetaNewDao, CAtomM
     @Override
     public AppResponse<String> getAtomTree() throws JsonProcessingException {
         String atomContent = cAtomMetaNewDao.getAtomContentByKey("atomCommon");
-        if (StringUtils.isEmpty(atomContent)){
+        if (StringUtils.isEmpty(atomContent)) {
             return AppResponse.success("");
         }
         AppResponse<TenantExpirationDto> resp = rpaAuthFeign.getExpiration();
@@ -106,7 +105,8 @@ public class CAtomMetaNewServiceImpl extends ServiceImpl<CAtomMetaNewDao, CAtomM
 
         // 获取数据库中现有的所有记录
         List<CAtomMetaNewVo> existingList = cAtomMetaNewDao.getAll();
-        Set<String> existingKeySet = existingList.stream().map(CAtomMetaNewVo::getAtomKey).collect(Collectors.toSet());
+        Set<String> existingKeySet =
+                existingList.stream().map(CAtomMetaNewVo::getAtomKey).collect(Collectors.toSet());
 
         // 获取传入的所有atomKey
         Set<String> inputKeySet = atomMetaNewVoList.stream()

@@ -1,5 +1,7 @@
 package com.iflytek.rpa.market.service.impl;
 
+import static com.iflytek.rpa.utils.DeBounceUtils.deBounce;
+
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
 import com.iflytek.rpa.common.feign.entity.TenantExpirationDto;
 import com.iflytek.rpa.common.feign.entity.User;
@@ -20,18 +22,15 @@ import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
 import com.iflytek.rpa.utils.response.QuotaCodeEnum;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
-
-import static com.iflytek.rpa.utils.DeBounceUtils.deBounce;
 
 /**
  * 团队市场-SaaS
@@ -84,7 +83,6 @@ public class AppMarketInviteServiceImpl implements AppMarketInviteService {
         User loginUser = userResponse.getData();
         String userId = loginUser.getId();
 
-
         AppResponse<TenantExpirationDto> resp = rpaAuthFeign.getExpiration();
         if (resp == null || !resp.ok()) {
             throw new ServiceException("用户信息获取失败");
@@ -101,12 +99,14 @@ public class AppMarketInviteServiceImpl implements AppMarketInviteService {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE_POWER_LIMIT, "无权限进行链接分享");
         }
         // 查询是否已存在邀请链接
-        AppMarketInvite existingInvite = appMarketInviteDao.selectByMarketIdAndInviterId(inviteLinkDto.getMarketId(), userId);
+        AppMarketInvite existingInvite =
+                appMarketInviteDao.selectByMarketIdAndInviterId(inviteLinkDto.getMarketId(), userId);
         Date now = new Date();
 
         if (existingInvite != null) {
             // 过期生成新的邀请链接
-            if (existingInvite.getExpireTime() != null && existingInvite.getExpireTime().before(now)) {
+            if (existingInvite.getExpireTime() != null
+                    && existingInvite.getExpireTime().before(now)) {
                 AppMarketInvite newInvite = new AppMarketInvite();
                 BeanUtils.copyProperties(existingInvite, newInvite);
                 existingInvite.setDeleted(1);
@@ -218,7 +218,8 @@ public class AppMarketInviteServiceImpl implements AppMarketInviteService {
         User loginUser = userResponse.getData();
         String userId = loginUser.getId();
         // 查询是否存在邀请链接
-        AppMarketInvite existingInvite = appMarketInviteDao.selectByMarketIdAndInviterId(inviteLinkDto.getMarketId(), userId);
+        AppMarketInvite existingInvite =
+                appMarketInviteDao.selectByMarketIdAndInviterId(inviteLinkDto.getMarketId(), userId);
         if (existingInvite == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM, "该市场尚未生成邀请链接，请先生成邀请链接");
         }
@@ -378,7 +379,8 @@ public class AppMarketInviteServiceImpl implements AppMarketInviteService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public AppResponse<AcceptResultVo> doAcceptInviteInTransaction(AppMarketInvite invite, String userId, String marketId) {
+    public AppResponse<AcceptResultVo> doAcceptInviteInTransaction(
+            AppMarketInvite invite, String userId, String marketId) {
         Date now = new Date();
         // 插入用户关系
         AppMarketUser appMarketUser = buildAppMarketUser(marketId, userId, now);
@@ -443,4 +445,3 @@ public class AppMarketInviteServiceImpl implements AppMarketInviteService {
         return calendar.getTime();
     }
 }
-

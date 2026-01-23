@@ -1,8 +1,7 @@
 package com.iflytek.rpa.market.entity.vo;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 应用市场分类VO
@@ -23,7 +22,5 @@ public class AppMarketClassificationVo implements Serializable {
      */
     private String name;
 
-
     private Integer sort;
 }
-

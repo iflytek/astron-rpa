@@ -32,7 +32,8 @@ public class RobotSharedFileController {
      * @throws NoLoginException 如果用户未登录
      */
     @PostMapping("/page")
-    public AppResponse<IPage<SharedFilePageVo>> getSharedFilePageList(@RequestBody SharedFilePageDto queryDto) throws NoLoginException {
+    public AppResponse<IPage<SharedFilePageVo>> getSharedFilePageList(@RequestBody SharedFilePageDto queryDto)
+            throws NoLoginException {
         return sharedFileService.getSharedFilePageList(queryDto);
     }
 }

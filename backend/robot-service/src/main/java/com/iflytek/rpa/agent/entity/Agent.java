@@ -2,11 +2,10 @@ package com.iflytek.rpa.agent.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * RPA Agent配置表实体类

@@ -3,11 +3,10 @@ package com.iflytek.rpa.base.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iflytek.rpa.base.entity.CAtomMeta;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 import java.util.Set;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
@@ -27,7 +26,7 @@ public interface CAtomMetaDao extends BaseMapper<CAtomMeta> {
 
     List<CAtomMeta> getKeyAndParentKeyByKeySet(@Param("atomKeySet") Set<String> atomKeySet);
 
-    Integer updateBatchParentKey(@Param("updateBatchList")List<CAtomMeta> updateBatchList);
+    Integer updateBatchParentKey(@Param("updateBatchList") List<CAtomMeta> updateBatchList);
 
     List<CAtomMeta> getLatestAtomsByList(List<String> atomKeyList);
 

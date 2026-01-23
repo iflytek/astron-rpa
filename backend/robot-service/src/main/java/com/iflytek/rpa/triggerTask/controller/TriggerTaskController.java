@@ -12,11 +12,10 @@ import com.iflytek.rpa.triggerTask.entity.vo.TriggerTaskVo;
 import com.iflytek.rpa.triggerTask.service.TriggerTaskService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
-import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/triggerTask")
@@ -43,7 +42,8 @@ public class TriggerTaskController {
      * @throws NoLoginException
      */
     @GetMapping("/robotExe/list")
-    AppResponse<List<Executor>> getRobotExeList(@RequestParam String name) throws NoLoginException, JsonProcessingException {
+    AppResponse<List<Executor>> getRobotExeList(@RequestParam String name)
+            throws NoLoginException, JsonProcessingException {
         return triggerTaskService.getRobotExeList(name);
     }
 
@@ -65,7 +65,8 @@ public class TriggerTaskController {
      * @return
      */
     @GetMapping("/get")
-    AppResponse<TriggerTaskVo> getTriggerTask(@RequestParam String taskId) throws NoLoginException, JsonProcessingException {
+    AppResponse<TriggerTaskVo> getTriggerTask(@RequestParam String taskId)
+            throws NoLoginException, JsonProcessingException {
         return triggerTaskService.getTriggerTask(taskId);
     }
 
@@ -75,7 +76,7 @@ public class TriggerTaskController {
      * @return
      */
     @GetMapping("/delete")
-    AppResponse<Boolean> deleteTriggerTask(@RequestParam String taskId) throws NoLoginException{
+    AppResponse<Boolean> deleteTriggerTask(@RequestParam String taskId) throws NoLoginException {
         return triggerTaskService.deleteTriggerTask(taskId);
     }
 
@@ -108,7 +109,7 @@ public class TriggerTaskController {
      * @throws NoLoginException
      */
     @PostMapping("/page/list")
-    AppResponse<IPage<TaskPageVo>> triggerTaskPage(@Valid @RequestBody TaskPageDto queryDto) throws NoLoginException{
+    AppResponse<IPage<TaskPageVo>> triggerTaskPage(@Valid @RequestBody TaskPageDto queryDto) throws NoLoginException {
         return triggerTaskService.triggerTaskPage(queryDto);
     }
 
@@ -119,8 +120,8 @@ public class TriggerTaskController {
      * @throws NoLoginException
      */
     @PostMapping("/page/list4Trigger")
-    AppResponse<IPage<TaskPage4TriggerVo>> triggerTaskPage4Trigger(@Valid @RequestBody TaskPageDto queryDto) throws NoLoginException{
+    AppResponse<IPage<TaskPage4TriggerVo>> triggerTaskPage4Trigger(@Valid @RequestBody TaskPageDto queryDto)
+            throws NoLoginException {
         return triggerTaskService.triggerTaskPage4Trigger(queryDto);
     }
-
 }

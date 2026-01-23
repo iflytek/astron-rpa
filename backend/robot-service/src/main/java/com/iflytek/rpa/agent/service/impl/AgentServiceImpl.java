@@ -12,13 +12,12 @@ import com.iflytek.rpa.utils.IdWorker;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Agent Service实现类
@@ -31,8 +30,10 @@ public class AgentServiceImpl implements AgentService {
 
     @Resource
     private AgentDao agentDao;
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public AppResponse<AgentVo> save(AgentDto agentDto) throws NoLoginException {
         String agentId = agentDto.getAgentId();
@@ -83,7 +84,13 @@ public class AgentServiceImpl implements AgentService {
         AgentDto agentDto = JSON.parseObject(agent.getContent(), AgentDto.class);
 
         // 按照API规范，返回扁平化的AgentVo
-        AgentVo agentVo = new AgentVo().setAgentId(agent.getAgentId()).setAgentName(agentDto.getAgentName()).setSystemPrompt(agentDto.getSystemPrompt()).setMcpServers(agentDto.getMcpServers()).setRpaRobots(agentDto.getRpaRobots()).setChatHistory(agentDto.getChatHistory());
+        AgentVo agentVo = new AgentVo()
+                .setAgentId(agent.getAgentId())
+                .setAgentName(agentDto.getAgentName())
+                .setSystemPrompt(agentDto.getSystemPrompt())
+                .setMcpServers(agentDto.getMcpServers())
+                .setRpaRobots(agentDto.getRpaRobots())
+                .setChatHistory(agentDto.getChatHistory());
 
         return AppResponse.success(agentVo);
     }
@@ -116,13 +123,21 @@ public class AgentServiceImpl implements AgentService {
 
         List<Agent> agentList = agentDao.listAgentsByUserId(userId);
 
-        List<AgentVo> agentVoList = agentList.stream().map(agent -> {
-            // 将存储的JSON字符串解析为DTO
-            AgentDto agentDto = JSON.parseObject(agent.getContent(), AgentDto.class);
+        List<AgentVo> agentVoList = agentList.stream()
+                .map(agent -> {
+                    // 将存储的JSON字符串解析为DTO
+                    AgentDto agentDto = JSON.parseObject(agent.getContent(), AgentDto.class);
 
-            // 按照API规范，返回扁平化的AgentVo
-            return new AgentVo().setAgentId(agent.getAgentId()).setAgentName(agentDto.getAgentName()).setSystemPrompt(agentDto.getSystemPrompt()).setMcpServers(agentDto.getMcpServers()).setRpaRobots(agentDto.getRpaRobots()).setChatHistory(agentDto.getChatHistory());
-        }).collect(Collectors.toList());
+                    // 按照API规范，返回扁平化的AgentVo
+                    return new AgentVo()
+                            .setAgentId(agent.getAgentId())
+                            .setAgentName(agentDto.getAgentName())
+                            .setSystemPrompt(agentDto.getSystemPrompt())
+                            .setMcpServers(agentDto.getMcpServers())
+                            .setRpaRobots(agentDto.getRpaRobots())
+                            .setChatHistory(agentDto.getChatHistory());
+                })
+                .collect(Collectors.toList());
 
         return AppResponse.success(agentVoList);
     }
@@ -157,7 +172,11 @@ public class AgentServiceImpl implements AgentService {
 
         String content = JSON.toJSONString(agentDto);
 
-        Agent agent = new Agent().setAgentId(agentId).setContent(content).setCreatorId(userId).setUpdaterId(userId);
+        Agent agent = new Agent()
+                .setAgentId(agentId)
+                .setContent(content)
+                .setCreatorId(userId)
+                .setUpdaterId(userId);
 
         create(agent);
 

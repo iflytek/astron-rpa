@@ -1,5 +1,7 @@
 package com.iflytek.rpa.base.service.handler;
 
+import static com.iflytek.rpa.robot.constants.RobotConstant.CRONTAB;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,18 +19,15 @@ import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.exception.ServiceException;
 import com.iflytek.rpa.utils.response.AppResponse;
 import com.iflytek.rpa.utils.response.ErrorCodeEnum;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.iflytek.rpa.robot.constants.RobotConstant.CRONTAB;
 
 /**
  * @author mjren
@@ -42,8 +41,10 @@ public class TriggerModeHandler implements ParamModeHandler {
     private final RobotExecuteDao robotExecuteDao;
     private final CParamDao cParamDao;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
     @Override
     public boolean supports(String mode) {
         return CRONTAB.equals(mode);
@@ -82,7 +83,7 @@ public class TriggerModeHandler implements ParamModeHandler {
             throw new ServiceException("用户信息获取失败");
         }
         User loginUser = resp.getData();
-        String userId= loginUser.getId();
+        String userId = loginUser.getId();
 
         AppResponse<String> res = rpaAuthFeign.getTenantId();
         if (res == null || res.getData() == null) {
@@ -90,11 +91,7 @@ public class TriggerModeHandler implements ParamModeHandler {
         }
         String tenantId = res.getData();
 
-        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(
-                robotId,
-                userId,
-                tenantId
-        );
+        RobotExecute executeInfo = robotExecuteDao.getRobotInfoByRobotId(robotId, userId, tenantId);
         if (executeInfo == null) {
             throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "无法获取执行器机器人信息");
         }
@@ -138,7 +135,8 @@ public class TriggerModeHandler implements ParamModeHandler {
         return AppResponse.success(convertParams(params));
     }
 
-    private AppResponse<List<ParamDto>> handleCreateSource(RobotExecute executeInfo, String processId, String moduleId) {
+    private AppResponse<List<ParamDto>> handleCreateSource(
+            RobotExecute executeInfo, String processId, String moduleId) {
         Integer enabledVersion = cParamDao.getRobotVersion(executeInfo.getRobotId());
         if (executeInfo.getRobotVersion() != null) {
             enabledVersion = executeInfo.getRobotVersion();
@@ -147,8 +145,7 @@ public class TriggerModeHandler implements ParamModeHandler {
         List<CParam> params = cParamDao.getSelfRobotParam(
                 executeInfo.getRobotId(),
                 StringUtils.isNotBlank(processId) ? processId : mainProcessId,
-                enabledVersion
-        );
+                enabledVersion);
         return AppResponse.success(convertParams(params));
     }
 
@@ -159,7 +156,7 @@ public class TriggerModeHandler implements ParamModeHandler {
     }
 
     private AppResponse<List<ParamDto>> parseCustomParams(String paramJson) throws JsonProcessingException {
-        List<CParam> params = objectMapper.readValue(paramJson, new TypeReference<List<CParam>>(){});
+        List<CParam> params = objectMapper.readValue(paramJson, new TypeReference<List<CParam>>() {});
         return AppResponse.success(convertParams(params));
     }
 
@@ -182,5 +179,4 @@ public class TriggerModeHandler implements ParamModeHandler {
             throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "机器人市场信息异常");
         }
     }
-
 }

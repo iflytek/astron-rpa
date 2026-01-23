@@ -15,4 +15,3 @@ public interface UserRegisterService {
      */
     AppResponse<UserRegisterVo> register(String phone);
 }
-

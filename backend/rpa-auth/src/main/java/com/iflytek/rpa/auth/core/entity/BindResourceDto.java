@@ -1,8 +1,7 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * @author mjren
@@ -13,11 +12,10 @@ import java.util.List;
 public class BindResourceDto {
 
     private String tenantId;
-    
-    private String roleId;
-    
-    private List<String> resourceIds;
-    
-    private String authId;
 
+    private String roleId;
+
+    private List<String> resourceIds;
+
+    private String authId;
 }

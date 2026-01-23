@@ -23,17 +23,17 @@ public class UsePageListVo {
      * 版本号
      */
     private String robotVersion;
-    
+
     /**
      * 密级标识
      */
     private String securityLevel;
-    
+
     /**
      * 申请人id
      */
     private String creatorId;
-    
+
     /**
      * 申请人姓名
      */
@@ -55,9 +55,9 @@ public class UsePageListVo {
      * 提交审核时间
      */
     private String submitAuditTime;
-    
+
     /**
      * 审核状态
      */
     private String status;
-} 
+}

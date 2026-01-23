@@ -29,7 +29,7 @@ public class QuotaCheckServiceImpl implements QuotaCheckService {
 
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
-    
+
     @Override
     public boolean checkDesignerQuota() {
         return checkQuota("designer_count", () -> {
@@ -93,7 +93,11 @@ public class QuotaCheckServiceImpl implements QuotaCheckService {
 
             // 校验配额
             if (currentCount >= quotaLimit) {
-                log.warn("配额已超限，resourceCode: {}, currentCount: {}, quotaLimit: {}", resourceCode, currentCount, quotaLimit);
+                log.warn(
+                        "配额已超限，resourceCode: {}, currentCount: {}, quotaLimit: {}",
+                        resourceCode,
+                        currentCount,
+                        quotaLimit);
                 return false;
             }
 
@@ -137,4 +141,3 @@ public class QuotaCheckServiceImpl implements QuotaCheckService {
         return null;
     }
 }
-

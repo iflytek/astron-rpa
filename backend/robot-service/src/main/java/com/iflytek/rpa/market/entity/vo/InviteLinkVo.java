@@ -1,9 +1,8 @@
 package com.iflytek.rpa.market.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 邀请链接响应VO
@@ -31,4 +30,3 @@ public class InviteLinkVo {
      */
     private Integer overNumLimit;
 }
-

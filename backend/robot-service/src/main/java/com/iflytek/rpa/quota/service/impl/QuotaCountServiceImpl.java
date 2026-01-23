@@ -29,11 +29,12 @@ public class QuotaCountServiceImpl implements QuotaCountService {
         // 从数据库查询
         try {
             // 查询用户在当前租户下创建的机器人数量（未删除的）
-            com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.iflytek.rpa.robot.entity.RobotDesign> wrapper = 
-                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.iflytek.rpa.robot.entity.RobotDesign>()
-                    .eq(com.iflytek.rpa.robot.entity.RobotDesign::getTenantId, tenantId)
-                    .eq(com.iflytek.rpa.robot.entity.RobotDesign::getCreatorId, userId)
-                    .eq(com.iflytek.rpa.robot.entity.RobotDesign::getDeleted, 0);
+            com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.iflytek.rpa.robot.entity.RobotDesign>
+                    wrapper = new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<
+                                    com.iflytek.rpa.robot.entity.RobotDesign>()
+                            .eq(com.iflytek.rpa.robot.entity.RobotDesign::getTenantId, tenantId)
+                            .eq(com.iflytek.rpa.robot.entity.RobotDesign::getCreatorId, userId)
+                            .eq(com.iflytek.rpa.robot.entity.RobotDesign::getDeleted, 0);
             Integer count = robotDesignDao.selectCount(wrapper);
             Integer result = count != null ? count : 0;
 
@@ -61,4 +62,3 @@ public class QuotaCountServiceImpl implements QuotaCountService {
         }
     }
 }
-

@@ -6,11 +6,10 @@ import com.iflytek.rpa.dispatch.entity.enums.DispatchTaskFromType;
 import com.iflytek.rpa.dispatch.entity.enums.DispatchTaskType;
 import com.iflytek.rpa.utils.RedisKeyUtils;
 import com.iflytek.rpa.utils.RedisUtils;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * 任务调度事件监听器
@@ -36,7 +35,8 @@ public class TaskDispatchEventListener {
                     if (event.getDispatchTaskType() == DispatchTaskType.MANUAL) {
                         String redisKey = RedisKeyUtils.getDispatchTaskListKey(terminalId);
                         // 将dispatchTaskId添加到队列（list）中
-                        RedisUtils.lSet(redisKey, new RedisListBo(event.getDispatchTaskId(), event.getDispatchTaskFromType()));
+                        RedisUtils.lSet(
+                                redisKey, new RedisListBo(event.getDispatchTaskId(), event.getDispatchTaskFromType()));
                         log.info("已将手动任务调度事件的taskId添加到Redis队列: key={}, value={}", redisKey, event.getDispatchTaskId());
                     } else {
                         String redisKey = RedisKeyUtils.getDispatchTaskStatusKey(terminalId);
@@ -48,10 +48,11 @@ public class TaskDispatchEventListener {
             } else {
                 for (String terminalId : terminalIds) {
                     String redisKey = RedisKeyUtils.getDispatchTaskListKey(terminalId);
-                    RedisUtils.lSet(redisKey, new RedisListBo(event.getDispatchTaskId(), event.getDispatchTaskFromType()));
+                    RedisUtils.lSet(
+                            redisKey, new RedisListBo(event.getDispatchTaskId(), event.getDispatchTaskFromType()));
                     log.info("已将重试任务调度事件的taskId添加到Redis队列: key={}", redisKey);
                 }
             }
         }
     }
-} 
+}

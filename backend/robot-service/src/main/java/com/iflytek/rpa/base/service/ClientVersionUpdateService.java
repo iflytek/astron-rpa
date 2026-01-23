@@ -44,6 +44,5 @@ public interface ClientVersionUpdateService {
      * @param version 当前版本号
      * @return 最新版本的下载URL，如果已是最新版本则返回null
      */
-    String checkVersionSimple(String os,String arch,String version) throws Exception;
+    String checkVersionSimple(String os, String arch, String version) throws Exception;
 }
-

@@ -1,9 +1,8 @@
 package com.iflytek.rpa.notify.entity.dto;
 
 import com.iflytek.rpa.market.entity.AppMarketUser;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class CreateNotifyDto {
