@@ -92,7 +92,11 @@ class PrinterCore(object):
 
     def init_word_app(self, default_application: DocAppType = DocAppType.WORD):
         """初始化 word app"""
-        keys = []
+        keys = [
+            "Word.Application",
+            "Kwps.Application",
+            "wps.Application",
+        ]
         if default_application == DocAppType.WORD.value:
             keys = ["Word.Application"]
         elif default_application == DocAppType.WPS.value:
@@ -118,7 +122,13 @@ class PrinterCore(object):
 
     def init_excel_app(self, default_application: XlsAppType = XlsAppType.EXCEL):
         """初始化 excel app"""
-        keys = []
+        keys = [
+            "Excel.Application",
+            "Ket.Application",
+            "et.Application",
+            "Kwps.Application",
+            "wps.Application",
+        ]
         if default_application == XlsAppType.EXCEL.value:
             keys = ["Excel.Application"]
         elif default_application == XlsAppType.WPS.value:
