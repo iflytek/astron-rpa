@@ -91,6 +91,10 @@ watch(() => itemData.value, () => { // 特殊处理自定义对话框视图多�
 })
 
 function clickHandle(e?: Event) {
+  // Python 模式在禁用状态下禁止切换
+  if (itemType === ATOM_FORM_TYPE.PYTHON && (!isEdit.value || atomFormDisabled.value)) {
+    return
+  }
   if (itemType === ATOM_FORM_TYPE.MODALBUTTON) {
     handleModalButton(itemData)
     return
@@ -153,6 +157,7 @@ inputListListener(itemData, itemType)
   <span
     v-if="itemType === ATOM_FORM_TYPE.PYTHON"
     class="cursor-pointer leading-none"
+    :class="{ '[&>*]:cursor-not-allowed': !isEdit || atomFormDisabled }"
     @click="clickHandle"
   >
     <rpa-hint-icon :title="itemData.isExpr ? 'python模式' : '普通模式'" :name="itemData.isExpr ? 'create-python-process' : 'change-python-btn'" :style="iconStyle" />

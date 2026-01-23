@@ -175,7 +175,14 @@ const selectedHandle: TreeProps['onSelect'] = (selectedKeys, info) => {
       })
   }
   else {
-    title = selectedNodes[0].title.split(' ')[0]
+    const varName = selectedNodes[0].title.split(' ')[0]
+    // 如果是全局变量，格式化为 gv['变量名']
+    if (activeType === GLOBAL_VAR_IN_TYPE) {
+      title = `gv['${varName}']`
+    }
+    else {
+      title = varName
+    }
   }
 
   const obj = { val: title, category: activeType }
