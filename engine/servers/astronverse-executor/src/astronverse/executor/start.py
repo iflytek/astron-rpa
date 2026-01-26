@@ -190,7 +190,9 @@ def start():
                         "name": p.get("varName"),
                     }
                 )
-                temp_run_param[p.get("varName")] = eval(param.show_value(), {}, {})  # 外部参数，只有简单的逻辑处理，不会引用变量
+                temp_run_param[p.get("varName")] = eval(
+                    param.show_value(), {}, {}
+                )  # 外部参数，只有简单的逻辑处理，不会引用变量
         args.run_param = temp_run_param  # 生成python脚本的外部参数
 
         # 执行代码
