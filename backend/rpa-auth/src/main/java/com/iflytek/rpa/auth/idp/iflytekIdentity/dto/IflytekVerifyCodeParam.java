@@ -11,3 +11,4 @@ public class IflytekVerifyCodeParam {
     private String phone;
     private String mcode;
 }
+

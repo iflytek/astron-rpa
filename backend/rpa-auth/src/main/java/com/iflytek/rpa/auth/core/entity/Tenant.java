@@ -2,9 +2,10 @@ package com.iflytek.rpa.auth.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 租户对象
@@ -99,3 +100,5 @@ public class Tenant implements Serializable {
      */
     private Boolean shouldAlert;
 }
+
+

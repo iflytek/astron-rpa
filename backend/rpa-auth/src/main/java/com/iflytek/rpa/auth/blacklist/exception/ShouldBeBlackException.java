@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * 应当被拉入黑名单异常
  * 业务代码抛出此异常后，全局异常处理器会自动将用户添加到黑名单
- *
+ * 
  * @author system
  * @date 2025-12-16
  */
@@ -36,7 +36,7 @@ public class ShouldBeBlackException extends RuntimeException {
 
     /**
      * 构造函数
-     *
+     * 
      * @param userId 用户ID
      * @param username 用户名
      * @param reason 封禁原因
@@ -52,7 +52,7 @@ public class ShouldBeBlackException extends RuntimeException {
 
     /**
      * 构造函数（带原因异常）
-     *
+     * 
      * @param userId 用户ID
      * @param username 用户名
      * @param reason 封禁原因
@@ -101,3 +101,4 @@ public class ShouldBeBlackException extends RuntimeException {
         }
     }
 }
+

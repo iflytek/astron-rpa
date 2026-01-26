@@ -1,10 +1,12 @@
 package com.iflytek.rpa.auth.core.service;
 
+
 import com.iflytek.rpa.auth.core.entity.RoleAuthResourceDto;
 import com.iflytek.rpa.auth.core.entity.TreeNode;
 import com.iflytek.rpa.auth.utils.AppResponse;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 权限服务
@@ -17,7 +19,7 @@ public interface AuthService {
      * @return 菜单树列表
      */
     AppResponse<List<TreeNode>> getUserAuthTreeInApp(HttpServletRequest request);
-
+    
     /**
      * 查询菜单、权限树
      * @param roleId 角色ID
@@ -33,4 +35,5 @@ public interface AuthService {
      * @return 操作结果
      */
     AppResponse<String> saveRoleAuth(RoleAuthResourceDto roleAuthResourceDto, HttpServletRequest request);
+
 }

@@ -3,29 +3,30 @@ package com.iflytek.rpa.auth.idp.casdoorIdentity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.entity.enums.LoginTypeEnum;
-import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.exception.ServiceException;
 import com.iflytek.rpa.auth.idp.AuthenticationService;
+import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorUserExtendService;
+import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorLoginExtendService;
 import com.iflytek.rpa.auth.sp.casdoor.entity.CasdoorLoginDto;
 import com.iflytek.rpa.auth.sp.casdoor.entity.CasdoorLoginResult;
 import com.iflytek.rpa.auth.sp.casdoor.entity.CasdoorSignupDto;
 import com.iflytek.rpa.auth.sp.casdoor.mapper.CasdoorUserMapper;
-import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorLoginExtendService;
-import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorUserExtendService;
+import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.RedisUtils;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -232,7 +233,7 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
             log.info("获取租户列表，临时凭证：{}", tempToken);
 
             // 从临时凭证中获取LoginDto
-            //            LoginDto loginDto = getLoginInfoByTempToken(tempToken);
+//            LoginDto loginDto = getLoginInfoByTempToken(tempToken);
 
             return tenantService.getTenantList(organizationName, request);
         } catch (ServiceException e) {
@@ -266,15 +267,15 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
             signupDto.setApplication(applicationName);
             signupDto.setOrganization(organizationName);
             // 如果没有提供登录名，使用手机号作为登录名
-            String username = StringUtils.hasText(registerDto.getLoginName())
-                    ? registerDto.getLoginName()
+            String username = StringUtils.hasText(registerDto.getLoginName()) 
+                    ? registerDto.getLoginName() 
                     : registerDto.getPhone();
             signupDto.setUsername(username);
             signupDto.setName(username); // name字段也使用用户名
             signupDto.setPassword(registerDto.getPassword());
-            if (!StringUtils.isEmpty(registerDto.getPhone())) {
+            if (!StringUtils.isEmpty(registerDto.getPhone())){
                 signupDto.setPhone(registerDto.getPhone());
-                // 默认手机号区域为CN
+                //默认手机号区域为CN
                 signupDto.setCountryCode("CN");
             }
 
@@ -328,7 +329,7 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
             // 调用getUser查询用户是否存在
             org.casbin.casdoor.entity.User user = casdoorUserExtendService.getUser(loginName);
             boolean exists = user != null && StringUtils.hasText(user.name);
-
+            
             log.debug("用户存在性查询结果，登录名：{}，存在：{}", loginName, exists);
             return exists;
 
@@ -357,22 +358,21 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
                     log.info("从session中获取到Casdoor Session ID");
                 }
             }
-            //            //1.1 获取用户的access token
-            //            String accessToken = null;
-            //            if (session != null) {
-            //                org.casbin.casdoor.entity.User user = (org.casbin.casdoor.entity.User)
-            // session.getAttribute("user");
-            //                if (user != null && StringUtils.hasText(user.name)) {
-            //                    accessToken = TokenManager.getAccessToken(user.name);
-            //                    if (StringUtils.hasText(accessToken)) {
-            //                        log.info("从TokenManager获取到用户access token，username: {}", user.name);
-            //                        // 清除Redis中的token
-            //                        TokenManager.clearTokens(user.name);
-            //                    } else {
-            //                        log.warn("获取用户access token为空，可能token已过期或不存在，username: {}", user.name);
-            //                    }
-            //                }
-            //            }
+//            //1.1 获取用户的access token
+//            String accessToken = null;
+//            if (session != null) {
+//                org.casbin.casdoor.entity.User user = (org.casbin.casdoor.entity.User) session.getAttribute("user");
+//                if (user != null && StringUtils.hasText(user.name)) {
+//                    accessToken = TokenManager.getAccessToken(user.name);
+//                    if (StringUtils.hasText(accessToken)) {
+//                        log.info("从TokenManager获取到用户access token，username: {}", user.name);
+//                        // 清除Redis中的token
+//                        TokenManager.clearTokens(user.name);
+//                    } else {
+//                        log.warn("获取用户access token为空，可能token已过期或不存在，username: {}", user.name);
+//                    }
+//                }
+//            }
 
             // 2. 调用Casdoor登出接口
             if (StringUtils.hasText(casdoorSessionId)) {
@@ -429,12 +429,12 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
     public AppResponse<Boolean> checkSession(HttpServletRequest request, HttpServletResponse response) {
         // 从session中获取用户信息
         HttpSession session = request.getSession(false);
-        if (Objects.isNull(session)) {
+        if (Objects.isNull(session)){
             return AppResponse.success(false);
         }
 
         org.casbin.casdoor.entity.User user = (org.casbin.casdoor.entity.User) session.getAttribute("user");
-        if (Objects.isNull(user)) {
+        if (Objects.isNull(user)){
             return AppResponse.success(false);
         }
 
@@ -453,7 +453,7 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
 
             org.casbin.casdoor.entity.User user = (org.casbin.casdoor.entity.User) session.getAttribute("user");
             boolean isLoggedIn = user != null && StringUtils.hasText(user.name);
-
+            
             log.debug("检查登录状态：{}", isLoggedIn);
             return isLoggedIn;
 
@@ -465,6 +465,11 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AppResponse<String> changePassword(ChangePasswordDto changePasswordDto) {
+        return null;
+    }
+
+    @Override
+    public AppResponse<String> addUser(AddUserDto user, HttpServletRequest request) {
         return null;
     }
 }

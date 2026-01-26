@@ -6,14 +6,15 @@ import com.iflytek.rpa.auth.idp.iflytekIdentity.task.UserSyncTask;
 import com.iflytek.rpa.auth.sp.uap.utils.UapManagementClientUtil;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.sec.uap.client.core.client.ManagementClient;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 用户同步任务控制器
@@ -30,7 +31,7 @@ public class ManagerController {
 
     /**
      * 执行用户同步任务
-     *
+     * 
      * @param force 是否强制执行（忽略锁），默认为false
      * @param loginNames 可选，指定要同步的用户登录名列表，为空则同步所有符合条件的用户
      * @return 同步结果
@@ -62,7 +63,9 @@ public class ManagerController {
     public AppResponse<String> updateUserPassword(@RequestBody @Valid UpdateUserPasswordDto requestDto) {
         try {
             authenticationService.updateUserPassword(
-                    requestDto.getLoginName(), requestDto.getOldPassword(), requestDto.getNewPassword());
+                    requestDto.getLoginName(),
+                    requestDto.getOldPassword(),
+                    requestDto.getNewPassword());
             return AppResponse.success("更新密码成功");
         } catch (Exception e) {
             log.error("管理员更新用户密码失败，loginName={}", requestDto.getLoginName(), e);
@@ -72,7 +75,7 @@ public class ManagerController {
 
     /**
      * 查询同步任务状态
-     *
+     * 
      * @return 任务状态
      */
     @GetMapping("/status")
@@ -110,8 +113,7 @@ public class ManagerController {
             }
             ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
             UserSyncTask.MigrateResult result = userSyncTask.migrateTenantUsers(managementClient, tenantId, loginNames);
-            if (StringUtils.isNotBlank(result.getMessage())
-                    && result.getMessage().contains("失败")) {
+            if (StringUtils.isNotBlank(result.getMessage()) && result.getMessage().contains("失败")) {
                 return AppResponse.error(result.getMessage());
             }
             return AppResponse.success(result.getMessage());
@@ -121,3 +123,4 @@ public class ManagerController {
         }
     }
 }
+

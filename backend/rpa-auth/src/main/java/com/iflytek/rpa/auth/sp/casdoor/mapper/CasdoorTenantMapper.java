@@ -1,10 +1,11 @@
 package com.iflytek.rpa.auth.sp.casdoor.mapper;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 /**
  * @desc: Casdoor Organization 与通用 Tenant 实体类之间的映射器，仅在casdoor profile下生效
@@ -39,10 +40,8 @@ public class CasdoorTenantMapper {
         tenant.setId(casdoorOrg.name);
 
         // 基本字段映射
-        tenant.setName(
-                casdoorOrg.displayName != null && !casdoorOrg.displayName.isEmpty()
-                        ? casdoorOrg.displayName
-                        : casdoorOrg.name); // 显示名称映射到租户名称
+        tenant.setName(casdoorOrg.displayName != null && !casdoorOrg.displayName.isEmpty() 
+                ? casdoorOrg.displayName : casdoorOrg.name); // 显示名称映射到租户名称
         tenant.setTenantCode(casdoorOrg.name); // Casdoor的name作为租户编码
 
         // 逻辑删除字段默认0
@@ -101,8 +100,7 @@ public class CasdoorTenantMapper {
      * @param tenant 通用租户对象
      * @return Casdoor 组织对象
      */
-    public org.casbin.casdoor.entity.Organization toCasdoorOrganization(
-            com.iflytek.rpa.auth.core.entity.Tenant tenant) {
+    public org.casbin.casdoor.entity.Organization toCasdoorOrganization(com.iflytek.rpa.auth.core.entity.Tenant tenant) {
         if (tenant == null) {
             return null;
         }
@@ -119,9 +117,8 @@ public class CasdoorTenantMapper {
         }
 
         // 显示名称映射，如果name为空则使用tenantCode
-        casdoorOrg.displayName = tenant.getName() != null && !tenant.getName().isEmpty()
-                ? tenant.getName()
-                : (tenant.getTenantCode() != null ? tenant.getTenantCode() : "");
+        casdoorOrg.displayName = tenant.getName() != null && !tenant.getName().isEmpty() 
+                ? tenant.getName() : (tenant.getTenantCode() != null ? tenant.getTenantCode() : "");
 
         // 逻辑删除字段默认false
         casdoorOrg.enableSoftDeletion = false;
@@ -241,3 +238,4 @@ public class CasdoorTenantMapper {
         }
     }
 }
+

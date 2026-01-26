@@ -1,6 +1,7 @@
 package com.iflytek.rpa.auth.dataPreheater.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
 import com.iflytek.rpa.auth.dataPreheater.entity.AppMarketClassification;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,9 +18,10 @@ public interface AppMarketClassificationDao extends BaseMapper<AppMarketClassifi
 
     /**
      * 根据租户ID查询分类数据行数
-     *
+     * 
      * @param tenantId 租户ID
      * @return 数据行数
      */
     Integer countByTenantId(@Param("tenantId") String tenantId);
 }
+

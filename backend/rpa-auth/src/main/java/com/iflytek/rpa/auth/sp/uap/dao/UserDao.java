@@ -7,26 +7,18 @@ import com.iflytek.rpa.auth.core.entity.RobotExecute;
 import com.iflytek.rpa.auth.sp.uap.entity.SyncUserInfo;
 import com.iflytek.sec.uap.client.core.dto.user.ListUserByRoleDto;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
-import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface UserDao {
-    List<UapUser> queryUapUserByIds(
-            @Param("userIds") List<String> userIds,
-            @Param("databaseName") String databaseName,
-            @Param("tenantId") String tenantId);
+    List<UapUser> queryUapUserByIds(@Param("userIds") List<String> userIds, @Param("databaseName") String databaseName, @Param("tenantId") String tenantId);
 
-    IPage<String> queryUserIdsByRole(
-            IPage page,
-            @Param("listUserByRoleDto") ListUserByRoleDto listUserByRoleDto,
-            @Param("databaseName") String databaseName);
+    IPage<String> queryUserIdsByRole(IPage page, @Param("listUserByRoleDto") ListUserByRoleDto listUserByRoleDto, @Param("databaseName") String databaseName);
 
-    List<UapUser> queryUapUserByName(
-            @Param("userName") String userName,
-            @Param("tenantId") String tenantId,
-            @Param("databaseName") String databaseName);
+    List<UapUser> queryUapUserByName(@Param("userName") String userName, @Param("tenantId") String tenantId, @Param("databaseName") String databaseName);
 
     /**
      * 更新用户的第三方扩展信息
@@ -34,10 +26,7 @@ public interface UserDao {
      * @param thirdExtInfo 第三方扩展信息
      * @param databaseName 数据库名
      */
-    void updateThirdExtInfo(
-            @Param("loginName") String loginName,
-            @Param("thirdExtInfo") String thirdExtInfo,
-            @Param("databaseName") String databaseName);
+    void updateThirdExtInfo(@Param("loginName") String loginName, @Param("thirdExtInfo") String thirdExtInfo, @Param("databaseName") String databaseName);
 
     /**
      * 更新用户的扩展标识字段 ext_info
@@ -45,8 +34,7 @@ public interface UserDao {
      * @param extInfo 扩展标识
      * @param databaseName 数据库名
      */
-    void updateExtInfo(
-            @Param("phone") String phone, @Param("extInfo") String extInfo, @Param("databaseName") String databaseName);
+    void updateExtInfo(@Param("phone") String phone, @Param("extInfo") String extInfo, @Param("databaseName") String databaseName);
 
     /**
      * 根据手机号查询用户的第三方扩展信息
@@ -86,9 +74,8 @@ public interface UserDao {
      * @param loginNames 可选，指定要同步的用户登录名列表，为空则查询所有符合条件的用户
      * @return 用户列表
      */
-    List<SyncUserInfo> queryUsersToSync(
-            @Param("databaseName") String databaseName, @Param("loginNames") List<String> loginNames);
-
+    List<SyncUserInfo> queryUsersToSync(@Param("databaseName") String databaseName, @Param("loginNames") List<String> loginNames);
+    
     /**
      * 根据手机号查询用户ID
      * @param phone 手机号
@@ -103,18 +90,14 @@ public interface UserDao {
      * @param userType 用户类型
      * @param databaseName 数据库名
      */
-    void batchUpdateUserType(
-            @Param("userIds") List<String> userIds,
-            @Param("userType") Integer userType,
-            @Param("databaseName") String databaseName);
+    void batchUpdateUserType(@Param("userIds") List<String> userIds, @Param("userType") Integer userType, @Param("databaseName") String databaseName);
 
     /**
      * 批量更新用户名称：如果name为空，则更新为login_name
      * @param userIds 用户ID列表
      * @param databaseName 数据库名
      */
-    void batchUpdateNameFromLoginName(
-            @Param("userIds") List<String> userIds, @Param("databaseName") String databaseName);
+    void batchUpdateNameFromLoginName(@Param("userIds") List<String> userIds, @Param("databaseName") String databaseName);
 
     String getNameById(String id, String databaseName);
 
@@ -125,7 +108,9 @@ public interface UserDao {
      * @return 已部署用户分页列表
      */
     IPage<RobotExecute> getDeployedUserList(
-            IPage page, @Param("dto") GetDeployedUserListDto dto, @Param("databaseName") String databaseName);
+            IPage page,
+            @Param("dto") GetDeployedUserListDto dto,
+            @Param("databaseName") String databaseName);
 
     /**
      * 获取未部署用户列表
@@ -191,8 +176,7 @@ public interface UserDao {
             @Param("dto") com.iflytek.rpa.auth.core.entity.GetMarketTenantUserListDto dto,
             @Param("databaseName") String databaseName);
 
-    UapUser getUserById(String id, String databaseName);
+    UapUser  getUserById(String id, String databaseName);
 
-    IPage<RobotExecute> getDeployedUserListWithoutTenantId(
-            Page<RobotExecute> page, GetDeployedUserListDto dto, String databaseName);
+    IPage<RobotExecute> getDeployedUserListWithoutTenantId(Page<RobotExecute> page, GetDeployedUserListDto dto, String databaseName);
 }

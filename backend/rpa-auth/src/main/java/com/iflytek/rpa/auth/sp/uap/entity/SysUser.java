@@ -1,10 +1,11 @@
 package com.iflytek.rpa.auth.sp.uap.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 用户基础信息
@@ -16,7 +17,6 @@ public class SysUser implements Serializable {
     private Long id;
     /** 用户名 */
     private String name;
-
     private String username;
     private String password;
 
@@ -39,14 +39,15 @@ public class SysUser implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" + "id="
-                + id + ", username='"
-                + name + '\'' + ", password='"
-                + password + '\'' + ", enabled="
-                + enabled + ", accountNonExpired="
-                + accountNonExpired + ", accountNonLocked="
-                + accountNonLocked + ", credentialsNonExpired="
-                + credentialsNonExpired + ", roles="
-                + userOwnedPath + '}';
+        return "User{" +
+                "id=" + id +
+                ", username='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", enabled=" + enabled +
+                ", accountNonExpired=" + accountNonExpired +
+                ", accountNonLocked=" + accountNonLocked +
+                ", credentialsNonExpired=" + credentialsNonExpired +
+                ", roles=" + userOwnedPath +
+                '}';
     }
 }

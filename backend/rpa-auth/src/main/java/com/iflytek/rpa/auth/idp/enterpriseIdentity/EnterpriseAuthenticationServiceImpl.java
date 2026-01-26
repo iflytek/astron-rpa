@@ -1,19 +1,16 @@
 package com.iflytek.rpa.auth.idp.enterpriseIdentity;
 
-import com.iflytek.rpa.auth.core.entity.ChangePasswordDto;
-import com.iflytek.rpa.auth.core.entity.LoginDto;
-import com.iflytek.rpa.auth.core.entity.RegisterDto;
-import com.iflytek.rpa.auth.core.entity.Tenant;
-import com.iflytek.rpa.auth.core.entity.User;
+import com.iflytek.rpa.auth.core.entity.*;
+import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
 import com.iflytek.rpa.auth.idp.AuthenticationService;
 import com.iflytek.rpa.auth.utils.AppResponse;
-import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 企业SSO认证服务实现
@@ -23,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 @ConditionalOnProperty(name = "rpa.auth.deployment-mode", havingValue = "private-enterprise")
 public class EnterpriseAuthenticationServiceImpl implements AuthenticationService {
-
+    
     @Override
     public String preAuthenticate(LoginDto loginDto, HttpServletRequest request) {
         // TODO: 实现企业SSO预验证逻辑
@@ -78,7 +75,7 @@ public class EnterpriseAuthenticationServiceImpl implements AuthenticationServic
         // 企业SSO通常不支持注册，由企业统一管理账号
         throw new UnsupportedOperationException("企业SSO模式不支持注册");
     }
-
+    
     @Override
     public User setPasswordAndLogin(String tempToken, String password, String tenantId, HttpServletRequest request) {
         // 企业SSO不支持设置密码
@@ -134,5 +131,10 @@ public class EnterpriseAuthenticationServiceImpl implements AuthenticationServic
     public AppResponse<String> changePassword(ChangePasswordDto changePasswordDto) {
         // 企业SSO模式不支持修改密码
         throw new UnsupportedOperationException("企业SSO模式不支持修改密码");
+    }
+
+    @Override
+    public AppResponse<String> addUser(AddUserDto user, HttpServletRequest request) {
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.dataPreheater.service;
 
+
 import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.dataPreheater.dao.AppMarketDao;
@@ -11,16 +12,17 @@ import com.iflytek.rpa.auth.dataPreheater.entity.MarketTypeEnum;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.IdWorker;
 import com.iflytek.rpa.auth.utils.ListBatchUtil;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 企业公共市场-用户数据导入
@@ -48,9 +50,7 @@ public class PublicMarketDataPreheater {
         // 通过Feign调用rpa-auth服务获取所有企业租户ID列表
         AppResponse<List<String>> allEnterpriseTenantId = tenantService.getAllEnterpriseTenantId();
         List<String> tenantIds = new ArrayList<>();
-        if (Objects.nonNull(allEnterpriseTenantId)
-                && allEnterpriseTenantId.ok()
-                && allEnterpriseTenantId.getData() != null) {
+        if (Objects.nonNull(allEnterpriseTenantId) && allEnterpriseTenantId.ok() && allEnterpriseTenantId.getData() != null) {
             tenantIds = allEnterpriseTenantId.getData();
         }
 
@@ -120,8 +120,9 @@ public class PublicMarketDataPreheater {
 
         List<String> existUserId = appMarketUserDao.getAllUserId(tenantId, marketId);
 
-        List<String> preInsertUserIds =
-                userVoList.stream().filter(u -> !existUserId.contains(u)).collect(Collectors.toList());
+        List<String> preInsertUserIds = userVoList.stream().filter(
+                u -> !existUserId.contains(u)
+        ).collect(Collectors.toList());
 
         if (preInsertUserIds.isEmpty()) {
             return;

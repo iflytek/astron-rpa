@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2025-10-13
  */
 @Data
-public class DeptPersonInfoBo {
+public class DeptPersonInfoBo{
     private Integer userNum;
     private String userName;
     private String id;

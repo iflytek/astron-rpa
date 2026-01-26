@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author mjren
@@ -14,4 +15,5 @@ public class GetDeptOrUserDto {
     private List<User> userList;
 
     private List<Org> deptList;
+
 }

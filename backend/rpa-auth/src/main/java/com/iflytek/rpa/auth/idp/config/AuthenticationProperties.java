@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "rpa.auth")
 public class AuthenticationProperties {
-
+    
     /**
      * 部署模式：saas | private-enterprise | private-uap | casdoor
      * 默认为 saas
      */
     private String deploymentMode = "casdoor";
-
+    
     /**
      * 获取部署模式枚举
      */
@@ -26,3 +26,4 @@ public class AuthenticationProperties {
         return DeploymentMode.fromCode(deploymentMode);
     }
 }
+

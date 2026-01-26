@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 获取已部署用户列表查询DTO
@@ -42,3 +43,4 @@ public class GetDeployedUserListDto implements Serializable {
      */
     private Integer pageSize;
 }
+

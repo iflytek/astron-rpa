@@ -1,12 +1,13 @@
 package com.iflytek.rpa.auth.sp.casdoor.mapper;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 /**
  * @desc: Casdoor Group 与通用 Org 实体类之间的映射器，仅在casdoor profile下生效
@@ -41,10 +42,8 @@ public class CasdoorOrganizationMapper {
         org.setId(casdoorGroup.name);
 
         // 基本字段映射
-        org.setName(
-                casdoorGroup.displayName != null && !casdoorGroup.displayName.isEmpty()
-                        ? casdoorGroup.displayName
-                        : casdoorGroup.name); // 显示名称映射到机构名称
+        org.setName(casdoorGroup.displayName != null && !casdoorGroup.displayName.isEmpty() 
+                ? casdoorGroup.displayName : casdoorGroup.name); // 显示名称映射到机构名称
         org.setCode(casdoorGroup.name); // Casdoor的name作为机构编码
 
         // 机构类型映射
@@ -147,9 +146,8 @@ public class CasdoorOrganizationMapper {
         }
 
         // 显示名称映射，如果name为空则使用code
-        casdoorGroup.displayName = org.getName() != null && !org.getName().isEmpty()
-                ? org.getName()
-                : (org.getCode() != null ? org.getCode() : "");
+        casdoorGroup.displayName = org.getName() != null && !org.getName().isEmpty() 
+                ? org.getName() : (org.getCode() != null ? org.getCode() : "");
 
         // 机构类型映射
         casdoorGroup.type = org.getOrgType() != null ? org.getOrgType() : "";
@@ -169,7 +167,7 @@ public class CasdoorOrganizationMapper {
 
         // TODO: isTopGroup字段需要根据业务逻辑判断，可能根据level或firstLevelId判断
         // 如果level=1或firstLevelId等于当前id，可能是顶级组
-        casdoorGroup.isTopGroup = (org.getLevel() != null && org.getLevel() == 1)
+        casdoorGroup.isTopGroup = (org.getLevel() != null && org.getLevel() == 1) 
                 || (org.getFirstLevelId() != null && org.getFirstLevelId().equals(org.getId()));
 
         // TODO: owner字段需要确认业务逻辑，可以从thirdExtInfo中解析
@@ -226,8 +224,7 @@ public class CasdoorOrganizationMapper {
 
         // 尝试从thirdExtInfo中解析owner
         if (org.getThirdExtInfo() != null && org.getThirdExtInfo().contains("owner:")) {
-            String ownerPart =
-                    org.getThirdExtInfo().substring(org.getThirdExtInfo().indexOf("owner:") + 6);
+            String ownerPart = org.getThirdExtInfo().substring(org.getThirdExtInfo().indexOf("owner:") + 6);
             if (!ownerPart.isEmpty()) {
                 casdoorGroup.owner = ownerPart;
             }
@@ -290,3 +287,4 @@ public class CasdoorOrganizationMapper {
         }
     }
 }
+

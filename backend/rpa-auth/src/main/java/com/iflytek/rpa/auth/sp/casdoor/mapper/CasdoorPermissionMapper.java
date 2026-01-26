@@ -19,8 +19,7 @@ public class CasdoorPermissionMapper {
      * @param casdoorPermission Casdoor 权限对象
      * @return 通用权限对象
      */
-    public com.iflytek.rpa.auth.core.entity.Permission toCommonPermission(
-            org.casbin.casdoor.entity.Permission casdoorPermission) {
+    public com.iflytek.rpa.auth.core.entity.Permission toCommonPermission(org.casbin.casdoor.entity.Permission casdoorPermission) {
         if (casdoorPermission == null) {
             return null;
         }
@@ -66,8 +65,7 @@ public class CasdoorPermissionMapper {
      * @param permission 通用权限对象
      * @return Casdoor 权限对象
      */
-    public org.casbin.casdoor.entity.Permission toCasdoorPermission(
-            com.iflytek.rpa.auth.core.entity.Permission permission) {
+    public org.casbin.casdoor.entity.Permission toCasdoorPermission(com.iflytek.rpa.auth.core.entity.Permission permission) {
         if (permission == null) {
             return null;
         }
@@ -106,3 +104,4 @@ public class CasdoorPermissionMapper {
         return casdoorPermission;
     }
 }
+

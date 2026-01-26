@@ -1,7 +1,10 @@
 package com.iflytek.rpa.auth.core.entity;
 
+import com.iflytek.rpa.auth.sp.uap.annotation.Phone;
 import lombok.Builder;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author mjren
@@ -21,4 +24,5 @@ public class RegisterDto {
     private String password;
 
     private String confirmPassword;
+
 }

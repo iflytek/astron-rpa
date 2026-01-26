@@ -15,3 +15,4 @@ public class IflytekSyncUserInfoAccount {
     private String ccode;
     private Integer lgtype;
 }
+

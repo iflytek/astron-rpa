@@ -11,4 +11,5 @@ import lombok.Data;
 public class EditOrgDto extends UpdateUapOrgDto {
 
     private String userId;
+
 }

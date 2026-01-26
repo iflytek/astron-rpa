@@ -1,8 +1,9 @@
 package com.iflytek.rpa.auth.core.entity;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
 
 /**
  * 简化的部门树节点DTO - 仅包含必要字段以优化性能
@@ -47,7 +48,8 @@ public class SimpleDeptTreeNodeDto {
      */
     private List<SimpleDeptTreeNodeDto> nodes = new ArrayList<>();
 
-    public SimpleDeptTreeNodeDto() {}
+    public SimpleDeptTreeNodeDto() {
+    }
 
     public SimpleDeptTreeNodeDto(String id, String name, String pid, Long userNum, String userName) {
         this.id = id;

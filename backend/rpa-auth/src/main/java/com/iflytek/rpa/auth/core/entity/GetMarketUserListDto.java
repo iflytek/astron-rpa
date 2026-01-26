@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 获取市场用户列表查询DTO
@@ -52,3 +53,4 @@ public class GetMarketUserListDto implements Serializable {
      */
     private Integer pageSize;
 }
+

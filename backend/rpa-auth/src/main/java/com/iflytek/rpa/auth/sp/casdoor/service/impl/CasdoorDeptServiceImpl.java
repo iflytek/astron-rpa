@@ -4,19 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.DeptService;
 import com.iflytek.rpa.auth.utils.AppResponse;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @desc: TODO
  * @author: weilai <laiwei3@iflytek.com>
  * @create: 2025/12/11 17:51
  */
+
 @Slf4j
 @Service("casdoorDeptService")
 @ConditionalOnProperty(name = "rpa.auth.deployment-mode", havingValue = "casdoor", matchIfMissing = true)
@@ -42,8 +44,7 @@ public class CasdoorDeptServiceImpl implements DeptService {
     }
 
     @Override
-    public AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(QueryDeptNodeDto dto, HttpServletRequest request)
-            throws Exception {
+    public AppResponse<List<DeptTreeNodeVo>> queryDeptTreeByPid(QueryDeptNodeDto dto, HttpServletRequest request) throws Exception {
         return AppResponse.success(Collections.emptyList());
     }
 
@@ -68,14 +69,12 @@ public class CasdoorDeptServiceImpl implements DeptService {
     }
 
     @Override
-    public AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(
-            QueryDeptNodeDto dto, HttpServletRequest request) throws JsonProcessingException {
+    public AppResponse<List<DeptPersonTreeNodeVo>> queryDeptPersonNodeByPid(QueryDeptNodeDto dto, HttpServletRequest request) throws JsonProcessingException {
         return AppResponse.success(Collections.emptyList());
     }
 
     @Override
-    public AppResponse<List<UserVo>> queryAllUserByDeptId(QueryDeptIdDto dto, HttpServletRequest request)
-            throws Exception {
+    public AppResponse<List<UserVo>> queryAllUserByDeptId(QueryDeptIdDto dto, HttpServletRequest request) throws Exception {
         return AppResponse.success(Collections.emptyList());
     }
 

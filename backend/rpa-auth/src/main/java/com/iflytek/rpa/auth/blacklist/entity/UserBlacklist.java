@@ -1,16 +1,17 @@
 package com.iflytek.rpa.auth.blacklist.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * 用户黑名单实体类
- *
+ * 
  * @author system
  * @date 2025-12-16
  */
@@ -101,3 +102,4 @@ public class UserBlacklist implements Serializable {
     @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 }
+

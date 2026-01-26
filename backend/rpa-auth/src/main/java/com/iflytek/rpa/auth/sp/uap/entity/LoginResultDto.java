@@ -14,3 +14,4 @@ public class LoginResultDto {
     private String redirectUrl;
     private String tenantId;
 }
+

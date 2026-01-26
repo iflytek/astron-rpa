@@ -61,7 +61,7 @@ public class Resource implements Serializable {
     /**
      * 排序
      */
-    private Integer sort = 1;
+    private Integer sort  = 1;
 
     /**
      * 操作类型0:C,1:U,2:R,3:D
@@ -209,4 +209,5 @@ public class Resource implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
 }

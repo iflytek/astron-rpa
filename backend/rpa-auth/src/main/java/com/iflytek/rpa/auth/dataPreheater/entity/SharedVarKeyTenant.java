@@ -3,8 +3,9 @@ package com.iflytek.rpa.auth.dataPreheater.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 共享变量租户密钥表(SharedVarKeyTenant)实体类

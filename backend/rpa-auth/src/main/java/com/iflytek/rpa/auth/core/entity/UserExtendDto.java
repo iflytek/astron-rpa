@@ -1,6 +1,7 @@
 package com.iflytek.rpa.auth.core.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
 /**
@@ -26,6 +27,7 @@ public class UserExtendDto extends TenantModeExtendDto {
      */
     private List<RoleBaseDto> roles;
 
+
     public User getUser() {
         return user;
     }
@@ -49,4 +51,5 @@ public class UserExtendDto extends TenantModeExtendDto {
     public void setRoles(List<RoleBaseDto> roles) {
         this.roles = roles;
     }
+
 }

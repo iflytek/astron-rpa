@@ -1,11 +1,12 @@
 package com.iflytek.rpa.auth.blacklist.exception;
 
-import java.time.LocalDateTime;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 /**
  * 用户被封禁异常
- *
+ * 
  * @author system
  * @date 2025-12-16
  */
@@ -41,15 +42,14 @@ public class UserBlockedException extends RuntimeException {
 
     /**
      * 构造函数
-     *
+     * 
      * @param userId 用户ID
      * @param username 用户名
      * @param reason 封禁原因
      * @param endTime 封禁结束时间
      * @param remainingSeconds 剩余封禁时间（秒）
      */
-    public UserBlockedException(
-            String userId, String username, String reason, LocalDateTime endTime, Long remainingSeconds) {
+    public UserBlockedException(String userId, String username, String reason, LocalDateTime endTime, Long remainingSeconds) {
         super(buildMessage(username, reason, endTime, remainingSeconds));
         this.userId = userId;
         this.username = username;
@@ -87,3 +87,4 @@ public class UserBlockedException extends RuntimeException {
         return sb.toString();
     }
 }
+

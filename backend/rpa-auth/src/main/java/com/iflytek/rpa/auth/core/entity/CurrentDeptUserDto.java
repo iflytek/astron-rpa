@@ -28,7 +28,7 @@ public class CurrentDeptUserDto {
      * 类型，user:人员，dept:部门
      */
     private String type;
-
+    
     /**
      * 角色名称
      */

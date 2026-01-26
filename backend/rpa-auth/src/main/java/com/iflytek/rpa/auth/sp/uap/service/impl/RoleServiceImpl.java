@@ -1,6 +1,5 @@
 package com.iflytek.rpa.auth.sp.uap.service.impl;
 
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.RoleService;
 import com.iflytek.rpa.auth.sp.uap.dao.RoleDao;
@@ -19,14 +18,16 @@ import com.iflytek.sec.uap.client.core.dto.app.UapApp;
 import com.iflytek.sec.uap.client.core.dto.role.UapRole;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
 import com.iflytek.sec.uap.client.util.Oauth2Util;
-import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 角色服务实现类
@@ -168,8 +169,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public AppResponse<com.iflytek.rpa.auth.core.entity.PageDto<Role>> searchRole(
-            ListRoleDto listRoleDto, HttpServletRequest request) {
+    public AppResponse<com.iflytek.rpa.auth.core.entity.PageDto<Role>> searchRole(ListRoleDto listRoleDto, HttpServletRequest request) {
         if (listRoleDto.getRoleName() == null) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }

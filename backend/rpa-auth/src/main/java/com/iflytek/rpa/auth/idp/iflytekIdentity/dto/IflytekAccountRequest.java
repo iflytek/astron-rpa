@@ -11,3 +11,4 @@ public class IflytekAccountRequest<T> {
     private IflytekAccountBase base;
     private T param;
 }
+

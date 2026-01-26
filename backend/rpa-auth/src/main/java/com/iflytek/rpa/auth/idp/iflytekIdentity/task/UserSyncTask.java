@@ -18,13 +18,6 @@ import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
 import com.iflytek.sec.uap.client.core.dto.user.BindRoleDto;
 import com.iflytek.sec.uap.client.core.dto.user.ListUserDto;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
-import java.sql.Connection;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +27,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 用户同步任务服务
@@ -144,22 +145,22 @@ public class UserSyncTask {
                 processedCount++;
                 // 每处理10个用户或处理完成时打印进度
                 if (processedCount % 10 == 0 || processedCount == totalCount) {
-                    log.info(
-                            "用户同步进度：{}/{} ({}%)，成功：{}，失败：{}，跳过：{}",
-                            processedCount,
-                            totalCount,
+                    log.info("用户同步进度：{}/{} ({}%)，成功：{}，失败：{}，跳过：{}",
+                            processedCount, totalCount,
                             String.format("%.1f", (processedCount * 100.0 / totalCount)),
-                            successCount,
-                            failCount,
-                            skipCount);
+                            successCount, failCount, skipCount);
                 }
-
+                
                 try {
                     // 生成唯一的userid：RPA + 时间戳（精确到毫秒）+ 随机数确保唯一性
                     String userid = generateUserId();
 
                     // 构建登录账号信息
-                    IflytekSyncUserInfoAccount account = new IflytekSyncUserInfoAccount(user.getPhone(), "86", 1);
+                    IflytekSyncUserInfoAccount account = new IflytekSyncUserInfoAccount(
+                            user.getPhone(),
+                            "86",
+                            1
+                    );
                     List<IflytekSyncUserInfoAccount> loginAccounts = Arrays.asList(account);
 
                     // 构建用户详细信息
@@ -170,7 +171,7 @@ public class UserSyncTask {
                             "0", // sex固定为0
                             user.getAddress() != null ? user.getAddress() : "",
                             null // extras为空
-                            );
+                    );
 
                     // 调用同步接口
                     authenticationService.syncUserInfo(userid, "", loginAccounts, userInfo);
@@ -181,29 +182,33 @@ public class UserSyncTask {
                     userDao.updateExtInfo(user.getPhone(), "1", databaseName);
 
                     successCount++;
-                    log.info("用户同步成功，登录名：{}，手机号：{}，userid：{}", user.getLoginName(), user.getPhone(), userid);
+                    log.info("用户同步成功，登录名：{}，手机号：{}，userid：{}",
+                            user.getLoginName(), user.getPhone(), userid);
 
                     // 避免请求过于频繁，添加短暂延迟
                     Thread.sleep(100);
 
                 } catch (Exception e) {
-                    String errorMessage = e.getMessage() != null
-                            ? e.getMessage()
-                            : e.getClass().getSimpleName();
+                    String errorMessage = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
 
                     // 记录失败账号信息
-                    result.getFailureList()
-                            .add(new SyncFailureInfo(user.getLoginName(), user.getPhone(), errorMessage));
+                    result.getFailureList().add(new SyncFailureInfo(
+                            user.getLoginName(),
+                            user.getPhone(),
+                            errorMessage
+                    ));
                     // 如果是用户已存在或登录方式重复，跳过该用户
-                    if (e.getMessage() != null
-                            && (e.getMessage().contains("用户已存在")
-                                    || e.getMessage().contains("登录方式重复"))) {
+                    if (e.getMessage() != null &&
+                            (e.getMessage().contains("用户已存在") ||
+                                    e.getMessage().contains("登录方式重复"))) {
                         skipCount++;
-                        log.warn("用户同步跳过，登录名：{}，手机号：{}，原因：{}", user.getLoginName(), user.getPhone(), errorMessage);
+                        log.warn("用户同步跳过，登录名：{}，手机号：{}，原因：{}",
+                                user.getLoginName(), user.getPhone(), errorMessage);
                     } else {
                         failCount++;
 
-                        log.error("用户同步失败，登录名：{}，手机号：{}，原因：{}", user.getLoginName(), user.getPhone(), errorMessage, e);
+                        log.error("用户同步失败，登录名：{}，手机号：{}，原因：{}",
+                                user.getLoginName(), user.getPhone(), errorMessage, e);
                     }
                 }
             }
@@ -213,8 +218,8 @@ public class UserSyncTask {
             result.setSkipCount(skipCount);
 
             // 构建返回消息
-            String messageBuilder = String.format(
-                    "同步完成：成功 %d 个，失败 %d 个，跳过 %d 个，总计 %d 个", successCount, failCount, skipCount, usersToSync.size());
+            String messageBuilder = String.format("同步完成：成功 %d 个，失败 %d 个，跳过 %d 个，总计 %d 个",
+                    successCount, failCount, skipCount, usersToSync.size());
 
             result.setMessage(messageBuilder);
 
@@ -262,26 +267,25 @@ public class UserSyncTask {
      * @param loginNames 可选，指定要迁移的账号列表，为空则迁移该租户下所有用户
      * @return 迁移结果
      */
-    public MigrateResult migrateTenantUsers(
-            ManagementClient managementClient, String tenantId, List<String> loginNames) {
+    public MigrateResult migrateTenantUsers(ManagementClient managementClient, String tenantId, List<String> loginNames) {
         MigrateResult result = new MigrateResult();
         try {
             if (StringUtils.isBlank(tenantId)) {
                 result.setMessage("租户ID不能为空");
                 return result;
             }
-
+            
             log.info("开始执行租户用户迁移，租户ID：{}，指定账号列表：{}", tenantId, loginNames);
 
             List<UapUser> users = fetchAllTenantUsers(tenantId);
-
+            
             // 如果指定了账号列表，则过滤
             if (CollectionUtil.isNotEmpty(loginNames)) {
                 users = users.stream()
                         .filter(user -> user != null && loginNames.contains(user.getLoginName()))
                         .collect(Collectors.toList());
             }
-
+            
             if (CollectionUtil.isEmpty(users)) {
                 result.setMessage("未找到需要迁移的用户");
                 return result;
@@ -313,22 +317,19 @@ public class UserSyncTask {
             List<String> failedUsers = new ArrayList<>();
             int totalCount = users.size();
             int processedCount = 0;
-
+            
             log.info("开始迁移用户，总用户数：{}", totalCount);
-
+            
             for (UapUser user : users) {
                 processedCount++;
                 // 每处理10个用户或处理完成时打印进度
                 if (processedCount % 10 == 0 || processedCount == totalCount) {
-                    log.info(
-                            "用户迁移进度：{}/{} ({}%)，成功：{}，失败：{}",
-                            processedCount,
-                            totalCount,
+                    log.info("用户迁移进度：{}/{} ({}%)，成功：{}，失败：{}",
+                            processedCount, totalCount,
                             String.format("%.1f", (processedCount * 100.0 / totalCount)),
-                            successCount,
-                            failedUsers.size());
+                            successCount, failedUsers.size());
                 }
-
+                
                 if (user == null || StringUtils.isAnyBlank(user.getId(), user.getLoginName())) {
                     continue;
                 }
@@ -363,12 +364,12 @@ public class UserSyncTask {
             result.setFailedUsers(failedUsers);
 
             if (CollectionUtil.isNotEmpty(failedUsers)) {
-                result.setMessage(String.format(
-                        "迁移完成，成功%d个，失败%d个：%s", successCount, failedUsers.size(), String.join(",", failedUsers)));
+                result.setMessage(String.format("迁移完成，成功%d个，失败%d个：%s", 
+                        successCount, failedUsers.size(), String.join(",", failedUsers)));
             } else {
                 result.setMessage(String.format("迁移完成，成功%d个用户", successCount));
             }
-
+            
             log.info("历史注册账号租户迁移完成：{}", result.getMessage());
             return result;
         } catch (Exception e) {
@@ -423,6 +424,7 @@ public class UserSyncTask {
      */
     private void ensureTenantAndUserRoleRelations(String tenantId, String userId, String roleId) {
 
+        
         // 确保 t_uap_user_role 表中有记录
         ensureUserRoleRelation(tenantId, userId, roleId);
     }
@@ -500,19 +502,20 @@ public class UserSyncTask {
 
             log.info("开始刷新业务数据，数据库：{}，涉及表数量：{}", dbName, tables.size());
             int totalUpdated = 0;
-
+            
             // 特殊处理 robot_execute_record 表：先查询id，再根据id更新（优化大数据量表的更新性能）
             String robotExecuteRecordTable = "robot_execute_record";
             boolean isRobotExecuteRecordProcessed = false;
             if (tables.contains(robotExecuteRecordTable)) {
                 try {
                     // 先查询符合条件的记录ID
-                    List<Long> recordIds = tenantDao.queryRobotExecuteRecordIds(dbName, oldTenantId, userId);
+                    List<Long> recordIds = tenantDao.queryRobotExecuteRecordIds(
+                            dbName, oldTenantId, userId);
                     if (CollectionUtil.isNotEmpty(recordIds)) {
                         log.debug("表 {} 查询到 {} 条符合条件的记录，开始批量更新", robotExecuteRecordTable, recordIds.size());
                         // 根据ID列表批量更新
-                        Integer updated =
-                                tenantDao.updateRobotExecuteRecordTenantIdByIds(dbName, newTenantId, recordIds);
+                        Integer updated = tenantDao.updateRobotExecuteRecordTenantIdByIds(
+                                dbName, newTenantId, recordIds);
                         if (updated != null && updated > 0) {
                             totalUpdated += updated;
                             log.info("表 {} 更新了 {} 条记录（通过ID批量更新）", robotExecuteRecordTable, updated);
@@ -524,7 +527,7 @@ public class UserSyncTask {
                     isRobotExecuteRecordProcessed = true;
                 }
             }
-
+            
             // 处理其他表
             for (String tableName : tables) {
                 // 跳过已处理的 robot_execute_record 表
@@ -532,8 +535,8 @@ public class UserSyncTask {
                     continue;
                 }
                 try {
-                    Integer updated =
-                            tenantDao.updateTableTenantId(dbName, tableName, oldTenantId, newTenantId, userId);
+                    Integer updated = tenantDao.updateTableTenantId(
+                            dbName, tableName, oldTenantId, newTenantId, userId);
                     if (updated != null && updated > 0) {
                         totalUpdated += updated;
                         log.info("表 {} 更新了 {} 条记录", tableName, updated);
@@ -583,18 +586,17 @@ public class UserSyncTask {
     private String extractDatabaseNameFromUrl() {
         try {
             String url = null;
-
+            
             // 尝试从 Environment 中获取
             if (environment != null) {
                 url = environment.getProperty("spring.datasource.url");
             }
-
+            
             // 如果 Environment 中没有，尝试从 DataSource 获取
             if (StringUtils.isBlank(url) && dataSource != null) {
                 // 对于 DruidDataSource，可以通过 getUrl() 方法获取
                 try {
-                    java.lang.reflect.Method getUrlMethod =
-                            dataSource.getClass().getMethod("getUrl");
+                    java.lang.reflect.Method getUrlMethod = dataSource.getClass().getMethod("getUrl");
                     url = (String) getUrlMethod.invoke(dataSource);
                 } catch (Exception e) {
                     // 如果不是 DruidDataSource 或方法不存在，忽略
@@ -625,11 +627,11 @@ public class UserSyncTask {
         if (dataSource == null) {
             return null;
         }
-
+        
         try (Connection connection = dataSource.getConnection()) {
             // MySQL: SELECT DATABASE()
             try (java.sql.Statement stmt = connection.createStatement();
-                    java.sql.ResultSet rs = stmt.executeQuery("SELECT DATABASE()")) {
+                 java.sql.ResultSet rs = stmt.executeQuery("SELECT DATABASE()")) {
                 if (rs.next()) {
                     return rs.getString(1);
                 }
@@ -640,3 +642,4 @@ public class UserSyncTask {
         return null;
     }
 }
+

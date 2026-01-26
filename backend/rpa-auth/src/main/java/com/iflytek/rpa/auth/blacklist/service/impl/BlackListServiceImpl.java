@@ -7,20 +7,22 @@ import com.iflytek.rpa.auth.blacklist.dao.UserBlacklistDao;
 import com.iflytek.rpa.auth.blacklist.dto.BlacklistCacheDto;
 import com.iflytek.rpa.auth.blacklist.entity.UserBlacklist;
 import com.iflytek.rpa.auth.blacklist.service.BlackListService;
+import com.iflytek.rpa.auth.utils.RedisUtil;
 import com.iflytek.rpa.auth.utils.RedisUtils;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * 黑名单服务实现类
- *
+ * 
  * @author system
  * @date 2025-12-16
  */
@@ -41,7 +43,8 @@ public class BlackListServiceImpl implements BlackListService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UserBlacklist add(String userId, String username, String reason, String operator) {
-        log.info("开始添加黑名单，userId: {}, username: {}, reason: {}, operator: {}", userId, username, reason, operator);
+        log.info("开始添加黑名单，userId: {}, username: {}, reason: {}, operator: {}", 
+                userId, username, reason, operator);
 
         // 使用分布式锁，避免并发问题
         String lockKey = LOCK_PREFIX + userId;
@@ -58,11 +61,9 @@ public class BlackListServiceImpl implements BlackListService {
             UserBlacklist blacklist;
             if (existingBlacklist != null) {
                 // 已有封禁记录，升级封禁等级
-                log.info(
-                        "用户已在黑名单中，升级封禁等级，当前等级: {}, 次数: {}",
-                        existingBlacklist.getBanLevel(),
-                        existingBlacklist.getBanCount());
-
+                log.info("用户已在黑名单中，升级封禁等级，当前等级: {}, 次数: {}", 
+                        existingBlacklist.getBanLevel(), existingBlacklist.getBanCount());
+                
                 int newLevel = existingBlacklist.getBanLevel() + 1;
                 int newCount = existingBlacklist.getBanCount() + 1;
                 Long newDuration = blacklistConfig.getDurationByLevel(newLevel);
@@ -77,8 +78,9 @@ public class BlackListServiceImpl implements BlackListService {
 
                 userBlacklistDao.updateById(existingBlacklist);
                 blacklist = existingBlacklist;
-
-                log.info("黑名单升级成功，新等级: {}, 新次数: {}, 封禁至: {}", newLevel, newCount, blacklist.getEndTime());
+                
+                log.info("黑名单升级成功，新等级: {}, 新次数: {}, 封禁至: {}", 
+                        newLevel, newCount, blacklist.getEndTime());
             } else {
                 // 新增封禁记录
                 Long duration = blacklistConfig.getDurationByLevel(1);
@@ -96,7 +98,7 @@ public class BlackListServiceImpl implements BlackListService {
                         .build();
 
                 userBlacklistDao.insert(blacklist);
-
+                
                 log.info("新增黑名单成功，封禁至: {}", blacklist.getEndTime());
             }
 
@@ -130,7 +132,7 @@ public class BlackListServiceImpl implements BlackListService {
             }
 
             // Redis 中不存在，查询数据库
-            //            UserBlacklist blacklist = userBlacklistDao.findActiveBlacklist(userId);
+//            UserBlacklist blacklist = userBlacklistDao.findActiveBlacklist(userId);
             UserBlacklist blacklist = null;
             if (blacklist != null) {
                 LocalDateTime now = LocalDateTime.now();
@@ -199,10 +201,10 @@ public class BlackListServiceImpl implements BlackListService {
     @Transactional(rollbackFor = Exception.class)
     public int batchUnbanExpired() {
         log.info("开始批量解封已过期用户");
-
+        
         // 每次处理 100 条
         List<UserBlacklist> expiredList = userBlacklistDao.findExpiredBlacklist(LocalDateTime.now(), 100);
-
+        
         int count = 0;
         for (UserBlacklist blacklist : expiredList) {
             try {
@@ -210,12 +212,13 @@ public class BlackListServiceImpl implements BlackListService {
                 String key = BlacklistConfig.getBlacklistKey(blacklist.getUserId());
                 RedisUtils.del(key);
                 count++;
-                log.info("解封过期用户，userId: {}, username: {}", blacklist.getUserId(), blacklist.getUsername());
+                log.info("解封过期用户，userId: {}, username: {}", 
+                        blacklist.getUserId(), blacklist.getUsername());
             } catch (Exception e) {
                 log.error("解封用户失败，userId: {}", blacklist.getUserId(), e);
             }
         }
-
+        
         log.info("批量解封完成，共解封 {} 个用户", count);
         return count;
     }
@@ -239,7 +242,7 @@ public class BlackListServiceImpl implements BlackListService {
         try {
             String key = BlacklistConfig.getBlacklistKey(blacklist.getUserId());
             BlacklistCacheDto dto = buildCacheDto(blacklist);
-
+            
             // 计算剩余时间（秒）
             long ttl = dto.getRemainingSeconds();
             if (ttl > 0) {
@@ -255,18 +258,14 @@ public class BlackListServiceImpl implements BlackListService {
      * 构建缓存 DTO
      */
     private BlacklistCacheDto buildCacheDto(UserBlacklist blacklist) {
-        long remainingSeconds =
-                Duration.between(LocalDateTime.now(), blacklist.getEndTime()).getSeconds();
+        long remainingSeconds = Duration.between(LocalDateTime.now(), blacklist.getEndTime()).getSeconds();
         if (remainingSeconds < 0) {
             remainingSeconds = 0;
         }
 
         // 将 LocalDateTime 转换为时间戳（毫秒），避免序列化问题
-        long endTimeMillis = blacklist
-                .getEndTime()
-                .atZone(java.time.ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli();
+        long endTimeMillis = blacklist.getEndTime().atZone(java.time.ZoneId.systemDefault())
+                .toInstant().toEpochMilli();
 
         return BlacklistCacheDto.builder()
                 .userId(blacklist.getUserId())
@@ -284,9 +283,8 @@ public class BlackListServiceImpl implements BlackListService {
      */
     private boolean tryLock(String key, long expireSeconds) {
         try {
-            return RedisUtils.redisTemplate
-                    .opsForValue()
-                    .setIfAbsent(key, "locked", java.time.Duration.ofSeconds(expireSeconds));
+            return RedisUtils.redisTemplate.opsForValue()
+                    .setIfAbsent(key, "locked", Duration.ofSeconds(expireSeconds));
         } catch (Exception e) {
             log.error("获取分布式锁失败", e);
             return false;
@@ -304,3 +302,4 @@ public class BlackListServiceImpl implements BlackListService {
         }
     }
 }
+

@@ -1,12 +1,6 @@
 package com.iflytek.rpa.auth.sp.casdoor.service.extend;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
@@ -20,7 +14,15 @@ import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
 import org.casbin.casdoor.util.http.CasdoorResponse;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @desc: 基于casdoor原生服务的权限拓展服务，仅在casdoor profile下生效
@@ -117,3 +119,4 @@ public class CasdoorAuthExtendService extends AuthService {
         return resp;
     }
 }
+

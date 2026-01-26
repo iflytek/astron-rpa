@@ -15,3 +15,4 @@ public class CasdoorSignupDto {
     private String phone;
     private String countryCode;
 }
+

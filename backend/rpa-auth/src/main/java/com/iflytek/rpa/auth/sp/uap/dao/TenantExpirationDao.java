@@ -6,12 +6,12 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  * 租户到期信息数据访问接口
- *
+ * 
  * @author system
  */
 @Mapper
 public interface TenantExpirationDao {
-
+    
     /**
      * 根据租户ID查询租户到期信息
      *
@@ -20,3 +20,4 @@ public interface TenantExpirationDao {
      */
     TenantExpiration queryByTenantId(@Param("tenantId") String tenantId);
 }
+

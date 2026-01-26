@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 获取未部署用户列表查询DTO
@@ -32,3 +33,4 @@ public class GetUserUnDeployedDto implements Serializable {
      */
     private String phone;
 }
+

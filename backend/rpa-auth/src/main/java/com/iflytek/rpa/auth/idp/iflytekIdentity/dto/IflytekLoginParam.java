@@ -14,3 +14,4 @@ public class IflytekLoginParam {
     private String password;
     private String pwdtype;
 }
+

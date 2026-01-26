@@ -1,8 +1,6 @@
 package com.iflytek.rpa.auth.sp.casdoor.service.extend;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.io.IOException;
-import java.util.List;
 import org.casbin.casdoor.config.Config;
 import org.casbin.casdoor.entity.User;
 import org.casbin.casdoor.service.UserService;
@@ -11,6 +9,9 @@ import org.casbin.casdoor.util.http.CasdoorResponse;
 import org.casbin.casdoor.util.http.HttpClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @desc: 基于casdoor原生服务的用户拓展服务，仅在casdoor profile下生效
@@ -27,21 +28,21 @@ public class CasdoorUserExtendService extends UserService {
 
     public User getUserById(String id) throws IOException {
         CasdoorResponse<User, Object> resp =
-                doGet("get-user", Map.of("userId", id), new TypeReference<CasdoorResponse<User, Object>>() {});
+                doGet("get-user", Map.of("userId", id), new TypeReference<CasdoorResponse<User, Object>>() {
+                });
         return objectMapper.convertValue(resp.getData(), User.class);
     }
 
     public List<User> getUsers(String organizationName) throws IOException {
-        CasdoorResponse<List<User>, Object> resp = doGet(
-                "get-users",
-                Map.of("owner", organizationName),
-                new TypeReference<CasdoorResponse<List<User>, Object>>() {});
+        CasdoorResponse<List<User>, Object> resp = doGet("get-users",
+                Map.of("owner", organizationName), new TypeReference<CasdoorResponse<List<User>, Object>>() {});
         return resp.getData();
     }
 
     public User getUserByPhone(String phone) throws IOException {
         CasdoorResponse<User, Object> resp =
-                doGet("get-user", Map.of("phone", phone), new TypeReference<CasdoorResponse<User, Object>>() {});
+                doGet("get-user", Map.of("phone", phone), new TypeReference<CasdoorResponse<User, Object>>() {
+                });
         return objectMapper.convertValue(resp.getData(), User.class);
     }
 
@@ -53,15 +54,15 @@ public class CasdoorUserExtendService extends UserService {
      */
     public boolean checkUserPassword(User user) throws IOException {
         String payload = objectMapper.writeValueAsString(user);
-
+        
         // 直接调用底层HTTP方法，避免doPost在status != "ok"时抛出异常
         String url = String.format("%s/api/check-user-password", config.endpoint);
         String response = HttpClient.postString(url, payload, credential);
-
+        
         // 手动解析响应
-        CasdoorResponse<User, Boolean> resp =
-                objectMapper.readValue(response, new TypeReference<CasdoorResponse<User, Boolean>>() {});
-
+        CasdoorResponse<User, Boolean> resp = objectMapper.readValue(
+                response, new TypeReference<CasdoorResponse<User, Boolean>>() {});
+        
         // 根据status判断密码是否正确
         if ("ok".equals(resp.getStatus())) {
             return true;

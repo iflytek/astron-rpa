@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author mjren
@@ -11,7 +12,9 @@ import lombok.Data;
 @Data
 public class OrgListDto extends PageQueryDto {
 
+
     private List<String> orgIds;
 
     private String orgName;
+
 }

@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.idp.iflytekIdentity.dto;
 
-import java.util.Map;
 import lombok.Data;
+
+import java.util.Map;
 
 @Data
 public class IflytekLoginData {
@@ -15,3 +16,4 @@ public class IflytekLoginData {
     private Long cttime;
     private Map<String, Object> extras;
 }
+

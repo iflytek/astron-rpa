@@ -1,11 +1,13 @@
 package com.iflytek.rpa.auth.sp.casdoor.mapper;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 /**
  * @desc: Casdoor User 与通用 User 实体类之间的映射器，仅在casdoor profile下生效
@@ -80,7 +82,7 @@ public class CasdoorUserMapper {
             user.setRemark(casdoorUser.bio);
         }
 
-        // 租户字段：extInfo
+        //租户字段：extInfo
         user.setExtInfo(casdoorUser.owner);
 
         // 扩展信息：从properties中提取
@@ -148,7 +150,7 @@ public class CasdoorUserMapper {
                         .filter(s -> !s.isEmpty())
                         .toArray(String[]::new);
             } else {
-                casdoorUser.address = new String[] {user.getAddress()};
+                casdoorUser.address = new String[]{user.getAddress()};
             }
             casdoorUser.location = user.getAddress();
         }
@@ -156,7 +158,7 @@ public class CasdoorUserMapper {
         // 租户
         casdoorUser.owner = user.getExtInfo();
 
-        // todo 机构（群组）映射
+        //todo 机构（群组）映射
         casdoorUser.region = user.getOrgId();
         casdoorUser.region = user.getOrgCode();
 
@@ -225,7 +227,7 @@ public class CasdoorUserMapper {
         casdoorUser.douyin = "";
         casdoorUser.custom = "";
         casdoorUser.ldap = "";
-        // 其他字段
+        //其他字段
         casdoorUser.type = "normal-user";
         return casdoorUser;
     }
@@ -326,3 +328,4 @@ public class CasdoorUserMapper {
         }
     }
 }
+

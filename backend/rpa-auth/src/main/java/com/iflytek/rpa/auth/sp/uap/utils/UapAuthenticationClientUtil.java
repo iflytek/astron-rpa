@@ -1,11 +1,11 @@
 package com.iflytek.rpa.auth.sp.uap.utils;
 
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.sec.uap.base.util.ClientConfigUtil;
 import com.iflytek.sec.uap.client.core.client.AuthenticationClient;
 import com.iflytek.sec.uap.client.core.dto.ResponseDto;
 import com.iflytek.sec.uap.client.core.dto.authentication.RequestTokenResDto;
 import com.iflytek.sec.uap.client.core.model.AuthenticationClientOptions;
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 
 /**
  * @author mjren
@@ -15,11 +15,11 @@ import com.iflytek.sec.uap.client.core.model.AuthenticationClientOptions;
 @ConditionalOnSaaSOrUAP
 public class UapAuthenticationClientUtil {
 
-    public static String getToken() {
+    public static String getToken(){
         AuthenticationClientOptions clientOptions = new AuthenticationClientOptions();
         clientOptions.setAppAuthCode(ClientConfigUtil.instance().getAppAuthCode());
         clientOptions.setAppCode(ClientConfigUtil.instance().getAppCode());
-        clientOptions.setUapHost(ClientConfigUtil.instance().getRestServerUrl()); // todo
+        clientOptions.setUapHost(ClientConfigUtil.instance().getRestServerUrl());//todo
         clientOptions.setProtocol(ClientConfigUtil.instance().getProtocol());
 
         AuthenticationClient authenticationClient = new AuthenticationClient(clientOptions);
@@ -27,8 +27,13 @@ public class UapAuthenticationClientUtil {
         responseDto = authenticationClient.getUapToken();
         String token = null;
         if (responseDto.isFlag()) {
-            token = ((RequestTokenResDto) responseDto.getData()).getToken();
+            token = ((RequestTokenResDto)responseDto.getData()).getToken();
         }
         return token;
     }
+
+
+
+
+
 }

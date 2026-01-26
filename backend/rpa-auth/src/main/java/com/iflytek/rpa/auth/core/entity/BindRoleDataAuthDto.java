@@ -9,10 +9,10 @@ import lombok.Data;
  */
 @Data
 public class BindRoleDataAuthDto {
-
+    
     private String roleId;
 
     private String dataAuthId;
 
-    //    private List<String> deptIdList;
+//    private List<String> deptIdList;
 }

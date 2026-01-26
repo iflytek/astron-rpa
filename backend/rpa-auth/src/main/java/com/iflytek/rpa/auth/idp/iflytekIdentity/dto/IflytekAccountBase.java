@@ -11,3 +11,4 @@ public class IflytekAccountBase {
     private String appid;
     private String traceid;
 }
+

@@ -3,11 +3,12 @@ package com.iflytek.rpa.auth.sp.casdoor.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
-import java.io.PrintWriter;
-import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
 /**
  * @desc: TODO
@@ -43,3 +44,4 @@ public class ResponseUtils {
         }
     }
 }
+

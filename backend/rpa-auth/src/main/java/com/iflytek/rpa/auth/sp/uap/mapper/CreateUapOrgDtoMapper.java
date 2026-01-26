@@ -1,9 +1,10 @@
 package com.iflytek.rpa.auth.sp.uap.mapper;
 
 import com.iflytek.sec.uap.client.core.dto.org.CreateUapOrgDto;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 
 /**
  * @desc: TODO
@@ -15,12 +16,14 @@ public class CreateUapOrgDtoMapper {
     /**
      * 将客户端的CreateUapOrgDto转换为UAP客户端的CreateUapOrgDto
      */
-    public CreateUapOrgDto toUapCreateUapOrgDto(com.iflytek.rpa.auth.core.entity.CreateUapOrgDto source) {
+    public CreateUapOrgDto toUapCreateUapOrgDto(
+            com.iflytek.rpa.auth.core.entity.CreateUapOrgDto source) {
         if (source == null) {
             return null;
         }
 
-        CreateUapOrgDto target = new CreateUapOrgDto();
+        CreateUapOrgDto target =
+                new CreateUapOrgDto();
 
         target.setUapOrg(toUapCreateOrgDto(source.getUapOrg()));
         target.setExtands(toUapExtendPropertyDtos(source.getExtands()));
@@ -67,7 +70,9 @@ public class CreateUapOrgDtoMapper {
             return null;
         }
 
-        return sourceList.stream().map(this::toUapExtendPropertyDto).collect(Collectors.toList());
+        return sourceList.stream()
+                .map(this::toUapExtendPropertyDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -91,11 +96,14 @@ public class CreateUapOrgDtoMapper {
     /**
      * 批量转换CreateUapOrgDto列表
      */
-    public List<CreateUapOrgDto> toUapCreateOrgDtos(List<com.iflytek.rpa.auth.core.entity.CreateUapOrgDto> sourceList) {
+    public List<CreateUapOrgDto> toUapCreateOrgDtos(
+            List<com.iflytek.rpa.auth.core.entity.CreateUapOrgDto> sourceList) {
         if (sourceList == null) {
             return null;
         }
 
-        return sourceList.stream().map(this::toUapCreateUapOrgDto).collect(Collectors.toList());
+        return sourceList.stream()
+                .map(this::toUapCreateUapOrgDto)
+                .collect(Collectors.toList());
     }
 }

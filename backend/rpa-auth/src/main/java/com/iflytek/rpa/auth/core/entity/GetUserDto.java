@@ -36,4 +36,5 @@ public class GetUserDto {
     public void setLoginName(String loginName) {
         this.loginName = loginName;
     }
+
 }

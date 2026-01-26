@@ -21,6 +21,7 @@ public class UapExtendRelation extends UapExtand {
      */
     private String relationId;
 
+
     /**
      * userid or orgId
      */
@@ -67,4 +68,6 @@ public class UapExtendRelation extends UapExtand {
     public void setText(String text) {
         this.text = text;
     }
+
 }
+

@@ -15,16 +15,10 @@ import com.iflytek.rpa.auth.sp.casdoor.mapper.CasdoorUserMapper;
 import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorAuthExtendService;
 import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorGroupExtendService;
 import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorLoginExtendService;
-import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorUserExtendService;
 import com.iflytek.rpa.auth.sp.casdoor.utils.SessionUserUtils;
 import com.iflytek.rpa.auth.sp.casdoor.utils.TokenManager;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.casbin.casdoor.entity.Group;
@@ -36,7 +30,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorUserExtendService;
 import org.springframework.util.CollectionUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service("casdoorUserService")
@@ -107,7 +111,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<String> register(RegisterDto registerDto, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始用户注册");
-
+            
             // 参数校验
             if (registerDto == null) {
                 log.warn("用户注册失败：注册参数为空");
@@ -144,7 +148,7 @@ public class CasdoorUserServiceImpl implements UserService {
             // 调用Casdoor注册接口
             log.debug("调用Casdoor API注册用户，username: {}", username);
             CasdoorLoginResult signupResult = casdoorLoginExtendService.signup(casdoorSignupDto);
-
+            
             if (signupResult == null) {
                 log.error("用户注册失败：Casdoor API返回为空，username: {}", username);
                 return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "用户注册失败：API返回为空");
@@ -177,7 +181,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<GetDeptOrUserDto> searchDeptOrUser(String name, HttpServletRequest request) {
         try {
             log.debug("开始按名称模糊搜索员工或部门，name: {}", name);
-
+            
             // 参数校验
             if (name == null || name.trim().isEmpty()) {
                 log.warn("按名称模糊搜索员工或部门失败：搜索关键字为空");
@@ -236,7 +240,8 @@ public class CasdoorUserServiceImpl implements UserService {
             getDeptOrUserDto.setUserList(commonUserList);
             getDeptOrUserDto.setDeptList(commonOrgList);
 
-            log.debug("按名称模糊搜索员工或部门成功，用户数: {}, 部门数: {}, name: {}", commonUserList.size(), commonOrgList.size(), name);
+            log.debug("按名称模糊搜索员工或部门成功，用户数: {}, 部门数: {}, name: {}", 
+                    commonUserList.size(), commonOrgList.size(), name);
             return AppResponse.success(getDeptOrUserDto);
         } catch (Exception e) {
             log.error("按名称模糊搜索员工或部门异常，name: {}", name, e);
@@ -251,15 +256,10 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 编辑结果
      */
     @Override
-    public AppResponse<String> editUser(UpdateUapUserDto updateUapUserDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> editUser(UpdateUapUserDto updateUapUserDto, HttpServletRequest request) throws IOException {
         try {
-            log.debug(
-                    "开始编辑员工，userId: {}",
-                    updateUapUserDto.getUser() != null
-                            ? updateUapUserDto.getUser().getId()
-                            : "null");
-
+            log.debug("开始编辑员工，userId: {}", updateUapUserDto.getUser() != null ? updateUapUserDto.getUser().getId() : "null");
+            
             // 参数校验
             if (updateUapUserDto == null || updateUapUserDto.getUser() == null) {
                 log.warn("编辑员工失败：参数为空");
@@ -282,27 +282,23 @@ public class CasdoorUserServiceImpl implements UserService {
 
             // 核心信息转换到Casdoor User实体，注：拓展信息目前不支持转换
             User userToUpdate = convertUpdateUserDtoToCasdoorUser(updateUserDto, existingUser, request);
-
+            
             // 更新用户
             log.debug("调用Casdoor API更新用户，userId: {}", userToUpdate.id);
             CasdoorResponse<String, Object> updateUserResponse = userExtendService.updateUser(userToUpdate);
-
+            
             if (updateUserResponse == null) {
                 log.error("更新用户失败：Casdoor API返回为空，userId: {}", userToUpdate.id);
                 return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "更新用户失败：API返回为空");
             }
-
+            
             if (updateUserResponse.getStatus() != null && !"ok".equals(updateUserResponse.getStatus())) {
-                log.error(
-                        "更新用户失败：Casdoor API返回错误，userId: {}, status: {}, msg: {}",
-                        userToUpdate.id,
-                        updateUserResponse.getStatus(),
-                        updateUserResponse.getMsg());
-                return AppResponse.error(
-                        ErrorCodeEnum.E_API_EXCEPTION,
+                log.error("更新用户失败：Casdoor API返回错误，userId: {}, status: {}, msg: {}", 
+                        userToUpdate.id, updateUserResponse.getStatus(), updateUserResponse.getMsg());
+                return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, 
                         "更新用户失败: " + (updateUserResponse.getMsg() != null ? updateUserResponse.getMsg() : "未知错误"));
             }
-
+            
             log.debug("更新用户成功，userId: {}", userToUpdate.id);
             return AppResponse.success("更新用户成功");
         } catch (IOException e) {
@@ -313,35 +309,30 @@ public class CasdoorUserServiceImpl implements UserService {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "编辑员工异常: " + e.getMessage());
         }
     }
-
+    
     /**
      * 将UpdateUserDto转换为Casdoor User实体(更新用户服务使用)
      * 注：拓展信息目前不支持转换
-     *
+     * 
      * @param updateUserDto 更新用户DTO
      * @param existingUser 现有用户信息（用于保留未更新的字段）
      * @param request HTTP请求（用于从session获取租户ID）
      * @return Casdoor User实体
      */
-    private User convertUpdateUserDtoToCasdoorUser(
-            UpdateUserDto updateUserDto, User existingUser, HttpServletRequest request) {
+    private User convertUpdateUserDtoToCasdoorUser(UpdateUserDto updateUserDto, User existingUser, HttpServletRequest request) {
         User userToUpdate = new User();
-
+        
         // 基本字段映射
         userToUpdate.id = updateUserDto.getId();
-        userToUpdate.name = updateUserDto.getLoginName() != null
-                ? updateUserDto.getLoginName()
-                : (existingUser != null ? existingUser.name : "");
-        userToUpdate.displayName = updateUserDto.getName() != null
-                ? updateUserDto.getName()
-                : (existingUser != null ? existingUser.displayName : "");
-        userToUpdate.phone = updateUserDto.getPhone() != null
-                ? updateUserDto.getPhone()
-                : (existingUser != null ? existingUser.phone : "");
-        userToUpdate.email = updateUserDto.getEmail() != null
-                ? updateUserDto.getEmail()
-                : (existingUser != null ? existingUser.email : null);
-
+        userToUpdate.name = updateUserDto.getLoginName() != null ? updateUserDto.getLoginName() : 
+                (existingUser != null ? existingUser.name : "");
+        userToUpdate.displayName = updateUserDto.getName() != null ? updateUserDto.getName() : 
+                (existingUser != null ? existingUser.displayName : "");
+        userToUpdate.phone = updateUserDto.getPhone() != null ? updateUserDto.getPhone() : 
+                (existingUser != null ? existingUser.phone : "");
+        userToUpdate.email = updateUserDto.getEmail() != null ? updateUserDto.getEmail() : 
+                (existingUser != null ? existingUser.email : null);
+        
         // 用户类型转换：userType -> isAdmin, isGlobalAdmin
         // SUPER_ADMIN(1), SYSTEM_ADMIN(2), NORMAL_USER(-1), RESOURCE_POOL_USER(3), TENANT_SUPER_ADMIN(0)
         if (updateUserDto.getUserType() != null) {
@@ -354,14 +345,14 @@ public class CasdoorUserServiceImpl implements UserService {
             userToUpdate.isAdmin = existingUser.isAdmin;
             userToUpdate.isGlobalAdmin = existingUser.isGlobalAdmin;
         }
-
+        
         // 状态字段转换：status (0停用 -> isForbidden=true, 1启用 -> isForbidden=false)
         if (updateUserDto.getStatus() != null) {
             userToUpdate.isForbidden = (updateUserDto.getStatus() == 0);
         } else if (existingUser != null) {
             userToUpdate.isForbidden = existingUser.isForbidden;
         }
-
+        
         // owner字段保持现有值（owner是租户ID，对应Casdoor的Organization，不能从orgId获取）
         // 注意：orgId对应的是Casdoor的Group，不是Organization，所以不能将orgId赋值给owner
         if (existingUser != null && existingUser.owner != null) {
@@ -376,10 +367,9 @@ public class CasdoorUserServiceImpl implements UserService {
                 log.warn("更新用户时owner为空，且无法从当前登录用户获取租户ID，可能会导致更新失败");
             }
         }
-
+        
         // 地址字段转换：String -> String[]
-        if (updateUserDto.getAddress() != null
-                && !updateUserDto.getAddress().trim().isEmpty()) {
+        if (updateUserDto.getAddress() != null && !updateUserDto.getAddress().trim().isEmpty()) {
             String address = updateUserDto.getAddress().trim();
             if (address.contains(",")) {
                 userToUpdate.address = Arrays.stream(address.split(","))
@@ -387,37 +377,35 @@ public class CasdoorUserServiceImpl implements UserService {
                         .filter(s -> !s.isEmpty())
                         .toArray(String[]::new);
             } else {
-                userToUpdate.address = new String[] {address};
+                userToUpdate.address = new String[]{address};
             }
             userToUpdate.location = address;
         } else if (existingUser != null && existingUser.address != null) {
             userToUpdate.address = existingUser.address;
             userToUpdate.location = existingUser.location;
         }
-
+        
         // 备注字段映射到bio
-        if (updateUserDto.getRemark() != null
-                && !updateUserDto.getRemark().trim().isEmpty()) {
+        if (updateUserDto.getRemark() != null && !updateUserDto.getRemark().trim().isEmpty()) {
             userToUpdate.bio = updateUserDto.getRemark();
         } else if (existingUser != null && existingUser.bio != null) {
             userToUpdate.bio = existingUser.bio;
         }
-
+        
         // 身份证号映射
-        if (updateUserDto.getIdNumber() != null
-                && !updateUserDto.getIdNumber().trim().isEmpty()) {
+        if (updateUserDto.getIdNumber() != null && !updateUserDto.getIdNumber().trim().isEmpty()) {
             userToUpdate.idCard = updateUserDto.getIdNumber();
         } else if (existingUser != null && existingUser.idCard != null) {
             userToUpdate.idCard = existingUser.idCard;
         }
-
+        
         // 生日字段转换：Date -> String (yyyy-MM-dd)
         if (updateUserDto.getBirthday() != null) {
             userToUpdate.birthday = formatDate(updateUserDto.getBirthday());
         } else if (existingUser != null && existingUser.birthday != null) {
             userToUpdate.birthday = existingUser.birthday;
         }
-
+        
         // 保留现有用户的时间戳和其他字段
         if (existingUser != null) {
             userToUpdate.createdTime = existingUser.createdTime;
@@ -440,10 +428,10 @@ public class CasdoorUserServiceImpl implements UserService {
             userToUpdate.createdTime = formatDateTime(new Date());
             userToUpdate.updatedTime = formatDateTime(new Date());
         }
-
+        
         return userToUpdate;
     }
-
+    
     /**
      * 从当前登录用户获取租户ID（Casdoor中的 owner）
      *
@@ -453,7 +441,7 @@ public class CasdoorUserServiceImpl implements UserService {
     private String getCurrentTenantOwner(HttpServletRequest request) {
         return SessionUserUtils.getTenantOwnerFromSession(request);
     }
-
+    
     /**
      * 格式化Date对象为日期字符串 (yyyy-MM-dd)
      */
@@ -464,7 +452,7 @@ public class CasdoorUserServiceImpl implements UserService {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(date);
     }
-
+    
     /**
      * 格式化Date对象为日期时间字符串 (yyyy-MM-dd HH:mm:ss)
      */
@@ -483,11 +471,10 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 新增结果
      */
     @Override
-    public AppResponse<String> addUser(CreateUapUserDto createUapUserDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> addUser(CreateUapUserDto createUapUserDto, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始新增员工");
-
+            
             // 参数校验
             if (createUapUserDto == null || createUapUserDto.getUser() == null) {
                 log.warn("新增员工失败：参数为空");
@@ -495,10 +482,9 @@ public class CasdoorUserServiceImpl implements UserService {
             }
 
             CreateUserDto createUserDto = createUapUserDto.getUser();
-
+            
             // 登录名必填
-            if (createUserDto.getLoginName() == null
-                    || createUserDto.getLoginName().trim().isEmpty()) {
+            if (createUserDto.getLoginName() == null || createUserDto.getLoginName().trim().isEmpty()) {
                 log.warn("新增员工失败：登录名为空");
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "登录名不能为空");
             }
@@ -518,7 +504,7 @@ public class CasdoorUserServiceImpl implements UserService {
             // 获取当前租户ID（owner），注意：orgId对应的是Casdoor的Group，不是Organization（租户）
             // owner必须对应Casdoor的Organization name，不能使用orgId
             String owner = getCurrentTenantOwner(request);
-
+            
             if (owner == null || owner.trim().isEmpty()) {
                 log.warn("新增员工失败：租户ID为空，需要用户已登录才能获取当前租户ID");
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "租户ID不能为空，请确保用户已登录");
@@ -528,27 +514,23 @@ public class CasdoorUserServiceImpl implements UserService {
 
             // 核心信息转换到Casdoor User实体，注：拓展信息目前不支持转换
             User userToAdd = convertCreateUserDtoToCasdoorUser(createUserDto, owner);
-
+            
             // 添加用户
             log.debug("调用Casdoor API添加用户，loginName: {}", userToAdd.name);
             CasdoorResponse<String, Object> addUserResponse = userExtendService.addUser(userToAdd);
-
+            
             if (addUserResponse == null) {
                 log.error("添加用户失败：Casdoor API返回为空，loginName: {}", userToAdd.name);
                 return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "添加用户失败：API返回为空");
             }
-
+            
             if (addUserResponse.getStatus() != null && !"ok".equals(addUserResponse.getStatus())) {
-                log.error(
-                        "添加用户失败：Casdoor API返回错误，loginName: {}, status: {}, msg: {}",
-                        userToAdd.name,
-                        addUserResponse.getStatus(),
-                        addUserResponse.getMsg());
-                return AppResponse.error(
-                        ErrorCodeEnum.E_API_EXCEPTION,
+                log.error("添加用户失败：Casdoor API返回错误，loginName: {}, status: {}, msg: {}", 
+                        userToAdd.name, addUserResponse.getStatus(), addUserResponse.getMsg());
+                return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, 
                         "添加用户失败: " + (addUserResponse.getMsg() != null ? addUserResponse.getMsg() : "未知错误"));
             }
-
+            
             log.debug("添加用户成功，loginName: {}", userToAdd.name);
             return AppResponse.success("添加用户成功");
         } catch (IOException e) {
@@ -559,29 +541,27 @@ public class CasdoorUserServiceImpl implements UserService {
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "新增员工异常: " + e.getMessage());
         }
     }
-
+    
     /**
      * 将CreateUserDto转换为Casdoor User实体(新增用户服务使用)
      * 注：拓展信息目前不支持转换
-     *
+     * 
      * @param createUserDto 创建用户DTO
      * @param owner 租户ID（organization name）
      * @return Casdoor User实体
      */
     private User convertCreateUserDtoToCasdoorUser(CreateUserDto createUserDto, String owner) {
         User userToAdd = new User();
-
+        
         // 设置owner和name（name为登录名）
         userToAdd.owner = owner;
-        userToAdd.name = createUserDto.getLoginName() != null
-                ? createUserDto.getLoginName().trim()
-                : "";
-
+        userToAdd.name = createUserDto.getLoginName() != null ? createUserDto.getLoginName().trim() : "";
+        
         // 基本字段映射
         userToAdd.displayName = createUserDto.getName() != null ? createUserDto.getName() : "";
         userToAdd.phone = createUserDto.getPhone() != null ? createUserDto.getPhone() : "";
         userToAdd.email = createUserDto.getEmail();
-
+        
         // 用户类型转换：userType -> isAdmin, isGlobalAdmin
         // SUPER_ADMIN(1), SYSTEM_ADMIN(2), NORMAL_USER(-1), RESOURCE_POOL_USER(3), TENANT_SUPER_ADMIN(0)
         if (createUserDto.getUserType() != null) {
@@ -595,7 +575,7 @@ public class CasdoorUserServiceImpl implements UserService {
             userToAdd.isAdmin = false;
             userToAdd.isGlobalAdmin = false;
         }
-
+        
         // 状态字段转换：status (0停用 -> isForbidden=true, 1启用 -> isForbidden=false)
         if (createUserDto.getStatus() != null) {
             userToAdd.isForbidden = (createUserDto.getStatus() == 0);
@@ -603,10 +583,9 @@ public class CasdoorUserServiceImpl implements UserService {
             // 默认启用
             userToAdd.isForbidden = false;
         }
-
+        
         // 地址字段转换：String -> String[]
-        if (createUserDto.getAddress() != null
-                && !createUserDto.getAddress().trim().isEmpty()) {
+        if (createUserDto.getAddress() != null && !createUserDto.getAddress().trim().isEmpty()) {
             String address = createUserDto.getAddress().trim();
             if (address.contains(",")) {
                 userToAdd.address = Arrays.stream(address.split(","))
@@ -614,28 +593,26 @@ public class CasdoorUserServiceImpl implements UserService {
                         .filter(s -> !s.isEmpty())
                         .toArray(String[]::new);
             } else {
-                userToAdd.address = new String[] {address};
+                userToAdd.address = new String[]{address};
             }
             userToAdd.location = address;
         }
-
+        
         // 备注字段映射到bio
-        if (createUserDto.getRemark() != null
-                && !createUserDto.getRemark().trim().isEmpty()) {
+        if (createUserDto.getRemark() != null && !createUserDto.getRemark().trim().isEmpty()) {
             userToAdd.bio = createUserDto.getRemark();
         }
-
+        
         // 身份证号映射
-        if (createUserDto.getIdNumber() != null
-                && !createUserDto.getIdNumber().trim().isEmpty()) {
+        if (createUserDto.getIdNumber() != null && !createUserDto.getIdNumber().trim().isEmpty()) {
             userToAdd.idCard = createUserDto.getIdNumber();
         }
-
+        
         // 生日字段转换：Date -> String (yyyy-MM-dd)
         if (createUserDto.getBirthday() != null) {
             userToAdd.birthday = formatDate(createUserDto.getBirthday());
         }
-
+        
         // 设置默认值和新建时间
         userToAdd.type = "normal-user";
         userToAdd.password = ""; // 新建用户时密码为空，后续可能需要单独设置密码
@@ -644,7 +621,7 @@ public class CasdoorUserServiceImpl implements UserService {
         userToAdd.emailVerified = false;
         userToAdd.createdTime = formatDateTime(new Date());
         userToAdd.updatedTime = formatDateTime(new Date());
-
+        
         return userToAdd;
     }
 
@@ -655,39 +632,38 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 分页用户列表
      */
     @Override
-    public AppResponse<PageDto<DeptUserDto>> queryUserListByOrgId(ListUserDto listUserDto, HttpServletRequest request)
-            throws IOException {
-        // 查询参数queryMap，可选，默认按OrgId的机构（casdoor群组）过滤
+    public AppResponse<PageDto<DeptUserDto>> queryUserListByOrgId(ListUserDto listUserDto, HttpServletRequest request) throws IOException {
+        //查询参数queryMap，可选，默认按OrgId的机构（casdoor群组）过滤
         Map<String, String> queryMap = new HashMap<>();
         queryMap.put("groupName", listUserDto.getOrgId());
-        // listUserDto中只用到了页数信息
+        //listUserDto中只用到了页数信息
         int pageNum = listUserDto.getPageNum() == null ? 1 : listUserDto.getPageNum();
         int pageSize = listUserDto.getPageSize() == null ? 100 : listUserDto.getPageSize();
 
-        // 按页查询租户（casdoor的organization）下用户
+        //按页查询租户（casdoor的organization）下用户
         Map<String, Object> paginationUsers = userExtendService.getPaginationUsers(pageNum, pageSize, queryMap);
         List<User> userList = new ArrayList<>();
-        if (!Objects.isNull(paginationUsers)) {
-            // 收集deptUserDtoList
+        if (!Objects.isNull(paginationUsers)){
+            //收集deptUserDtoList
             userList = (List<User>) paginationUsers.getOrDefault("casdoorUsers", Collections.emptyList());
         }
 
         Long totalCount = ((Number) paginationUsers.getOrDefault("data2", 0)).longValue();
         List<DeptUserDto> deptUserDtoList = new ArrayList<>();
 
-        for (User user : userList) {
+        for (User user : userList){
             DeptUserDto deptUserDto = new DeptUserDto();
             com.iflytek.rpa.auth.core.entity.User commonUser = userMapper.toCommonUser(user);
             BeanUtils.copyProperties(commonUser, deptUserDto);
-            // 按名称查询用户信息，拿到角色信息
+            //按名称查询用户信息，拿到角色信息
             User userInfo = userExtendService.getUser(user.name);
-            if (!CollectionUtils.isEmpty(userInfo.roles)) {
-                if (userInfo.roles.size() > 1) {
+            if (!CollectionUtils.isEmpty(userInfo.roles)){
+                if (userInfo.roles.size() > 1){
                     return AppResponse.error(ErrorCodeEnum.E_SERVICE, "用户存在多个绑定角色");
                 }
                 org.casbin.casdoor.entity.Role role = userInfo.roles.get(0);
-                if (role != null) {
-                    // 注：casdoor中角色没有id只有name
+                if (role != null){
+                    //注：casdoor中角色没有id只有name
                     deptUserDto.setRoleId(role.name);
                     deptUserDto.setRoleName(role.name);
                 }
@@ -696,7 +672,7 @@ public class CasdoorUserServiceImpl implements UserService {
             deptUserDtoList.add(deptUserDto);
         }
 
-        // 组装结果
+        //组装结果
         PageDto<DeptUserDto> deptUserPage = new PageDto<>();
         deptUserPage.setResult(deptUserDtoList);
         deptUserPage.setPageSize(pageSize);
@@ -729,20 +705,19 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 员工列表
      */
     @Override
-    public AppResponse<List<CurrentDeptUserDto>> searchUserWithStatus(String keyWord, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<List<CurrentDeptUserDto>> searchUserWithStatus(String keyWord, HttpServletRequest request) throws IOException {
         // 获取当前租户ID（owner），可选
         String owner = getCurrentTenantOwner(request);
         List<User> users = casdoorUserDao.searchUserByNameOrPhone(keyWord, owner, databaseName);
         List<CurrentDeptUserDto> currentDeptUserDtoList = new ArrayList<>();
-        for (User user : users) {
+        for (User user : users){
             CurrentDeptUserDto currentDeptUserDto = new CurrentDeptUserDto();
             currentDeptUserDto.setId(user.id);
             currentDeptUserDto.setName(user.name + "(" + user.phone + ")");
             currentDeptUserDto.setType("user");
             User userInfo = userExtendService.getUser(user.name);
-            if (!CollectionUtils.isEmpty(userInfo.roles)) {
-                if (userInfo.roles.size() > 1) {
+            if (!CollectionUtils.isEmpty(userInfo.roles)){
+                if (userInfo.roles.size() > 1){
                     return AppResponse.error(ErrorCodeEnum.E_SERVICE, "用户存在多个绑定角色");
                 }
                 org.casbin.casdoor.entity.Role role = userInfo.roles.get(0);
@@ -760,34 +735,33 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 绑定结果
      */
     @Override
-    public AppResponse<String> bindUserListRole(BindUserListDto bindUserListDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> bindUserListRole(BindUserListDto bindUserListDto, HttpServletRequest request) throws IOException {
         if (StringUtils.isBlank(bindUserListDto.getRoleId()) || CollUtil.isEmpty(bindUserListDto.getUserIds())) {
             return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE);
         }
         List<String> userIds = bindUserListDto.getUserIds();
 
-        // 先查出来完整role信息，构造需要更新角色的用户id集合，用于调用更新接口
+        //先查出来完整role信息，构造需要更新角色的用户id集合，用于调用更新接口
         org.casbin.casdoor.entity.Role roleInfoToUpdate = roleService.getRole(bindUserListDto.getRoleId());
         Set<String> userSetOfTargetRole = new HashSet<>(Arrays.asList(roleInfoToUpdate.roles));
-        // 查出来默认角色信息，构造需要删除默认角色的用户id集合，用于调用更新接口清除用户的默认角色
+        //查出来默认角色信息，构造需要删除默认角色的用户id集合，用于调用更新接口清除用户的默认角色
         org.casbin.casdoor.entity.Role defaultRoleInfo = roleService.getRole("example-role");
         Set<String> userSetOfDefaultRole = new HashSet<>(Arrays.asList(defaultRoleInfo.roles));
 
-        // 遍历传入的用户id列表
-        for (String userId : userIds) {
-            // 根据id查询用户，获取用户绑定角色信息
+        //遍历传入的用户id列表
+        for(String userId : userIds){
+            //根据id查询用户，获取用户绑定角色信息
             User userById = userExtendService.getUserById(userId);
-            // 先查询用户是否有默认角色，如果有，先解绑默认角色
+            //先查询用户是否有默认角色，如果有，先解绑默认角色
             String userIdForApi = userById.owner + "/" + userById.name;
-            if (userSetOfDefaultRole.contains(userIdForApi)) {
+            if (userSetOfDefaultRole.contains(userIdForApi)){
                 userSetOfDefaultRole.remove(userIdForApi);
             }
-            // 添加到需要更新角色的用户id集合
+            //添加到需要更新角色的用户id集合
             userSetOfTargetRole.add(userIdForApi);
         }
 
-        // 更新目标角色和默认角色的user绑定信息
+        //更新目标角色和默认角色的user绑定信息
         roleInfoToUpdate.roles = userSetOfTargetRole.toArray(new String[0]);
         CasdoorResponse<String, Object> updateRoleTargetResponse = roleService.updateRole(roleInfoToUpdate);
         defaultRoleInfo.roles = userSetOfDefaultRole.toArray(new String[0]);
@@ -805,15 +779,15 @@ public class CasdoorUserServiceImpl implements UserService {
     @Override
     public AppResponse<String> unbindRole(BindRoleDto bindRoleDto, HttpServletRequest request) throws IOException {
         List<String> roleIdList = bindRoleDto.getRoleIdList();
-        // 根据id查询出用户的详细信息，用于合成casdoor可识别的id（owner/name）
+        //根据id查询出用户的详细信息，用于合成casdoor可识别的id（owner/name）
         User targetUser = userExtendService.getUser(bindRoleDto.getUserId());
         String idForApi = targetUser.owner + "/" + targetUser.name;
-        // 查询每个角色的角色详细信息，获取原始users，从中丢掉目标用户，再次更新角色信息。（casdoor的角色解绑是以角色为主体的）
-        for (String roleId : roleIdList) {
+        //查询每个角色的角色详细信息，获取原始users，从中丢掉目标用户，再次更新角色信息。（casdoor的角色解绑是以角色为主体的）
+        for(String roleId : roleIdList){
             org.casbin.casdoor.entity.Role role = roleService.getRole(roleId);
             List<String> usersToUpdate = new ArrayList<>();
-            for (String userId : role.users) {
-                if (!StringUtils.equals(userId, idForApi)) {
+            for (String userId : role.users){
+                if (!StringUtils.equals(userId, idForApi)){
                     usersToUpdate.add(userId);
                 }
             }
@@ -830,8 +804,7 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 分页用户列表
      */
     @Override
-    public AppResponse<PageDto<com.iflytek.rpa.auth.core.entity.User>> queryBindListByRole(
-            ListUserByRoleDto listUserByRoleDto, HttpServletRequest request) throws IOException {
+    public AppResponse<PageDto<com.iflytek.rpa.auth.core.entity.User>> queryBindListByRole(ListUserByRoleDto listUserByRoleDto, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始分页获取角色绑定的用户列表，roleId: {}", listUserByRoleDto != null ? listUserByRoleDto.getRoleId() : "null");
 
@@ -909,10 +882,10 @@ public class CasdoorUserServiceImpl implements UserService {
             if (StringUtils.isNotBlank(keyWord)) {
                 String kw = keyWord.trim();
                 userList = userList.stream()
-                        .filter(u -> u != null
-                                && ((u.getLoginName() != null
-                                                && u.getLoginName().contains(kw))
-                                        || (u.getName() != null && u.getName().contains(kw))))
+                        .filter(u -> u != null && (
+                                (u.getLoginName() != null && u.getLoginName().contains(kw)) ||
+                                (u.getName() != null && u.getName().contains(kw))
+                        ))
                         .collect(Collectors.toList());
 
                 log.debug("关键字过滤后用户数量: {}，keyword: {}", userList.size(), kw);
@@ -936,26 +909,17 @@ public class CasdoorUserServiceImpl implements UserService {
             pageDto.setPageSize(pageSize);
             pageDto.setTotalCount((long) total);
 
-            log.debug(
-                    "分页获取角色绑定的用户列表成功，roleId: {}，总数: {}，当前页: {}，每页: {}，当前页数量: {}",
-                    roleId,
-                    total,
-                    pageNum,
-                    pageSize,
-                    pageResult.size());
+            log.debug("分页获取角色绑定的用户列表成功，roleId: {}，总数: {}，当前页: {}，每页: {}，当前页数量: {}",
+                    roleId, total, pageNum, pageSize, pageResult.size());
 
             return AppResponse.success(pageDto);
         } catch (IOException e) {
-            log.error(
-                    "分页获取角色绑定的用户列表失败（IO异常），roleId: {}",
-                    listUserByRoleDto != null ? listUserByRoleDto.getRoleId() : "null",
-                    e);
+            log.error("分页获取角色绑定的用户列表失败（IO异常），roleId: {}", 
+                    listUserByRoleDto != null ? listUserByRoleDto.getRoleId() : "null", e);
             return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "分页获取角色绑定的用户列表失败: " + e.getMessage());
         } catch (Exception e) {
-            log.error(
-                    "分页获取角色绑定的用户列表异常，roleId: {}",
-                    listUserByRoleDto != null ? listUserByRoleDto.getRoleId() : "null",
-                    e);
+            log.error("分页获取角色绑定的用户列表异常，roleId: {}", 
+                    listUserByRoleDto != null ? listUserByRoleDto.getRoleId() : "null", e);
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "分页获取角色绑定的用户列表异常: " + e.getMessage());
         }
     }
@@ -1178,8 +1142,7 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户信息
      */
     @Override
-    public AppResponse<com.iflytek.rpa.auth.core.entity.User> getUserInfoByPhone(
-            String phone, HttpServletRequest request) {
+    public AppResponse<com.iflytek.rpa.auth.core.entity.User> getUserInfoByPhone(String phone, HttpServletRequest request) {
         try {
             if (Objects.isNull(userExtendService) || Objects.isNull(phone)) {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "参数错误");
@@ -1206,16 +1169,14 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户信息列表
      */
     @Override
-    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> queryUserListByIds(
-            List<String> userIdList, HttpServletRequest request) {
+    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> queryUserListByIds(List<String> userIdList, HttpServletRequest request) {
         try {
             if (Objects.isNull(userService) || userIdList == null || userIdList.isEmpty()) {
                 return AppResponse.success(Collections.emptyList());
             }
 
             // 限制最多100个ID，去重后组织成Set
-            Set<String> limitedUserIds =
-                    userIdList.stream().distinct().limit(100).collect(Collectors.toSet());
+            Set<String> limitedUserIds = userIdList.stream().distinct().limit(100).collect(Collectors.toSet());
 
             List<User> allCasdoorUsers = userService.getUsers();
             List<User> filteredCasdoorUsers = allCasdoorUsers.stream()
@@ -1223,8 +1184,9 @@ public class CasdoorUserServiceImpl implements UserService {
                     .collect(Collectors.toList());
 
             // 使用mapper转换为通用User列表
-            List<com.iflytek.rpa.auth.core.entity.User> commonUsers =
-                    filteredCasdoorUsers.stream().map(userMapper::toCommonUser).collect(Collectors.toList());
+            List<com.iflytek.rpa.auth.core.entity.User> commonUsers = filteredCasdoorUsers.stream()
+                    .map(userMapper::toCommonUser)
+                    .collect(Collectors.toList());
 
             return AppResponse.success(commonUsers);
         } catch (IOException e) {
@@ -1241,11 +1203,10 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户信息列表
      */
     @Override
-    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> searchUserByName(
-            String keyword, String deptId, HttpServletRequest request) {
+    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> searchUserByName(String keyword, String deptId, HttpServletRequest request) {
         try {
             log.debug("开始根据姓名模糊查询人员，keyword: {}", keyword);
-
+            
             // 参数校验
             if (keyword == null || keyword.trim().isEmpty()) {
                 log.warn("根据姓名模糊查询人员失败：关键字为空");
@@ -1293,11 +1254,10 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户信息列表
      */
     @Override
-    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> searchUserByPhone(
-            String keyword, String deptId, HttpServletRequest request) {
+    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> searchUserByPhone(String keyword, String deptId, HttpServletRequest request) {
         try {
             log.debug("开始根据手机号模糊查询人员，keyword: {}", keyword);
-
+            
             // 参数校验
             if (keyword == null || keyword.trim().isEmpty()) {
                 log.warn("根据手机号模糊查询人员失败：关键字为空");
@@ -1346,11 +1306,10 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户信息列表
      */
     @Override
-    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> searchUserByNameOrPhone(
-            String keyword, String deptId, HttpServletRequest request) {
+    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> searchUserByNameOrPhone(String keyword, String deptId, HttpServletRequest request) {
         try {
             log.debug("开始根据姓名或手机号模糊查询人员，keyword: {}", keyword);
-
+            
             // 参数校验
             if (keyword == null || keyword.trim().isEmpty()) {
                 log.warn("根据姓名或手机号模糊查询人员失败：关键字为空");
@@ -1429,7 +1388,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<String> deleteUser(UserDeleteDto userDeleteDto, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始删除员工");
-
+            
             // 参数校验
             if (userDeleteDto == null || CollectionUtil.isEmpty(userDeleteDto.getUserIdList())) {
                 log.warn("删除员工失败：参数为空或用户ID列表为空");
@@ -1485,11 +1444,8 @@ public class CasdoorUserServiceImpl implements UserService {
                     }
 
                     if (deleteUserResponse.getStatus() != null && !"ok".equals(deleteUserResponse.getStatus())) {
-                        log.error(
-                                "删除用户失败：Casdoor API返回错误，userId: {}, status: {}, msg: {}",
-                                userId,
-                                deleteUserResponse.getStatus(),
-                                deleteUserResponse.getMsg());
+                        log.error("删除用户失败：Casdoor API返回错误，userId: {}, status: {}, msg: {}", 
+                                userId, deleteUserResponse.getStatus(), deleteUserResponse.getMsg());
                         failCount++;
                         failUserIds.add(userId);
                         continue;
@@ -1510,15 +1466,12 @@ public class CasdoorUserServiceImpl implements UserService {
                 return AppResponse.success("成功删除 " + successCount + " 个用户");
             } else if (successCount == 0) {
                 log.warn("删除员工失败，所有用户删除失败，共 {} 个", failCount);
-                return AppResponse.error(
-                        ErrorCodeEnum.E_SERVICE,
+                return AppResponse.error(ErrorCodeEnum.E_SERVICE, 
                         "删除失败，共 " + failCount + " 个用户删除失败，失败用户ID: " + String.join(", ", failUserIds));
             } else {
                 log.warn("删除员工部分成功，成功: {}, 失败: {}", successCount, failCount);
-                return AppResponse.error(
-                        ErrorCodeEnum.E_SERVICE,
-                        "部分删除成功，成功: " + successCount + " 个，失败: " + failCount + " 个，失败用户ID: "
-                                + String.join(", ", failUserIds));
+                return AppResponse.error(ErrorCodeEnum.E_SERVICE, 
+                        "部分删除成功，成功: " + successCount + " 个，失败: " + failCount + " 个，失败用户ID: " + String.join(", ", failUserIds));
             }
         } catch (Exception e) {
             log.error("删除员工异常", e);
@@ -1536,14 +1489,14 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<String> enableUser(UserEnableDto userEnableDto, HttpServletRequest request) {
         try {
             log.debug("开始启用/禁用员工");
-
+            
             // 参数校验
             Integer status = userEnableDto.getStatus();
             if (CollectionUtil.isEmpty(userEnableDto.getUserList()) || status == null) {
                 log.warn("启用/禁用员工失败：参数为空");
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "用户列表或状态不能为空");
             }
-
+            
             if (!status.equals(0) && !status.equals(1)) {
                 log.warn("启用/禁用员工失败：状态值无效，status: {}", status);
                 return AppResponse.error(ErrorCodeEnum.E_PARAM, "状态值无效，只能为0（停用）或1（启用）");
@@ -1559,9 +1512,7 @@ public class CasdoorUserServiceImpl implements UserService {
             // 循环处理每个用户
             for (UpdateUserDto updateUserDto : userEnableDto.getUserList()) {
                 try {
-                    if (updateUserDto == null
-                            || updateUserDto.getId() == null
-                            || updateUserDto.getId().trim().isEmpty()) {
+                    if (updateUserDto == null || updateUserDto.getId() == null || updateUserDto.getId().trim().isEmpty()) {
                         log.warn("跳过无效的用户信息");
                         failCount++;
                         continue;
@@ -1591,7 +1542,7 @@ public class CasdoorUserServiceImpl implements UserService {
                     // 更新用户，按照status的值来修改用户的启用状态字段（isForbidden）
                     // status: 0停用 -> isForbidden=true, 1启用 -> isForbidden=false
                     boolean isForbidden = (status == 0);
-
+                    
                     // 如果状态已经相同，跳过
                     if (existingUser.isForbidden == isForbidden) {
                         log.debug("用户状态已经是目标状态，跳过，userId: {}, isForbidden: {}", userId, isForbidden);
@@ -1639,12 +1590,8 @@ public class CasdoorUserServiceImpl implements UserService {
                     }
 
                     if (updateUserResponse.getStatus() != null && !"ok".equals(updateUserResponse.getStatus())) {
-                        log.error(
-                                "{}用户失败：Casdoor API返回错误，userId: {}, status: {}, msg: {}",
-                                statusText,
-                                userId,
-                                updateUserResponse.getStatus(),
-                                updateUserResponse.getMsg());
+                        log.error("{}用户失败：Casdoor API返回错误，userId: {}, status: {}, msg: {}", 
+                                statusText, userId, updateUserResponse.getStatus(), updateUserResponse.getMsg());
                         failCount++;
                         failUserIds.add(userId);
                         continue;
@@ -1653,8 +1600,7 @@ public class CasdoorUserServiceImpl implements UserService {
                     log.debug("{}用户成功，userId: {}", statusText, userId);
                     successCount++;
                 } catch (Exception e) {
-                    log.error(
-                            "{}用户异常，userId: {}", statusText, updateUserDto != null ? updateUserDto.getId() : "null", e);
+                    log.error("{}用户异常，userId: {}", statusText, updateUserDto != null ? updateUserDto.getId() : "null", e);
                     failCount++;
                     failUserIds.add(updateUserDto != null ? updateUserDto.getId() : "unknown");
                 }
@@ -1666,16 +1612,12 @@ public class CasdoorUserServiceImpl implements UserService {
                 return AppResponse.success("成功" + statusText + " " + successCount + " 个用户");
             } else if (successCount == 0) {
                 log.warn("{}员工失败，所有用户{}失败，共 {} 个", statusText, statusText, failCount);
-                return AppResponse.error(
-                        ErrorCodeEnum.E_SERVICE,
-                        statusText + "失败，共 " + failCount + " 个用户" + statusText + "失败，失败用户ID: "
-                                + String.join(", ", failUserIds));
+                return AppResponse.error(ErrorCodeEnum.E_SERVICE, 
+                        statusText + "失败，共 " + failCount + " 个用户" + statusText + "失败，失败用户ID: " + String.join(", ", failUserIds));
             } else {
                 log.warn("{}员工部分成功，成功: {}, 失败: {}", statusText, successCount, failCount);
-                return AppResponse.error(
-                        ErrorCodeEnum.E_SERVICE,
-                        "部分" + statusText + "成功，成功: " + successCount + " 个，失败: " + failCount + " 个，失败用户ID: "
-                                + String.join(", ", failUserIds));
+                return AppResponse.error(ErrorCodeEnum.E_SERVICE, 
+                        "部分" + statusText + "成功，成功: " + successCount + " 个，失败: " + failCount + " 个，失败用户ID: " + String.join(", ", failUserIds));
             }
         } catch (Exception e) {
             log.error("启用/禁用员工异常", e);
@@ -1690,8 +1632,7 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户列表
      */
     @Override
-    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> queryUserDetailListByOrgId(
-            String orgId, HttpServletRequest request) throws IOException {
+    public AppResponse<List<com.iflytek.rpa.auth.core.entity.User>> queryUserDetailListByOrgId(String orgId, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始查询当前机构的全部用户，orgId: {}", orgId);
 
@@ -1781,8 +1722,7 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户搜索结果列表
      */
     @Override
-    public AppResponse<List<UserSearchDto>> getUserByNameOrPhone(
-            String keyword, String deptId, HttpServletRequest request) {
+    public AppResponse<List<UserSearchDto>> getUserByNameOrPhone(String keyword, String deptId, HttpServletRequest request) {
         try {
             log.debug("开始根据姓名或手机号查询用户，keyword: {}", keyword);
 
@@ -1832,34 +1772,32 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户扩展信息
      */
     @Override
-    public AppResponse<UserExtendDto> queryUserExtendInfo(
-            String tenantId, GetUserDto getUserDto, HttpServletRequest request) throws IOException {
+    public AppResponse<UserExtendDto> queryUserExtendInfo(String tenantId, GetUserDto getUserDto, HttpServletRequest request) throws IOException {
         UserExtendDto userExtendDto = new UserExtendDto();
         User userById = null;
         User userByName = null;
 
-        // 按id查
-        if (Objects.nonNull(getUserDto.getUserId())) {
+        //按id查
+        if (Objects.nonNull(getUserDto.getUserId())){
             userById = userExtendService.getUserById(getUserDto.getUserId());
         }
 
-        // 按name查
-        if (Objects.nonNull(getUserDto.getLoginName())) {
+        //按name查
+        if (Objects.nonNull(getUserDto.getLoginName())){
             userByName = userExtendService.getUser(getUserDto.getLoginName());
         }
 
-        // 查不到结果返回空
-        if (userById == null && userByName == null) {
+        //查不到结果返回空
+        if (userById == null && userByName == null){
             return AppResponse.success(userExtendDto);
         }
-        // 如果id和name查出的结果不是对应的，返回空
-        if (userById != null && userByName != null && !StringUtils.equals(userById.id, userByName.id)) {
+        //如果id和name查出的结果不是对应的，返回空
+        if (userById != null && userByName != null && !StringUtils.equals(userById.id, userByName.id)){
             return AppResponse.success(userExtendDto);
         }
 
-        // 转为通用user
-        com.iflytek.rpa.auth.core.entity.User commonUser =
-                userMapper.toCommonUser(userById == null ? userByName : userById);
+        //转为通用user
+        com.iflytek.rpa.auth.core.entity.User commonUser = userMapper.toCommonUser(userById == null ? userByName : userById);
 
         userExtendDto.setUser(commonUser);
 
@@ -1912,8 +1850,7 @@ public class CasdoorUserServiceImpl implements UserService {
     }
 
     @Override
-    public AppResponse<PageDto<RobotExecute>> getDeployedUserList(
-            GetDeployedUserListDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<RobotExecute>> getDeployedUserList(GetDeployedUserListDto dto, HttpServletRequest request) {
         return AppResponse.success(new PageDto<>());
     }
 
@@ -1932,7 +1869,7 @@ public class CasdoorUserServiceImpl implements UserService {
                 dto.setPageSize(10);
             }
             Page<MarketDto> page = new Page<>(dto.getPageNo(), dto.getPageSize(), true);
-            // 获取市场下的用户列表
+            //获取市场下的用户列表
             IPage<MarketDto> result = casdoorUserDao.getMarketUserList(page, dto, databaseName);
 
             PageDto<MarketDto> pageDto = new PageDto<>();
@@ -1949,8 +1886,7 @@ public class CasdoorUserServiceImpl implements UserService {
     }
 
     @Override
-    public AppResponse<PageDto<MarketDto>> getMarketUserListByPublic(
-            GetMarketUserListByPublicDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<MarketDto>> getMarketUserListByPublic(GetMarketUserListByPublicDto dto, HttpServletRequest request) {
         return AppResponse.success(new PageDto<>());
     }
 
@@ -1960,14 +1896,12 @@ public class CasdoorUserServiceImpl implements UserService {
     }
 
     @Override
-    public AppResponse<List<MarketDto>> getMarketUserByPhoneForOwner(
-            GetMarketUserByPhoneForOwnerDto dto, HttpServletRequest request) {
+    public AppResponse<List<MarketDto>> getMarketUserByPhoneForOwner(GetMarketUserByPhoneForOwnerDto dto, HttpServletRequest request) {
         return AppResponse.success(new ArrayList<>());
     }
 
     @Override
-    public AppResponse<List<TenantUser>> getMarketTenantUserList(
-            GetMarketTenantUserListDto dto, HttpServletRequest request) {
+    public AppResponse<List<TenantUser>> getMarketTenantUserList(GetMarketTenantUserListDto dto, HttpServletRequest request) {
         return null;
     }
 
@@ -1975,7 +1909,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<String> logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             log.debug("开始登出");
-
+            
             // 从请求中获取casdoor的session id
             String casdoorSessionId = casdoorLoginExtendService.extractCasdoorSessionIdFromRequest(request);
             if (casdoorSessionId == null || casdoorSessionId.isEmpty()) {
@@ -1983,30 +1917,29 @@ public class CasdoorUserServiceImpl implements UserService {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "Session ID不能为空");
             }
 
-            //            // 获取当前用户的access token
-            //            String accessToken = null;
-            //            try {
-            //                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            //                if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails)
-            // {
-            //                    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            //                    User currentUser = userDetails.getUser();
-            //                    if (currentUser != null && currentUser.name != null && !currentUser.name.isEmpty()) {
-            //                        accessToken = TokenManager.getAccessToken(currentUser.name);
-            //                        log.debug("获取到当前用户的access token，username: {}", currentUser.name);
-            //
-            //                        // 登出时清除Redis中的token
-            //                        TokenManager.clearTokens(currentUser.name);
-            //                    }
-            //                }
-            //            } catch (Exception e) {
-            //                log.warn("获取当前用户access token失败", e);
-            //            }
-            //
-            //            if (accessToken == null || accessToken.isEmpty()) {
-            //                log.warn("获取当前用户access token为空，可能token已过期或不存在");
-            //                return AppResponse.error(ErrorCodeEnum.E_SERVICE, "获取用户access token失败，请重新登录");
-            //            }
+//            // 获取当前用户的access token
+//            String accessToken = null;
+//            try {
+//                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//                if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
+//                    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+//                    User currentUser = userDetails.getUser();
+//                    if (currentUser != null && currentUser.name != null && !currentUser.name.isEmpty()) {
+//                        accessToken = TokenManager.getAccessToken(currentUser.name);
+//                        log.debug("获取到当前用户的access token，username: {}", currentUser.name);
+//
+//                        // 登出时清除Redis中的token
+//                        TokenManager.clearTokens(currentUser.name);
+//                    }
+//                }
+//            } catch (Exception e) {
+//                log.warn("获取当前用户access token失败", e);
+//            }
+//
+//            if (accessToken == null || accessToken.isEmpty()) {
+//                log.warn("获取当前用户access token为空，可能token已过期或不存在");
+//                return AppResponse.error(ErrorCodeEnum.E_SERVICE, "获取用户access token失败，请重新登录");
+//            }
 
             // 用session调用logout
             log.debug("调用Casdoor登出接口，sessionId: {}", casdoorSessionId);
@@ -2032,7 +1965,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<String> getRedirectUrl(HttpServletRequest request) {
         try {
             log.debug("开始获取Casdoor登录重定向URL");
-
+            
             if (StringUtils.isBlank(redirectUrl)) {
                 log.warn("获取登录重定向URL失败：redirectUrl配置为空");
                 return AppResponse.error(ErrorCodeEnum.E_SERVICE, "redirectUrl配置为空");
@@ -2040,11 +1973,12 @@ public class CasdoorUserServiceImpl implements UserService {
 
             // 调用Casdoor扩展服务获取登录URL
             String signinUrl = casdoorAuthExtendService.getCustomSigninUrl(redirectUrl);
-
+            
             // 使用外部endpoint返回给前端，确保前端能访问到正确的地址
-            String fullUrl =
-                    externalEndPoint != null && !externalEndPoint.isEmpty() ? externalEndPoint + signinUrl : signinUrl;
-
+            String fullUrl = externalEndPoint != null && !externalEndPoint.isEmpty() 
+                    ? externalEndPoint + signinUrl 
+                    : signinUrl;
+            
             log.debug("获取Casdoor登录重定向URL成功: {}", fullUrl);
             return AppResponse.success(fullUrl);
         } catch (org.casbin.casdoor.exception.AuthException e) {
@@ -2064,58 +1998,54 @@ public class CasdoorUserServiceImpl implements UserService {
      * @return 用户信息
      */
     @Override
-    public AppResponse<com.iflytek.rpa.auth.core.entity.User> signIn(
-            String code, String state, HttpServletRequest request) throws IOException {
-        //        try {
-        //            log.debug("开始Casdoor OAuth登录，code: {}, state: {}", code, state);
-        //
-        //            // 参数校验
-        //            if (StringUtils.isBlank(code)) {
-        //                log.warn("OAuth登录失败：授权码为空");
-        //                return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "授权码不能为空");
-        //            }
-        //
-        //            OAuthJSONAccessTokenResponse oAuthTokenResponse =
-        // casdoorAuthExtendService.getOAuthTokenResponse(code, state);
-        //            String accessToken = oAuthTokenResponse.getAccessToken();
-        //            String refreshToken = oAuthTokenResponse.getRefreshToken();
-        //            String idToken = accessToken;
-        //            // 动态获取系统内置证书，在initDataNewOnly为true时，证书会被篡改
-        //            ApplicationExtend applicationWithKey =
-        // applicationExtendService.getApplicationWithKey("app-built-in");
-        //            // 使用idToken解析用户信息（这是OIDC的核心：从id_token获取用户身份）
-        //            User user = authExtendService.parseJwtTokenWithCertificate(idToken,
-        // applicationWithKey.certPublicKey);
-        //
-        //            // 1. 将用户信息存储到session中（Spring Session自动管理Redis存储）
-        //            HttpSession session = request.getSession();
-        //            session.setAttribute("user", user);
-        //
-        //            // 2. 设置Spring Security认证上下文
-        //            CustomUserDetails userDetails = new CustomUserDetails(user);
-        //            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-        //                    userDetails, null, AuthorityUtils.createAuthorityList("ROLE_USER"));
-        //            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        //            SecurityContextHolder.getContext().setAuthentication(authentication);
-        //
-        //            // 3. accessToken和refreshToken存储到Redis，供服务端调用Casdoor API使用
-        //            long tokenExpireTime = 24 * 60 * 60; // 24小时过期时间（秒）
-        //            TokenManager.storeTokens(user.name, accessToken, refreshToken, tokenExpireTime);
-        //
-        //            log.info("用户 {} 登录成功，session和认证上下文已设置，服务端token已存储", user.name);
-        //
-        //            // 6. 转换为通用User对象
-        //            com.iflytek.rpa.auth.core.entity.User commonUser = userMapper.toCommonUser(user);
-        //
-        //            log.info("用户 {} OAuth登录成功，session和认证上下文已设置，服务端token已存储", user.name);
-        //            return AppResponse.success(commonUser);
-        //        } catch (org.casbin.casdoor.exception.AuthException e) {
-        //            log.error("Casdoor认证异常", e);
-        //            return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "OAuth登录失败: " + e.getMessage());
-        //        } catch (Exception e) {
-        //            log.error("OAuth登录异常", e);
-        //            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "OAuth登录异常: " + e.getMessage());
-        //        }
+    public AppResponse<com.iflytek.rpa.auth.core.entity.User> signIn(String code, String state, HttpServletRequest request) throws IOException {
+//        try {
+//            log.debug("开始Casdoor OAuth登录，code: {}, state: {}", code, state);
+//
+//            // 参数校验
+//            if (StringUtils.isBlank(code)) {
+//                log.warn("OAuth登录失败：授权码为空");
+//                return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "授权码不能为空");
+//            }
+//
+//            OAuthJSONAccessTokenResponse oAuthTokenResponse = casdoorAuthExtendService.getOAuthTokenResponse(code, state);
+//            String accessToken = oAuthTokenResponse.getAccessToken();
+//            String refreshToken = oAuthTokenResponse.getRefreshToken();
+//            String idToken = accessToken;
+//            // 动态获取系统内置证书，在initDataNewOnly为true时，证书会被篡改
+//            ApplicationExtend applicationWithKey = applicationExtendService.getApplicationWithKey("app-built-in");
+//            // 使用idToken解析用户信息（这是OIDC的核心：从id_token获取用户身份）
+//            User user = authExtendService.parseJwtTokenWithCertificate(idToken, applicationWithKey.certPublicKey);
+//
+//            // 1. 将用户信息存储到session中（Spring Session自动管理Redis存储）
+//            HttpSession session = request.getSession();
+//            session.setAttribute("user", user);
+//
+//            // 2. 设置Spring Security认证上下文
+//            CustomUserDetails userDetails = new CustomUserDetails(user);
+//            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+//                    userDetails, null, AuthorityUtils.createAuthorityList("ROLE_USER"));
+//            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//            // 3. accessToken和refreshToken存储到Redis，供服务端调用Casdoor API使用
+//            long tokenExpireTime = 24 * 60 * 60; // 24小时过期时间（秒）
+//            TokenManager.storeTokens(user.name, accessToken, refreshToken, tokenExpireTime);
+//
+//            log.info("用户 {} 登录成功，session和认证上下文已设置，服务端token已存储", user.name);
+//
+//            // 6. 转换为通用User对象
+//            com.iflytek.rpa.auth.core.entity.User commonUser = userMapper.toCommonUser(user);
+//
+//            log.info("用户 {} OAuth登录成功，session和认证上下文已设置，服务端token已存储", user.name);
+//            return AppResponse.success(commonUser);
+//        } catch (org.casbin.casdoor.exception.AuthException e) {
+//            log.error("Casdoor认证异常", e);
+//            return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "OAuth登录失败: " + e.getMessage());
+//        } catch (Exception e) {
+//            log.error("OAuth登录异常", e);
+//            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "OAuth登录异常: " + e.getMessage());
+//        }
         return null;
     }
 
@@ -2128,7 +2058,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<com.iflytek.rpa.auth.core.entity.User> checkLoginStatus(HttpServletRequest request) {
         try {
             log.debug("开始检查用户登录状态");
-
+            
             // 1. 检查session是否存在
             javax.servlet.http.HttpSession session = request.getSession(false);
             if (session == null) {
@@ -2170,7 +2100,7 @@ public class CasdoorUserServiceImpl implements UserService {
     public AppResponse<String> refreshToken(HttpServletRequest request) {
         try {
             log.debug("开始刷新服务端token");
-
+            
             // 1. 从session中获取用户信息
             javax.servlet.http.HttpSession session = request.getSession(false);
             if (session == null) {
@@ -2192,9 +2122,9 @@ public class CasdoorUserServiceImpl implements UserService {
             }
 
             // 3. 使用refreshToken获取新的token
-            org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse newTokenResponse =
+            org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse newTokenResponse = 
                     casdoorAuthExtendService.refreshToken(refreshToken, "read");
-
+            
             if (newTokenResponse == null) {
                 log.error("刷新token失败：获取新token响应为空");
                 return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION, "刷新token失败：响应为空");
@@ -2210,11 +2140,8 @@ public class CasdoorUserServiceImpl implements UserService {
 
             // 4. 更新Redis中的token
             long tokenExpireTime = 24 * 60 * 60; // 24小时过期时间（秒）
-            TokenManager.storeTokens(
-                    casdoorUser.name,
-                    newAccessToken,
-                    newRefreshToken != null ? newRefreshToken : refreshToken,
-                    tokenExpireTime);
+            TokenManager.storeTokens(casdoorUser.name, newAccessToken, 
+                    newRefreshToken != null ? newRefreshToken : refreshToken, tokenExpireTime);
 
             log.info("用户 {} 的服务端token已刷新", casdoorUser.name);
             return AppResponse.success("Token刷新成功");
@@ -2228,8 +2155,7 @@ public class CasdoorUserServiceImpl implements UserService {
     }
 
     @Override
-    public AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(
-            GetDeployedUserListDto dto, HttpServletRequest request) {
+    public AppResponse<PageDto<RobotExecute>> getDeployedUserListWithoutTenantId(GetDeployedUserListDto dto, HttpServletRequest request) {
         return AppResponse.success(new PageDto<RobotExecute>());
     }
 }

@@ -4,12 +4,13 @@ import com.iflytek.rpa.auth.core.entity.RoleAuthResourceDto;
 import com.iflytek.rpa.auth.core.entity.TreeNode;
 import com.iflytek.rpa.auth.core.service.AuthService;
 import com.iflytek.rpa.auth.utils.AppResponse;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @desc: TODO

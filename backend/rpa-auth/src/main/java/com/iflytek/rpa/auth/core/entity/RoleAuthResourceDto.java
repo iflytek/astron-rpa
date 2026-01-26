@@ -9,8 +9,9 @@ import lombok.Data;
  */
 @Data
 public class RoleAuthResourceDto {
-
+    
     private String roleId;
 
     private TreeNode treeNode;
+    
 }

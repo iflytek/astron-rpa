@@ -1,9 +1,10 @@
 package com.iflytek.rpa.auth.idp.iflytekIdentity.dto;
 
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 /**
  * 同步用户信息 - 用户详细信息
@@ -19,3 +20,4 @@ public class IflytekSyncUserInfoUserInfo {
     private String address;
     private Map<String, Object> extras;
 }
+

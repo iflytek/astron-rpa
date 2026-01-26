@@ -19,8 +19,7 @@ public class ListUserByRoleDtoMapper {
      * @param listUserByRoleDto core 的 ListUserByRoleDto
      * @return UAP 客户端的 ListUserByRoleDto
      */
-    public com.iflytek.sec.uap.client.core.dto.user.ListUserByRoleDto toUapListUserByRoleDto(
-            ListUserByRoleDto listUserByRoleDto) {
+    public com.iflytek.sec.uap.client.core.dto.user.ListUserByRoleDto toUapListUserByRoleDto(ListUserByRoleDto listUserByRoleDto) {
         if (listUserByRoleDto == null) {
             return null;
         }
@@ -39,8 +38,7 @@ public class ListUserByRoleDtoMapper {
      * @param uapListUserByRoleDto UAP 客户端的 ListUserByRoleDto
      * @return core 的 ListUserByRoleDto
      */
-    public ListUserByRoleDto fromUapListUserByRoleDto(
-            com.iflytek.sec.uap.client.core.dto.user.ListUserByRoleDto uapListUserByRoleDto) {
+    public ListUserByRoleDto fromUapListUserByRoleDto(com.iflytek.sec.uap.client.core.dto.user.ListUserByRoleDto uapListUserByRoleDto) {
         if (uapListUserByRoleDto == null) {
             return null;
         }
@@ -52,3 +50,5 @@ public class ListUserByRoleDtoMapper {
         return listUserByRoleDto;
     }
 }
+
+

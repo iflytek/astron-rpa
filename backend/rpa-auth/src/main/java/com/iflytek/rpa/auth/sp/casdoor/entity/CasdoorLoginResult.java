@@ -11,9 +11,10 @@ public class CasdoorLoginResult {
      * 用户ID
      */
     private String userId;
-
+    
     /**
      * Casdoor Session ID（从响应头 Set-Cookie 中提取的 casdoor_session_id 值）
      */
     private String session;
 }
+

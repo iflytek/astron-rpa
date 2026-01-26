@@ -5,11 +5,12 @@ import com.iflytek.rpa.auth.core.entity.Org;
 import com.iflytek.rpa.auth.core.entity.User;
 import com.iflytek.sec.uap.client.core.dto.org.UapOrg;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * GetDeptOrUserDto映射器
@@ -61,3 +62,4 @@ public class GetDeptOrUserDtoMapper {
         return target;
     }
 }
+

@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.core.entity;
 
+
 /**
  * 分页查询用户列表信息DTO
  * @author xqcao2
@@ -98,4 +99,6 @@ public class ListRoleDto extends PageQueryDto {
     public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
     }
+
 }
+

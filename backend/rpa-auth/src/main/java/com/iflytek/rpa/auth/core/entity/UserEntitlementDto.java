@@ -1,7 +1,8 @@
 package com.iflytek.rpa.auth.core.entity;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 用户权益响应DTO
@@ -33,3 +34,4 @@ public class UserEntitlementDto implements Serializable {
      */
     private Boolean moduleMarket;
 }
+

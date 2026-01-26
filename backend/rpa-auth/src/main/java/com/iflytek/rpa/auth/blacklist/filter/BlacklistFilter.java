@@ -8,22 +8,23 @@ import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
 import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.LocalDateTime;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 // import org.springframework.stereotype.Component; // 已禁用，不再使用
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+
 /**
  * 黑名单拦截过滤器
  * 已禁用：与 BlacklistAspect 功能重复
  * 黑名单检查统一由 BlacklistAspect 在 /login-status 接口处理
- *
+ * 
  * @author system
  * @date 2025-12-16
  */
@@ -40,25 +41,25 @@ public class BlacklistFilter implements Filter {
      * 不需要拦截的路径
      */
     private static final String[] EXCLUDE_PATHS = {
-        "/login",
-        "/logout",
-        "/pre-authenticate",
-        "/tenant/list",
-        "/verification-code/send",
-        "/register",
-        "/password/set",
-        "/user/exist",
-        "/refresh-token",
-        "/static/",
-        "/public/",
-        "/error",
-        "/favicon.ico"
+            "/login",
+            "/logout",
+            "/pre-authenticate",
+            "/tenant/list",
+            "/verification-code/send",
+            "/register",
+            "/password/set",
+            "/user/exist",
+            "/refresh-token",
+            "/static/",
+            "/public/",
+            "/error",
+            "/favicon.ico"
     };
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-
+        
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -73,25 +74,22 @@ public class BlacklistFilter implements Filter {
         try {
             // 获取当前登录用户
             UapUser loginUser = UapUserInfoAPI.getLoginUser(httpRequest);
-
+            
             if (loginUser != null) {
                 String userId = loginUser.getId();
-
+                
                 // 检查用户是否在黑名单中
                 BlacklistCacheDto blacklist = blackListService.isBlocked(userId);
-
+                
                 if (blacklist != null) {
                     // 用户在黑名单中，拒绝请求
-                    log.warn(
-                            "黑名单用户尝试访问系统，userId: {}, username: {}, reason: {}",
-                            userId,
-                            loginUser.getLoginName(),
-                            blacklist.getReason());
-
+                    log.warn("黑名单用户尝试访问系统，userId: {}, username: {}, reason: {}", 
+                            userId, loginUser.getLoginName(), blacklist.getReason());
+                    
                     // 强制注销（Filter 已禁用，此代码不会执行）
                     // 注意：Filter 已禁用，注销逻辑由 BlacklistAspect 处理
                     // blackListService.forceLogout(httpRequest, httpResponse);
-
+                    
                     // 返回错误响应
                     sendBlockedResponse(httpResponse, blacklist);
                     return;
@@ -100,7 +98,7 @@ public class BlacklistFilter implements Filter {
 
             // 继续处理请求
             chain.doFilter(request, response);
-
+            
         } catch (Exception e) {
             log.error("黑名单过滤器异常", e);
             // 异常时放行，避免影响正常业务
@@ -128,19 +126,24 @@ public class BlacklistFilter implements Filter {
         response.setContentType("application/json;charset=UTF-8");
 
         // 将时间戳转换为 LocalDateTime
-        LocalDateTime endTime = blacklist.getEndTimeMillis() != null
-                ? LocalDateTime.ofInstant(
-                        java.time.Instant.ofEpochMilli(blacklist.getEndTimeMillis()), java.time.ZoneId.systemDefault())
-                : null;
+        LocalDateTime endTime = blacklist.getEndTimeMillis() != null ?
+                LocalDateTime.ofInstant(
+                        java.time.Instant.ofEpochMilli(blacklist.getEndTimeMillis()),
+                        java.time.ZoneId.systemDefault()
+                ) : null;
 
         UserBlockedException exception = new UserBlockedException(
                 blacklist.getUserId(),
                 blacklist.getUsername(),
                 blacklist.getReason(),
                 endTime,
-                blacklist.getRemainingSeconds());
+                blacklist.getRemainingSeconds()
+        );
 
-        AppResponse<Object> errorResponse = AppResponse.error(ErrorCodeEnum.E_NO_POWER, exception.getMessage());
+        AppResponse<Object> errorResponse = AppResponse.error(
+                ErrorCodeEnum.E_NO_POWER,
+                exception.getMessage()
+        );
 
         PrintWriter writer = response.getWriter();
         writer.write(objectMapper.writeValueAsString(errorResponse));
@@ -157,3 +160,4 @@ public class BlacklistFilter implements Filter {
         log.info("黑名单过滤器销毁");
     }
 }
+

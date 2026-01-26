@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
  * @date 2025-03-19 15:21
  * @copyright Copyright (c) 2025 mjren
  */
+
 public class UserAdapter {
     private final Object user;
 

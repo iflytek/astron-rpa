@@ -4,12 +4,13 @@ import com.iflytek.rpa.auth.auditRecord.constants.AuditLog;
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.RoleService;
 import com.iflytek.rpa.auth.utils.AppResponse;
-import java.io.IOException;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * 角色
@@ -44,6 +45,7 @@ public class RoleController {
         return roleService.getUserRoleList(request);
     }
 
+
     /**
      * 查询角色详情
      *
@@ -52,8 +54,7 @@ public class RoleController {
      * @return 角色详情
      */
     @PostMapping("/queryDetail")
-    public AppResponse<Role> queryRoleDetail(@RequestBody GetRoleDto dto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<Role> queryRoleDetail(@RequestBody GetRoleDto dto, HttpServletRequest request) throws IOException {
         return roleService.queryRoleDetail(dto, request);
     }
 
@@ -66,8 +67,7 @@ public class RoleController {
      */
     @AuditLog(moduleName = "管理员权限", typeName = "创建角色")
     @PostMapping("/add")
-    public AppResponse<String> addRole(@RequestBody CreateRoleDto createRoleDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> addRole(@RequestBody CreateRoleDto createRoleDto, HttpServletRequest request) throws IOException {
         return roleService.addRole(createRoleDto, request);
     }
 
@@ -79,8 +79,7 @@ public class RoleController {
      * @return 结果
      */
     @PostMapping("/update")
-    public AppResponse<String> updateRole(@RequestBody UpdateRoleDto updateRoleDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> updateRole(@RequestBody UpdateRoleDto updateRoleDto, HttpServletRequest request) throws IOException {
         return roleService.updateRole(updateRoleDto, request);
     }
 
@@ -93,10 +92,10 @@ public class RoleController {
      */
     @AuditLog(moduleName = "管理员权限", typeName = "删除角色")
     @PostMapping("/delete")
-    public AppResponse<String> deleteRole(@RequestBody DeleteCommonDto deleteCommonDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> deleteRole(@RequestBody DeleteCommonDto deleteCommonDto, HttpServletRequest request) throws IOException {
         return roleService.deleteRole(deleteCommonDto, request);
     }
+
 
     /**
      * 根据名称模糊查询角色
@@ -109,4 +108,5 @@ public class RoleController {
     public AppResponse<PageDto<Role>> searchRole(@RequestBody ListRoleDto listRoleDto, HttpServletRequest request) {
         return roleService.searchRole(listRoleDto, request);
     }
+
 }

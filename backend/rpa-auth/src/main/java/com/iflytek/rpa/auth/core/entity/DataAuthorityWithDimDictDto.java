@@ -37,7 +37,9 @@ public class DataAuthorityWithDimDictDto implements Serializable {
      */
     private List<Dim> dimList;
 
-    public DataAuthorityWithDimDictDto() {}
+    public DataAuthorityWithDimDictDto() {
+
+    }
 
     public static class Dim implements Serializable {
         private static final long serialVersionUID = -1548982536071323814L;
@@ -48,7 +50,8 @@ public class DataAuthorityWithDimDictDto implements Serializable {
 
         private List<DimDict> dimDictList;
 
-        public Dim() {}
+        public Dim() {
+        }
 
         public Dim(String dimId, String dimName, List<DimDict> list) {
             this.dimId = dimId;
@@ -91,7 +94,8 @@ public class DataAuthorityWithDimDictDto implements Serializable {
         // 自定义维度,获取value赋值
         private String dictValue;
 
-        public DimDict() {}
+        public DimDict() {
+        }
 
         public DimDict(String dictId, String dictName, String dictValue) {
             this.dictId = dictId;

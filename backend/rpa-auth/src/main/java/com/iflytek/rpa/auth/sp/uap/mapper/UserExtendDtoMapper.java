@@ -4,13 +4,15 @@ import com.iflytek.rpa.auth.core.entity.RoleBaseDto;
 import com.iflytek.rpa.auth.core.entity.UapExtendRelation;
 import com.iflytek.rpa.auth.core.entity.User;
 import com.iflytek.rpa.auth.core.entity.UserExtendDto;
+import com.iflytek.sec.uap.client.core.dto.extand.UapExtand;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * UserExtendDto 映射器
@@ -50,8 +52,9 @@ public class UserExtendDtoMapper {
         // extands 字段：List<UapExtendRelation> (UAP) -> List<UapExtendRelation> (core)
         List<com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation> uapExtends = uapUserExtendDto.getExtands();
         if (uapExtends != null && !uapExtends.isEmpty()) {
-            List<UapExtendRelation> coreExtends =
-                    uapExtends.stream().map(this::fromUapExtendRelation).collect(Collectors.toList());
+            List<UapExtendRelation> coreExtends = uapExtends.stream()
+                    .map(this::fromUapExtendRelation)
+                    .collect(Collectors.toList());
             userExtendDto.setExtands(coreExtends);
         } else {
             userExtendDto.setExtands(Collections.emptyList());
@@ -60,8 +63,9 @@ public class UserExtendDtoMapper {
         // roles 字段：List<RoleBaseDto> (UAP) -> List<RoleBaseDto> (core)
         List<com.iflytek.sec.uap.client.core.dto.role.RoleBaseDto> uapRoles = uapUserExtendDto.getRoles();
         if (uapRoles != null && !uapRoles.isEmpty()) {
-            List<RoleBaseDto> coreRoles =
-                    uapRoles.stream().map(this::fromUapRoleBaseDto).collect(Collectors.toList());
+            List<RoleBaseDto> coreRoles = uapRoles.stream()
+                    .map(this::fromUapRoleBaseDto)
+                    .collect(Collectors.toList());
             userExtendDto.setRoles(coreRoles);
         } else {
             userExtendDto.setRoles(Collections.emptyList());
@@ -97,16 +101,18 @@ public class UserExtendDtoMapper {
         // extands 字段：List<UapExtendRelation> (core) -> List<UapExtendRelation> (UAP)
         List<UapExtendRelation> coreExtends = userExtendDto.getExtands();
         if (coreExtends != null && !coreExtends.isEmpty()) {
-            List<com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation> uapExtends =
-                    coreExtends.stream().map(this::toUapExtendRelation).collect(Collectors.toList());
+            List<com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation> uapExtends = coreExtends.stream()
+                    .map(this::toUapExtendRelation)
+                    .collect(Collectors.toList());
             uapUserExtendDto.setExtands(uapExtends);
         }
 
         // roles 字段：List<RoleBaseDto> (core) -> List<RoleBaseDto> (UAP)
         List<RoleBaseDto> coreRoles = userExtendDto.getRoles();
         if (coreRoles != null && !coreRoles.isEmpty()) {
-            List<com.iflytek.sec.uap.client.core.dto.role.RoleBaseDto> uapRoles =
-                    coreRoles.stream().map(this::toUapRoleBaseDto).collect(Collectors.toList());
+            List<com.iflytek.sec.uap.client.core.dto.role.RoleBaseDto> uapRoles = coreRoles.stream()
+                    .map(this::toUapRoleBaseDto)
+                    .collect(Collectors.toList());
             uapUserExtendDto.setRoles(uapRoles);
         }
 
@@ -116,8 +122,7 @@ public class UserExtendDtoMapper {
     /**
      * UAP 的 UapExtendRelation -> core 的 UapExtendRelation
      */
-    private UapExtendRelation fromUapExtendRelation(
-            com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation uapExtendRelation) {
+    private UapExtendRelation fromUapExtendRelation(com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation uapExtendRelation) {
         if (uapExtendRelation == null) {
             return null;
         }
@@ -131,8 +136,7 @@ public class UserExtendDtoMapper {
     /**
      * core 的 UapExtendRelation -> UAP 的 UapExtendRelation
      */
-    private com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation toUapExtendRelation(
-            UapExtendRelation coreRelation) {
+    private com.iflytek.sec.uap.client.core.dto.extand.UapExtendRelation toUapExtendRelation(UapExtendRelation coreRelation) {
         if (coreRelation == null) {
             return null;
         }
@@ -170,3 +174,5 @@ public class UserExtendDtoMapper {
         return uapRoleBaseDto;
     }
 }
+
+

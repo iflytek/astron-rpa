@@ -1,9 +1,9 @@
 package com.iflytek.rpa.auth.sp.uap.annotation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 校验处理器：做手机号码格式验证的核心类
@@ -27,4 +27,5 @@ public class PhoneValidator implements ConstraintValidator<Phone, String> {
         Matcher matcher = compile.matcher(value);
         return matcher.matches();
     }
+
 }

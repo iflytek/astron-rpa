@@ -16,4 +16,5 @@ public class GetRoleDto {
     public void setId(String id) {
         this.id = id;
     }
+
 }

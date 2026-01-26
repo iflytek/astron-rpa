@@ -13,3 +13,4 @@ import lombok.NoArgsConstructor;
 public class IflytekDeleteUserParam {
     private String userid;
 }
+

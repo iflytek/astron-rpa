@@ -77,6 +77,7 @@ public class UpdateUserDto {
     /**
      * 身份证号
      */
+
     private String idNumber;
 
     public String getId() {
@@ -182,4 +183,6 @@ public class UpdateUserDto {
     public void setIdNumber(String idNumber) {
         this.idNumber = idNumber;
     }
+
 }
+

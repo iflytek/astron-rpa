@@ -1,8 +1,9 @@
 package com.iflytek.rpa.auth.core.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
-import lombok.Data;
 
 /**
  * 根据用户ID列表查询租户用户DTO
@@ -23,3 +24,4 @@ public class GetMarketTenantUserListDto implements Serializable {
      */
     private List<String> userIdList;
 }
+

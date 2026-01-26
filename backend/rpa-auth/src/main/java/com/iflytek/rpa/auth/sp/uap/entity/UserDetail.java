@@ -1,9 +1,10 @@
 package com.iflytek.rpa.auth.sp.uap.entity;
 
+import lombok.Data;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
 
 /**
  * @Author: wyzhou3
@@ -49,6 +50,7 @@ public class UserDetail {
     private Boolean deleted;
 
     private Boolean hasPassword = false;
+
 
     private Boolean accountNonExpired;
 

@@ -2,16 +2,11 @@ package com.iflytek.rpa.auth.sp.casdoor.service.impl;
 
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.RoleService;
-import com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorRoleDao;
 import com.iflytek.rpa.auth.sp.casdoor.mapper.CasdoorRoleMapper;
 import com.iflytek.rpa.auth.sp.casdoor.utils.SessionUserUtils;
+import com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorRoleDao;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.casbin.casdoor.util.http.CasdoorResponse;
@@ -20,11 +15,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @desc: TODO
  * @author: weilai <laiwei3@iflytek.com>
  * @create: 2025/12/11 9:46
  */
+
 @Slf4j
 @Service("casdoorRoleService")
 @ConditionalOnProperty(name = "rpa.auth.deployment-mode", havingValue = "casdoor", matchIfMissing = true)
@@ -51,14 +53,14 @@ public class CasdoorRoleServiceImpl implements RoleService {
     public AppResponse<List<Role>> getUserRoleListInApp(HttpServletRequest request) throws IOException {
         try {
             log.debug("开始查询应用内全部角色列表");
-
+            
             // casdoor的角色列表是直接隶属于组织的，组织中包含应用，应用和角色之间无绑定关系，这里默认按组织下所有角色列表处理
             AppResponse<List<Role>> response = getUserRoleList(request);
-
+            
             if (response.ok() && response.getData() != null) {
                 log.debug("查询应用内全部角色列表成功，共 {} 个角色", response.getData().size());
             }
-
+            
             return response;
         } catch (Exception e) {
             log.error("查询应用内全部角色列表异常", e);
@@ -75,7 +77,7 @@ public class CasdoorRoleServiceImpl implements RoleService {
     public AppResponse<List<Role>> getUserRoleList(HttpServletRequest request) throws IOException {
         try {
             log.debug("开始查询角色列表");
-
+            
             // 查询Casdoor角色列表
             List<org.casbin.casdoor.entity.Role> casdoorRoles = roleService.getRoles();
             if (casdoorRoles == null) {
@@ -120,7 +122,7 @@ public class CasdoorRoleServiceImpl implements RoleService {
     public AppResponse<Role> queryRoleDetail(GetRoleDto dto, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始查询角色详情，roleId: {}", dto != null ? dto.getId() : "null");
-
+            
             // 参数校验
             if (dto == null || StringUtils.isEmpty(dto.getId())) {
                 log.warn("查询角色详情失败：角色ID为空");
@@ -197,11 +199,8 @@ public class CasdoorRoleServiceImpl implements RoleService {
             casdoorRole.description = createRoleDto.getRemark();
             casdoorRole.isEnabled = createRoleDto.getStatus() == null || createRoleDto.getStatus() == 1;
 
-            log.debug(
-                    "调用Casdoor API新增角色，owner: {}, name: {}, displayName: {}",
-                    casdoorRole.owner,
-                    casdoorRole.name,
-                    casdoorRole.displayName);
+            log.debug("调用Casdoor API新增角色，owner: {}, name: {}, displayName: {}",
+                    casdoorRole.owner, casdoorRole.name, casdoorRole.displayName);
             CasdoorResponse<String, Object> addRoleResponse = roleService.addRole(casdoorRole);
 
             if (addRoleResponse == null) {
@@ -210,13 +209,9 @@ public class CasdoorRoleServiceImpl implements RoleService {
             }
 
             if (addRoleResponse.getStatus() != null && !"ok".equals(addRoleResponse.getStatus())) {
-                log.error(
-                        "新增角色失败：Casdoor API返回错误，code: {}, status: {}, msg: {}",
-                        roleCode,
-                        addRoleResponse.getStatus(),
-                        addRoleResponse.getMsg());
-                return AppResponse.error(
-                        ErrorCodeEnum.E_API_EXCEPTION,
+                log.error("新增角色失败：Casdoor API返回错误，code: {}, status: {}, msg: {}",
+                        roleCode, addRoleResponse.getStatus(), addRoleResponse.getMsg());
+                return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION,
                         "新增角色失败: " + (addRoleResponse.getMsg() != null ? addRoleResponse.getMsg() : "未知错误"));
             }
 
@@ -301,13 +296,9 @@ public class CasdoorRoleServiceImpl implements RoleService {
             }
 
             if (updateRoleResponse.getStatus() != null && !"ok".equals(updateRoleResponse.getStatus())) {
-                log.error(
-                        "编辑角色失败：Casdoor API返回错误，id: {}, status: {}, msg: {}",
-                        roleId,
-                        updateRoleResponse.getStatus(),
-                        updateRoleResponse.getMsg());
-                return AppResponse.error(
-                        ErrorCodeEnum.E_API_EXCEPTION,
+                log.error("编辑角色失败：Casdoor API返回错误，id: {}, status: {}, msg: {}",
+                        roleId, updateRoleResponse.getStatus(), updateRoleResponse.getMsg());
+                return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION,
                         "编辑角色失败: " + (updateRoleResponse.getMsg() != null ? updateRoleResponse.getMsg() : "未知错误"));
             }
 
@@ -329,8 +320,7 @@ public class CasdoorRoleServiceImpl implements RoleService {
      * @return 删除结果
      */
     @Override
-    public AppResponse<String> deleteRole(DeleteCommonDto deleteCommonDto, HttpServletRequest request)
-            throws IOException {
+    public AppResponse<String> deleteRole(DeleteCommonDto deleteCommonDto, HttpServletRequest request) throws IOException {
         try {
             log.debug("开始删除角色");
 
@@ -360,13 +350,9 @@ public class CasdoorRoleServiceImpl implements RoleService {
             }
 
             if (deleteRoleResponse.getStatus() != null && !"ok".equals(deleteRoleResponse.getStatus())) {
-                log.error(
-                        "删除角色失败：Casdoor API返回错误，id: {}, status: {}, msg: {}",
-                        roleId,
-                        deleteRoleResponse.getStatus(),
-                        deleteRoleResponse.getMsg());
-                return AppResponse.error(
-                        ErrorCodeEnum.E_API_EXCEPTION,
+                log.error("删除角色失败：Casdoor API返回错误，id: {}, status: {}, msg: {}",
+                        roleId, deleteRoleResponse.getStatus(), deleteRoleResponse.getMsg());
+                return AppResponse.error(ErrorCodeEnum.E_API_EXCEPTION,
                         "删除角色失败: " + (deleteRoleResponse.getMsg() != null ? deleteRoleResponse.getMsg() : "未知错误"));
             }
 
@@ -391,9 +377,7 @@ public class CasdoorRoleServiceImpl implements RoleService {
     public AppResponse<PageDto<Role>> searchRole(ListRoleDto listRoleDto, HttpServletRequest request) {
         try {
             // 参数校验
-            if (listRoleDto == null
-                    || listRoleDto.getRoleName() == null
-                    || listRoleDto.getRoleName().trim().isEmpty()) {
+            if (listRoleDto == null || listRoleDto.getRoleName() == null || listRoleDto.getRoleName().trim().isEmpty()) {
                 log.warn("根据名称模糊查询角色失败：角色名称为空");
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "角色名称不能为空");
             }
@@ -460,13 +444,8 @@ public class CasdoorRoleServiceImpl implements RoleService {
             pageDto.setPageSize(pageSize);
             pageDto.setTotalCount((long) allRoles.size());
 
-            log.debug(
-                    "根据名称模糊查询角色成功，keyword: {}，总数: {}，当前页: {}，每页: {}，当前页数量: {}",
-                    keyword,
-                    allRoles.size(),
-                    pageNum,
-                    pageSize,
-                    pageResult.size());
+            log.debug("根据名称模糊查询角色成功，keyword: {}，总数: {}，当前页: {}，每页: {}，当前页数量: {}",
+                    keyword, allRoles.size(), pageNum, pageSize, pageResult.size());
 
             return AppResponse.success(pageDto);
         } catch (Exception e) {

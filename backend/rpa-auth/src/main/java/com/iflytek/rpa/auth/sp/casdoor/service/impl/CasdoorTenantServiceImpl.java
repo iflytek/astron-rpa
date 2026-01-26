@@ -2,21 +2,14 @@ package com.iflytek.rpa.auth.sp.casdoor.service.impl;
 
 import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.TenantService;
-import com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorTenantDao;
 import com.iflytek.rpa.auth.sp.casdoor.mapper.CasdoorOrganizationMapper;
+import com.iflytek.rpa.auth.sp.casdoor.utils.SessionUserUtils;
 import com.iflytek.rpa.auth.sp.casdoor.mapper.CasdoorTenantMapper;
 import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorGroupExtendService;
 import com.iflytek.rpa.auth.sp.casdoor.service.extend.CasdoorUserExtendService;
-import com.iflytek.rpa.auth.sp.casdoor.utils.SessionUserUtils;
+import com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorTenantDao;
 import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.utils.ErrorCodeEnum;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.Group;
 import org.casbin.casdoor.entity.Organization;
@@ -28,11 +21,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * @desc: TODO
  * @author: weilai <laiwei3@iflytek.com>
  * @create: 2025/12/10 17:28
  */
+
 @Slf4j
 @Service("casdoorTenantService")
 @ConditionalOnProperty(name = "rpa.auth.deployment-mode", havingValue = "casdoor", matchIfMissing = true)
@@ -70,7 +72,7 @@ public class CasdoorTenantServiceImpl implements TenantService {
 
         try {
             log.debug("开始查询租户下所有用户，organizationName: {}", userName);
-
+            
             // 参数校验
             if (Objects.isNull(userName) || userName.trim().isEmpty()) {
                 log.warn("查询租户下所有用户失败：组织名称为空");
@@ -97,11 +99,7 @@ public class CasdoorTenantServiceImpl implements TenantService {
                             userVo.setUserName(user.name);
                             return userVo;
                         } catch (Exception e) {
-                            log.warn(
-                                    "用户信息转换失败，userId: {}, organizationName: {}",
-                                    user != null ? user.id : "null",
-                                    userName,
-                                    e);
+                            log.warn("用户信息转换失败，userId: {}, organizationName: {}", user != null ? user.id : "null", userName, e);
                             return null;
                         }
                     })
@@ -145,7 +143,7 @@ public class CasdoorTenantServiceImpl implements TenantService {
     public AppResponse<TenantInfoDto> getTenantInfo(HttpServletRequest request) throws Exception {
         try {
             log.debug("开始查询企业信息");
-
+            
             // 1. 获取当前租户ID
             User user = SessionUserUtils.getUserFromSession(request);
             if (user == null) {
@@ -427,7 +425,7 @@ public class CasdoorTenantServiceImpl implements TenantService {
 
     @Override
     public AppResponse<Integer> getTenantUserType(String userId, String tenantId) {
-        // 默认返回普通用户
+        //默认返回普通用户
         return AppResponse.success(2);
     }
 
@@ -436,7 +434,7 @@ public class CasdoorTenantServiceImpl implements TenantService {
         // Casdoor模式下暂不支持此功能，返回默认的不限期租户信息
         TenantExpirationDto dto = new TenantExpirationDto();
         dto.setTenantType("personal"); // 默认个人版
-        // 获取当前登录用户的租户id
+        //获取当前登录用户的租户id
         String tenantId = SessionUserUtils.getTenantOwnerFromSession(request);
         dto.setTenantId(tenantId);
         dto.setExpirationDate(null); // 不限期
@@ -457,3 +455,4 @@ public class CasdoorTenantServiceImpl implements TenantService {
         // Casdoor模式下暂不支持此功能，不填充任何信息
     }
 }
+

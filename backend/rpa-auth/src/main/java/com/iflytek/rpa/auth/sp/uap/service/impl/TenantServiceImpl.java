@@ -1,16 +1,11 @@
 package com.iflytek.rpa.auth.sp.uap.service.impl;
 
-import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.REDIS_KEY_TENANT_EXPIRATION_PREFIX;
-import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.REDIS_KEY_TENANT_HAS_SPACE_PREFIX;
-import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.REDIS_KEY_TENANT_USER_PREFIX;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
 import com.iflytek.rpa.auth.core.entity.Org;
 import com.iflytek.rpa.auth.core.entity.Tenant;
-import com.iflytek.rpa.auth.core.entity.TenantExpirationDto;
 import com.iflytek.rpa.auth.core.entity.TenantInfoDto;
 import com.iflytek.rpa.auth.core.entity.UserVo;
+import com.iflytek.rpa.auth.core.entity.TenantExpirationDto;
 import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.exception.ServiceException;
 import com.iflytek.rpa.auth.sp.uap.constants.UAPConstant;
@@ -37,18 +32,25 @@ import com.iflytek.sec.uap.client.core.dto.tenant.*;
 import com.iflytek.sec.uap.client.core.dto.user.GetUserDto;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
 import com.iflytek.sec.uap.client.core.dto.user.UserExtendDto;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import com.iflytek.rpa.auth.conf.condition.ConditionalOnSaaSOrUAP;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+
+import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.REDIS_KEY_TENANT_USER_PREFIX;
+import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.REDIS_KEY_TENANT_HAS_SPACE_PREFIX;
+import static com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant.REDIS_KEY_TENANT_EXPIRATION_PREFIX;
+
 
 @Slf4j
 @Service("tenantService")
@@ -71,7 +73,7 @@ public class TenantServiceImpl implements TenantService {
 
     @Autowired
     private TenantExpirationDao tenantExpirationDao;
-
+    
     @Value("${tenant.expiration.alert.days:10}")
     private Integer alertDays;
 
@@ -99,7 +101,9 @@ public class TenantServiceImpl implements TenantService {
         if (cache != null && StringUtils.isNotBlank(cache.toString())) {
             ObjectMapper objectMapper = new ObjectMapper();
             List<UserVo> cachedList = objectMapper.readValue(
-                    cache.toString(), objectMapper.getTypeFactory().constructCollectionType(List.class, UserVo.class));
+                    cache.toString(),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, UserVo.class)
+            );
             return AppResponse.success(cachedList);
         }
         List<UserVo> allList = tenantDao.getUserByTenantId(databaseName, tenantId, userName);
@@ -323,7 +327,8 @@ public class TenantServiceImpl implements TenantService {
         }
 
         // 验证目标租户ID是否在所属列表中
-        boolean hasPermission = tenantList.stream().anyMatch(tenant -> targetTenantId.equals(tenant.getId()));
+        boolean hasPermission = tenantList.stream()
+                .anyMatch(tenant -> targetTenantId.equals(tenant.getId()));
 
         if (!hasPermission) {
             log.warn("用户没有目标租户权限，登录名：{}，目标租户ID：{}", loginName, targetTenantId);
@@ -337,7 +342,7 @@ public class TenantServiceImpl implements TenantService {
             List<UapTenant> uapTenantList;
             if (StringUtils.isEmpty(phone)) {
                 // 针对于登录之后，没有临时token
-                //                uapTenantList = UapUserInfoAPI.getTenantListInApp(request);
+//                uapTenantList = UapUserInfoAPI.getTenantListInApp(request);
                 UapUser uapUser = UapUserInfoAPI.getLoginUser(request);
                 phone = uapUser.getPhone();
             }
@@ -350,13 +355,11 @@ public class TenantServiceImpl implements TenantService {
 
             // 根据loginName查询租户列表
             uapTenantList = ClientAuthenticationAPI.getTenantListInAppByLoginName(loginName);
-            //            uapTenantList = tenantDao.queryTenantListByPhone(databaseName, phone);
+//            uapTenantList = tenantDao.queryTenantListByPhone(databaseName, phone);
             // uapTenantList  将 tenantCode 以UAPConstant.PERSONAL_TENANT_CODE 开头的 排序在最后面
             uapTenantList.sort((t1, t2) -> {
-                boolean isT1Personal = StringUtils.isNotBlank(t1.getTenantCode())
-                        && t1.getTenantCode().startsWith(UAPConstant.PERSONAL_TENANT_CODE);
-                boolean isT2Personal = StringUtils.isNotBlank(t2.getTenantCode())
-                        && t2.getTenantCode().startsWith(UAPConstant.PERSONAL_TENANT_CODE);
+                boolean isT1Personal = StringUtils.isNotBlank(t1.getTenantCode()) && t1.getTenantCode().startsWith(UAPConstant.PERSONAL_TENANT_CODE);
+                boolean isT2Personal = StringUtils.isNotBlank(t2.getTenantCode()) && t2.getTenantCode().startsWith(UAPConstant.PERSONAL_TENANT_CODE);
                 if (isT1Personal && !isT2Personal) {
                     return 1;
                 } else if (!isT1Personal && isT2Personal) {
@@ -534,13 +537,9 @@ public class TenantServiceImpl implements TenantService {
             // 4. 计算并填充到期信息
             calculateAndFillExpirationInfo(dto, tenantId, tenantCode, loginName);
 
-            log.info(
-                    "查询租户到期信息成功，tenantId: {}, expirationDate: {}, remainingDays: {}, isExpired: {}, shouldAlert: {}",
-                    tenantId,
-                    dto.getExpirationDate(),
-                    dto.getRemainingDays(),
-                    dto.getIsExpired(),
-                    dto.getShouldAlert());
+            log.info("查询租户到期信息成功，tenantId: {}, expirationDate: {}, remainingDays: {}, isExpired: {}, shouldAlert: {}", 
+                    tenantId, dto.getExpirationDate(), dto.getRemainingDays(), 
+                    dto.getIsExpired(), dto.getShouldAlert());
 
             return AppResponse.success(dto);
 
@@ -560,12 +559,12 @@ public class TenantServiceImpl implements TenantService {
                 log.warn("查询租户到期信息失败，不阻止访问");
                 return false;
             }
-
+            
             TenantExpirationDto dto = response.getData();
             if (dto == null) {
                 return false;
             }
-
+            
             // 返回是否到期
             return dto.getIsExpired() != null && dto.getIsExpired();
         } catch (Exception e) {
@@ -577,7 +576,7 @@ public class TenantServiceImpl implements TenantService {
 
     /**
      * 根据租户编码判断租户类型
-     *
+     * 
      * @param tenantCode 租户编码
      * @return 租户类型（personal/professional/enterprise_purchased/enterprise_subscription）
      */
@@ -603,46 +602,38 @@ public class TenantServiceImpl implements TenantService {
             return;
         }
 
-        try {
-            String tenantId = tenant.getId();
-            String tenantCode = tenant.getTenantCode();
+        String tenantId = tenant.getId();
+        String tenantCode = tenant.getTenantCode();
 
-            TenantExpirationDto dto = new TenantExpirationDto();
-            // fillTenantExpirationInfo 用于填充租户列表信息，不需要检查用户是否在租户中
-            // 所以这里不传loginName参数，使用null
-            calculateAndFillExpirationInfo(dto, tenantId, tenantCode, null);
+        TenantExpirationDto dto = new TenantExpirationDto();
+        // fillTenantExpirationInfo 用于填充租户列表信息，不需要检查用户是否在租户中
+        // 所以这里不传loginName参数，使用null
+        calculateAndFillExpirationInfo(dto, tenantId, tenantCode, null);
 
-            // 填充到期信息到租户对象
-            tenant.setExpirationDate(dto.getExpirationDate());
-            tenant.setRemainingDays(dto.getRemainingDays());
-            tenant.setIsExpired(dto.getIsExpired());
-            tenant.setShouldAlert(dto.getShouldAlert());
-
-        } catch (Exception e) {
-            log.error("填充租户到期信息失败，tenantId: {}", tenant != null ? tenant.getId() : "null", e);
-            // 发生异常时，设置默认值，不影响租户列表返回
-            setDefaultExpirationInfo(tenant);
-        }
+        // 填充到期信息到租户对象
+        tenant.setExpirationDate(dto.getExpirationDate());
+        tenant.setRemainingDays(dto.getRemainingDays());
+        tenant.setIsExpired(dto.getIsExpired());
+        tenant.setShouldAlert(dto.getShouldAlert());
     }
 
     /**
      * 计算并填充到期信息的核心逻辑（公共方法）
      * 根据租户ID和编码计算到期信息，并填充到DTO对象中
-     *
+     * 
      * @param dto 要填充的DTO对象（TenantExpirationDto或Tenant）
      * @param tenantId 租户ID
      * @param tenantCode 租户编码
      * @param loginName 用户登录名（用于检查用户是否在租户中。如果为null，则跳过用户检查）
      */
-    private void calculateAndFillExpirationInfo(
-            TenantExpirationDto dto, String tenantId, String tenantCode, String loginName) {
+    private void calculateAndFillExpirationInfo(TenantExpirationDto dto, String tenantId, String tenantCode, String loginName) {
         try {
             // 判断租户类型
             String tenantType = determineTenantType(tenantCode);
 
             // 个人版和买断企业版不限期
-            if (UAPConstant.TENANT_TYPE_PERSONAL.equals(tenantType)
-                    || UAPConstant.TENANT_TYPE_ENTERPRISE_PURCHASED.equals(tenantType)) {
+            if (UAPConstant.TENANT_TYPE_PERSONAL.equals(tenantType) || 
+                UAPConstant.TENANT_TYPE_ENTERPRISE_PURCHASED.equals(tenantType)) {
                 setDefaultExpirationInfo(dto);
                 return;
             }
@@ -656,7 +647,7 @@ public class TenantServiceImpl implements TenantService {
                     log.debug("用户不在租户{}空间中，loginName: {}", tenantId, loginName);
                     dto.setExpirationDate(null);
                     dto.setRemainingDays(null);
-                    dto.setIsExpired(true); // 不在空间中视为已到期
+                    dto.setIsExpired(true);  // 不在空间中视为已到期
                     dto.setShouldAlert(false);
                     return;
                 }
@@ -665,26 +656,26 @@ public class TenantServiceImpl implements TenantService {
             // 2. 租户拥有空间，查询到期信息（带缓存）
             TenantExpiration expiration = getTenantExpirationWithCache(tenantId);
             if (expiration == null) {
-                // 如果没有到期信息，返回默认值
-                log.debug("租户{}没有到期信息", tenantId);
-                setDefaultExpirationInfo(dto);
-                return;
+                // 专业版和非买断企业版必须有到期信息，如果没有，抛异常
+                log.error("租户{}没有到期信息，租户类型：{}", tenantId, tenantType);
+                throw new ServiceException("空间到期，请联系管理员续期");
             }
 
             // 解析到期日期
             String expirationDateStr = expiration.getExpirationDate();
             if (StringUtils.isBlank(expirationDateStr)) {
-                setDefaultExpirationInfo(dto);
-                return;
+                // 专业版和非买断企业版必须有到期时间，如果没有，抛异常
+                log.error("租户{}到期时间为空，租户类型：{}", tenantId, tenantType);
+                throw new ServiceException("未配置空间有效期，请联系管理员");
             }
 
-            // 尝试解密（解密函数内部会判断是否是日期格式，如果是日期格式则直接返回，否则解密）
+            // 尝试解密
             try {
                 expirationDateStr = EncryptUtils.decrypt(expirationDateStr);
             } catch (Exception e) {
-                log.error("解密租户到期时间失败，tenantId: {}", tenantId, e);
-                setDefaultExpirationInfo(dto);
-                return;
+                log.error("解密租户到期时间失败，tenantId: {}, 租户类型：{}", tenantId, tenantType, e);
+                // 解密失败，说明到期时间无效，抛异常
+                throw new ServiceException("空间到期，请联系管理员续期");
             }
 
             // 解析日期并计算剩余天数
@@ -693,9 +684,9 @@ public class TenantServiceImpl implements TenantService {
             try {
                 expirationDate = LocalDate.parse(expirationDateStr, formatter);
             } catch (Exception e) {
-                log.error("解析到期日期失败，tenantId: {}, expirationDate: {}", tenantId, expirationDateStr, e);
-                setDefaultExpirationInfo(dto);
-                return;
+                log.error("解析到期日期失败，tenantId: {}, expirationDate: {}, 租户类型：{}", tenantId, expirationDateStr, tenantType, e);
+                // 解析失败，说明到期时间格式无效，抛异常
+                throw new ServiceException("空间到期，请联系管理员续期");
             }
 
             LocalDate now = LocalDate.now();
@@ -709,16 +700,20 @@ public class TenantServiceImpl implements TenantService {
             dto.setIsExpired(isExpired);
             dto.setShouldAlert(shouldAlert);
 
+        } catch (ServiceException e) {
+            // ServiceException需要向上抛出，不捕获
+            throw e;
         } catch (Exception e) {
             log.error("计算租户到期信息失败，tenantId: {}", tenantId, e);
-            setDefaultExpirationInfo(dto);
+            // 其他异常也视为空间到期
+            throw new ServiceException("空间到期，请联系管理员续期");
         }
     }
 
     /**
      * 检查用户是否还在当前租户空间中（带缓存）
      * 通过调用ClientAuthenticationAPI.getTenantListInAppByLoginName来判断用户是否还在租户中
-     *
+     * 
      * @param tenantId 租户ID
      * @param loginName 用户登录名
      * @return true表示用户在租户空间中，false表示用户不在租户空间中
@@ -730,10 +725,10 @@ public class TenantServiceImpl implements TenantService {
                 // 登录名为空时，为了安全起见，假设不在空间中
                 return false;
             }
-
+            
             // 缓存key使用loginName和tenantId，因为不同用户对同一租户的访问权限可能不同
             String redisKey = REDIS_KEY_TENANT_HAS_SPACE_PREFIX + loginName + ":" + tenantId;
-
+            
             // 先从Redis缓存中获取（缓存时间2小时）
             Object cache = RedisUtils.get(redisKey);
             if (cache != null && StringUtils.isNotBlank(cache.toString())) {
@@ -747,7 +742,7 @@ public class TenantServiceImpl implements TenantService {
                     return true;
                 }
             }
-
+            
             // 如果Redis中没有，调用UAP API查询用户所属的租户列表
             List<UapTenant> tenantList = ClientAuthenticationAPI.getTenantListInAppByLoginName(loginName);
             if (CollectionUtils.isEmpty(tenantList)) {
@@ -760,24 +755,22 @@ public class TenantServiceImpl implements TenantService {
                 }
                 return false;
             }
-
+            
             // 检查当前租户ID是否在用户所属的租户列表中
-            boolean hasSpace = tenantList.stream().anyMatch(tenant -> tenantId.equals(tenant.getId()));
-
+            boolean hasSpace = tenantList.stream()
+                    .anyMatch(tenant -> tenantId.equals(tenant.getId()));
+            
             // 查询到结果后存入Redis缓存（2小时）
             try {
                 RedisUtils.set(redisKey, hasSpace ? "true" : "false", TENANT_SPACE_CACHE_EXPIRE_SECONDS);
-                log.debug(
-                        "用户租户空间拥有状态已存入 Redis 缓存，loginName: {}，tenantId: {}，hasSpace: {}",
-                        loginName,
-                        tenantId,
-                        hasSpace);
+                log.debug("用户租户空间拥有状态已存入 Redis 缓存，loginName: {}，tenantId: {}，hasSpace: {}", 
+                        loginName, tenantId, hasSpace);
             } catch (Exception e) {
                 log.warn("存入 Redis 缓存失败，loginName: {}，tenantId: {}", loginName, tenantId, e);
             }
-
+            
             return hasSpace;
-
+            
         } catch (Exception e) {
             log.error("检查用户是否在租户空间中失败，tenantId: {}", tenantId, e);
             // 检查失败时，为了安全起见，假设不在空间中，阻止访问
@@ -787,7 +780,7 @@ public class TenantServiceImpl implements TenantService {
 
     /**
      * 获取租户到期信息（带缓存）
-     *
+     * 
      * @param tenantId 租户ID
      * @return 租户到期信息，如果不存在返回null
      */
@@ -843,7 +836,7 @@ public class TenantServiceImpl implements TenantService {
             }
 
             return expiration;
-
+            
         } catch (Exception e) {
             log.error("获取租户到期信息失败，tenantId: {}", tenantId, e);
             // 失败时返回null，让调用方处理
@@ -853,7 +846,7 @@ public class TenantServiceImpl implements TenantService {
 
     /**
      * 设置默认的到期信息到DTO（用于异常情况）
-     *
+     * 
      * @param dto DTO对象
      */
     private void setDefaultExpirationInfo(TenantExpirationDto dto) {
@@ -865,17 +858,4 @@ public class TenantServiceImpl implements TenantService {
         }
     }
 
-    /**
-     * 设置默认的到期信息到Tenant对象（用于异常情况）
-     *
-     * @param tenant 租户对象
-     */
-    private void setDefaultExpirationInfo(Tenant tenant) {
-        if (tenant != null) {
-            tenant.setExpirationDate(null);
-            tenant.setRemainingDays(null);
-            tenant.setIsExpired(false);
-            tenant.setShouldAlert(false);
-        }
-    }
 }

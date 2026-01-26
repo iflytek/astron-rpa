@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.core.entity;
 
+
 import java.util.List;
 
 /**
@@ -34,4 +35,5 @@ public class UpdateUapOrgDto {
     public void setExtands(List<UapExtendPropertyDto> extands) {
         this.extands = extands;
     }
+
 }

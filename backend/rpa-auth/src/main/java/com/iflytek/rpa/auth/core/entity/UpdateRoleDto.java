@@ -123,4 +123,5 @@ public class UpdateRoleDto {
     public void setIsMustBind(Integer isMustBind) {
         this.isMustBind = isMustBind;
     }
+
 }

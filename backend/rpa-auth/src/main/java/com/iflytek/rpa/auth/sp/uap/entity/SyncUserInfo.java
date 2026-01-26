@@ -32,3 +32,4 @@ public class SyncUserInfo {
      */
     private String address;
 }
+

@@ -1,15 +1,16 @@
 package com.iflytek.rpa.auth.blacklist.dto;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 黑名单缓存 DTO
  * 用于 Redis 缓存
- *
+ * 
  * @author system
  * @date 2025-12-16
  */
@@ -56,3 +57,4 @@ public class BlacklistCacheDto implements Serializable {
      */
     private Long remainingSeconds;
 }
+

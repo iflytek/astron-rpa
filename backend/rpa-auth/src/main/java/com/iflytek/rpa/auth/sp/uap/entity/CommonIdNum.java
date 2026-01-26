@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2020/2/27
  */
 @Data
-public class CommonIdNum<T> {
+public class CommonIdNum <T> {
     private Long id;
     private Long num;
     private T target;
