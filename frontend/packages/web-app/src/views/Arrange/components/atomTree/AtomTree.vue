@@ -311,6 +311,7 @@ onBeforeMount(() => {
             :icon-color="item.iconColor"
             :dot="item.dot"
             :search-atom="searchAtom"
+            :class="{ 'gap-2': item.key === 'favorite' }"
           />
           <draggable
             v-else
@@ -327,6 +328,7 @@ onBeforeMount(() => {
             <template #item="">
               <div
                 class="tree-node flex items-center px-2 hover:bg-[#5D59FF]/[.35] rounded"
+                :class="{ 'px-0': item.key === 'smart-component' }"
                 @dblclick="doubleItemClick(item)"
               >
                 <UseAtomItem
@@ -335,6 +337,7 @@ onBeforeMount(() => {
                   :icon-color="item.iconColor"
                   :dot="item.dot"
                   :search-atom="searchAtom"
+                  :class="{ 'gap-2': item.key === 'smart-component' }"
                 />
                 <div class="tree-node-action">
                   <CompDetail
