@@ -138,6 +138,7 @@ class UserService:
                 )
                 if response_data.get("code") == "500000":
                     logger.error("查询用户信息报错，%s", response_data.get("message"))
+                    return None
 
                 # 提取完整的用户信息
                 user_data = response_data.get("data", {})
