@@ -25,7 +25,7 @@ function sendToRender(message: string, percent: number) {
  * 检查 python envJson.SCHEDULER_NAME 是否正在运行
  */
 export function checkPythonRpaProcess() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     // linux 上检测 python 进程中 命令行中包含 envJson.SCHEDULER_NAME 的进程
     if (process.platform !== 'win32') {
       exec(`ps aux | grep "${envJson.SCHEDULER_NAME}"`, (error, stdout) => {
@@ -40,7 +40,7 @@ export function checkPythonRpaProcess() {
       exec('tasklist /v /fi "imagename eq python.exe"', (error, stdout) => {
         if (error) {
           logger.error(`tasklist error: ${error}`)
-          return reject(false)
+          return resolve(false)
         }
         const isRunning = stdout.includes(envJson.SCHEDULER_NAME)
         resolve(isRunning)
