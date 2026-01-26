@@ -245,9 +245,7 @@ class ElectronWindowManager implements WindowManager {
   }
 
   async onWindowClose(callback: () => void) {
-    ipcRenderer.on('window-close-confirm', (_ev, _arg) => {
-      callback && callback()
-    })
+    ipcRenderer.on('window-close-confirm', (_ev, _arg) => callback?.())
   }
 }
 

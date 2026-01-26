@@ -148,7 +148,8 @@ export const useRunningStore = defineStore('running', () => {
           height: 400,
           resizable: false,
           skipTaskbar: true,
-          transparent: true,
+          transparent: false,
+          show: false,
         }
 
         windowManager.createWindow(options)

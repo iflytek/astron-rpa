@@ -39,7 +39,8 @@ export function checkPythonRpaProcess() {
     else {
       exec('tasklist /v /fi "imagename eq python.exe"', (error, stdout) => {
         if (error) {
-          return reject(error)
+          logger.error(`tasklist error: ${error}`)
+          return reject(false)
         }
         const isRunning = stdout.includes(envJson.SCHEDULER_NAME)
         resolve(isRunning)
