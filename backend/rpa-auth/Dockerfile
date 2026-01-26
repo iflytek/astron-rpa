@@ -10,7 +10,7 @@ WORKDIR /app
 COPY backend/rpa-auth/pom.xml .
 
 # 下载依赖（利用Docker缓存层）
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B -P opensource
 
 # 复制源代码
 COPY backend/rpa-auth/src ./src
@@ -19,7 +19,7 @@ COPY backend/rpa-auth/src ./src
 COPY backend/rpa-auth/lib ./lib
 
 # 构建应用（启用 opensource profile）
-RUN mvn clean package -DskipTests -Popensource
+RUN mvn clean package -DskipTests -P opensource
 
 # 第二阶段：构建可执行镜像
 FROM eclipse-temurin:8-jre AS runtime
