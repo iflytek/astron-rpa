@@ -66,6 +66,10 @@ class WebSocketManager:
     def start(self):
         """启动 WebSocket 连接"""
         try:
+            if self._thread and self._thread.is_alive():
+                logger.info("WebSocket 管理器已在运行")
+                return
+            self._stop_event.clear()
             self.ws_app = WsApp(
                 url=f"ws://127.0.0.1:{config.GATEWAY_PORT}/api/rpa-openapi/ws",
                 log=self.default_log,
@@ -95,12 +99,17 @@ class WebSocketManager:
             self.ws_app.close()
         if self._thread and self._thread.is_alive():
             self._thread.join(timeout=5)
+        self._thread = None
+        self.ws_app = None
         logger.info("WebSocket 管理器已停止")
 
     def close_connection(self):
         """关闭当前连接"""
-        if self.ws_app:
-            self.ws_app.close()
+        self.stop()
+
+    def start_connection(self):
+        """重新建立连接（用于断开后重连）"""
+        self.start()
 
 
 # 创建 WebSocket 管理器实例
@@ -181,12 +190,13 @@ async def notify(req: NotifyReq):
     logger.info("notify: {}".format(req))
 
     if req.event == "login":
+        ws_manager.start()
         tag = app_context.trigger.to_native()
     elif req.event == "exit":
-        ws_manager.close_connection()
+        ws_manager.stop()
         tag = app_context.trigger.to_native(clear=True)
     elif req.event == "switch":
-        ws_manager.close_connection()
+        ws_manager.stop()
         app_context.trigger.to_native(clear=True)
         tag = app_context.trigger.to_native()
     else:
