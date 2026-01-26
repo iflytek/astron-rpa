@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 import httpx
@@ -33,18 +34,16 @@ class WorkflowService:
         """
         比较新旧参数并合并
 
-        如果new_params未设置，则与existing_params进行对比，
+        如果robot_params未设置，则与existing_params进行对比，
         如果id, varDirection, varName, varType, varValue有任何一项不同，就更新那一条记录
 
         Args:
-            new_params: 新的参数JSON字符串
+            robot_params: 新的参数JSON字符串
             existing_params: 现有的参数JSON字符串
 
         Returns:
             合并后的参数JSON字符串
         """
-        import json
-
         logger.info("开始比较和合并工作流参数")
 
         # 解析现有参数

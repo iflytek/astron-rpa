@@ -92,7 +92,7 @@ class UserService:
             logger.exception("调用外部接口发生异常，phone: %s", phone)
             return None
 
-    async def _call_user_info_api(self, phone: str) -> str:
+    async def _call_user_info_api(self, phone: str) -> Optional[dict]:
         """
         调用外部接口进行用户注册
 
@@ -136,10 +136,13 @@ class UserService:
                     phone,
                     json.dumps(response_data, ensure_ascii=False),
                 )
+                if response_data.get("code") == "500000":
+                    logger.error("查询用户信息报错，%s", response_data.get("message"))
+                    return None
 
                 # 提取完整的用户信息
                 user_data = response_data.get("data", {})
-                user_id = user_data.get("userId")
+                user_id = user_data.get("userId", None)
                 if not user_id:
                     logger.error("外部接口返回数据中缺少 userId，phone: %s", phone)
                     return None
