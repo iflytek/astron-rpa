@@ -37,13 +37,25 @@ export function createSingleNode(node: ProcessNodeVM, astNode: ASTNode, nodeAbil
   nodeAbility.inputList?.forEach((item) => {
     if (item.level === 'advanced') {
       const findItem = node.advanced.find(n => n.key === item.key)
-      if (findItem)
+      if (!findItem || !findItem.value) {
+        advanced.push({
+          ...item,
+          value: item.default
+        })
+      } else {
         advanced.push({ ...item, ...findItem })
+      }
     }
     else {
       const findItem = node.inputList.find(n => n.key === item.key)
-      if (findItem)
+      if (!findItem || !findItem.value) {
+        inputForm.push({
+          ...item,
+          value: item.default
+        })
+      } else {
         inputForm.push({ ...item, ...findItem })
+      }
     }
   })
   const commonAdvanced = cloneDeep(useProcessStore().commonAdvancedParameter).filter(item => !exceptionKeys.includes(item.key))
@@ -57,7 +69,7 @@ export function createSingleNode(node: ProcessNodeVM, astNode: ASTNode, nodeAbil
     if (!findItem || !findItem.value) {
       outputForm.push({
         ...item,
-        ...{ value: [{ type: VAR_IN_TYPE, value: '_' }] }
+        value: [{ type: VAR_IN_TYPE, value: '_' }]
       })
     } else {
       outputForm.push({ ...item, ...findItem })
