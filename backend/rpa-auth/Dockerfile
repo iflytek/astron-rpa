@@ -15,8 +15,11 @@ RUN mvn dependency:go-offline -B
 # 复制源代码
 COPY backend/rpa-auth/src ./src
 
-# 构建应用
-RUN mvn clean package -DskipTests
+# 复制 lib 目录（opensource profile 需要）
+COPY backend/rpa-auth/lib ./lib
+
+# 构建应用（启用 opensource profile）
+RUN mvn clean package -DskipTests -Popensource
 
 # 第二阶段：构建可执行镜像
 FROM eclipse-temurin:8-jre AS runtime
