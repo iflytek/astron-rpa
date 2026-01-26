@@ -66,7 +66,7 @@
     "vite-plugin-lazy-import": "^1.0.7",
     "vite-plugin-page-html": "^3.3.1",
     "vite-plugin-svg4vue": "^4.5.1",
-    "vue": "^3.5.18",
+    "vue": "catalog:",
     "vue-router": "^4.5.1",
     "vue-tsc": "^3.0.5",
     "vue-virtual-draglist": "^3.3.2",
