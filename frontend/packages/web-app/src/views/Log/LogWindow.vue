@@ -8,9 +8,9 @@ import { generateUUID, sleep } from '@/utils/common'
 import { getUserSetting } from '@/api/setting'
 import Socket from '@/api/ws'
 import { WINDOW_NAME } from '@/constants'
-import { utilsManager, windowManager } from '@/platform'
+import { windowManager } from '@/platform'
 
-import { DEFAULT_STOPRUN_SHORTKEY } from './config'
+const DEFAULT_STOPRUN_SHORTKEY = 'Shift + F5'
 
 const iconStatusMap = {
   current: <LoadingOutlined class="text-[rgba(0,0,0,0.85) ] dark:text-[#fff]" />,
