@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import get_user_service, verify_getkey_bearer_token, verify_register_bearer_token
 from app.logger import get_logger
 from app.schemas import ResCode, StandardResponse
-from app.schemas.user import UserAPIKeyResponse, UserRegisterRequest, UserRegisterResponse
+from app.schemas.user import UserAPIKeyResponse, UserRegisterRequest
 from app.services.user import UserService
 
 logger = get_logger(__name__)
@@ -27,41 +27,35 @@ async def register_user(
     service: UserService = Depends(get_user_service),
     token: str = Depends(verify_register_bearer_token),
 ):
-    """用户注册接口"""
+    """获取API_KEY接口"""
     try:
         phone = request.phone
-        logger.info(f"用户注册请求，phone: {phone}")
+        logger.info(f"用户获取API_KEY接口请求，phone: {phone}")
 
-        # 调用服务层进行注册
-        result = await service.register_user(phone)
+        # 调用服务层进行获取
+        result = await service.get_user_info(phone)
 
         if not result:
-            logger.error(f"用户注册失败，phone: {phone}")
+            logger.error(f"用户获取API_KEY失败，phone: {phone}")
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="用户注册失败",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="用户未注册",
             )
 
         # 构建返回数据
-        response_data = UserRegisterResponse(
-            user_id=result.get("user_id") or "",
-            api_key=result.get("api_key") or "",
-            account=result.get("account") or "",
-            password=result.get("password") or "",
-            url=result.get("url") or "",
-        )
+        response_data = UserAPIKeyResponse(user_id=result.get("user_id") or "", api_key=result.get("api_key") or "")
 
         logger.info(f"用户注册成功，phone: {phone}, user_id: {result.get('user_id')}")
 
         return StandardResponse(
             code=ResCode.SUCCESS,
-            msg="注册成功",
+            msg="获取API_KEY成功",
             data=response_data.model_dump(),
         )
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"用户注册过程中出错: {str(e)}")
+        logger.error(f"用户获取API_KEY过程中出错: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="服务器内部错误",
