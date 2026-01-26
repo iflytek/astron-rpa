@@ -16,6 +16,7 @@ from astronverse.executor.error import *
 from astronverse.executor.flow.flow import Flow
 from astronverse.executor.flow.flow_svc import FlowSvc
 from astronverse.executor.logger import logger
+from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 def flow_start(svc, args):
@@ -178,7 +179,22 @@ def start():
         # 生成代码
         flow_svc = FlowSvc(conf=Config)
         flow_start(svc=flow_svc, args=args)
-        flow_tip = flow_svc.flow_tip
+        flow_tip = flow_svc.flow_tip  # 生成python脚本的提示信息
+        temp_run_param = {}
+        if args.run_param and isinstance(args.run_param, list):
+            for p in args.run_param:
+                param = flow_svc.param.parse_param(
+                    {
+                        "value": str_to_list_if_possible(p.get("varValue")),
+                        "types": p.get("varType"),
+                        "name": p.get("varName"),
+                    }
+                )
+                temp_run_param[p.get("varName")] = eval(
+                    param.show_value(), {}, {}
+                )  # 外部参数，只有简单的逻辑处理，不会引用变量
+        args.run_param = temp_run_param  # 生成python脚本的外部参数
+
         # 执行代码
         debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
         debug_start(svc=debug_svc, args=args, flow_tip=flow_tip)

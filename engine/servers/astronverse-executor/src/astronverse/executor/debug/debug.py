@@ -5,6 +5,7 @@ from astronverse.actionlib.error import *
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.debug.bdb import CustomBdb
 from astronverse.executor.error import *
+from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 class Debug:
@@ -93,11 +94,7 @@ class Debug:
             for b in v.breakpoint:
                 self.set_breakpoint(v.process_id, b)
 
-        args = {}
-        if params and isinstance(params, list):
-            for p in params:
-                args[p.get("varName")] = p.get("varValue")
-        shared = {"_args": args}
+        shared = {"_args": params}
         self.bdb.cmd_start(g_v=shared)
         return shared.get("_args", {})
 

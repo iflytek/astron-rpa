@@ -18,6 +18,7 @@ class FlowSvc:
         self.ast_globals_dict: dict[str, AstGlobals] = {}
         self.ast_curr_info = {}
 
+        # 流程生成tip
         self.flow_tip = []
 
     def add_project_info(

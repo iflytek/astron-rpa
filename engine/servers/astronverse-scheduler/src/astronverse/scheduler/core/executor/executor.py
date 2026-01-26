@@ -317,7 +317,12 @@ class ExecutorManager:
         if run_param:
             try:
                 # 在 temp 目录下创建临时文件
-                temp_dir = tempfile.gettempdir()
+                temp_dir = os.path.join(os.getcwd(), "logs", "param")
+                if os.path.exists(temp_dir):
+                    if os.listdir(temp_dir):
+                        shutil.rmtree(temp_dir)
+                else:
+                    os.makedirs(temp_dir)
                 random_filename = f"run_param_{uuid.uuid4().hex}.tmp"
                 temp_file_path = os.path.join(temp_dir, random_filename)
 
