@@ -99,9 +99,7 @@ class BrowserWindowManager implements WindowManager {
     type: string
     data?: any
   }): Promise<any> {
-    return new Promise((resolve) => {
-      resolve(true)
-    })
+    return Promise.resolve(true)
   }
 }
 

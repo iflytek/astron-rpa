@@ -21,6 +21,7 @@ async function resizeWindow() {
   const screenWorkArea = await windowManager.getScreenWorkArea()
   const resHeight = Math.min(formHeight, screenWorkArea.height)
   await windowManager.setWindowSize({ width: bodyWidth, height: resHeight })
+  await windowManager.showWindow()
 }
 
 const targetInfo = new URL(location.href).searchParams
