@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
-import { computed, defineAsyncComponent, provide, ref, watch } from 'vue'
+import { computed, provide, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { CodeEditor } from '@rpa/components'
 
 import { codeToMeta } from '@/api/component'
 import { getRootBaseURL } from '@/api/http/env'
@@ -42,7 +43,6 @@ provide('smartCompNewIndex', newIndex)
 
 const mode = ref<('visual' | 'code')>('visual') // 可视化/代码模式
 const baseUrl = `${getRootBaseURL()}/scheduler`
-const CodeEditor = defineAsyncComponent(() => import('@rpa/components').then(m => m.CodeEditor))
 
 const previousCode = ref('')
 const currentCode = ref('')
