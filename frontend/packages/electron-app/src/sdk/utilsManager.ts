@@ -78,8 +78,8 @@ function invoke(channel: string, ...args: any[]) {
   return ipcRenderer.invoke(channel, ...args)
 }
 
-const readFile: UtilsManagerType['readFile'] = (fileName, encoding) => {
-  return ipcRenderer.invoke('read-file', fileName, encoding)
+const readFile: UtilsManagerType['readFile'] = (filePath, encoding) => {
+  return ipcRenderer.invoke('read-file', filePath, encoding)
 }
 
 const saveFile: UtilsManagerType['saveFile'] = (fileName, buffer) => {
