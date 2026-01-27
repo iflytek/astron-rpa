@@ -1,12 +1,12 @@
 <template>
   <div class="relative w-[45%] h-full whitespace-pre-line overflow-hidden flex flex-col bg-bg-elevated rounded-2xl">
     <div class="flex items-center justify-between h-[50px] px-4 gap-4">
-      <p class="text-sm font-medium truncate">{{ fileInfo.name }}</p>
+      <p class="text-sm font-medium truncate">{{ props.fileInfo.name }}</p>
       <CloseOutlined class="text-xl" @click="emit('close')" />
     </div>
     <div class="flex-1 overflow-y-auto px-4 scroller">
-      <p v-if="fileInfo.suffix === 'txt'">{{ fileInfo.previewContent }}</p>
-      <PDFPreview v-else-if="fileInfo.suffix === 'pdf'" :source="fileInfo.previewContent" />
+      <p v-if="props.fileInfo.suffix === 'txt'">{{ props.fileInfo.previewContent }}</p>
+      <PDFPreview v-else-if="props.fileInfo.suffix === 'pdf'" :source="props.fileInfo.previewContent" />
     </div>
   </div>
 </template>
