@@ -1,8 +1,7 @@
-import { useAsyncState, watchOnce, useLocalStorage } from '@vueuse/core'
+import { useAsyncState, useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, reactive } from 'vue'
-import { parse } from 'yaml'
-import type { UpdateInfo } from '@rpa/shared/platform'
+import type { IAppConfig, UpdateInfo } from '@rpa/shared/platform'
 import { NiceModal } from '@rpa/components'
 
 import { checkBrowerPlugin, getSupportBrowser } from '@/api/plugin'
@@ -40,21 +39,12 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   const { state: systemInfo } = useAsyncState<string>(utilsManager.getSystemEnv, '')
   // 用户目录
   const { state: userPath } = useAsyncState<string>(utilsManager.getUserPath, '')
-  const { state: resourcePath } = useAsyncState<string>(utilsManager.getResourcePath, '')
-
-  const { state: yamlData, execute } = useAsyncState(
-    async () => {
-      const path = resourcePath.value
-      if (!path)
-        return {}
-      const yamlContent  = await utilsManager.readFile(`conf.yaml`, `${path}`)
-      return parse(yamlContent)
-    },
-    {},
-    { immediate: true, resetOnExecute: false },
-  )
-
-  watchOnce(resourcePath, () => execute())
+  // 应用配置
+  const { state: appConfig } = useAsyncState<IAppConfig>(utilsManager.getAppConfig, {
+    remote_addr: '',
+    app_auth_type: ENV.VITE_AUTH_TYPE || 'casdoor',
+    app_edition: ENV.VITE_EDITION || 'saas',
+  })
 
   const updateBrowserPluginStatus = async (plugins: PLUGIN_ITEM[]) => {
     if (plugins.length === 0)
@@ -92,14 +82,14 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   }
 
   const appInfo = computed(() => ({
-    appEdition: ['saas', 'enterprise'].includes(yamlData.value.app_edition) ? yamlData.value.app_edition : (ENV.VITE_EDITION || 'saas'),
-    appAuthType: ['casdoor', 'uap'].includes(yamlData.value.app_auth_type) ? yamlData.value.app_auth_type : (ENV.VITE_AUTH_TYPE || 'casdoor'),
+    appEdition: appConfig.value.app_edition,
+    appAuthType: appConfig.value.app_auth_type,
     appVersion: appVersion.value,
     appPath: appPath.value,
     buildInfo: buildInfo.value,
     systemInfo: systemInfo.value,
     userPath: userPath.value,
-    remotePath: yamlData.value.remote_addr,
+    remotePath: appConfig.value.remote_addr,
   }))
 
   /**

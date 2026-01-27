@@ -9,18 +9,12 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
 
   .chat-main {
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     border-radius: 16px;
-    background-image: url('../../assets/img/chatBg.png');
-    background-repeat: no-repeat;
-    background-color: #fff;
-    margin: 30px auto;
     display: flex;
     flex-direction: column;
 
@@ -28,7 +22,6 @@ body {
       font-size: 20px;
       font-weight: 500;
       text-align: left;
-      color: rgba(0, 0, 0, 0.85);
       line-height: 28px;
       margin: 0 0 8px 0;
     }
@@ -44,15 +37,14 @@ body {
 
       .chat-list-preset {
         .basic {
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.15);
+          background: var(--color-bg-elevated);
+          border: 1px solid var(--color-border);
           border-radius: 8px;
           display: inline-flex;
           justify-content: space-between;
           align-items: center;
           font-size: 14px;
           text-align: left;
-          color: rgba(0, 0, 0, 0.85);
           line-height: 16px;
           margin-top: 15px;
           padding: 10px 12px;
@@ -64,14 +56,6 @@ body {
           min-width: 180px;
           height: 64px;
           font-weight: 500;
-
-          .filename {
-            max-width: 710px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            padding-right: 5px;
-          }
         }
 
         .preset-item {
@@ -91,7 +75,6 @@ body {
           font-size: 32px;
           font-weight: 500;
           text-align: left;
-          color: rgba(0, 0, 0, 0.85);
           line-height: 38px;
           margin: 8px 0;
         }
@@ -211,36 +194,4 @@ body {
       }
     }
   }
-
-  .chat-side {
-    position: relative;
-    // width: 320px;
-    // height: 550px;
-    width: 45%;
-    height: 100%;
-    overflow: hidden;
-    overflow-y: auto;
-    white-space: pre-line;
-
-    &::-webkit-scrollbar {
-      width: 0;
-      height: 0;
-    }
-
-    .txt {
-      width: 100%;
-      height: 100%;
-      border-radius: 16px;
-      background-color: #fff;
-      padding: 30px 15px 0 15px;
-      overflow: hidden;
-      overflow-y: auto;
-    }
-  }
-}
-
-.pdf-vue3-canvas-container {
-  // width: 360px !important;
-  width: 100% !important;
-  margin: 0 !important;
 }
