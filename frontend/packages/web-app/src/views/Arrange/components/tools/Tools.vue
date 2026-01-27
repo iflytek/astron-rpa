@@ -11,7 +11,6 @@ import ProjectName from '../../components/projectName/Index.vue'
 
 import { useHotkey } from './hooks/useHotkey'
 import { useToolsBack } from './hooks/useToolsBack'
-import { useToolsCustomComp } from './hooks/useToolsCustomComp'
 import { useToolsDataPick } from './hooks/useToolsDataPick'
 import { useToolsDebug } from './hooks/useToolsDebug'
 import { useToolsDebugContinue } from './hooks/useToolsDebugContinue'
@@ -52,7 +51,6 @@ const btnList = [
   useToolsGroup(),
   useToolsUnGroup(),
   useToolsMultiSelect(),
-  useToolsCustomComp(),
 ]
 
 const [
@@ -71,7 +69,6 @@ const [
   toolsGroup,
   toolsUnGroup,
   toolsMultiSelect,
-  toolsCustomComp,
 ] = btnList.map(tool => getComputedTool(tool))
 
 function getComputedTool(tool: ArrangeTools) {
@@ -147,7 +144,6 @@ const [DefineTool, ReuseTool] = createReusableTemplate<{ item: ReturnType<typeof
       <a-divider type="vertical" class="h-4 border-s-[#000000]/[.16] dark:border-s-[#FFFFFF]/[.16]" />
       <ReuseTool :item="toolsRecorder" />
       <ReuseTool :item="toolsDataPick" />
-      <ReuseTool :item="toolsCustomComp" />
     </section>
     <section class="tools-box flex items-center justify-center">
       <ReuseTool :item="toolDebug" />
