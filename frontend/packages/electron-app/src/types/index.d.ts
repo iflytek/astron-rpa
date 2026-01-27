@@ -1,10 +1,5 @@
 /// <reference types="@rpa/shared/platform" />
 
-export interface IConfig {
-  remote_addr: string
-  skip_engine_start: boolean
-}
-
 export interface W2WType {
   from: string // 来源窗口
   target: string // 目标窗口

@@ -10,13 +10,13 @@ export interface FileInfo {
   name: string,
   suffix: string,
   content: string, // 文件内容
-  previewContent: string, // 预览内容
+  previewContent: string | Uint8Array | ArrayBuffer, // 预览内容
 }
 
-export const initFileInfo = (): FileInfo => ({
+export const initFileInfo = (data: Partial<FileInfo> = {}): FileInfo => Object.assign({
   path: '',
   name: '',
   suffix: '',
   content: '',
   previewContent: '',
-})
+}, data)

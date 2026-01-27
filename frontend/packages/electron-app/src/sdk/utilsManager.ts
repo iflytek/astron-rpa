@@ -39,6 +39,10 @@ function getAppVersion() {
   return getFromElectronInfo<string>('appVersion', 'latest')
 }
 
+const getAppConfig: UtilsManagerType['getAppConfig'] = () => {
+  return ipcRenderer.invoke('get-app-config')
+}
+
 function getAppPath() {
   return getFromElectronInfo<string>('appPath', '')
 }
@@ -70,16 +74,12 @@ function getSystemEnv() {
   })
 }
 
-function invoke(channel: string, ...args: any[]): Promise<any> {
-  return new Promise<any>((resolve, reject) => {
-    ipcRenderer.invoke(channel, ...args).then((res) => {
-      resolve(res)
-    }).catch(err => reject(err))
-  })
+function invoke(channel: string, ...args: any[]) {
+  return ipcRenderer.invoke(channel, ...args)
 }
 
-const readFile: UtilsManagerType['readFile'] = (fileName, dir) => {
-  return ipcRenderer.invoke('read-file', `${dir}/${fileName}`)
+const readFile: UtilsManagerType['readFile'] = (filePath, encoding) => {
+  return ipcRenderer.invoke('read-file', filePath, encoding)
 }
 
 const saveFile: UtilsManagerType['saveFile'] = (fileName, buffer) => {
@@ -190,6 +190,7 @@ const UtilsManager: UtilsManagerType = {
   getAppEnv,
   getAppPath,
   getAppVersion,
+  getAppConfig,
   getBuildInfo,
   getSystemEnv,
   getUserPath,

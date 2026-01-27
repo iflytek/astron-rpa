@@ -1,6 +1,5 @@
 import { Buffer } from 'node:buffer'
-import fsPromises from 'node:fs/promises'
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { BrowserWindow } from 'electron'
@@ -11,6 +10,7 @@ import logger from './log'
 import { openPath } from './path'
 import { getMainWindow, getWindowFromLabel } from './window'
 import { checkForUpdates, quitAndInstallUpdates } from './updater'
+import { config } from './config'
 
 type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?: boolean) => void
 
@@ -189,9 +189,9 @@ export function listenRender() {
     }
   })
 
-  ipcMain.handle('read-file', (_event, filePath) => {
+  ipcMain.handle('read-file', async (_event, filePath, encoding = 'utf-8') => {
     try {
-      return fs.readFileSync(filePath, 'utf-8')
+      return await fs.readFile(filePath, encoding)
     }
     catch (err) {
       logger.error('Failed to read file:', filePath, err)
@@ -209,7 +209,7 @@ export function listenRender() {
       if (canceled || !filePath)
         return false
 
-      await fsPromises.writeFile(filePath, buffer)
+      await fs.writeFile(filePath, buffer)
       return true
     }
     catch (err) {
@@ -298,5 +298,9 @@ export function listenRender() {
 
   ipcMain.on('quit-and-install-updates', () => {
     quitAndInstallUpdates()
+  })
+
+  ipcMain.handle('get-app-config', () => {
+    return config
   })
 }

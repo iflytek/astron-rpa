@@ -2,10 +2,11 @@
 import { CloseOutlined, LoadingOutlined, RightOutlined, SaveOutlined, StopOutlined, ZoomInOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { nanoid } from 'nanoid'
-import PDF from 'pdf-vue3'
 import { computed, h, nextTick, onBeforeUnmount, ref } from 'vue'
-import { useAsyncState } from '@vueuse/core'
+import { useAsyncState, useToggle } from '@vueuse/core'
 import { get } from 'lodash-es'
+import { to } from 'await-to-js'
+import { useTheme } from '@rpa/components'
 
 import { WINDOW_NAME } from '@/constants'
 import { getBaseURL } from '@/api/http/env'
@@ -14,12 +15,19 @@ import { utilsManager, windowManager } from '@/platform'
 import type { chatItem } from '@/types/chat'
 
 import { type FileInfo, initFileInfo, FILE_TYPE_IMG } from './utils'
+import Preview from './Preview.vue'
+import ChatBgLightSvg from './assets/chat-bg-light.svg?component'
+import ChatBgDarkSvg from './assets/chat-bg-dark.svg?component'
 
 let controller: AbortController | null = null
 // 初始化信息
 const targetInfo = new URL(location.href).searchParams
 // 文件路径
 const filePath = targetInfo.get('file_path')
+const fileName = filePath.split(/[/\\]/).pop() || '';
+const fileSuffix = fileName.split('.').pop()?.toLowerCase() || '';
+const initFileInfoData = initFileInfo({ path: filePath, name: fileName, suffix: fileSuffix })
+
 const title = filePath ? '知识问答' : (targetInfo.get('title') || 'AI Chat组件')
 // 是否显示保存按钮
 const showSave = ['1', 1].includes(targetInfo.get('is_save'))
@@ -33,6 +41,9 @@ const replyBaseData = JSON.parse(targetInfo.get('reply') || '{}') ?? {}
 // 交互类型 multi:多轮对话,file:知识问答
 const chatType = filePath ? 'file' : 'multi'
 
+const { isDark } = useTheme()
+
+const ChatBgSvg = computed(() => isDark.value ? ChatBgDarkSvg : ChatBgLightSvg)
 const isMultiTurnLimit = computed(() => chatDataList.value.length >= limitTurns) // 是否置灰输入框
 
 const prompt = ref('')
@@ -41,23 +52,25 @@ const chatDataList = ref([]) // 回答信息
 const messagingId = ref('') // 当前消息ID
 const isSave = ref(false) // 是否在保存过程中
 const saveQAIds = ref([]) // 保存的promptIds
-const showPreview = ref(false) // 是否显示预览弹窗，默认不显示
+const [showPreview, togglePreview] = useToggle(false) // 是否显示预览弹窗，默认不显示
 
 // 文件信息
-const { state: fileInfo } = useAsyncState<FileInfo | null>(async () => {
-  if (!filePath) return initFileInfo()
-  const fileName = filePath.split(/[/\\]/).pop() || '';
-  const fileSuffix = fileName.split('.').pop()?.toLowerCase() || '';
-  const fileContent = await utilsManager.readFile(filePath);
-  const filePreviewContent = fileSuffix === 'txt' ? new TextDecoder().decode(fileContent) : fileContent;
+const { state: fileInfo } = useAsyncState<FileInfo>(async () => {
+  if (!filePath) return initFileInfoData
+  const [err, _fileContent] = await to(utilsManager.readFile(filePath, null));
+  const fileContent = err ? '' : _fileContent;
+  const filePreviewContent = fileSuffix === 'txt' && fileContent instanceof Uint8Array
+    ? new TextDecoder().decode(fileContent)
+    : fileContent;
+
   return {
-    path: filePath,
-    name: fileName,
-    suffix: fileSuffix,
-    content: fileContent,
+    ...initFileInfoData,
+    content: fileContent as string,
     previewContent: filePreviewContent,
   }
-}, initFileInfo())
+}, initFileInfoData)
+
+const couldPreview = computed(() => !['doc', 'docx'].includes(fileInfo.value.suffix))
 
 function updateMessagingChat(key: string, data: string | number) {
   chatDataList.value.forEach((item: chatItem) => {
@@ -207,9 +220,7 @@ function handlePresetClick(item: string) {
 }
 
 function handlePreview() {
-  if (['doc', 'docx'].includes(fileInfo.value.suffix))
-    return false
-  showPreview.value = true
+  couldPreview.value && togglePreview(true)
 }
 
 function handleClose() {
@@ -221,33 +232,26 @@ onBeforeUnmount(() => clearAllData())
 
 <template>
   <div class="chatModal">
-    <div v-show="showPreview" class="chat-side">
-      <CloseOutlined
-        style="position: absolute; right: 15px; top: 10px; z-index: 999;"
-        @click="() => { showPreview = false }"
-      />
-      <div v-if="fileInfo.suffix === 'txt'" class="txt">
-        <p>{{ fileInfo.previewContent }}</p>
-      </div>
-      <div v-if="fileInfo.suffix === 'pdf'">
-        <PDF :src="fileInfo.previewContent" />
-      </div>
-    </div>
-    <div class="chat-main" :style="`width: ${showPreview ? '480px;' : '800px;'}`">
-      <div class="chat-header flex items-center pr-[18px]">
+    <Preview
+      v-show="showPreview"
+      class="mr-2.5"
+      :file-info="fileInfo"
+      @close="togglePreview(false)"
+    />
+    <div class="chat-main flex-1 bg-bg-elevated relative">
+      <component :is="ChatBgSvg" class="absolute top-0 left-0 w-full" />
+      <div class="chat-header relative flex items-center pr-[18px]">
         <div class="drag flex-1 px-[18px] pt-[18px]">{{ title }}</div>
         <CloseOutlined @click="handleClose" />
       </div>
-      <div class="chat-content">
+      <div class="chat-content relative">
         <div v-if="chatType === 'file'" class="chat-list-preset">
-          <div class="basic preset-file" @click="handlePreview">
-            <div class="filename">
-              <img :width="40" :height="40" style="margin-right: 10px;" :src="FILE_TYPE_IMG[fileInfo.suffix]">
-              <a-tooltip :title="fileInfo.path">
-                {{ fileInfo.name }}
-              </a-tooltip>
-            </div>
-            <a-tooltip v-if="!['doc', 'docx'].includes(fileInfo.suffix)" title="查看文档">
+          <div class="basic preset-file flex items-center gap-2.5" @click="handlePreview">
+            <img :width="40" :height="40" :src="FILE_TYPE_IMG[fileInfo.suffix]">
+            <a-tooltip :title="fileInfo.path">
+              {{ fileInfo.name }}
+            </a-tooltip>
+            <a-tooltip v-if="couldPreview" title="查看文档">
               <ZoomInOutlined />
             </a-tooltip>
           </div>
@@ -322,13 +326,8 @@ onBeforeUnmount(() => clearAllData())
           取消
         </a-button>
         <a-tooltip title="保存为输出参数" placement="topRight">
-          <a-button
-            v-if="showSave"
-            :type="isSave ? 'primary' : 'default'"
-            :icon="h(SaveOutlined)"
-            class="saveBtn"
-            @click="handleSave"
-          >
+          <a-button v-if="showSave" :type="isSave ? 'primary' : 'default'" :icon="h(SaveOutlined)" class="saveBtn"
+            @click="handleSave">
             {{ isSave ? '保存' : '' }}
           </a-button>
         </a-tooltip>

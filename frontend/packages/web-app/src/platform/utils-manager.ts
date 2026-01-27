@@ -3,6 +3,12 @@ import type { UtilsManager } from '@rpa/shared/platform'
 const Utils: UtilsManager = {
   getAppVersion: () => Promise.resolve('0.0.0'),
   getAppPath: () => Promise.resolve('/unknown'),
+  getAppConfig: () => Promise.resolve({
+    remote_addr: 'http://172.29.231.250:32742/',
+    skip_engine_start: false,
+    app_auth_type: 'uap',
+    app_edition: 'saas',
+  }),
   getUserPath: () => Promise.resolve('/unknown'),
   getBuildInfo: () => Promise.resolve('browser'),
   getSystemEnv: () => Promise.resolve('browser'),
@@ -18,7 +24,7 @@ const Utils: UtilsManager = {
   invoke: (_channel: string, _args: any[]) => {
     return Promise.reject(new Error('invoke is not supported in browser environment'))
   },
-  readFile: (_fileName: string) => {
+  readFile: (_filePath: string, _encoding?: string) => {
     return Promise.reject(new Error('readFile is not supported in browser environment'))
   },
   saveFile: async (fileName: string, buffer: ArrayBuffer) => {
@@ -46,6 +52,8 @@ const Utils: UtilsManager = {
     })
 
     link.click()
+
+    return true
   },
   playVideo: (videoPath: string) => {
     window.open(videoPath, '_blank')
