@@ -55,16 +55,19 @@ const saveQAIds = ref([]) // 保存的promptIds
 const [showPreview, togglePreview] = useToggle(false) // 是否显示预览弹窗，默认不显示
 
 // 文件信息
-const { state: fileInfo } = useAsyncState<FileInfo | null>(async () => {
+const { state: fileInfo } = useAsyncState<FileInfo>(async () => {
   if (!filePath) return initFileInfoData
   const [err, _fileContent] = await to(utilsManager.readFile(filePath, null));
-  const fileContent = err ? '' : (_fileContent as unknown as any)
-  const filePreviewContent = fileSuffix === 'txt' ? new TextDecoder().decode(fileContent) : fileContent;
+  const fileContent = err ? '' : _fileContent;
+  const filePreviewContent = fileSuffix === 'txt' && fileContent instanceof Uint8Array
+    ? new TextDecoder().decode(fileContent)
+    : fileContent;
 
-  return Object.assign(initFileInfoData, {
-    content: fileContent,
+  return {
+    ...initFileInfoData,
+    content: fileContent as string,
     previewContent: filePreviewContent,
-  })
+  }
 }, initFileInfoData)
 
 const couldPreview = computed(() => !['doc', 'docx'].includes(fileInfo.value.suffix))
