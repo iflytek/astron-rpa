@@ -21,6 +21,14 @@ dependencies = [
     "python-lsp-server[pyflakes,mccabe]",
     "openpyxl",
     "watchdog",
+    "keyring",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-asyncio",
+    "httpx",
 ]
 
 [tool.uv.sources]
