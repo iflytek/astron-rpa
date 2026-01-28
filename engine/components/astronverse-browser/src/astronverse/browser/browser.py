@@ -9,6 +9,9 @@ from astronverse.actionlib.error import *
 from astronverse.actionlib.types import typesMg
 from astronverse.browser import CHROME_LIKE_BROWSERS, CommonForBrowserType
 from astronverse.browser.error import *
+from astronverse.browser.error import (
+    BaseException as BrowserBaseException,
+)
 
 
 class Browser:
