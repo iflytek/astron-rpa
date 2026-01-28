@@ -7,6 +7,7 @@ import CommonSetting from './components/commonSetting/index.vue'
 import PluginInstall from './components/pluginInstall/index.vue'
 import ShortCut from './components/shortCut/index.vue'
 import VideoSetting from './components/videoSetting.vue'
+import Voucher from './components/voucher/index.vue'
 
 export interface MenuItem {
   key: string
@@ -52,6 +53,12 @@ export const menuConfig: MenuItem[] = [
     icon: 'api-key',
     name: 'apiKeyMg',
     component: ApiKeyManage,
+  },
+  {
+    key: 'voucher',
+    icon: 'approval',
+    name: 'voucher',
+    component: Voucher,
   },
   {
     key: 'about',

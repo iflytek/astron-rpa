@@ -78,6 +78,8 @@
   "shortcutKey": "快捷键",
   "pythonDeps": "python依赖",
   "apiKeyMg": "API keys",
+  "voucher": "凭证管理",
+  "voucherName": "凭证名称",
   "about": "关于",
   "enterUserName": "输入您的账号或手机号",
   "enterPassword": "输入您的密码(6-20位)",
@@ -678,6 +680,11 @@
     "apiKeyManage": {
       "createApiKey": "创建API Key",
       "deleteApiKeyConfirm": "确定删除该API Key?"
+    },
+    "voucherManage": {
+      "createVoucher": "添加凭据",
+      "deleteVoucherConfirm": "删除后不可恢复，请确认?",
+      "tips": "安全凭据存储库，对本机用户数据进行本地加密存储，支持在填写输入框原子能力中获取本地凭据进行填入"
     },
     "message": {
       "unreadMessage": "未读消息",

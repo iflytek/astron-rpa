@@ -1,6 +1,8 @@
 import { SearchOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
+import { TableOption } from '@/types/normalTable'
+
 function filterOption(input: string, option: any) {
   return option.children().some((option) => {
     return option.toLowerCase().includes(input.toLowerCase())
@@ -8,7 +10,7 @@ function filterOption(input: string, option: any) {
 }
 
 export function useCardsTools() {
-  const formList = [
+  const formList: TableOption['formList'] = [
     {
       componentType: 'input',
       bind: 'appName',
