@@ -121,19 +121,25 @@ class Atomic(Node):
             svc.add_smart_component(project_id, self.__arguments__.get("smart_component").value)
         # 特殊处理结束
 
-        # 检测是否需要重试包装（debug 模式下不生成重试包装代码）
+        # 检测是否需要包装代码（debug 模式下不生成包装代码）
         advance_info = self._extract_advance_info()
-        if not svc.conf.debug_mode and advance_info["skip_err"] == "retry" and advance_info["retry_time"] > 0:
-            # 添加重试所需的 import
-            svc.add_import_python(project_id, process_id, "import time")
-            svc.add_import_python(project_id, process_id, "import traceback")
-            svc.add_import_python(project_id, process_id, "from astronverse.actionlib.report import report")
-            svc.add_import_python(
-                project_id, process_id, "from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus"
-            )
-            return self._display_with_retry(svc, tab_num, advance_info)
-        else:
-            return self._display_normal(svc, tab_num)
+        if not svc.conf.debug_mode:
+            skip_err = advance_info["skip_err"]
+            # 添加所需的 import
+            if skip_err in ("retry", "skip", "exit"):
+                svc.add_import_python(project_id, process_id, "import traceback")
+                svc.add_import_python(project_id, process_id, "from astronverse.actionlib.report import report")
+                svc.add_import_python(
+                    project_id, process_id, "from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus"
+                )
+            if skip_err == "retry" and advance_info["retry_time"] > 0:
+                svc.add_import_python(project_id, process_id, "import time")
+                return self._display_with_retry(svc, tab_num, advance_info)
+            elif skip_err == "skip":
+                return self._display_with_skip(svc, tab_num)
+            elif skip_err == "exit":
+                return self._display_with_exit(svc, tab_num)
+        return self._display_normal(svc, tab_num)
 
     def _extract_advance_info(self) -> dict:
         """从参数中提取高级参数信息"""
@@ -269,6 +275,127 @@ class Atomic(Node):
 
         return code_lines
 
+    def _display_with_skip(self, svc, tab_num) -> list:
+        """生成带跳过包装的代码"""
+        code_lines = []
+        line = self.token.value.get("__line__", 0)
+        key = self.token.value.get("key", "")
+        process_id = svc.ast_curr_info.get("__process_id__")
+        uid = f"_{line}__"
+
+        # 构建函数调用参数：修改 __skip_err__ 为 "exit"，添加标记
+        modified_arguments = []
+        for k, param in self.__arguments__.items():
+            if k == "__skip_err__":
+                modified_arguments.append('__skip_err__="exit"')
+            elif k in ("__retry_time__", "__retry_interval__"):
+                continue
+            else:
+                modified_arguments.append(param.show())
+        modified_arguments.append("__in_external_retry__=True")
+
+        # 生成函数调用代码
+        src = self.token.value.get("src")
+        if len(self.__returned__) > 0:
+            returns = ",".join([r.show() for r in self.__returned__])
+            func_call = f"{returns} = {src}({', '.join(modified_arguments)})"
+        else:
+            func_call = f"{src}({', '.join(modified_arguments)})"
+
+        # === 生成代码 ===
+
+        # 1. START 上报
+        code_lines.append(
+            CodeLine(
+                tab_num,
+                f'report.info(ReportCode(log_type=ReportType.Code, process_id="{process_id}", key="{key}", '
+                f'line={line}, status=ReportCodeStatus.START, msg_str="流程 {{process}} 第 {line} 步 {{atomic}} 开始执行"))',
+                0,
+            )
+        )
+
+        # 2. try:
+        code_lines.append(CodeLine(tab_num, "try:", 0))
+
+        # 3. 函数调用
+        code_lines.append(CodeLine(tab_num + 1, func_call, line))
+
+        # 4. except:
+        code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 5. SKIP 上报（不 raise，继续执行）
+        code_lines.append(
+            CodeLine(
+                tab_num + 1,
+                f'report.warning(ReportCode(log_type=ReportType.Code, process_id="{process_id}", line={line}, '
+                f'status=ReportCodeStatus.SKIP, msg_str="执行跳过 " + str(__e{uid}), error_traceback=traceback.format_exc()))',
+                0,
+            )
+        )
+
+        return code_lines
+
+    def _display_with_exit(self, svc, tab_num) -> list:
+        """生成带退出包装的代码"""
+        code_lines = []
+        line = self.token.value.get("__line__", 0)
+        key = self.token.value.get("key", "")
+        process_id = svc.ast_curr_info.get("__process_id__")
+        uid = f"_{line}__"
+
+        # 构建函数调用参数
+        modified_arguments = []
+        for k, param in self.__arguments__.items():
+            if k == "__skip_err__":
+                modified_arguments.append('__skip_err__="exit"')
+            elif k in ("__retry_time__", "__retry_interval__"):
+                continue
+            else:
+                modified_arguments.append(param.show())
+        modified_arguments.append("__in_external_retry__=True")
+
+        # 生成函数调用代码
+        src = self.token.value.get("src")
+        if len(self.__returned__) > 0:
+            returns = ",".join([r.show() for r in self.__returned__])
+            func_call = f"{returns} = {src}({', '.join(modified_arguments)})"
+        else:
+            func_call = f"{src}({', '.join(modified_arguments)})"
+
+        # === 生成代码 ===
+
+        # 1. START 上报
+        code_lines.append(
+            CodeLine(
+                tab_num,
+                f'report.info(ReportCode(log_type=ReportType.Code, process_id="{process_id}", key="{key}", '
+                f'line={line}, status=ReportCodeStatus.START, msg_str="流程 {{process}} 第 {line} 步 {{atomic}} 开始执行"))',
+                0,
+            )
+        )
+
+        # 2. try:
+        code_lines.append(CodeLine(tab_num, "try:", 0))
+
+        # 3. 函数调用
+        code_lines.append(CodeLine(tab_num + 1, func_call, line))
+
+        # 4. except:
+        code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 5. ERROR 上报并抛出
+        code_lines.append(
+            CodeLine(
+                tab_num + 1,
+                f'report.error(ReportCode(log_type=ReportType.Code, process_id="{process_id}", line={line}, '
+                f'status=ReportCodeStatus.ERROR, msg_str="执行错误 " + str(__e{uid}), error_traceback=traceback.format_exc()))',
+                0,
+            )
+        )
+        code_lines.append(CodeLine(tab_num + 1, "raise", 0))
+
+        return code_lines
+
 
 @dataclass
 class AtomicExist(Node):
@@ -296,19 +423,25 @@ class AtomicExist(Node):
                 project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
             )
 
-        # 检测是否需要重试包装（debug 模式下不生成重试包装代码）
+        # 检测是否需要包装代码（debug 模式下不生成包装代码）
         advance_info = self._extract_advance_info()
-        if not svc.conf.debug_mode and advance_info["skip_err"] == "retry" and advance_info["retry_time"] > 0:
-            # 添加重试所需的 import
-            svc.add_import_python(project_id, process_id, "import time")
-            svc.add_import_python(project_id, process_id, "import traceback")
-            svc.add_import_python(project_id, process_id, "from astronverse.actionlib.report import report")
-            svc.add_import_python(
-                project_id, process_id, "from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus"
-            )
-            return self._display_with_retry(svc, tab_num, advance_info)
-        else:
-            return self._display_normal(svc, tab_num)
+        if not svc.conf.debug_mode:
+            skip_err = advance_info["skip_err"]
+            # 添加所需的 import
+            if skip_err in ("retry", "skip", "exit"):
+                svc.add_import_python(project_id, process_id, "import traceback")
+                svc.add_import_python(project_id, process_id, "from astronverse.actionlib.report import report")
+                svc.add_import_python(
+                    project_id, process_id, "from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus"
+                )
+            if skip_err == "retry" and advance_info["retry_time"] > 0:
+                svc.add_import_python(project_id, process_id, "import time")
+                return self._display_with_retry(svc, tab_num, advance_info)
+            elif skip_err == "skip":
+                return self._display_with_skip(svc, tab_num)
+            elif skip_err == "exit":
+                return self._display_with_exit(svc, tab_num)
+        return self._display_normal(svc, tab_num)
 
     def _extract_advance_info(self) -> dict:
         """从参数中提取高级参数信息"""
@@ -485,6 +618,172 @@ class AtomicExist(Node):
 
         return code_lines
 
+    def _display_with_skip(self, svc, tab_num) -> list:
+        """生成带跳过包装的代码"""
+        code_lines = []
+        line = self.token.value.get("__line__", 0)
+        key = self.token.value.get("key", "")
+        process_id = svc.ast_curr_info.get("__process_id__")
+        uid = f"_{line}__"
+
+        # 构建函数调用参数
+        modified_arguments = []
+        for k, param in self.__arguments__.items():
+            if k == "__skip_err__":
+                modified_arguments.append('__skip_err__="exit"')
+            elif k in ("__retry_time__", "__retry_interval__"):
+                continue
+            else:
+                modified_arguments.append(param.show())
+        modified_arguments.append("__in_external_retry__=True")
+
+        # 生成函数调用代码
+        src = self.token.value.get("src")
+        func_call = f"__exist_result{uid} = {src}({', '.join(modified_arguments)})"
+
+        # === 生成代码 ===
+
+        # 1. START 上报
+        code_lines.append(
+            CodeLine(
+                tab_num,
+                f'report.info(ReportCode(log_type=ReportType.Code, process_id="{process_id}", key="{key}", '
+                f'line={line}, status=ReportCodeStatus.START, msg_str="流程 {{process}} 第 {line} 步 {{atomic}} 开始执行"))',
+                0,
+            )
+        )
+
+        # 2. 初始化结果变量
+        code_lines.append(CodeLine(tab_num, f"__exist_result{uid} = False", 0))
+
+        # 3. try:
+        code_lines.append(CodeLine(tab_num, "try:", 0))
+
+        # 4. 函数调用
+        code_lines.append(CodeLine(tab_num + 1, func_call, line))
+
+        # 5. except:
+        code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 6. SKIP 上报（不 raise，继续执行）
+        code_lines.append(
+            CodeLine(
+                tab_num + 1,
+                f'report.warning(ReportCode(log_type=ReportType.Code, process_id="{process_id}", line={line}, '
+                f'status=ReportCodeStatus.SKIP, msg_str="执行跳过 " + str(__e{uid}), error_traceback=traceback.format_exc()))',
+                0,
+            )
+        )
+
+        # 7. if 判断（使用临时变量）
+        code_lines.append(CodeLine(tab_num, f"if __exist_result{uid}:", 0))
+
+        # if body块
+        if self.consequence:
+            temp = self.consequence.display(svc, tab_num)
+            if temp:
+                code_lines.extend(temp)
+            else:
+                code_lines.append(CodeLine(tab_num + 1, "pass"))
+
+        # elif 块
+        if self.conditions_and_blocks:
+            for i in self.conditions_and_blocks:
+                code_lines.extend(i.display(svc, tab_num, True))
+
+        # else 块
+        if self.alternative:
+            code_lines.append(CodeLine(tab_num, "else:"))
+            temp = self.alternative.display(svc, tab_num)
+            if temp:
+                code_lines.extend(temp)
+            else:
+                code_lines.append(CodeLine(tab_num + 1, "pass"))
+
+        return code_lines
+
+    def _display_with_exit(self, svc, tab_num) -> list:
+        """生成带退出包装的代码"""
+        code_lines = []
+        line = self.token.value.get("__line__", 0)
+        key = self.token.value.get("key", "")
+        process_id = svc.ast_curr_info.get("__process_id__")
+        uid = f"_{line}__"
+
+        # 构建函数调用参数
+        modified_arguments = []
+        for k, param in self.__arguments__.items():
+            if k == "__skip_err__":
+                modified_arguments.append('__skip_err__="exit"')
+            elif k in ("__retry_time__", "__retry_interval__"):
+                continue
+            else:
+                modified_arguments.append(param.show())
+        modified_arguments.append("__in_external_retry__=True")
+
+        # 生成函数调用代码
+        src = self.token.value.get("src")
+        func_call = f"__exist_result{uid} = {src}({', '.join(modified_arguments)})"
+
+        # === 生成代码 ===
+
+        # 1. START 上报
+        code_lines.append(
+            CodeLine(
+                tab_num,
+                f'report.info(ReportCode(log_type=ReportType.Code, process_id="{process_id}", key="{key}", '
+                f'line={line}, status=ReportCodeStatus.START, msg_str="流程 {{process}} 第 {line} 步 {{atomic}} 开始执行"))',
+                0,
+            )
+        )
+
+        # 2. try:
+        code_lines.append(CodeLine(tab_num, "try:", 0))
+
+        # 3. 函数调用
+        code_lines.append(CodeLine(tab_num + 1, func_call, line))
+
+        # 4. except:
+        code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 5. ERROR 上报并抛出
+        code_lines.append(
+            CodeLine(
+                tab_num + 1,
+                f'report.error(ReportCode(log_type=ReportType.Code, process_id="{process_id}", line={line}, '
+                f'status=ReportCodeStatus.ERROR, msg_str="执行错误 " + str(__e{uid}), error_traceback=traceback.format_exc()))',
+                0,
+            )
+        )
+        code_lines.append(CodeLine(tab_num + 1, "raise", 0))
+
+        # 6. if 判断
+        code_lines.append(CodeLine(tab_num, f"if __exist_result{uid}:", 0))
+
+        # if body块
+        if self.consequence:
+            temp = self.consequence.display(svc, tab_num)
+            if temp:
+                code_lines.extend(temp)
+            else:
+                code_lines.append(CodeLine(tab_num + 1, "pass"))
+
+        # elif 块
+        if self.conditions_and_blocks:
+            for i in self.conditions_and_blocks:
+                code_lines.extend(i.display(svc, tab_num, True))
+
+        # else 块
+        if self.alternative:
+            code_lines.append(CodeLine(tab_num, "else:"))
+            temp = self.alternative.display(svc, tab_num)
+            if temp:
+                code_lines.extend(temp)
+            else:
+                code_lines.append(CodeLine(tab_num + 1, "pass"))
+
+        return code_lines
+
 
 @dataclass
 class AtomicFor(Node):
@@ -509,19 +808,25 @@ class AtomicFor(Node):
                 project_id, process_id, "import {}.{}.{}".format(import_list[0], import_list[1], import_list[2])
             )
 
-        # 检测是否需要重试包装（debug 模式下不生成重试包装代码）
+        # 检测是否需要包装代码（debug 模式下不生成包装代码）
         advance_info = self._extract_advance_info()
-        if not svc.conf.debug_mode and advance_info["skip_err"] == "retry" and advance_info["retry_time"] > 0:
-            # 添加重试所需的 import
-            svc.add_import_python(project_id, process_id, "import time")
-            svc.add_import_python(project_id, process_id, "import traceback")
-            svc.add_import_python(project_id, process_id, "from astronverse.actionlib.report import report")
-            svc.add_import_python(
-                project_id, process_id, "from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus"
-            )
-            return self._display_with_retry(svc, tab_num, advance_info)
-        else:
-            return self._display_normal(svc, tab_num)
+        if not svc.conf.debug_mode:
+            skip_err = advance_info["skip_err"]
+            # 添加所需的 import
+            if skip_err in ("retry", "skip", "exit"):
+                svc.add_import_python(project_id, process_id, "import traceback")
+                svc.add_import_python(project_id, process_id, "from astronverse.actionlib.report import report")
+                svc.add_import_python(
+                    project_id, process_id, "from astronverse.actionlib import ReportCode, ReportType, ReportCodeStatus"
+                )
+            if skip_err == "retry" and advance_info["retry_time"] > 0:
+                svc.add_import_python(project_id, process_id, "import time")
+                return self._display_with_retry(svc, tab_num, advance_info)
+            elif skip_err == "skip":
+                return self._display_with_skip(svc, tab_num)
+            elif skip_err == "exit":
+                return self._display_with_exit(svc, tab_num)
+        return self._display_normal(svc, tab_num)
 
     def _extract_advance_info(self) -> dict:
         """从参数中提取高级参数信息"""
@@ -662,6 +967,150 @@ class AtomicFor(Node):
             code_lines.append(CodeLine(tab_num + 2, f"time.sleep({advance_info['retry_interval']})", 0))
 
         # 11. for 循环（使用临时变量）
+        returns = ", ".join([r.show() for r in self.__returned__])
+        code_lines.append(CodeLine(tab_num, f"for {returns} in __for_iterable{uid}:", 0))
+
+        # for body块
+        if self.body:
+            temp = self.body.display(svc, tab_num)
+            if temp:
+                code_lines.extend(temp)
+            else:
+                code_lines.append(CodeLine(tab_num + 1, "pass"))
+        else:
+            code_lines.append(CodeLine(tab_num + 1, "pass"))
+
+        return code_lines
+
+    def _display_with_skip(self, svc, tab_num) -> list:
+        """生成带跳过包装的代码"""
+        code_lines = []
+        line = self.token.value.get("__line__", 0)
+        key = self.token.value.get("key", "")
+        process_id = svc.ast_curr_info.get("__process_id__")
+        uid = f"_{line}__"
+
+        # 构建函数调用参数
+        modified_arguments = []
+        for k, param in self.__arguments__.items():
+            if k == "__skip_err__":
+                modified_arguments.append('__skip_err__="exit"')
+            elif k in ("__retry_time__", "__retry_interval__"):
+                continue
+            else:
+                modified_arguments.append(param.show())
+        modified_arguments.append("__in_external_retry__=True")
+
+        # 生成函数调用代码
+        src = self.token.value.get("src")
+        func_call = f"__for_iterable{uid} = {src}({', '.join(modified_arguments)})"
+
+        # === 生成代码 ===
+
+        # 1. START 上报
+        code_lines.append(
+            CodeLine(
+                tab_num,
+                f'report.info(ReportCode(log_type=ReportType.Code, process_id="{process_id}", key="{key}", '
+                f'line={line}, status=ReportCodeStatus.START, msg_str="流程 {{process}} 第 {line} 步 {{atomic}} 开始执行"))',
+                0,
+            )
+        )
+
+        # 2. 初始化结果变量
+        code_lines.append(CodeLine(tab_num, f"__for_iterable{uid} = []", 0))
+
+        # 3. try:
+        code_lines.append(CodeLine(tab_num, "try:", 0))
+
+        # 4. 函数调用
+        code_lines.append(CodeLine(tab_num + 1, func_call, line))
+
+        # 5. except:
+        code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 6. SKIP 上报（不 raise，继续执行）
+        code_lines.append(
+            CodeLine(
+                tab_num + 1,
+                f'report.warning(ReportCode(log_type=ReportType.Code, process_id="{process_id}", line={line}, '
+                f'status=ReportCodeStatus.SKIP, msg_str="执行跳过 " + str(__e{uid}), error_traceback=traceback.format_exc()))',
+                0,
+            )
+        )
+
+        # 7. for 循环（使用临时变量）
+        returns = ", ".join([r.show() for r in self.__returned__])
+        code_lines.append(CodeLine(tab_num, f"for {returns} in __for_iterable{uid}:", 0))
+
+        # for body块
+        if self.body:
+            temp = self.body.display(svc, tab_num)
+            if temp:
+                code_lines.extend(temp)
+            else:
+                code_lines.append(CodeLine(tab_num + 1, "pass"))
+        else:
+            code_lines.append(CodeLine(tab_num + 1, "pass"))
+
+        return code_lines
+
+    def _display_with_exit(self, svc, tab_num) -> list:
+        """生成带退出包装的代码"""
+        code_lines = []
+        line = self.token.value.get("__line__", 0)
+        key = self.token.value.get("key", "")
+        process_id = svc.ast_curr_info.get("__process_id__")
+        uid = f"_{line}__"
+
+        # 构建函数调用参数
+        modified_arguments = []
+        for k, param in self.__arguments__.items():
+            if k == "__skip_err__":
+                modified_arguments.append('__skip_err__="exit"')
+            elif k in ("__retry_time__", "__retry_interval__"):
+                continue
+            else:
+                modified_arguments.append(param.show())
+        modified_arguments.append("__in_external_retry__=True")
+
+        # 生成函数调用代码
+        src = self.token.value.get("src")
+        func_call = f"__for_iterable{uid} = {src}({', '.join(modified_arguments)})"
+
+        # === 生成代码 ===
+
+        # 1. START 上报
+        code_lines.append(
+            CodeLine(
+                tab_num,
+                f'report.info(ReportCode(log_type=ReportType.Code, process_id="{process_id}", key="{key}", '
+                f'line={line}, status=ReportCodeStatus.START, msg_str="流程 {{process}} 第 {line} 步 {{atomic}} 开始执行"))',
+                0,
+            )
+        )
+
+        # 2. try:
+        code_lines.append(CodeLine(tab_num, "try:", 0))
+
+        # 3. 函数调用
+        code_lines.append(CodeLine(tab_num + 1, func_call, line))
+
+        # 4. except:
+        code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 5. ERROR 上报并抛出
+        code_lines.append(
+            CodeLine(
+                tab_num + 1,
+                f'report.error(ReportCode(log_type=ReportType.Code, process_id="{process_id}", line={line}, '
+                f'status=ReportCodeStatus.ERROR, msg_str="执行错误 " + str(__e{uid}), error_traceback=traceback.format_exc()))',
+                0,
+            )
+        )
+        code_lines.append(CodeLine(tab_num + 1, "raise", 0))
+
+        # 6. for 循环（使用临时变量）
         returns = ", ".join([r.show() for r in self.__returned__])
         code_lines.append(CodeLine(tab_num, f"for {returns} in __for_iterable{uid}:", 0))
 
