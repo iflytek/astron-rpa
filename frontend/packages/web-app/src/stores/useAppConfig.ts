@@ -141,7 +141,9 @@ export const useAppConfigStore = defineStore('appConfig', () => {
 
   // 拒绝更新
   const rejectUpdate = (version: string) => {
-    closeUpdateModalVersion.value.push(version)
+    if (!closeUpdateModalVersion.value.includes(version)) {
+      closeUpdateModalVersion.value.push(version)
+    }
   }
 
   return {

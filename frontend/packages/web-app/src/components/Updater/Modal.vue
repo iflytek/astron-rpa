@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
+import { StyleValue } from 'vue'
 
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import bgImage from '@/assets/img/updater/bg.svg'
 import iconImage from '@/assets/img/updater/icon.svg'
-// import cloudLeftImage from '@/assets/img/updater/cloud-1.png'
-// import cloudRightImage from '@/assets/img/updater/cloud-2.png'
+import cloudLeftImage from '@/assets/img/updater/cloud-2.webp'
+import cloudRightImage from '@/assets/img/updater/cloud-1.webp'
 
 const modal = NiceModal.useModal()
 const appStore = useAppConfigStore()
@@ -26,6 +27,14 @@ const handleRejectUpdate = () => {
   appStore.rejectUpdate(props.latestVersion)
   handleClose()
 }
+
+const genCloudStyle = (imgUrl: string): StyleValue => {
+  return {
+    background: `url(${imgUrl}) lightgray 50% / cover no-repeat`,
+    mixBlendMode: 'screen',
+    filter: 'blur(2.0677084922790527px)'
+  }
+}
 </script>
 
 <template>
@@ -38,8 +47,8 @@ const handleRejectUpdate = () => {
     <div class="h-[317px] w-full overflow-hidden relative">
       <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max" />
       <rpa-star-motion class="absolute w-full h-full left-0 top-0" />
-      <!-- <img :src="cloudLeftImage" class="absolute left-0 bottom-0" /> -->
-      <!-- <img :src="cloudRightImage" class="absolute right-0 bottom-0" /> -->
+      <div class="absolute -left-[125px] -bottom-[49.82px] w-[303.953px] h-[202.635px] aspect-[3/2]" :style="genCloudStyle(cloudLeftImage)" />
+      <div class="absolute -right-[49px] -bottom-[65px] w-[268px] h-[214px] aspect-[134/107]" :style="genCloudStyle(cloudRightImage)" />
     </div>
 
     <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">
