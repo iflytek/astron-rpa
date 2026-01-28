@@ -6,7 +6,7 @@ import DataBatch from '@/components/DataBatch/Index.vue'
 <template>
   <ConfigProvider>
     <div class="p-batch h-screen">
-      <div class="h-full bg-bg-elevated rounded-md shadow-md flex flex-col  overflow-hidden box-border">
+      <div class="h-full bg-bg-elevated rounded-md shadow-md flex flex-col overflow-hidden box-border">
         <DataBatch />
       </div>
     </div>

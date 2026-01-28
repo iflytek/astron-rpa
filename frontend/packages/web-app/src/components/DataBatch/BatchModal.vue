@@ -1,11 +1,9 @@
-<!-- @format -->
-
 <script lang="ts" setup>
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { message, RangePicker } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { useTranslation } from 'i18next-vue'
-import { defineEmits, h, reactive, ref, toRaw, watch } from 'vue'
+import { h, reactive, ref, toRaw, watch } from 'vue'
 
 import { usePickStore } from '@/stores/usePickStore'
 import CustomTable from '@/views/Arrange/components/pick/CustomTable.vue'
@@ -422,7 +420,7 @@ watch(() => props.config, (newVal) => {
           </a-radio>
         </a-radio-group>
         <div class="filter-box mt-2 text-[12px]">
-          <div v-for="(item, index) in modalConfig.column.colFilterConfig" :key="index" class="flex justify-between items-center mb-2">
+          <div v-for="(item, index) in modalConfig.column.colFilterConfig as any[]" :key="index" class="flex justify-between items-center mb-2">
             <span>{{ t('dataBatch.condition') }}{{ index + 1 }}</span>
             <a-select v-model:value="item.logical" class="filter-select ml-2 text-[12px]" :options="expSelectListData" @change="filterSelectChange(item)" />
             <a-input v-if="showfilterValueInput(item.logical) === 'input'" v-model:value="item.parameter" class="filter-input ml-2 text-[12px]" :placeholder="inputPlaceholder(item.logical)" />
@@ -459,7 +457,7 @@ watch(() => props.config, (newVal) => {
           </a-radio>
         </a-radio-group>
         <div class="filter-box mt-2 text-[12px]">
-          <div v-for="(item, index) in modalConfig.column.filterConfig" :key="index" class="flex items-center mb-2 relative">
+          <div v-for="(item, index) in modalConfig.column.filterConfig as any[]" :key="index" class="flex items-center mb-2 relative">
             <span>{{ t('dataBatch.condition') }}{{ index + 1 }}</span>
             <a-select v-model:value="item.logical" class="filter-select ml-2 text-[12px]" :options="expSelectListData" @change="filterSelectChange(item)" />
             <a-input v-show="showfilterValueInput(item.logical) === 'input'" v-model:value="item.parameter" class="filter-input ml-2 text-[12px]" :placeholder="inputPlaceholder(item.logical)" />
