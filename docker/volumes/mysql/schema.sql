@@ -355,7 +355,7 @@ CREATE TABLE `c_atom_meta_new` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_atom_key` (`atom_key`) COMMENT 'atom_key索引'
-) ENGINE=InnoDB AUTO_INCREMENT=558 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=558 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-新原子能力';
 
 
 -- rpa.c_element definition
