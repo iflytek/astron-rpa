@@ -2,17 +2,29 @@ import ast
 import inspect
 import os
 from enum import Enum
+from typing import Optional
 import keyring
 from astronverse.actionlib.error import *
 from astronverse.actionlib.logger import logger
 
 
 # 凭据服务名称，用于 keyring 存储
-SERVICE_NAME = "astronverse-rpa"
+SERVICE_NAME = "AstronRPA"
 
+# 空密码哨兵值，用于区分"空密码"和"不存在"
+EMPTY_PASSWORD_SENTINEL = "__RPA__Credential__EMPTY__PASSWORD__"
 
 class Credential:
     """凭证读取服务"""
+
+    @staticmethod
+    def _decode_password(stored: Optional[str]) -> Optional[str]:
+        """从 keyring 取出后还原真实密码"""
+        if stored is None:
+            return None
+        if stored == EMPTY_PASSWORD_SENTINEL:
+            return ""
+        return stored
 
     @staticmethod
     def get_credential(name: str) -> str | None:
@@ -23,10 +35,11 @@ class Credential:
             name: 凭证名称
 
         Returns:
-            凭证密码，如果不存在则返回 None
+            凭证密码（不存在返回 None，存在可返回空字符串）
         """
         try:
-            return keyring.get_password(SERVICE_NAME, name)
+            stored = keyring.get_password(SERVICE_NAME, name)
+            return Credential._decode_password(stored)
         except Exception as e:
             logger.exception(f"获取凭证失败: {e}")
             return None
