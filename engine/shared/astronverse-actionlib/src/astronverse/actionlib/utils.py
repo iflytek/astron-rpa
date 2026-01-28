@@ -2,9 +2,34 @@ import ast
 import inspect
 import os
 from enum import Enum
-
+import keyring
 from astronverse.actionlib.error import *
 from astronverse.actionlib.logger import logger
+
+
+# 凭据服务名称，用于 keyring 存储
+SERVICE_NAME = "astronverse-rpa"
+
+
+class Credential:
+    """凭证读取服务"""
+
+    @staticmethod
+    def get_credential(name: str) -> str | None:
+        """
+        获取凭证密码（供内部使用）
+
+        Args:
+            name: 凭证名称
+
+        Returns:
+            凭证密码，如果不存在则返回 None
+        """
+        try:
+            return keyring.get_password(SERVICE_NAME, name)
+        except Exception as e:
+            logger.exception(f"获取凭证失败: {e}")
+            return None
 
 
 class InspectType(Enum):
