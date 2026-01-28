@@ -1582,27 +1582,6 @@ INSERT INTO c_atom_meta_new (atom_key,atom_content,sort,create_time,update_time)
       ]
     },
     {
-      "key": "enterprise",
-      "title": "控制台",
-      "atomics": [
-        {
-          "key": "Enterprise.get_shared_variable",
-          "title": "获取共享变量",
-          "icon": "get-shared-variable"
-        },
-        {
-          "key": "Enterprise.download_from_sharefolder",
-          "title": "从共享文件夹下载文件",
-          "icon": ""
-        },
-        {
-          "key": "Enterprise.upload_to_sharefolder",
-          "title": "上传文件至共享文件夹",
-          "icon": ""
-        }
-      ]
-    },
-    {
       "key": "script",
       "title": "自定义脚本",
       "atomics": [
