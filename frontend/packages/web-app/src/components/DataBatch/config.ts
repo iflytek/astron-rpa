@@ -1,4 +1,3 @@
-/** @format */
 import type { BatchDataTableMenu } from '@/types/databatch.d'
 
 export const Menus: BatchDataTableMenu[] = [
@@ -339,11 +338,3 @@ export const dateSelectList = [
   { label: '%j （数字代表一年中第几天）', value: '%j', key: 'day_of_year' },
   { label: '%W （数字代表一年中第几周）', value: '%W', key: 'week_of_year' },
 ]
-
-const obj = {}
-function aaa(data) {
-  data.forEach((item) => {
-    obj[item.key] = item.label
-  })
-}
-aaa(dateSelectList)
