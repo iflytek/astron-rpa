@@ -2,7 +2,7 @@
 import { onBeforeUnmount } from 'vue'
 
 import { useTheme } from '../../../../theme'
-import LoginBgDark from '../../assets/imgs/login_bg_dark.png'
+import LoginBgDark from '../../assets/imgs/login_bg_dark.webp'
 import LoginSvg from '../../assets/imgs/login_img.svg?component'
 
 import PageHeader from './PageHeader.vue'

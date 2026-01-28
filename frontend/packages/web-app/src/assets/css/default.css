@@ -69,9 +69,6 @@ h6 {
 :root,
 :host {
   --headerZindex: 9;
-  --loginBg: url('@/assets/img/login/loginBg.jpg');
-  --loginOpenBg: url('@/assets/img/login/loginOpenBg.jpg');
-  --loginPlatformBg: url('@/assets/img/login/open_platform_logo.png');
   --headerBgColor: transparent;
   --headerFontColor: #000;
   --headerTitleColor: #000;
