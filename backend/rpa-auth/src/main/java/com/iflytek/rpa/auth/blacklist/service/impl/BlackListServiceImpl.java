@@ -284,9 +284,7 @@ public class BlackListServiceImpl implements BlackListService {
      */
     private boolean tryLock(String key, long expireSeconds) {
         try {
-            return RedisUtils.redisTemplate
-                    .opsForValue()
-                    .setIfAbsent(key, "locked", java.time.Duration.ofSeconds(expireSeconds));
+            return RedisUtils.redisTemplate.opsForValue().setIfAbsent(key, "locked", Duration.ofSeconds(expireSeconds));
         } catch (Exception e) {
             log.error("获取分布式锁失败", e);
             return false;

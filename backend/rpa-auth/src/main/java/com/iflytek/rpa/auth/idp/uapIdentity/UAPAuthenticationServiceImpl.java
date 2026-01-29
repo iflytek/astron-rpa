@@ -1,11 +1,7 @@
 package com.iflytek.rpa.auth.idp.uapIdentity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iflytek.rpa.auth.core.entity.ChangePasswordDto;
-import com.iflytek.rpa.auth.core.entity.LoginDto;
-import com.iflytek.rpa.auth.core.entity.RegisterDto;
-import com.iflytek.rpa.auth.core.entity.Tenant;
-import com.iflytek.rpa.auth.core.entity.User;
+import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.TenantService;
 import com.iflytek.rpa.auth.idp.AuthenticationService;
 import com.iflytek.rpa.auth.sp.uap.constants.RedisKeyConstant;
@@ -787,5 +783,10 @@ public class UAPAuthenticationServiceImpl implements AuthenticationService {
             log.error("处理单点登录失败，用户ID：{}", userId, e);
             // 不抛出异常，避免影响登录流程
         }
+    }
+
+    @Override
+    public AppResponse<String> addUser(AddUserDto user, HttpServletRequest request) {
+        return null;
     }
 }

@@ -467,4 +467,9 @@ public class CasdoorAuthenticationServiceImpl implements AuthenticationService {
     public AppResponse<String> changePassword(ChangePasswordDto changePasswordDto) {
         return null;
     }
+
+    @Override
+    public AppResponse<String> addUser(AddUserDto user, HttpServletRequest request) {
+        return null;
+    }
 }

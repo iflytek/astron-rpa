@@ -1,8 +1,8 @@
 
 spring:
-  autoconfigure:
-    exclude:
-      - com.iflytek.sec.uap.starter.UapClientAutoConfiguration
+#  autoconfigure:
+#    exclude:
+#      - com.iflytek.sec.uap.starter.UapClientAutoConfiguration
   servlet:
     multipart:
       max-request-size: 110MB

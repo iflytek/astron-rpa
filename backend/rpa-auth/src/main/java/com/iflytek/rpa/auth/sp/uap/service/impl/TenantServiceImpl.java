@@ -603,26 +603,19 @@ public class TenantServiceImpl implements TenantService {
             return;
         }
 
-        try {
-            String tenantId = tenant.getId();
-            String tenantCode = tenant.getTenantCode();
+        String tenantId = tenant.getId();
+        String tenantCode = tenant.getTenantCode();
 
-            TenantExpirationDto dto = new TenantExpirationDto();
-            // fillTenantExpirationInfo 用于填充租户列表信息，不需要检查用户是否在租户中
-            // 所以这里不传loginName参数，使用null
-            calculateAndFillExpirationInfo(dto, tenantId, tenantCode, null);
+        TenantExpirationDto dto = new TenantExpirationDto();
+        // fillTenantExpirationInfo 用于填充租户列表信息，不需要检查用户是否在租户中
+        // 所以这里不传loginName参数，使用null
+        calculateAndFillExpirationInfo(dto, tenantId, tenantCode, null);
 
-            // 填充到期信息到租户对象
-            tenant.setExpirationDate(dto.getExpirationDate());
-            tenant.setRemainingDays(dto.getRemainingDays());
-            tenant.setIsExpired(dto.getIsExpired());
-            tenant.setShouldAlert(dto.getShouldAlert());
-
-        } catch (Exception e) {
-            log.error("填充租户到期信息失败，tenantId: {}", tenant != null ? tenant.getId() : "null", e);
-            // 发生异常时，设置默认值，不影响租户列表返回
-            setDefaultExpirationInfo(tenant);
-        }
+        // 填充到期信息到租户对象
+        tenant.setExpirationDate(dto.getExpirationDate());
+        tenant.setRemainingDays(dto.getRemainingDays());
+        tenant.setIsExpired(dto.getIsExpired());
+        tenant.setShouldAlert(dto.getShouldAlert());
     }
 
     /**
@@ -665,26 +658,26 @@ public class TenantServiceImpl implements TenantService {
             // 2. 租户拥有空间，查询到期信息（带缓存）
             TenantExpiration expiration = getTenantExpirationWithCache(tenantId);
             if (expiration == null) {
-                // 如果没有到期信息，返回默认值
-                log.debug("租户{}没有到期信息", tenantId);
-                setDefaultExpirationInfo(dto);
-                return;
+                // 专业版和非买断企业版必须有到期信息，如果没有，抛异常
+                log.error("租户{}没有到期信息，租户类型：{}", tenantId, tenantType);
+                throw new ServiceException("空间到期，请联系管理员续期");
             }
 
             // 解析到期日期
             String expirationDateStr = expiration.getExpirationDate();
             if (StringUtils.isBlank(expirationDateStr)) {
-                setDefaultExpirationInfo(dto);
-                return;
+                // 专业版和非买断企业版必须有到期时间，如果没有，抛异常
+                log.error("租户{}到期时间为空，租户类型：{}", tenantId, tenantType);
+                throw new ServiceException("未配置空间有效期，请联系管理员");
             }
 
-            // 尝试解密（解密函数内部会判断是否是日期格式，如果是日期格式则直接返回，否则解密）
+            // 尝试解密
             try {
                 expirationDateStr = EncryptUtils.decrypt(expirationDateStr);
             } catch (Exception e) {
-                log.error("解密租户到期时间失败，tenantId: {}", tenantId, e);
-                setDefaultExpirationInfo(dto);
-                return;
+                log.error("解密租户到期时间失败，tenantId: {}, 租户类型：{}", tenantId, tenantType, e);
+                // 解密失败，说明到期时间无效，抛异常
+                throw new ServiceException("空间到期，请联系管理员续期");
             }
 
             // 解析日期并计算剩余天数
@@ -693,9 +686,14 @@ public class TenantServiceImpl implements TenantService {
             try {
                 expirationDate = LocalDate.parse(expirationDateStr, formatter);
             } catch (Exception e) {
-                log.error("解析到期日期失败，tenantId: {}, expirationDate: {}", tenantId, expirationDateStr, e);
-                setDefaultExpirationInfo(dto);
-                return;
+                log.error(
+                        "解析到期日期失败，tenantId: {}, expirationDate: {}, 租户类型：{}",
+                        tenantId,
+                        expirationDateStr,
+                        tenantType,
+                        e);
+                // 解析失败，说明到期时间格式无效，抛异常
+                throw new ServiceException("空间到期，请联系管理员续期");
             }
 
             LocalDate now = LocalDate.now();
@@ -709,9 +707,13 @@ public class TenantServiceImpl implements TenantService {
             dto.setIsExpired(isExpired);
             dto.setShouldAlert(shouldAlert);
 
+        } catch (ServiceException e) {
+            // ServiceException需要向上抛出，不捕获
+            throw e;
         } catch (Exception e) {
             log.error("计算租户到期信息失败，tenantId: {}", tenantId, e);
-            setDefaultExpirationInfo(dto);
+            // 其他异常也视为空间到期
+            throw new ServiceException("空间到期，请联系管理员续期");
         }
     }
 
@@ -862,20 +864,6 @@ public class TenantServiceImpl implements TenantService {
             dto.setRemainingDays(null);
             dto.setIsExpired(false);
             dto.setShouldAlert(false);
-        }
-    }
-
-    /**
-     * 设置默认的到期信息到Tenant对象（用于异常情况）
-     *
-     * @param tenant 租户对象
-     */
-    private void setDefaultExpirationInfo(Tenant tenant) {
-        if (tenant != null) {
-            tenant.setExpirationDate(null);
-            tenant.setRemainingDays(null);
-            tenant.setIsExpired(false);
-            tenant.setShouldAlert(false);
         }
     }
 }

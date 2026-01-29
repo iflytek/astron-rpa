@@ -9,14 +9,30 @@ WORKDIR /app
 # 复制Maven配置文件
 COPY backend/rpa-auth/pom.xml .
 
+# 复制 lib 目录（opensource profile 需要）
+COPY backend/rpa-auth/lib ./lib
+
+# 安装 rpa-auth-stubs 的 JAR
+RUN if [ -f "./lib/rpa-auth-stubs-1.0.0.jar" ]; then \
+    mvn install:install-file \
+        -Dfile=./lib/rpa-auth-stubs-1.0.0.jar \
+        -DgroupId=com.iflytek.rpa \
+        -DartifactId=rpa-auth-stubs \
+        -Dversion=1.0.0 \
+        -Dpackaging=jar; \
+    else \
+        echo "错误: 找不到 lib/rpa-auth-stubs-1.0.0.jar"; \
+        exit 1; \
+    fi
+
 # 下载依赖（利用Docker缓存层）
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B -P opensource
 
 # 复制源代码
 COPY backend/rpa-auth/src ./src
 
-# 构建应用
-RUN mvn clean package -DskipTests
+# 构建应用（启用 opensource profile）
+RUN mvn clean package -DskipTests -P opensource
 
 # 第二阶段：构建可执行镜像
 FROM eclipse-temurin:8-jre AS runtime

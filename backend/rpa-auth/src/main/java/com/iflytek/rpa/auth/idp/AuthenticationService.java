@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.idp;
 
+import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.entity.LoginDto;
 import com.iflytek.rpa.auth.core.entity.RegisterDto;
 import com.iflytek.rpa.auth.core.entity.Tenant;
@@ -167,5 +168,7 @@ public interface AuthenticationService {
      * @param changePasswordDto 修改密码请求参数（包含账号、手机号、旧密码、新密码、确认密码）
      * @return 临时凭证（tempToken），用于后续获取租户列表和登录
      */
-    AppResponse<String> changePassword(com.iflytek.rpa.auth.core.entity.ChangePasswordDto changePasswordDto);
+    AppResponse<String> changePassword(ChangePasswordDto changePasswordDto);
+
+    AppResponse<String> addUser(AddUserDto user, HttpServletRequest request);
 }

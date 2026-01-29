@@ -260,26 +260,6 @@ CREATE TABLE `app_market_version` (
 ) ENGINE=InnoDB AUTO_INCREMENT=663 DEFAULT CHARSET=utf8mb4 COMMENT='团队市场-应用版本表';
 
 
--- rpa.app_market_version_bak definition
-
-CREATE TABLE `app_market_version_bak` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `market_id` varchar(100) DEFAULT NULL COMMENT '市场id',
-  `app_id` varchar(50) DEFAULT NULL,
-  `app_version` int(11) DEFAULT NULL COMMENT '应用版本，同机器人版本',
-  `edit_flag` tinyint(1) DEFAULT '1' COMMENT '自己创建的分享到市场，是否支持编辑/开放源码；0不支持，1支持',
-  `category` varchar(100) DEFAULT NULL COMMENT '分享到市场的机器人行业：政务、医疗、商业等',
-  `creator_id` char(36) DEFAULT NULL COMMENT '发布人',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
-  `updater_id` char(36) DEFAULT NULL COMMENT '更新者id',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  KEY `app_market_version_app_id_IDX` (`app_id`) USING BTREE,
-  KEY `app_market_version_market_id_IDX` (`market_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=537 DEFAULT CHARSET=utf8mb4 COMMENT='团队市场-应用版本表';
-
-
 -- rpa.atom_like definition
 
 CREATE TABLE `atom_like` (
@@ -344,204 +324,6 @@ CREATE TABLE `audit_record` (
 ) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8mb4;
 
 
--- rpa.c_atom_meta definition
-
-CREATE TABLE `c_atom_meta` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5985 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_2 definition
-
-CREATE TABLE `c_atom_meta_2` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4404 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_2025_06_13 definition
-
-CREATE TABLE `c_atom_meta_2025_06_13` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3719 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_2025_06_13_bak definition
-
-CREATE TABLE `c_atom_meta_2025_06_13_bak` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3719 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_bak definition
-
-CREATE TABLE `c_atom_meta_bak` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5889 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_bak_2025 definition
-
-CREATE TABLE `c_atom_meta_bak_2025` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` bigint(20) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` bigint(20) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_bak_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3718 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_bak_20250731_1 definition
-
-CREATE TABLE `c_atom_meta_bak_20250731_1` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4189 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_bak_2025_06_13 definition
-
-CREATE TABLE `c_atom_meta_bak_2025_06_13` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3719 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_bak_2025_09_30 definition
-
-CREATE TABLE `c_atom_meta_bak_2025_09_30` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5604 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
--- rpa.c_atom_meta_dev definition
-
-CREATE TABLE `c_atom_meta_dev` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5889 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
 -- rpa.c_atom_meta_new definition
 
 CREATE TABLE `c_atom_meta_new` (
@@ -553,7 +335,7 @@ CREATE TABLE `c_atom_meta_new` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_atom_key` (`atom_key`) COMMENT 'atom_key索引'
-) ENGINE=InnoDB AUTO_INCREMENT=558 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=558 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-新原子能力';
 
 
 -- rpa.c_element definition
@@ -1087,7 +869,7 @@ CREATE TABLE `file` (
   `path` varchar(100) DEFAULT NULL COMMENT '文件在s3上对应的路径',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted` int(11) DEFAULT NULL COMMENT '逻辑删除标志位',
+  `deleted` int(11) DEFAULT 0 COMMENT '逻辑删除标志位',
   `file_name` varchar(1000) DEFAULT NULL COMMENT '文件真实名称',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=283 DEFAULT CHARSET=utf8mb4 COMMENT='文件表';
@@ -1506,26 +1288,6 @@ CREATE TABLE `shared_file` (
 ) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COMMENT='共享文件表';
 
 
--- rpa.shared_file_bak definition
-
-CREATE TABLE `shared_file_bak` (
-  `file_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '文件对应的uuid',
-  `path` varchar(500) DEFAULT NULL COMMENT '文件在s3上对应的路径',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除 0：未删除，1：已删除',
-  `file_name` varchar(1000) DEFAULT NULL COMMENT '文件真实名称',
-  `tags` varchar(512) DEFAULT NULL COMMENT '文件标签名称集合',
-  `creator_id` char(36) DEFAULT NULL COMMENT '创建者ID',
-  `updater_id` char(36) DEFAULT NULL COMMENT '更新者id',
-  `tenant_id` char(36) DEFAULT NULL COMMENT '租户id',
-  `file_type` tinyint(4) DEFAULT NULL COMMENT '文件类型: 0-位置类型 1-文本 2-WORD 3-PDF',
-  `file_index_status` tinyint(4) DEFAULT NULL COMMENT '文件向量化状态:1-初始化 2-完成 3-失败',
-  `dept_id` varchar(100) DEFAULT NULL COMMENT '部门id',
-  PRIMARY KEY (`file_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1950004542614597600 DEFAULT CHARSET=utf8mb4 COMMENT='共享文件表';
-
-
 -- rpa.shared_file_tag definition
 
 CREATE TABLE `shared_file_tag` (
@@ -1900,3 +1662,127 @@ CREATE TABLE `user_entitlement` (
   KEY `idx_is_delete` (`is_delete`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户权益表';
 
+-- rpa.astron_agent_auth definition
+
+CREATE TABLE `astron_agent_auth` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(50) DEFAULT NULL,
+  `astron_user_name` varchar(50) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `app_id` varchar(50) DEFAULT NULL,
+  `api_key` varchar(100) DEFAULT NULL,
+  `api_secret` varchar(100) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_astron_agent_auth_id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+
+-- rpa.openai_workflows definition
+
+CREATE TABLE `openai_workflows` (
+  `project_id` varchar(100) NOT NULL COMMENT '项目ID（主键）',
+  `name` varchar(100) NOT NULL COMMENT '工作流名称',
+  `description` varchar(500) DEFAULT NULL COMMENT '工作流描述',
+  `version` int(11) NOT NULL DEFAULT '1' COMMENT '工作流版本号',
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '工作流状态（1=激活，0=禁用）',
+  `user_id` varchar(50) NOT NULL COMMENT '用户ID',
+  `example_project_id` varchar(100) DEFAULT NULL COMMENT '示例用户账号下的project_id，用于执行时映射',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `english_name` varchar(100) DEFAULT NULL COMMENT '翻译后的英文名称',
+  `parameters` text COMMENT '存储JSON字符串格式的参数',
+  PRIMARY KEY (`project_id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- rpa.openai_executions definition
+
+CREATE TABLE `openai_executions` (
+  `id` varchar(36) NOT NULL COMMENT '执行记录ID（UUID）',
+  `project_id` varchar(100) NOT NULL COMMENT '项目ID（关联工作流）',
+  `status` varchar(20) NOT NULL DEFAULT 'PENDING' COMMENT '执行状态（PENDING/RUNNING/COMPLETED/FAILED/CANCELLED）',
+  `parameters` text COMMENT '执行参数（JSON格式）',
+  `result` text COMMENT '执行结果（JSON格式）',
+  `error` text COMMENT '错误信息',
+  `user_id` varchar(50) NOT NULL COMMENT '用户ID',
+  `exec_position` varchar(50) NOT NULL DEFAULT 'EXECUTOR' COMMENT '执行位置',
+  `recording_config` text COMMENT '录制配置',
+  `version` int(11) DEFAULT NULL COMMENT '工作流版本号',
+  `start_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_project_id` (`project_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_start_time` (`start_time`),
+  CONSTRAINT `openai_executions_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `openai_workflows` (`project_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- rpa.openapi_users definition
+
+CREATE TABLE `openapi_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(50) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `default_api_key` varchar(100) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `phone` (`phone`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_phone` (`phone`)
+) ENGINE=InnoDB AUTO_INCREMENT=1151 DEFAULT CHARSET=utf8mb4;
+
+
+-- rpa.point_allocations definition
+
+CREATE TABLE `point_allocations` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(50) NOT NULL,
+  `initial_amount` int(11) NOT NULL COMMENT '原始分配数量',
+  `remaining_amount` int(11) NOT NULL COMMENT '当前剩余数量',
+  `allocation_type` varchar(100) NOT NULL COMMENT '积分来源',
+  `priority` int(11) NOT NULL DEFAULT '0' COMMENT '优先级，数值越高优先级越高',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` datetime NOT NULL COMMENT '积分过期时间',
+  `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_expires_at` (`expires_at`),
+  KEY `idx_user_expiry` (`user_id`,`expires_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4;
+
+
+-- rpa.point_consumptions definition
+
+CREATE TABLE `point_consumptions` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) NOT NULL COMMENT '关联的交易ID',
+  `allocation_id` bigint(20) NOT NULL COMMENT '关联的分配ID',
+  `amount` int(11) NOT NULL COMMENT '从此分配中使用的积分数量',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2809 DEFAULT CHARSET=utf8mb4;
+
+
+-- rpa.point_transactions definition
+
+CREATE TABLE `point_transactions` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(100) NOT NULL,
+  `amount` int(11) NOT NULL COMMENT '交易总金额（正数或负数）',
+  `transaction_type` varchar(50) NOT NULL COMMENT '交易类型',
+  `related_entity_type` varchar(50) DEFAULT NULL COMMENT '关联实体类型',
+  `related_entity_id` bigint(20) DEFAULT NULL COMMENT '关联实体ID',
+  `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2891 DEFAULT CHARSET=utf8mb4;

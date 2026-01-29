@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.idp.enterpriseIdentity;
 
+import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.entity.ChangePasswordDto;
 import com.iflytek.rpa.auth.core.entity.LoginDto;
 import com.iflytek.rpa.auth.core.entity.RegisterDto;
@@ -134,5 +135,10 @@ public class EnterpriseAuthenticationServiceImpl implements AuthenticationServic
     public AppResponse<String> changePassword(ChangePasswordDto changePasswordDto) {
         // 企业SSO模式不支持修改密码
         throw new UnsupportedOperationException("企业SSO模式不支持修改密码");
+    }
+
+    @Override
+    public AppResponse<String> addUser(AddUserDto user, HttpServletRequest request) {
+        return null;
     }
 }

@@ -5,6 +5,9 @@ import com.iflytek.rpa.auth.blacklist.exception.ShouldBeBlackException;
 import com.iflytek.rpa.auth.blacklist.exception.UserBlockedException;
 import com.iflytek.rpa.auth.blacklist.service.BlackListService;
 import com.iflytek.rpa.auth.core.entity.LoginDto;
+import com.iflytek.rpa.auth.core.entity.User;
+import com.iflytek.rpa.auth.core.service.UserService;
+import com.iflytek.rpa.auth.utils.AppResponse;
 import com.iflytek.rpa.auth.sp.uap.dao.UserDao;
 import com.iflytek.sec.uap.client.api.UapUserInfoAPI;
 import com.iflytek.sec.uap.client.core.dto.user.UapUser;
@@ -40,10 +43,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class BlacklistAspect {
 
     private final BlackListService blackListService;
-    private final UserDao userDao;
-
-    @Value("${uap.database.name:uap_db}")
-    private String databaseName;
+    private final UserService userService;
 
     /**
      * 定义切点：拦截 LoginController 的 loginStatus 方法（/login-status 接口）
@@ -97,7 +97,7 @@ public class BlacklistAspect {
 
                         if (StringUtils.hasText(phone)) {
                             // 通过手机号查询用户ID
-                            userId = getUserIdByPhone(phone);
+                            userId = getUserIdByPhone(phone, request);
                             username = phone; // 暂时使用手机号作为用户名
                             log.debug("从 pre-authenticate 请求中获取手机号: {}, userId: {}", phone, userId);
                         }
@@ -172,11 +172,17 @@ public class BlacklistAspect {
     /**
      * 通过手机号查询用户ID
      */
-    private String getUserIdByPhone(String phone) {
+    private String getUserIdByPhone(String phone, HttpServletRequest request) {
         try {
-            String userId = userDao.getUserIdByPhone(phone, databaseName);
-            if (!StringUtils.hasText(userId)) {
+            AppResponse<User> response = userService.getUserInfoByPhone(phone, request);
+            if (response == null || !response.ok() || response.getData() == null) {
                 log.debug("未找到用户，手机号: {}", phone);
+                return null;
+            }
+            User user = response.getData();
+            String userId = user.getId();
+            if (!StringUtils.hasText(userId)) {
+                log.debug("用户ID为空，手机号: {}", phone);
                 return null;
             }
             return userId;

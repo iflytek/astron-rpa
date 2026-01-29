@@ -1,3 +1,4 @@
+TRUNCATE rpa.sample_templates;
 INSERT INTO rpa.sample_templates (id, sample_id, name, type, version, data, description, is_active, is_deleted, created_time, updated_time) VALUES (1, '1888748427445471111', 'sample_robot_design', 'robot_design', '1.0', '[
   {
     "id": 3303,

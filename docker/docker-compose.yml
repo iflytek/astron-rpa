@@ -15,19 +15,38 @@ services:
       MYSQL_DATABASE: ${DATABASE_NAME}
     env_file: *env_file
     # ports:
-    #   - "${DATABASE_PORT}:3306"
+    #  - "${DATABASE_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./volumes/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
       - ./volumes/mysql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./volumes/mysql/init_app_market_dict_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql
-      - ./volumes/mysql/init_c_atom_meta_data.sql:/docker-entrypoint-initdb.d/03-init_data.sql
       - ./volumes/mysql/init_his_data_enum_data.sql:/docker-entrypoint-initdb.d/04-init_data.sql
       - ./volumes/mysql/init_sample_template_data.sql:/docker-entrypoint-initdb.d/05-init_data.sql
+      - ./volumes/mysql/init_c_atom_meta_new_data.sql:/docker-entrypoint-initdb.d/06-init_data.sql
     command: |
       bash -c "
-        cp /etc/mysql/conf.d/my.cnf /etc/mysql/conf.d/my1.cnf
-        docker-entrypoint.sh mysqld
+      cp /etc/mysql/conf.d/my.cnf /etc/mysql/conf.d/my1.cnf &&
+      
+      (
+        echo 'Wait for MySQL to start...';
+        until mysqladmin ping -h localhost -u root -p'${DATABASE_PASSWORD}' --silent; do
+          sleep 5;
+        done;
+        
+        echo 'MySQL is up! Running incremental scripts...';
+        
+        for f in /docker-entrypoint-initdb.d/*.sql; do
+          if [[ \"\$$f\" != *\"01-schema.sql\" ]]; then
+            echo \"Running \$$f ...\";
+            mysql -u root -p'${DATABASE_PASSWORD}' ${DATABASE_NAME} < \"\$$f\";
+          fi
+        done;
+        
+        echo 'All scripts finished.';
+      ) &
+      
+      docker-entrypoint.sh mysqld
       "
     healthcheck:
       test:
@@ -73,7 +92,7 @@ services:
       - REDIS_IO_THREADS=4
       - ALLOW_EMPTY_PASSWORD=yes
     # ports:
-    #   - "${REDIS_PORT}:6379"
+    #  - "${REDIS_PORT}:6379"
     volumes:
       - ./data/bitnami/redis:/bitnami/redis/data:rw,Z
     command: >
@@ -158,6 +177,7 @@ services:
       - robot-service
       - ai-service
       - openapi-service
+      - rpa-auth
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/health"]
       interval: 30s
@@ -189,8 +209,8 @@ services:
   ai-service:
     image: ghcr.io/iflytek/astron-rpa/ai-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/ai-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/ai-service/Dockerfile
     container_name: rpa-opensource-ai-service
     restart: always
     env_file: *env_file
@@ -216,8 +236,8 @@ services:
   openapi-service:
     image: ghcr.io/iflytek/astron-rpa/openapi-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/openapi-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/openapi-service/Dockerfile
     container_name: rpa-opensource-openapi-service
     restart: always
     env_file: *env_file
@@ -243,8 +263,8 @@ services:
   resource-service:
     image: ghcr.io/iflytek/astron-rpa/resource-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/resource-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/resource-service/Dockerfile
     container_name: rpa-opensource-resource-service
     restart: always
     env_file: *env_file
@@ -267,8 +287,8 @@ services:
   robot-service:
     image: ghcr.io/iflytek/astron-rpa/robot-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/robot-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/robot-service/Dockerfile
     container_name: rpa-opensource-robot-service
     restart: always
     env_file: *env_file
@@ -276,6 +296,28 @@ services:
     #   - "8040:8040"
     volumes:
       - ./logs/robot-service:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    networks:
+      - rpa-opensource-network
+
+  rpa-auth:
+    image: ghcr.io/iflytek/astron-rpa/rpa-auth:latest
+    # build:
+    #  context: ..
+    #  dockerfile: backend/rpa-auth/Dockerfile
+    container_name: rpa-opensource-rpa-auth
+    restart: always
+    env_file: *env_file
+    # ports:
+    #   - "10251:10251"
+    volumes:
+      - ./logs/rpa-auth:/app/logs
     depends_on:
       mysql:
         condition: service_healthy

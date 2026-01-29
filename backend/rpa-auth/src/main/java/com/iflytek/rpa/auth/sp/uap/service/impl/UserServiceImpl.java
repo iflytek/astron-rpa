@@ -37,7 +37,12 @@ import com.iflytek.sec.uap.client.core.dto.org.UapOrg;
 import com.iflytek.sec.uap.client.core.dto.pwd.UpdatePwdDto;
 import com.iflytek.sec.uap.client.core.dto.role.RoleBaseDto;
 import com.iflytek.sec.uap.client.core.dto.role.UapRole;
-import com.iflytek.sec.uap.client.core.dto.tenant.*;
+import com.iflytek.sec.uap.client.core.dto.tenant.CreateTenantDto;
+import com.iflytek.sec.uap.client.core.dto.tenant.ListTenantDto;
+import com.iflytek.sec.uap.client.core.dto.tenant.TenantAppDto;
+import com.iflytek.sec.uap.client.core.dto.tenant.TenantBindUserDto;
+import com.iflytek.sec.uap.client.core.dto.tenant.TenantUserDto;
+import com.iflytek.sec.uap.client.core.dto.tenant.UapTenant;
 import com.iflytek.sec.uap.client.core.dto.user.*;
 import com.iflytek.sec.uap.client.core.dto.user.BindRoleDto;
 import com.iflytek.sec.uap.client.core.dto.user.CreateUapUserDto;
@@ -131,6 +136,59 @@ public class UserServiceImpl implements UserService {
     private AuthService authService;
 
     private Integer smsRetryMax = 3;
+    /**
+     * 控制台-直接添加用户
+     */
+    public AppResponse<String> addUser(AddUserDto dto, HttpServletRequest request) {
+        ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
+        RegisterDto registerDto = RegisterDto.builder().build();
+        BeanUtils.copyProperties(dto, registerDto);
+        registerDto.setLoginName(dto.getName());
+        String userId = addPoolUser(buildPoolUser(registerDto), managementClient);
+        updateInitialPassword(registerDto);
+        doBindTenantRoleDept(dto, request, userId, managementClient);
+        return AppResponse.success(userId);
+    }
+
+    public void doBindTenantRoleDept(AddUserDto dto, HttpServletRequest request) {
+        String userId = userDao.getUserIdByPhone(dto.getPhone(), databaseName);
+        ManagementClient managementClient = UapManagementClientUtil.getManagementClient(request);
+        doBindTenantRoleDept(dto, request, userId, managementClient);
+    }
+
+    private void doBindTenantRoleDept(
+            AddUserDto dto, HttpServletRequest request, String userId, ManagementClient managementClient) {
+        String tenantId = UapUserInfoAPI.getTenantId(request);
+        // 绑定到指定租户
+        TenantBindUserDto tenantBindUserDto = new TenantBindUserDto();
+        tenantBindUserDto.setTenantId(tenantId);
+        tenantBindUserDto.setUserIds(Collections.singletonList(userId));
+        ResponseDto<String> bindResponse = managementClient.bindTenantUser(tenantBindUserDto);
+        if (!bindResponse.isFlag()) {
+            throw new ServiceException(bindResponse.getMessage());
+        }
+        // 绑定到指定的角色
+        String roleId = dto.getRoleId();
+        bindRole(userId, roleId, tenantId);
+        Integer existsCount = roleDao.checkTenantRoleExists(databaseName, tenantId, roleId);
+        if (existsCount == null || existsCount == 0) {
+            roleDao.insertTenantRole(databaseName, tenantId, roleId);
+        }
+        String orgId = dto.getOrgId();
+        com.iflytek.rpa.auth.core.entity.UpdateUserDto updateUserDto =
+                new com.iflytek.rpa.auth.core.entity.UpdateUserDto();
+        UapUser user = UserUtils.getUserInfoById(userId);
+        BeanUtils.copyProperties(user, updateUserDto);
+        com.iflytek.rpa.auth.core.entity.UpdateUapUserDto updateUapUserDto =
+                new com.iflytek.rpa.auth.core.entity.UpdateUapUserDto();
+        updateUserDto.setOrgId(orgId);
+        updateUapUserDto.setUser(updateUserDto);
+        UpdateUapUserDto uapUpdateUapUserDto = updateUapUserDtoMapper.toUapUpdateUapUserDto(updateUapUserDto);
+        ResponseDto<String> updateUserResponse = managementClient.updateUser(uapUpdateUapUserDto);
+        if (!updateUserResponse.isFlag()) {
+            throw new ServiceException(updateUserResponse.getMessage());
+        }
+    }
 
     /**
      * 注册

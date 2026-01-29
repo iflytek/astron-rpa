@@ -99,23 +99,6 @@
             <version>${cloud.version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.iflytek.sec</groupId>
-            <artifactId>uap-starter</artifactId>
-            <version>V3.3.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.iflytek.tuling</groupId>
-                    <artifactId>tuling-isvp-sdk</artifactId>
-                </exclusion>
-                <!-- 注意：排除 okhttp 是因为 uap-starter 可能依赖了旧版本，我们使用统一管理的版本 4.9.1 -->
-                <!-- 但 AuthenticationClient 需要 okhttp，所以必须在下面显式添加 -->
-                <exclusion>
-                    <groupId>com.squareup.okhttp3</groupId>
-                    <artifactId>okhttp</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- 
             添加 okhttp 依赖说明：
             1. uap-starter 排除了 okhttp，可能是为了避免版本冲突（uap-starter 可能依赖旧版本）
@@ -124,10 +107,10 @@
             4. 风险：如果 uap-starter 内部代码依赖了特定版本的 okhttp API，可能会有兼容性问题
             5. 建议：测试时重点关注 HTTP 请求相关的功能，确保没有运行时错误
         -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.session</groupId>-->
-<!--            <artifactId>spring-session-data-redis</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
@@ -281,24 +264,94 @@
         </dependency>
 
         <dependency>
-            <groupId>com.iflytek.rpa</groupId>
-            <artifactId>tools</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.iflytek.account</groupId>
-            <artifactId>account-sdk-java</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.casbin</groupId>
             <artifactId>casdoor-spring-boot-starter</artifactId>
             <version>1.15.0</version>
         </dependency>
     </dependencies>
+
+    <!-- Maven Profiles：区分开源和闭源依赖 -->
+    <profiles>
+        <!-- 开源 Profile（默认激活）：使用 stub 依赖 -->
+        <profile>
+            <id>opensource</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <!-- 使用 stub 依赖替代闭源 SDK（jar 文件放在项目 lib 目录下） -->
+                <dependency>
+                    <groupId>com.iflytek.rpa</groupId>
+                    <artifactId>rpa-auth-stubs</artifactId>
+                    <version>1.0.0</version>
+                    <scope>system</scope>
+                    <systemPath>${project.basedir}/lib/rpa-auth-stubs-1.0.0.jar</systemPath>
+                </dependency>
+                <!-- okhttp 依赖（stub 中的类可能需要） -->
+                <dependency>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                    <!-- 版本由 dependencyManagement 管理 -->
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!-- 确保打包时包含 system scope 的依赖 -->
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <includeSystemScope>true</includeSystemScope>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- 闭源 Profile：使用真实的 UAP 和 Account SDK -->
+        <profile>
+            <id>closed-source</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <!-- 真实的 UAP Starter -->
+                <dependency>
+                    <groupId>com.iflytek.sec</groupId>
+                    <artifactId>uap-starter</artifactId>
+                    <version>V3.3.1</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.iflytek.tuling</groupId>
+                            <artifactId>tuling-isvp-sdk</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>com.squareup.okhttp3</groupId>
+                            <artifactId>okhttp</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <!-- 真实的 Account SDK -->
+                <dependency>
+                    <groupId>com.iflytek.account</groupId>
+                    <artifactId>account-sdk-java</artifactId>
+                    <version>1.0.3</version>
+                </dependency>
+                <!-- okhttp 依赖 -->
+                <dependency>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                    <!-- 版本由 dependencyManagement 管理 -->
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
