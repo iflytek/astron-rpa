@@ -13,8 +13,8 @@ DELETE FROM rpa.his_data_enum;
 DELETE FROM rpa.sample_templates;
 
 -- 清空 c_atom_meta 表（如果存在）
-DELETE FROM c_atom_meta;
+DELETE FROM rpa.c_atom_meta;
 
 -- 清空 c_atom_meta_new 表（如果存在）
-DELETE FROM c_atom_meta_new;
+DELETE FROM rpa.c_atom_meta_new;
 
