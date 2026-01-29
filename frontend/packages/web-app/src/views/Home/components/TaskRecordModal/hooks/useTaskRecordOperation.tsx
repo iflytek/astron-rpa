@@ -6,24 +6,9 @@ import { getDurationText } from '@/utils/dayjsUtils'
 import { getTaskExecuteLst } from '@/api/task'
 import StatusCircle from '@/views/Home/components/StatusCircle.vue'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
-import type { resOption } from '@/views/Home/types'
 
 export default function useTaskRecordOperation() {
   const { handleCheck } = useCommonOperate()
-  function getTableData(params) {
-    return new Promise((resolve) => {
-      getTaskExecuteLst(params).then((res: resOption) => {
-        const { data } = res
-        if (data) {
-          const { total, records } = data
-          resolve({
-            records,
-            total,
-          })
-        }
-      })
-    })
-  }
 
   function handleExpandedRowRender({ record }) {
     const innerColumns = [
@@ -99,7 +84,7 @@ export default function useTaskRecordOperation() {
   }
 
   return {
-    getTableData,
+    getTableData: getTaskExecuteLst,
     handleExpandedRowRender,
   }
 }

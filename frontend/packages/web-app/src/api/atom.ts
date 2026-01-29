@@ -1,3 +1,5 @@
+import type { ITableResponse } from '@/types/normalTable'
+
 import http from './http'
 
 // 根据id和version获取原子能力的具体信息
@@ -121,6 +123,6 @@ export async function getRemoteParams<T>() {
  * 获取卓越中心文件管理共享文件列表
  */
 export async function getRemoteFiles(data?: { pageSize?: number, fileName?: string }) {
-  const res = await http.post<{ records: RPA.SharedFileType[]; total: number }>('/robot/robot-shared-file/page', data)
+  const res = await http.post<ITableResponse<RPA.SharedFileType>>('/robot/robot-shared-file/page', data)
   return res.data || { records: [], total: 0 }
 }

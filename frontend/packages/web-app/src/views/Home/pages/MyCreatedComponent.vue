@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NormalTable from '@/components/NormalTable/index.vue'
+import { NormalTable } from '@/components/NormalTable'
 
 import { useComponentTableOption } from './hooks/ComponentManagement'
 

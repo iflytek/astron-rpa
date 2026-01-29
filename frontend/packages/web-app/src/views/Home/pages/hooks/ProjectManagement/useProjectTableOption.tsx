@@ -7,6 +7,7 @@ import type { VIEW_OTHER } from '@/constants/resource'
 import { VIEW_OWN } from '@/constants/resource'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
+import { type TableOption } from '@/components/NormalTable'
 
 import { useProjectOperate } from './useProjectOperate'
 
@@ -27,7 +28,7 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
     }
   }
 
-  const tableOption = reactive({
+  const tableOption = reactive<TableOption>({
     refresh: false, // 控制表格数据刷新
     getData: getDesignList,
     formList: [ // 表格上方的表单配置

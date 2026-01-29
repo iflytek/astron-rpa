@@ -9,7 +9,6 @@ import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
-import type { resOption } from '../../../types'
 import type { cardAppItem } from '../../../types/market'
 import { DeployRobotModal, MarketAchieveModal, VersionPushModal } from '../index'
 
@@ -82,30 +81,28 @@ export function useCardsShow(emits) {
       return
     }
 
-    getPushHistoryVersions(item).then((res: resOption) => {
-      const { data } = res
-      NiceModal.show(MarketAchieveModal, {
-        record: item,
-        versionLst: data,
-        onRefresh: () => emits('refreshHomeTable'),
-        onLimit: () => {
-          consultRef.value?.init({
-            authType: appInfo.value.appAuthType,
-            trigger: 'modal',
-            modalConfirm: {
-              title: '已达到应用数量上限',
-              content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
-              okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
-              cancelText: '我知道了',
-            },
-            consult: {
-              consultTitle: '咨询',
-              consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
-              consultType: 'consult',
-            },
-          })
-        },
-      })
+    const data = await getPushHistoryVersions(item)
+    NiceModal.show(MarketAchieveModal, {
+      record: item,
+      versionLst: data,
+      onRefresh: () => emits('refreshHomeTable'),
+      onLimit: () => {
+        consultRef.value?.init({
+          authType: appInfo.value.appAuthType,
+          trigger: 'modal',
+          modalConfirm: {
+            title: '已达到应用数量上限',
+            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
+            okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
+            cancelText: '我知道了',
+          },
+          consult: {
+            consultTitle: '咨询',
+            consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
+            consultType: 'consult',
+          },
+        })
+      },
     })
   }
 

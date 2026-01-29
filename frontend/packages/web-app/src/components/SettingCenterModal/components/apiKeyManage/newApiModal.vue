@@ -8,7 +8,6 @@ import { reactive, ref } from 'vue'
 import { createAPI } from '@/api/setting'
 import { clipboardManager } from '@/platform'
 import type { FormRules } from '@/types/common'
-import type { resOption } from '@/views/Home/types'
 
 const emit = defineEmits(['refresh'])
 
@@ -40,17 +39,15 @@ function handleCancel() {
   apiStr.value && emit('refresh')
 }
 
-function handleRightBtnClick() {
+async function handleRightBtnClick() {
   if (apiStr.value) {
     clipboardManager.writeClipboardText(apiStr.value)
     message.success('复制成功')
     return
   }
-  formRef.value?.validate().then(() => {
-    createAPI({ name: formState.keyName }).then((res: resOption) => {
-      apiStr.value = res.data.api_key
-    })
-  })
+  await formRef.value?.validate()
+  const data = await createAPI({ name: formState.keyName })
+  apiStr.value = data.api_key
 }
 </script>
 

@@ -11,7 +11,6 @@ import { CustomDialog } from '@/views/Arrange/components/customDialog'
 import { UserFormDialogModal } from '@/views/Arrange/components/customDialog/components'
 import { INPUT_NUMBER_TYPE_ARR, ORIGIN_SPECIAL, ORIGIN_VAR, PROCESS_VAR_TYPE } from '@/views/Arrange/config/atom'
 import { backContainNodeIdx } from '@/views/Arrange/utils/flowUtils'
-import type { resOption } from '@/views/Home/types'
 
 import { createDom, setEditTextContent } from './useAtomVarPopover'
 import useFormPick from './useFormPick'
@@ -297,8 +296,8 @@ function useRenderFormType() {
         return
       }
       itemData.formType.params.loading = true
-      validateContractResult(params).then((res: resOption) => {
-        NiceModal.show(ContractValidateModal, { dataList: res.data })
+      validateContractResult(params).then((data) => {
+        NiceModal.show(ContractValidateModal, { dataList: data })
       }).finally(() => {
         itemData.formType.params.loading = false
       })
@@ -329,19 +328,14 @@ function useRenderFormType() {
     })
   }
 
-  function handleHTMLContentPaste() {
-    return new Promise((resolve) => {
-      const flowStore = useFlowStore()
-      const { activeAtom } = flowStore
-      const { inputList } = activeAtom
-      const is_html = inputList.find(item => item.key === 'is_html')?.value
-      getHTMLClip({ is_html }).then((res: resOption) => {
-        const { data } = res
-        const { content } = data
-        resolve(content)
-      })
-    })
+  async function handleHTMLContentPaste() {
+    const { activeAtom } = useFlowStore()
+    const { inputList } = activeAtom
+    const is_html = inputList.find(item => item.key === 'is_html')?.value
+    const data = await getHTMLClip({ is_html })
+    return data?.content
   }
+
   return {
     handleModalButton,
     handleTextareaModal,

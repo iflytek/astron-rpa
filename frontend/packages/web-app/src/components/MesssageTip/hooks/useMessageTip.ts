@@ -16,7 +16,6 @@ import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useRoute } from 'vue-router'
 import { useMarketStore } from '@/stores/useMarketStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import type { resOption } from '@/views/Home/types'
 
 import { ALLREADNUM, JOINNUM, NOREADNUM, READNUM, REFUSENUM, TEAMMARKETUPDATE } from '../config'
 
@@ -71,13 +70,11 @@ export function useMessageTip() {
   }
 
   const getMessageList = () => {
-    // readType.value = 'all'
     if (page.value.pageNo > page.value.totalPages)
       return
     const { pageNo, pageSize } = page.value
     // 获取消息列表
-    messageList({ pageNo, pageSize }).then((res: resOption) => {
-      const { data } = res
+    messageList({ pageNo, pageSize }).then((data) => {
       if (data) {
         const { records, pages, total } = data
         page.value.totalPages = pages
@@ -100,15 +97,11 @@ export function useMessageTip() {
   }
 
   // 刷新消息
-  const refresh = () => {
-    getNewMessage().then((res: resOption) => {
-      const { data } = res
-      hasBadage.value = data
-    })
+  const refresh = async () => {
+    hasBadage.value = await getNewMessage()
   }
 
-  const toastMessage = (res, custom, id?) => {
-    const { data } = res
+  const toastMessage = (data, custom, id?) => {
     if (data)
       message.success('操作成功')
     messageData.value = messageData.value.map((item) => {
@@ -119,10 +112,12 @@ export function useMessageTip() {
       return item
     })
   }
+  
   const toMarket = (id: string) => {
     useMarketStore().refreshTeamList(id)
     useRoutePush({ name: TEAMMARKETS, query: { marketId: id } })
   }
+
   // 点击消息
   const readMessage = async ({ operateResult, id, messageType, marketId }) => {
     if (messageType === TEAMMARKETUPDATE) {
@@ -135,15 +130,13 @@ export function useMessageTip() {
     }
     if (operateResult !== NOREADNUM)
       return
-    setMessageReadById({ notifyId: id }).then((res: resOption) => {
-      toastMessage(res, READNUM, id)
-      refresh()
-    })
+    const data = await setMessageReadById({ notifyId: id })
+    toastMessage(data, READNUM, id)
+    refresh()
   }
 
   // 查看未读
   const checkNoread = () => {
-    // readType.value = 'noread'
     messageData.value = messageData.value.filter(i => i.operateResult === NOREADNUM)
   }
 
@@ -154,28 +147,25 @@ export function useMessageTip() {
   }
 
   // 全部已读
-  const allRead = () => {
-    setAllRead().then((res: resOption) => {
-      toastMessage(res, ALLREADNUM)
-      refresh()
-    })
+  const allRead = async () => {
+    const data = await setAllRead()
+    toastMessage(data, ALLREADNUM)
+    refresh()
   }
 
   // 加入团队
-  const joinTeam = (id) => {
-    acceptJoinTeam({ notifyId: id }).then((res: resOption) => {
-      toastMessage(res, JOINNUM, id)
-      if (route.meta.resource === APPLICATIONMARKET) {
-        useMarketStore().refreshTeamList()
-      }
-    })
+  const joinTeam = async (id) => {
+    const data = await acceptJoinTeam({ notifyId: id })
+    toastMessage(data, JOINNUM, id)
+    if (route.meta.resource === APPLICATIONMARKET) {
+      useMarketStore().refreshTeamList()
+    }
   }
 
   // 拒绝加入团队
-  const refuseTeam = (id) => {
-    refuseJoinTeam({ notifyId: id }).then((res: resOption) => {
-      toastMessage(res, REFUSENUM, id)
-    })
+  const refuseTeam = async (id) => {
+    const data = await refuseJoinTeam({ notifyId: id })
+    toastMessage(data, REFUSENUM, id)
   }
 
   // 打开弹窗，获取消息
@@ -190,10 +180,7 @@ export function useMessageTip() {
       messageData.value = []
       spinStatus.value = false
     }
-  }, {
-    immediate: true,
-  })
-  console.log('readType', readType.value)
+  }, { immediate: true })
 
   onMounted(() => {
     // 开启轮询 是否有新消息

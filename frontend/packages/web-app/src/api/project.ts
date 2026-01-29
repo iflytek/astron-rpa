@@ -1,3 +1,5 @@
+import type { ITableResponse } from '@/types/normalTable'
+
 import http from './http'
 
 // 新建工程
@@ -13,8 +15,9 @@ export function checkProjectNum() {
 /**
  * 检测应用是否被计划任务引用被返回引用这个应用的计划任务的数组
  */
-export function isInTask(params) {
-  return http.get('/robot/robot-design/delete-robot-res', params)
+export async function isInTask(params) {
+  const res = await http.get('/robot/robot-design/delete-robot-res', params)
+  return res.data
 }
 
 // 删除工程
@@ -98,8 +101,8 @@ export async function getComponentList(data: {
   pageSize?: number
   sortType?: string
 }) {
-  const res = await http.post('/robot/component/page-list', data)
-  return res.data
+  const res = await http.post<ITableResponse>('/robot/component/page-list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 // 新建组件

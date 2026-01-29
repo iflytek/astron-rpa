@@ -12,25 +12,12 @@ import { windowManager } from '@/platform'
 import { TaskEditModal } from '@/views/Home/components/TaskEditModal'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
-import type { resOption } from '../../../types'
-
 export function useTaskOperation() {
   const taskListTableRef = ref(null)
   const showQueue = ref(false)
   const { t } = useTranslation()
   const { handleDeleteConfirm } = useCommonOperate()
   const taskEditModal = NiceModal.useModal(TaskEditModal)
-
-  function getTableData(params) {
-    return new Promise((resolve) => {
-      getScheduleLst(params).then(({ data }: resOption) => {
-        if (data) {
-          const { total, records } = data
-          resolve({ records, total })
-        }
-      })
-    })
-  }
 
   const handleNewTask = throttle(
     () => {
@@ -117,7 +104,7 @@ export function useTaskOperation() {
     taskListTableRef,
     showQueue,
     hideQueue,
-    getTableData,
+    getTableData: getScheduleLst,
     handleNewTask,
     handleEditTask,
     deleteTask,

@@ -1,21 +1,17 @@
+import type { ITableResponse } from '@/types/normalTable'
+
 import http from './http'
 
 /**
  * @description: 获取应用执行记录列表数据
  */
-export function getExecuteLst(data) {
-  return http.post('/robot/robot-record/list', data)
+export async function getExecuteLst(data) {
+  const res = await http.post<ITableResponse>('/robot/robot-record/list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 export function delExecute(data: { recordIds: string[] }) {
   return http.post('/robot/robot-record/delete-robot-execute-records', data)
-}
-
-/**
- * @description: 获取应用执行记录列表数据
- */
-export function getTaskExecuteLst(data) {
-  return http.post('/robot/task-execute/list', data)
 }
 
 export function delTaskExecute(data: { taskExecuteIdList: string[] }) {

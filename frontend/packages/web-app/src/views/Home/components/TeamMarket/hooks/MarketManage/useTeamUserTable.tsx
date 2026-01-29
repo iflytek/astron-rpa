@@ -25,19 +25,13 @@ export function useTeamUserTable() {
   const { activeMarket } = storeToRefs(marketStore)
   const { t } = useTranslation()
 
-  const getUserList = (params) => {
-    return new Promise((resolve) => {
-      marketUserList({
-        marketId: activeMarket.value.marketId,
-        ...params,
-      }).then(({ data }) => {
-        // data && resolve(data)
-        if (data) {
-          setOnlyUser(data.records.length === 1)
-          resolve(data)
-        }
-      })
+  const getUserList = async (params) => {
+    const data = await marketUserList({
+      marketId: activeMarket.value.marketId,
+      ...params,
     })
+    setOnlyUser(data.records.length === 1)
+    return data
   }
 
   const removeUser = ({ creatorId }) => {

@@ -23,7 +23,6 @@ import OperMenu from '@/views/Home/components/OperMenu.vue'
 import { ShareRobotModal } from '@/views/Home/components/ShareRobotModal'
 import StatusCircle from '@/views/Home/components/StatusCircle.vue'
 import { PENDING } from '@/views/Home/components/TeamMarket/config/market'
-import type { resOption } from '@/views/Home/types'
 
 import { handleRun, useCommonOperate } from '../useCommonOperate'
 
@@ -242,9 +241,8 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
       return
     }
     $loading.open({ msg: '加载中...' })
-    getTeams().then((res: resOption) => {
+    getTeams().then((data) => {
       $loading.close()
-      const { data } = res
       if (!(data && data.length > 0)) {
         message.warning('暂无团队，请先创建或加入团队')
         return
@@ -277,8 +275,7 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
   // 删除
   function handleDeleteProject(editObj: AnyObj) {
     const { robotId } = editObj
-    isInTask({ robotId }).then((result: resOption) => {
-      const { data } = result
+    isInTask({ robotId }).then((data) => {
       if (data) {
         let { situation, taskReferInfoList, robotId } = data
 

@@ -292,8 +292,9 @@ export function fileWrite(data: { path: string, mode: string, content: string })
  * 获取HTML格式的粘贴板内容
  * @params { is_html: boolean }
  */
-export function getHTMLClip(data: { is_html: boolean }) {
-  return schedulerPost('/scheduler/clipboard', data)
+export async function getHTMLClip(data: { is_html: boolean }) {
+  const res = await schedulerPost('/scheduler/clipboard', data)
+  return res.data
 }
 
 /**

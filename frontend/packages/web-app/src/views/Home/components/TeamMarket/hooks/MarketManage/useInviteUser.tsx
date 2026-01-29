@@ -7,7 +7,6 @@ import { generateInviteLink, getInviteUser, getTransferUser, resetInviteLink } f
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/market'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
-import type { resOption } from '@/views/Home/types'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
   const userList = ref([])
@@ -21,7 +20,6 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
       userList.value = []
       return
     }
-
     
     if (type !== 'invite' && (Object.is(Number(keyword), Number.NaN) || keyword.length > 11)) {
       message.destroy()
@@ -32,8 +30,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 
     const func = type === 'invite' ? getInviteUser : getTransferUser
     const params = type === 'invite' ? { keyword, marketId } : { phone: keyword, marketId }
-    func(params).then((res: resOption) => {
-      const { data } = res
+    func(params).then((data) => {
       if (Array.isArray(data)) {
         userList.value = data.map((item) => {
           if (!item.userType)

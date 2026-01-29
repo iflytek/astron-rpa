@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NormalTable from '@/components/NormalTable/index.vue'
+import { NormalTable } from '@/components/NormalTable'
 import { VIEW_OTHER } from '@/constants/resource'
 
 import useProjectTableOption from './hooks/ProjectManagement/useProjectTableOption'

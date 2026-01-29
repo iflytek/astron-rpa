@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { NiceModal } from '@rpa/components'
-import { Divider, message, Space } from 'ant-design-vue'
-import { defineComponent, ref } from 'vue'
+import { NiceModal } from "@rpa/components";
+import { Divider, message, Space } from "ant-design-vue";
+import { defineComponent, ref } from "vue";
+import { useAsyncState } from "@vueuse/core";
 
-import { deployApp, unDeployUserList } from '@/api/market'
-import type { resOption } from '@/views/Home/types'
+import { deployApp, unDeployUserList } from "@/api/market";
 
-import type { cardAppItem } from '../../types/market'
+import type { cardAppItem } from "../../types/market";
 
-import DeployedAccountsTable from './DeployedAccountsTable.vue'
+import DeployedAccountsTable from "./DeployedAccountsTable.vue";
 
-const props = defineProps<{ record: cardAppItem }>()
+const props = defineProps<{ record: cardAppItem }>();
 
-const modal = NiceModal.useModal()
+const modal = NiceModal.useModal();
 
-const confirmLoading = ref(false)
-const searchText = ref('')
-const userIds = ref([])
-const isAll = ref(false)
-const accountsOptions = ref([])
+const confirmLoading = ref(false);
+const searchText = ref("");
+const userIds = ref([]);
+const isAll = ref(false);
+
 const VNodes = defineComponent({
   props: {
     vnodes: {
@@ -27,61 +27,60 @@ const VNodes = defineComponent({
     },
   },
   render() {
-    return this.vnodes
+    return this.vnodes;
   },
-})
+});
 
-function getMembersByTeam() {
-  unDeployUserList({
-    marketId: props.record.marketId,
-    appId: props.record.appId,
-    phone: searchText.value,
-  }).then((res: resOption) => {
-    const { data } = res
-    if (data) {
-      const ownerList = data.map((i) => {
-        return {
-          name: `${i.realName || '--'}(${i.phone || '--'})`,
-          userId: i.creatorId,
-        }
-      })
-      accountsOptions.value = ownerList
-    }
-  })
-}
-
-getMembersByTeam()
+const { state: accountsOptions, execute: getMembersByTeam } = useAsyncState(
+  () =>
+    unDeployUserList({
+      marketId: props.record.marketId,
+      appId: props.record.appId,
+      phone: searchText.value,
+    }).then((data = []) =>
+      data.map((i) => ({
+        name: `${i.realName || "--"}(${i.phone || "--"})`,
+        userId: i.creatorId,
+      })),
+    ),
+  [],
+  { resetOnExecute: false },
+);
 
 async function handleOk() {
   if (userIds.value.length === 0) {
-    message.warning('请选择账号')
-    return
+    message.warning("请选择账号");
+    return;
   }
 
-  confirmLoading.value = true
-  const { marketId, appId, appName } = props.record
-  await deployApp({ marketId, appId, appName, userIdList: userIds.value })
-  confirmLoading.value = false
+  confirmLoading.value = true;
+  const { marketId, appId, appName } = props.record;
+  await deployApp({ marketId, appId, appName, userIdList: userIds.value });
+  confirmLoading.value = false;
 
-  message.success('部署成功')
-  modal.hide()
+  message.success("部署成功");
+  modal.hide();
 }
 
 function handleChange() {
-  userIds.value = []
+  userIds.value = [];
   if (isAll.value) {
-    userIds.value = accountsOptions.value.filter(i => i.name.toLowerCase().includes(searchText.value.toLowerCase())).map(i => i.userId)
+    userIds.value = accountsOptions.value
+      .filter((i) =>
+        i.name.toLowerCase().includes(searchText.value.toLowerCase()),
+      )
+      .map((i) => i.userId);
   }
 }
 function handleSelectChange(value: string) {
-  console.log('value', value)
+  console.log("value", value);
   if (userIds.value.length === 0) {
-    isAll.value = false
+    isAll.value = false;
   }
 }
 function handleSearch(value: string) {
-  searchText.value = value
-  getMembersByTeam()
+  searchText.value = value;
+  getMembersByTeam();
 }
 </script>
 
@@ -98,16 +97,14 @@ function handleSearch(value: string) {
     <div class="deploy-robot-modal">
       <DeployedAccountsTable :allow-select="false" :record="props.record" />
       <div class="select-user">
-        <div class="title">
-          新增账号
-        </div>
+        <div class="title">新增账号</div>
         <a-select
           v-model:value="userIds"
           placeholder="请输入新增账号"
           mode="multiple"
           allow-clear
           auto-clear-search-value
-          style="width: 100%;margin-top: 10px;"
+          style="width: 100%; margin-top: 10px"
           show-search
           :field-names="{ label: 'name', value: 'userId' }"
           :filter-option="false"

@@ -1,19 +1,23 @@
 import { pickBy } from 'lodash-es'
 
+import type { ITableResponse } from '@/types/normalTable'
+
 import http from './http'
 
 /**
  * @description: 获取执行器应用列表数据
  */
-export function getRobotLst(data) {
-  return http.post('/robot/robot-execute/execute-list', data)
+export async function getRobotLst(data) {
+  const res = await http.post<ITableResponse>('/robot/robot-execute/execute-list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 /**
  * 检测应用是否被计划任务引用被返回引用这个应用的计划任务的数组
  */
-export function isRobotInTask(params) {
-  return http.get('/robot/robot-execute/delete-robot-res', params)
+export async function isRobotInTask(params) {
+  const res = await http.get('/robot/robot-execute/delete-robot-res', params)
+  return res.data
 }
 
 /**
@@ -67,15 +71,15 @@ export async function getWorkflowList() {
  * @description: 获取应用名称以英文翻译
  */
 export function getRobotEnglishName(name: string) {
-  console.log('name', name)
   return http.post('/rpa-ai-service/v1/chat/prompt', { prompt_type: 'translate', params: { name } })
 }
 
 /**
  * @description: 轮询执行器下应用更新状态
  */
-export function getRobotUpdateStatus(data) {
-  return http.post('/robot/robot-execute/execute-update-check', data)
+export async function getRobotUpdateStatus(data) {
+  const res = await http.post('/robot/robot-execute/execute-update-check', data)
+  return res.data
 }
 
 /**
