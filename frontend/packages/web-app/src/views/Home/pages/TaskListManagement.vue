@@ -1,5 +1,3 @@
-<!-- @format -->
-
 <script setup lang="ts">
 import NormalTable from '@/components/NormalTable/index.vue'
 import QueueModal from '@/views/Home/components/QueueManagement/Index.vue'

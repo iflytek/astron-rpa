@@ -1,9 +1,7 @@
-<!-- @format -->
-
 <script setup>
 import { Drawer } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { defineEmits, onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 
 import NormalTable from '@/components/NormalTable/index.vue'
 

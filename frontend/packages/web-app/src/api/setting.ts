@@ -73,8 +73,9 @@ export function deleteAPI(params) {
 /**
  * @description: 新增API Key
  */
-export function createAPI(params) {
-  return http.post('/rpa-openapi/api-keys/create', params)
+export async function createAPI(params) {
+  const res = await http.post('/rpa-openapi/api-keys/create', params)
+  return res.data
 }
 
 /**

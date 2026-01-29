@@ -1,16 +1,21 @@
+import type { ITableResponse } from '@/types/normalTable'
+
 import http from './http'
+
 /**
  * @description: 获取团队列表
  */
-export function getTeams() {
-  return http.post('/robot/market-team/get-list')
+export async function getTeams() {
+  const res = await http.post('/robot/market-team/get-list')
+  return res.data || []
 }
 
 /**
  * @description: 获取全部应用列表
  */
-export function getAppCards(data) {
-  return http.post('/robot/market-resource/get-all-app-list', data)
+export async function getAppCards(data) {
+  const res = await http.post<ITableResponse>('/robot/market-resource/get-all-app-list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 /**
@@ -53,8 +58,9 @@ export function obtainApp(data) {
 /**
  * @description: 轮询应用更新状态
  */
-export function getAppUpdateStatus(data) {
-  return http.post('/robot/market-resource/app-update-check', data)
+export async function getAppUpdateStatus(data) {
+  const res = await http.post('/robot/market-resource/app-update-check', data)
+  return res.data
 }
 
 /**
@@ -72,181 +78,33 @@ export function deleteApp(params) {
 }
 
 // 消息列表
-export function messageList(data) {
-  return http.post('/robot/notify/notify-List', data)
-  // return new Promise((resolve) => {
-  //   resolve({
-  //     code: '000000',
-  //     data: {
-  //       records: [
-  //         {
-  //           id: 74,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 3,
-  //           appName: null,
-  //           marketId: '1933333718814470144',
-  //         },
-  //         {
-  //           id: 75,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 1,
-  //           appName: null,
-  //           marketId: '1933333718814470145',
-  //         },
-  //         {
-  //           id: 76,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 2,
-  //           appName: null,
-  //           marketId: '1933333718814470146',
-  //         },
-  //         {
-  //           id: 749,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 4,
-  //           appName: null,
-  //           marketId: '1933333718814470144',
-  //         },
-  //         {
-  //           id: 750,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 1,
-  //           appName: null,
-  //           marketId: '1933333718814470145',
-  //         },
-  //         {
-  //           id: 768,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 2,
-  //           appName: null,
-  //           marketId: '1933333718814470146',
-  //         },
-  //         {
-  //           id: 747,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 5,
-  //           appName: null,
-  //           marketId: '1933333718814470144',
-  //         },
-  //         {
-  //           id: 756,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 1,
-  //           appName: null,
-  //           marketId: '1933333718814470145',
-  //         },
-  //         {
-  //           id: 7645,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 2,
-  //           appName: null,
-  //           marketId: '1933333718814470146',
-  //         },
-  //         {
-  //           id: 743,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 3,
-  //           appName: null,
-  //           marketId: '1933333718814470144',
-  //         },
-  //         {
-  //           id: 751,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 1,
-  //           appName: null,
-  //           marketId: '1933333718814470145',
-  //         },
-  //         {
-  //           id: 762,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 2,
-  //           appName: null,
-  //           marketId: '1933333718814470146',
-  //         },
-  //         {
-  //           id: 80,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 3,
-  //           appName: null,
-  //           marketId: '1933333718814470144',
-  //         },
-  //         {
-  //           id: 81,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 1,
-  //           appName: null,
-  //           marketId: '1933333718814470145',
-  //         },
-  //         {
-  //           id: 80,
-  //           messageInfo: '[zgq]邀请你加入团队市场：[嗯嗯],确认是否加入？',
-  //           messageType: 'teamMarketInvite',
-  //           createTime: '2025-06-13 09:21:17',
-  //           operateResult: 2,
-  //           appName: null,
-  //           marketId: '1933333718814470146',
-  //         },
-  //       ],
-  //       total: 1,
-  //       size: 10,
-  //       current: 1,
-  //       orders: [],
-  //       optimizeCountSql: true,
-  //       hitCount: false,
-  //       searchCount: true,
-  //       pages: 1,
-  //     },
-  //     message: data,
-  //   })
-  // })
+export async function messageList(data) {
+  const res = await http.post<ITableResponse>('/robot/notify/notify-List', data)
+  return res.data
 }
 
 // 指定已读消息
-export function setMessageReadById(params) {
-  return http.get('/robot/notify/set-selected-notify-read', params)
+export async function setMessageReadById(params) {
+  const res = await http.get('/robot/notify/set-selected-notify-read', params)
+  return res.data
 }
 
 // 一键已读
-export function setAllRead() {
-  return http.get('/robot/notify/set-all-notify-read', {})
+export async function setAllRead() {
+  const res = await http.get('/robot/notify/set-all-notify-read', {})
+  return res.data
 }
 
 // 加入团队
-export function acceptJoinTeam(params) {
-  return http.get('/robot/notify/accept-join-team', params)
+export async function acceptJoinTeam(params) {
+  const res = await http.get('/robot/notify/accept-join-team', params)
+  return res.data
 }
 
 // 拒绝团队
-export function refuseJoinTeam(params) {
-  return http.get('/robot/notify/reject-join-team', params)
+export async function refuseJoinTeam(params) {
+  const res = await http.get('/robot/notify/reject-join-team', params)
+  return res.data
 }
 
 // 获取市场信息
@@ -270,8 +128,9 @@ export function dissolveTeamMarket(data) {
 }
 
 // 成员列表
-export function marketUserList(data) {
-  return http.post('/robot/market-user/list', data)
+export async function marketUserList(data) {
+  const res = await http.post<ITableResponse>('/robot/market-user/list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 // 设置用户角色
@@ -285,13 +144,15 @@ export function removeUserRole(data) {
 }
 
 // 查询邀请员工
-export function getInviteUser(data) {
-  return http.post('/robot/market-user/get/user', data)
+export async function getInviteUser(data) {
+  const res = await http.post('/robot/market-user/get/user', data)
+  return res.data
 }
 
 // 移交所有权查询员工
-export function getTransferUser(data) {
-  return http.post('/robot/market-user/leave/user', data)
+export async function getTransferUser(data) {
+  const res = await http.post('/robot/market-user/leave/user', data)
+  return res.data
 }
 
 // 邀请员工
@@ -329,8 +190,9 @@ export function getCompanyInfo(data) {
 /**
  * @description: 消息通知-是否有新消息
  */
-export function getNewMessage() {
-  return http.get('/robot/notify/hasNotify', null, { toast: false })
+export async function getNewMessage() {
+  const res = await http.get('/robot/notify/hasNotify', null, { toast: false })
+  return res.data
 }
 
 /**
@@ -352,8 +214,9 @@ export function cancelAppendixDownload(data: any) {
 /**
  * @description: 获取已部署的账号列表
  */
-export function getDeployedAccounts(data: any) {
-  return http.post('/robot/market-resource/deployed-user', data)
+export async function getDeployedAccounts(data: any) {
+  const res = await http.post<ITableResponse>('/robot/market-resource/deployed-user', data)
+  return res.data || { records: [], total: 0 }
 }
 
 /**
@@ -373,13 +236,15 @@ export function pushApp(data: any) {
 /**
  * @description: 版本推送-历史版本列表查询
  */
-export function getPushHistoryVersions(data: any) {
-  return http.post('/robot/market-resource/update/version-list', data)
+export async function getPushHistoryVersions(data: any) {
+  const res = await http.post('/robot/market-resource/update/version-list', data)
+  return res.data
 }
 
 // 部署弹窗获取成员列表
-export function unDeployUserList(data) {
-  return http.post('/robot/market-user/undeploy-user', data)
+export async function unDeployUserList(data) {
+  const res = await http.post('/robot/market-user/undeploy-user', data)
+  return res.data
 }
 
 // 分享到市场 是否需发起申请检查

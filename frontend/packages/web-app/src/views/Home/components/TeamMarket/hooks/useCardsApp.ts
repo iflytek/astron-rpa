@@ -4,7 +4,6 @@ import { reactive, ref } from 'vue'
 import { getAllClassification, getAppCards, marketUserList } from '@/api/market'
 import { fromIcon } from '@/components/PublishComponents/utils'
 import { useCardsTools } from '@/views/Home/components/TeamMarket/hooks/useCardsTools'
-import type { resOption } from '@/views/Home/types'
 
 import { useRobotUpdate } from './useRobotUpdate'
 
@@ -27,27 +26,20 @@ export function useCardsApp() {
    * @param {object} params - 请求参数，包含marketId等信息
    * @returns {Promise} 返回一个Promise，解析为包含records和total的对象
    */
-  function getCardsData(params) {
-    return new Promise((resolve) => {
-      if (params.marketId) {
-        getAppCards(params).then((res: resOption) => {
-          const { data } = res
-          if (data) {
-            const { total, records } = data
-            // 获取初始化更新ID
-            getInitUpdateIds(records)
-            resolve({
-              records: records.map(item => ({
-                ...item,
-                icon: fromIcon(item.url || item.iconUrl).icon,
-                color: fromIcon(item.url || item.iconUrl).color,
-              })),
-              total,
-            })
-          }
-        })
+  async function getCardsData(params) {
+    if (params.marketId) {
+      const { total, records } = await  getAppCards(params)
+      // 获取初始化更新ID
+      getInitUpdateIds(records)
+      return {
+        records: records.map(item => ({
+          ...item,
+          icon: fromIcon(item.url || item.iconUrl).icon,
+          color: fromIcon(item.url || item.iconUrl).color,
+        })),
+        total,
       }
-    })
+    }
   }
 
   // 获取卡片工具中的表单列表
@@ -70,27 +62,20 @@ export function useCardsApp() {
    * 根据团队获取成员列表
    * @param {string} marketId - 市场ID
    */
-  function getMembersByTeam(marketId) {
-    marketUserList({
+  async function getMembersByTeam(marketId) {
+    const { records } = await marketUserList({
       marketId,
       pageNo: 1,
       pageSize: 10000,
-    }).then((res: resOption) => {
-      const { data } = res
-      if (data) {
-        const { records } = data
-        // 构建所有者列表，包含姓名和电话
-        const ownerList = records.map((i) => {
-          return {
-            name: `${i.realName || '--'}(${i.phone || '--'})`,
-            userId: i.creatorId,
-          }
-        })
-        // 找到绑定creatorId的表单项并更新其选项
-        const current = cardsOption.formList[findIndex(cardsOption.formList, { bind: 'creatorId' })]
-        current.options = ownerList
-      }
     })
+    // 构建所有者列表，包含姓名和电话
+    const ownerList = records.map((i) => ({
+      name: `${i.realName || '--'}(${i.phone || '--'})`,
+      userId: i.creatorId,
+    }))
+    // 找到绑定creatorId的表单项并更新其选项
+    const current = cardsOption.formList[findIndex(cardsOption.formList, { bind: 'creatorId' })]
+    current.options = ownerList
   }
 
   async function getAppCategory() {

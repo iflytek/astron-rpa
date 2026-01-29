@@ -1,5 +1,3 @@
-/** @format */
-
 import { ClockCircleOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { Icon } from '@rpa/components'
 import { Button, Switch, Tooltip } from 'ant-design-vue'
@@ -7,6 +5,7 @@ import { useTranslation } from 'i18next-vue'
 import { reactive } from 'vue'
 
 import type { TaskTrigger } from '@/types/schedule'
+import { TableOption } from '@/types/normalTable'
 
 import { TASK_TYPE, TASK_TYPE_OPTION, WEEK_MAP_EN } from '../../../config/task'
 
@@ -134,7 +133,7 @@ export function useTaskTableOption() {
       </div>
     )
   }
-  const tableOption = reactive({
+  const tableOption = reactive<TableOption>({
     tableCellHeight: 62, // 单元格高度
     refresh: false, // 控制表格数据刷新
     getData: getTableData,

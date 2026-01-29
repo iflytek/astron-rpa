@@ -8,7 +8,6 @@ import { getTaskInfo, insertTask, isNameCopy, updateTask } from '@/api/task'
 import { EMAIL_OPTIONS_MAP } from '@/constants/mail'
 import type { Task, TaskTrigger } from '@/types/schedule'
 import { TASK_TYPE } from '@/views/Home/config/task'
-import type { resOption } from '@/views/Home/types'
 
 export function useTaskEdit(taskId: string, handleRefresh: () => void, handleClose: () => void) {
   const { t } = useTranslation()
@@ -141,22 +140,22 @@ export function useTaskEdit(taskId: string, handleRefresh: () => void, handleClo
       }
     })
   }
+
   // 表格校验中增加对是否存在同名任务的判断
-  async function checkDuplicateTaskName(rule, value) {
+  async function checkDuplicateTaskName(_rule, value) {
     if (!value)
       return Promise.resolve()
     if (isEdit.value)
       return Promise.resolve()
-    const checkRes = (await isNameCopy({
-      // taskId,
-      name: value,
-    })) as resOption
+    const data = await isNameCopy({ name: value })
 
-    if (checkRes?.data) {
+    if (data) {
       return Promise.reject(new Error(t('taskRuleRequire.taskNameDuplicate')))
     }
+    
     return Promise.resolve()
   }
+
   async function validIntervalTime() {
     if (!taskInfoForm.mail.interval_time)
       return Promise.reject(new Error(t('taskRuleRequire.intervalTimeRequired')))

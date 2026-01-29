@@ -3,29 +3,8 @@ import dayjs from 'dayjs'
 import { reactive, ref } from 'vue'
 
 import { getRemoteFiles } from '@/api/atom'
-import type { resOption } from '@/views/Home/types'
 
 export default function useFileManageTable() {
-  function getTableData(params) {
-    return new Promise((resolve) => {
-      getRemoteFiles(params).then((res: resOption) => {
-        const { data } = res
-        if (data) {
-          const { total, records } = data
-          resolve({
-            records,
-            total,
-          })
-        }
-      }).catch(() => {
-        resolve({
-          records: [],
-          total: 0,
-        })
-      })
-    })
-  }
-
   const selectFileId = ref('')
 
   const handleClick = (record) => {
@@ -33,7 +12,7 @@ export default function useFileManageTable() {
   }
   const tableOption = reactive({
     refresh: false, // 控制表格数据刷新
-    getData: getTableData,
+    getData: getRemoteFiles,
     formList: [ // 表格上方的表单配置
       {
         componentType: 'input',
@@ -50,12 +29,6 @@ export default function useFileManageTable() {
           key: 'fileName',
           fixed: 'left',
           ellipsis: true,
-          // customRender: ({ record }) => {
-          //   const { fileId, fileName } = record
-          //   return (
-          //     <a href={`/api/robot/robot-shared-file/download?fileId=${fileId}`} download={`${fileName?.split(',')?.[0]}`}>{fileName}</a>
-          //   )
-          // },
         },
         {
           title: '创建时间',
@@ -116,6 +89,7 @@ export default function useFileManageTable() {
       fileName: '',
     },
   })
+  
   return {
     selectFileId,
     tableOption,

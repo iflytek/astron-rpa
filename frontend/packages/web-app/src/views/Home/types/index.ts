@@ -43,12 +43,6 @@ export interface TableMoreAction extends TableBaseAction {
   icon?: any
 }
 
-export interface resOption {
-  code: string
-  msg: string | null
-  data: any
-}
-
 export interface TaskFormState {
   taskId: string
   name: string

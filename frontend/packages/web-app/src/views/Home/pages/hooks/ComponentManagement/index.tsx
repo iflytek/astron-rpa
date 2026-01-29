@@ -5,6 +5,7 @@ import { useTranslation } from 'i18next-vue'
 import { computed, h, reactive, ref } from 'vue'
 
 import { getComponentList } from '@/api/project'
+import { type TableOption } from '@/components/NormalTable'
 
 import OperMenu from '../../../components/OperMenu.vue'
 import StatusCircle from '../../../components/StatusCircle.vue'
@@ -68,9 +69,14 @@ export function useComponentTableOption() {
     },
   ])
 
-  const tableOption = reactive({
+  const tableOption = reactive<TableOption>({
     refresh: false, // 控制表格数据刷新
-    getData: params => getComponentList({ ...params, dataSource: 'create', pageNum: params.pageNo }),
+    getData: params => getComponentList({
+      name: '',
+      dataSource: 'create',
+      pageNum: params.pageNo,
+      ...params,
+    }),
     formList: [
       // 表格上方的表单配置
       {

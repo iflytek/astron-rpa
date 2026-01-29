@@ -1,4 +1,5 @@
 import type { Task } from '@/types/schedule'
+import type { ITableResponse } from '@/types/normalTable'
 
 import http from './http'
 import { getRootBaseURL } from './http/env'
@@ -7,8 +8,8 @@ import { getRootBaseURL } from './http/env'
  * @description: 获取计划任务列表数据
  */
 export async function getScheduleLst(data) {
-  const res = await http.post('/robot/triggerTask/page/list', data)
-  return res
+  const res = await http.post<ITableResponse>('/robot/triggerTask/page/list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 /**
@@ -21,8 +22,9 @@ export function checkCronExpression(data) {
 /**
  * @description: 获取计划任务执行记录列表数据
  */
-export function getTaskExecuteLst(data) {
-  return http.post('/robot/task-execute/list', data)
+export async function getTaskExecuteLst(data) {
+  const res = await http.post<ITableResponse>('/robot/task-execute/list', data)
+  return res.data || { records: [], total: 0 }
 }
 
 /**
@@ -53,8 +55,9 @@ export function taskFutureTimeNoCreate(data: { frequency_flag: string, times: nu
 }
 
 // 重命名校验
-export function isNameCopy(data: { name: string }) {
-  return http.get('/robot/triggerTask/isNameCopy', data)
+export async function isNameCopy(data: { name: string }) {
+  const res = await http.get('/robot/triggerTask/isNameCopy', data)
+  return res.data
 }
 
 // 应用列表

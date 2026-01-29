@@ -3,7 +3,8 @@ import { useElementSize } from '@vueuse/core'
 import { Empty, Pagination, Table } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { isEmpty } from 'lodash-es'
-import { computed, onMounted, reactive, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, reactive, ref, useTemplateRef, SlotsType } from 'vue'
+import { to } from 'await-to-js'
 
 import type { TableOption } from '@/types/normalTable'
 
@@ -40,6 +41,7 @@ function getItemsOnPage(total: number, pageSize: number, page: number) {
 
 export default {
   name: 'NormalTable',
+  slots: Object as SlotsType<{ default: any, headerPrefix: any }>,
   props: {
     option: {
       type: Object as () => TableOption,
@@ -107,37 +109,32 @@ export default {
       })) || []
     })
 
-    function fetchTableData() {
-      loading.value = true
+    async function fetchTableData() {
       if (isPage.value) {
         localOption.value.params[pageData.value.pageSizeName] = pageOption.value.pageSize
         localOption.value.params[pageData.value.pageNoName] = pageOption.value.pageNum
       }
-      localOption.value
-        .getData({ ...localOption.value.params })
-        .then((res) => {
-          tableData.value = res.records
-          pageOption.value.total = res.total
-        })
-        .catch(() => {
-          tableData.value = []
-          pageOption.value.total = 0
-        })
-        .finally(() => {
-          loading.value = false
-        })
+
+      loading.value = true
+      const [error, data] = await to(localOption.value.getData(localOption.value.params))
+      tableData.value = error ? [] : data.records
+      pageOption.value.total = error ? 0 : data.total
+      loading.value = false
     }
+
     function onPageChange(page: number) {
       pageOption.value.pageNum = page
       pageOption.value.current = page
 
       fetchTableData()
     }
+    
     function onShowSizeChange(_, size) {
       pageOption.value.pageSize = size
     }
+
     // 分页、排序、筛选
-    function tableChange(pagination, filters, sorter) {
+    function tableChange(_pagination, _filters, sorter) {
       const { field, order } = sorter // sorter有可能为空
       const ORDER_OPTION = {
         ascend: 'asc',
@@ -148,6 +145,7 @@ export default {
 
       fetchTableData()
     }
+
     function renderTable() { // 默认支持table
       const page = pageOption.value.current
       const pageSize = pageOption.value.pageSize
@@ -177,6 +175,7 @@ export default {
         />
       )
     }
+
     function renderPagination() {
       return (
         <div class="nTable-pagination flex items-center justify-between">
@@ -188,6 +187,42 @@ export default {
             onShowSizeChange={onShowSizeChange}
             {...pageOption.value}
           />
+        </div>
+      )
+    }
+
+    function renderHeader() {
+      const hasForm = !isEmpty(option.formList)
+      const hasBtns = !isEmpty(option.buttonList)
+
+      if (!hasBtns && !hasForm) {
+        return null
+      }
+
+      const header = (className?: string) => (
+        <div
+          class={[
+            className,
+            'nTable-header',
+            { 'flex-row-reverse': option.formListAlign === 'right' || option.buttonListAlign === 'left' },
+            option.headerClass,
+          ]}
+        >
+          {/* 左侧form */}
+          {hasForm && renderHeaderForm(formOption)}
+          {/* 右侧button */}
+          {hasBtns && renderHeaderButton(buttonOption)}
+        </div>
+      )
+
+      if (!slots.headerPrefix) {
+        return header()
+      }
+
+      return (
+        <div class="flex items-center">
+          {slots.headerPrefix?.()}
+          {header('flex-1')}
         </div>
       )
     }
@@ -204,56 +239,26 @@ export default {
       localOption,
     })
 
-    return () => {
-      const hasForm = !isEmpty(option.formList)
-      const hasBtns = !isEmpty(option.buttonList)
-
-      return (
-        <div class="wrapper h-full">
-          <div class="nTable h-full flex flex-col gap-4">
-            {/* 头部 */}
-            {
-              (hasBtns || hasForm) && (
-                <div
-                  class={[
-                    'nTable-header',
-                    { 'flex-row-reverse': option.formListAlign === 'right' || option.buttonListAlign === 'left' },
-                    option.headerClass,
-                  ]}
-                >
-                  {/* 左侧form */}
-                  {hasForm && renderHeaderForm(formOption)}
-                  {/* 右侧button */}
-                  {hasBtns && renderHeaderButton(buttonOption)}
-                </div>
-              )
-            }
-            {/* 主体 */}
-            <div class="flex-1 relative" ref="table">
-              {slots.default?.({ loading: loading.value, tableData: tableData.value, height: tableSize.height.value }) || renderTable()}
-            </div>
-            {/* 底部 */}
-            {isPage.value && renderPagination()}
+    return () => (
+      <div class="wrapper h-full">
+        <div class="nTable h-full flex flex-col gap-4">
+          {/* 头部 */}
+          {renderHeader()}
+          {/* 主体 */}
+          <div class="flex-1 relative" ref="table">
+            {slots.default?.({ loading: loading.value, tableData: tableData.value, height: tableSize.height.value }) || renderTable()}
           </div>
+          {/* 底部 */}
+          {isPage.value && renderPagination()}
         </div>
-      )
-    }
+      </div>
+    )
   },
 }
 </script>
 
 <style lang="scss" scoped>
 @import './index.scss';
-
-// .custom-table :deep(.ant-table-body) {
-//   /* 隐藏滚动条但保留滚动功能 */
-//   scrollbar-width: none; /* Firefox */
-//   -ms-overflow-style: none; /* IE and Edge */
-
-//   &::-webkit-scrollbar {
-//     display: none; /* Chrome, Safari and Opera */
-//   }
-// }
 
 :deep(.ant-table-row-level-1) {
   background-color: var(--color-fill-secondary);

@@ -8,24 +8,16 @@ import { McpConfigModal } from '@/views/Home/components/modals/index'
 import { useRobotUpdate } from '@/views/Home/components/TeamMarket/hooks/useRobotUpdate'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
-import type { resOption } from '../../../types'
-
 export default function useRobotOperation(homeTableRef, refreshHomeTable) {
   const { handleDeleteConfirm, getSituationContent } = useCommonOperate()
   const { getInitUpdateIds } = useRobotUpdate('robot', homeTableRef)
 
-  function getTableData(params) {
-    return new Promise((resolve) => {
-      getRobotLst(params).then((res: resOption) => {
-        const { data } = res
-        if (data) {
-          const { total, records } = data
-          getInitUpdateIds(records)
-          resolve({ records, total })
-        }
-      })
-    })
+  async function getTableData(params) {
+    const data = await getRobotLst(params)
+    getInitUpdateIds(data.records)
+    return data
   }
+
   function onSelectChange(selectedIds: string[]) {
     console.log(selectedIds)
   }
@@ -46,29 +38,29 @@ export default function useRobotOperation(homeTableRef, refreshHomeTable) {
   function openMcpConfigModal(record) {
     NiceModal.show(McpConfigModal, { record })
   }
+  
   // 删除
-  function handleDeleteRobot(editObj) {
+  async function handleDeleteRobot(editObj) {
     const { robotId } = editObj
-    isRobotInTask({ robotId }).then((result: resOption) => {
-      const { data } = result
-      if (data) {
-        let { situation, taskReferInfoList, robotId } = data
-        taskReferInfoList = taskReferInfoList?.filter((item, index, self) =>
-          index === self.findIndex(t => t.taskName === item.taskName),
-        )
-        handleDeleteConfirm(getSituationContent('execute', situation, taskReferInfoList), () => {
-          deleteRobot({
-            robotId,
-            situation,
-            taskIds: taskReferInfoList?.map(item => item.taskId).join(',') || '',
-          }).then(() => {
-            message.success('删除成功')
-            refreshHomeTable()
-          })
+    const data = await isRobotInTask({ robotId })
+    if (data) {
+      let { situation, taskReferInfoList, robotId } = data
+      taskReferInfoList = taskReferInfoList?.filter((item, index, self) =>
+        index === self.findIndex(t => t.taskName === item.taskName),
+      )
+      handleDeleteConfirm(getSituationContent('execute', situation, taskReferInfoList), () => {
+        deleteRobot({
+          robotId,
+          situation,
+          taskIds: taskReferInfoList?.map(item => item.taskId).join(',') || '',
+        }).then(() => {
+          message.success('删除成功')
+          refreshHomeTable()
         })
-      }
-    })
+      })
+    }
   }
+
   function handleRobotUpdate(record) {
     updateRobot({
       robotId: record.robotId,

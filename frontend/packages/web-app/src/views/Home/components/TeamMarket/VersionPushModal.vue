@@ -2,36 +2,23 @@
 import { NiceModal } from '@rpa/components'
 import { Empty, message, Spin } from 'ant-design-vue'
 import { ref } from 'vue'
+import { useAsyncState } from '@vueuse/core'
 
 import { getPushHistoryVersions, pushApp } from '@/api/market'
-import type { resOption } from '@/views/Home/types'
 
 import type { cardAppItem } from '../../types/market'
 
 import DeployedAccountsTable from './DeployedAccountsTable.vue'
 
 const props = defineProps<{ record: cardAppItem }>()
+const { appId, marketId } = props.record
 
 const modal = NiceModal.useModal()
 const confirmLoading = ref(false)
 const selectedVersion = ref('')
-const versionList = ref([])
-const spinning = ref(false)
 const selectedIds = ref([])
 
-function getVersionData() {
-  const { appId, marketId } = props.record
-  spinning.value = true
-  getPushHistoryVersions({ appId, marketId }).then((res: resOption) => {
-    spinning.value = false
-    const { data } = res
-    versionList.value = data
-  }).finally(() => {
-    spinning.value = false
-  })
-}
-
-getVersionData()
+const { state: versionList, isLoading: spinning } = useAsyncState(() => getPushHistoryVersions({ appId, marketId }), [])
 
 async function handleOk() {
   if (!selectedIds.value.length) {

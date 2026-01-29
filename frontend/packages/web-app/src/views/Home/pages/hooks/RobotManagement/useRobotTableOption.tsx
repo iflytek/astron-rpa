@@ -8,6 +8,7 @@ import { useUserStore } from '@/stores/useUserStore'
 import type { AnyObj } from '@/types/common'
 import { ROBOT_SOURCE_LOCAL, ROBOT_SOURCE_TEXT } from '@/views/Home/config'
 import { handleRun } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
+import { type TableOption } from '@/components/NormalTable'
 
 import OperMenu from '../../../components/OperMenu.vue'
 
@@ -145,7 +146,7 @@ export default function useRobotTableOption() {
     },
   ])
 
-  const tableOption = reactive({
+  const tableOption = reactive<TableOption>({
     refresh: false, // 控制表格数据刷新
     getData: getTableData,
     formList: [ // 表格上方的表单配置

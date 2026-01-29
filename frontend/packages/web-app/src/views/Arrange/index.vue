@@ -9,10 +9,8 @@ import HeaderControl from '@/components/HeaderControl/HeaderControl.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
-import { useSharedData } from '@/stores/useSharedData'
 
 const processStore = useProcessStore()
-const sharedData = useSharedData()
 const runningStore = useRunningStore()
 
 const projectId = useRoute()?.query?.projectId as string
@@ -20,26 +18,22 @@ const projectName = useRoute()?.query?.projectName as string
 const projectVersion = Number(useRoute()?.query?.projectVersion) || 0
 
 processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
-sharedData.getSharedVariables()
-sharedData.getSharedFiles()
 
 let isStart = false
 
-onMounted(() => {
-  startPickServices({}).then(() => {
-    isStart = true
-  })
+onMounted(async () => {
   taskNotify({ event: 'login' })
   runningStore.fetchDataTable()
+  await startPickServices({})
+  isStart = true
 })
 
-onUnmounted(() => {
-  if (isStart) {
-    stopPickServices({}).then(() => {
-      isStart = false
-    })
-  }
+onUnmounted(async () => {
+  if (!isStart) return 
+  await stopPickServices({})
+  isStart = false
 })
+
 onBeforeUnmount(() => {
   useRunlogStore().clearLogs() // 清空日志
   runningStore.closeDataTableListener()

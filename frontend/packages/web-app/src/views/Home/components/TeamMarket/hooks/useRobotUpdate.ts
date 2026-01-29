@@ -4,7 +4,6 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { getAppUpdateStatus } from '@/api/market'
 import { getRobotUpdateStatus } from '@/api/robot'
 import { useMarketStore } from '@/stores/useMarketStore'
-import type { resOption } from '@/views/Home/types'
 
 export function useRobotUpdate(type: string, tableRef: Ref) {
   const appIds = ref([])
@@ -23,8 +22,7 @@ export function useRobotUpdate(type: string, tableRef: Ref) {
         appIdListStr: appIds.value.join(','),
         robotIdListStr: type === 'robot' ? robotIds.value.join(',') : undefined,
       }
-      FN(params).then((res: resOption) => {
-        const { data } = res
+      FN(params).then((data) => {
         if (data) {
           data.forEach((item) => {
             const { appId: aId, robotId: rId, updateStatus: newStatus } = item

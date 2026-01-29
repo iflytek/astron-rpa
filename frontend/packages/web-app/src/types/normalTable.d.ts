@@ -109,12 +109,14 @@ export interface PageConfig {
   [key: string]: any
 }
 
-// 数据获取函数类型
-export type GetDataFunction = (params: Record<string, any>) => Promise<{
-  records: any[]
+export interface ITableResponse<T = any> {
+  records: T[]
   total: number
   [key: string]: any
-}>
+}
+
+// 数据获取函数类型
+export type GetDataFunction = (params: Record<string, any>) => Promise<ITableResponse>
 
 // 主要的 tableOption 接口
 export interface TableOption {

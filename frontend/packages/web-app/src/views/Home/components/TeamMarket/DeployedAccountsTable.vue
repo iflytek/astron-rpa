@@ -3,9 +3,8 @@ import { HintIcon, useTheme } from '@rpa/components'
 import { h, reactive } from 'vue'
 
 import { getDeployedAccounts } from '@/api/market'
-import NormalTable from '@/components/NormalTable/index.vue'
+import { NormalTable, type TableOption } from '@/components/NormalTable'
 
-import type { resOption } from '../../types'
 import type { cardAppItem } from '../../types/market'
 
 interface deployAccountsMap {
@@ -25,10 +24,10 @@ const emit = defineEmits(['selectedIds'])
 
 const { colorTheme } = useTheme()
 
-const tableOption = reactive({
+const tableOption = reactive<TableOption>({
   refresh: false,
   page: false,
-  getData: getTableData,
+  getData: getDeployedAccounts,
   formListAlign: 'right',
   formList: [
     {
@@ -41,11 +40,6 @@ const tableOption = reactive({
       prefix: h(HintIcon, { name: 'search' }),
     },
   ],
-  buttonList: [{
-    label: '已部署账号',
-    type: 'plain',
-    hidden: false,
-  }],
   tableProps: {
     columns: [
       {
@@ -87,23 +81,8 @@ const tableOption = reactive({
     marketId: props.record.marketId,
   },
 })
-function getTableData(params) {
-  return new Promise((resolve) => {
-    getDeployedAccounts(params).then((res: resOption) => {
-      const { data } = res
-      if (data) {
-        const { total, records } = data
-        resolve({
-          records,
-          total,
-        })
-      }
-    })
-  })
-}
 
-function onSelectChange(selectedIds: string[], selectedRows: deployAccountsMap[]) {
-  // console.log(selectedIds)
+function onSelectChange(_selectedIds: string[], selectedRows: deployAccountsMap[]) {
   const creatorIds = selectedRows.filter(item => !item.isCreator).map(item => item.creatorId)
   emit('selectedIds', creatorIds)
 }
@@ -112,7 +91,11 @@ function onSelectChange(selectedIds: string[], selectedRows: deployAccountsMap[]
 <template>
   <div class="deployed-accounts-table" :class="[colorTheme]">
     <div class="h-[300px]">
-      <NormalTable :option="tableOption" />
+      <NormalTable :option="tableOption">
+        <template #headerPrefix>
+          <span class="font-bold">已部署账号</span>
+        </template>
+      </NormalTable>
     </div>
   </div>
 </template>

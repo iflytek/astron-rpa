@@ -36,21 +36,20 @@ export const useMarketStore = defineStore('market', () => {
   // 获取团队市场数据
   const getTeamList = (id: string = '', isEdit: boolean = false) => {
     return new Promise((resolve, reject) => {
-      getTeams().then((res) => {
-        setMarketData(TEAM_KEY, res.data || [])
+      getTeams().then((data) => {
+        setMarketData(TEAM_KEY, data)
         if (route.name === APPLICATION) {
           setCurrentMarketItem(APPLICATION_KEY)
           return
         }
-        let marketId = res.data[0]?.marketId || ''
-        if (id && res.data.find(i => i.marketId === id)) {
+        let marketId = data[0]?.marketId || ''
+        if (id && data.find(i => i.marketId === id)) {
           marketId = id
         }
         !isEdit && setCurrentMarketItem(marketId)
         isEdit && activeMarket.value?.marketId && setCurrentMarketItem(activeMarket.value.marketId)
         resolve(true)
       }).catch((err) => {
-        console.log('getTeamList', err)
         reject(err)
       })
     })
