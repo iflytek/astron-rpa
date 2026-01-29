@@ -3210,6 +3210,7 @@ table "file" {
   column "deleted" {
     null    = true
     type    = int
+    default = 0
     comment = "逻辑删除标志位"
   }
   column "file_name" {

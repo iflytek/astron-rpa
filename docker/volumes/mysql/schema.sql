@@ -889,7 +889,7 @@ CREATE TABLE `file` (
   `path` varchar(100) DEFAULT NULL COMMENT '文件在s3上对应的路径',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted` int(11) DEFAULT NULL COMMENT '逻辑删除标志位',
+  `deleted` int(11) DEFAULT 0 COMMENT '逻辑删除标志位',
   `file_name` varchar(1000) DEFAULT NULL COMMENT '文件真实名称',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=283 DEFAULT CHARSET=utf8mb4 COMMENT='文件表';
