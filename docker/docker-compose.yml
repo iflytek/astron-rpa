@@ -25,13 +25,12 @@ services:
       - ./volumes/mysql/init_his_data_enum_data.sql:/docker-entrypoint-initdb.d/04-init_data.sql
       - ./volumes/mysql/init_sample_template_data.sql:/docker-entrypoint-initdb.d/05-init_data.sql
       - ./volumes/mysql/init_c_atom_meta_new_data.sql:/docker-entrypoint-initdb.d/06-init_data.sql
-      - ./volumes/mysql/00-clear_init_tables.sql:/opt/rpa-init/00-clear_init_tables.sql:ro
-      - ./volumes/mysql/mysql-entrypoint-wrapper.sh:/usr/local/bin/mysql-entrypoint-wrapper.sh:ro
+      - ./volumes/mysql/00-clear_init_tables.sql:/opt/rpa-init/00-clear_init_tables.sql
+      - ./volumes/mysql/mysql-entrypoint-wrapper.sh:/usr/local/bin/mysql-entrypoint-wrapper.sh
     command: |
       bash -c "
         cp /etc/mysql/conf.d/my.cnf /etc/mysql/conf.d/my1.cnf
-        chmod +x /usr/local/bin/mysql-entrypoint-wrapper.sh
-        exec /usr/local/bin/mysql-entrypoint-wrapper.sh mysqld
+        bash /usr/local/bin/mysql-entrypoint-wrapper.sh mysqld
       "
     healthcheck:
       test:
