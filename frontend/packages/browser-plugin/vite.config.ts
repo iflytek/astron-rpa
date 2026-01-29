@@ -27,11 +27,13 @@ export default defineConfig((env) => {
       assetsDir: 'src/static',
 
       terserOptions: {
+        module: false,
         compress: {
           drop_debugger: true,
           drop_console: env.mode === 'publish',
         },
         mangle: {
+          keep_classnames: true,
           keep_fnames: true,
         },
       },

@@ -1,4 +1,4 @@
-import { MAX_ATTRIBUTE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
+import { MAX_ATTRIBUTE_LENGTH, MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
 import { highLight, highLightRects } from './highlight'
 import { Utils } from './utils'
 
@@ -60,30 +60,26 @@ export function textAttrFromElement(ele: HTMLElement) {
 
 export function getAttr(element: HTMLElement, attrName: string) {
   const attrMap = {
-    id: element.getAttribute('id'),
-    class: element.getAttribute('class'),
-    name: element.getAttribute('name'),
-    type: element.getAttribute('type'),
-    value: (element as HTMLInputElement).value,
-    href: (element as HTMLAnchorElement).href,
-    src: (element as HTMLImageElement | HTMLSourceElement).src,
-    title: element.title,
-    text: getNodeText(element),
-    readonly: String((element as HTMLInputElement).readOnly),
+    'accept': element.getAttribute('accept'),
+    'id': element.getAttribute('id'),
+    'class': element.getAttribute('class'),
+    'name': element.getAttribute('name'),
+    'type': element.getAttribute('type'),
+    'value': (element as HTMLInputElement).value,
+    'href': (element as HTMLAnchorElement).href,
+    'src': (element as HTMLImageElement | HTMLSourceElement).src,
+    'title': element.title,
+    'text': getNodeText(element),
+    'placeholder': (element as HTMLInputElement | HTMLTextAreaElement).placeholder,
+    'dataset': JSON.parse(JSON.stringify(element.dataset)),
+    'readonly': String((element as HTMLInputElement).readOnly),
+    'role': element.getAttribute('role'),
+    'aria-label': element.getAttribute('aria-label'),
   }
   if (attrName in attrMap) {
     return attrMap[attrName] || ''
   }
   return element.getAttribute(attrName)
-}
-
-export function getAttrs(element: Element) {
-  const attrs = {}
-    ;['src', 'href', 'id', 'class', 'title', 'name'].forEach((key) => {
-    const attr = element.getAttribute(key)?.replace(/[\u0000-\u001F\u007F]/g, '')
-    attr && (attrs[key] = attr)
-  })
-  return attrs
 }
 
 export function isTable(element: HTMLElement) {
@@ -149,16 +145,12 @@ function elementFromPoint(x: number, y: number, docu: Document | ShadowRoot) {
 }
 
 function isUniqueIdFn(id: string) {
-  return id && !Utils.isNumberString(id) && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
+  return id && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
 }
 
 function isHighWeightClass(cls: string) {
-  return cls && !Utils.isNumberString(cls) && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
+  return cls && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
 }
-
-// function isLowWeightClass(cls: string) {
-//   return cls && !Utils.isSpecialCharacter(cls)
-// }
 
 function isSvgElement(element: Element): boolean {
   return element.namespaceURI === 'http://www.w3.org/2000/svg'
@@ -455,33 +447,6 @@ function getShadowElementsBySelector(selector: string) {
 }
 
 /**
- * Selects and marks the most significant attribute from a list of element attributes.
- *
- * The function prioritizes the 'id' attribute, marking it as checked if present.
- * If 'id' is not found, it checks for the 'text' attribute and marks it as checked.
- * All other attributes are marked as unchecked.
- * If neither 'id' nor 'text' is present, the attributes remain unchanged.
- *
- * @param attrs - An array of `ElementAttrs` objects representing element attributes.
- * @returns The updated array of `ElementAttrs` with the most significant attribute marked as checked.
- */
-function getWeightedAttrs(attrs: ElementAttrs[]) {
-  const idAttr = attrs.find(attr => attr.name === 'id')
-  const textAttr = attrs.find(attr => attr.name === 'text')
-  if (idAttr) {
-    attrs.forEach(attr => (attr.checked = false))
-    idAttr.checked = true
-    return attrs
-  }
-  if (textAttr) {
-    attrs.forEach(attr => (attr.checked = false))
-    textAttr.checked = true
-    return attrs
-  }
-  return attrs
-}
-
-/**
  * Rebuilds the directory structure by re-evaluating the 'index' attribute of each node in the given directory list.
  * For each directory, it temporarily unchecks the 'index' attribute and generates an XPath from the current state.
  * If the XPath uniquely identifies the origin element, the 'index' remains unchecked; otherwise, it is checked again.
@@ -494,6 +459,12 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
   // Re-weight dirs again, try to uncheck the index of each node
   for (let i = dirs.length - 1; i >= 0; i--) {
     const dir = dirs[i]
+    const idAttr = dir.attrs.find(attr => attr.name === 'id' && attr.checked)
+    if (idAttr) {
+      dir.attrs.forEach((attr) => {
+        attr.checked = attr.name === 'id'
+      })
+    }
     const indexAttr = dir.attrs.find(attr => attr.name === 'index')
     if (indexAttr && indexAttr.checked) {
       indexAttr.checked = false
@@ -523,24 +494,26 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
   const elementDirectory = []
   while (element) {
     const id = getAttr(element, 'id')
-    const isUniqueId = isUniqueIdFn(id)
+    const name = getAttr(element, 'name')
     const className = pickClass(element)
     const type = getAttr(element, 'type')
     const title = getAttr(element, 'title')
     const placeholder = getAttr(element, 'placeholder')
     const value = getAttr(element, 'value')
+    const text = getNodeText(element)
     let tagName = getSupportTag(element.tagName.toLowerCase())
     let index = getElementIndex(element)
     let hasSubling = hasSameTypeSiblings(element)
-
     const isSvg = isSvgElement(element)
+    const isUniqueId = isUniqueIdFn(id)
+
     tagName = isSvg ? `*` : tagName
     index = isSvg ? getAllElementIndex(element) : index
     hasSubling = isSvg ? hasSiblings(element) : hasSubling
 
     // assemble attrs with initial weights
-    let attrs = []
-    if (isUniqueIdFn(id))
+    const attrs = []
+    if (isUniqueId)
       attrs.push({ name: 'id', value: id, checked: true, type: 0 })
     if (isSvg)
       attrs.push({ name: 'local-name', value: element.tagName.toLowerCase(), checked: true, type: 0 })
@@ -552,24 +525,23 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
       const classChecked = isHighWeightClass(className)
       attrs.push({ name: 'class', value: className, checked: classChecked, type: 1 })
     }
+    if (text && text.length < MAX_TEXT_INCLUDE_LENGTH) {
+      const textChecked = text.length < MAX_TEXT_LENGTH && Utils.isEffectCharacter(text) && !Utils.isControlCharacter(text)
+      attrs.push({ name: 'text', value: text, checked: textChecked, type: 1 })
+    }
     if (placeholder && placeholder.length < MAX_ATTRIBUTE_LENGTH) {
       attrs.push({ name: 'placeholder', value: placeholder, checked: false, type: 0 })
     }
     if (value && value.length < MAX_ATTRIBUTE_LENGTH) {
       attrs.push({ name: 'value', value, checked: false, type: 0 })
     }
-    if (title && title.length < MAX_ATTRIBUTE_LENGTH)
+    if (title && title.length < MAX_ATTRIBUTE_LENGTH) {
       attrs.push({ name: 'title', value: title, checked: false, type: 0 })
-    // text attr only for target element
-    if (elementDirectory.length === 0) {
-      const text = getNodeText(element)
-      if (text && text.length < MAX_TEXT_LENGTH && Utils.isEffectCharacter(text) && !Utils.isControlCharacter(text)) {
-        attrs.push({ name: 'text', value: text, checked: true, type: 1 })
-      }
+    }
+    if (name && name.length < MAX_ATTRIBUTE_LENGTH) {
+      attrs.push({ name: 'name', value: name, checked: false, type: 0 })
     }
 
-    // get weighted attrs
-    attrs = getWeightedAttrs(attrs)
     const attributes = { tag: tagName, checked: true, value: tagName, attrs }
     elementDirectory.unshift(attributes)
     // id has highest weight, stop here

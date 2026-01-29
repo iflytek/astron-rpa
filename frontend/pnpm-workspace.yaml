@@ -24,3 +24,8 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - electron
+
+packageExtensions:
+  browser-plugin:
+    dependencies:
+      vite: ^5.4.21
