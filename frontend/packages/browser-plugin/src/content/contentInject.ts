@@ -154,6 +154,9 @@ function messageHandler(ev: MessageEvent) {
   if (key === 'getCurrentWindowIframeInfo') {
     tagFrame()
   }
+  if (data && key === 'bindCurrentWindowIframeInfo') {
+    tagFrameId(data)
+  }
 }
 
 /**
@@ -167,6 +170,7 @@ function messageHandler(ev: MessageEvent) {
  * @remarks
  * - Communicates with iframe content windows using the `setCurrentWindowIframeInfo` message key.
  * - Communicates with the parent window using the `getCurrentWindowIframeInfo` message key.
+ * - binds the current frame information to the parent window using the `bindIframeInfo` message key.
  */
 function tagFrame() {
   const iframes = getIFramesElements()
@@ -190,6 +194,21 @@ function tagFrame() {
       },
       '*',
     )
+    window.parent.postMessage(
+      {
+        key: 'bindCurrentWindowIframeInfo',
+        data: currentFrameInfo
+      },
+      '*'
+    )
+  }
+}
+
+function tagFrameId(frameInfo: typeof currentFrameInfo) {
+  console.log('frameInfo: ', frameInfo);
+  const iframeEle = getElementByXPath(frameInfo.iframeXpath)
+  if (iframeEle) {
+    iframeEle.dataset.astronFrameId = String(frameInfo.frameId)
   }
 }
 
@@ -803,20 +822,20 @@ const ContentHandler = {
             value = (result as HTMLImageElement).src || (result as HTMLAnchorElement).href || ''
             break
           case '4':
-          {
-            if (attrName) {
-              value = result.getAttribute(attrName) || ''
-            }
-            else {
-              const allAttrs: Record<string, string> = {}
-              for (let i = 0; i < result.attributes.length; i++) {
-                const attr = result.attributes[i]
-                allAttrs[attr.name] = attr.value
+            {
+              if (attrName) {
+                value = result.getAttribute(attrName) || ''
               }
-              value = allAttrs
+              else {
+                const allAttrs: Record<string, string> = {}
+                for (let i = 0; i < result.attributes.length; i++) {
+                  const attr = result.attributes[i]
+                  allAttrs[attr.name] = attr.value
+                }
+                value = allAttrs
+              }
+              break
             }
-            break
-          }
           case '5':
             value = getBoundingClientRect(result)
             break
@@ -827,25 +846,25 @@ const ContentHandler = {
             value = (result as HTMLInputElement).checked
             break
           case '7':
-          {
-            const styleDecl = window.getComputedStyle(result)
-            if (attrName) {
-              // Support camelCase or kebab-case
-              const cssName = attrName.includes('-')
-                ? attrName
-                : attrName.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)
-              value = styleDecl.getPropertyValue(cssName) || (result.style as any)[attrName] || ''
-            }
-            else {
-              const allStyles: Record<string, string> = {}
-              for (let i = 0; i < styleDecl.length; i++) {
-                const prop = styleDecl[i]
-                allStyles[prop] = styleDecl.getPropertyValue(prop)
+            {
+              const styleDecl = window.getComputedStyle(result)
+              if (attrName) {
+                // Support camelCase or kebab-case
+                const cssName = attrName.includes('-')
+                  ? attrName
+                  : attrName.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)
+                value = styleDecl.getPropertyValue(cssName) || (result.style as any)[attrName] || ''
               }
-              value = allStyles
+              else {
+                const allStyles: Record<string, string> = {}
+                for (let i = 0; i < styleDecl.length; i++) {
+                  const prop = styleDecl[i]
+                  allStyles[prop] = styleDecl.getPropertyValue(prop)
+                }
+                value = allStyles
+              }
+              break
             }
-            break
-          }
           default:
             return Utils.fail(ErrorMessage.UPDATE_TIP, StatusCode.EXECUTE_ERROR)
         }
@@ -1072,12 +1091,20 @@ const ContentHandler = {
     getFrameInfo(data: { frameId: number }) {
       const { frameId } = data
       console.log(`rpa_debugger_on:${frameId}`) // !!! Do not delete. Rely on this code to determine which frame chrome.debugger is injected into
-      tagFrame()
       currentFrameInfo.frameId = frameId
+      tagFrame()
       return currentFrameInfo
     },
-
-    getIframeElement: (data: Point) => {
+    findIframeId(xpath: string) {
+      const iframeEle = getElementByXPath(xpath)
+      if (iframeEle) {
+        const frameId = iframeEle.dataset.astronFrameId
+        return { frameId: frameId ? Number(frameId) : null }
+      } else {
+        return { frameId: null }
+      }
+    },
+    getIframeElement(data: Point) {
       const { x, y } = data
       const dpr = window.devicePixelRatio
       const realX = x / dpr
