@@ -40,10 +40,6 @@ const tableOption = reactive<TableOption>({
       prefix: h(HintIcon, { name: 'search' }),
     },
   ],
-  buttonList: [{
-    label: '已部署账号',
-    hidden: false,
-  }],
   tableProps: {
     columns: [
       {
@@ -95,7 +91,11 @@ function onSelectChange(_selectedIds: string[], selectedRows: deployAccountsMap[
 <template>
   <div class="deployed-accounts-table" :class="[colorTheme]">
     <div class="h-[300px]">
-      <NormalTable :option="tableOption" />
+      <NormalTable :option="tableOption">
+        <template #headerPrefix>
+          <span class="font-bold">已部署账号</span>
+        </template>
+      </NormalTable>
     </div>
   </div>
 </template>
