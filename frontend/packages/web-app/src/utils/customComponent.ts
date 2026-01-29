@@ -125,7 +125,7 @@ export async function getComponentForm(params: {
 
   return {
     key: `${COMPONENT_KEY_PREFIX}.${componentId}`,
-    title: info.name || '组件名称',
+    title: info.name,
     version: version || info.componentVersion || info.latestVersion,
     src: '',
     comment: '',
@@ -152,7 +152,8 @@ export function getComponentPreviewForm(params: {
 
   return {
     key: `${COMPONENT_KEY_PREFIX}.${componentId}`,
-    title: componentName || '组件名称',
+    title: componentName,
+    alias: componentName,
     version: '',
     src: '',
     comment: '',
@@ -160,21 +161,20 @@ export function getComponentPreviewForm(params: {
     outputList: outputFormItems,
     icon: '',
     helpManual: '',
-    noAdvanced: true,
-  }
+  } as unknown as RPA.Atom
 }
 
 export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
   if (attr.varDirection === 1) {
     const varName = attr.varName.replace('p_variable', 'c_variable')
     return {
-      types: attr.varType,
       formType: { type: 'RESULT' },
       key: varName,
-      title: attr.varDescribe || attr.varName,
       name: varName,
-      default: attr.varValue,
       required: false,
+      tip: attr.varDescribe,
+      title: varName,
+      types: attr.varType,
       value: [{ type: 'var', value: varName }],
     }
   }
@@ -183,13 +183,15 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
     const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
 
     return {
-      types: attr.varType,
+      // default: illegal ? attr.varValue : varValue[0].value,
       formType: varTypeToFormTypeMap[attr.varType] || { type: 'INPUT_VARIABLE_PYTHON' },
       key: attr.varName,
-      title: attr.varDescribe || attr.varName,
       name: attr.varName,
       required: true,
-      value: illegal ? [{ type: OTHER_IN_TYPE, value: attr.varValue ?? '' }] : varValue,
+      tip: attr.varDescribe,
+      title: attr.varName,
+      types: attr.varType,
+      value: illegal ? [{ type: OTHER_IN_TYPE, value: attr.varValue ?? '' }] : varValue
     }
   }
 }

@@ -11,7 +11,10 @@ import {
   useFormItemRequired,
 } from './hooks/useFormItemSort'
 
-const { atomFormItem } = defineProps<{ atomFormItem: RPA.AtomDisplayItem }>()
+const { atomFormItem } = defineProps<{
+  atomFormItem: RPA.AtomDisplayItem
+  disabled?: boolean
+}>()
 
 // 是否展示 label
 const showLabel = computed(() => {
@@ -46,7 +49,11 @@ const showLabel = computed(() => {
         {{ $t('common.createPythonScript') }}
       </span>
     </label>
-    <AtomConfig :form-item="atomFormItem" class="mt-2" />
+    <AtomConfig
+      :form-item="atomFormItem"
+      class="mt-2 relative"
+      :class="{ 'pointer-events-none after:pointer-events-auto after:absolute after:inset-0 cursor-not-allowed': disabled }"
+    />
     <article
       v-if="useFormItemRequired(atomFormItem)"
       class="form-container-context-required"

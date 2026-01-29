@@ -275,6 +275,7 @@ export function generateFormMap(item) {
     }
   }
   item.baseForm = generateBaseItems(item || { title }, alias)
+  item.advanced = generateAdvancedItems(item, exception)
   item.exception = generateExceptionItems({}, exception)
   return item
 }
