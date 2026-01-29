@@ -14,6 +14,7 @@ SERVICE_NAME = "AstronRPA"
 # 空密码哨兵值，用于区分"空密码"和"不存在"
 EMPTY_PASSWORD_SENTINEL = "__RPA__Credential__EMPTY__PASSWORD__"
 
+
 class Credential:
     """凭证读取服务"""
 

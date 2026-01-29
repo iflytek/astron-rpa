@@ -399,7 +399,7 @@ class BrowserElement:
         simulate_flag: bool = False,
         fill_type: FillInputForFillTypeFlag = FillInputForFillTypeFlag.Text,
         fill_input: str = "",
-        fill_input_credential: str  = "",
+        fill_input_credential: str = "",
         element_timeout: int = 10,
         focus_time: float = 1000,
         write_gap_time: float = 0,
