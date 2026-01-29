@@ -20,8 +20,6 @@ const projectName = useRoute()?.query?.projectName as string
 const projectVersion = Number(useRoute()?.query?.projectVersion) || 0
 
 processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
-sharedData.getSharedVariables()
-sharedData.getSharedFiles()
 
 let isStart = false
 

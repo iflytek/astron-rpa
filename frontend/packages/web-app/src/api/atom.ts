@@ -112,13 +112,15 @@ export function updateConfigParam(data: RPA.ConfigParamData) {
 /**
  * 获取远程共享变量
  */
-export function getRemoteParams() {
-  return http.get('/robot/robot-shared-var/get-shared-var', {})
+export async function getRemoteParams<T>() {
+  const res = await http.get<T[]>('/robot/robot-shared-var/get-shared-var')
+  return res.data || []
 }
 
 /**
  * 获取卓越中心文件管理共享文件列表
  */
-export function getRemoteFiles(data?: { pageSize?: number, fileName?: string }) {
-  return http.post('/robot/robot-shared-file/page', data)
+export async function getRemoteFiles(data?: { pageSize?: number, fileName?: string }) {
+  const res = await http.post<{ records: RPA.SharedFileType[]; total: number }>('/robot/robot-shared-file/page', data)
+  return res.data || { records: [], total: 0 }
 }
