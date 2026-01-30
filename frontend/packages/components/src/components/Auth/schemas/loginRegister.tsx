@@ -95,7 +95,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
               { loading ? '登录中' : (isInvite ? '登录并加入' : '登录') }
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-              还没有讯飞账号？
+              还没有Casdoor账号？
               <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
                 立即注册
               </Button>
@@ -197,7 +197,7 @@ export function personalRegisterFormConfig(formData: any, isInvite = false, edit
               { loading ? '注册中' : (isInvite ? '注册并加入' : '注册') }
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-              已有讯飞账号？
+              已有Casdoor账号？
               <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
                 立即登录
               </Button>

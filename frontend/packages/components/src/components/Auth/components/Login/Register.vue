@@ -45,7 +45,7 @@ const headerTitle = computed(() => {
     }
   }
   if (edition === 'saas' && authType === 'casdoor') {
-    return { title: '注册讯飞账号', actionText: '' }
+    return { title: '注册Casdoor账号', actionText: '' }
   }
   return { title: '', actionText: '' }
 })
