@@ -8,6 +8,7 @@ dependencies = [
     "python-dateutil",
     "pycryptodome",
     "astronverse-baseline",
+    "keyring",
 ]
 
 [tool.uv.sources]
