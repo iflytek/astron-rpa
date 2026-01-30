@@ -506,7 +506,7 @@ skip_engine_start: false
 docker compose ps
 
 # 🔍 验证 API 响应
-在浏览器访问 http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check （32742为默认端口，如有修改自行变更）
+在浏览器访问 http://{YOUR_SERVER_IP}:32742/api/rpa-auth/user/login-check （32742为默认端口，如有修改自行变更）
 如果显示 {"code":"900001","data":null,"message":"unauthorized"} 则表示部署正确且能正常联通。
 ```
 
@@ -622,7 +622,7 @@ dir  # Windows 检查可用空间
 # 🌐 检查网络连通性
 # 用浏览器直接打开下方连接，看是否有结果返回
 # http://localhost:32742 可替换为你部署的服务器的地址+端口
-http://localhost:32742/api/robot/user/login-check
+http://localhost:32742/api/rpa-auth/user/login-check
 
 # 🛡️ 检查防火墙设置
 # Windows: 控制面板 > 系统和安全 > Windows Defender 防火墙

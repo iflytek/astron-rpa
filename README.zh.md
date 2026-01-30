@@ -24,12 +24,12 @@
 ## 📋 概述
 AstronRPA 是一款企业级机器人流程自动化（RPA）桌面应用。通过可视化设计器支持低代码/无代码开发，用户能快速构建工作流，实现桌面软件和浏览器页面的自动化。
 
-[Astron Agent](https://github.com/iflytek/astron-agent) 是本项目原生支持的Agent平台，用户可在 Astron Agent 中直接调用 RPA 流程节点，也可在 AstronRPA 中使用 Agent 的工作流，实现自动化流程与智能体系统的高效协同，赋能更广泛的业务自动化场景。
+[Astron Agent](https://github.com/iflytek/astron-agent) 是本项目原生支持的 Agent 平台，用户可在 Astron Agent 中直接调用 RPA 流程节点，也可在 AstronRPA 中使用 Agent 的工作流，实现自动化流程与智能体系统的高效协同，赋能更广泛的业务自动化场景。
 
 ## 🎯 为什么选择 AstronRPA？
 
 - **🛠️ 全面自动化支持**：全面覆盖 Windows 桌面各类软件与浏览器页面的自动化，支持包括 WPS、Office 等常用办公软件，金蝶、用友、SAP 等财务及 ERP 系统，以及 IE、Edge、Chrome 等多种浏览器，实现跨应用的端到端自动化。
-- **🧩 高度组件化**：内置 300 余项常用原子能力，覆盖UI操作、数据处理、系统交互等常见场景，支持图形化编排与自定义组件扩展，具备高度的灵活性与可维护性。
+- **🧩 高度组件化**：内置 300 余项常用原子能力，覆盖 UI 操作、数据处理、系统交互等常见场景，支持图形化编排与自定义组件扩展，具备高度的灵活性与可维护性。
 - **🏭 企业级安全协同**：内置卓越中心、团队市场等企业级模块，提供终端监控，调度模式，机器人团队共享等协作功能。构建完整的企业级自动化管理生态，有效保障流程安全、权限管控与跨团队协作。
 - **👨‍💻 开发体验友好**：提供低代码、可视化的流程设计与调试环境，通过直观的拖拉拽方式即可快速构建自动化流程，大幅降低开发门槛，提升搭建效率，赋能业务人员参与自动化创建。
 - **🤖 原生 Agent 赋能**：深度集成 Astron Agent 平台，支持自动化流程与 AI 智能体的双向调用与能力融合，实现任务推理、决策判断与自动化执行的无缝衔接，拓展自动化边界。
@@ -53,10 +53,10 @@ cd astron-rpa
 # 进入 docker 目录
 cd docker
 
-# 复制.env
+# 复制 .env
 cp .env.example .env
 
-# 修改.env中casdoor的服务配置（8000为默认端口）
+# 修改 .env 中 Casdoor 的服务配置（8000 为默认端口）
 CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
 
 # 🚀 启动所有服务
@@ -66,8 +66,10 @@ docker compose up -d
 docker compose ps
 ```
 
-- 等服务都启动后，在浏览器访问 `http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check` （32742为默认端口，如有修改自行变更）
-- 如果显示 `{"code":"900001","data":null,"message":"unauthorized"}` 则表示部署正确且能正常联通。
+- 等服务都启动后，在浏览器访问 `http://{YOUR_SERVER_IP}:32742/api/rpa-auth/user/login-check`（32742 为默认端口，如有修改自行变更）
+- 如果显示 `{"code":"900001","data":null,"message":"unauthorized"}`，则表示部署正确且能正常连通。
+- 在浏览器访问 `http://{YOUR_SERVER_IP}:8000`（8000 为默认端口，如有修改自行变更）
+- 如果显示 Casdoor 的登录页面，则表示 Casdoor 部署正确。
 - 生产部署及安全加固请参考 [部署文档](docker/QUICK_START.md)
 
 ### **客户端**: 源码部署/安装包部署
@@ -83,11 +85,11 @@ docker compose ps
 | **7-Zip** | - | 创建部署归档文件 |
 | **SWIG** | - | 连接 Python 与 C/C++ |
 
-具体的依赖安装方式以及常见问题请参考 [构建文档](./BUILD_GUIDE.zh.md)
+具体的依赖安装方式以及常见问题请参考 [构建文档](./BUILD_GUIDE.zh.md)。
 
 #### 直接下载（推荐）
 
-使用最新的[Release安装包](https://github.com/iflytek/astron-rpa/releases)
+使用最新的 [Release 安装包](https://github.com/iflytek/astron-rpa/releases)
 
 #### 一键构建
 
@@ -124,7 +126,7 @@ docker compose ps
 #### ⚙️ 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
     ```yaml
-    # 32742为默认端口，如有修改自行变更
+    # 32742 为默认端口，如有修改自行变更
     remote_addr: http://YOUR_SERVER_ADDRESS:32742/
     skip_engine_start: false
     ```

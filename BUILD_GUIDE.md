@@ -506,7 +506,7 @@ skip_engine_start: false
 docker compose ps
 
 # 🔍 Verify API response
-# Open in browser: http://{YOUR_SERVER_IP}:32742/api/robot/user/login-check (32742 is default port, modify if changed)
+# Open in browser: http://{YOUR_SERVER_IP}:32742/api/rpa-auth/user/login-check (32742 is default port, modify if changed)
 # If returns {"code":"900001","data":null,"message":"unauthorized"} then deployment is correct and connected
 ```
 
@@ -622,7 +622,7 @@ dir  # Windows check available space
 # 🌐 Check network connectivity
 # Open the following URL in your browser to see if there's a response
 # http://localhost:32742 can be replaced with your deployed server address+port
-http://localhost:32742/api/robot/user/login-check
+http://localhost:32742/api/rpa-auth/user/login-check
 
 # 🛡️ Check firewall settings
 # Windows: Control Panel > System and Security > Windows Defender Firewall
