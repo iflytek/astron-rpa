@@ -136,7 +136,7 @@ class WinEle:
                 dynamics=[
                     DynamicsItem(
                         key="$this.credential_text.show",
-                        expression=f"return $this.fill_type.value == '{ElementInputType.Credential.value}'",
+                        expression=f"return $this.input_type.value == '{ElementInputType.Credential.value}'",
                     )
                 ],
             ),
