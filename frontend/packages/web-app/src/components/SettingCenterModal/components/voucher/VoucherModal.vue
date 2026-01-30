@@ -1,24 +1,39 @@
 <script setup lang="ts">
-import { NiceModal } from "@rpa/components";
-import type { FormInstance } from "ant-design-vue";
-import { reactive, ref } from "vue";
+import { NiceModal } from '@rpa/components'
+import type { FormInstance } from 'ant-design-vue'
+import type { Rule } from 'ant-design-vue/es/form'
+import { reactive, ref } from 'vue'
+
+import { checkCredentialExists, createCredential } from '@/api/engine'
 
 interface FormState {
-  name: string;
-  password: string;
+  name: string
+  password: string
 }
 
-const modal = NiceModal.useModal();
+const emit = defineEmits(['refresh'])
 
-const emit = defineEmits(["refresh"]);
+const modal = NiceModal.useModal()
 
-const formRef = ref<FormInstance>();
-const formState = reactive<FormState>({ name: "", password: "" });
+const formRef = ref<FormInstance>()
+const formState = reactive<FormState>({ name: '', password: '' })
+
+async function validateVoucherName(_rule: Rule, value: string) {
+  if (!value) {
+    return Promise.resolve()
+  }
+  const exists = await checkCredentialExists(value)
+  if (exists) {
+    return Promise.reject(new Error('凭证名称已存在'))
+  }
+  return Promise.resolve()
+}
 
 async function handleOk() {
-  await formRef.value?.validate();
-  modal.hide();
-  emit("refresh");
+  await formRef.value?.validate()
+  await createCredential(formState)
+  modal.hide()
+  emit('refresh')
 }
 </script>
 
@@ -38,7 +53,14 @@ async function handleOk() {
       layout="vertical"
       class="mt-[16px]"
     >
-      <a-form-item :label="$t('voucherName')" name="name" required>
+      <a-form-item
+        :label="$t('voucherName')"
+        name="name"
+        :rules="[
+          { required: true, trigger: 'change' },
+          { validator: validateVoucherName, trigger: 'blur' },
+        ]"
+      >
         <a-input
           v-model:value="formState.name"
           :placeholder="
@@ -48,8 +70,8 @@ async function handleOk() {
       </a-form-item>
       <a-form-item :label="$t('password')" name="password" required>
         <a-input
-          type="password"
           v-model:value="formState.password"
+          type="password"
           :placeholder="$t('common.enterPlaceholder', { name: $t('password') })"
         />
       </a-form-item>

@@ -4,6 +4,7 @@ import { reactive, ref } from 'vue'
 import { getAllClassification, getAppCards, marketUserList } from '@/api/market'
 import { fromIcon } from '@/components/PublishComponents/utils'
 import { useCardsTools } from '@/views/Home/components/TeamMarket/hooks/useCardsTools'
+import { type TableOption } from '@/components/NormalTable'
 
 import { useRobotUpdate } from './useRobotUpdate'
 
@@ -28,7 +29,7 @@ export function useCardsApp() {
    */
   async function getCardsData(params) {
     if (params.marketId) {
-      const { total, records } = await  getAppCards(params)
+      const { total, records } = await getAppCards(params)
       // 获取初始化更新ID
       getInitUpdateIds(records)
       return {
@@ -45,8 +46,7 @@ export function useCardsApp() {
   // 获取卡片工具中的表单列表
   const { formList } = useCardsTools()
   // 响应式卡片配置对象
-  const cardsOption = reactive({
-    type: 'cards', // 卡片类型
+  const cardsOption = reactive<TableOption>({
     refresh: false,
     getData: getCardsData, // 获取数据的方法
     formList, // 表单列表
@@ -75,7 +75,7 @@ export function useCardsApp() {
     }))
     // 找到绑定creatorId的表单项并更新其选项
     const current = cardsOption.formList[findIndex(cardsOption.formList, { bind: 'creatorId' })]
-    current.options = ownerList
+    current.options = ownerList as unknown as any
   }
 
   async function getAppCategory() {
