@@ -1,184 +1,24 @@
 <script setup lang="ts">
-import { useTranslation } from 'i18next-vue'
-import { nextTick, provide, ref, unref } from 'vue'
-import { LoadingDots } from '@rpa/components'
+import { ref, onBeforeUnmount } from 'vue'
+import { Loading, type LoadingProps } from '@rpa/components'
 
 import BUS from '@/utils/eventBus'
 
-interface LoadingProps {
-  isLoading: boolean
-  text?: string
-  immediate?: boolean
-  timeout?: number
-  exit?: boolean
-  exitCallback?: () => void
+const loadingRef = ref<InstanceType<typeof Loading>>()
+
+function fn(params: LoadingProps) {
+  loadingRef.value?.isLoading(params)
 }
 
-const { t } = useTranslation()
-const loadingShow = ref(false)
-const loadingText = ref('')
-const loadingExit = ref(false)
-
-const loadingHideTimer = ref()
-const loadingTimer = ref()
-const loadingExitCallback = ref()
-
-function fn({
-  isLoading,
-  text = '',
-  immediate,
-  timeout = 200,
-  exit = false,
-  exitCallback,
-}: LoadingProps) {
-  if (!isLoading) {
-    // false
-    unref(loadingHideTimer) && clearTimeout(unref(loadingHideTimer))
-    loadingHideTimer.value = setTimeout(() => {
-      // 延迟500ms 关闭，兼容多个接口连续不断loading
-      loadingShow.value = false
-      loadingText.value = ''
-      loadingHideTimer.value = undefined
-    }, 500)
-  }
-  else {
-    unref(loadingHideTimer) && clearTimeout(unref(loadingHideTimer)) // 清空定时器
-    unref(loadingTimer) && clearTimeout(unref(loadingTimer)) // 清空定时器
-    loadingTimer.value = setTimeout(() => {
-      loadingShow.value = false
-      loadingTimer.value = null
-    }, timeout * 1000) // timeout 秒后自动关闭, 大工程加载超时时间过长
-    loadingShow.value = true
-    loadingText.value = text || t('loading')
-    loadingExit.value = exit
-    loadingExitCallback.value = exitCallback
-  }
-  if (immediate) {
-    // 立即触发
-    loadingShow.value = isLoading
-    unref(loadingHideTimer) && clearTimeout(unref(loadingHideTimer))
-    unref(loadingTimer) && clearTimeout(unref(loadingTimer)) // 清空定时器
-  }
-}
-
-provide('isLoading', { loadingComponent: fn })
+// Ensure we don't duplicate listeners if component is remounted
 BUS.$off('isLoading', fn)
 BUS.$on('isLoading', fn)
 
-function exitLoading() {
-  loadingShow.value = false
-  loadingText.value = ''
-  loadingExit.value = false
-  loadingHideTimer.value = null
-  loadingTimer.value = null
-  nextTick(() => {
-    typeof loadingExitCallback.value === 'function'
-    && loadingExitCallback.value()
-    loadingExitCallback.value = null
-  })
-}
+onBeforeUnmount(() => {
+  BUS.$off('isLoading', fn)
+})
 </script>
 
 <template>
-  <div class="loading-mask" :class="[loadingShow ? 'loading-show' : 'loading-hide']">
-    <div class="loading-box p-2 flex flex-col items-center justify-center">
-      <LoadingDots />
-      <div v-if="loadingText" class="text-center">
-        {{ loadingText }}...
-      </div>
-      <div v-if="loadingExit" class="loading-exit">
-        <a-button size="small" type="link" @click="exitLoading">
-          {{ $t("quit") }}
-        </a-button>
-      </div>
-    </div>
-  </div>
+  <Loading ref="loadingRef" />
 </template>
-
-<style lang="scss" scoped>
-.loading-mask {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 99;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  -webkit-animation: 0.3s fadeIn linear;
-  animation: 0.3s fadeIn linear;
-  user-select: none;
-
-  .loading-box {
-    width: fit-content;
-    min-width: 88px;
-    min-height: 88px;
-    background: $color-bg-elevated;
-    border-radius: 8px;
-    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .loading-exit {
-    left: 50%;
-    margin: 10px auto 0;
-    border-top: 1px solid #ccc;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .ant-btn-link {
-      font-size: 12px;
-    }
-  }
-}
-
-.loading-show {
-  display: flex;
-}
-
-.loading-hide {
-  -webkit-animation: 0.4s fadeOut forwards;
-  animation: 0.4s fadeOut forwards;
-}
-
-@keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  0% {
-    display: flex;
-    opacity: 1;
-  }
-
-  95% {
-    display: flex;
-    opacity: 0;
-  }
-
-  100% {
-    display: none;
-    opacity: 0;
-  }
-}
-</style>
