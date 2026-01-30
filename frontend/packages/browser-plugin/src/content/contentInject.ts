@@ -23,7 +23,7 @@ import {
   isTable,
   shadowRootElement,
 } from './element'
-import { sendElementData } from './message'
+import { sendElementData, requestFrame } from './message'
 import { Utils } from './utils'
 import { elementChangeWatcher } from './watcher'
 
@@ -146,70 +146,83 @@ function formatElementInfo(element: HTMLElement, target: Document | ShadowRoot, 
   return elementData
 }
 
-function messageHandler(ev: MessageEvent) {
-  const { key, data } = ev.data
-  if (data && key === 'setCurrentWindowIframeInfo') {
-    currentFrameInfo = data
-  }
-  if (key === 'getCurrentWindowIframeInfo') {
-    tagFrame()
-  }
-  if (data && key === 'bindCurrentWindowIframeInfo') {
-    tagFrameId(data)
-  }
-}
-
 /**
- * Tags all iframe elements in the current window by sending their XPath and transform information
- * to their respective content windows via `postMessage`. Additionally, if the current window is
- * within a parent frame, requests the parent window for the current iframe information.
- *
- * This function relies on the helper functions `getIFramesElements`, `getXpath`, and `getIframeTransform`
- * to gather and process iframe data.
- *
- * @remarks
- * - Communicates with iframe content windows using the `setCurrentWindowIframeInfo` message key.
- * - Communicates with the parent window using the `getCurrentWindowIframeInfo` message key.
- * - binds the current frame information to the parent window using the `bindIframeInfo` message key.
+ * Initializes and manages iframe communication within the current window context.
+ * This function performs several key tasks:
+ * 1. Requests a unique frame ID for the current window or iframe and communicates it to the parent window.
+ * 2. Identifies all `<iframe>` elements within the current document.
+ * 3. For each found iframe, it calculates its XPath and transform properties and sends this information to the iframe's `contentWindow` via `postMessage`.
+ * 4. If the current window is itself an iframe, it communicates with its parent window to exchange frame information.
+ * 5. Sets up a `message` event listener to handle cross-frame communication, allowing frames to receive their context information, request information from child frames, and tag iframe elements with unique IDs received from their children.
+ * This entire process facilitates a hierarchical understanding and identification of nested iframes on the page.
  */
-function tagFrame() {
-  const iframes = getIFramesElements()
-  iframes.forEach((iframe) => {
-    const iframeInfo = {
-      iframeXpath: directoryXpath(iframe),
-      iframeTransform: getIframeTransform(iframe),
+function loadIframe() {
+  const postToIframe = (frameDom) => {
+    frameDom.contentWindow?.postMessage({
+      key: 'setCurrentWindowIframeInfo',
+      data: {
+        iframeXpath: directoryXpath(frameDom),
+        iframeTransform: getIframeTransform(frameDom),
+      },
+    }, '*')
+  }
+  const postToParent = () => {
+    window.parent.postMessage({
+      key: 'getCurrentWindowIframeInfo',
+    }, '*')
+    window.parent.postMessage({
+      key: 'bindCurrentWindowIframeInfo',
+      data: currentFrameInfo,
+    }, '*')
+  }
+  const tagFrames = () => {
+    const frames = getIFramesElements()
+    frames.forEach((frame) => {
+      if (frame.complete) {
+        postToIframe(frame)
+      }
+      frame.onload = () => {
+        postToIframe(frame)
+      }
+      postToIframe(frame)
+    })
+    if (window.parent !== window) {
+      postToParent()
     }
-    iframe.contentWindow?.postMessage(
-      {
-        key: 'setCurrentWindowIframeInfo',
-        data: iframeInfo,
-      },
-      '*',
-    )
-  })
-  if (window.parent !== window) {
-    window.parent.postMessage(
-      {
-        key: 'getCurrentWindowIframeInfo',
-      },
-      '*',
-    )
-    window.parent.postMessage(
-      {
-        key: 'bindCurrentWindowIframeInfo',
-        data: currentFrameInfo
-      },
-      '*'
-    )
   }
-}
-
-function tagFrameId(frameInfo: typeof currentFrameInfo) {
-  console.log('frameInfo: ', frameInfo);
-  const iframeEle = getElementByXPath(frameInfo.iframeXpath)
-  if (iframeEle) {
-    iframeEle.dataset.astronFrameId = String(frameInfo.frameId)
+  const tagFrameId = (frameInfo: typeof currentFrameInfo) => {
+    const iframeEle = frameInfo.iframeXpath ? getElementByXPath(frameInfo.iframeXpath) : null
+    if (iframeEle) {
+      iframeEle.dataset.astronFrameId = String(frameInfo.frameId)
+    }
   }
+  const requestFrameId = () => {
+    requestFrame().then((frameId) => {
+      currentFrameInfo.frameId = frameId as number
+      if (frameId !== 0) {
+        window.parent.postMessage({
+          key: 'bindCurrentWindowIframeInfo',
+          data: currentFrameInfo,
+        }, '*')
+      }
+    })
+  }
+  const listenMessage = (ev: MessageEvent) => {
+    const { key, data } = ev.data
+    if (data && key === 'setCurrentWindowIframeInfo') {
+      currentFrameInfo = data
+    }
+    if (key === 'getCurrentWindowIframeInfo') {
+      tagFrames()
+    }
+    if (data && key === 'bindCurrentWindowIframeInfo') {
+      tagFrameId(data)
+    }
+  }
+  window.removeEventListener('message', listenMessage)
+  window.addEventListener('message', listenMessage)
+  requestFrameId()
+  tagFrames()
 }
 
 /**
@@ -1199,8 +1212,8 @@ function RpaExtGetElement(data) {
   }
 }
 
-window.removeEventListener('message', messageHandler)
-window.addEventListener('message', messageHandler)
+loadIframe()
+window.addEventListener('load', loadIframe)
 // @ts-expect-error Mount to window
 window.handle = handle
 // @ts-expect-error  Mount to window
@@ -1209,5 +1222,4 @@ window.handleSync = handleSync
 window.RpaExtGetElement = RpaExtGetElement
 // @ts-expect-error Mount to window
 window.currentFrameInfo = currentFrameInfo
-tagFrame()
 export { ContentHandler, dispatchMouseSequence, formatElementInfo, handle, moveListener }

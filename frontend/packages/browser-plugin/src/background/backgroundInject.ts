@@ -10,7 +10,7 @@ import { WindowControl } from './window'
 
 globalThis.activeElement = null
 
-function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _sendResponse: () => void) {
+function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _sendResponse: (args) => void) {
   if (request.type === 'element' && sender.tab) {
     const info = {
       tabTitle: sender.tab.title,
@@ -20,6 +20,9 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
       frameId: sender.frameId,
     }
     globalThis.activeElement = { ...request.data, ...info }
+  }
+  if (request.type === 'requestFrameId' && sender.tab) {
+    _sendResponse(sender.frameId)
   }
   return true
 }

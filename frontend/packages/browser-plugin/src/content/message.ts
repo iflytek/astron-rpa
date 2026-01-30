@@ -30,3 +30,9 @@ export function sendElementData(elementData) {
     data: elementData,
   })
 }
+
+export function requestFrame() {
+  return sendToBackground({
+    type: 'requestFrameId',
+  })
+}
