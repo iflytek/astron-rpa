@@ -23,6 +23,7 @@ class MouseClickKeyboard(Enum):
 class ElementInputType(Enum):
     KEYBOARD = "keyboard"
     CLIPBOARD = "clipboard"
+    Credential = "credential"
 
 
 class GetInfoType(Enum):
