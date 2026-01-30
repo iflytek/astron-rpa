@@ -29,3 +29,40 @@ export function stopSchedulingTask() {
 export function getTermianlStatus() {
   return http.post('/scheduler/executor/status', {})
 }
+
+/**
+ * @description: 获取凭证列表
+ * @returns 凭证列表
+ */
+export async function getCredentialList() {
+  const res = await http.post<{ name: string }[]>('/scheduler/credential/list')
+  return res.data || []
+}
+
+/**
+ * @description: 创建凭证
+ * @param data 凭证信息
+ * @returns 
+ */
+export async function createCredential(data: { name: string, password: string }) {
+  return http.post('/scheduler/credential/create', data)
+}
+
+/**
+ * @description: 删除凭证
+ * @param data 凭证信息
+ * @returns 
+ */
+export async function deleteCredential(name: string) {
+  return http.post('/scheduler/credential/delete', { name })
+}
+
+/**
+ * @description: 检查凭证是否存在
+ * @param name 凭证名称
+ * @returns 是否存在
+ */
+export async function checkCredentialExists(name: string) {
+  const res = await http.get<{ exists: boolean }>('/scheduler/credential/exists', { name })
+  return !!res?.data
+}

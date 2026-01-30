@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 
-import NormalTable from '@/components/NormalTable/index.vue'
+import { NormalTable } from '@/components/NormalTable'
 import { useMarketStore } from '@/stores/useMarketStore'
 import CardsShow from '@/views/Home/components/TeamMarket/CardsShow.vue'
 import CreateMarket from '@/views/Home/components/TeamMarket/CreateMarket.vue'
