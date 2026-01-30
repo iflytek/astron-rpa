@@ -74,6 +74,9 @@ atomic:
       - key: text
         title: 输入内容
         tip: ''
+      - key: credential_text
+        title: 选择凭据
+        tip: ''
       - key: clear_first
         title: 是否清空输入框内容
         tip: ''
@@ -149,6 +152,8 @@ options:
       label: 键盘输入
     - value: clipboard
       label: 剪贴板输入
+    - value: credential
+      label: 凭据输入
   Bool:
     - value: true
       label: 是
