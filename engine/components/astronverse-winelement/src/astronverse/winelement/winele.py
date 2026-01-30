@@ -4,7 +4,7 @@ import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WinPick
-from astronverse.actionlib.utils import FileExistenceType, handle_existence
+from astronverse.actionlib.utils import FileExistenceType, handle_existence, Credential
 from astronverse.locator import PickerDomain, Point
 from astronverse.winelement import (
     ElementInputType,
@@ -130,12 +130,23 @@ class WinEle:
                     )
                 ],
             ),
+            atomicMg.param(
+                "credential_text",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["credential"]}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.credential_text.show",
+                        expression=f"return $this.input_type.value == '{ElementInputType.Credential.value}'",
+                    )
+                ],
+            ),
         ],
     )
     def input_text_element(
         pick: WinPick,
         input_type: ElementInputType = ElementInputType.KEYBOARD,
         text: str = "",
+        credential_text: str = "",
         clear_first: bool = True,
         wait_time: float = 10.0,
     ):
@@ -163,6 +174,8 @@ class WinEle:
             uiautomation.SendKeys(text)
         elif input_type == ElementInputType.CLIPBOARD:
             pyautogui.hotkey("ctrl", "v")
+        elif input_type == ElementInputType.Credential:
+            uiautomation.SendKeys(Credential.get_credential(credential_text))
 
     @staticmethod
     @atomicMg.atomic(
