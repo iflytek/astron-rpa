@@ -143,7 +143,7 @@ export interface TableOption {
   buttonListAlign?: 'left' | 'right'
 
   // 表格配置
-  tableProps: TablePropsConfig
+  tableProps?: TablePropsConfig
   tableCellHeight?: number
 
   // 分页配置
