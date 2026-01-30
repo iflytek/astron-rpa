@@ -8,7 +8,7 @@ import http from './http'
  * @description: 获取执行器应用列表数据
  */
 export async function getRobotLst(data) {
-  const res = await http.post<ITableResponse>('/robot/robot-execute/execute-list', data)
+  const res = await http.post<ITableResponse>('/api/robot/robot-execute/execute-list', data)
   return res.data || { records: [], total: 0 }
 }
 
@@ -16,7 +16,7 @@ export async function getRobotLst(data) {
  * 检测应用是否被计划任务引用被返回引用这个应用的计划任务的数组
  */
 export async function isRobotInTask(params) {
-  const res = await http.get('/robot/robot-execute/delete-robot-res', params)
+  const res = await http.get('/api/robot/robot-execute/delete-robot-res', params)
   return res.data
 }
 
@@ -24,21 +24,21 @@ export async function isRobotInTask(params) {
  * @description: 删除应用
  */
 export function deleteRobot(data) {
-  return http.post('/robot/robot-execute/delete-robot', data)
+  return http.post('/api/robot/robot-execute/delete-robot', data)
 }
 
 /**
  * @description: 发布应用
  */
 export function publishRobot<T = any>(data: T) {
-  return http.post('/robot/robot-version/publish', data)
+  return http.post('/api/robot/robot-version/publish', data)
 }
 
 /**
  * @description: 获取应用上次发版信息回显
  */
 export async function getRobotLastVersion(robotId: string) {
-  const res = await http.post('/robot/robot-version/latest-info', { robotId })
+  const res = await http.post('/api/robot/robot-version/latest-info', { robotId })
   return pickBy(res.data, value => value !== null)
 }
 
@@ -47,8 +47,7 @@ export async function getRobotLastVersion(robotId: string) {
  */
 
 export async function getRobotLastIsExternalCall(robotId: string) {
-  console.log('robotId', robotId)
-  const res = await http.get(`/rpa-openapi/workflows/get/${robotId}`)
+  const res = await http.get(`/api/rpa-openapi/workflows/get/${robotId}`)
   return pickBy(res?.data?.workflow, value => value !== null)
 }
 
@@ -56,14 +55,14 @@ export async function getRobotLastIsExternalCall(robotId: string) {
  * @description: 保存是否允许外部调用的配置
  */
 export function setRobotIsExternalCall(data) {
-  return http.post('/rpa-openapi/workflows/upsert', data)
+  return http.post('/api/rpa-openapi/workflows/upsert', data)
 }
 
 /**
  * 获取AI工作流列表
  */
 export async function getWorkflowList() {
-  const res = await http.get('/rpa-openapi/workflows/get-astron')
+  const res = await http.get('/api/rpa-openapi/workflows/get-astron')
   return res.data?.records || []
 }
 
@@ -71,14 +70,14 @@ export async function getWorkflowList() {
  * @description: 获取应用名称以英文翻译
  */
 export function getRobotEnglishName(name: string) {
-  return http.post('/rpa-ai-service/v1/chat/prompt', { prompt_type: 'translate', params: { name } })
+  return http.post('/api/rpa-ai-service/v1/chat/prompt', { prompt_type: 'translate', params: { name } })
 }
 
 /**
  * @description: 轮询执行器下应用更新状态
  */
 export async function getRobotUpdateStatus(data) {
-  const res = await http.post('/robot/robot-execute/execute-update-check', data)
+  const res = await http.post('/api/robot/robot-execute/execute-update-check', data)
   return res.data
 }
 
@@ -86,21 +85,21 @@ export async function getRobotUpdateStatus(data) {
  * @description: 更新执行器下应用
  */
 export function updateRobot(data) {
-  return http.post('/robot/robot-execute/update/pull', data)
+  return http.post('/api/robot/robot-execute/update/pull', data)
 }
 
 /**
  * @description: 应用重名校验
  */
 export function checkRobotName(data: { robotId: string, name: string }) {
-  return http.post('/robot/robot-version/same-name', data)
+  return http.post('/api/robot/robot-version/same-name', data)
 }
 
 /**
  * 我创建的应用详情
  */
 export async function getMyRobotDetail(robotId: string) {
-  const res = await http.get('/robot/robot-design/my-robot-detail', { robotId })
+  const res = await http.get('/api/robot/robot-design/my-robot-detail', { robotId })
   return res.data
 }
 
@@ -108,7 +107,7 @@ export async function getMyRobotDetail(robotId: string) {
  * 我获取的应用详情
  */
 export async function getMarketRobotDetail(robotId: string) {
-  const res = await http.get('/robot/robot-design/market-robot-detail', { robotId })
+  const res = await http.get('/api/robot/robot-design/market-robot-detail', { robotId })
   const { myRobotDetailVo, sourceName, versionInfoList } = res.data
 
   return { ...myRobotDetailVo, sourceName, versionList: versionInfoList }
@@ -118,7 +117,7 @@ export async function getMarketRobotDetail(robotId: string) {
  * @description: 获取应用详情
  */
 export async function getRobotRecordOverview(data: { robotId: string, version: number, deadline: string }) {
-  const res = await http.post('/robot/robot-record/detail/overview', data)
+  const res = await http.post('/api/robot/robot-record/detail/overview', data)
   return res.data
 }
 
@@ -126,7 +125,7 @@ export async function getRobotRecordOverview(data: { robotId: string, version: n
  * @description: 查询应用的所有流程数据
  */
 export async function getRobotProcessList(robotId: string): Promise<any[]> {
-  const res = await http.post('/robot/process/all-data', { robotId })
+  const res = await http.post('/api/robot/process/all-data', { robotId })
   return res.data.map(it => ({
     ...it,
     processContent: JSON.parse(it.processContent),
@@ -137,14 +136,14 @@ export async function getRobotProcessList(robotId: string): Promise<any[]> {
  * 保存应用自定义配置参数
  */
 export async function saveRobotConfigParamValue(data: RPA.CreateConfigParamData[], mode: string, robotId: string) {
-  return http.post('/robot/param/saveUserParam', { paramList: data, mode, robotId })
+  return http.post('/api/robot/param/saveUserParam', { paramList: data, mode, robotId })
 }
 
 /**
  * 执行器应用详情基本信息
  */
 export async function getRobotBasicInfo(robotId: string) {
-  const res = await http.get('/robot/robot-execute/robot-detail', { robotId })
+  const res = await http.get('/api/robot/robot-execute/robot-detail', { robotId })
   return res.data
 }
 
@@ -152,7 +151,7 @@ export async function getRobotBasicInfo(robotId: string) {
  * 获取编辑页内组件管理列表
  */
 export async function getComponentManageList(robotId: string) {
-  const res = await http.post<RPA.ComponentManageItem[]>('/robot/component/editing/manage-list', { robotId, version: 0 })
+  const res = await http.post<RPA.ComponentManageItem[]>('/api/robot/component/editing/manage-list', { robotId, version: 0 })
   return res.data
 }
 
@@ -160,7 +159,7 @@ export async function getComponentManageList(robotId: string) {
  * 安装组件
  */
 export async function installComponent(data: { robotId: string, componentId: string }) {
-  const res = await http.post<string>('/robot/component-robot-block/delete', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<string>('/api/robot/component-robot-block/delete', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
 
@@ -168,7 +167,7 @@ export async function installComponent(data: { robotId: string, componentId: str
  * 移除组件
  */
 export async function removeComponent(data: { robotId: string, componentId: string }) {
-  const res = await http.post<string>('/robot/component-robot-block/add', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<string>('/api/robot/component-robot-block/add', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
 
@@ -176,7 +175,7 @@ export async function removeComponent(data: { robotId: string, componentId: stri
  * 添加组件引用
  */
 export async function addComponentUse(data: { componentId: string, robotId: string, robotVersion?: number }) {
-  const res = await http.post<boolean>('/robot/component-robot-use/add', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<boolean>('/api/robot/component-robot-use/add', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
 
@@ -184,7 +183,7 @@ export async function addComponentUse(data: { componentId: string, robotId: stri
  * 删除组件引用
  */
 export async function deleteComponentUse(data: { componentId: string, robotId: string, robotVersion?: number }) {
-  const res = await http.post<boolean>('/robot/component-robot-use/delete', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<boolean>('/api/robot/component-robot-use/delete', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
 
@@ -192,7 +191,7 @@ export async function deleteComponentUse(data: { componentId: string, robotId: s
  * 更新组件引用
  */
 export async function updateComponent(data: { robotId: string, componentId: string, componentVersion: number }) {
-  const res = await http.post<string>('/robot/component-robot-use/update', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<string>('/api/robot/component-robot-use/update', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
 
@@ -200,7 +199,7 @@ export async function updateComponent(data: { robotId: string, componentId: stri
  * 获取组件详情
  */
 export async function getComponentDetail(data: { robotId: string, componentId: string }) {
-  const res = await http.post<RPA.ComponentManageItem>('/robot/component/editing/info', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<RPA.ComponentManageItem>('/api/robot/component/editing/info', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
 
@@ -208,6 +207,6 @@ export async function getComponentDetail(data: { robotId: string, componentId: s
  * 查询编辑页引入的组件详情
  */
 export async function getEditComponentDetail(data: { robotId: string, componentId: string }) {
-  const res = await http.post('/robot/component-robot-use/edit', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post('/api/robot/component-robot-use/edit', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }

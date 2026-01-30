@@ -3,7 +3,7 @@ import { RichTextPreview } from '@rpa/components'
 import { TypographyLink } from 'ant-design-vue'
 import { computed } from 'vue'
 
-import { getBaseURL } from '@/api/http/env'
+import { getAPIBaseURL } from '@/api/http/env'
 
 export interface InfoInterface {
   robotName: string
@@ -18,7 +18,7 @@ export interface InfoInterface {
 
 const props = defineProps<{ data: InfoInterface }>()
 
-const filePath = computed(() => new URL(`${props.data.filePath}`, getBaseURL()).toString())
+const filePath = computed(() => new URL(`${props.data.filePath}`, getAPIBaseURL()).toString())
 </script>
 
 <template>

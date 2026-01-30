@@ -8,9 +8,8 @@ import { useTranslation } from 'i18next-vue'
 import { h, reactive, ref } from 'vue'
 
 import { deleteAPI, getApis } from '@/api/setting'
-import GlobalModal from '@/components/GlobalModal/index.ts'
-import NormalTable from '@/components/NormalTable/index.vue'
-import type { TableOption } from '@/types/normalTable'
+import GlobalModal from '@/components/GlobalModal'
+import { NormalTable, type TableOption } from '@/components/NormalTable'
 
 import { NewApiModal } from './modals'
 

@@ -5,7 +5,7 @@ import markdownit from 'markdown-it'
 import { computed, inject, provide, ref } from 'vue'
 
 import { codeToMeta } from '@/api/component'
-import { getBaseURL } from '@/api/http/env'
+import { getAPIBaseURL } from '@/api/http/env'
 
 import { SMART_CODE_BLOCK_REGEX, SMART_CODE_START_REGEX } from '../config/constants'
 import type { DocNode, Message, MessageInput, SmartComp } from '../types'
@@ -52,7 +52,7 @@ export function useChatContext(smartComp: SmartCompContext) {
 
   const senderLoading = ref(false)
 
-  const BASE_URL = getBaseURL()
+  const BASE_URL = getAPIBaseURL()
   const PATH = '/rpa-ai-service/smart/chat/stream'
   // const MODEL = 'gpt-3.5-turbo';
 
