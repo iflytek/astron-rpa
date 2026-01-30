@@ -93,6 +93,11 @@ const rules = computed<Record<string, Rule[]>>(() => {
 })
 
 const beforeUpload: UploadProps['beforeUpload'] = (file) => {
+  if (!file.type.startsWith('image/')) {
+    message.error('只能上传图片文件')
+    return Upload.LIST_IGNORE
+  }
+
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
     message.error('文件大小不能超过 5MB')
