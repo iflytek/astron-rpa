@@ -1,5 +1,3 @@
-/** @format */
-
 import BUS from '@/utils/eventBus'
 
 const $loading = {

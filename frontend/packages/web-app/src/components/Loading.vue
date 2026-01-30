@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
 import { nextTick, provide, ref, unref } from 'vue'
+import { LoadingDots } from '@rpa/components'
 
 import BUS from '@/utils/eventBus'
 
@@ -80,9 +81,9 @@ function exitLoading() {
 
 <template>
   <div class="loading-mask" :class="[loadingShow ? 'loading-show' : 'loading-hide']">
-    <div class="loading-box">
-      <div class="lb-spinner" />
-      <div class="lb-info text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)]">
+    <div class="loading-box p-2 flex flex-col items-center justify-center">
+      <LoadingDots />
+      <div v-if="loadingText" class="text-center">
         {{ loadingText }}...
       </div>
       <div v-if="loadingExit" class="loading-exit">
@@ -101,7 +102,6 @@ function exitLoading() {
   right: 0;
   top: 0;
   bottom: 0;
-  // background: transparent;
   z-index: 99;
   display: none;
   align-items: center;
@@ -112,28 +112,11 @@ function exitLoading() {
 
   .loading-box {
     width: fit-content;
-    min-width: 120px;
-    min-height: 68px;
+    min-width: 88px;
+    min-height: 88px;
     background: $color-bg-elevated;
-    align-items: center;
-    border-radius: 4px;
-    padding-top: 8px;
-
-    .lb-spinner {
-      width: 50px;
-      height: 50px;
-      margin: 0 auto;
-      border-radius: 50%;
-      background-image: url('@/assets/img/loading.gif');
-      background-size: 100% 100%;
-    }
-
-    .lb-info {
-      text-align: center;
-      font-size: 12px;
-      margin-bottom: 8px;
-      padding: 0 8px;
-    }
+    border-radius: 8px;
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
   }
 
   .loading-exit {
