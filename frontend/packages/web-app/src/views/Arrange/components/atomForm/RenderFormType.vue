@@ -34,6 +34,7 @@ import { createDom } from './hooks/useAtomVarPopover'
 import { isConditionalKeys } from './hooks/useBaseConfig'
 import useRenderFormType, { formBtnHandle, generateHtmlVal, generateInputVal, handlePaste, inputListListener, syncCurrentAtomData } from './hooks/useRenderFormType'
 import ProcessParam from './ProcessParam.vue'
+import AtomSelect from './AtomSelect.vue'
 
 const { iconStyle, itemData, itemType, varType } = defineProps({
   iconStyle: {
@@ -276,26 +277,7 @@ inputListListener(itemData, itemType)
     :un-checked-children="itemData?.options[1].label"
   />
   <!-- 下拉框 -->
-  <a-select
-    v-if="itemType === ATOM_FORM_TYPE.SELECT"
-    v-model:value="selectValue"
-    :mode="itemData.formType.params?.multiple ? 'multiple' : undefined"
-    placeholder="请选择"
-    class="bg-[#f3f3f7] dark:bg-[rgba(255,255,255,0.08)] text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] rounded-[8px]"
-    style="width: 100%;"
-  >
-    <a-select-option v-for="(op, index) in itemData.options" :key="index" :value="op?.label ? op.value : op.rId">
-      <template v-if="op?.label">
-        {{ op.label }}
-      </template>
-      <template v-else>
-        <span v-for="(it, idx) in op.value.value" :key="idx">
-          <hr v-if="it.type === 'var'" class="dialog-tag-input-hr" :data-name="it.value">
-          <span v-else>{{ it.value }}</span>
-        </span>
-      </template>
-    </a-select-option>
-  </a-select>
+  <AtomSelect v-if="itemType === ATOM_FORM_TYPE.SELECT" v-model:value="selectValue" :render-data="itemData" />
   <AtomRemoteSelect
     v-if="itemType === ATOM_FORM_TYPE.REMOTEPARAMS"
     :render-data="itemData"
