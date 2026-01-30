@@ -21,6 +21,7 @@ dependencies = [
     "python-lsp-server[pyflakes,mccabe]",
     "openpyxl",
     "watchdog",
+    "keyring",
 ]
 
 [tool.uv.sources]

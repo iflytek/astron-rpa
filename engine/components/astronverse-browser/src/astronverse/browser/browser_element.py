@@ -52,6 +52,7 @@ from astronverse.browser.utils.table_filter import (
     table_json_merge_values,
 )
 from astronverse.input.code.screenshot import Screenshot
+from astronverse.actionlib.utils import Credential
 
 if sys.platform == "win32":
     from astronverse.browser.core.core_win import BrowserCore
@@ -362,6 +363,16 @@ class BrowserElement:
                 ],
             ),
             atomicMg.param(
+                "fill_input_credential",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["credential"]}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.fill_input_credential.show",
+                        expression=f"return $this.fill_type.value == '{FillInputForFillTypeFlag.Credential.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
                 "input_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
@@ -388,6 +399,7 @@ class BrowserElement:
         simulate_flag: bool = False,
         fill_type: FillInputForFillTypeFlag = FillInputForFillTypeFlag.Text,
         fill_input: str = "",
+        fill_input_credential: str = "",
         element_timeout: int = 10,
         focus_time: float = 1000,
         write_gap_time: float = 0,
@@ -408,6 +420,8 @@ class BrowserElement:
             from astronverse.input.code.clipboard import Clipboard
 
             text = Clipboard.paste()
+        elif fill_type == FillInputForFillTypeFlag.Credential:
+            text = Credential.get_credential(fill_input_credential)
         else:
             text = ""
 
