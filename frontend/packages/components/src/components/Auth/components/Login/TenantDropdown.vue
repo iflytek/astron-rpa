@@ -6,8 +6,8 @@ import { switchTenant, tenantList } from '../../api/login'
 import type { AuthType, TenantItem } from '../../interface'
 import { getSelectedTenant, saveSelectedTenant } from '../../utils/remember'
 import Consult from '../Base/Consult/Index.vue'
-import Loading from '../Base/Loading.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
+import Loading from '../../../Loading'
 
 const { beforeSwitch, authType } = defineProps<{
   authType: AuthType
@@ -76,7 +76,7 @@ const open = ref(false)
         />
       </div>
       <template #overlay>
-        <Menu class="tenant-dropdown-menu !p-0 !rounded-[12px] !p-[8px]">
+        <Menu class="tenant-dropdown-menu !rounded-[12px] !p-[8px]">
           <Menu.Item
             v-for="(tenant, idx) in tenants"
             :key="tenant.id"
