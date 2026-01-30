@@ -14,8 +14,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE_NAME}
     env_file: *env_file
-    ports:
-      - "${DATABASE_PORT}:3306"
+    # ports:
+    #  - "${DATABASE_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./volumes/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
@@ -75,8 +75,8 @@ services:
       - REDIS_PORT_NUMBER=${REDIS_PORT}
       - REDIS_IO_THREADS=4
       - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - "${REDIS_PORT}:6379"
+    # ports:
+    #  - "${REDIS_PORT}:6379"
     volumes:
       - ./data/bitnami/redis:/bitnami/redis/data:rw,Z
     command: >
@@ -193,8 +193,8 @@ services:
   ai-service:
     image: ghcr.io/iflytek/astron-rpa/ai-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/ai-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/ai-service/Dockerfile
     container_name: rpa-opensource-ai-service
     restart: always
     env_file: *env_file
@@ -220,8 +220,8 @@ services:
   openapi-service:
     image: ghcr.io/iflytek/astron-rpa/openapi-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/openapi-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/openapi-service/Dockerfile
     container_name: rpa-opensource-openapi-service
     restart: always
     env_file: *env_file
@@ -247,8 +247,8 @@ services:
   resource-service:
     image: ghcr.io/iflytek/astron-rpa/resource-service:latest
     # build:
-    #   context: ..
-    #   dockerfile: backend/resource-service/Dockerfile
+    #  context: ..
+    #  dockerfile: backend/resource-service/Dockerfile
     container_name: rpa-opensource-resource-service
     restart: always
     env_file: *env_file
@@ -269,10 +269,10 @@ services:
       - rpa-opensource-network
 
   robot-service:
-    #image: ghcr.io/iflytek/astron-rpa/robot-service:latest
-    build:
-      context: ..
-      dockerfile: backend/robot-service/Dockerfile
+    image: ghcr.io/iflytek/astron-rpa/robot-service:latest
+    # build:
+    #  context: ..
+    #  dockerfile: backend/robot-service/Dockerfile
     container_name: rpa-opensource-robot-service
     restart: always
     env_file: *env_file
@@ -291,10 +291,10 @@ services:
       - rpa-opensource-network
 
   rpa-auth:
-    #image: ghcr.io/iflytek/astron-rpa/rpa-auth:latest
-    build:
-      context: ..
-      dockerfile: backend/rpa-auth/Dockerfile
+    image: ghcr.io/iflytek/astron-rpa/rpa-auth:latest
+    # build:
+    #  context: ..
+    #  dockerfile: backend/rpa-auth/Dockerfile
     container_name: rpa-opensource-rpa-auth
     restart: always
     env_file: *env_file

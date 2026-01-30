@@ -11,9 +11,9 @@ on:
         default: true
         type: boolean
       services:
-        description: 'Services to build (comma-separated: ai-service,openapi-service,resource-service,robot-service)'
+        description: 'Services to build (comma-separated: ai-service,openapi-service,resource-service,robot-service,rpa-auth)'
         required: false
-        default: 'ai-service,openapi-service,resource-service,robot-service'
+        default: 'ai-service,openapi-service,resource-service,robot-service,rpa-auth'
         type: string
 
 concurrency:
@@ -72,7 +72,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.services }}" ]]; then
             SERVICES="${{ github.event.inputs.services }}"
           else
-            SERVICES="ai-service,openapi-service,resource-service,robot-service"
+            SERVICES="ai-service,openapi-service,resource-service,robot-service,rpa-auth"
           fi
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -284,6 +284,55 @@ jobs:
           cache-from: type=gha,scope=robot-service
           cache-to: type=gha,scope=robot-service,mode=max
 
+  build-rpa-auth:
+    name: 🔐 Build RPA Auth
+    runs-on: ubuntu-latest
+    needs: detect-and-prepare
+    if: contains(needs.detect-and-prepare.outputs.services, 'rpa-auth')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        if: needs.detect-and-prepare.outputs.should-push == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_GHCR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/rpa-auth
+          tags: |
+            type=raw,value=${{ needs.detect-and-prepare.outputs.version }}
+            ${{ github.event_name == 'release' && 'type=raw,value=latest' || '' }}
+
+      - name: Build and push RPA Auth image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/rpa-auth/Dockerfile
+          platforms: ${{ needs.detect-and-prepare.outputs.platforms }}
+          push: ${{ needs.detect-and-prepare.outputs.should-push }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ needs.detect-and-prepare.outputs.version }}
+            GIT_COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.run_id }}
+          cache-from: type=gha,scope=rpa-auth
+          cache-to: type=gha,scope=rpa-auth,mode=max
+
   # ============================================================================
   # Stage 3: Summary and Notifications
   # ============================================================================
@@ -296,6 +345,7 @@ jobs:
       - build-openapi-service
       - build-resource-service
       - build-robot-service
+      - build-rpa-auth
     if: always()
     steps:
       - name: Generate build summary
@@ -314,6 +364,7 @@ jobs:
           echo "  🌐 OpenAPI Service: ${{ needs.build-openapi-service.result }}"
           echo "  📦 Resource Service: ${{ needs.build-resource-service.result }}"
           echo "  🤖 Robot Service: ${{ needs.build-robot-service.result }}"
+          echo "  🔐 RPA Auth: ${{ needs.build-rpa-auth.result }}"
           echo ""
 
           # Count successful builds
@@ -336,6 +387,10 @@ jobs:
           if [[ "${{ needs.detect-and-prepare.outputs.services }}" == *"robot-service"* ]]; then
             TOTAL_COUNT=$((TOTAL_COUNT + 1))
             [[ "${{ needs.build-robot-service.result }}" == "success" ]] && SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+          fi
+          if [[ "${{ needs.detect-and-prepare.outputs.services }}" == *"rpa-auth"* ]]; then
+            TOTAL_COUNT=$((TOTAL_COUNT + 1))
+            [[ "${{ needs.build-rpa-auth.result }}" == "success" ]] && SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
           fi
 
           echo "📊 Build Success Rate: $SUCCESS_COUNT/$TOTAL_COUNT services built successfully"
@@ -365,6 +420,12 @@ jobs:
               echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/robot-service:${{ needs.detect-and-prepare.outputs.version }}"
               if [[ "${{ github.event_name }}" == "release" ]]; then
                 echo "  🤖 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/robot-service:latest"
+              fi
+            fi
+            if [[ "${{ needs.build-rpa-auth.result }}" == "success" ]]; then
+              echo "  🔐 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/rpa-auth:${{ needs.detect-and-prepare.outputs.version }}"
+              if [[ "${{ github.event_name }}" == "release" ]]; then
+                echo "  🔐 ${{ env.REGISTRY_GHCR }}/${{ github.repository }}/rpa-auth:latest"
               fi
             fi
           fi

@@ -324,26 +324,6 @@ CREATE TABLE `audit_record` (
 ) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8mb4;
 
 
--- rpa.c_atom_meta definition
-
-CREATE TABLE `c_atom_meta` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `parent_key` varchar(100) DEFAULT NULL,
-  `atom_key` varchar(100) DEFAULT NULL,
-  `atom_content` mediumtext COMMENT '原子能力所有配置信息，json',
-  `deleted` smallint(1) DEFAULT '0' COMMENT '是否删除',
-  `creator_id` char(36) DEFAULT '73',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updater_id` char(36) DEFAULT '73',
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `version` varchar(20) DEFAULT NULL COMMENT '原子能力版本',
-  `sort` int(11) DEFAULT NULL COMMENT '原子能力展示顺序',
-  `version_num` varchar(100) DEFAULT NULL COMMENT '大版本',
-  PRIMARY KEY (`id`),
-  KEY `c_atom_meta_atom_key_IDX` (`atom_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5985 DEFAULT CHARSET=utf8mb4 COMMENT='客户端-左侧树原子能力定义';
-
-
 -- rpa.c_atom_meta_new definition
 
 CREATE TABLE `c_atom_meta_new` (
