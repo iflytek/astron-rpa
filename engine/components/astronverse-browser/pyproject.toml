@@ -15,6 +15,7 @@ dependencies = [
     "pandas",
     "astronverse-actionlib",
     "astronverse-locator; sys_platform == 'win32'",
+    "keyring",
 ]
 
 [tool.uv.sources]
