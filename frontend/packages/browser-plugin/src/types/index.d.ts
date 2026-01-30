@@ -86,7 +86,7 @@ interface ElementInfo {
   favIconUrl?: string
   isFrame?: boolean
   checkType?: 'visualization' | 'customization'
-  matchTypes?: Array<string>
+  matchTypes?: Array<'onlyPosition'| 'scrollPosition'>
   filterVisible?: boolean
 
   frameId?: number
