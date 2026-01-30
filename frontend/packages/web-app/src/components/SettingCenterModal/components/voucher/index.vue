@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-2 h-full">
+  <div class="flex flex-col gap-2 h-full overflow-hidden">
     <div>
       <a-button type="primary" @click="addVoucher">
         {{ $t('settingCenter.voucherManage.createVoucher') }}
@@ -17,8 +17,8 @@ import { useTranslation } from 'i18next-vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 
-import NormalTable from '@/components/NormalTable/index.vue'
-import type { TableOption } from '@/types/normalTable'
+import { getCredentialList, deleteCredential } from '@/api/engine'
+import { NormalTable, type TableOption } from '@/components/NormalTable'
 import GlobalModal from '@/components/GlobalModal'
 
 import _VoucherModal from './VoucherModal.vue'
@@ -29,23 +29,16 @@ const { t } = useTranslation()
 const currTableRef = ref(null)
 
 interface IVoucher {
-  id: string
   name: string
-  value: string
 }
 
-const data: IVoucher[] = [
-  {
-    id: '1',
-    name: 'username',
-    value: 'admin',
-  },
-  {
-    id: '2',
-    name: 'password',
-    value: '123456',
-  },
-]
+const fetchList = async (params: { pageSize: number; pageNo: number }) => {
+  const list = await getCredentialList()
+  return {
+    records: list.slice((params.pageNo - 1) * params.pageSize, params.pageNo * params.pageSize),
+    total: list.length,
+  }
+}
 
 const columns: ColumnsType = [
   {
@@ -76,11 +69,11 @@ const columns: ColumnsType = [
 
 const tableOption = reactive<TableOption>({
   refresh: true,
-  getData: () => Promise.resolve({ records: data, total: data.length }),
+  getData: fetchList,
   params: {},
   tableProps: {
     columns,
-    rowKey: 'id',
+    rowKey: 'name',
     scroll: { y: 180 },
     size: 'small',
   },
@@ -89,7 +82,10 @@ const tableOption = reactive<TableOption>({
 function deleteApiKey(row: IVoucher) {
   GlobalModal.confirm({
     title: t('settingCenter.voucherManage.deleteVoucherConfirm'),
-    onOk: () => {},
+    onOk: async () => {
+      await deleteCredential(row.name)
+      refreshTable()
+    },
     centered: true,
     keyboard: false,
   })
