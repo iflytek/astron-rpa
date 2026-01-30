@@ -63,7 +63,8 @@ function requestFrameId() {
 function listenMessage(ev: MessageEvent) {
   const { key, data } = ev.data
   if (data && key === 'setCurrentWindowIframeInfo') {
-    currentFrameInfo = data
+    currentFrameInfo.iframeXpath = data.iframeXpath
+    currentFrameInfo.iframeTransform = data.iframeTransform
   }
   if (key === 'getCurrentWindowIframeInfo') {
     tagFrames()
