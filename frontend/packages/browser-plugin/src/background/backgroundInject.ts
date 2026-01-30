@@ -3,6 +3,7 @@ import { log } from '../3rd/log'
 import { ErrorMessage, StatusCode } from './constant'
 import { Cookie } from './cookie'
 import DataTable from './data_table'
+import { frameFind } from './iframe'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
 import { Utils } from './utils'
@@ -242,7 +243,7 @@ async function findTabAndFrame(params: ElementParams) {
   let tab = await Tabs.getActiveTab()
   if (!tab) {
     tab = await Tabs.activeTargetTabByTabUrl(tabUrl)
-    if (!tab) {
+    if (!tab || !Utils.isSupportProtocal(tab.url)) {
       throw new Error(ErrorMessage.ACTIVE_TAB_ERROR)
     }
   }
@@ -250,15 +251,26 @@ async function findTabAndFrame(params: ElementParams) {
     return { tab, frameId: 0 }
   }
   else {
-    const frames = await Tabs.getAllFrames(tab.id)
-    log.info('frames: ', frames)
-    const targetFrame = iframeXpath ? findFrameByXpath(frames, iframeXpath) : findFrameByUrl(frames, url)
-    if (targetFrame) {
-      return { tab, frameId: targetFrame.frameId }
-    }
-    else {
-      return { tab, frameId: Number.NaN }
-    }
+    const frameId = await frameFinder(tab, url, iframeXpath)
+    return { tab, frameId }
+  }
+}
+
+async function frameFinder(tab, url, iframeXpath: string) {
+  const frames = await Tabs.getAllFrames(tab.id)
+  let targetFrame = null
+  if (iframeXpath) {
+    targetFrame = findFrameByXpath(frames, iframeXpath)
+  }
+  else {
+    targetFrame = findFrameByUrl(frames, url)
+  }
+  if (targetFrame) {
+    return targetFrame.frameId
+  }
+  else {
+    const frameId = await frameFind(iframeXpath)
+    return frameId !== null ? frameId : Number.NaN
   }
 }
 
@@ -470,6 +482,22 @@ const Handlers = {
         }
         return Utils.success(tab.id)
       },
+      async getFrameTree() {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        const res = await Tabs.getFrameTree(tab.id)
+        return Utils.success(res)
+      },
+      async printPage(params: PrintOptions) {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        const res = await Tabs.printPage(tab.id, params)
+        return Utils.success(res)
+      },
     }
   },
 
@@ -522,21 +550,19 @@ const Handlers = {
         }
       },
       async getElementPos(params: ElementParams) {
-        const { url, isFrame, iframeXpath, tabUrl } = params.data
-        let tab = await Tabs.getActiveTab()
-        if (!tab) {
-          tab = await Tabs.activeTargetTabByTabUrl(tabUrl)
-        }
+        const { isFrame } = params.data
+        const { tab, frameId } = await findTabAndFrame(params)
+
         if (!Utils.isSupportProtocal(tab.url)) {
           return Utils.fail(`${tab.url} ${ErrorMessage.CURRENT_TAB_UNSUPPORT_ERROR}`)
         }
         if (!isFrame) {
-          const result = await Tabs.sendTabFrameMessage(tab.id, params, 0)
+          const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
           return Utils.result(result.data, result.msg, result.code)
         }
 
         const frames = await Tabs.getAllFrames(tab.id)
-        const targetFrame = iframeXpath ? findFrameByXpath(frames, iframeXpath) : findFrameByUrl(frames, url)
+        const targetFrame = frames.find(frame => frame.frameId === frameId)
 
         if (!targetFrame) {
           return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)

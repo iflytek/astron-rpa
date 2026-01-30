@@ -201,3 +201,17 @@ interface CurrentFrameInfo {
 }
 
 type Strategy = 'all' | 'visualization' | 'customization'
+
+interface PrintOptions {
+  landscape?: boolean
+  displayHeaderFooter?: boolean
+  printBackground?: boolean
+  scale?: number
+  paperWidth?: number
+  paperHeight?: number
+  marginTop?: number
+  marginBottom?: number
+  marginLeft?: number
+  marginRight?: number
+  pageRanges?: string
+}

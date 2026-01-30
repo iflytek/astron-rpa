@@ -16,7 +16,7 @@ export enum StatusCode {
 
 export enum ErrorMessage {
   TAB_GET_ERROR = '获取标签页失败',
-  ACTIVE_TAB_ERROR = '未找到活动标签页',
+  ACTIVE_TAB_ERROR = '未找到活动标签页，请检查是否激活目标窗口',
   NUMBER_ID_ERROR = 'id 必须是数字',
   FRAME_GET_ERROR = '未找到元素对应的iframe',
   CURRENT_TAB_UNSUPPORT_ERROR = '当前标签页不支持web拾取协议',

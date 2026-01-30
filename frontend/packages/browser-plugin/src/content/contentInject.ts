@@ -1,7 +1,6 @@
 import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
-  directoryXpath,
   filterVisibleElements,
   findElementByPoint,
   generateXPath,
@@ -12,8 +11,6 @@ import {
   getElementByXPath,
   getElementDirectory,
   getElementsByXpath,
-  getIFramesElements,
-  getIframeTransform,
   getNthCssSelector,
   getSiblingElementByType,
   getText,
@@ -23,7 +20,8 @@ import {
   isTable,
   shadowRootElement,
 } from './element'
-import { sendElementData, requestFrame } from './message'
+import { currentFrameInfo, loadIframe, tagFrames } from './iframe'
+import { sendElementData } from './message'
 import { Utils } from './utils'
 import { elementChangeWatcher } from './watcher'
 
@@ -32,15 +30,6 @@ let deepTimeoutId: number | null
 let highlightTime = 0
 const frontCheckEnabled = false
 let deepSearchEnabled = false
-let currentFrameInfo = {
-  frameId: 0,
-  iframeXpath: '',
-  iframeTransform: {
-    scaleX: 1,
-    scaleY: 1,
-  },
-}
-
 /**
  * Handles a mouse event to locate and process a DOM element at the event's coordinates.
  *
@@ -144,85 +133,6 @@ function formatElementInfo(element: HTMLElement, target: Document | ShadowRoot, 
     text,
   }
   return elementData
-}
-
-/**
- * Initializes and manages iframe communication within the current window context.
- * This function performs several key tasks:
- * 1. Requests a unique frame ID for the current window or iframe and communicates it to the parent window.
- * 2. Identifies all `<iframe>` elements within the current document.
- * 3. For each found iframe, it calculates its XPath and transform properties and sends this information to the iframe's `contentWindow` via `postMessage`.
- * 4. If the current window is itself an iframe, it communicates with its parent window to exchange frame information.
- * 5. Sets up a `message` event listener to handle cross-frame communication, allowing frames to receive their context information, request information from child frames, and tag iframe elements with unique IDs received from their children.
- * This entire process facilitates a hierarchical understanding and identification of nested iframes on the page.
- */
-function loadIframe() {
-  const postToIframe = (frameDom) => {
-    frameDom.contentWindow?.postMessage({
-      key: 'setCurrentWindowIframeInfo',
-      data: {
-        iframeXpath: directoryXpath(frameDom),
-        iframeTransform: getIframeTransform(frameDom),
-      },
-    }, '*')
-  }
-  const postToParent = () => {
-    window.parent.postMessage({
-      key: 'getCurrentWindowIframeInfo',
-    }, '*')
-    window.parent.postMessage({
-      key: 'bindCurrentWindowIframeInfo',
-      data: currentFrameInfo,
-    }, '*')
-  }
-  const tagFrames = () => {
-    const frames = getIFramesElements()
-    frames.forEach((frame) => {
-      if (frame.complete) {
-        postToIframe(frame)
-      }
-      frame.onload = () => {
-        postToIframe(frame)
-      }
-      postToIframe(frame)
-    })
-    if (window.parent !== window) {
-      postToParent()
-    }
-  }
-  const tagFrameId = (frameInfo: typeof currentFrameInfo) => {
-    const iframeEle = frameInfo.iframeXpath ? getElementByXPath(frameInfo.iframeXpath) : null
-    if (iframeEle) {
-      iframeEle.dataset.astronFrameId = String(frameInfo.frameId)
-    }
-  }
-  const requestFrameId = () => {
-    requestFrame().then((frameId) => {
-      currentFrameInfo.frameId = frameId as number
-      if (frameId !== 0) {
-        window.parent.postMessage({
-          key: 'bindCurrentWindowIframeInfo',
-          data: currentFrameInfo,
-        }, '*')
-      }
-    })
-  }
-  const listenMessage = (ev: MessageEvent) => {
-    const { key, data } = ev.data
-    if (data && key === 'setCurrentWindowIframeInfo') {
-      currentFrameInfo = data
-    }
-    if (key === 'getCurrentWindowIframeInfo') {
-      tagFrames()
-    }
-    if (data && key === 'bindCurrentWindowIframeInfo') {
-      tagFrameId(data)
-    }
-  }
-  window.removeEventListener('message', listenMessage)
-  window.addEventListener('message', listenMessage)
-  requestFrameId()
-  tagFrames()
 }
 
 /**
@@ -835,20 +745,20 @@ const ContentHandler = {
             value = (result as HTMLImageElement).src || (result as HTMLAnchorElement).href || ''
             break
           case '4':
-            {
-              if (attrName) {
-                value = result.getAttribute(attrName) || ''
-              }
-              else {
-                const allAttrs: Record<string, string> = {}
-                for (let i = 0; i < result.attributes.length; i++) {
-                  const attr = result.attributes[i]
-                  allAttrs[attr.name] = attr.value
-                }
-                value = allAttrs
-              }
-              break
+          {
+            if (attrName) {
+              value = result.getAttribute(attrName) || ''
             }
+            else {
+              const allAttrs: Record<string, string> = {}
+              for (let i = 0; i < result.attributes.length; i++) {
+                const attr = result.attributes[i]
+                allAttrs[attr.name] = attr.value
+              }
+              value = allAttrs
+            }
+            break
+          }
           case '5':
             value = getBoundingClientRect(result)
             break
@@ -859,25 +769,25 @@ const ContentHandler = {
             value = (result as HTMLInputElement).checked
             break
           case '7':
-            {
-              const styleDecl = window.getComputedStyle(result)
-              if (attrName) {
-                // Support camelCase or kebab-case
-                const cssName = attrName.includes('-')
-                  ? attrName
-                  : attrName.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)
-                value = styleDecl.getPropertyValue(cssName) || (result.style as any)[attrName] || ''
-              }
-              else {
-                const allStyles: Record<string, string> = {}
-                for (let i = 0; i < styleDecl.length; i++) {
-                  const prop = styleDecl[i]
-                  allStyles[prop] = styleDecl.getPropertyValue(prop)
-                }
-                value = allStyles
-              }
-              break
+          {
+            const styleDecl = window.getComputedStyle(result)
+            if (attrName) {
+              // Support camelCase or kebab-case
+              const cssName = attrName.includes('-')
+                ? attrName
+                : attrName.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)
+              value = styleDecl.getPropertyValue(cssName) || (result.style as any)[attrName] || ''
             }
+            else {
+              const allStyles: Record<string, string> = {}
+              for (let i = 0; i < styleDecl.length; i++) {
+                const prop = styleDecl[i]
+                allStyles[prop] = styleDecl.getPropertyValue(prop)
+              }
+              value = allStyles
+            }
+            break
+          }
           default:
             return Utils.fail(ErrorMessage.UPDATE_TIP, StatusCode.EXECUTE_ERROR)
         }
@@ -1105,7 +1015,7 @@ const ContentHandler = {
       const { frameId } = data
       console.log(`rpa_debugger_on:${frameId}`) // !!! Do not delete. Rely on this code to determine which frame chrome.debugger is injected into
       currentFrameInfo.frameId = frameId
-      tagFrame()
+      tagFrames()
       return currentFrameInfo
     },
     findIframeId(xpath: string) {
@@ -1113,7 +1023,8 @@ const ContentHandler = {
       if (iframeEle) {
         const frameId = iframeEle.dataset.astronFrameId
         return { frameId: frameId ? Number(frameId) : null }
-      } else {
+      }
+      else {
         return { frameId: null }
       }
     },
@@ -1139,7 +1050,7 @@ const ContentHandler = {
             x: (left + borderLeft + paddingLeft) * dpr,
             y: (top + borderTop + paddingTop) * dpr,
           }
-          tagFrame()
+          tagFrames()
         }
         const iframeInfo = formatElementInfo(iframeEle, document)
         return { ...iframeInfo, nextPos, iframeContentRect }

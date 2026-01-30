@@ -88,10 +88,14 @@ globalThis.addEventListener('error', () => {
 
 async function wsHandler(message) {
   const msgObject = typeof message === 'string' ? JSON.parse(message) : message
-  log.info(msgObject.key, msgObject)
-  log.time(msgObject.key)
+  if (msgObject.key !== 'getElement') {
+    log.info(msgObject.key, msgObject)
+    log.time(msgObject.key)
+  }
   const result = await bgHandler(msgObject)
-  log.timeEnd(msgObject.key)
-  log.info(msgObject.key, result)
+  if (msgObject.key !== 'getElement') {
+    log.timeEnd(msgObject.key)
+    log.info(msgObject.key, result)
+  }
   return result
 }
