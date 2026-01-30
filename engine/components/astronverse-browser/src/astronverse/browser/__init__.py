@@ -155,6 +155,7 @@ class FillInputForFillTypeFlag(Enum):
 
     Text = "text"
     Clipboard = "clipboard"
+    Credential = "credential"
 
 
 class ElementAttributeOpTypeFlag(Enum):
