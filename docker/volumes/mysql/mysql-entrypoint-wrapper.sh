@@ -65,11 +65,21 @@ mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /opt/rpa-init/00-clear_init_tables.sql
 
 # 执行初始化数据插入（按顺序）
 echo "Inserting initialization data..."
-mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/02-init_data.sql 2>/dev/null || echo "Warning: 02-init_data.sql not found or failed"
-mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/03-init_data.sql 2>/dev/null || echo "Warning: 03-init_data.sql not found or failed"
-mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/04-init_data.sql 2>/dev/null || echo "Warning: 04-init_data.sql not found or failed"
-mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/05-init_data.sql 2>/dev/null || echo "Warning: 05-init_data.sql not found or failed"
-mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/06-init_data.sql 2>/dev/null || echo "Warning: 06-init_data.sql not found or failed"
+if ! mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/02-init_data.sql 2>&1; then
+  echo "ERROR: Failed to execute 02-init_data.sql"
+fi
+if ! mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/03-init_data.sql 2>&1; then
+  echo "ERROR: Failed to execute 03-init_data.sql"
+fi
+if ! mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/04-init_data.sql 2>&1; then
+  echo "ERROR: Failed to execute 04-init_data.sql"
+fi
+if ! mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/05-init_data.sql 2>&1; then
+  echo "ERROR: Failed to execute 05-init_data.sql"
+fi
+if ! mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /docker-entrypoint-initdb.d/06-init_data.sql 2>&1; then
+  echo "ERROR: Failed to execute 06-init_data.sql (c_atom_meta_new)"
+fi
 
 echo "Data initialization completed!"
 
