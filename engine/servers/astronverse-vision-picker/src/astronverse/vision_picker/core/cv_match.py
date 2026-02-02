@@ -196,7 +196,7 @@ class AnchorMatch:
                 min_rr, max_rr, _, max_loc = cv2.minMaxLoc(result_CCORR_top)
                 min_a, max_ccoeff_val, _, max_loc_ccoeff = cv2.minMaxLoc(result_CCOEFF_top)
 
-                logger.info("max_val:", max_ccoeff_val)
+                logger.info(f"max_val:{max_ccoeff_val}")
                 # target_threshold = 0.85
                 target_threshold = match_similarity
                 if canny_flag:
@@ -215,7 +215,7 @@ class AnchorMatch:
             else:
                 target_match_res = cv2.matchTemplate(gray, small_gray, cv2.TM_CCOEFF_NORMED)
                 _, target_max_val, _, target_max_loc = cv2.minMaxLoc(target_match_res)
-                logger.info("target_max_val:", target_max_val)
+                logger.info(f"target_max_val:{target_max_val}")
                 target_threshold = match_similarity
                 if canny_flag:
                     target_threshold = 0.40
