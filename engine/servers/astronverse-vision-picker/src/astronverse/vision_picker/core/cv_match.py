@@ -31,12 +31,14 @@ class AnchorMatch:
         # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         if element is not None:
             small_gray = cv2.cvtColor(element, cv2.COLOR_RGB2GRAY)
-            threshold = match_similarity  # Adjust this threshold if needed
-            # 匹配目标位置
-            result1 = cv2.matchTemplate(gray, small_gray, cv2.TM_CCOEFF_NORMED)
-            loc1 = np.where(result1 >= threshold)
-            count = len(loc1[0])
-            print(f"匹配个数为：{count}")
+            h, w = small_gray.shape[:2]
+
+            result = cv2.matchTemplate(gray, small_gray, cv2.TM_CCOEFF_NORMED)
+
+            # 方法1：使用连通域分析
+            binary = (result >= match_similarity).astype(np.uint8)
+            num_labels, _, _, _ = cv2.connectedComponentsWithStats(binary)
+            count = num_labels - 1  # 减去背景
         if count == 1:
             return True  # 标识元素唯一存在可匹配
         else:
@@ -183,9 +185,9 @@ class AnchorMatch:
                     math.ceil(roi_loc[0] + w * (1 + expand_factor)),
                     math.ceil(roi_loc[1] + h * (1 + expand_factor)),
                 )
-                print(f"roi_top_left:{roi_top_left},roi_bottom_right:{roi_bottom_right}")
+                logger.info(f"roi_top_left:{roi_top_left},roi_bottom_right:{roi_bottom_right}")
                 roi_top_left, roi_bottom_right = self._limit_roi_bounds(roi_top_left, roi_bottom_right, image.shape)
-                print(f"roi_top_left:{roi_top_left},roi_bottom_right:{roi_bottom_right}")
+                logger.info(f"roi_top_left:{roi_top_left},roi_bottom_right:{roi_bottom_right}")
                 self.draw_dashed_rectangle(image, roi_top_left, roi_bottom_right, roi_color_bgr, line_width_match)
                 roi = gray[roi_top_left[1] : roi_bottom_right[1], roi_top_left[0] : roi_bottom_right[0]]
 
@@ -194,7 +196,7 @@ class AnchorMatch:
                 min_rr, max_rr, _, max_loc = cv2.minMaxLoc(result_CCORR_top)
                 min_a, max_ccoeff_val, _, max_loc_ccoeff = cv2.minMaxLoc(result_CCOEFF_top)
 
-                print("max_val:", max_ccoeff_val)
+                logger.info(f"max_val:{max_ccoeff_val}")
                 # target_threshold = 0.85
                 target_threshold = match_similarity
                 if canny_flag:
@@ -204,16 +206,16 @@ class AnchorMatch:
                     # self.draw_dashed_rectangle(image, (roi_top_left[0] + max_loc[0], roi_top_left[1] + max_loc[1]),
                     #                            (roi_top_left[0] + max_loc[0] + w, roi_top_left[1] + max_loc[1] + h),
                     #                            color_bgr, line_width_match)
-                    print("元素已在锚点相对范围内匹配完成")
+                    logger.info("元素已在锚点相对范围内匹配完成")
 
                 else:
-                    print("当前屏幕目标元素不存在或发生了变化")
+                    logger.info("当前屏幕目标元素不存在或发生了变化")
                     match_box = None
 
             else:
                 target_match_res = cv2.matchTemplate(gray, small_gray, cv2.TM_CCOEFF_NORMED)
                 _, target_max_val, _, target_max_loc = cv2.minMaxLoc(target_match_res)
-                print("target_max_val:", target_max_val)
+                logger.info(f"target_max_val:{target_max_val}")
                 target_threshold = match_similarity
                 if canny_flag:
                     target_threshold = 0.40
@@ -221,9 +223,9 @@ class AnchorMatch:
                     match_box = (target_max_loc[0], target_max_loc[1], w, h)
                     # self.draw_dashed_rectangle(image, target_max_loc, (target_max_loc[0] + w, target_max_loc[1] + h),
                     #                            color_bgr, line_width_match)
-                    print("元素匹配完成")
+                    logger.info("元素匹配完成")
                 else:
-                    print("当前屏幕目标元素不存在或发生了变化")
+                    logger.info("当前屏幕目标元素不存在或发生了变化")
                     match_box = None
             # 当锚点相对位移发生变化时，ROI 可能不再包含目标。尝试全局匹配兜底，避免命中旧位置。
             if match_box is None:
