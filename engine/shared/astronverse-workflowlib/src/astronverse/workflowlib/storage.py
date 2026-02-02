@@ -83,10 +83,11 @@ class HttpStorage(Storage):
     def __init__(self, gateway_port: str = None, mode: str = "EDIT_PAGE"):
         self.gateway_port = gateway_port
 
-        if mode in ["PROJECT_LIST", "EDIT_PAGE"]:
-            resource_cache = False
-        else:
-            resource_cache = True
+        # if mode in ["PROJECT_LIST", "EDIT_PAGE"]:
+        #     resource_cache = False
+        # else:
+        #     resource_cache = True
+        resource_cache = False
         self.cache_manager = StorageCache(resource_cache=resource_cache)
 
     def __http__(self, shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post") -> Any:
