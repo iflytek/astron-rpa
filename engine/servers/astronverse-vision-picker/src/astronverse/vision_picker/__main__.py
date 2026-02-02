@@ -59,10 +59,10 @@ async def handler(websocket):
                 with Socket() as hl:
                     data = json.loads(input_data.data)
                     logger.info("校验data ", data)
-                    print("进入校验")
+                    logger.info("进入校验")
                     # 执行校验程序，获取目标元素位置
                     match_rect = IPickCore.match_imgs(data=data, remote_addr=Config.REMOTE_ADDR)
-                    print(f"匹配目标：{match_rect}")
+                    logger.info(f"匹配目标：{match_rect}")
                     if match_rect:
                         # 向高亮发送坐标信息，进行高亮显示
                         logger.info(f"目标元素校验成功，元素坐标：{match_rect}")
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                 try:
                     await asyncio.Future()  # run forever
                 except asyncio.CancelledError:
-                    print("Server stopped")
+                    logger.info("Server stopped")
 
             asyncio.run(main())
         except Exception as e:
