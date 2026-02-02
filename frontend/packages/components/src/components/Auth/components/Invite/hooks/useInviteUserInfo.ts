@@ -8,18 +8,18 @@ export type InviteUserInfoEmitEvent
     | 'switchToLogin'
 
 export function useInviteUserInfo(
-  modelValue: { phone?: string; name?: string },
+  modelValue: { phone?: string, name?: string },
   emit: ((e: 'submit') => void)
     & ((e: 'switchToLogin') => void),
 ) {
   const formRef = ref()
 
   const config = inviteUserInfoFormConfig()
-  const initialData = (): { phone?: string; name?: string } =>
+  const initialData = (): { phone?: string, name?: string } =>
     generateFormData(config)
-  const formData = reactive<{ phone?: string; name?: string }>(initialData())
+  const formData = reactive<{ phone?: string, name?: string }>(initialData())
 
-  const setFormData = (data: { phone?: string; name?: string }) => {
+  const setFormData = (data: { phone?: string, name?: string }) => {
     Object.assign(formData, { ...data, agreement: true })
   }
 

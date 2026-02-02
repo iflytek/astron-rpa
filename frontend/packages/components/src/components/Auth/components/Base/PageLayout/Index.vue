@@ -28,7 +28,7 @@ onBeforeUnmount(() => {
     :style="{ backgroundImage: `url(${loginBg})`, backgroundSize: '100% 100%' }"
   >
     <slot name="header">
-      <PageHeader v-if="!isMobile"/>
+      <PageHeader v-if="!isMobile" />
     </slot>
     <div v-if="!isMobile" class="h-full relative z-[2] flex items-center justify-center">
       <slot name="container">

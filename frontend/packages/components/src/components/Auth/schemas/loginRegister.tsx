@@ -358,9 +358,9 @@ export function consultFormConfig(consultType: 'renewal' | 'consult' = 'consult'
 export function inviteUserInfoFormConfig(): FormConfig {
   return {
     fields: [
-      {...fieldFactories.loginName(), key: 'name', placeholder: '请输入姓名', disabled: () => true },
+      { ...fieldFactories.loginName(), key: 'name', placeholder: '请输入姓名', disabled: () => true },
       { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)', disabled: () => true },
-      { ...fieldFactories.agreement(), disabled: () => true }
+      { ...fieldFactories.agreement(), disabled: () => true },
     ],
     actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
       <div class="w-full absolute bottom-0">
@@ -374,5 +374,5 @@ export function inviteUserInfoFormConfig(): FormConfig {
         </div>
       </div>
     ),
-  } 
+  }
 }

@@ -2,12 +2,12 @@
 import { Dropdown, Menu } from 'ant-design-vue'
 import { ref } from 'vue'
 
+import Loading from '../../../Loading'
 import { switchTenant, tenantList } from '../../api/login'
 import type { AuthType, TenantItem } from '../../interface'
 import { getSelectedTenant, saveSelectedTenant } from '../../utils/remember'
 import Consult from '../Base/Consult/Index.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
-import Loading from '../../../Loading'
 
 const { type = 'dropdown', beforeSwitch, authType = 'uap' } = defineProps<{
   type?: 'dropdown' | 'list'

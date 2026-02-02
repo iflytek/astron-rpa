@@ -4,7 +4,7 @@ import type { FormInstance } from 'ant-design-vue'
 import { h, ref } from 'vue'
 
 import { Icon as RpaIcon } from '../../../Icon'
-import type { FormConfig, FieldSchema } from '../../schemas/factories.tsx'
+import type { FieldSchema, FormConfig } from '../../schemas/factories.tsx'
 
 import PhoneCode from './PhoneCode.vue'
 
@@ -204,7 +204,7 @@ defineExpose({
   width: 100%;
 }
 
-:deep(.ant-input[disabled]){
+:deep(.ant-input[disabled]) {
   background-color: #f3f3f7;
   color: rgba(0, 0, 0, 0.65);
 }

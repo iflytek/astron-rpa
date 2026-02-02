@@ -25,7 +25,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div 
+  <div
     class="login-form-layout md:bg-[#ffffff] dark:md:bg-[#000000] h-full
       w-full max-w-full p-[24px] rounded-t-[24px]
       md:p-[40px] md:rounded-[16px]

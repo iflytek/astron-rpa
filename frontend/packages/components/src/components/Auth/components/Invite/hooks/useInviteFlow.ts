@@ -1,11 +1,11 @@
+import { useMediaQuery } from '@vueuse/core'
 import { Modal } from 'ant-design-vue'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { acceptInvite, queryInviteData } from '../../../api/invite'
+import { acceptEnterpriseInvite, acceptMarketInvite, queryEnterpriseInviteData, queryMarketInviteData } from '../../../api/invite'
 import { loginStatus, userInfo } from '../../../api/login'
 import type { InviteInfo } from '../../../interface'
-import { useMediaQuery } from '@vueuse/core'
 
 type PageStatus = 'init' | 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
 
@@ -16,8 +16,8 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   const currentStatus = ref<PageStatus>()
   const inviteInfo = ref<InviteInfo>({
     resultCode: '',
-    inviteType: 'market',
-    enterpriseName: '',
+    inviteType: (route.query.inviteType || 'market') as 'market' | 'enterprise',
+    deptName: '',
     marketName: '',
     inviterName: '',
   })
@@ -28,7 +28,7 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   }
 
   const updateInviteInfo = async (data: InviteInfo, needLogin = true) => {
-    inviteInfo.value = { ...inviteInfo.value, ...data, inviteType: data.inviteType || 'market' }
+    inviteInfo.value = { ...inviteInfo.value, ...data }
     let pageStatus: PageStatus = 'needLogin'
     switch (data.resultCode) {
       case '101':
@@ -54,7 +54,8 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
       switchPage(pageStatus)
       return
     }
-    if (needLogin) login()
+    if (needLogin)
+      login()
   }
 
   const login = async () => {
@@ -74,10 +75,11 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
       return
     }
     try {
-      const data = await queryInviteData({ inviteKey: inviteKey.value })
+      const func = inviteInfo.value.inviteType === 'market' ? queryMarketInviteData : queryEnterpriseInviteData
+      const data = await func({ inviteKey: inviteKey.value })
       const needLogin = !isMobile.value
       updateInviteInfo(data, needLogin)
-      if(isMobile.value) {
+      if (isMobile.value) {
         switchPage('init')
       }
     }
@@ -89,7 +91,8 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
 
   const toJoin = async () => {
     try {
-      const data = await acceptInvite({ inviteKey: inviteKey.value })
+      const func = inviteInfo.value.inviteType === 'market' ? acceptMarketInvite : acceptEnterpriseInvite
+      const data = await func({ inviteKey: inviteKey.value })
       updateInviteInfo(data, false)
     }
     catch (e) {
@@ -126,9 +129,13 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     tryOpenApp('astronrpa://')
   }
 
-  watch(() => route.query.inviteKey, (newKey) => {
-    if (newKey && newKey !== inviteKey.value) {
-      inviteKey.value = newKey as string
+  watch(() => route.query, (val) => {
+    if (val.inviteKey && val.inviteKey !== inviteKey.value) {
+      inviteKey.value = val.inviteKey as string
+      inviteInfo.value = {
+        ...inviteInfo.value,
+        inviteType: (val.inviteType || 'market') as 'market' | 'enterprise',
+      }
       getInviteInfo()
     }
   })

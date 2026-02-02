@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { InviteInfo } from '../../interface'
-
 import DynamicForm from '../Base/DynamicForm.vue'
 import FormLayout from '../Base/FormLayout.vue'
 
@@ -8,13 +7,13 @@ import { useInviteUserInfo } from './hooks/useInviteUserInfo'
 
 const { currentUser, inviteInfo } = defineProps({
   currentUser: {
-    type: Object as () => { name?: string; phone?: string },
+    type: Object as () => { name?: string, phone?: string },
     default: () => ({}),
   },
   inviteInfo: {
     type: Object as () => InviteInfo,
     default: () => null,
-  }
+  },
 })
 const emit = defineEmits<{
   submit: []
@@ -22,13 +21,12 @@ const emit = defineEmits<{
 }>()
 
 const { formRef, formData, config, handleEvents } = useInviteUserInfo(currentUser, emit as any)
-
 </script>
 
 <template>
   <FormLayout
     wrap-class="auth-invite-user-info bg-[#ffffff]
-    w-full !h-[480px] fixed left-0 bottom-0 rounded-t-[24px] z-[999] 
+    w-full !h-[480px] fixed left-0 bottom-0 rounded-t-[24px] z-[999]
     md:w-[400px] md:!h-[540px] md:static md:rounded-[16px]"
     :invite-info="inviteInfo"
   >
