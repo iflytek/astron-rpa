@@ -14,6 +14,8 @@ class Smart:
     def _smart_call(path: str, package: str, **kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
+        except SyntaxError as e:
+            raise e
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
