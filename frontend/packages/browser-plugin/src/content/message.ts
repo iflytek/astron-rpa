@@ -1,3 +1,5 @@
+import { ASTRON_SW_NAME } from "./constant"
+
 function isExtensionContextValid() {
   try {
     return !!(chrome.runtime && chrome.runtime.id)
@@ -34,5 +36,20 @@ export function sendElementData(elementData) {
 export function requestFrame() {
   return sendToBackground({
     type: 'requestFrameId',
+  })
+}
+
+export function keepServiceWorkerAlive() {
+  const port = chrome.runtime.connect(chrome.runtime.id, { name: ASTRON_SW_NAME })
+  port.onDisconnect.addListener(() => {
+    sendToBackground({ type: 'keepServiceWorkerAlive' }).then(() => {
+      keepServiceWorkerAlive()
+    })
+  });
+}
+
+export function notifyContentLoaded() {
+  return sendToBackground({
+    type: 'contentLoaded',
   })
 }

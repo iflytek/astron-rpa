@@ -21,7 +21,7 @@ import {
   shadowRootElement,
 } from './element'
 import { currentFrameInfo, loadIframe, tagFrames } from './iframe'
-import { sendElementData } from './message'
+import { keepServiceWorkerAlive, notifyContentLoaded, sendElementData } from './message'
 import { Utils } from './utils'
 import { elementChangeWatcher } from './watcher'
 
@@ -1124,7 +1124,9 @@ function RpaExtGetElement(data) {
 }
 
 loadIframe()
+keepServiceWorkerAlive()
 window.addEventListener('load', loadIframe)
+window.addEventListener("load", notifyContentLoaded)
 // @ts-expect-error Mount to window
 window.handle = handle
 // @ts-expect-error  Mount to window

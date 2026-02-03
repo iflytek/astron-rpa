@@ -1,10 +1,12 @@
 export const SUPPORTED_PROTOCOLS = ['http://', 'https://', 'file://', 'ftp://']
 
-export const V2_EXTENSION_ID = 'dibfknoajiboamheempfppeapcedplgm'
-
-export const V3_EXTENSION_ID = 'gfpcfabhkgenjcmjgnldmkhjieekeeea'
+export const OLD_EXTENSION_IDS = ['dibfknoajiboamheempfppeapcedplgm', 'gfpcfabhkgenjcmjgnldmkhjieekeeea']
 
 export const CURRENT_EXTENSION_ID = chrome.runtime.id
+
+export const NATIVE_HOST_NAME = 'com.astronrpa.nativehost'
+
+export const IGNORE_LOG_KEYS = [ 'getElement', 'contentInject', 'backgroundInject']
 
 export enum StatusCode {
   SUCCESS = '0000',

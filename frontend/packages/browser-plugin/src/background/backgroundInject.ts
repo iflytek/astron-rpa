@@ -8,6 +8,7 @@ import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
 import { Utils } from './utils'
 import { WindowControl } from './window'
+// import { sendNativeMessage } from './native'
 
 globalThis.activeElement = null
 
@@ -25,6 +26,15 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
   if (request.type === 'requestFrameId' && sender.tab) {
     _sendResponse(sender.frameId)
   }
+  if (request.type === 'keepBackgroundAlive' && sender.tab) {
+    _sendResponse(true)
+  }
+  if (request.type === 'contentLoaded' && sender.tab) {
+    _sendResponse(true)
+  }
+  // if (request.type === 'nativeMessage') {
+  //   sendNativeMessage(request.data);
+  // }
   return true
 }
 

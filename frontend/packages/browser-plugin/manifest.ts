@@ -43,7 +43,7 @@ export function generateManifest(mode: string, environment) {
     },
     permissions: [
       'alarms',
-      // 'nativeMessaging',
+      'nativeMessaging',
       'debugger',
       'tabs',
       'activeTab',
