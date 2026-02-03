@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { sheetUtils } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import { to } from 'await-to-js'
 import { isString } from 'lodash-es'
@@ -19,11 +18,11 @@ async function handleExport(type: 'csv' | 'excel') {
   const saveFileName = type === 'csv' ? 'data.csv' : 'data.xlsx'
 
   if (type === 'excel') {
-    saveContent = await sheetUtils.exportToExcelFile(data)
+    saveContent = await sheetRef.value.utils.exportToExcelFile(data)
   }
 
   if (type === 'csv') {
-    const csvContent = await sheetUtils.exportToCsvFile(data)
+    const csvContent = await sheetRef.value.utils.exportToCsvFile(data)
     const content = isString(csvContent) ? csvContent : Object.values(csvContent).join('\n')
     // 提取纯CSV内容（去掉data:text/csv;charset=utf-8,前缀）
     saveContent = content.replace('data:text/csv;charset=utf-8,', '')

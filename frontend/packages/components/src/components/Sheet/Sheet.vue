@@ -17,6 +17,8 @@ import sheetsFindReplaceEnUS from '@univerjs/preset-sheets-find-replace/locales/
 import '@univerjs/preset-sheets-core/lib/index.css'
 import '@univerjs/preset-sheets-find-replace/lib/index.css'
 
+import { sheetUtils } from './utils'
+
 interface SheetProps {
   darkMode?: boolean
   locale?: LocaleType
@@ -193,6 +195,7 @@ watch(() => props.locale, (locale) => {
 })
 
 defineExpose({
+  utils: sheetUtils,
   getWorkbookData,
   createWorkbook,
   updateCellValues,

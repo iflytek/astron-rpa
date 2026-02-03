@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Sheet, SheetLocaleType, useTheme } from '@rpa/components'
+import { Sheet, type SheetLocaleType, useTheme } from '@rpa/components'
 import { useTranslation } from 'i18next-vue'
 import { computed, ref, shallowRef } from 'vue'
 
@@ -21,7 +21,7 @@ const { sheetRef, handleReady, handleCellUpdate } = useDataSheetStore()
 const defaultValue = shallowRef(transformToWorkbookData(runningStore.dataTable))
 
 const locale = computed(() => {
-  return i18next.language === 'zh-CN' ? SheetLocaleType.ZH_CN : SheetLocaleType.EN_US
+  return (i18next.language === 'zh-CN' ? 'zhCN' : 'enUS') as SheetLocaleType
 })
 
 function handleRendered() {
