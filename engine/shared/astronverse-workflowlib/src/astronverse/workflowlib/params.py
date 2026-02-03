@@ -59,7 +59,10 @@ class RpaExpression:
         self.code = compile(expr_str, "<rpa>", "eval")
 
     def eval(self, context: dict):
-        return eval(self.code, context)
+        if self.code:
+            return eval(self.code, context)
+        else:
+            return ""
 
     def __repr__(self):
         return f"RpaExpression({self.expr_str!r})"
@@ -124,7 +127,7 @@ class ComplexParamParser:
             if data.get("rpa") == "special" and "value" in data:
                 if isinstance(data["value"], list) and len(data["value"]) > 0:
                     expr_str, need_eval = cls.param_to_eval(data["value"], gv=gv)
-                    if need_eval:
+                    if need_eval and expr_str:
                         return _compile_expression(expr_str)
                     else:
                         return expr_str

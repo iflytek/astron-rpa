@@ -13,7 +13,7 @@ process_info = conf.get("process_info", {})
 component_info = conf.get("component_info", {})
 smart_component_info = conf.get("smart_component_info", {})
 
-storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
+storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"), project_info.get("version"))
 
 atomicMg.cfg()["GATEWAY_PORT"] = project_info.get("gateway_port")
 atomicMg.cfg()["PROJECT_JSON_{{PACKAGE}}"] = conf
