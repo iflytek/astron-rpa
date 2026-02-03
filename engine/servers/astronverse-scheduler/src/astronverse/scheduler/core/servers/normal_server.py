@@ -112,8 +112,6 @@ class VNCServer(IServer):
             return True
         if not self.svc.start_watch:
             return True
-        if self.vnc is None:
-            return True
 
         # 如果端口可用说明系统已经挂了
         if check_port(self.vnc_port) or check_port(self.vnc_ws_port):
