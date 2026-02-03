@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { sheetUtils } from '@rpa/components'
 import type { ISheetWorkbookData } from '@rpa/components'
 import { ref } from 'vue'
 
@@ -13,7 +12,7 @@ interface FormState {
   selectedSheet?: string
 }
 
-const { isReady, createWorkbook } = useDataSheetStore()
+const { isReady, sheetRef, createWorkbook } = useDataSheetStore()
 
 const formRef = ref()
 const formState = ref<FormState>({
@@ -36,7 +35,7 @@ async function handleOk() {
 }
 
 async function handleImport() {
-  workbookData = await sheetUtils.importExcelFile()
+  workbookData = await sheetRef.value.utils.importExcelFile()
 
   const sheetOptions = Object.values(workbookData.sheets).map(sheet => ({
     label: sheet.name,
