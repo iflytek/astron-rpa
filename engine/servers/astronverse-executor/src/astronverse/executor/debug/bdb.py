@@ -148,12 +148,16 @@ class CustomBdb(bdb.Bdb):
                 source
                 + "\n\n# 自动追加：执行完 main.py 后调用 main 函数\nif __name__ == '__main__':\n    _args = globals().get('_args', {})\n    main(_args)\n"
             )
-            code = compile(source, self.main_file, "exec")
-
-            # 运行代码
-            self.err_handler(self.run)(code, g_v_exec, l_v_exec)
-        except Exception as e:
-            self._handle_exception(e)
+            try:
+                code = compile(source, self.main_file, "exec")
+                # 运行代码
+                self.run(code, g_v_exec, l_v_exec)
+            except SyntaxError as e:
+                self._handle_syntax_exception(e)
+                raise e
+            except Exception as e:
+                self._handle_exception(e)
+                raise e
         finally:
             os.chdir(original_cwd)
 
@@ -229,6 +233,25 @@ class CustomBdb(bdb.Bdb):
         self._go_event.clear()
         self._go_event.wait()
 
+    def _handle_syntax_exception(self, exc: SyntaxError):
+        """处理异常 - 支持多文件"""
+
+        filename = exc.filename
+        basename = os.path.basename(filename)
+        py_line = exc.lineno or 0
+
+        project_filename = self._to_project_path(filename)
+        flow_line = self._to_flow_line(basename, py_line)
+
+        self.notify(
+            "syntax_exception",
+            file=project_filename,
+            line=flow_line,
+            py_line=py_line,
+            exc=exc,
+            exc_msg=self.err_handler(exc),
+        )
+
     def _handle_exception(self, exc: Exception):
         """处理异常 - 支持多文件"""
         tb = exc.__traceback__
@@ -237,9 +260,12 @@ class CustomBdb(bdb.Bdb):
             tb = tb.tb_next
 
         filename = tb.tb_frame.f_code.co_filename
+        basename = os.path.basename(filename)
         py_line = tb.tb_lineno
 
         project_filename = self._to_project_path(filename)
-        flow_line = self._to_flow_line(filename, py_line)
+        flow_line = self._to_flow_line(basename, py_line)
 
-        self.notify("exception", file=project_filename, line=flow_line, py_line=py_line, exc=exc)
+        self.notify(
+            "exception", file=project_filename, line=flow_line, py_line=py_line, exc=exc, exc_msg=self.err_handler(exc)
+        )

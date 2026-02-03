@@ -31,6 +31,8 @@ class Script:
     def _call(path: str, package: str, **kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
+        except SyntaxError as e:
+            raise e
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
@@ -46,6 +48,8 @@ class Script:
     def _module_call(path: str, package: str, out_kwargs, inn_kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
+        except SyntaxError as e:
+            raise e
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
@@ -66,7 +70,10 @@ class Script:
             out_params = Script._params(package, path)
             out_params_res = {}
             for k, v in out_params.items():
-                out_params_res[k] = eval(v, process_module.__dict__)
+                if v:
+                    out_params_res[k] = eval(v, process_module.__dict__)
+                else:
+                    out_params_res[k] = ""
 
             out_kwargs = {**out_params_res, **out_kwargs}
 
