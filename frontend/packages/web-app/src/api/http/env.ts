@@ -14,21 +14,15 @@ const DEFAULT_HOST = import.meta.env.VITE_SERVICE_HOST ?? 'localhost'
  */
 export function getBaseURL(): string {
   const port = Number(storage.get('route_port')) || DEFAULT_PORT
-  return `http://${DEFAULT_HOST}:${port}/api`
+  return `http://${DEFAULT_HOST}:${port}`
 }
 
-/**
- * 获取接口根路径
- * @returns
- */
-export function getRootBaseURL(): string {
-  return new URL(getBaseURL()).origin
+export function getAPIBaseURL(): string {
+  return `${getBaseURL()}/api`
 }
 
 export function getImageURL(str: string): string {
-  if (isBase64Image(str))
-    return str
-  return `${getRootBaseURL()}${str}`
+  return isBase64Image(str) ? str : `${getBaseURL()}${str}`
 }
 
 /**

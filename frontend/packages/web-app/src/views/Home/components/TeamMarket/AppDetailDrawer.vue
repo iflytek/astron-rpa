@@ -4,7 +4,7 @@ import { Badge, Drawer, Timeline, TypographyLink } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
 
-import { getBaseURL } from '@/api/http/env'
+import { getAPIBaseURL } from '@/api/http/env'
 import Avatar from '@/components/Avatar/Avatar.vue'
 
 import type { cardAppItem } from '../../types/market'
@@ -27,11 +27,11 @@ function handleCancel() {
 }
 
 const filePath = computed(() =>
-  new URL(`${appDetail.value.filePath}`, getBaseURL()).toString(),
+  new URL(`${appDetail.value.filePath}`, getAPIBaseURL()).toString(),
 )
 
 const videoPath = computed(() =>
-  new URL(`${appDetail.value.videoPath}`, getBaseURL()).toString(),
+  new URL(`${appDetail.value.videoPath}`, getAPIBaseURL()).toString(),
 )
 </script>
 

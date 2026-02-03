@@ -9,7 +9,7 @@ import { to } from 'await-to-js'
 import { useTheme } from '@rpa/components'
 
 import { WINDOW_NAME } from '@/constants'
-import { getBaseURL } from '@/api/http/env'
+import { getAPIBaseURL } from '@/api/http/env'
 import { sseRequest } from '@/api/sse'
 import { utilsManager, windowManager } from '@/platform'
 import type { chatItem } from '@/types/chat'
@@ -199,7 +199,7 @@ function handleSend() {
       message.warning('请输入指令')
       return
     }
-    createSSE(`${getBaseURL()}/rpa-ai-service/v1/chat/completions`, promptValue)
+    createSSE(`${getAPIBaseURL()}/rpa-ai-service/v1/chat/completions`, promptValue)
     isThinking.value = true
     const responseId = nanoid()
     messagingId.value = responseId

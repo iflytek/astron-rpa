@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 import { CodeEditor } from '@rpa/components'
 
 import { codeToMeta } from '@/api/component'
-import { getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
@@ -42,7 +42,7 @@ const newIndex = computed(() => {
 provide('smartCompNewIndex', newIndex)
 
 const mode = ref<('visual' | 'code')>('visual') // 可视化/代码模式
-const baseUrl = `${getRootBaseURL()}/scheduler`
+const baseUrl = `${getBaseURL()}/scheduler`
 
 const previousCode = ref('')
 const currentCode = ref('')

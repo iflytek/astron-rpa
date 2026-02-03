@@ -4,7 +4,7 @@ import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
 import { computed } from 'vue'
 
-import { getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 import { getLatestCurrentElementData } from '@/components/SmartComponent/utils/pick'
 import { useElementsStore } from '@/stores/useElementsStore'
 import { useSmartCompPickStore } from '@/stores/useSmartCompPickStore'
@@ -98,7 +98,7 @@ const handleCheck = throttle(
 )
 
 function getImageUrl() {
-  return `${getRootBaseURL()}/${props.node.attrs.imageUrl}`
+  return `${getBaseURL()}/${props.node.attrs.imageUrl}`
 }
 </script>
 

@@ -7,7 +7,7 @@ import { isFunction } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import type { PropType } from 'vue'
 
-import { getBaseURL } from '@/api/http/env'
+import { getAPIBaseURL } from '@/api/http/env'
 import { uploadFile } from '@/api/resource'
 
 export type Attachment = UploadFile
@@ -71,7 +71,7 @@ async function handleBeforeUpload(file: File) {
         ...fileData,
         uid: res,
         status: 'success',
-        url: `${getBaseURL()}/resource/file/download?fileId=${res}`,
+        url: `${getAPIBaseURL()}/resource/file/download?fileId=${res}`,
       })
     }
     catch (error) {

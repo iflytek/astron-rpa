@@ -1,6 +1,6 @@
 import { computed, inject, provide, ref } from 'vue'
 
-import { getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 import { addPyPackageApi, getPyPackageListApi, packageVersion } from '@/api/resource'
 import { sseRequest } from '@/api/sse'
 import { mirrorList } from '@/components/PythonPackageManagement/config'
@@ -54,7 +54,7 @@ export function usePackageCheckContext() {
   function installPackageAsync(packageName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const controller = sseRequest.post(
-        `${getRootBaseURL()}/scheduler/pip/install`,
+        `${getBaseURL()}/scheduler/pip/install`,
         {
           project_id: processStore.project.id,
           package: packageName,
