@@ -1,5 +1,4 @@
 import http from './http'
-import { getRootBaseURL } from './http/env'
 
 /**
  * @description: 发布组件
@@ -12,7 +11,7 @@ export function publishComponent(data: {
   icon: string
   introduction: string
 }) {
-  return http.post('/robot/component-version/create', data)
+  return http.post('/api/robot/component-version/create', data)
 }
 
 /**
@@ -21,14 +20,14 @@ export function publishComponent(data: {
 export function getComponentNextVersion(params: {
   componentId: string
 }) {
-  return http.get('/robot/component-version/next-version', params)
+  return http.get('/api/robot/component-version/next-version', params)
 }
 
 /**
  * @description: 将AI生成的代码转换成智能组件原子能力信息
  */
 export async function codeToMeta(data: { code: string }) {
-  const res = await http.post('/scheduler/smart/code-to-meta', data, { baseURL: getRootBaseURL() })
+  const res = await http.post('/scheduler/smart/code-to-meta', data)
   return res.data
 }
 
@@ -36,7 +35,7 @@ export async function codeToMeta(data: { code: string }) {
  * @description: 智能组件存储
  */
 export async function saveSmartComp(data) {
-  const res = await http.post('/robot/smart/save', data)
+  const res = await http.post('/api/robot/smart/save', data)
   return res.data.smartId as string
 }
 
@@ -44,7 +43,7 @@ export async function saveSmartComp(data) {
  * @description: 智能组件读取
  */
 export async function getSmartComp(data: { robotId: string, smartId: string }) {
-  const res = await http.post<RPA.Atom>('/robot/smart/detail/all', data)
+  const res = await http.post<RPA.Atom>('/api/robot/smart/detail/all', data)
   return res.data
 }
 
@@ -56,7 +55,7 @@ export async function optimizeQuestion(data: {
   user: string
   elements: any[]
 }) {
-  const res = await http.post<RPA.Atom>('/rpa-ai-service/smart/chat', { ...data, chatHistory: [] })
+  const res = await http.post<RPA.Atom>('/api/rpa-ai-service/smart/chat', { ...data, chatHistory: [] })
   return res.data?.choices?.[0]?.message?.content || ''
 }
 // 返回值示例：

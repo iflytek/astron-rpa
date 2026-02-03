@@ -4,9 +4,8 @@ import http from './http'
 
 // 根据id和version获取原子能力的具体信息
 export function getAbilityInfo(atomList: { key: string, version: string }[]) {
-  // return http.post('/robot/atom/getByVersionList', { atomList })
   return new Promise((resolve, reject) => {
-    http.post('/robot/atom-new/list', { keys: atomList.map(i => i.key) }).then((res) => {
+    http.post('/api/robot/atom-new/list', { keys: atomList.map(i => i.key) }).then((res) => {
       const data = res.data || []
       const result = data.map((atom: any) => atom.atomContent)
       resolve(result)
@@ -16,25 +15,24 @@ export function getAbilityInfo(atomList: { key: string, version: string }[]) {
 
 // 获取原子能力左侧菜单数据
 export async function getAtomsMeta(): Promise<RPA.AtomMetaData> {
-  const res = await http.post('/robot/atom-new/tree')
+  const res = await http.post('/api/robot/atom-new/tree')
   return JSON.parse(res.data)
 }
 
 // 获取扩展组件左侧菜单数据
 export async function getModuleMeta(): Promise<RPA.AtomTreeNode[]> {
-  const res = await http.post('/robot/atom-new/tree')
+  const res = await http.post('/api/robot/atom-new/tree')
   const data = JSON.parse(res.data)
   return data.atomicTreeExtend ?? []
 }
 
 export function getTreeByParentKey(parentKey: string) {
-  return http.post('/robot/atom/getListByParentKey', null, { params: { parentKey } })
+  return http.post('/api/robot/atom/getListByParentKey', null, { params: { parentKey } })
 }
 
 export function getNewAtomDesc(key: string): Promise<{ data: RPA.Atom }> {
-  // return http.post('/robot/atom/getLatestAtomByKey', null, { params: { key } })
   return new Promise((resolve, reject) => {
-    http.post('/robot/atom-new/list', { keys: [key] }).then((res) => {
+    http.post('/api/robot/atom-new/list', { keys: [key] }).then((res) => {
       const atom = res.data && res.data.length > 0 ? res.data[0] : ''
       const { atomContent = '{}' } = atom
       resolve({ data: atomContent })
@@ -46,19 +44,19 @@ export function getNewAtomDesc(key: string): Promise<{ data: RPA.Atom }> {
  * 添加收藏
  */
 export function addFavorite(data: { atomKey: string }) {
-  return http.get('/robot/atomLike/create', data)
+  return http.get('/api/robot/atomLike/create', data)
 }
 /**
  * 取消收藏
  */
 export function removeFavorite(data: { likeId: string }) {
-  return http.get('/robot/atomLike/cancel', data)
+  return http.get('/api/robot/atomLike/cancel', data)
 }
 /**
  * 获取收藏列表
  */
 export async function getFavoriteList() {
-  const res = await http.get<RPA.AtomTreeNode[]>('/robot/atomLike/list')
+  const res = await http.get<RPA.AtomTreeNode[]>('/api/robot/atomLike/list')
   return res.data ?? []
 }
 
@@ -69,7 +67,7 @@ export async function getComponentList(data: {
   robotId: string
   version?: number
 }) {
-  const res = await http.post<RPA.ComponentManageItem[]>('/robot/component/editing/list', { ...data, mode: 'EDIT_PAGE' })
+  const res = await http.post<RPA.ComponentManageItem[]>('/api/robot/component/editing/list', { ...data, mode: 'EDIT_PAGE' })
   return res.data ?? []
 }
 
@@ -83,7 +81,7 @@ export async function getConfigParams(params: {
   moduleId?: string
   mode?: string
 }) {
-  const res = await http.post<RPA.ConfigParamData[]>('/robot/param/all', params)
+  const res = await http.post<RPA.ConfigParamData[]>('/api/robot/param/all', params)
   return res.data
 }
 
@@ -91,7 +89,7 @@ export async function getConfigParams(params: {
  * 新增原子能力的配置参数
  */
 export async function createConfigParam(data: RPA.CreateConfigParamData) {
-  const res = await http.post<string>('/robot/param/add', data)
+  const res = await http.post<string>('/api/robot/param/add', data)
   return res.data
 }
 
@@ -100,7 +98,7 @@ export async function createConfigParam(data: RPA.CreateConfigParamData) {
  * @param id 参数id
  */
 export function deleteConfigParam(id: string) {
-  return http.post(`/robot/param/delete?id=${id}`)
+  return http.post(`/api/robot/param/delete?id=${id}`)
 }
 
 /**
@@ -108,14 +106,14 @@ export function deleteConfigParam(id: string) {
  * @param data RPA.ConfigParamData
  */
 export function updateConfigParam(data: RPA.ConfigParamData) {
-  return http.post('/robot/param/update', data)
+  return http.post('/api/robot/param/update', data)
 }
 
 /**
  * 获取远程共享变量
  */
 export async function getRemoteParams<T>() {
-  const res = await http.get<T[]>('/robot/robot-shared-var/get-shared-var')
+  const res = await http.get<T[]>('/api/robot/robot-shared-var/get-shared-var')
   return res.data || []
 }
 
@@ -123,6 +121,6 @@ export async function getRemoteParams<T>() {
  * 获取卓越中心文件管理共享文件列表
  */
 export async function getRemoteFiles(data?: { pageSize?: number, fileName?: string }) {
-  const res = await http.post<ITableResponse<RPA.SharedFileType>>('/robot/robot-shared-file/page', data)
+  const res = await http.post<ITableResponse<RPA.SharedFileType>>('/api/robot/robot-shared-file/page', data)
   return res.data || { records: [], total: 0 }
 }

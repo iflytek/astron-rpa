@@ -6,7 +6,7 @@ import http from './http'
  * 权限数据
  */
 export async function permission() {
-  const res = await http.get('/rpa-auth/user/entitlement')
+  const res = await http.get('/api/rpa-auth/user/entitlement')
   const entitlement = res.data
 
   const data = [

@@ -1,6 +1,6 @@
 import { nextTick } from 'vue'
 
-import { getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 import { addPyPackageApi, deletePyPackageApi, packageVersion, updatePyPackageApi } from '@/api/resource'
 import { sseRequest } from '@/api/sse'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -18,7 +18,7 @@ export function useManagePython() {
     const params = { robotId: processStore.project.id, ...pacakgeOption }
     pythonPackageStore.setPyLoadingType(upgrade ? 'upgrading' : 'installing')
     controller = sseRequest.post(
-      `${getRootBaseURL()}/scheduler/pip/install`,
+      `${getBaseURL()}/scheduler/pip/install`,
       {
         project_id: processStore.project.id,
         package: pacakgeOption.packageName,

@@ -3,7 +3,7 @@ import { useTheme, CodeEditor } from '@rpa/components'
 import { storeToRefs } from 'pinia'
 import { onBeforeMount, onUnmounted } from 'vue'
 
-import { getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 import { useProcessStore } from '@/stores/useProcessStore'
 
 const props = defineProps<{ resourceId: string }>()
@@ -11,7 +11,7 @@ const processStore = useProcessStore()
 const { isDark } = useTheme()
 const { pyCodeText } = storeToRefs(processStore)
 
-const baseUrl = `${getRootBaseURL()}/scheduler`
+const baseUrl = `${getBaseURL()}/scheduler`
 
 function handleUpdate(codeString: string) {
   processStore.setCodeText(codeString)

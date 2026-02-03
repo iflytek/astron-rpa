@@ -8,7 +8,7 @@ import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
 import { storage } from '@/utils/storage'
 
-import { expiredModal, getBaseURL } from '@/api/http/env'
+import { expiredModal, getAPIBaseURL } from '@/api/http/env'
 import BootHeader from '@/components/Boot/Header.vue'
 import LaunchCarousel from '@/components/Boot/LaunchCarousel.vue'
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
@@ -116,7 +116,7 @@ onUnmounted(() => {
           </LaunchCarousel>
         </div>
       </template>
-      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getBaseURL()" :auto-login="autoLogin" :auth-type="appInfo.appAuthType" :edition="appInfo.appEdition" @finish="loginSuccess" />
+      <Auth.LoginForm v-if="isLogin" ref="loginFormRef" :base-url="getAPIBaseURL()" :auto-login="autoLogin" :auth-type="appInfo.appAuthType" :edition="appInfo.appEdition" @finish="loginSuccess" />
     </Auth.PageLayout>
     <Loading />
   </ConfigProvider>
