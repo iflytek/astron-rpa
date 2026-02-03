@@ -34,7 +34,7 @@ def handler(app: FastAPI):
         dependencies=[Depends(get_svc)],
     )
 
-    # 绑定执行器路由
+    # 绑定拾取路由
     app.include_router(
         picker.router,
         prefix="/picker",

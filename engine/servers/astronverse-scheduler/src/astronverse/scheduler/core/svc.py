@@ -60,6 +60,7 @@ class Svc:
 
         # 是否是终端模式
         self.terminal_mod = False
+        self.start_watch = False
         self.terminal_task_stop = False
 
         # 是否是在虚拟环境中运行[虚拟环境中运行，执行器不会创建虚拟环境]
