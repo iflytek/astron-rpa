@@ -35,7 +35,7 @@ export function getTermianlStatus() {
  * @returns 凭证列表
  */
 export async function getCredentialList() {
-  const res = await http.post<{ name: string }[]>('/scheduler/credential/list')
+  const res = await http.get<{ name: string }[]>('/scheduler/credential/list')
   return res.data || []
 }
 
@@ -64,5 +64,5 @@ export async function deleteCredential(name: string) {
  */
 export async function checkCredentialExists(name: string) {
   const res = await http.get<{ exists: boolean }>('/scheduler/credential/exists', { name })
-  return !!res?.data
+  return !!res?.data?.exists
 }
