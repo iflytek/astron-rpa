@@ -8,6 +8,9 @@ import AtomForm from './AtomForm.vue'
 import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { getComponentPreviewForm } from '@/utils/customComponent'
+import { exampleFormList as exampleFormListRaw } from './exampleFormList'
+
+const exampleFormList = ref(exampleFormListRaw.map(item => ({ ...item })))
 
 const props = defineProps<{ clickOutsideIgnoreSelector?: string }>()
 
@@ -100,13 +103,27 @@ onClickOutside(
           class="text-[12px]"
         />
       </section>
-      <!-- <section class="mx-4 mb-5 overflow-y-auto max-h-[200px]">
-        <AtomFormItem
+
+      <!-- <section class="mx-4 mb-5 overflow-y-auto max-h-[400px]">
+        <div
           v-for="item in exampleFormList"
           :key="item.key"
-          :atom-form-item="item"
-          class="text-[12px]"
-        />
+          class="mb-4 p-3 border border-[#000000]/[.08] dark:border-[#FFFFFF]/[.08] rounded-lg bg-[#fafafa] dark:bg-[#1a1a1a]"
+        >
+          <AtomFormItem
+            :atom-form-item="item"
+            class="text-[12px]"
+          />
+          <div class="mt-2 pt-2 border-t border-[#000000]/[.08] dark:border-[#FFFFFF]/[.08]">
+            <div class="text-[10px] text-[#000000]/[.45] dark:text-[#FFFFFF]/[.45] mb-1">
+              Value (实时):
+            </div>
+            <pre class="text-[10px] text-[#000000]/[.85] dark:text-[#FFFFFF]/[.85] bg-[#ffffff] dark:bg-[#2a2a2a] p-2 rounded overflow-x-auto max-h-[120px] overflow-y-auto font-mono whitespace-pre-wrap break-words">{{ item.value }}</pre>
+            <div class="text-[9px] text-[#000000]/[.35] dark:text-[#FFFFFF]/[.35] mt-1">
+              类型: {{ Array.isArray(item.value) ? 'Array' : typeof item.value }}
+            </div>
+          </div>
+        </div>
       </section> -->
     </div>
   </Drawer>

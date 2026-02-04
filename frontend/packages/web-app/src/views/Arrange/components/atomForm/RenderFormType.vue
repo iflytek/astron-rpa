@@ -277,10 +277,10 @@ inputListListener(itemData, itemType)
   <a-switch
     v-if="itemType === ATOM_FORM_TYPE.SWITCH"
     v-model:checked="selectValue"
-    :checked-value="itemData?.options[0].value"
-    :un-checked-value="itemData?.options[1].value"
-    :checked-children="itemData?.options[0].label"
-    :un-checked-children="itemData?.options[1].label"
+    :checked-value="itemData?.options?.[0]?.value"
+    :un-checked-value="itemData?.options?.[1]?.value"
+    :checked-children="itemData?.options?.[0]?.label"
+    :un-checked-children="itemData?.options?.[1]?.label"
   />
   <!-- 下拉框 -->
   <AtomSelect v-if="itemType === ATOM_FORM_TYPE.SELECT" v-model:value="selectValue" :render-data="itemData" />

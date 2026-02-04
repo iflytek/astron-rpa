@@ -152,7 +152,7 @@ const selectedHandle: TreeProps['onSelect'] = (selectedKeys, info) => {
   const { selectedNodes, node } = info
   const activeType = varTypeList.find(item => item.label === activeKey.value)?.type
 
-  if (selectedNodes.length < 1 || !Array.isArray(props.renderData.value) || !activeType)
+  if (selectedNodes.length < 1 || !activeType)
     return
 
   let title = ''
