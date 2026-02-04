@@ -25,15 +25,6 @@ export default defineComponent({
       if (item.isInstall) {
         return item.isNewest ? 'reinstall' : 'pluginUpdate' // 重新安装、插件更新
       }
-
-      // if (item.type === '2345') {
-      //   return 'installationTutorial' // 安装教程
-      // }
-
-      // if (item.type === 'driver') {
-      //   return 'driverInstallation' // 驱动安装
-      // }
-
       return 'intelligentInstallation' // 智能安装
     }
 

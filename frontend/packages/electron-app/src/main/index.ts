@@ -39,7 +39,13 @@ function createMainWindow() {
   const url = windowBaseUrl + 'boot.html'
   logger.info(`app load url: ${url}`)
 
-  mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => logger.error('Failed to load URL'))
+  mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => {
+    logger.error('Failed to load URL')
+    logger.info('Retry loading URL after 5 seconds...')
+    setTimeout(() => {
+      mainWindow.loadURL(url).then(() => electronInfo(mainWindow))
+    }, 5000)
+  })
   mainWindow.once('ready-to-show', () => {
     WindowStack.set('main', mainWindow)
     mainWindow.show()

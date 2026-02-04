@@ -3,15 +3,18 @@ import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { onBeforeMount } from 'vue'
 
-import { browerPluginInstall, checkBrowerRunning } from '@/api/plugin'
+import { browerPluginInstall, checkBrowerRunning, installAllUpdateBrowerPlugin } from '@/api/plugin'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_LIST } from '@/constants/plugin'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import _PluginTipModal from '../PluginTipModal.vue'
+import _PluginUpdateModal from '../pluginUpdateModal.vue'
+import { storage } from '@/utils/storage'
 
 const PluginTipModal = NiceModal.create(_PluginTipModal)
+const PluginUpdateModal = NiceModal.create(_PluginUpdateModal)
 
 export function useBrowerPlugin() {
   const appConfigStore = useAppConfigStore()
@@ -73,7 +76,7 @@ export function useBrowerPlugin() {
     GlobalModal.confirm({
       title: '提示',
       zIndex: 100,
-      content: `${t(pluginItem.title)}插件${type}失败，请重新${type}`,
+      content: `${t(pluginItem.title)}插件${type}失败，请检查该浏览器是否存在或重新${type}`,
       okText: `重新${type}`,
       okType: 'primary',
       onOk: () => installBrowerPlugin(pluginItem),
@@ -86,7 +89,10 @@ export function useBrowerPlugin() {
   const install = (pluginItem: any, action = 'install') => {
     pluginItem.loading = true
     browerPluginInstall({ ...pluginItem, action }).then(
-      (res: any) => res.isOpen ? killBrowerReinstall(pluginItem) : successTipOpenStep(pluginItem),
+      (res: any) => {
+        res.isOpen ? killBrowerReinstall(pluginItem) : successTipOpenStep(pluginItem)
+        appConfigStore.refreshBrowserPluginStatus()
+      },
     ).catch(() => failTipWithReinstall(pluginItem)).finally(() => {
       pluginItem.loading = false
     })
@@ -107,6 +113,7 @@ export function useBrowerPlugin() {
     }
   }
 
+  // 安装前检测浏览器是否运行
   const safeInstallBrowerPlugin = async (pluginItem: PLUGIN_ITEM) => {
     pluginItem.loading = true
     try {
@@ -126,5 +133,23 @@ export function useBrowerPlugin() {
     }
   }
 
-  return { pluginList: appConfigStore.browserPlugins, install: installBrowerPlugin, safeInstallBrowerPlugin }
+  // 有更新的插件一键安装
+  const pluginUpdateModal = () => {
+    const lastUpdateTimestamp = storage.get('browserPluginUpdateTimestamp')
+    // 一天内只提示一次
+    if (lastUpdateTimestamp && Date.now() - Number(lastUpdateTimestamp) < 24 * 60 * 60 * 1000) {
+      return
+    }
+    appConfigStore.browserPlugins.forEach((plugin) => {
+      if (plugin.isInstall && !plugin.isNewest) {
+        NiceModal.show(PluginUpdateModal, {}).then(async () => {
+          await installAllUpdateBrowerPlugin()
+          appConfigStore.refreshBrowserPluginStatus()
+        })
+        storage.set('browserPluginUpdateTimestamp', Date.now())
+      }
+    })
+  }
+
+  return { pluginList: appConfigStore.browserPlugins, install: installBrowerPlugin, safeInstallBrowerPlugin, pluginUpdateModal }
 }
