@@ -8,6 +8,8 @@ if sys.platform == "win32":
     from astronverse.browser_plugin.win import BrowserPluginFactory
 elif sys.platform == "linux":
     from astronverse.browser_plugin.unix import BrowserPluginFactory
+else:
+    raise Exception(f"Unsupported platform: {sys.platform}")
 
 
 class ExtensionManager:
@@ -66,7 +68,7 @@ class ExtensionManager:
         """
         uninstall plugin
         """
-        pass
+        raise NotImplementedError("uninstall method is not implemented yet.")
 
     def upgrade(self):
         """
