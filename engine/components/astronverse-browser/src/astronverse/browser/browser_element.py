@@ -341,7 +341,11 @@ class BrowserElement:
                 raise BaseException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
 
             # 定位
-            element = locator.locator(element_data.get("elementData"), scroll_into_center=scroll_into_center)
+            element = locator.locator(
+                element_data.get("elementData"),
+                cur_target_app=browser_obj.browser_type.value,
+                scroll_into_center=scroll_into_center,
+            )
             if isinstance(element.rect(), list):
                 raise Exception("浏览器元素定位不唯一，请检查！")
 
