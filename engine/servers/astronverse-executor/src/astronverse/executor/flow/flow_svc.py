@@ -27,6 +27,7 @@ class FlowSvc:
     def load_package_info(self):
         """从 package.json 加载项目信息并转换为结构化对象"""
         package_json = os.path.join(self.conf.gen_core_path, "package.json")
+        package_info = {}
         if os.path.exists(package_json):
             with open(package_json, encoding="utf-8") as f:
                 package_info = json.load(f)
