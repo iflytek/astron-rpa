@@ -1,7 +1,7 @@
 import { NiceModal } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 
 import { browerPluginInstall, checkBrowerRunning, installAllUpdateBrowerPlugin } from '@/api/plugin'
 import GlobalModal from '@/components/GlobalModal/index.ts'
@@ -18,6 +18,7 @@ const PluginUpdateModal = NiceModal.create(_PluginUpdateModal)
 
 export function useBrowerPlugin() {
   const appConfigStore = useAppConfigStore()
+  const pluginList = ref(appConfigStore.browserPlugins)
   const { t } = useTranslation()
 
   onBeforeMount(() => {
@@ -86,12 +87,13 @@ export function useBrowerPlugin() {
   }
 
   // 安装
-  const install = (pluginItem: any, action = 'install') => {
+  const install = (pluginItem: PLUGIN_ITEM, action = 'install') => {
     pluginItem.loading = true
     browerPluginInstall({ ...pluginItem, action }).then(
-      (res: any) => {
-        res.isOpen ? killBrowerReinstall(pluginItem) : successTipOpenStep(pluginItem)
-        appConfigStore.refreshBrowserPluginStatus()
+      () => {
+        successTipOpenStep(pluginItem)
+        pluginItem.isInstall = true
+        pluginItem.isNewest = true
       },
     ).catch(() => failTipWithReinstall(pluginItem)).finally(() => {
       pluginItem.loading = false
@@ -151,5 +153,5 @@ export function useBrowerPlugin() {
     })
   }
 
-  return { pluginList: appConfigStore.browserPlugins, install: installBrowerPlugin, safeInstallBrowerPlugin, pluginUpdateModal }
+  return { pluginList, install: installBrowerPlugin, safeInstallBrowerPlugin, pluginUpdateModal }
 }

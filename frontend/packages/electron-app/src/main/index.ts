@@ -41,10 +41,10 @@ function createMainWindow() {
 
   mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => {
     logger.error('Failed to load URL')
-    logger.info('Retry loading URL after 5 seconds...')
+    logger.info('Retry loading URL after 10 seconds...')
     setTimeout(() => {
       mainWindow.loadURL(url).then(() => electronInfo(mainWindow))
-    }, 5000)
+    }, 10 * 1000)
   })
   mainWindow.once('ready-to-show', () => {
     WindowStack.set('main', mainWindow)
