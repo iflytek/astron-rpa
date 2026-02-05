@@ -56,7 +56,7 @@ export const menuConfig: MenuItem[] = [
   },
   {
     key: 'voucher',
-    icon: 'api-key',
+    icon: 'approval',
     name: 'voucher',
     component: Voucher,
   },
