@@ -150,10 +150,9 @@ class BrowserSoftware:
                     )
                     break
             except Exception as e:
-                pass
+                time.sleep(retry_time)
             finally:
                 retry_count -= 1
-                time.sleep(retry_time)
 
         try:
             # 插件通信连接，置顶最大化
@@ -379,13 +378,13 @@ class BrowserSoftware:
 
         end = time.time() + timeout
         while time.time() < end:
-            time.sleep(0.3)
             try:
                 data = browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="loadComplete")
                 if data:
                     return True
             except Exception:
                 pass
+            time.sleep(0.3)
         return False
 
     @staticmethod
