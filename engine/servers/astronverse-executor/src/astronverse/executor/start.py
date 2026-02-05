@@ -5,17 +5,15 @@ import threading
 import time
 import traceback
 from urllib.parse import unquote
-
+from astronverse.executor.error import *
 from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.config import Config
 from astronverse.executor.debug.apis.ws import Ws
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.debug_svc import DebugSvc
-from astronverse.executor.error import *
 from astronverse.executor.flow.flow import Flow
 from astronverse.executor.flow.flow_svc import FlowSvc
-from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
@@ -214,13 +212,13 @@ def start():
         debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
         debug_start(svc=debug_svc, args=args, flow_tip=flow_tip)
     except BaseException as e:
+        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
             debug_svc.end(ExecuteStatus.FAIL, reason=e.message)
-        logger.debug("error {} traceback {}".format(e, traceback.format_exc()))
         return
     except Exception as e:
+        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
             debug_svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
-        logger.debug("error {} traceback {}".format(e, traceback.format_exc()))
         return
     logger.debug("end")
