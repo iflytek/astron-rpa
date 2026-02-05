@@ -1,41 +1,43 @@
+import { log } from '../3rd/log'
+
 /**
  * @file Manages communication with the native messaging host.
  */
 import { NATIVE_HOST_NAME } from './constant'
-import { log } from '../3rd/log'
 
-
-let port: chrome.runtime.Port | null = null;
+let port: chrome.runtime.Port | null = null
 
 /**
  * Establishes a connection to the native messaging host.
  */
 function connectToNativeHost() {
   if (port) {
-    log.info('Already connected to native host.');
-    return;
+    log.info('Already connected to native host.')
+    return
   }
 
-  log.info(`Connecting to native host: ${NATIVE_HOST_NAME}`);
+  log.info(`Connecting to native host: ${NATIVE_HOST_NAME}`)
   try {
-    port = chrome.runtime.connectNative(NATIVE_HOST_NAME);
+    port = chrome.runtime.connectNative(NATIVE_HOST_NAME)
 
     port.onMessage.addListener((message) => {
-      log.info('Received message from native host:', message);
+      log.info('Received message from native host:', message)
       // Handle incoming messages from the native host here
-    });
+    })
 
     port.onDisconnect.addListener(() => {
       if (chrome.runtime.lastError) {
-        log.error('Native host disconnected with error:', chrome.runtime.lastError.message);
-      } else {
-        log.info('Native host disconnected.');
+        log.error('Native host disconnected with error:', chrome.runtime.lastError.message)
       }
-      port = null;
-    });
-  } catch (error) {
-    log.error('Failed to connect to native host:', error);
-    port = null;
+      else {
+        log.info('Native host disconnected.')
+      }
+      port = null
+    })
+  }
+  catch (error) {
+    log.error('Failed to connect to native host:', error)
+    port = null
   }
 }
 
@@ -45,19 +47,20 @@ function connectToNativeHost() {
  */
 export function sendNativeMessage(message: object) {
   if (!port) {
-    log.warn('Not connected to native host. Attempting to connect...');
-    connectToNativeHost();
+    log.warn('Not connected to native host. Attempting to connect...')
+    connectToNativeHost()
     if (!port) {
-      log.error('Failed to send message: Connection to native host not established.');
-      return;
+      log.error('Failed to send message: Connection to native host not established.')
+      return
     }
   }
 
   try {
-    log.info('Sending message to native host:', message);
-    port.postMessage(message);
-  } catch (error) {
-    log.error('Error sending message to native host:', error);
+    log.info('Sending message to native host:', message)
+    port.postMessage(message)
+  }
+  catch (error) {
+    log.error('Error sending message to native host:', error)
   }
 }
 
@@ -66,9 +69,9 @@ export function sendNativeMessage(message: object) {
  */
 export function disconnectFromNativeHost() {
   if (port) {
-    log.info('Disconnecting from native host.');
-    port.disconnect();
-    port = null;
+    log.info('Disconnecting from native host.')
+    port.disconnect()
+    port = null
   }
 }
 /**
@@ -77,12 +80,12 @@ export function disconnectFromNativeHost() {
 export function nativeMessageHeartbeat() {
   const t = setTimeout(() => {
     if (port) {
-      sendNativeMessage({ type: 'heartbeat', timestamp: Date.now() });
-      clearTimeout(t);
-      nativeMessageHeartbeat();
+      sendNativeMessage({ type: 'heartbeat', timestamp: Date.now() })
+      clearTimeout(t)
+      nativeMessageHeartbeat()
     }
-  }, 10 * 1000);
+  }, 10 * 1000)
 }
 
 // Automatically connect when the background script starts.
-connectToNativeHost();
+connectToNativeHost()

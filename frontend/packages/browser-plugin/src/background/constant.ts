@@ -6,7 +6,7 @@ export const CURRENT_EXTENSION_ID = chrome.runtime.id
 
 export const NATIVE_HOST_NAME = 'com.astronrpa.nativehost'
 
-export const IGNORE_LOG_KEYS = [ 'getElement', 'contentInject', 'backgroundInject']
+export const IGNORE_LOG_KEYS = ['getElement', 'contentInject', 'backgroundInject']
 
 export enum StatusCode {
   SUCCESS = '0000',

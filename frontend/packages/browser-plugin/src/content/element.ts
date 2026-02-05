@@ -1,4 +1,4 @@
-import { MAX_ATTRIBUTE_LENGTH, MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
+import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
 import { highLight, highLightRects } from './highlight'
 import { Utils } from './utils'
 
@@ -528,8 +528,8 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
 
     // other optional attrs from element attributes
     const eleAttrs = element.attributes
-    const specialAttrs = ["id", 'class', 'type', 'text', 'index', 'local-name']
-    for(const key in eleAttrs) {
+    const specialAttrs = ['id', 'class', 'type', 'text', 'index', 'local-name']
+    for (const key in eleAttrs) {
       if (typeof eleAttrs[key] === 'object') {
         const attrName = eleAttrs[key].name
         const attrValue = eleAttrs[key].value

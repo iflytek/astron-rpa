@@ -1,4 +1,4 @@
-import { ASTRON_SW_NAME } from "./constant"
+import { ASTRON_SW_NAME } from './constant'
 
 function isExtensionContextValid() {
   try {
@@ -45,7 +45,7 @@ export function keepServiceWorkerAlive() {
     sendToBackground({ type: 'keepServiceWorkerAlive' }).then(() => {
       keepServiceWorkerAlive()
     })
-  });
+  })
 }
 
 export function notifyContentLoaded() {

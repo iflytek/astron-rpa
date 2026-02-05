@@ -65,7 +65,7 @@ chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'Astron-Service-Worker') {
     log.info('Astron service worker port connected')
   }
-});
+})
 
 ; (async function () {
   const wsApp = await createWsApp()

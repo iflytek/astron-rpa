@@ -326,8 +326,8 @@ const ContentHandler = {
 
     elementIsRender: async (data: ElementInfo) => {
       try {
-        const ele = await ContentHandler.ele.getDom({ ...data, filterVisible: true })
-        return Utils.success(!!ele)
+        const eles = await ContentHandler.ele.getElement({ ...data, filterVisible: true })
+        return Utils.success(eles && eles.length)
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
@@ -336,8 +336,8 @@ const ContentHandler = {
 
     elementIsReady: async (data: ElementInfo) => {
       try {
-        const ele = await ContentHandler.ele.getDom(data)
-        return Utils.success(!!ele)
+        const eles = await ContentHandler.ele.getElement(data)
+        return Utils.success(eles && eles.length)
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
@@ -671,7 +671,11 @@ const ContentHandler = {
 
     // ---v3
     clickElement: async (data: ElementInfo) => {
-      const result = await ContentHandler.ele.getDom(data)
+      const eles = await ContentHandler.ele.getElement(data)
+      if (eles && eles.length > 1) {
+        return Utils.fail(ErrorMessage.ELEMENT_MULTI_FOUND, StatusCode.EXECUTE_ERROR)
+      }
+      const result = eles ? eles[0] : null
       const { buttonType } = data.atomConfig
       if (!result)
         return elementNotFoundReason(data)
@@ -696,7 +700,11 @@ const ContentHandler = {
     },
 
     inputElement: async (data: ElementInfo) => {
-      const result = (await ContentHandler.ele.getDom(data)) as HTMLInputElement | HTMLTextAreaElement
+      const eles = await ContentHandler.ele.getElement(data)
+      if (eles && eles.length > 1) {
+        return Utils.fail(ErrorMessage.ELEMENT_MULTI_FOUND, StatusCode.EXECUTE_ERROR)
+      }
+      const result = (eles ? eles[0] : null) as HTMLInputElement | HTMLTextAreaElement | null
       const { inputText } = data.atomConfig
       if (result) {
         if (result.tagName !== 'INPUT' && result.tagName !== 'TEXTAREA') {
@@ -1126,7 +1134,7 @@ function RpaExtGetElement(data) {
 loadIframe()
 keepServiceWorkerAlive()
 window.addEventListener('load', loadIframe)
-window.addEventListener("load", notifyContentLoaded)
+window.addEventListener('load', notifyContentLoaded)
 // @ts-expect-error Mount to window
 window.handle = handle
 // @ts-expect-error  Mount to window
