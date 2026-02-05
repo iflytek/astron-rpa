@@ -116,7 +116,7 @@ function insertHtmlAtCaret(html: string) {
   selection.addRange(range)
 }
 
-export function generateHtmlVal(target: HTMLDivElement, itemData: RPA.AtomDisplayItem) {
+export function generateHtmlVal(target: HTMLDivElement, itemData: RPA.AtomDisplayItem, atomId?: string) {
   const { isExpr, formType, types } = itemData
   const nodeList = target.childNodes
 
@@ -173,7 +173,7 @@ export function generateHtmlVal(target: HTMLDivElement, itemData: RPA.AtomDispla
   if (isExpr)
     setPyModeVal(itemData) // 该值是python类型
 
-  syncCurrentAtomData(itemData, false)
+  syncCurrentAtomData(itemData, false, atomId)
 }
 
 export function setPyModeVal(itemData: RPA.AtomDisplayItem) {
@@ -241,9 +241,13 @@ export function formBtnHandle(itemData: RPA.AtomDisplayItem, itemType: string, e
 }
 
 // 同步当前原子能力的值
-export function syncCurrentAtomData(itemData: RPA.AtomDisplayItem, flush = true) {
+export function syncCurrentAtomData(itemData: RPA.AtomDisplayItem, flush = true, atomId?: string) {
   const flowStore = useFlowStore()
-  const idx = flowStore.simpleFlowUIData.findIndex(item => item.id === flowStore.activeAtom.id)
+  const targetAtomId = atomId || flowStore.activeAtom?.id
+  if (!targetAtomId) {
+    return
+  }
+  const idx = flowStore.simpleFlowUIData.findIndex(item => item.id === targetAtomId)
   let alias = ''
   let flag = true
   if (itemData.key === 'anotherName') {
