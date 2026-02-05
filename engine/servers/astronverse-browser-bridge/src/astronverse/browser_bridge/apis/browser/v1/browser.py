@@ -22,7 +22,7 @@ async def transition(request: Request, svc: ServiceContext = Depends(get_svc)):
             # 读取文件内容
             data = file.read()
     browser_type = req_data.get("browser_type", "")
-    if (not key) or (not data) or (not browser_type):
+    if (not key) or (not browser_type):
         raise BaseException(
             PARAMETER_ERROR_FORMAT.format((key, data, browser_type)),
             "error: PARAMETER ERROR FORMAT {}".format((key, data, browser_type)),
