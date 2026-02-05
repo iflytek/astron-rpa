@@ -636,7 +636,7 @@ class BrowserSoftware:
     ):
         """下载文件"""
         if download_mode == DownloadModeForFlag.Click:
-            from browserv2.browser_element import BrowserElement
+            from astronverse.browser.browser_element import BrowserElement
 
             BrowserElement.click(
                 browser_obj=browser_obj,
@@ -731,7 +731,7 @@ class BrowserSoftware:
     ):
         """上传文件"""
 
-        from browserv2.browser_element import BrowserElement
+        from astronverse.browser.browser_element import BrowserElement
 
         BrowserElement.click(
             browser_obj=browser_obj,
