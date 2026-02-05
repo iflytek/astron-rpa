@@ -1,3 +1,6 @@
+import json
+import os
+
 from astronverse.executor import AstGlobals, AtomicInfo, ComponentInfo, ProcessInfo, SmartComponentInfo
 from astronverse.executor.config import Config
 from astronverse.executor.flow.params import Param
@@ -20,6 +23,15 @@ class FlowSvc:
 
         # 流程生成tip
         self.flow_tip = []
+
+    def load_package_info(self):
+        """从 package.json 加载项目信息并转换为结构化对象"""
+        package_json = os.path.join(self.conf.gen_core_path, "package.json")
+        package_info = {}
+        if os.path.exists(package_json):
+            with open(package_json, encoding="utf-8") as f:
+                package_info = json.load(f)
+        return package_info
 
     def add_project_info(
         self,

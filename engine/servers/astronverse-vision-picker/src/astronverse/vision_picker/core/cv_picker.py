@@ -5,6 +5,7 @@ import time
 import cv2
 import numpy as np
 from PIL import Image
+from astronverse.vision_picker.logger import logger
 
 # def ocr_image(image, flag):
 #     """
@@ -54,7 +55,7 @@ class ImageDetector:
             gray_pic = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             return image, gray_pic
         except Exception as e:
-            print(f"Error converting image to grayscale: {e}")
+            logger.info(f"Error converting image to grayscale: {e}")
             return None, None
 
     def get_image_from_gradio(self, img):
@@ -366,7 +367,7 @@ class ImageDetector:
 
         end_time = time.time()
         total_time = end_time - start_time
-        print(f"detect_objects 总耗时: {total_time:.3f}秒")
+        logger.info(f"detect_objects 总耗时: {total_time:.3f}秒")
         return self.output_img, selected_boxes
 
     # def detect_ocr_text(self, line_width):
@@ -421,5 +422,5 @@ if __name__ == "__main__":
     img_path = r"C:\\Users\\zyfan9\\Desktop\\test image\\q10.png"
     detector = ImageDetector(img_path)
     boxes = detector.detect_objects(None, None)
-    # print("=====> boxes:> ", boxes)
+    # logger.info("=====> boxes:> ", boxes)
     detector.show_or_save_image("C:\\Users\\zyfan9\\Desktop\\show_image")

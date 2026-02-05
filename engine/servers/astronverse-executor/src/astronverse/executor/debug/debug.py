@@ -31,14 +31,14 @@ class Debug:
     def notify(self, typ, **kw):
         """打印演示"""
 
+        file = kw.get("file")
+        process_id = ""
+        if file in self.file_to_process:
+            process_id = self.file_to_process[file]
+
+        line = kw.get("line")
+
         if typ == "breakpoint" or typ == "step":
-            file = kw.get("file")
-            process_id = ""
-            if file in self.file_to_process:
-                process_id = self.file_to_process[file]
-
-            line = kw.get("line")
-
             self.svc.report.info(
                 ReportCode(
                     log_type=ReportType.Code,
@@ -51,16 +51,13 @@ class Debug:
             )
         else:
             exc = kw.get("exc")
-            if isinstance(exc, IgnoreException) or isinstance(exc, ParamException) or isinstance(exc, BaseException):
-                error_str = exc.code.message
-            else:
-                error_str = str(exc)
+            exc_msg = kw.get("exc_msg")
             self.svc.report.error(
-                ReportFlow(
-                    log_type=ReportType.Flow,
-                    status=ReportFlowStatus.TASK_ERROR,
-                    result=ExecuteStatus.FAIL.value,
-                    msg_str="{} {}".format(MSG_EXECUTION_ERROR, error_str),
+                ReportCode(
+                    log_type=ReportType.Code,
+                    process_id=process_id,
+                    line=line,
+                    msg_str="{}".format(exc_msg),
                     error_traceback=traceback.format_exc(),
                 )
             )

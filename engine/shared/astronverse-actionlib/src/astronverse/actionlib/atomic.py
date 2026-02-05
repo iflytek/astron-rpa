@@ -127,30 +127,21 @@ class AtomicManager:
         res_print = kwargs.get("__res_print__", False)
         delay_before = float(kwargs.get("__delay_before__", 0))
         delay_after = float(kwargs.get("__delay_after__", 0))
-        skip_err = kwargs.get("__skip_err__", "exit")
-        retry_time = int(kwargs.get("__retry_time__", 0))
-        retry_interval = float(kwargs.get("__retry_interval__", 0))
 
-        # 检测是否在外部重试块中（主要是处理设置了重试）
-        in_external_retry = kwargs.get("__in_external_retry__", False)
-
-        # START 上报（外部重试时跳过，因为已在外层上报）
-        if not in_external_retry:
-            report.info(
-                ReportCode(
-                    log_type=ReportType.Code,
-                    process_id=process_id,
-                    key=key,
-                    line=line,
-                    status=ReportCodeStatus.START,
-                    msg_str=ReportStartMsgFormat.format("{process}", line, "{atomic}"),
-                )
+        report.info(
+            ReportCode(
+                log_type=ReportType.Code,
+                process_id=process_id,
+                key=key,
+                line=line,
+                status=ReportCodeStatus.START,
+                msg_str=ReportStartMsgFormat.format("{process}", line, "{atomic}"),
             )
+        )
 
-        # 基础参数验证+转换
+        # Meta数据收集: 基础参数验证+转换
         if not self.atomic_dict[key].__end__:
             self._update_atomic_param(key, func)
-
         if key not in self.model_cache:
             if len(self.model_cache) > self.model_cache_max_size:
                 # gc回收
@@ -168,92 +159,29 @@ class AtomicManager:
         if delay_before > 0:
             time.sleep(delay_before)
 
-        while True:
-            try:
-                # 验证只验证 __convert__ 为true的参数，不适用于对象验证
-                model_res = model(**base_kwargs)
-                for name, value in model_res.items():
-                    base_kwargs[name] = value
+        # 验证只验证 __convert__ 为true的参数，不适用于对象验证
+        model_res = model(**base_kwargs)
+        for name, value in model_res.items():
+            base_kwargs[name] = value
 
-                # 只有**kwargs的原子能力才接受高级参数,且过滤掉多余的参数,保证兼容
-                if not self.atomic_dict[key].__has_kwargs__:
-                    advance_kwargs = {}
-                    sig = inspect.signature(func)
-                    base_kwargs = {k: v for k, v in base_kwargs.items() if k in set(sig.parameters.keys())}
+        # 只有**kwargs的原子能力才接受高级参数,且过滤掉多余的参数,保证兼容
+        if not self.atomic_dict[key].__has_kwargs__:
+            advance_kwargs = {}
+            sig = inspect.signature(func)
+            base_kwargs = {k: v for k, v in base_kwargs.items() if k in set(sig.parameters.keys())}
 
-                res = func(*args, **base_kwargs, **advance_kwargs)
-                if res_print and has_result:
-                    report.info(
-                        ReportCode(
-                            log_type=ReportType.Code,
-                            process_id=process_id,
-                            line=line,
-                            status=ReportCodeStatus.RES,
-                            msg_str=str(res),
-                        )
-                    )
-                break
-            except Exception as e:
-                res = None
-                if isinstance(e, BaseException):
-                    error_str = e.code.message
-                else:
-                    error_str = str(e)
+        res = func(*args, **base_kwargs, **advance_kwargs)
+        if res_print and has_result:
+            report.info(
+                ReportCode(
+                    log_type=ReportType.Code,
+                    process_id=process_id,
+                    line=line,
+                    status=ReportCodeStatus.RES,
+                    msg_str=str(res),
+                )
+            )
 
-                # 外部重试时，直接抛出让外层处理
-                if in_external_retry:
-                    raise
-
-                if skip_err == "skip":
-                    report.warning(
-                        ReportCode(
-                            log_type=ReportType.Code,
-                            process_id=process_id,
-                            line=line,
-                            status=ReportCodeStatus.SKIP,
-                            msg_str="{} {}".format(ReportCodeSkip, error_str),
-                            error_traceback=traceback.format_exc(),
-                        )
-                    )
-                    break
-                elif skip_err == "retry":
-                    retry_time -= 1
-                    if retry_time < 0:
-                        report.error(
-                            ReportCode(
-                                log_type=ReportType.Code,
-                                process_id=process_id,
-                                line=line,
-                                status=ReportCodeStatus.ERROR,
-                                msg_str="{} {}".format(ReportCodeError, error_str),
-                                error_traceback=traceback.format_exc(),
-                            )
-                        )
-                        raise IgnoreException(IGNORE_ERROR_FORMAT.format(error_str), error_str) from e
-                    report.warning(
-                        ReportCode(
-                            log_type=ReportType.Code,
-                            process_id=process_id,
-                            line=line,
-                            status=ReportCodeStatus.SKIP,
-                            msg_str="{} {}".format(ReportCodeRetry, error_str),
-                            error_traceback=traceback.format_exc(),
-                        )
-                    )
-                    if retry_interval > 0:
-                        time.sleep(retry_interval)
-                else:
-                    report.error(
-                        ReportCode(
-                            log_type=ReportType.Code,
-                            process_id=process_id,
-                            line=line,
-                            status=ReportCodeStatus.ERROR,
-                            msg_str="{} {}".format(ReportCodeError, error_str),
-                            error_traceback=traceback.format_exc(),
-                        )
-                    )
-                    raise IgnoreException(IGNORE_ERROR_FORMAT.format(error_str), error_str) from e
         if delay_after > 0:
             time.sleep(delay_after)
         return res
