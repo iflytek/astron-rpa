@@ -45,9 +45,9 @@ const paramFilers = get(props.renderData, "formType.params.filters", []);
 onBeforeMount(async () => {
   if (paramFilers.includes("credential")) {
     const data = await getCredentialList();
-    options.value = data.map((name) => ({
-      label: name,
-      value: name,
+    options.value = data.map((item) => ({
+      label: item.name,
+      value: item.name,
     }));
   }
 });
