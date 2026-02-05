@@ -86,7 +86,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div data-tauri-drag-region class="app_control w-full drag">
+  <div data-tauri-drag-region class="app_control w-full drag shrink-0">
     <div
       data-tauri-drag-region
       class="app_control_text flex items-center gap-2 drag whitespace-nowrap"
