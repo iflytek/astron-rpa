@@ -123,7 +123,11 @@ export function generateHtmlVal(target: HTMLDivElement, itemData: RPA.AtomDispla
   if (itemData.customizeTip)
     delete itemData.customizeTip
   const result: RPA.AtomFormItemResult[] = []
-  if (nodeList.length === 1 && nodeList[0].nodeName === 'BR') {
+  // 注意：不同版本的 Chrome 以及不同浏览器在处理 contenteditable 空状态时行为可能不同
+  // 1. 无子节点（某些浏览器/版本）
+  // 2. 只有一个 BR 标签（Chrome 等浏览器自动插入的占位符）
+  const hasOnlyBr = nodeList.length === 1 && nodeList[0].nodeName === 'BR'
+  if (nodeList.length === 0 || hasOnlyBr) {
     result.push({ type: OTHER_IN_TYPE, value: '' })
   }
   else {
