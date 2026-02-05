@@ -1,25 +1,24 @@
-"""浏览器脚本模块，提供浏览器脚本执行功能。"""
-
-import platform
-import sys
-
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
-from astronverse.browser import CHROME_LIKE_BROWSERS, InputType
+from astronverse.browser import InputType
 from astronverse.browser.browser import Browser
-from astronverse.browser.browser_element import CodeChromeBuilder
-from astronverse.browser.core.core import IBrowserCore
 from astronverse.browser.error import *
 
-if sys.platform == "win32":
-    from astronverse.browser.core.core_win import BrowserCore
-elif platform.system() == "Linux":
-    from astronverse.browser.core.core_unix import BrowserCore
-else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
 
-BrowserCore: IBrowserCore = BrowserCore()
+def eval_js_code(is_await: bool):
+    # 下面这个空格必须保留
+    if is_await:
+        _js = """
+        // 注释保留空格
+        return await main()
+        """
+    else:
+        _js = """
+       // 注释保留空格
+       return main()
+       """
+    return _js
 
 
 class BrowserScript:
@@ -79,10 +78,7 @@ class BrowserScript:
             with open(file_path, encoding="utf8") as f:
                 content = f.read()
         if not content:
-            raise BaseException(
-                CODE_EMPTY,
-                f"脚本数据为空 {input_type} {content} {file_path}",
-            )
+            raise BaseException(CODE_EMPTY, f"脚本数据为空 {input_type} {content} {file_path}")
         if "function main" not in content:
             raise BaseException(CODE_NO_MAIN_FUNC, "代码中必须包含main函数")
         is_await = False
@@ -93,21 +89,18 @@ class BrowserScript:
                 extend_js_str = "var "
                 extend_js_str = extend_js_str + p.get("varName") + "=" + f'"{p.get("varValue")}"' + ";"
                 content = extend_js_str + content
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            js_op = content + CodeChromeBuilder.eval_js_code(is_await)
+        js_op = content + eval_js_code(is_await)
+        data_param = {
+            "code": js_op,
+        }
+        if element_data:
             data_param = {
                 "code": js_op,
+                **element_data["elementData"]["path"],
             }
-            if element_data:
-                data_param = {
-                    "code": js_op,
-                    **element_data["elementData"]["path"],
-                }
-            data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="runJS",
-                data=data_param,
-            )
-        else:
-            raise NotImplementedError()
+        data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="runJS",
+            data=data_param,
+        )
         return data
