@@ -3,7 +3,7 @@
   "name": "Astron Browser Plugin",
   "description": "Astron Browser Plugin-chromium",
   "homepage_url": "https://www.iflyrpa.com/",
-  "version": "5.2.8",
+  "version": "5.2.9",
   "icons": {
     "16": "static/icon_16.png",
     "48": "static/icon_48.png",
@@ -42,6 +42,7 @@
   },
   "permissions": [
     "alarms",
+    "nativeMessaging",
     "debugger",
     "tabs",
     "activeTab",
