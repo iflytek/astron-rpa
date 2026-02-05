@@ -64,14 +64,14 @@ class BrowserSoftware:
         ],
     )
     def browser_open(
-            url: URL,
-            browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
-            browser_abs_path: PATH = "",
-            open_args: str = "",
-            open_with_incognito: bool = False,
-            wait_load_success: bool = True,
-            timeout: int = 20,
-            timeout_handle_type: CommonForTimeoutHandleType = CommonForTimeoutHandleType.ExecError,
+        url: URL,
+        browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
+        browser_abs_path: PATH = "",
+        open_args: str = "",
+        open_with_incognito: bool = False,
+        wait_load_success: bool = True,
+        timeout: int = 20,
+        timeout_handle_type: CommonForTimeoutHandleType = CommonForTimeoutHandleType.ExecError,
     ) -> Browser:
         start_time = time.time()
 
@@ -146,7 +146,9 @@ class BrowserSoftware:
                     break
                 else:
                     res.send_browser_extension(
-                        browser_type=res.browser_type.value, key="updateTab", data={"url": str(url)},
+                        browser_type=res.browser_type.value,
+                        key="updateTab",
+                        data={"url": str(url)},
                     )
                     break
             except Exception as e:
@@ -203,12 +205,12 @@ class BrowserSoftware:
         ],
     )
     def set_cookies(
-            browser_obj: Browser,
-            url: URL,
-            cookie_name: str,
-            cookie_val: str,
-            cookie_path: str = "",
-            page_timeout: float = 10,
+        browser_obj: Browser,
+        url: URL,
+        cookie_name: str,
+        cookie_val: str,
+        cookie_path: str = "",
+        page_timeout: float = 10,
     ):
         """
         设置cookies
@@ -222,7 +224,7 @@ class BrowserSoftware:
                 "value": cookie_val,
                 "path": cookie_path,
             },
-            timeout=page_timeout
+            timeout=page_timeout,
         )
         return cookie_val
 
@@ -237,7 +239,7 @@ class BrowserSoftware:
         ],
     )
     def get_cookies(
-            browser_obj: Browser, url: URL, cookie_name: str, cookie_path: str = "", page_timeout: float = 10
+        browser_obj: Browser, url: URL, cookie_name: str, cookie_path: str = "", page_timeout: float = 10
     ) -> str:
         """
         获取cookies
@@ -250,7 +252,7 @@ class BrowserSoftware:
                 "name": cookie_name,
                 "path": cookie_path,
             },
-            timeout=page_timeout
+            timeout=page_timeout,
         )
         if isinstance(data, list):
             result = str(data)
@@ -269,10 +271,10 @@ class BrowserSoftware:
         outputList=[],
     )
     def empty_cookies(
-            browser_obj: Browser,
-            url: URL,
-            cookie_path: str = "",
-            page_timeout: float = 10,
+        browser_obj: Browser,
+        url: URL,
+        cookie_path: str = "",
+        page_timeout: float = 10,
     ):
         """
         清空cookies
@@ -284,7 +286,7 @@ class BrowserSoftware:
                 "url": str(url),
                 "path": cookie_path,
             },
-            timeout=page_timeout
+            timeout=page_timeout,
         )
 
     @staticmethod
@@ -340,11 +342,11 @@ class BrowserSoftware:
         ],
     )
     def web_switch(
-            browser_obj: Browser,
-            switch_type: WebSwitchType = WebSwitchType.URL,
-            tab_url: str = "",
-            tab_title: str = "",
-            tab_id: int = 0,
+        browser_obj: Browser,
+        switch_type: WebSwitchType = WebSwitchType.URL,
+        tab_url: str = "",
+        tab_title: str = "",
+        tab_id: int = 0,
     ):
         """切换网页"""
         if switch_type == WebSwitchType.URL:
@@ -374,12 +376,17 @@ class BrowserSoftware:
         等待页面加载完成，直到超时或页面加载完成。
         """
         if timeout < 0:
-            raise BaseException(PARAMETER_INVALID_FORMAT.format(timeout), f"等待时间不能小于0！{timeout}", )
+            raise BaseException(
+                PARAMETER_INVALID_FORMAT.format(timeout),
+                f"等待时间不能小于0！{timeout}",
+            )
 
         end = time.time() + timeout
         while time.time() < end:
             try:
-                data = browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="loadComplete")
+                data = browser_obj.send_browser_extension(
+                    browser_type=browser_obj.browser_type.value, key="loadComplete"
+                )
                 if data:
                     return True
             except Exception:
@@ -393,10 +400,7 @@ class BrowserSoftware:
         """
         停止加载网页
         """
-        browser_obj.send_browser_extension(
-            browser_type=browser_obj.browser_type.value,
-            key="stopLoad"
-        )
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="stopLoad")
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware")
@@ -404,10 +408,7 @@ class BrowserSoftware:
         """
         刷新网页
         """
-        browser_obj.send_browser_extension(
-            browser_type=browser_obj.browser_type.value,
-            key="reloadTab"
-        )
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="reloadTab")
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware", inputList=[atomicMg.param("url", required=False)])
@@ -438,11 +439,11 @@ class BrowserSoftware:
         ],
     )
     def screenshot(
-            browser_obj: Browser,
-            shot_range: ScreenShotForShotRangeFlag = ScreenShotForShotRangeFlag.Visual,
-            image_path: str = "",
-            image_name: str = "",
-            page_timeout: float = 10,
+        browser_obj: Browser,
+        shot_range: ScreenShotForShotRangeFlag = ScreenShotForShotRangeFlag.Visual,
+        image_path: str = "",
+        image_name: str = "",
+        page_timeout: float = 10,
     ) -> str:
         """截图网页"""
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
@@ -475,24 +476,18 @@ class BrowserSoftware:
     @staticmethod
     @atomicMg.atomic("BrowserSoftware")
     def browser_forward(
-            browser_obj: Browser,
+        browser_obj: Browser,
     ):
         """前进网页"""
-        browser_obj.send_browser_extension(
-            browser_type=browser_obj.browser_type.value,
-            key="forward"
-        )
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="forward")
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware")
     def browser_back(
-            browser_obj: Browser,
+        browser_obj: Browser,
     ):
         """后退网页"""
-        browser_obj.send_browser_extension(
-            browser_type=browser_obj.browser_type.value,
-            key="backward"
-        )
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="backward")
 
     @staticmethod
     @atomicMg.atomic(
@@ -502,7 +497,7 @@ class BrowserSoftware:
         ],
     )
     def get_current_obj(
-            browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
+        browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
     ) -> Browser:
         """获取当前浏览器对象"""
 
@@ -628,21 +623,21 @@ class BrowserSoftware:
         ],
     )
     def download_web_file(
-            browser_obj: Browser,
-            element_data: WebPick,
-            download_mode: DownloadModeForFlag = DownloadModeForFlag.Click,
-            link_str: str = "",
-            save_path: str = "",
-            custom_flag: bool = False,
-            file_name: str = "",
-            simulate_flag: bool = True,
-            is_wait: bool = True,
-            time_out: int = 60,
+        browser_obj: Browser,
+        element_data: WebPick,
+        download_mode: DownloadModeForFlag = DownloadModeForFlag.Click,
+        link_str: str = "",
+        save_path: str = "",
+        custom_flag: bool = False,
+        file_name: str = "",
+        simulate_flag: bool = True,
+        is_wait: bool = True,
+        time_out: int = 60,
     ):
-
         """下载文件"""
         if download_mode == DownloadModeForFlag.Click:
             from browserv2.browser_element import BrowserElement
+
             BrowserElement.click(
                 browser_obj=browser_obj,
                 element_data=element_data,
@@ -729,14 +724,15 @@ class BrowserSoftware:
         ],
     )
     def upload_web_file(
-            browser_obj: Browser,
-            element_data: WebPick = None,
-            upload_path: str = "",
-            simulate_flag: bool = True,
+        browser_obj: Browser,
+        element_data: WebPick = None,
+        upload_path: str = "",
+        simulate_flag: bool = True,
     ):
         """上传文件"""
 
         from browserv2.browser_element import BrowserElement
+
         BrowserElement.click(
             browser_obj=browser_obj,
             element_data=element_data,

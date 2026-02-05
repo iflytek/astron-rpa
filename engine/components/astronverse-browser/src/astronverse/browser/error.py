@@ -21,8 +21,12 @@ WEB_PAGES_NUM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("页面数量必�
 WEB_WAIT_TIME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("等待时间不能小于0！"))
 WEB_ELE_ATTR_NAME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("请输入元素属性名称"))
 WEB_EXEC_ELE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("插件执行错误") + ": {}")
-DOWNLOAD_WINDOW_NO_FIND: ErrorCode = ErrorCode(BizCode.LocalErr, _("未弹出下载窗口，可以尝试用模拟人工点击或设置浏览器始终弹出下载窗口"))
-UPLOAD_WINDOW_NO_FIND: ErrorCode = ErrorCode(BizCode.LocalErr, _("未弹出上传窗口，可以尝试用模拟人工点击或设置浏览器始终弹出上传窗口"))
+DOWNLOAD_WINDOW_NO_FIND: ErrorCode = ErrorCode(
+    BizCode.LocalErr, _("未弹出下载窗口，可以尝试用模拟人工点击或设置浏览器始终弹出下载窗口")
+)
+UPLOAD_WINDOW_NO_FIND: ErrorCode = ErrorCode(
+    BizCode.LocalErr, _("未弹出上传窗口，可以尝试用模拟人工点击或设置浏览器始终弹出上传窗口")
+)
 SWITCH_TAB_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("切换网页失败，没有找到符合条件的网页"))
 BROWSER_EXTENSION_INSTALL_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器插件通信出错，请重试"))
 BROWSER_EXTENSION_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器插件错误") + ": {}")

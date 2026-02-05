@@ -6,7 +6,6 @@ from astronverse.browser.error import DOWNLOAD_WINDOW_NO_FIND, UPLOAD_WINDOW_NO_
 
 
 class BrowserCore:
-
     @staticmethod
     def get_browser_path(browser_type: str) -> str:
         """获取浏览器绝对地址"""
@@ -14,6 +13,7 @@ class BrowserCore:
         if not app_name:
             return ""
         from astronverse.software.software import Software
+
         return Software.get_app_path(app_name)
 
     @staticmethod
@@ -40,6 +40,7 @@ class BrowserCore:
 
         from astronverse.window.uitree import UITreeCore
         from astronverse.window import WalkControlInfo
+
         for walkControlInfo in UITreeCore.WalkControl(base_ctrl, True, 12):
             assert isinstance(walkControlInfo, WalkControlInfo)
             if walkControlInfo.classname == class_name:

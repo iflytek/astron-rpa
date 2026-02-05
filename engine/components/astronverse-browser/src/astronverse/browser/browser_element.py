@@ -42,7 +42,9 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
     """检测browser_obj， element_data"""
     if element_data:
         if element_data.get("elementData", {}).get("app", "") == "iexplore":
-            raise Exception("拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value))
+            raise Exception(
+                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
+            )
 
     if not browser_obj:
         browser_obj = get_default_browser()
@@ -52,7 +54,7 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
             browser_obj=browser_obj,
             element_data=element_data,
             ele_status=WaitElementForStatusFlag.ElementExists,
-            element_timeout=element_timeout
+            element_timeout=element_timeout,
         )
         if not res:
             reason = browser_obj.send_browser_extension(
@@ -75,15 +77,19 @@ class BrowserElement:
         ],
     )
     def wait_element(
-            browser_obj: Browser,
-            element_data: WebPick,
-            ele_status: WaitElementForStatusFlag = WaitElementForStatusFlag.ElementExists,
-            element_timeout: int = 10,
+        browser_obj: Browser,
+        element_data: WebPick,
+        ele_status: WaitElementForStatusFlag = WaitElementForStatusFlag.ElementExists,
+        element_timeout: int = 10,
     ) -> bool:
         """等待元素出现或消失。"""
         if element_data:
             if element_data.get("elementData", {}).get("app", "") == "iexplore":
-                raise Exception("拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value))
+                raise Exception(
+                    "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(
+                        browser_obj.browser_type.value
+                    )
+                )
 
         if not browser_obj:
             browser_obj = get_default_browser()
@@ -105,9 +111,10 @@ class BrowserElement:
 
             # 判断是否提前结束
             if (
-                    ele_status == WaitElementForStatusFlag.ElementExists and element_exist
-                    or
-                    ele_status == WaitElementForStatusFlag.ElementDisappears and not element_exist
+                ele_status == WaitElementForStatusFlag.ElementExists
+                and element_exist
+                or ele_status == WaitElementForStatusFlag.ElementDisappears
+                and not element_exist
             ):
                 return True
             else:
@@ -149,13 +156,13 @@ class BrowserElement:
         ],
     )
     def click(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            simulate_flag: bool = False,
-            assistive_key: ButtonForAssistiveKeyFlag = ButtonForAssistiveKeyFlag.Nothing,
-            button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
-            element_timeout: int = 10,
-            scroll_into_center: bool = True,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        simulate_flag: bool = False,
+        assistive_key: ButtonForAssistiveKeyFlag = ButtonForAssistiveKeyFlag.Nothing,
+        button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
+        element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """点击"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -163,6 +170,7 @@ class BrowserElement:
         try:
             if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
                 from astronverse.input.code.keyboard import Keyboard
+
                 Keyboard.key_down(assistive_key.value)
 
             if not simulate_flag:
@@ -189,6 +197,7 @@ class BrowserElement:
                 center = element.point()
                 smooth_move(center.x, center.y, duration=0.5)
                 from astronverse.input.code.mouse import Mouse
+
                 Mouse.click(
                     x=center.x,
                     y=center.y,
@@ -198,6 +207,7 @@ class BrowserElement:
         finally:
             if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
                 from astronverse.input.code.keyboard import Keyboard
+
                 Keyboard.key_up(assistive_key.value)
 
     @staticmethod
@@ -269,17 +279,17 @@ class BrowserElement:
         ],
     )
     def input(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            simulate_flag: bool = False,
-            fill_type: FillInputForFillTypeFlag = FillInputForFillTypeFlag.Text,
-            fill_input: str = "",
-            fill_input_credential: str = "",
-            element_timeout: int = 10,
-            focus_time: float = 1000,
-            write_gap_time: float = 0,
-            input_type: FillInputForInputTypeFlag = FillInputForInputTypeFlag.Overwrite,
-            scroll_into_center: bool = True,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        simulate_flag: bool = False,
+        fill_type: FillInputForFillTypeFlag = FillInputForFillTypeFlag.Text,
+        fill_input: str = "",
+        fill_input_credential: str = "",
+        element_timeout: int = 10,
+        focus_time: float = 1000,
+        write_gap_time: float = 0,
+        input_type: FillInputForInputTypeFlag = FillInputForInputTypeFlag.Overwrite,
+        scroll_into_center: bool = True,
     ):
         """
         填写输入框(web)
@@ -290,9 +300,11 @@ class BrowserElement:
             text = fill_input
         elif fill_type == FillInputForFillTypeFlag.Clipboard:
             from astronverse.input.code.clipboard import Clipboard
+
             text = Clipboard.paste()
         elif fill_type == FillInputForFillTypeFlag.Credential:
             from astronverse.actionlib.utils import Credential
+
             text = Credential.get_credential(fill_input_credential)
         else:
             text = ""
@@ -356,6 +368,7 @@ class BrowserElement:
                     time.sleep(write_gap_time if write_gap_time > 0 else 0.03)
             elif fill_type == FillInputForFillTypeFlag.Clipboard:
                 from astronverse.input.code.clipboard import Clipboard
+
                 Clipboard.copy(data=text)
                 Keyboard.hotkey("ctrl", "v")
 
@@ -370,10 +383,10 @@ class BrowserElement:
         outputList=[],
     )
     def hover_over(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            element_timeout: int = 10,
-            scroll_into_center: bool = True,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """
         鼠标悬停在元素上（web）
@@ -405,11 +418,11 @@ class BrowserElement:
         ],
     )
     def screenshot(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            file_path: PATH = None,
-            image_name: str = "",
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        file_path: PATH = None,
+        image_name: str = "",
+        element_timeout: int = 10,
     ):
         """截图"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -451,11 +464,11 @@ class BrowserElement:
         ],
     )
     def position_screenshot(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            file_path: PATH = None,
-            image_name: str = "",
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        file_path: PATH = None,
+        image_name: str = "",
+        element_timeout: int = 10,
     ):
         """元素位置截图"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -468,6 +481,7 @@ class BrowserElement:
             image_name += ".jpg"
         path = os.path.join(file_path, image_name)
         from astronverse.input.code.screenshot import Screenshot
+
         Screenshot.screenshot(region=(rect.left, rect.top, rect.width(), rect.height()), file_path=path)
         return path
 
@@ -538,15 +552,15 @@ class BrowserElement:
         ],
     )
     def scroll(
-            browser_obj: Browser = None,
-            scrollbar_type: ScrollbarType = ScrollbarType.Window,
-            element_data: WebPick = None,
-            scroll_direction: ScrollDirection = ScrollDirection.Horizontal,
-            x_scroll_type: ScrollbarForXScrollTypeFlag = ScrollbarForXScrollTypeFlag.Left,
-            x_custom_scroll_dis: int = 0,
-            y_scroll_type: ScrollbarForYScrollTypeFlag = ScrollbarForYScrollTypeFlag.Top,
-            y_custom_scroll_dis: int = 0,
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        scrollbar_type: ScrollbarType = ScrollbarType.Window,
+        element_data: WebPick = None,
+        scroll_direction: ScrollDirection = ScrollDirection.Horizontal,
+        x_scroll_type: ScrollbarForXScrollTypeFlag = ScrollbarForXScrollTypeFlag.Left,
+        x_custom_scroll_dis: int = 0,
+        y_scroll_type: ScrollbarForYScrollTypeFlag = ScrollbarForYScrollTypeFlag.Top,
+        y_custom_scroll_dis: int = 0,
+        element_timeout: int = 10,
     ):
         """滚动操作。"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -612,20 +626,17 @@ class BrowserElement:
         outputList=[],
     )
     def scroll_into_view(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            element_timeout: int = 10,
-            scroll_into_center: bool = True,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        element_timeout: int = 10,
+        scroll_into_center: bool = True,
     ):
         """滚动到元素可见位置。"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
         browser_obj.send_browser_extension(
             browser_type=browser_obj.browser_type.value,
             key="scrollIntoView",
-            data={
-                **element_data["elementData"]["path"],
-                "atomConfig": {"scrollIntoCenter": scroll_into_center}
-            }
+            data={**element_data["elementData"]["path"], "atomConfig": {"scrollIntoCenter": scroll_into_center}},
         )
 
     @staticmethod
@@ -647,11 +658,11 @@ class BrowserElement:
         ],
     )
     def similar(
-            browser_obj: Browser,
-            element_data: WebPick,
-            get_type: ElementGetAttributeHasSelfTypeFlag = ElementGetAttributeHasSelfTypeFlag.GetElement,
-            attribute_name: str = "",
-            element_timeout: int = 10,
+        browser_obj: Browser,
+        element_data: WebPick,
+        get_type: ElementGetAttributeHasSelfTypeFlag = ElementGetAttributeHasSelfTypeFlag.GetElement,
+        attribute_name: str = "",
+        element_timeout: int = 10,
     ) -> list:
         """
         获取相似元素列表
@@ -717,13 +728,13 @@ class BrowserElement:
         ],
     )
     def loop_similar(
-            browser_obj: Browser,
-            element_data: WebPick,
-            get_type: ElementGetAttributeHasSelfTypeFlag = ElementGetAttributeHasSelfTypeFlag.GetElement,
-            start: int = 0,
-            end: int = -1,
-            attribute_name: str = "",
-            element_timeout: int = 10,
+        browser_obj: Browser,
+        element_data: WebPick,
+        get_type: ElementGetAttributeHasSelfTypeFlag = ElementGetAttributeHasSelfTypeFlag.GetElement,
+        start: int = 0,
+        end: int = -1,
+        attribute_name: str = "",
+        element_timeout: int = 10,
     ):
         """循环相似元素"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -805,13 +816,13 @@ class BrowserElement:
     @staticmethod
     @atomicMg.atomic("BrowserElement")
     def slider_hover(
-            browser_obj: Browser = None,
-            element_slider: WebPick = None,
-            element_progress: WebPick = None,
-            percent_value: float = 0.0,
-            drag_direction: ElementDragDirectionTypeFlag = ElementDragDirectionTypeFlag.Left,
-            drag_type: ElementDragTypeFlag = ElementDragTypeFlag.Start,
-            duration: float = 0.25,
+        browser_obj: Browser = None,
+        element_slider: WebPick = None,
+        element_progress: WebPick = None,
+        percent_value: float = 0.0,
+        drag_direction: ElementDragDirectionTypeFlag = ElementDragDirectionTypeFlag.Left,
+        drag_type: ElementDragTypeFlag = ElementDragTypeFlag.Start,
+        duration: float = 0.25,
     ):
         """滑块"""
         from astronverse.input.code.mouse import Mouse
@@ -916,10 +927,10 @@ class BrowserElement:
         ],
     )
     def get_select(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            current_content: bool = True,
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        current_content: bool = True,
+        element_timeout: int = 10,
     ):
         """获取下拉框选中值。"""
 
@@ -944,9 +955,9 @@ class BrowserElement:
         ],
     )
     def get_checked(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        element_timeout: int = 10,
     ):
         """获取复选框选中状态。"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -986,12 +997,12 @@ class BrowserElement:
         ],
     )
     def set_select(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            pattern: SelectionPartner = SelectionPartner.Contains,
-            value: str = "",
-            solution: int = 0,
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        pattern: SelectionPartner = SelectionPartner.Contains,
+        value: str = "",
+        solution: int = 0,
+        element_timeout: int = 10,
     ):
         """设置下拉框选中值。"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -1011,10 +1022,10 @@ class BrowserElement:
     @staticmethod
     @atomicMg.atomic("BrowserElement")
     def set_checked(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            checked_type: ElementCheckedTypeFlag = ElementCheckedTypeFlag.Checked,
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        checked_type: ElementCheckedTypeFlag = ElementCheckedTypeFlag.Checked,
+        element_timeout: int = 10,
     ):
         """设置复选框选中状态。"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -1157,14 +1168,14 @@ class BrowserElement:
         ],
     )
     def element_operation(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            operation_type: ElementAttributeOpTypeFlag = ElementAttributeOpTypeFlag.Get,
-            get_type: ElementGetAttributeTypeFlag = ElementGetAttributeTypeFlag.GetText,
-            attribute_name: str = "",
-            position: RelativePosition = RelativePosition.ScreenLeft,
-            attribute_value: str = "",
-            element_timeout: int = 10,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        operation_type: ElementAttributeOpTypeFlag = ElementAttributeOpTypeFlag.Get,
+        get_type: ElementGetAttributeTypeFlag = ElementGetAttributeTypeFlag.GetText,
+        attribute_name: str = "",
+        position: RelativePosition = RelativePosition.ScreenLeft,
+        attribute_value: str = "",
+        element_timeout: int = 10,
     ):
         """三个操作大类是候选，其他参数是候选出现后出现"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -1243,11 +1254,11 @@ class BrowserElement:
         ],
     )
     def get_table(
-            browser_obj: Browser,
-            element_data: WebPick,
-            to_excel: bool = False,  # 是否导出excel
-            excel_path: str = "",  # excel路径
-            element_timeout: int = 10,
+        browser_obj: Browser,
+        element_data: WebPick,
+        to_excel: bool = False,  # 是否导出excel
+        excel_path: str = "",  # excel路径
+        element_timeout: int = 10,
     ):
         """
         获取表格内容
@@ -1264,6 +1275,7 @@ class BrowserElement:
         # 判断table_data 存在 tbody
         if "tbody" in table_data:
             import pandas as pd
+
             df = pd.DataFrame(table_data["tbody"])
             table_body = df.values.tolist()
             # 添加表头
@@ -1275,7 +1287,7 @@ class BrowserElement:
                 if excel_path and not excel_path.endswith(".xlsx"):
                     raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
                 if excel_path is None:
-                    excel_path = f"{element_data["elementData"]['name']}.xlsx"
+                    excel_path = f"{element_data['elementData']['name']}.xlsx"
                 df.to_excel(excel_path, index=False)
             return [table_head] + table_list
         else:
@@ -1383,22 +1395,22 @@ class BrowserElement:
         ],
     )
     def data_batch(
-            browser_obj: Browser = None,  # 浏览器对象
-            batch_data: WebPick = None,  # 批量抓取对象
-            multi_page: bool = False,  # 是否翻页
-            page_count: int = 1,  # 翻页次数
-            page_interval: int = 1,  # 翻页间隔
-            element_data: WebPick = None,  # 翻页按钮元素
-            simulate_flag: bool = False,  # 翻页按钮元素模拟人工点击
-            button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
-            to_excel: bool = False,  # 是否导出excel
-            excel_path: str = "",  # excel路径
-            element_timeout: int = 10,
-            output_type: TablePickType = TablePickType.Row,
-            output_head: bool = True,  # 是否输出表头
-            output_filter_empty_col: bool = False,  # 是否过滤空列
-            is_save_to_data_table: bool = False,  # 是否保存到数据表格
-            scroll_into_center: bool = True,
+        browser_obj: Browser = None,  # 浏览器对象
+        batch_data: WebPick = None,  # 批量抓取对象
+        multi_page: bool = False,  # 是否翻页
+        page_count: int = 1,  # 翻页次数
+        page_interval: int = 1,  # 翻页间隔
+        element_data: WebPick = None,  # 翻页按钮元素
+        simulate_flag: bool = False,  # 翻页按钮元素模拟人工点击
+        button_type: ButtonForClickTypeFlag = ButtonForClickTypeFlag.Left,
+        to_excel: bool = False,  # 是否导出excel
+        excel_path: str = "",  # excel路径
+        element_timeout: int = 10,
+        output_type: TablePickType = TablePickType.Row,
+        output_head: bool = True,  # 是否输出表头
+        output_filter_empty_col: bool = False,  # 是否过滤空列
+        is_save_to_data_table: bool = False,  # 是否保存到数据表格
+        scroll_into_center: bool = True,
     ):
         """数据抓取（web）"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
@@ -1540,10 +1552,10 @@ class BrowserElement:
         outputList=[atomicMg.param("element_obj", types="Any")],
     )
     def create_element(
-            browser_obj: Browser = None,  # 浏览器对象
-            locate_type: LocateType = LocateType.Xpath,  # 定位方式 xpath / cssSelector / text
-            locate_value: str = "",
-            return_type: ElementCreateReturnType = ElementCreateReturnType.LIST,
+        browser_obj: Browser = None,  # 浏览器对象
+        locate_type: LocateType = LocateType.Xpath,  # 定位方式 xpath / cssSelector / text
+        locate_value: str = "",
+        return_type: ElementCreateReturnType = ElementCreateReturnType.LIST,
     ):
         """
         根据xpath或cssSelector生成元素对象
@@ -1648,15 +1660,15 @@ class BrowserElement:
         outputList=[atomicMg.param("element_obj", types="Any")],
     )
     def get_relative_element(
-            browser_obj: Browser = None,
-            element_data: WebPick = None,
-            relative_type: RelativeType = RelativeType.Child,
-            child_element_type: ChildElementType = ChildElementType.All,
-            child_element_xpath: str = "",
-            child_element_index: int = 0,
-            sibling_element_type: SiblingElementType = SiblingElementType.All,
-            element_timeout: int = 10,
-            is_multiple: bool = False,
+        browser_obj: Browser = None,
+        element_data: WebPick = None,
+        relative_type: RelativeType = RelativeType.Child,
+        child_element_type: ChildElementType = ChildElementType.All,
+        child_element_xpath: str = "",
+        child_element_index: int = 0,
+        sibling_element_type: SiblingElementType = SiblingElementType.All,
+        element_timeout: int = 10,
+        is_multiple: bool = False,
     ):
         """
         根据元素对象找到关联元素
@@ -1718,8 +1730,8 @@ class BrowserElement:
         ],
     )
     def element_exist(
-            browser_obj: Browser,
-            element_data: WebPick,
+        browser_obj: Browser,
+        element_data: WebPick,
     ) -> bool:
         """检查元素是否存在。"""
         browser_obj = check_element(browser_obj, element_data, 20)

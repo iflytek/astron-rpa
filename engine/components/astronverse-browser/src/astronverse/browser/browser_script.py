@@ -65,13 +65,13 @@ class BrowserScript:
         outputList=[atomicMg.param("program_script", types="Any")],
     )
     def js_run(
-            browser_obj: Browser,
-            input_type: InputType = InputType.Content,
-            content: str = "",
-            file_path: PATH = "",
-            params: list = None,
-            element_data: WebPick = None,
-            iframe_url: str = "",
+        browser_obj: Browser,
+        input_type: InputType = InputType.Content,
+        content: str = "",
+        file_path: PATH = "",
+        params: list = None,
+        element_data: WebPick = None,
+        iframe_url: str = "",
     ):
         """运行JavaScript脚本。"""
         if input_type == InputType.File:

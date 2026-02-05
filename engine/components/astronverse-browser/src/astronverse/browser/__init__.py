@@ -48,7 +48,11 @@ BROWSER_PRIVATE_MAP = {
 
 # window:uia窗口句柄的class_name
 BROWSER_UIA_WINDOW_CLASS = {
-    CommonForBrowserType.BTChrome.value: ("Chrome_WidgetWin_1", ["Chrome Legacy Window", "- Google Chrome", " - Chrome"], "in"),
+    CommonForBrowserType.BTChrome.value: (
+        "Chrome_WidgetWin_1",
+        ["Chrome Legacy Window", "- Google Chrome", " - Chrome"],
+        "in",
+    ),
     CommonForBrowserType.BTEdge.value: ("Chrome_WidgetWin_1", ["edge"], "last_in"),
     CommonForBrowserType.BT360SE.value: ("360se6_Frame", ["- 360安全浏览器"], "in"),
     CommonForBrowserType.BT360X.value: ("Chrome_WidgetWin_1", ["- 360极速浏览器X"], "in"),
