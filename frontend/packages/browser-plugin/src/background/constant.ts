@@ -1,10 +1,12 @@
 export const SUPPORTED_PROTOCOLS = ['http://', 'https://', 'file://', 'ftp://']
 
-export const V2_EXTENSION_ID = 'dibfknoajiboamheempfppeapcedplgm'
-
-export const V3_EXTENSION_ID = 'gfpcfabhkgenjcmjgnldmkhjieekeeea'
+export const OLD_EXTENSION_IDS = ['dibfknoajiboamheempfppeapcedplgm', 'gfpcfabhkgenjcmjgnldmkhjieekeeea']
 
 export const CURRENT_EXTENSION_ID = chrome.runtime.id
+
+export const NATIVE_HOST_NAME = 'com.astronrpa.nativehost'
+
+export const IGNORE_LOG_KEYS = ['getElement', 'contentInject', 'backgroundInject']
 
 export enum StatusCode {
   SUCCESS = '0000',
@@ -16,7 +18,7 @@ export enum StatusCode {
 
 export enum ErrorMessage {
   TAB_GET_ERROR = '获取标签页失败',
-  ACTIVE_TAB_ERROR = '未找到活动标签页',
+  ACTIVE_TAB_ERROR = '未找到活动标签页，请检查是否激活目标窗口',
   NUMBER_ID_ERROR = 'id 必须是数字',
   FRAME_GET_ERROR = '未找到元素对应的iframe',
   CURRENT_TAB_UNSUPPORT_ERROR = '当前标签页不支持web拾取协议',

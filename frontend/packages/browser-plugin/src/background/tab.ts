@@ -498,4 +498,10 @@ export const Tabs = {
       })
     })
   },
+  getFrameTree: (tabId: number) => {
+    return Debugger.getFrameTree(tabId)
+  },
+  printPage: (tabId: number, options) => {
+    return Debugger.printToPDF(tabId, { printBackground: true, ...options })
+  },
 }
