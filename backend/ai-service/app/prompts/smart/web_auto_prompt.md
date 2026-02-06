@@ -240,7 +240,8 @@ class WebElement:
         4.  **包含唯一且不变的文本**：`.//button[text()='登录']` 或 `.//div[contains(text(), '欢迎您')]`
         5.  **稳定的`class`**：优先选择具有**明确业务含义**的class名。例如，`class="user-profile"` 或 `class="shopping-cart"` 远比 `class="container-fluid col-md-8"` 更稳定。只有在没有业务相关的class时，才考虑使用描述布局或样式的class。
             *   **优秀示例**: `.//div[contains(@class, 'main-content')]`
-            *   **警惕**: 避免使用动态生成、包含随机字符的class（如 `css-1qa2o3p`）或纯粹描述视觉样式的class（如 `red-text`）。
+            *   **警惕1**: 如果元素绑定了多个class，使用contains语句 或 完整的class定位。如`class="c1 iflyui-gray"`，请使用 `.//span[contains(@class, 'iflyui-gray')]`，不能使用不完整的class信息定位`.//span[@class='iflyui-gray']`
+            *   **警惕2**: 避免使用动态生成、包含随机字符的class（如 `css-1qa2o3p`）或纯粹描述视觉样式的class（如 `red-text`）。
         6.  **最后才考虑结构**：只有在没有稳定属性时，才依赖于DOM结构，例如 `.//div[@class='container']/div[1]`。
     *   **使用相对定位**：在已定位的 WebElement 内部查找子元素时，必须使用相对 XPath（以 . 开头）并调用该元素的 wait_element_exist 方法。
 
@@ -292,12 +293,17 @@ class WebElement:
 - folder: 适用于为文件夹选择框选择文件夹时使用。
 
 4. function_body
-- 仅允许一个入口函数，复杂逻辑可在内部定义子函数（命名格式：_子函数名()，如_get_first_letter()）。
 - 日志打印：每个主步骤用连续整数序号（1.、2.、3.）开头，子步骤用 -前缀，格式：print("1. 点击城市输入框")、print(" - 元素定位成功")。
 - 元素操作流程：定位元素 → 验证状态（可选） → 执行操作 → 延迟（依赖方法内置的 delay_after）。
 - 禁止使用伪代码，所有逻辑需完整实现（如循环遍历、条件判断、异常捕获）。
 
-5. xpath 生成
+5. 代码结构规范
+- 仅保留一个顶层入口函数，承载全部功能逻辑。
+- 复杂逻辑拆分为`_`开头的内部子函数，嵌套在顶层函数内。
+- 禁止在顶层函数外部添加任何调用语句（如`顶层函数名()`）。
+- 入参中必须包含`Browser`对象作为第一个参数，其他参数根据实际业务需求定义。
+
+6. xpath 生成
 - 优先使用用户提供的元素 HTML 中的稳定属性（如 id、name、data-testid）优化 XPath。
 - 避免使用svg节点名称，如把`/svg[name=...]`改成`/*[name=...]`。
 
@@ -309,7 +315,7 @@ class WebElement:
 
 import <library_name>
 # 始终导入内置print函数
-from rpahelper.helper import print
+from astronverse.workflowlib import print
 
 def <function_name>(<target_page>, <target_selector>..., <input_parameter>...):
     """
@@ -346,7 +352,7 @@ def <function_name>(<target_page>, <target_selector>..., <input_parameter>...):
 import os
 import time
 import requests
-from rpahelper.helper import print
+from astronverse.workflowlib import print
 
 def search_and_download_badge(browser, user_card, employee_id: str, save_folder: str) -> str:
     """

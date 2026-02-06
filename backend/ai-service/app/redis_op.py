@@ -1,10 +1,13 @@
-from redis.asyncio import ConnectionPool, Redis
-from typing import AsyncGenerator
-from app.config import get_settings
 import logging
+from collections.abc import AsyncGenerator
+
+from redis.asyncio import ConnectionPool, Redis
+
+from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 redis_pool: ConnectionPool = None
+
 
 async def init_redis_pool():
     global redis_pool
@@ -17,7 +20,7 @@ async def init_redis_pool():
             socket_timeout=5,
             socket_connect_timeout=5,
             retry_on_timeout=True,
-            health_check_interval=30
+            health_check_interval=30,
         )
         # 测试连接
         redis = Redis(connection_pool=redis_pool)
@@ -27,6 +30,7 @@ async def init_redis_pool():
         logger.error(f"Failed to connect to Redis: {e}")
         raise
 
+
 async def close_redis_pool():
     global redis_pool
     if redis_pool:
@@ -34,11 +38,12 @@ async def close_redis_pool():
         redis_pool = None
         logger.info("Redis connection closed")
 
-async def get_redis() -> AsyncGenerator[Redis, None]:
+
+async def get_redis() -> AsyncGenerator[Redis]:
     global redis_pool
     if redis_pool is None:
         raise RuntimeError("Redis pool is not initialized. Call init_redis_pool() first.")
-    
+
     redis = Redis(connection_pool=redis_pool)
     try:
         yield redis
