@@ -130,6 +130,7 @@ class UITreeCore(IUITreeCore):
                 control_type_name=control.LocalizedControlType,
                 control=control,
                 depth=depth,
+                automation_id=control.AutomationId,
             )
 
     @staticmethod
