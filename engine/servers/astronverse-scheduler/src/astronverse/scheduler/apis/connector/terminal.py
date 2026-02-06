@@ -6,14 +6,19 @@ from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.core.terminal.terminal import Terminal
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 router = APIRouter()
 
 
+class TerminalStartReq(BaseModel):
+    start_watch: bool = False
+
+
 @router.post("/start")
-def terminal_start(start_watch: bool = False, svc: Svc = Depends(get_svc)):
+def terminal_start(req: TerminalStartReq, svc: Svc = Depends(get_svc)):
     svc.terminal_mod = True
-    svc.start_watch = start_watch
+    svc.start_watch = req.start_watch
     Terminal.register(svc)  # 强行注册一下
     Terminal.upload(svc)  # 强行更新一下
     if svc.executor_mg:
