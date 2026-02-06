@@ -11,8 +11,8 @@ export function stopPickServices(data) {
 }
 
 // 切换为调度模式
-export function startSchedulingMode() {
-  return http.post('/scheduler/terminal/start', {})
+export function startSchedulingMode(data) {
+  return http.post('/scheduler/terminal/start', data)
 }
 
 // 退出调度模式

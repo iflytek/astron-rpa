@@ -51,16 +51,16 @@ async function menuClick(item: any) {
     await logout()
   }
   if (item.keyPath[0] === 'changeMode') {
-    let enableDesktopMonitor = false
+    let startWatch = false
     const modal = GlobalModal.confirm({
       title: '开始调度模式',
       content: '开启后当前客户端会自动接收控制台下发的远程任务，对应任务执行情况会被控制台监控，请确认。',
       footer: h('div', { class: 'flex items-center justify-between w-full pl-[30px] mt-[30px]' }, [
-        userStore.currentTenant?.tenantType === 'enterprise' 
+        userStore.currentTenant?.tenantType !== 'enterprise' 
           ? h(Checkbox, {
             defaultChecked: false,
             onChange: (e: any) => {
-              enableDesktopMonitor = e.target.checked
+              startWatch = e.target.checked
             },
           }, {
             default: () => '开启桌面监控'
@@ -77,7 +77,7 @@ async function menuClick(item: any) {
           h(Button, {
             type: 'primary',
             onClick: () => {
-              startSchedulingMode() // 通知引擎用户确定切换为调度模式
+              startSchedulingMode({ start_watch: startWatch }) // 通知引擎用户确定切换为调度模式
               useAppModeStore().setAppMode('scheduling') // 设置为调度模式
               windowManager.hideWindow() // 隐藏主界面
               utilsManager.invoke('tray_change', { mode: 'scheduling', status: 'idle' }) // 改变托盘菜单
