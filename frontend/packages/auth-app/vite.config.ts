@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { defineConfig } from 'vite'
+import { svg4VuePlugin } from 'vite-plugin-svg4vue'
 
 const basePublic = fileURLToPath(new URL('../../public', import.meta.url))
 
@@ -15,6 +16,10 @@ export default defineConfig({
       include: [/\.vue$/, /\.md$/],
     }),
     vueJsx(),
+    svg4VuePlugin({ 
+      assetsDirName: false,
+      svgoConfig: false,
+    }),
   ],
   server: {
     hmr: true,

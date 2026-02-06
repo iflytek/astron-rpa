@@ -29,7 +29,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
               还没有讯飞账号？
-              <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
+              <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
                 立即注册
               </Button>
             </div>
@@ -52,7 +52,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
                   <Checkbox v-model:checked={formData.remember} class="text-[#000000D9] dark:text-[#FFFFFFD9]">
                     记住账号密码
                   </Checkbox>
-                  <Button type="link" class="m-0 p-0 h-auto" onClick={() => handleEvents && handleEvents('modifyPassword')}>
+                  <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('modifyPassword')}>
                     修改密码
                   </Button>
                 </div>
@@ -136,7 +136,7 @@ export function phoneLoginFormConfig(isInvite = false, edition = 'saas', authTyp
         </Button>
         <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
           还没有讯飞账号？
-          <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
+          <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
             立即注册
           </Button>
         </div>
@@ -171,7 +171,7 @@ export function personalRegisterFormConfig(formData: any, isInvite = false, edit
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
               已有讯飞账号？
-              <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
+              <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
                 立即登录
               </Button>
             </div>
@@ -348,6 +348,29 @@ export function consultFormConfig(consultType: 'renewal' | 'consult' = 'consult'
         </Button>
         <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
           稍后会有工作人员联系
+        </div>
+      </div>
+    ),
+  }
+}
+
+// 账号登录表单配置
+export function inviteUserInfoFormConfig(): FormConfig {
+  return {
+    fields: [
+      { ...fieldFactories.loginName(), key: 'name', placeholder: '请输入姓名', disabled: () => true },
+      { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)', disabled: () => true },
+      { ...fieldFactories.agreement(), disabled: () => true },
+    ],
+    actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
+      <div class="w-full absolute bottom-0">
+        <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
+          确认加入
+        </Button>
+        <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
+          <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
+            使用其他账号
+          </Button>
         </div>
       </div>
     ),

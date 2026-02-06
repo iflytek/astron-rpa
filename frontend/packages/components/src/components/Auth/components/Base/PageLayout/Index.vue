@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { useMediaQuery } from '@vueuse/core'
 import { onBeforeUnmount } from 'vue'
 
-import { useTheme } from '../../../../theme'
-import LoginBgDark from '../../assets/imgs/login_bg_dark.webp'
-import LoginSvg from '../../assets/imgs/login_img.svg?component'
+import { useTheme } from '../../../../../theme'
+import LoginBgDark from '../../../assets/imgs/login_bg_dark.png'
+import LoginSvg from '../../../assets/imgs/login_img.svg?component'
 
 import PageHeader from './PageHeader.vue'
 import StarCanvas from './StarCanvas.vue'
 
 const { colorTheme, setColorMode } = useTheme()
+const isMobile = useMediaQuery('(max-width: 768px)')
 
 const loginBg = LoginBgDark
 
@@ -26,9 +28,9 @@ onBeforeUnmount(() => {
     :style="{ backgroundImage: `url(${loginBg})`, backgroundSize: '100% 100%' }"
   >
     <slot name="header">
-      <PageHeader />
+      <PageHeader v-if="!isMobile" />
     </slot>
-    <div class="h-full relative z-[2] flex items-center justify-center">
+    <div v-if="!isMobile" class="h-full relative z-[2] flex items-center justify-center">
       <slot name="container">
         <div class="flex items-center justify-between w-[920px] h-[540px]">
           <div class="text-[#FFFFFF] font-[600] font-sans">
@@ -45,6 +47,9 @@ onBeforeUnmount(() => {
           <slot />
         </div>
       </slot>
+    </div>
+    <div v-else class="mobile-content w-full h-full">
+      <slot />
     </div>
     <StarCanvas />
   </div>

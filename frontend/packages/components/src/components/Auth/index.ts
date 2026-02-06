@@ -1,6 +1,6 @@
 import { logout, userInfo } from './api/login'
 import Consult from './components/Base/Consult/Index.vue'
-import PageLayout from './components/Base/PageLayout.vue'
+import PageLayout from './components/Base/PageLayout/Index.vue'
 import Invite from './components/Invite/Index.vue'
 import LoginForm from './components/Login/Index.vue'
 import TenantDropdown from './components/Login/TenantDropdown.vue'

@@ -1,21 +1,23 @@
+import { useMediaQuery } from '@vueuse/core'
 import { Modal } from 'ant-design-vue'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { acceptInvite, queryInviteData } from '../../../api/invite'
+import { acceptEnterpriseInvite, acceptMarketInvite, queryEnterpriseInviteData, queryMarketInviteData } from '../../../api/invite'
 import { loginStatus, userInfo } from '../../../api/login'
 import type { InviteInfo } from '../../../interface'
 
-type PageStatus = 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
+type PageStatus = 'init' | 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
 
 export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
+  const isMobile = useMediaQuery('(max-width: 768px)')
   const route = useRoute()
   const inviteKey = ref(route.query.inviteKey as string)
   const currentStatus = ref<PageStatus>()
   const inviteInfo = ref<InviteInfo>({
     resultCode: '',
-    inviteType: 'market',
-    enterpriseName: '',
+    inviteType: (route.query.inviteType || 'market') as 'market' | 'enterprise',
+    deptName: '',
     marketName: '',
     inviterName: '',
   })
@@ -26,7 +28,7 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   }
 
   const updateInviteInfo = async (data: InviteInfo, needLogin = true) => {
-    inviteInfo.value = { ...data, inviteType: data.inviteType || 'market' }
+    inviteInfo.value = { ...inviteInfo.value, ...data }
     let pageStatus: PageStatus = 'needLogin'
     switch (data.resultCode) {
       case '101':
@@ -52,25 +54,34 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
       switchPage(pageStatus)
       return
     }
-    if (needLogin) {
-      const isLogin = await loginStatus()
-      if (!isLogin) {
-        switchPage('needLogin')
-        return
-      }
-      const user = await userInfo()
-      currentUser.value = user
-      switchPage('showUserInfo')
-    }
+    if (needLogin)
+      login()
   }
+
+  const login = async () => {
+    const isLogin = await loginStatus()
+    if (!isLogin) {
+      switchPage('needLogin')
+      return
+    }
+    const user = await userInfo()
+    currentUser.value = user
+    switchPage('showUserInfo')
+  }
+
   const getInviteInfo = async () => {
     if (!inviteKey.value) {
       switchPage('linkExpired')
       return
     }
     try {
-      const data = await queryInviteData({ inviteKey: inviteKey.value })
-      updateInviteInfo(data)
+      const func = inviteInfo.value.inviteType === 'market' ? queryMarketInviteData : queryEnterpriseInviteData
+      const data = await func({ inviteKey: inviteKey.value })
+      const needLogin = !isMobile.value
+      updateInviteInfo(data, needLogin)
+      if (isMobile.value) {
+        switchPage('init')
+      }
     }
     catch (e) {
       console.error('获取邀请信息失败', e)
@@ -78,13 +89,10 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     }
   }
 
-  const switchToLogin = () => {
-    switchPage('needLogin')
-  }
-
   const toJoin = async () => {
     try {
-      const data = await acceptInvite({ inviteKey: inviteKey.value })
+      const func = inviteInfo.value.inviteType === 'market' ? acceptMarketInvite : acceptEnterpriseInvite
+      const data = await func({ inviteKey: inviteKey.value })
       updateInviteInfo(data, false)
     }
     catch (e) {
@@ -121,9 +129,13 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     tryOpenApp('astronrpa://')
   }
 
-  watch(() => route.query.inviteKey, (newKey) => {
-    if (newKey && newKey !== inviteKey.value) {
-      inviteKey.value = newKey as string
+  watch(() => route.query, (val) => {
+    if (val.inviteKey && val.inviteKey !== inviteKey.value) {
+      inviteKey.value = val.inviteKey as string
+      inviteInfo.value = {
+        ...inviteInfo.value,
+        inviteType: (val.inviteType || 'market') as 'market' | 'enterprise',
+      }
       getInviteInfo()
     }
   })
@@ -134,7 +146,8 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
     currentStatus,
     inviteInfo,
     currentUser,
-    switchToLogin,
+    switchPage,
+    login,
     toJoin,
     openApp,
   }
