@@ -18,7 +18,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
 
   const variableStore = useVariableStore()
   const { t } = useTranslation()
-  const { open: openPickMenuWindow } = useSmartCompPickWindow()
+  const { open: openPickMenuWindow } = useSmartCompPickWindow(resetPick)
 
   utilsManager.listenEvent('w2w', ({ from, target, type: eventType }: any) => {
     if (!isPicking.value || from !== WINDOW_NAME.SMART_COMP_PICK_MENU || target !== WINDOW_NAME.MAIN) {
@@ -159,7 +159,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
     isPicking.value = false
     notifyMenuHide()
     RpaPicker.destroy()
-    windowManager.maximizeWindow(true)
+    windowManager.showWindow()
   }
 
   /**
@@ -236,7 +236,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
         RpaPicker.send(sendParams)
         ofterSendCb && ofterSendCb()
         if (action === 'SMART_COMPONENT_START') {
-          windowManager.minimizeWindow()
+          windowManager.hideWindow()
         }
       }, 500)
     })
@@ -292,7 +292,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
     })
   }
 
-  const resetPick = () => {
+  function resetPick() {
     if (isPicking.value) {
       startPickAction('SMART_COMPONENT_CANCEL', () => {
         finishPick()
