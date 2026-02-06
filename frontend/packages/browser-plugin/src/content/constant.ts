@@ -10,6 +10,7 @@ export const HIGH_LIGHT_BG = '#ff4d4f85'
 export const HIGH_LIGHT_BORDER = '2px solid red'
 export const HIGH_LIGHT_COLOR = 'red'
 export const HIGH_LIGHT_DURATION = 3000
+export const ASTRON_SW_NAME = 'Astron-Service-Worker'
 export enum StatusCode {
   SUCCESS = '0000',
   UNKNOWN_ERROR = '5001',

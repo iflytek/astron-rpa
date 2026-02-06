@@ -43,7 +43,7 @@ export function generateManifest(mode: string, environment) {
     },
     permissions: [
       'alarms',
-      // 'nativeMessaging',
+      'nativeMessaging',
       'debugger',
       'tabs',
       'activeTab',
@@ -60,7 +60,7 @@ export function generateManifest(mode: string, environment) {
   }
 
   if (isFirefox) {
-    const permission = manifest.permissions.filter(item => item !== 'debugger')
+    const permission = manifest.permissions.filter(item => item !== 'debugger' && item !== 'nativeMessaging')
     const manifestFirefox = {
       manifest_version: 2,
       background: {

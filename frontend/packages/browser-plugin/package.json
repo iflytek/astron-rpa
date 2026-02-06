@@ -1,7 +1,7 @@
 {
   "name": "@rpa/extension",
   "displayName": "RPA-Browser-Plugin",
-  "version": "5.2.8",
+  "version": "5.2.9",
   "description": "RPA browser plugin",
   "homepage": "",
   "type": "commonjs",
