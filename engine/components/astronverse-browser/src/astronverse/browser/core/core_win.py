@@ -30,20 +30,28 @@ class BrowserCore:
     def get_browser_point(browser_type: str) -> Any:
         """获取浏览器坐标"""
 
-        class_name = BROWSER_UIA_POINT_CLASS.get(browser_type, "")
-        if not class_name:
-            return None
-
         base_ctrl = BrowserCore.get_browser_control(browser_type)
         if not base_ctrl:
             return None
+
+        cfg = BROWSER_UIA_POINT_CLASS.get(browser_type)
+        if not cfg:
+            return None
+
+        tag_value, tag = cfg
 
         from astronverse.window.uitree import UITreeCore
         from astronverse.window import WalkControlInfo
 
         for walkControlInfo in UITreeCore.WalkControl(base_ctrl, True, 12):
             assert isinstance(walkControlInfo, WalkControlInfo)
-            if walkControlInfo.classname == class_name:
+            if tag == "ClassName":
+                tag_match = walkControlInfo.classname
+            elif tag == "AutomationId":
+                tag_match = walkControlInfo.automation_id
+            else:
+                tag_match = ""
+            if tag_match == tag_value:
                 bounding_rect = walkControlInfo.position
                 top = bounding_rect.top
                 left = bounding_rect.left
@@ -67,14 +75,13 @@ class BrowserCore:
             assert isinstance(info, WalkControlInfo)
             if info.classname != class_name:
                 continue
-
+            if not patterns:
+                control = info.control
+                break
             text = info.name.split("-")[-1].strip() if match_type == "last_in" else info.name
             if any(p.lower() in text.lower() for p in patterns):
                 control = info.control
                 break
-
-        if control:
-            UITreeCore.setAction(control)
         return control
 
     @staticmethod
