@@ -1,4 +1,4 @@
-import { MAX_ATTRIBUTE_LENGTH, MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
+import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
 import { highLight, highLightRects } from './highlight'
 import { Utils } from './utils'
 
@@ -494,12 +494,8 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
   const elementDirectory = []
   while (element) {
     const id = getAttr(element, 'id')
-    const name = getAttr(element, 'name')
     const className = pickClass(element)
     const type = getAttr(element, 'type')
-    const title = getAttr(element, 'title')
-    const placeholder = getAttr(element, 'placeholder')
-    const value = getAttr(element, 'value')
     const text = getNodeText(element)
     let tagName = getSupportTag(element.tagName.toLowerCase())
     let index = getElementIndex(element)
@@ -529,17 +525,18 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
       const textChecked = text.length < MAX_TEXT_LENGTH && Utils.isEffectCharacter(text) && !Utils.isControlCharacter(text)
       attrs.push({ name: 'text', value: text, checked: textChecked, type: 1 })
     }
-    if (placeholder && placeholder.length < MAX_ATTRIBUTE_LENGTH) {
-      attrs.push({ name: 'placeholder', value: placeholder, checked: false, type: 0 })
-    }
-    if (value && value.length < MAX_ATTRIBUTE_LENGTH) {
-      attrs.push({ name: 'value', value, checked: false, type: 0 })
-    }
-    if (title && title.length < MAX_ATTRIBUTE_LENGTH) {
-      attrs.push({ name: 'title', value: title, checked: false, type: 0 })
-    }
-    if (name && name.length < MAX_ATTRIBUTE_LENGTH) {
-      attrs.push({ name: 'name', value: name, checked: false, type: 0 })
+
+    // other optional attrs from element attributes
+    const eleAttrs = element.attributes
+    const specialAttrs = ['id', 'class', 'type', 'text', 'index', 'local-name']
+    for (const key in eleAttrs) {
+      if (typeof eleAttrs[key] === 'object') {
+        const attrName = eleAttrs[key].name
+        const attrValue = eleAttrs[key].value
+        if (attrName && attrValue && !specialAttrs.includes(attrName)) {
+          attrs.push({ name: attrName, value: attrValue, checked: false, type: 0 })
+        }
+      }
     }
 
     const attributes = { tag: tagName, checked: true, value: tagName, attrs }
