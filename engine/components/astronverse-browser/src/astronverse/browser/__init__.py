@@ -62,12 +62,12 @@ BROWSER_UIA_WINDOW_CLASS = {
 
 # window:uia网页渲染句柄的class_name
 BROWSER_UIA_POINT_CLASS = {
-    CommonForBrowserType.BTChrome.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BTEdge.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BT360SE.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BT360X.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BTFirefox.value: "MozillaWindowClass",
-    CommonForBrowserType.BTChromium.value: "Chrome_RenderWidgetHostHWND",
+    CommonForBrowserType.BTChrome.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BTEdge.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BT360SE.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BT360X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BTFirefox.value: ("tabbrowser-tabpanels", "AutomationId"),
+    CommonForBrowserType.BTChromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName")
 }
 
 
