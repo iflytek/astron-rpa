@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import iconUrl from '../../../../../../../../public/icons/icon.png'
 </script>
 
 <template>
@@ -6,7 +7,7 @@
     <div class="app_control_text flex items-center gap-2 whitespace-nowrap">
       <img
         class="w-5"
-        src="/icons/icon.png"
+        :src="iconUrl"
       >
       <span class="text-base leading-5 font-bold">
         星辰RPA
