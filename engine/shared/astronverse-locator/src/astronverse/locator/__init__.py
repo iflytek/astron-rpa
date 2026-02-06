@@ -195,12 +195,26 @@ LIKE_CHROME_BROWSER_TYPES = [
     BrowserType.CHROMIUM.value,
 ]
 
-WEB_CLASS_NAMES = {
-    BrowserType.CHROME.value: ["Chrome_RenderWidgetHostHWND"],
-    BrowserType.EDGE.value: ["Chrome_RenderWidgetHostHWND"],
-    BrowserType.CHROME_360_SE.value: ["Chrome_RenderWidgetHostHWND"],
-    BrowserType.CHROME_360_X.value: ["Chrome_RenderWidgetHostHWND"],
-    BrowserType.FIREFOX.value: ["Chrome_RenderWidgetHostHWND"],
-    BrowserType.INTERNET_EXPLORER.value: ["Internet Explorer_Server"],
-    BrowserType.CHROMIUM.value: ["Chrome_RenderWidgetHostHWND"],
+BROWSER_UIA_WINDOW_CLASS = {
+    BrowserType.CHROME.value: (
+        "Chrome_WidgetWin_1",
+        ["Chrome Legacy Window", "- Google Chrome", " - Chrome"],
+        "in",
+    ),
+    BrowserType.EDGE.value: ("Chrome_WidgetWin_1", ["edge"], "last_in"),
+    BrowserType.CHROME_360_SE.value: ("360se6_Frame", ["- 360安全浏览器"], "in"),
+    BrowserType.CHROME_360_X.value: ("Chrome_WidgetWin_1", ["- 360极速浏览器X"], "in"),
+    BrowserType.FIREFOX.value: ("MozillaWindowClass", ["Firefox"], "in"),
+    BrowserType.INTERNET_EXPLORER.value: ("IEFrame", None, "ClassName"),
+    BrowserType.CHROMIUM.value: ("Chrome_WidgetWin_1", ["- Chromium"], "in"),
+}
+
+BROWSER_UIA_POINT_CLASS = {
+    BrowserType.CHROME.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    BrowserType.EDGE.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    BrowserType.CHROME_360_SE.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    BrowserType.CHROME_360_X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    BrowserType.FIREFOX.value: ("tabbrowser-tabpanels", "AutomationId"),
+    BrowserType.INTERNET_EXPLORER.value: ("Internet Explorer_Server", "ClassName"),
+    BrowserType.CHROMIUM.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }

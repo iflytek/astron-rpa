@@ -315,15 +315,16 @@ class APP(Enum):
             return APP.Unknown
 
 
-WEB_CLASS_NAMES = {
-    APP.Chrome: ["Chrome_RenderWidgetHostHWND"],
-    APP.Edge: ["Chrome_RenderWidgetHostHWND"],
-    APP.Chrome360se: ["Chrome_RenderWidgetHostHWND"],
-    APP.Chrome360X: ["Chrome_RenderWidgetHostHWND"],
-    APP.Firefox: ["MozillaWindowClass"],
-    APP.IE: ["Internet Explorer_Server"],
-    APP.Chromium: ["Chrome_RenderWidgetHostHWND"],
+BROWSER_UIA_POINT_CLASS = {
+    APP.Chrome.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    APP.Edge.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    APP.Chrome360se.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    APP.Chrome360X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    APP.Firefox.value: ("tabbrowser-tabpanels", "AutomationId"),
+    APP.IE.value: ("Internet Explorer_Server", "ClassName"),
+    APP.Chromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }
+
 
 CHROME_LIKE_BROWSER_TYPES = [
     APP.Chrome.value,

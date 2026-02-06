@@ -31,3 +31,4 @@ class WalkControlInfo:
     depth: int
     control_type: Any
     control_type_name: str
+    automation_id: str
