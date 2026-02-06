@@ -20,7 +20,7 @@ function handleClick() {
 
 <template>
   <Button
-    class="!m-0 !mb-[8px] !p-0 h-auto cursor-pointer text-[#000000D9] dark:text-[#FFFFFFD9]"
+    class="back-btn !m-0 !mb-[8px] !p-0 h-auto cursor-pointer text-left text-[#000000D9] dark:text-[#FFFFFFD9]"
     type="link"
     @click="handleClick"
   >
