@@ -20,7 +20,7 @@ import json
 from datetime import datetime
 from time import mktime
 from typing import Any
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode
 from wsgiref.handlers import format_date_time
 
 import httpx
@@ -43,6 +43,7 @@ SERVICE_ID = "sf8e6aca1"
 
 class OCRError(Exception):
     """Custom exception for OCR-related errors."""
+
     def __init__(self, msg):
         self.message = msg
 
@@ -55,6 +56,7 @@ class URLComponents:
         self.path = path
         self.scheme = scheme
 
+
 class Url:
     def __init__(self, host, path, schema):
         self.host = host
@@ -62,17 +64,19 @@ class Url:
         self.schema = schema
         pass
 
+
 # calculate sha256 and encode to base64
 def sha256base64(data):
     sha256 = hashlib.sha256()
     sha256.update(data)
-    digest = base64.b64encode(sha256.digest()).decode(encoding='utf-8')
+    digest = base64.b64encode(sha256.digest()).decode(encoding="utf-8")
     return digest
+
 
 def parse_url(request_url):
     stidx = request_url.index("://")
-    host = request_url[stidx + 3:]
-    schema = request_url[:stidx + 3]
+    host = request_url[stidx + 3 :]
+    schema = request_url[: stidx + 3]
     edidx = host.index("/")
     if edidx <= 0:
         raise OCRError("invalid request url:" + request_url)
@@ -80,6 +84,7 @@ def parse_url(request_url):
     host = host[:edidx]
     u = Url(host, path, schema)
     return u
+
 
 # build websocket auth request url
 def assemble_ws_auth_url(request_url, method="POST", api_key=API_KEY, api_secret=API_SECRET):
@@ -92,25 +97,24 @@ def assemble_ws_auth_url(request_url, method="POST", api_key=API_KEY, api_secret
     # date = "Thu, 12 Dec 2019 01:57:27 GMT"
     signature_origin = "host: {}\ndate: {}\n{} {} HTTP/1.1".format(host, date, method, path)
     logger.info("signature_origin信息: %s", signature_origin)
-    signature_sha = hmac.new(api_secret.encode('utf-8'), signature_origin.encode('utf-8'),
-                             digestmod=hashlib.sha256).digest()
-    signature_sha = base64.b64encode(signature_sha).decode(encoding='utf-8')
-    authorization_origin = "api_key=\"%s\", algorithm=\"%s\", headers=\"%s\", signature=\"%s\"" % (
-        api_key, "hmac-sha256", "host date request-line", signature_sha)
-    authorization = base64.b64encode(authorization_origin.encode('utf-8')).decode(encoding='utf-8')
+    signature_sha = hmac.new(
+        api_secret.encode("utf-8"), signature_origin.encode("utf-8"), digestmod=hashlib.sha256
+    ).digest()
+    signature_sha = base64.b64encode(signature_sha).decode(encoding="utf-8")
+    authorization_origin = 'api_key="%s", algorithm="%s", headers="%s", signature="%s"' % (
+        api_key,
+        "hmac-sha256",
+        "host date request-line",
+        signature_sha,
+    )
+    authorization = base64.b64encode(authorization_origin.encode("utf-8")).decode(encoding="utf-8")
     logger.info("authorization_origin信息: %s", authorization_origin)
-    values = {
-        "host": host,
-        "date": date,
-        "authorization": authorization
-    }
+    values = {"host": host, "date": date, "authorization": authorization}
 
     return request_url + "?" + urlencode(values)
 
 
-def _build_request_payload(
-    image_base64: str, encoding: str = "jpg", status: int = 3
-) -> dict[str, Any]:
+def _build_request_payload(image_base64: str, encoding: str = "jpg", status: int = 3) -> dict[str, Any]:
     """Build the request payload for OCR API."""
     return {
         "header": {"app_id": APP_ID, "status": status},
@@ -160,15 +164,13 @@ async def recognize_text_from_image(
 
         headers = {
             "content-type": "application/json",
-            "host": 'api.xf-yun.com',
+            "host": "api.xf-yun.com",
             "app_id": APP_ID,
         }
 
         # Make async request
         async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(
-                authenticated_url, data=json.dumps(request_payload), headers=headers
-            )
+            response = await client.post(authenticated_url, data=json.dumps(request_payload), headers=headers)
 
         response.raise_for_status()
         result = response.json()
