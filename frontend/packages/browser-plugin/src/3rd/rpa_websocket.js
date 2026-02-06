@@ -426,7 +426,7 @@ export async function createWsApp() {
   const ws_base_url = import.meta.env.VITE_APP_WS_URL;
   const customAgent = custom_agent();
   const agent = customAgent ? customAgent : get_navigator_user_agent()
-  console.info("token:", agent);
+  console.info('[info]', `token: ${agent}`);
   const token = btoa(agent);
   const version = get_navigator_version();
   const wsUrl = `${ws_base_url}?token=${token}&nv=${version}&cid=${cid}`;

@@ -86,7 +86,7 @@ interface ElementInfo {
   favIconUrl?: string
   isFrame?: boolean
   checkType?: 'visualization' | 'customization'
-  matchTypes?: Array<string>
+  matchTypes?: Array<'onlyPosition' | 'scrollPosition'>
   filterVisible?: boolean
 
   frameId?: number
@@ -201,3 +201,17 @@ interface CurrentFrameInfo {
 }
 
 type Strategy = 'all' | 'visualization' | 'customization'
+
+interface PrintOptions {
+  landscape?: boolean
+  displayHeaderFooter?: boolean
+  printBackground?: boolean
+  scale?: number
+  paperWidth?: number
+  paperHeight?: number
+  marginTop?: number
+  marginBottom?: number
+  marginLeft?: number
+  marginRight?: number
+  pageRanges?: string
+}
