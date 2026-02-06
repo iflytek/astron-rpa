@@ -69,13 +69,13 @@ const _RobotConfigTaskModal = defineComponent({
         title: '参数名称',
         dataIndex: 'varName',
         key: 'varName',
-        ellipse: true,
+        ellipsis: true,
       },
       {
         title: '参数类型',
         dataIndex: 'varType',
         key: 'varType',
-        ellipse: true,
+        ellipsis: true,
         customRender: ({ record }) => {
           const typeSchema = processStore.globalVarTypeList[record.varType]
           return <span>{typeSchema?.desc}</span>
@@ -94,7 +94,7 @@ const _RobotConfigTaskModal = defineComponent({
         title: '参数描述',
         dataIndex: 'varDescribe',
         key: 'varDescribe',
-        ellipse: true,
+        ellipsis: true,
       },
     ]
 
