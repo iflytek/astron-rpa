@@ -8,6 +8,8 @@ if sys.platform == "win32":
     from astronverse.browser_plugin.win import BrowserPluginFactory
 elif sys.platform == "linux":
     from astronverse.browser_plugin.unix import BrowserPluginFactory
+else:
+    raise Exception(f"Unsupported platform: {sys.platform}")
 
 
 class ExtensionManager:
@@ -66,7 +68,7 @@ class ExtensionManager:
         """
         uninstall plugin
         """
-        pass
+        raise NotImplementedError("uninstall method is not implemented yet.")
 
     def upgrade(self):
         """
@@ -91,3 +93,31 @@ class ExtensionManager:
         check browser running
         """
         return self.browser_plugin_manager.check_browser_running()
+
+
+class UpdateManager:
+    def __init__(self) -> None:
+        self.support_browsers = BrowserPluginFactory.get_support_browser()
+        self.insalled_plugins = []
+        self.installed_update_plugins = []
+        for browser_type in self.support_browsers:
+            extension_manager = ExtensionManager(browser_type)
+            plugin_status = extension_manager.check_status()
+            if plugin_status.installed:
+                self.insalled_plugins.append(browser_type)
+                if not plugin_status.latest:
+                    self.installed_update_plugins.append(browser_type)
+
+    def update_installed_plugins(self):
+        """
+        update installed plugins
+        """
+        install_results = []
+        for browser_type in self.installed_update_plugins:
+            try:
+                extension_manager = ExtensionManager(browser_type)
+                extension_manager.install()
+                install_results.append({"browser": browser_type.value, "status": 1})
+            except Exception as e:
+                install_results.append({"browser": browser_type.value, "status": 0, "error": str(e)})
+        return install_results

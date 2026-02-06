@@ -469,6 +469,9 @@ def table_json_merge_values(data_json, values):
     """
     logger.info(f"table_data_merge_values data_json: {data_json}")
     logger.info(f"table_data_merge_values values: {values}")
+    if data_json["values"] is None or len(data_json["values"]) == 0 or values is None or len(values) == 0:
+        data_json["values"] = values
+        return data_json
     for index, item in enumerate(data_json["values"]):
         item["value"] = values[index]["value"]
     return data_json

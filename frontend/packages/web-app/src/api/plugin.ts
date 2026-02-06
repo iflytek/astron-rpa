@@ -11,7 +11,7 @@ export async function getSupportBrowser() {
 
 // 浏览器插件查询状态
 export function checkBrowerPlugin(browsers: string[]) {
-  return http.post<Record<string, { installed: boolean, installed_version: string, latest: boolean }>>(
+  return http.post<Record<string, { installed: boolean, installed_version: string, latest: boolean, browser_installed: boolean }>>(
     '/scheduler/browser/plugins/check_status',
     { browsers },
     { toast: false },
@@ -37,6 +37,16 @@ export function checkBrowerRunning(params) {
     {
       browser: params.type,
     },
+    { toast: false },
+  )
+}
+
+
+// 一键安装所有更新的浏览器插件
+export function installAllUpdateBrowerPlugin() {
+  return http.post(
+    '/scheduler/browser/plugins/install_all_updates',
+    {},
     { toast: false },
   )
 }

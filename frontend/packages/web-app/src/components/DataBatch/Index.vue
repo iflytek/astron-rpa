@@ -6,19 +6,20 @@ import {
   PlusCircleOutlined,
   RedoOutlined,
   TableOutlined,
-} from "@ant-design/icons-vue";
-import { Empty } from "ant-design-vue";
-import { useTranslation } from "i18next-vue";
-import { defineAsyncComponent, h, onMounted } from "vue";
+} from '@ant-design/icons-vue'
+import { Empty } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
+import { defineAsyncComponent, h, onMounted } from 'vue'
 
-import VxeGrid from "@/plugins/VxeTable";
-import { useBatchPickStore } from "@/stores/useBatchPickStore";
+import VxeGrid from '@/plugins/VxeTable'
 
-import Header from "../Header.vue";
+import { useBatchPickStore } from '@/stores/useBatchPickStore'
 
-import { useDataBatch } from "./useDataBatch";
+import Header from '../Header.vue'
 
-const BatchModal = defineAsyncComponent(() => import("./BatchModal.vue"));
+import { useDataBatch } from './useDataBatch'
+
+const BatchModal = defineAsyncComponent(() => import('./BatchModal.vue'))
 
 const {
   formState,
@@ -50,37 +51,37 @@ const {
   checkboxClick,
   batchModalVisible,
   batchModalConfig,
-} = useDataBatch();
+} = useDataBatch()
 
-const useBatchPick = useBatchPickStore();
-const { t } = useTranslation();
+const useBatchPick = useBatchPickStore()
+const { t } = useTranslation()
 
 function headerCellMenuTop(length: number) {
-  return length > 6 ? "margin-top: 40px;" : "margin-top: 0px;";
+  return length > 6 ? 'margin-top: 40px;' : 'margin-top: 0px;'
 }
 
 function batchButtonText() {
   const textMap = {
-    similar: t("dataBatch.newColumn"),
-    table: t("dataBatch.rebatch"),
-    "": t("dataBatch.startBatch"),
-  };
-  return textMap[batchFormType.value];
+    'similar': t('dataBatch.newColumn'),
+    'table': t('dataBatch.rebatch'),
+    '': t('dataBatch.startBatch'),
+  }
+  return textMap[batchFormType.value]
 }
 
 function batchButtonIcon() {
   const iconMap = {
-    similar: h(PlusCircleOutlined),
-    table: h(RedoOutlined),
-    "": h(TableOutlined),
-  };
-  return iconMap[batchFormType.value];
+    'similar': h(PlusCircleOutlined),
+    'table': h(RedoOutlined),
+    '': h(TableOutlined),
+  }
+  return iconMap[batchFormType.value]
 }
 
 onMounted(() => {
-  hookInit();
-  loadGridData();
-});
+  hookInit()
+  loadGridData()
+})
 </script>
 
 <template>
@@ -153,7 +154,7 @@ onMounted(() => {
           </span>
           <span v-if="batchFormType === 'similar'">
             {{ t("dataBatch.currentColumn") }}&nbsp;<b>
-            {{ activeColumn?.title }}</b>，
+              {{ activeColumn?.title }}</b>，
             <span
               class="text-primary cursor-pointer"
               @click="() => addSimilarData(selectedColumnIndex)"
@@ -260,7 +261,7 @@ onMounted(() => {
           {{ t("dataBatch.realData") }}:
           <span class="text-primary colLength">{{ gridOptions.rowLength }}</span>
           {{ t("dataBatch.row") }},
-          <span class="text-primary rowLength">{{gridOptions.columnLength}}</span>
+          <span class="text-primary rowLength">{{ gridOptions.columnLength }}</span>
           {{ t("dataBatch.column") }}
         </div>
       </div>
@@ -516,5 +517,16 @@ onMounted(() => {
 
 .dark .data-batch .data-batch-content {
   color: #ffffffa6;
+}
+:deep(.vxe-table--body-wrapper)::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+  background: rgba(90, 90, 90, 0.1);
+}
+:deep(.vxe-table--body-wrapper)::-webkit-scrollbar-thumb {
+  height: 8px;
+  width: 8px;
+  background: rgba(88, 88, 88, 0.3);
+  border-radius: 4px;
 }
 </style>
