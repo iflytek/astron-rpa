@@ -21,6 +21,8 @@ PARAM_VERIFY_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})参数
 
 VALUE_IS_EMPTY: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})参数值不能为空"))
 
+CREDENTIAL_NOT_FOUND_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("凭证不存在: {}"))
+
 ReportStartMsgFormat = _("{} 执行第{}条指令 [{}]")
 ReportCodeError = _("执行错误")
 ReportCodeSkip = _("执行错误跳过")

@@ -36,14 +36,25 @@ class Credential:
             name: 凭证名称
 
         Returns:
-            凭证密码（不存在返回 None，存在可返回空字符串）
+            凭证密码（存在可返回空字符串）
+
+        Raises:
+            BaseException: 当凭证不存在时抛出异常
         """
         try:
             stored = keyring.get_password(SERVICE_NAME, name)
+            if stored is None:
+                raise BaseException(
+                    CREDENTIAL_NOT_FOUND_FORMAT.format(name),
+                    f"凭证不存在: {name}"
+                )
             return Credential._decode_password(stored)
+        except BaseException:
+            # 重新抛出 BaseException（包括凭证不存在的情况）
+            raise
         except Exception as e:
             logger.exception(f"获取凭证失败: {e}")
-            return None
+            raise e
 
 
 class InspectType(Enum):
