@@ -517,4 +517,15 @@ onMounted(() => {
 .dark .data-batch .data-batch-content {
   color: #ffffffa6;
 }
+:deep(.vxe-table--body-wrapper)::-webkit-scrollbar{
+  height:8px;
+  width:8px;
+  background:rgba(90, 90, 90, 0.1);
+}
+:deep(.vxe-table--body-wrapper)::-webkit-scrollbar-thumb{
+  height:8px;
+  width:8px;
+  background:rgba(88, 88, 88, 0.3);
+  border-radius:4px;
+}
 </style>
