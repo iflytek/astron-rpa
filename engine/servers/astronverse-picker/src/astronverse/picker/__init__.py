@@ -322,7 +322,7 @@ BROWSER_UIA_POINT_CLASS = {
     APP.Chrome360X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
     APP.Firefox.value: ("tabbrowser-tabpanels", "AutomationId"),
     APP.IE.value: ("Internet Explorer_Server", "ClassName"),
-    APP.Chromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName")
+    APP.Chromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }
 
 

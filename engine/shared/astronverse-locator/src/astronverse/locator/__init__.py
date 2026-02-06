@@ -216,5 +216,5 @@ BROWSER_UIA_POINT_CLASS = {
     BrowserType.CHROME_360_X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
     BrowserType.FIREFOX.value: ("tabbrowser-tabpanels", "AutomationId"),
     BrowserType.INTERNET_EXPLORER.value: ("Internet Explorer_Server", "ClassName"),
-    BrowserType.CHROMIUM.value: ("Chrome_RenderWidgetHostHWND", "ClassName")
+    BrowserType.CHROMIUM.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }

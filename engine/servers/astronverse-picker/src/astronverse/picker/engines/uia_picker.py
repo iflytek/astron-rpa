@@ -654,7 +654,10 @@ class UIAOperate:
                     if app == APP.Firefox and point:
                         x = point.x
                         y = point.y
-                        if not (bounding_rect.left <= x <= bounding_rect.right and bounding_rect.top <= y <= bounding_rect.bottom):
+                        if not (
+                            bounding_rect.left <= x <= bounding_rect.right
+                            and bounding_rect.top <= y <= bounding_rect.bottom
+                        ):
                             return False, 0, 0, 0
                     return True, bounding_rect.top, bounding_rect.left, control.NativeWindowHandle
                 base_ctrl = control.GetParentControl()

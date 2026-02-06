@@ -67,7 +67,7 @@ BROWSER_UIA_POINT_CLASS = {
     CommonForBrowserType.BT360SE.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
     CommonForBrowserType.BT360X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
     CommonForBrowserType.BTFirefox.value: ("tabbrowser-tabpanels", "AutomationId"),
-    CommonForBrowserType.BTChromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName")
+    CommonForBrowserType.BTChromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }
 
 

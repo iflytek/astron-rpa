@@ -3,7 +3,14 @@ from typing import Any, Optional, Union
 import requests
 import uiautomation as auto
 from astronverse.baseline.logger.logger import logger
-from astronverse.locator import LIKE_CHROME_BROWSER_TYPES, BrowserType, ILocator, Rect, BROWSER_UIA_POINT_CLASS, BROWSER_UIA_WINDOW_CLASS
+from astronverse.locator import (
+    LIKE_CHROME_BROWSER_TYPES,
+    BrowserType,
+    ILocator,
+    Rect,
+    BROWSER_UIA_POINT_CLASS,
+    BROWSER_UIA_WINDOW_CLASS,
+)
 from astronverse.locator.utils.window import top_browser
 
 
@@ -143,7 +150,7 @@ class WebFactory:
             pass
 
         # 获取位置
-        for control, depth in auto.WalkControl(base_ctrl,  includeTop=True, maxDepth=12):
+        for control, depth in auto.WalkControl(base_ctrl, includeTop=True, maxDepth=12):
             if tag == "ClassName":
                 tag_match = control.ClassName
             elif tag == "AutomationId":
