@@ -63,6 +63,7 @@ export const useAppConfigStore = defineStore('appConfig', () => {
         isInstall: target.installed,
         isNewest: target.latest,
         installVersion: target.installed_version,
+        browserInstalled: target.browser_installed,
       }
     })
   }

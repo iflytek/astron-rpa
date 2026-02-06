@@ -15,6 +15,7 @@ export interface PLUGIN_ITEM {
   oparateStepImgs?: string[]
   stepDescription?: string[]
   loading?: boolean
+  browserInstalled?: boolean
 }
 
 export enum BROWER_LIST {

@@ -34,6 +34,7 @@ class PluginStatus:
     latest: bool = False
     installed_version: str = ""
     latest_version: str = ""
+    browser_installed: bool = False
 
 
 @dataclass
@@ -59,6 +60,14 @@ class PluginManagerCore(ABC):
 
     @abstractmethod
     def close_browser(self):
+        pass
+
+    @abstractmethod
+    def open_browser(self):
+        pass
+
+    @abstractmethod
+    def check_browser_running(self) -> bool:
         pass
 
 
