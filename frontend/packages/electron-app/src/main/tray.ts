@@ -115,7 +115,7 @@ export function changeTray(win: BrowserWindow, mode: 'scheduling' | 'normal', st
           dialog.showMessageBox(win, {
             type: 'warning',
             title: '退出调度模式',
-            message: '退出后卓越中心无法下发任务到本机，当前的调度任务同时取消',
+            message: '退出后控制台无法下发任务到本机，当前的调度任务同时取消，请确认。',
             buttons: ['确定', '取消'],
             defaultId: 0,
             cancelId: 1,

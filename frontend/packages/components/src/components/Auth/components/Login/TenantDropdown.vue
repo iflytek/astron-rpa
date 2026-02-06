@@ -2,15 +2,16 @@
 import { Dropdown, Menu } from 'ant-design-vue'
 import { ref } from 'vue'
 
+import Loading from '../../../Loading'
 import { switchTenant, tenantList } from '../../api/login'
 import type { AuthType, TenantItem } from '../../interface'
 import { getSelectedTenant, saveSelectedTenant } from '../../utils/remember'
 import Consult from '../Base/Consult/Index.vue'
 import TenantItemComponent from '../Base/TenantItem.vue'
-import Loading from '../../../Loading'
 
-const { beforeSwitch, authType } = defineProps<{
-  authType: AuthType
+const { type = 'dropdown', beforeSwitch, authType = 'uap' } = defineProps<{
+  type?: 'dropdown' | 'list'
+  authType?: AuthType
   beforeSwitch?: () => Promise<void> | void
 }>()
 
@@ -66,7 +67,7 @@ const open = ref(false)
 <template>
   <div class="w-full px-[20px] tenant-dropdown relative">
     <Consult v-if="authType !== 'casdoor' && selectedTenant?.tenantType === 'personal'" trigger="button" :auth-type="authType" :button-conf="{ buttonType: 'tag' }" class="!w-[calc(100%-40px)] absolute top-[-60px] left-[20px]" />
-    <Dropdown v-model:open="open" placement="bottom">
+    <Dropdown v-if="type === 'dropdown'" v-model:open="open" placement="bottom">
       <div class="relative">
         <TenantItemComponent
           v-if="selectedTenant"
@@ -95,6 +96,15 @@ const open = ref(false)
         </Menu>
       </template>
     </Dropdown>
+    <div v-if="type === 'list'" class="tenant-list">
+      <TenantItemComponent
+        v-for="tenant in tenants"
+        :key="tenant.id"
+        :is-active="selectedTenant?.id === tenant.id "
+        :tenant-item="tenant"
+        @click="() => toggleTenant(tenant)"
+      />
+    </div>
     <Loading ref="loadingRef" />
   </div>
 </template>

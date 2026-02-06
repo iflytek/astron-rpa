@@ -4,7 +4,7 @@ import type { FormInstance } from 'ant-design-vue'
 import { h, ref } from 'vue'
 
 import { Icon as RpaIcon } from '../../../Icon'
-import type { FormConfig } from '../../schemas/factories.tsx'
+import type { FieldSchema, FormConfig } from '../../schemas/factories.tsx'
 
 import PhoneCode from './PhoneCode.vue'
 
@@ -43,6 +43,10 @@ function clearValidates() {
   formRef.value?.clearValidate()
 }
 
+function getDisabledState(field: FieldSchema) {
+  return typeof field.disabled === 'function' ? field.disabled(modelValue) : !!field.disabled
+}
+
 defineExpose({
   formRef,
   resetFields,
@@ -73,6 +77,7 @@ defineExpose({
           :placeholder="field.placeholder"
           autocomplete="new-password"
           size="large"
+          :disabled="getDisabledState(field)"
           v-bind="field.props"
           @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
         />
@@ -82,6 +87,7 @@ defineExpose({
           autocomplete="new-password"
           :placeholder="field.placeholder"
           size="large"
+          :disabled="getDisabledState(field)"
           v-bind="field.props"
           :icon-render="(visible: boolean) => h(RpaIcon, {
             name: visible ? 'password-eye' : 'password-eye-closed',
@@ -97,12 +103,14 @@ defineExpose({
           :wrap-ref="formRef"
           :relation-key="field.relationKey"
           :send-captcha="field.sendCaptcha"
+          :disabled="getDisabledState(field)"
           v-bind="field.props"
         />
         <Textarea
           v-else-if="field.type === 'textarea'"
           v-model:value="modelValue[field.key]"
           :placeholder="field.placeholder"
+          :disabled="getDisabledState(field)"
           v-bind="field.props"
           @blur="(e:Event) => modelValue[field.key] = (e.target as HTMLInputElement).value.trim()"
         />
@@ -110,14 +118,16 @@ defineExpose({
           v-else-if="field.type === 'select'"
           v-model:value="modelValue[field.key]"
           :placeholder="field.placeholder"
-          v-bind="field.props"
           :options="field.options"
+          :disabled="getDisabledState(field)"
+          v-bind="field.props"
           :get-popup-container="(triggerNode) => triggerNode.parentNode"
         />
         <Checkbox
           v-else-if="field.type === 'checkbox'"
           v-model:checked="modelValue[field.key]"
           v-bind="field.props"
+          :disabled="getDisabledState(field)"
         >
           <component
             :is="field.customRender({
@@ -185,12 +195,25 @@ defineExpose({
   </Form>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .dynamic-form {
   width: 100%;
 }
 
 :deep(.ant-input-number) {
   width: 100%;
+}
+
+:deep(.ant-input[disabled]) {
+  background-color: #f3f3f7;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+:deep(.ant-checkbox-disabled .ant-checkbox-inner) {
+  background-color: #726fff;
+  border-color: #726fff;
+  &:after {
+    border-color: #ffffff;
+  }
 }
 </style>

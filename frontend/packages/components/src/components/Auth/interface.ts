@@ -47,7 +47,7 @@ export interface InviteInfo {
   inviteType?: 'market' | 'enterprise'
   inviterName: string
   marketName?: string
-  enterpriseName?: string
+  deptName?: string
 }
 
 export interface RegisterFormData {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PageLayout from '../components/Base/PageLayout.vue'
+import PageLayout from '../components/Base/PageLayout/Index.vue'
 import InviteForm from '../components/Invite/Index.vue'
 import type { AuthType, Edition, Platform } from '../interface'
 
