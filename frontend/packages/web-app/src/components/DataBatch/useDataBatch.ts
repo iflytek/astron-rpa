@@ -53,7 +53,6 @@ export function useDataBatch() {
   watch(
     () => activeColumn.value,
     (newVal) => {
-      // console.log('activeColumn ', newVal)
       let menus = batchTypeMenus(batchFormType.value)
       if (newVal) {
         const { filterConfig, colFilterConfig, colDataProcessConfig, isTable } = newVal // 获取处理条件
@@ -287,14 +286,9 @@ export function useDataBatch() {
     dataProcessEnable(index, current, event)
   }
   // 条件勾选
-  const dataProcessEnable = (index: number, current: any, event) => {
-    console.log('event: ', event)
-    console.log('current: ', current)
+  const dataProcessEnable = (index: number, current: any, _event) => {
     const column = columns[index]
-    console.log('column: ', column)
     const currentProcessConfig = column.colDataProcessConfig.find(item => item.processType === current.key)
-    // console.log('currentProcessConfig: ', currentProcessConfig)
-
     if (current.checked) {
       // 需要弹窗的菜单在没有该条件或者条件为空时需要弹出弹窗
       if ((!currentProcessConfig || currentProcessConfig.parameters.length === 0) && current.modal) {
@@ -324,8 +318,6 @@ export function useDataBatch() {
         return
       }
     }
-    // filterMenus(column)
-    // console.log('columns: ', columns)
     // todo 发送抓取对象获取新的数据
     selectedColumnIndex.value = index
     activeColumn.value = cloneDeep(columns[index])
@@ -427,10 +419,7 @@ export function useDataBatch() {
    * 加载表格数据
    */
   const loadGridData = () => {
-    // console.log('gridOptions: ', gridOptions)
     handleColumnsAndData(columns, tableData)
-    // console.log('loadGridData columns: ', columns)
-    // console.log('loadGridData tableData: ', tableData)
     gridRef.value
     && gridRef.value.loadColumn(columns).then(() => {
       gridRef.value.loadData(tableData)
@@ -778,7 +767,6 @@ export function useDataBatch() {
   const handleModalOk = (params) => {
     // console.log('params: ', params);
     const data = params.column
-    // console.log('handleModalOk data: ', data)
     batchModalVisible.value = false
     const { dataIndex } = data
     columns.forEach((item) => {
@@ -788,6 +776,10 @@ export function useDataBatch() {
         activeColumn.value = null
       }
     })
+    if (params.type === 'editColumnElement' && batchFormType.value === 'table') {
+      // 编辑表格元素
+      tableElement = { ...data }
+    }
     // 除了编辑列名，其他情况都发送请求
     if (params.type !== 'editColumnName') {
       send2FetchData(columns)
@@ -826,10 +818,6 @@ export function useDataBatch() {
     const robotId = getUrlQueryField('robotId')
     const _name = formState.name
     let elementDataObj
-    // const thead = columns.map((item) => {
-    //   // 表头
-    //   return item.title
-    // })
     console.log('columns: ', columns)
     if (batchFormType.value === 'similar') {
       elementDataObj = {
@@ -1003,13 +991,19 @@ export function useDataBatch() {
 
   // 初始化编辑数据
   function getElementData(data: { name: string, elementData: string }, openSourcePage: boolean = false) {
-    console.log('编辑的元素 data: ', data)
+    console.log('getElementData data: ', data)
     const { name, elementData } = data
     formState.name = name
     gridOptions.loading = true
     const element = elementData ? JSON.parse(elementData) : {}
-    console.log('element: ', element)
+    console.log('getElementData element: ', element)
     batchElementData = element
+    const { produceType } = element?.path
+    batchFormType.value = produceType
+    if (produceType === 'table') {
+      tableElement = { ...element, ...element.path }
+      tableElement.path && delete tableElement.path
+    }
     if (openSourcePage) {
       element.path.openSourcePage = true
     }
@@ -1055,7 +1049,6 @@ export function useDataBatch() {
   function send2FetchData(cols) {
     console.log('send2FetchData cols: ', cols)
     gridOptions.loading = true
-    // console.log('send2FetchData batchFormType: ', batchFormType.value)
     if (batchFormType.value === 'similar') {
       batchElementData.path = {
         produceType: 'similar',
@@ -1080,17 +1073,16 @@ export function useDataBatch() {
     console.log('send2FetchData batchElementData: ', batchElementData)
     useBatchPick.getBatchData('batch', JSON.stringify(batchElementData), (res) => {
       console.log('getBatchData res: ', res)
-      const { data } = res
-      if (data) {
-        const { produceType } = data
+      if (res.success && res.data) {
+        const { produceType } = res.data
         if (produceType === 'table') {
-          const { values } = data
+          const { values } = res.data
           if (values) {
             tableTypeHandle(values)
           }
         }
         else {
-          const { values } = data
+          const { values } = res.data
           columns = values.map(item => item)
           columnData = values.map(item => item.value)
           similarTypeHandle(columns, columnData)
