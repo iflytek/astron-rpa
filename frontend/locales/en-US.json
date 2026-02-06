@@ -1121,5 +1121,11 @@
   },
   "weekSelectPlaceholder": "Please select the day of the week",
   "yes": "Yes",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "updateNow": "Update Now",
+  "updateLater": "Update Later",
+  "pluginUpdateTip": "Plugin Update Tip",
+  "pluginUpdateInfo": "A new version of the installed browser plugin has been detected. Do you want to update the plugin now?",
+  "pluginUpdateDesc": "Updating the plugin will enhance the web automation experience.",
+  "pluginUpdateNotice": "Note: Updating the plugin will close any open browsers. Please save your work in the browser beforehand!"
 }
