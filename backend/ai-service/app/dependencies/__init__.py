@@ -1,9 +1,10 @@
 from fastapi import Depends, Header, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from redis.asyncio import Redis
-from app.services.point import UserPointService
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.database import get_db
 from app.redis_op import get_redis
+from app.services.point import UserPointService
 
 
 def get_user_id_from_header(
@@ -23,7 +24,5 @@ def get_user_id_from_header(
     return header_user_id
 
 
-def get_user_point_service(
-    db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)
-) -> UserPointService:
+def get_user_point_service(db: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserPointService:
     return UserPointService(db, redis)

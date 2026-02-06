@@ -9,7 +9,7 @@ dependencies = [
     "pymysql",
     "pyodbc",
     "cx_Oracle",
-    "psycopg2"
+    "psycopg2-binary"
 ]
 
 [tool.uv.sources]

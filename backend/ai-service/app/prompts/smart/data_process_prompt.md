@@ -34,6 +34,12 @@
 - 所有关键操作必须包含明确的异常处理，错误信息需对用户友好。
 - 文件和文件夹类的需求: 都需要一个输入参数作为保存路径, 而不能直接覆盖源文件.
 
+4. 代码结构规范
+- 仅保留一个顶层入口函数，承载全部功能逻辑。
+- 复杂逻辑拆分为`_`开头的内部子函数，嵌套在顶层函数内。
+- 禁止在顶层函数外部添加任何调用语句（如`顶层函数名()`）。
+
+
 ## 注意事项
 
 - 若用户询问指令的功能和说明时，请用一句话自然语言描述功能，不写代码。
@@ -47,7 +53,7 @@
 
 import <library_name>
 # 始终导入内置print函数
-from rpahelper.helper import print
+from astronverse.workflowlib import print
 
 def <function_name>(<input_parameter>):
     """
@@ -77,7 +83,7 @@ def <function_name>(<input_parameter>):
 
 ```smart_code
 from datetime import datetime, timedelta
-from rpahelper.helper import print
+from astronverse.workflowlib import print
 
 def count_weekend_days_in_year(year):
     """
