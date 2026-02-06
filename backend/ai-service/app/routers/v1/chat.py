@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
-from fastapi.responses import StreamingResponse
-import httpx
 import json
-from app.logger import get_logger
-from app.schemas import StandardResponse, ResCode
-from app.schemas.chat import ChatCompletionParam, ChatPromptParam
-from app.services.point import PointTransactionType
-from app.dependencies.points import PointChecker, PointsContext
-from app.config import get_settings
-from app.utils.prompt import prompt_dict, format_prompt, get_available_prompts
 from urllib.parse import urljoin
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.config import get_settings
+from app.dependencies.points import PointChecker, PointsContext
+from app.logger import get_logger
+from app.schemas import ResCode, StandardResponse
+from app.schemas.chat import ChatCompletionParam, ChatPromptParam
+from app.services.chat import chat_completions
+from app.services.point import PointTransactionType
+from app.utils.prompt import format_prompt, get_available_prompts, prompt_dict
 
 API_KEY = get_settings().AICHAT_API_KEY
 API_ENDPOINT = urljoin(get_settings().AICHAT_BASE_URL, "chat/completions")
@@ -23,150 +24,17 @@ router = APIRouter(
 
 
 @router.post("/completions")
-async def chat_completions(
+async def chat(
     params: ChatCompletionParam,
     points_context: PointsContext = Depends(
         PointChecker(get_settings().AICHAT_POINTS_COST, PointTransactionType.AICHAT_COST),
     ),
 ):
-    logger.info("Processing chat completion request...")
-    logger.info(f"Request params: {params}")
-    # 构造请求参数
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json",
-    }
-    data = params.model_dump(exclude_none=True)
+    response = await chat_completions(params, API_KEY, API_ENDPOINT)
 
-    try:
-        for message in data["messages"]:
-            if not message.get("content"):
-                message["content"] = "你是一个帮助助手."
-        logger.info(f"Request data: {data}")
-    except KeyError:
-        raise HTTPException(status_code=400, detail="Invalid request body")
-
-    logger.info(f"Request headers: {headers}")
-    logger.info(f"Request params.stream: {params.stream}")
-    # 处理请求
-    try:
-        if params.stream:
-            response = await handle_stream_request(headers, data)
-        else:
-            response = await handle_non_stream_request(headers, data)
-
-        # 处理成功，扣除积分
-        await points_context.deduct_points()
-        # 返回响应
-        return response
-    except HTTPException as e:
-        logger.warning(f"HTTP error: {e.detail}")
-        raise e
-    except Exception:
-        logger.error("Internal server error", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-async def handle_stream_request(headers, data):
-    """处理流式请求"""
-    response_meta = {"media_type": "text/event-stream"}
-
-    async def stream_response():
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            try:
-                async with client.stream(
-                    "POST",
-                    API_ENDPOINT,
-                    headers=headers,
-                    json=data,
-                ) as upstream_response:
-                    upstream_response.raise_for_status()
-                    response_meta["media_type"] = upstream_response.headers.get("content-type", "text/event-stream")
-                    async for chunk in upstream_response.aiter_raw():
-                        yield chunk
-            except httpx.HTTPStatusError as e:
-                # 上游API错误
-                logger.warning(f"Upstream API error: {e.response.status_code}")
-                raise HTTPException(
-                    status_code=e.response.status_code,
-                    detail=f"Upstream API error: {e.response.status_code}",
-                )
-            except httpx.TimeoutException as e:
-                # 超时错误
-                logger.error(f"Request timeout: {str(e)}")
-                raise HTTPException(
-                    status_code=504,
-                    detail="大模型调用超时，请稍后重试",
-                )
-            except Exception as e:
-                # 其他错误
-                logger.error(f"Request error: {str(e)}")
-                raise e
-
-    return StreamingResponse(
-        content=stream_response(),
-        media_type=response_meta["media_type"],
-    )
-
-
-long_timeout = httpx.Timeout(
-    connect=10.0,  # 连接超时：10秒
-    read=360.0,  # 读取超时：6分钟
-    write=10.0,  # 写入超时：10秒
-    pool=320.0,  # 总超时：6分20秒
-)
-
-
-async def handle_non_stream_request(headers, data):
-    """处理非流式请求"""
-    async with httpx.AsyncClient(timeout=long_timeout) as client:
-        try:
-            upstream_response = await client.post(
-                API_ENDPOINT,
-                headers=headers,
-                json=data,
-            )
-            upstream_response.raise_for_status()
-
-            return Response(
-                content=upstream_response.content,
-                media_type=upstream_response.headers.get("content-type"),
-                status_code=upstream_response.status_code,
-            )
-        except httpx.HTTPStatusError as e:
-            # 获取请求的 URL 和 方法
-            url = e.request.url
-            method = e.request.method
-
-            # 获取上游返回的具体内容 (通常包含具体的错误原因，如 "Invalid API Key")
-            error_content = e.response.text
-
-            # 记录详细日志
-            # 建议使用 logger.error 而不是 warning，因为这是导致流程中断的异常
-            logger.error(
-                f"Upstream API error: {e.response.status_code} | "
-                f"Request: {method} {url} | "
-                f"Response: {error_content}"
-            )
-
-            # 向上抛出异常
-            raise HTTPException(
-                status_code=e.response.status_code,
-                # 注意：这里 detail 可以选择是否透传 error_content 给前端
-                # 如果是内部系统，可以透传；如果是公网服务，建议只给通用提示，避免暴露上游细节
-                detail=f"Upstream API error: {e.response.status_code}",
-            )
-        except httpx.TimeoutException as e:
-            # 超时错误
-            logger.error(f"Request timeout: {str(e)}")
-            raise HTTPException(
-                status_code=504,
-                detail="大模型调用超时，请稍后重试",
-            )
-        except Exception as e:
-            # 其他错误
-            logger.error(f"Request error: {str(e)}")
-            raise e
+    # 处理成功，扣除积分，返回响应
+    await points_context.deduct_points()
+    return response
 
 
 @router.post("/prompt")
@@ -198,12 +66,6 @@ async def chat_prompt(
     # 构造消息
     messages = [{"role": "user", "content": formatted_prompt}]
 
-    # 构造请求参数
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json",
-    }
-
     data = {
         "model": params.model,
         "messages": messages,
@@ -212,36 +74,26 @@ async def chat_prompt(
 
     logger.info(f"Request data: {data}")
 
-    # 处理请求
-    try:
-        if params.stream:
-            response = await handle_stream_request(headers, data)
-            # 处理成功，扣除积分
-            await points_context.deduct_points()
+    chat_model = ChatCompletionParam.model_validate(data)
+    response = await chat_completions(chat_model, API_KEY, API_ENDPOINT)
+    # logger.info("response: %s", response)
 
-            # 这里如果是流式，交给客户端自行处理
-            return response
+    await points_context.deduct_points()
+
+    if params.stream:
+        return response
+    else:
+        if isinstance(response.body, bytes):
+            content_str = response.body.decode("utf-8")
         else:
-            response = await handle_non_stream_request(headers, data)
-            await points_context.deduct_points()
-            if isinstance(response.body, bytes):
-                content_str = response.body.decode("utf-8")
-            else:
-                content_str = response.body
+            content_str = response.body
 
-            # 解析 JSON
-            data = json.loads(content_str)
+        # 解析 JSON
+        data = json.loads(content_str)
 
-            # 如果是非流式，解析成标准相应，data里是完整结果
-            return StandardResponse(
-                code=ResCode.SUCCESS,
-                msg="调用 {} prompt 成功".format(params.prompt_type),
-                data=data["choices"][0]["message"]["content"],
-            )
-
-    except HTTPException as e:
-        logger.warning(f"HTTP error: {e.detail}")
-        raise e
-    except Exception as e:
-        logger.error(f"Internal server error: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        # 如果是非流式，解析成标准相应，data里是完整结果
+        return StandardResponse(
+            code=ResCode.SUCCESS,
+            msg="调用 {} prompt 成功".format(params.prompt_type),
+            data=data["choices"][0]["message"]["content"],
+        )

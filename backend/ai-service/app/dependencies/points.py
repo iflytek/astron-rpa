@@ -1,13 +1,15 @@
 from fastapi import Depends, HTTPException
 
+from app.dependencies import get_user_id_from_header, get_user_point_service
 from app.logger import get_logger
 from app.services.point import (
-    UserPointService,
-    PointTransactionType,
     InsufficientPointsError,
+    PointTransactionType,
+    UserPointService,
 )
-from app.dependencies import get_user_point_service, get_user_id_from_header
+
 logger = get_logger(__name__)
+
 
 class PointChecker:
     def __init__(self, points_cost: int, transaction_type: PointTransactionType):

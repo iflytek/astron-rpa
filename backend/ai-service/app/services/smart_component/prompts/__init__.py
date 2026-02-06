@@ -1,1 +1,0 @@
-# Prompts package for smart components
