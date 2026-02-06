@@ -286,7 +286,7 @@ export function useDataBatch() {
     dataProcessEnable(index, current, event)
   }
   // 条件勾选
-  const dataProcessEnable = (index: number, current: any, event) => {
+  const dataProcessEnable = (index: number, current: any, _event) => {
     const column = columns[index]
     const currentProcessConfig = column.colDataProcessConfig.find(item => item.processType === current.key)
     if (current.checked) {
@@ -421,12 +421,12 @@ export function useDataBatch() {
   const loadGridData = () => {
     handleColumnsAndData(columns, tableData)
     gridRef.value
-      && gridRef.value.loadColumn(columns).then(() => {
-        gridRef.value.loadData(tableData)
-        gridOptions.loading = false
-        gridOptions.columnLength = columns.length
-        gridOptions.rowLength = tableData.length
-      })
+    && gridRef.value.loadColumn(columns).then(() => {
+      gridRef.value.loadData(tableData)
+      gridOptions.loading = false
+      gridOptions.columnLength = columns.length
+      gridOptions.rowLength = tableData.length
+    })
   }
   /**
    * 刷新表格数据
