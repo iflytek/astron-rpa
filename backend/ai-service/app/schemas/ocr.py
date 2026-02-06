@@ -1,4 +1,5 @@
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -8,9 +9,7 @@ class OCRGeneralRequestBody(BaseModel):
         description="图像编码，jpg格式(默认值)/jpeg格式/png格式/bmp格式",
         examples=["jpg"],
     )
-    status: int = Field(
-        3, description="上传数据状态，可选值：3（一次传完）", examples=[3]
-    )
+    status: int = Field(3, description="上传数据状态，可选值：3（一次传完）", examples=[3])
     image: str = Field(
         ...,
         description="图像数据，需保证图像文件大小base64编码后不超过4MB",
@@ -21,9 +20,7 @@ class OCRGeneralRequestBody(BaseModel):
 class OCRGeneralResponseInnerHeader(BaseModel):
     code: int = Field(..., description="返回码，0表示成功，非0表示失败", examples=[0])
     message: str = Field(..., description="返回信息", examples=["success"])
-    sid: str = Field(
-        ..., description="会话唯一标识", examples=["ase000fa8ab@hu196fbeb910905c4882"]
-    )
+    sid: str = Field(..., description="会话唯一标识", examples=["ase000fa8ab@hu196fbeb910905c4882"])
 
 
 class OCRGeneralResponseInnerResult(BaseModel):

@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
 import httpx
+from fastapi import APIRouter, Depends
+
+from app.config import get_settings
+from app.dependencies.points import PointChecker, PointsContext
 from app.logger import get_logger
 from app.schemas.jfbym import JFBYMGeneralRequestBody, JFBYMGeneralResponseBody
-from app.utils.jfbym import verify_captcha, CaptchaVerificationError
 from app.services.point import PointTransactionType
-from app.dependencies.points import PointChecker, PointsContext
-from app.config import get_settings
-
+from app.utils.jfbym import CaptchaVerificationError, verify_captcha
 
 logger = get_logger(__name__)
 
@@ -14,6 +14,7 @@ router = APIRouter(
     prefix="/jfbym",
     tags=["云码验证码"],
 )
+
 
 @router.post("/customApi", response_model=JFBYMGeneralResponseBody)
 async def general(
@@ -39,14 +40,14 @@ async def general(
     except CaptchaVerificationError as e:
         # 业务逻辑错误 - 返回错误信息
         logger.error(f"JFBYM business logic error: {e.message}")
-        return JFBYMGeneralResponseBody(code=400, msg=f"云码验证码处理失败: {e.message}", data=None)
+        return JFBYMGeneralResponseBody(code=400, message=f"云码验证码处理失败: {e.message}", data=None)
 
     except httpx.HTTPError as e:
         # 网络错误 - 返回错误信息
         logger.error(f"JFBYM service network error: {e}")
-        return JFBYMGeneralResponseBody(code=503, msg="云码验证码服务暂时不可用，请稍后重试", data=None)
+        return JFBYMGeneralResponseBody(code=503, message="云码验证码服务暂时不可用，请稍后重试", data=None)
 
     except Exception as e:
         # 其他未预期的错误 - 返回错误信息
         logger.error(f"Unexpected error in JFBYM processing: {e}")
-        return JFBYMGeneralResponseBody(code=500, msg="云码验证码处理过程中发生未知错误", data=None)
+        return JFBYMGeneralResponseBody(code=500, message="云码验证码处理过程中发生未知错误", data=None)

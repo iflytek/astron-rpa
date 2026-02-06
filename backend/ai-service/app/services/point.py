@@ -1,21 +1,24 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
+from redis.asyncio import Redis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
-from redis.asyncio import Redis
+
+from app.config import get_settings
 from app.logger import get_logger
 from app.models.point import (
     PointAllocation,
     PointConsumption,
+    PointExpirationPolicy,
     PointTransaction,
     PointTransactionType,
-    PointExpirationPolicy,
     calculate_expiration_date,
 )
-from app.config import get_settings
 
 logger = get_logger(__name__)
+
 
 class UserPointService:
     def __init__(self, db: AsyncSession, redis: Redis):
@@ -54,7 +57,7 @@ class UserPointService:
             pass
 
     async def _get_available_allocations(self, user_id: str):
-        current_time = datetime.now(timezone.utc)
+        current_time = datetime.now(UTC)
         query = (
             select(PointAllocation)
             .where(
@@ -98,59 +101,68 @@ class UserPointService:
             expires_at = fixed_expiry_date
         else:
             expires_at = calculate_expiration_date(allocation_type, expiration_policy)
+        try:
+            # Create the allocation
+            allocation = PointAllocation(
+                user_id=user_id,
+                initial_amount=amount,
+                remaining_amount=amount,
+                allocation_type=allocation_type.value,
+                expires_at=expires_at,
+                description=description,
+                priority=self._get_priority_for_type(allocation_type),
+            )
+            self.db.add(allocation)
+            await self.db.flush()
 
-        # Create the allocation
-        allocation = PointAllocation(
-            user_id=user_id,
-            initial_amount=amount,
-            remaining_amount=amount,
-            allocation_type=allocation_type.value,
-            expires_at=expires_at,
-            description=description,
-            # Set priority based on type or other rules
-            priority=self._get_priority_for_type(allocation_type),
-        )
-        self.db.add(allocation)
-        await self.db.flush()
+            # Create the transaction
+            transaction = PointTransaction(
+                user_id=user_id,
+                amount=amount,
+                transaction_type=allocation_type.value,
+                related_entity_type="PointAllocation",
+                related_entity_id=allocation.id,
+                description=description,
+            )
+            self.db.add(transaction)
 
-        # Create the transaction
-        transaction = PointTransaction(
-            user_id=user_id,
-            amount=amount,
-            transaction_type=allocation_type.value,
-            related_entity_type="PointAllocation",
-            related_entity_id=allocation.id,
-            description=description,
-        )
-        self.db.add(transaction)
+            # Clear the user's cached balance
+            await self._clear_cached_points(user_id)
 
-        # Clear the user's cached balance
-        await self._clear_cached_points(user_id)
+            await self.db.flush()
+            await self.db.commit()  # ✅ 提交事务
+            return allocation
 
-        await self.db.flush()
-        return allocation
+        except Exception as e:
+            await self.db.rollback()  # ❌ 出错回滚
+            raise e  # 重新抛出异常
 
     async def grant_monthly_points(self, user_id: str):
-        # Check if user already received monthly points this month
-        current_time = datetime.now(timezone.utc)
+        current_time = datetime.now(UTC)
         redis_key = f"points_monthly_grant:{user_id}:{current_time.year}-{current_time.month}"
+
+        # 添加调试日志
+        logger.info(f"Checking monthly grant for user {user_id}")
+        logger.info(f"Current time (UTC): {current_time}")
+        logger.info(f"Redis key: {redis_key}")
 
         try:
             already_granted = await self.redis.get(redis_key)
             if already_granted:
+                logger.info(f"Redis shows already granted: {already_granted}")
                 return None
         except Exception as e:
-            # Log the error if needed
             logger.error(f"Error checking Redis for monthly grant: {e}")
 
-        month_start = current_time.replace(
-            day=1, hour=0, minute=0, second=0, microsecond=0
-        )
-        month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(
-            seconds=1
-        )
+        month_start = current_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(seconds=1)
 
-        # Query for existing monthly grant in current month
+        # 添加时间范围日志
+        logger.info(f"Month range: {month_start} to {month_end}")
+
+        # 查询前添加日志
+        logger.info("Querying database for existing grants...")
+
         existing_grant = await self.db.execute(
             select(PointAllocation).where(
                 PointAllocation.user_id == user_id,
@@ -159,27 +171,40 @@ class UserPointService:
             )
         )
         existing_grant = existing_grant.scalar_one_or_none()
-        if existing_grant:
-            try:
-                await self.redis.set(redis_key, "1", ex=3600 * 24 * 32)  # 32 days
-            except Exception as e:
-                # Log the error if needed
-                logger.error(f"Error setting Redis key for monthly grant: {e}")
-            return existing_grant
 
-        # Create a new monthly grant allocation
+        # 添加查询结果日志
+        logger.info(f"Existing grant found: {existing_grant}")
+
+        if existing_grant:
+            logger.info(f"Found existing grant: {existing_grant.created_at}")
+            # 如果数据库中已有发放记录，设置 Redis 标记并返回
+            try:
+                await self.redis.set(redis_key, "1", ex=2678400)  # 31天过期
+            except Exception as e:
+                logger.error(f"Error setting Redis key after finding existing grant: {e}")
+            return None
+
+        # 获取配置的月度发放积分数
+        settings = get_settings()
+        monthly_points = getattr(settings, "MONTHLY_POINTS", 100000)  # 默认1000积分
+
+        logger.info(f"Granting {monthly_points} points to user {user_id}")
+
+        # 创建月度发放
         allocation = await self.create_point_allocation(
             user_id=user_id,
-            amount=get_settings().MONTHLY_GRANT_AMOUNT,
+            amount=monthly_points,
             allocation_type=PointTransactionType.MONTHLY_GRANT,
+            description=f"Monthly grant for {current_time.year}-{current_time.month}",
+            expiration_policy=PointExpirationPolicy.END_OF_THIS_MONTH,
         )
 
-        # Update Redis to mark as granted for this month
+        # 设置 Redis 标记，防止重复发放
         try:
-            await self.redis.set(redis_key, "1", ex=3600 * 24 * 32)  # 32 days
+            await self.redis.set(redis_key, "1", ex=2678400)  # 31天过期
+            logger.info(f"Successfully set Redis key: {redis_key}")
         except Exception as e:
-            # Log the error if needed
-            logger.error(f"Error setting Redis key for monthly grant: {e}")
+            logger.error(f"Error setting Redis key: {e}")
 
         return allocation
 
@@ -206,9 +231,7 @@ class UserPointService:
         allocations = await self._get_available_allocations(user_id)
 
         # Calculate total available points
-        available_points = sum(
-            allocation.remaining_amount for allocation in allocations
-        )
+        available_points = sum(allocation.remaining_amount for allocation in allocations)
 
         if available_points < amount:
             raise InsufficientPointsError(
