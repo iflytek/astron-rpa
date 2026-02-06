@@ -3,11 +3,13 @@ import json
 import os
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import winreg as reg
 
 import psutil
+from astronverse.baseline.logger.logger import logger
 
 from .config import Config
 
@@ -29,6 +31,7 @@ def parse_filename_regex(filename):
 
 class FirefoxUtils:
     firefox_plugin_id = Config.FIREFOX_PLUGIN_ID
+    firefox_plugin_file_ids = Config.FIREFOX_PLUGIN_FILE_IDS
 
     @staticmethod
     def get_firefox_command():
@@ -80,6 +83,9 @@ class FirefoxUtils:
                     for addon in dict_msg["addons"]:
                         if addon["id"] == FirefoxUtils.firefox_plugin_id:
                             return True, addon["version"]
+                        for file_id in FirefoxUtils.firefox_plugin_file_ids:
+                            if addon["sourceURI"] and file_id in addon["sourceURI"]:
+                                return True, addon["version"]
                     return False, ""
             else:
                 return False, ""
@@ -253,25 +259,47 @@ def check_chrome_plugin(preferences_path_list, extension_id):
                 content = f.read()
                 dict_msg = json.loads(content)
                 try:
-                    extension_info = dict_msg["extensions"]["settings"]
+                    extension_info = dict_msg.get("extensions", {}).get("settings")
                     if extension_id in extension_info:
                         version = extension_info[extension_id].get("manifest", {}).get("version", "")
                         return True, version
-                    else:
-                        return False, ""
-                except KeyError:
+                except Exception:
+                    # new chrome version use install_signature to manage extensions
+                    version = get_install_signature_extension_version(preferences_path_list, extension_id)
+                    if version:
+                        return True, version
                     return False, ""
-
+        else:
+            logger.info(f"{file} does not exist")
     return False, ""
 
 
-def remove_browser_setting(preferences_path_list, secure_preferences, extension_id):
+def get_install_signature_extension_version(preferences_path_list, extension_id):
     """
-    delete browser plugin setting
+    get chrome based browser plugin installed version, min version if multiple profiles
+    """
+    versions = []
+    for preferences_path in preferences_path_list:
+        extensions_path = preferences_path.replace("Preferences", "Extensions")
+        for item in os.listdir(extensions_path):
+            if item == extension_id:
+                item_path = os.path.join(extensions_path, item)
+                version = max(os.listdir(item_path), key=lambda v: [int(x) for x in v.split(".")])
+                version = version.split("_")[0] if "_" in version else version
+                logger.info(f"{extensions_path}, {version}")
+                versions.append(version)
+    if versions:
+        return max(versions, key=lambda v: [int(x) for x in v.split(".")])
+    return ""
+
+
+def remove_browser_setting(preferences_path_list, secure_preferences, extension_id, old_extension_ids=[]):
+    """
+    remove chrome based browser plugin setting
     """
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, encoding="utf-8") as f:
+            with open(file, encoding="utf8") as f:
                 content = f.read()
                 dict_msg = json.loads(content)
                 uninstall_list = (
@@ -296,19 +324,41 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
                     del apps[extension_id]
                     is_update = True
 
+                for old_id in old_extension_ids:
+                    extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(old_id, None)
+                    if extension_info is not None:
+                        del dict_msg["extensions"]["settings"][old_id]
+
                 extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(extension_id, None)
                 if extension_info is not None:
                     del dict_msg["extensions"]["settings"][extension_id]
                     is_update = True
 
                 if is_update:
-                    with open(file, "w", encoding="utf-8") as f:
+                    with open(file, "w", encoding="utf8") as f:
                         json.dump(dict_msg, f)
-            break
 
-    # delete secure preferences
     if os.path.exists(secure_preferences):
         os.remove(secure_preferences)
+
+
+def remove_old_extensions(extension_path, old_extension_ids=[], old_extension_path_list=[]):
+    """
+    delete old extension registry and files
+    """
+    # delete old extension registry
+    for ext_id in old_extension_ids:
+        if Registry.exist(extension_path + "\\" + ext_id):
+            logger.info(f"delete old extension registry: {extension_path}\\{ext_id}")
+            Registry.delete(extension_path, ext_id)
+    # delete old extension files
+    for ext_path in old_extension_path_list:
+        if os.path.exists(ext_path):
+            try:
+                shutil.rmtree(ext_path)
+                logger.info(f"delete old extension file: {ext_path}")
+            except Exception:
+                pass
 
 
 def is_browser_running(browser_name: str) -> bool:
@@ -323,3 +373,28 @@ def is_browser_running(browser_name: str) -> bool:
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     return False
+
+
+def get_profile_list(base_path):
+    profile_list = []
+    if os.path.exists(base_path):
+        for item in os.listdir(base_path):
+            item_path = os.path.join(base_path, item)
+            if os.path.isdir(item_path):
+                if item == "Default" or item.startswith("Profile"):
+                    profile_list.append(base_path + "\\" + item + "\\Preferences")
+    return profile_list
+
+
+def get_old_extension_file_list(base_path, old_extension_ids):
+    file_list = []
+    if os.path.exists(base_path):
+        for item in os.listdir(base_path):
+            item_path = os.path.join(base_path, item)
+            if os.path.isdir(item_path):
+                if item == "Default" or item.startswith("Profile"):
+                    for ext_id in old_extension_ids:
+                        ext_path = item_path + "\\Extensions\\" + ext_id
+                        if os.path.exists(ext_path):
+                            file_list.append(ext_path)
+    return file_list

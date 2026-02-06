@@ -4,8 +4,15 @@ import subprocess
 import sys
 import winreg
 
+from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
-from astronverse.browser_plugin.utils import Registry, check_chrome_plugin, is_browser_running, kill_process
+from astronverse.browser_plugin.utils import (
+    Registry,
+    check_chrome_plugin,
+    get_profile_list,
+    is_browser_running,
+    kill_process,
+)
 
 
 class Browser360XPluginManager(PluginManagerCore):
@@ -14,15 +21,14 @@ class Browser360XPluginManager(PluginManagerCore):
 
         self.browser_path = r"Software\360ChromeX\Chrome"
         self.extension_path = r"Software\360ChromeX\Chrome\Extensions"
-        self.preferences_path_list = [
-            r"C:\Users\{}\AppData\Local\360ChromeX\Chrome\User Data\Default\Preferences".format(getpass.getuser()),
-            r"C:\Users\{}\AppData\Local\360ChromeX\Chrome\User Data\Profile 1\Preferences".format(getpass.getuser()),
-        ]
+        self.user_data_path = r"C:\Users\{}\AppData\Local\360ChromeX\Chrome\User Data".format(getpass.getuser())
+        self.preferences_path_list = get_profile_list(self.user_data_path)
         self.secure_preferences = (
             r"C:\Users\{}\AppData\Local\360ChromeX\Chrome\User Data\Default\Secure Preferences".format(
                 getpass.getuser()
             )
         )
+        logger.info(f"360X preferences_path_list: {self.preferences_path_list}")
 
     @staticmethod
     def get_browser_path():
@@ -41,16 +47,27 @@ class Browser360XPluginManager(PluginManagerCore):
             raise FileNotFoundError("360X is not installed or the registry key is not found.")
 
     def check_browser(self):
-        return Registry.exist(self.browser_path)
+        browser_registry = Registry.exist(self.browser_path)
+        if browser_registry:
+            try:
+                self.get_browser_path()
+                return True
+            except FileNotFoundError:
+                return False
+        return browser_registry
 
     def check_plugin(self):
         installed, installed_version = check_chrome_plugin(self.preferences_path_list, self.plugin_data.plugin_id)
-
+        logger.info(f"360X plugin installed: {installed}, installed_version: {installed_version}")
         latest_version = self.plugin_data.plugin_version
         latest = installed_version == latest_version
-
+        browser_installed = self.check_browser()
         return PluginStatus(
-            installed=installed, installed_version=installed_version, latest_version=latest_version, latest=latest
+            installed=installed,
+            installed_version=installed_version,
+            latest_version=latest_version,
+            latest=latest,
+            browser_installed=browser_installed,
         )
 
     def close_browser(self):

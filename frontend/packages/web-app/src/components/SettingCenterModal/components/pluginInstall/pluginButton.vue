@@ -2,7 +2,7 @@
 import { Button, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import type { PropType } from 'vue'
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 
 import type { PLUGIN_ITEM } from '@/constants/plugin'
 
@@ -18,36 +18,26 @@ export default defineComponent({
     click: () => true,
   },
   setup(props, { emit }) {
-    const { item } = props
     const { i18next } = useTranslation()
 
-    const getBtnText = () => {
-      if (item.isInstall) {
-        return item.isNewest ? 'reinstall' : 'pluginUpdate' // 重新安装、插件更新
+    const getBtnText = computed(() => {
+      if (props.item.isInstall) {
+        return props.item.isNewest ? 'reinstall' : 'pluginUpdate' // 重新安装、插件更新
       }
-
-      // if (item.type === '2345') {
-      //   return 'installationTutorial' // 安装教程
-      // }
-
-      // if (item.type === 'driver') {
-      //   return 'driverInstallation' // 驱动安装
-      // }
-
       return 'intelligentInstallation' // 智能安装
-    }
+    })
 
-    const getBtnType = () => {
-      if (!item.isInstall || !item.isNewest) {
+    const getBtnType = computed(() => {
+      if (!props.item.isInstall || !props.item.isNewest) {
         return 'primary'
       }
 
       return 'default'
-    }
+    })
 
     return () => {
       const isZh = i18next.language === 'zh-CN'
-      const btnText = i18next.t(getBtnText())
+      const btnText = i18next.t(getBtnText.value)
 
       const buttonComponent = (
         <Button
@@ -55,8 +45,8 @@ export default defineComponent({
             'plugIn-content_button',
             `plugIn-content_button__${i18next.language}`,
           ]}
-          loading={item.loading}
-          type={getBtnType()}
+          loading={props.item.loading}
+          type={getBtnType.value}
           onClick={() => emit('click')}
         >
           {isZh ? btnText : <div class="text-ellipsis">{btnText}</div>}
