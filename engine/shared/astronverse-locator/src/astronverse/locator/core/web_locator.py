@@ -3,7 +3,14 @@ from typing import Any, Optional, Union
 import requests
 import uiautomation as auto
 from astronverse.baseline.logger.logger import logger
-from astronverse.locator import LIKE_CHROME_BROWSER_TYPES, BrowserType, ILocator, Rect
+from astronverse.locator import (
+    LIKE_CHROME_BROWSER_TYPES,
+    BrowserType,
+    ILocator,
+    Rect,
+    BROWSER_UIA_POINT_CLASS,
+    BROWSER_UIA_WINDOW_CLASS,
+)
 from astronverse.locator.utils.window import top_browser
 
 
@@ -108,61 +115,53 @@ class WebFactory:
     @classmethod
     def __get_web_top__(cls, element: dict, app: str) -> tuple[int, int]:
         """浏览器右上角位置"""
-        root_control = auto.GetRootControl()
         app_name = app
-        uiapath_list = element.get("uiapath", "")
-        target_ctl = None if uiapath_list == "" else uiapath_list[0]
-        logger.info(f"weblocator-__get_web_top__ 携带的uia头信息 {target_ctl}")
+        cfg = BROWSER_UIA_WINDOW_CLASS.get(app_name)
+        if not cfg:
+            return 0, 0
+        point_cfg = BROWSER_UIA_POINT_CLASS.get(app_name)
+        if not point_cfg:
+            return 0, 0
 
-        ct = None
-        for control, _ in auto.WalkControl(root_control, includeTop=True, maxDepth=1):
-            if app_name == BrowserType.CHROME.value:
-                if (control.Name == "Chrome Legacy Window") or (
-                    ("- Google Chrome" in control.Name) or ("- Chrome" in control.Name)
-                ):
-                    ct = control
-                    break
-            if app_name == BrowserType.EDGE.value:
-                if "- Microsoft​ Edge" in control.Name:
-                    ct = control
-                    break
-            if app_name == BrowserType.CHROME_360_SE.value:
-                if "360安全浏览器" in control.Name:
-                    ct = control
-                    break
-            if app_name == BrowserType.CHROME_360_X.value:
-                if "360极速浏览器X" in control.Name:
-                    ct = control
-                    break
-            if app_name == BrowserType.FIREFOX.value:
-                if "Mozilla Firefox" in control.Name:
-                    ct = control
-                    break
-            if app_name == BrowserType.CHROMIUM.value:
-                if (control.Name == "Chrome Legacy Window") or ("- Chromium" in control.Name):
-                    ct = control
-                    break
-        if ct is None:
+        class_name, patterns, match_type = cfg
+        tag_value, tag = point_cfg
+
+        # 查找窗口
+        root_control = auto.GetRootControl()
+        base_ctrl = None
+        for control, depth in auto.WalkControl(root_control, includeTop=True, maxDepth=1):
+            if control.ClassName != class_name:
+                continue
+            if not patterns:
+                base_ctrl = control
+                break
+            text = control.Name.split("-")[-1].strip() if match_type == "last_in" else control.Name
+            if any(p.lower() in text.lower() for p in patterns):
+                base_ctrl = control
+                break
+
+        if base_ctrl is None:
             raise Exception(f"未找到{app_name}浏览器窗口，请确认浏览器是否已启动")
 
-        # 置顶
-        # ct.SetActive()
-        handle = ct.NativeWindowHandle
-        top_browser(handle, ct)
-        if app_name == BrowserType.FIREFOX.value:
-            for child, _ in auto.WalkControl(ct, includeTop=True, maxDepth=100):
-                if child.AutomationId == "tabbrowser-tabpanels":
-                    bounding_rect = child.BoundingRectangle
-                    top = bounding_rect.top
-                    left = bounding_rect.left
-                    return top, left
-        else:
-            for child, _ in auto.WalkControl(ct, includeTop=True, maxDepth=100):
-                if child.ClassName == "Chrome_RenderWidgetHostHWND":
-                    bounding_rect = child.BoundingRectangle
-                    top = bounding_rect.top
-                    left = bounding_rect.left
-                    return top, left
+        # 置顶窗口
+        try:
+            top_browser(handle=base_ctrl.NativeWindowHandle, ctrl=base_ctrl)
+        except Exception as e:
+            pass
+
+        # 获取位置
+        for control, depth in auto.WalkControl(base_ctrl, includeTop=True, maxDepth=12):
+            if tag == "ClassName":
+                tag_match = control.ClassName
+            elif tag == "AutomationId":
+                tag_match = control.AutomationId
+            else:
+                tag_match = ""
+            if tag_match == tag_value:
+                bounding_rect = control.BoundingRectangle
+                top = bounding_rect.top
+                left = bounding_rect.left
+                return top, left
         return 0, 0
 
 

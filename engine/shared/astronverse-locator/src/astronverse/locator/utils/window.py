@@ -529,14 +529,10 @@ def find_window_by_enum(cls: str, name: str, app_name: str = None) -> int:
     return 0
 
 
-def find_window_by_enum_list(cls: str, name: str, app_name: str = None, picker_type=None) -> int:
+def find_window_by_enum_list(cls: str, name: str, app_name: str = None, picker_type=None):
     """
     通过枚举窗口 classname 和 name属性获得窗口，返回如果是0则窗口不存在
     与find_window的区别是使用EnumWindows枚举所有窗口，能找到更多窗口
-    :param cls: 控件className
-    :param name: 控件name
-    :param app_name: 程序名字
-    :return:
     """
     if picker_type == PickerType.WINDOW.value:
         return [find_window_by_enum(cls, name, app_name)]
@@ -652,6 +648,11 @@ def find_window_by_enum_list(cls: str, name: str, app_name: str = None, picker_t
 
 
 def top_window(handle: int, ctrl: Control):
+    # 快速结束:桌面窗口不需要置顶
+    if is_desktop_by_handle(handle, ctrl):
+        return
+
+    # 快速结束:IE判断需要添加焦点
     if ctrl and ctrl.ClassName == "IEFrame":
         ct = None
         root_control = auto.GetRootControl()
@@ -659,57 +660,20 @@ def top_window(handle: int, ctrl: Control):
             if control.ClassName == "IEFrame":
                 ct = control
                 break
-        ct.SetActive()
+        if ct:
+            ct.SetActive()
         return
 
-    # 1. 先尝试恢复和激活窗口
-    cur_window = Win32Window(handle)
+    # 恢复和激活窗口
     try:
+        cur_window = Win32Window(handle)
         if cur_window.isMinimized:
             cur_window.restore()
             cur_window.activate()
     except Exception as e:
-        logger.info("恢复和激活窗口失败")
+        pass
 
-    if is_desktop_by_handle(handle, ctrl):
-        # 桌面窗口不需要置顶
-        return
-
-    # 2. 避免窗口多次置顶，微信等软件很多交互重复置顶会导致页面元素消失，如表情选择界面
-    system_windows = {"Shell_SecondaryTrayWnd", "TaskManagerWindow"}
-
-    need_top = False
-    cur_br = ctrl.BoundingRectangle
-    cur_rect = Rect(cur_br.left, cur_br.top, cur_br.right, cur_br.bottom)
-
-    pre_win = ctrl.GetPreviousSiblingControl()
-    while pre_win:
-        try:
-            # 避免自己
-            if handle == pre_win.NativeWindowHandle:
-                continue
-            # 避免rpa画框
-            if is_rpa_highlight(pre_win):
-                continue
-            # 系统窗口
-            is_c = cur_rect.overlaps(pre_win.BoundingRectangle)
-            if pre_win.ClassName in system_windows and is_c:
-                # 系统窗口，应用窗口是无法置顶到系统的界面上去的，如任务管理器界面，所以需要先缩小它再置顶
-                window = Win32Window(pre_win.NativeWindowHandle)
-                window.minimize()
-                continue
-            # 避免重复置顶
-            if is_c:
-                need_top = True
-        except Exception as e:
-            pass
-        finally:
-            pre_win = pre_win.GetPreviousSiblingControl()
-
-    if not need_top:
-        return
-
-    # 3. 置顶
+    # 置顶
     if win32gui.IsIconic(handle):
         win32gui.ShowWindow(handle, win32con.SW_NORMAL)
     else:
@@ -722,6 +686,11 @@ def top_window(handle: int, ctrl: Control):
 
 
 def top_browser(handle: int, ctrl: Control):
+    # 快速结束:桌面窗口不需要置顶
+    if is_desktop_by_handle(handle, ctrl):
+        return
+
+    # 快速结束:IE判断需要添加焦点
     if ctrl and ctrl.ClassName == "IEFrame":
         ct = None
         root_control = auto.GetRootControl()
@@ -729,57 +698,20 @@ def top_browser(handle: int, ctrl: Control):
             if control.ClassName == "IEFrame":
                 ct = control
                 break
-        ct.SetActive()
+        if ct:
+            ct.SetActive()
         return
 
-    # 1. 先尝试恢复和激活窗口
-    cur_window = Win32Window(handle)
+    # 恢复和激活窗口
     try:
+        cur_window = Win32Window(handle)
         if cur_window.isMinimized:
             cur_window.restore()
             cur_window.activate()
     except Exception as e:
-        logger.info("恢复和激活窗口失败")
+        pass
 
-    if is_desktop_by_handle(handle, ctrl):
-        # 桌面窗口不需要置顶
-        return
-
-    # 2. 避免窗口多次置顶，微信等软件很多交互重复置顶会导致页面元素消失，如表情选择界面
-    system_windows = {"Shell_SecondaryTrayWnd", "TaskManagerWindow"}
-
-    need_top = False
-    cur_br = ctrl.BoundingRectangle
-    cur_rect = Rect(cur_br.left, cur_br.top, cur_br.right, cur_br.bottom)
-
-    pre_win = ctrl.GetPreviousSiblingControl()
-    while pre_win:
-        try:
-            # 避免自己
-            if handle == pre_win.NativeWindowHandle:
-                continue
-            # 避免rpa画框
-            if is_rpa_highlight(pre_win):
-                continue
-            # 系统窗口
-            is_c = cur_rect.overlaps(pre_win.BoundingRectangle)
-            if pre_win.ClassName in system_windows and is_c:
-                # 系统窗口，应用窗口是无法置顶到系统的界面上去的，如任务管理器界面，所以需要先缩小它再置顶
-                window = Win32Window(pre_win.NativeWindowHandle)
-                window.minimize()
-                continue
-            # 避免重复置顶
-            if is_c:
-                need_top = True
-        except Exception as e:
-            pass
-        finally:
-            pre_win = pre_win.GetPreviousSiblingControl()
-
-    if not need_top:
-        return
-
-    # 3. 置顶
+    # 置顶
     if win32gui.IsIconic(handle):
         win32gui.ShowWindow(handle, win32con.SW_NORMAL)
     else:
