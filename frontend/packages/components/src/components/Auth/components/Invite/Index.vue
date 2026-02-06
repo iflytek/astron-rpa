@@ -75,8 +75,8 @@ const {
     <StatusCard
       v-if="currentStatus === 'marketFull'"
       status="reachLimited"
-      :title="`当前${inviteInfo.inviteType === 'market'? '市场' : '空间'}人数已满`"
-      :desc="`请联系${inviteInfo.inviteType === 'market'? '市场' : '空间'}所有者处理`"
+      :title="`当前${inviteInfo.inviteType === 'market' ? '市场' : '空间'}人数已满`"
+      :desc="`请联系${inviteInfo.inviteType === 'market' ? '市场' : '空间'}所有者处理`"
     />
     <StatusCard
       v-if="currentStatus === 'reachLimited'"
