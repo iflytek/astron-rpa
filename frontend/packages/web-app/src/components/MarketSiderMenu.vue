@@ -52,7 +52,7 @@ async function createTeam() {
     if (!res.data) {
       GlobalModal.warn({
         title: '提示',
-        content: '个人版最多可创建3个团队市场，您已满额。',
+        content: '个人版最多可加入3个团队市场，您已满额。',
         centered: true,
         keyboard: false,
         okText: '我知道了',

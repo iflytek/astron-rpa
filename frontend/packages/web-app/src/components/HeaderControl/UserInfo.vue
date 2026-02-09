@@ -56,7 +56,7 @@ async function menuClick(item: any) {
       title: '开始调度模式',
       content: '开启后当前客户端会自动接收控制台下发的远程任务，对应任务执行情况会被控制台监控，请确认。',
       footer: h('div', { class: 'flex items-center justify-between w-full pl-[30px] mt-[30px]' }, [
-        userStore.currentTenant?.tenantType !== 'enterprise' 
+        userStore.currentTenant?.tenantType === 'enterprise' 
           ? h(Checkbox, {
             defaultChecked: false,
             onChange: (e: any) => {
