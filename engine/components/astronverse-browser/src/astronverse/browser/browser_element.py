@@ -165,9 +165,9 @@ class BrowserElement:
         scroll_into_center: bool = True,
     ):
         """点击"""
-        browser_obj = check_element(browser_obj, element_data, element_timeout)
-
         try:
+            browser_obj = check_element(browser_obj, element_data, element_timeout)
+
             if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
                 from astronverse.input.code.keyboard import Keyboard
 
@@ -1738,8 +1738,8 @@ class BrowserElement:
         element_data: WebPick,
     ) -> bool:
         """检查元素是否存在。"""
-        browser_obj = check_element(browser_obj, element_data, 20)
         try:
+            browser_obj = check_element(browser_obj, element_data, 20)
             element_exist = browser_obj.send_browser_extension(
                 browser_type=browser_obj.browser_type.value,
                 key="elementIsRender",

@@ -134,6 +134,9 @@ class BrowserSoftware:
         res.browser_abs_path = browser_abs_path
         res.browser_control = control
 
+        # 插件第一次通信，置顶最大化
+        res.send_browser_extension(browser_type=browser_type.value, key="maxWindow")
+
         # 插件通信连接，打开Tab
         retry_count = 3
         retry_time = timeout / 2 / retry_count
@@ -155,12 +158,6 @@ class BrowserSoftware:
                 time.sleep(retry_time)
             finally:
                 retry_count -= 1
-
-        try:
-            # 插件通信连接，置顶最大化
-            BrowserSoftware.browser_max_window(browser_obj=res)
-        except Exception as e:
-            pass
 
         try:
             # 插件通信连接，等待网页加载完成
