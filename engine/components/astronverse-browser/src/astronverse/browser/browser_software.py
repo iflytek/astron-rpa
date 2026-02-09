@@ -137,14 +137,14 @@ class BrowserSoftware:
         # 插件通信连接，打开Tab
         retry_count = 3
         retry_time = timeout / 2 / retry_count
-        web_open = False
+        web_open_err = None
         while retry_count > 0:
             try:
                 if is_open:
                     res.send_browser_extension(
                         browser_type=res.browser_type.value, key="openNewTab", data={"url": str(url)}
                     )
-                    web_open = True
+                    web_open_err = None
                     break
                 else:
                     res.send_browser_extension(
@@ -152,14 +152,15 @@ class BrowserSoftware:
                         key="updateTab",
                         data={"url": str(url)},
                     )
-                    web_open = True
+                    web_open_err = None
                     break
             except Exception as e:
+                web_open_err = e
                 time.sleep(retry_time)
             finally:
                 retry_count -= 1
-        if not web_open:
-            raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+        if web_open_err:
+            raise web_open_err
 
         # 插件置顶最大化
         BrowserSoftware.browser_max_window(res)
