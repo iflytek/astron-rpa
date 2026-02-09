@@ -28,11 +28,11 @@ provide<VariableTypes>('variableType', 'globalVariables')
 <style lang="scss" scoped>
 .custom-table-form {
   :deep(.ant-form-item-label) {
-    padding-top: 8px;
+    padding-top: 4px;
   }
 
   :deep(.ant-form-item) {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   :deep(.form-item-container .editor-container) {
     margin: 2px 0px;

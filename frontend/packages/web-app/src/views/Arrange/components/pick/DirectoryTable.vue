@@ -131,11 +131,11 @@ function cancelAddNode() {
 // 节点列
 const nodeColumns = reactive<ColumnsType>([
   {
-    title: '元素节点',
+    title: '',
     align: 'left',
     children: [
       {
-        title: '启用',
+        title: '',
         dataIndex: 'checked',
         key: props.nodeFields.checked,
         width: 15,
@@ -161,11 +161,11 @@ const nodeColumns = reactive<ColumnsType>([
 // 属性列
 const attrColumns = reactive<ColumnsType>([
   {
-    title: '属性节点',
+    title: '',
     align: 'left',
     children: [
       {
-        title: '启用',
+        title: '',
         dataIndex: 'checked',
         key: props.attrFields.checked,
         width: 15,
@@ -179,13 +179,13 @@ const attrColumns = reactive<ColumnsType>([
         ellipsis: true,
       },
       {
-        title: '匹配',
+        title: '匹配方式',
         dataIndex: 'type',
         key: props.attrFields.type,
         width: 40,
       },
       {
-        title: '值',
+        title: '属性值',
         dataIndex: 'value',
         key: props.attrFields.value,
         width: 70,
@@ -224,7 +224,7 @@ watch(() => props.nodeSource, () => {
           :data-source="nodeSource"
           :pagination="false"
           :custom-row="customRowFn"
-          :scroll="{ y: nodeSource.length > 4 ? 170 : null }"
+          :scroll="{ y: nodeSource.length > 4 ? 200 : null }"
           :row-class-name="rowClassNameFn"
         >
           <template #bodyCell="{ column, record, index }">
@@ -252,7 +252,7 @@ watch(() => props.nodeSource, () => {
         </a-table>
       </a-col>
       <a-col :span="17" class="nodeCol font-size-12">
-        <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 136 }">
+        <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 165 }">
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'checked'">
               <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled" />
@@ -275,7 +275,7 @@ watch(() => props.nodeSource, () => {
             </template>
             <template v-else-if="column.key === 'attrOper'">
               <a-popconfirm
-                title="是否删除当前节点"
+                title="是否删除当前属性"
                 ok-text="是"
                 cancel-text="否"
                 @confirm="confirmDeleteAttr(index)"
@@ -334,8 +334,8 @@ watch(() => props.nodeSource, () => {
 }
 
 .nodeCol {
-  max-height: 228px;
-  height: 228px;
+  max-height: 240px;
+  height: 240px;
   overflow: hidden;
 }
 .attr-table {
@@ -380,7 +380,7 @@ watch(() => props.nodeSource, () => {
 
 :deep(.ant-table-wrapper .ant-table-thead > tr > th),
 :deep(.ant-table-thead > tr > th) {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 :deep(.ant-table-wrapper .ant-table-thead > tr > th),
