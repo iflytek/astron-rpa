@@ -1,5 +1,10 @@
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const vueVersion = require('vue/package.json').version
+const piniaVersion = require('pinia/package.json').version
 
 import { RpaResolver } from '@rpa/components/resolver'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
@@ -38,6 +43,10 @@ export default defineConfig((env) => {
 
   return {
     publicDir: basePublic,
+    define: {
+      __VUE_VERSION__: JSON.stringify(vueVersion),
+      __PINIA_VERSION__: JSON.stringify(piniaVersion),
+    },
     build: {
       sourcemap: isDebug ? 'inline' : isPublish,
       minify: 'oxc',

@@ -14,6 +14,13 @@ export const pythonCore = path.join(appWorkPath, 'python_core')
 export const pythonExe = path.join(pythonCore, 'python.exe')
 export const confPath = path.join(resourcePath, 'conf.yaml')
 export const d7zrPath = path.join(resourcePath, '7zr.exe')
+// 插件目录
+export const extensionPath = [
+  path.join(appPath, 'extensions'), // 系统插件目录
+  path.join(appWorkPath, 'extensions'), // 用户插件目录
+]
+export const extensionHost = 'extensions'
+export const extensionBaseUrl =  `rpa://${extensionHost}/`
 
 export const rendererPath = path.join(__dirname, '../renderer')
 export const windowBaseUrl  = app.isPackaged ? 'rpa://localhost/' : 'http://localhost:1420/'

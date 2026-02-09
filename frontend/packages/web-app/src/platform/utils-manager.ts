@@ -71,9 +71,6 @@ const Utils: UtilsManager = {
   showDialog: (_dialogProps: any) => {
     return Promise.reject(new Error('showDialog is not supported in browser environment'))
   },
-  getPluginPath: (_filePath: string) => {
-    return Promise.reject(new Error('getPluginPath is not supported in browser environment'))
-  },
   getPluginList: () => {
     return Promise.reject(new Error('getPluginList is not supported in browser environment'))
   },

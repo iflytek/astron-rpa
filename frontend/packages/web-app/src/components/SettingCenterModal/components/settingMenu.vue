@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { menuConfig } from '../config'
+import type { MenuItem } from '../config'
 
+const props = defineProps<{ items: MenuItem[] }>()
 const model = defineModel('value', { type: String })
 
 function handleMenuClick(key: string) {
@@ -11,7 +12,7 @@ function handleMenuClick(key: string) {
 <template>
   <a-menu class="h-full setting-menu flex flex-col gap-2" :selected-keys="[model]">
     <a-menu-item
-      v-for="item in menuConfig"
+      v-for="item in props.items"
       :key="item.key"
       @click="() => handleMenuClick(item.key)"
     >

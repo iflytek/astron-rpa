@@ -10,7 +10,7 @@
   "files": [
     "node_modules/**",
     "out/**",
-    "resources/**",
+    "extensions/**",
     "package.json"
   ],
   "extraFiles": [

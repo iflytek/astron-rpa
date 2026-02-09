@@ -27,6 +27,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
     "@lobehub/i18n-cli": "^1.25.1",
+    "@types/node": "^22.18.10",
     "@vitest/ui": "3.2.4",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",

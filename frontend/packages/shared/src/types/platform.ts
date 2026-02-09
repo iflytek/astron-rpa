@@ -112,7 +112,6 @@ export interface UtilsManager {
   shellopen: (path: string) => Promise<void>
   openPlugins: () => Promise<void>
   showDialog: (dialogProps: any) => Promise<any>
-  getPluginPath: (filePath: string) => Promise<string>
   getPluginList: () => Promise<IPluginConfig[]>
 }
 

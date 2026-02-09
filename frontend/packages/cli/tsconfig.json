@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "useDefineForClassFields": true,
+    "declaration": true,
+    "outDir": "dist",
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "isolatedDeclarations": true,
+
+    /* modules */
+    "module": "ESNext",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler",
+
+    /* type checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src"]
+}

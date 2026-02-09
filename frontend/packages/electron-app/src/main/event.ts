@@ -5,12 +5,14 @@ import { join } from 'node:path'
 import { BrowserWindow } from 'electron'
 import { clipboard, dialog, globalShortcut, ipcMain, screen, shell } from 'electron'
 import throttle from 'lodash/throttle'
+import { IPluginConfig } from '@rpa/shared'
 
 import logger from './log'
 import { openPath } from './path'
 import { getMainWindow, getWindowFromLabel } from './window'
 import { checkForUpdates, quitAndInstallUpdates } from './updater'
 import { config } from './config'
+import { loadExtensions } from './extension'
 
 type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?: boolean) => void
 
@@ -302,5 +304,9 @@ export function listenRender() {
 
   ipcMain.handle('get-app-config', () => {
     return config
+  })
+
+  ipcMain.handle('get-plugin-list', async (): Promise<IPluginConfig[]> => {
+    return loadExtensions()
   })
 }

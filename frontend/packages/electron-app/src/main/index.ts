@@ -9,7 +9,8 @@ import { listenRender } from './event'
 import { checkPythonRpaProcess, startBackend } from './server'
 import { changeTray, createTray } from './tray'
 import { createSubWindow, createMainWindow as createWindow, electronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
-import { rendererPath, windowBaseUrl } from './path'
+import { rendererPath, windowBaseUrl, extensionHost } from './path'
+import { getExtensionResourcePath } from './extension'
 
 const startTime = Date.now()
 globalThis.MainWindowLoaded = false
@@ -92,10 +93,18 @@ function sessionHanlder() {
 function registerRpaProtocol() {
   // 注册自定义协议 rpa://localhost/boot.html 映射到本地 rendererPath/boot.html
   protocol.registerFileProtocol('rpa', (request, callback) => {
+    const u = new URL(request.url)
     try {
-      const u = new URL(request.url)
-      const filePath = path.join(rendererPath, u.pathname)
-      callback({ path: filePath })
+      if (u.hostname === extensionHost) {
+        const paths = u.pathname.split('/')
+        const extensionName = paths[1]
+        const resourcePath = getExtensionResourcePath(extensionName)
+        const filePath = path.join(resourcePath, ...paths.slice(2))
+        callback({ path: filePath })
+      } else {
+        const filePath = path.join(rendererPath, u.pathname)
+        callback({ path: filePath })
+      }
     }
     catch (err) {
       logger.error('rpa protocol file resolve error:', err)

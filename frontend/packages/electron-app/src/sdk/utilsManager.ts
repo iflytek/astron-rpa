@@ -176,14 +176,8 @@ const showDialog: UtilsManagerType['showDialog'] = (dialogProps) => {
   })
 }
 
-const getPluginPath: UtilsManagerType['getPluginPath'] = async (_filePath) => {
-  console.log('getPluginPath')
-  return ''
-}
-
 const getPluginList: UtilsManagerType['getPluginList'] = async () => {
-  console.log('getPluginList')
-  return []
+  return ipcRenderer.invoke('get-plugin-list')
 }
 
 const UtilsManager: UtilsManagerType = {
@@ -204,7 +198,6 @@ const UtilsManager: UtilsManagerType = {
   playVideo,
   shellopen,
   showDialog,
-  getPluginPath,
   getPluginList,
   getResourcePath,
 }

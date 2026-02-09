@@ -7,9 +7,8 @@ import type { Ref } from 'vue'
 import { toolsInterfacePost } from '@/api/setting'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 
-export function useNotify() {
-  const emailRef = ref()
-  const initEmailData = {
+function initEmailData(): RPA.EmailFormMap {
+  return {
     is_enable: false, // 是否启用, 默认不启用
     receiver: '', // 收件人
     is_default: true, // 默认不起用其他邮箱
@@ -20,12 +19,20 @@ export function useNotify() {
     use_ssl: true, // 是否SSL
     cc: '', // 抄送
   }
-  const initPhoneData = {
+}
+
+function initPhoneData(): RPA.PhoneFormMap {
+  return {
     is_enable: false, // 是否启用, 默认不启用
     receiver: '', // 收件人手机号
     phone_msg_url: 'https://pretest.xfpaas.com/dripsms/smssafe',
   }
-  const email: Ref<RPA.EmailFormMap> = ref(JSON.parse(JSON.stringify(initEmailData)))
+}
+
+export function useNotify() {
+  const emailRef = ref()
+
+  const email: Ref<RPA.EmailFormMap> = ref(initEmailData())
   const emailFormRules: Record<string, Rule[]> = {
     receiver: [
       { required: true, message: '请输入收件箱地址', trigger: 'blur' },
@@ -48,7 +55,7 @@ export function useNotify() {
     password: [{ required: true, message: '请输入密钥', trigger: 'blur' }],
   }
   const phoneRef = ref()
-  const phone_msg: Ref<RPA.PhoneFormMap> = ref(JSON.parse(JSON.stringify(initPhoneData)))
+  const phone_msg: Ref<RPA.PhoneFormMap> = ref(initPhoneData())
   const phoneFormRules: Record<string, Rule[]> = {
     receiver: [
       // /0?(13|14|15|18)[0-9]{9}/
@@ -77,7 +84,7 @@ export function useNotify() {
     if (email.value.is_enable) {
       newSetting = {
         msgNotifyForm: {
-          email: JSON.parse(JSON.stringify(initEmailData)),
+          email: initEmailData(),
           phone_msg: phone_msg.value,
         },
       }
@@ -86,7 +93,7 @@ export function useNotify() {
       newSetting = {
         msgNotifyForm: {
           email: email.value,
-          phone_msg: JSON.parse(JSON.stringify(initPhoneData)),
+          phone_msg: initPhoneData(),
         },
       }
     }

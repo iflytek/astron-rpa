@@ -6,6 +6,7 @@ import '@/assets/css/default.css'
 import '@/assets/css/main.scss'
 
 // 插件导入
+import '@/plugins/extension'
 import i18next from '@/plugins/i18next'
 import sentry from '@/plugins/sentry'
 

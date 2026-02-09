@@ -1,0 +1,16 @@
+{
+  "name": "<%= name %>",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "rpa dev",
+    "build": "rpa build"
+  },
+  "devDependencies": {
+    "@rpa/cli": "workspace:*"
+  },
+  "dependencies": {
+    "@rpa/shared": "workspace:*"
+  }
+}

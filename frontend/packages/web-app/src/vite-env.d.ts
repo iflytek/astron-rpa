@@ -17,3 +17,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare const __VUE_VERSION__: string
+declare const __PINIA_VERSION__: string

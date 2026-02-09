@@ -1,0 +1,36 @@
+{
+  "name": "@rpa/cli",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CLI tool for Astron RPA plugin development",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "rpa": "./bin/rpa.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsdown --watch"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "templates"
+  ],
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "cac": "^6.7.14"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.0.0",
+    "@module-federation/vite": "^1.11.0",
+    "@rpa/shared": "workspace:*",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue-jsx": "^5.0.1",
+    "debug": "^4.4.3",
+    "ejs": "^4.0.1",
+    "tsdown": "^0.15.7",
+    "vite": "^7.1.10"
+  }
+}
