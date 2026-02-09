@@ -144,5 +144,30 @@
             </choose>
     </select>
 
+    <!-- 根据手机号或姓名查询市场用户（排除已在团队内的用户，已禁用的不再查询） -->
+    <select id="getMarketUserByPhone" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            u.phone phone,
+            u.display_name realName,
+            u.id creatorId
+        from ${databaseName}.`user` u
+        where
+            not exists(
+                select id
+                from app_market_user amu
+                where amu.creator_id = u.id 
+                    and amu.deleted = 0 
+                    and amu.market_id = #{dto.marketId}
+            )
+            <if test="dto.keyword != null and dto.keyword != ''">
+                and (
+                    u.phone like CONCAT('%', #{dto.keyword}, '%') 
+                    or u.display_name like CONCAT('%', #{dto.keyword}, '%')
+                )
+            </if>
+            and u.is_deleted = 0
+            limit 20
+    </select>
+
 </mapper>
 

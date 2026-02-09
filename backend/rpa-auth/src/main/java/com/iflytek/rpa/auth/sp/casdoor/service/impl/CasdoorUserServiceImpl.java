@@ -1956,7 +1956,30 @@ public class CasdoorUserServiceImpl implements UserService {
 
     @Override
     public AppResponse<List<MarketDto>> getMarketUserByPhone(GetMarketUserByPhoneDto dto, HttpServletRequest request) {
-        return AppResponse.success(new ArrayList<>());
+        try {
+            log.debug("开始根据手机号或姓名查询市场用户，marketId: {}, keyword: {}", 
+                    dto != null ? dto.getMarketId() : "null", 
+                    dto != null ? dto.getKeyword() : "null");
+
+            // 参数校验
+            if (dto == null || StringUtils.isBlank(dto.getMarketId())) {
+                log.warn("根据手机号或姓名查询市场用户失败：参数为空或marketId为空");
+                return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "市场ID不能为空");
+            }
+
+            // 调用DAO查询
+            List<MarketDto> result = casdoorUserDao.getMarketUserByPhone(dto, databaseName);
+            if (result == null) {
+                result = Collections.emptyList();
+            }
+
+            log.debug("根据手机号或姓名查询市场用户成功，返回 {} 条结果，marketId: {}", result.size(), dto.getMarketId());
+            return AppResponse.success(result);
+        } catch (Exception e) {
+            log.error("根据手机号或姓名查询市场用户异常，marketId: {}", 
+                    dto != null ? dto.getMarketId() : "null", e);
+            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "根据手机号或姓名查询市场用户失败: " + e.getMessage());
+        }
     }
 
     @Override
