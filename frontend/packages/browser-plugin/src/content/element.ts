@@ -457,13 +457,19 @@ function getShadowElementsBySelector(selector: string) {
  */
 function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) {
   // Re-weight dirs again, try to uncheck the index of each node
+  let idIndex = -1
   for (let i = dirs.length - 1; i >= 0; i--) {
     const dir = dirs[i]
     const idAttr = dir.attrs.find(attr => attr.name === 'id' && attr.checked)
     if (idAttr) {
+      idIndex = i
       dir.attrs.forEach((attr) => {
         attr.checked = attr.name === 'id'
       })
+    }
+    if (i < idIndex) {
+      // try to uncheck dir.checked
+      dir.checked = false
     }
     const indexAttr = dir.attrs.find(attr => attr.name === 'index')
     if (indexAttr && indexAttr.checked) {
@@ -487,7 +493,7 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
  * @param isAbsolute - If true, traverses up to the root element regardless of unique identifiers; otherwise, stops at a unique id or the body element.
  * @returns An array of `ElementDirectory` objects, each describing an ancestor element and its relevant attributes.
  */
-export function getElementDirectory(element: HTMLElement, isAbsolute = false): ElementDirectory[] {
+export function getElementDirectory(element: HTMLElement): ElementDirectory[] {
   if (!element)
     return []
   const originElement = element
@@ -541,10 +547,10 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
 
     const attributes = { tag: tagName, checked: true, value: tagName, attrs }
     elementDirectory.unshift(attributes)
-    // id has highest weight, stop here
-    if (id && isUniqueId && !isAbsolute) {
-      return rebuildDirectory(originElement, elementDirectory)
-    }
+    // change id weighting
+    // if (id && isUniqueId && !isAbsolute) {
+    //   return rebuildDirectory(originElement, elementDirectory)
+    // }
     element = element.parentElement
     if (element && element.tagName.toLowerCase() === 'body') {
       return rebuildDirectory(originElement, elementDirectory)
@@ -627,6 +633,7 @@ function directoryFindElement(elementDirectory: ElementDirectory[], onlyPosition
   searchElements = getElementsByXpath(xpath, onlyPosition)
   if (searchElements && searchElements.length > 0) {
     searchElements = checkElementsByRegular(searchElements, elementDirectory)
+    // console.log(xpath, searchElements.length);
     return searchElements
   }
   else {
@@ -724,12 +731,15 @@ export function generateXPath(dirs: ElementDirectory[], onlyPosition: boolean = 
       })
     })
   }
-  const xpath = dirs
-    .filter(dir => dir.checked)
-    .map((dir) => {
+  let xpath = ''
+  let checkedDirIndex = 0
+  for (let i = 0; i < dirs.length; i++) {
+    const dir = dirs[i]
+    if (dir.checked) {
       const attrs = dir.attrs
         .filter((attr) => {
-          if (attr.type === 2 && attr.value && attr.checked) {
+          // exclude type 2 (regex) attrs
+          if (attr.type === 2 && attr.checked) {
             return false
           }
           else {
@@ -741,13 +751,19 @@ export function generateXPath(dirs: ElementDirectory[], onlyPosition: boolean = 
           return condition
         })
         .join(' and ')
-      return attrs ? `${dir.tag}[${attrs}]` : dir.tag
-    })
-    .join('/')
-  if (xpath.startsWith('html')) {
-    return `/${xpath}`
+      const segment = attrs ? `${dir.tag}[${attrs}]` : dir.tag
+      let prefix = '/'
+      if (i === 0) {
+        prefix = dir.tag === 'html' ? '/' : '//'
+      }
+      if (Math.abs(i - checkedDirIndex) > 1) {
+        prefix = '//'
+      }
+      xpath += `${prefix}${segment}`
+      checkedDirIndex = i
+    }
   }
-  return `//${xpath}`
+  return xpath
 }
 
 export function hasChildElement(element) {
