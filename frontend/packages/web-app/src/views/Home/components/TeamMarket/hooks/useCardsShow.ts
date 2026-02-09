@@ -92,7 +92,7 @@ export function useCardsShow(emits) {
           trigger: 'modal',
           modalConfirm: {
             title: '已达到应用数量上限',
-            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版最多支持创建19个应用，您已满额。` : `专业版最多支持创建99个应用，您已满额。`,
+            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版设计器最多可编辑19个应用，您已满额。` : `专业版设计器最多可编辑99个应用，您已满额。`,
             okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
             cancelText: '我知道了',
           },
