@@ -236,8 +236,8 @@ function handleCancelInstall() {
         <div v-else class="flex-1 flex flex-col justify-center gap-4">
           <div class="flex flex-col items-center">
             <rpa-icon name="magic-wand" size="32" class="text-primary" />
-            <span class="text-primary text-[20px] font-semibold">星辰 RPA 智能组件生成助手</span>
-            <span>帮助您快速创建 RPA 组件</span>
+            <span class="text-primary text-[20px] font-semibold">{{ $t('smartComponent.assistantTitle') }}</span>
+            <span>{{ $t('smartComponent.assistantSubtitle') }}</span>
           </div>
 
           <Prompts

@@ -38,7 +38,7 @@ function handleClick(prompt: PromptItem) {
         <rpa-icon :name="prompt.icon" size="20" />
         <span>{{ prompt.label }}</span>
       </div>
-      <span>{{ prompt.description }}</span>
+      <span class="text-center px-2">{{ prompt.description }}</span>
     </div>
   </div>
 </template>

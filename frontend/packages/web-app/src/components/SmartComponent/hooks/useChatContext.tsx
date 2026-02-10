@@ -19,7 +19,8 @@ import type { SmartCompContext } from '.'
 // 创建聊天上下文
 export function useChatContext(smartComp: SmartCompContext) {
   const { t } = useTranslation()
-  const promptItmes = [
+  
+  const promptItmes = computed(() => [
     {
       key: 'web_auto',
       icon: 'globe',
@@ -32,7 +33,7 @@ export function useChatContext(smartComp: SmartCompContext) {
       label: t('smartComponent.dataProcessing'),
       description: t('smartComponent.dataProcessingDesc'),
     },
-  ]
+  ])
 
   const md = markdownit({ html: true, breaks: true })
 

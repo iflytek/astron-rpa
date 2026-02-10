@@ -1054,6 +1054,8 @@
     "packagesInstalled": "已安装缺失依赖库",
     "missingPackages": "缺失依赖库",
     "assistantWorking": "智能组件生成助手工作中...",
+    "assistantTitle": "星辰 RPA 智能组件生成助手",
+    "assistantSubtitle": "帮助您快速创建 RPA 组件",
     "duration": "耗时 {{duration}}s",
     "validationSuccess": "校验成功",
     "restoreChatHistoryFailed": "恢复智能组件会话历史失败:",
