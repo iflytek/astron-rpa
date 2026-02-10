@@ -286,19 +286,4 @@ router.beforeEach(async (to, from, next) => {
   next()
 })
 
-window.addEventListener('load', () => {
-  const isIndexPage = window.location.pathname.includes('index.html')
-  if(!isIndexPage) return
-  if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(() => {
-      import('@/views/Arrange/index.vue')
-    })
-  }
-  else {
-    setTimeout(() => {
-      import('@/views/Arrange/index.vue')
-    }, 0)
-  }
-})
-
 export default router
