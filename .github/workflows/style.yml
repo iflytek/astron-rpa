@@ -121,7 +121,7 @@ jobs:
       - name: Web dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
         working-directory: ./frontend
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Web style check
         if: steps.changed-files.outputs.any_changed == 'true'
