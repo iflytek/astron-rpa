@@ -36,7 +36,9 @@ from astronverse.datatable.utils import (
     filter_data,
     index_to_col,
     validate,
+    validate_col,
     validate_formula,
+    validate_row,
 )
 
 try:
@@ -73,13 +75,11 @@ def validate_cell(func):
         row = kwargs.get("row")
         start_col = kwargs.get("start_col")
         start_row = kwargs.get("start_row")
-        end_col = kwargs.get("end_col")
-        end_row = kwargs.get("end_row")
 
-        cols_to_validate = [c for c in [col, start_col, end_col] if c]
+        cols_to_validate = [c for c in [col, start_col] if c]
         for c in cols_to_validate:
             validate(col=c)
-        rows_to_validate = [r for r in [row, start_row, end_row] if r]
+        rows_to_validate = [r for r in [row, start_row] if r]
         for r in rows_to_validate:
             validate(row=r)
 
@@ -252,6 +252,8 @@ class DataTable:
                 raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("读取区域需要指定开始行列"), "读取区域需要指定开始行列")
             end_col = end_col or index_to_col(PyxlWrapper.get_max_column() - 1)
             end_row = end_row or PyxlWrapper.get_max_row()
+            validate_col(col=end_col)
+            validate_row(row=end_row)
             col_range = f"{start_col}{start_row}:{end_col}{end_row}"
             range_value = PyxlWrapper.read_range(range_str=col_range)
             if is_trim_spaces:
@@ -886,6 +888,8 @@ class DataTable:
                 end_col = index_to_col(end_col_index - 1)
             if not end_row:
                 end_row = PyxlWrapper.get_max_row()
+            validate_col(col=end_col)
+            validate_row(row=end_row)
             col_range = f"{start_col}{start_row}:{end_col}{end_row}"
             PyxlWrapper.clear_range(range_str=col_range)
 

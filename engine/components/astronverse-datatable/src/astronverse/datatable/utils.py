@@ -3,7 +3,12 @@ from datetime import datetime
 
 import openpyxl
 from astronverse.datatable import ConditionType, FilterType
-from astronverse.datatable.error import *
+from astronverse.datatable.error import (
+    COL_FORMAT_ERROR,
+    DATAFRAME_EXPECTION,
+    FORMULA_FORMAT_ERROR,
+    ROW_FORMAT_ERROR,
+)
 
 
 def validate(row=1, col="A"):
@@ -28,6 +33,32 @@ def validate(row=1, col="A"):
         raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
     if not isinstance(row, int) or row < 1:
         raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(row), "行格式错误")
+    
+    
+def validate_row(row):
+    try:
+        row = int(row)
+    except ValueError:
+        pass
+    if isinstance(row, int):
+        if row < 1:
+            raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(row), "行格式错误")
+    else:
+        raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(row), "行格式错误")
+
+
+def validate_col(col):
+    try:
+        col = int(col)
+    except ValueError:
+        pass
+    if isinstance(col, int):
+        if col < 1:
+            raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
+    else:
+        col = col.upper()
+        if not (col.isalpha() and col >= "A"):
+            raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
 
 
 def col_to_index(col="A") -> int:
