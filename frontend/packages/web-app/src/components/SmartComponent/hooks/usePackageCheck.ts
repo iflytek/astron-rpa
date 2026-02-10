@@ -1,4 +1,5 @@
 import { computed, inject, provide, ref } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import { getBaseURL } from '@/api/http/env'
 import { addPyPackageApi, getPyPackageListApi, packageVersion } from '@/api/resource'
@@ -11,6 +12,7 @@ import { usePythonPackageStore } from '@/stores/usePythonPackageStore'
 export function usePackageCheckContext() {
   const processStore = useProcessStore()
   const pythonPackageStore = usePythonPackageStore()
+  const { t } = useTranslation()
 
   const packages = ref<string[]>([])
   const lackPackages = ref<string[]>([])
@@ -76,7 +78,7 @@ export function usePackageCheckContext() {
 
           if (newData.includes('stderr')) {
             controller.abort()
-            reject(new Error(`安装 ${packageName} 失败`))
+            reject(new Error(t('smartComponent.installPackageFailed', { packageName })))
             return
           }
 

@@ -13,7 +13,7 @@ const collapse = defineModel('collapse', {
   <div class="flex flex-col">
     <div class="flex items-center gap-1" @click="collapse = !collapse">
       <slot name="title" :collapse="collapse">
-        <span>{{ title || (collapse ? '展开' : '收起') }}</span>
+        <span>{{ title || (collapse ? $t('smartComponent.expand') : $t('smartComponent.collapse')) }}</span>
       </slot>
       <rpa-hint-icon name="chevron-down" class="text-text-tertiary" enable-hover-bg :class="[collapse ? 'rotate-0' : 'rotate-180']" />
     </div>

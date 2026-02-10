@@ -12,7 +12,7 @@ export const modeOptions = [
     value: 'visual',
     payload: {
       icon: 'eye',
-      title: '可视化',
+      title: 'smartComponent.visualMode',
     },
   },
   {
@@ -20,7 +20,7 @@ export const modeOptions = [
     value: 'code',
     payload: {
       icon: 'code-xml',
-      title: '代码模式',
+      title: 'smartComponent.codeMode',
     },
   },
 ] as const
