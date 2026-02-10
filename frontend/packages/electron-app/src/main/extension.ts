@@ -20,6 +20,7 @@ interface IExtension {
   config: IPluginConfig
 }
 
+// eslint-disable-next-line import/no-mutable-exports
 export let extensions: IExtension[] = []
 
 /**
