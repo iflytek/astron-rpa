@@ -142,7 +142,7 @@ def filter_data(
 
 
 def value_check(
-    value: any, condition_type: ConditionType, condition_value: str, date_value, date_range, is_case_sensitive: bool
+    value, condition_type: ConditionType, condition_value: str, date_value, date_range, is_case_sensitive: bool
 ) -> bool:
     """过滤处理器"""
     val = value

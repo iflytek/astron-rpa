@@ -997,6 +997,8 @@ class DataTable:
 
         if not list_data:
             list_data = []
+        if not isinstance(list_data, list):
+            list_data = [list_data]
 
         def table_generator():
             list_length = len(list_data)
