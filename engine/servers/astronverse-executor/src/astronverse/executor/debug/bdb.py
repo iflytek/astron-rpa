@@ -262,14 +262,7 @@ class CustomBdb(bdb.Bdb):
             tb = tb.tb_next
 
         if not matched:
-            self.notify(
-                "exception",
-                file="",
-                line=0,
-                py_line=0,
-                exc=exc,
-                exc_msg=self.err_handler(exc)
-            )
+            self.notify("exception", file="", line=0, py_line=0, exc=exc, exc_msg=self.err_handler(exc))
         else:
             tb = matched[-1]
             filename = tb.tb_frame.f_code.co_filename
@@ -281,5 +274,5 @@ class CustomBdb(bdb.Bdb):
                 line=self._to_flow_line(filename, py_line),
                 py_line=py_line,
                 exc=exc,
-                exc_msg=self.err_handler(exc)
+                exc_msg=self.err_handler(exc),
             )

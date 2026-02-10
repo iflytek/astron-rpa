@@ -282,6 +282,7 @@ def browser_check_running(plugin_op: BrowserPlugin):
         logger.exception(e)
     return res_msg(code=ResCode.ERR, msg="检测失败", data=None)
 
+
 @router.post("/browser/plugins/install_all_updates")
 def update_installed_plugins():
     """
