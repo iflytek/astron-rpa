@@ -3,7 +3,7 @@ import { NiceModal } from '@rpa/components'
 import { isEmpty } from 'lodash-es'
 import { computed, ref } from 'vue'
 
-import { extensions } from '@/plugins/extension'
+import extensionManager from '@/plugins/extension'
 
 import SettingMenu from './components/settingMenu.vue'
 import type { MenuItem } from './config'
@@ -13,7 +13,7 @@ const modal = NiceModal.useModal()
 const currentSettingWin = ref(menuConfig[0].key)
 
 const menuItems = computed(() => {
-  const pluginItems: MenuItem[] = (extensions?.settings.getAll() ?? []).map(item => ({
+  const pluginItems: MenuItem[] = (extensionManager.extensions?.settings.getAll() ?? []).map(item => ({
     key: item.id,
     icon: item.icon,
     name: item.title,

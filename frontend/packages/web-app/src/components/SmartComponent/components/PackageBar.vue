@@ -21,15 +21,15 @@ const displayPackages = computed(() => props.isCompleted ? props.initialLackPack
     <template #title>
       <div v-if="isInstalling" class="flex-1 flex items-center gap-2">
         <img :src="loadingSvg" alt="loading" class="w-4 h-4 animate-spin">
-        <span>正在安装缺失依赖库...</span>
+        <span>{{ $t('smartComponent.installingPackages') }}</span>
       </div>
       <div v-else-if="isCompleted" class="flex-1 flex items-center gap-2">
         <rpa-icon name="success" size="16" />
-        <span>已安装缺失依赖库</span>
+        <span>{{ $t('smartComponent.packagesInstalled') }}</span>
       </div>
       <div v-else class="flex-1 flex items-center gap-2">
         <rpa-icon name="python-install-warn" size="16" />
-        <span>缺失依赖库</span>
+        <span>{{ $t('smartComponent.missingPackages') }}</span>
       </div>
     </template>
     <div v-if="displayPackages.length > 0" class="space-y-2 text-[12px]">

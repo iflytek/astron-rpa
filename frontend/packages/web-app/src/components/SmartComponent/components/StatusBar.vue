@@ -8,10 +8,10 @@ defineProps<{
 <template>
   <div v-if="isGenerating" class="flex items-center gap-2 p-2">
     <rpa-icon name="magic-wand" size="16" class="text-primary" />
-    <span>智能组件生成助手工作中...</span>
+    <span>{{ $t('smartComponent.assistantWorking') }}</span>
   </div>
   <div v-else-if="duration" class="flex items-center gap-2 p-2">
     <rpa-icon name="magic-wand" size="16" class="text-primary" />
-    <span>耗时 {{ duration }}s</span>
+    <span>{{ $t('smartComponent.duration', { duration }) }}</span>
   </div>
 </template>

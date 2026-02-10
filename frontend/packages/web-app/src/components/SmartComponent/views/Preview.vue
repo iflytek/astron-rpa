@@ -2,6 +2,7 @@
 import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
 import { computed, provide, ref, watch } from 'vue'
+import { useTranslation } from 'i18next-vue'
 import { useRoute } from 'vue-router'
 import { CodeEditor } from '@rpa/components'
 
@@ -26,6 +27,7 @@ const smartComp = useSmartComp()
 const runningStore = useRunningStore()
 const runlogStore = useRunlogStore()
 const route = useRoute()
+const { t } = useTranslation()
 
 // 依赖检查（使用共享的上下文）
 const {
@@ -143,11 +145,11 @@ const handleSave = throttle(async () => {
     previousCode.value = code
 
     runlogStore.clearLogs()
-    message.success('保存成功')
+    message.success(t('smartComponent.saveSuccess'))
   }
   catch (error) {
-    console.error('保存失败:', error)
-    message.error('保存失败')
+    console.error(t('smartComponent.saveFailed'), error)
+    message.error(t('smartComponent.saveFailed'))
   }
 }, 1500, { leading: true, trailing: false })
 
@@ -162,7 +164,7 @@ const handleReset = throttle(() => {
     <div class="flex justify-between px-4 py-[10px]">
       <a-segmented v-model:value="mode" :options="modeOptions as any">
         <template #label="{ payload }">
-          <rpa-hint-icon :name="payload.icon" :title="payload.title" class="relative top-[2px]" />
+          <rpa-hint-icon :name="payload.icon" :title="$t(payload.title)" class="relative top-[2px]" />
         </template>
       </a-segmented>
       <div class="flex items-center gap-2">
@@ -173,7 +175,7 @@ const handleReset = throttle(() => {
             @click="handleReset"
           >
             <template #suffix>
-              <span class="ml-1">重置</span>
+              <span class="ml-1">{{ $t('smartComponent.reset') }}</span>
             </template>
           </rpa-hint-icon>
           <rpa-hint-icon
@@ -182,7 +184,7 @@ const handleReset = throttle(() => {
             @click="handleSave"
           >
             <template #suffix>
-              <span class="ml-1">保存</span>
+              <span class="ml-1">{{ $t('smartComponent.save') }}</span>
             </template>
           </rpa-hint-icon>
         </template>

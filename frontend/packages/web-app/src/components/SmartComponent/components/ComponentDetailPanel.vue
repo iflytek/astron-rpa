@@ -50,7 +50,7 @@ function handleSwitchVersion(version: number) {
 <template>
   <div v-if="isGenerating" class="flex items-center gap-2 bg-[#F3F3F7] dark:bg-[#FFFFFF]/[.08] rounded-lg p-2">
     <img :src="loadingSvg" alt="loading" class="w-4 h-4 animate-spin">
-    <span>正在生成组件...</span>
+    <span>{{ $t('smartComponent.generatingComponent') }}</span>
   </div>
   <CollapsePanel
     v-if="versionData"
@@ -67,7 +67,7 @@ function handleSwitchVersion(version: number) {
             v{{ versionData.version }}
           </div>
           <div class="flex-1 flex flex-col overflow-hidden">
-            <span class="font-medium text-ellipsis overflow-hidden whitespace-nowrap">{{ versionData.title || '组件版本名称' }}</span>
+            <span class="font-medium text-ellipsis overflow-hidden whitespace-nowrap">{{ versionData.title || $t('smartComponent.componentVersionName') }}</span>
             <span v-if="showTime" class="text-[12px] text-text-tertiary">
               {{ new Date(versionData.updateTime || versionData.createTime || Date.now()).toLocaleString('zh-CN') }}
             </span>
@@ -83,16 +83,16 @@ function handleSwitchVersion(version: number) {
     </template>
     <div class="space-y-2 text-[12px]">
       <div class="flex">
-        <span class="font-medium">组件功能：</span>
+        <span class="font-medium">{{ $t('smartComponent.componentFunction') }}</span>
         <span class="flex-1 text-text-secondary">{{ versionData.comment }}</span>
       </div>
       <div class="flex">
-        <span class="font-medium">输入参数：</span>
-        <span class="flex-1 text-text-secondary">{{ versionData.inputList.map(item => item.title).join('、') || '无' }}</span>
+        <span class="font-medium">{{ $t('smartComponent.inputParams') }}</span>
+        <span class="flex-1 text-text-secondary">{{ versionData.inputList.map(item => item.title).join('、') || $t('smartComponent.none') }}</span>
       </div>
       <div class="flex">
-        <span class="font-medium">输出参数：</span>
-        <span class="flex-1 text-text-secondary">{{ versionData.outputList.map(item => item.title).join('、') || '无' }}</span>
+        <span class="font-medium">{{ $t('smartComponent.outputParams') }}</span>
+        <span class="flex-1 text-text-secondary">{{ versionData.outputList.map(item => item.title).join('、') || $t('smartComponent.none') }}</span>
       </div>
     </div>
   </CollapsePanel>

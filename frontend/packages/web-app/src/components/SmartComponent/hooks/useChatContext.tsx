@@ -1,4 +1,5 @@
 import { message, Typography } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import type { BubbleProps, XRequestCallbacks } from 'ant-design-x-vue'
 import { useXAgent, useXChat, XRequest } from 'ant-design-x-vue'
 import markdownit from 'markdown-it'
@@ -17,20 +18,22 @@ import type { SmartCompContext } from '.'
 
 // 创建聊天上下文
 export function useChatContext(smartComp: SmartCompContext) {
-  const promptItmes = [
+  const { t } = useTranslation()
+  
+  const promptItmes = computed(() => [
     {
       key: 'web_auto',
       icon: 'globe',
-      label: '网页自动化',
-      description: '从网页抓取数据并保存到 Excel',
+      label: t('smartComponent.webAutomation'),
+      description: t('smartComponent.webAutomationDesc'),
     },
     {
       key: 'data_process',
       icon: 'sheet',
-      label: '数据处理',
-      description: '从 Excel 读取数据并转换为 JSON 格式',
+      label: t('smartComponent.dataProcessing'),
+      description: t('smartComponent.dataProcessingDesc'),
     },
-  ]
+  ])
 
   const md = markdownit({ html: true, breaks: true })
 
@@ -93,7 +96,7 @@ export function useChatContext(smartComp: SmartCompContext) {
                   compMeta = await codeToMeta({ code: extractedCode }) || {}
                 }
                 catch (error) {
-                  console.error('解析组件元数据失败:', error)
+                  console.error(t('smartComponent.parseComponentMetaFailed'), error)
                   compMeta = {}
                 }
 
@@ -165,12 +168,12 @@ export function useChatContext(smartComp: SmartCompContext) {
                 onUpdate(currentContent)
               }
               catch (error) {
-                console.error('解析流式数据失败:', error)
+                console.error(t('smartComponent.parseStreamDataFailed'), error)
               }
             }
           }
           catch (error) {
-            console.error('处理消息失败:', error)
+            console.error(t('smartComponent.handleMessageFailed'), error)
             senderLoading.value = false
           }
         },
@@ -185,8 +188,8 @@ export function useChatContext(smartComp: SmartCompContext) {
   // Chat messages
   const { onRequest, messages } = useXChat({
     agent: agent.value,
-    requestPlaceholder: toMessageOutput('正在请求...'),
-    requestFallback: toMessageOutput('请求失败，请稍后再试。'),
+    requestPlaceholder: toMessageOutput(t('smartComponent.requesting')),
+    requestFallback: toMessageOutput(t('smartComponent.requestFailed')),
   })
 
   // 渲染消息
@@ -260,7 +263,7 @@ export function useChatContext(smartComp: SmartCompContext) {
     console.log('修复错误:', errorLog)
 
     if (senderLoading.value) {
-      message.warning('智能组件生成中，请稍后再试')
+      message.warning(t('smartComponent.generatingPleaseWait'))
       return
     }
 

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { Empty } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed, onBeforeMount } from 'vue'
 
 import loadingSvg from '@/assets/img/loading.svg'
@@ -8,6 +9,7 @@ import { useRunningStore } from '@/stores/useRunningStore'
 
 import { injectChatContext } from '../hooks'
 
+const { t } = useTranslation()
 const runlogStore = useRunlogStore()
 const runningStore = useRunningStore()
 const { fixCode } = injectChatContext()
@@ -49,7 +51,7 @@ const errorLogs = computed(() => {
           const lineNumber = Number.parseInt(lineMatch[1], 10)
           const execErrorMatch = log.content.match(/执行错误\s*(.+)/)
           const errorMessage = execErrorMatch ? execErrorMatch[1].trim() : log.content
-          formattedContent = `源代码第【${lineNumber}】行出错: ${errorMessage}`
+          formattedContent = t('smartComponent.sourceCodeError', { lineNumber, errorMessage })
         }
       }
 
@@ -78,15 +80,15 @@ onBeforeMount(() => closeLogView())
       <div class="flex items-center gap-2 font-medium">
         <template v-if="hasErrors">
           <rpa-icon name="error" size="16" />
-          <span>执行失败</span>
+          <span>{{ t('smartComponent.executionFailed') }}</span>
         </template>
         <template v-else-if="isExecuting">
           <img :src="loadingSvg" alt="loading" class="w-4 h-4 animate-spin">
-          <span>执行中</span>
+          <span>{{ t('smartComponent.executing') }}</span>
         </template>
         <template v-else>
           <rpa-icon name="success" size="16" />
-          <span>执行成功</span>
+          <span>{{ t('smartComponent.executionSuccess') }}</span>
         </template>
       </div>
       <rpa-hint-icon name="close" size="20" enable-hover-bg @click="closeLogView" />
@@ -112,7 +114,7 @@ onBeforeMount(() => closeLogView())
           <rpa-icon name="error" size="16" />
           <span class="ml-2 flex-1 dark:text-[#000000]/[.85]">{{ log.formattedContent }}</span>
           <a-button type="link" class="text-primary" @click="fixCode(log)">
-            一键修复
+            {{ t('smartComponent.oneClickFix') }}
           </a-button>
         </div>
       </div>

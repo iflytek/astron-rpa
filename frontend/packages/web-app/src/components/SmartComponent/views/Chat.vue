@@ -3,6 +3,7 @@ import { message } from 'ant-design-vue'
 import { Bubble } from 'ant-design-x-vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTranslation } from 'i18next-vue'
 
 import { getSmartComp, optimizeQuestion } from '@/api/component'
 import { clipboardManager } from '@/platform'
@@ -26,6 +27,7 @@ const processStore = useProcessStore()
 const flowStore = useFlowStore()
 const route = useRoute()
 const { colorTheme } = useTheme()
+const { t } = useTranslation()
 
 const {
   realMsgs,
@@ -130,7 +132,7 @@ function handleCopy(content: MessageInput | MessageOutput) {
   else {
     clipboardManager.writeClipboardText(content.text)
   }
-  message.success('复制成功')
+  message.success(t('smartComponent.copySuccess'))
 }
 
 async function handleOptimizeQuestion(docNode: DocNode) {
@@ -146,11 +148,11 @@ async function handleOptimizeQuestion(docNode: DocNode) {
     if (optimizedText) {
       const optimizedDocNode = parseOptimizedTextToDocNode(optimizedText, parsedContent.elements)
       value.value = optimizedDocNode
-      message.success('优化成功')
+      message.success(t('smartComponent.optimizeSuccess'))
     }
   }
   catch (error) {
-    console.error('优化提问失败:', error)
+    console.error(t('smartComponent.optimizeQuestionFailed'), error)
   }
   finally {
     optimizeLoading.value = false
@@ -165,22 +167,22 @@ function handlePromptClick(prompt) {
 
   if (type === 'web_auto') {
     editorRef.value.setContent([
-      { type: 'text', text: '在' },
-      { type: 'elementNode', attrs: { name: '元素名' } },
-      { type: 'text', text: '中完成' },
-      { type: 'descriptionNode', content: [{ type: 'text', text: '可见元素的自动化操作' }] },
+      { type: 'text', text: t('smartComponent.template.at') },
+      { type: 'elementNode', attrs: { name: t('smartComponent.template.elementName') } },
+      { type: 'text', text: t('smartComponent.template.completeIn') },
+      { type: 'descriptionNode', content: [{ type: 'text', text: t('smartComponent.template.visibleElementAutomation') }] },
     ])
   }
   else if (type === 'data_process') {
     editorRef.value.setContent([
-      { type: 'text', text: '需求：' },
-      { type: 'descriptionNode', content: [{ type: 'text', text: '需求描述' }] },
-      { type: 'text', text: '示例：' },
-      { type: 'descriptionNode', content: [{ type: 'text', text: '示例描述' }] },
-      { type: 'text', text: '输入：' },
-      { type: 'descriptionNode', content: [{ type: 'text', text: '参数' }] },
-      { type: 'text', text: '输出：' },
-      { type: 'descriptionNode', content: [{ type: 'text', text: '参数' }] },
+      { type: 'text', text: t('smartComponent.template.requirement') },
+      { type: 'descriptionNode', content: [{ type: 'text', text: t('smartComponent.template.requirementDesc') }] },
+      { type: 'text', text: t('smartComponent.template.example') },
+      { type: 'descriptionNode', content: [{ type: 'text', text: t('smartComponent.template.exampleDesc') }] },
+      { type: 'text', text: t('smartComponent.template.input') },
+      { type: 'descriptionNode', content: [{ type: 'text', text: t('smartComponent.template.param') }] },
+      { type: 'text', text: t('smartComponent.template.output') },
+      { type: 'descriptionNode', content: [{ type: 'text', text: t('smartComponent.template.param') }] },
     ])
   }
 
@@ -234,8 +236,8 @@ function handleCancelInstall() {
         <div v-else class="flex-1 flex flex-col justify-center gap-4">
           <div class="flex flex-col items-center">
             <rpa-icon name="magic-wand" size="32" class="text-primary" />
-            <span class="text-primary text-[20px] font-semibold">星辰 RPA 智能组件生成助手</span>
-            <span>帮助您快速创建 RPA 组件</span>
+            <span class="text-primary text-[20px] font-semibold">{{ $t('smartComponent.assistantTitle') }}</span>
+            <span>{{ $t('smartComponent.assistantSubtitle') }}</span>
           </div>
 
           <Prompts
