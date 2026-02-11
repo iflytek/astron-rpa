@@ -116,7 +116,7 @@ class ComponentInfo:
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
             component_file_name=data.get("component_file_name", ""),
-            component_params=data.get("component_params", [])
+            component_params=data.get("component_params", []),
         )
 
 

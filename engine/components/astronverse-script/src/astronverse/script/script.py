@@ -10,7 +10,6 @@ from astronverse.script.error import *
 
 
 class Script:
-
     @staticmethod
     def _call(path: str, package: str, **kwargs):
         try:
@@ -192,7 +191,13 @@ class Script:
         inn_kwargs = {**global_vars, **inn_kwargs}
 
         # 为了兼容老版本独立出来
-        res = Script._module_call(".{}".format(content), package=package, out_kwargs=out_kwargs, out_param_meta=param_meta, inn_kwargs=inn_kwargs)
+        res = Script._module_call(
+            ".{}".format(content),
+            package=package,
+            out_kwargs=out_kwargs,
+            out_param_meta=param_meta,
+            inn_kwargs=inn_kwargs,
+        )
         return res
 
     @staticmethod
@@ -207,7 +212,6 @@ class Script:
             # 为了兼容，可以删除
             component = component
 
-
         # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
         package = component.split(".")[0] if "." in component else component
         module_name = component.split(".")[-1] if "." in component else component
@@ -217,10 +221,4 @@ class Script:
             #  为了兼容，可以删除
             return None
 
-        return tuple(
-            kwargs.get(p["varName"])
-            for p in param_meta
-            if p.get('varDirection') == 1
-        )
-        
-
+        return tuple(kwargs.get(p["varName"]) for p in param_meta if p.get("varDirection") == 1)

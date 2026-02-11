@@ -64,7 +64,7 @@ class FlowSvc:
         version: str,
         requirement: dict,
         component_file_name: str,
-        component_params: list
+        component_params: list,
     ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
