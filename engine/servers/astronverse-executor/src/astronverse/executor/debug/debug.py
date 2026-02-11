@@ -26,6 +26,10 @@ class Debug:
             self.file_to_process[v.process_file_name] = v.process_id
             if not self.svc.main_process_id and v.process_name == svc.conf.main_process_name:
                 self.svc.main_process_id = v.process_id
+                try:
+                    self.svc.main_process_start_line = v.process_meta[0][0]
+                except Exception as e:
+                    self.svc.main_process_start_line = 1
 
             # 获取流程信息
             process_meta = {}
@@ -113,7 +117,7 @@ class Debug:
         # 断点设置
         if self.svc.debug_model:
             # 如果开启了debug,需要手动添加第一个默认第一个节点为断点
-            self.set_breakpoint(self.svc.main_process_id, 1)
+            self.set_breakpoint(self.svc.main_process_id, self.svc.main_process_start_line)
 
         for k, v in self.svc.ast_globals.process_info.items():
             for b in v.breakpoint:
