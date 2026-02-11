@@ -142,6 +142,7 @@ def start():
 
     parser.add_argument("--resource_dir", default="", help="资源目录", required=False)
     parser.add_argument("--recording_config", default="", help="录屏", required=False)
+    parser.add_argument("--is_custom_component", default="n", help="是否是自定义组件 y/n", required=False)
     args = parser.parse_args()
 
     logger.debug("start {}".format(args))
@@ -161,6 +162,7 @@ def start():
     Config.wait_web_ws = args.wait_web_ws == "y"
     Config.wait_tip_ws = args.wait_tip_ws == "y"
     Config.debug_mode = args.debug == "y"
+    Config.is_custom_component = args.is_custom_component == "y"
 
     if args.run_param:
         try:

@@ -180,7 +180,10 @@ class HttpStorage(IStorage):
             data["robotVersion"] = int(version)
 
         try:
-            res = self.__http__("/api/robot/robot-icon/info", None, data)
+            if self.svc.conf.is_custom_component:
+                res = self.__http__("/api/robot/component/info", {"componentId": project_id}, None, meta="get")
+            else:
+                res = self.__http__("/api/robot/robot-icon/info", None, data)
             return res
         except Exception as e:
             return {}

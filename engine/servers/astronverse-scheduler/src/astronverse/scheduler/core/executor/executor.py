@@ -256,6 +256,7 @@ class ExecutorManager:
         open_virtual_desk: bool = False,  # 虚拟桌面
         version: str = "",  # 版本号
         is_send_log_event: bool = True,  # 是否需要发送日志事件
+        is_custom_component: bool = False,  # 是否是自定义组件
     ):
         """启动一个实例"""
         executor = Executor()
@@ -347,6 +348,8 @@ class ExecutorManager:
             ins.set_param("end_line", end_line)
         if debug:
             ins.set_param("debug", debug)
+        if is_custom_component:
+            ins.set_param("is_custom_component", "y")
         if project_name:
             ins.set_param("project_name", quote(project_name))
         if version:
