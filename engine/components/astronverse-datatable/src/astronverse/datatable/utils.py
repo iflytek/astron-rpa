@@ -27,8 +27,8 @@ def validate(row=1, col="A"):
             raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
     if not isinstance(row, int) or row < 1:
         raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(row), "行格式错误")
-    
-    
+
+
 def validate_row(row):
     try:
         row = int(row)
