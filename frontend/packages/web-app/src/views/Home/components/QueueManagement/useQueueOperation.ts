@@ -35,13 +35,13 @@ export default function useQueueOperation() {
 
   // 删除队列中的任务
   async function deleteQueueTask(record) {
-    const confirm = await handleDeleteConfirm(t('deleteConfirm'), () => {})
-    if (!confirm)
+    const confirm = await handleDeleteConfirm(t('deleteConfirm'))
+    if (!confirm) {
       return
-
+    }
     await removeTaskQueue({ unique_id: [record.unique_id] })
     message.success(t('deleteSuccess'))
-    queueTableRef.value?.fetchTableData()
+    queueTableRef.value?.refreshWithDelete()
   }
 
   const batchDelete = async () => {
@@ -49,14 +49,13 @@ export default function useQueueOperation() {
       message.warning(t('selectOne'))
       return
     }
-    const confirm = await handleDeleteConfirm(t('deleteConfirm'), () => {})
-    console.log('confirm: ', confirm)
-    if (!confirm)
+    const confirm = await handleDeleteConfirm(t('deleteConfirm'))
+    if (!confirm) {
       return
-
+    }
     await removeTaskQueue({ unique_id: selectedRowKeys.value })
     message.success(t('batchDeleteSuccess'))
-    queueTableRef.value?.fetchTableData()
+    queueTableRef.value?.refreshWithDelete(selectedRowKeys.value.length)
     selectedRowKeys.value = []
   }
 

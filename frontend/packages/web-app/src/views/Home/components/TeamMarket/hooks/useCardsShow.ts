@@ -42,15 +42,15 @@ export function useCardsShow(emits) {
     emits('updateCheckNum', data)
   }
 
-  function handleDeleteApp(item) {
-    console.log(item)
+  async function handleDeleteApp(item) {
     const { appId, marketId } = item
-    handleDeleteConfirm(`将要下架：${item.appName}, 下架后将无法恢复，是否仍要下架？`, () => {
-      deleteApp({ appId, marketId }).then(() => {
-        message.success('下架成功')
-        emits('refreshHomeTable')
-      })
-    })
+    const confirm = await handleDeleteConfirm(`将要下架：${item.appName}, 下架后将无法恢复，是否仍要下架？`)
+    if (!confirm) {
+      return
+    }
+    await deleteApp({ appId, marketId })
+    message.success('下架成功')
+    emits('refreshHomeTable')
   }
 
   async function handleAppAchieve(e: Event, item) {

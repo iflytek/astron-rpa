@@ -5,7 +5,6 @@ import type { FormInstance } from 'ant-design-vue'
 import type { RuleObject } from 'ant-design-vue/es/form'
 import { useTranslation } from 'i18next-vue'
 import { isFunction } from 'lodash-es'
-import type { Ref } from 'vue'
 import { reactive, ref } from 'vue'
 
 interface FormState {
@@ -15,25 +14,28 @@ interface FormState {
 const props = defineProps<{
   title?: string
   name?: string
-  loading?: Ref<boolean>
   defaultName?: string | (() => Promise<string>)
   rules?: RuleObject[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'confirm', name: string): void
+  onConfirm: (name: string) => Promise<void>
 }>()
 
 const modal = NiceModal.useModal()
 const { t } = useTranslation()
 
+const loading = ref(false)
 const formRef = ref<FormInstance>()
 const formState = reactive<FormState>({ name: '' })
 
 async function handleOk() {
   const valid = await formRef.value.validate()
-  if (valid) {
-    emit('confirm', formState.name)
+  if (!valid) return
+
+  loading.value = true
+  try {
+    await props.onConfirm(formState.name)
+  }
+  finally {
+    loading.value = false
   }
 }
 

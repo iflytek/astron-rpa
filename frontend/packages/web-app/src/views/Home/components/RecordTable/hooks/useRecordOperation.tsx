@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import { delExecute, getExecuteLst } from '@/api/record'
 import { checkVideoPaths } from '@/api/setting'
 
-export default function useRecordOperation(refreshHomeTable?: () => void) {
+export default function useRecordOperation(refreshWithDelete?: (count: number) => void) {
   const selectedRowKeys = ref<string[]>([])
   const rowSelection = computed(() => {
     return {
@@ -61,7 +61,7 @@ export default function useRecordOperation(refreshHomeTable?: () => void) {
     delExecute({ recordIds: selectedKeys }).then((res) => {
       message.success(res.data || '删除成功')
       selectedRowKeys.value = []
-      refreshHomeTable()
+      refreshWithDelete?.(selectedKeys.length)
     })
   }
   return {

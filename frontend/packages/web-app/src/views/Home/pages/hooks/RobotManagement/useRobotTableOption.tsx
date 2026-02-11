@@ -15,15 +15,23 @@ import OperMenu from '../../../components/OperMenu.vue'
 import useRobotOperation from './useRobotOperation'
 
 export default function useRobotTableOption() {
-  const homeTableRef = ref(null)
-  function refreshHomeTable() {
-    if (homeTableRef.value) {
-      homeTableRef.value?.fetchTableData()
-    }
-  }
-  const { t } = useTranslation()
-  const { getTableData, handleToConfig, openRobotDetailModal, openMcpConfigModal, handleDeleteRobot, handleRobotUpdate, expiredTip } = useRobotOperation(homeTableRef, refreshHomeTable)
   const userStore = useUserStore()
+  const { t } = useTranslation()
+  const homeTableRef = ref(null)
+
+  function refreshHomeTable() {
+    homeTableRef.value?.fetchTableData()
+  }
+
+  function refreshWithDelete(count: number = 1) {
+    homeTableRef.value?.refreshWithDelete(count)
+  }
+
+  const { getTableData, handleToConfig, openRobotDetailModal, openMcpConfigModal, handleDeleteRobot, handleRobotUpdate, expiredTip } = useRobotOperation(
+    homeTableRef,
+    refreshHomeTable,
+    refreshWithDelete
+  )
 
   const baseOpts = [
     {

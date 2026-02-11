@@ -7,7 +7,7 @@ import { getTaskExecuteLst } from '@/api/task'
 import { checkVideoPaths } from '@/api/setting'
 import useRecordTableColumns from '@/views/Home/components/RecordTable/hooks/useRecordTableColumns.tsx'
 
-export default function useTastRecordOperation(refreshHomeTable?: () => void) {
+export default function useTastRecordOperation(refreshWithDelete?: (count: number) => void) {
   const selectedRowKeys = ref<string[]>([])
   const rowSelection = computed(() => {
     return {
@@ -27,7 +27,7 @@ export default function useTastRecordOperation(refreshHomeTable?: () => void) {
     delTaskExecute({ taskExecuteIdList: selectedKeys }).then((res) => {
       message.success(res.data || '删除成功')
       selectedRowKeys.value = []
-      refreshHomeTable()
+      refreshWithDelete?.(selectedKeys.length)
     })
   }
 

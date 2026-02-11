@@ -171,29 +171,31 @@ export function useApplicationTable() {
     size: 'middle',
   })
 
-  function handleCancel(record) {
+  async function handleCancel(record) {
     if (record.status !== PENDING)
       return
-    handleDeleteConfirm(`撤销后该申请流程将会被终止，管理员无法审核，请确认继续撤销？`, () => {
-      cancelApplication({ id: record.id }).then(() => {
-        message.success('撤销成功')
-        refreshHomeTable()
-      })
-    })
+    const confirm = await handleDeleteConfirm(`撤销后该申请流程将会被终止，管理员无法审核，请确认继续撤销？`)
+    if (!confirm) {
+      return
+    }
+    await cancelApplication({ id: record.id })
+    message.success('撤销成功')
+    refreshHomeTable()
   }
 
-  function handleDelete(record) {
+  async function handleDelete(record) {
     let tip = '删除后该申请流程结果不会受到影响，请确认继续删除？'
     if (record.status === PENDING)
       tip = '删除后该申请流程也会被终止，管理员无法审核，请确认继续删除？'
     if (record.status === CANCELED)
       tip = '删除后不可恢复，请确认继续删除？'
-    handleDeleteConfirm(tip, () => {
-      deleteApplication({ id: record.id }).then(() => {
-        message.success('删除成功')
-        refreshHomeTable()
-      })
-    })
+    const confirm = await handleDeleteConfirm(tip)
+    if (!confirm) {
+      return
+    }
+    await deleteApplication({ id: record.id })
+    message.success('删除成功')
+    refreshHomeTable()
   }
 
   watch(() => tableOption.params, () => {

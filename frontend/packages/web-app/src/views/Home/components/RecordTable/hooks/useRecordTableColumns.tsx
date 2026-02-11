@@ -11,9 +11,9 @@ import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
 import useRecordOperation from './useRecordOperation.tsx'
 
-export default function useRecordTableColumns(props?: { robotId?: string, taskId?: string }, refreshHomeTable?: () => void) {
+export default function useRecordTableColumns(props?: { robotId?: string, taskId?: string }, refreshWithDelete?: (count: number) => void) {
   const translate = useTranslation()
-  const { batchDelete } = useRecordOperation(refreshHomeTable)
+  const { batchDelete } = useRecordOperation(refreshWithDelete)
   const { handleCheck, handleOpenDataTable } = useCommonOperate()
 
   const projectMoreOpts = [
