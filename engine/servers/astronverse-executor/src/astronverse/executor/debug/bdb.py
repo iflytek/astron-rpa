@@ -290,5 +290,3 @@ class CustomBdb(bdb.Bdb):
                 return self._to_project_path(filename), self._to_flow_line(filename, frame.f_lineno)
             frame = frame.f_back
         return "", 0
-
-

@@ -1,24 +1,12 @@
-import platform
-import sys
 from typing import Union
 
-from astronverse.actionlib.types import WebPick
+from astronverse.actionlib.types import WebPick, URL
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser import *
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
 from astronverse.browser.browser_software import BrowserSoftware
-from astronverse.browser.core.core import IBrowserCore
 from astronverse.smart.browser_ai.web_element import WebElement
-
-if sys.platform == "win32":
-    from astronverse.browser.core.core_win import BrowserCore
-elif platform.system() == "Linux":
-    from astronverse.browser.core.core_unix import BrowserCore
-else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
-
-BrowserCore: IBrowserCore = BrowserCore()
 
 
 class WebBrowser:
@@ -47,12 +35,12 @@ class WebBrowser:
     def get_element_by_web_pick(self, web_pick: WebPick) -> WebElement:
         return WebElement(browser=self.browser, element_data=web_pick)
 
-    def open_web(self, url: str) -> None:
+    def open_web(self, url: str):
         """
         open the browser page.
         * @param url, the URL of the page to open
         """
-        browser = BrowserSoftware.web_open(browser_obj=self.browser, new_tab_url=url, wait_page=True)
+        browser = BrowserSoftware.web_open(browser_obj=self.browser, new_tab_url=URL(url), wait_page=True)
         return WebBrowser(browser=browser)
 
     def go_back(self, *, load_timeout=10) -> None:
