@@ -140,6 +140,9 @@ def python_base_error(e):
     elif isinstance(e, SyntaxError):
         error_str = f"语法错误, 检查后重试"
         return error_str
+    elif isinstance(e, RecursionError):
+        error_str = f"递归深度超限, 检查流程否循环引用"
+        return error_str
     elif isinstance(e, BaseException):
         error_str = e.code.message
         logger.error("BaseException: {}".format(e.message))
