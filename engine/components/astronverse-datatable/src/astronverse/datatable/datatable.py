@@ -255,7 +255,7 @@ class DataTable:
             if end_col is None or end_col in {"", "0"}:
                 end_col = index_to_col(PyxlWrapper.get_max_column() - 1)
             if end_row is None or end_row in {"", "0", 0}:
-                end_row = end_row or PyxlWrapper.get_max_row()
+                end_row = PyxlWrapper.get_max_row()
             validate_col(col=end_col)
             validate_row(row=end_row)
             validate_end_col(start_col=start_col, end_col=end_col)
@@ -892,7 +892,7 @@ class DataTable:
             if end_col is None or end_col in {"", "0"}:
                 end_col = index_to_col(PyxlWrapper.get_max_column() - 1)
             if end_row is None or end_row in {"", "0", 0}:
-                end_row = end_row or PyxlWrapper.get_max_row()
+                end_row = PyxlWrapper.get_max_row()
             validate_col(col=end_col)
             validate_row(row=end_row)
             validate_end_col(start_col=start_col, end_col=end_col)

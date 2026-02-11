@@ -32,7 +32,7 @@ def validate(row=1, col="A"):
 def validate_row(row):
     try:
         row = int(row)
-    except ValueError:
+    except (ValueError, TypeError):
         pass
     if isinstance(row, int):
         if row < 1:
@@ -42,12 +42,16 @@ def validate_row(row):
 
 
 def validate_col(col):
+    if not isinstance(col, str):
+        raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
     col = col.upper()
     if not (col.isalpha() and col >= "A"):
         raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
 
 
 def validate_end_col(start_col, end_col):
+    if end_col is None or end_col == "" or start_col is None or start_col == "":
+        return
     start_index = col_to_index(start_col)
     end_index = col_to_index(end_col)
     if end_index < start_index:
@@ -55,8 +59,13 @@ def validate_end_col(start_col, end_col):
 
 
 def validate_end_row(start_row, end_row):
-    if end_row < start_row:
-        raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(end_row), "结束行不能小于开始行")
+    try:
+        start_row = int(start_row)
+        end_row = int(end_row)
+        if end_row < start_row:
+            raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(end_row), "结束行不能小于开始行")
+    except ValueError:
+        raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(end_row), "行格式错误")
 
 
 def col_to_index(col="A") -> int:
