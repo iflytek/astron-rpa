@@ -51,3 +51,6 @@ class Config:
 
     # 是否是 debug 模式
     debug_mode: bool = False
+
+    # 是否是 debug 模式
+    is_custom_component: bool = False
