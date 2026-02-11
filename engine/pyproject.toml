@@ -21,7 +21,6 @@ dependencies = [
     "astronverse-ai ",
     "astronverse-browser",
     "astronverse-cua",
-    "astronverse-database",
     "astronverse-dataprocess",
     "astronverse-datatable ",
     "astronverse-dialog",
@@ -64,7 +63,6 @@ astronverse-vision-picker = {path = "./servers/astronverse-vision-picker", edita
 astronverse-ai = {path = "./components/astronverse-ai", editable = true}
 astronverse-browser = {path = "./components/astronverse-browser", editable = true}
 astronverse-cua = {path = "./components/astronverse-cua", editable = true}
-astronverse-database = {path = "./components/astronverse-database", editable = true}
 astronverse-dataprocess = {path = "./components/astronverse-dataprocess", editable = true}
 astronverse-datatable = {path = "./components/astronverse-datatable", editable = true}
 astronverse-dialog = {path = "./components/astronverse-dialog", editable = true}
