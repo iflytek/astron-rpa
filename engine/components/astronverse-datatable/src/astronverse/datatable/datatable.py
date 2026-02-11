@@ -250,8 +250,10 @@ class DataTable:
         if read_type == ReadType.AREA:
             if not start_row or not start_col:
                 raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("读取区域需要指定开始行列"), "读取区域需要指定开始行列")
-            end_col = end_col or index_to_col(PyxlWrapper.get_max_column() - 1)
-            end_row = end_row or PyxlWrapper.get_max_row()
+            if end_col is None or end_col in {"", "0"}:
+                end_col = index_to_col(PyxlWrapper.get_max_column() - 1)
+            if end_row is None or end_row in {"", "0", 0}:
+                end_row = end_row or PyxlWrapper.get_max_row()
             validate_col(col=end_col)
             validate_row(row=end_row)
             col_range = f"{start_col}{start_row}:{end_col}{end_row}"
@@ -883,11 +885,10 @@ class DataTable:
         if delete_type == DeleteType.AREA:
             if not start_row or not start_col:
                 raise DATAFRAME_EXPECTION(PARAMS_ERROR.format("删除区域需要指定开始行列"), "删除区域需要指定开始行列")
-            if not end_col:
-                end_col_index = PyxlWrapper.get_max_column()
-                end_col = index_to_col(end_col_index - 1)
-            if not end_row:
-                end_row = PyxlWrapper.get_max_row()
+            if end_col is None or end_col in {"", "0"}:
+                end_col = index_to_col(PyxlWrapper.get_max_column() - 1)
+            if end_row is None or end_row in {"", "0", 0}:
+                end_row = end_row or PyxlWrapper.get_max_row()
             validate_col(col=end_col)
             validate_row(row=end_row)
             col_range = f"{start_col}{start_row}:{end_col}{end_row}"
