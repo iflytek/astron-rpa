@@ -229,7 +229,11 @@ export default {
       // 如果是删除查询，需要将总数减 count，并且修正 pageNum
       const newTotal = pageOption.value.total - count;
       const oldPageNum = pageOption.value.current;
-      pageOption.value.current = Math.ceil(newTotal / pageOption.value.pageSize) >= oldPageNum ? oldPageNum : (oldPageNum - 1)
+      const newTotalPages = Math.ceil(newTotal / pageOption.value.pageSize);
+
+      if (oldPageNum > newTotalPages) {
+        pageOption.value.current = Math.max(1, newTotalPages);
+      }
 
       fetchTableData()
     }
