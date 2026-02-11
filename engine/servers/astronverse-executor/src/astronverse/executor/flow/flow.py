@@ -24,7 +24,9 @@ class Flow:
 
                 component_path = os.path.join(path, "c{}".format(component_id))
                 main_params = []
-                self.gen_code(path=component_path, project_id=component_id, mode="", version=version, main_params=main_params)
+                self.gen_code(
+                    path=component_path, project_id=component_id, mode="", version=version, main_params=main_params
+                )
                 self.svc.add_component_info(
                     project_id,
                     component_id,
@@ -32,7 +34,7 @@ class Flow:
                     version,
                     requirement,
                     "c{}.{}".format(component_id, "main.py"),
-                    main_params
+                    main_params,
                 )
 
     def gen_code(
@@ -44,7 +46,7 @@ class Flow:
         process_id: str = "",
         line=0,
         end_line=0,
-        main_params=None
+        main_params=None,
     ):
         if main_params is None:
             main_params = []
@@ -116,7 +118,9 @@ class Flow:
 
                 # 写入python
                 if is_main_process:
-                    res, map_res = self._flow_display(project_id, mode, version, resource_id, name, start_line=line, end_line=end_line)
+                    res, map_res = self._flow_display(
+                        project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
+                    )
                 else:
                     res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
