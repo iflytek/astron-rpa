@@ -28,6 +28,13 @@ class Debug:
             if not self.svc.main_process_id and v.process_name == svc.conf.main_process_name:
                 self.svc.main_process_id = v.process_id
 
+    def find_log_position(self):
+        file, line = self.bdb.find_nearest_caller()
+        process_id = ""
+        if file in self.file_to_process:
+            process_id = self.file_to_process[file]
+        return process_id, line
+
     def notify(self, typ, **kw):
         """打印演示"""
 
