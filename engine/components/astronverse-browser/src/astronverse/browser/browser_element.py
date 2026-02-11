@@ -19,6 +19,10 @@ from astronverse.locator import smooth_move
 from astronverse.locator.locator import locator
 
 
+def get_browser_instance():
+    return get_default_browser()
+
+
 def get_default_browser(raw_browser_type: str = None):
     """获取可用的浏览器实例。"""
     control = None
