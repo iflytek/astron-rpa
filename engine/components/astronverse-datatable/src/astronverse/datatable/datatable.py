@@ -37,6 +37,8 @@ from astronverse.datatable.utils import (
     index_to_col,
     validate,
     validate_col,
+    validate_end_col,
+    validate_end_row,
     validate_formula,
     validate_row,
 )
@@ -256,6 +258,8 @@ class DataTable:
                 end_row = end_row or PyxlWrapper.get_max_row()
             validate_col(col=end_col)
             validate_row(row=end_row)
+            validate_end_col(start_col=start_col, end_col=end_col)
+            validate_end_row(start_row=start_row, end_row=end_row)
             col_range = f"{start_col}{start_row}:{end_col}{end_row}"
             range_value = PyxlWrapper.read_range(range_str=col_range)
             if is_trim_spaces:
@@ -891,6 +895,8 @@ class DataTable:
                 end_row = end_row or PyxlWrapper.get_max_row()
             validate_col(col=end_col)
             validate_row(row=end_row)
+            validate_end_col(start_col=start_col, end_col=end_col)
+            validate_end_row(start_row=start_row, end_row=end_row)
             col_range = f"{start_col}{start_row}:{end_col}{end_row}"
             PyxlWrapper.clear_range(range_str=col_range)
 

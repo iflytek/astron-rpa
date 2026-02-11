@@ -22,15 +22,9 @@ def validate(row=1, col="A"):
         row = int(row)
     except ValueError:
         pass
-    try:
-        col = int(col)
-    except ValueError:
-        pass
     if isinstance(col, str):
         if not (col.isalpha() and col.upper() >= "A"):
             raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
-    elif isinstance(col, int) and col < 1:
-        raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
     if not isinstance(row, int) or row < 1:
         raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(row), "行格式错误")
     
@@ -48,17 +42,21 @@ def validate_row(row):
 
 
 def validate_col(col):
-    try:
-        col = int(col)
-    except ValueError:
-        pass
-    if isinstance(col, int):
-        if col < 1:
-            raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
-    else:
-        col = col.upper()
-        if not (col.isalpha() and col >= "A"):
-            raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
+    col = col.upper()
+    if not (col.isalpha() and col >= "A"):
+        raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(col), "列格式错误")
+
+
+def validate_end_col(start_col, end_col):
+    start_index = col_to_index(start_col)
+    end_index = col_to_index(end_col)
+    if end_index < start_index:
+        raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(end_col), "结束列不能小于开始列")
+
+
+def validate_end_row(start_row, end_row):
+    if end_row < start_row:
+        raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(end_row), "结束行不能小于开始行")
 
 
 def col_to_index(col="A") -> int:
