@@ -14,19 +14,38 @@ remote_tree_url = os.getenv("REMOTE_TREE_URL", "your remote tree url address in 
 # Define the base directory for components
 base_dir = os.path.dirname(__file__) + "/components"
 # Define any directories to skip
-skiped_verse = ["astronverse-database"]
+skipped_verse = ["astronverse-database"]
+
+folders = os.listdir(base_dir)
+selected_folders = folders.copy()
+
+
+def select_folders(folders):
+    global selected_folders
+    selected = input("Enter the package number to build: ").strip()
+    try:
+        selected_idx = int(selected) - 1
+        if 0 <= selected_idx < len(folders):
+            selected_folders = [folders[selected_idx]]
+        else:
+            print("\033[31mInvalid selection. Exiting.\033[0m")
+    except ValueError:
+        print("\033[31mInvalid input Please select one package.\033[0m")
+        select_folders(folders)
 
 
 # run meta.py in each component directory
 def run_meta_scripts():
-    print("Running meta.py scripts in component directories...")
-    for folder in os.listdir(base_dir):
-        if folder in skiped_verse:
+    print("Running meta.py scripts ...")
+    global selected_folders
+    for folder in selected_folders:
+        if folder in skipped_verse:
             continue
         verse_folder = os.path.join(base_dir, folder)
         meta_script = os.path.join(verse_folder, "meta.py")
         if not os.path.isfile(meta_script):
             continue
+
         print(f"Running meta.py in {verse_folder}...")
         # Run meta.py using the proper Python interpreter
         try:
@@ -39,8 +58,9 @@ def run_meta_scripts():
 def merge_local_meta():
     print("Merging local meta.json files from component directories...")
     result = {}
-    for folder in os.listdir(base_dir):
-        if folder in skiped_verse:
+    global selected_folders
+    for folder in selected_folders:
+        if folder in skipped_verse:
             continue
         verse_folder = os.path.join(base_dir, folder)
         meta_json_path = os.path.join(verse_folder, "meta.json")
@@ -158,6 +178,19 @@ def save_json_to_file(data, file_path):
 if __name__ == "__main__":
     local_meta = None
     remote_meta = None
+    choice = input("Build a package(1) or build all(2) or skip for others: (1/2)").strip().lower()
+    if choice == "1":
+        print("Available packages:")
+        for idx, folder in enumerate(folders):
+            if folder in skipped_verse:
+                continue
+            print(f"{idx + 1}. {folder}")
+        select_folders(folders)
+    elif choice == "2":
+        selected_folders = folders.copy()
+    else:
+        print("\033[33mSkipping package selection. Will process all packages.\033[0m")
+
     # Prompt user for actions
     choice = input("Do you want to run meta? (Y/N): ").strip().lower()
     if choice == "y":
