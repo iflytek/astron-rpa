@@ -15,7 +15,7 @@ import VxeGrid from '@/plugins/VxeTable'
 
 import { useBatchPickStore } from '@/stores/useBatchPickStore'
 
-import Header from '../Header.vue'
+import Header from '../PureHeader.vue'
 
 import { useDataBatch } from './useDataBatch'
 

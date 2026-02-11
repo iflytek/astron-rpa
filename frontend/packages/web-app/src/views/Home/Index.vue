@@ -27,7 +27,22 @@ async function windowResize() {
 
 useHome()
 
-onMounted(() => windowResize())
+onMounted(() => {
+  windowResize()
+  // lazy load Arrange view for better performance
+  window.addEventListener('load', () => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        import('@/views/Arrange/index.vue')
+      })
+    }
+    else {
+      setTimeout(() => {
+        import('@/views/Arrange/index.vue')
+      }, 0)
+    }
+  })
+})
 
 const illustration = computed<Illustration | undefined>(() => {
   return route.meta?.illustration as Illustration

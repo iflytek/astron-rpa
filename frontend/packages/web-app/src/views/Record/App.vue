@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { toValue } from 'vue'
 
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
-import Header from '@/components/Header.vue'
+import Header from '@/components/PureHeader.vue'
 import { RecordActionMap } from '@/constants/record'
 
 import { useRecordStore } from './store'
