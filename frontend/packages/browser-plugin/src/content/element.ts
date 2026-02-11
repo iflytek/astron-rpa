@@ -145,7 +145,7 @@ function elementFromPoint(x: number, y: number, docu: Document | ShadowRoot) {
 }
 
 function isUniqueIdFn(id: string) {
-  return id && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
+  return id && !Utils.isNumberString(id) && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
 }
 
 function isHighWeightClass(cls: string) {
