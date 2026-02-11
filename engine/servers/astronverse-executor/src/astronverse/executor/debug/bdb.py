@@ -1,6 +1,7 @@
 import bdb
 import glob
 import importlib
+import inspect
 import os
 import sys
 import threading
@@ -276,3 +277,18 @@ class CustomBdb(bdb.Bdb):
                 exc=exc,
                 exc_msg=self.err_handler(exc),
             )
+
+    def find_nearest_caller(self):
+        """
+        在调用栈中向上查找，返回最近（最内层）匹配预定义文件列表的调用位置
+        """
+        frame = inspect.currentframe().f_back
+
+        while frame:
+            filename = frame.f_code.co_filename
+            if filename in self.file_line_maps:
+                return self._to_project_path(filename), self._to_flow_line(filename, frame.f_lineno)
+            frame = frame.f_back
+        return "", 0
+
+

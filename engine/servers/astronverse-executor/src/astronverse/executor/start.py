@@ -95,6 +95,7 @@ def debug_start(args, svc, flow_tip=None):
 
     # 执行代码
     debug = Debug(svc=svc, args=args)
+    svc.debug = debug
     svc.debug_handler = debug
     svc.report.info(
         ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START)
