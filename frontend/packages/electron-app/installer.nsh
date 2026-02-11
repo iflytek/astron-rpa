@@ -19,6 +19,9 @@
 !macroend
 
 !macro customUnInstall
+    ; 卸载前强制关闭客户端进程
+    nsExec::Exec 'taskkill /F /IM "${APP_EXECUTABLE_FILENAME}"'
+
     ; 尝试从 HKCR 删除
     ClearErrors
     DeleteRegKey HKCR "astronrpa"
