@@ -35,8 +35,8 @@ class WinEle:
         click_button: MouseClickButton = MouseClickButton.LEFT,
         click_type: MouseClickType = MouseClickType.CLICK,
         wait_time: float = 10.0,
-        horizontals_offset=0,
-        verticals_offset=0,
+        horizontals_offset: int = 0,
+        verticals_offset: int = 0,
         keyboard_input: MouseClickKeyboard = MouseClickKeyboard.NONE,
     ):
         locator = WinEleCore.find(pick, wait_time)
@@ -46,7 +46,7 @@ class WinEle:
         if keyboard_input != MouseClickKeyboard.NONE:
             pyautogui.keyDown(keyboard_input.value)
         try:
-            locator.move(Point(point.x + horizontals_offset, point.y + verticals_offset))
+            locator.move(Point(point.x + int(horizontals_offset), point.y + int(verticals_offset)))
             pyautogui.click(
                 clicks=1 if click_type == MouseClickType.CLICK else 2,
                 button=click_button.value,
