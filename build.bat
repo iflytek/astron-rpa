@@ -221,7 +221,9 @@ REM Check components/* directories
 for /d %%d in ("%ENGINE_DIR%\components\*") do (
     if exist "%%d\pyproject.toml" (
         set "MEMBER_PATH=%%~nxd"
-        set "WORKSPACE_MEMBERS=!WORKSPACE_MEMBERS! "components/!MEMBER_PATH!","
+        if /i not "!MEMBER_PATH!"=="astronverse-database" (
+            set "WORKSPACE_MEMBERS=!WORKSPACE_MEMBERS! "components/!MEMBER_PATH!","
+        )
     )
 )
 

@@ -6,7 +6,6 @@ astronverse-browser
 astronverse-browser-bridge
 astronverse-browser-plugin
 astronverse-cua
-astronverse-database
 astronverse-dataprocess
 astronverse-datatable
 astronverse-dialog
