@@ -60,10 +60,10 @@ class Report(IReport):
             self.queue.put(ms, block=True, timeout=None)
 
         if (
-            self.log_local_file
-            and (not self.log_local_file.closed)
-            and filtered_dict["log_type"] != ReportType.Tip
-            and filtered_dict.get("tag", None) != "tip"
+                self.log_local_file
+                and (not self.log_local_file.closed)
+                and filtered_dict["log_type"] != ReportType.Tip
+                and filtered_dict.get("tag", None) != "tip"
         ):
             # Tip数据不写入到日志里面, tag等于Tag也不写入到日志
             message = json.dumps(
@@ -74,15 +74,23 @@ class Report(IReport):
 
     def __pre__(self, message):
         if (
-            isinstance(message, ReportFlow)
-            or isinstance(message, ReportCode)
-            or isinstance(message, ReportUser)
-            or isinstance(message, ReportTip)
+                isinstance(message, ReportFlow)
+                or isinstance(message, ReportCode)
+                or isinstance(message, ReportUser)
+                or isinstance(message, ReportTip)
         ):
             pass
         else:
-            message = ReportScript(msg_str=str(message))
-
+            process_id, line = self.svc.debug.find_log_position()
+            process = self.process[process_id]
+            process_name = process.process_name
+            message = ReportScript(
+                msg_str=str(message),
+                process_id=process_id,
+                process=process_name,
+                line=line,
+                line_id=""
+            )
         if isinstance(message, ReportCode) or isinstance(message, ReportUser):
             process_id = message.process_id
             if process_id in self.process:

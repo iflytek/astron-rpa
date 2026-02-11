@@ -34,6 +34,7 @@ class DebugSvc:
         report.set_code(self.report)
         self.log_tool = LogTool(self)
         self.recording_tool = RecordingTool(self)
+        self.debug = None
 
         # 运行时
         self.debug_model = debug_model

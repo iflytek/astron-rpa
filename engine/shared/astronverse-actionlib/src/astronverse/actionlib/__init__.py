@@ -392,6 +392,10 @@ class ReportTip:
 @dataclass
 class ReportScript:
     log_type: ReportType = ReportType.Script
+    process: str = None  # 可空
+    process_id: str = None
+    line_id: str = ""  # 可空
+    line: int = 0
     msg_str: str = None
 
 
