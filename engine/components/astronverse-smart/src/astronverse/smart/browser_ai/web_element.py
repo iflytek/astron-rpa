@@ -1,31 +1,11 @@
 from __future__ import annotations
-
-import platform
 import re
-import sys
 import time
-
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser import *
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
-from astronverse.browser.core.core import IBrowserCore
-from astronverse.browser.js.base import BaseBuilder
-from astronverse.browser.js.chrome import CodeChromeBuilder
-
-if sys.platform == "win32":
-    from astronverse.browser.core.core_win import BrowserCore
-    from astronverse.locator.locator import locator
-elif platform.system() == "Linux":
-    from astronverse.browser.core.core_unix import BrowserCore
-    from astronverse.locator.locator import locator
-else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
-
-BrowserCore: IBrowserCore = BrowserCore()
-CodeChromeBuilder: BaseBuilder = CodeChromeBuilder()
-Locator = locator
 
 
 class WebElement:
@@ -314,9 +294,6 @@ class WebElement:
         * @param drag_type, 拖拽类型（"start" 从起点开始, "current" 相对当前位置）
         * @param duration, 拖拽持续时间
         """
-        from rpabrowser import ElementDragDirectionTypeFlag, ElementDragTypeFlag
-        from rpabrowser.browser_element import BrowserElement
-
         # 转换字符串参数为枚举
         direction_map = {
             "left": ElementDragDirectionTypeFlag.Left,
@@ -347,8 +324,6 @@ class WebElement:
             * `'bottom'`, scroll to the bottom of the element
             * `'top'`, scroll to the top of the element
         """
-        from rpabrowser import ScrollbarForYScrollTypeFlag, ScrollbarType, ScrollDirection
-
         if location == "bottom":
             y_scroll_type = ScrollbarForYScrollTypeFlag.Bottom
         elif location == "top":
@@ -359,7 +334,7 @@ class WebElement:
         BrowserElement().scroll(
             browser_obj=self.browser,
             element_data=self.element_data,
-            scrollbar_type=ScrollbarType.Element,
+            scrollbar_type=ScrollbarType.CustomEle,
             scroll_direction=ScrollDirection.Vertical,
             y_scroll_type=y_scroll_type,
         )
@@ -373,11 +348,11 @@ class WebElement:
         * @param delay_after, the delay time after the drag operation, please specify the value as 0.3, it is important to use this value.
         """
         # 尝试使用现有的Mouse API和smooth_move
-        from rpa_locator import smooth_move
-        from rpagui.code.mouse import Mouse
+        from astronverse.locator import smooth_move, locator
+        from astronverse.input.code.mouse import Mouse
 
         # 获取元素中心位置
-        element = Locator.locator(self.element_data.get("elementData"), cur_target_app=self.browser.browser_type.value)
+        element = locator.locator(self.element_data.get("elementData"), cur_target_app=self.browser.browser_type.value)
         center = element.point()
 
         start_x, start_y = center.x, center.y
@@ -414,8 +389,6 @@ class WebElement:
         * @param execution_world, the execution environment, support value "ISOLATED"(plugin environment) or "MAIN"(web page environment), default is "ISOLATED"
         * @return `str`, return the str result of the javascript execution
         """
-        from rpabrowser import InputType
-        from rpabrowser.browser_script import BrowserScript
 
         # === 新增：自动修复常见的错误输入 ===
         # 匹配 function(...) { ... } 或 function (...) { ... }
@@ -437,6 +410,8 @@ class WebElement:
         params = []
         if argument is not None:
             params.append({"varName": "args", "varValue": str(argument)})
+
+        from astronverse.browser.browser_script import BrowserScript
 
         result = BrowserScript.js_run(
             browser_obj=self.browser,
