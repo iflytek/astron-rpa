@@ -215,7 +215,7 @@ def start():
     except BaseException as e:
         logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
-            debug_svc.end(ExecuteStatus.FAIL, reason=e.message)
+            debug_svc.end(ExecuteStatus.FAIL, reason=e.code.message)
         return
     except Exception as e:
         logger.error("error {} traceback {}".format(e, traceback.format_exc()))
