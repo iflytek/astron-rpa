@@ -10,8 +10,8 @@ atomic:
         title: 应用程序路径
         tip: 输入需要打开的应用程序文件路径
       - key: app_arguments
-        title: ''
-        tip: ''
+        title: 打开的应用程序参数
+        tip: 输入打开应用程序时需要传递的参数
     outputList:
       - key: software_open
         title: 应用程序路径
