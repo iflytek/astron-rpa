@@ -1,3 +1,4 @@
+import copy
 import traceback
 
 from astronverse.actionlib import ReportCode, ReportCodeStatus, ReportFlow, ReportFlowStatus, ReportType
@@ -18,15 +19,27 @@ class Debug:
             err_handler=python_base_error,
         )
         self.svc.main_process_id = args.process_id
-
-        # 让 DebugSvc 负责加载数据
-        svc.load_package_info()
-
         self.file_to_process = {}
+        self.process = {}
         for i, v in self.svc.ast_globals.process_info.items():
+            # 获取主流程id
             self.file_to_process[v.process_file_name] = v.process_id
             if not self.svc.main_process_id and v.process_name == svc.conf.main_process_name:
                 self.svc.main_process_id = v.process_id
+
+            # 获取流程信息
+            process_meta = {}
+            if v.process_meta:
+                for m in v.process_meta:
+                    process_meta[m[0]] = m
+            new_v = copy.copy(v)
+            new_v.process_meta = process_meta
+            self.process[v.process_id] = new_v
+
+        # 获取meta数据
+        self.atomic_params_meta = {}
+        for i, v in self.svc.ast_globals.atomic_info.items():
+            self.atomic_params_meta[v.key] = v.params_name
 
     def find_log_position(self):
         file, line = self.bdb.find_nearest_caller()
@@ -59,11 +72,19 @@ class Debug:
         else:
             exc = kw.get("exc")
             exc_msg = kw.get("exc_msg")
+            if isinstance(exc, ParamException):
+                if process_id in self.process and line in self.process[process_id].process_meta:
+                    meta = self.process[process_id].process_meta[line]
+                    key = meta[3]
+                    if key in self.atomic_params_meta:
+                        for k, v in self.atomic_params_meta[key].items():
+                            exc_msg = exc_msg.replace(k, "{}({})".format(k, v))
             self.svc.report.error(
                 ReportCode(
                     log_type=ReportType.Code,
                     process_id=process_id,
                     line=line,
+                    status=ReportCodeStatus.ERROR,
                     msg_str="{}".format(exc_msg),
                     error_traceback=traceback.format_exc(),
                 )
