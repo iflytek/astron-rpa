@@ -64,6 +64,7 @@ class FlowSvc:
         version: str,
         requirement: dict,
         component_file_name: str,
+        component_params: list
     ):
         if project_id not in self.ast_globals_dict:
             self.ast_globals_dict[project_id] = AstGlobals()
@@ -73,6 +74,7 @@ class FlowSvc:
         self.ast_globals_dict[project_id].component_info[component_id].version = version
         self.ast_globals_dict[project_id].component_info[component_id].requirement = requirement
         self.ast_globals_dict[project_id].component_info[component_id].component_file_name = component_file_name
+        self.ast_globals_dict[project_id].component_info[component_id].component_params = component_params
 
     def add_process_info(
         self, project_id: str, process_id: str, process_category: str, process_name, process_file_name, process_params

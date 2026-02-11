@@ -38,7 +38,7 @@ class Browser:
         """验证浏览器对象。"""
         if isinstance(value, Browser):
             return value
-        raise BaseException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), f"{name}参数验证失败{value}")
+        return None
 
     @staticmethod
     def send_browser_rpc(req: dict, timeout: float = 0.0) -> Any:
