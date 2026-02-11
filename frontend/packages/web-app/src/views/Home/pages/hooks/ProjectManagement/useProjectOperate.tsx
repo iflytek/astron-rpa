@@ -26,12 +26,12 @@ import { PENDING } from '@/views/Home/components/TeamMarket/config/market'
 
 import { handleRun, useCommonOperate } from '../useCommonOperate'
 
-export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
-  function refreshHomeTable() {
-    if (homeTableRef.value) {
-      homeTableRef.value?.fetchTableData()
-    }
-  }
+export function useProjectOperate(
+  homeTableRef: Ref,
+  consultRef: Ref,
+  refreshHomeTable: () => void,
+  refreshWithDelete: (count?: number) => void,
+) {
   const { t } = useTranslation()
   const appStore = useAppConfigStore()
   const userStore = useUserStore()
@@ -273,28 +273,28 @@ export function useProjectOperate(homeTableRef?: Ref, consultRef?: Ref) {
   }
 
   // 删除
-  function handleDeleteProject(editObj: AnyObj) {
+  async function handleDeleteProject(editObj: AnyObj) {
     const { robotId } = editObj
-    isInTask({ robotId }).then((data) => {
-      if (data) {
-        let { situation, taskReferInfoList, robotId } = data
+    const data = await isInTask({ robotId })
+    if (data) {
+      let { situation, taskReferInfoList, robotId } = data
 
-        // 过滤掉taskReferInfoList 中taskName 相同的项
-        taskReferInfoList = taskReferInfoList?.filter((item, index, self) =>
-          index === self.findIndex(t => t.taskName === item.taskName),
-        )
-        handleDeleteConfirm(getSituationContent('design', situation, taskReferInfoList), () => {
-          delectProject({
-            robotId,
-            situation,
-            taskIds: taskReferInfoList?.map(item => item.taskId).join(',') || '',
-          }).then(() => {
-            message.success(t('common.deleteSuccess'))
-            refreshHomeTable()
-          })
-        })
+      // 过滤掉taskReferInfoList 中taskName 相同的项
+      taskReferInfoList = taskReferInfoList?.filter((item, index, self) =>
+        index === self.findIndex(t => t.taskName === item.taskName),
+      )
+      const confirm = await handleDeleteConfirm(getSituationContent('design', situation, taskReferInfoList))
+      if (!confirm) {
+        return
       }
-    })
+      await delectProject({
+        robotId,
+        situation,
+        taskIds: taskReferInfoList?.map(item => item.taskId).join(',') || '',
+      })
+      message.success(t('common.deleteSuccess'))
+      refreshWithDelete()
+    }
   }
 
   return {

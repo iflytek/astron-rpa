@@ -2,6 +2,7 @@ import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 import { Button } from 'ant-design-vue'
 import { h } from 'vue'
+import { JSX } from 'vue/jsx-runtime'
 
 import $loading from '@/utils/globalLoading'
 
@@ -50,20 +51,15 @@ export function useCommonOperate() {
     })
   }
 
-  function handleDeleteConfirm(content: any, cb: Fun) {
-    return new Promise((resolve) => {
+  function handleDeleteConfirm(content: string | JSX.Element) {
+    return new Promise<boolean>((resolve) => {
       GlobalModal.confirm({
         title: '删除',
         icon: h(ExclamationCircleOutlined),
         content,
         okType: 'danger',
-        onOk: () => {
-          cb && cb()
-          resolve(true)
-        },
-        onCancel: () => {
-          console.log('Cancel')
-        },
+        onOk: () => resolve(true),
+        onCancel: () => resolve(false),
       })
     })
   }

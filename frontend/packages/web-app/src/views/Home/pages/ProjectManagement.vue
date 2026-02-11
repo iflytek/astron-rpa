@@ -43,18 +43,16 @@ async function createRobot() {
       return
     }
   }
-  const loading = ref(false)
+  
   newProjectModal.show({
     title: t('newProject'),
     name: t('projectName'),
-    loading,
     defaultName: getDefaultName,
     onConfirm: (name: string) => newProject(name),
   })
 
   const newProject = async (projectName: string) => {
     try {
-      loading.value = true
       const res = await createProject({ name: projectName })
       const projectId = res.data.robotId
 
@@ -63,7 +61,6 @@ async function createRobot() {
     }
     finally {
       newProjectModal.hide()
-      loading.value = false
     }
   }
 }

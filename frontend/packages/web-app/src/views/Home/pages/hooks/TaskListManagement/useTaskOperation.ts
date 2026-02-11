@@ -41,13 +41,14 @@ export function useTaskOperation() {
     { leading: true, trailing: false },
   )
 
-  function handleDeleteTask(record) {
-    handleDeleteConfirm(t('deleteTaskConfirm', { name: record.name }), () => {
-      deleteTask({ taskId: record.taskId }).then(() => {
-        message.success(t('deleteSuccess'))
-        taskListTableRef.value?.fetchTableData()
-      })
-    })
+  async function handleDeleteTask(record) {
+    const confirm = await handleDeleteConfirm(t('deleteTaskConfirm', { name: record.name }))
+    if (!confirm) {
+      return
+    }
+    await deleteTask({ taskId: record.taskId })
+    message.success(t('deleteSuccess'))
+    taskListTableRef.value?.refreshWithDelete()
   }
 
   const handleEnableTask = async (record) => {

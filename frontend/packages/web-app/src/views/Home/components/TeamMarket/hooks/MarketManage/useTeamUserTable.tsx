@@ -344,7 +344,7 @@ export function useTeamUserTable() {
   })
 
   const refreshTableData = () => {
-    homeTableRef.value && homeTableRef.value.fetchTableData()
+    homeTableRef.value?.fetchTableData()
   }
 
   watch(() => activeMarket.value?.marketId, (newVal) => {

@@ -8,7 +8,7 @@ import { McpConfigModal } from '@/views/Home/components/modals/index'
 import { useRobotUpdate } from '@/views/Home/components/TeamMarket/hooks/useRobotUpdate'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
 
-export default function useRobotOperation(homeTableRef, refreshHomeTable) {
+export default function useRobotOperation(homeTableRef, refreshHomeTable, refreshWithDelete) {
   const { handleDeleteConfirm, getSituationContent } = useCommonOperate()
   const { getInitUpdateIds } = useRobotUpdate('robot', homeTableRef)
 
@@ -48,26 +48,24 @@ export default function useRobotOperation(homeTableRef, refreshHomeTable) {
       taskReferInfoList = taskReferInfoList?.filter((item, index, self) =>
         index === self.findIndex(t => t.taskName === item.taskName),
       )
-      handleDeleteConfirm(getSituationContent('execute', situation, taskReferInfoList), () => {
-        deleteRobot({
-          robotId,
-          situation,
-          taskIds: taskReferInfoList?.map(item => item.taskId).join(',') || '',
-        }).then(() => {
-          message.success('删除成功')
-          refreshHomeTable()
-        })
+      const confirm = await handleDeleteConfirm(getSituationContent('execute', situation, taskReferInfoList))
+      if (!confirm) {
+        return
+      }
+      await deleteRobot({
+        robotId,
+        situation,
+        taskIds: taskReferInfoList?.map(item => item.taskId).join(',') || '',
       })
+      message.success('删除成功')
+      refreshWithDelete()
     }
   }
 
-  function handleRobotUpdate(record) {
-    updateRobot({
-      robotId: record.robotId,
-    }).then(() => {
-      message.success('更新成功')
-      refreshHomeTable()
-    })
+  async function handleRobotUpdate(record) {
+    await updateRobot({ robotId: record.robotId })
+    message.success('更新成功')
+    refreshHomeTable()
   }
 
   function expiredTip(record) {
@@ -77,6 +75,7 @@ export default function useRobotOperation(homeTableRef, refreshHomeTable) {
     }
     return expired
   }
+  
   return {
     getTableData,
     onSelectChange,

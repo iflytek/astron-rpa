@@ -1,5 +1,3 @@
-/** @format */
-
 import { DownOutlined, UpOutlined } from '@ant-design/icons-vue'
 import { Tooltip } from 'ant-design-vue'
 import { reactive, ref } from 'vue'
@@ -9,13 +7,11 @@ import useRecordTableColumns from './useRecordTableColumns.tsx'
 
 export default function useRecordTableOption(props?: { robotId: string }) {
   const homeTableRef = ref(null)
-  function refreshHomeTable() {
-    if (homeTableRef.value) {
-      homeTableRef.value?.fetchTableData()
-    }
+  function refreshWithDelete(count: number = 1) {
+    homeTableRef.value?.refreshWithDelete(count)
   }
-  const { columns } = useRecordTableColumns(props, refreshHomeTable)
-  const { rowSelection, getTableData, batchDelete } = useRecordOperation(refreshHomeTable)
+  const { columns } = useRecordTableColumns(props, refreshWithDelete)
+  const { rowSelection, getTableData, batchDelete } = useRecordOperation(refreshWithDelete)
 
   const tableOption = reactive({
     refresh: false, // 控制表格数据刷新

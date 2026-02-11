@@ -21,6 +21,10 @@ function refreshHomeTable() {
   currStarTableRef.value?.fetchTableData()
 }
 
+function refreshWithDelete(count: number = 1) {
+  currStarTableRef.value?.refreshWithDelete(count)
+}
+
 function toggleSecretVisible(id: string) {
   if (secretVisibleId.value.includes(id)) {
     secretVisibleId.value = secretVisibleId.value.filter(item => item !== id)
@@ -115,7 +119,7 @@ function deleteApiKey(row: AgentData) {
     onOk: async () => {
       await deleteAgentAPI(row.id)
       message.success(t('deleteSuccess'))
-      refreshHomeTable()
+      refreshWithDelete()
     },
     centered: true,
     keyboard: false,

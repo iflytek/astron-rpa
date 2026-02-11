@@ -72,7 +72,7 @@ const Utils: UtilsManager = {
     return Promise.reject(new Error('showDialog is not supported in browser environment'))
   },
   getPluginList: () => {
-    return Promise.reject(new Error('getPluginList is not supported in browser environment'))
+    return Promise.resolve([])
   },
 }
 

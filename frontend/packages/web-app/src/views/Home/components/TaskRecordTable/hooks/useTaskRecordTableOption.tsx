@@ -13,13 +13,11 @@ import useTaskRecordOperation from './useTaskRecordOperation.tsx'
 
 export default function useRecordTableOption(props?: { robotId: string }) {
   const homeTableRef = ref(null)
-  function refreshHomeTable() {
-    if (homeTableRef.value) {
-      homeTableRef.value?.fetchTableData()
-    }
+  function refreshWithDelete(count: number = 1) {
+    homeTableRef.value?.refreshWithDelete(count)
   }
   const translate = useTranslation()
-  const { getTableData, handleExpandedRowRender, batchDelete, rowSelection } = useTaskRecordOperation(refreshHomeTable)
+  const { getTableData, handleExpandedRowRender, batchDelete, rowSelection } = useTaskRecordOperation(refreshWithDelete)
   const formList = [
     {
       componentType: 'input',

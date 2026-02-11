@@ -23,12 +23,9 @@ async function checkName(_rule, value: string) {
 }
 
 function createComponent() {
-  const loading = ref(false)
-
   newProjectModal.show({
     title: t('components.newComponent'),
     name: t('components.componentName'),
-    loading,
     defaultName: () => getDefaultComponentName(),
     rules: [{ validator: checkName, trigger: 'blur' }],
     onConfirm: (name: string) => newProject(name),
@@ -36,7 +33,6 @@ function createComponent() {
 
   const newProject = async (componentName: string) => {
     try {
-      loading.value = true
       const res = await createComponentApi({ componentName })
       const projectId = res.data.robotId
 
@@ -45,7 +41,6 @@ function createComponent() {
     }
     finally {
       newProjectModal.hide()
-      loading.value = false
     }
   }
 }

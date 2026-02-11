@@ -2,7 +2,7 @@
 import { useElementSize } from '@vueuse/core'
 import { Empty, Pagination, Table } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { isEmpty } from 'lodash-es'
+import { isEmpty, isBoolean } from 'lodash-es'
 import { computed, onMounted, reactive, ref, useTemplateRef, SlotsType } from 'vue'
 import { to } from 'await-to-js'
 
@@ -68,11 +68,11 @@ export default {
     const { option } = reactive({ ...props })
     const { renderHeaderForm, renderHeaderButton } = useTable()
     const localOption = computed(() => option)
-    const pageData = ref(option?.pageParams || { pageNoName: 'pageNo', pageSizeName: 'pageSize' })
+    const pageNoName = computed(() => option?.pageParams?.pageNoName || 'pageNo')
+    const pageSizeName = computed(() => option?.pageParams?.pageSizeName || 'pageSize')
     const pageOption = ref({ // 分页配置
       total: 0,
       current: 1,
-      pageNum: 1,
       pageSize: Number((PAGE_SIZE_OPTIONS)[0]),
       pageSizeOptions: PAGE_SIZE_OPTIONS,
       size: 'small' as const,
@@ -81,7 +81,7 @@ export default {
       ...(option?.pageConfig || {}),
     })
     const orderData = ref(option?.orderParams || { orderName: 'sortBy', orderStatus: 'sortType' }) // 排序字段
-    const immediate = ref(option?.immediate === false ? option.immediate : true) // 是否立即执行
+    const immediate = isBoolean(option?.immediate) ? option.immediate : true // 是否立即执行
     const isPage = ref(option?.page === false ? option.page : true) // 是否开启分页，默认分页
     const loading = ref(false) // 开启loading
     const tableData = ref([]) // 表格数据
@@ -91,8 +91,7 @@ export default {
       searchFn: () => {
         if (isPage.value) {
           pageOption.value.current = Number(DEFAULT_PAGE)
-          pageOption.value.pageNum = Number(DEFAULT_PAGE)
-          localOption.value.params[pageData.value.pageNoName] = Number(DEFAULT_PAGE)
+          localOption.value.params[pageNoName.value] = Number(DEFAULT_PAGE)
         }
         fetchTableData()
       },
@@ -111,8 +110,8 @@ export default {
 
     async function fetchTableData() {
       if (isPage.value) {
-        localOption.value.params[pageData.value.pageSizeName] = pageOption.value.pageSize
-        localOption.value.params[pageData.value.pageNoName] = pageOption.value.pageNum
+        localOption.value.params[pageSizeName.value] = pageOption.value.pageSize
+        localOption.value.params[pageNoName.value] = pageOption.value.current
       }
 
       loading.value = true
@@ -123,7 +122,6 @@ export default {
     }
 
     function onPageChange(page: number) {
-      pageOption.value.pageNum = page
       pageOption.value.current = page
 
       fetchTableData()
@@ -227,16 +225,30 @@ export default {
       )
     }
 
+    const refreshWithDelete = (count: number = 1) => {
+      // 如果是删除查询，需要将总数减 count，并且修正 pageNum
+      const newTotal = pageOption.value.total - count;
+      const oldPageNum = pageOption.value.current;
+      const newTotalPages = Math.ceil(newTotal / pageOption.value.pageSize);
+
+      if (oldPageNum > newTotalPages) {
+        pageOption.value.current = Math.max(1, newTotalPages);
+      }
+
+      fetchTableData()
+    }
+
     onMounted(() => {
-      if (immediate.value && option.params) {
+      if (immediate && option.params) {
         fetchTableData()
       }
     })
 
     expose({
       tableData,
-      fetchTableData,
       localOption,
+      fetchTableData,
+      refreshWithDelete,
     })
 
     return () => (

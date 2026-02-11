@@ -82,6 +82,10 @@ function refreshHomeTable() {
   currTableRef.value?.fetchTableData()
 }
 
+function refreshWithDelete(count: number = 1) {
+  currTableRef.value?.refreshWithDelete(count)
+}
+
 function addApiKey() {
   NiceModal.show(NewApiModal, {
     onRefresh: () => refreshHomeTable(),
@@ -91,11 +95,10 @@ function addApiKey() {
 function deleteApiKey(row: DataType) {
   GlobalModal.confirm({
     title: t('settingCenter.apiKeyManage.deleteApiKeyConfirm'),
-    onOk: () => {
-      deleteAPI({ id: row.id }).then(() => {
-        message.success(t('deleteSuccess'))
-        refreshHomeTable()
-      })
+    onOk: async () => {
+      await deleteAPI({ id: row.id })
+      message.success(t('deleteSuccess'))
+      refreshWithDelete()
     },
     centered: true,
     keyboard: false,
