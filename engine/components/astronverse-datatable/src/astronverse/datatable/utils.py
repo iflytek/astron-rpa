@@ -55,17 +55,17 @@ def validate_end_col(start_col, end_col):
     start_index = col_to_index(start_col)
     end_index = col_to_index(end_col)
     if end_index < start_index:
-        raise DATAFRAME_EXPECTION(COL_FORMAT_ERROR.format(end_col), "结束列不能小于开始列")
+        raise ValueError("结束列不能小于开始列")
 
 
 def validate_end_row(start_row, end_row):
     try:
         start_row = int(start_row)
         end_row = int(end_row)
-        if end_row < start_row:
-            raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(end_row), "结束行不能小于开始行")
     except ValueError:
         raise DATAFRAME_EXPECTION(ROW_FORMAT_ERROR.format(end_row), "行格式错误")
+    if end_row < start_row:
+        raise ValueError("结束行不能小于开始行")
 
 
 def col_to_index(col="A") -> int:

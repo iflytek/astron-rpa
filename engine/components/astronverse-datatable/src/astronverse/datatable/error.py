@@ -5,7 +5,7 @@ DATAFRAME_EXPECTION = BaseException
 
 PARAMS_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数有误") + ": {}")
 DATAFRAME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("数据表格格式有误") + ": {}")
-ROW_FORMAT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("行数据有误， 行只能是大于1的正整数") + ": {}")
+ROW_FORMAT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("行数据有误， 行只能是大于0的正整数") + ": {}")
 COL_FORMAT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("列数据有误，列名只能是A,AB...") + ": {}")
 AREA_FORMAT_ERROR: ErrorCode = ErrorCode(
     BizCode.LocalErr, _("区域数据有误，区域数据只能是字符串，字符串数组，二维字符串数组的一种") + ": {}"
