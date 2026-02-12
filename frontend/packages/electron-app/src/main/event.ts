@@ -6,6 +6,7 @@ import { BrowserWindow } from 'electron'
 import { clipboard, dialog, globalShortcut, ipcMain, screen, shell } from 'electron'
 import throttle from 'lodash/throttle'
 import { IPluginConfig } from '@rpa/shared'
+import { to } from 'await-to-js'
 
 import logger from './log'
 import { openPath } from './path'
@@ -278,20 +279,15 @@ export function listenRender() {
     })
   })
 
-  ipcMain.handle('open-dialog', (_event, dialogObj) => {
-    return new Promise((resolve, reject) => {
-      dialog.showOpenDialog(dialogObj).then((result) => {
-        if (result.filePaths.length) {
-          resolve(result.filePaths[0])
-        }
-        else {
-          resolve(null)
-        }
-      }).catch((err) => {
-        logger.error('Error showing open dialog:', err)
-        reject(err)
-      })
-    })
+  ipcMain.handle('open-dialog', async (_event, dialogObj) => {
+    const [err, result] = await to(dialog.showOpenDialog(dialogObj))
+
+    if (err) {
+      logger.error('Error showing open dialog:', err)
+      throw err
+    }
+
+    return result.filePaths
   })
 
   ipcMain.handle('check-for-updates', async () => {

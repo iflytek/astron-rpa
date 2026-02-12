@@ -1,12 +1,12 @@
-import { Button, message } from 'ant-design-vue'
-import { ref } from 'vue'
+import { Button, FormInstance } from 'ant-design-vue'
+import { ref, shallowRef } from 'vue'
 
 import type { AnyObj } from '@/types/common'
 import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
 
 export default function useUserFormDialog(option: DialogOption, onClose: () => void, onSave?: (data: AnyObj) => void) {
   // 定义表单引用
-  const formRef = ref(null)
+  const formRef = shallowRef<FormInstance>(null)
   // 定义表单状态
   const formState = ref(option.formModel)
 
@@ -29,13 +29,8 @@ export default function useUserFormDialog(option: DialogOption, onClose: () => v
       }
       else if (btnOpt === 'confirm') {
         await formRef.value.validate()
-          .then(() => {
-            formState.value.result_button = btnOpt
-            onSave?.(formState.value)
-          })
-          .catch(() => {
-            message.warning('请检查表单内容')
-          })
+        formState.value.result_button = btnOpt
+        onSave?.(formState.value)
       }
       else if (btnOpt === 'cancel') {
         onSave?.({ result_button: 'cancel' })

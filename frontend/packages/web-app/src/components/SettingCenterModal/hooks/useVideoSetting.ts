@@ -10,29 +10,28 @@ export function useVideoConfig() {
   const videoRef = ref(null)
   const videoForm = ref<RPA.VideoFormMap | null>(null)
 
-  const handleOpenFile = () => {
-    utilsManager.showDialog({ file_type: 'folder' }).then((res) => {
-      if (res) {
-        videoForm.value.filePath = res as string
-      }
-    })
+  const handleOpenFile = async () => {
+    const result = await utilsManager.showDialog({ file_type: 'folder' })
+    if (result[0]) {
+      videoForm.value.filePath = result[0]
+    }
   }
+
   const handleSwitchChange = () => {
     videoForm.value.enable = isEnable.value
   }
-  const saveVideoGet = () => {
-    utilsManager.getUserPath().then((userPath) => {
-      videoForm.value = useUserSettingStore().userSetting.videoForm || DEFAULT_FORM
-      isEnable.value = videoForm.value?.enable || false
-      if (!videoForm.value?.filePath) {
-        videoForm.value.filePath = `${userPath}logs\\recording`
-        utilsManager.pathJoin([userPath, 'logs', 'recording']).then((result) => {
-          videoForm.value.filePath = result as string
-        })
-      }
-    })
+
+  const saveVideoGet = async () => {
+    const userPath = await utilsManager.getUserPath()
+    videoForm.value = useUserSettingStore().userSetting.videoForm || DEFAULT_FORM
+    isEnable.value = videoForm.value?.enable || false
+    if (!videoForm.value?.filePath) {
+      const result = await utilsManager.pathJoin([userPath, 'logs', 'recording'])
+      videoForm.value.filePath = result
+    }
   }
   saveVideoGet()
+
   const saveVideoSet = debounce(() => {
     if (!videoForm.value.fileClearTime) {
       message.warning('视频清理时间不能为空')

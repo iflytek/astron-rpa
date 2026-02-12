@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { to } from 'await-to-js'
 
 import { appendixDownload, cancelAppendixDownload } from '@/api/market'
 import { utilsManager } from '@/platform'
@@ -45,24 +46,20 @@ export function useAppFileDownload() {
     }
   }
 
-  const download = (item) => {
+  const download = async (item) => {
     item.percent = 0
     item.status = AppFileStatus.normal
-    utilsManager.showDialog({
+    const res = await utilsManager.showDialog({
       title: '选择保存文件目录',
       properties: ['openDirectory'],
-    }).then((res: any) => {
-      startProgress(item)
-      appendixDownload({
-        appendixLink: item.link,
-        savePath: res,
-        resourceType: 'project',
-      }).then(() => {
-        finishDownload(item, AppFileStatus.success)
-      }).catch(() => {
-        finishDownload(item, AppFileStatus.exception)
-      })
     })
+    startProgress(item)
+    const [err] = await to(appendixDownload({
+      appendixLink: item.link,
+      savePath: res[0],
+      resourceType: 'project',
+    }))
+    finishDownload(item, err ? AppFileStatus.exception : AppFileStatus.success)
   }
 
   const cancelDownload = (item) => {

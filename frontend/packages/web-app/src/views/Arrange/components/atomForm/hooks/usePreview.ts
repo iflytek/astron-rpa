@@ -6,7 +6,6 @@ export function getRealValue(itemValue, mark = '') {
   const totalArr = [...useVariableStore().globalVariableList, ...useProcessStore().parameters]
   Array.isArray(itemValue)
     ? res = itemValue.map((i) => {
-      console.log(i)
       return i.type === 'var' ? (totalArr.find(v => v.varName === i.value)?.varValue || mark || i.value) : i.value
     }).join('')
     : res = itemValue

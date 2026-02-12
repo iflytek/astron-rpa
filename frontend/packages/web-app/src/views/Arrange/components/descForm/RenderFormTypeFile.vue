@@ -45,8 +45,8 @@ function fileTxt() {
 
 async function clickHandle() {
   const res = await utilsManager.showDialog(itemData.formType.params)
-  if (res) {
-    const strVal = Array.isArray(res) ? res.join(',') : res
+  const strVal = res.join(',')
+  if (strVal) {
     itemData.value = strVal
     flowStore.setFormItemValue(itemData.key, strVal, flowStore.activeAtom.id)
   }
