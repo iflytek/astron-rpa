@@ -82,17 +82,24 @@ function renderRangePicker(item, modelObj = {}) {
  */
 function renderPathInput(item, modelObj = {}) {
   const bindKey = item.bind || nanoid()
+  let open = false;
 
   async function handleOpenFileDialog() {
-    const filters = (item.filter === '.' || !item?.filter) ? ['*'] : item.filter.split(',')
-    const filePaths = await utilsManager.showDialog({
-      file_type: item.selectType,
-      filters,
-      defaultPath: item?.defaultPath,
-      multiple: item.isMultiple,
-    })
-    const filePath = filePaths.join(',')
-    filePath && (modelObj[bindKey] = filePath)
+    if (open) return;
+    open = true;
+    try {
+      const filters = (item.filter === '.' || !item?.filter) ? ['*'] : item.filter.split(',')
+      const filePaths = await utilsManager.showDialog({
+        file_type: item.selectType,
+        filters,
+        defaultPath: item?.defaultPath,
+        multiple: item.isMultiple,
+      })
+      const filePath = filePaths.join(',')
+      filePath && (modelObj[bindKey] = filePath)
+    } finally {
+      open = false;
+    }
   }
 
   return (
