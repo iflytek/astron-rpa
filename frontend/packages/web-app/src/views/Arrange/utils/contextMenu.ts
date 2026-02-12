@@ -131,11 +131,32 @@ export function toggleContextmenu(data: ContextmenuInfo) {
       visible: data.visible,
     }
     if (data.visible) {
-      const listWarpperDom = document.getElementById('listwrapper')
-      const fitTop = data.$event.clientY - 143
-      const fitBottom = listWarpperDom.clientHeight - fitTop
-      contextMenuInfo.x = data.$event.clientX + 10
-      contextMenuInfo.y = fitBottom > fitTop ? data.$event.clientY : data.$event.clientY - 300
+      // 菜单使用 fixed 定位，限制在可视区域内显示
+      const menuHeight = 322 // 菜单的大概高度
+      const menuWidth = 190 // 菜单宽度
+      const viewportHeight = window.innerHeight
+      const viewportWidth = window.innerWidth
+      
+      const clickX = data.$event.clientX
+      const clickY = data.$event.clientY
+      
+      // X 坐标：优先在点击位置右侧显示，如果右侧空间不足则显示在左侧
+      const spaceRight = viewportWidth - clickX
+      if (spaceRight >= menuWidth + 10) {
+        contextMenuInfo.x = clickX + 10
+      } else {
+        contextMenuInfo.x = Math.max(10, clickX - menuWidth - 10)
+      }
+      
+      // Y 坐标：优先在点击位置下方显示，如果下方空间不足则显示在上方
+      const spaceBelow = viewportHeight - clickY
+      if (spaceBelow >= menuHeight) {
+        contextMenuInfo.y = clickY
+      } else {
+        const yAbove = clickY - menuHeight
+        contextMenuInfo.y = Math.max(10, yAbove)
+      }
+      
       contextMenuInfo.atom = data.atom
 
       const selectedAtomIds = useFlowStore().selectedAtomIds || []
