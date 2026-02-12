@@ -22,6 +22,7 @@ class CustomBdb(bdb.Bdb):
         self.main_file = os.path.join(self.project_dir, "main.py")
 
         # 多文件行号映射
+        self.file_map = {}
         self.file_line_maps = {}
         self.file_rev_maps = {}
 
@@ -45,12 +46,14 @@ class CustomBdb(bdb.Bdb):
         py_files = glob.glob(os.path.join(self.project_dir, "*.py"))
 
         for py_file in py_files:
-            if "package" not in py_file:
-                self.file_line_maps[py_file] = {}
-            map_file = py_file.replace(".py", ".map")
 
+            if "package" not in py_file:
+                self.file_map[py_file] = True
+
+            map_file = py_file.replace(".py", ".map")
             if not os.path.exists(map_file):
                 continue
+            self.file_line_maps[py_file] = {}
 
             # 加载单个.map文件
             with open(map_file, encoding="utf-8") as f:
@@ -66,7 +69,6 @@ class CustomBdb(bdb.Bdb):
 
                 if line_map:
                     self.file_line_maps[py_file] = line_map
-
                     # 根据行号映射生成反向映射
                     rev = defaultdict(list)
                     for py_line, flow_line in line_map.items():
@@ -77,7 +79,9 @@ class CustomBdb(bdb.Bdb):
 
     def _to_flow_line(self, filename: str, py_line: int) -> int:
         """把Python行号转成流程行号"""
-        return self.file_line_maps.get(filename, {}).get(py_line, py_line)
+        if filename not in self.file_line_maps:
+            return py_line
+        return self.file_line_maps.get(filename).get(py_line, None)
 
     def _to_py_lines(self, filename: str, flow_line: int) -> list[int]:
         """把流程行号转成Python行号列表"""
@@ -258,7 +262,7 @@ class CustomBdb(bdb.Bdb):
         tb = exc.__traceback__
 
         while tb:
-            if tb.tb_frame.f_code.co_filename in self.file_line_maps:
+            if tb.tb_frame.f_code.co_filename in self.file_map:
                 matched.append(tb)
             tb = tb.tb_next
 
@@ -286,7 +290,7 @@ class CustomBdb(bdb.Bdb):
 
         while frame:
             filename = frame.f_code.co_filename
-            if filename in self.file_line_maps:
+            if filename in self.file_map:
                 return self._to_project_path(filename), self._to_flow_line(filename, frame.f_lineno)
             frame = frame.f_back
         return "", 0
