@@ -635,14 +635,24 @@ class UIAOperate:
         app: APP = None,
         point=None,
     ) -> tuple[bool, int, int, Any]:
-        base_ctrl = control
-
+        x = point.x
+        y = point.y
         point_cfg = BROWSER_UIA_POINT_CLASS.get(app.value)
         if not point_cfg:
             return False, 0, 0, 0
-        while base_ctrl:
-            tag_value, tag = point_cfg
-            for control, depth in auto.WalkControl(base_ctrl, includeTop=True, maxDepth=12):
+        tag_value, tag = point_cfg
+        while control:
+            if app in [APP.Firefox]:
+                # Firefox: 向下遍历子树查找，需要边界判断
+                for child, _ in auto.WalkControl(control, includeTop=True, maxDepth=10):
+                    if child.AutomationId == tag_value:
+                        bound = child.BoundingRectangle
+                        if bound.left <= x <= bound.right and bound.top <= y <= bound.bottom:
+                            return True, bound.top, bound.left, child.NativeWindowHandle
+                        else:
+                            return False, 0, 0, 0
+            else:
+                # 其他浏览器: 向上逐级检查当前控件的 ClassName
                 if tag == "ClassName":
                     tag_match = control.ClassName
                 elif tag == "AutomationId":
@@ -650,17 +660,9 @@ class UIAOperate:
                 else:
                     tag_match = ""
                 if tag_match == tag_value:
-                    bounding_rect = control.BoundingRectangle
-                    if app == APP.Firefox and point:
-                        x = point.x
-                        y = point.y
-                        if not (
-                            bounding_rect.left <= x <= bounding_rect.right
-                            and bounding_rect.top <= y <= bounding_rect.bottom
-                        ):
-                            return False, 0, 0, 0
-                    return True, bounding_rect.top, bounding_rect.left, control.NativeWindowHandle
-                base_ctrl = control.GetParentControl()
+                    bound = control.BoundingRectangle
+                    return True, bound.top, bound.left, control.NativeWindowHandle
+            control = control.GetParentControl()
         return False, 0, 0, None
 
 
