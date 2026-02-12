@@ -60,7 +60,7 @@ class Compress:
                 required=True,
             ),
             atomicMg.param("pwd", required=False),
-            atomicMg.param("save_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("save_type", required=False),
         ],
         outputList=[
             atomicMg.param("compress_path", types="Str"),
@@ -136,7 +136,7 @@ class Compress:
                 required=True,
             ),
             atomicMg.param("pwd", required=False),
-            atomicMg.param("save_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("save_type", required=False),
         ],
         outputList=[
             atomicMg.param("uncompress_path", types="Str"),

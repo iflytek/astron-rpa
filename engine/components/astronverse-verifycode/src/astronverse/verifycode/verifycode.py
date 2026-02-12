@@ -78,7 +78,7 @@ class VerifyCode:
                     )
                 ],
             ),
-            atomicMg.param("offset", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("offset", required=False),
         ],
         outputList=[atomicMg.param("drag_distance", types="Int")],
     )

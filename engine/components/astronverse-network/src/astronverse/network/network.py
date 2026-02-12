@@ -49,14 +49,13 @@ class Network:
                 required=False,
             ),
             atomicMg.param("time_out", types="Int", required=False),
-            atomicMg.param("save_type", required=False, level=AtomicLevel.ADVANCED.value),
+            atomicMg.param("save_type", required=False),
             atomicMg.param(
                 "save_path",
                 formType=AtomicFormTypeMeta(
                     AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
                     params={"filters": [], "file_type": "folder"},
                 ),
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.save_path.show",

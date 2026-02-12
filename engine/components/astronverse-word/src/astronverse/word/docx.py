@@ -60,8 +60,8 @@ class Docx:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("encoding", level=AtomicLevel.ADVANCED),
-            atomicMg.param("open_pwd_flag", level=AtomicLevel.ADVANCED),
+            atomicMg.param("encoding"),
+            atomicMg.param("open_pwd_flag"),
             atomicMg.param(
                 "open_pwd",
                 dynamics=[
@@ -70,10 +70,9 @@ class Docx:
                         expression="return $this.open_pwd_flag.value == true",
                     )
                 ],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
-            atomicMg.param("write_pwd_flag", level=AtomicLevel.ADVANCED),
+            atomicMg.param("write_pwd_flag"),
             atomicMg.param(
                 "write_pwd",
                 dynamics=[

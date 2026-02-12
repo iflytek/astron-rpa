@@ -26,7 +26,7 @@ class Excel:
                     params={"filters": [".xlsx", ".xls"], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("password", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("password", required=False),
         ],
         outputList=[
             atomicMg.param("open_excel_obj", types="ExcelObj"),
@@ -103,7 +103,7 @@ class Excel:
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "folder"}
                 ),
             ),
-            atomicMg.param("password", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("password", required=False),
         ],
         outputList=[
             atomicMg.param("create_excel_obj", types="ExcelObj"),

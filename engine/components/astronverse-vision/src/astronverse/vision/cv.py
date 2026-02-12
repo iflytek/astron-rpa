@@ -67,7 +67,6 @@ class CV:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
             atomicMg.param(
@@ -75,10 +74,9 @@ class CV:
                 formType=AtomicFormTypeMeta(AtomicFormType.SLIDER.value),
                 required=False,
             ),
-            atomicMg.param("move_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("move_type", required=False),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -230,13 +228,11 @@ class CV:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
-            atomicMg.param("move_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("move_type", required=False),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -346,7 +342,6 @@ class CV:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
         ],

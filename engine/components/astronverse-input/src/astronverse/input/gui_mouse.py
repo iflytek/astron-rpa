@@ -20,7 +20,7 @@ from astronverse.input.error import *
 
 class GuiMouse:
     @staticmethod
-    @atomicMg.atomic("Gui", inputList=[atomicMg.param("ctrl_type", level=AtomicLevel.ADVANCED.value)])
+    @atomicMg.atomic("Gui", inputList=[atomicMg.param("ctrl_type")])
     def mouse(
         btn_type: BtnType = BtnType.LEFT,
         btn_model: BtnModel = BtnModel.CLICK,
@@ -75,7 +75,6 @@ class GuiMouse:
             ),
             atomicMg.param(
                 "ctrl_type",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.ctrl_type.show",
@@ -172,7 +171,6 @@ class GuiMouse:
             ),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -258,7 +256,6 @@ class GuiMouse:
             ),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -347,7 +344,6 @@ class GuiMouse:
             ),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -357,7 +353,7 @@ class GuiMouse:
                     )
                 ],
             ),
-            atomicMg.param("ctrl_type", level=AtomicLevel.ADVANCED.value),
+            atomicMg.param("ctrl_type"),
         ],
     )
     def mouse_drag(

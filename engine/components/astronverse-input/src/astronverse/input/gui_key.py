@@ -47,7 +47,6 @@ class GuiKeyBoard:
             ),
             atomicMg.param(
                 "interval",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.interval.show",

@@ -31,11 +31,10 @@ class BrowserSoftware:
                     params={"file_type": "file"},
                 ),
             ),
-            atomicMg.param("open_args", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("open_args", required=False),
             atomicMg.param(
                 "open_with_incognito",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.CHECKBOX.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(

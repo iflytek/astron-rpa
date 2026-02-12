@@ -30,7 +30,7 @@ class Process:
                 ),
                 required=True,
             ),
-            atomicMg.param("params", types="Str", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("params", types="Str", required=False),
             atomicMg.param("cmd_type", required=False),
             atomicMg.param(
                 "work_dir",
@@ -38,7 +38,6 @@ class Process:
                     AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
                     params={"filters": [], "file_type": "folder"},
                 ),
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
             atomicMg.param(
@@ -185,7 +184,6 @@ class Process:
             atomicMg.param(
                 "time_out",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
         ],

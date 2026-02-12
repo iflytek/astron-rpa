@@ -60,19 +60,16 @@ class Dialog:
             atomicMg.param(
                 "auto_check",
                 formType=AtomicFormTypeMeta(AtomicFormType.SWITCH.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "wait_time",
                 types="Int",
                 dynamics=[DynamicsItem(key="$this.wait_time.show", expression="return $this.auto_check.value == true")],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "default_button_c",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -85,7 +82,6 @@ class Dialog:
             ),
             atomicMg.param(
                 "default_button_cn",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -98,7 +94,6 @@ class Dialog:
             ),
             atomicMg.param(
                 "default_button_y",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -111,7 +106,6 @@ class Dialog:
             ),
             atomicMg.param(
                 "default_button_yn",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -483,7 +477,6 @@ class Dialog:
             atomicMg.param(
                 "default_path",
                 required=False,
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(
                     AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "folder"}
                 ),
@@ -561,19 +554,16 @@ class Dialog:
             atomicMg.param(
                 "auto_check",
                 formType=AtomicFormTypeMeta(AtomicFormType.SWITCH.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "wait_time",
                 types="Int",
                 dynamics=[DynamicsItem(key="$this.wait_time.show", expression="return $this.auto_check.value == true")],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "default_button",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(

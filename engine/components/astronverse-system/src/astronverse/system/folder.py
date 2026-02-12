@@ -476,7 +476,7 @@ class Folder:
             ),
             atomicMg.param("output_type", required=False),
             atomicMg.param("traverse_subfolder", required=False),
-            atomicMg.param("sort_method", level=AtomicLevel.ADVANCED.value),
+            atomicMg.param("sort_method"),
             atomicMg.param(
                 "sort_type",
                 dynamics=[
@@ -487,7 +487,6 @@ class Folder:
                         ),
                     )
                 ],
-                level=AtomicLevel.ADVANCED.value,
             ),
         ],
         outputList=[

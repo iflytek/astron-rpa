@@ -22,7 +22,7 @@ class Agent:
         "Agent",
         inputList=[
             atomicMg.param("user", types="Str"),
-            atomicMg.param("app_url", types="Str", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("app_url", types="Str", required=False),
             atomicMg.param("app_token", types="Str"),
             atomicMg.param("variable_name", types="Str", required=False),
             atomicMg.param(
@@ -96,7 +96,7 @@ class Agent:
         "Agent",
         inputList=[
             atomicMg.param("user", types="Str"),
-            atomicMg.param("app_url", types="Str", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("app_url", types="Str", required=False),
             atomicMg.param("app_token", types="Str"),
             atomicMg.param("variable_name", types="Str", required=False),
             atomicMg.param("variable_value", types="Str", required=False),

@@ -37,10 +37,10 @@ class Software:
                 "app_absolute_path",
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={"filters": []},
+                    params={"filters": [".exe"]},
                 ),
             ),
-            atomicMg.param("app_arguments", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("app_arguments", required=False),
         ],
         outputList=[atomicMg.param("software_open", types="Str")],
     )
