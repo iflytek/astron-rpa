@@ -190,7 +190,16 @@ class Enterprise:
             response = requests.get(download_url, params=params, timeout=30, stream=True)
 
             # 检查响应状态
-            if response.status_code == 200:
+            if response.status_code != 200:
+                logger.error(f"下载失败，状态码：{response.status_code}，响应：{response.text}")
+                raise BaseException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), "请检查下载接口！")
+
+            content_type = response.headers.get('Content-Type', '').lower()
+            if 'application/json' in content_type:
+                error = response.json()
+                if not error.get("success"):
+                    raise BaseException(FILE_DOWNLOAD_FAILED_FORMAT.format(error.get("message", "")), "请检查下载接口！")
+            elif "application/octet-stream" in content_type:
                 # 从响应头中获取文件名，如果没有则使用默认名称
                 content_disposition = response.headers.get("content-disposition", "")
                 if "filename=" in content_disposition:
@@ -223,11 +232,7 @@ class Enterprise:
                 logger.info(f"下载成功：文件已保存到 {save_path}")
                 return save_path
             else:
-                logger.error(f"下载失败，状态码：{response.status_code}，响应：{response.text}")
-                raise BaseException(
-                    FILE_DOWNLOAD_FAILED_FORMAT.format(response.text),
-                    "请检查下载接口！",
-                )
+                raise NotImplementedError()
         except Exception as e:
             logger.error(f"下载过程中发生错误：{str(e)}")
             raise BaseException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
