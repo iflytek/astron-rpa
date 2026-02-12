@@ -42,6 +42,11 @@
   }
 }
 
+// 禁用 drawer 覆盖区域的拖拽功能, 确保 drawer 的关闭按钮可以正常点击
+.ant-drawer {
+  -webkit-app-region: no-drag;
+}
+
 // 修改antd-picker的默认高度
 .ant-picker {
   height: 32px;
