@@ -66,7 +66,10 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
                 key="checkElement",
                 data=element_data["elementData"]["path"],
             )
-            raise BaseException(WEB_GET_ELE_ERROR.format(reason.msg), "浏览器元素未找到！")
+            msg = ""
+            if isinstance(reason, dict):
+                msg = reason.get("msg", "")
+            raise BaseException(WEB_GET_ELE_ERROR.format(msg), "浏览器元素未找到！")
     return browser_obj
 
 

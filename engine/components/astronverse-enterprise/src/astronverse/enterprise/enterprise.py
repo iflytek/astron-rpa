@@ -1,4 +1,5 @@
 """Enterprise module"""
+
 import base64
 import json
 import os
@@ -19,20 +20,22 @@ cache_remote_var: dict = {}
 
 
 def http(shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post"):
-    """ post 请求 """
-    gateway_port =  atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+    """post 请求"""
+    gateway_port = atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
     logger.debug("请求开始 {}:{}:{}".format(shot_url, params, data))
     if meta == "post":
         response = requests.post("http://127.0.0.1:{}{}".format(gateway_port, shot_url), json=data, params=params)
     else:
         response = requests.get("http://127.0.0.1:{}{}".format(gateway_port, shot_url), params=params)
     if response.status_code != 200:
-        raise BaseException(SERVER_ERROR_FORMAT.format(response.status_code),  "服务器错误{}".format(response.status_code))
+        raise BaseException(
+            SERVER_ERROR_FORMAT.format(response.status_code), "服务器错误{}".format(response.status_code)
+        )
 
     try:
         json_data = response.json()
     except JSONDecodeError:
-        base64_encoded_data = base64.b64encode(response.content).decode('utf-8')
+        base64_encoded_data = base64.b64encode(response.content).decode("utf-8")
         return base64_encoded_data
     logger.debug("请求结束 {}:{}".format(shot_url, json_data))
     if json_data.get("code") != "0000" and json_data.get("code") != "000000":
