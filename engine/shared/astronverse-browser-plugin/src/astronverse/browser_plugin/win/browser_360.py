@@ -19,7 +19,11 @@ class Browser360PluginManager(PluginManagerCore):
         self.plugin_data = plugin_data
 
         self.browser_path = r"Software\360\360se6\Chrome"
-        self.user_data_path = r"C:\Users\{}\AppData\Roaming\360se6\User Data".format(getpass.getuser())
+        self.browser_exe_path = Browser360PluginManager.get_browser_path()
+        self.browser_data_path = self.browser_exe_path.replace(r"\Application\360se.exe", r"\User Data")
+        self.user_data_path = self.browser_data_path or r"C:\Users\{}\AppData\Roaming\360se6\User Data".format(
+            getpass.getuser()
+        )
         self.preferences_path_list = get_profile_list(self.user_data_path)
         self.secure_preferences = r"C:\Users\{}\AppData\Roaming\360se6\User Data\Default\Secure Preferences".format(
             getpass.getuser()

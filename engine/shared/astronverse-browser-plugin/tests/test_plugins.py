@@ -56,3 +56,8 @@ class TestPlugins(TestCase):
     def test_get_support_browsers(self):
         browsers = UpdateManager().support_browsers
         print(f"Support browsers: {browsers}")
+
+    def test_get_360_browser_path(self):
+        from astronverse.browser_plugin.win.browser_360 import Browser360PluginManager
+        b360 = Browser360PluginManager({})
+        print(f"Browser : {b360.preferences_path_list}")
