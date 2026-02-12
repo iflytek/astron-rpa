@@ -13,7 +13,7 @@
 - 定时器定期刷新区域以适应窗口移动/缩放
 
 调试支持:
-- Ctrl+Shift+F12 全局热键: 强制关闭覆盖窗口（上线后可移除）
+- Ctrl+Shift+F12 全局热键: 强制关闭覆盖窗口
 """
 
 import ctypes
@@ -211,7 +211,7 @@ class BlockOverlay:
         with self._lock:
             self._hwnd = hwnd
 
-        # ── 注册调试热键: Ctrl+Shift+F12（上线后可移除）──
+        # ── 注册调试热键: Ctrl+Shift+F12──
         MOD_CONTROL = 0x0002
         MOD_SHIFT = 0x0004
         VK_F12 = 0x7B
