@@ -33,7 +33,7 @@ function handleFilesModal() {
 }
 
 const fileName = ref('')
-setFileName(renderData.value[0]?.value || '')
+setFileName(renderData.value?.[0]?.value || '')
 
 function setFileName(fileId: string) {
   fileName.value = fileId ? shareDataStore.sharedFiles.find(i => i.fileId === fileId)?.fileName : ''
