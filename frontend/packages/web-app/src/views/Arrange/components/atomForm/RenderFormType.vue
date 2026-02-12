@@ -152,9 +152,6 @@ const debouncedGenerateHtmlVal = debounce((target: HTMLDivElement, itemData: RPA
 const handleInput = (event: Event, itemData: RPA.AtomDisplayItem) => {
   // 保存当前 activeAtom.id，避免在 debounce 延迟期间切换 activeAtom 导致更新到错误的原子能力
   const currentAtomId = flowStore.activeAtom?.id
-  if (!currentAtomId) {
-    return
-  }
   const target = event.target as HTMLDivElement
   debouncedGenerateHtmlVal(target, itemData, currentAtomId)
 }
