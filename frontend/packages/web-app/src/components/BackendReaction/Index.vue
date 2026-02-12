@@ -59,8 +59,7 @@ const route = useRoute()
 
 // 主进程与渲染进程通信
 utilsManager.listenEvent('scheduler-event', (eventMsg) => {
-  const msgString = base64ToString(eventMsg)
-  const msgObject = JSON.parse(msgString)
+  const msgObject = JSON.parse(base64ToString(eventMsg))
   const { type, msg } = msgObject
   console.log('主进程消息: ', msgObject)
   switch (type) {

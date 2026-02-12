@@ -1,5 +1,6 @@
 import type { WindowManager } from '@rpa/shared/platform'
 import { noop } from 'lodash-es'
+import { to } from 'await-to-js'
 
 const { ipcRenderer } = window.electron
 
@@ -57,44 +58,32 @@ class ElectronWindowManager implements WindowManager {
   /**
    * 最大化窗口，如果已经最大化，则还原
    */
-  maximizeWindow(always: boolean = false): Promise<boolean> {
-    return new Promise((resolve) => {
-      ipcRenderer
-        .invoke('window-is-maximized')
-        .then((isMaximized: boolean) => {
-          if (isMaximized && !always) {
-            ipcRenderer.invoke('window-unmaximize').then(() => {
-              this.centerWindow()
-              resolve(false)
-            })
-          }
-          else {
-            ipcRenderer.invoke('window-maximize').then(() => {
-              resolve(true)
-            })
-          }
-        })
-        .catch((err) => {
-          console.error('Error checking window maximized state:', err)
-          resolve(false)
-        })
-    })
+  async maximizeWindow(always: boolean = false): Promise<boolean> {
+    const isMaximized = await this.isMaximized()
+
+    if (isMaximized && !always) {
+      await ipcRenderer.invoke('window-unmaximize')
+      this.centerWindow()
+      return false
+    }
+    else {
+      await ipcRenderer.invoke('window-maximize')
+      return true
+    }
   }
 
   /**
    * 最小化窗口
    */
   async minimizeWindow() {
-    const res = await ipcRenderer.invoke('window-minimize')
-    return res
+    return await ipcRenderer.invoke('window-minimize')
   }
 
   /**
    * 还原窗口
    */
   async restoreWindow() {
-    const res = await ipcRenderer.invoke('window-restore')
-    return res
+    return await ipcRenderer.invoke('window-restore')
   }
 
   /**
@@ -128,47 +117,37 @@ class ElectronWindowManager implements WindowManager {
     ipcRenderer.send('window-set-always-on-top', alwaysOnTop)
   }
 
-  isMaximized(): Promise<boolean> {
-    return new Promise((resolve) => {
-      ipcRenderer
-        .invoke('window-is-maximized')
-        .then((isMaximized: boolean) => {
-          resolve(isMaximized)
-        })
-        .catch((err) => {
-          console.error('Error checking window maximized state:', err)
-          resolve(false)
-        })
-    })
+  async isMaximized(): Promise<boolean> {
+    const [err, isMaximized] = await to<boolean>(ipcRenderer.invoke('window-is-maximized'))
+    if (err) {
+      console.error('Error checking window maximized state:', err)
+      return false
+    }
+
+    return isMaximized
   }
 
-  isMinimized(): Promise<boolean> {
-    return new Promise((resolve) => {
-      ipcRenderer
-        .invoke('window-is-minimized')
-        .then((isMinimized: boolean) => {
-          resolve(isMinimized)
-        })
-        .catch((err) => {
-          console.error('Error checking window minimized state:', err)
-          resolve(false)
-        })
-    })
+  async isMinimized(): Promise<boolean> {
+    const [err, isMinimized] = await to<boolean>(ipcRenderer.invoke('window-is-minimized'))
+    if (err) {
+      console.error('Error checking window minimized state:', err)
+      return false
+    }
+
+    return isMinimized
   }
 
-  foucsWindow() {
-    ipcRenderer
-      .invoke('window-focus')
-      .then((focused: boolean) => {
-        if (!focused) {
-          setTimeout(async () => {
-            await ipcRenderer.invoke('window-focus')
-          }, 300)
-        }
-      })
-      .catch((err) => {
-        console.error('Error focusing the window:', err)
-      })
+  async foucsWindow() {
+    const [err, focused] = await to<boolean>(ipcRenderer.invoke('window-focus'))
+
+    if (err) {
+      console.error('Error focusing the window:', err)
+      return
+    }
+
+    if (!focused) {
+      setTimeout(() => ipcRenderer.invoke('window-focus'), 300)
+    }
   }
 
   /**
@@ -217,7 +196,6 @@ class ElectronWindowManager implements WindowManager {
   }
 
   showDecorations() {
-    console.log('showDecorations')
     ipcRenderer.send('window-set-menubar', true)
   }
 
