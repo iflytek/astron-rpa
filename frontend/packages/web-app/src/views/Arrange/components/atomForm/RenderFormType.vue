@@ -122,15 +122,15 @@ function clickHandle(e?: Event) {
   formBtnHandle(itemData, itemType, extra)
 }
 
-function handleFileSelect() {
-  utilsManager.showDialog(itemData.formType.params).then((res) => {
-    if (res) {
-      const strVal = Array.isArray(res) ? res.join(',') : res
-      itemData.value = strVal
-      flowStore.setFormItemValue(itemData.key, strVal, flowStore.activeAtom.id)
-      emit('update')
-    }
-  })
+async function handleFileSelect() {
+  const res = await utilsManager.showDialog(itemData.formType.params)
+  const strVal = res.join(',')
+
+  if (!strVal) return
+
+  itemData.value = strVal
+  flowStore.setFormItemValue(itemData.key, strVal, flowStore.activeAtom.id)
+  emit('update')
 }
 
 // 不会刷新当前配置页

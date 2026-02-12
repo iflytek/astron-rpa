@@ -1,3 +1,4 @@
+import { toString } from 'lodash-es'
 import type { Rule } from 'ant-design-vue/es/form'
 
 import type { AnyObj } from '@/types/common'
@@ -7,7 +8,8 @@ function getPasswordRules(title: string) {
   return [
     {
       validator: (_rule: Rule, value: string) => {
-        if (value.length < 4 || value.length > 16) {
+        const text = toString(value)
+        if (text.length < 4 || text.length > 16) {
           // eslint-disable-next-line prefer-promise-reject-errors
           return Promise.reject(`${title}请输入4-16位字符`)
         }

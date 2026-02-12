@@ -20,11 +20,11 @@ Object.assign(formState, taskJson)
 
 const { t } = useTranslation()
 
-function chooseFolder() {
-  utilsManager.showDialog({ file_type: 'folder' }).then((res: string) => {
-    formState.directory = res
-  })
+async function chooseFolder() {
+  const res = await utilsManager.showDialog({ file_type: 'folder' })
+  formState.directory = res[0]
 }
+
 const fileEvents = FileEvents.map((it) => {
   return { label: t(`taskFileEvents.${String(it.value)}`), value: it.value }
 })

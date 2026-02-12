@@ -6,7 +6,7 @@ import { isEmpty } from 'lodash-es'
 import type { AnyObj } from '@/types/common'
 import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
 
-import createUserFormItem from '../hooks/createUserFormItem'
+import { createUserFormItem } from '../hooks/createUserFormItem'
 import useUserFormDialog from '../hooks/useUserFormDialog'
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
@@ -16,8 +16,6 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'save', data: AnyObj): void
 }>()
-
-const { createItemFn } = createUserFormItem()
 
 const close = () => emit('close')
 const save = (data: AnyObj) => emit('save', data)
@@ -56,7 +54,7 @@ const {
               ...(formItem?.required ? [{ required: true, message: `${formItem.label}不能为空` }] : []),
             ]"
           >
-            <component :is="createItemFn[formItem.dialogFormType](formItem, formState)" />
+            <component :is="createUserFormItem[formItem.dialogFormType](formItem, formState)" />
           </Form.Item>
         </template>
         <a-empty v-else :image="simpleImage" />
