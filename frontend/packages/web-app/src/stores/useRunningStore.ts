@@ -207,9 +207,9 @@ export const useRunningStore = defineStore('running', () => {
 
   // 关闭执行过程中创建的窗口
   const closeCreatedWindows = () => {
-    createdWindowLabels.forEach(label => {
-      windowManager.closeWindow(label)
-    })
+    // 关闭日志弹窗
+    windowManager.closeWindow(WINDOW_NAME.LOGWIN)
+    createdWindowLabels.forEach(label => windowManager.closeWindow(label))
     createdWindowLabels = []
   }
 

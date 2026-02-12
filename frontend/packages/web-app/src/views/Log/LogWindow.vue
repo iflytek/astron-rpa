@@ -7,7 +7,6 @@ import { generateUUID, sleep } from '@/utils/common'
 
 import { getUserSetting } from '@/api/setting'
 import Socket from '@/api/ws'
-import { WINDOW_NAME } from '@/constants'
 import { windowManager } from '@/platform'
 
 const DEFAULT_STOPRUN_SHORTKEY = 'Shift + F5'
@@ -24,7 +23,7 @@ async function closeWindow(immediate: boolean) {
     await sleep(500)
   }
 
-  windowManager.closeWindow(WINDOW_NAME.LOGWIN)
+  windowManager.closeWindow()
 }
 
 export default {
@@ -74,8 +73,7 @@ export default {
     },
     // 开始计时
     startCount() {
-      if (this.countTimer)
-        clearInterval(this.countTimer)
+      this.countTimer && clearInterval(this.countTimer)
       this.countTimer = setInterval(() => {
         this.countTime += 1
       }, 1000)
