@@ -324,7 +324,7 @@ onBeforeMount(() => {
             <template #item="">
               <div
                 class="tree-node flex items-center px-2 hover:bg-[#5D59FF]/[.35] rounded"
-                :class="{ 'px-0': item.key === 'smart-component' }"
+                :class="{ '!px-0': item.key === 'smart-component' }"
                 @dblclick="doubleItemClick(item)"
               >
                 <UseAtomItem
