@@ -3,6 +3,7 @@ import { Auth } from '@rpa/components/auth'
 import { theme } from 'ant-design-vue'
 import { storeToRefs } from 'pinia'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { to } from 'await-to-js'
 
 import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'
@@ -80,9 +81,12 @@ onMounted(() => {
   loginWindowStep()
 })
 
-window.onload = () => {
+window.onload = async () => {
   loginAuto()
-  utilsManager.invoke('main_window_onload')
+  const [err] = await to(utilsManager.invoke('main_window_onload'))
+  if (err) {
+    console.error('main_window_onload 调用失败: ', err)
+  }
 }
 
 onUnmounted(() => {

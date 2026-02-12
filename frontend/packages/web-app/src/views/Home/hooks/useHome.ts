@@ -1,6 +1,7 @@
-import BUS from '@/utils/eventBus'
 import { NiceModal } from '@rpa/components'
+import { onUnmounted } from 'vue'
 
+import BUS from '@/utils/eventBus'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { LogModal } from '@/views/Home/components/modals'
 
@@ -14,4 +15,8 @@ export function useHome() {
   }
 
   BUS.$on('open-log-modal', openFileLogModal)
+
+  onUnmounted(() => {
+    BUS.$off('open-log-modal', openFileLogModal)
+  })
 }
