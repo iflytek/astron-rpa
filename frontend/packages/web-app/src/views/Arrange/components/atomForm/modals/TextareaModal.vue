@@ -42,9 +42,6 @@ function handleOkConfirm() {
 <style lang='scss' scoped>
 :deep(.editor) {
   height: 300px;
-  overflow: auto;
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
+  white-space: normal!important;
 }
 </style>

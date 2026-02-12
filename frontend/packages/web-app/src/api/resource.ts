@@ -22,6 +22,7 @@ export interface StartExecutorParams {
   open_virtual_desk?: string
   line?: string | number
   end_line?: string | number
+  is_custom_component?: boolean
 }
 export async function startExecutor(data: StartExecutorParams) {
   const res = await http.post<{ addr: string }>('/scheduler/executor/run', data, { timeout: 0 })

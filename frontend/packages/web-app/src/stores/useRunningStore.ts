@@ -269,6 +269,7 @@ export const useRunningStore = defineStore('running', () => {
 
     line && (runParams.line = line)
     end_line && (runParams.end_line = end_line)
+    processStore.isComponent && (runParams.is_custom_component = processStore.isComponent)
 
     running.value = 'run'
     start(runParams)
