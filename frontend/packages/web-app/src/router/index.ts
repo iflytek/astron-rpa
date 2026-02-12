@@ -262,12 +262,8 @@ export function findFirstPermittedRoute(permStore: ReturnType<typeof usePermissi
   return found ? { name: found.name } : null
 }
 
-router.beforeEach(async (to, from, next) => {
-  // const userStore = useUserStore()
+router.beforeEach(async (to, _from, next) => {
   const permissionStore = usePermissionStore()
-
-  // if (!userStore.loginStatus && to.name !== 'Login')
-  //   return next({ name: 'Login', query: { redirect: to.fullPath } })
 
   if (to.meta?.permission) {
     if (!permissionStore.fetched)

@@ -90,12 +90,8 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
           dot: item.isLatest === 0,
         })),
       }
-      const businessComps: RPA.AtomTreeNode = {
-        key: 'businessComponent',
-        title: t('businessComponent'),
-        atomics: processStore.extendTree.state,
-      }
-      list = processStore.isComponent ? [businessComps] : [customComps, businessComps]
+      const businessComps = processStore.extendTree.state
+      list = processStore.isComponent ? businessComps : [customComps, ...businessComps]
       break
     }
   }

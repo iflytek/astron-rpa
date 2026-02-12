@@ -1,5 +1,5 @@
 <script lang="tsx">
-import { CheckCircleFilled, ClockCircleOutlined, CloseCircleFilled, CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, IssuesCloseOutlined, LoadingOutlined, MinusOutlined } from '@ant-design/icons-vue'
+import { CheckCircleFilled, ClockCircleOutlined, CloseCircleFilled, DoubleLeftOutlined, DoubleRightOutlined, IssuesCloseOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { Tooltip } from 'ant-design-vue'
 import { isEmpty } from 'lodash-es'
 
@@ -95,9 +95,7 @@ export default {
           this.maxLine = max_line
         }
         if (status === 'task_end') {
-          setTimeout(() => {
-            clearInterval(this.countTimer)
-          }, 1000)
+          setTimeout(() => clearInterval(this.countTimer), 1000)
         }
         if (line) {
           // 当前行
@@ -105,7 +103,6 @@ export default {
         }
       }
 
-      console.log('logItem+++++: ', logItem)
       this.logData.push(logItem)
       if (this.logData.length > 2) {
         // 最多显示2条
@@ -154,13 +151,6 @@ export default {
       })
       closeWindow(false)
     },
-    clickHide() {
-      // 不停止，只关闭窗口
-      closeWindow(true)
-    },
-    clickMinimize() {
-      windowManager.minimizeWindow()
-    },
     // icon 状态
     getIconState(item, index) {
       let indexStatus = index === 1 ? 'current' : 'success'
@@ -170,12 +160,10 @@ export default {
     },
     // 运行开始计时
     getCountTime(time) {
-      const hours = Math.floor(time / 3600)
-      const minutes = Math.floor((time % 3600) / 60)
-      const seconds = time % 60
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds
-        .toString()
-        .padStart(2, '0')}`
+      const hours = Math.floor(time / 3600).toString().padStart(2, '0')
+      const minutes = Math.floor((time % 3600) / 60).toString().padStart(2, '0')
+      const seconds = (time % 60).toString().padStart(2, '0')
+      return `${hours}:${minutes}:${seconds}`
     },
     // 底部运行进度
     getPercent() {
@@ -192,18 +180,16 @@ export default {
     },
     renderLogContent() {
       if (isEmpty(this.logData)) {
-        return <div class="content-log !text-[rgba(0,0,0,0.85)] dark:!text-[rgba(255,255,255,0.85)]">正在进行初始化...</div>
+        return <div class="content-log">正在进行初始化...</div>
       }
 
-      return this.logData.map((item, index) => {
-        return (
-          <div class="content-log">
-            {this.getIconState(item, index)}
-            &nbsp;
-            <span class="!text-[rgba(0,0,0,0.85)] dark:!text-[rgba(255,255,255,0.85)]">{item.msg_str}</span>
-          </div>
-        )
-      })
+      return this.logData.map((item, index) => (
+        <div class="content-log" key={index}>
+          {this.getIconState(item, index)}
+          &nbsp;
+          <span>{item.msg_str}</span>
+        </div>
+      ))
     },
   },
   render() {
@@ -216,33 +202,35 @@ export default {
               : <DoubleRightOutlined class="text-white" />
           }
         </div>
-        <div class={this.isSiderMinimized ? 'hide' : 'logData-container'} style={this.getProcessStyle()}>
+        <div class={this.isSiderMinimized ? 'hidden' : 'logData-container'} style={this.getProcessStyle()}>
           <div class="logData-title p-[10px]" data-tauri-drag-region>
             <div class="title-text flex items-center">
               <div class="w-[20px] h-[20px] bg-primary rounded-[2px] flex items-center justify-center mr-[10px]">
                 <rpa-icon name="robot" class="w-[14px] h-[14px] text-[#fff]" />
               </div>
-              <div class="h-[20px] leading-5 text-[14px] text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] font-semibold">{this.projectName || '执行日志'}</div>
+              <div class="h-[20px] leading-5 text-sm font-semibold">
+                {this.projectName || '执行日志'}
+              </div>
             </div>
-            <div class="title-button">
-              <MinusOutlined onClick={this.clickMinimize} class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)] no-drag mr-2" />
-              <CloseOutlined onClick={this.clickHide} class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)] no-drag" />
+            <div class="flex items-center gap-3">
+              <rpa-hint-icon name="remove" enableHoverBg class="text-base" onClick={this.siderMinimize} />
+              <rpa-hint-icon name="close" enableHoverBg class="text-base" onClick={this.clickStop} />
             </div>
           </div>
           <div class="logData-content">{this.renderLogContent()}</div>
           <div class="logData-footer px-[10px]">
             <span>
               <ClockCircleOutlined class="text-[rgba(0,0,0,0.85) ] dark:text-[#fff] mr-[5px]" />
-              <span class="!text-[rgba(0,0,0,0.85)] dark:!text-[rgba(255,255,255,0.85)]">{this.getCountTime(this.countTime)}</span>
+              <span>{this.getCountTime(this.countTime)}</span>
             </span>
             <Tooltip
               placement="topLeft"
-              class="tool-tip"
+              class="text-sm"
               title={this.$t('quitShortcut', { key: this.stopRunText })}
               overlayClassName="whitespace-nowrap"
             >
-              <span class="stop-button text-[#ec483e] text-[14px]" onClick={this.clickStop}>
-                <rpa-icon name="cancel" class="w-[14px] h-[14px] text-[#ec483e]" />
+              <span class="stop-button text-error text-[14px]" onClick={this.clickStop}>
+                <rpa-icon name="cancel" class="w-[14px] h-[14px]" />
                 <span class="text-[12px]">终止</span>
               </span>
             </Tooltip>
@@ -281,10 +269,6 @@ export default {
     flex: 1;
     overflow: hidden;
     position: relative;
-  }
-
-  .hide {
-    display: none;
   }
 
   &-title {
@@ -341,9 +325,6 @@ export default {
       display: inline-flex;
       align-items: center;
       justify-content: space-between;
-    }
-    .tool-tip {
-      font-size: 14px;
     }
   }
 }
