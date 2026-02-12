@@ -1,9 +1,17 @@
 import BUS from '@/utils/eventBus'
+import { NiceModal } from '@rpa/components'
 
-import { useFileLogModal } from '@/hooks/useFileLog'
+import { useRunlogStore } from '@/stores/useRunlogStore'
+import { LogModal } from '@/views/Home/components/modals'
 
 export function useHome() {
-  const { openFileLogModal } = useFileLogModal()
-  BUS.$off('open-log-modal')
+  function openFileLogModal(path: string, dataTablePath?: string) {
+    NiceModal.show(LogModal, {
+      logPath: path,
+      dataTablePath,
+      onClearLogs: () => useRunlogStore().clearLogs(),
+    })
+  }
+
   BUS.$on('open-log-modal', openFileLogModal)
 }

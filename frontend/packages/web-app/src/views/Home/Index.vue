@@ -17,29 +17,25 @@ const route = useRoute()
 
 // 调整窗口铺满屏幕
 async function windowResize() {
-  windowManager.isMaximized().then(async (isMaximized) => {
-    if (!isMaximized) {
-      await windowManager.setWindowSize()
-      await windowManager.maximizeWindow()
-    }
-  })
+  const isMaximized = await windowManager.isMaximized()
+  if (!isMaximized) {
+    await windowManager.maximizeWindow()
+  }
 }
 
 useHome()
 
 onMounted(() => {
   windowResize()
+
   // lazy load Arrange view for better performance
+  const importArrange = () => import('@/views/Arrange/index.vue')
   window.addEventListener('load', () => {
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(() => {
-        import('@/views/Arrange/index.vue')
-      })
+      window.requestIdleCallback(() => importArrange())
     }
     else {
-      setTimeout(() => {
-        import('@/views/Arrange/index.vue')
-      }, 0)
+      setTimeout(() => importArrange(), 0)
     }
   })
 })
