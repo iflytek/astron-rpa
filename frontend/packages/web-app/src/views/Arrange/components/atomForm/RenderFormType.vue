@@ -416,7 +416,7 @@ inputListListener(itemData, itemType)
   padding: 0 5px;
   margin-right: 3px;
   --custom-cursor-size: 18px;
-  white-space: nowrap;
+  white-space: pre; // 保留换行符和空格，但不自动换行
   overflow: auto;
   
   &::-webkit-scrollbar {
