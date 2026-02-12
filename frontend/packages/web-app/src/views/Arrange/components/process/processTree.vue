@@ -1,110 +1,51 @@
 <script setup lang="ts">
-import type { TreeDataItem } from 'ant-design-vue/es/tree/Tree'
-import { ref, watch } from 'vue'
+import { ref, computed, watchPostEffect } from 'vue'
+import { useTemplateRefsList } from '@vueuse/core'
 
 import { useProcessStore } from '@/stores/useProcessStore'
 
-import type { IMenuItem } from './DropdownMenu.vue'
 import DropDownMenu from './DropdownMenu.vue'
 import { ProcessActionEnum, useProcessMenuActions } from './hooks/useProcessMenus'
 
-const expandedKeys = ref<string[]>([])
+const refs = useTemplateRefsList<HTMLDivElement>()
+
 const searchValue = ref<string>('')
-const autoExpandParent = ref<boolean>(true)
-const gData = ref<TreeDataItem[]>()
+const expand = ref(true)
 
 const processStore = useProcessStore()
 
-function onExpand(keys: string[]) {
-  expandedKeys.value = keys
-  autoExpandParent.value = false
-}
-
-watch(searchValue, (value) => {
-  const expanded = dataList.map((item: TreeDataItem) => {
-    if ((item.title as string).includes(value)) {
-      return getParentKey(item.key as string, gData.value)
-    }
-    return null
-  }).filter((item, i, self) => item && self.indexOf(item) === i)
-  expandedKeys.value = expanded as string[]
-  searchValue.value = value
-  autoExpandParent.value = true
+const menuList = computed(() => {
+  return processStore.processList.filter(tab => tab.name.includes(searchValue.value))
 })
 
-watch(() => processStore.changeFlag, () => {
-  generateData()
-})
-
-function generateData() {
-  const parent = [{ key: 'node', title: '流程名称', children: [] }]
-  parent[0].children = processStore.processList.map(item => ({ title: item.name, key: item.resourceId, children: [] }))
-  gData.value = parent
-  expandedKeys.value = processStore.processList.map(item => item.resourceId)
-}
-generateData()
-
-const dataList: TreeDataItem[] = []
-function generateList(data: TreeDataItem[]) {
-  for (let i = 0; i < data.length; i++) {
-    const node = data[i]
-    const key = node.key
-    dataList.push({ key, title: node.title as string })
-    if (node.children) {
-      generateList(node.children)
-    }
-  }
-}
-generateList(gData.value)
-expandedKeys.value = dataList.map(item => item.key as string) // 默认展开所有节点
-
-function getParentKey(key: string, tree: TreeDataItem[]): string | number | undefined {
-  let parentKey
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i]
-    if (node.children) {
-      if (node.children.some(item => item.key === key)) {
-        parentKey = node.key
-      }
-      else if (getParentKey(key, node.children)) {
-        parentKey = getParentKey(key, node.children)
-      }
-    }
-  }
-  return parentKey
-}
-
-function handleSelect(_, { node }) {
-  // 根节点key为node
-  if (node.key === 'node')
-    return
-  // 假如点击项就是激活项，activeProcessId不会改变，ProcessHeader组件中的watch不会生效，需要手动触发滚动
-  if (node.key === processStore.activeProcessId) {
-    const activeProcessDom = document.getElementById(`process_${processStore.activeProcessId}`)
-    activeProcessDom?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'nearest',
-    })
-  }
-  else {
-    processStore.saveProject().then(() => {
-      processStore.openProcess(node.key)
-    })
-  }
-}
-
-function getCurrentProcessMenu(key: string) {
-  const findItem = processStore.processList.find(item => item.resourceId === key)
-  if (!findItem)
-    return
-  const menus: IMenuItem[] = useProcessMenuActions({
-    item: findItem,
-    disabled: () => findItem.isMain,
-    actions: [ProcessActionEnum.OPEN, ProcessActionEnum.RENAME, ProcessActionEnum.COPY, ProcessActionEnum.SEARCH_CHILD_PROCESS, ProcessActionEnum.DELETE],
+function getCurrentProcessMenu(item: RPA.Flow.ProcessModule) {
+  return useProcessMenuActions({
+    item,
+    disabled: () => item.isMain,
+    actions: [
+      ProcessActionEnum.OPEN,
+      ProcessActionEnum.RENAME,
+      ProcessActionEnum.COPY,
+      ProcessActionEnum.SEARCH_CHILD_PROCESS,
+      ProcessActionEnum.DELETE,
+    ],
   })
-  return menus
 }
+
+async function handleClick(item: RPA.Flow.ProcessModule) {
+  await processStore.saveProject()
+  processStore.openProcess(item.resourceId)
+}
+
+function isActive(item: RPA.Flow.ProcessModule) {
+  return item.resourceId === processStore.activeProcessId
+}
+
+watchPostEffect(() => {
+  const activeIndex = menuList.value.findIndex(item => isActive(item))
+  const activeElement = refs.value[activeIndex]
+  activeElement?.scrollIntoView({ block: 'center', inline: 'center' })
+})
 </script>
 
 <template>
@@ -120,41 +61,40 @@ function getCurrentProcessMenu(key: string) {
       </template>
     </a-input>
     <div class="process-tree-container">
-      <a-tree
-        :expanded-keys="expandedKeys" :auto-expand-parent="autoExpandParent" :tree-data="gData"
-        @expand="onExpand"
-        @select="handleSelect"
-      >
-        <template #title="{ title, key }">
-          <DropDownMenu :menus="getCurrentProcessMenu(key)">
-            <span v-if="title.includes(searchValue)" class="flex items-center">
-              <rpa-icon v-if="key !== 'node'" name="process-tree" width="16px" height="16px" class="mr-1" />
-              {{ title.substr(0, title.indexOf(searchValue)) }}
-              <span class="text-primary font-bold">{{ searchValue }}</span>
-              {{ title.substr(title.indexOf(searchValue) + searchValue.length) }}
-            </span>
-            <span v-else>{{ title }}</span>
-          </DropDownMenu>
-        </template>
-      </a-tree>
+      <div class="flex items-center gap-2 group cursor-pointer" @click="expand = !expand">
+        <rpa-icon name="caret-down-small" width="16px" height="16px" class="transition-transform duration-200" :class="{ '-rotate-90': !expand }" />
+        <span class="group-hover:text-primary">流程名称</span>
+      </div>
+      <DropDownMenu v-for="item in menuList" :key="item.resourceId" :menus="getCurrentProcessMenu(item)">
+        <div
+          v-show="expand"
+          :ref="refs.set"
+          class="flex items-center gap-1 px-1 ml-5 cursor-pointer rounded"
+          :class="isActive(item) ? 'text-primary bg-[#F3F3F7] dark:bg-[#FFFFFF]/[.08]' : 'hover:text-primary hover:bg-[#F3F3F7] dark:hover:bg-[#FFFFFF]/[.08]'"
+          @click="handleClick(item)"
+        >
+          <rpa-icon :name="item.resourceCategory === 'process' ? 'process-tree' : 'run-python-module'" width="16px" height="16px" />
+          <div class="flex items-center">
+            {{ item.name.slice(0, item.name.indexOf(searchValue)) }}
+            <span class="text-primary font-bold">{{ searchValue }}</span>
+            {{ item.name.slice(item.name.indexOf(searchValue) + searchValue.length) }}
+          </div>
+        </div>
+      </DropDownMenu>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .process-tree-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-:deep(.ant-tree) {
   font-size: 12px;
-}
-
-:deep(.ant-tree-node-content-wrapper:hover) {
-  background-color: transparent;
-  color: $color-primary;
+  line-height: 24px;
 }
 
 .process-tree-container::-webkit-scrollbar {
