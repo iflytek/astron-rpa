@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="versionInfoList.length" class="px-6 py-5 pb-0 rounded-xl bg-[#000000]/[.03] dark:bg-[#FFFFFF]/[.03]">
+  <section v-if="versionInfoList?.length" class="px-6 py-5 pb-0 rounded-xl bg-[#000000]/[.03] dark:bg-[#FFFFFF]/[.03]">
     <div class="inline-flex items-center gap-[6px] font-semibold mb-4">
       <div class="inline-block w-[2px] h-[12px] bg-primary" />
       <span>源版本信息</span>
