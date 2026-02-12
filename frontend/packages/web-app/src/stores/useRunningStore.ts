@@ -277,7 +277,10 @@ export const useRunningStore = defineStore('running', () => {
   }
 
   const startDebug = (projectId: string | number, processId: string | number) => {
-    const debugParams = { project_id: projectId, process_id: processId, debug: 'y' }
+    const debugParams: StartExecutorParams = { project_id: projectId, process_id: processId, debug: 'y' }
+
+    processStore.isComponent && (debugParams.is_custom_component = processStore.isComponent)
+
     running.value = 'debug'
     start(debugParams)
   }
