@@ -456,27 +456,20 @@ function getShadowElementsBySelector(selector: string) {
  * @returns The updated array of `ElementDirectory` objects with potentially modified 'index' attribute states.
  */
 function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) {
-  // Re-weight dirs again, try to uncheck the index of each node
-  let idIndex = -1
+  const idIndex = dirs.findLastIndex(dir => dir.attrs.some(attr => attr.name === 'id' && attr.checked))
   for (let i = dirs.length - 1; i >= 0; i--) {
     const dir = dirs[i]
-    const idAttr = dir.attrs.find(attr => attr.name === 'id' && attr.checked)
-    if (idAttr) {
-      idIndex = i
-      dir.attrs.forEach((attr) => {
-        attr.checked = attr.name === 'id'
-      })
-    }
-    if (i < idIndex) {
+    if (idIndex !== -1 && i < idIndex) {
       // try to uncheck dir.checked
       dir.checked = false
     }
+    // try to uncheck index attr
     const indexAttr = dir.attrs.find(attr => attr.name === 'index')
-    if (indexAttr && indexAttr.checked) {
+    if (indexAttr?.checked) {
       indexAttr.checked = false
       const xpath = generateXPath(dirs)
       const elements = getElementsByXpath(xpath)
-      const ignoreIndex = elements && elements.length === 1 && elements[0] === originElement
+      const ignoreIndex = elements?.length === 1 && elements[0] === originElement
       if (!ignoreIndex) {
         indexAttr.checked = true
       }
@@ -507,7 +500,6 @@ export function getElementDirectory(element: HTMLElement): ElementDirectory[] {
     let index = getElementIndex(element)
     let hasSubling = hasSameTypeSiblings(element)
     const isSvg = isSvgElement(element)
-    const isUniqueId = isUniqueIdFn(id)
 
     tagName = isSvg ? `*` : tagName
     index = isSvg ? getAllElementIndex(element) : index
@@ -515,8 +507,10 @@ export function getElementDirectory(element: HTMLElement): ElementDirectory[] {
 
     // assemble attrs with initial weights
     const attrs = []
-    if (isUniqueId)
-      attrs.push({ name: 'id', value: id, checked: true, type: 0 })
+    if (id) {
+      const idChecked = isUniqueIdFn(id)
+      attrs.push({ name: 'id', value: id, checked: idChecked, type: 0 })
+    }
     if (isSvg)
       attrs.push({ name: 'local-name', value: element.tagName.toLowerCase(), checked: true, type: 0 })
     if (hasSubling && index)
@@ -547,10 +541,6 @@ export function getElementDirectory(element: HTMLElement): ElementDirectory[] {
 
     const attributes = { tag: tagName, checked: true, value: tagName, attrs }
     elementDirectory.unshift(attributes)
-    // change id weighting
-    // if (id && isUniqueId && !isAbsolute) {
-    //   return rebuildDirectory(originElement, elementDirectory)
-    // }
     element = element.parentElement
     if (element && element.tagName.toLowerCase() === 'body') {
       return rebuildDirectory(originElement, elementDirectory)
