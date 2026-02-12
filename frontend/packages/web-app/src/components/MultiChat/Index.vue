@@ -23,7 +23,7 @@ let controller: AbortController | null = null
 // 初始化信息
 const targetInfo = new URL(location.href).searchParams
 // 文件路径
-const filePath = targetInfo.get('file_path')
+const filePath = targetInfo.get('file_path') || ''
 const fileName = filePath.split(/[/\\]/).pop() || '';
 const fileSuffix = fileName.split('.').pop()?.toLowerCase() || '';
 const initFileInfoData = initFileInfo({ path: filePath, name: fileName, suffix: fileSuffix })
@@ -114,13 +114,17 @@ function handleSave() {
   }
 
   const filterArr = chatDataList.value.filter(item => saveQAIds.value.includes(item.id))
+  replyToMain(JSON.stringify(filterArr))
+  windowManager.closeWindow()
+}
+
+function replyToMain(data: string) {
   windowManager.emitTo({
     from: WINDOW_NAME.MULTICHAT,
     target: WINDOW_NAME.MAIN,
     type: 'chatContentSave',
-    data: { ...replyBaseData, data: JSON.stringify(filterArr) },
+    data: { ...replyBaseData, data },
   })
-  handleClose()
 }
 
 function handleScrollToBottom() {
@@ -154,9 +158,15 @@ function createSSE(url: string, query: string) {
     queryLst.push({ role: 'user', content: query })
   }
 
+  const queryData = {
+    messages: queryLst,
+    stream: true,
+    ...(model ? { model } : null)
+  }
+
   controller = sseRequest.post(
-    url,
-    chatType === 'multi' ? { messages: queryLst, model, stream: true } : queryLst,
+    url, 
+    queryData, 
     (res) => {
       console.log('res', res)
       if (!res) return;
@@ -224,6 +234,7 @@ function handlePreview() {
 }
 
 function handleClose() {
+  replyToMain('')
   windowManager.closeWindow()
 }
 
@@ -268,8 +279,10 @@ onBeforeUnmount(() => clearAllData())
           <div class="title">
             你好，我可以为你做什么
           </div>
-          <div class="copyright">
-            内容由<img width="16" height="16" src="@/assets/img/xinghuo.png" alt="">星火大模型生成
+          <div class="flex items-center gap-[3px] text-text-tertiary">
+            <span>内容由</span>
+            <img width="16" height="16" src="@/assets/img/xinghuo.png" alt="xinghuo">
+            <span>星火大模型生成</span>
           </div>
         </div>
         <div v-if="chatDataList?.length > 0" class="chat-list">
