@@ -19,8 +19,11 @@ class Browser360PluginManager(PluginManagerCore):
         self.plugin_data = plugin_data
 
         self.browser_path = r"Software\360\360se6\Chrome"
-        self.browser_exe_path = Browser360PluginManager.get_browser_path()
-        self.browser_data_path = self.browser_exe_path.replace(r"\Application\360se.exe", r"\User Data")
+        try:
+            self.browser_exe_path = Browser360PluginManager.get_browser_path()
+            self.browser_data_path = self.browser_exe_path.replace(r"\Application\360se.exe", r"\User Data")
+        except FileNotFoundError:
+            self.browser_data_path = None
         self.user_data_path = self.browser_data_path or r"C:\Users\{}\AppData\Roaming\360se6\User Data".format(
             getpass.getuser()
         )
