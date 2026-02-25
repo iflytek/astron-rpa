@@ -16,5 +16,5 @@ const handleClick = () => {
 </script>
 
 <template>
-  <ToolButton :tooltip="$t('save')" :title="$t('save')" :disabled="disabled" icon="tools-save" @click="handleClick" />
+  <ToolButton :tooltip="$t('save')" :label="$t('save')" :disabled="disabled" icon="tools-save" @click="handleClick" />
 </template>
