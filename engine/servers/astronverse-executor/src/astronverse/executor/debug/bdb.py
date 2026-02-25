@@ -46,7 +46,6 @@ class CustomBdb(bdb.Bdb):
         py_files = glob.glob(os.path.join(self.project_dir, "*.py"))
 
         for py_file in py_files:
-
             if "package" not in py_file:
                 self.file_map[py_file] = True
 
