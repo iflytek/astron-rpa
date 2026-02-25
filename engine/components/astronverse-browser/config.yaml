@@ -72,6 +72,9 @@ atomic:
       - key: fill_input
         title: 输入内容
         tip: 填写输入框的内容
+      - key: fill_input_credential
+        title: 选择凭据
+        tip: ''
       - key: element_timeout
         title: 等待元素出现时间（秒）
         tip: 超过该时间停止等待
@@ -1063,6 +1066,8 @@ options:
       label: 键盘输入
     - value: clipboard
       label: 剪贴板
+    - value: credential
+      label: 凭据输入
   FillInputForInputTypeFlag:
     - value: append
       label: 追加

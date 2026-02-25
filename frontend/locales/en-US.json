@@ -858,6 +858,11 @@
       "auto": "Follow System",
       "dark": "Dark",
       "light": "Light"
+    },
+    "voucherManage": {
+      "createVoucher": "Add Voucher",
+      "deleteVoucherConfirm": "This action cannot be undone. Are you sure you want to delete?",
+      "tips": "Secure credential storage that encrypts local user data on this device, supporting the retrieval of local credentials for autofill in input fields."
     }
   },
   "setupCenter": "Setup center",
@@ -1101,6 +1106,8 @@
   "viewVersionSnapshot": "View version snapshot",
   "virtualDesktopRunning": "Virtual desktop running",
   "visualEditing": "Visual editing",
+  "voucher": "Voucher Management",
+  "voucherName": "Voucher Name",
   "watchFolder": "Watch Folder",
   "watchFolderPlaceholder": "Please enter the folder path",
   "weekOptions": {
@@ -1114,5 +1121,11 @@
   },
   "weekSelectPlaceholder": "Please select the day of the week",
   "yes": "Yes",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "updateNow": "Update Now",
+  "updateLater": "Update Later",
+  "pluginUpdateTip": "Plugin Update Tip",
+  "pluginUpdateInfo": "A new version of the installed browser plugin has been detected. Do you want to update the plugin now?",
+  "pluginUpdateDesc": "Updating the plugin will enhance the web automation experience.",
+  "pluginUpdateNotice": "Note: Updating the plugin will close any open browsers. Please save your work in the browser beforehand!"
 }

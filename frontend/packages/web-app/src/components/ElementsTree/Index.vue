@@ -89,7 +89,7 @@ const unused = computed(() => checkUnused)
 const unusedData = ref([])
 const fieldNames: TreeProps['fieldNames'] = {
   title: 'name',
-  key: 'name',
+  key: 'id',
   children: 'elements',
 }
 
@@ -210,6 +210,16 @@ function actionClick(actions: Array<string>, data: ElementsType) {
   emit('actionClick', { keys: actions, data })
 }
 
+// 通过 name 查找对应的 id（有多个同名，返回第一个匹配的）
+function findIdByName(name: string): string | null {
+  for (const item of flatElementData.value) {
+    if (item.name === name) {
+      return item.id || null
+    }
+  }
+  return null
+}
+
 // 根据元素展开tree分组
 function expandedInit(val: string) {
   let expanded: string[] = []
@@ -219,21 +229,27 @@ function expandedInit(val: string) {
       const lowcaseVal = val.toLowerCase()
       const lowcaseName = item.name.toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '')
       if (lowcaseName.includes(lowcaseVal)) {
-        expanded.push(item.name)
+        expanded.push(item.id)
       }
       if (item.elements && item.elements.length > 0) {
         const children = item.elements.filter((child) => {
           const lowcaseChildName = child.name.toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '')
           return lowcaseChildName.includes(lowcaseVal)
         })
-        const hasKey = expandedKeys.value.includes(item.name)
+        const hasKey = expandedKeys.value.includes(item.id)
         if (children && !hasKey) {
-          expanded.push(item.name)
+          expanded.push(item.id)
         }
       }
     })
 
-    selectedKeys.value = [val]
+    const targetId = findIdByName(val)
+    if (targetId) {
+      selectedKeys.value = [targetId]
+    }
+    else {
+      selectedKeys.value = []
+    }
   }
   else if (storageId) {
     expanded = expandedKeyLRUCache.get(storageId)
@@ -262,7 +278,7 @@ function getTreeData() {
 // 打开所有tree
 function expandAllTree(isExpand: boolean) {
   if (isExpand) {
-    expandedKeys.value = useElements.elements.map(item => item.name)
+    expandedKeys.value = useElements.elements.map(item => item.id)
   }
   else {
     expandedKeys.value = []

@@ -22,6 +22,11 @@ class Flow:
                 version = c.get("version")
                 requirement = self._requirement_display(component_id, "", version)
 
+                component_path = os.path.join(path, "c{}".format(component_id))
+                main_params = []
+                self.gen_code(
+                    path=component_path, project_id=component_id, mode="", version=version, main_params=main_params
+                )
                 self.svc.add_component_info(
                     project_id,
                     component_id,
@@ -29,10 +34,8 @@ class Flow:
                     version,
                     requirement,
                     "c{}.{}".format(component_id, "main.py"),
+                    main_params,
                 )
-
-                component_path = os.path.join(path, "c{}".format(component_id))
-                self.gen_code(path=component_path, project_id=component_id, mode="", version=version)
 
     def gen_code(
         self,
@@ -43,7 +46,10 @@ class Flow:
         process_id: str = "",
         line=0,
         end_line=0,
+        main_params=None,
     ):
+        if main_params is None:
+            main_params = []
         os.makedirs(path, exist_ok=True)
         package = path.rstrip("/").split("/")[-1]
 
@@ -68,36 +74,55 @@ class Flow:
 
         process_index = 1
         module_index = 1
-        main_process_name = False
+        has_main_entry = False
         for process in process_list:
             name = process.get("name")
             category = process.get("resourceCategory")
             resource_id = str(process.get("resourceId", ""))
+            file_name = ""
 
-            # 生成python
+            # 判断是否是入口
+            is_main_process = False
+            if process_id:
+                if resource_id == str(process_id):
+                    is_main_process = True
+                    file_name = "main.py"
+            else:
+                if name == self.svc.conf.main_process_name:
+                    is_main_process = True
+                    file_name = "main.py"
+
+            # 生成python代码
             if category == "process":
-                file_name = ""
-                is_main_process = False
-                if process_id:
-                    if resource_id == str(process_id):
-                        main_process_name = True
-                        is_main_process = True
-                        file_name = "main.py"
-                else:
-                    if name == self.svc.conf.main_process_name:
-                        main_process_name = True
-                        is_main_process = True
-                        file_name = "main.py"
+                # 获取名称
                 if not file_name:
                     file_name = "process{}.py".format(process_index)
                 process_index += 1
+
+                # 获取参数
+                param_list = self.svc.storage.param_list(
+                    project_id=project_id, mode=mode, version=version, process_id=resource_id
+                )
+                for p in param_list:
+                    param = self.svc.param.parse_param(
+                        {
+                            "value": str_to_list_if_possible(p.get("varValue")),
+                            "types": p.get("varType"),
+                            "name": p.get("varName"),
+                        }
+                    )
+                    p["varValue"] = param.show_value()
+
+                # 收集数据
+                self.svc.add_process_info(project_id, resource_id, category, name, file_name, param_list)
+
+                # 写入python
                 if is_main_process:
                     res, map_res = self._flow_display(
                         project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
                     )
                 else:
                     res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name, [])
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
@@ -105,17 +130,12 @@ class Flow:
                     file.write(map_res)
                     pass
             elif category == "module":
-                file_name = ""
-                if process_id:
-                    if resource_id == str(process_id):
-                        file_name = "main.py"
-                        main_process_name = True
-
+                # 获取名称
                 if not file_name:
                     file_name = "module{}.py".format(module_index)
                 module_index += 1
-                res = self._module_display(project_id, mode, version, resource_id, name)
 
+                # 获取参数
                 param_list = self.svc.storage.param_list(
                     project_id=project_id, mode=mode, version=version, module_id=resource_id
                 )
@@ -128,13 +148,23 @@ class Flow:
                         }
                     )
                     p["varValue"] = param.show_value()
+
+                # 收集数据
                 self.svc.add_process_info(project_id, resource_id, category, name, file_name, param_list)
+
+                # 写入python
+                res = self._module_display(project_id, mode, version, resource_id, name)
                 with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
                     file.write(res)
                     pass
             else:
                 raise NotImplementedError()
-        if not main_process_name:
+
+            if is_main_process and isinstance(main_params, list) and len(main_params) == 0:
+                has_main_entry = True
+                main_params.extend(param_list)
+
+        if not has_main_entry:
             raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
         # 2.1 生成智能组件

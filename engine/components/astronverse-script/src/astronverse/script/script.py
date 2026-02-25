@@ -1,6 +1,7 @@
 import importlib
 import importlib.util
 import inspect
+from typing import Any
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, ReportTip
 from astronverse.actionlib.atomic import atomicMg
@@ -9,28 +10,12 @@ from astronverse.script.error import *
 
 
 class Script:
-    process_info_dict = {}
-
-    @staticmethod
-    def _params(package, path):
-        if package not in Script.process_info_dict:
-            cfg = atomicMg.cfg()
-            process_info = cfg["PROJECT_JSON_{}".format(package)].get("process_info", {})
-            process_info_dict = {}
-            for _, process in process_info.items():
-                process_params = process.get("process_params", [])
-                process_params_dict = {}
-                for param in process_params:
-                    process_params_dict[param.get("varName")] = param.get("varValue")
-                process_info_dict[".{}".format(process.get("process_file_name"))] = process_params_dict
-            Script.process_info_dict[package] = process_info_dict
-
-        return Script.process_info_dict[package].get("{}.py".format(path), [])
-
     @staticmethod
     def _call(path: str, package: str, **kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
+        except SyntaxError as e:
+            raise e
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
@@ -43,9 +28,11 @@ class Script:
         return res, kwargs
 
     @staticmethod
-    def _module_call(path: str, package: str, out_kwargs, inn_kwargs):
+    def _module_call(path: str, package: str, out_kwargs, out_param_meta, inn_kwargs):
         try:
             process_module = importlib.import_module(path, package=package)
+        except SyntaxError as e:
+            raise e
         except Exception as e:
             raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
@@ -63,10 +50,14 @@ class Script:
             return len(params) == 1 and params[0].name == "args"
 
         if is_v2():
-            out_params = Script._params(package, path)
             out_params_res = {}
-            for k, v in out_params.items():
-                out_params_res[k] = eval(v, process_module.__dict__)
+            for meta in out_param_meta:
+                k = meta.get("varName")
+                v = meta.get("varValue")
+                if v:
+                    out_params_res[k] = eval(v, process_module.__dict__)
+                else:
+                    out_params_res[k] = ""
 
             out_kwargs = {**out_params_res, **out_kwargs}
 
@@ -151,9 +142,12 @@ class Script:
         ],
         outputList=[atomicMg.param("process_res", types="Any")],
     )
-    def process(process: str, process_param: list = None):
+    def process(process: Any, process_param: list = None):
         """动态调用流程"""
-
+        if isinstance(process, tuple):
+            process, param_meta = process
+        else:
+            process = process
         kwargs = {}
         if process_param:
             for p in process_param:
@@ -182,9 +176,12 @@ class Script:
         ],
         outputList=[atomicMg.param("program_script", types="Any")],
     )
-    def module(content: str, module_param: list = None):
+    def module(content: Any, module_param: list = None):
         """动态调用模块"""
-
+        if isinstance(content, tuple):
+            content, param_meta = content
+        else:
+            content = content
         out_kwargs = {}
         if module_param:
             for p in module_param:
@@ -194,17 +191,34 @@ class Script:
         inn_kwargs = {**global_vars, **inn_kwargs}
 
         # 为了兼容老版本独立出来
-        res = Script._module_call(".{}".format(content), package=package, out_kwargs=out_kwargs, inn_kwargs=inn_kwargs)
+        res = Script._module_call(
+            ".{}".format(content),
+            package=package,
+            out_kwargs=out_kwargs,
+            out_param_meta=param_meta,
+            inn_kwargs=inn_kwargs,
+        )
         return res
 
     @staticmethod
     @atomicMg.atomic("Script", inputList=[], outputList=[])
-    def component(component: str, **kwargs):
+    def component(component: Any, **kwargs):
         # 忽略掉所有__开头的kwargs值
         kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
+
+        if isinstance(component, tuple):
+            component, param_meta = component
+        else:
+            # 为了兼容，可以删除
+            component = component
 
         # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
         package = component.split(".")[0] if "." in component else component
         module_name = component.split(".")[-1] if "." in component else component
         _, kwargs = Script._call(".{}".format(module_name), package=package, **kwargs)
-        return kwargs
+
+        if not param_meta:
+            #  为了兼容，可以删除
+            return None
+
+        return tuple(kwargs.get(p["varName"]) for p in param_meta if p.get("varDirection") == 1)

@@ -1,6 +1,7 @@
 import bdb
 import glob
 import importlib
+import inspect
 import os
 import sys
 import threading
@@ -21,6 +22,7 @@ class CustomBdb(bdb.Bdb):
         self.main_file = os.path.join(self.project_dir, "main.py")
 
         # 多文件行号映射
+        self.file_map = {}
         self.file_line_maps = {}
         self.file_rev_maps = {}
 
@@ -44,11 +46,13 @@ class CustomBdb(bdb.Bdb):
         py_files = glob.glob(os.path.join(self.project_dir, "*.py"))
 
         for py_file in py_files:
-            filename = os.path.basename(py_file)
-            map_file = py_file.replace(".py", ".map")
+            if "package" not in py_file:
+                self.file_map[py_file] = True
 
+            map_file = py_file.replace(".py", ".map")
             if not os.path.exists(map_file):
                 continue
+            self.file_line_maps[py_file] = {}
 
             # 加载单个.map文件
             with open(map_file, encoding="utf-8") as f:
@@ -63,19 +67,20 @@ class CustomBdb(bdb.Bdb):
                         line_map[int(py_line)] = int(flow_line)
 
                 if line_map:
-                    self.file_line_maps[filename] = line_map
-
+                    self.file_line_maps[py_file] = line_map
                     # 根据行号映射生成反向映射
                     rev = defaultdict(list)
                     for py_line, flow_line in line_map.items():
                         rev[flow_line].append(py_line)
                     for lst in rev.values():
                         lst.sort()
-                    self.file_rev_maps[filename] = dict(rev)
+                    self.file_rev_maps[py_file] = dict(rev)
 
     def _to_flow_line(self, filename: str, py_line: int) -> int:
         """把Python行号转成流程行号"""
-        return self.file_line_maps.get(filename, {}).get(py_line, py_line)
+        if filename not in self.file_line_maps:
+            return py_line
+        return self.file_line_maps.get(filename).get(py_line, None)
 
     def _to_py_lines(self, filename: str, flow_line: int) -> list[int]:
         """把流程行号转成Python行号列表"""
@@ -97,7 +102,7 @@ class CustomBdb(bdb.Bdb):
     def set_breakpoint(self, filename: str, flow_line: int, cond=None):
         """设置断点 - 支持多文件"""
         abs_path = self._to_abs_path(filename)
-        py_lines = self._to_py_lines(filename, flow_line)
+        py_lines = self._to_py_lines(abs_path, flow_line)
         for py_line in py_lines:
             self.set_break(abs_path, py_line, cond=cond)
             break
@@ -105,7 +110,7 @@ class CustomBdb(bdb.Bdb):
     def clear_breakpoint(self, filename: str, flow_line: int):
         """清除断点 - 支持多文件"""
         abs_path = self._to_abs_path(filename)
-        for py_line in self._to_py_lines(filename, flow_line):
+        for py_line in self._to_py_lines(abs_path, flow_line):
             self.clear_break(abs_path, py_line)
             break
 
@@ -148,12 +153,16 @@ class CustomBdb(bdb.Bdb):
                 source
                 + "\n\n# 自动追加：执行完 main.py 后调用 main 函数\nif __name__ == '__main__':\n    _args = globals().get('_args', {})\n    main(_args)\n"
             )
-            code = compile(source, self.main_file, "exec")
-
-            # 运行代码
-            self.err_handler(self.run)(code, g_v_exec, l_v_exec)
-        except Exception as e:
-            self._handle_exception(e)
+            try:
+                code = compile(source, self.main_file, "exec")
+                # 运行代码
+                self.run(code, g_v_exec, l_v_exec)
+            except SyntaxError as e:
+                self._handle_syntax_exception(e)
+                raise e
+            except Exception as e:
+                self._handle_exception(e)
+                raise e
         finally:
             os.chdir(original_cwd)
 
@@ -196,9 +205,8 @@ class CustomBdb(bdb.Bdb):
             return
 
         # 检查是否是可视化文件，但当前行号不在映射表中
-        basename = os.path.basename(filename)
-        if basename in self.file_line_maps:
-            line_map = self.file_line_maps[basename]
+        if filename in self.file_line_maps:
+            line_map = self.file_line_maps[filename]
             if py_line not in line_map:
                 return
 
@@ -209,7 +217,7 @@ class CustomBdb(bdb.Bdb):
         reason = "breakpoint" if breaks else "step"
 
         project_filename = self._to_project_path(filename)
-        flow_line = self._to_flow_line(basename, py_line)
+        flow_line = self._to_flow_line(filename, py_line)
 
         merged_vars = {}
         local_vars = frame.f_locals if hasattr(frame, "f_locals") else {}
@@ -229,17 +237,59 @@ class CustomBdb(bdb.Bdb):
         self._go_event.clear()
         self._go_event.wait()
 
-    def _handle_exception(self, exc: Exception):
+    def _handle_syntax_exception(self, exc: SyntaxError):
         """处理异常 - 支持多文件"""
-        tb = exc.__traceback__
 
-        while tb.tb_next:
-            tb = tb.tb_next
-
-        filename = tb.tb_frame.f_code.co_filename
-        py_line = tb.tb_lineno
+        filename = exc.filename
+        py_line = exc.lineno or 0
 
         project_filename = self._to_project_path(filename)
         flow_line = self._to_flow_line(filename, py_line)
 
-        self.notify("exception", file=project_filename, line=flow_line, py_line=py_line, exc=exc)
+        self.notify(
+            "syntax_exception",
+            file=project_filename,
+            line=flow_line,
+            py_line=py_line,
+            exc=exc,
+            exc_msg=self.err_handler(exc),
+        )
+
+    def _handle_exception(self, exc: Exception):
+        """处理异常 - 支持多文件"""
+        matched = []
+        tb = exc.__traceback__
+
+        while tb:
+            if tb.tb_frame.f_code.co_filename in self.file_map:
+                matched.append(tb)
+            tb = tb.tb_next
+
+        if not matched:
+            self.notify("exception", file="", line=0, py_line=0, exc=exc, exc_msg=self.err_handler(exc))
+        else:
+            tb = matched[-1]
+            filename = tb.tb_frame.f_code.co_filename
+            py_line = tb.tb_lineno
+
+            self.notify(
+                "exception",
+                file=self._to_project_path(filename),
+                line=self._to_flow_line(filename, py_line),
+                py_line=py_line,
+                exc=exc,
+                exc_msg=self.err_handler(exc),
+            )
+
+    def find_nearest_caller(self):
+        """
+        在调用栈中向上查找，返回最近（最内层）匹配预定义文件列表的调用位置
+        """
+        frame = inspect.currentframe().f_back
+
+        while frame:
+            filename = frame.f_code.co_filename
+            if filename in self.file_map:
+                return self._to_project_path(filename), self._to_flow_line(filename, frame.f_lineno)
+            frame = frame.f_back
+        return "", 0

@@ -78,6 +78,8 @@
   "shortcutKey": "快捷键",
   "pythonDeps": "python依赖",
   "apiKeyMg": "API keys",
+  "voucher": "凭证管理",
+  "voucherName": "凭证名称",
   "about": "关于",
   "enterUserName": "输入您的账号或手机号",
   "enterPassword": "输入您的密码(6-20位)",
@@ -153,10 +155,10 @@
   "chromeDescription": "安装Chrome浏览器扩展程序，保障浏览器自动化组件功能正常运行",
   "edge": "微软Edge浏览器",
   "edgeDescription": "全新微软Edge浏览器，基于Chromium开源项目兼容Chrome扩展程序",
-  "360": "360浏览器",
-  "360Description": "安装360浏览器扩展程序，保障浏览器自动化组件功能正常运行",
-  "360x": "360X浏览器",
-  "360xDescription": "安装360X浏览器扩展程序，保障浏览器自动化组件功能正常运行",
+  "360": "360安全浏览器",
+  "360Description": "安装360安全浏览器扩展程序，保障浏览器自动化组件功能正常运行",
+  "360x": "360极速浏览器X",
+  "360xDescription": "安装360极速浏览器X扩展程序，保障浏览器自动化组件功能正常运行",
   "firefox": "Firefox火狐浏览器",
   "firefoxDescription": "安装Firefox浏览器扩展程序，保障浏览器自动化组件功能正常运行",
   "keyboardDriver": "键盘驱动",
@@ -168,6 +170,12 @@
   "pluginUpdate": "插件更新",
   "installationTutorial": "安装教程",
   "intelligentInstallation": "智能安装",
+  "updateNow": "立即更新",
+  "updateLater": "稍后更新",
+  "pluginUpdateTip": "插件更新提示",
+  "pluginUpdateInfo":"检测到浏览器已安装的插件存在新版本，是否立即更新插件？",
+  "pluginUpdateDesc": "更新插件将提升网页自动化体验",
+  "pluginUpdateNotice": "注意：更新插件会关闭已打开的浏览器，请提前保存好浏览器中的工作！",
   "displayLanguage": "显示语言",
   "startupSettings": "启动项设置",
   "automaticStartup": "开机自动启动",
@@ -680,6 +688,11 @@
     "apiKeyManage": {
       "createApiKey": "创建API Key",
       "deleteApiKeyConfirm": "确定删除该API Key?"
+    },
+    "voucherManage": {
+      "createVoucher": "添加凭据",
+      "deleteVoucherConfirm": "删除后不可恢复，请确认?",
+      "tips": "安全凭据存储库，对本机用户数据进行本地加密存储，支持在填写输入框原子能力中获取本地凭据进行填入"
     },
     "message": {
       "unreadMessage": "未读消息",

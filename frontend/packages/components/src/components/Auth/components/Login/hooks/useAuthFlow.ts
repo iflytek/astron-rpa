@@ -240,7 +240,10 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       preLogin(params, 'PASSWORD', false)
     }
   }
-  (!opts.inviteInfo || !opts.autoLogin) && checkLoginStatus()
+
+  if (!opts.inviteInfo && (opts.autoLogin !== false)) {
+    checkLoginStatus()
+  }
 
   return {
     currentFormMode,

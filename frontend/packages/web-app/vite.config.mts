@@ -54,7 +54,10 @@ export default defineConfig((env) => {
     plugins: [
       vue(),
       vueJsx(),
-      svg4VuePlugin({ assetsDirName: false }),
+      svg4VuePlugin({ 
+        assetsDirName: false,
+        svgoConfig: false,
+      }),
       // Inspect(),
       Components({
         dirs: [],

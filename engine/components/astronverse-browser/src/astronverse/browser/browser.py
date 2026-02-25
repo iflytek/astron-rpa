@@ -1,5 +1,3 @@
-"""浏览器操作模块，提供浏览器对象的基本操作功能。"""
-
 from typing import Any
 from urllib.parse import urljoin
 
@@ -7,11 +5,8 @@ import requests
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.error import *
 from astronverse.actionlib.types import typesMg
-from astronverse.browser import CHROME_LIKE_BROWSERS, CommonForBrowserType
+from astronverse.browser import CommonForBrowserType
 from astronverse.browser.error import *
-from astronverse.browser.error import (
-    BaseException as BrowserBaseException,
-)
 
 
 class Browser:
@@ -25,33 +20,17 @@ class Browser:
     @typesMg.shortcut(group_key="Browser", res_type="Str")
     def get_url(self) -> str:
         """获取当前网页URL。"""
-        if self.browser_type in CHROME_LIKE_BROWSERS:
-            data = self.send_browser_extension(browser_type=self.browser_type.value, key="getUrl", data={"": ""})
-        else:
-            raise NotImplementedError()
-        return data
+        return self.send_browser_extension(browser_type=self.browser_type.value, key="getUrl")
 
     @typesMg.shortcut(group_key="Browser", res_type="Str")
     def get_title(self) -> str:
         """获取当前网页标题。"""
-        if self.browser_type in CHROME_LIKE_BROWSERS:
-            data = self.send_browser_extension(browser_type=self.browser_type.value, key="getTitle", data={"": ""})
-        else:
-            raise NotImplementedError()
-        return data
+        return self.send_browser_extension(browser_type=self.browser_type.value, key="getTitle")
 
     @typesMg.shortcut(group_key="Browser", res_type="Int")
     def get_tabid(self) -> int:
         """获取当前标签ID。"""
-        if self.browser_type in CHROME_LIKE_BROWSERS:
-            data = self.send_browser_extension(
-                browser_type=self.browser_type.value,
-                key="getTabId",
-                data={"": ""},
-            )
-        else:
-            raise NotImplementedError()
-        # 插件按约定应返回整数；若异常返回兼容值则转为 -1
+        data = self.send_browser_extension(browser_type=self.browser_type.value, key="getTabId")
         return data if isinstance(data, int) else -1
 
     @classmethod
@@ -59,17 +38,16 @@ class Browser:
         """验证浏览器对象。"""
         if isinstance(value, Browser):
             return value
-        raise BrowserBaseException(
-            PARAM_VERIFY_ERROR_FORMAT.format(name, value),
-            f"{name}参数验证失败{value}",
-        )
+        return None
 
     @staticmethod
     def send_browser_rpc(req: dict, timeout: float = 0.0) -> Any:
         """发送浏览器RPC请求。"""
-        gateway_port = atomicMg.cfg().get("GATEWAY_PORT") or "13159"
+        gateway_port = atomicMg.cfg().get("GATEWAY_PORT")
+        if not gateway_port:
+            gateway_port = "13159"
         url = f"http://127.0.0.1:{gateway_port}"
-        return requests.post(
+        res = requests.post(
             urljoin(
                 url,
                 "browser_connector",
@@ -78,16 +56,20 @@ class Browser:
             json=req,
             timeout=timeout,
         )
+        return res
 
     def send_browser_extension(
         self,
         browser_type: str,
-        data: Any,
         key: str,
+        data: Any = None,
         data_path: str = "",
         timeout: float = None,
     ):
         """发送浏览器扩展请求。"""
+        if not data:
+            data = {}
+
         res = self.send_browser_rpc(
             {
                 "browser_type": browser_type,
@@ -99,31 +81,22 @@ class Browser:
         )
 
         if res.status_code != 200:
-            raise BrowserBaseException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
+            raise BaseException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
         res_data = res.json()
         if not res_data.get("data"):
-            raise BrowserBaseException(
-                BROWSER_EXTENSION_INSTALL_ERROR,
-                "插件无响应",
-            )
+            raise BaseException(BROWSER_EXTENSION_INSTALL_ERROR, "插件无响应")
         if res_data.get("data").get("code") == "5001":
-            raise BrowserBaseException(
-                BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")),
-                res_data.get("data").get("msg"),
+            raise BaseException(
+                BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         if res_data.get("data").get("code") == "5002":
-            raise BrowserBaseException(
-                WEB_GET_ELE_ERROR.format(res_data.get("data").get("msg")),
-                "网页元素未找到",
-            )
+            raise BaseException(WEB_GET_ELE_ERROR.format(res_data.get("data").get("msg")), "网页元素未找到")
         if res_data.get("data").get("code") == "5003":
-            raise BrowserBaseException(
-                WEB_EXEC_ELE_ERROR.format(res_data.get("data").get("msg")),
-                res_data.get("data").get("msg"),
+            raise BaseException(
+                WEB_EXEC_ELE_ERROR.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         if res_data.get("data").get("code") == "5004":
-            raise BrowserBaseException(
-                BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")),
-                res_data.get("data").get("msg"),
+            raise BaseException(
+                BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         return res_data.get("data").get("data")

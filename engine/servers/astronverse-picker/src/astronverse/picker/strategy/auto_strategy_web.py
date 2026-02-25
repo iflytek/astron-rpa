@@ -2,7 +2,7 @@ import traceback
 from _ctypes import COMError
 from typing import TYPE_CHECKING, Optional
 
-from astronverse.picker import APP, WEB_CLASS_NAMES, IElement
+from astronverse.picker import APP, IElement
 from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
 
@@ -42,7 +42,6 @@ def auto_default_strategy_web(
             try:
                 web_control_result = UIAOperate().get_web_control(
                     strategy_svc.start_control,
-                    WEB_CLASS_NAMES[strategy_svc.app],
                     strategy_svc.app,
                     strategy_svc.last_point,
                 )

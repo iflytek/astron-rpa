@@ -13,28 +13,29 @@ process_info = conf.get("process_info", {})
 component_info = conf.get("component_info", {})
 smart_component_info = conf.get("smart_component_info", {})
 
-storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"))
+storage = HttpStorage(project_info.get("gateway_port"), project_info.get("mode"), project_info.get("version"))
 
 atomicMg.cfg()["GATEWAY_PORT"] = project_info.get("gateway_port")
-atomicMg.cfg()["PROJECT_JSON_{{PACKAGE}}"] = conf
 
 
-def module(module_id) -> Optional[str]:
+def module(module_id):
     if module_id not in process_info:
-        return None
+        return None, []
     name = process_info[module_id].get("process_file_name")
+    params = process_info[module_id].get("process_params")
     if not name:
-        return name
-    return os.path.splitext(name)[0]
+        return name, params
+    return os.path.splitext(name)[0], params
 
 
-def component(component_id) -> Optional[str]:
+def component(component_id):
     if component_id not in component_info:
-        return None
+        return None, []
     name = component_info[component_id].get("component_file_name")
+    params = component_info[component_id].get("component_params")
     if not name:
-        return name
-    return os.path.splitext(name)[0]
+        return name, params
+    return os.path.splitext(name)[0], params
 
 
 def smart_component(smart_component_key) -> dict:

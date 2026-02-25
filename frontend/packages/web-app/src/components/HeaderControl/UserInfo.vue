@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { Auth } from '@rpa/components/auth'
-import { Dropdown } from 'ant-design-vue'
+import { Dropdown, Checkbox, Button } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { computed, h } from 'vue'
 
 import { getTermianlStatus, startSchedulingMode } from '@/api/engine'
-import { sendTenantId } from '@/api/login/login'
 import { taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
-import { DESIGNER } from '@/constants/menu'
-import { useRoutePush } from '@/hooks/useCommonRoute'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useAppModeStore } from '@/stores/useAppModeStore'
@@ -54,18 +51,43 @@ async function menuClick(item: any) {
     await logout()
   }
   if (item.keyPath[0] === 'changeMode') {
-    GlobalModal.confirm({
+    let startWatch = false
+    const modal = GlobalModal.confirm({
       title: '开始调度模式',
-      content: '开启后本机画面和应用执行情况会被控制台监控，同时接受控制台下发的任务',
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
-        console.log('enter_scheduling_mode')
-        startSchedulingMode() // 通知引擎用户确定切换为调度模式
-        useAppModeStore().setAppMode('scheduling') // 设置为调度模式
-        windowManager.hideWindow() // 隐藏主界面
-        utilsManager.invoke('tray_change', { mode: 'scheduling', status: 'idle' }) // 改变托盘菜单
-      },
+      content: '开启后当前客户端会自动接收控制台下发的远程任务，对应任务执行情况会被控制台监控，请确认。',
+      footer: h('div', { class: 'flex items-center justify-between w-full pl-[30px] mt-[30px]' }, [
+        userStore.currentTenant?.tenantType === 'enterprise' 
+          ? h(Checkbox, {
+            defaultChecked: false,
+            onChange: (e: any) => {
+              startWatch = e.target.checked
+            },
+          }, {
+            default: () => '开启桌面监控'
+          })
+          : h('div'),
+        h('div', { class: 'flex gap-[10px]' }, [
+          h(Button, {
+            onClick: () => {
+              modal.destroy()
+            }
+          }, {
+            default: () => '取消'
+          }),
+          h(Button, {
+            type: 'primary',
+            onClick: () => {
+              startSchedulingMode({ start_watch: startWatch }) // 通知引擎用户确定切换为调度模式
+              useAppModeStore().setAppMode('scheduling') // 设置为调度模式
+              windowManager.hideWindow() // 隐藏主界面
+              utilsManager.invoke('tray_change', { mode: 'scheduling', status: 'idle' }) // 改变托盘菜单
+              modal.destroy()
+            }
+          }, {
+            default: () => '确定'
+          })
+        ])
+      ]),
     })
   }
 }

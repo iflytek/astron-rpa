@@ -2,7 +2,7 @@ atomic:
   Software.open:
     title: 打开程序
     comment: >-
-      打开应用程序路径(@{app_absolute_path})，并设置运行参数为(@{app_absolute_path})，将结果输出为(@{software_open})
+      打开路径为(@{app_absolute_path})的应用程序，将结果输出为(@{software_open})
     icon: open-program
     helpManual: ''
     inputList:

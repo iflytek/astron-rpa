@@ -15,14 +15,10 @@ def platform_python_venv_run_dir(dir: str):
     return path
 
 
-def kill_proc_tree(pid, including_parent=True):
+def kill_proc_tree(pid, including_parent=True, exclude_pids: list = None):
     """
     递归地杀死指定PID的进程及其所有子进程。
-    :param pid: 要杀死的进程的PID。
-    :param including_parent: 是否包括父进程本身。
     """
-
-    work_dir = os.getcwd()
     try:
         # 获取指定PID的进程
         proc = psutil.Process(pid)
@@ -30,18 +26,21 @@ def kill_proc_tree(pid, including_parent=True):
         return  # 如果进程不存在，则退出函数
 
     try:
-        # 获取所有子进程
         children = proc.children(recursive=True)
         for child in children:
-            kill_proc_tree(child.pid, including_parent=True)  # 递归调用以杀死子进程的子进程
+            # 递归调用以杀死子进程的子进程
+            kill_proc_tree(child, including_parent=True)
     except Exception as e:
         pass
 
     if including_parent:
         try:
-            # 只会杀掉当前运行目录下的进程
+            if exclude_pids:
+                if proc.pid in exclude_pids:
+                    return
+
+            # 只会杀掉启动当期运行目录下的进程
             proc_cwd = proc.exe()
-            logger.debug("当前进程工作目录: {} {}", proc_cwd, work_dir)
             if "astron-rpa" not in proc_cwd:
                 return
 

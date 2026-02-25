@@ -5,7 +5,7 @@ import { baseUrl } from '@/utils/env'
 import { WINDOW_NAME } from '@/constants'
 import { windowManager, type CreateWindowOptions } from '@/platform'
 
-export function useSmartCompPickWindow() {
+export function useSmartCompPickWindow(closeCallback?: () => void) {
   const { t } = useTranslation()
 
   // 智能组件拾取悬浮窗
@@ -19,18 +19,18 @@ export function useSmartCompPickWindow() {
       alwaysOnTop: true,
       width: 160,
       height: 40,
-      x: 0,
-      y: 0,
+      x: -999,
+      y: -999,
       resizable: false,
       decorations: false,
       fileDropEnabled: false,
       maximizable: false,
       transparent: true,
-      show: false,
+      show: true,
       skipTaskbar: false,
     }
 
-    await windowManager.createWindow(options)
+    await windowManager.createWindow(options, closeCallback)
   }
 
   const open = () => {

@@ -27,6 +27,7 @@ class DebugSvc:
         self.ast_globals: AstGlobals = AstGlobals()
         self.load_package_info()
         self.main_process_id = None
+        self.main_process_start_line = 1
 
         # 工具包
         self.report = Report(self)
@@ -34,6 +35,7 @@ class DebugSvc:
         report.set_code(self.report)
         self.log_tool = LogTool(self)
         self.recording_tool = RecordingTool(self)
+        self.debug = None
 
         # 运行时
         self.debug_model = debug_model

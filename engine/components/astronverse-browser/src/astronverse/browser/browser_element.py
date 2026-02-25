@@ -1,176 +1,82 @@
-"""浏览器元素操作模块，提供网页元素的各种操作功能。"""
-
 import base64
-import json
 import os
-import platform
-import sys
 import time
-from functools import wraps
-
-import pandas as pd
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
-from astronverse.browser import (
-    ALL_BROWSER_TYPES,
-    CHROME_LIKE_BROWSERS,
-    ButtonForAssistiveKeyFlag,
-    ButtonForClickTypeFlag,
-    ChildElementType,
-    ElementAttributeOpTypeFlag,
-    ElementCheckedTypeFlag,
-    ElementCreateReturnType,
-    ElementDragDirectionTypeFlag,
-    ElementDragTypeFlag,
-    ElementGetAttributeHasSelfTypeFlag,
-    ElementGetAttributeTypeFlag,
-    FillInputForFillTypeFlag,
-    FillInputForInputTypeFlag,
-    LocateType,
-    RelativePosition,
-    RelativeType,
-    ScrollbarForXScrollTypeFlag,
-    ScrollbarForYScrollTypeFlag,
-    ScrollbarType,
-    ScrollDirection,
-    SelectionPartner,
-    SiblingElementType,
-    TablePickType,
-    WaitElementForStatusFlag,
-)
-from astronverse.browser.browser import Browser
-from astronverse.browser.core.core import IBrowserCore
+from astronverse.browser import *
 from astronverse.browser.error import *
-from astronverse.browser.js.base import BaseBuilder
-from astronverse.browser.js.chrome import CodeChromeBuilder
+from astronverse.browser.browser import Browser
 from astronverse.browser.utils.table_filter import (
     DataFilter,
     page_values_merge,
     table_df_to_out,
     table_json_merge_values,
 )
-from astronverse.input.code.screenshot import Screenshot
-
-if sys.platform == "win32":
-    from astronverse.browser.core.core_win import BrowserCore
-    from astronverse.locator import smooth_move
-    from astronverse.locator.locator import locator
-elif platform.system() == "Linux":
-    raise NotImplementedError(f"Your platform ({platform.system()}) is not supported by clipboard.")
-else:
-    raise NotImplementedError(f"Your platform ({platform.system()}) is not supported by clipboard.")
-
-BrowserCore: IBrowserCore = BrowserCore()
-CodeChromeBuilder: BaseBuilder = CodeChromeBuilder()
-Locator = locator
+from astronverse.browser.core.core_win import BrowserCore
+from astronverse.locator import smooth_move
+from astronverse.locator.locator import locator
 
 
 def get_browser_instance():
+    return get_default_browser()
+
+
+def get_default_browser(raw_browser_type: str = None):
     """获取可用的浏览器实例。"""
-    browser_instance = Browser()
-    browser_found = False
-    for browser_type in ALL_BROWSER_TYPES:
-        handler = None
-        open_timeout = 10
-        start_time = time.time()
-        while time.time() - start_time < open_timeout:
-            handler = BrowserCore.get_browser_handler(browser_type)
-            if handler:
-                break
-            time.sleep(1)
-        if not handler:
+    control = None
+    browser_type = CommonForBrowserType.BTChrome
+    for bt in ALL_BROWSER_TYPES:
+        if raw_browser_type and bt.value != raw_browser_type:
             continue
-
-        browser_found = True
-        browser_instance.browser_type = browser_type
-        if browser_type in CHROME_LIKE_BROWSERS:
-            from astronverse.window import WindowSizeType
-            from astronverse.window.window import WindowsCore
-
-            WindowsCore.top(handler)
-            WindowsCore.size(handler, WindowSizeType.MAX)
-        else:
-            raise NotImplementedError()
-        break
-    return browser_instance if browser_found else None
+        control = BrowserCore.get_browser_control(bt.value)
+        if control:
+            browser_type = bt
+            break
+    if not control:
+        return None
+    browser = Browser()
+    browser.browser_control = control
+    browser.browser_type = browser_type
+    return browser
 
 
-def get_default_browser(func):
-    """装饰器：为函数提供默认的浏览器对象。"""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        new_kwargs = kwargs.copy()
-        if not new_kwargs or not new_kwargs["browser_obj"]:
-            browser_instance = get_browser_instance()
-            if browser_instance:
-                new_kwargs["browser_obj"] = browser_instance
-            else:
-                new_kwargs["browser_obj"] = None
-        return func(*args, **new_kwargs)
-
-    return wrapper
-
-
-def wait_element_appear(func):
-    """等待元素加载出来"""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        new_kwargs = kwargs.copy()
-        timeout = new_kwargs.get("element_timeout", None)
-        browser_obj = new_kwargs.get("browser_obj", None)
-        element_data = new_kwargs.get("element_data", None)
-        if timeout and browser_obj and element_data:
-            ret = BrowserElement.wait_element(
-                browser_obj=browser_obj,
-                element_data=element_data,
-                ele_status=WaitElementForStatusFlag.ElementExists,
-                element_timeout=int(timeout),
+def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: int = 10):
+    """检测browser_obj， element_data"""
+    if element_data:
+        if element_data.get("elementData", {}).get("app", "") == "iexplore":
+            raise Exception(
+                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
             )
-            if not ret:
-                if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-                    reason = browser_obj.send_browser_extension(
-                        browser_type=browser_obj.browser_type.value,
-                        key="checkElement",
-                        data=element_data["elementData"]["path"],
-                    )
-                    raise BaseException(WEB_GET_ELE_ERROR.format(reason.msg), "浏览器元素未找到！")
-                else:
-                    raise BaseException(WEB_GET_ELE_ERROR.format(""), "浏览器元素未找到！")
-        return func(*args, **new_kwargs)
 
-    return wrapper
+    if not browser_obj:
+        browser_obj = get_default_browser()
 
-
-def extract_element_path_data(element_data):
-    """提取 element_data['elementData']['path'] 的属性"""
-    path_data = element_data["elementData"]["path"]
-    return extract_path_attributes(path_data)
-
-
-def extract_path_attributes(path_data):
-    """提取 path_data 的属性"""
-    return {
-        "xpath": path_data.get("xpath", ""),
-        "cssSelector": path_data.get("cssSelector", ""),
-        "pathDirs": repr(json.dumps(path_data.get("pathDirs", []), ensure_ascii=False)),
-        "checkType": path_data.get("checkType", ""),
-        "shadowRoot": path_data.get("shadowRoot", False),
-        "matchTypes": json.dumps(path_data.get("matchTypes", []), ensure_ascii=False),
-        "url": path_data.get("url", ""),
-        "isFrame": path_data.get("isFrame", False),
-        "iframeXpath": path_data.get("iframeXpath", ""),
-    }
+    if element_data:
+        res = BrowserElement.wait_element(
+            browser_obj=browser_obj,
+            element_data=element_data,
+            ele_status=WaitElementForStatusFlag.ElementExists,
+            element_timeout=element_timeout,
+        )
+        if not res:
+            reason = browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="checkElement",
+                data=element_data["elementData"]["path"],
+            )
+            msg = ""
+            if isinstance(reason, dict):
+                msg = reason.get("msg", "")
+            raise BaseException(WEB_GET_ELE_ERROR.format(msg), "浏览器元素未找到！")
+    return browser_obj
 
 
 class BrowserElement:
     """浏览器元素操作类，提供网页元素的各种操作方法。"""
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         outputList=[
@@ -184,31 +90,29 @@ class BrowserElement:
         element_timeout: int = 10,
     ) -> bool:
         """等待元素出现或消失。"""
-        app = element_data["elementData"]["app"] if element_data["elementData"]["app"] != "iexplore" else "ie"
-        browser_type = browser_obj.browser_type.value
-        if (app == "ie" and browser_type != "ie") or (app != "ie" and browser_type == "ie"):
-            raise Exception(
-                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
-            )
+        if element_data:
+            if element_data.get("elementData", {}).get("app", "") == "iexplore":
+                raise Exception(
+                    "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(
+                        browser_obj.browser_type.value
+                    )
+                )
+
+        if not browser_obj:
+            browser_obj = get_default_browser()
+
         timeout = element_timeout
         if timeout < 0:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT.format(timeout),
-                f"等待时间不能小于0！{timeout}",
-            )
+            raise BaseException(PARAMETER_INVALID_FORMAT.format(timeout), f"等待时间不能小于0！{timeout}")
         while timeout >= 0:
             start = time.time()
-
             # 获取状态
             try:
-                if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-                    element_exist = browser_obj.send_browser_extension(
-                        browser_type=browser_obj.browser_type.value,
-                        key="elementIsReady",
-                        data=element_data["elementData"]["path"],
-                    )
-                else:
-                    raise NotImplementedError()
+                element_exist = browser_obj.send_browser_extension(
+                    browser_type=browser_obj.browser_type.value,
+                    key="elementIsReady",
+                    data=element_data["elementData"]["path"],
+                )
             except Exception:
                 element_exist = None
 
@@ -228,7 +132,6 @@ class BrowserElement:
         return False
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -259,7 +162,6 @@ class BrowserElement:
             ),
         ],
     )
-    @wait_element_appear
     def click(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -270,28 +172,16 @@ class BrowserElement:
         scroll_into_center: bool = True,
     ):
         """点击"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        from astronverse.input.code.keyboard import Keyboard
-        from astronverse.input.code.mouse import Mouse
+        try:
+            browser_obj = check_element(browser_obj, element_data, element_timeout)
 
-        if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
-            Keyboard.key_down(assistive_key.value)
+            if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
+                from astronverse.input.code.keyboard import Keyboard
 
-        if not simulate_flag:
-            if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-                # 发送给插件
-                element = Locator.locator(
-                    element_data.get("elementData"),
-                    cur_target_app=browser_obj.browser_type.value,
-                    scroll_into_view=False,
-                )
-                if isinstance(element.rect(), list):
-                    raise Exception("浏览器元素定位不唯一，请检查！")
-                center = element.point()
+                Keyboard.key_down(assistive_key.value)
+
+            if not simulate_flag:
+                # js点击
                 browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
                     key="clickElement",
@@ -301,29 +191,33 @@ class BrowserElement:
                     },
                 )
             else:
-                raise NotImplementedError()
+                # 定位
+                element = locator.locator(
+                    element_data.get("elementData"),
+                    cur_target_app=browser_obj.browser_type.value,
+                    scroll_into_center=scroll_into_center,
+                )
+                if isinstance(element.rect(), list):
+                    raise Exception("浏览器元素定位不唯一，请检查！")
 
-        else:
-            element = Locator.locator(
-                element_data.get("elementData"),
-                cur_target_app=browser_obj.browser_type.value,
-                scroll_into_center=scroll_into_center,
-            )
-            if isinstance(element.rect(), list):
-                raise Exception("浏览器元素定位不唯一，请检查！")
-            center = element.point()
-            smooth_move(center.x, center.y, duration=0.5)
-            Mouse.click(
-                x=center.x,
-                y=center.y,
-                clicks=2 if button_type == ButtonForClickTypeFlag.Double else 1,
-                button=("left" if button_type != ButtonForClickTypeFlag.Right else "right"),
-            )
-        if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
-            Keyboard.key_up(assistive_key.value)
+                # 点击
+                center = element.point()
+                smooth_move(center.x, center.y, duration=0.5)
+                from astronverse.input.code.mouse import Mouse
+
+                Mouse.click(
+                    x=center.x,
+                    y=center.y,
+                    clicks=2 if button_type == ButtonForClickTypeFlag.Double else 1,
+                    button=("left" if button_type != ButtonForClickTypeFlag.Right else "right"),
+                )
+        finally:
+            if assistive_key != ButtonForAssistiveKeyFlag.Nothing:
+                from astronverse.input.code.keyboard import Keyboard
+
+                Keyboard.key_up(assistive_key.value)
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -362,6 +256,16 @@ class BrowserElement:
                 ],
             ),
             atomicMg.param(
+                "fill_input_credential",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value, params={"filters": ["credential"]}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.fill_input_credential.show",
+                        expression=f"return $this.fill_type.value == '{FillInputForFillTypeFlag.Credential.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
                 "input_type",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.RADIO.value),
             ),
@@ -381,13 +285,13 @@ class BrowserElement:
             atomicMg.param("form_input", types="Str"),
         ],
     )
-    @wait_element_appear
     def input(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         simulate_flag: bool = False,
         fill_type: FillInputForFillTypeFlag = FillInputForFillTypeFlag.Text,
         fill_input: str = "",
+        fill_input_credential: str = "",
         element_timeout: int = 10,
         focus_time: float = 1000,
         write_gap_time: float = 0,
@@ -397,27 +301,24 @@ class BrowserElement:
         """
         填写输入框(web)
         """
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+
         if fill_type == FillInputForFillTypeFlag.Text:
             text = fill_input
         elif fill_type == FillInputForFillTypeFlag.Clipboard:
             from astronverse.input.code.clipboard import Clipboard
 
             text = Clipboard.paste()
+        elif fill_type == FillInputForFillTypeFlag.Credential:
+            from astronverse.actionlib.utils import Credential
+
+            text = Credential.get_credential(fill_input_credential)
         else:
             text = ""
 
         # js输入
         if not simulate_flag:
-            element = Locator.locator(
-                element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
-            )
-            if isinstance(element.rect(), list):
-                raise Exception("浏览器元素定位不唯一，请检查！")
+            # 获取原始数据
             if input_type == FillInputForInputTypeFlag.Append:
                 origin_text = BrowserElement.element_text(
                     browser_obj=browser_obj,
@@ -427,53 +328,64 @@ class BrowserElement:
                 if origin_text:
                     text = str(origin_text) + str(text)
 
-            if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="inputElement",
-                    data={
-                        **element_data["elementData"]["path"],  # 解包内部字典的内容
-                        "atomConfig": {"inputText": text},
-                    },
-                )
-            else:
-                raise NotImplementedError()
-
+            # 输入
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="inputElement",
+                data={
+                    **element_data["elementData"]["path"],  # 解包内部字典的内容
+                    "atomConfig": {"inputText": text},
+                },
+            )
         else:
             from astronverse.input.code.keyboard import Keyboard
             from astronverse.input.code.mouse import Mouse
 
-            element = Locator.locator(element_data.get("elementData"), scroll_into_center=scroll_into_center)
+            # 参数验证
+            if focus_time < 0:
+                raise BaseException(FOCUS_TIMEOUT_MUST_BE_POSITIVE, "焦点超时时间必须大于0")
+            if write_gap_time < 0:
+                raise BaseException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
+
+            # 定位
+            element = locator.locator(
+                element_data.get("elementData"),
+                cur_target_app=browser_obj.browser_type.value,
+                scroll_into_center=scroll_into_center,
+            )
             if isinstance(element.rect(), list):
                 raise Exception("浏览器元素定位不唯一，请检查！")
-            center = element.point()
 
+            # 点击
+            center = element.point()
             smooth_move(center.x, center.y, duration=0.4)
             Mouse.click(x=center.x, y=center.y)
+
+            # 清空输入
             if input_type == FillInputForInputTypeFlag.Overwrite:
-                # 覆盖输入
                 Keyboard.hotkey("ctrl", "a")
                 time.sleep(0.5)
                 Keyboard.press("delete")
                 time.sleep(0.5)
-            # 焦点睡眠时间
-            if focus_time < 0:
-                raise BaseException(FOCUS_TIMEOUT_MUST_BE_POSITIVE, "焦点超时时间必须大于0")
+
+            # 聚焦时间
             time.sleep(focus_time / 1000)
-            if write_gap_time < 0:
-                raise BaseException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
-            write_gap_time = write_gap_time if write_gap_time > 0 else 0.03
+
+            # 填充类型
             if fill_type == FillInputForFillTypeFlag.Text:
                 for item in text:
                     Keyboard.write_unicode(item)
-                    time.sleep(write_gap_time)
+                    # 输入间隔时间
+                    time.sleep(write_gap_time if write_gap_time > 0 else 0.03)
             elif fill_type == FillInputForFillTypeFlag.Clipboard:
+                from astronverse.input.code.clipboard import Clipboard
+
                 Clipboard.copy(data=text)
                 Keyboard.hotkey("ctrl", "v")
+
         return text
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -481,7 +393,6 @@ class BrowserElement:
         ],
         outputList=[],
     )
-    @wait_element_appear
     def hover_over(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -491,20 +402,17 @@ class BrowserElement:
         """
         鼠标悬停在元素上（web）
         """
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        element = Locator.locator(
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        element = locator.locator(
             element_data.get("elementData"),
             cur_target_app=browser_obj.browser_type.value,
             scroll_into_center=scroll_into_center,
         )
+        if isinstance(element.rect(), list):
+            raise Exception("浏览器元素定位不唯一，请检查！")
         element.move()
 
     @staticmethod
-    @wait_element_appear
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -528,38 +436,29 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """截图"""
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="elementShot",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+            },
+            timeout=30,
+        )
+        if data:
+            data = data.replace("data:image/jpeg;base64,", "")
+        else:
+            raise Exception("插件返回数据为空")
 
+        # 输出
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
         path = os.path.join(file_path, image_name)
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="elementShot",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                },
-                timeout=30,
-            )
-            if data:
-                data = data.replace("data:image/jpeg;base64,", "")
-            else:
-                raise Exception("插件返回数据为空")
-            with open(path, "wb") as f:
-                f.write(base64.b64decode(data))
-        else:
-            element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-            rect = element.rect()
-            from astronverse.input.code.screenshot import Screenshot
-
-            Screenshot.screenshot(
-                region=(rect.left, rect.top, rect.width(), rect.height()),
-                file_path=path,
-            )
+        with open(path, "wb") as f:
+            f.write(base64.b64decode(data))
         return path
 
     @staticmethod
-    @wait_element_appear
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -583,17 +482,21 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """元素位置截图"""
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        element = locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        if isinstance(element.rect(), list):
+            raise Exception("浏览器元素定位不唯一，请检查！")
+        rect = element.rect()
+
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
         path = os.path.join(file_path, image_name)
-        element = Locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        rect = element.rect()
+        from astronverse.input.code.screenshot import Screenshot
 
         Screenshot.screenshot(region=(rect.left, rect.top, rect.width(), rect.height()), file_path=path)
         return path
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -659,7 +562,6 @@ class BrowserElement:
             ),
         ],
     )
-    @wait_element_appear
     def scroll(
         browser_obj: Browser = None,
         scrollbar_type: ScrollbarType = ScrollbarType.Window,
@@ -672,68 +574,61 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """滚动操作。"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            scroll_distance_x = ""
-            scroll_distance_y = ""
-            scroll_to = "top"
-            scroll_axis = "y"
-            if scroll_direction == ScrollDirection.Vertical:
-                if y_scroll_type == ScrollbarForYScrollTypeFlag.Defined:
-                    scroll_distance_y = y_custom_scroll_dis
-                    scroll_to = "custom"
-                elif y_scroll_type == ScrollbarForYScrollTypeFlag.Bottom:
-                    scroll_distance_y = 99999
-                    scroll_to = "bottom"
-            else:
-                scroll_to = "left"
-                scroll_axis = "x"
-                if x_scroll_type == ScrollbarForXScrollTypeFlag.Defined:
-                    scroll_distance_x = x_custom_scroll_dis
-                    scroll_to = "custom"
-                elif x_scroll_type == ScrollbarForXScrollTypeFlag.Right:
-                    scroll_distance_x = 99999
-                    scroll_to = "right"
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
 
-            if scrollbar_type == ScrollbarType.Window:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="scrollWindow",
-                    data={
-                        "atomConfig": {
-                            "scrollX": scroll_distance_x,
-                            "scrollY": scroll_distance_y,
-                            "scrollBehavior": "auto",
-                            "scrollTo": scroll_to,
-                            "scrollAxis": scroll_axis,
-                        }
-                    },
-                )
-            else:
-                # 自定义滚动条
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="scrollWindow",
-                    data={
-                        **element_data["elementData"]["path"],  # 解包内部字典的内容
-                        "atomConfig": {
-                            "scrollX": scroll_distance_x,
-                            "scrollY": scroll_distance_y,
-                            "scrollBehavior": "auto",
-                            "scrollTo": scroll_to,
-                            "scrollAxis": scroll_axis,
-                        },
-                    },
-                )
+        scroll_distance_x = ""
+        scroll_distance_y = ""
+        scroll_to = "top"
+        scroll_axis = "y"
+        if scroll_direction == ScrollDirection.Vertical:
+            if y_scroll_type == ScrollbarForYScrollTypeFlag.Defined:
+                scroll_distance_y = y_custom_scroll_dis
+                scroll_to = "custom"
+            elif y_scroll_type == ScrollbarForYScrollTypeFlag.Bottom:
+                scroll_distance_y = 99999
+                scroll_to = "bottom"
         else:
-            raise NotImplementedError()
+            scroll_to = "left"
+            scroll_axis = "x"
+            if x_scroll_type == ScrollbarForXScrollTypeFlag.Defined:
+                scroll_distance_x = x_custom_scroll_dis
+                scroll_to = "custom"
+            elif x_scroll_type == ScrollbarForXScrollTypeFlag.Right:
+                scroll_distance_x = 99999
+                scroll_to = "right"
+
+        if scrollbar_type == ScrollbarType.Window:
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="scrollWindow",
+                data={
+                    "atomConfig": {
+                        "scrollX": scroll_distance_x,
+                        "scrollY": scroll_distance_y,
+                        "scrollBehavior": "auto",
+                        "scrollTo": scroll_to,
+                        "scrollAxis": scroll_axis,
+                    }
+                },
+            )
+        else:
+            # 自定义滚动条
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="scrollWindow",
+                data={
+                    **element_data["elementData"]["path"],  # 解包内部字典的内容
+                    "atomConfig": {
+                        "scrollX": scroll_distance_x,
+                        "scrollY": scroll_distance_y,
+                        "scrollBehavior": "auto",
+                        "scrollTo": scroll_to,
+                        "scrollAxis": scroll_axis,
+                    },
+                },
+            )
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -741,7 +636,6 @@ class BrowserElement:
         ],
         outputList=[],
     )
-    @wait_element_appear
     def scroll_into_view(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -749,23 +643,14 @@ class BrowserElement:
         scroll_into_center: bool = True,
     ):
         """滚动到元素可见位置。"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            data = {**element_data["elementData"]["path"], "atomConfig": {"scrollIntoCenter": scroll_into_center}}
-            _ = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="scrollIntoView",
-                data=data,
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="scrollIntoView",
+            data={**element_data["elementData"]["path"], "atomConfig": {"scrollIntoCenter": scroll_into_center}},
+        )
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -783,7 +668,6 @@ class BrowserElement:
             atomicMg.param("get_similar_ele", types="List"),
         ],
     )
-    @wait_element_appear
     def similar(
         browser_obj: Browser,
         element_data: WebPick,
@@ -794,55 +678,47 @@ class BrowserElement:
         """
         获取相似元素列表
         """
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            # 获取相似元素的信息
-            data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="elementFromSelect",
-                data=element_data["elementData"]["path"],
-            )
-            # 遍历相似元素，将结果放入list
-            if get_type == ElementGetAttributeHasSelfTypeFlag.GetElement:
-                res_list = []
-                for di in data:
-                    res_list.append(
-                        {
-                            "elementData": {
-                                "version": element_data["elementData"]["version"],
-                                "type": element_data["elementData"]["type"],
-                                "app": element_data["elementData"]["app"],
-                                "picker_type": "ELEMENT",
-                                "path": di,
-                            }
-                        }
-                    )
-                return res_list
-
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        # 获取相似元素的信息
+        data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="elementFromSelect",
+            data=element_data["elementData"]["path"],
+        )
+        # 遍历相似元素，将结果放入list
+        if get_type == ElementGetAttributeHasSelfTypeFlag.GetElement:
             res_list = []
             for di in data:
-                data = browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="getElementAttrs",
-                    data={
-                        **di,  # 解包内部字典的内容
-                        "atomConfig": {
-                            "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
-                            "attrName": attribute_name,
-                        },
-                    },
+                res_list.append(
+                    {
+                        "elementData": {
+                            "version": element_data["elementData"]["version"],
+                            "type": element_data["elementData"]["type"],
+                            "app": element_data["elementData"]["app"],
+                            "picker_type": "ELEMENT",
+                            "path": di,
+                        }
+                    }
                 )
-                res_list.append(data)
             return res_list
-        else:
-            raise NotImplementedError()
+
+        res_list = []
+        for di in data:
+            data = browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="getElementAttrs",
+                data={
+                    **di,  # 解包内部字典的内容
+                    "atomConfig": {
+                        "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
+                        "attrName": attribute_name,
+                    },
+                },
+            )
+            res_list.append(data)
+        return res_list
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         noAdvanced=True,
@@ -862,7 +738,6 @@ class BrowserElement:
             atomicMg.param("item", types="Any"),
         ],
     )
-    @wait_element_appear
     def loop_similar(
         browser_obj: Browser,
         element_data: WebPick,
@@ -873,96 +748,83 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """循环相似元素"""
-        # 获取相似元素的信息
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
 
-            def get_iterator():
-                count = 0
-                batch_size = 20
-                while True:
-                    data = browser_obj.send_browser_extension(
-                        browser_type=browser_obj.browser_type.value,
-                        key="getSimilarIterator",
-                        data={
-                            **element_data["elementData"]["path"],  # 解包内部字典的内容
-                            "index": count,
-                            "count": batch_size,
-                        },
-                    )
-                    if not data or len(data) <= 0:
-                        break
-                    for di in data:
-                        if count < start:
-                            count += 1
-                            continue
-                        if 0 < end <= count:
-                            return
+        def get_iterator():
+            count = 0
+            batch_size = 20
+            while True:
+                data = browser_obj.send_browser_extension(
+                    browser_type=browser_obj.browser_type.value,
+                    key="getSimilarIterator",
+                    data={
+                        **element_data["elementData"]["path"],  # 解包内部字典的内容
+                        "index": count,
+                        "count": batch_size,
+                    },
+                )
+                if not data or len(data) <= 0:
+                    break
+                for di in data:
+                    if count < start:
                         count += 1
-                        if get_type == ElementGetAttributeHasSelfTypeFlag.GetElement:
-                            di_wrapper = {
-                                "elementData": {
-                                    "version": element_data["elementData"]["version"],
-                                    "type": element_data["elementData"]["type"],
-                                    "app": element_data["elementData"]["app"],
-                                    "picker_type": "ELEMENT",
-                                    "path": di,
-                                }
+                        continue
+                    if 0 < end <= count:
+                        return
+                    count += 1
+                    if get_type == ElementGetAttributeHasSelfTypeFlag.GetElement:
+                        di_wrapper = {
+                            "elementData": {
+                                "version": element_data["elementData"]["version"],
+                                "type": element_data["elementData"]["type"],
+                                "app": element_data["elementData"]["app"],
+                                "picker_type": "ELEMENT",
+                                "path": di,
                             }
-                            yield count, di_wrapper
-                        else:
-                            res = browser_obj.send_browser_extension(
-                                browser_type=browser_obj.browser_type.value,
-                                key="getElementAttrs",
-                                data={
-                                    **di,  # 解包内部字典的内容
-                                    "atomConfig": {
-                                        "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
-                                        "attrName": attribute_name,
-                                    },
+                        }
+                        yield count, di_wrapper
+                    else:
+                        res = browser_obj.send_browser_extension(
+                            browser_type=browser_obj.browser_type.value,
+                            key="getElementAttrs",
+                            data={
+                                **di,  # 解包内部字典的内容
+                                "atomConfig": {
+                                    "operation": str(list(ElementGetAttributeHasSelfTypeFlag).index(get_type) - 1),
+                                    "attrName": attribute_name,
                                 },
-                            )
-                            yield count, res
-                    similar_count = data[0]["similarCount"]
-                    if similar_count <= count:
-                        break
+                            },
+                        )
+                        yield count, res
+                similar_count = data[0]["similarCount"]
+                if similar_count <= count:
+                    break
 
-            return get_iterator()
-        else:
-            raise NotImplementedError()
+        return get_iterator()
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         outputList=[
             atomicMg.param("data_pick", types="Str"),
         ],
     )
-    @wait_element_appear
     def element_text(browser_obj: Browser, element_data: WebPick, element_timeout: int = 10) -> str:
         """
         获取元素文本内容
         """
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            handler = BrowserCore.get_browser_handler(browser_obj.browser_type)
 
-            return browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="getElementText",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                },
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        res = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="getElementText",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+            },
+        )
+        return res
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic("BrowserElement")
     def slider_hover(
         browser_obj: Browser = None,
@@ -991,13 +853,13 @@ class BrowserElement:
         percent_value = max(0.0, min(1.0, percent_value / 100))
         # 定位滑块和滑条元素
         # 滑块（要拖动的元素）
-        element = Locator.locator(element_slider.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        element = locator.locator(element_slider.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(element.rect(), list):
             raise Exception("滑块元素定位不唯一，请检查！")
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
-        element = Locator.locator(
+        element = locator.locator(
             element_progress.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
         )
         if isinstance(element.rect(), list):
@@ -1068,7 +930,6 @@ class BrowserElement:
         html_drag(start_pos, end_pos, duration)
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[atomicMg.param("current_content", required=False)],
@@ -1076,7 +937,6 @@ class BrowserElement:
             atomicMg.param("get_selected", types="List"),
         ],
     )
-    @wait_element_appear
     def get_select(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -1084,62 +944,44 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """获取下拉框选中值。"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="getElementSelected",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                    "atomConfig": {
-                        "option": "selected" if current_content else "_",
-                    },
-                },
-            )
 
-        else:
-            raise NotImplementedError()
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="getElementSelected",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+                "atomConfig": {
+                    "option": "selected" if current_content else "_",
+                },
+            },
+        )
         return data
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         outputList=[
             atomicMg.param("get_checkbox_checked", types="Str"),
         ],
     )
-    @wait_element_appear
     def get_checked(
         browser_obj: Browser = None,
         element_data: WebPick = None,
         element_timeout: int = 10,
     ):
         """获取复选框选中状态。"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="getElementChecked",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                },
-            )
-
-        else:
-            raise NotImplementedError()
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="getElementChecked",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+            },
+        )
         return data
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -1165,7 +1007,6 @@ class BrowserElement:
             ),
         ],
     )
-    @wait_element_appear
     def set_select(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -1175,32 +1016,22 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """设置下拉框选中值。"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            _ = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="setElementSelected",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                    "atomConfig": {
-                        "value": value,
-                        "pattern": pattern.value,
-                        "indexValue": solution,
-                    },
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="setElementSelected",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+                "atomConfig": {
+                    "value": value,
+                    "pattern": pattern.value,
+                    "indexValue": solution,
                 },
-            )
-
-        else:
-            raise NotImplementedError()
+            },
+        )
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic("BrowserElement")
-    @wait_element_appear
     def set_checked(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -1208,23 +1039,20 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """设置复选框选中状态。"""
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            _ = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="setElementChecked",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                    "atomConfig": {
-                        "checked": checked_type == ElementCheckedTypeFlag.Checked,
-                        "reverse": checked_type == ElementCheckedTypeFlag.Reversed,
-                    },
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="setElementChecked",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+                "atomConfig": {
+                    "checked": checked_type == ElementCheckedTypeFlag.Checked,
+                    "reverse": checked_type == ElementCheckedTypeFlag.Reversed,
                 },
-            )
-        else:
-            raise NotImplementedError()
+            },
+        )
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -1350,7 +1178,6 @@ class BrowserElement:
             ),
         ],
     )
-    @wait_element_appear
     def element_operation(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -1362,68 +1189,60 @@ class BrowserElement:
         element_timeout: int = 10,
     ):
         """三个操作大类是候选，其他参数是候选出现后出现"""
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        if operation_type == ElementAttributeOpTypeFlag.Del:
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="removeElementAttr",
+                data={
+                    **element_data["elementData"]["path"],  # 解包内部字典的内容
+                    "atomConfig": {
+                        "attrName": attribute_name,
+                    },
+                },
             )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            if operation_type == ElementAttributeOpTypeFlag.Del:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="removeElementAttr",
-                    data={
-                        **element_data["elementData"]["path"],  # 解包内部字典的内容
-                        "atomConfig": {
-                            "attrName": attribute_name,
-                        },
+        elif operation_type == ElementAttributeOpTypeFlag.Get:
+            data = browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="getElementAttrs",
+                data={
+                    **element_data["elementData"]["path"],  # 解包内部字典的内容
+                    "atomConfig": {
+                        "attrName": attribute_name,
+                        "operation": str(list(ElementGetAttributeTypeFlag).index(get_type)),
                     },
-                )
-            elif operation_type == ElementAttributeOpTypeFlag.Get:
-                data = browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="getElementAttrs",
-                    data={
-                        **element_data["elementData"]["path"],  # 解包内部字典的内容
-                        "atomConfig": {
-                            "attrName": attribute_name,
-                            "operation": str(list(ElementGetAttributeTypeFlag).index(get_type)),
-                        },
-                    },
-                )
+                },
+            )
 
-                logger.info(f"获取元素属性: {data}")
-                if get_type == ElementGetAttributeTypeFlag.GetPosition:
-                    if position == RelativePosition.ScreenLeft:
-                        top, left = BrowserCore.get_browser_point(browser_obj.browser_type)
-                        return [
-                            data["x"] + left,
-                            data["y"] + top,
-                            data["right"] + left,
-                            data["bottom"] + top,
-                        ]
-                    # 返回的是列表
-                    return [data["x"], data["y"], data["right"], data["bottom"]]
-                else:
-                    return data
+            logger.info(f"获取元素属性: {data}")
+            if get_type == ElementGetAttributeTypeFlag.GetPosition:
+                if position == RelativePosition.ScreenLeft:
+                    top, left = BrowserCore.get_browser_point(browser_obj.browser_type.value)
+                    return [
+                        data["x"] + left,
+                        data["y"] + top,
+                        data["right"] + left,
+                        data["bottom"] + top,
+                    ]
+                # 返回的是列表
+                return [data["x"], data["y"], data["right"], data["bottom"]]
+            else:
+                return data
 
-            elif operation_type == ElementAttributeOpTypeFlag.Set:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="setElementAttr",
-                    data={
-                        **element_data["elementData"]["path"],  # 解包内部字典的内容
-                        "atomConfig": {
-                            "attrName": attribute_name,
-                            "attrValue": attribute_value,
-                        },
+        elif operation_type == ElementAttributeOpTypeFlag.Set:
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="setElementAttr",
+                data={
+                    **element_data["elementData"]["path"],  # 解包内部字典的内容
+                    "atomConfig": {
+                        "attrName": attribute_name,
+                        "attrValue": attribute_value,
                     },
-                )
-        else:
-            raise NotImplementedError()
+                },
+            )
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -1445,7 +1264,6 @@ class BrowserElement:
             atomicMg.param("table_pick", types="List"),
         ],
     )
-    @wait_element_appear
     def get_table(
         browser_obj: Browser,
         element_data: WebPick,
@@ -1456,28 +1274,19 @@ class BrowserElement:
         """
         获取表格内容
         """
-        if not browser_obj:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT,
-                "浏览器元素为空，请检查当前界面浏览器是否正常打开",
-            )
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            BrowserCore.get_browser_handler(browser_obj.browser_type)
-            # 元素
-            table_element = element_data["elementData"]
-
-            table_data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="getTableData",
-                data={
-                    **table_element["path"],  # 解包内部字典的内容
-                },
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+        table_data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="getTableData",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+            },
+        )
 
         # 判断table_data 存在 tbody
         if "tbody" in table_data:
+            import pandas as pd
+
             df = pd.DataFrame(table_data["tbody"])
             table_body = df.values.tolist()
             # 添加表头
@@ -1489,14 +1298,13 @@ class BrowserElement:
                 if excel_path and not excel_path.endswith(".xlsx"):
                     raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
                 if excel_path is None:
-                    excel_path = f"{table_element['name']}.xlsx"
+                    excel_path = f"{element_data['elementData']['name']}.xlsx"
                 df.to_excel(excel_path, index=False)
             return [table_head] + table_list
         else:
             raise Exception(table_data["msg"])
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -1597,7 +1405,6 @@ class BrowserElement:
             ),
         ],
     )
-    @wait_element_appear
     def data_batch(
         browser_obj: Browser = None,  # 浏览器对象
         batch_data: WebPick = None,  # 批量抓取对象
@@ -1617,6 +1424,8 @@ class BrowserElement:
         scroll_into_center: bool = True,
     ):
         """数据抓取（web）"""
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+
         table_list = []
         batch_element = batch_data.get("elementData")  # 抓取对象
         table_element = batch_element["path"]  # 元素信息
@@ -1748,7 +1557,6 @@ class BrowserElement:
 
     # 根据xpath/cssSelector 生成元素对象
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[atomicMg.param("locate_type", formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value))],
@@ -1762,10 +1570,9 @@ class BrowserElement:
     ):
         """
         根据xpath或cssSelector生成元素对象
-        :param locate_type: 元素的定位方式
-        :param locate_value: 元素的 xpath /cssSelector
-        :return: Element对象
         """
+        browser_obj = check_element(browser_obj, None, 20)
+
         # 校验locate_value
         if not locate_value:
             raise BaseException(CODE_EMPTY, "定位值不能为空")
@@ -1806,7 +1613,6 @@ class BrowserElement:
 
     # 根据元素对象找到关联元素
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
@@ -1864,7 +1670,6 @@ class BrowserElement:
         ],
         outputList=[atomicMg.param("element_obj", types="Any")],
     )
-    @wait_element_appear
     def get_relative_element(
         browser_obj: Browser = None,
         element_data: WebPick = None,
@@ -1878,70 +1683,57 @@ class BrowserElement:
     ):
         """
         根据元素对象找到关联元素
-        :param browser_obj: 浏览器对象
-        :param element_data: 当前元素数据
-        :param relative_type: 关联元素类型（子元素或兄弟元素）
-        :param child_element_type: 子元素类型（全部、按XPath、按索引）
-        :param child_element_xpath: 子元素XPath
-        :param child_element_index: 子元素索引
-        :param sibling_element_type: 兄弟元素类型（全部、前一个、后一个）
-        :param element_timeout: 元素超时时间
-        :param is_multiple: 是否返回所有关联元素
-        :return: 关联的元素对象
         """
+        browser_obj = check_element(browser_obj, element_data, element_timeout)
+
         element_get_type = ""
         if relative_type == RelativeType.Child:
             element_get_type = child_element_type.value
         if relative_type == RelativeType.Sibling:
             element_get_type = sibling_element_type.value
 
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            # 发送给插件获取关联元素
-            response = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="getRelativeElement",
-                data={
-                    **element_data["elementData"]["path"],  # 解包内部字典的内容
-                    "relativeOptions": {
-                        "relativeType": relative_type.value,
-                        "index": child_element_index,
-                        "xpath": child_element_xpath,
-                        "elementGetType": element_get_type,
-                        "multiple": is_multiple,
-                    },
+        response = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="getRelativeElement",
+            data={
+                **element_data["elementData"]["path"],  # 解包内部字典的内容
+                "relativeOptions": {
+                    "relativeType": relative_type.value,
+                    "index": child_element_index,
+                    "xpath": child_element_xpath,
+                    "elementGetType": element_get_type,
+                    "multiple": is_multiple,
                 },
-            )
-            # 判断response 是否是列表
-            if isinstance(response, list):
-                element_obj = []
-                for item in response:
-                    element_obj.append(
-                        {
-                            "elementData": {
-                                "app": element_data["elementData"]["app"],
-                                "version": element_data["elementData"]["version"],
-                                "type": element_data["elementData"]["type"],
-                                "picker_type": "ELEMENT",
-                                "path": item,
-                            }
+            },
+        )
+        # 判断response 是否是列表
+        if isinstance(response, list):
+            element_obj = []
+            for item in response:
+                element_obj.append(
+                    {
+                        "elementData": {
+                            "app": element_data["elementData"]["app"],
+                            "version": element_data["elementData"]["version"],
+                            "type": element_data["elementData"]["type"],
+                            "picker_type": "ELEMENT",
+                            "path": item,
                         }
-                    )
-            else:
-                element_obj = {
-                    "elementData": {
-                        "app": element_data["elementData"]["app"],
-                        "version": element_data["elementData"]["version"],
-                        "type": element_data["elementData"]["type"],
-                        "picker_type": "ELEMENT",
-                        "path": response,
                     }
-                }
-            return element_obj
+                )
         else:
-            raise NotImplementedError()
+            element_obj = {
+                "elementData": {
+                    "app": element_data["elementData"]["app"],
+                    "version": element_data["elementData"]["version"],
+                    "type": element_data["elementData"]["type"],
+                    "picker_type": "ELEMENT",
+                    "path": response,
+                }
+            }
+        return element_obj
 
     @staticmethod
-    @get_default_browser
     @atomicMg.atomic(
         "BrowserElement",
         outputList=[
@@ -1953,22 +1745,13 @@ class BrowserElement:
         element_data: WebPick,
     ) -> bool:
         """检查元素是否存在。"""
-        app = element_data["elementData"]["app"] if element_data["elementData"]["app"] != "iexplore" else "ie"
-        browser_type = browser_obj.browser_type.value
-        if (app == "ie" and browser_type != "ie") or (app != "ie" and browser_type == "ie"):
-            raise Exception(
-                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
-            )
-        element_exist = False
         try:
-            if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-                element_exist = browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="elementIsRender",
-                    data=element_data["elementData"]["path"],
-                )
-            else:
-                raise NotImplementedError()
+            browser_obj = check_element(browser_obj, element_data, 20)
+            element_exist = browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="elementIsRender",
+                data=element_data["elementData"]["path"],
+            )
         except Exception:
             element_exist = False
         return element_exist

@@ -1,45 +1,19 @@
 import base64
 import os
-import platform
-import shlex
-import subprocess
 import sys
 import threading
 import time
-import webbrowser
 from ast import literal_eval
-
 import requests
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, URL, WebPick
-from astronverse.baseline.logger.logger import logger
-from astronverse.browser import (
-    BROWSER_PRIVATE_MAP,
-    BROWSER_SOFTWARE_TAG,
-    CHROME_LIKE_BROWSERS,
-    ButtonForAssistiveKeyFlag,
-    ButtonForClickTypeFlag,
-    CommonForBrowserType,
-    CommonForTimeoutHandleType,
-    DownloadModeForFlag,
-    ScreenShotForShotRangeFlag,
-    WebSwitchType,
-)
+from astronverse.browser import *
 from astronverse.browser.browser import Browser
-from astronverse.browser.browser_element import BrowserElement
-from astronverse.browser.core.core import IBrowserCore
+from astronverse.browser.core.core_win import BrowserCore
 from astronverse.browser.error import *
 from astronverse.software.software import Software
-
-if sys.platform == "win32":
-    from astronverse.browser.core.core_win import BrowserCore
-elif platform.system() == "Linux":
-    from astronverse.browser.core.core_unix import BrowserCore
-else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
-
-BrowserCore: IBrowserCore = BrowserCore()
+from astronverse.browser.core.launcher import BrowserLauncher
 
 
 class BrowserSoftware:
@@ -99,130 +73,109 @@ class BrowserSoftware:
         timeout: int = 20,
         timeout_handle_type: CommonForTimeoutHandleType = CommonForTimeoutHandleType.ExecError,
     ) -> Browser:
-        """
-        open 打开浏览器
-        """
-        # open_args += " --remote-debugging-port=9555"
+        start_time = time.time()
 
-        if open_args and "--headless=old" in open_args:
-            raise BaseException(BROWSER_OPEN_TIMEOUT, "浏览器不支持无头模式")
+        # 检查browser_abs_path是否合法
+        if browser_abs_path and sys.platform == "win32":
+            app_exe = os.path.basename(browser_abs_path)
+            software_tag = BROWSER_SOFTWARE_TAG.get(browser_type.value, None)
+            if not (software_tag and software_tag.lower() in app_exe.lower()):
+                raise BaseException(SELECT_MATCHING_APP_PATH.format(app_exe.lower()), "请选择跟浏览器匹配的应用路径")
+
+        # 检查browser_abs_path的路径
+        if not browser_abs_path:
+            browser_abs_path = BrowserCore.get_browser_path(browser_type.value)
+            if not browser_abs_path:
+                raise BaseException(BROWSER_PATH_EMPTY, "注册表中未找到浏览器路径{}".format(browser_type))
 
         # 内置浏览器加载插件
-        if browser_type.value == "chromium":
+        if browser_type == CommonForBrowserType.BTChromium:
             extension_path = (
                 f"{os.getcwd()}/python_core/Lib/site-packages/astronverse/browser_plugin/plugins/chromium-extension"
             )
             extension_path = extension_path.replace("/", os.sep)
             open_args += f" --load-extension='{extension_path}'"
 
-        # 使用隐身模式时，需要添加 --incognito 参数
+        # 默认新窗口
+        if "--new-window" not in open_args:
+            open_args += " --new-window"
+
+        # 使用隐身模式
         if open_with_incognito:
             incognito_arg = BROWSER_PRIVATE_MAP.get(browser_type.value, "")
             if incognito_arg:
                 open_args += f" --{incognito_arg}"
 
-        if browser_abs_path and sys.platform == "win32":
-            # 修改，获取浏览器执行文件后缀
-            app_exe = os.path.basename(browser_abs_path)
-            # 使用字典来简化条件判断
-            software_tag_list = BROWSER_SOFTWARE_TAG.get(browser_type.value, None)
-            if not (software_tag_list and (software_tag_list.lower() in app_exe.lower())):
-                raise BaseException(
-                    SELECT_MATCHING_APP_PATH.format(app_exe.lower()),
-                    "请选择跟浏览器匹配的应用路径",
-                )
-
+        # 打开浏览器
         is_open = True
-        # 获取地址
+        control = BrowserCore.get_browser_control(browser_type.value)
+        if not control:
+            is_open = False
+            BrowserLauncher.open(browser_abs_path, str(url), open_args)
+
+            open_timeout = timeout / 2
+            while open_timeout >= 0:
+                time.sleep(1)
+                open_timeout -= 1
+                control = BrowserCore.get_browser_control(browser_type.value)
+                if control:
+                    break
+            if not control:
+                raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+
+        try:
+            # 置顶最大化
+            BrowserCore.browser_top_and_max(control)
+        except Exception as e:
+            pass
+
         res = Browser()
         res.browser_type = browser_type
-        if not browser_abs_path:
-            browser_abs_path = PATH(BrowserCore.get_browser_path(browser_type))
-            logger.info(f"浏览器路径: {browser_abs_path}")
-            if not browser_abs_path:
-                raise BaseException(
-                    BROWSER_PATH_EMPTY,
-                    "注册表中未找到浏览器路径，请输入浏览器路径再运行 {}".format(browser_type),
-                )
         res.browser_abs_path = browser_abs_path
+        res.browser_control = control
 
-        # 判断是否已经打开
-        browser_file_name = browser_abs_path.file_name()
-        browser_file_name = browser_file_name if browser_file_name != "IEXPLORE.EXE" else browser_file_name.lower()
-        if not Software.exists(browser_file_name) or not BrowserCore.get_browser_handler(browser_type):
-            # 判断是否已经打开，没有打开的话起新的
-            is_open = False
-            if browser_type in CHROME_LIKE_BROWSERS:
-                webbrowser.BackgroundBrowser = GenericBrowser
-                webbrowser.register(
-                    browser_type.value,
-                    None,
-                    webbrowser.BackgroundBrowser(browser_abs_path),
-                )
-                webbrowser.get(browser_type.value).open(
-                    str(url),
-                    open_args=open_args,
-                    open_with_incognito=open_with_incognito,
-                )
-            else:
-                raise NotImplementedError()
-
-        # 查询打开状态
-        handler = None
-        open_timeout = 10
-        while open_timeout >= 0:
-            handler = BrowserCore.get_browser_handler(browser_type)
-            if handler:
-                break
-            time.sleep(1)
-            open_timeout -= 1
-        if not handler:
-            raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
-        time.sleep(1)
-
-        # 置顶最大化
-        if browser_type in CHROME_LIKE_BROWSERS:
-            from astronverse.window import WindowSizeType
-            from astronverse.window.window import WindowsCore
-
-            WindowsCore.top(handler)
-            WindowsCore.size(handler, WindowSizeType.MAX)
-        else:
-            raise NotImplementedError()
-
-        # 插件通信重试
-        retry_count = 5
-        if is_open:
-            while retry_count > 0:
-                try:
+        # 插件通信连接，打开Tab
+        retry_count = 3
+        retry_time = timeout / 2 / retry_count
+        web_open_err = None
+        while retry_count > 0:
+            try:
+                if is_open:
                     res.send_browser_extension(
                         browser_type=res.browser_type.value, key="openNewTab", data={"url": str(url)}
                     )
+                    web_open_err = None
                     break
-                except Exception:
-                    retry_count -= 1
-                time.sleep(2)
-        else:
-            if browser_type in CHROME_LIKE_BROWSERS and not open_with_incognito:
-                while retry_count > 0:
-                    try:
-                        res.send_browser_extension(
-                            browser_type=res.browser_type.value,
-                            key="updateTab",
-                            data={"url": str(url)},
-                        )
-                        break
-                    except Exception as e:
-                        retry_count -= 1
-                    time.sleep(2)
+                else:
+                    res.send_browser_extension(
+                        browser_type=res.browser_type.value,
+                        key="updateTab",
+                        data={"url": str(url)},
+                    )
+                    web_open_err = None
+                    break
+            except Exception as e:
+                web_open_err = e
+                time.sleep(retry_time)
+            finally:
+                retry_count -= 1
+        if web_open_err:
+            raise web_open_err
 
-        BrowserSoftware.browser_max_window(browser_obj=res)
+        # 插件置顶最大化
+        BrowserSoftware.browser_max_window(res)
 
-        # 等待网页加载完成
-        if wait_load_success:
-            result = BrowserSoftware.wait_web_load(browser_obj=res, timeout=timeout)
-            if not result and timeout_handle_type == CommonForTimeoutHandleType.ExecError:
-                BrowserSoftware.stop_web_load(browser_obj=res)
+        try:
+            # 插件通信连接，等待网页加载完成
+            elapsed = time.time() - start_time - timeout
+
+            if wait_load_success:
+                result = BrowserSoftware.wait_web_load(browser_obj=res, timeout=(5 if elapsed < 5 else elapsed))
+                if not result and timeout_handle_type == CommonForTimeoutHandleType.ExecError:
+                    BrowserSoftware.stop_web_load(browser_obj=res)
+        except Exception as e:
+            pass
+
         return res
 
     @staticmethod
@@ -232,25 +185,17 @@ class BrowserSoftware:
         close 关闭浏览器
         """
         if not browser_obj.browser_abs_path:
-            browser_obj.browser_abs_path = BrowserCore.get_browser_path(browser_obj.browser_type)
+            browser_obj.browser_abs_path = BrowserCore.get_browser_path(browser_obj.browser_type.value)
         Software.close(browser_obj.browser_abs_path)
 
     @staticmethod
     def browser_max_window(browser_obj: Browser) -> bool:
         """最大化浏览器窗口"""
-        browser_type = browser_obj.browser_type
-        if browser_type in CHROME_LIKE_BROWSERS:
-            try:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="maxWindow",
-                    data={"url": ""},
-                )
-                return True
-            except Exception:
-                return False
-        else:
-            raise NotImplementedError()
+        try:
+            browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="maxWindow")
+        except Exception:
+            return False
+        return True
 
     @staticmethod
     @atomicMg.atomic(
@@ -273,21 +218,17 @@ class BrowserSoftware:
         """
         设置cookies
         """
-        BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
-        browser_type = browser_obj.browser_type
-        if browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="setCookies",
-                data={
-                    "url": str(url),
-                    "name": cookie_name,
-                    "value": cookie_val,
-                    "path": cookie_path,
-                },
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="setCookies",
+            data={
+                "url": str(url),
+                "name": cookie_name,
+                "value": cookie_val,
+                "path": cookie_path,
+            },
+            timeout=page_timeout,
+        )
         return cookie_val
 
     @staticmethod
@@ -306,27 +247,22 @@ class BrowserSoftware:
         """
         获取cookies
         """
-        browser_type = browser_obj.browser_type
-        BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
-        result = ""
-        if browser_type in CHROME_LIKE_BROWSERS:
-            data = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="getCookie",
-                data={
-                    "url": str(url),
-                    "name": cookie_name,
-                    "path": cookie_path,
-                },
-            )
-            if isinstance(data, list):
-                result = str(data)
-            elif isinstance(data, dict):
-                result = data.get("value", "")
-            else:
-                result = ""
+        data = browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="getCookie",
+            data={
+                "url": str(url),
+                "name": cookie_name,
+                "path": cookie_path,
+            },
+            timeout=page_timeout,
+        )
+        if isinstance(data, list):
+            result = str(data)
+        elif isinstance(data, dict):
+            result = data.get("value", "")
         else:
-            raise NotImplementedError()
+            result = ""
         return result
 
     @staticmethod
@@ -346,19 +282,15 @@ class BrowserSoftware:
         """
         清空cookies
         """
-        BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
-        browser_type = browser_obj.browser_type
-        if browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="emptyCookies",
-                data={
-                    "url": str(url),
-                    "path": cookie_path,
-                },
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="emptyCookies",
+            data={
+                "url": str(url),
+                "path": cookie_path,
+            },
+            timeout=page_timeout,
+        )
 
     @staticmethod
     @atomicMg.atomic(
@@ -369,18 +301,13 @@ class BrowserSoftware:
     )
     def web_open(browser_obj: Browser, new_tab_url: URL = "", wait_page: bool = True) -> "Browser":
         """打开新网页"""
-        browser_type = browser_obj.browser_type
-        new_tab_url = URL.__validate__("", str(new_tab_url))
-        if browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="openNewTab",
-                data={"url": str(new_tab_url)},
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="openNewTab",
+            data={"url": str(new_tab_url)},
+        )
         if wait_page:
-            BrowserSoftware.wait_web_load(browser_obj, timeout=20)
+            BrowserSoftware.wait_web_load(browser_obj=browser_obj, timeout=20)
         return browser_obj
 
     @staticmethod
@@ -425,36 +352,32 @@ class BrowserSoftware:
         tab_id: int = 0,
     ):
         """切换网页"""
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            if switch_type == WebSwitchType.URL:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="switchTab",
-                    data={"url": tab_url},
-                )
-            elif switch_type == WebSwitchType.TabId:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="switchTab",
-                    data={"id": tab_id},
-                )
-            else:
-                browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="switchTab",
-                    data={"title": tab_title},
-                )
+        if switch_type == WebSwitchType.URL:
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="switchTab",
+                data={"url": tab_url},
+            )
+        elif switch_type == WebSwitchType.TabId:
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="switchTab",
+                data={"id": tab_id},
+            )
         else:
-            raise NotImplementedError()
+            browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="switchTab",
+                data={"title": tab_title},
+            )
         return tab_url if switch_type == WebSwitchType.URL else tab_title
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware")
-    def wait_web_load(browser_obj: Browser, timeout: int = 20) -> bool:
+    def wait_web_load(browser_obj: Browser, timeout: float = 20) -> bool:
         """
         等待页面加载完成，直到超时或页面加载完成。
         """
-        timeout = float(timeout)
         if timeout < 0:
             raise BaseException(
                 PARAMETER_INVALID_FORMAT.format(timeout),
@@ -463,20 +386,15 @@ class BrowserSoftware:
 
         end = time.time() + timeout
         while time.time() < end:
-            time.sleep(0.3)
             try:
-                if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-                    data = browser_obj.send_browser_extension(
-                        browser_type=browser_obj.browser_type.value,
-                        key="loadComplete",
-                        data={"": ""},
-                    )
-                else:
-                    raise NotImplementedError()
+                data = browser_obj.send_browser_extension(
+                    browser_type=browser_obj.browser_type.value, key="loadComplete"
+                )
                 if data:
                     return True
             except Exception:
                 pass
+            time.sleep(0.3)
         return False
 
     @staticmethod
@@ -485,14 +403,7 @@ class BrowserSoftware:
         """
         停止加载网页
         """
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="stopLoad",
-                data={"": ""},
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="stopLoad")
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware")
@@ -500,14 +411,7 @@ class BrowserSoftware:
         """
         刷新网页
         """
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="reloadTab",
-                data={"": ""},
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="reloadTab")
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware", inputList=[atomicMg.param("url", required=False)])
@@ -515,14 +419,11 @@ class BrowserSoftware:
         """
         关闭网页
         """
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="closeTab",
-                data={"url": url},
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(
+            browser_type=browser_obj.browser_type.value,
+            key="closeTab",
+            data={"url": url},
+        )
 
     @staticmethod
     @atomicMg.atomic(
@@ -550,31 +451,29 @@ class BrowserSoftware:
         """截图网页"""
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
-        BrowserSoftware.wait_web_load(browser_obj, timeout=page_timeout)
         dest_path = os.path.join(image_path, image_name)
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            if shot_range == ScreenShotForShotRangeFlag.Visual:
-                data = browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="captureScreen",
-                    data={"": ""},
-                    timeout=30,
-                )
-            elif shot_range == ScreenShotForShotRangeFlag.All:
-                data = browser_obj.send_browser_extension(
-                    browser_type=browser_obj.browser_type.value,
-                    key="capturePage",
-                    data={"": ""},
-                    timeout=30,
-                )
-            else:
-                raise NotImplementedError()
-            if data:
-                data = data.replace("data:image/jpeg;base64,", "")
-            else:
-                raise Exception("插件返回数据为空")
-            with open(dest_path, "wb") as f:
-                f.write(base64.b64decode(data))
+        if shot_range == ScreenShotForShotRangeFlag.Visual:
+            data = browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="captureScreen",
+                data={"": ""},
+                timeout=page_timeout,
+            )
+        elif shot_range == ScreenShotForShotRangeFlag.All:
+            data = browser_obj.send_browser_extension(
+                browser_type=browser_obj.browser_type.value,
+                key="capturePage",
+                data={"": ""},
+                timeout=page_timeout,
+            )
+        else:
+            raise NotImplementedError()
+        if data:
+            data = data.replace("data:image/jpeg;base64,", "")
+        else:
+            raise Exception("插件返回数据为空")
+        with open(dest_path, "wb") as f:
+            f.write(base64.b64decode(data))
         return dest_path
 
     @staticmethod
@@ -583,14 +482,7 @@ class BrowserSoftware:
         browser_obj: Browser,
     ):
         """前进网页"""
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="forward",
-                data={"": ""},
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="forward")
 
     @staticmethod
     @atomicMg.atomic("BrowserSoftware")
@@ -598,14 +490,7 @@ class BrowserSoftware:
         browser_obj: Browser,
     ):
         """后退网页"""
-        if browser_obj.browser_type in CHROME_LIKE_BROWSERS:
-            browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value,
-                key="backward",
-                data={"": ""},
-            )
-        else:
-            raise NotImplementedError()
+        browser_obj.send_browser_extension(browser_type=browser_obj.browser_type.value, key="backward")
 
     @staticmethod
     @atomicMg.atomic(
@@ -618,29 +503,29 @@ class BrowserSoftware:
         browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
     ) -> Browser:
         """获取当前浏览器对象"""
-        br = Browser()
-        br.browser_type = browser_type
-        # 查询打开状态
-        handler = None
+
+        control = None
         open_timeout = 10
         while open_timeout >= 0:
-            handler = BrowserCore.get_browser_handler(browser_type)
-            if handler:
+            control = BrowserCore.get_browser_control(browser_type.value)
+            if control:
                 break
             time.sleep(1)
             open_timeout -= 1
-        if not handler:
-            raise BaseException(BROWSER_GET_TIMEOUT, "")
-        # 置顶最大化
-        if browser_type in CHROME_LIKE_BROWSERS:
-            from astronverse.window import WindowSizeType
-            from astronverse.window.window import WindowsCore
+        if not control:
+            raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
 
-            WindowsCore.top(handler)
-            WindowsCore.size(handler, WindowSizeType.MAX)
-        else:
-            raise NotImplementedError()
-        return br
+        try:
+            # 置顶最大化
+            BrowserCore.browser_top_and_max(control)
+        except Exception as e:
+            pass
+
+        browser = Browser()
+        browser.browser_type = browser_type
+        browser.browser_abs_path = ""
+        browser.browser_control = control
+        return browser
 
     @staticmethod
     @atomicMg.atomic(
@@ -754,8 +639,8 @@ class BrowserSoftware:
     ):
         """下载文件"""
         if download_mode == DownloadModeForFlag.Click:
-            default_save_path = os.path.join(os.path.expanduser("~"), "Downloads")
-            origin_files = os.listdir(default_save_path)
+            from astronverse.browser.browser_element import BrowserElement
+
             BrowserElement.click(
                 browser_obj=browser_obj,
                 element_data=element_data,
@@ -774,7 +659,6 @@ class BrowserSoftware:
             )
             return dest_path
         elif download_mode == DownloadModeForFlag.Link:
-            """通过网页链接下载"""
             file_path_arr = []
             if not (link_str and save_path):
                 raise ValueError("请提供正确的url链接和文件存储路径")
@@ -849,6 +733,9 @@ class BrowserSoftware:
         simulate_flag: bool = True,
     ):
         """上传文件"""
+
+        from astronverse.browser.browser_element import BrowserElement
+
         BrowserElement.click(
             browser_obj=browser_obj,
             element_data=element_data,
@@ -858,44 +745,3 @@ class BrowserSoftware:
             element_timeout=10,
         )
         BrowserCore.upload_window_operate(browser_type=browser_obj.browser_type, upload_path=upload_path)
-
-
-class GenericBrowser(webbrowser.GenericBrowser):
-    def open(self, url, new=0, autoraise=True, open_args=None, open_with_incognito=None):
-        logger.info(f"打开浏览器的输入参数{open_args}")
-        url_showed = [url]
-        if open_args is None:
-            open_args = ""
-            # 添加必要的参数，例如 --new-window 或 --app
-        if "--new-window" not in open_args:
-            open_args += " --new-window"
-        if open_with_incognito:
-            url_showed = [arg.replace("%s", url) for arg in self.args]
-        cmdline = [self.name] + shlex.split(open_args) + url_showed
-        logger.info(f"测试命令行{cmdline}")
-        try:
-            if sys.platform[:3] == "win":
-                p = subprocess.Popen(
-                    cmdline,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=subprocess.CREATE_NO_WINDOW,  # 不闪黑框
-                )
-            else:
-                p = subprocess.Popen(
-                    cmdline,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    close_fds=True,
-                    start_new_session=True,
-                )
-            while not p.pid:
-                time.sleep(0.3)
-            time.sleep(1)
-            return p.poll() is None
-        except FileNotFoundError as e:
-            raise BaseException(BROWSER_NO_INSTALL, f"该浏览器暂未安装！{e}")
-        except OSError:
-            return False

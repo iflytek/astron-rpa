@@ -121,7 +121,7 @@ getMailList()
     </a-table>
     <!-- 新增 -->
     <a-button
-      class="flex justify-center align-center mt-4"
+      class="flex justify-center items-center mt-4"
       type="primary"
       block
       :icon="h(PlusCircleOutlined)"

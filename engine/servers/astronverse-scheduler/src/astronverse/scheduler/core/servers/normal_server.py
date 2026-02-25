@@ -4,6 +4,7 @@ from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.core.terminal.terminal import terminal_id, terminal_pwd
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.subprocess import SubPopen
+from astronverse.scheduler.utils.utils import check_port
 
 
 class TriggerServer(IServer):
@@ -91,25 +92,32 @@ class VNCServer(IServer):
     def run(self):
         if not self.svc.terminal_mod:
             return
+        if not self.svc.start_watch:
+            return
 
-        # self.vnc = vnc.VNCServer(self.vnc_port, self.vnc_ws_port, pwd=self.vnc_pwd)
-        # self.vnc.start()
+        try:
+            from astronverse.scheduler.core.terminal.vnc import VNC
+
+            self.vnc = VNC(self.svc, self.vnc_port, self.vnc_ws_port, pwd=self.vnc_pwd)
+            if not self.vnc.start():
+                self.vnc = None
+        except Exception as e:
+            self.vnc = None
 
     def close(self):
         if self.vnc:
             self.vnc.stop()
 
     def health(self) -> bool:
-        return True
+        if not self.svc.terminal_mod:
+            return True
+        if not self.svc.start_watch:
+            return True
 
-        # if not self.svc.terminal_mod:
-        #     # 如果终端是关闭的就一直True
-        #     return True
-        #
-        # # 如果端口可用说明系统已经挂了
-        # if check_port(self.vnc_port) or check_port(self.vnc_ws_port):
-        #     return False
-        # return True
+        # 如果端口可用说明系统已经挂了
+        if check_port(self.vnc_port) or check_port(self.vnc_ws_port):
+            return False
+        return True
 
     def recover(self):
         """监控检查恢复"""

@@ -1,18 +1,4 @@
-"""
-该模块主要存储枚举类，用于原子能力输入、输出参数的枚举值定义。
-
-Common枚举：CommonFor<业务Key名>
-原子能力枚举：<原子能力方法名称>For<业务Key名>
-"""
-
 from enum import Enum
-
-
-class Element:
-    """元素类，用于封装元素属性"""
-
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
 
 
 class CommonForBrowserType(Enum):
@@ -26,25 +12,6 @@ class CommonForBrowserType(Enum):
     BTChromium = "chromium"
 
 
-class CommonSoftwareForBrowserType(Enum):
-    """浏览器软件类型枚举"""
-
-    BTChrome = "chrome.exe"
-    BTEdge = "msedge.exe"
-    BT360SE = "360se6.exe"
-    BT360X = "360ChromeX.exe"
-    BTFirefox = "firefox.exe"
-    BTChromium = "chromium.exe"
-
-
-CHROME_LIKE_BROWSERS = [
-    CommonForBrowserType.BTChrome,
-    CommonForBrowserType.BTEdge,
-    CommonForBrowserType.BT360X,
-    CommonForBrowserType.BT360SE,
-    CommonForBrowserType.BTFirefox,
-    CommonForBrowserType.BTChromium,
-]
 ALL_BROWSER_TYPES = [
     CommonForBrowserType.BTChrome,
     CommonForBrowserType.BTEdge,
@@ -81,41 +48,35 @@ BROWSER_PRIVATE_MAP = {
 
 # window:uia窗口句柄的class_name
 BROWSER_UIA_WINDOW_CLASS = {
-    CommonForBrowserType.BTChrome.value: "Chrome_WidgetWin_1",
-    CommonForBrowserType.BTEdge.value: "Chrome_WidgetWin_1",
-    CommonForBrowserType.BT360SE.value: "360se6_Frame",
-    CommonForBrowserType.BT360X.value: "Chrome_WidgetWin_1",
-    CommonForBrowserType.BTFirefox.value: "MozillaWindowClass",
-    CommonForBrowserType.BTChromium.value: "Chrome_WidgetWin_1",
+    CommonForBrowserType.BTChrome.value: (
+        "Chrome_WidgetWin_1",
+        ["Chrome Legacy Window", "- Google Chrome", " - Chrome"],
+        "in",
+    ),
+    CommonForBrowserType.BTEdge.value: ("Chrome_WidgetWin_1", ["edge"], "last_in"),
+    CommonForBrowserType.BT360SE.value: ("360se6_Frame", ["- 360安全浏览器"], "in"),
+    CommonForBrowserType.BT360X.value: ("Chrome_WidgetWin_1", ["- 360极速浏览器X"], "in"),
+    CommonForBrowserType.BTFirefox.value: ("MozillaWindowClass", ["Firefox"], "in"),
+    CommonForBrowserType.BTChromium.value: ("Chrome_WidgetWin_1", ["- Chromium"], "in"),
 }
 
 # window:uia网页渲染句柄的class_name
 BROWSER_UIA_POINT_CLASS = {
-    CommonForBrowserType.BTChrome.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BTEdge.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BT360SE.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BT360X.value: "Chrome_RenderWidgetHostHWND",
-    CommonForBrowserType.BTFirefox.value: "MozillaWindowClass",
-    CommonForBrowserType.BTChromium.value: "Chrome_RenderWidgetHostHWND",
-}
-
-# linux:dogtail窗口句柄的class_name
-BROWSER_DOGTAIL_WINDOW_CLASS = {
-    CommonForBrowserType.BTChrome.value: ["Google Chrome", "Chromium"],
-}
-
-# linux:xdot窗口句柄的handler_name
-BROWSER_XDOT_WINDOW_HANDLER_NAME = {
-    CommonForBrowserType.BTChrome.value: "Google Chrome",
-}
-
-# linux:dogtail网页渲染句柄的class_name
-BROWSER_DOGTAIL_POINT_CLASS = {
-    CommonForBrowserType.BTChrome.value: "document web",
+    CommonForBrowserType.BTChrome.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BTEdge.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BT360SE.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BT360X.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
+    CommonForBrowserType.BTFirefox.value: ("tabbrowser-tabpanels", "AutomationId"),
+    CommonForBrowserType.BTChromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }
 
 
-# --------------------------
+# ------------浏览器定义结束--------------
+
+
+class Element:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
 
 
 class CommonForTimeoutHandleType(Enum):
@@ -155,6 +116,7 @@ class FillInputForFillTypeFlag(Enum):
 
     Text = "text"
     Clipboard = "clipboard"
+    Credential = "credential"
 
 
 class ElementAttributeOpTypeFlag(Enum):

@@ -1,138 +1,97 @@
 import os
 import time
 from typing import Any
-
-import pyautogui
-import pyperclip
-import win32con
-import win32gui
-from astronverse.baseline.logger.logger import logger
-from astronverse.browser import (
-    BROWSER_REGISTER_NAME,
-    BROWSER_UIA_POINT_CLASS,
-    BROWSER_UIA_WINDOW_CLASS,
-    CHROME_LIKE_BROWSERS,
-)
-from astronverse.browser import CommonForBrowserType as BrowserType
-from astronverse.browser.core.core import IBrowserCore
-from astronverse.browser.error import *
-from astronverse.software.software import Software
-from astronverse.window import WalkControlInfo
-from astronverse.window.uitree import UITreeCore
+from astronverse.browser import BROWSER_UIA_WINDOW_CLASS, BROWSER_REGISTER_NAME, BROWSER_UIA_POINT_CLASS
+from astronverse.browser.error import DOWNLOAD_WINDOW_NO_FIND, UPLOAD_WINDOW_NO_FIND
 
 
-class BrowserCore(IBrowserCore):
+class BrowserCore:
     @staticmethod
-    def get_browser_path(browser_type: BrowserType) -> str:
+    def get_browser_path(browser_type: str) -> str:
         """获取浏览器绝对地址"""
-
-        if browser_type.value == "chromium":
-            return os.path.join(os.getcwd(), "rpachrome", "chromium.exe")
-        app_name = BROWSER_REGISTER_NAME.get(browser_type.value, "")
+        app_name = BROWSER_REGISTER_NAME.get(browser_type, "")
         if not app_name:
             return ""
+        from astronverse.software.software import Software
+
         return Software.get_app_path(app_name)
 
     @staticmethod
-    def check_microsoft_edge_in_last_part(text, target="edge"):
-        """
-        用'-'分割字符串，判断目标字符串是否在最后一个分割部分中
+    def browser_top_and_max(control):
+        from astronverse.window import WindowSizeType
+        from astronverse.window.window import WindowsCore
+        from astronverse.window.uitree import UITreeCore
 
-        参数:
-            text (str): 要处理的原始字符串
-            target (str): 要查找的目标字符串，默认为"microsoft edge"
-
-        返回:
-            bool: 如果目标字符串在最后一个分割部分中返回True，否则返回False
-        """
-        # 用'-'分割字符串
-        parts = text.split("-")
-
-        # 获取最后一个分割部分并去除首尾空格
-        last_part = parts[-1].strip()
-        logger.info(f"check_microsoft_edge_in_last_part   {last_part.lower()}")
-
-        # 判断目标字符串是否在最后一个部分中（不区分大小写）
-        return target.lower() in last_part.lower()
+        handler = UITreeCore.toHandler(control)
+        WindowsCore.top(handler)
+        WindowsCore.size(handler, WindowSizeType.MAX)
 
     @staticmethod
-    def get_browser_control(browser_type: BrowserType) -> Any:
-        """获取浏览器的控制器"""
-
-        class_name = BROWSER_UIA_WINDOW_CLASS.get(browser_type.value, "")
-        if not class_name:
-            return None
-
-        # 遍历uitree
-        root_control = UITreeCore.GetRootControl()
-        control = None
-        for walkControlInfo in UITreeCore.WalkControl(root_control, True, 1):
-            assert isinstance(walkControlInfo, WalkControlInfo)
-            if walkControlInfo.classname == class_name:
-                if browser_type == browser_type.BTChrome:
-                    if (
-                        (walkControlInfo.name == "Chrome Legacy Window")
-                        or ("- Google Chrome" in walkControlInfo.name)
-                        or (" - Chrome" in walkControlInfo.name)
-                    ):
-                        control = walkControlInfo.control
-                        break
-                elif browser_type == browser_type.BT360X:
-                    if "- 360极速浏览器X" in walkControlInfo.name:
-                        control = walkControlInfo.control
-                        break
-                elif browser_type == browser_type.BT360SE:
-                    if "- 360安全浏览器" in walkControlInfo.name:
-                        control = walkControlInfo.control
-                        break
-                elif browser_type == browser_type.BTFirefox:
-                    if "Firefox" in walkControlInfo.name:
-                        control = walkControlInfo.control
-                        break
-                elif browser_type == browser_type.BTEdge:
-                    if BrowserCore.check_microsoft_edge_in_last_part(walkControlInfo.name):
-                        control = walkControlInfo.control
-                        break
-                elif walkControlInfo.name.lower().endswith(browser_type.value.lower()):
-                    control = walkControlInfo.control
-                    break
-
-        # 激活
-        if control:
-            UITreeCore.setAction(control)
-
-        return control
-
-    @staticmethod
-    def get_browser_handler(browser_type: BrowserType) -> Any:
-        control = BrowserCore.get_browser_control(browser_type)
-        if not control:
-            return None
-        return UITreeCore.toHandler(control)
-
-    @staticmethod
-    def get_browser_point(browser_type: BrowserType) -> Any:
+    def get_browser_point(browser_type: str) -> Any:
         """获取浏览器坐标"""
-
-        class_name = BROWSER_UIA_POINT_CLASS.get(browser_type.value, "")
-        if not class_name:
-            return None
 
         base_ctrl = BrowserCore.get_browser_control(browser_type)
         if not base_ctrl:
             return None
 
+        cfg = BROWSER_UIA_POINT_CLASS.get(browser_type)
+        if not cfg:
+            return None
+
+        tag_value, tag = cfg
+
+        from astronverse.window.uitree import UITreeCore
+        from astronverse.window import WalkControlInfo
+
         for walkControlInfo in UITreeCore.WalkControl(base_ctrl, True, 12):
             assert isinstance(walkControlInfo, WalkControlInfo)
-            if walkControlInfo.classname == class_name:
+            if tag == "ClassName":
+                tag_match = walkControlInfo.classname
+            elif tag == "AutomationId":
+                tag_match = walkControlInfo.automation_id
+            else:
+                tag_match = ""
+            if tag_match == tag_value:
                 bounding_rect = walkControlInfo.position
                 top = bounding_rect.top
                 left = bounding_rect.left
                 return top, left
 
     @staticmethod
-    def download_window_operate(*args, **kwargs) -> Any:
+    def get_browser_control(browser_type: str) -> Any:
+        """获取浏览器的控制器"""
+
+        cfg = BROWSER_UIA_WINDOW_CLASS.get(browser_type)
+        if not cfg:
+            return None
+
+        from astronverse.window.uitree import UITreeCore
+        from astronverse.window import WalkControlInfo
+
+        class_name, patterns, match_type = cfg
+        root_control = UITreeCore.GetRootControl()
+        control = None
+        for info in UITreeCore.WalkControl(root_control, True, 1):
+            assert isinstance(info, WalkControlInfo)
+            if info.classname != class_name:
+                continue
+            if not patterns:
+                control = info.control
+                break
+            text = info.name.split("-")[-1].strip() if match_type == "last_in" else info.name
+            if any(p.lower() in text.lower() for p in patterns):
+                control = info.control
+                break
+        return control
+
+    @staticmethod
+    def download_window_operate(**kwargs) -> Any:
         """获取浏览器下载文件另存为窗口"""
+
+        import pyperclip
+        import win32con
+        import pyautogui
+        import win32gui
 
         file_name = kwargs.get("file_name")
         browser_type = kwargs.get("browser_type")
@@ -215,26 +174,27 @@ class BrowserCore(IBrowserCore):
         return dest_path
 
     @staticmethod
-    def upload_window_operate(*args, **kwargs) -> Any:
+    def upload_window_operate(**kwargs) -> Any:
         """获取浏览器上传文件窗口操作"""
+
+        import win32con
+        import win32gui
 
         upload_path = kwargs.get("upload_path")
         browser_type = kwargs.get("browser_type")
-        if browser_type in CHROME_LIKE_BROWSERS:
-            # 判断是否弹出上传窗口
-            dialog = win32gui.FindWindow("#32770", "打开")
-            start_time = time.time()
-            while time.time() - start_time < 10:
-                dialog = win32gui.FindWindow("#32770", "打开")  # 一级窗口
-                if dialog == 0:
-                    time.sleep(0.1)
-                else:
-                    time.sleep(3)
-                    break
+
+        # 判断是否弹出上传窗口
+        dialog = win32gui.FindWindow("#32770", "打开")
+        start_time = time.time()
+        while time.time() - start_time < 10:
+            dialog = win32gui.FindWindow("#32770", "打开")  # 一级窗口
             if dialog == 0:
-                raise BaseException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
-        else:
-            raise NotImplementedError()
+                time.sleep(0.1)
+            else:
+                time.sleep(3)
+                break
+        if dialog == 0:
+            raise BaseException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
 
         button = win32gui.FindWindowEx(dialog, 0, "Button", "打开(O)")  # 四级
 

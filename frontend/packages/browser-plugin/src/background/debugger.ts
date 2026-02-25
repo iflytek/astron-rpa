@@ -38,19 +38,6 @@ const Debugger = {
   frameContextIdMap: {
     0: [], // frameId 0 executionContextIds
   } as Record<string, number[]>, // frameId executionContextIds
-  enableRuntime: (tabId: number) => {
-    return new Promise((resolve, reject) => {
-      chrome.debugger.sendCommand({ tabId }, 'Runtime.enable', {}, () => {
-        if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError)
-          reject(chrome.runtime.lastError)
-        }
-        else {
-          resolve(true)
-        }
-      })
-    })
-  },
   attachDebugger: (tabId: number) => {
     return new Promise((resolve, reject) => {
       if (Debugger.attached) {
@@ -70,6 +57,19 @@ const Debugger = {
       })
     })
   },
+  enableRuntime: (tabId: number) => {
+    return new Promise((resolve, reject) => {
+      chrome.debugger.sendCommand({ tabId }, 'Runtime.enable', {}, () => {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError)
+          reject(chrome.runtime.lastError)
+        }
+        else {
+          resolve(true)
+        }
+      })
+    })
+  },
   detachDebugger: (tabId: number) => {
     return new Promise((resolve) => {
       chrome.debugger.detach({ tabId }, () => {
@@ -77,19 +77,6 @@ const Debugger = {
         Debugger.attached = false
         Debugger.frameContextIdMap = { 0: [] }
         resolve(true)
-      })
-    })
-  },
-  getFrameTree: async (tabId: number) => {
-    return new Promise((resolve, reject) => {
-      chrome.debugger.sendCommand({ tabId }, 'Page.getFrameTree', {}, (result) => {
-        if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError)
-          reject(chrome.runtime.lastError)
-        }
-        else {
-          resolve(result)
-        }
       })
     })
   },
@@ -126,6 +113,57 @@ const Debugger = {
     else {
       throw new Error(ErrorMessage.EXECUTE_ERROR)
     }
+  },
+  getFrameTree: async (tabId: number) => {
+    await Debugger.attachDebugger(tabId)
+    await Debugger.enableRuntime(tabId)
+    const frameTree = await new Promise((resolve, reject) => {
+      chrome.debugger.sendCommand({ tabId }, 'Page.getFrameTree', {}, (result) => {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError)
+          reject(chrome.runtime.lastError)
+        }
+        else {
+          resolve(result)
+        }
+      })
+    })
+    await Debugger.detachDebugger(tabId)
+    return frameTree
+  },
+  getDomSnapshot: async (tabId: number) => {
+    await Debugger.attachDebugger(tabId)
+    await Debugger.enableRuntime(tabId)
+    const domSnapshot = await new Promise((resolve, reject) => {
+      chrome.debugger.sendCommand({ tabId }, 'DOMSnapshot.captureSnapshot', {
+        computedStyles: [],
+        includeDOMRects: true,
+      }, (result) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError)
+        }
+        resolve(result)
+      })
+    })
+    await Debugger.detachDebugger(tabId)
+    return domSnapshot
+  },
+  printToPDF: async (tabId: number, printOptions: PrintOptions) => {
+    await Debugger.attachDebugger(tabId)
+    await Debugger.enableRuntime(tabId)
+    const pdfData = await new Promise((resolve, reject) => {
+      chrome.debugger.sendCommand({ tabId }, 'Page.printToPDF', printOptions, (result) => {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError)
+          reject(chrome.runtime.lastError)
+        }
+        else {
+          resolve(result.data)
+        }
+      })
+    })
+    await Debugger.detachDebugger(tabId)
+    return pdfData
   },
 }
 /**

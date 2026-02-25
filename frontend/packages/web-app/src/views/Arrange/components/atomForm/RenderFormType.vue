@@ -34,6 +34,7 @@ import { createDom } from './hooks/useAtomVarPopover'
 import { isConditionalKeys } from './hooks/useBaseConfig'
 import useRenderFormType, { formBtnHandle, generateHtmlVal, generateInputVal, handlePaste, inputListListener, syncCurrentAtomData } from './hooks/useRenderFormType'
 import ProcessParam from './ProcessParam.vue'
+import AtomSelect from './AtomSelect.vue'
 
 const { iconStyle, itemData, itemType, varType } = defineProps({
   iconStyle: {
@@ -144,10 +145,16 @@ function handleAtomRemoteSelect(val: any) {
   syncCurrentAtomData(itemData, false)
 }
 
-const handleInput = debounce((event: Event, itemData: RPA.AtomDisplayItem) => {
-  const target = event.target as HTMLDivElement
-  generateHtmlVal(target, itemData)
+const debouncedGenerateHtmlVal = debounce((target: HTMLDivElement, itemData: RPA.AtomDisplayItem, atomId: string) => {
+  generateHtmlVal(target, itemData, atomId)
 }, 500)
+
+const handleInput = (event: Event, itemData: RPA.AtomDisplayItem) => {
+  // 保存当前 activeAtom.id，避免在 debounce 延迟期间切换 activeAtom 导致更新到错误的原子能力
+  const currentAtomId = flowStore.activeAtom?.id
+  const target = event.target as HTMLDivElement
+  debouncedGenerateHtmlVal(target, itemData, currentAtomId)
+}
 
 inputListListener(itemData, itemType)
 </script>
@@ -276,26 +283,7 @@ inputListListener(itemData, itemType)
     :un-checked-children="itemData?.options[1].label"
   />
   <!-- 下拉框 -->
-  <a-select
-    v-if="itemType === ATOM_FORM_TYPE.SELECT"
-    v-model:value="selectValue"
-    :mode="itemData.formType.params?.multiple ? 'multiple' : undefined"
-    placeholder="请选择"
-    class="bg-[#f3f3f7] dark:bg-[rgba(255,255,255,0.08)] text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] rounded-[8px]"
-    style="width: 100%;"
-  >
-    <a-select-option v-for="(op, index) in itemData.options" :key="index" :value="op?.label ? op.value : op.rId">
-      <template v-if="op?.label">
-        {{ op.label }}
-      </template>
-      <template v-else>
-        <span v-for="(it, idx) in op.value.value" :key="idx">
-          <hr v-if="it.type === 'var'" class="dialog-tag-input-hr" :data-name="it.value">
-          <span v-else>{{ it.value }}</span>
-        </span>
-      </template>
-    </a-select-option>
-  </a-select>
+  <AtomSelect v-if="itemType === ATOM_FORM_TYPE.SELECT" v-model:value="selectValue" :render-data="itemData" />
   <AtomRemoteSelect
     v-if="itemType === ATOM_FORM_TYPE.REMOTEPARAMS"
     :render-data="itemData"
@@ -423,13 +411,13 @@ inputListListener(itemData, itemType)
 .editor {
   width: calc(100% - 42px);
   padding: 0 5px;
-  white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  --custom-cursor-size: 18px;
   margin-right: 3px;
+  --custom-cursor-size: 18px;
+  white-space: pre; // 保留换行符和空格，但不自动换行
+  overflow: auto;
+  
   &::-webkit-scrollbar {
-    height: 0px;
+    display: none;
   }
 
   &:focus {

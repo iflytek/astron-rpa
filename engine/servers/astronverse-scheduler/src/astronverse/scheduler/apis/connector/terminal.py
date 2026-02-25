@@ -6,30 +6,37 @@ from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.core.terminal.terminal import Terminal
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 router = APIRouter()
 
 
+class TerminalStartReq(BaseModel):
+    start_watch: bool = False
+
+
 @router.post("/start")
-def terminal_start(svc: Svc = Depends(get_svc)):
+def terminal_start(req: TerminalStartReq, svc: Svc = Depends(get_svc)):
     svc.terminal_mod = True
+    svc.start_watch = req.start_watch
     Terminal.register(svc)  # 强行注册一下
     Terminal.upload(svc)  # 强行更新一下
     if svc.executor_mg:
         svc.executor_mg.close_all()  # 关闭正在进行的任务
-    svc.trigger_server.update_config(svc.terminal_mod)
+    svc.trigger_server.update_config(svc.terminal_mod)  # 触发器切换模式
     return res_msg(msg="启动成功", data=None)
 
 
 @router.post("/end")
 def terminal_end(svc: Svc = Depends(get_svc)):
     svc.terminal_mod = False
+    svc.start_watch = False
     Terminal.upload(svc)  # 强行更新一下
     if svc.vnc_server:
         svc.vnc_server.close()  # 强制关闭不必要的服务
     if svc.executor_mg:
         svc.executor_mg.close_all()  # 关闭正在进行的任务
-    svc.trigger_server.update_config(svc.terminal_mod)
+    svc.trigger_server.update_config(svc.terminal_mod)  # 触发器切换模式
     return res_msg(msg="结束成功", data=None)
 
 
@@ -47,6 +54,7 @@ def terminal_ping(svc: Svc = Depends(get_svc)):
                     "width": 0,  # 屏幕框
                     "height": 0,  # 屏幕高
                     "terminal_mod": svc.terminal_mod,  # 模式
+                    "start_watch": svc.start_watch,  # 是否开启监听
                     "vnc_port": "",  # 端口
                     "curr_status": False,  # 当前状态
                     "curr_task_name": "",  # 只有curr_status为true才有效
@@ -74,6 +82,7 @@ def terminal_ping(svc: Svc = Depends(get_svc)):
                 "width": screenshot.width,  # 屏幕框
                 "height": screenshot.height,  # 屏幕高
                 "terminal_mod": svc.terminal_mod,  # 模式
+                "start_watch": svc.start_watch,  # 是否开启监听
                 "vnc_port": svc.vnc_server.vnc_ws_port if svc.vnc_server else "",  # 端口
                 "curr_status": svc.executor_mg.status(),  # 当前状态
                 "curr_task_name": svc.executor_mg.curr_task_name if curr_status else "",  # 只有curr_status为true才有效

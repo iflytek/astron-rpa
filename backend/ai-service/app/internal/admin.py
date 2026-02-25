@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
+
 from app.dependencies import get_user_point_service
-from app.services.point import UserPointService, PointTransactionType
+from app.services.point import PointTransactionType, UserPointService
 
 router = APIRouter()
 

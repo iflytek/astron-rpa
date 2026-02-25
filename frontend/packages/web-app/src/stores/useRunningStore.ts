@@ -207,9 +207,9 @@ export const useRunningStore = defineStore('running', () => {
 
   // 关闭执行过程中创建的窗口
   const closeCreatedWindows = () => {
-    createdWindowLabels.forEach(label => {
-      windowManager.closeWindow(label)
-    })
+    // 关闭日志弹窗
+    windowManager.closeWindow(WINDOW_NAME.LOGWIN)
+    createdWindowLabels.forEach(label => windowManager.closeWindow(label))
     createdWindowLabels = []
   }
 
@@ -269,6 +269,7 @@ export const useRunningStore = defineStore('running', () => {
 
     line && (runParams.line = line)
     end_line && (runParams.end_line = end_line)
+    processStore.isComponent && (runParams.is_custom_component = processStore.isComponent)
 
     running.value = 'run'
     start(runParams)
@@ -276,7 +277,10 @@ export const useRunningStore = defineStore('running', () => {
   }
 
   const startDebug = (projectId: string | number, processId: string | number) => {
-    const debugParams = { project_id: projectId, process_id: processId, debug: 'y' }
+    const debugParams: StartExecutorParams = { project_id: projectId, process_id: processId, debug: 'y' }
+
+    processStore.isComponent && (debugParams.is_custom_component = processStore.isComponent)
+
     running.value = 'debug'
     start(debugParams)
   }

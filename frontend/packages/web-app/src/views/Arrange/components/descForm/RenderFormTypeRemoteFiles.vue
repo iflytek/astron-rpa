@@ -13,7 +13,7 @@ const { itemData } = defineProps({
 })
 const sharedData = useSharedData()
 const fileName = computed(() => {
-  return sharedData.sharedFiles.find(i => i.fileId === itemData.value[0]?.value)?.fileName || ''
+  return sharedData.sharedFiles.find(i => i.fileId === itemData.value?.[0]?.value)?.fileName || ''
 })
 </script>
 

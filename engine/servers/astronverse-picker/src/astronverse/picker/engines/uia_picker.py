@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 import pyautogui
 import uiautomation as auto
-from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect
+from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect, BROWSER_UIA_POINT_CLASS
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
@@ -632,35 +632,36 @@ class UIAOperate:
     def get_web_control(
         cls,
         control: auto.Control,
-        target_class_names: list,
         app: APP = None,
         point=None,
     ) -> tuple[bool, int, int, Any]:
-        # logger.info(f"get_web_control app: {app}")
         x = point.x
         y = point.y
+        point_cfg = BROWSER_UIA_POINT_CLASS.get(app.value)
+        if not point_cfg:
+            return False, 0, 0, 0
+        tag_value, tag = point_cfg
         while control:
-            if app == APP.Firefox:
+            if app in [APP.Firefox]:
+                # Firefox: 向下遍历子树查找，需要边界判断
                 for child, _ in auto.WalkControl(control, includeTop=True, maxDepth=10):
-                    if child.AutomationId == "tabbrowser-tabpanels":
-                        if (
-                            x >= child.BoundingRectangle.left
-                            and x <= child.BoundingRectangle.right
-                            and y >= child.BoundingRectangle.top
-                            and y <= child.BoundingRectangle.bottom
-                        ):
-                            bound = child.BoundingRectangle
+                    if child.AutomationId == tag_value:
+                        bound = child.BoundingRectangle
+                        if bound.left <= x <= bound.right and bound.top <= y <= bound.bottom:
                             return True, bound.top, bound.left, child.NativeWindowHandle
                         else:
                             return False, 0, 0, 0
             else:
-                if control.ClassName in target_class_names:
+                # 其他浏览器: 向上逐级检查当前控件的 ClassName
+                if tag == "ClassName":
+                    tag_match = control.ClassName
+                elif tag == "AutomationId":
+                    tag_match = control.AutomationId
+                else:
+                    tag_match = ""
+                if tag_match == tag_value:
                     bound = control.BoundingRectangle
                     return True, bound.top, bound.left, control.NativeWindowHandle
-                    # if UIAOperate.is_control_value_diff_from_web_inject(control):
-                    #     return True, bound.top, bound.left, control.NativeWindowHandle
-                    # else:
-                    #     return False, bound.top, bound.left, control.NativeWindowHandle
             control = control.GetParentControl()
         return False, 0, 0, None
 

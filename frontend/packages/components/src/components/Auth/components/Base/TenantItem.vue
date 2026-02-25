@@ -28,7 +28,7 @@ function handleClick() {
 
 <template>
   <div
-    class="relative flex items-center cursor-pointer px-[12px] py-[8px] mb-[12px] border rounded-[12px] hover:border-[#6366f1]/50" :class="[
+    class="tenant-item relative flex items-center cursor-pointer px-[12px] py-[8px] mb-[12px] border rounded-[12px] hover:border-[#6366f1]/50" :class="[
       customClass,
       isActive
         ? 'border-[#6366f1] bg-[#6366f1]/5'

@@ -89,11 +89,13 @@ class Socket:
             right = box.get("Right") if box else None
             bottom = box.get("Bottom") if box else None
 
-            print(f"Received coordinates:operation={operation} left={left}, top={top}, right={right}, bottom={bottom}")
+            logger.info(
+                f"Received coordinates:operation={operation} left={left}, top={top}, right={right}, bottom={bottom}"
+            )
             return operation, (left, top, right, bottom)
 
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
+            logger.info(f"Error decoding JSON: {e}")
 
     def send_rect(self, operation="picking", status="", rect=(0, 0, 0, 0), msg=""):
         try:
@@ -113,11 +115,11 @@ class Socket:
             }
             # 将消息转换为 JSON 格式
             json_message = json.dumps(message)
-            print(json_message)
+            logger.info(json_message)
             # 发送消息
             self.send_msg(json_message.encode("utf-8"))
         except Exception as e:
-            print(f"Error sending message: {e}")
+            logger.info(f"Error sending message: {e}")
 
     def send_signal(self, operation, status):
         try:
@@ -126,7 +128,7 @@ class Socket:
             json_message = json.dumps(message)
             self.send_msg(json_message.encode("utf-8"))
         except Exception as e:
-            print(f"Error sending message: {e}")
+            logger.info(f"Error sending message: {e}")
 
 
 class CVPicker:
@@ -248,8 +250,8 @@ class CVPicker:
         """
 
         self.current_keys.add(key)
-        print("press key num: {}".format(len(self.current_keys)))
-        print("key:{}".format(key))
+        logger.info("press key num: {}".format(len(self.current_keys)))
+        logger.info("key:{}".format(key))
 
         if key == keyboard.Key.esc:
             # 按下ESC 进入退出状态
@@ -287,8 +289,8 @@ class CVPicker:
     def on_release(self, key):
         try:
             self.current_keys.remove(key)
-            print("release key num: {}".format(len(self.current_keys)))
-            print(len(self.current_keys))
+            logger.info("release key num: {}".format(len(self.current_keys)))
+            logger.info(len(self.current_keys))
 
         except KeyError:
             pass
@@ -303,7 +305,7 @@ class CVPicker:
             if not desktop_image:
                 raise NotImplementedError("桌面截图不存在")
             self.desktop_image = desktop_image
-            print(f"锚点拾取桌面截图尺寸：{self.desktop_image.width, self.desktop_image.height}")
+            logger.info(f"锚点拾取桌面截图尺寸：{self.desktop_image.width, self.desktop_image.height}")
 
         self.screen_width, self.screen_height = self.desktop_image.size
 
@@ -355,11 +357,11 @@ class CVPicker:
 
     def stop_receiver(self):
         if self.receiver is not None:
-            print("event Stopping receiver...")
+            logger.info("event Stopping receiver...")
             self.stop_event.set()
             # self.receiver.join()
             self.receiver = None
-            print("Receiver stopped.")
+            logger.info("Receiver stopped.")
 
     def run(self):
         # 使用 Socket 类进行通信
@@ -410,7 +412,7 @@ class CVPicker:
         self.receiver = threading.Thread(target=self.receive_message, args=(hl,))
         self.receiver.daemon = True  # 设置为守护线程
         self.receiver.start()
-        print("Receive start")
+        logger.info("Receive start")
         self.start_keyboard_listener()
         if self.pick_type == PickType.TARGET:
             self.__status = Status.START
@@ -419,7 +421,7 @@ class CVPicker:
 
     def handle_start(self, hl):
         hl.send_signal(operation="start", status="CV")
-        print("发送状态{}".format(self.__status))
+        logger.info("发送状态{}".format(self.__status))
         self.__status = Status.WAIT_SIGNAL
 
     def handle_wait_signal(self, hl):
@@ -429,7 +431,7 @@ class CVPicker:
         hl.send_signal(operation="start", status="hide")
         self.take_screenshot()
         hl.send_signal(operation="start", status="CV_CTRL")
-        print("状态{}已发送".format(self.__status))
+        logger.info("状态{}已发送".format(self.__status))
         self.__status = Status.CV_WAIT_TARGET
 
     def handle_cv_alt(self, hl):
@@ -439,7 +441,7 @@ class CVPicker:
             hl.send_signal(operation="start", status="CV_ALT")
         elif self.pick_type == PickType.ANCHOR:
             self.take_screenshot(self.anchor_pick_img)
-        print("状态{}已发送".format(self.__status))
+        logger.info("状态{}已发送".format(self.__status))
         self.__status = Status.SEND_WINDOW
 
     def handle_send_window(self, hl):
@@ -477,9 +479,9 @@ class CVPicker:
     def handle_confirm(self, hl):
         if self.operation == "confirm" and self.target_rect:
             if self.pick_type == PickType.TARGET:
-                print("目标元素坐标：{}".format(self.target_rect))
+                logger.info("目标元素坐标：{}".format(self.target_rect))
                 self.pick_res = self.check_target(self.target_rect)
-                print("获取到的目标数据:{}".format(self.pick_res))
+                logger.info("获取到的目标数据:{}".format(self.pick_res))
                 if self.pick_res:
                     self.__status = Status.OVER
                 else:
@@ -513,34 +515,34 @@ class CVPicker:
 
     def handle_cv_shift(self, hl):
         hl.send_signal(operation="initialize", status="SHIFT")
-        print(f"已发送状态，当前状态为{self.__status}")
+        logger.info(f"已发送状态，当前状态为{self.__status}")
         self.__status = Status.START
         self.initialize()
         self.clear_selected_boxes()
 
     def handle_cancel(self, hl):
         hl.send_signal(operation="initialize", status="ESC")
-        print(f"已发送取消操作，当前状态为{self.__status}")
+        logger.info(f"已发送取消操作，当前状态为{self.__status}")
         self.current_keys.clear()
         self.run_signal = False
 
     def handle_over(self, hl):
         hl.send_signal(operation="initialize", status="ESC")
-        print(f"已发送取消操作，当前状态为{self.__status}")
+        logger.info(f"已发送取消操作，当前状态为{self.__status}")
         self.current_keys.clear()
         self.run_signal = False
 
     def check_target(self, target_rect):
         if target_rect:
-            print("进入元素唯一校验阶段")
+            logger.info("进入元素唯一校验阶段")
             target_img = self.desktop_image.crop(target_rect)
-            print("target_rect:{}".format(target_rect))
-            print("desktop_image:{}".format(self.desktop_image.size))
+            logger.info("target_rect:{}".format(target_rect))
+            logger.info("desktop_image:{}".format(self.desktop_image.size))
             # target_img.save(target_filepath)
             res = None
 
-            if not AnchorMatch.check_if_multiple_elements(self.desktop_image, target_img, match_similarity=0.80):
-                print("元素不唯一，自动选取锚点")
+            if not AnchorMatch.check_if_multiple_elements(self.desktop_image, target_img, match_similarity=0.95):
+                logger.info("元素不唯一，自动选取锚点")
                 if not self.bboxes:
                     picker_cv = ImageDetector(self.partial_screenshot)
                     output_img, self.selected_boxes = picker_cv.detect_objects("#00FF00", 1)
@@ -562,16 +564,16 @@ class CVPicker:
     def check_anchor(self, anchor_rect):
         if anchor_rect:
             start_time = time.time()
-            print("进入锚点唯一校验阶段:{}".format(start_time))
+            logger.info("进入锚点唯一校验阶段:{}".format(start_time))
             anchor_img = self.desktop_image.crop(anchor_rect)
             # anchor_img.save(anchor_filepath)
             res = None
             if not AnchorMatch.check_if_multiple_elements(self.desktop_image, anchor_img, match_similarity=0.95):
-                print("锚点必须为唯一元素，请重新选取")
+                logger.info("锚点必须为唯一元素，请重新选取")
             else:
                 res = PickCore.json_res(None, None, anchor_img, anchor_rect, self.desktop_image)
 
-            print("锚点唯一校验结束:{}".format(time.time() - start_time))
+            logger.info("锚点唯一校验结束:{}".format(time.time() - start_time))
             return res
 
     def initialize(self):

@@ -23,8 +23,8 @@ class Storage(ABC):
 
 
 class StorageCache:
-    def __init__(self, base_dir: str = "resource", resource_cache: bool = True):
-        self.base_dir = base_dir
+    def __init__(self, base_dir: str = "resource", resource_cache: bool = True, resource_version: int = 0):
+        self.base_dir = os.path.join(base_dir, "v_{}".format(resource_version))
         self.resource_cache = resource_cache
         self.memory = {}
         self.resource_type_conf = {
@@ -80,15 +80,17 @@ class StorageCache:
 
 
 class HttpStorage(Storage):
-    def __init__(self, gateway_port: str = None, mode: str = "EDIT_PAGE"):
+    def __init__(self, gateway_port: str = None, mode: str = "EDIT_PAGE", version: str = ""):
         self.gateway_port = gateway_port
+        try:
+            version = int(version)
+        except Exception as e:
+            version = 0
 
-        # if mode in ["PROJECT_LIST", "EDIT_PAGE"]:
-        #     resource_cache = False
-        # else:
-        #     resource_cache = True
         resource_cache = False
-        self.cache_manager = StorageCache(resource_cache=resource_cache)
+        if version > 1:
+            resource_cache = True
+        self.cache_manager = StorageCache(resource_cache=resource_cache, resource_version=version)
 
     def __http__(self, shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post") -> Any:
         """HTTP request helper"""

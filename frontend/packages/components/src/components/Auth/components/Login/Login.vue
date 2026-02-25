@@ -70,7 +70,7 @@ watch(() => phone.formData.agreement, (v) => {
         欢迎使用星辰RPA
       </div>
       <div class="text-[12px] text-[#000000A6] mb-[24px] text-center dark:text-[#FFFFFF] font-sans">
-        使用您的{{authType === 'casdoor' ? 'Casdoor' : '讯飞'}}账号
+        使用您的{{ authType === 'casdoor' ? 'Casdoor' : '讯飞' }}账号
       </div>
     </template>
     <Tabs

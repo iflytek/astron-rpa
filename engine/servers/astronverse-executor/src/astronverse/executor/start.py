@@ -5,34 +5,44 @@ import threading
 import time
 import traceback
 from urllib.parse import unquote
-
+from astronverse.executor.error import *
 from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.config import Config
 from astronverse.executor.debug.apis.ws import Ws
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.debug_svc import DebugSvc
-from astronverse.executor.error import *
 from astronverse.executor.flow.flow import Flow
 from astronverse.executor.flow.flow_svc import FlowSvc
-from astronverse.executor.logger import logger
 from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 def flow_start(svc, args):
-    flow = Flow(svc=svc)
-    flow.gen_component(
-        path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version
-    )
-    flow.gen_code(
-        path=svc.conf.gen_core_path,
-        project_id=args.project_id,
-        mode=args.mode,
-        version=args.version,
-        process_id=args.process_id,
-        line=int(args.line),
-        end_line=int(args.end_line),
-    )
+    package_info = svc.load_package_info()
+    try:
+        old_version = int(package_info.get("project_info", {}).get("version", ""))
+    except Exception as e:
+        old_version = 0
+    try:
+        new_version = int(args.version)
+    except Exception as e:
+        new_version = 0
+    if 0 < old_version == new_version:
+        pass
+    else:
+        flow = Flow(svc=svc)
+        flow.gen_component(
+            path=svc.conf.gen_component_path, project_id=args.project_id, mode=args.mode, version=args.version
+        )
+        flow.gen_code(
+            path=svc.conf.gen_core_path,
+            project_id=args.project_id,
+            mode=args.mode,
+            version=args.version,
+            process_id=args.process_id,
+            line=int(args.line),
+            end_line=int(args.end_line),
+        )
 
 
 def debug_start(args, svc, flow_tip=None):
@@ -85,6 +95,7 @@ def debug_start(args, svc, flow_tip=None):
 
     # 执行代码
     debug = Debug(svc=svc, args=args)
+    svc.debug = debug
     svc.debug_handler = debug
     svc.report.info(
         ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START)
@@ -132,6 +143,7 @@ def start():
 
     parser.add_argument("--resource_dir", default="", help="资源目录", required=False)
     parser.add_argument("--recording_config", default="", help="录屏", required=False)
+    parser.add_argument("--is_custom_component", default="n", help="是否是自定义组件 y/n", required=False)
     args = parser.parse_args()
 
     logger.debug("start {}".format(args))
@@ -151,6 +163,7 @@ def start():
     Config.wait_web_ws = args.wait_web_ws == "y"
     Config.wait_tip_ws = args.wait_tip_ws == "y"
     Config.debug_mode = args.debug == "y"
+    Config.is_custom_component = args.is_custom_component == "y"
 
     if args.run_param:
         try:
@@ -190,22 +203,25 @@ def start():
                         "name": p.get("varName"),
                     }
                 )
-                temp_run_param[p.get("varName")] = eval(
-                    param.show_value(), {}, {}
-                )  # 外部参数，只有简单的逻辑处理，不会引用变量
+                if param.show_value():
+                    temp_run_param[p.get("varName")] = eval(
+                        param.show_value(), {}, {}
+                    )  # 外部参数，只有简单的逻辑处理，不会引用变量
+                else:
+                    temp_run_param[p.get("varName")] = ""
         args.run_param = temp_run_param  # 生成python脚本的外部参数
 
         # 执行代码
         debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
         debug_start(svc=debug_svc, args=args, flow_tip=flow_tip)
     except BaseException as e:
+        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
-            debug_svc.end(ExecuteStatus.FAIL, reason=e.message)
-        logger.debug("error {} traceback {}".format(e, traceback.format_exc()))
+            debug_svc.end(ExecuteStatus.FAIL, reason=e.code.message)
         return
     except Exception as e:
+        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
             debug_svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
-        logger.debug("error {} traceback {}".format(e, traceback.format_exc()))
         return
     logger.debug("end")

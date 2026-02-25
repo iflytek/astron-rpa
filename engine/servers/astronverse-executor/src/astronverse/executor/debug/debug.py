@@ -1,3 +1,4 @@
+import copy
 import traceback
 
 from astronverse.actionlib import ReportCode, ReportCodeStatus, ReportFlow, ReportFlowStatus, ReportType
@@ -18,27 +19,53 @@ class Debug:
             err_handler=python_base_error,
         )
         self.svc.main_process_id = args.process_id
-
-        # 让 DebugSvc 负责加载数据
-        svc.load_package_info()
-
         self.file_to_process = {}
+        self.process = {}
         for i, v in self.svc.ast_globals.process_info.items():
+            # 获取主流程id
             self.file_to_process[v.process_file_name] = v.process_id
             if not self.svc.main_process_id and v.process_name == svc.conf.main_process_name:
                 self.svc.main_process_id = v.process_id
 
+            # 获取主流程的起始行
+            if v.process_id == self.svc.main_process_id:
+                try:
+                    self.svc.main_process_start_line = v.process_meta[0][0]
+                except Exception as e:
+                    self.svc.main_process_start_line = 1
+
+            # 获取流程信息
+            process_meta = {}
+            if v.process_meta:
+                for m in v.process_meta:
+                    process_meta[m[0]] = m
+            new_v = copy.copy(v)
+            new_v.process_meta = process_meta
+            self.process[v.process_id] = new_v
+
+        # 获取meta数据
+        self.atomic_params_meta = {}
+        for i, v in self.svc.ast_globals.atomic_info.items():
+            self.atomic_params_meta[v.key] = v.params_name
+
+    def find_log_position(self):
+        file, line = self.bdb.find_nearest_caller()
+        process_id = ""
+        if file in self.file_to_process:
+            process_id = self.file_to_process[file]
+        return process_id, line
+
     def notify(self, typ, **kw):
         """打印演示"""
 
+        file = kw.get("file")
+        process_id = ""
+        if file in self.file_to_process:
+            process_id = self.file_to_process[file]
+
+        line = kw.get("line")
+
         if typ == "breakpoint" or typ == "step":
-            file = kw.get("file")
-            process_id = ""
-            if file in self.file_to_process:
-                process_id = self.file_to_process[file]
-
-            line = kw.get("line")
-
             self.svc.report.info(
                 ReportCode(
                     log_type=ReportType.Code,
@@ -51,16 +78,21 @@ class Debug:
             )
         else:
             exc = kw.get("exc")
-            if isinstance(exc, IgnoreException) or isinstance(exc, ParamException) or isinstance(exc, BaseException):
-                error_str = exc.code.message
-            else:
-                error_str = str(exc)
+            exc_msg = kw.get("exc_msg")
+            if isinstance(exc, ParamException):
+                if process_id in self.process and line in self.process[process_id].process_meta:
+                    meta = self.process[process_id].process_meta[line]
+                    key = meta[3]
+                    if key in self.atomic_params_meta:
+                        for k, v in self.atomic_params_meta[key].items():
+                            exc_msg = exc_msg.replace(k, "{}({})".format(k, v))
             self.svc.report.error(
-                ReportFlow(
-                    log_type=ReportType.Flow,
-                    status=ReportFlowStatus.TASK_ERROR,
-                    result=ExecuteStatus.FAIL.value,
-                    msg_str="{} {}".format(MSG_EXECUTION_ERROR, error_str),
+                ReportCode(
+                    log_type=ReportType.Code,
+                    process_id=process_id,
+                    line=line,
+                    status=ReportCodeStatus.ERROR,
+                    msg_str="{}".format(exc_msg),
                     error_traceback=traceback.format_exc(),
                 )
             )
@@ -88,7 +120,7 @@ class Debug:
         # 断点设置
         if self.svc.debug_model:
             # 如果开启了debug,需要手动添加第一个默认第一个节点为断点
-            self.set_breakpoint(self.svc.main_process_id, 1)
+            self.set_breakpoint(self.svc.main_process_id, self.svc.main_process_start_line)
 
         for k, v in self.svc.ast_globals.process_info.items():
             for b in v.breakpoint:

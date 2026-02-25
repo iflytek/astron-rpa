@@ -1,9 +1,12 @@
 """Enterprise module"""
 
+import base64
 import json
 import os
 import urllib.parse
+from json import JSONDecodeError
 from pathlib import Path
+from typing import Optional
 
 import requests
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
@@ -11,6 +14,58 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, Ciphertext
 from astronverse.baseline.logger.logger import logger
 from astronverse.enterprise.error import *
+
+cache_remote_var_key: str = ""
+cache_remote_var: dict = {}
+
+
+def http(shot_url: str, params: Optional[dict], data: Optional[dict], meta: str = "post"):
+    """post 请求"""
+    gateway_port = atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
+    logger.debug("请求开始 {}:{}:{}".format(shot_url, params, data))
+    if meta == "post":
+        response = requests.post("http://127.0.0.1:{}{}".format(gateway_port, shot_url), json=data, params=params)
+    else:
+        response = requests.get("http://127.0.0.1:{}{}".format(gateway_port, shot_url), params=params)
+    if response.status_code != 200:
+        raise BaseException(
+            SERVER_ERROR_FORMAT.format(response.status_code), "服务器错误{}".format(response.status_code)
+        )
+
+    try:
+        json_data = response.json()
+    except JSONDecodeError:
+        base64_encoded_data = base64.b64encode(response.content).decode("utf-8")
+        return base64_encoded_data
+    logger.debug("请求结束 {}:{}".format(shot_url, json_data))
+    if json_data.get("code") != "0000" and json_data.get("code") != "000000":
+        msg = json_data.get("message", "")
+        raise BaseException(SERVER_ERROR_FORMAT.format(msg), "服务器错误{}".format(json_data))
+    return json_data.get("data", {})
+
+
+def get_remote_var_key() -> str:
+    global cache_remote_var_key
+    if cache_remote_var_key:
+        return cache_remote_var_key
+
+    res = http("/api/robot/robot-shared-var/shared-var-key", None, None, "get")
+    cache_remote_var_key = res.get("key", "")
+    return cache_remote_var_key
+
+
+def get_remote_var_value(key: str) -> dict:
+    global cache_remote_var
+
+    if key in cache_remote_var:
+        return cache_remote_var[key]
+
+    res = http("/api/robot/robot-shared-var/get-batch-shared-var", None, {"ids": [key]}, "post")
+    if res:
+        cache_remote_var[key] = res[0]
+    else:
+        cache_remote_var[key] = None
+    return cache_remote_var[key]
 
 
 class Enterprise:
@@ -135,7 +190,18 @@ class Enterprise:
             response = requests.get(download_url, params=params, timeout=30, stream=True)
 
             # 检查响应状态
-            if response.status_code == 200:
+            if response.status_code != 200:
+                logger.error(f"下载失败，状态码：{response.status_code}，响应：{response.text}")
+                raise BaseException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), "请检查下载接口！")
+
+            content_type = response.headers.get("Content-Type", "").lower()
+            if "application/json" in content_type:
+                error = response.json()
+                if not error.get("success"):
+                    raise BaseException(
+                        FILE_DOWNLOAD_FAILED_FORMAT.format(error.get("message", "")), "请检查下载接口！"
+                    )
+            elif "application/octet-stream" in content_type:
                 # 从响应头中获取文件名，如果没有则使用默认名称
                 content_disposition = response.headers.get("content-disposition", "")
                 if "filename=" in content_disposition:
@@ -168,11 +234,7 @@ class Enterprise:
                 logger.info(f"下载成功：文件已保存到 {save_path}")
                 return save_path
             else:
-                logger.error(f"下载失败，状态码：{response.status_code}，响应：{response.text}")
-                raise BaseException(
-                    FILE_DOWNLOAD_FAILED_FORMAT.format(response.text),
-                    "请检查下载接口！",
-                )
+                raise NotImplementedError()
         except Exception as e:
             logger.error(f"下载过程中发生错误：{str(e)}")
             raise BaseException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
@@ -184,7 +246,7 @@ class Enterprise:
         inputList=[
             atomicMg.param(
                 "shared_variable",
-                types="Dict",
+                types="Str",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.REMOTEPARAMS.value),
             ),
         ],
@@ -192,19 +254,22 @@ class Enterprise:
             atomicMg.param("variable_data", types="Dict"),
         ],
     )
-    def get_shared_variable(shared_variable: dict):
+    def get_shared_variable(shared_variable: str):
         """
         Get shared variable from remote
         """
-        sub_var_list = shared_variable.get("subVarList", [])
+        key = get_remote_var_key()
+        value = get_remote_var_value(shared_variable)
+
+        sub_var_list = value.get("subVarList", [])
         if not sub_var_list:
             return None
         res = {}
         for sub_var in sub_var_list:
             if sub_var["encrypt"]:
                 c = Ciphertext(sub_var.get("varValue"))
-                c.set_key(sub_var.get("key"))
-                res[sub_var.get("varName")] = c
+                c.set_key(key)
+                res[sub_var.get("varName")] = c.decrypt()
             else:
                 res[sub_var.get("varName")] = sub_var.get("varValue")
         return res

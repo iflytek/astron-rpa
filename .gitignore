@@ -158,6 +158,7 @@ coverage.out
 
 resources/*.7z
 resources/*.sha256.txt
+resources/vnc/*
 frontend/pnpm-lock.yaml
 engine/servers/astronverse-executor/astron/*
 engine/servers/astronverse-executor/astron_extension/*

@@ -283,6 +283,21 @@ def browser_check_running(plugin_op: BrowserPlugin):
     return res_msg(code=ResCode.ERR, msg="检测失败", data=None)
 
 
+@router.post("/browser/plugins/install_all_updates")
+def update_installed_plugins():
+    """
+    更新已安装的浏览器插件
+    """
+    try:
+        from astronverse.browser_plugin.browser import UpdateManager
+
+        install_results = UpdateManager().update_installed_plugins()
+        return res_msg(msg="更新完成", data=install_results)
+    except Exception as e:
+        logger.exception(e)
+        return res_msg(code=ResCode.ERR, msg="更新失败", data=None)
+
+
 @router.post("/clipboard/get")
 def clipboard_get(is_html: bool):
     """

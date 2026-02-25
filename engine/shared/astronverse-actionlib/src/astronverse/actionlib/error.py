@@ -13,13 +13,12 @@ CONFIG_TYPE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("配置文件解析
 REQUIRED_PARAM_MISSING: ErrorCode = ErrorCode(BizCode.LocalErr, _("缺少必填参数: {}"))
 PARAM_ARGS_NO_SUPPORT_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数不支持args: {}"))
 
-PARAM_REQUIRED_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数({})必填"))
-PARAM_VALUE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})参数的值错误{}"))
-PARAM_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})的值类型错误{}"))
-PARAM_CONVERT_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})的值转换成{}失败，原始值:{}"))
-PARAM_VERIFY_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})参数验证失败: {}"))
-
-VALUE_IS_EMPTY: ErrorCode = ErrorCode(BizCode.LocalErr, _("({})参数值不能为空"))
+PARAM_REQUIRED_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数 {} 必填"))
+PARAM_VALUE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数 {} 的值错误{}"))
+PARAM_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("{} 的值类型错误{}"))
+PARAM_CONVERT_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数 {} 的值转换成 {} 失败，原始值: {}"))
+PARAM_VERIFY_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数 {} 验证失败: {}"))
+VALUE_IS_EMPTY: ErrorCode = ErrorCode(BizCode.LocalErr, _("{} 参数值不能为空"))
 
 ReportStartMsgFormat = _("{} 执行第{}条指令 [{}]")
 ReportCodeError = _("执行错误")

@@ -136,6 +136,10 @@ class PickerRequestHandler:
                 return OperationResult.cancel().to_dict()
             elif isinstance(res, dict):
                 res["picker_type"] = input_data.pick_type.name
+                # 拾取成功后，显示透明覆盖窗口阻止对其他区域的操作，直到元素保存
+                from astronverse.picker.core.block_overlay import block_overlay
+
+                block_overlay.show()
                 return OperationResult.success(data=res).to_dict()
             else:
                 return OperationResult.error(res).to_dict()
@@ -162,10 +166,13 @@ class PickerRequestHandler:
             return OperationResult.error(str(e)).to_dict()
 
     async def _handle_smart_component_end(self, input_data: PickerRequire) -> dict[str, Any]:
-        """处理拾取开始"""
+        """处理智能组件拾取结束（保存/取消）"""
         try:
+            from astronverse.picker.core.block_overlay import block_overlay
             from astronverse.picker.core.highlight_client import highlight_client
 
+            # 先隐藏覆盖窗口，恢复所有区域的操作
+            block_overlay.hide()
             highlight_client.hide_wnd()
             return OperationResult.success(data="").to_dict()
         except Exception as e:

@@ -9,15 +9,14 @@ export interface IMenuItem {
   fn?: () => void
 }
 
-defineProps({
-  trigger: {
-    type: String,
-    default: 'contextmenu', // click-点击...触发下拉,  contextmenu-右键菜单触发，
-  },
-  menus: {
-    type: Array as () => Array<IMenuItem>,
-    default: () => [],
-  },
+interface DropdownMenuProps {
+  trigger?: Trigger
+  menus: IMenuItem[]
+}
+
+const props = withDefaults(defineProps<DropdownMenuProps>(), {
+  trigger: 'contextmenu',
+  menus: () => [],
 })
 
 const emit = defineEmits(['click'])
@@ -30,14 +29,14 @@ function menuItemClick(item: IMenuItem) {
 
 <template>
   <a-dropdown
-    :trigger="[trigger] as Trigger[]"
+    :trigger="[props.trigger]"
     :destroy-popup-on-hide="true"
     overlay-class-name="subProcessItem-overlay"
   >
     <slot />
     <template #overlay>
       <a-menu>
-        <a-menu-item v-for="item in menus" :key="item.key" class="process-contextmenu-item" :disabled="item.disabled" @click="() => menuItemClick(item)">
+        <a-menu-item v-for="item in props.menus" :key="item.key" class="process-contextmenu-item" :disabled="item.disabled" @click="() => menuItemClick(item)">
           <slot name="menu-item" :item="item">
             {{ item.name }}
           </slot>

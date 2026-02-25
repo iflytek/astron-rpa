@@ -42,9 +42,6 @@ function handleOkConfirm() {
 <style lang='scss' scoped>
 :deep(.editor) {
   height: 300px;
-  overflow: auto;
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
+  white-space: pre-wrap !important; // 保留换行符和空格，且自动换行
 }
 </style>

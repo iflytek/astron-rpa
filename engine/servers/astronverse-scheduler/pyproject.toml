@@ -15,12 +15,14 @@ dependencies = [
     "pyperclip",
     "sseclient",
     "websocket-client",
+    "websockify",
     "pyautogui",
     "pywin32; sys_platform == 'win32'",
     "PyQt5; sys_platform == 'linux'",
     "python-lsp-server[pyflakes,mccabe]",
     "openpyxl",
     "watchdog",
+    "keyring",
 ]
 
 [tool.uv.sources]
