@@ -99,7 +99,8 @@ class VNCServer(IServer):
             from astronverse.scheduler.core.terminal.vnc import VNC
 
             self.vnc = VNC(self.svc, self.vnc_port, self.vnc_ws_port, pwd=self.vnc_pwd)
-            self.vnc.start()
+            if not self.vnc.start():
+                self.vnc = None
         except Exception as e:
             self.vnc = None
 
