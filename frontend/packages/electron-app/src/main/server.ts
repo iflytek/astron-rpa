@@ -94,6 +94,26 @@ export async function startServer() {
 }
 
 /**
+ * 关闭所有子进程
+ */
+export function closeSubProcess() {
+  return new Promise<void>((resolve) => {
+    exec(
+      `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --stop="True"`,
+      { cwd: appWorkPath },
+      (error) => {
+        if (error) {
+          logger.error(`${envJson.SCHEDULER_NAME} closeSubProcess error: ${error}`)
+        } else {
+          logger.info(`${envJson.SCHEDULER_NAME} closeSubProcess success`)
+        }
+        resolve()
+      }
+    )
+  })
+}
+
+/**
  * 消息过滤器，处理从Python进程接收到的消息
  * @param msg - 从Python进程输出的原始消息字符串
  */
