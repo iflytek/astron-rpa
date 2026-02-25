@@ -9,11 +9,11 @@ import { reduce } from 'lodash-es'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { CustomDialog } from '@/views/Arrange/components/customDialog'
 import { UserFormDialogModal } from '@/views/Arrange/components/customDialog/components'
-import { ContractValidateModal, EmailTextReplaceModal, TextareaModal } from '@/views/Arrange/components/tools/components'
 import { GLOBAL_VAR_TYPE, ORIGIN_VAR, PARAMETER_VAR_TYPE, PROCESS_VAR_TYPE } from '@/views/Arrange/config/atom'
 
 import type { FormItemProps, FormItemEmits } from './index'
 import { getRealValue, getUserFormOption } from '../hooks/usePreview'
+import { ContractValidateModal, EmailTextReplaceModal, TextareaModal } from '../modals'
 
 const props = defineProps<FormItemProps>()
 const emits = defineEmits<FormItemEmits>()

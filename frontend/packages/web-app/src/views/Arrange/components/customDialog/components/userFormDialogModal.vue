@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 
-import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
-
 import UserFormDialog from './userFormDialog.vue'
 import type { DialogOption } from '../types'
 

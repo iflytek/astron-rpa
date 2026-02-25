@@ -3,7 +3,7 @@ import { isArray } from 'lodash-es'
 import { ArrowsAltOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 
-import { TextareaModal } from '@/views/Arrange/components/tools/components'
+import { TextareaModal } from '../modals'
 import type { FormItemProps } from './index'
 
 const iconStyle = { fontSize: '16px', color: 'inherit' }

@@ -5,8 +5,7 @@ import { NiceModal } from '@rpa/components'
 import { Tag, theme } from 'ant-design-vue'
 import { ref, computed } from 'vue'
 
-import { ContractEleModal } from '@/views/Arrange/components/tools/components'
-
+import { ContractEleModal } from '../modals'
 import type { FormItemProps, FormItemEmits } from './index'
 
 type PresetDataItem = string

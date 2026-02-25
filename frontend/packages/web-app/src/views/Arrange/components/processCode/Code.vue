@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
-import { useTheme } from '@rpa/components'
+import { useTheme, CodeEditor as CodeEditorComponent } from '@rpa/components'
 
-import { getRootBaseURL } from '@/api/http/env'
+import { getBaseURL } from '@/api/http/env'
 
 import { useCodeState } from './useCodeState'
 import { CodeEditor } from '../../canvasManager'
@@ -16,8 +15,7 @@ const props = defineProps<ProcessCodeProps>()
 const { projectId, updateCode } = useCodeState(props)
 const { isDark } = useTheme()
 
-const baseUrl = `${getRootBaseURL()}/scheduler`
-const CodeEditorComponent = defineAsyncComponent(() => import('@rpa/components').then(m => m.CodeEditor))
+const baseUrl = `${getBaseURL()}/scheduler`
 </script>
 
 <template>
