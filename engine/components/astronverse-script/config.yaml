@@ -1,7 +1,7 @@
 atomic:
   Script.process:
     title: 运行子流程
-    comment: 运行子流程(@{process:子流程})
+    comment: 运行子流程 @{process:子流程}
     icon: run-sub-process
     helpManual: ''
     inputList:
@@ -17,7 +17,7 @@ atomic:
         tip: ''
   Script.module:
     title: 运行Python模块
-    comment: 运行Python模块(@{content:Python模块})
+    comment: 运行Python模块 @{content:Python模块}
     icon: run-python-module
     helpManual: ''
     inputList:
@@ -33,7 +33,7 @@ atomic:
         tip: ''
   Script.component:
     title: 运行组件
-    comment: 运行组件(@{component:组件})
+    comment: 运行组件 @{component:组件}
     icon: ''
     helpManual: ''
     inputList:

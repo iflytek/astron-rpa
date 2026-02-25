@@ -1,7 +1,7 @@
 atomic:
   Encrypt.md5_encrypt:
     title: MD5加密
-    comment: 对字符串(@{source_str})进行MD5加密
+    comment: 对字符串 @{source_str} 进行MD5加密
     icon: md5-encrypt
     helpManual: ''
     inputList:
@@ -20,7 +20,7 @@ atomic:
         tip: ''
   Encrypt.sha_encrypt:
     title: SHA加密
-    comment: 对字符串(@{source_str})进行SHA加密
+    comment: 对字符串 @{source_str} 进行SHA加密
     icon: sha-encrypt
     helpManual: ''
     inputList:
@@ -39,7 +39,7 @@ atomic:
         tip: ''
   Encrypt.symmetric_encrypt:
     title: 对称加密
-    comment: 对字符串(@{source_str})进行对称加密
+    comment: 对字符串 @{source_str} 进行对称加密
     icon: symmetric-encrypt
     helpManual: ''
     inputList:
@@ -55,7 +55,7 @@ atomic:
         tip: ''
   Encrypt.symmetric_decrypt:
     title: 对称解密
-    comment: 对字符串(@{source_str})进行对称解密
+    comment: 对字符串 @{source_str} 进行对称解密
     icon: symmetric-decrypt
     helpManual: ''
     inputList:
@@ -71,7 +71,7 @@ atomic:
         tip: ''
   Encrypt.base64_encoding:
     title: Base64编码
-    comment: 读取字符串或图片文件编码为Base64字符串，返回编码后的字符串(@{encoded_string})
+    comment: 读取字符串或图片文件编码为Base64字符串，返回编码后的字符串 @{encoded_string} 
     icon: base64-encode
     helpManual: ''
     inputList:
@@ -90,7 +90,7 @@ atomic:
         tip: ''
   Encrypt.base64_decoding:
     title: Base64解码
-    comment: 读取Base64字符串(@{string_data})，解码为字符串或图片文件
+    comment: 读取Base64字符串 @{string_data} ，解码为字符串或图片文件
     icon: base64-decode
     helpManual: ''
     inputList:

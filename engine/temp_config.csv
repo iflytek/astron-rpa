@@ -1,0 +1,289 @@
+atomic,title,comment
+Agent.call_dify,调用Dify工作流,调用Dify工作流 @{app_token} ，完成您指定的任务。
+Agent.call_dify_chatflow,调用Dify对话流,调用Dify对话流 @{app_token} ，完成您指定的任务。
+Agent.call_xcagent,调用星辰Agent流程,调用星辰Agent流程 @{flow_id} ，完成您指定的任务。
+Agent.call_astron_agent,,
+ChatAI.single_turn_chat,单轮会话,大模型将对你提出的问题： @{query} 进行回答。
+ChatAI.chat,多轮会话,大模型将扮演角色，并进行最多 (@{max_turns}) 问答次数。
+ChatAI.knowledge_chat,知识问答,大模型将读取的文件位于 @{file_path} 。
+ContractAI.get_factors,合同要素提取,提取合同 @{contract_content} 中的要素。
+DocumentAI.theme_expand,主题扩写,大模型将根据您给定的主题： @{theme_text} ，对其进行扩写。
+DocumentAI.sentence_expand,段落扩写,大模型将根据您给定的段落 @{paragraph_text} ，对其进行扩写。
+DocumentAI.sentence_reduce,段落缩写,大模型将根据您给定的段落 @{sentence_text} ，对其进行缩写。
+RecruitAI.generate_keywords,职位关键词生成,根据职位描述 @{job_description} 生成关键词。
+RecruitAI.rating_resume,简历评分,根据简历 @{resume_content} 评分。
+BrowserElement.wait_element,等待元素（web）,等待浏览器对象 @{browser_obj} 中元素 @{element_data} 的（@{ele_status}）
+BrowserElement.click,点击元素（web）,通过 @{button_type:点击} 的形式点击浏览器对象 @{browser_obj} 中的元素 @{element_data}
+BrowserElement.input,填写输入框（web）,在指定的浏览器对象 @{browser_obj} 中拾取输入框 @{element_data} ，以 @{fill_type:键盘输入/剪贴板输入} 的形式输入内容 ，将执行结果输出至 @{form_input}
+BrowserElement.hover_over,鼠标悬停在元素上（web）,鼠标悬停在浏览器对象 @{browser_obj} 中的元素 @{element_data} 上
+BrowserElement.screenshot,拾取元素截图（web）,拾取浏览器对象 @{browser_obj} 的元素 @{element_data} 并输出为图片
+BrowserElement.position_screenshot,元素位置截图（web）,获取浏览器对象 @{browser_obj} 的元素 @{element_data} 位置截图并输出为图片
+BrowserElement.scroll,网页滚动,通过 @{scroll_direction:横向/纵向} 的方向，从（@{x_scroll_type||y_scroll_type}）滚动浏览器对象 @{browser_obj} 的滚动条
+BrowserElement.scroll_into_view,元素置于可视区域（web）,将网页元素 @{element_data} 置于可视区域
+BrowserElement.similar,获取相似元素列表（web）,获取浏览器对象 @{browser_obj} 中与拾取到的元素 @{element_data} 相似的元素，并将相似元素数组输出至 @{get_similar_ele}
+BrowserElement.loop_similar,循环相似元素列表（web）,获取浏览器对象 @{browser_obj} 中与拾取到的元素 @{element_data} 相似的元素，从起始项@{start}到结束项@{end}进行循环操作，输出列表循环至@{item}, 是否输出循环项位置为@{index}
+BrowserElement.element_text,获取元素文本内容（web）,获取浏览器对象 @{browser_obj} 网页中拾取的元素 @{element_data} 文本内容，并将结果输出至 @{data_pick}
+BrowserElement.slider_hover,拾取滑块拖拽（web）,将滑块 @{element_slider} 从 @{drag_type} 向 @{drag_direction} 拖拽 @{percent_value} %
+BrowserElement.get_select,获取下拉框（web）,在浏览器对象 @{browser_obj} 中获取下拉框 @{element_data}
+BrowserElement.get_checked,获取复选框（web）,在浏览器对象 @{browser_obj} 中获取复选框 @{element_data}
+BrowserElement.set_select,操作下拉框（web）,在浏览器对象 @{browser_obj} 中获取下拉框 @{element_data} ，通过 @{pattern} 选择 @{value}
+BrowserElement.set_checked,操作复选框（web）,在浏览器对象 @{browser_obj} 中获取复选框 @{element_data} 后 @{checked_type}
+BrowserElement.element_operation,元素操作（web）,在浏览器对象 @{browser_obj} 中获取 @{element_data} 并 @{operation_type}
+BrowserElement.get_table,获取表格数据（web）,获取浏览器对象 @{browser_obj} 中的表格 @{element_data} ，将结果输出为 @{table_pick}
+BrowserElement.data_batch,数据抓取（web）,在指定的浏览器对象 @{browser_obj} 中抓取 @{batch_data} ，将结果输出为 @{table_pick}
+BrowserElement.create_element,获取元素对象（web）,在指定的浏览器对象 @{browser_obj} 中根据 @{locate_type}获取元素对象 ，将结果输出为元素对象 @{element_obj}
+BrowserElement.get_relative_element,获取关联元素（web）,在指定的浏览器对象 @{browser_obj} 中获取 @{element_data} 关联的 @{relative_type}，将结果输出为元素对象 @{element_obj}
+BrowserElement.element_exist,元素是否存在（web）,浏览器对象 @{browser_obj} 中元素 @{element_data} 是否存在
+BrowserScript.js_run,Js脚本,通过 @{input_type:在线编辑/外部导入方式} 编辑脚本内容 @{content||file_path} ，执行JavaScript，脚本执行结果保存至 @{program_script}
+BrowserSoftware.browser_open,打开浏览器,打开 @{browser_type:浏览器} 并进入初始网址 @{url:网址} ，将结果输出为浏览器对象 @{web_open}
+BrowserSoftware.browser_close,关闭浏览器,关闭浏览器对象 @{browser_obj}
+BrowserSoftware.set_cookies,设置Cookie,设置浏览器对象 @{browser_obj} 的 @{url} 的Cookie名称 @{cookie_name} 的值为 @{cookie_val}
+BrowserSoftware.get_cookies,获取Cookie,获取浏览器对象 @{browser_obj} 的 @{url} 的Cookie名称 @{cookie_name} 的值，输出至 @{get_cookie}
+BrowserSoftware.empty_cookies,清除Cookie,清除浏览器对象 @{browser_obj} @{url} 的Cookie数据
+BrowserSoftware.web_open,打开新网页,打开浏览器对象 @{browser_obj} 并进入网址 @{new_tab_url} ，将结果输出为浏览器对象 @{web_new_page}
+BrowserSoftware.web_switch,切换到已存在标签页,通过 @{switch_type} 的匹配方式切换到浏览器对象 @{browser_obj} 中的指定标签页
+BrowserSoftware.wait_web_load,等待页面加载完成,等待浏览器对象 @{browser_obj} 中页面加载完成
+BrowserSoftware.stop_web_load,停止加载网页,停止加载网页 @{browser_obj}
+BrowserSoftware.web_refresh,刷新当前网页,刷新当前网页 @{browser_obj}
+BrowserSoftware.web_close,关闭网页,关闭浏览器对象 @{browser_obj} 的当前网页
+BrowserSoftware.screenshot,网页截图,将浏览器对象 @{browser_obj} 截图，并保存至路径 @{web_screen}
+BrowserSoftware.browser_forward,网页前进,浏览器对象 @{browser_obj} 的当前网页前进
+BrowserSoftware.browser_back,网页后退,浏览器对象 @{browser_obj} 的当前网页后退
+BrowserSoftware.get_current_obj,获取已打开的浏览器对象,获取已经打开的浏览器软件 @{browser_type} 的浏览器对象，并将结果输出至 @{browser_obj}
+BrowserSoftware.get_current_url,获取网页URL,获取浏览器对象 @{browser_obj} 的URL值，并将结果输出至 @{get_url}
+BrowserSoftware.get_current_title,获取网页标题,获取浏览器对象 @{browser_obj} 的标题，并将结果输出至 @{get_page_title}
+BrowserSoftware.get_current_tab_id,获取当前标签页ID,获取浏览器对象 @{browser_obj}当前标签页的唯一ID，并将结果输出至 @{get_tab_id}
+BrowserSoftware.download_web_file,文件下载（web）,在网页中点击 @{element_data||link_str} 下载，将其保存至 @{save_path}
+BrowserSoftware.upload_web_file,文件上传（web）,在网页中点击 @{element_data} ，在弹出的文件选择对话框中输入要上传的文件路径 @{upload_path}
+ComputerUse.run,计算机使用代理,使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
+ComputerUse.custom_action_screen,自定义AI操作屏幕,使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
+ComputerUse.extract_data,提取屏幕数据,使用视觉大模型分析屏幕并提取屏幕数据
+ComputerUse.fill_form,填写表单,使用视觉大模型分析屏幕并填写屏幕中表单
+ComputerUse.process_captcha,处理验证码,使用视觉大模型分析屏幕并处理屏幕中验证码
+DataProcess.set_variable_value,设置变量值,赋值 @{value} 给变量 @{variable_var}
+DataConvertProcess.json_convertor,JSON字符串互转,将输入文本 @{input_data} 从JSON格式转换为字符串或从字符串格式转换为JSON格式，返回转换后的文本 @{json_convert_data}
+DataConvertProcess.other_to_str,其他格式转文本,将输入内容 @{input_data} 转换为文本（字符串）格式，返回转换后的结果 @{other_convert_str}
+DataConvertProcess.str_to_other,文本转其他格式,将输入文本（字符串） @{input_data} 转换为其他格式，返回转换后的结果 @{str_convert_other}
+DictProcess.create_new_dict,创建新字典,创建一个字典，返回创建的字典 @{created_new_dict_data}
+DictProcess.set_value_to_dict,字典设置值,设置字典 @{dict_data} 的键为 @{dict_key} ，值为 @{value} ，返回设置后的字典 @{inserted_dict_data}
+DictProcess.delete_value_from_dict,字典删除值,从字典 @{dict_data} 中删除键为 @{dict_key} 的值，返回删除后的字典 @{deleted_dict_data}
+DictProcess.get_value_from_dict,字典获取值,获取字典 @{dict_data} 的键为 @{dict_key} 的值 @{get_dict_value}
+DictProcess.get_keys_from_dict,获取字典所有键,获取字典 @{dict_data} 的所有键 @{get_dict_keys}
+DictProcess.get_values_from_dict,获取字典所有值,获取字典 @{dict_data} 的所有值 @{get_dict_values}
+ListProcess.create_new_list,创建新列表,创建一个 @{list_type} 类型的列表，返回创建的列表 @{created_list_data}
+ListProcess.clear_list,清空列表,清空列表 @{list_data} ，返回清空后的列表 @{cleared_list_data}
+ListProcess.insert_value_to_list,列表插入值,将值 @{value} 插入到列表 @{list_data} 的 @{insert_method} 位置 @{index} ，返回插入后的列表 @{inserted_list_data}
+ListProcess.change_value_in_list,列表修改值,将列表 @{list_data} 的 @{index} 位置的值修改为 @{new_value} ，返回修改后的列表 @{changed_list_data}
+ListProcess.get_list_position,获取值在列表位置,获取值 @{value} 在列表 @{list_data} 的位置 @{get_list_position}
+ListProcess.remove_value_from_list,列表删除值,以 @{del_mode} 删除@{list_data}@{del_value||del_pos}的内容，返回删除后的列表 @{removed_list_data}
+ListProcess.sort_list,列表排序,对列表 @{list_data} 进行 @{sort_method} 排序，返回排序后的列表 @{sorted_list_data}
+ListProcess.random_shuffle_list,列表随机打乱顺序,对列表 @{list_data} 进行随机打乱顺序，返回打乱顺序后的列表 @{shuffled_list_data}
+ListProcess.filter_elements_from_list,剔除列表中的多项,从列表 @{list_data_1} 中剔除列表 @{list_data_2} 中的元素，返回剔除后的列表 @{filter_list_data}
+ListProcess.reverse_list,列表反转,将列表 @{list_data} 反转，返回反转后的列表 @{reversed_list_data}
+ListProcess.merge_list,列表合并,将列表 @{list_data_1} 和列表 @{list_data_2} 合并为一个列表 @{merged_list_data}
+ListProcess.get_unique_list,列表去重,将列表 @{list_data} 去重，返回去重后的列表 @{unique_list_data}
+ListProcess.get_common_elements_from_list,获取两个列表的重复项,获取列表 @{list_data_1} 和列表 @{list_data_2} 的重复项，返回重复项列表 @{common_list_data}
+ListProcess.get_value_from_list,根据索引获取列表值,根据索引 @{index} 获取列表 @{list_data} 的值 @{get_list_value}
+ListProcess.get_length_of_list,获取列表长度,获取列表 @{list_data} 的长度 @{get_list_length}
+MathProcess.generate_random_number,生成随机数,生成 @{number_type} 类型 @{size} 个随机数，范围为 @{start} 到 @{end} ，返回生成的随机数 @{generated_random_numbers}
+MathProcess.get_rounding_number,四舍五入,将数字 @{number} 四舍五入 @{precision} 位，返回四舍五入后的数字 @{rounding_number}
+MathProcess.self_calculation_number,自增自减,对数字 @{number} 自增或自减 @{add_sub_number} ，返回计算后的结果 @{self_calculation_number}
+MathProcess.get_absolute_number,获取绝对值,获取数字 @{raw_number} 的绝对值 @{absolute_number}
+MathProcess.calculate_expression,数学计算,进行基本的数学计算 @{left} @{operator} @{right} ，返回计算结果 @{calculation_number}
+StringProcess.extract_content_from_string,文本提取内容,从文本 @{text} 中提取 @{extract_type} 类型的内容
+StringProcess.replace_content_in_string,文本替换内容,将文本 @{text} 中的 @{replace_type} 类型内容替换为 @{new_value}
+StringProcess.merge_list_to_string,列表聚合为文本,将列表 @{list_data} 中的内容聚合为文本 @{merged_string_from_list}
+StringProcess.split_string_to_list,文本分割为列表,将文本 @{string_data} 按 @{separator} 分割为列表 @{split_list_from_string}
+StringProcess.concatenate_string,文本合并,将 @{string_data_1} 和 @{string_data_2} 合并为 @{concat_string}
+StringProcess.fill_string_to_length,文本补齐至固定长度,将文本 @{string_data} 补齐至 @{total_length} 长度，补齐方式为 @{fill_type}
+StringProcess.strip_string,文本去除两侧空格,将文本 @{string_data} 两侧的空格去除 @{stripped_string}
+StringProcess.cut_string_to_length,截取固定长度文本,将文本 @{string_data} 截取 @{length} 长度，截取方式为 @{cut_type} ，返回截取后的文本 @{cut_string}
+StringProcess.change_case_of_string,更改文本大小写,将文本 @{string_data} 的大小写更改为 @{case_type} ，返回更改后的文本 @{change_case_string}
+StringProcess.get_string_length,获取文本长度,获取文本 @{string_data} 的长度 @{string_length}
+TimeProcess.get_current_time,获取当前时间,获取当前时间，格式为 @{time_format}，返回当前时间对象 @{current_time}
+TimeProcess.set_time,设置时间,设置时间 @{time}，设置方式为 @{change_type}，返回设置后的时间对象 @{set_time}
+TimeProcess.time_to_timestamp,时间对象转时间戳,将时间对象 @{time} 转换为 @{timestamp_unit} 精度的时间戳，返回转换后的时间戳 @{converted_timestamp}
+TimeProcess.timestamp_to_time,时间戳转时间对象,将时间戳 @{timestamp} 转换为时间对象 @{converted_time}
+TimeProcess.get_time_difference,获取时间差,获取 @{time_1} 和 @{time_2} 之间的时间差，单位为 @{time_unit}，返回时间差 @{time_difference}
+TimeProcess.format_datetime,输出指定格式时间文本,将时间对象 @{time} 按照指定格式 @{format_type} 输出文本 @{format_datetime}
+DataTable.read_data,读取数据表格,读取数据表格 @{read_type} 中的数据，输出到变量 @{cell_info||row_info||column_info||area_info}
+DataTable.write_data,写入数据表格,写入数据到数据表格的 @{write_type}
+DataTable.get_max_row,获取数据表格已用行,获取数据表格中已用的最大行号并输出到 @{max_row}
+DataTable.get_max_column,获取数据表格已用列,获取数据表格中已用的最大列号并输出到 @{max_column}
+DataTable.copy_data,复制数据表格,复制数据表格中的 @{copy_type} 数据到剪切板
+DataTable.paste_data,粘贴数据表格,从剪切板粘贴数据到数据表格中的 @{paste_type}
+DataTable.delete_data,删除数据表格,删除数据表格中 @{delete_type} 的数据
+DataTable.loop_data_table,循环数据表格,循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
+DataTable.insert_row_column,数据表格插入行/列,在数据表格中插入 @{amount} @{insert_type} 空白@{insert_type}
+DataTable.insert_formula,数据表格插入公式,在数据表格单元格 @{col}@{row} 中插入公式 @{formula}
+DataTable.set_column_title,数据表格设置列信息,设置数据表格 @{col} 列的信息为 @{title}
+DataTable.get_column_title,数据表格获取列信息,获取数据表格 @{col} 列的信息并输出到 @{column_title}
+DataTable.find_and_replace,数据表格查找和替换,在数据表格中 @{find_type} 查找内容 @{find_value} @{is_replace:不}替换内容
+DataTable.filter_data_table,数据表格筛选,根据 @{filter_type} 条件筛选数据表格
+DataTable.import_data_table_from_file,从文件导入数据到数据表格,从文件 @{import_file_path} 导入数据到数据表格
+DataTable.export_data_table_to_file,导出数据表格到文件,将数据表格导出到文件 @{export_dest_path}
+Dialog.message_box,消息提示框,
+Dialog.input_box,输入对话框,
+Dialog.select_box,选择对话框,
+Dialog.select_time_box,日期时间选择框,
+Dialog.select_file_box,文件选择对话框,
+Dialog.custom_box,自定义对话框,
+Email.send_email,发送邮件,给指定邮箱 @{receiver} 发送邮件
+Email.receive_email,接收邮件,从邮箱(@{user_mail})接收邮件信息
+Encrypt.md5_encrypt,MD5加密,对字符串(@{source_str})进行MD5加密
+Encrypt.sha_encrypt,SHA加密,对字符串(@{source_str})进行SHA加密
+Encrypt.symmetric_encrypt,对称加密,对字符串(@{source_str})进行对称加密
+Encrypt.symmetric_decrypt,对称解密,对字符串(@{source_str})进行对称解密
+Encrypt.base64_encoding,Base64编码,读取字符串或图片文件编码为Base64字符串，返回编码后的字符串(@{encoded_string})
+Encrypt.base64_decoding,Base64解码,读取Base64字符串(@{string_data})，解码为字符串或图片文件
+Enterprise.upload_to_sharefolder,上传文件至共享文件夹,上传 @{file_path} 的文件，返回上传结果 @{upload_result}
+Enterprise.download_from_sharefolder,从共享文件夹下载文件,下载 @{file_path} 的文件到 @{save_folder}，返回下载结果 @{download_result}
+Enterprise.get_shared_variable,获取共享变量,获取共享变量 @{shared_variable} 给变量 @{variable_data}
+Excel.open_excel,打开Excel,打开路径为 @{file_path} 的Excel，返回Excel对象 @{open_excel_obj}
+Excel.get_excel,获取已打开的Excel对象,获取文件名为 @{file_name} 的Excel对象，返回Excel对象 @{get_excel_obj}
+Excel.create_excel,创建Excel,在路径为 @{file_path} 下创建文件名为 @{file_name} 的Excel，返回Excel对象 @{create_excel_obj}
+Excel.save_excel,保存Excel,保存Excel对象 @{excel} ，保存方式为 @{save_type}
+Excel.close_excel,关闭Excel,关闭 @{close_range_flag}，当前Excel对象 @{excel}，保存类型为 @{save_type_one||save_type_all}
+Excel.edit_excel,写入Excel,编辑Excel对象 @{excel} ，写入内容 @{value}
+Excel.read_excel,读取Excel内容,读取Excel对象 @{excel} 中工作表 @{sheet_name} 的Excel内容
+Excel.design_cell_type,设置单元格属性,设置 @{excel} 中工作表 @{sheet_name} 的单元格格式，字体大小为 @{font_size}，字体名称为 @{font_name}，字体颜色为 @{font_color}，背景颜色 @{bg_color}
+Excel.copy_excel,复制Excel单元格,复制Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格，返回复制内容的字符串格式 @{copy_excel_contents}
+Excel.paste_excel,粘贴Excel单元格,向Excel对象 @{excel} 中工作表 @{sheet_name} 粘贴单元格
+Excel.delete_excel_cell,删除Excel单元格,删除Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格
+Excel.clear_excel_content,清除Excel区域内容,清除Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格内容
+Excel.insert_excel_row_or_column,插入Excel行或列,向Excel对象 @{excel} 中工作表 @{sheet_name} 插入行或列
+Excel.get_excel_row_num,获取Excel行数,获取Excel对象 @{excel} 中工作表 @{sheet_name} 的行数，返回行数 @{excel_row_num}
+Excel.get_excel_col_num,获取Excel列数,获取Excel对象 @{excel} 中工作表 @{sheet_name} 的列数，返回列数 @{excel_col_num}
+Excel.get_excel_first_available_row,获取Excel第一个可用行,获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用行，返回可用行 @{get_first_available_row}
+Excel.get_excel_first_available_col,获取Excel第一个可用列,获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用列，返回可用列 @{get_first_available_col}
+Excel.loop_excel_content,循环Excel内容,循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至@{key} 输出循环项至@{value}
+Excel.excel_get_cell_color,获取Excel单元格颜色,获取Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格 @{coordinate} 的颜色，返回颜色 @{get_cell_color}
+Excel.merge_split_excel_cell,合并或拆分Excel单元格,合并或拆分Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格
+Excel.add_excel_worksheet,添加Excel工作表,向Excel对象 @{excel} 中添加工作表 @{sheet_name}
+Excel.move_excel_worksheet,移动Excel工作表,移动Excel对象 @{excel} 中工作表 @{move_sheet} ，移动方式为 @{move_type}
+Excel.delete_excel_worksheet,删除Excel工作表,删除Excel对象 @{excel} 中工作表 @{del_sheet_name}
+Excel.rename_excel_worksheet,重命名Excel工作表,重命名Excel对象 @{excel} 中工作表 @{source_sheet_name} 为 @{new_sheet_name}
+Excel.copy_excel_worksheet,复制Excel工作表,复制Excel对象 @{excel} 中工作表 @{source_sheet_name} ，复制类型为 @{copy_type}
+Excel.get_excel_worksheet_names,获取Excel工作表名称,获取Excel对象 @{excel} 中工作表名称，返回工作表名称列表 @{sheet_names}
+Excel.search_and_replace_excel_content,查找或替换Excel内容,查找或替换Excel对象 @{excel} 中 @{search_range} 范围内 @{find_str} ，返回查找结果 @{search_excel_result}
+Excel.insert_pic,插入Excel图片,向Excel对象 @{excel} 中工作表 @{sheet_name} 插入图片 @{pic_path} ，插入类型为 @{pic_size_type}
+Excel.insert_formula,插入Excel公式,向Excel对象 @{excel} 中工作表 @{sheet_name} 插入公式 @{formula}
+Excel.create_excel_comment,创建Excel批注,向Excel对象 @{excel} 中插入批注 @{comment}
+Excel.delete_excel_comment,删除Excel批注,删除Excel对象 @{excel} 中批注
+Excel.excel_text_to_number,Excel区域文本转数字,将Excel对象 @{excel_obj} 中工作表 @{sheet_name} 中的区域文本转化为数字格式
+Excel.excel_number_to_text,Excel区域数字转文本,将Excel对象 @{excel_obj} 中工作表 @{sheet_name} 中的区域数字转化为文本格式
+Excel.excel_set_col_width,设置Excel列宽,设置Excel对象 @{excel_obj} 工作表 @{sheet_name} 中 @{col} 的列宽
+Excel.excel_set_row_height,设置Excel行高,设置Excel对象 @{excel_obj} 工作表 @{sheet_name} 中 @{row} 的行高
+Gui.keyboard,键盘输入,通过(@{keyboard_type})方式模拟键盘输入(@{message})
+Gui.key_input,键盘模拟按键,使用键盘模拟按键(@{keys_str})(@{key_model})
+Gui.mouse,鼠标点击,模拟鼠标(@{btn_type:左键/右键/中键}) (@{btn_model:按下/弹起/单机/双击}))
+Gui.mouse_wheel,鼠标滚动,模拟鼠标(@{scroll_type})滚动(@{scroll_px||times}),滚动方向为:(@{direction})
+Gui.mouse_move,鼠标移动,在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})
+Gui.mouse_move_new,鼠标移动,在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})
+Gui.mouse_drag,鼠标拖拽,模拟鼠标从起点位置(@{start_pos_x}, @{start_pos_y})拖拽到终点位置(@{end_pos_x}, @{end_pos_y})
+Gui.mouse_position,获取鼠标位置,获取当前鼠标位置并输出至(@{point_x}, @{point_y})
+Network.ftp_create,创建FTP连接,建立与地址(@{host}),端口(@{port})的FTP连接，输出为(@{ftp_instance})
+Network.ftp_close,关闭FTP连接,断开与(@{ftp_instance})的FTP连接，并将结果输出至变量(@{close_ftp})
+Network.get_work_dir,获取工作目录(FTP),获取(@{ftp_instance})当前的工作目录，输出为(@{get_work_dir})
+Network.change_working_dir,切换工作目录(FTP),切换FTP连接(@{ftp_instance})的工作目录为(@{new_work_dir}),并保存切换后工作目录到(@{change_work_dir})中
+Network.create_folder,创建文件夹(FTP),在指定FTP连接(@{ftp_instance})下创建文件夹(@{folder_name}),并保存新文件夹路径到(@{new_folder})中
+Network.get_ftp_list,获取文件/文件夹(FTP),获取指定FTP连接(@{ftp_instance})下的(@{file_type})列表,并保存到(@{get_ftp_list})中
+Network.ftp_rename,重命名文件/文件夹(FTP),重命名(@{ftp_instance})中(@{file_type})(@{cur_file_name||cur_folder_name})为新名称(@{new_file_name||new_folder_name}),并将重命名后路径保存至变量(@{rename_ftp_path})
+Network.ftp_upload,上传文件/文件夹(FTP),上传(@{file_path||folder_path})至FTP指定目录(@{ftp_pwd}),并将上传后路径结果保存到(@{upload_ftp_list})中
+Network.ftp_download,下载文件/文件夹(FTP),下载(@{download_file_name||download_folder_name})至本地目录(@{dst_path}),并将下载后路径保存到变量(@{download_ftp_path})
+Network.ftp_delete,删除文件/文件夹(FTP),删除(@{ftp_instance})上(@{delete_file_name||delete_folder_name}),并输出删除结果至变量(@{delete_ftp_result})
+Network.http_request,HTTP请求,向URL(@{url})发送HTTP请求(@{request_type}), 请求头(@{headers}), 请求体(@{body}), 并保存响应结果到{@{http_response}}
+Network.http_download,HTTP下载,HTTP下载
+OpenApi.id_card,身份证识别,身份证识别
+OpenApi.business_license,营业执照识别,营业执照识别
+OpenApi.vat_invoice,增值税发票识别,增值税发票识别
+OpenApi.train_ticket,火车票识别,火车票识别
+OpenApi.taxi_ticket,出租车发票识别,出租车发票识别
+OpenApi.common_ocr,通用文字识别,通用文字识别
+PDF.get_pages_num,获取PDF文档页数,获取路径为 @{file_path} 的PDF文档页数 @{pdf_pages_num}
+PDF.get_pdf_text,提取PDF文档文本,提取路径为 @{file_path} 的PDF文档文本，返回为字符串或列表 @{pdf_text}
+PDF.get_pdf_images,提取PDF文档图片,提取路径为 @{file_path} 的PDF文档图片，并保存到 @{save_dir} 文件夹
+PDF.merge_pdf_files,合并PDF文件,合并PDF文件为一个PDF文件，并保存到 @{pdf_merge_file_path} 路径
+PDF.extract_pdf_file,抽取PDF指定页,抽取路径为 @{file_path} 的PDF文档指定页，并保存到 @{extract_file_path} 文件夹
+PDF.extract_forms_from_pdf,提取PDF表格到Excel,提取路径为 @{file_path} 的PDF文档中的表格，并保存到 @{forms_file_path} 文件夹
+PDF.convert_pdf_to_img,PDF页面转图片,转换路径为 @{file_path} 的PDF文档为图片，并保存到 @{save_dir} 文件夹
+PDF.convert_img_to_pdf,图片转PDF页面,转换路径为 @{image_files} 的图片为PDF文件，并保存到 @{save_dir} 文件夹
+Report.print,日志打印,将变量(@{msg})打印
+Script.process,运行子流程,运行子流程(@{process:子流程})
+Script.module,运行Python模块,运行Python模块(@{content:Python模块})
+Script.component,运行组件,运行组件(@{component:组件})
+Smart.run_code,执行代码,AI生成Python脚本
+Software.open,打开程序,打开应用程序路径(@{app_absolute_path})，并设置运行参数为(@{app_absolute_path})，将结果输出为(@{software_open})
+Software.close,关闭程序,关闭应用程序路径为(@{app_absolute_path})的程序
+Software.cmd,Cmd命令,通过配置cmd字符串(@{cmd})，执行cmd命令，执行结果保存至(@{exec_cmd})
+System.copy_clip,复制到剪切板,将 @{content_type} @{message||file_path||folder_path} 复制到剪切板
+System.clear_clip,清空剪切板,清空剪切板中的内容
+System.paste_clip,获取剪切板,获取剪切板中的 @{content_type} ，并保存至变量 @{output_content}
+System.compress,压缩,压缩 @{file_type} 到指定目录 @{compress_dir} 中，并保存压缩包路径至 @{compress_path}
+System.uncompress,解压,将压缩文件 @{source_path} 解压至指定目录 @{target_path} 下，并输出解压后文件所在路径 @{uncompress_path}
+File.file_exist,IF文件存在,判断文件 @{file_path} 是否存在，存在就执行以下操作
+File.file_create,创建文件,在指定目录 @{dst_path} 下创建文件 @{file_name} ，并保存创建文件路径到 @{new_file_path}
+File.file_delete,删除文件,删除文件 @{file_path} ，并将结果输出至变量 @{delete_file_result}
+File.file_copy,复制文件,复制文件 @{file_path} 到指定目录 @{target_path} 下，并保存复制后的文件路径 @{copy_file_path}
+File.file_write,写入文件,写入内容 @{msg} 到文件 @{file_path} 中，并保存写入后的文件路径 @{write_file_path}
+File.get_file_encoding_type,获取文件编码类型,获取文件 @{file_path} 的编码类型并保存至变量 @{file_encoding_type}
+File.file_read,读取文件,按照 @{read_type} 方式读取文件 @{file_path} 中的内容，并保存至变量 @{read_file_content}
+File.file_move,移动文件,将文件 @{file_path} 移动至指定目录 @{target_folder} 下，并保存移动后的文件路径 @{move_file_path}
+File.file_rename,重命名文件,将文件 @{file_path} 重命名为 @{new_name} 并保存重命名后的文件路径 @{rename_file_path}
+File.file_search,查找文件,在 @{folder_path} 目录中查找文件名包含 @{search_pattern} 的文件，并保存匹配文件路径至变量 @{find_file_result}
+File.file_wait_status,等待文件,等待文件 @{file_path} 状态为 @{status_type} 时执行下一步，保存等待结果到 @{wait_file_result}
+File.file_info,获取文件信息,获取指定文件 @{file_path} 的 @{info_type} 信息，并保存文件信息至变量 @{file_info}
+File.get_file_list,获取文件列表,获取指定目录 @{folder_path} 中的文件列表，并保存文件列表至变量 @{file_list}
+Folder.folder_exist,IF文件夹存在,判断文件夹 @{folder_path} @{exist_type}，存在就执行以下操作
+Folder.folder_open,打开文件夹,打开指定文件夹 @{folder_path}
+Folder.folder_create,创建文件夹,在指定目录 @{target_path} 创建文件夹 @{folder_name} ，并保存新文件夹路径至变量 @{new_folder_path}
+Folder.folder_delete,删除文件夹,删除文件夹 @{folder_path} ，并将结果输出至变量 @{delete_folder_result}
+Folder.folder_copy,复制文件夹,将文件夹 @{source_path} 复制到指定目录 @{target_path} 下，并保存复制后的文件夹路径至变量 @{copy_folder_path}
+Folder.folder_move,移动文件夹,移动文件夹 @{folder_path} 到指定目录 @{target_folder} 下，并保存移动后的文件夹路径至变量 @{move_folder_path}
+Folder.folder_rename,重命名文件夹,重命名文件夹 @{folder_path} 为 @{new_name} ，并保存重命名后的文件夹路径至变量 @{rename_folder_path}
+Folder.folder_clear,清空文件夹,清空文件夹 @{folder_path} ，并保存清空结果到变量 @{clear_folder_result}
+Folder.get_folder_list,获取文件夹列表,获取指定目录 @{folder_path} 下的文件夹列表，并保存文件夹列表至变量 @{folder_list}
+System.run_command,运行或打开,运行或打开 @{command} ，并将执行结果保存到输出变量 @{process_out}
+System.get_pid,获取进程PID,获取与输入 @{process_name} 匹配的进程PID，并保存至输出变量 @{match_proces_pid}
+System.terminate_process,终止进程,终止指定 @{termination_type} 的进程，并保存执行结果至输出变量 @{termination_process}
+System.screen_shot,屏幕截图,按 @{screen_type} 方式截图并保存到 @{png_path} ，输出图片保存路径 @{screenshot_path}
+System.screen_lock,屏幕锁定,系统屏幕锁屏，并将操作结果输出至变量 @{screen_lock_result}
+System.screen_unlock,屏幕解锁,通过用户名 @{user_name} 和 @{pwd_type} @{password_text||password_rsa} 进行系统屏幕解锁，并将操作结果输出至变量 @{screen_unlock_result}
+System.printer,打印机打印,使用打印机 @{printer_name} 打印指定文件 @{file_path||folder_path} ，并保存执行结果至输出变量 @{printer_status}
+VerifyCode.picture_code,通用数英验证码,识别浏览器中的验证码 @{picture_pick} ，返回识别结果 @{code_result}
+VerifyCode.slider_code,通用滑块验证码,在背景图为 @{picture_pick} 的滑块验证码上，拖动滑块 @{slider_pick} 至指定位置，拖动距离为 @{drag_distance}
+VerifyCode.click_code,通用点击验证码,在背景图为 @{picture_pick} 的点击验证码上，点击对应位置
+CV.cv_click,点击图像,鼠标(@{btn_type})(@{btn_model})图像(@{input_data})(@{click_position})
+CV.hover_image,鼠标悬浮在图像上,鼠标悬浮在图像(@{input_data})的(@{click_position})
+CV.is_image_exist,IF图像存在,判断图像(@{input_data})在当前界面(@{exist_type})
+CV.wait_image,等待图像,等待图像(@{input_data})(@{wait_type})
+CV.image_input,图像输入框输入,拾取图像输入框(@{input_data})以(@{input_type})输入(@{input_content})
+Window.exist,IF窗口存在,判断拾取窗口(@{pick})是否(@{check_type})，是就执行以下操作
+Window.top,置顶窗口,置顶窗口对象(@{pick})
+Window.close,关闭窗口,关闭桌面软件窗口对象(@{pick})
+Window.set_size,调整窗口大小,调整拾取到的窗口(@{pick})大小，通过(@{size_type:自定义})的形式将窗口宽度和高度分别设置为(@{width}) (@{height})
+WinEle.click_element,点击元素（桌面）,@{click_type} 拾取到的元素 @{pick} ，最长等待 @{wait_time} 秒直到此元素出现
+WinEle.screenshot_element,元素截图（桌面）,截图拾取到的元素 @{pick} ，并保存至文件夹 @{file_path}
+WinEle.hover_element,鼠标悬停元素（桌面）,鼠标悬停拾取到的元素 @{pick} ，并设置等待时间 @{wait_time} 秒
+WinEle.input_text_element,填写输入框（桌面）,填写输入框 @{pick} ，并设置输入类型为 @{input_type} ，输入内容为 @{text}
+WinEle.get_element_text,获取元素文本（桌面）,从元素 @{pick} 提取文本并保存到 @{ele_text}
+WinEle.similar,获取相似元素列表（桌面）,获取拾取到的元素 @{pick} 相似的元素，并将相似元素数组输出至 @{get_similar_ele}
+Docx.open_docx,打开Word,打开路径为 @{file_path} 的Word，返回Word对象 @{doc_obj}
+Docx.read_docx,读取Word内容,读取Word对象 @{doc} 内容，返回文档内容 @{doc_data}
+Docx.create_docx,创建Word,创建Word，保存到路径为 @{file_path} 的位置，文件名为 @{file_name} ，返回Word对象 @{doc_obj} 和保存路径 @{doc_create_path}
+Docx.save_docx,保存Word,保存Word对象 @{doc} ，保存方式为 @{save_type}, 并输出保存路径 @{save_file_path}
+Docx.close_docx,关闭Word,关闭Word对象 @{doc}
+Docx.insert_docx,插入文本到Word,向Word对象 @{doc} 插入文本 @{text}
+Docx.select_text,选择Word文本,从Word对象 @{doc} 中选择文本
+Docx.get_cursor_position,定位Word光标,在Word对象 @{doc} 中定位光标位置
+Docx.move_cursor,移动Word光标,在Word对象 @{doc} 中移动光标
+Docx.insert_sep,Word插入页/段落,在Word对象 @{doc} 中插入页/段落
+Docx.insert_hyperlink,Word插入超链接,在Word对象 @{doc} 中插入超链接
+Docx.insert_img,Word插入图片,在Word对象 @{doc} 中，从路径 @{img_path} 或剪贴板插入图片
+Docx.read_table,Word读取表格,在Word对象 @{doc} 中，读取表格内容并返回表格数据对象 @{table_content}
+Docx.insert_table,Word插入表格,在Word对象 @{doc} 中，插入表格内容
+Docx.delete,Word删除内容,在Word对象 @{doc} 中，删除内容
+Docx.replace,Word替换内容,在Word对象 @{doc} 中，查找内容并替换
+Docx.create_comment,Word创建批注,在Word对象 @{doc} 中，创建批注
+Docx.delete_comment,Word删除批注,在Word对象 @{doc} 中，删除指定批注
+Docx.convert_format,Word导出为PDF/TXT,在Word对象 @{doc} 中，导出指定内容为PDF或TXT文件
