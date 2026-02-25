@@ -79,16 +79,10 @@ def check_port(port, host="127.0.0.1"):
     return True
 
 
-def kill_proc_tree(
-    proc: psutil.Process = None,
-    including_parent: bool = True,
-    exclude_pids: list = None,
-):
+def kill_proc_tree(proc: psutil.Process = None, including_parent: bool = True, exclude_pids: list = None):
     """
     递归地杀死指定PID的进程及其所有子进程。
     """
-    work_dir = os.getcwd()
-
     try:
         children = proc.children(recursive=True)
         for child in children:
@@ -105,7 +99,6 @@ def kill_proc_tree(
 
             # 只会杀掉启动当期运行目录下的进程
             proc_cwd = proc.exe()
-            logger.debug("当前进程工作目录: {} {}", proc_cwd, work_dir)
             if "astron-rpa" not in proc_cwd:
                 return
 

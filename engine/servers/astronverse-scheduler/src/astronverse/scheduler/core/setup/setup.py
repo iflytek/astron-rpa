@@ -6,6 +6,7 @@ import time
 
 import psutil
 from astronverse.scheduler.logger import logger
+from astronverse.scheduler.utils.utils import kill_proc_tree
 
 system_encoding = locale.getpreferredencoding()
 
@@ -18,108 +19,61 @@ class Process:
         """杀死所有的僵尸进程"""
         zombie_processes = Process.get_python_proc_in_current_dir()
         for z_p in zombie_processes:
-            logger.info("kill_all_zombie {}".format(z_p.pid))
-            Process.kill_proc_tree(z_p)
+            kill_proc_tree(z_p)
 
     @staticmethod
     def get_python_proc_in_current_dir():
         """获取所有在当前目录Python进程"""
 
-        rpa_setup_pid = []
+        if sys.platform != "win32":
+            return []
+
+        # 收集所有需要关联的进程
+        all_process_ids = []
+        for process_name in ["python.exe", "route.exe", "ConsoleApp1.exe", "winvnc.exe"]:
+            output = subprocess.check_output(
+                ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
+                encoding=system_encoding,
+                errors="replace",
+            )
+            for line in output.splitlines()[1:]:
+                parts = line.split(",")
+                if len(parts) > 1:
+                    pid = parts[1].strip('"')
+                    all_process_ids.append(int(pid))
+
+        if not all_process_ids:
+            return []
+
+        # 收集自己的信息
+        self_proc_id_list = []
         try:
             proc = psutil.Process(os.getpid())
             while proc:
-                rpa_setup_pid.append(proc.pid)
+                self_proc_id_list.append(proc.pid)
                 proc = proc.parent()
         except psutil.NoSuchProcess:
             pass
 
-        work_dir = os.getcwd()
-
+        # 判读所有的进程是否合理
         all_process = list()
-        if sys.platform == "win32":
-            # 他们的名称是否包含python
-            process_names = ["python.exe", "route.exe", "ConsoleApp1.exe", "winvnc.exe"]
-
-            pids = []
-            for process_name in process_names:
-                output = subprocess.check_output(
-                    ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
-                    encoding=system_encoding,
-                    errors="replace",
-                )
-                for line in output.splitlines()[1:]:
-                    parts = line.split(",")
-                    if len(parts) > 1:
-                        pid = parts[1].strip('"')
-                        pids.append(int(pid))
-            for pid in pids:
-                try:
-                    # 忽略自己
-                    if pid in rpa_setup_pid:
-                        continue
-
-                    # 查看他们的cwd[只有python需要验证，其他不需要验证]
-                    proc = psutil.Process(pid)
-                    if "python" in proc.name().lower():
-                        if work_dir not in proc.cwd():
-                            continue
-
-                    # 都符合条件
-                    all_process.append(proc)
-                except Exception as e:
-                    pass
-        else:
-            for proc in psutil.process_iter(["pid", "name", "exe", "cwd", "cmdline"]):
-                try:
-                    # 他们的名称是否包含python
-                    proc_name = proc.name()
-                    if "python3.7" in proc_name or "route.exe" in proc_name or "winvnc" in proc_name:
-                        # 忽略自己
-                        if proc.pid in rpa_setup_pid:
-                            continue
-                        # 查看他们的cwd
-                        proc_cwd = proc.cwd()
-                        if work_dir not in proc_cwd:
-                            continue
-                        # 都符合条件
-                        all_process.append(proc)
-                except Exception as e:
-                    pass
-        return all_process
-
-    @staticmethod
-    def kill_proc_tree(proc: psutil.Process = None, including_parent: bool = True, exclude_pids: list = None):
-        """
-        递归地杀死指定PID的进程及其所有子进程。
-        """
-        work_dir = os.getcwd()
-
-        try:
-            children = proc.children(recursive=True)
-            for child in children:
-                # 递归调用以杀死子进程的子进程
-                Process.kill_proc_tree(child, including_parent=True)
-        except Exception as e:
-            pass
-
-        if including_parent:
+        for pid in all_process_ids:
             try:
-                if exclude_pids:
-                    if proc.pid in exclude_pids:
-                        return
+                # 忽略自己
+                if pid in self_proc_id_list:
+                    continue
 
-                # 只会杀掉启动当期运行目录下的进程
+                # 查看cwd
+                proc = psutil.Process(pid)
                 proc_cwd = proc.exe()
-                logger.debug("当前进程工作目录: {} {}", proc_cwd, work_dir)
                 if "astron-rpa" not in proc_cwd:
-                    return
+                    continue
 
-                # 尝试杀死父进程
-                proc.kill()
-                proc.wait(5)  # 等待进程结束，防止僵尸进程
-            except psutil.NoSuchProcess:
+                # 符合条件
+                all_process.append(proc)
+            except Exception as e:
                 pass
+        return all_process
 
     @staticmethod
     def get_root_process(proc):
@@ -146,10 +100,10 @@ class Process:
                 if not psutil.pid_exists(root_id) or psutil.Process(root_id).name() != root_name:
                     logger.info("pid_exist_check kill process...")
                     # 首先递归杀一遍子进程
-                    Process.kill_proc_tree(psutil.Process(os.getpid()), exclude_pids=[os.getpid()])
+                    kill_proc_tree(psutil.Process(os.getpid()), exclude_pids=[os.getpid()])
                     # 再找到当前的启动路径的所有python进程杀一遍
                     Process.kill_all_zombie()
                     # 自行杀掉
-                    Process.kill_proc_tree(psutil.Process(os.getpid()))
+                    kill_proc_tree(psutil.Process(os.getpid()))
             except Exception as e:
                 logger.exception(e)
