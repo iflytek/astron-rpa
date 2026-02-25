@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iflytek.rpa.auth.sp.casdoor.dao.MarketUserDao">
+
+    <!-- 获取市场用户列表（分页）- 仅查询rpa数据库的app_market_user表 -->
+    <select id="getMarketUserListFromRpa" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
+        select
+            amu.id id,
+            amu.user_type userType,
+            amu.creator_id creatorId,
+            amu.create_time createTime
+        from app_market_user amu
+        where
+            amu.market_id = #{dto.marketId}
+            and amu.deleted = 0
+            <choose>
+                <when test="dto.sortBy !=null and dto.sortBy != ''">
+                    <if test="dto.sortType == 'descend'.toString()">
+                        order by ${dto.sortBy} desc
+                    </if>
+                    <if test="dto.sortType == 'ascend'.toString() ">
+                        order by ${dto.sortBy} asc
+                    </if>
+                </when>
+                <otherwise>
+                    order by createTime desc
+                </otherwise>
+            </choose>
+    </select>
+
+    <!-- 获取市场下已存在的用户ID列表 -->
+    <select id="getExistingUserIdsByMarketId" resultType="java.lang.String">
+        select distinct creator_id
+        from app_market_user
+        where market_id = #{marketId}
+            and deleted = 0
+    </select>
+
+</mapper>
+
