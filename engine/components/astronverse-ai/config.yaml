@@ -105,17 +105,17 @@ atomic:
         title: 星辰Agent返回值
         tip: ''
   Agent.call_astron_agent:
-    title: ''
-    comment: ''
-    icon: ''
+    title: 获取并调用星辰Agent流程
+    comment: 根据您的配置获取星辰Agent流程，完成您指定的任务。
+    icon: call-dify-workflow
     helpManual: ''
     inputList:
       - key: astron_workflow
-        title: ''
+        title: 星辰Agent流程配置
         tip: ''
     outputList:
       - key: astron_agent_result
-        title: ''
+        title: 星辰Agent返回值
         tip: ''
   ChatAI.single_turn_chat:
     title: 单轮会话
