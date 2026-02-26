@@ -5,7 +5,7 @@ from pathlib import Path
 import uvicorn
 from astronverse.scheduler.logger import logger
 from astronverse.baseline.config.config import load_config
-from astronverse.scheduler.apis import route
+from astronverse.scheduler.apis import router
 from astronverse.scheduler.config import Config
 from astronverse.scheduler.core.schduler.init import linux_env_check, win_env_check
 from astronverse.scheduler.core.server import ServerManager
@@ -26,7 +26,7 @@ from fastapi import FastAPI
 
 # 0. app实例化，并做初始化
 app = FastAPI()
-route.handler(app)
+router.handler(app)
 
 
 def start(args):
