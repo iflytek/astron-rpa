@@ -1,7 +1,8 @@
 from astronverse.scheduler.logger import logger
 import argparse
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser(description="{} service".format("scheduler"))
     parser.add_argument("--conf", type=str, default="../resources/conf.json", help="配置文件")
     parser.add_argument("--venv", type=str, help="配置文件")
@@ -17,3 +18,7 @@ if __name__ == "__main__":
         from astronverse.scheduler.start import start
 
         start(args)
+
+
+if __name__ == "__main__":
+    main()
