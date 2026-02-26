@@ -1,0 +1,4 @@
+.idea
+*.exe
+logs
+.cookie.json
