@@ -21,6 +21,7 @@ atomic:
     outputList:
       - key: computer_use_res
         title: 执行结果
+        subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
   ComputerUse.custom_action_screen:
     title: 自定义AI操作屏幕
@@ -44,6 +45,7 @@ atomic:
     outputList:
       - key: computer_use_res
         title: 执行结果
+        subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
   ComputerUse.extract_data:
     title: 提取屏幕数据
@@ -67,6 +69,7 @@ atomic:
     outputList:
       - key: computer_use_res
         title: 执行结果
+        subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
   ComputerUse.fill_form:
     title: 填写表单
@@ -90,6 +93,7 @@ atomic:
     outputList:
       - key: computer_use_res
         title: 执行结果
+        subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
   ComputerUse.process_captcha:
     title: 处理验证码
@@ -113,5 +117,6 @@ atomic:
     outputList:
       - key: computer_use_res
         title: 执行结果
+        subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
 options: {}
