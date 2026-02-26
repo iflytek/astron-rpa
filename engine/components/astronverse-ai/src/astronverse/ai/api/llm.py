@@ -57,11 +57,12 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
             {"role": "system", "content": system_input},
             {"role": "user", "content": user_input},
         ],
+        "stream": False,
     }
 
     try:
         # 发送 API 请求
-        response = requests.post(API_URL, data=json.dumps(data))
+        response = requests.post(API_URL, json=data)
         response.raise_for_status()  # 检查请求是否成功
 
         # 返回模型生成的回复
@@ -95,7 +96,7 @@ def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
 
     try:
         # 发送 API 请求
-        response = requests.post(PROMPT_URL, data=json.dumps(data))
+        response = requests.post(PROMPT_URL, json=data)
         response.raise_for_status()  # 检查请求是否成功
 
         # 返回模型生成的回复
