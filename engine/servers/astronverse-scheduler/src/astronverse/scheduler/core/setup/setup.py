@@ -30,7 +30,7 @@ class Process:
 
         # 收集所有需要关联的进程
         all_process_ids = []
-        for process_name in ["python.exe", "route.exe", "ConsoleApp1.exe", "winvnc.exe"]:
+        for process_name in ["python.exe", "astron_router.exe", "ConsoleApp1.exe", "winvnc.exe"]:
             output = subprocess.check_output(
                 ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
                 encoding=system_encoding,
