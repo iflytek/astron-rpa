@@ -312,6 +312,8 @@ class BrowserElement:
         elif fill_type == FillInputForFillTypeFlag.Credential:
             from astronverse.actionlib.utils import Credential
 
+            if not fill_input_credential:
+                raise ValueError("请先选择凭据名称")
             text = Credential.get_credential(fill_input_credential)
         else:
             text = ""
