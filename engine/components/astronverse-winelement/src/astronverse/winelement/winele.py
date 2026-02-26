@@ -175,6 +175,8 @@ class WinEle:
         elif input_type == ElementInputType.CLIPBOARD:
             pyautogui.hotkey("ctrl", "v")
         elif input_type == ElementInputType.Credential:
+            if not credential_text:
+                raise ValueError("请先选择凭据名称")
             uiautomation.SendKeys(Credential.get_credential(credential_text))
 
     @staticmethod
