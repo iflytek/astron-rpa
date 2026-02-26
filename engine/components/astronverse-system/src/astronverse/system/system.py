@@ -102,13 +102,14 @@ class System:
         if not (os.path.splitext(png_name)[1] == ".png" or os.path.splitext(png_name)[1] == ".jpg"):
             png_name = png_name + ".png"
         screenshot_path = os.path.join(png_path, png_name)
+        screen_width, screen_height = ScreenShotCore.screen_size()
         if screen_type == ScreenType.FULL:
+            region = (0, 0, screen_width, screen_height)
             try:
-                ScreenShotCore.screenshot(file_path=screenshot_path)
+                ScreenShotCore.screenshot(region=region, file_path=screenshot_path)
             except Exception as e:
                 raise BaseException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
         elif screen_type == ScreenType.REGION:
-            screen_width, screen_height = ScreenShotCore.screen_size()
             if (
                 top_left_x < 0
                 or top_left_y < 0
