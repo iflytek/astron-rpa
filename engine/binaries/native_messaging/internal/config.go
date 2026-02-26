@@ -42,8 +42,8 @@ func deriveAncestorProcessName() (string, error) {
 	var lastName string
 
 	// depth: 0 = self, 1 = parent, 2 = grandparent
-	const maxDepth = 2
-	for depth := 0; depth <= maxDepth; depth++ {
+	const maxProcessTreeDepth = 2
+	for depth := 0; depth <= maxProcessTreeDepth; depth++ {
 		p, err := process.NewProcess(pid)
 		if err != nil {
 			break

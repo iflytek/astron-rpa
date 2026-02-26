@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"errors"
 )
 
 type IService interface {
@@ -21,6 +22,7 @@ func NewService(ctx context.Context, config map[string]string, logger Logger) IS
 		logger:    logger,
 		config:    config,
 		ctx:       ctx,
+		lock:      &sync.Mutex{},
 		stdIoConn: NewStdIoConn(),
 		stdIoIn:   make(chan []byte, 5),
 	}
@@ -129,21 +131,14 @@ func (s *Service) handleConn(conn net.Conn) error {
 	}
 
 	// read latest response from stdIoIn with timeout (drop request if blocked)
-	t := time.After(10 * time.Second)
-	read := make([]byte, 0)
-ForTag1:
-	for {
-		select {
-		case <-t:
-			s.logger.Errorf(s.ctx, "service: timeout waiting for stdio response, dropping request")
-			break ForTag1
-		case buffer := <-s.stdIoIn:
-			read = buffer
-		default:
-			if len(read) > 0 {
-				break ForTag1
-			}
-		}
+    t := time.After(60)
+	var read []byte
+	select {
+	case read = <-s.stdIoIn:
+		// Message received
+	case <-t:
+		s.logger.Errorf(s.ctx, "service: timeout waiting for stdio response, dropping request")
+		return errors.New("timeout waiting for stdio response")
 	}
 
 	s.logger.Infof(s.ctx, "service: forwarding stdio response back to IPC: %q", string(read))
