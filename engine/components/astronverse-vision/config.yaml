@@ -40,8 +40,8 @@ atomic:
         tip: 超过该时间停止等待，默认为10秒
     outputList: []
   CV.hover_image:
-    title: 鼠标悬浮在图像上
-    comment: 鼠标悬浮在图像@{input_data}的@{click_position}
+    title: 鼠标悬停在图像上
+    comment: 鼠标悬停在图像@{input_data}的@{click_position}
     icon: mouse-hover-image
     helpManual: 在当前(激活)窗口检索图像，并将鼠标移动到该图像的指定位置上
     inputList:
@@ -49,11 +49,11 @@ atomic:
         title: 目标图像
         tip: 支持从图形库中选择或拾取图像获取图像元素
       - key: click_position
-        title: 悬浮位置
+        title: 悬停位置
         tip: ''
       - key: specified_position
         title: 指定位置
-        tip: 按照九宫格切割图像，支持选择九宫格任意一个区域，选择区域则悬浮在目标图像对应区域的中心点位置
+        tip: 按照九宫格切割图像，支持选择九宫格任意一个区域，选择区域则悬停在目标图像对应区域的中心点位置
       - key: horizontal_move
         title: 横向平移
         tip: ''

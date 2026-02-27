@@ -47,7 +47,7 @@ atomic:
         tip: ''
     outputList: []
   WinEle.hover_element:
-    title: 鼠标悬停元素（桌面）
+    title: 鼠标悬停在元素上（桌面）
     comment: 鼠标悬停在拾取到的元素 @{pick} 上
     icon: mouse-hover-element-win
     helpManual: ''

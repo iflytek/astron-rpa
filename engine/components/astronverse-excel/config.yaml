@@ -523,7 +523,7 @@ atomic:
         tip: ''
   Excel.loop_excel_content:
     title: 循环Excel内容
-    comment: 循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至@{key} 输出循环项至@{value}
+    comment: 循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至 @{key} ，输出循环项至 @{value}
     icon: excel-loop-content
     helpManual: ''
     inputList:

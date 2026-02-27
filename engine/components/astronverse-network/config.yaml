@@ -256,9 +256,9 @@ atomic:
         tip: ''
   Network.http_download:
     title: HTTP下载
-    comment: 下载指定URL@{url}的文件保存到指定目录@{dst_dir}中,并保存下载路径到变量@{http_download_path}
+    comment: 下载指定URL@{url}的文件保存到指定目录@{dst_dir},并保存下载路径到变量@{http_download_path}
     icon: http-download
-    helpManual: 下载指定URL@{url}的文件保存到指定目录@{dst_dir}中,并保存下载路径到变量@{http_download_path}
+    helpManual: 下载指定URL@{url}的文件保存到指定目录@{dst_dir},并保存下载路径到变量@{http_download_path}
     inputList:
       - key: url
         title: 下载地址
