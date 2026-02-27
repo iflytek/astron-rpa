@@ -259,7 +259,7 @@ atomic:
   ListProcess.remove_value_from_list:
     title: 列表删除值
     comment: >-
-      以 @{del_mode} 方式，从列表 @{list_data} 删除指定的值（@{del_value}）或位置（@{del_pos}）的元素，返回删除后的列表 @{removed_list_data}
+      以 @{del_mode} 方式，从列表 @{list_data} 删除指定的值 @{del_value} 或位置 @{del_pos} 的元素，返回删除后的列表 @{removed_list_data}
     icon: list-remove-value
     helpManual: ''
     inputList:
