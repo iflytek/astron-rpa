@@ -144,9 +144,15 @@ atomic:
       - key: doc
         title: Word对象
         tip: 本软件前序原子能力（如打开、创建）返回的Word对象
+      - key: text_source
+        title: 输入方式
+        tip: 选择直接输入或从文件读取
       - key: text
         title: 插入文本
         tip: 填写要插入的文本
+      - key: text_file_path
+        title: 文本文件路径
+        tip: 选择要读取的文本文件
       - key: enter_flag
         title: 是否在插入前换行
         tip: 选择是否在插入前换行
@@ -679,3 +685,8 @@ options:
       label: 自动生成名称
     - value: overwrite
       label: 覆盖同名文件
+  TextInputSourceType:
+    - value: input
+      label: 直接输入
+    - value: file
+      label: 文件读取

@@ -18,7 +18,6 @@ from astronverse.word import (
     CursorPositionType,
     DeleteMode,
     EncodingType,
-    FileExistenceType,
     InsertImgType,
     InsertionType,
     MoveDirectionType,
@@ -269,19 +268,24 @@ class WordDocumentCore(IDocumentCore):
         if enter_flag:
             selection.TypeParagraph()
         selection.TypeText(text)
-        selection.Start = selection.Start - len(text)  # 将光标移回到插入的文字开始位置 32
-        selection.End = selection.End  # 将光标移到插入的文字结束位置
-        # 设置文字格式（例如加粗、斜体等）
-        selection.Font.Bold = text_format["bold"]
-        selection.Font.Italic = text_format["italic"]
-        selection.Font.Underline = text_format["underline"].value
-        # 设置文字字体
-        selection.Font.Name = text_format["font_name"]
-        # 设置文字大小
-        selection.Font.Size = text_format["font_size"]
-        rgb_color = text_format["font_color"].split(",")
-        selection.Font.Color = RGB(int(rgb_color[0]), int(rgb_color[1]), int(rgb_color[2]))
-        selection.Start = selection.End  # 将光标移到末尾
+        # 将光标移回插入文字的开始位置并设置格式；若格式设置失败，文本已插入，仅记录日志不抛错
+        try:
+            selection.Start = selection.Start - len(text)  # 将光标移回到插入的文字开始位置
+            selection.End = selection.End  # 将光标移到插入的文字结束位置
+            # 设置文字格式（例如加粗、斜体等）
+            selection.Font.Bold = text_format["bold"]
+            selection.Font.Italic = text_format["italic"]
+            selection.Font.Underline = 1 if text_format["underline"] else 0
+            selection.Font.Name = text_format["font_name"]
+            selection.Font.Size = text_format["font_size"]
+            rgb_color = text_format["font_color"].split(",")
+            selection.Font.Color = RGB(int(rgb_color[0]), int(rgb_color[1]), int(rgb_color[2]))
+        except Exception as e:
+            logger.warning(f"Word 插入文本后格式设置失败（文本已插入）: {e}")
+        try:
+            selection.Start = selection.End  # 将光标移到末尾
+        except Exception as e:
+            logger.warning(f"Word 光标复位失败: {e}")
 
     @classmethod
     def replace(
