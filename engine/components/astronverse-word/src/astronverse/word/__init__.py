@@ -149,6 +149,13 @@ class SaveFileType(Enum):
     OVERWRITE = "overwrite"  # 覆写
 
 
+class TextInputSourceType(Enum):
+    """插入文本时的输入方式"""
+
+    INPUT = "input"  # 直接输入
+    FILE = "file"  # 从文件读取
+
+
 class UnderLineStyle(Enum):
     DEFAULT = 0
     LINE = 1

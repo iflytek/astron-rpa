@@ -1,6 +1,7 @@
 import os
 import platform
 import sys
+from pathlib import Path
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -30,6 +31,7 @@ from astronverse.word import (
     SelectRangeType,
     SelectTextType,
     TableBehavior,
+    TextInputSourceType,
     UnderLineStyle,
     VerticalAlignment,
 )
@@ -342,6 +344,29 @@ class Docx:
     @atomicMg.atomic(
         "Docx",
         inputList=[
+            atomicMg.param(
+                "text",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.text.show",
+                        expression=f"return $this.text_source.value == '{TextInputSourceType.INPUT.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "text_file_path",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
+                    params={"filters": [".txt"], "file_type": "file"},
+                ),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.text_file_path.show",
+                        expression=f"return $this.text_source.value == '{TextInputSourceType.FILE.value}'",
+                    )
+                ],
+            ),
             atomicMg.param("font_size", required=False),
             atomicMg.param("font_name", required=False),
             atomicMg.param(
@@ -354,18 +379,39 @@ class Docx:
     )
     def insert_docx(
         doc: DocumentObject,
+        text_source: TextInputSourceType = TextInputSourceType.INPUT,
         text: str = "",
+        text_file_path: str = "",
         enter_flag: bool = False,
         font_size: int = 12,
         bold_flag: bool = False,
         italic_flag: bool = False,
-        underline_flag: UnderLineStyle = UnderLineStyle.DEFAULT,
+        underline_flag: bool = False,
         font_name: str = "宋体",
         font_color: str = "0,0,0",
     ):
         if not doc:
             raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
         try:
+            # 选择文件读取时，从 txt 文件读取文本
+            if text_source == TextInputSourceType.FILE:
+                if text_file_path and os.path.exists(text_file_path):
+                    for encoding in ("utf-8", "gbk", "gb2312", "utf-16"):
+                        try:
+                            text = Path(text_file_path).read_text(encoding=encoding)
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                    else:
+                        raise BaseException(
+                            DOCUMENT_READ_ERROR_FORMAT.format(text_file_path),
+                            "无法解码 txt 文件编码，请确保文件为 UTF-8 或 GBK 编码！",
+                        )
+                else:
+                    raise BaseException(
+                        DOCUMENT_PATH_ERROR_FORMAT.format(text_file_path),
+                        "txt 文件不存在，请检查路径！",
+                    )
             if not font_color:
                 font_color = "0,0,0"
             text_format = {
@@ -378,9 +424,11 @@ class Docx:
             }
             WordDocumentCore.insert(doc.document_object, text, enter_flag, text_format)
         except Exception as e:
+            if isinstance(e, BaseException):
+                raise
             raise BaseException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
-                "读取文档内容失败，请检查文档是否打开！",
+                f"读取文档内容失败: {e}",
             ) from e
 
     @staticmethod
