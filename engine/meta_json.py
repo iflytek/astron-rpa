@@ -126,7 +126,6 @@ def sort_meta_items(meta_items):
 
 
 def meta_upload():
-
     update_json_path = os.path.join(os.path.dirname(__file__), "temp_update.json")
     with open(update_json_path, encoding="utf-8") as f:
         update_meta = json.load(f)
