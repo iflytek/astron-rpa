@@ -170,6 +170,7 @@ class WsApp {
     this.reconnect_time = 0;
     this.reconnect_interval = reconnect_interval;
     this.reconnect_max_time = reconnect_max_time;
+    this.is_reconnect = true
 
     this.watch_interval = 1;
     this.watch_msg = {}; // map[str, Watch]
@@ -372,7 +373,7 @@ class WsApp {
       } catch (error) {
         that.log(`error _on_close _call_route: ${error}`);
       }
-      that._reconnect();
+      that.is_reconnect && that._reconnect();
     };
   }
 
@@ -416,18 +417,28 @@ class WsApp {
       that.log(`error start: ${error}`);
     }
   }
+
+  close() {
+    this.is_reconnect = false
+    if (this.ws_app) {
+      this.ws_app.close();
+    }
+  }
 }
 
 const storage = get_navigator_user_agent() === '$firefox$' ? browser.storage.local : chrome.storage.local;
 
-export async function createWsApp() {
+function isValidPipeName(pipeName) {
+  return typeof pipeName === 'string' && /^[A-Za-z0-9_-]+$/.test(pipeName);
+}
+
+export async function createWsApp(pipeName) {
   const { cid = gen_short_id() } = await storage.get('cid')
   await storage.set({ cid })
   const ws_base_url = import.meta.env.VITE_APP_WS_URL;
   const customAgent = custom_agent();
   const agent = customAgent ? customAgent : get_navigator_user_agent()
-  console.info('[info]', `token: ${agent}`);
-  const token = btoa(agent);
+  const token = isValidPipeName(pipeName) ? btoa('$' + pipeName + '$') : btoa(agent);
   const version = get_navigator_version();
   const wsUrl = `${ws_base_url}?token=${token}&nv=${version}&cid=${cid}`;
   const wsApp = new WsApp(

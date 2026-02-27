@@ -2,8 +2,8 @@ import os
 import sys
 
 from astronverse.browser_plugin import BrowserType, PluginData
-from astronverse.browser_plugin.error import BizException, PLUGIN_NOT_FOUND, UNSUPPORTED_PLATFORM_FORMAT
-from astronverse.browser_plugin.utils import parse_filename_regex
+from astronverse.browser_plugin.error import PLUGIN_NOT_FOUND, UNSUPPORTED_PLATFORM_FORMAT, BizException
+from astronverse.browser_plugin.utils import get_latest_plugin, parse_filename_regex
 
 if sys.platform == "win32":
     from astronverse.browser_plugin.win import BrowserPluginFactory
@@ -12,6 +12,8 @@ elif sys.platform == "linux":
 else:
     raise BizException(UNSUPPORTED_PLATFORM_FORMAT.format(sys.platform), f"不支持的平台: {sys.platform}")
 
+from .config import Config
+
 
 class ExtensionManager:
     def __init__(self, browser_type: BrowserType = BrowserType.CHROME):
@@ -19,23 +21,25 @@ class ExtensionManager:
 
         current_directory = os.path.dirname(os.path.abspath(__file__))
         plugin_dir = os.path.join(current_directory, "plugins")
-        browser_name = self.browser_type.value.lower()
+        # browser_name = self.browser_type.value.lower()
 
-        public_chrom_plugin = tuple(name.value.lower() for name in (BrowserType.CHROME, BrowserType.MICROSOFT_EDGE))
-        pre_name = "chrome" if browser_name in public_chrom_plugin else browser_name
-        plugins = [file for file in os.listdir(plugin_dir) if file.startswith(pre_name + "-")]
-
+        # public_chrom_plugin = tuple(name.value.lower() for name in (BrowserType.CHROME, BrowserType.MICROSOFT_EDGE))
+        pre_name = "chrome"  # for based on chrome
+        plugins = [file for file in os.listdir(plugin_dir) if file.startswith(pre_name) and file.endswith(".crx")]
         if not plugins:
             raise BizException(PLUGIN_NOT_FOUND, "未找到插件")
 
-        # get plugin info from file
-        plugin_name, plugin_version, plugin_id, _extension = parse_filename_regex(plugins[-1])
+        latest_plugin = get_latest_plugin(plugins, pre_name)
+        plugin_name, plugin_version, plugin_id, _extension = parse_filename_regex(latest_plugin)
 
         self.plugin_data = PluginData(
-            plugin_path=os.path.join(os.getcwd(), plugin_dir, plugins[-1]),
+            plugin_path=os.path.join(os.getcwd(), plugin_dir, latest_plugin),
             plugin_id=plugin_id,
             plugin_version=plugin_version,
             plugin_name=plugin_name,
+            plugin_native_message_host_json_path=os.path.join(
+                os.getcwd(), plugin_dir, Config.NATIVE_MESSAGE_HOST_FILE_NAME
+            ),
         )
 
         self.browser_plugin_manager = BrowserPluginFactory.get_plugin_manager(browser_type, self.plugin_data)

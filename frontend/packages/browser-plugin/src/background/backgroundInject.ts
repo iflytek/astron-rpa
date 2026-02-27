@@ -20,6 +20,7 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
       // favIconUrl: sender.tab.favIconUrl,// different in chrome and firefox
       isFrame: sender.frameId !== 0,
       frameId: sender.frameId,
+      tabId: sender.tab.id
     }
     globalThis.activeElement = { ...request.data, ...info }
   }
