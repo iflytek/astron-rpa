@@ -1,8 +1,10 @@
 import asyncio
+import json
 
 from astronverse.browser_bridge.apis.context import ServiceContext, get_svc
 from astronverse.browser_bridge.apis.response import CustomResponse
 from astronverse.browser_bridge.apis.ws_route import error_to_base_error, wsmg
+from astronverse.browser_bridge.core.ipc import NativeMessagingClient
 from astronverse.browser_bridge.error import *
 from astronverse.websocket_server.ws_service import BaseMsg
 from fastapi import APIRouter, Depends, Request
@@ -11,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/transition")
-async def transition(request: Request, svc: ServiceContext = Depends(get_svc)):
+async def send_browser_command(request: Request, svc: ServiceContext = Depends(get_svc)):
     req_data = await request.json()
     key = req_data.get("key", "")
     data = req_data.get("data", {})
@@ -57,6 +59,33 @@ async def transition(request: Request, svc: ServiceContext = Depends(get_svc)):
         raise error_to_base_error(res_e)
 
     # 正常回复
+    return CustomResponse.tojson(res)
+
+
+@router.post("/native")
+async def send_browser_command_native(request: Request, svc: ServiceContext = Depends(get_svc)):
+    req_data = await request.json()
+    key = req_data.get("key", "")
+    data = req_data.get("data", {})
+    browser_type = req_data.get("browser_type", "")
+
+    if (not key) or (not browser_type):
+        raise BaseException(
+            PARAMETER_ERROR_FORMAT.format((key, data, browser_type)),
+            "error: PARAMETER ERROR FORMAT {}".format((key, data, browser_type)),
+        )
+
+    try:
+        # 同步的 pipe 读写会阻塞，放到线程池执行，与 Go 端 handleConn 的等待逻辑一致（有来有回）
+        res = await asyncio.to_thread(
+            NativeMessagingClient.send_and_wait,
+            browser_type=browser_type,
+            key=key,
+            data=data,
+        )
+    except Exception as e:
+        raise error_to_base_error(e)
+
     return CustomResponse.tojson(res)
 
 
