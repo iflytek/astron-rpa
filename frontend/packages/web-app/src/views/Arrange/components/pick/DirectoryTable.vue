@@ -205,6 +205,11 @@ const attrColumns = reactive<ColumnsType>([
 watch(() => props.nodeSource, () => {
   currentNodeIndex.value = 0 // 重置当前节点索引
   currentKey.value = Math.random().toString(36).substring(2, 15) // 更新当前key以触发attrTable重新渲染
+  nextTick(() => {
+    const dom = document.querySelector('.node-table .ant-table-body tr:last-child')
+    dom?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    currentNodeIndex.value = props.nodeSource.length - 1
+  })
 }, { immediate: true })
 </script>
 

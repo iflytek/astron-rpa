@@ -462,6 +462,7 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
     if (idIndex !== -1 && i < idIndex) {
       // try to uncheck dir.checked
       dir.checked = false
+      dir.attrs.forEach(attr => attr.checked = false)
     }
     // try to uncheck index attr
     const indexAttr = dir.attrs.find(attr => attr.name === 'index')
