@@ -58,7 +58,7 @@ class CredentialService:
     def _save_index(names: list[str]):
         """保存凭证名称索引"""
         try:
-            keyring.set_password(SERVICE_NAME, INDEX_KEY, json.dumps(sorted(set(names))))
+            keyring.set_password(SERVICE_NAME, INDEX_KEY, json.dumps(list(dict.fromkeys(names))))
         except Exception as e:
             logger.exception(f"保存凭证索引失败: {e}")
 
@@ -91,7 +91,7 @@ class CredentialService:
         """
         try:
             CredentialService._cleanup_index()
-            return [{"name": name} for name in CredentialService._get_index()]
+            return [{"name": name} for name in reversed(CredentialService._get_index())]
         except Exception as e:
             logger.exception(f"获取凭证列表失败: {e}")
             return []
