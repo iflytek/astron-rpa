@@ -131,7 +131,7 @@ func (s *Service) handleConn(conn net.Conn) error {
 	}
 
 	// read latest response from stdIoIn with timeout (drop request if blocked)
-    t := time.After(60)
+	t := time.After(60 * time.Second)
 	var read []byte
 	select {
 	case read = <-s.stdIoIn:
@@ -142,6 +142,10 @@ func (s *Service) handleConn(conn net.Conn) error {
 	}
 
 	s.logger.Infof(s.ctx, "service: forwarding stdio response back to IPC: %q", string(read))
+	// 确保响应以换行符结尾，Python 端使用 readline() 需要 \n
+	if len(read) > 0 && read[len(read)-1] != '\n' {
+		read = append(read, '\n')
+	}
 	_, err = conn.Write(read)
 	if err != nil {
 		s.logger.Errorf(s.ctx, "service: write response to IPC failed: %v", err)
