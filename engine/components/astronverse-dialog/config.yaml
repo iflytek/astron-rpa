@@ -1,13 +1,13 @@
 atomic:
   Dialog.message_box:
     title: 消息提示框
-    comment: ''
+    comment: 打开消息提示对话框，可设定消息提示的内容和标题
     icon: message-dialog
-    helpManual: 打开消息提示对话框，可设定消息提示的内容和标题。
+    helpManual: 打开消息提示对话框，可设定消息提示的内容和标题
     inputList:
       - key: box_title
         title: 对话框标题
-        tip: 用户自定义的对话框上方的显示标题，限制标题内容字符数量为50个字符。不输入则默认标题为“消息提示框”
+        tip: 用户自定义的对话框上方的显示标题，限制标题内容字符数量为50个字符，不输入则默认标题为“消息提示框”
       - key: message_type
         title: 消息类型
         tip: 可选消息类型
@@ -44,9 +44,9 @@ atomic:
         tip: ''
   Dialog.input_box:
     title: 输入对话框
-    comment: ''
+    comment: 打开输入对话框，需用户进行信息输入并确定提交，返回用户在对话框中输入的内容
     icon: input-dialog
-    helpManual: 打开输入对话框，需用户进行信息输入并确定提交，返回用户在对话框中输入的内容。
+    helpManual: 打开输入对话框，需用户进行信息输入并确定提交，返回用户在对话框中输入的内容
     inputList:
       - key: box_title
         title: 对话框标题
@@ -72,7 +72,7 @@ atomic:
         tip: ''
   Dialog.select_box:
     title: 选择对话框
-    comment: ''
+    comment: 打开选择对话框，保存用户从选择列表中选择的一个或多个选项
     icon: select-dialog
     helpManual: 打开选择对话框，保存用户从选择列表中选择的一个或多个选项
     inputList:
@@ -97,7 +97,7 @@ atomic:
         tip: ''
   Dialog.select_time_box:
     title: 日期时间选择框
-    comment: ''
+    comment: 打开日期时间选择框，保存用户选择的日期或时间
     icon: datetime-picker
     helpManual: 打开日期时间选择框，保存用户选择的日期或时间
     inputList:
@@ -128,7 +128,7 @@ atomic:
         tip: ''
   Dialog.select_file_box:
     title: 文件选择对话框
-    comment: ''
+    comment: 打开系统选择文件对话框，保存用户选择的对应的文件/文件夹路径
     icon: file-select-dialog
     helpManual: 打开系统选择文件对话框，保存用户选择的对应的文件/文件夹路径
     inputList:
@@ -162,7 +162,7 @@ atomic:
         tip: 保存用户的文件选择结果，如果用户点击取消按钮则返回为空值
   Dialog.custom_box:
     title: 自定义对话框
-    comment: ''
+    comment: 打开自定义对话框，用户可根据需求设计对话框界面和输入控件，保存用户在自定义对话框中的输入内容和点击结果
     icon: custom-dialog
     helpManual: ''
     inputList:

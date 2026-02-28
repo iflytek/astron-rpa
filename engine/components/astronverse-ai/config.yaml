@@ -1,7 +1,7 @@
 atomic:
   Agent.call_dify:
     title: 调用Dify工作流
-    comment: 调用Dify工作流 @{app_token} ，完成您指定的任务。
+    comment: 调用Dify工作流 @{app_token} ，完成您指定的任务
     icon: call-dify-workflow
     helpManual: ''
     inputList:
@@ -36,7 +36,7 @@ atomic:
         tip: ''
   Agent.call_dify_chatflow:
     title: 调用Dify对话流
-    comment: 调用Dify对话流 @{app_token} ，完成您指定的任务。
+    comment: 调用Dify对话流 @{app_token} ，完成您指定的任务
     icon: call-dify-workflow
     helpManual: ''
     inputList:
@@ -74,7 +74,7 @@ atomic:
         tip: ''
   Agent.call_xcagent:
     title: 调用星辰Agent流程
-    comment: 调用星辰Agent流程 @{flow_id} ，完成您指定的任务。
+    comment: 调用星辰Agent流程 @{flow_id} ，完成您指定的任务
     icon: call-dify-workflow
     helpManual: ''
     inputList:
@@ -85,7 +85,7 @@ atomic:
         title: API Secret
         tip: ''
       - key: flow_id
-        title: 流程id
+        title: 流程ID
         tip: ''
       - key: input_value
         title: 工作流默认输入
@@ -123,16 +123,16 @@ atomic:
         tip: ''
   ChatAI.single_turn_chat:
     title: 单轮会话
-    comment: 大模型将对你提出的问题： @{query} 进行回答。
+    comment: 大模型将对您提出的问题： @{query} 进行回答
     icon: single-chat
     helpManual: ''
     inputList:
       - key: query
         title: 用户输入
-        tip: 用户输入的问题。
+        tip: 用户输入的问题
       - key: model
         title: 模型选择
-        tip: 可以选择使用的模型。
+        tip: 可以选择使用的模型
       - key: custom_model
         title: 自定义模型ID
         tip: ''
@@ -140,25 +140,25 @@ atomic:
       - key: single_chat_res
         title: 答案输出
         subTitle: AI生成
-        tip: 将大模型生成的答案输出为变量。
+        tip: 将大模型生成的答案输出为变量
   ChatAI.chat:
     title: 多轮会话
-    comment: 大模型将扮演角色，并进行最多 (@{max_turns}) 问答次数。
+    comment: 大模型将扮演角色，并进行最多 @{max_turns} 轮问答
     icon: multi-chat
     helpManual: ''
     inputList:
       - key: is_save
         title: 保存会话
-        tip: 是否在对话结束时保存对话。
+        tip: 是否在对话结束时保存对话
       - key: title
         title: 窗口标题
-        tip: 定义对话窗口标题。
+        tip: 定义对话窗口标题
       - key: max_turns
         title: 最大问答次数
-        tip: 最大问答次数，完整的Q&A（question & answer）为一次。
+        tip: 最大问答次数，完整的Q&A（question & answer）为一次
       - key: model
         title: 模型选择
-        tip: 可以选择使用的模型。
+        tip: 可以选择使用的模型
       - key: custom_model
         title: 自定义模型ID
         tip: ''
@@ -166,30 +166,30 @@ atomic:
       - key: chat_res
         title: 对话聊天记录输出
         subTitle: AI生成
-        tip: 将对话聊天记录输出为变量。
+        tip: 将对话聊天记录输出为变量
   ChatAI.knowledge_chat:
     title: 知识问答
-    comment: 大模型将读取的文件位于 @{file_path} 。
+    comment: 大模型将读取位于 @{file_path} 的文件进行知识问答
     icon: knowledge-qa
     helpManual: ''
     inputList:
       - key: file_path
         title: 文件路径
-        tip: 请选择需要进行知识问答的文件路径。
+        tip: 请选择需要进行知识问答的文件路径
       - key: is_save
         title: 保存会话
-        tip: 是否在对话结束时保存对话。
+        tip: 是否在对话结束时保存对话
       - key: max_turns
         title: 最大问答次数
-        tip: 最大问答次数，完整的Q&A（question & answer）为一次。
+        tip: 最大问答次数，完整的Q&A（question & answer）为一次
     outputList:
       - key: knowledge_chat_res
         title: 对话聊天记录输出
         subTitle: AI生成
-        tip: 将对话聊天记录输出为变量。
+        tip: 将对话聊天记录输出为变量
   ContractAI.get_factors:
     title: 合同要素提取
-    comment: 提取合同 @{contract_content} 中的要素。
+    comment: 提取合同 @{contract_content} 中的要素
     icon: contract-element-extraction
     helpManual: ''
     inputList:
@@ -218,13 +218,13 @@ atomic:
         tip: ''
   DocumentAI.theme_expand:
     title: 主题扩写
-    comment: 大模型将根据您给定的主题： @{theme_text} ，对其进行扩写。
+    comment: 大模型将根据您给定的主题： @{theme_text} ，对其进行扩写
     icon: topic-expand
     helpManual: ''
     inputList:
       - key: theme_text
         title: 主题
-        tip: 输入您需要扩展的主题。
+        tip: 输入您需要扩展的主题
       - key: model
         title: 模型ID
         tip: ''
@@ -232,16 +232,16 @@ atomic:
       - key: theme_expand_res
         title: 主题扩展结果输出
         subTitle: AI生成
-        tip: 将主题扩展结果输出为变量。
+        tip: 将主题扩展结果输出为变量
   DocumentAI.sentence_expand:
     title: 段落扩写
-    comment: 大模型将根据您给定的段落 @{paragraph_text} ，对其进行扩写。
+    comment: 大模型将根据您给定的段落 @{paragraph_text} ，对其进行扩写
     icon: paragraph-expand
     helpManual: ''
     inputList:
       - key: paragraph_text
         title: 段落
-        tip: 输入您需要扩展的段落。
+        tip: 输入您需要扩展的段落
       - key: model
         title: 模型ID
         tip: ''
@@ -249,16 +249,16 @@ atomic:
       - key: sentence_expand_res
         title: 段落扩展结果输出
         subTitle: AI生成
-        tip: 将段落扩展结果输出为变量。
+        tip: 将段落扩展结果输出为变量
   DocumentAI.sentence_reduce:
     title: 段落缩写
-    comment: 大模型将根据您给定的段落 @{sentence_text} ，对其进行缩写。
+    comment: 大模型将根据您给定的段落 @{sentence_text} ，对其进行缩写
     icon: paragraph-abbreviate
     helpManual: ''
     inputList:
       - key: sentence_text
         title: 段落
-        tip: 输入您需要缩写的段落。
+        tip: 输入您需要缩写的段落
       - key: model
         title: 模型ID
         tip: ''
@@ -266,10 +266,10 @@ atomic:
       - key: sentence_reduce_res
         title: 段落缩写结果输出
         subTitle: AI生成
-        tip: 将段落缩写结果输出为变量。
+        tip: 将段落缩写结果输出为变量
   RecruitAI.generate_keywords:
     title: 职位关键词生成
-    comment: 根据职位描述 @{job_description} 生成关键词。
+    comment: 根据职位描述 @{job_description} 生成关键词
     icon: job-keyword-generation
     helpManual: ''
     inputList:
@@ -292,7 +292,7 @@ atomic:
         tip: ''
   RecruitAI.rating_resume:
     title: 简历评分
-    comment: 根据简历 @{resume_content} 评分。
+    comment: 根据简历 @{resume_content} 评分
     icon: resume-scoring
     helpManual: ''
     inputList:

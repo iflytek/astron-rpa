@@ -3,7 +3,7 @@
 atomic:
   Gui.keyboard:
     title: 键盘输入
-    comment: 通过(@{keyboard_type})方式模拟键盘输入(@{message})
+    comment: 通过@{keyboard_type}方式模拟键盘输入@{message}
     icon: keyboard-input
     helpManual: ''
     inputList:
@@ -23,7 +23,7 @@ atomic:
     outputList: []
   Gui.key_input:
     title: 键盘模拟按键
-    comment: 使用键盘模拟按键(@{keys_str})(@{key_model})
+    comment: 使用键盘模拟按键@{keys_str}@{key_model}
     icon: keyboard-simulate-key
     helpManual: 通过设置键盘按键进行输入
     inputList:
@@ -36,7 +36,7 @@ atomic:
     outputList: []
   Gui.mouse:
     title: 鼠标点击
-    comment: 模拟鼠标(@{btn_type:左键/右键/中键}) (@{btn_model:按下/弹起/单机/双击}))
+    comment: 模拟鼠标@{btn_type:左键/右键/中键} @{btn_model:按下/弹起/单击/双击}
     icon: mouse-click
     helpManual: ''
     inputList:
@@ -52,7 +52,7 @@ atomic:
     outputList: []
   Gui.mouse_wheel:
     title: 鼠标滚动
-    comment: 模拟鼠标(@{scroll_type})滚动(@{scroll_px||times}),滚动方向为:(@{direction})
+    comment: 模拟鼠标 @{scroll_type} 滚动 @{scroll_px||times}，滚动方向为:@{direction}
     icon: mouse-scroll-webpage
     helpManual: ''
     inputList:
@@ -72,37 +72,9 @@ atomic:
         title: 键盘辅助按键
         tip: 选择键盘辅助按键，默认为无
     outputList: []
-  Gui.mouse_move:
-    title: 鼠标移动
-    comment: 在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})
-    icon: mouse-move
-    helpManual: ''
-    inputList:
-      - key: window_type
-        title: 窗口类型
-        tip: 整个屏幕：以屏幕左上角为坐标相对位置；激活窗口：以激活窗口左上角为相对坐标位置
-      - key: window_position
-        title: 窗口左上角位置
-        tip: ''
-      - key: get_mouse_position
-        title: 获取鼠标位置
-        tip: ''
-      - key: position_x
-        title: 鼠标x位置
-        tip: ''
-      - key: position_y
-        title: 鼠标y位置
-        tip: ''
-      - key: move_type
-        title: 鼠标移动方式
-        tip: 选择鼠标移动方式
-      - key: move_speed
-        title: 鼠标移动速度
-        tip: ''
-    outputList: []
   Gui.mouse_move_new:
     title: 鼠标移动
-    comment: 在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})
+    comment: 在@{window_type}上模拟鼠标移动到@{position_x}, @{position_y}
     icon: mouse-move
     helpManual: ''
     inputList:
@@ -131,8 +103,8 @@ atomic:
   Gui.mouse_drag:
     title: 鼠标拖拽
     comment: >-
-      模拟鼠标从起点位置(@{start_pos_x}, @{start_pos_y})拖拽到终点位置(@{end_pos_x},
-      @{end_pos_y})
+      模拟鼠标从起点位置@{start_pos_x}, @{start_pos_y}拖拽到终点位置@{end_pos_x},
+      @{end_pos_y}
     icon: mouse-drag
     helpManual: ''
     inputList:
@@ -163,7 +135,7 @@ atomic:
     outputList: []
   Gui.mouse_position:
     title: 获取鼠标位置
-    comment: 获取当前鼠标位置并输出至(@{point_x}, @{point_y})
+    comment: 获取当前鼠标位置并输出至@{point_x}, @{point_y}
     icon: get-mouse-position
     helpManual: ''
     inputList: []
