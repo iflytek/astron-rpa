@@ -9,7 +9,7 @@ atomic:
         title: 文档路径
         tip: 填写Word的路径
       - key: default_application
-        title: 驱动方式
+        title: 打开方式
         tip: 选择Word的打开方式，如Word或WPS
       - key: visible_flag
         title: 是否可见
@@ -48,7 +48,7 @@ atomic:
     outputList:
       - key: doc_data
         title: 文档内容
-        tip: ''
+        tip: 返回读取的文档内容，格式为字符串
   Docx.create_docx:
     title: 创建Word
     comment: >-
@@ -75,7 +75,7 @@ atomic:
     outputList:
       - key: doc_obj
         title: Word对象
-        tip: ''
+        tip: 返回Word对象，用于后续操作
       - key: doc_create_path
         title: 文档保存路径
         tip: 保存的Word的完整路径
@@ -298,8 +298,8 @@ atomic:
         title: 文件路径
         tip: 输入文件路径
       - key: scale
-        title: 缩放比例（%）
-        tip: 默认为100%，可以输入其他值，不需要输入百分号
+        title: 缩放比例
+        tip: 输入整数表示百分比（例如 100 表示 100%），默认 100
       - key: newline
         title: 是否换行
         tip: 选择插入前是否换行

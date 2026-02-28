@@ -1,7 +1,7 @@
 atomic:
   Report.print:
     title: 日志打印
-    comment: 将变量(@{msg})打印
+    comment: 将变量 @{msg} 打印
     icon: log-print
     helpManual: ''
     inputList:
@@ -10,7 +10,7 @@ atomic:
         tip: ''
       - key: msg
         title: 日志内容
-        tip: 打印运行过程中输出的流变量
+        tip: 打印日志的内容，支持字符串和变量
     outputList: []
 options:
   ReportLevelType:

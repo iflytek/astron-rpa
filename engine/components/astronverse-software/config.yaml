@@ -2,7 +2,7 @@ atomic:
   Software.open:
     title: 打开程序
     comment: >-
-      打开路径为(@{app_absolute_path})的应用程序，将结果输出为(@{software_open})
+      打开路径为 @{app_absolute_path} 的应用程序，将结果输出为 @{software_open}
     icon: open-program
     helpManual: ''
     inputList:
@@ -18,7 +18,7 @@ atomic:
         tip: 输出该被打开的应用程序路径
   Software.close:
     title: 关闭程序
-    comment: 关闭应用程序路径为(@{app_absolute_path})的程序
+    comment: 关闭应用程序路径为 @{app_absolute_path} 的程序
     icon: close-program
     helpManual: ''
     inputList:
@@ -28,7 +28,7 @@ atomic:
     outputList: []
   Software.cmd:
     title: Cmd命令
-    comment: 通过配置cmd字符串(@{cmd})，执行cmd命令，执行结果保存至(@{exec_cmd})
+    comment: 通过配置cmd字符串@{cmd}，执行cmd命令，执行结果保存至@{exec_cmd}
     icon: cmd-command
     helpManual: ''
     inputList:

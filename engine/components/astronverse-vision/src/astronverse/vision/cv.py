@@ -262,7 +262,7 @@ class CV:
         wait_time: int = 10,
     ):
         """
-        鼠标悬浮在图像上
+        鼠标悬停在图像上
         :param input_data: 目标图像
         :param click_position: 点击位置
         :param specified_position: 指定位置

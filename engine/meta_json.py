@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -128,9 +129,10 @@ def meta_upload():
     update_json_path = os.path.join(os.path.dirname(__file__), "temp_update.json")
     with open(update_json_path, encoding="utf-8") as f:
         update_meta = json.load(f)
-        print(f"Uploading {len(update_meta)} meta items to server...")
+        modified_data = process_json_data(update_meta)
+        print(f"Uploading {len(modified_data)} meta items to server...")
         try:
-            response = requests.post(upload_url, json=update_meta, timeout=10)
+            response = requests.post(upload_url, json=modified_data, timeout=10)
             if response.status_code == 200:
                 print("\033[32mmeta uploaded successfully.\033[0m")
             else:
@@ -173,6 +175,35 @@ def tree_upload():
 def save_json_to_file(data, file_path):
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def add_spaces_around_vars_in_string(text):
+    """
+    Adds spaces around @{...} variables in a string if they are missing.
+    """
+    if not isinstance(text, str):
+        return text
+
+    # Add a space before @{...} if it's preceded by a non-space character
+    text = re.sub(r"(\S)(@\{.*?\})", r"\1 \2", text)
+    # Add a space after @{...} if it's followed by a non-space character
+    text = re.sub(r"(@\{.*?\})(\S)", r"\1 \2", text)
+
+    return text
+
+
+def process_json_data(data):
+    """
+    Recursively traverses JSON data (dicts, lists) and applies the string modification.
+    """
+    if isinstance(data, dict):
+        return {k: process_json_data(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [process_json_data(item) for item in data]
+    elif isinstance(data, str):
+        return add_spaces_around_vars_in_string(data)
+    else:
+        return data
 
 
 if __name__ == "__main__":

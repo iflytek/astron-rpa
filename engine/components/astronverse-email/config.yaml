@@ -7,10 +7,10 @@ atomic:
     inputList:
       - key: receiver
         title: 收件人邮箱
-        tip: ''
+        tip: 收件人邮箱地址
       - key: cc
         title: 抄送邮箱
-        tip: ''
+        tip: 抄送邮箱地址
       - key: subject
         title: 主题
         tip: ''
@@ -25,25 +25,25 @@ atomic:
         tip: ''
       - key: mail_server
         title: 邮件服务器
-        tip: ''
+        tip: 例如：smtp.126.com，smtp.qq.com等
       - key: other_mail_server
         title: 其他邮件服务器
-        tip: ''
+        tip: 选择其他邮件服务器时需要输入邮件服务器地址和端口
       - key: mail_port
         title: 邮件服务器端口
-        tip: ''
+        tip: 例如：smtp.126.com的端口为25，smtp.qq.com的端口为465或587
       - key: use_ssl
         title: 是否使用SSL加密
         tip: ''
       - key: sender_mail
         title: 发件人邮箱
-        tip: ''
+        tip: 发件人邮箱地址，需与邮件服务器匹配
       - key: send_name
         title: 发件人名称
         tip: ''
       - key: password
         title: 密码/授权码
-        tip: ''
+        tip: 发件人邮箱的密码或授权码，使用授权码更安全，具体获取方式请参考对应邮件服务商的说明
       - key: bcc
         title: 密送邮箱
         tip: ''
@@ -53,7 +53,7 @@ atomic:
     outputList: []
   Email.receive_email:
     title: 接收邮件
-    comment: 从邮箱(@{user_mail})接收邮件信息
+    comment: 从邮箱 @{user_mail} 接收邮件信息
     icon: receive-email
     helpManual: ''
     inputList:

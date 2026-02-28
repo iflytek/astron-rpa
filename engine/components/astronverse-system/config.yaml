@@ -1,9 +1,9 @@
 atomic:
   System.copy_clip:
-    title: 复制到剪切板
-    comment: 将 @{content_type}  @{message||file_path||folder_path} 复制到剪切板
+    title: 复制到剪贴板
+    comment: 将 @{content_type} @{message||file_path||folder_path} 复制到剪贴板
     icon: copy-to-clipboard
-    helpManual: 支持将文本内容/文件/文件夹复制到剪切板
+    helpManual: 支持将文本内容/文件/文件夹复制到剪贴板
     inputList:
       - key: content_type
         title: 复制类型
@@ -19,21 +19,21 @@ atomic:
         tip: 输入或选择待复制文件夹
     outputList: []
   System.clear_clip:
-    title: 清空剪切板
-    comment: 清空剪切板中的内容
+    title: 清空剪贴板
+    comment: 清空剪贴板中的内容
     icon: clear-clipboard
-    helpManual: 清空剪切板中的内容
+    helpManual: 清空剪贴板中的内容
     inputList: []
     outputList: []
   System.paste_clip:
-    title: 获取剪切板
-    comment: 获取剪切板中的 @{content_type} ，并保存至变量 @{output_content}
+    title: 获取剪贴板
+    comment: 获取剪贴板中的 @{content_type} ，并保存至变量 @{output_content}
     icon: get-clipboard
-    helpManual: 支持获取剪切板中的文本内容/文件/文件夹，并将文本内容/文件文件夹保存路径保存到指定路径中
+    helpManual: 支持获取剪贴板中的文本内容/文件/文件夹，并将文本内容/文件文件夹保存路径保存到指定路径中
     inputList:
       - key: content_type
         title: 获取类型
-        tip: 选择剪切板中要获取的内容类型
+        tip: 选择剪贴板中要获取的内容类型
       - key: dst_path
         title: 保存路径
         tip: 请输入或选择保存路径
@@ -48,7 +48,7 @@ atomic:
         tip: 输入保存的文件夹名称，为空自动使用原文件夹名称
     outputList:
       - key: output_content
-        title: 输出剪切板内容至变量
+        title: 输出剪贴板内容至变量
         tip: 获取文本内容输出为文本变量，获取文件/文件夹输出为路径信息
   System.compress:
     title: 压缩
@@ -369,7 +369,7 @@ atomic:
         tip: 设置输出方式
       - key: excel_path
         title: Excel保存目录
-        tip: 选择或输入保存的Excel保存目录
+        tip: 选择或输入保存的Excel目录
       - key: state_type
         title: 目录不存在时
         tip: 选择Excel保存目录不存在时执行的操作
