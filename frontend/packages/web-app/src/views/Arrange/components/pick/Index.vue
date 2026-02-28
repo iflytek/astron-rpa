@@ -265,6 +265,7 @@ watch(
       pickerType.value = picker_type
       // 自定义编辑元素
       customData.value = elementCustomFormat(version, type, path)
+      console.log('customData.value : ', customData.value );
       // 设置相似拾取按钮展示
       similarButton.value = ['web', 'uia'].includes(type)
       formOption.value.pickType = type
@@ -337,7 +338,7 @@ watch(
           <div class="pickWrapper-img mt-4 flex justify-center align-center">
             <Image v-if="useElements.currentElement.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(useElements.currentElement.imageUrl)" />
           </div>
-          <a-button class="font-size-12 inline-flex-center mt-4" :icon="h(BorderOuterOutlined)" :loading="usePick.isChecking" :disabled="usePick.isPicking" @click="handleValidateElement">
+          <a-button class="font-size-12 inline-flex-center mt-4 w-[100px]" :icon="h(BorderOuterOutlined)" :loading="usePick.isChecking" :disabled="usePick.isPicking" @click="handleValidateElement">
             {{ $t("validateElement") }}
           </a-button>
         </a-col>

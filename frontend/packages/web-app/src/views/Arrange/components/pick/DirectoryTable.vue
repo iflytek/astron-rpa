@@ -8,6 +8,7 @@ import type { FormRules } from '@/types/common'
 import type { AttrFieldsType, NodeFieldsType } from '@/views/Arrange/types/arrangeTools'
 import type { VariableTypes } from '@/views/Arrange/types/atomForm'
 import { addAttr, addNode } from '@/views/Arrange/utils/elementsUtils'
+import { useTranslation } from 'i18next-vue'
 
 import AtomConfig from '../atomForm/AtomConfig.vue'
 
@@ -49,15 +50,16 @@ const openAddNode = ref(false) // 是否打开添加节点弹窗
 const addNodeFormRef = ref(null) // 添加节点表单引用
 const addNodeForm = reactive({ name: '' })
 const currentKey = ref('') // 当前选中的节点key
+const { t } = useTranslation()
 
 const rules = reactive<FormRules>({
   name: [{
     required: true,
-    message: '请输入节点',
+    message: t('directoryElement.nodeNamePlaceholder'),
     trigger: 'change',
     validator: async (_rule, value) => {
       if (!value.replace(/\s+/g, '')) {
-        return Promise.reject(new Error('请输入节点'))
+        return Promise.reject(new Error(t('directoryElement.nodeNamePlaceholder')))
       }
       else {
         return Promise.resolve()
@@ -142,18 +144,19 @@ const nodeColumns = reactive<ColumnsType>([
         align: 'center',
       },
       {
-        title: '节点',
+        title: t('directoryElement.node'),
         dataIndex: 'value',
         key: 'value',
         width: 30,
         ellipsis: true,
       },
       {
-        title: '操作',
+        title: t('directoryElement.operation'),
         dataIndex: 'operation',
         key: 'operation',
         width: 20,
         align: 'center',
+        ellipsis: true,
       },
     ],
   },
@@ -172,31 +175,32 @@ const attrColumns = reactive<ColumnsType>([
         align: 'center',
       },
       {
-        title: '属性名',
+        title: t('directoryElement.attributeName'),
         dataIndex: 'name',
         key: props.attrFields.name,
         width: 30,
         ellipsis: true,
       },
       {
-        title: '匹配方式',
+        title: t('directoryElement.matchType'),
         dataIndex: 'type',
         key: props.attrFields.type,
         width: 40,
       },
       {
-        title: '属性值',
+        title: t('directoryElement.attributeValue'),
         dataIndex: 'value',
         key: props.attrFields.value,
         width: 70,
         ellipsis: true,
       },
       {
-        title: '操作',
+        title: t('directoryElement.operation'),
         dataIndex: 'attrOper',
         key: 'attrOper',
         width: 20,
         align: 'center',
+        ellipsis: true,
       },
     ],
   },
@@ -232,13 +236,13 @@ watch(() => props.nodeSource, () => {
               <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled" />
             </template>
             <template v-else-if="column.key === 'operation'">
-              <a-tooltip title="添加节点">
+              <a-tooltip :title="$t('directoryElement.addNode')">
                 <PlusCircleOutlined class="text-blue-500" @click="addNodeSource(index)" />
               </a-tooltip>
               <a-popconfirm
-                title="是否删除当前节点"
-                ok-text="是"
-                cancel-text="否"
+                :title="$t('directoryElement.deleteNodeTip')"
+                :ok-text="$t('yes')"
+                :cancel-text="$t('no')"
                 @confirm="confirmDeleteNode(index)"
               >
                 <MinusCircleOutlined class="text-blue-500 ml-2" />
@@ -263,7 +267,7 @@ watch(() => props.nodeSource, () => {
             <template v-else-if="column.key === 'type'">
               <a-select v-model:value="record.type" class="attr-select  font-size-12" :disabled="record._typeDisabled">
                 <a-select-option v-for="item in record._typesPattern" :key="item.value" class="font-size-12" :value="item.value">
-                  {{ item.label }}
+                  {{ $t('directoryElement.'+ item.key) }}
                 </a-select-option>
               </a-select>
             </template>
@@ -275,9 +279,9 @@ watch(() => props.nodeSource, () => {
             </template>
             <template v-else-if="column.key === 'attrOper'">
               <a-popconfirm
-                title="是否删除当前属性"
-                ok-text="是"
-                cancel-text="否"
+                :title="$t('directoryElement.deleteAttributeTip')"
+                :ok-text="$t('yes')"
+                :cancel-text="$t('no')"
                 @confirm="confirmDeleteAttr(index)"
               >
                 <MinusCircleOutlined style="color: #4E68F6;" />
@@ -289,14 +293,14 @@ watch(() => props.nodeSource, () => {
           </template>
         </a-table>
         <a-button type="text" class=" add-attr flex items-center justify-center font-size-12" size="small" :icon="h(PlusOutlined)" @click="addAttrNode">
-          添加属性
+          {{ $t('directoryElement.addAttribute') }}
         </a-button>
       </a-col>
     </a-row>
-    <a-modal v-model:open="openAddNode" :width="400" :height="160" title="添加节点" ok-text="确认" cancel-text="取消" @ok="okAddNode" @cancel="cancelAddNode">
+    <a-modal v-model:open="openAddNode" :width="400" :height="160" :title="$t('directoryElement.addNode')" :ok-text="$t('directoryElement.ok')" :cancel-text="$t('directoryElement.cancel')" @ok="okAddNode" @cancel="cancelAddNode">
       <a-form ref="addNodeFormRef" :model="addNodeForm" :rules="rules">
-        <a-form-item label="元素节点" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" name="name">
-          <a-input v-model:value="addNodeForm.name" placeholder="请输入节点" :maxlength="64" />
+        <a-form-item :label="$t('directoryElement.elementNode')" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" name="name">
+          <a-input v-model:value="addNodeForm.name" :placeholder="$t('directoryElement.nodeNamePlaceholder')" :maxlength="64" />
         </a-form-item>
       </a-form>
     </a-modal>

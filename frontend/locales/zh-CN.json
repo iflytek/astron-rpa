@@ -504,7 +504,9 @@
   "executionMethod": "执行方式",
   "matchingMethod": "匹配方式",
   "onlyPosition": "仅匹配位置",
+  "onlyPositionTip": "一键定位相同位置相似元素，支持翻页定位",
   "scrollPosition": "滚动加载",
+  "scrollPositionTip": "持续滚动页面直到定位到目标元素（最多滚动20次页面）",
   "validateElement": "校验元素",
   "verificationMethod": "校验方式",
   "location": "位置",
@@ -1128,5 +1130,33 @@
     "send": "发送",
     "elementPick": "元素拾取",
     "optimizeQuestion": "优化提问"
+  },
+  "customElement": {
+    "url": "元素所在网页地址",
+    "xpath": "元素的xpath路径，不包含iframe嵌套路径",
+    "cssSelector": "元素的CSS 选择器路径，shadowRoot元素仅支持该种方式定位，以$shadow$分割每一层shadowRoot路径",
+    "iframeXpath": "元素所在iframe的xpath路径，以$iframe$分割每一层iframe路径"
+  },
+  "directoryElement": {
+    "elementNode": "元素节点",
+    "attributeNode": "属性节点",
+    "node": "节点",
+    "attributeName": "属性名",
+    "attributeValue": "值",
+    "operation": "操作",
+    "addNode": "添加节点",
+    "editNode": "编辑节点",
+    "deleteNodeTip": "是否删除当前节点",
+    "deleteAttributeTip": "是否删除当前属性",
+    "yes": "是",
+    "no": "否",
+    "addAttribute": "添加属性",
+    "matchType": "匹配方式",
+    "equals": "等于",
+    "includes": "通配",
+    "regex": "正则",
+    "ok": "确定",
+    "cancel": "取消",
+    "nodeNamePlaceholder": "请输入节点"
   }
 }

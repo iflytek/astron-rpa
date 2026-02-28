@@ -88,9 +88,9 @@ defineExpose({
           {{ $t("matchingMethod") }}
         </div>
         <a-checkbox-group v-model:value="formOption.matchTypes" size="small" class="flex flex-nowrap" :options="formOption.matchOptions">
-          <template #label="{ label, tip }">
+          <template #label="{ label, value }">
             <span class="text-[12px]">{{ $t(label) }}</span>
-            <a-tooltip placement="top" :title="$t(tip)">
+            <a-tooltip placement="top" :title="$t(value)">
               <QuestionCircleOutlined class="ml-1" />
             </a-tooltip>
           </template>
