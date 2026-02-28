@@ -93,7 +93,7 @@ class Compress:
                 compress_name = get_file_name_only(items[0])
         if not folder_is_exists(compress_dir):
             if state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(compress_dir),
                     "指定目标路径不存在，请检查路径信息",
                 )
@@ -150,12 +150,12 @@ class Compress:
         save_type: SaveType = SaveType.SAVE,
     ):
         if not os.path.isfile(source_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(source_path), "文件不存在，请检查文件路径")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(source_path), "文件不存在，请检查文件路径")
         if not folder_is_exists(target_path):
             if status_type == StateType.CREATE:
                 os.makedirs(target_path, exist_ok=True)
             elif status_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(target_path),
                     "指定目录不存在，请检查路径信息",
                 )

@@ -96,7 +96,7 @@ class Network:
         if request_type == RequestType.POST:
             if file_path:
                 if not file_is_exist(file_path):
-                    raise BaseException(
+                    raise BizException(
                         FILE_EXIST_FORMAT.format(file_path),
                         "指定文件不存在，请检查文件路径",
                     )
@@ -124,7 +124,7 @@ class Network:
 
         if save_type == SaveType.YES:
             if not folder_is_exist(save_path):
-                raise BaseException(
+                raise BizException(
                     FOLDER_EXIST_FORMAT.format(save_path),
                     "文件夹不存在，请检查路径信息",
                 )
@@ -184,7 +184,7 @@ class Network:
             if state_type == StateType.CREATE:
                 os.makedirs(dst_dir, exist_ok=True)
             elif state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_EXIST_FORMAT.format(dst_dir=dst_dir),
                     "指定目录不存在，请检查路径信息",
                 )
@@ -209,5 +209,5 @@ class Network:
         try:
             http_download_path = NetworkCore.http_download(url=url, dst_path=download_path)
             return http_download_path
-        except BaseException as e:
-            raise BaseException(HTTP_DOWNLOAD_FORMAT.format(e), "文件下载失败")
+        except BizException as e:
+            raise BizException(HTTP_DOWNLOAD_FORMAT.format(e), "文件下载失败")

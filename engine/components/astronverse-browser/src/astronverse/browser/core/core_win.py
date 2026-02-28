@@ -119,7 +119,7 @@ class BrowserCore:
                 time.sleep(3)
                 break
         if dialog == 0:
-            raise BaseException(DOWNLOAD_WINDOW_NO_FIND, "未弹出下载窗口")
+            raise BizException(DOWNLOAD_WINDOW_NO_FIND, "未弹出下载窗口")
 
         # 查找到edit， button
         button = win32gui.FindWindowEx(dialog, 0, "Button", "保存(S)")
@@ -194,7 +194,7 @@ class BrowserCore:
                 time.sleep(3)
                 break
         if dialog == 0:
-            raise BaseException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
+            raise BizException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
 
         button = win32gui.FindWindowEx(dialog, 0, "Button", "打开(O)")  # 四级
 

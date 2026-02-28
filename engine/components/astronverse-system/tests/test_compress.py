@@ -180,7 +180,7 @@ class TestCompress(TestCase):
     def test_compress_folder_not_exists_error(self):
         """测试压缩 - 目标文件夹不存在且设置为错误"""
         non_existent_dir = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Compress.compress(
                 file_type=FileFolderType.FILE,
                 file_path=self.test_file_path,
@@ -251,7 +251,7 @@ class TestCompress(TestCase):
     def test_uncompress_source_not_exists(self):
         """测试解压 - 源文件不存在"""
         non_existent_zip = os.path.join(self.temp_dir, "non_existent.zip")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Compress.uncompress(
                 source_path=non_existent_zip,
                 target_path=self.compress_dir,
@@ -316,7 +316,7 @@ class TestCompress(TestCase):
         )
 
         non_existent_dir = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Compress.uncompress(
                 source_path=result,
                 target_path=non_existent_dir,

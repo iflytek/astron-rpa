@@ -88,13 +88,13 @@ class GuiKeyBoard:
         elif keyboard_type == KeyboardType.CLIP:
             msg = Clipboard.paste()
             if not msg:
-                raise BaseException(CLIP_PASTE_ERROR, "Clip is empty.")
+                raise BizException(CLIP_PASTE_ERROR, "Clip is empty.")
             else:
                 Keyboard.hotkey("ctrl", "v")
                 Clipboard.clear()
         elif keyboard_type == KeyboardType.DRIVER:
             if message == "":
-                raise BaseException(KEYBOARD_MSG_ERROR, "输入内容为空，请检查输入内容")
+                raise BizException(KEYBOARD_MSG_ERROR, "输入内容为空，请检查输入内容")
 
             file_path = Keyboard.get_drive_path()
             cmd = [file_path, message, f"{interval}"]
@@ -103,22 +103,22 @@ class GuiKeyBoard:
                     cmd, check=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
                 )
             except subprocess.CalledProcessError as e:
-                raise BaseException(DRIVE_INPUT_ERROR, "键盘驱动输入没有管理员权限")
+                raise BizException(DRIVE_INPUT_ERROR, "键盘驱动输入没有管理员权限")
         elif keyboard_type == KeyboardType.GBLID:
             from astronverse.input.code import ghostbox as gb
 
             device = gb.opendevicebyid(0x5188, 0x1801)
             is_connected = gb.isconnected()
             if not device or not is_connected:
-                raise BaseException(GHOST_DRIVE_ERROR, "设备不存在或未连接,请检查设备连接")
+                raise BizException(GHOST_DRIVE_ERROR, "设备不存在或未连接,请检查设备连接")
             if message == "":
-                raise BaseException(KEYBOARD_MSG_ERROR, "输入内容为空，请检查输入内容")
+                raise BizException(KEYBOARD_MSG_ERROR, "输入内容为空，请检查输入内容")
             try:
                 Keyboard.change_language(ENGLISH)
                 gb.inputstring(message)
                 Keyboard.change_language(CHINESE)
             except Exception as e:
-                raise BaseException(DRIVE_INPUT_ERROR, "键盘驱动输入错误")
+                raise BizException(DRIVE_INPUT_ERROR, "键盘驱动输入错误")
             finally:
                 gb.closedevice()
 
@@ -156,4 +156,4 @@ class GuiKeyBoard:
             else:
                 raise NotImplementedError()
         except Exception as e:
-            raise BaseException(KEY_INPUT_ERROR, "模拟键盘按键输入错误")
+            raise BizException(KEY_INPUT_ERROR, "模拟键盘按键输入错误")

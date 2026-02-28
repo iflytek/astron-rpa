@@ -11,7 +11,7 @@ class DocumentObject:
     def __validate__(cls, name: str, value):
         if isinstance(value, DocumentObject):
             return value
-        raise BaseException(
+        raise BizException(
             PARAM_VERIFY_ERROR_FORMAT.format(name, value),
             f"{name}参数验证失败{value}",
         )

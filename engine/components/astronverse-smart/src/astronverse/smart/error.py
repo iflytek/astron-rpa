@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 # 模块导入相关错误
 MODULE_IMPORT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("无法导入模块: {}"))

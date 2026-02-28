@@ -132,7 +132,7 @@ class CV:
                     elif click_position == PositionType.SPECIFIC:
                         position = specified_position
                         if position is None:
-                            raise BaseException(SPECIFIC_POSITION_ERROR, "未指定点击位置，请检查参数")
+                            raise BizException(SPECIFIC_POSITION_ERROR, "未指定点击位置，请检查参数")
                         # 按照指定位置计算点击位置
                         target_x, target_y = CvCore.get_region_position(
                             target_rect, position, horizontal_move, vertical_move
@@ -142,7 +142,7 @@ class CV:
 
                     screen_weight, screen_height = Mouse.screen_size()
                     if target_x < 0 or target_x > screen_weight or target_y < 0 or target_y > screen_height:
-                        raise BaseException(REGION_ERROR, "坐标参数不合法！")
+                        raise BizException(REGION_ERROR, "坐标参数不合法！")
 
                     if move_type == MoveType.LINEAR:
                         Mouse.move(
@@ -172,14 +172,14 @@ class CV:
 
                     return True
                 except Exception as e:
-                    raise BaseException(MOUSE_CLICK_ERROR, "鼠标点击失败")
+                    raise BizException(MOUSE_CLICK_ERROR, "鼠标点击失败")
             else:
                 if time.time() - start_time > wait_time:
                     break
                 else:
                     time.sleep(0.1)
 
-        raise BaseException(CV_MATCH_ERROR, "超时未匹配到目标元素，请检查当前界面或降低匹配相似度重试")
+        raise BizException(CV_MATCH_ERROR, "超时未匹配到目标元素，请检查当前界面或降低匹配相似度重试")
 
     @staticmethod
     @atomicMg.atomic(
@@ -286,7 +286,7 @@ class CV:
                     elif click_position == PositionType.SPECIFIC:
                         position = specified_position
                         if position is None:
-                            raise BaseException(SPECIFIC_POSITION_ERROR, "未指定点击位置，请检查参数")
+                            raise BizException(SPECIFIC_POSITION_ERROR, "未指定点击位置，请检查参数")
                         # 按照指定位置计算点击位置
                         target_x, target_y = CvCore.get_region_position(
                             target_rect, position, horizontal_move, vertical_move
@@ -296,7 +296,7 @@ class CV:
 
                     screen_weight, screen_height = Mouse.screen_size()
                     if target_x < 0 or target_x > screen_weight or target_y < 0 or target_y > screen_height:
-                        raise BaseException(REGION_ERROR, "坐标参数不合法！")
+                        raise BizException(REGION_ERROR, "坐标参数不合法！")
 
                     if move_type == MoveType.LINEAR:
                         Mouse.move(
@@ -319,14 +319,14 @@ class CV:
 
                     return True
                 except Exception as e:
-                    raise BaseException(MOUSE_HOVER_ERROR, "鼠标悬停失败")
+                    raise BizException(MOUSE_HOVER_ERROR, "鼠标悬停失败")
             else:
                 if time.time() - start_time > wait_time:
                     break
                 else:
                     time.sleep(0.1)
 
-        raise BaseException(CV_MATCH_ERROR, "超时未匹配到目标元素，请检查当前界面或降低匹配相似度重试")
+        raise BizException(CV_MATCH_ERROR, "超时未匹配到目标元素，请检查当前界面或降低匹配相似度重试")
 
     @staticmethod
     @atomicMg.atomic(
@@ -429,7 +429,7 @@ class CV:
         if wait_type == WaitType.DISAPPEAR:
             target_rect = CvCore.match_imgs(input_data, match_similarity)
             if not target_rect:
-                raise BaseException(TARGET_EXISTS_ERROR, "当前界面元素不存在，无法判断消失状态")
+                raise BizException(TARGET_EXISTS_ERROR, "当前界面元素不存在，无法判断消失状态")
 
         while True:
             target_rect = CvCore.match_imgs(input_data, match_similarity)
@@ -549,7 +549,7 @@ class CV:
                     elif input_type == InputType.CLIP:
                         msg = Clipboard.paste()
                         if not msg:
-                            raise BaseException(CLIP_PASTE_ERROR, "Clip is empty.")
+                            raise BizException(CLIP_PASTE_ERROR, "Clip is empty.")
                         else:
                             Keyboard.hotkey("ctrl", "v")
                             Clipboard.clear()
@@ -558,11 +558,11 @@ class CV:
 
                     return True
                 except Exception as e:
-                    raise BaseException(CV_INPUT_ERROR, "输入失败，请检查输入信息")
+                    raise BizException(CV_INPUT_ERROR, "输入失败，请检查输入信息")
             else:
                 if time.time() - start_time > wait_time:
                     break
                 else:
                     time.sleep(0.5)
 
-        raise BaseException(CV_MATCH_ERROR, "超时未匹配到目标元素，请检查当前界面或降低匹配相似度重试")
+        raise BizException(CV_MATCH_ERROR, "超时未匹配到目标元素，请检查当前界面或降低匹配相似度重试")

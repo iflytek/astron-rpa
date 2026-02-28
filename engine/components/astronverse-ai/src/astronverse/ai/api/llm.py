@@ -46,7 +46,7 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
                 if response_json.get("choices"):
                     yield response_json["choices"][0]["delta"]["content"]
     else:
-        raise BaseException(LLM_NO_RESPONSE_ERROR.format(response), "")
+        raise BizException(LLM_NO_RESPONSE_ERROR.format(response), "")
 
 
 def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):

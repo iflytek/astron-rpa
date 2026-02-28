@@ -79,9 +79,9 @@ class Browser:
 
             # 定义错误码与对应异常映射表
             error_map = {
-                "5001": (BaseException, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
-                "5002": (BaseException, WEB_GET_ElE_ERROR, data_msg),
-                "5003": (BaseException, WEB_EXEC_ElE_ERROR, data_msg),
+                "5001": (BizException, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
+                "5002": (BizException, WEB_GET_ElE_ERROR, data_msg),
+                "5003": (BizException, WEB_EXEC_ElE_ERROR, data_msg),
                 "5004": (Exception, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
             }
 

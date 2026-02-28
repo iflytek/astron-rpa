@@ -128,7 +128,7 @@ class Window:
         """
         if size_type == WindowSizeType.CUSTOM:
             if width <= 0 or height <= 0:
-                raise BaseException(
+                raise BizException(
                     PARAMETER_INVALID_FORMAT.format((width, height)),
                     "参数异常 {}".format((width, height)),
                 )

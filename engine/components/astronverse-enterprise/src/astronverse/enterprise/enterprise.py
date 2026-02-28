@@ -28,7 +28,7 @@ def http(shot_url: str, params: Optional[dict], data: Optional[dict], meta: str 
     else:
         response = requests.get("http://127.0.0.1:{}{}".format(gateway_port, shot_url), params=params)
     if response.status_code != 200:
-        raise BaseException(
+        raise BizException(
             SERVER_ERROR_FORMAT.format(response.status_code), "服务器错误{}".format(response.status_code)
         )
 
@@ -40,7 +40,7 @@ def http(shot_url: str, params: Optional[dict], data: Optional[dict], meta: str 
     logger.debug("请求结束 {}:{}".format(shot_url, json_data))
     if json_data.get("code") != "0000" and json_data.get("code") != "000000":
         msg = json_data.get("message", "")
-        raise BaseException(SERVER_ERROR_FORMAT.format(msg), "服务器错误{}".format(json_data))
+        raise BizException(SERVER_ERROR_FORMAT.format(msg), "服务器错误{}".format(json_data))
     return json_data.get("data", {})
 
 
@@ -95,7 +95,7 @@ class Enterprise:
         )
         # 检查文件是否存在
         if not (os.path.exists(file_path) and os.path.isfile(file_path)):
-            return BaseException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
+            return BizException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
 
         try:
             # 准备文件上传
@@ -114,7 +114,7 @@ class Enterprise:
                     logger.info(f"请求返回值：{response.text}")
                     inner_data = json.loads(response.text)
                     if inner_data.get("code") in ["999999", "500000"]:
-                        raise BaseException(
+                        raise BizException(
                             FILE_UPLOAD_FAILED_FORMAT.format(response.text),
                             "可能用了不支持的扩展名！",
                         )
@@ -128,7 +128,7 @@ class Enterprise:
                     if info_response.status_code == 200:
                         logger.info(info_response.text)
                         if info_response.json().get("code") != "000000":
-                            raise BaseException(
+                            raise BizException(
                                 FILE_UPLOAD_FAILED_FORMAT.format(info_response.json().get("message")),
                                 "文件已存在或更新文件信息失败！",
                             )
@@ -137,19 +137,19 @@ class Enterprise:
                         logger.info(
                             f"上传成功，但更新文件信息失败，状态码：{info_response.status_code}，响应：{info_response.text}"
                         )
-                        raise BaseException(
+                        raise BizException(
                             FILE_UPLOAD_FAILED_FORMAT.format(info_response.text),
                             "请检查更新文件信息接口！",
                         )
                 else:
                     logger.info(f"上传失败，状态码：{response.status_code}，响应：{response.text}")
-                    raise BaseException(
+                    raise BizException(
                         FILE_UPLOAD_FAILED_FORMAT.format(response.text),
                         "请检查上传接口！",
                     )
         except Exception as e:
             logger.error(f"上传过程中发生错误：{str(e)}")
-            raise BaseException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
+            raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
 
     @staticmethod
     @atomicMg.atomic(
@@ -192,13 +192,13 @@ class Enterprise:
             # 检查响应状态
             if response.status_code != 200:
                 logger.error(f"下载失败，状态码：{response.status_code}，响应：{response.text}")
-                raise BaseException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), "请检查下载接口！")
+                raise BizException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), "请检查下载接口！")
 
             content_type = response.headers.get("Content-Type", "").lower()
             if "application/json" in content_type:
                 error = response.json()
                 if not error.get("success"):
-                    raise BaseException(
+                    raise BizException(
                         FILE_DOWNLOAD_FAILED_FORMAT.format(error.get("message", "")), "请检查下载接口！"
                     )
             elif "application/octet-stream" in content_type:
@@ -237,7 +237,7 @@ class Enterprise:
                 raise NotImplementedError()
         except Exception as e:
             logger.error(f"下载过程中发生错误：{str(e)}")
-            raise BaseException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
+            raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
 
     # 获取远程变量
     @staticmethod

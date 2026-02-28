@@ -81,22 +81,22 @@ class Browser:
         )
 
         if res.status_code != 200:
-            raise BaseException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
+            raise BizException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件通信出错，请重试")
         res_data = res.json()
         if not res_data.get("data"):
-            raise BaseException(BROWSER_EXTENSION_INSTALL_ERROR, "插件无响应")
+            raise BizException(BROWSER_EXTENSION_INSTALL_ERROR, "插件无响应")
         if res_data.get("data").get("code") == "5001":
-            raise BaseException(
+            raise BizException(
                 BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         if res_data.get("data").get("code") == "5002":
-            raise BaseException(WEB_GET_ELE_ERROR.format(res_data.get("data").get("msg")), "网页元素未找到")
+            raise BizException(WEB_GET_ELE_ERROR.format(res_data.get("data").get("msg")), "网页元素未找到")
         if res_data.get("data").get("code") == "5003":
-            raise BaseException(
+            raise BizException(
                 WEB_EXEC_ELE_ERROR.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         if res_data.get("data").get("code") == "5004":
-            raise BaseException(
+            raise BizException(
                 BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         return res_data.get("data").get("data")

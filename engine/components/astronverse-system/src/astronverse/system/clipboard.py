@@ -72,18 +72,18 @@ class Clipboard:
         """
         if content_type == ContentType.MSG:
             if message == "":
-                raise BaseException(MSG_EMPTY_FORMAT, "请重新输入待复制内容")
+                raise BizException(MSG_EMPTY_FORMAT, "请重新输入待复制内容")
             ClipBoardCore.copy_str_clip(message)
         elif content_type == ContentType.FILE:
             if not os.path.isfile(file_path):
-                raise BaseException(
+                raise BizException(
                     FILE_PATH_ERROR_FORMAT.format(file_path),
                     "指定文件不存在，请检查文件路径！",
                 )
             ClipBoardCore.copy_file_clip(file_path)
         elif content_type == ContentType.FOLDER:
             if not folder_is_exists(folder_path):
-                raise BaseException(
+                raise BizException(
                     FILE_PATH_ERROR_FORMAT.format(folder_path),
                     "指定文件夹不存在，请检查文件路径！",
                 )
@@ -174,13 +174,13 @@ class Clipboard:
         elif content_type == ContentType.FILE:
             src_path = ClipBoardCore.paste_file_clip()
             if not os.path.isfile(src_path):
-                raise BaseException(
+                raise BizException(
                     FILE_PATH_ERROR_FORMAT.format(src_path),
                     "剪切板中不存在待获取文件，请检查剪切板内容及获取类型设置是否正确",
                 )
             if not folder_is_exists(dst_path):
                 if state_type == StateType.ERROR:
-                    raise BaseException(
+                    raise BizException(
                         FOLDER_PATH_ERROR_FORMAT.format(dst_path),
                         "指定文件夹路径不存在，请检查路径信息",
                     )
@@ -197,7 +197,7 @@ class Clipboard:
                     prefix = os.path.splitext(base_name)[1]
                     dst_name = "".join([dst_file_name, prefix])
                 else:
-                    raise BaseException(
+                    raise BizException(
                         FILE_TYPE_ERROR_FORMAT.format(base_name),
                         "文件扩展名缺失，请检查文件名称是否正确！",
                     )
@@ -211,13 +211,13 @@ class Clipboard:
         elif content_type == ContentType.FOLDER:
             src_path = ClipBoardCore.paste_file_clip()
             if not folder_is_exists(src_path):
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(src_path),
                     "剪切板中不存在待获取文件夹，请检查剪切板内容及获取类型设置是否正确",
                 )
             if not folder_is_exists(dst_path):
                 if state_type == StateType.ERROR:
-                    raise BaseException(
+                    raise BizException(
                         FOLDER_PATH_ERROR_FORMAT.format(dst_path),
                         "指定文件夹路径不存在，请检查路径信息",
                     )

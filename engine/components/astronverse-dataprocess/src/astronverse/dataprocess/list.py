@@ -94,7 +94,7 @@ class ListProcess:
             try:
                 value = ast.literal_eval(value)
             except Exception as e:
-                raise BaseException(INVALID_LIST_FORMAT_ERROR_FORMAT.format(e), "请输入正确的列表格式")
+                raise BizException(INVALID_LIST_FORMAT_ERROR_FORMAT.format(e), "请输入正确的列表格式")
         new_array = []
         if list_type == ListType.EMPTY:
             pass
@@ -164,7 +164,7 @@ class ListProcess:
             try:
                 index_int = int(index)
             except:
-                raise BaseException(INVALID_INDEX_ERROR_FORMAT.format(index), "需要提供整数类型的索引！")
+                raise BizException(INVALID_INDEX_ERROR_FORMAT.format(index), "需要提供整数类型的索引！")
             list_data.insert(index_int, value)
         return list_data
 

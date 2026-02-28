@@ -70,7 +70,7 @@ class Flow:
         # 2. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
-            raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
+            raise BizException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
         process_index = 1
         module_index = 1
@@ -165,7 +165,7 @@ class Flow:
                 main_params.extend(param_list)
 
         if not has_main_entry:
-            raise BaseException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
+            raise BizException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
 
         # 2.1 生成智能组件
         smart_index = 1
@@ -396,7 +396,7 @@ class Flow:
         parser = Parser(lexer=lexer)
         program = parser.parse_program()
         if len(parser.errors) > 0:
-            raise BaseException(
+            raise BizException(
                 SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)), "语法错误: {}".format(parser.errors)
             )
         self.svc.ast_curr_info = {

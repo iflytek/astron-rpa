@@ -54,7 +54,7 @@ class TestFolder(TestCase):
     def test_folder_open_not_exists(self):
         """测试打开文件夹 - 文件夹不存在"""
         non_existent_folder = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Folder.folder_open(folder_path=non_existent_folder)
 
     def test_folder_create_success(self):
@@ -72,7 +72,7 @@ class TestFolder(TestCase):
     def test_folder_create_target_not_exists(self):
         """测试文件夹创建 - 目标路径不存在"""
         non_existent_dir = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Folder.folder_create(target_path=non_existent_dir, folder_name="test_folder")
 
     def test_folder_create_overwrite_existing(self):
@@ -115,7 +115,7 @@ class TestFolder(TestCase):
     def test_folder_delete_folder_not_exists(self):
         """测试文件夹删除 - 文件夹不存在"""
         non_existent_folder = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Folder.folder_delete(folder_path=non_existent_folder)
 
     @mock.patch("send2trash.send2trash")
@@ -147,7 +147,7 @@ class TestFolder(TestCase):
         target_dir = os.path.join(self.temp_dir, "target")
         os.makedirs(target_dir, exist_ok=True)
 
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Folder.folder_copy(source_path=non_existent_folder, target_path=target_dir)
 
     def test_folder_copy_with_custom_name(self):

@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 KEYBOARD_MSG_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("键盘输入为空，请检查输入内容"))
 DRIVE_ERROR: ErrorCode = ErrorCode(

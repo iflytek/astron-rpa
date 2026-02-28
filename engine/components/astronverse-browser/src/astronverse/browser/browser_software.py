@@ -80,13 +80,13 @@ class BrowserSoftware:
             app_exe = os.path.basename(browser_abs_path)
             software_tag = BROWSER_SOFTWARE_TAG.get(browser_type.value, None)
             if not (software_tag and software_tag.lower() in app_exe.lower()):
-                raise BaseException(SELECT_MATCHING_APP_PATH.format(app_exe.lower()), "请选择跟浏览器匹配的应用路径")
+                raise BizException(SELECT_MATCHING_APP_PATH.format(app_exe.lower()), "请选择跟浏览器匹配的应用路径")
 
         # 检查browser_abs_path的路径
         if not browser_abs_path:
             browser_abs_path = BrowserCore.get_browser_path(browser_type.value)
             if not browser_abs_path:
-                raise BaseException(BROWSER_PATH_EMPTY, "注册表中未找到浏览器路径{}".format(browser_type))
+                raise BizException(BROWSER_PATH_EMPTY, "注册表中未找到浏览器路径{}".format(browser_type))
 
         # 内置浏览器加载插件
         if browser_type == CommonForBrowserType.BTChromium:
@@ -121,7 +121,7 @@ class BrowserSoftware:
                 if control:
                     break
             if not control:
-                raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+                raise BizException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
 
         try:
             # 置顶最大化
@@ -379,7 +379,7 @@ class BrowserSoftware:
         等待页面加载完成，直到超时或页面加载完成。
         """
         if timeout < 0:
-            raise BaseException(
+            raise BizException(
                 PARAMETER_INVALID_FORMAT.format(timeout),
                 f"等待时间不能小于0！{timeout}",
             )
@@ -513,7 +513,7 @@ class BrowserSoftware:
             time.sleep(1)
             open_timeout -= 1
         if not control:
-            raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+            raise BizException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
 
         try:
             # 置顶最大化

@@ -155,7 +155,7 @@ class ParamModel:
             elif i.operator == "in":
                 res.append(bool(left in i.right))
             else:
-                raise BaseException(TYPE_KIND_ERROR_FORMAT.format(i.operator), "类型错误{}".format(i.operator))
+                raise BizException(TYPE_KIND_ERROR_FORMAT.format(i.operator), "类型错误{}".format(i.operator))
 
         # and or
         if conditional.operators == "and":
@@ -163,7 +163,7 @@ class ParamModel:
         elif conditional.operators == "or":
             return any(res)
         else:
-            raise BaseException(
+            raise BizException(
                 TYPE_KIND_ERROR_FORMAT.format(conditional.operators), "类型错误{}".format(conditional.operators)
             )
 

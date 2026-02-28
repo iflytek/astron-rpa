@@ -86,7 +86,7 @@ class WinEle:
 
         new_file_path = handle_existence(os.path.join(file_path, file_name), exist_type)
         if not new_file_path:
-            raise BaseException(PATH_ERROR, "拾取或保存路径有误")
+            raise BizException(PATH_ERROR, "拾取或保存路径有误")
 
         locator = WinEleCore.find(pick=pick)
         window_rect = locator.rect()
@@ -151,7 +151,7 @@ class WinEle:
         wait_time: float = 10.0,
     ):
         if pick.get("elementData", {}).get("type", None) != PickerDomain.UIA.value:
-            raise BaseException(UNPICKABLE, "类型不支持{}".format(pick.get("type", None)))
+            raise BizException(UNPICKABLE, "类型不支持{}".format(pick.get("type", None)))
 
         locator = WinEleCore.find(pick, wait_time)
         locator.move()
@@ -203,7 +203,7 @@ class WinEle:
     )
     def similar(pick: WinPick, wait_time: int = 10) -> list:
         if pick.get("elementData", {}).get("type", None) != PickerDomain.UIA.value:
-            raise BaseException(UNPICKABLE, "类型不支持{}".format(pick.get("type", None)))
+            raise BizException(UNPICKABLE, "类型不支持{}".format(pick.get("type", None)))
 
         locator_list = WinEleCore.find(pick, wait_time)
         res_list = []

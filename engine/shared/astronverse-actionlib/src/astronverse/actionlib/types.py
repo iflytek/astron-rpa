@@ -62,7 +62,7 @@ class Bool:
 
     def __init__(self, value: bool):
         if not isinstance(value, bool):
-            raise BaseException(TYPE_KIND_ERROR_FORMAT.format(value), "类型错误: {}".format(value))
+            raise BizException(TYPE_KIND_ERROR_FORMAT.format(value), "类型错误: {}".format(value))
         self._value = value
 
     def __bool__(self):
@@ -352,7 +352,7 @@ class IMGPick(Pick):
                 return None
             return cls(dict(value))
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}：{}".format(name, value, e)
             ) from e
 

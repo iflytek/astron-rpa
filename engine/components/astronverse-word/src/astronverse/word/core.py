@@ -63,7 +63,7 @@ class IDocumentCore(ABC):
     def check_file_in_path(file_path, file_name):
         # 检查文件路径是否存在
         if not os.path.exists(file_path):
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_PATH_ERROR_FORMAT.format(file_path),
                 "填写的路径有误，请输入正确的路径！",
             )

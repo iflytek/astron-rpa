@@ -110,7 +110,7 @@ class OpenapiIflytek:
 
             # 请求结果处理
             if ret.status_code != 200:
-                raise BaseException(AI_SERVER_ERROR, "ai服务器无响应或错误 {}".format(ret))
+                raise BizException(AI_SERVER_ERROR, "ai服务器无响应或错误 {}".format(ret))
             text = (
                 base64.b64decode(ret.json()["payload"]["result"]["text"])
                 .decode()
@@ -126,12 +126,12 @@ class OpenapiIflytek:
                 text = text[:real_ind]
             ret_dict = json.loads(text)
             if ret_dict["error_code"] != 0:
-                raise BaseException(
+                raise BizException(
                     AI_REQ_ERROR_FORMAT.format(ret_dict["error_msg"]),
                     "ai服务请求异常 {}".format(ret_dict["error_msg"]),
                 )
             if ret_dict["object_list"][0]["error_code"] != 0:
-                raise BaseException(
+                raise BizException(
                     AI_REQ_ERROR_FORMAT.format(ret_dict["object_list"][0]["error_msg"]),
                     "ai服务请求异常 {}".format(ret_dict["object_list"][0]["error_msg"]),
                 )
@@ -164,7 +164,7 @@ class OpenapiIflytek:
 
             # 请求结果处理
             if ret.status_code != 200:
-                raise BaseException(AI_SERVER_ERROR, "ai服务器无响应或错误 {}".format(ret))
+                raise BizException(AI_SERVER_ERROR, "ai服务器无响应或错误 {}".format(ret))
 
             ret_dict = json.loads(base64.b64decode(ret.json()["payload"]["result"]["text"]).decode())
             content = OpenapiIflytek.__analyse_ocr_result__(ret_dict)
