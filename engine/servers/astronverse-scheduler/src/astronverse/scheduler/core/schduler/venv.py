@@ -2,6 +2,7 @@ import os
 import re
 import sys
 
+from astronverse.scheduler.error import BizException, EXECUTOR_ERROR
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.platform_utils import platform_python_venv_path
 from astronverse.scheduler.utils.subprocess import SubPopen
@@ -117,7 +118,7 @@ def create_project_venv(svc, project_id: str):
     if not os.path.exists(v_path):
         temp_envs = VenvManager.list_temp_venvs(svc)
         if not temp_envs:
-            raise Exception("empty venv runtime...")
+            raise BizException(EXECUTOR_ERROR.format("虚拟环境运行时为空"), "empty venv runtime...")
         temp_v = temp_envs[0]
         os.rename(os.path.join(svc.config.venv_base_dir, temp_v), v_path)
     return platform_python_venv_path(v_path)

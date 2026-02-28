@@ -9,6 +9,7 @@ from typing import Optional
 
 import keyring
 import keyring.errors
+from astronverse.scheduler.error import BizException, CREDENTIAL_ERROR
 from astronverse.scheduler.logger import logger
 
 # 服务名称，用于 keyring 存储
@@ -113,7 +114,7 @@ class CredentialService:
         """
         try:
             if CredentialService.exists(name):
-                raise ValueError(f"凭证 '{name}' 已存在")
+                raise BizException(CREDENTIAL_ERROR.format(f"凭证 '{name}' 已存在"), f"凭证 '{name}' 已存在")
 
             # 编码密码（处理空密码情况）
             encoded = CredentialService._encode_password(password)
@@ -126,7 +127,7 @@ class CredentialService:
 
             logger.info(f"凭证 '{name}' 创建成功")
             return True
-        except ValueError:
+        except BizException:
             raise
         except Exception as e:
             logger.exception(f"创建凭证失败: {e}")

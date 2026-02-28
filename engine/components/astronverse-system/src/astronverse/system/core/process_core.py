@@ -4,6 +4,7 @@ import subprocess
 from abc import ABC, abstractmethod
 
 import psutil
+from astronverse.system.error import BizException, COMMAND_EMPTY_ERROR, COMMAND_EXEC_ERROR, PROCESS_KILL_ERROR
 
 system_encoding = locale.getpreferredencoding()
 
@@ -40,7 +41,7 @@ class ProcessCoreWin(IProcessCore):
         以管理员权限运行命令
         """
         if not cmd:
-            raise ValueError("命令不能为空")
+            raise BizException(COMMAND_EMPTY_ERROR, "命令不能为空")
         if not cwd:
             cwd = ""
 
@@ -61,7 +62,7 @@ class ProcessCoreWin(IProcessCore):
             )
             return process
         except Exception as e:
-            raise RuntimeError(f"执行管理员命令失败: {e}")
+            raise BizException(COMMAND_EXEC_ERROR.format(str(e)), f"执行管理员命令失败: {e}")
 
     @staticmethod
     def run_cmd(cmd=None, cwd=None):
@@ -69,7 +70,7 @@ class ProcessCoreWin(IProcessCore):
         以普通权限运行命令
         """
         if not cmd:
-            raise ValueError("命令不能为空")
+            raise BizException(COMMAND_EMPTY_ERROR, "命令不能为空")
         if not cwd:
             cwd = None
 
@@ -84,7 +85,7 @@ class ProcessCoreWin(IProcessCore):
             )
             return process
         except Exception as e:
-            raise RuntimeError(f"执行命令失败: {e}")
+            raise BizException(COMMAND_EXEC_ERROR.format(str(e)), f"执行命令失败: {e}")
 
     @staticmethod
     def get_pid_list():
@@ -103,11 +104,11 @@ class ProcessCoreWin(IProcessCore):
             except psutil.NoSuchProcess:
                 pass
         except psutil.AccessDenied:
-            raise ValueError(f"无法终止进程 {pid}：访问被拒绝。")
+            raise BizException(PROCESS_KILL_ERROR.format(f"进程 {pid}"), f"无法终止进程 {pid}：访问被拒绝。")
         except psutil.TimeoutExpired:
-            raise ValueError(f"进程 {pid} 未在超时时间内终止。")
+            raise BizException(PROCESS_KILL_ERROR.format(f"进程 {pid}"), f"进程 {pid} 未在超时时间内终止。")
         except Exception as e:
-            raise ValueError(f"进程 {pid} 终止时发生错误：{e}")
+            raise BizException(PROCESS_KILL_ERROR.format(f"进程 {pid}"), f"进程 {pid} 终止时发生错误：{e}")
 
 
 class ProcessCoreLinux(IProcessCore):
@@ -117,7 +118,7 @@ class ProcessCoreLinux(IProcessCore):
         以管理员权限运行命令
         """
         if not cmd:
-            raise ValueError("命令不能为空")
+            raise BizException(COMMAND_EMPTY_ERROR, "命令不能为空")
 
         try:
             full_cmd = f"sudo {cmd}"
@@ -134,7 +135,7 @@ class ProcessCoreLinux(IProcessCore):
             )
             return process
         except Exception as e:
-            raise RuntimeError(f"执行管理员命令失败: {e}")
+            raise BizException(COMMAND_EXEC_ERROR.format(str(e)), f"执行管理员命令失败: {e}")
 
     @staticmethod
     def run_cmd(cmd=None, cwd=None):
@@ -142,7 +143,7 @@ class ProcessCoreLinux(IProcessCore):
         以普通权限运行命令
         """
         if not cmd:
-            raise ValueError("命令不能为空")
+            raise BizException(COMMAND_EMPTY_ERROR, "命令不能为空")
 
         try:
             process = subprocess.Popen(
@@ -157,7 +158,7 @@ class ProcessCoreLinux(IProcessCore):
             )
             return process
         except Exception as e:
-            raise RuntimeError(f"执行命令失败: {e}")
+            raise BizException(COMMAND_EXEC_ERROR.format(str(e)), f"执行命令失败: {e}")
 
     @staticmethod
     def get_pid_list():
@@ -176,8 +177,8 @@ class ProcessCoreLinux(IProcessCore):
             except psutil.NoSuchProcess:
                 pass
         except psutil.AccessDenied:
-            raise ValueError(f"无法终止进程 {pid}：访问被拒绝。")
+            raise BizException(PROCESS_KILL_ERROR.format(f"进程 {pid}"), f"无法终止进程 {pid}：访问被拒绝。")
         except psutil.TimeoutExpired:
-            raise ValueError(f"进程 {pid} 未在超时时间内终止。")
+            raise BizException(PROCESS_KILL_ERROR.format(f"进程 {pid}"), f"进程 {pid} 未在超时时间内终止。")
         except Exception as e:
-            raise ValueError(f"进程 {pid} 终止时发生错误：{e}")
+            raise BizException(PROCESS_KILL_ERROR.format(f"进程 {pid}"), f"进程 {pid} 终止时发生错误：{e}")

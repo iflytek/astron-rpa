@@ -5,6 +5,7 @@ import threading
 import time
 
 import requests
+from astronverse.scheduler.error import BizException, VIRTUAL_DESK_ERROR
 from astronverse.scheduler.logger import logger
 
 
@@ -102,7 +103,7 @@ class WindowVirtualDeskSubprocessAdapter:
             is_live = virtual_desk.handler is not None and virtual_desk.handler.poll() is None
             if not is_live:
                 logger.info("检查虚拟桌面是否开启 {}".format(False))
-                raise Exception("检查虚拟桌面是否开启")
+                raise BizException(VIRTUAL_DESK_ERROR.format("检查虚拟桌面是否开启"), "检查虚拟桌面是否开启")
 
             try:
                 url = "http://127.0.0.1:{}/is_alive".format(self.svc.win_virtual_port)
@@ -126,7 +127,7 @@ class WindowVirtualDeskSubprocessAdapter:
             time.sleep(2)
             i += 2
             if i > timeout:
-                raise Exception("虚拟桌面启动超时")
+                raise BizException(VIRTUAL_DESK_ERROR.format("虚拟桌面启动超时"), "虚拟桌面启动超时")
         threading.Thread(target=raw_run, daemon=True).start()
 
     def set_param(self, key, val):

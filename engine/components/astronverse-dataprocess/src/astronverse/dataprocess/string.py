@@ -220,12 +220,12 @@ class StringProcess:
     ):
         """按指定方向填充字符串到目标长度。"""
         if (not string_data) or (not add_str):
-            raise ValueError("目标文本或补充文本不能为空!")
+            raise BizException(STRING_EMPTY_ERROR, "目标文本或补充文本不能为空")
         try:
             total_length_int = int(total_length)
             assert total_length_int >= 0
         except Exception as e:
-            raise ValueError("长度输入不合法,请提供整数类型数据!")
+            raise BizException(INVALID_LENGTH_INPUT, "长度输入不合法,请提供整数类型数据")
 
         result_str = deepcopy(str(string_data))
         if total_length_int <= len(string_data):
@@ -294,9 +294,9 @@ class StringProcess:
     ):
         """按照指定方式截取字符串。"""
         if not string_data:
-            raise ValueError("目标文本不能为空!")
+            raise BizException(STRING_EMPTY_ERROR, "目标文本不能为空")
         if length < 0:
-            raise ValueError("长度输入不合法,请提供整数类型数据!")
+            raise BizException(INVALID_LENGTH_INPUT, "长度输入不合法,请提供整数类型数据")
 
         result_str = ""
         if cut_type == CutStringType.FIRST:
@@ -306,7 +306,7 @@ class StringProcess:
         elif cut_type == CutStringType.STRING:
             index = string_data.find(find_str)
             if index == -1:
-                raise ValueError("未找到指定字符串!")
+                raise BizException(STRING_NOT_FOUND, "未找到指定字符串")
             result_str = string_data[index : index + length]
         return result_str
 
@@ -328,7 +328,7 @@ class StringProcess:
             return string_data.upper()
         if case_type == CaseChangeType.CAPS:
             return string_data.capitalize()
-        raise ValueError("不支持的大小写转换类型")
+        raise BizException(UNSUPPORTED_CASE_TYPE, "不支持的大小写转换类型")
 
     @staticmethod
     @atomicMg.atomic(

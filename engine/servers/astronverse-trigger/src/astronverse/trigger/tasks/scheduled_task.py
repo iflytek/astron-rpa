@@ -3,6 +3,12 @@ from typing import Any, Union
 
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
+from astronverse.trigger.error import (
+    BizException,
+    FREQUENCY_FLAG_REQUIRED,
+    FREQUENCY_NOT_IMPLEMENTED,
+    FREQUENCY_OPTION_INVALID,
+)
 from pydantic import BaseModel, field_validator, model_validator
 
 
@@ -218,7 +224,7 @@ class ScheduledTask:
         self.f = kwargs.get("frequency_flag")  # 该f用于控制调度的频率
         self._end_time: str = end_time
         if not self.f:
-            raise Exception
+            raise BizException(FREQUENCY_FLAG_REQUIRED, "频率标识不能为空")
 
         self._init_f_model(kwargs)
 
@@ -237,7 +243,7 @@ class ScheduledTask:
         }
         fm = m.get(self.f)
         if not fm:
-            raise Exception("该选择正确的频次选项")
+            raise BizException(FREQUENCY_OPTION_INVALID, "请选择正确的频次选项")
 
         self.f_model = params_filter(kwargs, fm)
 
@@ -304,6 +310,6 @@ class ScheduledTask:
             }
             trigger = CronTrigger(end_date=self._end_time, **_datetime)
         else:
-            raise NotImplementedError
+            raise BizException(FREQUENCY_NOT_IMPLEMENTED, "频率类型未实现")
 
         return trigger

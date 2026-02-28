@@ -14,6 +14,14 @@ from astronverse.vision_picker.core.core import IPickCore, IRectHandler
 from astronverse.vision_picker.core.cv_match import AnchorMatch
 from astronverse.vision_picker.core.cv_picker import ImageDetector
 from astronverse.vision_picker.logger import logger
+from astronverse.vision_picker.error import (
+    BizException,
+    PLATFORM_NOT_SUPPORTED,
+    DESKTOP_SCREENSHOT_NOT_EXIST,
+    PICK_STATUS_ERROR,
+    TARGET_ACQUIRE_FAILED,
+    TARGET_COORDINATE_EMPTY,
+)
 from pynput import keyboard
 
 current_directory = os.getcwd()
@@ -30,7 +38,10 @@ if sys.platform == "win32":
 elif platform.system() == "Linux":
     from astronverse.vision_picker.core.core_unix import PickCore, RectHandler
 else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
+    raise BizException(
+        PLATFORM_NOT_SUPPORTED.format(platform.system()),
+        f"平台 {platform.system()} 不支持"
+    )
 
 PickCore: IPickCore = PickCore()
 RectHandler: IRectHandler = RectHandler()
@@ -303,7 +314,7 @@ class CVPicker:
             # self.desktop_image.save(desktop_filepath)
         elif self.pick_type == PickType.ANCHOR:
             if not desktop_image:
-                raise NotImplementedError("桌面截图不存在")
+                raise BizException(DESKTOP_SCREENSHOT_NOT_EXIST, "桌面截图不存在")
             self.desktop_image = desktop_image
             logger.info(f"锚点拾取桌面截图尺寸：{self.desktop_image.width, self.desktop_image.height}")
 
@@ -398,7 +409,7 @@ class CVPicker:
                 if handler_cv:
                     handler_cv(hl)
                 else:
-                    raise NotImplementedError("执行状态有误")
+                    raise BizException(PICK_STATUS_ERROR, "执行状态有误")
             self.stop_keyboard_listener()
             # self.stop_mouse_listener()
             return self.__status, self.pick_res
@@ -485,7 +496,7 @@ class CVPicker:
                 if self.pick_res:
                     self.__status = Status.OVER
                 else:
-                    raise NotImplementedError("目标获取失败")
+                    raise BizException(TARGET_ACQUIRE_FAILED, "目标获取失败")
             elif self.pick_type == PickType.ANCHOR:
                 self.pick_res = self.check_anchor(self.target_rect)
                 if self.pick_res:
@@ -509,7 +520,7 @@ class CVPicker:
                 if self.pick_res:
                     self.__status = Status.OVER
                 else:
-                    raise NotImplementedError()
+                    raise BizException(TARGET_ACQUIRE_FAILED, "目标获取失败")
             else:
                 pass
 
@@ -558,7 +569,7 @@ class CVPicker:
             else:
                 res = PickCore.json_res(target_img, target_rect, None, None, self.desktop_image)
         else:
-            raise NotImplementedError("目标元素坐标为空")
+            raise BizException(TARGET_COORDINATE_EMPTY, "目标元素坐标为空")
         return res
 
     def check_anchor(self, anchor_rect):

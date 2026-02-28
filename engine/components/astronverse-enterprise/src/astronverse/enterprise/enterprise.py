@@ -95,7 +95,7 @@ class Enterprise:
         )
         # 检查文件是否存在
         if not (os.path.exists(file_path) and os.path.isfile(file_path)):
-            return BizException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
+            raise BizException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
 
         try:
             # 准备文件上传
@@ -176,14 +176,14 @@ class Enterprise:
         )
         # 检查 save_folder 路径是否是绝对路径
         if not Path(save_folder).is_absolute():
-            raise Exception(f"文件夹路径错误：{save_folder} 不是绝对路径")
+            raise BizException(FOLDER_PATH_ERROR_FORMAT.format(f"{save_folder} 不是绝对路径"), f"文件夹路径错误：{save_folder} 不是绝对路径")
         # 检查保存文件夹是否存在，如果不存在则创建
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
 
         # 检查保存路径是否为目录
         if not os.path.isdir(save_folder):
-            raise Exception(f"文件夹路径错误：{save_folder} 不是文件夹路径")
+            raise BizException(FOLDER_PATH_ERROR_FORMAT.format(f"{save_folder} 不是文件夹路径"), f"文件夹路径错误：{save_folder} 不是文件夹路径")
 
         try:
             params = {"fileId": file_path}
@@ -232,7 +232,7 @@ class Enterprise:
                 logger.info(f"下载成功：文件已保存到 {save_path}")
                 return save_path
             else:
-                raise NotImplementedError()
+                raise BizException(FILE_DOWNLOAD_FAILED_FORMAT.format("不支持的响应类型"), "不支持的响应类型")
         except Exception as e:
             logger.error(f"下载过程中发生错误：{str(e)}")
             raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")

@@ -6,6 +6,7 @@ import os
 
 import requests
 from astronverse.baseline.logger.logger import logger
+from astronverse.ai.error import BizException, FILE_NOT_FOUND_ERROR
 
 
 class xcAgent:  # pylint: disable=invalid-name
@@ -121,7 +122,7 @@ class xcAgent:  # pylint: disable=invalid-name
     def upload_file(self, file_path):
         # 检查文件是否存在
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"文件不存在: {file_path}")
+            raise BizException(FILE_NOT_FOUND_ERROR.format(file_path), f"文件不存在: {file_path}")
 
         file_name = os.path.basename(file_path)
 

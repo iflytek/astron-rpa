@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
+from astronverse.browser_plugin.error import BizException, NO_PERMISSION
 
 # https://developer.chrome.com/docs/extensions/how-to/distribute/install-extensions?hl=zh-cn#preference-linux
 # https://learn.microsoft.com/zh-cn/microsoft-edge/extensions-chromium/developer-guide/alternate-distribution-options#using-a-preferences-json-file-macos-and-linux
@@ -81,7 +82,7 @@ class ChromiumPluginManager(PluginManagerCore):
                     stderr=subprocess.DEVNULL,
                 )
             except subprocess.CalledProcessError:
-                raise Exception("no permission to write /opt/google/chrome")
+                raise BizException(NO_PERMISSION.format("/opt/google/chrome"), "没有权限写入 /opt/google/chrome")
 
         if not os.path.exists(self.extension_path):
             os.makedirs(self.extension_path)

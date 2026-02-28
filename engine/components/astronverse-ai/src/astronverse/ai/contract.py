@@ -9,6 +9,7 @@ from astronverse.ai import InputType
 from astronverse.ai.api.llm import chat_prompt
 from astronverse.ai.prompt.contract import CONTRACT_FACTOR_DICT
 from astronverse.ai.utils.extract import FileExtractor
+from astronverse.ai.error import BizException, PARAM_ERROR
 
 
 class ContractAI:
@@ -92,8 +93,8 @@ class ContractAI:
 
         try:
             custom_factors = ast.literal_eval(custom_factors)
-        except:
-            raise ValueError("custom_factors 格式错误，请检查")
+        except Exception as e:
+            raise BizException(PARAM_ERROR.format("custom_factors 格式错误，请检查"), "custom_factors 格式错误，请检查")
         preset_factors = custom_factors.get("preset", [])  # type: ignore
         custom_factors = custom_factors.get("custom", [])  # type: ignore
 

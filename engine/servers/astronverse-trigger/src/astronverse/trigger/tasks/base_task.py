@@ -7,6 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from astronverse.trigger import CONVERT_COLUMN
+from astronverse.trigger.error import BizException, TASK_NOT_IMPLEMENTED
 from astronverse.trigger.server.gateway_client import get_executor_status, send_msg
 from astronverse.trigger.tasks.file_task import FileTask
 from astronverse.trigger.tasks.hotkey_task import HotKeyTask
@@ -105,7 +106,7 @@ class Task:
         elif task_type == "manual":
             m = None
         else:
-            raise NotImplementedError
+            raise BizException(TASK_NOT_IMPLEMENTED, "任务类型未实现")
         return m
 
     def __dict__(self):
