@@ -3,13 +3,10 @@ from astronverse.baseline.i18n.i18n import _
 
 BizException = BizException
 
-MSG_EMPTY_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("消息为空: {}"))
 FILE_PATH_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件路径有误，请输入正确的路径！"))
 EXCEL_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("未检测到Excel/WPS应用"))
 EXCEL_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("Excel错误: {}"))
 DOCUMENT_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("文档不存在，请先打开文档！"))
-FORMAT_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("格式有误: {}"))
-SHEET_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("Sheet操作错误: {}"))
 PARAM_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数错误: {}"))
 
 # Excel 特定错误

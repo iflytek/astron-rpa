@@ -6,7 +6,7 @@ import winreg
 
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
-from astronverse.browser_plugin.error import BizException, FILE_NOT_FOUND
+from astronverse.browser_plugin.error import BizException, BROWSER_360X_NOT_FOUND
 from astronverse.browser_plugin.utils import (
     Registry,
     check_chrome_plugin,
@@ -45,7 +45,7 @@ class Browser360XPluginManager(PluginManagerCore):
             value, _ = winreg.QueryValueEx(key, "")
             return value
         except FileNotFoundError:
-            raise BizException(FILE_NOT_FOUND.format("360极速浏览器"), "360极速浏览器未安装或注册表项未找到")
+            raise BizException(BROWSER_360X_NOT_FOUND, "360极速浏览器未安装或注册表项未找到")
 
     def check_browser(self):
         browser_registry = Registry.exist(self.browser_path)

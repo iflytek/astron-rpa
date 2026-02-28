@@ -153,7 +153,7 @@ class WordDocumentCore(IDocumentCore):
             cls.word_application_instance.DisplayAlerts = True
             print(document.Name)
         else:
-            raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format("没有输入路径，请检查输入的word路径是否正确!"), "没有输入路径，请检查输入的word路径是否正确!")
+            raise BizException(PATH_NOT_INPUT_ERROR, "没有输入路径，请检查输入的word路径是否正确")
         return document
 
     @classmethod
@@ -203,7 +203,7 @@ class WordDocumentCore(IDocumentCore):
                 try:
                     doc.SaveAs(FileName=new_file_path)
                 except Exception as e:
-                    raise BizException(ERROR_FORMAT.format(f"文档保存失败: {e}"), f"文档保存失败: {e}")
+                    raise BizException(DOCUMENT_SAVE_ERROR_FORMAT.format(str(e)), f"文档保存失败: {e}")
         return doc, new_file_path
 
     @classmethod
@@ -431,7 +431,7 @@ class WordDocumentCore(IDocumentCore):
                 else:
                     s.SetRange(Start=s.End, End=s.End)
             except Exception as e:
-                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "内容不存在！") from e
+                raise BizException(CONTENT_NOT_EXIST_ERROR, "内容不存在") from e
         elif by == CursorPointerType.ALL:  # 按照文档定位光标
             try:
                 p_num = doc.Paragraphs.Count  # 获取全部段落号
@@ -440,7 +440,7 @@ class WordDocumentCore(IDocumentCore):
                 else:  # 移动到整个文档开头
                     s.Move(4, -p_num)
             except Exception as e:
-                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "文档为空！") from e
+                raise BizException(DOCUMENT_EMPTY_ERROR, "文档为空") from e
         elif by == CursorPointerType.PARAGRAPH:  # 按照段落号定位光标
             if pos == CursorPositionType.TAIL:  # 定位到某个段落末尾
                 s.SetRange(
@@ -465,7 +465,7 @@ class WordDocumentCore(IDocumentCore):
                     s.GoTo(3, 1, r_idx)
                     s.EndKey(5)
             except Exception as e:
-                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "内容为空！") from e
+                raise BizException(CONTENT_EMPTY_ERROR, "内容为空") from e
 
     @classmethod
     def move_cursor(
@@ -589,7 +589,7 @@ class WordDocumentCore(IDocumentCore):
         else:
             img_shape = s.InlineShapes.AddPicture(img_path)
             if not os.path.isfile(img_path):
-                raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format(img_path), "图片路径错误")
+                raise BizException(IMAGE_PATH_ERROR, "图片路径错误")
         img_shape.ScaleWidth = scale
         img_shape.ScaleHeight = scale
 

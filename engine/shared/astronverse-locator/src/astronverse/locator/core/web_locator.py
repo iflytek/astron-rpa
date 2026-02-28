@@ -16,10 +16,10 @@ from astronverse.locator.error import (
     BizException,
     BROWSER_PLUGIN_CHANNEL_ERROR,
     BROWSER_PLUGIN_COMMUNICATION_ERROR,
-    BROWSER_PLUGIN_GET_ELEMENT_ERROR,
+    BROWSER_PLUGIN_GET_ELEMENT_ERROR_FORMAT,
     BROWSER_PLUGIN_CONNECTION_ERROR,
     BROWSER_PLUGIN_TIMEOUT_ERROR,
-    BROWSER_WINDOW_NOT_FOUND,
+    BROWSER_WINDOW_NOT_FOUND_FORMAT,
     ERROR_FORMAT,
 )
 
@@ -112,7 +112,7 @@ class WebFactory:
                 data = res_json.get("data", {})
                 if data.get("code", "") != "0000":  # 元素错误
                     msg = data.get("msg", "浏览器插件获取元素失败")
-                    raise BizException(BROWSER_PLUGIN_GET_ELEMENT_ERROR.format(msg), msg)
+                    raise BizException(BROWSER_PLUGIN_GET_ELEMENT_ERROR_FORMAT.format(msg), msg)
                 web_info = data.get("data", {})
                 return web_info["rect"]
 
@@ -154,7 +154,7 @@ class WebFactory:
 
         if base_ctrl is None:
             msg = f"未找到{app_name}浏览器窗口，请确认浏览器是否已启动"
-            raise BizException(BROWSER_WINDOW_NOT_FOUND.format(app_name), msg)
+            raise BizException(BROWSER_WINDOW_NOT_FOUND_FORMAT.format(app_name), msg)
 
         # 置顶窗口
         try:

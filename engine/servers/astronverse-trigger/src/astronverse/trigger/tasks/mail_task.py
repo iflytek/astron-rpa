@@ -139,7 +139,7 @@ class MailTask:
                 return True
             else:
                 raise BizException(
-                    MAIL_PROTOCOL_NOT_SUPPORTED.format(f"不支持的邮件协议: {used_mail_protocol}"),
+                    MAIL_PROTOCOL_NOT_SUPPORTED.format(used_mail_protocol),
                     f"不支持的邮件协议: {used_mail_protocol}",
                 )
         except Exception as e:
@@ -190,7 +190,7 @@ class MailTask:
                 return client
             else:
                 raise BizException(
-                    MAIL_PROTOCOL_NOT_SUPPORTED.format(f"不支持的邮件协议: {used_mail_protocol}"),
+                    MAIL_PROTOCOL_NOT_SUPPORTED.format(used_mail_protocol),
                     f"不支持的邮件协议: {used_mail_protocol}",
                 )
 

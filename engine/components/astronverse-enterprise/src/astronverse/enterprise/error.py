@@ -9,3 +9,6 @@ PATH_INVALID_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("上传路径有�
 FILE_UPLOAD_FAILED_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("上传失败: {}"))
 FILE_DOWNLOAD_FAILED_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("下载失败: {}"))
 FOLDER_PATH_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件夹路径错误: {}"))
+
+# 下载特定错误
+UNSUPPORTED_RESPONSE_TYPE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("不支持的响应类型"))

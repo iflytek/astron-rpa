@@ -85,4 +85,4 @@ class VerifyCodeCore:
                 return margin_left_value
             else:
                 logger.info("未找到 margin-left / left 属性。")
-                raise BizException(ERROR_FORMAT.format("未找到 margin-left / left属性。请尝试重新拾取。"), "未找到 margin-left / left属性。请尝试重新拾取。")
+                raise BizException(MARGIN_LEFT_NOT_FOUND, "未找到 margin-left / left属性。请尝试重新拾取。")

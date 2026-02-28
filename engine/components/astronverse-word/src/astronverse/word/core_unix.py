@@ -62,7 +62,7 @@ class WordDocumentCore(IDocumentCore):
     def create(cls, file_path: str = "") -> object:
         """Word - 文档操作 - 创建"""
         if file_path and not os.path.exists(os.path.dirname(file_path)):
-            raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format(file_path), "路径未找到")
+            raise BizException(PATH_NOT_FOUND_ERROR, "路径未找到")
 
         global APP
         # 获取当前由pywpsrpc打开的excel进程列表
@@ -369,7 +369,7 @@ class WordDocumentCore(IDocumentCore):
                 else:
                     s.SetRange(Start=s.End, End=s.End)
             except Exception as e:
-                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "内容不存在！！！") from e
+                raise BizException(CONTENT_NOT_EXIST_ERROR, "内容不存在") from e
         elif by == SelectTextType.ALL:  # 按照文档定位光标
             try:
                 p_num = doc.Paragraphs.Count  # 获取全部段落号
@@ -378,7 +378,7 @@ class WordDocumentCore(IDocumentCore):
                 else:  # 移动到整个文档开头
                     s.Move(4, -p_num)
             except Exception as e:
-                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "文档为空！！！") from e
+                raise BizException(DOCUMENT_EMPTY_ERROR, "文档为空") from e
         elif by == SelectTextType.PARAGRAPH:  # 按照段落号定位光标
             if pos == CursorPositionType.TAIL:  # 定位到某个段落末尾
                 s.SetRange(
@@ -400,7 +400,7 @@ class WordDocumentCore(IDocumentCore):
                     s.GoTo(3, 1, r_idx)
                     s.EndKey(5)
             except Exception as e:
-                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "内容为空！！！") from e
+                raise BizException(CONTENT_EMPTY_ERROR, "内容为空") from e
 
     @classmethod
     def move_cursor(
@@ -543,7 +543,7 @@ class WordDocumentCore(IDocumentCore):
             _, img_shape = s.InlineShapes.AddPicture(img_path)
             print(f"Inserted image shape: {img_shape}")
             if not os.path.isfile(img_path):
-                raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format(img_path), "图片路径错误")
+                raise BizException(IMAGE_PATH_ERROR, "图片路径错误")
         img_shape.ScaleWidth = scale
         img_shape.ScaleHeight = scale
 

@@ -4,6 +4,7 @@ import time
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from astronverse.trigger.core.logger import logger
+from astronverse.trigger.error import BizException, TASK_TYPE_NOT_SUPPORTED
 from astronverse.trigger.server.gateway_client import (
     send_stop_list,
     terminal_list_task,
@@ -210,7 +211,7 @@ class Terminal:
 
             del task
         else:
-            raise Exception("不支持的任务类型: {}".format(task_type))
+            raise BizException(TASK_TYPE_NOT_SUPPORTED, f"不支持的任务类型: {task_type}")
         return True
 
     def get_task(self, task_id: str):

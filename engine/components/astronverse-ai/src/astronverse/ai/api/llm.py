@@ -6,7 +6,7 @@ from typing import Any
 import requests
 import sseclient
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.ai.error import BizException, LLM_NO_RESPONSE_ERROR, ERROR_FORMAT, UNKNOWN_RESPONSE_FORMAT_ERROR
+from astronverse.ai.error import BizException, LLM_NO_RESPONSE_ERROR_FORMAT, ERROR_FORMAT, UNKNOWN_RESPONSE_ERROR
 from astronverse.baseline.logger.logger import logger
 
 API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
@@ -46,7 +46,7 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
                 if response_json.get("choices"):
                     yield response_json["choices"][0]["delta"]["content"]
     else:
-        raise BizException(LLM_NO_RESPONSE_ERROR.format(response), "")
+        raise BizException(LLM_NO_RESPONSE_ERROR_FORMAT.format(response), "error: {}".format(response))
 
 
 def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
@@ -76,7 +76,7 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
             # 原格式
             return response_json["choices"][0]["message"]["content"]
         else:
-            raise BizException(UNKNOWN_RESPONSE_FORMAT_ERROR, "未知的响应格式")
+            raise BizException(UNKNOWN_RESPONSE_ERROR, "未知的响应格式")
 
     except requests.exceptions.RequestException as e:
         logger.info(f"请求错误: {e}")

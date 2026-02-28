@@ -35,5 +35,5 @@ class WinEleCore(IWinEleCore):
             time.sleep(0.5)
             wait_time = wait_time - (time.time() - start)
         if wait_time < 0:
-            raise BizException(ELEMENT_NO_FOUND, "等待后未找到元素！")
+            raise BizException(ELEMENT_WAIT_NOT_FOUND, "等待后未找到元素")
         return res

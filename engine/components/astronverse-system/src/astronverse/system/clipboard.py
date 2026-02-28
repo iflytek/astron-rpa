@@ -72,7 +72,7 @@ class Clipboard:
         """
         if content_type == ContentType.MSG:
             if message == "":
-                raise BizException(MSG_EMPTY_FORMAT, "请重新输入待复制内容")
+                raise BizException(MSG_EMPTY, "请重新输入待复制内容")
             ClipBoardCore.copy_str_clip(message)
         elif content_type == ContentType.FILE:
             if not os.path.isfile(file_path):

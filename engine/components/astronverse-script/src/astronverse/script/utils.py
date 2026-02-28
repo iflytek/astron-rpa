@@ -15,7 +15,7 @@ def http_post(shot_url: str, gateway_port: str, data: Optional[dict]) -> Any:
             "服务器错误{}".format(response.status_code),
         )
     json_data = response.json()
-    if json_data.get("code") != BizCode.OK.value and json_data.get("code") != "000000":
+    if json_data.get("code") != BizCode.LocalOK.value and json_data.get("code") != "000000":
         raise BizException(
             SERVER_ERROR_FORMAT.format(json_data.get("message", "")),
             "服务器错误{}".format(json_data),

@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 from email.utils import formataddr, parseaddr
 
 import requests
-from astronverse.scheduler.error import BizException, NOTIFY_ERROR
+from astronverse.scheduler.error import BizException, EMAIL_LOGIN_ERROR, EMAIL_SEND_ERROR, SMS_SEND_ERROR, SMS_SEND_ERROR_FORMAT
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import get_settings
 
@@ -71,7 +71,7 @@ class NotifyUtils:
             self.mail_handler.login(sender_mail, password)
         except smtplib.SMTPException as e:
             logger.debug(e)
-            raise BizException(NOTIFY_ERROR.format("发送异常邮件登陆失败"), "发送异常邮件登陆失败！")
+            raise BizException(EMAIL_LOGIN_ERROR, "发送异常邮件登陆失败！")
 
     def send(self, robot_name, run_time):
         if self.email_setting.get("is_enable", False):
@@ -110,7 +110,7 @@ class NotifyUtils:
                     self.email_msg.as_string(),
                 )
             except smtplib.SMTPException as e:
-                raise BizException(NOTIFY_ERROR.format("发送异常邮件发送失败"), "发送异常邮件发送失败！")
+                raise BizException(EMAIL_SEND_ERROR, "发送异常邮件发送失败！")
 
     def send_text(self, robot_name, run_time):
         try:
@@ -127,7 +127,7 @@ class NotifyUtils:
             text = response.text
             if status_code != 200:
                 logger.debug(f"发送短信接口调用失败！{text}")
-                raise BizException(NOTIFY_ERROR.format(f"发送短信接口调用失败！{text}"), f"发送短信接口调用失败！{text}")
+                raise BizException(SMS_SEND_ERROR_FORMAT.format(text), f"发送短信接口调用失败！{text}")
         except Exception as e:
             logger.debug(f"发送短信接口调用失败！{e}")
-            raise BizException(NOTIFY_ERROR.format("发送短信接口调用失败"), "发送短信接口调用失败！")
+            raise BizException(SMS_SEND_ERROR, "发送短信接口调用失败！")

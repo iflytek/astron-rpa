@@ -68,7 +68,7 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
             msg = ""
             if isinstance(reason, dict):
                 msg = reason.get("msg", "")
-            raise BizException(WEB_GET_ELE_ERROR.format(msg), "浏览器元素未找到！")
+            raise BizException(WEB_GET_ELE_ERROR_FORMAT.format(msg), "浏览器元素未找到！")
     return browser_obj
 
 
@@ -101,7 +101,7 @@ class BrowserElement:
 
         timeout = element_timeout
         if timeout < 0:
-            raise BizException(PARAMETER_INVALID_FORMAT.format(timeout), f"等待时间不能小于0！{timeout}")
+            raise BizException(PARAMETER_INVALID_FORMAT.format("timeout"), f"等待时间不能小于0！{timeout}")
         while timeout >= 0:
             start = time.time()
             # 获取状态
@@ -1296,7 +1296,7 @@ class BrowserElement:
             if to_excel:
                 # 检查 excel_path 是否为 .xlsx 文件
                 if excel_path and not excel_path.endswith(".xlsx"):
-                    raise BizException(FILE_PATH_ERROR.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
+                    raise BizException(FILE_PATH_ERROR_FORMAT.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
                 if excel_path is None:
                     excel_path = f"{element_data['elementData']['name']}.xlsx"
                 df.to_excel(excel_path, index=False)

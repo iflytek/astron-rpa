@@ -5,6 +5,7 @@ from typing import Optional
 from astronverse.trigger.core.config import config
 from astronverse.trigger.core.logger import logger
 from astronverse.trigger.core.queue_manager import TaskQueueManager
+from astronverse.trigger.error import BizException, TRIGGER_INIT_ORDER_ERROR
 from astronverse.trigger.terminal import Terminal
 from astronverse.trigger.trigger import Trigger
 
@@ -55,7 +56,7 @@ class AppContext:
     def _init_task_queue_manager(self):
         """初始化任务队列管理器"""
         if not self.trigger:
-            raise RuntimeError("trigger必须在task_queue_manager之前初始化")
+            raise BizException(TRIGGER_INIT_ORDER_ERROR, "trigger必须在task_queue_manager之前初始化")
 
         self.task_queue_mgr = TaskQueueManager(
             self.task_queue_monitor,
@@ -75,9 +76,9 @@ class AppContext:
         logger.info("任务队列管理器初始化成功")
 
     async def _init_terminal(self):
-        """初始化终端（仅在TERMINAL_MODE下）"""
+        """初始化终端(仅在TERMINAL_MODE下)"""
         if not self.trigger:
-            raise RuntimeError("trigger必须在terminal之前初始化")
+            raise BizException(TRIGGER_INIT_ORDER_ERROR, "trigger必须在terminal之前初始化")
 
         self.trigger.delete_all_tasks()
 
