@@ -3,15 +3,20 @@ from astronverse.baseline.i18n.i18n import _
 
 BizException = BizException
 
+# 通用错误
+ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("错误: {}"))
+PARAM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数错误: {}"))
+
+# 文件和文件夹相关错误
 MSG_EMPTY_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("内容为空"))
 FILE_PATH_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件路径:{}有误，请输入正确的路径！"))
 SAVE_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("保存格式:{}有误，文件扩展名需为{}！"))
-FILE_READ_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件读取失败，请检查文件是否损坏！") + ": {}")
-FILE_WRITE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件写入失败，请检查文件是否损坏！") + ": {}")
+FILE_READ_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件读取失败，请检查文件是否损坏！: {}"))
+FILE_WRITE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件写入失败，请检查文件是否损坏！: {}"))
 FILE_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(
-    BizCode.LocalErr, _("文件拓展名缺失，请检查文件名称输入是否正确！") + ": {}"
+    BizCode.LocalErr, _("文件拓展名缺失，请检查文件名称输入是否正确！: {}")
 )
-FILE_DELETE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件删除失败") + ": {}")
+FILE_DELETE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件删除失败: {}"))
 PermissionError_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件：{}被占用，请关闭文件后重试"))
 CMD_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("CMD命令:{}执行失败:{}"))
 
@@ -25,9 +30,29 @@ ENCODE_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(
 )
 
 FOLDER_PATH_ERROR_FORMAT: ErrorCode = ErrorCode(
-    BizCode.LocalErr, _("文件夹不存在，请检查文件夹路径是否正确！") + ": {}"
+    BizCode.LocalErr, _("文件夹不存在，请检查文件夹路径是否正确！: {}")
 )
 CONTENT_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("获取剪切板内容类型错误"))
-FOLDER_DELETE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件夹删除失败") + ": {}")
-SCREENSHOT_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("截图保存失败") + ": {}")
-SCREENLOCK_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("屏幕锁定失败") + ": {}")
+FOLDER_DELETE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件夹删除失败: {}"))
+SCREENSHOT_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("截图保存失败: {}"))
+SCREENLOCK_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("屏幕锁定失败: {}"))
+
+# 压缩相关错误
+COMPRESS_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("压缩失败: {}"))
+DECOMPRESS_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("解压缩失败: {}"))
+UNSUPPORTED_COMPRESS_TYPE: ErrorCode = ErrorCode(BizCode.LocalErr, _("不支持的压缩类型"))
+
+# 打印机相关错误
+PRINTER_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("未发现打印机: {}"))
+PRINTER_NOT_SUPPORTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("打印机不支持打印: {}"))
+PRINT_FILE_EMPTY: ErrorCode = ErrorCode(BizCode.LocalErr, _("待打印文件为空"))
+PRINT_FILE_TYPE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("不支持打印的文件类型"))
+REGISTRY_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("未检测到程序的注册表信息"))
+SOFTWARE_OPEN_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("无法打开软件"))
+PAGE_RANGE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("页码范围错误"))
+PRINTER_CONTEXT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("无法创建打印设备上下文"))
+
+# 进程相关错误
+COMMAND_EMPTY_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("命令不能为空"))
+COMMAND_EXEC_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("执行命令失败: {}"))
+PROCESS_KILL_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("终止进程失败: {}"))

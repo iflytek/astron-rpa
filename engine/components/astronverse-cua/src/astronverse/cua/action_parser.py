@@ -3,6 +3,7 @@ import math
 import re
 
 from astronverse.baseline.logger.logger import logger
+from astronverse.cua.error import BizException, ASPECT_RATIO_ERROR, ACTION_PARSE_ERROR
 
 IMAGE_FACTOR = 28
 MIN_PIXELS = 100 * 28 * 28
@@ -125,8 +126,9 @@ def smart_resize(
     3. The aspect ratio of the image is maintained as closely as possible.
     """
     if max(height, width) / min(height, width) > MAX_RATIO:
-        raise ValueError(
-            f"absolute aspect ratio must be smaller than {MAX_RATIO}, got {max(height, width) / min(height, width)}"
+        raise BizException(
+            ASPECT_RATIO_ERROR.format(f"绝对宽高比必须小于 {MAX_RATIO}, 实际为 {max(height, width) / min(height, width)}"),
+            f"绝对宽高比必须小于 {MAX_RATIO}, 实际为 {max(height, width) / min(height, width)}"
         )
     h_bar = max(factor, round_by_factor(height, factor))
     w_bar = max(factor, round_by_factor(width, factor))
@@ -241,7 +243,7 @@ def parse_action_to_structure_output(
             if re.search(pattern, action_str):  # 检查是否有匹配项
                 content = re.sub(pattern, escape_quotes, action_str)
             else:
-                raise ValueError("Pattern not found in the input string.")
+                raise BizException(ACTION_PARSE_ERROR.format("在输入字符串中未找到匹配的模式"), "在输入字符串中未找到匹配的模式")
 
             # 处理字符串
             action_str = escape_single_quotes(content)
@@ -255,7 +257,7 @@ def parse_action_to_structure_output(
     for action_instance, raw_str in zip(parsed_actions, all_action):
         if action_instance == None:
             logger.info(f"Action can't parse: {raw_str}")
-            raise ValueError(f"Action can't parse: {raw_str}")
+            raise BizException(ACTION_PARSE_ERROR.format(f"无法解析动作: {raw_str}"), f"无法解析动作: {raw_str}")
         action_type = action_instance["function"]
         params = action_instance["args"]
 

@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from astronverse.vision_picker.logger import logger
+from astronverse.vision_picker.error import BizException, IMAGE_NOT_PROVIDED, IMAGE_SAVE_PATH_REQUIRED, IMAGE_PATH_INVALID, IMAGE_SAVE_ERROR
 
 # def ocr_image(image, flag):
 #     """
@@ -44,7 +45,7 @@ class ImageDetector:
         :return: 原始图像和灰度图像。
         """
         if img is None:
-            raise ValueError("No image provided.")
+            raise BizException(IMAGE_NOT_PROVIDED, "未提供图像")
 
         try:
             # 将 PIL 图像转换为 NumPy 数组
@@ -407,15 +408,15 @@ class ImageDetector:
 
         else:
             if save_path is None:
-                raise ValueError("必须提供 save_path 参数以保存图像。")
+                raise BizException(IMAGE_SAVE_PATH_REQUIRED, "必须提供 save_path 参数以保存图像")
 
             if not os.path.isdir(os.path.dirname(save_path)):
-                raise Exception(f"错误：路径 '{save_path}' 无效或不存在。")
+                raise BizException(IMAGE_PATH_INVALID.format(save_path), f"路径 '{save_path}' 无效或不存在")
 
             try:
                 cv2.imwrite(save_path, self.original_img)
             except Exception as e:
-                raise Exception(f"保存图像时发生错误：{e}")
+                raise BizException(IMAGE_SAVE_ERROR.format(str(e)), f"保存图像时发生错误:{e}")
 
 
 if __name__ == "__main__":

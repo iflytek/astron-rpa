@@ -21,6 +21,7 @@ from astronverse.cua.action_parser import (
     parsing_response_to_pyautogui_code,
 )
 from astronverse.cua.custom_action_screen import CustomActionScreen
+from astronverse.cua.error import BizException, UNKNOWN_RESPONSE_FORMAT
 from PIL import Image, ImageDraw
 
 # 电脑 GUI 任务场景的提示词模板
@@ -316,7 +317,7 @@ class ComputerUseAgent:
                 # 原格式
                 return response_json["choices"][0]["message"]["content"]
             else:
-                raise ValueError("未知的响应格式")
+                raise BizException(UNKNOWN_RESPONSE_FORMAT, "未知的响应格式")
 
         except requests.exceptions.RequestException as e:
             logger.info(f"请求错误: {e}")

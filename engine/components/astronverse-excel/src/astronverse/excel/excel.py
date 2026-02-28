@@ -3,6 +3,27 @@ import time
 from itertools import zip_longest
 
 import win32clipboard as cv
+from astronverse.excel.error import (
+    BizException,
+    DOCUMENT_NOT_FOUND,
+    EXCEL_ERROR_FORMAT,
+    EXCEL_NOT_FOUND,
+    FILE_PATH_ERROR,
+    FORMAT_ERROR_FORMAT,
+    PARAM_ERROR_FORMAT,
+    SHEET_ERROR_FORMAT,
+    LIST_FORMAT_ERROR,
+    CONTENT_LIST_FORMAT_ERROR,
+    INSERT_CONTENT_LIST_FORMAT_ERROR,
+    SHEET_NAME_EXISTS_ERROR,
+    SHEET_NAME_TOO_LONG_ERROR,
+    REFERENCE_SHEET_NOT_FOUND_ERROR,
+    COPY_SHEET_NAME_EXISTS_ERROR,
+    WIDTH_PARAM_EMPTY_ERROR,
+    WIDTH_VALUE_ERROR,
+    HEIGHT_PARAM_EMPTY_ERROR,
+    HEIGHT_VALUE_ERROR,
+)
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
@@ -40,7 +61,7 @@ class Excel:
         update_links: bool = True,
     ) -> ExcelObj:
         if not os.path.exists(file_path):
-            raise Exception("填写的文件路径有误，请输入正确的路径！")
+            raise BizException(FILE_PATH_ERROR, "填写的文件路径有误，请输入正确的路径！")
         else:
             file_path = os.path.abspath(file_path)
         application = Application.init_app(
@@ -66,7 +87,7 @@ class Excel:
     def get_excel(file_name) -> ExcelObj:
         excel_flag, excel_pid, wps_flag, wps_pid = get_excel_processes()
         if not excel_flag and not wps_flag:
-            raise Exception("未检测到wps或office打开！")
+            raise BizException(EXCEL_NOT_FOUND, "未检测到wps或office打开！")
 
         keys = []
         if wps_flag:
@@ -89,9 +110,9 @@ class Excel:
         if len(res) == 1:
             return res[0]
         elif len(res) == 2:
-            raise Exception("检测到对象：{}在WPS/Office中打开,需关闭其中一个".format(file_name))
+            raise BizException(EXCEL_ERROR_FORMAT.format(f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个"), f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个")
         else:
-            raise Exception("不存在已打开的Excel文件:{0}".format(file_name))
+            raise BizException(EXCEL_ERROR_FORMAT.format(f"不存在已打开的Excel文件:{file_name}"), f"不存在已打开的Excel文件:{file_name}")
 
     @staticmethod
     @atomicMg.atomic(
@@ -119,7 +140,7 @@ class Excel:
         password: str = "",
     ) -> tuple[ExcelObj, str]:
         if not os.path.exists(file_path):
-            raise Exception("填写的文件路径有误，请输入正确的路径！")
+            raise BizException(FILE_PATH_ERROR, "填写的文件路径有误，请输入正确的路径！")
         else:
             file_path = os.path.abspath(file_path)
         if file_name:
@@ -304,7 +325,7 @@ class Excel:
                     psutil.Process(wps_pid).kill()
         else:
             if not excel:
-                raise Exception("文档不存在，请先打开文档！")
+                raise BizException(DOCUMENT_NOT_FOUND, "文档不存在，请先打开文档！")
             Excel.save_excel(
                 excel=excel,
                 save_type=save_type_one,
@@ -349,7 +370,7 @@ class Excel:
             try:
                 value = ast.literal_eval(value)
             except Exception as e:
-                raise Exception("填写的列表格式有误")
+                raise BizException(LIST_FORMAT_ERROR, "填写的列表格式有误")
 
         worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
         used_range = Worksheet.get_worksheet_used_range(worksheet)
@@ -360,14 +381,14 @@ class Excel:
 
         if edit_range == EditRangeType.ROW:
             if not isinstance(value, list):
-                raise Exception("填写内容的列表格式有误")
+                raise BizException(CONTENT_LIST_FORMAT_ERROR, "填写内容的列表格式有误")
             first_col = end_col + 1 if edit_type == EditType.APPEND else start_col_num
             for offset, val in enumerate(value):
                 r_obj = Worksheet.get_cell(worksheet, start_row_num, first_col + offset)
                 Range.set_range_data(r_obj, val)
         elif edit_range == EditRangeType.COLUMN:
             if not isinstance(value, list):
-                raise Exception("填写内容的列表格式有误")
+                raise BizException(CONTENT_LIST_FORMAT_ERROR, "填写内容的列表格式有误")
             first_row = end_row + 1 if edit_type == EditType.APPEND else start_row_num
             for offset, val in enumerate(value):
                 r_obj = Worksheet.get_cell(worksheet, first_row + offset, start_col_num)
@@ -376,7 +397,7 @@ class Excel:
             if not isinstance(value, list):
                 raise Exception("填写内容的列表格式有误")
             if not isinstance(value[0], list):
-                raise Exception("填写内容的列表格式有误")
+                raise BizException(CONTENT_LIST_FORMAT_ERROR, "填写内容的列表格式有误")
             first_col = end_col + 1 if edit_type == EditType.APPEND else start_col_num
             first_row = end_row + 1 if edit_type == EditType.APPEND else start_row_num
             for row in value:
@@ -1012,13 +1033,13 @@ class Excel:
             try:
                 value = ast.literal_eval(value)
             except Exception as e:
-                raise Exception("填写的列表格式有误")
+                raise BizException(LIST_FORMAT_ERROR, "填写的列表格式有误")
 
         if not blank_rows:
             if not isinstance(value, list):
-                raise Exception("插入内容填写的列表格式有误")
+                raise BizException(INSERT_CONTENT_LIST_FORMAT_ERROR, "插入内容填写的列表格式有误")
             if not isinstance(value[0], list):
-                raise Exception("填写内容的列表格式有误")
+                raise BizException(CONTENT_LIST_FORMAT_ERROR, "填写内容的列表格式有误")
             insert_num = len(value)
 
         if insert_type == EnhancedInsertType.ADD_ROWS:
@@ -1326,7 +1347,7 @@ class Excel:
         elif select_type == SearchRangeType.ALL:
             data_region = "{}{}:{}{}".format("A", "1", r_end_col_letter, r_end_row)
         else:
-            raise ValueError("不支持的操作类型：{}".format(select_type))
+            raise BizException(PARAM_ERROR_FORMAT.format(f"不支持的操作类型：{select_type}"), f"不支持的操作类型：{select_type}")
 
         content = Range.get_range_data(Worksheet.get_range(worksheet, data_region), True if real_text else False)
         if content:
@@ -1445,9 +1466,9 @@ class Excel:
         """
         sheet_names = Worksheet.get_all_worksheet_names(excel)
         if sheet_name in sheet_names:
-            raise ValueError("新sheet名称已存在")
+            raise BizException(SHEET_NAME_EXISTS_ERROR, "新sheet名称已存在")
         if len(sheet_name) >= 31:
-            raise ValueError("sheet名称过长,需要小于31个字符")
+            raise BizException(SHEET_NAME_TOO_LONG_ERROR, "sheet名称过长,需要小于31个字符")
 
         if insert_type == SheetInsertType.FIRST:
             Worksheet.add_worksheet(excel, sheet_name, before=1)
@@ -1455,7 +1476,7 @@ class Excel:
             Worksheet.add_worksheet(excel, sheet_name)
         else:
             if (not relative_sheet_name) or (relative_sheet_name not in sheet_names):
-                raise ValueError("参考sheet名称不存在")
+                raise BizException(REFERENCE_SHEET_NOT_FOUND_ERROR, "参考sheet名称不存在")
             if insert_type == SheetInsertType.BEFORE:
                 Worksheet.add_worksheet(excel, sheet_name, before=relative_sheet_name)
             elif insert_type == SheetInsertType.AFTER:
@@ -1503,7 +1524,7 @@ class Excel:
             Worksheet.move_worksheet(move_worksheet)
         else:
             if (not move_to_sheet) or (move_to_sheet not in sheet_names):
-                raise ValueError("参考sheet名称不存在")
+                raise BizException(REFERENCE_SHEET_NOT_FOUND_ERROR, "参考sheet名称不存在")
             if move_type == MoveSheetType.MOVE_BEFORE:
                 Worksheet.move_worksheet(move_worksheet, before=move_to_sheet)
             elif move_type == MoveSheetType.MOVE_AFTER:
@@ -1536,9 +1557,9 @@ class Excel:
         try:
             sheet_names = Worksheet.get_all_worksheet_names(excel)
             if new_sheet_name in sheet_names:
-                raise ValueError("新sheet名称已存在")
+                raise BizException(SHEET_NAME_EXISTS_ERROR, "新sheet名称已存在")
             if len(new_sheet_name) >= 31:
-                raise ValueError("sheet名称过长,需要小于31个字符")
+                raise BizException(SHEET_NAME_TOO_LONG_ERROR, "sheet名称过长,需要小于31个字符")
             worksheet = Worksheet.get_worksheet(excel, source_sheet_name)
             Worksheet.rename_worksheet(worksheet, new_sheet_name)
         except Exception as err:
@@ -1589,14 +1610,14 @@ class Excel:
         if copy_type == CopySheetType.CURRENT_WORKBOOK:
             trigger_excel = excel
             if new_sheet_name in sheet_names and not is_cover:
-                raise ValueError("复制sheet名称已存在")
+                raise BizException(COPY_SHEET_NAME_EXISTS_ERROR, "复制sheet名称已存在")
         else:
             trigger_excel = other_excel_obj
             if new_sheet_name in other_sheet_names and not is_cover:
-                raise ValueError("复制sheet名称已存在")
+                raise BizException(COPY_SHEET_NAME_EXISTS_ERROR, "复制sheet名称已存在")
 
         if len(new_sheet_name) >= 31:
-            raise ValueError("sheet名称过长,需要小于31个字符")
+            raise BizException(SHEET_NAME_TOO_LONG_ERROR, "sheet名称过长,需要小于31个字符")
 
         source_worksheet = Worksheet.get_worksheet(excel, source_sheet_name)
 
@@ -2412,13 +2433,13 @@ class Excel:
         # 验证列宽输入
         if set_type == SetType.VALUE:
             if width == "":
-                raise ValueError("指定列宽模式下，width参数不能为空！")
+                raise BizException(WIDTH_PARAM_EMPTY_ERROR, "指定列宽模式下，width参数不能为空！")
             try:
                 width_float = float(width)
                 assert width_float > 0
                 assert width_float <= 255
             except Exception as e:
-                raise ValueError("输入列宽有误，请检查！列宽范围：0-255")
+                raise BizException(WIDTH_VALUE_ERROR, "输入列宽有误，请检查！列宽范围：0-255")
         else:
             width_float = 0
         if col:
@@ -2463,13 +2484,13 @@ class Excel:
         # 验证行高输入
         if set_type == SetType.VALUE:
             if height == "":
-                raise ValueError("指定行高模式下，height参数不能为空！")
+                raise BizException(HEIGHT_PARAM_EMPTY_ERROR, "指定行高模式下，height参数不能为空！")
             try:
                 height_float = float(height)
                 assert height_float > 0
                 assert height_float <= 409.5
             except Exception as e:
-                raise ValueError("输入行高有误，请检查！行高范围：0-409.5")
+                raise BizException(HEIGHT_VALUE_ERROR, "输入行高有误，请检查！行高范围：0-409.5")
         else:
             height_float = 0  # AUTO模式下不需要height
 

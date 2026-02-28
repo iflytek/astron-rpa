@@ -239,7 +239,7 @@ class PDFCore(IPDFCore):
 
         # 将提取的表格数据转换为pandas DataFrame
         if len(tables) == 0:
-            raise Exception("所选页面没有表格")
+            raise BizException(PDF_TABLE_NOT_FOUND, "所选页面没有表格")
         dfs = []
 
         for table in tables:
@@ -256,7 +256,7 @@ class PDFCore(IPDFCore):
                 result_df = pd.concat(dfs, ignore_index=True)
                 result_df.to_excel(new_file_path, index=False)
             except pd.errors.InvalidIndexError:
-                raise ValueError("无法拼接多表，建议将【是否合并】设置为否")
+                raise BizException(PDF_TABLE_MERGE_ERROR, "无法拼接多表，建议将【是否合并】设置为否")
         else:
             # 将dfs中的df输出到各个sheet中
             with pd.ExcelWriter(new_file_path) as writer:
@@ -328,7 +328,7 @@ class PDFCore(IPDFCore):
         :return: 生成的PDF文件路径
         """
         if not image_files:
-            raise ValueError("图片文件列表不能为空")
+            raise BizException(IMAGE_LIST_EMPTY, "图片文件列表不能为空")
 
         # 验证所有图片文件是否存在
         valid_image_files = []
@@ -336,10 +336,10 @@ class PDFCore(IPDFCore):
             if isinstance(img_file, str) and os.path.exists(img_file):
                 valid_image_files.append(img_file)
             else:
-                raise FileNotFoundError(f"图片文件不存在: {img_file}")
+                raise BizException(IMAGE_FILE_NOT_FOUND_FORMAT.format(img_file), f"图片文件不存在: {img_file}")
 
         if not valid_image_files:
-            raise ValueError("没有找到有效的图片文件")
+            raise BizException(IMAGE_NO_VALID_FILES, "没有找到有效的图片文件")
 
         # 处理生成的文件名
         if not new_file_name:
@@ -416,6 +416,6 @@ class PDFCore(IPDFCore):
                         writer.write(f)
 
         except Exception as e:
-            raise Exception(f"图片转PDF失败: {str(e)}")
+            raise BizException(IMAGE_TO_PDF_ERROR_FORMAT.format(str(e)), f"图片转PDF失败: {str(e)}")
 
         return new_file_path

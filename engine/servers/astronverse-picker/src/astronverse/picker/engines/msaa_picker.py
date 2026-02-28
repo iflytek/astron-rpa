@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 独立的 MSAA 拾取与校验模块
-整合原有项目中的 MSAA 相关功能，可独立运行，不依赖项目中的其他文件
+整合原有项目中的 MSAA 相关功能，可独立运行,不依赖项目中的其他文件
 """
 
 import ctypes
@@ -18,6 +18,7 @@ from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
 from pywin.mfc.object import Object
+from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT, ERROR_FORMAT
 
 # 加载 MSAA 相关的 COM 类型库
 try:
@@ -164,7 +165,7 @@ class IAElement(Object):
     def __init__(self, IAccessible, iObjectId):
         if not isinstance(iObjectId, int):
             error_msg = "MSAAElement(IAccessible,iObjectId) second argument type must be int"
-            raise TypeError(error_msg)
+            raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
         self.IAccessible = IAccessible
         self.iObjectId = iObjectId
         self.dictCache = {}
@@ -384,7 +385,8 @@ class MSAAPickerUtil:
             )
             objElement = IAElement(IAccessible, 0)
         else:
-            raise TypeError("window argument objHandle must be a int/str/unicode, not %r" % objHandle)
+            error_msg = f"window argument objHandle must be a int/str/unicode, not {objHandle!r}"
+            raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
         return objElement
 
     @staticmethod
@@ -663,7 +665,7 @@ class MSAAPicker:
     @classmethod
     def get_similar_path(cls, strategy_svc, curr_path):
         """用户给定两个相似元素"""
-        raise Exception("msaa暂不支持相似元素")
+        raise BizException(ERROR_FORMAT.format("msaa暂不支持相似元素"), "msaa暂不支持相似元素")
 
     @classmethod
     def get_element(cls, point: Point, pid, **kwargs):

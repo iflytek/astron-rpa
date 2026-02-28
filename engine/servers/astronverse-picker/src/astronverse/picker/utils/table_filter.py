@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 from astronverse.picker.logger import logger
+from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT
 
 
 def parse_datetime(date_string):
@@ -195,7 +196,8 @@ class DataFilter:
                     self.data_table[index].update(filter_result)
                 except Exception as e:
                     logger.error(f"cell_filter: {str(e)}")
-                    raise ValueError(f"暂不支持该筛选条件：{str(e)}")
+                    error_msg = f"暂不支持该筛选条件：{str(e)}"
+                    raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
 
     def table_filter(self):
         """
@@ -222,7 +224,8 @@ class DataFilter:
                     self.data_table = self.data_table[eval(filter_condition)]
                 except Exception as e:
                     logger.error(f"table_filter: {str(e)}")
-                    raise ValueError(f"暂不支持该筛选条件：{str(e)}")
+                    error_msg = f"暂不支持该筛选条件：{str(e)}"
+                    raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
         for index in range(len(self.hightLightIndex_list)):
             self.hightLightIndex_list[index] = [
                 self.hightLightIndex_list[index][i] for i in list(self.data_table["index"])
@@ -273,7 +276,7 @@ class DataFilter:
                 if isinstance(parameter, list):
                     filter_logic_str = f"({filter_col_str} >= '{parameter[0]}')&({filter_col_str} <= '{parameter[1]}')"
                 else:
-                    raise ValueError("条件异常，请输入正确的条件！")
+                    raise BizException(PARAM_ERROR_FORMAT.format("条件异常，请输入正确的条件！"), "条件异常，请输入正确的条件！")
         elif logical == "regular":
             filter_logic_str = f'{filter_col_str}.astype(str).str.contains(r"{parameter}", regex=True)'
         elif logical == "enumerate":
@@ -282,7 +285,7 @@ class DataFilter:
             if isinstance(parameter, list):
                 filter_logic_str = f"{filter_col_str}.isin({parameter})"
             else:
-                raise ValueError("条件异常，请输入正确的条件！")
+                raise BizException(PARAM_ERROR_FORMAT.format("条件异常，请输入正确的条件！"), "条件异常，请输入正确的条件！")
         else:
             filter_logic_str = None
 
@@ -379,7 +382,7 @@ class DataFilter:
                         "Regular",
                     ]:
                         if not parameters:
-                            raise ValueError(f"第{index + 1}列数据处理缺少参数")
+                            raise BizException(PARAM_ERROR_FORMAT.format(f"第{index + 1}列数据处理缺少参数"), f"第{index + 1}列数据处理缺少参数")
                     try:
                         if process_type == "Trim":
                             self.trim(index, parameters)
@@ -396,7 +399,8 @@ class DataFilter:
                         elif process_type == "Suffix":
                             self.suffix(index, parameters)
                     except Exception as e:
-                        raise ValueError(f"参数异常，请输入正确的参数！{process_type}{e}")
+                        error_msg = f"参数异常，请输入正确的参数！{process_type}{e}"
+                        raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
 
     def data_filter_main(self):
         if any(self.cell_filterConfig_list):

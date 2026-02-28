@@ -6,6 +6,7 @@ from typing import Any
 
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dataprocess import JSONConvertType, StringConvertType
+from astronverse.dataprocess.error import BizException, DATA_CONVERT_ERROR, INVALID_CONVERT_STRING
 
 
 class DataConvertProcess:
@@ -37,7 +38,7 @@ class DataConvertProcess:
         try:
             return str(input_data)
         except Exception:
-            raise ValueError("数据类型不支持强转str!")
+            raise BizException(DATA_CONVERT_ERROR, "数据类型不支持强转str")
 
     @staticmethod
     @atomicMg.atomic(
@@ -67,4 +68,4 @@ class DataConvertProcess:
             ]:
                 return ast.literal_eval(input_data)
         except Exception:
-            raise Exception("请输入正确的待转换目标字符串")
+            raise BizException(INVALID_CONVERT_STRING, "请输入正确的待转换目标字符串")

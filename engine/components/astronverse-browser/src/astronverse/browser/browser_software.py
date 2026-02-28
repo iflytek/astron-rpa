@@ -471,7 +471,7 @@ class BrowserSoftware:
         if data:
             data = data.replace("data:image/jpeg;base64,", "")
         else:
-            raise Exception("插件返回数据为空")
+            raise BizException(PLUGIN_EMPTY_RESPONSE, "插件返回数据为空")
         with open(dest_path, "wb") as f:
             f.write(base64.b64decode(data))
         return dest_path
@@ -661,7 +661,7 @@ class BrowserSoftware:
         elif download_mode == DownloadModeForFlag.Link:
             file_path_arr = []
             if not (link_str and save_path):
-                raise ValueError("请提供正确的url链接和文件存储路径")
+                raise BizException(UPLOAD_PATH_INVALID, "请提供正确的url链接和文件存储路径")
             try:
                 link_strs = literal_eval(link_str)
             except Exception:

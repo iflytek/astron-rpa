@@ -1,5 +1,6 @@
 import os
 
+from astronverse.openapi.error import BizException, EXCEL_WORKSHEET_ERROR
 from openpyxl import Workbook
 
 
@@ -24,7 +25,7 @@ def write_to_excel(dst_file, dst_file_name, header_dict, json_data):
     wb = Workbook()
     ws = wb.active
     if ws is None:
-        raise ValueError("无法获取活动工作表")
+        raise BizException(EXCEL_WORKSHEET_ERROR, "无法获取活动工作表")
     cols = []
 
     # 先用自定义值写表头

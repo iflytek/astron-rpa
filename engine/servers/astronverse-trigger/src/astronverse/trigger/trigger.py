@@ -4,6 +4,7 @@ from typing import Union
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from astronverse.trigger.core.config import config
 from astronverse.trigger.core.logger import logger
+from astronverse.trigger.error import BizException, TASK_TYPE_NOT_SUPPORTED
 from astronverse.trigger.server.gateway_client import list_trigger
 from astronverse.trigger.tasks.base_task import (
     AsyncImmediateTask,
@@ -157,7 +158,7 @@ class Trigger:
             )
 
         else:
-            raise Exception("不支持的任务类型")
+            raise BizException(TASK_TYPE_NOT_SUPPORTED, "不支持的任务类型")
 
         self.tasks[trigger_id] = task
         return True

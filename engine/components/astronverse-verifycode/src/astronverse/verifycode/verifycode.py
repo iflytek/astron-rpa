@@ -103,7 +103,7 @@ class VerifyCode:
 
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(slider_element.rect(), list):
-            raise Exception("浏览器元素定位不唯一，请检查！")
+            raise BizException(ERROR_FORMAT.format("浏览器元素定位不唯一，请检查！"), "浏览器元素定位不唯一，请检查！")
         start_pos = slider_element.point()
         if not unmatched_flag:
             end_pos = (start_pos.x + drag_distance, start_pos.y)

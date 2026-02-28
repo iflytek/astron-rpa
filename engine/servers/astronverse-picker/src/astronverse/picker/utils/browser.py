@@ -52,7 +52,7 @@ class Browser:
             )
 
             if response.status_code != 200:
-                raise Exception("浏览器插件连接器通信通道出错，请重试")
+                raise BizException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件连接器通信通道出错，请重试")
 
             res_json = response.json()
             res_code = res_json.get("code")
@@ -65,11 +65,13 @@ class Browser:
                     time.sleep(retry_interval)
                     continue
                 else:
-                    raise Exception(f"[{browser_type}] 浏览器插件响应出错，请检查插件是否安装并已开启")
+                    error_msg = f"[{browser_type}] 浏览器插件响应出错，请检查插件是否安装并已开启"
+                    raise BizException(BROWSER_EXTENSION_INSTALL_ERROR, error_msg)
 
             # 插件返回错误
             if res_code != "0000":
-                raise Exception(f"[{browser_type}] {res_msg}")
+                error_msg = f"[{browser_type}] {res_msg}"
+                raise BizException(BROWSER_EXTENSION_ERROR_FORMAT.format(error_msg), error_msg)
 
             if not res_data:
                 return None
@@ -87,7 +89,7 @@ class Browser:
 
             if data_code in error_map and key != "getElement":
                 _, _, fallback_msg = error_map[data_code]
-                raise Exception(fallback_msg)
+                raise BizException(BROWSER_EXTENSION_ERROR_FORMAT.format(fallback_msg), fallback_msg)
 
             return res_data.get("data", "")
 

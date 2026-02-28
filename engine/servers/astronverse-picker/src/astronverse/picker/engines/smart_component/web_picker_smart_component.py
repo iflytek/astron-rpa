@@ -9,6 +9,7 @@ from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import Browser
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
+from astronverse.picker.error import BizException, ERROR_FORMAT, WEB_GET_ElE_ERROR
 
 
 class WEBElement(IElement):
@@ -88,11 +89,11 @@ class WEBPicker:
 
     @classmethod
     def get_similar_path(cls, route_port, strategy_svc) -> Optional[dict]:
-        raise Exception("智能组件的相似拾取暂未实现")
+        raise BizException(ERROR_FORMAT.format("智能组件的相似拾取暂未实现"), "智能组件的相似拾取暂未实现")
 
     @classmethod
     def get_batch_path(cls, route_port, strategy_svc, curr_ele: "WEBElement") -> Optional[dict]:
-        raise Exception("智能组件的批量抓取暂未实现")
+        raise BizException(ERROR_FORMAT.format("智能组件的批量抓取暂未实现"), "智能组件的批量抓取暂未实现")
 
     @classmethod
     def get_element(
@@ -118,7 +119,7 @@ class WEBPicker:
             gate_way_port=route_port,
         )
         if not web_info:
-            raise Exception("获取元素信息失败，请退出重试")
+            raise BizException(WEB_GET_ElE_ERROR.format("获取元素信息失败，请退出重试"), "获取元素信息失败，请退出重试")
 
         WEBPicker.pre_xpath = web_info.get("abXpath", "")
         # 处理html
@@ -140,7 +141,7 @@ class WEBPicker:
         )
 
         if not web_info:
-            raise Exception("找不到父元素")
+            raise BizException(WEB_GET_ElE_ERROR.format("找不到父元素"), "找不到父元素")
 
         # 处理html
         web_info["outerHTML"] = parse_html(web_info.get("outerHTML", ""))

@@ -18,6 +18,18 @@ import win32com
 import win32com.client as wc
 import win32print
 import win32ui
+from astronverse.system.error import (
+    BizException,
+    ERROR_FORMAT,
+    PRINTER_NOT_FOUND,
+    PRINTER_NOT_SUPPORTED,
+    PRINT_FILE_EMPTY,
+    PRINT_FILE_TYPE_ERROR,
+    REGISTRY_NOT_FOUND,
+    SOFTWARE_OPEN_ERROR,
+    PAGE_RANGE_ERROR,
+    PRINTER_CONTEXT_ERROR,
+)
 from astronverse.baseline.logger.logger import logger
 from astronverse.system import BatchType, DocAppType, FileType, XlsAppType
 from PIL import Image, ImageWin
@@ -116,9 +128,9 @@ class PrinterCore:
                 if self.word_obj:
                     return self.word_obj
         except:
-            raise Exception(r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise BizException(ERROR_FORMAT.format("gen_py rebuild"), r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
-        raise Exception("未检测到wps和office注册表信息！")
+        raise BizException(REGISTRY_NOT_FOUND, "未检测到wps和office注册表信息！")
 
     def init_excel_app(self, default_application: XlsAppType = XlsAppType.EXCEL):
         """初始化 excel app"""
@@ -148,9 +160,9 @@ class PrinterCore:
                 if self.excel_obj:
                     return self.excel_obj
         except:
-            raise Exception(r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise BizException(ERROR_FORMAT.format("gen_py rebuild"), r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
-        raise Exception("未检测到wps和office注册表信息！")
+        raise BizException(REGISTRY_NOT_FOUND, "未检测到wps和office注册表信息！")
 
     def run(self, printer_name="", print_file=None, printer_type="", file_type="", batch_print="", **kwargs):
         """
@@ -181,18 +193,18 @@ class PrinterCore:
             all_printers = PrinterCore.view_printer()
             logger.info(f"获取到的打印机列表为：{all_printers}")
             if all_printers and printer_name not in all_printers:
-                raise ValueError("未发现 {} 打印机，请检查打印机名称.".format(printer_name))
+                raise BizException(PRINTER_NOT_FOUND.format(printer_name), f"未发现 {printer_name} 打印机，请检查打印机名称。")
             _default_printer_name = printer_name
 
         if not print_file:
-            raise ValueError("待打印文件为空，请检查文件路径信息")
+            raise BizException(PRINT_FILE_EMPTY, "待打印文件为空，请检查文件路径信息")
 
         print_queue = PrinterCore.generate_printer_task(
             _default_printer_name, print_file, printer_type, file_type, **kwargs
         )
 
         if print_queue is None:
-            raise ValueError("{} 打印机暂不支持打印，请检查打印机信息".format(printer_name))
+            raise BizException(PRINTER_NOT_SUPPORTED.format(printer_name), f"{printer_name} 打印机暂不支持打印，请检查打印机信息")
 
         flags = []
         while not print_queue.empty():
@@ -257,7 +269,7 @@ class PrinterCore:
         elif any(file_path.endswith(img) for img in PrinterCore.IMAGE_TYPES) and file_type == FileType.PICTURE.value:
             task = PrinterCore._add_task(printer_name, file_path, PrinterCore.print_img, printer_type, **kwargs)
         else:
-            raise ValueError("不支持打印的文件类型，请检查文件信息")
+            raise BizException(PRINT_FILE_TYPE_ERROR, "不支持打印的文件类型，请检查文件信息")
         return task
 
     def print_word(self, printer_name: str, file_path: str, printer_type: str, **kwargs):
@@ -296,7 +308,7 @@ class PrinterCore:
 
         doc_app = self.word_obj
         if doc_app is None:
-            raise ValueError("未检测到所选程序的注册表信息，请检查是否安装！")
+            raise BizException(REGISTRY_NOT_FOUND, "未检测到所选程序的注册表信息，请检查是否安装！")
         doc_app.Visible = 0
         doc_app.DisplayAlerts = 0
         doc_ = doc_app.Documents.Open(file_path)
@@ -399,7 +411,7 @@ class PrinterCore:
         try:
             xl_app = self.excel_obj
             if xl_app is None:
-                raise ValueError("未检测到所选程序的注册表信息，请检查是否安装！")
+                raise BizException(REGISTRY_NOT_FOUND, "未检测到所选程序的注册表信息，请检查是否安装！")
             xl_app.Visible = 0  # 不显示EXEL的界面，True时为显示。 不在后台运行
             xl_app.DisplayAlerts = 0  # 不显示弹窗
             if hasattr(xl_app, "EnableEvents") and xl_app:
@@ -407,7 +419,7 @@ class PrinterCore:
 
             xl_workbook = xl_app.Workbooks.Open(file_path)
             if xl_workbook is None:
-                raise ValueError("无法打开该软件")
+                raise BizException(SOFTWARE_OPEN_ERROR, "无法打开该软件")
             if hasattr(xl_workbook, "Checkcompatibility"):
                 xl_workbook.Checkcompatibility = False  # 屏蔽弹窗
             if hasattr(xl_workbook, "RunAutoMacros"):
@@ -429,7 +441,7 @@ class PrinterCore:
                 sheets = xl_workbook.Sheets.Count
                 sheets_pages = PrinterCore.parse_pages(self, page_string=params["pages"])
                 if max(sheets_pages) > sheets:
-                    raise ValueError("请检查页码范围！")
+                    raise BizException(PAGE_RANGE_ERROR, "请检查页码范围！")
                 for sheet in sheets_pages:
                     wsheet = xl_workbook.Worksheets(sheet)
                     if 10 <= params["scale"] <= 200 and params["scale"] != 100:
@@ -612,7 +624,7 @@ class PrinterCore:
         try:
             hDC = win32ui.CreateDC()
             if hDC is None:
-                raise ValueError("无法创建打印设备上下文")
+                raise BizException(PRINTER_CONTEXT_ERROR, "无法创建打印设备上下文")
             hDC.CreatePrinterDC(printer_name)
             printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
             printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)

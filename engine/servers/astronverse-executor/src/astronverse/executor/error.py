@@ -22,6 +22,10 @@ ONLY_ONE_CATCH_CAN_BE_RETAINED = _("只能保留一个catch语句")
 ELEMENT_ACCESS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("元素获取异常: {}"))
 PROCESS_ACCESS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("工程数据异常: {}"))
 
+# 执行错误
+TIMEOUT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("执行超时"))
+SUBPROCESS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("子进程执行失败，返回码: {}"))
+
 # 报告和状态消息
 MSG_FLOW_INIT_START = _("开始初始化...")
 MSG_FLOW_INIT_SUCCESS = _("初始化完成")

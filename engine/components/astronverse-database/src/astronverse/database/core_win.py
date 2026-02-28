@@ -6,6 +6,7 @@ import pymysql
 import pyodbc
 from astronverse.database import DatabaseType
 from astronverse.database.core import IDatabaseCore
+from astronverse.database.error import BizException, UNSUPPORTED_DATABASE_TYPE
 
 # try:
 #     import ibm_db_dbi
@@ -76,7 +77,7 @@ class DatabaseCore(IDatabaseCore):
             #     host=db_info_dict.get("host", ""),
             # )
         else:
-            raise Exception("找不到该数据库类型!")
+            raise BizException(UNSUPPORTED_DATABASE_TYPE, "找不到该数据库类型!")
 
     @staticmethod
     def disconnect(db_conn: object):

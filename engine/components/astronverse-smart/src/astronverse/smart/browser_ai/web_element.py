@@ -6,6 +6,7 @@ from astronverse.baseline.logger.logger import logger
 from astronverse.browser import *
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
+from astronverse.smart.error import BizException, PARAM_ERROR, ELEMENT_NOT_FOUND
 
 
 class WebElement:
@@ -35,7 +36,7 @@ class WebElement:
         logger.info("\n\n\nfind all elements by xpath: \n" + str(elements) + "\n" + str(type(elements)) + "\n\n")
 
         if elements is None:
-            raise Exception("Can not find element by xpath: " + xpath_selector)
+            raise BizException(ELEMENT_NOT_FOUND, f"无法通过 xpath 找到元素: {xpath_selector}")
 
         if not isinstance(elements, list):
             elements = [elements]
@@ -116,7 +117,7 @@ class WebElement:
         * @raises TimeoutException, if the element is not found within the specified timeout
         """
         if xpath_selector is None:
-            raise Exception("xpath_selector cannot be None")
+            raise BizException(PARAM_ERROR.format("xpath_selector"), "xpath_selector 不能为 None")
         if xpath_selector[0] == ".":
             xpath_selector = xpath_selector[1:]
         elements = BrowserElement().get_relative_element(
@@ -128,7 +129,7 @@ class WebElement:
             element_timeout=timeout,
         )
         if elements is None:
-            raise Exception("element not found")
+            raise BizException(ELEMENT_NOT_FOUND, "元素未找到")
 
         return WebElement(browser=self.browser, element_data=elements)
 
@@ -158,7 +159,7 @@ class WebElement:
         )
 
         if elements is None:
-            raise Exception("element not found")
+            raise BizException(ELEMENT_NOT_FOUND, "元素未找到")
         if not isinstance(elements, list):
             elements = [elements]
         for element in elements:
@@ -240,7 +241,7 @@ class WebElement:
         )
 
         if elements is None:
-            raise Exception("parent element not found")
+            raise BizException(ELEMENT_NOT_FOUND, "父元素未找到")
 
         return WebElement(browser=self.browser, element_data=elements)
 
@@ -256,7 +257,7 @@ class WebElement:
             child_element_type=ChildElementType.All,
         )
         if elements is None:
-            raise Exception("child element not found")
+            raise BizException(ELEMENT_NOT_FOUND, "子元素未找到")
         if not isinstance(elements, list):
             elements = [elements]
 
@@ -329,7 +330,7 @@ class WebElement:
         elif location == "top":
             y_scroll_type = ScrollbarForYScrollTypeFlag.Top
         else:
-            raise ValueError(f"Unsupported location: {location}. Supported values are 'top' and 'bottom'")
+            raise BizException(PARAM_ERROR.format(f"location: {location}"), f"不支持的位置参数: {location}，支持的值为 'top' 和 'bottom'")
 
         BrowserElement().scroll(
             browser_obj=self.browser,

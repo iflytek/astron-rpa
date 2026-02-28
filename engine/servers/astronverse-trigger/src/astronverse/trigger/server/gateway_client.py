@@ -4,6 +4,7 @@ import requests
 from astronverse.trigger import CONVERT_COLUMN, TERMINAL_CONVERT_COLUMN
 from astronverse.trigger.core.config import config
 from astronverse.trigger.core.logger import logger
+from astronverse.trigger.error import BizException, GATEWAY_LIST_TRIGGER_FAILED
 
 
 def execute_multiple_projects(project_info: dict):
@@ -125,7 +126,7 @@ def list_trigger():
     if response.json()["code"] == "000000":
         return convert(response.json()["data"]["records"])
     else:
-        raise Exception("获取任务列表失败")
+        raise BizException(GATEWAY_LIST_TRIGGER_FAILED, "获取任务列表失败")
 
 
 def terminal_poll_update():

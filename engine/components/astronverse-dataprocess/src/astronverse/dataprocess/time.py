@@ -7,6 +7,7 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsIt
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import Date
 from astronverse.dataprocess import TimeChangeType, TimestampUnitType, TimeUnitType, TimeZoneType
+from astronverse.dataprocess.error import BizException, UNSUPPORTED_TIMESTAMP_UNIT, UNSUPPORTED_TIMESTAMP_LENGTH, UNSUPPORTED_TIME_UNIT
 from dateutil.relativedelta import relativedelta
 
 
@@ -134,7 +135,7 @@ class TimeProcess:
             return int(base * 1000)
         if timestamp_unit == TimestampUnitType.MICROSECOND:
             return int(base * 1_000_000)
-        raise ValueError("不支持的时间戳单位")
+        raise BizException(UNSUPPORTED_TIMESTAMP_UNIT, "不支持的时间戳单位")
 
     @staticmethod
     @atomicMg.atomic("TimeProcess", outputList=[atomicMg.param("converted_time", types="Date")])
@@ -149,7 +150,7 @@ class TimeProcess:
         elif 13 < length <= 16:  # 微秒
             timestamp_float = timestamp / 1_000_000
         else:
-            raise ValueError("时间戳长度不支持")
+            raise BizException(UNSUPPORTED_TIMESTAMP_LENGTH, "时间戳长度不支持")
         time_obj = Date()
         if time_zone == TimeZoneType.UTC:
             time_obj.time = datetime.fromtimestamp(timestamp_float, tz=UTC)
@@ -190,7 +191,7 @@ class TimeProcess:
             if time_unit == TimeUnitType.MONTH:
                 return delta.years * 12 + delta.months
             return delta.years
-        raise ValueError("不支持的时间单位")
+        raise BizException(UNSUPPORTED_TIME_UNIT, "不支持的时间单位")
 
     @staticmethod
     @atomicMg.atomic(

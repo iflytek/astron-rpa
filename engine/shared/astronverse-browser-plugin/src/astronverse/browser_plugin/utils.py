@@ -10,6 +10,7 @@ import winreg as reg
 
 import psutil
 from astronverse.baseline.logger.logger import logger
+from astronverse.browser_plugin.error import BizException, FILE_NOT_FOUND, INVALID_FILENAME, REGISTRY_NOT_FOUND
 
 from .config import Config
 
@@ -26,7 +27,7 @@ def parse_filename_regex(filename):
         extension = match.group("extension")
         return browser, version, hashid, extension
     else:
-        raise ValueError("Filename does not match expected pattern")
+        raise BizException(INVALID_FILENAME, "文件名不匹配预期格式")
 
 
 class FirefoxUtils:
@@ -69,7 +70,7 @@ class FirefoxUtils:
             default_profile = config[sections[0]]["Default"]
             return os.path.join(profile_path, default_profile)
         else:
-            raise FileNotFoundError("Firefox profile not found.")
+            raise BizException(FILE_NOT_FOUND.format("Firefox profile"), "Firefox profile 未找到")
 
     @staticmethod
     def check(firefox_command="firefox"):
@@ -215,7 +216,7 @@ class Registry:
         try:
             return reg.OpenKey(head, key_path, 0, reg.KEY_ALL_ACCESS)
         except FileNotFoundError:
-            raise FileNotFoundError(f"registry {key_path} not found")
+            raise BizException(REGISTRY_NOT_FOUND.format(key_path), f"注册表项 {key_path} 未找到")
 
 
 def kill_process(name: str):

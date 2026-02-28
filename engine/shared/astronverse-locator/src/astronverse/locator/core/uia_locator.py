@@ -15,6 +15,7 @@ from astronverse.locator.utils.window import (
     top_window,
     validate_window_rect,
 )
+from astronverse.locator.error import BizException, NO_FIND_ELEMENT
 from uiautomation import Control, ControlFromHandle
 
 
@@ -201,7 +202,7 @@ class UIAFactory:
         parent_ele["path"] = parent_path
         parent_locator = cls.__find_one__(parent_ele, picker_type=picker_type, **kwarg)
         if not parent_locator:
-            raise Exception("元素无法找到")
+            raise BizException(NO_FIND_ELEMENT, "元素无法找到")
         assert isinstance(parent_locator.control(), Control)
 
         # 2. 再找子元素
@@ -340,7 +341,7 @@ class UIAFactory:
         root_handles = list(set(root_handles))
 
         if not root_handles:
-            raise Exception("元素无法找到")
+            raise BizException(NO_FIND_ELEMENT, "元素无法找到")
 
         logger.info(f"找到 {len(root_handles)} 个窗口句柄，开始遍历查找")
 
@@ -493,7 +494,7 @@ class UIAFactory:
         root_handles = list(set(root_handles))
 
         if not root_handles:
-            raise Exception("元素无法找到")
+            raise BizException(NO_FIND_ELEMENT, "元素无法找到")
 
         logger.info(f"找到 {len(root_handles)} 个窗口句柄，开始遍历查找")
 
@@ -582,7 +583,7 @@ class UIAFactory:
             return res
         else:
             logger.error(f"遍历了 {len(root_handles)} 个句柄，均未找到任何匹配元素")
-            raise Exception("元素无法找到")
+            raise BizException(NO_FIND_ELEMENT, "元素无法找到")
 
 
 uia_factory = UIAFactory()

@@ -2,6 +2,7 @@ import os
 import sys
 
 from astronverse.browser_plugin import BrowserType, PluginData
+from astronverse.browser_plugin.error import BizException, PLUGIN_NOT_FOUND, UNSUPPORTED_PLATFORM
 from astronverse.browser_plugin.utils import parse_filename_regex
 
 if sys.platform == "win32":
@@ -9,7 +10,7 @@ if sys.platform == "win32":
 elif sys.platform == "linux":
     from astronverse.browser_plugin.unix import BrowserPluginFactory
 else:
-    raise Exception(f"Unsupported platform: {sys.platform}")
+    raise BizException(UNSUPPORTED_PLATFORM.format(sys.platform), f"不支持的平台: {sys.platform}")
 
 
 class ExtensionManager:
@@ -25,7 +26,7 @@ class ExtensionManager:
         plugins = [file for file in os.listdir(plugin_dir) if file.startswith(pre_name + "-")]
 
         if not plugins:
-            raise Exception("plugins not found...")
+            raise BizException(PLUGIN_NOT_FOUND, "未找到插件")
 
         # get plugin info from file
         plugin_name, plugin_version, plugin_id, _extension = parse_filename_regex(plugins[-1])

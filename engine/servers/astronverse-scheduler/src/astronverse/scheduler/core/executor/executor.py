@@ -20,6 +20,7 @@ from astronverse.scheduler.core.executor.virtual_desk import (
 )
 from astronverse.scheduler.core.schduler.venv import create_project_venv
 from astronverse.scheduler.core.terminal.terminal import Terminal
+from astronverse.scheduler.error import BizException, EXECUTOR_ERROR
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.notify_utils import NotifyUtils
 from astronverse.scheduler.utils.subprocess import SubPopen
@@ -285,13 +286,13 @@ class ExecutorManager:
                 executor.run_param,
             )
             if not executor.exec_id:
-                raise Exception(r"服务端接口异常，工程运行失败")
+                raise BizException(EXECUTOR_ERROR.format("服务端接口异常，工程运行失败"), "服务端接口异常，工程运行失败")
         if not executor.exec_id:
             executor.exec_id = str(uuid.uuid1())
 
         # 2. 检查是否占用
         if self.status():
-            raise Exception("已有实例运行，启动失败...")
+            raise BizException(EXECUTOR_ERROR.format("已有实例运行，启动失败"), "已有实例运行，启动失败...")
 
         # 2.1 统计数据
         self.curr_task_name = task_name
@@ -339,7 +340,7 @@ class ExecutorManager:
                 executor.run_param_file = temp_file_path
                 ins.set_param("run_param", quote(temp_file_path))
             except Exception:
-                raise Exception("参数传递失败...")
+                raise BizException(EXECUTOR_ERROR.format("参数传递失败"), "参数传递失败...")
         if process_id:
             ins.set_param("process_id", process_id)
         if line:

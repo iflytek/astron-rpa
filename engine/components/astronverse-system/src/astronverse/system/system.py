@@ -120,7 +120,8 @@ class System:
                 or bottom_right_x > screen_width
                 or bottom_right_y > screen_height
             ):
-                raise ValueError(
+                raise BizException(
+                    PARAM_ERROR.format("coordinates"),
                     "输入坐标{}，{}，{}，{}须大于0且在屏幕范围[{}*{}]内".format(
                         top_left_x,
                         top_left_y,
