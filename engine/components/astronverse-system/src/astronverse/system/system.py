@@ -381,9 +381,7 @@ class System:
         """打印机打印"""
         if batch_print == BatchType.SINGLE:
             if not file_is_exists(file_path):
-                raise BizException(
-                    FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息"
-                )
+                raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息")
             print_file = file_path
         elif batch_print == BatchType.BATCH:
             if not folder_is_exists(folder_path):

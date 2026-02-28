@@ -198,9 +198,7 @@ class Enterprise:
             if "application/json" in content_type:
                 error = response.json()
                 if not error.get("success"):
-                    raise BizException(
-                        FILE_DOWNLOAD_FAILED_FORMAT.format(error.get("message", "")), "请检查下载接口！"
-                    )
+                    raise BizException(FILE_DOWNLOAD_FAILED_FORMAT.format(error.get("message", "")), "请检查下载接口！")
             elif "application/octet-stream" in content_type:
                 # 从响应头中获取文件名，如果没有则使用默认名称
                 content_disposition = response.headers.get("content-disposition", "")

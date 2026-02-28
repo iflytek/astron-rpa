@@ -63,9 +63,7 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BizException(
-                    MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
-                )
+                raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
             res = main_func(out_kwargs)
             return out_kwargs
@@ -74,9 +72,7 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BizException(
-                    MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
-                )
+                raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
             res = main_func(**inn_kwargs)
             return res

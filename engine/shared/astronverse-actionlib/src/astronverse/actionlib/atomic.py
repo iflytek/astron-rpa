@@ -383,9 +383,7 @@ class AtomicManager:
                     if (res in outputMap) or (res in inputMap):
                         continue
                     else:
-                        raise BizException(
-                            REQUIRED_PARAM_MISSING.format(res), "comment存在未定义的数据:{}".format(res)
-                        )
+                        raise BizException(REQUIRED_PARAM_MISSING.format(res), "comment存在未定义的数据:{}".format(res))
 
             # 6.2 回写
             temp_atomic_dict[k] = v
