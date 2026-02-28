@@ -10,6 +10,7 @@ import win32gui
 import win32process
 from astronverse.baseline.logger.logger import logger
 from astronverse.locator import PickerType, Rect
+from astronverse.locator.utils.match import MatchType, match_value
 from astronverse.locator.utils.process import get_process_name
 from pygetwindow._pygetwindow_win import Win32Window, isWindowVisible
 from uiautomation import Control, ControlFromHandle
@@ -331,13 +332,22 @@ def find_window(cls_name: str, name: str, app_name: str = None) -> int:
     return 0
 
 
-def find_window_handles_list(cls_name: str, name: str, app_name: str = None, picker_type=None) -> list[int]:
+def find_window_handles_list(
+    cls_name: str,
+    name: str,
+    app_name: str = None,
+    picker_type=None,
+    cls_match_type: int = MatchType.EXACT,
+    name_match_type: int = MatchType.EXACT,
+) -> list[int]:
     """
     获取指定窗口的handle列表，包含cls完全一致的handle和窗口name最长并且一致的handle
 
     :param cls_name: 窗口类名
     :param name: 窗口名称
     :param app_name: 应用程序名称
+    :param cls_match_type: cls匹配模式 0=全等 1=通配 2=正则
+    :param name_match_type: name匹配模式 0=全等 1=通配 2=正则
     :return: handle列表，包含cls完全一致的handle和窗口name最长并且一致的handle
     """
     if picker_type == PickerType.WINDOW.value:
@@ -364,17 +374,17 @@ def find_window_handles_list(cls_name: str, name: str, app_name: str = None, pic
                     handler_name,
                     handler_class_name,
                     win32gui.GetParent(handle) == 0,
-                    cls_name == handler_class_name,
+                    match_value(cls_name, handler_class_name, cls_match_type) if cls_name else False,
                 )
             )
             continue
 
         # 使用cls过滤
-        if handler_class_name != cls_name:
+        if cls_name and not match_value(cls_name, handler_class_name, cls_match_type):
             continue
 
         # 使用name过滤
-        if handler_name != name:
+        if name and not match_value(name, handler_name, name_match_type):
             continue
         match_list.append(
             (
@@ -529,10 +539,20 @@ def find_window_by_enum(cls: str, name: str, app_name: str = None) -> int:
     return 0
 
 
-def find_window_by_enum_list(cls: str, name: str, app_name: str = None, picker_type=None):
+def find_window_by_enum_list(
+    cls: str,
+    name: str,
+    app_name: str = None,
+    picker_type=None,
+    cls_match_type: int = MatchType.EXACT,
+    name_match_type: int = MatchType.EXACT,
+):
     """
     通过枚举窗口 classname 和 name属性获得窗口，返回如果是0则窗口不存在
     与find_window的区别是使用EnumWindows枚举所有窗口，能找到更多窗口
+
+    :param cls_match_type: cls匹配模式 0=全等 1=通配 2=正则
+    :param name_match_type: name匹配模式 0=全等 1=通配 2=正则
     """
     if picker_type == PickerType.WINDOW.value:
         return [find_window_by_enum(cls, name, app_name)]
@@ -589,17 +609,17 @@ def find_window_by_enum_list(cls: str, name: str, app_name: str = None, picker_t
                     handler_name,
                     handler_class_name,
                     win32gui.GetParent(handle) == 0,
-                    cls == handler_class_name,
+                    match_value(cls, handler_class_name, cls_match_type) if cls else False,
                 )
             )
             continue
 
         # 使用cls过滤
-        if handler_class_name != cls:
+        if cls and not match_value(cls, handler_class_name, cls_match_type):
             continue
 
-        # 使用name过滤 (支持双向模糊匹配)
-        if handler_name != name:
+        # 使用name过滤
+        if name and not match_value(name, handler_name, name_match_type):
             continue
         match_list.append(
             (

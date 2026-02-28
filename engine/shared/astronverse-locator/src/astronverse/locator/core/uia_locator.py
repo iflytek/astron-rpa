@@ -6,6 +6,7 @@ from typing import Any, Optional, Union
 import pyautogui
 from astronverse.baseline.logger.logger import logger
 from astronverse.locator import ILocator, PickerType, Rect
+from astronverse.locator.utils.match import MatchType, match_value
 from astronverse.locator.utils.window import (
     find_window_by_enum_list,
     find_window_handles_list,
@@ -52,6 +53,7 @@ class UIANode:
     index: int = None  # 索引
     name: str = None
     value: str = None
+    attrs_map: dict = None  # 每个属性的匹配类型 {attr_key: 0|1|2}，缺省时全部视为全等(0)
 
 
 class UIAEle:
@@ -148,10 +150,10 @@ class UIAFactory:
 
     @classmethod
     def __compare_node_and_uia_ele__(cls, uia_ele: UIAEle, node: UIANode, keys: list[str]) -> bool:
-        # 忽略没有选中
         if not node.checked:
             return True
 
+        attrs_map = node.attrs_map or {}
         for key in keys:
             if key in node.disable_keys:
                 continue
@@ -163,7 +165,8 @@ class UIAFactory:
                 v2 = str(v2)
             if not v1 and not v2:
                 continue
-            if v1 != v2:
+            mt = attrs_map.get(key, MatchType.EXACT)
+            if not match_value(v1, v2, mt):
                 return False
         return True
 
@@ -212,6 +215,7 @@ class UIAFactory:
                 index=path.get("index", None),
                 name=path.get("name", None),
                 value=path.get("value", None),
+                attrs_map=path.get("attrs_map", {}),
             )
             for path in path_list
             if not path.get("similar_parent", None)
@@ -287,13 +291,17 @@ class UIAFactory:
                 index=path.get("index", None),
                 name=path.get("name", None),
                 value=path.get("value", None),
+                attrs_map=path.get("attrs_map", {}),
             )
             for path in path_list
         ]
 
+        _first_attrs_map = node_list[0].attrs_map or {}
         first_cls = node_list[0].cls if "cls" not in node_list[0].disable_keys else None
         first_name = node_list[0].name if "name" not in node_list[0].disable_keys else None
         first_app_name = app_name if app_name not in node_list[0].disable_keys else None
+        cls_match_type = _first_attrs_map.get("cls", MatchType.EXACT)
+        name_match_type = _first_attrs_map.get("name", MatchType.EXACT)
 
         # 2. 获取所有可能的窗口句柄
         root_handles = []
@@ -301,7 +309,12 @@ class UIAFactory:
         # 再尝试使用 find_window_handles_list 获取句柄列表
         try:
             handles_list = find_window_handles_list(
-                first_cls, first_name, app_name=first_app_name, picker_type=picker_type
+                first_cls,
+                first_name,
+                app_name=first_app_name,
+                picker_type=picker_type,
+                cls_match_type=cls_match_type,
+                name_match_type=name_match_type,
             )
             if handles_list:
                 root_handles.extend(handles_list)
@@ -315,6 +328,8 @@ class UIAFactory:
                     first_name,
                     app_name=first_app_name,
                     picker_type=picker_type,
+                    cls_match_type=cls_match_type,
+                    name_match_type=name_match_type,
                 )
                 if enum_handles:
                     root_handles.extend(enum_handles)
@@ -431,20 +446,30 @@ class UIAFactory:
                 index=path.get("index", None),
                 name=path.get("name", None),
                 value=path.get("value", None),
+                attrs_map=path.get("attrs_map", {}),
             )
             for path in path_list
         ]
 
+        _first_attrs_map = node_list[0].attrs_map or {}
         first_cls = node_list[0].cls if node_list[0].cls not in node_list[0].disable_keys else None
         first_name = node_list[0].name if node_list[0].name not in node_list[0].disable_keys else None
         first_app_name = app_name if app_name not in node_list[0].disable_keys else None
+        cls_match_type = _first_attrs_map.get("cls", MatchType.EXACT)
+        name_match_type = _first_attrs_map.get("name", MatchType.EXACT)
 
         # 2. 获取所有可能的窗口句柄
         root_handles = []
 
         # 再尝试使用 find_window_handles_list 获取句柄列表
         try:
-            handles_list = find_window_handles_list(first_cls, first_name, app_name=first_app_name)
+            handles_list = find_window_handles_list(
+                first_cls,
+                first_name,
+                app_name=first_app_name,
+                cls_match_type=cls_match_type,
+                name_match_type=name_match_type,
+            )
             if handles_list:
                 root_handles.extend(handles_list)
         except Exception as e:
@@ -452,7 +477,13 @@ class UIAFactory:
         if len(root_handles) == 0:
             # 先尝试使用 find_window_by_enum_list 获取句柄列表
             try:
-                enum_handles = find_window_by_enum_list(first_cls, first_name, app_name=first_app_name)
+                enum_handles = find_window_by_enum_list(
+                    first_cls,
+                    first_name,
+                    app_name=first_app_name,
+                    cls_match_type=cls_match_type,
+                    name_match_type=name_match_type,
+                )
                 if enum_handles:
                     root_handles.extend(enum_handles)
             except Exception as e:
