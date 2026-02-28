@@ -2,6 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import type { ColumnsType } from 'ant-design-vue/es/table'
+import { useTranslation } from 'i18next-vue'
 import { cloneDeep } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import type { UnwrapRef } from 'vue'
@@ -14,6 +15,7 @@ const props = defineProps<{ option: string }>()
 const emits = defineEmits(['ok'])
 
 const modal = NiceModal.useModal()
+const { t } = useTranslation()
 
 interface DataItem {
   id: string
@@ -22,17 +24,17 @@ interface DataItem {
 }
 
 const columns: ColumnsType = [{
-  title: '替换字符',
+  title: t('emailTextReplace.originText'),
   dataIndex: 'origintext',
   key: 'origintext',
   ellipsis: true,
 }, {
-  title: '替换内容',
+  title: t('emailTextReplace.replaceText'),
   key: 'replacetext',
   dataIndex: 'replacetext',
   ellipsis: true,
 }, {
-  title: '操作',
+  title: t('operate'),
   key: 'operation',
   dataIndex: 'operation',
   width: 100,
@@ -95,7 +97,7 @@ function save(key: string) {
   const editOrignText = getRealValue(editableData[key].origintext.value)
   const idx = dataSource.value.findIndex(item => getRealValue(item.origintext.value) === editOrignText && item.id !== key)
   if (idx !== -1 || !editOrignText) {
-    message.warning('存在重复或空的替换字符无法保存')
+    message.warning(t('emailTextReplace.duplicateOrEmpty'))
     return
   }
   Object.assign(dataSource.value.filter(item => key === item.id)[0], editableData[key])
@@ -110,7 +112,7 @@ function onDelete(key: string) {
 
 function handleAdd() {
   if (editingKey.value) {
-    message.warning('请先保存当前编辑的替换字符规则')
+    message.warning(t('emailTextReplace.saveCurrentFirst'))
     return
   }
   const newKey = nanoid()
@@ -143,14 +145,14 @@ function handleAdd() {
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="邮件文字替换"
+    :title="$t('emailTextReplace.title')"
     class="email-text-replace-modal"
     :width="800"
     centered
     @ok="handleOk"
   >
     <a-button type="primary" @click="handleAdd">
-      添加替换规则
+      {{ $t('emailTextReplace.addRule') }}
     </a-button>
     <a-table
       class="editable-table"
@@ -163,7 +165,7 @@ function handleAdd() {
         pageSize: 15,
         size: 'small',
         disabled: editingKey !== '',
-        showTotal: () => `共${dataSource.length}条记录`,
+        showTotal: () => t('emailTextReplace.recordTotal', { count: dataSource.length }),
       }"
     >
       <template #bodyCell="{ column, text, record }">
@@ -185,15 +187,15 @@ function handleAdd() {
         <template v-else-if="column.dataIndex === 'operation'">
           <div class="editable-row-operations">
             <span v-if="editableData[record.id]">
-              <a-typography-link @click="save(record.id)">保存</a-typography-link>
-              <a-popconfirm title="确定删除么?" @confirm="onDelete(record.id)">
-                <a>删除</a>
+              <a-typography-link @click="save(record.id)">{{ $t('save') }}</a-typography-link>
+              <a-popconfirm :title="$t('deleteConfirmTip')" @confirm="onDelete(record.id)">
+                <a>{{ $t('delete') }}</a>
               </a-popconfirm>
             </span>
             <span v-else>
-              <a :style="`${editingKey !== record.id && editingKey !== '' ? 'opacity: 0.2; pointer-events: none;' : ''}`" @click="edit(record.id)">编辑</a>
-              <a-popconfirm title="确定删除么?" @confirm="onDelete(record.id)">
-                <a>删除</a>
+              <a :style="`${editingKey !== record.id && editingKey !== '' ? 'opacity: 0.2; pointer-events: none;' : ''}`" @click="edit(record.id)">{{ $t('edit') }}</a>
+              <a-popconfirm :title="$t('deleteConfirmTip')" @confirm="onDelete(record.id)">
+                <a>{{ $t('delete') }}</a>
               </a-popconfirm>
             </span>
           </div>

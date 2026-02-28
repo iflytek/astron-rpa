@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
+
 import type { InviteInfo } from '../../interface'
 import DynamicForm from '../Base/DynamicForm.vue'
 import FormLayout from '../Base/FormLayout.vue'
@@ -20,6 +22,7 @@ const emit = defineEmits<{
   switchToLogin: []
 }>()
 
+const { t } = useTranslation()
 const { formRef, formData, config, handleEvents } = useInviteUserInfo(currentUser, emit as any)
 </script>
 
@@ -31,7 +34,7 @@ const { formRef, formData, config, handleEvents } = useInviteUserInfo(currentUse
     :invite-info="inviteInfo"
   >
     <div class="w-full rounded-[8px] text-[14px] mb-[12px] text-[#000000A6] dark:text-[#FFFFFF73] ">
-      当前账号
+      {{ t('authForm.currentAccount') }}
     </div>
     <DynamicForm
       ref="formRef"

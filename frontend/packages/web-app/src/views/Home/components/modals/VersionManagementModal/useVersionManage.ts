@@ -2,6 +2,7 @@ import { NiceModal } from '@rpa/components'
 import { useAsyncState } from '@vueuse/core'
 import { Button, message } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
 import { computed, h } from 'vue'
 
@@ -18,23 +19,24 @@ interface versionMap {
 }
 
 export default function useVersionManage(props) {
+  const { t } = useTranslation()
   const { state: versionLst, isLoading: spinning, executeImmediate } = useAsyncState(() => getVersionLst<versionMap[]>({ robotId: props.robotId }), [])
 
   const hasEditing = computed(() => versionLst.value.some(item => item.versionNum === 0))
 
   function getVersionDes(versionNum: number | string) {
-    return versionNum === 0 ? '当前版本' : `版本 ${versionNum}`
+    return versionNum === 0 ? t('currentVersion') : t('versionWithNumber', { version: versionNum })
   }
 
   // 判断当前是今天、昨天还是具体日期显示
   function getTimeDes(time) {
     if (dayjs(time).isSame(dayjs(), 'day')) {
-      return `今天 ${dayjs(time).format('HH:mm')}`
+      return `${t('today')} ${dayjs(time).format('HH:mm')}`
     }
     if (dayjs(time).isSame(dayjs().subtract(1, 'day'), 'day')) {
-      return `昨天 ${dayjs(time).format('HH:mm')}`
+      return `${t('yesterday')} ${dayjs(time).format('HH:mm')}`
     }
-    return dayjs(time).format('YYYY年MM月DD日 HH:mm')
+    return dayjs(time).format(t('common.dateTimeFormat'))
   }
 
   const publish = debounce((item: versionMap) => {
@@ -47,23 +49,23 @@ export default function useVersionManage(props) {
       version: item.versionNum,
     })
 
-    message.success('恢复编辑成功')
+    message.success(t('versionManage.recoverEditSuccess'))
     executeImmediate()
   }
 
   const recoverEdit = debounce((item: versionMap) => {
     if (hasEditing.value) {
       const modal = GlobalModal.confirm({
-        title: '当前版本未发布',
-        content: '恢复版本前建议您发布当前版本，否则当前版本内容会被覆盖',
+        title: t('versionManage.currentVersionUnreleasedTitle'),
+        content: t('versionManage.currentVersionUnreleasedContent'),
         footer: () => {
           return h(
             'div',
             { style: 'display: flex; justify-content: flex-end' },
             [
-              h(Button, { onClick: () => { modal.destroy() }, style: 'margin-right: 10px' }, '取消'),
-              h(Button, { onClick: () => { recoverVersion(item); modal.destroy() } }, '继续恢复'),
-              h(Button, { onClick: () => { publish(item); modal.destroy() }, type: 'primary', style: 'margin-left: 10px' }, '去发版'),
+              h(Button, { onClick: () => { modal.destroy() }, style: 'margin-right: 10px' }, t('cancel')),
+              h(Button, { onClick: () => { recoverVersion(item); modal.destroy() } }, t('versionManage.continueRecover')),
+              h(Button, { onClick: () => { publish(item); modal.destroy() }, type: 'primary', style: 'margin-left: 10px' }, t('versionManage.goPublish')),
             ],
           )
         },
@@ -78,7 +80,7 @@ export default function useVersionManage(props) {
 
   const enableVersion = debounce((item: versionMap) => {
     const onOk = async () => {
-      message.success('版本启用成功')
+      message.success(t('versionManage.enableVersionSuccess'))
       await versionEnable({
         robotId: props.robotId,
         version: item.versionNum,
@@ -87,9 +89,9 @@ export default function useVersionManage(props) {
     }
 
     GlobalModal.confirm({
-      title: '确认启用该版本？',
-      okText: '确认',
-      cancelText: '取消',
+      title: t('versionManage.confirmEnableVersion'),
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk,
       centered: true,
       keyboard: false,

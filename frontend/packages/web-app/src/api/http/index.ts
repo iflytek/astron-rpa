@@ -6,6 +6,7 @@ import type {
   AxiosResponse,
 } from 'axios'
 import axios, { AxiosHeaders } from 'axios'
+import i18next from 'i18next'
 import { isNil } from 'lodash-es'
 
 import { promiseWithResolvers } from '@/utils/common'
@@ -97,6 +98,8 @@ class HttpClient {
         // TODO: 添加全局 loading
       }
 
+      config.headers['Accept-Language'] = i18next.language
+
       return config
     })
 
@@ -144,7 +147,7 @@ class HttpClient {
         // 在这里可以处理请求错误，例如显示错误提示、跳转到错误页面等
         if (error.config.toast !== false) {
           if (error.response) {
-            const msg = error.response?.status === 403 ? '无权限，请联系管理员！' : `${error.response.status} ${error.response.statusText}`
+            const msg = error.response?.status === 403 ? i18next.t('noPermission') : `${error.response.status} ${error.response.statusText}`
             message.error(msg)
           }
           else {

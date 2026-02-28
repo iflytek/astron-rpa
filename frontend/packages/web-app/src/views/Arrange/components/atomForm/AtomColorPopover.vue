@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 
 import { getColorOnCanvas, getRgbColor, renderBarColor, renderSaturationColor } from '@/views/Arrange/components/atomForm/hooks/useAtomColorPopover'
@@ -19,6 +20,7 @@ const { initColor, renderData } = defineProps({
 })
 
 const emit = defineEmits(['closePopover'])
+const { t } = useTranslation()
 
 // 默认颜色列表
 const colorsDefault = reactive(DEFAULT_COLOR_LIST)
@@ -121,7 +123,7 @@ function inputHex() {
     selectColor(attr.modelHex)
   }
   else {
-    message.error('请输入3位或者6位合法十六进制值')
+    message.error(t('validation.hexColorFormat'))
   }
 }
 function inputRgb() {
@@ -132,7 +134,7 @@ function inputRgb() {
     selectColor(attr.modelHex)
   }
   else {
-    message.error('请输入合法的rgb数值')
+    message.error(t('validation.rgbColorFormat'))
   }
 }
 

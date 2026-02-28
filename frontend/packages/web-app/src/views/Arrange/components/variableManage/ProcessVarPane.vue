@@ -3,11 +3,11 @@ import { Table } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
+import { paginationConfig } from '@/constants'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import { useVariableStore } from '@/stores/useVariableStore'
-import { paginationConfig } from '@/constants'
 
 const processStore = useProcessStore()
 const { t } = useTranslation()
@@ -16,10 +16,10 @@ const keyword = ref('')
 const varData = ref([])
 
 const columns = [
-  { title: '原子能力名', dataIndex: 'anotherName' },
-  { title: '变量名', dataIndex: 'name' },
-  { title: '类型', dataIndex: 'types' },
-  { title: '行号', dataIndex: 'rowNum' },
+  { title: t('atomicPower'), dataIndex: 'anotherName' },
+  { title: t('varName'), dataIndex: 'name' },
+  { title: t('varType'), dataIndex: 'types' },
+  { title: t('lineNumber'), dataIndex: 'rowNum' },
 ]
 
 function handleSearchChange() {

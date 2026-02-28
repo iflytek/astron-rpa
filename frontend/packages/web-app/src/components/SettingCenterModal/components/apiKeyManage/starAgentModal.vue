@@ -50,21 +50,21 @@ async function handleOk() {
     class="starAgentModal"
     :width="400"
     :mask-closable="false"
-    :title="isUpdate ? '更新星辰Agent配置' : '创建星辰Agent配置'"
+    :title="isUpdate ? $t('settingCenter.apiKeyManage.updateAgentConfig') : $t('settingCenter.apiKeyManage.createAgentConfig')"
     @ok="handleOk"
   >
     <a-form ref="formRef" :model="formState" autocomplete="off" layout="vertical" class="mt-[16px]">
-      <a-form-item label="名称" name="name" required>
-        <a-input v-model:value="formState.name" />
+      <a-form-item :label="$t('settingCenter.apiKeyManage.name')" name="name" required>
+        <a-input v-model:value="formState.name" :placeholder="$t('settingCenter.apiKeyManage.enterApiKeyName')" />
       </a-form-item>
       <a-form-item label="App ID" name="app_id" required>
-        <a-input v-model:value="formState.app_id" />
+        <a-input v-model:value="formState.app_id" placeholder="App ID" />
       </a-form-item>
       <a-form-item label="Api Key" name="api_key" required>
-        <a-input v-model:value="formState.api_key" />
+        <a-input v-model:value="formState.api_key" placeholder="Api Key" />
       </a-form-item>
       <a-form-item label="Api Secret" name="api_secret" required>
-        <a-input v-model:value="formState.api_secret" />
+        <a-input v-model:value="formState.api_secret" placeholder="Api Secret" />
       </a-form-item>
     </a-form>
   </a-modal>

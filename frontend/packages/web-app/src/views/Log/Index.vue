@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
-import { windowManager } from '@/platform'
 
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
+import { windowManager } from '@/platform'
 
 import LogWindow from './LogWindow.vue'
 

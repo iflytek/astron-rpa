@@ -36,10 +36,10 @@ onBeforeUnmount(() => {
           <div class="text-[#FFFFFF] font-[600] font-sans">
             <div class="w-[480px] px-[20px] mb-[32px] text-center text-[32px]">
               <div class="w-full">
-                <span class="text-[#726FFF] font-[600]">星辰RPA,</span>让重复自动化
+                <span class="text-[#726FFF] font-[600]">{{ $t('app') }},</span>{{ $t('auth.letAutomate') }}
               </div>
               <div class="w-full">
-                让决策更智能
+                {{ $t('auth.makeDecisions') }}
               </div>
             </div>
             <LoginSvg class="w-[480px] h-[400px]" />

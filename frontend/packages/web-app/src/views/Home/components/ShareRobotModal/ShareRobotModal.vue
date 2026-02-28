@@ -2,6 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import type { FormInstance } from 'ant-design-vue'
 import { Form, message, Select, Switch } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { reactive, ref } from 'vue'
 
 import { getAllClassification, releaseApplication } from '@/api/market'
@@ -29,6 +30,7 @@ interface FormState {
 const modal = NiceModal.useModal()
 const { applicationReleaseCheck } = useCommonOperate()
 const categoryOptions = ref([])
+const { t } = useTranslation()
 
 const formRef = ref<FormInstance>()
 const formState = reactive<FormState>({
@@ -51,7 +53,7 @@ function applicationShareToMarket() {
     editFlag: formState.editFlag ? 1 : 0,
   }).then(() => {
     confirmLoading.value = false
-    message.success('已发起申请流程，请至应用市场关注后续申请结果。')
+    message.success(t('shareRobotModal.applicationStartedTip'))
     emits('refresh')
     modal.hide()
   }).catch(() => {
@@ -65,7 +67,7 @@ function shareToMarket() {
     editFlag: formState.editFlag ? 1 : 0,
   }).then(() => {
     confirmLoading.value = false
-    message.success('分享成功')
+    message.success(t('shareRobotModal.shareSuccess'))
     emits('refresh')
     modal.hide()
   }).finally(() => {
@@ -94,7 +96,7 @@ getAllClassification().then((res) => {
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="分享应用"
+    :title="t('shareRobotModal.title')"
     :confirm-loading="confirmLoading"
     @ok="handleOk"
   >
@@ -103,7 +105,7 @@ getAllClassification().then((res) => {
       <div>{{ props.record.robotName }}</div>
     </div>
     <Form ref="formRef" label-align="left" :model="formState" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }" autocomplete="off">
-      <Form.Item label="应用类型">
+      <Form.Item :label="t('shareRobotModal.appType')">
         <Select
           v-model:value="formState.category"
           :field-names="{
@@ -113,10 +115,10 @@ getAllClassification().then((res) => {
           :options="categoryOptions"
         />
       </Form.Item>
-      <Form.Item label="分享至市场" name="marketIdList" :rules="[{ required: true, message: '请选择市场' }]">
+      <Form.Item :label="t('shareRobotModal.shareToMarket')" name="marketIdList" :rules="[{ required: true, message: t('shareRobotModal.selectMarket') }]">
         <Select v-model:value="formState.marketIdList" mode="multiple" :options="marketList" :field-names="{ label: 'marketName', value: 'marketId' }" allow-clear />
       </Form.Item>
-      <Form.Item label="开放源码">
+      <Form.Item :label="t('shareRobotModal.openSource')">
         <Switch v-model:checked="formState.editFlag" />
       </Form.Item>
     </Form>

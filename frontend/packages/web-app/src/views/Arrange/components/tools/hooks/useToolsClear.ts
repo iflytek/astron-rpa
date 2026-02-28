@@ -1,5 +1,7 @@
 import { message, Modal } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
@@ -7,11 +9,11 @@ import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
 export function useToolsClear() {
   const handleClear = () => {
     Modal.confirm({
-      title: '提示',
+      title: i18next.t('presentation'),
       zIndex: 100,
-      content: '编辑区所有数据将被清空无法恢复，是否确定？',
-      okText: '确定',
-      cancelText: '取消',
+      content: i18next.t('confirmClearAll'),
+      okText: i18next.t('confirm'),
+      cancelText: i18next.t('cancel'),
       onOk: () => {
         useProjectDocStore().clear()
       },
@@ -32,7 +34,7 @@ export function useToolsClear() {
     clickFn: handleClear,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('正在运行/调试, 不可清空')
+        message.warning(i18next.t('runningOrDebuggingCannotClear'))
         return false
       }
       return true

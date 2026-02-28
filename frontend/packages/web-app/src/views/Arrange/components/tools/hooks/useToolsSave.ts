@@ -1,6 +1,8 @@
 import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
 
+import i18next from '@/plugins/i18next'
+
 import { SAVE } from '@/constants/shortcuts'
 import { useProcessStore } from '@/stores/useProcessStore'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
@@ -11,10 +13,10 @@ export function useToolsSave() {
   const save = throttle(async () => {
     try {
       await processStore.saveProject()
-      message.success('保存成功')
+      message.success(i18next.t('common.saveSuccess'))
     }
     catch {
-      message.success('保存失败')
+      message.error(i18next.t('common.saveFailed'))
     }
   }, 1500, { leading: true, trailing: false })
 
@@ -32,7 +34,7 @@ export function useToolsSave() {
     clickFn: save,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('正在运行/调试, 不可保存')
+        message.warning(i18next.t('arrange.cannotSaveWhileRunningOrDebug'))
       }
 
       return !disable

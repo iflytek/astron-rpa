@@ -1,6 +1,7 @@
 import { Button, Checkbox } from 'ant-design-vue'
 import type { Component, VNode } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
+import i18next from 'i18next'
 
 import AgreementTxt from '../components/Base/AgreementTxt.vue'
 
@@ -50,16 +51,16 @@ const validators = {
   loginName: (_rule: any, value: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (!value) {
-        reject(new Error('请输入您的姓名'))
+        reject(new Error(i18next.t('authForm.loginNamePlaceholder')))
         return
       }
       if (value.length > 30) {
-        reject(new Error('姓名不能超过30个字符'))
+        reject(new Error(i18next.t('authForm.nameLengthError')))
         return
       }
       const pattern = /^[\w\u4E00-\u9FA5-]{1,30}$/
       if (!pattern.test(value)) {
-        reject(new Error('姓名只能包含字母、数字、中划线、下划线和中文'))
+        reject(new Error(i18next.t('authForm.namePatternError')))
         return
       }
       resolve()
@@ -70,21 +71,21 @@ const validators = {
   password: (_rule: any, value: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (!value) {
-        reject(new Error('请输入密码'))
+        reject(new Error(i18next.t('authForm.passwordPlaceholder')))
         return
       }
       // 长度 8-20
       if (value.length < 8) {
-        reject(new Error('密码长度不少于 8 位'))
+        reject(new Error(i18next.t('authForm.passwordLengthMinError')))
         return
       }
       if (value.length > 20) {
-        reject(new Error('密码长度不能超过 20 位'))
+        reject(new Error(i18next.t('authForm.passwordLengthMaxError')))
         return
       }
       // 字符集：仅允许 大小写、数字、特殊字符
       if (!/^[\w!@#$%^&*()+\-=\]{};':"\\|,.<>?/~`]+$/.test(value)) {
-        reject(new Error('密码仅可包含大小写字母、数字和特殊字符'))
+        reject(new Error(i18next.t('authForm.passwordPatternError')))
         return
       }
       // 统计类型
@@ -96,7 +97,7 @@ const validators = {
       ].filter(re => re.test(value)).length
 
       if (types < 2) {
-        reject(new Error('密码至少包含两种类型（大小写、数字、特殊字符）'))
+        reject(new Error(i18next.t('authForm.passwordComplexityError')))
         return
       }
       resolve()
@@ -107,12 +108,12 @@ const validators = {
   phone: (_rule: any, value: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (!value) {
-        reject(new Error('请输入手机号'))
+        reject(new Error(i18next.t('authForm.phoneRequired')))
         return
       }
       const pattern = /^1[3-9]\d{9}$/
       if (!pattern.test(value)) {
-        reject(new Error('请输入正确的手机号'))
+        reject(new Error(i18next.t('authForm.phonePatternError')))
         return
       }
       resolve()
@@ -123,50 +124,50 @@ const validators = {
 export const fieldFactories = {
   loginName: (): FieldSchema => ({
     key: 'loginName',
-    label: '姓名',
+    label: i18next.t('userName'),
     type: 'input',
-    placeholder: '请输入您的姓名',
+    placeholder: i18next.t('authForm.loginNamePlaceholder'),
     rules: [
       { validator: validators.loginName, trigger: 'change' },
     ],
   }),
   account: (): FieldSchema => ({
     key: 'account',
-    label: '账号',
+    label: i18next.t('account'),
     type: 'input',
-    placeholder: '请输入您的账号',
+    placeholder: i18next.t('authForm.accountPlaceholder'),
     rules: [
-      required('请输入账号'),
+      required(i18next.t('authForm.accountPlaceholder')),
     ],
   }),
   password: (onlyRequired: boolean = false): FieldSchema => ({
     key: 'password',
-    label: '密码',
+    label: i18next.t('password'),
     type: 'password',
-    placeholder: '请输入密码',
+    placeholder: i18next.t('authForm.passwordPlaceholder'),
     rules: [
-      onlyRequired ? required('请输入密码') : { validator: validators.password, trigger: 'change' },
+      onlyRequired ? required(i18next.t('authForm.passwordPlaceholder')) : { validator: validators.password, trigger: 'change' },
     ],
   }),
   confirmPassword: (formData: any, relationKey = 'password'): FieldSchema => ({
     key: 'confirmPassword',
-    label: '确认密码',
+    label: i18next.t('confirmPassword'),
     type: 'password',
-    placeholder: '再次输入密码',
+    placeholder: i18next.t('authForm.confirmPasswordPlaceholder'),
     rules: [{
       validator: (_rule: any, value: string) => {
         return new Promise<void>((resolve, reject) => {
           if (!formData[relationKey]) {
-            reject(new Error('请先输入密码'))
+            reject(new Error(i18next.t('authForm.passwordPlaceholder')))
             return
           }
           if (!value) {
-            reject(new Error('请输入确认密码'))
+            reject(new Error(i18next.t('authForm.confirmPasswordPlaceholder')))
             return
           }
 
           if (value !== formData[relationKey]) {
-            reject(new Error('两次输入密码不一致'))
+            reject(new Error(i18next.t('authForm.passwordMismatch')))
             return
           }
 
@@ -179,14 +180,14 @@ export const fieldFactories = {
 
   agreement: (): FieldSchema => ({
     key: 'agreement',
-    label: '用户协议',
+    label: i18next.t('authForm.userAgreement'),
     type: 'checkbox',
     rules: [
       {
         validator: (_rule: any, value: boolean): Promise<void> => {
           return new Promise((resolve, reject) => {
             if (!value) {
-              reject(new Error('请阅读并同意用户协议'))
+              reject(new Error(i18next.t('authForm.agreementRequired')))
               return
             }
             resolve()
@@ -199,9 +200,9 @@ export const fieldFactories = {
   }),
   phone: (): FieldSchema => ({
     key: 'phone',
-    label: '手机号',
+    label: i18next.t('mobilePhoneNumber'),
     type: 'input',
-    placeholder: '请输入手机号',
+    placeholder: i18next.t('authForm.phoneRequired'),
     rules: [
       { validator: validators.phone, trigger: 'change' },
     ],
@@ -212,13 +213,13 @@ export const fieldFactories = {
 
   captcha: (): FieldSchema => ({
     key: 'captcha',
-    label: '验证码',
+    label: i18next.t('verificationCode'),
     type: 'captcha',
-    placeholder: '请输入验证码',
+    placeholder: i18next.t('authForm.captchaPlaceholder'),
     relationKey: 'phone',
     sendCaptcha: () => Promise.resolve(),
     rules: [
-      required('请输入验证码'),
+      required(i18next.t('authForm.captchaRequired')),
     ],
     props: {
       maxlength: 6,
@@ -227,7 +228,7 @@ export const fieldFactories = {
 
   companyName: (): FieldSchema => ({
     key: 'companyName',
-    label: '企业名称',
+    label: i18next.t('companyName'),
     type: 'input',
     placeholder: '请输入您的企业名称',
     rules: [
@@ -253,11 +254,11 @@ export const fieldFactories = {
 
   email: (): FieldSchema => ({
     key: 'email',
-    label: '邮箱',
+    label: i18next.t('email'),
     type: 'input',
-    placeholder: '请输入您的邮箱(非必填)',
+    placeholder: i18next.t('userForm.enterEmail'),
     rules: [
-      { type: 'email', message: '请输入正确的邮箱格式', trigger: 'change' },
+      { type: 'email', message: i18next.t('settingCenter.msgNotify.mailFormatError'), trigger: 'change' },
     ],
   }),
   remember: (): FieldSchema => ({
@@ -268,10 +269,10 @@ export const fieldFactories = {
       return (
         <div class="w-full flex justify-between items-center">
           <Checkbox v-model:checked={formData.remember} class="text-[#000000D9] dark:text-[#FFFFFFD9]">
-            记住账号密码
+            {i18next.t('authForm.rememberPassword')}
           </Checkbox>
           <Button type="link" class="m-0 p-0 h-auto" onClick={() => handleEvents && handleEvents('forgotPassword')}>
-            忘记密码
+            {i18next.t('auth.forgetPassword')}
           </Button>
         </div>
       )

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
 import { getWeightedLength, getWeightText } from '@/utils/common'
@@ -12,14 +13,15 @@ const props = defineProps({
 })
 
 const formRef = ref()
+const { t } = useTranslation()
 const rules: Record<string, Rule[]> = {
   pickName: [
     {
-      message: '请输入元素名称',
+      message: t('enterElementName'),
       trigger: 'blur',
       validator: async (_rule, value) => {
         if (!value.replace(/\s+/g, '')) {
-          return Promise.reject(new Error('请输入元素名称'))
+          return Promise.reject(new Error(t('enterElementName')))
         }
         else {
           return Promise.resolve()

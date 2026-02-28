@@ -1,5 +1,7 @@
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { UNDO } from '@/constants/shortcuts'
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
@@ -23,7 +25,7 @@ export function useToolsUndo() {
     clickFn: handleUndo,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('运行调试中或无操作记录, 不可进行撤销操作')
+        message.warning(i18next.t('arrange.undoUnavailable'))
         return false
       }
       return true

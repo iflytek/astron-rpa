@@ -1,25 +1,14 @@
-<template>
-  <div class="flex flex-col gap-2 h-full overflow-hidden">
-    <div>
-      <a-button type="primary" @click="addVoucher">
-        {{ $t('settingCenter.voucherManage.createVoucher') }}
-      </a-button>
-    </div>
-    <div>{{ $t('settingCenter.voucherManage.tips') }}</div>
-    <NormalTable ref="currTableRef" :option="tableOption" />
-  </div>
-</template>
-
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
-import type { ColumnsType } from 'ant-design-vue/es/table'
-import { useTranslation } from 'i18next-vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
+import type { ColumnsType } from 'ant-design-vue/es/table'
+import { useTranslation } from 'i18next-vue'
+import { h, reactive, ref } from 'vue'
 
-import { getCredentialList, deleteCredential } from '@/api/engine'
-import { NormalTable, type TableOption } from '@/components/NormalTable'
+import { deleteCredential, getCredentialList } from '@/api/engine'
 import GlobalModal from '@/components/GlobalModal'
+import { NormalTable } from '@/components/NormalTable'
+import type { TableOption } from '@/components/NormalTable'
 
 import _VoucherModal from './VoucherModal.vue'
 
@@ -32,7 +21,7 @@ interface IVoucher {
   name: string
 }
 
-const fetchList = async (params: { pageSize: number; pageNo: number }) => {
+async function fetchList(params: { pageSize: number, pageNo: number }) {
   const list = await getCredentialList()
   return {
     records: list.slice((params.pageNo - 1) * params.pageSize, params.pageNo * params.pageSize),
@@ -55,7 +44,7 @@ const columns: ColumnsType = [
     key: 'password',
     width: 120,
     ellipsis: true,
-    customRender: () => "*******",
+    customRender: () => '*******',
   },
   {
     title: t('operate'),
@@ -101,3 +90,15 @@ function refreshTable() {
   currTableRef.value?.fetchTableData()
 }
 </script>
+
+<template>
+  <div class="flex flex-col gap-2 h-full overflow-hidden">
+    <div>
+      <a-button type="primary" @click="addVoucher">
+        {{ $t('settingCenter.voucherManage.createVoucher') }}
+      </a-button>
+    </div>
+    <div>{{ $t('settingCenter.voucherManage.tips') }}</div>
+    <NormalTable ref="currTableRef" :option="tableOption" />
+  </div>
+</template>

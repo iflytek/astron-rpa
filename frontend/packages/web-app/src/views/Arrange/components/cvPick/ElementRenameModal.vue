@@ -22,7 +22,7 @@ const formState = reactive<FormState>({
 })
 const rules: FormRules = {
   groupName: [
-    { required: true, message: '请输入分组名称', trigger: 'change' },
+    { required: true, message: t('enterGroupName'), trigger: 'change' },
     {
       max: 20,
       message: t('donotExceedCharacters', { num: 20 }),
@@ -46,13 +46,13 @@ async function handleOk() {
     v-bind="NiceModal.antdModal(modal)"
     :ok-text="t('confirm')"
     :cancel-text="t('cancel')"
-    title="图像名称"
+    :title="t('imageName')"
     :width="500"
     @ok="handleOk"
   >
     <span class="rename">
       <ExclamationCircleOutlined style="color: #ffc107; margin-right: 3px" />
-      上传图像名称与图像库中的图像名称重复，请重新命名
+      {{ t('cvPick.renameDuplicateTip') }}
     </span>
     <a-form
       ref="formRef"
@@ -64,13 +64,13 @@ async function handleOk() {
     >
       <a-form-item
         name="name"
-        label="名称"
+        :label="t('name')"
         class="!mb-0"
         style="margin-bottom: 10px"
       >
         <a-input
           v-model:value="formState.imgName"
-          placeholder="请输入图像名称"
+          :placeholder="t('enterImageName')"
         />
       </a-form-item>
     </a-form>

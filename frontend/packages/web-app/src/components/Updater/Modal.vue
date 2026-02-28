@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
-import { StyleValue } from 'vue'
+import type { StyleValue } from 'vue'
 
-import { useAppConfigStore } from '@/stores/useAppConfig'
 import bgImage from '@/assets/img/updater/bg.svg'
-import iconImage from '@/assets/img/updater/icon.svg'
-import cloudLeftImage from '@/assets/img/updater/cloud-2.webp'
 import cloudRightImage from '@/assets/img/updater/cloud-1.webp'
+import cloudLeftImage from '@/assets/img/updater/cloud-2.webp'
+import iconImage from '@/assets/img/updater/icon.svg'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
+const props = defineProps<UpdaterModalProps>()
 const modal = NiceModal.useModal()
 const appStore = useAppConfigStore()
 
@@ -17,22 +18,20 @@ interface UpdaterModalProps {
   updateNote?: string
 }
 
-const props = defineProps<UpdaterModalProps>()
-
 const handleClose = () => modal.hide()
 
 const handleQuitAndInstall = () => appStore.quitAndInstall()
 
-const handleRejectUpdate = () => {
+function handleRejectUpdate() {
   appStore.rejectUpdate(props.latestVersion)
   handleClose()
 }
 
-const genCloudStyle = (imgUrl: string): StyleValue => {
+function genCloudStyle(imgUrl: string): StyleValue {
   return {
     background: `url(${imgUrl}) lightgray 50% / cover no-repeat`,
     mixBlendMode: 'screen',
-    filter: 'blur(2.0677084922790527px)'
+    filter: 'blur(2.0677084922790527px)',
   }
 }
 </script>
@@ -45,19 +44,19 @@ const genCloudStyle = (imgUrl: string): StyleValue => {
     :width="props.needUpdate ? 600 : 400"
   >
     <div class="h-[317px] w-full overflow-hidden relative">
-      <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max" />
+      <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max">
       <rpa-star-motion class="absolute w-full h-full left-0 top-0" />
       <div class="absolute -left-[125px] -bottom-[49.82px] w-[303.953px] h-[202.635px] aspect-[3/2]" :style="genCloudStyle(cloudLeftImage)" />
       <div class="absolute -right-[49px] -bottom-[65px] w-[268px] h-[214px] aspect-[134/107]" :style="genCloudStyle(cloudRightImage)" />
     </div>
 
     <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">
-      <img :src="iconImage" class="w-[120px] h-[120px]" />
+      <img :src="iconImage" class="w-[120px] h-[120px]">
       <div class="text-[28px] font-semibold leading-[39px]">
-        {{ props.needUpdate ? '发现新版本！' : '你使用的已是最新版本' }}
+        {{ props.needUpdate ? $t('updater.newVersionFound') : $t('updater.alreadyLatest') }}
       </div>
       <div class="text-[14px] leading-5 text-text-secondary">
-        {{ props.needUpdate ? `v${props.latestVersion} 体验全新升级，更新包已就绪` : `v${props.latestVersion}` }}
+        {{ props.needUpdate ? `v${props.latestVersion} ${$t('updater.updateReady')}` : `v${props.latestVersion}` }}
       </div>
     </div>
 
@@ -68,14 +67,14 @@ const genCloudStyle = (imgUrl: string): StyleValue => {
     <div class="p-4 flex gap-[10px]">
       <template v-if="props.needUpdate">
         <div class="flex-1 action-button" @click="handleRejectUpdate">
-          稍后更新
+          {{ $t('updater.updateLater') }}
         </div>
         <div class="flex-1 action-button action-button__confirm" @click="handleQuitAndInstall">
-          重启升级
+          {{ $t('updater.restartToUpgrade') }}
         </div>
       </template>
       <div v-else class="flex-1 action-button action-button__confirm" @click="handleClose">
-        好
+        {{ $t('updater.ok') }}
       </div>
     </div>
   </a-modal>
@@ -95,7 +94,7 @@ const genCloudStyle = (imgUrl: string): StyleValue => {
     justify-content: center;
     border-radius: 8px;
     height: 40px;
-    background-color: #F3F3F7;
+    background-color: #f3f3f7;
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -107,7 +106,7 @@ const genCloudStyle = (imgUrl: string): StyleValue => {
   }
 
   .action-button__confirm {
-    background: linear-gradient(108deg, #599EFF 0%, #726FFF 30.23%, #856FFF 56.48%, #986ADC 98.95%);
+    background: linear-gradient(108deg, #599eff 0%, #726fff 30.23%, #856fff 56.48%, #986adc 98.95%);
     color: #fff;
   }
 }

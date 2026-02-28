@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Auth } from '@rpa/components/auth'
-import { Dropdown, Checkbox, Button } from 'ant-design-vue'
+import { Button, Checkbox, Dropdown } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
@@ -37,7 +37,7 @@ const menuData = computed(() => {
       key: 'logout',
       icon: 'logout',
       label: t('logout'),
-    }
+    },
   ].filter(item => !item.hidden || !item.hidden())
 })
 
@@ -53,26 +53,26 @@ async function menuClick(item: any) {
   if (item.keyPath[0] === 'changeMode') {
     let startWatch = false
     const modal = GlobalModal.confirm({
-      title: '开始调度模式',
-      content: '开启后当前客户端会自动接收控制台下发的远程任务，对应任务执行情况会被控制台监控，请确认。',
+      title: t('userInfo.startSchedulingMode'),
+      content: t('userInfo.schedulingModeDesc'),
       footer: h('div', { class: 'flex items-center justify-between w-full pl-[30px] mt-[30px]' }, [
-        userStore.currentTenant?.tenantType === 'enterprise' 
+        userStore.currentTenant?.tenantType === 'enterprise'
           ? h(Checkbox, {
-            defaultChecked: false,
-            onChange: (e: any) => {
-              startWatch = e.target.checked
-            },
-          }, {
-            default: () => '开启桌面监控'
-          })
+              defaultChecked: false,
+              onChange: (e: any) => {
+                startWatch = e.target.checked
+              },
+            }, {
+              default: () => t('common.enableDesktopMonitoring'),
+            })
           : h('div'),
         h('div', { class: 'flex gap-[10px]' }, [
           h(Button, {
             onClick: () => {
               modal.destroy()
-            }
+            },
           }, {
-            default: () => '取消'
+            default: () => t('cancel'),
           }),
           h(Button, {
             type: 'primary',
@@ -82,11 +82,11 @@ async function menuClick(item: any) {
               windowManager.hideWindow() // 隐藏主界面
               utilsManager.invoke('tray_change', { mode: 'scheduling', status: 'idle' }) // 改变托盘菜单
               modal.destroy()
-            }
+            },
           }, {
-            default: () => '确定'
-          })
-        ])
+            default: () => t('confirm'),
+          }),
+        ]),
       ]),
     })
   }
@@ -100,10 +100,10 @@ async function logout() {
 
 function modalTip() {
   const modal = GlobalModal.confirm({
-    title: '警告',
-    content: '当前有应用/计划任务正在执行，是否立即停止',
-    okText: '确定',
-    cancelText: '取消',
+    title: t('common.warning'),
+    content: t('common.stopRunningConfirm'),
+    okText: t('confirm'),
+    cancelText: t('cancel'),
     onOk() {
       console.log('User acknowledged the message')
       modal.destroy()

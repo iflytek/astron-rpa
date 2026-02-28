@@ -1,10 +1,27 @@
+<script setup>
+import { ExclamationCircleFilled } from '@ant-design/icons-vue'
+import { NiceModal } from '@rpa/components'
+import { Button as AButton, Modal as AModal } from 'ant-design-vue'
+
+const modal = NiceModal.useModal()
+
+function handleClose() {
+  modal.hide()
+}
+
+function handleConfirm() {
+  modal.resolve('confirm')
+  handleClose()
+}
+</script>
+
 <template>
-  <a-modal
+  <AModal
     v-bind="NiceModal.antdModal(modal)"
     :title="$t('pluginUpdateTip')"
     width="500px"
-    @cancel="handleClose"
     centered
+    @cancel="handleClose"
   >
     <div class="update-modal-content">
       <div class="icon-wrapper">
@@ -20,31 +37,16 @@
     </div>
     <template #footer>
       <div class="dialog-footer">
-        <a-button @click="handleClose">{{ $t("updateLater") }}</a-button>
-        <a-button type="primary" @click="handleConfirm">
-         {{ $t("updateNow")}}
-        </a-button>
+        <AButton @click="handleClose">
+          {{ $t("updateLater") }}
+        </AButton>
+        <AButton type="primary" @click="handleConfirm">
+          {{ $t("updateNow") }}
+        </AButton>
       </div>
     </template>
-  </a-modal>
+  </AModal>
 </template>
-
-<script setup>
-import { NiceModal } from '@rpa/components'
-import { Modal as AModal, Button as AButton } from 'ant-design-vue';
-import { ExclamationCircleFilled } from '@ant-design/icons-vue';
-
-const modal = NiceModal.useModal()
-
-const handleClose = () => {
-  modal.hide();
-};
-
-const handleConfirm = () => {
-  modal.resolve('confirm')
-  handleClose();
-};
-</script>
 
 <style scoped>
 .update-modal-content {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from 'vue'
-import { Loading, type LoadingProps } from '@rpa/components'
+import { Loading } from '@rpa/components'
+import type { LoadingProps } from '@rpa/components'
+import { onBeforeUnmount, ref } from 'vue'
 
 import BUS from '@/utils/eventBus'
 

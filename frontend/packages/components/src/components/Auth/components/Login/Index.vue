@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
+
 import type { AuthType, Edition, InviteInfo, Platform } from '../../interface'
 
 import ForgotPassword from './ForgotPassword.vue'
@@ -19,6 +21,7 @@ const props = defineProps({
 })
 const emits = defineEmits(['finish'])
 
+const { t } = useTranslation()
 const {
   currentFormMode,
   cacheFormData,
@@ -75,7 +78,7 @@ defineExpose({
       :key="`${edition}_${authType}_forgotPassword`"
       v-model="cacheFormData[currentFormMode]"
       :running="running"
-      :title="currentFormMode === 'forgotPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
+      :title="currentFormMode === 'forgotPasswordWithSysUpgrade' ? t('auth.systemUpgradedResetPwd') : ''"
       @submit="handleForgotPassword"
       @switch-to-login="() => switchMode('login')"
     />
@@ -83,7 +86,7 @@ defineExpose({
     <SetPassword
       v-else-if="['setPasswordWithSysUpgrade', 'setPassword'].includes(currentFormMode)"
       :key="`${edition}_${authType}_setPassword`"
-      :title="currentFormMode === 'setPasswordWithSysUpgrade' ? '系统已升级，请重新设置密码' : ''"
+      :title="currentFormMode === 'setPasswordWithSysUpgrade' ? t('auth.systemUpgradedResetPwd') : ''"
       :running="running"
       :invite-info="inviteInfo"
       @submit="handleSetPassword"

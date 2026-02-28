@@ -1,4 +1,5 @@
 import { Button, Checkbox } from 'ant-design-vue'
+import i18next from 'i18next'
 
 import { sendCaptcha } from '../api/login'
 
@@ -17,7 +18,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
     case 'saas_uap': // uap账号登录（手机号）、支持注册、忘记密码(通过手机号验证码找回密码)
       conf = {
         fields: [
-          { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)' },
+          { ...fieldFactories.phone(), placeholder: i18next.t('authForm.accountPlaceholder') },
           fieldFactories.password(true),
           fieldFactories.agreement(),
           { ...fieldFactories.remember(), hidden: () => isInvite },
@@ -25,12 +26,12 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
         actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
           <div class="w-full absolute bottom-0">
             <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-              { loading ? '登录中' : (isInvite ? '登录并加入' : '登录') }
+              { loading ? i18next.t('authForm.loggingIn') : (isInvite ? i18next.t('authForm.loginAndJoin') : i18next.t('authForm.login')) }
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-              还没有讯飞账号？
+              {i18next.t('authForm.noAccount')}
               <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
-                立即注册
+                {i18next.t('authForm.register')}
               </Button>
             </div>
           </div>
@@ -40,7 +41,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
     case 'enterprise_uap': // 企业版无注册、忘记密码功能，支持修改密码
       conf = {
         fields: [
-          { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)' },
+          { ...fieldFactories.phone(), placeholder: i18next.t('authForm.accountPlaceholder') },
           fieldFactories.password(true),
           fieldFactories.agreement(),
           {
@@ -50,10 +51,10 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
               return (
                 <div class="w-full flex justify-between items-center">
                   <Checkbox v-model:checked={formData.remember} class="text-[#000000D9] dark:text-[#FFFFFFD9]">
-                    记住账号密码
+                    {i18next.t('authForm.rememberPassword')}
                   </Checkbox>
                   <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('modifyPassword')}>
-                    修改密码
+                    {i18next.t('authForm.modifyPassword')}
                   </Button>
                 </div>
               )
@@ -63,7 +64,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
         actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
           <div class="w-full absolute bottom-0">
             <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-              { loading ? '登录中' : (isInvite ? '登录并加入' : '登录') }
+              { loading ? i18next.t('authForm.loggingIn') : (isInvite ? i18next.t('authForm.loginAndJoin') : i18next.t('authForm.login')) }
             </Button>
           </div>
         ),
@@ -82,7 +83,7 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
               return (
                 <div class="w-full flex justify-between items-center">
                   <Checkbox v-model:checked={formData.remember} class="text-[#000000D9] dark:text-[#FFFFFFD9]">
-                    记住账号密码
+                    {i18next.t('authForm.rememberPassword')}
                   </Checkbox>
                 </div>
               )
@@ -92,12 +93,12 @@ export function accountLoginFormConfig(isInvite = false, edition = 'saas', authT
         actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
           <div class="w-full absolute bottom-0">
             <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-              { loading ? '登录中' : (isInvite ? '登录并加入' : '登录') }
+              { loading ? i18next.t('authForm.loggingIn') : (isInvite ? i18next.t('authForm.loginAndJoin') : i18next.t('authForm.login')) }
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-              还没有Casdoor账号？
+              {i18next.t('authForm.noCasdoorAccount')}
               <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
-                立即注册
+                {i18next.t('authForm.register')}
               </Button>
             </div>
           </div>
@@ -132,12 +133,12 @@ export function phoneLoginFormConfig(isInvite = false, edition = 'saas', authTyp
     actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
       <div class="w-full absolute bottom-0">
         <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-          { loading ? '登录中' : (isInvite ? '登录并加入' : '登录') }
+          { loading ? i18next.t('authForm.loggingIn') : (isInvite ? i18next.t('authForm.loginAndJoin') : i18next.t('authForm.login')) }
         </Button>
         <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-          还没有讯飞账号？
+          {i18next.t('authForm.noAccount')}
           <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToRegister')}>
-            立即注册
+            {i18next.t('authForm.register')}
           </Button>
         </div>
       </div>
@@ -167,12 +168,12 @@ export function personalRegisterFormConfig(formData: any, isInvite = false, edit
         actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
           <div class="w-full absolute bottom-0">
             <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-              { loading ? '注册中' : (isInvite ? '注册并加入' : '注册') }
+              { loading ? i18next.t('authForm.registering') : (isInvite ? i18next.t('authForm.registerAndJoin') : i18next.t('authForm.register')) }
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-              已有讯飞账号？
+              {i18next.t('authForm.hasAccount')}
               <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
-                立即登录
+                {i18next.t('authForm.loginNow')}
               </Button>
             </div>
           </div>
@@ -194,12 +195,12 @@ export function personalRegisterFormConfig(formData: any, isInvite = false, edit
         actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
           <div class="w-full absolute bottom-0">
             <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-              { loading ? '注册中' : (isInvite ? '注册并加入' : '注册') }
+              { loading ? i18next.t('authForm.registering') : (isInvite ? i18next.t('authForm.registerAndJoin') : i18next.t('authForm.register')) }
             </Button>
             <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-              已有Casdoor账号？
+              {i18next.t('authForm.hasCasdoorAccount')}
               <Button type="link" class="!m-0 !p-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
-                立即登录
+                {i18next.t('authForm.loginNow')}
               </Button>
             </div>
           </div>
@@ -229,7 +230,7 @@ export const forgotPasswordFormConfig: FormConfig = {
   actionsRender: ({ handleEvents }) => (
     <div class="w-full absolute bottom-0">
       <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')}>
-        下一步
+        {i18next.t('authForm.nextStep')}
       </Button>
     </div>
   ),
@@ -248,7 +249,7 @@ export function createSetPasswordFormConfig(formData: any, isInvite: boolean): F
         customRender: () => {
           return (
             <div class="text-[14px] text-[#000000A6] dark:text-[#FFFFFFD9] mt-[12px] mb-[20px]">
-              密码长度不少于 8 位，仅可包含大小写字母、数字和特殊字符，至少包含两种类型。
+              {i18next.t('authForm.passwordComplexityTip')}
             </div>
           )
         },
@@ -258,7 +259,7 @@ export function createSetPasswordFormConfig(formData: any, isInvite: boolean): F
     actionsRender: ({ handleEvents }) => (
       <div class="w-full absolute bottom-0">
         <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')}>
-          { isInvite ? '完成并加入' : '完成' }
+          { isInvite ? i18next.t('authForm.completeAndJoin') : i18next.t('authForm.complete') }
         </Button>
       </div>
     ),
@@ -271,17 +272,17 @@ export function modifyPasswordFormConfig(formData: any, isInvite: boolean): Form
     layout: 'vertical',
     fields: [
       // { ...fieldFactories.account(), key: 'loginName' },
-      { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)' },
+      { ...fieldFactories.phone(), placeholder: i18next.t('authForm.accountPlaceholder') },
       { ...fieldFactories.password(true), key: 'oldPassword' },
-      { ...fieldFactories.password(), key: 'newPassword', placeholder: '请输入新密码' },
-      { ...fieldFactories.confirmPassword(formData, 'newPassword'), placeholder: '再次输入新密码' },
+      { ...fieldFactories.password(), key: 'newPassword', placeholder: i18next.t('authForm.passwordPlaceholder') },
+      { ...fieldFactories.confirmPassword(formData, 'newPassword'), placeholder: i18next.t('authForm.confirmPasswordPlaceholder') },
       {
         type: 'slot',
         key: 'tip',
         customRender: () => {
           return (
             <div class="text-[14px] text-[#000000A6] dark:text-[#FFFFFFD9] mt-[12px] mb-[20px]">
-              密码长度不少于 8 位，仅可包含大小写字母、数字和特殊字符，至少包含两种类型。
+              {i18next.t('authForm.passwordComplexityTip')}
             </div>
           )
         },
@@ -291,7 +292,7 @@ export function modifyPasswordFormConfig(formData: any, isInvite: boolean): Form
     actionsRender: ({ handleEvents }) => (
       <div class="w-full absolute bottom-0">
         <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')}>
-          { isInvite ? '完成并加入' : '完成' }
+          { isInvite ? i18next.t('authForm.completeAndJoin') : i18next.t('authForm.complete') }
         </Button>
       </div>
     ),
@@ -309,17 +310,17 @@ export function consultFormConfig(consultType: 'renewal' | 'consult' = 'consult'
         {
           ...fieldFactories.phone(),
           key: 'mobile',
-          placeholder: '请输入您的或者负责人的手机号',
+          placeholder: i18next.t('authForm.enterMobileOrManager'),
         },
         fieldFactories.renewalDuration(consultEdition),
       ],
       actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
         <div class="w-full absolute bottom-0">
           <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-            {loading ? '提交中...' : '提交申请'}
+            {loading ? i18next.t('authForm.submitting') : i18next.t('authForm.submitApplication')}
           </Button>
           <div class="text-center text-[14px] mt-[12px] text-[#00000040] dark:text-[#FFFFFFD9]">
-            稍后会有工作人员联系
+            {i18next.t('authForm.contactLater')}
           </div>
         </div>
       ),
@@ -337,17 +338,17 @@ export function consultFormConfig(consultType: 'renewal' | 'consult' = 'consult'
       {
         ...fieldFactories.phone(),
         key: 'mobile',
-        placeholder: '请输入您的或者负责人的手机号',
+        placeholder: i18next.t('authForm.enterMobileOrManager'),
       },
       fieldFactories.email(),
     ],
     actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
       <div class="w-full absolute bottom-0">
         <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-          {loading ? '提交中...' : '提交申请'}
+          {loading ? i18next.t('authForm.submitting') : i18next.t('authForm.submitApplication')}
         </Button>
         <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-          稍后会有工作人员联系
+          {i18next.t('authForm.contactLater')}
         </div>
       </div>
     ),
@@ -358,18 +359,18 @@ export function consultFormConfig(consultType: 'renewal' | 'consult' = 'consult'
 export function inviteUserInfoFormConfig(): FormConfig {
   return {
     fields: [
-      { ...fieldFactories.loginName(), key: 'name', placeholder: '请输入姓名', disabled: () => true },
-      { ...fieldFactories.phone(), placeholder: '请输入账号(手机号)', disabled: () => true },
+      { ...fieldFactories.loginName(), key: 'name', placeholder: i18next.t('authForm.loginNamePlaceholder'), disabled: () => true },
+      { ...fieldFactories.phone(), placeholder: i18next.t('authForm.accountPlaceholder'), disabled: () => true },
       { ...fieldFactories.agreement(), disabled: () => true },
     ],
     actionsRender: ({ handleEvents, loading }: { handleEvents?: (event: string) => void, loading?: boolean }) => (
       <div class="w-full absolute bottom-0">
         <Button type="primary" size="large" block onClick={() => handleEvents && handleEvents('submit')} loading={loading}>
-          确认加入
+          {i18next.t('authForm.confirmJoin')}
         </Button>
         <div class="text-center text-[14px] mt-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
           <Button type="link" class="!m-0 !p-0 !border-0 h-auto" onClick={() => handleEvents && handleEvents('switchToLogin')}>
-            使用其他账号
+            {i18next.t('authForm.useOtherAccount')}
           </Button>
         </div>
       </div>

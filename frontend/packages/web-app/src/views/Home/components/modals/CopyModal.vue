@@ -2,6 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import type { FormInstance } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { reactive, ref } from 'vue'
 
 import { createCopy } from '@/api/project'
@@ -20,11 +21,12 @@ const emit = defineEmits(['refresh'])
 
 const modal = NiceModal.useModal()
 const confirmLoading = ref(false)
+const { t } = useTranslation()
 
 const formRef = ref<FormInstance>()
 const formState = reactive<FormState>({
   robotId: props.robotId,
-  robotName: `${props.robotName}副本`,
+  robotName: `${props.robotName}${t('copySuffix')}`,
 })
 
 async function handleOk() {
@@ -32,7 +34,7 @@ async function handleOk() {
     confirmLoading.value = true
     createCopy(formState).then(() => {
       confirmLoading.value = false
-      message.success('创建副本成功')
+      message.success(t('createCopySuccess'))
       emit('refresh')
       modal.hide()
     }).finally(() => {
@@ -45,16 +47,16 @@ async function handleOk() {
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="创建副本"
+    :title="$t('createCopy')"
     :confirm-loading="confirmLoading"
     :width="400"
     @ok="handleOk"
   >
     <a-form ref="formRef" :model="formState" layout="vertical" autocomplete="off">
       <a-form-item
-        label="名称"
+        :label="$t('name')"
         name="robotName"
-        :rules="[{ required: true, message: '请输入名称' }]"
+        required
       >
         <a-input v-model:value="formState.robotName" />
       </a-form-item>

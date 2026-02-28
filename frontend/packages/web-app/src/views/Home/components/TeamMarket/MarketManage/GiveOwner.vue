@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Select } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
 import { usePhoneInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser.tsx'
@@ -12,6 +13,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['change'])
+const { t } = useTranslation()
 
 const { userList, userListByPhone } = usePhoneInvite(props.marketId, 'leave', emit)
 const newOwner = ref()
@@ -25,10 +27,10 @@ function changeGiveOwner(val) {
 <template>
   <div class="modal-form">
     <div class="modal-form-title">
-      你将离开团队，请选择新的团队所有者
+      {{ t('market.leaveTeamSelectOwner') }}
     </div>
     <Select
-      placeholder="通过手机号搜索"
+      :placeholder="t('market.searchByPhone')"
       style="width: 100%"
       :get-popup-container="(triggerNode) => triggerNode.parentNode"
       show-search

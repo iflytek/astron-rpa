@@ -32,7 +32,7 @@ function handleOkConfirm() {
     v-bind="NiceModal.antdModal(modal)"
     :centered="true"
     :width="800"
-    title="文本内容"
+    :title="$t('atomForm.textContent')"
     @ok="handleOkConfirm"
   >
     <AtomFormItem :atom-form-item="modalData" />

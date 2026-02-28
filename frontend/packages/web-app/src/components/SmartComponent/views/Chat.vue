@@ -1,13 +1,13 @@
 <script lang="ts" setup>
+import { useTheme } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import { Bubble } from 'ant-design-x-vue'
+import { useTranslation } from 'i18next-vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useTranslation } from 'i18next-vue'
 
 import { getSmartComp, optimizeQuestion } from '@/api/component'
 import { clipboardManager } from '@/platform'
-import { useTheme } from '@rpa/components'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 

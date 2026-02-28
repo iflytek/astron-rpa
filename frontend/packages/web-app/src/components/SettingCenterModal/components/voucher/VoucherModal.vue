@@ -2,6 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import type { FormInstance } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import { useTranslation } from 'i18next-vue'
 import { reactive, ref } from 'vue'
 
 import { checkCredentialExists, createCredential } from '@/api/engine'
@@ -13,6 +14,7 @@ interface FormState {
 
 const emit = defineEmits(['refresh'])
 
+const { t } = useTranslation()
 const modal = NiceModal.useModal()
 
 const formRef = ref<FormInstance>()
@@ -24,7 +26,7 @@ async function validateVoucherName(_rule: Rule, value: string) {
   }
   const exists = await checkCredentialExists(value)
   if (exists) {
-    return Promise.reject(new Error('凭证名称已存在'))
+    return Promise.reject(t('settingCenter.voucherManage.voucherNameExists'))
   }
   return Promise.resolve()
 }

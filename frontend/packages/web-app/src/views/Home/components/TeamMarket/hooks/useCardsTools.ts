@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
-import { TableOption } from '@/types/normalTable'
+import type { TableOption } from '@/types/normalTable'
 
 function filterOption(input: string, option: any) {
   return option.children().some((option) => {

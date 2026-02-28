@@ -2,6 +2,8 @@ import { NiceModal } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 
+import i18next from '@/plugins/i18next'
+
 import { ComponentPublishModal } from '@/components/ComponentPublish'
 import { PublishModal } from '@/components/PublishComponents'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -36,7 +38,7 @@ export function useToolsPublish() {
     },
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('正在运行/调试, 请稍后再试')
+        message.warning(i18next.t('arrange.tryLaterWhileRunningOrDebug'))
       }
 
       return !disable

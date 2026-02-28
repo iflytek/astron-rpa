@@ -29,13 +29,17 @@ async function createRobot() {
         authType: appInfo.value.appAuthType,
         trigger: 'modal',
         modalConfirm: {
-          title: '已达到应用数量上限',
-          content: userStore.currentTenant?.tenantType === 'personal' ? `个人版设计器最多可编辑19个应用，您已满额。` : `专业版设计器最多可编辑99个应用，您已满额。`,
-          okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
-          cancelText: '我知道了',
+          title: t('designerManage.limitReachedTitle'),
+          content: userStore.currentTenant?.tenantType === 'personal'
+            ? t('designerManage.personalLimitReachedContent')
+            : t('designerManage.proLimitReachedContent'),
+          okText: userStore.currentTenant?.tenantType === 'personal'
+            ? t('designerManage.upgradeToPro')
+            : t('designerManage.upgradeToEnterprise'),
+          cancelText: t('designerManage.gotIt'),
         },
         consult: {
-          consultTitle: '咨询',
+          consultTitle: t('designerManage.consult'),
           consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
           consultType: 'consult',
         },
@@ -43,7 +47,7 @@ async function createRobot() {
       return
     }
   }
-  
+
   newProjectModal.show({
     title: t('newProject'),
     name: t('projectName'),
@@ -57,7 +61,7 @@ async function createRobot() {
       const projectId = res.data.robotId
 
       useRoutePush({ name: ARRANGE, query: { projectId, projectName } })
-      message.success('新建成功')
+      message.success(t('createSuccess'))
     }
     finally {
       newProjectModal.hide()

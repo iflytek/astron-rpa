@@ -11,7 +11,7 @@ type ElementType = 'common' | 'cv'
 const { placeholder, elementType } = defineProps({
   placeholder: {
     type: String,
-    default: '搜索图像',
+    default: '',
   },
   elementType: {
     type: String,
@@ -57,7 +57,7 @@ function addGroup() {
       <a-input
         v-model:value="searchText"
         class="ml-2 w-[180px] h-[24px] text-[12px] rounded-[3px]"
-        :placeholder="placeholder"
+        :placeholder="placeholder || (elementType === 'cv' ? $t('cvPick.searchImage') : $t('elementManager.searchElement'))"
       >
         <template #suffix>
           <rpa-icon name="search" />
@@ -65,7 +65,7 @@ function addGroup() {
       </a-input>
       <rpa-hint-icon
         name="expand-bottom"
-        :title="collapsed ? '全部收起' : '全部展开'"
+        :title="collapsed ? $t('common.collapseAll') : $t('common.expandAll')"
         class="ml-[12px]" :class="[collapsed ? 'rotate-180' : 'rotate-0']"
         enable-hover-bg
         @click="toggleCollapsed"
@@ -74,10 +74,10 @@ function addGroup() {
         <template #overlay>
           <a-menu>
             <a-menu-item key="1" class="!text-[12px]" @click="addGroup">
-              新建分组
+              {{ $t('elementManager.createGroup') }}
             </a-menu-item>
             <a-menu-item key="2" class="!text-[12px]" @click="toggleModuleType('unuse')">
-              查看未使用元素
+              {{ $t('viewUnusedElements') }}
             </a-menu-item>
           </a-menu>
         </template>
@@ -89,21 +89,21 @@ function addGroup() {
       <div class="flex items-center h-[32px] px-[20px] bg-[#000000]/[.03] dark:bg-[#FFFFFF]/[.03] rounded-[6px]">
         <span class="text-[12px] select-none">
           <template v-if="moduleType === 'unuse'">
-            未使用元素（{{ unUseNum }}）
+            {{ $t('unusedElementsWithCount', { count: unUseNum }) }}
           </template>
           <template v-if="moduleType === 'quoted'">
-            查找引用
+            {{ $t('searchReference') }}
           </template>
         </span>
         <a-divider type="vertical" class="h-4 border-s-[#000000]/[.16] dark:border-s-[#FFFFFF]/[.16]" />
         <rpa-hint-icon name="chevron-left" class="text-[12px]" @click="toggleModuleType('default')">
           <template #suffix>
-            <span class="ml-1">返回</span>
+            <span class="ml-1">{{ $t('goBack') }}</span>
           </template>
         </rpa-hint-icon>
         <rpa-hint-icon name="refresh-current-page" class="ml-[20px] text-[12px]" @click="handleRefresh">
           <template #suffix>
-            <span class="ml-1">刷新列表</span>
+            <span class="ml-1">{{ $t('refreshList') }}</span>
           </template>
         </rpa-hint-icon>
       </div>

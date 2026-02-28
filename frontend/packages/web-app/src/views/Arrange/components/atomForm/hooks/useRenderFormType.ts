@@ -1,6 +1,8 @@
 import { NiceModal } from '@rpa/components'
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import BUS from '@/utils/eventBus'
 
 import { validateContractResult } from '@/api/contract'
@@ -12,10 +14,11 @@ import { UserFormDialogModal } from '@/views/Arrange/components/customDialog/com
 import { INPUT_NUMBER_TYPE_ARR, ORIGIN_SPECIAL, ORIGIN_VAR, PROCESS_VAR_TYPE } from '@/views/Arrange/config/atom'
 import { backContainNodeIdx } from '@/views/Arrange/utils/flowUtils'
 
+import { ContractValidateModal, EmailTextReplaceModal, TextareaModal } from '../modals'
+
 import { createDom, setEditTextContent } from './useAtomVarPopover'
 import useFormPick from './useFormPick'
 import { getRealValue, getUserFormOption } from './usePreview'
-import { ContractValidateModal, EmailTextReplaceModal, TextareaModal } from '../modals'
 
 const hasDataCategoryType = [VAR_IN_TYPE, GLOBAL_VAR_IN_TYPE, PARAMETER_VAR_IN_TYPE, ELEMENT_IN_TYPE]
 
@@ -51,10 +54,10 @@ function escapeHTML(str: string) {
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
-    "'": '&#x27;',
-    '/': '&#x2F;'
-  };
-  return String(str).replace(/[&<>"'/]/g, (s) => entityMap[s]);
+    '\'': '&#x27;',
+    '/': '&#x2F;',
+  }
+  return String(str).replace(/[&<>"'/]/g, s => entityMap[s])
 }
 
 export function handlePaste(event: ClipboardEvent, itemData: RPA.AtomDisplayItem) {
@@ -140,7 +143,7 @@ export function generateHtmlVal(target: HTMLDivElement, itemData: RPA.AtomDispla
         if (INPUT_NUMBER_TYPE_ARR.includes(types) && !Object.is(formType.type, ATOM_FORM_TYPE.RESULT) && Object.is(obj.type, OTHER_IN_TYPE) && !isExpr) {
           const numberPattern = /^-?\d*\.?\d*$/
           if (!numberPattern.test(obj.value))
-            itemData.customizeTip = '只能填入数字'
+            itemData.customizeTip = i18next.t('atomForm.onlyNumberTip')
         }
         if (obj.value)
           result.push(obj)
@@ -288,7 +291,7 @@ function useRenderFormType() {
       const target = inputList.find(item => item.key === 'custom_factors')
       // 前置判断是否有要素
       if (!target.value) {
-        message.warning('请先添加要素')
+        message.warning(i18next.t('atomForm.addElementFirst'))
         return
       }
       let hasProcessVarType = false // 是否有流程变量
@@ -300,7 +303,7 @@ function useRenderFormType() {
         return res
       }, {})
       if (hasProcessVarType) {
-        message.warning('存在流变量无法验证效果')
+        message.warning(i18next.t('atomForm.hasProcessVarCannotValidate'))
         return
       }
       itemData.formType.params.loading = true

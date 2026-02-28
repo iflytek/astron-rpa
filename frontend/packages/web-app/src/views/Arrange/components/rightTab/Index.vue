@@ -4,6 +4,8 @@ import { onClickOutside } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { ref, useTemplateRef } from 'vue'
 
+import i18next from '@/plugins/i18next'
+
 import BUS from '@/utils/eventBus'
 
 import PythonPackageManagement from '@/components/PythonPackageManagement/Index.vue'
@@ -40,7 +42,7 @@ BUS.$on('toggleAtomForm', (visible: boolean) => {
 
 function beforeSelectChange(tab) {
   if (tab === 'node' && !flowStore.activeAtom) {
-    message.warning('请选择一个原子能力')
+    message.warning(i18next.t('arrange.selectAtomFirst'))
     return false
   }
 }

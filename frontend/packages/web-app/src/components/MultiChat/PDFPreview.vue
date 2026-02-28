@@ -1,3 +1,17 @@
+<script setup lang="ts">
+import { useElementSize } from '@vueuse/core'
+import { useTemplateRef } from 'vue'
+import VuePdfEmbed from 'vue-pdf-embed'
+
+import 'vue-pdf-embed/dist/styles/annotationLayer.css'
+import 'vue-pdf-embed/dist/styles/textLayer.css'
+
+const props = defineProps<{ source: string | Uint8Array | object }>()
+
+const pdfRef = useTemplateRef('pdfRef')
+const { width } = useElementSize(pdfRef)
+</script>
+
 <template>
   <VuePdfEmbed
     ref="pdfRef"
@@ -8,17 +22,3 @@
     :source="props.source"
   />
 </template>
-
-<script setup lang="ts">
-import VuePdfEmbed from 'vue-pdf-embed'
-import { useElementSize } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
-
-import 'vue-pdf-embed/dist/styles/annotationLayer.css'
-import 'vue-pdf-embed/dist/styles/textLayer.css'
-
-const props = defineProps<{ source: string | Uint8Array | object }>()
-
-const pdfRef = useTemplateRef('pdfRef')
-const { width } = useElementSize(pdfRef)
-</script>

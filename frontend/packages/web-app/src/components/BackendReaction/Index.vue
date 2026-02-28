@@ -9,6 +9,8 @@ import { message } from 'ant-design-vue'
 import { h } from 'vue'
 import { useRoute } from 'vue-router'
 
+import i18next from '@/plugins/i18next'
+
 import { base64ToString } from '@/utils/common'
 import { baseUrl } from '@/utils/env'
 import BUS from '@/utils/eventBus'
@@ -20,12 +22,13 @@ import { taskCancel, taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { WINDOW_NAME } from '@/constants'
 import { EDITORPAGE, SMARTCOMPONENT } from '@/constants/menu'
-import { utilsManager, windowManager, type CreateWindowOptions, type WindowPosition } from '@/platform'
+import { utilsManager, windowManager } from '@/platform'
+import type { CreateWindowOptions, WindowPosition } from '@/platform'
+import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
-import { useAppConfigStore } from '@/stores/useAppConfig'
 
 export interface W2WType {
   from: string // 来源窗口
@@ -143,11 +146,13 @@ utilsManager.listenEvent('w2w', (eventMsg: W2WType) => {
     else if (type === 'save') {
       BUS.$emit('record-save', data)
     }
-  } else if (from === WINDOW_NAME.USERFORM) {
+  }
+  else if (from === WINDOW_NAME.USERFORM) {
     if (type === 'userFormSave') {
       runningStore.sendReplyMessage(data)
     }
-  } else if (from === WINDOW_NAME.MULTICHAT) {
+  }
+  else if (from === WINDOW_NAME.MULTICHAT) {
     if (type === 'chatContentSave') {
       runningStore.sendReplyMessage(data)
     }
@@ -177,17 +182,21 @@ function openTaskCountDown(countDownInfo) {
   let count = Number(count_down)
   const highlighStyle = 'color: #4E68F6;font-weight: bold;font-size: 14px;'
   function getContent(count: number) {
-    return h('div', [h('span', { style: highlighStyle }, `${count}s `), h('span', '之后，即将运行计划任务：'), h('span', { style: highlighStyle }, task_name)])
+    return h('div', [
+      h('span', { style: highlighStyle }, `${count}s `),
+      h('span', i18next.t('backendReaction.taskWillRunAfter')),
+      h('span', { style: highlighStyle }, task_name),
+    ])
   }
   const modal = GlobalModal.info({
-    title: '计划任务运行提示',
+    title: i18next.t('backendReaction.taskRunTipTitle'),
     content: () => getContent(count),
     closable: false,
     maskClosable: false,
-    okText: '停止本次运行',
+    okText: i18next.t('backendReaction.stopThisRun'),
     onOk: () => {
       taskCancel({ task_id }).then(() => {
-        message.success('计划任务已停止')
+        message.success(i18next.t('backendReaction.taskStopped'))
         modal.destroy()
         timer && clearInterval(timer)
       })
@@ -253,10 +262,10 @@ function logReportHandle(msg) {
 function alertHandle(msg) {
   if (msg.type === 'normal') {
     GlobalModal.warning({
-      title: '提示',
+      title: i18next.t('prompt'),
       content: msg.msg,
       centered: true,
-      okText: '知道了',
+      okText: i18next.t('common.gotIt'),
       zIndex: 99999,
     })
   }

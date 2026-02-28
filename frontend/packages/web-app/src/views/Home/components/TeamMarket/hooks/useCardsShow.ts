@@ -49,7 +49,7 @@ export function useCardsShow(emits) {
       return
     }
     await deleteApp({ appId, marketId })
-    message.success('下架成功')
+    message.success(t('common.operationSuccess'))
     emits('refreshHomeTable')
   }
 
@@ -71,11 +71,11 @@ export function useCardsShow(emits) {
       return
     // 红色密级和黄色密级但不是可使用部门的人员,需发起使用申请
     if (needApplication) {
-      useApplicationConfirm(`当前权限不足，需发起申请批准后方可使用该应用，是否发起使用申请？`, () => {
+      useApplicationConfirm(t('market.insufficientPermissionNeedApplyConfirm'), () => {
         useApplication({ appId, marketId }).then(() => {
-          message.success('申请已发送')
+          message.success(t('market.applicationSent'))
         }).catch((e) => {
-          message.error(e?.message || '申请发送失败')
+          message.error(e?.message || t('market.applicationSendFail'))
         })
       })
       return
@@ -91,13 +91,17 @@ export function useCardsShow(emits) {
           authType: appInfo.value.appAuthType,
           trigger: 'modal',
           modalConfirm: {
-            title: '已达到应用数量上限',
-            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版设计器最多可编辑19个应用，您已满额。` : `专业版设计器最多可编辑99个应用，您已满额。`,
-            okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
-            cancelText: '我知道了',
+            title: t('designerManage.limitReachedTitle'),
+            content: userStore.currentTenant?.tenantType === 'personal'
+              ? t('designerManage.personalLimitReachedContent')
+              : t('designerManage.proLimitReachedContent'),
+            okText: userStore.currentTenant?.tenantType === 'personal'
+              ? t('designerManage.upgradeToPro')
+              : t('designerManage.upgradeToEnterprise'),
+            cancelText: t('designerManage.gotIt'),
           },
           consult: {
-            consultTitle: '咨询',
+            consultTitle: t('designerManage.consult'),
             consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
             consultType: 'consult',
           },

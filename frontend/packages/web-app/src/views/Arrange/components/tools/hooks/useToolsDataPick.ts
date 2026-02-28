@@ -1,5 +1,7 @@
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { usePickStore } from '@/stores/usePickStore'
 import { addDataBatchAtomData } from '@/views/Arrange/components/flow/hooks/useFlow'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
@@ -24,7 +26,7 @@ export function useToolsDataPick() {
     disable: ({ status }) => ['debug', 'run'].includes(status) || usePickStore().isDataPicking,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('正在运行/调试, 请先停止')
+        message.warning(i18next.t('arrange.stopRunningOrDebugFirst'))
         return false
       }
       return true

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { NiceModal } from '@rpa/components'
 import { message, Upload } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
 import { getFileExtension, getFileName } from '@/utils/common'
@@ -26,6 +27,7 @@ const accepts = ['.jpg', '.jpeg', '.png']
 const MAX_SIZE = 1024 * 10
 const name = ref('')
 const imageId = ref('')
+const { t } = useTranslation()
 
 function rename() {
   NiceModal.show(ElementRenameModal, {
@@ -39,7 +41,7 @@ function rename() {
 
 function saveImg() {
   if (!name.value) {
-    message.error('请输入图像名称')
+    message.error(t('enterImageName'))
     return
   }
   useCvStore()
@@ -71,7 +73,7 @@ function saveImg() {
       }),
     }, groupId)
     .then(() => {
-      message.success('上传成功')
+      message.success(t('cvPick.uploadSuccess'))
     })
     .catch((err) => {
       if ([600000, '600000'].includes(err?.code)) {
@@ -83,12 +85,12 @@ function saveImg() {
 function handleBeforeUpload(file: File) {
   const isLt50M = file.size / 1024 < MAX_SIZE
   if (!isLt50M) {
-    message.error(`上传图像必须小于 ${MAX_SIZE / 1024}MB!`)
+    message.error(t('cvPick.imageSizeLimit', { size: MAX_SIZE / 1024 }))
     return false
   }
   const suffix = getFileExtension(file.name)
   if (!accepts.includes(suffix.toLowerCase())) {
-    message.error('上传图像仅支持png/jpg/jpeg格式的图像')
+    message.error(t('cvPick.uploadFormatTip'))
     return false
   }
 
@@ -116,14 +118,14 @@ function upload(file: File) {
     <rpa-hint-icon
       v-if="type === 'icon'"
       placement="top"
-      title="上传图像"
+      :title="$t('uploadImage')"
       name="word-insert-image"
       enable-hover-bg
     />
-    <span v-else-if="type === 'text'">上传图像</span>
+    <span v-else-if="type === 'text'">{{ $t('uploadImage') }}</span>
     <rpa-hint-icon v-else name="word-insert-image" class="!text-[12px]" enable-hover-bg>
       <template #suffix>
-        <span class="ml-1">上传图像</span>
+        <span class="ml-1">{{ $t('uploadImage') }}</span>
       </template>
     </rpa-hint-icon>
   </Upload>

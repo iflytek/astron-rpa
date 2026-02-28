@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { HintIcon, useTheme } from '@rpa/components'
+import { useTranslation } from 'i18next-vue'
 import { h, reactive } from 'vue'
 
 import { getDeployedAccounts } from '@/api/market'
-import { NormalTable, type TableOption } from '@/components/NormalTable'
+import { NormalTable } from '@/components/NormalTable'
+import type { TableOption } from '@/components/NormalTable'
 
 import type { cardAppItem } from '../../types/market'
 
@@ -23,6 +25,7 @@ const props = defineProps<{
 const emit = defineEmits(['selectedIds'])
 
 const { colorTheme } = useTheme()
+const { t } = useTranslation()
 
 const tableOption = reactive<TableOption>({
   refresh: false,
@@ -33,8 +36,7 @@ const tableOption = reactive<TableOption>({
     {
       componentType: 'input',
       bind: 'realName',
-      // label: '名称',
-      placeholder: '请输入名称',
+      label: 'name',
       allowClear: true,
       size: 'middle',
       prefix: h(HintIcon, { name: 'search' }),
@@ -43,23 +45,23 @@ const tableOption = reactive<TableOption>({
   tableProps: {
     columns: [
       {
-        title: '终端账号',
+        title: 'market.terminalAccount',
         dataIndex: 'name',
         key: 'name',
         ellipsis: true,
       },
       {
-        title: '部署时间',
+        title: 'market.deployTime',
         dataIndex: 'createTime',
         key: 'createTime',
         ellipsis: true,
       },
       {
-        title: '部署版本',
+        title: 'market.deployVersion',
         dataIndex: 'appVersion',
         key: 'appVersion',
         ellipsis: true,
-        customRender: ({ record }) => `版本${record.appVersion}`,
+        customRender: ({ record }) => t('versionWithNumber', { version: record.appVersion }),
       },
     ],
     rowKey: 'id',
@@ -93,7 +95,7 @@ function onSelectChange(_selectedIds: string[], selectedRows: deployAccountsMap[
     <div class="h-[300px]">
       <NormalTable :option="tableOption">
         <template #headerPrefix>
-          <span class="font-bold">已部署账号</span>
+          <span class="font-bold">{{ $t('common.deployedAccounts') }}</span>
         </template>
       </NormalTable>
     </div>

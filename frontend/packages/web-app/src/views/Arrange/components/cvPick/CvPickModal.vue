@@ -159,7 +159,7 @@ onUnmounted(() => {
         {{ $t("saveAndContinue") }}
       </a-button>
       <a-button key="finish" type="primary" :disabled="disabled" :loading="saveLoading" @click="save(false)">
-        完成
+        {{ $t('done') }}
       </a-button>
     </template>
     <div class="cv-pick-wrapper">
@@ -178,7 +178,7 @@ onUnmounted(() => {
       </a-form>
       <div class="cv-pick-inner">
         <p v-if="cvStore.currentCvItem?.parentImageUrl" class="cv-pick-tip">
-          检测到当前界面存在多个重复元素，已在界面中自动选取了一个锚点作为唯一性校验。可重新指定锚点。
+          {{ $t('cvPick.multiElementTip') }}
         </p>
         <a-row class="cv-pick-content">
           <a-col :span="15" class="cv-imgs flex">
@@ -187,7 +187,7 @@ onUnmounted(() => {
               <span v-else class="anchor flex items-center justify-center" @click="pickAnchor">
                 <rpa-icon name="anchor-point" color="#F39D09" class="cursor-pointer" size="48" />
               </span>
-              <span class="anchor-tip absolute inline-block" @click="pickAnchor">指定锚点</span>
+              <span class="anchor-tip absolute inline-block" @click="pickAnchor">{{ $t('cvPick.setAnchor') }}</span>
             </span>
             <span class="cv-img-item cv-img" :class="{ 'cv-img-item-fullw': !cvStore.currentCvItem?.parentImageUrl }">
               <Image v-if="cvStore.currentCvItem?.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(cvStore.currentCvItem.imageUrl)" />
@@ -209,7 +209,7 @@ onUnmounted(() => {
                 {{ $t("validateElement") }}
               </a-button>
               <span class="text-left validate-slider">
-                校验相似度
+                {{ $t('cvPick.similarityCheck') }}
                 <AtomSlider class="cursor-pointer mr-1" :render-data="similarity" />
               </span>
             </span>
