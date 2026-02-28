@@ -32,13 +32,13 @@ class FTP:
         try:
             FtpCore.ftp_connection(ftp_instance, host, port)
         except Exception as e:
-            raise BaseException(FTP_CONNECTION_FORMAT.format(host, port), "连接到FTP服务器失败")
+            raise BizException(FTP_CONNECTION_FORMAT.format(host, port), "连接到FTP服务器失败")
 
         if name and password:
             try:
                 FtpCore.ftp_login(ftp_instance, name, password)
             except Exception as e:
-                raise BaseException(FTP_LOGIN_FORMAT.format(name, password), "登录到FTP服务器失败")
+                raise BizException(FTP_LOGIN_FORMAT.format(name, password), "登录到FTP服务器失败")
 
         return ftp_instance
 
@@ -54,7 +54,7 @@ class FTP:
             FtpCore.close_ftp(ftp_instance)
             return True
         except Exception as e:
-            raise BaseException(FTP_CLOSE_FORMAT.format(e), "FTP连接关闭失败")
+            raise BizException(FTP_CLOSE_FORMAT.format(e), "FTP连接关闭失败")
 
     @staticmethod
     @atomicMg.atomic(
@@ -67,7 +67,7 @@ class FTP:
         try:
             get_work_dir = FtpCore.get_working_dir(ftp_instance)
         except Exception as e:
-            raise BaseException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
         return get_work_dir
 
     @staticmethod
@@ -83,7 +83,7 @@ class FTP:
             change_work_dir = FtpCore.get_working_dir(ftp_instance)
             return change_work_dir
         except Exception as e:
-            raise BaseException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
 
     @staticmethod
     @atomicMg.atomic(
@@ -127,7 +127,7 @@ class FTP:
         try:
             new_folder = FtpCore.create_dir(ftp_instance, folder_name)
         except Exception as e:
-            raise BaseException(FTP_CREATE_FORMAT.format(e), "文件夹创建失败：{}".format(e))
+            raise BizException(FTP_CREATE_FORMAT.format(e), "文件夹创建失败：{}".format(e))
 
         return new_folder
 
@@ -152,7 +152,7 @@ class FTP:
         try:
             FtpCore.get_working_dir(ftp_instance)
         except Exception as e:
-            raise BaseException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
 
         try:
             list_file = FtpCore.get_nlst(ftp_instance)
@@ -171,7 +171,7 @@ class FTP:
             else:
                 raise NotImplementedError()
         except Exception as e:
-            raise BaseException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
 
     @staticmethod
     @atomicMg.atomic(
@@ -258,11 +258,11 @@ class FTP:
 
         if file_type == FileType.FILE:
             if cur_file_name not in exist_file:
-                raise BaseException(FILE_EXIST_FORMAT.format(cur_file_name), "待重命名文件不存在")
+                raise BizException(FILE_EXIST_FORMAT.format(cur_file_name), "待重命名文件不存在")
 
             file_ext = os.path.splitext(cur_file_name)[1]
             if not file_ext:
-                raise BaseException(
+                raise BizException(
                     FILE_NAME_FORMAT.format(cur_file_name),
                     "输入文件名扩展名缺失，请检查输入内容",
                 )
@@ -281,14 +281,14 @@ class FTP:
                 FtpCore.ftp_rename(ftp_instance, cur_file_name, new_file_name)
                 return FtpCore.get_path(ftp_instance, new_file_name)
             except Exception as e:
-                raise BaseException(FTP_RENAME_FORMAT.format(e), "FTP文件重命名失败")
+                raise BizException(FTP_RENAME_FORMAT.format(e), "FTP文件重命名失败")
 
         elif file_type == FileType.FOLDER:
             if cur_folder_name not in exist_file:
-                raise BaseException(FOLDER_EXIST_FORMAT.format(cur_folder_name), "待重命名文件夹不存在")
+                raise BizException(FOLDER_EXIST_FORMAT.format(cur_folder_name), "待重命名文件夹不存在")
 
             if not FtpCore.is_dir(ftp_instance, cur_folder_name):
-                raise BaseException(
+                raise BizException(
                     FILE_NAME_FORMAT.format(cur_folder_name),
                     "待重命名内容非文件夹，请检查输入信息",
                 )
@@ -306,7 +306,7 @@ class FTP:
                 FtpCore.ftp_rename(ftp_instance, cur_file_name, new_folder_name)
                 return FtpCore.get_path(ftp_instance, new_folder_name)
             except Exception as e:
-                raise BaseException(FTP_RENAME_FORMAT.format(e), "FTP文件重命名失败")
+                raise BizException(FTP_RENAME_FORMAT.format(e), "FTP文件重命名失败")
 
     @staticmethod
     @atomicMg.atomic(
@@ -363,7 +363,7 @@ class FTP:
         if ftp_pwd:
             if not FtpCore.is_dir(ftp_instance, ftp_pwd):
                 if not FtpCore.create_dir(ftp_instance, ftp_pwd):
-                    raise BaseException(
+                    raise BizException(
                         FTP_CREATE_FORMAT.format(ftp_pwd),
                         "指定{}目录创建失败，请检查FTP连接或目录名称，请勿使用中文目录".format(ftp_pwd),
                     )
@@ -376,7 +376,7 @@ class FTP:
             file_list = get_file_list(file_path)
             for file in file_list:
                 if not file_is_exist(file):
-                    raise BaseException(FILE_EXIST_FORMAT.format(file), "待上传文件不存在或格式错误")
+                    raise BizException(FILE_EXIST_FORMAT.format(file), "待上传文件不存在或格式错误")
 
                 file_name = os.path.basename(file)
 
@@ -392,14 +392,14 @@ class FTP:
                 try:
                     dst_path = FtpCore.ftp_upload_file(ftp_instance, file, file_name)
                 except Exception as e:
-                    raise BaseException(FTP_UPLOAD_FORMAT.format(file), "文件上传失败，请检查FTP连接")
+                    raise BizException(FTP_UPLOAD_FORMAT.format(file), "文件上传失败，请检查FTP连接")
                 upload_ftp_list.append(dst_path)
 
         elif file_type == FileType.FOLDER:
             folder_list = get_file_list(folder_path)
             for folder in folder_list:
                 if not folder_is_exist(folder):
-                    raise BaseException(FOLDER_EXIST_FORMAT.format(folder), "待上传文件夹不存在")
+                    raise BizException(FOLDER_EXIST_FORMAT.format(folder), "待上传文件夹不存在")
 
                 folder_name = os.path.basename(folder)
                 if folder_name in dst_list:
@@ -414,7 +414,7 @@ class FTP:
                 try:
                     dst_path = FtpCore.ftp_upload_dir(ftp_instance, folder, folder_name)
                 except Exception as e:
-                    raise BaseException(FTP_UPLOAD_FORMAT.format(folder), "文件上传失败，请检查FTP连接")
+                    raise BizException(FTP_UPLOAD_FORMAT.format(folder), "文件上传失败，请检查FTP连接")
                 upload_ftp_list.append(dst_path)
         else:
             raise NotImplementedError()
@@ -490,7 +490,7 @@ class FTP:
             if state_type == StateType.CREATE:
                 os.mkdir(dst_path)
             elif state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_EXIST_FORMAT.format(dst_path),
                     "指定目标路径不存在，请检查路径信息",
                 )
@@ -504,7 +504,7 @@ class FTP:
             for file in download_file_list:
                 file_name = file
                 if file not in ftp_list:
-                    raise BaseException(
+                    raise BizException(
                         FILE_EXIST_FORMAT.format(file),
                         "当前目录中不存在指定下载文件：{}，请检查下载名称".format(file),
                     )
@@ -525,7 +525,7 @@ class FTP:
                         os.path.join(dst_path, file_name),
                     )
                 except Exception as e:
-                    raise BaseException(FTP_DOWNLOAD_FORMAT.format(file), "文件下载失败，请检查FTP连接")
+                    raise BizException(FTP_DOWNLOAD_FORMAT.format(file), "文件下载失败，请检查FTP连接")
 
                 download_ftp_path.append(download_file)
 
@@ -533,7 +533,7 @@ class FTP:
             download_folder_list = get_file_list(download_folder_name)
             for folder in download_folder_list:
                 if folder not in ftp_list:
-                    raise BaseException(
+                    raise BizException(
                         FOLDER_EXIST_FORMAT.format(folder),
                         "当前目录中不存在指定下载文件夹：{}，请检查下载名称".format(folder),
                     )
@@ -556,7 +556,7 @@ class FTP:
                         os.path.join(dst_path, folder_new),
                     )
                 except Exception as e:
-                    raise BaseException(
+                    raise BizException(
                         FTP_DOWNLOAD_FORMAT.format(folder),
                         "文件下载失败，请检查FTP连接",
                     )
@@ -612,7 +612,7 @@ class FTP:
                 delete_file_list = get_file_list(delete_file_name)
                 for item in delete_file_list:
                     if item not in exist_list:
-                        raise BaseException(
+                        raise BizException(
                             FTP_DELETE_FORMAT.format(delete_file_name),
                             "当前工作目录中文件不存在，请检查文件名",
                         )
@@ -622,7 +622,7 @@ class FTP:
                 delete_folder_list = get_file_list(delete_folder_name)
                 for item in delete_folder_list:
                     if item not in exist_list:
-                        raise BaseException(
+                        raise BizException(
                             FTP_DELETE_FORMAT.format(delete_folder_name),
                             "当前工作目录中文件夹不存在，请检查待删除名称",
                         )
@@ -631,4 +631,4 @@ class FTP:
             else:
                 raise NotImplementedError()
         except Exception as e:
-            raise BaseException(FTP_DELETE_FORMAT.format(e), "请检查文件/文件夹是否已删除")
+            raise BizException(FTP_DELETE_FORMAT.format(e), "请检查文件/文件夹是否已删除")

@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 
 IGNORE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("{}"))
@@ -26,13 +26,13 @@ ReportCodeSkip = _("执行错误跳过")
 ReportCodeRetry = _("执行错误重试")
 
 
-class IgnoreException(BaseException):
+class IgnoreException(BizException):
     """内部已经处理了错误, 外部可忽略错误细节的错误"""
 
     pass
 
 
-class ParamException(BaseException):
+class ParamException(BizException):
     """参数错误，额外携带出错的参数名"""
 
     pass

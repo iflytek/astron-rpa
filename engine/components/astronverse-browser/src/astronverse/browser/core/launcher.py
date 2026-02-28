@@ -28,4 +28,4 @@ class BrowserLauncher:
                 p = subprocess.Popen(cmdline, close_fds=True, start_new_session=True)
             return p.poll() is None
         except Exception as e:
-            raise BaseException(BROWSER_OPEN_ERROR, "浏览器打开失败{}".format(e))
+            raise BizException(BROWSER_OPEN_ERROR, "浏览器打开失败{}".format(e))

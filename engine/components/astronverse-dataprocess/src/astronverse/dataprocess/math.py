@@ -48,7 +48,7 @@ class MathProcess:
         生成随机数，可以指定整数，小数
         """
         if start > end:
-            raise BaseException(INVALID_NUMBER_RANGE_ERROR_FORMAT, "开始值必须小于结束值")
+            raise BizException(INVALID_NUMBER_RANGE_ERROR_FORMAT, "开始值必须小于结束值")
         res = random_number(number_type=number_type, start=start, end=end, size=size)
         return res[0] if len(res) == 1 else res
 
@@ -95,7 +95,7 @@ class MathProcess:
             elif re.match(r"^-?\d+\.\d+$", raw_number):  # 浮点数
                 raw_number = float(raw_number)
             else:
-                raise BaseException(INVALID_NUMBER_FORMAT_ERROR_FORMAT, "请输入整数或浮点数")
+                raise BizException(INVALID_NUMBER_FORMAT_ERROR_FORMAT, "请输入整数或浮点数")
         return abs(raw_number)
 
     @staticmethod
@@ -132,7 +132,7 @@ class MathProcess:
         try:
             calc_res = eval(str(left) + operator.value + str(right))
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 INVALID_MATH_EXPRESSION_ERROR_FORMAT.format(e),
                 str(left) + operator.value + str(right),
             )

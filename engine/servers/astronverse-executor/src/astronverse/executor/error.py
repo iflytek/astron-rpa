@@ -1,9 +1,9 @@
 import re
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 from astronverse.executor.logger import logger
 
-BaseException = BaseException
+BizException = BizException
 
 # 通用错误
 SUCCESS: ErrorCode = ErrorCode(BizCode.LocalOK, "ok")
@@ -143,9 +143,9 @@ def python_base_error(e):
     elif isinstance(e, RecursionError):
         error_str = f"递归深度超限, 检查流程否循环引用"
         return error_str
-    elif isinstance(e, BaseException):
+    elif isinstance(e, BizException):
         error_str = e.code.message
-        logger.error("BaseException: {}".format(e.message))
+        logger.error("BizException: {}".format(e.message))
         return error_str
     else:
         return str(e)

@@ -79,7 +79,7 @@ class File:
         新建文件，指定目标路径和文件名称，返回创建的文件路径
         """
         if not folder_is_exists(dst_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(dst_path),
                 "填写的目录路径不存在，请检查目标路径！",
             )
@@ -119,12 +119,12 @@ class File:
         删除指定文件
         """
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径！")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径！")
         if delete_options == DeleteType.DELETE:
             try:
                 os.remove(file_path)
             except PermissionError as e:
-                raise BaseException(
+                raise BizException(
                     PermissionError_FORMAT.format(file_path),
                     "文件被占用，请关闭文件后重试！",
                 )
@@ -134,7 +134,7 @@ class File:
 
                 send2trash(file_path)
             except OSError as e:
-                raise BaseException(
+                raise BizException(
                     PermissionError_FORMAT.format(file_path),
                     "文件被占用，请关闭文件后重试！",
                 )
@@ -189,10 +189,10 @@ class File:
         复制文件到指定目录
         """
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径！")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径！")
         if not folder_is_exists(target_path):
             if state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(target_path),
                     "指定目录有误，请检查路径信息！",
                 )
@@ -210,7 +210,7 @@ class File:
                 prefix = os.path.splitext(file_path)[1]
                 file_name = "".join([file_name, prefix])
             else:
-                raise BaseException(
+                raise BizException(
                     FILE_TYPE_ERROR_FORMAT.format(base_name),
                     "文件扩展名缺失，请检查文件名称是否正确！",
                 )
@@ -275,7 +275,7 @@ class File:
                 with open(file_path, "w", encoding="utf-8") as file:
                     pass
             elif file_option == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FILE_PATH_ERROR_FORMAT.format(file_path),
                     "目标文件不存在，请检查文件路径！",
                 )
@@ -284,7 +284,7 @@ class File:
 
         file_ext = os.path.splitext(file_path)[1]
         if file_ext not in SUPPORT_FORMAT:
-            raise BaseException(
+            raise BizException(
                 READ_TYPE_ERROR_FORMAT.format(file_path, SUPPORT_FORMAT),
                 "当前文件格式不支持内容读取，请重新选择",
             )
@@ -338,7 +338,7 @@ class File:
         :return: file_encoding_type: 编码类型
         """
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查路径信息！")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查路径信息！")
         file_encoding_type = get_file_encoding_type(file_path)
         return file_encoding_type
 
@@ -374,11 +374,11 @@ class File:
         """
         SUPPORT_FORMAT = [".txt", ".docx", ".md", ".py", ".json", ".csv"]
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查路径信息！")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查路径信息！")
 
         file_ext = os.path.splitext(file_path)[1]
         if not file_ext or file_ext not in SUPPORT_FORMAT:
-            raise BaseException(
+            raise BizException(
                 READ_TYPE_ERROR_FORMAT.format(file_path, SUPPORT_FORMAT),
                 "当前文件格式不支持内容读取，请重新选择",
             )
@@ -412,7 +412,7 @@ class File:
                 raise NotImplementedError()
         except UnicodeError as e:
             encode_type_file = get_file_encoding_type(file_path)
-            raise BaseException(
+            raise BizException(
                 ENCODE_TYPE_ERROR_FORMAT.format(encode_type_file, encode_type),
                 "指定的编码类型出现错误，请检查编码类型",
             )
@@ -463,12 +463,12 @@ class File:
         移动文件到目标文件夹。
         """
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径")
         if not folder_is_exists(target_folder):
             if state_type == StateType.CREATE:
                 os.makedirs(target_folder, exist_ok=True)
             elif state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(target_folder),
                     "文件夹不存在，请检查文件夹路径",
                 )
@@ -484,7 +484,7 @@ class File:
                 prefix = os.path.splitext(file_path)[1]
                 file_name = "".join([file_name, prefix])
             else:
-                raise BaseException(
+                raise BizException(
                     FILE_TYPE_ERROR_FORMAT.format(pre_file_name),
                     "文件扩展名缺失，请检查文件名称是否正确！",
                 )
@@ -545,10 +545,10 @@ class File:
         :return: 重命名后文件路径
         """
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查文件路径")
 
         if new_name == get_file_name_only(file_path):
-            raise BaseException(
+            raise BizException(
                 RENAME_ERROR_FORMAT.format(new_name),
                 "重命名名称与原名称一致，请检查输入内容",
             )
@@ -604,12 +604,12 @@ class File:
         查找文件
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "指定文件夹目录不存在，请检查路径信息！",
             )
         if not search_pattern:
-            raise BaseException(
+            raise BizException(
                 MSG_EMPTY_FORMAT.format(search_pattern),
                 "待查找文件名为空，请检查输入内容",
             )
@@ -666,7 +666,7 @@ class File:
         start_time = time.time()
         file_status = os.path.isfile(file_path)
         if status_type == StatusType.DELETED and not file_status:
-            raise BaseException(
+            raise BizException(
                 FILE_PATH_ERROR_FORMAT.format(file_path),
                 "文件不存在无法删除，请检查路径信息",
             )
@@ -703,7 +703,7 @@ class File:
         获取文件信息
         """
         if not os.path.isfile(file_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查路径信息")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在，请检查路径信息")
 
         abs_path = os.path.abspath(file_path)
         file_info = {
@@ -806,7 +806,7 @@ class File:
 
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "文件夹不存在，请检查路径信息",
             )
@@ -850,7 +850,7 @@ class File:
         if output_type == OutputType.EXCEL:
             if not folder_is_exists(excel_path):
                 if state_type == StateType.ERROR:
-                    raise BaseException(
+                    raise BizException(
                         FILE_PATH_ERROR_FORMAT.format(excel_path),
                         "指定excel存储路径不存在，请检查路径信息",
                     )

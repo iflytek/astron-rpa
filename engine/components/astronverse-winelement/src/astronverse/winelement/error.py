@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 WINDOW_NO_FIND_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("找不到窗口，请检查窗口是否已关闭！") + ": {}")
 WINDOW_SCROLL_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("窗口滚动失败，请检查窗口是否已关闭！") + ": {}")

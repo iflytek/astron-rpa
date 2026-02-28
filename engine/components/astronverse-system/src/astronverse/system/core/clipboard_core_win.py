@@ -39,7 +39,7 @@ class ClipBoardCore(IClipBoardCore):
         try:
             file_list = cp.GetClipboardData(cp.CF_HDROP)
         except TypeError as e:
-            raise BaseException(
+            raise BizException(
                 CONTENT_TYPE_ERROR_FORMAT,
                 "剪切板中内容为文本内容，请检查剪切板内容及获取类型设置是否正确",
             )

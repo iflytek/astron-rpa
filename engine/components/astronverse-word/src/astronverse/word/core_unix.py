@@ -366,7 +366,7 @@ class WordDocumentCore(IDocumentCore):
         s = doc.Application.Selection
         if by == SelectTextType.CONTENT:  # 按照文本定位
             if not content:
-                raise BaseException(
+                raise BizException(
                     CONTENT_FORMAT_ERROR_FORMAT,
                     "请填写要定位光标的文本内容,目前不支持空内容的定位!!!",
                 )
@@ -381,7 +381,7 @@ class WordDocumentCore(IDocumentCore):
                 else:
                     s.SetRange(Start=s.End, End=s.End)
             except Exception as e:
-                raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "内容不存在！！！") from e
+                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "内容不存在！！！") from e
         elif by == SelectTextType.ALL:  # 按照文档定位光标
             try:
                 p_num = doc.Paragraphs.Count  # 获取全部段落号
@@ -390,7 +390,7 @@ class WordDocumentCore(IDocumentCore):
                 else:  # 移动到整个文档开头
                     s.Move(4, -p_num)
             except Exception as e:
-                raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "文档为空！！！") from e
+                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "文档为空！！！") from e
         elif by == SelectTextType.PARAGRAPH:  # 按照段落号定位光标
             if pos == CursorPositionType.TAIL:  # 定位到某个段落末尾
                 s.SetRange(
@@ -400,7 +400,7 @@ class WordDocumentCore(IDocumentCore):
             elif pos == CursorPositionType.HEAD:  # 定位到某个段落开头
                 s.SetRange(doc.Paragraphs[p_idx].Range.Start, doc.Paragraphs[p_idx].Range.Start)
             else:
-                raise BaseException(
+                raise BizException(
                     CONTENT_FORMAT_ERROR_FORMAT,
                     "不支持的参考位置，请前端检查传入的p_pos参数！！！",
                 )
@@ -412,7 +412,7 @@ class WordDocumentCore(IDocumentCore):
                     s.GoTo(3, 1, r_idx)
                     s.EndKey(5)
             except Exception as e:
-                raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "内容为空！！！") from e
+                raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "内容为空！！！") from e
 
     @classmethod
     def move_cursor(
@@ -451,7 +451,7 @@ class WordDocumentCore(IDocumentCore):
             else:
                 s.MoveRight(unit, distance)
         else:
-            raise BaseException(
+            raise BizException(
                 CONTENT_FORMAT_ERROR_FORMAT,
                 "不支持的direction，请前端检查传入的direction参数！！！",
             )
@@ -465,7 +465,7 @@ class WordDocumentCore(IDocumentCore):
         elif sep_type == InsertionType.PARAGRAPH:
             s.InsertParagraph()
         else:
-            raise BaseException(
+            raise BizException(
                 CONTENT_FORMAT_ERROR_FORMAT,
                 "不支持的分隔符类型，请前端检查传入的sep_type参数！！！",
             )
@@ -510,7 +510,7 @@ class WordDocumentCore(IDocumentCore):
                 )
                 clipboard_data = process.communicate()[0].strip()
             except subprocess.CalledProcessError as e:
-                raise BaseException("无法从剪贴板获取数据") from e
+                raise BizException("无法从剪贴板获取数据") from e
 
             # 检查剪贴板数据是否为文件路径，并且文件后缀为 .png, .jpg, .jpeg
             if os.path.isfile(clipboard_data):
@@ -533,7 +533,7 @@ class WordDocumentCore(IDocumentCore):
                 image_data, _ = process.communicate()
                 image = PIL.Image.open(BytesIO(image_data))
             except subprocess.CalledProcessError as e:
-                raise BaseException("剪贴板没有图片数据") from e
+                raise BizException("剪贴板没有图片数据") from e
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
@@ -555,7 +555,7 @@ class WordDocumentCore(IDocumentCore):
             _, img_shape = s.InlineShapes.AddPicture(img_path)
             print(f"Inserted image shape: {img_shape}")
             if not os.path.isfile(img_path):
-                raise BaseException(DOCUMENT_PATH_ERROR_FORMAT.format(img_path), "图片路径错误")
+                raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format(img_path), "图片路径错误")
         img_shape.ScaleWidth = scale
         img_shape.ScaleHeight = scale
 
@@ -576,7 +576,7 @@ class WordDocumentCore(IDocumentCore):
                 table = doc.Tables[idx]
                 table_content = cls._extract_table_content(table)
             except Exception as e:
-                raise BaseException(TABLE_NOT_EXIST_ERROR.format("序号" + str(idx))) from e
+                raise BizException(TABLE_NOT_EXIST_ERROR.format("序号" + str(idx))) from e
         elif search_type == SearchTableType.TEXT:
             # 遍历所有表格，查找包含指定文本的表格
             count = 0
@@ -604,7 +604,7 @@ class WordDocumentCore(IDocumentCore):
                     break
                 t_cnt += 1
             if not table_content:
-                raise BaseException(TABLE_NOT_EXIST_ERROR.format("内容" + str(text)))
+                raise BizException(TABLE_NOT_EXIST_ERROR.format("内容" + str(text)))
 
         return table_content
 
@@ -798,7 +798,7 @@ class WordDocumentCore(IDocumentCore):
         filename = f"{output_name}.txt"
         if WordDocumentCore.check_file_in_path(output_path, filename):
             if save_type == SaveFileType.WARN:
-                raise BaseException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
+                raise BizException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
             if save_type == SaveFileType.GENERATE:
                 # 生成非重复文件名
                 counter = 1
@@ -830,7 +830,7 @@ class WordDocumentCore(IDocumentCore):
         filename = f"{output_name}.pdf"
         if WordDocumentCore.check_file_in_path(output_path, filename):
             if save_type == SaveFileType.WARN:
-                raise BaseException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
+                raise BizException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
             if save_type == SaveFileType.GENERATE:
                 # 生成非重复文件名
                 counter = 1

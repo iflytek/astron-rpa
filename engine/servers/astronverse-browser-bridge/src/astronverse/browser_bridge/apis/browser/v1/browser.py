@@ -25,7 +25,7 @@ async def send_browser_command(request: Request, svc: ServiceContext = Depends(g
             data = file.read()
     browser_type = req_data.get("browser_type", "")
     if (not key) or (not browser_type):
-        raise BaseException(
+        raise BizException(
             PARAMETER_ERROR_FORMAT.format((key, data, browser_type)),
             "error: PARAMETER ERROR FORMAT {}".format((key, data, browser_type)),
         )

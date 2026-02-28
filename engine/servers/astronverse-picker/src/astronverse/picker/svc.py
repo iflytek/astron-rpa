@@ -9,7 +9,6 @@ from typing import Any
 
 from astronverse.picker import IEventCore, IPickerCore, PickerSign, SVCSign
 from astronverse.picker.error import *
-from astronverse.picker.error import BaseException as RpaBaseException
 from astronverse.picker.logger import logger
 
 
@@ -123,9 +122,9 @@ class ServiceContext:
             start_time -= 0.1
             if self.pick_server and self.pick_server.start_time and time.time() - self.pick_server.start_time > 15:
                 self.event_core.close()  # 关闭监听
-                raise RpaBaseException(TIMEOUT_LAG, "拾取卡顿超过15s，请退出编辑器后重新进入")
+                raise BizException(TIMEOUT_LAG, "拾取卡顿超过15s，请退出编辑器后重新进入")
         if start_time <= 0:
-            raise RpaBaseException(TIMEOUT, "拾取超时")
+            raise BizException(TIMEOUT, "拾取超时")
 
         # 返回值
         return self.__sign__[result_sign]

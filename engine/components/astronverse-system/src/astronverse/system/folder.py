@@ -65,7 +65,7 @@ class Folder:
         打开文件夹
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "文件夹不存在，请检查路径信息！",
             )
@@ -113,7 +113,7 @@ class Folder:
         新建文件夹，返回新建的文件夹路径
         """
         if not folder_is_exists(target_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(target_path),
                 "填写的目录路径不存在，请检查目标路径！",
             )
@@ -150,7 +150,7 @@ class Folder:
         删除指定文件夹，删除操作可选  彻底删除/移入回收站
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "指定文件夹不存在，请检查文件夹路径！",
             )
@@ -213,7 +213,7 @@ class Folder:
         复制文件夹
         """
         if not folder_is_exists(source_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(source_path),
                 "复制文件夹不存在，请检查文件夹路径！",
             )
@@ -221,7 +221,7 @@ class Folder:
             if state_type == StateType.CREATE:
                 os.makedirs(target_path, exist_ok=True)
             elif state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(target_path),
                     "文件夹不存在，请检查文件夹路径",
                 )
@@ -288,7 +288,7 @@ class Folder:
         移动文件夹到目标文件夹中。
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "指定文件夹不存在，请检查路径信息",
             )
@@ -296,7 +296,7 @@ class Folder:
             if state_type == StateType.CREATE:
                 os.makedirs(target_folder, exist_ok=True)
             elif state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(target_folder),
                     "文件夹不存在，请检查文件夹路径",
                 )
@@ -355,14 +355,14 @@ class Folder:
         重命名文件夹
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "文件夹不存在，请检查路径信息",
             )
 
         path = folder_path.rstrip(os.sep)
         if new_name == os.path.basename(path):
-            raise BaseException(
+            raise BizException(
                 RENAME_ERROR_FORMAT.format(new_name),
                 "重命名名称与原名称一致，请检查输入内容",
             )
@@ -403,7 +403,7 @@ class Folder:
         清空指定文件夹
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "文件夹不存在，请检查路径信息",
             )
@@ -415,7 +415,7 @@ class Folder:
                 try:
                     send2trash(os.path.join(root, name))
                 except Exception as e:
-                    raise BaseException(
+                    raise BizException(
                         FILE_DELETE_ERROR_FORMAT.format(os.path.join(root, name)),
                         "文件删除失败，请检查文件是否正在被其他程序使用",
                     )
@@ -423,7 +423,7 @@ class Folder:
                 try:
                     send2trash(os.path.join(root, name))
                 except Exception as e:
-                    raise BaseException(
+                    raise BizException(
                         FOLDER_DELETE_ERROR_FORMAT.format(os.path.join(root, name)),
                         "文件夹删除失败",
                     )
@@ -508,7 +508,7 @@ class Folder:
         获取文件夹列表
         """
         if not folder_is_exists(folder_path):
-            raise BaseException(
+            raise BizException(
                 FOLDER_PATH_ERROR_FORMAT.format(folder_path),
                 "文件夹不存在，请检查路径信息",
             )
@@ -543,7 +543,7 @@ class Folder:
         if output_type == OutputType.EXCEL:
             if not folder_is_exists(excel_path):
                 if state_type == StateType.ERROR:
-                    raise BaseException(
+                    raise BizException(
                         FILE_PATH_ERROR_FORMAT.format(excel_path),
                         "指定excel存储路径不存在，请检查路径信息",
                     )
