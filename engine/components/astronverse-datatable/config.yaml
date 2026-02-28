@@ -64,7 +64,7 @@ atomic:
         tip: 指定要写入的列号（例如A，B，C，AB...）
       - key: data
         title: 写入数据
-        tip: 需要写入的数据内容，单元格写入字符串，行或列写入数组，区域写入二维数组，格式不符合要求则按字符串处理
+        tip: 写入的数据内容。单元格需要字符串，行/列需要数组，区域需要二维数组
       - key: start_row
         title: 开始行号
         tip: 指定要写入的开始行号（例如1，2，3...）
@@ -130,10 +130,10 @@ atomic:
         tip: 指定要复制的开始列号（例如A，B，C，AB...）
       - key: end_row
         title: 结束行号
-        tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
+        tip: 结束行号需要大于等于开始行号，0或者不填则复制已编辑区域
       - key: end_col
         title: 结束列号
-        tip: 结束列号需要大于等于开始列号，不填则读取已编辑区域
+        tip: 结束列号需要大于等于开始列号，不填则复制已编辑区域
     outputList:
       - key: copied_cell
         title: 复制的单元格
@@ -192,23 +192,23 @@ atomic:
         tip: 指定要删除的开始列号（例如A，B，C，AB...）
       - key: end_row
         title: 结束行号
-        tip: 结束行号需要大于等于开始行号，0或者不填则读取已编辑区域
+        tip: 结束行号需要大于等于开始行号，0或者不填则删除已编辑区域
       - key: end_col
         title: 结束列号
-        tip: 结束列号需要大于等于开始列号，不填则读取已编辑区域
+        tip: 结束列号需要大于等于开始列号，不填则删除已编辑区域
       - key: delete_cell_move
         title: 单元格删除后移动方式
         tip: 删除单元格时的移动方式（左移、上移）
       - key: delete_col_move
-        title: 列删除是否移动
+        title: 列删除是否左移
         tip: 删除列时的移动方式（左移）
       - key: delete_row_move
-        title: 行删除是否移动
+        title: 行删除是否上移
         tip: 删除行时的移动方式（上移）
     outputList: []
   DataTable.loop_data_table:
     title: 循环数据表格
-    comment: 循环遍历数据表格中的 @{loop_type}，输出当前索引 @{index} 和当前值 @{value}
+    comment: 循环遍历数据表格中的 @{loop_type}，输出索引至 @{index}，输出值至 @{value}
     icon: loop_data_table
     helpManual: ''
     inputList:
@@ -242,7 +242,7 @@ atomic:
         tip: 返回当前循环项的值
   DataTable.insert_row_column:
     title: 数据表格插入行/列
-    comment: 在数据表格中插入 @{amount} @{insert_type} 空白@{insert_type}
+    comment: 在数据表格中插入 @{amount} 个空白 @{insert_type}
     icon: insert_row_column
     helpManual: ''
     inputList:
@@ -280,7 +280,7 @@ atomic:
       - key: formula
         title: 公式内容
         tip: >-
-          要插入的公式，例如"=SUM(A1:A5)"，支持公式包括数学、统计、逻辑、文本、日期和时间、查找和引用、工程、金融和信息公式。取决于打开表格文件的软件对公式的支持情况。
+          要插入的公式，例如"=SUM(A1:A5)"。支持数学、统计、逻辑、文本、日期、查找引用等常用公式
     outputList: []
   DataTable.set_column_title:
     title: 数据表格设置列信息
@@ -310,7 +310,7 @@ atomic:
         tip: 返回指定列的信息
   DataTable.find_and_replace:
     title: 数据表格查找和替换
-    comment: 在数据表格中 @{find_type} 查找内容 @{find_value} @{is_replace:不}替换内容
+    comment: 在数据表格中 @{find_type} 查找 @{find_value}@{is_replace:，并替换}
     icon: find_and_replace
     helpManual: ''
     inputList:
@@ -384,7 +384,7 @@ atomic:
         tip: 要导入数据的文件路径
       - key: sheet_name
         title: 工作表名称
-        tip: 要导入的工作表名称，不填则为默认为活动工作表
+        tip: 要导入的工作表名称，默认为活动工作表
     outputList: []
   DataTable.export_data_table_to_file:
     title: 导出数据表格到文件
@@ -403,7 +403,7 @@ atomic:
         tip: 选择导出的文件类型
       - key: is_overwrite
         title: 是否覆盖同名文件
-        tip: 如果存在同名文件，是否覆盖该文件，否则自动重命名
+        tip: 如果目标路径已存在同名文件，是否覆盖该文件
     outputList:
       - key: export_file_path
         title: 导出文件路径

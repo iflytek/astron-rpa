@@ -1,7 +1,7 @@
 atomic:
   WinEle.click_element:
     title: 点击元素（桌面）
-    comment: '@{click_type} 拾取到的元素 @{pick} ，最长等待 @{wait_time} 秒直到此元素出现'
+    comment: 通过鼠标 @{click_button} @{click_type} 拾取到的元素 @{pick}
     icon: click-element-win
     helpManual: ''
     inputList:
@@ -29,7 +29,7 @@ atomic:
     outputList: []
   WinEle.screenshot_element:
     title: 元素截图（桌面）
-    comment: 截图拾取到的元素 @{pick} ，并保存至文件夹 @{file_path}
+    comment: 对拾取到的元素 @{pick} 进行截图，截图保存至文件夹 @{file_path}
     icon: element-screenshot-win
     helpManual: ''
     inputList:
@@ -47,8 +47,8 @@ atomic:
         tip: ''
     outputList: []
   WinEle.hover_element:
-    title: 鼠标悬停元素（桌面）
-    comment: 鼠标悬停拾取到的元素 @{pick} ，并设置等待时间 @{wait_time} 秒
+    title: 鼠标悬停在元素上（桌面）
+    comment: 鼠标悬停在拾取到的元素 @{pick} 上
     icon: mouse-hover-element-win
     helpManual: ''
     inputList:
@@ -61,7 +61,7 @@ atomic:
     outputList: []
   WinEle.input_text_element:
     title: 填写输入框（桌面）
-    comment: 填写输入框 @{pick} ，并设置输入类型为 @{input_type} ，输入内容为 @{text}
+    comment: 以 @{input_type} 方式将内容填写到输入框元素 @{pick} 中
     icon: fill-input-win
     helpManual: ''
     inputList:
@@ -102,12 +102,12 @@ atomic:
         tip: ''
   WinEle.similar:
     title: 获取相似元素列表（桌面）
-    comment: 获取拾取到的元素 @{pick} 相似的元素，并将相似元素数组输出至 @{get_similar_ele}
+    comment: 获取与元素 @{pick} 相似的元素，并将相似元素数组输出至 @{get_similar_ele}
     icon: get-similar-elements-win
     helpManual: ''
     inputList:
       - key: pick
-        title: 相识元素拾取
+        title: 相似元素拾取
         tip: 在桌面上拾取不同位置的两个相似元素
       - key: wait_time
         title: 等待元素出现时间（秒）

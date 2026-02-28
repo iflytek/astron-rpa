@@ -9,8 +9,8 @@ atomic:
         title: 文件路径
         tip: 输入文件路径
       - key: default_application
-        title: 默认创建程序
-        tip: 选择默认创建程序，可选Excel或WPS
+        title: 默认打开程序
+        tip: 选择默认打开程序，可选Excel或WPS
       - key: visible_flag
         title: 是否可视化
         tip: ''
@@ -145,10 +145,10 @@ atomic:
         tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
       - key: start_col
         title: 起始列
-        tip: 输入要编辑的起始列位置，支持字母(如'A')或数字(如1)格式。
+        tip: 输入要编辑的起始列位置，支持字母(如'A')或数字(如1)格式
       - key: start_row
         title: 起始行
-        tip: 输入要编辑的起始行号，从1开始计数。当选择列(COLUMN)时可不填，当选择行(ROW)或区域(AREA)时必填
+        tip: 输入要编辑的起始行号，从1开始计数，当选择列(COLUMN)时可不填，当选择行(ROW)或区域(AREA)时必填
       - key: value
         title: 写入内容
         tip: >-
@@ -523,7 +523,7 @@ atomic:
         tip: ''
   Excel.loop_excel_content:
     title: 循环Excel内容
-    comment: 循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至@{key} 输出循环项至@{value}
+    comment: 循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至 @{key} ，输出循环项至 @{value}
     icon: excel-loop-content
     helpManual: ''
     inputList:
@@ -714,7 +714,7 @@ atomic:
     outputList:
       - key: sheet_names
         title: 工作表名称
-        tip: 输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象
+        tip: 返回工作表名称列表，如['Sheet1', 'Sheet2']
   Excel.search_and_replace_excel_content:
     title: 查找或替换Excel内容
     comment: >-

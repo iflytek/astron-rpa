@@ -7,7 +7,7 @@ atomic:
     inputList:
       - key: browser_obj
         title: 浏览器对象
-        tip: ''
+        tip: 浏览器句柄或浏览器对象变量（必填，用于从页面定位验证码元素）
       - key: picture_pick
         title: 拾取验证码对象
         tip: ''
@@ -23,7 +23,7 @@ atomic:
     outputList:
       - key: code_result
         title: 识别结果
-        tip: ''
+        tip: 返回识别文本（字符串），若批量或多结果情形为字符串列表
   VerifyCode.slider_code:
     title: 通用滑块验证码
     comment: >-
@@ -34,7 +34,7 @@ atomic:
     inputList:
       - key: browser_obj
         title: 浏览器对象
-        tip: ''
+        tip: 浏览器句柄或浏览器对象变量（用于定位滑块和背景图）
       - key: picture_pick
         title: 背景图片对象
         tip: ''
@@ -49,14 +49,14 @@ atomic:
         tip: ''
       - key: mini_step
         title: 微调步长（px）
-        tip: ''
+        tip: 拖动微调的最小像素步长，整数，单位 px
       - key: offset
         title: 偏移量（px）
-        tip: 可以根据实际情况设置偏移量
+        tip: 可设置最终位置的额外偏移（整数，单位 px），可留空使用检测到的位置
     outputList:
       - key: drag_distance
         title: 移动距离
-        tip: ''
+        tip: 返回计算的拖拽距离（像素整数），可直接用于执行拖拽动作
   VerifyCode.click_code:
     title: 通用点击验证码
     comment: 在背景图为 @{picture_pick} 的点击验证码上，点击对应位置
@@ -65,7 +65,7 @@ atomic:
     inputList:
       - key: browser_obj
         title: 浏览器对象
-        tip: ''
+        tip: 浏览器句柄或浏览器对象变量（用于在页面上定位图片与坐标）
       - key: picture_pick
         title: 点击图片对象
         tip: 需要包括大的点击图片和小的指明顺序的图片
