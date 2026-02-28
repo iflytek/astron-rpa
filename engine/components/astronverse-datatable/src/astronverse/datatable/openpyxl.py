@@ -45,9 +45,9 @@ class OpenpyxlWrapper:
         try:
             self.workbook.save(save_path)
         except PermissionError:
-            raise DATAFRAME_EXPECTION(WRITE_PERMISSION_DENIED_ERROR_FORMAT.format(save_path), "写入Excel文件失败")
+            raise BizException(WRITE_PERMISSION_DENIED_ERROR_FORMAT.format(save_path), "写入Excel文件失败")
         except Exception as e:
-            raise DATAFRAME_EXPECTION(WRITE_DATA_ERROR_FORMAT.format(save_path, str(e)), "写入Excel文件失败")
+            raise BizException(WRITE_DATA_ERROR_FORMAT.format(save_path, str(e)), "写入Excel文件失败")
 
     def close(self):
         """

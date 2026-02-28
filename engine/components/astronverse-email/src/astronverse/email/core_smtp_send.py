@@ -136,4 +136,4 @@ class EmailSmtpSend:
                     msg.as_string(),
                 )
             except smtplib.SMTPException as e:
-                raise BaseException(LOGIN_FAIL_FORMAT.format(e), "发送失败{}".format(e))
+                raise BizException(LOGIN_FAIL_FORMAT.format(e), "发送失败{}".format(e))

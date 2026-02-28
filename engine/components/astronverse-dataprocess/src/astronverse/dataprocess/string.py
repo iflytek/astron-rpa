@@ -69,7 +69,7 @@ class StringProcess:
                 re.compile(regex_formula)
                 pass
             except re.error:
-                raise BaseException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
+                raise BizException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
 
         pattern = get_pattern(extract_type, regex_formula) or ""
         result = re.findall(pattern, text)
@@ -117,7 +117,7 @@ class StringProcess:
                 re.compile(regex_formula)
                 pass
             except re.error:
-                raise BaseException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
+                raise BizException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
 
         if replace_type == ReplaceType.REGEX:
             old_value = regex_formula

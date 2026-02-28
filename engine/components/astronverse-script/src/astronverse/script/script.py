@@ -17,11 +17,11 @@ class Script:
         except SyntaxError as e:
             raise e
         except Exception as e:
-            raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
+            raise BizException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
         main_func = getattr(process_module, "main", None)
         if not main_func or not callable(main_func):
-            raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+            raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
         res = main_func(kwargs)
 
@@ -34,7 +34,7 @@ class Script:
         except SyntaxError as e:
             raise e
         except Exception as e:
-            raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
+            raise BizException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
         def is_v2() -> bool:
             """
@@ -63,7 +63,7 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BaseException(
+                raise BizException(
                     MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
                 )
 
@@ -74,7 +74,7 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BaseException(
+                raise BizException(
                     MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
                 )
 

@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import *
 from astronverse.baseline.i18n.i18n import _
 
-DATAFRAME_EXPECTION = BaseException
+BizException = BizException
 
 PARAMS_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数有误") + ": {}")
 DATAFRAME_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("数据表格格式有误") + ": {}")

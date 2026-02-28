@@ -55,7 +55,7 @@ class TestFile(TestCase):
     def test_file_create_folder_not_exists(self):
         """测试文件创建 - 目标文件夹不存在"""
         non_existent_dir = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             File.file_create(dst_path=non_existent_dir, file_name="test.txt")
 
     def test_file_create_overwrite_existing(self):
@@ -85,7 +85,7 @@ class TestFile(TestCase):
     def test_file_delete_file_not_exists(self):
         """测试文件删除 - 文件不存在"""
         non_existent_file = os.path.join(self.temp_dir, "non_existent.txt")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             File.file_delete(file_path=non_existent_file)
 
     @mock.patch("send2trash.send2trash")
@@ -117,7 +117,7 @@ class TestFile(TestCase):
         target_dir = os.path.join(self.temp_dir, "target")
         os.makedirs(target_dir, exist_ok=True)
 
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             File.file_copy(file_path=non_existent_file, target_path=target_dir)
 
     def test_file_write_append(self):

@@ -69,7 +69,7 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
             msg = ""
             if isinstance(reason, dict):
                 msg = reason.get("msg", "")
-            raise BaseException(WEB_GET_ELE_ERROR.format(msg), "浏览器元素未找到！")
+            raise BizException(WEB_GET_ELE_ERROR.format(msg), "浏览器元素未找到！")
     return browser_obj
 
 
@@ -103,7 +103,7 @@ class BrowserElement:
 
         timeout = element_timeout
         if timeout < 0:
-            raise BaseException(PARAMETER_INVALID_FORMAT.format(timeout), f"等待时间不能小于0！{timeout}")
+            raise BizException(PARAMETER_INVALID_FORMAT.format(timeout), f"等待时间不能小于0！{timeout}")
         while timeout >= 0:
             start = time.time()
             # 获取状态
@@ -345,9 +345,9 @@ class BrowserElement:
 
             # 参数验证
             if focus_time < 0:
-                raise BaseException(FOCUS_TIMEOUT_MUST_BE_POSITIVE, "焦点超时时间必须大于0")
+                raise BizException(FOCUS_TIMEOUT_MUST_BE_POSITIVE, "焦点超时时间必须大于0")
             if write_gap_time < 0:
-                raise BaseException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
+                raise BizException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
 
             # 定位
             element = locator.locator(
@@ -1443,7 +1443,7 @@ class BrowserElement:
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BizException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
                 # 发送给插件
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
@@ -1472,7 +1472,7 @@ class BrowserElement:
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BizException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
                     key="simalarListBatch",
@@ -1577,7 +1577,7 @@ class BrowserElement:
 
         # 校验locate_value
         if not locate_value:
-            raise BaseException(CODE_EMPTY, "定位值不能为空")
+            raise BizException(CODE_EMPTY, "定位值不能为空")
 
         # 发送给插件
         response = browser_obj.send_browser_extension(

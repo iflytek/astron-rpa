@@ -1,9 +1,7 @@
-"""错误码定义"""
-
 from astronverse.baseline.error.error import *
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 EXECUTABLE_PATH_NOT_FOUND_ERROR: ErrorCode = ErrorCode(
     BizCode.LocalErr, _("指定窗口运行路径不存在,请检查路径信息") + ": {}"

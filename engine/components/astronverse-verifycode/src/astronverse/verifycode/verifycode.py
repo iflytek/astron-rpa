@@ -49,7 +49,7 @@ class VerifyCode:
         code_result = VerifyCodeCore.get_api_result(api_type=code_type.value, pic_element_base64=image_base64)
         logger.info("验证码返回值: {}".format(code_result))
         if not code_result:
-            raise BaseException(MSG_EMPTY_FORMAT, "")
+            raise BizException(MSG_EMPTY_FORMAT, "")
 
         if input_flag:
             BrowserElement.input(browser_obj=browser_obj, element_data=input_box, fill_input=code_result)
@@ -99,7 +99,7 @@ class VerifyCode:
         drag_distance = drag_distance + offset
         logger.info("加入偏移量之后的移动量: {}".format(drag_distance))
         if not drag_distance:
-            raise BaseException(MSG_EMPTY_FORMAT, "")
+            raise BizException(MSG_EMPTY_FORMAT, "")
 
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(slider_element.rect(), list):
@@ -155,7 +155,7 @@ class VerifyCode:
         )
         logger.info("验证码返回值: {}".format(click_result))
         if not click_result:
-            raise BaseException(MSG_EMPTY_FORMAT, "")
+            raise BizException(MSG_EMPTY_FORMAT, "")
         click_positions = click_result.split("|")
         click_positions = [tuple(map(int, pos.split(","))) for pos in click_positions]
 

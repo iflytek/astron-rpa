@@ -1,8 +1,7 @@
-from astronverse.baseline.error.error import BaseException
 from astronverse.baseline.error.error import *
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 BROWSER_OPEN_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("浏览器打开失败"))
 BROWSER_PATH_EMPTY: ErrorCode = ErrorCode(BizCode.LocalErr, _("未找到浏览器路径，请输入浏览器路径再运行"))

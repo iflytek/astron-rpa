@@ -90,7 +90,7 @@ class System:
         """
         if not folder_is_exists(png_path):
             if state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(png_path),
                     "指定保存路径不存在，请检查路径信息",
                 )
@@ -108,7 +108,7 @@ class System:
             try:
                 ScreenShotCore.screenshot(region=region, file_path=screenshot_path)
             except Exception as e:
-                raise BaseException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
+                raise BizException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
         elif screen_type == ScreenType.REGION:
             if (
                 top_left_x < 0
@@ -139,7 +139,7 @@ class System:
             try:
                 ScreenShotCore.screenshot(region=region, file_path=screenshot_path)
             except Exception as e:
-                raise BaseException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
+                raise BizException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
         return screenshot_path
 
     @staticmethod
@@ -381,13 +381,13 @@ class System:
         """打印机打印"""
         if batch_print == BatchType.SINGLE:
             if not file_is_exists(file_path):
-                raise BaseException(
+                raise BizException(
                     FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息"
                 )
             print_file = file_path
         elif batch_print == BatchType.BATCH:
             if not folder_is_exists(folder_path):
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(folder_path), "文件夹不存在或路径信息有误，请检查路径信息"
                 )
             print_file = []

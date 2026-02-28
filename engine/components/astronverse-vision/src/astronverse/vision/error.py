@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 MSG_EMPTY_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("消息为空") + ": {}")
 CV_MATCH_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("未匹配到目标元素，请检查当前界面或降低匹配相似度后重试"))

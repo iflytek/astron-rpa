@@ -52,7 +52,7 @@ class TestMathProcess(unittest.TestCase):
 
     def test_generate_random_number_invalid_range(self):
         """测试无效范围参数"""
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             MathProcess.generate_random_number(number_type=NumberType.INTEGER, size=1, start=100, end=50)
 
     def test_get_rounding_number_integer(self):
@@ -137,7 +137,7 @@ class TestMathProcess(unittest.TestCase):
 
     def test_get_absolute_number_invalid_string(self):
         """测试无效字符串格式"""
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             MathProcess.get_absolute_number(raw_number="invalid")
 
     def test_calculate_expression_add(self):
@@ -204,12 +204,12 @@ class TestMathProcess(unittest.TestCase):
 
     def test_calculate_expression_invalid_expression(self):
         """测试无效表达式"""
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             MathProcess.calculate_expression(left="10", operator=MathOperatorType.DIV, right="0")
 
     def test_calculate_expression_invalid_syntax(self):
         """测试语法错误的表达式"""
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             MathProcess.calculate_expression(left="invalid", operator=MathOperatorType.ADD, right="5")
 
     def test_calculate_expression_float_numbers(self):

@@ -93,7 +93,7 @@ class Process:
             else:
                 raise NotImplementedError()
         except Exception as e:
-            raise BaseException(CMD_ERROR_FORMAT.format(command, e), "CMD命令执行失败")
+            raise BizException(CMD_ERROR_FORMAT.format(command, e), "CMD命令执行失败")
         return True
 
     @staticmethod
@@ -123,7 +123,7 @@ class Process:
         import psutil
 
         if not process_name:
-            raise BaseException(
+            raise BizException(
                 MSG_EMPTY_FORMAT.format(process_name),
                 "待匹配名称输入为空，请检查输入信息！",
             )

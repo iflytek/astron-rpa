@@ -31,7 +31,7 @@ async def http_exception(request: Request, exc: Exception):
     )
 
 
-async def http_base_exception(request: Request, exc: BaseException):
+async def http_base_exception(request: Request, exc: BizException):
     """http特殊错误处理"""
 
     logger.error(

@@ -10,13 +10,13 @@ def http_post(shot_url: str, gateway_port: str, data: Optional[dict]) -> Any:
 
     response = requests.post("http://127.0.0.1:{}{}".format(gateway_port, shot_url), json=data)
     if response.status_code != 200:
-        raise BaseException(
+        raise BizException(
             SERVER_ERROR_FORMAT.format(response.status_code),
             "服务器错误{}".format(response.status_code),
         )
     json_data = response.json()
     if json_data.get("code") != BizCode.OK.value and json_data.get("code") != "000000":
-        raise BaseException(
+        raise BizException(
             SERVER_ERROR_FORMAT.format(json_data.get("message", "")),
             "服务器错误{}".format(json_data),
         )

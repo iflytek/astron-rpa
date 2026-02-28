@@ -313,7 +313,7 @@ class PDF:
         :return: 合并后的文件路径
         """
         if file_folder_path and (not os.path.exists(file_folder_path)):
-            raise BaseException(
+            raise BizException(
                 FILE_PATH_ERROR_FORMAT.format(file_folder_path),
                 "填写的应用程序路径有误，请输入正确的路径！",
             )

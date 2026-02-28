@@ -1,7 +1,7 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
 FILE_PATH_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("PDF文件路径有误，请输入正确的路径！") + ": {}")
 PDF_READ_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("PDF文件读取失败，请检查文件是否损坏！") + ": {}")

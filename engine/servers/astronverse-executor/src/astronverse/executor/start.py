@@ -214,7 +214,7 @@ def start():
         # 执行代码
         debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
         debug_start(svc=debug_svc, args=args, flow_tip=flow_tip)
-    except BaseException as e:
+    except BizException as e:
         logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
             debug_svc.end(ExecuteStatus.FAIL, reason=e.code.message)

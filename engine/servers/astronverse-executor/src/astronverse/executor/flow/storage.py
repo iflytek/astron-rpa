@@ -139,7 +139,7 @@ class HttpStorage(IStorage):
         else:
             response = requests.get("http://127.0.0.1:{}{}".format(self.gateway_port, shot_url), params=params)
         if response.status_code != 200:
-            raise BaseException(
+            raise BizException(
                 SERVER_ERROR_FORMAT.format(response.status_code), "服务器错误{}".format(response.status_code)
             )
 
@@ -148,7 +148,7 @@ class HttpStorage(IStorage):
         try:
             json_data = response.json()
             if json_data.get("code") != "000000":
-                raise BaseException(
+                raise BizException(
                     SERVER_ERROR_FORMAT.format(json_data.get("message", "")), "服务器错误{}".format(json_data)
                 )
             return json_data.get("data", {})
@@ -221,7 +221,7 @@ class HttpStorage(IStorage):
             else:
                 flow_list = []
         except Exception as e:
-            raise BaseException(PROCESS_ACCESS_ERROR_FORMAT.format(process_id), "工程数据异常 {}".format(e))
+            raise BizException(PROCESS_ACCESS_ERROR_FORMAT.format(process_id), "工程数据异常 {}".format(e))
 
         # 附加数据
         atom_key_list = []

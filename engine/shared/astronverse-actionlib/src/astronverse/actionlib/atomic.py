@@ -95,7 +95,7 @@ class AtomicManager:
             @wraps(func)
             def wrapper(*args, **war_kwargs):
                 if len(args) > 1:
-                    raise BaseException(PARAM_ARGS_NO_SUPPORT_FORMAT.format(args), "参数不支持args")
+                    raise BizException(PARAM_ARGS_NO_SUPPORT_FORMAT.format(args), "参数不支持args")
                 return self.atomic_run(func, t.key, *args, **war_kwargs)
 
             wrapper.__tag_key__ = "atomic"  # 标记
@@ -270,7 +270,7 @@ class AtomicManager:
             for k2, v2 in enumerate(self.atomic_dict[key].outputList):
                 assert isinstance(v2, AtomicParamMeta)
                 if not v2.types:
-                    raise BaseException(REQUIRED_PARAM_MISSING.format("types"), "缺少必填参数, 返回值的types必须传值")
+                    raise BizException(REQUIRED_PARAM_MISSING.format("types"), "缺少必填参数, 返回值的types必须传值")
                 v2.update(formType=AtomicFormTypeMeta(type=AtomicFormType.RESULT.value), required=None)
                 outputList.append(v2)
         self.atomic_dict[key].outputList = outputList
@@ -383,7 +383,7 @@ class AtomicManager:
                     if (res in outputMap) or (res in inputMap):
                         continue
                     else:
-                        raise BaseException(
+                        raise BizException(
                             REQUIRED_PARAM_MISSING.format(res), "comment存在未定义的数据:{}".format(res)
                         )
 

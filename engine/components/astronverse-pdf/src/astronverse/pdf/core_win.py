@@ -23,7 +23,7 @@ class PDFCore(IPDFCore):
             # 如果有密码，尝试解锁
             password_type = reader.decrypt(pwd)
             if password_type == 0:
-                raise BaseException(PDF_PASSWORD_ERROR_FORMAT.format(pwd), "密码错误")
+                raise BizException(PDF_PASSWORD_ERROR_FORMAT.format(pwd), "密码错误")
 
         return reader
 
@@ -128,7 +128,7 @@ class PDFCore(IPDFCore):
             # 合并指定PDF文件
             for file in files_path:
                 if not os.path.exists(file):
-                    raise BaseException(
+                    raise BizException(
                         FILE_PATH_ERROR_FORMAT.format(file),
                         "PDF文件路径有误，请输入正确的路径",
                     )
@@ -232,7 +232,7 @@ class PDFCore(IPDFCore):
                         if table is not None:
                             tables.append(table)
         except PDFPasswordIncorrect:
-            raise BaseException(
+            raise BizException(
                 PDF_PASSWORD_ERROR_FORMAT.format(pwd),
                 "PDF文件路径有误，请输入正确的路径",
             )

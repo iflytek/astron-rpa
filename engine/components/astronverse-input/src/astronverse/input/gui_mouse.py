@@ -125,7 +125,7 @@ class GuiMouse:
                 try:
                     Mouse.scroll(scroll_px * reversal)
                 except Exception as e:
-                    raise BaseException(
+                    raise BizException(
                         SCROLL_FAILURE,
                         "滑轮滚动过程中失败, 请检查环境是否出现异常 {}".format(e),
                     )
@@ -207,7 +207,7 @@ class GuiMouse:
 
         screen_weight, screen_height = Mouse.screen_size()
         if position_x < 0 or position_x > screen_weight or position_y < 0 or position_y > screen_height:
-            raise BaseException(REGION_ERROR, "坐标参数不合法！")
+            raise BizException(REGION_ERROR, "坐标参数不合法！")
 
         # Get current mouse position
         current_x, current_y = Mouse.position()
@@ -297,7 +297,7 @@ class GuiMouse:
 
         screen_weight, screen_height = Mouse.screen_size()
         if position_x < 0 or position_x > screen_weight or position_y < 0 or position_y > screen_height:
-            raise BaseException(REGION_ERROR, "坐标参数不合法！")
+            raise BizException(REGION_ERROR, "坐标参数不合法！")
 
         # Get current mouse position
         current_x, current_y = Mouse.position()
@@ -394,7 +394,7 @@ class GuiMouse:
             or end_pos_y < 0
             or end_pos_y > screen_height
         ):
-            raise BaseException(REGION_ERROR, "坐标参数不合法！")
+            raise BizException(REGION_ERROR, "坐标参数不合法！")
 
         if ctrl_type != ControlType.EMPTY:
             Keyboard.key_down(ctrl_type.value)

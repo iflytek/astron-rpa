@@ -23,7 +23,7 @@ class Lexer:
         token_type = flow_json.get("key", "")
 
         if not token_type:
-            raise BaseException(MISSING_REQUIRED_KEY_ERROR_FORMAT.format(flow_json), f"missing key {flow_json}")
+            raise BizException(MISSING_REQUIRED_KEY_ERROR_FORMAT.format(flow_json), f"missing key {flow_json}")
         if token_type in [TokenType.Group.value, TokenType.GroupEnd.value]:
             return
         return Token(type=token_type, value=flow_json)

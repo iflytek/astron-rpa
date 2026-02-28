@@ -90,4 +90,4 @@ def exec_run(exec_args: list, ignore_error: bool = False, timeout=-1):
         raise TimeoutError("error: timeout") from None
 
     if proc.returncode != 0 and not ignore_error:
-        raise BaseException(f"error: return code({proc.returncode})")
+        raise BizException(f"error: return code({proc.returncode})")
