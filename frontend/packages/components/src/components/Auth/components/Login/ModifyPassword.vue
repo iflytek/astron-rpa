@@ -10,7 +10,6 @@ import { useModifyPassword } from './hooks/useModifyPassword'
 const { running, title, inviteInfo } = defineProps({
   title: {
     type: String,
-    default: '修改密码',
   },
   running: {
     type: String as () => AsyncAction,
@@ -43,7 +42,7 @@ const { formRef, formData, config, handleEvents } = useModifyPassword(inviteInfo
 <template>
   <FormLayout
     wrap-class="auth-modify-password h-full relative"
-    :title="title || '修改密码'"
+    :title="title || $t('auth.resetPassword')"
     show-back
     @back="() => emit('switchToLogin')"
   >

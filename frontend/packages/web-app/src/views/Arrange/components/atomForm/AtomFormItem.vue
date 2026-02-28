@@ -39,11 +39,11 @@ const showLabel = computed(() => {
         <rpa-hint-icon name="atom-form-tip" width="16px" height="16px" />
       </a-tooltip>
       <span
-        v-if="atomFormItem.title === '选择Python模块'"
+        v-if="atomFormItem.title === $t('common.selectPythonModule')"
         class="text-xs text-primary ml-auto cursor-pointer"
         @click="NiceModal.show(ProcessModal, { type: 'module' })"
       >
-        创建Python脚本
+        {{ $t('common.createPythonScript') }}
       </span>
     </label>
     <AtomConfig :form-item="atomFormItem" class="mt-2" />
@@ -51,7 +51,7 @@ const showLabel = computed(() => {
       v-if="useFormItemRequired(atomFormItem)"
       class="form-container-context-required"
     >
-      {{ atomFormItem.title }}是必填的
+      {{ atomFormItem.title }}{{ $t('common.isRequired') }}
     </article>
     <article
       v-if="atomFormItem.customizeTip"
@@ -63,7 +63,7 @@ const showLabel = computed(() => {
       v-if="!useFormItemLimitLength(atomFormItem)"
       class="form-container-context-required"
     >
-      {{ atomFormItem.title }}长度{{ getLimitLengthTip(atomFormItem.limitLength) || "超出限制" }}
+      {{ atomFormItem.title }}{{ $t('common.length') }}{{ getLimitLengthTip(atomFormItem.limitLength) || $t('common.exceedLimit') }}
     </article>
   </div>
 </template>

@@ -1,37 +1,40 @@
 import { SearchOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
+import { useTranslation } from 'i18next-vue'
 import { reactive, ref } from 'vue'
 
 import { getRemoteFiles } from '@/api/atom'
+import type { TableOption } from '@/types/normalTable'
 
 export default function useFileManageTable() {
   const selectFileId = ref('')
+  const { t } = useTranslation()
 
   const handleClick = (record) => {
     selectFileId.value = record.fileId
   }
-  const tableOption = reactive({
+  const tableOption = reactive<TableOption>({
     refresh: false, // 控制表格数据刷新
     getData: getRemoteFiles,
     formList: [ // 表格上方的表单配置
       {
         componentType: 'input',
         bind: 'fileName',
-        placeholder: '请输入文件名称',
+        placeholder: t('market.enterFileName'),
         prefix: <SearchOutlined />,
       },
     ],
     tableProps: { // 表格配置，即antd中的Table组件的属性
       columns: [
         {
-          title: '文件名称',
+          title: t('market.fileName'),
           dataIndex: 'fileName',
           key: 'fileName',
           fixed: 'left',
           ellipsis: true,
         },
         {
-          title: '创建时间',
+          title: t('common.createTime'),
           dataIndex: 'createTime',
           key: 'createTime',
           sortable: true,
@@ -39,7 +42,7 @@ export default function useFileManageTable() {
           customRender: ({ record }) => dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss'),
         },
         {
-          title: '更新时间',
+          title: t('common.updateTime'),
           dataIndex: 'updateTime',
           key: 'updateTime',
           sortable: true,
@@ -47,25 +50,25 @@ export default function useFileManageTable() {
           customRender: ({ record }) => dayjs(record.updateTime).format('YYYY-MM-DD HH:mm:ss'),
         },
         {
-          title: '所有者',
+          title: t('market.owner'),
           dataIndex: 'creatorName',
           key: 'creatorName',
           ellipsis: true,
         },
         {
-          title: '账号',
+          title: t('common.account'),
           dataIndex: 'phone',
           key: 'phone',
           ellipsis: true,
         },
         {
-          title: '所属部门',
+          title: t('market.department'),
           dataIndex: 'deptName',
           key: 'deptName',
           ellipsis: true,
         },
         {
-          title: '标签',
+          title: t('market.tags'),
           dataIndex: 'tags',
           key: 'tags',
           ellipsis: true,
@@ -89,7 +92,7 @@ export default function useFileManageTable() {
       fileName: '',
     },
   })
-  
+
   return {
     selectFileId,
     tableOption,

@@ -2,6 +2,7 @@ import type { SegmentedProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import {
   acceptJoinTeam,
@@ -11,9 +12,8 @@ import {
   setAllRead,
   setMessageReadById,
 } from '@/api/market'
-import { EDITORPAGE, TEAMMARKETS, APPLICATIONMARKET } from '@/constants/menu'
+import { APPLICATIONMARKET, EDITORPAGE, TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
-import { useRoute } from 'vue-router'
 import { useMarketStore } from '@/stores/useMarketStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 
@@ -103,7 +103,7 @@ export function useMessageTip() {
 
   const toastMessage = (data, custom, id?) => {
     if (data)
-      message.success('操作成功')
+      message.success(t('common.operationSuccess'))
     messageData.value = messageData.value.map((item) => {
       if (item.id === id)
         item.operateResult = custom
@@ -112,7 +112,7 @@ export function useMessageTip() {
       return item
     })
   }
-  
+
   const toMarket = (id: string) => {
     useMarketStore().refreshTeamList(id)
     useRoutePush({ name: TEAMMARKETS, query: { marketId: id } })

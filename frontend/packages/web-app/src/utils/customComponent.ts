@@ -1,3 +1,5 @@
+import { difference, has, isArray, isEmpty, some } from 'lodash-es'
+
 import { getConfigParams } from '@/api/atom'
 import { getComponentDetail } from '@/api/project'
 import { getProcessAndCodeList } from '@/api/resource'
@@ -7,7 +9,6 @@ import type { ProcessNode } from '@/corobot/type'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
-import { isArray, difference, has, isEmpty, some } from 'lodash-es'
 
 export const COMPONENT_KEY_PREFIX = 'Code.Component'
 
@@ -180,7 +181,7 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
   else {
     const varValue = safeParse(attr.varValue)
     const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
-    
+
     return {
       types: attr.varType,
       formType: varTypeToFormTypeMap[attr.varType] || { type: 'INPUT_VARIABLE_PYTHON' },
@@ -188,7 +189,7 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
       title: attr.varDescribe || attr.varName,
       name: attr.varName,
       required: true,
-      value: illegal ? [{ type: OTHER_IN_TYPE, value: attr.varValue ?? '' }] : varValue
+      value: illegal ? [{ type: OTHER_IN_TYPE, value: attr.varValue ?? '' }] : varValue,
     }
   }
 }
@@ -262,7 +263,8 @@ export function updateFlowNodesComponent(componentId: string, defaultNode: Proce
 function safeParse(str) {
   try {
     return JSON.parse(str)
-  } catch {
+  }
+  catch {
     return str
   }
 }

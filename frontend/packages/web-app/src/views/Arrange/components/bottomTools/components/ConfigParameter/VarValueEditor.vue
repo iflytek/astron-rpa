@@ -3,8 +3,8 @@ import { has, isArray, isEmpty, isEqual, some } from 'lodash-es'
 import { nextTick, ref, watch } from 'vue'
 
 import { OTHER_IN_TYPE, PY_IN_TYPE } from '@/constants/atom'
+import type { VariableType } from '@/corobot/type'
 import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
-import { VariableType } from '@/corobot/type';
 
 const props = defineProps<{
   varValue: string | unknown
@@ -25,7 +25,8 @@ const instanceId = `var-value-${Date.now()}-${Math.random().toString(36).slice(2
 function safeParse(str) {
   try {
     return JSON.parse(str)
-  } catch {
+  }
+  catch {
     return str
   }
 }

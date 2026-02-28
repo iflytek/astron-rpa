@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watchPostEffect } from 'vue'
 import { useTemplateRefsList } from '@vueuse/core'
+import { computed, ref, watchPostEffect } from 'vue'
 
 import { useProcessStore } from '@/stores/useProcessStore'
 
@@ -63,7 +63,7 @@ watchPostEffect(() => {
     <div class="process-tree-container">
       <div class="flex items-center gap-2 group cursor-pointer" @click="expand = !expand">
         <rpa-icon name="caret-down-small" width="16px" height="16px" class="transition-transform duration-200" :class="{ '-rotate-90': !expand }" />
-        <span class="group-hover:text-primary">流程名称</span>
+        <span class="group-hover:text-primary">{{ $t('processName') }}</span>
       </div>
       <DropDownMenu v-for="item in menuList" :key="item.resourceId" :menus="getCurrentProcessMenu(item)">
         <div

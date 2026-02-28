@@ -1,6 +1,8 @@
 import { message } from 'ant-design-vue'
 import { uniq } from 'lodash-es'
 
+import i18next from '@/plugins/i18next'
+
 import { useFlowStore } from '@/stores/useFlowStore'
 import { toggleContextmenu } from '@/views/Arrange/utils/contextMenu'
 import { betweenTowItem, getIdx, getMultiSelectIds } from '@/views/Arrange/utils/flowUtils'
@@ -79,7 +81,7 @@ export function setSelectAll() {
     toggleContextmenu({ visible: false }) // 左键点击隐藏右键菜单
   }
   else {
-    message.error('当前流程还没添加原子能力')
+    message.error(i18next.t('arrange.noAtomsInFlow'))
   }
 }
 

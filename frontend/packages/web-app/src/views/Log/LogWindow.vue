@@ -48,7 +48,7 @@ export default {
     this.startCount()
     const searchParams = new URLSearchParams(window.location.search)
     this.createWs(searchParams.get('ws'))
-    this.projectName = searchParams.get('title') || '执行日志'
+    this.projectName = searchParams.get('title') || this.$t('executionLog')
     this.isSiderMinimized = searchParams.get('mini') === '1'
   },
   methods: {
@@ -178,7 +178,7 @@ export default {
     },
     renderLogContent() {
       if (isEmpty(this.logData)) {
-        return <div class="content-log">正在进行初始化...</div>
+        return <div class="content-log">{this.$t('initializing')}</div>
       }
 
       return this.logData.map((item, index) => (
@@ -207,7 +207,7 @@ export default {
                 <rpa-icon name="robot" class="w-[14px] h-[14px] text-[#fff]" />
               </div>
               <div class="h-[20px] leading-5 text-sm font-semibold">
-                {this.projectName || '执行日志'}
+                {this.projectName || this.$t('executionLog')}
               </div>
             </div>
             <div class="flex items-center gap-3">
@@ -229,7 +229,7 @@ export default {
             >
               <span class="stop-button text-error text-[14px]" onClick={this.clickStop}>
                 <rpa-icon name="cancel" class="w-[14px] h-[14px]" />
-                <span class="text-[12px]">终止</span>
+                <span class="text-[12px]">{this.$t('taskExeceptOption.stop')}</span>
               </span>
             </Tooltip>
           </div>

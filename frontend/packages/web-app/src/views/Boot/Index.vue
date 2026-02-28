@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Auth } from '@rpa/components/auth'
 import { theme } from 'ant-design-vue'
+import { to } from 'await-to-js'
 import { storeToRefs } from 'pinia'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { to } from 'await-to-js'
 
 import { base64ToString } from '@/utils/common'
 import BUS from '@/utils/eventBus'

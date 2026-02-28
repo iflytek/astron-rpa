@@ -1,13 +1,15 @@
 import { message, Table } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import { useTranslation } from 'i18next-vue'
 import { computed, ref } from 'vue'
 
 import { delTaskExecute } from '@/api/record'
-import { getTaskExecuteLst } from '@/api/task'
 import { checkVideoPaths } from '@/api/setting'
+import { getTaskExecuteLst } from '@/api/task'
 import useRecordTableColumns from '@/views/Home/components/RecordTable/hooks/useRecordTableColumns.tsx'
 
 export default function useTastRecordOperation(refreshWithDelete?: (count: number) => void) {
+  const { t } = useTranslation()
   const selectedRowKeys = ref<string[]>([])
   const rowSelection = computed(() => {
     return {
@@ -22,10 +24,10 @@ export default function useTastRecordOperation(refreshWithDelete?: (count: numbe
   function batchDelete(selected: string[]) {
     const selectedKeys = Array.isArray(selected) ? selected : selectedRowKeys.value
     if (selectedKeys.length === 0) {
-      message.warning('请至少选择一条记录')
+      message.warning(t('selectOne'))
     }
     delTaskExecute({ taskExecuteIdList: selectedKeys }).then((res) => {
-      message.success(res.data || '删除成功')
+      message.success(res.data || t('common.deleteSuccess'))
       selectedRowKeys.value = []
       refreshWithDelete?.(selectedKeys.length)
     })

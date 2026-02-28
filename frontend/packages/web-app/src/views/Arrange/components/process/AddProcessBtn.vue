@@ -29,12 +29,12 @@ function addProcess() {
     :class="`process-add-btn_${btnType}`"
     @click="addProcess"
   >
-    <a-tooltip v-if="btnType === 'icon'" title="新建子流程" placement="bottom">
+    <a-tooltip v-if="btnType === 'icon'" :title="$t('newSubProcess')" placement="bottom">
       <PlusOutlined class="inline-block" />
     </a-tooltip>
     <template v-else>
       <PlusCircleOutlined class="icon" />
-      <span class="text">新建子流程</span>
+      <span class="text">{{ $t('newSubProcess') }}</span>
     </template>
   </span>
 </template>

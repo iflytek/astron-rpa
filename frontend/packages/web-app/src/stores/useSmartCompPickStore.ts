@@ -253,7 +253,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
         if (!menuPosition) {
           // 当拾取元素非网页元素时，rect 和 win_rect 不存在，显示错误对话框
           RpaPicker.destroy()
-          notifyErrorDialog('当前仅支持网页自动化')
+          notifyErrorDialog(t('smartCompPick.onlyWebAutomation'))
           return
         }
 
@@ -265,11 +265,11 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
         console.error(errorMsg)
         if (action === 'SMART_COMPONENT_PREVIOUS') {
           RpaPicker.destroy()
-          notifyErrorDialog('已达最大层级')
+          notifyErrorDialog(t('smartCompPick.maxLevelReached'))
         }
         else if (action === 'SMART_COMPONENT_NEXT') {
           RpaPicker.destroy()
-          notifyErrorDialog('已达最小层级')
+          notifyErrorDialog(t('smartCompPick.minLevelReached'))
         }
         else {
           message.error(errorMsg)

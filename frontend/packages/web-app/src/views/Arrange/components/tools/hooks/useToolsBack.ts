@@ -1,5 +1,7 @@
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { useRouteBack } from '@/hooks/useCommonRoute'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -13,7 +15,7 @@ export function useToolsBack() {
   const backToMain = async () => {
     try {
       await processStore.saveProject()
-      await message.success('保存成功', 0.5)
+      await message.success(i18next.t('common.saveSuccess'), 0.5)
       useRouteBack()
       useFlowStore().toggleMultiSelect(false)
       useProjectDocStore().clearAllData()
@@ -21,7 +23,7 @@ export function useToolsBack() {
     }
     catch (error) {
       console.log(error)
-      message.error('保存失败,请重试')
+      message.error(i18next.t('common.saveFailedRetry'))
     }
   }
 
@@ -38,7 +40,7 @@ export function useToolsBack() {
     clickFn: backToMain,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('正在运行/调试, 请先停止')
+        message.warning(i18next.t('arrange.stopRunningOrDebugFirst'))
       }
 
       return !disable

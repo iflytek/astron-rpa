@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { NiceModal } from '@rpa/components'
 import { Tooltip } from 'ant-design-vue'
+import { storeToRefs } from 'pinia'
 
 import { SettingCenterModal } from '@/components/SettingCenterModal'
 import { utilsManager } from '@/platform'
-import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useAppConfigStore } from '@/stores/useAppConfig'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 import { useUserStore } from '@/stores/useUserStore'
 
 import MessageTip from '../MesssageTip/Index.vue'
-import Updater from './Updater.vue'
+
 import ControlButton from './ControlButton.vue'
 import Help from './Help.vue'
+import Updater from './Updater.vue'
 import UserInfo from './UserInfo.vue'
 
 interface HeaderControlProps {

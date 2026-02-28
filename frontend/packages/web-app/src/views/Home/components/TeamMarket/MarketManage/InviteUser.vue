@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TabPane, Tabs } from 'ant-design-vue'
-import { ref, computed, nextTick } from 'vue'
+import { useTranslation } from 'i18next-vue'
+import { computed, nextTick, ref } from 'vue'
 
 import { useUserStore } from '@/stores/useUserStore'
 import LinkInvite from '@/views/Home/components/TeamMarket/MarketManage/LinkInvite.vue'
@@ -19,11 +20,12 @@ const { marketId } = defineProps({
 
 const emit = defineEmits(['change', 'inviteTypeChange', 'linkChange'])
 const userStore = useUserStore()
-const tabs = computed(()=>{
+const { t } = useTranslation()
+const tabs = computed(() => {
   return [
-    { key: 'phone', tab: '直接添加', show: userStore.currentTenant?.tenantType !== 'personal' },
-    { key: 'link', tab: '邀请链接', show: userStore.currentTenant?.tenantType !== 'enterprise' },
-  ].filter(i=>i.show)
+    { key: 'phone', tab: t('market.directAdd'), show: userStore.currentTenant?.tenantType !== 'personal' },
+    { key: 'link', tab: t('market.inviteLink'), show: userStore.currentTenant?.tenantType !== 'enterprise' },
+  ].filter(i => i.show)
 })
 
 const activeTab = ref(tabs.value[0].key)

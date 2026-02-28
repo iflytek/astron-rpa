@@ -108,7 +108,7 @@ watch(() => processStore.activeProcessId, () => {
 
 <template>
   <section class="text-xs bottom-tools bg-[#FFFFFF] dark:bg-[#FFFFFF]/[.12] rounded-lg">
-    <a-tabs v-model:active-key="activeKey" class="text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] right-tab-close-area" size="small" @tab-click="() => expand(false)">
+    <a-tabs v-model:active-key="activeKey" class="right-tab-close-area" size="small" @tab-click="() => expand(false)">
       <template #rightExtra>
         <div class="flex items-center">
           <template v-if="!collapsed">
@@ -117,7 +117,7 @@ watch(() => processStore.activeProcessId, () => {
           <rpa-hint-icon
             v-if="!activeTab.hideCollapsed"
             name="caret-down-small"
-            :title="collapsed ? '展开' : '收起'"
+            :title="collapsed ? $t('common.expand') : $t('common.collapse')"
             class="ml-1"
             :class="[collapsed ? '-rotate-180' : 'rotate-0']"
             enable-hover-bg

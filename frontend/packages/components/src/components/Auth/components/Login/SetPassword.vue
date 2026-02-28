@@ -8,7 +8,7 @@ import FormLayout from '../Base/FormLayout.vue'
 import { useSetPassword } from './hooks/useSetPassword'
 
 const { running, title, inviteInfo } = defineProps({
-  title: { type: String, default: '设置密码' },
+  title: { type: String },
   running: { type: String as () => AsyncAction, default: 'IDLE' },
   inviteInfo: {
     type: Object as () => InviteInfo,
@@ -29,7 +29,7 @@ const { formRef, formData, config, handleEvents } = useSetPassword(inviteInfo, e
 <template>
   <FormLayout
     wrap-class="auth-set-password h-full relative"
-    :title="title || '设置密码'"
+    :title="title || $t('auth.setPassword')"
     show-back
     @back="() => emit('back')"
   >

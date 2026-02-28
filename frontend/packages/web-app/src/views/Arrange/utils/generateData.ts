@@ -1,5 +1,7 @@
 import { cloneDeep, unionWith } from 'lodash-es'
 
+import { isComponentKey } from '@/utils/customComponent'
+
 import { isSmartComponentKey } from '@/components/SmartComponent/utils'
 import type { VARIABLE_TYPE } from '@/constants/atom'
 import { ATOM_FORM_TYPE, LIMIT_VARIABLE_SELECT, OTHER_IN_TYPE, VAR_IN_TYPE } from '@/constants/atom'
@@ -13,7 +15,6 @@ import { Group, GroupEnd, LOOP_END_MAP } from '@/views/Arrange/config/atomKeyMap
 import { pickProcessAndModuleOptions } from '@/views/Arrange/utils'
 
 import { generateName, genNonDuplicateID } from './index'
-import { isComponentKey } from '@/utils/customComponent'
 
 export const exceptionKeys = [
   '__skip_err__',
@@ -236,7 +237,7 @@ export function generateInputMap(key: string, specialRender = false) {
     ...atom,
     alias: key === Group ? generateGroupName() : atom.title,
     id: generateId(key),
-    inputList: isComponentKey(atom.key) || isSmartComponentKey(atom.key)? atom.inputList : generateInItems(atom),
+    inputList: isComponentKey(atom.key) || isSmartComponentKey(atom.key) ? atom.inputList : generateInItems(atom),
     outputList: generateOutItems(atom.outputList),
     advanced: generateAdvancedItems(atom),
     exception: generateExceptionItems(atom),

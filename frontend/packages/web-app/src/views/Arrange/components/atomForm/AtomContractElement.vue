@@ -87,10 +87,10 @@ function addPresetItem(op: string) {
     <div v-if="code !== 2" class="preset">
       <div class="preset-search">
         <div class="preset-search_title">
-          预置要素：
+          {{ $t('presetElements') }}：
         </div>
         <a-dropdown>
-          <a-input v-model:value="searchValue" placeholder="请选择预置要素" />
+          <a-input v-model:value="searchValue" :placeholder="$t('selectPresetElements')" />
           <template #overlay>
             <a-menu v-if="filterOptions.length > 0" class="menuscroll">
               <a-menu-item v-for="op in filterOptions" :key="op" @click="addPresetItem(op)">
@@ -111,10 +111,10 @@ function addPresetItem(op: string) {
     </div>
     <div v-if="code !== 1" class="custom">
       <div class="custom-title">
-        <span>自定义要素：</span>
+        <span>{{ $t('customElements') }}：</span>
         <rpa-hint-icon name="python-package-plus" enable-hover-bg class="text-primary" @click="handleCustomItemAdd">
           <template #suffix>
-            添加自定义要素
+            {{ $t('addCustomElements') }}
           </template>
         </rpa-hint-icon>
       </div>

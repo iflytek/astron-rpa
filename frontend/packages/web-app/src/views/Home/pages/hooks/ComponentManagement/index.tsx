@@ -5,7 +5,7 @@ import { useTranslation } from 'i18next-vue'
 import { computed, h, reactive, ref } from 'vue'
 
 import { getComponentList } from '@/api/project'
-import { type TableOption } from '@/components/NormalTable'
+import type { TableOption } from '@/components/NormalTable'
 
 import OperMenu from '../../../components/OperMenu.vue'
 import StatusCircle from '../../../components/StatusCircle.vue'
@@ -29,7 +29,7 @@ export function useComponentTableOption() {
       key: 'name',
       customRender: ({ record }) => (
         <div class="flex items-center gap-2 overflow-hidden w-full group">
-          <Tooltip title={`ID：${record.componentId}`}>
+          <Tooltip title={t('common.idWithColon', { id: record.componentId })}>
             <span class="truncate flex-1">{ record.name }</span>
           </Tooltip>
           <Tooltip title={t('rename')} class="hidden group-hover:inline">

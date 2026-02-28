@@ -1,18 +1,20 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
 import { computed, ref } from 'vue'
 
 import AgentKeyManage from './AgentKeyManage.vue'
 import ApiKeyManage from './ApiKeyManage.vue'
 
 const activeKey = ref('apiKey')
+const { t } = useTranslation()
 
 const options = computed(() => ([
   {
-    label: '星辰RPA授权管理',
+    label: t('settingCenter.apiKeyManage.rpaAuthManage'),
     value: 'apiKey',
   },
   {
-    label: '星辰Agent授权管理',
+    label: t('settingCenter.apiKeyManage.agentAuthManage'),
     value: 'starAgent',
   },
 ]))

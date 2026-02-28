@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { NiceModal } from "@rpa/components";
-import { Divider, message, Space } from "ant-design-vue";
-import { defineComponent, ref } from "vue";
-import { useAsyncState } from "@vueuse/core";
+import { NiceModal } from '@rpa/components'
+import { useAsyncState } from '@vueuse/core'
+import { Divider, message, Space } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
+import { defineComponent, ref } from 'vue'
 
-import { deployApp, unDeployUserList } from "@/api/market";
+import { deployApp, unDeployUserList } from '@/api/market'
 
-import type { cardAppItem } from "../../types/market";
+import type { cardAppItem } from '../../types/market'
 
-import DeployedAccountsTable from "./DeployedAccountsTable.vue";
+import DeployedAccountsTable from './DeployedAccountsTable.vue'
 
-const props = defineProps<{ record: cardAppItem }>();
+const props = defineProps<{ record: cardAppItem }>()
 
-const modal = NiceModal.useModal();
+const modal = NiceModal.useModal()
+const { t } = useTranslation()
 
-const confirmLoading = ref(false);
-const searchText = ref("");
-const userIds = ref([]);
-const isAll = ref(false);
+const confirmLoading = ref(false)
+const searchText = ref('')
+const userIds = ref([])
+const isAll = ref(false)
 
 const VNodes = defineComponent({
   props: {
@@ -27,9 +29,9 @@ const VNodes = defineComponent({
     },
   },
   render() {
-    return this.vnodes;
+    return this.vnodes
   },
-});
+})
 
 const { state: accountsOptions, execute: getMembersByTeam } = useAsyncState(
   () =>
@@ -38,58 +40,58 @@ const { state: accountsOptions, execute: getMembersByTeam } = useAsyncState(
       appId: props.record.appId,
       phone: searchText.value,
     }).then((data = []) =>
-      data.map((i) => ({
-        name: `${i.realName || "--"}(${i.phone || "--"})`,
+      data.map(i => ({
+        name: `${i.realName || '--'}(${i.phone || '--'})`,
         userId: i.creatorId,
       })),
     ),
   [],
   { resetOnExecute: false },
-);
+)
 
 async function handleOk() {
   if (userIds.value.length === 0) {
-    message.warning("请选择账号");
-    return;
+    message.warning(t('common.selectAccount'))
+    return
   }
 
-  confirmLoading.value = true;
-  const { marketId, appId, appName } = props.record;
-  await deployApp({ marketId, appId, appName, userIdList: userIds.value });
-  confirmLoading.value = false;
+  confirmLoading.value = true
+  const { marketId, appId, appName } = props.record
+  await deployApp({ marketId, appId, appName, userIdList: userIds.value })
+  confirmLoading.value = false
 
-  message.success("部署成功");
-  modal.hide();
+  message.success(t('common.deploySuccess'))
+  modal.hide()
 }
 
 function handleChange() {
-  userIds.value = [];
+  userIds.value = []
   if (isAll.value) {
     userIds.value = accountsOptions.value
-      .filter((i) =>
+      .filter(i =>
         i.name.toLowerCase().includes(searchText.value.toLowerCase()),
       )
-      .map((i) => i.userId);
+      .map(i => i.userId)
   }
 }
 function handleSelectChange(value: string) {
-  console.log("value", value);
+  console.log('value', value)
   if (userIds.value.length === 0) {
-    isAll.value = false;
+    isAll.value = false
   }
 }
 function handleSearch(value: string) {
-  searchText.value = value;
-  getMembersByTeam();
+  searchText.value = value
+  getMembersByTeam()
 }
 </script>
 
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="部署应用"
+    :title="$t('market.deployApp')"
     :confirm-loading="confirmLoading"
-    ok-text="确认部署"
+    :ok-text="$t('market.confirmDeploy')"
     :width="600"
     centered
     @ok="handleOk"
@@ -97,10 +99,12 @@ function handleSearch(value: string) {
     <div class="deploy-robot-modal">
       <DeployedAccountsTable :allow-select="false" :record="props.record" />
       <div class="select-user">
-        <div class="title">新增账号</div>
+        <div class="title">
+          {{ $t('market.addAccount') }}
+        </div>
         <a-select
           v-model:value="userIds"
-          placeholder="请输入新增账号"
+          :placeholder="$t('market.enterAddAccount')"
           mode="multiple"
           allow-clear
           auto-clear-search-value
@@ -118,7 +122,7 @@ function handleSearch(value: string) {
             <Divider style="margin: 4px 0" />
             <Space style="padding: 4px 8px">
               <a-checkbox v-model:checked="isAll" @change="handleChange">
-                全选
+                {{ $t('selectAll') }}
               </a-checkbox>
             </Space>
           </template>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { ref } from 'vue'
 
 import { checkComponentName, createComponent as createComponentApi, getDefaultComponentName } from '@/api/project'
 import { ARRANGE } from '@/constants/menu'

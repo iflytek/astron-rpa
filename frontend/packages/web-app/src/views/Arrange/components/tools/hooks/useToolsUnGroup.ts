@@ -1,5 +1,7 @@
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { useFlowStore } from '@/stores/useFlowStore'
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
 import { ungroup } from '@/views/Arrange/components/flow/hooks/useFlow'
@@ -32,7 +34,7 @@ export function useToolsUnGroup() {
       const atomIds = useFlowStore().multiSelect ? useFlowStore().selectedAtomIds : getSelected()
       const groupIds = atomIds.filter((i: any) => i.startsWith('group'))
       if (groupIds.length === 0) {
-        return message.warning('请先选择一个分组，再释放分组')
+        return message.warning(i18next.t('arrange.selectGroupFirst'))
       }
       recursiveUnGroup(groupIds)
     },

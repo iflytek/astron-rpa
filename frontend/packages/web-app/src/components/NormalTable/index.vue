@@ -1,10 +1,11 @@
 <script lang="tsx">
 import { useElementSize } from '@vueuse/core'
 import { Empty, Pagination, Table } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
-import { isEmpty, isBoolean } from 'lodash-es'
-import { computed, onMounted, reactive, ref, useTemplateRef, SlotsType } from 'vue'
 import { to } from 'await-to-js'
+import { useTranslation } from 'i18next-vue'
+import { isBoolean, isEmpty } from 'lodash-es'
+import type { SlotsType } from 'vue'
+import { computed, onMounted, reactive, ref, useTemplateRef } from 'vue'
 
 import type { TableOption } from '@/types/normalTable'
 
@@ -41,7 +42,6 @@ function getItemsOnPage(total: number, pageSize: number, page: number) {
 
 export default {
   name: 'NormalTable',
-  slots: Object as SlotsType<{ default: any, headerPrefix: any }>,
   props: {
     option: {
       type: Object as () => TableOption,
@@ -53,6 +53,7 @@ export default {
       },
     },
   },
+  slots: Object as SlotsType<{ default: any, headerPrefix: any }>,
   setup(props, { expose, slots }) {
     const { t } = useTranslation()
     /**
@@ -126,7 +127,7 @@ export default {
 
       fetchTableData()
     }
-    
+
     function onShowSizeChange(_, size) {
       pageOption.value.pageSize = size
     }
@@ -227,12 +228,12 @@ export default {
 
     const refreshWithDelete = (count: number = 1) => {
       // 如果是删除查询，需要将总数减 count，并且修正 pageNum
-      const newTotal = pageOption.value.total - count;
-      const oldPageNum = pageOption.value.current;
-      const newTotalPages = Math.ceil(newTotal / pageOption.value.pageSize);
+      const newTotal = pageOption.value.total - count
+      const oldPageNum = pageOption.value.current
+      const newTotalPages = Math.ceil(newTotal / pageOption.value.pageSize)
 
       if (oldPageNum > newTotalPages) {
-        pageOption.value.current = Math.max(1, newTotalPages);
+        pageOption.value.current = Math.max(1, newTotalPages)
       }
 
       fetchTableData()

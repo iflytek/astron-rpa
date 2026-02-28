@@ -12,13 +12,13 @@ const menus = [
   {
     key: 'createChildProcess',
     icon: 'create-process',
-    name: '新建流程',
+    name: 'newProcess',
     fn: () => processModal.show({ type: 'process' }),
   },
   {
     key: 'createPyCode',
     icon: 'create-python-process',
-    name: '新建Python',
+    name: 'newPythonModule',
     fn: () => processModal.show({ type: 'module' }),
   },
 ]
@@ -32,7 +32,7 @@ const [sidebarWide, toggleSidebarWide] = useToggle(false)
     :class="[sidebarWide ? 'w-[620px]' : 'w-80']"
   >
     <section class="flex items-center mb-[18px]">
-      <span class="flex-1 mr-3 text-[16px] font-semibold leading-[22px]">流程管理</span>
+      <span class="flex-1 mr-3 text-[16px] font-semibold leading-[22px]">{{ $t('processManagement') }}</span>
       <rpa-hint-icon
         v-for="item in menus"
         :key="item.key"
@@ -42,12 +42,12 @@ const [sidebarWide, toggleSidebarWide] = useToggle(false)
         @click="item.fn"
       >
         <template #suffix>
-          <span class="new-process ml-1">{{ item.name }}</span>
+          <span class="new-process ml-1">{{ $t(item.name) }}</span>
         </template>
       </rpa-hint-icon>
       <rpa-hint-icon
         :name="sidebarWide ? 'sidebar-wide' : 'sidebar-narrow'"
-        :title="sidebarWide ? '切换到窄版' : '切换到宽版'"
+        :title="sidebarWide ? $t('switchToNarrow') : $t('switchToWide')"
         enable-hover-bg
         width="16px"
         height="16px"

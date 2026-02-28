@@ -2,6 +2,8 @@ import { message } from 'ant-design-vue'
 import { isUndefined, last } from 'lodash-es'
 import { nextTick } from 'vue'
 
+import i18next from '@/plugins/i18next'
+
 import { recordAtomUsage } from '@/utils/atomHistory'
 import BUS from '@/utils/eventBus'
 
@@ -86,7 +88,7 @@ export function group(atomIds: string[]) {
   }
   let idxList = allIds.map(i => useFlowStore().simpleFlowUIData.findIndex(ui => ui.id === i))
   if (!isContinuous(idxList)) {
-    message.error('所选节点不连续')
+    message.error(i18next.t('arrange.nodesNotContinuous'))
     return false
   }
   idxList = idxList.sort((a, b) => a - b)
@@ -104,7 +106,7 @@ function validateAndDeleteNodes(atomIds: string[], isCut: boolean = false) {
   const errors = validateSelectedNodes(atomIds)
 
   if (errors.includes(ERR_PARENT_NOT_CONTAINS_ALL_CHILD)) {
-    message.warning('所选原子能力中存在未选择的子级，不可操作')
+    message.warning(i18next.t('arrange.hasUnselectedChildNodes'))
     return false
   }
 
@@ -150,7 +152,7 @@ export function toggleBreakPoint(atomIds: string[], flag: boolean) {
   atomIds.forEach((i) => {
     const findIdx = flowUIData.findIndex(ui => ui.id === i)
     if (DISABLED_BREAKPOINT_TYPE.includes(flowUIData[findIdx]?.key)) {
-      return message.warning('该节点不可添加/移除断点')
+      return message.warning(i18next.t('arrange.breakpointNotAllowed'))
     }
     flowUIData[findIdx].breakpoint = flag
     docStore.updateProcessNode([findIdx], [flowUIData[findIdx]])

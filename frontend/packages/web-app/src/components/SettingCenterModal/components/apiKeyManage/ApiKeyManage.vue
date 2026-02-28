@@ -9,7 +9,8 @@ import { h, reactive, ref } from 'vue'
 
 import { deleteAPI, getApis } from '@/api/setting'
 import GlobalModal from '@/components/GlobalModal'
-import { NormalTable, type TableOption } from '@/components/NormalTable'
+import { NormalTable } from '@/components/NormalTable'
+import type { TableOption } from '@/components/NormalTable'
 
 import { NewApiModal } from './modals'
 

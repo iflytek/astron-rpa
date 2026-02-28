@@ -1,5 +1,6 @@
 import { createInjectionState, reactiveComputed, useToggle } from '@vueuse/core'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { find, isEmpty } from 'lodash-es'
 import { ref, shallowRef, watch } from 'vue'
 
@@ -13,6 +14,7 @@ import Manager from './Manager.vue'
 import RightExtra from './RightExtra.vue'
 
 const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() => {
+  const { t } = useTranslation()
   const processStore = useProcessStore()
   const searchText = ref('')
 
@@ -60,7 +62,7 @@ const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() 
 
     quotedData.value = { name: findQuotedRow.varName, items }
     if (!row) {
-      message.success('刷新成功')
+      message.success(t('common.refreshSuccess'))
     }
     toggleQuoted(true)
   }

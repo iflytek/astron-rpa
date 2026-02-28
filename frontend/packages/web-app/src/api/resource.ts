@@ -2,8 +2,8 @@ import type { FlowItem } from '@/views/Arrange/types/flow'
 
 import type { RequestConfig } from './http'
 import http from './http'
-import { sseRequest } from './sse'
 import { getBaseURL } from './http/env'
+import { sseRequest } from './sse'
 
 // 流程执行
 export function flowRun(data) {
