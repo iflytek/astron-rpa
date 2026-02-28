@@ -95,8 +95,8 @@ def get_files_in_folder(folder_path: str = "", general=False) -> list:
             files = [f for f in files if not f.startswith(".") and not f.startswith("~$")]
         return files
     except Exception:
-        from astronverse.system.error import BizException, ERROR_FORMAT
-        raise BizException(ERROR_FORMAT.format(f"获取文件夹下文件列表失败，文件夹路径：{folder_path}"), f"获取文件夹下文件列表失败，文件夹路径：{folder_path}")
+        from astronverse.system.error import BizException, FILE_LIST_ERROR
+        raise BizException(FILE_LIST_ERROR, f"获取文件夹下文件列表失败，文件夹路径：{folder_path}")
 
 
 def file_is_exists(file_path: str = "") -> bool:

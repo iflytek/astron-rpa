@@ -18,7 +18,7 @@ from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
 from pywin.mfc.object import Object
-from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT, ERROR_FORMAT
+from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT, MSAA_SIMILAR_NOT_SUPPORTED_ERROR
 
 # 加载 MSAA 相关的 COM 类型库
 try:
@@ -665,7 +665,7 @@ class MSAAPicker:
     @classmethod
     def get_similar_path(cls, strategy_svc, curr_path):
         """用户给定两个相似元素"""
-        raise BizException(ERROR_FORMAT.format("msaa暂不支持相似元素"), "msaa暂不支持相似元素")
+        raise BizException(MSAA_SIMILAR_NOT_SUPPORTED_ERROR, "msaa暂不支持相似元素")
 
     @classmethod
     def get_element(cls, point: Point, pid, **kwargs):

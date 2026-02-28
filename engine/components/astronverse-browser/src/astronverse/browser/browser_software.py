@@ -380,7 +380,7 @@ class BrowserSoftware:
         """
         if timeout < 0:
             raise BizException(
-                PARAMETER_INVALID_FORMAT.format(timeout),
+                PARAMETER_INVALID_FORMAT.format("timeout"),
                 f"等待时间不能小于0！{timeout}",
             )
 

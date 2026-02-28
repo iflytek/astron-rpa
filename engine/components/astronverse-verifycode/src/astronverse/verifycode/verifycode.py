@@ -49,7 +49,7 @@ class VerifyCode:
         code_result = VerifyCodeCore.get_api_result(api_type=code_type.value, pic_element_base64=image_base64)
         logger.info("验证码返回值: {}".format(code_result))
         if not code_result:
-            raise BizException(MSG_EMPTY_FORMAT, "")
+            raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         if input_flag:
             BrowserElement.input(browser_obj=browser_obj, element_data=input_box, fill_input=code_result)
@@ -99,11 +99,11 @@ class VerifyCode:
         drag_distance = drag_distance + offset
         logger.info("加入偏移量之后的移动量: {}".format(drag_distance))
         if not drag_distance:
-            raise BizException(MSG_EMPTY_FORMAT, "")
+            raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         if isinstance(slider_element.rect(), list):
-            raise BizException(ERROR_FORMAT.format("浏览器元素定位不唯一，请检查！"), "浏览器元素定位不唯一，请检查！")
+            raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
         start_pos = slider_element.point()
         if not unmatched_flag:
             end_pos = (start_pos.x + drag_distance, start_pos.y)
@@ -155,7 +155,7 @@ class VerifyCode:
         )
         logger.info("验证码返回值: {}".format(click_result))
         if not click_result:
-            raise BizException(MSG_EMPTY_FORMAT, "")
+            raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
         click_positions = click_result.split("|")
         click_positions = [tuple(map(int, pos.split(","))) for pos in click_positions]
 

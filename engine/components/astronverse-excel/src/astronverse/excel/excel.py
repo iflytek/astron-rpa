@@ -9,9 +9,7 @@ from astronverse.excel.error import (
     EXCEL_ERROR_FORMAT,
     EXCEL_NOT_FOUND,
     FILE_PATH_ERROR,
-    FORMAT_ERROR_FORMAT,
     PARAM_ERROR_FORMAT,
-    SHEET_ERROR_FORMAT,
     LIST_FORMAT_ERROR,
     CONTENT_LIST_FORMAT_ERROR,
     INSERT_CONTENT_LIST_FORMAT_ERROR,
@@ -110,9 +108,9 @@ class Excel:
         if len(res) == 1:
             return res[0]
         elif len(res) == 2:
-            raise BizException(EXCEL_ERROR_FORMAT.format(f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个"), f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个")
+            raise BizException(EXCEL_ERROR_FORMAT.format(file_name), f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个")
         else:
-            raise BizException(EXCEL_ERROR_FORMAT.format(f"不存在已打开的Excel文件:{file_name}"), f"不存在已打开的Excel文件:{file_name}")
+            raise BizException(EXCEL_ERROR_FORMAT.format(file_name), f"不存在已打开的Excel文件:{file_name}")
 
     @staticmethod
     @atomicMg.atomic(
@@ -1347,7 +1345,7 @@ class Excel:
         elif select_type == SearchRangeType.ALL:
             data_region = "{}{}:{}{}".format("A", "1", r_end_col_letter, r_end_row)
         else:
-            raise BizException(PARAM_ERROR_FORMAT.format(f"不支持的操作类型：{select_type}"), f"不支持的操作类型：{select_type}")
+            raise BizException(PARAM_ERROR_FORMAT.format(select_type), f"不支持的操作类型：{select_type}")
 
         content = Range.get_range_data(Worksheet.get_range(worksheet, data_region), True if real_text else False)
         if content:

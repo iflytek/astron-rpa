@@ -3,7 +3,7 @@ import winreg
 
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
-from astronverse.browser_plugin.error import BizException, FILE_NOT_FOUND
+from astronverse.browser_plugin.error import BizException, CHROME_NOT_FOUND
 from astronverse.browser_plugin.utils import (
     Registry,
     check_chrome_plugin,
@@ -47,7 +47,7 @@ class ChromePluginManager(PluginManagerCore):
                 value, _ = winreg.QueryValueEx(key, "")
                 return value
             except FileNotFoundError:
-                raise BizException(FILE_NOT_FOUND.format("Chrome"), "Chrome 未安装或注册表项未找到")
+                raise BizException(CHROME_NOT_FOUND, "Chrome 未安装或注册表项未找到")
 
     def check_browser(self):
         browser_registry = Registry.exist(self.browser_path)

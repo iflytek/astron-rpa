@@ -70,7 +70,7 @@ class Flow:
         # 2. 生成流程相关数据
         process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
         if len(process_list) == 0:
-            raise BizException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
+            raise BizException(PROCESS_ACCESS_ERROR_FORMAT.format(project_id), "工程数据异常 {}".format(project_id))
 
         process_index = 1
         module_index = 1

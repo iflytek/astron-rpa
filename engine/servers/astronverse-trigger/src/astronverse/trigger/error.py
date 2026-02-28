@@ -3,10 +3,6 @@ from astronverse.baseline.i18n.i18n import _
 
 BizException = BizException
 
-# 通用错误
-ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("错误: {}"))
-PARAM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数错误: {}"))
-
 # 任务相关错误
 TASK_TYPE_NOT_SUPPORTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("不支持的任务类型"))
 TASK_NOT_IMPLEMENTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("任务类型未实现"))
@@ -21,3 +17,13 @@ FREQUENCY_NOT_IMPLEMENTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("频率类�
 
 # 网关相关错误
 GATEWAY_LIST_TRIGGER_FAILED: ErrorCode = ErrorCode(BizCode.LocalErr, _("获取任务列表失败"))
+
+# 初始化相关错误
+TRIGGER_INIT_ORDER_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("trigger必须在其他组件之前初始化"))
+
+# 参数验证相关错误
+MINUTE_INVALID: ErrorCode = ErrorCode(BizCode.LocalErr, _("分钟值无效，必须在0-59之间"))
+HOUR_INVALID: ErrorCode = ErrorCode(BizCode.LocalErr, _("小时值无效，必须在0-23之间"))
+WEEK_INVALID: ErrorCode = ErrorCode(BizCode.LocalErr, _("星期值无效，必须在0-6之间"))
+MONTH_INVALID: ErrorCode = ErrorCode(BizCode.LocalErr, _("月份值无效，必须在1-12之间"))
+TIME_PARAMS_REQUIRED: ErrorCode = ErrorCode(BizCode.LocalErr, _("时间参数不完整"))

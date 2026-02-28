@@ -1,5 +1,5 @@
 from astronverse.browser_plugin import BrowserType, PluginData, PluginManager, PluginManagerCore
-from astronverse.browser_plugin.error import BizException, UNSUPPORTED_BROWSER
+from astronverse.browser_plugin.error import BizException, UNSUPPORTED_BROWSER_FORMAT
 from astronverse.browser_plugin.unix.chromium import ChromiumPluginManager
 from astronverse.browser_plugin.unix.firefox import FirefoxPluginManager
 
@@ -30,4 +30,4 @@ class BrowserPluginFactory(PluginManager):
                 plugin_data, root_path="/opt/browser360", browser_name="browser360-cn", process_name="browser360"
             )
         else:
-            raise BizException(UNSUPPORTED_BROWSER.format(browser_type), f"不支持的浏览器类型: {browser_type}")
+            raise BizException(UNSUPPORTED_BROWSER_FORMAT.format(browser_type), f"不支持的浏览器类型: {browser_type}")

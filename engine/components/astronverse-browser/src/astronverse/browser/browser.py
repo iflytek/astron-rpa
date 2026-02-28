@@ -90,10 +90,10 @@ class Browser:
                 BROWSER_EXTENSION_ERROR_FORMAT.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         if res_data.get("data").get("code") == "5002":
-            raise BizException(WEB_GET_ELE_ERROR.format(res_data.get("data").get("msg")), "网页元素未找到")
+            raise BizException(WEB_GET_ELE_ERROR_FORMAT.format(res_data.get("data").get("msg")), "网页元素未找到")
         if res_data.get("data").get("code") == "5003":
             raise BizException(
-                WEB_EXEC_ELE_ERROR.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
+                WEB_EXEC_ELE_ERROR_FORMAT.format(res_data.get("data").get("msg")), res_data.get("data").get("msg")
             )
         if res_data.get("data").get("code") == "5004":
             raise BizException(

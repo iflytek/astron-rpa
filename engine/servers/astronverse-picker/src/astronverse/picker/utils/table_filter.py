@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 from astronverse.picker.logger import logger
-from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT
+from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT, CONDITION_ERROR, COLUMN_DATA_MISSING_PARAM_FORMAT
 
 
 def parse_datetime(date_string):
@@ -276,7 +276,7 @@ class DataFilter:
                 if isinstance(parameter, list):
                     filter_logic_str = f"({filter_col_str} >= '{parameter[0]}')&({filter_col_str} <= '{parameter[1]}')"
                 else:
-                    raise BizException(PARAM_ERROR_FORMAT.format("条件异常，请输入正确的条件！"), "条件异常，请输入正确的条件！")
+                    raise BizException(CONDITION_ERROR, "条件异常，请输入正确的条件！")
         elif logical == "regular":
             filter_logic_str = f'{filter_col_str}.astype(str).str.contains(r"{parameter}", regex=True)'
         elif logical == "enumerate":
@@ -285,7 +285,7 @@ class DataFilter:
             if isinstance(parameter, list):
                 filter_logic_str = f"{filter_col_str}.isin({parameter})"
             else:
-                raise BizException(PARAM_ERROR_FORMAT.format("条件异常，请输入正确的条件！"), "条件异常，请输入正确的条件！")
+                raise BizException(CONDITION_ERROR, "条件异常，请输入正确的条件！")
         else:
             filter_logic_str = None
 
@@ -382,7 +382,7 @@ class DataFilter:
                         "Regular",
                     ]:
                         if not parameters:
-                            raise BizException(PARAM_ERROR_FORMAT.format(f"第{index + 1}列数据处理缺少参数"), f"第{index + 1}列数据处理缺少参数")
+                            raise BizException(COLUMN_DATA_MISSING_PARAM_FORMAT.format(index + 1), f"第{index + 1}列数据处理缺少参数")
                     try:
                         if process_type == "Trim":
                             self.trim(index, parameters)

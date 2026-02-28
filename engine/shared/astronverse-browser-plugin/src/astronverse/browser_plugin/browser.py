@@ -2,7 +2,7 @@ import os
 import sys
 
 from astronverse.browser_plugin import BrowserType, PluginData
-from astronverse.browser_plugin.error import BizException, PLUGIN_NOT_FOUND, UNSUPPORTED_PLATFORM
+from astronverse.browser_plugin.error import BizException, PLUGIN_NOT_FOUND, UNSUPPORTED_PLATFORM_FORMAT
 from astronverse.browser_plugin.utils import parse_filename_regex
 
 if sys.platform == "win32":
@@ -10,7 +10,7 @@ if sys.platform == "win32":
 elif sys.platform == "linux":
     from astronverse.browser_plugin.unix import BrowserPluginFactory
 else:
-    raise BizException(UNSUPPORTED_PLATFORM.format(sys.platform), f"不支持的平台: {sys.platform}")
+    raise BizException(UNSUPPORTED_PLATFORM_FORMAT.format(sys.platform), f"不支持的平台: {sys.platform}")
 
 
 class ExtensionManager:
