@@ -2,7 +2,7 @@ import os
 import time
 from typing import Any
 from astronverse.browser import BROWSER_UIA_WINDOW_CLASS, BROWSER_REGISTER_NAME, BROWSER_UIA_POINT_CLASS
-from astronverse.browser.error import DOWNLOAD_WINDOW_NO_FIND, UPLOAD_WINDOW_NO_FIND
+from astronverse.browser.error import DOWNLOAD_WINDOW_NO_FIND, UPLOAD_WINDOW_NO_FIND, BizException, DOWNLOAD_TIMEOUT
 
 
 class BrowserCore:
@@ -170,7 +170,7 @@ class BrowserCore:
                         break
                     time.sleep(3)
                 if wait_time_download <= 0 and not os.path.exists(dest_path):
-                    raise Exception("等待下载完成超时")
+                    raise BizException(DOWNLOAD_TIMEOUT, "等待下载完成超时")
         return dest_path
 
     @staticmethod

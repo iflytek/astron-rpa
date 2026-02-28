@@ -180,7 +180,7 @@ class OpenpyxlWrapper:
         elif col_index:
             return [cell.value for cell in self.sheet[get_column_letter(col_index)]]
         else:
-            raise ValueError("Either column name or column index must be provided.")
+            raise BizException(COL_PARAM_ERROR, "必须提供列名或列索引")
 
     def read_range(self, range_str: str) -> list:
         """

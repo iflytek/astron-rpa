@@ -6,6 +6,7 @@ import time
 from typing import Any, Dict
 
 from astronverse.browser_bridge import BROWSER_REGISTER_NAME
+from astronverse.browser_bridge.error import BizException, INVALID_BROWSER_TYPE, UNSUPPORTED_PLATFORM
 
 DEFAULT_NATIVE_TIMEOUT = 60
 MAX_RESPONSE_LEN = 2 * 1024 * 1024  # 2MB
@@ -54,10 +55,10 @@ class NativeMessagingClient:
         timeout: float = DEFAULT_NATIVE_TIMEOUT,
     ) -> Dict[str, Any]:
         if not sys.platform.startswith("win"):
-            raise RuntimeError("native messaging only supported on Windows")
+            raise BizException(UNSUPPORTED_PLATFORM, "native messaging 仅支持 Windows 平台")
         ipc_key = NativeMessagingClient._build_ipc_key(browser_type)
         if not ipc_key:
-            raise ValueError(f"invalid browser_type for native messaging: {browser_type!r}")
+            raise BizException(INVALID_BROWSER_TYPE.format(browser_type), f"无效的浏览器类型: {browser_type}")
         pipe_name = r"\\.\pipe\{}".format(ipc_key)
         payload = {"type": key, "data": data}
         message = json.dumps(payload, ensure_ascii=False) + "\n"

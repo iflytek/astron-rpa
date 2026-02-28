@@ -4,6 +4,7 @@ import time
 
 import cv2
 import numpy as np
+from astronverse.vision.error import BizException, ERROR_FORMAT
 
 
 class ImageDetector:
@@ -329,12 +330,12 @@ class ImageDetector:
 
         else:
             if save_path is None:
-                raise ValueError("必须提供 save_path 参数以保存图像。")
+                raise BizException(ERROR_FORMAT.format("必须提供 save_path 参数以保存图像。"), "必须提供 save_path 参数以保存图像。")
 
             if not os.path.isdir(os.path.dirname(save_path)):
-                raise Exception(f"错误：路径 '{save_path}' 无效或不存在。")
+                raise BizException(ERROR_FORMAT.format(f"路径 '{save_path}' 无效或不存在。"), f"路径 '{save_path}' 无效或不存在。")
 
             try:
                 cv2.imwrite(save_path, self.original_img)
             except Exception as e:
-                raise Exception(f"保存图像时发生错误：{e}")
+                raise BizException(ERROR_FORMAT.format(f"保存图像时发生错误：{e}"), f"保存图像时发生错误：{e}")

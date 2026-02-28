@@ -11,7 +11,7 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsIt
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import LLMModelTypes
 from astronverse.ai.api.llm import DEFAULT_MODEL, chat_normal, chat_streamable
-from astronverse.ai.error import *
+from astronverse.ai.error import BizException, ERROR_FORMAT, UNSUPPORTED_FILE_TYPE_ERROR
 from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
@@ -140,7 +140,7 @@ class ChatAI:
 
         done.wait()
         if res_e:
-            raise Exception(res_e)
+            raise BizException(ERROR_FORMAT.format(res_e), str(res_e))
 
         return res
 
@@ -154,7 +154,10 @@ class ChatAI:
         elif "docx" in extension.lower():
             return FileExtractor.extract_docx(file_path)
         else:
-            raise NotImplementedError(f"Not support file type：{extension}")
+            raise BizException(
+                UNSUPPORTED_FILE_TYPE_ERROR.format(extension),
+                f"Not support file type：{extension}"
+            )
 
     @staticmethod
     def _generate_questions(file_content: str) -> list:
@@ -262,7 +265,7 @@ class ChatAI:
             os.remove(dest_file)
 
         if res_e:
-            raise Exception(res_e)
+            raise BizException(ERROR_FORMAT.format(res_e), str(res_e))
         return res
 
     @staticmethod

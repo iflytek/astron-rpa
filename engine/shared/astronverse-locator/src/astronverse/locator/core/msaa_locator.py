@@ -15,6 +15,7 @@ from astronverse.baseline.logger.logger import logger
 from astronverse.locator import ILocator, Rect
 from astronverse.locator.core.uia_locator import uia_factory
 from astronverse.locator.utils.match import MatchType, match_value
+from astronverse.locator.error import BizException, PARAM_ERROR
 
 # 加载MSAA相关库
 comtypes.client.GetModule("oleacc.dll")
@@ -115,7 +116,7 @@ class MSAAElement:
 
     def __init__(self, IAccessible, iObjectId):
         if not isinstance(iObjectId, int):
-            raise TypeError("iObjectId必须是整数类型")
+            raise BizException(PARAM_ERROR.format("iObjectId必须是整数类型"), "iObjectId必须是整数类型")
         self.IAccessible = IAccessible
         self.iObjectId = iObjectId
         self.dictCache = {}

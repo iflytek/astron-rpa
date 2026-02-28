@@ -1,4 +1,5 @@
 from astronverse.browser_plugin import BrowserType, PluginData, PluginManager, PluginManagerCore
+from astronverse.browser_plugin.error import BizException, UNSUPPORTED_BROWSER
 from astronverse.browser_plugin.win.browser_360 import Browser360PluginManager
 from astronverse.browser_plugin.win.browser_360x import Browser360XPluginManager
 from astronverse.browser_plugin.win.chrome import ChromePluginManager
@@ -30,4 +31,4 @@ class BrowserPluginFactory(PluginManager):
         elif browser_type == BrowserType.BROWSER_360X:
             return Browser360XPluginManager(plugin_data)
         else:
-            raise ValueError(f"Unsupported browser type: {browser_type}")
+            raise BizException(UNSUPPORTED_BROWSER.format(browser_type), f"不支持的浏览器类型: {browser_type}")

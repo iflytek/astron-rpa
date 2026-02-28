@@ -2,6 +2,7 @@ import os
 from collections.abc import Generator
 from typing import Any
 
+from astronverse.scheduler.error import BizException, FILE_NOT_FOUND
 from astronverse.scheduler.logger import logger
 from openpyxl import Workbook, load_workbook
 
@@ -83,7 +84,7 @@ class ExcelService:
         file_path = self.get_file_path(filename)
 
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Excel file not found: {file_path}")
+            raise BizException(FILE_NOT_FOUND.format(file_path), f"Excel file not found: {file_path}")
 
         wb = load_workbook(file_path, read_only=True, data_only=True)
 
@@ -140,7 +141,7 @@ class ExcelService:
         file_path = self.get_file_path(filename)
 
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Excel file not found: {file_path}")
+            raise BizException(FILE_NOT_FOUND.format(file_path), f"Excel file not found: {file_path}")
 
         wb = load_workbook(file_path, read_only=True, data_only=False)
 
@@ -229,7 +230,7 @@ class ExcelService:
         file_path = self.get_file_path(filename)
 
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Excel file not found: {file_path}")
+            raise BizException(FILE_NOT_FOUND.format(file_path), f"Excel file not found: {file_path}")
 
         wb = load_workbook(file_path)
 

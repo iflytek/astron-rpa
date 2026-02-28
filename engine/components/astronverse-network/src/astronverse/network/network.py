@@ -135,7 +135,7 @@ class Network:
                     f.write(response_str)
                 return save_path
             except Exception as e:
-                raise ValueError("文件写入失败，请检查文件类型是否正确")
+                raise BizException(FILE_WRITE_ERROR, "文件写入失败，请检查文件类型是否正确")
         else:
             return http_response
 

@@ -6,6 +6,7 @@ from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.datatable.excel_service import ExcelService
 from astronverse.scheduler.core.datatable.file_watcher import AsyncFileWatcher
 from astronverse.scheduler.core.svc import Svc, get_svc
+from astronverse.scheduler.error import BizException, FILE_NOT_FOUND
 from astronverse.scheduler.logger import logger
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -153,7 +154,7 @@ async def datatable_stream(project_id: str, filename: str, svc: Svc = Depends(ge
 
             # 2. 检查文件是否存在，不存在则抛出错误
             if not excel_service.file_exists(filename):
-                raise FileNotFoundError(f"File not found: {filename}")
+                raise BizException(FILE_NOT_FOUND.format(filename), f"File not found: {filename}")
 
             # # 3. 流式读取 Excel 数据
             # for row_data in excel_service.read_file_stream(filename):
@@ -168,7 +169,7 @@ async def datatable_stream(project_id: str, filename: str, svc: Svc = Depends(ge
             async for event in watcher.start():
                 yield format_sse_event(event["type"], event)
 
-        except FileNotFoundError as e:
+        except (FileNotFoundError, BizException) as e:
             logger.error(f"File not found: {e}")
             yield format_sse_event("error", {"message": str(e)})
         except Exception as e:

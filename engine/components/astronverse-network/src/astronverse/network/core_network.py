@@ -2,6 +2,7 @@ import json
 import os
 
 import requests
+from astronverse.network.error import BizException, HTTP_REQUEST_ERROR_FORMAT
 from astronverse.network.utils import is_json
 
 
@@ -44,7 +45,7 @@ class NetworkCore:
             )
             return res.text
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def get_request(url: str = "", header: str = "", timeout: int = 60):
@@ -54,7 +55,7 @@ class NetworkCore:
             response = requests.get(url=url, headers=headers, timeout=timeout)
             return response.text
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def connect_request(url: str = "", header: str = "", timeout: int = 60):
@@ -75,7 +76,7 @@ class NetworkCore:
 
                 return response.text
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def head_request(url: str, header: str = "", timeout: int = 60):
@@ -92,7 +93,7 @@ class NetworkCore:
             # 返回响应头
             return response.headers
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def put_request(url: str = "", header: str = "", body: str = "", timeout: int = 60):
@@ -112,7 +113,7 @@ class NetworkCore:
             res = requests.put(url=url, headers=header_dict, data=body, json=json_body, timeout=timeout)
             return res.text
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def delete_request(url: str, header: str = "", timeout: int = 60):
@@ -129,7 +130,7 @@ class NetworkCore:
             # 返回响应状态码和内容
             return response.text
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def options_request(url: str, header: str = "", timeout: int = 60):
@@ -146,7 +147,7 @@ class NetworkCore:
             # 返回支持的请求方法和其他相关信息
             return response.headers.get("Allow")
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def trace_request(url: str, header: str = "", timeout: int = 60):
@@ -161,7 +162,7 @@ class NetworkCore:
             response = requests.request("TRACE", url, headers=headers, timeout=timeout)
             return response.text
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def patch_request(url: str = "", header: str = "", body: str = "", timeout: int = 60):
@@ -182,7 +183,7 @@ class NetworkCore:
             response = requests.patch(url, data=body, headers=headers, json=json_body, timeout=timeout)
             return response.json()
         except requests.RequestException as e:
-            raise Exception(f"Request failed: {e}")
+            raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
     def http_download(url: str = "", dst_path: str = ""):

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from functools import wraps
 
 from astronverse.pdf import FileExistenceType, PictureType
+from astronverse.pdf.error import BizException, FILE_PATH_ERROR_FORMAT, PDF_PAGE_ERROR_FORMAT
 from docx import Document
 
 
@@ -17,10 +18,10 @@ class IPDFCore(ABC):
 
                 # 如果参数值不存在，抛出异常
                 if path is None or not os.path.exists(path):
-                    raise ValueError(f"{param_name} 路径不存在")
+                    raise BizException(FILE_PATH_ERROR_FORMAT.format(param_name), f"{param_name} 路径不存在")
 
                 if not path.endswith(".pdf"):
-                    raise ValueError(f"{param_name} 路径必须是.docx 或.doc 结尾")
+                    raise BizException(FILE_PATH_ERROR_FORMAT.format(param_name), f"{param_name} 路径必须是.pdf 结尾")
                 # 如果校验通过，调用原函数
                 return func(*args, **kwargs)
 
@@ -44,7 +45,7 @@ class IPDFCore(ABC):
                     start_ind = int(p_range.split("-")[0])
                     end_ind = int(p_range.split("-")[-1])
                 except ValueError:
-                    raise ValueError(f"页码{p_range}不符合规定！")
+                    raise BizException(PDF_PAGE_ERROR_FORMAT.format(p_range), f"页码{p_range}不符合规定！")
                 if start_ind > end_ind:
                     start_ind, end_ind = end_ind, start_ind
                 nums = list(range(start_ind, end_ind + 1))
@@ -53,12 +54,12 @@ class IPDFCore(ABC):
                 try:
                     num = int(p_range)
                 except ValueError:
-                    raise ValueError(f"页码{p_range}不符合规定！")
+                    raise BizException(PDF_PAGE_ERROR_FORMAT.format(p_range), f"页码{p_range}不符合规定！")
                 page_nums.append(num)
         result_page_nums = []
         for page_num in page_nums:
             if page_num > total_pages or page_num < 1:
-                raise ValueError(f"页码{page_num}不符合规定！")
+                raise BizException(PDF_PAGE_ERROR_FORMAT.format(page_num), f"页码{page_num}不符合规定！")
             result_page_nums.append(page_num - 1)
         return result_page_nums
 

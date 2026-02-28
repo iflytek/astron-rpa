@@ -16,6 +16,7 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.utils import FileExistenceType, handle_existence
 from astronverse.encrypt import Base64CodeType, EncryptCaseType, MD5bitsType, SHAType
 from astronverse.encrypt.core import EncryptCore
+from astronverse.encrypt.error import BizException, FILE_NOT_FOUND
 
 
 class Encrypt:  # pylint: disable=too-few-public-methods
@@ -132,7 +133,7 @@ class Encrypt:  # pylint: disable=too-few-public-methods
         - PICTURE: 读取 `file_path` 文件并编码为 data URI
         """
         if encode_type == Base64CodeType.PICTURE and not os.path.exists(file_path):
-            raise ValueError("图片文件不存在!")
+            raise BizException(FILE_NOT_FOUND, "图片文件不存在!")
         encoded_string = EncryptCore.base64_encode(encode_type, string_data, file_path)
         return encoded_string
 

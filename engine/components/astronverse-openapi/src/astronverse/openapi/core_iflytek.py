@@ -31,7 +31,7 @@ class OcrRequests:
         schema = url[: st + 3]
         ed = host.index("/")
         if ed <= 0:
-            raise Exception("invalid request url:" + url)
+            raise BizException(INVALID_URL_FORMAT.format(url), f"无效的请求URL: {url}")
         path = host[ed:]
         host = host[:ed]
         return host, path, schema

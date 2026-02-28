@@ -1,5 +1,6 @@
 import os
 from typing import Any
+from astronverse.system.error import BizException, COMPRESS_ERROR, UNSUPPORTED_COMPRESS_TYPE
 
 
 class CompressCore:
@@ -26,7 +27,7 @@ class CompressCore:
                     CompressCore.__add_items_to_zip__(zip_file, items)
             return os.path.abspath(zip_path)
         except Exception as e:
-            raise ValueError("压缩失败：{}".format(e))
+            raise BizException(COMPRESS_ERROR.format(str(e)), f"压缩失败：{e}")
 
     @staticmethod
     def __add_items_to_zip__(zip_file, items: list) -> None:
@@ -77,5 +78,5 @@ class CompressCore:
             with py7zr.SevenZipFile(source_path, mode="r", password=pwd) as handler:
                 handler.extractall(path=dest_path)
         else:
-            raise ValueError("不支持的解压缩类型")
+            raise BizException(UNSUPPORTED_COMPRESS_TYPE, "不支持的解压缩类型")
         return os.path.abspath(dest_path)

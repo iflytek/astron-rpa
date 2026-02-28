@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import psutil
+from astronverse.executor.error import BizException, TIMEOUT_ERROR, SUBPROCESS_ERROR_FORMAT
 from astronverse.executor.logger import logger
 
 
@@ -87,7 +88,7 @@ def exec_run(exec_args: list, ignore_error: bool = False, timeout=-1):
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait()
-        raise TimeoutError("error: timeout") from None
+        raise BizException(TIMEOUT_ERROR, "error: timeout") from None
 
     if proc.returncode != 0 and not ignore_error:
-        raise BizException(f"error: return code({proc.returncode})")
+        raise BizException(SUBPROCESS_ERROR_FORMAT.format(proc.returncode), f"error: return code({proc.returncode})")

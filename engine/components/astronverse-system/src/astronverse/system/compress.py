@@ -77,11 +77,11 @@ class Compress:
         save_type: SaveType = SaveType.SAVE,
     ):
         if file_type == FileFolderType.FILE and not file_path:
-            raise ValueError("待压缩文件路径不能为空，请检查所选内容")
+            raise BizException(PARAM_ERROR.format("file_path"), "待压缩文件路径不能为空，请检查所选内容")
         if file_type == FileFolderType.FOLDER and not folder_path:
-            raise ValueError("待压缩文件夹路径不能为空，请检查所选内容")
+            raise BizException(PARAM_ERROR.format("folder_path"), "待压缩文件夹路径不能为空，请检查所选内容")
         if file_type == FileFolderType.BOTH and not (file_path or folder_path):
-            raise ValueError("待压缩文件和文件夹路径不能为空，请检查所选内容")
+            raise BizException(PARAM_ERROR.format("file_path/folder_path"), "待压缩文件和文件夹路径不能为空，请检查所选内容")
 
         items_file = [path.strip() for path in file_path.split(",")]
         items_folder = [path.strip() for path in folder_path.split(",")]

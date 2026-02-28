@@ -18,6 +18,7 @@ from astronverse.picker import (
 )
 from astronverse.picker.core.picker_core_win import PickerCore
 from astronverse.picker.engines.uia_picker import UIAOperate
+from astronverse.picker.error import BizException, ERROR_FORMAT, PARAM_ERROR_FORMAT
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.process import find_real_application_process
 
@@ -73,7 +74,7 @@ class RecordPickerAdapter:
             start_control = UIAOperate.get_windows_by_point(current_point)
             if not start_control:
                 logger.info(f"获取点位所在uia-control出错{self.picker_core.last_point}")
-                raise Exception("拾取转换器出错，请退出项目重新开始")
+                raise BizException(ERROR_FORMAT.format("拾取转换器出错，请退出项目重新开始"), "拾取转换器出错，请退出项目重新开始")
 
             process_id = UIAOperate.get_process_id(start_control)
             process_info = find_real_application_process(process_id)
@@ -384,7 +385,7 @@ class RecordManager:
                 if self.record_adapter:
                     result: DrawResult = self.record_adapter.draw_for_record(self.svc, self.highlight_client, draw_data)
                 else:
-                    raise Exception("缺少拾取转换器。。。")
+                    raise BizException(ERROR_FORMAT.format("缺少拾取转换器"), "缺少拾取转换器")
 
                 # 更新当前状态
                 if result.success and result.rect:
@@ -464,10 +465,10 @@ class RecordManager:
 
             x, y = win32api.GetCursorPos()
             if not hasattr(self, "cur_rect") or self.cur_rect is None:
-                raise ValueError("cur_rect 未初始化")
+                raise BizException(PARAM_ERROR_FORMAT.format("cur_rect 未初始化"), "cur_rect 未初始化")
             # 判断鼠标是否在矩形范围内
             if not (self.cur_rect.left <= x <= self.cur_rect.right and self.cur_rect.top <= y <= self.cur_rect.bottom):
-                raise ValueError("鼠标点位不在当前元素范围内")
+                raise BizException(PARAM_ERROR_FORMAT.format("鼠标点位不在当前元素范围内"), "鼠标点位不在当前元素范围内")
             final_record_rect = {
                 "left": self.cur_rect.left,
                 "top": self.cur_rect.top,

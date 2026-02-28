@@ -5,6 +5,7 @@ from datetime import datetime
 
 from apscheduler.triggers.interval import IntervalTrigger
 from astronverse.trigger.core.logger import logger
+from astronverse.trigger.error import BizException, MAIL_PROTOCOL_NOT_SUPPORTED
 
 global_mail_ids = {}
 
@@ -137,7 +138,10 @@ class MailTask:
                 client.quit()  # 退出
                 return True
             else:
-                raise ValueError(f"不支持的邮件协议: {used_mail_protocol}")
+                raise BizException(
+                    MAIL_PROTOCOL_NOT_SUPPORTED.format(f"不支持的邮件协议: {used_mail_protocol}"),
+                    f"不支持的邮件协议: {used_mail_protocol}",
+                )
         except Exception as e:
             return False
 
@@ -185,7 +189,10 @@ class MailTask:
 
                 return client
             else:
-                raise ValueError(f"不支持的邮件协议: {used_mail_protocol}")
+                raise BizException(
+                    MAIL_PROTOCOL_NOT_SUPPORTED.format(f"不支持的邮件协议: {used_mail_protocol}"),
+                    f"不支持的邮件协议: {used_mail_protocol}",
+                )
 
         except Exception as e:
             logger.info(f"【AsyncMailTask callback】连接邮箱时报错：{str(e)}")

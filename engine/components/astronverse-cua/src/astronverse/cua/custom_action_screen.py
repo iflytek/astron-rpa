@@ -11,6 +11,7 @@ import pyperclip
 import requests
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.baseline.logger.logger import logger
+from astronverse.cua.error import BizException, UNKNOWN_RESPONSE_FORMAT
 
 # 电脑 GUI 任务场景的提示词模板
 COMPUTER_USE_PROMPT = """You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.  
@@ -337,7 +338,7 @@ class CustomActionScreen:
                 # 原格式
                 return response_json["choices"][0]["message"]["content"]
             else:
-                raise ValueError("未知的响应格式")
+                raise BizException(UNKNOWN_RESPONSE_FORMAT, "未知的响应格式")
 
         except requests.exceptions.RequestException as e:
             logger.info(f"请求错误: {e}")

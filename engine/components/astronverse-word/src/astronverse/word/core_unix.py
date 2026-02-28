@@ -62,7 +62,7 @@ class WordDocumentCore(IDocumentCore):
     def create(cls, file_path: str = "") -> object:
         """Word - 文档操作 - 创建"""
         if file_path and not os.path.exists(os.path.dirname(file_path)):
-            raise Exception("路径未找到")
+            raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format(file_path), "路径未找到")
 
         global APP
         # 获取当前由pywpsrpc打开的excel进程列表
@@ -77,14 +77,7 @@ class WordDocumentCore(IDocumentCore):
             app = APP
 
         if not app:
-            raise Exception(
-                """
-                请尝试设置WPS多组件模式，方式如下：
-                打开wps → 右上角设置按钮 → Settings → Others 
-                → Change window manage mode… 
-                → 选择【Multi-Module Mode】
-                """
-            )
+            raise BizException(WPS_INIT_FAILED_ERROR, "请尝试设置WPS多组件模式：打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】")
 
         hr, cls.doc = app.Documents.Add()
         if file_path:
@@ -115,12 +108,7 @@ class WordDocumentCore(IDocumentCore):
             app = APP
 
         if not app:
-            raise Exception(
-                """
-                请尝试设置WPS多组件模式，方式如下：
-                打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】
-                """
-            )
+            raise BizException(WPS_INIT_FAILED_ERROR, "请尝试设置WPS多组件模式：打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】")
 
         hr, cls.doc = app.Documents.Open(
             file_path,

@@ -1447,15 +1447,15 @@ class DataTable:
         从指定文件导入数据表格
         """
         if not import_file_path:
-            raise BizException(IMPORT_FILE_ERROR_FORMAT.format("导入文件路径不能为空"), "导入文件路径不能为空")
+            raise BizException(IMPORT_FILE_PATH_EMPTY_ERROR, "导入文件路径不能为空")
         if os.path.splitext(import_file_path)[1].lower() not in [".xlsx", ".xls", ".csv"]:
             raise BizException(
-                IMPORT_FILE_ERROR_FORMAT.format(""),
+                IMPORT_FILE_TYPE_ERROR,
                 "仅支持导入Excel(.xlsx, .xls)和CSV(.csv)文件",
             )
         if not os.path.exists(import_file_path):
             raise BizException(
-                IMPORT_FILE_ERROR_FORMAT.format(""),
+                IMPORT_FILE_NOT_FOUND_ERROR.format(import_file_path),
                 f"文件不存在: {import_file_path}",
             )
 

@@ -26,7 +26,7 @@ def random_number(
         return numpy.random.randint(start, end, size).tolist()
     if number_type == NumberType.FLOAT:
         return numpy.random.uniform(start, end, size).tolist()
-    raise ValueError("不支持的 number_type")
+    raise BizException(UNSUPPORTED_NUMBER_TYPE, "不支持的 number_type")
 
 
 class MathProcess:
@@ -77,7 +77,7 @@ class MathProcess:
             return number + add_sub_number
         if add_sub == AddSubType.SUB:
             return number - add_sub_number
-        raise ValueError("不支持的加减类型")
+        raise BizException(UNSUPPORTED_OPERATION_TYPE, "不支持的加减类型")
 
     @staticmethod
     @atomicMg.atomic(

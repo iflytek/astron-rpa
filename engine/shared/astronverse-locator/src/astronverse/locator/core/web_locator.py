@@ -12,6 +12,16 @@ from astronverse.locator import (
     BROWSER_UIA_WINDOW_CLASS,
 )
 from astronverse.locator.utils.window import top_browser
+from astronverse.locator.error import (
+    BizException,
+    BROWSER_PLUGIN_CHANNEL_ERROR,
+    BROWSER_PLUGIN_COMMUNICATION_ERROR,
+    BROWSER_PLUGIN_GET_ELEMENT_ERROR,
+    BROWSER_PLUGIN_CONNECTION_ERROR,
+    BROWSER_PLUGIN_TIMEOUT_ERROR,
+    BROWSER_WINDOW_NOT_FOUND,
+    ERROR_FORMAT,
+)
 
 
 class WEBLocator(ILocator):
@@ -91,26 +101,28 @@ class WebFactory:
             )
 
             if response.status_code != 200:
-                raise Exception("浏览器插件通信通道出错，请重启应用")
+                raise BizException(BROWSER_PLUGIN_CHANNEL_ERROR, "浏览器插件通信通道出错，请重启应用")
 
             logger.info(f"浏览器插件返回结果: {response.text}")
             res_json = response.json()
 
             if not res_json or res_json.get("code", "") != "0000":  # 通信错误
-                raise Exception("浏览器插件通信失败, 请检查插件是否安装并启用")
+                raise BizException(BROWSER_PLUGIN_COMMUNICATION_ERROR, "浏览器插件通信失败, 请检查插件是否安装并启用")
             elif res_json.get("code", "") == "0000":
                 data = res_json.get("data", {})
                 if data.get("code", "") != "0000":  # 元素错误
-                    raise Exception(data.get("msg", "浏览器插件获取元素失败"))
+                    msg = data.get("msg", "浏览器插件获取元素失败")
+                    raise BizException(BROWSER_PLUGIN_GET_ELEMENT_ERROR.format(msg), msg)
                 web_info = data.get("data", {})
                 return web_info["rect"]
 
         except requests.exceptions.ConnectionError:
-            raise Exception("无法连接浏览器插件服务，请确认插件状态")
+            raise BizException(BROWSER_PLUGIN_CONNECTION_ERROR, "无法连接浏览器插件服务，请确认插件状态")
         except requests.exceptions.Timeout:
-            raise Exception("浏览器插件响应超时，请检查插件是否安装并启用")
+            raise BizException(BROWSER_PLUGIN_TIMEOUT_ERROR, "浏览器插件响应超时，请检查插件是否安装并启用")
         except Exception as e:
-            raise Exception(f"获取元素失败：{e}")
+            error_msg = f"获取元素失败：{e}"
+            raise BizException(ERROR_FORMAT.format(error_msg), error_msg)
 
     @classmethod
     def __get_web_top__(cls, element: dict, app: str) -> tuple[int, int]:
@@ -141,7 +153,8 @@ class WebFactory:
                 break
 
         if base_ctrl is None:
-            raise Exception(f"未找到{app_name}浏览器窗口，请确认浏览器是否已启动")
+            msg = f"未找到{app_name}浏览器窗口，请确认浏览器是否已启动"
+            raise BizException(BROWSER_WINDOW_NOT_FOUND.format(app_name), msg)
 
         # 置顶窗口
         try:

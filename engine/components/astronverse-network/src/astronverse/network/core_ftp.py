@@ -1,6 +1,14 @@
 import ftplib
 import os
 
+from astronverse.network.error import (
+    BizException,
+    FTP_ERROR_FORMAT,
+    FTP_INVALID_DIR_FORMAT,
+    FTP_CREATE_DIR_ERROR,
+    FTP_PERMISSION_ERROR_FORMAT,
+)
+
 
 class FtpCore:
     @staticmethod
@@ -60,9 +68,9 @@ class FtpCore:
 
             ftp_instance.retrlines("LIST", callback)
         except ftplib.error_perm as e:
-            raise ValueError("权限错误或命令不支持：{e}")
+            raise BizException(FTP_PERMISSION_ERROR_FORMAT.format(str(e)), f"权限错误或命令不支持：{e}")
         except Exception as e:
-            raise ValueError("发生错误：{}".format(e))
+            raise BizException(FTP_ERROR_FORMAT.format(str(e)), f"发生错误：{e}")
 
         return raw_data
 
@@ -98,12 +106,12 @@ class FtpCore:
         向FTP指定目录上传文件夹
         """
         if not os.path.isdir(src):
-            raise ValueError("{}非有效目录".format(src))
+            raise BizException(FTP_INVALID_DIR_FORMAT.format(src), f"{src}非有效目录")
 
         if not FtpCore.is_dir(ftp_instance, folder_name):
             res = FtpCore.create_dir(ftp_instance, folder_name)
             if not res:
-                raise ValueError("工作目录创建失败，请检查FTP连接")
+                raise BizException(FTP_CREATE_DIR_ERROR, "工作目录创建失败，请检查FTP连接")
 
         ftp_instance.cwd(folder_name)
 
@@ -207,4 +215,4 @@ class FtpCore:
             ftp_instance.mkd(dir_name)
             return FtpCore.get_path(ftp_instance, dir_name)
         except ftplib.error_perm as e:
-            raise ValueError(e)
+            raise BizException(FTP_PERMISSION_ERROR_FORMAT.format(str(e)), f"权限错误：{e}")

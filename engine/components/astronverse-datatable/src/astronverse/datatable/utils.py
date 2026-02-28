@@ -8,6 +8,8 @@ from astronverse.datatable.error import (
     BizException,
     FORMULA_FORMAT_ERROR,
     ROW_FORMAT_ERROR,
+    COL_RANGE_ERROR,
+    ROW_RANGE_ERROR,
 )
 
 
@@ -55,7 +57,7 @@ def validate_end_col(start_col, end_col):
     start_index = col_to_index(start_col)
     end_index = col_to_index(end_col)
     if end_index < start_index:
-        raise ValueError("结束列不能小于开始列")
+        raise BizException(COL_RANGE_ERROR, "结束列不能小于开始列")
 
 
 def validate_end_row(start_row, end_row):
@@ -65,7 +67,7 @@ def validate_end_row(start_row, end_row):
     except ValueError:
         raise BizException(ROW_FORMAT_ERROR.format(end_row), "行格式错误")
     if end_row < start_row:
-        raise ValueError("结束行不能小于开始行")
+        raise BizException(ROW_RANGE_ERROR, "结束行不能小于开始行")
 
 
 def col_to_index(col="A") -> int:
