@@ -122,8 +122,15 @@ class AnchorMatch:
         logger.info(f"当前屏幕与原始比例为{rw},{rh}")
         if center_coords_anchor != "" and anchor is not None:
             # 提取并转换坐标
-            aim_x, aim_y = map(lambda x: int(float(x)), center_coords_aim.split(","))
-            anchor_x, anchor_y = map(lambda x: int(float(x)), center_coords_anchor.split(","))
+            try:
+                aim_x, aim_y = map(lambda x: int(float(x)), center_coords_aim.split(","))
+                anchor_x, anchor_y = map(lambda x: int(float(x)), center_coords_anchor.split(","))
+            except ValueError as e:
+                import traceback
+
+                stack_info = traceback.format_exc()
+                logger.error(f"坐标转换失败: {e}\n堆栈信息:\n{stack_info}")
+                raise ValueError("坐标转换失败，请检查锚点是否已正确设置，或重新拾取新的图像元素")
 
             # 计算距离
             dis_x = (aim_x - anchor_x) * rw
