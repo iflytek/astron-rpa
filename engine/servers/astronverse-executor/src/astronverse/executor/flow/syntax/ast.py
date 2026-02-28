@@ -297,6 +297,10 @@ class Atomic(Node):
         # 4. except:
         code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
 
+        # 4.1 给输出参数赋 None，避免后续引用未定义变量
+        for r in self.__returned__:
+            code_lines.append(CodeLine(tab_num + 1, f"{r.show()} = None", 0))
+
         # 5. SKIP 上报（不 raise，继续执行）
         code_lines.append(
             CodeLine(
