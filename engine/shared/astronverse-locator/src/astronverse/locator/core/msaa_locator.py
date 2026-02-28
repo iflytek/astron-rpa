@@ -14,6 +14,7 @@ import comtypes.client
 from astronverse.baseline.logger.logger import logger
 from astronverse.locator import ILocator, Rect
 from astronverse.locator.core.uia_locator import uia_factory
+from astronverse.locator.utils.match import MatchType, match_value
 
 # 加载MSAA相关库
 comtypes.client.GetModule("oleacc.dll")
@@ -390,6 +391,7 @@ class MSAAValidator:
             target_value = target_desc.get("value")
             target_index = target_desc.get("index", 0)
             target_tag = target_desc.get("tag_name")
+            attrs_map = target_desc.get("attrs_map") or {}
 
             logger.info(
                 f"正在查找: tag_name={target_tag}, name={target_name}, value={target_value}, index={target_index}, use_recursive={use_recursive}"
@@ -419,11 +421,15 @@ class MSAAValidator:
                         return recursive_matches
 
             # 进一步过滤匹配名称和值的元素
+            name_mt = attrs_map.get("name", MatchType.EXACT)
+            value_mt = attrs_map.get("value", MatchType.EXACT)
+            index_mt = attrs_map.get("index", MatchType.EXACT)
+
             filtered_candidates = []
             for candidate in candidates:
-                name_match = not target_name or candidate.get_name() == target_name
-                value_match = not target_value or candidate.get_value() == target_value
-                index_match = not target_index or candidate.get_index() == target_index
+                name_match = not target_name or match_value(str(target_name), str(candidate.get_name()), name_mt)
+                value_match = not target_value or match_value(str(target_value), str(candidate.get_value()), value_mt)
+                index_match = not target_index or match_value(str(target_index), str(candidate.get_index()), index_mt)
 
                 logger.info(f"候选元素匹配检查: name_match={name_match}, value_match={value_match}")
 

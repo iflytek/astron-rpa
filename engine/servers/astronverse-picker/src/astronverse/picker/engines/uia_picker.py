@@ -461,6 +461,13 @@ class UIAPicker:
                     cls._search_elements_recursively(res_list, child, point, ignore_parent_zero, deep + 1)
 
     @classmethod
+    def _normalize_attr(cls, val):
+        """将属性值归一化为字符串以避免类型不匹配（如 str '0' vs int 0）"""
+        if val is None:
+            return None
+        return str(val)
+
+    @classmethod
     def get_similar_path(cls, strategy_svc, curr_path):
         """用户给定两个相似元素"""
 
@@ -484,8 +491,8 @@ class UIAPicker:
             if i == 0:
                 attrs = ["tag_name", "cls", "name", "value"]
                 for attr in attrs:
-                    self_attr = path1[i].get(attr, None)
-                    other_attr = path2[i].get(attr, None)
+                    self_attr = cls._normalize_attr(path1[i].get(attr, None))
+                    other_attr = cls._normalize_attr(path2[i].get(attr, None))
                     if self_attr and other_attr and self_attr != other_attr:
                         return None
                 path1[i]["similar_parent"] = True
@@ -493,8 +500,8 @@ class UIAPicker:
                 is_eq = True
                 attrs = ["tag_name", "cls", "name", "value", "index"]
                 for attr in attrs:
-                    self_attr = path1[i].get(attr, None)
-                    other_attr = path2[i].get(attr, None)
+                    self_attr = cls._normalize_attr(path1[i].get(attr, None))
+                    other_attr = cls._normalize_attr(path2[i].get(attr, None))
                     if self_attr is not None and other_attr is not None and self_attr != other_attr:
                         is_eq = False
                         break
