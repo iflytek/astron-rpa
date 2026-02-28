@@ -7,7 +7,7 @@ from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
 from astronverse.picker.utils.window import validate_window_rect
-from astronverse.picker.error import BizException, ERROR_FORMAT
+from astronverse.picker.error import BizException, TAG_NAME_EMPTY_ERROR, SIMILAR_ELEMENT_NOT_FOUND_ERROR
 
 element_aliases = {
     "AppBarControl": "应用程序栏",
@@ -230,7 +230,7 @@ class UIAElement(IElement):
             return disable_keys
         else:
             # tag_name 为空（不应该出现）
-            raise BizException(ERROR_FORMAT.format("tag_name 为空，无法唯一识别元素"), "tag_name 为空，无法唯一识别元素")
+            raise BizException(TAG_NAME_EMPTY_ERROR, "tag_name 为空，无法唯一识别元素")
 
     def _calculate_disable_keys_progressive(
         self, current_attrs: dict, parent_control, current_control, is_root_level: bool = False
@@ -393,7 +393,7 @@ class UIAElement(IElement):
 
             similar_path = UIAPicker.get_similar_path(strategy_svc, res)
             if similar_path is None:
-                raise BizException(ERROR_FORMAT.format("找不到相识元素"), "找不到相识元素")
+                raise BizException(SIMILAR_ELEMENT_NOT_FOUND_ERROR, "找不到相似元素")
             res["path"] = similar_path
             res["img"]["self"] = strategy_svc.data.get("data", {}).get("img", {}).get("self", "")
             res["picker_type"] = PickerType.SIMILAR.value  # 这个需要在这里提前写好，才能交给locator使用
@@ -401,9 +401,9 @@ class UIAElement(IElement):
             if isinstance(similar_list, list):
                 similar_count = len(similar_list)
                 if similar_count == 0:
-                    raise BizException(ERROR_FORMAT.format("找不到相识元素"), "找不到相识元素")
+                    raise BizException(SIMILAR_ELEMENT_NOT_FOUND_ERROR, "找不到相似元素")
             else:
-                raise BizException(ERROR_FORMAT.format("找不到相识元素"), "找不到相识元素")
+                raise BizException(SIMILAR_ELEMENT_NOT_FOUND_ERROR, "找不到相似元素")
             res["similar_count"] = similar_count
         return res
 

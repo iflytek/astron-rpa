@@ -67,7 +67,7 @@ class FTP:
         try:
             get_work_dir = FtpCore.get_working_dir(ftp_instance)
         except Exception as e:
-            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), f"{e}")
         return get_work_dir
 
     @staticmethod
@@ -83,7 +83,7 @@ class FTP:
             change_work_dir = FtpCore.get_working_dir(ftp_instance)
             return change_work_dir
         except Exception as e:
-            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), f"{e}")
 
     @staticmethod
     @atomicMg.atomic(
@@ -152,7 +152,7 @@ class FTP:
         try:
             FtpCore.get_working_dir(ftp_instance)
         except Exception as e:
-            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), f"{e}")
 
         try:
             list_file = FtpCore.get_nlst(ftp_instance)
@@ -171,7 +171,7 @@ class FTP:
             else:
                 raise NotImplementedError()
         except Exception as e:
-            raise BizException(FTP_STATUS_FORMAT.format(e), "{e}")
+            raise BizException(FTP_STATUS_FORMAT.format(e), f"{e}")
 
     @staticmethod
     @atomicMg.atomic(

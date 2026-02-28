@@ -3,7 +3,6 @@ from astronverse.baseline.i18n.i18n import _
 
 BizException = BizException
 
-MSG_EMPTY_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("消息为空: {}"))
 HTTP_DOWNLOAD_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("HTTP下载失败，错误：{}"))
 HTTP_REQUEST_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("HTTP请求失败: {}"))
 FILE_WRITE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件写入失败，请检查文件类型是否正确"))

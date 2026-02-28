@@ -80,6 +80,7 @@ raise BizException(ERROR_FORMAT.format(error_msg), error_msg)
 5. **不要过度细分**：不需要为每个错误都创建独立的 ErrorCode
 6. **不要过渡替换**: 一些内部错误可以不用替换成业务错误
 7. **避免滥用通用错误码**：`*_FORMAT` 类型的错误码只应用于真正需要动态内容的场景
+8. **正确：区分固定消息和动态消息**：动态已FROMAT结尾，不是动态的不能包含FROMAT
 
 ## 常见错误模式
 
@@ -109,12 +110,12 @@ raise BizException(SHEET_ERROR_FORMAT.format("新sheet名称已存在"), "新she
 
 ```python
 # 在 error.py 中定义
-UNKNOWN_RESPONSE_FORMAT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("未知的响应格式"))
+UNKNOWN_RESPONSE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("未知的响应格式"))
 CONDITION_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("条件异常，请输入正确的条件"))
 SHEET_NAME_EXISTS_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("sheet名称已存在"))
 
 # 使用时
-raise BizException(UNKNOWN_RESPONSE_FORMAT_ERROR, "未知的响应格式")
+raise BizException(UNKNOWN_RESPONSE_ERROR, "未知的响应格式")
 raise BizException(CONDITION_ERROR, "条件异常，请输入正确的条件")
 raise BizException(SHEET_NAME_EXISTS_ERROR, "新sheet名称已存在")
 ```
@@ -137,60 +138,39 @@ raise BizException(SHEET_ERROR_FORMAT.format(f"sheet '{sheet_name}' 不存在"),
 - **固定消息**：错误描述是固定的，不包含变量 → 定义独立的 ErrorCode
 - **动态消息**：错误描述包含变量（文件名、参数名、数值等）→ 使用 `*_FORMAT`
 
-## 修改策略
+### ⚠️ 重要规则：FORMAT 错误码只接收变量值
 
-### 推荐方式：分批修改
+**❌ 错误：传入完整的错误描述**
 
-由于涉及的文件较多，建议采用分批修改的方式，降低风险：
+```python
+# 错误示例 1：传入完整的中文错误描述
+raise BizException(PARAM_ERROR_FORMAT.format("custom_factors 格式错误，请检查"), "custom_factors 格式错误，请检查")
 
-**方案 1：按组件分批（推荐）**
-```
-第一批：Components (组件)
-- astronverse-ai
-- astronverse-browser
-- astronverse-excel
-- astronverse-datatable
-- astronverse-word
+# 错误示例 2：传入包含完整描述的 f-string
+raise BizException(ACTION_PARSE_ERROR_FORMAT.format(f"无法解析动作: {raw_str}"), f"无法解析动作: {raw_str}")
 
-第二批：Servers (服务)
-- astronverse-scheduler
-- astronverse-picker
-- astronverse-executor
-
-第三批：Shared (共享)
-- astronverse-actionlib
-- astronverse-locator
-- astronverse-browser-plugin
+# 错误示例 3：传入完整的错误描述而不是变量值
+raise BizException(ASPECT_RATIO_ERROR_FORMAT.format(f"绝对宽高比必须小于 {MAX_RATIO}, 实际为 {ratio}"), ...)
 ```
 
-**方案 2：按错误类型分批**
+**✅ 正确：只传入变量值**
+
+```python
+# 正确示例 1：只传入变量名
+# error.py: CUSTOM_FACTORS_FORMAT_ERROR = ErrorCode(BizCode.LocalErr, _("{} 格式错误，请检查"))
+raise BizException(CUSTOM_FACTORS_FORMAT_ERROR.format("custom_factors"), "custom_factors 格式错误，请检查")
+
+# 正确示例 2：只传入需要显示的变量值
+# error.py: ACTION_PARSE_ERROR_FORMAT = ErrorCode(BizCode.LocalErr, _("动作解析失败: {}"))
+raise BizException(ACTION_PARSE_ERROR_FORMAT.format(raw_str), f"无法解析动作: {raw_str}")
+
+# 正确示例 3：只传入关键的变量信息
+# error.py: ASPECT_RATIO_ERROR_FORMAT = ErrorCode(BizCode.LocalErr, _("图片宽高比错误: {}"))
+raise BizException(ASPECT_RATIO_ERROR_FORMAT.format(f"最大={MAX_RATIO}, 实际={ratio}"), ...)
 ```
-第一批：修复 ERROR_FORMAT 滥用
-第二批：修复 PARAM_ERROR_FORMAT 滥用
-第三批：修复其他 *_FORMAT 滥用
-```
 
-**方案 3：先修复典型案例**
-```
-1. 选择 2-3 个典型文件作为示例
-2. 完成修改并测试
-3. 确认无问题后，再批量修改其他文件
-```
-
-### 每批修改的步骤
-
-1. **修改 error.py**：添加新的 ErrorCode 定义
-2. **修改业务代码**：替换错误的使用方式
-3. **本地测试**：确保修改不影响功能
-4. **提交代码**：每个组件一个 commit，便于回滚
-5. **代码审查**：检查是否有遗漏或错误
-
-### 风险控制
-
-- ✅ 每次只修改一个组件，便于审查和测试
-- ✅ 每个组件独立提交，出问题可以快速回滚
-- ✅ 优先修改影响小的组件，积累经验
-- ✅ 保持错误消息内容不变，只改错误类型
-- ❌ 避免一次性修改所有文件
-- ❌ 避免在修改过程中改变错误消息的语义
-
+**核心原则：**
+- `*_FORMAT` 错误码的 `format()` 方法只应接收**纯变量值**或**简短的变量信息**
+- 不要在 `format()` 中传入完整的错误描述文本（尤其是中文描述）
+- 错误描述应该在 ErrorCode 定义中通过 `_()` 国际化
+- 如果错误消息是固定的，应该定义独立的 ErrorCode，而不是使用 `*_FORMAT`

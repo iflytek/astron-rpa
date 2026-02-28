@@ -11,7 +11,7 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsIt
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import LLMModelTypes
 from astronverse.ai.api.llm import DEFAULT_MODEL, chat_normal, chat_streamable
-from astronverse.ai.error import BizException, ERROR_FORMAT, UNSUPPORTED_FILE_TYPE_ERROR
+from astronverse.ai.error import BizException, ERROR_FORMAT, UNSUPPORTED_FILE_TYPE_ERROR_FORMAT
 from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
@@ -155,7 +155,7 @@ class ChatAI:
             return FileExtractor.extract_docx(file_path)
         else:
             raise BizException(
-                UNSUPPORTED_FILE_TYPE_ERROR.format(extension),
+                UNSUPPORTED_FILE_TYPE_ERROR_FORMAT.format(extension),
                 f"Not support file type：{extension}"
             )
 

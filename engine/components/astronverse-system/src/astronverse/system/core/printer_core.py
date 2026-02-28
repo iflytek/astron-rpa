@@ -21,8 +21,8 @@ import win32ui
 from astronverse.system.error import (
     BizException,
     ERROR_FORMAT,
-    PRINTER_NOT_FOUND,
-    PRINTER_NOT_SUPPORTED,
+    PRINTER_NOT_FOUND_FORMAT_FORMAT,
+    PRINTER_NOT_SUPPORTED_FORMAT_FORMAT,
     PRINT_FILE_EMPTY,
     PRINT_FILE_TYPE_ERROR,
     REGISTRY_NOT_FOUND,
@@ -128,7 +128,7 @@ class PrinterCore:
                 if self.word_obj:
                     return self.word_obj
         except:
-            raise BizException(ERROR_FORMAT.format("gen_py rebuild"), r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise BizException(GENPY_REBUILD_ERROR, r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
         raise BizException(REGISTRY_NOT_FOUND, "未检测到wps和office注册表信息！")
 
@@ -160,7 +160,7 @@ class PrinterCore:
                 if self.excel_obj:
                     return self.excel_obj
         except:
-            raise BizException(ERROR_FORMAT.format("gen_py rebuild"), r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise BizException(GENPY_REBUILD_ERROR, r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
         raise BizException(REGISTRY_NOT_FOUND, "未检测到wps和office注册表信息！")
 
@@ -193,7 +193,7 @@ class PrinterCore:
             all_printers = PrinterCore.view_printer()
             logger.info(f"获取到的打印机列表为：{all_printers}")
             if all_printers and printer_name not in all_printers:
-                raise BizException(PRINTER_NOT_FOUND.format(printer_name), f"未发现 {printer_name} 打印机，请检查打印机名称。")
+                raise BizException(PRINTER_NOT_FOUND_FORMAT.format(printer_name), f"未发现 {printer_name} 打印机，请检查打印机名称。")
             _default_printer_name = printer_name
 
         if not print_file:
@@ -204,7 +204,7 @@ class PrinterCore:
         )
 
         if print_queue is None:
-            raise BizException(PRINTER_NOT_SUPPORTED.format(printer_name), f"{printer_name} 打印机暂不支持打印，请检查打印机信息")
+            raise BizException(PRINTER_NOT_SUPPORTED_FORMAT.format(printer_name), f"{printer_name} 打印机暂不支持打印，请检查打印机信息")
 
         flags = []
         while not print_queue.empty():

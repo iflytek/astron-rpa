@@ -1,6 +1,6 @@
 import os
 from typing import Any
-from astronverse.system.error import BizException, COMPRESS_ERROR, UNSUPPORTED_COMPRESS_TYPE
+from astronverse.system.error import BizException, COMPRESS_ERROR_FORMAT, UNSUPPORTED_COMPRESS_TYPE
 
 
 class CompressCore:
@@ -27,7 +27,7 @@ class CompressCore:
                     CompressCore.__add_items_to_zip__(zip_file, items)
             return os.path.abspath(zip_path)
         except Exception as e:
-            raise BizException(COMPRESS_ERROR.format(str(e)), f"压缩失败：{e}")
+            raise BizException(COMPRESS_ERROR_FORMAT.format(str(e)), f"压缩失败：{e}")
 
     @staticmethod
     def __add_items_to_zip__(zip_file, items: list) -> None:

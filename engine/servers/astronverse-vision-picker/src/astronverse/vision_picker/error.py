@@ -3,11 +3,6 @@ from astronverse.baseline.i18n.i18n import _
 
 BizException = BizException
 
-# 通用错误
-ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("错误: {}"))
-PARAM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数错误: {}"))
-INTERNAL_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("内部错误"))
-
 # 图像处理相关错误
 IMAGE_NOT_PROVIDED: ErrorCode = ErrorCode(BizCode.LocalErr, _("未提供图像"))
 IMAGE_SAVE_PATH_REQUIRED: ErrorCode = ErrorCode(BizCode.LocalErr, _("必须提供保存路径"))

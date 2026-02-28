@@ -133,7 +133,7 @@ class Docx:
     )
     def read_docx(doc: DocumentObject, select_range: SelectRangeType = SelectRangeType.ALL):
         if not doc:
-            raise BizException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             doc_data = WordDocumentCore.read(doc.document_object, select_range)
             return doc_data
@@ -240,7 +240,7 @@ class Docx:
         close_flag: bool = False,
     ):
         if not doc:
-            raise BizException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             save_file_path = WordDocumentCore.save(
                 doc.document_object,
@@ -323,7 +323,7 @@ class Docx:
         pkill_flag: bool = False,
     ):
         if not doc:
-            raise BizException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             WordDocumentCore.close(
                 doc.document_object,
@@ -391,7 +391,7 @@ class Docx:
         font_color: str = "0,0,0",
     ):
         if not doc:
-            raise BizException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             # 选择文件读取时，从 txt 文件读取文本
             if text_source == TextInputSourceType.FILE:
@@ -483,13 +483,13 @@ class Docx:
         r_end: int = 1,
     ):
         if not doc:
-            raise BizException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         if (
             p_start > p_end
             or r_start > r_end
             or not IDocumentCore.are_positive_integers(p_start, p_end, r_start, r_end)
         ):
-            raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "请正确输入起始行号或段落号！")
+            raise BizException(CONTENT_INPUT_ERROR, "请正确输入起始行号或段落号")
         try:
             WordDocumentCore.select(doc.document_object, select_type, p_start, p_end, r_start, r_end)
         except Exception:
@@ -556,7 +556,7 @@ class Docx:
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if not IDocumentCore.are_positive_integers(c_idx, p_idx, r_idx):
-            raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "请输入正确的数值!")
+            raise BizException(CONTENT_VALUE_ERROR, "请输入正确的数值")
         try:
             WordDocumentCore.cursor_position(doc.document_object, by, pos, content, c_idx, p_idx, r_idx)
         except Exception as e:
@@ -604,7 +604,7 @@ class Docx:
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if not IDocumentCore.are_positive_integers(distance):
-            raise BizException(CONTENT_FORMAT_ERROR_FORMAT, "请输入正确的数值!")
+            raise BizException(CONTENT_VALUE_ERROR, "请输入正确的数值")
         try:
             WordDocumentCore.move_cursor(
                 doc.document_object,
@@ -631,7 +631,7 @@ class Docx:
         try:
             WordDocumentCore.insert_sep(doc.document_object, sep_type)
         except Exception as e:
-            raise BizException(DOCUMENT_READ_ERROR_FORMAT.format(doc), "插入失败，请检查文档是否打开！") from e
+            raise BizException(DOCUMENT_INSERT_ERROR, "插入失败，请检查文档是否打开") from e
 
     @staticmethod
     @atomicMg.atomic("Docx", inputList=[], outputList=[])

@@ -219,7 +219,7 @@ class DataTable:
         """
         if read_type == ReadType.CELL:
             if not row or not col:
-                raise BizException(PARAMS_ERROR.format("读取单元格需要指定行列"), "读取单元格需要指定行列")
+                raise BizException(READ_CELL_PARAMS_ERROR, "读取单元格需要指定行列")
             col_index = col_to_index(col)
             value = PyxlWrapper.read_cell(row=row, col=col_index)
             if is_trim_spaces and isinstance(value, str):
@@ -230,7 +230,7 @@ class DataTable:
 
         if read_type == ReadType.ROW:
             if not row:
-                raise BizException(PARAMS_ERROR.format("读取行需要指定行号"), "读取行需要指定行号")
+                raise BizException(READ_ROW_PARAMS_ERROR, "读取行需要指定行号")
             row_value = PyxlWrapper.read_row(row_index=row)
             if is_trim_spaces:
                 row_value = [cell.strip() if isinstance(cell, str) else cell for cell in row_value]
@@ -240,7 +240,7 @@ class DataTable:
 
         if read_type == ReadType.COLUMN:
             if not col:
-                raise BizException(PARAMS_ERROR.format("读取列需要指定列号"), "读取列需要指定列号")
+                raise BizException(READ_COL_PARAMS_ERROR, "读取列需要指定列号")
             col_index = col_to_index(col)
             col_value = PyxlWrapper.read_column(col_index=col_index)
             if is_trim_spaces:
@@ -251,7 +251,7 @@ class DataTable:
 
         if read_type == ReadType.AREA:
             if not start_row or not start_col:
-                raise BizException(PARAMS_ERROR.format("读取区域需要指定开始行列"), "读取区域需要指定开始行列")
+                raise BizException(READ_AREA_PARAMS_ERROR, "读取区域需要指定开始行列")
             if end_col is None or end_col in {"", "0"}:
                 end_col = index_to_col(PyxlWrapper.get_max_column() - 1)
             if end_row is None or end_row in {"", "0", 0}:
@@ -381,7 +381,7 @@ class DataTable:
         向表格写入指定数据
         """
         if data is None:
-            raise BizException(DATAFRAME_ERROR.format("数据不能为空"), "写入数据不能为空")
+            raise BizException(DATA_EMPTY_ERROR, "写入数据不能为空")
 
         if isinstance(data, str):
             try:
@@ -393,7 +393,7 @@ class DataTable:
 
         if write_type == WriteType.CELL:
             if not row or not col:
-                raise BizException(PARAMS_ERROR.format("写入单元格需要指定行列"), "写入单元格需要指定行列")
+                raise BizException(WRITE_CELL_PARAMS_ERROR, "写入单元格需要指定行列")
             col_index = col_to_index(col)
             if not isinstance(data, str):
                 data = str(data)
@@ -422,7 +422,7 @@ class DataTable:
             return
         if write_type == WriteType.ROW:
             if not row:
-                raise BizException(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
+                raise BizException(WRITE_ROW_NUMBER_EMPTY_ERROR, "行号不能为空")
             col_index = col_to_index(start_col)
             if not isinstance(data, list):
                 data = [data]
@@ -449,7 +449,7 @@ class DataTable:
 
         if write_type == WriteType.COLUMN:
             if not col:
-                raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+                raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
             col_index = col_to_index(col)
             if not isinstance(data, list):
                 data = [data]
@@ -476,7 +476,7 @@ class DataTable:
 
         if write_type == WriteType.AREA:
             if not start_row or not start_col:
-                raise BizException(PARAMS_ERROR.format("区域写入需要指定开始行列"), "区域写入需要指定开始行列")
+                raise BizException(WRITE_AREA_PARAMS_ERROR, "区域写入需要指定开始行列")
             if not isinstance(data, list):
                 try:
                     # 尝试将字符串解析为列表
@@ -637,14 +637,14 @@ class DataTable:
         """
 
         if copy_type == CopyType.CELL and (not row or not col):
-            raise BizException(PARAMS_ERROR.format("复制单元格需要指定行列"), "复制单元格需要指定行列")
+            raise BizException(COPY_CELL_PARAMS_ERROR, "复制单元格需要指定行列")
         if copy_type == CopyType.ROW and not row:
-            raise BizException(PARAMS_ERROR.format("复制行需要指定行号"), "复制行需要指定行号")
+            raise BizException(COPY_ROW_PARAMS_ERROR, "复制行需要指定行号")
         if copy_type == CopyType.COLUMN and not col:
-            raise BizException(PARAMS_ERROR.format("复制列需要指定列号"), "复制列需要指定列号")
+            raise BizException(COPY_COL_PARAMS_ERROR, "复制列需要指定列号")
         if copy_type == CopyType.AREA:
             if not start_row or not start_col:
-                raise BizException(PARAMS_ERROR.format("复制区域需要指定开始行列"), "复制区域需要指定开始行列")
+                raise BizException(COPY_AREA_PARAMS_ERROR, "复制区域需要指定开始行列")
 
         # 写入到系统剪切板
         import pyperclip
@@ -722,13 +722,13 @@ class DataTable:
         _clipboard = pyperclip.paste()
 
         if paste_type == PasteType.CELL and (not row or not col):
-            raise BizException(PARAMS_ERROR.format("粘贴单元格需要指定行列"), "粘贴单元格需要指定行列")
+            raise BizException(PASTE_CELL_PARAMS_ERROR, "粘贴单元格需要指定行列")
         if paste_type == PasteType.ROW and not row:
-            raise BizException(PARAMS_ERROR.format("粘贴行需要指定行号"), "粘贴行需要指定行号")
+            raise BizException(PASTE_ROW_PARAMS_ERROR, "粘贴行需要指定行号")
         if paste_type == PasteType.COLUMN and not col:
-            raise BizException(PARAMS_ERROR.format("粘贴列需要指定列号"), "粘贴列需要指定列号")
+            raise BizException(PASTE_COL_PARAMS_ERROR, "粘贴列需要指定列号")
         if paste_type == PasteType.AREA and (not start_row or not start_col):
-            raise BizException(PARAMS_ERROR.format("粘贴区域需要指定开始行列"), "粘贴区域需要指定开始行列")
+            raise BizException(PASTE_AREA_PARAMS_ERROR, "粘贴区域需要指定开始行列")
 
         if paste_type != PasteType.CELL:
             try:
@@ -858,7 +858,7 @@ class DataTable:
         """
         if delete_type == DeleteType.CELL:
             if not row or not col:
-                raise BizException(PARAMS_ERROR.format("删除单元格需要指定行列"), "删除单元格需要指定行列")
+                raise BizException(DELETE_CELL_PARAMS_ERROR, "删除单元格需要指定行列")
             col_index = col_to_index(col)
             PyxlWrapper.delete_cell(
                 row=row,
@@ -867,7 +867,7 @@ class DataTable:
             )
         if delete_type == DeleteType.ROW:
             if not row:
-                raise BizException(PARAMS_ERROR.format("删除行需要指定行号"), "删除行需要指定行号")
+                raise BizException(DELETE_ROW_PARAMS_ERROR, "删除行需要指定行号")
             if delete_row_move:
                 PyxlWrapper.delete_rows(idx=row, amount=1)
             else:
@@ -876,7 +876,7 @@ class DataTable:
                 )
         if delete_type == DeleteType.COLUMN:
             if not col:
-                raise BizException(PARAMS_ERROR.format("删除列需要指定列号"), "删除列需要指定列号")
+                raise BizException(DELETE_COL_PARAMS_ERROR, "删除列需要指定列号")
             col_index = col_to_index(col)
             if delete_col_move:
                 PyxlWrapper.delete_cols(idx=col_index, amount=1)
@@ -888,7 +888,7 @@ class DataTable:
                 )
         if delete_type == DeleteType.AREA:
             if not start_row or not start_col:
-                raise BizException(PARAMS_ERROR.format("删除区域需要指定开始行列"), "删除区域需要指定开始行列")
+                raise BizException(DELETE_AREA_PARAMS_ERROR, "删除区域需要指定开始行列")
             if end_col is None or end_col in {"", "0"}:
                 end_col = index_to_col(PyxlWrapper.get_max_column() - 1)
             if end_row is None or end_row in {"", "0", 0}:
@@ -985,12 +985,12 @@ class DataTable:
         遍历数据表格内容
         """
         if loop_type == LoopType.ROW and not row:
-            raise BizException(PARAMS_ERROR.format("遍历行需要指定行号"), "遍历行需要指定行号")
+            raise BizException(LOOP_ROW_PARAMS_ERROR, "遍历行需要指定行号")
         if loop_type == LoopType.COLUMN and not col:
-            raise BizException(PARAMS_ERROR.format("遍历列需要指定列号"), "遍历列需要指定列号")
+            raise BizException(LOOP_COL_PARAMS_ERROR, "遍历列需要指定列号")
         if loop_type == LoopType.AREA:
             if not start_row or not start_col:
-                raise BizException(PARAMS_ERROR.format("遍历区域需要指定开始行列"), "遍历区域需要指定开始行列")
+                raise BizException(LOOP_AREA_PARAMS_ERROR, "遍历区域需要指定开始行列")
 
         list_data = DataTable.read_data(
             read_type=ReadType(loop_type.value),
@@ -1071,14 +1071,14 @@ class DataTable:
         插入行或列
         """
         if not amount:
-            raise BizException(PARAMS_ERROR.format("插入数量不能为空"), "插入数量不能为空")
+            raise BizException(INSERT_COUNT_EMPTY_ERROR, "插入数量不能为空")
         if amount < 0:
-            raise BizException(PARAMS_ERROR.format("插入数量必须大于0"), "插入数量必须大于0")
+            raise BizException(INSERT_COUNT_INVALID_ERROR, "插入数量必须大于0")
         if amount == 0:
             return
         if insert_type == InsertType.ROW:
             if not row:
-                raise BizException(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
+                raise BizException(WRITE_ROW_NUMBER_EMPTY_ERROR, "行号不能为空")
             if row_insert_shift == RowInsertShift.UP:
                 if row == 1:
                     PyxlWrapper.insert_rows(idx=1, amount=amount)
@@ -1088,7 +1088,7 @@ class DataTable:
                 PyxlWrapper.insert_rows(idx=row + 1, amount=amount)
         if insert_type == InsertType.COLUMN:
             if not col:
-                raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+                raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
             col_index = col_to_index(col)
             if column_insert_shift == ColumnInsertShift.LEFT:
                 pass
@@ -1115,11 +1115,11 @@ class DataTable:
         插入公式到指定单元格
         """
         if not row:
-            raise BizException(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
+            raise BizException(WRITE_ROW_NUMBER_EMPTY_ERROR, "行号不能为空")
         if not col:
-            raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+            raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
         if not formula:
-            raise BizException(PARAMS_ERROR.format("公式不能为空"), "公式不能为空")
+            raise BizException(FORMULA_EMPTY_ERROR, "公式不能为空")
         validate_formula(formula)
         col_index = col_to_index(col)
         PyxlWrapper.write_cell(row=row, col=col_index, value=formula)
@@ -1139,9 +1139,9 @@ class DataTable:
         设置列信息
         """
         if not col:
-            raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+            raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
         if not title:
-            raise BizException(PARAMS_ERROR.format("列信息不能为空"), "列信息不能为空")
+            raise BizException(COL_INFO_EMPTY_ERROR, "列信息不能为空")
         col_index = col_to_index(col)
         PyxlHeadWrapper.write_cell(row=1, col=col_index, value=title)
         sync_data_table_head()
@@ -1165,7 +1165,7 @@ class DataTable:
         获取列信息
         """
         if not col:
-            raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+            raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
         col_index = col_to_index(col)
         return str(PyxlHeadWrapper.read_cell(row=1, col=col_index))
 
@@ -1219,12 +1219,12 @@ class DataTable:
         查找并替换数据表格中的指定内容, 返回查找到的数据位置列表[(row, col), ...]
         """
         if not find_value:
-            raise BizException(PARAMS_ERROR.format("查找内容不能为空"), "查找内容不能为空")
+            raise BizException(FIND_CONTENT_EMPTY_ERROR, "查找内容不能为空")
 
         find_data_positions = []
         if find_type == FindType.COLUMN:
             if not col:
-                raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+                raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
             col_index = col_to_index(col)
             column_data = PyxlWrapper.read_column(col_index=col_index)
             for r, cell_value in enumerate(column_data, start=1):
@@ -1354,21 +1354,21 @@ class DataTable:
         """
         if condition_type == ConditionType.DATE_BETWEEN:
             if not date_range:
-                raise BizException(PARAMS_ERROR.format("日期范围不能为空"), "日期范围不能为空")
+                raise BizException(DATE_RANGE_EMPTY_ERROR, "日期范围不能为空")
             elif len(date_range.split(",")) != 2:
                 raise BizException(
-                    PARAMS_ERROR.format("日期范围格式错误，正确格式如：2023-01-01,2023-12-31"),
+                    DATE_RANGE_FORMAT_ERROR,
                     "日期范围格式错误，正确格式如：2023-01-01,2023-12-31",
                 )
         col_index = col_to_index(col)
         data = []
         if filter_type == FilterType.COLUMN:
             if not col:
-                raise BizException(PARAMS_ERROR.format("列号不能为空"), "列号不能为空")
+                raise BizException(WRITE_COL_NUMBER_EMPTY_ERROR, "列号不能为空")
             data = PyxlWrapper.read_column(col_index=col_index)
         elif filter_type == FilterType.ROW:
             if not row:
-                raise BizException(PARAMS_ERROR.format("行号不能为空"), "行号不能为空")
+                raise BizException(WRITE_ROW_NUMBER_EMPTY_ERROR, "行号不能为空")
             data = PyxlWrapper.read_row(row_index=row)
         else:
             data = PyxlWrapper.read_effective_area()
@@ -1497,7 +1497,7 @@ class DataTable:
         导出数据表格到指定文件
         """
         if not export_dest_path:
-            raise BizException(PARAMS_ERROR.format("导出文件夹路径不能为空"), "导出文件夹路径不能为空")
+            raise BizException(EXPORT_FOLDER_PATH_EMPTY_ERROR, "导出文件夹路径不能为空")
         if not export_file_name:
             export_file_name = "data_table"
         if not os.path.exists(export_dest_path):
