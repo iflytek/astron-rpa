@@ -57,13 +57,13 @@ function handleCancel() {
 <template>
   <rpa-hint-icon name="upload-folder" enable-hover-bg :disabled="!isReady" @click="handleImport">
     <template #suffix>
-      <span class="ml-1 text-xs">导入</span>
+      <span class="ml-1 text-xs">{{ $t('common.import') }}</span>
     </template>
   </rpa-hint-icon>
 
-  <a-modal :open="formState.open" title="数据导入" @cancel="handleCancel" @ok="handleOk">
+  <a-modal :open="formState.open" :title="$t('sheet.dataImport')" @cancel="handleCancel" @ok="handleOk">
     <a-form ref="formRef" layout="vertical" :model="formState">
-      <a-form-item label="请选择需要导入的 sheet 页" required>
+      <a-form-item :label="$t('sheet.selectSheet')" required>
         <a-select v-model:value="formState.selectedSheet" :options="formState.sheetOptions" />
       </a-form-item>
     </a-form>

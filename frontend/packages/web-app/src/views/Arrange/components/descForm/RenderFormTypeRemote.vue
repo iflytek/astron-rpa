@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Ref } from "vue";
-import { computed, inject } from "vue";
+import type { Ref } from 'vue'
+import { computed, inject } from 'vue'
 
-import { useFlowStore } from "@/stores/useFlowStore";
-import { useSharedData } from "@/stores/useSharedData";
-import { isConditionalKeys } from "@/views/Arrange/components/atomForm/hooks/useBaseConfig";
+import { useFlowStore } from '@/stores/useFlowStore'
+import { useSharedData } from '@/stores/useSharedData'
+import { isConditionalKeys } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
 
 const { itemData, id, canEdit } = defineProps({
   itemData: {
@@ -13,44 +13,44 @@ const { itemData, id, canEdit } = defineProps({
   },
   id: {
     type: String,
-    default: "",
+    default: '',
   },
   canEdit: {
     type: Boolean,
     default: true,
   },
-});
-const isShowFormItem = inject<Ref<boolean>>("showAtomFormItem");
+})
+const isShowFormItem = inject<Ref<boolean>>('showAtomFormItem')
 
-const sharedData = useSharedData();
+const sharedData = useSharedData()
 
 function click({ item }) {
-  itemData.value = item.originItemValue.key;
-  useFlowStore().setFormItemValue(itemData.key, itemData.value, id);
+  itemData.value = item.originItemValue.key
+  useFlowStore().setFormItemValue(itemData.key, itemData.value, id)
   if (isConditionalKeys(itemData.key))
-    isShowFormItem.value = !isShowFormItem.value;
+    isShowFormItem.value = !isShowFormItem.value
 }
 
 const menuItems = computed(() => {
   // itemData.options = sharedData.sharedVariables.map(i => i)
   return (
-    sharedData.sharedVariables.map((i) => ({
+    sharedData.sharedVariables.map(i => ({
       key: i.value,
       label: i.label,
     })) ?? []
-  );
-});
+  )
+})
 
 const itemLabel = computed(() => {
   const item = sharedData.sharedVariables.find(
-    (i) => i.value === itemData.value,
-  );
-  return item?.label || "";
-});
+    i => i.value === itemData.value,
+  )
+  return item?.label || ''
+})
 
 function openChange(open: boolean) {
   if (open) {
-    sharedData.getSharedVariables();
+    sharedData.getSharedVariables()
   }
 }
 </script>

@@ -10,6 +10,7 @@ import { useRoutePush } from '@/hooks/useCommonRoute'
 import { clipboardManager } from '@/platform'
 import { useMarketStore } from '@/stores/useMarketStore'
 import type { Fun } from '@/types/common'
+import type { TableOption } from '@/types/normalTable'
 import { MARKET_TYPE_PUBLIC, MARKET_USER_ADMIN, MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
 import FireTeam from '@/views/Home/components/TeamMarket/MarketManage/FireTeam.vue'
 import GiveOwner from '@/views/Home/components/TeamMarket/MarketManage/GiveOwner.vue'
@@ -60,7 +61,7 @@ export function useTeamUserTable() {
 
   const changeUserType = (itemData, userType) => {
     const { creatorId } = itemData
-    const user = USER_TYPES.find(item => item.key === userType)?.name
+    const user = t(USER_TYPES.find(item => item.key === userType)?.name || '')
     GlobalModal.confirm({
       title: t('market.setUserRoleConfirm', { role: user }),
       onOk: () => {
@@ -92,10 +93,10 @@ export function useTeamUserTable() {
     const updateModalState = (modal) => {
       const isLinkMode = inviteType.value === 'link'
       modal.update({
-        okText: isLinkMode ? '复制链接' : '确定',
-        okButtonProps: { 
-          loading: false, 
-          disabled: isLinkMode ? !inviteLink.value : inviteUsers.value.length <= 0 
+        okText: isLinkMode ? t('market.copyLink') : t('common.confirm'),
+        okButtonProps: {
+          loading: false,
+          disabled: isLinkMode ? !inviteLink.value : inviteUsers.value.length <= 0,
         },
       })
     }
@@ -113,7 +114,7 @@ export function useTeamUserTable() {
               inviteType.value = type
               updateModalState(m)
             }}
-            onChange={values => {
+            onChange={(values) => {
               inviteUsers.value = values
               updateModalState(m)
             }}
@@ -123,14 +124,14 @@ export function useTeamUserTable() {
             }}
           />,
         ),
-        okText: '确定',
+        okText: t('common.confirm'),
         okButtonProps: { loading: false, disabled: true },
         onOk: () => {
           return new Promise((resolve, reject) => {
             if (inviteType.value === 'link') {
               clipboardManager.writeClipboardText(inviteLink.value)
-              message.success('复制成功')
-              reject(new Error('复制成功'))
+              message.success(t('common.copySuccess'))
+              reject(new Error(t('common.copySuccess')))
               return
             }
             if (inviteUsers.value.length <= 0) {
@@ -255,7 +256,7 @@ export function useTeamUserTable() {
     })
   }
 
-  const tableOption = reactive({
+  const tableOption = reactive<TableOption>({
     refresh: false, // 控制表格数据刷新
     getData: getUserList,
     formList: [

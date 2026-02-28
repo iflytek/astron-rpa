@@ -1,4 +1,5 @@
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { inject, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 
@@ -8,6 +9,7 @@ import type { AnyObj } from '@/types/common'
 import { MARKET_TYPE_PUBLIC, MARKET_USER_OWNER } from '@/views/Home/components/TeamMarket/config/market'
 
 export function useBaseInfo() {
+  const { t } = useTranslation()
   const marketStore = useMarketStore()
   const inputRef = ref(null)
   const baseInfoData: any = ref({} as AnyObj)
@@ -90,11 +92,11 @@ export function useBaseInfo() {
     editTeamInfo({ marketName, marketDescribe, marketId })
       .then((res) => {
         if (res.data) {
-          message.success('修改成功')
+          message.success(t('market.modifySuccess'))
           marketStore.refreshTeamList('', true)
         }
         else {
-          message.error('修改失败')
+          message.error(t('market.modifyFailed'))
           baseInfoData.value.marketName = marketStore.activeMarket.marketName
         }
       })

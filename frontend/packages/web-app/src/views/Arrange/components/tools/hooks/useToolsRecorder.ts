@@ -1,6 +1,8 @@
 import { message } from 'ant-design-vue'
 import { onBeforeUnmount, onMounted } from 'vue'
 
+import i18next from '@/plugins/i18next'
+
 import BUS from '@/utils/eventBus'
 
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
@@ -36,7 +38,7 @@ export function useToolsRecorder() {
     clickFn: open,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('正在运行/调试, 请先停止')
+        message.warning(i18next.t('arrange.stopRunningOrDebugFirst'))
         return false
       }
       return true

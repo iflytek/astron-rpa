@@ -39,32 +39,32 @@ const {
         :wrapper-col="{ span: 19 }"
       >
         <Form.Item :label="$t('emailAddress')" name="receiver">
-          <Input v-model:value="email.receiver" placeholder="请输入收件箱地址" />
+          <Input v-model:value="email.receiver" :placeholder="$t('settingCenter.msgNotify.inputReceiverMail')" />
         </Form.Item>
         <Form.Item :label="$t('sendingMethod')">
           <Checkbox v-model:checked="email.is_default">
-            使用默认发件箱
+            {{ $t('settingCenter.msgNotify.useDefaultSender') }}
           </Checkbox>
         </Form.Item>
         <div v-if="!email.is_default">
-          <Form.Item label="发件箱服务器" name="mail_server">
-            <Input v-model:value="email.mail_server" placeholder="请输入发件箱服务器" />
+          <Form.Item :label="$t('settingCenter.msgNotify.mailServer')" name="mail_server">
+            <Input v-model:value="email.mail_server" :placeholder="$t('settingCenter.msgNotify.inputMailServer')" />
           </Form.Item>
-          <Form.Item label="发件箱端口" name="mail_port">
-            <Input v-model:value="email.mail_port" placeholder="请输入发件箱端口号" />
+          <Form.Item :label="$t('settingCenter.msgNotify.mailPort')" name="mail_port">
+            <Input v-model:value="email.mail_port" :placeholder="$t('settingCenter.msgNotify.inputMailPort')" />
           </Form.Item>
-          <Form.Item label="发件箱地址" name="sender_mail">
-            <Input v-model:value="email.sender_mail" placeholder="请输入发件箱地址" />
+          <Form.Item :label="$t('settingCenter.msgNotify.senderMail')" name="sender_mail">
+            <Input v-model:value="email.sender_mail" :placeholder="$t('settingCenter.msgNotify.inputSenderMail')" />
           </Form.Item>
-          <Form.Item label="发件箱密码" name="password">
-            <Input.Password v-model:value="email.password" placeholder="请输入发件箱密码" />
+          <Form.Item :label="$t('settingCenter.msgNotify.senderPassword')" name="password">
+            <Input.Password v-model:value="email.password" :placeholder="$t('settingCenter.msgNotify.inputSenderPassword')" />
           </Form.Item>
         </div>
         <Form.Item :label="$t('isSSL')">
           <Switch v-model:checked="email.use_ssl" />
         </Form.Item>
         <Form.Item :label="$t('cc')">
-          <Input v-model:value="email.cc" placeholder="多个邮箱请以英文;分割，例如：aaa@163.com;bbbQqq.com" />
+          <Input v-model:value="email.cc" :placeholder="$t('settingCenter.msgNotify.ccPlaceholder')" />
         </Form.Item>
       </Form>
       <div class="w-[120px] flex flex-col justify-end">

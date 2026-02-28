@@ -1,17 +1,17 @@
 <!-- 子流程选择组件 -->
 <script setup lang="ts">
-import { some, find, get, has, isArray, isEmpty, isEqual } from 'lodash-es'
+import { useTranslation } from 'i18next-vue'
+import { find, get, has, isArray, isEmpty, isEqual, some } from 'lodash-es'
 import { computed, ref, toRaw, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
 import VxeGrid from '@/plugins/VxeTable'
 
 import { getConfigParams } from '@/api/atom'
+import { OTHER_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
-
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
-import { OTHER_IN_TYPE } from '@/constants/atom'
 
 interface ParamItemValue {
   rpa: 'special'
@@ -27,8 +27,9 @@ const gridData = ref<RPA.ConfigParamData[]>([])
 
 const flowStore = useFlowStore()
 const processStore = useProcessStore()
+const { t } = useTranslation()
 
-const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
+const gridOptions = computed<VxeGridProps<RPA.ConfigParamData>>(() => ({
   height: 160,
   size: 'mini',
   scrollY: { enabled: true },
@@ -37,10 +38,10 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   keepSource: true,
   round: true,
   columns: [
-    { field: 'varName', title: '参数名', width: 100 },
-    { field: 'varValue', title: '参数值', slots: { default: 'value_default' } },
+    { field: 'varName', title: t('parameter.paramName'), width: 100 },
+    { field: 'varValue', title: t('parameter.paramValue'), slots: { default: 'value_default' } },
   ],
-}
+}))
 
 const linkageFormItem = computed(() => {
   // 获取联动的选择子流程/子模块 id
@@ -54,7 +55,8 @@ const linkageKey = computed(() => linkageFormItem.value?.value)
 function safeParse(str) {
   try {
     return JSON.parse(str)
-  } catch {
+  }
+  catch {
     return str
   }
 }
@@ -76,14 +78,14 @@ watch(linkageKey, async (newLinkageKey) => {
   // 配置参数默认值
   const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
 
-  gridData.value = list.filter(item => item.varDirection === 0).map(item => {
+  gridData.value = list.filter(item => item.varDirection === 0).map((item) => {
     const _varValue = currentParamMap.get(item.id) || defaultParamMap.get(item.id)
     const varValue = safeParse(_varValue)
     const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
 
     return {
       ...item,
-      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue
+      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue,
     }
   })
 }, { immediate: true })

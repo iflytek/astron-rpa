@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 import { Image, message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { throttle } from 'lodash-es'
 import { h, ref, toRaw, watch } from 'vue'
 
@@ -47,6 +48,7 @@ const loading = ref('')
 const singleLoading = ref('') // 某个按钮loading状态
 const useElements = useElementsStore()
 const usePick = usePickStore()
+const { t } = useTranslation()
 
 const pickerType = ref('') // 拾取类型
 const similarButton = ref(false) // 是否可以拾取相似元素
@@ -179,12 +181,12 @@ const handleOk = throttle(
     const elementData = getLatestCurrentElementData(true)
     const name = formOption.value.pickName.trim()
     if (name === '') {
-      message.error('请输入元素名称')
+      message.error(t('enterElementName'))
       return
     }
 
     if (useElements.checkName(name, useElements.currentElement.id)) {
-      message.error('元素名称不可重名')
+      message.error(t('sameNameExists'))
       return
     }
 
@@ -211,7 +213,7 @@ const handleValidateElement = throttle(
     const element = JSON.stringify(elementData)
     usePick.startCheck(pickerType.value, element, (res) => {
       if (res.success)
-        message.success('校验成功')
+        message.success(t('validationSuccess'))
     })
   },
   1500,
@@ -403,7 +405,7 @@ watch(
             <span class="similar-counts"><CheckCircleOutlined
               class="mr-2"
               style="color: #52c41a"
-            />已找到{{ similarCount }}个相似元素</span>
+            />{{ $t('pickTips.foundSimilarCount', { count: similarCount }) }}</span>
           </div>
         </a-col>
         <a-col :span="13">

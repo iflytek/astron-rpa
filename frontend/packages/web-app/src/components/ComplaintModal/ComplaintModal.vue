@@ -5,6 +5,7 @@ import type { UploadFile, UploadProps } from 'ant-design-vue'
 import { message, Upload } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import to from 'await-to-js'
+import { useTranslation } from 'i18next-vue'
 import { isEmpty } from 'lodash-es'
 import { computed, reactive, ref } from 'vue'
 
@@ -13,10 +14,10 @@ import { uploadFile } from '@/api/resource'
 import { useUserStore } from '@/stores/useUserStore'
 
 const modal = NiceModal.useModal()
+const { t } = useTranslation()
 
 interface ICheckboxOption {
-  label: string
-  tooltip: string
+  key: string
 }
 
 interface IFormData {
@@ -29,40 +30,32 @@ interface IFormData {
 // 内容安全类
 const CONTENT_OPTIONS: ICheckboxOption[] = [
   {
-    label: '生成违法/违规信息',
-    tooltip: '包括但不限于政治敏感、暴力、色情等违反法律法规的内容',
+    key: 'illegal',
   },
   {
-    label: '生成歧视/偏见内容',
-    tooltip: '基于种族、性别、宗教等的歧视性言论',
+    key: 'discrimination',
   },
   {
-    label: '生成不道德/有害建议',
-    tooltip: '可能导致人身伤害或财产损失的建议',
+    key: 'harmfulAdvice',
   },
   {
-    label: '侵犯他人知识产权',
-    tooltip: '未经授权使用他人的文字、代码等',
+    key: 'ipInfringement',
   },
 ]
 
 // 功能缺陷类
 const DEFECT_OPTIONS: ICheckboxOption[] = [
   {
-    label: '生成流程代码错误，无法执行',
-    tooltip: '生成的代码存在语法错误或逻辑错误，无法正常运行',
+    key: 'codeError',
   },
   {
-    label: '理解指令有误，答非所问',
-    tooltip: '未能正确理解用户的问题或指令，回答内容与问题无关',
+    key: 'misunderstood',
   },
   {
-    label: '生成结果不完整或逻辑混乱',
-    tooltip: '回答内容不完整，或存在逻辑矛盾',
+    key: 'incomplete',
   },
   {
-    label: '性能问题（响应过慢、超时）',
-    tooltip: '响应时间超过20秒，或出现超时错误',
+    key: 'performance',
   },
 ]
 
@@ -82,11 +75,11 @@ const rules = computed<Record<string, Rule[]>>(() => {
 
   const validateCategorie = async () => {
     const values = [...formData.contentSafety, ...formData.functionalDefect]
-    return isEmpty(values) ? Promise.reject(new Error('请选择问题类型')) : Promise.resolve()
+    return isEmpty(values) ? Promise.reject(new Error(t('complaintModal.selectIssueType'))) : Promise.resolve()
   }
 
   return {
-    description: [{ required: true }],
+    description: [{ required: true, message: t('complaintModal.enterIssueDescription') }],
     contentSafety: [{ required: isEmpty(categories) || !isEmpty(formData.contentSafety), validator: validateCategorie }],
     functionalDefect: [{ required: isEmpty(categories) || !isEmpty(formData.functionalDefect), validator: validateCategorie }],
   }
@@ -94,13 +87,13 @@ const rules = computed<Record<string, Rule[]>>(() => {
 
 const beforeUpload: UploadProps['beforeUpload'] = (file) => {
   if (!file.type.startsWith('image/')) {
-    message.error('只能上传图片文件')
+    message.error(t('complaintModal.onlyImageAllowed'))
     return Upload.LIST_IGNORE
   }
 
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
-    message.error('文件大小不能超过 5MB')
+    message.error(t('complaintModal.fileTooLarge', { size: 5 }))
     // 返回 Upload.LIST_IGNORE 来阻止文件被添加到列表
     return Upload.LIST_IGNORE
   }
@@ -150,51 +143,59 @@ async function handleSubmit() {
   }))
 
   if (error) {
-    message.error('提交失败，请稍后重试')
-  } else {
-    message.success('举报已受理，感谢您的反馈')
+    message.error(t('complaintModal.submitFailed'))
+  }
+  else {
+    message.success(t('complaintModal.submitSuccess'))
     modal.hide()
   }
 }
 </script>
 
 <template>
-  <a-modal v-bind="NiceModal.antdModal(modal)" title="举报AI生成内容" width="600px" @ok="handleSubmit">
+  <a-modal
+    v-bind="NiceModal.antdModal(modal)"
+    :title="t('complaintModal.title')"
+    :ok-text="t('submit')"
+    :cancel-text="t('cancel')"
+    width="600px"
+    @ok="handleSubmit"
+  >
     <div class="text-text-secondary mb-4">
-      请选择问题类型并描述具体情况
+      {{ t('complaintModal.subtitle') }}
     </div>
 
     <a-divider />
 
     <DefineTemplate v-slot="{ options }">
-      <div v-for="item in options" :key="item.label" class="flex items-center">
-        <a-checkbox :value="item.label">
-          {{ item.label }}
+      <div v-for="item in options" :key="item.key" class="flex items-center">
+        <a-checkbox :value="item.key">
+          {{ t(`complaintModal.options.${item.key}.label`) }}
         </a-checkbox>
-        <a-tooltip :title="item.tooltip">
+        <a-tooltip :title="t(`complaintModal.options.${item.key}.tooltip`)">
           <rpa-icon name="atom-form-tip" />
         </a-tooltip>
       </div>
     </DefineTemplate>
 
     <a-form ref="formRef" layout="vertical" :model="formData" :rules="rules" class="max-h-[60vh] overflow-y-auto">
-      <a-form-item label="内容安全类" name="contentSafety">
+      <a-form-item :label="t('complaintModal.contentSafety')" name="contentSafety">
         <a-checkbox-group v-model:value="formData.contentSafety" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="CONTENT_OPTIONS" />
         </a-checkbox-group>
       </a-form-item>
-      <a-form-item label="功能缺陷类" name="functionalDefect">
+      <a-form-item :label="t('complaintModal.functionalDefect')" name="functionalDefect">
         <a-checkbox-group v-model:value="formData.functionalDefect" class="grid grid-cols-2 gap-3">
           <ReuseTemplate :options="DEFECT_OPTIONS" />
         </a-checkbox-group>
       </a-form-item>
-      <a-form-item label="问题描述" name="description">
+      <a-form-item :label="t('complaintModal.issueDescription')" name="description">
         <a-textarea
           v-model:value="formData.description"
           :rows="4"
           :maxlength="500"
           show-count
-          placeholder="请具体描述问题（如生成的内容情况、问题发生场景）"
+          :placeholder="t('complaintModal.issueDescriptionPlaceholder')"
         />
       </a-form-item>
       <a-form-item>
@@ -207,7 +208,7 @@ async function handleSubmit() {
           list-type="picture"
         >
           <a-button class="text-xs">
-            上传图片附件
+            {{ t('complaintModal.uploadImageAttachments') }}
           </a-button>
         </a-upload>
       </a-form-item>

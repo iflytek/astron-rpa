@@ -79,13 +79,13 @@ const videoPath = computed(() =>
             color: isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.65)',
           }"
         >
-          <a-descriptions-item label="创建者" :span="filePath && appDetail.fileName ? 2 : 3">
+          <a-descriptions-item :label="t('market.creator')" :span="filePath && appDetail.fileName ? 2 : 3">
             {{ appDetail.creatorName }}
           </a-descriptions-item>
-          <a-descriptions-item label="分类" :span="filePath && appDetail.fileName ? 2 : 3">
+          <a-descriptions-item :label="t('market.category')" :span="filePath && appDetail.fileName ? 2 : 3">
             {{ appDetail.category }}
           </a-descriptions-item>
-          <a-descriptions-item v-if="filePath && appDetail.fileName" label="附件下载" :span="filePath && appDetail.fileName ? 2 : 3">
+          <a-descriptions-item v-if="filePath && appDetail.fileName" :label="t('market.attachmentDownload')" :span="filePath && appDetail.fileName ? 2 : 3">
             <TypographyLink :href="filePath" target="_blank">
               <div class="flex">
                 <rpa-icon name="paper-clip-outlined" size="22" class="relative mt-[2px] mr-2 text-[#000000]/[.45] dark:text-[#FFFFFF]/[.45]" />
@@ -93,13 +93,13 @@ const videoPath = computed(() =>
               </div>
             </TypographyLink>
           </a-descriptions-item>
-          <a-descriptions-item v-if="appDetail.videoPath" label="视频说明" :span="6">
+          <a-descriptions-item v-if="appDetail.videoPath" :label="t('market.videoDescription')" :span="6">
             <video controls>
               <source :src="videoPath" type="video/mp4">
-              您的浏览器不支持 video 标签。
+              {{ t('market.browserNotSupportVideo') }}
             </video>
           </a-descriptions-item>
-          <a-descriptions-item label="使用说明" :span="6">
+          <a-descriptions-item :label="$t('useDirection')" :span="6">
             <RichTextPreview :content="appDetail.useDescription || $t('noDescription-1')" class="text-[12px]" />
           </a-descriptions-item>
         </a-descriptions>
@@ -107,19 +107,19 @@ const videoPath = computed(() =>
 
       <section class="panel !pb-0">
         <div class="subtitle mb-4">
-          版本记录
+          {{ $t('versionHistory') }}
         </div>
         <Timeline progress-dot size="small" direction="vertical">
           <Timeline.Item v-for="item in appDetail.versionInfoList" :key="item.versionNum">
             <div slot="title" class="ctitle">
               <div class="leftLabel font-medium">
-                <span class="mr-5">版本{{ item.versionNum }}</span>
+                <span class="mr-5">{{ $t('versionWithNumber', { version: item.versionNum }) }}</span>
                 <span class="mr-5">{{ item.createTime }}</span>
-                <Badge v-if="item.online === 1" status="success" text="当前启用版本" />
+                <Badge v-if="item.online === 1" status="success" :text="$t('currentEnableVersion')" />
               </div>
               <div class="description text-[#000000]/[.65] dark:text-[#FFFFFF]/[.65]">
                 <a-tooltip :title="item.updateLog">
-                  {{ item.updateLog || '暂无更新日志' }}
+                  {{ item.updateLog || $t('noUpdateLog') }}
                 </a-tooltip>
               </div>
             </div>

@@ -25,8 +25,8 @@ const iconName = computed(() => {
     />
     <span v-if="item.key === Group || item.key === GroupEnd">
       <span class="text-primary">{{ item.alias || item.title }}</span>
-      <template v-if="item.key === Group"> 编组开始</template>
-      <template v-else> 编组结束</template>
+      <template v-if="item.key === Group"> {{ $t('groupStart') }}</template>
+      <template v-else> {{ $t('groupEnd') }}</template>
     </span>
     <span v-else>{{ item.alias || item.title }}</span>
   </div>

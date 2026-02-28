@@ -34,10 +34,10 @@ const versionTableColumns: ColumnsType = [
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'version'">
-        <span>版本{{ record.versionNum }}</span>
+        <span>{{ $t('versionWithNumber', { version: record.versionNum }) }}</span>
       </template>
       <template v-if="column.key === 'online' && record.online === 1">
-        <Badge status="success" text="当前启用版本" />
+        <Badge status="success" :text="$t('currentEnableVersion')" />
       </template>
     </template>
   </Table>

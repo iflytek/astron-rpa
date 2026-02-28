@@ -6,17 +6,19 @@ export const FILE_TYPE_IMG = {
 }
 
 export interface FileInfo {
-  path: string,
-  name: string,
-  suffix: string,
-  content: string, // 文件内容
-  previewContent: string | Uint8Array | ArrayBuffer, // 预览内容
+  path: string
+  name: string
+  suffix: string
+  content: string // 文件内容
+  previewContent: string | Uint8Array | ArrayBuffer // 预览内容
 }
 
-export const initFileInfo = (data: Partial<FileInfo> = {}): FileInfo => Object.assign({
-  path: '',
-  name: '',
-  suffix: '',
-  content: '',
-  previewContent: '',
-}, data)
+export function initFileInfo(data: Partial<FileInfo> = {}): FileInfo {
+  return Object.assign({
+    path: '',
+    name: '',
+    suffix: '',
+    content: '',
+    previewContent: '',
+  }, data)
+}

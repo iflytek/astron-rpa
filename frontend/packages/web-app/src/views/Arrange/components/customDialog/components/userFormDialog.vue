@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HintIcon } from '@rpa/components'
-import { Form, Empty } from 'ant-design-vue'
+import { Empty, Form } from 'ant-design-vue'
 import { isEmpty } from 'lodash-es'
 
 import type { AnyObj } from '@/types/common'
@@ -9,13 +9,14 @@ import type { DialogOption } from '@/views/Arrange/components/customDialog/types
 import { createUserFormItem } from '../hooks/createUserFormItem'
 import useUserFormDialog from '../hooks/useUserFormDialog'
 
-const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
-
 const props = defineProps<{ option: DialogOption, draggable?: boolean }>()
+
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'save', data: AnyObj): void
 }>()
+
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 
 const close = () => emit('close')
 const save = (data: AnyObj) => emit('save', data)

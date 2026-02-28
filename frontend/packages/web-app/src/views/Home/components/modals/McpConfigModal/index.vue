@@ -2,8 +2,9 @@
 import { NiceModal } from '@rpa/components'
 import type { FormInstance } from 'ant-design-vue'
 import { Input, message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { isEmpty } from 'lodash-es'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
 import VxeGrid from '@/plugins/VxeTable'
@@ -27,6 +28,7 @@ const props = defineProps<{ record: any }>()
 
 const modal = NiceModal.useModal()
 const confirmLoading = ref(false)
+const { t } = useTranslation()
 
 const formRef = ref<FormInstance>()
 const formState = ref<FormState>({
@@ -40,20 +42,20 @@ const formState = ref<FormState>({
 })
 const rules: FormRules = {
   name: [
-    { required: true, message: '请输入应用名称', trigger: 'change' },
+    { required: true, message: t('mcpConfigModal.enterAppName'), trigger: 'change' },
   ],
   english_name: [
-    { required: true, message: '请输入应用英文名称', trigger: 'change' },
+    { required: true, message: t('mcpConfigModal.enterAppEnglishName'), trigger: 'change' },
   ],
   description: [
-    { required: true, message: '请输入应用简介', trigger: 'change' },
+    { required: true, message: t('mcpConfigModal.enterAppDescription'), trigger: 'change' },
   ],
 }
 
-const DIRRCTION_MAP = {
-  0: '输入',
-  1: '输出',
-}
+const directionMap = computed(() => ({
+  0: t('mcpConfigModal.input'),
+  1: t('mcpConfigModal.output'),
+}))
 const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   size: 'mini',
   scrollY: { enabled: true },
@@ -65,10 +67,10 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
     keyField: 'project_id', // 指定使用 id 字段作为行键
   },
   columns: [
-    { field: 'varName', title: '变量名' },
-    { field: 'varDirection', title: '输入/输出', slots: { default: 'usage_default' } },
-    { field: 'varType', title: '类型' },
-    { field: 'varDescribe', title: '简介', slots: { default: 'desc_default' } },
+    { field: 'varName', title: t('mcpConfigModal.varName') },
+    { field: 'varDirection', title: t('mcpConfigModal.direction'), slots: { default: 'usage_default' } },
+    { field: 'varType', title: t('mcpConfigModal.varType') },
+    { field: 'varDescribe', title: t('mcpConfigModal.description'), slots: { default: 'desc_default' } },
   ],
 }
 
@@ -124,7 +126,7 @@ async function handleOk() {
 
     formState.value.parameters?.forEach((item) => {
       if (!item.varDescribe) {
-        throw new Error('简介不能为空')
+        throw new Error(t('mcpConfigModal.descriptionRequired'))
       }
     })
 
@@ -138,48 +140,48 @@ async function handleOk() {
     modal.hide()
   }
   catch {
-    message.warning('请检查填写内容')
+    message.warning(t('mcpConfigModal.checkInput'))
   }
 }
 
 function handleChange(varDescribe: string) {
   if (!varDescribe) {
-    message.warning('简介不能为空')
+    message.warning(t('mcpConfigModal.descriptionRequired'))
   }
 }
 </script>
 
 <template>
-  <GlobalModal v-bind="NiceModal.antdModal(modal)" title="MCP配置" :confirm-loading="confirmLoading" @ok="handleOk">
+  <GlobalModal v-bind="NiceModal.antdModal(modal)" :title="$t('mcpConfigModal.title')" :confirm-loading="confirmLoading" @ok="handleOk">
     <a-form
       ref="formRef" layout="vertical" :rules="formState.status ? rules : null" :model="formState"
       autocomplete="off"
     >
-      <a-form-item label="是否启用外部调用">
+      <a-form-item :label="$t('mcpConfigModal.enableExternalCall')">
         <a-switch v-model:checked="formState.status" />
       </a-form-item>
       <template v-if="formState.status">
-        <a-form-item label="应用名称" name="name">
+        <a-form-item :label="$t('mcpConfigModal.appName')" name="name">
           <a-input v-model:value="formState.name" />
         </a-form-item>
-        <a-form-item label="应用英文名" name="english_name">
+        <a-form-item :label="$t('mcpConfigModal.appEnglishName')" name="english_name">
           <div class="flex items-center justify-between">
             <a-input v-model:value="formState.english_name" />
             <a-button size="small" class="ml-2" type="link" @click="handleAutoTranslate">
-              点击翻译
+              {{ $t('mcpConfigModal.translate') }}
             </a-button>
           </div>
         </a-form-item>
-        <a-form-item label="应用简介" name="description">
+        <a-form-item :label="$t('mcpConfigModal.appDescription')" name="description">
           <a-textarea v-model:value="formState.description" :rows="4" />
         </a-form-item>
-        <a-form-item label="应用参数">
+        <a-form-item :label="$t('mcpConfigModal.appParams')">
           <VxeGrid
             v-bind="gridOptions" :data="formState.parameters" class="params-table w-full overflow-hidden"
             border="none" :height="100"
           >
             <template #usage_default="{ row }">
-              <span>{{ DIRRCTION_MAP[row.varDirection] }}</span>
+              <span>{{ directionMap[row.varDirection] }}</span>
             </template>
             <template #desc_default="{ row }">
               <Input

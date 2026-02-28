@@ -1,5 +1,5 @@
-import type { Task } from '@/types/schedule'
 import type { ITableResponse } from '@/types/normalTable'
+import type { Task } from '@/types/schedule'
 
 import http from './http'
 
@@ -45,7 +45,7 @@ export function taskNotify(params = { event: 'normal' }) {
 
 // 获取计划任务未来执行时间
 export function taskFutureTime(data: { task_id: string, times: number }) {
-  return http.post('/trigger/task/future', data,)
+  return http.post('/trigger/task/future', data)
 }
 
 // /task/future_with_no_create

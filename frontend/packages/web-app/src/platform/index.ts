@@ -15,6 +15,6 @@ export const windowManager: WindowManager = window.WindowManager ?? new Window()
 
 export const isBrowser = utilsManager.getAppEnv() === 'browser'
 
-export type { WindowPosition, CreateWindowOptions } from '@rpa/shared/platform'
+export type { CreateWindowOptions, WindowPosition } from '@rpa/shared/platform'
 
 windowManager.hideDecorations()

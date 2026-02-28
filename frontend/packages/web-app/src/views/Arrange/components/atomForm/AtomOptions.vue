@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { cloneDeep } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import { ref, watch } from 'vue'
@@ -21,6 +22,11 @@ const MAX_OPTION_LENGTH = 30
 const ADD_OPTION = cloneDeep(renderData)
 
 const optionsList = ref([])
+const { t } = useTranslation()
+
+function getOptionLabel(index: number) {
+  return t('atomOptions.optionWithIndex', { index })
+}
 
 watch(() => optionsList.value, (val) => {
   const valList = val.map(item => item.value)
@@ -54,7 +60,7 @@ function initData() {
           ...ADD_OPTION,
           rId: nanoid(),
           key: `options${Date.now()}`,
-          value: [{ type: 'other', value: '选项1' }],
+          value: [{ type: 'other', value: getOptionLabel(1) }],
           formType: {
             type: 'INPUT_VARIABLE',
           },
@@ -77,7 +83,7 @@ function checkValidate(valList, showMessage = true) {
   function checkEmpty() {
     const flagIdx = valList.findIndex(val => getRealValue(val) === '')
     if (flagIdx !== -1 && showMessage) {
-      message.warning('存在为空选项请修改')
+      message.warning(t('atomOptions.emptyOptionTip'))
     }
     return flagIdx === -1 // true 表示没有空值
   }
@@ -88,7 +94,7 @@ function checkValidate(valList, showMessage = true) {
       const realVal = getRealValue(val)
       map[realVal] = (map[realVal] || 0) + 1
       if (map[realVal] > 1) {
-        showMessage && message.warning(`存在重复值：${realVal}，请修改`)
+        showMessage && message.warning(t('atomOptions.duplicateOptionTip', { value: realVal }))
         flag = false
         return false
       }
@@ -100,8 +106,8 @@ function checkValidate(valList, showMessage = true) {
 function deleteOneOption(index: number) { // 检测至少保留一个选项
   if (optionsList.value.length <= 1) {
     GlobalModal.warning({
-      title: '提示',
-      content: '至少保留一个选项',
+      title: t('prompt'),
+      content: t('atomOptions.keepAtLeastOne'),
       centered: true,
       keyboard: false,
     })
@@ -111,18 +117,18 @@ function deleteOneOption(index: number) { // 检测至少保留一个选项
 }
 function getNewOpt() {
   let index = 1
-  const newOpt = [{ type: 'other', value: `选项${optionsList.value.length + index}` }]
+  const newOpt = [{ type: 'other', value: getOptionLabel(optionsList.value.length + index) }]
   const valList = [...optionsList.value.map(item => item.value), newOpt]
   while (!checkValidate(valList, false)) {
     index = index + 1
-    newOpt[0].value = `选项${optionsList.value.length + index}`
+    newOpt[0].value = getOptionLabel(optionsList.value.length + index)
   }
   return newOpt
 }
 function addOneOption() {
   // 检测不能超过30个选项
   if (optionsList.value.length >= MAX_OPTION_LENGTH) {
-    message.info('最多只能添加30个选项')
+    message.info(t('atomOptions.maxOptionsTip', { max: MAX_OPTION_LENGTH }))
     return
   }
   // 检测选项是否唯一
@@ -160,7 +166,7 @@ function addOneOption() {
     </draggable>
     <rpa-hint-icon name="add-circle" class="mt-1 text-primary" enable-hover-bg @click="addOneOption()">
       <template #suffix>
-        <span class="ml-1">添加一项</span>
+        <span class="ml-1">{{ $t('addItem') }}</span>
       </template>
     </rpa-hint-icon>
   </div>

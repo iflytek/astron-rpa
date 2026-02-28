@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { CodeEditor } from '@rpa/components'
+import { useDark } from '@vueuse/core'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { throttle } from 'lodash-es'
 import { computed, provide, ref, watch } from 'vue'
-import { useTranslation } from 'i18next-vue'
 import { useRoute } from 'vue-router'
-import { CodeEditor } from '@rpa/components'
 
 import { codeToMeta } from '@/api/component'
 import { getBaseURL } from '@/api/http/env'
@@ -18,7 +19,6 @@ import AtomForm from '../components/AtomForm.vue'
 import { modeOptions } from '../config/constants'
 import { usePackageCheck, useSmartComp } from '../hooks'
 import { generateComponentForm } from '../utils'
-import { useDark } from '@vueuse/core'
 
 const isDark = useDark()
 const processStore = useProcessStore()
@@ -73,14 +73,14 @@ const buttonConfig = computed(() => {
   if (runningStore.running === 'run' || runningStore.running === 'debug') {
     return {
       icon: 'tools-stop',
-      text: '停止',
+      text: t('stop'),
       clickHandler: handleStop,
     }
   }
   else {
     return {
       icon: 'tools-run',
-      text: '运行',
+      text: t('run'),
       clickHandler: handleRun,
     }
   }

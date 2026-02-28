@@ -1,12 +1,15 @@
+import { useTranslation } from 'i18next-vue'
+
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useCvStore } from '@/stores/useCvStore.ts'
 import { useElementsStore } from '@/stores/useElementsStore'
 
 // 自定义表单项排序
 export function useRenderPick() {
+  const { t } = useTranslation()
   const PickTypeText = {
-    [ATOM_FORM_TYPE.CVPICK]: '图像',
-    [ATOM_FORM_TYPE.PICK]: '元素',
+    [ATOM_FORM_TYPE.CVPICK]: t('common.image'),
+    [ATOM_FORM_TYPE.PICK]: t('common.element'),
   }
 
   // 拾取操作下拉列表
@@ -14,20 +17,20 @@ export function useRenderPick() {
     const text = PickTypeText[itemType]
     if (notEmpty) {
       return [
-        { label: `编辑${text}`, key: 'editPick' },
-        { label: `拾取${text}`, key: 'pick' },
-        { label: `选择${text}`, key: 'selectPick' },
+        { label: t('common.editSomething', { name: text }), key: 'editPick' },
+        { label: t('common.pickSomething', { name: text }), key: 'pick' },
+        { label: t('common.selectSomething', { name: text }), key: 'selectPick' },
       ]
     }
     return [
-      { label: `拾取${text}`, key: 'pick' },
-      { label: `选择${text}`, key: 'selectPick' },
+      { label: t('common.pickSomething', { name: text }), key: 'pick' },
+      { label: t('common.selectSomething', { name: text }), key: 'selectPick' },
     ]
   }
 
   // 获取默认文本
   const getDefaultText = (itemType: any) => {
-    return `拾取${PickTypeText[itemType]}`
+    return t('common.pickSomething', { name: PickTypeText[itemType] })
   }
 
   // 非空判断

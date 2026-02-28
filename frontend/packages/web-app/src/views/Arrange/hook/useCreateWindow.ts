@@ -1,7 +1,10 @@
+import i18next from '@/plugins/i18next'
+
 import { baseUrl } from '@/utils/env'
 
 import { WINDOW_NAME } from '@/constants'
-import { windowManager, CreateWindowOptions } from '@/platform'
+import type { CreateWindowOptions } from '@/platform'
+import { windowManager } from '@/platform'
 import { usePickStore } from '@/stores/usePickStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 
@@ -30,7 +33,7 @@ export function useCreateWindow() {
 
     const options: CreateWindowOptions = {
       url,
-      title: '数据抓取',
+      title: i18next.t('dataBatch.title'),
       label: WINDOW_NAME.BATCH,
       alwaysOnTop: false,
       position: 'right_top', // 自定义参数

@@ -1,52 +1,52 @@
 <script setup lang="ts">
-import { message } from "ant-design-vue";
-import { useTranslation } from "i18next-vue";
-import { storeToRefs } from "pinia";
-import { computed } from "vue";
+import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
-import { useAppConfigStore } from "@/stores/useAppConfig";
+import { useAppConfigStore } from '@/stores/useAppConfig'
 
-import Card from "../components/card.vue";
+import Card from '../components/card.vue'
 
-const { t } = useTranslation();
-const appStore = useAppConfigStore();
-const { appInfo, updaterState } = storeToRefs(appStore);
+const { t } = useTranslation()
+const appStore = useAppConfigStore()
+const { appInfo, updaterState } = storeToRefs(appStore)
 
 const textItems = computed(() => [
   {
-    key: t("settingCenter.about.installDirectory"),
-    id: "installDirectory",
+    key: t('settingCenter.about.installDirectory'),
+    id: 'installDirectory',
     content: appInfo.value.appPath,
     copyable: {
       onCopy: () => {
         message.success(t('copySuccess'))
-      }
+      },
     },
   },
   {
-    key: t("settingCenter.about.userDirectory"),
-    id: "userDirectory",
+    key: t('settingCenter.about.userDirectory'),
+    id: 'userDirectory',
     content: appInfo.value.userPath,
     copyable: {
       onCopy: () => {
         message.success(t('copySuccess'))
-      }
+      },
     },
   },
   {
-    key: t("settingCenter.about.buildVersion"),
-    id: "buildVersion",
+    key: t('settingCenter.about.buildVersion'),
+    id: 'buildVersion',
     content: appInfo.value.buildInfo,
   },
   {
-    key: t("settingCenter.about.systemEnvironment"),
-    id: "systemEnvironment",
+    key: t('settingCenter.about.systemEnvironment'),
+    id: 'systemEnvironment',
     content: appInfo.value.systemInfo,
   },
-]);
+])
 
 async function checkUpdate() {
-  await appStore.checkUpdate(true);
+  await appStore.checkUpdate(true)
 }
 </script>
 
@@ -58,7 +58,7 @@ async function checkUpdate() {
       :description="`v${appInfo.appVersion}`"
     >
       <template #prefix>
-        <img src="/icons/icon.png" width="40" height="40" />
+        <img src="/icons/icon.png" width="40" height="40">
       </template>
       <template #suffix>
         <a-button :loading="updaterState.checkLoading" @click="checkUpdate">
@@ -72,7 +72,9 @@ async function checkUpdate() {
         style="grid-template-columns: max-content 1fr"
       >
         <template v-for="item in textItems" :key="item.key">
-          <div class="text-right">{{ item.key }}:</div>
+          <div class="text-right">
+            {{ item.key }}:
+          </div>
           <a-typography-paragraph
             class="!mb-0 min-w-0"
             :ellipsis="{ rows: 1, tooltip: true }"
@@ -85,8 +87,7 @@ async function checkUpdate() {
     <div
       class="absolute w-full bottom-0 text-center text-text-tertiary text-xs"
     >
-      生成式人工智能服务能力由 星火认知大模型 -
-      Anhui-XingHuoRenZhiDaMoXing-20230823 提供
+      {{ $t('settingCenter.about.aiServiceBy', { model: 'Spark' }) }}
     </div>
   </div>
 </template>

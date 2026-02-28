@@ -2,7 +2,8 @@
 import { NiceModal } from '@rpa/components'
 import { Table } from 'ant-design-vue'
 import type { ColumnsType } from 'ant-design-vue/es/table'
-import { h } from 'vue'
+import { useTranslation } from 'i18next-vue'
+import { computed, h } from 'vue'
 
 import type { AnyObj } from '@/types/common'
 
@@ -10,16 +11,18 @@ const props = defineProps<{ taskReferInfoList: Array<AnyObj> }>()
 
 const modal = NiceModal.useModal()
 
-const columns: ColumnsType = [
+const { t } = useTranslation()
+const separator = computed(() => t('common.listSeparator'))
+const columns = computed<ColumnsType>(() => ([
   {
-    title: '计划任务',
+    title: t('taskRefer.task'),
     dataIndex: 'taskName',
     key: 'taskName',
     width: 150,
     ellipsis: true,
   },
   {
-    title: '引用应用',
+    title: t('taskRefer.robots'),
     key: 'robotNames',
     dataIndex: 'robotNames',
     customRender: ({ record }) => {
@@ -28,7 +31,7 @@ const columns: ColumnsType = [
         h(
           'span',
           robotNames.map((name, index) => {
-            const text = `${index !== 0 ? '，' : ''}${name}`
+            const text = `${index !== 0 ? separator.value : ''}${name}`
             return highIndex.includes(index)
               ? h('span', { style: 'color: #4E68F6; font-weight: bold;' }, text)
               : h('span', text)
@@ -37,13 +40,13 @@ const columns: ColumnsType = [
       ])
     },
   },
-]
+]))
 </script>
 
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="应用引用关系"
+    :title="$t('taskRefer.title')"
     class="referModal"
     :footer="null"
     :width="500"

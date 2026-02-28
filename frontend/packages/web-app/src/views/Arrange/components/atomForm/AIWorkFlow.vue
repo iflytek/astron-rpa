@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useAsyncState } from '@vueuse/core'
+import { useTranslation } from 'i18next-vue'
 import { cloneDeep, isEmpty, isEqual } from 'lodash-es'
 import { computed, ref, toRaw, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
@@ -48,6 +49,7 @@ const FILE_FORM_ITEM: Partial<RPA.AtomDisplayItem> = {
   },
 }
 
+const { t } = useTranslation()
 const { state: workflowList } = useAsyncState(getWorkflowList, [])
 
 const selectedAgent = ref((props.params.value as unknown as ParamValues)?.agentId ?? '')
@@ -69,13 +71,13 @@ const gridOptions: VxeGridProps<AgentInputParam> = {
   keepSource: true,
   round: true,
   columns: [
-    { field: 'name', title: '参数名', width: 60 },
-    { field: 'type', title: '类型', width: 60, slots: { default: 'type_default' } },
-    { field: 'form', title: '参数值', slots: { default: 'value_default' } },
+    { field: 'name', title: t('parameter.paramName'), width: 60 },
+    { field: 'type', title: t('parameter.paramType'), width: 60, slots: { default: 'type_default' } },
+    { field: 'form', title: t('parameter.paramValue'), slots: { default: 'value_default' } },
   ],
 }
 
-const handleDataChange = (newData: Array<AgentInputParam> = gridData.value) => {
+function handleDataChange(newData: Array<AgentInputParam> = gridData.value) {
   const agent = workflowList.value?.find(item => item.flowId === selectedAgent.value)
 
   const values = toRaw(newData).map(item => ({
@@ -134,7 +136,7 @@ watch([selectedAgent, workflowList], ([agentId, list]) => {
       :options="agentOptions"
     />
     <div class="text-[#000000]/[.65] dark:text-[#FFFFFF]/[.65] text-[12px] mt-2.5">
-      输入参数
+      {{ $t('smartComponent.inputParams') }}
     </div>
     <VxeGrid v-bind="gridOptions" class="params-table mt-2" :data="gridData">
       <template #value_default="{ row }">
@@ -146,7 +148,7 @@ watch([selectedAgent, workflowList], ([agentId, list]) => {
         />
       </template>
       <template #type_default="{ row }">
-        {{ row.type === 'file' ? '文件' : '字符串' }}
+        {{ row.type === 'file' ? $t('common.file') : $t('dataBatchExpSelectList.string') }}
       </template>
     </VxeGrid>
   </div>

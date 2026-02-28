@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import type { AsyncAction, AuthType, ConsultFormData, Edition, InviteInfo, RegisterFormData, RegisterMode } from '../../interface.ts'
 import ConsultForm from '../Base/Consult/ConsultForm.vue'
@@ -32,6 +33,7 @@ const emit = defineEmits<{
   switchToLogin: []
 }>()
 
+const { t } = useTranslation()
 const personal = useRegisterForm({ inviteInfo, edition, authType }, emit as any)
 const consultRef = ref<InstanceType<typeof ConsultForm> | null>(null)
 
@@ -40,12 +42,12 @@ const currentMode = ref('REGISTER')
 const headerTitle = computed(() => {
   if (edition === 'saas' && authType === 'uap') {
     return {
-      title: currentMode.value === 'REGISTER' ? '注册讯飞账号' : '咨询',
-      actionText: currentMode.value === 'REGISTER' ? '咨询' : '注册讯飞账号',
+      title: currentMode.value === 'REGISTER' ? t('auth.registerIflytek') : t('auth.consult'),
+      actionText: currentMode.value === 'REGISTER' ? t('auth.consult') : t('auth.registerIflytek'),
     }
   }
   if (edition === 'saas' && authType === 'casdoor') {
-    return { title: '注册Casdoor账号', actionText: '' }
+    return { title: t('auth.registerCasdoor'), actionText: '' }
   }
   return { title: '', actionText: '' }
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTheme, CodeEditor } from '@rpa/components'
+import { CodeEditor, useTheme } from '@rpa/components'
 import { storeToRefs } from 'pinia'
 import { onBeforeMount, onUnmounted } from 'vue'
 

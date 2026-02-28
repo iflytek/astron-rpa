@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Input } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
 const { marketName } = defineProps({
@@ -10,6 +11,7 @@ const { marketName } = defineProps({
 })
 
 const emit = defineEmits(['change'])
+const { t } = useTranslation()
 
 const fireTeamName = ref('')
 
@@ -22,12 +24,12 @@ function changefireTeamName() {
   <div class="modal-form">
     <div class="modal-form">
       <div class="modal-form-title">
-        确定解散“{{ marketName }}”吗？
+        {{ t('market.confirmDisbandTeam', { marketName }) }}
       </div>
       <Input
         v-model:value="fireTeamName"
         class="modal-form-input"
-        placeholder="请输入要解散的团队名称"
+        :placeholder="t('market.enterTeamNameConfirm')"
         :max-length="20"
         @change="changefireTeamName"
       />

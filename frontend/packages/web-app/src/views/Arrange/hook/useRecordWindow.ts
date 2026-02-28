@@ -3,7 +3,8 @@ import { useTranslation } from 'i18next-vue'
 import { baseUrl } from '@/utils/env'
 
 import { WINDOW_NAME } from '@/constants'
-import { windowManager, type CreateWindowOptions } from '@/platform'
+import { windowManager } from '@/platform'
+import type { CreateWindowOptions } from '@/platform'
 
 export function useRecordWindow() {
   const { t } = useTranslation()

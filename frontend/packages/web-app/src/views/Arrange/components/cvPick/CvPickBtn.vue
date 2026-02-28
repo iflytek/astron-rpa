@@ -36,13 +36,13 @@ const defaultPickLoading = computed(() => cvPickStore.isPicking === true && pick
   <rpa-hint-icon
     v-if="type === 'icon'"
     placement="top"
-    title="拾取图像"
+    :title="$t('pickupImage')"
     name="excel-insert-image"
     :loading="defaultPickLoading"
     :disabled="pickBtnDisabled"
     @click="cvPick"
   />
-  <span v-else-if="type === 'text'" @click="cvPick">拾取图像</span>
+  <span v-else-if="type === 'text'" @click="cvPick">{{ $t('pickupImage') }}</span>
   <rpa-hint-icon
     v-else name="excel-insert-image"
     :loading="defaultPickLoading"
@@ -51,7 +51,7 @@ const defaultPickLoading = computed(() => cvPickStore.isPicking === true && pick
     @click="cvPick"
   >
     <template #suffix>
-      <span class="ml-1">拾取图像</span>
+      <span class="ml-1">{{ $t('pickupImage') }}</span>
     </template>
   </rpa-hint-icon>
 </template>

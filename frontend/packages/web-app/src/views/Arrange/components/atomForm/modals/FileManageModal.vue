@@ -23,7 +23,7 @@ function handleOk() {
 <template>
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
-    title="共享文件夹文件"
+    :title="$t('sharedFolderFiles')"
     class="fileManageModal"
     :width="800"
     :scroll="{ y: 800 }"

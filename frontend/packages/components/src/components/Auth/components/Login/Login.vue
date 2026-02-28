@@ -67,10 +67,10 @@ watch(() => phone.formData.agreement, (v) => {
   >
     <template v-if="!inviteInfo" #header>
       <div class="text-[24px] text-[#000000D9] mb-[8px] font-[600] text-center dark:text-[#FFFFFF] font-sans">
-        欢迎使用星辰RPA
+        {{ $t('auth.welcome', { app: $t('app') }) }}
       </div>
       <div class="text-[12px] text-[#000000A6] mb-[24px] text-center dark:text-[#FFFFFF] font-sans">
-        使用您的{{ authType === 'casdoor' ? 'Casdoor' : '讯飞' }}账号
+        {{ $t('auth.useAuthAccount', { auth: authType === 'casdoor' ? 'Casdoor' : $t('auth.iflytek') }) }}
       </div>
     </template>
     <Tabs
@@ -80,7 +80,7 @@ watch(() => phone.formData.agreement, (v) => {
       type="card"
       class="h-full"
     >
-      <TabPane v-if="account.config" key="PASSWORD" tab="密码登录">
+      <TabPane v-if="account.config" key="PASSWORD" :tab="$t('auth.passwordLogin')">
         <DynamicForm
           :ref="account.formRef"
           v-model="account.formData"
@@ -90,7 +90,7 @@ watch(() => phone.formData.agreement, (v) => {
         />
       </TabPane>
 
-      <TabPane v-if="phone.config" key="CODE" tab="验证码登录">
+      <TabPane v-if="phone.config" key="CODE" :tab="$t('auth.codeLogin')">
         <DynamicForm
           :ref="phone.formRef"
           v-model="phone.formData"

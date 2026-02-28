@@ -6,21 +6,23 @@ import { set } from 'lodash-es'
 import { defineStore } from 'pinia'
 import { computed, ref, shallowRef } from 'vue'
 
-import { generateUUID } from '@/utils/common'
+import i18next from '@/plugins/i18next'
+
+import { generateUUID, getCookie, sleep } from '@/utils/common'
 import { baseUrl } from '@/utils/env'
 
 import type { StartExecutorParams } from '@/api/resource'
 import { closeDataTable, deleteDataTable, getDataTable, startDataTableListener, startExecutor, stopExecutor, updateDataTable } from '@/api/resource'
 import Socket from '@/api/ws'
 import { WINDOW_NAME } from '@/constants'
-import { windowManager, type CreateWindowOptions } from '@/platform'
+import { windowManager } from '@/platform'
+import type { CreateWindowOptions } from '@/platform'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
-import type { Fun, AnyObj } from '@/types/common'
+import type { AnyObj, Fun } from '@/types/common'
 import { changeDebugging } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
-import { getCookie, sleep } from '@/utils/common'
 
 export type RunState = 'run' | 'free' | 'debug' | 'silence' // 执行状态
 
@@ -299,7 +301,7 @@ export const useRunningStore = defineStore('running', () => {
 
   const nextStepDebug = () => {
     if (running.value !== 'debug')
-      return message.warning('请先启动调试')
+      return message.warning(i18next.t('common.startDebugFirst'))
     const msg = {
       event_id: generateUUID(),
       event_time: Date.now(),
@@ -313,7 +315,7 @@ export const useRunningStore = defineStore('running', () => {
 
   const continueDebug = () => {
     if (running.value !== 'debug')
-      return message.warning('请先启动调试')
+      return message.warning(i18next.t('common.startDebugFirst'))
     const msg = {
       event_id: generateUUID(),
       event_time: Date.now(),

@@ -2,6 +2,8 @@ import { promiseTimeout } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { last } from 'lodash-es'
 
+import i18next from '@/plugins/i18next'
+
 import { isComponentKey } from '@/utils/customComponent'
 
 import { isSmartComponentKey } from '@/components/SmartComponent/utils'
@@ -34,7 +36,7 @@ export async function createFlowNode(key: string, idx: number | number[], isDrag
   const atom = generateInputMap(key, [Catch, Finally].includes(key))
 
   if (!atom)
-    return message.error('该原子能力不存在')
+    return message.error(i18next.t('arrange.atomNotFound'))
 
   const arr = Array.isArray(idx) ? idx : [idx]
   let curIdx = arr[0]

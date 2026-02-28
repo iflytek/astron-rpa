@@ -1,5 +1,7 @@
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { REDO } from '@/constants/shortcuts'
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
@@ -23,7 +25,7 @@ export function useToolsRedo() {
     clickFn: handleRedo,
     validateFn: ({ disable }) => {
       if (disable) {
-        message.warning('运行调试中或无操作记录, 不可进行重做操作')
+        message.warning(i18next.t('arrange.redoUnavailable'))
         return false
       }
       return true

@@ -1,6 +1,8 @@
 import { message } from 'ant-design-vue'
 import { nextTick, watch } from 'vue'
 
+import i18next from '@/plugins/i18next'
+
 import $loading from '@/utils/globalLoading'
 
 import { useFlowStore } from '@/stores/useFlowStore'
@@ -22,26 +24,26 @@ export function useRunDebug() {
   watch(() => runningStore?.status, () => {
     switch (runningStore?.status) {
       case 'starting':
-        $loading.open({ msg: '正在启动执行，请稍后...' })
+        $loading.open({ msg: i18next.t('arrange.startingExecution') })
         break
       case 'startSuccess':
         $loading.close()
-        message.success('启动执行成功')
+        message.success(i18next.t('arrange.executionStartSuccess'))
         break
       case 'startFailed':
         $loading.close()
-        message.error('启动失败，请稍后重试。')
+        message.error(i18next.t('arrange.executionStartFailedRetry'))
         break
       case 'runSuccess':
-        message.success('运行结束')
+        message.success(i18next.t('arrange.executionFinished'))
         break
       case 'runFailed':
-        message.success('运行失败，请稍后重试。')
+        message.error(i18next.t('arrange.executionFailedRetry'))
         break
       case 'stopping':
         break
       case 'stopSuccess':
-        message.success('运行已停止')
+        message.success(i18next.t('arrange.executionStopped'))
         break
       case 'stopFailed':
         break

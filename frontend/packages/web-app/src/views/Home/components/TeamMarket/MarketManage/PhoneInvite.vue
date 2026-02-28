@@ -26,7 +26,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
       <Select
         v-model:value="selectIds"
         popup-class-name="invite"
-        placeholder="请输入用户姓名或手机号"
+        :placeholder="$t('market.enterUserNameOrPhone')"
         style="width: 100%"
         :get-popup-container="(triggerNode) => triggerNode.parentNode"
         show-search
@@ -55,7 +55,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
     </div>
     <div>
       <div v-if="allSelectUsers.length > 0" class="my-[10px]">
-        选中成员（{{ allSelectUsers.length }}）
+        {{ $t('market.selectedMembers', { count: allSelectUsers.length }) }}
       </div>
       <Table
         :columns="inviteUsersTableColumns"
@@ -66,7 +66,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
         size="small"
       >
         <template #emptyText>
-          <Empty :image="Empty.PRESENTED_IMAGE_SIMPLE" description="请输入关键词搜索成员, 支持按用户姓名或手机号搜索" />
+          <Empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="$t('market.searchMembersTip')" />
         </template>
       </Table>
     </div>

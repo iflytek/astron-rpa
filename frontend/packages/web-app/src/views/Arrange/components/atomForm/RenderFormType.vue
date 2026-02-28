@@ -7,16 +7,16 @@ import {
   SettingOutlined,
 } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
+import { debounce } from 'lodash-es'
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
-import { debounce } from 'lodash-es'
 
 import { ATOM_FORM_TYPE } from '@/constants/atom'
+import { utilsManager } from '@/platform'
 import useCursorStore from '@/stores/useCursorStore'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { ElementPickModal } from '@/views/Arrange/components/pick'
 import { ORIGIN_BUTTON } from '@/views/Arrange/config/atom'
-import { utilsManager } from '@/platform'
 
 import CvPickBtn from '../cvPick/CvPickBtn.vue'
 
@@ -29,12 +29,12 @@ import AtomPopover from './AtomPopover.vue'
 import AtomRemoteFiles from './AtomRemoteFiles.vue'
 import AtomRemoteSelect from './AtomRemoteSelect.vue'
 import AtomScriptParams from './AtomScriptParams.vue'
+import AtomSelect from './AtomSelect.vue'
 import AtomSlider from './AtomSlider.vue'
 import { createDom } from './hooks/useAtomVarPopover'
 import { isConditionalKeys } from './hooks/useBaseConfig'
 import useRenderFormType, { formBtnHandle, generateHtmlVal, generateInputVal, handlePaste, inputListListener, syncCurrentAtomData } from './hooks/useRenderFormType'
 import ProcessParam from './ProcessParam.vue'
-import AtomSelect from './AtomSelect.vue'
 
 const { iconStyle, itemData, itemType, varType } = defineProps({
   iconStyle: {
@@ -127,7 +127,8 @@ async function handleFileSelect() {
   const res = await utilsManager.showDialog(itemData.formType.params)
   const strVal = res.join(',')
 
-  if (!strVal) return
+  if (!strVal)
+    return
 
   itemData.value = strVal
   flowStore.setFormItemValue(itemData.key, strVal, flowStore.activeAtom.id)
@@ -149,7 +150,7 @@ const debouncedGenerateHtmlVal = debounce((target: HTMLDivElement, itemData: RPA
   generateHtmlVal(target, itemData, atomId)
 }, 500)
 
-const handleInput = (event: Event, itemData: RPA.AtomDisplayItem) => {
+function handleInput(event: Event, itemData: RPA.AtomDisplayItem) {
   // 保存当前 activeAtom.id，避免在 debounce 延迟期间切换 activeAtom 导致更新到错误的原子能力
   const currentAtomId = flowStore.activeAtom?.id
   const target = event.target as HTMLDivElement
@@ -167,7 +168,7 @@ inputListListener(itemData, itemType)
     :class="{ '[&>*]:cursor-not-allowed': !isEdit || atomFormDisabled }"
     @click="clickHandle"
   >
-    <rpa-hint-icon :title="itemData.isExpr ? 'python模式' : '普通模式'" :name="itemData.isExpr ? 'create-python-process' : 'change-python-btn'" :style="iconStyle" />
+    <rpa-hint-icon :title="itemData.isExpr ? $t('atomForm.pythonMode') : $t('atomForm.normalMode')" :name="itemData.isExpr ? 'create-python-process' : 'change-python-btn'" :style="iconStyle" />
   </span>
   <!-- input框 -->
   <div
@@ -181,7 +182,7 @@ inputListListener(itemData, itemType)
     v-html="container"
   />
   <!-- CV图片框 -->
-  <AtomPopover v-if="itemType === ATOM_FORM_TYPE.CV_IMAGE" :render-type="itemType" :render-data="itemData" tooltip="选择元素">
+  <AtomPopover v-if="itemType === ATOM_FORM_TYPE.CV_IMAGE" :render-type="itemType" :render-data="itemData" :tooltip="$t('atomForm.selectElement')">
     <span class="w-5 h-5 flex justify-center items-center relative cursor-pointer">
       <rpa-icon size="16" name="bottom-menu-ele-manage" />
     </span>
@@ -210,7 +211,7 @@ inputListListener(itemData, itemType)
     :render-data="itemData"
     :var-type="varType"
   >
-    <rpa-hint-icon name="open-var-btn" title="选择变量" class="cursor-pointer" :style="iconStyle" />
+    <rpa-hint-icon name="open-var-btn" :title="$t('atomForm.selectVariable')" class="cursor-pointer" :style="iconStyle" />
   </AtomPopover>
   <!-- 颜色设置框 -->
   <AtomPopover
@@ -228,11 +229,11 @@ inputListListener(itemData, itemType)
     @click="clickHandle"
   >
     <template #icon>
-      <rpa-hint-icon title="填充内容" size="14" name="bottom-pick-menu-create" />
+      <rpa-hint-icon :title="$t('atomForm.fillContent')" size="14" name="bottom-pick-menu-create" />
     </template>
   </a-button>
   <!-- 拾取框 -->
-  <AtomPopover v-if="itemType === ATOM_FORM_TYPE.PICK" :render-type="itemType" :render-data="itemData" tooltip="选择元素">
+  <AtomPopover v-if="itemType === ATOM_FORM_TYPE.PICK" :render-type="itemType" :render-data="itemData" :tooltip="$t('atomForm.selectElement')">
     <a-button type="text" class="flex justify-center items-center">
       <template #icon>
         <rpa-icon size="16" name="bottom-menu-ele-manage" />
@@ -415,7 +416,7 @@ inputListListener(itemData, itemType)
   --custom-cursor-size: 18px;
   white-space: pre; // 保留换行符和空格，但不自动换行
   overflow: auto;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }

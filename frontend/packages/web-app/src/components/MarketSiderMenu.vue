@@ -4,6 +4,8 @@ import { NiceModal } from '@rpa/components'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import i18next from '@/plugins/i18next'
+
 import { checkMarketNum } from '@/api/market'
 import { CreateTeamMarketModal } from '@/components/CreateTeamMarketModal'
 import GlobalModal from '@/components/GlobalModal/index.ts'
@@ -51,11 +53,11 @@ async function createTeam() {
     const res = await checkMarketNum()
     if (!res.data) {
       GlobalModal.warn({
-        title: '提示',
-        content: '个人版最多可加入3个团队市场，您已满额。',
+        title: i18next.t('prompt'),
+        content: i18next.t('market.personalMarketLimitReached'),
         centered: true,
         keyboard: false,
-        okText: '我知道了',
+        okText: i18next.t('common.gotIt'),
       })
       return
     }
@@ -74,7 +76,7 @@ watch(() => userStore.currentTenant?.id, (val) => {
 </script>
 
 <template>
-  <a-layout-sider :width="COMMON_SIDER_WIDTH" class="market-sider h-[calc(100%-80px)]" :class="{ 'market-sider-all': markets.length > 1, '!h-[calc(100%-140px)]': userStore.currentTenant?.tenantType === 'personal' }" >
+  <a-layout-sider :width="COMMON_SIDER_WIDTH" class="market-sider h-[calc(100%-80px)]" :class="{ 'market-sider-all': markets.length > 1, '!h-[calc(100%-140px)]': userStore.currentTenant?.tenantType === 'personal' }">
     <a-menu trigger-sub-menu-action="click" :selected-keys="selectedKeys" :open-keys="openKeys" mode="inline" class="marketList-container">
       <template v-for="marketsItem in markets">
         <div v-if="marketsItem.key === 'teamMarket'" :key="marketsItem.key" class="market-menu-item flex items-center justify-between h-[40px] leading-[40px]">
@@ -93,7 +95,7 @@ watch(() => userStore.currentTenant?.id, (val) => {
           <a-menu-item v-for="item in marketsItem.children" :key="item.marketId" class="market-menu-item flex" @click="(e) => menuClick(item.marketId)">
             <a-tooltip placement="top" :title="item.marketName">
               <span class="text-ellipsis whitespace-nowrap overflow-hidden pr-[10px]">
-                {{ $t(item.marketName) }}
+                {{ item.marketName }}
               </span>
             </a-tooltip>
             <rpa-hint-icon name="setting" class="absolute right-[10px] top-[8px]" enable-hover-bg @click.stop="(e) => jumpToTeamDetail(e, item)" />
@@ -112,7 +114,8 @@ watch(() => userStore.currentTenant?.id, (val) => {
 <style lang="scss">
 .market-sider {
   padding: 20px;
-  .ant-layout-sider-children, .ant-menu-root{
+  .ant-layout-sider-children,
+  .ant-menu-root {
     height: 100%;
     display: flex;
     flex-direction: column;

@@ -1,5 +1,5 @@
-import { computed, inject, provide, ref } from 'vue'
 import { useTranslation } from 'i18next-vue'
+import { computed, inject, provide, ref } from 'vue'
 
 import { getBaseURL } from '@/api/http/env'
 import { addPyPackageApi, getPyPackageListApi, packageVersion } from '@/api/resource'

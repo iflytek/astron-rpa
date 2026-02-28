@@ -2,9 +2,9 @@ import { findIndex } from 'lodash-es'
 import { reactive, ref } from 'vue'
 
 import { getAllClassification, getAppCards, marketUserList } from '@/api/market'
+import type { TableOption } from '@/components/NormalTable'
 import { fromIcon } from '@/components/PublishComponents/utils'
 import { useCardsTools } from '@/views/Home/components/TeamMarket/hooks/useCardsTools'
-import { type TableOption } from '@/components/NormalTable'
 
 import { useRobotUpdate } from './useRobotUpdate'
 
@@ -69,7 +69,7 @@ export function useCardsApp() {
       pageSize: 10000,
     })
     // 构建所有者列表，包含姓名和电话
-    const ownerList = records.map((i) => ({
+    const ownerList = records.map(i => ({
       name: `${i.realName || '--'}(${i.phone || '--'})`,
       userId: i.creatorId,
     }))

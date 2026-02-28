@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CheckOutlined, CloseOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons-vue'
 import { Button } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
 import ConfigProvider from '@/components/ConfigProvider/index.vue'
@@ -21,8 +22,9 @@ interface W2WType {
   data?: any // 数据
 }
 
+const { t } = useTranslation()
 const showErrorDialog = ref(false)
-const errorMessage = ref('当前仅支持网页自动化')
+const errorMessage = ref(t('smartCompPick.onlyWebAutomation'))
 
 utilsManager.listenEvent('w2w', async ({ from, target, type, data }: W2WType) => {
   if (from !== WINDOW_NAME.MAIN || target !== WINDOW_NAME.SMART_COMP_PICK_MENU)
@@ -40,7 +42,7 @@ utilsManager.listenEvent('w2w', async ({ from, target, type, data }: W2WType) =>
   }
   else if (type === SMART_COMP_PICK_EVENT.SHOW_ERROR_DIALOG) {
     // 显示错误对话框
-    errorMessage.value = data?.errorMsg || '当前仅支持网页自动化'
+    errorMessage.value = data?.errorMsg || t('smartCompPick.onlyWebAutomation')
     showErrorDialog.value = true
     await windowManager.setWindowSize({ width: 368, height: 140 })
     await windowManager.centerWindow()
@@ -124,16 +126,16 @@ function handleCancel() {
     <div v-if="showErrorDialog" class="h-full flex flex-col border border-[#000000]/[.1] dark:border-[#FFFFFF]/[.16 bg-bg-elevated px-6 py-5 rounded-lg">
       <div class="flex items-center">
         <rpa-icon name="error" size="16" />
-        <span class="ml-2 mr-auto font-medium text-[16px]">拾取元素失败</span>
+        <span class="ml-2 mr-auto font-medium text-[16px]">{{ $t('pickElementFailed') }}</span>
         <rpa-hint-icon name="close" enable-hover-bg @click="handleErrorDialog" />
       </div>
       <span class="mt-2 mb-3">{{ errorMessage }}</span>
       <div class="flex items-center gap-2 justify-end">
         <a-button @click="handleErrorDialog">
-          取消
+          {{ $t('cancel') }}
         </a-button>
         <a-button type="primary" @click="handleErrorDialog">
-          确定
+          {{ $t('confirm') }}
         </a-button>
       </div>
     </div>

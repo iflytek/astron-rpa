@@ -2,6 +2,7 @@
 import { useTheme } from '@rpa/components'
 import { computedWithControl } from '@vueuse/core'
 import { Button, Input, message, Select } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
 import { computed } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
@@ -12,12 +13,12 @@ import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { PARAMETER_VAR_IN_TYPE } from '@/constants/atom'
 import { useFlowStore } from '@/stores/useFlowStore'
-import { useProcessStore, isPyModel } from '@/stores/useProcessStore.ts'
+import { isPyModel, useProcessStore } from '@/stores/useProcessStore.ts'
 
 import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
 import { useConfigParameter } from './useConfigParameter.ts'
-import VarValueEditor from './VarValueEditor.vue'
 import VarInput from './VarInput.vue'
+import VarValueEditor from './VarValueEditor.vue'
 
 interface LocalConfigParamData extends RPA.ConfigParamData {
   perVarName: string
@@ -30,6 +31,7 @@ const flowStore = useFlowStore()
 const processStore = useProcessStore()
 const { searchText, isQuoted, quotedData, findQuoted } = useConfigParameter()
 const [messageApi, contextHolder] = message.useMessage()
+const { t } = useTranslation()
 
 const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   size: 'small',
@@ -39,17 +41,17 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   keepSource: true,
   rowConfig: { isHover: true },
   columns: [
-    { field: 'varName', title: '参数名称', slots: { default: 'name_default' } },
-    { field: 'varDirection', title: '输入/输出', slots: { default: 'usage_default' } },
-    { field: 'varType', title: '参数类型', slots: { default: 'type_default' } },
-    { field: 'varValue', title: '默认值', slots: { default: 'default_default' } },
-    { field: 'varDescribe', title: '参数描述', slots: { default: 'desc_default' } },
-    { field: 'operation', title: '操作', width: 120, slots: { default: 'operation_default' } },
+    { field: 'varName', title: t('configParameter.varName'), slots: { default: 'name_default' } },
+    { field: 'varDirection', title: t('configParameter.direction'), slots: { default: 'usage_default' } },
+    { field: 'varType', title: t('configParameter.varType'), slots: { default: 'type_default' } },
+    { field: 'varValue', title: t('value'), slots: { default: 'default_default' } },
+    { field: 'varDescribe', title: t('configParameter.description'), slots: { default: 'desc_default' } },
+    { field: 'operation', title: t('operate'), width: 120, slots: { default: 'operation_default' } },
   ],
 }
 
 const searchedData = computedWithControl(
-  () => [processStore.parameters.length, processStore.activeProcessId, searchText.value], 
+  () => [processStore.parameters.length, processStore.activeProcessId, searchText.value],
   () => {
     let list = processStore.parameters
 
@@ -62,10 +64,10 @@ const searchedData = computedWithControl(
       ...item,
       perVarName: item.varName,
     }))
-  }
+  },
 )
 
-const emptyText = computed(() => searchText.value ? '未搜索到配置参数' : undefined)
+const emptyText = computed(() => searchText.value ? t('configParameter.noSearchResult') : undefined)
 
 const varTypeOptions = computed(() => {
   // 主进程和子进程可选择的类型不一样
@@ -92,8 +94,8 @@ function deleteEvent(row: RPA.ConfigParamData) {
     })
   }
   GlobalModal.confirm({
-    title: '删除',
-    content: '删除后所有引用了该参数的操作都将失效。删除后无法恢复，请确认。',
+    title: t('delete'),
+    content: t('configParameter.deleteConfirm'),
     onOk: deleteFn,
     centered: true,
     keyboard: false,
@@ -104,7 +106,7 @@ async function handleBlur(row: LocalConfigParamData) {
   // 检查是否存在重名的参数
   const index = processStore.parameters.findIndex(item => item.varName === row.varName && item.id !== row.id)
   if (index !== -1) {
-    messageApi.warning('参数名称已存在')
+    messageApi.warning(t('duplicateNameError'))
     row.varName = row.perVarName
     return
   }
@@ -158,10 +160,10 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
     </template>
     <template #operation_default="{ row }">
       <Button v-if="!isPyProcessModule" type="link" size="small" class="!text-xs" @click="findQuoted(row)">
-        查找引用
+        {{ $t('searchReference') }}
       </Button>
       <Button type="link" size="small" class="!text-xs" @click="deleteEvent(row)">
-        删除
+        {{ $t('delete') }}
       </Button>
     </template>
   </VxeGrid>
@@ -171,7 +173,7 @@ const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateP
       :use-name="quotedData.name"
       :use-flow-items="quotedData.items"
     />
-    <a-empty v-else description="暂无引用" />
+    <a-empty v-else :description="$t('common.noReference')" />
   </div>
 </template>
 

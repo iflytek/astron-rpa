@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
 
-import { useFlowStore } from '@/stores/useFlowStore'
 import { replaceMiddle } from '@/utils/common'
+
 import { utilsManager } from '@/platform'
+import { useFlowStore } from '@/stores/useFlowStore'
 import { DEFAULT_DESC_TEXT } from '@/views/Arrange/config/flow'
 
 const { itemData, desc, canEdit } = defineProps({
@@ -29,6 +31,7 @@ const { itemData, desc, canEdit } = defineProps({
   },
 })
 
+const { t } = useTranslation()
 const flowStore = useFlowStore()
 
 const isFolder = computed(() => {
@@ -36,7 +39,7 @@ const isFolder = computed(() => {
 })
 
 function getFileTxt() {
-  return isFolder.value ? '选择文件夹' : '选择文件'
+  return isFolder.value ? t('common.selectFolder') : t('common.selectFile')
 }
 
 function fileTxt() {

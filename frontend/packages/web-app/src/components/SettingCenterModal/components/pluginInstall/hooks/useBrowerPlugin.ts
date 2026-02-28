@@ -3,6 +3,8 @@ import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { onBeforeMount, ref } from 'vue'
 
+import { storage } from '@/utils/storage'
+
 import { browerPluginInstall, checkBrowerRunning, installAllUpdateBrowerPlugin } from '@/api/plugin'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import type { PLUGIN_ITEM } from '@/constants/plugin'
@@ -11,7 +13,6 @@ import { useAppConfigStore } from '@/stores/useAppConfig'
 
 import _PluginTipModal from '../PluginTipModal.vue'
 import _PluginUpdateModal from '../pluginUpdateModal.vue'
-import { storage } from '@/utils/storage'
 
 const PluginTipModal = NiceModal.create(_PluginTipModal)
 const PluginUpdateModal = NiceModal.create(_PluginUpdateModal)
@@ -21,19 +22,27 @@ export function useBrowerPlugin() {
   const pluginList = ref(appConfigStore.browserPlugins)
   const { t } = useTranslation()
 
+  const getInstallOrUpdateText = (pluginItem: PLUGIN_ITEM) => {
+    return pluginItem.isNewest ? t('install') : t('update')
+  }
+
+  const getReinstallOrUpdateText = (pluginItem: PLUGIN_ITEM) => {
+    return pluginItem.isInstall ? t('update') : t('install')
+  }
+
   onBeforeMount(() => {
     appConfigStore.refreshBrowserPluginStatus()
   })
 
   // 强制关闭浏览器，再重新安装
   const killBrowerReinstall = (pluginItem: PLUGIN_ITEM) => {
-    const type = pluginItem.isNewest ? '安装' : '更新'
+    const type = getInstallOrUpdateText(pluginItem)
     const modelConf = {
-      title: '提示',
+      title: t('presentation'),
       zIndex: 100,
       content: `${t(pluginItem.title)}正在运行(后台进程可能存在)，请关闭浏览器后再${type}插件`,
-      okText: '强制关闭',
-      cancelText: '取消',
+      okText: t('forceClose'),
+      cancelText: t('cancel'),
       onOk: () => {
         installBrowerPlugin(pluginItem, 'brower_install_killBrower')
       },
@@ -57,14 +66,14 @@ export function useBrowerPlugin() {
       return
     }
 
-    const type = pluginItem.isNewest ? '安装' : '更新'
+    const type = getInstallOrUpdateText(pluginItem)
 
     GlobalModal.confirm({
-      title: '提示',
+      title: t('presentation'),
       zIndex: 100,
       content: `${t(pluginItem.title)}插件${type}成功`,
-      okText: '确定',
-      cancelText: '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       centered: true,
       keyboard: false,
     })
@@ -72,13 +81,13 @@ export function useBrowerPlugin() {
 
   // 安装失败提示，并重新安装
   const failTipWithReinstall = (pluginItem: PLUGIN_ITEM) => {
-    const type = pluginItem.isInstall ? '更新' : '安装'
+    const type = getReinstallOrUpdateText(pluginItem)
 
     GlobalModal.confirm({
-      title: '提示',
+      title: t('presentation'),
       zIndex: 100,
       content: `${t(pluginItem.title)}插件${type}失败，请检查该浏览器是否存在或重新${type}`,
-      okText: `重新${type}`,
+      okText: t('plugin.reAction', { action: type }),
       okType: 'primary',
       onOk: () => installBrowerPlugin(pluginItem),
       centered: true,
@@ -111,7 +120,7 @@ export function useBrowerPlugin() {
         install(pluginItem, action)
         break
       default:
-        message.info('敬请期待')
+        message.info(t('comingSoon'))
     }
   }
 

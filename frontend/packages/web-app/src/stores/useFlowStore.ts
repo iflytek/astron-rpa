@@ -246,7 +246,7 @@ export const useFlowStore = defineStore('flow', () => {
           }
 
           if (params.type === 'rename') {
-            item.value = item.value.map(it => {
+            item.value = item.value.map((it) => {
               if (!findIsMached(it))
                 return it
 

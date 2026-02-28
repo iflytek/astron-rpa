@@ -136,10 +136,11 @@ onMounted(() => {
         const rowValues = values[i] || []
         for (let j = 0; j < rowValues.length; j++) {
           const column = startColumn + j
+          const cellValue = rowValues[j]
           result.push({
             row,
             column,
-            value: rowValues[j] ?? null
+            value: cellValue == null ? null : cellValue as CellValue,
           })
         }
       }

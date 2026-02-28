@@ -1,5 +1,7 @@
 import { message } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { DEBUG } from '@/constants/shortcuts'
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
@@ -33,7 +35,7 @@ export function useToolsDebug() {
       const disabled = disable || !show
 
       if (disabled) {
-        message.warning('当前正在运行/调试, 请勿重复操作')
+        message.warning(i18next.t('arrange.alreadyRunningOrDebugging'))
       }
 
       return !disabled

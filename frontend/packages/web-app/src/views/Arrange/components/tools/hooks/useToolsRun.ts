@@ -1,6 +1,8 @@
 import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
 
+import i18next from '@/plugins/i18next'
+
 import { RUN } from '@/constants/shortcuts'
 import { isPyModel, useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
@@ -32,7 +34,7 @@ export function useToolsRun() {
     clickFn: handleConfirmRun,
     validateFn: ({ disable, show }) => {
       if (disable || !show) {
-        message.warning('当前正在运行/调试, 请勿重复操作')
+        message.warning(i18next.t('arrange.alreadyRunningOrDebugging'))
       }
 
       return !disable

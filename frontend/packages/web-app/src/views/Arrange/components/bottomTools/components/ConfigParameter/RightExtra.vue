@@ -15,16 +15,16 @@ const { isLoading, execute } = useAsyncState(processStore.createParameter, undef
 <template>
   <template v-if="isQuoted">
     <div class="flex items-center h-[32px] px-[20px] bg-[#000000]/[.03] dark:bg-[#FFFFFF]/[.03] rounded-[6px]">
-      <span class="text-[12px] select-none">查找引用</span>
+      <span class="text-[12px] select-none">{{ $t('searchReference') }}</span>
       <a-divider type="vertical" class="h-4 border-s-[#000000]/[.16] dark:border-s-[#FFFFFF]/[.16]" />
       <rpa-hint-icon name="chevron-left" class="text-[12px]" @click="() => toggleQuoted(false)">
         <template #suffix>
-          <span class="ml-1">返回</span>
+          <span class="ml-1">{{ $t('goBack') }}</span>
         </template>
       </rpa-hint-icon>
       <rpa-hint-icon name="refresh-current-page" class="ml-[20px] text-[12px]" @click="findQuoted()">
         <template #suffix>
-          <span class="ml-1">刷新列表</span>
+          <span class="ml-1">{{ $t('refreshList') }}</span>
         </template>
       </rpa-hint-icon>
     </div>
@@ -38,12 +38,12 @@ const { isLoading, execute } = useAsyncState(processStore.createParameter, undef
       @click="execute()"
     >
       <template #suffix>
-        <span class="ml-1">新增参数</span>
+        <span class="ml-1">{{ $t('addParameter') }}</span>
       </template>
     </rpa-hint-icon>
     <Input
       v-model:value="searchText"
-      placeholder="搜索参数"
+      :placeholder="$t('searchParameter')"
       class="text-xs ml-2 h-6 w-[180px]"
     >
       <template #suffix>
