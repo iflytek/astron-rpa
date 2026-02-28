@@ -147,7 +147,7 @@ class Script:
         if isinstance(process, tuple):
             process, param_meta = process
         else:
-            process = process
+            process, param_meta = process, None  # 为了兼容，可以删除
         kwargs = {}
         if process_param:
             for p in process_param:
@@ -181,7 +181,7 @@ class Script:
         if isinstance(content, tuple):
             content, param_meta = content
         else:
-            content = content
+            content, param_meta = content, None  # 为了兼容，可以删除
         out_kwargs = {}
         if module_param:
             for p in module_param:
@@ -209,8 +209,7 @@ class Script:
         if isinstance(component, tuple):
             component, param_meta = component
         else:
-            # 为了兼容，可以删除
-            component = component
+            component, param_meta = component, None  # 为了兼容，可以删除
 
         # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
         package = component.split(".")[0] if "." in component else component
@@ -221,4 +220,10 @@ class Script:
             #  为了兼容，可以删除
             return None
 
-        return tuple(kwargs.get(p["varName"]) for p in param_meta if p.get("varDirection") == 1)
+        output_values = [kwargs.get(p["varName"]) for p in param_meta if p.get("varDirection") == 1]
+        if len(output_values) == 1:
+            return output_values[0]
+        elif len(output_values) > 1:
+            return tuple(output_values)
+        else:
+            return None
