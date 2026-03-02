@@ -496,6 +496,7 @@
   "aiElement": "AI元素",
   "rePickupElement": "重新拾取",
   "elementName": "元素名称",
+  "elementNameUnique": "元素名称不可重名",
   "visualEditing": "可视化",
   "customEditing": "自定义",
   "customization": "编辑方式",
@@ -508,6 +509,7 @@
   "scrollPosition": "滚动加载",
   "scrollPositionTip": "持续滚动页面直到定位到目标元素（最多滚动20次页面）",
   "validateElement": "校验元素",
+  "validateElementSuccess": "校验成功",
   "verificationMethod": "校验方式",
   "location": "位置",
   "click-1": "点击",
@@ -1157,6 +1159,9 @@
     "regex": "正则",
     "ok": "确定",
     "cancel": "取消",
-    "nodeNamePlaceholder": "请输入节点"
+    "nodeNamePlaceholder": "请输入节点",
+    "regexPythonPlaceholder": "支持Python 正则表达式",
+    "regexJavascriptPlaceholder": "支持JavaScript new RegExp 正则表达式",
+    "regexPlaceholder": "支持正则表达式"
   }
 }

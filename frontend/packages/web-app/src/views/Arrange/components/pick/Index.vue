@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 import { Image, message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { throttle } from 'lodash-es'
 import { h, ref, toRaw, watch } from 'vue'
 
@@ -49,6 +50,7 @@ const loading = ref('')
 const singleLoading = ref('') // 某个按钮loading状态
 const useElements = useElementsStore()
 const usePick = usePickStore()
+const { t } = useTranslation()
 
 const pickerType = ref('') // 拾取类型
 const similarButton = ref(false) // 是否可以拾取相似元素
@@ -181,12 +183,12 @@ const handleOk = throttle(
     const elementData = getLatestCurrentElementData(true)
     const name = formOption.value.pickName.trim()
     if (name === '') {
-      message.error('请输入元素名称')
+      message.error(t('enterElementName'))
       return
     }
 
     if (useElements.checkName(name, useElements.currentElement.id)) {
-      message.error('元素名称不可重名')
+      message.error(t('elementNameUnique'))
       return
     }
 
@@ -213,7 +215,7 @@ const handleValidateElement = throttle(
     const element = JSON.stringify(elementData)
     usePick.startCheck(pickerType.value, element, (res) => {
       if (res.success)
-        message.success('校验成功')
+        message.success(t('validateElementSuccess'))
     })
   },
   1500,
@@ -256,7 +258,7 @@ watch(
     if (newVal.elementData) {
       const eleData = JSON.parse(newVal.elementData)
       // console.log('eleData: ', eleData)
-      const { version, type, path, picker_type, similar_count } = eleData
+      const { version, type, path, picker_type, similar_count, app } = eleData
       // 当前元素名称
       formOption.value.pickName = newVal.name
       // 当前元素数据
@@ -265,7 +267,7 @@ watch(
       pickerType.value = picker_type
       // 自定义编辑元素
       customData.value = elementCustomFormat(version, type, path)
-      console.log('customData.value : ', customData.value );
+      console.log('customData.value : ', customData.value)
       // 设置相似拾取按钮展示
       similarButton.value = ['web', 'uia'].includes(type)
       formOption.value.pickType = type
@@ -298,7 +300,7 @@ watch(
         )
       }
       // 可视化编辑元素
-      nodeSourceData.value = elementDirectoryFormat(version, type, path)
+      nodeSourceData.value = elementDirectoryFormat(version, type, path, app)
     }
   },
   { immediate: true, deep: true },

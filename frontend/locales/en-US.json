@@ -419,6 +419,7 @@
   "editTask": "Edit Task",
   "elementManagement": "Element management",
   "elementName": "Element name",
+  "elementNameUnique": "Element name must be unique!",
   "elementPicking": "Element picking",
   "emailAddress": "Email address",
   "emailNotification": "Email notification",
@@ -1089,6 +1090,7 @@
   },
   "userManual": "User Manual",
   "validateElement": "Validate",
+  "validateElementSuccess": "Element validation successful",
   "varDescribe": "Description",
   "varName": "Variable name",
   "varType": "Type",
@@ -1156,6 +1158,9 @@
     "regex": "Regex",
     "ok": "OK",
     "cancel": "Cancel",
-    "nodeNamePlaceholder": "Please enter the node name"
+    "nodeNamePlaceholder": "Please enter the node name",
+    "regexPythonPlaceholder": "Supports Python regular expressions",
+    "regexJavascriptPlaceholder": "Supports JavaScript new RegExp regular expressions",
+    "regexPlaceholder": "Supports regular expressions"
   }
 }

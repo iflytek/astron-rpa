@@ -2,13 +2,13 @@
 <script lang="tsx" setup>
 import { MinusCircleOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import type { ColumnsType } from 'ant-design-vue/es/table'
+import { useTranslation } from 'i18next-vue'
 import { h, nextTick, provide, reactive, ref, watch } from 'vue'
 
 import type { FormRules } from '@/types/common'
 import type { AttrFieldsType, NodeFieldsType } from '@/views/Arrange/types/arrangeTools'
 import type { VariableTypes } from '@/views/Arrange/types/atomForm'
 import { addAttr, addNode } from '@/views/Arrange/utils/elementsUtils'
-import { useTranslation } from 'i18next-vue'
 
 import AtomConfig from '../atomForm/AtomConfig.vue'
 
@@ -50,6 +50,7 @@ const openAddNode = ref(false) // 是否打开添加节点弹窗
 const addNodeFormRef = ref(null) // 添加节点表单引用
 const addNodeForm = reactive({ name: '' })
 const currentKey = ref('') // 当前选中的节点key
+const elementVersion = ref('') // 当前元素类型
 const { t } = useTranslation()
 
 const rules = reactive<FormRules>({
@@ -206,7 +207,16 @@ const attrColumns = reactive<ColumnsType>([
   },
 ])
 
+function regTip(version: string) {
+  const tpMap: Record<string, string> = {
+    uia_1: t('directoryElement.regexPythonPlaceholder'),
+    web_1: t('directoryElement.regexJavascriptPlaceholder'),
+  }
+  return tpMap[version] || t('directoryElement.regexPlaceholder')
+}
+
 watch(() => props.nodeSource, () => {
+  elementVersion.value = props.nodeSource[0]?._version || '' // 获取当前元素版本
   currentNodeIndex.value = 0 // 重置当前节点索引
   currentKey.value = Math.random().toString(36).substring(2, 15) // 更新当前key以触发attrTable重新渲染
   nextTick(() => {
@@ -220,7 +230,7 @@ watch(() => props.nodeSource, () => {
 <template>
   <div class="directory-table normal-border">
     <a-row>
-      <a-col :span="7" class="nodeCol font-size-12 border-right">
+      <a-col :span="7" class="nodeCol font-size-12 nodes-table">
         <a-table
           class="node-table"
           table-layout="fixed"
@@ -255,7 +265,7 @@ watch(() => props.nodeSource, () => {
           </template>
         </a-table>
       </a-col>
-      <a-col :span="17" class="nodeCol font-size-12">
+      <a-col :span="17" class="nodeCol font-size-12 attrs-table">
         <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 165 }">
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'checked'">
@@ -267,12 +277,12 @@ watch(() => props.nodeSource, () => {
             <template v-else-if="column.key === 'type'">
               <a-select v-model:value="record.type" class="attr-select  font-size-12" :disabled="record._typeDisabled">
                 <a-select-option v-for="item in record._typesPattern" :key="item.value" class="font-size-12" :value="item.value">
-                  {{ $t('directoryElement.'+ item.key) }}
+                  {{ $t(`directoryElement.${item.key}`) }}
                 </a-select-option>
               </a-select>
             </template>
             <template v-else-if="column.key === 'value'">
-              <a-tooltip v-if="record.type === 2" title="支持JavaScript new RegExp(your code string)表达式">
+              <a-tooltip v-if="record.type === 2" :title="regTip(elementVersion)" placement="top">
                 <AtomConfig :key="`${currentNodeIndex}${index}`" class="font-size-12" :form-item="record.variableValue" />
               </a-tooltip>
               <AtomConfig v-else :key="`${currentNodeIndex}${index}`" class="font-size-12" :form-item="record.variableValue" />
@@ -311,11 +321,11 @@ watch(() => props.nodeSource, () => {
 .directory-table {
   :deep(.ant-table-wrapper .ant-table-container .ant-table-body::-webkit-scrollbar) {
     width: 6px;
-    background-color: #f5f5f5;
+    background-color: var(--color-border-secondary);
   }
 
   :deep(.ant-table-wrapper .ant-table-container .ant-table-body::-webkit-scrollbar-thumb) {
-    background-color: #cecece;
+    background-color: var(--color-fill);
   }
 
   :deep(.form-item-container .editor-container) {
@@ -342,12 +352,24 @@ watch(() => props.nodeSource, () => {
   height: 240px;
   overflow: hidden;
 }
+
+.nodes-table {
+  border: 1px solid var(--color-border-secondary);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.attrs-table {
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 0 6px 6px 0;
+}
+
 .attr-table {
   height: 194px;
 }
 
 .border-right {
-  border-right: 1px solid $color-border;
+  border-right: none;
 }
 
 .node-input {
