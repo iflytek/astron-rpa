@@ -151,7 +151,9 @@ class WinEle:
         wait_time: float = 10.0,
     ):
         if pick.get("elementData", {}).get("type", None) != PickerDomain.UIA.value:
-            raise BizException(UNPICKABLE_FORMAT.format(pick.get("type", None)), "类型不支持{}".format(pick.get("type", None)))
+            raise BizException(
+                UNPICKABLE_FORMAT.format(pick.get("type", None)), "类型不支持{}".format(pick.get("type", None))
+            )
 
         locator = WinEleCore.find(pick, wait_time)
         locator.move()
@@ -203,7 +205,9 @@ class WinEle:
     )
     def similar(pick: WinPick, wait_time: int = 10) -> list:
         if pick.get("elementData", {}).get("type", None) != PickerDomain.UIA.value:
-            raise BizException(UNPICKABLE_FORMAT.format(pick.get("type", None)), "类型不支持{}".format(pick.get("type", None)))
+            raise BizException(
+                UNPICKABLE_FORMAT.format(pick.get("type", None)), "类型不支持{}".format(pick.get("type", None))
+            )
 
         locator_list = WinEleCore.find(pick, wait_time)
         res_list = []

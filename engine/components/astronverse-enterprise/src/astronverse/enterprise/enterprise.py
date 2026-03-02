@@ -176,14 +176,18 @@ class Enterprise:
         )
         # 检查 save_folder 路径是否是绝对路径
         if not Path(save_folder).is_absolute():
-            raise BizException(FOLDER_PATH_ERROR_FORMAT.format(save_folder), f"文件夹路径错误：{save_folder} 不是绝对路径")
+            raise BizException(
+                FOLDER_PATH_ERROR_FORMAT.format(save_folder), f"文件夹路径错误：{save_folder} 不是绝对路径"
+            )
         # 检查保存文件夹是否存在，如果不存在则创建
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
 
         # 检查保存路径是否为目录
         if not os.path.isdir(save_folder):
-            raise BizException(FOLDER_PATH_ERROR_FORMAT.format(save_folder), f"文件夹路径错误：{save_folder} 不是文件夹路径")
+            raise BizException(
+                FOLDER_PATH_ERROR_FORMAT.format(save_folder), f"文件夹路径错误：{save_folder} 不是文件夹路径"
+            )
 
         try:
             params = {"fileId": file_path}

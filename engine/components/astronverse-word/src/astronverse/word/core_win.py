@@ -111,7 +111,9 @@ class WordDocumentCore(IDocumentCore):
                 if cls.word_application_instance:
                     return cls.word_application_instance
         except Exception as e:
-            raise BizException(WORD_FALLBACK_FAILED_ERROR, "兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
+            raise BizException(
+                WORD_FALLBACK_FAILED_ERROR, "兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！"
+            )
 
         raise BizException(WORD_REGISTRY_NOT_FOUND_ERROR, "未检测到wps和office注册表信息！")
 

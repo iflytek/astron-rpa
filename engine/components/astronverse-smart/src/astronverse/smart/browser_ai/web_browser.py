@@ -81,7 +81,10 @@ class WebBrowser:
         elif location == "top":
             y_scroll_type = ScrollbarForYScrollTypeFlag.Top
         else:
-            raise BizException(PARAM_ERROR.format(f"location: {location}"), f"不支持的位置参数: {location}，支持的值为 'top' 和 'bottom'")
+            raise BizException(
+                PARAM_ERROR.format(f"location: {location}"),
+                f"不支持的位置参数: {location}，支持的值为 'top' 和 'bottom'",
+            )
 
         BrowserElement.scroll(
             browser_obj=self.browser,
@@ -166,7 +169,9 @@ class WebBrowser:
             web_element = elements[0]
             element_data = elements[0].element_data
         else:
-            raise BizException(UNSUPPORTED_TYPE.format(type(xpath_selector)), f"不支持的 xpath 选择器类型: {type(xpath_selector)}")
+            raise BizException(
+                UNSUPPORTED_TYPE.format(type(xpath_selector)), f"不支持的 xpath 选择器类型: {type(xpath_selector)}"
+            )
 
         exist = BrowserElement().wait_element(
             browser_obj=self.browser,

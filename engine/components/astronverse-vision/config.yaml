@@ -26,9 +26,6 @@ atomic:
       - key: vertical_move
         title: 纵向平移
         tip: ''
-      - key: match_similarity
-        title: 匹配相似度
-        tip: 查找目标图像与当前页面的相似度阈值(最高匹配精确度为99%)，精准匹配表示当前界面存在于截取的目标图像完全一致的时候才能匹配成功
       - key: move_type
         title: 鼠标移动方式
         tip: ''
@@ -60,9 +57,6 @@ atomic:
       - key: vertical_move
         title: 纵向平移
         tip: ''
-      - key: match_similarity
-        title: 匹配相似度
-        tip: 查找目标图像与当前页面的相似度阈值(最高匹配精确度为99%)，精准匹配表示当前界面存在于截取的目标图像完全一致的时候才能匹配成功
       - key: move_type
         title: 鼠标移动方式
         tip: ''
@@ -85,9 +79,6 @@ atomic:
       - key: exist_type
         title: 判断类型
         tip: 判断图像存在或不存在，分别执行对应代码块内容
-      - key: match_similarity
-        title: 匹配相似度
-        tip: 查找目标图像与当前页面的相似度阈值(最高匹配精确度为99%)，精准匹配表示当前界面存在于截取的目标图像完全一致的时候才能匹配成功
       - key: wait_time
         title: 等待图像时间(秒)
         tip: 超过该时间停止等待，默认为10秒
@@ -107,9 +98,6 @@ atomic:
       - key: wait_time
         title: 等待时间(秒)
         tip: 超过该时间停止等待，默认为10秒
-      - key: match_similarity
-        title: 匹配相似度
-        tip: 查找目标图像与当前页面的相似度阈值(最高匹配精确度为99%)，精准匹配表示当前界面存在于截取的目标图像完全一致的时候才能匹配成功
     outputList:
       - key: image_wait_result
         title: 等待结果
@@ -134,9 +122,6 @@ atomic:
         tip: ''
       - key: interval
         title: 输入间隔
-        tip: ''
-      - key: match_similarity
-        title: 匹配相似度
         tip: ''
       - key: wait_time
         title: 等待图像出现时间(秒)

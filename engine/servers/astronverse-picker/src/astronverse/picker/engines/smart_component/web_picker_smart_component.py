@@ -9,7 +9,12 @@ from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import Browser
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
-from astronverse.picker.error import BizException, WEB_GET_ElE_ERROR, SMART_COMPONENT_SIMILAR_NOT_IMPLEMENTED_ERROR, SMART_COMPONENT_BATCH_NOT_IMPLEMENTED_ERROR
+from astronverse.picker.error import (
+    BizException,
+    WEB_GET_ElE_ERROR,
+    SMART_COMPONENT_SIMILAR_NOT_IMPLEMENTED_ERROR,
+    SMART_COMPONENT_BATCH_NOT_IMPLEMENTED_ERROR,
+)
 
 
 class WEBElement(IElement):

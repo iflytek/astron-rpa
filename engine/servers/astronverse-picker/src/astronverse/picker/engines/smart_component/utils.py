@@ -2,7 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup, Comment, NavigableString
-from astronverse.picker.error import BizException, PROCESSOR_INHERITANCE_ERROR, CANNOT_REMOVE_DEFAULT_PROCESSOR_ERROR, PROCESSOR_NOT_SET_ERROR, PROCESSOR_NOT_FOUND_FORMAT
+from astronverse.picker.error import (
+    BizException,
+    PROCESSOR_INHERITANCE_ERROR,
+    CANNOT_REMOVE_DEFAULT_PROCESSOR_ERROR,
+    PROCESSOR_NOT_SET_ERROR,
+    PROCESSOR_NOT_FOUND_FORMAT,
+)
 
 
 class HTMLProcessor(ABC):

@@ -330,7 +330,10 @@ class WebElement:
         elif location == "top":
             y_scroll_type = ScrollbarForYScrollTypeFlag.Top
         else:
-            raise BizException(PARAM_ERROR.format(f"location: {location}"), f"不支持的位置参数: {location}，支持的值为 'top' 和 'bottom'")
+            raise BizException(
+                PARAM_ERROR.format(f"location: {location}"),
+                f"不支持的位置参数: {location}，支持的值为 'top' 和 'bottom'",
+            )
 
         BrowserElement().scroll(
             browser_obj=self.browser,

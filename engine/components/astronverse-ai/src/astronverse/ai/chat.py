@@ -155,8 +155,7 @@ class ChatAI:
             return FileExtractor.extract_docx(file_path)
         else:
             raise BizException(
-                UNSUPPORTED_FILE_TYPE_ERROR_FORMAT.format(extension),
-                f"Not support file type：{extension}"
+                UNSUPPORTED_FILE_TYPE_ERROR_FORMAT.format(extension), f"Not support file type：{extension}"
             )
 
     @staticmethod

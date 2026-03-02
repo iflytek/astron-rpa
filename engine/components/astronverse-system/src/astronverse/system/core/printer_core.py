@@ -193,7 +193,9 @@ class PrinterCore:
             all_printers = PrinterCore.view_printer()
             logger.info(f"获取到的打印机列表为：{all_printers}")
             if all_printers and printer_name not in all_printers:
-                raise BizException(PRINTER_NOT_FOUND_FORMAT.format(printer_name), f"未发现 {printer_name} 打印机，请检查打印机名称。")
+                raise BizException(
+                    PRINTER_NOT_FOUND_FORMAT.format(printer_name), f"未发现 {printer_name} 打印机，请检查打印机名称。"
+                )
             _default_printer_name = printer_name
 
         if not print_file:
@@ -204,7 +206,10 @@ class PrinterCore:
         )
 
         if print_queue is None:
-            raise BizException(PRINTER_NOT_SUPPORTED_FORMAT.format(printer_name), f"{printer_name} 打印机暂不支持打印，请检查打印机信息")
+            raise BizException(
+                PRINTER_NOT_SUPPORTED_FORMAT.format(printer_name),
+                f"{printer_name} 打印机暂不支持打印，请检查打印机信息",
+            )
 
         flags = []
         while not print_queue.empty():

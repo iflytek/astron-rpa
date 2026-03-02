@@ -14,8 +14,12 @@ SAVE_IMAGE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("保存图像
 
 # CV 匹配错误
 CV_MATCH_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("未匹配到目标元素，请检查当前界面或降低匹配相似度后重试"))
-MATCH_RESULT_INVALID_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("match.process_image 未返回有效的 (out_img, match_box) 元组"))
-COORDINATE_CONVERSION_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("坐标转换失败，请检查锚点是否已正确设置，或重新拾取新的图像元素"))
+MATCH_RESULT_INVALID_ERROR: ErrorCode = ErrorCode(
+    BizCode.LocalErr, _("match.process_image 未返回有效的 (out_img, match_box) 元组")
+)
+COORDINATE_CONVERSION_ERROR: ErrorCode = ErrorCode(
+    BizCode.LocalErr, _("坐标转换失败，请检查锚点是否已正确设置，或重新拾取新的图像元素")
+)
 TARGET_EXISTS_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("当前界面目标元素不存在"))
 
 # 鼠标操作错误
