@@ -45,11 +45,9 @@ class I18n:
 
             # Try to set locale, but don't fail if it's not available
             try:
-                if self.language == "zh_CN":
-                    locale.setlocale(locale.LC_ALL, "zh_CN.UTF-8")
-                elif self.language == "en_US":
-                    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-            except:
+                # Attempt to set locale dynamically, e.g., 'zh_CN' -> 'zh_CN.UTF-8'
+                locale.setlocale(locale.LC_ALL, f"{self.language}.UTF-8")
+            except locale.Error:
                 pass  # Locale setting is optional
 
         except Exception as e:
@@ -67,7 +65,7 @@ class I18n:
         except Exception as e:
             return message
 
-    def getlanguage(self, language):
+    def getlanguage(self):
         return self.language
 
 # Default instance using system language
