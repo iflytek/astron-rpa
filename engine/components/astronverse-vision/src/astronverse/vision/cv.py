@@ -70,11 +70,6 @@ class CV:
                 level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
-            atomicMg.param(
-                "match_similarity",
-                formType=AtomicFormTypeMeta(AtomicFormType.SLIDER.value),
-                required=False,
-            ),
             atomicMg.param("move_type", level=AtomicLevel.ADVANCED.value, required=False),
             atomicMg.param(
                 "move_speed",
@@ -118,6 +113,12 @@ class CV:
         :param wait_time: 等待时间
         :return: 空
         """
+        # 从 IMGPick 的 elementData 中获取 similarity，如果不存在则使用 match_similarity
+        if input_data and "elementData" in input_data:
+            element_data = input_data.get("elementData", {})
+            if isinstance(element_data, dict) and "similarity" in element_data:
+                match_similarity = element_data["similarity"]
+
         start_time = time.time()
         while True:
             target_rect = CvCore.match_imgs(input_data=input_data, match_similarity=match_similarity)
@@ -223,11 +224,6 @@ class CV:
                 ],
             ),
             atomicMg.param(
-                "match_similarity",
-                formType=AtomicFormTypeMeta(AtomicFormType.SLIDER.value),
-                required=False,
-            ),
-            atomicMg.param(
                 "wait_time",
                 types="Int",
                 level=AtomicLevel.ADVANCED.value,
@@ -272,6 +268,12 @@ class CV:
         :param wait_time: 等待时间
         :return: 空
         """
+        # 从 IMGPick 的 elementData 中获取 similarity，如果不存在则使用 match_similarity
+        if input_data and "elementData" in input_data:
+            element_data = input_data.get("elementData", {})
+            if isinstance(element_data, dict) and "similarity" in element_data:
+                match_similarity = element_data["similarity"]
+
         start_time = time.time()
         while True:
             target_rect = CvCore.match_imgs(input_data, match_similarity)
@@ -339,11 +341,6 @@ class CV:
             ),
             atomicMg.param("exist_type", required=False),
             atomicMg.param(
-                "match_similarity",
-                formType=AtomicFormTypeMeta(AtomicFormType.SLIDER.value),
-                required=False,
-            ),
-            atomicMg.param(
                 "wait_time",
                 types="Int",
                 level=AtomicLevel.ADVANCED.value,
@@ -365,6 +362,12 @@ class CV:
         :param wait_time: 等待时间
         :return: 图像是否存在的结果
         """
+        # 从 IMGPick 的 elementData 中获取 similarity，如果不存在则使用 match_similarity
+        if input_data and "elementData" in input_data:
+            element_data = input_data.get("elementData", {})
+            if isinstance(element_data, dict) and "similarity" in element_data:
+                match_similarity = element_data["similarity"]
+
         start_time = time.time()
 
         while True:
@@ -402,11 +405,6 @@ class CV:
             ),
             atomicMg.param("wait_type", required=False),
             atomicMg.param("wait_time", types="Int", required=False),
-            atomicMg.param(
-                "match_similarity",
-                formType=AtomicFormTypeMeta(AtomicFormType.SLIDER.value),
-                required=False,
-            ),
         ],
         outputList=[atomicMg.param("image_wait_result", types="Bool")],
     )
@@ -424,6 +422,12 @@ class CV:
         :param match_similarity: 匹配相似度
         :return: 等待结果
         """
+        # 从 IMGPick 的 elementData 中获取 similarity，如果不存在则使用 match_similarity
+        if input_data and "elementData" in input_data:
+            element_data = input_data.get("elementData", {})
+            if isinstance(element_data, dict) and "similarity" in element_data:
+                match_similarity = element_data["similarity"]
+
         start_time = time.time()
 
         if wait_type == WaitType.DISAPPEAR:
@@ -493,11 +497,6 @@ class CV:
                 ],
             ),
             atomicMg.param("wait_time", types="Int", required=False),
-            atomicMg.param(
-                "match_similarity",
-                formType=AtomicFormTypeMeta(AtomicFormType.SLIDER.value),
-                required=False,
-            ),
         ],
         outputList=[],
     )
@@ -520,6 +519,12 @@ class CV:
         :param wait_time: 等待时间
         :param match_similarity: 匹配相似度
         """
+        # 从 IMGPick 的 elementData 中获取 similarity，如果不存在则使用 match_similarity
+        if input_data and "elementData" in input_data:
+            element_data = input_data.get("elementData", {})
+            if isinstance(element_data, dict) and "similarity" in element_data:
+                match_similarity = element_data["similarity"]
+
         start_time = time.time()
         while True:
             target_rect = CvCore.match_imgs(input_data, match_similarity)

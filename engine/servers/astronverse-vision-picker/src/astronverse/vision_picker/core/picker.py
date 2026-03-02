@@ -38,10 +38,7 @@ if sys.platform == "win32":
 elif platform.system() == "Linux":
     from astronverse.vision_picker.core.core_unix import PickCore, RectHandler
 else:
-    raise BizException(
-        PLATFORM_NOT_SUPPORTED.format(platform.system()),
-        f"平台 {platform.system()} 不支持"
-    )
+    raise BizException(PLATFORM_NOT_SUPPORTED.format(platform.system()), f"平台 {platform.system()} 不支持")
 
 PickCore: IPickCore = PickCore()
 RectHandler: IRectHandler = RectHandler()

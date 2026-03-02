@@ -129,7 +129,7 @@ class System:
                         bottom_right_y,
                         screen_width,
                         screen_height,
-                    )
+                    ),
                 )
             region = (
                 top_left_x,

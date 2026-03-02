@@ -4,7 +4,12 @@ from typing import Any
 
 import requests
 import sseclient
-from astronverse.scheduler.error import BizException, ERROR_FORMAT, UNSUPPORTED_FILE_EXT_FORMAT, CUSTOM_FACTORS_FORMAT_ERROR
+from astronverse.scheduler.error import (
+    BizException,
+    ERROR_FORMAT,
+    UNSUPPORTED_FILE_EXT_FORMAT,
+    CUSTOM_FACTORS_FORMAT_ERROR,
+)
 
 
 class InputType(Enum):
@@ -137,7 +142,9 @@ def get_factors(
         elif file_extension == "txt":
             contract_content = open(contract_path).read()
         else:
-            raise BizException(UNSUPPORTED_FILE_EXT_FORMAT.format(file_extension), "不支持的文件扩展类型: " + file_extension)
+            raise BizException(
+                UNSUPPORTED_FILE_EXT_FORMAT.format(file_extension), "不支持的文件扩展类型: " + file_extension
+            )
     try:
         custom_factors = ast.literal_eval(custom_factors)
     except:

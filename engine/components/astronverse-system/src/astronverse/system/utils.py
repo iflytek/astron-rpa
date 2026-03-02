@@ -96,6 +96,7 @@ def get_files_in_folder(folder_path: str = "", general=False) -> list:
         return files
     except Exception:
         from astronverse.system.error import BizException, FILE_LIST_ERROR
+
         raise BizException(FILE_LIST_ERROR, f"获取文件夹下文件列表失败，文件夹路径：{folder_path}")
 
 

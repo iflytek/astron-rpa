@@ -6,7 +6,13 @@ import cv2
 import numpy as np
 from PIL import Image
 from astronverse.vision_picker.logger import logger
-from astronverse.vision_picker.error import BizException, IMAGE_NOT_PROVIDED, IMAGE_SAVE_PATH_REQUIRED, IMAGE_PATH_INVALID, IMAGE_SAVE_ERROR
+from astronverse.vision_picker.error import (
+    BizException,
+    IMAGE_NOT_PROVIDED,
+    IMAGE_SAVE_PATH_REQUIRED,
+    IMAGE_PATH_INVALID,
+    IMAGE_SAVE_ERROR,
+)
 
 # def ocr_image(image, flag):
 #     """

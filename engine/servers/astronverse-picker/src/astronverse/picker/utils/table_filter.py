@@ -382,7 +382,9 @@ class DataFilter:
                         "Regular",
                     ]:
                         if not parameters:
-                            raise BizException(COLUMN_DATA_MISSING_PARAM_FORMAT.format(index + 1), f"第{index + 1}列数据处理缺少参数")
+                            raise BizException(
+                                COLUMN_DATA_MISSING_PARAM_FORMAT.format(index + 1), f"第{index + 1}列数据处理缺少参数"
+                            )
                     try:
                         if process_type == "Trim":
                             self.trim(index, parameters)
