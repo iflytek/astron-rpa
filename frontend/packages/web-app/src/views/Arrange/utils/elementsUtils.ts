@@ -538,23 +538,6 @@ export function typesPattern(type: string, name: string) {
 }
 
 /**
- * 返回attrs选中的属性
- */
-export function checkedValue(tag: string, attrs: any[]) {
-  let str = ''
-  str += `<${tag}`
-  attrs.forEach((item) => {
-    if (item.checked) {
-      const patternType = PATTERN_RULES.find(rule => rule.value === item.type)
-      const operator = patternType ? patternType.label : '='
-      str += ` ${item.name}${operator}"${item.value}"`
-    }
-  })
-  str += ` />`
-  return str
-}
-
-/**
  * 添加属性
  */
 export function addAttr(v: string, index: number) {
