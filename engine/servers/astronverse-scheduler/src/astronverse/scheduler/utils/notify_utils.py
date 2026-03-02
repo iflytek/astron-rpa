@@ -7,7 +7,13 @@ from email.mime.text import MIMEText
 from email.utils import formataddr, parseaddr
 
 import requests
-from astronverse.scheduler.error import BizException, EMAIL_LOGIN_ERROR, EMAIL_SEND_ERROR, SMS_SEND_ERROR, SMS_SEND_ERROR_FORMAT
+from astronverse.scheduler.error import (
+    BizException,
+    EMAIL_LOGIN_ERROR,
+    EMAIL_SEND_ERROR,
+    SMS_SEND_ERROR,
+    SMS_SEND_ERROR_FORMAT,
+)
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import get_settings
 

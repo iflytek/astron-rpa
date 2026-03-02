@@ -108,7 +108,9 @@ class Excel:
         if len(res) == 1:
             return res[0]
         elif len(res) == 2:
-            raise BizException(EXCEL_ERROR_FORMAT.format(file_name), f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个")
+            raise BizException(
+                EXCEL_ERROR_FORMAT.format(file_name), f"检测到对象：{file_name}在WPS/Office中打开,需关闭其中一个"
+            )
         else:
             raise BizException(EXCEL_ERROR_FORMAT.format(file_name), f"不存在已打开的Excel文件:{file_name}")
 

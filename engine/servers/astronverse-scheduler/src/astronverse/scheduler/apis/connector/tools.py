@@ -12,7 +12,14 @@ from enum import Enum
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
 from astronverse.scheduler.core.svc import Svc, get_svc
-from astronverse.scheduler.error import BizException, ERROR_FORMAT, PARSE_PYTHON_ERROR_FORMAT, DOCSTRING_TITLE_ERROR, PARSE_PARAM_LINE_ERROR_FORMAT, PARSE_FIELD_TYPE_ERROR_FORMAT
+from astronverse.scheduler.error import (
+    BizException,
+    ERROR_FORMAT,
+    PARSE_PYTHON_ERROR_FORMAT,
+    DOCSTRING_TITLE_ERROR,
+    PARSE_PARAM_LINE_ERROR_FORMAT,
+    PARSE_FIELD_TYPE_ERROR_FORMAT,
+)
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.ai import InputType, get_factors
 from astronverse.scheduler.utils.clipboard import Clipboard

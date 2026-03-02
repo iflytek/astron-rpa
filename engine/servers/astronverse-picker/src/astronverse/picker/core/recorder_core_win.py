@@ -18,7 +18,13 @@ from astronverse.picker import (
 )
 from astronverse.picker.core.picker_core_win import PickerCore
 from astronverse.picker.engines.uia_picker import UIAOperate
-from astronverse.picker.error import BizException, PICKER_CONVERTER_ERROR, PICKER_CONVERTER_MISSING_ERROR, CUR_RECT_NOT_INITIALIZED_ERROR, MOUSE_POSITION_OUT_OF_RANGE_ERROR
+from astronverse.picker.error import (
+    BizException,
+    PICKER_CONVERTER_ERROR,
+    PICKER_CONVERTER_MISSING_ERROR,
+    CUR_RECT_NOT_INITIALIZED_ERROR,
+    MOUSE_POSITION_OUT_OF_RANGE_ERROR,
+)
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.process import find_real_application_process
 

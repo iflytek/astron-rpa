@@ -77,7 +77,10 @@ class WordDocumentCore(IDocumentCore):
             app = APP
 
         if not app:
-            raise BizException(WPS_INIT_FAILED_ERROR, "请尝试设置WPS多组件模式：打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】")
+            raise BizException(
+                WPS_INIT_FAILED_ERROR,
+                "请尝试设置WPS多组件模式：打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】",
+            )
 
         hr, cls.doc = app.Documents.Add()
         if file_path:
@@ -108,7 +111,10 @@ class WordDocumentCore(IDocumentCore):
             app = APP
 
         if not app:
-            raise BizException(WPS_INIT_FAILED_ERROR, "请尝试设置WPS多组件模式：打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】")
+            raise BizException(
+                WPS_INIT_FAILED_ERROR,
+                "请尝试设置WPS多组件模式：打开wps → 右上角设置按钮 → Settings → Others → Change window manage mode… → 选择【Multi-Module Mode】",
+            )
 
         hr, cls.doc = app.Documents.Open(
             file_path,

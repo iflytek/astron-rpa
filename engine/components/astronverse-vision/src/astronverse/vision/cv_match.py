@@ -131,7 +131,9 @@ class AnchorMatch:
 
                 stack_info = traceback.format_exc()
                 logger.error(f"坐标转换失败: {e}\n堆栈信息:\n{stack_info}")
-                raise BizException(COORDINATE_CONVERSION_ERROR, "坐标转换失败，请检查锚点是否已正确设置，或重新拾取新的图像元素")
+                raise BizException(
+                    COORDINATE_CONVERSION_ERROR, "坐标转换失败，请检查锚点是否已正确设置，或重新拾取新的图像元素"
+                )
 
             # 计算距离
             dis_x = (aim_x - anchor_x) * rw

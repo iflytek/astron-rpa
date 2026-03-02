@@ -46,7 +46,9 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
     """检测browser_obj， element_data"""
     if element_data:
         if element_data.get("elementData", {}).get("app", "") == "iexplore":
-            error_msg = "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
+            error_msg = "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(
+                browser_obj.browser_type.value
+            )
             raise BizException(ERROR_FORMAT.format(error_msg), error_msg)
 
     if not browser_obj:
@@ -1296,7 +1298,9 @@ class BrowserElement:
             if to_excel:
                 # 检查 excel_path 是否为 .xlsx 文件
                 if excel_path and not excel_path.endswith(".xlsx"):
-                    raise BizException(FILE_PATH_ERROR_FORMAT.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
+                    raise BizException(
+                        FILE_PATH_ERROR_FORMAT.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件"
+                    )
                 if excel_path is None:
                     excel_path = f"{element_data['elementData']['name']}.xlsx"
                 df.to_excel(excel_path, index=False)
@@ -1539,7 +1543,9 @@ class BrowserElement:
             # 将table_list 转换为excel
             # 检查 excel_path 是否为 .xlsx 文件
             if excel_path and not excel_path.endswith(".xlsx"):
-                raise BizException(FILE_PATH_ERROR.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
+                raise BizException(
+                    FILE_PATH_ERROR.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件"
+                )
             if excel_path is None:
                 excel_path = f"{table_element['name']}.xlsx"
             table_df_out.to_excel(excel_path, index=False, header=output_head)

@@ -10,7 +10,12 @@ from astronverse.scheduler.core.executor.executor import (
     TaskExecuteStatus,
 )
 from astronverse.scheduler.core.svc import Svc, get_svc
-from astronverse.scheduler.error import BizException, EXECUTOR_LOG_ERROR, EXECUTOR_TIMEOUT_ERROR, EXECUTOR_START_ERROR_FORMAT
+from astronverse.scheduler.error import (
+    BizException,
+    EXECUTOR_LOG_ERROR,
+    EXECUTOR_TIMEOUT_ERROR,
+    EXECUTOR_START_ERROR_FORMAT,
+)
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import EmitType, emit_to_front, get_settings
 from fastapi import APIRouter, Depends
@@ -181,13 +186,18 @@ def executor_run_list(task_info: TaskInfo, svc: Svc = Depends(get_svc)):
                         break
                     elif task_info.exceptional == "retry_stop":
                         if t == task_info.retry_num - 1:
-                            raise BizException(EXECUTOR_START_ERROR_FORMAT.format(execute_reason), "启动失败: {}".format(execute_reason))
+                            raise BizException(
+                                EXECUTOR_START_ERROR_FORMAT.format(execute_reason),
+                                "启动失败: {}".format(execute_reason),
+                            )
                     elif task_info.exceptional == "retry_jump":
                         if t == task_info.retry_num - 1:
                             break
                     else:
                         # stop
-                        raise BizException(EXECUTOR_START_ERROR_FORMAT.format(execute_reason), "启动失败: {}".format(execute_reason))
+                        raise BizException(
+                            EXECUTOR_START_ERROR_FORMAT.format(execute_reason), "启动失败: {}".format(execute_reason)
+                        )
 
             if is_break:
                 break

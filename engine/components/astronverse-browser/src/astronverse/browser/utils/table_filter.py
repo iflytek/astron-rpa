@@ -203,7 +203,9 @@ class DataFilter:
                     self.data_table[index].update(filter_result)
                 except Exception as e:
                     logger.error(f"cell_filter: {str(e)}")
-                    raise BizException(FILTER_CONDITION_NOT_SUPPORTED_FORMAT.format(str(e)), f"暂不支持该筛选条件：{str(e)}")
+                    raise BizException(
+                        FILTER_CONDITION_NOT_SUPPORTED_FORMAT.format(str(e)), f"暂不支持该筛选条件：{str(e)}"
+                    )
 
     def table_filter(self):
         """
@@ -230,7 +232,9 @@ class DataFilter:
                     self.data_table = self.data_table[eval(filter_condition)]
                 except Exception as e:
                     logger.error(f"table_filter: {str(e)}")
-                    raise BizException(FILTER_CONDITION_NOT_SUPPORTED_FORMAT.format(str(e)), f"暂不支持该筛选条件：{str(e)}")
+                    raise BizException(
+                        FILTER_CONDITION_NOT_SUPPORTED_FORMAT.format(str(e)), f"暂不支持该筛选条件：{str(e)}"
+                    )
         for index in range(len(self.hightLightIndex_list)):
             self.hightLightIndex_list[index] = [
                 self.hightLightIndex_list[index][i] for i in list(self.data_table["index"])
@@ -387,7 +391,9 @@ class DataFilter:
                         "Regular",
                     ]:
                         if not parameters:
-                            raise BizException(DATA_PROCESS_MISSING_PARAM_FORMAT.format(index + 1), f"第{index + 1}列数据处理缺少参数")
+                            raise BizException(
+                                DATA_PROCESS_MISSING_PARAM_FORMAT.format(index + 1), f"第{index + 1}列数据处理缺少参数"
+                            )
                     try:
                         if process_type == "Trim":
                             self.trim(index, parameters)
@@ -404,7 +410,10 @@ class DataFilter:
                         elif process_type == "Suffix":
                             self.suffix(index, parameters)
                     except Exception as e:
-                        raise BizException(DATA_PROCESS_PARAM_INVALID_FORMAT.format(process_type, e), f"参数异常，请输入正确的参数！{process_type}{e}")
+                        raise BizException(
+                            DATA_PROCESS_PARAM_INVALID_FORMAT.format(process_type, e),
+                            f"参数异常，请输入正确的参数！{process_type}{e}",
+                        )
 
     def data_filter_main(self):
         """data filter"""

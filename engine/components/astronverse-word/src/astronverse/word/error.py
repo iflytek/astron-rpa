@@ -34,7 +34,11 @@ FILENAME_ALREADY_EXISTS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _(
 CLIPBOARD_PASTE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("请检查剪贴板是否存在内容"))
 
 # Word 初始化错误
-WORD_INITIALIZATION_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("Word初始化失败，请检查Word是否安装正确: {}"))
+WORD_INITIALIZATION_ERROR_FORMAT: ErrorCode = ErrorCode(
+    BizCode.LocalErr, _("Word初始化失败，请检查Word是否安装正确: {}")
+)
 WPS_INIT_FAILED_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("WPS初始化失败"))
-WORD_FALLBACK_FAILED_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行"))
+WORD_FALLBACK_FAILED_ERROR: ErrorCode = ErrorCode(
+    BizCode.LocalErr, _("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行")
+)
 WORD_REGISTRY_NOT_FOUND_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("未检测到wps和office注册表信息"))

@@ -3,7 +3,12 @@ import math
 import re
 
 from astronverse.baseline.logger.logger import logger
-from astronverse.cua.error import BizException, ASPECT_RATIO_ERROR_FORMAT, ACTION_PARSE_ERROR_FORMAT, ACTION_PARSE_NO_MATCH_ERROR
+from astronverse.cua.error import (
+    BizException,
+    ASPECT_RATIO_ERROR_FORMAT,
+    ACTION_PARSE_ERROR_FORMAT,
+    ACTION_PARSE_NO_MATCH_ERROR,
+)
 
 IMAGE_FACTOR = 28
 MIN_PIXELS = 100 * 28 * 28
@@ -129,7 +134,7 @@ def smart_resize(
         actual_ratio = max(height, width) / min(height, width)
         raise BizException(
             ASPECT_RATIO_ERROR_FORMAT.format(f"max={MAX_RATIO}, actual={actual_ratio}"),
-            f"绝对宽高比必须小于 {MAX_RATIO}, 实际为 {actual_ratio}"
+            f"绝对宽高比必须小于 {MAX_RATIO}, 实际为 {actual_ratio}",
         )
     h_bar = max(factor, round_by_factor(height, factor))
     w_bar = max(factor, round_by_factor(width, factor))
