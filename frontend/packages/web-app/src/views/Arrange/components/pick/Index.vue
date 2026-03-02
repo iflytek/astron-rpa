@@ -267,7 +267,6 @@ watch(
       pickerType.value = picker_type
       // 自定义编辑元素
       customData.value = elementCustomFormat(version, type, path)
-      console.log('customData.value : ', customData.value)
       // 设置相似拾取按钮展示
       similarButton.value = ['web', 'uia'].includes(type)
       formOption.value.pickType = type
