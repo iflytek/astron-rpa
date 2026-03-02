@@ -1,0 +1,1404 @@
+# AstronRPA Engine Messages
+# Copyright (C) 2026 Astronverse RPA Team
+# This file is distributed under the MIT License.
+# Astronverse RPA Team <support@astronverse.com>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Astronverse RPA Engine\n"
+"Report-Msgid-Bugs-To: support@astronverse.com\n"
+"POT-Creation-Date: 2026-03-02 12:00+0800\n"
+"PO-Revision-Date: 2026-03-02 12:00+0800\n"
+"Last-Translator: Astronverse RPA Team <support@astronverse.com>\n"
+"Language-Team: Chinese <zh@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "{}"
+msgstr "{}"
+
+msgid "类型错误: {}"
+msgstr "Type Error: {}"
+
+msgid "配置文件加载出错: {}"
+msgstr "Configuration file loading error: {}"
+
+msgid "配置文件解析不支持该类型: {}"
+msgstr "Configuration file parsing does not support this type: {}"
+
+msgid "缺少必填参数: {}"
+msgstr "Missing required parameter: {}"
+
+msgid "参数不支持args: {}"
+msgstr "Parameter does not support args: {}"
+
+msgid "参数 {} 必填"
+msgstr "Parameter {} is required"
+
+msgid "参数 {} 的值错误{}"
+msgstr "Invalid value for parameter {}: {}"
+
+msgid "{} 的值类型错误{}"
+msgstr "Value type error for {}: {}"
+
+msgid "参数 {} 的值转换成 {} 失败，原始值: {}"
+msgstr "Failed to convert parameter {} to {}. Original value: {}"
+
+msgid "参数 {} 验证失败: {}"
+msgstr "Parameter {} validation failed: {}"
+
+msgid "{} 参数值不能为空"
+msgstr "Parameter value for {} cannot be empty"
+
+msgid "{} 执行第{}条指令 [{}]"
+msgstr "{} executing instruction #{} [{}]"
+
+msgid "执行错误"
+msgstr "Execution Error"
+
+msgid "执行错误跳过"
+msgstr "Execution Error - Skipped"
+
+msgid "执行错误重试"
+msgstr "Execution Error - Retrying"
+
+msgid "大模型无返回结果，请重试"
+msgstr "No response from AI model. Please retry."
+
+msgid "浏览器打开失败"
+msgstr "Failed to open browser"
+
+msgid "未找到浏览器路径，请输入浏览器路径再运行"
+msgstr "Browser path not found. Please enter the browser path before running."
+
+msgid "请选择跟浏览器匹配的应用路径"
+msgstr "Please select an application path matching the browser."
+
+msgid "参数异常"
+msgstr "Parameter Exception"
+
+msgid "网页加载超时，请重试"
+msgstr "Web page loading timeout. Please retry."
+
+msgid "获取浏览器对象失败"
+msgstr "Failed to get browser object"
+
+msgid "获取网页URL失败"
+msgstr "Failed to get web page URL"
+
+msgid "获取当前页面标题失败"
+msgstr "Failed to get current page title"
+
+msgid "网页元素查找失败"
+msgstr "Web element lookup failed"
+
+msgid "浏览器获取相似元素列表失败"
+msgstr "Browser failed to get similar element list"
+
+msgid "浏览器获取下拉框选中值失败"
+msgstr "Browser failed to get dropdown selected value"
+
+msgid "浏览器获取复选框选中值失败"
+msgstr "Browser failed to get checkbox selected value"
+
+msgid "页面数量必须是整数"
+msgstr "Page count must be an integer"
+
+msgid "等待时间不能小于0！"
+msgstr "Wait time cannot be less than 0!"
+
+msgid "请输入元素属性名称"
+msgstr "Please enter element attribute name"
+
+msgid "插件执行错误"
+msgstr "Plugin execution error"
+
+msgid "未弹出下载窗口，可以尝试用模拟人工点击或设置浏览器始终弹出下载窗口"
+msgstr "Download window did not pop up. Try simulating manual click or configure browser to always show download window."
+
+msgid "未弹出上传窗口，可以尝试用模拟人工点击或设置浏览器始终弹出上传窗口"
+msgstr "Upload window did not pop up. Try simulating manual click or configure browser to always show upload window."
+
+msgid "切换网页失败，没有找到符合条件的网页"
+msgstr "Failed to switch web page. No matching page found."
+
+msgid "浏览器插件通信出错，请重试"
+msgstr "Browser plugin communication error. Please retry."
+
+msgid "浏览器插件错误"
+msgstr "Browser Plugin Error"
+
+msgid "打开浏览器超时"
+msgstr "Browser open timeout"
+
+msgid "目标浏览器未打开"
+msgstr "Target browser is not open"
+
+msgid "浏览器暂未安装"
+msgstr "Browser is not installed"
+
+msgid "脚本数据为空"
+msgstr "Script data is empty"
+
+msgid "代码中必须包含main函数"
+msgstr "Code must contain a main function"
+
+msgid "焦点超时时间必须大于0"
+msgstr "Focus timeout must be greater than 0"
+
+msgid "按键输入间隔必须大于等于0"
+msgstr "Key input interval must be greater than or equal to 0"
+
+msgid "Linux必须手动填入浏览器地址"
+msgstr "Linux requires manual browser path entry"
+
+msgid "内部错误"
+msgstr "Internal Error"
+
+msgid "错误"
+msgstr "Error"
+
+msgid "参数错误"
+msgstr "Parameter Error"
+
+msgid "输入数据类型有误，无法设置为变量"
+msgstr "Invalid input data type. Cannot set as variable."
+
+msgid "输入的正则表达式有误"
+msgstr "Invalid regular expression input"
+
+msgid "输入的数字范围有误"
+msgstr "Invalid number range input"
+
+msgid "输入的数字格式有误"
+msgstr "Invalid number format input"
+
+msgid "输入的列表格式有误"
+msgstr "Invalid list format input"
+
+msgid "输入的字典格式有误"
+msgstr "Invalid dictionary format input"
+
+msgid "输入的索引值有误"
+msgstr "Invalid index value input"
+
+msgid "输入的数学表达式有误"
+msgstr "Invalid mathematical expression input"
+
+msgid "参数有误"
+msgstr "Invalid Parameter"
+
+msgid "数据表格格式有误"
+msgstr "Invalid data table format"
+
+msgid "行数据有误， 行只能是大于0的正整数"
+msgstr "Invalid row data. Row must be a positive integer greater than 0."
+
+msgid "列数据有误，列名只能是A,AB..."
+msgstr "Invalid column data. Column name must be A, AB..."
+
+msgid "区域数据有误，区域数据只能是字符串，字符串数组，二维字符串数组的一种"
+msgstr "Invalid range data. Range must be a string, string array, or 2D string array."
+
+msgid "单元格读取失败"
+msgstr "Cell read failed"
+
+msgid "数据文件读取失败"
+msgstr "Data file read failed"
+
+msgid "数据不能为空"
+msgstr "Data cannot be empty"
+
+msgid "数据写入失败"
+msgstr "Data write failed"
+
+msgid "写入数据权限被拒绝，请关闭相关文件后重试"
+msgstr "Write permission denied. Please close related files and retry."
+
+msgid "公式格式有误，公式必须是以=开头的字符串"
+msgstr "Invalid formula format. Formula must start with =."
+
+msgid "导入文件失败"
+msgstr "File import failed"
+
+msgid "指定窗口运行路径不存在,请检查路径信息"
+msgstr "Specified window runtime path does not exist. Please check path information."
+
+msgid "消息为空"
+msgstr "Message is empty"
+
+msgid "登录失败"
+msgstr "Login failed"
+
+msgid "服务器错误"
+msgstr "Server Error"
+
+msgid "上传路径有误"
+msgstr "Invalid upload path"
+
+msgid "上传失败"
+msgstr "Upload failed"
+
+msgid "下载失败"
+msgstr "Download failed"
+
+msgid "错误: {}"
+msgstr "Error: {}"
+
+msgid "内部错误: {}"
+msgstr "Internal Error: {}"
+
+msgid "服务器错误: {}"
+msgstr "Server Error: {}"
+
+msgid "语法错误: {}"
+msgstr "Syntax Error: {}"
+
+msgid "break和continue语句必须在循环结构中使用"
+msgstr "break and continue statements must be used within loop structures"
+
+msgid "原子能力 {} 解析失败"
+msgstr "Atomic Action {} parsing failed"
+
+msgid "缺少必需的key字段 {}"
+msgstr "Missing required key field {}"
+
+msgid "只能保留一个catch语句"
+msgstr "Only one catch statement can be retained"
+
+msgid "元素获取异常: {}"
+msgstr "Element acquisition exception: {}"
+
+msgid "工程数据异常: {}"
+msgstr "Project data exception: {}"
+
+msgid "开始初始化..."
+msgstr "Starting initialization..."
+
+msgid "初始化完成"
+msgstr "Initialization completed"
+
+msgid "开始执行"
+msgstr "Starting execution"
+
+msgid "执行结束"
+msgstr "Execution completed"
+
+msgid "执行结束，用户主动关闭"
+msgstr "Execution completed - User actively closed"
+
+msgid "{} 开始调试第{}条指令 [{}]"
+msgstr "{} starting debug of instruction #{} [{}]"
+
+msgid "录屏数据处理中，可能时间较长，请稍等"
+msgstr "Screen recording data processing. This may take a while. Please wait."
+
+msgid "{}动态下载中..."
+msgstr "{} downloading dynamically..."
+
+msgid "{}下载完成"
+msgstr "{} download completed"
+
+msgid "资源目录不存在ffmpeg，录屏功能无法使用"
+msgstr "ffmpeg not found in resource directory. Screen recording unavailable."
+
+msgid "子窗口启动"
+msgstr "Sub-window started"
+
+msgid "键盘输入为空，请检查输入内容"
+msgstr "Keyboard input is empty. Please check input content."
+
+msgid "驱动输入没有管理员权限，输入失败"
+msgstr "Driver input lacks administrator privileges. Input failed."
+
+msgid "模拟键盘按键输入失败，请检查输入内容"
+msgstr "Simulated keyboard input failed. Please check input content."
+
+msgid "滑轮滚动过程中失败, 请检查环境是否出现异常"
+msgstr "Scroll wheel operation failed. Please check if environment is abnormal."
+
+msgid "剪切板中未获取到有效输入信息，请重新输入！"
+msgstr "No valid input information obtained from clipboard. Please re-enter!"
+
+msgid "设备不存在或未连接,请检查设备连接"
+msgstr "Device does not exist or is not connected. Please check device connection."
+
+msgid "参数不合法，请检查指定参数范围是否小于0或超出屏幕边界"
+msgstr "Invalid parameter. Please check if parameter range is less than 0 or exceeds screen boundaries."
+
+msgid "元素无法找到"
+msgstr "Element cannot be found"
+
+msgid "HTTP下载失败，错误：{}"
+msgstr "HTTP download failed. Error: {}"
+
+msgid "连接到FTP服务器失败，请检查服务器地址：{}及端口号：{}"
+msgstr "Failed to connect to FTP server. Please check server address: {} and port: {}"
+
+msgid "登陆到FTP失败，请检查用户名：{}和密码：{}"
+msgstr "FTP login failed. Please check username: {} and password: {}"
+
+msgid "FTP连接关闭失败，详细信息：{}"
+msgstr "FTP connection close failed. Details: {}"
+
+msgid "连接出现错误，请检查FTP是否已断开连接：{}"
+msgstr "Connection error occurred. Please check if FTP is disconnected: {}"
+
+msgid "FTP文件删除失败：{}"
+msgstr "FTP file deletion failed: {}"
+
+msgid "FTP文件/文件夹重命名失败：{}"
+msgstr "FTP file/folder rename failed: {}"
+
+msgid "FTP目录创建失败：{},请检查FTP连接"
+msgstr "FTP directory creation failed: {}. Please check FTP connection."
+
+msgid "{}上传失败，请检查FTP连接"
+msgstr "{} upload failed. Please check FTP connection."
+
+msgid "{}下载失败，请检查FTP连接"
+msgstr "{} download failed. Please check FTP connection."
+
+msgid "文件：{}不存在或格式错误，请检查文件路径信息"
+msgstr "File: {} does not exist or format error. Please check file path information."
+
+msgid "文件夹：{}不存在，请检查文件夹路径信息"
+msgstr "Folder: {} does not exist. Please check folder path information."
+
+msgid "输入文件名称：{}扩展名缺失，请检查输入内容"
+msgstr "Input file name: {} missing extension. Please check input content."
+
+msgid "输入文件夹名称：{}有误，请检查输入内容"
+msgstr "Input folder name: {} is incorrect. Please check input content."
+
+msgid "ai服务器无响应或错误"
+msgstr "AI server no response or error"
+
+msgid "ai服务请求异常 {}"
+msgstr "AI service request exception {}"
+
+msgid "图片路径不存在或格式错误"
+msgstr "Image path does not exist or format error"
+
+msgid "PDF文件路径有误，请输入正确的路径！"
+msgstr "PDF file path is incorrect. Please enter the correct path!"
+
+msgid "PDF文件读取失败，请检查文件是否损坏！"
+msgstr "PDF file read failed. Please check if file is corrupted!"
+
+msgid "PDF文件读取失败，请检查密码是否正确！"
+msgstr "PDF file read failed. Please check if password is correct!"
+
+msgid "{} 参数异常"
+msgstr "{} parameter exception"
+
+msgid "脚本执行错误"
+msgstr "Script execution error"
+
+msgid "无法导入模块: {}"
+msgstr "Cannot import module: {}"
+
+msgid "模块 {} 未定义可调用的 main 函数"
+msgstr "Module {} does not define a callable main function"
+
+msgid "当前脚本为旧版规范, 建议更新新版脚本规范"
+msgstr "Current script uses old specification. Recommend updating to new script specification."
+
+msgid "应用程序路径有误，请输入正确的路径！"
+msgstr "Application path is incorrect. Please enter the correct path!"
+
+msgid "内容为空"
+msgstr "Content is empty"
+
+msgid "文件路径:{}有误，请输入正确的路径！"
+msgstr "File path: {} is incorrect. Please enter the correct path!"
+
+msgid "保存格式:{}有误，文件扩展名需为{}！"
+msgstr "Save format: {} is incorrect. File extension must be {}!"
+
+msgid "文件读取失败，请检查文件是否损坏！"
+msgstr "File read failed. Please check if file is corrupted!"
+
+msgid "文件写入失败，请检查文件是否损坏！"
+msgstr "File write failed. Please check if file is corrupted!"
+
+msgid "文件拓展名缺失，请检查文件名称输入是否正确！"
+msgstr "File extension missing. Please check if file name input is correct!"
+
+msgid "文件删除失败"
+msgstr "File deletion failed"
+
+msgid "文件：{}被占用，请关闭文件后重试"
+msgstr "File: {} is in use. Please close the file and retry."
+
+msgid "CMD命令:{}执行失败:{}"
+msgstr "CMD command: {} execution failed: {}"
+
+msgid "当前文件格式：{}不支持读取，当前仅支持{}格式，请检查文件格式"
+msgstr "Current file format: {} not supported for reading. Only {} format is currently supported. Please check file format."
+
+msgid "新名称：{}和原名称一致，请检查重命名内容"
+msgstr "New name: {} is same as original name. Please check rename content."
+
+msgid "当前文件编码格式({})与指定的解码类型({})发生冲突，请重新选择编码类型或者以二进制方式读取！"
+msgstr "Current file encoding ({}) conflicts with specified decoding type ({}). Please reselect encoding type or read in binary mode!"
+
+msgid "文件夹不存在，请检查文件夹路径是否正确！"
+msgstr "Folder does not exist. Please check if folder path is correct!"
+
+msgid "获取剪切板内容类型错误"
+msgstr "Clipboard content type error"
+
+msgid "文件夹删除失败"
+msgstr "Folder deletion failed"
+
+msgid "截图保存失败"
+msgstr "Screenshot save failed"
+
+msgid "屏幕锁定失败"
+msgstr "Screen lock failed"
+
+msgid "第三方接口返回为空"
+msgstr "Third-party API returned empty"
+
+msgid "未匹配到目标元素，请检查当前界面或降低匹配相似度后重试"
+msgstr "Target element not matched. Please check current interface or lower match similarity threshold and retry."
+
+msgid "未指定点击位置，请检查参数设置"
+msgstr "Click position not specified. Please check parameter settings."
+
+msgid "鼠标点击失败"
+msgstr "Mouse click failed"
+
+msgid "鼠标悬停失败"
+msgstr "Mouse hover failed"
+
+msgid "输入文本失败"
+msgstr "Text input failed"
+
+msgid "当前界面目标元素不存在"
+msgstr "Target element does not exist in current interface"
+
+msgid "未找到目标窗口"
+msgstr "Target window not found"
+
+msgid "窗口滚动异常"
+msgstr "Window scroll exception"
+
+msgid "目标窗口无法设置到指定大小"
+msgstr "Target window cannot be set to specified size"
+
+msgid "找不到窗口，请检查窗口是否已关闭！"
+msgstr "Window not found. Please check if window is closed!"
+
+msgid "窗口滚动失败，请检查窗口是否已关闭！"
+msgstr "Window scroll failed. Please check if window is closed!"
+
+msgid "未找到元素"
+msgstr "Element not found"
+
+msgid "拾取或保存路径有误"
+msgstr "Picker or save path is incorrect"
+
+msgid "拾取元素不支持该拾取类型"
+msgstr "Picker element does not support this picker type"
+
+msgid "Word文件路径有误，请输入正确的路径！"
+msgstr "Word file path is incorrect. Please enter the correct path!"
+
+msgid "Word文件读取失败，请检查文件是否损坏！"
+msgstr "Word file read failed. Please check if file is corrupted!"
+
+msgid "Word未打开，请先打开Word文件！"
+msgstr "Word is not open. Please open Word file first!"
+
+msgid "Word初始化失败，请检查Word是否安装正确！"
+msgstr "Word initialization failed. Please check if Word is installed correctly!"
+
+msgid "请检查输入是否正确！"
+msgstr "Please check if input is correct!"
+
+msgid "请检查剪贴板是否存在内容！"
+msgstr "Please check if clipboard has content!"
+
+msgid "表格不存在"
+msgstr "Table does not exist"
+
+msgid "文件名已存在"
+msgstr "File name already exists"
+
+msgid "参数错误: {}"
+msgstr "Parameter Error: {}"
+
+msgid "大模型无返回结果，请重试: {}"
+msgstr "No response from AI model. Please retry: {}"
+
+msgid "文件不存在: {}"
+msgstr "File does not exist: {}"
+
+msgid "不支持的文件类型: {}"
+msgstr "Unsupported file type: {}"
+
+msgid "未知的响应格式"
+msgstr "Unknown response format"
+
+msgid "{} 格式错误，请检查"
+msgstr "{} format error. Please check."
+
+msgid "参数异常: {}"
+msgstr "Parameter Exception: {}"
+
+msgid "浏览器插件错误: {}"
+msgstr "Browser Plugin Error: {}"
+
+msgid "插件返回数据为空"
+msgstr "Plugin returned empty data"
+
+msgid "插件执行错误: {}"
+msgstr "Plugin execution error: {}"
+
+msgid "网页元素查找失败 {}"
+msgstr "Web element lookup failed {}"
+
+msgid "浏览器元素定位不唯一，请检查！"
+msgstr "Browser element location is not unique. Please check!"
+
+msgid "滑块元素定位不唯一，请检查！"
+msgstr "Slider element location is not unique. Please check!"
+
+msgid "滑轨元素定位不唯一，请检查！"
+msgstr "Track element location is not unique. Please check!"
+
+msgid "等待下载完成超时"
+msgstr "Wait for download completion timeout"
+
+msgid "请提供正确的url链接和文件存储路径"
+msgstr "Please provide correct URL link and file storage path"
+
+msgid "{}表格文件路径错误，仅支持 .xlsx 文件"
+msgstr "{} spreadsheet file path error. Only .xlsx files are supported."
+
+msgid "暂不支持该筛选条件：{}"
+msgstr "This filter condition is not currently supported: {}"
+
+msgid "条件异常，请输入正确的条件！"
+msgstr "Condition exception. Please enter correct condition!"
+
+msgid "第{}列数据处理缺少参数"
+msgstr "Column {} data processing missing parameters"
+
+msgid "参数异常，请输入正确的参数！{}{}"
+msgstr "Parameter exception. Please enter correct parameters! {}{}"
+
+msgid "请先选择凭据名称"
+msgstr "Please select credential name first"
+
+msgid "图片宽高比错误: {}"
+msgstr "Image aspect ratio error: {}"
+
+msgid "动作解析失败: {}"
+msgstr "Action parsing failed: {}"
+
+msgid "在输入字符串中未找到匹配的模式"
+msgstr "No matching pattern found in input string"
+
+msgid "找不到该数据库类型!"
+msgstr "Database type not found!"
+
+msgid "输入数据类型有误，无法设置为变量: {}"
+msgstr "Invalid input data type. Cannot set as variable: {}"
+
+msgid "输入的正则表达式有误: {}"
+msgstr "Invalid regular expression input: {}"
+
+msgid "输入的数字范围有误: {}"
+msgstr "Invalid number range input: {}"
+
+msgid "输入的数字格式有误: {}"
+msgstr "Invalid number format input: {}"
+
+msgid "输入的列表格式有误: {}"
+msgstr "Invalid list format input: {}"
+
+msgid "输入的字典格式有误: {}"
+msgstr "Invalid dictionary format input: {}"
+
+msgid "输入的索引值有误: {}"
+msgstr "Invalid index value input: {}"
+
+msgid "输入的数学表达式有误: {}"
+msgstr "Invalid mathematical expression input: {}"
+
+msgid "字典中不存在该键"
+msgstr "Key does not exist in dictionary"
+
+msgid "数据类型不支持强转str"
+msgstr "Data type does not support forced conversion to str"
+
+msgid "请输入正确的待转换目标字符串"
+msgstr "Please enter correct target string for conversion"
+
+msgid "不支持的 number_type"
+msgstr "Unsupported number_type"
+
+msgid "不支持的加减类型"
+msgstr "Unsupported addition/subtraction type"
+
+msgid "不支持的时间戳单位"
+msgstr "Unsupported timestamp unit"
+
+msgid "时间戳长度不支持"
+msgstr "Timestamp length not supported"
+
+msgid "不支持的时间单位"
+msgstr "Unsupported time unit"
+
+msgid "目标文本或补充文本不能为空"
+msgstr "Target text or supplementary text cannot be empty"
+
+msgid "长度输入不合法,请提供整数类型数据"
+msgstr "Invalid length input. Please provide integer type data."
+
+msgid "未找到指定字符串"
+msgstr "Specified string not found"
+
+msgid "不支持的大小写转换类型"
+msgstr "Unsupported case conversion type"
+
+msgid "列表不能为空"
+msgstr "List cannot be empty"
+
+msgid "数组索引值超出范围"
+msgstr "Array index out of range"
+
+msgid "请提供有效的整数类型索引"
+msgstr "Please provide valid integer type index"
+
+msgid "用户自定义列表类型错误"
+msgstr "User-defined list type error"
+
+msgid "列表中不存在该对象"
+msgstr "Object does not exist in list"
+
+msgid "请提供元素数据类型一致的列表进行排序"
+msgstr "Please provide list with consistent element data types for sorting"
+
+msgid "行数据有误， 行只能是大于0的正整数: {}"
+msgstr "Invalid row data. Row must be positive integer greater than 0: {}"
+
+msgid "列数据有误，列名只能是A,AB...: {}"
+msgstr "Invalid column data. Column name must be A, AB...: {}"
+
+msgid "数据文件读取失败: {}"
+msgstr "Data file read failed: {}"
+
+msgid "数据写入失败: {}"
+msgstr "Data write failed: {}"
+
+msgid "写入数据权限被拒绝，请关闭相关文件后重试: {}"
+msgstr "Write permission denied. Please close related files and retry: {}"
+
+msgid "公式格式有误，公式必须是以=开头的字符串: {}"
+msgstr "Invalid formula format. Formula must start with =: {}"
+
+msgid "导入文件失败: {}"
+msgstr "File import failed: {}"
+
+msgid "导入文件不存在: {}"
+msgstr "Import file does not exist: {}"
+
+msgid "结束列不能小于开始列"
+msgstr "End column cannot be less than start column"
+
+msgid "结束行不能小于开始行"
+msgstr "End row cannot be less than start row"
+
+msgid "必须提供列名或列索引"
+msgstr "Column name or column index must be provided"
+
+msgid "导入文件路径不能为空"
+msgstr "Import file path cannot be empty"
+
+msgid "仅支持导入Excel(.xlsx, .xls)和CSV(.csv)文件"
+msgstr "Only Excel (.xlsx, .xls) and CSV (.csv) files are supported for import"
+
+msgid "读取单元格需要指定行列"
+msgstr "Reading cell requires specifying row and column"
+
+msgid "读取行需要指定行号"
+msgstr "Reading row requires specifying row number"
+
+msgid "读取列需要指定列号"
+msgstr "Reading column requires specifying column number"
+
+msgid "读取区域需要指定开始行列"
+msgstr "Reading range requires specifying start row and column"
+
+msgid "写入单元格需要指定行列"
+msgstr "Writing cell requires specifying row and column"
+
+msgid "行号不能为空"
+msgstr "Row number cannot be empty"
+
+msgid "列号不能为空"
+msgstr "Column number cannot be empty"
+
+msgid "区域写入需要指定开始行列"
+msgstr "Range write requires specifying start row and column"
+
+msgid "复制单元格需要指定行列"
+msgstr "Copying cell requires specifying row and column"
+
+msgid "复制行需要指定行号"
+msgstr "Copying row requires specifying row number"
+
+msgid "复制列需要指定列号"
+msgstr "Copying column requires specifying column number"
+
+msgid "复制区域需要指定开始行列"
+msgstr "Copying range requires specifying start row and column"
+
+msgid "粘贴单元格需要指定行列"
+msgstr "Pasting cell requires specifying row and column"
+
+msgid "粘贴行需要指定行号"
+msgstr "Pasting row requires specifying row number"
+
+msgid "粘贴列需要指定列号"
+msgstr "Pasting column requires specifying column number"
+
+msgid "粘贴区域需要指定开始行列"
+msgstr "Pasting range requires specifying start row and column"
+
+msgid "删除单元格需要指定行列"
+msgstr "Deleting cell requires specifying row and column"
+
+msgid "删除行需要指定行号"
+msgstr "Deleting row requires specifying row number"
+
+msgid "删除列需要指定列号"
+msgstr "Deleting column requires specifying column number"
+
+msgid "删除区域需要指定开始行列"
+msgstr "Deleting range requires specifying start row and column"
+
+msgid "遍历行需要指定行号"
+msgstr "Iterating rows requires specifying row number"
+
+msgid "遍历列需要指定列号"
+msgstr "Iterating columns requires specifying column number"
+
+msgid "遍历区域需要指定开始行列"
+msgstr "Iterating range requires specifying start row and column"
+
+msgid "插入数量不能为空"
+msgstr "Insert count cannot be empty"
+
+msgid "插入数量必须大于0"
+msgstr "Insert count must be greater than 0"
+
+msgid "公式不能为空"
+msgstr "Formula cannot be empty"
+
+msgid "列信息不能为空"
+msgstr "Column information cannot be empty"
+
+msgid "查找内容不能为空"
+msgstr "Search content cannot be empty"
+
+msgid "日期范围不能为空"
+msgstr "Date range cannot be empty"
+
+msgid "日期范围格式错误，正确格式如：2023-01-01,2023-12-31"
+msgstr "Date range format error. Correct format: 2023-01-01,2023-12-31"
+
+msgid "导出文件夹路径不能为空"
+msgstr "Export folder path cannot be empty"
+
+msgid "指定窗口运行路径不存在,请检查路径信息: {}"
+msgstr "Specified window runtime path does not exist. Please check path information: {}"
+
+msgid "对话框操作失败: {}"
+msgstr "Dialog operation failed: {}"
+
+msgid "消息为空: {}"
+msgstr "Message is empty: {}"
+
+msgid "登录失败: {}"
+msgstr "Login failed: {}"
+
+msgid "图片文件不存在!"
+msgstr "Image file does not exist!"
+
+msgid "加密对象不能为空"
+msgstr "Encryption object cannot be empty"
+
+msgid "解密对象不能为空"
+msgstr "Decryption object cannot be empty"
+
+msgid "请提供字符串类型对象"
+msgstr "Please provide string type object"
+
+msgid "上传路径有误: {}"
+msgstr "Invalid upload path: {}"
+
+msgid "上传失败: {}"
+msgstr "Upload failed: {}"
+
+msgid "下载失败: {}"
+msgstr "Download failed: {}"
+
+msgid "文件夹路径错误: {}"
+msgstr "Folder path error: {}"
+
+msgid "不支持的响应类型"
+msgstr "Unsupported response type"
+
+msgid "文件路径有误，请输入正确的路径！"
+msgstr "File path is incorrect. Please enter the correct path!"
+
+msgid "未检测到Excel/WPS应用"
+msgstr "Excel/WPS application not detected"
+
+msgid "Excel错误: {}"
+msgstr "Excel Error: {}"
+
+msgid "文档不存在，请先打开文档！"
+msgstr "Document does not exist. Please open document first!"
+
+msgid "填写的列表格式有误"
+msgstr "Filled list format is incorrect"
+
+msgid "填写内容的列表格式有误"
+msgstr "Filled content list format is incorrect"
+
+msgid "插入内容填写的列表格式有误"
+msgstr "Inserted content list format is incorrect"
+
+msgid "sheet名称已存在"
+msgstr "Sheet name already exists"
+
+msgid "sheet名称过长,需要小于31个字符"
+msgstr "Sheet name too long. Must be less than 31 characters."
+
+msgid "参考sheet名称不存在"
+msgstr "Reference sheet name does not exist"
+
+msgid "复制sheet名称已存在"
+msgstr "Copy sheet name already exists"
+
+msgid "指定列宽模式下，width参数不能为空！"
+msgstr "In specified column width mode, width parameter cannot be empty!"
+
+msgid "输入列宽有误，请检查！列宽范围：0-255"
+msgstr "Invalid column width input. Please check! Column width range: 0-255"
+
+msgid "指定行高模式下，height参数不能为空！"
+msgstr "In specified row height mode, height parameter cannot be empty!"
+
+msgid "输入行高有误，请检查！行高范围：0-409.5"
+msgstr "Invalid row height input. Please check! Row height range: 0-409.5"
+
+msgid "HTTP请求失败: {}"
+msgstr "HTTP request failed: {}"
+
+msgid "文件写入失败，请检查文件类型是否正确"
+msgstr "File write failed. Please check if file type is correct."
+
+msgid "权限错误或命令不支持：{}"
+msgstr "Permission error or command not supported: {}"
+
+msgid "FTP操作失败：{}"
+msgstr "FTP operation failed: {}"
+
+msgid "{}非有效目录"
+msgstr "{} is not a valid directory"
+
+msgid "工作目录创建失败，请检查FTP连接"
+msgstr "Working directory creation failed. Please check FTP connection."
+
+msgid "ai服务器无响应或错误: {}"
+msgstr "AI server no response or error: {}"
+
+msgid "无效的请求URL: {}"
+msgstr "Invalid request URL: {}"
+
+msgid "无法获取活动工作表"
+msgstr "Cannot get active worksheet"
+
+msgid "PDF文件路径有误，请输入正确的路径！: {}"
+msgstr "PDF file path is incorrect. Please enter the correct path!: {}"
+
+msgid "PDF文件读取失败，请检查文件是否损坏！: {}"
+msgstr "PDF file read failed. Please check if file is corrupted!: {}"
+
+msgid "PDF文件读取失败，请检查密码是否正确！: {}"
+msgstr "PDF file read failed. Please check if password is correct!: {}"
+
+msgid "页码错误: {}"
+msgstr "Page number error: {}"
+
+msgid "所选页面没有表格"
+msgstr "Selected page has no tables"
+
+msgid "无法拼接多表，建议将[是否合并]设置为否"
+msgstr "Cannot concatenate multiple tables. Recommend setting [Merge] to No."
+
+msgid "图片文件列表不能为空"
+msgstr "Image file list cannot be empty"
+
+msgid "图片文件不存在: {}"
+msgstr "Image file does not exist: {}"
+
+msgid "没有找到有效的图片文件"
+msgstr "No valid image file found"
+
+msgid "图片转PDF失败: {}"
+msgstr "Image to PDF conversion failed: {}"
+
+msgid "元素未找到"
+msgstr "Element not found"
+
+msgid "不支持的类型: {}"
+msgstr "Unsupported type: {}"
+
+msgid "应用程序路径有误，请输入正确的路径！: {}"
+msgstr "Application path is incorrect. Please enter the correct path!: {}"
+
+msgid "请重新输入待复制内容"
+msgstr "Please re-enter content to copy"
+
+msgid "内容为空: {}"
+msgstr "Content is empty: {}"
+
+msgid "获取文件夹下文件列表失败"
+msgstr "Failed to get file list under folder"
+
+msgid "文件路径错误: {}"
+msgstr "File path error: {}"
+
+msgid "保存格式错误: {}"
+msgstr "Save format error: {}"
+
+msgid "文件读取失败: {}"
+msgstr "File read failed: {}"
+
+msgid "文件写入失败: {}"
+msgstr "File write failed: {}"
+
+msgid "文件拓展名缺失: {}"
+msgstr "File extension missing: {}"
+
+msgid "文件删除失败: {}"
+msgstr "File deletion failed: {}"
+
+msgid "文件被占用: {}"
+msgstr "File in use: {}"
+
+msgid "文件夹删除失败: {}"
+msgstr "Folder deletion failed: {}"
+
+msgid "文件格式不支持读取: {}"
+msgstr "File format does not support reading: {}"
+
+msgid "重命名错误: {}"
+msgstr "Rename error: {}"
+
+msgid "文件编码格式冲突: {}"
+msgstr "File encoding format conflict: {}"
+
+msgid "截图失败: {}"
+msgstr "Screenshot failed: {}"
+
+msgid "屏幕锁定失败: {}"
+msgstr "Screen lock failed: {}"
+
+msgid "CMD命令执行失败: {}"
+msgstr "CMD command execution failed: {}"
+
+msgid "不支持的压缩类型"
+msgstr "Unsupported compression type"
+
+msgid "压缩失败: {}"
+msgstr "Compression failed: {}"
+
+msgid "解压缩失败: {}"
+msgstr "Decompression failed: {}"
+
+msgid "待打印文件为空"
+msgstr "File to print is empty"
+
+msgid "不支持打印的文件类型"
+msgstr "File type not supported for printing"
+
+msgid "未检测到程序的注册表信息"
+msgstr "Program registry information not detected"
+
+msgid "无法打开软件"
+msgstr "Cannot open software"
+
+msgid "页码范围错误"
+msgstr "Page range error"
+
+msgid "无法创建打印设备上下文"
+msgstr "Cannot create printer device context"
+
+msgid "兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！"
+msgstr "Fallback failed. Please try manually deleting %LOCALAPPDATA%\\Temp\\gen_py directory and run again!"
+
+msgid "未发现打印机: {}"
+msgstr "Printer not found: {}"
+
+msgid "打印机不支持打印: {}"
+msgstr "Printer does not support printing: {}"
+
+msgid "命令不能为空"
+msgstr "Command cannot be empty"
+
+msgid "执行命令失败: {}"
+msgstr "Command execution failed: {}"
+
+msgid "终止进程失败: {}"
+msgstr "Process termination failed: {}"
+
+msgid "未找到 margin-left / left属性。请尝试重新拾取。"
+msgstr "margin-left / left property not found. Please try picking again."
+
+msgid "input_data 不能为空"
+msgstr "input_data cannot be empty"
+
+msgid "必须提供 save_path 参数以保存图像"
+msgstr "Must provide save_path parameter to save image"
+
+msgid "路径无效或不存在: {}"
+msgstr "Path invalid or does not exist: {}"
+
+msgid "保存图像时发生错误: {}"
+msgstr "Error occurred while saving image: {}"
+
+msgid "match.process_image 未返回有效的 (out_img, match_box) 元组"
+msgstr "match.process_image did not return valid (out_img, match_box) tuple"
+
+msgid "坐标转换失败，请检查锚点是否已正确设置，或重新拾取新的图像元素"
+msgstr "Coordinate conversion failed. Please check if anchor is set correctly, or pick new image element."
+
+msgid "等待后未找到元素"
+msgstr "Element not found after waiting"
+
+msgid "找不到窗口，请检查窗口是否已关闭: {}"
+msgstr "Window not found. Please check if window is closed: {}"
+
+msgid "窗口滚动失败，请检查窗口是否已关闭: {}"
+msgstr "Window scroll failed. Please check if window is closed: {}"
+
+msgid "拾取元素不支持该拾取类型: {}"
+msgstr "Picker element does not support this picker type: {}"
+
+msgid "Word文件路径有误，请输入正确的路径: {}"
+msgstr "Word file path is incorrect. Please enter the correct path: {}"
+
+msgid "路径未找到"
+msgstr "Path not found"
+
+msgid "没有输入路径，请检查输入的word路径是否正确"
+msgstr "No input path. Please check if input Word path is correct."
+
+msgid "图片路径错误"
+msgstr "Image path error"
+
+msgid "文档不存在，请先打开文档"
+msgstr "Document does not exist. Please open document first."
+
+msgid "文档为空"
+msgstr "Document is empty"
+
+msgid "Word文件读取失败，请检查文件是否损坏: {}"
+msgstr "Word file read failed. Please check if file is corrupted: {}"
+
+msgid "文档保存失败: {}"
+msgstr "Document save failed: {}"
+
+msgid "插入失败，请检查文档是否打开"
+msgstr "Insert failed. Please check if document is open."
+
+msgid "请正确输入起始行号或段落号"
+msgstr "Please correctly enter starting row or paragraph number"
+
+msgid "请输入正确的数值"
+msgstr "Please enter correct value"
+
+msgid "内容不存在"
+msgstr "Content does not exist"
+
+msgid "表格不存在: {}"
+msgstr "Table does not exist: {}"
+
+msgid "文件名已存在: {}"
+msgstr "File name already exists: {}"
+
+msgid "请检查剪贴板是否存在内容"
+msgstr "Please check if clipboard has content"
+
+msgid "Word初始化失败，请检查Word是否安装正确: {}"
+msgstr "Word initialization failed. Please check if Word is installed correctly: {}"
+
+msgid "WPS初始化失败"
+msgstr "WPS initialization failed"
+
+msgid "兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行"
+msgstr "Fallback failed. Please try manually deleting %LOCALAPPDATA%\\Temp\\gen_py directory and run again"
+
+msgid "未检测到wps和office注册表信息"
+msgstr "WPS and Office registry information not detected"
+
+msgid "native messaging 仅支持 Windows 平台"
+msgstr "Native messaging only supports Windows platform"
+
+msgid "无效的浏览器类型: {}"
+msgstr "Invalid browser type: {}"
+
+msgid "执行超时"
+msgstr "Execution timeout"
+
+msgid "子进程执行失败，返回码: {}"
+msgstr "Subprocess execution failed. Return code: {}"
+
+msgid "脚本执行错误: {}"
+msgstr "Script execution error: {}"
+
+msgid "cur_rect 未初始化"
+msgstr "cur_rect not initialized"
+
+msgid "鼠标点位不在当前元素范围内"
+msgstr "Mouse position not within current element range"
+
+msgid "处理器必须继承自HTMLProcessor"
+msgstr "Processor must inherit from HTMLProcessor"
+
+msgid "不能移除默认处理器"
+msgstr "Cannot remove default processor"
+
+msgid "tag_name 为空，无法唯一识别元素"
+msgstr "tag_name is empty. Cannot uniquely identify element."
+
+msgid "找不到相似元素"
+msgstr "Similar element not found"
+
+msgid "msaa暂不支持相似元素"
+msgstr "MSAA does not currently support similar elements"
+
+msgid "智能组件的相似拾取暂未实现"
+msgstr "Similar picking for Smart Component not yet implemented"
+
+msgid "智能组件的批量抓取暂未实现"
+msgstr "Batch capture for Smart Component not yet implemented"
+
+msgid "未设置当前处理器"
+msgstr "Current processor not set"
+
+msgid "未找到名为 '{}' 的处理器"
+msgstr "Processor named '{}' not found"
+
+msgid "拾取转换器出错，请退出项目重新开始"
+msgstr "Picker converter error. Please exit project and restart."
+
+msgid "缺少拾取转换器"
+msgstr "Missing picker converter"
+
+msgid "虚拟桌面错误: {}"
+msgstr "Virtual desktop error: {}"
+
+msgid "虚拟桌面未开启"
+msgstr "Virtual desktop not enabled"
+
+msgid "虚拟桌面启动超时"
+msgstr "Virtual desktop startup timeout"
+
+msgid "执行器错误: {}"
+msgstr "Executor error: {}"
+
+msgid "服务日志上报异常"
+msgstr "Service log reporting exception"
+
+msgid "启动失败: 运行超时"
+msgstr "Startup failed: Runtime timeout"
+
+msgid "已有实例运行，启动失败"
+msgstr "Instance already running. Startup failed."
+
+msgid "服务端接口异常，工程运行失败"
+msgstr "Server interface exception. Project execution failed."
+
+msgid "参数传递失败"
+msgstr "Parameter transfer failed"
+
+msgid "启动失败: {}"
+msgstr "Startup failed: {}"
+
+msgid "通知发送失败: {}"
+msgstr "Notification sending failed: {}"
+
+msgid "发送异常邮件登陆失败"
+msgstr "Exception email sending login failed"
+
+msgid "发送异常邮件发送失败"
+msgstr "Exception email sending failed"
+
+msgid "发送短信接口调用失败"
+msgstr "SMS sending API call failed"
+
+msgid "发送短信接口调用失败: {}"
+msgstr "SMS sending API call failed: {}"
+
+msgid "凭证错误: {}"
+msgstr "Credential error: {}"
+
+msgid "凭证 '{}' 已存在"
+msgstr "Credential '{}' already exists"
+
+msgid "解析 Python 代码失败: {}"
+msgstr "Python code parsing failed: {}"
+
+msgid "docstring 第一行应为 'title: ...'"
+msgstr "First line of docstring should be 'title: ...'"
+
+msgid "无法解析参数行: {}"
+msgstr "Cannot parse parameter line: {}"
+
+msgid "解析字段类型失败: {}"
+msgstr "Field type parsing failed: {}"
+
+msgid "不支持的文件扩展类型: {}"
+msgstr "Unsupported file extension type: {}"
+
+msgid "custom_factors 格式错误，请检查"
+msgstr "custom_factors format error. Please check."
+
+msgid "pip 下载失败: {}"
+msgstr "pip download failed: {}"
+
+msgid "pip 安装失败: {}"
+msgstr "pip installation failed: {}"
+
+msgid "不支持的任务类型"
+msgstr "Unsupported task type"
+
+msgid "任务类型未实现"
+msgstr "Task type not implemented"
+
+msgid "不支持的邮件协议: {}"
+msgstr "Unsupported email protocol: {}"
+
+msgid "频率标识不能为空"
+msgstr "Frequency identifier cannot be empty"
+
+msgid "请选择正确的频次选项"
+msgstr "Please select correct frequency option"
+
+msgid "频率类型未实现"
+msgstr "Frequency type not implemented"
+
+msgid "获取任务列表失败"
+msgstr "Failed to get task list"
+
+msgid "trigger必须在其他组件之前初始化"
+msgstr "Trigger must be initialized before other components"
+
+msgid "分钟值无效，必须在0-59之间"
+msgstr "Invalid minute value. Must be between 0-59."
+
+msgid "小时值无效，必须在0-23之间"
+msgstr "Invalid hour value. Must be between 0-23."
+
+msgid "星期值无效，必须在0-6之间"
+msgstr "Invalid day of week value. Must be between 0-6."
+
+msgid "月份值无效，必须在1-12之间"
+msgstr "Invalid month value. Must be between 1-12."
+
+msgid "时间参数不完整"
+msgstr "Time parameters incomplete"
+
+msgid "未提供图像"
+msgstr "Image not provided"
+
+msgid "必须提供保存路径"
+msgstr "Must provide save path"
+
+msgid "平台不支持: {}"
+msgstr "Platform not supported: {}"
+
+msgid "桌面截图不存在"
+msgstr "Desktop screenshot does not exist"
+
+msgid "执行状态有误"
+msgstr "Execution status error"
+
+msgid "目标获取失败"
+msgstr "Target acquisition failed"
+
+msgid "目标元素坐标为空"
+msgstr "Target element coordinates are empty"
+
+msgid "不支持的平台: {}"
+msgstr "Unsupported platform: {}"
+
+msgid "不支持的浏览器类型: {}"
+msgstr "Unsupported browser type: {}"
+
+msgid "文件未找到: {}"
+msgstr "File not found: {}"
+
+msgid "注册表项未找到: {}"
+msgstr "Registry entry not found: {}"
+
+msgid "文件名不匹配预期格式"
+msgstr "File name does not match expected format"
+
+msgid "Firefox profile 未找到"
+msgstr "Firefox profile not found"
+
+msgid "360浏览器未安装或注册表项未找到"
+msgstr "360 Browser not installed or registry entry not found"
+
+msgid "360极速浏览器未安装或注册表项未找到"
+msgstr "360 Speed Browser not installed or registry entry not found"
+
+msgid "Chrome 未安装或注册表项未找到"
+msgstr "Chrome not installed or registry entry not found"
+
+msgid "Firefox 未安装或注册表项未找到"
+msgstr "Firefox not installed or registry entry not found"
+
+msgid "Microsoft Edge 未安装或注册表项未找到"
+msgstr "Microsoft Edge not installed or registry entry not found"
+
+msgid "未找到插件"
+msgstr "Plugin not found"
+
+msgid "没有权限写入: {}"
+msgstr "No permission to write: {}"
+
+msgid "iObjectId必须是整数类型"
+msgstr "iObjectId must be integer type"
+
+msgid "浏览器插件通信通道出错，请重启应用"
+msgstr "Browser plugin communication channel error. Please restart application."
+
+msgid "浏览器插件通信失败, 请检查插件是否安装并启用"
+msgstr "Browser plugin communication failed. Please check if plugin is installed and enabled."
+
+msgid "浏览器插件获取元素失败: {}"
+msgstr "Browser plugin element acquisition failed: {}"
+
+msgid "无法连接浏览器插件服务，请确认插件状态"
+msgstr "Cannot connect to browser plugin service. Please confirm plugin status."
+
+msgid "浏览器插件响应超时，请检查插件是否安装并启用"
+msgstr "Browser plugin response timeout. Please check if plugin is installed and enabled."
+
+msgid "未找到浏览器窗口: {}"
+msgstr "Browser window not found: {}"
