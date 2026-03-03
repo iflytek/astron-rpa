@@ -68,6 +68,7 @@ function getElementData(isSave: boolean) {
   const elementData = {
     ...eleData, // 元素数据
     img,
+    similarity: similarity.value.value,
   }
   return elementData
 }
@@ -125,6 +126,7 @@ watch(() => cvStore.currentCvItem, (newVal) => {
     setFormOption({ pickName: newVal.name })
     const eleData = JSON.parse(newVal.elementData)
     defaultAnchor.value = eleData.defaultAnchor
+    similarity.value = { value: eleData.similarity || 0.95, key: '', title: '' }
   }
 }, { immediate: true })
 

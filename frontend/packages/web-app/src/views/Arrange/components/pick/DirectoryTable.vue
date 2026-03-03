@@ -50,16 +50,17 @@ const openAddNode = ref(false) // 是否打开添加节点弹窗
 const addNodeFormRef = ref(null) // 添加节点表单引用
 const addNodeForm = reactive({ name: '' })
 const currentKey = ref('') // 当前选中的节点key
+const elementVersion = ref('') // 当前元素类型
 const { t } = useTranslation()
 
 const rules = reactive<FormRules>({
   name: [{
     required: true,
-    message: t('enter'),
+    message: t('directoryElement.nodeNamePlaceholder'),
     trigger: 'change',
     validator: async (_rule, value) => {
       if (!value.replace(/\s+/g, '')) {
-        return Promise.reject(new Error(t('enter')))
+        return Promise.reject(new Error(t('directoryElement.nodeNamePlaceholder')))
       }
       else {
         return Promise.resolve()
@@ -133,29 +134,30 @@ function cancelAddNode() {
 // 节点列
 const nodeColumns = reactive<ColumnsType>([
   {
-    title: t('elementNode'),
+    title: '',
     align: 'left',
     children: [
       {
-        title: t('enable'),
+        title: '',
         dataIndex: 'checked',
         key: props.nodeFields.checked,
         width: 15,
         align: 'center',
       },
       {
-        title: t('node'),
+        title: t('directoryElement.node'),
         dataIndex: 'value',
         key: 'value',
         width: 30,
         ellipsis: true,
       },
       {
-        title: t('operate'),
+        title: t('directoryElement.operation'),
         dataIndex: 'operation',
         key: 'operation',
         width: 20,
         align: 'center',
+        ellipsis: true,
       },
     ],
   },
@@ -163,57 +165,72 @@ const nodeColumns = reactive<ColumnsType>([
 // 属性列
 const attrColumns = reactive<ColumnsType>([
   {
-    title: t('attributeNode'),
+    title: '',
     align: 'left',
     children: [
       {
-        title: t('enable'),
+        title: '',
         dataIndex: 'checked',
         key: props.attrFields.checked,
         width: 15,
         align: 'center',
       },
       {
-        title: t('attributeName'),
+        title: t('directoryElement.attributeName'),
         dataIndex: 'name',
         key: props.attrFields.name,
         width: 30,
         ellipsis: true,
       },
       {
-        title: t('matchingMethod'),
+        title: t('directoryElement.matchType'),
         dataIndex: 'type',
         key: props.attrFields.type,
         width: 40,
       },
       {
-        title: t('value'),
+        title: t('directoryElement.attributeValue'),
         dataIndex: 'value',
         key: props.attrFields.value,
         width: 70,
         ellipsis: true,
       },
       {
-        title: t('operate'),
+        title: t('directoryElement.operation'),
         dataIndex: 'attrOper',
         key: 'attrOper',
         width: 20,
         align: 'center',
+        ellipsis: true,
       },
     ],
   },
 ])
 
+function regTip(version: string) {
+  const tpMap: Record<string, string> = {
+    uia_1: t('directoryElement.regexPythonPlaceholder'),
+    web_1: t('directoryElement.regexJavascriptPlaceholder'),
+  }
+  return tpMap[version] || t('directoryElement.regexPlaceholder')
+}
+
 watch(() => props.nodeSource, () => {
+  elementVersion.value = props.nodeSource[0]?._version || '' // 获取当前元素版本
   currentNodeIndex.value = 0 // 重置当前节点索引
   currentKey.value = Math.random().toString(36).substring(2, 15) // 更新当前key以触发attrTable重新渲染
+  nextTick(() => {
+    const dom = document.querySelector('.node-table .ant-table-body tr:last-child')
+    dom?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    currentNodeIndex.value = props.nodeSource.length - 1
+  })
 }, { immediate: true })
 </script>
 
 <template>
   <div class="directory-table normal-border">
     <a-row>
-      <a-col :span="7" class="nodeCol font-size-12 border-right">
+      <a-col :span="7" class="nodeCol font-size-12 nodes-table">
         <a-table
           class="node-table"
           table-layout="fixed"
@@ -221,7 +238,7 @@ watch(() => props.nodeSource, () => {
           :data-source="nodeSource"
           :pagination="false"
           :custom-row="customRowFn"
-          :scroll="{ y: nodeSource.length > 4 ? 170 : null }"
+          :scroll="{ y: nodeSource.length > 4 ? 200 : null }"
           :row-class-name="rowClassNameFn"
         >
           <template #bodyCell="{ column, record, index }">
@@ -229,11 +246,11 @@ watch(() => props.nodeSource, () => {
               <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled" />
             </template>
             <template v-else-if="column.key === 'operation'">
-              <a-tooltip :title="$t('addNode')">
+              <a-tooltip :title="$t('directoryElement.addNode')">
                 <PlusCircleOutlined class="text-blue-500" @click="addNodeSource(index)" />
               </a-tooltip>
               <a-popconfirm
-                :title="$t('deleteNodeConfirm')"
+                :title="$t('directoryElement.deleteNodeTip')"
                 :ok-text="$t('yes')"
                 :cancel-text="$t('no')"
                 @confirm="confirmDeleteNode(index)"
@@ -248,8 +265,8 @@ watch(() => props.nodeSource, () => {
           </template>
         </a-table>
       </a-col>
-      <a-col :span="17" class="nodeCol font-size-12">
-        <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 136 }">
+      <a-col :span="17" class="nodeCol font-size-12 attrs-table">
+        <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 165 }">
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'checked'">
               <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled" />
@@ -260,19 +277,19 @@ watch(() => props.nodeSource, () => {
             <template v-else-if="column.key === 'type'">
               <a-select v-model:value="record.type" class="attr-select  font-size-12" :disabled="record._typeDisabled">
                 <a-select-option v-for="item in record._typesPattern" :key="item.value" class="font-size-12" :value="item.value">
-                  {{ $t(item.label) }}
+                  {{ $t(`directoryElement.${item.key}`) }}
                 </a-select-option>
               </a-select>
             </template>
             <template v-else-if="column.key === 'value'">
-              <a-tooltip v-if="record.type === 2" :title="$t('regexTooltip')">
+              <a-tooltip v-if="record.type === 2" :title="regTip(elementVersion)" placement="top">
                 <AtomConfig :key="`${currentNodeIndex}${index}`" class="font-size-12" :form-item="record.variableValue" />
               </a-tooltip>
               <AtomConfig v-else :key="`${currentNodeIndex}${index}`" class="font-size-12" :form-item="record.variableValue" />
             </template>
             <template v-else-if="column.key === 'attrOper'">
               <a-popconfirm
-                :title="$t('pick.deleteCurrentNodeConfirm')"
+                :title="$t('directoryElement.deleteAttributeTip')"
                 :ok-text="$t('yes')"
                 :cancel-text="$t('no')"
                 @confirm="confirmDeleteAttr(index)"
@@ -286,14 +303,14 @@ watch(() => props.nodeSource, () => {
           </template>
         </a-table>
         <a-button type="text" class=" add-attr flex items-center justify-center font-size-12" size="small" :icon="h(PlusOutlined)" @click="addAttrNode">
-          {{ $t('addAttribute') }}
+          {{ $t('directoryElement.addAttribute') }}
         </a-button>
       </a-col>
     </a-row>
-    <a-modal v-model:open="openAddNode" :width="400" :height="160" :title="$t('addNode')" :ok-text="$t('confirm')" :cancel-text="$t('cancel')" @ok="okAddNode" @cancel="cancelAddNode">
+    <a-modal v-model:open="openAddNode" :width="400" :height="160" :title="$t('directoryElement.addNode')" :ok-text="$t('directoryElement.ok')" :cancel-text="$t('directoryElement.cancel')" @ok="okAddNode" @cancel="cancelAddNode">
       <a-form ref="addNodeFormRef" :model="addNodeForm" :rules="rules">
-        <a-form-item :label="$t('elementNode')" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" name="name">
-          <a-input v-model:value="addNodeForm.name" :placeholder="$t('enter')" :maxlength="64" />
+        <a-form-item :label="$t('directoryElement.elementNode')" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" name="name">
+          <a-input v-model:value="addNodeForm.name" :placeholder="$t('directoryElement.nodeNamePlaceholder')" :maxlength="64" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -304,11 +321,11 @@ watch(() => props.nodeSource, () => {
 .directory-table {
   :deep(.ant-table-wrapper .ant-table-container .ant-table-body::-webkit-scrollbar) {
     width: 6px;
-    background-color: #f5f5f5;
+    background-color: var(--color-border-secondary);
   }
 
   :deep(.ant-table-wrapper .ant-table-container .ant-table-body::-webkit-scrollbar-thumb) {
-    background-color: #cecece;
+    background-color: var(--color-fill);
   }
 
   :deep(.form-item-container .editor-container) {
@@ -331,16 +348,28 @@ watch(() => props.nodeSource, () => {
 }
 
 .nodeCol {
-  max-height: 228px;
-  height: 228px;
+  max-height: 240px;
+  height: 240px;
   overflow: hidden;
 }
+
+.nodes-table {
+  border: 1px solid var(--color-border-secondary);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.attrs-table {
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 0 6px 6px 0;
+}
+
 .attr-table {
   height: 194px;
 }
 
 .border-right {
-  border-right: 1px solid $color-border;
+  border-right: none;
 }
 
 .node-input {
@@ -377,7 +406,7 @@ watch(() => props.nodeSource, () => {
 
 :deep(.ant-table-wrapper .ant-table-thead > tr > th),
 :deep(.ant-table-thead > tr > th) {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 :deep(.ant-table-wrapper .ant-table-thead > tr > th),

@@ -933,8 +933,12 @@ const ContentHandler = {
     getTableData: async (data: ElementInfo) => {
       const result = (await ContentHandler.ele.getDom(data)) as HTMLTableElement
       if (result) {
-        const res = tableDataFormatterProcure(result)
-        return Utils.success(res)
+        if (isTable(result)) {
+          const res = tableDataFormatterProcure(result)
+          return Utils.success(res)
+        } else {
+          return Utils.fail(ErrorMessage.ELEMENT_NOT_TABLE, StatusCode.EXECUTE_ERROR)
+        }
       }
       else {
         return elementNotFoundReason(data)
