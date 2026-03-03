@@ -30,7 +30,7 @@ class ExtensionManager:
             os.makedirs(native_message_path)
 
         plugin_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "plugins")
-        plugins = [file for file in os.listdir(plugin_dir) if file.endswith('.xpi') or file.endswith(".crx")]
+        plugins = [file for file in os.listdir(plugin_dir) if file.endswith(".xpi") or file.endswith(".crx")]
         logger.info(f"Found plugins: {plugins}")
 
         latest_plugin = get_latest_plugin(plugins, "firefox" if browser_type == BrowserType.FIREFOX else "chrome")
@@ -48,7 +48,7 @@ class ExtensionManager:
         if not os.path.exists(target_json_path):
             shutil.copy(plugin_native_message_exe_path, target_exe_path)
             shutil.copy(plugin_native_message_json_path, target_json_path)
-        
+
         self.plugin_data = PluginData(
             plugin_path=os.path.join(os.getcwd(), plugin_dir, latest_plugin),
             plugin_id=plugin_id,
