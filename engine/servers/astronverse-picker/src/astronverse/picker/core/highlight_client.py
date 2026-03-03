@@ -29,6 +29,7 @@ class HighLightClient:
         template = {"Operation": "start", "Type": draw_type}
         try:
             from astronverse.baseline.i18n.i18n import i18n
+
             template["Language"] = i18n.language
         except Exception as e:
             logger.info(f"获取语言设置失败: {e}")

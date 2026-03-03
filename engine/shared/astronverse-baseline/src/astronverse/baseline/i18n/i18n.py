@@ -12,9 +12,9 @@ class I18n:
         try:
             config_path = Path(".setting.json")
             if config_path.exists():
-                with open(config_path, 'r', encoding='utf-8') as f:
+                with open(config_path, "r", encoding="utf-8") as f:
                     config = json.load(f)
-                    return config.get('language')
+                    return config.get("language")
         except Exception:
             pass
         return "zh_CN"
@@ -37,10 +37,7 @@ class I18n:
 
             # Try to load translation for the specified language
             self.translation = gettext.translation(
-                name,
-                localedir=str(localedir),
-                languages=[self.language],
-                fallback=True
+                name, localedir=str(localedir), languages=[self.language], fallback=True
             )
 
             # Try to set locale, but don't fail if it's not available
@@ -67,6 +64,7 @@ class I18n:
 
     def getlanguage(self):
         return self.language
+
 
 # Default instance using system language
 i18n = I18n("I18n")

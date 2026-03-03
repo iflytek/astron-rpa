@@ -10,48 +10,69 @@ from astronverse.picker.utils.window import validate_window_rect
 from astronverse.picker.error import BizException, TAG_NAME_EMPTY_ERROR, SIMILAR_ELEMENT_NOT_FOUND_ERROR
 
 element_aliases = {
-    "AppBarControl": "应用程序栏",
-    "ButtonControl": "按钮",
-    "CalendarControl": "日历信息",
-    "CheckBoxControl": "复选框",
-    "ComboBoxControl": "组合框",
-    "CustomControl": "自定义",
-    "DataGridControl": "数据网格",
-    "DataItemControl": "数据项",
-    "DocumentControl": "文档",
-    "EditControl": "编辑区",
-    "GroupControl": "分组",
-    "HeaderControl": "标题栏",
-    "HeaderItemControl": "标题项",
-    "HyperlinkControl": "超链接",
-    "ImageControl": "图像",
-    "ListControl": "列表",
-    "ListItemControl": "列表项",
-    "MenuBarControl": "菜单栏",
-    "MenuControl": "菜单",
-    "MenuItemControl": "菜单项",
-    "PaneControl": "窗格",
-    "ProgressBarControl": "进度条",
-    "RadioButtonControl": "单选按钮",
-    "ScrollBarControl": "滚动条",
-    "SemanticZoomControl": "语义缩放",
-    "SeparatorControl": "分隔符",
-    "SliderControl": "滑块",
-    "SpinnerControl": "微调器",
-    "SplitButtonControl": "拆分按钮",
-    "StatusBarControl": "状态栏",
-    "TabControl": "选项卡",
-    "TabItemControl": "选项卡项",
-    "TableControl": "表格",
-    "TextControl": "文本",
-    "ThumbControl": "滑块手柄",
-    "TitleBarControl": "标题栏",
-    "ToolBarControl": "工具栏",
-    "ToolTipControl": "工具提示",
-    "TreeControl": "树形结构",
-    "TreeItemControl": "树形子节点",
-    "WindowControl": "窗口",
+    "AppBarControl": {"zh_CN": "应用程序栏", "en_US": "App Bar"},
+    "ButtonControl": {"zh_CN": "按钮", "en_US": "Button"},
+    "CalendarControl": {"zh_CN": "日历信息", "en_US": "Calendar"},
+    "CheckBoxControl": {"zh_CN": "复选框", "en_US": "CheckBox"},
+    "ComboBoxControl": {"zh_CN": "组合框", "en_US": "ComboBox"},
+    "CustomControl": {"zh_CN": "自定义", "en_US": "Custom"},
+    "DataGridControl": {"zh_CN": "数据网格", "en_US": "DataGrid"},
+    "DataItemControl": {"zh_CN": "数据项", "en_US": "Data Item"},
+    "DocumentControl": {"zh_CN": "文档", "en_US": "Document"},
+    "EditControl": {"zh_CN": "编辑区", "en_US": "Edit"},
+    "GroupControl": {"zh_CN": "分组", "en_US": "Group"},
+    "HeaderControl": {"zh_CN": "标题栏", "en_US": "Header"},
+    "HeaderItemControl": {"zh_CN": "标题项", "en_US": "Header Item"},
+    "HyperlinkControl": {"zh_CN": "超链接", "en_US": "Hyperlink"},
+    "ImageControl": {"zh_CN": "图像", "en_US": "Image"},
+    "ListControl": {"zh_CN": "列表", "en_US": "List"},
+    "ListItemControl": {"zh_CN": "列表项", "en_US": "List Item"},
+    "MenuBarControl": {"zh_CN": "菜单栏", "en_US": "Menu Bar"},
+    "MenuControl": {"zh_CN": "菜单", "en_US": "Menu"},
+    "MenuItemControl": {"zh_CN": "菜单项", "en_US": "Menu Item"},
+    "PaneControl": {"zh_CN": "窗格", "en_US": "Pane"},
+    "ProgressBarControl": {"zh_CN": "进度条", "en_US": "Progress Bar"},
+    "RadioButtonControl": {"zh_CN": "单选按钮", "en_US": "Radio Button"},
+    "ScrollBarControl": {"zh_CN": "滚动条", "en_US": "Scroll Bar"},
+    "SemanticZoomControl": {"zh_CN": "语义缩放", "en_US": "Semantic Zoom"},
+    "SeparatorControl": {"zh_CN": "分隔符", "en_US": "Separator"},
+    "SliderControl": {"zh_CN": "滑块", "en_US": "Slider"},
+    "SpinnerControl": {"zh_CN": "微调器", "en_US": "Spinner"},
+    "SplitButtonControl": {"zh_CN": "拆分按钮", "en_US": "Split Button"},
+    "StatusBarControl": {"zh_CN": "状态栏", "en_US": "Status Bar"},
+    "TabControl": {"zh_CN": "选项卡", "en_US": "Tab"},
+    "TabItemControl": {"zh_CN": "选项卡项", "en_US": "Tab Item"},
+    "TableControl": {"zh_CN": "表格", "en_US": "Table"},
+    "TextControl": {"zh_CN": "文本", "en_US": "Text"},
+    "ThumbControl": {"zh_CN": "滑块手柄", "en_US": "Thumb"},
+    "TitleBarControl": {"zh_CN": "标题栏", "en_US": "Title Bar"},
+    "ToolBarControl": {"zh_CN": "工具栏", "en_US": "Tool Bar"},
+    "ToolTipControl": {"zh_CN": "工具提示", "en_US": "ToolTip"},
+    "TreeControl": {"zh_CN": "树形结构", "en_US": "Tree"},
+    "TreeItemControl": {"zh_CN": "树形子节点", "en_US": "Tree Item"},
+    "WindowControl": {"zh_CN": "窗口", "en_US": "Window"},
 }
+
+
+def get_element_alias(control_type: str) -> str:
+    """获取控件类型的本地化名称
+
+    Args:
+        control_type: 控件类型名称
+
+    Returns:
+        本地化后的控件类型名称，如果没有找到则返回原始名称
+    """
+    try:
+        from astronverse.baseline.i18n.i18n import i18n
+
+        language = i18n.getlanguage()
+        alias_dict = element_aliases.get(control_type)
+        if alias_dict and isinstance(alias_dict, dict):
+            return alias_dict.get(language, control_type)
+    except Exception:
+        pass
+    return control_type
 
 
 class UIAElement(IElement):
@@ -89,9 +110,7 @@ class UIAElement(IElement):
     def tag(self) -> str:
         if self.__tag is None:
             tag = self.control.ControlTypeName
-            if element_aliases.get(tag):
-                tag = element_aliases.get(tag)
-            self.__tag = tag
+            self.__tag = get_element_alias(tag)
         return self.__tag
 
     def _is_same_control(self, control1, control2) -> bool:

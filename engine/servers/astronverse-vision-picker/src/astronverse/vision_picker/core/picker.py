@@ -123,6 +123,7 @@ class Socket:
             if operation == "start":
                 try:
                     from astronverse.baseline.i18n.i18n import i18n
+
                     message["Language"] = i18n.language
                 except Exception as e:
                     logger.info(f"获取语言设置失败: {e}")
@@ -138,6 +139,7 @@ class Socket:
             if operation == "start":
                 try:
                     from astronverse.baseline.i18n.i18n import i18n
+
                     message["Language"] = i18n.language
                 except Exception as e:
                     logger.info(f"获取语言设置失败: {e}")
