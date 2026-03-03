@@ -1,6 +1,6 @@
 import { t } from '../i18n/index'
 
-import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
+import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from '../common/constant'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
   filterVisibleElements,
@@ -24,11 +24,11 @@ import {
 } from './element'
 import { currentFrameInfo, loadIframe, tagFrames } from './iframe'
 import { keepServiceWorkerAlive, notifyContentLoaded, sendElementData } from './message'
-import { Utils } from './utils'
+import { Utils } from '../common/utils'
 import { elementChangeWatcher } from './watcher'
 
-let timeoutId: number | null
-let deepTimeoutId: number | null
+let timeoutId
+let deepTimeoutId
 let highlightTime = 0
 const frontCheckEnabled = false
 let deepSearchEnabled = false

@@ -1,7 +1,7 @@
 import { log } from './3rd/log'
 import { createWsApp } from './3rd/rpa_websocket'
 import { bgHandler, contentMessageHandler } from './background/backgroundInject'
-import { IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './background/constant'
+import { IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/constant'
 
 function getAllTabs() {
   return new Promise<chrome.tabs.Tab[]>((resolve) => {

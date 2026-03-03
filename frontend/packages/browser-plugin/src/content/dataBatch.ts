@@ -4,7 +4,7 @@ import type { SimilarDataType } from '../types/data_batch'
  * Data capture
  */
 import { generateXPath, getElementByElementInfo, getElementBySelector, getElementDirectory, getNthCssSelector, textAttrFromElement } from './element'
-import { Utils } from './utils'
+import { Utils } from '../common/utils'
 
 function elementCountByXpath(xpath: string) {
   const similarResults = document.evaluate(`count(${xpath})`, document, null, XPathResult.NUMBER_TYPE, null)

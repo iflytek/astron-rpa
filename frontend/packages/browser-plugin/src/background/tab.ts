@@ -1,7 +1,7 @@
-import { ErrorMessage, StatusCode } from './constant'
+import { ErrorMessage, StatusCode } from '../common/constant'
 import { Debugger } from './debugger'
 import { captureArea, captureFullPage } from './full_page_shot'
-import { Utils } from './utils'
+import { Utils } from '../common/utils'
 
 const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
 

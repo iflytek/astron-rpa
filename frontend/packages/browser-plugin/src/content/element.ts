@@ -1,6 +1,6 @@
-import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
+import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from '../common/constant'
 import { highLight, highLightRects } from './highlight'
-import { Utils } from './utils'
+import { Utils } from '../common/utils'
 
 function getSupportTag(tagName: string) {
   if (Utils.isSpecialCharacter(tagName)) {
