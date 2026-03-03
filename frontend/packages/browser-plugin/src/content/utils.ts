@@ -1,3 +1,5 @@
+import { t } from '../i18n/index'
+
 import { StatusCode } from './constant'
 import { InputTypeMap, TagMap } from './tag'
 
@@ -32,13 +34,13 @@ export const Utils = {
       const type = element.getAttribute('type')
       if (InputTypeMap[type])
         return InputTypeMap[type]
-      else return '输入框'
+      else return t('inputTypes.text')
     }
     else if (TagMap[tag]) {
       return TagMap[tag]
     }
     else {
-      return '其他元素'
+      return t('tags.other')
     }
   },
 

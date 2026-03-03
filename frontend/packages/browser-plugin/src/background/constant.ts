@@ -1,3 +1,5 @@
+import { t } from '../i18n/index'
+
 export const SUPPORTED_PROTOCOLS = ['http://', 'https://', 'file://', 'ftp://']
 
 export const OLD_EXTENSION_IDS = ['dibfknoajiboamheempfppeapcedplgm', 'gfpcfabhkgenjcmjgnldmkhjieekeeea']
@@ -16,28 +18,28 @@ export enum StatusCode {
   VERSION_ERROR = '5004',
 }
 
-export enum ErrorMessage {
-  TAB_GET_ERROR = '获取标签页失败',
-  ACTIVE_TAB_ERROR = '未找到活动标签页，请检查是否激活目标窗口',
-  NUMBER_ID_ERROR = 'id 必须是数字',
-  FRAME_GET_ERROR = '未找到元素对应的iframe',
-  CURRENT_TAB_UNSUPPORT_ERROR = '当前标签页不支持web拾取协议',
-  NOT_SIMILAR_ELEMENT = '该元素不是相似元素',
-  SIMILAR_NOT_FOUND = '未找到相似元素',
-  RELATIVE_ELEMENT_PARAMS_ERROR = '关联元素参数错误',
-  ELEMENT_NOT_FOUND = '未找到元素',
-  UNSUPPORT_ERROR = '暂未实现,请升级到最新版本',
-  PARAMS_URL_NOT_FOUND = '缺少url字段！',
-  PARAMS_NAME_NOT_FOUND = '缺少name字段！',
-  PARAMS_NAME_VALUE_NOT_FOUND = '缺少必填字段name, value！',
-  CONTEXT_NOT_FOUND = '未找到执行上下文，请确保页面已加载完成',
-  EXECUTE_ERROR = '执行失败，未获取到结果',
-  DEBUGGER_TIMOUT = '检测 Debugger 状态超时',
-  CONTENT_MESSAGE_ERROR = '内容脚本消息响应错误',
+export const ErrorMessage = {
+  get TAB_GET_ERROR() { return t('errors.tabGetError') },
+  get ACTIVE_TAB_ERROR() { return t('errors.activeTabError') },
+  get NUMBER_ID_ERROR() { return t('errors.numberIdError') },
+  get FRAME_GET_ERROR() { return t('errors.frameGetError') },
+  get CURRENT_TAB_UNSUPPORT_ERROR() { return t('errors.currentTabUnsupportError') },
+  get NOT_SIMILAR_ELEMENT() { return t('errors.notSimilarElement') },
+  get SIMILAR_NOT_FOUND() { return t('errors.similarNotFound') },
+  get RELATIVE_ELEMENT_PARAMS_ERROR() { return t('errors.relativeElementParamsError') },
+  get ELEMENT_NOT_FOUND() { return t('errors.elementNotFound') },
+  get UNSUPPORT_ERROR() { return t('errors.unsupportError') },
+  get PARAMS_URL_NOT_FOUND() { return t('errors.paramsUrlNotFound') },
+  get PARAMS_NAME_NOT_FOUND() { return t('errors.paramsNameNotFound') },
+  get PARAMS_NAME_VALUE_NOT_FOUND() { return t('errors.paramsNameValueNotFound') },
+  get CONTEXT_NOT_FOUND() { return t('errors.contextNotFound') },
+  get EXECUTE_ERROR() { return t('errors.executeError') },
+  get DEBUGGER_TIMOUT() { return t('errors.debuggerTimeout') },
+  get CONTENT_MESSAGE_ERROR() { return t('errors.contentMessageError') },
 }
 
-export enum SuccessMessage {
-  DELETE_SUCCESS = '删除成功',
-  SET_SUCCESS = '设置成功',
-  EMPTY_SUCCESS = '清空成功',
+export const SuccessMessage = {
+  get DELETE_SUCCESS() { return t('success.deleteSuccess') },
+  get SET_SUCCESS() { return t('success.setSuccess') },
+  get EMPTY_SUCCESS() { return t('success.emptySuccess') },
 }

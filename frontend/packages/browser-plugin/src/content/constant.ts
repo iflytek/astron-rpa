@@ -1,3 +1,5 @@
+import { t } from '../i18n/index'
+
 export const MAX_TEXT_LENGTH = 10
 export const MAX_TEXT_INCLUDE_LENGTH = 64
 export const MAX_ATTRIBUTE_LENGTH = 32
@@ -19,19 +21,19 @@ export enum StatusCode {
   VERSION_ERROR = '5004',
 }
 
-export enum ErrorMessage {
-  ELEMENT_INFO_INCOMPLETE = '元素信息不完整，无法定位元素',
-  ELEMENT_NOT_FOUND = '元素未找到',
-  ELEMENT_MULTI_FOUND = '找到多个元素，无法唯一定位',
-  ELEMENT_NOT_INPUT = '该元素不是原生输入元素',
-  ELEMENT_NOT_CHECKED = '元素无选中属性',
-  ELEMENT_NOT_SELECT = '该元素不是原生选框元素',
-  ELEMENT_NOT_TABLE = '该元素不是表格元素或不是表格内的元素',
-  UNSUPPORT_ERROR = '暂不支持',
-  ELEMENT_PARENT_NOT_FOUND = '父元素未找到，请检查元素是否存在父元素',
-  ELEMENT_CHILD_NOT_FOUND = '子元素未找到，请检查元素是否存在子元素',
-  ELEMENT_CHILD_ORIGIN_NOT_FOUND = '元素原始信息originXpath不完整，无法唯一定位子元素',
-  UPDATE_TIP = '请更新插件至最新版本后重试',
+export const ErrorMessage = {
+  get ELEMENT_INFO_INCOMPLETE() { return t('errors.elementInfoIncomplete') },
+  get ELEMENT_NOT_FOUND() { return t('errors.elementNotFound') },
+  get ELEMENT_MULTI_FOUND() { return t('errors.elementMultiFound') },
+  get ELEMENT_NOT_INPUT() { return t('errors.elementNotInput') },
+  get ELEMENT_NOT_CHECKED() { return t('errors.elementNotChecked') },
+  get ELEMENT_NOT_SELECT() { return t('errors.elementNotSelect') },
+  get ELEMENT_NOT_TABLE() { return t('errors.elementNotTable') },
+  get UNSUPPORT_ERROR() { return t('errors.unsupportError') },
+  get ELEMENT_PARENT_NOT_FOUND() { return t('errors.elementParentNotFound') },
+  get ELEMENT_CHILD_NOT_FOUND() { return t('errors.elementChildNotFound') },
+  get ELEMENT_CHILD_ORIGIN_NOT_FOUND() { return t('errors.elementChildOriginNotFound') },
+  get UPDATE_TIP() { return t('errors.updateTip') },
 }
 
 export const SVG_NODETAGS = [
