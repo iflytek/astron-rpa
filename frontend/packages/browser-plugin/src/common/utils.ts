@@ -1,7 +1,7 @@
+import { InputTypeMap, TagMap } from '../content/tag'
 import { t } from '../i18n/index'
 
 import { StatusCode } from './constant'
-import { InputTypeMap, TagMap } from '../content/tag'
 
 export const Utils = {
   // Background utilities
@@ -183,7 +183,7 @@ export const Utils = {
     return obj
   },
 
-  // Shared utilities  
+  // Shared utilities
   isNumberStartString(str: string) {
     return /^\d/.test(str)
   },
@@ -195,7 +195,7 @@ export const Utils = {
   isSpecialCharacter(str: string) {
     if (this.isNumberStartString(str))
       return true
-    if (/[·~`!@#$%^&*()+\-={}\\[\]|:;"'<>,.?/（）￥！、；：""''【】《》，。？—]/.test(str))
+    if (/[·~`!@#$%^&*()+\-={}\\[\]|:;"'<>,.?/（）￥！、；：【】《》，。？—]/.test(str))
       return true
     return false
   },

@@ -1,5 +1,4 @@
 import { log } from '../3rd/log'
-
 /**
  * @file Manages communication with the native messaging host.
  */
