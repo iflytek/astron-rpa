@@ -1,3 +1,5 @@
+<!-- @format -->
+
 <!-- 元素编辑器 -->
 <script lang="ts" setup>
 import {
@@ -186,7 +188,7 @@ const handleOk = throttle(
     }
 
     if (useElements.checkName(name, useElements.currentElement.id)) {
-      message.error(t('sameNameExists'))
+      message.error(t('elementNameUnique'))
       return
     }
 
@@ -213,7 +215,7 @@ const handleValidateElement = throttle(
     const element = JSON.stringify(elementData)
     usePick.startCheck(pickerType.value, element, (res) => {
       if (res.success)
-        message.success(t('validationSuccess'))
+        message.success(t('validateElementSuccess'))
     })
   },
   1500,
@@ -256,7 +258,7 @@ watch(
     if (newVal.elementData) {
       const eleData = JSON.parse(newVal.elementData)
       // console.log('eleData: ', eleData)
-      const { version, type, path, picker_type, similar_count } = eleData
+      const { version, type, path, picker_type, similar_count, app } = eleData
       // 当前元素名称
       formOption.value.pickName = newVal.name
       // 当前元素数据
@@ -297,7 +299,7 @@ watch(
         )
       }
       // 可视化编辑元素
-      nodeSourceData.value = elementDirectoryFormat(version, type, path)
+      nodeSourceData.value = elementDirectoryFormat(version, type, path, app)
     }
   },
   { immediate: true, deep: true },
@@ -305,22 +307,9 @@ watch(
 </script>
 
 <template>
-  <a-modal
-    v-bind="NiceModal.antdModal(modal)"
-    destroy-on-close
-    centered
-    :width="730"
-    :z-index="10"
-    :title="$t('elementPicking')"
-    class="pickModal"
-    :keyboard="false"
-    :mask-closable="false"
-  >
+  <a-modal v-bind="NiceModal.antdModal(modal)" destroy-on-close centered :width="730" :z-index="10" :title="$t('elementPicking')" class="pickModal" :keyboard="false" :mask-closable="false">
     <template #closeIcon>
-      <CloseOutlined
-        :class="saveBtnDisabled() ? 'not-allowed' : ''"
-        @click.stop="handleCancel"
-      />
+      <CloseOutlined :class="saveBtnDisabled() ? 'not-allowed' : ''" @click.stop="handleCancel" />
     </template>
     <template #footer>
       <a-button key="back" :disabled="saveBtnDisabled()" @click="handleCancel">
@@ -340,94 +329,65 @@ watch(
       >
         {{ $t("saveAndContinue") }}
       </a-button>
-      <a-button
-        key="save"
-        type="primary"
-        :loading="saveBtnLoading('save')"
-        :disabled="saveBtnDisabled()"
-        @click="handleOk(false)"
-      >
+      <a-button key="save" type="primary" :loading="saveBtnLoading('save')" :disabled="saveBtnDisabled()" @click="handleOk(false)">
         {{ $t("done") }}
       </a-button>
     </template>
     <div class="pickWrapper">
       <a-row class="pickWrapper-option">
-        <a-col :span="5">
-          <div
-            class="pickWrapper-img border border-border mt-4 flex justify-center align-center"
-          >
-            <Image
-              v-if="useElements.currentElement.imageUrl"
-              :title="$t('fullSizeImage')"
-              :src="getImageURL(useElements.currentElement.imageUrl)"
-            />
+        <a-col :span="4">
+          <div class="pickWrapper-img mt-4 flex justify-center align-center">
+            <Image v-if="useElements.currentElement.imageUrl" :title="$t('fullSizeImage')" :src="getImageURL(useElements.currentElement.imageUrl)" />
           </div>
+          <a-button class="font-size-12 inline-flex-center mt-4 w-[100px]" :icon="h(BorderOuterOutlined)" :loading="usePick.isChecking" :disabled="usePick.isPicking" @click="handleValidateElement">
+            {{ $t("validateElement") }}
+          </a-button>
         </a-col>
-        <a-col :span="6" class="pl-2">
-          <div class="pickWrapper-buttons mt-4">
-            <a-button
-              size="small"
-              :icon="h(RedoOutlined)"
-              :loading="singleLoading === 'rePick' && usePick.isPicking"
-              :disabled="usePick.isPicking || usePick.isChecking"
-              class="font-size-12 inline-flex-center"
-              @click="rePick"
-            >
-              {{ $t("rePickupElement") }}
-            </a-button>
-          </div>
-          <div class="pickWrapper-buttons mt-2">
-            <a-button
-              class="font-size-12 inline-flex-center"
-              :icon="h(BorderOuterOutlined)"
-              size="small"
-              :loading="usePick.isChecking"
-              :disabled="usePick.isPicking"
-              @click="handleValidateElement"
-            >
-              {{ $t("validateElement") }}
-            </a-button>
-          </div>
-          <div class="pickWrapper-buttons mt-2">
-            <a-button
-              v-if="similarButton"
-              size="small"
-              :icon="h(UnorderedListOutlined)"
-              :loading="singleLoading === 'similarPick' && usePick.isPicking"
-              :disabled="usePick.isPicking || usePick.isChecking"
-              class="font-size-12 inline-flex-center"
-              @click="similarPick"
-            >
-              {{ $t("similarElementsPickup") }}
-            </a-button>
-          </div>
-          <div v-if="similarCount" class="mt-1">
-            <span class="similar-counts"><CheckCircleOutlined
-              class="mr-2"
-              style="color: #52c41a"
-            />{{ $t('pickTips.foundSimilarCount', { count: similarCount }) }}</span>
-          </div>
-        </a-col>
-        <a-col :span="13">
+        <a-col :span="20" class="pl-2">
           <div class="pickWrapper-form mt-4">
             <PickForm ref="pickFormRef" :form-option="formOption" />
           </div>
         </a-col>
       </a-row>
-      <div class="pickWrapper-table border-t border-b border-border mt-4">
-        <div class="table-wapper">
-          <div
-            v-if="formOption.editXPathType === CUSTOMIZATION"
-            :key="CUSTOMIZATION"
-            class="px-2 fade-in"
+      <div class="top-buttons">
+        <div v-if="similarCount" class="">
+          <span class="similar-counts">
+            <CheckCircleOutlined class="mr-2" style="color: #52c41a" />
+            已找到{{ similarCount }}个相似元素
+          </span>
+        </div>
+        <div class="pickWrapper-buttons">
+          <a-button
+            v-if="similarButton"
+            size="small"
+            :icon="h(UnorderedListOutlined)"
+            :loading="singleLoading === 'similarPick' && usePick.isPicking"
+            :disabled="usePick.isPicking || usePick.isChecking"
+            class="font-size-12 inline-flex-center"
+            @click="similarPick"
           >
+            {{ $t("similarElementsPickup") }}
+          </a-button>
+        </div>
+        <div class="pickWrapper-buttons">
+          <a-button
+            size="small"
+            :icon="h(RedoOutlined)"
+            :loading="singleLoading === 'rePick' && usePick.isPicking"
+            :disabled="usePick.isPicking || usePick.isChecking"
+            class="font-size-12 inline-flex-center"
+            @click="rePick"
+          >
+            {{ $t("rePickupElement") }}
+          </a-button>
+        </div>
+      </div>
+      <div class="pickWrapper-table mt-4">
+        <div class="table-wapper">
+          <div v-if="formOption.editXPathType === CUSTOMIZATION" :key="CUSTOMIZATION" class="fade-in">
             <CustomTable :custom-data="customData" />
           </div>
-          <div
-            v-if="formOption.editXPathType === VISUALIZATION && !isShadow"
-            :key="VISUALIZATION"
-            class="px-2 fade-in"
-          >
+          <div v-if="formOption.editXPathType === VISUALIZATION && !isShadow" :key="VISUALIZATION" class="fade-in">
             <DirectoryTable :node-source="nodeSourceData" />
           </div>
         </div>
@@ -446,7 +406,7 @@ watch(
 }
 
 .pickWrapper-table {
-  height: 230px;
+  height: 240px;
   overflow-y: auto;
 }
 
@@ -460,9 +420,12 @@ watch(
 }
 
 .pickWrapper-img {
-  width: 120px;
-  height: 120px;
-  margin-left: 10px;
+  width: 100px;
+  height: 100px;
+  // margin-left: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--color-bg-layout);
 }
 
 .similar-counts {
@@ -471,6 +434,15 @@ watch(
 
 .not-allowed {
   cursor: not-allowed;
+}
+.top-buttons {
+  position: absolute;
+  top: 16px;
+  right: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 :deep(.ant-modal .ant-modal-content) {

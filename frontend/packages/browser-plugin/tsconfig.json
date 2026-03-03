@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2023",
     "types": ["chrome-types/_all.d.ts"],
     "allowJs": true,
     "outDir": "./dist",
-    "module": "es2022",
+    "module": "es2023",
   },
   "include": ["src/*", "src/**/*"],
   "exclude": ["node_modules", "dist", "src/3rd/rpa_websocket.js"],

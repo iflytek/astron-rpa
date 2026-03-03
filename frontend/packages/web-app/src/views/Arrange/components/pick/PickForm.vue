@@ -1,3 +1,5 @@
+<!-- @format -->
+
 <script lang="ts" setup>
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import type { Rule } from 'ant-design-vue/es/form'
@@ -56,32 +58,53 @@ defineExpose({
 </script>
 
 <template>
-  <a-form ref="formRef" :key="formOption.pikName" class="form-wrapper font-size-12" :rules="rules" :model="formOption" :label-col="{ span: 5 }" :wrapper-col="{ span: 14 }" label-align="left">
-    <a-form-item :label="$t('elementName')" name="pickName">
-      <a-input v-model:value="formOption.pickName" autocomplete="off" class="font-size-12" :maxlength="32" :placeholder="$t('enterElementName')" @change="inputChange" />
-    </a-form-item>
-    <a-form-item :label="$t('customization')">
-      <a-radio-group v-model:value="formOption.editXPathType" size="small">
-        <a-radio-button v-for="item in formOption.customOptions" :key="item.lable" :value="item.value" class="font-size-12">
-          {{ $t(item.label) }}
-        </a-radio-button>
-      </a-radio-group>
-    </a-form-item>
-    <a-form-item v-if="formOption.pickType === 'web'" :label="$t('matchingMethod')">
-      <a-checkbox-group v-model:value="formOption.matchTypes" size="small" class="flex flex-nowrap" :options="formOption.matchOptions">
-        <template #label="{ label, tip }">
-          <span class="font-size-12">{{ $t(label) }}</span>
-          <a-tooltip placement="top" :title="$t(tip)">
-            <QuestionCircleOutlined class="ml-1" />
-          </a-tooltip>
-        </template>
-      </a-checkbox-group>
-    </a-form-item>
-  </a-form>
+  <div class="pick-form">
+    <a-form
+      ref="formRef"
+      :key="formOption.pikName"
+      class="form-wrapper text-[12px]"
+      :rules="rules"
+      :model="formOption"
+      :label-col="{ span: 5 }"
+      :wrapper-col="{ span: 14 }"
+      label-align="left"
+      layout="vertical"
+    >
+      <a-form-item :label="$t('elementName')" name="pickName">
+        <a-input v-model:value="formOption.pickName" autocomplete="off" class="label-form  w-[550px]" :maxlength="32" :placeholder="$t('enterElementName')" @change="inputChange" />
+      </a-form-item>
+    </a-form>
+    <div class="pick-form-checkbox flex flex-row gap-2 mt-8 text-[12px] color-gray-700">
+      <div class="mr-2">
+        <div class="mb-2 label-form">
+          {{ $t("customization") }}
+        </div>
+        <a-radio-group v-model:value="formOption.editXPathType" size="small">
+          <a-radio v-for="item in formOption.customOptions" :key="item.lable" :value="item.value" class="text-[12px]">
+            {{ $t(item.label) }}
+          </a-radio>
+        </a-radio-group>
+      </div>
+      <div v-if="formOption.pickType === 'web'" class="mr-2">
+        <div class="mb-2 label-form">
+          {{ $t("matchingMethod") }}
+        </div>
+        <a-checkbox-group v-model:value="formOption.matchTypes" size="small" class="flex flex-nowrap" :options="formOption.matchOptions">
+          <template #label="{ label, value }">
+            <span class="text-[12px]">{{ $t(label) }}</span>
+            <a-tooltip placement="top" :title="$t(value)">
+              <QuestionCircleOutlined class="ml-1" />
+            </a-tooltip>
+          </template>
+        </a-checkbox-group>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.font-size-12 {
+.label-form {
+  color: var(--color-text-secondary);
   font-size: 12px;
 }
 

@@ -656,6 +656,7 @@
   "editTask": "Edit Task",
   "elementManagement": "Element management",
   "elementName": "Element name",
+  "elementNameUnique": "Element name must be unique!",
   "elementPicking": "Element picking",
   "emailAddress": "Email address",
   "emailNotification": "Email notification",
@@ -1019,6 +1020,7 @@
   "notification": "Notification",
   "offlineLogin": "Offline authorized login",
   "onlyPosition": "Match Only Position",
+  "onlyPositionTip": "One-click locate similar elements at the same position; supports locating across pages",
   "openFolder": "Open folder",
   "openPlatform": "Open platform",
   "operate": "Operate",
@@ -1194,6 +1196,7 @@
   "screenshotShortcut": "Screenshot Shortcut {{num}}",
   "scriptAtom": "Script Atom",
   "scrollPosition": "Scroll Load",
+  "scrollPositionTip": "Continuously scroll the page until the target element is located (up to 20 scrolls)",
   "search": "Search",
   "searchElements": "Search element",
   "searchRobots": "Search Application Name",
@@ -1618,7 +1621,8 @@
     "userRight": "Rights Information"
   },
   "userManual": "User Manual",
-  "validateElement": "Validate element",
+  "validateElement": "Validate",
+  "validateElementSuccess": "Element validation successful",
   "varDescribe": "Description",
   "varName": "Variable name",
   "varType": "Type",
@@ -1957,5 +1961,36 @@
   },
   "mail": {
     "otherEmail": "Other Email"
+  },
+  "customElement": {
+    "url": "URL of the webpage containing the element",
+    "xpath": "Element's XPath (excluding iframe nesting paths)",
+    "cssSelector": "Element's CSS selector path; shadowRoot elements are only supported with this method. Use $shadow$ to separate each shadowRoot layer",
+    "iframeXpath": "XPath of the iframe containing the element; use $iframe$ to separate each iframe layer"
+  },
+  "directoryElement": {
+    "elementNode": "Element Node",
+    "attributeNode": "Attribute Node",
+    "node": "Node",
+    "attributeName": "Attribute Name",
+    "attributeValue": "Attribute Value",
+    "operation": "Operation",
+    "addNode": "Add Node",
+    "editNode": "Edit Node",
+    "deleteNodeTip": "Delete the current node?",
+    "deleteAttributeTip": "Delete the current attribute?",
+    "yes": "Yes",
+    "no": "No",
+    "addAttribute": "Add Attribute",
+    "matchType": "Match Type",
+    "equals": "Equals",
+    "includes": "Wildcard",
+    "regex": "Regex",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "nodeNamePlaceholder": "Please enter the node name",
+    "regexPythonPlaceholder": "Supports Python regular expressions",
+    "regexJavascriptPlaceholder": "Supports JavaScript new RegExp regular expressions",
+    "regexPlaceholder": "Supports regular expressions"
   }
 }

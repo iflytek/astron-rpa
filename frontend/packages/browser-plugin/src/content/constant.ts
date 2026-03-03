@@ -26,6 +26,7 @@ export enum ErrorMessage {
   ELEMENT_NOT_INPUT = '该元素不是原生输入元素',
   ELEMENT_NOT_CHECKED = '元素无选中属性',
   ELEMENT_NOT_SELECT = '该元素不是原生选框元素',
+  ELEMENT_NOT_TABLE = '该元素不是表格元素或不是表格内的元素',
   UNSUPPORT_ERROR = '暂不支持',
   ELEMENT_PARENT_NOT_FOUND = '父元素未找到，请检查元素是否存在父元素',
   ELEMENT_CHILD_NOT_FOUND = '子元素未找到，请检查元素是否存在子元素',
