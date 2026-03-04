@@ -493,7 +493,6 @@ class DataTable:
     @staticmethod
     @atomicMg.atomic(
         "DataTable",
-        inputList=[],
         outputList=[
             atomicMg.param("max_row", types="Int"),
         ],
@@ -507,7 +506,6 @@ class DataTable:
     @staticmethod
     @atomicMg.atomic(
         "DataTable",
-        inputList=[],
         outputList=[
             atomicMg.param("max_column", types="Int"),
         ],
@@ -1102,9 +1100,7 @@ class DataTable:
     @validate_cell
     @auto_save
     @atomicMg.atomic(
-        "DataTable",
-        inputList=[],
-        outputList=[],
+        "DataTable"
     )
     def insert_formula(
         row: int = 1,
@@ -1128,8 +1124,6 @@ class DataTable:
     @validate_cell
     @atomicMg.atomic(
         "DataTable",
-        inputList=[],
-        outputList=[],
     )
     def set_column_title(
         col: str = "A",
@@ -1150,7 +1144,6 @@ class DataTable:
     @validate_cell
     @atomicMg.atomic(
         "DataTable",
-        inputList=[],
         outputList=[
             atomicMg.param(
                 "column_title",
@@ -1455,7 +1448,7 @@ class DataTable:
             )
         if not os.path.exists(import_file_path):
             raise BizException(
-                IMPORT_FILE_NOT_FOUND_ERROR.format(import_file_path),
+                IMPORT_FILE_NOT_FOUND_ERROR_FORMAT.format(import_file_path),
                 f"文件不存在: {import_file_path}",
             )
 
@@ -1501,10 +1494,7 @@ class DataTable:
         if not export_file_name:
             export_file_name = "data_table"
         if not os.path.exists(export_dest_path):
-            raise BizException(
-                PARAMS_ERROR.format(f"导出文件夹路径不存在: {export_dest_path}"),
-                "导出文件夹路径不存在",
-            )
+            raise BizException(EXPORT_FOLDER_PATH_EMPTY_ERROR, "导出文件夹路径不存在")
         if not is_overwrite:
             export_file_name = export_file_name + "_" + datetime.now().strftime("%Y%m%d%H%M%S")
 

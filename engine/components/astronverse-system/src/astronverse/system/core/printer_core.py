@@ -18,18 +18,7 @@ import win32com
 import win32com.client as wc
 import win32print
 import win32ui
-from astronverse.system.error import (
-    BizException,
-    ERROR_FORMAT,
-    PRINTER_NOT_FOUND_FORMAT_FORMAT,
-    PRINTER_NOT_SUPPORTED_FORMAT_FORMAT,
-    PRINT_FILE_EMPTY,
-    PRINT_FILE_TYPE_ERROR,
-    REGISTRY_NOT_FOUND,
-    SOFTWARE_OPEN_ERROR,
-    PAGE_RANGE_ERROR,
-    PRINTER_CONTEXT_ERROR,
-)
+from astronverse.system.error import *
 from astronverse.baseline.logger.logger import logger
 from astronverse.system import BatchType, DocAppType, FileType, XlsAppType
 from PIL import Image, ImageWin
