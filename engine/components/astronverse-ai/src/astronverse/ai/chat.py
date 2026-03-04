@@ -64,7 +64,7 @@ class ChatAI:
         ],
         outputList=[atomicMg.param("single_chat_res", types="Str")],
     )
-    def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DS_CHAT, custom_model: str = "") -> str:
+    def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DEEPSEEK_V3_2, custom_model: str = "") -> str:
         """
         单轮对话方法
         Args:
@@ -98,7 +98,7 @@ class ChatAI:
         is_save: bool,
         title: str,
         max_turns: int,
-        model: LLMModelTypes = LLMModelTypes.DS_CHAT,
+        model: LLMModelTypes = LLMModelTypes.DEEPSEEK_V3_2,
         custom_model: str = "",
     ) -> dict:
         """
@@ -110,6 +110,11 @@ class ChatAI:
         Return:
             `dict`, 选择导出的记录
         """
+
+        if model == LLMModelTypes.CUSTOM_MODEL and custom_model:
+            model = custom_model
+        else:
+            model = model.value
 
         done = threading.Event()
         res = {}
@@ -129,7 +134,7 @@ class ChatAI:
                 "max_turns": str(max_turns),
                 "is_save": str(int(is_save)),
                 "title": title,
-                "model": model.value,
+                "model": model,
             }
             ws.send_reply({"data": {"name": "multichat", "params": params, "height": 600}}, 600, callback_func)
 

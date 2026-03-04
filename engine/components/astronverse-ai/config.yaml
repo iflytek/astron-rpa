@@ -343,10 +343,26 @@ options:
     - value: custom
       label: 其他格式
   LLMModelTypes:
-    - value: maas/deepseek-v3.2
+    - value: xopdeepseekv32
       label: DeepSeek-V3.2
-    - value: maas/kimi-k2-thinking
-      label: Kimi-K2-Thinking
+    - value: xopkimik25
+      label: Kimi-K2.5
+    - value: xopkimik2blins
+      label: Kimi-K2-Instruct
+    - value: xopqwen35397b
+      label: Qwen-3.5-397B-A17B
+    - value: xop3qwen235b
+      label: Qwen3-235B-A22B
+    - value: xop3qwen30b2507
+      label: Qwen3-30B-A3B-Instruct-2507
+    - value: xminimaxm25
+      label: MiniMax-M2.5
+    - value: xminimaxm2
+      label: MiniMax-M2.1
+    - value: xopglm5
+      label: GLM-5
+    - value: xopglmv47flash
+      label: GLM-4.7-Flash
     - value: custom
       label: 自定义模型
   InputType:

@@ -36,6 +36,14 @@ class RatingSystemTypes(Enum):
 
 
 class LLMModelTypes(Enum):
-    DS_CHAT = "maas/deepseek-v3.2"
-    DS_REASONER = "maas/kimi-k2-thinking"
+    DEEPSEEK_V3_2 = "xopdeepseekv32"
+    KIMI_K2_5 = "xopkimik25"
+    KIMI_K2_INSTRUCT = "xopkimik2blins"
+    QWEN_3_5_397B = "xopqwen35397b"
+    QWEN3_235B = "xop3qwen235b"
+    QWEN3_30B = "xop3qwen30b2507"
+    MINIMAX_M2_5 = "xminimaxm25"
+    MINIMAX_M2_1 = "xminimaxm2"
+    GLM_5 = "xopglm5"
+    GLM_4_7_FLASH = "xopglmv47flash"
     CUSTOM_MODEL = "custom"
