@@ -43,7 +43,7 @@ AstronRPA is an enterprise-grade Robotic Process Automation (RPA) desktop applic
 - 💻 **Client Operating System**: Windows 10/11 (primary support)
 - 🧠 **RAM** >= 8 GiB
 
-### **Server**: Using Docker
+### **Server**: Deploy with Docker
 
 Recommended for quick deployment:
 
@@ -72,7 +72,7 @@ docker compose ps
 - If you see `{"code":"900001","data":null,"message":"unauthorized"}`, it means the deployment is correct and the connection is working properly.
 - Open your browser and go to: `http://{YOUR_SERVER_IP}:8000` (8000 is the default port; change it if you modified the configuration).
 - If you see the Casdoor login page, it means Casdoor is deployed correctly.
-- For production deployment and security hardening, refer to [Deployment Guide](docker/QUICK_START.md)
+- For production deployment and security hardening, refer to the [Deployment Guide](./docker/QUICK_START.md).
 
 ### **Client**: Source Deployment/Binary Deployment
 
