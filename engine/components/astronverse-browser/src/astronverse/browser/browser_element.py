@@ -1442,7 +1442,7 @@ class BrowserElement:
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BizException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BizException(WEB_GET_ELE_ERROR_FORMAT.format("请检查抓取元素"), "浏览器元素未找到！")
                 # 发送给插件
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
@@ -1458,7 +1458,7 @@ class BrowserElement:
                 similar_element = batch_element["path"]
                 wait = BrowserElement.wait_element(
                     browser_obj=browser_obj,
-                    element_data={
+                    element_data=WebPick({
                         "elementData": {
                             "version": batch_element["version"],
                             "type": batch_element["type"],
@@ -1466,12 +1466,12 @@ class BrowserElement:
                             "picker_type": "ELEMENT",
                             "path": similar_element,
                         }
-                    },
+                    }),
                     ele_status=WaitElementForStatusFlag.ElementExists,
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BizException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BizException(WEB_GET_ELE_ERROR_FORMAT.format("请检查抓取元素"), "浏览器元素未找到！")
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
                     key="simalarListBatch",
@@ -1541,7 +1541,7 @@ class BrowserElement:
             # 检查 excel_path 是否为 .xlsx 文件
             if excel_path and not excel_path.endswith(".xlsx"):
                 raise BizException(
-                    FILE_PATH_ERROR.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件"
+                    FILE_PATH_ERROR_FORMAT.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件"
                 )
             if excel_path is None:
                 excel_path = f"{table_element['name']}.xlsx"

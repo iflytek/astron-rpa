@@ -10,6 +10,7 @@ from astronverse.actionlib.logger import logger
 from astronverse.browser import ElementGetAttributeTypeFlag
 from astronverse.locator import smooth_move
 from astronverse.verifycode import VerifyCodeConfig
+from astronverse.verifycode.error import *
 
 
 class VerifyCodeCore:

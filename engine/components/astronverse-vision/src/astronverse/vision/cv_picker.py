@@ -4,13 +4,7 @@ import time
 
 import cv2
 import numpy as np
-from astronverse.vision.error import (
-    BizException,
-    ERROR_FORMAT,
-    SAVE_PATH_REQUIRED_ERROR,
-    SAVE_PATH_INVALID_ERROR_FORMAT,
-    SAVE_IMAGE_ERROR_FORMAT,
-)
+from astronverse.vision.error import *
 
 
 class ImageDetector:

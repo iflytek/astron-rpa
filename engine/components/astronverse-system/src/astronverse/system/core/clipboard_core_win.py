@@ -89,7 +89,7 @@ class ClipBoardCore(IClipBoardCore):
             cp.CloseClipboard()
 
         if html_data:
-            html_fragment = ClipBoardCoreWin.__extract_html_fragment__(html_data)
+            html_fragment = ClipBoardCore.__extract_html_fragment__(html_data)
             if html_fragment:
                 # 正则表达式模式，匹配 src=" 和 " 之间的内容
                 pattern = r'src="file:///(.*?\.(?:jpg|png|gif))"'

@@ -79,7 +79,6 @@ class Excel:
     @staticmethod
     @atomicMg.atomic(
         "Excel",
-        inputList=[],
         outputList=[
             atomicMg.param("get_excel_obj", types="ExcelObj"),
         ],
@@ -1533,7 +1532,7 @@ class Excel:
                 Worksheet.move_worksheet(move_worksheet, after=move_to_sheet)
 
     @staticmethod
-    @atomicMg.atomic("Excel", inputList=[], outputList=[])
+    @atomicMg.atomic("Excel")
     def delete_excel_worksheet(excel: ExcelObj, del_sheet_name: str):
         """
         删除工作表
@@ -1546,7 +1545,7 @@ class Excel:
         Worksheet.delete_worksheet(worksheet)
 
     @staticmethod
-    @atomicMg.atomic("Excel", inputList=[], outputList=[])
+    @atomicMg.atomic("Excel")
     def rename_excel_worksheet(excel: ExcelObj, source_sheet_name: str, new_sheet_name: str):
         """
         重命名工作表
@@ -1642,7 +1641,6 @@ class Excel:
     @staticmethod
     @atomicMg.atomic(
         "Excel",
-        inputList=[],
         outputList=[
             atomicMg.param("sheet_names", types="Str"),
         ],
