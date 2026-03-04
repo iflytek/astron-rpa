@@ -21,7 +21,6 @@ class Clipboard:
     @atomicMg.atomic(
         "System",
         inputList=[
-            atomicMg.param("content_type"),
             atomicMg.param(
                 "message",
                 formType=AtomicFormTypeMeta(AtomicFormType.INPUT_VARIABLE_PYTHON.value),

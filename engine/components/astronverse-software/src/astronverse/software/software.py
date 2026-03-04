@@ -8,7 +8,7 @@ import time
 import warnings
 
 import psutil
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.logger import logger
 from astronverse.software.core import ISoftwareCore
@@ -37,7 +37,7 @@ class Software:
                     params={"filters": []},
                 ),
             ),
-            atomicMg.param("app_arguments", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("app_arguments", required=False),
         ],
         outputList=[atomicMg.param("software_open", types="Str")],
     )

@@ -3,7 +3,7 @@ import platform
 import sys
 from pathlib import Path
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.word import (
@@ -62,8 +62,6 @@ class Docx:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("encoding", level=AtomicLevel.ADVANCED),
-            atomicMg.param("open_pwd_flag", level=AtomicLevel.ADVANCED),
             atomicMg.param(
                 "open_pwd",
                 dynamics=[
@@ -72,10 +70,8 @@ class Docx:
                         expression="return $this.open_pwd_flag.value == true",
                     )
                 ],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
-            atomicMg.param("write_pwd_flag", level=AtomicLevel.ADVANCED),
             atomicMg.param(
                 "write_pwd",
                 dynamics=[

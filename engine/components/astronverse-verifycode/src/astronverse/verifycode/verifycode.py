@@ -1,7 +1,7 @@
 import time
 
 import pyautogui
-from astronverse.actionlib import AtomicLevel, DynamicsItem
+from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WebPick
 from astronverse.baseline.logger.logger import logger
@@ -78,7 +78,7 @@ class VerifyCode:
                     )
                 ],
             ),
-            atomicMg.param("offset", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("offset", required=False),
         ],
         outputList=[atomicMg.param("drag_distance", types="Int")],
     )

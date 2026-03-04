@@ -22,7 +22,7 @@ from astronverse.excel.error import (
     HEIGHT_PARAM_EMPTY_ERROR,
     HEIGHT_VALUE_ERROR,
 )
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.excel import *
@@ -45,7 +45,8 @@ class Excel:
                     params={"filters": [".xlsx", ".xls"], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("password", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("password", required=False),
+            atomicMg.param("write_res_password", required=False),
         ],
         outputList=[
             atomicMg.param("open_excel_obj", types="ExcelObj"),
@@ -57,6 +58,7 @@ class Excel:
         visible_flag: bool = True,
         password: str = "",
         update_links: bool = True,
+        write_res_password: str = "",
     ) -> ExcelObj:
         if not os.path.exists(file_path):
             raise BizException(FILE_PATH_ERROR, "填写的文件路径有误，请输入正确的路径！")
@@ -70,7 +72,7 @@ class Excel:
             prefer_existing=False,
         )
         excel = Application.open_workbook(
-            application=application, file_path=file_path, password=password, update_links=update_links
+            application=application, file_path=file_path, password=password, update_links=update_links, write_res_password=write_res_password
         )
         return excel
 
@@ -124,7 +126,7 @@ class Excel:
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "folder"}
                 ),
             ),
-            atomicMg.param("password", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("password", required=False),
         ],
         outputList=[
             atomicMg.param("create_excel_obj", types="ExcelObj"),

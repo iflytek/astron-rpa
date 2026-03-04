@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.error import *
@@ -476,7 +476,6 @@ class Folder:
             ),
             atomicMg.param("output_type", required=False),
             atomicMg.param("traverse_subfolder", required=False),
-            atomicMg.param("sort_method", level=AtomicLevel.ADVANCED.value),
             atomicMg.param(
                 "sort_type",
                 dynamics=[
@@ -487,7 +486,6 @@ class Folder:
                         ),
                     )
                 ],
-                level=AtomicLevel.ADVANCED.value,
             ),
         ],
         outputList=[

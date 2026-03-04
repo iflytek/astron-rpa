@@ -3,7 +3,7 @@ import platform
 import sys
 from typing import Any
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.utils import handle_existence
 from astronverse.pdf import (
@@ -44,7 +44,7 @@ class PDF:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("password", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("password", required=False),
         ],
         outputList=[atomicMg.param("pdf_pages_num", types="Int")],
     )
@@ -69,7 +69,7 @@ class PDF:
                     params={"filters": []},
                 ),
             ),
-            atomicMg.param("password", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("password", required=False),
             atomicMg.param(
                 "page_range",
                 dynamics=[
@@ -112,7 +112,6 @@ class PDF:
             ),
             atomicMg.param(
                 "exist_handle_type",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.exist_handle_type.show",
@@ -188,7 +187,7 @@ class PDF:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("pwd", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("pwd", required=False),
             atomicMg.param(
                 "page_range",
                 dynamics=[
@@ -207,7 +206,6 @@ class PDF:
                 ),
             ),
             atomicMg.param("prefix", required=False),
-            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
         ],
         outputList=[],
     )
@@ -275,7 +273,7 @@ class PDF:
                 ),
             ),
             atomicMg.param("new_file_name", required=False),
-            atomicMg.param("new_pwd_flag", level=AtomicLevel.ADVANCED),
+            atomicMg.param("new_pwd_flag"),
             atomicMg.param(
                 "new_pwd",
                 dynamics=[
@@ -284,9 +282,7 @@ class PDF:
                         expression="return $this.new_pwd_flag.value == true",
                     )
                 ],
-                level=AtomicLevel.ADVANCED,
             ),
-            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
         ],
         outputList=[atomicMg.param("pdf_merge_file_path", types="Str")],
     )
@@ -343,7 +339,7 @@ class PDF:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("pwd", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("pwd", required=False),
             atomicMg.param("page_range", types="Str"),
             atomicMg.param(
                 "save_dir",
@@ -353,7 +349,6 @@ class PDF:
                 ),
             ),
             atomicMg.param("new_file_name", required=False),
-            atomicMg.param("new_pwd_flag", level=AtomicLevel.ADVANCED),
             atomicMg.param(
                 "new_pwd",
                 dynamics=[
@@ -362,10 +357,8 @@ class PDF:
                         expression="return $this.new_pwd_flag.value == true",
                     )
                 ],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
-            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
         ],
         outputList=[atomicMg.param("extract_file_path", types="Str")],
     )
@@ -407,7 +400,7 @@ class PDF:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("pwd", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("pwd", required=False),
             atomicMg.param(
                 "page_range",
                 dynamics=[
@@ -425,7 +418,7 @@ class PDF:
                 ),
             ),
             atomicMg.param("new_file_name", required=False),
-            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
+            atomicMg.param("exist_handle_type"),
         ],
         outputList=[atomicMg.param("forms_file_path", types="Str")],
     )
@@ -476,7 +469,7 @@ class PDF:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("pwd", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("pwd", required=False),
             atomicMg.param(
                 "page_range",
                 dynamics=[
@@ -494,7 +487,6 @@ class PDF:
                 ),
             ),
             atomicMg.param("prefix", required=False),
-            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
         ],
         outputList=[],
     )
@@ -542,14 +534,11 @@ class PDF:
                 ),
             ),
             atomicMg.param("new_file_name", required=False),
-            atomicMg.param("new_pwd_flag", level=AtomicLevel.ADVANCED),
             atomicMg.param(
                 "new_pwd",
                 dynamics=[DynamicsItem(key="$this.new_pwd.show", expression="return $this.new_pwd_flag.value == true")],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
-            atomicMg.param("exist_handle_type", level=AtomicLevel.ADVANCED),
         ],
         outputList=[atomicMg.param("pdf_file_path", types="Str")],
     )

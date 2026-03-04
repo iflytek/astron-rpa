@@ -16,10 +16,13 @@ atomic:
         tip: ''
       - key: password
         title: 密码
-        tip: ''
+        tip: 打开文件时要求输入
       - key: update_links
         title: 自动更新外部链接
         tip: ''
+      - key: write_res_password
+        title: 修改密码
+        tip: 打开后修改时要求输入
     outputList:
       - key: open_excel_obj
         title: 打开的Excel对象

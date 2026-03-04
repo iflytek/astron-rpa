@@ -1,7 +1,7 @@
 import base64
 import os
 import time
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
@@ -151,7 +151,6 @@ class BrowserElement:
             ),
             atomicMg.param(
                 "scroll_into_center",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.scroll_into_center.show",
@@ -271,7 +270,6 @@ class BrowserElement:
             ),
             atomicMg.param(
                 "scroll_into_center",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.scroll_into_center.show",
@@ -391,7 +389,7 @@ class BrowserElement:
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
-            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("scroll_into_center", required=False),
         ],
         outputList=[],
     )
@@ -634,7 +632,7 @@ class BrowserElement:
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
-            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("scroll_into_center", required=False),
         ],
         outputList=[],
     )
@@ -1385,7 +1383,6 @@ class BrowserElement:
             atomicMg.param("output_head", required=False),
             atomicMg.param(
                 "scroll_into_center",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.scroll_into_center.show",
