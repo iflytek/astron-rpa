@@ -1,7 +1,7 @@
 import re
 import time
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.error import *
@@ -588,7 +588,7 @@ class File:
                 formType=AtomicFormTypeMeta(AtomicFormType.INPUT_VARIABLE_PYTHON.value),
                 required=True,
             ),
-            atomicMg.param("traverse_subfolder", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("traverse_subfolder", required=False),
         ],
         outputList=[
             atomicMg.param("find_file_result", types="List"),
@@ -771,7 +771,7 @@ class File:
                 ],
             ),
             atomicMg.param("output_type", required=False),
-            atomicMg.param("sort_method", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("sort_method", required=False),
             atomicMg.param(
                 "sort_type",
                 dynamics=[
@@ -782,7 +782,6 @@ class File:
                         ),
                     )
                 ],
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
         ],

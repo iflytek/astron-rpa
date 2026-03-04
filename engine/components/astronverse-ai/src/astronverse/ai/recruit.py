@@ -1,6 +1,6 @@
 """Recruitment JD analysis and candidate requirement evaluation utilities."""
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import InputType, JobWebsitesTypes, RatingSystemTypes
 from astronverse.ai.api.llm import chat_prompt
@@ -52,7 +52,7 @@ class RecruitAI:
                 "job_description",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_PYTHON_TEXTAREAMODAL_VARIABLE.value),
             ),
-            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", required=False),
         ],
         outputList=[atomicMg.param("recruit_keywords", types="Str")],
     )
@@ -119,7 +119,7 @@ class RecruitAI:
                     )
                 ],
             ),
-            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", required=False),
         ],
         outputList=[atomicMg.param("recruit_rating", types="Str")],
     )

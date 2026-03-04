@@ -2,7 +2,7 @@
 
 import copy
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.baseline.logger.logger import logger
 from astronverse.email import EmailSeenType, EmailServerType
@@ -113,7 +113,6 @@ class Email:
         inputList=[
             atomicMg.param(
                 key="custom_mail_server",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.custom_mail_server.show",
@@ -124,7 +123,6 @@ class Email:
             ),
             atomicMg.param(
                 key="custom_mail_port",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.custom_mail_port.show",
@@ -133,23 +131,20 @@ class Email:
                 ],
                 types="Str",
             ),
-            atomicMg.param("user_mail", level=AtomicLevel.NORMAL, types="Str", required=True),
-            atomicMg.param("user_password", level=AtomicLevel.NORMAL, types="Str", required=True),
+            atomicMg.param("user_mail", types="Str", required=True),
+            atomicMg.param("user_password", types="Str", required=True),
             atomicMg.param(
                 "unseen_flag",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.CHECKBOX.value),
-                level=AtomicLevel.NORMAL,
                 required=True,
             ),
             atomicMg.param(
                 "save_attachment_flag",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.CHECKBOX.value),
-                level=AtomicLevel.NORMAL,
                 required=True,
             ),
             atomicMg.param(
                 key="save_attachment_path",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.save_attachment_path.show",

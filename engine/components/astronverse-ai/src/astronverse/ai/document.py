@@ -3,8 +3,6 @@
 # encoding: UTF-8
 
 import copy
-
-from astronverse.actionlib import AtomicLevel
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai.chat import ChatAI
 from astronverse.ai.prompt.g_document import (
@@ -22,7 +20,7 @@ class DocumentAI:
     @atomicMg.atomic(
         "DocumentAI",
         inputList=[
-            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", types="Str", required=False),
         ],
         outputList=[atomicMg.param("theme_expand_res", types="Str")],
     )
@@ -46,7 +44,7 @@ class DocumentAI:
     @atomicMg.atomic(
         "DocumentAI",
         inputList=[
-            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", types="Str", required=False),
         ],
         outputList=[atomicMg.param("sentence_expand_res", types="Str")],
     )
@@ -79,7 +77,7 @@ class DocumentAI:
     @atomicMg.atomic(
         "DocumentAI",
         inputList=[
-            atomicMg.param("model", types="Str", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", types="Str", required=False),
         ],
         outputList=[atomicMg.param("sentence_reduce_res", types="Str")],
     )

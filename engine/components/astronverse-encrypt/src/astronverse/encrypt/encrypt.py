@@ -9,7 +9,6 @@ import os
 from astronverse.actionlib import (
     AtomicFormType,
     AtomicFormTypeMeta,
-    AtomicLevel,
     DynamicsItem,
 )
 from astronverse.actionlib.atomic import atomicMg
@@ -167,7 +166,6 @@ class Encrypt:  # pylint: disable=too-few-public-methods
             ),
             atomicMg.param(
                 "exist_handle_type",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.exist_handle_type.show",

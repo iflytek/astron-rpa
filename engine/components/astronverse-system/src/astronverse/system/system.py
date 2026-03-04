@@ -194,7 +194,6 @@ class System:
     @atomicMg.atomic(
         "System",
         inputList=[
-            atomicMg.param("file_type"),
             atomicMg.param(
                 "doc_app_type",
                 dynamics=[
@@ -238,7 +237,6 @@ class System:
                     )
                 ],
             ),
-            atomicMg.param("printer_type"),  # 打印设置  系统设置和自定义设置
             atomicMg.param("printer_name", required=False),
             atomicMg.param(
                 "paper_size",

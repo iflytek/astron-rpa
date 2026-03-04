@@ -5,7 +5,7 @@ import threading
 import time
 from ast import literal_eval
 import requests
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, URL, WebPick
 from astronverse.browser import *
@@ -21,26 +21,23 @@ class BrowserSoftware:
     @atomicMg.atomic(
         "BrowserSoftware",
         inputList=[
-            atomicMg.param("wait_load_success", level=AtomicLevel.NORMAL, required=False),
+            atomicMg.param("wait_load_success", required=False),
             atomicMg.param(
                 "browser_abs_path",
-                level=AtomicLevel.NORMAL,
                 required=False,
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
                     params={"file_type": "file"},
                 ),
             ),
-            atomicMg.param("open_args", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("open_args", required=False),
             atomicMg.param(
                 "open_with_incognito",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.CHECKBOX.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "timeout",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.timeout.show",
@@ -50,7 +47,6 @@ class BrowserSoftware:
             ),
             atomicMg.param(
                 "timeout_handle_type",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.timeout_handle_type.show",

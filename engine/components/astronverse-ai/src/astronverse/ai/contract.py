@@ -2,7 +2,7 @@
 
 import ast
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.ai import InputType
@@ -75,7 +75,7 @@ class ContractAI:
                 formType=AtomicFormTypeMeta(type=AtomicFormType.MODALBUTTON.value, params={"loading": False}),
                 required=False,
             ),
-            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", required=False),
         ],
         outputList=[atomicMg.param("factor_result", types="Dict")],
     )

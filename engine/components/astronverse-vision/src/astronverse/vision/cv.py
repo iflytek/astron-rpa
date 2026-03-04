@@ -2,7 +2,7 @@ import random
 import time
 
 import pyautogui
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import IMGPick
 from astronverse.input import MoveType, Simulate_flag, Speed
@@ -67,13 +67,11 @@ class CV:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
-            atomicMg.param("move_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("move_type", required=False),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -226,13 +224,11 @@ class CV:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
-            atomicMg.param("move_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("move_type", required=False),
             atomicMg.param(
                 "move_speed",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.move_speed.show",
@@ -343,7 +339,6 @@ class CV:
             atomicMg.param(
                 "wait_time",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
         ],

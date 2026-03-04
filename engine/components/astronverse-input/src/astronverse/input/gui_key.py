@@ -2,7 +2,7 @@ import random
 import subprocess
 import time
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.input import KeyboardType, KeyModel, Simulate_flag
 from astronverse.input.code.clipboard import Clipboard
@@ -47,7 +47,6 @@ class GuiKeyBoard:
             ),
             atomicMg.param(
                 "interval",
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.interval.show",
