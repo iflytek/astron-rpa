@@ -107,7 +107,6 @@ class Socket:
 
     def send_rect(self, operation="picking", status="", rect=(0, 0, 0, 0), msg=""):
         try:
-            # 发送坐标信息
             message = {
                 "Operation": operation,
                 "Type": status,
@@ -121,18 +120,29 @@ class Socket:
                     }
                 ],
             }
-            # 将消息转换为 JSON 格式
+            if operation == "start":
+                try:
+                    from astronverse.baseline.i18n.i18n import i18n
+
+                    message["Language"] = i18n.language
+                except Exception as e:
+                    logger.info(f"获取语言设置失败: {e}")
             json_message = json.dumps(message)
             logger.info(json_message)
-            # 发送消息
             self.send_msg(json_message.encode("utf-8"))
         except Exception as e:
             logger.info(f"Error sending message: {e}")
 
     def send_signal(self, operation, status):
         try:
-            # 发送信号消息
             message = {"Operation": operation, "Type": status}
+            if operation == "start":
+                try:
+                    from astronverse.baseline.i18n.i18n import i18n
+
+                    message["Language"] = i18n.language
+                except Exception as e:
+                    logger.info(f"获取语言设置失败: {e}")
             json_message = json.dumps(message)
             self.send_msg(json_message.encode("utf-8"))
         except Exception as e:
