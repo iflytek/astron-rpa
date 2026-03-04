@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 import About from './components/about.vue'
 import ApiKeyManage from './components/apiKeyManage/index.vue'
 import CommonSetting from './components/commonSetting/index.vue'
-// import MsgNotify from './components/msgNotify.vue'
+import MsgNotify from './components/msgNotify.vue'
 import PluginInstall from './components/pluginInstall/index.vue'
 import ShortCut from './components/shortCut/index.vue'
 import VideoSetting from './components/videoSetting.vue'
@@ -36,12 +36,12 @@ export const menuConfig: MenuItem[] = [
     name: 'runRecording',
     component: VideoSetting,
   },
-  // {
-  //   key: 'msgNotify',
-  //   icon: 'message',
-  //   name: 'notification',
-  //   component: MsgNotify,
-  // },
+  {
+    key: 'msgNotify',
+    icon: 'message',
+    name: 'notification',
+    component: MsgNotify,
+  },
   {
     key: 'shortcut',
     icon: 'shortcut-key',
