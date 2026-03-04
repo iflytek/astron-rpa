@@ -15,7 +15,7 @@ API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
 PROMPT_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/prompt".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
-DEFAULT_MODEL = "maas/deepseek-v3.2"
+DEFAULT_MODEL = "xopdeepseekv32"
 
 
 def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
