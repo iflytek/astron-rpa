@@ -1,4 +1,4 @@
-import { Utils } from './utils'
+import { Utils } from '../common/utils'
 
 const scale = 1
 const quality = 92

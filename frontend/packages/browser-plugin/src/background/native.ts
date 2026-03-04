@@ -1,9 +1,8 @@
 import { log } from '../3rd/log'
-
 /**
  * @file Manages communication with the native messaging host.
  */
-import { NATIVE_HOST_NAME } from './constant'
+import { NATIVE_HOST_NAME } from '../common/constant'
 
 let port: chrome.runtime.Port | null = null
 

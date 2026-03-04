@@ -1,6 +1,7 @@
-import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
+import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from '../common/constant'
+import { Utils } from '../common/utils'
+
 import { highLight, highLightRects } from './highlight'
-import { Utils } from './utils'
 
 function getSupportTag(tagName: string) {
   if (Utils.isSpecialCharacter(tagName)) {
@@ -484,7 +485,6 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
  * The directory is built from the element up to the root or until a unique identifier is found.
  *
  * @param element - The target HTMLElement for which to generate the directory.
- * @param isAbsolute - If true, traverses up to the root element regardless of unique identifiers; otherwise, stops at a unique id or the body element.
  * @returns An array of `ElementDirectory` objects, each describing an ancestor element and its relevant attributes.
  */
 export function getElementDirectory(element: HTMLElement): ElementDirectory[] {

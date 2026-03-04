@@ -1,7 +1,6 @@
 import { log } from '../3rd/log'
-
-import { ErrorMessage } from './constant'
-import { Utils } from './utils'
+import { ErrorMessage } from '../common/constant'
+import { Utils } from '../common/utils'
 
 const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
 

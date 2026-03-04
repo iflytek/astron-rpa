@@ -1,27 +1,90 @@
+import { InputTypeMap, TagMap } from '../content/tag'
+import { t } from '../i18n/index'
+
 import { StatusCode } from './constant'
-import { InputTypeMap, TagMap } from './tag'
 
 export const Utils = {
+  // Background utilities
+  getNavigatorUserAgent() {
+    const isChorme = /Chrome/.test(navigator.userAgent)
+    const isFirefox = /Firefox/.test(navigator.userAgent)
+    const isEdge = /Edg/.test(navigator.userAgent)
+
+    if (isFirefox)
+      return '$firefox$'
+    if (isEdge)
+      return '$edge$'
+    if (isChorme)
+      return '$chrome$'
+    return '$unknown$'
+  },
+
+  async wait(seconds: number) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, seconds * 1000)
+    })
+  },
+
   removeUrlParams(url: string) {
     return url.replace(/\?.*$/, '')
   },
 
-  isNumberStartString(str: string) {
-    return /^\d/.test(str)
+  isEndWithSlash(url: string) {
+    if (url.endsWith) {
+      return url.endsWith('/')
+    }
+    else {
+      return url.substr(-1) === '/'
+    }
   },
 
-  isNumberString(str: string) {
-    return /\d/.test(str)
+  stringToRegex(inputString: string) {
+    let body = inputString
+    let flags = ''
+    const lastSlashIndex = inputString.lastIndexOf('/')
+
+    if (inputString.startsWith('/') && lastSlashIndex > 0) {
+      body = inputString.slice(1, lastSlashIndex)
+      if (body.startsWith('^') && body.endsWith('$')) {
+        body = body.slice(1, -1)
+      }
+      if (
+        body.includes('\\d')
+        || body.includes('\\w')
+        || body.includes('\\s')
+        || body.includes('\\b')
+        || body.includes('\\.')
+        || body.includes('\\*')
+        || body.includes('\\?')
+        || body.includes('\\+')
+        || body.includes('\\{')
+        || body.includes('\\}')
+        || body.includes('\\[')
+        || body.includes('\\]')
+      ) {
+        body = body.replace(/\\/g, '\\')
+      }
+      flags = inputString.slice(lastSlashIndex + 1)
+    }
+    try {
+      const regex = new RegExp(body, flags)
+      return regex
+    }
+    catch {
+      throw new Error('Invalid regular expression pattern')
+    }
   },
 
-  isSpecialCharacter(str: string) {
-    if (this.isNumberStartString(str))
+  isSupportProtocal(url: string) {
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('ftp://') || url.startsWith('file://')) {
       return true
-    if (/[·~`!@#$%^&*()+={}\\[\]|:;"'<>,.?/（）￥！、；：“”‘’【】《》，。？—]/.test(str))
-      return true
-    return false
+    }
+    else {
+      return false
+    }
   },
 
+  // Content utilities
   isSupportUrl(str: string) {
     return /^(http|https|ftp|file):\/\/.+$/.test(str)
   },
@@ -32,13 +95,13 @@ export const Utils = {
       const type = element.getAttribute('type')
       if (InputTypeMap[type])
         return InputTypeMap[type]
-      else return '输入框'
+      else return t('inputTypes.text')
     }
     else if (TagMap[tag]) {
       return TagMap[tag]
     }
     else {
-      return '其他元素'
+      return t('tags.other')
     }
   },
 
@@ -118,6 +181,23 @@ export const Utils = {
       }
     }
     return obj
+  },
+
+  // Shared utilities
+  isNumberStartString(str: string) {
+    return /^\d/.test(str)
+  },
+
+  isNumberString(str: string) {
+    return /\d/.test(str)
+  },
+
+  isSpecialCharacter(str: string) {
+    if (this.isNumberStartString(str))
+      return true
+    if (/[·~`!@#$%^&*()+\-={}\\[\]|:;"'<>,.?/（）￥！、；：【】《》，。？—]/.test(str))
+      return true
+    return false
   },
 
   success(data, msg = 'success') {

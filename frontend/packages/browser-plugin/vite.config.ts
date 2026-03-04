@@ -23,9 +23,10 @@ export default defineConfig((env) => {
     build: {
       minify: 'terser',
       outDir: 'dist',
-      emptyOutDir: true,
+      emptyOutDir: !environment.BUILD_ENTRY || environment.BUILD_ENTRY === 'background',
       assetsDir: 'src/static',
-
+      cssCodeSplit: false,
+      chunkSizeWarningLimit: 1000,
       terserOptions: {
         module: false,
         compress: {
@@ -38,14 +39,20 @@ export default defineConfig((env) => {
         },
       },
       rollupOptions: {
-        input: {
-          background: 'src/background.ts',
-          content: 'src/content.ts',
-        },
+        input: environment.BUILD_ENTRY === 'content'
+          ? 'src/content.ts'
+          : environment.BUILD_ENTRY === 'background'
+            ? 'src/background.ts'
+            : {
+                background: 'src/background.ts',
+                content: 'src/content.ts',
+              }, // entry points for background and content scripts,build twice for single js file
         output: {
           entryFileNames: '[name].js',
-          chunkFileNames: '[name].js',
+          chunkFileNames: '[name]-[hash].js',
           assetFileNames: '[name].[extname]',
+          format: 'es',
+          inlineDynamicImports: !!environment.BUILD_ENTRY,
         },
         plugins: [
           {
