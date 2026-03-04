@@ -1,4 +1,5 @@
-import { ErrorMessage } from './constant'
+import { ErrorMessage } from '../common/constant'
+
 import { Tabs } from './tab'
 
 export async function frameFind(frameXpath: string) {

@@ -1,7 +1,8 @@
-import { ErrorMessage, StatusCode } from './constant'
+import { ErrorMessage, StatusCode } from '../common/constant'
+import { Utils } from '../common/utils'
+
 import { Debugger } from './debugger'
 import { captureArea, captureFullPage } from './full_page_shot'
-import { Utils } from './utils'
 
 const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
 
@@ -386,8 +387,8 @@ export const Tabs = {
   /**
    * Sends a message to a specific frame within a tab and returns the response.
    * @param tabId - The ID of the tab containing the target frame.
-   * @param frameId - The ID of the target frame to which the message will be sent.
    * @param message - The message object to be sent to the frame.
+   * @param frameId - The ID of the target frame to which the message will be sent.
    * @returns A promise that resolves with the response from the frame.
    */
   sendTabFrameMessage: (tabId: number, message, frameId: number): Promise<ContentResult> => {

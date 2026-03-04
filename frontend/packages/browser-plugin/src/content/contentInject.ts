@@ -1,4 +1,7 @@
-import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from './constant'
+import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from '../common/constant'
+import { Utils } from '../common/utils'
+import { t } from '../i18n/index'
+
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
   filterVisibleElements,
@@ -22,11 +25,10 @@ import {
 } from './element'
 import { currentFrameInfo, loadIframe, tagFrames } from './iframe'
 import { keepServiceWorkerAlive, notifyContentLoaded, sendElementData } from './message'
-import { Utils } from './utils'
 import { elementChangeWatcher } from './watcher'
 
-let timeoutId: number | null
-let deepTimeoutId: number | null
+let timeoutId
+let deepTimeoutId
 let highlightTime = 0
 const frontCheckEnabled = false
 let deepSearchEnabled = false
@@ -166,10 +168,10 @@ function elementNotFoundReason(data: ElementInfo) {
   if (data.pathDirs && data.pathDirs.length === 0 && checkType === 'visualization') {
     return Utils.fail(ErrorMessage.ELEMENT_INFO_INCOMPLETE, StatusCode.ELEMENT_NOT_FOUND)
   }
-  let message = '未找到元素'
+  let message = ErrorMessage.ELEMENT_NOT_FOUND
   const result = elementChangeWatcher(data)
   if (!result.found) {
-    message = `元素在第${result.notFoundIndex}节点${result.notFoundStep}处发生变动`
+    message = t('errors.elementChangedAtNode', { index: String(result.notFoundIndex), step: result.notFoundStep })
   }
   return Utils.fail(message, StatusCode.ELEMENT_NOT_FOUND)
 }
@@ -419,12 +421,12 @@ const ContentHandler = {
       const curEles = await ContentHandler.ele.getElement(data)
       if (preEles && curEles) {
         const preSelector = getNthCssSelector(preEles[0], true)
-        const prePathDirs = getElementDirectory(preEles[0], true)
+        const prePathDirs = getElementDirectory(preEles[0])
         const preXpath = generateXPath(prePathDirs)
         const preElementInfo = { ...data.preData, pathDirs: prePathDirs, xpath: preXpath, cssSelector: preSelector }
 
         const curSelector = getNthCssSelector(curEles[0], true)
-        const curPathDirs = getElementDirectory(curEles[0], true)
+        const curPathDirs = getElementDirectory(curEles[0])
         const curXpath = generateXPath(curPathDirs)
         const curElementInfo = { ...data, pathDirs: curPathDirs, xpath: curXpath, cssSelector: curSelector }
 
@@ -936,7 +938,8 @@ const ContentHandler = {
         if (isTable(result)) {
           const res = tableDataFormatterProcure(result)
           return Utils.success(res)
-        } else {
+        }
+        else {
           return Utils.fail(ErrorMessage.ELEMENT_NOT_TABLE, StatusCode.EXECUTE_ERROR)
         }
       }

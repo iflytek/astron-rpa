@@ -1,5 +1,5 @@
-import { ErrorMessage, SuccessMessage } from './constant'
-import { Utils } from './utils'
+import { ErrorMessage, SuccessMessage } from '../common/constant'
+import { Utils } from '../common/utils'
 
 export const Cookie = {
   getCookie: (details: CookieDetails) => {

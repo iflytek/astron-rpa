@@ -1,12 +1,12 @@
 import { log } from '../3rd/log'
+import { ErrorMessage, StatusCode } from '../common/constant'
+import { Utils } from '../common/utils'
 
-import { ErrorMessage, StatusCode } from './constant'
 import { Cookie } from './cookie'
 import DataTable from './data_table'
 import { frameFind } from './iframe'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
-import { Utils } from './utils'
 import { WindowControl } from './window'
 // import { sendNativeMessage } from './native'
 
