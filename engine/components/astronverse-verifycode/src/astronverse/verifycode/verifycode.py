@@ -134,7 +134,6 @@ class VerifyCode:
     @staticmethod
     @atomicMg.atomic(
         "VerifyCode",
-        inputList=[],
         outputList=[atomicMg.param("click_positions", types="List")],
     )
     def click_code(

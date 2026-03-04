@@ -153,7 +153,6 @@ class StringProcess:
     @staticmethod
     @atomicMg.atomic(
         "StringProcess",
-        inputList=[],
         outputList=[atomicMg.param("split_list_from_string", types="List")],
     )
     def split_string_to_list(string_data: str, separator: str = ""):

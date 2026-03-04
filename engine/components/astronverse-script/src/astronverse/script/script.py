@@ -197,7 +197,7 @@ class Script:
         return res
 
     @staticmethod
-    @atomicMg.atomic("Script", inputList=[], outputList=[])
+    @atomicMg.atomic("Script")
     def component(component: Any, **kwargs):
         # 忽略掉所有__开头的kwargs值
         kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}

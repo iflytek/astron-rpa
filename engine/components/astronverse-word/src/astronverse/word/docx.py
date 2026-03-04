@@ -548,7 +548,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if not IDocumentCore.are_positive_integers(c_idx, p_idx, r_idx):
@@ -596,7 +596,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if not IDocumentCore.are_positive_integers(distance):
@@ -617,11 +617,11 @@ class Docx:
             ) from e
 
     @staticmethod
-    @atomicMg.atomic("Docx", inputList=[], outputList=[])
+    @atomicMg.atomic("Docx")
     def insert_sep(doc: DocumentObject, sep_type: InsertionType = InsertionType.PARAGRAPH):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -630,11 +630,11 @@ class Docx:
             raise BizException(DOCUMENT_INSERT_ERROR, "插入失败，请检查文档是否打开") from e
 
     @staticmethod
-    @atomicMg.atomic("Docx", inputList=[], outputList=[])
+    @atomicMg.atomic("Docx")
     def insert_hyperlink(doc: DocumentObject, url: str = "", display: str = ""):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         WordDocumentCore.insert_hyperlink(doc.document_object, url, display)
@@ -668,7 +668,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         WordDocumentCore.insert_img(doc.document_object, img_from, img_path, scale, newline)
@@ -699,7 +699,7 @@ class Docx:
     ) -> DocumentObject:
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -792,7 +792,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -901,7 +901,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -971,7 +971,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -1064,7 +1064,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -1104,7 +1104,7 @@ class Docx:
     def delete_comment(doc: DocumentObject, delete_all: bool = False, comment_index: int = 1):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -1178,7 +1178,7 @@ class Docx:
     ):
         if not doc:
             raise BizException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if default_name:
@@ -1200,6 +1200,6 @@ class Docx:
                 WordDocumentCore.convert_to_txt(doc.document_object, output_path, output_name, save_type)
         except Exception as exc:
             raise BizException(
-                FILENAME_ALREADY_EXISTS_ERROR.format(output_name),
+                FILENAME_ALREADY_EXISTS_ERROR_FORMAT.format(output_name),
                 "导出失败，文件名已存在！",
             ) from exc

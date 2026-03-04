@@ -2,39 +2,13 @@ import io
 import os
 import re
 import tempfile
-
 import psutil
 import win32clipboard
 import win32com.client as wc
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
-from astronverse.actionlib.utils import FileExistenceType, handle_existence
-from astronverse.word import (
-    ApplicationType,
-    CloseRangeType,
-    CommentType,
-    ConvertPageType,
-    CursorPointerType,
-    CursorPositionType,
-    DeleteMode,
-    EncodingType,
-    InsertImgType,
-    InsertionType,
-    MoveDirectionType,
-    MoveLeftRightType,
-    MoveUpDownType,
-    ReplaceMethodType,
-    ReplaceType,
-    RowAlignment,
-    SaveFileType,
-    SaveType,
-    SearchTableType,
-    SelectRangeType,
-    SelectTextType,
-    TableBehavior,
-    UnderLineStyle,
-    VerticalAlignment,
-)
+from astronverse.actionlib.utils import handle_existence
+from astronverse.word import *
 from astronverse.word.core import IDocumentCore
 from astronverse.word.error import *
 from win32api import RGB
@@ -418,10 +392,7 @@ class WordDocumentCore(IDocumentCore):
         s = doc.Application.Selection
         if by == CursorPointerType.CONTENT:  # 按照文本定位
             if not content:
-                raise BizException(
-                    CONTENT_FORMAT_ERROR_FORMAT,
-                    "请填写要定位光标的文本内容,目前不支持空内容的定位!!!",
-                )
+                raise BizException(CONTENT_EMPTY_ERROR, "请填写要定位光标的文本内容,目前不支持空内容的定位!!!")
             try:
                 s.GoTo(3, 1, 1)  # 移动到文档第一行最开始的地方
                 for _ in range(
@@ -455,10 +426,7 @@ class WordDocumentCore(IDocumentCore):
                     End=doc.Paragraphs(p_idx).Range.Start,
                 )
             else:
-                raise BizException(
-                    CONTENT_FORMAT_ERROR_FORMAT,
-                    "不支持的参考位置，请前端检查传入的p_pos参数！",
-                )
+                raise NotImplementedError()
         elif by == CursorPointerType.ROW:
             try:
                 if pos == CursorPositionType.HEAD:  # 定位到行首
@@ -506,10 +474,7 @@ class WordDocumentCore(IDocumentCore):
             else:
                 s.MoveRight(unit, distance)
         else:
-            raise BizException(
-                CONTENT_FORMAT_ERROR_FORMAT,
-                "不支持的direction，请前端检查传入的direction参数！",
-            )
+            raise NotImplementedError()
 
     @classmethod
     def insert_sep(cls, doc: object = None, sep_type: InsertionType = InsertionType.PARAGRAPH):
@@ -520,10 +485,7 @@ class WordDocumentCore(IDocumentCore):
         elif sep_type == InsertionType.PARAGRAPH:
             s.InsertParagraph()
         else:
-            raise BizException(
-                CONTENT_FORMAT_ERROR_FORMAT,
-                "不支持的分隔符类型，请前端检查传入的sep_type参数！！！",
-            )
+            raise NotImplementedError()
 
     @classmethod
     def insert_hyperlink(cls, doc: object = None, url: str = "", display: str = ""):
@@ -612,7 +574,7 @@ class WordDocumentCore(IDocumentCore):
                 table = doc.Tables(idx)
                 table_content = cls._extract_table_content(table)
             except Exception as e:
-                raise BizException(TABLE_NOT_EXIST_ERROR.format("序号" + str(idx))) from e
+                raise BizException(TABLE_NOT_EXIST_ERROR_FORMAT.format("序号" + str(idx))) from e
         elif search_type == SearchTableType.TEXT:
             # 遍历所有表格，查找包含指定文本的表格
             count = 0
@@ -623,7 +585,7 @@ class WordDocumentCore(IDocumentCore):
                         table_content = cls._extract_table_content(table)
                         return table_content
             if not table_content:
-                raise BizException(TABLE_NOT_EXIST_ERROR.format("内容" + str(text)))
+                raise BizException(TABLE_NOT_EXIST_ERROR_FORMAT.format("内容" + str(text)))
 
         return table_content
 
@@ -803,7 +765,7 @@ class WordDocumentCore(IDocumentCore):
         filename = f"{output_name}.txt"
         if WordDocumentCore.check_file_in_path(output_path, filename):
             if save_type == SaveFileType.WARN:
-                raise BizException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
+                raise BizException(FILENAME_ALREADY_EXISTS_ERROR_FORMAT.format(filename), "")
             if save_type == SaveFileType.GENERATE:
                 # 生成非重复文件名
                 counter = 1
@@ -835,7 +797,7 @@ class WordDocumentCore(IDocumentCore):
         filename = f"{output_name}.pdf"
         if WordDocumentCore.check_file_in_path(output_path, filename):
             if save_type == SaveFileType.WARN:
-                raise BizException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
+                raise BizException(FILENAME_ALREADY_EXISTS_ERROR_FORMAT.format(filename), "")
             if save_type == SaveFileType.GENERATE:
                 # 生成非重复文件名
                 counter = 1
