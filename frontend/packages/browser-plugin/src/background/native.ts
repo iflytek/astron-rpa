@@ -9,7 +9,7 @@ let port: chrome.runtime.Port | null = null
 /**
  * Establishes a connection to the native messaging host.
  */
-function connectToNativeHost() {
+export function connectToNativeHost() {
   if (port) {
     log.info('Already connected to native host.')
     return
@@ -18,12 +18,6 @@ function connectToNativeHost() {
   log.info(`Connecting to native host: ${NATIVE_HOST_NAME}`)
   try {
     port = chrome.runtime.connectNative(NATIVE_HOST_NAME)
-
-    port.onMessage.addListener((message) => {
-      log.info('Received message from native host:', message)
-      // Handle incoming messages from the native host here
-    })
-
     port.onDisconnect.addListener(() => {
       if (chrome.runtime.lastError) {
         log.error('Native host disconnected with error:', chrome.runtime.lastError.message)
@@ -38,13 +32,14 @@ function connectToNativeHost() {
     log.error('Failed to connect to native host:', error)
     port = null
   }
+  return port
 }
 
 /**
  * Sends a message to the native messaging host.
  * @param message The message object to send.
  */
-export function sendNativeMessage(message: object) {
+export function sendNativeMessage(message: any) {
   if (!port) {
     log.warn('Not connected to native host. Attempting to connect...')
     connectToNativeHost()
@@ -73,18 +68,3 @@ export function disconnectFromNativeHost() {
     port = null
   }
 }
-/**
- * Sends periodic heartbeat messages to keep the native host connection alive.
- */
-export function nativeMessageHeartbeat() {
-  const t = setTimeout(() => {
-    if (port) {
-      sendNativeMessage({ type: 'heartbeat', timestamp: Date.now() })
-      clearTimeout(t)
-      nativeMessageHeartbeat()
-    }
-  }, 10 * 1000)
-}
-
-// Automatically connect when the background script starts.
-connectToNativeHost()

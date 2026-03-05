@@ -82,6 +82,7 @@ interface ElementInfo {
   url: string
   shadowRoot: boolean
   tabTitle?: string
+  tabId?: number
   tabUrl?: string
   favIconUrl?: string
   isFrame?: boolean

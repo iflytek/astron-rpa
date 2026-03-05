@@ -1,9 +1,11 @@
 import os
+import shutil
 import sys
 
+from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import BrowserType, PluginData
-from astronverse.browser_plugin.error import BizException, PLUGIN_NOT_FOUND, UNSUPPORTED_PLATFORM_FORMAT
-from astronverse.browser_plugin.utils import parse_filename_regex
+from astronverse.browser_plugin.error import UNSUPPORTED_PLATFORM_FORMAT, BizException
+from astronverse.browser_plugin.utils import get_latest_plugin, parse_filename_regex
 
 if sys.platform == "win32":
     from astronverse.browser_plugin.win import BrowserPluginFactory
@@ -12,30 +14,47 @@ elif sys.platform == "linux":
 else:
     raise BizException(UNSUPPORTED_PLATFORM_FORMAT.format(sys.platform), f"不支持的平台: {sys.platform}")
 
+from .config import Config
+
 
 class ExtensionManager:
     def __init__(self, browser_type: BrowserType = BrowserType.CHROME):
         self.browser_type = browser_type
 
-        current_directory = os.path.dirname(os.path.abspath(__file__))
-        plugin_dir = os.path.join(current_directory, "plugins")
-        browser_name = self.browser_type.value.lower()
+        app_data_path = os.path.abspath(os.path.join(sys.exec_prefix, ".."))
+        external_data_path = os.path.join(app_data_path, "rpaexternal")
+        if not os.path.exists(external_data_path):
+            os.makedirs(external_data_path)
+        native_message_path = os.path.join(external_data_path, "native_message")
+        if not os.path.exists(native_message_path):
+            os.makedirs(native_message_path)
 
-        public_chrom_plugin = tuple(name.value.lower() for name in (BrowserType.CHROME, BrowserType.MICROSOFT_EDGE))
-        pre_name = "chrome" if browser_name in public_chrom_plugin else browser_name
-        plugins = [file for file in os.listdir(plugin_dir) if file.startswith(pre_name + "-")]
+        plugin_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "plugins")
+        plugins = [file for file in os.listdir(plugin_dir) if file.endswith(".xpi") or file.endswith(".crx")]
+        logger.info(f"Found plugins: {plugins}")
 
-        if not plugins:
-            raise BizException(PLUGIN_NOT_FOUND, "未找到插件")
+        latest_plugin = get_latest_plugin(plugins, "firefox" if browser_type == BrowserType.FIREFOX else "chrome")
+        plugin_name, plugin_version, plugin_id, _extension = parse_filename_regex(latest_plugin)
+        plugin_native_message_json_path = os.path.join(
+            os.getcwd(), plugin_dir, Config.NATIVE_MESSAGE_HOST_FILE_NAME + ".json"
+        )
+        plugin_native_message_exe_path = os.path.join(
+            os.getcwd(), plugin_dir, Config.NATIVE_MESSAGE_HOST_FILE_NAME + ".exe"
+        )
 
-        # get plugin info from file
-        plugin_name, plugin_version, plugin_id, _extension = parse_filename_regex(plugins[-1])
+        # copy native message host exe to external data path
+        target_exe_path = os.path.join(native_message_path, Config.NATIVE_MESSAGE_HOST_FILE_NAME + ".exe")
+        target_json_path = os.path.join(native_message_path, Config.NATIVE_MESSAGE_HOST_FILE_NAME + ".json")
+        if not os.path.exists(target_json_path):
+            shutil.copy(plugin_native_message_exe_path, target_exe_path)
+            shutil.copy(plugin_native_message_json_path, target_json_path)
 
         self.plugin_data = PluginData(
-            plugin_path=os.path.join(os.getcwd(), plugin_dir, plugins[-1]),
+            plugin_path=os.path.join(os.getcwd(), plugin_dir, latest_plugin),
             plugin_id=plugin_id,
             plugin_version=plugin_version,
             plugin_name=plugin_name,
+            plugin_native_message_host_json_path=target_json_path,
         )
 
         self.browser_plugin_manager = BrowserPluginFactory.get_plugin_manager(browser_type, self.plugin_data)
