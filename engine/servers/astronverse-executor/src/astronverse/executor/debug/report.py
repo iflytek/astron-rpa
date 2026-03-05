@@ -31,18 +31,24 @@ class Report(IReport):
             os.path.join(str(local_file_path), "{}.txt".format(self.svc.conf.exec_id)), "w", encoding="utf-8"
         )
 
-        self.process = {}
-        for i, v in self.svc.ast_globals.process_info.items():
-            process_meta = {}
-            if v.process_meta:
-                for m in v.process_meta:
-                    process_meta[m[0]] = m
-            new_v = copy.copy(v)
-            new_v.process_meta = process_meta
-            self.process[v.process_id] = new_v
-
+        self._process = None  # 延迟初始化
         self.last_process_id = ""
         self.last_line = 0
+
+    @property
+    def process(self):
+        """延迟初始化 process 字典，只在第一次访问时从 ast_globals 加载"""
+        if self._process is None:
+            self._process = {}
+            for i, v in self.svc.ast_globals.process_info.items():
+                process_meta = {}
+                if v.process_meta:
+                    for m in v.process_meta:
+                        process_meta[m[0]] = m
+                new_v = copy.copy(v)
+                new_v.process_meta = process_meta
+                self._process[v.process_id] = new_v
+        return self._process
 
     def close(self):
         self.log_local_file.close()
