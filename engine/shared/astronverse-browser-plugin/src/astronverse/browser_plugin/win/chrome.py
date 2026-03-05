@@ -26,6 +26,9 @@ class ChromePluginManager(PluginManagerCore):
         self.old_extension_ids = Config.OLD_EXTENSIONS_IDS
         self.browser_path = r"Software\Google\Chrome"
         self.extension_path = f"{self.browser_path}\\Extensions\\{plugin_data.plugin_id}"
+        self.native_message_host_path = r"Software\Google\Chrome\NativeMessagingHosts\{}".format(
+            Config.NATIVE_MESSAGE_HOST_NAME
+        )
         self.user_data_path = r"C:\Users\{}\AppData\Local\Google\Chrome\User Data".format(getpass.getuser())
         self.preferences_path_list = get_profile_list(self.user_data_path)
         self.secure_preferences = (
@@ -100,6 +103,11 @@ class ChromePluginManager(PluginManagerCore):
         Registry.create(self.extension_path)
         Registry.add_string_value(self.extension_path, "path", self.plugin_data.plugin_path)
         Registry.add_string_value(self.extension_path, "version", self.plugin_data.plugin_version)
+
+        Registry.create(self.native_message_host_path)
+        Registry.add_string_value(
+            self.native_message_host_path, "", self.plugin_data.plugin_native_message_host_json_path
+        )
 
         # https://chromeenterprise.google/policies/?policy=ExtensionInstallAllowlist
         try:

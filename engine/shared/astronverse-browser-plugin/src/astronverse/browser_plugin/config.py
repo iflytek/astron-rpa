@@ -10,3 +10,5 @@ class Config:
         "gdbgffjnkefmjamhdnmolkacehkbnkgn",
         "eenljpbaanodafdjajaigoldjgaoebkc",
     ]
+    NATIVE_MESSAGE_HOST_NAME = "com.astronrpa.nativehost"
+    NATIVE_MESSAGE_HOST_FILE_NAME = "astron_native_messaging"

@@ -43,6 +43,7 @@ class PluginData:
     plugin_name: str = ""
     plugin_id: str = ""
     plugin_version: str = ""
+    plugin_native_message_host_json_path: str = ""
 
 
 class PluginManagerCore(ABC):

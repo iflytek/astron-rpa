@@ -36,6 +36,24 @@ def parse_filename_regex(filename):
         raise BizException(INVALID_FILENAME, "文件名不匹配预期格式")
 
 
+def get_latest_plugin(plugins, pre_name):
+    filtered_plugins = [file for file in plugins if file.startswith(pre_name + "-")]
+    if not filtered_plugins:
+        raise Exception("plugins not found...")
+    plugins_versions = []
+    for plugin in filtered_plugins:
+        try:
+            _, version, _, _ = parse_filename_regex(plugin)
+            plugins_versions.append((plugin, version))
+        except ValueError:
+            continue
+    if not plugins_versions:
+        raise Exception("No valid plugins found...")
+    # sort by version number
+    new_plugin = max(plugins_versions, key=lambda x: [int(v) for v in x[1].split(".")])[0]
+    return new_plugin
+
+
 class FirefoxUtils:
     firefox_plugin_id = Config.FIREFOX_PLUGIN_ID
     firefox_plugin_file_ids = Config.FIREFOX_PLUGIN_FILE_IDS
