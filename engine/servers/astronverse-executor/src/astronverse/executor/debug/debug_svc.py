@@ -51,11 +51,7 @@ class DebugSvc:
         if os.path.exists(package_json):
             with open(package_json, encoding="utf-8") as f:
                 package_info = json.load(f)
-            self._load_ast_globals_from_dict(package_info)
-
-    def _load_ast_globals_from_dict(self, data: dict):
-        """将字典数据转换为结构化对象"""
-        self.ast_globals = AstGlobals.from_dict(data)
+            self.ast_globals = AstGlobals.from_dict(package_info)
 
     def get_project_info(self):
         return self.ast_globals.project_info

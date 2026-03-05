@@ -45,80 +45,130 @@ def flow_start(svc, args):
         )
 
 
-def debug_start(args, svc, flow_tip=None):
-    # Ws服务
-    ws = Ws(svc=svc)
-    if Config.open_log_ws:
-        ws.is_open_web_link = Config.wait_web_ws
-        ws.is_open_top_link = Config.wait_tip_ws
-        thread_ws = threading.Thread(target=ws.server, args=(), daemon=True)
-        thread_ws.start()
+def debug_start(args, flow_svc, svc):
+    try:
+        # Ws服务
+        ws = Ws(svc=svc)
+        if Config.open_log_ws:
+            ws.is_open_web_link = Config.wait_web_ws
+            ws.is_open_top_link = Config.wait_tip_ws
+            thread_ws = threading.Thread(target=ws.server, args=(), daemon=True)
+            thread_ws.start()
 
-    # 录制服务
-    if args.recording_config.get("enable", False):
-        file_clear_time = args.recording_config.get("fileClearTime", 0)
-        if not args.recording_config.get("saveType", False):
-            file_clear_time = 0
-        temp_config = {
-            "open": args.recording_config.get("enable", False),
-            "cut_time": args.recording_config.get("cutTime", 0),
-            "scene": args.recording_config.get("scene", "always"),
-            "file_path": args.recording_config.get("filePath", "./logs/report"),
-            "file_clear_time": file_clear_time,  # 清理录制视频7天
-        }
-        svc.recording_tool.init(args.project_id, args.exec_id, temp_config).start()
+        # 右下角日志窗口（尝试从缓存读取项目信息）
+        if Config.wait_tip_ws:
+            svc.log_tool.start()
 
-    # 右下角日志窗口
-    if Config.wait_tip_ws:
-        svc.log_tool.start()
+        # 生成代码
+        flow_start(svc=flow_svc, args=args)
 
-    # 生成日志
-    svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
-    svc.report.info(
-        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS)
-    )
+        # 加载ast_globals
+        svc.load_package_info()
 
-    # 生成错误消息
-    if flow_tip:
-        for tip in flow_tip:
-            svc.report.info(tip)
+        # 生成代码错误消息
+        if flow_svc.flow_tip:
+            for tip in flow_svc.flow_tip:
+                svc.report.info(tip)
 
-    # 执行前验证
-    if Config.open_log_ws:
-        wait_time = 0
-        while not ws.check_ws_link():
-            time.sleep(0.3)
-            wait_time += 0.3
-            if wait_time >= 10:
-                logger.error("The websocket connection timed out")
-                svc.end(ExecuteStatus.CANCEL)
+        # 特殊参数处理 录制服务
+        if args.recording_config:
+            try:
+                # 1. 解析配置
+                raw = json.loads(unquote(args.recording_config))
 
-    # 执行代码
-    debug = Debug(svc=svc, args=args)
-    svc.debug = debug
-    svc.debug_handler = debug
-    svc.report.info(
-        ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START)
-    )
-    data = debug.start(params=args.run_param)
+                # 2. 构建录制配置
+                if raw.get("enable"):
+                    file_clear_time = raw.get("fileClearTime", 0)
+                    if not raw.get("saveType"):
+                        file_clear_time = 0
+                    config = {
+                        "open": raw.get("enable", False),
+                        "cut_time": raw.get("cutTime", 0),
+                        "scene": raw.get("scene", "always"),
+                        "file_path": raw.get("filePath", "./logs/report"),
+                        "file_clear_time": file_clear_time,  # 清理录制视频7天
+                    }
+                    svc.recording_tool.init(args.project_id, args.exec_id, config).start()
+            except Exception:
+                pass
 
-    # 执行后验证
-    if Config.open_log_ws and Config.wait_web_ws:
-        wait_time = 0
-        size = svc.report.queue.qsize()
-        while not svc.report.queue.empty():
-            time.sleep(0.3)
-            wait_time += 0.3
-            if wait_time >= 3:
-                wait_time = 0
-                # 等待日志(n)s内没有任何发送，就不发送了，直接退出
-                if size == svc.report.queue.qsize():
-                    logger.error("The websocket connection send timed out")
-                    break
+        # 特殊参数处理 run_param
+        run_param = {}
+        if args.run_param:
+            try:
+                # 1. 解码并加载 JSON（文件或字符串）
+                raw = unquote(args.run_param) # noqa
+                if os.path.exists(raw):
+                    with open(raw, encoding="utf-8") as f:
+                        data = json.load(f)
                 else:
-                    size = svc.report.queue.qsize()
+                    data = json.loads(raw)  # 原始版本的冗余判断已移除，逻辑等价
 
-    svc.end(ExecuteStatus.SUCCESS, data=data)
+                # 2. 解析参数列表
+                if isinstance(data, list):
+                    for p in data:
+                        param = flow_svc.param.parse_param({
+                            "value": str_to_list_if_possible(p.get("varValue")),
+                            "types": p.get("varType"),
+                            "name": p.get("varName"),
+                        })
+                        val = param.show_value()
+                        run_param[p.get("varName")] = eval(val, {}, {}) if val else ""
+            except Exception:
+                pass
+
+        # 生成启动日志
+        svc.report.info(ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT, msg_str=MSG_FLOW_INIT_START))
+        svc.report.info(
+            ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS)
+        )
+
+        # 执行前验证
+        if Config.open_log_ws:
+            wait_time = 0
+            while not ws.check_ws_link():
+                time.sleep(0.3)
+                wait_time += 0.3
+                if wait_time >= 10:
+                    logger.error("The websocket connection timed out")
+                    svc.end(ExecuteStatus.CANCEL)
+                    return
+
+        # 执行代码
+        debug = Debug(svc=svc, args=args)
+        svc.debug = debug
+        svc.debug_handler = debug
+        svc.report.info(
+            ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.TASK_START, msg_str=MSG_TASK_EXECUTION_START)
+        )
+        data = debug.start(params=run_param)
+
+        # 执行后验证
+        if Config.open_log_ws and Config.wait_web_ws:
+            wait_time = 0
+            size = svc.report.queue.qsize()
+            while not svc.report.queue.empty():
+                time.sleep(0.3)
+                wait_time += 0.3
+                if wait_time >= 3:
+                    wait_time = 0
+                    # 等待日志(n)s内没有任何发送，就不发送了，直接退出
+                    if size == svc.report.queue.qsize():
+                        logger.error("The websocket connection send timed out")
+                        break
+                    else:
+                        size = svc.report.queue.qsize()
+
+        svc.end(ExecuteStatus.SUCCESS, data=data)
+    except BizException as e:
+        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
+        svc.end(ExecuteStatus.FAIL, reason=e.code.message)
+        return
+    except Exception as e:
+        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
+        svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
+        return
+    logger.debug("end")
 
 
 def start():
@@ -153,8 +203,6 @@ def start():
     Config.gateway_port = args.gateway_port
     Config.exec_id = args.exec_id
     Config.project_id = args.project_id
-    # if args.project_name:
-    #     Config.project_name = unquote(args.project_name)
     if args.resource_dir:
         args.resource_dir = unquote(args.resource_dir)
         Config.resource_dir = args.resource_dir
@@ -165,63 +213,7 @@ def start():
     Config.debug_mode = args.debug == "y"
     Config.is_custom_component = args.is_custom_component == "y"
 
-    if args.run_param:
-        try:
-            args.run_param = unquote(args.run_param)
-            if os.path.exists(args.run_param):
-                with open(args.run_param, encoding="utf-8") as f:
-                    args.run_param = json.load(f)
-            else:
-                if args.run_param:
-                    args.run_param = json.loads(args.run_param)
-        except Exception as e:
-            args.run_param = {}
-    else:
-        args.run_param = {}
-    if args.recording_config:
-        try:
-            args.recording_config = unquote(args.recording_config)
-            args.recording_config = json.loads(args.recording_config)
-        except Exception as e:
-            args.recording_config = {}
-    else:
-        args.recording_config = {}
-
-    debug_svc = None
-    try:
-        # 生成代码
-        flow_svc = FlowSvc(conf=Config)
-        flow_start(svc=flow_svc, args=args)
-        flow_tip = flow_svc.flow_tip  # 生成python脚本的提示信息
-        temp_run_param = {}
-        if args.run_param and isinstance(args.run_param, list):
-            for p in args.run_param:
-                param = flow_svc.param.parse_param(
-                    {
-                        "value": str_to_list_if_possible(p.get("varValue")),
-                        "types": p.get("varType"),
-                        "name": p.get("varName"),
-                    }
-                )
-                if param.show_value():
-                    temp_run_param[p.get("varName")] = eval(
-                        param.show_value(), {}, {}
-                    )  # 外部参数，只有简单的逻辑处理，不会引用变量
-                else:
-                    temp_run_param[p.get("varName")] = ""
-        args.run_param = temp_run_param  # 生成python脚本的外部参数
-
-        # 执行代码
-        debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
-        debug_start(svc=debug_svc, args=args, flow_tip=flow_tip)
-    except BizException as e:
-        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
-        if debug_svc:
-            debug_svc.end(ExecuteStatus.FAIL, reason=e.code.message)
-        return
-    except Exception as e:
-        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
-        if debug_svc:
-            debug_svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
-        return
-    logger.debug("end")
+    # 上下文
+    flow_svc = FlowSvc(conf=Config)
+    debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
+    debug_start(args=args, flow_svc=flow_svc, svc=debug_svc)
