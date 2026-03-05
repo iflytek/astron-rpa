@@ -404,7 +404,7 @@ class ExecutorManager:
             self.executor_list[executor.exec_id] = executor
 
         # 7. 检查是否真启动完成
-        if executor.wait_start(time_out=5):
+        if executor.wait_start(time_out=20):
             return executor
         else:
             executor.execute_status = ExecuteStatus.FAIL
