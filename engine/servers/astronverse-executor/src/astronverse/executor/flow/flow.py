@@ -1,5 +1,6 @@
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from astronverse.executor.error import *
 from astronverse.executor.flow.syntax.ast import CodeLine
@@ -9,396 +10,321 @@ from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
 class Flow:
+    """流程/模块代码生成：根据工程数据生成可执行的 Python 流程文件、模块文件及辅助文件。"""
+
     def __init__(self, svc):
+        """保存 FlowSvc 引用。"""
         self.svc = svc
+        self.max_workers = 5
 
-    def gen_component(self, path: str, project_id, mode: str, version: str):
+    def gen_component(self, path: str, project_id: str, mode: str, version: str):
+        """遍历组件列表，为每个组件生成独立目录、main 入口并注册组件信息。"""
         os.makedirs(path, exist_ok=True)
-        component_list = self.svc.storage.component_list(project_id, mode, version)
-        if component_list:
-            for c in component_list:
-                component_id = c.get("componentId")
-                component_name = c.get("componentId")
-                version = c.get("version")
-                requirement = self._requirement_display(component_id, "", version)
+        component_list = self.svc.storage.component_list(project_id=project_id, mode=mode, version=version)
+        if not component_list:
+            return
 
-                component_path = os.path.join(path, "c{}".format(component_id))
-                main_params = []
-                self.gen_code(
-                    path=component_path, project_id=component_id, mode="", version=version, main_params=main_params
-                )
-                self.svc.add_component_info(
-                    project_id,
-                    component_id,
-                    component_name,
-                    version,
-                    requirement,
-                    "c{}.{}".format(component_id, "main.py"),
-                    main_params,
-                )
+        # 并发生成所有组件
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = []
+            for c in component_list:
+                future = executor.submit(self._gen_single_component, path, project_id, c)
+                futures.append(future)
+
+            # 等待所有组件生成完成
+            for future in as_completed(futures):
+                future.result()
+
+    def _gen_single_component(self, path: str, project_id: str, component: dict):
+        """生成单个组件（线程安全）"""
+        component_id = component.get("componentId")
+        component_name = component.get("componentId")
+        version = component.get("version")
+        requirement = self._get_requirements(project_id=component_id, mode="", version=version)
+
+        # 生成组件代码
+        main_params = []
+        self.gen_code(
+            path=os.path.join(path, f"c{component_id}"),
+            project_id=component_id,
+            mode="",
+            version=version,
+            main_params=main_params
+        )
+
+        # 注册meta信息
+        self.svc.add_component_info(
+            project_id=project_id,
+            component_id=component_id,
+            component_name=component_name,
+            version=version,
+            requirement=requirement,
+            component_file_name=f"c{component_id}.main.py",
+            component_params=main_params,
+        )
 
     def gen_code(
-        self,
-        path: str,
-        project_id: str,
-        mode: str,
-        version: str,
-        process_id: str = "",
-        line=0,
-        end_line=0,
-        main_params=None,
+            self,
+            path: str,
+            project_id: str,
+            mode: str,
+            version: str,
+            process_id: str = "",
+            line: int = 0,
+            end_line: int = 0,
+            main_params: list = None,
     ):
+        """生成项目代码主入口：初始化项目信息、流程/模块文件、智能组件、辅助文件。"""
         if main_params is None:
             main_params = []
         os.makedirs(path, exist_ok=True)
-        package = path.rstrip("/").split("/")[-1]
 
-        # 1. 获取全局变量
-        global_var = self._global_display(project_id, mode, version)
-        requirement = self._requirement_display(project_id, mode, version)
+        # 1. 初始化项目信息
+        global_var = self._get_global_vars(project_id=project_id, mode=mode, version=version)
+        requirement = self._get_requirements(project_id=project_id, mode=mode, version=version)
         project_info = self.svc.storage.project_info(project_id=project_id, mode=mode, version=version)
-        if project_info:
-            project_name = project_info.get("name", "机器人")
-            project_icon = project_info.get("iconUrl", "")
-        else:
-            project_name = "机器人"
-            project_icon = ""
         self.svc.add_project_info(
-            project_id, mode, version, project_name, requirement, self.svc.conf.gateway_port, global_var, project_icon
+            project_id=project_id,
+            mode=mode,
+            version=version,
+            project_name=project_info.get("name", "机器人") if project_info else "机器人",
+            requirement=requirement,
+            gateway_port=self.svc.conf.gateway_port,
+            global_var=global_var,
+            project_icon=project_info.get("iconUrl", "") if project_info else ""
         )
 
-        # 2. 生成流程相关数据
-        process_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
-        if len(process_list) == 0:
-            raise BizException(PROCESS_ACCESS_ERROR_FORMAT.format(project_id), "工程数据异常 {}".format(project_id))
+        # 2. 生成流程和模块文件
+        self._gen_flow_files(path=path, project_id=project_id, mode=mode, version=version, process_id=process_id, line=line, end_line=end_line, main_params=main_params)
 
-        process_index = 1
-        module_index = 1
-        has_main_entry = False
-        for process in process_list:
-            name = process.get("name")
-            category = process.get("resourceCategory")
-            resource_id = str(process.get("resourceId", ""))
-            file_name = ""
+        # 3. 生成智能组件
+        self._gen_smart_components(path=path, project_id=project_id, mode=mode, version=version)
 
-            # 判断是否是入口
-            is_main_process = False
-            if process_id:
-                if resource_id == str(process_id):
-                    is_main_process = True
-                    file_name = "main.py"
-            else:
-                if name == self.svc.conf.main_process_name:
-                    is_main_process = True
-                    file_name = "main.py"
+        # 4. 生成辅助文件
+        package = path.rstrip("/").split("/")[-1]
+        self._write_package_py(path=path, package=package, global_var=global_var)
+        self._write_package_json(path=path, project_id=project_id)
+        self._write_init_py(path=path)
 
-            # 生成python代码
-            if category == "process":
-                # 获取名称
-                if not file_name:
-                    file_name = "process{}.py".format(process_index)
-                process_index += 1
+    def _gen_flow_files(
+            self,
+            path: str,
+            project_id: str,
+            mode: str,
+            version: str,
+            process_id: str,
+            line: int,
+            end_line: int,
+            main_params: list
+    ) -> None:
+        """生成流程/模块 py 及流程 .map；主入口为 main.py，未找到主入口则抛异常。"""
+        resource_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
+        if not resource_list:
+            raise BizException(PROCESS_ACCESS_ERROR_FORMAT.format(project_id), f"工程数据异常 {project_id}")
 
-                # 获取参数
-                param_list = self.svc.storage.param_list(
-                    project_id=project_id, mode=mode, version=version, process_id=resource_id
-                )
-                for p in param_list:
-                    param = self.svc.param.parse_param(
-                        {
-                            "value": str_to_list_if_possible(p.get("varValue")),
-                            "types": p.get("varType"),
-                            "name": p.get("varName"),
-                        }
-                    )
-                    p["varValue"] = param.show_value()
+        # 并发处理所有任务
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = {}
+            process_index = 1
+            module_index = 1
 
-                # 收集数据
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name, param_list)
+            for item in resource_list:
+                resource_id = str(item.get("resourceId", ""))
+                name = item.get("name")
+                category = item.get("resourceCategory")
+                is_main = self._is_main_entry(resource_id=resource_id, name=name, process_id=process_id)
 
-                # 写入python
-                if is_main_process:
-                    res, map_res = self._flow_display(
-                        project_id, mode, version, resource_id, name, start_line=line, end_line=end_line
-                    )
+                # 确定文件名
+                if category == "process":
+                    file_name = "main.py" if is_main else f"process{process_index}.py"
+                    if not is_main:
+                        process_index += 1
+                elif category == "module":
+                    file_name = "main.py" if is_main else f"module{module_index}.py"
+                    if not is_main:
+                        module_index += 1
                 else:
-                    res, map_res = self._flow_display(project_id, mode, version, resource_id, name)
-                with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
-                    file.write(res)
-                    pass
-                with open(os.path.join(path, file_name.replace(".py", ".map")), "w", encoding="utf-8") as file:
-                    file.write(map_res)
-                    pass
-            elif category == "module":
-                # 获取名称
-                if not file_name:
-                    file_name = "module{}.py".format(module_index)
-                module_index += 1
+                    raise NotImplementedError(f"不支持的资源类型: {category}")
 
-                # 获取参数
-                param_list = self.svc.storage.param_list(
-                    project_id=project_id, mode=mode, version=version, module_id=resource_id
+                # 立即提交任务
+                config = {
+                    "resource_id": resource_id,
+                    "name": name,
+                    "category": category,
+                    "file_name": file_name,
+                    "is_main": is_main,
+                }
+                future = executor.submit(
+                    self._gen_single_flow_file,
+                    path=path,
+                    project_id=project_id,
+                    mode=mode,
+                    version=version,
+                    config=config,
+                    line=line if is_main else 0,
+                    end_line=end_line if is_main else 0,
                 )
-                for p in param_list:
-                    param = self.svc.param.parse_param(
-                        {
-                            "value": str_to_list_if_possible(p.get("varValue")),
-                            "types": p.get("varType"),
-                            "name": p.get("varName"),
-                        }
-                    )
-                    p["varValue"] = param.show_value()
+                futures[future] = config
 
-                # 收集数据
-                self.svc.add_process_info(project_id, resource_id, category, name, file_name, param_list)
-
-                # 写入python
-                res = self._module_display(project_id, mode, version, resource_id, name)
-                with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
-                    file.write(res)
-                    pass
-            else:
-                raise NotImplementedError()
-
-            if is_main_process and isinstance(main_params, list) and len(main_params) == 0:
-                has_main_entry = True
-                main_params.extend(param_list)
+            # 等待所有任务完成，收集 main_params
+            has_main_entry = False
+            for future in as_completed(futures):
+                config = futures[future]
+                param_list = future.result()
+                if config["is_main"] and not has_main_entry:
+                    has_main_entry = True
+                    main_params.extend(param_list)
 
         if not has_main_entry:
-            raise BizException(PROCESS_ACCESS_ERROR_FORMAT, "工程数据异常 {}".format(project_id))
+            raise BizException(PROCESS_ACCESS_ERROR_FORMAT.format(project_id), f"工程数据异常 {project_id}")
 
-        # 2.1 生成智能组件
-        smart_index = 1
-        for smart_key, smart_info in self.svc.ast_globals_dict[project_id].smart_component_info.items():
-            file_name = "smart{}.py".format(smart_index)
-            smart_index += 1
-            with open(os.path.join(path, file_name), "w", encoding="utf-8") as file:
-                res = self._smart_component_display(
-                    project_id, mode, version, smart_info.smart_id, smart_info.smart_version
-                )
-                if res:
-                    self.svc.update_smart_component(project_id, smart_key, file_name, res.get("smartType"))
-                    file.write(res.get("smartCode"))
-
-        # 3. 生成project.py
-        tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
-        with open(tpl_path, encoding="utf-8") as tpl_file:
-            tpl_content = tpl_file.read()
-
-        global_code = ""
-        for k, v in global_var.items():
-            global_code += f"gv[{k!r}] = {v}\n"
-        tpl_content = tpl_content.replace("{{GLOBAL}}", global_code)
-        tpl_content = tpl_content.replace("{{PACKAGE_PATH}}", repr(os.path.join(path, "package.json")))
-        package_py_content = tpl_content.replace("{{PACKAGE}}", package)
-        with open(os.path.join(path, "package.py"), "w", encoding="utf-8") as file:
-            file.write(package_py_content)
-
-        # 4. 生成package.json
-        res = json.dumps(
-            self.svc.ast_globals_dict[project_id],
-            default=lambda o: o.__json__() if hasattr(o, "__json__") else None,
-            ensure_ascii=False,
-            indent=4,
-        )
-        with open(os.path.join(path, "package.json"), "w", encoding="utf-8") as file:
-            file.write(res)
-
-        # 5. 生成__init__.py（使目录成为包，支持相对导入）
-        init_py_path = os.path.join(path, "__init__.py")
-        if not os.path.exists(init_py_path):
-            with open(init_py_path, "w", encoding="utf-8") as file:
-                file.write("")
-
-    def _requirement_display(self, project_id: str, mode: str, version: str):
-        """
-        当前包的依赖性
-        """
-
-        requirement = dict()
-        res = self.svc.storage.pip_list(project_id=project_id, mode=mode, version=version)
-        for i in res:
-            pack_name = i.get("packageName")
-            pack_version = i.get("packageVersion")
-            pack_mirror = i.get("mirror")
-            if pack_name not in requirement:
-                requirement[pack_name] = {
-                    "package_name": pack_name,
-                    "package_version": pack_version,
-                    "package_mirror": pack_mirror,
-                }
-        return requirement
-
-    def _global_display(self, project_id: str, mode: str, version: str):
-        """
-        当前包的访问全局变量
-        """
-        global_list = self.svc.storage.global_list(project_id=project_id, mode=mode, version=version)
-        global_var = {}
-        for g in global_list:
-            param = self.svc.param.parse_param(
-                {
-                    "value": str_to_list_if_possible(g.get("varValue")),
-                    "types": g.get("varType"),
-                    "name": g.get("varName"),
-                }
-            )
-            global_var[g["varName"]] = param.show_value()
-        return global_var
-
-    def _module_display(self, project_id: str, mode: str, version: str, module_id: str, module_name) -> str:
-        """
-        模块生成 python模块
-        """
-        # 获取模块数据
-        module_code = self.svc.storage.module_detail(
-            project_id=project_id, mode=mode, version=version, module_id=module_id
-        )
-
-        # 兼容开始
-        if "rpahelper" in module_code:
-            # 老代码
-            module_code = module_code.replace("rpahelper", "astronverse.workflowlib")
-        # 兼容结束
-
-        return module_code
-
-    def _smart_component_display(
-        self, project_id: str, mode: str, version: str, smart_id: str, smart_version: str
-    ) -> str:
-        return self.svc.storage.smart_component_detail(
-            project_id=project_id, smart_id=smart_id, smart_version=smart_version, mode=mode, version=version
-        )
-
-    def _inject_params_to_module(self, module_code: str, param_list: list) -> str:
-        """
-        将配置参数注入到Python模块代码中
-        在 def main(args): 函数开头添加输入参数初始化
-        在函数结尾添加输出参数写回
-        """
-        import re
-
-        # 分离输入参数和输出参数
-        input_params = [p for p in param_list if p.get("varDirection") == 0]
-        output_params = [p for p in param_list if p.get("varDirection") == 1]
-
-        # 查找 def main(args): 的位置
-        main_pattern = r"(def\s+main\s*\(\s*args\s*\)\s*(?:->.*?)?\s*:)"
-        main_match = re.search(main_pattern, module_code)
-
-        if not main_match:
-            # 如果没有找到 main 函数，直接返回原始代码
-            return module_code
-
-        # 计算 main 函数体的缩进（通常是4个空格）
-        indent = self.svc.conf.indentation
-
-        # 生成输入参数初始化代码（复用 svc.param.parse_param）
-        input_code_lines = []
-        for p in input_params:
-            var_name = p.get("varName")
-            param = self.svc.param.parse_param(
-                {
-                    "value": str_to_list_if_possible(p.get("varValue")),
-                    "types": p.get("varType"),
-                    "name": var_name,
-                }
-            )
-            input_code_lines.append(f'{indent}{var_name} = args.get("{var_name}", {param.show_value()})')
-
-        # 生成输出参数初始化代码（输出参数也需要初始化）
-        for p in output_params:
-            var_name = p.get("varName")
-            param = self.svc.param.parse_param(
-                {
-                    "value": str_to_list_if_possible(p.get("varValue")),
-                    "types": p.get("varType"),
-                    "name": var_name,
-                }
-            )
-            input_code_lines.append(f'{indent}{var_name} = args.get("{var_name}", {param.show_value()})')
-
-        if input_code_lines:
-            input_code_lines.append(f"{indent}# --- 配置参数初始化结束 ---")
-            input_code_lines.append("")
-
-        # 在 main 函数定义后插入输入参数代码
-        input_code = "\n".join(input_code_lines)
-        main_end_pos = main_match.end()
-
-        # 插入输入参数初始化代码
-        new_code = module_code[:main_end_pos] + "\n" + input_code + module_code[main_end_pos:]
-
-        # 如果有输出参数，需要在函数末尾写回
-        if output_params:
-            # 生成输出参数写回代码
-            output_code_lines = [f"{indent}# --- 输出参数写回 ---"]
-            for p in output_params:
-                var_name = p.get("varName")
-                output_code_lines.append(f'{indent}args["{var_name}"] = {var_name}')
-
-            output_code = "\n" + "\n".join(output_code_lines)
-
-            # 找到 return 语句或函数末尾，在其前面插入输出参数写回代码
-            # 简单处理：在最后一个 return 前插入（如果有的话）
-            return_pattern = r"(\n)([ \t]*)(return\b.*?)(\n|$)"
-            return_matches = list(re.finditer(return_pattern, new_code))
-
-            if return_matches:
-                # 在最后一个 return 前插入
-                last_return = return_matches[-1]
-                insert_pos = last_return.start()
-                new_code = new_code[:insert_pos] + output_code + new_code[insert_pos:]
-            else:
-                # 没有 return，在代码末尾添加
-                new_code = new_code.rstrip() + "\n" + output_code + "\n"
-
-        return new_code
-
-    def _flow_display(
-        self, project_id: str, mode: str, version: str, process_id: str, process_name: str, start_line=0, end_line=0
+    def _gen_single_flow_file(
+            self,
+            path: str,
+            project_id: str,
+            mode: str,
+            version: str,
+            config: dict,
+            line: int,
+            end_line: int
     ):
-        """
-        流程生成 主流程 子流程
-        """
+        """生成单个流程/模块文件（线程安全），返回处理后的参数列表"""
+        category = config["category"]
+        resource_id = config["resource_id"]
+        name = config["name"]
+        file_name = config["file_name"]
 
-        # 1. 获取流程数据
+        # 获取参数列表（网络请求）
+        if category == "process":
+            param_list = self.svc.storage.param_list(
+                project_id=project_id, mode=mode, version=version, process_id=resource_id
+            )
+        else:  # module
+            param_list = self.svc.storage.param_list(
+                project_id=project_id, mode=mode, version=version, module_id=resource_id
+            )
+
+        # 解析参数
+        for p in param_list:
+            param = self.svc.param.parse_param({
+                "value": str_to_list_if_possible(p.get("varValue")),
+                "types": p.get("varType"),
+                "name": p.get("varName"),
+            })
+            p["varValue"] = param.show_value()
+
+        # 注册到 svc
+        self.svc.add_process_info(
+            project_id=project_id,
+            process_id=resource_id,
+            process_category=category,
+            process_name=name,
+            process_file_name=file_name,
+            process_params=param_list
+        )
+
+        # 生成代码（网络请求）
+        if category == "process":
+            code, code_map = self._generate_flow_code(
+                project_id=project_id, mode=mode, version=version, process_id=resource_id,
+                process_name=name, start_line=line, end_line=end_line
+            )
+            self._write_file(path=path, file_name=file_name, content=code)
+            self._write_file(path=path, file_name=file_name.replace(".py", ".map"), content=code_map)
+        elif category == "module":
+            code = self._get_module_code(project_id=project_id, mode=mode, version=version, module_id=resource_id)
+            self._write_file(path=path, file_name=file_name, content=code)
+        else:
+            raise NotImplementedError(f"不支持的资源类型: {category}")
+
+        return param_list  # 返回参数列表供收集 main_params
+
+    def _gen_smart_components(self, path: str, project_id: str, mode: str, version: str) -> None:
+        """拉取智能组件详情并写入 smart1.py、smart2.py ..."""
+        smart_items = list(self.svc.ast_globals_dict[project_id].smart_component_info.items())
+
+        # 并发生成所有智能组件
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = []
+            for index, (smart_key, smart_info) in enumerate(smart_items, start=1):
+                future = executor.submit(
+                    self._gen_single_smart_component,
+                    path=path,
+                    project_id=project_id,
+                    mode=mode,
+                    version=version,
+                    smart_key=smart_key,
+                    smart_info=smart_info,
+                    index=index
+                )
+                futures.append(future)
+
+            # 等待所有智能组件生成完成
+            for future in as_completed(futures):
+                future.result()  # 如果有异常会在这里抛出
+
+    def _gen_single_smart_component(
+            self,
+            path: str,
+            project_id: str,
+            mode: str,
+            version: str,
+            smart_key: str,
+            smart_info,
+            index: int
+    ):
+        """生成单个智能组件（线程安全）"""
+        file_name = f"smart{index}.py"
+
+        res = self.svc.storage.smart_component_detail(
+            project_id=project_id,
+            smart_id=smart_info.smart_id,
+            smart_version=smart_info.smart_version,
+            mode=mode,
+            version=version
+        )
+        if res:
+            self.svc.update_smart_component(
+                project_id=project_id,
+                smart_key=smart_key,
+                component_file_name=file_name,
+                smart_type=res.get("smartType")
+            )
+            self._write_file(path=path, file_name=file_name, content=res.get("smartCode"))
+
+    def _generate_flow_code(
+            self,
+            project_id: str,
+            mode: str,
+            version: str,
+            process_id: str,
+            process_name: str,
+            start_line: int = 0,
+            end_line: int = 0
+    ) -> tuple:
+        """从流程数据生成 Python 源码与行号映射 (code, code_map)。"""
         flow_list = self.svc.storage.process_detail(
             project_id=project_id, mode=mode, version=version, process_id=process_id
         )
-        line = 0
-        new_flow_list = []
-        process_meta = []
-        for k, v in enumerate(flow_list):
-            line = line + 1
-            if v.get("disabled"):
-                continue
-            if start_line > 0 and line < start_line:
-                continue
-            if end_line > 0 and line > end_line:
-                continue
-            v.update(
-                {
-                    "__line__": line,
-                    "__process_id__": process_id,
-                }
-            )
-            if v.get("breakpoint"):
-                # 流程扫描的断点
-                self.svc.add_breakpoint(project_id, process_id, line)
-            process_meta.append([line, v.get("id"), v.get("alias", v.get("title", "")), v.get("key")])
-            new_flow_list.append(v)
 
-        self.svc.add_process_meta(project_id, process_id, process_meta)
+        filtered_list, process_meta = self._filter_flow_list(
+            flow_list=flow_list, process_id=process_id, project_id=project_id,
+            start_line=start_line, end_line=end_line
+        )
+        self.svc.add_process_meta(project_id=project_id, process_id=process_id, process_meta=process_meta)
 
-        # 2. 解析
-        lexer = Lexer(flow_list=new_flow_list)
+        # 2. 词法分析和语法解析
+        lexer = Lexer(flow_list=filtered_list)
         parser = Parser(lexer=lexer)
         program = parser.parse_program()
-        if len(parser.errors) > 0:
+
+        if parser.errors:
             raise BizException(
-                SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)), "语法错误: {}".format(parser.errors)
+                SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)),
+                f"语法错误: {parser.errors}"
             )
+
+        # 3. 生成代码
         self.svc.ast_curr_info = {
             "__project_id__": project_id,
             "__mode__": mode,
@@ -407,6 +333,8 @@ class Flow:
             "__process_name__": process_name,
         }
         result = program.display(svc=self.svc, tab_num=0)
+
+        # 4. 构建代码和映射（生成行:流程行,...）
         code_lines = []
         map_list = []
         for i, code_line in enumerate(result):
@@ -414,5 +342,118 @@ class Flow:
                 indent = str(self.svc.conf.indentation * code_line.tab_num)
                 code_lines.append(indent + code_line.code)
                 if code_line.line > 0:
-                    map_list.append("{}:{}".format(i + 1, code_line.line))
+                    map_list.append(f"{i + 1}:{code_line.line}")
         return "\n".join(code_lines), ",".join(map_list)
+
+    def _filter_flow_list(
+            self,
+            flow_list: list,
+            process_id: str,
+            project_id: str,
+            start_line: int,
+            end_line: int
+    ) -> tuple:
+        """过滤流程节点：跳过 disabled、不在行范围内的，附加行号与断点，返回 (filtered_list, process_meta)。"""
+        line = 0
+        filtered_list = []
+        process_meta = []
+
+        for v in flow_list:
+            line += 1
+
+            # 跳过禁用的节点和不在范围内的行
+            if v.get("disabled"):
+                continue
+            if start_line > 0 and line < start_line:
+                continue
+            if 0 < end_line < line:
+                continue
+
+            # 添加行号和流程ID信息
+            v.update({"__line__": line, "__process_id__": process_id})
+
+            # 记录断点
+            if v.get("breakpoint"):
+                self.svc.add_breakpoint(project_id=project_id, process_id=process_id, line=line)
+
+            # 收集元数据
+            process_meta.append([line, v.get("id"), v.get("alias", v.get("title", "")), v.get("key")])
+            filtered_list.append(v)
+
+        return filtered_list, process_meta
+
+    def _get_requirements(self, project_id: str, mode: str, version: str) -> dict:
+        """获取项目 pip 依赖列表。"""
+        res = self.svc.storage.pip_list(project_id=project_id, mode=mode, version=version)
+        return {
+            i.get("packageName"): {
+                "package_name": i.get("packageName"),
+                "package_version": i.get("packageVersion"),
+                "package_mirror": i.get("mirror"),
+            }
+            for i in res
+        }
+
+    def _get_global_vars(self, project_id: str, mode: str, version: str) -> dict:
+        """获取并解析全局变量为可展示格式。"""
+        global_list = self.svc.storage.global_list(project_id=project_id, mode=mode, version=version)
+        global_var = {}
+        for g in global_list:
+            param = self.svc.param.parse_param({
+                "value": str_to_list_if_possible(g.get("varValue")),
+                "types": g.get("varType"),
+                "name": g.get("varName"),
+            })
+            global_var[g["varName"]] = param.show_value()
+        return global_var
+
+    def _get_module_code(self, project_id: str, mode: str, version: str, module_id: str) -> str:
+        """从存储取模块源码，兼容旧包名 rpahelper。"""
+        module_code = self.svc.storage.module_detail(
+            project_id=project_id, mode=mode, version=version, module_id=module_id
+        )
+        # 兼容老代码：替换旧的包名
+        if "rpahelper" in module_code:
+            module_code = module_code.replace("rpahelper", "astronverse.workflowlib")
+        return module_code
+
+    def _write_file(self, path: str, file_name: str, content: str) -> None:
+        """将内容写入 path 下的 file_name。"""
+        file_path = os.path.join(path, file_name)
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
+
+    def _write_package_py(self, path: str, package: str, global_var: dict) -> None:
+        """按模板生成并写入 package.py（含全局变量与 package 路径）。"""
+        tpl_path = os.path.join(os.path.dirname(__file__), "tpl", "package.tpl")
+        with open(tpl_path, encoding="utf-8") as f:
+            tpl_content = f.read()
+
+        global_code = "".join(f"gv[{k!r}] = {v}\n" for k, v in global_var.items())
+        tpl_content = tpl_content.replace("{{GLOBAL}}", global_code)
+        tpl_content = tpl_content.replace("{{PACKAGE_PATH}}", repr(os.path.join(path, "package.json")))
+        package_py_content = tpl_content.replace("{{PACKAGE}}", package)
+
+        self._write_file(path=path, file_name="package.py", content=package_py_content)
+
+    def _write_package_json(self, path: str, project_id: str) -> None:
+        """将工程全局数据序列化并写入 package.json。"""
+        content = json.dumps(
+            self.svc.ast_globals_dict[project_id],
+            default=lambda o: o.__json__() if hasattr(o, "__json__") else None,
+            ensure_ascii=False,
+            indent=4,
+        )
+        self._write_file(path=path, file_name="package.json", content=content)
+
+    def _write_init_py(self, path: str) -> None:
+        """若不存在则写入空 __init__.py。"""
+        init_py_path = os.path.join(path, "__init__.py")
+        if not os.path.exists(init_py_path):
+            self._write_file(path=path, file_name="__init__.py", content="")
+
+    def _is_main_entry(self, resource_id: str, name: str, process_id: str) -> bool:
+        """判断是否为主入口：有 process_id 时按 resource_id 匹配，否则按 main_process_name 与 name。"""
+        if process_id:
+            return resource_id == str(process_id)
+        return name == self.svc.conf.main_process_name
