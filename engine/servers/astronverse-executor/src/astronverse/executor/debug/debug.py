@@ -97,7 +97,7 @@ class Debug:
                 )
             )
 
-    def start(self, params: list) -> dict:
+    def start(self, params: dict) -> dict:
         """执行代码"""
 
         # 环境准备, 下载依赖环境
