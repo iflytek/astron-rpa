@@ -44,6 +44,9 @@ export const CUSTOM_XPATH = 'customXPath' // 自定义路径
 export const VISUALIZATION = 'visualization'
 export const CUSTOMIZATION = 'customization'
 
+export const IFRAME_NODES = ['iframe', 'frame', 'object', 'embed'] // 识别iframe的标签列表
+export const SHADOW_ROOT_FLAG = '$shadow$' // shadow root标识
+
 export const CUSTOM_OPTIONS = [
   {
     label: 'visualEditing',
@@ -65,6 +68,10 @@ export const MATCH_OPTIONS = [
     label: 'scrollPosition',
     value: 'scrollPosition',
   },
+  // {
+  //   label: 'iframePosition',
+  //   value: 'iframePosition',
+  // }
 ]
 
 export const PATTERN_RULES = [

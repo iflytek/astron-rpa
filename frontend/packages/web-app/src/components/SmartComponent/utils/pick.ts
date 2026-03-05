@@ -30,13 +30,13 @@ export function getLatestCurrentElementData(currentElement: ElementsType, isSave
     const customDataMap = toRaw(
       elementCustomFormatRecover(version, type, customData.value),
     ) // url, xpath, cssSelector
-    const pathDirs = toRaw(
+    const dirs = toRaw(
       elementDirectoryFormatRecover(version, type, nodeSourceData.value),
     ) // pathDirs
     elementPathData = {
       ...detailElementData.value.path,
       ...customDataMap,
-      pathDirs,
+      ...dirs,
       checkType: formOption.value.editXPathType,
       matchTypes: formOption.value.matchTypes,
     }
