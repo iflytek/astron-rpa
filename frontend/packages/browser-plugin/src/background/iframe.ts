@@ -1,18 +1,91 @@
 import { log } from '../3rd/log'
-import { ErrorMessage } from '../common/constant'
+import { ErrorMessage, FRAME_ELEMENT_TAGS } from '../common/constant'
+import { Utils } from '../common/utils'
 
 import { Tabs } from './tab'
 
-export async function frameFind(frameXpath: string) {
+/**
+ * Finds the target browser tab and frame based on the provided parameters.
+ */
+export async function findTabAndFrame(params: ElementParams) {
+  const { isFrame, tabUrl } = params.data
+  let tab = await Tabs.getActiveTab()
+  if (!tab) {
+    tab = await Tabs.activeTargetTabByTabUrl(tabUrl)
+    if (!tab || !Utils.isSupportProtocal(tab.url)) {
+      throw new Error(ErrorMessage.ACTIVE_TAB_ERROR)
+    }
+  }
+  if (!isFrame) {
+    return { tab, frameId: 0 }
+  }
+  else {
+    const frames = await Tabs.getAllFrames(tab.id)
+    const frameId = await frameFinder(tab, frames, params)
+    return { tab, frameId, frames }
+  }
+}
+
+async function frameFinder(tab: chrome.tabs.Tab, frames: FrameDetails[], params: ElementParams) {
+  let iframeBuildXpath = ''
+  const { url, iframeXpath, iframePathDirs, checkType } = params.data
+  let targetFrame = null
+
+  if (checkType === 'visualization' && iframePathDirs && iframePathDirs.length) {
+    const frameLevels: ElementDirectory[][] = []
+    let currentLevel: ElementDirectory[] = []
+    for (let i = 0; i < iframePathDirs.length; i++) {
+      const dir = iframePathDirs[i]
+      const isFrameTag = FRAME_ELEMENT_TAGS.includes(dir.tag.toLowerCase())
+      if (isFrameTag) {
+        currentLevel.push(dir)
+        frameLevels.push(currentLevel)
+        currentLevel = []
+      }
+      else {
+        currentLevel.push(dir)
+      }
+    }
+    iframeBuildXpath = frameLevels
+      .map(levelDirs => Utils.generateXPath(levelDirs))
+      .join('/$iframe$')
+    log.info('frameLevels: ', frameLevels, ' build iframe xpath: ', iframeBuildXpath)
+  }
+  else {
+    iframeBuildXpath = iframeXpath
+  }
+
+  if (iframeBuildXpath) {
+    targetFrame = findFrameByXpath(frames, iframeBuildXpath)
+  }
+  else {
+    targetFrame = findFrameByUrl(frames, url)
+  }
+
+  if (targetFrame) {
+    return targetFrame.frameId
+  }
+  else {
+    // try to find frame by directly using the iframe xpath without comparing with frames
+    let frameId = await frameFind(iframeBuildXpath)
+    // try to find frame by element, if element is in current frame, return current frameId, else return null
+    if (frameId === null) {
+      frameId = await elementLocatorFrameId(tab.id, params.data)
+    }
+    return frameId
+  }
+}
+
+async function frameFind(frameXpath: string) {
   const framePath = frameXpath.split('/$iframe$')
   const tab = await Tabs.getActiveTab()
   if (!tab) {
     throw new Error(ErrorMessage.ACTIVE_TAB_ERROR)
   }
-  let frameId = null
+  let frameId = 0
   for (let i = 0; i < framePath.length; i++) {
     const res = await locatorFrameId(tab.id!, frameId, framePath[i])
-    if (res && res.frameId != null) {
+    if (res && res.frameId !== null) {
       frameId = res.frameId
       continue
     }
@@ -42,7 +115,7 @@ async function locatorFrameId(tabId: number, curFrameId = 0, curFrameXpath: stri
 }
 
 // try to find frame by element, send message to all frames to find which frame has the element, and return the frameId
-export async function elementLocatorFrameId(tabId: number, data: ElementInfo) {
+async function elementLocatorFrameId(tabId: number, data: ElementInfo) {
   const result = await Tabs.executeFuncOnAllFrame(tabId, (arg) => {
     // @ts-expect-error window in content_script
     return window.handleSync({
@@ -69,7 +142,7 @@ export async function elementLocatorFrameId(tabId: number, data: ElementInfo) {
  * @param activeElement - Information about the currently active element, returned if processing fails.
  * @returns A promise that resolves to an array of iframe depth information, or an array containing the active element if an error occurs.
  */
-export async function processFrames(tab: chrome.tabs.Tab, framePath: number[], p: Point, activeElement: ElementInfo) {
+async function processFrames(tab: chrome.tabs.Tab, framePath: number[], p: Point, activeElement: ElementInfo) {
   const iframeDepthInfo = []
   for (const frame of framePath) {
     try {
@@ -161,7 +234,7 @@ export async function getIframeElement(p: Point, activeElement: ElementInfo) {
   }
 }
 
-export function findFrameByUrl(frames: FrameDetails[], url: string) {
+function findFrameByUrl(frames: FrameDetails[], url: string) {
   return frames.find(frame => frame.url.includes(url))
 }
 
@@ -176,7 +249,7 @@ export function findFrameByUrl(frames: FrameDetails[], url: string) {
  * @param iframeXpath - A string representing the hierarchical XPath to the target iframe, delimited by `/$iframe$`.
  * @returns The `FrameDetails` object corresponding to the target frame if found; otherwise, `null`.
  */
-export function findFrameByXpath(frames: FrameDetails[], iframeXpath: string) {
+function findFrameByXpath(frames: FrameDetails[], iframeXpath: string) {
   if (!iframeXpath || !Array.isArray(frames) || frames.length === 0)
     return null
 

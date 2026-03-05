@@ -1,10 +1,10 @@
 import { log } from '../3rd/log'
-import { ErrorMessage, FRAME_ELEMENT_TAGS, StatusCode } from '../common/constant'
+import { ErrorMessage, StatusCode } from '../common/constant'
 import { Utils } from '../common/utils'
 
 import { Cookie } from './cookie'
 import DataTable from './data_table'
-import { adjustPosition, calculateAbsolutePosition, elementLocatorFrameId, findFrameByUrl, findFrameByXpath, frameFind, getFramePath, getIframeElement } from './iframe'
+import { adjustPosition, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
 import { WindowControl } from './window'
@@ -37,87 +37,6 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
   //   sendNativeMessage(request.data);
   // }
   return true
-}
-
-/**
- * Finds the target browser tab and frame based on the provided parameters.
- *
- * @param params - The parameters containing information about the tab and frame to locate.
- * @returns An object containing the found tab and the corresponding frame ID.
- *          If `isFrame` is false, returns the tab and frame ID 0.
- *          If `isFrame` is true, attempts to locate the frame by XPath or URL.
- *          If the frame is not found, returns the tab and `Number.NaN` as the frame ID.
- * @throws {Error} If the active tab cannot be found or activated.
- */
-async function findTabAndFrame(params: ElementParams) {
-  const { isFrame, tabUrl } = params.data
-  let tab = await Tabs.getActiveTab()
-  if (!tab) {
-    tab = await Tabs.activeTargetTabByTabUrl(tabUrl)
-    if (!tab || !Utils.isSupportProtocal(tab.url)) {
-      throw new Error(ErrorMessage.ACTIVE_TAB_ERROR)
-    }
-  }
-  if (!isFrame) {
-    return { tab, frameId: 0 }
-  }
-  else {
-    const frameId = await frameFinder(tab, params)
-    return { tab, frameId }
-  }
-}
-
-async function frameFinder(tab: chrome.tabs.Tab, params: ElementParams) {
-  let iframeBuildXpath = ''
-  const { url, iframeXpath, iframePathDirs, checkType } = params.data
-  const frames = await Tabs.getAllFrames(tab.id)
-  let targetFrame = null
-
-  if (checkType === 'visualization' && iframePathDirs && iframePathDirs.length) {
-    const frameLevels: ElementDirectory[][] = []
-    let currentLevel: ElementDirectory[] = []
-    for (let i = 0; i < iframePathDirs.length; i++) {
-      const dir = iframePathDirs[i]
-      if (FRAME_ELEMENT_TAGS.includes(dir.tag.toLowerCase())) {
-        if (currentLevel.length > 0) {
-          frameLevels.push(currentLevel)
-          currentLevel = []
-        }
-      }
-      else {
-        currentLevel.push(dir)
-      }
-    }
-    if (currentLevel.length > 0) {
-      frameLevels.push(currentLevel)
-    }
-    iframeBuildXpath = frameLevels
-      .map(levelDirs => Utils.generateXPath(levelDirs))
-      .join('/$iframe$')
-  }
-  else {
-    iframeBuildXpath = iframeXpath
-  }
-  console.log('iframeBuildXpath: ', iframeBuildXpath)
-  if (iframeBuildXpath) {
-    targetFrame = findFrameByXpath(frames, iframeBuildXpath)
-  }
-  else {
-    targetFrame = findFrameByUrl(frames, url)
-  }
-
-  if (targetFrame) {
-    return targetFrame.frameId
-  }
-  else {
-    // try to find frame by directly using the iframe xpath without comparing with frames
-    let frameId = await frameFind(iframeBuildXpath)
-    // try to find frame by element, if element is in current frame, return current frameId, else return null
-    if (frameId === null) {
-      frameId = await elementLocatorFrameId(tab.id, params.data)
-    }
-    return frameId
-  }
 }
 
 const Handlers = {
@@ -397,7 +316,10 @@ const Handlers = {
       },
       async getElementPos(params: ElementParams) {
         const { isFrame } = params.data
-        const { tab, frameId } = await findTabAndFrame(params)
+        const { tab, frameId, frames } = await findTabAndFrame(params)
+        if (frameId === null) {
+          return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
+        }
 
         if (!Utils.isSupportProtocal(tab.url)) {
           return Utils.fail(`${tab.url} ${ErrorMessage.CURRENT_TAB_UNSUPPORT_ERROR}`)
@@ -407,17 +329,9 @@ const Handlers = {
           return Utils.result(result.data, result.msg, result.code)
         }
 
-        const frames = await Tabs.getAllFrames(tab.id)
         const targetFrame = frames.find(frame => frame.frameId === frameId)
-
-        if (!targetFrame) {
-          return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
-        }
-
         const framePath = getFramePath(frames, targetFrame)
-
         const absolutePos = await calculateAbsolutePosition(tab.id, framePath)
-
         const elementPosResult = await Tabs.sendTabFrameMessage(tab.id, params, targetFrame.frameId)
 
         if (elementPosResult.code !== StatusCode.SUCCESS) {
