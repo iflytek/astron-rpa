@@ -92,6 +92,7 @@ interface ElementInfo {
 
   frameId?: number
   iframeXpath?: string
+  iframePathDirs?: Array<ElementDirectory>
   iframeCssSelector?: string
   similarCount?: number
   preData?: ElementInfo

@@ -26,7 +26,7 @@ export const MAX_TEXT_LENGTH = 10
 export const MAX_TEXT_INCLUDE_LENGTH = 64
 export const MAX_ATTRIBUTE_LENGTH = 32
 export const DEEP_SEARCH_TRIGGER = 5 * 1000
-export const ELEMENT_SEARCH_TRIGGER = 200
+export const ELEMENT_SEARCH_TRIGGER = 0
 export const SCROLL_TIMES = 20
 export const SCROLL_DELAY = 1500
 export const HIGHT_BOX_SHADOW = 'inset 0px 0px 0px 2px red;'
@@ -35,6 +35,7 @@ export const HIGH_LIGHT_BORDER = '2px solid red'
 export const HIGH_LIGHT_COLOR = 'red'
 export const HIGH_LIGHT_DURATION = 3000
 export const ASTRON_SW_NAME = 'Astron-Service-Worker'
+export const FRAME_ELEMENT_TAGS = ['iframe', 'frame', 'object', 'embed']
 
 export const SVG_NODETAGS = [
   'svg',

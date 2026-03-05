@@ -223,4 +223,129 @@ export const Utils = {
       msg,
     }
   },
+
+  textfn(val: string) {
+    if (val.includes('"')) {
+      return `text()=concat(${val
+        .split('"')
+        .map((part, index, arr) => (index < arr.length - 1 ? `"${part}", '"', ` : `"${part}"`))
+        .join('')})`
+    }
+    return `text()="${val}"`
+  },
+
+  /**
+   * Generates an XPath condition string based on the provided element attributes.
+   *
+   * The function inspects the `attr` parameter and constructs a condition string
+   * suitable for use in XPath queries. The condition depends on the attribute's
+   * name, value, type, and checked status:
+   * - For `index`, returns a position-based condition.
+   * - For `innertext` and `text`, returns a condition using `contains` or a custom text function.
+   * - For `local-name`, matches the element's local name.
+   * - For other attributes, uses either `contains` or direct equality based on the type.
+   *
+   * @param attr - The element attributes used to generate the condition.
+   * @returns The XPath condition string, or `undefined` if no condition is generated.
+   */
+  conditionStr(attr: ElementAttrs) {
+    attr.value = `${attr.value}`
+    let condition: string
+    if (attr.checked && attr.value) {
+      switch (attr.name) {
+        case 'index':
+          condition = `position()=${attr.value}`
+          break
+
+        case 'innertext':
+          condition
+            = attr.type === 1
+              ? `contains(., "${attr.value}")`
+              : Utils.textfn(attr.value)
+          break
+        case 'text':
+          condition
+            = attr.type === 1
+              ? `contains(., "${attr.value}")`
+              : Utils.textfn(attr.value)
+          break
+
+        case 'local-name':
+          condition = `local-name()="${attr.value}"`
+          break
+
+        default:
+          condition
+            = attr.type === 1
+              ? `contains(@${attr.name}, "${attr.value}")`
+              : `@${attr.name}="${attr.value}"`
+          break
+      }
+    }
+
+    return condition
+  },
+
+  /**
+   * Generates an XPath string based on a list of element directories and their attributes.
+   *
+   * @param dirs - An array of `ElementDirectory` objects representing the hierarchy of elements and their attributes.
+   * @param onlyPosition - If `true`, only position-related attributes (such as `index` and `id`) are considered for XPath generation.
+   * @returns The generated XPath string representing the element hierarchy and attribute conditions.
+   */
+  generateXPath(dirs: ElementDirectory[], onlyPosition: boolean = false): string {
+    if (dirs && dirs.length === 0) {
+      return ''
+    }
+    if (onlyPosition) {
+      dirs = JSON.parse(JSON.stringify(dirs)) // deep copy avoid modifying original dirs
+      dirs.forEach((item) => {
+        item.attrs.forEach((attr) => {
+          const attrValue = `${attr.value}`.trim()
+          if (attr.name === 'index' && attrValue !== '') {
+            attr.checked = true
+          }
+          else if (attr.name === 'id' && attrValue !== '') {
+            attr.checked = true
+          }
+          else {
+            attr.checked = false
+          }
+        })
+      })
+    }
+    let xpath = ''
+    let checkedDirIndex = 0
+    for (let i = 0; i < dirs.length; i++) {
+      const dir = dirs[i]
+      if (dir.checked) {
+        const attrs = dir.attrs
+          .filter((attr) => {
+            // exclude type 2 (regex) attrs
+            if (attr.type === 2 && attr.checked) {
+              return false
+            }
+            else {
+              return attr.checked
+            }
+          })
+          .map((attr) => {
+            const condition: string = Utils.conditionStr(attr)
+            return condition
+          })
+          .join(' and ')
+        const segment = attrs ? `${dir.tag}[${attrs}]` : dir.tag
+        let prefix = '/'
+        if (i === 0) {
+          prefix = dir.tag === 'html' ? '/' : '//'
+        }
+        if (Math.abs(i - checkedDirIndex) > 1) {
+          prefix = '//'
+        }
+        xpath += `${prefix}${segment}`
+        checkedDirIndex = i
+      }
+    }
+    return xpath
+  },
 }

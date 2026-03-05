@@ -140,6 +140,14 @@ export const Tabs = {
     })
   },
   /**
+   * execute function on all frames of the tab, and return the result as an array
+   */
+  executeFuncOnAllFrame: async (tabId: number, funcCode: (...args: any[]) => void, args: any[]): Promise<unknown[]> => {
+    const frames = await Tabs.getAllFrames(tabId)
+    const promises = frames.map(frame => Tabs.executeFuncOnFrame(tabId, frame.frameId, funcCode, args))
+    return Promise.all(promises)
+  },
+  /**
    *  Executes a script in a specific frame of a tab using the Debugger API.
    * @param tabId - The ID of the tab containing the frame.
    * @param frameId - The ID of the frame where the script will be executed.
@@ -423,6 +431,16 @@ export const Tabs = {
     return new Promise<ContentResult>((resolve) => {
       chrome.tabs.sendMessage(tabId, message, {}, (response) => {
         resolve(response)
+      })
+    })
+  },
+  sendTabMessageToAllFrames: (tabId: number, message): Promise<ContentResult[]> => {
+    return new Promise<ContentResult[]>((resolve) => {
+      Tabs.getAllFrames(tabId).then((frames) => {
+        const promises = frames.map(frame => Tabs.sendTabFrameMessage(tabId, message, frame.frameId))
+        Promise.all(promises).then((responses) => {
+          resolve(responses)
+        })
       })
     })
   },

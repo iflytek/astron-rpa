@@ -1,4 +1,6 @@
-import { generateXPath, getElementBySelector, getElementsByXpath } from './element'
+import { Utils } from '../common/utils'
+
+import { getElementBySelector, getElementsByXpath } from './element'
 
 /**
  * Watches for changes to a DOM element based on provided selection criteria.
@@ -35,7 +37,7 @@ export function elementChangeWatcher(data: ElementInfo): WatchXPathResult {
     }
   }
   else {
-    const dirXpath = generateXPath(data.pathDirs)
+    const dirXpath = Utils.generateXPath(data.pathDirs)
     result = findNodeByXPathStepwise(dirXpath, onlyPosition)
   }
   return result
