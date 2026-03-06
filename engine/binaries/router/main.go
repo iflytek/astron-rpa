@@ -35,11 +35,13 @@ func main() {
 		remoteHost   string
 		httpProtocol string
 		wsProtocol   string
+		language     string
 	)
 	flag.Int64Var(&port, "port", 8003, "listen port")
 	flag.StringVar(&remoteHost, "remoteHost", "", "remote host")
 	flag.StringVar(&httpProtocol, "httpProtocol", "http", "HTTP scheme: http or https")
 	flag.StringVar(&wsProtocol, "wsProtocol", "ws", "WebSocket scheme: ws or wss")
+	flag.StringVar(&language, "language", "", "language code to inject into request headers")
 	flag.Parse()
 
 	// Parse flags and environment, set port and protocols for this service
@@ -75,6 +77,12 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	router.Use(proxy.CookieMiddleware(log))
+	if language != "" {
+		router.Use(func(c *gin.Context) {
+			c.Request.Header.Set("Accept-Language", language)
+			c.Next()
+		})
+	}
 
 	// Register core HTTP and WebSocket proxies for incoming requests
 	router.Any("/*path", func(c *gin.Context) {
