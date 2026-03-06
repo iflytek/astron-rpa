@@ -19,6 +19,10 @@ class RpaRouteServer(IServer):
         self.proc = SubPopen(name="rpa_route", cmd=[get_cmd()])
         self.proc.set_param("port", self.port)
 
+        from astronverse.baseline.i18n.i18n import i18n
+
+        self.proc.set_param("language", i18n.getlanguage())
+
         remote_parsed_url = urlparse(self.svc.config.remote_addr)
 
         if remote_parsed_url.scheme.lower() == "https":
