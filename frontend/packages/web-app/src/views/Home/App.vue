@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIntervalFn } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
@@ -9,6 +10,9 @@ import Loading from '@/components/Loading.vue'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const appStore = useAppConfigStore()
+
+// 每小时检查一次更新
+useIntervalFn(() => appStore.checkUpdate(), 60 * 60 * 1000)
 
 onMounted(() => appStore.checkUpdate())
 </script>

@@ -59,10 +59,10 @@ const {
           <Form.Item :label="$t('settingCenter.msgNotify.senderPassword')" name="password">
             <Input.Password v-model:value="email.password" :placeholder="$t('settingCenter.msgNotify.inputSenderPassword')" />
           </Form.Item>
+          <Form.Item :label="$t('isSSL')">
+            <Switch v-model:checked="email.use_ssl" />
+          </Form.Item>
         </div>
-        <Form.Item :label="$t('isSSL')">
-          <Switch v-model:checked="email.use_ssl" />
-        </Form.Item>
         <Form.Item :label="$t('cc')">
           <Input v-model:value="email.cc" :placeholder="$t('settingCenter.msgNotify.ccPlaceholder')" />
         </Form.Item>

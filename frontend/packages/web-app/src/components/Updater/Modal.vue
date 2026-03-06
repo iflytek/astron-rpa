@@ -22,11 +22,6 @@ const handleClose = () => modal.hide()
 
 const handleQuitAndInstall = () => appStore.quitAndInstall()
 
-function handleRejectUpdate() {
-  appStore.rejectUpdate(props.latestVersion)
-  handleClose()
-}
-
 function genCloudStyle(imgUrl: string): StyleValue {
   return {
     background: `url(${imgUrl}) lightgray 50% / cover no-repeat`,
@@ -43,38 +38,49 @@ function genCloudStyle(imgUrl: string): StyleValue {
     :footer="null"
     :width="props.needUpdate ? 600 : 400"
   >
-    <div class="h-[317px] w-full overflow-hidden relative">
-      <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max">
-      <rpa-star-motion class="absolute w-full h-full left-0 top-0" />
-      <div class="absolute -left-[125px] -bottom-[49.82px] w-[303.953px] h-[202.635px] aspect-[3/2]" :style="genCloudStyle(cloudLeftImage)" />
-      <div class="absolute -right-[49px] -bottom-[65px] w-[268px] h-[214px] aspect-[134/107]" :style="genCloudStyle(cloudRightImage)" />
-    </div>
+    <div class="max-h-[80vh] flex flex-col overflow-hidden">
+      <div class="h-[317px] overflow-hidden relative shrink-0">
+        <img :src="bgImage" class="absolute top-0 left-0 w-[600px] h-full max-w-max">
+        <rpa-star-motion class="absolute w-full h-full left-0 top-0" />
+        <div
+          class="absolute -left-[125px] -bottom-[49.82px] w-[303.953px] h-[202.635px] aspect-[3/2]"
+          :style="genCloudStyle(cloudLeftImage)"
+        />
+        <div
+          class="absolute -right-[49px] -bottom-[65px] w-[268px] h-[214px] aspect-[134/107]"
+          :style="genCloudStyle(cloudRightImage)"
+        />
 
-    <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">
-      <img :src="iconImage" class="w-[120px] h-[120px]">
-      <div class="text-[28px] font-semibold leading-[39px]">
-        {{ props.needUpdate ? $t('updater.newVersionFound') : $t('updater.alreadyLatest') }}
-      </div>
-      <div class="text-[14px] leading-5 text-text-secondary">
-        {{ props.needUpdate ? `v${props.latestVersion} ${$t('updater.updateReady')}` : `v${props.latestVersion}` }}
-      </div>
-    </div>
-
-    <div v-if="props.updateNote && props.needUpdate" class="p-4">
-      {{ props.updateNote }}
-    </div>
-
-    <div class="p-4 flex gap-[10px]">
-      <template v-if="props.needUpdate">
-        <div class="flex-1 action-button" @click="handleRejectUpdate">
-          {{ $t('updater.updateLater') }}
+        <div class="absolute top-[60px] w-full flex flex-col items-center gap-2">
+          <img :src="iconImage" class="w-[120px] h-[120px]">
+          <div class="text-[28px] font-semibold leading-[39px]">
+            {{ props.needUpdate ? $t('updater.newVersionFound') : $t('updater.alreadyLatest') }}
+          </div>
+          <div class="text-[14px] leading-5 text-text-secondary">
+            {{ props.needUpdate ? `v${props.latestVersion} ${$t('updater.updateReady')}` : `v${props.latestVersion}` }}
+          </div>
         </div>
-        <div class="flex-1 action-button action-button__confirm" @click="handleQuitAndInstall">
-          {{ $t('updater.restartToUpgrade') }}
+      </div>
+
+      <div
+        v-if="props.updateNote && props.needUpdate"
+        class="flex-1 min-h-0 p-4 whitespace-pre-wrap overflow-y-auto"
+      >
+        {{ props.updateNote }}
+      </div>
+
+      <div class="p-4 flex gap-[10px] shrink-0">
+        <template v-if="props.needUpdate">
+          <div class="flex-1 action-button" @click="handleClose">
+            {{ $t('updater.updateLater') }}
+          </div>
+          <div class="flex-1 action-button action-button__confirm" @click="handleQuitAndInstall">
+            {{ $t('updater.restartToUpgrade') }}
+          </div>
+        </template>
+        <div v-else class="flex-1 action-button action-button__confirm" @click="handleClose">
+          {{ $t('updater.ok') }}
         </div>
-      </template>
-      <div v-else class="flex-1 action-button action-button__confirm" @click="handleClose">
-        {{ $t('updater.ok') }}
       </div>
     </div>
   </a-modal>
