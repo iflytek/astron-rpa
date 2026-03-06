@@ -142,14 +142,12 @@ class Enterprise:
                             "请检查更新文件信息接口！",
                         )
                 else:
-                    logger.info(f"上传失败，状态码：{response.status_code}，响应：{response.text}")
                     raise BizException(
                         FILE_UPLOAD_FAILED_FORMAT.format(response.text),
                         "请检查上传接口！",
                     )
         except Exception as e:
-            logger.error(f"上传过程中发生错误：{str(e)}")
-            raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
+            raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), f"上传过程中发生错误：{str(e)}")
 
     @staticmethod
     @atomicMg.atomic(
@@ -195,8 +193,7 @@ class Enterprise:
 
             # 检查响应状态
             if response.status_code != 200:
-                logger.error(f"下载失败，状态码：{response.status_code}，响应：{response.text}")
-                raise BizException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), "请检查下载接口！")
+                raise BizException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), f"下载失败，状态码：{response.status_code}，响应：{response.text}")
 
             content_type = response.headers.get("Content-Type", "").lower()
             if "application/json" in content_type:
@@ -238,8 +235,7 @@ class Enterprise:
             else:
                 raise BizException(UNSUPPORTED_RESPONSE_TYPE_ERROR, "不支持的响应类型")
         except Exception as e:
-            logger.error(f"下载过程中发生错误：{str(e)}")
-            raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), "")
+            raise BizException(FILE_UPLOAD_FAILED_FORMAT.format(e), f"下载过程中发生错误：{str(e)}")
 
     # 获取远程变量
     @staticmethod

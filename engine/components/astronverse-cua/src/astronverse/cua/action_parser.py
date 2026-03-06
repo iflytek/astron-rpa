@@ -262,7 +262,6 @@ def parse_action_to_structure_output(
     actions = []
     for action_instance, raw_str in zip(parsed_actions, all_action):
         if action_instance == None:
-            logger.info(f"Action can't parse: {raw_str}")
             raise BizException(ACTION_PARSE_ERROR_FORMAT.format(raw_str), f"无法解析动作: {raw_str}")
         action_type = action_instance["function"]
         params = action_instance["args"]
