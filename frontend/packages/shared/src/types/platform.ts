@@ -113,6 +113,7 @@ export interface UtilsManager {
   openPlugins: () => Promise<void>
   showDialog: (dialogProps: any) => Promise<string[]>
   getPluginList: () => Promise<IPluginConfig[]>
+  restartApp: () => void
 }
 
 // 快捷键管理器

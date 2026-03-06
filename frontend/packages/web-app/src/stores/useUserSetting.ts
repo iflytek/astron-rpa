@@ -3,7 +3,9 @@ import { message } from 'ant-design-vue'
 import deepmerge from 'deepmerge'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { get, isNil } from 'lodash-es'
 
+import i18next from '@/plugins/i18next'
 import { autoStartDisable, autoStartEnable, autoStartStatus, getUserSetting, setUserSetting } from '@/api/setting'
 
 export type Theme = BasicColorSchema
@@ -31,7 +33,15 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
     shortcutConfig: {}, // 快捷键设置
     videoForm: DEFAULT_FORM, // 录屏设置
     msgNotifyForm: {}, // 消息通知设置
+    language: i18next.language,
   })
+
+  async function setLanguageSetting(lng: string) {
+    await Promise.all([
+      saveUserSetting({ language: lng }),
+      i18next.changeLanguage(lng),
+    ])
+  }
 
   // 获取常规设置
   const getSetting = async () => {
@@ -44,16 +54,20 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
       userSetting.value,
       setting,
       { commonSetting: { startupSettings: autostart } },
-    ],
-    )
+    ])
+
+    const serverLanguage = get(setting, 'language');
+    if (isNil(serverLanguage)) {
+      setUserSetting(userSetting.value)
+    }
   }
 
-  const saveUserSetting = (params: object) => {
+  const saveUserSetting = async (params: Partial<RPA.UserSetting>) => {
     userSetting.value = {
       ...userSetting.value,
       ...params,
     }
-    setUserSetting(userSetting.value)
+    await setUserSetting(userSetting.value)
   }
 
   // 修改常规设置
@@ -85,6 +99,7 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
     openLogModalAfterRun,
     saveUserSetting,
     changeCommonConfig,
+    setLanguageSetting,
   }
 })
 

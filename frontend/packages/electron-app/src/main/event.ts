@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, app } from 'electron'
 import { clipboard, dialog, globalShortcut, ipcMain, screen, shell } from 'electron'
 import throttle from 'lodash/throttle'
 import { IPluginConfig } from '@rpa/shared'
@@ -296,6 +296,11 @@ export function listenRender() {
 
   ipcMain.on('quit-and-install-updates', () => {
     quitAndInstallUpdates()
+  })
+
+  ipcMain.on('restart-app', () => {
+    app.relaunch()
+    app.exit()
   })
 
   ipcMain.handle('get-app-config', () => {
