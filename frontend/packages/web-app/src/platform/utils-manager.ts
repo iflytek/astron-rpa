@@ -74,6 +74,9 @@ const Utils: UtilsManager = {
   getPluginList: () => {
     return Promise.resolve([])
   },
+  restartApp: () => {
+    window.location.reload()
+  },
 }
 
 export default Utils

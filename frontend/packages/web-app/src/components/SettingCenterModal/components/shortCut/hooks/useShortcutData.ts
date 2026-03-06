@@ -1,5 +1,7 @@
 import { onBeforeUnmount, ref } from 'vue'
 
+import { mapValues } from 'lodash-es'
+
 import { updateHotkeysSetting } from '@/utils/registerHotkeys'
 
 import type { ShortcutItemMap } from '@/components/ShortcutInput/types.ts'
@@ -12,13 +14,7 @@ export function useShortcutData() {
 
   // 读取本地快捷键设置，并更新当前修改的快捷键
   const saveShortCutData = () => {
-    const shortcutFormData = {}
-    Object.keys(formData.value).forEach((shortKey) => {
-      shortcutFormData[shortKey] = {
-        value: formData.value[shortKey].value,
-        text: formData.value[shortKey].text,
-      }
-    })
+    const shortcutFormData = mapValues(formData.value, ({ value, text }) => ({ value, text }))
     const newSetting = { shortcutConfig: shortcutFormData }
     useUserSettingStore().saveUserSetting(newSetting)
     updateHotkeysSetting()
