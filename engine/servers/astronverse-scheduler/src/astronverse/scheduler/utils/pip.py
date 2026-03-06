@@ -122,7 +122,6 @@ class PipManager:
         ]
         _, error_data = SubPopen(cmd=cmd).run(log=True).logger_handler()
         if error_data:
-            logger.error("download_pip error:{}".format(error_data))
             raise BizException(PIP_DOWNLOAD_ERROR_FORMAT.format(error_data), "download_pip error:{}".format(error_data))
 
         # 缓存
@@ -192,7 +191,6 @@ class PipManager:
             try:
                 _, error_data = SubPopen(cmd=cmd).run(log=True).logger_handler()
                 if error_data:
-                    logger.error("install_pip error:{}".format(error_data))
                     raise BizException(
                         PIP_INSTALL_ERROR_FORMAT.format(error_data), "install_pip error:{}".format(error_data)
                     )

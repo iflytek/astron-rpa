@@ -582,8 +582,7 @@ class UIAFactory:
             )
             return res
         else:
-            logger.error(f"遍历了 {len(root_handles)} 个句柄，均未找到任何匹配元素")
-            raise BizException(NO_FIND_ELEMENT, "元素无法找到")
+            raise BizException(NO_FIND_ELEMENT, f"遍历了 {len(root_handles)} 个句柄，均未找到任何匹配元素")
 
 
 uia_factory = UIAFactory()

@@ -202,7 +202,6 @@ class DataFilter:
                     self.data_table[index] = ""
                     self.data_table[index].update(filter_result)
                 except Exception as e:
-                    logger.error(f"cell_filter: {str(e)}")
                     raise BizException(
                         FILTER_CONDITION_NOT_SUPPORTED_FORMAT.format(str(e)), f"暂不支持该筛选条件：{str(e)}"
                     )
@@ -231,7 +230,6 @@ class DataFilter:
                 try:
                     self.data_table = self.data_table[eval(filter_condition)]
                 except Exception as e:
-                    logger.error(f"table_filter: {str(e)}")
                     raise BizException(
                         FILTER_CONDITION_NOT_SUPPORTED_FORMAT.format(str(e)), f"暂不支持该筛选条件：{str(e)}"
                     )
