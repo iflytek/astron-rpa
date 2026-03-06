@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { useTranslation } from 'i18next-vue'
+import { computed, ref } from 'vue'
 
 import type { AsyncAction, AuthType, ConsultFormData, Edition, InviteInfo, RegisterFormData, RegisterMode } from '../../interface.ts'
 import ConsultForm from '../Base/Consult/ConsultForm.vue'

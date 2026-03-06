@@ -1,5 +1,7 @@
 import { cloneDeep, unionWith } from 'lodash-es'
 
+import i18next from '@/plugins/i18next'
+
 import { isComponentKey } from '@/utils/customComponent'
 
 import { isSmartComponentKey } from '@/components/SmartComponent/utils'
@@ -87,7 +89,7 @@ export function generateBaseItems(initData, alias = '') {
     i.value = [obj]
 
     if (initData.key === Group)
-      i.title = '分组名称'
+      i.title = i18next.t('arrange.groupName')
     return i
   })
 }

@@ -1,6 +1,7 @@
 import { LinkOutlined } from '@ant-design/icons-vue'
 import type { Editor } from '@tiptap/vue-3'
 import { Button, Form, Input, Popover } from 'ant-design-vue'
+import i18next from 'i18next'
 import type { PropType } from 'vue'
 import { defineComponent, reactive, ref } from 'vue'
 
@@ -37,14 +38,14 @@ export const LinkToolbar = defineComponent({
 
     const renderContent = () => (
       <Form layout="vertical" model={formState} onFinish={onFinish} class="w-80">
-        <Form.Item label="文本">
-          <Input v-model={[formState.text, 'value']} placeholder="添加描述" />
+        <Form.Item label={i18next.t('components.richText.text')}>
+          <Input v-model={[formState.text, 'value']} placeholder={i18next.t('components.richText.addDesc')} />
         </Form.Item>
-        <Form.Item label="链接">
-          <Input v-model={[formState.url, 'value']} placeholder="链接地址" />
+        <Form.Item label={i18next.t('components.richText.link')}>
+          <Input v-model={[formState.url, 'value']} placeholder={i18next.t('components.richText.linkUrl')} />
         </Form.Item>
         <Form.Item class="m-0">
-          <Button htmlType="submit" disabled={!formState.text || !formState.url}>确定</Button>
+          <Button htmlType="submit" disabled={!formState.text || !formState.url}>{i18next.t('components.richText.confirm')}</Button>
         </Form.Item>
       </Form>
     )
@@ -69,7 +70,7 @@ export const LinkToolbar = defineComponent({
         trigger="click"
         onOpenChange={handleOpenChange}
       >
-        <IconButton title="插入链接">
+        <IconButton title={i18next.t('components.richText.insertLink')}>
           <LinkOutlined />
         </IconButton>
       </Popover>

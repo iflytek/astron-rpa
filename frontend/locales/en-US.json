@@ -117,7 +117,27 @@
     "contactLater": "Staff will contact you later",
     "confirmJoin": "Confirm Join",
     "useOtherAccount": "Use another account",
-    "currentAccount": "Current Account"
+    "currentAccount": "Current Account",
+    "companyName": "Company Name",
+    "enterCompanyName": "Please enter your company name",
+    "companyNameMaxLength": "Company name cannot exceed 50 characters",
+    "teamSize": "Team Size",
+    "selectTeamSize": "Please select team size",
+    "teamSizeOptions": {
+      "1-10": "1-10 people",
+      "11-50": "11-50 people",
+      "51-100": "51-100 people",
+      "101-500": "101-500 people",
+      "500plus": "500+ people"
+    },
+    "renewalDuration": "Renewal Duration",
+    "selectRenewalDuration": "Please select renewal duration",
+    "durationOptions": {
+      "6months": "6 months",
+      "1year": "1 year",
+      "2years": "2 years",
+      "3years": "3 years"
+    }
   },
   "updater": {
     "newVersionFound": "New Version Found!",
@@ -199,6 +219,9 @@
     "deployedAccounts": "Deployed accounts",
     "deploySuccess": "Deployed successfully",
     "selectAccount": "Please select an account",
+    "installSuccess": "Installation successful",
+    "installFailed": "Installation failed",
+    "installing": "Installing...",
     "editing": "Editing",
     "email": "Email",
     "enable": "Enabled",
@@ -258,7 +281,7 @@
     "file": "File",
     "selectPythonModule": "Select Python Module",
     "createPythonScript": "Create Python Script",
-    "isRequired": "is required",
+    "fieldIsRequired": "{{field}} is required",
     "length": "Length",
     "exceedLimit": "exceeds limit",
     "collapseAll": "Collapse All",
@@ -289,7 +312,8 @@
     "saveSuccess": "Saved successfully",
     "saveFailed": "Save failed",
     "saveFailedRetry": "Save failed. Please try again.",
-    "refreshSuccess": "Refresh Success"
+    "refreshSuccess": "Refresh Success",
+    "notEmpty": "{{name}} cannot be empty"
   },
   "complaint": "Complaint Report",
   "component": "component",
@@ -315,7 +339,65 @@
     "newComponentSuccess": "Creation Successful",
     "newCopy": "Create a New Copy",
     "publishComponent": "Publish Component",
-    "updateLog": "Update Log"
+    "updateLog": "Update Log",
+    "auth": {
+      "loadingEnv": "Loading Environment...",
+      "createWorkspace": "Create New Workspace",
+      "acceptInvite": "Accept Invitation",
+      "personalFree": "Personal Free",
+      "professional": "Professional",
+      "enterprise": "Enterprise",
+      "inviteJoin": "Invites you to join",
+      "market": "App Market",
+      "workspace": "Workspace",
+      "tenantExpired": "Tenant Expired",
+      "tenantExpiredDesc": "The {{type}} workspace has expired, please renew.",
+      "consultHandle": "Consult",
+      "iKnow": "I Know",
+      "renewal": "Renewal",
+      "selectRelatedSpace": "Select Related Space",
+      "selectSpace": "Select Space",
+      "relatedSpaceDesc": "After linking, you can share and use assets from this space in the team market.",
+      "selectSpaceDesc": "Your account is linked to the following spaces, you can enter any of them.",
+      "enterCaptcha": "Enter verification code",
+      "captchaSent": "Code sent ({{seconds}}s)",
+      "sending": "Sending...",
+      "sendCaptcha": "Send Code",
+      "captchaSendSuccess": "Code sent successfully",
+      "submitSuccess": "Submitted successfully",
+      "consult": "Consult",
+      "agreeToJoin": "Click join means you agree and accept",
+      "checkToAgree": "Check means you agree and accept",
+      "serviceAgreement": "Service Agreement",
+      "privacyPolicy": "Privacy Policy",
+      "phoneNotRegistered": "Current phone number is not registered",
+      "serviceError": "Service Error",
+      "sendCaptchaUndefined": "sendCaptcha method is undefined",
+      "fetchTenantsFailed": "Failed to fetch tenant list",
+      "noAvailableSpace": "Current account has no available space, please contact administrator to open space before logging in",
+      "loginFailed": "Login failed",
+      "enterSpaceFailed": "Failed to enter space",
+      "registerSuccess": "Register successful",
+      "and": " and "
+    },
+    "richText": {
+      "table": "Table",
+      "text": "Text",
+      "addDesc": "Add Description",
+      "link": "Link",
+      "linkUrl": "Link URL",
+      "confirm": "Confirm",
+      "insertLink": "Insert Link",
+      "insertImage": "Insert Image",
+      "body": "Body",
+      "heading": "Heading",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "heading4": "Heading 4",
+      "heading5": "Heading 5",
+      "heading6": "Heading 6"
+    }
   },
   "conditionName": "Condition Name",
   "conditionSetting": "Condition setting",
@@ -798,6 +880,7 @@
     "fileName": "File Name",
     "copyLink": "Copy Link",
     "revoke": "Revoke",
+    "unpublishConfirm": "About to unpublish: {{name}}. It cannot be recovered. Continue?",
   "deployApp": "Deploy Application",
   "confirmDeploy": "Confirm deployment",
   "confirmPush": "Confirm push",
@@ -986,7 +1069,14 @@
   "projectMarket": "What I have acquired",
   "projectName": "Application Name",
   "projectNameCannotBeEmpty": "The project name cannot be empty!",
-  "publish": "Publish",
+  "publish": {
+    "title": "Publish Application",
+    "success": "Published successfully",
+    "autoCheckSuccess": "The application has automatically passed the review. Please check for updates in the App Market.",
+    "syncMarketSuccess": "The application update has been automatically synced to the App Market.",
+    "syncEnableVersion": "Sync and enable this version",
+    "btn": "Publish"
+  },
   "publishAsTeamplate": "Publish as template",
   "publishedTime": "Published in {{time}}",
   "publisher": "Publisher",
@@ -1023,7 +1113,17 @@
     "clear": "Clear",
     "startOperatingTip": "Please start operating on your desktop or in an app",
     "clickStartRecordingTip": "Click “Start recording” above",
-    "recordingTip": "Astron RPA will record your actions and generate a workflow"
+    "recordingTip": "Astron RPA will record your actions and generate a workflow",
+    "logDetail": "Log Details",
+    "videoPlay": "Play Video",
+    "duration": "Duration",
+    "executionCount": "Execution Count",
+    "nthExecution": "{{count}}th Execution",
+    "selectStatus": "Select Status",
+    "selectTriggerType": "Select Trigger Type",
+    "allStatus": "All Status",
+    "allTriggerType": "All Trigger Types",
+    "version": "Version"
   },
   "refresh": "Refresh",
   "refreshList": "Refresh list",
@@ -1316,6 +1416,17 @@
     "none": "None",
     "oneClickFix": "One-click fix",
     "optimizeQuestion": "Optimize question",
+    "installMissingDependencies": "Install missing dependencies?",
+    "previewNotConfigured": "Preview not configured for this smart component",
+    "loadPreviewFailed": "Failed to load preview",
+    "question": "Question",
+    "enterQuestionContent": "Please enter question content",
+    "enterQuestion": "Please enter a question",
+    "sendSuccess": "Sent successfully",
+    "enterContent": "Please enter content",
+    "sendFailed": "Failed to send",
+    "placeholderInput": "Please enter...",
+    "thinking": "Thinking...",
     "optimizeQuestionFailed": "Failed to optimize question:",
     "optimizeSuccess": "Optimization successful",
     "outputParams": "Output parameters:",
@@ -1323,7 +1434,7 @@
     "parseComponentMetaFailed": "Failed to parse component metadata:",
     "parseStreamDataFailed": "Failed to parse stream data:",
     "pickElement": "Pick element",
-  "pickElementFailed": "Failed to pick element",
+    "pickElementFailed": "Failed to pick element",
     "repick": "Repick",
     "requestFailed": "Request failed, please try again later.",
     "requesting": "Requesting...",
@@ -1407,6 +1518,12 @@
     "rename": "Rename",
     "update": "Update"
   },
+  "matchDegree": {
+    "fuzzy": "Fuzzy",
+    "default": "Default",
+    "exact": "Exact"
+  },
+  "taskAlias": "Task Alias",
   "taskName": "Task Name",
   "taskNamePlaceholder": "Please enter the task name",
   "taskQueue": "Queue for execution",
@@ -1620,13 +1737,24 @@
     "stopRunningOrDebugFirst": "Running/debugging in progress. Please stop first.",
     "alreadyRunningOrDebugging": "Already running/debugging. Please do not repeat the action.",
     "tryLaterWhileRunningOrDebug": "Running/debugging in progress. Please try again later.",
-    "selectGroupFirst": "Please select a group first, then ungroup"
+    "selectGroupFirst": "Please select a group first, then ungroup",
+    "cannotRunFromHere": "Cannot run from here",
+    "runDebugDisabledTip": "Running/debugging is not supported in multi-select/group/disabled mode",
+    "pasteDisabledTip": "Paste is not supported in multi-select mode",
+    "ungroupDisabledTip": "Only grouped nodes can be ungrouped",
+    "groupName": "Group Name"
   },
   "pick": {
     "deleteCurrentNodeConfirm": "Delete this node?"
   },
   "plugin": {
-    "reAction": "Re-{{action}}"
+    "reAction": "Re-{{action}}",
+    "operateSuccess": "{{name}} plugin {{action}} successful",
+    "operateFailed": "{{name}} plugin {{action}} failed, please check if the browser exists or try to {{action}} again",
+    "operating": "{{action}} in progress...",
+    "step1": "The plugin is installed. Follow the steps below to enable it.",
+    "step2": "If installation failed, drag and drop the plugin to load it.",
+    "runningTip": "{{name}} plugin is running (background process may exist). Please close the browser and try {{action}} again."
   },
   "smartCompPick": {
     "onlyWebAutomation": "Only web automation is currently supported",
@@ -1791,5 +1919,43 @@
     "circularReference": "Circular reference exists",
     "missingEndTag": "{{type}} missing {{tag}} end tag"
   },
-  "sharedFolderFiles": "Shared Folder Files"
+  "sharedFolderFiles": "Shared Folder Files",
+  "avatarType": {
+    "internet": "Internet",
+    "office-supplies": "Office Supplies",
+    "medical": "Medical",
+    "business": "Business",
+    "navigation-map": "Navigation Map",
+    "industry-construction": "Industry & Construction",
+    "education": "Education",
+    "digital-electronics": "Digital Electronics",
+    "technology": "Technology",
+    "design-development": "Design & Development",
+    "finance": "Finance"
+  },
+  "launch": {
+    "designer": {
+      "text": "Create Automated Applications",
+      "desc1": "Drag and drop atoms from the left to the editor area",
+      "desc2": "Capture UI controls using the element picker",
+      "desc3": "Edit corresponding atom properties",
+      "desc4": "Click run to view the full execution process"
+    },
+    "actuator": {
+      "text": "Create Scheduled Tasks via Actuator",
+      "desc1": "Select single or multiple applications",
+      "desc2": "Choose trigger method",
+      "desc3": "Actuator invokes application execution",
+      "desc4": "View execution logs and screen recordings in the records page"
+    },
+    "market": {
+      "text1": "Team Application Sharing",
+      "desc1": "Share applications to specific team markets",
+      "text2": "Obtain Shared Applications",
+      "desc2": "Obtain for secondary development or direct execution"
+    }
+  },
+  "mail": {
+    "otherEmail": "Other Email"
+  }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
 
 declare global {
@@ -15,12 +16,13 @@ interface Props {
 }
 
 const { type = 'check' } = defineProps<Props>()
+const { t } = useTranslation()
 
 const text = computed(() => {
   if (type === 'show') {
-    return '点击加入即代表您同意并接受'
+    return t('components.auth.agreeToJoin')
   }
-  return '勾选即代表您同意并接受'
+  return t('components.auth.checkToAgree')
 })
 
 function openLink(linkType: 'service' | 'privacy') {
@@ -42,9 +44,9 @@ function openLink(linkType: 'service' | 'privacy') {
   <div class="flex justify-start items-center text-center text-[#000000D9] dark:text-[#FFFFFFD9] text-[14px]">
     {{ text }}
     <Button class="p-0 h-auto" :class="type === 'show' ? '' : 'mx-[4px]'" type="link" @click="openLink('service')">
-      服务协议
-    </Button>与<Button class="p-0 h-auto ml-[4px]" type="link" @click="openLink('privacy')">
-      隐私政策
+      {{ t('components.auth.serviceAgreement') }}
+    </Button>{{ t('components.auth.and') }}<Button class="p-0 h-auto ml-[4px]" type="link" @click="openLink('privacy')">
+      {{ t('components.auth.privacyPolicy') }}
     </Button>
   </div>
 </template>

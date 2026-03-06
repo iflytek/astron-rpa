@@ -1,5 +1,6 @@
 import { message } from 'ant-design-vue'
 import { ref, watch } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import { setBaseUrl } from '../../../api/http'
 import {
@@ -39,6 +40,7 @@ export interface UseAuthFlowOptions {
 }
 
 export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'): void }) {
+  const { t } = useTranslation()
   const platform = ref<Platform>(opts.platform || 'admin')
   const preFormMode = ref<AuthFormMode>('login')
   const currentFormMode = ref<AuthFormMode>('login')
@@ -104,7 +106,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       switchMode('login')
     }
     catch (e) {
-      console.error('获取租户列表失败', e)
+      console.error(t('components.auth.fetchTenantsFailed'), e)
     }
   }
 
@@ -119,14 +121,14 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       }
 
       if (tenants.value.length === 0) {
-        message.info('当前账号暂无可用空间，请联系管理员开通空间后再登录')
+        message.info(t('components.auth.noAvailableSpace'))
         return
       }
 
       switchMode('tenantSelect')
     }
     catch (e) {
-      console.error('获取租户列表失败', e)
+      console.error(t('components.auth.fetchTenantsFailed'), e)
     }
   }
 
@@ -153,7 +155,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       switchToTenants(autoLogin)
     }
     catch (e) {
-      console.error('登录失败', e)
+      console.error(t('components.auth.loginFailed'), e)
     }
   })
 
@@ -164,7 +166,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
       emits('finish')
     }
     catch (e) {
-      console.error('进入空间失败', e)
+      console.error(t('components.auth.enterSpaceFailed'), e)
     }
   }
 
@@ -172,7 +174,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
     try {
       if (mode === 'REGISTER') {
         const token = await register(data as RegisterFormData)
-        message.success('注册账号成功')
+        message.success(t('components.auth.registerSuccess'))
         tempToken.value = token
         if (!Object.prototype.hasOwnProperty.call(data, 'password') || !(data as RegisterFormData).password)
           switchMode('setPassword')
@@ -180,7 +182,7 @@ export function useAuthFlow(opts: UseAuthFlowOptions = {}, emits: { (e: 'finish'
         return
       }
       await submitConsult(data as ConsultFormData)
-      message.success('提交成功')
+      message.success(t('components.auth.submitSuccess'))
       switchMode('login')
     }
     catch (e) {

@@ -1,6 +1,7 @@
 import { TableOutlined } from '@ant-design/icons-vue'
 import type { Editor } from '@tiptap/vue-3'
 import { Popover } from 'ant-design-vue'
+import i18next from 'i18next'
 import { computed, defineComponent, ref } from 'vue'
 import type { PropType } from 'vue'
 
@@ -84,7 +85,7 @@ export const TableToolbar = defineComponent({
         trigger="click"
         onOpenChange={handleOpenChange}
       >
-        <IconButton title="表格">
+        <IconButton title={i18next.t('components.richText.table')}>
           <TableOutlined />
         </IconButton>
       </Popover>

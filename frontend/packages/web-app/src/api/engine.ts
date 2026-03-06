@@ -42,7 +42,7 @@ export async function getCredentialList() {
 /**
  * @description: 创建凭证
  * @param data 凭证信息
- * @returns 
+ * @returns
  */
 export async function createCredential(data: { name: string, password: string }) {
   return http.post('/scheduler/credential/create', data)
@@ -51,7 +51,7 @@ export async function createCredential(data: { name: string, password: string })
 /**
  * @description: 删除凭证
  * @param data 凭证信息
- * @returns 
+ * @returns
  */
 export async function deleteCredential(name: string) {
   return http.post('/scheduler/credential/delete', { name })

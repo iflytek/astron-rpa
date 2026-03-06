@@ -232,9 +232,26 @@
     "clear": "清空",
     "startOperatingTip": "请在桌面或软件中开始操作",
     "clickStartRecordingTip": "点击上方“开始录制”",
-    "recordingTip": "星辰RPA会记录你的操作，智能生成流程"
+    "recordingTip": "星辰RPA会记录你的操作，智能生成流程",
+    "logDetail": "日志详情",
+    "videoPlay": "视频播放",
+    "duration": "执行时长",
+    "executionCount": "执行次数",
+    "nthExecution": "第{{count}}次",
+    "selectStatus": "请选择执行状态",
+    "selectTriggerType": "请选择触发方式",
+    "allStatus": "全部状态",
+    "allTriggerType": "全部触发方式",
+    "version": "版本"
   },
-  "publish": "发布",
+  "publish": {
+    "title": "发布应用",
+    "success": "发版成功",
+    "autoCheckSuccess": "当前应用自动通过上架审核，请至应用市场查看更新",
+    "syncMarketSuccess": "当前应用发版更新已自动同步到应用市场",
+    "syncEnableVersion": "同步启用该版本",
+    "btn": "发布"
+  },
   "smartRecording": "智能录制",
   "dataScraping": "数据抓取",
   "saveAsTemplate": "保存为模板",
@@ -301,6 +318,12 @@
   "robotState": "应用状态",
   "newVersionFound": "发现新版本",
   "updating-1": "更新中",
+  "matchDegree": {
+    "fuzzy": "模糊",
+    "default": "默认",
+    "exact": "精准"
+  },
+  "taskAlias": "任务别名",
   "taskName": "任务名称",
   "taskNamePlaceholder": "请输入任务名称",
   "taskType": "任务类型",
@@ -680,6 +703,9 @@
     "deployedAccounts": "已部署账号",
     "deploySuccess": "部署成功",
     "selectAccount": "请选择账号",
+    "installSuccess": "安装成功",
+    "installFailed": "安装失败",
+    "installing": "正在安装...",
     "renameSuccess": "重命名成功",
     "enter": "请输入",
     "expand": "展开",
@@ -709,7 +735,7 @@
     "file": "文件",
     "selectPythonModule": "选择Python模块",
     "createPythonScript": "创建Python脚本",
-    "isRequired": "是必填的",
+    "fieldIsRequired": "{{field}}必填",
     "length": "长度",
     "exceedLimit": "超出限制",
     "collapseAll": "全部收起",
@@ -740,7 +766,8 @@
     "saveSuccess": "保存成功",
     "saveFailed": "保存失败",
     "saveFailedRetry": "保存失败,请重试",
-    "refreshSuccess": "刷新成功"
+    "refreshSuccess": "刷新成功",
+    "notEmpty": "{{name}}不能为空"
   },
   "market": {
     "createTeam": "创建",
@@ -786,25 +813,26 @@
     "fileName": "文件名称",
     "copyLink": "复制链接",
     "revoke": "撤销",
-  "deployApp": "部署应用",
-  "confirmDeploy": "确认部署",
-  "confirmPush": "确认推送",
-  "addAccount": "新增账号",
-  "enterAddAccount": "请输入新增账号",
-  "terminalAccount": "终端账号",
-  "deployTime": "部署时间",
-  "deployVersion": "部署版本",
-  "versionPushSuccess": "版本推送成功",
-  "inviteLink": "邀请链接",
-  "inviteExpireAt": "邀请有效期至",
-  "expireAfter4Hours": "4小时后过期",
-  "expireAfter24Hours": "24小时后过期",
-  "expireAfter7Days": "7天后过期",
-  "expireAfter30Days": "30天后过期",
-  "clickReset": "点击重置",
-  "goUpgrade": "去开通",
-  "marketFullTipPrefix": "当前市场人数已满十人。开通专业版不限邀请人数，",
-  "marketFullTipSuffix": "。",
+    "unpublishConfirm": "将要下架：{{name}}, 下架后将无法恢复，是否仍要下架？",
+    "deployApp": "部署应用",
+    "confirmDeploy": "确认部署",
+    "confirmPush": "确认推送",
+    "addAccount": "新增账号",
+    "enterAddAccount": "请输入新增账号",
+    "terminalAccount": "终端账号",
+    "deployTime": "部署时间",
+    "deployVersion": "部署版本",
+    "versionPushSuccess": "版本推送成功",
+    "inviteLink": "邀请链接",
+    "inviteExpireAt": "邀请有效期至",
+    "expireAfter4Hours": "4小时后过期",
+    "expireAfter24Hours": "24小时后过期",
+    "expireAfter7Days": "7天后过期",
+    "expireAfter30Days": "30天后过期",
+    "clickReset": "点击重置",
+    "goUpgrade": "去开通",
+    "marketFullTipPrefix": "当前市场人数已满十人。开通专业版不限邀请人数，",
+    "marketFullTipSuffix": "。",
     "removeUserConfirm": "确定将当前用户移出此市场?",
     "removeUserSuccess": "移出成功",
     "removeUserFail": "移出失败",
@@ -1185,7 +1213,65 @@
     "componentDetail-1": "自定义组件详情",
     "newCopy": "新建副本",
     "componentNameExists": "组件名称已存在",
-    "newComponentSuccess": "新建成功"
+    "newComponentSuccess": "新建成功",
+    "auth": {
+      "loadingEnv": "环境加载中",
+      "createWorkspace": "创建新的工作空间",
+      "acceptInvite": "接受邀请",
+      "personalFree": "个人免费版",
+      "professional": "专业版",
+      "enterprise": "企业版",
+      "inviteJoin": "邀请您加入",
+      "market": "应用市场",
+      "workspace": "工作空间",
+      "tenantExpired": "租户已过期",
+      "tenantExpiredDesc": "该{{type}}空间已到期，请续费办理",
+      "consultHandle": "咨询办理",
+      "iKnow": "我知道了",
+      "renewal": "续费",
+      "selectRelatedSpace": "请选择关联的空间",
+      "selectSpace": "请选择空间",
+      "relatedSpaceDesc": "关联后即可在团队市场中共享和使用该空间的资产",
+      "selectSpaceDesc": "您的账号与下列空间有关联，可进入任一空间",
+      "enterCaptcha": "请输入验证码",
+      "captchaSent": "验证码已发送({{seconds}}s)",
+      "sending": "发送中...",
+      "sendCaptcha": "发送验证码",
+      "captchaSendSuccess": "验证码发送成功",
+      "submitSuccess": "提交成功",
+      "consult": "咨询",
+      "agreeToJoin": "点击加入即代表您同意并接受",
+      "checkToAgree": "勾选即代表您同意并接受",
+      "serviceAgreement": "服务协议",
+      "privacyPolicy": "隐私政策",
+      "phoneNotRegistered": "当前手机号未注册",
+      "serviceError": "服务异常",
+      "sendCaptchaUndefined": "sendCaptcha 方法未定义",
+      "fetchTenantsFailed": "获取租户列表失败",
+      "noAvailableSpace": "当前账号暂无可用空间，请联系管理员开通空间后再登录",
+      "loginFailed": "登录失败",
+      "enterSpaceFailed": "进入空间失败",
+      "registerSuccess": "注册账号成功",
+      "and": "和"
+    },
+    "richText": {
+      "table": "表格",
+      "text": "文本",
+      "addDesc": "添加描述",
+      "link": "链接",
+      "linkUrl": "链接地址",
+      "confirm": "确定",
+      "insertLink": "插入链接",
+      "insertImage": "插入图片",
+      "body": "正文",
+      "heading": "标题",
+      "heading1": "标题一",
+      "heading2": "标题二",
+      "heading3": "标题三",
+      "heading4": "标题四",
+      "heading5": "标题五",
+      "heading6": "标题六"
+    }
   },
   "avatar": {
     "robot": "机器人",
@@ -1205,13 +1291,6 @@
     "new-energy": "新能源",
     "manufacturing": "生产制造",
     "other": "其他"
-  },
-  "taskTypeOption": {
-    "file": "文件触发",
-    "mail": "邮箱触发",
-    "schedule": "时间触发",
-    "manual": "手动触发",
-    "hotKey": "热键触发"
   },
   "taskExeceptOption": {
     "stop": "终止",
@@ -1280,6 +1359,13 @@
     "hotKey": "当快捷键{{shortcuts}}按下时触发",
     "mail": "每隔{{interval_time}}分钟检查邮箱，发生变动时触发",
     "unknown": "未知任务类型"
+  },
+  "taskTypeOption": {
+    "file": "文件触发",
+    "mail": "邮箱触发",
+    "schedule": "时间触发",
+    "manual": "手动触发",
+    "hotKey": "热键触发"
   },
   "taskEndTimeBeforeFirstTime": "结束时间在首次运行之前",
   "taskTimeSet": "定时设置",
@@ -1426,7 +1512,7 @@
     },
     "noElement": "暂无元素",
     "pickElement": "拾取元素",
-  "pickElementFailed": "拾取元素失败",
+    "pickElementFailed": "拾取元素失败",
     "repick": "重新拾取",
     "checkElement": "校验元素",
     "parseStreamDataFailed": "解析流式数据失败:",
@@ -1437,7 +1523,18 @@
     "completePickFirst": "请先完成元素拾取",
     "send": "发送",
     "elementPick": "元素拾取",
-    "optimizeQuestion": "优化提问"
+    "optimizeQuestion": "优化提问",
+    "installMissingDependencies": "是否安装缺失依赖库？",
+    "previewNotConfigured": "该智能组件暂未配置预览",
+    "loadPreviewFailed": "加载预览失败",
+    "question": "提问",
+    "enterQuestionContent": "请输入提问内容",
+    "enterQuestion": "请输入问题",
+    "sendSuccess": "发送成功",
+    "enterContent": "请输入内容",
+    "sendFailed": "发送失败",
+    "placeholderInput": "请输入...",
+    "thinking": "正在思考..."
   },
   "sheet": {
     "dataImport": "数据导入",
@@ -1520,7 +1617,27 @@
     "contactLater": "稍后会有工作人员联系",
     "confirmJoin": "确认加入",
     "useOtherAccount": "使用其他账号",
-    "currentAccount": "当前账号"
+    "currentAccount": "当前账号",
+    "companyName": "企业名称",
+    "enterCompanyName": "请输入您的企业名称",
+    "companyNameMaxLength": "企业名称不能超过50个字符",
+    "teamSize": "团队规模",
+    "selectTeamSize": "请选择团队规模",
+    "teamSizeOptions": {
+      "1-10": "1-10人",
+      "11-50": "11-50人",
+      "51-100": "51-100人",
+      "101-500": "101-500人",
+      "500plus": "500人以上"
+    },
+    "renewalDuration": "续费时长",
+    "selectRenewalDuration": "请选择续费时长",
+    "durationOptions": {
+      "6months": "6个月",
+      "1year": "1年",
+      "2years": "2年",
+      "3years": "3年"
+    }
   },
   "updater": {
     "newVersionFound": "发现新版本！",
@@ -1620,13 +1737,24 @@
     "stopRunningOrDebugFirst": "正在运行/调试, 请先停止",
     "alreadyRunningOrDebugging": "当前正在运行/调试, 请勿重复操作",
     "tryLaterWhileRunningOrDebug": "正在运行/调试, 请稍后再试",
-    "selectGroupFirst": "请先选择一个分组，再释放分组"
+    "selectGroupFirst": "请先选择一个分组，再释放分组",
+    "cannotRunFromHere": "不可从此处运行",
+    "runDebugDisabledTip": "多选模式/分组/禁用状态不支持运行调试",
+    "pasteDisabledTip": "多选模式不支持粘贴",
+    "ungroupDisabledTip": "非编组节点不可释放编组",
+    "groupName": "分组名称"
   },
   "pick": {
     "deleteCurrentNodeConfirm": "是否删除当前节点"
   },
   "plugin": {
-    "reAction": "重新{{action}}"
+    "reAction": "重新{{action}}",
+    "operateSuccess": "{{name}}插件{{action}}成功",
+    "operateFailed": "{{name}}插件{{action}}失败，请检查该浏览器是否存在或重新{{action}}",
+    "operating": "正在{{action}}...",
+    "step1": "插件已经安装，根据以下图片步骤开启浏览器插件",
+    "step2": "若安装失败，请打开插件路径拖动加载插件",
+    "runningTip": "{{name}}插件正在运行(后台进程可能存在)，请关闭浏览器后再{{action}}插件"
   },
   "smartCompPick": {
     "onlyWebAutomation": "当前仅支持网页自动化",
@@ -1791,5 +1919,43 @@
     "circularReference": "存在循环引用",
     "missingEndTag": "{{type}}缺少{{tag}}结束标记"
   },
-  "sharedFolderFiles": "共享文件夹文件"
+  "sharedFolderFiles": "共享文件夹文件",
+  "avatarType": {
+    "internet": "互联网",
+    "office-supplies": "办公用品",
+    "medical": "卫生医疗",
+    "business": "商业",
+    "navigation-map": "导航地图",
+    "industry-construction": "工业建筑",
+    "education": "教育",
+    "digital-electronics": "数码电子",
+    "technology": "科技",
+    "design-development": "设计开发",
+    "finance": "金融"
+  },
+  "launch": {
+    "designer": {
+      "text": "创建自动化应用",
+      "desc1": "从左侧拖拽原子能力到中间编辑区",
+      "desc2": "使用元素拾取器捕获一个界面控件",
+      "desc3": "编辑对应原子能力",
+      "desc4": "点击运行查看应用完整执行过程"
+    },
+    "actuator": {
+      "text": "通过执行器新建计划任务",
+      "desc1": "选择单个或多个应用",
+      "desc2": "选择触发方式",
+      "desc3": "执行器调用应用运行",
+      "desc4": "执行记录页面查看执行记录：完整日志和录屏"
+    },
+    "market": {
+      "text1": "团队应用共享",
+      "desc1": "支持发布应用至指定团队市场，实现共享",
+      "text2": "获取共享应用",
+      "desc2": "可获取进行二次开发，也可获取直接运行"
+    }
+  },
+  "mail": {
+    "otherEmail": "其他邮箱"
+  }
 }

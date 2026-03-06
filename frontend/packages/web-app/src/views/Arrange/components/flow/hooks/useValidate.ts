@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 import { useFormItemRequired } from '@/views/Arrange/components/atomForm/hooks/useFormItemSort'
 
 export function requiredItem(itemData: RPA.Atom) {
@@ -7,7 +9,7 @@ export function requiredItem(itemData: RPA.Atom) {
     if (useFormItemRequired(item)) {
       if (item.dynamics && !item?.show)
         return texts
-      texts.push(`${item.title}必填`)
+      texts.push(i18next.t('common.fieldIsRequired', { field: item.title }))
     }
   })
   return texts

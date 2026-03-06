@@ -1,4 +1,5 @@
 import { message } from 'ant-design-vue'
+import i18next from 'i18next'
 
 import type { ConsultFormData, LoginFormData, RegisterFormData, TenantItem } from '../interface'
 
@@ -48,8 +49,8 @@ export async function sendCaptcha(phone: string, scene: string, isRegister: bool
   if (!isRegister) {
     const registered = await checkRegistered({ phone })
     if (!registered) {
-      message.warning('当前手机号未注册')
-      return Promise.reject(new Error('当前手机号未注册'))
+      message.warning(i18next.t('components.auth.phoneNotRegistered'))
+      return Promise.reject(new Error(i18next.t('components.auth.phoneNotRegistered')))
     }
   }
   const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone, scene })

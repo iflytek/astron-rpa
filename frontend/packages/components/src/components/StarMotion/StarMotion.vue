@@ -1,9 +1,5 @@
-<template>
-  <canvas ref="canvasRef" class="star-motion" :width="width" :height="height" />
-</template>
-
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 interface Star {
   x: number
@@ -63,7 +59,8 @@ class StarImpl implements Star {
   }
 
   draw() {
-    if (!ctx) return
+    if (!ctx)
+      return
     ctx.fillStyle = `rgba(255, 255, 255, ${this.currentOpacity})`
     ctx.beginPath()
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
@@ -72,11 +69,12 @@ class StarImpl implements Star {
 }
 
 function animate() {
-  if (!ctx) return
+  if (!ctx)
+    return
 
   ctx.clearRect(0, 0, width, height)
 
-  stars.forEach(star => {
+  stars.forEach((star) => {
     star.update()
     star.draw()
   })
@@ -85,9 +83,11 @@ function animate() {
 }
 
 onMounted(() => {
-  if (!canvasRef.value) return
+  if (!canvasRef.value)
+    return
   ctx = canvasRef.value.getContext('2d')
-  if (!ctx) return
+  if (!ctx)
+    return
 
   for (let i = 0; i < starCount; i++) {
     stars.push(new StarImpl())
@@ -100,3 +100,7 @@ onUnmounted(() => {
   animationId && cancelAnimationFrame(animationId)
 })
 </script>
+
+<template>
+  <canvas ref="canvasRef" class="star-motion" :width="width" :height="height" />
+</template>
