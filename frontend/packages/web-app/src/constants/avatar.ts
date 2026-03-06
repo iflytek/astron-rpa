@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 export interface AvatarItem {
   name?: string
   icon: string
@@ -54,67 +56,67 @@ export const DEFAULT_COLOR = COLOR_LIST[0]
 export const NEW_ROBOT_AVATAR_LIST = [
   {
     type: 'internet',
-    typeName: '互联网',
+    typeName: i18next.t('avatarType.internet'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-internet-${index + 1}`),
   },
 
   {
     type: 'office-supplies',
-    typeName: '办公用品',
+    typeName: i18next.t('avatarType.office-supplies'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-office-supplies-${index + 1}`),
   },
 
   {
     type: 'medical',
-    typeName: '卫生医疗',
+    typeName: i18next.t('avatarType.medical'),
     list: Array.from({ length: 87 }, (_, index) => `avatar-medical-${index + 1}`),
   },
 
   {
     type: 'business',
-    typeName: '商业',
+    typeName: i18next.t('avatarType.business'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-business-${index + 1}`),
   },
 
   {
     type: 'navigation-map',
-    typeName: '导航地图',
+    typeName: i18next.t('avatarType.navigation-map'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-navigation-map-${index + 1}`),
   },
 
   {
     type: 'industry-construction',
-    typeName: '工业建筑',
+    typeName: i18next.t('avatarType.industry-construction'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-industry-construction-${index + 1}`),
   },
 
   {
     type: 'education',
-    typeName: '教育',
+    typeName: i18next.t('avatarType.education'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-education-${index + 1}`),
   },
 
   {
     type: 'digital-electronics',
-    typeName: '数码电子',
+    typeName: i18next.t('avatarType.digital-electronics'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-digital-electronics-${index + 1}`),
   },
 
   {
     type: 'technology',
-    typeName: '科技',
+    typeName: i18next.t('avatarType.technology'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-technology-${index + 1}`),
   },
 
   {
     type: 'design-development',
-    typeName: '设计开发',
+    typeName: i18next.t('avatarType.design-development'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-design-development-${index + 1}`),
   },
 
   {
     type: 'finance',
-    typeName: '金融',
+    typeName: i18next.t('avatarType.finance'),
     list: Array.from({ length: 90 }, (_, index) => `avatar-finance-${index + 1}`),
   },
 ]

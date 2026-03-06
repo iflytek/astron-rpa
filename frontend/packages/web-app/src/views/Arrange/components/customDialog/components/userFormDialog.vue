@@ -52,7 +52,7 @@ const {
             :name="formItem.bind"
             :rules="[
               ...(formItem?.rules || []),
-              ...(formItem?.required ? [{ required: true, message: `${formItem.label}不能为空` }] : []),
+              ...(formItem?.required ? [{ required: true, message: $t('common.notEmpty', { name: formItem.label }) }] : []),
             ]"
           >
             <component :is="createUserFormItem[formItem.dialogFormType](formItem, formState)" />

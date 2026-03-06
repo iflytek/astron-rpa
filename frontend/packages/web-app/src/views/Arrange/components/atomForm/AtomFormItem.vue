@@ -51,7 +51,7 @@ const showLabel = computed(() => {
       v-if="useFormItemRequired(atomFormItem)"
       class="form-container-context-required"
     >
-      {{ atomFormItem.title }}{{ $t('common.isRequired') }}
+      {{ $t('common.fieldIsRequired', { field: atomFormItem.title }) }}
     </article>
     <article
       v-if="atomFormItem.customizeTip"

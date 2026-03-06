@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 
 export type ATOMTABKEYS = 'BASE_ATOM' | 'EXT_ATOM'
@@ -89,9 +91,9 @@ export const DEFAULT_COLOR_LIST = [
 
 // cv拾取匹配度
 export const MATCH_DEGREE = {
-  0: '模糊',
-  95: '默认',
-  100: '精准',
+  0: i18next.t('matchDegree.fuzzy'),
+  95: i18next.t('matchDegree.default'),
+  100: i18next.t('matchDegree.exact'),
 }
 
 export const SELECT_VALUE_TYPES = [

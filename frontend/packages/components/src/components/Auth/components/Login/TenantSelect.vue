@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useTranslation } from 'i18next-vue'
+import { computed, ref } from 'vue'
 
 import type { AuthType, InviteInfo, TenantItem } from '../../interface'
 import Consult from '../Base/Consult/Index.vue'
@@ -17,11 +18,13 @@ const emit = defineEmits<{
   switchToLogin: []
 }>()
 
-const tenantTypeMap = {
-  personal: '个人免费版',
-  professional: '专业版',
-  enterprise: '企业版',
-}
+const { t } = useTranslation()
+
+const tenantTypeMap = computed<Record<string, string>>(() => ({
+  personal: t('components.auth.personalFree'),
+  professional: t('components.auth.professional'),
+  enterprise: t('components.auth.enterprise'),
+}))
 const selectedTenant = ref('')
 const consultRef = ref<InstanceType<typeof Consult> | null>(null)
 
@@ -32,13 +35,13 @@ function handleSelect(tenant: TenantItem) {
       authType,
       trigger: 'modal',
       modalConfirm: {
-        title: '租户已过期',
-        content: `该${tenantTypeMap[tenant.tenantType]}空间已到期，请续费办理`,
-        okText: '咨询办理',
-        cancelText: '我知道了',
+        title: t('components.auth.tenantExpired'),
+        content: t('components.auth.tenantExpiredDesc', { type: tenantTypeMap.value[tenant.tenantType] }),
+        okText: t('components.auth.consultHandle'),
+        cancelText: t('components.auth.iKnow'),
       },
       consult: {
-        consultTitle: `续费`,
+        consultTitle: t('components.auth.renewal'),
         consultEdition: tenant.tenantType as 'professional' | 'enterprise',
         consultType: 'renewal',
       },
@@ -52,8 +55,8 @@ function handleSelect(tenant: TenantItem) {
 <template>
   <FormLayout
     wrap-class="auth-tenant-select h-full relative"
-    :title="inviteInfo ? '请选择关联的空间' : ' 请选择空间'"
-    :sub-title="inviteInfo ? '关联后即可在团队市场中共享和使用该空间的资产' : '您的账号与下列空间有关联，可进入任一空间'"
+    :title="inviteInfo ? t('components.auth.selectRelatedSpace') : t('components.auth.selectSpace')"
+    :sub-title="inviteInfo ? t('components.auth.relatedSpaceDesc') : t('components.auth.selectSpaceDesc')"
     show-back
     @back="() => emit('switchToLogin')"
   >

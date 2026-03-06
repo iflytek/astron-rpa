@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 import { getContextMenuList } from '@/views/Arrange/utils/contextMenu'
 
 export const SCOPE = 'global'
@@ -60,7 +62,7 @@ export const shortcuts = {
   },
   [SAVE]: {
     id: SAVE,
-    name: '保存',
+    name: i18next.t('common.save'),
     value: 'Ctrl + S',
     text: 'Ctrl + S',
     validate: '',
@@ -69,7 +71,7 @@ export const shortcuts = {
   },
   [UNDO]: {
     id: UNDO,
-    name: '撤销',
+    name: i18next.t('common.undo'),
     value: 'Ctrl + Z',
     text: 'Ctrl + Z',
     validate: '',
@@ -78,7 +80,7 @@ export const shortcuts = {
   },
   [REDO]: {
     id: REDO,
-    name: '重做',
+    name: i18next.t('common.redo'),
     value: 'Ctrl + Shift + Z',
     text: 'Ctrl + Shift + Z',
     validate: '',

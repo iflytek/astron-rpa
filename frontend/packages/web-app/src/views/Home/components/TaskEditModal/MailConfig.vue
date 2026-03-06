@@ -62,7 +62,7 @@ getMailList()
         <template #label>
           <label for="form_item_userMail" class="custom-label">{{ t('mailAccount') }}</label>
         </template>
-        <a-select v-model:value="formState.user_mail" style="width: 100%" placeholder="t('mailAccountPlaceholder')" :options="mailList" @change="handleChange">
+        <a-select v-model:value="formState.user_mail" style="width: 100%" :placeholder="t('mailAccountPlaceholder')" :options="mailList" @change="handleChange">
           <template #suffixIcon>
             <a-tooltip :title="t('mailManage')">
               <MailOutlined class="cursor-pointer text-base hover:text-primary" @click="mailModal" />

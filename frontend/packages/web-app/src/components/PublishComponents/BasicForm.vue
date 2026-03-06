@@ -124,7 +124,7 @@ const isFirstVerison = computed(() => formState.value.version === 1)
           <Col :span="12">
             <Form.Item
               name="appendix"
-              :label="$t('attachment')"
+              :label="$t('common.attachment')"
               :tooltip="$t('market.attachmentUploadTip')"
               :label-col="{ span: 6 }"
               :wrapper-col="{ span: 18 }"
@@ -161,7 +161,7 @@ const isFirstVerison = computed(() => formState.value.version === 1)
 
       <div :class="isFirstVerison ? 'order-3' : 'order-1'">
         <div class="font-semibold text-[14px] leading-6 pb-3">
-          {{ $t('versionDescription') }}
+          {{ $t('common.versionDescription') }}
         </div>
         <Form.Item name="version" class="currVersion">
           <template #label>
@@ -170,7 +170,7 @@ const isFirstVerison = computed(() => formState.value.version === 1)
         </Form.Item>
         <Form.Item
           name="updateLog"
-          :label="$t('updateLog')"
+          :label="$t('common.updateLog')"
         >
           <Textarea
             v-model:value="formState.updateLog"

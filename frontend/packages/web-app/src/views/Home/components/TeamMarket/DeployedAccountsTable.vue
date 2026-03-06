@@ -36,8 +36,8 @@ const tableOption = reactive<TableOption>({
     {
       componentType: 'input',
       bind: 'realName',
-      label: 'name',
       allowClear: true,
+      placeholder: t('enterName'),
       size: 'middle',
       prefix: h(HintIcon, { name: 'search' }),
     },

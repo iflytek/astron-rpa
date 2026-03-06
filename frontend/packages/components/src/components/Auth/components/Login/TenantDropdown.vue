@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Dropdown, Menu } from 'ant-design-vue'
 import { ref } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import Loading from '../../../Loading'
 import { switchTenant, tenantList } from '../../api/login'
@@ -18,6 +19,8 @@ const { type = 'dropdown', beforeSwitch, authType = 'uap' } = defineProps<{
 const emit = defineEmits<{
   switchTenant: [tenant: TenantItem]
 }>()
+
+const { t } = useTranslation()
 
 const tenants = ref<TenantItem[]>([])
 
@@ -46,7 +49,7 @@ async function toggleTenant(tenant: TenantItem) {
   if (beforeSwitch) {
     await beforeSwitch()
   }
-  loadingRef.value?.isLoading({ isLoading: true, text: '环境加载中', timeout: 200 })
+  loadingRef.value?.isLoading({ isLoading: true, text: t('components.auth.loadingEnv'), timeout: 200 })
   try {
     await switchTenant({ tenantId: tenant.id })
   }
@@ -91,7 +94,7 @@ const open = ref(false)
             />
           </Menu.Item>
           <Menu.Item v-if="authType !== 'casdoor'" class="!border-0 !p-[0] !mt-[8px]">
-            <Consult trigger="button" :auth-type="authType" :button-conf="{ buttonType: 'button', buttonTxt: '创建新的工作空间' }" :consult="{ consultTitle: '创建新的工作空间', consultType: 'consult' }" />
+            <Consult trigger="button" :auth-type="authType" :button-conf="{ buttonType: 'button', buttonTxt: t('components.auth.createWorkspace') }" :consult="{ consultTitle: t('components.auth.createWorkspace'), consultType: 'consult' }" />
           </Menu.Item>
         </Menu>
       </template>

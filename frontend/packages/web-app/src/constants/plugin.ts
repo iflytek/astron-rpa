@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 import safe360Icon from '@/assets/img/pluginInstall/360.png'
 import x360Icon from '@/assets/img/pluginInstall/360x.png'
 import edgeIcon from '@/assets/img/pluginInstall/edge-icon.png'
@@ -36,7 +38,7 @@ export const BROWER_PLUGIN_LIST: PLUGIN_ITEM[] = [
     installVersion: '',
     description: 'chromeDescription',
     isNewest: true,
-    stepDescription: ['插件已经安装，根据以下图片步骤开启浏览器插件', '若安装失败，请打开插件路径拖动加载插件'], // 安装后手动操作的步骤描述
+    stepDescription: [i18next.t('plugin.step1'), i18next.t('plugin.step2')], // 安装后手动操作的步骤描述
     oparateStepImgs: ['chrome1.jpg', 'chrome2.jpg'], // 安装后手动操作的步骤图片
     loading: false, // 是否正在安装
   },
@@ -48,7 +50,7 @@ export const BROWER_PLUGIN_LIST: PLUGIN_ITEM[] = [
     installVersion: '',
     description: 'edgeDescription',
     isNewest: true,
-    stepDescription: ['插件已经安装，根据以下图片步骤开启浏览器插件', '若安装失败，请打开插件路径拖动加载插件'], // 安装后手动操作的步骤描述
+    stepDescription: [i18next.t('plugin.step1'), i18next.t('plugin.step2')], // 安装后手动操作的步骤描述
     oparateStepImgs: ['edge1.jpg', 'edge2.jpg'], // 安装后手动操作的步骤图片
     loading: false, // 是否正在安装
   },

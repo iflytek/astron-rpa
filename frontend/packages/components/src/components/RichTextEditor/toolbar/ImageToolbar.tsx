@@ -1,6 +1,7 @@
 import { PictureOutlined } from '@ant-design/icons-vue'
 import type { Editor } from '@tiptap/vue-3'
 import { Upload } from 'ant-design-vue'
+import i18next from 'i18next'
 import type { PropType } from 'vue'
 import { defineComponent } from 'vue'
 
@@ -30,7 +31,7 @@ export const ImageToolbar = defineComponent({
 
     return () => (
       <Upload showUploadList={false} maxCount={1} multiple={false} beforeUpload={beforeUpload} accept="image/*">
-        <IconButton title="插入图片">
+        <IconButton title={i18next.t('components.richText.insertImage')}>
           <PictureOutlined />
         </IconButton>
       </Upload>

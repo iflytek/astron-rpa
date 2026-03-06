@@ -1,16 +1,3 @@
-<template>
-  <VueMonacoEditor
-    class="monaco-editor--wrapper"
-    :value="code"
-    :height="height"
-    language="python"
-    :options="options"
-    :theme="theme"
-    @mount="handleEditorDidMount"
-    @change="handleChange"
-  />
-</template>
-
 <script setup lang="ts">
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -38,7 +25,7 @@ const props = withDefaults(defineProps<Props>(), {
   height: '100%',
   code: '',
   diagnostics: () => [],
-  theme: 'vs'
+  theme: 'vs',
 })
 
 const emit = defineEmits<Emits>()
@@ -82,7 +69,7 @@ watch(() => props.diagnostics, (newDiagnostics) => {
   }
 }, { immediate: true, flush: 'post' })
 
-const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: IMonacoEditor) => {
+function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: IMonacoEditor) {
   editorRef.value = editor
   monacoRef.value = monacoInstance
 
@@ -94,17 +81,17 @@ const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monac
   model && registerModel(model, props.lspClient)
 }
 
-const handleChange = (value: string) => {
+function handleChange(value: string) {
   emit('updateCode', value)
 }
 
-const focus = () => {
+function focus() {
   if (editorRef.value) {
     editorRef.value.focus()
   }
 }
 
-const selectRange = (range: Range) => {
+function selectRange(range: Range) {
   if (editorRef.value) {
     const monacoRange = convertRange(range)
     editorRef.value.setSelection(monacoRange)
@@ -114,3 +101,16 @@ const selectRange = (range: Range) => {
 
 defineExpose({ focus, selectRange })
 </script>
+
+<template>
+  <VueMonacoEditor
+    class="monaco-editor--wrapper"
+    :value="code"
+    :height="height"
+    language="python"
+    :options="options"
+    :theme="theme"
+    @mount="handleEditorDidMount"
+    @change="handleChange"
+  />
+</template>

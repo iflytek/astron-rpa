@@ -1,7 +1,7 @@
 import { Button, Checkbox } from 'ant-design-vue'
+import i18next from 'i18next'
 import type { Component, VNode } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
-import i18next from 'i18next'
 
 import AgreementTxt from '../components/Base/AgreementTxt.vue'
 
@@ -228,28 +228,28 @@ export const fieldFactories = {
 
   companyName: (): FieldSchema => ({
     key: 'companyName',
-    label: i18next.t('companyName'),
+    label: i18next.t('authForm.companyName'),
     type: 'input',
-    placeholder: '请输入您的企业名称',
+    placeholder: i18next.t('authForm.enterCompanyName'),
     rules: [
-      required('请输入您的企业名称'),
-      { min: 1, max: 50, message: '企业名称不能超过50个字符', trigger: 'change' },
+      required(i18next.t('authForm.enterCompanyName')),
+      { min: 1, max: 50, message: i18next.t('authForm.companyNameMaxLength'), trigger: 'change' },
     ],
   }),
 
   teamSize: (): FieldSchema => ({
     key: 'teamSize',
-    label: '团队规模',
+    label: i18next.t('authForm.teamSize'),
     type: 'select',
     options: [
-      { label: '1-10人', value: '1-10人' },
-      { label: '11-50人', value: '11-50人' },
-      { label: '51-100人', value: '51-100人' },
-      { label: '101-500人', value: '101-500人' },
-      { label: '500人以上', value: '500人以上' },
+      { label: i18next.t('authForm.teamSizeOptions.1-10'), value: '1-10人' },
+      { label: i18next.t('authForm.teamSizeOptions.11-50'), value: '11-50人' },
+      { label: i18next.t('authForm.teamSizeOptions.51-100'), value: '51-100人' },
+      { label: i18next.t('authForm.teamSizeOptions.101-500'), value: '101-500人' },
+      { label: i18next.t('authForm.teamSizeOptions.500plus'), value: '500人以上' },
     ],
-    placeholder: '请选择团队规模',
-    rules: [required('请选择团队规模')],
+    placeholder: i18next.t('authForm.selectTeamSize'),
+    rules: [required(i18next.t('authForm.selectTeamSize'))],
   }),
 
   email: (): FieldSchema => ({
@@ -280,16 +280,16 @@ export const fieldFactories = {
   }),
   renewalDuration: (consultEdition: 'professional' | 'enterprise'): FieldSchema => ({
     key: 'renewalDuration',
-    label: '续费时长',
+    label: i18next.t('authForm.renewalDuration'),
     type: 'select',
     options: [
-      { label: '6个月', value: '6个月', consultEditions: ['professional'] },
-      { label: '1年', value: '1年', consultEditions: ['professional', 'enterprise'] },
-      { label: '2年', value: '2年', consultEditions: ['professional', 'enterprise'] },
-      { label: '3年', value: '3年', consultEditions: ['enterprise'] },
+      { label: i18next.t('authForm.durationOptions.6months'), value: '6个月', consultEditions: ['professional'] },
+      { label: i18next.t('authForm.durationOptions.1year'), value: '1年', consultEditions: ['professional', 'enterprise'] },
+      { label: i18next.t('authForm.durationOptions.2years'), value: '2年', consultEditions: ['professional', 'enterprise'] },
+      { label: i18next.t('authForm.durationOptions.3years'), value: '3年', consultEditions: ['enterprise'] },
     ].filter(opt => opt.consultEditions.includes(consultEdition)),
-    placeholder: '请选择续费时长',
-    rules: [required('请选择续费时长')],
+    placeholder: i18next.t('authForm.selectRenewalDuration'),
+    rules: [required(i18next.t('authForm.selectRenewalDuration'))],
   }),
 }
 

@@ -44,7 +44,7 @@ export function useCardsShow(emits) {
 
   async function handleDeleteApp(item) {
     const { appId, marketId } = item
-    const confirm = await handleDeleteConfirm(`将要下架：${item.appName}, 下架后将无法恢复，是否仍要下架？`)
+    const confirm = await handleDeleteConfirm(t('market.unpublishConfirm', { name: item.appName }))
     if (!confirm) {
       return
     }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { message, Modal } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed, ref } from 'vue'
 
 import { submitConsult, submitRenewal } from '../../../api/login.ts'
@@ -13,6 +14,8 @@ const { consultTitle, consultEdition, consultType } = defineProps<{
   consultEdition?: 'professional' | 'enterprise'
   consultType?: 'consult' | 'renewal'
 }>()
+
+const { t } = useTranslation()
 
 const formType = computed(() => {
   return consultEdition === 'professional' ? 1 : 2
@@ -36,7 +39,7 @@ async function submit(data: ConsultFormData) {
     params.formType = formType.value
   }
   await fn(params)
-  message.success('提交成功')
+  message.success(t('components.auth.submitSuccess'))
   loading.value = false
   closeModal()
 }
@@ -60,7 +63,7 @@ defineExpose({
     <FormLayout wrap-class="auth-consult w-full !h-[460px] relative !px-[16px] !py-[20px] !bg-[transparent]" content-class="!h-[calc(100%-52px)]" :show-back="false">
       <template #header>
         <div class="text-[18px] text-[#000000D9] mb-[24px] font-[600] text-center dark:text-[#FFFFFF]">
-          {{ consultTitle || (consultType === 'renewal' ? '续费' : '咨询') }}
+          {{ consultTitle || (consultType === 'renewal' ? t('components.auth.renewal') : t('components.auth.consult')) }}
         </div>
       </template>
       <ConsultForm

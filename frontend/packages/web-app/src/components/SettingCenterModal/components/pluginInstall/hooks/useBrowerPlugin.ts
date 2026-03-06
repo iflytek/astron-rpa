@@ -40,7 +40,7 @@ export function useBrowerPlugin() {
     const modelConf = {
       title: t('presentation'),
       zIndex: 100,
-      content: `${t(pluginItem.title)}正在运行(后台进程可能存在)，请关闭浏览器后再${type}插件`,
+      content: t('plugin.runningTip', { name: t(pluginItem.title), action: type }),
       okText: t('forceClose'),
       cancelText: t('cancel'),
       onOk: () => {
@@ -71,7 +71,7 @@ export function useBrowerPlugin() {
     GlobalModal.confirm({
       title: t('presentation'),
       zIndex: 100,
-      content: `${t(pluginItem.title)}插件${type}成功`,
+      content: t('plugin.operateSuccess', { name: t(pluginItem.title), action: type }),
       okText: t('confirm'),
       cancelText: t('cancel'),
       centered: true,
@@ -86,7 +86,7 @@ export function useBrowerPlugin() {
     GlobalModal.confirm({
       title: t('presentation'),
       zIndex: 100,
-      content: `${t(pluginItem.title)}插件${type}失败，请检查该浏览器是否存在或重新${type}`,
+      content: t('plugin.operateFailed', { name: t(pluginItem.title), action: type }),
       okText: t('plugin.reAction', { action: type }),
       okType: 'primary',
       onOk: () => installBrowerPlugin(pluginItem),

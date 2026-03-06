@@ -1,6 +1,8 @@
 import { message } from 'ant-design-vue'
 import hotkeys from 'hotkeys-js'
 
+import i18next from '@/plugins/i18next'
+
 import { SCOPE } from '@/constants/shortcuts'
 import { useFlowStore } from '@/stores/useFlowStore'
 import { batchToggleNode, copy, cut, debug, deleteAtomData, group, paste, runFromHere, ungroup /* TODO: 临时注释掉，后续再打开从此处开始录制功能  recordFromHere */ } from '@/views/Arrange/components/flow/hooks/useFlow'
@@ -16,7 +18,7 @@ export function getContextMenuList() {
       title: 'runFromHere',
       icon: 'tools-run',
       disable: (atom: RPA.Atom) => useFlowStore().multiSelect || atom.disabled || atom.level !== 1,
-      disableTip: '不可从此处运行',
+      disableTip: i18next.t('arrange.cannotRunFromHere'),
       clickFn: runFromHere,
       shortcutKey: 'Ctrl+Alt+H',
     },
@@ -32,7 +34,7 @@ export function getContextMenuList() {
       title: 'runDebug',
       icon: 'tools-debug',
       disable: (atom: RPA.Atom) => useFlowStore().multiSelect || atom.disabled || atom?.key === Group || atom?.key === GroupEnd,
-      disableTip: '多选模式/分组/禁用状态不支持运行调试',
+      disableTip: i18next.t('arrange.runDebugDisabledTip'),
       clickFn: debug,
       actionicon: 'tools-run',
       actionOper: true,
@@ -70,7 +72,7 @@ export function getContextMenuList() {
       title: 'paste',
       icon: 'tools-paste',
       disable: () => useFlowStore().multiSelect,
-      disableTip: '多选模式不支持粘贴',
+      disableTip: i18next.t('arrange.pasteDisabledTip'),
       clickFn: paste,
       shortcutKey: 'Ctrl+V',
     },
@@ -90,7 +92,7 @@ export function getContextMenuList() {
       title: 'releaseGrouping',
       icon: 'tools-un-group',
       disable: (atom: RPA.Atom) => !(atom?.key === Group || atom?.key === GroupEnd),
-      disableTip: '非编组节点不可释放编组',
+      disableTip: i18next.t('arrange.ungroupDisabledTip'),
       clickFn: ungroup,
       shortcutKey: 'Ctrl+Shift+G',
     },
