@@ -159,6 +159,10 @@ const getPluginList: UtilsManagerType['getPluginList'] = async () => {
   return ipcRenderer.invoke('get-plugin-list')
 }
 
+const restartApp: UtilsManagerType['restartApp'] = () => {
+  ipcRenderer.send('restart-app')
+}
+
 const UtilsManager: UtilsManagerType = {
   getAppEnv,
   getAppPath,
@@ -179,6 +183,7 @@ const UtilsManager: UtilsManagerType = {
   showDialog,
   getPluginList,
   getResourcePath,
+  restartApp,
 }
 
 export default UtilsManager

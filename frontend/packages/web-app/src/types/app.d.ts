@@ -13,6 +13,7 @@ declare namespace RPA {
     shortcutConfig: Record<string, any> // 快捷键设置
     videoForm: VideoFormMap // 录屏设置
     msgNotifyForm: MessageFormMap // 消息通知设置
+    language?: string // 语言 可选值：zh-CN、en-US
   }
 
   interface EmailFormMap {

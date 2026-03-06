@@ -657,6 +657,7 @@
   "rpaPickerUnavailable": "拾取器暂时无法使用，请检查拾取服务是否正常",
   "saving": "保存中",
   "saveErrorAndQuit": "保存失败, 是否继续退出，退出后将丢失当前编辑内容",
+  "restart": "重启",
   "common": {
     "totalData": "共 {{total}} 项数据",
     "createDate": "创建日期",
@@ -908,6 +909,7 @@
     "userRight": "权益信息"
   },
   "settingCenter": {
+    "languageRestartTitle": "将语言切换到{{lang}}需要重启应用",
     "appearance": "外观",
     "closeWindow": "关闭窗口",
     "minimizeToTray": "最小化到系统托盘",
