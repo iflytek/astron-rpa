@@ -79,8 +79,7 @@ class RecordPickerAdapter:
             current_point = Point(current_x, current_y)
             start_control = UIAOperate.get_windows_by_point(current_point)
             if not start_control:
-                logger.info(f"获取点位所在uia-control出错{self.picker_core.last_point}")
-                raise BizException(PICKER_CONVERTER_ERROR, "拾取转换器出错，请退出项目重新开始")
+                raise BizException(PICKER_CONVERTER_ERROR, f"获取点位所在uia-control出错{self.picker_core.last_point}")
 
             process_id = UIAOperate.get_process_id(start_control)
             process_info = find_real_application_process(process_id)

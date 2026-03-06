@@ -102,7 +102,6 @@ class WindowVirtualDeskSubprocessAdapter:
         def is_start():
             is_live = virtual_desk.handler is not None and virtual_desk.handler.poll() is None
             if not is_live:
-                logger.info("检查虚拟桌面是否开启 {}".format(False))
                 raise BizException(VIRTUAL_DESK_NOT_ENABLED, "检查虚拟桌面是否开启")
 
             try:
