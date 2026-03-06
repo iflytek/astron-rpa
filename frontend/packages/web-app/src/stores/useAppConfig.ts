@@ -1,12 +1,11 @@
 import { NiceModal } from '@rpa/components'
 import type { IAppConfig, UpdateInfo } from '@rpa/shared/platform'
-import { useAsyncState, useLocalStorage } from '@vueuse/core'
+import { useAsyncState } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, reactive } from 'vue'
 
 import { checkBrowerPlugin, getSupportBrowser } from '@/api/plugin'
 import { UpdaterModal } from '@/components/Updater'
-import { CLOSE_UPDATE_MODAL_VERSION } from '@/constants'
 import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_PLUGIN_LIST } from '@/constants/plugin'
 import { updaterManager, utilsManager } from '@/platform'
@@ -19,9 +18,6 @@ interface UpdaterState extends UpdateInfo {
 
 // app config 信息
 export const useAppConfigStore = defineStore('appConfig', () => {
-  // 关闭更新提示弹窗的版本号
-  const closeUpdateModalVersion = useLocalStorage<string[]>(CLOSE_UPDATE_MODAL_VERSION, [])
-
   const updaterState = reactive<UpdaterState>({
     couldUpdate: false, // 是否需要更新
     downloaded: false, // 是否下载完成
@@ -130,21 +126,6 @@ export const useAppConfigStore = defineStore('appConfig', () => {
 
   const onUpdaterDownloaded = () => {
     updaterState.downloaded = true
-
-    // 下载完成后，如果新的版本已经被拒绝更新，则不提示
-    if (closeUpdateModalVersion.value.includes(updaterState.manifest?.version)) {
-      console.log('新的版本已经被拒绝更新，不提示')
-      return
-    }
-
-    showUpdaterModal()
-  }
-
-  // 拒绝更新
-  const rejectUpdate = (version: string) => {
-    if (!closeUpdateModalVersion.value.includes(version)) {
-      closeUpdateModalVersion.value.push(version)
-    }
   }
 
   return {
@@ -154,7 +135,6 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     checkUpdate,
     quitAndInstall,
     showUpdaterModal,
-    rejectUpdate,
     refreshBrowserPluginStatus,
     onUpdaterDownloaded,
   }
