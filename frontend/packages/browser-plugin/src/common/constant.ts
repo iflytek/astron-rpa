@@ -8,17 +8,17 @@ export const NATIVE_HOST_NAME = 'com.astronrpa.nativehost'
 export const IGNORE_LOG_KEYS = ['getElement', 'contentInject', 'backgroundInject']
 export const BROWSER_MAP = {
   '': '',
-  'chrome': 'chrome',
-  'edge': 'edge',
-  'msedge': 'edge',
-  'firefox': 'firefox',
-  '360se': '360se',
-  '360se6': '360se',
-  'qqbrowser': 'qqbrowser',
-  '360chrome': '360Chrome',
-  '360chromex': '360ChromeX',
-  'quark': 'quark',
-  'doubao': 'Doubao',
+  'chrome': '$chrome$',
+  'edge': '$edge$',
+  'msedge': '$edge$',
+  'firefox': '$firefox$',
+  '360se': '$360se$',
+  '360se6': '$360se$',
+  'qqbrowser': '$qqbrowser$',
+  '360chrome': '$360Chrome$',
+  '360chromex': '$360ChromeX$',
+  'quark': '$quark$',
+  'doubao': '$Doubao$',
 }
 
 // Content constants

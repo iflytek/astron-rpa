@@ -5,6 +5,7 @@ import { BROWSER_MAP, IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/consta
 import { connectToNativeHost } from './background/native'
 
 let wsApp: any = null
+let astronServiceWorkerConnected = false
 
 function getAllTabs() {
   return new Promise<chrome.tabs.Tab[]>((resolve) => {
@@ -66,7 +67,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 })
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'Astron-Service-Worker') {
-    log.info('Astron service worker port connected')
+    astronServiceWorkerConnected = true
   }
 })
 
