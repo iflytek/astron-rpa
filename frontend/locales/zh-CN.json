@@ -954,7 +954,13 @@
       "phoneFormatError": "手机号码格式错误",
       "ccPlaceholder": "多个邮箱请以英文;分割，例如：aaa@163.com;bbb@163.com",
       "testSuccess": "测试成功",
-      "testSent": "{{type}}测试已发送，可稍后查看！"
+      "testSent": "{{type}}测试已发送，可稍后查看！",
+      "email": "邮箱",
+      "sms": "短信"
+    },
+    "mailManage": {
+      "subtitle": "统一管理常用收件邮箱地址",
+      "manage": "管理"
     },
     "apiKeyManage": {
       "createApiKey": "创建API Key",

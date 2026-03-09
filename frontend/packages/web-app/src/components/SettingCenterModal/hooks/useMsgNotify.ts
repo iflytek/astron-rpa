@@ -37,7 +37,7 @@ export function useNotify() {
   const email: Ref<RPA.EmailFormMap> = ref(initEmailData())
   const emailFormRules: Record<string, Rule[]> = {
     receiver: [
-      { required: true, message: t('userForm.enterEmail'), trigger: 'blur' },
+      { required: true, trigger: 'change' },
       {
         pattern: /\w[-\w.+]*@([A-Z0-9][-A-Z0-9]+\.)+[A-Z]{2,14}/i,
         message: t('settingCenter.msgNotify.mailFormatError'),
@@ -61,7 +61,7 @@ export function useNotify() {
   const phoneFormRules: Record<string, Rule[]> = {
     receiver: [
       // /0?(13|14|15|18)[0-9]{9}/
-      { required: true, message: t('userForm.enterPhone'), trigger: 'blur' },
+      { required: true, trigger: 'change' },
       {
         pattern: /^1([3-9])\d{9}$/,
         message: t('settingCenter.msgNotify.phoneFormatError'),
@@ -71,14 +71,13 @@ export function useNotify() {
   }
 
   function handleMsgTest(key: string) {
-    console.log('handleMsgTest', key)
     handleValidateSave().then(() => {
       toolsInterfacePost({
         alert_type: key,
       }).then((res) => {
         message.success(res.msg || t('settingCenter.msgNotify.testSuccess'))
       })
-      message.info(t('settingCenter.msgNotify.testSent', { type: key === 'mail' ? t('userForm.email') : t('userForm.phone') }))
+      message.info(t('settingCenter.msgNotify.testSent', { type: key === 'mail' ? t('settingCenter.msgNotify.email') : t('settingCenter.msgNotify.sms') }))
     })
   }
   function errorSave() {

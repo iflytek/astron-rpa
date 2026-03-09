@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Button, Checkbox, Form, Input, Switch } from 'ant-design-vue'
 
+import MailSelect from '@/components/MailManage/MailSelect.vue'
+
 import { useNotify } from '../hooks/useMsgNotify'
 
 import Card from './card.vue'
@@ -39,7 +41,7 @@ const {
         :wrapper-col="{ span: 19 }"
       >
         <Form.Item :label="$t('emailAddress')" name="receiver">
-          <Input v-model:value="email.receiver" :placeholder="$t('settingCenter.msgNotify.inputReceiverMail')" />
+          <MailSelect v-model:value="email.receiver" :placeholder="$t('settingCenter.msgNotify.inputReceiverMail')" />
         </Form.Item>
         <Form.Item :label="$t('sendingMethod')">
           <Checkbox v-model:checked="email.is_default">

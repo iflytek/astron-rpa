@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import { MailOutlined } from '@ant-design/icons-vue'
-import { NiceModal } from '@rpa/components'
 import { useTranslation } from 'i18next-vue'
 import { inject, ref } from 'vue'
 
-import { apiGetMailList } from '@/api/mail'
-import { MailListModal } from '@/components/MailModal'
 import { EMAIL_OPTIONS_MAP } from '@/constants/mail'
 import type { Mail } from '@/types/schedule'
+import MailSelect from '@/components/MailManage/MailSelect.vue'
 
 import MailTable from './MailTable.vue'
 
@@ -23,36 +20,17 @@ const { taskJson, formState } = defineProps({
 Object.assign(formState, taskJson)
 
 const { t } = useTranslation()
-const mailList = ref([])
 
 const mailTableRef = inject('mailTableRef', ref())
-async function getMailList() {
-  apiGetMailList({ pageNo: 1, pageSize: 100 }).then((res) => {
-    mailList.value = res.data.records.map((item) => {
-      return {
-        value: item.emailAccount,
-        label: item.emailAccount,
-        data: item,
-      }
-    })
-  })
-}
 
-function handleChange() {
-  const mailItem = mailList.value.find(item => item.value === formState.user_mail)
-  if (!mailItem)
-    return
-  formState.user_authorization = mailItem?.data.authorizationCode
-  formState.mail_flag = mailItem?.data.emailService
+function handleChange(mailItem: RPA.IMailItem) {
+  formState.user_authorization = mailItem.authorizationCode
+  formState.mail_flag = mailItem.emailService
   if (EMAIL_OPTIONS_MAP[formState.mail_flag] === 'advance') {
-    formState.custom_mail_port = mailItem?.data.port
-    formState.custom_mail_server = mailItem?.data.emailServiceAddress
+    formState.custom_mail_port = mailItem.port
+    formState.custom_mail_server = mailItem.emailServiceAddress
   }
 }
-function mailModal() {
-  NiceModal.show(MailListModal)
-}
-getMailList()
 </script>
 
 <template>
@@ -62,13 +40,7 @@ getMailList()
         <template #label>
           <label for="form_item_userMail" class="custom-label">{{ t('mailAccount') }}</label>
         </template>
-        <a-select v-model:value="formState.user_mail" style="width: 100%" :placeholder="t('mailAccountPlaceholder')" :options="mailList" @change="handleChange">
-          <template #suffixIcon>
-            <a-tooltip :title="t('mailManage')">
-              <MailOutlined class="cursor-pointer text-base hover:text-primary" @click="mailModal" />
-            </a-tooltip>
-          </template>
-        </a-select>
+        <MailSelect :placeholder="t('mailAccountPlaceholder')" v-model:value="formState.user_mail" @change="handleChange" />
       </a-form-item>
     </a-col>
     <a-col :span="12">
