@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { PlusCircleOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
-import { Popconfirm } from 'ant-design-vue'
+import { Popconfirm, TablePaginationConfig } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { h, reactive, ref } from 'vue'
 
@@ -9,11 +9,7 @@ import { apiDeleteMail, apiGetMailList } from '@/api/mail'
 
 import { MailModal } from './index'
 
-defineProps({
-  data: {
-    type: Array,
-  },
-})
+const emit = defineEmits(['close'])
 
 const createMailModal = NiceModal.useModal(MailModal)
 
@@ -34,7 +30,7 @@ const columns = [
   },
 ]
 
-const pagination = reactive({
+const pagination = reactive<TablePaginationConfig>({
   pageSize: 5,
   total: 0,
   showTotal: total => t('totalItems', { total }),
@@ -45,18 +41,16 @@ const pagination = reactive({
   },
 })
 
-const data = ref([])
+const data = ref<RPA.IMailItem[]>([])
 
-function getMailList() {
-  apiGetMailList({
+async function getMailList() {
+  const { records, total, current } = await apiGetMailList({
     pageNo: pagination.current,
     pageSize: pagination.pageSize,
-  }).then((res) => {
-    const { records, total, current } = res.data
-    pagination.total = total
-    pagination.current = current
-    data.value = records
   })
+  pagination.total = total
+  pagination.current = current
+  data.value = records
 }
 
 function addMail() {
@@ -79,11 +73,19 @@ async function deleteMail(resourceId: string) {
 }
 
 getMailList()
+
+function closeModal() {
+  emit('close')
+  modal.hide()
+}
 </script>
 
 <template>
   <a-modal
-    v-bind="NiceModal.antdModal(modal)"
+    v-bind="{
+      ...NiceModal.antdModal(modal),
+      onCancel: closeModal
+    }"
     class="mail-list-modal"
     :title="t('mailManage')"
     :footer="null"
