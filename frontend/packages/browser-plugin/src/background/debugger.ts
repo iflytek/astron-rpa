@@ -316,7 +316,6 @@ if (!isFirefox) {
           timestamp: Date.now(),
         })
       }
-      
     }
 
     if (method === 'Network.responseReceived' || method === 'Network.loadingFinished') {
@@ -359,7 +358,7 @@ if (!isFirefox) {
               ...requestInfo,
               status: response.status,
               responseBody,
-              responseHeaders
+              responseHeaders,
             }
 
             // store the filtered request data
