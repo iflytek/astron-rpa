@@ -321,8 +321,9 @@ class CustomActionScreen:
         """
 
         try:
-            # 发送 API 请求
-            response = requests.post(API_URL, data=json.dumps(messages, ensure_ascii=False))
+            # 发送 API
+            request_body = {"messages": messages}
+            response = requests.post(API_URL, json=request_body)
             response.raise_for_status()  # 检查请求是否成功
 
             # 返回模型生成的回复
