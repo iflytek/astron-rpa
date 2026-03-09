@@ -4,13 +4,14 @@ import { Utils } from '../common/utils'
 
 import { Cookie } from './cookie'
 import DataTable from './data_table'
+import { Debugger } from './debugger'
 import { adjustPosition, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
 import { WindowControl } from './window'
-// import { sendNativeMessage } from './native'
 
 globalThis.activeElement = null
+globalThis.requestInterceptionFilters = []
 
 function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _sendResponse: (args) => void) {
   if (request.type === 'element' && sender.tab) {
@@ -20,7 +21,7 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
       // favIconUrl: sender.tab.favIconUrl,// different in chrome and firefox
       isFrame: sender.frameId !== 0,
       frameId: sender.frameId,
-      tabId: sender.tab.id
+      tabId: sender.tab.id,
     }
     globalThis.activeElement = { ...request.data, ...info }
   }
@@ -702,6 +703,57 @@ const Handlers = {
     }
   },
 
+  networkHandler() {
+    return {
+      async getRequestInterceptionFilters() {
+        const filters = globalThis.requestInterceptionFilters || []
+        return Utils.success(filters)
+      },
+      async setRequestInterceptionFilters(filters: NetworkRequestFilter[]) {
+        globalThis.requestInterceptionFilters = filters || []
+        return Utils.success(true)
+      },
+      async addRequestInterceptionFilter(filters: NetworkRequestFilter[]) {
+        globalThis.requestInterceptionFilters = [...globalThis.requestInterceptionFilters, ...filters]
+        return Utils.success(true)
+      },
+      async removeRequestInterceptionFilter(filters: NetworkRequestFilter[]) {
+        const currentFilters = globalThis.requestInterceptionFilters || []
+        globalThis.requestInterceptionFilters = currentFilters.filter((currentFilter) => {
+          return !filters.some((filter) => {
+            return filter.urlPattern === currentFilter.urlPattern && filter.pathPattern === currentFilter.pathPattern
+          })
+        })
+        return Utils.success(true)
+      },
+      async startDebugNetworkListen(filters: NetworkRequestFilter[]) {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Debugger.startNetworkMonitoring(
+          tab.id,
+          filters,
+        )
+        return Utils.success(true)
+      },
+      async stopDebugNetworkListen() {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Debugger.stopNetworkMonitoring(
+          tab.id,
+        )
+        return Utils.success(true)
+      },
+      async getDebugNetworkData() {
+        const data = Debugger.networkFilterdRequests
+        return Utils.success(data)
+      },
+    }
+  },
+
   noHandler() {
     return Utils.fail(ErrorMessage.UNSUPPORT_ERROR, StatusCode.VERSION_ERROR)
   },
@@ -739,6 +791,10 @@ async function bgHandler(params) {
       result = await handlers.otherHandler()[key](params.data)
       return result
     }
+    else if (handlers.networkHandler()[key]) {
+      result = await handlers.networkHandler()[key](params.data)
+      return result
+    }
     else {
       result = handlers.noHandler()
       return result
@@ -751,5 +807,21 @@ async function bgHandler(params) {
     return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
   }
 }
+
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  const tab = await Tabs.getActiveTab()
+  const matchingRule = globalThis.requestInterceptionFilters.find((rule) => {
+    try {
+      const urlMatch = new RegExp(rule.urlPattern).test(details.url)
+      return urlMatch
+    }
+    catch {
+      return false
+    }
+  })
+  if (details.url === tab.url && matchingRule) {
+    Handlers.networkHandler().startDebugNetworkListen(globalThis.requestInterceptionFilters)
+  }
+})
 
 export { bgHandler, contentMessageHandler }

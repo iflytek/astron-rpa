@@ -1,11 +1,11 @@
 import { log } from './3rd/log'
 import { createWsApp } from './3rd/rpa_websocket'
 import { bgHandler, contentMessageHandler } from './background/backgroundInject'
-import { BROWSER_MAP, IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/constant'
 import { connectToNativeHost } from './background/native'
+import { BROWSER_MAP, IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/constant'
 
 let wsApp: any = null
-let astronServiceWorkerConnected = false
+let connectedTimestamp: number = 0
 
 function getAllTabs() {
   return new Promise<chrome.tabs.Tab[]>((resolve) => {
@@ -67,7 +67,12 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 })
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'Astron-Service-Worker') {
-    astronServiceWorkerConnected = true
+    const now = Date.now()
+    const last = connectedTimestamp
+    if (now - last > 10000) {
+      log.info('Astron-Service-Worker connected')
+      connectedTimestamp = now
+    }
   }
 })
 
