@@ -356,7 +356,7 @@ if (!isFirefox) {
             const networkData: NetworkRequestData = {
               requestId,
               ...requestInfo,
-              status: response.status,
+              status: response ? response.status : 200,
               responseBody,
               responseHeaders,
             }
