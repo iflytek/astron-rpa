@@ -33,7 +33,7 @@ class FlowSvc:
     @property
     def ast_curr_info(self):
         """获取当前线程的上下文信息"""
-        if not hasattr(self._thread_local, 'ast_curr_info'):
+        if not hasattr(self._thread_local, "ast_curr_info"):
             self._thread_local.ast_curr_info = {}
         return self._thread_local.ast_curr_info
 

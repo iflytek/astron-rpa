@@ -49,7 +49,7 @@ class Flow:
             project_id=component_id,
             mode="",
             version=version,
-            main_params=main_params
+            main_params=main_params,
         )
 
         # 注册meta信息
@@ -64,15 +64,15 @@ class Flow:
         )
 
     def gen_code(
-            self,
-            path: str,
-            project_id: str,
-            mode: str,
-            version: str,
-            process_id: str = "",
-            line: int = 0,
-            end_line: int = 0,
-            main_params: list = None,
+        self,
+        path: str,
+        project_id: str,
+        mode: str,
+        version: str,
+        process_id: str = "",
+        line: int = 0,
+        end_line: int = 0,
+        main_params: list = None,
     ):
         """生成项目代码主入口：初始化项目信息、流程/模块文件、智能组件、辅助文件。"""
         if main_params is None:
@@ -91,11 +91,20 @@ class Flow:
             requirement=requirement,
             gateway_port=self.svc.conf.gateway_port,
             global_var=global_var,
-            project_icon=project_info.get("iconUrl", "") if project_info else ""
+            project_icon=project_info.get("iconUrl", "") if project_info else "",
         )
 
         # 2. 生成流程和模块文件
-        self._gen_flow_files(path=path, project_id=project_id, mode=mode, version=version, process_id=process_id, line=line, end_line=end_line, main_params=main_params)
+        self._gen_flow_files(
+            path=path,
+            project_id=project_id,
+            mode=mode,
+            version=version,
+            process_id=process_id,
+            line=line,
+            end_line=end_line,
+            main_params=main_params,
+        )
 
         # 3. 生成智能组件
         self._gen_smart_components(path=path, project_id=project_id, mode=mode, version=version)
@@ -107,15 +116,15 @@ class Flow:
         self._write_init_py(path=path)
 
     def _gen_flow_files(
-            self,
-            path: str,
-            project_id: str,
-            mode: str,
-            version: str,
-            process_id: str,
-            line: int,
-            end_line: int,
-            main_params: list
+        self,
+        path: str,
+        project_id: str,
+        mode: str,
+        version: str,
+        process_id: str,
+        line: int,
+        end_line: int,
+        main_params: list,
     ) -> None:
         """生成流程/模块 py 及流程 .map；主入口为 main.py，未找到主入口则抛异常。"""
         resource_list = self.svc.storage.process_list(project_id=project_id, mode=mode, version=version)
@@ -179,14 +188,7 @@ class Flow:
             raise BizException(PROCESS_ACCESS_ERROR_FORMAT.format(project_id), f"工程数据异常 {project_id}")
 
     def _gen_single_flow_file(
-            self,
-            path: str,
-            project_id: str,
-            mode: str,
-            version: str,
-            config: dict,
-            line: int,
-            end_line: int
+        self, path: str, project_id: str, mode: str, version: str, config: dict, line: int, end_line: int
     ):
         """生成单个流程/模块文件（线程安全），返回处理后的参数列表"""
         category = config["category"]
@@ -206,11 +208,13 @@ class Flow:
 
         # 解析参数
         for p in param_list:
-            param = self.svc.param.parse_param({
-                "value": str_to_list_if_possible(p.get("varValue")),
-                "types": p.get("varType"),
-                "name": p.get("varName"),
-            })
+            param = self.svc.param.parse_param(
+                {
+                    "value": str_to_list_if_possible(p.get("varValue")),
+                    "types": p.get("varType"),
+                    "name": p.get("varName"),
+                }
+            )
             p["varValue"] = param.show_value()
 
         # 注册到 svc
@@ -220,14 +224,19 @@ class Flow:
             process_category=category,
             process_name=name,
             process_file_name=file_name,
-            process_params=param_list
+            process_params=param_list,
         )
 
         # 生成代码（网络请求）
         if category == "process":
             code, code_map = self._generate_flow_code(
-                project_id=project_id, mode=mode, version=version, process_id=resource_id,
-                process_name=name, start_line=line, end_line=end_line
+                project_id=project_id,
+                mode=mode,
+                version=version,
+                process_id=resource_id,
+                process_name=name,
+                start_line=line,
+                end_line=end_line,
             )
             self._write_file(path=path, file_name=file_name, content=code)
             self._write_file(path=path, file_name=file_name.replace(".py", ".map"), content=code_map)
@@ -255,7 +264,7 @@ class Flow:
                     version=version,
                     smart_key=smart_key,
                     smart_info=smart_info,
-                    index=index
+                    index=index,
                 )
                 futures.append(future)
 
@@ -264,14 +273,7 @@ class Flow:
                 future.result()  # 如果有异常会在这里抛出
 
     def _gen_single_smart_component(
-            self,
-            path: str,
-            project_id: str,
-            mode: str,
-            version: str,
-            smart_key: str,
-            smart_info,
-            index: int
+        self, path: str, project_id: str, mode: str, version: str, smart_key: str, smart_info, index: int
     ):
         """生成单个智能组件（线程安全）"""
         file_name = f"smart{index}.py"
@@ -281,26 +283,26 @@ class Flow:
             smart_id=smart_info.smart_id,
             smart_version=smart_info.smart_version,
             mode=mode,
-            version=version
+            version=version,
         )
         if res:
             self.svc.update_smart_component(
                 project_id=project_id,
                 smart_key=smart_key,
                 component_file_name=file_name,
-                smart_type=res.get("smartType")
+                smart_type=res.get("smartType"),
             )
             self._write_file(path=path, file_name=file_name, content=res.get("smartCode"))
 
     def _generate_flow_code(
-            self,
-            project_id: str,
-            mode: str,
-            version: str,
-            process_id: str,
-            process_name: str,
-            start_line: int = 0,
-            end_line: int = 0
+        self,
+        project_id: str,
+        mode: str,
+        version: str,
+        process_id: str,
+        process_name: str,
+        start_line: int = 0,
+        end_line: int = 0,
     ) -> tuple:
         """从流程数据生成 Python 源码与行号映射 (code, code_map)。"""
         flow_list = self.svc.storage.process_detail(
@@ -308,8 +310,7 @@ class Flow:
         )
 
         filtered_list, process_meta = self._filter_flow_list(
-            flow_list=flow_list, process_id=process_id, project_id=project_id,
-            start_line=start_line, end_line=end_line
+            flow_list=flow_list, process_id=process_id, project_id=project_id, start_line=start_line, end_line=end_line
         )
         self.svc.add_process_meta(project_id=project_id, process_id=process_id, process_meta=process_meta)
 
@@ -319,10 +320,7 @@ class Flow:
         program = parser.parse_program()
 
         if parser.errors:
-            raise BizException(
-                SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)),
-                f"语法错误: {parser.errors}"
-            )
+            raise BizException(SYNTAX_ERROR_FORMAT.format(" ".join(parser.errors)), f"语法错误: {parser.errors}")
 
         # 3. 生成代码
         self.svc.ast_curr_info = {
@@ -346,12 +344,7 @@ class Flow:
         return "\n".join(code_lines), ",".join(map_list)
 
     def _filter_flow_list(
-            self,
-            flow_list: list,
-            process_id: str,
-            project_id: str,
-            start_line: int,
-            end_line: int
+        self, flow_list: list, process_id: str, project_id: str, start_line: int, end_line: int
     ) -> tuple:
         """过滤流程节点：跳过 disabled、不在行范围内的，附加行号与断点，返回 (filtered_list, process_meta)。"""
         line = 0
@@ -399,11 +392,13 @@ class Flow:
         global_list = self.svc.storage.global_list(project_id=project_id, mode=mode, version=version)
         global_var = {}
         for g in global_list:
-            param = self.svc.param.parse_param({
-                "value": str_to_list_if_possible(g.get("varValue")),
-                "types": g.get("varType"),
-                "name": g.get("varName"),
-            })
+            param = self.svc.param.parse_param(
+                {
+                    "value": str_to_list_if_possible(g.get("varValue")),
+                    "types": g.get("varType"),
+                    "name": g.get("varName"),
+                }
+            )
             global_var[g["varName"]] = param.show_value()
         return global_var
 

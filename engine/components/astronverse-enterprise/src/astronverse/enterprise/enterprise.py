@@ -193,7 +193,10 @@ class Enterprise:
 
             # 检查响应状态
             if response.status_code != 200:
-                raise BizException(FILE_DOWNLOAD_FAILED_FORMAT.format(response.text), f"下载失败，状态码：{response.status_code}，响应：{response.text}")
+                raise BizException(
+                    FILE_DOWNLOAD_FAILED_FORMAT.format(response.text),
+                    f"下载失败，状态码：{response.status_code}，响应：{response.text}",
+                )
 
             content_type = response.headers.get("Content-Type", "").lower()
             if "application/json" in content_type:
