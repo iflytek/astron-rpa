@@ -158,7 +158,7 @@ class Email:
                 ],
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
-                    params={"filters": [], "file_type": "files"},
+                    params={"filters": [], "file_type": "folder"},
                 ),
                 types="Str",
             ),
@@ -235,11 +235,13 @@ class Email:
         )
         core.select(selector=folder_name)
 
-        mail_ids = []
-        for num in core.search(
+        searched_mail_ids = core.search(
             "utf-8",
             EmailSeenType.ALL.value if not unseen_flag else EmailSeenType.UNSEEN.value,
-        )[1][0].split(b" "):
+        )[1][0].split(b" ")
+
+        matched_mails = []
+        for num in reversed(searched_mail_ids):
             if not num or num == b"":
                 continue
             try:
@@ -265,23 +267,22 @@ class Email:
                 and content_text in mail_info["body"]
             ):
                 logger.info(f"im append：{str(num)}")
-                mail_ids.append(num)
+                matched_mails.append((num, mail_info))
             else:
                 logger.info(f"im continue：{str(num)}")
                 continue
 
             # 满足最大返回条件即可结束
-            if len(mail_ids) == max_return_num:
-                break
-
-        logger.info(f"mail id:{mail_ids}")
+        # Use parsed mail time for ordering instead of relying on provider-specific SEARCH order.
+        matched_mails.sort(key=lambda item: item[1].get("time") or "", reverse=True)
+        matched_mails = matched_mails[:max_return_num]
+        logger.info(f"mail id:{[mail_id for mail_id, _ in matched_mails]}")
 
         # 获取邮件详细信息，并存储附件
         return_mail_res = []
         from pathlib import Path
 
-        for mail_id in mail_ids:
-            mail_info = core.get_entire_mail_info(mail_id)
+        for mail_id, mail_info in matched_mails:
             # 判断是否需要保存附件
             if save_attachment_flag:
                 for attachment in mail_info["attachments"]:

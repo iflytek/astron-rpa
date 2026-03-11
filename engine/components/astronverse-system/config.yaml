@@ -813,11 +813,11 @@ options:
       label: 不存在
   OptionType:
     - value: overwrite
-      label: 覆盖原有文件
+      label: 覆盖
     - value: skip
-      label: 跳过保存操作
+      label: 跳过
     - value: generate
-      label: 创建文件副本
+      label: 创建副本
   DeleteType:
     - value: delete
       label: 彻底删除
