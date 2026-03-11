@@ -65,7 +65,7 @@ const formOption = ref({
 })
 const pickFormRef = ref() // 表单ref
 const customData = ref([]) // 自定义数据
-const nodeSourceData = ref({}) // 可视化数据
+const nodeSourceData = ref([]) // 可视化数据
 const detailElementData = ref<PickElementType>({
   // 元素详情
   app: '',

@@ -150,7 +150,7 @@ function isUniqueIdFn(id: string) {
 }
 
 function isHighWeightClass(cls: string) {
-  return cls && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
+  return cls && !Utils.isNumberString(cls) && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
 }
 
 function isSvgElement(element: Element): boolean {
@@ -466,16 +466,19 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
       dir.attrs.forEach(attr => attr.checked = false)
     }
     // try to uncheck index attr
-    const indexAttr = dir.attrs.find(attr => attr.name === 'index')
-    if (indexAttr?.checked) {
-      indexAttr.checked = false
-      const xpath = Utils.generateXPath(dirs)
-      const elements = getElementsByXpath(xpath)
-      const ignoreIndex = elements?.length === 1 && elements[0] === originElement
-      if (!ignoreIndex) {
-        indexAttr.checked = true
+    const tryUncheckAttr = (attrName: string) => {
+      const attr = dir.attrs.find(a => a.name === attrName)
+      if (attr?.checked) {
+        attr.checked = false
+        const xpath = Utils.generateXPath(dirs)
+        const elements = getElementsByXpath(xpath)
+        const shouldKeepChecked = !(elements?.length === 1 && elements[0] === originElement)
+        attr.checked = shouldKeepChecked
       }
     }
+
+    tryUncheckAttr('index')
+    tryUncheckAttr('class')
   }
   return dirs
 }
