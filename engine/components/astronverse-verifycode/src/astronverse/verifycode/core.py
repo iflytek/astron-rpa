@@ -22,6 +22,12 @@ class VerifyCodeCore:
         }
         if kwargs.get("direction"):
             data["direction"] = kwargs.get("direction", "")
+        if kwargs.get("out_ring_image"):
+            data["out_ring_image"] = kwargs.get("out_ring_image", "")
+        if kwargs.get("inner_circle_image"):
+            data["inner_circle_image"] = kwargs.get("inner_circle_image", "")
+        if kwargs.get("extra"):
+            data["extra"] = kwargs.get("extra", "")
 
         headers = {
             "Content-Type": "application/json",
@@ -85,4 +91,5 @@ class VerifyCodeCore:
                 logger.info(f"找到的 left 值: {margin_left_value} px")
                 return margin_left_value
             else:
+                logger.info("未找到 margin-left / left 属性。")
                 raise BizException(MARGIN_LEFT_NOT_FOUND, "未找到 margin-left / left属性。请尝试重新拾取。")

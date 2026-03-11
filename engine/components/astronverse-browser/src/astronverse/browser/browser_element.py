@@ -1458,15 +1458,17 @@ class BrowserElement:
                 similar_element = batch_element["path"]
                 wait = BrowserElement.wait_element(
                     browser_obj=browser_obj,
-                    element_data=WebPick({
-                        "elementData": {
-                            "version": batch_element["version"],
-                            "type": batch_element["type"],
-                            "app": batch_element["app"],
-                            "picker_type": "ELEMENT",
-                            "path": similar_element,
+                    element_data=WebPick(
+                        {
+                            "elementData": {
+                                "version": batch_element["version"],
+                                "type": batch_element["type"],
+                                "app": batch_element["app"],
+                                "picker_type": "ELEMENT",
+                                "path": similar_element,
+                            }
                         }
-                    }),
+                    ),
                     ele_status=WaitElementForStatusFlag.ElementExists,
                     element_timeout=int(element_timeout),
                 )

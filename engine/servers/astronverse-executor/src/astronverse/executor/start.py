@@ -97,7 +97,7 @@ def debug_start(args, flow_svc, svc):
         if args.run_param:
             try:
                 # 1. 解码并加载 JSON（文件或字符串）
-                raw = unquote(args.run_param) # noqa
+                raw = unquote(args.run_param)  # noqa
                 if os.path.exists(raw):
                     with open(raw, encoding="utf-8") as f:
                         data = json.load(f)
@@ -107,11 +107,13 @@ def debug_start(args, flow_svc, svc):
                 # 2. 解析参数列表
                 if isinstance(data, list):
                     for p in data:
-                        param = flow_svc.param.parse_param({
-                            "value": str_to_list_if_possible(p.get("varValue")),
-                            "types": p.get("varType"),
-                            "name": p.get("varName"),
-                        })
+                        param = flow_svc.param.parse_param(
+                            {
+                                "value": str_to_list_if_possible(p.get("varValue")),
+                                "types": p.get("varType"),
+                                "name": p.get("varName"),
+                            }
+                        )
                         val = param.show_value()
                         run_param[p.get("varName")] = eval(val, {}, {}) if val else ""
             except Exception:

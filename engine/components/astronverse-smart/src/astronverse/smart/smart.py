@@ -21,7 +21,9 @@ class Smart:
 
         main_func = next((obj for _, obj in inspect.getmembers(process_module, inspect.isfunction)), None)
         if not main_func or not callable(main_func):
-            raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND_FORMAT.format(path), f"模块 {path} 未定义可调用的 main 函数")
+            raise BizException(
+                MODULE_MAIN_FUNCTION_NOT_FOUND_FORMAT.format(path), f"模块 {path} 未定义可调用的 main 函数"
+            )
 
         res = main_func(**kwargs)
 

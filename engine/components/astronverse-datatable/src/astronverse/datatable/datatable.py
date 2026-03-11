@@ -1099,9 +1099,7 @@ class DataTable:
     @staticmethod
     @validate_cell
     @auto_save
-    @atomicMg.atomic(
-        "DataTable"
-    )
+    @atomicMg.atomic("DataTable")
     def insert_formula(
         row: int = 1,
         col: str = "A",
