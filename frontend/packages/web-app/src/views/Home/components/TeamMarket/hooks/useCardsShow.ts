@@ -48,7 +48,7 @@ export function useCardsShow(emits) {
     if (!confirm) {
       return
     }
-    await deleteApp({ appId, marketId })
+    await deleteApp({ appId, marketId, appType: 'robot' })
     message.success(t('common.operationSuccess'))
     emits('refreshHomeTable')
   }

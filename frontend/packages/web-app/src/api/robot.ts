@@ -210,3 +210,43 @@ export async function getEditComponentDetail(data: { robotId: string, componentI
   const res = await http.post('/api/robot/component-robot-use/edit', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
+
+/**
+ * 分享组件至团队市场
+ */
+export function shareComponentToMarket(data) {
+  return http.post('/robot/component/share', data)
+}
+
+/**
+ * 获取团队市场组件管理列表
+ */
+export function getMarketComponentList(data: {
+  pageNo?: number
+  pageSize?: number
+  appName?: string
+  appType?: string
+}) {
+  return http.post('/robot/market-resource/get-all-app-list-for-component', data)
+}
+
+/**
+ * 安装团队市场组件
+ */
+export async function installMarketComponent(data: {
+  marketId: string,
+  appId: string,
+  appName: string,
+  version: number,
+}) {
+  const res = await http.post<string>('/robot/market-resource/obtain-component', data, { toast: false })
+  return res.data
+}
+
+/**
+ * 移除团队市场组件
+ */
+export async function removeMarketComponent(data: { componentId: string }) {
+  const res = await http.post<string>('/robot/component/remove', data)
+  return res.data
+}
