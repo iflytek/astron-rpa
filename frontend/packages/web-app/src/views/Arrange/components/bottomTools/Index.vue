@@ -126,7 +126,7 @@ watch(() => processStore.activeProcessId, () => {
             @click="() => expand(!collapsed)"
           />
           <rpa-hint-icon
-            v-if="customCompSetting.show"
+            v-if="customCompSetting.show && activeKey === 'config-params'"
             :name="customCompSetting.icon"
             :disabled="(customCompSetting.disable as boolean)"
             :title="$t(customCompSetting.title as string)"

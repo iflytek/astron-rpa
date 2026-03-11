@@ -14,6 +14,7 @@ import {
 const { atomFormItem } = defineProps<{
   atomFormItem: RPA.AtomDisplayItem
   disabled?: boolean
+  hideRequiredTip?: boolean // 是否隐藏必填提示
 }>()
 
 // 是否展示 label
@@ -55,7 +56,7 @@ const showLabel = computed(() => {
       :class="{ 'pointer-events-none after:pointer-events-auto after:absolute after:inset-0 cursor-not-allowed': disabled }"
     />
     <article
-      v-if="useFormItemRequired(atomFormItem)"
+      v-if="!hideRequiredTip && useFormItemRequired(atomFormItem)"
       class="form-container-context-required"
     >
       {{ $t('common.fieldIsRequired', { field: atomFormItem.title }) }}

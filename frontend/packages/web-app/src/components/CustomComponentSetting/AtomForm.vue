@@ -109,7 +109,7 @@ watch(() => alias.value, (newVal, oldVal) => {
         >
           <template v-if="item.key.startsWith('input')">
             <div class="group relative p-1.5" @click="handleEdit(form)">
-              <AtomFormItem :atom-form-item="form" />
+              <AtomFormItem :atom-form-item="form" :hide-required-tip="true" />
               <!-- <div class="mt-2 pt-2 border-t border-[#000000]/[.08] dark:border-[#FFFFFF]/[.08]">
                 <div class="text-[10px] text-[#000000]/[.45] dark:text-[#FFFFFF]/[.45] mb-1">
                   Value (实时):
@@ -128,7 +128,7 @@ watch(() => alias.value, (newVal, oldVal) => {
             </div>
           </template>
           <template v-else>
-            <AtomFormItem :atom-form-item="form" disabled />
+            <AtomFormItem :atom-form-item="form" disabled :hide-required-tip="true" />
           </template>
         </template>
       </section>

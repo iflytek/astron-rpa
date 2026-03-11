@@ -196,7 +196,6 @@ function buildComponentFormData(params: {
     outputList: outputFormItems,
     icon,
     helpManual: '',
-    noAdvanced: true
   }
 }
 
