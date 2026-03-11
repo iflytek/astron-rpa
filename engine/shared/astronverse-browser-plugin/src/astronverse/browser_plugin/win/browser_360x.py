@@ -53,7 +53,7 @@ class Browser360XPluginManager(PluginManagerCore):
             try:
                 self.get_browser_path()
                 return True
-            except FileNotFoundError:
+            except Exception:
                 return False
         return browser_registry
 
