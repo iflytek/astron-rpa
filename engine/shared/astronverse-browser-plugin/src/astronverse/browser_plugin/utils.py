@@ -45,7 +45,7 @@ def get_latest_plugin(plugins, pre_name):
         try:
             _, version, _, _ = parse_filename_regex(plugin)
             plugins_versions.append((plugin, version))
-        except ValueError:
+        except Exception as e:
             continue
     if not plugins_versions:
         raise Exception("No valid plugins found...")
@@ -114,7 +114,7 @@ class FirefoxUtils:
                     return False, ""
             else:
                 return False, ""
-        except FileNotFoundError:
+        except Exception as e:
             return False, ""
 
 
@@ -201,7 +201,7 @@ class Registry:
         """
         try:
             return reg.QueryValueEx(key, value_name)
-        except FileNotFoundError:
+        except Exception as e:
             return None, None
 
     @staticmethod
@@ -225,7 +225,7 @@ class Registry:
                     except OSError:
                         break
                 return values
-        except FileNotFoundError:
+        except Exception as e:
             return []
 
     @staticmethod
@@ -239,7 +239,7 @@ class Registry:
             head = reg.HKEY_CURRENT_USER
         try:
             return reg.OpenKey(head, key_path, 0, reg.KEY_ALL_ACCESS)
-        except FileNotFoundError:
+        except Exception as e:
             raise BizException(REGISTRY_NOT_FOUND_FORMAT.format(key_path), f"注册表项 {key_path} 未找到")
 
 
@@ -248,7 +248,7 @@ def kill_process(name: str):
         try:
             if "{}.exe".format(name) == proc.info["name"].lower():
                 proc.kill()
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        except Exception as e:
             pass
 
 
@@ -265,12 +265,12 @@ def get_app_path(name: str):
         key = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, app_path)
         path, _ = reg.QueryValueEx(key, "")
         return path
-    except FileNotFoundError:
+    except Exception as e:
         try:
             key = reg.OpenKey(reg.HKEY_CURRENT_USER, app_path)
             path, _ = reg.QueryValueEx(key, "")
             return path
-        except FileNotFoundError:
+        except Exception as e:
             return None
 
 
@@ -395,7 +395,7 @@ def is_browser_running(browser_name: str) -> bool:
         try:
             if proc_name.lower() == proc.info["name"].lower():
                 return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        except Exception as e:
             pass
     return False
 

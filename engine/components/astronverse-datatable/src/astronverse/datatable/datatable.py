@@ -388,7 +388,7 @@ class DataTable:
                 # 尝试将字符串解析为 Python 字面量 (例如列表)
                 evaluated_data = ast.literal_eval(data)
                 data = evaluated_data
-            except (ValueError, SyntaxError):
+            except Exception as e:
                 pass
 
         if write_type == WriteType.CELL:
@@ -732,7 +732,7 @@ class DataTable:
             try:
                 # 使用 ast.literal_eval 代替 eval
                 _clipboard = ast.literal_eval(_clipboard)
-            except (ValueError, SyntaxError):
+            except Exception as e:
                 pass
 
         DataTable.write_data(

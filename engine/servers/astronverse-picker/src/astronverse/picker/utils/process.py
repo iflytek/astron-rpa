@@ -104,7 +104,7 @@ def get_java_process() -> tuple[list[int], list[str]]:
             try:
                 pid = int(filename)
                 pids.append(pid)
-            except ValueError:
+            except Exception as e:
                 continue
 
     # 验证进程是否实际存在

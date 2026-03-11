@@ -207,5 +207,5 @@ class Network:
         try:
             http_download_path = NetworkCore.http_download(url=url, dst_path=download_path)
             return http_download_path
-        except BizException as e:
+        except Exception as e:
             raise BizException(HTTP_DOWNLOAD_FORMAT.format(e), "文件下载失败")

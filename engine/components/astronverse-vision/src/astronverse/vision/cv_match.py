@@ -126,7 +126,7 @@ class AnchorMatch:
             try:
                 aim_x, aim_y = map(lambda x: int(float(x)), center_coords_aim.split(","))
                 anchor_x, anchor_y = map(lambda x: int(float(x)), center_coords_anchor.split(","))
-            except ValueError as e:
+            except Exception as e:
                 import traceback
 
                 stack_info = traceback.format_exc()

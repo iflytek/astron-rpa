@@ -38,9 +38,7 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
                 index_int = int(index)
                 if index < -len(list_data) or index >= len(list_data):
                     raise BizException(LIST_INDEX_OUT_OF_RANGE, "数组索引值超出范围")
-        except ValueError as e:
-            raise BizException(INVALID_INDEX_TYPE, "请提供有效的整数类型索引")
-        except Exception:
+        except Exception as e:
             raise BizException(INVALID_INDEX_TYPE, "请提供整数类型的索引")
     return list_data, index_int
 
@@ -206,7 +204,7 @@ class ListProcess:
         try:
             list_pos = list_data.index(value)
             return list_pos
-        except ValueError:
+        except Exception as e:
             raise BizException(ELEMENT_NOT_FOUND, "列表中不存在该对象")
 
     @staticmethod
@@ -260,7 +258,7 @@ class ListProcess:
         elif del_mode == DeleteMethodType.VALUE:
             try:
                 index = list_data.index(del_value)
-            except ValueError:
+            except Exception as e:
                 raise BizException(ELEMENT_NOT_FOUND, "列表中未找到该元素")
             del list_data[index]
             return list_data

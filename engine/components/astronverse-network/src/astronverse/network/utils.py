@@ -23,7 +23,7 @@ def get_file_list(paths_string: str):
 def is_json(data: str):
     try:
         json.loads(data)
-    except ValueError:
+    except Exception as e:
         return False
     return True
 

@@ -21,7 +21,7 @@ class FirefoxPluginManager(PluginManagerCore):
                 with winreg.OpenKey(key, f"{version}\\Main") as main_key:
                     path, _ = winreg.QueryValueEx(main_key, "PathToExe")
                     return path
-        except FileNotFoundError:
+        except Exception as e:
             raise BizException(FIREFOX_NOT_FOUND, "Firefox 未安装或注册表项未找到")
 
     def check_browser(self):

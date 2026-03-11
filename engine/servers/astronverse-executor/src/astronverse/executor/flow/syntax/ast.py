@@ -153,12 +153,12 @@ class Atomic(Node):
                 elif key == "__retry_time__":
                     try:
                         info["retry_time"] = int(param.value)
-                    except (ValueError, TypeError):
+                    except Exception:
                         pass
                 elif key == "__retry_interval__":
                     try:
                         info["retry_interval"] = float(param.value)
-                    except (ValueError, TypeError):
+                    except Exception as e:
                         pass
         return info
 

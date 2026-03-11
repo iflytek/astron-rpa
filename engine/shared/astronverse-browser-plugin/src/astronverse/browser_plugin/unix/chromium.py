@@ -62,8 +62,6 @@ class ChromiumPluginManager(PluginManagerCore):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-        except subprocess.CalledProcessError:
-            pass
         except Exception as e:
             pass
 
@@ -81,7 +79,7 @@ class ChromiumPluginManager(PluginManagerCore):
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-            except subprocess.CalledProcessError:
+            except Exception as e:
                 raise BizException(NO_PERMISSION_FORMAT.format(self.root_path), f"没有权限写入 {self.root_path}")
 
         if not os.path.exists(self.extension_path):

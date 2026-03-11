@@ -80,7 +80,7 @@ class NotifyUtils:
                     "subject": "RPA机器人运行异常通知",
                     "content": content,
                     "receiver": receiver,
-                    "cc": ";".join(cc_list),
+                    "ccList": cc_list,
                 }
                 response = requests.post(
                     "http://127.0.0.1:{}/api/robot/mail/send".format(self.svc.rpa_route_port),
