@@ -43,13 +43,13 @@ class EdgePluginManager(PluginManagerCore):
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
             value, _ = winreg.QueryValueEx(key, "")
             return value
-        except FileNotFoundError:
+        except Exception as e:
             try:
                 key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe"
                 key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ)
                 value, _ = winreg.QueryValueEx(key, "")
                 return value
-            except FileNotFoundError:
+            except Exception as e:
                 raise BizException(EDGE_NOT_FOUND, "Microsoft Edge 未安装或注册表项未找到")
 
     def check_browser(self):

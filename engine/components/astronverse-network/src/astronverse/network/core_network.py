@@ -44,7 +44,7 @@ class NetworkCore:
                 timeout=timeout,
             )
             return res.text
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -54,7 +54,7 @@ class NetworkCore:
         try:
             response = requests.get(url=url, headers=headers, timeout=timeout)
             return response.text
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -75,7 +75,7 @@ class NetworkCore:
                 response = session.send(prepped, timeout=timeout)
 
                 return response.text
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -92,7 +92,7 @@ class NetworkCore:
 
             # 返回响应头
             return response.headers
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -112,7 +112,7 @@ class NetworkCore:
         try:
             res = requests.put(url=url, headers=header_dict, data=body, json=json_body, timeout=timeout)
             return res.text
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -129,7 +129,7 @@ class NetworkCore:
 
             # 返回响应状态码和内容
             return response.text
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -146,7 +146,7 @@ class NetworkCore:
 
             # 返回支持的请求方法和其他相关信息
             return response.headers.get("Allow")
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -161,7 +161,7 @@ class NetworkCore:
             # 发送 TRACE 请求
             response = requests.request("TRACE", url, headers=headers, timeout=timeout)
             return response.text
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod
@@ -182,7 +182,7 @@ class NetworkCore:
             # 发送 PATCH 请求
             response = requests.patch(url, data=body, headers=headers, json=json_body, timeout=timeout)
             return response.json()
-        except requests.RequestException as e:
+        except Exception as e:
             raise BizException(HTTP_REQUEST_ERROR_FORMAT.format(str(e)), f"Request failed: {e}")
 
     @staticmethod

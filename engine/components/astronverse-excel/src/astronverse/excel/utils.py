@@ -144,8 +144,8 @@ def handle_row_input(row: Any, used_row: int) -> int:
             if row_num == 0:
                 return 1
             return row_num
-    except (ValueError, TypeError):
-        raise ValueError(f"行号输入异常，请输入数字或负数！输入值: {row}")
+    except Exception as e:
+        raise Exception(f"行号输入异常，请输入数字或负数！输入值: {row}")
 
 
 def handle_column_input(col: str, used_col: int) -> int:
@@ -177,7 +177,7 @@ def handle_column_input(col: str, used_col: int) -> int:
             if col_num == 0:
                 return 1
             return col_num
-    except (ValueError, TypeError):
+    except Exception as e:
         # 如果不是数字，尝试作为字母处理
         return column_letter_to_number(col)
 

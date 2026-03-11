@@ -22,7 +22,7 @@ class EmailSmtpSend:
     """smtp发送邮件"""
 
     def __init__(self):
-        self.mail_handler: smtplib.SMTP | smtplib.SMTP_SSL
+        self.mail_handler = None
 
     def login(self, server, port: int, user, password, use_ssl: bool = False, timeout=20):
         """登录邮箱服务器"""
@@ -32,7 +32,7 @@ class EmailSmtpSend:
             self.mail_handler = smtplib.SMTP(server, port, timeout=timeout)
         try:
             self.mail_handler.login(user, password)
-        except smtplib.SMTPException as e:
+        except Exception as e:
             logger.error("login error: {}".format(e))
             return False
         return True
@@ -135,5 +135,5 @@ class EmailSmtpSend:
                     receiver_group_list[i] + cc_group_list[i] + bcc_group_list[i],
                     msg.as_string(),
                 )
-            except smtplib.SMTPException as e:
+            except Exception as e:
                 raise BizException(LOGIN_FAIL_FORMAT.format(e), "发送失败{}".format(e))

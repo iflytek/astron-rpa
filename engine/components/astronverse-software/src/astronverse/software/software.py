@@ -122,8 +122,8 @@ class Software:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-        except (subprocess.SubprocessError, OSError) as error:
-            logger.error(f"error: Software close {error}")
+        except Exception as e:
+            logger.error(f"error: Software close {e}")
             return
 
     @staticmethod
@@ -156,7 +156,7 @@ class Software:
                 for parent in process.parents():
                     if parent.name() == parent_name:
                         return process.pid
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            except Exception as e:
                 pass
         return -1
 

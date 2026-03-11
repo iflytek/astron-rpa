@@ -157,7 +157,7 @@ class BrowserControlFinder:
                 try:
                     if proc.info["name"] and proc.info["name"].lower() == process_name.lower():
                         pids.add(proc.info["pid"])
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                except Exception as e:
                     continue
         except Exception as e:
             print(f"获取进程ID失败: {e}")

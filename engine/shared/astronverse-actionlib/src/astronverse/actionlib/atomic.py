@@ -81,8 +81,7 @@ class AtomicManager:
                 return {key: config.get(key, "")}
 
             return {}
-
-        except OSError:
+        except Exception as e:
             return {}
 
     def atomic(self, group_key="", **kwargs):

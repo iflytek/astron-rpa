@@ -339,11 +339,7 @@ class CustomActionScreen:
                 return response_json["choices"][0]["message"]["content"]
             else:
                 raise BizException(UNKNOWN_RESPONSE_FORMAT, "未知的响应格式")
-
-        except requests.exceptions.RequestException as e:
-            logger.info(f"请求错误: {e}")
-            return None
-        except KeyError:
+        except Exception as e:
             logger.info("响应格式不正确")
             return None
 

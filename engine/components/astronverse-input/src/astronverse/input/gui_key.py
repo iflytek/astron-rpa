@@ -101,7 +101,7 @@ class GuiKeyBoard:
                 subprocess.run(
                     cmd, check=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
                 )
-            except subprocess.CalledProcessError as e:
+            except Exception as e:
                 raise BizException(DRIVE_INPUT_ERROR, "键盘驱动输入没有管理员权限")
         elif keyboard_type == KeyboardType.GBLID:
             from astronverse.input.code import ghostbox as gb

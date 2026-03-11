@@ -21,7 +21,7 @@ class Worksheet:
                 sheet_index = int(sheet_name)
                 if 1 <= sheet_index <= workbook.Sheets.Count:
                     return workbook.Worksheets(sheet_index)
-            except ValueError:
+            except Exception as e:
                 pass
             raise ValueError(f"工作表'{sheet_name}'不存在")
 

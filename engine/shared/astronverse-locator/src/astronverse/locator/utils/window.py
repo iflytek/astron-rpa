@@ -105,7 +105,7 @@ def validate_ui_element_rect(left, top, right, bottom, max_width=2000, max_heigh
             return False
 
         return True
-    except TypeError:
+    except Exception as e:
         # 处理非数值类型输入（如字符串）
         return False
 
@@ -139,7 +139,7 @@ def validate_window_rect(left, top, right, bottom):
             return False
 
         return True
-    except TypeError:
+    except Exception as e:
         # 处理非数值类型输入（如字符串）
         return False
 

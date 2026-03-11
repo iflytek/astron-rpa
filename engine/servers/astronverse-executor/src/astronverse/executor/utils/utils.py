@@ -67,7 +67,7 @@ def str_to_list_if_possible(s):
             return result
         else:
             return s  # 虽然是 [] 形式，但解析后不是 list（如可能是 tuple）
-    except (ValueError, SyntaxError):
+    except Exception as e:
         return s  # 解析失败，说明不是有效的列表字符串
 
 

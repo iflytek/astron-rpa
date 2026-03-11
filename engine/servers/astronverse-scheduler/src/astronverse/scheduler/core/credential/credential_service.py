@@ -49,8 +49,6 @@ class CredentialService:
             if not raw:
                 return []
             return json.loads(raw)
-        except json.JSONDecodeError:
-            return []
         except Exception as e:
             logger.exception(f"获取凭证索引失败: {e}")
             return []

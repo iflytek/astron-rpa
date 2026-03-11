@@ -22,7 +22,7 @@ def validate(row=1, col="A"):
     print(f"Validating row: {row}, col: {col}")
     try:
         row = int(row)
-    except ValueError:
+    except Exception as e:
         pass
     if isinstance(col, str):
         if not (col.isalpha() and col.upper() >= "A"):
@@ -34,7 +34,7 @@ def validate(row=1, col="A"):
 def validate_row(row):
     try:
         row = int(row)
-    except (ValueError, TypeError):
+    except Exception as e:
         pass
     if isinstance(row, int):
         if row < 1:
@@ -64,7 +64,7 @@ def validate_end_row(start_row, end_row):
     try:
         start_row = int(start_row)
         end_row = int(end_row)
-    except ValueError:
+    except Exception as e:
         raise BizException(ROW_FORMAT_ERROR_FORMAT.format(end_row), "行格式错误")
     if end_row < start_row:
         raise BizException(ROW_RANGE_ERROR, "结束行不能小于开始行")
@@ -74,7 +74,7 @@ def col_to_index(col="A") -> int:
     """将列标转换为索引"""
     try:
         col = int(col)
-    except ValueError:
+    except Exception as e:
         pass
     if isinstance(col, int):
         if col < 1:
@@ -171,28 +171,28 @@ def value_check(
             val_num = float(val)
             cond_val_num = float(cond_val)
             return val_num > cond_val_num
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     elif condition_type == ConditionType.LESS_THAN:
         try:
             val_num = float(val)
             cond_val_num = float(cond_val)
             return val_num < cond_val_num
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     elif condition_type == ConditionType.GREATER_THAN_OR_EQUAL:
         try:
             val_num = float(val)
             cond_val_num = float(cond_val)
             return val_num >= cond_val_num
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     elif condition_type == ConditionType.LESS_THAN_OR_EQUAL:
         try:
             val_num = float(val)
             cond_val_num = float(cond_val)
             return val_num <= cond_val_num
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     elif condition_type == ConditionType.CONTAINS:
         return str(val).find(str(cond_val)) != -1
@@ -211,14 +211,14 @@ def value_check(
             val_date = val if isinstance(val, datetime) else datetime.strptime(val, "%Y-%m-%d")
             cond_date = datetime.strptime(date_value, "%Y-%m-%d")
             return val_date > cond_date
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     elif condition_type == ConditionType.DATE_BEFORE:
         try:
             val_date = val if isinstance(val, datetime) else datetime.strptime(val, "%Y-%m-%d")
             cond_date = datetime.strptime(date_value, "%Y-%m-%d")
             return val_date < cond_date
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     elif condition_type == ConditionType.DATE_BETWEEN:
         try:
@@ -227,7 +227,7 @@ def value_check(
             start_date = datetime.strptime(start_date_str.strip(), "%Y-%m-%d")
             end_date = datetime.strptime(end_date_str.strip(), "%Y-%m-%d")
             return start_date <= val_date <= end_date
-        except (ValueError, TypeError):
+        except Exception as e:
             return False
     return False
 

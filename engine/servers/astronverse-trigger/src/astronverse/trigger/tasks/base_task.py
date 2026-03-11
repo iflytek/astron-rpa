@@ -70,7 +70,7 @@ class Task:
         for col_value in CONVERT_COLUMN.values():
             try:
                 value = getattr(self, col_value)
-            except AttributeError:
+            except Exception as e:
                 continue
             if isinstance(value, dict):
                 # 这里有拆包

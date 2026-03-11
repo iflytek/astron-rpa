@@ -189,7 +189,7 @@ class Date:
         elif isinstance(value, str):
             try:
                 return cls(time_str=value)
-            except ValueError:
+            except Exception as e:
                 raise ParamException(
                     PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}".format(name, value)
                 )

@@ -44,7 +44,7 @@ class IPDFCore(ABC):
                 try:
                     start_ind = int(p_range.split("-")[0])
                     end_ind = int(p_range.split("-")[-1])
-                except ValueError:
+                except Exception as e:
                     raise BizException(PDF_PAGE_ERROR_FORMAT.format(p_range), f"页码{p_range}不符合规定！")
                 if start_ind > end_ind:
                     start_ind, end_ind = end_ind, start_ind
@@ -53,7 +53,7 @@ class IPDFCore(ABC):
             else:
                 try:
                     num = int(p_range)
-                except ValueError:
+                except Exception as e:
                     raise BizException(PDF_PAGE_ERROR_FORMAT.format(p_range), f"页码{p_range}不符合规定！")
                 page_nums.append(num)
         result_page_nums = []
