@@ -201,10 +201,7 @@ class WordDocumentCore(IDocumentCore):
             cls.word_obj = None
         else:
             cls._doc_save(doc, file_path, file_name, save_type, exist_handle_type)
-            try:
-                doc.Close(SaveChanges=0)
-            except Exception as e:
-                raise e
+            doc.Close(SaveChanges=0)
 
     @classmethod
     def insert(
@@ -503,8 +500,8 @@ class WordDocumentCore(IDocumentCore):
                     errors="replace",
                 )
                 clipboard_data = process.communicate()[0].strip()
-            except subprocess.CalledProcessError as e:
-                raise BizException("无法从剪贴板获取数据") from e
+            except Exception as e:
+                raise BizException(CLIPBOARD_PASTE_ERROR, "无法从剪贴板获取数据") from e
 
             # 检查剪贴板数据是否为文件路径，并且文件后缀为 .png, .jpg, .jpeg
             if os.path.isfile(clipboard_data):
@@ -526,8 +523,8 @@ class WordDocumentCore(IDocumentCore):
                 )
                 image_data, _ = process.communicate()
                 image = PIL.Image.open(BytesIO(image_data))
-            except subprocess.CalledProcessError as e:
-                raise BizException("剪贴板没有图片数据") from e
+            except Exception as e:
+                raise BizException(CLIPBOARD_PASTE_ERROR, "剪贴板没有图片数据") from e
             if image.mode != "RGB":
                 image = image.convert("RGB")
 

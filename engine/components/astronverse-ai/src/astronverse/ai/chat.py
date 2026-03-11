@@ -170,7 +170,7 @@ class ChatAI:
 
         try:
             output = ast.literal_eval(s_content)
-        except (ValueError, SyntaxError):
+        except Exception as e:
             output = [
                 "这篇文本的主题是什么？",
                 "文本中提到了哪些关键信息?",

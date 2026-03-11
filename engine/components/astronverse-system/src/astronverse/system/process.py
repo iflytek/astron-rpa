@@ -149,7 +149,7 @@ class Process:
                         match_proces_pid.append(proc.pid)
                     else:
                         raise NotImplementedError()
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            except Exception as e:
                 continue
 
         return match_proces_pid

@@ -44,7 +44,7 @@ class Browser360XPluginManager(PluginManagerCore):
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
             value, _ = winreg.QueryValueEx(key, "")
             return value
-        except FileNotFoundError:
+        except Exception as e:
             raise BizException(BROWSER_360X_NOT_FOUND, "360极速浏览器未安装或注册表项未找到")
 
     def check_browser(self):

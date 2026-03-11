@@ -37,7 +37,7 @@ class DataConvertProcess:
         """
         try:
             return str(input_data)
-        except Exception:
+        except Exception as e:
             raise BizException(DATA_CONVERT_ERROR, "数据类型不支持强转str")
 
     @staticmethod

@@ -27,7 +27,7 @@ def get_default_excel_application():
             return ApplicationType.WPS
         elif "excel.exe" in default_value.lower():
             return ApplicationType.EXCEL
-    except FileNotFoundError:
+    except Exception as e:
         return ApplicationType.EXCEL
 
 

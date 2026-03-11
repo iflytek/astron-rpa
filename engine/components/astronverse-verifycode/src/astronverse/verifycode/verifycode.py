@@ -930,7 +930,7 @@ class VerifyCode:
         # 将结果转换为整数
         try:
             result_int = int(calculation_result)
-        except ValueError:
+        except Exception:
             raise BizException(API_RESULT_EMPTY, "计算结果格式错误: {}".format(calculation_result))
 
         # 如果需要填写输入框
@@ -1001,7 +1001,7 @@ class VerifyCode:
         # 将结果转换为整数
         try:
             result_int = int(calculation_result)
-        except ValueError:
+        except Exception:
             raise BizException(API_RESULT_EMPTY, "计算结果格式错误: {}".format(calculation_result))
 
         # 如果需要填写输入框

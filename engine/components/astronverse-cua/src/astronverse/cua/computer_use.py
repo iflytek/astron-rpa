@@ -317,11 +317,7 @@ class ComputerUseAgent:
                 return response_json["choices"][0]["message"]["content"]
             else:
                 raise BizException(UNKNOWN_RESPONSE_FORMAT, "未知的响应格式")
-
-        except requests.exceptions.RequestException as e:
-            logger.info(f"请求错误: {e}")
-            return None
-        except KeyError:
+        except Exception as e:
             logger.info("响应格式不正确")
             return None
 
@@ -379,12 +375,9 @@ class ComputerUseAgent:
             time.sleep(0.5)
 
             return False  # 未完成，继续循环
-
         except Exception as e:
-            logger.info(f"[错误] 执行动作时出错: {e}")
             import traceback
-
-            traceback.logger.info_exc()
+            logger.info(f"[错误] 执行动作时出错: {e} {traceback.format_exc()}")
             return False
 
     def run(self, instruction: str) -> dict:

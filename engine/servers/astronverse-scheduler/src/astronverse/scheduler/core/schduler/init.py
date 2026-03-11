@@ -81,5 +81,5 @@ def linux_env_check():
                     encoding="utf-8",
                     errors="replace",
                 )
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         pass

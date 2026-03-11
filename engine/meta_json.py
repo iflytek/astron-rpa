@@ -30,7 +30,7 @@ def select_folders(folders):
             selected_folders = [folders[selected_idx]]
         else:
             print("\033[31mInvalid selection. Exiting.\033[0m")
-    except ValueError:
+    except Exception as e:
         print("\033[31mInvalid input Please select one package.\033[0m")
         select_folders(folders)
 
@@ -51,7 +51,7 @@ def run_meta_scripts():
         # Run meta.py using the proper Python interpreter
         try:
             subprocess.run([sys.executable, "meta.py"], cwd=verse_folder, check=True)
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             print(f"\033[31mFailed to run meta.py in {verse_folder}: {e}\033[0m")
 
 
@@ -151,7 +151,7 @@ def get_remote_tree():
             try:
                 res_json = json.loads(res)
                 save_json_to_file(res_json, os.path.join(os.path.dirname(__file__), "temp_tree.json"))
-            except json.JSONDecodeError as e:
+            except Exception as e:
                 print(f"\033[31mError parsing remote tree JSON: {e}\033[0m")
                 return
 
