@@ -1,4 +1,5 @@
-import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from '../common/constant'
+import { DEEP_SEARCH_TRIGGER, ELEMENT_SEARCH_TRIGGER, ErrorMessage, FRAME_ELEMENT_TAGS, HIGH_LIGHT_BORDER, HIGH_LIGHT_DURATION, SCROLL_DELAY, SCROLL_TIMES, StatusCode } from '../common/constant'
+import { UrlMatcher, UrlMatchLevel } from '../common/urlMatcher'
 import { Utils } from '../common/utils'
 import { t } from '../i18n/index'
 
@@ -6,7 +7,6 @@ import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, t
 import {
   filterVisibleElements,
   findElementByPoint,
-  generateXPath,
   getBoundingClientRect,
   getChildElementByType,
   getElementByElementInfo,
@@ -14,6 +14,7 @@ import {
   getElementByXPath,
   getElementDirectory,
   getElementsByXpath,
+  getFrameContentRect,
   getNthCssSelector,
   getSiblingElementByType,
   getText,
@@ -116,7 +117,7 @@ function moveListener(ev: MouseEvent, docu: Document | ShadowRoot, extra) {
 function formatElementInfo(element: HTMLElement, target: Document | ShadowRoot, shadowPath = '', shadowDirs: ElementDirectory[] = []) {
   const cssSelector = getNthCssSelector(element)
   const pathDirs = getElementDirectory(element)
-  const xpath = generateXPath(pathDirs) // generate xpath based on pathDirs
+  const xpath = Utils.generateXPath(pathDirs) // generate xpath based on pathDirs
   const selector = shadowPath ? `${shadowPath}>$shadow$>${cssSelector}` : cssSelector
   const dirs = shadowDirs.length > 0 ? shadowDirs.concat([{ tag: '$shadow$', checked: true, value: '$shadow$', attrs: [] }], pathDirs) : pathDirs
   const tag = Utils.getTag(element)
@@ -422,12 +423,12 @@ const ContentHandler = {
       if (preEles && curEles) {
         const preSelector = getNthCssSelector(preEles[0], true)
         const prePathDirs = getElementDirectory(preEles[0])
-        const preXpath = generateXPath(prePathDirs)
+        const preXpath = Utils.generateXPath(prePathDirs)
         const preElementInfo = { ...data.preData, pathDirs: prePathDirs, xpath: preXpath, cssSelector: preSelector }
 
         const curSelector = getNthCssSelector(curEles[0], true)
         const curPathDirs = getElementDirectory(curEles[0])
-        const curXpath = generateXPath(curPathDirs)
+        const curXpath = Utils.generateXPath(curPathDirs)
         const curElementInfo = { ...data, pathDirs: curPathDirs, xpath: curXpath, cssSelector: curSelector }
 
         return Utils.success({ ...curElementInfo, preData: preElementInfo })
@@ -1015,16 +1016,32 @@ const ContentHandler = {
       const frames = getWindowFrames()
       return Utils.success(frames)
     },
-    getFramePosition(data: { url: string, iframeXpath: string }) {
+    getFramePosition(data: { url?: string, iframeXpath?: string }) {
       const { url, iframeXpath } = data
-      const frames = getWindowFrames()
-      const frame = iframeXpath ? frames.find(item => item.xpath === iframeXpath) : frames.find(item => item.src.includes(url) || url.includes(item.src))
-      if (frame) {
-        return frame.rect
+      const defaultRect = { x: 0, y: 0, width: 0, height: 0, left: 0, top: 0, right: 0, bottom: 0 }
+      if (iframeXpath) {
+        const frameDom = getElementByXPath(iframeXpath)
+        if (frameDom) {
+          const frameRect = getFrameContentRect(frameDom)
+          return frameRect
+        }
+        return defaultRect
       }
-      else {
-        return { x: 0, y: 0, width: 0, height: 0, left: 0, top: 0, right: 0, bottom: 0 }
+      if (url) {
+        const frames = getWindowFrames()
+        const bestMatch = UrlMatcher.findBestMatch(
+          url,
+          frames.map(f => f.src),
+        )
+        if (bestMatch?.result.level >= UrlMatchLevel.DOMAIN) {
+          const frame = frames.find(f => f.src === bestMatch.url)
+          if (frame?.rect) {
+            return frame.rect
+          }
+        }
+        return defaultRect
       }
+      return defaultRect
     },
     getFrameInfo(data: { frameId: number }) {
       const { frameId } = data
@@ -1060,7 +1077,7 @@ const ContentHandler = {
           y: (realY - top - borderTop - paddingTop) * dpr,
         }
         let iframeContentRect = null
-        if (iframeEle.tagName === 'IFRAME' || iframeEle.tagName === 'FRAME') {
+        if (FRAME_ELEMENT_TAGS.includes(iframeEle.tagName.toLowerCase())) {
           iframeContentRect = {
             x: (left + borderLeft + paddingLeft) * dpr,
             y: (top + borderTop + paddingTop) * dpr,
@@ -1069,6 +1086,21 @@ const ContentHandler = {
         }
         const iframeInfo = formatElementInfo(iframeEle, document)
         return { ...iframeInfo, nextPos, iframeContentRect }
+      }
+    },
+    elementLocatorFrameId: async (data: ElementInfo) => {
+      let checkEles = null
+      try {
+        checkEles = await ContentHandler.ele.getElement(data)
+      }
+      catch (error) {
+        return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
+      }
+      if (checkEles && checkEles.length > 0) {
+        return { frameId: currentFrameInfo.frameId }
+      }
+      else {
+        return { frameId: null }
       }
     },
     stopLoad() {

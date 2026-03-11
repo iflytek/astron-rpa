@@ -6,13 +6,13 @@ function gen_event_id() {
   });
 }
 function get_navigator_user_agent() {
-  const isChorme = /Chrome/.test(navigator.userAgent);
+  const isChrome = /Chrome/.test(navigator.userAgent);
   const isFirefox = /Firefox/.test(navigator.userAgent);
   const isEdge = /Edg/.test(navigator.userAgent);
 
   if (isFirefox) return "$firefox$";
   if (isEdge) return "$edge$";
-  if (isChorme) return "$chrome$";
+  if (isChrome) return "$chrome$";
   return "$unknown$";
 }
 function custom_agent() {
@@ -179,7 +179,7 @@ class WsApp {
     this.start_ping_task = undefined;
   }
   _send_text(msg) {
-    if (this.ws_app) {
+    if (this.ws_app && this.ws_app.readyState === WebSocket.OPEN) {
       this.ws_app.send(msg.tojson());
     }
   }
@@ -232,10 +232,10 @@ class WsApp {
             let watch = this.watch_msg[name];
             watch.retry();
             if (watch.time > watch.retry_time) {
-              this._call_wait(watch, undefined, WatchTimeout("watch timeout"));
+              this._call_watch(watch, undefined, new WatchTimeout("watch timeout"));
               delete this.watch_msg[name];
             } else {
-              this._call_wait(watch, undefined, WatchRetry("retry"));
+              this._call_watch(watch, undefined, new WatchRetry("retry"));
               this.watch_msg_queue.push({ time: watch.timeout, name: name });
               this.watch_msg_queue.sort((a, b) => a.time - b.time);
             }
@@ -256,7 +256,7 @@ class WsApp {
   _start_ping() {
     this.start_ping_task = setInterval(() => {
       if (this.running) {
-        this.log(this.url);
+        // this.log(this.url);
         this._send_text(PingMsg);
       }
     }, this.ping_interval * 1000);
@@ -268,10 +268,7 @@ class WsApp {
   }
 
   send(msg) {
-    let send = () => {
-      this._send_text(msg);
-    };
-    send();
+    this._send_text(msg);
   }
 
   send_reply(msg, timeout, success_func, error_func = undefined) {
@@ -287,11 +284,10 @@ class WsApp {
     this.send(msg);
   }
 
-  _on_message() {
-    let that = this;
-    return function (event) {
-      let data = JSON.parse(event.data);
-      let msg = new BaseMsg(
+  _on_message(event) {
+    try {
+      const data = JSON.parse(event.data);
+      const msg = new BaseMsg(
         data.reply_event_id,
         data.event_id,
         data.event_time,
@@ -302,125 +298,117 @@ class WsApp {
         data.need_ack,
         data.data
       );
-      setTimeout(function () {
-        if (msg.channel == PongMsg.channel) {
-          return;
-        } else if (msg.channel == AckMsg.channel) {
-          let name = `${"ack"}$$${msg.event_id}`;
-          if (name in that.watch_msg) {
-            let watch = that.watch_msg[name];
-            that._call_wait(watch, msg, undefined);
-            delete that.watch_msg[name];
-          }
-          return;
-        } else if (msg.channel == ExitMsg.channel) {
-          that.log(`error ExitMsg: ${msg.tojson}`);
-          return;
-        }
 
-        if (msg.reply_event_id) {
-          let name = `${"reply"}$$${msg.reply_event_id}`;
-          if (name in that.watch_msg) {
-            let watch = that.watch_msg[name];
-            that._call_watch(watch, msg, undefined);
-            delete that.watch_msg[name];
-          }
-          return;
-        }
-
-        let res_msg = msg.to_reply();
-        try {
-          let res = that._call_route(msg.channel, msg.key, msg);
-          res_msg.data = res;
-        } catch (error) {
-          res_msg.data = String(error);
-        }
-
-        try {
-          if (res_msg.data != undefined) {
-            that.send(res_msg);
-          }
-        } catch (error) {
-          that.log(`error _call_route: ${error}`);
-        }
+      // 异步处理消息避免阻塞
+      setTimeout(() => {
+        this._processMessage(msg);
       }, 0);
-    };
+    } catch (error) {
+      this.log(`error parsing message: ${error}`);
+    }
   }
 
-  _on_open() {
-    let that = this;
-    return function (event) {
-      that.running = true;
-      that._start_ping();
-      that._clear_watch();
-      try {
-        that._call_route("open", "", undefined);
-      } catch (error) {
-        that.log(`error _on_open _call_route: ${error}`);
+  _processMessage(msg) {
+    // 处理 Pong 消息
+    if (msg.channel === PongMsg.channel) {
+      return;
+    }
+
+    // 处理 Ack 消息
+    if (msg.channel === AckMsg.channel) {
+      const name = `ack$$${msg.event_id}`;
+      if (name in this.watch_msg) {
+        const watch = this.watch_msg[name];
+        this._call_watch(watch, msg, undefined);
+        delete this.watch_msg[name];
       }
-    };
+      return;
+    }
+
+    // 处理 Exit 消息
+    if (msg.channel === ExitMsg.channel) {
+      return;
+    }
+
+    // 处理 Reply 消息
+    if (msg.reply_event_id) {
+      const name = `reply$$${msg.reply_event_id}`;
+      if (name in this.watch_msg) {
+        const watch = this.watch_msg[name];
+        this._call_watch(watch, msg, undefined);
+        delete this.watch_msg[name];
+      }
+      return;
+    }
+
+    // 处理常规消息并回复
+    const res_msg = msg.to_reply();
+    try {
+      const res = this._call_route(msg.channel, msg.key, msg);
+      res_msg.data = res;
+    } catch (error) {
+      res_msg.data = String(error);
+    }
+
+    try {
+      if (res_msg.data !== undefined) {
+        this.send(res_msg);
+      }
+    } catch (error) {
+      this.log(`error sending response: ${error}`);
+    }
   }
 
-  _on_close() {
-    let that = this;
-    return function (event) {
-      that.running = false;
-      that._close_ping();
-      that._close_watch();
-      that.ws_app = undefined;
-      try {
-        that._call_route("close", "", undefined);
-      } catch (error) {
-        that.log(`error _on_close _call_route: ${error}`);
-      }
-      that.is_reconnect && that._reconnect();
-    };
+  _on_open(event) {
+    this.running = true;
+    this.reconnect_time = 0; // 重置重连计数
+    this._start_ping();
+    this._clear_watch();
+    this.log('WebSocket opened')
   }
 
-  _on_error() {
-    let that = this;
-    return function (event) {
-      try {
-        that._call_route("error", "", undefined);
-      } catch (error) {
-        that.log(`error _on_error _call_route: ${error}`);
-      }
-      that.log(`error _on_error:${event}`);
-    };
+  _on_close(event) {
+    this.running = false;
+    this._close_ping();
+    this._close_watch();
+    this.ws_app = undefined;
+    
+    this.log(`WebSocket closed: code=${event.code}`);
+    this.is_reconnect && this._reconnect();
   }
+
+  _on_error(event) {}
 
   _reconnect() {
     setTimeout(() => {
       if (this.reconnect_max_time === -1) {
         this.reconnect_time += 1;
-        this.log(`_reconnect star: ${this.reconnect_time}`);
+        this.log(`_reconnect: ${this.reconnect_time}`);
         this.start();
-        this.log(`_reconnect end: ${this.reconnect_time}`);
       } else if (this.reconnect_time < this.reconnect_max_time) {
         this.reconnect_time += 1;
-        this.log(`_reconnect star: ${this.reconnect_time}`);
+        this.log(`_reconnect: ${this.reconnect_time}`);
         this.start();
-        this.log(`_reconnect end: ${this.reconnect_time}`);
       }
     }, this.reconnect_interval * 1000);
   }
 
   start() {
-    let that = this;
     try {
+      this.log(`Connecting to WebSocket: ${this.url}`);
       this.ws_app = new WebSocket(this.url);
-      this.ws_app.onopen = this._on_open();
-      this.ws_app.onmessage = this._on_message();
-      this.ws_app.onclose = this._on_close();
-      this.ws_app.onerror = this._on_error();
+      this.ws_app.onopen = (event) => this._on_open(event);
+      this.ws_app.onmessage = (event) => this._on_message(event);
+      this.ws_app.onclose = (event) => this._on_close(event);
+      this.ws_app.onerror = (event) => this._on_error(event);
     } catch (error) {
-      that.log(`error start: ${error}`);
+      this.log(`error start: ${error}`);
     }
   }
 
   close() {
-    this.is_reconnect = false
     if (this.ws_app) {
+      this.is_reconnect = false
       this.ws_app.close();
     }
   }
@@ -438,7 +426,8 @@ export async function createWsApp(pipeName) {
   const ws_base_url = import.meta.env.VITE_APP_WS_URL;
   const customAgent = custom_agent();
   const agent = customAgent ? customAgent : get_navigator_user_agent()
-  const token = isValidPipeName(pipeName) ? btoa('$' + pipeName + '$') : btoa(agent);
+  console.info('[info]', `token: ${agent}`);
+  const token = isValidPipeName(pipeName) ? btoa(pipeName) : btoa(agent)
   const version = get_navigator_version();
   const wsUrl = `${ws_base_url}?token=${token}&nv=${version}&cid=${cid}`;
   const wsApp = new WsApp(

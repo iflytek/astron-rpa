@@ -4,13 +4,14 @@ import { Utils } from '../common/utils'
 
 import { Cookie } from './cookie'
 import DataTable from './data_table'
-import { frameFind } from './iframe'
+import { Debugger } from './debugger'
+import { adjustPosition, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
 import { WindowControl } from './window'
-// import { sendNativeMessage } from './native'
 
 globalThis.activeElement = null
+globalThis.requestInterceptionFilters = []
 
 function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _sendResponse: (args) => void) {
   if (request.type === 'element' && sender.tab) {
@@ -20,7 +21,7 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
       // favIconUrl: sender.tab.favIconUrl,// different in chrome and firefox
       isFrame: sender.frameId !== 0,
       frameId: sender.frameId,
-      tabId: sender.tab.id
+      tabId: sender.tab.id,
     }
     globalThis.activeElement = { ...request.data, ...info }
   }
@@ -37,252 +38,6 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
   //   sendNativeMessage(request.data);
   // }
   return true
-}
-
-/**
- * Processes a sequence of frames within a browser tab, executing a function on each frame to retrieve iframe element information.
- *
- * For each frame in the `framePath`, this function calls `Tabs.executeFuncOnFrame` to execute a handler that retrieves iframe element data.
- * The position `p` is updated at each step based on the returned `nextPos` from the frame.
- * If an error occurs during processing, the function returns an array containing the `activeElement`.
- * Otherwise, it returns an array of iframe depth information collected from each frame.
- *
- * @param tab - The Chrome tab object where the frames are located.
- * @param framePath - An array of frame identifiers representing the path through nested iframes.
- * @param p - The current position, which is updated as frames are processed.
- * @param activeElement - Information about the currently active element, returned if processing fails.
- * @returns A promise that resolves to an array of iframe depth information, or an array containing the active element if an error occurs.
- */
-async function processFrames(tab: chrome.tabs.Tab, framePath: number[], p: Point, activeElement: ElementInfo) {
-  const iframeDepthInfo = []
-  for (const frame of framePath) {
-    try {
-      const res = await Tabs.executeFuncOnFrame(tab.id, frame, (arg) => {
-        // @ts-expect-error window in content_script
-        return window.handleSync({
-          key: 'getIframeElement',
-          data: arg,
-        })
-      }, [p])
-
-      iframeDepthInfo.push(res)
-      const { nextPos } = res as { nextPos: Point }
-      p.x = nextPos.x
-      p.y = nextPos.y
-    }
-    catch {
-      return [activeElement]
-    }
-  }
-  return iframeDepthInfo
-}
-
-/**
- * Retrieves detailed information about an iframe element based on a given point and active element.
- * This function calculates the iframe path and adjusts the element's rectangle coordinates relative to nested iframes.
- * If the element is within nested iframes, it updates the `iframeXpath` and rectangle properties to reflect its position.
- *
- * @param p - The point (coordinates) used to locate the element within the frame hierarchy.
- * @param activeElement - The information about the currently active element, including its frame and xpath.
- * @returns A promise that resolves to an updated `ElementInfo` object with iframe path and adjusted rectangle,
- *          or the original `activeElement` if no iframe nesting is detected.
- */
-async function getIframeElement(p: Point, activeElement: ElementInfo) {
-  const tab = await Tabs.getActiveTab()
-  const frames = await Tabs.getAllFrames(tab.id)
-  const iframeElementInfo = JSON.parse(JSON.stringify(activeElement))
-
-  let targetFrame = frames.find(frame => frame.frameId === activeElement.frameId)
-  const framePath: number[] = []
-  // get the position of the frame relative to the parent frame
-  while (targetFrame) {
-    framePath.unshift(targetFrame.frameId)
-    targetFrame = frames.find(frame => frame.frameId === targetFrame.parentFrameId)
-  }
-  const iframeDepthInfo = await processFrames(tab, framePath, p, activeElement)
-
-  if (iframeDepthInfo.length > 0) {
-    const lastElement = iframeDepthInfo[iframeDepthInfo.length - 1]
-    const isPathEqual = lastElement.xpath === activeElement.xpath
-    const isUrlEqual = lastElement.url === activeElement.url
-    if (!isPathEqual || !isUrlEqual) {
-      iframeDepthInfo[iframeDepthInfo.length - 1] = iframeElementInfo
-    }
-    iframeDepthInfo.forEach((frameInfo, index) => {
-      if (index === 0) {
-        iframeElementInfo.iframeXpath = frameInfo.xpath
-      }
-      else {
-        iframeElementInfo.iframeXpath = `${iframeElementInfo.iframeXpath}/$iframe$${frameInfo.xpath}`
-      }
-      if (frameInfo.iframeContentRect) {
-        iframeElementInfo.rect.x += frameInfo.iframeContentRect.x
-        iframeElementInfo.rect.y += frameInfo.iframeContentRect.y
-      }
-    })
-    // iframeElementInfo left, top, right, bottom,
-    iframeElementInfo.rect.left = iframeElementInfo.rect.x
-    iframeElementInfo.rect.top = iframeElementInfo.rect.y
-    iframeElementInfo.rect.right = iframeElementInfo.rect.x + iframeElementInfo.rect.width
-    iframeElementInfo.rect.bottom = iframeElementInfo.rect.y + iframeElementInfo.rect.height
-
-    iframeElementInfo.iframeXpath = iframeElementInfo.iframeXpath.split('/$iframe$').slice(0, -1).join('/$iframe$')
-
-    return iframeElementInfo
-  }
-  else {
-    return activeElement
-  }
-}
-
-function findFrameByUrl(frames: FrameDetails[], url: string) {
-  return frames.find(frame => frame.url.includes(url))
-}
-
-/**
- * Finds a frame within a list of frames by traversing the hierarchy using an iframe XPath.
- *
- * The function splits the provided `iframeXpath` into segments using the delimiter `/$iframe$`,
- * then iteratively searches for child frames matching each segment, starting from the root frame
- * (where `frameId === 0`). If any segment does not match a frame in the hierarchy, the function returns `null`.
- *
- * @param frames - An array of `FrameDetails` objects representing all available frames.
- * @param iframeXpath - A string representing the hierarchical XPath to the target iframe, delimited by `/$iframe$`.
- * @returns The `FrameDetails` object corresponding to the target frame if found; otherwise, `null`.
- */
-function findFrameByXpath(frames: FrameDetails[], iframeXpath: string) {
-  if (!iframeXpath || !Array.isArray(frames) || frames.length === 0)
-    return null
-
-  const segments = iframeXpath
-    .split('/$iframe$')
-    .map(s => s.trim())
-    .filter(Boolean)
-  if (segments.length === 0)
-    return null
-
-  const rootFrame = frames.find(f => f.frameId === 0)
-  if (!rootFrame)
-    return null
-
-  let current: FrameDetails | null = rootFrame
-  for (const seg of segments) {
-    const next = frames.find(f => f.iframeXpath === seg && f.parentFrameId === current!.frameId)
-    if (!next)
-      return null
-    current = next
-  }
-  return current
-}
-
-function getFramePath(frames: FrameDetails[], targetFrame: FrameDetails) {
-  const framePath: FrameDetails[] = []
-  while (targetFrame) {
-    framePath.unshift(targetFrame)
-    targetFrame = frames.find(frame => frame.frameId === targetFrame.parentFrameId)
-  }
-  return framePath
-}
-
-/**
- * Calculates the absolute position of a nested frame within a browser tab by aggregating the positions of each frame in the provided `framePath`.
- *
- * For each frame (except the last one) in the `framePath`, this function executes a position retrieval function on the corresponding frame,
- * then sums up all the positions to determine the absolute position relative to the top-level document.
- *
- * @param tabId - The ID of the browser tab containing the frames.
- * @param framePath - An array of `FrameDetails` representing the hierarchy of frames, from the top-level frame to the target frame.
- * @returns A promise that resolves to a `Point` object containing the absolute `x` and `y` coordinates.
- */
-async function calculateAbsolutePosition(tabId: number, framePath: FrameDetails[]) {
-  const posPromises = framePath.slice(0, -1).map((frame, index) => {
-    const nextFrame = framePath[index + 1]
-    const args = [{
-      iframeXpath: nextFrame.iframeXpath,
-      url: nextFrame.url,
-    }]
-    return Tabs.executeFuncOnFrame(tabId, frame.frameId, (arg) => {
-      // @ts-expect-error window in content_script
-      return window.handleSync({
-        key: 'getFramePosition',
-        data: arg,
-      })
-    }, args)
-  })
-
-  const posRes = await Promise.all(posPromises) as Point[]
-  return posRes.reduce(
-    (acc, pos) => {
-      acc.x += pos.x
-      acc.y += pos.y
-      return acc
-    },
-    { x: 0, y: 0 },
-  )
-}
-
-function adjustPosition(rect: DOMRectT | DOMRectT[], absolutePos: Point) {
-  if (Array.isArray(rect)) {
-    rect.forEach(r => adjustRectPosition(r, absolutePos))
-  }
-  else {
-    adjustRectPosition(rect, absolutePos)
-  }
-}
-
-function adjustRectPosition(rect: DOMRectT, absolutePos: Point) {
-  rect.x += absolutePos.x
-  rect.y += absolutePos.y
-  rect.left = rect.x
-  rect.top = rect.y
-  rect.right = rect.x + rect.width
-  rect.bottom = rect.y + rect.height
-}
-
-/**
- * Finds the target browser tab and frame based on the provided parameters.
- *
- * @param params - The parameters containing information about the tab and frame to locate.
- * @returns An object containing the found tab and the corresponding frame ID.
- *          If `isFrame` is false, returns the tab and frame ID 0.
- *          If `isFrame` is true, attempts to locate the frame by XPath or URL.
- *          If the frame is not found, returns the tab and `Number.NaN` as the frame ID.
- * @throws {Error} If the active tab cannot be found or activated.
- */
-async function findTabAndFrame(params: ElementParams) {
-  const { url, iframeXpath, isFrame, tabUrl } = params.data
-  let tab = await Tabs.getActiveTab()
-  if (!tab) {
-    tab = await Tabs.activeTargetTabByTabUrl(tabUrl)
-    if (!tab || !Utils.isSupportProtocal(tab.url)) {
-      throw new Error(ErrorMessage.ACTIVE_TAB_ERROR)
-    }
-  }
-  if (!isFrame) {
-    return { tab, frameId: 0 }
-  }
-  else {
-    const frameId = await frameFinder(tab, url, iframeXpath)
-    return { tab, frameId }
-  }
-}
-
-async function frameFinder(tab, url, iframeXpath: string) {
-  const frames = await Tabs.getAllFrames(tab.id)
-  let targetFrame = null
-  if (iframeXpath) {
-    targetFrame = findFrameByXpath(frames, iframeXpath)
-  }
-  else {
-    targetFrame = findFrameByUrl(frames, url)
-  }
-  if (targetFrame) {
-    return targetFrame.frameId
-  }
-  else {
-    const frameId = await frameFind(iframeXpath)
-    return frameId !== null ? frameId : Number.NaN
-  }
 }
 
 const Handlers = {
@@ -543,7 +298,7 @@ const Handlers = {
       },
       async handleInContent(params: ElementParams) {
         const { tab, frameId } = await findTabAndFrame(params)
-        if (Number.isNaN(frameId)) {
+        if (frameId === null) {
           return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
         }
         if (!Utils.isSupportProtocal(tab.url)) {
@@ -562,7 +317,10 @@ const Handlers = {
       },
       async getElementPos(params: ElementParams) {
         const { isFrame } = params.data
-        const { tab, frameId } = await findTabAndFrame(params)
+        const { tab, frameId, frames } = await findTabAndFrame(params)
+        if (frameId === null) {
+          return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
+        }
 
         if (!Utils.isSupportProtocal(tab.url)) {
           return Utils.fail(`${tab.url} ${ErrorMessage.CURRENT_TAB_UNSUPPORT_ERROR}`)
@@ -572,17 +330,9 @@ const Handlers = {
           return Utils.result(result.data, result.msg, result.code)
         }
 
-        const frames = await Tabs.getAllFrames(tab.id)
         const targetFrame = frames.find(frame => frame.frameId === frameId)
-
-        if (!targetFrame) {
-          return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
-        }
-
         const framePath = getFramePath(frames, targetFrame)
-
         const absolutePos = await calculateAbsolutePosition(tab.id, framePath)
-
         const elementPosResult = await Tabs.sendTabFrameMessage(tab.id, params, targetFrame.frameId)
 
         if (elementPosResult.code !== StatusCode.SUCCESS) {
@@ -658,7 +408,7 @@ const Handlers = {
 
       async elementIsRender(params: ElementParams) {
         const { tab, frameId } = await findTabAndFrame(params)
-        if (Number.isNaN(frameId)) {
+        if (frameId === null) {
           return Utils.success(false)
         }
         const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
@@ -673,7 +423,7 @@ const Handlers = {
       async elementIsReady(params: ElementParams) {
         const activeTab = await Tabs.getActiveTab()
         const { tab, frameId } = await findTabAndFrame(params)
-        if (Number.isNaN(frameId)) {
+        if (frameId === null) {
           return Utils.success(false)
         }
         const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
@@ -914,7 +664,7 @@ const Handlers = {
 
       async runJS(params: ElementParams) {
         const { tab, frameId } = await findTabAndFrame(params)
-        if (Number.isNaN(frameId)) {
+        if (frameId === null) {
           return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
         }
         if (frameId !== 0) { // get frames when frameId not 0
@@ -949,6 +699,57 @@ const Handlers = {
       },
       contentInject() {
         return Utils.success(true)
+      },
+    }
+  },
+
+  networkHandler() {
+    return {
+      async getRequestInterceptionFilters() {
+        const filters = globalThis.requestInterceptionFilters || []
+        return Utils.success(filters)
+      },
+      async setRequestInterceptionFilters(filters: NetworkRequestFilter[]) {
+        globalThis.requestInterceptionFilters = filters || []
+        return Utils.success(true)
+      },
+      async addRequestInterceptionFilter(filters: NetworkRequestFilter[]) {
+        globalThis.requestInterceptionFilters = [...globalThis.requestInterceptionFilters, ...filters]
+        return Utils.success(true)
+      },
+      async removeRequestInterceptionFilter(filters: NetworkRequestFilter[]) {
+        const currentFilters = globalThis.requestInterceptionFilters || []
+        globalThis.requestInterceptionFilters = currentFilters.filter((currentFilter) => {
+          return !filters.some((filter) => {
+            return filter.urlPattern === currentFilter.urlPattern && filter.pathPattern === currentFilter.pathPattern
+          })
+        })
+        return Utils.success(true)
+      },
+      async startDebugNetworkListen(filters: NetworkRequestFilter[]) {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Debugger.startNetworkMonitoring(
+          tab.id,
+          filters,
+        )
+        return Utils.success(true)
+      },
+      async stopDebugNetworkListen() {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Debugger.stopNetworkMonitoring(
+          tab.id,
+        )
+        return Utils.success(true)
+      },
+      async getDebugNetworkData() {
+        const data = Debugger.networkFilterdRequests
+        return Utils.success(data)
       },
     }
   },
@@ -990,6 +791,10 @@ async function bgHandler(params) {
       result = await handlers.otherHandler()[key](params.data)
       return result
     }
+    else if (handlers.networkHandler()[key]) {
+      result = await handlers.networkHandler()[key](params.data)
+      return result
+    }
     else {
       result = handlers.noHandler()
       return result
@@ -1002,5 +807,21 @@ async function bgHandler(params) {
     return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
   }
 }
+
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  const tab = await Tabs.getActiveTab()
+  const matchingRule = globalThis.requestInterceptionFilters.find((rule) => {
+    try {
+      const urlMatch = new RegExp(rule.urlPattern).test(details.url)
+      return urlMatch
+    }
+    catch {
+      return false
+    }
+  })
+  if (details.url === tab.url && matchingRule) {
+    Handlers.networkHandler().startDebugNetworkListen(globalThis.requestInterceptionFilters)
+  }
+})
 
 export { bgHandler, contentMessageHandler }

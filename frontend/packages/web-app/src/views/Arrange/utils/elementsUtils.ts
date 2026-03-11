@@ -4,7 +4,7 @@
 import { generateUUID } from '@/utils/common'
 
 import type { CustomValueType, DirectoryAttrItem, DirectoryItem, EleVariableType, VarDataType, WebElementType } from '@/types/resource'
-import { PATTERN_RULES, PATTERN_RULES_IE, PATTERN_RULES_JAB, PATTERN_RULES_UIA, PATTERN_RULES_WEB } from '@/views/Arrange/config/pick'
+import { PATTERN_RULES, PATTERN_RULES_IE, PATTERN_RULES_JAB, PATTERN_RULES_UIA, PATTERN_RULES_WEB, IFRAME_NODES, SHADOW_ROOT_FLAG } from '@/views/Arrange/config/pick'
 
 export type ElementT = 'uia' | 'web' | 'cv' | 'jab' | 'sap' | 'msaa'
 
@@ -22,7 +22,7 @@ interface IElementFormatStrategy {
   /**
    * 恢复目录数据
    */
-  recoverDirectory: (data: any) => any[]
+  recoverDirectory: (data: any) => any
 
   /**
    * 格式化自定义数据
@@ -137,7 +137,7 @@ abstract class BaseElementFormatStrategy implements IElementFormatStrategy {
   /**
    * 通用目录恢复
    */
-  recoverDirectory(data: any): any[] {
+  recoverDirectory(data: any) {
     if (!data)
       return []
 
@@ -281,36 +281,44 @@ class WebElementFormatStrategy extends BaseElementFormatStrategy {
 
   /**
    * Web 特殊的目录格式化
+   * @returns 返回对象 [...iframePathDirs, ...pathDirs]，其中 pathDirs 和 iframePathDirs 都是格式化后的目录数组
    */
-  override formatDirectory(data: { pathDirs: DirectoryItem[] }, app?: string): any[] {
+  override formatDirectory(data: { pathDirs: DirectoryItem[], iframePathDirs?: DirectoryItem[] }, app?: string) {
     if (!data || !data.pathDirs)
       return []
 
-    return data.pathDirs.map((item: DirectoryItem) => {
-      return {
-        _version: 'web_1',
-        _checkDisabled: item.tag === '$shadow$',
-        _addDisabled: false,
-        _deleteDisabled: item.tag === '$shadow$',
-        tag: item.value || item.tag,
-        checked: item.checked === true,
-        value: item.value || item.tag,
-        attrs: item.attrs.map((attr: DirectoryAttrItem, index: number) => {
-          return {
-            variableValue: this.createVariableValue(attr, index),
-            _deleteDisabled: true,
-            _nameDisabled: true,
-            _typesPattern: app === 'iexplore'
-              ? this.getIETypesPattern(attr.name)
-              : this.getTypesPattern(attr.name),
-            value: attr.value,
-            type: attr.type || 0,
-            name: attr.name,
-            checked: attr.checked === true,
-          }
-        }),
-      }
-    })
+    const formatDirs = (dirs: DirectoryItem[]) => {
+      return dirs.map((item: DirectoryItem) => {
+        return {
+          _version: 'web_1',
+          _checkDisabled: item.tag === '$shadow$',
+          _addDisabled: false,
+          _deleteDisabled: item.tag === '$shadow$',
+          tag: item.value || item.tag,
+          checked: item.checked === true,
+          value: item.value || item.tag,
+          attrs: item.attrs.map((attr: DirectoryAttrItem, index: number) => {
+            return {
+              variableValue: this.createVariableValue(attr, index),
+              _deleteDisabled: true,
+              _nameDisabled: true,
+              _typesPattern: app === 'iexplore'
+                ? this.getIETypesPattern(attr.name)
+                : this.getTypesPattern(attr.name),
+              value: attr.value,
+              type: attr.type || 0,
+              name: attr.name,
+              checked: attr.checked === true,
+            }
+          }),
+        }
+      })
+    }
+
+    const pathDirs = formatDirs(data.pathDirs)
+    const iframePathDirs = data.iframePathDirs ? formatDirs(data.iframePathDirs) : []
+
+    return [...iframePathDirs, ...pathDirs]
   }
 
   /**
@@ -326,29 +334,40 @@ class WebElementFormatStrategy extends BaseElementFormatStrategy {
 
   /**
    * Web 特殊的目录恢复
+   * @param data 格式化后的数据
+   * @returns 恢复后的对象 { pathDirs: DirectoryItem[], iframePathDirs?: DirectoryItem[] }，其中 pathDirs 和 iframePathDirs 都是恢复后的目录数组
    */
-  override recoverDirectory(data: DirectoryItem[]): any[] {
+  override recoverDirectory(data: DirectoryItem[]){
     if (!data)
       return []
 
-    return data.map((item: DirectoryItem) => {
-      return {
-        tag: item.value || item.tag,
-        checked: item.checked,
-        value: item.value,
-        attrs: item.attrs.map((attr: DirectoryAttrItem & { variableValue: EleVariableType }) => {
-          const variableValue = attr.variableValue
-            ? this.saveVariableValue(attr.variableValue.value)
-            : attr.value
-          return {
-            name: attr.name,
-            value: variableValue,
-            checked: attr.checked,
-            type: attr.type,
-          }
-        }),
-      }
-    })
+    // 恢复单个目录数组的函数
+    const recoverDirs = (dirs: DirectoryItem[]) => {
+      return dirs.map((item: DirectoryItem) => {
+        return {
+          tag: item.value || item.tag,
+          checked: item.checked,
+          value: item.value,
+          attrs: item.attrs.map((attr: DirectoryAttrItem & { variableValue: EleVariableType }) => {
+            const variableValue = attr.variableValue
+              ? this.saveVariableValue(attr.variableValue.value)
+              : attr.value
+            return {
+              name: attr.name,
+              value: variableValue,
+              checked: attr.checked,
+              type: attr.type,
+            }
+          }),
+        }
+      })
+    }
+
+    // 区分 iframePathDirs 和 pathDirs
+    const lastIframeIndex = data.findLastIndex(item => IFRAME_NODES.indexOf(item.tag) !== -1)
+    const iframePathDirs = lastIframeIndex !== -1 ? recoverDirs(data.slice(0, lastIframeIndex + 1)) : []
+    const pathDirs = recoverDirs(data.slice(lastIframeIndex + 1))
+    return { pathDirs, iframePathDirs }
   }
 
   /**

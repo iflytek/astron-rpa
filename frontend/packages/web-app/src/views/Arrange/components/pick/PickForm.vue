@@ -65,17 +65,15 @@ defineExpose({
       class="form-wrapper text-[12px]"
       :rules="rules"
       :model="formOption"
-      :label-col="{ span: 5 }"
-      :wrapper-col="{ span: 14 }"
       label-align="left"
       layout="vertical"
     >
       <a-form-item :label="$t('elementName')" name="pickName">
-        <a-input v-model:value="formOption.pickName" autocomplete="off" class="label-form  w-[550px]" :maxlength="32" :placeholder="$t('enterElementName')" @change="inputChange" />
+        <a-input v-model:value="formOption.pickName" autocomplete="off" class="label-form" :maxlength="32" :placeholder="$t('enterElementName')" @change="inputChange" />
       </a-form-item>
     </a-form>
     <div class="pick-form-checkbox flex flex-row gap-2 mt-8 text-[12px] color-gray-700">
-      <div class="mr-2">
+      <div class="">
         <div class="mb-2 label-form">
           {{ $t("customization") }}
         </div>
@@ -85,7 +83,7 @@ defineExpose({
           </a-radio>
         </a-radio-group>
       </div>
-      <div v-if="formOption.pickType === 'web'" class="mr-2">
+      <div v-if="formOption.pickType === 'web'" class="">
         <div class="mb-2 label-form">
           {{ $t("matchingMethod") }}
         </div>

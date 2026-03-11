@@ -1,10 +1,11 @@
 import { log } from './3rd/log'
 import { createWsApp } from './3rd/rpa_websocket'
 import { bgHandler, contentMessageHandler } from './background/backgroundInject'
-import { BROWSER_MAP, IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/constant'
 import { connectToNativeHost } from './background/native'
+import { BROWSER_MAP, IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/constant'
 
 let wsApp: any = null
+let connectedTimestamp: number = 0
 
 function getAllTabs() {
   return new Promise<chrome.tabs.Tab[]>((resolve) => {
@@ -66,7 +67,12 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 })
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'Astron-Service-Worker') {
-    log.info('Astron service worker port connected')
+    const now = Date.now()
+    const last = connectedTimestamp
+    if (now - last > 10000) {
+      log.info('Astron-Service-Worker connected')
+      connectedTimestamp = now
+    }
   }
 })
 
@@ -92,11 +98,11 @@ async function wsHandler(message) {
   const msgObject = typeof message === 'string' ? JSON.parse(message) : message
   if (!IGNORE_LOG_KEYS.includes(msgObject.key)) {
     log.info(msgObject.key, msgObject)
-    log.time(msgObject.key)
+    // log.time(msgObject.key)
   }
   const result = await bgHandler(msgObject)
   if (!IGNORE_LOG_KEYS.includes(msgObject.key)) {
-    log.timeEnd(msgObject.key)
+    // log.timeEnd(msgObject.key)
     log.info(msgObject.key, result)
   }
   return result

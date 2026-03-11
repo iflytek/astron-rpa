@@ -1,9 +1,10 @@
-import { directoryXpath, getElementByXPath, getIFramesElements, getIframeTransform } from './element'
+import { directoryXpath, getElementByXPath, getElementDirectory, getIFramesElements, getIframeTransform } from './element'
 import { requestFrame } from './message'
 
 const currentFrameInfo = {
   frameId: 0,
   iframeXpath: '',
+  iframePathDirs: [] as ElementDirectory[],
   iframeTransform: {
     scaleX: 1,
     scaleY: 1,
@@ -16,6 +17,7 @@ function postToIframe(frameDom) {
     data: {
       iframeXpath: directoryXpath(frameDom),
       iframeTransform: getIframeTransform(frameDom),
+      iframePathDirs: getElementDirectory(frameDom),
     },
   }, '*')
 }
@@ -31,7 +33,7 @@ function postToParent() {
 function tagFrames() {
   const frames = getIFramesElements()
   frames.forEach((frame) => {
-    if (frame.complete) {
+    if ('complete' in frame && frame.complete) {
       postToIframe(frame)
     }
     frame.onload = () => {
@@ -65,6 +67,7 @@ function listenMessage(ev: MessageEvent) {
   if (data && key === 'setCurrentWindowIframeInfo') {
     currentFrameInfo.iframeXpath = data.iframeXpath
     currentFrameInfo.iframeTransform = data.iframeTransform
+    currentFrameInfo.iframePathDirs = data.iframePathDirs
   }
   if (key === 'getCurrentWindowIframeInfo') {
     tagFrames()
