@@ -213,11 +213,11 @@ function modalType(args: any) {
 function editColumnElementHandle() {
   const { version, type } = modalConfig.column
   const customDataMap = toRaw(elementCustomFormatRecover(version, type, customData.value)) // url, xpath, cssSelector
-  const pathDirs = toRaw(elementDirectoryFormatRecover(version, type, directoryData.value)) // pathDirs
+  const dirs = toRaw(elementDirectoryFormatRecover(version, type, directoryData.value))
   modalConfig.column = {
     ...modalConfig.column,
     ...customDataMap,
-    pathDirs,
+    ...dirs,
     checkType: activeKey.value,
     matchTypes: [], // 默认空数组
   }
@@ -250,11 +250,11 @@ function reset() {
 function checkElements() {
   const { version, type } = modalConfig.column
   const customDataMap = toRaw(elementCustomFormatRecover(version, type, customData.value)) // url, xpath, cssSelector
-  const pathDirs = toRaw(elementDirectoryFormatRecover(version, type, directoryData.value)) // pathDirs
+  const dirs = toRaw(elementDirectoryFormatRecover(version, type, directoryData.value))
   modalConfig.column = {
     ...modalConfig.column,
     ...customDataMap,
-    pathDirs,
+    ...dirs,
     checkType: activeKey.value,
     matchTypes: [], // 默认空数组
   }

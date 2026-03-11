@@ -92,6 +92,7 @@ interface ElementInfo {
 
   frameId?: number
   iframeXpath?: string
+  iframePathDirs?: Array<ElementDirectory>
   iframeCssSelector?: string
   similarCount?: number
   preData?: ElementInfo
@@ -216,3 +217,21 @@ interface PrintOptions {
   marginRight?: number
   pageRanges?: string
 }
+
+interface NetworkRequestFilter {
+  urlPattern?: string
+  pathPattern?: string
+  method?: string
+}
+
+interface NetworkRequestData {
+  requestId: string
+  url: string
+  method: string
+  status: number
+  responseBody?: any
+  responseHeaders?: Record<string, string>
+  timestamp: number
+}
+
+type NetworkRequestCallback = (data: NetworkRequestData) => void

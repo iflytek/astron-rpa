@@ -4,7 +4,7 @@ import type { SimilarDataType } from '../types/data_batch'
 /**
  * Data capture
  */
-import { generateXPath, getElementByElementInfo, getElementBySelector, getElementDirectory, getNthCssSelector, textAttrFromElement } from './element'
+import { getElementByElementInfo, getElementBySelector, getElementDirectory, getNthCssSelector, textAttrFromElement } from './element'
 
 function elementCountByXpath(xpath: string) {
   const similarResults = document.evaluate(`count(${xpath})`, document, null, XPathResult.NUMBER_TYPE, null)
@@ -101,7 +101,7 @@ function similarPathDirs(pathDirs: ElementDirectory[]) {
     if (indexAttr) {
       const checkedBackup = indexAttr.checked
       indexAttr.checked = false
-      const newXpath = generateXPath(pathDirs)
+      const newXpath = Utils.generateXPath(pathDirs)
       const curSimilarCount = elementCountByXpath(newXpath)
       if (curSimilarCount > similarCount) {
         similarCount = curSimilarCount
@@ -184,14 +184,14 @@ export function similarBatch(params: ElementInfo) {
   cssSelector = similarCssSelectorByCssSelector(params.cssSelector)
   if (!shadowRoot) {
     pathDirs = similarPathDirs(params.pathDirs)
-    xpath = generateXPath(pathDirs)
+    xpath = Utils.generateXPath(pathDirs)
   }
   if (!xpath) {
     const elements = getElementByElementInfo(params)
     const currentElement = elements[0]
-    const absolutePathDirs = getElementDirectory(currentElement, true)
+    const absolutePathDirs = getElementDirectory(currentElement)
     pathDirs = similarPathDirs(absolutePathDirs)
-    xpath = generateXPath(pathDirs)
+    xpath = Utils.generateXPath(pathDirs)
   }
   if (!cssSelector) {
     const elements = getElementByElementInfo(params)
@@ -360,7 +360,7 @@ export function tableColumnDataBatch(params: ElementInfo) {
   const { cssSelector } = params
   const newSelector = tableColumnSelector(cssSelector)
   const newPathDirs = tableColumnPathDirs(params)
-  const newXpath = generateXPath(newPathDirs)
+  const newXpath = Utils.generateXPath(newPathDirs)
   const result = similarDataBatch({ ...params, xpath: newXpath, cssSelector: newSelector, pathDirs: newPathDirs })
   return result
 }

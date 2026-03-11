@@ -246,20 +246,23 @@ watch(() => props.nodeSource, () => {
               <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled" />
             </template>
             <template v-else-if="column.key === 'operation'">
-              <a-tooltip :title="$t('directoryElement.addNode')">
-                <PlusCircleOutlined class="text-blue-500" @click="addNodeSource(index)" />
-              </a-tooltip>
-              <a-popconfirm
-                :title="$t('directoryElement.deleteNodeTip')"
-                :ok-text="$t('yes')"
-                :cancel-text="$t('no')"
-                @confirm="confirmDeleteNode(index)"
-              >
-                <MinusCircleOutlined class="text-blue-500 ml-2" />
-              </a-popconfirm>
+              <div class="text-center" v-if="!record._deleteDisabled">
+                <a-tooltip :title="$t('directoryElement.addNode')">
+                  <PlusCircleOutlined class="text-blue-500" @click="addNodeSource(index)" />
+                </a-tooltip>
+                <a-popconfirm
+                  :title="$t('directoryElement.deleteNodeTip')"
+                  :ok-text="$t('yes')"
+                  :cancel-text="$t('no')"
+                  @confirm="confirmDeleteNode(index)"
+                >
+                  <MinusCircleOutlined class="text-blue-500 ml-2"/>
+                </a-popconfirm>
+              </div>
+              
             </template>
             <template v-else>
-              <input v-model="record.value" type="text" class="node-input font-size-12" :disabled="record._valueDisabled" :maxlength="32">
+              <input v-model="record.value" type="text" class="node-input font-size-12" :disabled="record._valueDisabled || record._deleteDisabled" :maxlength="32">
               <!-- <span contenteditable="true">{{ record.value }}</span> -->
             </template>
           </template>
@@ -269,7 +272,7 @@ watch(() => props.nodeSource, () => {
         <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 165 }">
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'checked'">
-              <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled" />
+              <a-checkbox v-model:checked="record.checked"/>
             </template>
             <template v-else-if="column.key === 'name'">
               <a-input v-model:value="record.name" class="attr-input font-size-12" :disabled="record._nameDisabled" :maxlength="64" />

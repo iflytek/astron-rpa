@@ -65,7 +65,7 @@ const formOption = ref({
 })
 const pickFormRef = ref() // 表单ref
 const customData = ref([]) // 自定义数据
-const nodeSourceData = ref([]) // 可视化数据
+const nodeSourceData = ref({}) // 可视化数据
 const detailElementData = ref<PickElementType>({
   // 元素详情
   app: '',
@@ -99,13 +99,13 @@ function getLatestCurrentElementData(isSave: boolean) {
     const customDataMap = toRaw(
       elementCustomFormatRecover(version, type, customData.value),
     ) // url, xpath, cssSelector
-    const pathDirs = toRaw(
+    const dirs = toRaw(
       elementDirectoryFormatRecover(version, type, nodeSourceData.value),
-    ) // pathDirs
+    ) // pathDirs and iframePathDirs
     elementPathData = {
       ...detailElementData.value.path,
       ...customDataMap,
-      pathDirs,
+      ...dirs,
       checkType: formOption.value.editXPathType,
       matchTypes: formOption.value.matchTypes,
     }

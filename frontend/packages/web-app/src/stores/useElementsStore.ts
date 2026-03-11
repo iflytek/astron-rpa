@@ -1,4 +1,5 @@
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -24,6 +25,7 @@ import type { ElementsTree, ElementsType, PickElementType, PickStepType } from '
 import { useGlobalDataUpdate } from '@/views/Arrange/hook/useGlobalDataUpdate'
 
 export const useElementsStore = defineStore('elements', () => {
+  const { t } = useTranslation()
   const route = useRoute()
   const elements = ref<ElementsTree[]>([])
   const { elementDeleteAndUpdateFlow, elementRenameAndUpdateFlow } = useGlobalDataUpdate()
@@ -249,7 +251,7 @@ export const useElementsStore = defineStore('elements', () => {
   }
 
   // 生成唯一名称
-  function generateName(data: PickElementType) {
+  function generateName(data: PickElementType, pickStep: PickStepType = 'new') {
     const { type, path } = data
 
     const genName = (name: string) => {
@@ -271,15 +273,20 @@ export const useElementsStore = defineStore('elements', () => {
     let text = ''
 
     if (type === 'web' && 'tag' in path) {
-      tag = path.tag || '未知标签'
-      text = path.text || '未知名称'
+      tag = path.tag || 'unknown'
+      text = path.text || 'unknown'
     }
     else if (path && Array.isArray(path)) {
-      tag = path[path.length - 1].tag_name || '未知标签'
-      text = path[path.length - 1].name || path[path.length - 1].value || '未知名称'
+      tag = path[path.length - 1].tag_name || 'unknown'
+      text = path[path.length - 1].name || path[path.length - 1].value || 'unknown'
+    }
+    console.log('generateName tag: ', tag)
+    console.log('generateName text: ', text)
+    if (pickStep === 'similar') {
+      return genName(`${t('similarElements')}_${tag}_1`)
     }
 
-    text = removeControlChars(text.substring(0, 10)) || '未知名称'
+    text = removeControlChars(text.substring(0, 10)) || 'unknown'
     return genName(`${tag}_${text}_1`)
   }
 
@@ -322,13 +329,14 @@ export const useElementsStore = defineStore('elements', () => {
         element = { ...currentElement.value, imageUrl, parentImageUrl, elementData }
       }
       else if (pickStep === 'similar') {
+        const similarName = generateName(data, 'similar')
         if (type === 'web') {
           // 相似元素仅替换 currentElement.value.elementData
-          element = { ...currentElement.value, elementData }
+          element = { ...currentElement.value, elementData, name: similarName }
         }
         else {
           // 相似元素仅替换 currentElement.value.elementData
-          element = { ...currentElement.value, elementData }
+          element = { ...currentElement.value, elementData, name: similarName }
         }
       }
       setCurrentElement(element)
