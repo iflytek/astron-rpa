@@ -52,7 +52,7 @@ atomic:
         tip: 拖动微调的最小像素步长，整数，单位 px
       - key: offset
         title: 偏移量（px）
-        tip: 可设置最终位置的额外偏移（整数，单位 px），可留空使用检测到的位置
+        tip: 可以根据实际情况设置偏移量
     outputList:
       - key: drag_distance
         title: 移动距离
@@ -65,17 +65,206 @@ atomic:
     inputList:
       - key: browser_obj
         title: 浏览器对象
-        tip: 浏览器句柄或浏览器对象变量（用于在页面上定位图片与坐标）
+        tip: ''
       - key: picture_pick
         title: 点击图片对象
-        tip: 需要包括大的点击图片和小的指明顺序的图片
+        tip: 待识别的背景图，请尽可能和展示的例图一致，左右部分不要增加额外的白边，黑边
       - key: hint_position
-        title: 指示顺序的图片相对大图的位置
-        tip: 如果指示顺序的图片相对大图在下，则选择下，反之选择上
+        title: 提示位置
+        tip: 提示词相对于待识别图片的位置信息，若提示词位于图片上部请选择顶部
     outputList:
       - key: click_positions
         title: 点击位置
-        tip: 返回验证码点击的坐标位置
+        tip: 待点击元素的坐标位置信息
+  VerifyCode.ali_slider_code:
+    title: 阿里滑块验证码
+    comment: 识别阿里滑块验证码，根据背景图 @{background_pic_pick} 和提示文字 @{hint_text_pick}，计算滑块 @{slider_pick} 需要移动的距离 @{drag_distance}
+    icon: captcha-slider
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: 浏览器句柄或浏览器对象变量（必填，用于定位验证码元素）
+      - key: hint_text_pick
+        title: 提示对象
+        tip: 验证码提示词
+      - key: refresh_pick
+        title: 刷新对象
+        tip: 刷新按钮元素
+      - key: slider_pick
+        title: 滑块对象
+        tip: 待拖动的滑块元素
+      - key: background_pic_pick
+        title: 背景图片对象
+        tip: 待识别的背景图，请尽可能和展示的例图一致，左右部分不要增加额外的白边，黑边
+    outputList:
+      - key: drag_distance
+        title: 移动距离
+        tip: 基于所传待验证图片中滑块到正确缺口的像素距离
+  VerifyCode.text_click_code:
+    title: 通用文字点选验证码
+    comment: 识别背景图 @{picture_pick} 中的文字，按语序依次点击，最后点击确定按钮 @{confirm_button_pick}，返回点击位置 @{click_positions}
+    icon: captcha-text
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: 浏览器句柄或浏览器对象变量（必填，用于定位验证码元素）
+      - key: picture_pick
+        title: 点选背景图对象
+        tip: 待识别的点选背景图
+      - key: confirm_button_pick
+        title: 确定按钮对象
+        tip: ''
+    outputList:
+      - key: click_positions
+        title: 点击位置
+        tip: 待点击文字的坐标位置信息
+  VerifyCode.spatial_reasoning_click_code:
+    title: 空间推理点选验证码（相同物体）
+    comment: 识别背景图 @{picture_pick} 中符合空间推理条件的物体（相同形状、颜色、大小等），依次点击，最后点击确定按钮 @{confirm_button_pick}，返回点击位置 @{click_positions}
+    icon: captcha-click
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: ''
+      - key: picture_pick
+        title: 点选图片对象
+        tip: 待识别的点选背景图
+      - key: confirm_button_pick
+        title: 确定按钮对象
+        tip: ''
+    outputList:
+      - key: click_positions
+        title: 点击位置
+        tip: 待点击元素的坐标位置信息
+  VerifyCode.tencent_grid_click_code:
+    title: 腾讯六宫格验证码
+    comment: 识别腾讯六宫格验证码，根据提示词 @{prompt_obj} 在背景图 @{background_img_obj} 中点击符合条件的图标，最后点击确定按钮 @{confirm_button_obj}，返回点击位置 @{click_positions}
+    icon: captcha-click
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: ''
+      - key: prompt_obj
+        title: 提示对象
+        tip: 验证码提示词
+      - key: background_img_obj
+        title: 背景图片对象
+        tip: 待识别的背景图
+      - key: confirm_button_obj
+        title: 确定按钮对象
+        tip: ''
+    outputList:
+      - key: click_positions
+        title: 点击位置
+        tip: 待点击元素的坐标位置信息
+  VerifyCode.rotate_slider_code:
+    title: 通用旋转验证码
+    comment: 识别旋转验证码，在滑条 @{slide_bar_obj}上 拖动滑块 @{slider_obj} 使图片 @{rotate_picture_obj} 旋转到正确角度
+    icon: captcha-slider
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: 浏览器句柄或浏览器对象变量（必填，用于定位验证码元素）
+      - key: rotate_picture_obj
+        title: 旋转图片对象
+        tip: 待旋转的图片
+      - key: slider_obj
+        title: 滑块对象
+        tip: 待拖动的滑块元素
+      - key: slide_bar_obj
+        title: 滑动条对象
+        tip: 请上传完整的滑动条元素（用于计算可拖动距离）
+      - key: max_rotate_angle
+        title: 最大旋转角度
+        tip: 滑动条拉到尽头后图片的旋转角度
+    outputList: []
+  VerifyCode.double_ring_rotate_code:
+    title: 通用双圈旋转验证码
+    comment: 识别双圈旋转验证码，在滑条 @{slide_bar_obj}上 拖动滑块 @{slider_obj} 使内圈图片 @{inner_circle_image_obj} 旋转到与外圈图片 @{out_ring_image_obj} 对齐
+    icon: captcha-slider
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: ''
+      - key: out_ring_image_obj
+        title: 外圈图片对象
+        tip: ''
+      - key: inner_circle_image_obj
+        title: 内圈图片对象
+        tip: ''
+      - key: slider_obj
+        title: 滑块对象
+        tip: 待拖动的滑块元素
+      - key: slide_bar_obj
+        title: 滑动条对象
+        tip: 请上传完整的滑动条元素
+      - key: max_rotate_angle
+        title: 图片旋转最大角度
+        tip: 滑动条拉到尽头后内圈的旋转角度
+    outputList: []
+  VerifyCode.trajectory_slider_code:
+    title: 通用轨迹验证码
+    comment: 识别背景图 @{background_img_obj} 的轨迹验证码，通过模拟真人轨迹拖动滑块
+    icon: captcha-slider
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: ''
+      - key: background_img_obj
+        title: 背景图片对象
+        tip: 待识别的轨迹背景图
+    outputList: []
+  VerifyCode.numeric_calculation_code:
+    title: 通用数字计算验证码
+    comment: 识别验证码图片 @{captcha_img_obj} 中的数学算式，计算结果为 @{calculation_result}
+    icon: captcha-text
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: ''
+      - key: captcha_img_obj
+        title: 验证码图片对象
+        tip: ''
+      - key: need_input
+        title: 是否填写输入框
+        tip: ''
+      - key: input_box_obj
+        title: 输入框对象
+        tip: ''
+    outputList:
+      - key: calculation_result
+        title: 计算结果
+        tip: ''
+  VerifyCode.chinese_calculation_code:
+    title: 通用中文计算验证码
+    comment: 识别验证码图片 @{captcha_img_obj} 中的中文数学算式，计算结果为 @{calculation_result}
+    icon: captcha-text
+    helpManual: ''
+    inputList:
+      - key: browser_obj
+        title: 浏览器对象
+        tip: ''
+      - key: captcha_img_obj
+        title: 验证码图片对象
+        tip: ''
+      - key: need_input
+        title: 是否填写输入框
+        tip: ''
+      - key: input_box_obj
+        title: 输入框对象
+        tip: ''
+    outputList:
+      - key: calculation_result
+        title: 计算结果
+        tip: ''
 options:
   PictureCodeType:
     - value: '10110'
@@ -94,3 +283,8 @@ options:
       label: 下
     - value: top
       label: 上
+  MaxRotateAngle:
+    - value: '360'
+      label: 360
+    - value: '180'
+      label: 180

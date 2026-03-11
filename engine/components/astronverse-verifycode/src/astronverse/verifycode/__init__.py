@@ -20,6 +20,11 @@ class HintPosition(Enum):
     TOP = "top"
 
 
+class MaxRotateAngle(Enum):
+    ANGLE_360 = "360"
+    ANGLE_180 = "180"
+
+
 class ElementGetAttributeTypeFlag(Enum):
     GetText = "getText"
     GetHtml = "getHtml"

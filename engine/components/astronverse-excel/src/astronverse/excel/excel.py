@@ -72,7 +72,11 @@ class Excel:
             prefer_existing=False,
         )
         excel = Application.open_workbook(
-            application=application, file_path=file_path, password=password, update_links=update_links, write_res_password=write_res_password
+            application=application,
+            file_path=file_path,
+            password=password,
+            update_links=update_links,
+            write_res_password=write_res_password,
         )
         return excel
 
