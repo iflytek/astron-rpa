@@ -77,6 +77,8 @@ const Utils: UtilsManager = {
   restartApp: () => {
     window.location.reload()
   },
+  getUserSetting: () => Promise.resolve({ version: '1.0.0', platform: 'win32' } as RPA.UserSetting),
+  saveUserSetting: (_setting: RPA.UserSetting) => Promise.resolve(void 0),
 }
 
 export default Utils

@@ -8,7 +8,7 @@ import { envJson } from './env'
 import { listenRender } from './event'
 import { checkPythonRpaProcess, closeSubProcess, startBackend } from './server'
 import { changeTray, createTray } from './tray'
-import { createSubWindow, createMainWindow as createWindow, electronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
+import { createSubWindow, createMainWindow as createWindow, sendElectronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
 import { rendererPath, windowBaseUrl, extensionHost } from './path'
 import { getExtensionResourcePath } from './extension'
 
@@ -40,11 +40,11 @@ function createMainWindow() {
   const url = windowBaseUrl + 'boot.html'
   logger.info(`app load url: ${url}`)
 
-  mainWindow.loadURL(url).then(() => electronInfo(mainWindow)).catch(() => {
+  mainWindow.loadURL(url).then(() => sendElectronInfo(mainWindow)).catch(() => {
     logger.error('Failed to load URL')
     logger.info('Retry loading URL after 10 seconds...')
     setTimeout(() => {
-      mainWindow.loadURL(url).then(() => electronInfo(mainWindow))
+      mainWindow.loadURL(url).then(() => sendElectronInfo(mainWindow))
     }, 10 * 1000)
   })
   mainWindow.once('ready-to-show', () => {

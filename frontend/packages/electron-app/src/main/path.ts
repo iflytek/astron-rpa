@@ -14,6 +14,8 @@ export const pythonCore = path.join(appWorkPath, 'python_core')
 export const pythonExe = path.join(pythonCore, 'python.exe')
 export const confPath = path.join(resourcePath, 'conf.yaml')
 export const d7zrPath = path.join(resourcePath, '7zr.exe')
+export const settingPath = path.join(appWorkPath, '.setting.json')
+
 // 插件目录
 export const extensionPath = [
   path.join(appPath, 'extensions'), // 系统插件目录

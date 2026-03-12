@@ -41,7 +41,7 @@ const {
         :wrapper-col="{ span: 19 }"
       >
         <Form.Item :label="$t('emailAddress')" name="receiver">
-          <MailSelect v-model:value="email.receiver" :placeholder="$t('settingCenter.msgNotify.inputReceiverMail')" />
+          <Input v-model:value="email.receiver" :placeholder="$t('settingCenter.msgNotify.inputReceiverMail')" />
         </Form.Item>
         <Form.Item :label="$t('sendingMethod')">
           <Checkbox v-model:checked="email.is_default">

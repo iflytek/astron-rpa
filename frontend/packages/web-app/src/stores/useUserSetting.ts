@@ -2,11 +2,12 @@ import type { BasicColorSchema } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import deepmerge from 'deepmerge'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, shallowRef, toRaw } from 'vue'
 import { get, isNil } from 'lodash-es'
 
 import i18next from '@/plugins/i18next'
-import { autoStartDisable, autoStartEnable, autoStartStatus, getUserSetting, setUserSetting } from '@/api/setting'
+import { autoStartDisable, autoStartEnable, autoStartStatus } from '@/api/setting'
+import { utilsManager } from '@/platform'
 
 export type Theme = BasicColorSchema
 
@@ -21,7 +22,7 @@ export const DEFAULT_FORM: RPA.VideoFormMap = {
 }
 
 const useUserSettingStore = defineStore('useUserSetting', () => {
-  const userSetting = ref<RPA.UserSetting>({
+  const userSetting = shallowRef<RPA.UserSetting>({
     commonSetting: { // 常规设置
       startupSettings: false, // 启动项设置 - 引擎接口获取存储，true 开启自启动，false-关闭开机自启动
       closeMainPage: false, // true-最小化托盘  false-退出应用
@@ -34,6 +35,8 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
     videoForm: DEFAULT_FORM, // 录屏设置
     msgNotifyForm: {}, // 消息通知设置
     language: i18next.language,
+    version: '',
+    platform: '',
   })
 
   async function setLanguageSetting(lng: string) {
@@ -47,18 +50,18 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
   const getSetting = async () => {
     const [autostart, setting] = await Promise.all([
       autoStartStatus(),
-      getUserSetting(),
+      utilsManager.getUserSetting(),
     ])
 
     userSetting.value = deepmerge.all<RPA.UserSetting>([
       userSetting.value,
       setting,
-      { commonSetting: { startupSettings: autostart } },
+      { commonSetting: { startupSettings: autostart } } as RPA.UserSetting,
     ])
 
     const serverLanguage = get(setting, 'language');
     if (isNil(serverLanguage)) {
-      setUserSetting(userSetting.value)
+      utilsManager.saveUserSetting(toRaw(userSetting.value))
     }
   }
 
@@ -67,7 +70,7 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
       ...userSetting.value,
       ...params,
     }
-    await setUserSetting(userSetting.value)
+    await utilsManager.saveUserSetting(toRaw(userSetting.value))
   }
 
   // 修改常规设置
