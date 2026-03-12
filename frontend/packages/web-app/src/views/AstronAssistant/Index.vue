@@ -15,7 +15,7 @@ import ChatPanel from '@/components/AstronAssistant/ChatPanel.vue'
         <HeaderControl />
       </template>
     </Header>
-    <div class="flex-1 p-4">
+    <div class="flex-1 min-h-0 p-4">
       <ChatPanel />
     </div>
   </div>
