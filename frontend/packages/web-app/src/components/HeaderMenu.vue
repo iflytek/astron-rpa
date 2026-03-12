@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { useTopMenu } from '@/hooks/useTopMenu'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 
-const siderMenu = useTopMenu() // 顶部菜单
+const siderMenu = useTopMenu()
+const permissionStore = usePermissionStore()
 const route = useRoute()
 
 const currentKey = computed(() => route.matched[0].name)
+
+onMounted(() => {
+  if (!permissionStore.fetched)
+    void permissionStore.initPermission()
+})
 
 function pushMenu(name: string, group: string) {
   if (group === currentKey.value)

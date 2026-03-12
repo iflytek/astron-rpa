@@ -18,7 +18,7 @@ const siderMenu = useTopMenu() // 顶部菜单
 const route = useRoute()
 
 const menuData = computed(() => {
-  const menus = siderMenu.find(item => item.name === route.meta?.group)?.children || []
+  const menus = siderMenu.value.find(item => item.name === route.meta?.group)?.children || []
   return menus.filter(mu => !mu.meta.notMenu) // 过滤出非菜单项
 })
 

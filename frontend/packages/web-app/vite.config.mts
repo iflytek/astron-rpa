@@ -153,6 +153,16 @@ export default defineConfig((env) => {
       port: 1420,
       strictPort: true,
       host: '0.0.0.0', // 指定监听所有网络接口
+      proxy: {
+        // 本地 OpenClaw Gateway（默认 ws/http: 127.0.0.1:18789）
+        // 通过同源代理避免浏览器 CORS 限制
+        '/openclaw': {
+          target: 'http://127.0.0.1:18789',
+          changeOrigin: true,
+          ws: true,
+          rewrite: path => path.replace(/^\/openclaw/, ''),
+        },
+      },
       watch: {
         // 3. tell vite to ignore watching `src-tauri`
         ignored: ['**/src-tauri/**', '**/node_modules/**', '**/src-electron/**', '**/dist/**', '**/dist-electron/**'],

@@ -11,6 +11,7 @@ interface ViteTypeOptions {
 interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN: string
   readonly VITE_SERVICE_HOST: string
+  readonly VITE_OPENCLAW_TOKEN: string
   // 更多环境变量...
 }
 
