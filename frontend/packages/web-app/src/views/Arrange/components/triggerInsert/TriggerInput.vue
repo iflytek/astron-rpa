@@ -11,6 +11,7 @@ import { PAGE_LEVEL_INDENT } from '../../config/flow.ts'
 import { useRenderList } from '../flow/hooks/useRenderList.ts'
 
 import { useSearch } from './hooks/useTriggerInput.ts'
+import { useTheme } from '@rpa/components'
 
 const emits = defineEmits(['select'])
 // 触发式插入，原子能力搜索及推荐
@@ -20,6 +21,7 @@ function closeSearch() {
   BUS.$emit('closeSearch') // 通知其他组件拾取已完成
 }
 
+const { colorTheme } = useTheme()
 const { insertItemLast, insertItemNext } = useRenderList()
 const indent = computed(() => {
   const level = Math.max(insertItemLast.value?.level || 1, insertItemNext.value?.level || 1)
@@ -54,7 +56,8 @@ watch(focused, (newVal) => {
 <template>
   <div class="flex">
     <div class="indent-placeholder" :style="{ width: indent }" />
-    <div class="trigger-input w-full forbid bg-[#F3F3F7] dark:bg-[#FFFFFF]/[.08]">
+    <div class="trigger-input w-full forbid" :class="[colorTheme]">
+      <rpa-icon name="python-package-plus" size="16" class="ml-2 text-[#000000]/[.25] dark:text-[#FFFFFF]/[.25]" />
       <a-select
         ref="searchRef"
         class="trigger-input-select"
@@ -101,6 +104,7 @@ watch(focused, (newVal) => {
 
 .trigger-input {
   display: flex;
+  align-items: center;
   position: relative;
   margin: 3px 8px;
   width: calc(100% - 82px);
@@ -109,16 +113,27 @@ watch(focused, (newVal) => {
   &:focus,
   &:active,
   &.active {
-    background: rgba(93, 89, 255, 0.35);
+    background: rgba(#D7D7FF, .4);
   }
   &-select {
     :deep(.ant-select-selector) {
       background-color: transparent !important;
       border: none !important;
       box-shadow: none !important;
+      padding-left: 0px!important;
     }
   }
 }
+
+.dark.trigger-input {
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    background: rgba(#5D59FF, .35);
+  }
+}
+
 :global(.ant-select-dropdown.link-select) {
   width: 260px !important;
   min-width: 260px !important;
