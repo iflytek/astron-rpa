@@ -24,8 +24,8 @@ class I18n:
 
         Args:
             name: Translation domain name
-            language: Language code (e.g., 'zh_CN', 'en_US').
-                     If None, will try to read from .setting.json or use zh_CN as default.
+            language: Language code (e.g., 'zh-CN', 'en-US').
+                     If None, will try to read from .setting.json or use zh-CN as default.
         """
 
         self.translation = None
