@@ -12,6 +12,7 @@ import { isNil } from 'lodash-es'
 import { promiseWithResolvers } from '@/utils/common'
 
 import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
+import useUserSettingStore from '@/stores/useUserSetting'
 
 import { getBaseURL, unauthorize } from './env'
 
@@ -80,6 +81,7 @@ class HttpClient {
     })
 
     this.instance.interceptors.request.use((config: InternalRequestConfig) => {
+      const { userSetting } = useUserSettingStore()
       if (config.mock) {
         // 替换 adapter，直接返回自定义响应
         config.adapter = async () => {
@@ -99,6 +101,8 @@ class HttpClient {
       }
 
       config.headers['Accept-Language'] = i18next.language
+      config.headers['X-Client-Version'] = userSetting.version
+      config.headers['X-Client-Platform'] = userSetting.platform
 
       return config
     })

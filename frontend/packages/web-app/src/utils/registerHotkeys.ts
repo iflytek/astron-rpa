@@ -2,48 +2,29 @@ import hotkeys from 'hotkeys-js'
 import { cloneDeep } from 'lodash-es'
 import { ref } from 'vue'
 
-import { getUserSetting } from '@/api/setting'
 import { SCOPE, shortcuts } from '@/constants/shortcuts'
+import { utilsManager } from '@/platform'
 
 const hotkeySetting = ref(cloneDeep(shortcuts))
 const hotkeyFnMap = ref({}) // 已注册快捷键的回调函数
 
-// // 注销所有快捷键
-// const unregisterAll = () => {
-//   Object.keys(hotkeyFnMap.value).forEach(id=>{
-//     const hotkey = hotkeySetting.value[id].text.replace(/\s/g, "")
-//     hotkeys.unbind(hotkey)
-//   })
-// }
-
-// // 注册快捷键
-// const registerAll = () => {
-//   Object.keys(hotkeyFnMap.value).forEach(id=>{
-//     const hotkey = hotkeySetting.value[id].text.replace(/\s/g, "")
-//     hotkeys(hotkey, hotkeyFnMap[id])
-//   })
-// }
-
-function getHotkeySetting(autoRegister = false) {
-  getUserSetting().then((res: any) => {
-    if (res) {
-      const localShortcuts = res.shortcutConfig || {}
-      Object.keys(hotkeySetting.value).forEach((key) => {
-        const currentItem = hotkeySetting.value[key]
-        const localItem = localShortcuts[key]
-        if (localItem) {
-          // 注销快捷键
-          if (autoRegister && hotkeyFnMap[currentItem.id] && localItem.value !== currentItem.value) {
-            const oldHotkey = currentItem.text.replace(/\s/g, '')
-            hotkeys.unbind(oldHotkey)
-            const hotkey = localItem.text.replace(/\s/g, '')
-            hotkeys(hotkey, SCOPE, hotkeyFnMap[currentItem.id])
-          }
-          // 存在本地数据即可覆盖数据
-          currentItem.value = localItem.value
-          currentItem.text = localItem.text
-        }
-      })
+async function getHotkeySetting(autoRegister = false) {
+  const res = await utilsManager.getUserSetting()
+  const localShortcuts = res.shortcutConfig || {}
+  Object.keys(hotkeySetting.value).forEach((key) => {
+    const currentItem = hotkeySetting.value[key]
+    const localItem = localShortcuts[key]
+    if (localItem) {
+      // 注销快捷键
+      if (autoRegister && hotkeyFnMap[currentItem.id] && localItem.value !== currentItem.value) {
+        const oldHotkey = currentItem.text.replace(/\s/g, '')
+        hotkeys.unbind(oldHotkey)
+        const hotkey = localItem.text.replace(/\s/g, '')
+        hotkeys(hotkey, SCOPE, hotkeyFnMap[currentItem.id])
+      }
+      // 存在本地数据即可覆盖数据
+      currentItem.value = localItem.value
+      currentItem.text = localItem.text
     }
   })
 }

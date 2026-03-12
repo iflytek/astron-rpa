@@ -5,9 +5,8 @@ import { isEmpty } from 'lodash-es'
 
 import { generateUUID, sleep } from '@/utils/common'
 
-import { getUserSetting } from '@/api/setting'
 import Socket from '@/api/ws'
-import { windowManager } from '@/platform'
+import { windowManager, utilsManager } from '@/platform'
 
 const DEFAULT_STOPRUN_SHORTKEY = 'Shift + F5'
 
@@ -124,7 +123,7 @@ export default {
     },
     // 停止快捷键
     async stopShortcut() {
-      const userSetting = await getUserSetting()
+      const userSetting = await utilsManager.getUserSetting()
       const shortcutConfig = userSetting.shortcutConfig || {}
       let stopRunText = shortcutConfig?.stopRun?.text || DEFAULT_STOPRUN_SHORTKEY
       if (stopRunText.includes('按键')) {

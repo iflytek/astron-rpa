@@ -1,4 +1,7 @@
 import type { IPluginConfig } from './plugin'
+import './setting'
+
+export type UserSetting = RPA.UserSetting
 
 export interface IAppConfig {
   remote_addr: string
@@ -104,6 +107,8 @@ export interface UtilsManager {
   getBuildInfo: () => Promise<string>
   getSystemEnv: () => Promise<string>
   getResourcePath: () => Promise<string>
+  getUserSetting: () => Promise<RPA.UserSetting>
+  saveUserSetting: (setting: RPA.UserSetting) => Promise<void>
   invoke: (channel: string, ...args: any[]) => Promise<any>
   readFile: (filePath: string, encoding?: string) => Promise<string | Uint8Array | ArrayBuffer>
   saveFile: (fileName: string, buffer: ArrayBuffer | string) => Promise<boolean>
