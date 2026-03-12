@@ -241,7 +241,7 @@ onBeforeMount(() => {
       <!-- 展开/折叠树节点 -->
       <rpa-hint-icon
         v-show="isShowTree"
-        name="tree-expand"
+        :name="collapsed ? 'tree-collapse' : 'tree-expand'"
         :title="collapsed ? $t('common.foldTree') : $t('common.expandTree')"
         :class="[isPopover ? 'ml-[6px]' : 'mx-[6px]']"
         enable-hover-bg
@@ -323,7 +323,7 @@ onBeforeMount(() => {
           >
             <template #item="">
               <div
-                class="tree-node flex items-center px-2 hover:bg-[#5D59FF]/[.35] rounded"
+                class="tree-node flex items-center px-2 hover:bg-[#D7D7FF]/[.40] dark:hover:bg-[#5D59FF]/[.35] rounded"
                 :class="{ '!px-0': item.key === 'smart-component' }"
                 @dblclick="doubleItemClick(item)"
               >

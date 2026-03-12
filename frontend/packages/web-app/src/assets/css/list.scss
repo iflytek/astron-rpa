@@ -124,11 +124,15 @@
         }
 
         &:hover {
-          background: rgba(#726fff, 0.1);
+          background: rgba(#D7D7FF, .4);
 
           .flow-list-item-action {
             display: inline-block;
           }
+        }
+
+        &.dark:hover {
+          background: rgba(#5D59FF, .35);
         }
       }
 
@@ -157,8 +161,11 @@
 
       &.active {
         .row-content {
-          background: rgba(#726fff, 0.1);
-          border-color: rgba(#726fff, 0.9);
+          background: rgba(#D7D7FF, .4);
+
+          &.dark {
+            background: rgba(#5D59FF, .35);
+          }
         }
         .flow-list-item-action {
           display: inline-block;

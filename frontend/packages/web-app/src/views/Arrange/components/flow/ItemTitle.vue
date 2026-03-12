@@ -18,7 +18,7 @@ const iconName = computed(() => {
 </script>
 
 <template>
-  <div class="inline font-medium">
+  <div class="inline font-semibold">
     <rpa-hint-icon
       :name="iconName"
       class="inline-block mr-1 text-[#000000]/[.65] dark:text-[#FFFFFF]/[.65] relative top-[2px]"
