@@ -39,6 +39,11 @@ export const routes: RouteRecordRaw[] = [
   {
     path: `/${AIASSISTANT}`,
     name: AIASSISTANT,
+    beforeEnter: async () => {
+      const permStore = usePermissionStore()
+      if (!permStore.fetched)
+        await permStore.initPermission()
+    },
     meta: {
       show: true,
       illustration: 'robot1',
