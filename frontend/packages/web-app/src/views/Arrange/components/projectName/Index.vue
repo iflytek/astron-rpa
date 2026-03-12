@@ -58,7 +58,6 @@ async function editProjectName() {
 <template>
   <div data-tauri-drag-region class="project-name">
     <slot name="prefix" />
-    <rpa-hint-icon name="robot" size="20" class="mx-2 bg-primary rounded-sm text-white" />
     <a-input
       v-if="isEdit"
       ref="inputRef"
@@ -68,9 +67,9 @@ async function editProjectName() {
       @blur="editProjectName"
     />
     <a-tooltip v-else :title="processStore.project.name">
-      <span class="project-name-text">{{ processStore.project.name }}</span>
+      <span class="project-name-text mx-2">{{ processStore.project.name }}</span>
     </a-tooltip>
-    <rpa-hint-icon name="projedit" :title="$t('rename')" class="ml-2" enable-hover-bg @click="!isEdit && toggleEdit(true)" />
+    <rpa-hint-icon name="projedit" :title="$t('rename')" enable-hover-bg @click="!isEdit && toggleEdit(true)" />
   </div>
 </template>
 
