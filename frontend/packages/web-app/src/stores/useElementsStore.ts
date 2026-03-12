@@ -96,7 +96,6 @@ export const useElementsStore = defineStore('elements', () => {
   }
   // 请求到当前元素
   const renameElement = async (params: ElementsType) => {
-    console.log('params: ', params)
     const _name = params.name.trim()
     if (_name === '') {
       message.error('请输入元素名称')
@@ -280,8 +279,6 @@ export const useElementsStore = defineStore('elements', () => {
       tag = path[path.length - 1].tag_name || 'unknown'
       text = path[path.length - 1].name || path[path.length - 1].value || 'unknown'
     }
-    console.log('generateName tag: ', tag)
-    console.log('generateName text: ', text)
     if (pickStep === 'similar') {
       return genName(`${t('similarElements')}_${tag}_1`)
     }

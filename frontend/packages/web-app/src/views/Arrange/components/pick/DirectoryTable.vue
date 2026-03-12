@@ -272,7 +272,7 @@ watch(() => props.nodeSource, () => {
         <a-table id="attrTable" :key="currentKey" class="attr-table" table-layout="fixed" :columns="attrColumns" :data-source="nodeSource[currentNodeIndex]?.attrs" :pagination="false" :scroll="{ y: 165 }">
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'checked'">
-              <a-checkbox v-model:checked="record.checked"/>
+              <a-checkbox v-model:checked="record.checked" :disabled="record._checkDisabled"/>
             </template>
             <template v-else-if="column.key === 'name'">
               <a-input v-model:value="record.name" class="attr-input font-size-12" :disabled="record._nameDisabled" :maxlength="64" />
