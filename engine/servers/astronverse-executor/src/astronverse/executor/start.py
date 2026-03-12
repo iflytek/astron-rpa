@@ -198,7 +198,7 @@ def start():
     parser.add_argument("--is_custom_component", default="n", help="是否是自定义组件 y/n", required=False)
     args = parser.parse_args()
 
-    logger.debug("start {}".format(args))
+    logger.debug("start {}  language {} test {}".format(args, i18n.getlanguage(), MSG_FLOW_INIT_START))
 
     # 配置
     Config.port = args.port
