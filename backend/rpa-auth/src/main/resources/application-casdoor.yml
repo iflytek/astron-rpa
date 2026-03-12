@@ -26,6 +26,7 @@ spring:
       namespace: uap:session # key 前缀，避免冲突
 
   datasource:
+    # RPA 业务数据库（主数据源）
     url: jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
@@ -46,6 +47,12 @@ spring:
     maxPoolPreparedStatementPerConnectionSize: 20
     filters: stat,wall,slf4j
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000;druid.stat.logSlowSql=true;druid.stat.enabled=true
+    # Casdoor 数据库（独立数据源）
+    casdoor:
+      url: jdbc:mysql://${CASDOOR_DATABASE_HOST}:${CASDOOR_DATABASE_PORT}/casdoor?serverTimezone=GMT%2B8&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true
+      username: ${CASDOOR_DATABASE_USERNAME}
+      password: ${CASDOOR_DATABASE_PASSWORD}
+      driverClassName: com.mysql.cj.jdbc.Driver
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*/*.xml
