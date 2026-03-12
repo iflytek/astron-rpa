@@ -12,7 +12,7 @@ import logger from './log'
 import { openPath } from './path'
 import { getMainWindow, getWindowFromLabel } from './window'
 import { checkForUpdates, quitAndInstallUpdates } from './updater'
-import { config } from './config'
+import { config, loadSetting, saveSetting } from './config'
 import { loadExtensions } from './extension'
 
 type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?: boolean) => void
@@ -309,5 +309,13 @@ export function listenRender() {
 
   ipcMain.handle('get-plugin-list', async (): Promise<IPluginConfig[]> => {
     return loadExtensions()
+  })
+
+  ipcMain.handle('get-user-setting', async () => {
+    return loadSetting()
+  })
+
+  ipcMain.handle('save-user-setting', async (_event, setting) => {
+    return saveSetting(setting)
   })
 }

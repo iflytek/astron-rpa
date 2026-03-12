@@ -1,26 +1,6 @@
-import { blob2Text } from '@/utils/common'
-
-import { fileRead, fileWrite } from '@/api/resource'
 import type { ITableResponse } from '@/types/normalTable'
 
 import http from './http'
-
-const useSettingPath = './.setting.json'
-
-export async function getUserSetting() {
-  try {
-    const { data } = await fileRead({ path: useSettingPath })
-    const result = await blob2Text<string>(data)
-    return JSON.parse(result || '{}')
-  }
-  catch {
-    return {}
-  }
-}
-
-export async function setUserSetting(params: RPA.UserSetting) {
-  return fileWrite({ path: useSettingPath, mode: 'w', content: JSON.stringify(params) })
-}
 
 /**
  * @returns 获取自动启动状态
