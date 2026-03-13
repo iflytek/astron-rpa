@@ -25,6 +25,12 @@ export function checkDebuggerDetached(tabId, attempts = 0) {
 }
 
 /**
+ * Debugger listener and related functions
+ */
+let debuggerEventListener: ((source: chrome.debugger.Debuggee, method: string, params?: any) => void) | null = null
+let debuggerDetachListener: ((source: chrome.debugger.Debuggee, reason: chrome.debugger.DetachReason) => void) | null = null
+
+/**
  * Debugger-related functions
  * 1. attach debugger
  * 2. Listen for events and obtain the execution context
@@ -42,6 +48,7 @@ const Debugger = {
   networkCallbacks: [] as NetworkRequestCallback[],
   networkFilterdRequests: [] as NetworkRequestData[],
   pendingRequests: new Map<string, any>(),
+  listenersRegistered: false,
   attachDebugger: (tabId: number) => {
     return new Promise((resolve, reject) => {
       if (Debugger.attached) {
@@ -56,6 +63,7 @@ const Debugger = {
           log.info('Debugger attached successfully')
           Debugger.tabId = tabId
           Debugger.attached = true
+          Debugger.registerDebuggerListeners()
           resolve(true)
         }
       })
@@ -113,6 +121,7 @@ const Debugger = {
         Debugger.frameContextIdMap = { 0: [] }
         Debugger.pendingRequests.clear()
         Debugger.networkFilterdRequests = []
+        Debugger.unregisterDebuggerListeners()
         resolve(true)
       })
     })
@@ -279,113 +288,144 @@ const Debugger = {
       return true
     })
   },
-}
-/**
- * Listen to console.log to obtain the correspondence between frameId and executionContextId
- * The rpa_debugger_on code in the content will print the frameId
- */
-if (!isFirefox) {
-  chrome.debugger.onEvent.addListener(async (source, method, params) => {
-    if (source.tabId !== Debugger.tabId)
+
+  registerDebuggerListeners: () => {
+    if (isFirefox || Debugger.listenersRegistered) {
       return
-
-    if (method === 'Runtime.consoleAPICalled' && params.type === 'log' && params.args?.length) {
-      const logValue = params.args[0]?.value || ''
-      const executionContextId = params.executionContextId
-
-      if (logValue.includes('rpa_debugger_on')) {
-        const frameId = `${logValue.split(':')[1]}`
-        if (!Debugger.frameContextIdMap[frameId]) {
-          Debugger.frameContextIdMap[frameId] = [executionContextId]
-        }
-        if (!Debugger.frameContextIdMap[frameId].includes(executionContextId)) {
-          Debugger.frameContextIdMap[frameId].push(executionContextId)
-        }
-      }
     }
 
-    if (!Debugger.networkEnabled)
-      return
-
-    if (method === 'Network.requestWillBeSent') {
-      const { requestId, request } = params
-      if (Debugger.matchesFilter(request.url, request.method)) {
-        Debugger.pendingRequests.set(requestId, {
-          url: request.url,
-          method: request.method,
-          timestamp: Date.now(),
-        })
-      }
-    }
-
-    if (method === 'Network.responseReceived' || method === 'Network.loadingFinished') {
-      const { requestId, response } = params
-      const requestInfo = Debugger.pendingRequests.get(requestId)
-
-      if (!requestInfo)
+    // create event listener
+    debuggerEventListener = async (source, method, params) => {
+      if (source.tabId !== Debugger.tabId)
         return
 
-      try {
-        chrome.debugger.sendCommand(
-          { tabId: source.tabId },
-          'Network.getResponseBody',
-          { requestId },
-          (result) => {
-            if (chrome.runtime.lastError) {
-              log.warn('Failed to get response body:', method, requestInfo, chrome.runtime.lastError)
-              return
-            }
+      if (method === 'Runtime.consoleAPICalled' && params.type === 'log' && params.args?.length) {
+        const logValue = params.args[0]?.value || ''
+        const executionContextId = params.executionContextId
 
-            let responseBody: any
-            if (result && result.body) {
-              try {
-                responseBody = JSON.parse(result.body)
-              }
-              catch {
-                responseBody = result.body
-              }
-            }
-
-            const responseHeaders: Record<string, string> = {}
-            if (response?.headers) {
-              Object.keys(response.headers).forEach((key) => {
-                responseHeaders[key] = response.headers[key]
-              })
-            }
-
-            const networkData: NetworkRequestData = {
-              requestId,
-              ...requestInfo,
-              status: response ? response.status : 200,
-              responseBody,
-              responseHeaders,
-            }
-
-            // store the filtered request data
-            Debugger.networkFilterdRequests.push(networkData)
-            Debugger.pendingRequests.delete(requestId)
-          },
-        )
+        if (logValue.includes('rpa_debugger_on')) {
+          const frameId = `${logValue.split(':')[1]}`
+          if (!Debugger.frameContextIdMap[frameId]) {
+            Debugger.frameContextIdMap[frameId] = [executionContextId]
+          }
+          if (!Debugger.frameContextIdMap[frameId].includes(executionContextId)) {
+            Debugger.frameContextIdMap[frameId].push(executionContextId)
+          }
+        }
       }
-      catch (error) {
-        log.error('Error processing network response:', error)
+
+      if (!Debugger.networkEnabled)
+        return
+
+      if (method === 'Network.requestWillBeSent') {
+        const { requestId, request } = params
+        if (Debugger.matchesFilter(request.url, request.method)) {
+          Debugger.pendingRequests.set(requestId, {
+            url: request.url,
+            method: request.method,
+            timestamp: Date.now(),
+          })
+        }
+      }
+
+      if (method === 'Network.responseReceived' || method === 'Network.loadingFinished') {
+        const { requestId, response } = params
+        const requestInfo = Debugger.pendingRequests.get(requestId)
+
+        if (!requestInfo)
+          return
+
+        try {
+          chrome.debugger.sendCommand(
+            { tabId: source.tabId },
+            'Network.getResponseBody',
+            { requestId },
+            (result) => {
+              if (chrome.runtime.lastError) {
+                log.warn('Failed to get response body:', method, requestInfo, chrome.runtime.lastError)
+                return
+              }
+
+              let responseBody: any
+              if (result && result.body) {
+                try {
+                  responseBody = JSON.parse(result.body)
+                }
+                catch {
+                  responseBody = result.body
+                }
+              }
+
+              const responseHeaders: Record<string, string> = {}
+              if (response?.headers) {
+                Object.keys(response.headers).forEach((key) => {
+                  responseHeaders[key] = response.headers[key]
+                })
+              }
+
+              const networkData: NetworkRequestData = {
+                requestId,
+                ...requestInfo,
+                status: response ? response.status : 200,
+                responseBody,
+                responseHeaders,
+              }
+
+              // store the filtered request data
+              Debugger.networkFilterdRequests.push(networkData)
+              Debugger.pendingRequests.delete(requestId)
+            },
+          )
+        }
+        catch (error) {
+          log.error('Error processing network response:', error)
+          Debugger.pendingRequests.delete(requestId)
+        }
+      }
+
+      if (method === 'Network.loadingFailed') {
+        const { requestId } = params
         Debugger.pendingRequests.delete(requestId)
       }
     }
 
-    if (method === 'Network.loadingFailed') {
-      const { requestId } = params
-      Debugger.pendingRequests.delete(requestId)
+    // create detach listener
+    debuggerDetachListener = () => {
+      Debugger.attached = false
+      Debugger.networkEnabled = false
+      Debugger.frameContextIdMap = { 0: [] }
+      Debugger.pendingRequests.clear()
+      Debugger.networkFilterdRequests = []
+      Debugger.unregisterDebuggerListeners()
+      log.info('Debugger detached, state reset')
     }
-  })
-  chrome.debugger.onDetach.addListener(() => {
-    Debugger.attached = false
-    Debugger.networkEnabled = false
-    Debugger.frameContextIdMap = { 0: [] }
-    Debugger.pendingRequests.clear()
-    Debugger.networkFilterdRequests = []
-    log.info('Debugger detached, state reset')
-  })
+
+    // register listeners
+    chrome.debugger.onEvent.addListener(debuggerEventListener)
+    chrome.debugger.onDetach.addListener(debuggerDetachListener)
+    Debugger.listenersRegistered = true
+
+    log.info('Debugger listeners registered')
+  },
+
+  unregisterDebuggerListeners: () => {
+    if (isFirefox || !Debugger.listenersRegistered) {
+      return
+    }
+
+    if (debuggerEventListener) {
+      chrome.debugger.onEvent.removeListener(debuggerEventListener)
+      debuggerEventListener = null
+    }
+
+    if (debuggerDetachListener) {
+      chrome.debugger.onDetach.removeListener(debuggerDetachListener)
+      debuggerDetachListener = null
+    }
+
+    Debugger.listenersRegistered = false
+    log.info('Debugger listeners unregistered')
+  },
 }
 
 export { Debugger }
