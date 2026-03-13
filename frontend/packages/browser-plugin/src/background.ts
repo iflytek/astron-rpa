@@ -110,21 +110,26 @@ async function wsHandler(message) {
 
 ; (function () {
   connectToWebsocket()
-  const port = connectToNativeHost()
-  if (port) {
-    port.postMessage({ type: 'ASTRON_GET_IPC_KEY', data: Date.now() })
-    port.onMessage.addListener((message) => {
-      log.info('Received message from native host:', message)
-      if (message?.type === 'ASTRON_GET_IPC_KEY' && message?.data) {
-        const pipeName = message.data.split('_')[1].toLowerCase()
-        connectToWebsocket(pipeName)
-      }
-      if (message?.type === 'ASTRON_IPC_START') {
-        port.postMessage({ type: 'ASTRON_IPC_STARTED', data: Date.now() })
-      }
-      if (message?.type === 'ASTRON_IPC_PING') {
-        port.postMessage({ type: 'ASTRON_IPC_PONG', data: Date.now() })
-      }
-    })
+  try {
+    const port = connectToNativeHost()
+    if (port) {
+      port.postMessage({ type: 'ASTRON_GET_IPC_KEY', data: Date.now() })
+      port.onMessage.addListener((message) => {
+        log.info('Received message from native host:', message)
+        if (message?.type === 'ASTRON_GET_IPC_KEY' && message?.data) {
+          const pipeName = message.data.split('_')[1].toLowerCase()
+          connectToWebsocket(pipeName)
+        }
+        if (message?.type === 'ASTRON_IPC_START') {
+          port.postMessage({ type: 'ASTRON_IPC_STARTED', data: Date.now() })
+        }
+        if (message?.type === 'ASTRON_IPC_PING') {
+          port.postMessage({ type: 'ASTRON_IPC_PONG', data: Date.now() })
+        }
+      })
+    }
+  }
+  catch (error) {
+    log.error('Error connecting to native host:', error)
   }
 })()

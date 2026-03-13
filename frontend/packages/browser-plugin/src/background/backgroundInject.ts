@@ -667,10 +667,8 @@ const Handlers = {
         if (frameId === null) {
           return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
         }
-        if (frameId !== 0) { // get frames when frameId not 0
-          await Tabs.getAllFrames(tab.id)
-        }
         try {
+          await Tabs.getAllFrames(tab.id)
           const result = await Tabs.runJS(tab.id, frameId, params)
           return Utils.success(result)
         }

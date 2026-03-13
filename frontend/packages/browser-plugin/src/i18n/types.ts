@@ -37,6 +37,9 @@ export interface Messages {
     elementChildOriginNotFound: string
     updateTip: string
     elementChangedAtNode: string
+    syntaxError: string
+    typeError: string
+    referenceError: string
   }
   success: {
     deleteSuccess: string
