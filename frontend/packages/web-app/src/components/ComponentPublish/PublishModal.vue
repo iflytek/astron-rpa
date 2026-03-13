@@ -6,8 +6,8 @@ import { useTranslation } from 'i18next-vue'
 import { reactive, ref, useTemplateRef } from 'vue'
 
 import { getComponentDetail, getComponentNextVersion, publishComponent } from '@/api/project'
-import AvatarSelect from '@/components/Avatar/AvatarSelect.vue'
-import { COMPONENT_DEFAULT_ICON } from '@/constants/avatar'
+import RobotAvatarSelect from '@/components/Avatar/RobotAvatarSelect.vue'
+import { DEFAULT_COLOR, ROBOT_DEFAULT_ICON } from '@/constants/avatar'
 
 interface FormState {
   name: string
@@ -32,15 +32,16 @@ const formRef = useTemplateRef<FormInstance>('formRef')
 
 const loading = ref(false)
 const formState = reactive<Partial<FormState>>({})
+const color = ref(DEFAULT_COLOR)
 
 async function initForm() {
   const [detail, nextVersion] = await Promise.all([
     getComponentDetail({ componentId: props.componentId }),
     getComponentNextVersion({ componentId: props.componentId }),
   ])
-  formState.name = detail.name
+  formState.name = detail.name || ''
   formState.introduction = detail.introduction
-  formState.icon = detail.icon || COMPONENT_DEFAULT_ICON
+  formState.icon = detail.icon || ROBOT_DEFAULT_ICON
   formState.nextVersion = nextVersion
 }
 
@@ -83,7 +84,7 @@ initForm()
 
     <a-form ref="formRef" :model="formState" layout="vertical" class="px-6 py-2">
       <a-form-item :label="t('components.avatar')" name="icon">
-        <AvatarSelect v-model:value="formState.icon" />
+        <RobotAvatarSelect v-model:icon="formState.icon" v-model:color="color" :robot-name="formState.name" />
       </a-form-item>
       <a-form-item :label="t('components.componentName')" name="name" required>
         <a-input v-model:value="formState.name" :placeholder="t('common.enter')" />
