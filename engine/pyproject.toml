@@ -18,6 +18,7 @@ dependencies = [
     "astronverse-scheduler",
     "astronverse-trigger ",
     "astronverse-vision-picker",
+    "astronverse-openclaw",
     "astronverse-ai ",
     "astronverse-browser",
     "astronverse-cua",
@@ -59,6 +60,7 @@ astronverse-picker = {path = "./servers/astronverse-picker", editable = true}
 astronverse-scheduler = {path = "./servers/astronverse-scheduler", editable = true}
 astronverse-trigger = {path = "./servers/astronverse-trigger", editable = true}
 astronverse-vision-picker = {path = "./servers/astronverse-vision-picker", editable = true}
+astronverse-openclaw = {path = "./servers/astronverse-openclaw", editable = true}
 
 astronverse-ai = {path = "./components/astronverse-ai", editable = true}
 astronverse-browser = {path = "./components/astronverse-browser", editable = true}

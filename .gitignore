@@ -99,6 +99,10 @@ pids
 *.pid
 *.seed
 *.pid.lock
+!engine/servers/astronverse-openclaw/.openclaw-state.seed/
+!engine/servers/astronverse-openclaw/.openclaw-state.seed/**
+!engine/servers/astronverse-openclaw/binary/
+!engine/servers/astronverse-openclaw/binary/**
 
 # Temporary files
 *.tmp

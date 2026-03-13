@@ -462,6 +462,23 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-openclaw"
+version = "1.0.1"
+source = { editable = "servers/astronverse-openclaw" }
+dependencies = [
+    { name = "astronverse-baseline" },
+    { name = "fastapi" },
+    { name = "uvicorn" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
+    { name = "fastapi" },
+    { name = "uvicorn" },
+]
+
+[[package]]
 name = "astronverse-pdf"
 version = "1.0.1"
 source = { editable = "components/astronverse-pdf" }
@@ -961,6 +978,8 @@ dependencies = [
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/84/85/57c314a6b35336efbbdc13e5fc9ae13f6b60a0647cfa7c1221178ac6d8ae/brotlicffi-1.2.0.0.tar.gz", hash = "sha256:34345d8d1f9d534fcac2249e57a4c3c8801a33c9942ff9f8574f67a175e17adb", size = 476682, upload-time = "2025-11-21T18:17:57.334Z" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/c9/849a669b3b3bb8ac96005cdef04df4db658c33443a7fc704a6d4a2f07a56/brotlicffi-1.2.0.0-cp314-cp314t-win32.whl", hash = "sha256:a8079e8ecc32ecef728036a1d9b7105991ce6a5385cf51ee8c02297c90fb08c2", size = 349046, upload-time = "2026-03-05T17:57:42.76Z" },
+    { url = "https://files.pythonhosted.org/packages/a4/25/09c0fd21cfc451fa38ad538f4d18d8be566746531f7f27143f63f8c45a9f/brotlicffi-1.2.0.0-cp314-cp314t-win_amd64.whl", hash = "sha256:ca90c4266704ca0a94de8f101b4ec029624273380574e4cf19301acfa46c61a0", size = 385653, upload-time = "2026-03-05T17:57:44.224Z" },
     { url = "https://files.pythonhosted.org/packages/1b/37/293a9a0a7caf17e6e657668bebb92dfe730305999fe8c0e2703b8888789c/brotlicffi-1.2.0.0-cp38-abi3-win32.whl", hash = "sha256:23e5c912fdc6fd37143203820230374d24babd078fc054e18070a647118158f6", size = 343085, upload-time = "2025-11-21T18:17:48.887Z" },
     { url = "https://files.pythonhosted.org/packages/07/6b/6e92009df3b8b7272f85a0992b306b61c34b7ea1c4776643746e61c380ac/brotlicffi-1.2.0.0-cp38-abi3-win_amd64.whl", hash = "sha256:f139a7cdfe4ae7859513067b736eb44d19fae1186f9e99370092f6915216451b", size = 378586, upload-time = "2025-11-21T18:17:50.531Z" },
 ]
@@ -1251,6 +1270,7 @@ dependencies = [
     { name = "astronverse-locator" },
     { name = "astronverse-network" },
     { name = "astronverse-openapi" },
+    { name = "astronverse-openclaw" },
     { name = "astronverse-pdf" },
     { name = "astronverse-picker" },
     { name = "astronverse-report" },
@@ -1298,6 +1318,7 @@ requires-dist = [
     { name = "astronverse-locator", editable = "shared/astronverse-locator" },
     { name = "astronverse-network", editable = "components/astronverse-network" },
     { name = "astronverse-openapi", editable = "components/astronverse-openapi" },
+    { name = "astronverse-openclaw", editable = "servers/astronverse-openclaw" },
     { name = "astronverse-pdf", editable = "components/astronverse-pdf" },
     { name = "astronverse-picker", editable = "servers/astronverse-picker" },
     { name = "astronverse-report", editable = "components/astronverse-report" },

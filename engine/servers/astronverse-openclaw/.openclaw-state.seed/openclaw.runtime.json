@@ -1,0 +1,12 @@
+{
+  "gateway": {
+    "mode": "local",
+    "port": 19878,
+    "bind": "loopback"
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "~/.openclaw-state/workspace"
+    }
+  }
+}

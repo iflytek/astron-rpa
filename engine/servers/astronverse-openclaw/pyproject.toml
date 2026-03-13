@@ -1,0 +1,21 @@
+[project]
+name = "astronverse-openclaw"
+version = "1.0.1"
+description = "astronverse-openclaw."
+requires-python = ">=3.13"
+
+dependencies = [
+    "astronverse-baseline",
+    "fastapi",
+    "uvicorn",
+]
+
+[tool.uv.sources]
+astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/astronverse"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

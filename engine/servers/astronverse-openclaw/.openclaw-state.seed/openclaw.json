@@ -1,0 +1,35 @@
+{
+  "gateway": {
+    "mode": "local",
+    "port": 19878,
+    "bind": "loopback"
+  },
+  "logging": {
+    "level": "info",
+    "consoleLevel": "info",
+    "consoleStyle": "pretty",
+    "redactSensitive": "tools",
+    "file": "~/.openclaw-state/logs/openclaw.log"
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "~/.openclaw-state/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "tools": {
+    "profile": "full"
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "boot-md": {
+          "enabled": true
+        }
+      }
+    }
+  }
+}
