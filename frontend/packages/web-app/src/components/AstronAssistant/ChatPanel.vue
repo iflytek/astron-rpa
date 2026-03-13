@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import markdownit from 'markdown-it'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import type { OpenClawToolEvent } from '@/api/openclaw'
 import { openclawChatCompletions } from '@/api/openclaw'
@@ -29,10 +29,25 @@ const props = withDefaults(defineProps<{
   openclawToken?: string
 }>(), {
   title: 'Astron助理',
-  placeholder: '输入消息，回车发送',
+  placeholder: '请输入消息，回车发送',
 })
 
-const openclawToken = props.openclawToken || import.meta.env.VITE_OPENCLAW_TOKEN
+const openclawToken = ref<string | undefined>(props.openclawToken || import.meta.env.VITE_OPENCLAW_TOKEN)
+
+// 在 Electron 环境下，尝试从主进程读取 OpenClaw token
+onMounted(async () => {
+  if (!openclawToken.value && window.electron?.openclaw?.getToken) {
+    try {
+      const token = await window.electron.openclaw.getToken()
+      if (token) {
+        openclawToken.value = token
+        console.log('OpenClaw token loaded from Electron')
+      }
+    } catch (err) {
+      console.warn('Failed to load OpenClaw token from Electron:', err)
+    }
+  }
+})
 
 const messages = ref<ChatMessage[]>([
   {
@@ -115,7 +130,7 @@ async function send() {
 
   try {
     const result = await openclawChatCompletions({
-      token: openclawToken,
+      token: openclawToken.value,
       onToolEvent: upsertToolMessage,
       messages: [
         { role: 'system', content: '你是 Astron 助理，帮助用户使用 Astron RPA 设计器与执行器。回答请使用中文，并尽量给出可执行的步骤。' },
@@ -133,11 +148,12 @@ async function send() {
     })
   }
   catch (error: any) {
-    errorText.value = error?.message || '发送失败'
+    const reason = error?.message || '发送失败'
+    errorText.value = reason
     messages.value.push({
       id: generateUUID(),
       role: 'assistant',
-      content: '（请求 openclaw 失败，请确认 openclaw gateway 已在本机启动，并监听 18789 端口）',
+      content: `（请求 openclaw 失败：${reason}。请确认 openclaw gateway 已在本机启动，并监听 18789 端口）`,
       createdAt: Date.now(),
     })
   }
