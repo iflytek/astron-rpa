@@ -61,6 +61,7 @@ class FlowSvc:
         gateway_port: int,
         global_var: dict,
         project_icon: str = "",
+        extra_data: dict = None,
     ):
         with self._write_lock:
             if project_id not in self.ast_globals_dict:
@@ -74,6 +75,7 @@ class FlowSvc:
             self.ast_globals_dict[project_id].project_info.requirement = requirement
             self.ast_globals_dict[project_id].project_info.gateway_port = gateway_port
             self.ast_globals_dict[project_id].project_info.global_var = global_var
+            self.ast_globals_dict[project_id].project_info.extra_data = extra_data or {}
 
     def add_component_info(
         self,

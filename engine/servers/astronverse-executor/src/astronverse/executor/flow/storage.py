@@ -174,15 +174,18 @@ class HttpStorage(IStorage):
             data = {
                 "componentId": project_id,
             }
+            if mode:
+                data["mode"] = mode
+            if version:
+                data["robotVersion"] = int(version)
         else:
             data = {
                 "robotId": project_id,
             }
-        if mode:
-            data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
-
+            if mode:
+                data["mode"] = mode
+            if version:
+                data["componentVersion"] = int(version)
         try:
             if self.svc.conf.is_custom_component:
                 res = self.__http__("/api/robot/component/info-version", data, None, meta="get")

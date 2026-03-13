@@ -5,8 +5,10 @@ import threading
 import time
 import traceback
 from urllib.parse import unquote
+
+from astronverse.baseline.config.config import load_user_settings
 from astronverse.executor.error import *
-from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
+from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType, ReportTip
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.config import Config
 from astronverse.executor.debug.apis.ws import Ws
@@ -124,6 +126,14 @@ def debug_start(args, flow_svc, svc):
         svc.report.info(
             ReportFlow(log_type=ReportType.Flow, status=ReportFlowStatus.INIT_SUCCESS, msg_str=MSG_FLOW_INIT_SUCCESS)
         )
+
+        # 版本检查
+        flow_version = svc.ast_globals.project_info.extra_data.get("clientVersion") or "1.0.0"
+        client_version = load_user_settings().get("version") or "1.0.0"
+        local_ver = [int(x) for x in client_version.split(".")]
+        required_ver = [int(x) for x in flow_version.split(".")]
+        if local_ver < required_ver:
+            svc.report.info(ReportTip(msg_str=MSG_VERSION_WARNING_FORMAT.format(client_version, flow_version)))
 
         # 执行前验证
         if Config.open_log_ws:
