@@ -70,16 +70,13 @@ export function useNotify() {
     ],
   }
 
-  function handleMsgTest(key: string) {
-    handleValidateSave().then(() => {
-      toolsInterfacePost({
-        alert_type: key,
-      }).then((res) => {
-        message.success(res.msg || t('settingCenter.msgNotify.testSuccess'))
-      })
-      message.info(t('settingCenter.msgNotify.testSent', { type: key === 'mail' ? t('settingCenter.msgNotify.email') : t('settingCenter.msgNotify.sms') }))
-    })
+  async function handleMsgTest(key: string) {
+    await handleValidateSave()
+    await toolsInterfacePost({ alert_type: key })
+    const type = key === 'mail' ? t('settingCenter.msgNotify.email') : t('settingCenter.msgNotify.sms')
+    message.info(t('settingCenter.msgNotify.testSent', { type }))
   }
+
   function errorSave() {
     let newSetting
     if (email.value.is_enable) {
@@ -100,22 +97,17 @@ export function useNotify() {
     }
     useUserSettingStore().saveUserSetting(newSetting)
   }
-  function handleValidateSave() {
-    return new Promise((resolve, reject) => {
-      const currRef = email.value.is_enable ? emailRef : phoneRef
-      currRef.value.validate().then(() => {
-        const newSetting = {
-          msgNotifyForm: {
-            email: email.value,
-            phone_msg: phone_msg.value,
-          },
-        }
-        useUserSettingStore().saveUserSetting(newSetting)
-        resolve({})
-      }).catch(() => {
-        reject(new Error(t('common.validationFailed')))
-      })
-    })
+
+  async function handleValidateSave() {
+    const currRef = email.value.is_enable ? emailRef : phoneRef
+    await currRef.value.validate()
+    const newSetting = {
+      msgNotifyForm: {
+        email: email.value,
+        phone_msg: phone_msg.value,
+      },
+    }
+    useUserSettingStore().saveUserSetting(newSetting)
   }
 
   function initData() {
@@ -131,7 +123,7 @@ export function useNotify() {
   initData()
 
   onBeforeUnmount(() => {
-    handleValidateSave().catch(() => { errorSave() })
+    handleValidateSave().catch(() => errorSave())
   })
   return {
     emailRef,
@@ -140,7 +132,6 @@ export function useNotify() {
     phoneRef,
     phone_msg,
     phoneFormRules,
-    handleValidateSave,
     handleMsgTest,
   }
 }

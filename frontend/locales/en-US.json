@@ -1627,7 +1627,9 @@
   "useDirection": "Directions for use",
   "userInfo": {
     "userName": "User Name",
-    "userRight": "Rights Information"
+    "userRight": "Rights Information",
+    "startSchedulingMode": "Start Scheduling Mode",
+    "schedulingModeDesc": "When enabled, this client will automatically receive remote tasks from the console, and task execution will be monitored by the console. Please confirm."
   },
   "userManual": "User Manual",
   "validateElement": "Validate",

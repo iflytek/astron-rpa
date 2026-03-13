@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Button, Checkbox, Form, Input, Switch } from 'ant-design-vue'
 
-import MailSelect from '@/components/MailManage/MailSelect.vue'
-
 import { useNotify } from '../hooks/useMsgNotify'
 
 import Card from './card.vue'

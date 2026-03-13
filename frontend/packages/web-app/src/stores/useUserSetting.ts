@@ -70,7 +70,8 @@ const useUserSettingStore = defineStore('useUserSetting', () => {
       ...userSetting.value,
       ...params,
     }
-    await utilsManager.saveUserSetting(toRaw(userSetting.value))
+    // TODO: 直接把响应式对象穿进去，通过 electron IPC 通信时有问题，先通过这种方式临时转成普通对象
+    await utilsManager.saveUserSetting(JSON.parse(JSON.stringify(userSetting.value)))
   }
 
   // 修改常规设置
