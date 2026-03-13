@@ -229,7 +229,7 @@ class Agent:
             atomicMg.param(
                 "astron_workflow",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.AIWORKFLOW.value),
-                need_parse="json_str",
+                need_parse="str",
             )
         ],
         outputList=[atomicMg.param("astron_agent_result", types="Str")],

@@ -135,7 +135,7 @@ class Script:
             atomicMg.param(
                 "process_param",
                 types="List",
-                need_parse=True,
+                need_parse="str",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"}),
                 required=False,
             ),
@@ -169,7 +169,7 @@ class Script:
             atomicMg.param(
                 "module_param",
                 types="List",
-                need_parse=True,
+                need_parse="str",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "content"}),
                 required=False,
             ),
