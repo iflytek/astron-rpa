@@ -1,3 +1,5 @@
+import { computed } from 'vue'
+
 import { usePermissionStore } from '@/stores/usePermissionStore'
 
 import { useRouteList } from './useCommonRoute'
@@ -6,7 +8,7 @@ export function useTopMenu() {
   const permStore = usePermissionStore()
   const routes = useRouteList()
 
-  return routes
+  return computed(() => routes
     .filter((route) => {
       if (!route.meta?.show)
         return false
@@ -22,5 +24,5 @@ export function useTopMenu() {
       group: route.name as string,
       name: route.name as string,
       children: route.children,
-    }))
+    })))
 }

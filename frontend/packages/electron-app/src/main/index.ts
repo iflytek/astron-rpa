@@ -11,6 +11,7 @@ import { changeTray, createTray } from './tray'
 import { createSubWindow, createMainWindow as createWindow, electronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
 import { rendererPath, windowBaseUrl, extensionHost } from './path'
 import { getExtensionResourcePath } from './extension'
+import { getOpenClawToken } from './openclaw'
 
 const startTime = Date.now()
 globalThis.MainWindowLoaded = false
@@ -196,4 +197,8 @@ ipcMain.handle('main_window_onload', (_event) => {
 ipcMain.handle('tray_change', (_event, { mode, status }) => {
   const mainWindow = getMainWindow()
   mainWindow && changeTray(mainWindow, mode, status)
+})
+
+ipcMain.handle('get_openclaw_token', () => {
+  return getOpenClawToken()
 })

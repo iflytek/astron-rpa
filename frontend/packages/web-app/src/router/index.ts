@@ -11,6 +11,7 @@ import {
   DESIGNER,
   EDITORPAGE,
   EXCUTELIST,
+  AIASSISTANT,
   PROJECTCREATED,
   PROJECTMANAGEMENT,
   PROJECTMARKET,
@@ -28,11 +29,27 @@ const MyCreatedComponent = () => import('@/views/Home/pages/MyCreatedComponent.v
 const HomeComponent = () => import('@/views/Home/Index.vue')
 const ProjectManagementComponent = () => import('@/views/Home/pages/ProjectManagement.vue')
 const ArrangeComponent = () => import('@/views/Arrange/index.vue')
+const AstronAssistantComponent = () => import('@/views/AstronAssistant/Index.vue')
 
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: `/${DESIGNER}`,
+  },
+  {
+    path: `/${AIASSISTANT}`,
+    name: AIASSISTANT,
+    beforeEnter: async () => {
+      const permStore = usePermissionStore()
+      if (!permStore.fetched)
+        await permStore.initPermission()
+    },
+    meta: {
+      show: true,
+      illustration: 'robot1',
+      permission: false,
+    },
+    component: AstronAssistantComponent,
   },
   {
     path: `/${ARRANGE}`,

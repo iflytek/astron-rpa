@@ -12,6 +12,17 @@ contextBridge.exposeInMainWorld('electron', {
     on: ipcRenderer.on.bind(ipcRenderer),
     off: ipcRenderer.off.bind(ipcRenderer),
   },
+  openclaw: {
+    getToken: async () => {
+      try {
+        const token = await ipcRenderer.invoke('get_openclaw_token')
+        return token
+      } catch (err) {
+        console.error('Failed to get OpenClaw token:', err)
+        return undefined
+      }
+    },
+  },
   globalShortcut: {
     register: (shortcut: string, callback: () => void) => {
       return ipcRenderer
