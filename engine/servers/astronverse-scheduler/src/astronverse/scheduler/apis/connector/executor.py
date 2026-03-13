@@ -17,7 +17,8 @@ from astronverse.scheduler.error import (
     EXECUTOR_START_ERROR_FORMAT,
 )
 from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.utils import EmitType, emit_to_front, get_settings
+from astronverse.baseline.config.config import load_user_settings
+from astronverse.scheduler.utils.utils import EmitType, emit_to_front
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
@@ -110,7 +111,7 @@ def executor_run_list(task_info: TaskInfo, svc: Svc = Depends(get_svc)):
     if svc.executor_mg.status():
         return res_msg(code=ResCode.ERR, msg="已有实例在运行，无法启动")
     svc.terminal_task_stop = False
-    settings = get_settings()
+    settings = load_user_settings(force_reload=True)
     task_executor_id = ""
     try:
         emit_to_front(EmitType.EDIT_SHOW_HIDE, msg={"type": "hide"})

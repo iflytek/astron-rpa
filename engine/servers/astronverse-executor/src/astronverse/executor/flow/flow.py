@@ -91,7 +91,8 @@ class Flow:
             requirement=requirement,
             gateway_port=self.svc.conf.gateway_port,
             global_var=global_var,
-            project_icon=project_info.get("iconUrl", "") if project_info else "",
+            project_icon=project_info.get("icon", "") if project_info else "",
+            extra_data=project_info.get("extraData", {}) if project_info else {},
         )
 
         # 2. 生成流程和模块文件

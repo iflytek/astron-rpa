@@ -170,20 +170,27 @@ class HttpStorage(IStorage):
 
     def project_info(self, project_id: str, mode: str, version: str = "") -> dict:
         """获取工程的信息"""
-
-        data = {
-            "robotId": project_id,
-        }
-        if mode:
-            data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
-
+        if self.svc.conf.is_custom_component:
+            data = {
+                "componentId": project_id,
+            }
+            if mode:
+                data["mode"] = mode
+            if version:
+                data["robotVersion"] = int(version)
+        else:
+            data = {
+                "robotId": project_id,
+            }
+            if mode:
+                data["mode"] = mode
+            if version:
+                data["componentVersion"] = int(version)
         try:
             if self.svc.conf.is_custom_component:
-                res = self.__http__("/api/robot/component/info", {"componentId": project_id}, None, meta="get")
+                res = self.__http__("/api/robot/component/info-version", data, None, meta="get")
             else:
-                res = self.__http__("/api/robot/robot-icon/info", None, data)
+                res = self.__http__("/api/robot/robot-version/info-version", data, None, meta="get")
             return res
         except Exception as e:
             return {}

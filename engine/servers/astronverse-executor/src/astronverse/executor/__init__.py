@@ -25,7 +25,8 @@ class ProjectInfo:
     version: str = ""
     requirement: dict = None
     gateway_port: int = 0
-    global_var: dict = None
+    global_var: dict = None  # 生成代码的时候就已经携带，不用再写到json里面了
+    extra_data: dict = None
 
     def __json__(self):
         return {
@@ -36,6 +37,7 @@ class ProjectInfo:
             "version": self.version,
             "requirement": self.requirement,
             "gateway_port": self.gateway_port,
+            "extra_data": self.extra_data
         }
 
     @classmethod
@@ -48,6 +50,7 @@ class ProjectInfo:
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
             gateway_port=int(data.get("gateway_port", 0)),
+            extra_data=data.get("extra_data", {})
         )
 
 
