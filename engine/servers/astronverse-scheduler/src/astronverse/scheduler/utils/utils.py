@@ -135,16 +135,3 @@ def read_last_n_lines(file_path, n):
         # 反转并解码字节数组为字符串
         line_strs = buffer[::-1].decode("utf-8").strip()
         return line_strs.splitlines(True)
-
-
-def get_settings(file_path=".setting.json", times: int = 5):
-    setting = {}
-    for i in range(times):
-        try:
-            if os.path.exists(file_path):
-                with open(file_path, encoding="utf-8") as file:
-                    setting = json.load(file)
-                    break
-        except Exception as e:
-            time.sleep(0.1)
-    return setting

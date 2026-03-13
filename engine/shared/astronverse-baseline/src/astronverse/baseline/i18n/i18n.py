@@ -1,35 +1,24 @@
 import gettext
-import json
 import locale
 import os
 from pathlib import Path
 
+from astronverse.baseline.config.config import load_user_settings
+
 
 class I18n:
-    @staticmethod
-    def _load_language_from_config():
-        """Load language setting from .setting.json file"""
-        try:
-            config_path = Path(".setting.json")
-            if config_path.exists():
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
-                    return config.get("language")
-        except Exception:
-            pass
-        return "zh_CN"
-
     def __init__(self, name: str = "null", language: str = None):
         """Initialize internationalization, gracefully handle missing translation files
 
         Args:
             name: Translation domain name
             language: Language code (e.g., 'zh-CN', 'en-US').
-                     If None, will try to read from .setting.json or use zh-CN as default.
+                     If None, will try to read from user settings or use zh-CN as default.
         """
 
         self.translation = None
-        self.language = language or self._load_language_from_config()
+        # Load language from user settings if not provided
+        self.language = language or load_user_settings().get("language", "zh_CN")
 
         try:
             current_file = Path(__file__).resolve()

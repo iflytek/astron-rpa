@@ -14,13 +14,13 @@ from astronverse.scheduler.error import (
     SMS_SEND_ERROR,
     SMS_SEND_ERROR_FORMAT,
 )
-from astronverse.scheduler.utils.utils import get_settings
+from astronverse.baseline.config.config import load_user_settings
 
 
 class NotifyUtils:
     def __init__(self, svc):
         self.svc = svc
-        self.settings = get_settings()
+        self.settings = load_user_settings(force_reload=True)
         self.email_setting = self.settings.get("msgNotifyForm", {}).get("email", {})
         self.msg_setting = self.settings.get("msgNotifyForm", {}).get("phone_msg", {})
         self.email_msg = None
