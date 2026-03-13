@@ -18,9 +18,10 @@ const props = defineProps<{ robotId: string }>()
 
 const modal = NiceModal.useModal()
 const processStore = useProcessStore()
-const activeTab = ref<string[]>(['custom'])
+const activeTab = ref<string[]>(['market'])
 const searchKeyword = ref('')
-const activeKeys = ref<string[]>([]) // 展开的分组 keys
+const ALL_MARKETS_KEY = 'all' // 全部市场的标识
+const selectedMarketId = ref<string>(ALL_MARKETS_KEY) // 选中的团队市场ID，默认选择全部
 
 // 自建组件列表
 const { state: componentList, execute: executeCustom } = useAsyncState(() => getComponentManageList(props.robotId), [])
@@ -42,11 +43,12 @@ const { state: marketPages, execute: executeMarket } = useAsyncState(async () =>
 // 将 AppInfoVo 转换为 ComponentManageItem 格式
 function convertAppInfoToComponentManageItem(appInfo: RPA.AppInfoVo): RPA.ComponentManageItem {
   return {
-    componentId: appInfo.resourceId || appInfo.appId,
+    componentId: appInfo.resourceId,
+    appId: appInfo.appId, // 应用ID，用于安装和移除操作
     icon: appInfo.iconUrl || '',
     name: appInfo.appName,
     introduction: appInfo.appIntro || '',
-    version: appInfo.resourceVersion || appInfo.appVersion || 1,
+    version: appInfo.appVersion || 1,
     blocked: appInfo.obtainStatus === 0 ? 1 : 0,
     isLatest: appInfo.resourceIsLatest || 0,
     latestVersion: appInfo.resourceLatestVersion || appInfo.appVersion || 1,
@@ -74,19 +76,43 @@ const marketGroups = computed(() => {
   })
 })
 
-// 初始化时展开所有分组
+// 初始化时保持选择"全部"
 watch(marketGroups, (groups) => {
-  if (groups.length > 0) {
-    activeKeys.value = groups.map(g => g.key)
-  } else {
-    activeKeys.value = []
+  if (groups.length > 0 && selectedMarketId.value === '') {
+    selectedMarketId.value = ALL_MARKETS_KEY
   }
 }, { immediate: true })
 
+// 当前选中的市场组件列表
+const currentMarketComponents = computed(() => {
+  if (activeTab.value[0] !== 'market' || !selectedMarketId.value) {
+    return []
+  }
+  // 如果选择"全部"，返回所有市场的组件
+  if (selectedMarketId.value === ALL_MARKETS_KEY) {
+    return marketGroups.value.flatMap(group => group.components)
+  }
+  // 否则返回选中市场的组件
+  const selectedGroup = marketGroups.value.find(g => g.key === selectedMarketId.value)
+  return selectedGroup?.components || []
+})
+
+// 团队市场下拉选项
+const marketOptions = computed(() => {
+  const options = [
+    { label: '全部', value: ALL_MARKETS_KEY },
+    ...marketGroups.value.map(group => ({
+      label: group.name,
+      value: group.key,
+    })),
+  ]
+  return options
+})
+
 const filteredList = computed(() => {
   if (activeTab.value[0] === 'market') {
-    // 团队市场已经在接口层面过滤，这里返回空数组，因为会通过分组显示
-    return []
+    // 团队市场：返回当前选中市场的组件列表
+    return currentMarketComponents.value
   } else {
     // 自建组件
     let list = componentList.value || []
@@ -102,7 +128,8 @@ const filteredList = computed(() => {
 watch(activeTab, () => {
   if (activeTab.value[0] === 'market') {
     executeMarket()
-    activeKeys.value = []
+    // 重置选中市场为"全部"
+    selectedMarketId.value = ALL_MARKETS_KEY
   } else {
     executeCustom()
   }
@@ -141,8 +168,7 @@ async function handleJumpToMarket() {
   <a-modal
     v-bind="NiceModal.antdModal(modal)"
     :title="$t('moduleManagement')"
-    width="75%"
-    class="max-w-[1138px]"
+    width="1138px"
     :keyboard="false"
     :mask-closable="false"
     :footer="null"
@@ -164,77 +190,60 @@ async function handleJumpToMarket() {
         </a-menu>
       </div>
 
-      <div class="flex-1 flex flex-col">
-        <a-input
-          v-model:value="searchKeyword"
-          placeholder="请输入组件名称"
-          allow-clear
-          class="mb-4 w-[480px]"
-          @press-enter="handleSearch"
-          @blur="handleSearch"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
+      <div class="flex-1 flex flex-col overflow-auto">
+        <div class="flex items-center gap-4 mb-4">
+          <a-input
+            v-model:value="searchKeyword"
+            placeholder="请输入组件名称"
+            allow-clear
+            class="max-w-[480px]"
+            @press-enter="handleSearch"
+            @blur="handleSearch"
+          >
+            <template #prefix>
+              <SearchOutlined />
+            </template>
+          </a-input>
+          
+          <!-- 团队市场下拉选择器 -->
+          <a-select
+            v-if="activeTab[0] === 'market'"
+            v-model:value="selectedMarketId"
+            :options="marketOptions"
+            placeholder="请选择团队市场"
+            class="w-[200px]"
+          />
+        </div>
 
         <!-- 组件列表 -->
         <div class="flex-1 overflow-y-auto">
-          <!-- 团队市场 -->
-          <template v-if="activeTab[0] === 'market'">
-            <a-empty
-              v-if="isEmpty(marketGroups)"
-              :image="Empty.PRESENTED_IMAGE_SIMPLE"
-            >
-              <template #description>
-                <div>当前不存在团队市场，请先至<a-button type="link" class="p-0" @click="handleJumpToMarket">应用市场</a-button>创建或加入一个团队市场</div>
-              </template>
-            </a-empty>
-            <a-collapse
-              v-else
-              v-model:active-key="activeKeys"
-              :bordered="false"
-            >
-              <a-collapse-panel
-                v-for="group in marketGroups"
-                :key="group.key"
-                :header="group.name"
-              >
-                <div class="grid grid-cols-3 gap-4">
-                  <Panel
-                    v-for="item in group.components"
-                    :key="item.componentId"
-                    :data="item"
-                    :robot-id="robotId"
-                    @refresh="handleRefresh"
-                  />
-                </div>
-              </a-collapse-panel>
-            </a-collapse>
-          </template>
-
-          <!-- 自建组件 -->
-          <template v-else>
-            <div
-              :class="{ 'flex items-center justify-center': isEmpty(filteredList) }"
-            >
-              <a-empty
-                v-if="isEmpty(filteredList)"
-                :image="Empty.PRESENTED_IMAGE_SIMPLE"
-              />
-              <div v-else class="grid grid-cols-3 gap-4">
-                <Panel
-                  v-for="item in filteredList"
-                  :key="item.componentId"
-                  :data="item"
-                  :robot-id="robotId"
-                  @refresh="handleRefresh"
-                />
-              </div>
-            </div>
-          </template>
+          <a-empty
+            v-if="isEmpty(filteredList)"
+            :image="Empty.PRESENTED_IMAGE_SIMPLE"
+          >
+            <template v-if="activeTab[0] === 'market' && isEmpty(marketGroups)" #description>
+              <div>当前不存在团队市场，请先至<a-button type="link" class="p-0" @click="handleJumpToMarket">应用市场</a-button>创建或加入一个团队市场</div>
+            </template>
+          </a-empty>
+          <div v-else class="component-grid">
+            <Panel
+              v-for="item in filteredList"
+              :key="item.componentId"
+              :data="item"
+              :robot-id="robotId"
+              @refresh="handleRefresh"
+            />
+          </div>
         </div>
       </div>
     </div>
   </a-modal>
 </template>
+
+<style lang="scss" scoped>
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+</style>

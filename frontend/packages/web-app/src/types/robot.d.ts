@@ -22,16 +22,18 @@ declare namespace RPA {
   }
 
   interface ComponentManageItem {
-    componentId: string
+    componentId: string // 组件ID
+    appId?: string // 应用ID（仅团队市场组件，用于安装和移除操作）
     icon: string
     name: string
     introduction: string
     version: number
-    blocked: number // 是否安装: 1 是 0 否 （渲染“移除” 和 “安装” 按钮）
+    blocked: number // 是否安装: 1 是 0 否 （渲染"移除" 和 "安装" 按钮）
     isLatest: number // 是否是最新版本：1 是 0 否
     latestVersion: number // 最新版本
     marketId?: string // 团队市场ID（仅团队市场组件，存在即表示是团队市场组件）
     allowOperate?: number // 是否允许操作（例如下架，根据用户角色判断） 0 不允许 ； 1 允许
+    dataSource?: 'market' | 'create' // 数据来源：market-团队市场，create-自建组件
   }
 
   interface AppInfoVo {

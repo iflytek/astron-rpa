@@ -38,7 +38,7 @@ function doInstallMarketComponent(appName: string) {
   return execute(() =>
     installMarketComponent({
       marketId: props.data.marketId!,
-      appId: props.data.componentId,
+      appId: props.data.appId!, // 使用 appId 而不是 componentId
       appName,
       version: props.data.latestVersion || props.data.version,
     }),
@@ -106,28 +106,15 @@ async function handleInstall() {
   }
 }
 
+// 移除组件
 function handleRemove() {
   if (props.data.marketId) {
     // 团队市场组件
-    if (canOperate.value) {
-      // 允许操作，显示下架
-      handleDeleteConfirm(`将要下架：${props.data.name}，下架后将无法恢复，是否仍要下架？`, () => {
-        execute(() =>
-          deleteApp({
-            appId: props.data.componentId,
-            marketId: props.data.marketId!,
-            appType: 'component',
-          }),
-        )
-      })
-    } else {
-      // 不允许操作，显示移除
-      execute(() =>
-        removeMarketComponent({
-          componentId: props.data.componentId,
-        }),
-      )
-    }
+    execute(() =>
+      removeMarketComponent({
+        componentId: props.data.componentId,
+      }),
+    )
   } else {
     // 自建组件
     execute(() =>
@@ -137,6 +124,19 @@ function handleRemove() {
       }),
     )
   }
+}
+
+// 下架组件
+function handleTakeDown() {
+  handleDeleteConfirm(`将要下架：${props.data.name}，下架后将无法恢复，是否仍要下架？`, () => {
+    execute(() =>
+      deleteApp({
+        appId: props.data.appId!, // 使用 appId 而不是 componentId
+        marketId: props.data.marketId!,
+        appType: 'component',
+      }),
+    )
+  })
 }
 
 function handleUpdate() {
@@ -185,13 +185,23 @@ function handleUpdate() {
 
     <!-- 卡片操作按钮 -->
     <div class="flex space-x-2">
-      <a-button v-if="!isInstalled" class="flex-1" :disabled="loading" @click="handleInstall">
-        安装
+      <a-button
+        v-if="props.data.marketId && canOperate"
+        class="flex-1"
+        :disabled="loading"
+        @click="handleTakeDown"
+      >
+        下架
       </a-button>
+      <template v-if="!isInstalled">
+        <a-button class="flex-1" :disabled="loading" @click="handleInstall">
+          安装
+        </a-button>
+      </template>
 
       <template v-else>
         <a-button class="flex-1" :disabled="loading" @click="handleRemove">
-          {{ props.data.marketId && canOperate ? '下架' : '移除' }}
+          移除
         </a-button>
 
         <a-button v-if="isLatest" class="flex-[2]" disabled>

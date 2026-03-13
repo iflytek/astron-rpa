@@ -247,6 +247,14 @@ export async function installMarketComponent(data: {
  * 移除团队市场组件
  */
 export async function removeMarketComponent(data: { componentId: string }) {
-  const res = await http.post<string>('/robot/component/remove', data)
+  const res = await http.get<string>('/robot/component/remove', data)
+  return res.data
+}
+
+/**
+ * 移除组件确认（移除使用组件时服务端会置为中间态，退出编辑页后才确认删除）
+ */
+export async function confirmRemoveComponent(data: { robotId: string, robotVersion: number }) {
+  const res = await http.post<RPA.ComponentManageItem>('/robot/component-robot-use/confirm-delete', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
