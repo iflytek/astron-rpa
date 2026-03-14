@@ -11,7 +11,7 @@ import { changeTray, createTray } from './tray'
 import { createSubWindow, createMainWindow as createWindow, electronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
 import { rendererPath, windowBaseUrl, extensionHost } from './path'
 import { getExtensionResourcePath } from './extension'
-import { getOpenClawToken } from './openclaw'
+import { approveOpenClawDeviceRequest, getOpenClawDeviceToken, getOpenClawToken, loadOrCreateOpenClawDeviceIdentity, openclawChatCompletion, signOpenClawDevicePayload, storeOpenClawDeviceToken } from './openclaw'
 
 const startTime = Date.now()
 globalThis.MainWindowLoaded = false
@@ -201,4 +201,29 @@ ipcMain.handle('tray_change', (_event, { mode, status }) => {
 
 ipcMain.handle('get_openclaw_token', () => {
   return getOpenClawToken()
+})
+
+ipcMain.handle('get_openclaw_device_identity', () => {
+  return loadOrCreateOpenClawDeviceIdentity()
+})
+
+ipcMain.handle('sign_openclaw_device_payload', (_event, payload: string) => {
+  return signOpenClawDevicePayload(payload)
+})
+
+ipcMain.handle('get_openclaw_device_token', (_event, role?: string) => {
+  return getOpenClawDeviceToken(role)
+})
+
+ipcMain.handle('store_openclaw_device_token', (_event, params: { role?: string, token: string, scopes?: string[] }) => {
+  storeOpenClawDeviceToken(params)
+  return true
+})
+
+ipcMain.handle('approve_openclaw_device_request', (_event, requestId: string) => {
+  return approveOpenClawDeviceRequest(requestId)
+})
+
+ipcMain.handle('openclaw_chat_completion', (_event, params: { messages: Array<{ role: 'system' | 'developer' | 'user' | 'assistant' | 'tool', content: string }> }) => {
+  return openclawChatCompletion(params)
 })

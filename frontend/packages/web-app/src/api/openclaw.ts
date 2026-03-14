@@ -79,6 +79,16 @@ type MessageContentBlock = {
   args?: unknown
 }
 
+type ElectronOpenClawBridge = {
+  getToken?: () => Promise<string | undefined>
+  getDeviceIdentity?: () => Promise<{ deviceId: string, publicKey: string } | undefined>
+  signDevicePayload?: (payload: string) => Promise<string | undefined>
+  getDeviceToken?: (role?: string) => Promise<{ token: string, scopes?: string[] } | undefined>
+  storeDeviceToken?: (params: { role?: string, token: string, scopes?: string[] }) => Promise<boolean>
+  approveDeviceRequest?: (requestId: string) => Promise<boolean>
+  chatCompletions?: (params: { messages: OpenClawChatMessage[] }) => Promise<OpenClawChatResult>
+}
+
 const OPENCLAW_CLIENT_ID = 'openclaw-control-ui'
 const OPENCLAW_CLIENT_MODE = 'webchat'
 const OPENCLAW_SCOPES = ['operator.read', 'operator.write'] as const
@@ -86,6 +96,10 @@ const OPENCLAW_CAPS = ['tool-events'] as const
 const OPENCLAW_CONNECT_TIMEOUT_MS = 5000
 const OPENCLAW_DEVICE_IDENTITY_KEY = 'astron.openclaw.deviceIdentity.v1'
 const OPENCLAW_DEVICE_TOKEN_KEY = 'astron.openclaw.deviceToken.v1'
+
+function getElectronOpenClawBridge(): ElectronOpenClawBridge | undefined {
+  return (window as any)?.electron?.openclaw
+}
 
 function wsUrlForOpenClawProxy(): string {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
@@ -140,6 +154,20 @@ async function sha256Hex(input: Uint8Array): Promise<string> {
 }
 
 async function loadOrCreateDeviceIdentity(): Promise<OpenClawDeviceIdentity> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.getDeviceIdentity) {
+    const identity = await electronBridge.getDeviceIdentity()
+    if (identity?.deviceId && identity?.publicKey) {
+      return {
+        version: 1,
+        deviceId: identity.deviceId,
+        publicKey: identity.publicKey,
+        privateKey: '',
+        createdAtMs: Date.now(),
+      }
+    }
+  }
+
   const storage = getOpenClawStorage()
   const raw = storage?.getItem(OPENCLAW_DEVICE_IDENTITY_KEY)
 
@@ -175,6 +203,14 @@ async function loadOrCreateDeviceIdentity(): Promise<OpenClawDeviceIdentity> {
 }
 
 async function signDevicePayload(identity: OpenClawDeviceIdentity, payload: string): Promise<string> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.signDevicePayload) {
+    const signature = await electronBridge.signDevicePayload(payload)
+    if (!signature)
+      throw new Error('Failed to sign OpenClaw device payload')
+    return signature
+  }
+
   const privateKey = await crypto.subtle.importKey(
     'pkcs8',
     toArrayBuffer(fromBase64Url(identity.privateKey)),
@@ -218,6 +254,12 @@ function buildDeviceAuthPayload(params: {
 }
 
 function loadStoredDeviceToken(deviceId: string, role: string): OpenClawStoredDeviceToken | null {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.getDeviceToken) {
+    // Electron path uses the official OpenClaw device-auth store in main process.
+    return null
+  }
+
   const storage = getOpenClawStorage()
   const raw = storage?.getItem(OPENCLAW_DEVICE_TOKEN_KEY)
   if (!raw)
@@ -236,7 +278,30 @@ function loadStoredDeviceToken(deviceId: string, role: string): OpenClawStoredDe
   return null
 }
 
-function storeDeviceToken(deviceId: string, role: string, token: string, scopes: string[] | undefined) {
+async function getStoredDeviceToken(deviceId: string, role: string): Promise<OpenClawStoredDeviceToken | null> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.getDeviceToken) {
+    const token = await electronBridge.getDeviceToken(role)
+    if (token?.token) {
+      return {
+        token: token.token,
+        scopes: Array.isArray(token.scopes) ? token.scopes : [],
+        updatedAtMs: Date.now(),
+      }
+    }
+    return null
+  }
+
+  return loadStoredDeviceToken(deviceId, role)
+}
+
+async function storeDeviceToken(deviceId: string, role: string, token: string, scopes: string[] | undefined) {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.storeDeviceToken) {
+    await electronBridge.storeDeviceToken({ role, token, scopes })
+    return
+  }
+
   const storage = getOpenClawStorage()
   if (!storage || !token)
     return
@@ -412,6 +477,15 @@ async function openclawChatViaWs(params: {
   sessionKey?: string
   onToolEvent?: (event: OpenClawToolEvent) => void
 }): Promise<OpenClawChatResult> {
+  return await openclawChatViaWsInternal(params, false)
+}
+
+async function openclawChatViaWsInternal(params: {
+  text: string
+  token?: string
+  sessionKey?: string
+  onToolEvent?: (event: OpenClawToolEvent) => void
+}, pairingRetried: boolean): Promise<OpenClawChatResult> {
   const ws = new WebSocket(wsUrlForOpenClawProxy())
 
   const awaitOpen = new Promise<void>((resolve, reject) => {
@@ -452,7 +526,7 @@ async function openclawChatViaWs(params: {
 
   const role = 'operator'
   const identity = await loadOrCreateDeviceIdentity()
-  const storedDeviceToken = loadStoredDeviceToken(identity.deviceId, role)?.token
+  const storedDeviceToken = (await getStoredDeviceToken(identity.deviceId, role))?.token
   const connectId = crypto?.randomUUID?.() ?? String(Date.now())
 
   const connectReady = new Promise<void>((resolve, reject) => {
@@ -549,13 +623,36 @@ async function openclawChatViaWs(params: {
       if (frame.type === 'res' && frame.id === connectId) {
         cleanup()
         if (!frame.ok) {
+          const requestId = typeof frame?.error?.details?.requestId === 'string' ? frame.error.details.requestId : ''
+          const detailCode = typeof frame?.error?.details?.code === 'string' ? frame.error.details.code : ''
+          const electronBridge = getElectronOpenClawBridge()
+
+          if (!pairingRetried && detailCode === 'PAIRING_REQUIRED' && requestId && electronBridge?.approveDeviceRequest) {
+            try {
+              const approved = await electronBridge.approveDeviceRequest(requestId)
+              if (approved) {
+                try {
+                  ws.close()
+                }
+                catch {
+                  // ignore close errors
+                }
+                resolve()
+                return
+              }
+            }
+            catch {
+              // fall through to normal error
+            }
+          }
+
           reject(new Error(frame?.error?.message || 'openclaw request failed'))
           return
         }
 
         const auth = frame.payload?.auth
         if (typeof auth?.deviceToken === 'string' && auth.deviceToken) {
-          storeDeviceToken(
+          await storeDeviceToken(
             identity.deviceId,
             typeof auth.role === 'string' && auth.role ? auth.role : role,
             auth.deviceToken,
@@ -571,6 +668,16 @@ async function openclawChatViaWs(params: {
   })
 
   await connectReady
+
+  if (!pairingRetried) {
+    const electronBridge = getElectronOpenClawBridge()
+    if (electronBridge?.approveDeviceRequest) {
+      const latestToken = await getStoredDeviceToken(identity.deviceId, role)
+      if (!latestToken && identity.privateKey === '') {
+        return await openclawChatViaWsInternal(params, true)
+      }
+    }
+  }
 
   const sendId = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
   let latestText = ''
@@ -707,6 +814,16 @@ export async function openclawChatCompletions(params: {
   token?: string
   onToolEvent?: (event: OpenClawToolEvent) => void
 }): Promise<OpenClawChatResult> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.chatCompletions) {
+    const result = await electronBridge.chatCompletions({
+      messages: params.messages,
+    })
+    for (const event of result.toolEvents)
+      params.onToolEvent?.(event)
+    return result
+  }
+
   const lastUser = [...params.messages].reverse().find(m => m.role === 'user')?.content ?? ''
   return await openclawChatViaWs({
     text: lastUser,
