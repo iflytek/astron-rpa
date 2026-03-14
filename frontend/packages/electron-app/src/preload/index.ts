@@ -22,6 +22,56 @@ contextBridge.exposeInMainWorld('electron', {
         return undefined
       }
     },
+    getDeviceIdentity: async () => {
+      try {
+        return await ipcRenderer.invoke('get_openclaw_device_identity')
+      } catch (err) {
+        console.error('Failed to get OpenClaw device identity:', err)
+        return undefined
+      }
+    },
+    signDevicePayload: async (payload: string) => {
+      try {
+        return await ipcRenderer.invoke('sign_openclaw_device_payload', payload)
+      } catch (err) {
+        console.error('Failed to sign OpenClaw device payload:', err)
+        return undefined
+      }
+    },
+    getDeviceToken: async (role = 'operator') => {
+      try {
+        return await ipcRenderer.invoke('get_openclaw_device_token', role)
+      } catch (err) {
+        console.error('Failed to get OpenClaw device token:', err)
+        return undefined
+      }
+    },
+    storeDeviceToken: async (params: { role?: string, token: string, scopes?: string[] }) => {
+      try {
+        await ipcRenderer.invoke('store_openclaw_device_token', params)
+        return true
+      } catch (err) {
+        console.error('Failed to store OpenClaw device token:', err)
+        return false
+      }
+    },
+    approveDeviceRequest: async (requestId: string) => {
+      try {
+        await ipcRenderer.invoke('approve_openclaw_device_request', requestId)
+        return true
+      } catch (err) {
+        console.error('Failed to approve OpenClaw device request:', err)
+        return false
+      }
+    },
+    chatCompletions: async (params: { messages: Array<{ role: 'system' | 'developer' | 'user' | 'assistant' | 'tool', content: string }> }) => {
+      try {
+        return await ipcRenderer.invoke('openclaw_chat_completion', params)
+      } catch (err) {
+        console.error('Failed to request OpenClaw chat completion:', err)
+        throw err
+      }
+    },
   },
   globalShortcut: {
     register: (shortcut: string, callback: () => void) => {

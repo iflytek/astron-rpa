@@ -18,6 +18,20 @@ export type OpenClawChatResult = {
   toolEvents: OpenClawToolEvent[]
 }
 
+type OpenClawDeviceIdentity = {
+  version: 1
+  deviceId: string
+  publicKey: string
+  privateKey: string
+  createdAtMs: number
+}
+
+type OpenClawStoredDeviceToken = {
+  token: string
+  scopes: string[]
+  updatedAtMs: number
+}
+
 type WsReqFrame = {
   type: 'req'
   id: string
@@ -65,9 +79,252 @@ type MessageContentBlock = {
   args?: unknown
 }
 
+type ElectronOpenClawBridge = {
+  getToken?: () => Promise<string | undefined>
+  getDeviceIdentity?: () => Promise<{ deviceId: string, publicKey: string } | undefined>
+  signDevicePayload?: (payload: string) => Promise<string | undefined>
+  getDeviceToken?: (role?: string) => Promise<{ token: string, scopes?: string[] } | undefined>
+  storeDeviceToken?: (params: { role?: string, token: string, scopes?: string[] }) => Promise<boolean>
+  approveDeviceRequest?: (requestId: string) => Promise<boolean>
+  chatCompletions?: (params: { messages: OpenClawChatMessage[] }) => Promise<OpenClawChatResult>
+}
+
+const OPENCLAW_CLIENT_ID = 'openclaw-control-ui'
+const OPENCLAW_CLIENT_MODE = 'webchat'
+const OPENCLAW_SCOPES = ['operator.read', 'operator.write'] as const
+const OPENCLAW_CAPS = ['tool-events'] as const
+const OPENCLAW_CONNECT_TIMEOUT_MS = 5000
+const OPENCLAW_DEVICE_IDENTITY_KEY = 'astron.openclaw.deviceIdentity.v1'
+const OPENCLAW_DEVICE_TOKEN_KEY = 'astron.openclaw.deviceToken.v1'
+
+function getElectronOpenClawBridge(): ElectronOpenClawBridge | undefined {
+  return (window as any)?.electron?.openclaw
+}
+
 function wsUrlForOpenClawProxy(): string {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
   return `${proto}://${window.location.host}/openclaw`
+}
+
+function toBase64Url(bytes: Uint8Array): string {
+  let binary = ''
+  for (const byte of bytes)
+    binary += String.fromCharCode(byte)
+
+  return btoa(binary)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '')
+}
+
+function fromBase64Url(input: string): Uint8Array {
+  const normalized = input
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(input.length / 4) * 4, '=')
+  const binary = atob(normalized)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i += 1)
+    bytes[i] = binary.charCodeAt(i)
+  return bytes
+}
+
+function getOpenClawStorage(): Storage | null {
+  try {
+    return window.localStorage
+  }
+  catch {
+    return null
+  }
+}
+
+function normalizeDeviceMetadata(value: string | undefined): string {
+  return value?.trim().toLowerCase() ?? ''
+}
+
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
+}
+
+async function sha256Hex(input: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', toArrayBuffer(input))
+  return [...new Uint8Array(digest)]
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+async function loadOrCreateDeviceIdentity(): Promise<OpenClawDeviceIdentity> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.getDeviceIdentity) {
+    const identity = await electronBridge.getDeviceIdentity()
+    if (identity?.deviceId && identity?.publicKey) {
+      return {
+        version: 1,
+        deviceId: identity.deviceId,
+        publicKey: identity.publicKey,
+        privateKey: '',
+        createdAtMs: Date.now(),
+      }
+    }
+  }
+
+  const storage = getOpenClawStorage()
+  const raw = storage?.getItem(OPENCLAW_DEVICE_IDENTITY_KEY)
+
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as OpenClawDeviceIdentity
+      if (parsed?.version === 1 && parsed.deviceId && parsed.publicKey && parsed.privateKey)
+        return parsed
+    }
+    catch {
+      // fall through to regenerate identity
+    }
+  }
+
+  const keyPair = await crypto.subtle.generateKey(
+    { name: 'Ed25519' },
+    true,
+    ['sign', 'verify'],
+  )
+
+  const publicKeyRaw = new Uint8Array(await crypto.subtle.exportKey('raw', keyPair.publicKey))
+  const privateKeyPkcs8 = new Uint8Array(await crypto.subtle.exportKey('pkcs8', keyPair.privateKey))
+  const identity: OpenClawDeviceIdentity = {
+    version: 1,
+    deviceId: await sha256Hex(publicKeyRaw),
+    publicKey: toBase64Url(publicKeyRaw),
+    privateKey: toBase64Url(privateKeyPkcs8),
+    createdAtMs: Date.now(),
+  }
+
+  storage?.setItem(OPENCLAW_DEVICE_IDENTITY_KEY, JSON.stringify(identity))
+  return identity
+}
+
+async function signDevicePayload(identity: OpenClawDeviceIdentity, payload: string): Promise<string> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.signDevicePayload) {
+    const signature = await electronBridge.signDevicePayload(payload)
+    if (!signature)
+      throw new Error('Failed to sign OpenClaw device payload')
+    return signature
+  }
+
+  const privateKey = await crypto.subtle.importKey(
+    'pkcs8',
+    toArrayBuffer(fromBase64Url(identity.privateKey)),
+    { name: 'Ed25519' },
+    false,
+    ['sign'],
+  )
+  const signature = await crypto.subtle.sign(
+    { name: 'Ed25519' },
+    privateKey,
+    toArrayBuffer(new TextEncoder().encode(payload)),
+  )
+  return toBase64Url(new Uint8Array(signature))
+}
+
+function buildDeviceAuthPayload(params: {
+  deviceId: string
+  clientId: string
+  clientMode: string
+  role: string
+  scopes: readonly string[]
+  signedAtMs: number
+  token?: string
+  nonce: string
+  platform: string
+  deviceFamily?: string
+}): string {
+  return [
+    'v3',
+    params.deviceId,
+    params.clientId,
+    params.clientMode,
+    params.role,
+    params.scopes.join(','),
+    String(params.signedAtMs),
+    params.token ?? '',
+    params.nonce,
+    normalizeDeviceMetadata(params.platform),
+    normalizeDeviceMetadata(params.deviceFamily),
+  ].join('|')
+}
+
+function loadStoredDeviceToken(deviceId: string, role: string): OpenClawStoredDeviceToken | null {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.getDeviceToken) {
+    // Electron path uses the official OpenClaw device-auth store in main process.
+    return null
+  }
+
+  const storage = getOpenClawStorage()
+  const raw = storage?.getItem(OPENCLAW_DEVICE_TOKEN_KEY)
+  if (!raw)
+    return null
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, Record<string, OpenClawStoredDeviceToken>>
+    const token = parsed?.[deviceId]?.[role]
+    if (token?.token)
+      return token
+  }
+  catch {
+    // ignore invalid storage
+  }
+
+  return null
+}
+
+async function getStoredDeviceToken(deviceId: string, role: string): Promise<OpenClawStoredDeviceToken | null> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.getDeviceToken) {
+    const token = await electronBridge.getDeviceToken(role)
+    if (token?.token) {
+      return {
+        token: token.token,
+        scopes: Array.isArray(token.scopes) ? token.scopes : [],
+        updatedAtMs: Date.now(),
+      }
+    }
+    return null
+  }
+
+  return loadStoredDeviceToken(deviceId, role)
+}
+
+async function storeDeviceToken(deviceId: string, role: string, token: string, scopes: string[] | undefined) {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.storeDeviceToken) {
+    await electronBridge.storeDeviceToken({ role, token, scopes })
+    return
+  }
+
+  const storage = getOpenClawStorage()
+  if (!storage || !token)
+    return
+
+  let nextStore: Record<string, Record<string, OpenClawStoredDeviceToken>> = {}
+  const raw = storage.getItem(OPENCLAW_DEVICE_TOKEN_KEY)
+
+  if (raw) {
+    try {
+      nextStore = JSON.parse(raw) as Record<string, Record<string, OpenClawStoredDeviceToken>>
+    }
+    catch {
+      nextStore = {}
+    }
+  }
+
+  nextStore[deviceId] ??= {}
+  nextStore[deviceId][role] = {
+    token,
+    scopes: Array.isArray(scopes) ? scopes : [],
+    updatedAtMs: Date.now(),
+  }
+  storage.setItem(OPENCLAW_DEVICE_TOKEN_KEY, JSON.stringify(nextStore))
 }
 
 function stringifyToolOutput(value: unknown): string | undefined {
@@ -220,6 +477,15 @@ async function openclawChatViaWs(params: {
   sessionKey?: string
   onToolEvent?: (event: OpenClawToolEvent) => void
 }): Promise<OpenClawChatResult> {
+  return await openclawChatViaWsInternal(params, false)
+}
+
+async function openclawChatViaWsInternal(params: {
+  text: string
+  token?: string
+  sessionKey?: string
+  onToolEvent?: (event: OpenClawToolEvent) => void
+}, pairingRetried: boolean): Promise<OpenClawChatResult> {
   const ws = new WebSocket(wsUrlForOpenClawProxy())
 
   const awaitOpen = new Promise<void>((resolve, reject) => {
@@ -258,31 +524,160 @@ async function openclawChatViaWs(params: {
 
   await awaitOpen
 
+  const role = 'operator'
+  const identity = await loadOrCreateDeviceIdentity()
+  const storedDeviceToken = (await getStoredDeviceToken(identity.deviceId, role))?.token
   const connectId = crypto?.randomUUID?.() ?? String(Date.now())
-  ws.send(JSON.stringify({
-    type: 'req',
-    id: connectId,
-    method: 'connect',
-    params: {
-      minProtocol: 3,
-      maxProtocol: 3,
-      client: {
-        id: 'webchat-ui',
-        displayName: 'Astron RPA',
-        version: 'web-app',
-        platform: 'web',
-        mode: 'ui',
-      },
-      role: 'operator',
-      scopes: ['operator.read', 'operator.write'],
-      caps: ['tool-events'],
-      auth: params.token ? { token: params.token } : undefined,
-      userAgent: navigator.userAgent,
-      locale: navigator.language,
-    },
-  } satisfies WsReqFrame))
 
-  await waitForRes(connectId)
+  const connectReady = new Promise<void>((resolve, reject) => {
+    let settled = false
+    const timeout = window.setTimeout(() => {
+      cleanup()
+      reject(new Error('openclaw gateway connect challenge timeout'))
+    }, OPENCLAW_CONNECT_TIMEOUT_MS)
+
+    const cleanup = () => {
+      if (settled)
+        return
+      settled = true
+      window.clearTimeout(timeout)
+      ws.removeEventListener('message', onMessage)
+      ws.removeEventListener('close', onClose)
+    }
+
+    const onClose = () => {
+      cleanup()
+      reject(new Error('openclaw gateway connection closed'))
+    }
+
+    const onMessage = async (ev: MessageEvent) => {
+      let frame: WsFrame | null = null
+
+      try {
+        frame = JSON.parse(String(ev.data ?? '')) as WsFrame
+      }
+      catch {
+        return
+      }
+
+      if (frame.type === 'event' && frame.event === 'connect.challenge') {
+        const nonce = typeof frame.payload?.nonce === 'string' ? frame.payload.nonce.trim() : ''
+        if (!nonce) {
+          cleanup()
+          reject(new Error('openclaw gateway connect challenge missing nonce'))
+          return
+        }
+
+        const signedAtMs = Date.now()
+        const signatureToken = params.token || storedDeviceToken || undefined
+        const payload = buildDeviceAuthPayload({
+          deviceId: identity.deviceId,
+          clientId: OPENCLAW_CLIENT_ID,
+          clientMode: OPENCLAW_CLIENT_MODE,
+          role,
+          scopes: OPENCLAW_SCOPES,
+          signedAtMs,
+          token: signatureToken,
+          nonce,
+          platform: 'web',
+          deviceFamily: 'browser',
+        })
+        const signature = await signDevicePayload(identity, payload)
+
+        ws.send(JSON.stringify({
+          type: 'req',
+          id: connectId,
+          method: 'connect',
+          params: {
+            minProtocol: 3,
+            maxProtocol: 3,
+            client: {
+              id: OPENCLAW_CLIENT_ID,
+              displayName: 'Astron RPA',
+              version: 'web-app',
+              platform: 'web',
+              deviceFamily: 'browser',
+              mode: OPENCLAW_CLIENT_MODE,
+            },
+            role,
+            scopes: OPENCLAW_SCOPES,
+            caps: OPENCLAW_CAPS,
+            auth: params.token || storedDeviceToken
+              ? {
+                  token: params.token,
+                  deviceToken: storedDeviceToken,
+                }
+              : undefined,
+            device: {
+              id: identity.deviceId,
+              publicKey: identity.publicKey,
+              signature,
+              signedAt: signedAtMs,
+              nonce,
+            },
+          },
+        } satisfies WsReqFrame))
+        return
+      }
+
+      if (frame.type === 'res' && frame.id === connectId) {
+        cleanup()
+        if (!frame.ok) {
+          const requestId = typeof frame?.error?.details?.requestId === 'string' ? frame.error.details.requestId : ''
+          const detailCode = typeof frame?.error?.details?.code === 'string' ? frame.error.details.code : ''
+          const electronBridge = getElectronOpenClawBridge()
+
+          if (!pairingRetried && detailCode === 'PAIRING_REQUIRED' && requestId && electronBridge?.approveDeviceRequest) {
+            try {
+              const approved = await electronBridge.approveDeviceRequest(requestId)
+              if (approved) {
+                try {
+                  ws.close()
+                }
+                catch {
+                  // ignore close errors
+                }
+                resolve()
+                return
+              }
+            }
+            catch {
+              // fall through to normal error
+            }
+          }
+
+          reject(new Error(frame?.error?.message || 'openclaw request failed'))
+          return
+        }
+
+        const auth = frame.payload?.auth
+        if (typeof auth?.deviceToken === 'string' && auth.deviceToken) {
+          await storeDeviceToken(
+            identity.deviceId,
+            typeof auth.role === 'string' && auth.role ? auth.role : role,
+            auth.deviceToken,
+            Array.isArray(auth.scopes) ? auth.scopes : undefined,
+          )
+        }
+        resolve()
+      }
+    }
+
+    ws.addEventListener('message', onMessage)
+    ws.addEventListener('close', onClose, { once: true })
+  })
+
+  await connectReady
+
+  if (!pairingRetried) {
+    const electronBridge = getElectronOpenClawBridge()
+    if (electronBridge?.approveDeviceRequest) {
+      const latestToken = await getStoredDeviceToken(identity.deviceId, role)
+      if (!latestToken && identity.privateKey === '') {
+        return await openclawChatViaWsInternal(params, true)
+      }
+    }
+  }
 
   const sendId = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
   let latestText = ''
@@ -419,6 +814,16 @@ export async function openclawChatCompletions(params: {
   token?: string
   onToolEvent?: (event: OpenClawToolEvent) => void
 }): Promise<OpenClawChatResult> {
+  const electronBridge = getElectronOpenClawBridge()
+  if (electronBridge?.chatCompletions) {
+    const result = await electronBridge.chatCompletions({
+      messages: params.messages,
+    })
+    for (const event of result.toolEvents)
+      params.onToolEvent?.(event)
+    return result
+  }
+
   const lastUser = [...params.messages].reverse().find(m => m.role === 'user')?.content ?? ''
   return await openclawChatViaWs({
     text: lastUser,
