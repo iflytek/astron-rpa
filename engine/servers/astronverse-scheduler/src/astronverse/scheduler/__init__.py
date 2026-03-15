@@ -20,6 +20,8 @@ class ComponentType(Enum):
     CV_PICKER = 5
     # 触发器
     TRIGGER = 6
+    # OpenClaw
+    OPENCLAW = 7
 
 
 class ServerLevel(Enum):

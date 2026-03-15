@@ -15,6 +15,20 @@ astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = t
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
+include = [
+    "src/astronverse/openclaw/.openclaw-state.seed/**",
+    "src/astronverse/openclaw/binary/**",
+    "src/astronverse/openclaw/openclaw-src/**",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/pyproject.toml",
+    "/src/astronverse/openclaw/.openclaw-state.seed",
+    "/src/astronverse/openclaw/binary",
+    "/src/astronverse/openclaw/openclaw-src",
+]
 
 [build-system]
 requires = ["hatchling"]

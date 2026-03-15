@@ -21,8 +21,6 @@ logger = logging.getLogger("astronverse.openclaw")
 
 BACKUP_SUFFIX = ".launcher.bak"
 
-INSTALL_STEPS = ("install", "ui:build", "build")
-
 
 class LauncherError(RuntimeError):
     """Raised when the launcher cannot build a runnable command."""
@@ -66,18 +64,32 @@ def _resolve_node_command(cfg: OpenclawConfig) -> str | None:
 def _resolve_pnpm_command(cfg: OpenclawConfig) -> str | None:
     if cfg.bundled_pnpm.exists():
         return str(cfg.bundled_pnpm)
-    return shutil.which("pnpm")
+    return None
+
+
+def _resolve_source_openclaw_command(cfg: OpenclawConfig) -> list[str] | None:
+    bin_dir = cfg.source_root / "node_modules" / ".bin"
+    local_cli = bin_dir / ("openclaw.cmd" if os.name == "nt" else "openclaw")
+    if local_cli.is_file():
+        return [str(local_cli)]
+
+    node = _resolve_node_command(cfg)
+    local_entry = cfg.source_root / "node_modules" / "openclaw" / "openclaw.mjs"
+    if node and local_entry.is_file():
+        return [node, str(local_entry)]
+
+    return None
 
 
 def _has_bundled_source_runtime(cfg: OpenclawConfig) -> bool:
-    # if _resolve_pnpm_command(cfg) is None:
-    #     return False
-    # if not (cfg.source_root / "package.json").is_file():
-    #     return False
-    # if not (cfg.source_root / "scripts" / "run-node.mjs").is_file():
-    #     return False
-    # return (cfg.source_root / "node_modules").is_dir()
-    return True
+    return _resolve_source_openclaw_command(cfg) is not None
+
+
+def _is_source_root_empty(cfg: OpenclawConfig) -> bool:
+    if not cfg.source_root.exists():
+        return True
+
+    return not any(cfg.source_root.iterdir())
 
 
 def _find_git_bash_bin() -> str | None:
@@ -112,7 +124,7 @@ def build_env(cfg: OpenclawConfig) -> dict[str, str]:
         prefix = os.pathsep.join(extra_dirs)
         env[path_key] = f"{prefix}{os.pathsep}{current_path}" if current_path else prefix
 
-    env["OPENCLAW_HOME"] = str(cfg.project_root)
+    env["OPENCLAW_HOME"] = str(cfg.openclaw_home)
     env["OPENCLAW_STATE_DIR"] = str(cfg.openclaw_home)
     env["OPENCLAW_CONFIG_PATH"] = str(cfg.config_path)
 
@@ -120,7 +132,7 @@ def build_env(cfg: OpenclawConfig) -> dict[str, str]:
 
 
 def _find_prepared_file(cfg: OpenclawConfig, candidates: tuple[str, ...]) -> Path | None:
-    for root in (cfg.project_root, cfg.seed_root, cfg.seed_root / "workspace"):
+    for root in (cfg.package_root, cfg.seed_root, cfg.seed_root / "workspace"):
         for name in candidates:
             candidate = root / name
             if candidate.exists() and candidate.is_file():
@@ -175,59 +187,48 @@ def sync_prepared_files(cfg: OpenclawConfig, *, dry_run: bool = False) -> list[s
 
 
 def install_from_source(cfg: OpenclawConfig, env: dict[str, str], *, dry_run: bool = False) -> list[str]:
-    if not cfg.source_root.exists():
-        raise LauncherError(f"source directory not found: {cfg.source_root}")
-
     pnpm_command = _resolve_pnpm_command(cfg)
     if pnpm_command is None:
         raise LauncherError(
-            "cannot build OpenClaw from source because `pnpm` is unavailable.\n"
-            "Provide bundled `binary/pnpm`, install `pnpm`, or ship prebuilt `openclaw-src/dist`."
+            "cannot install OpenClaw into openclaw-src because bundled pnpm is unavailable.\n"
+            "Expected bundled `binary/pnpm/pnpm.exe`."
         )
+
+    package_json = cfg.source_root / "package.json"
+    bootstrap_command = [pnpm_command, "install", "openclaw"] if _is_source_root_empty(cfg) or not package_json.exists() else [pnpm_command, "install"]
 
     path_key = next((k for k in env if k.upper() == "PATH"), "PATH")
     logger.info("install_from_source PATH[%s]=%s", path_key, env.get(path_key, "<unset>"))
 
-    changes: list[str] = []
-    for label in INSTALL_STEPS:
-        command = [pnpm_command, label]
-        changes.append(f"run {label}: {' '.join(command)}")
-        if dry_run:
-            continue
-        completed = subprocess.run(command, cwd=str(cfg.source_root), env=env)
-        if completed.returncode != 0:
-            raise LauncherError(f"source install step failed: {label}")
+    changes = [f"run bootstrap install: {' '.join(bootstrap_command)}"]
+    if dry_run:
+        return changes
+
+    cfg.source_root.mkdir(parents=True, exist_ok=True)
+    completed = subprocess.run(bootstrap_command, cwd=str(cfg.source_root), env=env)
+    if completed.returncode != 0:
+        raise LauncherError("source bootstrap install failed")
+
+    if not _has_bundled_source_runtime(cfg):
+        raise LauncherError("source bootstrap completed but local openclaw CLI was not created")
+
     return changes
 
 
 def resolve_command(cfg: OpenclawConfig, forward_args: list[str]) -> tuple[list[str], str]:
     """Return (command, mode) where mode is 'bundled', 'installed', or 'source'."""
-    pnpm = _resolve_pnpm_command(cfg)
-    if pnpm and _has_bundled_source_runtime(cfg):
-        return [pnpm, "openclaw", *forward_args], "bundled"
-
-    installed = shutil.which("openclaw")
-    if installed:
-        return [installed, *forward_args], "installed"
+    bundled = _resolve_source_openclaw_command(cfg)
+    if bundled:
+        return [*bundled, *forward_args], "bundled"
 
     if not cfg.source_root.exists():
         raise LauncherError(f"source directory not found: {cfg.source_root}")
 
-    if pnpm:
-        return [pnpm, "openclaw", *forward_args], "source"
-
-    node = _resolve_node_command(cfg)
-    node_modules = cfg.source_root / "node_modules"
-    if node and node_modules.exists():
-        return [node, "scripts/run-node.mjs", *forward_args], "source"
-
     raise LauncherError(
         "cannot find a runnable OpenClaw backend.\n"
         "Expected one of:\n"
-        "1. bundled `pnpm openclaw` runtime in `openclaw-src`\n"
-        "2. an `openclaw` command in PATH\n"
-        "3. `pnpm` available for `openclaw-src`\n"
-        "4. `node` plus `openclaw-src/node_modules`"
+        "1. local `openclaw-src/node_modules/.bin/openclaw`\n"
+        "2. local `openclaw-src/node_modules/openclaw/openclaw.mjs`"
     )
 
 
@@ -248,14 +249,13 @@ def launch(
         forward_args = list(cfg.default_args)
 
     has_bundled = _has_bundled_source_runtime(cfg)
-    has_installed = detect_installed_command()
     has_state = detect_existing_state(cfg)
     env = build_env(cfg)
 
     install_changes: list[str] = []
     sync_changes: list[str] = []
 
-    if not has_bundled and not has_installed:
+    if not has_bundled:
         install_changes = install_from_source(cfg, env, dry_run=dry_run)
         has_bundled = _has_bundled_source_runtime(cfg)
 
@@ -266,7 +266,6 @@ def launch(
     cwd = None if mode == "installed" else str(cfg.source_root)
 
     logger.info("bundled_runtime=%s", has_bundled)
-    logger.info("installed_command=%s", has_installed)
     logger.info("existing_state=%s", has_state)
     logger.info("openclaw_home=%s", cfg.openclaw_home)
     logger.info("workspace=%s", cfg.default_workspace)

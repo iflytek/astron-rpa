@@ -154,10 +154,10 @@ export default defineConfig((env) => {
       strictPort: true,
       host: '0.0.0.0', // 指定监听所有网络接口
       proxy: {
-        // 本地 OpenClaw Gateway（默认 ws/http: 127.0.0.1:18789）
+        // 本地 OpenClaw Gateway（默认 ws/http: 127.0.0.1:19878）
         // 通过同源代理避免浏览器 CORS 限制
         '/openclaw': {
-          target: 'http://127.0.0.1:18789',
+          target: 'http://127.0.0.1:19878',
           changeOrigin: true,
           ws: true,
           rewrite: path => path.replace(/^\/openclaw/, ''),

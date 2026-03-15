@@ -1,6 +1,6 @@
 # USER.md
 
-- **Name:** zyzhou23
+- **Name:** 
 - **Language:** 中文
 - **Timezone:** Asia/Shanghai
 

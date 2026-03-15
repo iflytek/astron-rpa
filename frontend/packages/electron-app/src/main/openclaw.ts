@@ -67,50 +67,84 @@ interface OpenClawGatewayClientCtor {
 }
 
 const execFileAsync = promisify(execFile)
-let cachedOpenClawCommand: string | null = null
+let cachedOpenClawCommand: { command: string, argsPrefix: string[] } | null = null
 let cachedGatewayClientCtor: Promise<OpenClawGatewayClientCtor> | null = null
 
 function resolveOpenClawDir() {
   return join(homedir(), '.openclaw')
 }
 
+function resolveAstronOpenClawStateDir() {
+  if (process.platform === 'win32')
+    return join(process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local'), 'astronverse-openclaw', '.openclaw-state')
+
+  return join(homedir(), '.openclaw-state')
+}
+
+function resolveManagedOpenClawPackageRoot() {
+  if (process.platform === 'win32')
+    return join(process.env.APPDATA || join(homedir(), 'AppData', 'Roaming'), 'astron-rpa', 'python_core', 'Lib', 'site-packages', 'astronverse', 'openclaw')
+
+  return join(homedir(), '.astron-rpa', 'python_core', 'Lib', 'site-packages', 'astronverse', 'openclaw')
+}
+
+function resolveManagedOpenClawSourceDir() {
+  return join(resolveManagedOpenClawPackageRoot(), 'openclaw-src')
+}
+
+function buildManagedOpenClawEnv() {
+  const stateDir = resolveAstronOpenClawStateDir()
+  return {
+    ...process.env,
+    OPENCLAW_HOME: stateDir,
+    OPENCLAW_STATE_DIR: stateDir,
+    OPENCLAW_CONFIG_PATH: join(stateDir, 'openclaw.json'),
+  }
+}
+
+function applyManagedOpenClawProcessEnv() {
+  const managedEnv = buildManagedOpenClawEnv()
+  process.env.OPENCLAW_HOME = managedEnv.OPENCLAW_HOME
+  process.env.OPENCLAW_STATE_DIR = managedEnv.OPENCLAW_STATE_DIR
+  process.env.OPENCLAW_CONFIG_PATH = managedEnv.OPENCLAW_CONFIG_PATH
+}
+
+function createOpenClawFallbackSessionId() {
+  return `astron-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
 function resolveOpenClawCommand() {
   if (cachedOpenClawCommand)
     return cachedOpenClawCommand
 
-  const candidates = [
-    join(dirname(process.execPath), 'openclaw.cmd'),
-    join(dirname(process.execPath), 'openclaw'),
-    'C:\\nvm4w\\nodejs\\openclaw.cmd',
-    'C:\\nvm4w\\nodejs\\openclaw',
+  const sourceDir = resolveManagedOpenClawSourceDir()
+  const cliCandidates = [
+    join(sourceDir, 'node_modules', '.bin', 'openclaw.cmd'),
+    join(sourceDir, 'node_modules', '.bin', 'openclaw'),
   ]
 
-  for (const candidate of candidates) {
+  for (const candidate of cliCandidates) {
     if (existsSync(candidate)) {
-      cachedOpenClawCommand = candidate
-      return candidate
+      cachedOpenClawCommand = { command: candidate, argsPrefix: [] }
+      return cachedOpenClawCommand
     }
   }
 
-  try {
-    const resolved = execFileSync('where', ['openclaw'], {
-      stdio: 'pipe',
-      encoding: 'utf-8',
-    })
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .find(Boolean)
+  const packageRoot = resolveManagedOpenClawPackageRoot()
+  const nodeCandidates = [
+    join(packageRoot, 'binary', 'node', 'node.exe'),
+    join(packageRoot, 'binary', 'node', 'node'),
+  ]
+  const localEntry = join(sourceDir, 'node_modules', 'openclaw', 'openclaw.mjs')
 
-    if (resolved) {
-      cachedOpenClawCommand = resolved
-      return resolved
+  for (const nodeCandidate of nodeCandidates) {
+    if (existsSync(nodeCandidate) && existsSync(localEntry)) {
+      cachedOpenClawCommand = { command: nodeCandidate, argsPrefix: [localEntry] }
+      return cachedOpenClawCommand
     }
   }
-  catch {
-    // ignore lookup failures and surface a clearer error below
-  }
 
-  throw new Error('OpenClaw CLI executable not found')
+  throw new Error(`Managed OpenClaw CLI executable not found under: ${sourceDir}`)
 }
 
 function resolveIdentityPath() {
@@ -156,12 +190,13 @@ function writeJsonFile(filePath: string, data: unknown) {
 }
 
 /**
- * 读取 OpenClaw 配置文件
- * 默认路径: ~/.openclaw/openclaw.json
+ * 读取 Astron 托管的 OpenClaw 配置文件
+ * Windows 默认路径: %LOCALAPPDATA%/astronverse-openclaw/.openclaw-state/openclaw.json
  */
 export function readOpenClawConfig(): OpenClawConfig | null {
   try {
-    const configPath = join(resolveOpenClawDir(), 'openclaw.json')
+    const configPath = join(resolveAstronOpenClawStateDir(), 'openclaw.json')
+    logger.info(`Reading OpenClaw config from: ${configPath}`)
     const content = readFileSync(configPath, 'utf-8')
     const config = JSON.parse(content) as OpenClawConfig
     logger.info('OpenClaw config loaded successfully')
@@ -259,9 +294,11 @@ export function approveOpenClawDeviceRequest(requestId: string) {
   if (!gatewayToken)
     throw new Error('OpenClaw gateway token not found')
 
-  execFileSync(resolveOpenClawCommand(), ['devices', 'approve', requestId, '--json', '--token', gatewayToken], {
+  const resolved = resolveOpenClawCommand()
+  execFileSync(resolved.command, [...resolved.argsPrefix, 'devices', 'approve', requestId, '--json', '--token', gatewayToken], {
     stdio: 'pipe',
     encoding: 'utf-8',
+    env: buildManagedOpenClawEnv(),
   })
   return true
 }
@@ -309,6 +346,24 @@ function extractTextFromMessage(message: any): string {
     .trim()
 }
 
+function extractTextFromAgentCliResult(result: any): string {
+  if (!result || typeof result !== 'object')
+    return ''
+
+  const payloadGroups = [
+    Array.isArray(result.payloads) ? result.payloads : [],
+    Array.isArray(result.result?.payloads) ? result.result.payloads : [],
+  ]
+
+  for (const payloads of payloadGroups) {
+    const answer = payloads.find((item: any) => typeof item?.text === 'string' && item.text.trim())?.text?.trim()
+    if (answer)
+      return answer
+  }
+
+  return extractTextFromMessage(result.message ?? result.result?.message)
+}
+
 function extractToolEventsFromChatPayload(payload: any): OpenClawToolEvent[] {
   if (!payload || typeof payload !== 'object')
     return []
@@ -342,44 +397,11 @@ function extractToolEventsFromChatPayload(payload: any): OpenClawToolEvent[] {
 }
 
 function resolveOpenClawPackageDir() {
-  const candidates: string[] = []
+  const candidate = join(resolveManagedOpenClawSourceDir(), 'node_modules', 'openclaw')
+  if (existsSync(join(candidate, 'package.json')))
+    return candidate
 
-  const commandPathCandidates = [
-    join(dirname(process.execPath), 'openclaw.cmd'),
-    join(dirname(process.execPath), 'openclaw'),
-    'C:\\nvm4w\\nodejs\\openclaw.cmd',
-    'C:\\nvm4w\\nodejs\\openclaw',
-  ]
-
-  for (const commandPath of commandPathCandidates) {
-    if (existsSync(commandPath))
-      candidates.push(join(dirname(commandPath), 'node_modules', 'openclaw'))
-  }
-
-  try {
-    const resolved = execFileSync('where', ['openclaw'], {
-      stdio: 'pipe',
-      encoding: 'utf-8',
-    })
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(Boolean)
-
-    for (const commandPath of resolved)
-      candidates.push(join(dirname(commandPath), 'node_modules', 'openclaw'))
-  }
-  catch {
-    // ignore path lookup failures
-  }
-
-  candidates.push(join(dirname(process.execPath), 'node_modules', 'openclaw'))
-
-  for (const candidate of candidates) {
-    if (existsSync(join(candidate, 'package.json')))
-      return candidate
-  }
-
-  throw new Error('OpenClaw package directory not found')
+  throw new Error(`Managed OpenClaw package directory not found under: ${candidate}`)
 }
 
 async function loadOpenClawGatewayClientCtor(): Promise<OpenClawGatewayClientCtor> {
@@ -387,6 +409,7 @@ async function loadOpenClawGatewayClientCtor(): Promise<OpenClawGatewayClientCto
     return await cachedGatewayClientCtor
 
   cachedGatewayClientCtor = (async () => {
+  applyManagedOpenClawProcessEnv()
   const packageDir = resolveOpenClawPackageDir()
   const distDir = join(packageDir, 'dist')
   const chunk = readdirSync(distDir).find(name => /^auth-profiles-.*\.js$/i.test(name))
@@ -412,13 +435,16 @@ async function loadOpenClawGatewayClientCtor(): Promise<OpenClawGatewayClientCto
 }
 
 async function runOpenClawAgentFallback(text: string): Promise<OpenClawChatResult> {
-  const { stdout } = await execFileAsync(resolveOpenClawCommand(), ['agent', '--agent', 'main', '--message', text, '--json'], {
+  const sessionId = createOpenClawFallbackSessionId()
+  const resolved = resolveOpenClawCommand()
+  const { stdout } = await execFileAsync(resolved.command, [...resolved.argsPrefix, 'agent', '--agent', 'main', '--session-id', sessionId, '--message', text, '--json'], {
     encoding: 'utf-8',
     timeout: 120000,
     windowsHide: true,
+    env: buildManagedOpenClawEnv(),
   })
-  const parsed = JSON.parse(stdout) as { payloads?: Array<{ text?: string }> }
-  const answer = parsed.payloads?.find(item => typeof item?.text === 'string' && item.text.trim())?.text?.trim()
+  const parsed = JSON.parse(stdout) as Record<string, unknown>
+  const answer = extractTextFromAgentCliResult(parsed)
 
   return {
     text: answer || '(openclaw returned no content)',

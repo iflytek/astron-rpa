@@ -1,2 +1,14 @@
 __pycache__/
 .openclaw-state/
+
+src/astronverse/openclaw/binary/*
+!src/astronverse/openclaw/binary/.gitkeep
+!src/astronverse/openclaw/binary/node/
+src/astronverse/openclaw/binary/node/*
+!src/astronverse/openclaw/binary/node/.gitkeep
+!src/astronverse/openclaw/binary/pnpm/
+src/astronverse/openclaw/binary/pnpm/*
+!src/astronverse/openclaw/binary/pnpm/.gitkeep
+
+src/astronverse/openclaw/openclaw-src/*
+!src/astronverse/openclaw/openclaw-src/.gitkeep

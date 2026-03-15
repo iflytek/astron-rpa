@@ -79,6 +79,52 @@ class TriggerServer(IServer):
             self.svc.logger.error("update_config error: %s", e)
 
 
+class OpenClawServer(IServer):
+    def __init__(self, svc):
+        self.proc = None
+        self.port = 0
+        self.err_time = 0
+        self.err_max_time = 3
+        super().__init__(svc=svc, name="openclaw", level=ServerLevel.NORMAL, run_is_async=False)
+
+    def run(self):
+        self.port = self.svc.openclaw_port
+
+        self.proc = SubPopen(
+            name="openclaw",
+            cmd=[self.svc.config.python_core, "-m", "astronverse.openclaw"],
+        )
+        self.proc.set_param("port", self.port)
+        self.proc.run()
+
+    def health(self) -> bool:
+        if not self.proc or not self.proc.is_alive():
+            return False
+
+        try:
+            response = requests.get(f"http://127.0.0.1:{self.port}/health")
+            if response.status_code != 200:
+                self.err_time += 1
+            else:
+                self.err_time = 0
+        except Exception:
+            self.err_time += 1
+
+        if self.err_time >= self.err_max_time:
+            return False
+
+        return True
+
+    def close(self):
+        if self.proc:
+            self.proc.kill()
+
+    def recover(self):
+        if self.proc:
+            self.proc.kill()
+        self.run()
+
+
 class VNCServer(IServer):
     def __init__(self, svc):
         self.svc = svc

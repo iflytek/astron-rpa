@@ -7,7 +7,7 @@ from astronverse.scheduler import ComponentType
 from astronverse.scheduler.config import Config
 from astronverse.scheduler.core.executor.executor import ExecutorManager
 from astronverse.scheduler.core.picker.picker import Picker
-from astronverse.scheduler.core.servers.normal_server import TriggerServer, VNCServer
+from astronverse.scheduler.core.servers.normal_server import OpenClawServer, TriggerServer, VNCServer
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import check_port
 
@@ -32,6 +32,8 @@ class Svc:
         self.scheduler_port: int = self.get_validate_port(ComponentType.SCHEDULER)
         # trigger端口[随机分配]
         self.trigger_port: int = self.get_validate_port(ComponentType.TRIGGER)
+        # openclaw服务端口[随机分配]
+        self.openclaw_port: int = self.get_validate_port(ComponentType.OPENCLAW)
         # 浏览器通信端口[固定分配]
         self.connector_port: int = 9082
         self.port_dict[ComponentType.BROWSER_CONNECTOR.name.lower()] = self.connector_port
@@ -50,6 +52,8 @@ class Svc:
         self.picker = Picker(self)
         # 触发器
         self.trigger_server = TriggerServer(self)
+        # OpenClaw 服务
+        self.openclaw_server = OpenClawServer(self)
         # nav服务
         if sys.platform == "win32":
             self.vnc_server = VNCServer(self)

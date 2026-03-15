@@ -54,6 +54,7 @@ def start(args):
         server_mg.register(CheckPickProcessAliveServer(svc))
         server_mg.register(CheckStartPidExitsServer(svc))
         server_mg.register(svc.trigger_server)
+        server_mg.register(svc.openclaw_server)
         if svc.vnc_server:
             server_mg.register(svc.vnc_server)
         server_mg.run()

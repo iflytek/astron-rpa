@@ -22,6 +22,6 @@
 
 ## 工作区边界
 
-- 当前工作区主要用于 `astronverse` 与 `OpenClaw` 集成
+- 当前工作区主要用于 `astronRPA` 与 `OpenClaw` 集成
 - 优先修改宿主项目，非必要不要直接改 `openclaw-src`
 - 记录长期约定到 `MEMORY.md`
