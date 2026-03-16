@@ -17,6 +17,7 @@ import { useElementManager } from './components/ElementManager/useElementManager
 import { useLog } from './components/Log/useLog.ts'
 import { useSubProcessUse } from './components/SubProcessSearch/useSubProcessUse'
 import type { TabConfig } from './types'
+import { useToolsCustomComp } from '../tools/hooks/useToolsCustomComp.ts'
 
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
@@ -40,6 +41,7 @@ const tabs = shallowRef<TabConfig[]>(initTabs)
 const activeKey = ref(tabs.value[0].key)
 const searchText = ref('')
 const moduleType = ref('default')
+const customCompSetting = useToolsCustomComp()
 
 // 内容的最大高度
 const contentHeight = computed(() => {
@@ -123,6 +125,19 @@ watch(() => processStore.activeProcessId, () => {
             enable-hover-bg
             @click="() => expand(!collapsed)"
           />
+          <rpa-hint-icon
+            v-if="customCompSetting.show && activeKey === 'config-params'"
+            :name="customCompSetting.icon"
+            :disabled="(customCompSetting.disable as boolean)"
+            :title="$t(customCompSetting.title as string)"
+            class="ml-4"
+            enable-hover-bg
+            @click="customCompSetting.clickFn"
+          >
+            <template #suffix>
+              <span class="ml-1">{{ $t(customCompSetting.title as string) }}</span>
+            </template>
+          </rpa-hint-icon>
         </div>
       </template>
       <a-tab-pane v-for="item in tabs" :key="item.key" class="z-0">

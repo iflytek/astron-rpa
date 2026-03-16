@@ -42,6 +42,7 @@ declare namespace RPA {
     robotVersion?: number // 应用版本
     processId?: string // 流程id
     moduleId?: string // 模块id
+    formItem?: RPA.AtomDisplayItem | string // 表单控件配置（对象或JSON字符串），如果存在则优先使用
   }
 
   // 组件属性

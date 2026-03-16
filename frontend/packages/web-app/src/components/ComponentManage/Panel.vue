@@ -1,17 +1,26 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
+import { Input, message } from 'ant-design-vue'
 
 import { COMPONENT_KEY_PREFIX, updateFlowNodesComponent } from '@/utils/customComponent'
+import GlobalModal from '@/components/GlobalModal/index.ts'
 
-import { installComponent, removeComponent, updateComponent } from '@/api/robot'
+import { installComponent, installMarketComponent, removeComponent, removeMarketComponent, updateComponent } from '@/api/robot'
+import { deleteApp } from '@/api/market'
 import { createComponentAbility } from '@/views/Arrange/utils/generateData'
+import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate'
 
-const props = defineProps<{ data: RPA.ComponentManageItem, robotId: string }>()
+const props = defineProps<{ 
+  data: RPA.ComponentManageItem
+  robotId: string 
+}>()
 const emit = defineEmits(['refresh'])
 
 const isInstalled = computed(() => props.data.blocked === 0)
 const isLatest = computed(() => props.data.isLatest === 1)
+const canOperate = computed(() => props.data.allowOperate === 1) // 是否允许操作（下架）
 const loading = ref(false)
+const { handleDeleteConfirm } = useCommonOperate()
 
 async function execute<T>(func: () => Promise<T>) {
   loading.value = true
@@ -25,22 +34,109 @@ async function execute<T>(func: () => Promise<T>) {
   }
 }
 
-function handleInstall() {
-  execute(() =>
-    installComponent({
-      robotId: props.robotId,
-      componentId: props.data.componentId,
+function doInstallMarketComponent(appName: string) {
+  return execute(() =>
+    installMarketComponent({
+      marketId: props.data.marketId!,
+      appId: props.data.appId!, // 使用 appId 而不是 componentId
+      appName,
+      version: props.data.latestVersion || props.data.version,
     }),
   )
 }
 
+async function handleInstall() {
+  if (props.data.marketId) {
+    // 团队市场组件
+    try {
+      await doInstallMarketComponent(props.data.name)
+    }
+    catch (err: any) {
+      const { code } = err
+      // 错误码 600000 表示存在同名组件
+      if ([600000, '600000'].includes(code)) {
+        const confirmAppName = ref(props.data.name)
+        const modal = GlobalModal.warning({
+          title: '安装组件',
+          content: () => {
+            return h('div', [
+              h('p', '存在同名自定义组件，请修改名称'),
+              h('span', '名称：'),
+              h(Input, {
+                defaultValue: props.data.name,
+                onChange: (e: any) => {
+                  confirmAppName.value = e.target.value
+                  if (!confirmAppName.value) {
+                    message.error('请输入名称')
+                  }
+                },
+                style: 'width: 200px; margin-left: 8px',
+              }),
+            ])
+          },
+          async onOk() {
+            if (!confirmAppName.value) {
+              message.error('请输入名称')
+              return false
+            }
+            try {
+              await doInstallMarketComponent(confirmAppName.value)
+              modal.destroy()
+            }
+            catch (err) {
+              return false
+            }
+          },
+          maskClosable: true,
+          centered: true,
+          keyboard: false,
+        })
+      } else {
+        message.error(err.message || err.msg || '安装失败')
+      }
+    }
+  } else {
+    // 自建组件
+    execute(() =>
+      installComponent({
+        robotId: props.robotId,
+        componentId: props.data.componentId,
+      }),
+    )
+  }
+}
+
+// 移除组件
 function handleRemove() {
-  execute(() =>
-    removeComponent({
-      robotId: props.robotId,
-      componentId: props.data.componentId,
-    }),
-  )
+  if (props.data.marketId) {
+    // 团队市场组件
+    execute(() =>
+      removeMarketComponent({
+        componentId: props.data.componentId,
+      }),
+    )
+  } else {
+    // 自建组件
+    execute(() =>
+      removeComponent({
+        robotId: props.robotId,
+        componentId: props.data.componentId,
+      }),
+    )
+  }
+}
+
+// 下架组件
+function handleTakeDown() {
+  handleDeleteConfirm(`将要下架：${props.data.name}，下架后将无法恢复，是否仍要下架？`, () => {
+    execute(() =>
+      deleteApp({
+        appId: props.data.appId!, // 使用 appId 而不是 componentId
+        marketId: props.data.marketId!,
+        appType: 'component',
+      }),
+    )
+  })
 }
 
 function handleUpdate() {
@@ -89,9 +185,19 @@ function handleUpdate() {
 
     <!-- 卡片操作按钮 -->
     <div class="flex space-x-2">
-      <a-button v-if="!isInstalled" class="flex-1" :disabled="loading" @click="handleInstall">
-        安装
+      <a-button
+        v-if="props.data.marketId && canOperate"
+        class="flex-1"
+        :disabled="loading"
+        @click="handleTakeDown"
+      >
+        下架
       </a-button>
+      <template v-if="!isInstalled">
+        <a-button class="flex-1" :disabled="loading" @click="handleInstall">
+          安装
+        </a-button>
+      </template>
 
       <template v-else>
         <a-button class="flex-1" :disabled="loading" @click="handleRemove">

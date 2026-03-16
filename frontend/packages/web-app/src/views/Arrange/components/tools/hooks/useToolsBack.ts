@@ -8,6 +8,7 @@ import { useProcessStore } from '@/stores/useProcessStore'
 import useProjectDocStore from '@/stores/useProjectDocStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
+import { confirmRemoveComponent } from '@/api/robot'
 
 export function useToolsBack() {
   const processStore = useProcessStore()
@@ -15,6 +16,10 @@ export function useToolsBack() {
   const backToMain = async () => {
     try {
       await processStore.saveProject()
+      await confirmRemoveComponent({
+        robotId: processStore.project.id,
+        robotVersion: processStore.project.version
+      })
       await message.success(i18next.t('common.saveSuccess'), 0.5)
       useRouteBack()
       useFlowStore().toggleMultiSelect(false)
