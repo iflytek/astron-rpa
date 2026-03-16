@@ -26,29 +26,6 @@ export const ROBOT_AVATAR_LIST: AvatarItem[] = [
 
 export const ROBOT_DEFAULT_ICON = 'avatar-internet-1'
 
-export const COMPONENT_AVATAR_LIST: AvatarItem[] = [
-  { icon: 'avatar-comp-1' },
-  { icon: 'avatar-comp-2' },
-  { icon: 'avatar-comp-3' },
-  { icon: 'avatar-comp-4' },
-  { icon: 'avatar-comp-5' },
-  { icon: 'avatar-comp-6' },
-  { icon: 'avatar-comp-7' },
-  { icon: 'avatar-comp-8' },
-  { icon: 'avatar-comp-9' },
-  { icon: 'avatar-comp-10' },
-  { icon: 'avatar-comp-11' },
-  { icon: 'avatar-comp-12' },
-  { icon: 'avatar-comp-13' },
-  { icon: 'avatar-comp-14' },
-  { icon: 'avatar-comp-15' },
-  { icon: 'avatar-comp-16' },
-  { icon: 'avatar-comp-17' },
-  { icon: 'avatar-comp-18' },
-]
-
-export const COMPONENT_DEFAULT_ICON = COMPONENT_AVATAR_LIST[0].icon
-
 export const COLOR_LIST = ['#726FFF', '#1677FF', '#13C2C2', '#2FCB64', '#A0D911', '#FADB14', '#FA8C16', '#FA541C', '#EB2F96']
 
 export const DEFAULT_COLOR = COLOR_LIST[0]

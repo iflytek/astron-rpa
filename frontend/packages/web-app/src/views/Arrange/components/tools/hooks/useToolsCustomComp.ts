@@ -3,13 +3,14 @@ import { NiceModal } from '@rpa/components'
 import { CustomComponentSettingModal } from '@/components/CustomComponentSetting'
 import { useProcessStore } from '@/stores/useProcessStore'
 import type { ArrangeTools } from '@/views/Arrange/types/arrangeTools'
+import { reactiveComputed } from '@vueuse/core'
 
 export function useToolsCustomComp() {
   const className = '_tools-custom-comp-setting'
 
   const settingModal = NiceModal.useModal(CustomComponentSettingModal)
 
-  const item: ArrangeTools = {
+  const item: ArrangeTools = reactiveComputed(() => ({
     key: 'customComponentSetting',
     title: 'components.customComponentSetting',
     name: 'components.customComponentSetting',
@@ -18,12 +19,12 @@ export function useToolsCustomComp() {
     class: className,
     action: '',
     loading: false,
-    show: () => useProcessStore().isComponent,
-    disable: () => !useProcessStore().isComponent,
+    show: useProcessStore().isComponent && useProcessStore().activeProcess?.isMain,
+    disable: !useProcessStore().isComponent,
     clickFn: () => {
       settingModal.visible ? settingModal.hide() : settingModal.show({ clickOutsideIgnoreSelector: className })
     },
-  }
+  }))
 
   return item
 }

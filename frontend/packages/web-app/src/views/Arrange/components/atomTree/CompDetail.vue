@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 
 import { COMPONENT_KEY_PREFIX, updateFlowNodesComponent } from '@/utils/customComponent'
 
-import { getComponentDetail, removeComponent, updateComponent } from '@/api/robot'
+import { getComponentDetail, removeComponent, removeMarketComponent, updateComponent } from '@/api/robot'
 import { createComponentAbility } from '@/views/Arrange/utils/generateData'
 
 const props = defineProps<{ robotId: string, componentId: string }>()
@@ -35,12 +35,23 @@ async function execute<T>(func: () => Promise<T>) {
 }
 
 function handleRemove() {
-  execute(() =>
-    removeComponent({
-      robotId: props.robotId,
-      componentId: props.componentId,
-    }),
-  )
+  // 根据 dataSource 决定调用哪个接口
+  if (state.value?.dataSource === 'market') {
+    // 团队市场组件：使用 removeMarketComponent
+    execute(() =>
+      removeMarketComponent({
+        componentId: props.componentId,
+      }),
+    )
+  } else {
+    // 自建组件：使用 removeComponent
+    execute(() =>
+      removeComponent({
+        robotId: props.robotId,
+        componentId: props.componentId,
+      }),
+    )
+  }
 }
 
 function handleUpdate() {
