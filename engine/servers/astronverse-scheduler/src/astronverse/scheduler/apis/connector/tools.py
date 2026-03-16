@@ -395,16 +395,16 @@ def notify_text(param: NotifyText, svc: Svc = Depends(get_svc)):
 
     notifier = NotifyUtils(svc)
     if param.alert_type == "mail":
-        if not notifier.email_setting["receiver"]:
+        if not notifier.email_setting.get("receiver", None):
             return res_msg(code=ResCode.ERR, msg="邮件必填", data=None)
 
         notifier.login_send()
         notifier.send_email("测试邮件")
     else:
-        if not notifier.text_setting["receiver"]:
+        if not notifier.msg_setting.get("receiver", None):
             return res_msg(code=ResCode.ERR, msg="手机号必填", data=None)
 
-        notifier.send_text("test", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        notifier.send_sms("Test", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     return res_msg(code=ResCode.SUCCESS, msg="", data=None)
 
 
