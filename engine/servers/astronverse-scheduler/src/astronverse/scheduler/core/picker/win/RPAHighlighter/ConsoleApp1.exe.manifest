@@ -42,26 +42,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ConsoleApp1.exe" size="14272">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ConsoleApp1.exe" size="13312">
       <assemblyIdentity name="ConsoleApp1" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Mbg0kwVnyTfwax5EPUCVFIly3WfvpY2DpVdFjn0DlDw=</dsig:DigestValue>
+        <dsig:DigestValue>e+3+zhTKL9ccQcRR0Y+LziX2teTMZB1/K/PK4PeL7Dw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CVForm.exe" size="12800">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CVForm.exe" size="13312">
       <assemblyIdentity name="CVForm" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>gPCCtLd2R8htbIOvdfnX7cAJz+E8OnRzThyTnTo9dw8=</dsig:DigestValue>
+        <dsig:DigestValue>E0x1o9R8xhHf9P3GRgG3sKca1yjmZLWs430xHOpwrBs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -78,14 +78,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Form1.exe" size="14336">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Form1.exe" size="13824">
       <assemblyIdentity name="Form1" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>ig4S1GWtnEwU0SPsqiaWKP1yInrTd0e9tfS83qI8Rb0=</dsig:DigestValue>
+        <dsig:DigestValue>pJYKj85/0BXwdMU8pH1WG2lMRbPPaLYP/J0Gvyay4G0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -102,14 +102,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Highlighter.exe" size="18944">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Highlighter.exe" size="20992">
       <assemblyIdentity name="Highlighter" version="0.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>6vs2szUt3j+Ak7VCuc9AtvOMjdIiZ2h71nJJNVf0DBE=</dsig:DigestValue>
+        <dsig:DigestValue>KS+zlCcsd6bwnOuXUemdALo8cYT7LCFSjWAjKhlB/j0=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Localization.dll" size="5632">
+      <assemblyIdentity name="Localization" version="0.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>5sWABFnyhaRLGyIvrP5v/RZ/IWRlpjpLesqGjiIJbtk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
