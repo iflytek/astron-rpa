@@ -133,7 +133,8 @@ def debug_start(args, flow_svc, svc):
         local_ver = [int(x) for x in client_version.split(".")]
         required_ver = [int(x) for x in flow_version.split(".")]
         if local_ver < required_ver:
-            svc.report.warning(ReportTip(msg_str=MSG_VERSION_WARNING_FORMAT.format(client_version, flow_version)))
+            svc.report.warning(ReportTip(msg_str=MSG_VERSION_WARNING_FORMAT.format(flow_version)))
+            time.sleep(1)
 
         # 执行前验证
         if Config.open_log_ws:
