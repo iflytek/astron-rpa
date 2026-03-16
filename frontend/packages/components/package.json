@@ -52,7 +52,6 @@
     "@vueuse/core": "^11.0.1",
     "@zwight/exceljs": "^4.4.2",
     "dayjs": "^1.11.19",
-    "lodash-es": "^4.17.21",
     "monaco-editor": "^0.52.2",
     "nanoid": "^5.1.6",
     "papaparse": "^5.5.3",
@@ -64,17 +63,19 @@
   },
   "devDependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@types/lodash-es": "catalog:types",
     "@types/crypto-js": "^4.2.2",
-    "@vitejs/plugin-vue": "catalog:",
-    "@vitejs/plugin-vue-jsx": "catalog:",
-    "ant-design-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:dev",
+    "@vitejs/plugin-vue-jsx": "catalog:dev",
+    "ant-design-vue": "catalog:dev",
+    "lodash-es": "catalog:dev",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.4",
     "postcss": "^8.4.38",
     "sass": "~1.77.4",
-    "tailwindcss": "catalog:",
+    "tailwindcss": "catalog:dev",
     "unplugin-vue-components": "^28.5.0",
-    "vite": "catalog:"
+    "vite": "catalog:dev"
   },
   "peerDependencies": {
     "@ant-design/icons-vue": ">=7",

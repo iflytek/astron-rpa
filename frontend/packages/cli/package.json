@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "description": "CLI tool for Astron RPA plugin development",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "bin": {
     "rpa": "./bin/rpa.js"
   },
@@ -30,7 +30,7 @@
     "@vitejs/plugin-vue-jsx": "^5.0.1",
     "debug": "^4.4.3",
     "ejs": "^4.0.1",
-    "tsdown": "^0.15.7",
+    "tsdown": "catalog:dev",
     "vite": "^7.1.10"
   }
 }
