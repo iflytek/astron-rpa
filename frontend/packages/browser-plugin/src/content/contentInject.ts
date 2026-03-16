@@ -1147,8 +1147,21 @@ function executeHandler(key: string, data, isAsync: boolean = true) {
     }
   }
   catch (error) {
-    return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
+    return handleError(error)
   }
+}
+
+function handleError(error) {
+  if (error instanceof SyntaxError) {
+    return Utils.fail(ErrorMessage.SYNTAX_ERROR + error.message, StatusCode.EXECUTE_ERROR)
+  }
+  if (error instanceof TypeError) {
+    return Utils.fail(ErrorMessage.TYPE_ERROR + error.message, StatusCode.EXECUTE_ERROR)
+  }
+  if (error instanceof ReferenceError) {
+    return Utils.fail(ErrorMessage.REFERENCE_ERROR + error.message, StatusCode.EXECUTE_ERROR)
+  }
+  return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
 }
 
 async function handle(params) {

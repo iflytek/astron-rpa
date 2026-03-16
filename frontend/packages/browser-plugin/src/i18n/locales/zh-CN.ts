@@ -37,6 +37,9 @@ export const zhCN: Messages = {
     elementChildOriginNotFound: '元素原始信息originXpath不完整，无法唯一定位子元素',
     updateTip: '请更新插件至最新版本后重试',
     elementChangedAtNode: '元素在第{index}节点{step}处发生变动',
+    syntaxError: '语法错误，请检查输入',
+    typeError: '类型错误，请检查输入',
+    referenceError: '引用错误，请检查输入',
   },
   success: {
     deleteSuccess: '删除成功',

@@ -3,7 +3,6 @@ import { t } from '../i18n/index'
 // Background constants
 export const SUPPORTED_PROTOCOLS = ['http://', 'https://', 'file://', 'ftp://']
 export const OLD_EXTENSION_IDS = ['dibfknoajiboamheempfppeapcedplgm', 'gfpcfabhkgenjcmjgnldmkhjieekeeea']
-export const CURRENT_EXTENSION_ID = chrome.runtime.id
 export const NATIVE_HOST_NAME = 'com.astronrpa.nativehost'
 export const IGNORE_LOG_KEYS = ['getElement', 'contentInject', 'backgroundInject']
 export const BROWSER_MAP = {
@@ -131,6 +130,9 @@ export const ErrorMessage = {
   get ELEMENT_CHILD_NOT_FOUND() { return t('errors.elementChildNotFound') },
   get ELEMENT_CHILD_ORIGIN_NOT_FOUND() { return t('errors.elementChildOriginNotFound') },
   get UPDATE_TIP() { return t('errors.updateTip') },
+  get SYNTAX_ERROR() { return t('errors.syntaxError') },
+  get TYPE_ERROR() { return t('errors.typeError') },
+  get REFERENCE_ERROR() { return t('errors.referenceError') },
 }
 
 export const SuccessMessage = {

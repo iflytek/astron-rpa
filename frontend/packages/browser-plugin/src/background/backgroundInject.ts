@@ -4,8 +4,8 @@ import { Utils } from '../common/utils'
 
 import { Cookie } from './cookie'
 import DataTable from './data_table'
-import { Debugger } from './debugger'
 import { adjustPosition, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
+import * as NetworkMonitor from './network_monitor'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
 import { WindowControl } from './window'
@@ -667,10 +667,8 @@ const Handlers = {
         if (frameId === null) {
           return Utils.fail(ErrorMessage.FRAME_GET_ERROR, StatusCode.ELEMENT_NOT_FOUND)
         }
-        if (frameId !== 0) { // get frames when frameId not 0
-          await Tabs.getAllFrames(tab.id)
-        }
         try {
+          await Tabs.getAllFrames(tab.id)
           const result = await Tabs.runJS(tab.id, frameId, params)
           return Utils.success(result)
         }
@@ -731,10 +729,8 @@ const Handlers = {
         if (!tab) {
           return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
         }
-        await Debugger.startNetworkMonitoring(
-          tab.id,
-          filters,
-        )
+        // 统一调用 network_monitor 导出的函数（Chrome 和 Firefox）
+        await NetworkMonitor.startNetworkMonitor(tab.id, filters)
         return Utils.success(true)
       },
       async stopDebugNetworkListen() {
@@ -742,14 +738,19 @@ const Handlers = {
         if (!tab) {
           return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
         }
-        await Debugger.stopNetworkMonitoring(
-          tab.id,
-        )
+        // 统一调用 network_monitor 导出的函数（Chrome 和 Firefox）
+        await NetworkMonitor.stopNetworkMonitor(tab.id)
         return Utils.success(true)
       },
       async getDebugNetworkData() {
-        const data = Debugger.networkFilterdRequests
+        // 统一调用 network_monitor 导出的函数（Chrome 和 Firefox）
+        const data = NetworkMonitor.getNetworkData()
         return Utils.success(data)
+      },
+      async clearDebugNetworkData() {
+        // 统一调用 network_monitor 导出的函数（Chrome 和 Firefox）
+        NetworkMonitor.clearNetworkData()
+        return Utils.success(true)
       },
     }
   },

@@ -3,13 +3,18 @@ import { log } from '../3rd/log'
  * @file Manages communication with the native messaging host.
  */
 import { NATIVE_HOST_NAME } from '../common/constant'
+import { Utils } from '../common/utils'
 
 let port: chrome.runtime.Port | null = null
-
+const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
 /**
  * Establishes a connection to the native messaging host.
  */
 export function connectToNativeHost() {
+  if (isFirefox) {
+    log.info('Firefox does not connect to native host.')
+    return
+  }
   if (port) {
     log.info('Already connected to native host.')
     return
