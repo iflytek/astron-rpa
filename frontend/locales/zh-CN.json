@@ -147,6 +147,7 @@
   "newPythonPackage": "新增Python包",
   "install": "安装",
   "uninstall": "卸载",
+  "update": "更新",
   "noData": "暂无数据",
   "output": "输出",
   "packageName": "Python包名",
@@ -189,6 +190,13 @@
   "pluginUpdateInfo":"检测到浏览器已安装的插件存在新版本，是否立即更新插件？",
   "pluginUpdateDesc": "更新插件将提升网页自动化体验",
   "pluginUpdateNotice": "注意：更新插件会关闭已打开的浏览器，请提前保存好浏览器中的工作！",
+  "pluginInstallTip": "插件安装提示",
+  "pluginInstallInfo": "检测到您尚未安装浏览器插件，是否立即安装插件？",
+  "pluginInstallDesc": "安装插件将提升网页自动化体验",
+  "pluginInstallNotice": "注意：安装插件会关闭已打开的浏览器，请提前保存好浏览器中的工作！",
+  "installNow": "立即安装",
+  "installLater": "稍后安装",
+  "forceClose": "强制关闭",
   "displayLanguage": "显示语言",
   "startupSettings": "启动项设置",
   "automaticStartup": "开机自动启动",
@@ -1773,7 +1781,8 @@
     "operating": "正在{{action}}...",
     "step1": "插件已经安装，根据以下图片步骤开启浏览器插件",
     "step2": "若安装失败，请打开插件路径拖动加载插件",
-    "runningTip": "{{name}}插件正在运行(后台进程可能存在)，请关闭浏览器后再{{action}}插件"
+    "runningTip": "{{name}}插件正在运行(后台进程可能存在)，请关闭浏览器后再{{action}}插件",
+    "openPluginPath": "打开插件路径"
   },
   "smartCompPick": {
     "onlyWebAutomation": "当前仅支持网页自动化",
