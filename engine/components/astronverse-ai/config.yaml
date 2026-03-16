@@ -121,26 +121,6 @@ atomic:
         title: 星辰Agent返回值
         subTitle: AI生成
         tip: ''
-  ChatAI.single_turn_chat:
-    title: 单轮会话
-    comment: 大模型将对您提出的问题： @{query} 进行回答
-    icon: single-chat
-    helpManual: ''
-    inputList:
-      - key: query
-        title: 用户输入
-        tip: 用户输入的问题
-      - key: model
-        title: 模型选择
-        tip: 可以选择使用的模型
-      - key: custom_model
-        title: 自定义模型ID
-        tip: ''
-    outputList:
-      - key: single_chat_res
-        title: 答案输出
-        subTitle: AI生成
-        tip: 将大模型生成的答案输出为变量
   ChatAI.chat:
     title: 多轮会话
     comment: 大模型将扮演角色，并进行最多 @{max_turns} 轮问答
@@ -187,6 +167,26 @@ atomic:
         title: 对话聊天记录输出
         subTitle: AI生成
         tip: 将对话聊天记录输出为变量
+  ChatAI.llm_chat:
+    title: AI大语言模型
+    comment: 大模型将根据提示词 @{prompt} 进行回答
+    icon: single-chat
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: file_path
+        title: 文件路径
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: ''
+    outputList:
+      - key: AI_Chat_res
+        title: 对话结果输出
+        subTitle: AI生成
+        tip: ''
   ContractAI.get_factors:
     title: 合同要素提取
     comment: 提取合同 @{contract_content} 中的要素
@@ -218,55 +218,253 @@ atomic:
         tip: ''
   DocumentAI.theme_expand:
     title: 主题扩写
-    comment: 大模型将根据您给定的主题： @{theme_text} ，对其进行扩写
+    comment: 大模型将根据您给定的主题 @{theme} 和提示词 @{prompt} 进行扩写
     icon: topic-expand
     helpManual: ''
     inputList:
-      - key: theme_text
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: ''
+      - key: theme
         title: 主题
-        tip: 输入您需要扩展的主题
-      - key: model
-        title: 模型ID
         tip: ''
     outputList:
-      - key: theme_expand_res
+      - key: theme_expanded_res
         title: 主题扩展结果输出
         subTitle: AI生成
-        tip: 将主题扩展结果输出为变量
+        tip: ''
   DocumentAI.sentence_expand:
     title: 段落扩写
-    comment: 大模型将根据您给定的段落 @{paragraph_text} ，对其进行扩写
+    comment: 大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行扩写
     icon: paragraph-expand
     helpManual: ''
     inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: ''
       - key: paragraph_text
         title: 段落
-        tip: 输入您需要扩展的段落
-      - key: model
-        title: 模型ID
         tip: ''
     outputList:
-      - key: sentence_expand_res
+      - key: sentence_expanded_res
         title: 段落扩展结果输出
         subTitle: AI生成
-        tip: 将段落扩展结果输出为变量
+        tip: ''
   DocumentAI.sentence_reduce:
     title: 段落缩写
-    comment: 大模型将根据您给定的段落 @{sentence_text} ，对其进行缩写
+    comment: 大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行缩写
     icon: paragraph-abbreviate
     helpManual: ''
     inputList:
-      - key: sentence_text
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: ''
+      - key: paragraph_text
         title: 段落
-        tip: 输入您需要缩写的段落
-      - key: model
-        title: 模型ID
         tip: ''
     outputList:
       - key: sentence_reduce_res
         title: 段落缩写结果输出
         subTitle: AI生成
-        tip: 将段落缩写结果输出为变量
+        tip: ''
+  DocumentAI.organize_notes:
+    title: 自动整理笔记
+    comment: 自动整理笔记内容，支持文本和思维导图两种输出形式
+    icon: topic-expand
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt_text
+        title: 提示词
+        tip: 定义文本整理风格、输出结构、重点关注内容等（≤5000字符）
+      - key: prompt_mindmap
+        title: 提示词
+        tip: 定义思维导图的整理风格、节点层级、重点关注内容等（≤5000字符）
+      - key: input_mode
+        title: 输入方式
+        tip: ''
+      - key: document_path
+        title: 文档路径
+        tip: 支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB
+      - key: note_content
+        title: 笔记内容
+        tip: 输入原始笔记内容（≤100000字符）
+      - key: output_type
+        title: 输出类型
+        tip: 选择文本形式或思维导图
+      - key: image_output_path
+        title: 图片输出路径
+        tip: 思维导图图片保存路径（png格式）
+    outputList:
+      - key: AI_text_organization_res
+        title: 自动整理笔记结果
+        subTitle: AI生成
+        tip: 整理后的笔记内容或思维导图路径
+  DocumentAI.summarize_document:
+    title: 文档总结
+    comment: 根据提示词 @{prompt} 对文档内容进行智能总结
+    icon: topic-expand
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: 定义总结要求、重点关注内容等（≤5000字符）
+      - key: input_mode
+        title: 输入方式
+        tip: ''
+      - key: document_path
+        title: 文档路径
+        tip: 支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB
+      - key: document_content
+        title: 文档内容
+        tip: 输入需要总结的文档内容（≤100000字符）
+    outputList:
+      - key: document_summary_res
+        title: 文档总结结果
+        subTitle: AI生成
+        tip: 总结后的文本内容
+  DocumentAI.analyze_document:
+    title: 文档分析
+    comment: 根据提示词 @{prompt} 对文档内容进行深度分析
+    icon: topic-expand
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: 定义分析维度、关注重点等（≤5000字符）
+      - key: input_mode
+        title: 输入方式
+        tip: ''
+      - key: document_path
+        title: 文档路径
+        tip: 支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB
+      - key: document_content
+        title: 文档内容
+        tip: 输入需要分析的文档内容（≤100000字符）
+    outputList:
+      - key: document_analysis_text
+        title: 文档分析结果
+        subTitle: AI生成
+        tip: 分析后的文本内容
+  DocumentAI.polish_document:
+    title: 文档润色
+    comment: 根据提示词 @{prompt} 对文档内容进行润色优化
+    icon: topic-expand
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: 定义润色风格、优化方向等（≤5000字符）
+      - key: input_mode
+        title: 输入方式
+        tip: ''
+      - key: document_path
+        title: 文档路径
+        tip: 支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB
+      - key: document_content
+        title: 文档内容
+        tip: 输入需要润色的文档内容（≤100000字符）
+    outputList:
+      - key: AI_text_polishing_res
+        title: 文档润色结果
+        subTitle: AI生成
+        tip: 润色后的文本内容
+  DocumentAI.format_document:
+    title: AI排版
+    comment: 对文档进行智能结构化解析与自动排版美化
+    icon: topic-expand
+    helpManual: ''
+    inputList:
+      - key: input_mode
+        title: 输入方式
+        tip: ''
+      - key: document_path
+        title: 文档路径
+        tip: 支持.doc/.docx/.txt/.json，大小≤100MB
+      - key: document_content
+        title: 文档内容
+        tip: ''
+      - key: template_select
+        title: 模板选择
+        tip: ''
+      - key: save_type
+        title: 保存类型
+        tip: ''
+      - key: output_path
+        title: 文档输出路径
+        tip: 选择输出文件夹路径
+      - key: output_filename
+        title: 文档输出文件名
+        tip: 输出文件名（不含扩展名）
+    outputList: []
+  ImageAI.generate_image:
+    title: 文生图
+    comment: 根据提示词 @{prompt} 生成高质量图像
+    icon: image-generation
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: 定义AI的角色和回答要求。如：扮演IT专家，回答要专业严谨
+      - key: negative_prompt
+        title: 负向提示词
+        tip: 排除不希望出现的元素，如模糊、低质量、畸形等（≤5000字符）
+      - key: aspect_ratio
+        title: 图片比例
+        tip: 选择生成图像的宽高比
+      - key: image_size
+        title: 图片大小
+        tip: 选择图像分辨率
+      - key: image_output_path
+        title: 图片输出路径
+        tip: ''
+      - key: image_filename
+        title: 图片名称
+        tip: ''
+    outputList: []
+  ImageAI.understand_image:
+    title: 图像理解
+    comment: 对图片 @{image_path} 进行深度视觉理解与分析
+    icon: image-understanding
+    helpManual: ''
+    inputList:
+      - key: model_select
+        title: 模型选择
+        tip: ''
+      - key: prompt
+        title: 提示词
+        tip: 定义AI的角色和回答要求。如：扮演IT专家，回答要专业严谨
+      - key: image_path
+        title: 图片路径
+        tip: 支持.jpg/.jpeg/.png，大小≤20MB，最多1张图片
+    outputList:
+      - key: AI_image_analysis_res
+        title: 图像理解输出结果
+        subTitle: AI生成
+        tip: 对图片的完整分析描述或回答
   RecruitAI.generate_keywords:
     title: 职位关键词生成
     comment: 根据职位描述 @{job_description} 生成关键词
@@ -382,3 +580,54 @@ options:
       label: 根据岗位描述生成
     - value: custom
       label: 自定义判断标准
+  OutputType:
+    - value: text
+      label: 文本形式
+    - value: mindmap
+      label: 思维导图
+  SaveType:
+    - value: 保存
+      label: 保存
+    - value: 另存为
+      label: 另存为
+  TemplateType:
+    - value: 通用公文
+      label: 通用公文
+    - value: 学术论文
+      label: 学术论文
+    - value: 合同协议
+      label: 合同协议
+  LLMMultiModalModelTypes:
+    - value: xopqwentti20b
+      label: Qwen-Image-2512
+    - value: xskolorss2b6
+      label: Kolors
+    - value: xssdxl
+      label: StableDiffusion-XL-Base-1
+  VLLMModelTypes:
+    - value: xqwen2d5s32bvl
+      label: QWEN2.5-VL-32B-Instruct
+    - value: xop3qwen32bvl
+      label: QWEN3-VL-32B-Instruct
+    - value: xopdeepseekocr
+      label: DeepSeek_OCR
+  AspectRatio:
+    - value: "1:1"
+      label: "1:1"
+    - value: "3:4"
+      label: "3:4"
+    - value: "4:3"
+      label: "4:3"
+    - value: "4:7"
+      label: "4:7"
+    - value: "7:4"
+      label: "7:4"
+    - value: "9:16"
+      label: "9:16"
+    - value: "16:9"
+      label: "16:9"
+  ImageSize:
+    - value: "1024p"
+      label: "1024p"
+    - value: "720p"
+      label: "720p"
