@@ -1,1 +1,2962 @@
-{"Agent.call_dify": {"key": "Agent.call_dify", "title": "调用Dify工作流", "version": "1.0.0", "src": "astronverse.ai.agent.Agent().call_dify", "comment": "调用Dify工作流 @{app_token} ，完成您指定的任务", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "user", "title": "用户名", "name": "user", "tip": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "app_token", "title": "Dify流程密钥", "name": "app_token", "tip": "Dify流程密钥", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "app_url", "title": "Dify流程地址", "name": "app_url", "tip": "Dify流程地址", "default": "https://api.dify.ai/v1", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}, {"types": "Bool", "formType": {"type": "SWITCH", "params": {}}, "key": "file_flag", "title": "是否上传文件", "name": "file_flag", "tip": "", "options": [{"label": "是", "value": true}, {"label": "否", "value": false}], "default": false, "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "variable_name", "title": "变量名", "name": "variable_name", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": false}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "variable_value", "title": "变量值", "name": "variable_value", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "dynamics": [{"key": "$this.variable_value.show", "expression": "return $this.file_flag.value != true"}], "required": true}, {"types": "PATH", "formType": {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"filters": [], "file_type": "file"}}, "key": "file_path", "title": "文件路径", "name": "file_path", "tip": "", "default": "", "dynamics": [{"key": "$this.file_path.show", "expression": "return $this.file_flag.value == true"}], "required": true}, {"types": "DifyFileTypes", "formType": {"type": "SELECT"}, "key": "file_type", "title": "文件类型", "name": "file_type", "tip": "", "options": [{"label": "文档", "value": "document"}, {"label": "图像", "value": "image"}, {"label": "视频", "value": "video"}, {"label": "音频", "value": "audio"}, {"label": "其他格式", "value": "custom"}], "default": "document", "dynamics": [{"key": "$this.file_type.show", "expression": "return $this.file_flag.value == true"}], "required": true}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "dify_result", "title": "Dify流程结果输出", "subTitle": "AI生成", "tip": ""}], "icon": "call-dify-workflow", "helpManual": ""}, "Agent.call_dify_chatflow": {"key": "Agent.call_dify_chatflow", "title": "调用Dify对话流", "version": "1.0.0", "src": "astronverse.ai.agent.Agent().call_dify_chatflow", "comment": "调用Dify对话流 @{app_token} ，完成您指定的任务", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "user", "title": "用户名", "name": "user", "tip": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "app_token", "title": "Dify流程密钥", "name": "app_token", "tip": "Dify流程密钥", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "app_url", "title": "Dify流程地址", "name": "app_url", "tip": "Dify流程地址", "default": "https://api.dify.ai/v1", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "query", "title": "用户输入", "name": "query", "tip": "对话式的用户输入", "default": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Bool", "formType": {"type": "SWITCH", "params": {}}, "key": "file_flag", "title": "是否上传文件", "name": "file_flag", "tip": "", "options": [{"label": "是", "value": true}, {"label": "否", "value": false}], "default": false, "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "variable_name", "title": "变量名", "name": "variable_name", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": false}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "variable_value", "title": "变量值", "name": "variable_value", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": false}, {"types": "PATH", "formType": {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"filters": [], "file_type": "file"}}, "key": "file_path", "title": "文件路径", "name": "file_path", "tip": "", "default": "", "dynamics": [{"key": "$this.file_path.show", "expression": "return $this.file_flag.value == true"}], "required": true}, {"types": "DifyFileTypes", "formType": {"type": "SELECT"}, "key": "file_type", "title": "文件类型", "name": "file_type", "tip": "", "options": [{"label": "文档", "value": "document"}, {"label": "图像", "value": "image"}, {"label": "视频", "value": "video"}, {"label": "音频", "value": "audio"}, {"label": "其他格式", "value": "custom"}], "default": "document", "dynamics": [{"key": "$this.file_type.show", "expression": "return $this.file_flag.value == true"}], "required": true}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "dify_result", "title": "Dify流程结果输出", "subTitle": "AI生成", "tip": ""}], "icon": "call-dify-workflow", "helpManual": ""}, "Agent.call_xcagent": {"key": "Agent.call_xcagent", "title": "调用星辰Agent流程", "version": "1.0.0", "src": "astronverse.ai.agent.Agent().call_xcagent", "comment": "调用星辰Agent流程 @{flow_id} ，完成您指定的任务", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "api_key", "title": "API Key", "name": "api_key", "tip": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "api_secret", "title": "API Secret", "name": "api_secret", "tip": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "flow_id", "title": "流程ID", "name": "flow_id", "tip": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT"}, "key": "input_value", "title": "工作流默认输入", "name": "input_value", "tip": "", "default": "", "required": true}, {"types": "Bool", "formType": {"type": "SWITCH", "params": {}}, "key": "file_flag", "title": "是否上传文件", "name": "file_flag", "tip": "", "options": [{"label": "是", "value": true}, {"label": "否", "value": false}], "default": false, "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "variable_name", "title": "变量名", "name": "variable_name", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": false}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "variable_value", "title": "变量值", "name": "variable_value", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": false}, {"types": "PATH", "formType": {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"filters": [], "file_type": "file"}}, "key": "file_path", "title": "文件路径", "name": "file_path", "tip": "", "default": "", "dynamics": [{"key": "$this.file_path.show", "expression": "return $this.file_flag.value == true"}], "required": true}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "xcagent_result", "title": "星辰Agent返回值", "subTitle": "AI生成", "tip": ""}], "icon": "call-dify-workflow", "helpManual": ""}, "Agent.call_astron_agent": {"key": "Agent.call_astron_agent", "title": "获取并调用星辰Agent流程", "version": "1.0.0", "src": "astronverse.ai.agent.Agent().call_astron_agent", "comment": "根据您的配置获取星辰Agent流程，完成您指定的任务。", "inputList": [{"types": "Dict", "formType": {"type": "AIWORKFLOW"}, "key": "astron_workflow", "title": "星辰Agent流程配置", "name": "astron_workflow", "tip": "", "default": {}, "need_parse": "json_str", "required": true}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "astron_agent_result", "title": "星辰Agent返回值", "subTitle": "AI生成", "tip": ""}], "icon": "call-dify-workflow", "helpManual": ""}, "ChatAI.single_turn_chat": {"key": "ChatAI.single_turn_chat", "title": "单轮会话", "version": "1.0.0", "src": "astronverse.ai.chat.ChatAI().single_turn_chat", "comment": "大模型将对您提出的问题： @{query} 进行回答", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "query", "title": "用户输入", "name": "query", "tip": "用户输入的问题", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "LLMModelTypes", "formType": {"type": "RADIO"}, "key": "model", "title": "模型选择", "name": "model", "tip": "可以选择使用的模型", "options": [{"label": "DeepSeek-V3.2", "value": "maas/deepseek-v3.2"}, {"label": "Kimi-K2-Thinking", "value": "maas/kimi-k2-thinking"}, {"label": "自定义模型", "value": "custom"}], "default": "maas/deepseek-v3.2", "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "custom_model", "title": "自定义模型ID", "name": "custom_model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "dynamics": [{"key": "$this.custom_model.show", "expression": "return $this.model.value == 'custom'"}], "required": true}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "single_chat_res", "title": "答案输出", "subTitle": "AI生成", "tip": "将大模型生成的答案输出为变量"}], "icon": "single-chat", "helpManual": ""}, "ChatAI.chat": {"key": "ChatAI.chat", "title": "多轮会话", "version": "1.0.0", "src": "astronverse.ai.chat.ChatAI().chat", "comment": "大模型将扮演角色，并进行最多 @{max_turns} 轮问答", "inputList": [{"types": "Bool", "formType": {"type": "SWITCH", "params": {}}, "key": "is_save", "title": "保存会话", "name": "is_save", "tip": "是否在对话结束时保存对话", "options": [{"label": "是", "value": true}, {"label": "否", "value": false}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "title", "title": "窗口标题", "name": "title", "tip": "定义对话窗口标题", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Int", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "max_turns", "title": "最大问答次数", "name": "max_turns", "tip": "最大问答次数，完整的Q&A（question & answer）为一次", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "LLMModelTypes", "formType": {"type": "RADIO"}, "key": "model", "title": "模型选择", "name": "model", "tip": "可以选择使用的模型", "options": [{"label": "DeepSeek-V3.2", "value": "maas/deepseek-v3.2"}, {"label": "Kimi-K2-Thinking", "value": "maas/kimi-k2-thinking"}, {"label": "自定义模型", "value": "custom"}], "default": "maas/deepseek-v3.2", "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "custom_model", "title": "自定义模型ID", "name": "custom_model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "dynamics": [{"key": "$this.custom_model.show", "expression": "return $this.model.value == 'custom'"}], "required": true}], "outputList": [{"types": "Dict", "formType": {"type": "RESULT"}, "key": "chat_res", "title": "对话聊天记录输出", "subTitle": "AI生成", "tip": "将对话聊天记录输出为变量"}], "icon": "multi-chat", "helpManual": ""}, "ChatAI.knowledge_chat": {"key": "ChatAI.knowledge_chat", "title": "知识问答", "version": "1.0.0", "src": "astronverse.ai.chat.ChatAI().knowledge_chat", "comment": "大模型将读取位于 @{file_path} 的文件进行知识问答", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"filters": [], "file_type": "file"}}, "key": "file_path", "title": "文件路径", "name": "file_path", "tip": "请选择需要进行知识问答的文件路径", "required": true}, {"types": "Bool", "formType": {"type": "SWITCH", "params": {}}, "key": "is_save", "title": "保存会话", "name": "is_save", "tip": "是否在对话结束时保存对话", "options": [{"label": "是", "value": true}, {"label": "否", "value": false}], "default": false, "required": true}, {"types": "Int", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "max_turns", "title": "最大问答次数", "name": "max_turns", "tip": "最大问答次数，完整的Q&A（question & answer）为一次", "default": 20, "value": [{"type": "str", "value": ""}], "required": true}], "outputList": [{"types": "Dict", "formType": {"type": "RESULT"}, "key": "knowledge_chat_res", "title": "对话聊天记录输出", "subTitle": "AI生成", "tip": "将对话聊天记录输出为变量"}], "icon": "knowledge-qa", "helpManual": ""}, "ContractAI.get_factors": {"key": "ContractAI.get_factors", "title": "合同要素提取", "version": "1.0.0", "src": "astronverse.ai.contract.ContractAI().get_factors", "comment": "提取合同 @{contract_content} 中的要素", "inputList": [{"types": "InputType", "formType": {"type": "RADIO"}, "key": "contract_type", "title": "输入合同方式", "name": "contract_type", "tip": "", "options": [{"label": "文件形式", "value": "file"}, {"label": "文本形式", "value": "text"}], "default": "text", "required": true}, {"types": "PATH", "formType": {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"filters": [], "file_type": "file"}}, "key": "contract_path", "title": "合同路径", "name": "contract_path", "tip": "", "default": "", "dynamics": [{"key": "$this.contract_path.show", "expression": "return $this.contract_type.value == 'file'"}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "contract_content", "title": "合同文本内容", "name": "contract_content", "tip": "合同内容", "default": "", "value": [{"type": "str", "value": ""}], "dynamics": [{"key": "$this.contract_content.show", "expression": "return $this.contract_type.value == 'text'"}], "required": true}, {"types": "Str", "formType": {"type": "FACTORELEMENT", "params": {"code": 3, "options": ["合同名称", "合同编号", "合同签订日期", "合同开始日期", "合同结束日期", "合同标的", "标的数量", "单价", "税率", "税额", "合同总金额", "付款方式", "甲方", "乙方", "甲方开户行", "甲方银行账号", "乙方开户行", "乙方银行账号"]}}, "key": "custom_factors", "title": "要素", "name": "custom_factors", "tip": "", "default": "", "required": true}, {"types": "Str", "formType": {"type": "MODALBUTTON", "params": {"loading": false}}, "key": "contract_validate", "title": "效果验证", "name": "contract_validate", "tip": "", "default": "", "required": false}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "model", "title": "模型ID", "name": "model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}], "outputList": [{"types": "Dict", "formType": {"type": "RESULT"}, "key": "factor_result", "title": "返回要素结果", "subTitle": "AI生成", "tip": ""}], "icon": "contract-element-extraction", "helpManual": ""}, "DocumentAI.theme_expand": {"key": "DocumentAI.theme_expand", "title": "主题扩写", "version": "1.0.0", "src": "astronverse.ai.document.DocumentAI().theme_expand", "comment": "大模型将根据您给定的主题： @{theme_text} ，对其进行扩写", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "theme_text", "title": "主题", "name": "theme_text", "tip": "输入您需要扩展的主题", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "model", "title": "模型ID", "name": "model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "theme_expand_res", "title": "主题扩展结果输出", "subTitle": "AI生成", "tip": "将主题扩展结果输出为变量"}], "icon": "topic-expand", "helpManual": ""}, "DocumentAI.sentence_expand": {"key": "DocumentAI.sentence_expand", "title": "段落扩写", "version": "1.0.0", "src": "astronverse.ai.document.DocumentAI().sentence_expand", "comment": "大模型将根据您给定的段落 @{paragraph_text} ，对其进行扩写", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "paragraph_text", "title": "段落", "name": "paragraph_text", "tip": "输入您需要扩展的段落", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "model", "title": "模型ID", "name": "model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "sentence_expand_res", "title": "段落扩展结果输出", "subTitle": "AI生成", "tip": "将段落扩展结果输出为变量"}], "icon": "paragraph-expand", "helpManual": ""}, "DocumentAI.sentence_reduce": {"key": "DocumentAI.sentence_reduce", "title": "段落缩写", "version": "1.0.0", "src": "astronverse.ai.document.DocumentAI().sentence_reduce", "comment": "大模型将根据您给定的段落 @{sentence_text} ，对其进行缩写", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "sentence_text", "title": "段落", "name": "sentence_text", "tip": "输入您需要缩写的段落", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "model", "title": "模型ID", "name": "model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "sentence_reduce_res", "title": "段落缩写结果输出", "subTitle": "AI生成", "tip": "将段落缩写结果输出为变量"}], "icon": "paragraph-abbreviate", "helpManual": ""}, "RecruitAI.generate_keywords": {"key": "RecruitAI.generate_keywords", "title": "职位关键词生成", "version": "1.0.0", "src": "astronverse.ai.recruit.RecruitAI().generate_keywords", "comment": "根据职位描述 @{job_description} 生成关键词", "inputList": [{"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "job_name", "title": "职位名称", "name": "job_name", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"}, "key": "job_description", "title": "职位描述", "name": "job_description", "tip": "", "default": "", "required": true}, {"types": "JobWebsitesTypes", "formType": {"type": "RADIO"}, "key": "job_website", "title": "招聘网站", "name": "job_website", "tip": "", "options": [{"label": "BOSS直聘", "value": "boss"}, {"label": "猎聘", "value": "liepin"}, {"label": "智联招聘", "value": "zhilian"}], "default": "boss", "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "model", "title": "模型ID", "name": "model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "recruit_keywords", "title": "职位关键词", "subTitle": "AI生成", "tip": ""}], "icon": "job-keyword-generation", "helpManual": ""}, "RecruitAI.rating_resume": {"key": "RecruitAI.rating_resume", "title": "简历评分", "version": "1.0.0", "src": "astronverse.ai.recruit.RecruitAI().rating_resume", "comment": "根据简历 @{resume_content} 评分", "inputList": [{"types": "Any", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "job_name", "title": "职位名称", "name": "job_name", "tip": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "InputType", "formType": {"type": "RADIO"}, "key": "resume_input_type", "title": "简历输入方式", "name": "resume_input_type", "tip": "", "options": [{"label": "文件形式", "value": "file"}, {"label": "文本形式", "value": "text"}], "default": "text", "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON_FILE", "params": {"filters": [], "file_type": "file"}}, "key": "resume_file_path", "title": "简历文件路径", "name": "resume_file_path", "tip": "", "default": "", "dynamics": [{"key": "$this.resume_file_path.show", "expression": "return $this.resume_input_type.value == 'file'"}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "resume_content", "title": "简历文本内容", "name": "resume_content", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "dynamics": [{"key": "$this.resume_content.show", "expression": "return $this.resume_input_type.value == 'text'"}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "job_description", "title": "职位描述", "name": "job_description", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "required": true}, {"types": "RatingSystemTypes", "formType": {"type": "RADIO"}, "key": "rating_system", "title": "岗位评分体系", "name": "rating_system", "tip": "", "options": [{"label": "根据岗位描述生成", "value": "default"}, {"label": "自定义判断标准", "value": "custom"}], "default": "default", "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "rating_dimensions", "title": "岗位评分画像", "name": "rating_dimensions", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "dynamics": [{"key": "$this.rating_dimensions.show", "expression": "return $this.rating_system.value == 'custom'"}], "required": true}, {"types": "Str", "formType": {"type": "INPUT_VARIABLE_PYTHON"}, "key": "model", "title": "模型ID", "name": "model", "tip": "", "default": "", "value": [{"type": "str", "value": ""}], "level": "advanced", "required": false}], "outputList": [{"types": "Str", "formType": {"type": "RESULT"}, "key": "recruit_rating", "title": "简历匹配结果", "subTitle": "AI生成", "tip": ""}], "icon": "resume-scoring", "helpManual": ""}}
+{
+  "Agent.call_dify": {
+    "key": "Agent.call_dify",
+    "title": "调用Dify工作流",
+    "version": "1.0.0",
+    "src": "astronverse.ai.agent.Agent().call_dify",
+    "comment": "调用Dify工作流 @{app_token} ，完成您指定的任务",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "user",
+        "title": "用户名",
+        "name": "user",
+        "tip": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "app_token",
+        "title": "Dify流程密钥",
+        "name": "app_token",
+        "tip": "Dify流程密钥",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "app_url",
+        "title": "Dify流程地址",
+        "name": "app_url",
+        "tip": "Dify流程地址",
+        "default": "https://api.dify.ai/v1",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Bool",
+        "formType": {
+          "type": "SWITCH",
+          "params": {}
+        },
+        "key": "file_flag",
+        "title": "是否上传文件",
+        "name": "file_flag",
+        "tip": "",
+        "options": [
+          {
+            "label": "是",
+            "value": true
+          },
+          {
+            "label": "否",
+            "value": false
+          }
+        ],
+        "default": false,
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "variable_name",
+        "title": "变量名",
+        "name": "variable_name",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "variable_value",
+        "title": "变量值",
+        "name": "variable_value",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "dynamics": [
+          {
+            "key": "$this.variable_value.show",
+            "expression": "return $this.file_flag.value != true"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "PATH",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [],
+            "file_type": "file"
+          }
+        },
+        "key": "file_path",
+        "title": "文件路径",
+        "name": "file_path",
+        "tip": "",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.file_path.show",
+            "expression": "return $this.file_flag.value == true"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "DifyFileTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "file_type",
+        "title": "文件类型",
+        "name": "file_type",
+        "tip": "",
+        "options": [
+          {
+            "label": "文档",
+            "value": "document"
+          },
+          {
+            "label": "图像",
+            "value": "image"
+          },
+          {
+            "label": "视频",
+            "value": "video"
+          },
+          {
+            "label": "音频",
+            "value": "audio"
+          },
+          {
+            "label": "其他格式",
+            "value": "custom"
+          }
+        ],
+        "default": "document",
+        "dynamics": [
+          {
+            "key": "$this.file_type.show",
+            "expression": "return $this.file_flag.value == true"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "dify_result",
+        "title": "Dify流程结果输出",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "call-dify-workflow",
+    "helpManual": ""
+  },
+  "Agent.call_dify_chatflow": {
+    "key": "Agent.call_dify_chatflow",
+    "title": "调用Dify对话流",
+    "version": "1.0.0",
+    "src": "astronverse.ai.agent.Agent().call_dify_chatflow",
+    "comment": "调用Dify对话流 @{app_token} ，完成您指定的任务",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "user",
+        "title": "用户名",
+        "name": "user",
+        "tip": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "app_token",
+        "title": "Dify流程密钥",
+        "name": "app_token",
+        "tip": "Dify流程密钥",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "app_url",
+        "title": "Dify流程地址",
+        "name": "app_url",
+        "tip": "Dify流程地址",
+        "default": "https://api.dify.ai/v1",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "query",
+        "title": "用户输入",
+        "name": "query",
+        "tip": "对话式的用户输入",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Bool",
+        "formType": {
+          "type": "SWITCH",
+          "params": {}
+        },
+        "key": "file_flag",
+        "title": "是否上传文件",
+        "name": "file_flag",
+        "tip": "",
+        "options": [
+          {
+            "label": "是",
+            "value": true
+          },
+          {
+            "label": "否",
+            "value": false
+          }
+        ],
+        "default": false,
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "variable_name",
+        "title": "变量名",
+        "name": "variable_name",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "variable_value",
+        "title": "变量值",
+        "name": "variable_value",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "PATH",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [],
+            "file_type": "file"
+          }
+        },
+        "key": "file_path",
+        "title": "文件路径",
+        "name": "file_path",
+        "tip": "",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.file_path.show",
+            "expression": "return $this.file_flag.value == true"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "DifyFileTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "file_type",
+        "title": "文件类型",
+        "name": "file_type",
+        "tip": "",
+        "options": [
+          {
+            "label": "文档",
+            "value": "document"
+          },
+          {
+            "label": "图像",
+            "value": "image"
+          },
+          {
+            "label": "视频",
+            "value": "video"
+          },
+          {
+            "label": "音频",
+            "value": "audio"
+          },
+          {
+            "label": "其他格式",
+            "value": "custom"
+          }
+        ],
+        "default": "document",
+        "dynamics": [
+          {
+            "key": "$this.file_type.show",
+            "expression": "return $this.file_flag.value == true"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "dify_result",
+        "title": "Dify流程结果输出",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "call-dify-workflow",
+    "helpManual": ""
+  },
+  "Agent.call_xcagent": {
+    "key": "Agent.call_xcagent",
+    "title": "调用星辰Agent流程",
+    "version": "1.0.0",
+    "src": "astronverse.ai.agent.Agent().call_xcagent",
+    "comment": "调用星辰Agent流程 @{flow_id} ，完成您指定的任务",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "api_key",
+        "title": "API Key",
+        "name": "api_key",
+        "tip": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "api_secret",
+        "title": "API Secret",
+        "name": "api_secret",
+        "tip": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "flow_id",
+        "title": "流程ID",
+        "name": "flow_id",
+        "tip": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT"
+        },
+        "key": "input_value",
+        "title": "工作流默认输入",
+        "name": "input_value",
+        "tip": "",
+        "default": "",
+        "required": true
+      },
+      {
+        "types": "Bool",
+        "formType": {
+          "type": "SWITCH",
+          "params": {}
+        },
+        "key": "file_flag",
+        "title": "是否上传文件",
+        "name": "file_flag",
+        "tip": "",
+        "options": [
+          {
+            "label": "是",
+            "value": true
+          },
+          {
+            "label": "否",
+            "value": false
+          }
+        ],
+        "default": false,
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "variable_name",
+        "title": "变量名",
+        "name": "variable_name",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "variable_value",
+        "title": "变量值",
+        "name": "variable_value",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      },
+      {
+        "types": "PATH",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [],
+            "file_type": "file"
+          }
+        },
+        "key": "file_path",
+        "title": "文件路径",
+        "name": "file_path",
+        "tip": "",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.file_path.show",
+            "expression": "return $this.file_flag.value == true"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "xcagent_result",
+        "title": "星辰Agent返回值",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "call-dify-workflow",
+    "helpManual": ""
+  },
+  "Agent.call_astron_agent": {
+    "key": "Agent.call_astron_agent",
+    "title": "获取并调用星辰Agent流程",
+    "version": "1.0.0",
+    "src": "astronverse.ai.agent.Agent().call_astron_agent",
+    "comment": "根据您的配置获取星辰Agent流程，完成您指定的任务。",
+    "inputList": [
+      {
+        "types": "Dict",
+        "formType": {
+          "type": "AIWORKFLOW"
+        },
+        "key": "astron_workflow",
+        "title": "星辰Agent流程配置",
+        "name": "astron_workflow",
+        "tip": "",
+        "default": {},
+        "need_parse": "json_str",
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "astron_agent_result",
+        "title": "星辰Agent返回值",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "call-dify-workflow",
+    "helpManual": ""
+  },
+  "ChatAI.single_turn_chat": {
+    "key": "ChatAI.single_turn_chat",
+    "version": "1.0.0",
+    "src": "astronverse.ai.chat.ChatAI().single_turn_chat",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "query",
+        "name": "query",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model",
+        "name": "model",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "custom_model",
+        "name": "custom_model",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "dynamics": [
+          {
+            "key": "$this.custom_model.show",
+            "expression": "return $this.model.value == 'custom'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "AI_Chat_res"
+      }
+    ]
+  },
+  "ChatAI.llm_chat": {
+    "key": "ChatAI.llm_chat",
+    "title": "AI大语言模型",
+    "version": "1.0.0",
+    "src": "astronverse.ai.chat.ChatAI().llm_chat",
+    "comment": "大模型将根据提示词 @{prompt} 进行回答",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".doc",
+              ".docx",
+              ".ppt",
+              ".pptx",
+              ".pdf"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "file_path",
+        "title": "文件路径",
+        "name": "file_path",
+        "tip": "",
+        "default": "",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "",
+        "default": "",
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "AI_Chat_res",
+        "title": "对话结果输出",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "single-chat",
+    "helpManual": ""
+  },
+  "ChatAI.chat": {
+    "key": "ChatAI.chat",
+    "title": "多轮会话",
+    "version": "1.0.0",
+    "src": "astronverse.ai.chat.ChatAI().chat",
+    "comment": "大模型将扮演角色，并进行最多 @{max_turns} 轮问答",
+    "inputList": [
+      {
+        "types": "Bool",
+        "formType": {
+          "type": "SWITCH",
+          "params": {}
+        },
+        "key": "is_save",
+        "title": "保存会话",
+        "name": "is_save",
+        "tip": "是否在对话结束时保存对话",
+        "options": [
+          {
+            "label": "是",
+            "value": true
+          },
+          {
+            "label": "否",
+            "value": false
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "title",
+        "title": "窗口标题",
+        "name": "title",
+        "tip": "定义对话窗口标题",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Int",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "max_turns",
+        "title": "最大问答次数",
+        "name": "max_turns",
+        "tip": "最大问答次数，完整的Q&A（question & answer）为一次",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model",
+        "title": "模型选择",
+        "name": "model",
+        "tip": "可以选择使用的模型",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "custom_model",
+        "title": "自定义模型ID",
+        "name": "custom_model",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "dynamics": [
+          {
+            "key": "$this.custom_model.show",
+            "expression": "return $this.model.value == 'custom'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Dict",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "chat_res",
+        "title": "对话聊天记录输出",
+        "subTitle": "AI生成",
+        "tip": "将对话聊天记录输出为变量"
+      }
+    ],
+    "icon": "multi-chat",
+    "helpManual": ""
+  },
+  "ChatAI.knowledge_chat": {
+    "key": "ChatAI.knowledge_chat",
+    "title": "知识问答",
+    "version": "1.0.0",
+    "src": "astronverse.ai.chat.ChatAI().knowledge_chat",
+    "comment": "大模型将读取位于 @{file_path} 的文件进行知识问答",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [],
+            "file_type": "file"
+          }
+        },
+        "key": "file_path",
+        "title": "文件路径",
+        "name": "file_path",
+        "tip": "请选择需要进行知识问答的文件路径",
+        "required": true
+      },
+      {
+        "types": "Bool",
+        "formType": {
+          "type": "SWITCH",
+          "params": {}
+        },
+        "key": "is_save",
+        "title": "保存会话",
+        "name": "is_save",
+        "tip": "是否在对话结束时保存对话",
+        "options": [
+          {
+            "label": "是",
+            "value": true
+          },
+          {
+            "label": "否",
+            "value": false
+          }
+        ],
+        "default": false,
+        "required": true
+      },
+      {
+        "types": "Int",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "max_turns",
+        "title": "最大问答次数",
+        "name": "max_turns",
+        "tip": "最大问答次数，完整的Q&A（question & answer）为一次",
+        "default": 20,
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Dict",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "knowledge_chat_res",
+        "title": "对话聊天记录输出",
+        "subTitle": "AI生成",
+        "tip": "将对话聊天记录输出为变量"
+      }
+    ],
+    "icon": "knowledge-qa",
+    "helpManual": ""
+  },
+  "ContractAI.get_factors": {
+    "key": "ContractAI.get_factors",
+    "title": "合同要素提取",
+    "version": "1.0.0",
+    "src": "astronverse.ai.contract.ContractAI().get_factors",
+    "comment": "提取合同 @{contract_content} 中的要素",
+    "inputList": [
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "contract_type",
+        "title": "输入合同方式",
+        "name": "contract_type",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "PATH",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [],
+            "file_type": "file"
+          }
+        },
+        "key": "contract_path",
+        "title": "合同路径",
+        "name": "contract_path",
+        "tip": "",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.contract_path.show",
+            "expression": "return $this.contract_type.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "contract_content",
+        "title": "合同文本内容",
+        "name": "contract_content",
+        "tip": "合同内容",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "dynamics": [
+          {
+            "key": "$this.contract_content.show",
+            "expression": "return $this.contract_type.value == 'text'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "FACTORELEMENT",
+          "params": {
+            "code": 3,
+            "options": [
+              "合同名称",
+              "合同编号",
+              "合同签订日期",
+              "合同开始日期",
+              "合同结束日期",
+              "合同标的",
+              "标的数量",
+              "单价",
+              "税率",
+              "税额",
+              "合同总金额",
+              "付款方式",
+              "甲方",
+              "乙方",
+              "甲方开户行",
+              "甲方银行账号",
+              "乙方开户行",
+              "乙方银行账号"
+            ]
+          }
+        },
+        "key": "custom_factors",
+        "title": "要素",
+        "name": "custom_factors",
+        "tip": "",
+        "default": "",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "MODALBUTTON",
+          "params": {
+            "loading": false
+          }
+        },
+        "key": "contract_validate",
+        "title": "效果验证",
+        "name": "contract_validate",
+        "tip": "",
+        "default": "",
+        "required": false
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "model",
+        "title": "模型ID",
+        "name": "model",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Dict",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "factor_result",
+        "title": "返回要素结果",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "contract-element-extraction",
+    "helpManual": ""
+  },
+  "DocumentAI.theme_expand": {
+    "key": "DocumentAI.theme_expand",
+    "title": "主题扩写",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().theme_expand",
+    "comment": "大模型将根据您给定的主题 @{theme} 和提示词 @{prompt} 进行扩写",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "",
+        "default": "\n    角色：你是一位专业的内容创作者，擅长围绕主题进行扩展写作，能够生成连贯、有深度的文本。\n    ---\n    任务：根据提供的主题，进行扩写，生成一篇完整的文章（或段落）。\n    ---\n    输出要求：\n    1. 引言：\n    - 引入主题，点明其重要性、背景或引起兴趣\n    2. 主体 ：\n    - 围绕主题展开详细阐述，可以分段讨论不同方面、原因、影响或例子\n    3. 结论\n    - 总结核心观点，或提出展望、行动建议。\n    ---\n    （注：\n    1. 扩写内容必须紧扣主题，不得偏离。\n    2. 如有需要，可以适当添加例子、数据或解释，但需确保准确合理。\n    3. 如果提供了特定篇幅要求，请尽量遵守，避免过短或过长。）\n\n",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "theme",
+        "title": "主题",
+        "name": "theme",
+        "tip": "",
+        "default": "",
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "theme_expanded_res",
+        "title": "主题扩展结果输出",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "topic-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.organize_notes": {
+    "key": "DocumentAI.organize_notes",
+    "title": "自动整理笔记",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().organize_notes",
+    "comment": "自动整理笔记内容，支持文本和思维导图两种输出形式",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt_text",
+        "title": "提示词",
+        "name": "prompt_text",
+        "tip": "定义文本整理风格、输出结构、重点关注内容等（≤5000字符）",
+        "default": "\n    角色：你是一位专业的笔记整理与信息归纳专家，擅长从杂乱或冗长的笔记中提取关键信息，并将其组织成清晰、结构化的摘要。\n    ---\n    任务：智能分析用户提供的笔记内容，整理和归纳信息，生成一份结构化的笔记摘要，帮助用户快速掌握笔记的核心内容和主要知识点。\n    ---\n    输出要求：\n    1. 核心主题：\n    - 用一句话简明扼要地总结文章讨论的核心议题或中心思想\n    2. 核心要点 （3-7 个要点）：\n    - 列出文档中最重要的观点、数据、事实或结论\n    - 每个要点使用清晰、简洁的语言，且使用项目符号\n    - 每不添加个人评论或细节展开\n    3. 总结概述（100-150字）：\n    - 用一段话总结文档核心内容\n    4. 行动项/待办：\n    - 如果文档中包含了需要执行的任务、建议或下一步行动，请提取并列出；若无，则注明“无明确行动项”\n    5. 关联信息：\n    - 指出文档中提到的相关概念、人物、事件或可能的外部链接（如适用），帮助扩展理解。\n    ---\n    （注：\n    1. 摘要应语言简练、逻辑清晰，避免冗余\n    2. 确保关键信息不遗漏，保持客观准确。\n    3. 如果文档内容过长，优先提炼最核心的部分。）\n",
+        "dynamics": [
+          {
+            "key": "$this.prompt_text.show",
+            "expression": "return $this.output_type.value == 'text'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt_mindmap",
+        "title": "提示词",
+        "name": "prompt_mindmap",
+        "tip": "定义思维导图的整理风格、节点层级、重点关注内容等（≤5000字符）",
+        "default": "\n    角色：你是一位专业的笔记整理与信息归纳专家，擅长从杂乱或冗长的笔记中提取关键信息，并将其组织成清晰、结构化的摘要。\n    ---\n    任务：智能分析用户提供的笔记内容，进行极致的精简和归纳，生成一份mermaid格式的graph LR思维导图。你的目标是让生成的导图节点内容短小精悍，便于在一张图中清晰展示。\n    ---\n    核心原则：\n    - 极简表达：每个节点必须使用关键词、短词组或极短句（严格控制在 10 个字以内），禁止使用长句、完整句子或段落。\n    - 层级清晰：严格遵守给定的思维导图层级结构（中心主题 -> 二级节点 -> 三级节点）。\n    - 信息萃取：只保留最核心的知识点、名词、方法论或结论，忽略背景描述、过渡性内容和冗余修饰。\n    输出结构（严格遵循以下 mermaid 格式）：\n    1.  中心主题：\n    - 用一个核心名词短语（5 字以内）概括文档主题。\n    2.  二级节点（核心要点）：\n    - 提炼 3-7 个最关键的知识领域或论点。\n    - 每个节点内容为2-4 个词。\n    3.  三级节点（细分知识点）：\n    - 针对每个核心要点，展开其核心细分概念、数据标签、人物或结论。\n    - 每个节点内容为1-3 个词或极短数字标签。\n    - 如果该要点无法再细分，则可以不展开三级节点。\n    4.  附加模块（可选节点）：\n    - 行动项：如果文档包含任务，提炼为“待办事项”、“行动计划”等 2 字节点，下面挂具体关键词。\n    - 关联项：如果文档提及关键人物、书籍、事件，提炼为“相关人物”、“参见文献”等 2 字节点，下面挂具体名称。\n    ---\n    注意：请直接输出 mermaid 格式代码，不要有任何额外的文字解释、引言或总结。只生成思维导图。\n",
+        "dynamics": [
+          {
+            "key": "$this.prompt_mindmap.show",
+            "expression": "return $this.output_type.value == 'mindmap'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "input_mode",
+        "title": "输入方式",
+        "name": "input_mode",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".doc",
+              ".docx",
+              ".ppt",
+              ".pptx",
+              ".pdf"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "document_path",
+        "title": "文档路径",
+        "name": "document_path",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_path.show",
+            "expression": "return $this.input_mode.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "note_content",
+        "title": "笔记内容",
+        "name": "note_content",
+        "tip": "输入原始笔记内容（≤100000字符）",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.note_content.show",
+            "expression": "return $this.input_mode.value == 'text'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "OutputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "output_type",
+        "title": "输出类型",
+        "name": "output_type",
+        "tip": "选择文本形式或思维导图",
+        "options": [
+          {
+            "label": "文本形式",
+            "value": "text"
+          },
+          {
+            "label": "思维导图",
+            "value": "mindmap"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "file_type": "folder"
+          }
+        },
+        "key": "image_output_path",
+        "title": "图片输出路径",
+        "name": "image_output_path",
+        "tip": "思维导图图片保存路径（png格式）",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.image_output_path.show",
+            "expression": "return $this.output_type.value == 'mindmap'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "AI_text_organization_res",
+        "title": "自动整理笔记结果",
+        "subTitle": "AI生成",
+        "tip": "整理后的笔记内容或思维导图路径"
+      }
+    ],
+    "icon": "topic-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.summarize_document": {
+    "key": "DocumentAI.summarize_document",
+    "title": "文档总结",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().summarize_document",
+    "comment": "根据提示词 @{prompt} 对文档内容进行智能总结",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "定义总结要求、重点关注内容等（≤5000字符）",
+        "default": "\n    角色：你是一位专业的文本摘要与要点提炼专家，擅长快速抓住文章的核心思想与关键信息。\n    ---\n    任务：阅读用户提供的文章，用一句话准确概括文章的主题，然后以清晰的要点形式列出文章的核心要点，帮助读者快速把握全文主旨。\n    ---\n    输出要求：\n    1. 主题概括：\n    - 用一句话简明扼要地总结文章讨论的核心议题或中心思想\n    2. 核心要点 （3-7 个要点）：\n    - 按重要性顺序列出主要思想、论点或见解\n    - 对每个要点使用清晰、简洁的语言\n    - 每不添加个人评论或细节展开\n    ---\n    输出格式：\n    主题：\n    [一句话主题]\n    核心要点：\n    - [要点1]\n    - [要点2]\n    - [要点3]\n    ...\n    ---\n    （注：\n    1. 确保要点覆盖文章的主要论点、结论或重要事实，避免琐碎细节\n    2. 语言保持中立客观，直接反映文章内容\n    3. 如果文章包含数据、例证或特定术语，仅在必要时在要点中提及，不必一一列举）\n",
+        "required": true
+      },
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "input_mode",
+        "title": "输入方式",
+        "name": "input_mode",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".doc",
+              ".docx",
+              ".ppt",
+              ".pptx",
+              ".pdf"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "document_path",
+        "title": "文档路径",
+        "name": "document_path",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_path.show",
+            "expression": "return $this.input_mode.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "document_content",
+        "title": "文档内容",
+        "name": "document_content",
+        "tip": "输入需要总结的文档内容（≤100000字符）",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_content.show",
+            "expression": "return $this.input_mode.value == 'text'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "document_summary_res",
+        "title": "文档总结结果",
+        "subTitle": "AI生成",
+        "tip": "总结后的文本内容"
+      }
+    ],
+    "icon": "topic-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.analyze_document": {
+    "key": "DocumentAI.analyze_document",
+    "title": "文档分析",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().analyze_document",
+    "comment": "根据提示词 @{prompt} 对文档内容进行深度分析",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "定义分析维度、关注重点等（≤5000字符）",
+        "default": "\n    角色：你是一位专业的文学分析师和内容策略师，擅长对各类文本进行深入、全面的剖析，能够客观识别关键信息，并基于内容提出切实可行的建议。\n    ---\n    任务：对以下文本进行全面分析，提取关键洞见，识别模式并突出显著特征，分析应详尽、客观， 并提供可操作建议。\n    ---\n    请按以下框架构建分析内容：\n    1. 核心主题：\n    - 用一句话概括文本的中心思想或主要议题\n    2. 关键信息提取：\n    - 列出文本中所有重要的事实、数据、观点、论据和结论\n    - 分条呈现，每条尽量简洁但涵盖要点，确保全面性。\n    3. 深入分析（对文本进行客观剖析，包括但不限于）：\n    - 文风与情感倾向：描述整体文风（如正式、随意、乐观、批判）和文章整体情感倾向\n    - 核心论点与主张：概括呈现的主要论点或中心思想\n    - 文体与结构：检视写作风格（如描述性、说服性、叙事性），并分析组织结构及其有效性\n    - 潜在偏见与视角：识别任何明显偏见或特定立场，并论述这些偏见如何影响读者解读\n    - 优势与不足：突出内容最具说服力的方面，并指出可改进或拓展的领域\n    4. 结论与启示：\n    - 基于上述分析，总结文本得出的主要结论或带给我们的核心启示\n    5. 建议与洞见：\n    - 基于分析提供至少3条可操作建议\n    - 就内容如何优化或应用提出见解\n    ---\n    输出格式：\n    - 每部分使用清晰标题\n    - 适当时采用项目符号或编号列表\n    - 引用文本具体案例或语句佐证分析\n    - 结尾附简要总结（2-3句）概述整体评估\n    ---\n    注意：确保分析平衡考量文本正反两面，目标回复长度500-750词（可根据文本复杂度调整）。\n    ---\n    （注：严格保留原文技术框架：\n    1. 任务说明与破折号分隔线完全对应\n    2. 5大分析模块的层级结构）\n",
+        "required": true
+      },
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "input_mode",
+        "title": "输入方式",
+        "name": "input_mode",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".doc",
+              ".docx",
+              ".ppt",
+              ".pptx",
+              ".pdf"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "document_path",
+        "title": "文档路径",
+        "name": "document_path",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_path.show",
+            "expression": "return $this.input_mode.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "document_content",
+        "title": "文档内容",
+        "name": "document_content",
+        "tip": "输入需要分析的文档内容（≤100000字符）",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_content.show",
+            "expression": "return $this.input_mode.value == 'text'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "document_analysis_res"
+      }
+    ],
+    "icon": "topic-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.polish_document": {
+    "key": "DocumentAI.polish_document",
+    "title": "文档润色",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().polish_document",
+    "comment": "根据提示词 @{prompt} 对文档内容进行润色优化",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "定义润色风格、优化方向等（≤5000字符）",
+        "default": "\n    角色：你是一个专业的论文和文章润色助手，能够帮助用户润色和提升文章的写作质量，提供语法纠正、 结构调整、风格提升等方面的建议。\n    ---\n    任务：润色提供的文本。\n    ---\n    目标：\n    1. 通读用户文章，理解其主题和主要观点。\n    2. 逐句深度阅读，注意语 法错误并提供改善建议。\n    3. 提供结构调整和风格提升的建议。\n    4. 处理扩展内容和翻译部分。\n    5. 提供全面审查和总结性的 反馈，确保文章质量达到用户期望。\n    ---\n    原则：\n    1. 严格维护文章的原意，不改变用户的核心观点。\n    2. 确保专业术语的使用准确。\n    3. 对敏感词汇展现必要的敏感性。\n    4. 遵循学术和写作规范，不进行任何抄袭行为。\n    5. 保护用户隐私，确保文 章内容不泄露。\n    ---\n    技能 :\n    1. 语法纠正：识别并纠正文章中的语法错误，使文章符合标准语法规则。\n    2. 结构调整：根据内容逻辑对文章进行结构优化，使文章更加条理清晰。\n    3. 风格提升：根据文章类型和目标读者，提供风格调整建议，使文章更加 流畅和具有吸引力。\n    4. 内容扩展：根据需要为文章添加补充内容，确保信息的全面性和深度。\n    5. 翻译处理：对需要翻译的部分进行准确翻译，确保语言的流畅和专业性。\n    ---\n    附加说明：\n    润色要彻底和准确\n    保持客观性\n    字数与原文章尽量接近\n    ---\n    请记住，目标是润色文本，不需要发散出一些无关信息。\n",
+        "required": true
+      },
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "input_mode",
+        "title": "输入方式",
+        "name": "input_mode",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".doc",
+              ".docx",
+              ".ppt",
+              ".pptx",
+              ".pdf"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "document_path",
+        "title": "文档路径",
+        "name": "document_path",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_path.show",
+            "expression": "return $this.input_mode.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "document_content",
+        "title": "文档内容",
+        "name": "document_content",
+        "tip": "输入需要润色的文档内容（≤100000字符）",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_content.show",
+            "expression": "return $this.input_mode.value == 'text'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "AI_text_polishing_res",
+        "title": "文档润色结果",
+        "subTitle": "AI生成",
+        "tip": "润色后的文本内容"
+      }
+    ],
+    "icon": "topic-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.format_document": {
+    "key": "DocumentAI.format_document",
+    "title": "AI排版",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().format_document",
+    "comment": "对文档进行智能结构化解析与自动排版美化",
+    "inputList": [
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "input_mode",
+        "title": "输入方式",
+        "name": "input_mode",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".doc",
+              ".docx",
+              ".txt",
+              ".json"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "document_path",
+        "title": "文档路径",
+        "name": "document_path",
+        "tip": "支持.doc/.docx/.txt/.json，大小≤100MB",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_path.show",
+            "expression": "return $this.input_mode.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "document_content",
+        "title": "文档内容",
+        "name": "document_content",
+        "tip": "",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.document_content.show",
+            "expression": "return $this.input_mode.value == 'text'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "TemplateType",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "template_select",
+        "title": "模板选择",
+        "name": "template_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "通用公文",
+            "value": "通用公文"
+          },
+          {
+            "label": "学术论文",
+            "value": "学术论文"
+          },
+          {
+            "label": "合同协议",
+            "value": "合同协议"
+          }
+        ],
+        "default": "通用公文",
+        "required": true
+      },
+      {
+        "types": "SaveType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "save_type",
+        "title": "保存类型",
+        "name": "save_type",
+        "tip": "",
+        "options": [
+          {
+            "label": "保存",
+            "value": "保存"
+          },
+          {
+            "label": "另存为",
+            "value": "另存为"
+          }
+        ],
+        "default": "保存",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "file_type": "folder"
+          }
+        },
+        "key": "output_path",
+        "title": "文档输出路径",
+        "name": "output_path",
+        "tip": "选择输出文件夹路径",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.output_path.show",
+            "expression": "return $this.save_type.value == '另存为'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "output_filename",
+        "title": "文档输出文件名",
+        "name": "output_filename",
+        "tip": "输出文件名（不含扩展名）",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.output_filename.show",
+            "expression": "return $this.save_type.value == '另存为'"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "AI_text_formatting_res"
+      }
+    ],
+    "icon": "topic-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.sentence_expand": {
+    "key": "DocumentAI.sentence_expand",
+    "title": "段落扩写",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().sentence_expand",
+    "comment": "大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行扩写",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "",
+        "default": "\n    角色：你是一位专业的内容扩写专家，擅长在保留原文核心信息和风格的前提下，通过添加细节、解释、例子、背景等方式，使段落内容更丰富、更深入。\n    ---\n    任务：对我提供的段落进行扩写，使其内容更加详尽、具体、有深度，同时保持原意和逻辑连贯性。\n    ---\n    输出要求：\n    1. 丰富内容细节\n    2. 增加相关的描述、解释或案例\n    3. 使段落更完整、生动且富有逻辑性\n    ---\n    （注：\n    1. 扩写必须基于原文核心意思，不得改变原观点或添加与原意矛盾的信息\n    2. 新增内容应与原文风格和语境保持一致，确保整体流畅自然\n    3. 如果原文包含专有名词、术语或关键数据，务必保留且准确\n    4. 若提供了目标篇幅，请尽量遵守；若无法精确达到，可接近目标）\n",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "paragraph_text",
+        "title": "段落",
+        "name": "paragraph_text",
+        "tip": "",
+        "default": "",
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "sentence_expanded_res",
+        "title": "段落扩展结果输出",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "paragraph-expand",
+    "helpManual": ""
+  },
+  "DocumentAI.sentence_reduce": {
+    "key": "DocumentAI.sentence_reduce",
+    "title": "段落缩写",
+    "version": "1.0.0",
+    "src": "astronverse.ai.document.DocumentAI().sentence_reduce",
+    "comment": "大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行缩写",
+    "inputList": [
+      {
+        "types": "LLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "DeepSeek-V3.2",
+            "value": "xopdeepseekv32"
+          },
+          {
+            "label": "Kimi-K2.5",
+            "value": "xopkimik25"
+          },
+          {
+            "label": "Kimi-K2-Instruct",
+            "value": "xopkimik2blins"
+          },
+          {
+            "label": "Qwen-3.5-397B-A17B",
+            "value": "xopqwen35397b"
+          },
+          {
+            "label": "Qwen3-235B-A22B",
+            "value": "xop3qwen235b"
+          },
+          {
+            "label": "Qwen3-30B-A3B-Instruct-2507",
+            "value": "xop3qwen30b2507"
+          },
+          {
+            "label": "MiniMax-M2.5",
+            "value": "xminimaxm25"
+          },
+          {
+            "label": "MiniMax-M2.1",
+            "value": "xminimaxm2"
+          },
+          {
+            "label": "GLM-5",
+            "value": "xopglm5"
+          },
+          {
+            "label": "GLM-4.7-Flash",
+            "value": "xopglmv47flash"
+          },
+          {
+            "label": "自定义模型",
+            "value": "custom"
+          }
+        ],
+        "default": "xopdeepseekv32",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "",
+        "default": "\n    角色：你是一位专业的文本缩写专家，擅长在保留核心信息和原意的前提下，将长文本精简为更简洁的版本。\n    ---\n    任务：对提供的段落进行缩写，使其更简洁、紧凑，同时确保关键信息不丢失、逻辑连贯。\n    ---\n    输出要求：\n    1. 提取关键信息，用最简单的语言表达出来\n    2. 去除修饰性语言\n    3. 保留原文的主要观点和重要细节\n    ---\n    （注：\n    1. 缩写必须忠实于原文意思，不得添加新信息或改变原意\n    2. 保持文本的流畅性和逻辑连贯性，避免生硬拼凑\n    3. 如果原文包含专有名词、术语或关键数据，务必保留且准确\n    4. 若提供了目标篇幅，请尽量遵守；若无法精确达到，可接近目标）\n",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "paragraph_text",
+        "title": "段落",
+        "name": "paragraph_text",
+        "tip": "",
+        "default": "",
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "sentence_reduce_res",
+        "title": "段落缩写结果输出",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "paragraph-abbreviate",
+    "helpManual": ""
+  },
+  "RecruitAI.generate_keywords": {
+    "key": "RecruitAI.generate_keywords",
+    "title": "职位关键词生成",
+    "version": "1.0.0",
+    "src": "astronverse.ai.recruit.RecruitAI().generate_keywords",
+    "comment": "根据职位描述 @{job_description} 生成关键词",
+    "inputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "job_name",
+        "title": "职位名称",
+        "name": "job_name",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "job_description",
+        "title": "职位描述",
+        "name": "job_description",
+        "tip": "",
+        "default": "",
+        "required": true
+      },
+      {
+        "types": "JobWebsitesTypes",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "job_website",
+        "title": "招聘网站",
+        "name": "job_website",
+        "tip": "",
+        "options": [
+          {
+            "label": "BOSS直聘",
+            "value": "boss"
+          },
+          {
+            "label": "猎聘",
+            "value": "liepin"
+          },
+          {
+            "label": "智联招聘",
+            "value": "zhilian"
+          }
+        ],
+        "default": "boss",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "model",
+        "title": "模型ID",
+        "name": "model",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "recruit_keywords",
+        "title": "职位关键词",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "job-keyword-generation",
+    "helpManual": ""
+  },
+  "RecruitAI.rating_resume": {
+    "key": "RecruitAI.rating_resume",
+    "title": "简历评分",
+    "version": "1.0.0",
+    "src": "astronverse.ai.recruit.RecruitAI().rating_resume",
+    "comment": "根据简历 @{resume_content} 评分",
+    "inputList": [
+      {
+        "types": "Any",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "job_name",
+        "title": "职位名称",
+        "name": "job_name",
+        "tip": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "InputType",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "resume_input_type",
+        "title": "简历输入方式",
+        "name": "resume_input_type",
+        "tip": "",
+        "options": [
+          {
+            "label": "文件形式",
+            "value": "file"
+          },
+          {
+            "label": "文本形式",
+            "value": "text"
+          }
+        ],
+        "default": "text",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [],
+            "file_type": "file"
+          }
+        },
+        "key": "resume_file_path",
+        "title": "简历文件路径",
+        "name": "resume_file_path",
+        "tip": "",
+        "default": "",
+        "dynamics": [
+          {
+            "key": "$this.resume_file_path.show",
+            "expression": "return $this.resume_input_type.value == 'file'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "resume_content",
+        "title": "简历文本内容",
+        "name": "resume_content",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "dynamics": [
+          {
+            "key": "$this.resume_content.show",
+            "expression": "return $this.resume_input_type.value == 'text'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "job_description",
+        "title": "职位描述",
+        "name": "job_description",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "RatingSystemTypes",
+        "formType": {
+          "type": "RADIO"
+        },
+        "key": "rating_system",
+        "title": "岗位评分体系",
+        "name": "rating_system",
+        "tip": "",
+        "options": [
+          {
+            "label": "根据岗位描述生成",
+            "value": "default"
+          },
+          {
+            "label": "自定义判断标准",
+            "value": "custom"
+          }
+        ],
+        "default": "default",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "rating_dimensions",
+        "title": "岗位评分画像",
+        "name": "rating_dimensions",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "dynamics": [
+          {
+            "key": "$this.rating_dimensions.show",
+            "expression": "return $this.rating_system.value == 'custom'"
+          }
+        ],
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "model",
+        "title": "模型ID",
+        "name": "model",
+        "tip": "",
+        "default": "",
+        "value": [
+          {
+            "type": "str",
+            "value": ""
+          }
+        ],
+        "required": false
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "recruit_rating",
+        "title": "简历匹配结果",
+        "subTitle": "AI生成",
+        "tip": ""
+      }
+    ],
+    "icon": "resume-scoring",
+    "helpManual": ""
+  },
+  "ImageAI.understand_image": {
+    "key": "ImageAI.understand_image",
+    "title": "图像理解",
+    "version": "1.0.0",
+    "src": "astronverse.ai.image.ImageAI().understand_image",
+    "comment": "对图片 @{image_path} 进行深度视觉理解与分析",
+    "inputList": [
+      {
+        "types": "VLLMModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "QWEN2.5-VL-32B-Instruct",
+            "value": "xqwen2d5s32bvl"
+          },
+          {
+            "label": "QWEN3-VL-32B-Instruct",
+            "value": "xop3qwen32bvl"
+          },
+          {
+            "label": "DeepSeek_OCR",
+            "value": "xopdeepseekocr"
+          }
+        ],
+        "default": "xop3qwen32bvl",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "定义AI的角色和回答要求。如：扮演IT专家，回答要专业严谨",
+        "default": "\n角色：你是一位专业的图像分析专家，擅长仔细观察并准确描述图像内容。你的描述客观、详尽，能涵盖图像的主要元素、场景、人物活动、文本信息以及整体氛围。\n---\n任务：理解并详细描述我提供的图像内容，输出结构化的描述信息。\n---\n请按以下框架构建分析图片内容：\n1. 整体概述：\n- 用一两句话总结图像的主要内容，让读者快速了解图像大致场景\n2. 主要对象与人物：\n- 列出图像中显著的对象（如人物、动物、物体、建筑等）\n- 如果有人物，描述其数量、大致年龄、性别、衣着、姿态、表情和正在进行的活动\n- 如有多个主要对象，说明它们之间的空间关系（如位置、相对大小、互动）\n3. 背景与环境：\n- 描述图像中的背景环境（室内/室外、自然/城市、白天/夜晚、天气状况等）\n- 指出背景中的次要元素（如树木、家具、车辆、天空等）及其对整体场景的补充作用\n（注：\n1. 描述必须基于图像内容本身，保持客观，避免过度主观臆测。若需要推测，请明确标注\n2. 如果图像中有不清晰或模糊的部分，请如实说明\n3. 确保描述逻辑清晰，层次分明）\n",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "filters": [
+              ".jpg",
+              ".jpeg",
+              ".png"
+            ],
+            "file_type": "file"
+          }
+        },
+        "key": "image_path",
+        "title": "图片路径",
+        "name": "image_path",
+        "tip": "支持.jpg/.jpeg/.png，大小≤20MB，最多1张图片",
+        "default": "",
+        "required": true
+      }
+    ],
+    "outputList": [
+      {
+        "types": "Str",
+        "formType": {
+          "type": "RESULT"
+        },
+        "key": "AI_image_analysis_res",
+        "title": "图像理解输出结果",
+        "subTitle": "AI生成",
+        "tip": "对图片的完整分析描述或回答"
+      }
+    ],
+    "icon": "image-understanding",
+    "helpManual": ""
+  },
+  "ImageAI.generate_image": {
+    "key": "ImageAI.generate_image",
+    "title": "文生图",
+    "version": "1.0.0",
+    "src": "astronverse.ai.image.ImageAI().generate_image",
+    "comment": "根据提示词 @{prompt} 生成高质量图像",
+    "inputList": [
+      {
+        "types": "LLMMultiModalModelTypes",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "model_select",
+        "title": "模型选择",
+        "name": "model_select",
+        "tip": "",
+        "options": [
+          {
+            "label": "Qwen-Image-2512",
+            "value": "xopqwentti20b"
+          },
+          {
+            "label": "Kolors",
+            "value": "xskolorss2b6"
+          },
+          {
+            "label": "StableDiffusion-XL-Base-1",
+            "value": "xssdxl"
+          }
+        ],
+        "default": "xopqwentti20b",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "prompt",
+        "title": "提示词",
+        "name": "prompt",
+        "tip": "定义AI的角色和回答要求。如：扮演IT专家，回答要专业严谨",
+        "default": "",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_PYTHON_TEXTAREAMODAL_VARIABLE"
+        },
+        "key": "negative_prompt",
+        "title": "负向提示词",
+        "name": "negative_prompt",
+        "tip": "排除不希望出现的元素，如模糊、低质量、畸形等（≤5000字符）",
+        "default": "",
+        "required": false
+      },
+      {
+        "types": "AspectRatio",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "aspect_ratio",
+        "title": "图片比例",
+        "name": "aspect_ratio",
+        "tip": "选择生成图像的宽高比",
+        "options": [
+          {
+            "label": "1:1",
+            "value": "1:1"
+          },
+          {
+            "label": "3:4",
+            "value": "3:4"
+          },
+          {
+            "label": "4:3",
+            "value": "4:3"
+          },
+          {
+            "label": "4:7",
+            "value": "4:7"
+          },
+          {
+            "label": "7:4",
+            "value": "7:4"
+          },
+          {
+            "label": "9:16",
+            "value": "9:16"
+          },
+          {
+            "label": "16:9",
+            "value": "16:9"
+          }
+        ],
+        "default": "1:1",
+        "required": true
+      },
+      {
+        "types": "ImageSize",
+        "formType": {
+          "type": "SELECT"
+        },
+        "key": "image_size",
+        "title": "图片大小",
+        "name": "image_size",
+        "tip": "选择图像分辨率",
+        "options": [
+          {
+            "label": "1024p",
+            "value": "1024p"
+          },
+          {
+            "label": "720p",
+            "value": "720p"
+          }
+        ],
+        "default": "1024p",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON_FILE",
+          "params": {
+            "file_type": "folder"
+          }
+        },
+        "key": "image_output_path",
+        "title": "图片输出路径",
+        "name": "image_output_path",
+        "tip": "",
+        "default": "",
+        "required": true
+      },
+      {
+        "types": "Str",
+        "formType": {
+          "type": "INPUT_VARIABLE_PYTHON"
+        },
+        "key": "image_filename",
+        "title": "图片名称",
+        "name": "image_filename",
+        "tip": "",
+        "default": "AI_image_res",
+        "required": true
+      }
+    ],
+    "outputList": [],
+    "icon": "image-generation",
+    "helpManual": ""
+  }
+}
