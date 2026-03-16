@@ -2,23 +2,25 @@
 import { NiceModal } from '@rpa/components'
 import { onClickOutside } from '@vueuse/core'
 import { Drawer } from 'ant-design-vue'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import AtomForm from './AtomForm.vue'
 import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
-import { getComponentPreviewForm } from '@/utils/customComponent'
-import { exampleFormList as exampleFormListRaw } from './exampleFormList'
+import { convertCommentToInputVariableValue, convertInputVariableValueToComment, getComponentPreviewForm } from '@/utils/customComponent'
+import { getComponentDetail } from '@/api/project'
+// import { exampleFormList as exampleFormListRaw } from './exampleFormList'
 
-const exampleFormList = ref(exampleFormListRaw.map(item => ({ ...item })))
+// const exampleFormList = ref(exampleFormListRaw.map(item => ({ ...item })))
 
 const props = defineProps<{ clickOutsideIgnoreSelector?: string }>()
 
 const modal = NiceModal.useModal()
 const container = useTemplateRef('container')
+const processStore = useProcessStore()
 
 const mockAtom = computed(() => {
-  const { project, parameters } = useProcessStore()
+  const { project, parameters } = processStore
   return getComponentPreviewForm({
     componentId: project.id,
     componentName: project.name,
@@ -35,6 +37,36 @@ const descriptionForm = ref({
   title: '编辑区便捷描述',
   types: 'Str',
   value: [],
+})
+
+async function loadComponentComment() {
+  const { project } = processStore
+  if (!project?.id) {
+    return
+  }
+
+  try {
+    const info = await getComponentDetail({ componentId: project.id })
+    const comment = info?.comment || ''
+
+    // 将 comment 转换为 descriptionForm.value 格式并回显
+    if (comment) {
+      const valueArray = convertCommentToInputVariableValue(comment)
+      descriptionForm.value.value = valueArray
+      processStore.componentComment = comment
+    }
+  } catch (error) {
+    console.error('加载组件 comment 失败:', error)
+  }
+}
+
+watch(() => descriptionForm.value.value, (newValue) => {
+  const comment = convertInputVariableValueToComment(newValue as Array<{ type: string; value: string }>)
+  processStore.componentComment = comment
+}, { deep: true })
+
+onMounted(() => {
+  loadComponentComment()
 })
 
 

@@ -10,6 +10,7 @@ export function publishComponent(data: {
   name: string
   icon: string
   introduction: string
+  comment?: string
 }) {
   return http.post('/api/robot/component-version/create', data)
 }
