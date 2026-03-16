@@ -43,7 +43,7 @@ MSG_DOWNLOAD_SUCCESS_FORMAT = _("{}下载完成")
 MSG_NO_FFMPEG = _("资源目录不存在ffmpeg，录屏功能无法使用")
 MSG_SUB_WINDOW = _("子窗口启动")
 MSG_GLOBAL_USE_ERROR_TIP_FORMAT = _('全局变量使用方式过时，推荐使用gv["{}"]')
-MSG_VERSION_WARNING_FORMAT = _("警告：当前客户端版本 {} 低于工程要求的最低版本 {}，可能存在兼容性风险")
+MSG_VERSION_WARNING_FORMAT = _("警告：当前客户端版本低于工程要求的最低版本 {}，可能存在兼容性风险")
 
 
 def python_base_error(e):
