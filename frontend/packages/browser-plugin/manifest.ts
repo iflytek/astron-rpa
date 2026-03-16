@@ -60,7 +60,7 @@ export function generateManifest(mode: string, environment) {
   }
 
   if (isFirefox) {
-    const permission = manifest.permissions.filter(item => item !== 'debugger' && item !== 'nativeMessaging')
+    const permission = manifest.permissions.filter(item => item !== 'debugger')
     const manifestFirefox = {
       manifest_version: 2,
       background: {
@@ -74,7 +74,7 @@ export function generateManifest(mode: string, environment) {
           strict_min_version: '58.0',
         },
       },
-      permissions: [...permission, '<all_urls>'],
+      permissions: [...permission, '<all_urls>', 'webRequest', 'webRequestBlocking'],
     }
     // @ts-expect-error firefox specific
     manifest = { ...manifest, ...manifestFirefox }

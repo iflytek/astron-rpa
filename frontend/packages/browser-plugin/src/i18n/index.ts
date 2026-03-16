@@ -21,23 +21,15 @@ let currentLocale: Locale = 'zh-CN'
  */
 export async function initI18n(): Promise<void> {
   try {
-    // Try to get saved locale from storage
-    const result = await chrome.storage.local.get('locale')
-    if (result.locale && messages[result.locale]) {
-      currentLocale = result.locale
+    const browserLang = navigator.language || 'zh-CN'
+    if (browserLang.startsWith('zh')) {
+      currentLocale = 'zh-CN'
+    }
+    else if (browserLang.startsWith('ar')) {
+      currentLocale = 'ar'
     }
     else {
-      // Fallback to browser language
-      const browserLang = navigator.language || 'zh-CN'
-      if (browserLang.startsWith('zh')) {
-        currentLocale = 'zh-CN'
-      }
-      else if (browserLang.startsWith('ar')) {
-        currentLocale = 'ar'
-      }
-      else {
-        currentLocale = 'en'
-      }
+      currentLocale = 'en'
     }
   }
   catch (error) {

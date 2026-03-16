@@ -37,6 +37,9 @@ export const ar: Messages = {
     elementChildOriginNotFound: 'originXpath للعنصر غير مكتمل، غير قادر على تحديد موقع العنصر الفرعي بشكل فريد',
     updateTip: 'يرجى تحديث المكون الإضافي إلى أحدث إصدار وإعادة المحاولة',
     elementChangedAtNode: 'تغير العنصر عند العقدة {index} الخطوة {step}',
+    syntaxError: 'خطأ في بناء الجملة، يرجى التحقق من إدخالك',
+    typeError: 'خطأ في النوع، يرجى التحقق من إدخالك',
+    referenceError: 'خطأ في المرجع، يرجى التحقق من إدخالك',
   },
   success: {
     deleteSuccess: 'تم الحذف بنجاح',

@@ -37,6 +37,9 @@ export const en: Messages = {
     elementChildOriginNotFound: 'Element originXpath is incomplete, unable to uniquely locate child element',
     updateTip: 'Please update the plugin to the latest version and retry',
     elementChangedAtNode: 'Element changed at node {index} step {step}',
+    syntaxError: 'Syntax error, please check your input',
+    typeError: 'Type error, please check your input',
+    referenceError: 'Reference error, please check your input',
   },
   success: {
     deleteSuccess: 'Deleted successfully',
