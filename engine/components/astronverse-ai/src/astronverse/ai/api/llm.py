@@ -101,4 +101,3 @@ def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
     except Exception as e:
         logger.error("响应格式不正确 {}".format(e))
         return None
-
