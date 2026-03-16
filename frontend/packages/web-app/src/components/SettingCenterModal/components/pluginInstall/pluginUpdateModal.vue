@@ -21,6 +21,7 @@ function handleConfirm() {
     :title="$t('pluginUpdateTip')"
     width="500px"
     centered
+    :mask-closable="false"
     @cancel="handleClose"
   >
     <div class="update-modal-content">
