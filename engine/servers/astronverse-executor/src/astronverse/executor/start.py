@@ -70,7 +70,7 @@ def debug_start(args, flow_svc, svc):
         # 生成代码错误消息
         if flow_svc.flow_tip:
             for tip in flow_svc.flow_tip:
-                svc.report.info(tip)
+                svc.report.warning(tip)
 
         # 特殊参数处理 录制服务
         if args.recording_config:
@@ -133,7 +133,7 @@ def debug_start(args, flow_svc, svc):
         local_ver = [int(x) for x in client_version.split(".")]
         required_ver = [int(x) for x in flow_version.split(".")]
         if local_ver < required_ver:
-            svc.report.info(ReportTip(msg_str=MSG_VERSION_WARNING_FORMAT.format(client_version, flow_version)))
+            svc.report.warning(ReportTip(msg_str=MSG_VERSION_WARNING_FORMAT.format(client_version, flow_version)))
 
         # 执行前验证
         if Config.open_log_ws:
