@@ -29,7 +29,7 @@
     "builder-util-runtime": "^9.5.1",
     "electron-log": "^5.4.3",
     "electron-updater": "^6.7.3",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "catalog:dev",
     "node-7z": "^3.0.0",
     "tree-kill": "^1.2.2",
     "yaml": "^2.8.2"
@@ -37,14 +37,14 @@
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@rpa/shared": "workspace:*",
-    "@types/lodash-es": "^4.17.12",
+    "@types/lodash-es": "catalog:types",
     "@types/node": "^18.15.0",
     "@types/node-7z": "^2.1.11",
     "electron": "^25.9.8",
     "electron-builder": "^24.13.3",
     "electron-vite": "^5.0.0",
-    "tsdown": "catalog:",
+    "tsdown": "catalog:dev",
     "typescript": "^5.5.2",
-    "vite": "catalog:"
+    "vite": "catalog:dev"
   }
 }

@@ -11,11 +11,9 @@ import { sentryVitePlugin } from '@sentry/vite-plugin'
 import type { SentryVitePluginOptions } from '@sentry/vite-plugin'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-// import Inspect from 'vite-plugin-inspect' 开发时查看编译代码
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
-import { analyzer } from 'vite-bundle-analyzer'
 import { lazyImport, VxeResolver } from 'vite-plugin-lazy-import'
 import PageHtml from 'vite-plugin-page-html'
 import { svg4VuePlugin } from 'vite-plugin-svg4vue'
@@ -47,6 +45,9 @@ export default defineConfig((env) => {
       __VUE_VERSION__: JSON.stringify(vueVersion),
       __PINIA_VERSION__: JSON.stringify(piniaVersion),
     },
+    devtools: {
+      enabled: enableAnalyze,
+    },
     build: {
       sourcemap: isDebug ? 'inline' : isPublish,
       minify: 'oxc',
@@ -58,7 +59,6 @@ export default defineConfig((env) => {
         assetsDirName: false,
         svgoConfig: false,
       }),
-      // Inspect(),
       Components({
         dirs: [],
         dts: './src/components.d.ts',
@@ -95,7 +95,6 @@ export default defineConfig((env) => {
         }
       }),
       enableSentry ? sentryVitePlugin(sentryConfig) : null,
-      enableAnalyze ? analyzer() : null,
     ],
     resolve: {
       alias: [
@@ -148,15 +147,10 @@ export default defineConfig((env) => {
       },
     },
 
-    clearScreen: false,
     server: {
       port: 1420,
       strictPort: true,
       host: '0.0.0.0', // 指定监听所有网络接口
-      watch: {
-        // 3. tell vite to ignore watching `src-tauri`
-        ignored: ['**/src-tauri/**', '**/node_modules/**', '**/src-electron/**', '**/dist/**', '**/dist-electron/**'],
-      },
     },
   }
 })
