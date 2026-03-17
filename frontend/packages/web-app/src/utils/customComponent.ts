@@ -173,6 +173,66 @@ function buildFormItemsFromAttrs(componentAttrs: RPA.ConfigParamData[]) {
 }
 
 /**
+ * 将 INPUT_VARIABLE 类型的表单值数组转换为 renderAtomRemark 可解析的字符串格式
+ * @param valueArray 表单值数组，例如: [{ type: "other", value: "将" }, { type: "p_var", value: "p_variable" }]
+ * @returns 转换后的字符串，例如: "将@{p_variable}"
+ */
+export function convertInputVariableValueToComment(valueArray: Array<{ type: string; value: string }>): string {
+  if (!Array.isArray(valueArray) || valueArray.length === 0) {
+    return ''
+  }
+
+  return valueArray.map((item) => {
+    if (item.type === 'p_var' || item.type === 'var') {
+      // 变量类型转换为 @{variable} 格式
+      return `@{${item.value}}`
+    }
+    // 其他类型（如 "other"）直接使用 value
+    return item.value || ''
+  }).join('')
+}
+
+/**
+ * 将 comment 字符串转换为 INPUT_VARIABLE 类型的表单值数组格式
+ * @param comment 字符串，例如: "将@{p_variable}"
+ * @returns 转换后的数组，例如: [{ type: "other", value: "将" }, { type: "p_var", value: "p_variable" }]
+ */
+export function convertCommentToInputVariableValue(comment: string): Array<{ type: string; value: string }> {
+  if (!comment || typeof comment !== 'string') {
+    return []
+  }
+
+  const result: Array<{ type: string; value: string }> = []
+  // 匹配 @{variable} 格式
+  const variableRegex = /@\{([^}]+)\}/g
+  let lastIndex = 0
+  let match
+
+  while ((match = variableRegex.exec(comment)) !== null) {
+    // 添加 @{variable} 之前的文本
+    if (match.index > lastIndex) {
+      const text = comment.substring(lastIndex, match.index)
+      if (text) {
+        result.push({ type: 'other', value: text })
+      }
+    }
+    // 添加变量
+    result.push({ type: 'p_var', value: match[1] })
+    lastIndex = match.index + match[0].length
+  }
+
+  // 添加剩余的文本
+  if (lastIndex < comment.length) {
+    const text = comment.substring(lastIndex)
+    if (text) {
+      result.push({ type: 'other', value: text })
+    }
+  }
+
+  return result
+}
+
+/**
  * 构建组件表单数据结构
  */
 function buildComponentFormData(params: {
@@ -181,8 +241,9 @@ function buildComponentFormData(params: {
   title: string
   version?: string | number
   icon?: string
+  comment?: string
 }) {
-  const { componentId, componentAttrs, title, version = '', icon = '' } = params
+  const { componentId, componentAttrs, title, version = '', icon = '', comment = '' } = params
   const { inputFormItems, outputFormItems } = buildFormItemsFromAttrs(componentAttrs)
 
   return {
@@ -191,7 +252,7 @@ function buildComponentFormData(params: {
     alias: title,
     version,
     src: '',
-    comment: '',
+    comment,
     inputList: inputFormItems,
     outputList: outputFormItems,
     icon,
@@ -227,6 +288,7 @@ export async function getComponentForm(params: {
     title: info.name,
     version: version || info.componentVersion || info.latestVersion,
     icon: info.icon,
+    comment: info.comment
   }) as unknown as ProcessNode
 }
 
