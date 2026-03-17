@@ -56,7 +56,7 @@ export function useChatContext(smartComp: SmartCompContext) {
   const senderLoading = ref(false)
 
   const BASE_URL = getAPIBaseURL()
-  const PATH = '/api/rpa-ai-service/smart/chat/stream'
+  const PATH = '/rpa-ai-service/smart/chat/stream'
   // const MODEL = 'gpt-3.5-turbo';
 
   const exampleRequest = XRequest({

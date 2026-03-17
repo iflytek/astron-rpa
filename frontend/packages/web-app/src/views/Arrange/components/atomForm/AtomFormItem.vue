@@ -39,7 +39,12 @@ const showLabel = computed(() => {
       <span v-if="atomFormItem.subTitle" class="text-[10px] leading-4">
         {{ atomFormItem.subTitle }}
       </span>
-      <a-tooltip v-if="atomFormItem.tip" :title="atomFormItem.tip">
+      <a-tooltip v-if="atomFormItem.tip">
+        <template #title>
+          <slot name="tooltip-title" :atom-form-item="atomFormItem">
+            {{ atomFormItem.tip }}
+          </slot>
+        </template>
         <rpa-hint-icon name="atom-form-tip" width="16px" height="16px" />
       </a-tooltip>
       <span
