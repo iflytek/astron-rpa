@@ -283,6 +283,39 @@ export function getFramePath(frames: FrameDetails[], targetFrame: FrameDetails) 
   return framePath
 }
 
+export function buildFrameTree(frames: FrameDetails[]) {
+  const frameMap = new Map<number, FrameDetails & { children: FrameDetails[] }>()
+
+  frames.forEach((frame) => {
+    frameMap.set(frame.frameId, { ...frame, children: [] })
+  })
+  const roots: (FrameDetails & { children: FrameDetails[] })[] = []
+  frameMap.forEach((frame) => {
+    if (frame.parentFrameId === -1) {
+      roots.push(frame)
+    }
+    else {
+      const parent = frameMap.get(frame.parentFrameId)
+      if (parent) {
+        parent.children.push(frame)
+      }
+    }
+  })
+  function frameTreeHelper(tree) {
+    tree.forEach((frame) => {
+      if (frame.children.length > 0) {
+        frameTreeHelper(frame.children)
+      }
+      else {
+        delete frame.children
+      }
+    })
+  }
+  frameTreeHelper(roots)
+
+  return roots
+}
+
 /**
  * Calculates the absolute position of a nested frame within a browser tab by aggregating the positions of each frame in the provided `framePath`.
  *

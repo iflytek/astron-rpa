@@ -159,12 +159,6 @@ const Debugger = {
       throw new Error(ErrorMessage.EXECUTE_ERROR)
     }
   },
-  getFrameTree: async (tabId: number) => {
-    await Debugger.attachDebugger(tabId)
-    await Debugger.enableRuntime(tabId)
-    const result = await chrome.debugger.sendCommand({ tabId }, 'Page.getFrameTree', {})
-    return result
-  },
   getDomSnapshot: async (tabId: number) => {
     await Debugger.attachDebugger(tabId)
     await Debugger.enableRuntime(tabId)

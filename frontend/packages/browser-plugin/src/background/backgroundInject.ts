@@ -5,7 +5,7 @@ import { Utils } from '../common/utils'
 import { Cookie } from './cookie'
 import DataTable from './data_table'
 import { Debugger } from './debugger'
-import { adjustPosition, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
+import { adjustPosition, buildFrameTree, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
 import * as NetworkMonitor from './network_monitor'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
@@ -242,8 +242,9 @@ const Handlers = {
         if (!tab) {
           return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
         }
-        const res = await Tabs.getFrameTree(tab.id)
-        return Utils.success(res)
+        const frames = await Tabs.getAllFrames(tab.id)
+        const frameTree = buildFrameTree(frames)
+        return Utils.success(frameTree)
       },
       async printPage(params: PrintOptions) {
         const tab = await Tabs.getActiveTab()
