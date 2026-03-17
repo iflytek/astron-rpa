@@ -16,31 +16,31 @@ interface SetPasswordData extends LoginFormData {
 
 // 查询登录状态
 export async function loginStatus() {
-  const { data } = await http.get('/api/rpa-auth/login-status')
+  const { data } = await http.get('/rpa-auth/login-status')
   return data
 }
 
 // 获取 token
 export async function getToken() {
-  const { data } = await http.get('/api/rpa-auth/token')
+  const { data } = await http.get('/rpa-auth/token')
   return data
 }
 
 // 退出登录
 export async function logout() {
-  const { data } = await http.post('/api/rpa-auth/logout')
+  const { data } = await http.post('/rpa-auth/logout')
   return data
 }
 
 // 检查是否是历史用户
 export async function isHistory(params: LoginFormData) {
-  const { data } = await http.get('/api/rpa-auth/user/history', params)
+  const { data } = await http.get('/rpa-auth/user/history', params)
   return data
 }
 
 // 预认
 export async function preAuthenticate(params: PreAuthenticateData) {
-  const { data } = await http.post('/api/rpa-auth/pre-authenticate', params)
+  const { data } = await http.post('/rpa-auth/pre-authenticate', params)
   return data
 }
 
@@ -53,13 +53,13 @@ export async function sendCaptcha(phone: string, scene: string, isRegister: bool
       return Promise.reject(new Error(i18next.t('components.auth.phoneNotRegistered')))
     }
   }
-  const { data } = await http.postparams('/api/rpa-auth/verification-code/send', { phone, scene })
+  const { data } = await http.postparams('/rpa-auth/verification-code/send', { phone, scene })
   return data
 }
 
 // 获取租户列表
 export async function tenantList(tempToken?: string) {
-  const { data } = await http.get<TenantItem[]>('/api/rpa-auth/tenant/list', { tempToken })
+  const { data } = await http.get<TenantItem[]>('/rpa-auth/tenant/list', { tempToken })
   return data.map((i) => {
     return {
       ...i,
@@ -70,54 +70,54 @@ export async function tenantList(tempToken?: string) {
 
 // 正式登录
 export async function login(params: { tempToken: string, tenantId: string }) {
-  const { data } = await http.postparams('/api/rpa-auth/login', params)
+  const { data } = await http.postparams('/rpa-auth/login', params)
   return data
 }
 
 // 注册
 export async function register(params: RegisterFormData) {
-  const { data } = await http.post('/api/rpa-auth/register', params)
+  const { data } = await http.post('/rpa-auth/register', params)
   return data
 }
 
 // 检查是否已注册
 export async function checkRegistered({ phone }: { phone: string }) {
-  const { data } = await http.get('/api/rpa-auth/user/exist', { phone })
+  const { data } = await http.get('/rpa-auth/user/exist', { phone })
   return data
 }
 
 // 设置密码
 export async function setPassword(params: SetPasswordData) {
-  const { data } = await http.post('/api/rpa-auth/password/set', params)
+  const { data } = await http.post('/rpa-auth/password/set', params)
   return data
 }
 
 // 切换租户
 export async function switchTenant(params: { tenantId: string }) {
-  const { data } = await http.postparams('/api/rpa-auth/tenant/switch', params)
+  const { data } = await http.postparams('/rpa-auth/tenant/switch', params)
   return data
 }
 
 // 获取用户信息
 export async function userInfo() {
-  const { data } = await http.get('/api/rpa-auth/user/info')
+  const { data } = await http.get('/rpa-auth/user/info')
   return data
 }
 
 // 修改密码
 export async function modifyPassword(params: LoginFormData) {
-  const { data } = await http.post('/api/rpa-auth/password/change', params)
+  const { data } = await http.post('/rpa-auth/password/change', params)
   return data
 }
 
 // 提交咨询
 export async function submitConsult(params: ConsultFormData) {
-  const { data } = await http.post('/api/robot/feedback/consult/submit', params)
+  const { data } = await http.post('/robot/feedback/consult/submit', params)
   return data
 }
 
 // 提交续费
 export async function submitRenewal(params: ConsultFormData) {
-  const { data } = await http.post('/api/robot/feedback/renewal/submit', params)
+  const { data } = await http.post('/robot/feedback/renewal/submit', params)
   return data
 }
