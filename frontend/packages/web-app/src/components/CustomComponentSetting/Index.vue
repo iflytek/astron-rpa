@@ -2,13 +2,12 @@
 import { NiceModal } from '@rpa/components'
 import { onClickOutside } from '@vueuse/core'
 import { Drawer } from 'ant-design-vue'
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
 import AtomForm from './AtomForm.vue'
-import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
+import DescriptionForm from './DescriptionForm.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
-import { convertCommentToInputVariableValue, convertInputVariableValueToComment, getComponentPreviewForm } from '@/utils/customComponent'
-import { getComponentDetail } from '@/api/project'
+import { getComponentPreviewForm } from '@/utils/customComponent'
 // import { exampleFormList as exampleFormListRaw } from './exampleFormList'
 
 // const exampleFormList = ref(exampleFormListRaw.map(item => ({ ...item })))
@@ -27,48 +26,6 @@ const mockAtom = computed(() => {
     componentAttrs: parameters,
   })
 })
-
-const descriptionForm = ref({
-  formType: { type: 'INPUT_VARIABLE' },
-  key: 'comment',
-  name: 'comment',
-  required: false,
-  tip: '编辑区便捷描述',
-  title: '编辑区便捷描述',
-  types: 'Str',
-  value: [],
-})
-
-async function loadComponentComment() {
-  const { project } = processStore
-  if (!project?.id) {
-    return
-  }
-
-  try {
-    const info = await getComponentDetail({ componentId: project.id })
-    const comment = info?.comment || ''
-
-    // 将 comment 转换为 descriptionForm.value 格式并回显
-    if (comment) {
-      const valueArray = convertCommentToInputVariableValue(comment)
-      descriptionForm.value.value = valueArray
-      processStore.componentComment = comment
-    }
-  } catch (error) {
-    console.error('加载组件 comment 失败:', error)
-  }
-}
-
-watch(() => descriptionForm.value.value, (newValue) => {
-  const comment = convertInputVariableValueToComment(newValue as Array<{ type: string; value: string }>)
-  processStore.componentComment = comment
-}, { deep: true })
-
-onMounted(() => {
-  loadComponentComment()
-})
-
 
 onClickOutside(
   container,
@@ -129,12 +86,7 @@ onClickOutside(
       >
         <AtomForm :atom="mockAtom" show-collapse @collapse="modal.hide()" />
       </div>
-      <section class="mx-4 mb-5">
-        <AtomFormItem
-          :atom-form-item="descriptionForm"
-          class="text-[12px]"
-        />
-      </section>
+      <DescriptionForm />
 
       <!-- <section class="mx-4 mb-5 overflow-y-auto max-h-[400px]">
         <div
