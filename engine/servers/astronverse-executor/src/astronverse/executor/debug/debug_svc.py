@@ -87,7 +87,7 @@ class DebugSvc:
                         )
                     )
                 elif status == ExecuteStatus.CANCEL:
-                    self.report.info(
+                    self.report.warning(
                         ReportFlow(
                             log_type=ReportType.Flow,
                             status=ReportFlowStatus.TASK_ERROR,
@@ -98,7 +98,7 @@ class DebugSvc:
                 elif status == ExecuteStatus.FAIL:
                     if not reason:
                         reason = MSG_TASK_EXECUTION_ERROR
-                    self.report.info(
+                    self.report.error(
                         ReportFlow(
                             log_type=ReportType.Flow,
                             result=status.value,
