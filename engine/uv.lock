@@ -564,6 +564,7 @@ source = { editable = "servers/astronverse-scheduler" }
 dependencies = [
     { name = "astronverse-baseline" },
     { name = "astronverse-browser-plugin" },
+    { name = "astronverse-openclaw" },
     { name = "astronverse-websocket-server" },
     { name = "fastapi" },
     { name = "importlib-metadata" },
@@ -586,6 +587,7 @@ dependencies = [
 requires-dist = [
     { name = "astronverse-baseline", editable = "shared/astronverse-baseline" },
     { name = "astronverse-browser-plugin", editable = "shared/astronverse-browser-plugin" },
+    { name = "astronverse-openclaw", editable = "servers/astronverse-openclaw" },
     { name = "astronverse-websocket-server", editable = "shared/astronverse-websocket-server" },
     { name = "fastapi" },
     { name = "importlib-metadata" },

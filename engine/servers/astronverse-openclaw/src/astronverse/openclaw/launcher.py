@@ -8,16 +8,15 @@ that is driven by the FastAPI service layer.
 from __future__ import annotations
 
 import filecmp
-import logging
 import os
 import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from astronverse.openclaw.config import OpenclawConfig, config as default_config
-
-logger = logging.getLogger("astronverse.openclaw")
+from astronverse.openclaw.config import OpenclawConfig
+from astronverse.openclaw.config import config as default_config
+from astronverse.openclaw.logger import logger
 
 BACKUP_SUFFIX = ".launcher.bak"
 
@@ -30,6 +29,16 @@ class LauncherError(RuntimeError):
 class SyncRule:
     source_names: tuple[str, ...]
     destination: Path
+
+
+@dataclass(frozen=True)
+class PreparedCommand:
+    command: list[str]
+    env: dict[str, str]
+    cwd: str | None
+    mode: str
+    install_changes: list[str]
+    sync_changes: list[str]
 
 
 def _build_sync_rules(cfg: OpenclawConfig) -> tuple[SyncRule, ...]:
@@ -195,7 +204,11 @@ def install_from_source(cfg: OpenclawConfig, env: dict[str, str], *, dry_run: bo
         )
 
     package_json = cfg.source_root / "package.json"
-    bootstrap_command = [pnpm_command, "install", "openclaw"] if _is_source_root_empty(cfg) or not package_json.exists() else [pnpm_command, "install"]
+    if not _is_source_root_empty(cfg) and package_json.exists():
+        logger.info("skip source bootstrap install because package.json already exists: %s", package_json)
+        return []
+
+    bootstrap_command = [pnpm_command, "install", "openclaw"]
 
     path_key = next((k for k in env if k.upper() == "PATH"), "PATH")
     logger.info("install_from_source PATH[%s]=%s", path_key, env.get(path_key, "<unset>"))
@@ -232,6 +245,93 @@ def resolve_command(cfg: OpenclawConfig, forward_args: list[str]) -> tuple[list[
     )
 
 
+def _mask_command(command: list[str]) -> list[str]:
+    masked: list[str] = []
+    mask_next = False
+    for part in command:
+        if mask_next:
+            masked.append("***")
+            mask_next = False
+            continue
+        masked.append(part)
+        if part.startswith("--") and any(token in part for token in ("api-key", "token", "password")):
+            mask_next = True
+    return masked
+
+
+def prepare_command(
+    cfg: OpenclawConfig | None = None,
+    forward_args: list[str] | None = None,
+    *,
+    ensure_state: bool = False,
+    dry_run: bool = False,
+) -> PreparedCommand:
+    if cfg is None:
+        cfg = default_config
+    if forward_args is None:
+        forward_args = []
+
+    has_bundled = _has_bundled_source_runtime(cfg)
+    has_state = detect_existing_state(cfg)
+    env = build_env(cfg)
+
+    install_changes: list[str] = []
+    sync_changes: list[str] = []
+
+    if not has_bundled:
+        install_changes = install_from_source(cfg, env, dry_run=dry_run)
+
+    if ensure_state and not has_state:
+        sync_changes = sync_prepared_files(cfg, dry_run=dry_run)
+
+    command, mode = resolve_command(cfg, forward_args)
+    cwd = None if mode == "installed" else str(cfg.source_root)
+
+    return PreparedCommand(
+        command=command,
+        env=env,
+        cwd=cwd,
+        mode=mode,
+        install_changes=install_changes,
+        sync_changes=sync_changes,
+    )
+
+
+def run_cli(
+    forward_args: list[str],
+    cfg: OpenclawConfig | None = None,
+    *,
+    ensure_state: bool = False,
+    dry_run: bool = False,
+    timeout: float | None = None,
+) -> subprocess.CompletedProcess[str] | None:
+    prepared = prepare_command(
+        cfg,
+        forward_args,
+        ensure_state=ensure_state,
+        dry_run=dry_run,
+    )
+
+    logger.info("mode=%s", prepared.mode)
+    logger.info("command=%s", " ".join(_mask_command(prepared.command)))
+    for c in prepared.install_changes:
+        logger.info("install=%s", c)
+    for c in prepared.sync_changes:
+        logger.info("sync=%s", c)
+
+    if dry_run:
+        return None
+
+    return subprocess.run(
+        prepared.command,
+        env=prepared.env,
+        cwd=prepared.cwd,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+
+
 def launch(
     cfg: OpenclawConfig | None = None,
     forward_args: list[str] | None = None,
@@ -248,35 +348,25 @@ def launch(
     if forward_args is None:
         forward_args = list(cfg.default_args)
 
-    has_bundled = _has_bundled_source_runtime(cfg)
-    has_state = detect_existing_state(cfg)
-    env = build_env(cfg)
+    prepared = prepare_command(
+        cfg,
+        forward_args,
+        ensure_state=True,
+        dry_run=dry_run,
+    )
 
-    install_changes: list[str] = []
-    sync_changes: list[str] = []
-
-    if not has_bundled:
-        install_changes = install_from_source(cfg, env, dry_run=dry_run)
-        has_bundled = _has_bundled_source_runtime(cfg)
-
-    if not has_state:
-        sync_changes = sync_prepared_files(cfg, dry_run=dry_run)
-
-    command, mode = resolve_command(cfg, forward_args)
-    cwd = None if mode == "installed" else str(cfg.source_root)
-
-    logger.info("bundled_runtime=%s", has_bundled)
-    logger.info("existing_state=%s", has_state)
+    logger.info("bundled_runtime=%s", _has_bundled_source_runtime(cfg))
+    logger.info("existing_state=%s", detect_existing_state(cfg))
     logger.info("openclaw_home=%s", cfg.openclaw_home)
     logger.info("workspace=%s", cfg.default_workspace)
-    for c in install_changes:
+    for c in prepared.install_changes:
         logger.info("install=%s", c)
-    for c in sync_changes:
+    for c in prepared.sync_changes:
         logger.info("sync=%s", c)
-    logger.info("mode=%s", mode)
-    logger.info("command=%s", " ".join(command))
+    logger.info("mode=%s", prepared.mode)
+    logger.info("command=%s", " ".join(_mask_command(prepared.command)))
 
     if dry_run:
         return None
 
-    return subprocess.Popen(command, env=env, cwd=cwd)
+    return subprocess.Popen(prepared.command, env=prepared.env, cwd=prepared.cwd)

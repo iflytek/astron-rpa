@@ -11,8 +11,22 @@
     "redactSensitive": "tools",
     "file": "~/.openclaw-state/logs/openclaw.log"
   },
+  "auth": {
+    "profiles": {
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+    }
+  },
   "agents": {
     "defaults": {
+      "model": {
+        "primary": ""
+      },
+      "models": {
+      },
       "workspace": "~/.openclaw-state/workspace",
       "compaction": {
         "mode": "safeguard"

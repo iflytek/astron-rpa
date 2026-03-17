@@ -13,6 +13,9 @@ dependencies = [
 [tool.uv.sources]
 astronverse-baseline = {path = "../../shared/astronverse-baseline", editable = true}
 
+[tool.hatch.build]
+ignore-vcs = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/astronverse"]
 include = [

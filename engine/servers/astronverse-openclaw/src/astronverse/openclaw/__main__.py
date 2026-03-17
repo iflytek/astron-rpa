@@ -1,11 +1,8 @@
 import argparse
-import logging
 
 from astronverse.openclaw.config import config
+from astronverse.openclaw.logger import logger
 from astronverse.openclaw.server.server import app
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
-logger = logging.getLogger("astronverse.openclaw")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="astronverse-openclaw service")

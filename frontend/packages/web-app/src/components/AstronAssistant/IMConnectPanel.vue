@@ -5,6 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 import { getUserSetting } from '@/api/setting'
 
 import FeishuConnectPanel from './FeishuConnectPanel.vue'
+import LLMConfigPanel from './LLMConfigPanel.vue'
 import { readFeishuConfigFromSetting } from './feishu-config'
 
 const open = defineModel<boolean>('open', { default: false })
@@ -14,6 +15,7 @@ type ProviderKey = 'feishu' | 'dingtalk' | 'qq' | 'wechat-work'
 const text = {
   title: '\u52a9\u624b\u8bbe\u7f6e',
   tabIm: 'IM \u914d\u7f6e',
+  tabModel: '\u5927\u6a21\u578b\u914d\u7f6e',
   sectionTitle: '\u96c6\u6210\u6e20\u9053',
   sectionDesc: '\u5728\u8fd9\u91cc\u7ba1\u7406 Astron \u52a9\u624b\u7684 IM \u63a5\u5165\u65b9\u5f0f\uff0c\u76ee\u524d\u5148\u5f00\u653e\u98de\u4e66\u914d\u7f6e\u3002',
   guide: '\u914d\u7f6e\u6307\u5357',
@@ -194,6 +196,12 @@ onMounted(() => {
               <FeishuConnectPanel v-if="activeProvider === 'feishu'" @saved="handleSaved" />
             </div>
           </div>
+        </div>
+      </a-tab-pane>
+
+      <a-tab-pane key="model" :tab="text.tabModel">
+        <div class="rounded-[16px] border border-[#e7ebf3] bg-[#fcfcfd] p-5 dark:border-[rgba(255,255,255,0.08)] dark:bg-[#1f1f23]">
+          <LLMConfigPanel />
         </div>
       </a-tab-pane>
     </a-tabs>

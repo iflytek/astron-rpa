@@ -18,6 +18,7 @@ astronverse-input
 astronverse-locator
 astronverse-network
 astronverse-openapi
+astronverse-openclaw
 astronverse-pdf
 astronverse-picker
 astronverse-report
