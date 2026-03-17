@@ -79,7 +79,6 @@ export function t(key: string, params?: Record<string, string | number>): string
 export async function setLocale(locale: Locale): Promise<void> {
   if (messages[locale]) {
     currentLocale = locale
-    await chrome.storage.local.set({ locale })
   }
   else {
     console.warn(`Unsupported locale: ${locale}`)

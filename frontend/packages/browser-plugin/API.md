@@ -151,16 +151,6 @@
     "key": "scrollIntoView"
 }
 
-// 在指定的tab, 指定的frame下执行 code
-{
-    "browser_type": "chrome",
-    "data": {
-        "tabUrl": "",
-        "url": "",
-        "code": "console.log("ok");return "ok";"
-    },
-    "key": "executeScriptOnFrame"
-}
 // 最大化窗口
 {
     "browser_type": "chrome",

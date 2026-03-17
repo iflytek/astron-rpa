@@ -3,7 +3,7 @@ import { Utils } from '../common/utils'
 
 import { Debugger } from './debugger'
 
-const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
+const isFirefox = Utils.isFirefox()
 
 /**
  * Firefox Network Monitor
@@ -167,7 +167,7 @@ class FirefoxNetworkMonitor {
       log.warn('[Firefox] Not Firefox browser, skipping webRequest listeners')
       return
     }
-    console.log('Registering webRequest listeners with URL patterns:', this.urlPatterns)
+    log.info('[Firefox] Registering webRequest listeners for URL patterns:', this.urlPatterns)
     // Listen for requests before they are sent (to get request information)
     chrome.webRequest.onBeforeRequest.addListener(
       this.onBeforeRequest.bind(this),

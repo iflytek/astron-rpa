@@ -19,6 +19,10 @@ export const Utils = {
     return '$unknown$'
   },
 
+  isFirefox() {
+    return this.getNavigatorUserAgent() === '$firefox$'
+  },
+
   async wait(seconds: number) {
     return new Promise((resolve) => {
       setTimeout(resolve, seconds * 1000)
