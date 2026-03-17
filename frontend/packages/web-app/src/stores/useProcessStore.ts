@@ -66,6 +66,8 @@ export const useProcessStore = defineStore('process', () => {
   const parameters = ref<RPA.ConfigParamData[]>([])
   // 组件属性列表
   const attributes = ref<RPA.ComponentAttrData[]>([])
+  // 组件 comment（编辑区便捷描述）
+  const componentComment = ref('')
   // 原子能力 tree 列表
   const atomicTreeData = computed<RPA.AtomTreeNode[]>(
     () => atomMeta.state.value.atomicTree || [],
@@ -443,6 +445,7 @@ export const useProcessStore = defineStore('process', () => {
     globalVarTypeOption,
     parameters,
     attributes,
+    componentComment,
     commonAdvancedParameter,
     atomicTreeDataFlat,
     atomicTreeData,

@@ -7,6 +7,7 @@ import { reactive, ref, useTemplateRef } from 'vue'
 
 import { getComponentDetail, getComponentNextVersion, publishComponent } from '@/api/project'
 import RobotAvatarSelect from '@/components/Avatar/RobotAvatarSelect.vue'
+import { useProcessStore } from '@/stores/useProcessStore'
 import { DEFAULT_COLOR, ROBOT_DEFAULT_ICON } from '@/constants/avatar'
 
 interface FormState {
@@ -29,6 +30,7 @@ const emits = defineEmits(['refresh'])
 const modal = NiceModal.useModal()
 const { t } = useTranslation()
 const formRef = useTemplateRef<FormInstance>('formRef')
+const processStore = useProcessStore()
 
 const loading = ref(false)
 const formState = reactive<Partial<FormState>>({})
@@ -47,8 +49,9 @@ async function initForm() {
 
 async function handleSubmit() {
   await formRef.value.validate()
+  const comment = processStore.componentComment
 
-  const success = await publishComponent({ ...formState, componentId: props.componentId })
+  const success = await publishComponent({ ...formState, componentId: props.componentId, comment })
   if (success) {
     message.success('发版成功')
     modal.hide()
