@@ -1,11 +1,17 @@
 from astronverse.scheduler.apis.connector import credential, datatable, executor, picker, terminal, tools, ws
+from astronverse.scheduler.apis.response import http_base_exception, http_exception
 from astronverse.scheduler.core.lsp.routes import router as lsp_router
 from astronverse.scheduler.core.svc import get_svc
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from astronverse.scheduler.error import BizException
 
 
 def handler(app: FastAPI):
+    # 添加全局错误处理
+    app.add_exception_handler(BizException, http_base_exception)
+    app.add_exception_handler(Exception, http_exception)
+
     # 添加全局中间件
     app.add_middleware(
         CORSMiddleware,

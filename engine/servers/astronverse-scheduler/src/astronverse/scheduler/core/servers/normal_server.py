@@ -17,6 +17,9 @@ class TriggerServer(IServer):
 
     def run(self):
         self.port = self.svc.trigger_port
+        logger.info(
+            f"[TriggerServer] 启动 trigger port={self.port} gateway={self.svc.rpa_route_port}"
+        )
 
         self.proc = SubPopen(
             name="trigger",
@@ -27,21 +30,43 @@ class TriggerServer(IServer):
         self.proc.set_param("terminal_mode", "y" if self.svc.terminal_mod else "n")
         self.proc.set_param("terminal_id", terminal_id)
         self.proc.run()
+        self.err_time = 0
+        alive = self.proc.is_alive() if self.proc else False
+        logger.info(f"[TriggerServer] 子进程 alive={alive}")
 
     def health(self) -> bool:
-        if not self.proc.is_alive():
+        if not self.proc or not self.proc.is_alive():
+            logger.debug("[TriggerServer] 健康检查 子进程未存活")
             return False
 
-        response = requests.get(
-            "http://127.0.0.1:{}/{}/task/health".format(self.svc.rpa_route_port, ComponentType.TRIGGER.name.lower())
+        url = "http://127.0.0.1:{}/{}/task/health".format(
+            self.svc.rpa_route_port, ComponentType.TRIGGER.name.lower()
         )
+        try:
+            response = requests.get(url, timeout=5)
+        except Exception as e:
+            self.err_time += 1
+            logger.debug(
+                f"[TriggerServer] health 请求失败 {self.err_time}/{self.err_max_time} {e}"
+            )
+            if self.err_time >= self.err_max_time:
+                logger.error("[TriggerServer] 健康检查失败(连续请求异常)")
+                return False
+            return True
+
         status_code = response.status_code
         if status_code != 200:
             self.err_time += 1
+            logger.debug(
+                f"[TriggerServer] health HTTP {status_code} 失败 {self.err_time}/{self.err_max_time}"
+            )
         else:
+            if self.err_time:
+                logger.info("[TriggerServer] health 已恢复 HTTP 200")
             self.err_time = 0
 
         if self.err_time >= self.err_max_time:
+            logger.error("[TriggerServer] 健康检查失败(连续非200)")
             return False
 
         return True
@@ -51,12 +76,11 @@ class TriggerServer(IServer):
             self.proc.kill()
 
     def recover(self):
-        # 先关闭
+        logger.debug("[TriggerServer] recover kill+run")
         if self.proc:
             self.proc.kill()
-
-        # 再重启
         self.run()
+        logger.debug("[TriggerServer] recover 结束")
 
     def update_config(self, terminal_mod: bool):
         try:
@@ -76,7 +100,7 @@ class TriggerServer(IServer):
                 return False
             return True
         except Exception as e:
-            self.svc.logger.error("update_config error: %s", e)
+            self.svc.logger.error(f"update_config error: {e}")
 
 
 class VNCServer(IServer):
@@ -91,17 +115,28 @@ class VNCServer(IServer):
 
     def run(self):
         if not self.svc.terminal_mod:
+            logger.info("[VNCServer] 跳过启动 terminal_mod=False")
             return
         if not self.svc.start_watch:
+            logger.info("[VNCServer] 跳过启动 start_watch=False")
             return
 
+        logger.info(
+            "[VNCServer] 启动 VNC port=%s ws_port=%s",
+            self.vnc_port,
+            self.vnc_ws_port,
+        )
         try:
             from astronverse.scheduler.core.terminal.vnc import VNC
 
             self.vnc = VNC(self.svc, self.vnc_port, self.vnc_ws_port, pwd=self.vnc_pwd)
             if not self.vnc.start():
+                logger.error("[VNCServer] VNC.start() 返回 False")
                 self.vnc = None
+            else:
+                logger.info("[VNCServer] VNC 已启动")
         except Exception as e:
+            logger.exception(f"[VNCServer] 启动异常: {e}")
             self.vnc = None
 
     def close(self):
@@ -114,13 +149,16 @@ class VNCServer(IServer):
         if not self.svc.start_watch:
             return True
 
-        # 如果端口可用说明系统已经挂了
         if check_port(self.vnc_port) or check_port(self.vnc_ws_port):
+            logger.debug(
+                f"[VNCServer] 健康检查 端口不可连 vnc={self.vnc_port} ws={self.vnc_ws_port}"
+            )
             return False
         return True
 
     def recover(self):
-        """监控检查恢复"""
+        logger.debug("[VNCServer] recover stop+run")
         if self.vnc:
             self.vnc.stop()
         self.run()
+        logger.debug("[VNCServer] recover 结束")
