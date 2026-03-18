@@ -24,6 +24,9 @@ export function generateManifest(mode: string, environment) {
       service_worker: 'background.js',
       type: 'module',
     },
+    action: {
+      default_title: "Presentation for Astron RPA",
+    },
 
     host_permissions: ['<all_urls>'],
     content_scripts: [

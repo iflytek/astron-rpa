@@ -3,6 +3,8 @@ import { UrlMatcher, UrlMatchLevel } from '../common/urlMatcher'
 import { Utils } from '../common/utils'
 import { t } from '../i18n/index'
 
+import type { MotionOptions } from './aiMotion'
+import { destroyAIMotion, startAIMotion, stopAIMotion } from './aiMotion'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
   filterVisibleElements,
@@ -1124,6 +1126,21 @@ const ContentHandler = {
 
     getDPR: () => {
       return { dpr: window.devicePixelRatio }
+    },
+
+    startMotion: async (options: MotionOptions) => {
+      await startAIMotion(options)
+      return Utils.success(true)
+    },
+
+    stopMotion: async () => {
+      await stopAIMotion()
+      return Utils.success(true)
+    },
+
+    destroyMotion: () => {
+      destroyAIMotion()
+      return Utils.success(true)
     },
   },
 }
