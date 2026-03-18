@@ -1,4 +1,5 @@
 import ast
+import json
 import smtplib
 import time
 from email.header import Header
@@ -11,6 +12,7 @@ from astronverse.scheduler.error import (
     BizException,
     EMAIL_LOGIN_ERROR,
     EMAIL_SEND_ERROR,
+    EMAIL_SEND_ERROR_FORMAT,
     SMS_SEND_ERROR,
     SMS_SEND_ERROR_FORMAT,
 )
@@ -76,7 +78,7 @@ class NotifyUtils:
         cc_list = self.parse_cc(cc_raw)
         if self.email_setting.get("is_default", True):
             try:
-                data = {
+                payload = {
                     "subject": "RPA机器人运行异常通知",
                     "content": content,
                     "receiver": receiver,
@@ -84,12 +86,16 @@ class NotifyUtils:
                 }
                 response = requests.post(
                     "http://127.0.0.1:{}/api/robot/mail/send".format(self.svc.rpa_route_port),
-                    json=data,
+                    json=payload,
                 )
                 status_code = response.status_code
-                text = response.text
                 if status_code != 200:
-                    raise BizException(EMAIL_SEND_ERROR, "发送异常邮件发送失败 {}".format(text))
+                    raise BizException(EMAIL_SEND_ERROR, f"发送异常邮件发送失败！{response}")
+                data = json.loads(response.text)
+                if data.get("code") != "000000":
+                    raise BizException(EMAIL_SEND_ERROR_FORMAT.format(data.get("msg")), f"发送异常邮件发送失败！{data}")
+            except BizException:
+                raise
             except Exception as e:
                 raise BizException(EMAIL_SEND_ERROR, "发送异常邮件发送失败！{}".format(e))
         else:
@@ -124,8 +130,12 @@ class NotifyUtils:
                 params=params,
             )
             status_code = response.status_code
-            text = response.text
             if status_code != 200:
-                raise BizException(SMS_SEND_ERROR_FORMAT.format(text), f"发送短信接口调用失败！{text}")
+                raise BizException(SMS_SEND_ERROR, f"发送短信接口调用失败！{response}")
+            data = json.loads(response.text)
+            if data.get("code") != "000000":
+                raise BizException(SMS_SEND_ERROR_FORMAT.format(data.get("msg")), f"发送短信接口调用失败！{data}")
+        except BizException:
+            raise
         except Exception as e:
-            raise BizException(SMS_SEND_ERROR, "发送短信接口调用失败！")
+            raise BizException(SMS_SEND_ERROR, "发送短信接口调用失败！{}".format(e))
