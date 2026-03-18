@@ -54,37 +54,52 @@ class ServerManager:
 
     def check(self):
         """检测"""
+        logger.debug("[ServerManager] 健康检查线程 周期10s")
         while True:
             time.sleep(10)
             try:
                 for server in self.server_list:
-                    if not server.health() and server.recover_ing is False:
-                        logger.info(f"{server.name} is not health, start recover")
+                    if server.recover_ing:
+                        continue
+                    if not server.health():
+                        logger.warning(
+                            f"[ServerManager] recover: {server.name}"
+                        )
                         server.recover_ing = True
-                        server.recover()
-                        server.recover_ing = False
+                        try:
+                            server.recover()
+                            logger.debug(
+                                f"[ServerManager] recover 完成 {server.name}"
+                            )
+                        except Exception as ex:
+                            logger.exception(
+                                f"[ServerManager] recover 失败 {server.name}: {ex}"
+                            )
+                        finally:
+                            server.recover_ing = False
             except Exception as e:
-                pass
+                logger.exception(f"[ServerManager] check 异常: {e}")
 
     def run(self):
-        # 1. 先启动code核心的非异步
+        logger.info("[ServerManager] 启动 CORE 子进程")
         for c_server in self.server_list:
             if not c_server.run_is_async and c_server.level == ServerLevel.CORE:
+                logger.debug(f"[ServerManager] CORE {c_server.name}")
                 c_server.run()
 
         def async_run():
             while not self.svc.route_server_is_start:
                 time.sleep(1)
-
-            # 2. 启动普通的的非异步
+            logger.info("[ServerManager] 启动 NORMAL 子进程")
             for n_server in self.server_list:
                 if not n_server.run_is_async and n_server.level == ServerLevel.NORMAL:
+                    logger.debug(f"[ServerManager] NORMAL {n_server.name}")
                     n_server.run()
-
-            # 3. 启动异步
+            logger.info("[ServerManager] 提交异步守护任务")
             with ThreadPoolExecutor() as pool:
                 for a_server in self.server_list:
                     if a_server.run_is_async:
+                        logger.debug(f"[ServerManager] async {a_server.name}")
                         pool.submit(a_server.run)
 
         threading.Thread(target=async_run, daemon=True).start()

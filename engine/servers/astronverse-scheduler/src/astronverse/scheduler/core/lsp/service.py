@@ -145,12 +145,12 @@ def get_compatible_session(session_options: SessionOptions = None) -> Optional[S
 
     keys_to_pick = ["locale", "project_id", "config_overrides"]
     requested_options = {k: getattr(session_options, k) for k in keys_to_pick}
-    logger.info("Requested options: %s", json.dumps(requested_options))
+    logger.info("Requested options: {}", json.dumps(requested_options))
 
     def find_session(sessions: list[Session]) -> Optional[Session]:
         for index, session in enumerate(sessions):
             existing_options = {k: getattr(session.options, k) for k in keys_to_pick}
-            logger.info("Existing options: %s", json.dumps(existing_options))
+            logger.info("Existing options: {}", json.dumps(existing_options))
 
             if requested_options != existing_options:
                 continue
