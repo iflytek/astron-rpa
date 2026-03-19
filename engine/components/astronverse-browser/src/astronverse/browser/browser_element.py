@@ -196,8 +196,6 @@ class BrowserElement:
                     cur_target_app=browser_obj.browser_type.value,
                     scroll_into_center=scroll_into_center,
                 )
-                if isinstance(element.rect(), list):
-                    raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
 
                 # 点击
                 center = element.point()
@@ -353,8 +351,6 @@ class BrowserElement:
                 cur_target_app=browser_obj.browser_type.value,
                 scroll_into_center=scroll_into_center,
             )
-            if isinstance(element.rect(), list):
-                raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
 
             # 点击
             center = element.point()
@@ -408,8 +404,6 @@ class BrowserElement:
             cur_target_app=browser_obj.browser_type.value,
             scroll_into_center=scroll_into_center,
         )
-        if isinstance(element.rect(), list):
-            raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
         element.move()
 
     @staticmethod
@@ -484,9 +478,9 @@ class BrowserElement:
         """元素位置截图"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
         element = locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(element.rect(), list):
-            raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
 
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
@@ -854,17 +848,15 @@ class BrowserElement:
         # 定位滑块和滑条元素
         # 滑块（要拖动的元素）
         element = locator.locator(element_slider.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(element.rect(), list):
-            raise BizException(SLIDER_ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
         element = locator.locator(
             element_progress.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
         )
-        if isinstance(element.rect(), list):
-            raise BizException(TRACK_ELEMENT_NOT_UNIQUE, "滑轨元素定位不唯一，请检查！")
         progress_rect = element.rect()
+        if isinstance(progress_rect, list):
+            progress_rect = progress_rect[-1]
 
         # 计算滑条的尺寸和位置
         progress_left = progress_rect.left

@@ -29,7 +29,7 @@ class WEBLocator(ILocator):
         self.__rect = rect
         self.__rects = rects
 
-    def rect(self) -> Optional[Rect]:
+    def rect(self) -> Optional[Rect, List[Rect]]:
         if self.__rects is not None and len(self.__rects) > 0:
             return self.__rects
         return self.__rect
