@@ -19,10 +19,11 @@ class Flow:
 
     def gen_component(self, path: str, project_id: str, mode: str, version: str):
         """遍历组件列表，为每个组件生成独立目录、main 入口并注册组件信息。"""
-        os.makedirs(path, exist_ok=True)
         component_list = self.svc.storage.component_list(project_id=project_id, mode=mode, version=version)
         if not component_list:
             return
+
+        os.makedirs(path, exist_ok=True)
 
         # 并发生成所有组件
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
