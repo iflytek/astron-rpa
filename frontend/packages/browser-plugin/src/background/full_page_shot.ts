@@ -4,7 +4,7 @@ const scale = 1
 const quality = 92
 const format = 'jpeg'
 export async function captureFullPage(tab: chrome.tabs.Tab) {
-  const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
+  const isFirefox = Utils.isFirefox()
   let data
 
   if (isFirefox) {

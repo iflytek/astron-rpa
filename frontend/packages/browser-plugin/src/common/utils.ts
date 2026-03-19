@@ -19,6 +19,10 @@ export const Utils = {
     return '$unknown$'
   },
 
+  isFirefox() {
+    return this.getNavigatorUserAgent() === '$firefox$'
+  },
+
   async wait(seconds: number) {
     return new Promise((resolve) => {
       setTimeout(resolve, seconds * 1000)
@@ -315,7 +319,7 @@ export const Utils = {
       })
     }
     let xpath = ''
-    let checkedDirIndex = 0
+    let checkedDirIndex = -1
     for (let i = 0; i < dirs.length; i++) {
       const dir = dirs[i]
       if (dir.checked) {
@@ -335,17 +339,70 @@ export const Utils = {
           })
           .join(' and ')
         const segment = attrs ? `${dir.tag}[${attrs}]` : dir.tag
-        let prefix = '/'
+        let separator = '/'
         if (i === 0) {
-          prefix = dir.tag === 'html' ? '/' : '//'
+          separator = dir.tag === 'html' ? '/' : '//'
         }
         if (Math.abs(i - checkedDirIndex) > 1) {
-          prefix = '//'
+          separator = '//'
         }
-        xpath += `${prefix}${segment}`
+        xpath += `${separator}${segment}`
         checkedDirIndex = i
       }
     }
     return xpath
+  },
+
+  generateCssSelector(dirs: ElementDirectory[]): string {
+    if (dirs && dirs.length === 0) {
+      return ''
+    }
+
+    let selector = ''
+    let checkedDirIndex = -1
+
+    for (let i = 0; i < dirs.length; i++) {
+      const dir = dirs[i]
+      if (dir.checked) {
+        let segment = dir.tag
+
+        // Process attributes - only index and class, only type 1
+        dir.attrs.forEach((attr) => {
+          if (attr.checked && attr.type === 1 && attr.value) {
+            const attrValue = `${attr.value}`.trim()
+            if (attr.name === 'index' && attrValue !== '') {
+              // Use nth-child for index (CSS uses 1-based indexing)
+              segment += `:nth-child(${attrValue})`
+            }
+            else if (attr.name === 'class' && attrValue !== '') {
+              // For class, split by spaces and add each class
+              const classes = attrValue.split(/\s+/).filter(c => c.trim() !== '')
+              classes.forEach((className) => {
+                segment += `.${className}`
+              })
+            }
+          }
+        })
+
+        // Determine separator
+        let separator = ''
+        if (i === 0) {
+          separator = ''
+        }
+        else if (Math.abs(i - checkedDirIndex) === 1) {
+          // Adjacent checked elements, use > (direct child)
+          separator = ' > '
+        }
+        else if (Math.abs(i - checkedDirIndex) > 1) {
+          // Not adjacent, use space (descendant selector)
+          separator = ' '
+        }
+
+        selector += `${separator}${segment}`
+        checkedDirIndex = i
+      }
+    }
+
+    return selector.trim()
   },
 }

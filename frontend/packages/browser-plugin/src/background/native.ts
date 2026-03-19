@@ -6,7 +6,7 @@ import { NATIVE_HOST_NAME } from '../common/constant'
 import { Utils } from '../common/utils'
 
 let port: chrome.runtime.Port | null = null
-const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
+const isFirefox = Utils.isFirefox()
 /**
  * Establishes a connection to the native messaging host.
  */

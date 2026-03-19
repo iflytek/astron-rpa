@@ -1047,6 +1047,7 @@ const ContentHandler = {
       const { frameId } = data
       console.log(`rpa_debugger_on:${frameId}`) // !!! Do not delete. Rely on this code to determine which frame chrome.debugger is injected into
       currentFrameInfo.frameId = frameId
+      document.documentElement.dataset.astronFrameId = String(frameId)
       tagFrames()
       return currentFrameInfo
     },
