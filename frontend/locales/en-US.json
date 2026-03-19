@@ -14,7 +14,7 @@
   "accountNotEmpty": "Account cannot be empty!",
   "acquiredAfterSeconds": "{{second}}s",
   "activateNow": "Activate Now",
-  "actuator": "Actuator",
+  "actuator": "Robot",
   "addBreakpoint": "Add breakpoint",
   "addCustomCondition": "Add custom conditions",
   "addParameter": "Add Parameter",
@@ -73,6 +73,7 @@
     "systemUpgradedResetPwd": "System upgraded, please reset password"
   },
   "authForm": {
+    "enterEmail": "Enter your email (optional)",
     "accountPlaceholder": "Enter account (phone number)",
     "loginNamePlaceholder": "Enter your name",
     "passwordPlaceholder": "Enter password",
@@ -378,7 +379,10 @@
       "loginFailed": "Login failed",
       "enterSpaceFailed": "Failed to enter space",
       "registerSuccess": "Register successful",
-      "and": " and "
+      "and": " and ",
+      "expirationDateLabel": "Expiration Date:",
+      "expiringSoon": "Expiring Soon",
+      "upgradeProEnterprise": "Upgrade to Pro/Enterprise"
     },
     "richText": {
       "table": "Table",
@@ -698,7 +702,7 @@
   "envLoading": "Environment loading",
   "equipment": "Equipment",
   "errorType": "Error type",
-  "excellenceCenter": "Excellence Center",
+  "excellenceCenter": "Console",
   "exceptionHandling": "Exception",
   "excuteCondition": "Execute Condition",
   "executeOrder": "Execute Order",
