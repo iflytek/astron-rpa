@@ -203,8 +203,6 @@ class Atomic(Node):
                 continue  # 这些由外层处理，不传给 atomic_run
             else:
                 modified_arguments.append(param.show())
-        # 添加标记，告诉 atomic_run 跳过 START 上报
-        modified_arguments.append("__in_external_retry__=True")
 
         # 生成函数调用代码
         src = self.token.value.get("src")
@@ -274,7 +272,6 @@ class Atomic(Node):
                 continue
             else:
                 modified_arguments.append(param.show())
-        modified_arguments.append("__in_external_retry__=True")
 
         # 生成函数调用代码
         src = self.token.value.get("src")
