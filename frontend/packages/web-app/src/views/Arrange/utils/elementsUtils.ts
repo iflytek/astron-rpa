@@ -366,7 +366,7 @@ class WebElementFormatStrategy extends BaseElementFormatStrategy {
     // 区分 iframePathDirs 和 pathDirs
     let lastIframeIndex = data.findLastIndex(item => IFRAME_NODES.includes(item.tag))
     if (lastIframeIndex === data.length - 1) { // iframe是最后一个节点, 当做普通节点
-      lastIframeIndex = data.slice(0, data.length - 2).findLastIndex(item => IFRAME_NODES.includes(item.tag))
+      lastIframeIndex = data.slice(0, data.length - 1).findLastIndex(item => IFRAME_NODES.includes(item.tag))
     }
     const iframePathDirs = lastIframeIndex !== -1 ? recoverDirs(data.slice(0, lastIframeIndex + 1)) : []
     const pathDirs = recoverDirs(data.slice(lastIframeIndex + 1))

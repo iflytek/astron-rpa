@@ -374,11 +374,6 @@
 
 ```json
 // 注入并执行 JavaScript
-
-#### JavaScript 执行示例
-
-```json
-// 注入并执行 JavaScript
 {
     "browser_type": "chrome",
     "data": {
