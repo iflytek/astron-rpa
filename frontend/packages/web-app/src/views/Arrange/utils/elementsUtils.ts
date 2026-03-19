@@ -337,7 +337,7 @@ class WebElementFormatStrategy extends BaseElementFormatStrategy {
    * @param data 格式化后的数据
    * @returns 恢复后的对象 { pathDirs: DirectoryItem[], iframePathDirs?: DirectoryItem[] }，其中 pathDirs 和 iframePathDirs 都是恢复后的目录数组
    */
-  override recoverDirectory(data: DirectoryItem[]){
+  override recoverDirectory(data: DirectoryItem[]) {
     if (!data)
       return []
 
@@ -364,7 +364,10 @@ class WebElementFormatStrategy extends BaseElementFormatStrategy {
     }
 
     // 区分 iframePathDirs 和 pathDirs
-    const lastIframeIndex = data.findLastIndex(item => IFRAME_NODES.indexOf(item.tag) !== -1)
+    let lastIframeIndex = data.findLastIndex(item => IFRAME_NODES.includes(item.tag))
+    if (lastIframeIndex === data.length - 1) { // iframe是最后一个节点, 当做普通节点
+      lastIframeIndex = data.slice(0, data.length - 1).findLastIndex(item => IFRAME_NODES.includes(item.tag))
+    }
     const iframePathDirs = lastIframeIndex !== -1 ? recoverDirs(data.slice(0, lastIframeIndex + 1)) : []
     const pathDirs = recoverDirs(data.slice(lastIframeIndex + 1))
     return { pathDirs, iframePathDirs }

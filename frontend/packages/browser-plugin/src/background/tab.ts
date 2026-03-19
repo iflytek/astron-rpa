@@ -4,7 +4,7 @@ import { Utils } from '../common/utils'
 import { Debugger } from './debugger'
 import { captureArea, captureFullPage } from './full_page_shot'
 
-const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
+const isFirefox = Utils.isFirefox()
 
 export const Tabs = {
   query: (queryInfo): Promise<chrome.tabs.Tab[]> => {
@@ -148,27 +148,21 @@ export const Tabs = {
     return Promise.all(promises)
   },
   /**
-   *  Executes a script in a specific frame of a tab using the Debugger API.
-   * @param tabId - The ID of the tab containing the frame.
-   * @param frameId - The ID of the frame where the script will be executed.
-   * @param code - The JavaScript code to be executed as a string.
-   * @returns A promise that resolves with the result of the script execution.
+   * Executes JavaScript code in a specified frame of a tab, only for Chromium-based browsers.
    */
-  executeScriptOnFrame: (
+  executeScriptOnFrame: async (
     tabId: number,
     frameId: number,
     code: string,
   ): Promise<unknown> => {
-    return new Promise((resolve, reject) => {
-      Debugger.evaluate(tabId, code, frameId)
-        .then((result) => {
-          resolve(result)
-        })
-        .catch((error) => {
-          Debugger.detachDebugger(tabId)
-          reject(error)
-        })
-    })
+    try {
+      await Tabs.getAllFrames(tabId)
+      return await Debugger.evaluate(tabId, code, frameId)
+    }
+    catch (error) {
+      await Debugger.detachDebugger(tabId)
+      throw new Error(`Error executing script on frame ${frameId}: ${error.message}`)
+    }
   },
   /**
    * Runs JavaScript code in a specified tab and frame, handling differences between Firefox and other browsers.
@@ -516,9 +510,6 @@ export const Tabs = {
         resolve(true)
       })
     })
-  },
-  getFrameTree: (tabId: number) => {
-    return Debugger.getFrameTree(tabId)
   },
   printPage: (tabId: number, options) => {
     return Debugger.printToPDF(tabId, { printBackground: true, ...options })

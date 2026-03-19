@@ -1,3 +1,5 @@
+import { Utils } from '../common/utils'
+
 /**
  * Determine whether elements are similar based on the element information.
  * If they are similar, return the information of similar elements
@@ -6,11 +8,16 @@ export function getSimilarElement(preElementInfo: ElementInfo, currentElementInf
   if (!isSimilarElement(preElementInfo, currentElementInfo)) {
     return false
   }
-  const xpath = generateSimilarXapth(preElementInfo.xpath, currentElementInfo.xpath)
-
-  const cssSelector = generateSimilarSelector(preElementInfo.cssSelector, currentElementInfo.cssSelector)
 
   const pathDirs = generateSimilarPathDirs(preElementInfo.pathDirs, currentElementInfo.pathDirs)
+  const xpath = Utils.generateXPath(pathDirs)
+  let cssSelector = ''
+  if (!preElementInfo.shadowRoot) {
+    cssSelector = Utils.generateCssSelector(pathDirs)
+  }
+  else {
+    cssSelector = generateSimilarSelector(preElementInfo.cssSelector, currentElementInfo.cssSelector)
+  }
 
   const similarElementInfo = { ...preElementInfo, xpath, cssSelector, pathDirs }
   return similarElementInfo
@@ -30,16 +37,18 @@ export function getSimilarElement(preElementInfo: ElementInfo, currentElementInf
  * @returns `true` if the elements are considered similar; otherwise, `false`.
  */
 function isSimilarElement(preElementInfo: ElementInfo, currentElementInfo: ElementInfo) {
-  const { cssSelector, pathDirs } = preElementInfo
-  const { cssSelector: currentCssSelector, pathDirs: currentPathDirs } = currentElementInfo
-  const cssSelectorArr = cssSelector.split('>')
-  const currentCssSelectorArr = currentCssSelector.split('>')
+  const { pathDirs } = preElementInfo
+  const { pathDirs: currentPathDirs } = currentElementInfo
 
   if (preElementInfo.url !== currentElementInfo.url) {
     return false
   }
 
-  if (cssSelectorArr.length !== currentCssSelectorArr.length) {
+  if (preElementInfo.shadowRoot !== currentElementInfo.shadowRoot) {
+    return false
+  }
+
+  if (preElementInfo.isFrame !== currentElementInfo.isFrame) {
     return false
   }
 
@@ -56,30 +65,6 @@ function isSimilarElement(preElementInfo: ElementInfo, currentElementInfo: Eleme
   }
 
   return true
-}
-
-/**
- * Generates a similar XPath by comparing two XPath strings and modifying the differing segments.
- * If the two XPaths are identical, returns the original XPath.
- * For each segment that differs, removes any index (e.g., `[1]`) from the segment in the first XPath.
- *
- * @param preXpath - The base XPath string to be modified.
- * @param currentXpath - The XPath string to compare against.
- * @returns A new XPath string with differing segments normalized (index removed).
- */
-function generateSimilarXapth(preXpath: string, currentXpath: string) {
-  if (preXpath === currentXpath) {
-    return preXpath
-  }
-  const preXpathArr = preXpath.split('/')
-  const currentXpathArr = currentXpath.split('/')
-  for (let i = 0; i < preXpathArr.length; i++) {
-    if (preXpathArr[i] !== currentXpathArr[i]) {
-      preXpathArr[i] = preXpathArr[i]?.split('[')[0]
-    }
-  }
-  const xpath = preXpathArr.join('/')
-  return xpath
 }
 
 /**
@@ -131,6 +116,9 @@ function generateSimilarPathDirs(prePathDirs: Array<ElementDirectory>, currentPa
   for (let i = prePathDirs.length - 1; i >= 0; i--) {
     const prePathDir = prePathDirs[i]
     const currentPathDir = currentPathDirs[i]
+    if (prePathDir.checked !== currentPathDir.checked) {
+      prePathDir.checked = true
+    }
     prePathDir.attrs.forEach((attr) => {
       const currentAttr = currentPathDir.attrs.find(item => item.name === attr.name)
       if (!currentAttr) {

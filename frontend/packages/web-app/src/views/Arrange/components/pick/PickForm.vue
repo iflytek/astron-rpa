@@ -104,6 +104,7 @@ defineExpose({
 .label-form {
   color: var(--color-text-secondary);
   font-size: 12px;
+  width: 50%;
 }
 
 .ant-form-item {

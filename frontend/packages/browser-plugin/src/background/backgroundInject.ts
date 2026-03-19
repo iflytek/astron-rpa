@@ -4,7 +4,8 @@ import { Utils } from '../common/utils'
 
 import { Cookie } from './cookie'
 import DataTable from './data_table'
-import { adjustPosition, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
+import { Debugger } from './debugger'
+import { adjustPosition, buildFrameTree, calculateAbsolutePosition, findTabAndFrame, getFramePath, getIframeElement } from './iframe'
 import * as NetworkMonitor from './network_monitor'
 import { getSimilarElement, isSameIdStart } from './similar'
 import { Tabs } from './tab'
@@ -169,18 +170,6 @@ const Handlers = {
           return Utils.fail(lastError.message, StatusCode.EXECUTE_ERROR)
         }
       },
-      async executeScriptOnFrame(params) {
-        const { url, code } = params.data
-        const tab = await Tabs.getActiveTab()
-        if (!tab) {
-          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
-        }
-        const frames = await Tabs.getAllFrames(tab.id)
-        const frame = frames.find(frame => frame.url === url)
-        const frameId = frame ? frame.frameId : 0
-        const res = await Tabs.executeScriptOnFrame(tab.id, frameId, code)
-        return Utils.success(res)
-      },
       async getTitle() {
         const title = await Tabs.getTitle()
         return Utils.success(title)
@@ -253,8 +242,9 @@ const Handlers = {
         if (!tab) {
           return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
         }
-        const res = await Tabs.getFrameTree(tab.id)
-        return Utils.success(res)
+        const frames = await Tabs.getAllFrames(tab.id)
+        const frameTree = buildFrameTree(frames)
+        return Utils.success(frameTree)
       },
       async printPage(params: PrintOptions) {
         const tab = await Tabs.getActiveTab()
@@ -291,7 +281,7 @@ const Handlers = {
           return Utils.success(mergedInfo)
         }
         catch (error) {
-          console.log('ignore getOuterHTML error: ', error)
+          log.error('getOuterHTML error: ', error)
           const elementInfo = globalThis.activeElement
           return Utils.success(elementInfo)
         }
@@ -696,6 +686,30 @@ const Handlers = {
         return Utils.success(true)
       },
       contentInject() {
+        return Utils.success(true)
+      },
+      async startDebugger() {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        const isFirefox = Utils.isFirefox()
+        if (!isFirefox) {
+          await Debugger.attachDebugger(tab.id)
+          await Debugger.enableRuntime(tab.id)
+          await Debugger.setupAutoAttach(tab.id)
+        }
+        return Utils.success(true)
+      },
+      async stopDebugger() {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        const isFirefox = Utils.isFirefox()
+        if (!isFirefox) {
+          await Debugger.detachDebugger(tab.id)
+        }
         return Utils.success(true)
       },
     }
