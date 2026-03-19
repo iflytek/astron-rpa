@@ -205,13 +205,13 @@ def install_from_source(cfg: OpenclawConfig, env: dict[str, str], *, dry_run: bo
 
     package_json = cfg.source_root / "package.json"
     if not _is_source_root_empty(cfg) and package_json.exists():
-        logger.info("skip source bootstrap install because package.json already exists: %s", package_json)
+        logger.info("skip source bootstrap install because package.json already exists: {}", package_json)
         return []
 
     bootstrap_command = [pnpm_command, "install", "openclaw"]
 
     path_key = next((k for k in env if k.upper() == "PATH"), "PATH")
-    logger.info("install_from_source PATH[%s]=%s", path_key, env.get(path_key, "<unset>"))
+    logger.info("install_from_source PATH[{}]={}", path_key, env.get(path_key, "<unset>"))
 
     changes = [f"run bootstrap install: {' '.join(bootstrap_command)}"]
     if dry_run:
@@ -312,12 +312,12 @@ def run_cli(
         dry_run=dry_run,
     )
 
-    logger.info("mode=%s", prepared.mode)
-    logger.info("command=%s", " ".join(_mask_command(prepared.command)))
+    logger.info("mode={}", prepared.mode)
+    logger.info("command={}", " ".join(_mask_command(prepared.command)))
     for c in prepared.install_changes:
-        logger.info("install=%s", c)
+        logger.info("install={}", c)
     for c in prepared.sync_changes:
-        logger.info("sync=%s", c)
+        logger.info("sync={}", c)
 
     if dry_run:
         return None
@@ -355,16 +355,16 @@ def launch(
         dry_run=dry_run,
     )
 
-    logger.info("bundled_runtime=%s", _has_bundled_source_runtime(cfg))
-    logger.info("existing_state=%s", detect_existing_state(cfg))
-    logger.info("openclaw_home=%s", cfg.openclaw_home)
-    logger.info("workspace=%s", cfg.default_workspace)
+    logger.info("bundled_runtime={}", _has_bundled_source_runtime(cfg))
+    logger.info("existing_state={}", detect_existing_state(cfg))
+    logger.info("openclaw_home={}", cfg.openclaw_home)
+    logger.info("workspace={}", cfg.default_workspace)
     for c in prepared.install_changes:
-        logger.info("install=%s", c)
+        logger.info("install={}", c)
     for c in prepared.sync_changes:
-        logger.info("sync=%s", c)
-    logger.info("mode=%s", prepared.mode)
-    logger.info("command=%s", " ".join(_mask_command(prepared.command)))
+        logger.info("sync={}", c)
+    logger.info("mode={}", prepared.mode)
+    logger.info("command={}", " ".join(_mask_command(prepared.command)))
 
     if dry_run:
         return None

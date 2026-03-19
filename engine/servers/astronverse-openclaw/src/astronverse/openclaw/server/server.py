@@ -387,7 +387,7 @@ def _load_json_file(path) -> dict[str, Any] | None:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
-        logger.warning("读取 JSON 失败: %s, error=%s", path, exc)
+        logger.warning("读取 JSON 失败: {}, error={}", path, exc)
         return None
 
 
@@ -626,7 +626,7 @@ async def launch_openclaw(args: list[str] | None = None):
             },
         }
     except LauncherError as exc:
-        logger.error("启动 OpenClaw 失败: %s", exc)
+        logger.error("启动 OpenClaw 失败: {}", exc)
         return {"code": 500, "message": f"启动失败: {exc}"}
 
 
@@ -637,7 +637,7 @@ async def stop_openclaw():
     if pid is None:
         return {"code": 200, "message": "OpenClaw 未在运行"}
 
-    logger.info("OpenClaw 进程已停止, pid=%s", pid)
+    logger.info("OpenClaw 进程已停止, pid={}", pid)
     return {"code": 200, "message": "OpenClaw 已停止", "data": {"pid": pid}}
 
 
@@ -648,7 +648,7 @@ async def sync_files():
         changes = sync_prepared_files(config)
         return {"code": 200, "message": "同步完成", "data": {"changes": changes}}
     except Exception as exc:
-        logger.error("同步失败: %s", exc)
+        logger.error("同步失败: {}", exc)
         return {"code": 500, "message": f"同步失败: {exc}"}
 
 
@@ -660,7 +660,7 @@ async def install():
         changes = install_from_source(config, env)
         return {"code": 200, "message": "安装完成", "data": {"changes": changes}}
     except LauncherError as exc:
-        logger.error("安装失败: %s", exc)
+        logger.error("安装失败: {}", exc)
         return {"code": 500, "message": f"安装失败: {exc}"}
 
 
@@ -687,7 +687,7 @@ async def onboard(payload: OnboardRequest):
         command = _build_onboard_command(payload)
         result = run_cli(command, config, ensure_state=True, timeout=300)
     except LauncherError as exc:
-        logger.error("onboard 参数错误: %s", exc)
+        logger.error("onboard 参数错误: {}", exc)
         return {"code": 400, "message": str(exc)}
     except subprocess.TimeoutExpired:
         logger.error("onboard 执行超时")
@@ -697,7 +697,7 @@ async def onboard(payload: OnboardRequest):
         return {"code": 500, "message": "onboard 未执行"}
 
     if result.returncode != 0:
-        logger.error("onboard 失败: stdout=%s stderr=%s", result.stdout, result.stderr)
+        logger.error("onboard 失败: stdout={} stderr={}", result.stdout, result.stderr)
         detail = (result.stderr or result.stdout or "未知错误").strip()
         return {
             "code": 500,
@@ -712,14 +712,14 @@ async def onboard(payload: OnboardRequest):
     was_running = _is_process_alive()
     if payload.restart_if_running and was_running:
         stopped_pid = _stop_managed_process()
-        logger.info("onboard 完成后重启 OpenClaw, old_pid=%s", stopped_pid)
+        logger.info("onboard 完成后重启 OpenClaw, old_pid={}", stopped_pid)
         try:
             forward_args = list(_openclaw_forward_args) if _openclaw_forward_args else list(config.default_args)
             _openclaw_process = launch(config, forward_args=forward_args)
             restart_pid = _openclaw_process.pid if _openclaw_process else None
             restarted = True
         except LauncherError as exc:
-            logger.error("onboard 后重启失败: %s", exc)
+            logger.error("onboard 后重启失败: {}", exc)
             return {
                 "code": 500,
                 "message": f"配置已写入，但重启失败: {exc}",
@@ -762,5 +762,5 @@ async def resolve(args: str = "gateway"):
 async def on_shutdown():
     """服务关闭时，清理 OpenClaw 子进程。"""
     if _is_process_alive():
-        logger.info("服务关闭，停止 OpenClaw 进程 pid=%s", _openclaw_process.pid)
+        logger.info("服务关闭，停止 OpenClaw 进程 pid={}", _openclaw_process.pid)
         _stop_managed_process(timeout=5, kill_timeout=5)

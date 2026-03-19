@@ -13,7 +13,7 @@ if __name__ == "__main__":
     config.port = int(args.port)
     config.host = args.host
 
-    logger.info("start astronverse-openclaw %s", args)
+    logger.info("start astronverse-openclaw {}", args)
 
     import uvicorn
 
