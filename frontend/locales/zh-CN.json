@@ -1267,7 +1267,10 @@
       "loginFailed": "登录失败",
       "enterSpaceFailed": "进入空间失败",
       "registerSuccess": "注册账号成功",
-      "and": "和"
+      "and": "和",
+      "expirationDateLabel": "到期时间：",
+      "expiringSoon": "即将到期",
+      "upgradeProEnterprise": "开通专业版/企业版"
     },
     "richText": {
       "table": "表格",
@@ -1588,6 +1591,7 @@
     "systemUpgradedResetPwd": "系统已升级，请重新设置密码"
   },
   "authForm": {
+    "enterEmail": "请输入您的邮箱(非必填)",
     "accountPlaceholder": "请输入账号(手机号)",
     "loginNamePlaceholder": "请输入您的姓名",
     "passwordPlaceholder": "请输入密码",
