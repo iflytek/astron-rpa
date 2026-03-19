@@ -49,7 +49,19 @@ export const routes: RouteRecordRaw[] = [
       illustration: 'robot1',
       permission: false,
     },
-    component: AstronAssistantComponent,
+    redirect: `/${AIASSISTANT}/chat`,
+    component: HomeComponent,
+    children: [
+      {
+        path: 'chat',
+        name: `${AIASSISTANT}Chat`,
+        meta: {
+          group: AIASSISTANT,
+          notMenu: true,
+        },
+        component: AstronAssistantComponent,
+      },
+    ],
   },
   {
     path: `/${ARRANGE}`,

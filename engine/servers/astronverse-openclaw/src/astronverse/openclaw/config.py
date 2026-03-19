@@ -70,8 +70,20 @@ class OpenclawConfig:
         return self.binary_root / "node" / "node.exe"
 
     @property
+    def bundled_npm(self) -> Path:
+        return self.binary_root / "node" / "npm.cmd"
+
+    @property
+    def bundled_npx(self) -> Path:
+        return self.binary_root / "node" / "npx.cmd"
+
+    @property
     def bundled_pnpm(self) -> Path:
         return self.binary_root / "pnpm" / "pnpm.exe"
+
+    @property
+    def runtime_shim_root(self) -> Path:
+        return self.openclaw_home / ".runtime-shims"
 
 
 config = OpenclawConfig()

@@ -1,4 +1,5 @@
 import { app, ipcMain, protocol, session } from 'electron'
+import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import type { W2WType } from '../types'
@@ -224,6 +225,33 @@ ipcMain.handle('approve_openclaw_device_request', (_event, requestId: string) =>
   return approveOpenClawDeviceRequest(requestId)
 })
 
-ipcMain.handle('openclaw_chat_completion', (_event, params: { messages: Array<{ role: 'system' | 'developer' | 'user' | 'assistant' | 'tool', content: string }> }) => {
+ipcMain.handle('openclaw_chat_completion', (_event, params: {
+  messages: Array<{ role: 'system' | 'developer' | 'user' | 'assistant' | 'tool', content: string }>
+  sessionKey?: string
+  attachments?: Array<{ type: 'image', mimeType: string, fileName?: string, content: string }>
+  allowCliFallback?: boolean
+}) => {
   return openclawChatCompletion(params)
+})
+
+ipcMain.handle('openclaw_read_local_file', async (_event, params: { path: string, mode: 'text' | 'data-url' }) => {
+  const filePath = params?.path?.trim()
+  if (!filePath)
+    throw new Error('Local file path is required')
+
+  const mode = params?.mode === 'data-url' ? 'data-url' : 'text'
+  const buffer = await readFile(filePath)
+
+  if (mode === 'text') {
+    return {
+      textContent: buffer.toString('utf-8'),
+    }
+  }
+
+  const extension = path.extname(filePath).toLowerCase()
+  const mimeType = extension === '.pdf' ? 'application/pdf' : 'application/octet-stream'
+  return {
+    mimeType,
+    base64: buffer.toString('base64'),
+  }
 })

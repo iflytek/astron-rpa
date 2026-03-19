@@ -7,7 +7,7 @@ import { useRoute } from 'vue-router'
 import MarketSiderMenu from '@/components/MarketSiderMenu.vue'
 import SiderMenu from '@/components/SiderMenu.vue'
 import { COMMON_SIDER_WIDTH } from '@/constants'
-import { APPLICATIONMARKET } from '@/constants/menu'
+import { AIASSISTANT, APPLICATIONMARKET } from '@/constants/menu'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
 
@@ -19,16 +19,20 @@ const { appInfo } = storeToRefs(appStore)
 const isMarket = computed(() => {
   return route.matched[0].name === APPLICATIONMARKET
 })
+
+const showSider = computed(() => {
+  return route.matched[0].name !== AIASSISTANT
+})
 </script>
 
 <template>
-  <div class="flex">
-    <MarketSiderMenu v-if="isMarket" />
-    <SiderMenu v-else />
-    <div class="absolute bottom-[20px] left-0" :style="{ width: `${COMMON_SIDER_WIDTH}px` }">
+  <div class="flex h-full min-h-0">
+    <MarketSiderMenu v-if="showSider && isMarket" />
+    <SiderMenu v-else-if="showSider" />
+    <div v-if="showSider" class="absolute bottom-[20px] left-0" :style="{ width: `${COMMON_SIDER_WIDTH}px` }">
       <Auth.TenantDropdown :auth-type="appInfo.appAuthType" :before-switch="userStore.beforeSwitch" @switch-tenant="userStore.switchTenant" />
     </div>
-    <div class="flex-1 relative">
+    <div class="flex-1 relative h-full min-h-0">
       <router-view />
     </div>
   </div>

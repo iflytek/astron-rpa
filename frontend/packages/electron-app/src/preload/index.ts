@@ -64,12 +64,25 @@ contextBridge.exposeInMainWorld('electron', {
         return false
       }
     },
-    chatCompletions: async (params: { messages: Array<{ role: 'system' | 'developer' | 'user' | 'assistant' | 'tool', content: string }> }) => {
+    chatCompletions: async (params: {
+      messages: Array<{ role: 'system' | 'developer' | 'user' | 'assistant' | 'tool', content: string }>
+      sessionKey?: string
+      attachments?: Array<{ type: 'image', mimeType: string, fileName?: string, content: string }>
+      allowCliFallback?: boolean
+    }) => {
       try {
         return await ipcRenderer.invoke('openclaw_chat_completion', params)
       } catch (err) {
         console.error('Failed to request OpenClaw chat completion:', err)
         throw err
+      }
+    },
+    readLocalFile: async (params: { path: string, mode: 'text' | 'data-url' }) => {
+      try {
+        return await ipcRenderer.invoke('openclaw_read_local_file', params)
+      } catch (err) {
+        console.error('Failed to read local file for OpenClaw:', err)
+        return undefined
       }
     },
   },

@@ -41,6 +41,13 @@ export interface OpenClawChatMessage {
   content: string
 }
 
+export interface OpenClawChatAttachment {
+  type: 'image'
+  mimeType: string
+  fileName?: string
+  content: string
+}
+
 export interface OpenClawToolEvent {
   toolCallId: string
   runId?: string
@@ -90,6 +97,21 @@ function resolveManagedOpenClawPackageRoot() {
 
 function resolveManagedOpenClawSourceDir() {
   return join(resolveManagedOpenClawPackageRoot(), 'openclaw-src')
+}
+
+function resolveManagedNodeBinary() {
+  const packageRoot = resolveManagedOpenClawPackageRoot()
+  const nodeCandidates = [
+    join(packageRoot, 'binary', 'node', 'node.exe'),
+    join(packageRoot, 'binary', 'node', 'node'),
+  ]
+
+  for (const candidate of nodeCandidates) {
+    if (existsSync(candidate))
+      return candidate
+  }
+
+  throw new Error(`Managed OpenClaw node executable not found under: ${packageRoot}`)
 }
 
 function buildManagedOpenClawEnv() {
@@ -364,6 +386,60 @@ function extractTextFromAgentCliResult(result: any): string {
   return extractTextFromMessage(result.message ?? result.result?.message)
 }
 
+function extractToolEventsFromMessage(message: any, fallbackTs: number): OpenClawToolEvent[] {
+  if (!message || typeof message !== 'object' || !Array.isArray(message.content))
+    return []
+
+  const timestamp = typeof message.timestamp === 'number' ? message.timestamp : fallbackTs
+  const runId = typeof message.runId === 'string' ? message.runId : undefined
+  const messageToolCallId = typeof message.toolCallId === 'string' ? message.toolCallId : ''
+  const blocks = message.content as any[]
+
+  const callEvents = blocks
+    .map((item, index) => {
+      const type = typeof item?.type === 'string' ? item.type.toLowerCase() : ''
+      const isToolCall = ['toolcall', 'tool_call', 'tooluse', 'tool_use'].includes(type)
+        || (typeof item?.name === 'string' && item?.arguments != null)
+
+      if (!isToolCall)
+        return null
+
+      return {
+        toolCallId: messageToolCallId || `${runId ?? 'tool'}:call:${index}`,
+        runId,
+        name: typeof item.name === 'string' ? item.name : 'tool',
+        phase: 'start' as const,
+        args: item.arguments ?? item.args,
+        ts: timestamp,
+      }
+    })
+    .filter(Boolean) as OpenClawToolEvent[]
+
+  const resultEvents = blocks
+    .map((item, index) => {
+      const type = typeof item?.type === 'string' ? item.type.toLowerCase() : ''
+      if (type !== 'toolresult' && type !== 'tool_result')
+        return null
+
+      const matchingCall = callEvents.find(call => call.name === item.name)
+      return {
+        toolCallId: matchingCall?.toolCallId || messageToolCallId || `${runId ?? 'tool'}:result:${index}`,
+        runId,
+        name: typeof item.name === 'string' ? item.name : matchingCall?.name ?? 'tool',
+        phase: 'result' as const,
+        output: typeof item.text === 'string'
+          ? item.text
+          : typeof item.content === 'string'
+            ? item.content
+            : undefined,
+        ts: timestamp,
+      }
+    })
+    .filter(Boolean) as OpenClawToolEvent[]
+
+  return [...callEvents, ...resultEvents]
+}
+
 function extractToolEventsFromChatPayload(payload: any): OpenClawToolEvent[] {
   if (!payload || typeof payload !== 'object')
     return []
@@ -396,6 +472,46 @@ function extractToolEventsFromChatPayload(payload: any): OpenClawToolEvent[] {
   }]
 }
 
+function summarizeToolEvents(events: OpenClawToolEvent[]) {
+  return events.map(event => ({
+    toolCallId: event.toolCallId,
+    runId: event.runId,
+    name: event.name,
+    phase: event.phase,
+    hasArgs: event.args != null,
+    outputLength: typeof event.output === 'string' ? event.output.length : 0,
+    ts: event.ts,
+  }))
+}
+
+function summarizeMessageContent(message: any) {
+  if (!message || typeof message !== 'object') {
+    return {
+      role: undefined,
+      contentType: typeof message?.content,
+      contentBlockTypes: [],
+      textLength: 0,
+    }
+  }
+
+  const content = Array.isArray(message.content) ? message.content : []
+  const text = extractTextFromMessage(message)
+
+  return {
+    role: typeof message.role === 'string' ? message.role : undefined,
+    contentType: Array.isArray(message.content) ? 'array' : typeof message.content,
+    contentBlockTypes: content.map((item: any) => {
+      if (!item || typeof item !== 'object')
+        return typeof item
+      return typeof item.type === 'string' ? item.type : 'object'
+    }),
+    textLength: text.length,
+    toolCallId:
+      typeof message.toolCallId === 'string' ? message.toolCallId : undefined,
+    runId: typeof message.runId === 'string' ? message.runId : undefined,
+  }
+}
+
 function resolveOpenClawPackageDir() {
   const candidate = join(resolveManagedOpenClawSourceDir(), 'node_modules', 'openclaw')
   if (existsSync(join(candidate, 'package.json')))
@@ -409,20 +525,27 @@ async function loadOpenClawGatewayClientCtor(): Promise<OpenClawGatewayClientCto
     return await cachedGatewayClientCtor
 
   cachedGatewayClientCtor = (async () => {
-  applyManagedOpenClawProcessEnv()
-  const packageDir = resolveOpenClawPackageDir()
-  const distDir = join(packageDir, 'dist')
-  const chunk = readdirSync(distDir).find(name => /^auth-profiles-.*\.js$/i.test(name))
-  if (!chunk)
-    throw new Error('OpenClaw gateway runtime chunk not found')
+    applyManagedOpenClawProcessEnv()
+    const packageDir = resolveOpenClawPackageDir()
+    const distDir = join(packageDir, 'dist')
+    const chunk = readdirSync(distDir).find(name => /^auth-profiles-.*\.js$/i.test(name))
+    if (!chunk)
+      throw new Error('OpenClaw gateway runtime chunk not found')
 
-  const mod = await import(pathToFileURL(join(distDir, chunk)).href) as Record<string, unknown>
-  const GatewayClient = mod.bc
+    const mod = await import(pathToFileURL(join(distDir, chunk)).href) as Record<string, unknown>
+    const candidates = Object.values(mod).filter(
+      value => typeof value === 'function',
+    ) as Function[]
+    const GatewayClient = (
+      mod.GatewayClient
+      ?? candidates.find(value => value.name === 'GatewayClient')
+    )
 
-  if (typeof GatewayClient !== 'function')
-    throw new Error('OpenClaw GatewayClient export unavailable')
+    if (typeof GatewayClient !== 'function')
+      throw new Error('OpenClaw GatewayClient export unavailable')
 
-  return GatewayClient as OpenClawGatewayClientCtor
+    logger.info(`Resolved OpenClaw GatewayClient from chunk: ${chunk}`)
+    return GatewayClient as OpenClawGatewayClientCtor
   })()
 
   try {
@@ -434,9 +557,349 @@ async function loadOpenClawGatewayClientCtor(): Promise<OpenClawGatewayClientCto
   }
 }
 
+function buildManagedGatewayBridgeScript() {
+  return String.raw`
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const RESULT_PREFIX = '__OPENCLAW_RESULT__';
+
+function stringifyToolOutput(value) {
+  if (typeof value === 'string')
+    return value.trim() || undefined;
+  if (value == null)
+    return undefined;
+  if (typeof value === 'number' || typeof value === 'boolean')
+    return String(value);
+  if (typeof value === 'object') {
+    if (typeof value.text === 'string' && value.text.trim())
+      return value.text.trim();
+    if (Array.isArray(value.content)) {
+      const text = value.content
+        .map((item) => {
+          if (!item || typeof item !== 'object')
+            return null;
+          if (item.type === 'text' && typeof item.text === 'string')
+            return item.text;
+          return null;
+        })
+        .filter((item) => Boolean(item && item.trim()))
+        .join('\n')
+        .trim();
+      if (text)
+        return text;
+    }
+  }
+  try {
+    return JSON.stringify(value, null, 2);
+  }
+  catch {
+    return String(value);
+  }
+}
+
+function extractTextFromMessage(message) {
+  if (!message || typeof message !== 'object')
+    return '';
+
+  if (typeof message.text === 'string' && message.text.trim())
+    return message.text.trim();
+
+  const content = Array.isArray(message.content) ? message.content : [];
+  return content
+    .map((item) => {
+      if (!item || typeof item !== 'object')
+        return null;
+      if (item.type === 'text' && typeof item.text === 'string')
+        return item.text;
+      return null;
+    })
+    .filter((item) => Boolean(item && item.trim()))
+    .join('\n')
+    .trim();
+}
+
+function extractToolEventsFromMessage(message, fallbackTs) {
+  if (!message || typeof message !== 'object' || !Array.isArray(message.content))
+    return [];
+
+  const timestamp = typeof message.timestamp === 'number' ? message.timestamp : fallbackTs;
+  const runId = typeof message.runId === 'string' ? message.runId : undefined;
+  const messageToolCallId = typeof message.toolCallId === 'string' ? message.toolCallId : '';
+  const blocks = message.content;
+
+  const callEvents = blocks
+    .map((item, index) => {
+      const type = typeof item?.type === 'string' ? item.type.toLowerCase() : '';
+      const isToolCall = ['toolcall', 'tool_call', 'tooluse', 'tool_use'].includes(type)
+        || (typeof item?.name === 'string' && item?.arguments != null);
+
+      if (!isToolCall)
+        return null;
+
+      return {
+        toolCallId: messageToolCallId || (runId || 'tool') + ':call:' + index,
+        runId,
+        name: typeof item.name === 'string' ? item.name : 'tool',
+        phase: 'start',
+        args: item.arguments ?? item.args,
+        ts: timestamp,
+      };
+    })
+    .filter(Boolean);
+
+  const resultEvents = blocks
+    .map((item, index) => {
+      const type = typeof item?.type === 'string' ? item.type.toLowerCase() : '';
+      if (type !== 'toolresult' && type !== 'tool_result')
+        return null;
+
+      const matchingCall = callEvents.find(call => call.name === item.name);
+      return {
+        toolCallId: matchingCall?.toolCallId || messageToolCallId || (runId || 'tool') + ':result:' + index,
+        runId,
+        name: typeof item.name === 'string' ? item.name : (matchingCall?.name ?? 'tool'),
+        phase: 'result',
+        output: typeof item.text === 'string'
+          ? item.text
+          : typeof item.content === 'string'
+            ? item.content
+            : undefined,
+        ts: timestamp,
+      };
+    })
+    .filter(Boolean);
+
+  return [...callEvents, ...resultEvents];
+}
+
+function extractToolEventsFromChatPayload(payload) {
+  if (!payload || typeof payload !== 'object')
+    return [];
+
+  const stream = payload.stream;
+  const data = payload.data;
+  if (stream !== 'tool' || !data || typeof data !== 'object')
+    return [];
+
+  const phase = typeof data.phase === 'string' ? data.phase : '';
+  if (phase !== 'start' && phase !== 'update' && phase !== 'result')
+    return [];
+
+  const toolCallId = typeof data.toolCallId === 'string' ? data.toolCallId : '';
+  if (!toolCallId)
+    return [];
+
+  return [{
+    toolCallId,
+    runId: typeof payload.runId === 'string' ? payload.runId : undefined,
+    name: typeof data.name === 'string' ? data.name : 'tool',
+    phase,
+    args: phase === 'start' ? data.args : undefined,
+    output: phase === 'update'
+      ? stringifyToolOutput(data.partialResult)
+      : phase === 'result'
+        ? stringifyToolOutput(data.result)
+        : undefined,
+    ts: typeof payload.ts === 'number' ? payload.ts : Date.now(),
+  }];
+}
+
+const payload = JSON.parse(process.argv[1] || '{}');
+const packageDir = process.env.OPENCLAW_PACKAGE_DIR;
+const distDir = join(packageDir, 'dist');
+const chunk = readdirSync(distDir).find(name => /^auth-profiles-.*\.js$/i.test(name));
+if (!chunk)
+  throw new Error('OpenClaw gateway runtime chunk not found');
+
+const mod = await import(pathToFileURL(join(distDir, chunk)).href);
+const candidates = Object.values(mod).filter(value => typeof value === 'function');
+const GatewayClient = mod.GatewayClient ?? candidates.find(value => value.name === 'GatewayClient');
+if (typeof GatewayClient !== 'function')
+  throw new Error('OpenClaw GatewayClient export unavailable');
+
+const seenToolEventKeys = new Set();
+const toolEvents = [];
+let latestText = '';
+let settled = false;
+let requestStarted = false;
+const runId = 'astron-' + Date.now();
+
+await new Promise((resolve, reject) => {
+  const settle = (error, result) => {
+    if (settled)
+      return;
+    settled = true;
+    try {
+      client.stop();
+    }
+    catch {}
+    if (error) {
+      reject(error);
+      return;
+    }
+    process.stdout.write(RESULT_PREFIX + JSON.stringify(result) + '\n');
+    resolve();
+  };
+
+  const pushToolEvents = (events) => {
+    for (const event of events) {
+      const key = [
+        event.toolCallId,
+        event.phase,
+        event.name,
+        stringifyToolOutput(event.args) ?? '',
+        event.output ?? '',
+        String(event.ts),
+      ].join('::');
+      if (seenToolEventKeys.has(key))
+        continue;
+      seenToolEventKeys.add(key);
+      toolEvents.push(event);
+    }
+  };
+
+  const timer = setTimeout(() => {
+    settle(new Error('openclaw request timeout'));
+  }, 120000);
+
+  const client = new GatewayClient({
+    token: payload.token,
+    clientName: 'gateway-client',
+    clientDisplayName: 'Astron RPA',
+    mode: 'backend',
+    platform: process.platform,
+    deviceFamily: 'desktop',
+    role: 'operator',
+    scopes: ['operator.read', 'operator.write'],
+    caps: ['tool-events'],
+    onHelloOk: async () => {
+      if (requestStarted)
+        return;
+      requestStarted = true;
+      try {
+        await client.request('chat.send', {
+          sessionKey: payload.sessionKey || 'main',
+          message: payload.text,
+          deliver: false,
+          idempotencyKey: runId,
+          attachments: Array.isArray(payload.attachments) ? payload.attachments : undefined,
+        });
+      }
+      catch (error) {
+        clearTimeout(timer);
+        settle(error instanceof Error ? error : new Error(String(error)));
+      }
+    },
+    onEvent: (evt) => {
+      if (evt?.event !== 'chat' && evt?.event !== 'agent')
+        return;
+
+      const eventPayload = evt?.payload;
+      if (!eventPayload || eventPayload.runId !== runId)
+        return;
+
+      if (evt.event === 'agent') {
+        pushToolEvents(extractToolEventsFromChatPayload(eventPayload));
+        return;
+      }
+
+      const nextText = extractTextFromMessage(eventPayload.message);
+      if (nextText)
+        latestText = nextText;
+
+      if (eventPayload.state === 'error') {
+        clearTimeout(timer);
+        settle(new Error(eventPayload.errorMessage || 'openclaw execution failed'));
+        return;
+      }
+
+      if (eventPayload.state === 'final') {
+        pushToolEvents(extractToolEventsFromMessage(eventPayload.message, Date.now()));
+        clearTimeout(timer);
+        settle(undefined, {
+          text: latestText || '(openclaw returned no content)',
+          toolEvents,
+        });
+      }
+    },
+    onConnectError: (error) => {
+      clearTimeout(timer);
+      settle(error);
+    },
+    onClose: (_code, reason) => {
+      clearTimeout(timer);
+      settle(new Error(reason ? 'openclaw gateway closed: ' + reason : 'openclaw gateway connection closed'));
+    },
+  });
+
+  client.start();
+});
+`
+}
+
+async function runOpenClawGatewayBridge(params: {
+  token: string
+  text: string
+  sessionKey?: string
+  attachments?: OpenClawChatAttachment[]
+}): Promise<OpenClawChatResult> {
+  const nodeBinary = resolveManagedNodeBinary()
+  const packageDir = resolveOpenClawPackageDir()
+  const script = buildManagedGatewayBridgeScript()
+  const payload = JSON.stringify({
+    token: params.token,
+    text: params.text,
+    sessionKey: params.sessionKey,
+    attachments: params.attachments,
+  })
+
+  logger.info(`OpenClaw managed bridge start: sessionKey=${params.sessionKey || 'main'}, attachments=${params.attachments?.length || 0}`)
+
+  const { stdout, stderr } = await execFileAsync(
+    nodeBinary,
+    ['--input-type=module', '-e', script, payload],
+    {
+      encoding: 'utf-8',
+      timeout: 120000,
+      windowsHide: true,
+      env: {
+        ...buildManagedOpenClawEnv(),
+        OPENCLAW_PACKAGE_DIR: packageDir,
+      },
+      maxBuffer: 1024 * 1024 * 8,
+    },
+  )
+
+  if (stderr?.trim())
+    logger.warn(`OpenClaw managed bridge stderr: ${stderr.trim()}`)
+
+  const resultLine = stdout
+    .split(/\r?\n/)
+    .reverse()
+    .find(line => line.startsWith('__OPENCLAW_RESULT__'))
+
+  if (!resultLine)
+    throw new Error(`OpenClaw managed bridge returned no result. stdout=${stdout.trim()}`)
+
+  const result = JSON.parse(
+    resultLine.slice('__OPENCLAW_RESULT__'.length),
+  ) as OpenClawChatResult
+
+  logger.info(
+    `OpenClaw managed bridge success: sessionKey=${params.sessionKey || 'main'}, textLength=${result.text.length}, toolEventCount=${result.toolEvents.length}`,
+  )
+  if (result.toolEvents.length > 0)
+    logger.info(`OpenClaw managed bridge tool events: ${JSON.stringify(summarizeToolEvents(result.toolEvents))}`)
+
+  return result
+}
+
 async function runOpenClawAgentFallback(text: string): Promise<OpenClawChatResult> {
   const sessionId = createOpenClawFallbackSessionId()
   const resolved = resolveOpenClawCommand()
+  logger.warn(`OpenClaw CLI fallback start: sessionId=${sessionId}, textLength=${text.length}`)
   const { stdout } = await execFileAsync(resolved.command, [...resolved.argsPrefix, 'agent', '--agent', 'main', '--session-id', sessionId, '--message', text, '--json'], {
     encoding: 'utf-8',
     timeout: 120000,
@@ -445,6 +908,7 @@ async function runOpenClawAgentFallback(text: string): Promise<OpenClawChatResul
   })
   const parsed = JSON.parse(stdout) as Record<string, unknown>
   const answer = extractTextFromAgentCliResult(parsed)
+  logger.warn(`OpenClaw CLI fallback completed: sessionId=${sessionId}, textLength=${answer.length}, toolEventCount=0`)
 
   return {
     text: answer || '(openclaw returned no content)',
@@ -454,17 +918,37 @@ async function runOpenClawAgentFallback(text: string): Promise<OpenClawChatResul
 
 export async function openclawChatCompletion(params: {
   messages: OpenClawChatMessage[]
+  sessionKey?: string
+  attachments?: OpenClawChatAttachment[]
+  allowCliFallback?: boolean
 }): Promise<OpenClawChatResult> {
   const text = [...params.messages].reverse().find(message => message.role === 'user')?.content?.trim() || ''
   if (!text)
     throw new Error('OpenClaw message is empty')
 
   const gatewayToken = getOpenClawToken()
+  logger.info(
+    `OpenClaw chat start: sessionKey=${params.sessionKey || 'main'}, messageCount=${params.messages.length}, textLength=${text.length}, attachments=${params.attachments?.length || 0}, hasGatewayToken=${Boolean(gatewayToken)}, allowCliFallback=${params.allowCliFallback !== false}`,
+  )
   if (!gatewayToken)
     return await runOpenClawAgentFallback(text)
 
   try {
+    const managedBridgeResult = await runOpenClawGatewayBridge({
+      token: gatewayToken,
+      text,
+      sessionKey: params.sessionKey,
+      attachments: params.attachments,
+    })
+    return managedBridgeResult
+  }
+  catch (error) {
+    logger.warn(`OpenClaw managed bridge failed, trying in-process bridge: ${error instanceof Error ? error.stack || error.message : String(error)}`)
+  }
+
+  try {
     const GatewayClient = await loadOpenClawGatewayClientCtor()
+    logger.info(`OpenClaw GatewayClient ready for sessionKey=${params.sessionKey || 'main'}`)
     return await new Promise<OpenClawChatResult>((resolve, reject) => {
       const seenToolEventKeys = new Set<string>()
       const toolEvents: OpenClawToolEvent[] = []
@@ -482,6 +966,16 @@ export async function openclawChatCompletion(params: {
         }
         catch {
           // ignore stop failures
+        }
+        if (error) {
+          logger.warn(`OpenClaw chat settle with error: sessionKey=${params.sessionKey || 'main'}, runId=${runId}, message=${error.message}`)
+        }
+        else if (result) {
+          logger.info(
+            `OpenClaw chat settle success: sessionKey=${params.sessionKey || 'main'}, runId=${runId}, textLength=${result.text.length}, toolEventCount=${result.toolEvents.length}`,
+          )
+          if (result.toolEvents.length > 0)
+            logger.info(`OpenClaw tool events: ${JSON.stringify(summarizeToolEvents(result.toolEvents))}`)
         }
         if (error)
           reject(error)
@@ -506,6 +1000,12 @@ export async function openclawChatCompletion(params: {
           seenToolEventKeys.add(key)
           toolEvents.push(event)
         }
+
+        if (events.length > 0) {
+          logger.info(
+            `OpenClaw tool events captured: sessionKey=${params.sessionKey || 'main'}, runId=${runId}, captured=${events.length}, total=${toolEvents.length}, events=${JSON.stringify(summarizeToolEvents(events))}`,
+          )
+        }
       }
 
       const timer = setTimeout(() => {
@@ -527,11 +1027,15 @@ export async function openclawChatCompletion(params: {
             return
           requestStarted = true
           try {
+            logger.info(
+              `OpenClaw chat.send dispatch: sessionKey=${params.sessionKey || 'main'}, runId=${runId}, attachments=${params.attachments?.length || 0}`,
+            )
             await client.request('chat.send', {
-              sessionKey: 'main',
+              sessionKey: params.sessionKey || 'main',
               message: text,
               deliver: false,
               idempotencyKey: runId,
+              attachments: params.attachments,
             })
           }
           catch (error: any) {
@@ -546,6 +1050,10 @@ export async function openclawChatCompletion(params: {
           const payload = evt?.payload
           if (!payload || payload.runId !== runId)
             return
+
+          logger.info(
+            `OpenClaw gateway event: sessionKey=${params.sessionKey || 'main'}, runId=${runId}, event=${evt.event}, state=${typeof payload.state === 'string' ? payload.state : ''}, stream=${typeof payload.stream === 'string' ? payload.stream : ''}, message=${JSON.stringify(summarizeMessageContent(payload.message))}`,
+          )
 
           if (evt.event === 'agent') {
             pushToolEvents(extractToolEventsFromChatPayload(payload))
@@ -563,6 +1071,7 @@ export async function openclawChatCompletion(params: {
           }
 
           if (payload.state === 'final') {
+            pushToolEvents(extractToolEventsFromMessage(payload.message, Date.now()))
             clearTimeout(timer)
             settle(undefined, {
               text: latestText || '(openclaw returned no content)',
@@ -584,7 +1093,10 @@ export async function openclawChatCompletion(params: {
     })
   }
   catch (error) {
-    logger.warn(`OpenClaw backend bridge failed, falling back to CLI agent: ${String(error)}`)
+    if (params.allowCliFallback === false)
+      throw error instanceof Error ? error : new Error(String(error))
+
+    logger.warn(`OpenClaw backend bridge failed, falling back to CLI agent: ${error instanceof Error ? error.stack || error.message : String(error)}`)
     return await runOpenClawAgentFallback(text)
   }
 }

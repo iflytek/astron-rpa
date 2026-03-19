@@ -112,14 +112,52 @@ def _find_git_bash_bin() -> str | None:
     return None
 
 
+def _write_text_if_changed(path: Path, content: str) -> None:
+    if path.exists() and path.read_text(encoding="utf-8") == content:
+        return
+    path.write_text(content, encoding="utf-8")
+
+
+def ensure_runtime_shims(cfg: OpenclawConfig) -> list[str]:
+    shim_root = cfg.runtime_shim_root
+    shim_root.mkdir(parents=True, exist_ok=True)
+
+    changes: list[str] = []
+    if os.name == "nt":
+        wrappers = {
+            "node.cmd": f'@echo off\r\n"{cfg.bundled_node}" %*\r\n',
+            "npm.cmd": f'@echo off\r\n"{cfg.bundled_npm}" %*\r\n',
+            "npx.cmd": f'@echo off\r\n"{cfg.bundled_npx}" %*\r\n',
+            "pnpm.cmd": f'@echo off\r\n"{cfg.bundled_pnpm}" %*\r\n',
+        }
+    else:
+        wrappers = {
+            "node": f'#!/usr/bin/env sh\nexec "{cfg.bundled_node}" "$@"\n',
+            "npm": f'#!/usr/bin/env sh\nexec "{cfg.bundled_npm}" "$@"\n',
+            "npx": f'#!/usr/bin/env sh\nexec "{cfg.bundled_npx}" "$@"\n',
+            "pnpm": f'#!/usr/bin/env sh\nexec "{cfg.bundled_pnpm}" "$@"\n',
+        }
+
+    for name, content in wrappers.items():
+        target = shim_root / name
+        before_exists = target.exists()
+        _write_text_if_changed(target, content)
+        if os.name != "nt":
+          target.chmod(0o755)
+        changes.append(f"{'update' if before_exists else 'create'} shim {target}")
+
+    return changes
+
+
 def build_env(cfg: OpenclawConfig) -> dict[str, str]:
     env = os.environ.copy()
+    shim_changes = ensure_runtime_shims(cfg)
 
     path_key = next((k for k in env if k.upper() == "PATH"), "PATH")
     current_path = env.get(path_key, "")
 
     extra_dirs: list[str] = []
-    for candidate in (cfg.bundled_node.parent, cfg.bundled_pnpm.parent):
+    for candidate in (cfg.runtime_shim_root, cfg.bundled_node.parent, cfg.bundled_pnpm.parent):
         d = str(candidate)
         if candidate.is_dir() and d not in extra_dirs:
             extra_dirs.append(d)
@@ -136,6 +174,13 @@ def build_env(cfg: OpenclawConfig) -> dict[str, str]:
     env["OPENCLAW_HOME"] = str(cfg.openclaw_home)
     env["OPENCLAW_STATE_DIR"] = str(cfg.openclaw_home)
     env["OPENCLAW_CONFIG_PATH"] = str(cfg.config_path)
+    env["OPENCLAW_MANAGED_NODE"] = str(cfg.bundled_node)
+    env["OPENCLAW_MANAGED_NPM"] = str(cfg.bundled_npm)
+    env["OPENCLAW_MANAGED_NPX"] = str(cfg.bundled_npx)
+    env["OPENCLAW_MANAGED_PNPM"] = str(cfg.bundled_pnpm)
+
+    for change in shim_changes:
+        logger.info("runtime={}", change)
 
     return env
 

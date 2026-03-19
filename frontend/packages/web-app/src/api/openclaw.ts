@@ -1,9 +1,19 @@
-export type OpenClawChatMessage = {
+import { getDirectOpenClawGatewayWsUrl, getOpenClawProxyWsUrl } from './runtime'
+import { extractTextFromOpenClawMessage } from './openclaw-message'
+
+export interface OpenClawChatMessage {
   role: 'system' | 'developer' | 'user' | 'assistant' | 'tool'
   content: string
 }
 
-export type OpenClawToolEvent = {
+export interface OpenClawChatAttachment {
+  type: 'image'
+  mimeType: string
+  fileName?: string
+  content: string
+}
+
+export interface OpenClawToolEvent {
   toolCallId: string
   runId?: string
   name: string
@@ -13,12 +23,25 @@ export type OpenClawToolEvent = {
   ts: number
 }
 
-export type OpenClawChatResult = {
+export interface OpenClawChatResult {
   text: string
   toolEvents: OpenClawToolEvent[]
 }
 
-type OpenClawDeviceIdentity = {
+export interface OpenClawDeleteSessionResult {
+  ok: boolean
+  key?: string
+  deleted?: boolean
+  archived?: unknown[]
+}
+
+export interface OpenClawGatewayConnection {
+  ws: WebSocket
+  request<T = unknown>(method: string, params?: unknown, timeoutMs?: number): Promise<T>
+  close(): void
+}
+
+interface OpenClawDeviceIdentity {
   version: 1
   deviceId: string
   publicKey: string
@@ -26,20 +49,20 @@ type OpenClawDeviceIdentity = {
   createdAtMs: number
 }
 
-type OpenClawStoredDeviceToken = {
+interface OpenClawStoredDeviceToken {
   token: string
   scopes: string[]
   updatedAtMs: number
 }
 
-type WsReqFrame = {
+interface WsReqFrame {
   type: 'req'
   id: string
   method: string
   params?: any
 }
 
-type WsResFrame = {
+interface WsResFrame {
   type: 'res'
   id: string
   ok: boolean
@@ -47,7 +70,7 @@ type WsResFrame = {
   error?: { code?: string, message?: string, details?: any }
 }
 
-type WsEventFrame = {
+interface WsEventFrame {
   type: 'event'
   event: string
   payload?: any
@@ -62,7 +85,7 @@ type WsEventFrame = {
 
 type WsFrame = WsReqFrame | WsResFrame | WsEventFrame
 
-type StreamEvent = {
+interface StreamEvent {
   stream?: string
   runId?: string
   sessionKey?: string
@@ -70,7 +93,7 @@ type StreamEvent = {
   data?: Record<string, any>
 }
 
-type MessageContentBlock = {
+interface MessageContentBlock {
   type?: string
   text?: string
   content?: string
@@ -79,37 +102,102 @@ type MessageContentBlock = {
   args?: unknown
 }
 
-type ElectronOpenClawBridge = {
+interface ElectronOpenClawBridge {
   getToken?: () => Promise<string | undefined>
-  getDeviceIdentity?: () => Promise<{ deviceId: string, publicKey: string } | undefined>
+  readLocalFile?: (params: {
+    path: string
+    mode: 'text' | 'data-url'
+  }) => Promise<{
+    textContent?: string
+    dataUrl?: string
+    mimeType?: string
+    base64?: string
+  } | undefined>
+  getDeviceIdentity?: () => Promise<
+    { deviceId: string, publicKey: string } | undefined
+  >
   signDevicePayload?: (payload: string) => Promise<string | undefined>
-  getDeviceToken?: (role?: string) => Promise<{ token: string, scopes?: string[] } | undefined>
-  storeDeviceToken?: (params: { role?: string, token: string, scopes?: string[] }) => Promise<boolean>
+  getDeviceToken?: (
+    role?: string,
+  ) => Promise<{ token: string, scopes?: string[] } | undefined>
+  storeDeviceToken?: (params: {
+    role?: string
+    token: string
+    scopes?: string[]
+  }) => Promise<boolean>
   approveDeviceRequest?: (requestId: string) => Promise<boolean>
-  chatCompletions?: (params: { messages: OpenClawChatMessage[] }) => Promise<OpenClawChatResult>
+  chatCompletions?: (params: {
+    messages: OpenClawChatMessage[]
+    sessionKey?: string
+    attachments?: OpenClawChatAttachment[]
+    allowCliFallback?: boolean
+  }) => Promise<OpenClawChatResult>
 }
 
 const OPENCLAW_CLIENT_ID = 'openclaw-control-ui'
 const OPENCLAW_CLIENT_MODE = 'webchat'
-const OPENCLAW_SCOPES = ['operator.read', 'operator.write'] as const
+// Match the official OpenClaw control UI scope set so control actions like
+// `sessions.delete` can be authorized through the same gateway connection.
+const OPENCLAW_SCOPES = [
+  'operator.admin',
+  'operator.approvals',
+  'operator.pairing',
+] as const
 const OPENCLAW_CAPS = ['tool-events'] as const
 const OPENCLAW_CONNECT_TIMEOUT_MS = 5000
+const OPENCLAW_REQUEST_TIMEOUT_MS = 5000
 const OPENCLAW_DEVICE_IDENTITY_KEY = 'astron.openclaw.deviceIdentity.v1'
 const OPENCLAW_DEVICE_TOKEN_KEY = 'astron.openclaw.deviceToken.v1'
+
+function logOpenClawTransport(
+  message: string,
+  extra?: Record<string, unknown>,
+) {
+  if (extra)
+    console.info('[OpenClaw][transport]', message, extra)
+  else console.info('[OpenClaw][transport]', message)
+}
 
 function getElectronOpenClawBridge(): ElectronOpenClawBridge | undefined {
   return (window as any)?.electron?.openclaw
 }
 
+function shouldUseElectronChatBridge() {
+  if ((window as any)?.electron)
+    return false
+
+  return true
+}
+
+function closeOpenClawSocket(ws: WebSocket) {
+  try {
+    ws.close()
+  }
+  catch {
+    // ignore close errors
+  }
+}
+
 function wsUrlForOpenClawProxy(): string {
-  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
-  return `${proto}://${window.location.host}/openclaw`
+  return getOpenClawProxyWsUrl()
+}
+
+function getDefaultChatWsUrls(): string[] {
+  const directUrl = getDirectOpenClawGatewayWsUrl()
+  const proxyUrl = getOpenClawProxyWsUrl()
+
+  if ((window as any)?.electron)
+    return [directUrl, proxyUrl]
+
+  if (window.location.protocol === 'rpa:' || window.location.protocol === 'file:')
+    return [directUrl, proxyUrl]
+
+  return [proxyUrl, directUrl]
 }
 
 function toBase64Url(bytes: Uint8Array): string {
   let binary = ''
-  for (const byte of bytes)
-    binary += String.fromCharCode(byte)
+  for (const byte of bytes) binary += String.fromCharCode(byte)
 
   return btoa(binary)
     .replace(/\+/g, '-')
@@ -124,8 +212,7 @@ function fromBase64Url(input: string): Uint8Array {
     .padEnd(Math.ceil(input.length / 4) * 4, '=')
   const binary = atob(normalized)
   const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i += 1)
-    bytes[i] = binary.charCodeAt(i)
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i)
   return bytes
 }
 
@@ -143,7 +230,10 @@ function normalizeDeviceMetadata(value: string | undefined): string {
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
+  return bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer
 }
 
 async function sha256Hex(input: Uint8Array): Promise<string> {
@@ -174,22 +264,31 @@ async function loadOrCreateDeviceIdentity(): Promise<OpenClawDeviceIdentity> {
   if (raw) {
     try {
       const parsed = JSON.parse(raw) as OpenClawDeviceIdentity
-      if (parsed?.version === 1 && parsed.deviceId && parsed.publicKey && parsed.privateKey)
+      if (
+        parsed?.version === 1
+        && parsed.deviceId
+        && parsed.publicKey
+        && parsed.privateKey
+      ) {
         return parsed
+      }
     }
     catch {
       // fall through to regenerate identity
     }
   }
 
-  const keyPair = await crypto.subtle.generateKey(
-    { name: 'Ed25519' },
-    true,
-    ['sign', 'verify'],
-  )
+  const keyPair = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, [
+    'sign',
+    'verify',
+  ])
 
-  const publicKeyRaw = new Uint8Array(await crypto.subtle.exportKey('raw', keyPair.publicKey))
-  const privateKeyPkcs8 = new Uint8Array(await crypto.subtle.exportKey('pkcs8', keyPair.privateKey))
+  const publicKeyRaw = new Uint8Array(
+    await crypto.subtle.exportKey('raw', keyPair.publicKey),
+  )
+  const privateKeyPkcs8 = new Uint8Array(
+    await crypto.subtle.exportKey('pkcs8', keyPair.privateKey),
+  )
   const identity: OpenClawDeviceIdentity = {
     version: 1,
     deviceId: await sha256Hex(publicKeyRaw),
@@ -202,7 +301,10 @@ async function loadOrCreateDeviceIdentity(): Promise<OpenClawDeviceIdentity> {
   return identity
 }
 
-async function signDevicePayload(identity: OpenClawDeviceIdentity, payload: string): Promise<string> {
+async function signDevicePayload(
+  identity: OpenClawDeviceIdentity,
+  payload: string,
+): Promise<string> {
   const electronBridge = getElectronOpenClawBridge()
   if (electronBridge?.signDevicePayload) {
     const signature = await electronBridge.signDevicePayload(payload)
@@ -253,7 +355,10 @@ function buildDeviceAuthPayload(params: {
   ].join('|')
 }
 
-function loadStoredDeviceToken(deviceId: string, role: string): OpenClawStoredDeviceToken | null {
+function loadStoredDeviceToken(
+  deviceId: string,
+  role: string,
+): OpenClawStoredDeviceToken | null {
   const electronBridge = getElectronOpenClawBridge()
   if (electronBridge?.getDeviceToken) {
     // Electron path uses the official OpenClaw device-auth store in main process.
@@ -266,7 +371,10 @@ function loadStoredDeviceToken(deviceId: string, role: string): OpenClawStoredDe
     return null
 
   try {
-    const parsed = JSON.parse(raw) as Record<string, Record<string, OpenClawStoredDeviceToken>>
+    const parsed = JSON.parse(raw) as Record<
+      string,
+      Record<string, OpenClawStoredDeviceToken>
+    >
     const token = parsed?.[deviceId]?.[role]
     if (token?.token)
       return token
@@ -278,7 +386,10 @@ function loadStoredDeviceToken(deviceId: string, role: string): OpenClawStoredDe
   return null
 }
 
-async function getStoredDeviceToken(deviceId: string, role: string): Promise<OpenClawStoredDeviceToken | null> {
+async function getStoredDeviceToken(
+  deviceId: string,
+  role: string,
+): Promise<OpenClawStoredDeviceToken | null> {
   const electronBridge = getElectronOpenClawBridge()
   if (electronBridge?.getDeviceToken) {
     const token = await electronBridge.getDeviceToken(role)
@@ -295,7 +406,12 @@ async function getStoredDeviceToken(deviceId: string, role: string): Promise<Ope
   return loadStoredDeviceToken(deviceId, role)
 }
 
-async function storeDeviceToken(deviceId: string, role: string, token: string, scopes: string[] | undefined) {
+async function storeDeviceToken(
+  deviceId: string,
+  role: string,
+  token: string,
+  scopes: string[] | undefined,
+) {
   const electronBridge = getElectronOpenClawBridge()
   if (electronBridge?.storeDeviceToken) {
     await electronBridge.storeDeviceToken({ role, token, scopes })
@@ -311,7 +427,10 @@ async function storeDeviceToken(deviceId: string, role: string, token: string, s
 
   if (raw) {
     try {
-      nextStore = JSON.parse(raw) as Record<string, Record<string, OpenClawStoredDeviceToken>>
+      nextStore = JSON.parse(raw) as Record<
+        string,
+        Record<string, OpenClawStoredDeviceToken>
+      >
     }
     catch {
       nextStore = {}
@@ -380,7 +499,11 @@ function normalizeToolStream(frame: WsEventFrame): StreamEvent | null {
     }
   }
 
-  if (frame.event === 'agent' && frame.payload && typeof frame.payload === 'object') {
+  if (
+    frame.event === 'agent'
+    && frame.payload
+    && typeof frame.payload === 'object'
+  ) {
     const payload = frame.payload as StreamEvent
     if (typeof payload.stream === 'string') {
       return {
@@ -397,40 +520,35 @@ function normalizeToolStream(frame: WsEventFrame): StreamEvent | null {
 }
 
 function extractTextFromMessage(message: any): string {
-  if (!message || typeof message !== 'object')
-    return ''
-
-  if (typeof message.text === 'string' && message.text.trim())
-    return message.text.trim()
-
-  const content = Array.isArray(message.content) ? message.content as MessageContentBlock[] : []
-  return content
-    .map((item) => {
-      if (!item || typeof item !== 'object')
-        return null
-      if (item.type === 'text' && typeof item.text === 'string')
-        return item.text
-      return null
-    })
-    .filter((item): item is string => Boolean(item?.trim()))
-    .join('\n')
-    .trim()
+  return extractTextFromOpenClawMessage(message)
 }
 
-function extractToolEventsFromMessage(message: any, fallbackTs: number): OpenClawToolEvent[] {
-  if (!message || typeof message !== 'object' || !Array.isArray(message.content))
+function extractToolEventsFromMessage(
+  message: any,
+  fallbackTs: number,
+): OpenClawToolEvent[] {
+  if (
+    !message
+    || typeof message !== 'object'
+    || !Array.isArray(message.content)
+  ) {
     return []
+  }
 
-  const timestamp = typeof message.timestamp === 'number' ? message.timestamp : fallbackTs
+  const timestamp
+    = typeof message.timestamp === 'number' ? message.timestamp : fallbackTs
   const runId = typeof message.runId === 'string' ? message.runId : undefined
-  const messageToolCallId = typeof message.toolCallId === 'string' ? message.toolCallId : ''
+  const messageToolCallId
+    = typeof message.toolCallId === 'string' ? message.toolCallId : ''
   const blocks = message.content as MessageContentBlock[]
 
   const callEvents = blocks
     .map((item, index) => {
-      const type = typeof item?.type === 'string' ? item.type.toLowerCase() : ''
-      const isToolCall = ['toolcall', 'tool_call', 'tooluse', 'tool_use'].includes(type)
-        || (typeof item?.name === 'string' && item?.arguments != null)
+      const type
+        = typeof item?.type === 'string' ? item.type.toLowerCase() : ''
+      const isToolCall
+        = ['toolcall', 'tool_call', 'tooluse', 'tool_use'].includes(type)
+          || (typeof item?.name === 'string' && item?.arguments != null)
 
       if (!isToolCall)
         return null
@@ -448,21 +566,29 @@ function extractToolEventsFromMessage(message: any, fallbackTs: number): OpenCla
 
   const resultEvents = blocks
     .map((item, index) => {
-      const type = typeof item?.type === 'string' ? item.type.toLowerCase() : ''
+      const type
+        = typeof item?.type === 'string' ? item.type.toLowerCase() : ''
       if (type !== 'toolresult' && type !== 'tool_result')
         return null
 
       const matchingCall = callEvents.find(call => call.name === item.name)
       return {
-        toolCallId: matchingCall?.toolCallId || messageToolCallId || `${runId ?? 'tool'}:result:${index}`,
+        toolCallId:
+          matchingCall?.toolCallId
+          || messageToolCallId
+          || `${runId ?? 'tool'}:result:${index}`,
         runId,
-        name: typeof item.name === 'string' ? item.name : matchingCall?.name ?? 'tool',
+        name:
+          typeof item.name === 'string'
+            ? item.name
+            : (matchingCall?.name ?? 'tool'),
         phase: 'result' as const,
-        output: typeof item.text === 'string'
-          ? item.text
-          : typeof item.content === 'string'
-            ? item.content
-            : undefined,
+        output:
+          typeof item.text === 'string'
+            ? item.text
+            : typeof item.content === 'string'
+              ? item.content
+              : undefined,
         ts: timestamp,
       }
     })
@@ -471,70 +597,196 @@ function extractToolEventsFromMessage(message: any, fallbackTs: number): OpenCla
   return [...callEvents, ...resultEvents]
 }
 
-async function openclawChatViaWs(params: {
-  text: string
-  token?: string
-  sessionKey?: string
-  onToolEvent?: (event: OpenClawToolEvent) => void
-}): Promise<OpenClawChatResult> {
-  return await openclawChatViaWsInternal(params, false)
+function summarizeOpenClawMessage(message: any) {
+  if (!message || typeof message !== 'object') {
+    return {
+      kind: typeof message,
+      text: '',
+      textLength: 0,
+      contentType: typeof message?.content,
+      contentBlockTypes: [] as string[],
+    }
+  }
+
+  const extractedText = extractTextFromMessage(message)
+  const content = message.content
+  return {
+    role: typeof message.role === 'string' ? message.role : undefined,
+    text: extractedText,
+    textLength: extractedText.length,
+    hasTextField:
+      typeof message.text === 'string' && message.text.trim().length > 0,
+    contentType: Array.isArray(content) ? 'array' : typeof content,
+    contentBlockTypes: Array.isArray(content)
+      ? content
+          .map((item) =>
+            item && typeof item === 'object' && typeof item.type === 'string'
+              ? item.type
+              : typeof item,
+          )
+          .slice(0, 12)
+      : [],
+  }
 }
 
-async function openclawChatViaWsInternal(params: {
-  text: string
-  token?: string
-  sessionKey?: string
-  onToolEvent?: (event: OpenClawToolEvent) => void
-}, pairingRetried: boolean): Promise<OpenClawChatResult> {
-  const ws = new WebSocket(wsUrlForOpenClawProxy())
+async function loadLatestAssistantTextFromHistory(
+  connection: OpenClawGatewayConnection,
+  sessionKey: string,
+): Promise<string> {
+  const payload = await connection.request<{ messages?: unknown[] }>(
+    'chat.history',
+    {
+      sessionKey,
+      limit: 50,
+    },
+  )
 
-  const awaitOpen = new Promise<void>((resolve, reject) => {
-    ws.addEventListener('open', () => resolve(), { once: true })
-    ws.addEventListener('error', () => reject(new Error('Unable to connect to openclaw gateway.')), { once: true })
+  const messages = Array.isArray(payload?.messages) ? payload.messages : []
+  const latestAssistantMessage = [...messages]
+    .reverse()
+    .find((message) => {
+      if (!message || typeof message !== 'object')
+        return false
+      return typeof (message as Record<string, unknown>).role === 'string'
+        && (message as Record<string, unknown>).role === 'assistant'
+    })
+
+  const text = extractTextFromMessage(latestAssistantMessage)
+  logOpenClawTransport('chat.history fallback resolved', {
+    sessionKey,
+    messageCount: messages.length,
+    textLength: text.length,
+    summary: summarizeOpenClawMessage(latestAssistantMessage),
   })
+  return text
+}
 
-  const waitForRes = (id: string) => {
-    return new Promise<WsResFrame>((resolve, reject) => {
-      const onMessage = (ev: MessageEvent) => {
-        try {
-          const frame = JSON.parse(String(ev.data ?? '')) as WsFrame
-          if (frame?.type === 'res' && frame.id === id) {
-            ws.removeEventListener('message', onMessage)
-            if (frame.ok)
-              resolve(frame)
-            else
-              reject(new Error(frame?.error?.message || 'openclaw request failed'))
-          }
-        }
-        catch {
-          // ignore non-json frames
-        }
+function createOpenClawGatewayRequest(ws: WebSocket) {
+  return async function request<T = unknown>(
+    method: string,
+    params?: unknown,
+    timeoutMs: number = OPENCLAW_REQUEST_TIMEOUT_MS,
+  ): Promise<T> {
+    const requestId = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
+
+    return await new Promise<T>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        cleanup()
+        closeOpenClawSocket(ws)
+        reject(new Error(`openclaw ${method} request timed out`))
+      }, timeoutMs)
+
+      const cleanup = () => {
+        window.clearTimeout(timeout)
+        ws.removeEventListener('message', onMessage)
+        ws.removeEventListener('close', onClose)
       }
 
-      ws.addEventListener('message', onMessage)
-
       const onClose = () => {
-        ws.removeEventListener('message', onMessage)
+        cleanup()
         reject(new Error('openclaw gateway connection closed'))
       }
 
-      ws.addEventListener('close', onClose, { once: true })
+      const onMessage = (ev: MessageEvent) => {
+        let frame: WsFrame | null = null
+
+        try {
+          frame = JSON.parse(String(ev.data ?? '')) as WsFrame
+        }
+        catch {
+          return
+        }
+
+        if (frame.type !== 'res' || frame.id !== requestId)
+          return
+
+        cleanup()
+        if (!frame.ok) {
+          reject(new Error(frame?.error?.message || `openclaw ${method} failed`))
+          return
+        }
+
+        resolve(frame.payload as T)
+      }
+
+      ws.addEventListener('message', onMessage)
+      ws.addEventListener('close', onClose)
+      ws.send(
+        JSON.stringify({
+          type: 'req',
+          id: requestId,
+          method,
+          params,
+        } satisfies WsReqFrame),
+      )
     })
   }
+}
+
+export async function connectOpenClawGateway(params?: {
+  token?: string
+  wsUrl?: string
+  connectTimeoutMs?: number
+}): Promise<OpenClawGatewayConnection> {
+  return await connectOpenClawGatewayInternal(params, false)
+}
+
+async function connectOpenClawGatewayInternal(
+  params: {
+    token?: string
+    wsUrl?: string
+    connectTimeoutMs?: number
+  } | undefined,
+  pairingRetried: boolean,
+): Promise<OpenClawGatewayConnection> {
+  const ws = new WebSocket(params?.wsUrl || wsUrlForOpenClawProxy())
+  const connectTimeoutMs = params?.connectTimeoutMs ?? OPENCLAW_CONNECT_TIMEOUT_MS
+  let sawChallenge = false
+  let sentConnect = false
+
+  const awaitOpen = new Promise<void>((resolve, reject) => {
+    const timeout = window.setTimeout(() => {
+      ws.removeEventListener('open', onOpen)
+      ws.removeEventListener('error', onError)
+      reject(new Error('Unable to connect to openclaw gateway.'))
+    }, connectTimeoutMs)
+
+    const onOpen = () => {
+      window.clearTimeout(timeout)
+      ws.removeEventListener('error', onError)
+      logOpenClawTransport('gateway websocket opened', {
+        wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+      })
+      resolve()
+    }
+
+    const onError = () => {
+      window.clearTimeout(timeout)
+      ws.removeEventListener('open', onOpen)
+      reject(new Error('Unable to connect to openclaw gateway.'))
+    }
+
+    ws.addEventListener('open', onOpen, { once: true })
+    ws.addEventListener('error', onError, { once: true })
+  })
 
   await awaitOpen
 
   const role = 'operator'
-  const identity = await loadOrCreateDeviceIdentity()
-  const storedDeviceToken = (await getStoredDeviceToken(identity.deviceId, role))?.token
   const connectId = crypto?.randomUUID?.() ?? String(Date.now())
+  let identity: OpenClawDeviceIdentity | null = null
 
   const connectReady = new Promise<void>((resolve, reject) => {
     let settled = false
     const timeout = window.setTimeout(() => {
       cleanup()
+      logOpenClawTransport('gateway connect stage timed out', {
+        wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+        sawChallenge,
+        sentConnect,
+      })
       reject(new Error('openclaw gateway connect challenge timeout'))
-    }, OPENCLAW_CONNECT_TIMEOUT_MS)
+    }, connectTimeoutMs)
 
     const cleanup = () => {
       if (settled)
@@ -546,6 +798,11 @@ async function openclawChatViaWsInternal(params: {
     }
 
     const onClose = () => {
+      logOpenClawTransport('gateway websocket closed during connect stage', {
+        wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+        sawChallenge,
+        sentConnect,
+      })
       cleanup()
       reject(new Error('openclaw gateway connection closed'))
     }
@@ -561,15 +818,41 @@ async function openclawChatViaWsInternal(params: {
       }
 
       if (frame.type === 'event' && frame.event === 'connect.challenge') {
-        const nonce = typeof frame.payload?.nonce === 'string' ? frame.payload.nonce.trim() : ''
+        sawChallenge = true
+        const nonce
+          = typeof frame.payload?.nonce === 'string'
+            ? frame.payload.nonce.trim()
+            : ''
+        logOpenClawTransport('gateway connect challenge received', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          hasNonce: Boolean(nonce),
+        })
         if (!nonce) {
           cleanup()
           reject(new Error('openclaw gateway connect challenge missing nonce'))
           return
         }
 
+        logOpenClawTransport('gateway loading device identity', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+        })
+        identity = await loadOrCreateDeviceIdentity()
+        logOpenClawTransport('gateway device identity ready', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          deviceId: identity.deviceId,
+          hasBridgeKey: identity.privateKey === '',
+        })
+        const latestStoredDeviceToken = (
+          await getStoredDeviceToken(identity.deviceId, role)
+        )?.token
+        logOpenClawTransport('gateway device token resolved', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          hasGatewayToken: Boolean(params?.token),
+          hasStoredDeviceToken: Boolean(latestStoredDeviceToken),
+        })
+
         const signedAtMs = Date.now()
-        const signatureToken = params.token || storedDeviceToken || undefined
+        const signatureToken = params?.token || latestStoredDeviceToken || undefined
         const payload = buildDeviceAuthPayload({
           deviceId: identity.deviceId,
           clientId: OPENCLAW_CLIENT_ID,
@@ -582,61 +865,92 @@ async function openclawChatViaWsInternal(params: {
           platform: 'web',
           deviceFamily: 'browser',
         })
+        logOpenClawTransport('gateway signing device payload', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          payloadLength: payload.length,
+        })
         const signature = await signDevicePayload(identity, payload)
+        logOpenClawTransport('gateway device payload signed', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          signatureLength: signature.length,
+        })
 
-        ws.send(JSON.stringify({
-          type: 'req',
-          id: connectId,
-          method: 'connect',
-          params: {
-            minProtocol: 3,
-            maxProtocol: 3,
-            client: {
-              id: OPENCLAW_CLIENT_ID,
-              displayName: 'Astron RPA',
-              version: 'web-app',
-              platform: 'web',
-              deviceFamily: 'browser',
-              mode: OPENCLAW_CLIENT_MODE,
+        ws.send(
+          JSON.stringify({
+            type: 'req',
+            id: connectId,
+            method: 'connect',
+            params: {
+              minProtocol: 3,
+              maxProtocol: 3,
+              client: {
+                id: OPENCLAW_CLIENT_ID,
+                displayName: 'Astron RPA',
+                version: 'web-app',
+                platform: 'web',
+                deviceFamily: 'browser',
+                mode: OPENCLAW_CLIENT_MODE,
+              },
+              role,
+              scopes: OPENCLAW_SCOPES,
+              caps: OPENCLAW_CAPS,
+              auth:
+                params?.token || latestStoredDeviceToken
+                  ? {
+                      token: params?.token,
+                      deviceToken: latestStoredDeviceToken,
+                    }
+                  : undefined,
+              device: {
+                id: identity.deviceId,
+                publicKey: identity.publicKey,
+                signature,
+                signedAt: signedAtMs,
+                nonce,
+              },
             },
-            role,
-            scopes: OPENCLAW_SCOPES,
-            caps: OPENCLAW_CAPS,
-            auth: params.token || storedDeviceToken
-              ? {
-                  token: params.token,
-                  deviceToken: storedDeviceToken,
-                }
-              : undefined,
-            device: {
-              id: identity.deviceId,
-              publicKey: identity.publicKey,
-              signature,
-              signedAt: signedAtMs,
-              nonce,
-            },
-          },
-        } satisfies WsReqFrame))
+          } satisfies WsReqFrame),
+        )
+        sentConnect = true
+        logOpenClawTransport('gateway connect request sent', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          hasGatewayToken: Boolean(params?.token),
+          hasStoredDeviceToken: Boolean(latestStoredDeviceToken),
+        })
         return
       }
 
       if (frame.type === 'res' && frame.id === connectId) {
+        logOpenClawTransport('gateway connect response received', {
+          wsUrl: params?.wsUrl || wsUrlForOpenClawProxy(),
+          ok: frame.ok,
+          error: frame.ok ? undefined : frame?.error?.message,
+          errorCode: frame.ok ? undefined : frame?.error?.code,
+          detailCode:
+            frame.ok ? undefined : frame?.error?.details?.code,
+        })
         cleanup()
         if (!frame.ok) {
-          const requestId = typeof frame?.error?.details?.requestId === 'string' ? frame.error.details.requestId : ''
-          const detailCode = typeof frame?.error?.details?.code === 'string' ? frame.error.details.code : ''
+          const requestId
+            = typeof frame?.error?.details?.requestId === 'string'
+              ? frame.error.details.requestId
+              : ''
+          const detailCode
+            = typeof frame?.error?.details?.code === 'string'
+              ? frame.error.details.code
+              : ''
           const electronBridge = getElectronOpenClawBridge()
 
-          if (!pairingRetried && detailCode === 'PAIRING_REQUIRED' && requestId && electronBridge?.approveDeviceRequest) {
+          if (
+            !pairingRetried
+            && detailCode === 'PAIRING_REQUIRED'
+            && requestId
+            && electronBridge?.approveDeviceRequest
+          ) {
             try {
               const approved = await electronBridge.approveDeviceRequest(requestId)
               if (approved) {
-                try {
-                  ws.close()
-                }
-                catch {
-                  // ignore close errors
-                }
+                closeOpenClawSocket(ws)
                 resolve()
                 return
               }
@@ -669,15 +983,76 @@ async function openclawChatViaWsInternal(params: {
 
   await connectReady
 
-  if (!pairingRetried) {
+  if (!pairingRetried && identity) {
     const electronBridge = getElectronOpenClawBridge()
     if (electronBridge?.approveDeviceRequest) {
       const latestToken = await getStoredDeviceToken(identity.deviceId, role)
-      if (!latestToken && identity.privateKey === '') {
-        return await openclawChatViaWsInternal(params, true)
-      }
+      if (!latestToken && identity.privateKey === '')
+        return await connectOpenClawGatewayInternal(params, true)
     }
   }
+
+  return {
+    ws,
+    request: createOpenClawGatewayRequest(ws),
+    close: () => closeOpenClawSocket(ws),
+  }
+}
+
+async function openclawChatViaWs(params: {
+  text: string
+  token?: string
+  sessionKey?: string
+  wsUrl?: string
+  attachments?: OpenClawChatAttachment[]
+  onToolEvent?: (event: OpenClawToolEvent) => void
+}): Promise<OpenClawChatResult> {
+  const candidateUrls = params.wsUrl
+    ? [params.wsUrl]
+    : getDefaultChatWsUrls()
+  let lastError: unknown
+
+  for (const wsUrl of candidateUrls) {
+    try {
+      logOpenClawTransport('chat websocket attempt started', {
+        wsUrl,
+        sessionKey: params.sessionKey ?? 'main',
+      })
+      return await openclawChatViaWsInternal({
+        ...params,
+        wsUrl,
+      })
+    }
+    catch (error) {
+      lastError = error
+      logOpenClawTransport('chat websocket attempt failed', {
+        wsUrl,
+        sessionKey: params.sessionKey ?? 'main',
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('Unable to connect to openclaw gateway.')
+}
+
+async function openclawChatViaWsInternal(
+  params: {
+    text: string
+    token?: string
+    sessionKey?: string
+    wsUrl?: string
+    attachments?: OpenClawChatAttachment[]
+    onToolEvent?: (event: OpenClawToolEvent) => void
+  },
+): Promise<OpenClawChatResult> {
+  const connection = await connectOpenClawGateway({
+    token: params.token,
+    wsUrl: params.wsUrl,
+  })
+  const { ws } = connection
 
   const sendId = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
   let latestText = ''
@@ -703,7 +1078,7 @@ async function openclawChatViaWsInternal(params: {
   }
 
   const finalResult = new Promise<OpenClawChatResult>((resolve, reject) => {
-    const onMessage = (ev: MessageEvent) => {
+    const onMessage = async (ev: MessageEvent) => {
       let frame: WsFrame | null = null
 
       try {
@@ -717,22 +1092,33 @@ async function openclawChatViaWsInternal(params: {
         const streamEvent = normalizeToolStream(frame)
         if (streamEvent?.stream === 'tool') {
           const data = streamEvent.data ?? {}
-          const toolCallId = typeof data.toolCallId === 'string' ? data.toolCallId : ''
+          const toolCallId
+            = typeof data.toolCallId === 'string' ? data.toolCallId : ''
           const phase = typeof data.phase === 'string' ? data.phase : ''
 
-          if (toolCallId && (phase === 'start' || phase === 'update' || phase === 'result')) {
+          if (
+            toolCallId
+            && (phase === 'start' || phase === 'update' || phase === 'result')
+          ) {
             pushToolEvent({
               toolCallId,
-              runId: typeof streamEvent.runId === 'string' ? streamEvent.runId : undefined,
+              runId:
+                typeof streamEvent.runId === 'string'
+                  ? streamEvent.runId
+                  : undefined,
               name: typeof data.name === 'string' ? data.name : 'tool',
               phase,
               args: phase === 'start' ? data.args : undefined,
-              output: phase === 'update'
-                ? stringifyToolOutput(data.partialResult)
-                : phase === 'result'
-                  ? stringifyToolOutput(data.result)
-                  : undefined,
-              ts: typeof streamEvent.ts === 'number' ? streamEvent.ts : Date.now(),
+              output:
+                phase === 'update'
+                  ? stringifyToolOutput(data.partialResult)
+                  : phase === 'result'
+                    ? stringifyToolOutput(data.result)
+                    : undefined,
+              ts:
+                typeof streamEvent.ts === 'number'
+                  ? streamEvent.ts
+                  : Date.now(),
             })
           }
 
@@ -744,12 +1130,53 @@ async function openclawChatViaWsInternal(params: {
           const message = frame.payload?.message
           const text = extractTextFromMessage(message)
 
+          logOpenClawTransport('chat event received', {
+            state,
+            runId:
+              typeof frame.payload?.runId === 'string'
+                ? frame.payload.runId
+                : undefined,
+            summary: summarizeOpenClawMessage(message),
+          })
+
           if (text)
             latestText = text
 
           if (state === 'final') {
-            for (const event of extractToolEventsFromMessage(message, Date.now()))
+            for (const event of extractToolEventsFromMessage(
+              message,
+              Date.now(),
+            ))
               pushToolEvent(event)
+
+            if (!latestText) {
+              logOpenClawTransport('chat final resolved without extracted text', {
+                state,
+                latestText,
+                payloadKeys:
+                  frame.payload && typeof frame.payload === 'object'
+                    ? Object.keys(frame.payload)
+                    : [],
+                messageSummary: summarizeOpenClawMessage(message),
+                rawMessage: message,
+              })
+
+              try {
+                latestText = await loadLatestAssistantTextFromHistory(
+                  connection,
+                  params.sessionKey ?? 'main',
+                )
+              }
+              catch (historyError) {
+                logOpenClawTransport('chat.history fallback failed', {
+                  sessionKey: params.sessionKey ?? 'main',
+                  error:
+                    historyError instanceof Error
+                      ? historyError.message
+                      : String(historyError),
+                })
+              }
+            }
 
             cleanup()
             resolve({
@@ -761,7 +1188,11 @@ async function openclawChatViaWsInternal(params: {
 
           if (state === 'error') {
             cleanup()
-            reject(new Error(frame.payload?.errorMessage || 'openclaw execution failed'))
+            reject(
+              new Error(
+                frame.payload?.errorMessage || 'openclaw execution failed',
+              ),
+            )
           }
         }
       }
@@ -780,54 +1211,143 @@ async function openclawChatViaWsInternal(params: {
     const cleanup = () => {
       ws.removeEventListener('message', onMessage)
       ws.removeEventListener('close', onClose)
-
-      try {
-        ws.close()
-      }
-      catch {
-        // ignore close errors
-      }
+      connection.close()
     }
 
     ws.addEventListener('message', onMessage)
     ws.addEventListener('close', onClose)
   })
 
-  ws.send(JSON.stringify({
-    type: 'req',
-    id: sendId,
-    method: 'chat.send',
-    params: {
-      sessionKey: params.sessionKey ?? 'main',
-      message: params.text,
-      deliver: false,
-      idempotencyKey: sendId,
-    },
-  } satisfies WsReqFrame))
+  ws.send(
+    JSON.stringify({
+      type: 'req',
+      id: sendId,
+      method: 'chat.send',
+      params: {
+        sessionKey: params.sessionKey ?? 'main',
+        message: params.text,
+        deliver: false,
+        idempotencyKey: sendId,
+        attachments: params.attachments,
+      },
+    } satisfies WsReqFrame),
+  )
+
+  logOpenClawTransport('chat.send dispatched', {
+    sessionKey: params.sessionKey ?? 'main',
+    hasToken: Boolean(params.token),
+    textLength: params.text.trim().length,
+  })
 
   return await finalResult
+}
+
+export async function openclawDeleteSession(params: {
+  sessionKey: string
+  token?: string
+  wsUrl?: string
+}): Promise<OpenClawDeleteSessionResult> {
+  const connection = await connectOpenClawGateway({
+    token: params.token,
+    wsUrl: params.wsUrl,
+  })
+
+  try {
+    return await connection.request<OpenClawDeleteSessionResult>(
+      'sessions.delete',
+      {
+        key: params.sessionKey,
+      },
+    )
+  }
+  finally {
+    connection.close()
+  }
 }
 
 export async function openclawChatCompletions(params: {
   messages: OpenClawChatMessage[]
   model?: string
   token?: string
+  sessionKey?: string
+  attachments?: OpenClawChatAttachment[]
   onToolEvent?: (event: OpenClawToolEvent) => void
 }): Promise<OpenClawChatResult> {
+  const requestId = crypto?.randomUUID?.() ?? `openclaw-${Date.now()}`
+  const startedAt = Date.now()
   const electronBridge = getElectronOpenClawBridge()
-  if (electronBridge?.chatCompletions) {
-    const result = await electronBridge.chatCompletions({
-      messages: params.messages,
+  const lastUser
+    = [...params.messages].reverse().find(m => m.role === 'user')?.content
+      ?? ''
+
+  if (
+    shouldUseElectronChatBridge()
+    && electronBridge?.chatCompletions
+    && !params.attachments?.length
+  ) {
+    logOpenClawTransport('chat request started via electron bridge', {
+      requestId,
+      transport: 'electron-ipc',
     })
-    for (const event of result.toolEvents)
-      params.onToolEvent?.(event)
-    return result
+
+    try {
+      const result = await electronBridge.chatCompletions({
+        messages: params.messages,
+        sessionKey: params.sessionKey,
+        attachments: params.attachments,
+        allowCliFallback: false,
+      })
+      logOpenClawTransport('chat request completed via electron bridge', {
+        requestId,
+        transport: 'electron-ipc',
+        durationMs: Date.now() - startedAt,
+        toolEventCount: result.toolEvents.length,
+      })
+      for (const event of result.toolEvents) params.onToolEvent?.(event)
+      return result
+    }
+    catch (error) {
+      logOpenClawTransport('chat request failed via electron bridge', {
+        requestId,
+        transport: 'electron-ipc',
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      logOpenClawTransport('falling back to websocket after electron bridge failure', {
+        requestId,
+        transport: 'websocket',
+      })
+    }
   }
 
-  const lastUser = [...params.messages].reverse().find(m => m.role === 'user')?.content ?? ''
-  return await openclawChatViaWs({
-    text: lastUser,
-    token: params.token,
-    onToolEvent: params.onToolEvent,
+  logOpenClawTransport('chat request started via websocket', {
+    requestId,
+    transport: 'websocket',
   })
+
+  try {
+    const result = await openclawChatViaWs({
+      text: lastUser,
+      token: params.token,
+      sessionKey: params.sessionKey,
+      attachments: params.attachments,
+      onToolEvent: params.onToolEvent,
+    })
+    logOpenClawTransport('chat request completed via websocket', {
+      requestId,
+      transport: 'websocket',
+      durationMs: Date.now() - startedAt,
+      toolEventCount: result.toolEvents.length,
+    })
+    return result
+  }
+  catch (error) {
+    logOpenClawTransport('chat request failed via websocket', {
+      requestId,
+      transport: 'websocket',
+      durationMs: Date.now() - startedAt,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    throw error
+  }
 }
