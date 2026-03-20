@@ -1,6 +1,6 @@
 import type { WindowManager } from '@rpa/shared/platform'
-import { noop } from 'lodash-es'
 import { to } from 'await-to-js'
+import { noop } from 'lodash-es'
 
 const { ipcRenderer } = window.electron
 
