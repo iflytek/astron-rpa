@@ -18,7 +18,7 @@ function handleConfirm() {
 <template>
   <AModal
     v-bind="NiceModal.antdModal(modal)"
-    :title="$t('pluginUpdateTip')"
+    :title="$t('pluginInstallTip')"
     width="500px"
     centered
     :mask-closable="false"
@@ -29,20 +29,20 @@ function handleConfirm() {
         <ExclamationCircleFilled class="warning-icon" />
       </div>
       <div class="text-content">
-        <p>{{ $t("pluginUpdateInfo") }}</p>
-        <p>{{ $t("pluginUpdateDesc") }}</p>
+        <p>{{ $t("pluginInstallInfo") }}</p>
+        <p>{{ $t("pluginInstallDesc") }}</p>
         <p class="warning-text">
-          {{ $t("pluginUpdateNotice") }}
+          {{ $t("pluginInstallNotice") }}
         </p>
       </div>
     </div>
     <template #footer>
       <div class="dialog-footer">
         <AButton @click="handleClose">
-          {{ $t("updateLater") }}
+          {{ $t("installLater") }}
         </AButton>
         <AButton type="primary" @click="handleConfirm">
-          {{ $t("updateNow") }}
+          {{ $t("installNow") }}
         </AButton>
       </div>
     </template>
