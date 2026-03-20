@@ -1,3 +1,5 @@
+export const isWindows = process.platform === 'win32'
+
 function normalize (strArray: string[]) {
   const resultArray: string[] = [];
   if (strArray.length === 0) { return ''; }

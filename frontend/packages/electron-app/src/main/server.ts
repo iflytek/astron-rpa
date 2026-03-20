@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process'
+import { exec, execFile } from 'node:child_process'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 import { to } from 'await-to-js'
@@ -11,6 +11,7 @@ import logger from './log'
 import { appWorkPath, confPath, pythonExe, resourcePath } from './path'
 import { getMainWindow } from './window'
 import { envJson } from './env'
+import { isWindows } from './utils'
 
 process.on('uncaughtException', (err) => {
   logger.error(`uncaughtException: ${err.message}`)
@@ -27,13 +28,32 @@ function sendToRender(message: string, percent: number) {
 export function checkPythonRpaProcess() {
   return new Promise((resolve) => {
     // linux 上检测 python 进程中 命令行中包含 envJson.SCHEDULER_NAME 的进程
-    if (process.platform !== 'win32') {
-      exec(`ps aux | grep "${envJson.SCHEDULER_NAME}"`, (error, stdout) => {
-        if (error) {
-          return resolve(false)
+    if (!isWindows) {
+      const escapedPattern = envJson.SCHEDULER_NAME.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      execFile('pgrep', ['-f', escapedPattern], (error, stdout) => {
+        if (!error) {
+          resolve(stdout.trim() !== '')
+          return
         }
-        const isRunning = stdout.trim() !== ''
-        resolve(isRunning)
+
+        const code = (error as any).code
+        if (code === 1) {
+          resolve(false)
+          return
+        }
+
+        if (code === 'ENOENT') {
+          execFile('ps', ['aux'], (psError, psStdout) => {
+            if (psError) {
+              resolve(false)
+              return
+            }
+            resolve(psStdout.includes(envJson.SCHEDULER_NAME))
+          })
+          return
+        }
+
+        resolve(false)
       })
     }
     else {
