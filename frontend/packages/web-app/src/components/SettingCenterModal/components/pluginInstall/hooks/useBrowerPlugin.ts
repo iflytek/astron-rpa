@@ -11,11 +11,13 @@ import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_LIST } from '@/constants/plugin'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
+import _PluginInstallTipModal from '../pluginInstallTipModal.vue'
 import _PluginTipModal from '../PluginTipModal.vue'
 import _PluginUpdateModal from '../pluginUpdateModal.vue'
 
 const PluginTipModal = NiceModal.create(_PluginTipModal)
 const PluginUpdateModal = NiceModal.create(_PluginUpdateModal)
+const PluginInstallTipModal = NiceModal.create(_PluginInstallTipModal)
 
 export function useBrowerPlugin() {
   const appConfigStore = useAppConfigStore()
@@ -162,5 +164,23 @@ export function useBrowerPlugin() {
     })
   }
 
-  return { pluginList, install: installBrowerPlugin, safeInstallBrowerPlugin, pluginUpdateModal }
+  // 第一次打开客户端时，提示安装浏览器插件
+  const pluginInstallTip = () => {
+    const lastInstallTipTimestamp = storage.get('browserPluginInstallTipTimestamp')
+    // 已经提示过了就不再提示
+    if (lastInstallTipTimestamp) {
+      return
+    }
+    const hasInstalled = appConfigStore.browserPlugins.some(plugin => plugin.isInstall)
+    if (!hasInstalled) {
+      const pluginItem = appConfigStore.browserPlugins.find(plugin => plugin.browserInstalled && !plugin.isInstall)
+      NiceModal.show(PluginInstallTipModal, {}).then(async () => {
+        await safeInstallBrowerPlugin(pluginItem)
+        appConfigStore.refreshBrowserPluginStatus()
+      })
+      storage.set('browserPluginInstallTipTimestamp', Date.now())
+    }
+  }
+
+  return { pluginList, install: installBrowerPlugin, safeInstallBrowerPlugin, pluginUpdateModal, pluginInstallTip }
 }

@@ -1062,6 +1062,13 @@
   "pluginUpdateNotice": "Note: Updating the plugin will close any open browsers. Please save your work in the browser beforehand!",
   "pluginUpdateTip": "Plugin Update Tip",
   "pluginUpdateTips": "Plugin Update Tips",
+  "pluginInstallTip": "Plugin Install Tip",
+  "pluginInstallInfo": "A required browser plugin is not detected. Do you want to install the plugin now?",
+  "pluginInstallDesc": "Installing the plugin will enhance the web automation experience.",
+  "pluginInstallNotice": "Note: Installing the plugin will close any open browsers. Please save your work in the browser beforehand!",
+  "installNow": "Install Now",
+  "installLater": "Install Later",
+  "forceClose": "Force Close",
   "presentation": "Presentation",
   "preview": "Preview",
   "previous": "Previous",
@@ -1615,6 +1622,7 @@
   "undo": "Undo",
   "uninstall": "Uninstall",
   "unpublish": "Unpublish",
+  "update": "Update",
   "updateLater": "Update Later",
   "updateNow": "Update Now",
   "updated": "Updated",
@@ -1773,7 +1781,8 @@
     "operating": "{{action}} in progress...",
     "step1": "The plugin is installed. Follow the steps below to enable it.",
     "step2": "If installation failed, drag and drop the plugin to load it.",
-    "runningTip": "{{name}} plugin is running (background process may exist). Please close the browser and try {{action}} again."
+    "runningTip": "{{name}} is running (background process may exist). Please close the browser and try {{action}} again.",
+    "openPluginPath": "Open plugin directory"
   },
   "smartCompPick": {
     "onlyWebAutomation": "Only web automation is currently supported",
