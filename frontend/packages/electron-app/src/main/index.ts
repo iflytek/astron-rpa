@@ -1,4 +1,4 @@
-import { app, ipcMain, protocol, session, net } from 'electron'
+import { app, BrowserWindow, ipcMain, protocol, session, net } from 'electron'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -49,7 +49,6 @@ function createMainWindow() {
     }, 10 * 1000)
   })
   mainWindow.once('ready-to-show', () => {
-    WindowStack.set('main', mainWindow)
     mainWindow.show()
     logger.info(`app show: ${`${Date.now() - startTime}ms`}`)
   })
@@ -118,15 +117,6 @@ function registerRpaProtocol() {
   })
 }
 
-async function ready() {
-  logger.info('app ready')
-  await checkProcess()
-  sessionHanlder()
-  registerRpaProtocol()
-  listenRender()
-  createMainWindow()
-}
-
 async function checkProcess() {
   const isRunning = await checkPythonRpaProcess()
   if (isRunning) {
@@ -152,7 +142,20 @@ else {
     }
   });
   // 在Electron完成初始化时被触发
-  app.whenReady().then(ready).catch((err) => {
+  app.whenReady().then(async () => {
+    logger.info('app ready')
+    await checkProcess()
+    sessionHanlder()
+    registerRpaProtocol()
+    listenRender()
+
+    createMainWindow()
+    app.on('activate', function () {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    })
+  }).catch((err) => {
     logger.error('app ready error', err.toString())
   })
 }
