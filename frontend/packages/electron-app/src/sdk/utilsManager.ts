@@ -20,19 +20,21 @@ function listenEvent(eventName: string, callback: (data: any) => void) {
 
 function getFromElectronInfo<T>(key: string, defaultValue: T): Promise<T> {
   return new Promise((resolve) => {
-    const electronInfo = localStorage.getItem('electron');
-    if (electronInfo) {
-      try {
-        const info = JSON.parse(electronInfo);
-        resolve(info[key] ?? defaultValue);
-      } catch (e) {
-        console.error('Failed to parse electron info from localStorage', e);
-        resolve(defaultValue);
-      }
-    } else {
-      resolve(defaultValue);
+    const electronInfo = localStorage.getItem('electron')
+    if (!electronInfo) {
+      resolve(defaultValue)
+      return
     }
-  });
+
+    try {
+      const info = JSON.parse(electronInfo)
+      resolve(info[key] ?? defaultValue)
+    }
+    catch (e) {
+      console.error('Failed to parse electron info from localStorage', e)
+      resolve(defaultValue)
+    }
+  })
 }
 
 function getAppVersion() {
@@ -148,7 +150,7 @@ const showDialog: UtilsManagerType['showDialog'] = async (dialogProps) => {
 
   const properties: string[] = [
     isDirectory ? 'openDirectory' : 'openFile',
-    isMultiple ? 'multiSelections' : ''
+    isMultiple ? 'multiSelections' : '',
   ]
 
   const dialogObj: DialogObj = { title: '选择文件目录', defaultPath, properties, filters }
