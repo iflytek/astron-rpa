@@ -1,5 +1,5 @@
-import type { IPluginConfig } from './plugin'
-import './setting'
+import type { IPluginConfig } from '../types/plugin'
+import '../types/setting'
 
 export type UserSetting = RPA.UserSetting
 
