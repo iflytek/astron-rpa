@@ -4,7 +4,7 @@ import { Utils } from '../common/utils'
 import { t } from '../i18n/index'
 
 import type { MotionOptions } from './aiMotion'
-import { destroyAIMotion, startAIMotion, stopAIMotion } from './aiMotion'
+import { destroyAIMotion, focusElementAnimation, highlightElementBorder, removeFocusElementAnimation, startAIMotion, stopAIMotion } from './aiMotion'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
   filterVisibleElements,
@@ -34,8 +34,9 @@ import { elementChangeWatcher } from './watcher'
 let timeoutId
 let deepTimeoutId
 let highlightTime = 0
-const frontCheckEnabled = false
+let frontCheckEnabled = false
 let deepSearchEnabled = false
+let aiMotion = false
 /**
  * Handles a mouse event to locate and process a DOM element at the event's coordinates.
  *
@@ -75,6 +76,7 @@ function findElement(ev: MouseEvent, docu: Document | ShadowRoot, _extra) {
     const elementData = formatElementInfo(element, docu, shadowPath, shadowDirs)
     sendElementData(elementData)
     frontCheckEnabled && highlightElements([element])
+    aiMotion && highlightElementBorder(element)
   }
 }
 
@@ -252,9 +254,11 @@ const ContentHandler = {
       frontCheckEnabled && checkEles && highlightElements(checkEles)
       if (checkEles && checkEles.length === 1) {
         const elementPos = getBoundingClientRect(checkEles[0])
+        aiMotion && focusElementAnimation(checkEles[0])
         return Utils.success({ rect: [elementPos] })
       }
       else if (checkEles && checkEles.length > 1) {
+        aiMotion && focusElementAnimation(checkEles[0])
         const elementPosArr = checkEles.map((ele: HTMLElement) => {
           return getBoundingClientRect(ele)
         })
@@ -1130,16 +1134,21 @@ const ContentHandler = {
 
     startMotion: async (options: MotionOptions) => {
       await startAIMotion(options)
+      aiMotion = true
       return Utils.success(true)
     },
 
     stopMotion: async () => {
       await stopAIMotion()
+      removeFocusElementAnimation()
+      aiMotion = false
       return Utils.success(true)
     },
 
     destroyMotion: () => {
       destroyAIMotion()
+      removeFocusElementAnimation()
+      aiMotion = false
       return Utils.success(true)
     },
   },

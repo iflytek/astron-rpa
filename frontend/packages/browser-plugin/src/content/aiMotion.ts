@@ -78,3 +78,38 @@ function resizeAIMotion() {
     motionInstance.resize(width, height, ratio)
   }
 }
+
+export function focusElementAnimation(element: HTMLElement) {
+  if (!element)
+    return
+  const rect = element.getBoundingClientRect()
+  const dot = document.createElement('div')
+  dot.className = 'rpa-ele-dotindecator'
+  dot.style.left = `${rect.left + rect.width / 2 - 20}px`
+  dot.style.top = `${rect.top + rect.height / 2 - 20}px`
+  document.documentElement.appendChild(dot)
+  setTimeout(() => {
+    if (dot && dot.parentNode) {
+      dot.parentNode.removeChild(dot)
+    }
+  }, 2000)
+}
+
+export function removeFocusElementAnimation() {
+  const dots = document.querySelectorAll('.rpa-ele-dotindecator')
+  dots.forEach(dot => {
+    if (dot && dot.parentNode) {
+      dot.parentNode.removeChild(dot)
+    }
+  })
+}
+
+export function highlightElementBorder(element: HTMLElement) {
+  if (!element)
+    return
+  const oldOutline = element.style.outline
+  element.style.outline = '2px solid #ff0000'
+  setTimeout(() => {
+    element.style.outline = oldOutline
+  }, 1500);
+}

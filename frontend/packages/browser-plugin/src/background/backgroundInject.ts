@@ -707,7 +707,7 @@ const Handlers = {
         if (!tab) {
           return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
         }
-        await Tabs.sendTabFrameMessage(tab.id, params, 0)
+        await Tabs.sendMessage(params)
         globalThis.motionMode = false
         return Utils.success(true)
       },
@@ -716,7 +716,7 @@ const Handlers = {
         if (!tab) {
           return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
         }
-        await Tabs.sendTabFrameMessage(tab.id, params, 0)
+        await Tabs.sendMessage(params)
         globalThis.motionMode = false
         return Utils.success(true)
       },
