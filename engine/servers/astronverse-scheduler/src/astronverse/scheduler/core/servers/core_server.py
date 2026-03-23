@@ -1,10 +1,11 @@
+import os
 from urllib.parse import urlparse
 
 import requests
 from astronverse.scheduler import ComponentType, ServerLevel
-from astronverse.scheduler.core.router.proxy import get_cmd
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.logger import logger
+from astronverse.scheduler.utils.platform_utils import get_astron_router_path
 from astronverse.scheduler.utils.subprocess import SubPopen
 
 
@@ -17,8 +18,10 @@ class RpaRouteServer(IServer):
     def run(self):
         self.port = self.svc.rpa_route_port
         logger.info(f"[RpaRouteServer] 启动 astron_router port={self.port}")
-
-        self.proc = SubPopen(name="rpa_route", cmd=[get_cmd()])
+        resource_dir = os.path.dirname(self.svc.config.conf_file)
+        self.proc = SubPopen(
+            name="rpa_route", cmd=[get_astron_router_path(resource_dir)]
+        )
         self.proc.set_param("port", self.port)
 
         from astronverse.baseline.i18n.i18n import i18n
