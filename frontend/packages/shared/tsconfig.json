@@ -9,7 +9,7 @@
     "outDir": "dist",
     "emitDeclarationOnly": true,
     "declarationMap": true,
-    "isolatedDeclarations": true,
+    "isolatedDeclarations": false,
 
     /* modules */
     "module": "ESNext",
