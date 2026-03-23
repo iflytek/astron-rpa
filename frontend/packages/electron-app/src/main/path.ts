@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { platformFolder } from '@rpa/shared/platform'
 import { app } from 'electron'
 
 import { isWindows } from './utils'
@@ -9,13 +10,14 @@ export const userDataPath = app.getPath('userData')
 export const appDataPath = app.getPath('appData')
 
 // 打包后，资源文件存储在 appPath 下的 resources 目录，否则存储在根目录下的 resources 目录
-export const resourcePath = app.isPackaged ? path.join(appPath, '../') : path.join(appPath, '../../../resources')
+const rootResourcesPath = app.isPackaged ? path.join(appPath, '../') : path.join(appPath, '../../../resources');
+export const resourcePath = app.isPackaged ? rootResourcesPath : path.join(rootResourcesPath, platformFolder);
 // 打包后，数据存储在 userDataPath ，否则存储在 appPath 下的 data 目录
 export const appWorkPath = app.isPackaged ? userDataPath : path.join(appPath, 'data')
 export const pythonCore = path.join(appWorkPath, 'python_core')
 export const pythonExe = isWindows ? path.join(pythonCore, 'python.exe') : path.join(pythonCore, 'bin', 'python3.7')
-export const confPath = path.join(resourcePath, 'conf.yaml')
-export const d7zrPath = path.join(resourcePath, '7zr.exe')
+export const confPath = path.join(rootResourcesPath, 'conf.yaml')
+export const d7zrPath = path.join(resourcePath, isWindows ? '7zr.exe' : '7zzs')
 export const settingPath = path.join(appWorkPath, '.setting.json')
 
 // 插件目录
