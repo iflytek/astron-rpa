@@ -76,7 +76,6 @@ function findElement(ev: MouseEvent, docu: Document | ShadowRoot, _extra) {
     const elementData = formatElementInfo(element, docu, shadowPath, shadowDirs)
     sendElementData(elementData)
     frontCheckEnabled && highlightElements([element])
-    aiMotion && highlightElementBorder(element)
   }
 }
 

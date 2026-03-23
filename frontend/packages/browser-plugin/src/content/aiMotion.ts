@@ -84,7 +84,7 @@ export function focusElementAnimation(element: HTMLElement) {
     return
   const rect = element.getBoundingClientRect()
   const dot = document.createElement('div')
-  dot.className = 'rpa-ele-dotindecator'
+  dot.className = 'rpa-ele-dotindicator'
   dot.style.left = `${rect.left + rect.width / 2 - 20}px`
   dot.style.top = `${rect.top + rect.height / 2 - 20}px`
   document.documentElement.appendChild(dot)
@@ -96,7 +96,7 @@ export function focusElementAnimation(element: HTMLElement) {
 }
 
 export function removeFocusElementAnimation() {
-  const dots = document.querySelectorAll('.rpa-ele-dotindecator')
+  const dots = document.querySelectorAll('.rpa-ele-dotindicator')
   dots.forEach(dot => {
     if (dot && dot.parentNode) {
       dot.parentNode.removeChild(dot)

@@ -56,14 +56,16 @@
   }
 }
 
-.rpa-ele-dotindecator {
+.rpa-ele-dotindicator {
   position: fixed;
   width: 40px;
   height: 40px;
   z-index: 99999999;
   pointer-events: none;
-  z-index: 999998;
   border-radius: 50%;
+  animation:
+    ai-motion-click-pulse 2s ease-out,
+    ai-motion-click-color 2s linear;
 }
 
 @keyframes ai-motion-click-pulse {
@@ -104,14 +106,7 @@
   }
 }
 
-.rpa-ele-dotindecator {
-  pointer-events: none;
-  animation:
-    ai-motion-click-pulse 2s ease-out,
-    ai-motion-click-color 2s linear;
-}
-
-.rpa-ele-dotindecator::before {
+.rpa-ele-dotindicator::before {
   pointer-events: none;
   content: '';
   position: absolute;
@@ -121,7 +116,7 @@
   animation: ai-motion-click-pulse 2s ease-out 0.1s;
 }
 
-.rpa-ele-dotindecator::after {
+.rpa-ele-dotindicator::after {
   pointer-events: none;
   content: '';
   position: absolute;
@@ -129,8 +124,4 @@
   border-radius: 50%;
   background: inherit;
   animation: ai-motion-click-pulse 2s ease-out 0.2s;
-}
-
-.rpa-border-highlight {
-  border: 2px solid rgb(255, 0, 0);
 }
