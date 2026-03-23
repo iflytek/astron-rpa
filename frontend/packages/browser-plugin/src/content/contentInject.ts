@@ -9,6 +9,7 @@ import {
   findElementByPoint,
   getBoundingClientRect,
   getChildElementByType,
+  getCoveredTopElement,
   getElementByElementInfo,
   getElementBySelector,
   getElementByXPath,
@@ -222,8 +223,15 @@ const ContentHandler = {
 
     getDom: async (data: ElementInfo): Promise<HTMLElement | null> => {
       const eles = await ContentHandler.ele.getElement(data)
-      const result = eles ? eles[0] : null
+      const result = eles?.[eles.length - 1] ?? null
       return result
+    },
+    getZTopElement: async (data: ElementInfo): Promise<HTMLElement | null> => {
+      let eles = await ContentHandler.ele.getElement(data)
+      if (!eles || eles.length === 0) {
+        return null
+      }
+      return getCoveredTopElement(eles)
     },
     getOuterHTML: async (data: ElementInfo) => {
       const ele = await ContentHandler.ele.getDom(data)
@@ -256,20 +264,20 @@ const ContentHandler = {
     },
 
     getElementPos: async (data: ElementInfo) => {
-      let checkEle = null
       try {
-        checkEle = await ContentHandler.ele.getElement(data)
+        const ele = await ContentHandler.ele.getDom(data)
+        if (ele) {
+          const elementPos = getBoundingClientRect(ele)
+          return Utils.success({ rect: elementPos })
+        }
+        else {
+          return elementNotFoundReason(data)
+        }
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
-      if (checkEle && checkEle[0]) {
-        const elementPos = getBoundingClientRect(checkEle[0])
-        return Utils.success({ rect: elementPos })
-      }
-      else {
-        return elementNotFoundReason(data)
-      }
+      
     },
 
     scrollIntoView: async (data: ElementInfo) => {
@@ -418,16 +426,16 @@ const ContentHandler = {
     },
 
     reSimilarElement: async (data: ElementInfo) => {
-      const preEles = await ContentHandler.ele.getElement(data.preData)
-      const curEles = await ContentHandler.ele.getElement(data)
-      if (preEles && curEles) {
-        const preSelector = getNthCssSelector(preEles[0], true)
-        const prePathDirs = getElementDirectory(preEles[0])
+      const preEle = await ContentHandler.ele.getDom(data.preData)
+      const curEle = await ContentHandler.ele.getDom(data)
+      if (preEle && curEle) {
+        const preSelector = getNthCssSelector(preEle, true)
+        const prePathDirs = getElementDirectory(preEle)
         const preXpath = Utils.generateXPath(prePathDirs)
         const preElementInfo = { ...data.preData, pathDirs: prePathDirs, xpath: preXpath, cssSelector: preSelector }
 
-        const curSelector = getNthCssSelector(curEles[0], true)
-        const curPathDirs = getElementDirectory(curEles[0])
+        const curSelector = getNthCssSelector(curEle, true)
+        const curPathDirs = getElementDirectory(curEle)
         const curXpath = Utils.generateXPath(curPathDirs)
         const curElementInfo = { ...data, pathDirs: curPathDirs, xpath: curXpath, cssSelector: curSelector }
 
@@ -445,9 +453,8 @@ const ContentHandler = {
       const { produceType, columnIndex } = data
       const highlightColor = Utils.generateColor(columnIndex ? columnIndex - 1 : 0)
       if (produceType === 'table') {
-        const eles = await ContentHandler.ele.getElement(data)
-        if (eles && eles.length > 0) {
-          const ele = eles[0]
+        const ele = await ContentHandler.ele.getDom(data)
+        if (ele) {
           const table = ele.closest('table')
           const rect = []
           const tds: { border: string, td: HTMLElement }[] = []
@@ -674,11 +681,7 @@ const ContentHandler = {
 
     // ---v3
     clickElement: async (data: ElementInfo) => {
-      const eles = await ContentHandler.ele.getElement(data)
-      if (eles && eles.length > 1) {
-        return Utils.fail(ErrorMessage.ELEMENT_MULTI_FOUND, StatusCode.EXECUTE_ERROR)
-      }
-      const result = eles ? eles[0] : null
+      const result = await ContentHandler.ele.getZTopElement(data)
       const { buttonType } = data.atomConfig
       if (!result)
         return elementNotFoundReason(data)
@@ -703,11 +706,7 @@ const ContentHandler = {
     },
 
     inputElement: async (data: ElementInfo) => {
-      const eles = await ContentHandler.ele.getElement(data)
-      if (eles && eles.length > 1) {
-        return Utils.fail(ErrorMessage.ELEMENT_MULTI_FOUND, StatusCode.EXECUTE_ERROR)
-      }
-      const result = (eles ? eles[0] : null) as HTMLInputElement | HTMLTextAreaElement | null
+      const result = await ContentHandler.ele.getZTopElement(data) as HTMLInputElement | HTMLTextAreaElement | null
       const { inputText } = data.atomConfig
       if (result) {
         if (result.tagName !== 'INPUT' && result.tagName !== 'TEXTAREA') {
@@ -1177,7 +1176,7 @@ function handleSync(params) {
 function RpaExtGetElement(data) {
   try {
     const eles = getElementByElementInfo(data)
-    return eles ? eles[0] : null
+    return eles?.[eles.length - 1] || null
   }
   catch (error) {
     throw new Error(error.toString())

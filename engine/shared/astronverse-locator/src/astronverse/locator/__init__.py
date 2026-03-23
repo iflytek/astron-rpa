@@ -147,7 +147,8 @@ class ILocator(ABC):
     """定位器接口类"""
 
     @abstractmethod
-    def rect(self) -> Optional[Rect]:
+    def rect(self) -> Rect | list[Rect]:
+        """获取元素矩形信息"""
         """获取位置"""
 
     @abstractmethod
@@ -157,6 +158,8 @@ class ILocator(ABC):
     def point(self) -> Point:
         """公共方法"""
         rect = self.rect()
+        if isinstance(rect, list) and len(rect) > 0:
+            rect = rect[-1]
         center_x = rect.left + rect.width() // 2
         center_y = rect.top + rect.height() // 2
         return Point(center_x, center_y)

@@ -45,6 +45,8 @@ class VerifyCode:
     ) -> str:
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         code_result = VerifyCodeCore.get_api_result(api_type=code_type.value, pic_element_base64=image_base64)
         logger.info("验证码返回值: {}".format(code_result))
@@ -93,6 +95,8 @@ class VerifyCode:
     ) -> int:
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         drag_distance = int(VerifyCodeCore.get_api_result(api_type="22222", pic_element_base64=image_base64))
         logger.info("验证码返回值: {}".format(drag_distance))
@@ -102,8 +106,7 @@ class VerifyCode:
             raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(slider_element.rect(), list):
-            raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
+        
         start_pos = slider_element.point()
         if not unmatched_flag:
             end_pos = (start_pos.x + drag_distance, start_pos.y)
@@ -143,6 +146,8 @@ class VerifyCode:
     ):
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -328,13 +333,16 @@ class VerifyCode:
             background_pic_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value
         )
         bg_rect = bg_element.rect()
+        if isinstance(bg_rect, list):
+            bg_rect = bg_rect[-1]
         element_width = bg_rect.width()
 
         # 获取滑块宽度（用于修正拖动距离）
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(slider_element.rect(), list):
-            raise BizException(ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
         slider_rect = slider_element.rect()
+        if isinstance(slider_rect, list):
+            slider_rect = slider_rect[-1]
+        
         slider_width = slider_rect.width()
 
         # 按比例将图片像素x转换为实际拖动距离，减去滑块一半宽度（因为拼图块通常在滑块中心）
@@ -406,6 +414,8 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -475,6 +485,8 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -554,6 +566,8 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(background_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("腾讯六宫格背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         # 保存为 test123.jpg
@@ -644,6 +658,8 @@ class VerifyCode:
             rotate_picture_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
         )
         rotate_rect = rotate_element.rect()
+        if isinstance(rotate_rect, list):
+            rotate_rect = rotate_rect[-1]
         logger.info("旋转图片rect: {}".format(rotate_rect))
         rotate_image_base64 = VerifyCodeCore.get_base64_screenshot(
             rotate_rect.left, rotate_rect.top, rotate_rect.width(), rotate_rect.height()
@@ -661,11 +677,11 @@ class VerifyCode:
             slide_bar_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
         )
         slide_bar_rect = slide_bar_element.rect()
+        if isinstance(slide_bar_rect, list):
+            slide_bar_rect = slide_bar_rect[-1]
 
         # 获取滑块元素
         slider_element = Locator.locator(slider_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(slider_element.rect(), list):
-            raise BizException(ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
 
         slider_start_pos = slider_element.point()
 
@@ -779,11 +795,11 @@ class VerifyCode:
             slide_bar_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
         )
         slide_bar_rect = slide_bar_element.rect()
+        if isinstance(slide_bar_rect, list):
+            slide_bar_rect = slide_bar_rect[-1]
 
         # 获取滑块元素
         slider_element = Locator.locator(slider_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(slider_element.rect(), list):
-            raise BizException(ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
 
         slider_start_pos = slider_element.point()
 
@@ -826,6 +842,8 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(background_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("轨迹验证码背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -914,6 +932,8 @@ class VerifyCode:
         # 获取验证码图片元素并截图
         element = Locator.locator(captcha_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("数字计算验证码图片rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -985,6 +1005,8 @@ class VerifyCode:
         # 获取验证码图片元素并截图
         element = Locator.locator(captcha_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
         logger.info("中文计算验证码图片rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
