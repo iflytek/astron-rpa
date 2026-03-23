@@ -10,7 +10,7 @@ from astronverse.executor import AstGlobals, ExecuteStatus
 from astronverse.executor.config import Config
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.package import Package
-from astronverse.executor.debug.recording import RecordingTool
+from astronverse.executor.debug.recording import RecordingTool, get_ffmpeg_path
 from astronverse.executor.debug.report import Report
 from astronverse.executor.debug.tools import LogTool
 from astronverse.executor.error import *
@@ -67,7 +67,7 @@ class DebugSvc:
             if not self.sys_exit_lock_end:
                 # 提示录制
                 if self.recording_tool.config.get("open"):
-                    url = os.path.join(os.path.abspath(self.conf.resource_dir), "ffmpeg.exe")
+                    url = get_ffmpeg_path(self.conf.resource_dir)
                     if not os.path.exists(url):
                         self.report.info(ReportTip(msg_str=MSG_NO_FFMPEG))
                     else:
