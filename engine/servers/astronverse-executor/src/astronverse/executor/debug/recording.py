@@ -1,4 +1,5 @@
 import os
+import platform
 import subprocess
 import sys
 import threading
@@ -6,6 +7,21 @@ import time
 from datetime import datetime, timedelta
 
 from astronverse.executor.logger import logger
+
+
+def get_ffmpeg_path(resource_dir: str) -> str:
+    """resource_dir 下按平台子目录放置 ffmpeg（与仓库 resources/ 布局一致）。"""
+    base = os.path.abspath(resource_dir)
+    if sys.platform == "win32":
+        return os.path.join(base, "win-x64", "ffmpeg.exe")
+    if sys.platform == "darwin":
+        return os.path.join(base, "mac", "ffmpeg")
+    machine = platform.machine().lower()
+    if machine in ("aarch64", "arm64"):
+        sub = "linux-arm64"
+    else:
+        sub = "linux-amd64"
+    return os.path.join(base, sub, "ffmpeg")
 
 
 def folder_empty(folder_path) -> bool:
@@ -53,7 +69,7 @@ class RecordingTool:
         try:
             if not self.config.get("open"):
                 return
-            url = os.path.join(os.path.abspath(self.svc.conf.resource_dir), "ffmpeg.exe")
+            url = get_ffmpeg_path(self.svc.conf.resource_dir)
             if not os.path.exists(url):
                 return
 
