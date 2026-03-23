@@ -16,9 +16,9 @@
       "require": "./dist/index.cjs"
     },
     "./platform": {
-      "types": "./dist/platform.d.mts",
-      "import": "./dist/platform.mjs",
-      "require": "./dist/platform.cjs"
+      "types": "./dist/platform/index.d.mts",
+      "import": "./dist/platform/index.mjs",
+      "require": "./dist/platform/index.cjs"
     },
     "./tokens/light": {
       "types": "./dist/tokens/variables.d.ts",
