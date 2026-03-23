@@ -2,6 +2,7 @@ import io
 import os
 import re
 import tempfile
+
 import psutil
 import win32clipboard
 import win32com.client as wc
@@ -608,20 +609,26 @@ class WordDocumentCore(IDocumentCore):
         newline: bool = True,
     ):
         rows = len(table_content)
-        cols = len(table_content[0]) if rows > 0 else 0
+        cols = max(len(row) for row in table_content) if rows > 0 else 0
         doc.Activate()
         selection_range = doc.Application.Selection.Range
         # 插入表格
         table = doc.Tables.Add(selection_range, NumRows=rows, NumColumns=cols)
         table.AutoFitBehavior(table_behavior == TableBehavior.AUTO)
+        colors = (0, 0, 0)
+        if font_color and isinstance(font_color, str) and if_change_font:
+            try:
+                colors = tuple(map(int, font_color.split(",")))
+            except Exception:
+                logger.warning(f"font_color parse error: {font_color}")
 
         for row_idx, row_data in enumerate(table_content):
             row = table.Rows.Item(row_idx + 1)
             for col_idx, cell_data in enumerate(row_data):
                 cell = row.Cells.Item(col_idx + 1)
                 cell.Range.Text = cell_data
-                cell.Range.Paragraphs.Alignment = alignment.value
-                cell.VerticalAlignment = v_alignment.value
+                cell.Range.Paragraphs.Alignment = alignment
+                cell.VerticalAlignment = v_alignment
                 if if_change_font:
                     # 设置字体属性
                     run = cell.Range.Font
@@ -629,9 +636,9 @@ class WordDocumentCore(IDocumentCore):
                     run.Size = font_size or 12
                     run.Bold = font_bold
                     run.Italic = font_italic
-                    run.Underline = underline.value if underline else 0
+                    run.Underline = underline or 0
                     if font_color:
-                        run.Color = RGBColor(*font_color).rgb
+                        run.Color = RGB(*colors)
 
                     # 获取或添加 rPr 元素
                     # rPr = run._element.get_or_add_rPr()
