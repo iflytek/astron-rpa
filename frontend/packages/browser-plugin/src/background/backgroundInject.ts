@@ -878,17 +878,4 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
   }
 })
 
-chrome.action.onClicked.addListener(async (tab) => {
-  if (Utils.isSupportProtocal(tab.url)) {
-    if (globalThis.motionMode) {
-      await Handlers.otherHandler().stopMotion({ key: 'stopMotion', data: {} })
-      chrome.action.setBadgeText({ text: '', tabId: tab.id })
-    } else {
-      globalThis.motionMode = true
-      await Handlers.otherHandler().startMotion({ key: 'startMotion', data: {} })
-      chrome.action.setBadgeText({ text: 'ON', tabId: tab.id })
-    }
-  }
-})
-
 export { bgHandler, contentMessageHandler }
