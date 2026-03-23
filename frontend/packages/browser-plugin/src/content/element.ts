@@ -979,3 +979,24 @@ export function getSiblingElementByType(element: HTMLElement, params: Options): 
     return element.nextElementSibling as HTMLElement
   }
 }
+
+/**
+ * get the top element in els which z level is the highest, if there are multiple elements in the same z level, return the last one in els, if els is empty, return null
+ * @param els elements
+ * @returns top element
+ */
+export function getCoveredTopElement(els: HTMLElement[]): HTMLElement | null {
+  if (els.length === 0) return null
+  if (els.length === 1) return els[0]
+  const topEls = els.map(el => {
+    const rect = el.getBoundingClientRect()
+    const centerPoint = {
+      x: Math.floor(rect.left + rect.width / 2),
+      y: Math.floor(rect.top + rect.height / 2),
+    }
+    return document.elementFromPoint(centerPoint.x, centerPoint.y) as HTMLElement
+  })
+  if (topEls.length === 0) return null
+  const uniqueTopEls = [...new Set(topEls)]
+  return uniqueTopEls.length === 1 ? uniqueTopEls[0] : uniqueTopEls[uniqueTopEls.length - 1]
+}
