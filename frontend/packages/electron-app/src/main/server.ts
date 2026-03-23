@@ -154,12 +154,8 @@ function msgFilter(msg: string) {
  * @returns 需要解压的压缩包文件名数组
  */
 async function checkNeedExtractPythonPackage() {
-  if (process.platform === 'win32') {
-    const fileNames = await fs.readdir(resourcePath)
-    return fileNames.filter(fileName => fileName.endsWith('.7z'))
-  }
-  logger.info('No python package in resources for non-windows platform')
-  return []
+  const fileNames = await fs.readdir(resourcePath)
+  return fileNames.filter(fileName => fileName.endsWith('.7z'))
 }
 
 /**
