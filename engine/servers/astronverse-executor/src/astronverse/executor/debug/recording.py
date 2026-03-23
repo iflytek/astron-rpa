@@ -14,14 +14,15 @@ def get_ffmpeg_path(resource_dir: str) -> str:
     base = os.path.abspath(resource_dir)
     if sys.platform == "win32":
         return os.path.join(base, "win-x64", "ffmpeg.exe")
-    if sys.platform == "darwin":
+    elif sys.platform == "darwin":
         return os.path.join(base, "mac", "ffmpeg")
-    machine = platform.machine().lower()
-    if machine in ("aarch64", "arm64"):
-        sub = "linux-arm64"
     else:
-        sub = "linux-amd64"
-    return os.path.join(base, sub, "ffmpeg")
+        machine = platform.machine().lower()
+        if machine in ("aarch64", "arm64"):
+            sub = "linux-arm64"
+        else:
+            sub = "linux-amd64"
+        return os.path.join(base, sub, "ffmpeg")
 
 
 def folder_empty(folder_path) -> bool:
