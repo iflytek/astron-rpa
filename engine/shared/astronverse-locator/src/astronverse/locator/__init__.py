@@ -147,7 +147,7 @@ class ILocator(ABC):
     """定位器接口类"""
 
     @abstractmethod
-    def rect(self) -> Optional[Rect]:
+    def rect(self) -> Rect | list[Rect]:
         """获取元素矩形信息"""
         """获取位置"""
 

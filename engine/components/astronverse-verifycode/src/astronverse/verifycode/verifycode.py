@@ -484,7 +484,7 @@ class VerifyCode:
         """
         # 获取背景图片元素并截图
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        rect = element
+        rect = element.rect()
         if isinstance(rect, list):
             rect = rect[-1]
         logger.info("背景图rect: {}".format(rect))
