@@ -6,6 +6,7 @@
 
 import json
 import re
+import sys
 import traceback
 from typing import Union
 
@@ -15,9 +16,11 @@ from astronverse.locator import ILocator, PickerDomain
 
 def uia_factory_callback():
     """获取UIA定位器工厂的回调函数"""
-    from astronverse.locator.core.uia_locator import (
-        uia_factory,
-    )
+    if sys.platform == "darwin":
+        from astronverse.locator.core.axui_locator import axui_factory
+
+        return axui_factory.find
+    from astronverse.locator.core.uia_locator import uia_factory
 
     return uia_factory.find
 
@@ -33,9 +36,12 @@ def web_factory_callback():
 
 def msaa_factory_callback():
     """获取MSAA定位器工厂的回调函数"""
-    from astronverse.locator.core.msaa_locator import (
-        msaa_factory,
-    )
+    if sys.platform == "darwin":
+        # macOS 没有 MSAA，统一走 AXUIElement
+        from astronverse.locator.core.axui_locator import axui_factory
+
+        return axui_factory.find
+    from astronverse.locator.core.msaa_locator import msaa_factory
 
     return msaa_factory.find
 
@@ -61,11 +67,7 @@ def jab_factory_callback():
         return jab_factory.find
     except Exception as e:
         logger.info(f" 导入jab模块出现问题 {e}")
-        from astronverse.locator.core.uia_locator import (
-            uia_factory,
-        )
-
-        return uia_factory.find
+        return uia_factory_callback()
 
 
 def sap_factory_callback():
@@ -75,11 +77,7 @@ def sap_factory_callback():
         return sap_factory.find
     except Exception as e:
         logger.info(f" 导入sap模块出现问题 {e}")
-        from astronverse.locator.core.uia_locator import (
-            uia_factory,
-        )
-
-        return uia_factory.find
+        return uia_factory_callback()
 
 
 class LocatorManager:

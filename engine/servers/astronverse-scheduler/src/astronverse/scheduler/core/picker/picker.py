@@ -1,6 +1,7 @@
 import os
 import platform
 import sys
+from importlib.util import find_spec
 
 from astronverse.scheduler import ComponentType
 from astronverse.scheduler.utils.subprocess import SubPopen
@@ -53,6 +54,23 @@ class Picker:
                 name="vision_picker", cmd=[python_executable, "-m", "astronverse.vision_picker"]
             )
             self.app_picker = SubPopen(name="picker", cmd=[python_executable, "-m", "astronverse.picker"])
+        elif sys.platform == "darwin":
+            highlighter_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "mac",
+                "RPAHighlighter",
+                "cv_match_application_4.0.py",
+            )
+            if find_spec("PyQt5") is not None:
+                self.highlighter = SubPopen(
+                    name="rpa_highlighter",
+                    cmd=[
+                        python_executable,
+                        highlighter_path,
+                        "{}".format(self.svc.rpa_hl_port),
+                    ],
+                )
+            self.app_picker = SubPopen(name="picker", cmd=[python_executable, "-m", "astronverse.picker"])
         else:
             highlighter_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
@@ -74,11 +92,13 @@ class Picker:
             self.app_picker = SubPopen(name="picker", cmd=[python_executable, "-m", "astronverse.picker_linux"])
 
         # 2. 服务配置
-        self.app_picker.set_param("port", self.svc.get_validate_port(ComponentType.PICKER))
-        self.app_picker.set_param("route_port", self.svc.rpa_route_port)
-        self.app_picker.set_param("highlight_socket_port", self.svc.rpa_hl_port)
+        if self.app_picker:
+            self.app_picker.set_param("port", self.svc.get_validate_port(ComponentType.PICKER))
+            self.app_picker.set_param("route_port", self.svc.rpa_route_port)
+            self.app_picker.set_param("highlight_socket_port", self.svc.rpa_hl_port)
 
-        self.vision_picker.set_param("schema", "vision_picker")
-        self.vision_picker.set_param("vision_picker_port", self.svc.get_validate_port(ComponentType.CV_PICKER))
-        self.vision_picker.set_param("remote_addr", self.svc.config.remote_addr)
-        self.vision_picker.set_param("highlight_socket_port", self.svc.rpa_hl_port)
+        if self.vision_picker:
+            self.vision_picker.set_param("schema", "vision_picker")
+            self.vision_picker.set_param("vision_picker_port", self.svc.get_validate_port(ComponentType.CV_PICKER))
+            self.vision_picker.set_param("remote_addr", self.svc.config.remote_addr)
+            self.vision_picker.set_param("highlight_socket_port", self.svc.rpa_hl_port)

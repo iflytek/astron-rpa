@@ -378,6 +378,7 @@ class ComputerUseAgent:
             return False  # 未完成，继续循环
         except Exception as e:
             import traceback
+
             logger.info(f"[错误] 执行动作时出错: {e} {traceback.format_exc()}")
             return False
 
