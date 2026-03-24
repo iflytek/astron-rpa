@@ -79,6 +79,16 @@ def check_port(port, host="127.0.0.1"):
     return True
 
 
+def exe_path_matches_astron_install(exe: str) -> bool:
+    """
+    判断可执行路径是否属于本机 Astron RPA 安装（与 kill_proc_tree / 僵尸清理一致）。
+    约定：路径中包含 astron-rpa 即视为本机安装目录。
+    """
+    if not exe:
+        return False
+    return "astron-rpa" in exe.lower()
+
+
 def kill_proc_tree(proc: psutil.Process = None, including_parent: bool = True, exclude_pids: list = None):
     """
     递归地杀死指定PID的进程及其所有子进程。
@@ -99,7 +109,7 @@ def kill_proc_tree(proc: psutil.Process = None, including_parent: bool = True, e
 
             # 只会杀掉启动当期运行目录下的进程
             proc_cwd = proc.exe()
-            if "astron-rpa" not in proc_cwd:
+            if not exe_path_matches_astron_install(proc_cwd):
                 return
 
             # 尝试杀死父进程

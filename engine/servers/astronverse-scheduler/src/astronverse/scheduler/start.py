@@ -7,7 +7,11 @@ from astronverse.scheduler.logger import logger
 from astronverse.baseline.config.config import load_config
 from astronverse.scheduler.apis import router
 from astronverse.scheduler.config import Config
-from astronverse.scheduler.core.schduler.init import linux_env_check, win_env_check
+from astronverse.scheduler.core.schduler.init import (
+    darwin_env_check,
+    linux_env_check,
+    win_env_check,
+)
 from astronverse.scheduler.core.server import ServerManager
 from astronverse.scheduler.core.servers.async_server import (
     CheckPickProcessAliveServer,
@@ -52,6 +56,8 @@ def start(args):
         logger.info("[startup] kill_all_zombie 完成")
         win_env_check(svc)
         logger.info("[startup] win_env_check 完成")
+        darwin_env_check()
+        logger.info("[startup] darwin_env_check 完成")
         linux_env_check()
         logger.info("[startup] linux_env_check 完成")
 
