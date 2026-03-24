@@ -86,12 +86,14 @@ def find_real_application_process(webview_pid: int) -> Optional[dict]:
 
 
 def get_java_process() -> tuple[list[int], list[str]]:
-    username = os.getenv("USERNAME")
+    import tempfile
+
+    username = os.getenv("USERNAME") or os.getenv("USER")
     if not username:
         logger.error("无法获取当前用户名")
         return [], []
 
-    temp_dir = os.path.join("C:\\Users", username, "AppData", "Local", "Temp")
+    temp_dir = tempfile.gettempdir()
     hsperf_dir = os.path.join(temp_dir, f"hsperfdata_{username}")
     if not os.path.exists(hsperf_dir):
         logger.error(f"hsperf不存在: {hsperf_dir}")

@@ -6,25 +6,29 @@
 
 import ctypes
 import ctypes.wintypes
+import sys
 import traceback
 
-import comtypes
-import comtypes.automation
-import comtypes.client
-import uiautomation as auto
+if sys.platform == "win32":
+    import comtypes
+    import comtypes.automation
+    import comtypes.client
+    import uiautomation as auto
+    from pywin.mfc.object import Object
+
 from astronverse.picker import IElement, PickerDomain, Point, Rect
 from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
-from pywin.mfc.object import Object
 from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT, MSAA_SIMILAR_NOT_SUPPORTED_ERROR
 
 # 加载 MSAA 相关的 COM 类型库
-try:
-    comtypes.client.GetModule("oleacc.dll")
-except Exception as e:
-    logger.info(f"msaa加载异常 {e}")
+if sys.platform == "win32":
+    try:
+        comtypes.client.GetModule("oleacc.dll")
+    except Exception as e:
+        logger.info(f"msaa加载异常 {e}")
 
 # MSAA 角色名称映射
 ACC_ROLE_NAME_MAP = {

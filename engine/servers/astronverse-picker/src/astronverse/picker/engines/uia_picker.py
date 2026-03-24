@@ -1,8 +1,11 @@
+import sys
 from typing import Any, Optional
 
 import pyautogui
-import uiautomation as auto
 from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect, BROWSER_UIA_POINT_CLASS
+
+if sys.platform == "win32":
+    import uiautomation as auto
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name

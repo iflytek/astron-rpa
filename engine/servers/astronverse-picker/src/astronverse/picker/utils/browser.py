@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import ctypes
+import sys
 import time
 from ctypes import wintypes
 from typing import Any, Optional
@@ -6,10 +9,12 @@ from urllib.parse import urljoin
 
 import psutil
 import requests
-import uiautomation as auto
+
 
 # --- Win32 API 初始化 (全局加载一次) ---
-user32 = ctypes.windll.user32
+if sys.platform == "win32":
+    user32 = ctypes.windll.user32
+    import uiautomation as auto
 
 from astronverse.picker.error import *
 

@@ -23,6 +23,7 @@ dependencies = [
     "openpyxl",
     "watchdog",
     "keyring",
+    "PyQt5; sys_platform == 'darwin'",
 ]
 
 [tool.uv.sources]
