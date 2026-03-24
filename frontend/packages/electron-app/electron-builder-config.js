@@ -1,5 +1,4 @@
 const path = require('node:path')
-const fs = require('node:fs')
 const { platformFolder, knownPlatformDirs } = require('@rpa/shared/platform')
 
 const resourcesRoot = path.resolve(__dirname, '../../../resources')
@@ -7,27 +6,14 @@ const resourcesRoot = path.resolve(__dirname, '../../../resources')
 function createExtraFiles() {
   const rootOnlyFilter = [
     '**/*',
-    ...knownPlatformDirs.map(dir => `!${dir}{,/**}`),
+    ...knownPlatformDirs.filter(it => it !== platformFolder).map(dir => `!${dir}{,/**}`),
   ]
-
-  if (!platformFolder) {
-    throw new Error(`[electron-builder-config] Unsupported build target: ${platformFolder}`)
-  }
-
-  const platformDirPath = path.join(resourcesRoot, platformFolder)
-  if (!fs.existsSync(platformDirPath)) {
-    throw new Error(`[electron-builder-config] Missing resources folder: ${platformDirPath}`)
-  }
 
   return [
     {
       from: resourcesRoot,
       to: 'resources',
       filter: rootOnlyFilter,
-    },
-    {
-      from: platformDirPath,
-      to: 'resources',
     },
   ]
 }
