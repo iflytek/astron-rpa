@@ -1,10 +1,9 @@
-import { Button, message } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
+import { Button, App, message } from 'ant-design-vue'
 import { storeToRefs } from 'pinia'
 import { h, inject, reactive, ref, watch } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import { dissolveTeamMarket, inviteMarketUser, leaveTeamMarket, marketUserList, removeUserRole, setUserRole } from '@/api/market'
-import GlobalModal from '@/components/GlobalModal/index.ts'
 import { TEAMMARKETS } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import { clipboardManager } from '@/platform'
@@ -20,6 +19,7 @@ import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDr
 const INIT_SCROLLY = window.innerHeight - 480
 
 export function useTeamUserTable() {
+  const { modal } = App.useApp();
   const { setOnlyUser } = inject('isOnlyUser') as { setOnlyUser: Fun }
   const homeTableRef = ref(null)
   const marketStore = useMarketStore()
@@ -36,7 +36,7 @@ export function useTeamUserTable() {
   }
 
   const removeUser = ({ creatorId }) => {
-    GlobalModal.confirm({
+    modal.confirm({
       title: t('market.removeUserConfirm'),
       okType: 'danger',
       onOk: () => {
@@ -62,7 +62,7 @@ export function useTeamUserTable() {
   const changeUserType = (itemData, userType) => {
     const { creatorId } = itemData
     const user = t(USER_TYPES.find(item => item.key === userType)?.name || '')
-    GlobalModal.confirm({
+    modal.confirm({
       title: t('market.setUserRoleConfirm', { role: user }),
       onOk: () => {
         setUserRole({
@@ -93,7 +93,7 @@ export function useTeamUserTable() {
     const updateModalState = (modal) => {
       const isLinkMode = inviteType.value === 'link'
       modal.update({
-        okText: isLinkMode ? t('market.copyLink') : t('common.confirm'),
+        okText: isLinkMode ? t('market.copyLink') : t('confirm'),
         okButtonProps: {
           loading: false,
           disabled: isLinkMode ? !inviteLink.value : inviteUsers.value.length <= 0,
@@ -102,7 +102,7 @@ export function useTeamUserTable() {
     }
 
     try {
-      const m = GlobalModal.confirm({
+      const m = modal.confirm({
         title: t('market.inviteMember'),
         class: 'invite-user-modal',
         icon: null,
@@ -124,7 +124,6 @@ export function useTeamUserTable() {
             }}
           />,
         ),
-        okText: t('common.confirm'),
         okButtonProps: { loading: false, disabled: true },
         onOk: () => {
           return new Promise((resolve, reject) => {
@@ -153,9 +152,6 @@ export function useTeamUserTable() {
               })
           })
         },
-        onCancel() {
-          console.log('Cancel')
-        },
         centered: true,
         keyboard: false,
       })
@@ -167,7 +163,7 @@ export function useTeamUserTable() {
 
   // 离开
   const leaveTeam = () => {
-    GlobalModal.confirm({
+    modal.confirm({
       title: t('market.leaveTeam'),
       content: t('market.leaveTeamConfirm', { marketName: activeMarket.value.marketName }),
       onOk: () => {
@@ -194,7 +190,7 @@ export function useTeamUserTable() {
   // 移交所有权
   const giveOwner = () => {
     const newManager = ref('')
-    GlobalModal.confirm({
+    modal.confirm({
       title: t('market.transferOwnership'),
       content: (
         <GiveOwner
@@ -233,7 +229,7 @@ export function useTeamUserTable() {
   // 解散团队
   const fireTeam = () => {
     const teamName = ref('')
-    GlobalModal.confirm({
+    modal.confirm({
       title: t('market.dissolveTeam'),
       content: <FireTeam marketName={activeMarket.value.marketName} onChange={value => teamName.value = value} />,
       onOk: () => {
