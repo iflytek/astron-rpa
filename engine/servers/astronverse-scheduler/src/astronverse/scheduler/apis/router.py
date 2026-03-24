@@ -1,4 +1,14 @@
-from astronverse.scheduler.apis.connector import credential, datatable, executor, picker, terminal, tools, ws
+from astronverse.scheduler.apis.connector import (
+    browser,
+    credential,
+    datatable,
+    executor,
+    picker,
+    terminal,
+    tools,
+    window,
+    ws,
+)
 from astronverse.scheduler.apis.response import http_base_exception, http_exception
 from astronverse.scheduler.core.lsp.routes import router as lsp_router
 from astronverse.scheduler.core.svc import get_svc
@@ -23,6 +33,12 @@ def handler(app: FastAPI):
 
     # 绑定tools路由
     app.include_router(tools.router, prefix="", tags=["tools"], dependencies=[Depends(get_svc)])
+
+    # 绑定浏览器插件路由
+    app.include_router(browser.router, prefix="/browser", tags=["browser"], dependencies=[Depends(get_svc)])
+
+    # 绑定窗口 / 自启动相关路由
+    app.include_router(window.router, prefix="/window", tags=["window"], dependencies=[Depends(get_svc)])
 
     # 绑定终端
     app.include_router(
