@@ -44,7 +44,7 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
     { field: 'varName', title: t('configParameter.varName'), slots: { default: 'name_default' } },
     { field: 'varDirection', title: t('configParameter.direction'), slots: { default: 'usage_default' } },
     { field: 'varType', title: t('configParameter.varType'), slots: { default: 'type_default' } },
-    { field: 'varValue', title: t('value'), slots: { default: 'default_default' } },
+    { field: 'varValue', title: t('defaultValue'), slots: { default: 'default_default' } },
     { field: 'varDescribe', title: t('configParameter.description'), slots: { default: 'desc_default' } },
     { field: 'operation', title: t('operate'), width: 120, slots: { default: 'operation_default' } },
   ],
