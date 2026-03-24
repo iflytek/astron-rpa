@@ -143,6 +143,9 @@ async function handleOk() {
   const parameter = processStore.parameters.find(p => p.varName === varName)
   
   if (!parameter) return
+
+  const originalControlType = generateFormItemKey(props.formItem.formType)
+  const controlTypeChanged = originalControlType !== selectedControlType.value
   
   const optionsValue = optionsData.value.value as AtomOptionsValue
   const options = needsOptions.value && optionsValue.length > 0
@@ -154,10 +157,14 @@ async function handleOk() {
     formType: baseFormItem.formType,
     options,
     required: isRequired.value,
+    // 切换控件类型时清空展示默认值，避免与新控件配置不匹配
+    value: controlTypeChanged ? [] : props.formItem.value,
   }
   
   await processStore.updateParameter({
     ...parameter,
+    // 切换控件类型时清空参数默认值
+    varValue: controlTypeChanged ? '' : parameter.varValue,
     formItem: JSON.stringify(updatedFormItem),
   })
   
