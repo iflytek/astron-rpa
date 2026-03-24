@@ -87,9 +87,15 @@ export const formItemConfigs: Array<{
     ],
   },
   {
-    formType: { type: `${ATOM_FORM_TYPE.INPUT}_${ATOM_FORM_TYPE.FILE}` },
+    formType: { type: `${ATOM_FORM_TYPE.INPUT}_${ATOM_FORM_TYPE.FILE}`, params: { file_type: 'file' } },
     title: '文件选择框',
-    types: ['Any', 'PATH', 'DIRPATH'],
+    types: ['Any', 'PATH'],
+    value: '',
+  },
+  {
+    formType: { type: `${ATOM_FORM_TYPE.INPUT}_${ATOM_FORM_TYPE.FILE}`, params: { file_type: 'folder' } },
+    title: '文件夹选择框',
+    types: ['Any', 'DIRPATH'],
     value: '',
   },
   {
