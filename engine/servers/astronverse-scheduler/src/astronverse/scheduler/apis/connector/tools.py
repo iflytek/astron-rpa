@@ -478,7 +478,7 @@ def code_to_meta(pycode: PythonCode):
                 # 添加到集合中去重
                 package_set.update(pkg_list)
 
-        # 集合转列表返回（保证结果有序，Python3.7+集合有序）
+        # 集合转列表返回（保证结果有序，Python3集合有序）
         return list(package_set)
 
     pip_packages = extract_pip_packages(python_code)
