@@ -1,11 +1,14 @@
-"""简单验证与 native_messaging 的 pipe 能否通信。Windows 下运行，且需 native 进程已启动。"""
+"""简单验证与 native_messaging 的 IPC 能否通信。
+
+Windows 使用命名管道；macOS/Linux 使用与 Go 侧一致的 Unix 域套接字路径。
+需 native 宿主已启动，否则应得到连接/超时类异常。
+"""
 import sys
 import unittest
 
 from astronverse.browser_bridge.core.ipc import NativeMessagingClient
 
 
-@unittest.skipUnless(sys.platform.startswith("win"), "native messaging 仅 Windows")
 class TestNativePipeCommunication(unittest.TestCase):
     """发一条消息、等回包，仅验证能走通或得到明确错误。"""
 
