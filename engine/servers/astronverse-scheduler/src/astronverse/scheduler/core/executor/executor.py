@@ -20,7 +20,13 @@ from astronverse.scheduler.core.executor.virtual_desk import (
 )
 from astronverse.scheduler.core.schduler.venv import create_project_venv
 from astronverse.scheduler.core.terminal.terminal import Terminal
-from astronverse.scheduler.error import BizException, EXECUTOR_API_ERROR, EXECUTOR_RUNNING_ERROR, EXECUTOR_PARAM_ERROR
+from astronverse.scheduler.error import (
+    BizException,
+    EXECUTOR_API_ERROR,
+    EXECUTOR_PARAM_ERROR,
+    EXECUTOR_RUNNING_ERROR,
+    EXECUTOR_START_ERROR_FORMAT, VIRTUAL_DESK_NOT_SUPPORTED,
+)
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.notify_utils import NotifyUtils
 from astronverse.scheduler.utils.subprocess import SubPopen
@@ -168,8 +174,13 @@ class Executor:
 
     def run(self):
         """启动进程"""
-        if self.open_virtual_desk and sys.platform != "win32":
-            self.__ins__.run(env=virtual_desk.env)
+        if self.open_virtual_desk:
+            if sys.platform == "win32":
+                self.__ins__.run()
+            elif sys.platform == "darwin":
+                self.__ins__.run()
+            else:
+                self.__ins__.run(env=virtual_desk.env)
         else:
             self.__ins__.run()
 
@@ -306,8 +317,13 @@ class ExecutorManager:
         # 4. 创建虚拟环境
         exec_python = create_project_venv(self.svc, project_id)
 
-        if open_virtual_desk and sys.platform == "win32":
-            ins = WindowVirtualDeskSubprocessAdapter(self.svc, exec_python=exec_python)
+        if open_virtual_desk:
+            if sys.platform == "win32":
+                ins = WindowVirtualDeskSubprocessAdapter(self.svc, exec_python=exec_python)
+            elif sys.platform == "darwin":
+                raise BizException(VIRTUAL_DESK_NOT_SUPPORTED, "当前平台暂不支持虚拟桌面")
+            else:
+                ins = SubPopen(name="executor", cmd=[exec_python, "-m", "astronverse.executor"])
         else:
             ins = SubPopen(name="executor", cmd=[exec_python, "-m", "astronverse.executor"])
 

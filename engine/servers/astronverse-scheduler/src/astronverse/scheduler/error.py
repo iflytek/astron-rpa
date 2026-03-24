@@ -13,6 +13,7 @@ PARAM_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数错误: {}"))
 FILE_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件不存在: {}"))
 
 # 虚拟桌面
+VIRTUAL_DESK_NOT_SUPPORTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("当前平台暂不支持虚拟桌面"))
 VIRTUAL_DESK_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("虚拟桌面错误: {}"))
 VIRTUAL_DESK_NOT_ENABLED: ErrorCode = ErrorCode(BizCode.LocalErr, _("虚拟桌面未开启"))
 VIRTUAL_DESK_TIMEOUT: ErrorCode = ErrorCode(BizCode.LocalErr, _("虚拟桌面启动超时"))
@@ -51,3 +52,8 @@ CUSTOM_FACTORS_FORMAT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("custom_f
 # pip
 PIP_DOWNLOAD_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("pip 下载失败: {}"))
 PIP_INSTALL_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("pip 安装失败: {}"))
+
+# 自启动（core/autostart）
+AUTOSTART_NOT_SUPPORTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("当前平台暂不支持自启动"))
+AUTOSTART_EXE_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("未找到可执行文件，无法开启自启动"))
+AUTOSTART_EXE_NOT_FOUND_WIN: ErrorCode = ErrorCode(BizCode.LocalErr, _("未找到可执行文件 astron-rpa.exe，无法开启自启动"))

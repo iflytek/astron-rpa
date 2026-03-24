@@ -1,12 +1,12 @@
 from astronverse.scheduler.apis.connector import (
     browser,
+    auto_start,
     credential,
     datatable,
     executor,
     picker,
     terminal,
     tools,
-    window,
     ws,
 )
 from astronverse.scheduler.apis.response import http_base_exception, http_exception
@@ -38,7 +38,7 @@ def handler(app: FastAPI):
     app.include_router(browser.router, prefix="/browser", tags=["browser"], dependencies=[Depends(get_svc)])
 
     # 绑定窗口 / 自启动相关路由
-    app.include_router(window.router, prefix="/window", tags=["window"], dependencies=[Depends(get_svc)])
+    app.include_router(auto_start.router, prefix="/window", tags=["window"], dependencies=[Depends(get_svc)])
 
     # 绑定终端
     app.include_router(
