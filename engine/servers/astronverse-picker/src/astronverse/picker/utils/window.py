@@ -1,11 +1,14 @@
 import ctypes
+import sys
 
 import pyautogui
-import win32con
-import win32gui
-import win32print
 from astronverse.picker.logger import logger
-from win32api import GetSystemMetrics
+
+if sys.platform == "win32":
+    import win32con
+    import win32gui
+    import win32print
+    from win32api import GetSystemMetrics
 
 
 def window_size():
@@ -17,7 +20,8 @@ def get_screen_scale_rate_new():
     根据dpi，获取屏幕的缩放比例
     :return:
     """
-    import ctypes
+    if sys.platform != "win32":
+        raise NotImplementedError("get_screen_scale_rate_new is only supported on Windows")
 
     user32 = ctypes.windll.user32
     ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -30,6 +34,9 @@ def get_screen_scale_rate_runtime():
     实时根据主屏dpi获取到主屏的缩放比
     :return:
     """
+    if sys.platform != "win32":
+        raise NotImplementedError("get_screen_scale_rate_runtime is only supported on Windows")
+
     from ctypes import Structure, c_long, c_uint, pointer, windll
 
     try:
@@ -60,6 +67,8 @@ def get_screen_scale_rate_runtime():
 
 
 def get_system_display_size() -> tuple[int, int]:
+    if sys.platform != "win32":
+        raise NotImplementedError("get_system_display_size is only supported on Windows")
     user32 = ctypes.windll.user32
     width = user32.GetSystemMetrics(0)
     height = user32.GetSystemMetrics(1)
@@ -100,7 +109,7 @@ def validate_ui_element_rect(left, top, right, bottom, max_width=2000, max_heigh
             return False
 
         return True
-    except Exception as e:
+    except Exception:
         # 处理非数值类型输入（如字符串）
         return False
 
@@ -134,12 +143,15 @@ def validate_window_rect(left, top, right, bottom):
             return False
 
         return True
-    except Exception as e:
+    except Exception:
         # 处理非数值类型输入（如字符串）
         return False
 
 
 def get_screen_scale():
+    if sys.platform != "win32":
+        raise NotImplementedError("get_screen_scale is only supported on Windows")
+
     def get_real_resolution():
         """获取真实的分辨率"""
         hDC = win32gui.GetDC(0)

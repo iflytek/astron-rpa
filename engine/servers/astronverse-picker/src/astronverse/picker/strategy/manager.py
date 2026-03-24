@@ -1,8 +1,12 @@
 """策略管理器模块"""
 
+import sys
+
 from astronverse.picker import APP, PickerDomain
 from astronverse.picker.strategy.types import StrategyEnv, StrategySvc
 from astronverse.picker.utils.process import get_process_name
+
+_IS_MAC = sys.platform == "darwin"
 
 
 class Strategy:
@@ -15,8 +19,6 @@ class Strategy:
     def gen_svc(self, process_id, last_point, data, start_control=None, domain=PickerDomain.AUTO) -> StrategySvc:
         process_name = get_process_name(process_id)
         app = APP.init(process_name)
-
-        # 默认自动选择AUTO模式
 
         return StrategySvc(
             app=app,
@@ -34,39 +36,74 @@ class Strategy:
         from astronverse.picker import PickerDomain
         from astronverse.picker.logger import logger
 
-        # 根据domain动态导入对应的策略函数
         strategy_func = None
         error = None
 
         if strategy_svc.domain == PickerDomain.UIA:
-            from astronverse.picker.strategy.uia_strategy import uia_default_strategy
+            if _IS_MAC:
+                from astronverse.picker.strategy.axui_strategy import axui_default_strategy
 
-            strategy_func = uia_default_strategy
-        elif strategy_svc.domain == PickerDomain.WEB:
-            from astronverse.picker.strategy.web_strategy import web_default_strategy
+                strategy_func = axui_default_strategy
+            else:
+                from astronverse.picker.strategy.uia_strategy import uia_default_strategy
 
-            strategy_func = web_default_strategy
+                strategy_func = uia_default_strategy
+
         elif strategy_svc.domain == PickerDomain.MSAA:
-            from astronverse.picker.strategy.msaa_strategy import msaa_default_strategy
+            if _IS_MAC:
+                # macOS 没有 MSAA，统一走 AXUIElement
+                from astronverse.picker.strategy.axui_strategy import axui_default_strategy
 
-            strategy_func = msaa_default_strategy
+                strategy_func = axui_default_strategy
+            else:
+                from astronverse.picker.strategy.msaa_strategy import msaa_default_strategy
+
+                strategy_func = msaa_default_strategy
+
+        elif strategy_svc.domain == PickerDomain.WEB:
+            if _IS_MAC:
+                from astronverse.picker.strategy.web_strategy_mac import web_default_strategy_mac
+
+                strategy_func = web_default_strategy_mac
+            else:
+                from astronverse.picker.strategy.web_strategy import web_default_strategy
+
+                strategy_func = web_default_strategy
+
         elif strategy_svc.domain == PickerDomain.AUTO_DESK:
-            from astronverse.picker.strategy.auto_strategy_desk import auto_default_strategy_desk
+            if _IS_MAC:
+                from astronverse.picker.strategy.auto_strategy_desk_mac import auto_default_strategy_desk_mac
 
-            strategy_func = auto_default_strategy_desk
+                strategy_func = auto_default_strategy_desk_mac
+            else:
+                from astronverse.picker.strategy.auto_strategy_desk import auto_default_strategy_desk
+
+                strategy_func = auto_default_strategy_desk
+
         elif strategy_svc.domain == PickerDomain.AUTO_WEB:
-            from astronverse.picker.strategy.auto_strategy_web import auto_default_strategy_web
+            if _IS_MAC:
+                from astronverse.picker.strategy.auto_strategy_web_mac import auto_default_strategy_web_mac
 
-            strategy_func = auto_default_strategy_web
+                strategy_func = auto_default_strategy_web_mac
+            else:
+                from astronverse.picker.strategy.auto_strategy_web import auto_default_strategy_web
+
+                strategy_func = auto_default_strategy_web
+
         elif strategy_svc.domain == PickerDomain.AUTO:
-            from astronverse.picker.strategy.auto_strategy import auto_default_strategy
+            if _IS_MAC:
+                from astronverse.picker.strategy.auto_strategy_mac import auto_default_strategy_mac
 
-            strategy_func = auto_default_strategy
+                strategy_func = auto_default_strategy_mac
+            else:
+                from astronverse.picker.strategy.auto_strategy import auto_default_strategy
+
+                strategy_func = auto_default_strategy
 
         if strategy_func:
             try:
                 if strategy_svc.domain == PickerDomain.WEB:
-                    result = strategy_func(self.service_context, strategy_svc)  # 只传 2 个参数
+                    result = strategy_func(self.service_context, strategy_svc)
                 else:
                     result = strategy_func(self.service_context, self, strategy_svc)
                 if result is not None:
