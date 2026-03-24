@@ -40,24 +40,25 @@ function generateFormItemKey(formType: RPA.AtomDisplayItem['formType']): string 
 }
 
 /**
- * 从 formItemConfigs 自动生成 types 到控件类型的映射关系
+ * 生成 “变量类型 → 可选控件key” 的映射
+ * 注意：使用控件key（包含params），避免同一 formType.type 不同 params 被混淆
  */
 function buildTypesToControlTypesMap(): Record<string, Set<string>> {
   const map: Record<string, Set<string>> = {}
-  
+
   formItemConfigs.forEach(config => {
-    const formType = config.formType?.type
-    if (!formType) return
-    
+    const key = generateFormItemKey(config.formType)
+    if (!key) return
+
     config.types.forEach(type => {
       if (!type) return
       if (!map[type]) {
         map[type] = new Set()
       }
-      map[type].add(formType)
+      map[type].add(key)
     })
   })
-  
+
   return map
 }
 
@@ -109,14 +110,13 @@ const optionsData = ref({
   value: [] as AtomOptionsValue,
 } as unknown as RPA.AtomDisplayItem)
 
-// 根据 types 过滤后的控件类型选项列表
+// 根据 types 过滤后的控件类型选项列表（基于控件key精准匹配）
 const controlTypeOptions = computed(() => {  
   const targetType = props.formItem?.types || 'Any'
   const allowedTypes = typesToControlTypesMap[targetType]
   
   return allControlTypeOptions.filter(option => {
-    const formItem = formItemsMap.get(option.value)
-    return allowedTypes.has(formItem?.formType?.type)
+    return allowedTypes?.has(option.value)
   })
 })
 
@@ -128,6 +128,15 @@ const needsOptions = computed(() => {
   const formType = baseFormItem.formType?.type
   return formType === ATOM_FORM_TYPE.SELECT || formType === ATOM_FORM_TYPE.CHECKBOXGROUP
 })
+
+function ensureSelectedControlTypeValid() {
+  if (!open.value) return
+  const options = controlTypeOptions.value
+  const hasMatch = options.some(option => option.value === selectedControlType.value)
+  if (!hasMatch) {
+    selectedControlType.value = options[0]?.value || ''
+  }
+}
 
 function handleOptionsRefresh(optionResArr: AtomOptionsValue) {
   optionsData.value.value = optionResArr as any
@@ -143,6 +152,9 @@ async function handleOk() {
   const parameter = processStore.parameters.find(p => p.varName === varName)
   
   if (!parameter) return
+
+  const originalControlType = generateFormItemKey(props.formItem.formType)
+  const controlTypeChanged = originalControlType !== selectedControlType.value
   
   const optionsValue = optionsData.value.value as AtomOptionsValue
   const options = needsOptions.value && optionsValue.length > 0
@@ -154,10 +166,14 @@ async function handleOk() {
     formType: baseFormItem.formType,
     options,
     required: isRequired.value,
+    // 切换控件类型时清空展示默认值，避免与新控件配置不匹配
+    value: controlTypeChanged ? [] : props.formItem.value,
   }
   
   await processStore.updateParameter({
     ...parameter,
+    // 切换控件类型时清空参数默认值
+    varValue: controlTypeChanged ? '' : parameter.varValue,
     formItem: JSON.stringify(updatedFormItem),
   })
   
@@ -177,6 +193,7 @@ watch(() => open.value, (isOpen) => {
     optionsData.value.value = (needsOpts && props.formItem.options
       ? convertOptionsToAtomOptionsFormat(props.formItem.options)
       : []) as any
+    ensureSelectedControlTypeValid()
   }
 })
 </script>

@@ -120,7 +120,7 @@ export const useProcessStore = defineStore('process', () => {
 
   // 生成唯一的配置参数名称
   const generateParameterName = () => {
-    const baseName = 'p_variable'
+    const baseName = isComponent.value ? 'c_variable' : 'p_variable'
     let count = 0
     let variableName = baseName
 

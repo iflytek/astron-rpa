@@ -11,7 +11,6 @@ import { ComponentPublishDetail, ComponentPublishModal } from '@/components/Comp
 import { ARRANGE } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import type { AnyObj } from '@/types/common'
-import type { resOption } from '@/views/Home/types'
 import { newProjectModal } from '@/views/Home/components/modals'
 import { ShareComponentModal } from '@/views/Home/components/ShareComponentModal'
 
@@ -105,11 +104,10 @@ export function useOperate(refreshTable: () => void) {
   // 分享组件到应用市场
   const handleShare = (record: AnyObj) => {
     $loading.open({ msg: '加载中...' })
-    getTeams().then((res: resOption) => {
+    getTeams().then((data) => {
       $loading.close()
-      const { data } = res
       if (!(data && data.length > 0)) {
-        message.warning('暂无团队，请先创建或加入团队')
+        message.warning(t('market.noTeamJoinTip'))
         return
       }
 
