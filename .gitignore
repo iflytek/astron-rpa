@@ -162,3 +162,4 @@ resources/vnc/*
 frontend/pnpm-lock.yaml
 engine/servers/astronverse-executor/astron/*
 engine/servers/astronverse-executor/astron_extension/*
+.shiftengine/
