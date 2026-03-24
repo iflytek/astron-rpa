@@ -14,9 +14,10 @@ export const resourcePath = app.isPackaged ? path.join(appPath, '../') : path.jo
 // 打包后，数据存储在 userDataPath ，否则存储在 appPath 下的 data 目录
 export const appWorkPath = app.isPackaged ? userDataPath : path.join(appPath, 'data')
 export const pythonCore = path.join(appWorkPath, 'python_core')
-export const pythonExe = isWindows ? path.join(pythonCore, 'python.exe') : path.join(pythonCore, 'bin', 'python3.7')
+export const pythonExe = isWindows ? path.join(pythonCore, 'python.exe') : path.join(pythonCore, 'bin', 'python3')
 export const confPath = path.join(resourcePath, 'conf.yaml')
-export const d7zrPath = path.join(resourcePath, platformFolder, isWindows ? '7zr.exe' : '7zzs')
+const d7zrBin = isWindows ? '7zr.exe' : process.platform === 'darwin' ? '7zz' : '7zzs'
+export const d7zrPath = path.join(resourcePath, platformFolder, d7zrBin)
 export const settingPath = path.join(appWorkPath, '.setting.json')
 
 // 插件目录

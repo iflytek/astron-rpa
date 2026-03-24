@@ -9,7 +9,7 @@ def platform_python_path(dir: str):
     elif sys.platform == "darwin":
         return os.path.join(dir, "bin", "python3")
     else:
-        return os.path.join(dir, "bin", "python3.7")
+        return os.path.join(dir, "bin", "python3")
 
 
 def platform_python_run_dir(dir: str):
@@ -27,7 +27,7 @@ def platform_python_venv_path(v_path: str):
     elif sys.platform == "darwin":
         return os.path.join(v_path, "venv", "bin", "python3")
     else:
-        return os.path.join(v_path, "venv", "bin", "python3.7")
+        return os.path.join(v_path, "venv", "bin", "python3")
 
 
 def platform_python_venv_run_dir(dir: str):
