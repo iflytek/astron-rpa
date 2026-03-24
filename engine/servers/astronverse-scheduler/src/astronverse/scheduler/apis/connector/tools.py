@@ -5,9 +5,6 @@ import json
 import mimetypes
 import os
 import re
-import sys
-from dataclasses import field
-from enum import Enum
 
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
@@ -28,7 +25,7 @@ from astronverse.scheduler.utils.subprocess import SubPopen
 from astronverse.scheduler.utils.utils import EmitType, emit_to_front
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -51,42 +48,12 @@ class VideoPaths(BaseModel):
     videoPaths: list
 
 
-class BrowserPlugin(BaseModel):
-    """
-    定义安装插件参数
-    """
-
-    browser: str = "chrome"
-    op: str = "install"
-
-
-class BrowserType(Enum):
-    CHROME = "CHROME"
-
-
-class ContractFactors(Enum):
+class ContractFactors(BaseModel):
     contract_type: InputType = InputType.TEXT
     contract_path: str = ""
     contract_content: str = ""
     custom_factors: str = ""
     contract_validate: str = ""
-
-
-class CheckBrowserPlugin(BaseModel):
-    """
-    定义检测安装插件参数
-    """
-
-    browsers: list[str] = field(default_factory=list)
-
-    @classmethod
-    @field_validator("browsers", mode="before")
-    def set_default_browsers(cls, v):
-        default_browser_list = [browser.value.lower() for browser in BrowserType]
-        if not v:
-            return default_browser_list
-        assert all(item in default_browser_list for item in v), "Invalid browser type in plugins"
-        return v
 
 
 class PipPackages(BaseModel):
@@ -177,147 +144,6 @@ def video_play(video_paths: VideoPaths):
     except Exception as e:
         logger.exception("An error occurred while checking video paths.")
         return res_msg(code=ResCode.ERR, msg=str(e), data=None)
-
-
-@router.post("/window/auto_start/check")
-def auto_start_check():
-    """
-    自启动探测
-    """
-    if sys.platform != "win32":
-        return res_msg(msg="", data={"autostart": False})
-
-    from astronverse.scheduler.utils.window import AutoStart
-
-    return res_msg(msg="", data={"autostart": AutoStart.check()})
-
-
-@router.post("/window/auto_start/enable")
-def auto_start_enable(svc: Svc = Depends(get_svc)):
-    """
-    自动开启
-    """
-    if sys.platform != "win32":
-        return res_msg(msg="", data={"tips": "操作异常，linux暂不支持自启动"})
-
-    from astronverse.scheduler.utils.window import AutoStart
-
-    exe_path = os.path.join(os.path.dirname(os.path.dirname(svc.config.conf_file)), "astron-rpa.exe").lower()
-    AutoStart.enable(exe_path)
-    return res_msg(msg="", data={"tips": "操作成功"})
-
-
-@router.post("/window/auto_start/disable")
-def auto_start_disable():
-    """
-    自启动关闭
-    """
-    if sys.platform != "win32":
-        return res_msg(msg="", data={"tips": "操作异常，linux暂不支持自启动"})
-
-    from astronverse.scheduler.utils.window import AutoStart
-
-    AutoStart.disable()
-    return res_msg(msg="", data={"tips": "操作成功"})
-
-
-@router.get("/browser/plugins/get_support")
-def browser_get_support():
-    """
-    获取插件支持的浏览器列表
-    """
-    try:
-        from astronverse.browser_plugin.browser import ExtensionManager
-
-        browsers = [browser.value.lower() for browser in ExtensionManager.get_support()]
-        return res_msg(msg="获取成功", data={"browsers": browsers})
-    except Exception as e:
-        logger.exception(e)
-    return res_msg(code=ResCode.ERR, msg="获取失败", data=None)
-
-
-@router.post("/browser/plugins/install")
-def browser_install(plugin_op: BrowserPlugin):
-    """
-    安装插件
-    """
-    try:
-        from astronverse.browser_plugin import BrowserType
-        from astronverse.browser_plugin.browser import ExtensionManager
-
-        browser = BrowserType.init(plugin_op.browser)
-        ex_manager = ExtensionManager(browser_type=browser)
-        ex_manager.install()
-        return res_msg(msg="安装成功", data=None)
-    except Exception as e:
-        logger.exception(e)
-    return res_msg(code=ResCode.ERR, msg="安装失败", data=None)
-
-
-@router.post("/browser/plugins/check_status")
-def browser_check(options: CheckBrowserPlugin):
-    """
-    检测插件状态
-    """
-    try:
-        from astronverse.browser_plugin import BrowserType
-        from astronverse.browser_plugin.browser import ExtensionManager
-
-        check_result = dict()
-        for browser in options.browsers:
-            ex_manager = ExtensionManager(browser_type=BrowserType.init(browser))
-            check_result[browser.lower()] = ex_manager.check_status()
-        return res_msg(msg="", data=check_result)
-    except Exception as e:
-        logger.exception(e)
-    return res_msg(code=ResCode.ERR, msg="检测失败", data=None)
-
-
-@router.post("/browser/plugins/check_running")
-def browser_check_running(plugin_op: BrowserPlugin):
-    """
-    检测浏览器是否运行
-    """
-    try:
-        from astronverse.browser_plugin import BrowserType
-        from astronverse.browser_plugin.browser import ExtensionManager
-
-        browser = BrowserType.init(plugin_op.browser)
-        ex_manager = ExtensionManager(browser_type=browser)
-        running = ex_manager.check_browser_running()
-        return res_msg(msg="", data={"running": running})
-    except Exception as e:
-        logger.exception(e)
-    return res_msg(code=ResCode.ERR, msg="检测失败", data=None)
-
-
-@router.post("/browser/plugins/install_all_updates")
-def update_installed_plugins():
-    """
-    更新已安装的浏览器插件
-    """
-    try:
-        from astronverse.browser_plugin.browser import UpdateManager
-
-        install_results = UpdateManager().update_installed_plugins()
-        return res_msg(msg="更新完成", data=install_results)
-    except Exception as e:
-        logger.exception(e)
-        return res_msg(code=ResCode.ERR, msg="更新失败", data=None)
-
-
-@router.post("/clipboard/get")
-def clipboard_get(is_html: bool):
-    """
-    获取剪贴板内容
-    """
-    from astronverse.scheduler.utils.clipboard import Clipboard
-
-    if is_html:
-        content = Clipboard.paste_html_clip()
-    else:
-        content = Clipboard.paste_str_clip()
-    return res_msg(code=ResCode.SUCCESS, msg="", data={"content": content})
 
 
 @router.post("/pip/install")
@@ -442,7 +268,6 @@ def validate_contract(params: ContractFactors, svc: Svc = Depends(get_svc)):
 
 @router.post("/clipboard")
 def get_clipboard_html(params: ClipboardParams, svc: Svc = Depends(get_svc)):
-    content = ""
     if params.is_html:
         content = Clipboard.paste_html_clip()
     else:
