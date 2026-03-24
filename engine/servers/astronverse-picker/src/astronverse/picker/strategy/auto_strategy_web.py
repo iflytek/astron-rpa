@@ -1,10 +1,15 @@
+import sys
 import traceback
-from _ctypes import COMError
 from typing import TYPE_CHECKING, Optional
 
 from astronverse.picker import APP, IElement
-from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
+
+if sys.platform == "win32":
+    from _ctypes import COMError
+    from astronverse.picker.engines.uia_picker import UIAOperate
+else:
+    COMError = Exception  # macOS fallback - COM does not exist
 
 if TYPE_CHECKING:
     from astronverse.picker.strategy.types import Strategy, StrategySvc

@@ -32,9 +32,7 @@ class RpaSchedulerAsyncServer(IServer):
                 # 定时注册服务
                 try:
                     if i % 30 == 0:
-                        logger.debug(
-                            f"[RpaSchedulerAsync] register_server tick={i}"
-                        )
+                        logger.debug(f"[RpaSchedulerAsync] register_server tick={i}")
                         self.svc.register_server()
                 except Exception as e:
                     logger.exception("register_server error: {}".format(e))
@@ -59,9 +57,7 @@ class TerminalAsyncServer(IServer):
                 if i % 10 == 0:
                     res = Terminal.upload(self.svc)
                     if res == "TERMINAL_NOT_FOUND":
-                        logger.info(
-                            "[TerminalAsync] 终端未注册，执行 Terminal.register"
-                        )
+                        logger.info("[TerminalAsync] 终端未注册，执行 Terminal.register")
                         Terminal.register(self.svc)
             except Exception as e:
                 logger.exception("Terminal upload error: {}".format(e))
@@ -88,21 +84,15 @@ class CheckPickProcessAliveServer(IServer):
                 if self.svc.picker.start:
                     if self.svc.picker.vision_picker:
                         if not self.svc.picker.vision_picker.is_alive():
-                            logger.debug(
-                                "[CheckPickProcessAlive] 重启 vision_picker"
-                            )
+                            logger.debug("[CheckPickProcessAlive] 重启 vision_picker")
                             self.svc.picker.vision_picker.run()
                     if self.svc.picker.app_picker:
                         if not self.svc.picker.app_picker.is_alive():
-                            logger.debug(
-                                "[CheckPickProcessAlive] 重启 app_picker"
-                            )
+                            logger.debug("[CheckPickProcessAlive] 重启 app_picker")
                             self.svc.picker.app_picker.run()
                     if self.svc.picker.highlighter:
                         if not self.svc.picker.highlighter.is_alive():
-                            logger.debug(
-                                "[CheckPickProcessAlive] 重启 highlighter"
-                            )
+                            logger.debug("[CheckPickProcessAlive] 重启 highlighter")
                             self.svc.picker.highlighter.run()
             except Exception as e:
                 logger.exception("check_pick_process error: {}".format(e))
