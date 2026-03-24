@@ -37,7 +37,7 @@ class ProjectInfo:
             "version": self.version,
             "requirement": self.requirement,
             "gateway_port": self.gateway_port,
-            "extra_data": self.extra_data
+            "extra_data": self.extra_data,
         }
 
     @classmethod
@@ -50,7 +50,7 @@ class ProjectInfo:
             version=data.get("version", ""),
             requirement=data.get("requirement", {}),
             gateway_port=int(data.get("gateway_port", 0)),
-            extra_data=data.get("extra_data", {})
+            extra_data=data.get("extra_data", {}),
         )
 
 

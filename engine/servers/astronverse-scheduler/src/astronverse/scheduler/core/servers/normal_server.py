@@ -17,9 +17,7 @@ class TriggerServer(IServer):
 
     def run(self):
         self.port = self.svc.trigger_port
-        logger.info(
-            f"[TriggerServer] 启动 trigger port={self.port} gateway={self.svc.rpa_route_port}"
-        )
+        logger.info(f"[TriggerServer] 启动 trigger port={self.port} gateway={self.svc.rpa_route_port}")
 
         self.proc = SubPopen(
             name="trigger",
@@ -39,16 +37,12 @@ class TriggerServer(IServer):
             logger.debug("[TriggerServer] 健康检查 子进程未存活")
             return False
 
-        url = "http://127.0.0.1:{}/{}/task/health".format(
-            self.svc.rpa_route_port, ComponentType.TRIGGER.name.lower()
-        )
+        url = "http://127.0.0.1:{}/{}/task/health".format(self.svc.rpa_route_port, ComponentType.TRIGGER.name.lower())
         try:
             response = requests.get(url, timeout=5)
         except Exception as e:
             self.err_time += 1
-            logger.debug(
-                f"[TriggerServer] health 请求失败 {self.err_time}/{self.err_max_time} {e}"
-            )
+            logger.debug(f"[TriggerServer] health 请求失败 {self.err_time}/{self.err_max_time} {e}")
             if self.err_time >= self.err_max_time:
                 logger.error("[TriggerServer] 健康检查失败(连续请求异常)")
                 return False
@@ -57,9 +51,7 @@ class TriggerServer(IServer):
         status_code = response.status_code
         if status_code != 200:
             self.err_time += 1
-            logger.debug(
-                f"[TriggerServer] health HTTP {status_code} 失败 {self.err_time}/{self.err_max_time}"
-            )
+            logger.debug(f"[TriggerServer] health HTTP {status_code} 失败 {self.err_time}/{self.err_max_time}")
         else:
             if self.err_time:
                 logger.info("[TriggerServer] health 已恢复 HTTP 200")
@@ -150,9 +142,7 @@ class VNCServer(IServer):
             return True
 
         if check_port(self.vnc_port) or check_port(self.vnc_ws_port):
-            logger.debug(
-                f"[VNCServer] 健康检查 端口不可连 vnc={self.vnc_port} ws={self.vnc_ws_port}"
-            )
+            logger.debug(f"[VNCServer] 健康检查 端口不可连 vnc={self.vnc_port} ws={self.vnc_ws_port}")
             return False
         return True
 

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys
 import time
 import uuid
 from enum import Enum
@@ -181,7 +182,12 @@ class PickerRequestHandler:
 
     async def _handle_record_request(self, ws, input_data: PickerRequire):
         """处理录制请求"""
-        from astronverse.picker.core.recorder_core_win import record_manager
+        if sys.platform == "win32":
+            from astronverse.picker.core.recorder_core_win import record_manager
+        elif sys.platform == "darwin":
+            from astronverse.picker.core.recorder_core_mac import record_manager
+        else:
+            raise NotImplementedError(f"Platform {sys.platform} not supported for recording")
 
         # 委托给录制管理器处理
         result = await record_manager.handle_record_action(input_data.record_action, ws, self.svc, input_data)
@@ -409,7 +415,12 @@ class WsServer:
 
     def _setup_record_callbacks(self):
         """设置录制事件回调"""
-        from astronverse.picker.core.recorder_core_win import record_manager
+        if sys.platform == "win32":
+            from astronverse.picker.core.recorder_core_win import record_manager
+        elif sys.platform == "darwin":
+            from astronverse.picker.core.recorder_core_mac import record_manager
+        else:
+            raise NotImplementedError(f"Platform {sys.platform} not supported for recording")
 
         record_manager.set_push_callbacks(
             on_f4=self._on_f4_pressed,
@@ -475,9 +486,10 @@ class WsServer:
 
     def server(self) -> None:
         """启动WebSocket服务器"""
-        import pythoncom
+        if sys.platform == "win32":
+            import pythoncom
 
-        pythoncom.CoInitialize()
+            pythoncom.CoInitialize()
 
         async def start_server():
             """异步启动WebSocket服务器"""

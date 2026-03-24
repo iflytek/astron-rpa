@@ -89,6 +89,12 @@ class ServiceContext:
             self.picker_core: IPickerCore = PickerCore()
         elif platform.system() == "Linux":
             pass
+        elif sys.platform == "darwin":
+            from astronverse.picker.core.event_core_mac import EventCore
+            from astronverse.picker.core.picker_core_mac import PickerCore
+
+            self.event_core: IEventCore = EventCore()
+            self.picker_core: IPickerCore = PickerCore()
 
         # 定住 - 可选模块
         try:
