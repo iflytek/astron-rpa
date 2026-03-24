@@ -1,9 +1,14 @@
 import math
 import random
+import sys
 import time
 
 import pyautogui
-import uiautomation as auto
+
+if sys.platform == "win32":
+    import uiautomation as auto
+else:
+    auto = None
 
 pyautogui.FAILSAFE = False
 
@@ -37,7 +42,10 @@ def generate_smooth_path(start_x, start_y, end_x, end_y, duration=1.0):
 
 def smooth_move(end_x, end_y, duration=0.4):
     # 解决鼠标在副屏的问题
-    p_x, p_y = auto.GetCursorPos()
+    if auto is not None:
+        p_x, p_y = auto.GetCursorPos()
+    else:
+        p_x, p_y = pyautogui.position()
     sc_w, sc_h = pyautogui.size()
     if p_x > sc_w or p_y > sc_h:
         pyautogui.moveTo(sc_w // 2, sc_h // 2)

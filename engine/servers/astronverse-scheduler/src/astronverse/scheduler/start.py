@@ -46,9 +46,7 @@ def start(args):
 
         route_port = getattr(svc, "rpa_route_port", None)
         schedule_port = getattr(svc, "scheduler_port", None)
-        logger.info(
-            f"[startup] 端口 scheduler={schedule_port} rpa_route={route_port}"
-        )
+        logger.info(f"[startup] 端口 scheduler={schedule_port} rpa_route={route_port}")
 
         # 3. 环境检测
         logger.info("[startup] 环境检测开始")
@@ -78,9 +76,7 @@ def start(args):
         logger.info("[startup] ServerManager.run() 已执行完毕")
 
         # 5. 等待本地网关加载完成，并注册服务
-        logger.info(
-            f"[startup] 等待本地路由 127.0.0.1:{route_port} 可连"
-        )
+        logger.info(f"[startup] 等待本地路由 127.0.0.1:{route_port} 可连")
         wait_route_t0 = time.monotonic()
         wait_ticks = 0
         while check_port(port=svc.rpa_route_port):
@@ -88,12 +84,8 @@ def start(args):
             time.sleep(0.1)
             if wait_ticks % 50 == 0:
                 elapsed = time.monotonic() - wait_route_t0
-                logger.warning(
-                    f"[startup] 路由端口 {route_port} 仍未就绪，已等待 {elapsed:.1f}s"
-                )
-        logger.info(
-            f"[startup] 路由已就绪，耗时 {time.monotonic() - wait_route_t0:.2f}s"
-        )
+                logger.warning(f"[startup] 路由端口 {route_port} 仍未就绪，已等待 {elapsed:.1f}s")
+        logger.info(f"[startup] 路由已就绪，耗时 {time.monotonic() - wait_route_t0:.2f}s")
         svc.route_server_is_start = True
         svc.register_server()
         logger.info("[startup] register_server 完成")
@@ -101,9 +93,7 @@ def start(args):
         # 6. 向前端发送完成初始化完成消息, 写到了 startup 方法里面
 
         # 7. 启动服务
-        logger.info(
-            f"[startup] 启动 uvicorn 0.0.0.0:{schedule_port} workers=1"
-        )
+        logger.info(f"[startup] 启动 uvicorn 0.0.0.0:{schedule_port} workers=1")
         uvicorn.run(
             app="astronverse.scheduler.start:app",
             host="0.0.0.0",

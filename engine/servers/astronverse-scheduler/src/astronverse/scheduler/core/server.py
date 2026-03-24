@@ -62,19 +62,13 @@ class ServerManager:
                     if server.recover_ing:
                         continue
                     if not server.health():
-                        logger.warning(
-                            f"[ServerManager] recover: {server.name}"
-                        )
+                        logger.warning(f"[ServerManager] recover: {server.name}")
                         server.recover_ing = True
                         try:
                             server.recover()
-                            logger.debug(
-                                f"[ServerManager] recover 完成 {server.name}"
-                            )
+                            logger.debug(f"[ServerManager] recover 完成 {server.name}")
                         except Exception as ex:
-                            logger.exception(
-                                f"[ServerManager] recover 失败 {server.name}: {ex}"
-                            )
+                            logger.exception(f"[ServerManager] recover 失败 {server.name}: {ex}")
                         finally:
                             server.recover_ing = False
             except Exception as e:
