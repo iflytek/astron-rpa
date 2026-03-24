@@ -6,9 +6,13 @@ import time
 
 import psutil
 from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.utils import kill_proc_tree
+from astronverse.scheduler.utils.utils import exe_path_matches_astron_install, kill_proc_tree
 
 system_encoding = locale.getpreferredencoding()
+
+# 与 RPA 常见子进程一致：Windows 用完整映像名；POSIX 用去掉 .exe 的前缀做进程名预筛。
+_TASK_IMAGE_NAMES = ("python.exe", "astron_router.exe", "ConsoleApp1.exe", "winvnc.exe")
+_POSIX_NAME_PREFIXES = tuple(img.replace(".exe", "").lower() for img in _TASK_IMAGE_NAMES)
 
 
 class Process:
@@ -22,15 +26,19 @@ class Process:
             kill_proc_tree(z_p)
 
     @staticmethod
-    def get_python_proc_in_current_dir():
-        """获取所有在当前目录Python进程"""
+    def _get_python_proc_in_current_dir_win():
+        """
+        Windows 专用：查找「可能是本机 Astron 相关」的进程，供 kill_all_zombie 逐个杀进程树。
 
-        if sys.platform != "win32":
-            return []
-
-        # 收集所有需要关联的进程
+        分三步：
+        1) 用 tasklist 按固定映像名（python / 路由 / 拾取 / vnc）收集候选 PID，避免枚举全系统进程。
+        2) 排除当前调度器进程及其所有父进程，防止误杀自己。
+        3) 对剩余 PID 用 exe 路径过滤：必须落在 exe_path_matches_astron_install 认定的安装目录内，
+           避免误杀其他目录下的 python.exe / 同名程序。
+        """
+        # 第一步：按映像名拉候选 PID（与 RPA 常见子进程名一致）
         all_process_ids = []
-        for process_name in ["python.exe", "astron_router.exe", "ConsoleApp1.exe", "winvnc.exe"]:
+        for process_name in _TASK_IMAGE_NAMES:
             output = subprocess.check_output(
                 ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
                 encoding=system_encoding,
@@ -45,7 +53,7 @@ class Process:
         if not all_process_ids:
             return []
 
-        # 收集自己的信息
+        # 第二步：当前进程链上的 PID 都不杀（scheduler 自身与 Electron 等父进程）
         self_proc_id_list = []
         try:
             proc = psutil.Process(os.getpid())
@@ -55,32 +63,81 @@ class Process:
         except psutil.NoSuchProcess:
             pass
 
-        # 判读所有的进程是否合理
+        # 第三步：exe 路径必须属于 Astron 安装，再加入待杀列表
         all_process = list()
         for pid in all_process_ids:
             try:
-                # 忽略自己
                 if pid in self_proc_id_list:
                     continue
-
-                # 查看cwd
                 proc = psutil.Process(pid)
-                proc_cwd = proc.exe()
-                if "astron-rpa" not in proc_cwd:
+                proc_exe = proc.exe()
+                if not exe_path_matches_astron_install(proc_exe):
                     continue
-
-                # 符合条件
                 all_process.append(proc)
-            except Exception as e:
+            except Exception:
                 pass
         return all_process
+
+    @staticmethod
+    def _get_python_proc_in_current_dir_posix():
+        """
+        macOS / Linux 等 POSIX：无 tasklist，用 psutil 枚举全机进程，供 kill_all_zombie 杀进程树。
+
+        与 _get_python_proc_in_current_dir_win 同一套映像名单：_TASK_IMAGE_NAMES；
+        POSIX 侧将「.exe 去掉」得到 _POSIX_NAME_PREFIXES，用进程名 pn 是否以其中任一项为前缀做预筛
+        （startswith，不用子串 in，避免误匹配）。
+
+        分三步：
+        1) 排除当前进程及其父进程链，避免自杀。
+        2) pn 命中任一前缀后再看 exe；否则跳过，减少无关进程的 exe 读取。
+        3) exe 路径必须通过 exe_path_matches_astron_install（与 kill_proc_tree 约定一致）。
+        """
+        # 第一步：当前进程链，不杀
+        self_proc_id_list = []
+        try:
+            proc = psutil.Process(os.getpid())
+            while proc:
+                self_proc_id_list.append(proc.pid)
+                proc = proc.parent()
+        except psutil.NoSuchProcess:
+            pass
+
+        # 第二、三步：名称前缀命中后再校验安装路径
+        out = []
+        for p in psutil.process_iter(["pid", "name"]):
+            try:
+                pid = p.info["pid"]
+                if pid in self_proc_id_list:
+                    continue
+                pn = (p.info.get("name") or "").lower()
+                if not any(pn.startswith(prefix) for prefix in _POSIX_NAME_PREFIXES):
+                    continue
+                proc = psutil.Process(pid)
+                exe = proc.exe()
+                if not exe_path_matches_astron_install(exe):
+                    continue
+                out.append(proc)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+        return out
+
+    @staticmethod
+    def get_python_proc_in_current_dir():
+        """获取所有在当前目录Python进程（按 win32 → darwin → 其他 POSIX 分发）。"""
+
+        if sys.platform == "win32":
+            return Process._get_python_proc_in_current_dir_win()
+        elif sys.platform == "darwin":
+            return Process._get_python_proc_in_current_dir_posix()
+        else:
+            return Process._get_python_proc_in_current_dir_posix()
 
     @staticmethod
     def get_root_process(proc):
         """
         获取根节点进程号(第一个不是python的进程)
         """
-        if "python" in proc.name():
+        if "python" in proc.name().lower():
             p_proc = proc.parent()
             return Process.get_root_process(p_proc)
         else:
