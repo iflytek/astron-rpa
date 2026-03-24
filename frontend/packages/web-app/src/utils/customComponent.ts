@@ -321,7 +321,7 @@ export function getComponentPreviewForm(params: {
 export function mapAttrToFormItem(attr: RPA.ConfigParamData): RPA.AtomDisplayItem {
   // 输出参数格式固定，直接返回
   if (attr.varDirection === 1) {
-    const varName = attr.varName.replace('p_variable', 'c_variable')
+    const varName = attr.varName
     return {
       formType: { type: 'RESULT' },
       key: varName,
