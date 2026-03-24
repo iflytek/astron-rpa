@@ -25,5 +25,5 @@ def platform_python_path(parent_dir: str):
     if sys.platform == "win32":
         path = os.path.join(parent_dir, r"python.exe")
     else:
-        path = os.path.join(parent_dir, "bin", "python3.7")
+        path = os.path.join(parent_dir, "bin", "python3")
     return path
