@@ -11,7 +11,6 @@ from astronverse.scheduler.core.schduler.venv import create_project_venv, get_pr
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.ai import InputType, get_factors
-from astronverse.scheduler.utils.clipboard import Clipboard
 from astronverse.scheduler.utils.pip import PipManager
 from astronverse.scheduler.utils.subprocess import SubPopen
 from astronverse.scheduler.utils.utils import EmitType, emit_to_front
@@ -278,6 +277,7 @@ def validate_contract(params: ContractFactors, svc: Svc = Depends(get_svc)):
 
 @router.post("/clipboard")
 def get_clipboard_html(params: ClipboardParams, svc: Svc = Depends(get_svc)):
+    from astronverse.scheduler.utils.clipboard import Clipboard
     if params.is_html:
         content = Clipboard.paste_html_clip()
     else:
