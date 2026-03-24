@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useTheme } from '@rpa/components'
-import { computedWithControl } from '@vueuse/core'
 import { Button, Input, message, Select } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
@@ -21,7 +20,7 @@ import VarInput from './VarInput.vue'
 import VarValueEditor from './VarValueEditor.vue'
 
 interface LocalConfigParamData extends RPA.ConfigParamData {
-  perVarName: string
+  perVarName?: string
 }
 
 const props = defineProps<{ height?: number }>()
@@ -50,22 +49,22 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   ],
 }
 
-const searchedData = computedWithControl(
-  () => [processStore.parameters.length, processStore.activeProcessId, searchText.value],
-  () => {
-    let list = processStore.parameters
+const searchedData = computed(() => {
+  let list = processStore.parameters as LocalConfigParamData[]
 
-    // 根据参数名称查询
-    if (searchText.value) {
-      list = processStore.parameters.filter(item => item.varName.includes(searchText.value))
+  if (searchText.value) {
+    list = processStore.parameters.filter(item => item.varName.includes(searchText.value)) as LocalConfigParamData[]
+  }
+
+  // 使用forEach替代map，防止row对象重建导致输入框焦点丢失
+  list.forEach((item) => {
+    if (!item.perVarName) {
+      item.perVarName = item.varName
     }
+  })
 
-    return list.map(item => ({
-      ...item,
-      perVarName: item.varName,
-    }))
-  },
-)
+  return list
+})
 
 const emptyText = computed(() => searchText.value ? t('configParameter.noSearchResult') : undefined)
 
