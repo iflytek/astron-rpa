@@ -7,7 +7,7 @@ import {
   SettingOutlined,
 } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
-import { debounce } from 'lodash-es'
+import { debounce, isEqual } from 'lodash-es'
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
 
@@ -83,12 +83,14 @@ watch(
   },
 )
 
-watch(() => itemData.value, () => { // 特殊处理自定义对话框视图多个控件联动更新
-  const { formType: { type }, allowReverse } = itemData
-  if (type === ATOM_FORM_TYPE.SELECT && allowReverse) {
-    selectValue.value = generateInputVal(itemData)
+watch(() => itemData.value, () => {
+  const nextValue = generateInputVal(itemData)
+
+  // 外部更新参数值时，同步输入框内容，避免显示滞后
+  if (itemType === ATOM_FORM_TYPE.INPUT && !isEqual(container.value, nextValue)) {
+    container.value = nextValue
   }
-})
+}, { immediate: true })
 
 function clickHandle(e?: Event) {
   // Python 模式在禁用状态下禁止切换

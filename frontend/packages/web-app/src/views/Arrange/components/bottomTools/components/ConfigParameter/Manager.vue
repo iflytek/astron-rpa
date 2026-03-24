@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useTheme } from '@rpa/components'
-import { computedWithControl } from '@vueuse/core'
 import { Button, Input, message, Select } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
@@ -21,7 +20,7 @@ import VarInput from './VarInput.vue'
 import VarValueEditor from './VarValueEditor.vue'
 
 interface LocalConfigParamData extends RPA.ConfigParamData {
-  perVarName: string
+  perVarName?: string
 }
 
 const props = defineProps<{ height?: number }>()
@@ -44,28 +43,28 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
     { field: 'varName', title: t('configParameter.varName'), slots: { default: 'name_default' } },
     { field: 'varDirection', title: t('configParameter.direction'), slots: { default: 'usage_default' } },
     { field: 'varType', title: t('configParameter.varType'), slots: { default: 'type_default' } },
-    { field: 'varValue', title: t('value'), slots: { default: 'default_default' } },
+    { field: 'varValue', title: t('defaultValue'), slots: { default: 'default_default' } },
     { field: 'varDescribe', title: t('configParameter.description'), slots: { default: 'desc_default' } },
     { field: 'operation', title: t('operate'), width: 120, slots: { default: 'operation_default' } },
   ],
 }
 
-const searchedData = computedWithControl(
-  () => [processStore.parameters.length, processStore.activeProcessId, searchText.value],
-  () => {
-    let list = processStore.parameters
+const searchedData = computed(() => {
+  let list = processStore.parameters as LocalConfigParamData[]
 
-    // 根据参数名称查询
-    if (searchText.value) {
-      list = processStore.parameters.filter(item => item.varName.includes(searchText.value))
+  if (searchText.value) {
+    list = processStore.parameters.filter(item => item.varName.includes(searchText.value)) as LocalConfigParamData[]
+  }
+
+  // 使用forEach替代map，防止row对象重建导致输入框焦点丢失
+  list.forEach((item) => {
+    if (!item.perVarName) {
+      item.perVarName = item.varName
     }
+  })
 
-    return list.map(item => ({
-      ...item,
-      perVarName: item.varName,
-    }))
-  },
-)
+  return list
+})
 
 const emptyText = computed(() => searchText.value ? t('configParameter.noSearchResult') : undefined)
 

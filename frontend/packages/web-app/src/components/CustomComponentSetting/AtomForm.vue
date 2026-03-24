@@ -108,8 +108,8 @@ watch(() => alias.value, (newVal, oldVal) => {
           :key="form.key"
         >
           <template v-if="item.key.startsWith('input')">
-            <div class="group relative p-1.5" @click="handleEdit(form)">
-              <AtomFormItem :atom-form-item="form" :hide-required-tip="true" />
+            <div class="group relative p-1.5 rounded-lg hover:bg-[#5D59FF]/[.35] [&_*]:cursor-pointer" @click="handleEdit(form)">
+              <AtomFormItem :atom-form-item="form" :hide-required-tip="true" disabled />
               <!-- <div class="mt-2 pt-2 border-t border-[#000000]/[.08] dark:border-[#FFFFFF]/[.08]">
                 <div class="text-[10px] text-[#000000]/[.45] dark:text-[#FFFFFF]/[.45] mb-1">
                   Value (实时):
@@ -119,7 +119,6 @@ watch(() => alias.value, (newVal, oldVal) => {
                   类型: {{ Array.isArray(form.value) ? 'Array' : typeof form.value }}
                 </div>
               </div> -->
-              <div class="absolute inset-0 rounded-lg hover:bg-[#5D59FF]/[.35] cursor-pointer"></div>
               <rpa-icon
                 name="edit-outline"
                 size="20"

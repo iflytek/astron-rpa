@@ -568,6 +568,7 @@
   "attributeNode": "属性节点",
   "attributeName": "属性名",
   "value": "值",
+  "defaultValue": "默认值",
   "formProperties": "表单属性",
   "dialogProperties": "对话框属性",
   "customDialogBox": "自定义对话框",
