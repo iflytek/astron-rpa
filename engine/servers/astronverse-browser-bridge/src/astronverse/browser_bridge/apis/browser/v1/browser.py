@@ -76,7 +76,7 @@ async def send_browser_command_native(request: Request, svc: ServiceContext = De
         )
 
     try:
-        # 同步的 pipe 读写会阻塞，放到线程池执行，与 Go 端 handleConn 的等待逻辑一致（有来有回）
+        # 同步的 IPC 读写会阻塞，放到线程池执行，与 Go 端 handleConn 的等待逻辑一致（有来有回）
         res = await asyncio.to_thread(
             NativeMessagingClient.send_and_wait,
             browser_type=browser_type,
