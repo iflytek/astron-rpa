@@ -65,6 +65,17 @@ class CV:
                 ],
             ),
             atomicMg.param(
+                "match_similarity",
+                types="Float",
+                required=False,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.match_similarity.show",
+                        expression="return $this.match_similarity.value == 0",
+                    )
+                ],
+            ),
+            atomicMg.param(
                 "wait_time",
                 types="Int",
                 required=False,
@@ -222,6 +233,17 @@ class CV:
                 ],
             ),
             atomicMg.param(
+                "match_similarity",
+                types="Float",
+                required=False,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.match_similarity.show",
+                        expression="return $this.match_similarity.value == 0",
+                    )
+                ],
+            ),
+            atomicMg.param(
                 "wait_time",
                 types="Int",
                 required=False,
@@ -337,6 +359,17 @@ class CV:
             ),
             atomicMg.param("exist_type", required=False),
             atomicMg.param(
+                "match_similarity",
+                types="Float",
+                required=False,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.match_similarity.show",
+                        expression="return $this.match_similarity.value == 0",
+                    )
+                ],
+            ),
+            atomicMg.param(
                 "wait_time",
                 types="Int",
                 required=False,
@@ -400,6 +433,17 @@ class CV:
             ),
             atomicMg.param("wait_type", required=False),
             atomicMg.param("wait_time", types="Int", required=False),
+            atomicMg.param(
+                "match_similarity",
+                types="Float",
+                required=False,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.match_similarity.show",
+                        expression="return $this.match_similarity.value == 0",
+                    )
+                ],
+            ),
         ],
         outputList=[atomicMg.param("image_wait_result", types="Bool")],
     )
@@ -488,6 +532,17 @@ class CV:
                     DynamicsItem(
                         key="$this.interval.show",
                         expression="return $this.input_type.value == '{}'".format(InputType.TEXT.value),
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "match_similarity",
+                types="Float",
+                required=False,
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.match_similarity.show",
+                        expression="return $this.match_similarity.value == 0",
                     )
                 ],
             ),
