@@ -4,7 +4,7 @@ import { message } from 'ant-design-vue'
 import EventEmitter from 'eventemitter3'
 import hotkeys from 'hotkeys-js'
 
-import { getProcessFormValue, renameProcess } from '@/api/resource'
+import { flowSave, getProcessFormValue, renameProcess } from '@/api/resource'
 import { ATOM_KEY_MAP, LOOP_END_MAP } from '@/constants/atom'
 import { CANVAS_SHORTCUTS, SCOPE } from '@/constants/shortcuts'
 import { generateName } from '@/views/Arrange/utils'
@@ -151,6 +151,20 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     this.updateState({ name })
   }
 
+  private getSavePayload(): RPA.Flow.FlowItemValue[] {
+    const [_root, ...nodes] = this.astParser.getSubtreeNodes()
+    return nodes.map((node) => {
+      const raw = { ...(node.raw as any) }
+      delete raw.level
+      delete raw.isHide
+      delete raw.isOpen
+      delete raw.hasFold
+      delete raw.showInput
+      delete raw.debugging
+      return raw as RPA.Flow.FlowItemValue
+    })
+  }
+
   getSelectedAtoms() {
     return this.state.data.filter(it => this.state.selectedAtomIds?.includes(it.id))
   }
@@ -162,6 +176,20 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     }
 
     return defaultState
+  }
+
+  async save(): Promise<boolean> {
+    try {
+      await flowSave({
+        robotId: this.projectId,
+        processId: this.id,
+        processJson: JSON.stringify(this.getSavePayload()),
+      })
+      return true
+    }
+    catch {
+      return false
+    }
   }
 
   async init() {

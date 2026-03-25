@@ -7,6 +7,7 @@
     :color="props.color"
     class="mx-1"
     enable-hover-bg
+    @click="$emit('click')"
   >
     <template #suffix>
       <span v-if="props.label" class="ml-1">{{ $t(props.label) }}</span>
@@ -25,4 +26,5 @@ interface ToolButtonProps {
 }
 
 const props = defineProps<ToolButtonProps>()
+defineEmits<{ (e: 'click'): void }>()
 </script>
