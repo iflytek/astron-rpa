@@ -1,5 +1,5 @@
 # macOS implementation - based on ApplicationServices AXUIElement API
-from typing import Any, Optional
+from typing import Any, Optional, List, Dict
 
 import Quartz
 from ApplicationServices import (
@@ -20,6 +20,15 @@ from astronverse.picker.utils.process import get_process_name
 
 # ── AX 工具函数（来自验证代码）──────────────────────────────────────────────
 
+AX_DEBUG = True
+
+def _ax_log(msg: str):
+    if AX_DEBUG:
+        logger.info(f"[AX] {msg}")
+
+
+
+
 
 def _ax_attr(el, attr):
     """读取 AX 属性，失败返回 None"""
@@ -28,6 +37,15 @@ def _ax_attr(el, attr):
         return val if err == kAXErrorSuccess else None
     except Exception:
         return None
+
+
+def _ax_attr_names(el) -> List[str]:
+    """获取元素所有属性名"""
+    try:
+        err, names = AXUIElementCopyAttributeNames(el, None)
+        return list(names) if err == kAXErrorSuccess and names else []
+    except Exception:
+        return []
 
 
 def _ax_unpack_point(val):
@@ -61,21 +79,29 @@ def _ax_unpack_rect(val):
 
 
 def _ax_element_rect(el) -> Optional[tuple]:
-    """返回元素屏幕矩形 (x, y, w, h)，AX 坐标系（左上原点）"""
     frame_v = _ax_attr(el, "AXFrame")
     if frame_v is not None:
         rect = _ax_unpack_rect(frame_v)
         if rect and rect[2] > 0 and rect[3] > 0:
+            _ax_log(f"rect(AXFrame)={rect}")
             return rect
 
     pv = _ax_attr(el, "AXPosition")
     sv = _ax_attr(el, "AXSize")
+
     if pv is None or sv is None:
+        _ax_log("rect: missing pos/size")
         return None
+
     pt = _ax_unpack_point(pv)
     sz = _ax_unpack_size(sv)
+
     if pt and sz and sz[0] > 0 and sz[1] > 0:
-        return pt[0], pt[1], sz[0], sz[1]
+        rect = (pt[0], pt[1], sz[0], sz[1])
+        _ax_log(f"rect(pos/size)={rect}")
+        return rect
+
+    _ax_log("rect: invalid")
     return None
 
 
@@ -98,16 +124,80 @@ def _ax_get_pid(el) -> int:
     except Exception:
         return 0
 
+def _ax_find_deepest_at_point(el, x, y, depth=0, max_depth=10):
+    indent = "  " * depth
+
+    if depth > max_depth:
+        _ax_log(f"{indent}max depth reached")
+        return el
+
+    rect = _ax_element_rect(el)
+    if rect is None:
+        _ax_log(f"{indent}no rect")
+        return el
+
+    rx, ry, rw, rh = rect
+    best = el
+    best_area = rw * rh
+
+    def contains(r):
+        rx, ry, rw, rh = r
+        return rx <= x <= rx + rw and ry <= y <= ry + rh
+
+    _ax_log(f"{indent}node rect={rect}")
+
+    children = _ax_attr(el, "AXChildren") or []
+    _ax_log(f"{indent}children={len(children)}")
+
+    for i, child in enumerate(children):
+        child_rect = _ax_element_rect(child)
+        if child_rect is None:
+            _ax_log(f"{indent} child[{i}] no rect")
+            continue
+
+        if not contains(child_rect):
+            _ax_log(f"{indent} child[{i}] miss")
+            continue
+
+        _ax_log(f"{indent} child[{i}] HIT {child_rect}")
+
+        sub = _ax_find_deepest_at_point(child, x, y, depth + 1, max_depth)
+        sub_rect = _ax_element_rect(sub)
+
+        if sub_rect:
+            area = sub_rect[2] * sub_rect[3]
+            if area < best_area:
+                _ax_log(f"{indent} -> better area={area}")
+                best = sub
+                best_area = area
+
+    return best
+
 
 def _ax_get_element_at(x: float, y: float) -> Optional[Any]:
-    """获取屏幕坐标处的 AX 元素"""
     try:
+        _ax_log(f"\n=== HIT TEST ({x},{y}) ===")
+
         sys_el = AXUIElementCreateSystemWide()
         err, el = AXUIElementCopyElementAtPosition(sys_el, float(x), float(y), None)
+
         if err == kAXErrorSuccess and el is not None:
-            return el
-    except Exception:
-        pass
+            _ax_log("initial element OK")
+
+            refined = _ax_find_deepest_at_point(el, x, y)
+
+            role = _ax_attr(refined, "AXRole")
+            title = _ax_attr(refined, "AXTitle") or _ax_attr(refined, "AXLabel")
+
+            _ax_log(f"FINAL => role={role}, title={title}")
+
+            return refined
+
+        _ax_log(f"hit failed err={err}")
+
+    except Exception as e:
+        logger.exception(f"_ax_get_element_at error: {e}")
+
     return None
 
 
@@ -125,6 +215,57 @@ def _ax_ancestor_chain(el) -> list:
     return chain
 
 
+# ── 属性收集与格式化（移植自代码1）─────────────────────────────────────────
+
+
+def _format_ax_value(attr: str, val) -> str:
+    """格式化 AX 属性值，用于展示"""
+    if val is None:
+        return "None"
+    if attr == "AXPosition":
+        pt = _ax_unpack_point(val)
+        return f"({pt[0]:.0f}, {pt[1]:.0f})" if pt else str(val)
+    if attr == "AXSize":
+        sz = _ax_unpack_size(val)
+        return f"({sz[0]:.0f} × {sz[1]:.0f})" if sz else str(val)
+    if isinstance(val, bool):
+        return "✓" if val else "✗"
+    if isinstance(val, (int, float)):
+        return str(val)
+    if isinstance(val, str):
+        return val or "(empty)"
+    if isinstance(val, (list, tuple)):
+        return f"[{len(val)} items]"
+    try:
+        return str(val)
+    except Exception:
+        return "(unknown)"
+
+
+def _collect_attrs(el) -> Dict[str, str]:
+    """收集元素所有属性，返回格式化后的字典，与代码1行为一致"""
+    PRIORITY = [
+        "AXRole", "AXRoleDescription", "AXTitle", "AXLabel",
+        "AXValue", "AXDescription", "AXHelp", "AXEnabled",
+        "AXFocused", "AXSelected", "AXExpanded", "AXIdentifier",
+        "AXPosition", "AXSize",
+    ]
+    SKIP = {"AXChildren", "AXParent", "AXWindow", "AXTopLevelUIElement"}
+    names = _ax_attr_names(el)
+    result = {}
+    for k in PRIORITY:
+        if k in names:
+            v = _ax_attr(el, k)
+            if v is not None:
+                result[k] = _format_ax_value(k, v)
+    for k in names:
+        if k not in PRIORITY and k not in SKIP:
+            v = _ax_attr(el, k)
+            if v is not None:
+                result[k] = _format_ax_value(k, v)
+    return result
+
+
 # ── AXUIElement（IElement 实现）──────────────────────────────────────────────
 
 
@@ -135,6 +276,8 @@ class AXUIElement(IElement):
         self.element = element
         self.__rect: Optional[Rect] = None
         self.__tag: Optional[str] = None
+        self.__attributes: Optional[Dict[str, str]] = None
+        self.__ancestor_chain: Optional[List['AXUIElement']] = None
 
     def rect(self) -> Rect:
         if self.__rect is None:
@@ -225,6 +368,19 @@ class AXUIElement(IElement):
             "img": {"self": screenshot(self.rect())},
         }
 
+    def ancestor_chain(self) -> List['AXUIElement']:
+        """返回祖先链（从顶层到当前元素）的 AXUIElement 列表"""
+        if self.__ancestor_chain is None:
+            raw_chain = _ax_ancestor_chain(self.element)
+            self.__ancestor_chain = [AXUIElement(e) for e in raw_chain]
+        return self.__ancestor_chain
+
+    def attributes(self) -> Dict[str, str]:
+        """返回元素所有属性的格式化字典（与代码1一致）"""
+        if self.__attributes is None:
+            self.__attributes = _collect_attrs(self.element)
+        return self.__attributes
+
 
 # ── AXUIOperate（工具类）────────────────────────────────────────────────────
 
@@ -238,7 +394,31 @@ class AXUIOperate:
         return int(loc.x), int(loc.y)
 
     @classmethod
+    def get_element_at(cls, point: Point) -> Optional[AXUIElement]:
+        """根据屏幕坐标获取 AXUIElement 对象"""
+        raw = _ax_get_element_at(float(point.x), float(point.y), highlight)
+        if raw is None:
+            return None
+        return AXUIElement(raw)
+
+    @classmethod
+    def get_element_rect(cls, element: AXUIElement) -> Optional[Rect]:
+        """获取元素的屏幕矩形"""
+        return element.rect()
+
+    @classmethod
+    def get_ancestor_chain(cls, element: AXUIElement) -> List[AXUIElement]:
+        """获取元素的祖先链（顶层 → 当前）"""
+        return element.ancestor_chain()
+
+    @classmethod
+    def get_element_attributes(cls, element: AXUIElement) -> Dict[str, str]:
+        """获取元素的所有属性"""
+        return element.attributes()
+
+    @classmethod
     def get_windows_by_point(cls, point: Point) -> Optional[Any]:
+        """原始方法，返回原生 AXUIElement 对象（兼容旧接口）"""
         return _ax_get_element_at(float(point.x), float(point.y))
 
     @classmethod
