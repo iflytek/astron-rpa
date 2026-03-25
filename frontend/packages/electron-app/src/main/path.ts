@@ -40,7 +40,7 @@ export function openPath(targetPath: string): Promise<void> {
     targetPath = path.resolve(targetPath)
 
     // 根据操作系统选择命令
-    const openCommand = process.platform === 'win32' ? `start "" "${targetPath}"` : `xdg-open "${targetPath}"`
+    const openCommand = process.platform === 'win32' ? `start "" "${targetPath}"` : process.platform === 'darwin' ? `open "${targetPath}"` : `xdg-open "${targetPath}"`
 
     exec(openCommand, (error) => {
       error ? reject(error) : resolve()
