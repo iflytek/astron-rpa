@@ -560,6 +560,19 @@
   "rpaPickerUnavailable": "拾取器暂时无法使用，请检查拾取服务是否正常",
   "saving": "保存中",
   "saveErrorAndQuit": "保存失败, 是否继续退出，退出后将丢失当前编辑内容",
+  "toolsTips": {
+    "runningOrDebuggingNoRepeat": "当前正在运行/调试, 请勿重复操作",
+    "noRunningOrDebuggingFlow": "当前没有正在运行/调试中的流程, 不可进行停止操作",
+    "enableDebugModeFirst": "请先开启调试模式, 再进行调试操作",
+    "debuggingPleaseWait": "正在运行调试, 请稍后",
+    "runningOrDebuggingTryLater": "正在运行/调试, 请稍后再试",
+    "runningOrDebuggingStopFirst": "正在运行/调试, 请先停止",
+    "runningOrDebuggingCannotSave": "正在运行/调试, 不可保存",
+    "saveSuccess": "保存成功",
+    "saveFailed": "保存失败",
+    "saveFailedRetry": "保存失败,请重试",
+    "selectNodeBeforeGroup": "请先选中一个节点再编组"
+  },
   "common": {
     "totalData": "共 {{total}} 项数据",
     "createDate": "创建日期",

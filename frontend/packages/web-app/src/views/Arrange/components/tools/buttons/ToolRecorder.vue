@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, computed } from 'vue'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 
 import BUS from '@/utils/eventBus'
 import { useRecordWindow } from '@/views/Arrange/hook/useRecordWindow'
@@ -11,6 +12,7 @@ import ToolButton from '../components/ToolButton.vue'
 
 const { open } = useRecordWindow()
 const runningStore = useRunningStore()
+const { t } = useTranslation()
 
 onMounted(() => {
   BUS.$off('record-save')
@@ -25,7 +27,7 @@ const disabled = computed(() => ['debug', 'run'].includes(runningStore.running))
 
 function handleClick() {
   if (disabled.value) {
-    message.warning('正在运行/调试, 请先停止')
+    message.warning(t('toolsTips.runningOrDebuggingStopFirst'))
     return
   }
   open()

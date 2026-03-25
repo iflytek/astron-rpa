@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { throttle } from 'lodash-es'
 import { message } from 'ant-design-vue'
 import { onBeforeUnmount } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
@@ -13,6 +14,7 @@ import ToolButton from '../components/ToolButton.vue'
 
 const processStore = useProcessStore()
 const runningStore = useRunningStore()
+const { t } = useTranslation()
 
 const show = computed(() => ['debug', 'run'].includes(runningStore.running))
 const disabled = computed(() => ['free'].includes(runningStore.running))
@@ -23,7 +25,7 @@ const handleConfirmStop = throttle(() => {
 
 function handleClick() {
   if (disabled.value || !show.value) {
-    message.warning('当前没有正在运行/调试中的流程, 不可进行停止操作')
+    message.warning(t('toolsTips.noRunningOrDebuggingFlow'))
     return
   }
   handleConfirmStop()

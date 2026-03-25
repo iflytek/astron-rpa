@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
+import { useTranslation } from 'i18next-vue'
 
 import { SAVE } from '@/constants/shortcuts'
 import { registerHotkey, unregisterHotkey } from '@/utils/registerHotkeys'
@@ -13,6 +14,7 @@ import ToolButton from '../components/ToolButton.vue'
 
 const { canvasManager } = useProcessStore()
 const runningStore = useRunningStore()
+const { t } = useTranslation()
 
 const disabled = computed(() => {
   return !canvasManager?.activeTab || ['debug', 'run'].includes(runningStore.running)
@@ -21,16 +23,16 @@ const disabled = computed(() => {
 const save = throttle(async () => {
   const ok = await canvasManager?.saveTab()
   if (ok) {
-    message.success('保存成功')
+    message.success(t('toolsTips.saveSuccess'))
   }
   else {
-    message.error('保存失败')
+    message.error(t('toolsTips.saveFailed'))
   }
 }, 1500, { leading: true, trailing: false })
 
 const handleClick = async () => {
   if (disabled.value) {
-    message.warning('正在运行/调试, 不可保存')
+    message.warning(t('toolsTips.runningOrDebuggingCannotSave'))
     return
   }
   await save()

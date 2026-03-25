@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 
 import { useRouteBack } from '@/hooks/useCommonRoute'
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -12,6 +13,7 @@ import ToolButton from '../components/ToolButton.vue'
 const processStore = useProcessStore()
 const { canvasManager } = processStore
 const runningStore = useRunningStore()
+const { t } = useTranslation()
 
 const disabled = computed(() => {
   return ['debug', 'run'].includes(runningStore.running)
@@ -19,7 +21,7 @@ const disabled = computed(() => {
 
 const handleClick = async () => {
   if (disabled.value) {
-    message.warning('正在运行/调试, 请先停止')
+    message.warning(t('toolsTips.runningOrDebuggingStopFirst'))
     return
   }
 
@@ -31,7 +33,7 @@ const handleClick = async () => {
     useRouteBack()
   }
   catch {
-    message.error('保存失败,请重试')
+    message.error(t('toolsTips.saveFailedRetry'))
   }
 }
 </script>
