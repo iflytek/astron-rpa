@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUnmounted } from 'vue'
+import { onBeforeUnmount, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { startPickServices, stopPickServices } from '@/api/engine'
@@ -12,13 +12,27 @@ import { useRunningStore } from '@/stores/useRunningStore'
 
 const processStore = useProcessStore()
 const runningStore = useRunningStore()
+const route = useRoute()
 
-const projectId = useRoute()?.query?.projectId as string
-const projectName = useRoute()?.query?.projectName as string
-const projectVersion = Number(useRoute()?.query?.projectVersion) || 0
+async function initByRoute() {
+  const projectId = route?.query?.projectId as string
+  const projectName = route?.query?.projectName as string
+  const projectVersion = Number(route?.query?.projectVersion) || 0
 
-processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
-processStore.canvasManager.init(projectId)
+  if (!projectId)
+    return
+
+  processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
+  await processStore.canvasManager.init(projectId)
+}
+
+watch(
+  () => [route?.query?.projectId, route?.query?.projectName, route?.query?.projectVersion],
+  () => {
+    initByRoute()
+  },
+  { immediate: true },
+)
 
 let isStart = false
 
@@ -38,6 +52,7 @@ onUnmounted(async () => {
 onBeforeUnmount(() => {
   useRunlogStore().clearLogs() // 清空日志
   runningStore.closeDataTableListener()
+  processStore.canvasManager.reset()
 })
 </script>
 
