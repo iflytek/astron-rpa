@@ -13,7 +13,7 @@ import { caculateConditional, caculateResultKey } from '@/utils/selfExecuting'
 import FlowList from '../../../components/flow/FlowList.vue'
 import { AST_NODE_TYPE, IncrementalASTParser, ProcessNode } from '../../ast'
 import { CONVERT_MAP } from './constants'
-import { AbilityInfoCache, mergeAtomFormToAtomMeta, generateId, isContinuous } from './utils'
+import { AbilityInfoCache, mergeAtomFormToAtomMeta, generateId, isContinuous, normalizeAtomFormLists } from './utils'
 import { ConfigParameter } from './ConfigParameter'
 import { nodeParameter } from './NodeParameter'
 import { UndoManager } from './UndoManager'
@@ -189,9 +189,10 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
    * 校验原子能力
    */
   private validateAtom(atom: RPA.Atom): RPA.Atom {
-    const { inputList, outputList, advanced, exception } = atom
+    const normalizedAtom = normalizeAtomFormLists(atom)
+    const { inputList, outputList, advanced, exception } = normalizedAtom
 
-    return Object.assign(atom, {
+    return Object.assign(normalizedAtom, {
       inputList: inputList.map(it => Object.assign(it, { errors: nodeParameter.validateFormItems(it) })),
       outputList: outputList.map(it => Object.assign(it, { errors: nodeParameter.validateFormItems(it) })),
       advanced: advanced.map(it => Object.assign(it, { errors: nodeParameter.validateFormItems(it) })),
@@ -305,7 +306,9 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     }
 
     const atomAbilityInfos = await Promise.all(addKeys.map(it => this.abilityInfo.getLatestAbilityInfo(it)))
-    const processNodes = atomAbilityInfos.map(it => this.convertAtomToProcessNode(it, true))
+    const processNodes = atomAbilityInfos
+      .map(it => normalizeAtomFormLists(it))
+      .map(it => this.convertAtomToProcessNode(it, true))
     const preNodeId = this.state.data[index - 1]?.id;
 
     this.undoManager.update({ type: 'insert', targetId: preNodeId, item: processNodes })

@@ -75,6 +75,26 @@ const exceptionKeys = [
 ]
 
 /**
+ * 统一规范化原子能力表单列表：
+ */
+export function normalizeAtomFormLists(atom: RPA.Atom): RPA.Atom {
+  const inputList = Array.isArray(atom?.inputList) ? atom.inputList : []
+  const outputList = Array.isArray(atom?.outputList) ? atom.outputList : []
+  const advanced = Array.isArray(atom?.advanced) ? atom.advanced : []
+  const exception = Array.isArray(atom?.exception) ? atom.exception : []
+
+  const advancedFromInputList = inputList.filter(item => item?.level === 'advanced')
+  const filteredInputList = inputList.filter(item => item?.level !== 'advanced')
+
+  return Object.assign(atom, {
+    inputList: filteredInputList,
+    outputList,
+    advanced: [...advancedFromInputList, ...advanced],
+    exception,
+  })
+}
+
+/**
  * 原子能力的结构分成两部分：
  * 1. AtomMeta 原子能力的元数据，类型为 RPA.Flow.FlowItemValue
  * 2. AtomForm 原子能力的表单数据，类型为 RPA.Atom
@@ -115,22 +135,15 @@ export function mergeAtomFormToAtomMeta(atomMeta: RPA.Atom, atomForm: RPA.Flow.F
   const advanced = mergeAdvanced(atomForm.advanced);
   const inputList = mergeValue(atomMeta.inputList, atomForm.inputList);
 
-  // 从 inputList 中筛选出高级参数（level = 'advanced'）
-  const advancedFromInputList = inputList.filter(item => item.level === 'advanced');
-  // 从 inputList 中移除高级参数
-  const filteredInputList = inputList.filter(item => item.level !== 'advanced');
-  // 将高级参数添加到 advanced 列表中
-  const finalAdvanced = [...advancedFromInputList, ...advanced];
-
-  return {
+  return normalizeAtomFormLists({
     ...atomMeta,
     id: atomForm.id,
     alias: atomForm.alias,
-    advanced: finalAdvanced,
+    advanced,
     exception: mergeException(atomForm.exception),
-    inputList: filteredInputList,
+    inputList,
     outputList: mergeValue(atomMeta.outputList, atomForm.outputList),
-  }
+  })
 }
 
 /**
