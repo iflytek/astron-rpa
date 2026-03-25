@@ -1,5 +1,7 @@
 # 🤖 Astron RPA Frequently Asked Questions (FAQ)
 
+> 💡 **Tip:** Items marked with 🆕 are new additions, and those marked with 🔄 are recent updates.
+
 ## 📚 Table of Contents
 
 - [🔧 Installation & Deployment](#-installation--deployment)
@@ -20,6 +22,35 @@
 **Supported Systems:**
 - ✅ Windows 10/11
 
+### Q: 🆕 Is it normal for the server atlas container to exit automatically after starting?
+
+**A:** ✅ **Normal!** The Atlas container is used for database Schema migration and will automatically exit upon task completion. As long as the log shows "Schema is synced", it means success.
+
+### Q: 🆕 Agent server cannot connect to RPA service?
+
+**A:** Please check the `.env` file in the Agent deployment directory to ensure `RPA_URL` is set to the actual address of the RPA server (e.g., `http://YOUR_IP:32742`).
+
+### Q: 🆕 Client installation stuck at the last step for a long time?
+
+**A:** 
+
+Please try:
+1. Uninstall the old version
+2. Manually delete the `data` folder in the installation directory
+3. Re-run the installation package
+
+### Q: Prompt "There is a problem with this Windows Installer package" during installation?
+
+**A:**
+This is usually because the system lacks necessary runtime components.
+**Solution:** Please download and install/update [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
+
+### Q: 🆕 404 NotFound occurs when starting the client after local build?
+
+**A:** 
+It is not recommended to build the client locally by yourself, as you may encounter configuration or environmental issues.
+It is recommended to download the official stable installation package (e.g., v1.1.2+) directly from the [Release page](https://github.com/iflytek/astron-rpa/releases).
+
 ---
 
 ## 👥 Client Related
@@ -27,6 +58,10 @@
 ### Q: Do I need to install a client?
 
 **A:** ✅ **Yes!** RPA currently doesn't have a web version and requires a client to run.
+
+### Q: 🆕 Is there any difference between the open-source version and the enterprise version of RPA?
+
+**A:** The open-source version of the RPA client is universal with the platform version, but you need to pay attention to configuring the corresponding server address.
 
 ---
 
@@ -221,7 +256,7 @@ CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
 
 ## 📖 Feature Usage
 
-### Q: Why can't I capture web elements? Why does web automation always fail?
+### Q: 🔄 Why can't I capture web elements? Why does web automation always fail?
 
 **A:** 
 
@@ -229,7 +264,29 @@ CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
 
 ![](./docs/images/browser-plugin.png)
 
+**Other common reasons:**
+1. **Display settings:** Ensure your computer monitor scaling is set to **100%**.
+2. **Mode selection:** Use "Browser Plugin" mode for capturing web content; use "Desktop Element" mode for capturing the browser itself (like the address bar).
+
 For more web automation information, see the [Official Guide](https://www.iflyrpa.com/docs/quick-start/web-automation.html)
+
+### Q: 🆕 How to handle web page screenshots and CAPTCHAs?
+
+**A:**
+
+1. Use the "Webpage Screenshot" atomic capability.
+2. For text on Canvas or special CAPTCHAs, you can process them by combining OCR or large model image recognition capabilities.
+
+### Q: 🆕 How does the robot operate web drop-down menus with lazy loading (Virtual List) characteristics?
+
+**A:**
+
+For "lazy loading" drop-down menus where the rendered options exceed a certain number (e.g., 200), but the actual HTML only renders a few within the viewport (e.g., 10), normal capturing will fail when scrolling.
+**Solutions:**
+1. **Keyboard Simulation:** Use "Simulate Keystrokes" (such as the down arrow `Down`) to select options one by one.
+2. **XPath Customization:** If the element exists in the DOM although invisible, try getting it via customized XPath.
+3. **Image Recognition:** Combine with image recognition clicks for auxiliary positioning.
+4. **Scroll Page Operation:** Add scrolling operations to trigger element rendering, and then perform capturing or clicking.
 
 ---
 
@@ -276,6 +333,63 @@ http://{IP_ADDRESS}:32742/api/rpa-openapi/workflows/get
 
 > 📌 **Reminder:** All robots that need to be called externally need to be published in the designer first, then configured for external calls in the executor
 
+### Q: 🆕 How to pass parameters (input/output) in RPA workflows?
+
+**A:** 
+
+- **Input parameters:** Define "Process Parameters" in the RPA workflow design, and pass the corresponding Key-Value when calling externally.
+- **Output parameters:** Return JSON data through HTTP request nodes or Python scripts, which can be referenced by subsequent nodes via variables.
+
+### Q: What if dependency package downloads fail?
+
+**A:** 
+
+The domestic network environment may cause timeouts when connecting to the official PyPI source.
+
+**✅ Solution:** Configure a domestic mirror source (like Alibaba Cloud).
+
+```ini
+# pip configuration example
+[global]
+index-url = https://mirrors.aliyun.com/pypi/simple/
+trusted-host = mirrors.aliyun.com
+```
+
+### Q: 🆕 How to install third-party Python libraries (such as `ddddocr`) in an intranet environment (offline)?
+
+**A:** 
+In an environment without external network access, normal `pip install` or offline packages may fail due to environmental differences.
+**✅ Solution (Bottom-level injection):**
+1. Prepare the complete dependency files of the required library in an external network environment.
+2. Directly copy and integrate the dependency library files into the `python_core` base environment of the RPA client engine (e.g., `<installation_directory>/data/python_core/Lib/site-packages/`).
+3. Reset the `venv` environment of the client to trigger environment reconstruction and load the new library.
+
+### Q: 🆕 Can it be used in an intranet?
+
+**A:** ✅ **Yes!** As long as the RPA client and server can communicate normally within the same intranet environment.
+
+### Q: 🆕 Are there any limits on the number of workflows for the free/open-source version?
+
+**A:** The open-source version is generally consistent with the personal version. If there are no special cloud account binding restrictions, there are usually no strict quantity limits. Please refer to the official instructions or Release notes for details.
+
+### Q: 🆕 Virtual desktop fails to run / white screen / prompts "Authorization required to enable"?
+
+**A:** 
+1. **Check the "Remote Desktop" switch (most common reason)**: 
+   - Even in Windows Pro, the remote desktop feature might be disabled by default.
+   - **Operation**: Go to `Settings` -> `System` -> `Remote Desktop`, and ensure the switch is **"On"**.
+2. **System Requirements**: Only supports Windows 8, Windows Server 2012, and higher versions.
+   - ❌ **Does not support Windows Home**: Home edition lacks RDP components.
+3. **Account Password**: 
+   - Ensure the current Windows login account **has a password set**. RDP usually does not allow empty password logins.
+4. **Permission Settings**: 
+   - Try running the RPA client as an **Administrator**.
+5. **Stability**: This feature may currently be unstable, it is recommended to prioritize running in a standard desktop environment.
+
+### Q: 🆕 Can AstronRPA add comments in sub-workflows?
+
+**A:** Yes. The workflow designer supports adding comments.
+
 ---
 
 ## 🐛 Troubleshooting
@@ -295,6 +409,52 @@ docker logs [container_name] > logs.txt
 # Logs are saved in: installation_directory\data\logs
 # If software is installed on C drive: %APPDATA%\astron-rpa\logs
 ```
+
+### Q: Startup error, white screen, or abnormal interface?
+
+**A:** 
+
+It may be missing `Microsoft Edge WebView2 Runtime` or the version is too low (common in older systems or cloud desktops). Please try updating WebView2 Runtime.
+
+### Q: 🆕 Web element capturing feature frequently fails or causes the browser to crash?
+
+**A:** 
+
+If a crash or complete failure occurs when capturing elements, it may be because other applications running in the system (such as the "Doubao" client) are also trying to take over the browser environment, causing a dual conflict.
+**Solution:** Try closing potential interfering applications, adjust configurations, and then restart the RPA client and browser.
+
+### Q: Build or startup prompts "Python copy failed"?
+
+**A:** 
+
+1. **Path issue:** Ensure the project path does not contain Chinese or special characters.
+2. **Permission issue:** Try running as an administrator.
+
+### Q: Excel/WPS automation reports "Registry information not detected"?
+
+**A:**
+
+1. **Permission issue:** Try running the client as an administrator (or remove administrator privileges), sometimes mismatched permissions can prevent reading the registry.
+2. **Installation issue:** Ensure Office/WPS installation is complete and not corrupted.
+
+### Q: Reports "send uuid empty" or port exception?
+
+**A:**
+
+- **send uuid empty:** Usually the client and server versions are inconsistent, or the connection has not been established. Please update to the latest version and restart the client.
+- **Port issue:** Ports `13160`/`13159` are RPA internal scheduling service ports, please ensure they are not blocked or occupied by the firewall.
+
+### Q: The client program keeps in an infinite loop or reports errors?
+
+**A:** Check the logs in `data/logs/picker` or `robot-service`. Sometimes you need to clear the local cache data (delete the `data` directory) and try again.
+
+### Q: The server Redis container keeps restarting?
+
+**A:** 
+There may be a startup script compatibility issue in the image (e.g., missing bash).
+**Solutions:** 
+1. Try changing `bash` to `sh` in the startup command.
+2. Or pull the latest `latest` image, which usually has this issue fixed.
 
 ---
 
@@ -323,10 +483,10 @@ docker logs [container_name] > logs.txt
 |------|------|---------|
 | v1.0 | 2025-11-26 | Initial Release |
 | v1.1 | TBD | Will add more FAQs |
+| v1.1.5 | 2026-01-29 | Migrated architecture to Electron; Added Computer Use Agent; Supported data tables; Excel V2 components; Aligned open-source version with SaaS version |
 
 ---
 
-> ⏰ **Last Updated:** 2025-11-26  
+> ⏰ **Last Updated:** 2026-02-01  
 > 👤 **Maintainer:** DoctorBruce  
 > 📜 **License:** Apache-2.0
-
