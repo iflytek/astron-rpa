@@ -3,14 +3,12 @@ import { nextTick } from 'vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { PAGE_LEVEL_INDENT } from '@/views/Arrange/config/flow'
 
-import { useFlowState } from './useFlowState'
-
 // 拖动时，修改占位缩进
-export function draggableAddStyle() {
-  const { flowManager } = useFlowState()
-
+export function draggableAddStyle(flowManager?: { containerRef?: { value: HTMLElement | null } }) {
   nextTick(() => {
-    const ghost = flowManager.containerRef.value?.querySelector('.sortable-ghost') as HTMLElement
+    const ghost = flowManager?.containerRef?.value?.querySelector('.sortable-ghost') as HTMLElement
+    if (!ghost)
+      return
     const prevNode = ghost.previousSibling
     const nextNode = ghost.nextSibling
     const level = Math.max(
