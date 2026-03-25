@@ -97,6 +97,26 @@ class RecordingTool:
                     "{}".format(self.local_raw_file),
                     "-y",
                 ]
+            elif sys.platform == "darwin":
+                exec_args_1 = [
+                    url,
+                    "-f",
+                    "avfoundation",
+                    "-capture_cursor",
+                    "1",
+                    "-framerate",
+                    "3",
+                    "-i",
+                    "Capture screen 0:none",
+                    "-crf",
+                    "23",
+                    "-pix_fmt",
+                    "yuv420p",
+                    "-vf",
+                    "scale=iw*75/100:ih*75/100,pad=ceil(iw/2)*2:ceil(ih/2)*2",
+                    "{}".format(self.local_raw_file),
+                    "-y",
+                ]
             else:
                 exec_args_1 = [
                     url,
@@ -133,7 +153,7 @@ class RecordingTool:
             try:
                 proc_1.stdin.write(b"q")
                 proc_1.stdin.close()
-            except BrokenPipeError:
+            except (BrokenPipeError, ValueError, OSError):
                 pass
 
             try:
@@ -143,6 +163,10 @@ class RecordingTool:
                 proc_1.wait()
 
             self.end_time = int(time.time())
+
+            # ffmpeg 异常退出（如设备不可用），raw 文件未生成，跳过保存
+            if proc_1.returncode != 0 or not os.path.exists(self.local_raw_file):
+                return
 
             # 4. 判断是否保存
             if self.exec_success:
