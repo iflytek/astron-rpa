@@ -305,6 +305,8 @@ class APP(Enum):
     Unknown = "Unknown"
     Chromium = "chromium"
 
+    Chrome_MAC = "Google Chrome"
+
     @classmethod
     def init(cls, name: str):
         try:

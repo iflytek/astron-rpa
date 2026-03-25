@@ -86,11 +86,18 @@ class HighlightForm(QWidget):
         self.setAttribute(Qt.WA_NoSystemBackground, True)
 
         self.draw_rect = QRect(0, 0, 1, 1)
+        self._rect_visible = True          # 闪烁时控制矩形显隐
 
-        # ✅ 单一计时器（核心修复）
+        # 普通消隐计时器
         self.clear_timer = QTimer(self)
         self.clear_timer.setSingleShot(True)
         self.clear_timer.timeout.connect(self.clear_rect)
+
+        # 闪烁计时器
+        self._blink_timer = QTimer(self)
+        self._blink_timer.timeout.connect(self._on_blink_tick)
+        self._blink_count = 0              # 已完成的半步数（亮→灭 算1步）
+        self._blink_total = 0              # 总半步数 = 闪烁次数 × 2
 
         self.full_screen()
 
@@ -115,9 +122,12 @@ class HighlightForm(QWidget):
 
     def clear_rect(self):
         self.draw_rect = QRect(0, 0, 1, 1)
-        self.update()   # ✅ 不再用 repaint
+        self._rect_visible = True
+        self.update()
 
     def update_rect(self, rect):
+        """普通高亮，显示 800ms 后消失"""
+        self._stop_blink()
         padding = 4
         self.draw_rect = QRect(
             rect.left() - padding,
@@ -125,18 +135,53 @@ class HighlightForm(QWidget):
             rect.width() + padding * 2,
             rect.height() + padding * 2,
         )
+        self._rect_visible = True
 
-        # ✅ 避免频繁 show 导致闪烁
         if not self.isVisible():
             self.show()
             apply_overlay_flags(self)
 
         self.raise_()
-
-        self.update()  # ✅ 替代 repaint()
-
-        # ✅ 重置计时器（不会叠加）
+        self.update()
         self.clear_timer.start(800)
+
+    def blink_rect(self, rect, times=3, interval=150):
+        """校验用：闪烁 times 次后消失，interval 为每半步毫秒数"""
+        self._stop_blink()
+        self.clear_timer.stop()
+
+        padding = 4
+        self.draw_rect = QRect(
+            rect.left() - padding,
+            rect.top() - padding,
+            rect.width() + padding * 2,
+            rect.height() + padding * 2,
+        )
+        self._rect_visible = True
+        self._blink_count = 0
+        self._blink_total = times * 2      # 每次闪烁 = 灭 + 亮，共 times*2 个半步
+
+        if not self.isVisible():
+            self.show()
+            apply_overlay_flags(self)
+
+        self.raise_()
+        self.update()
+        self._blink_timer.start(interval)
+
+    def _on_blink_tick(self):
+        self._blink_count += 1
+        self._rect_visible = not self._rect_visible
+        self.update()
+
+        if self._blink_count >= self._blink_total:
+            self._stop_blink()
+            # 闪烁结束后清除矩形
+            self.clear_rect()
+
+    def _stop_blink(self):
+        if self._blink_timer.isActive():
+            self._blink_timer.stop()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -146,10 +191,11 @@ class HighlightForm(QWidget):
         painter.fillRect(self.rect(), Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
-        # 蓝色高亮（DevTools风格）
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QColor(59, 158, 255, 80))
-        painter.drawRect(self.draw_rect)
+        # 蓝色高亮（DevTools风格），闪烁时跳过绘制
+        if self._rect_visible:
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor(59, 158, 255, 80))
+            painter.drawRect(self.draw_rect)
 
 
 # ─────────────────────────────────────────────
@@ -173,15 +219,22 @@ class ConsoleApp(QMainWindow):
             )
             msg = json.loads(data.decode())
 
-            if msg["Operation"] == "picking":
+            operation = msg.get("Operation")
+            if operation in ("picking", "validate") and msg.get("Boxes"):
                 box = msg["Boxes"][0]
-
-                self.highlight.update_rect(QRect(
+                rect = QRect(
                     box["Left"],
                     box["Top"],
                     box["Right"] - box["Left"],
                     box["Bottom"] - box["Top"],
-                ))
+                )
+
+                if operation == "validate":
+                    # 校验：闪烁3次，每半步150ms
+                    self.highlight.blink_rect(rect, times=3, interval=500)
+                else:
+                    # 普通picking：静态高亮800ms
+                    self.highlight.update_rect(rect)
 
 
 if __name__ == "__main__":

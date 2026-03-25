@@ -26,13 +26,7 @@ def auto_default_strategy_mac(
     from astronverse.picker.strategy.web_strategy_mac import web_default_strategy_mac
 
     chrome_like_apps = [
-        APP.Chrome,
-        APP.Firefox,
-        APP.Chrome360X,
-        APP.Chrome360se,
-        APP.Chrome360,
-        APP.Edge,
-        APP.Chromium,
+        APP.Chrome_MAC
     ]
 
     preliminary_element = None
@@ -53,6 +47,8 @@ def auto_default_strategy_mac(
             return None
 
         if is_document:
+            if strategy_svc.app == APP.Chrome_MAC:
+                strategy_svc.app = APP.Chrome
             web_cache = (is_document, menu_top, menu_left, window_ref)
             preliminary_element = web_default_strategy_mac(service, strategy_svc, web_cache)
             return preliminary_element
