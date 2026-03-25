@@ -106,14 +106,105 @@ def _ax_to_rect(el) -> Optional[Rect]:
     return Rect(int(x), int(y), int(x + w), int(y + h))
 
 
-def _ax_get_pid(el) -> int:
+def _ax_get_pid_raw(el) -> int:
+    """
+    直接从单个 AX 元素读取 PID。
+
+    PyObjC 的 AXUIElementGetPid 绑定接受两个参数（element, pid_t*），
+    但在不同 PyObjC 版本下 out-param 传递方式不同。
+    这里用两种方式依次尝试，避免 ctypes/PyObjC 混用的坑。
+    """
+    # 方式一：PyObjC 原生 out-param（某些版本返回 (err, pid) 元组）
+    try:
+        result = AXUIElementGetPid(el, None)
+        if isinstance(result, (tuple, list)) and len(result) == 2:
+            err, pid = result
+            if err == kAXErrorSuccess and isinstance(pid, int) and pid > 1:
+                return pid
+    except Exception:
+        pass
+
+    # 方式二：ctypes byref（另一些版本需要显式传指针）
     try:
         import ctypes
-        pid = ctypes.c_int(0)
-        AXUIElementGetPid(el, ctypes.byref(pid))
-        return pid.value
+        pid = ctypes.c_int32(0)
+        err = AXUIElementGetPid(el, ctypes.byref(pid))
+        if err == kAXErrorSuccess and pid.value > 1:
+            return pid.value
     except Exception:
-        return 0
+        pass
+
+    return 0
+
+
+def _ax_get_pid(el) -> int:
+    """
+    可靠地获取 AX 元素所属进程的 PID。
+
+    策略：
+    1. 沿祖先链向上找到 AXApplication 节点，在该节点调用 AXUIElementGetPid。
+       AXApplication 层级的 PID 最稳定，不会出现子元素归属混乱的问题。
+    2. 若爬链失败或仍得到无效 PID，直接在原始元素上尝试一次。
+    """
+    # 步骤 1：向上爬到 AXApplication
+    cur = el
+    visited = 0
+    while cur is not None and visited < 64:  # 防止死循环
+        visited += 1
+        role = _ax_attr(cur, "AXRole")
+        if role == "AXApplication":
+            pid = _ax_get_pid_raw(cur)
+            if pid > 1:
+                _ax_log(f"_ax_get_pid: found AXApplication, pid={pid}")
+                return pid
+            # AXApplication 取到无效值，不再往上爬，直接跳到步骤 2
+            break
+        parent = _ax_attr(cur, "AXParent")
+        if parent is None:
+            break
+        cur = parent
+
+    # 步骤 2：直接在原始元素上尝试
+    pid = _ax_get_pid_raw(el)
+    _ax_log(f"_ax_get_pid: fallback direct, pid={pid}")
+    return pid
+
+
+def _quartz_pid_at_point(x: float, y: float) -> int:
+    """
+    通过 Quartz 窗口列表查找坐标 (x, y) 处最顶层真实应用窗口的 PID。
+
+    CGWindowListCopyWindowInfo 返回的列表按 Z 序从前到后排列，
+    遍历找到第一个包含该点且属于普通应用层（layer < 25）的窗口即可。
+    """
+    try:
+        window_list = Quartz.CGWindowListCopyWindowInfo(
+            Quartz.kCGWindowListOptionOnScreenOnly
+            | Quartz.kCGWindowListExcludeDesktopElements,
+            Quartz.kCGNullWindowID,
+        )
+        for window in (window_list or []):
+            # 跳过菜单栏、状态栏、Dock 等系统层（layer >= 25）
+            layer = window.get("kCGWindowLayer", 999)
+            if layer >= 25:
+                continue
+            bounds = window.get("kCGWindowBounds", {})
+            wx = bounds.get("X", 0)
+            wy = bounds.get("Y", 0)
+            ww = bounds.get("Width", 0)
+            wh = bounds.get("Height", 0)
+            if wx <= x <= wx + ww and wy <= y <= wy + wh:
+                pid = window.get("kCGWindowOwnerPID", 0)
+                if pid > 1:
+                    proc_name = get_process_name(pid)
+                    if proc_name and proc_name.lower() not in ("kernel_task", ""):
+                        _ax_log(
+                            f"_quartz_pid_at_point: ({x},{y}) → pid={pid} ({proc_name})"
+                        )
+                        return pid
+    except Exception as e:
+        logger.warning(f"_quartz_pid_at_point error: {e}")
+    return 0
 
 
 def _ax_find_deepest_at_point(el, x, y, depth=0, max_depth=10):
@@ -394,7 +485,40 @@ class AXUIOperate:
 
     @classmethod
     def get_process_id(cls, element: Any) -> int:
-        return _ax_get_pid(element)
+        """
+        获取元素所属应用的真实 PID。
+
+        修复前的问题：
+        - 直接对叶子元素调用 _ax_get_pid，PyObjC/ctypes 混用导致 out-param
+          始终为 0，映射到 kernel_task。
+
+        修复策略（两层保险）：
+        1. 主路径：_ax_get_pid 内部已向上爬到 AXApplication 再取 PID，
+           并使用两种 PyObjC 调用方式依次尝试。
+        2. 兜底路径：若仍得到无效结果（pid <= 1 或进程名为 kernel_task），
+           改用 Quartz CGWindowListCopyWindowInfo 按鼠标当前坐标匹配
+           最顶层真实应用窗口的 PID，完全绕开 AX API 的坑。
+        """
+        # 主路径：AX 祖先链 → AXApplication
+        pid = _ax_get_pid(element)
+        if pid > 1:
+            proc_name = get_process_name(pid)
+            if proc_name and proc_name.lower() not in ("kernel_task", ""):
+                _ax_log(f"get_process_id: AX path → pid={pid} ({proc_name})")
+                return pid
+
+        # 兜底路径：Quartz 窗口列表按鼠标坐标匹配
+        _ax_log(
+            f"get_process_id: AX path returned invalid pid={pid}, "
+            "falling back to Quartz window list"
+        )
+        loc = Quartz.CGEventGetLocation(Quartz.CGEventCreate(None))
+        quartz_pid = _quartz_pid_at_point(loc.x, loc.y)
+        if quartz_pid > 1:
+            return quartz_pid
+
+        # 实在拿不到，返回 AX 结果（即使是 0）让上层处理
+        return pid
 
     @classmethod
     def get_app_windows(cls, element: Optional[Any]) -> Optional[Any]:

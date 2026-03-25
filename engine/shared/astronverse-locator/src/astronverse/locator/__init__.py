@@ -218,3 +218,11 @@ BROWSER_UIA_POINT_CLASS = {
     BrowserType.INTERNET_EXPLORER.value: ("Internet Explorer_Server", "ClassName"),
     BrowserType.CHROMIUM.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }
+
+# macOS: BrowserType → 候选进程名列表（按优先级排列）
+BROWSER_AX_PROCESS_NAMES = {
+    BrowserType.CHROME.value: ["Google Chrome", "chrome"],
+    BrowserType.EDGE.value: ["Microsoft Edge", "msedge"],
+    BrowserType.FIREFOX.value: ["Firefox", "firefox"],
+    BrowserType.CHROMIUM.value: ["Chromium", "chromium"],
+}
