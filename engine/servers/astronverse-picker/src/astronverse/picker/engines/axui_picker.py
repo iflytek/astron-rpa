@@ -18,7 +18,7 @@ from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
 
 
-# ── AX 工具函数（来自验证代码）──────────────────────────────────────────────
+# ── AX 工具函数 ─────────────────────────────────────────────────────────────
 
 AX_DEBUG = True
 
@@ -27,11 +27,7 @@ def _ax_log(msg: str):
         logger.info(f"[AX] {msg}")
 
 
-
-
-
 def _ax_attr(el, attr):
-    """读取 AX 属性，失败返回 None"""
     try:
         err, val = AXUIElementCopyAttributeValue(el, attr, None)
         return val if err == kAXErrorSuccess else None
@@ -40,7 +36,6 @@ def _ax_attr(el, attr):
 
 
 def _ax_attr_names(el) -> List[str]:
-    """获取元素所有属性名"""
     try:
         err, names = AXUIElementCopyAttributeNames(el, None)
         return list(names) if err == kAXErrorSuccess and names else []
@@ -88,14 +83,12 @@ def _ax_element_rect(el) -> Optional[tuple]:
 
     pv = _ax_attr(el, "AXPosition")
     sv = _ax_attr(el, "AXSize")
-
     if pv is None or sv is None:
         _ax_log("rect: missing pos/size")
         return None
 
     pt = _ax_unpack_point(pv)
     sz = _ax_unpack_size(sv)
-
     if pt and sz and sz[0] > 0 and sz[1] > 0:
         rect = (pt[0], pt[1], sz[0], sz[1])
         _ax_log(f"rect(pos/size)={rect}")
@@ -106,7 +99,6 @@ def _ax_element_rect(el) -> Optional[tuple]:
 
 
 def _ax_to_rect(el) -> Optional[Rect]:
-    """将 AX 元素的位置信息转换为 Rect(left, top, right, bottom)"""
     r = _ax_element_rect(el)
     if r is None:
         return None
@@ -117,16 +109,15 @@ def _ax_to_rect(el) -> Optional[Rect]:
 def _ax_get_pid(el) -> int:
     try:
         import ctypes
-
         pid = ctypes.c_int(0)
         AXUIElementGetPid(el, ctypes.byref(pid))
         return pid.value
     except Exception:
         return 0
 
+
 def _ax_find_deepest_at_point(el, x, y, depth=0, max_depth=10):
     indent = "  " * depth
-
     if depth > max_depth:
         _ax_log(f"{indent}max depth reached")
         return el
@@ -152,57 +143,40 @@ def _ax_find_deepest_at_point(el, x, y, depth=0, max_depth=10):
     for i, child in enumerate(children):
         child_rect = _ax_element_rect(child)
         if child_rect is None:
-            _ax_log(f"{indent} child[{i}] no rect")
             continue
-
         if not contains(child_rect):
-            _ax_log(f"{indent} child[{i}] miss")
             continue
 
         _ax_log(f"{indent} child[{i}] HIT {child_rect}")
 
         sub = _ax_find_deepest_at_point(child, x, y, depth + 1, max_depth)
         sub_rect = _ax_element_rect(sub)
-
         if sub_rect:
             area = sub_rect[2] * sub_rect[3]
             if area < best_area:
-                _ax_log(f"{indent} -> better area={area}")
                 best = sub
                 best_area = area
-
     return best
 
 
 def _ax_get_element_at(x: float, y: float) -> Optional[Any]:
     try:
         _ax_log(f"\n=== HIT TEST ({x},{y}) ===")
-
         sys_el = AXUIElementCreateSystemWide()
         err, el = AXUIElementCopyElementAtPosition(sys_el, float(x), float(y), None)
 
         if err == kAXErrorSuccess and el is not None:
-            _ax_log("initial element OK")
-
             refined = _ax_find_deepest_at_point(el, x, y)
-
             role = _ax_attr(refined, "AXRole")
             title = _ax_attr(refined, "AXTitle") or _ax_attr(refined, "AXLabel")
-
             _ax_log(f"FINAL => role={role}, title={title}")
-
             return refined
-
-        _ax_log(f"hit failed err={err}")
-
     except Exception as e:
         logger.exception(f"_ax_get_element_at error: {e}")
-
     return None
 
 
 def _ax_ancestor_chain(el) -> list:
-    """从当前元素向上收集祖先链（顺序：顶层 → 当前元素）"""
     chain = []
     cur = el
     while cur is not None:
@@ -215,11 +189,9 @@ def _ax_ancestor_chain(el) -> list:
     return chain
 
 
-# ── 属性收集与格式化（移植自代码1）─────────────────────────────────────────
-
+# ── 属性收集（保持不变） ───────────────────────────────────────────────────
 
 def _format_ax_value(attr: str, val) -> str:
-    """格式化 AX 属性值，用于展示"""
     if val is None:
         return "None"
     if attr == "AXPosition":
@@ -243,13 +215,7 @@ def _format_ax_value(attr: str, val) -> str:
 
 
 def _collect_attrs(el) -> Dict[str, str]:
-    """收集元素所有属性，返回格式化后的字典，与代码1行为一致"""
-    PRIORITY = [
-        "AXRole", "AXRoleDescription", "AXTitle", "AXLabel",
-        "AXValue", "AXDescription", "AXHelp", "AXEnabled",
-        "AXFocused", "AXSelected", "AXExpanded", "AXIdentifier",
-        "AXPosition", "AXSize",
-    ]
+    PRIORITY = ["AXRole", "AXRoleDescription", "AXTitle", "AXLabel", "AXValue", "AXDescription", "AXHelp", "AXEnabled", "AXFocused", "AXSelected", "AXExpanded", "AXIdentifier", "AXPosition", "AXSize"]
     SKIP = {"AXChildren", "AXParent", "AXWindow", "AXTopLevelUIElement"}
     names = _ax_attr_names(el)
     result = {}
@@ -266,12 +232,9 @@ def _collect_attrs(el) -> Dict[str, str]:
     return result
 
 
-# ── AXUIElement（IElement 实现）──────────────────────────────────────────────
-
+# ── AXUIElement ─────────────────────────────────────────────────────────────
 
 class AXUIElement(IElement):
-    """macOS AXUIElement 封装，对应 Windows 的 UIAElement + MSAAElement"""
-
     def __init__(self, element: Any):
         self.element = element
         self.__rect: Optional[Rect] = None
@@ -294,17 +257,37 @@ class AXUIElement(IElement):
         return self.__tag
 
     def path(self, svc=None, strategy_svc=None) -> dict:
-        """构建元素路径 dict，供 locator 定位使用。
-
-        路径格式与 Windows UIAElement.path() 兼容：
-          tag_name → AXRole
-          cls      → AXSubrole
-          name     → AXTitle
-          value    → AXValue（仅字符串）
-          index    → 在父节点 AXChildren 中的位置
-        """
+        """已彻底修复 app 字段 + 通用 fallback"""
         chain = _ax_ancestor_chain(self.element)
         path_list = []
+
+        # === 核心修复：通用 app_name 获取 ===
+        app_pid = _ax_get_pid(chain[0]) if chain else 0
+        app_name = get_process_name(app_pid)
+
+        if app_pid == 0 or app_name.lower() == "kernel_task" or not app_name:
+            app_title = _ax_attr(chain[0], "AXTitle") or ""
+            _ax_log(f"PID 获取失败，尝试用 AXTitle 回退: {app_title}")
+
+            if app_title:
+                try:
+                    import psutil
+                    for proc in psutil.process_iter(["pid", "name"]):
+                        proc_name = proc.info.get("name", "") or ""
+                        base_name = proc_name.rsplit(".", 1)[0] if "." in proc_name else proc_name
+                        # 宽松匹配（支持 Safari浏览器 ↔ Safari、Dock 等）
+                        if (app_title.lower() in proc_name.lower() or
+                            proc_name.lower() in app_title.lower() or
+                            base_name.lower() in app_title.lower()):
+                            app_pid = proc.info["pid"]
+                            app_name = get_process_name(app_pid)
+                            _ax_log(f"回退成功 → app_name={app_name} (pid={app_pid})")
+                            break
+                except Exception as e:
+                    logger.warning(f"psutil 回退失败: {e}")
+
+            if not app_name or app_name.lower() == "kernel_task":
+                app_name = app_title or "unknown_app"
 
         for i, node in enumerate(chain):
             role = _ax_attr(node, "AXRole") or ""
@@ -313,7 +296,6 @@ class AXUIElement(IElement):
             value_raw = _ax_attr(node, "AXValue")
             value = str(value_raw).strip() if isinstance(value_raw, str) and value_raw.strip() else None
 
-            # 计算 index（在父节点 AXChildren 中的位置）
             index = 0
             parent_node = chain[i - 1] if i > 0 else None
             if parent_node is not None:
@@ -326,7 +308,6 @@ class AXUIElement(IElement):
                     except Exception:
                         pass
 
-            # 计算 disable_keys
             disable_keys = []
             if parent_node is not None:
                 siblings = _ax_attr(parent_node, "AXChildren") or []
@@ -345,20 +326,18 @@ class AXUIElement(IElement):
                 if not title:
                     disable_keys.append("name")
 
-            path_list.append(
-                {
-                    "tag_name": role,
-                    "cls": subrole if subrole else None,
-                    "name": title,
-                    "value": value,
-                    "index": index,
-                    "checked": True,
-                    "disable_keys": disable_keys,
-                }
-            )
+            attrs_map = {"cls": 0, "name": 0, "value": 0, "index": 0}
 
-        pid = _ax_get_pid(self.element)
-        app_name = get_process_name(pid)
+            path_list.append({
+                "tag_name": role,
+                "checked": True,
+                "disable_keys": disable_keys,
+                "attrs_map": attrs_map,
+                "cls": subrole if subrole else "",
+                "name": title,
+                "value": value,
+                "index": str(index),
+            })
 
         return {
             "version": "1",
@@ -366,28 +345,25 @@ class AXUIElement(IElement):
             "app": app_name,
             "path": path_list,
             "img": {"self": screenshot(self.rect())},
+            "parent": "",
         }
 
+    # 其余方法保持不变
     def ancestor_chain(self) -> List['AXUIElement']:
-        """返回祖先链（从顶层到当前元素）的 AXUIElement 列表"""
         if self.__ancestor_chain is None:
             raw_chain = _ax_ancestor_chain(self.element)
             self.__ancestor_chain = [AXUIElement(e) for e in raw_chain]
         return self.__ancestor_chain
 
     def attributes(self) -> Dict[str, str]:
-        """返回元素所有属性的格式化字典（与代码1一致）"""
         if self.__attributes is None:
             self.__attributes = _collect_attrs(self.element)
         return self.__attributes
 
 
-# ── AXUIOperate（工具类）────────────────────────────────────────────────────
-
+# ── AXUIOperate / AXUIPicker（保持不变） ───────────────────────────────────
 
 class AXUIOperate:
-    """macOS AXUIElement 工具类，对应 Windows 的 UIAOperate"""
-
     @classmethod
     def get_cursor_pos(cls) -> tuple[int, int]:
         loc = Quartz.CGEventGetLocation(Quartz.CGEventCreate(None))
@@ -395,30 +371,25 @@ class AXUIOperate:
 
     @classmethod
     def get_element_at(cls, point: Point) -> Optional[AXUIElement]:
-        """根据屏幕坐标获取 AXUIElement 对象"""
-        raw = _ax_get_element_at(float(point.x), float(point.y), highlight)
+        raw = _ax_get_element_at(float(point.x), float(point.y))
         if raw is None:
             return None
         return AXUIElement(raw)
 
     @classmethod
     def get_element_rect(cls, element: AXUIElement) -> Optional[Rect]:
-        """获取元素的屏幕矩形"""
         return element.rect()
 
     @classmethod
     def get_ancestor_chain(cls, element: AXUIElement) -> List[AXUIElement]:
-        """获取元素的祖先链（顶层 → 当前）"""
         return element.ancestor_chain()
 
     @classmethod
     def get_element_attributes(cls, element: AXUIElement) -> Dict[str, str]:
-        """获取元素的所有属性"""
         return element.attributes()
 
     @classmethod
     def get_windows_by_point(cls, point: Point) -> Optional[Any]:
-        """原始方法，返回原生 AXUIElement 对象（兼容旧接口）"""
         return _ax_get_element_at(float(point.x), float(point.y))
 
     @classmethod
@@ -427,13 +398,11 @@ class AXUIOperate:
 
     @classmethod
     def get_app_windows(cls, element: Optional[Any]) -> Optional[Any]:
-        """向上遍历 AXParent，找到 AXRole == AXApplication 的节点"""
         if element is None:
             return None
         cur = element
         while cur is not None:
-            role = _ax_attr(cur, "AXRole")
-            if role == "AXApplication":
+            if _ax_attr(cur, "AXRole") == "AXApplication":
                 return cur
             parent = _ax_attr(cur, "AXParent")
             if parent is None:
@@ -442,37 +411,19 @@ class AXUIOperate:
         return element
 
     @classmethod
-    def get_web_control(
-        cls,
-        element: Any,
-        app: APP = None,
-        point: Point = None,
-    ) -> tuple[bool, int, int, Any]:
-        """判断当前元素是否在浏览器的 web 内容区域内。
-
-        macOS 判断逻辑（来自提示内容）：
-        命中节点的祖先链中，存在节点 A 满足：
-          - A 的 AXDOMClassList 包含 "View"
-          - A 的直接父节点 B 的 AXDOMClassList 包含 "BrowserView"
-        若存在这样的 A，则 is_document=True，
-        menu_left/menu_top 从节点 A 的 AXPosition 获取。
-
-        返回: (is_document, menu_top, menu_left, window_ref)
-        """
+    def get_web_control(cls, element: Any, app: APP = None, point: Point = None) -> tuple[bool, int, int, Any]:
         try:
             chain = _ax_ancestor_chain(element)
             for i, node in enumerate(chain):
                 dom_class = _ax_attr(node, "AXDOMClassList") or []
                 if "View" not in dom_class:
                     continue
-                # 检查直接父节点是否有 BrowserView
                 if i == 0:
                     continue
                 parent_node = chain[i - 1]
                 parent_dom_class = _ax_attr(parent_node, "AXDOMClassList") or []
                 if "BrowserView" not in parent_dom_class:
                     continue
-                # 命中：从节点 A 的 AXPosition 获取坐标
                 pv = _ax_attr(node, "AXPosition")
                 pt = _ax_unpack_point(pv) if pv else None
                 if pt is None:
@@ -485,19 +436,9 @@ class AXUIOperate:
         return False, 0, 0, None
 
 
-# ── AXUIPicker（拾取器）─────────────────────────────────────────────────────
-
-
 class AXUIPicker:
-    """macOS AXUIElement 拾取器，对应 Windows 的 UIAPicker + MSAAPicker"""
-
     @classmethod
     def get_element(cls, root: AXUIElement, point: Point, **kwargs) -> Optional[AXUIElement]:
-        """从 root 开始，找到包含 point 的面积最小的叶子元素。
-
-        直接用 AXUIElementCopyElementAtPosition 获取最精确的命中元素，
-        与 Windows UIAPicker 的行为一致。
-        """
         el = _ax_get_element_at(float(point.x), float(point.y))
         if el is None:
             return None
