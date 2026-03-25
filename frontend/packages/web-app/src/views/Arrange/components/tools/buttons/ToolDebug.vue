@@ -18,12 +18,16 @@ const { t } = useTranslation()
 const show = computed(() => ['free'].includes(runningStore.running))
 const disabled = computed(() => ['debug', 'run'].includes(runningStore.running))
 
-function handleClick() {
+async function handleClick() {
   if (disabled.value || !show.value) {
     message.warning(t('toolsTips.runningOrDebuggingNoRepeat'))
     return
   }
-  // await processStore.saveProject()
+  const saved = await processStore.canvasManager.saveTab()
+  if (!saved) {
+    message.error(t('toolsTips.saveFailed'))
+    return
+  }
   const processId = processStore.canvasManager.activeTab?.id || ''
   useRunningStore().startDebug(processStore.project.id, processId)
 }

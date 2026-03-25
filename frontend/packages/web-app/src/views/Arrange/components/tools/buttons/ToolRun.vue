@@ -20,7 +20,11 @@ const show = computed(() => ['free'].includes(runningStore.running))
 const disabled = computed(() => ['debug', 'run'].includes(runningStore.running))
 
 const handleConfirmRun = throttle(async () => {
-  // await processStore.saveProject()
+  const saved = await processStore.canvasManager.saveTab()
+  if (!saved) {
+    message.error(t('toolsTips.saveFailed'))
+    return
+  }
   const processId = processStore.canvasManager.activeTab?.id || ''
   useRunningStore().startRun(processStore.project.id, processId)
 }, 1500, { leading: true, trailing: false })
