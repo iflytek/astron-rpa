@@ -35,8 +35,16 @@ const addPosStyle = ref({}) // 添加按钮样式
 
 // 原子能力错误信息
 const atomErrors = computed(() => {
-  const { inputList, outputList, advanced, exception } = props.item;
-  return [...inputList, ...outputList, ...advanced, ...exception].filter(it => it.show).map(it => it.errors).flat()
+  const { inputList, outputList, advanced, exception } = props.item
+  const safeInputList = Array.isArray(inputList) ? inputList : []
+  const safeOutputList = Array.isArray(outputList) ? outputList : []
+  const safeAdvanced = Array.isArray(advanced) ? advanced : []
+  const safeException = Array.isArray(exception) ? exception : []
+
+  return [...safeInputList, ...safeOutputList, ...safeAdvanced, ...safeException]
+    .filter(it => it?.show)
+    .map(it => it?.errors)
+    .flat()
 })
 
 const mouseMove = throttle((e: MouseEvent) => {

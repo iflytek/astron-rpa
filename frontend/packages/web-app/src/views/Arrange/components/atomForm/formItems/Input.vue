@@ -24,7 +24,7 @@ const isEdit = computed(() => !props.item?.noInput)
 
 const generateContainerText = (value: RPA.AtomFormBaseForm['value']): string => {
   if (!Array.isArray(value)) {
-    return value.toString()
+    return value == null ? '' : String(value)
   }
 
   return value

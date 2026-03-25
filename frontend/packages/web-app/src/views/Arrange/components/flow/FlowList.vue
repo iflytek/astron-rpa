@@ -51,6 +51,10 @@ bus.on((idOrIndex) => {
 
 useRunDebug()
 
+function handleDraggableAddStyle() {
+  draggableAddStyle(flowManager)
+}
+
 function handleDragChange(e: any) {
   if (e.added) {
     const { element, newIndex } = e.added
@@ -101,8 +105,8 @@ async function triggerAdd(key: string, preIndex?: number) {
         item-key="id"
         filter=".forbid"
         group="postTree"
-        @start="draggableAddStyle"
-        @move="draggableAddStyle"
+        @start="handleDraggableAddStyle"
+        @move="handleDraggableAddStyle"
         @change="handleDragChange"
       >
         <Item :key="item.id" :item="item" :index="index" @select="triggerAdd" />

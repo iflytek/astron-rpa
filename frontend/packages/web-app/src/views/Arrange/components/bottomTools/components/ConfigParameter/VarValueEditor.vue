@@ -4,11 +4,10 @@ import { nextTick, ref, watch } from 'vue'
 
 import { OTHER_IN_TYPE, PY_IN_TYPE } from '@/constants/atom'
 import AtomConfig from '@/views/Arrange/components/atomForm/AtomConfig.vue'
-import { VariableType } from '@/corobot/type';
 
 const props = defineProps<{
   varValue: string | unknown
-  varType?: VariableType
+  varType?: RPA.VariableType
   formType?: string
   size?: 'default' | 'small'
   disabled?: boolean

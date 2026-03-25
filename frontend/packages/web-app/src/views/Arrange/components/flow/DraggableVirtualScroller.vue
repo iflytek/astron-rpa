@@ -57,24 +57,27 @@ const offset = ref(0)
 const scrollTop = useScroll(scroller).y
 
 const cacheSizes = reactive<Record<string, number>>({})
+function isFoldHiddenItem(item: T) {
+  return Boolean((item as any)?.isHide)
+}
+
 const sizes = reactiveComputed(() => {
-  if (props.itemSize == null) {
-    const _sizes = {
-      '-1': { accumulator: 0 },
-    }
-    const { items, minItemSize } = props
-    let accumulator = 0
-    let current = minItemSize
-    for (let i = 0; i < items.length; i++) {
-      current = cacheSizes[i] || minItemSize || 0
-      accumulator += current
-      _sizes[i] = { accumulator, size: current }
-    }
-    return _sizes
+  const _sizes = {
+    '-1': { accumulator: 0, size: 0 },
   }
-  else {
-    return {}
+  const { items, minItemSize, itemSize } = props
+  let accumulator = 0
+
+  for (let i = 0; i < items.length; i++) {
+    const current = isFoldHiddenItem(items[i])
+      ? 0
+      : (itemSize ?? cacheSizes[i] ?? minItemSize ?? 0)
+
+    accumulator += current
+    _sizes[i] = { accumulator, size: current }
   }
+
+  return _sizes
 }) as Record<string, Size>
 
 useResizeObserver(() => itemRefs.value.slice(start.value, end.value), (entries) => {
@@ -93,7 +96,6 @@ watch([realItems, scrollTop], () => {
 })
 
 function updateVisibleRange() {
-  const itemSize = props.itemSize
   const items = props.items
   const buffer = props.buffer
   const count = items.length
@@ -104,13 +106,12 @@ function updateVisibleRange() {
 
   let startIndex = 0; let endIndex = 0; let totalSize = 0
 
-  if (itemSize == null) { // 动态高度
+  if (count > 0) {
     let left = 0
     let right = count - 1
-    let mid = Math.floor((left + right) / 2)
 
     while (left !== right) {
-      mid = Math.floor((left + right) / 2)
+      const mid = Math.floor((left + right) / 2)
       const h = sizes[mid].accumulator
       if (h <= scroll.start) {
         left = mid + 1
@@ -120,45 +121,31 @@ function updateVisibleRange() {
       }
     }
 
-    startIndex = left
-    startIndex < 0 && (startIndex = 0)
-
-    for (
-      endIndex = startIndex;
-      endIndex < count && sizes[endIndex].accumulator < scroll.end;
+    startIndex = Math.max(left, 0)
+    endIndex = startIndex
+    while (endIndex < count && sizes[endIndex].accumulator < scroll.end) {
       endIndex++
-    )
-      endIndex++
-    endIndex > count && (endIndex = count)
-
-    totalSize = sizes[count - 1].accumulator
-  }
-  else { // 固定高度
-    startIndex = Math.floor(scroll.start / itemSize)
-    startIndex < 0 && (startIndex = 0)
-
-    endIndex = Math.ceil(scroll.end / itemSize)
-    endIndex > count && (endIndex = count)
-
-    totalSize = count * itemSize
+    }
+    endIndex = Math.min(endIndex, count)
+    totalSize = sizes[count - 1]?.accumulator ?? 0
   }
 
   start.value = Math.max(startIndex - buffer, 0)
   end.value = Math.min(endIndex + buffer, count)
   totalHeight.value = totalSize
-  offset.value = itemSize ? start.value * itemSize : sizes[start.value - 1].accumulator
+  offset.value = sizes[start.value - 1]?.accumulator ?? 0
 }
 
 function getItemStyle(index: number) {
-  if (props.itemSize) {
+  const currentSize = sizes[index]?.size ?? 0
+  if (props.itemSize != null) {
     return {
-      height: `${props.itemSize}px`,
+      height: `${currentSize}px`,
+      minHeight: `${currentSize}px`,
     }
   }
-  else {
-    return {
-      minHeight: `${sizes[index].size ?? props.minItemSize}`,
-    }
+  return {
+    minHeight: `${currentSize}px`,
   }
 }
 
