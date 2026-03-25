@@ -10,6 +10,7 @@ import plistlib
 import subprocess
 
 from astronverse.scheduler.error import AUTOSTART_EXE_NOT_FOUND, BizException
+from astronverse.scheduler.logger import logger
 
 LAUNCH_AGENT_LABEL = "com.astronverse.scheduler.autostart"
 
@@ -29,6 +30,13 @@ def resolve_mac_binary(conf_file: str) -> str:
     direct = os.path.join(base, "astron-rpa")
     if os.path.isfile(direct) and os.access(direct, os.X_OK):
         return direct
+    # Standard .app bundle: conf at Contents/Resources/, binary at Contents/MacOS/
+    macos_dir = os.path.join(base, "MacOS")
+    if os.path.isdir(macos_dir):
+        for f in sorted(os.listdir(macos_dir)):
+            fp = os.path.join(macos_dir, f)
+            if os.path.isfile(fp) and os.access(fp, os.X_OK):
+                return fp
     if not os.path.isdir(base):
         return ""
     for name in sorted(os.listdir(base)):
@@ -97,6 +105,7 @@ def _launchctl_unload(path: str) -> None:
 
 
 def enable(conf_file: str) -> None:
+    logger.info("Enabling autostart with conf_file: {}".format(conf_file))
     exe = resolve_mac_binary(conf_file)
     if not exe:
         raise BizException(AUTOSTART_EXE_NOT_FOUND, AUTOSTART_EXE_NOT_FOUND.message)
