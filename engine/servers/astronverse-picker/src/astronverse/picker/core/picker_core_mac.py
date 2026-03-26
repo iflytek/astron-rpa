@@ -91,7 +91,7 @@ class PickerCore(IPickerCore):
         start_element = AXUIOperate.get_windows_by_point(self.last_point)
         if not start_element:
             logger.info("拾取预处理 start_element 为空")
-            return DrawResult(success=False, error_message="未找到起始元素")
+            return DrawResult(success=False)
 
         process_id = AXUIOperate.get_process_id(start_element)
 
