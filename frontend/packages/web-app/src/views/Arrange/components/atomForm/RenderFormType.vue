@@ -85,9 +85,12 @@ watch(
 
 watch(() => itemData.value, () => {
   const nextValue = generateInputVal(itemData)
+  const currentInputId = `rpa_input_${itemData.key}`
+  const isCurrentInputFocused = document.activeElement?.id === currentInputId
 
   // 外部更新参数值时，同步输入框内容，避免显示滞后
-  if (itemType === ATOM_FORM_TYPE.INPUT && !isEqual(container.value, nextValue)) {
+  // 输入框正在编辑时不重写 v-html，避免光标被重置到开头
+  if (itemType === ATOM_FORM_TYPE.INPUT && !isCurrentInputFocused && !isEqual(container.value, nextValue)) {
     container.value = nextValue
   }
 }, { immediate: true })

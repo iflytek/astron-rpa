@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, provide, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, provide, ref } from 'vue'
 
 import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
 import type { VariableTypes } from '@/views/Arrange/types/atomForm'
@@ -14,6 +14,7 @@ import DescriptionTooltip from './DescriptionTooltip.vue'
 provide<VariableTypes>('variableType', PARAMETER_VAR_TYPE)
 
 const processStore = useProcessStore()
+const sectionRef = ref<HTMLElement>()
 
 const initialValue = processStore.componentComment
   ? convertCommentToInputVariableValue(processStore.componentComment)
@@ -50,19 +51,32 @@ async function loadComponentComment() {
   }
 }
 
-// 监听表单变化，同步到 store
-watch(() => descriptionForm.value.value, (newValue) => {
-  const comment = convertInputVariableValueToComment(newValue as Array<{ type: string; value: string }>)
+function syncCommentToStore() {
+  const comment = convertInputVariableValueToComment(descriptionForm.value.value as Array<{ type: string; value: string; data?: string }>)
   processStore.componentComment = comment
-}, { deep: true })
+}
+
+function handleFocusOut(event: FocusEvent) {
+  const sectionEl = sectionRef.value
+  const relatedTarget = event.relatedTarget as Node | null
+  // 焦点离开整个描述编辑区域时再同步，避免输入中重渲染导致光标跳动
+  if (sectionEl && relatedTarget && sectionEl.contains(relatedTarget)) {
+    return
+  }
+  syncCommentToStore()
+}
 
 onMounted(() => {
   loadComponentComment()
 })
+
+onBeforeUnmount(() => {
+  syncCommentToStore()
+})
 </script>
 
 <template>
-  <section class="mx-4 mb-5">
+  <section ref="sectionRef" class="mx-4 mb-5" @focusout="handleFocusOut">
     <AtomFormItem
       :atom-form-item="descriptionForm"
       class="text-[12px]"
