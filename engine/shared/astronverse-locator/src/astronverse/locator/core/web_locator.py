@@ -60,6 +60,7 @@ class WebFactory:
 
         if sys.platform == "darwin":
             menu_height, menu_left = cls.__get_web_top_mac__(ele, app=app)
+            logger.info(f'获取的mac 浏览器 左上角  {menu_height}  {menu_left}')
         else:
             menu_height, menu_left = cls.__get_web_top__(ele, app=app)
 
@@ -136,20 +137,22 @@ class WebFactory:
         """浏览器内容区域左上角位置（macOS AXUIElement 版本）"""
         process_names = BROWSER_AX_PROCESS_NAMES.get(app)
         if not process_names:
+            logger.debug(f"[get_web_top] 未找到 app={app} 对应的进程名配置")
             return 0, 0
 
         try:
             import psutil
             from ApplicationServices import (
-                AXUIElementCreateApplicationWithPID,
+                AXUIElementCreateApplication,
                 AXUIElementCopyAttributeValue,
                 kAXErrorSuccess,
             )
             import ApplicationServices as AS
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[get_web_top] ImportError: 缺少依赖库, 详细信息: {e}")
             return 0, 0
 
-        # ── AX 工具函数（与 axui_picker 保持一致） ──────────────────────────
+        # ── AX 工具函数 ──────────────────────────────────────────────────────────
 
         def _ax_attr(el, attr):
             try:
@@ -167,28 +170,30 @@ class WebFactory:
                 pass
             return None
 
-        # 1. 通过进程名找 PID ──────────────────────────────────────────────
+        # 1. 通过进程名找 PID ──────────────────────────────────────────────────────
         pid = 0
         try:
             for proc in psutil.process_iter(["pid", "name"]):
                 proc_name = proc.info.get("name", "") or ""
                 for candidate in process_names:
                     if (
-                        candidate.lower() in proc_name.lower()
-                        or proc_name.lower() in candidate.lower()
+                            candidate.lower() in proc_name.lower()
+                            or proc_name.lower() in candidate.lower()
                     ):
                         pid = proc.info["pid"]
                         break
                 if pid:
                     break
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[get_web_top] 查找 PID 异常: {e}")
+
+        logger.debug(f"[get_web_top] app={app}, process_names={process_names}, pid={pid}")
 
         if pid == 0:
             msg = f"未找到{app}浏览器进程，请确认浏览器是否已启动"
             raise BizException(BROWSER_WINDOW_NOT_FOUND_FORMAT.format(app), msg)
 
-        # 2. 激活浏览器窗口（置前） ─────────────────────────────────────────
+        # 2. 激活浏览器窗口（置前） ───────────────────────────────────────────────
         try:
             import AppKit
             for running_app in AppKit.NSWorkspace.sharedWorkspace().runningApplications():
@@ -196,51 +201,63 @@ class WebFactory:
                     running_app.activateWithOptions_(
                         AppKit.NSApplicationActivateIgnoringOtherApps
                     )
+                    logger.debug(f"[get_web_top] 已激活浏览器窗口 pid={pid}")
                     break
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[get_web_top] 激活窗口异常: {e}")
 
-        # 3. 创建 AXApplication 并获取主窗口 ──────────────────────────────
-        ax_app = AXUIElementCreateApplicationWithPID(pid)
+        # 3. 创建 AXApplication 并获取主窗口 ─────────────────────────────────────
+        ax_app = AXUIElementCreateApplication(pid)
         main_window = (
-            _ax_attr(ax_app, "AXMainWindow")
-            or _ax_attr(ax_app, "AXFocusedWindow")
+                _ax_attr(ax_app, "AXMainWindow")
+                or _ax_attr(ax_app, "AXFocusedWindow")
         )
         if main_window is None:
             windows = _ax_attr(ax_app, "AXWindows") or []
+            logger.debug(f"[get_web_top] AXMainWindow/AXFocusedWindow 为 None，AXWindows 数量={len(windows)}")
             if not windows:
                 return 0, 0
             main_window = windows[0]
+        else:
+            logger.debug(f"[get_web_top] 成功获取 main_window: {main_window}")
 
-        # 4. 遍历 AX 树找到 web 内容区域 ──────────────────────────────────
+        # 4. 遍历 AX 树查找 web 内容区域 ─────────────────────────────────────────
         # 策略一：Chrome/Edge/Chromium 的 BrowserView > View 模式
-        # 与 axui_picker.AXUIOperate.get_web_control 逻辑保持一致
-        def _find_browser_view(node, depth=0):
-            if depth > 12:
+        def _find_browser_view(node, parent=None, depth=0):
+            if depth > 20:
                 return None
+
             dom_class = _ax_attr(node, "AXDOMClassList") or []
-            if "View" in dom_class:
-                parent = _ax_attr(node, "AXParent")
-                if parent is not None:
-                    parent_dom = _ax_attr(parent, "AXDOMClassList") or []
-                    if "BrowserView" in parent_dom:
-                        pv = _ax_attr(node, "AXPosition")
-                        pt = _ax_unpack_point(pv) if pv else None
-                        if pt:
-                            return int(pt[1]), int(pt[0])  # top, left
+
+            if dom_class:
+                logger.debug(f"[get_web_top] depth={depth}, AXDOMClassList={list(dom_class)}")
+
+            if "View" in dom_class and parent is not None:
+                parent_dom = _ax_attr(parent, "AXDOMClassList") or []
+                logger.debug(f"[get_web_top] 命中 View 节点，parent_dom={list(parent_dom)}")
+                if "BrowserView" in parent_dom:
+                    pv = _ax_attr(node, "AXPosition")
+                    pt = _ax_unpack_point(pv) if pv else None
+                    logger.debug(f"[get_web_top] 命中 BrowserView>View，AXPosition pt={pt}")
+                    if pt:
+                        return int(pt[1]), int(pt[0])  # top, left
+
             for child in (_ax_attr(node, "AXChildren") or []):
-                result = _find_browser_view(child, depth + 1)
+                result = _find_browser_view(child, parent=node, depth=depth + 1)
                 if result:
                     return result
+
             return None
 
         # 策略二：通用 AXWebArea（Firefox 兜底）
         def _find_webarea(node, depth=0):
-            if depth > 12:
+            if depth > 20:
                 return None
-            if _ax_attr(node, "AXRole") == "AXWebArea":
+            role = _ax_attr(node, "AXRole")
+            if role == "AXWebArea":
                 pv = _ax_attr(node, "AXPosition")
                 pt = _ax_unpack_point(pv) if pv else None
+                logger.debug(f"[get_web_top] 命中 AXWebArea，pt={pt}")
                 if pt:
                     return int(pt[1]), int(pt[0])  # top, left
             for child in (_ax_attr(node, "AXChildren") or []):
@@ -249,7 +266,14 @@ class WebFactory:
                     return result
             return None
 
-        result = _find_browser_view(main_window) or _find_webarea(main_window)
+        result = _find_browser_view(main_window)
+        logger.debug(f"[get_web_top] _find_browser_view 结果={result}")
+
+        if not result:
+            result = _find_webarea(main_window)
+            logger.debug(f"[get_web_top] _find_webarea 结果={result}")
+
+        logger.debug(f"[get_web_top] 最终返回={result if result else (0, 0)}")
         return result if result else (0, 0)
 
     @classmethod
