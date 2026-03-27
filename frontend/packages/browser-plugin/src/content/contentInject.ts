@@ -717,7 +717,26 @@ const ContentHandler = {
         if (result.tagName !== 'INPUT' && result.tagName !== 'TEXTAREA') {
           return Utils.fail(ErrorMessage.ELEMENT_NOT_INPUT, StatusCode.EXECUTE_ERROR)
         }
-        result.value = inputText
+        // Set value using native setter to trigger Vue/React updates
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          result.tagName === 'INPUT' ? HTMLInputElement.prototype : HTMLTextAreaElement.prototype,
+          'value'
+        )?.set
+        if (nativeInputValueSetter) {
+          nativeInputValueSetter.call(result, inputText)
+        }
+        else {
+          result.value = inputText
+        }
+        
+        // Trigger input event for React controlled components
+        const inputEvent = new Event('input', { bubbles: true, cancelable: true })
+        result.dispatchEvent(inputEvent)
+        
+        // Trigger change event for Vue and other frameworks
+        const changeEvent = new Event('change', { bubbles: true, cancelable: true })
+        result.dispatchEvent(changeEvent)
+        
         return Utils.success(true)
       }
       else {
