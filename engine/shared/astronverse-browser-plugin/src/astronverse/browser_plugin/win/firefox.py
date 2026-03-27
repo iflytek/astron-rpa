@@ -5,7 +5,8 @@ import winreg
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
 from astronverse.browser_plugin.error import BizException, FIREFOX_NOT_FOUND
-from astronverse.browser_plugin.utils import FirefoxUtils, Registry, is_browser_running, kill_process
+from astronverse.browser_plugin.utils import FirefoxUtils
+from astronverse.browser_plugin.win.common import Registry, is_browser_running, kill_process
 
 
 class FirefoxPluginManager(PluginManagerCore):
