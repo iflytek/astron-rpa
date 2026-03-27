@@ -203,20 +203,23 @@ def get_profile_list(base_path):
 def check_chrome_plugin(preferences_path_list, extension_id):
     for file in preferences_path_list:
         if os.path.exists(file):
-            with open(file, encoding="utf-8") as f:
-                dict_msg = json.loads(f.read())
-                try:
+            try:
+                with open(file, encoding="utf-8") as f:
+                    dict_msg = json.loads(f.read())
                     extension_info = dict_msg.get("extensions", {}).get("settings")
-                    if extension_id in extension_info:
+                    if extension_info and extension_id in extension_info:
                         version = extension_info[extension_id].get("manifest", {}).get("version", "")
                         return True, version
-                except Exception:
-                    version = _get_install_signature_extension_version(preferences_path_list, extension_id)
-                    if version:
-                        return True, version
-                    return False, ""
+            except Exception:
+                pass
         else:
             logger.info(f"{file} does not exist")
+
+    # Fallback: check Extensions directory if not found in Preferences
+    version = _get_install_signature_extension_version(preferences_path_list, extension_id)
+    if version:
+        return True, version
+
     return False, ""
 
 
@@ -265,11 +268,13 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
                     is_update = True
 
                 for old_id in old_extension_ids:
-                    extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(old_id, None)
+                    settings = dict_msg.get("extensions", {}).get("settings") or {}
+                    extension_info = settings.get(old_id, None)
                     if extension_info is not None:
                         del dict_msg["extensions"]["settings"][old_id]
 
-                extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(extension_id, None)
+                settings = dict_msg.get("extensions", {}).get("settings") or {}
+                extension_info = settings.get(extension_id, None)
                 if extension_info is not None:
                     del dict_msg["extensions"]["settings"][extension_id]
                     is_update = True
