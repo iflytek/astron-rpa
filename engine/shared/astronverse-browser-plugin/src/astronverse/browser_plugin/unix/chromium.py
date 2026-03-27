@@ -86,6 +86,8 @@ class ChromiumPluginManager(PluginManagerCore):
 
     def install_plugin(self):
         self.close_browser()
+        import time
+        time.sleep(2)
         common.remove_browser_setting(
             preferences_path_list=self.preferences_path_list,
             secure_preferences=self.secure_preferences,

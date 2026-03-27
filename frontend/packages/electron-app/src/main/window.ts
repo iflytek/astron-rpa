@@ -35,7 +35,6 @@ export function createMainWindow() {
   const mainWindowOptions: Electron.BrowserWindowConstructorOptions = {
     title: 'iflyrpa',
     autoHideMenuBar: true,
-    titleBarStyle: 'hidden',
     width: 1280,
     height: 750,
     icon: APP_ICON_PATH,
