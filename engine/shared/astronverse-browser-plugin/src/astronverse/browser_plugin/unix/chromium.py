@@ -22,9 +22,9 @@ class ChromiumPluginManager(PluginManagerCore):
         if common.is_macos():
             self.browser_cmd = ["open", "-a", "Google Chrome"]
             self.process_name = "Google Chrome"
-            self.extension_dir = "/Library/Application Support/Google/Chrome/External Extensions"
-            self.native_messaging_dir = "/Library/Google/Chrome/NativeMessagingHosts"
-            self.policy_dir = "/Library/Application Support/Google/Chrome/policies/managed"
+            self.extension_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome/External Extensions")
+            self.native_messaging_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome/NativeMessagingHosts")
+            self.policy_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome/policies/managed")
             self.user_data_path = os.path.expanduser("~/Library/Application Support/Google/Chrome")
             self.secure_preferences = os.path.join(self.user_data_path, "Default", "Secure Preferences")
         else:
@@ -134,8 +134,12 @@ class ChromiumPluginManager(PluginManagerCore):
         logger.info(f"native messaging host json written: {dest}")
 
     def _install_policy(self):
-        """Write Chrome managed policy to allow the extension."""
-        policy = {"ExtensionInstallAllowlist": [self.plugin_data.plugin_id]}
+        """Write Chrome managed policy to force install the extension."""
+        force_install_entry = f"{self.plugin_data.plugin_id};https://clients2.google.com/service/update2/crx"
+        policy = {
+            "ExtensionInstallAllowlist": [self.plugin_data.plugin_id],
+            "ExtensionInstallForcelist": [force_install_entry],
+        }
         common.ensure_dir(self.policy_dir)
         dest = os.path.join(self.policy_dir, "astronrpa_policy.json")
         common.write_json(dest, policy)
