@@ -10,7 +10,7 @@ dependencies = [
     "aioimaplib",
     "apscheduler",
     "fastapi",
-    "keyboard",
+    "pynput",
     "pydantic",
     "uvicorn",
     "watchfiles",

@@ -1,9 +1,11 @@
+import os
 from dataclasses import field
 from enum import Enum
 
 from astronverse.scheduler.apis.response import ResCode, res_msg
+from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.logger import logger
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, field_validator
 
 router = APIRouter()
@@ -51,7 +53,7 @@ def browser_get_support():
 
 
 @router.post("/plugins/install")
-def browser_install(plugin_op: BrowserPlugin):
+def browser_install(plugin_op: BrowserPlugin, svc: Svc = Depends(get_svc)):
     """
     安装插件
     """
@@ -60,7 +62,8 @@ def browser_install(plugin_op: BrowserPlugin):
         from astronverse.browser_plugin.browser import ExtensionManager
 
         browser = BPBrowserType.init(plugin_op.browser)
-        ex_manager = ExtensionManager(browser_type=browser)
+        resource_dir = os.path.dirname(svc.config.conf_file)
+        ex_manager = ExtensionManager(resource_dir, browser_type=browser)
         ex_manager.install()
         return res_msg(msg="安装成功", data=None)
     except Exception as e:
@@ -69,7 +72,7 @@ def browser_install(plugin_op: BrowserPlugin):
 
 
 @router.post("/plugins/check_status")
-def browser_check(options: CheckBrowserPlugin):
+def browser_check(options: CheckBrowserPlugin, svc: Svc = Depends(get_svc)):
     """
     检测插件状态
     """
@@ -77,9 +80,10 @@ def browser_check(options: CheckBrowserPlugin):
         from astronverse.browser_plugin import BrowserType as BPBrowserType
         from astronverse.browser_plugin.browser import ExtensionManager
 
+        resource_dir = os.path.dirname(svc.config.conf_file)
         check_result = dict()
         for browser in options.browsers:
-            ex_manager = ExtensionManager(browser_type=BPBrowserType.init(browser))
+            ex_manager = ExtensionManager(resource_dir, browser_type=BPBrowserType.init(browser))
             check_result[browser.lower()] = ex_manager.check_status()
         return res_msg(msg="", data=check_result)
     except Exception as e:
@@ -88,7 +92,7 @@ def browser_check(options: CheckBrowserPlugin):
 
 
 @router.post("/plugins/check_running")
-def browser_check_running(plugin_op: BrowserPlugin):
+def browser_check_running(plugin_op: BrowserPlugin, svc: Svc = Depends(get_svc)):
     """
     检测浏览器是否运行
     """
@@ -97,7 +101,8 @@ def browser_check_running(plugin_op: BrowserPlugin):
         from astronverse.browser_plugin.browser import ExtensionManager
 
         browser = BPBrowserType.init(plugin_op.browser)
-        ex_manager = ExtensionManager(browser_type=browser)
+        resource_dir = os.path.dirname(svc.config.conf_file)
+        ex_manager = ExtensionManager(resource_dir, browser_type=browser)
         running = ex_manager.check_browser_running()
         return res_msg(msg="", data={"running": running})
     except Exception as e:
@@ -106,14 +111,15 @@ def browser_check_running(plugin_op: BrowserPlugin):
 
 
 @router.post("/plugins/install_all_updates")
-def update_installed_plugins():
+def update_installed_plugins(svc: Svc = Depends(get_svc)):
     """
     更新已安装的浏览器插件
     """
     try:
         from astronverse.browser_plugin.browser import UpdateManager
 
-        install_results = UpdateManager().update_installed_plugins()
+        resource_dir = os.path.dirname(svc.config.conf_file)
+        install_results = UpdateManager(resource_dir).update_installed_plugins()
         return res_msg(msg="更新完成", data=install_results)
     except Exception as e:
         logger.exception(e)

@@ -4,7 +4,7 @@ import winreg
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
 from astronverse.browser_plugin.error import BizException, CHROME_NOT_FOUND
-from astronverse.browser_plugin.utils import (
+from astronverse.browser_plugin.win.common import (
     Registry,
     check_chrome_plugin,
     get_app_path,
@@ -14,10 +14,9 @@ from astronverse.browser_plugin.utils import (
     remove_browser_setting,
     remove_old_extensions,
     start_browser,
+    run_reg_file
 )
-from astronverse.browser_plugin.win.reg import run_reg_file
-
-from ..config import Config
+from astronverse.browser_plugin.config import Config
 
 
 class ChromePluginManager(PluginManagerCore):

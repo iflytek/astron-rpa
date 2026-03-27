@@ -1,0 +1,50 @@
+# 浏览器插件安装失败解决方案
+
+若插件自动安装失败，请根据您的操作系统选择对应的手动安装方式：
+
+## Windows 系统
+
+执行 `install-windows.reg` 文件，将策略写入注册表。
+
+## Linux 系统
+
+方式一：执行脚本（推荐）
+```bash
+chmod +x install-linux.sh
+sudo ./install-linux.sh
+```
+
+方式二：手动复制
+1. 创建策略目录（如不存在）：
+   ```bash
+   sudo mkdir -p /etc/opt/chrome/policies/managed
+   ```
+
+2. 复制策略文件：
+   ```bash
+   sudo cp policy.json /etc/opt/chrome/policies/managed/
+   ```
+
+## macOS 系统
+
+方式一：执行脚本（推荐）
+```bash
+chmod +x install-macos.sh
+sudo ./install-macos.sh
+```
+
+方式二：手动复制
+1. 创建策略目录（如不存在）：
+   ```bash
+   sudo mkdir -p “/Library/Application Support/Google/Chrome/policies/managed”
+   ```
+
+2. 复制策略文件：
+   ```bash
+   sudo cp policy.json “/Library/Application Support/Google/Chrome/policies/managed/”
+   ```
+
+## 注意事项
+
+- 所有操作完成后，请重启浏览器使策略生效
+- 如仍无法安装，请检查浏览器版本是否支持扩展策略管理
