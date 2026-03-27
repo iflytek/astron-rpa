@@ -6,7 +6,7 @@ import winreg
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
 from astronverse.browser_plugin.error import BizException, BROWSER_360_NOT_FOUND
-from astronverse.browser_plugin.utils import (
+from astronverse.browser_plugin.win.common import (
     Registry,
     check_chrome_plugin,
     get_profile_list,

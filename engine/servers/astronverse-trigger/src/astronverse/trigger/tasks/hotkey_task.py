@@ -1,7 +1,7 @@
 import asyncio
 
 from astronverse.trigger.core.logger import logger
-from keyboard import add_hotkey, remove_hotkey
+from pynput import keyboard
 
 
 class HotKeyTask:
@@ -25,8 +25,8 @@ class HotKeyTask:
             except Exception:
                 pass
 
-        def on_hotkey_press(loop):
-            """loop主要作用于当前事件循环，在同一时间循环下进行任务执行"""
+        def on_hotkey_press():
+            """热键触发回调"""
             try:
                 is_set = run_event.is_set()
             except Exception as e:
@@ -41,10 +41,36 @@ class HotKeyTask:
 
         loop = asyncio.get_running_loop()
         hotkey_expression = "+".join(self.shortcuts)
-        logger.info(f"Registering hotkey '{hotkey_expression}' via keyboard.add_hotkey")
-        self._h_handle = add_hotkey(hotkey_expression, on_hotkey_press, args=(loop,))
+
+        # 跨平台修饰键映射
+        key_map = {
+            "ctrl": "ctrl",
+            "control": "ctrl",
+            "shift": "shift",
+            "alt": "alt", 
+            "option": "alt",  # macOS Option = Alt
+            "cmd": "cmd", 
+            "command": "cmd", 
+            "win": "cmd", 
+            "windows": "cmd"  # macOS Cmd = Windows Win
+        }
+
+        # 转换快捷键格式：["ctrl", "shift", "f"] -> "<ctrl>+<shift>+f"
+        pynput_keys = []
+        for k in self.shortcuts:
+            k_lower = k.lower()
+            if k_lower in key_map:
+                pynput_keys.append(f"<{key_map[k_lower]}>")
+            else:
+                pynput_keys.append(k)
+        pynput_hotkey = "+".join(pynput_keys)
+
+        logger.info(f"Registering hotkey '{hotkey_expression}' -> '{pynput_hotkey}' via pynput.keyboard.GlobalHotKeys")
+        self._h_handle = keyboard.GlobalHotKeys({pynput_hotkey: on_hotkey_press})
+        self._h_handle.start()
 
     def force_end_callback(self):
         """该方法进行热键任务回收"""
         logger.info("force_end_callback: removing hotkey listener")
-        remove_hotkey(self._h_handle)
+        if self._h_handle:
+            self._h_handle.stop()
