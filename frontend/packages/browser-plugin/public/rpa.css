@@ -25,3 +25,103 @@
     opacity: 0;
   }
 }
+
+.rpa-ele-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(115deg, #4fcf70, #fad648, #a767e5, #12bcfe, #44ce7b);
+  background-size: 50% 100%;
+  animation: rainbowSlide 0.75s linear infinite;
+  z-index: -2;
+}
+
+.rpa-ele-highlight::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  background: #e9e9e9;
+  border-radius: 6px;
+  z-index: -1;
+}
+
+@keyframes rainbowSlide {
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.rpa-ele-dotindicator {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  z-index: 99999999;
+  pointer-events: none;
+  border-radius: 50%;
+  animation:
+    ai-motion-click-pulse 2s ease-out,
+    ai-motion-click-color 2s linear;
+}
+
+@keyframes ai-motion-click-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes ai-motion-click-color {
+  0% {
+    background: radial-gradient(circle, rgba(114, 111, 255, 0.8) 0%, rgba(114, 111, 255, 0.2) 70%, transparent 100%);
+    box-shadow: 0 0 20px rgba(114, 111, 255, 0.6);
+  }
+  25% {
+    background: radial-gradient(circle, rgba(0, 242, 189, 0.8) 0%, rgba(0, 242, 189, 0.2) 70%, transparent 100%);
+    box-shadow: 0 0 20px rgba(0, 242, 189, 0.6);
+  }
+  50% {
+    background: radial-gradient(circle, rgba(255, 172, 84, 0.8) 0%, rgba(255, 172, 84, 0.2) 70%, transparent 100%);
+    box-shadow: 0 0 20px rgba(255, 172, 84, 0.6);
+  }
+  75% {
+    background: radial-gradient(circle, rgba(255, 79, 217, 0.8) 0%, rgba(255, 79, 217, 0.2) 70%, transparent 100%);
+    box-shadow: 0 0 20px rgba(255, 79, 217, 0.6);
+  }
+  100% {
+    background: radial-gradient(circle, rgba(114, 111, 255, 0.8) 0%, rgba(114, 111, 255, 0.2) 70%, transparent 100%);
+    box-shadow: 0 0 20px rgba(114, 111, 255, 0.6);
+  }
+}
+
+.rpa-ele-dotindicator::before {
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: ai-motion-click-pulse 2s ease-out 0.1s;
+}
+
+.rpa-ele-dotindicator::after {
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: ai-motion-click-pulse 2s ease-out 0.2s;
+}

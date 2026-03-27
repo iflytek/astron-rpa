@@ -13,6 +13,8 @@ import { WindowControl } from './window'
 
 globalThis.activeElement = null
 globalThis.requestInterceptionFilters = []
+globalThis.motionMode = false
+globalThis.motionParams = null
 
 function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _sendResponse: (args) => void) {
   if (request.type === 'element' && sender.tab) {
@@ -688,6 +690,37 @@ const Handlers = {
       contentInject() {
         return Utils.success(true)
       },
+
+      startMotion: async (params) => {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Tabs.resetZoom(tab.id)
+        await Tabs.sendTabFrameMessage(tab.id, params, 0)
+        globalThis.motionMode = true
+        globalThis.motionParams = params
+        return Utils.success(true)
+      },
+      stopMotion: async (params) => {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Tabs.sendMessage(params)
+        globalThis.motionMode = false
+        return Utils.success(true)
+      },
+      destroyMotion: async (params) => {
+        const tab = await Tabs.getActiveTab()
+        if (!tab) {
+          return Utils.fail(ErrorMessage.ACTIVE_TAB_ERROR)
+        }
+        await Tabs.sendMessage(params)
+        globalThis.motionMode = false
+        return Utils.success(true)
+      },
+
       async startDebugger() {
         const tab = await Tabs.getActiveTab()
         if (!tab) {
@@ -803,7 +836,7 @@ async function bgHandler(params) {
       return result
     }
     else if (handlers.otherHandler()[key]) {
-      result = await handlers.otherHandler()[key](params.data)
+      result = await handlers.otherHandler()[key](params)
       return result
     }
     else if (handlers.networkHandler()[key]) {
@@ -836,6 +869,12 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   })
   if (details.url === tab.url && matchingRule) {
     Handlers.networkHandler().startDebugNetworkListen(globalThis.requestInterceptionFilters)
+  }
+})
+
+chrome.webNavigation.onCompleted.addListener(async (details) => {
+  if (Utils.isSupportProtocal(details.url) && globalThis.motionMode) {
+    await Handlers.otherHandler().startMotion(globalThis.motionParams)
   }
 })
 

@@ -26,6 +26,7 @@
     "@types/archiver": "^6.0.3",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-v8": "^3.2.4",
+    "ai-motion": "^0.4.8",
     "archiver": "^7.0.1",
     "chrome-types": "^0.1.290",
     "cross-env": "^7.0.3",
