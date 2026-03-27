@@ -1749,7 +1749,7 @@
   "arrange": {
     "noAtomsInFlow": "当前流程还没添加原子能力",
     "selectAtomFirst": "请选择一个原子能力",
-    "atomNotFound": "该原子能力不存在",
+    "atomNotFound": "该原子能力暂未支持",
     "nodesNotContinuous": "所选节点不连续",
     "hasUnselectedChildNodes": "所选原子能力中存在未选择的子级，不可操作",
     "breakpointNotAllowed": "该节点不可添加/移除断点",

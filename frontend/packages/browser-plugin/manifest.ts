@@ -24,7 +24,6 @@ export function generateManifest(mode: string, environment) {
       service_worker: 'background.js',
       type: 'module',
     },
-
     host_permissions: ['<all_urls>'],
     content_scripts: [
       {

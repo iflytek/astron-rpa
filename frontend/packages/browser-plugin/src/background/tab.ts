@@ -200,6 +200,7 @@ export const Tabs = {
   getAllTabs: (): Promise<chrome.tabs.Tab[]> => {
     return new Promise<chrome.tabs.Tab[]>((resolve) => {
       chrome.tabs.query({}, (tabs) => {
+        tabs = tabs.filter(tab => Utils.isSupportProtocal(tab.url))
         resolve(tabs)
       })
     })
