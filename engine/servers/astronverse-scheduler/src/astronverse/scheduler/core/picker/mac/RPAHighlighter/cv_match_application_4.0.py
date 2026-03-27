@@ -1,12 +1,14 @@
 """
-RPA Highlighter — macOS PyQt5 实现
-功能对齐 Windows C# UI 库（HighlightForm / OverlayForm / ScreenshotForm / ToolbarForm）
+RPA Highlighter 鈥?macOS PyQt5 瀹炵幇
+鍔熻兘瀵归綈 Windows C# UI 搴擄紙HighlightForm / OverlayForm / ScreenshotForm / ToolbarForm锛?
 
-用法: python pyqt.py <port>
+鐢ㄦ硶: python pyqt.py <port>
 """
 
 import json
+import os
 import sys
+import time
 
 from PyQt5.QtCore import (
     QEvent,
@@ -38,6 +40,18 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pyqt_debug.log")
+
+
+def debug_log(*parts):
+    try:
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        message = " ".join(str(part) for part in parts)
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"[{timestamp}] {message}\n")
+    except Exception:
+        pass
 
 
 # ─────────────────────────────────────────────
@@ -109,7 +123,7 @@ class Strings:
 
 
 def _get_nswindow(widget):
-    """获取 QWidget 对应的 NSWindow 对象（仅 macOS）"""
+    """鑾峰彇 QWidget 瀵瑰簲鐨?NSWindow 瀵硅薄锛堜粎 macOS锛?"""
     if sys.platform != "darwin":
         return None
     try:
@@ -125,7 +139,7 @@ def _get_nswindow(widget):
 
 
 def set_macos_window_level(widget, level="screensaver"):
-    """设置 macOS 窗口层级"""
+    """璁剧疆 macOS 绐楀彛灞傜骇"""
     if sys.platform != "darwin":
         return
     try:
@@ -141,32 +155,44 @@ def set_macos_window_level(widget, level="screensaver"):
             win.setLevel_(levels.get(level, AppKit.NSScreenSaverWindowLevel))
             # NSWindowCollectionBehaviorCanJoinAllSpaces
             win.setCollectionBehavior_(1 << 3)
+            debug_log("set_macos_window_level", type(widget).__name__, level)
     except Exception:
         pass
 
 
 def set_ignore_mouse_events(widget, ignore=True):
-    """设置窗口是否忽略鼠标事件（穿透）"""
+    """璁剧疆绐楀彛鏄惁蹇界暐榧犳爣浜嬩欢锛堢┛閫忥級"""
     if sys.platform != "darwin":
         return
     try:
         win = _get_nswindow(widget)
         if win:
             win.setIgnoresMouseEvents_(ignore)
+            debug_log("set_ignore_mouse_events", type(widget).__name__, "ignore=", ignore)
     except Exception:
         pass
 
 
 def apply_overlay_flags(widget, mouse_passthrough=True):
-    """一次性应用 overlay 窗口标志：置顶 + 鼠标穿透"""
+    """涓€娆℃€у簲鐢?overlay 绐楀彛鏍囧織锛氱疆椤?+ 榧犳爣绌块€?"""
     if sys.platform == "darwin":
         set_macos_window_level(widget)
         set_ignore_mouse_events(widget, mouse_passthrough)
 
 
+def apply_non_activating_flags(widget):
+    try:
+        widget.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        if hasattr(Qt, "WA_MacAlwaysShowToolWindow"):
+            widget.setAttribute(Qt.WA_MacAlwaysShowToolWindow, True)
+        debug_log("apply_non_activating_flags", type(widget).__name__)
+    except Exception:
+        pass
+
+
 # ─────────────────────────────────────────────
 # ToolbarForm（重拾 / 确定 按钮）
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────s
 
 
 class ToolbarForm(QWidget):
@@ -181,6 +207,7 @@ class ToolbarForm(QWidget):
             Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool
         )
         self.setAttribute(Qt.WA_TranslucentBackground)
+        apply_non_activating_flags(self)
         self._build_ui()
 
     def _build_ui(self):
@@ -286,6 +313,7 @@ class HighlightForm(QWidget):
         )
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
+        apply_non_activating_flags(self)
 
         self._full_screen()
 
@@ -299,17 +327,18 @@ class HighlightForm(QWidget):
         geo = screen.geometry()
         self.setGeometry(geo)
         self.show()
+        debug_log("HighlightForm full_screen_show")
         # 确保穿透生效
         apply_overlay_flags(self, mouse_passthrough=True)
 
     def _ensure_visible(self, mouse_passthrough=True):
         if not self.isVisible():
             self.show()
-        # 始终穿透
-        apply_overlay_flags(self, mouse_passthrough=True)
-        self.raise_()
 
-    # ── 清除 / 初始化 ───────────────────────
+        apply_overlay_flags(self, mouse_passthrough=True)
+        debug_log("HighlightForm ensure_visible", self._mode, self.isVisible(), len(self._boxes))
+
+    #  ── 清除 / 初始化 ───────────────────────
 
     def clear_rect(self):
         """清除所有高亮"""
@@ -333,7 +362,7 @@ class HighlightForm(QWidget):
         apply_overlay_flags(self, mouse_passthrough=True)
         self.update()
 
-    # ── 高亮操作 ─────────────────────────────
+    # 鈹€鈹€ 楂樹寒鎿嶄綔 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
     def update_rect(self, boxes, labels=None, mode="picking"):
         """普通高亮：显示 800ms 后自动消失"""
@@ -356,7 +385,6 @@ class HighlightForm(QWidget):
         self._labels = labels or [""] * len(boxes)
         self._rect_visible = True
 
-        # 始终穿透，不拦截鼠标事件
         self._ensure_visible(mouse_passthrough=True)
         self.update()
         if self._boxes:
@@ -393,10 +421,6 @@ class HighlightForm(QWidget):
         self._anchor_label = label
         self.update()
 
-    # 【移除】set_transparent 不再需要，因为始终保持穿透
-    # def set_transparent(self, full_passthrough):
-    #     pass
-
     # ── 工具栏 ───────────────────────────────
 
     def show_toolbar(self, rect):
@@ -412,13 +436,11 @@ class HighlightForm(QWidget):
         tb_w = self._toolbar.sizeHint().width()
         tb_h = 32
 
-        # 优先放在框下方，空间不足放上方
         x = rect.left()
         y = rect.bottom() + 5
         if y + tb_h > screen.height():
             y = rect.top() - tb_h - 5
 
-        # 保证在屏幕范围内
         x = max(0, min(x, screen.width() - tb_w))
         y = max(0, min(y, screen.height() - tb_h))
 
@@ -450,12 +472,10 @@ class HighlightForm(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # 清空为透明
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.fillRect(self.rect(), Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
-        # 绘制锚点（如果有）
         if self._anchor_box is not None:
             self._draw_rounded_rect(
                 painter,
@@ -470,7 +490,6 @@ class HighlightForm(QWidget):
                 text_color=self.COLOR_HIGHLIGHT_BORDER,
             )
 
-        # 绘制高亮框
         if self._boxes and self._rect_visible:
             is_anchor_mode = self._mode == "designate" and self._anchor_box is not None
             fill = self.COLOR_ANCHOR_FILL if is_anchor_mode else self.COLOR_HIGHLIGHT_FILL
@@ -510,7 +529,6 @@ class HighlightForm(QWidget):
         text_w = fm.horizontalAdvance(text) + h_pad * 2
         text_h = fm.height() + h_pad * 2
 
-        # 位置：优先在矩形上方
         x = rect.left()
         y = rect.top() - text_h - 5
         if y < 0:
@@ -518,14 +536,12 @@ class HighlightForm(QWidget):
 
         badge_rect = QRectF(x, y, text_w, text_h)
 
-        # 黑色圆角背景
         bg_path = QPainterPath()
         bg_path.addRoundedRect(badge_rect, 4, 4)
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(0, 0, 0, 255))
         painter.drawPath(bg_path)
 
-        # 文字
         painter.setPen(text_color or QColor(240, 240, 240))
         painter.drawText(badge_rect, Qt.AlignCenter, text)
 
@@ -571,6 +587,7 @@ class OverlayForm(QWidget):
         )
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowOpacity(0.8)
+        apply_non_activating_flags(self)
 
         self.hide()
 
@@ -581,9 +598,11 @@ class OverlayForm(QWidget):
         self.show()
         self.raise_()
         if sys.platform == "darwin":
-            set_macos_window_level(self, "screensaver")
+            apply_overlay_flags(self, mouse_passthrough=True)
+        debug_log("OverlayForm show_panel", alert_type, self.geometry().getRect())
 
     def hide_panel(self):
+        debug_log("OverlayForm hide_panel")
         self.hide()
 
     def update_cursor(self, x, y):
@@ -591,12 +610,15 @@ class OverlayForm(QWidget):
             return
         self._mouse_x = x
         self._mouse_y = y
+        if self.isVisible() and self.geometry().contains(x, y):
+            debug_log("OverlayForm cursor_inside_geometry", (x, y), self.geometry().getRect())
         if self.isVisible() and self._alert_type in ("CV", "CV_ALT", "CV_CTRL"):
             self.update()
 
     # ── 自动避让 ─────────────────────────────
 
     def enterEvent(self, event):
+        debug_log("OverlayForm enterEvent")
         self._at_default_pos = not self._at_default_pos
         self._update_geometry()
         super().enterEvent(event)
@@ -610,7 +632,6 @@ class OverlayForm(QWidget):
         h = len(lines) * line_h + padding * 2 + title_h
         w = 300
 
-        # 根据内容自适应宽度
         font = QFont("PingFang SC", 12)
         fm = QFontMetrics(font)
         for label, key in lines:
@@ -776,8 +797,8 @@ class ScreenshotForm(QWidget):
     截图完成后通过 signal 返回选区坐标。
     """
 
-    screenshot_confirmed = pyqtSignal(QRect)  # 确认选区
-    screenshot_cancelled = pyqtSignal()  # 取消
+    screenshot_confirmed = pyqtSignal(QRect)  # 纭閫夊尯
+    screenshot_cancelled = pyqtSignal()  # 鍙栨秷
 
     def __init__(self):
         super().__init__()
@@ -794,7 +815,7 @@ class ScreenshotForm(QWidget):
         self.hide()
 
     def capture_and_show(self):
-        """截取当前屏幕并显示选区界面"""
+        """鎴彇褰撳墠灞忓箷骞舵樉绀洪€夊尯鐣岄潰"""
         screen = QGuiApplication.primaryScreen()
         self._pixmap = screen.grabWindow(0)
         self._start = None
@@ -836,7 +857,7 @@ class ScreenshotForm(QWidget):
                 self.update()
                 self._show_toolbar(sel)
             else:
-                # 选区太小，重置
+                # 閫夊尯澶皬锛岄噸缃?
                 self._start = None
                 self._end = None
                 self.update()
@@ -947,7 +968,7 @@ class ScreenshotForm(QWidget):
             self._cancel()
 
     def dismiss(self):
-        """外部调用：关闭截图窗口"""
+        """部调用：关闭截图窗口"""
         self._hide_toolbar()
         self.hide()
         self._start = None
@@ -1021,6 +1042,7 @@ class ConsoleApp(QMainWindow):
     def __init__(self, port):
         super().__init__()
         self.hide()
+        debug_log("ConsoleApp starting", "port=", port, "platform=", sys.platform)
 
         self._port = int(port)
         self._current_mode = "normal"
@@ -1037,7 +1059,7 @@ class ConsoleApp(QMainWindow):
         self.overlay = OverlayForm()
         self.screenshot = ScreenshotForm()
 
-        # 鼠标跟踪定时器（200ms 间隔，对齐 C#）
+        # 鼠标跟踪定时器（200ms 间隔，对齐 C#）s
         self._mouse_timer = QTimer(self)
         self._mouse_timer.timeout.connect(self._update_cursor)
         self._mouse_timer.start(200)
@@ -1049,8 +1071,8 @@ class ConsoleApp(QMainWindow):
         self.screenshot.screenshot_cancelled.connect(self._on_screenshot_cancelled)
 
         # 【关键修改】安装事件过滤器，用于在 CV_ALT 模式下检测鼠标点击并显示工具栏
-        self.installEventFilter(self)
 
+        debug_log("ConsoleApp event filters installed")
         print(f"Server started, listening on port {self._port}...")
 
     # ── 全局事件过滤器（处理 CV_ALT 模式下的点击） ──
@@ -1060,8 +1082,8 @@ class ConsoleApp(QMainWindow):
         if event.type() == QEvent.MouseButtonPress:
             # 仅在 CV_ALT 模式下且高亮窗口可见、存在高亮框时检查
             if (self.highlight.isVisible() and
-                self.highlight._mode == "CV_ALT" and
-                self.highlight._boxes):
+                    self.highlight._mode == "CV_ALT" and
+                    self.highlight._boxes):
                 # 获取全局点击位置
                 pos = QCursor.pos()
                 # 检查是否落在任意高亮框内（带扩展区域）
@@ -1130,6 +1152,7 @@ class ConsoleApp(QMainWindow):
         op = msg.get("Operation", "")
         mode = msg.get("Type", "")
         lang = msg.get("Language", "")
+        debug_log("ConsoleApp handle", "op=", op, "mode=", mode, "msg=", msg)
 
         if lang:
             Strings.set_language(lang)
@@ -1146,7 +1169,7 @@ class ConsoleApp(QMainWindow):
                 self.screenshot.capture_and_show()
 
             elif mode == "CV_ALT":
-                # 智能拾取模式
+                # 智能拾取模式s
                 self.overlay.show_panel("CV_ALT")
                 # 不再设置鼠标穿透为 False，始终保持穿透
                 if boxes:
@@ -1210,7 +1233,7 @@ class ConsoleApp(QMainWindow):
                 else:
                     self.highlight.update_rect(boxes, labels, self._current_mode)
 
-        # ── validate ──
+        #  ── validate ──
         elif op == "validate":
             boxes, labels = self._parse_boxes(msg)
             if boxes:
@@ -1222,8 +1245,8 @@ class ConsoleApp(QMainWindow):
 
             # SHIFT 只在 CV 模式系列有效
             if init_type == "SHIFT" and self._current_mode not in (
-                "CV_CTRL",
-                "CV_ALT",
+                    "CV_CTRL",
+                    "CV_ALT",
             ):
                 return
 
