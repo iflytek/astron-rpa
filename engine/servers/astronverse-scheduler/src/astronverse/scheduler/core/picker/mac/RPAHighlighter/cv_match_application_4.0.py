@@ -8,6 +8,7 @@ RPA Highlighter 鈥?macOS PyQt5 瀹炵幇
 import json
 import os
 import sys
+import threading
 import time
 
 from PyQt5.QtCore import (
@@ -40,6 +41,14 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+if sys.platform == "darwin":
+    try:
+        import Quartz
+    except Exception:
+        Quartz = None
+else:
+    Quartz = None
 
 LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pyqt_debug.log")
 
@@ -1028,6 +1037,7 @@ class CustomMessageBox(QDialog):
 
 
 class ConsoleApp(QMainWindow):
+    global_mouse_click = pyqtSignal(int, int)
     """
     主控台：监听 UDP 端口，根据 JSON 消息调度各个 UI 组件。
 
@@ -1048,6 +1058,12 @@ class ConsoleApp(QMainWindow):
         self._current_mode = "normal"
         self._sender_host = None
         self._sender_port = None
+        self._cv_alt_locked = False
+        self._click_tap = None
+        self._click_tap_src = None
+        self._click_tap_rl = None
+        self._click_tap_thread = None
+        self._click_tap_callback = None
 
         # UDP
         self.socket = QUdpSocket(self)
@@ -1069,8 +1085,13 @@ class ConsoleApp(QMainWindow):
         self.highlight.toolbar_confirm.connect(self._on_confirm)
         self.screenshot.screenshot_confirmed.connect(self._on_screenshot_confirmed)
         self.screenshot.screenshot_cancelled.connect(self._on_screenshot_cancelled)
+        self.global_mouse_click.connect(self._on_global_mouse_click)
 
-        # 【关键修改】安装事件过滤器，用于在 CV_ALT 模式下检测鼠标点击并显示工具栏
+        # 安装事件过滤器：复用现有 CV_ALT 点击确认逻辑，但不拦截事件本身
+        app = QApplication.instance()
+        if app is not None:
+            app.installEventFilter(self)
+        self._start_global_click_monitor()
 
         debug_log("ConsoleApp event filters installed")
         print(f"Server started, listening on port {self._port}...")
@@ -1094,6 +1115,92 @@ class ConsoleApp(QMainWindow):
                         break
         # 始终允许事件继续传递，不拦截
         return super().eventFilter(obj, event)
+
+    def _on_global_mouse_click(self, x, y):
+        """处理 macOS 全局左键点击；只观察，不拦截底层应用事件"""
+        if not (
+            self.highlight.isVisible()
+            and self.highlight._mode == "CV_ALT"
+            and self.highlight._boxes
+            and not self._cv_alt_locked
+        ):
+            return
+
+        pos = QPoint(int(x), int(y))
+        for box in self.highlight._boxes:
+            expanded = box.adjusted(-10, -10, 10, 10)
+            if expanded.contains(pos):
+                self._cv_alt_locked = True
+                self.highlight.show_toolbar(self.highlight._boxes[0])
+                break
+
+    def _start_global_click_monitor(self):
+        """macOS 使用 CGEventTap 监听全局左键，保持 overlay 穿透不变。"""
+        if sys.platform != "darwin" or Quartz is None or self._click_tap_thread is not None:
+            return
+
+        def callback(proxy, event_type, event, refcon):
+            if event_type == Quartz.kCGEventLeftMouseDown:
+                loc = Quartz.CGEventGetLocation(event)
+                self.global_mouse_click.emit(int(loc.x), int(loc.y))
+            return event
+
+        self._click_tap_callback = callback
+
+        def run_tap():
+            mask = Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown)
+            tap = Quartz.CGEventTapCreate(
+                Quartz.kCGSessionEventTap,
+                Quartz.kCGHeadInsertEventTap,
+                Quartz.kCGEventTapOptionListenOnly,
+                mask,
+                self._click_tap_callback,
+                None,
+            )
+
+            if tap is None:
+                debug_log("ConsoleApp global click monitor unavailable")
+                return
+
+            rl = Quartz.CFRunLoopGetCurrent()
+            src = Quartz.CFMachPortCreateRunLoopSource(None, tap, 0)
+            Quartz.CFRunLoopAddSource(rl, src, Quartz.kCFRunLoopCommonModes)
+            Quartz.CGEventTapEnable(tap, True)
+
+            self._click_tap = tap
+            self._click_tap_src = src
+            self._click_tap_rl = rl
+            debug_log("ConsoleApp global click monitor started")
+            Quartz.CFRunLoopRun()
+            debug_log("ConsoleApp global click monitor stopped")
+
+        self._click_tap_thread = threading.Thread(target=run_tap, daemon=True)
+        self._click_tap_thread.start()
+
+    def _stop_global_click_monitor(self):
+        if sys.platform != "darwin" or Quartz is None:
+            return
+        try:
+            if self._click_tap:
+                Quartz.CGEventTapEnable(self._click_tap, False)
+        except Exception:
+            pass
+        try:
+            if self._click_tap_src and self._click_tap_rl:
+                Quartz.CFRunLoopRemoveSource(
+                    self._click_tap_rl, self._click_tap_src, Quartz.kCFRunLoopCommonModes
+                )
+        except Exception:
+            pass
+        try:
+            if self._click_tap_rl:
+                Quartz.CFRunLoopStop(self._click_tap_rl)
+        except Exception:
+            pass
+        self._click_tap = None
+        self._click_tap_src = None
+        self._click_tap_rl = None
+        self._click_tap_thread = None
 
     # ── 鼠标跟踪 ─────────────────────────────
 
@@ -1160,6 +1267,7 @@ class ConsoleApp(QMainWindow):
         # ── start ──
         if op == "start":
             self._current_mode = mode
+            self._cv_alt_locked = False
             self.highlight.initialize()
             boxes, labels = self._parse_boxes(msg)
 
@@ -1211,6 +1319,7 @@ class ConsoleApp(QMainWindow):
         elif op == "picking":
             if msg.get("Type") == "invalid":
                 # 弹出"请选择不重复的元素"
+                self._cv_alt_locked = False
                 self.highlight._hide_toolbar()
                 dlg = CustomMessageBox(
                     Strings.get("select_unique_element"),
@@ -1227,6 +1336,8 @@ class ConsoleApp(QMainWindow):
 
             if boxes:
                 if self._current_mode in ("CV_ALT",):
+                    if self._cv_alt_locked:
+                        return
                     self.highlight.show_rect_cv_alt(boxes, labels)
                 elif self._current_mode == "designate":
                     self.highlight.show_rect_with_toolbar(boxes, labels)
@@ -1252,6 +1363,7 @@ class ConsoleApp(QMainWindow):
 
             self.highlight.initialize()
             self.screenshot.dismiss()
+            self._cv_alt_locked = False
 
             if init_type == "SHIFT":
                 # 回到 CV 模式
@@ -1264,6 +1376,7 @@ class ConsoleApp(QMainWindow):
 
         # ── exit ──
         elif op == "exit":
+            self._stop_global_click_monitor()
             self.highlight.clear_rect()
             self.overlay.hide_panel()
             self.screenshot.dismiss()
@@ -1273,6 +1386,7 @@ class ConsoleApp(QMainWindow):
 
     def _on_repick(self):
         """重拾按钮"""
+        self._cv_alt_locked = False
         self.highlight._hide_toolbar()
         self.highlight._boxes = []
         self.highlight.update()
@@ -1280,6 +1394,7 @@ class ConsoleApp(QMainWindow):
 
     def _on_confirm(self):
         """确定按钮"""
+        self._cv_alt_locked = False
         if self.highlight._boxes:
             box = self.highlight._boxes[0]
             self._send_response(
