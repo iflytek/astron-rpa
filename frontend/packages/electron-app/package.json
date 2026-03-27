@@ -21,7 +21,8 @@
     "build:linux": "npm run build && electron-builder --linux",
     "build:sdk": "tsdown --config tsdown.config.mts",
     "build:web": "pnpm --filter @rpa/web-app run build && npm run copy:renderer",
-    "copy:renderer": "node scripts/copy-dist.js"
+    "copy:renderer": "node scripts/copy-dist.js",
+    "fetch:opencode": "node ../../../scripts/fetch-opencode-sidecar.mjs"
   },
   "dependencies": {
     "await-to-js": "^3.0.0",

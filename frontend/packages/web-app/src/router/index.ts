@@ -3,6 +3,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import {
   ACTUATOR,
+  AIASSISTANT,
+  AISTUDIOHOME,
   APPLICATION,
   APPLICATIONMARKET,
   ARRANGE,
@@ -33,6 +35,28 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: `/${DESIGNER}`,
+  },
+  {
+    path: `/${AIASSISTANT}`,
+    name: AIASSISTANT,
+    meta: {
+      show: true,
+      illustration: 'robot2',
+    },
+    redirect: `/${AIASSISTANT}/${AISTUDIOHOME}`,
+    component: HomeComponent,
+    children: [
+      {
+        path: AISTUDIOHOME,
+        name: AISTUDIOHOME,
+        meta: {
+          key: AISTUDIOHOME,
+          iconPark: 'robot',
+          group: AIASSISTANT,
+        },
+        component: () => import('@/views/AIStudio/index.vue'),
+      },
+    ],
   },
   {
     path: `/${ARRANGE}`,

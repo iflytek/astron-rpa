@@ -8,8 +8,8 @@ export const appDataPath = app.getPath('appData')
 
 // 打包后，资源文件存储在 appPath 下的 resources 目录，否则存储在根目录下的 resources 目录
 export const resourcePath = app.isPackaged ? path.join(appPath, '../') : path.join(appPath, '../../../resources')
-// 打包后，数据存储在 userDataPath ，否则存储在 appPath 下的 data 目录
-export const appWorkPath = app.isPackaged ? userDataPath : path.join(appPath, 'data')
+// Windows 下开发环境也统一使用 userDataPath，避免 python_core、日志和扩展在 dev/prod 之间分散到不同目录
+export const appWorkPath = app.isPackaged || process.platform === 'win32' ? userDataPath : path.join(appPath, 'data')
 export const pythonCore = path.join(appWorkPath, 'python_core')
 export const pythonExe = path.join(pythonCore, 'python.exe')
 export const confPath = path.join(resourcePath, 'conf.yaml')

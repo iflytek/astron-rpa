@@ -5,6 +5,7 @@ export const DESIGNER = 'designer' // 设计器
 export const ACTUATOR = 'actuator' // 执行器
 export const APPLICATIONMARKET = 'applicationMarket'
 export const AIASSISTANT = 'aiAssistant'
+export const AISTUDIOHOME = 'aiStudioHome'
 export const PROJECTMANAGEMENT = 'projectManagement' // 工程管理
 export const COMPONENTMANAGEMENT = 'componentManagement' // 组件管理
 export const COMPONENTCREATED = 'componentCreated' // 创建的组件

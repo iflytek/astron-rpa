@@ -22,9 +22,11 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  font-family: 'Arial', sans-serif;
+  font-family: var(--font-sans-ui);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   color: var(--color-text);
 }
 
@@ -68,6 +70,9 @@ h6 {
 
 :root,
 :host {
+  --font-sans-ui: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', 'Source Han Sans SC', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans-display: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', 'Source Han Sans SC', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans-number: 'Inter', 'Segoe UI', 'SF Pro Display', 'Helvetica Neue', Arial, var(--font-sans-ui);
   --headerZindex: 9;
   --headerBgColor: transparent;
   --headerFontColor: #000;

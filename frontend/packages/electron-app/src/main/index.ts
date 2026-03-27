@@ -11,9 +11,42 @@ import { changeTray, createTray } from './tray'
 import { createSubWindow, createMainWindow as createWindow, electronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
 import { rendererPath, windowBaseUrl, extensionHost } from './path'
 import { getExtensionResourcePath } from './extension'
+import { createSidecarManager } from './opencode/sidecar'
+import { createRuntimeApi } from './opencode/api'
+import { createRuntimeEventStream } from './opencode/events'
+import { createRuntimeSkillsService } from './opencode/skills'
+import { buildRuntimeConfigContent } from './opencode/config'
+import { createAssistantStore } from './store/assistant-store'
+import { createSettingsStore } from './store/settings-store'
+import { createSessionStore } from './store/session-store'
+import { registerOpencodeIpc } from './opencode-ipc'
 
 const startTime = Date.now()
 globalThis.MainWindowLoaded = false
+
+const settingsStore = createSettingsStore()
+const assistantStore = createAssistantStore({
+  storagePath: () => path.join(app.getPath('userData'), 'opencode-assistants.json'),
+})
+const sidecar = createSidecarManager({
+  getConfigContent: async () => {
+    try {
+      const settings = await settingsStore.getStoredSettings()
+      const assistants = await assistantStore.listAssistants()
+      const groupRooms = await assistantStore.listGroupRooms()
+      return buildRuntimeConfigContent(settings, assistants, groupRooms)
+    }
+    catch {
+      return null
+    }
+  },
+})
+const api = createRuntimeApi(sidecar)
+const sessionStore = createSessionStore(api)
+const eventStream = createRuntimeEventStream(api)
+const skillsService = createRuntimeSkillsService(sidecar)
+
+registerOpencodeIpc({ sidecar, api, eventStream, skillsService, assistantStore, settingsStore, sessionStore })
 
 app.commandLine.appendSwitch('ignore-certificate-errors')
 app.commandLine.appendSwitch('disable-web-security')
@@ -122,6 +155,15 @@ async function ready() {
   registerRpaProtocol()
   listenRender()
   createMainWindow()
+  void sidecar.start().then((status) => {
+    if (status.phase === 'ready') {
+      logger.info('opencode sidecar started successfully')
+      eventStream.start()
+    }
+    else {
+      logger.warn('opencode sidecar failed to start', status.error ?? 'unknown error')
+    }
+  })
 }
 
 async function checkProcess() {
@@ -163,7 +205,8 @@ app.on('before-quit', async (e) => {
   if (isQuitting) return
   e.preventDefault()
   isQuitting = true
-  await closeSubProcess()
+  eventStream.stop()
+  await Promise.all([closeSubProcess(), sidecar.stop()])
   app.exit()
 })
 

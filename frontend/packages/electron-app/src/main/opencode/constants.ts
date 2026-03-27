@@ -1,0 +1,28 @@
+export const APP_NAME = "星辰RPA AI Studio"
+
+export const SIDECAR_FILENAME = "opencode-cli.exe"
+export const SIDECAR_HOST = "127.0.0.1"
+export const SIDECAR_USERNAME = "opencode"
+export const SIDECAR_HEALTH_PATH = "/global/health"
+export const SIDECAR_HEALTH_TIMEOUT_MS = 30_000
+export const SIDECAR_HEALTH_POLL_INTERVAL_MS = 150
+
+export const IPC_OPENCODE_GET_RUNTIME_STATUS = "opencode:getRuntimeStatus"
+export const IPC_OPENCODE_AWAIT_INITIALIZATION = "opencode:awaitInitialization"
+export const IPC_OPENCODE_GET_BOOTSTRAP = "opencode:getBootstrap"
+export const IPC_OPENCODE_GET_SESSION = "opencode:getSession"
+export const IPC_OPENCODE_CREATE_SESSION = "opencode:createSession"
+export const IPC_OPENCODE_DELETE_SESSION = "opencode:deleteSession"
+export const IPC_OPENCODE_SEND_MESSAGE = "opencode:sendMessage"
+export const IPC_OPENCODE_LIST_RUN_EVENTS = "opencode:listRunEvents"
+export const IPC_OPENCODE_RUNTIME_EVENT = "opencode:runtimeEvent"
+export const IPC_OPENCODE_GET_SETTINGS = "opencode:getSettings"
+export const IPC_OPENCODE_SAVE_PROVIDER = "opencode:saveProvider"
+export const IPC_OPENCODE_SAVE_DEFAULT_MODEL = "opencode:saveDefaultModel"
+export const IPC_OPENCODE_LIST_ASSISTANTS = "opencode:listAssistants"
+export const IPC_OPENCODE_SAVE_ASSISTANT = "opencode:saveAssistant"
+export const IPC_OPENCODE_DELETE_ASSISTANT = "opencode:deleteAssistant"
+export const IPC_OPENCODE_LIST_GROUP_ROOMS = "opencode:listGroupRooms"
+export const IPC_OPENCODE_SAVE_GROUP_ROOM = "opencode:saveGroupRoom"
+export const IPC_OPENCODE_DELETE_GROUP_ROOM = "opencode:deleteGroupRoom"
+export const IPC_OPENCODE_LIST_SKILLS = "opencode:listSkills"

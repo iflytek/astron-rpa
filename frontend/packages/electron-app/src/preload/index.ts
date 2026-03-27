@@ -57,3 +57,29 @@ contextBridge.exposeInMainWorld('electron', {
     },
   },
 })
+
+contextBridge.exposeInMainWorld('opencodeApi', {
+  getRuntimeStatus: () => ipcRenderer.invoke('opencode:getRuntimeStatus'),
+  awaitInitialization: () => ipcRenderer.invoke('opencode:awaitInitialization'),
+  getBootstrap: () => ipcRenderer.invoke('opencode:getBootstrap'),
+  getSession: (sessionId: string) => ipcRenderer.invoke('opencode:getSession', sessionId),
+  createSession: (payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null }) => ipcRenderer.invoke('opencode:createSession', payload),
+  deleteSession: (sessionId: string) => ipcRenderer.invoke('opencode:deleteSession', sessionId),
+  sendMessage: (payload: { sessionID: string; text: string; model?: string | null; providerId?: string | null }) =>
+    ipcRenderer.invoke('opencode:sendMessage', payload),
+  getSettings: () => ipcRenderer.invoke('opencode:getSettings'),
+  saveProvider: (input: unknown) => ipcRenderer.invoke('opencode:saveProvider', input),
+  saveDefaultModel: (input: unknown) => ipcRenderer.invoke('opencode:saveDefaultModel', input),
+  listAssistants: () => ipcRenderer.invoke('opencode:listAssistants'),
+  saveAssistant: (input: unknown) => ipcRenderer.invoke('opencode:saveAssistant', input),
+  deleteAssistant: (id: string) => ipcRenderer.invoke('opencode:deleteAssistant', id),
+  listGroupRooms: () => ipcRenderer.invoke('opencode:listGroupRooms'),
+  saveGroupRoom: (input: unknown) => ipcRenderer.invoke('opencode:saveGroupRoom', input),
+  deleteGroupRoom: (id: string) => ipcRenderer.invoke('opencode:deleteGroupRoom', id),
+  listSkills: () => ipcRenderer.invoke('opencode:listSkills'),
+  onRuntimeEvent: (listener: (event: unknown) => void) => {
+    const handler = (_: Electron.IpcRendererEvent, event: unknown) => listener(event)
+    ipcRenderer.on('opencode:runtimeEvent', handler)
+    return () => ipcRenderer.off('opencode:runtimeEvent', handler)
+  },
+})

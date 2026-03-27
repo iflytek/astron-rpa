@@ -161,4 +161,5 @@ resources/*.sha256.txt
 resources/vnc/*
 frontend/pnpm-lock.yaml
 engine/servers/astronverse-executor/astron/*
-engine/servers/astronverse-executor/astron_extension/*
+engine/servers/astronverse-executor/astron_extension/*resources/opencode-cli.exe
+resources/opencode-cli.json
