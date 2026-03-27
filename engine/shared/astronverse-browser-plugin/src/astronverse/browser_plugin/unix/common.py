@@ -147,11 +147,15 @@ def check_chrome_plugin(preferences_path_list: list, extension_id: str) -> tuple
                         version = extension_info[extension_id].get("manifest", {}).get("version", "")
                         return True, version
             except Exception:
-                version = _get_install_signature_extension_version(preferences_path_list, extension_id)
-                if version:
-                    return True, version
+                pass
         else:
             logger.info(f"{file} does not exist")
+
+    # Fallback: check Extensions directory if not found in Preferences
+    version = _get_install_signature_extension_version(preferences_path_list, extension_id)
+    if version:
+        return True, version
+
     return False, ""
 
 
@@ -206,12 +210,14 @@ def remove_browser_setting(preferences_path_list: list, secure_preferences: str,
                         is_update = True
 
                     for old_id in old_extension_ids:
-                        extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(old_id, None)
+                        settings = dict_msg.get("extensions", {}).get("settings") or {}
+                        extension_info = settings.get(old_id, None)
                         if extension_info is not None:
                             del dict_msg["extensions"]["settings"][old_id]
                             is_update = True
 
-                    extension_info = dict_msg.get("extensions", {}).get("settings", {}).get(extension_id, None)
+                    settings = dict_msg.get("extensions", {}).get("settings") or {}
+                    extension_info = settings.get(extension_id, None)
                     if extension_info is not None:
                         del dict_msg["extensions"]["settings"][extension_id]
                         is_update = True
