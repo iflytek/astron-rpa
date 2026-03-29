@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 
-import { COMPONENT_KEY_PREFIX, updateFlowNodesComponent } from '@/utils/customComponent'
+import { getComponentForm, updateFlowNodesComponent } from '@/utils/customComponent'
 
 import { installComponent, removeComponent, updateComponent } from '@/api/robot'
-// import { createComponentAbility } from '@/views/Arrange/utils/generateData'
 
 const props = defineProps<{ data: RPA.ComponentManageItem, robotId: string }>()
 const emit = defineEmits(['refresh'])
@@ -45,13 +44,18 @@ function handleRemove() {
 
 function handleUpdate() {
   execute(async () => {
+    const node = await getComponentForm({
+      componentId: props.data.componentId,
+      version: props.data.latestVersion,
+      context: 'update',
+    }) as unknown as RPA.Flow.FlowItemValue
+
     await updateComponent({
       robotId: props.robotId,
       componentId: props.data.componentId,
       componentVersion: props.data.latestVersion,
     })
-    // const node = await createComponentAbility(`${COMPONENT_KEY_PREFIX}.${props.data.componentId}`, props.data.latestVersion, 'update')
-    // await updateFlowNodesComponent(props.data.componentId, node)
+    updateFlowNodesComponent(props.data.componentId, node)
   })
 }
 </script>

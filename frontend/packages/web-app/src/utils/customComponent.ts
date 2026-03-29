@@ -192,68 +192,101 @@ export function mapAttrToFormItem(attr: RPA.ConfigParamData) {
 
 export function getUsedComponentKeySet() {
   const processStore = useProcessStore()
-  // const projectDocStore = useProjectDocStore()
+  const usedkeySet = new Set(
+    processStore.canvasManager.processList
+      .filter(process => process.state.resourceCategory === 'process')
+      .flatMap(process => (Array.isArray(process.state.data) ? process.state.data : []))
+      .filter(node => isComponentKey(node.key))
+      .map(item => item.key),
+  )
 
-  // const usedkeySet = new Set(
-  //   processStore.processList
-  //     .flatMap(process => projectDocStore.getProcessNodes(process.resourceId))
-  //     .filter(node => isComponentKey(node.key))
-  //     .map(item => item.key),
-  // )
-
-  // return usedkeySet
+  return usedkeySet
 }
 
 export async function trackComponentUsageChange(operation: () => void | Promise<void>) {
   const beforeUsedKeys = getUsedComponentKeySet()
   await operation()
   const afterUsedKeys = getUsedComponentKeySet()
-  // const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
-  // const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
+  const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
+  const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
 
-  // for (const key of addedKeys) {
-  //   await addComponentUse({
-  //     robotId: useProcessStore().project.id,
-  //     componentId: getComponentId(key),
-  //   })
-  // }
+  for (const key of addedKeys) {
+    await addComponentUse({
+      robotId: useProcessStore().project.id,
+      componentId: getComponentId(key),
+    })
+  }
 
-  // for (const key of deletedKeys) {
-  //   await deleteComponentUse({
-  //     robotId: useProcessStore().project.id,
-  //     componentId: getComponentId(key),
-  //   })
-  // }
+  for (const key of deletedKeys) {
+    await deleteComponentUse({
+      robotId: useProcessStore().project.id,
+      componentId: getComponentId(key),
+    })
+  }
 }
 
 /**
  * 更新应用流程节点中使用到的组件数据
  */
 export function updateFlowNodesComponent(componentId: string, defaultNode: RPA.Flow.FlowItemValue) {
-  // const processStore = useProcessStore()
-  // const projectDocStore = useProjectDocStore()
-  // const flowStore = useFlowStore()
+  const processStore = useProcessStore()
+  const processTabs = processStore.canvasManager.processList.filter(
+    process => process.state.resourceCategory === 'process',
+  )
 
-  // const updateParams: { node: RPA.Atom, index: number, process: string }[] = []
+  processTabs.forEach((tab) => {
+    const nodes = Array.isArray(tab.state.data) ? tab.state.data : []
+    let hasChanged = false
 
-  // processStore.processList.forEach((process) => {
-  //   const nodes = projectDocStore.getProcessNodes(process.resourceId)
-  //   nodes.forEach((node, index) => {
-  //     if (isComponentKey(node.key) && getComponentId(node.key) === componentId) {
-  //       const oldFormItems = [...node.inputList, ...node.outputList]
-  //       const newNode = {
-  //         ...node,
-  //         icon: defaultNode.icon,
-  //         version: defaultNode.version,
-  //         inputList: defaultNode.inputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
-  //         outputList: defaultNode.outputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
-  //       }
-  //       updateParams.push({ node: newNode, index, process: process.resourceId })
-  //     }
-  //   })
-  // })
+    const nextNodes = nodes.map((node) => {
+      if (!isComponentKey(node.key) || getComponentId(node.key) !== componentId) {
+        return node
+      }
 
-  // flowStore.updataOriginFlowData(updateParams)
+      hasChanged = true
+      const oldFormItems = [
+        ...(Array.isArray(node.inputList) ? node.inputList : []),
+        ...(Array.isArray(node.outputList) ? node.outputList : []),
+        ...(Array.isArray(node.advanced) ? node.advanced : []),
+        ...(Array.isArray(node.exception) ? node.exception : []),
+      ]
+
+      const mapValue = (item: RPA.AtomFormBaseForm) => ({
+        ...item,
+        value: oldFormItems.find(i => i.key === item.key)?.value ?? item.value,
+      })
+
+      return {
+        ...node,
+        icon: defaultNode.icon,
+        version: defaultNode.version,
+        inputList: (defaultNode.inputList || []).map(mapValue),
+        outputList: (defaultNode.outputList || []).map(mapValue),
+        advanced: (defaultNode.advanced || []).map(mapValue),
+        exception: (defaultNode.exception || []).map(mapValue),
+      }
+    })
+
+    if (!hasChanged) return
+
+    tab.updateState({ data: nextNodes, isDirty: true })
+
+    const visualTab = tab as RPA.Process.TabInstance<RPA.Atom[]> & {
+      astParser?: { getSubtreeNodes?: () => { raw: RPA.Atom }[] }
+      updateData?: () => void
+    }
+    if (!visualTab.astParser?.getSubtreeNodes) return
+
+    const nextNodeMap = new Map(nextNodes.map(it => [it.id, it]))
+    const parserNodes = visualTab.astParser.getSubtreeNodes().slice(1)
+    parserNodes.forEach((it) => {
+      const target = nextNodeMap.get(it.raw.id)
+      if (target) {
+        Object.assign(it.raw, target)
+      }
+    })
+    visualTab.updateData?.()
+  })
 }
 
 function safeParse(str) {
