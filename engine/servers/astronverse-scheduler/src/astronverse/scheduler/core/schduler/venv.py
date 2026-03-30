@@ -1,11 +1,25 @@
 import os
 import re
+import shutil
 import sys
 
 from astronverse.scheduler.error import BizException, EXECUTOR_ERROR
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.platform_utils import platform_python_venv_path
 from astronverse.scheduler.utils.subprocess import SubPopen
+
+
+def _validate_venv_config(venv_path):
+    """
+    检查虚拟环境的 pyvenv.cfg 是否正确配置了 include-system-site-packages
+    """
+    pyvenv_cfg = os.path.join(venv_path, "venv", "pyvenv.cfg")
+    if not os.path.exists(pyvenv_cfg):
+        return False
+    with open(pyvenv_cfg, "r") as f:
+        if "include-system-site-packages = true" not in f.read():
+            return False
+    return True
 
 
 class VenvManager:
@@ -90,12 +104,19 @@ class VenvManager:
             svc.config.python_base,
             "-m",
             "venv",
-            env_dir_temp,
             "--system-site-packages",
+            env_dir_temp,
         ]
         _, err = SubPopen(name="create_venv", cmd=cmd).run(log=True).logger_handler()
         if err:
             logger.error("create venv failed: {}".format(err))
+            shutil.rmtree(env_dir_parent, ignore_errors=True)
+            return
+
+        # 2.2.1 校验 pyvenv.cfg 确保 include-system-site-packages = true
+        if not _validate_venv_config(env_dir_parent):
+            shutil.rmtree(env_dir_parent, ignore_errors=True)
+            return
 
         # 2.3 .temp_venv重命名成temp_venv
         os.rename(
@@ -121,6 +142,11 @@ def create_project_venv(svc, project_id: str):
             raise BizException(EXECUTOR_ERROR.format("虚拟环境运行时为空"), "empty venv runtime...")
         temp_v = temp_envs[0]
         os.rename(os.path.join(svc.config.venv_base_dir, temp_v), v_path)
+
+    if not _validate_venv_config(v_path):
+        shutil.rmtree(v_path, ignore_errors=True)
+        raise BizException(EXECUTOR_ERROR.format("虚拟环境配置错误"), "invalid venv config...")
+
     return platform_python_venv_path(v_path)
 
 
