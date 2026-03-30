@@ -343,7 +343,11 @@ const ContentHandler = {
     elementIsRender: async (data: ElementInfo) => {
       try {
         const eles = await ContentHandler.ele.getElement({ ...data, filterVisible: true })
-        return Utils.success(eles && eles.length)
+        if (eles && eles.length > 0) {
+          return Utils.success(true)
+        } else {
+          return Utils.success(false)
+        }
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
@@ -353,7 +357,11 @@ const ContentHandler = {
     elementIsReady: async (data: ElementInfo) => {
       try {
         const eles = await ContentHandler.ele.getElement(data)
-        return Utils.success(eles && eles.length)
+        if (eles && eles.length > 0) {
+          return Utils.success(true)
+        } else {
+          return Utils.success(false)
+        }
       }
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
