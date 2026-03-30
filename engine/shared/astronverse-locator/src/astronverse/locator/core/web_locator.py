@@ -170,22 +170,70 @@ class WebFactory:
                 pass
             return None
 
-        # 1. 通过进程名找 PID ──────────────────────────────────────────────────────
+        def _match_browser_app_name(*names):
+            for name in names:
+                text = (name or "").strip()
+                if not text:
+                    continue
+                text_lower = text.lower()
+                for candidate in process_names:
+                    candidate_lower = candidate.lower()
+                    if candidate_lower in text_lower or text_lower in candidate_lower:
+                        return True
+                if app and app.lower() in text_lower:
+                    return True
+            return False
+
+        # 1. 优先通过 NSRunningApplication 找浏览器主进程 PID
         pid = 0
         try:
-            for proc in psutil.process_iter(["pid", "name"]):
-                proc_name = proc.info.get("name", "") or ""
-                for candidate in process_names:
-                    if (
-                            candidate.lower() in proc_name.lower()
-                            or proc_name.lower() in candidate.lower()
-                    ):
-                        pid = proc.info["pid"]
-                        break
-                if pid:
+            import AppKit
+
+            workspace = AppKit.NSWorkspace.sharedWorkspace()
+            front_app = workspace.frontmostApplication()
+            app_candidates = []
+            if front_app is not None:
+                app_candidates.append(front_app)
+            app_candidates.extend(workspace.runningApplications() or [])
+
+            for running_app in app_candidates:
+                localized_name = ""
+                bundle_id = ""
+                exec_name = ""
+                try:
+                    localized_name = running_app.localizedName() or ""
+                except Exception:
+                    pass
+                try:
+                    bundle_id = running_app.bundleIdentifier() or ""
+                except Exception:
+                    pass
+                try:
+                    executable_url = running_app.executableURL()
+                    exec_name = executable_url.lastPathComponent() if executable_url else ""
+                except Exception:
+                    pass
+
+                if _match_browser_app_name(localized_name, bundle_id, exec_name):
+                    pid = int(running_app.processIdentifier())
+                    logger.debug(
+                        "[get_web_top] 命中 NSRunningApplication "
+                        f"name={localized_name}, bundle_id={bundle_id}, exec_name={exec_name}, pid={pid}"
+                    )
                     break
         except Exception as e:
-            logger.debug(f"[get_web_top] 查找 PID 异常: {e}")
+            logger.debug(f"[get_web_top] NSRunningApplication 查找 PID 异常: {e}")
+
+        # 2. 兜底：通过 psutil 进程名找 PID
+        if pid == 0:
+            try:
+                for proc in psutil.process_iter(["pid", "name"]):
+                    proc_name = proc.info.get("name", "") or ""
+                    if _match_browser_app_name(proc_name):
+                        pid = proc.info["pid"]
+                        break
+            except Exception as e:
+                logger.debug(f"[get_web_top] 查找 PID 异常: {e}")
 
         logger.debug(f"[get_web_top] app={app}, process_names={process_names}, pid={pid}")
 
@@ -193,20 +241,21 @@ class WebFactory:
             msg = f"未找到{app}浏览器进程，请确认浏览器是否已启动"
             raise BizException(BROWSER_WINDOW_NOT_FOUND_FORMAT.format(app), msg)
 
-        # 2. 激活浏览器窗口（置前） ───────────────────────────────────────────────
+        # 3. 激活浏览器窗口（置前） ───────────────────────────────────────────────
         try:
             import AppKit
             for running_app in AppKit.NSWorkspace.sharedWorkspace().runningApplications():
-                if running_app.processIdentifier() == pid:
-                    running_app.activateWithOptions_(
-                        AppKit.NSApplicationActivateIgnoringOtherApps
-                    )
-                    logger.debug(f"[get_web_top] 已激活浏览器窗口 pid={pid}")
-                    break
+                if running_app.processIdentifier() != pid:
+                    continue
+                running_app.activateWithOptions_(
+                    AppKit.NSApplicationActivateIgnoringOtherApps
+                )
+                logger.debug(f"[get_web_top] 已激活浏览器窗口 pid={pid}")
+                break
         except Exception as e:
             logger.debug(f"[get_web_top] 激活窗口异常: {e}")
 
-        # 3. 创建 AXApplication 并获取主窗口 ─────────────────────────────────────
+        # 4. 创建 AXApplication 并获取主窗口 ─────────────────────────────────────
         ax_app = AXUIElementCreateApplication(pid)
         main_window = (
                 _ax_attr(ax_app, "AXMainWindow")
