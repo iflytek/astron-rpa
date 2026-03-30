@@ -1,6 +1,7 @@
 # macOS implementation - AXUIElement based locator
 # Replaces both uia_locator.py and msaa_locator.py on macOS.
 import ctypes
+from copy import deepcopy
 from typing import Any, Optional, Union
 
 import pyautogui
@@ -126,6 +127,12 @@ class AXUILocator(ILocator):
 class AXUIFactory:
     @classmethod
     def find(cls, ele: dict, picker_type: str, **kwargs) -> Union[list[AXUILocator], AXUILocator, None]:
+        if picker_type == PickerType.SIMILAR.value:
+            return cls.__find_similar__(ele)
+        return cls.__find_one__(ele, picker_type)
+
+    @classmethod
+    def __find_one__(cls, ele: dict, picker_type: str) -> Union[AXUILocator, None]:
         from ApplicationServices import AXUIElementCreateApplication
 
         app_name = ele.get("app", "")
@@ -154,42 +161,7 @@ class AXUIFactory:
                     return AXUILocator(root)
 
                 search_list = [(root, "1")]
-                element_found = True
-                current_level = 1
-
-                for node_idx, node_dict in enumerate(path_list[1:], start=1):
-                    if not node_dict.get("checked", True):
-                        logger.debug(f"第 {node_idx} 层节点 checked=False，跳过")
-                        continue
-
-                    disable_keys = node_dict.get("disable_keys", [])
-                    tag_name = node_dict.get("tag_name") if "tag_name" not in disable_keys else None
-                    cls_name = node_dict.get("cls") if "cls" not in disable_keys else None
-                    name = node_dict.get("name") if "name" not in disable_keys else None
-                    value = node_dict.get("value") if "value" not in disable_keys else None
-                    expected_idx = node_dict.get("index") if "index" not in disable_keys else None
-
-                    logger.debug(f"第 {current_level} 层匹配条件 → tag={tag_name}, cls={cls_name}, "
-                                 f"name={name}, value={value}, index={expected_idx}")
-
-                    next_list = []
-                    for parent_el, parent_sort in search_list:
-                        children = _ax_attr(parent_el, "AXChildren") or []
-                        logger.debug(f"  父节点有 {len(children)} 个子元素")
-                        for child_idx, child in enumerate(children):
-                            if cls._match_child(child, tag_name, cls_name, name, value, node_dict.get("attrs_map")):
-                                index_ok = expected_idx is None or child_idx == expected_idx
-                                sort_str = parent_sort + ("1" if index_ok else "0")
-                                next_list.append((child, sort_str))
-                                logger.debug(f"    ✓ 命中子元素 idx={child_idx} sort={sort_str}")
-
-                    if not next_list:
-                        logger.warning(f"✗ 第 {current_level} 层匹配失败！没有找到任何符合条件的子元素")
-                        element_found = False
-                        break
-
-                    search_list = next_list
-                    current_level += 1
+                element_found, search_list = cls._walk_path(search_list, path_list[1:], start_level=1)
 
                 if element_found and search_list:
                     search_list.sort(key=lambda x: -int(x[1]))
@@ -204,6 +176,204 @@ class AXUIFactory:
                 continue
 
         raise BizException(NO_FIND_ELEMENT, "元素无法找到")
+
+    @classmethod
+    def __find_similar__(cls, ele: dict) -> list[AXUILocator]:
+        """
+        相似元素查找：遍历父容器的所有子元素，返回结构相似的元素列表。
+
+        路径约定：
+        - 带 similar_parent=True 的节点用于导航到父容器（由 picker 层标记）。
+        - 不带该标记的节点用于匹配相似子元素（name/index 已由 picker 层放入 disable_keys）。
+        - 若 picker 层尚未设置 similar_parent（兼容旧数据），则自动将末尾节点视为
+          相似匹配层，并强制忽略 name/value/index 以找到所有同类兄弟元素。
+        """
+        from ApplicationServices import AXUIElementCreateApplication
+
+        app_name = ele.get("app", "")
+        path_list = ele.get("path", [])
+        if not path_list:
+            return []
+
+        parent_path = [v for v in path_list if v.get("similar_parent", False)]
+        child_nodes = [v for v in path_list if not v.get("similar_parent", False)]
+
+        # 兼容旧数据：picker 未设置 similar_parent 时，末尾节点作为相似层，强制忽略 name/value/index
+        if not parent_path:
+            parent_path = path_list[:-1] if len(path_list) > 1 else path_list
+            if path_list:
+                last_node = deepcopy(path_list[-1])
+                forced_disable = set(last_node.get("disable_keys", [])) | {"name", "value", "index"}
+                last_node["disable_keys"] = list(forced_disable)
+                child_nodes = [last_node]
+            else:
+                child_nodes = []
+
+        logger.debug(f"__find_similar__: parent_path 层数={len(parent_path)}, child_nodes 层数={len(child_nodes)}")
+
+        # 导航到父容器
+        pids = cls._find_pids_by_name(app_name)
+        if not pids:
+            raise BizException(NO_FIND_ELEMENT, f"找不到应用: {app_name}")
+
+        parent_el = None
+        for pid in pids:
+            try:
+                root = AXUIElementCreateApplication(pid)
+                if root is None:
+                    continue
+
+                search_list = [(root, "1")]
+                ok, search_list = cls._walk_path(search_list, parent_path[1:], start_level=1)
+
+                if ok and search_list:
+                    search_list.sort(key=lambda x: -int(x[1]))
+                    parent_el = search_list[0][0]
+                    break
+            except Exception as e:
+                logger.error(f"__find_similar__: PID {pid} 导航父路径异常: {e}", exc_info=True)
+                continue
+
+        if parent_el is None:
+            raise BizException(NO_FIND_ELEMENT, "相似元素：父容器无法找到")
+
+        # 遍历父容器所有直接子元素，逐一与 child_nodes 匹配
+        res: list[AXUILocator] = []
+        children = _ax_attr(parent_el, "AXChildren") or []
+        logger.debug(f"__find_similar__: 父容器有 {len(children)} 个子元素，开始相似匹配")
+
+        for child in children:
+            if not child_nodes:
+                res.append(AXUILocator(child))
+                continue
+
+            first_mp = cls._extract_match_params(child_nodes[0])
+            if not cls._match_child(
+                child,
+                first_mp["tag_name"],
+                first_mp["cls_name"],
+                first_mp["name"],
+                first_mp["value"],
+                first_mp["attrs_map"],
+            ):
+                continue
+
+            if len(child_nodes) == 1:
+                res.append(AXUILocator(child))
+            else:
+                sub_list = [(child, "1")]
+                found, sub_list = cls._walk_path(sub_list, child_nodes[1:], start_level=1)
+
+                if found and sub_list:
+                    sub_list.sort(key=lambda x: -int(x[1]))
+                    res.append(AXUILocator(sub_list[0][0]))
+
+        logger.info(f"__find_similar__: 共找到 {len(res)} 个相似元素")
+        return res
+
+    @classmethod
+    def _walk_path(cls, search_list, path_nodes: list, start_level: int = 1):
+        current_level = start_level
+        node_idx = 0
+
+        while node_idx < len(path_nodes):
+            node_dict = path_nodes[node_idx]
+            if not node_dict.get("checked", True):
+                node_idx += 1
+                continue
+
+            match_params = cls._extract_match_params(node_dict)
+            logger.debug(
+                f"第 {current_level} 层 → tag={match_params['tag_name']},"
+                f" cls={match_params['cls_name']}, name={match_params['name']},"
+                f" value={match_params['value']}, index={match_params['expected_idx']}"
+            )
+
+            next_list = cls._collect_matches(search_list, match_params)
+            if not next_list:
+                next_checked = cls._next_checked_node(path_nodes, node_idx + 1)
+                if cls._is_skippable_container(node_dict) and next_checked is not None:
+                    skip_idx, skip_node = next_checked
+                    skip_params = cls._extract_match_params(skip_node)
+                    logger.debug(
+                        f"第 {current_level} 层未命中，尝试跳过不稳定容器 {node_dict.get('tag_name')}，"
+                        f"直接匹配下一层 tag={skip_params['tag_name']}"
+                    )
+                    skipped_list = cls._collect_matches(search_list, skip_params)
+                    if skipped_list:
+                        logger.warning(
+                            f"第 {current_level} 层容器 {node_dict.get('tag_name')} 已跳过，使用下一层继续匹配"
+                        )
+                        search_list = skipped_list
+                        current_level += 2
+                        node_idx = skip_idx + 1
+                        continue
+
+                logger.warning(f"✗ 第 {current_level} 层匹配失败！没有找到任何符合条件的子元素")
+                return False, search_list
+
+            search_list = next_list
+            current_level += 1
+            node_idx += 1
+
+        return True, search_list
+
+    @classmethod
+    def _next_checked_node(cls, path_nodes: list, start_idx: int):
+        for idx in range(start_idx, len(path_nodes)):
+            node = path_nodes[idx]
+            if node.get("checked", True):
+                return idx, node
+        return None
+
+    @classmethod
+    def _is_skippable_container(cls, node_dict: dict) -> bool:
+        tag_name = node_dict.get("tag_name") or ""
+        if tag_name not in {"AXGroup", "AXScrollArea"}:
+            return False
+        disable_keys = set(node_dict.get("disable_keys", []))
+        return "name" in disable_keys and "value" in disable_keys
+
+    @classmethod
+    def _extract_match_params(cls, node_dict: dict) -> dict:
+        disable_keys = node_dict.get("disable_keys", [])
+        expected_idx = node_dict.get("index") if "index" not in disable_keys else None
+        if expected_idx in (None, ""):
+            expected_idx = None
+        else:
+            try:
+                expected_idx = int(expected_idx)
+            except Exception:
+                expected_idx = None
+        return {
+            "tag_name": node_dict.get("tag_name") if "tag_name" not in disable_keys else None,
+            "cls_name": node_dict.get("cls") if "cls" not in disable_keys else None,
+            "name": node_dict.get("name") if "name" not in disable_keys else None,
+            "value": node_dict.get("value") if "value" not in disable_keys else None,
+            "expected_idx": expected_idx,
+            "attrs_map": node_dict.get("attrs_map"),
+        }
+
+    @classmethod
+    def _collect_matches(cls, search_list, match_params: dict) -> list:
+        next_list = []
+        for parent_el, parent_sort in search_list:
+            children = _ax_attr(parent_el, "AXChildren") or []
+            logger.debug(f"  父节点有 {len(children)} 个子元素")
+            for child_idx, child in enumerate(children):
+                if cls._match_child(
+                    child,
+                    match_params["tag_name"],
+                    match_params["cls_name"],
+                    match_params["name"],
+                    match_params["value"],
+                    match_params["attrs_map"],
+                ):
+                    index_ok = match_params["expected_idx"] is None or child_idx == match_params["expected_idx"]
+                    sort_str = parent_sort + ("1" if index_ok else "0")
+                    next_list.append((child, sort_str))
+                    logger.debug(f"    ✓ 命中子元素 idx={child_idx} sort={sort_str}")
+        return next_list
 
     @classmethod
     def _find_pids_by_name(cls, app_name: str) -> list:
