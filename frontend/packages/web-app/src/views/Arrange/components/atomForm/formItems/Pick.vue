@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 import type { FormItemProps } from './index'
 import ElePopover from '../../pick/ElePopover.vue'
-import AtomPopover from '../AtomPopover.vue'
+import AtomPopover from '../components/AtomPopover.vue'
 
 const props = defineProps<FormItemProps>()
 const open = ref(false)

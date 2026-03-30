@@ -2,6 +2,8 @@ import { fetchEventSource } from '@microsoft/fetch-event-source'
 import type { FetchEventSourceInit } from '@microsoft/fetch-event-source'
 import { isFunction } from 'lodash-es'
 
+import { getBaseURL } from '../http/env'
+
 /**
  * SSE 流式接口
  * @param url 接口地址
@@ -17,10 +19,13 @@ function SSERequest(
   options: FetchEventSourceInit,
   sCB: FetchEventSourceInit['onmessage'],
   eCB?: FetchEventSourceInit['onerror'],
+  cCB?: FetchEventSourceInit['onclose'],
 ) {
   const controller = new AbortController()
+  const baseURL = getBaseURL()
+  const finalUrl = new URL(url, baseURL).href
 
-  fetchEventSource(url, {
+  fetchEventSource(finalUrl, {
     signal: controller.signal,
     mode: 'cors',
     // mode: 'no-cors',
@@ -43,17 +48,21 @@ function SSERequest(
       isFunction(eCB) && eCB(err)
       throw err
     },
+    onclose() {
+      console.log('sse close')
+      isFunction(cCB) && cCB()
+    },
   })
 
   return controller
 };
 
-function get(url: string, callback: FetchEventSourceInit['onmessage'], errorCallback?: FetchEventSourceInit['onerror'], options?: FetchEventSourceInit) {
-  return SSERequest(url, null, { method: 'GET', ...options }, callback, errorCallback)
+function get(url: string, callback: FetchEventSourceInit['onmessage'], errorCallback?: FetchEventSourceInit['onerror'], options?: FetchEventSourceInit, closeCallback?: FetchEventSourceInit['onclose']) {
+  return SSERequest(url, null, { method: 'GET', ...options }, callback, errorCallback, closeCallback)
 }
 
-function post(url: string, data: Record<string, any>, callback: FetchEventSourceInit['onmessage'], errorCallback?: FetchEventSourceInit['onerror'], options?: FetchEventSourceInit) {
-  return SSERequest(url, data, { method: 'POST', ...options }, callback, errorCallback)
+function post(url: string, data: Record<string, any>, callback: FetchEventSourceInit['onmessage'], errorCallback?: FetchEventSourceInit['onerror'], options?: FetchEventSourceInit, closeCallback?: FetchEventSourceInit['onclose']) {
+  return SSERequest(url, data, { method: 'POST', ...options }, callback, errorCallback, closeCallback)
 }
 
 export const sseRequest = { get, post }

@@ -142,25 +142,6 @@ class NodeParameter implements RPA.Process.NodeParameter {
     
     this.generateFormTabs(id)
   }
-
-  // 生成基础信息表单
-  private generateBaseItems(initData: RPA.Atom): RPA.AtomFormBaseForm[] {
-    const baseItems = cloneDeep(BASE_FORM)
-
-    return baseItems.map((i) => {
-      const isGroup = initData.key === ATOM_KEY_MAP.Group
-
-      if (i.key === 'baseName') {
-        i.value = initData.title
-        i.title = isGroup ? '分组名称' : i.title
-      } else if (i.key === 'anotherName') {
-        i.value = initData.alias ?? initData.title
-        i.title = isGroup ? '分组别名' : i.title
-      }
-      
-      return i
-    })
-  }
   
   /**
    * 生成表单配置
@@ -172,8 +153,6 @@ class NodeParameter implements RPA.Process.NodeParameter {
     if (!atom) return []
 
     const { inputList = [], outputList = [], advanced = [], exception = [] } = atom
-
-    const baseForm = this.generateBaseItems(atom)
 
     // 给表单项添加 sourceValue
     const setSourceValue = (formItems: RPA.AtomDisplayItem[], prefix: string) => {
@@ -188,11 +167,6 @@ class NodeParameter implements RPA.Process.NodeParameter {
       key: 'baseParam',
       name: 'basicParameters',
       params: [
-        {
-          name: { 'zh-CN': '基本信息', 'en-US': 'Base information' },
-          key: `base-${atom.id}`,
-          formItems: baseForm,
-        },
         {
           name: { 'zh-CN': '输入信息', 'en-US': 'Input information' },
           key: `input-${atom.id}`,
@@ -259,6 +233,14 @@ class NodeParameter implements RPA.Process.NodeParameter {
 
     // 重新生成表单配置
     this.generateFormTabs(this.activeAtomId.value)
+  }
+
+  /**
+   * 修改别名
+   * @param alias 别名
+   */
+  public updateAlias = (alias: string) => {
+    this.activeInstance.updateFormItemValue(this.activeAtomId.value, 'alias', alias)
   }
 }
 

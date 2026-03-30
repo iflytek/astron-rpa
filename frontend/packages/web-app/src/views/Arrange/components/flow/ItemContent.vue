@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { DoubleRightOutlined } from '@ant-design/icons-vue'
-import { useTheme } from '@rpa/components'
+import { useTheme, NiceModal } from '@rpa/components'
 import { useEventBus } from '@vueuse/core'
 import { isEmpty, throttle } from 'lodash-es'
 import { nextTick, ref, computed } from 'vue'
-import { storeToRefs } from 'pinia'
 
 import CustomCheckbox from '@/components/CustomCheckbox.vue'
 import { showTriggerInputKey } from '@/constants/eventBusKey'
 import { ATOM_KEY_MAP, LOOP_END } from '@/constants/atom'
 import { FLOW_ACTIVE, FLOW_DISABLE, FLOW_FORBID } from '@/views/Arrange/config/flow'
 import { FLOW_DEBUGGING, PAGE_INIT_INDENT, PAGE_LEVEL_INDENT } from '@/views/Arrange/config/flow'
-import { useProcessStore } from '@/stores/useProcessStore'
 
 // import { getBreakpointClass, toggleBreakPoint } from './hooks/useFlow'
 import { useRenderList } from './hooks/useRenderList'
@@ -19,16 +17,14 @@ import { useFlowState } from './hooks/useFlowState'
 import ItemAction from './ItemAction.vue'
 import ItemDesc from './ItemDesc.vue'
 import ItemTitle from './ItemTitle.vue'
-import { RIGHT_TAB_KEY } from '../../config'
+import { AtomFormModal } from '../atomForm/modals'
 
 const props = defineProps<{ item: RPA.Atom, index: number }>()
 
-const processStore = useProcessStore()
 const { colorTheme } = useTheme()
 const { setRightClickSelectedAtom, flowManager } = useFlowState()
 const { triggerInsert, canInsert } = useRenderList()
 
-const { rightTabActiveKey } = storeToRefs(processStore)
 const content = ref() // 节点内容
 const addPos = ref<'top' | 'bottom' | ''>('') // 添加按钮位置 top | bottom
 const addPosStyle = ref({}) // 添加按钮样式
@@ -111,7 +107,7 @@ function handleClick(event: MouseEvent) {
 }
 
 function handleDoubleClick() {
-  rightTabActiveKey.value = RIGHT_TAB_KEY.NODE
+  NiceModal.show(AtomFormModal)
 }
 
 function handleContextmenu() {
@@ -163,9 +159,7 @@ function handleToggleFold() {
           </template>
           <rpa-hint-icon name="error" />
         </a-tooltip>
-        <span
-          v-else
-        />
+        <span v-else />
       </template>
       <rpa-icon
         v-if="item.hasFold"

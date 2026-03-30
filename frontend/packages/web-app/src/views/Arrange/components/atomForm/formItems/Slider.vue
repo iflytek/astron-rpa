@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { isNumber } from 'lodash-es'
 
 import type { FormItemProps } from './index'
-import AtomSlider from '../AtomSlider.vue'
+import AtomSlider from '../../atomSlider/index.vue'
 
 const props = defineProps<FormItemProps>()
 

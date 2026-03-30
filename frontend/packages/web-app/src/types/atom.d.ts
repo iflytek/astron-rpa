@@ -14,6 +14,13 @@ declare namespace RPA {
     atomics?: RPA.AtomTreeNode[]
   }
 
+  interface AtomFormAITemplate {
+    key: string
+    label: string
+    type: string
+    value: string
+  }
+
   interface AtomFormItemType {
     type: string
     params?: {
@@ -21,6 +28,10 @@ declare namespace RPA {
       use?: string
       file_type?: string
       filters?: string[]
+      /**
+       * AI 相关原子能力模板列表
+       */
+      templates?: AtomFormAITemplate[]
       [key: string]: any
     }
   }
@@ -79,6 +90,16 @@ declare namespace RPA {
     key: string
     icon?: string
     title?: string
+    /**
+     * 注意事项：
+     * ai_notices 表示AI可能误判，运行和调试将消耗积分，优先消耗赠送额度。
+     */
+    notices?: 'ai_notices';
+    /**
+     * 调试按钮：
+     * ai_debug 表示AI调试按钮，点击后会弹出调试弹窗。
+     */
+    debugButton?: 'ai_debug';
     level?: number
     version: string
     alias: string

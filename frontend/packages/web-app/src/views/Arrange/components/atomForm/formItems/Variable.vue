@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 
 import type { FormItemProps } from './index'
-import AtomPopover from '../AtomPopover.vue'
-import AtomVarPopover from '../AtomVarPopover.vue'
+import AtomPopover from '../components/AtomPopover.vue'
+import AtomVarPopover from '../components/AtomVarPopover.vue'
 
 const iconStyle = { fontSize: '16px', color: 'inherit' }
 

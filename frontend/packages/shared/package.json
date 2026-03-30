@@ -32,6 +32,7 @@
     },
     "./tokens/variables.css": "./dist/tokens/variables.css",
     "./tokens/variables.scss": "./dist/tokens/variables.scss",
+    "./tokens/variables.js": "./dist/tokens/variables.js",
     "./tokens/tailwind": "./dist/tokens/tailwind-preset.js"
   },
   "scripts": {

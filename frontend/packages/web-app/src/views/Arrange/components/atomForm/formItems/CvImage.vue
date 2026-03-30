@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 
 import CvPopover, { type SelectedElement } from '../../cvPick/CvPopover.vue'
 import type { FormItemProps, FormItemEmits } from './index'
-import AtomPopover from '../AtomPopover.vue'
+import AtomPopover from '../components/AtomPopover.vue'
 
 const props = defineProps<FormItemProps>()
 const emits = defineEmits<FormItemEmits>()

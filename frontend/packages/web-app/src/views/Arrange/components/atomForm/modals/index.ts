@@ -5,9 +5,11 @@ import _ContractValidateModal from './ContractValidateModal.vue'
 import _EmailTextReplaceModal from './EmailTextReplaceModal.vue'
 import _FileManageModal from './FileManageModal.vue'
 import _TextareaModal from './TextareaModal.vue'
+import _AtomFormModal from './AtomFormModal.vue'
 
 export const FileManageModal = NiceModal.create(_FileManageModal)
 export const TextareaModal = NiceModal.create(_TextareaModal)
 export const EmailTextReplaceModal = NiceModal.create(_EmailTextReplaceModal)
 export const ContractValidateModal = NiceModal.create(_ContractValidateModal)
 export const ContractEleModal = NiceModal.create(_ContractEleModal)
+export const AtomFormModal = NiceModal.create(_AtomFormModal)

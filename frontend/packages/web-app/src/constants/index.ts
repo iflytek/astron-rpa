@@ -10,6 +10,7 @@ export enum WINDOW_NAME {
   LOGWIN = 'logwin',
   MULTICHAT = 'multichat',
   USERFORM = 'userform',
+  CUA = 'cua',
 }
 
 // 画布底部操作栏默认高度

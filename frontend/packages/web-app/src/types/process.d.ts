@@ -107,6 +107,7 @@ declare namespace RPA {
       activeAtom: RPA.Atom | null
       formTabs: Ref<RPA.Process.AtomTabs[]>
       updateValue(key: string, value: any): void
+      updateAlias(alias: string): void
     }
    
     /**

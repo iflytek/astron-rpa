@@ -1,10 +1,6 @@
+import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createRequire } from 'node:module'
-
-const require = createRequire(import.meta.url)
-const vueVersion = require('vue/package.json').version
-const piniaVersion = require('pinia/package.json').version
 
 import { RpaResolver } from '@rpa/components/resolver'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
@@ -19,6 +15,10 @@ import PageHtml from 'vite-plugin-page-html'
 import { svg4VuePlugin } from 'vite-plugin-svg4vue'
 
 import { ModalReplacementResolver } from './src/plugins/component-resolver'
+
+const require = createRequire(import.meta.url)
+const vueVersion = require('vue/package.json').version
+const piniaVersion = require('pinia/package.json').version
 
 const baseSrc = fileURLToPath(new URL('./src', import.meta.url))
 const basePublic = fileURLToPath(new URL('../../public', import.meta.url))
@@ -55,7 +55,7 @@ export default defineConfig((env) => {
     plugins: [
       vue(),
       vueJsx(),
-      svg4VuePlugin({ 
+      svg4VuePlugin({
         assetsDirName: false,
         svgoConfig: false,
       }),
@@ -91,8 +91,9 @@ export default defineConfig((env) => {
           userform: '/src/views/UserForm/index.ts',
           record: '/src/views/Record/index.ts',
           recordmenu: '/src/views/RecordMenu/index.ts',
-          smartcompickmenu: '/src/views/SmartCompPickMenu/index.ts'
-        }
+          smartcompickmenu: '/src/views/SmartCompPickMenu/index.ts',
+          cua: '/src/views/CUA/index.ts',
+        },
       }),
       enableSentry ? sentryVitePlugin(sentryConfig) : null,
     ],

@@ -3,7 +3,6 @@ import { BorderOuterOutlined, CloseOutlined, RedoOutlined } from '@ant-design/ic
 import { NiceModal } from '@rpa/components'
 import { Image } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
-import type { Ref } from 'vue'
 import { computed, h, onUnmounted, ref, watch } from 'vue'
 
 import { isBase64Image, trimBase64Header } from '@/utils/common'
@@ -11,9 +10,10 @@ import { isBase64Image, trimBase64Header } from '@/utils/common'
 import { getImageURL } from '@/api/http/env'
 import { useCvPickStore } from '@/stores/useCvPickStore'
 import { useCvStore } from '@/stores/useCvStore'
-import AtomSlider from '@/views/Arrange/components/atomForm/AtomSlider.vue'
 import { useCvPick } from '@/views/Arrange/components/cvPick/hooks/useCvPick.ts'
 import { useCvPickForm } from '@/views/Arrange/components/cvPick/hooks/useCvPickForm.ts'
+
+import AtomSlider from '../atomSlider/index.vue'
 
 const { entry, groupId } = defineProps({
   entry: { // 拾取入口, 'group'-分组增加 会保存并继续  atomFormBtn-原子能力配置表单拾取按钮，仅保存  edit-编辑入口，仅保存，按钮文字展示为“保存”
@@ -68,7 +68,7 @@ function getElementData(isSave: boolean) {
   const elementData = {
     ...eleData, // 元素数据
     img,
-    similarity: similarityValue.value,
+    similarity: similarity.value,
   }
   return elementData
 }
@@ -98,18 +98,18 @@ const save = throttle((isContinue = false) => {
 }, 1500, { leading: true, trailing: false })
 
 // 校验元素
-const similarityValue = ref<number>(0.95)
+const similarity = ref<number>(95)
 const validate = throttle(() => {
   validateForm(() => {
     const eleData = getElementData(false)
-    useCv.check({ ...eleData, similarity: similarityValue.value })
+    useCv.check({ ...eleData, similarity: similarity.value })
   })
 }, 1500, { leading: true, trailing: false })
 
 // 拾取锚点
 const pickAnchor = throttle(() => {
   validateForm(() => {
-    useCv.pickAnchor({ ...cvStore.currentCvItem, elementData: { ...getElementData(false), similarity: similarityValue.value } })
+    useCv.pickAnchor({ ...cvStore.currentCvItem, elementData: { ...getElementData(false), similarity: similarity.value } })
   })
 }, 1500, { leading: true, trailing: false })
 
@@ -126,7 +126,7 @@ watch(() => cvStore.currentCvItem, (newVal) => {
     setFormOption({ pickName: newVal.name })
     const eleData = JSON.parse(newVal.elementData)
     defaultAnchor.value = eleData.defaultAnchor
-    similarityValue.value = eleData.similarity || 0.95
+    similarity.value = eleData.similarity || 0.95
   }
 }, { immediate: true })
 
@@ -212,7 +212,7 @@ onUnmounted(() => {
               </a-button>
               <span class="text-left validate-slider">
                 {{ $t('cvPick.similarityCheck') }}
-                <AtomSlider class="cursor-pointer mr-1" v-model:value="similarityValue" />
+                <AtomSlider class="cursor-pointer mr-1" v-model:value="similarity" />
               </span>
             </span>
           </a-col>
