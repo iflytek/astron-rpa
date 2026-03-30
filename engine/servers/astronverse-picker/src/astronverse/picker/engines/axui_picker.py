@@ -1,4 +1,5 @@
 # macOS implementation - based on ApplicationServices AXUIElement API
+from copy import deepcopy
 from typing import Any, Optional, List, Dict
 
 import Quartz
@@ -13,6 +14,7 @@ from ApplicationServices import (
 import ApplicationServices as AS
 
 from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect
+from astronverse.picker.error import BizException, SIMILAR_ELEMENT_NOT_FOUND_ERROR
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
@@ -430,7 +432,7 @@ class AXUIElement(IElement):
                 "index": str(index),
             })
 
-        return {
+        res = {
             "version": "1",
             "type": PickerDomain.UIA.value,
             "app": app_name,
@@ -438,6 +440,25 @@ class AXUIElement(IElement):
             "img": {"self": screenshot(self.rect())},
             "parent": "",
         }
+        pick_type = strategy_svc.data.get("pick_type") if strategy_svc else None
+        if pick_type == PickerType.SIMILAR:
+            from astronverse.locator.locator import LocatorManager
+
+            similar_path = AXUIPicker.get_similar_path(strategy_svc, res)
+            if similar_path is None:
+                raise BizException(SIMILAR_ELEMENT_NOT_FOUND_ERROR, "找不到相似元素")
+            res["path"] = similar_path
+            res["img"]["self"] = strategy_svc.data.get("data", {}).get("img", {}).get("self", "")
+            res["picker_type"] = PickerType.SIMILAR.value
+            similar_list = LocatorManager().locator(res, timeout=10)
+            if isinstance(similar_list, list):
+                similar_count = len(similar_list)
+                if similar_count == 0:
+                    raise BizException(SIMILAR_ELEMENT_NOT_FOUND_ERROR, "找不到相似元素")
+            else:
+                raise BizException(SIMILAR_ELEMENT_NOT_FOUND_ERROR, "找不到相似元素")
+            res["similar_count"] = similar_count
+        return res
 
     # 其余方法保持不变
     def ancestor_chain(self) -> List['AXUIElement']:
@@ -561,6 +582,59 @@ class AXUIOperate:
 
 
 class AXUIPicker:
+    @classmethod
+    def _normalize_attr(cls, val):
+        if val is None:
+            return None
+        return str(val)
+
+    @classmethod
+    def get_similar_path(cls, strategy_svc, curr_path):
+        old_ele = strategy_svc.data["data"]
+        new_ele = curr_path
+
+        if old_ele.get("app", "") != new_ele.get("app", ""):
+            return None
+        if old_ele.get("type", "") != PickerDomain.UIA.value or new_ele.get("type", "") != PickerDomain.UIA.value:
+            return None
+        path1 = deepcopy(old_ele.get("path", []))
+        path2 = new_ele.get("path", [])
+        if not path1 or not path2 or len(path1) != len(path2):
+            return None
+
+        match_similar = False
+        is_first = True
+        for i, _ in enumerate(path1):
+            if i == 0:
+                attrs = ["tag_name", "cls", "name", "value"]
+                for attr in attrs:
+                    self_attr = cls._normalize_attr(path1[i].get(attr, None))
+                    other_attr = cls._normalize_attr(path2[i].get(attr, None))
+                    if self_attr and other_attr and self_attr != other_attr:
+                        return None
+                path1[i]["similar_parent"] = True
+            else:
+                is_eq = True
+                attrs = ["tag_name", "cls", "name", "value", "index"]
+                for attr in attrs:
+                    self_attr = cls._normalize_attr(path1[i].get(attr, None))
+                    other_attr = cls._normalize_attr(path2[i].get(attr, None))
+                    if self_attr is not None and other_attr is not None and self_attr != other_attr:
+                        is_eq = False
+                        break
+                if is_eq and not match_similar:
+                    path1[i]["similar_parent"] = True
+                else:
+                    match_similar = True
+                    if is_first:
+                        is_first = False
+                        path1[i]["disable_keys"] = ["cls", "name", "value", "index"]
+                    else:
+                        path1[i]["disable_keys"] = ["name", "value"]
+        if not match_similar:
+            return None
+        return path1
+
     @classmethod
     def get_element(cls, root: AXUIElement, point: Point, **kwargs) -> Optional[AXUIElement]:
         el = _ax_get_element_at(float(point.x), float(point.y))
