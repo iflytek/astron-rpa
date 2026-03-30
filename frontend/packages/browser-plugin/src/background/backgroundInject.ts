@@ -404,7 +404,7 @@ const Handlers = {
           return Utils.success(false)
         }
         const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
-        if (result) {
+        if (result && result.code === StatusCode.SUCCESS) {
           return Utils.success(result.data)
         }
         else {
@@ -420,7 +420,7 @@ const Handlers = {
         }
         const result = await Tabs.sendTabFrameMessage(tab.id, params, frameId)
         const complete = activeTab.status === 'complete'
-        if (result) {
+        if (result && result.code === StatusCode.SUCCESS) {
           return Utils.success(result.data && complete)
         }
         else {
