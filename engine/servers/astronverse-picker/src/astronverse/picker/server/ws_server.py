@@ -477,7 +477,10 @@ class WsServer:
         """启动WebSocket服务器"""
         import pythoncom
 
-        pythoncom.CoInitialize()
+        try:
+            pythoncom.CoInitialize()
+        except Exception:
+            pass
 
         async def start_server():
             """异步启动WebSocket服务器"""

@@ -377,8 +377,11 @@ class RecordManager:
     def _continuous_drawing_loop(self):
         """持续绘框循环"""
         import pythoncom
-
-        pythoncom.CoInitialize()
+        
+        try:
+            pythoncom.CoInitialize()
+        except Exception:
+            pass
         self.highlight_client.start_wnd("record")
         while not self.stop_drawing and self.state == RecordingState.RECORDING:
             try:
