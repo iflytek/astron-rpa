@@ -1,15 +1,20 @@
 import time
 
 import pyautogui
-from astronverse.actionlib import DynamicsItem
+import requests
+import base64
+from PIL import Image
+from io import BytesIO
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WebPick
 from astronverse.baseline.logger.logger import logger
+from astronverse.browser import ElementAttributeOpTypeFlag, ElementGetAttributeTypeFlag
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import BrowserElement
 from astronverse.locator import smooth_move
 from astronverse.locator.locator import locator
-from astronverse.verifycode import HintPosition, PictureCodeType
+from astronverse.verifycode import HintPosition, MaxRotateAngle, PictureCodeType
 from astronverse.verifycode.core import VerifyCodeCore
 from astronverse.verifycode.error import *
 
@@ -37,16 +42,14 @@ class VerifyCode:
         ],
     )
     def picture_code(
-        browser_obj: Browser = None,
-        picture_pick: WebPick = None,
-        code_type: PictureCodeType = PictureCodeType.GENERAL1234,
-        input_flag: bool = False,
-        input_box: WebPick = None,
+            browser_obj: Browser = None,
+            picture_pick: WebPick = None,
+            code_type: PictureCodeType = PictureCodeType.GENERAL1234,
+            input_flag: bool = False,
+            input_box: WebPick = None,
     ) -> str:
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         code_result = VerifyCodeCore.get_api_result(api_type=code_type.value, pic_element_base64=image_base64)
         logger.info("验证码返回值: {}".format(code_result))
@@ -85,18 +88,16 @@ class VerifyCode:
         outputList=[atomicMg.param("drag_distance", types="Int")],
     )
     def slider_code(
-        browser_obj: Browser = None,
-        picture_pick: WebPick = None,
-        slider_pick: WebPick = None,
-        unmatched_flag: bool = False,
-        move_pic_pick: WebPick = None,
-        mini_step: int = 5,
-        offset: int = 0,
+            browser_obj: Browser = None,
+            picture_pick: WebPick = None,
+            slider_pick: WebPick = None,
+            unmatched_flag: bool = False,
+            move_pic_pick: WebPick = None,
+            mini_step: int = 5,
+            offset: int = 0,
     ) -> int:
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         drag_distance = int(VerifyCodeCore.get_api_result(api_type="22222", pic_element_base64=image_base64))
         logger.info("验证码返回值: {}".format(drag_distance))
@@ -106,7 +107,8 @@ class VerifyCode:
             raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        
+        if isinstance(slider_element.rect(), list):
+            raise BizException(ELEMENT_NOT_UNIQUE, "浏览器元素定位不唯一，请检查！")
         start_pos = slider_element.point()
         if not unmatched_flag:
             end_pos = (start_pos.x + drag_distance, start_pos.y)
@@ -140,14 +142,12 @@ class VerifyCode:
         outputList=[atomicMg.param("click_positions", types="List")],
     )
     def click_code(
-        browser_obj: Browser = None,
-        picture_pick: WebPick = None,
-        hint_position: HintPosition = HintPosition.BOTTOM,
+            browser_obj: Browser = None,
+            picture_pick: WebPick = None,
+            hint_position: HintPosition = HintPosition.BOTTOM,
     ):
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -185,11 +185,11 @@ class VerifyCode:
         outputList=[atomicMg.param("drag_distance", types="Int")],
     )
     def ali_slider_code(
-        browser_obj: Browser = None,
-        hint_text_pick: WebPick = None,
-        refresh_pick: WebPick = None,
-        slider_pick: WebPick = None,
-        background_pic_pick: WebPick = None,
+            browser_obj: Browser = None,
+            hint_text_pick: WebPick = None,
+            refresh_pick: WebPick = None,
+            slider_pick: WebPick = None,
+            background_pic_pick: WebPick = None,
     ) -> int:
         """阿里滑块验证码识别
 
@@ -217,9 +217,9 @@ class VerifyCode:
             data=[
                 {
                     "urlPattern": "https://zhaoshang.tmall.com",
-                    "pathPattern": "/maintaininfo/liangzhao.htm/_____tmd_____/newslidecaptcha",
+                    "pathPattern": "/maintaininfo/liangzhao.htm/_____tmd_____/newslidecaptcha"
                 }
-            ],
+            ]
         )
         # 通过插件获取网络数据
         max_retries = 5
@@ -227,9 +227,8 @@ class VerifyCode:
 
         for retry_count in range(1, max_retries + 1):
             # 点击刷新按钮
-            refresh_element = Locator.locator(
-                refresh_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value
-            )
+            refresh_element = Locator.locator(refresh_pick.get("elementData"),
+                                              cur_target_app=browser_obj.browser_type.value)
             refresh_pos = refresh_element.point()
             smooth_move(refresh_pos.x, refresh_pos.y, duration=0.5)
             pyautogui.click()
@@ -242,7 +241,9 @@ class VerifyCode:
 
             # 通过插件获取网络数据
             response = browser_obj.send_browser_extension(
-                browser_type=browser_obj.browser_type.value, key="getDebugNetworkData", data={}
+                browser_type=browser_obj.browser_type.value,
+                key="getDebugNetworkData",
+                data={}
             )
 
             logger.info("第 {} 次获取到的网络数据响应: {}".format(retry_count, response))
@@ -281,18 +282,18 @@ class VerifyCode:
         ques_img = Image.open(BytesIO(ques_bytes))
 
         # 如果图片有透明通道（RGBA），转换为RGB模式，透明部分填充白色
-        if image_data_img.mode in ("RGBA", "LA", "P"):
-            bg = Image.new("RGB", image_data_img.size, (255, 255, 255))
-            if image_data_img.mode == "P":
-                image_data_img = image_data_img.convert("RGBA")
-            bg.paste(image_data_img, mask=image_data_img.split()[-1] if image_data_img.mode == "RGBA" else None)
+        if image_data_img.mode in ('RGBA', 'LA', 'P'):
+            bg = Image.new('RGB', image_data_img.size, (255, 255, 255))
+            if image_data_img.mode == 'P':
+                image_data_img = image_data_img.convert('RGBA')
+            bg.paste(image_data_img, mask=image_data_img.split()[-1] if image_data_img.mode == 'RGBA' else None)
             image_data_img = bg
 
-        if ques_img.mode in ("RGBA", "LA", "P"):
-            bg = Image.new("RGB", ques_img.size, (255, 255, 255))
-            if ques_img.mode == "P":
-                ques_img = ques_img.convert("RGBA")
-            bg.paste(ques_img, mask=ques_img.split()[-1] if ques_img.mode == "RGBA" else None)
+        if ques_img.mode in ('RGBA', 'LA', 'P'):
+            bg = Image.new('RGB', ques_img.size, (255, 255, 255))
+            if ques_img.mode == 'P':
+                ques_img = ques_img.convert('RGBA')
+            bg.paste(ques_img, mask=ques_img.split()[-1] if ques_img.mode == 'RGBA' else None)
             ques_img = bg
 
         # 记录背景图原始宽度（用于后续比例计算）
@@ -304,7 +305,7 @@ class VerifyCode:
         total_height = image_data_img.height + ques_img.height
 
         # 创建新图片（白色背景）
-        combined_img = Image.new("RGB", (total_width, total_height), (255, 255, 255))
+        combined_img = Image.new('RGB', (total_width, total_height), (255, 255, 255))
 
         # 粘贴问题图（上方）
         combined_img.paste(ques_img, (0, 0))
@@ -329,29 +330,23 @@ class VerifyCode:
             raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         # 获取背景图元素在页面上显示的实际宽度
-        bg_element = Locator.locator(
-            background_pic_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        bg_element = Locator.locator(background_pic_pick.get("elementData"),
+                                     cur_target_app=browser_obj.browser_type.value)
         bg_rect = bg_element.rect()
-        if isinstance(bg_rect, list):
-            bg_rect = bg_rect[-1]
         element_width = bg_rect.width()
 
         # 获取滑块宽度（用于修正拖动距离）
         slider_element = Locator.locator(slider_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        if isinstance(slider_element.rect(), list):
+            raise BizException(ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
         slider_rect = slider_element.rect()
-        if isinstance(slider_rect, list):
-            slider_rect = slider_rect[-1]
-        
         slider_width = slider_rect.width()
 
         # 按比例将图片像素x转换为实际拖动距离，减去滑块一半宽度（因为拼图块通常在滑块中心）
         drag_distance = int(pixel_x / bg_img_width * element_width - slider_width / 2)
-        logger.info(
-            "图片宽度: {}px, 元素宽度: {}px, 滑块宽度: {}px, 像素x: {}, 计算拖动距离: {}px".format(
-                bg_img_width, element_width, slider_width, pixel_x, drag_distance
-            )
-        )
+        logger.info("图片宽度: {}px, 元素宽度: {}px, 滑块宽度: {}px, 像素x: {}, 计算拖动距离: {}px".format(
+            bg_img_width, element_width, slider_width, pixel_x, drag_distance
+        ))
 
         # 拖动滑块（自定义拖动逻辑，无过冲回调）
         start_pos = slider_element.point()
@@ -359,7 +354,6 @@ class VerifyCode:
 
         # 执行拖动：移动到起点 -> 按下 -> 分段移动到终点 -> 释放
         import random
-
         smooth_move(start_pos.x, start_pos.y, duration=0.5)
         pyautogui.mouseDown(start_pos.x, start_pos.y, button="left")
         time.sleep(0.5)
@@ -380,7 +374,9 @@ class VerifyCode:
 
         # 停止网络监听
         browser_obj.send_browser_extension(
-            browser_type=browser_obj.browser_type.value, key="stopDebugNetworkListen", data={}
+            browser_type=browser_obj.browser_type.value,
+            key="stopDebugNetworkListen",
+            data={}
         )
         logger.info("已停止网络监听")
 
@@ -397,9 +393,9 @@ class VerifyCode:
         outputList=[atomicMg.param("click_positions", types="List")],
     )
     def text_click_code(
-        browser_obj: Browser = None,
-        picture_pick: WebPick = None,
-        confirm_button_pick: WebPick = None,
+            browser_obj: Browser = None,
+            picture_pick: WebPick = None,
+            confirm_button_pick: WebPick = None,
     ):
         """通用文字点选验证码（按语序点击）
 
@@ -414,8 +410,6 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -434,7 +428,10 @@ class VerifyCode:
         for item in click_result.split("|"):
             parts = item.split(",")
             if len(parts) >= 2:
-                click_positions.append({"x": int(parts[0]), "y": int(parts[1])})
+                click_positions.append({
+                    "x": int(parts[0]),
+                    "y": int(parts[1])
+                })
 
         # 按顺序点击文字位置
         for pos_info in click_positions:
@@ -447,9 +444,8 @@ class VerifyCode:
             time.sleep(0.5)
 
         # 点击确定按钮
-        confirm_element = Locator.locator(
-            confirm_button_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        confirm_element = Locator.locator(confirm_button_pick.get("elementData"),
+                                          cur_target_app=browser_obj.browser_type.value)
         confirm_pos = confirm_element.point()
         logger.info("点击确定按钮位置: ({}, {})".format(confirm_pos.x, confirm_pos.y))
         smooth_move(confirm_pos.x, confirm_pos.y, duration=0.5)
@@ -468,9 +464,9 @@ class VerifyCode:
         outputList=[atomicMg.param("click_positions", types="List")],
     )
     def spatial_reasoning_click_code(
-        browser_obj: Browser = None,
-        picture_pick: WebPick = None,
-        confirm_button_pick: WebPick = None,
+            browser_obj: Browser = None,
+            picture_pick: WebPick = None,
+            confirm_button_pick: WebPick = None,
     ):
         """空间推理点选验证码（相同物体）
 
@@ -485,8 +481,6 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -522,9 +516,8 @@ class VerifyCode:
             time.sleep(0.5)
 
         # 点击确定按钮
-        confirm_element = Locator.locator(
-            confirm_button_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        confirm_element = Locator.locator(confirm_button_pick.get("elementData"),
+                                          cur_target_app=browser_obj.browser_type.value)
         confirm_pos = confirm_element.point()
         logger.info("点击确定按钮位置: ({}, {})".format(confirm_pos.x, confirm_pos.y))
         smooth_move(confirm_pos.x, confirm_pos.y, duration=0.5)
@@ -544,10 +537,10 @@ class VerifyCode:
         outputList=[atomicMg.param("click_positions", types="List")],
     )
     def tencent_grid_click_code(
-        browser_obj: Browser = None,
-        prompt_obj: WebPick = None,
-        background_img_obj: WebPick = None,
-        confirm_button_obj: WebPick = None,
+            browser_obj: Browser = None,
+            prompt_obj: WebPick = None,
+            background_img_obj: WebPick = None,
+            confirm_button_obj: WebPick = None,
     ):
         """腾讯六宫格验证码（腾讯六图/图标点选验证码）
 
@@ -566,13 +559,10 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(background_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("腾讯六宫格背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
         # 保存为 test123.jpg
         import base64
-
         with open("test123.jpg", "wb") as f:
             f.write(base64.b64decode(image_base64))
 
@@ -607,15 +597,16 @@ class VerifyCode:
             # 计算绝对坐标
             abs_x = pos_info["x"] + rect.left
             abs_y = pos_info["y"] + rect.top
-            logger.info("点击位置: ({}, {})".format(abs_x, abs_y))
+            logger.info("点击位置: ({}, {})".format(
+                abs_x, abs_y
+            ))
             smooth_move(abs_x, abs_y, duration=0.5)
             pyautogui.click()
             time.sleep(0.5)
 
         # 点击确定按钮
-        confirm_element = Locator.locator(
-            confirm_button_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        confirm_element = Locator.locator(confirm_button_obj.get("elementData"),
+                                          cur_target_app=browser_obj.browser_type.value)
         confirm_pos = confirm_element.point()
         logger.info("点击确定按钮位置: ({}, {})".format(confirm_pos.x, confirm_pos.y))
         smooth_move(confirm_pos.x, confirm_pos.y, duration=0.5)
@@ -632,17 +623,19 @@ class VerifyCode:
             atomicMg.param("slider_obj", required=True),
             atomicMg.param("slide_bar_obj", required=True),
             atomicMg.param(
-                "max_rotate_angle", required=True, formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value)
+                "max_rotate_angle",
+                required=True,
+                formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value)
             ),
         ],
         outputList=[],
     )
     def rotate_slider_code(
-        browser_obj: Browser = None,
-        rotate_picture_obj: WebPick = None,
-        slider_obj: WebPick = None,
-        slide_bar_obj: WebPick = None,
-        max_rotate_angle: MaxRotateAngle = MaxRotateAngle.ANGLE_360,
+            browser_obj: Browser = None,
+            rotate_picture_obj: WebPick = None,
+            slider_obj: WebPick = None,
+            slide_bar_obj: WebPick = None,
+            max_rotate_angle: MaxRotateAngle = MaxRotateAngle.ANGLE_360,
     ):
         """通用旋转验证码（滑块拖动旋转）
 
@@ -654,34 +647,33 @@ class VerifyCode:
             max_rotate_angle: 图片旋转最大角度（滑动条拉到尽头后图片的旋转角度），可选360°或180°
         """
         # 获取旋转图片元素并截图
-        rotate_element = Locator.locator(
-            rotate_picture_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        rotate_element = Locator.locator(rotate_picture_obj.get("elementData"),
+                                         cur_target_app=browser_obj.browser_type.value)
         rotate_rect = rotate_element.rect()
-        if isinstance(rotate_rect, list):
-            rotate_rect = rotate_rect[-1]
         logger.info("旋转图片rect: {}".format(rotate_rect))
         rotate_image_base64 = VerifyCodeCore.get_base64_screenshot(
             rotate_rect.left, rotate_rect.top, rotate_rect.width(), rotate_rect.height()
         )
 
         # 调用第三方API识别旋转角度（使用旋转验证码类型）
-        rotate_angle = int(VerifyCodeCore.get_api_result(api_type="900011", pic_element_base64=rotate_image_base64))
+        rotate_angle = int(VerifyCodeCore.get_api_result(
+            api_type="900011",
+            pic_element_base64=rotate_image_base64
+        ))
         logger.info("旋转验证码返回旋转角度: {}".format(rotate_angle))
 
         if rotate_angle is None:
             raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         # 获取滑动条元素，计算可拖动距离
-        slide_bar_element = Locator.locator(
-            slide_bar_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        slide_bar_element = Locator.locator(slide_bar_obj.get("elementData"),
+                                            cur_target_app=browser_obj.browser_type.value)
         slide_bar_rect = slide_bar_element.rect()
-        if isinstance(slide_bar_rect, list):
-            slide_bar_rect = slide_bar_rect[-1]
 
         # 获取滑块元素
         slider_element = Locator.locator(slider_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        if isinstance(slider_element.rect(), list):
+            raise BizException(ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
 
         slider_start_pos = slider_element.point()
 
@@ -690,11 +682,9 @@ class VerifyCode:
         slide_bar_width = slide_bar_rect.width()
         drag_distance = int((rotate_angle / max_angle) * slide_bar_width)
 
-        logger.info(
-            "最大旋转角度: {}°, 需要旋转角度: {}°, 滑动条宽度: {}px, 计算拖动距离: {}px".format(
-                max_angle, rotate_angle, slide_bar_width, drag_distance
-            )
-        )
+        logger.info("最大旋转角度: {}°, 需要旋转角度: {}°, 滑动条宽度: {}px, 计算拖动距离: {}px".format(
+            max_angle, rotate_angle, slide_bar_width, drag_distance
+        ))
 
         # 执行拖动操作
         end_pos = (slider_start_pos.x + drag_distance, slider_start_pos.y)
@@ -715,18 +705,18 @@ class VerifyCode:
                 "max_rotate_angle",
                 required=True,
                 formType=AtomicFormTypeMeta(type=AtomicFormType.SELECT.value),
-                tip="滑动条拉到尽头后内圈的旋转角度",
+                tip="滑动条拉到尽头后内圈的旋转角度"
             ),
         ],
         outputList=[],
     )
     def double_ring_rotate_code(
-        browser_obj: Browser = None,
-        out_ring_image_obj: WebPick = None,
-        inner_circle_image_obj: WebPick = None,
-        slider_obj: WebPick = None,
-        slide_bar_obj: WebPick = None,
-        max_rotate_angle: MaxRotateAngle = MaxRotateAngle.ANGLE_360,
+            browser_obj: Browser = None,
+            out_ring_image_obj: WebPick = None,
+            inner_circle_image_obj: WebPick = None,
+            slider_obj: WebPick = None,
+            slide_bar_obj: WebPick = None,
+            max_rotate_angle: MaxRotateAngle = MaxRotateAngle.ANGLE_360,
     ):
         """通用双圈旋转验证码（内圈外圈旋转）
 
@@ -776,30 +766,27 @@ class VerifyCode:
 
         # 调用第三方API识别旋转角度（使用双圈旋转验证码类型）
         # 将两张图片合并传递给API，或者根据API要求分别传递
-        rotate_angle = int(
-            VerifyCodeCore.get_api_result(
-                api_type="411115",
-                pic_element_base64="",
-                extra="",
-                out_ring_image=out_ring_image_base64,
-                inner_circle_image=inner_circle_image_base64,
-            )
-        )
+        rotate_angle = int(VerifyCodeCore.get_api_result(
+            api_type="411115",
+            pic_element_base64='',
+            extra='',
+            out_ring_image=out_ring_image_base64,
+            inner_circle_image=inner_circle_image_base64
+        ))
         logger.info("双圈旋转验证码返回旋转角度: {}".format(rotate_angle))
 
         if rotate_angle is None:
             raise BizException(API_RESULT_EMPTY, "第三方接口返回为空")
 
         # 获取滑动条元素，计算可拖动距离
-        slide_bar_element = Locator.locator(
-            slide_bar_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value
-        )
+        slide_bar_element = Locator.locator(slide_bar_obj.get("elementData"),
+                                            cur_target_app=browser_obj.browser_type.value)
         slide_bar_rect = slide_bar_element.rect()
-        if isinstance(slide_bar_rect, list):
-            slide_bar_rect = slide_bar_rect[-1]
 
         # 获取滑块元素
         slider_element = Locator.locator(slider_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
+        if isinstance(slider_element.rect(), list):
+            raise BizException(ELEMENT_NOT_UNIQUE, "滑块元素定位不唯一，请检查！")
 
         slider_start_pos = slider_element.point()
 
@@ -808,11 +795,9 @@ class VerifyCode:
         slide_bar_width = slide_bar_rect.width()
         drag_distance = int((rotate_angle / max_angle) * slide_bar_width)
 
-        logger.info(
-            "最大旋转角度: {}°, 需要旋转角度: {}°, 滑动条宽度: {}px, 计算拖动距离: {}px".format(
-                max_angle, rotate_angle, slide_bar_width, drag_distance
-            )
-        )
+        logger.info("最大旋转角度: {}°, 需要旋转角度: {}°, 滑动条宽度: {}px, 计算拖动距离: {}px".format(
+            max_angle, rotate_angle, slide_bar_width, drag_distance
+        ))
 
         # 执行拖动操作
         end_pos = (slider_start_pos.x + drag_distance, slider_start_pos.y)
@@ -830,8 +815,8 @@ class VerifyCode:
         outputList=[],
     )
     def trajectory_slider_code(
-        browser_obj: Browser = None,
-        background_img_obj: WebPick = None,
+            browser_obj: Browser = None,
+            background_img_obj: WebPick = None,
     ):
         """通用轨迹验证码（滑块轨迹验证）
 
@@ -842,8 +827,6 @@ class VerifyCode:
         # 获取背景图片元素并截图
         element = Locator.locator(background_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("轨迹验证码背景图rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -913,10 +896,10 @@ class VerifyCode:
         outputList=[atomicMg.param("calculation_result", types="Int")],
     )
     def numeric_calculation_code(
-        browser_obj: Browser = None,
-        captcha_img_obj: WebPick = None,
-        need_input: bool = False,
-        input_box_obj: WebPick = None,
+            browser_obj: Browser = None,
+            captcha_img_obj: WebPick = None,
+            need_input: bool = False,
+            input_box_obj: WebPick = None,
     ) -> int:
         """通用数字计算验证码（数学计算题验证码）
 
@@ -932,8 +915,6 @@ class VerifyCode:
         # 获取验证码图片元素并截图
         element = Locator.locator(captcha_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("数字计算验证码图片rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -950,7 +931,7 @@ class VerifyCode:
         # 将结果转换为整数
         try:
             result_int = int(calculation_result)
-        except Exception:
+        except ValueError:
             raise BizException(API_RESULT_EMPTY, "计算结果格式错误: {}".format(calculation_result))
 
         # 如果需要填写输入框
@@ -986,10 +967,10 @@ class VerifyCode:
         outputList=[atomicMg.param("calculation_result", types="Int")],
     )
     def chinese_calculation_code(
-        browser_obj: Browser = None,
-        captcha_img_obj: WebPick = None,
-        need_input: bool = False,
-        input_box_obj: WebPick = None,
+            browser_obj: Browser = None,
+            captcha_img_obj: WebPick = None,
+            need_input: bool = False,
+            input_box_obj: WebPick = None,
     ) -> int:
         """通用中文计算验证码（中文数学计算题验证码）
 
@@ -1005,8 +986,6 @@ class VerifyCode:
         # 获取验证码图片元素并截图
         element = Locator.locator(captcha_img_obj.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
-        if isinstance(rect, list):
-            rect = rect[-1]
         logger.info("中文计算验证码图片rect: {}".format(rect))
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
 
@@ -1023,7 +1002,7 @@ class VerifyCode:
         # 将结果转换为整数
         try:
             result_int = int(calculation_result)
-        except Exception:
+        except ValueError:
             raise BizException(API_RESULT_EMPTY, "计算结果格式错误: {}".format(calculation_result))
 
         # 如果需要填写输入框
@@ -1034,3 +1013,5 @@ class VerifyCode:
             logger.info("已将计算结果 {} 填入输入框".format(result_int))
 
         return result_int
+
+
