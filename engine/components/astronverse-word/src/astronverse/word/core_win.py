@@ -23,11 +23,14 @@ class WordDocumentCore(IDocumentCore):
         is_word_running, is_wps_running = False, False
         process_ids = psutil.pids()
         for process_id in process_ids:
-            process = psutil.Process(process_id)
-            if process.name() == "WINWORD.EXE":
-                is_word_running = True
-            if process.name() == "wps.exe":
-                is_wps_running = True
+            try:
+                process = psutil.Process(process_id)
+                if process.name() == "WINWORD.EXE":
+                    is_word_running = True
+                if process.name() == "wps.exe":
+                    is_wps_running = True
+            except Exception as e:
+                pass
         return is_word_running, is_wps_running
 
     @staticmethod
