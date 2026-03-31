@@ -84,6 +84,28 @@ def _ax_get_pid(el) -> int:
         return 0
 
 
+def _window_like_title(el) -> str:
+    return (
+        _ax_attr(el, "AXTitle")
+        or _ax_attr(el, "AXLabel")
+        or _ax_attr(el, "AXDescription")
+        or ""
+    )
+
+
+def _is_window_like_element(el) -> bool:
+    role = _ax_attr(el, "AXRole") or ""
+    subrole = _ax_attr(el, "AXSubrole") or ""
+    if role in {"AXWindow", "AXSheet", "AXDialog"}:
+        return True
+    return subrole in {
+        "AXStandardWindow",
+        "AXDialog",
+        "AXSystemDialog",
+        "AXFloatingWindow",
+    }
+
+
 # ── AXUILocator ─────────────────────────────────────────────────────────────
 
 class AXUILocator(ILocator):
@@ -157,8 +179,12 @@ class AXUIFactory:
                 logger.debug(f"成功创建 root (pid={pid})")
 
                 if picker_type == PickerType.WINDOW.value:
-                    logger.info("PickerType.WINDOW，直接返回 root")
-                    return AXUILocator(root)
+                    logger.info("PickerType.WINDOW，查找真实窗口节点")
+                    window_element = cls._find_window(root, path_list[0])
+                    if window_element is not None:
+                        return AXUILocator(window_element)
+                    logger.debug(f"PID {pid} 未找到匹配窗口，继续下一个 PID")
+                    continue
 
                 search_list = [(root, "1")]
                 element_found, search_list = cls._walk_path(search_list, path_list[1:], start_level=1)
@@ -176,6 +202,63 @@ class AXUIFactory:
                 continue
 
         raise BizException(NO_FIND_ELEMENT, "元素无法找到")
+
+    @classmethod
+    def _find_window(cls, root, node_dict: dict):
+        from astronverse.locator.utils.match import MatchType, match_value
+
+        attrs_map = node_dict.get("attrs_map") or {}
+        disable_keys = set(node_dict.get("disable_keys", []))
+        expected_tag = node_dict.get("tag_name") if "tag_name" not in disable_keys else None
+        expected_cls = node_dict.get("cls") if "cls" not in disable_keys else None
+        expected_name = node_dict.get("name") if "name" not in disable_keys else None
+
+        windows = _ax_attr(root, "AXWindows") or []
+        focused_window = _ax_attr(root, "AXFocusedWindow")
+        main_window = _ax_attr(root, "AXMainWindow")
+
+        ordered_windows = []
+        for window in [focused_window, main_window, *windows]:
+            if window is None or window in ordered_windows:
+                continue
+            ordered_windows.append(window)
+
+        logger.debug(
+            f"_find_window: expected tag={expected_tag}, cls={expected_cls}, "
+            f"name={expected_name}, windows={len(ordered_windows)}"
+        )
+
+        for window in ordered_windows:
+            role = _ax_attr(window, "AXRole") or ""
+            subrole = _ax_attr(window, "AXSubrole") or ""
+            title = _window_like_title(window)
+            normalized_role = str(role).replace("AX", "") if role else ""
+
+            if not _is_window_like_element(window):
+                continue
+            if expected_tag is not None and not match_value(
+                expected_tag,
+                normalized_role,
+                attrs_map.get("tag_name", MatchType.EXACT),
+            ):
+                continue
+            if expected_cls is not None and not match_value(
+                expected_cls,
+                subrole,
+                attrs_map.get("cls", MatchType.EXACT),
+            ):
+                continue
+            if expected_name not in (None, "") and not match_value(
+                expected_name,
+                title,
+                attrs_map.get("name", MatchType.EXACT),
+            ):
+                continue
+
+            logger.info(f"_find_window: 命中窗口 role={role}, subrole={subrole}, title={title}")
+            return window
+
+        return None
 
     @classmethod
     def __find_similar__(cls, ele: dict) -> list[AXUILocator]:
