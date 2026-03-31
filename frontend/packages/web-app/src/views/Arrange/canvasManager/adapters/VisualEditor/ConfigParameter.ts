@@ -7,16 +7,24 @@ import { createConfigParam, deleteConfigParam, getConfigParams, updateConfigPara
 export class ConfigParameter implements RPA.Process.ConfigParameter {
   // 配置参数列表
   parameters = ref<RPA.ConfigParamData[]>([])
+  // 类型：process | module
+  private type: 'process' | 'module'
 
-  constructor(public projectId: string, public processId: string) {
+  constructor(public projectId: string, public id: string, type: 'process' | 'module' = 'process') {
+    this.type = type
     this.init()
   }
 
   async init() {
-    this.parameters.value = await getConfigParams({
+    const params: any = {
       robotId: this.projectId,
-      processId: this.processId,
-    })
+    }
+    if (this.type === 'process') {
+      params.processId = this.id
+    } else {
+      params.moduleId = this.id
+    }
+    this.parameters.value = await getConfigParams(params)
   }
 
   // 生成唯一的配置参数名称
@@ -44,7 +52,11 @@ export class ConfigParameter implements RPA.Process.ConfigParameter {
       varDescribe: '',
       varValue: '',
       robotId: this.projectId,
-      processId: this.processId,
+    }
+    if (this.type === 'process') {
+      data.processId = this.id
+    } else {
+      data.moduleId = this.id
     }
     const id = await createConfigParam(data)
 
@@ -59,7 +71,13 @@ export class ConfigParameter implements RPA.Process.ConfigParameter {
 
   // 更新参数
   async update(data: RPA.ConfigParamData) {
-    await updateConfigParam({ ...data, robotId: this.processId })
+    const updateData: any = { ...data, robotId: this.projectId }
+    if (this.type === 'process') {
+      updateData.processId = this.id
+    } else {
+      updateData.moduleId = this.id
+    }
+    await updateConfigParam(updateData)
 
     this.parameters.value = this.parameters.value.map(item =>
       item.id === data.id ? { ...item, ...data } : item,
