@@ -282,6 +282,28 @@ def _ax_ancestor_chain(el) -> list:
     return chain
 
 
+def _is_window_like_element(el) -> bool:
+    role = _ax_attr(el, "AXRole") or ""
+    subrole = _ax_attr(el, "AXSubrole") or ""
+    if role in {"AXWindow", "AXSheet", "AXDialog"}:
+        return True
+    return subrole in {
+        "AXStandardWindow",
+        "AXDialog",
+        "AXSystemDialog",
+        "AXFloatingWindow",
+    }
+
+
+def _window_like_title(el) -> str:
+    return (
+        _ax_attr(el, "AXTitle")
+        or _ax_attr(el, "AXLabel")
+        or _ax_attr(el, "AXDescription")
+        or ""
+    )
+
+
 # ── 属性收集（保持不变） ───────────────────────────────────────────────────
 
 def _format_ax_value(attr: str, val) -> str:
@@ -546,14 +568,68 @@ class AXUIOperate:
         if element is None:
             return None
         cur = element
+        fallback_window = None
         while cur is not None:
-            if _ax_attr(cur, "AXRole") == "AXApplication":
+            if _is_window_like_element(cur):
                 return cur
+            if fallback_window is None:
+                maybe_window = _ax_attr(cur, "AXWindow")
+                if maybe_window is not None:
+                    fallback_window = maybe_window
+            if _ax_attr(cur, "AXRole") == "AXApplication":
+                windows = _ax_attr(cur, "AXWindows") or []
+                if windows:
+                    focused_window = _ax_attr(cur, "AXFocusedWindow")
+                    main_window = _ax_attr(cur, "AXMainWindow")
+                    return focused_window or main_window or windows[0]
+                break
             parent = _ax_attr(cur, "AXParent")
             if parent is None:
-                return cur
+                break
             cur = parent
-        return element
+        return fallback_window or element
+
+    @classmethod
+    def build_window_pick(cls, element: Any) -> dict:
+        app_window = cls.get_app_windows(element)
+        if app_window is None:
+            return {}
+
+        process_id = cls.get_process_id(element)
+        app_name = ""
+        if process_id > 1:
+            try:
+                app_name = get_process_name(process_id)
+            except Exception:
+                app_name = ""
+
+        window_name = _window_like_title(app_window)
+        window_role = _ax_attr(app_window, "AXRole") or ""
+        window_class = _ax_attr(app_window, "AXSubrole") or window_role or ""
+        window_tag_name = str(window_role).replace("AX", "") if window_role else ""
+        window_rect = _ax_to_rect(app_window)
+
+        result = {
+            "version": "1",
+            "type": PickerDomain.UIA.value,
+            "app": app_name,
+            "path": [
+                {
+                    "tag_name": window_tag_name,
+                    "cls": window_class,
+                    "name": window_name,
+                    "checked": True,
+                    "disable_keys": [],
+                }
+            ],
+        }
+
+        if window_rect is not None:
+            result["img"] = {
+                "self": screenshot(window_rect),
+            }
+
+        return result
 
     @classmethod
     def get_web_control(cls, element: Any, app: APP = None, point: Point = None) -> tuple[bool, int, int, Any]:

@@ -7,7 +7,11 @@ if sys.platform == "win32":
     from astronverse.window.core_win import UITreeCore
 
     UITreeCore: IUITreeCore = UITreeCore()
+elif sys.platform == "darwin":
+    from astronverse.window.core_mac import UITreeCore
+
+    UITreeCore: IUITreeCore = UITreeCore()
 elif platform.system() == "Linux":
     pass
 else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
+    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "window"))
