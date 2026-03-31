@@ -110,8 +110,8 @@ class AtomicManager:
         return AtomicParamMeta(**kwargs, key=key)
 
     def atomic_run(self, func: Any, key: str, *args, **kwargs):
-        base_kwargs = {k: v for k, v in kwargs.items() if v is not None and not k.startswith("__")}
-        advance_kwargs = {k: v for k, v in kwargs.items() if v is not None and k.startswith("__")}
+        base_kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
+        advance_kwargs = {k: v for k, v in kwargs.items() if k.startswith("__")}
 
         info = kwargs.get("__info__", [])
         if not info:
@@ -158,12 +158,12 @@ class AtomicManager:
         if delay_before > 0:
             time.sleep(delay_before)
 
-        # 验证只验证 __convert__ 为true的参数，不适用于对象验证
+        # 验证并转换
         model_res = model(**base_kwargs)
         for name, value in model_res.items():
             base_kwargs[name] = value
 
-        # 只有**kwargs的原子能力才接受高级参数,且过滤掉多余的参数,保证兼容
+        # 没有**kwargs的原子能力, 需要过滤掉多余的参数,保证兼容，并不传入高级参数advance_kwargs
         if not self.atomic_dict[key].__has_kwargs__:
             advance_kwargs = {}
             sig = inspect.signature(func)
