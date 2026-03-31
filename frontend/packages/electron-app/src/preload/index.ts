@@ -65,7 +65,18 @@ contextBridge.exposeInMainWorld('opencodeApi', {
   getSession: (sessionId: string) => ipcRenderer.invoke('opencode:getSession', sessionId),
   createSession: (payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null }) => ipcRenderer.invoke('opencode:createSession', payload),
   deleteSession: (sessionId: string) => ipcRenderer.invoke('opencode:deleteSession', sessionId),
-  sendMessage: (payload: { sessionID: string; text: string; model?: string | null; providerId?: string | null }) =>
+  sendMessage: (payload: {
+    sessionID: string
+    text: string
+    attachments?: Array<{
+      id: string
+      name: string
+      mime: string
+      url: string
+    }>
+    model?: string | null
+    providerId?: string | null
+  }) =>
     ipcRenderer.invoke('opencode:sendMessage', payload),
   getSettings: () => ipcRenderer.invoke('opencode:getSettings'),
   saveProvider: (input: unknown) => ipcRenderer.invoke('opencode:saveProvider', input),
@@ -77,6 +88,8 @@ contextBridge.exposeInMainWorld('opencodeApi', {
   saveGroupRoom: (input: unknown) => ipcRenderer.invoke('opencode:saveGroupRoom', input),
   deleteGroupRoom: (id: string) => ipcRenderer.invoke('opencode:deleteGroupRoom', id),
   listSkills: () => ipcRenderer.invoke('opencode:listSkills'),
+  importSkill: () => ipcRenderer.invoke('opencode:importSkill'),
+  deleteSkill: (skillId: string) => ipcRenderer.invoke('opencode:deleteSkill', skillId),
   onRuntimeEvent: (listener: (event: unknown) => void) => {
     const handler = (_: Electron.IpcRendererEvent, event: unknown) => listener(event)
     ipcRenderer.on('opencode:runtimeEvent', handler)

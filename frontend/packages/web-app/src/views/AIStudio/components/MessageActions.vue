@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { Copy, Check } from 'lucide-vue-next'
+import { Check, Copy, Pencil } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 const props = defineProps<{
   messageId: string
   content: string
   tone?: 'user' | 'assistant'
+  editable?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'edit'): void
 }>()
 
 const copied = ref(false)
@@ -18,7 +23,6 @@ async function handleCopy() {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(normalized)
     } else {
-      // Fallback for older browsers
       const textarea = document.createElement('textarea')
       textarea.value = normalized
       textarea.setAttribute('readonly', 'true')
@@ -42,11 +46,13 @@ async function handleCopy() {
 
 <template>
   <div
+    v-if="content.trim() || editable"
     class="message-actions"
     :class="tone ? `is-${tone}` : ''"
     :data-testid="`message-actions-${messageId}`"
   >
     <button
+      v-if="content.trim()"
       class="message-action"
       type="button"
       :aria-label="copied ? '已复制消息' : '复制消息'"
@@ -56,6 +62,17 @@ async function handleCopy() {
     >
       <Check v-if="copied" class="h-3.5 w-3.5" />
       <Copy v-else class="h-3.5 w-3.5" />
+    </button>
+    <button
+      v-if="editable"
+      class="message-action"
+      type="button"
+      aria-label="编辑消息"
+      title="编辑"
+      :data-testid="`message-action-edit-${messageId}`"
+      @click="emit('edit')"
+    >
+      <Pencil class="h-3.5 w-3.5" />
     </button>
   </div>
 </template>
@@ -78,8 +95,8 @@ async function handleCopy() {
   justify-content: flex-start;
 }
 
-/* 父容器 hover 时显示 */
 :deep(.chat-row__stack:hover) .message-actions,
+:deep(.chat-row__stack:focus-within) .message-actions,
 :deep(.flex:hover) .message-actions {
   opacity: 1;
 }

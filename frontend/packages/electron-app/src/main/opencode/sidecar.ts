@@ -103,6 +103,7 @@ export function createSidecarManager(options: SidecarManagerOptions = {}): Sidec
           const configContent = await options.getConfigContent?.()
           const url = `http://${host}:${port}`
           credentials = createCredentials()
+          const isolatedPaths = getIsolatedOpencodePaths(app.getPath('userData'))
           const executable = getSidecarPath({
             isPackaged: app.isPackaged,
             resourcesPath: process.resourcesPath,
@@ -130,6 +131,12 @@ export function createSidecarManager(options: SidecarManagerOptions = {}): Sidec
                 OPENCODE_CLIENT: 'desktop',
                 OPENCODE_SERVER_USERNAME: credentials.username,
                 OPENCODE_SERVER_PASSWORD: credentials.password,
+                HOME: isolatedPaths.root,
+                USERPROFILE: isolatedPaths.root,
+                XDG_DATA_HOME: isolatedPaths.dataHome,
+                XDG_CONFIG_HOME: isolatedPaths.configHome,
+                XDG_STATE_HOME: isolatedPaths.stateHome,
+                XDG_CACHE_HOME: isolatedPaths.cacheHome,
                 ...(configContent ? { OPENCODE_CONFIG_CONTENT: configContent } : {}),
               },
               windowsHide: true,
@@ -425,6 +432,17 @@ async function waitForChildExit(childProcess: SidecarProcess, timeoutMs: number)
 
 function createCredentials(): RuntimeCredentials {
   return { username: SIDECAR_USERNAME, password: randomUUID() }
+}
+
+function getIsolatedOpencodePaths(userDataPath: string) {
+  const opencodeRoot = path.join(userDataPath, 'opencode')
+  return {
+    root: opencodeRoot,
+    dataHome: path.join(opencodeRoot, 'data'),
+    configHome: path.join(opencodeRoot, 'config'),
+    stateHome: path.join(opencodeRoot, 'state'),
+    cacheHome: path.join(opencodeRoot, 'cache'),
+  }
 }
 
 async function getFreePort() {

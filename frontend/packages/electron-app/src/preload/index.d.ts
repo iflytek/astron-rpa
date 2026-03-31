@@ -22,6 +22,8 @@ declare global {
       saveGroupRoom: (input: unknown) => Promise<unknown>
       deleteGroupRoom: (id: string) => Promise<unknown>
       listSkills: () => Promise<unknown>
+      importSkill: () => Promise<unknown>
+      deleteSkill: (skillId: string) => Promise<{ success: boolean }>
       onRuntimeEvent: (listener: (event: unknown) => void) => () => void
     }
   }

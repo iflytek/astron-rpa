@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Switch } from 'ant-design-vue'
 import { CheckCircle2, ChevronDown, ChevronRight, Cpu, FileArchive, Key, Plug, Plus, Settings, ShieldCheck, Trash2, Upload, X, XCircle, Zap } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -60,8 +60,21 @@ type SaveDefaultModelInput = {
 
 type DefaultModel = { id: string, name: string, provider: string, badge?: string }
 type McpServer = { id: string, name: string, transport: string, status: McpStatus, desc: string }
-type UploadedSkill = { id: string, name: string, fileName: string, size: string, enabled: boolean }
-type BuiltinSkill = { name: string, desc: string, short: string }
+type UploadedSkill = {
+  id: string
+  name: string
+  description?: string
+  source?: string
+  fileName?: string
+  size?: string
+  enabled?: boolean
+}
+type DesktopSkillState = {
+  skills: UploadedSkill[]
+  unavailable: boolean
+  error: string | null
+  storageRoot?: string | null
+}
 type BehaviorLevel = { id: BehaviorLevelId, label: string, desc: string, hint: string, default?: boolean, requireGeek?: boolean }
 
 const emit = defineEmits<{ (e: 'close'): void }>()
@@ -101,6 +114,8 @@ const defaultModelError = ref('')
 const defaultModelSaving = ref(false)
 const settingsLoading = ref(false)
 const settingsError = ref('')
+const skillsLoading = ref(false)
+const skillsError = ref('')
 const settingsData = ref<DesktopSettings>({
   providers: [],
   defaultModel: {
@@ -110,9 +125,14 @@ const settingsData = ref<DesktopSettings>({
   },
 })
 const showMcpImport = ref(false)
-const showSkillUpload = ref(false)
 const geekMode = ref(false)
 const behaviorLevel = ref<BehaviorLevelId>('medium')
+const skillsState = ref<DesktopSkillState>({
+  skills: [],
+  unavailable: false,
+  error: null,
+  storageRoot: null,
+})
 
 const mcpJson = ref(`{
   "mcpServers": {
@@ -137,19 +157,6 @@ const mcpServers = ref<McpServer[]>([
   { id: 'postgres', name: 'postgres', transport: 'streamable-http', status: 'error', desc: '数据库查询与检索' },
 ])
 
-const builtinSkills = [
-  { name: '文件读写', desc: '读取本地及云端文档，支持 xlsx、csv、pdf、txt 等格式', short: 'FS' },
-  { name: '邮件发送', desc: '通过 SMTP、Gmail、Outlook 发送邮件并带附件', short: 'EM' },
-  { name: '数据库查询', desc: '执行 SQL 查询，连接 MySQL、PostgreSQL、SQLite', short: 'DB' },
-  { name: 'API 调用', desc: '发起 REST 请求，支持 GET、POST、PUT、DELETE', short: 'API' },
-  { name: '图表生成', desc: '生成 ECharts 结果并输出图像或 JSON 配置', short: 'CH' },
-  { name: 'PDF 解析', desc: '抽取 PDF 文本、表格和元数据，支持 OCR 识别', short: 'PDF' },
-  { name: '网页抓取', desc: '使用 Playwright 抓取动态页面内容与截图', short: 'WEB' },
-  { name: '代码执行', desc: '在沙箱中运行 Python、JS 代码并拿回结果', short: 'RUN' },
-  { name: '日历管理', desc: '创建、查询、删除 Google Calendar 日历事件', short: 'CAL' },
-  { name: '消息通知', desc: '推送消息到 Slack、钉钉、企业微信等 IM', short: 'MSG' },
-] satisfies BuiltinSkill[]
-
 const behaviorLevels = [
   { id: 'high', label: '高', desc: '任何跨应用跳转、写文件操作均需要人工确认', hint: '最安全，每步操作都会弹出确认' },
   { id: 'medium', label: '中', desc: '仅涉及删除、外发、批量写入等敏感动作时确认', hint: '推荐默认，平衡安全与效率', default: true },
@@ -157,7 +164,6 @@ const behaviorLevels = [
 ] satisfies BehaviorLevel[]
 
 const uploadedSkills = ref<UploadedSkill[]>([])
-const enabledBuiltinSkills = ref(new Set(['文件读写', '图表生成', 'PDF 解析', '代码执行']))
 
 const activeNav = computed(() => navItems.find(item => item.id === currentTab.value) ?? navItems[0])
 const providerMap = computed(() => new Map(PROVIDER_OPTIONS.map(provider => [provider.id, provider])))
@@ -189,7 +195,6 @@ const mcpStats = computed(() => [
   { label: '待连接', value: mcpServers.value.filter(server => server.status === 'pending').length, tone: 'text-black/42' },
   { label: '总计', value: mcpServers.value.length, tone: 'text-[#4B5563]' },
 ])
-const allBuiltinEnabled = computed(() => enabledBuiltinSkills.value.size === builtinSkills.length)
 const selectedBehaviorMeta = computed(() => behaviorLevels.find(level => level.id === behaviorLevel.value) ?? behaviorLevels[1])
 
 watch(defaultModels, (models) => {
@@ -207,6 +212,30 @@ function getDesktopApi() {
     throw new Error('opencodeApi 不可用')
   }
   return window.opencodeApi
+}
+
+async function loadSkills() {
+  try {
+    skillsLoading.value = true
+    skillsError.value = ''
+    const api = getDesktopApi()
+    if (!api.listSkills) {
+      throw new Error('当前桌面运行时未提供技能接口')
+    }
+
+    const result = await api.listSkills() as DesktopSkillState
+    skillsState.value = result
+    uploadedSkills.value = result.skills.map(skill => ({
+      ...skill,
+      fileName: `${skill.id}/SKILL.md`,
+      size: skill.source || 'managed',
+      enabled: true,
+    }))
+  } catch (error) {
+    skillsError.value = error instanceof Error ? error.message : '加载技能列表失败'
+  } finally {
+    skillsLoading.value = false
+  }
 }
 
 async function loadSettings() {
@@ -227,6 +256,7 @@ async function loadSettings() {
 
 onMounted(() => {
   void loadSettings()
+  void loadSkills()
 })
 
 function providerConfigured(id: string) {
@@ -380,36 +410,36 @@ function importMcpConfig() {
   } catch {}
 }
 
-function setBuiltinSkillEnabled(name: string, enabled: boolean) {
-  const next = new Set(enabledBuiltinSkills.value)
-  if (enabled) next.add(name)
-  else next.delete(name)
-  enabledBuiltinSkills.value = next
-}
-
-function toggleAllBuiltinSkills() {
-  enabledBuiltinSkills.value = allBuiltinEnabled.value ? new Set() : new Set(builtinSkills.map(skill => skill.name))
-}
-
-function confirmSkillUpload() {
-  if (!uploadedSkills.value.find(skill => skill.name === 'ui-ux-pro-max')) {
-    uploadedSkills.value = [{
-      id: `skill-${Date.now()}`,
-      name: 'ui-ux-pro-max',
-      fileName: 'ui-ux-pro-max.skill.zip',
-      size: '128 KB',
-      enabled: true,
-    }, ...uploadedSkills.value]
+async function confirmSkillUpload() {
+  const api = getDesktopApi()
+  if (!api.importSkill) {
+    skillsError.value = '当前桌面运行时未提供技能导入接口'
+    return
   }
-  showSkillUpload.value = false
+
+  try {
+    skillsError.value = ''
+    await api.importSkill()
+    await loadSkills()
+  } catch (error) {
+    skillsError.value = error instanceof Error ? error.message : '导入技能失败'
+  }
 }
 
-function setUploadedSkillEnabled(id: string, enabled: boolean) {
-  uploadedSkills.value = uploadedSkills.value.map(skill => skill.id === id ? { ...skill, enabled } : skill)
-}
+async function removeUploadedSkill(id: string) {
+  const api = getDesktopApi()
+  if (!api.deleteSkill) {
+    skillsError.value = '当前桌面运行时未提供技能删除接口'
+    return
+  }
 
-function removeUploadedSkill(id: string) {
-  uploadedSkills.value = uploadedSkills.value.filter(skill => skill.id !== id)
+  try {
+    skillsError.value = ''
+    await api.deleteSkill(id)
+    await loadSkills()
+  } catch (error) {
+    skillsError.value = error instanceof Error ? error.message : '删除技能失败'
+  }
 }
 
 function setGeekMode(enabled: boolean) {
@@ -575,54 +605,75 @@ function selectBehaviorLevel(id: BehaviorLevelId) {
           <div v-else-if="currentTab === 'skills'" class="space-y-7">
             <div class="flex items-center gap-3 border-b border-[var(--ai-line)] pb-5">
               <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#F0EFFF] text-[#726FFF]"><Zap class="h-4.5 w-4.5" /></div>
-              <div><div class="text-[15px] font-semibold text-black/82">Skills</div><div class="mt-0.5 text-[11px] text-black/40">开关内置技能，或上传自定义技能包</div></div>
+              <div>
+                <div class="text-[15px] font-semibold text-black/82">Skills</div>
+                <div class="mt-0.5 text-[11px] text-black/40">统一托管 Astron RPA 私有技能仓库，助手和群聊只保存 skillId</div>
+              </div>
             </div>
 
-            <div class="space-y-3">
-              <button data-testid="skills-upload-expander" class="flex w-full items-center gap-2 rounded-[18px] bg-[rgba(255,255,255,0.82)] px-4 py-3 text-left shadow-[0_10px_22px_rgba(15,23,42,0.028)] transition-all hover:bg-[rgba(248,247,255,0.92)]" @click="showSkillUpload = !showSkillUpload">
-                <Upload class="h-4 w-4 text-black/48" /><span class="text-[12px] font-medium text-black/74">上传技能文件包</span><ChevronDown class="ml-auto h-3.5 w-3.5 text-black/30 transition-transform" :class="showSkillUpload ? 'rotate-180' : ''" />
+            <div class="rounded-[18px] bg-[rgba(250,250,252,0.84)] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(232,234,242,0.55)]">
+              <div class="text-[11px] font-medium text-black/72">技能仓库</div>
+              <div class="mt-1 break-all text-[10px] leading-4.5 text-black/40">
+                {{ skillsState.storageRoot || '当前运行时尚未返回技能仓库路径' }}
+              </div>
+            </div>
+
+            <div v-if="skillsError || skillsState.error" class="rounded-[14px] bg-[#FEF2F2] px-3 py-2 text-[11px] text-[#DC2626]">
+              {{ skillsError || skillsState.error }}
+            </div>
+
+            <div v-if="skillsState.unavailable" class="rounded-[14px] bg-[#FFF8E8] px-3 py-2 text-[11px] text-[#92400E]">
+              当前运行时未启用技能发现，暂时无法管理托管技能。
+            </div>
+
+            <div class="flex items-center justify-between gap-3 rounded-[18px] bg-[rgba(255,255,255,0.84)] px-4 py-3 shadow-[0_10px_22px_rgba(15,23,42,0.028)]">
+              <div class="min-w-0">
+                <div class="text-[12px] font-medium text-black/82">导入技能</div>
+                <div class="mt-0.5 text-[10px] text-black/38">选择包含 SKILL.md 的技能目录；同名技能不允许重复导入。</div>
+              </div>
+              <button
+                data-testid="skills-upload-confirm"
+                class="inline-flex items-center gap-2 rounded-[12px] bg-[#726FFF] px-4 py-2 text-[12px] font-medium text-white shadow-[0_10px_24px_rgba(114,111,255,0.22)] transition-colors hover:bg-[#635EF7] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="skillsLoading"
+                @click="confirmSkillUpload"
+              >
+                <Upload class="h-3.5 w-3.5" />
+                <span>选择技能目录</span>
               </button>
-
-              <div v-if="showSkillUpload" class="rounded-[20px] bg-[rgba(255,255,255,0.88)] p-4 shadow-[0_12px_26px_rgba(15,23,42,0.035)]">
-                <div data-testid="skills-upload-dropzone" class="rounded-[18px] border-2 border-dashed border-[#E5E7EB] bg-[rgba(250,250,252,0.84)] px-5 py-8 text-center">
-                  <FileArchive class="mx-auto h-5 w-5 text-black/28" />
-                  <div class="mt-3 text-[12px] font-medium text-black/74">拖放或点击选择文件</div>
-                  <div class="mt-1 text-[10px] text-black/38">支持 .zip、.tar.gz、.skill 格式，当前示例文件为 ui-ux-pro-max.skill.zip</div>
-                </div>
-                <div class="mt-3 flex justify-end"><button data-testid="skills-upload-confirm" class="rounded-[12px] bg-[#726FFF] px-4 py-2 text-[12px] font-medium text-white shadow-[0_10px_24px_rgba(114,111,255,0.22)] transition-colors hover:bg-[#635EF7]" @click="confirmSkillUpload">确认上传</button></div>
-              </div>
             </div>
 
-            <div v-if="uploadedSkills.length" class="space-y-2">
-              <div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/36">已上传技能包</div>
-              <div v-for="skill in uploadedSkills" :key="skill.id" class="flex items-center gap-3 rounded-[18px] bg-[rgba(255,255,255,0.84)] px-4 py-3 shadow-[0_10px_22px_rgba(15,23,42,0.028)]">
-                <FileArchive class="h-4 w-4 shrink-0 text-black/42" />
-                <div class="min-w-0 flex-1"><div class="text-[12px] font-medium text-black/82">{{ skill.name }}</div><div class="mt-0.5 text-[10px] text-black/38">{{ skill.fileName }} · {{ skill.size }}</div></div>
-                <Switch
-                  class="settings-switch shrink-0"
-                  :checked="skill.enabled"
-                  @change="setUploadedSkillEnabled(skill.id, Boolean($event))"
-                />
-                <button class="flex h-7 w-7 items-center justify-center rounded-[10px] text-black/28 transition-colors hover:bg-[#FEF2F2] hover:text-[#EF4444]" @click="removeUploadedSkill(skill.id)"><Trash2 class="h-3.5 w-3.5" /></button>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/36">托管技能</div>
+                <button class="text-[10px] font-medium text-[#726FFF] hover:underline disabled:cursor-not-allowed disabled:opacity-60" :disabled="skillsLoading" @click="loadSkills">
+                  {{ skillsLoading ? '加载中...' : '刷新列表' }}
+                </button>
               </div>
-            </div>
 
-            <div class="space-y-3">
-              <div class="flex items-center justify-between"><div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/36">内置技能</div><button class="text-[10px] font-medium text-[#726FFF] hover:underline" @click="toggleAllBuiltinSkills">{{ allBuiltinEnabled ? '全部关闭' : '全部开启' }}</button></div>
-              <div class="space-y-1.5">
-                <div v-for="skill in builtinSkills" :key="skill.name" data-testid="builtin-skill-row" :class="enabledBuiltinSkills.has(skill.name) ? 'bg-[rgba(255,255,255,0.92)] shadow-[0_10px_22px_rgba(15,23,42,0.03)]' : 'bg-[rgba(250,250,252,0.82)]'" class="flex items-center gap-3 rounded-[18px] px-4 py-3 transition-all">
-                  <div :class="enabledBuiltinSkills.has(skill.name) ? 'bg-[#F0EFFF] text-[#726FFF]' : 'bg-[#F3F4F6] text-black/40'" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] text-[10px] font-semibold">{{ skill.short }}</div>
-                  <div class="min-w-0 flex-1"><div :class="enabledBuiltinSkills.has(skill.name) ? 'text-black/82' : 'text-black/42'" class="text-[12px] font-medium">{{ skill.name }}</div><div class="mt-0.5 text-[10px] leading-4 text-black/38">{{ skill.desc }}</div></div>
-                  <Switch
-                    class="settings-switch shrink-0"
-                    :checked="enabledBuiltinSkills.has(skill.name)"
-                    @change="setBuiltinSkillEnabled(skill.name, Boolean($event))"
-                  />
+              <div v-if="skillsLoading && !uploadedSkills.length" class="rounded-[18px] bg-[rgba(255,255,255,0.84)] px-4 py-5 text-center text-[12px] text-black/42 shadow-[0_10px_22px_rgba(15,23,42,0.028)]">
+                正在加载托管技能...
+              </div>
+
+              <div v-else-if="!uploadedSkills.length" class="rounded-[18px] bg-[rgba(255,255,255,0.84)] px-4 py-5 text-center text-[12px] text-black/42 shadow-[0_10px_22px_rgba(15,23,42,0.028)]">
+                还没有可用技能。导入后，助手和群聊创建时就可以直接选择。
+              </div>
+
+              <div v-else class="space-y-2">
+                <div v-for="skill in uploadedSkills" :key="skill.id" class="flex items-center gap-3 rounded-[18px] bg-[rgba(255,255,255,0.84)] px-4 py-3 shadow-[0_10px_22px_rgba(15,23,42,0.028)]">
+                  <FileArchive class="h-4 w-4 shrink-0 text-black/42" />
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <div class="truncate text-[12px] font-medium text-black/82">{{ skill.name }}</div>
+                      <span class="rounded-[6px] bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-medium text-black/42">{{ skill.id }}</span>
+                    </div>
+                    <div v-if="skill.description" class="mt-1 text-[10px] leading-4 text-black/42">{{ skill.description }}</div>
+                    <div class="mt-1 text-[10px] text-black/34">{{ skill.fileName }} · {{ skill.size }}</div>
+                  </div>
+                  <button class="flex h-7 w-7 items-center justify-center rounded-[10px] text-black/28 transition-colors hover:bg-[#FEF2F2] hover:text-[#EF4444]" @click="removeUploadedSkill(skill.id)"><Trash2 class="h-3.5 w-3.5" /></button>
                 </div>
               </div>
             </div>
           </div>
-
           <div v-else class="space-y-7">
             <div class="flex items-center gap-3 border-b border-[var(--ai-line)] pb-5">
               <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#F0EFFF] text-[#726FFF]"><ShieldCheck class="h-4.5 w-4.5" /></div>
@@ -749,3 +800,4 @@ function selectBehaviorLevel(id: BehaviorLevelId) {
   background: linear-gradient(135deg, #6a66fb 0%, #5652e4 100%);
 }
 </style>
+

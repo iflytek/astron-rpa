@@ -35,6 +35,7 @@ const workspacePath = ref(props.defaultWorkspacePath || '~/Documents')
 const sessionTitle = ref('')
 
 const isGroupSessionMode = computed(() => !!props.isGroupSession)
+const isWorkspacePathLocked = computed(() => Boolean(props.defaultWorkspacePath?.trim()))
 const groupTemplateParticipants = computed(() => props.groupTemplateParticipants || [])
 const groupTemplateMode = computed(() => props.groupTemplateMode || 'auto')
 const groupTemplateModeLabel = computed(() => {
@@ -101,6 +102,7 @@ function handleSubmit() {
           <Input
             v-model="workspacePath"
             data-testid="new-session-workspace-input"
+            :readonly="isWorkspacePathLocked"
             class="h-10 rounded-[12px] border border-[#E5E7EB] bg-white px-3 text-[13px] text-black/72 shadow-none"
             placeholder="请输入工作目录，例如 ~/Projects/demo"
           />

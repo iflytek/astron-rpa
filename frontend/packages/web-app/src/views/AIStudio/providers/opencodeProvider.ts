@@ -8,7 +8,7 @@ import type {
   AIStudioSendMessagePayload,
   AIStudioSessionMutationResult,
 } from '../contracts'
-import { mockAIStudioProvider } from './mockProvider'
+import type { StudioMessageAttachment } from '../types'
 
 export type OpencodeDesktopApi = {
   getBootstrap: () => Promise<AIStudioBootstrap>
@@ -18,6 +18,12 @@ export type OpencodeDesktopApi = {
   sendMessage: (payload: {
     sessionID: string
     text: string
+    attachments?: Array<{
+      id: string
+      name: string
+      mime: string
+      url: string
+    }>
     model?: string | null
     providerId?: string | null
   }) => Promise<{ success: boolean }>
@@ -47,6 +53,36 @@ async function fetchSessionDetail(sessionId: string): Promise<import('../types')
   return result as import('../types').StudioSessionDetail
 }
 
+function toDesktopAttachment(attachment: StudioMessageAttachment) {
+  return {
+    id: attachment.id,
+    name: attachment.name,
+    mime: attachment.mime,
+    url: attachment.url,
+  }
+}
+
+function sameAttachmentList(
+  left: StudioMessageAttachment[] | undefined,
+  right: StudioMessageAttachment[] | undefined,
+) {
+  const leftItems = left || []
+  const rightItems = right || []
+  if (leftItems.length !== rightItems.length)
+    return false
+  return leftItems.every((item, index) => {
+    const candidate = rightItems[index]
+    return candidate
+      && candidate.name === item.name
+      && candidate.mime === item.mime
+      && candidate.url === item.url
+  })
+}
+
+function unsupportedRuntimeMutation(name: string): never {
+  throw new Error(`AI Studio runtime does not support ${name} yet`)
+}
+
 export const opencodeAIStudioProvider: AIStudioProvider = {
   getBootstrap: async (): Promise<AIStudioBootstrap> => {
     const api = getOpencodeDesktopApi()
@@ -63,14 +99,16 @@ export const opencodeAIStudioProvider: AIStudioProvider = {
     await api.sendMessage({
       sessionID: payload.sessionId,
       text: payload.content,
+      attachments: payload.attachments?.map(toDesktopAttachment),
     })
     const session = await fetchSessionDetail(payload.sessionId)
     // Opencode processes messages asynchronously; the user message may not yet
     // be persisted when we fetch right after sendMessage. Add it optimistically
     // so it is immediately visible in the UI.
-    const alreadyPresent = session.messages.some(
-      m => m.role === 'user' && m.content === payload.content,
-    )
+    const latestUserMessage = [...session.messages].reverse().find(message => message.role === 'user')
+    const alreadyPresent = !!latestUserMessage
+      && latestUserMessage.content === payload.content
+      && sameAttachmentList(latestUserMessage.attachments, payload.attachments)
     if (!alreadyPresent) {
       session.messages = [
         ...session.messages,
@@ -78,6 +116,7 @@ export const opencodeAIStudioProvider: AIStudioProvider = {
           id: `user-optimistic-${Date.now()}`,
           role: 'user',
           content: payload.content,
+          attachments: payload.attachments ? [...payload.attachments] : undefined,
           time: '刚刚',
         },
       ]
@@ -96,15 +135,15 @@ export const opencodeAIStudioProvider: AIStudioProvider = {
     return { session }
   },
 
-  submitChoiceForm: async (payload: AIStudioChoiceSubmissionPayload): Promise<AIStudioSessionMutationResult> => {
-    return mockAIStudioProvider.submitChoiceForm(payload)
+  submitChoiceForm: async (_payload: AIStudioChoiceSubmissionPayload): Promise<AIStudioSessionMutationResult> => {
+    return unsupportedRuntimeMutation('choice-form submission')
   },
 
-  submitParamForm: async (payload: AIStudioParamSubmissionPayload): Promise<AIStudioSessionMutationResult> => {
-    return mockAIStudioProvider.submitParamForm(payload)
+  submitParamForm: async (_payload: AIStudioParamSubmissionPayload): Promise<AIStudioSessionMutationResult> => {
+    return unsupportedRuntimeMutation('param-form submission')
   },
 
-  submitCardAction: async (payload: AIStudioCardActionPayload): Promise<AIStudioSessionMutationResult> => {
-    return mockAIStudioProvider.submitCardAction(payload)
+  submitCardAction: async (_payload: AIStudioCardActionPayload): Promise<AIStudioSessionMutationResult> => {
+    return unsupportedRuntimeMutation('card action')
   },
 }

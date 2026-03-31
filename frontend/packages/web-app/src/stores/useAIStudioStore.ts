@@ -1,11 +1,5 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-
-import { nanoid } from 'nanoid'
-
-import { DEFAULT_AI_STUDIO_SESSION_ID } from '@/views/AIStudio/contracts'
-import { createSessionDetailTemplate } from '@/views/AIStudio/mock'
-import { mockAIStudioProvider } from '@/views/AIStudio/providers/mockProvider'
 import { getOpencodeDesktopApi, opencodeAIStudioProvider } from '@/views/AIStudio/providers/opencodeProvider'
 
 import type {
@@ -23,9 +17,8 @@ import type {
   StudioSessionDetail,
 } from '@/views/AIStudio/types'
 
-const IS_MOCK_MODE = typeof window !== 'undefined' && !('opencodeApi' in window)
-const provider = IS_MOCK_MODE ? mockAIStudioProvider : opencodeAIStudioProvider
-const INITIAL_SESSION_ID = IS_MOCK_MODE ? DEFAULT_AI_STUDIO_SESSION_ID : ''
+const provider = opencodeAIStudioProvider
+const INITIAL_SESSION_ID = ''
 
 type PendingMutation = {
   sessionId: string
@@ -392,28 +385,14 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
   async function createAssistant(payload: CreateAssistantPayload) {
     const name = payload.name.trim()
     const isGroupTemplate = payload.templateKind === 'group'
-    if (!IS_MOCK_MODE) {
-      const api = getOpencodeDesktopApi()
-      if (isGroupTemplate) {
-        const saved = await api.saveGroupRoom({
-          name,
-          description: payload.capabilities?.trim() || null,
-          coordinatorPrompt: payload.persona?.trim() || null,
-          memberAssistantIds: [...new Set((payload.groupParticipantAssistantIds || []).filter(Boolean))],
-          collaborationMode: payload.groupCollaborationMode || 'auto',
-        }) as { id: string }
-        await refreshBootstrap()
-        activeSurface.value = 'main'
-        workspaceOpen.value = false
-        closeNewAssistant()
-        return { assistantId: saved.id }
-      }
-
-      const saved = await api.saveAssistant({
+    const api = getOpencodeDesktopApi()
+    if (isGroupTemplate) {
+      const saved = await api.saveGroupRoom({
         name,
         description: payload.capabilities?.trim() || null,
-        systemPrompt: payload.persona?.trim() || null,
-        skillIds: payload.skills || [],
+        coordinatorPrompt: payload.persona?.trim() || null,
+        memberAssistantIds: [...new Set((payload.groupParticipantAssistantIds || []).filter(Boolean))],
+        collaborationMode: payload.groupCollaborationMode || 'auto',
       }) as { id: string }
       await refreshBootstrap()
       activeSurface.value = 'main'
@@ -422,102 +401,54 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
       return { assistantId: saved.id }
     }
 
-    const assistantId = nanoid(8)
-    const badge = name.slice(0, 1) || (payload.templateKind === 'group' ? '群' : '助')
-    const normalizedGroupParticipants = isGroupTemplate
-      ? [...new Set((payload.groupParticipantAssistantIds || []).filter(Boolean))]
-      : undefined
-    const assistant: StudioAssistant = {
-      id: assistantId,
+    const saved = await api.saveAssistant({
       name,
-      badge,
-      status: isGroupTemplate ? '群聊' : '待命',
-      tag: isGroupTemplate ? '群聊' : undefined,
-      persona: payload.persona?.trim() || undefined,
-      capabilities: payload.capabilities?.trim() || undefined,
-      skills: isGroupTemplate ? undefined : (payload.skills?.length ? [...payload.skills] : undefined),
-      groupParticipantAssistantIds: normalizedGroupParticipants,
-      groupCollaborationMode: isGroupTemplate ? (payload.groupCollaborationMode || 'auto') : undefined,
-      sessions: [],
-    }
-
-    assistantGroups.value = assistantGroups.value.map((group) => {
-      if (group.id !== (isGroupTemplate ? 'collaboration' : 'single'))
-        return group
-      return {
-        ...group,
-        assistants: [assistant, ...group.assistants],
-      }
-    })
-
+      description: payload.capabilities?.trim() || null,
+      systemPrompt: payload.persona?.trim() || null,
+      skillIds: payload.skills || [],
+    }) as { id: string }
+    await refreshBootstrap()
     activeSurface.value = 'main'
     workspaceOpen.value = false
-    showNewAssistant.value = false
-    return { assistantId }
+    closeNewAssistant()
+    return { assistantId: saved.id }
   }
 
   async function updateAssistant(assistantId: string, payload: CreateAssistantPayload) {
     const currentAssistant = findAssistantById(assistantId)
     if (!currentAssistant)
       return null
-
+    
     const nextName = payload.name.trim()
-    const nextBadge = nextName.slice(0, 1) || currentAssistant.badge
-    const isGroupTemplate = currentAssistant.status === '群聊' || payload.templateKind === 'group'
+    const isGroupTemplate = payload.templateKind === 'group'
+      || !!currentAssistant.groupParticipantAssistantIds?.length
+      || !!currentAssistant.groupCollaborationMode
     const normalizedGroupParticipants = isGroupTemplate
       ? [...new Set((payload.groupParticipantAssistantIds || currentAssistant.groupParticipantAssistantIds || []).filter(Boolean))]
       : undefined
 
-    if (!IS_MOCK_MODE) {
-      const api = getOpencodeDesktopApi()
-      if (isGroupTemplate) {
-        await api.saveGroupRoom({
-          id: assistantId,
-          name: nextName,
-          description: payload.capabilities?.trim() || null,
-          coordinatorPrompt: payload.persona?.trim() || null,
-          memberAssistantIds: normalizedGroupParticipants,
-          collaborationMode: payload.groupCollaborationMode || currentAssistant.groupCollaborationMode || 'auto',
-        })
-      }
-      else {
-        await api.saveAssistant({
-          id: assistantId,
-          name: nextName,
-          description: payload.capabilities?.trim() || null,
-          systemPrompt: payload.persona?.trim() || null,
-          skillIds: payload.skills?.length ? [...payload.skills] : [],
-        })
-      }
-
-      await refreshBootstrap(activeSessionId.value)
-      closeNewAssistant()
-      return assistantId
+    const api = getOpencodeDesktopApi()
+    if (isGroupTemplate) {
+      await api.saveGroupRoom({
+        id: assistantId,
+        name: nextName,
+        description: payload.capabilities?.trim() || null,
+        coordinatorPrompt: payload.persona?.trim() || null,
+        memberAssistantIds: normalizedGroupParticipants,
+        collaborationMode: payload.groupCollaborationMode || currentAssistant.groupCollaborationMode || 'auto',
+      })
+    }
+    else {
+      await api.saveAssistant({
+        id: assistantId,
+        name: nextName,
+        description: payload.capabilities?.trim() || null,
+        systemPrompt: payload.persona?.trim() || null,
+        skillIds: payload.skills?.length ? [...payload.skills] : [],
+      })
     }
 
-    mutateAssistant(assistantId, assistant => ({
-      ...assistant,
-      name: nextName,
-      badge: nextBadge,
-      persona: payload.persona?.trim() || undefined,
-      capabilities: payload.capabilities?.trim() || undefined,
-      skills: isGroupTemplate ? undefined : (payload.skills?.length ? [...payload.skills] : undefined),
-      groupParticipantAssistantIds: normalizedGroupParticipants,
-      groupCollaborationMode: isGroupTemplate ? (payload.groupCollaborationMode || currentAssistant.groupCollaborationMode || 'auto') : undefined,
-    }))
-
-    updateAssistantSessionDetails(assistantId, detail => ({
-      ...detail,
-      assistantName: nextName,
-      headerBadge: nextBadge,
-      messages: detail.messages.map(message => message.assistantName
-        ? { ...message, assistantName: nextName }
-        : message),
-      chatCards: detail.chatCards?.map(card => card.assistantId === assistantId
-        ? { ...card, assistantName: nextName, assistantBadge: nextBadge }
-        : card),
-    }))
-
+    await refreshBootstrap(activeSessionId.value)
     closeNewAssistant()
     return assistantId
   }
@@ -526,182 +457,79 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
     const targetAssistant = newSessionAssistant.value
     if (!targetAssistant)
       return null
-
-    const workspacePath = payload.workspacePath.trim() || targetAssistant.workspacePath || '~/Documents'
-    const isGroupSession = targetAssistant.status === '群聊'
+    
+    const workspacePath = targetAssistant.workspacePath?.trim() || payload.workspacePath.trim() || '~/Documents'
+    const isGroupSession = !!targetAssistant.groupParticipantAssistantIds?.length || !!targetAssistant.groupCollaborationMode
     const customTitle = payload.sessionTitle?.trim()
-    const title = customTitle || (isGroupSession ? `${targetAssistant.name}协作会话` : deriveSessionTitleFromWorkspace(workspacePath, targetAssistant.name))
+    const title = customTitle || (isGroupSession
+      ? `${targetAssistant.name}协作会话`
+      : deriveSessionTitleFromWorkspace(workspacePath, targetAssistant.name))
 
-    if (!IS_MOCK_MODE && provider.createSession) {
-      const result = await provider.createSession({
-        assistantId: isGroupSession ? '' : targetAssistant.id,
-        title,
-        workspacePath,
-        agentId: isGroupSession ? targetAssistant.id : undefined,
-      })
-      const createdDetail = updateSessionDetail({
-        ...result.session,
-        workspacePath: result.session.workspacePath || workspacePath,
-      })
-      const createdSession: StudioSession = {
-        id: createdDetail.id,
-        title: createdDetail.headerTitle || title,
-        time: '刚刚',
-        active: true,
-      }
-
-      mutateAssistant(targetAssistant.id, assistant => ({
-        ...assistant,
-        sessions: [createdSession, ...assistant.sessions.map(item => ({ ...item, active: false }))],
-      }))
-
-      activeSurface.value = 'main'
-      activeSessionId.value = createdDetail.id
-      workspaceOpen.value = false
-      closeNewSession()
-      markSessionActive(createdDetail.id)
-      return createdDetail.id
-    }
-
-    const sessionId = nanoid(10)
-    const session: StudioSession = {
-      id: sessionId,
+    const result = await provider.createSession!({
+      assistantId: isGroupSession ? '' : targetAssistant.id,
       title,
+      workspacePath,
+      agentId: isGroupSession ? targetAssistant.id : undefined,
+    })
+    const createdDetail = updateSessionDetail({
+      ...result.session,
+      workspacePath: result.session.workspacePath || workspacePath,
+    })
+    const createdSession: StudioSession = {
+      id: createdDetail.id,
+      title: createdDetail.headerTitle || title,
       time: '刚刚',
       active: true,
     }
 
     mutateAssistant(targetAssistant.id, assistant => ({
       ...assistant,
-      sessions: [session, ...assistant.sessions.map(item => ({ ...item, active: false }))],
-    }))
-
-    const participantAssistantIds = isGroupSession
-      ? (targetAssistant.groupParticipantAssistantIds?.length
-          ? [...targetAssistant.groupParticipantAssistantIds]
-          : newSessionParticipantCandidates.value.slice(0, 2).map(item => item.id))
-      : undefined
-    const collaborationMode = isGroupSession
-      ? (targetAssistant.groupCollaborationMode || 'auto')
-      : undefined
-
-    updateSessionDetail(createSessionDetailTemplate({
-      sessionId,
-      assistantId: targetAssistant.id,
-      assistantName: targetAssistant.name,
-      assistantBadge: targetAssistant.badge,
-      sessionTitle: title,
-      sessionTag: isGroupSession ? '群聊' : '运行中',
-      workspacePath,
-      mode: isGroupSession ? 'group' : 'regular',
-      coordinatorAssistantId: isGroupSession ? 'coordinator' : undefined,
-      collaborationMode,
-      participantAssistantIds,
+      sessions: [createdSession, ...assistant.sessions.map(item => ({ ...item, active: false }))],
     }))
 
     activeSurface.value = 'main'
-    activeSessionId.value = sessionId
+    activeSessionId.value = createdDetail.id
     workspaceOpen.value = false
     closeNewSession()
-    markSessionActive(sessionId)
-    return sessionId
+    markSessionActive(createdDetail.id)
+    return createdDetail.id
   }
 
   async function deleteSession(assistantId: string, sessionId: string) {
-    if (!IS_MOCK_MODE) {
-      await getOpencodeDesktopApi().deleteSession(sessionId)
-
-      mutateAssistant(assistantId, assistant => ({
-        ...assistant,
-        sessions: assistant.sessions.filter(session => session.id !== sessionId),
-      }))
-
-      sessionMap.value = Object.fromEntries(
-        Object.entries(sessionMap.value).filter(([key]) => key !== sessionId),
-      )
-
-      const nextSessionId = activeSessionId.value === sessionId
-        ? getFirstAvailableSessionId(assistantId)
-        : activeSessionId.value
-
-      return refreshBootstrap(nextSessionId)
-    }
-
+    await getOpencodeDesktopApi().deleteSession(sessionId)
     mutateAssistant(assistantId, assistant => ({
       ...assistant,
       sessions: assistant.sessions.filter(session => session.id !== sessionId),
     }))
-
     sessionMap.value = Object.fromEntries(
       Object.entries(sessionMap.value).filter(([key]) => key !== sessionId),
     )
-
     const nextSessionId = activeSessionId.value === sessionId
       ? getFirstAvailableSessionId(assistantId)
       : activeSessionId.value
-
-    activeSessionId.value = nextSessionId
-
-    if (!sessionMap.value[nextSessionId] && nextSessionId)
-      void loadSessionDetail(nextSessionId)
-
-    markSessionActive(nextSessionId)
-    return nextSessionId || null
+    return refreshBootstrap(nextSessionId)
   }
 
   async function deleteAssistant(assistantId: string) {
     const removedSessionIds = new Set(getAssistantSessionIds(assistantId))
+    const assistant = findAssistantById(assistantId)
+    if (!assistant)
+      return null
 
-    if (!IS_MOCK_MODE) {
-      const assistant = findAssistantById(assistantId)
-      if (!assistant)
-        return null
-
-      if (assistant.status === '群聊')
-        await getOpencodeDesktopApi().deleteGroupRoom(assistantId)
-      else
-        await getOpencodeDesktopApi().deleteAssistant(assistantId)
-
-      invitedAssistants.value = invitedAssistants.value.filter(id => id !== assistantId)
-      if (newSessionAssistantId.value === assistantId)
-        closeNewSession()
-      if (editingAssistantId.value === assistantId)
-        closeNewAssistant()
-
-      sessionMap.value = Object.fromEntries(
-        Object.entries(sessionMap.value).filter(([key]) => !removedSessionIds.has(key)),
-      )
-
-      return refreshBootstrap(removedSessionIds.has(activeSessionId.value) ? '' : activeSessionId.value)
-    }
-
-    assistantGroups.value = assistantGroups.value.map(group => ({
-      ...group,
-      assistants: group.assistants.filter(assistant => assistant.id !== assistantId),
-    }))
-
+    const isGroupTemplate = !!assistant.groupParticipantAssistantIds?.length || !!assistant.groupCollaborationMode
+    if (isGroupTemplate)
+      await getOpencodeDesktopApi().deleteGroupRoom(assistantId)
+    else
+      await getOpencodeDesktopApi().deleteAssistant(assistantId)
     invitedAssistants.value = invitedAssistants.value.filter(id => id !== assistantId)
-
     if (newSessionAssistantId.value === assistantId)
       closeNewSession()
     if (editingAssistantId.value === assistantId)
       closeNewAssistant()
-
     sessionMap.value = Object.fromEntries(
       Object.entries(sessionMap.value).filter(([key]) => !removedSessionIds.has(key)),
     )
-
-    const nextSessionId = removedSessionIds.has(activeSessionId.value)
-      ? getFirstAvailableSessionId()
-      : activeSessionId.value
-
-    activeSessionId.value = nextSessionId
-
-    if (!sessionMap.value[nextSessionId] && nextSessionId)
-      void loadSessionDetail(nextSessionId)
-
-    markSessionActive(nextSessionId)
-    return nextSessionId || null
+    return refreshBootstrap(removedSessionIds.has(activeSessionId.value) ? '' : activeSessionId.value)
   }
 
   function selectArtifact(artifactId: string) {
@@ -788,7 +616,7 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
   // Subscribe to opencode runtime events for real-time session updates.
   // This is the primary mechanism for receiving AI responses and message updates —
   // sendMessage only triggers async processing; results arrive via this event stream.
-  if (!IS_MOCK_MODE && typeof window !== 'undefined' && 'opencodeApi' in window) {
+  if (typeof window !== 'undefined' && 'opencodeApi' in window) {
     getOpencodeDesktopApi().onRuntimeEvent((rawEvent: unknown) => {
       const event = rawEvent as { type: string; properties: Record<string, unknown> }
       if (!event?.type) return

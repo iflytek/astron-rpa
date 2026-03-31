@@ -1,6 +1,14 @@
-import type { AssistantRecord, GroupRoomRecord } from '../../shared/assistants'
+import type { AssistantRecord, GroupRoomRecord, OpencodeSkillRecord } from '../../shared/assistants'
 import { getProviderDefinition } from '../../shared/provider-registry'
 import { SETTINGS_SCHEMA_URL, type PersistedAppSettings } from '../../shared/settings'
+import {
+  appendPromptSection,
+  buildAssistantDirectAgentName,
+  buildAssistantWorkerAgentName,
+  buildAssistantWorkspacePrompt,
+  buildGroupWorkspacePrompt,
+  buildRoomCoordinatorAgentName,
+} from './workspace-context'
 
 type NativeRuntimeProviderConfig = {
   options: {
@@ -25,7 +33,10 @@ export function buildRuntimeConfigContent(
   settings: PersistedAppSettings,
   assistants: AssistantRecord[] = [],
   groupRooms: GroupRoomRecord[] = [],
+  skills: OpencodeSkillRecord[] = [],
 ) {
+  const skillsById = new Map(skills.map(skill => [skill.id, skill]))
+  const skillsByName = new Map(skills.map(skill => [skill.name.trim(), skill]))
   const provider = Object.entries(settings.providers).reduce<Record<string, RuntimeProviderConfig>>(
     (result, [providerId, providerSettings]) => {
       if (!providerSettings?.apiKey) {
@@ -70,7 +81,7 @@ export function buildRuntimeConfigContent(
   const assistantsById = new Map(assistants.map((assistant) => [assistant.id, assistant]))
   const agent = {
     ...assistants.reduce<Record<string, Record<string, unknown>>>((result, assistant) => {
-      const shared = buildAssistantAgentBase(assistant)
+      const shared = buildAssistantAgentBase(assistant, skillsById, skillsByName)
       result[buildAssistantDirectAgentName(assistant.id)] = {
         ...shared,
         mode: 'all',
@@ -101,27 +112,21 @@ export function buildRuntimeConfigContent(
   return JSON.stringify(config)
 }
 
-export function buildAssistantDirectAgentName(assistantId: string) {
-  return `assistant-direct-${assistantId}`
-}
-
-export function buildAssistantWorkerAgentName(assistantId: string) {
-  return `assistant-worker-${assistantId}`
-}
-
-export function buildRoomCoordinatorAgentName(roomId: string) {
-  return `room-coordinator-${roomId}`
-}
-
-function buildAssistantAgentBase(assistant: AssistantRecord) {
+function buildAssistantAgentBase(
+  assistant: AssistantRecord,
+  skillsById: Map<string, OpencodeSkillRecord>,
+  skillsByName: Map<string, OpencodeSkillRecord>,
+) {
   return {
     ...(assistant.description ? { description: assistant.description } : {}),
-    ...(assistant.systemPrompt ? { prompt: assistant.systemPrompt } : {}),
+    ...(appendPromptSection(assistant.systemPrompt, buildAssistantWorkspacePrompt(assistant))
+      ? { prompt: appendPromptSection(assistant.systemPrompt, buildAssistantWorkspacePrompt(assistant)) }
+      : {}),
     ...(assistant.defaultModel
       ? { model: `${assistant.defaultModel.providerId}/${assistant.defaultModel.model}` }
       : {}),
     permission: {
-      skill: buildAssistantSkillPermission(assistant.skillIds),
+      skill: buildAssistantSkillPermission(assistant.skillIds, skillsById, skillsByName),
     },
   }
 }
@@ -162,6 +167,11 @@ function buildRoomCoordinatorPrompt(room: GroupRoomRecord, members: AssistantRec
     lines.push(room.coordinatorPrompt)
   }
 
+  const workspacePrompt = buildGroupWorkspacePrompt(room)
+  if (workspacePrompt) {
+    lines.push(workspacePrompt)
+  }
+
   lines.push('Delegate only when helpful. Prefer the fewest useful assistants.')
   lines.push('When delegating, use the task tool with these subagent types:')
   for (const assistant of members) {
@@ -172,18 +182,33 @@ function buildRoomCoordinatorPrompt(room: GroupRoomRecord, members: AssistantRec
   return lines.join('\n')
 }
 
-function buildAssistantSkillPermission(skillIds: string[]) {
+function buildAssistantSkillPermission(
+  skillIds: string[],
+  skillsById: Map<string, OpencodeSkillRecord>,
+  skillsByName: Map<string, OpencodeSkillRecord>,
+) {
   const permission: Record<string, 'allow' | 'deny'> = { '*': 'deny' }
 
-  for (const skillName of skillIds.map(extractSkillName).filter((value): value is string => Boolean(value))) {
+  for (const skillName of skillIds
+    .map(skillId => resolveSkillName(skillId, skillsById, skillsByName))
+    .filter((value): value is string => Boolean(value))) {
     permission[skillName] = 'allow'
   }
 
   return permission
 }
 
-function extractSkillName(skillId: string) {
-  const [skillName] = skillId.split('::', 1)
-  const normalized = skillName?.trim()
+function resolveSkillName(
+  skillId: string,
+  skillsById: Map<string, OpencodeSkillRecord>,
+  skillsByName: Map<string, OpencodeSkillRecord>,
+) {
+  const byId = skillsById.get(skillId)?.name?.trim()
+  if (byId) return byId
+
+  const byName = skillsByName.get(skillId)?.name?.trim()
+  if (byName) return byName
+
+  const normalized = skillId.trim()
   return normalized || null
 }

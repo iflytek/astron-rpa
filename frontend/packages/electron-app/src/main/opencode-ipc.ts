@@ -5,6 +5,7 @@ import {
   IPC_OPENCODE_CREATE_SESSION,
   IPC_OPENCODE_DELETE_ASSISTANT,
   IPC_OPENCODE_DELETE_GROUP_ROOM,
+  IPC_OPENCODE_DELETE_SKILL,
   IPC_OPENCODE_DELETE_SESSION,
   IPC_OPENCODE_GET_BOOTSTRAP,
   IPC_OPENCODE_GET_RUNTIME_STATUS,
@@ -13,6 +14,7 @@ import {
   IPC_OPENCODE_LIST_ASSISTANTS,
   IPC_OPENCODE_LIST_GROUP_ROOMS,
   IPC_OPENCODE_LIST_SKILLS,
+  IPC_OPENCODE_IMPORT_SKILL,
   IPC_OPENCODE_RUNTIME_EVENT,
   IPC_OPENCODE_SAVE_ASSISTANT,
   IPC_OPENCODE_SAVE_DEFAULT_MODEL,
@@ -32,6 +34,8 @@ import {
   toStudioSessionDetail,
   resolveDefaultSessionId,
 } from './opencode/adapter'
+import { scanWorkspaceArtifacts } from './opencode/workspace-scan'
+import { resolveSessionMessageContext, resolveSessionWorkspaceContext } from './opencode/workspace-context'
 import type { DesktopRuntimeEvent } from '../shared/sessions'
 
 type OpencodeIpcDeps = {
@@ -118,12 +122,32 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
   })
 
   ipcMain.handle(IPC_OPENCODE_GET_SESSION, async (_event, sessionId: string) => {
-    const [session, messages] = await Promise.all([
+    const [session, messages, assistants, groupRooms, assistantSessions, groupRoomSessions] = await Promise.all([
       api.getSession(sessionId),
       api.getSessionMessages(sessionId),
+      assistantStore.listAssistants(),
+      assistantStore.listGroupRooms(),
+      assistantStore.listAssistantSessions(),
+      assistantStore.listGroupRoomSessions(),
     ])
 
-    return toStudioSessionDetail(session, messages)
+    const workspaceContext = resolveSessionWorkspaceContext(
+      sessionId,
+      assistants,
+      groupRooms,
+      assistantSessions,
+      groupRoomSessions,
+    )
+    const workspacePath = workspaceContext.workspacePath?.trim() || session.directory
+    const workspaceSnapshot = workspacePath
+      ? await scanWorkspaceArtifacts(workspacePath)
+      : { workspaceFiles: [], artifacts: [] }
+
+    return toStudioSessionDetail(session, messages, undefined, undefined, {
+      workspacePath,
+      workspaceFiles: workspaceSnapshot.workspaceFiles,
+      artifacts: workspaceSnapshot.artifacts,
+    })
   })
 
   ipcMain.handle(
@@ -155,12 +179,42 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
 
   ipcMain.handle(
     IPC_OPENCODE_SEND_MESSAGE,
-    async (_event, payload: { sessionID: string; text: string; model?: string | null; providerId?: string | null }) => {
+    async (
+      _event,
+      payload: {
+        sessionID: string
+        text: string
+        attachments?: Array<{
+          id: string
+          name: string
+          mime: string
+          url: string
+        }>
+        model?: string | null
+        providerId?: string | null
+      },
+    ) => {
+      const [assistants, groupRooms, assistantSessions, groupRoomSessions] = await Promise.all([
+        assistantStore.listAssistants(),
+        assistantStore.listGroupRooms(),
+        assistantStore.listAssistantSessions(),
+        assistantStore.listGroupRoomSessions(),
+      ])
+      const context = resolveSessionMessageContext(
+        payload.sessionID,
+        assistants,
+        groupRooms,
+        assistantSessions,
+        groupRoomSessions,
+      )
       await api.sendMessage({
         sessionID: payload.sessionID,
         text: payload.text,
+        attachments: payload.attachments,
         model: payload.model ?? null,
         providerId: payload.providerId ?? null,
+        agent: context.agent ?? null,
+        system: context.system ?? null,
       })
       return { success: true }
     },
@@ -171,11 +225,15 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
   })
 
   ipcMain.handle(IPC_OPENCODE_SAVE_PROVIDER, async (_event, input: Parameters<SettingsStore['saveProvider']>[0]) => {
-    return settingsStore.saveProvider(input)
+    const result = await settingsStore.saveProvider(input)
+    await sidecar.restart()
+    return result
   })
 
   ipcMain.handle(IPC_OPENCODE_SAVE_DEFAULT_MODEL, async (_event, input: Parameters<SettingsStore['saveDefaultModel']>[0]) => {
-    return settingsStore.saveDefaultModel(input)
+    const result = await settingsStore.saveDefaultModel(input)
+    await sidecar.restart()
+    return result
   })
 
   ipcMain.handle(IPC_OPENCODE_LIST_ASSISTANTS, async () => {
@@ -183,11 +241,15 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
   })
 
   ipcMain.handle(IPC_OPENCODE_SAVE_ASSISTANT, async (_event, input: Parameters<AssistantStore['saveAssistant']>[0]) => {
-    return assistantStore.saveAssistant(input)
+    const result = await assistantStore.saveAssistant(input)
+    await sidecar.restart()
+    return result
   })
 
   ipcMain.handle(IPC_OPENCODE_DELETE_ASSISTANT, async (_event, id: string) => {
-    return assistantStore.deleteAssistant(id)
+    const result = await assistantStore.deleteAssistant(id)
+    await sidecar.restart()
+    return result
   })
 
   ipcMain.handle(IPC_OPENCODE_LIST_GROUP_ROOMS, async () => {
@@ -195,15 +257,27 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
   })
 
   ipcMain.handle(IPC_OPENCODE_SAVE_GROUP_ROOM, async (_event, input: Parameters<AssistantStore['saveGroupRoom']>[0]) => {
-    return assistantStore.saveGroupRoom(input)
+    const result = await assistantStore.saveGroupRoom(input)
+    await sidecar.restart()
+    return result
   })
 
   ipcMain.handle(IPC_OPENCODE_DELETE_GROUP_ROOM, async (_event, id: string) => {
-    return assistantStore.deleteGroupRoom(id)
+    const result = await assistantStore.deleteGroupRoom(id)
+    await sidecar.restart()
+    return result
   })
 
   ipcMain.handle(IPC_OPENCODE_LIST_SKILLS, async () => {
     return skillsService.getState()
+  })
+
+  ipcMain.handle(IPC_OPENCODE_IMPORT_SKILL, async () => {
+    return skillsService.importSkillFromDialog()
+  })
+
+  ipcMain.handle(IPC_OPENCODE_DELETE_SKILL, async (_event, skillId: string) => {
+    return skillsService.deleteSkill(skillId)
   })
 
   return {
@@ -225,6 +299,8 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
       ipcMain.removeHandler(IPC_OPENCODE_SAVE_GROUP_ROOM)
       ipcMain.removeHandler(IPC_OPENCODE_DELETE_GROUP_ROOM)
       ipcMain.removeHandler(IPC_OPENCODE_LIST_SKILLS)
+      ipcMain.removeHandler(IPC_OPENCODE_IMPORT_SKILL)
+      ipcMain.removeHandler(IPC_OPENCODE_DELETE_SKILL)
     },
   }
 }

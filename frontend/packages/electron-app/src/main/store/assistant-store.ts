@@ -23,6 +23,7 @@ export type SaveAssistantInput = {
   skillIds?: string[]
   toolIds?: string[]
   toolPolicy?: AssistantToolPolicy
+  workspacePath?: string | null
 }
 
 export type AssistantSessionCleanupResult = {
@@ -47,6 +48,7 @@ export type SaveGroupRoomInput = {
   memberAssistantIds?: string[]
   coordinatorPrompt?: string | null
   collaborationMode?: GroupRoomCollaborationMode
+  workspacePath?: string | null
 }
 
 export type AssistantStore = {
@@ -68,6 +70,7 @@ export type AssistantStore = {
 
 type AssistantStoreOptions = {
   storagePath: string | (() => string)
+  workspaceRoot?: string | (() => string)
   now?: () => number
   createId?: () => string
 }
@@ -87,17 +90,17 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
 
   return {
     listAssistants: async () => {
-      const state = await readStoreState(resolveStoragePath(options.storagePath))
+      const state = await loadStoreState(resolveStoragePath(options.storagePath))
       return cloneAssistants(state.assistants)
     },
     getAssistant: async (id) => {
-      const state = await readStoreState(resolveStoragePath(options.storagePath))
+      const state = await loadStoreState(resolveStoragePath(options.storagePath))
       return cloneAssistant(state.assistants.find((a) => a.id === id) ?? null)
     },
     saveAssistant: async (input) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const hasExplicitId = typeof input.id !== 'undefined'
         const requestedId = hasExplicitId ? normalizeRequiredText(input.id) : null
         const existingIndex = requestedId ? state.assistants.findIndex((a) => a.id === requestedId) : -1
@@ -108,8 +111,8 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
         }
 
         const assistant = existing
-          ? updateAssistant(existing, input, now)
-          : createAssistant(input, createId(), now)
+          ? updateAssistant(existing, input, now, resolveWorkspaceRoot(options.workspaceRoot))
+          : createAssistant(input, createId(), now, resolveWorkspaceRoot(options.workspaceRoot))
 
         if (existingIndex >= 0) {
           state.assistants[existingIndex] = assistant
@@ -118,13 +121,14 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
           state.assistants.push(assistant)
         }
 
+        await ensureWorkspaceDirectory(assistant.workspacePath)
         await writeStoreState(storagePath, state)
         return cloneAssistant(assistant)!
       }),
     deleteAssistant: async (id) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const assistantIndex = state.assistants.findIndex((a) => a.id === id)
         if (assistantIndex < 0) {
           return null
@@ -143,21 +147,21 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
         return { assistant: cloneAssistant(removed)!, removedSessions: cloneAssistantSessions(removedSessions) }
       }),
     listAssistantSessions: async () => {
-      const state = await readStoreState(resolveStoragePath(options.storagePath))
+      const state = await loadStoreState(resolveStoragePath(options.storagePath))
       return cloneAssistantSessions(state.assistantSessions)
     },
     listGroupRooms: async () => {
-      const state = await readStoreState(resolveStoragePath(options.storagePath))
+      const state = await loadStoreState(resolveStoragePath(options.storagePath))
       return cloneGroupRooms(state.groupRooms)
     },
     getGroupRoom: async (id) => {
-      const state = await readStoreState(resolveStoragePath(options.storagePath))
+      const state = await loadStoreState(resolveStoragePath(options.storagePath))
       return cloneGroupRoom(state.groupRooms.find((r) => r.id === id) ?? null)
     },
     saveGroupRoom: async (input) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const hasExplicitId = typeof input.id !== 'undefined'
         const requestedId = hasExplicitId ? normalizeRequiredText(input.id) : null
         const existingIndex = requestedId ? state.groupRooms.findIndex((r) => r.id === requestedId) : -1
@@ -167,7 +171,9 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
           throw new Error(`Unknown group room: ${requestedId}`)
         }
 
-        const room = existing ? updateGroupRoom(existing, input, now) : createGroupRoom(input, createId(), now)
+        const room = existing
+          ? updateGroupRoom(existing, input, now, resolveWorkspaceRoot(options.workspaceRoot))
+          : createGroupRoom(input, createId(), now, resolveWorkspaceRoot(options.workspaceRoot))
 
         if (existingIndex >= 0) {
           state.groupRooms[existingIndex] = room
@@ -176,13 +182,14 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
           state.groupRooms.push(room)
         }
 
+        await ensureWorkspaceDirectory(room.workspacePath)
         await writeStoreState(storagePath, state)
         return cloneGroupRoom(room)!
       }),
     deleteGroupRoom: async (id) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const roomIndex = state.groupRooms.findIndex((r) => r.id === id)
         if (roomIndex < 0) {
           return null
@@ -198,7 +205,7 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
         const normalizedRuntimeSessionId = normalizeRequiredText(runtimeSessionId)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const assistantExists = state.assistants.some((a) => a.id === assistantId)
         if (!assistantExists) {
           throw new Error(`Unknown assistant: ${assistantId}`)
@@ -222,14 +229,14 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
         return cloneAssistantSession(session)!
       }),
     listGroupRoomSessions: async () => {
-      const state = await readStoreState(resolveStoragePath(options.storagePath))
+      const state = await loadStoreState(resolveStoragePath(options.storagePath))
       return cloneGroupRoomSessions(state.groupRoomSessions)
     },
     attachGroupRoomSession: async (groupRoomId, runtimeSessionId, title) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
         const normalizedRuntimeSessionId = normalizeRequiredText(runtimeSessionId)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const roomExists = state.groupRooms.some((r) => r.id === groupRoomId)
         if (!roomExists) {
           throw new Error(`Unknown group room: ${groupRoomId}`)
@@ -255,7 +262,7 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
     cleanupMissingRuntimeSessions: async (runtimeSessionIds) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const liveIds = new Set(runtimeSessionIds.map((v) => v.trim()).filter(Boolean))
         const mappedIds = new Set(state.assistantSessions.map((s) => s.runtimeSessionId))
         const removed = state.assistantSessions.filter((s) => !liveIds.has(s.runtimeSessionId))
@@ -266,7 +273,7 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
     cleanupMissingGroupRoomSessions: async (runtimeSessionIds) =>
       runSerialized(async () => {
         const storagePath = resolveStoragePath(options.storagePath)
-        const state = await readStoreState(storagePath)
+        const state = await loadStoreState(storagePath)
         const liveIds = new Set(runtimeSessionIds.map((v) => v.trim()).filter(Boolean))
         const mappedIds = new Set(state.groupRoomSessions.map((s) => s.runtimeSessionId))
         const removed = state.groupRoomSessions.filter((s) => !liveIds.has(s.runtimeSessionId))
@@ -280,6 +287,14 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
     const nextTask = writeQueue.then(task, task)
     writeQueue = nextTask.then(() => undefined, () => undefined)
     return nextTask
+  }
+
+  async function loadStoreState(storagePath: string) {
+    const state = await readStoreState(storagePath)
+    const workspaceRoot = resolveWorkspaceRoot(options.workspaceRoot)
+    const normalized = assignMissingWorkspacePaths(state, workspaceRoot)
+    await ensureWorkspaceDirectories(normalized)
+    return normalized
   }
 }
 
@@ -308,6 +323,14 @@ async function writeStoreState(storagePath: string, state: PersistedAssistantSto
 
 function resolveStoragePath(storagePath: string | (() => string)) {
   return typeof storagePath === 'function' ? storagePath() : storagePath
+}
+
+function resolveWorkspaceRoot(workspaceRoot: string | (() => string) | undefined) {
+  if (!workspaceRoot) {
+    return null
+  }
+
+  return typeof workspaceRoot === 'function' ? workspaceRoot() : workspaceRoot
 }
 
 function validatePersistedStore(input: unknown): PersistedAssistantStore {
@@ -357,6 +380,7 @@ function validateAssistantRecord(input: unknown): AssistantRecord | null {
       skillIds: normalizeStringArray(input.skillIds),
       toolIds: normalizeStringArray(input.toolIds),
       toolPolicy: validateToolPolicy(input.toolPolicy),
+      workspacePath: normalizeNullableText(input.workspacePath) ?? undefined,
       createdAt: normalizeRequiredText(input.createdAt),
       updatedAt: normalizeRequiredText(input.updatedAt),
     }
@@ -389,6 +413,7 @@ function validateGroupRoomRecord(input: unknown, validAssistantIds: Set<string>)
       memberAssistantIds: normalizeStringArray(input.memberAssistantIds).filter((id) => validAssistantIds.has(id)),
       coordinatorPrompt: normalizeNullableText(input.coordinatorPrompt),
       collaborationMode: validateCollaborationMode(input.collaborationMode),
+      workspacePath: normalizeNullableText(input.workspacePath) ?? undefined,
       createdAt: normalizeRequiredText(input.createdAt),
       updatedAt: normalizeRequiredText(input.updatedAt),
     }
@@ -433,7 +458,7 @@ function createEmptyStore(): PersistedAssistantStore {
   return { version: 1, assistants: [], assistantSessions: [], groupRooms: [], groupRoomSessions: [] }
 }
 
-function createAssistant(input: SaveAssistantInput, id: string, now: () => number): AssistantRecord {
+function createAssistant(input: SaveAssistantInput, id: string, now: () => number, workspaceRoot: string | null): AssistantRecord {
   const timestamp = isoTimestamp(now())
   const name = normalizeRequiredText(input.name)
   if (!name) throw new Error('Assistant name is required')
@@ -448,15 +473,17 @@ function createAssistant(input: SaveAssistantInput, id: string, now: () => numbe
     skillIds: normalizeStringArray(input.skillIds),
     toolIds: normalizeStringArray(input.toolIds),
     toolPolicy: validateToolPolicy(input.toolPolicy),
+    workspacePath: resolveWorkspacePathInput(input.workspacePath, workspaceRoot, 'assistants', name, id),
     createdAt: timestamp,
     updatedAt: timestamp,
   }
 }
 
-function updateAssistant(existing: AssistantRecord, input: SaveAssistantInput, now: () => number): AssistantRecord {
+function updateAssistant(existing: AssistantRecord, input: SaveAssistantInput, now: () => number, workspaceRoot: string | null): AssistantRecord {
+  const nextName = normalizeNullableText(input.name) ?? existing.name
   return {
     ...existing,
-    name: normalizeNullableText(input.name) ?? existing.name,
+    name: nextName,
     description: typeof input.description === 'undefined' ? existing.description : normalizeNullableText(input.description),
     avatar: typeof input.avatar === 'undefined' ? existing.avatar : normalizeNullableText(input.avatar),
     color: typeof input.color === 'undefined' ? existing.color : normalizeNullableText(input.color),
@@ -465,11 +492,12 @@ function updateAssistant(existing: AssistantRecord, input: SaveAssistantInput, n
     skillIds: typeof input.skillIds === 'undefined' ? existing.skillIds : normalizeStringArray(input.skillIds),
     toolIds: typeof input.toolIds === 'undefined' ? existing.toolIds : normalizeStringArray(input.toolIds),
     toolPolicy: validateToolPolicy(input.toolPolicy ?? existing.toolPolicy),
+    workspacePath: resolveWorkspacePathInput(input.workspacePath, workspaceRoot, 'assistants', nextName, existing.id, existing.workspacePath),
     updatedAt: isoTimestamp(now()),
   }
 }
 
-function createGroupRoom(input: SaveGroupRoomInput, id: string, now: () => number): GroupRoomRecord {
+function createGroupRoom(input: SaveGroupRoomInput, id: string, now: () => number, workspaceRoot: string | null): GroupRoomRecord {
   const timestamp = isoTimestamp(now())
   const name = normalizeRequiredText(input.name)
   if (!name) throw new Error('Group room name is required')
@@ -480,21 +508,114 @@ function createGroupRoom(input: SaveGroupRoomInput, id: string, now: () => numbe
     memberAssistantIds: normalizeStringArray(input.memberAssistantIds),
     coordinatorPrompt: normalizeNullableText(input.coordinatorPrompt),
     collaborationMode: validateCollaborationMode(input.collaborationMode),
+    workspacePath: resolveWorkspacePathInput(input.workspacePath, workspaceRoot, 'groups', name, id),
     createdAt: timestamp,
     updatedAt: timestamp,
   }
 }
 
-function updateGroupRoom(existing: GroupRoomRecord, input: SaveGroupRoomInput, now: () => number): GroupRoomRecord {
+function updateGroupRoom(existing: GroupRoomRecord, input: SaveGroupRoomInput, now: () => number, workspaceRoot: string | null): GroupRoomRecord {
+  const nextName = normalizeNullableText(input.name) ?? existing.name
   return {
     ...existing,
-    name: normalizeNullableText(input.name) ?? existing.name,
+    name: nextName,
     description: typeof input.description === 'undefined' ? existing.description : normalizeNullableText(input.description),
     memberAssistantIds: typeof input.memberAssistantIds === 'undefined' ? existing.memberAssistantIds : normalizeStringArray(input.memberAssistantIds),
     coordinatorPrompt: typeof input.coordinatorPrompt === 'undefined' ? existing.coordinatorPrompt : normalizeNullableText(input.coordinatorPrompt),
     collaborationMode: validateCollaborationMode(input.collaborationMode ?? existing.collaborationMode),
+    workspacePath: resolveWorkspacePathInput(input.workspacePath, workspaceRoot, 'groups', nextName, existing.id, existing.workspacePath),
     updatedAt: isoTimestamp(now()),
   }
+}
+
+function resolveWorkspacePathInput(
+  input: string | null | undefined,
+  workspaceRoot: string | null,
+  category: 'assistants' | 'groups',
+  name: string,
+  id: string,
+  existingPath?: string,
+) {
+  const explicit = normalizeNullableText(input)
+  if (explicit) {
+    return explicit
+  }
+
+  if (existingPath?.trim()) {
+    return existingPath
+  }
+
+  if (!workspaceRoot) {
+    return undefined
+  }
+
+  return buildWorkspacePath(workspaceRoot, category, name, id)
+}
+
+function assignMissingWorkspacePaths(state: PersistedAssistantStore, workspaceRoot: string | null) {
+  if (!workspaceRoot) {
+    return state
+  }
+
+  state.assistants = state.assistants.map((assistant) => {
+    if (assistant.workspacePath?.trim()) {
+      return assistant
+    }
+
+    return {
+      ...assistant,
+      workspacePath: buildWorkspacePath(workspaceRoot, 'assistants', assistant.name, assistant.id),
+    }
+  })
+
+  state.groupRooms = state.groupRooms.map((room) => {
+    if (room.workspacePath?.trim()) {
+      return room
+    }
+
+    return {
+      ...room,
+      workspacePath: buildWorkspacePath(workspaceRoot, 'groups', room.name, room.id),
+    }
+  })
+
+  return state
+}
+
+function buildWorkspacePath(
+  workspaceRoot: string,
+  category: 'assistants' | 'groups',
+  name: string,
+  id: string,
+) {
+  return path.join(workspaceRoot, category, `${sanitizeWorkspaceSegment(name)}-${sanitizeWorkspaceSegment(id)}`)
+}
+
+function sanitizeWorkspaceSegment(value: string) {
+  const sanitized = value
+    .trim()
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '-')
+    .replace(/[. ]+$/g, '')
+    .replace(/\s+/g, ' ')
+
+  return sanitized || 'workspace'
+}
+
+async function ensureWorkspaceDirectories(state: PersistedAssistantStore) {
+  const workspacePaths = [
+    ...state.assistants.map((assistant) => assistant.workspacePath),
+    ...state.groupRooms.map((room) => room.workspacePath),
+  ].filter((value): value is string => Boolean(value?.trim()))
+
+  await Promise.all([...new Set(workspacePaths)].map((workspacePath) => mkdir(workspacePath, { recursive: true })))
+}
+
+async function ensureWorkspaceDirectory(workspacePath: string | undefined) {
+  if (!workspacePath?.trim()) {
+    return
+  }
+
+  await mkdir(workspacePath, { recursive: true })
 }
 
 function normalizeDefaultModelInput(input: AssistantModelOverride | null | undefined): AssistantModelOverride | null {

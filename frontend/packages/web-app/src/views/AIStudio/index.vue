@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { DEFAULT_AI_STUDIO_SESSION_ID } from './contracts'
 import AutomationTaskView from './components/AutomationTaskView.vue'
 import ArtifactPanel from './components/ArtifactPanel.vue'
 import InviteAssistantModal from './components/InviteAssistantModal.vue'
@@ -17,7 +16,7 @@ import { useAIStudioStore } from '@/stores/useAIStudioStore'
 const route = useRoute()
 const router = useRouter()
 const aiStudioStore = useAIStudioStore()
-const routeDefaultSessionId = typeof window !== 'undefined' && 'opencodeApi' in window ? '' : DEFAULT_AI_STUDIO_SESSION_ID
+const routeDefaultSessionId = ''
 const { activeSession, activeSurface, assistantModalMode, assistantTemplateKind, editingAssistant, invitedAssistants, isActiveSessionPending, isAiTyping, newSessionAssistant, newSessionParticipantCandidates, showInviteAssistant, showNewAssistant, showNewSession, workspaceOpen } = storeToRefs(aiStudioStore)
 const groupTemplateParticipants = computed(() => {
   const assistant = newSessionAssistant.value

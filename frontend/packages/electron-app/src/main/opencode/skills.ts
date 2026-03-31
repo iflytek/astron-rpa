@@ -1,78 +1,59 @@
-import { access, cp, mkdir, stat } from 'node:fs/promises'
-import { homedir } from 'node:os'
+﻿import { access, cp, mkdir, readFile, readdir, rm, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { dialog } from 'electron'
 
 import { createLogger } from './logging'
 import type { OpencodeSkillRecord, RuntimeSkillDiscoveryState } from '../../shared/assistants'
-import type { SidecarManager } from './sidecar'
-
-type BundledSkillInfo = {
-  name?: unknown
-  description?: unknown
-  location?: unknown
-  content?: unknown
-}
 
 export type RuntimeSkillsService = {
   listSkills: () => Promise<RuntimeSkillDiscoveryState>
   getState: () => Promise<RuntimeSkillDiscoveryState>
-  importSkillFromDialog: (input: { scope: 'global' | 'project'; projectRoot?: string | null }) => Promise<{
+  importSkillFromDialog: () => Promise<{
+    skillId: string
     importedName: string
     destinationPath: string
-    scope: 'global' | 'project'
   }>
+  deleteSkill: (skillId: string) => Promise<{ success: boolean }>
 }
 
 const logger = createLogger('runtime-skills')
 
-export function createRuntimeSkillsService(runtime: Pick<SidecarManager, 'getConnection'>): RuntimeSkillsService {
+export function createRuntimeSkillsService(options: { getManagedRoot: () => string }): RuntimeSkillsService {
   return {
     listSkills: getState,
     getState,
     importSkillFromDialog,
+    deleteSkill,
   }
 
   async function getState(): Promise<RuntimeSkillDiscoveryState> {
+    const storageRoot = resolveManagedSkillsRoot(options.getManagedRoot())
     try {
-      const connection = await runtime.getConnection()
-      const url = new URL('/skill', connection.baseUrl)
-      const response = await fetch(url, {
-        headers: { ...connection.headers, accept: 'application/json' },
-        method: 'GET',
-      })
-
-      if (!response.ok) {
-        throw new Error(`Bundled runtime skill discovery failed (${response.status} ${response.statusText})`)
-      }
-
-      const payload = (await response.json()) as unknown
-      if (!Array.isArray(payload)) {
-        throw new Error('Bundled runtime skill discovery returned an unexpected payload.')
-      }
-
+      const skills = await listManagedSkills(storageRoot)
       return {
-        skills: mapRuntimeSkills(payload),
+        skills,
         unavailable: false,
         error: null,
+        storageRoot,
       }
     }
     catch (error) {
       logger.warn(
-        'bundled runtime skill discovery unavailable; returning empty skill list',
+        'managed skill discovery unavailable; returning empty skill list',
         error instanceof Error ? error : String(error),
       )
       return {
         skills: [],
         unavailable: true,
         error: error instanceof Error ? error.message : String(error),
+        storageRoot,
       }
     }
   }
 
-  async function importSkillFromDialog(input: { scope: 'global' | 'project'; projectRoot?: string | null }) {
+  async function importSkillFromDialog() {
     const selection = await dialog.showOpenDialog({
-      title: input.scope === 'global' ? '导入全局技能' : '导入项目技能',
+      title: '导入技能',
       buttonLabel: '选择技能文件夹',
       properties: ['openDirectory'],
     })
@@ -82,85 +63,115 @@ export function createRuntimeSkillsService(runtime: Pick<SidecarManager, 'getCon
     }
 
     const sourcePath = selection.filePaths[0]!
-    const importedName = path.basename(sourcePath)
-    const destinationRoot = resolveSkillDestinationRoot(input)
-    const destinationPath = path.join(destinationRoot, importedName)
-
     await assertSkillDirectory(sourcePath)
+
+    const metadata = await readSkillMetadata(sourcePath)
+    const importedName = metadata.name || path.basename(sourcePath)
+    const skillId = slugifySkillName(importedName)
+    const destinationRoot = resolveManagedSkillsRoot(options.getManagedRoot())
+    const destinationPath = path.join(destinationRoot, skillId)
+
     await mkdir(destinationRoot, { recursive: true })
-    await assertDestinationAvailable(destinationPath)
+    await assertSkillCanBeImported(destinationRoot, importedName, skillId)
     await cp(sourcePath, destinationPath, { recursive: true, errorOnExist: true, force: false })
 
-    logger.info('skill imported', { importedName, destinationPath, scope: input.scope })
+    logger.info('skill imported', { importedName, destinationPath, skillId })
 
-    return { importedName, destinationPath, scope: input.scope }
+    return { importedName, destinationPath, skillId }
+  }
+
+  async function deleteSkill(skillId: string) {
+    const normalizedId = normalizeText(skillId)
+    if (!normalizedId) {
+      throw new Error('技能 ID 不能为空')
+    }
+
+    const destinationRoot = resolveManagedSkillsRoot(options.getManagedRoot())
+    const skillPath = path.join(destinationRoot, normalizedId)
+    const existing = await stat(skillPath).catch(() => null)
+    if (!existing?.isDirectory()) {
+      throw new Error(`未找到技能：${normalizedId}`)
+    }
+
+    await rm(skillPath, { recursive: true, force: false })
+    logger.info('skill deleted', { skillId: normalizedId, skillPath })
+    return { success: true }
   }
 }
 
-function mapRuntimeSkills(skills: BundledSkillInfo[]): OpencodeSkillRecord[] {
+export async function listManagedSkills(storageRoot: string): Promise<OpencodeSkillRecord[]> {
+  await mkdir(storageRoot, { recursive: true })
+  const entries = await readdir(storageRoot, { withFileTypes: true })
+  const skills = await Promise.all(
+    entries
+      .filter(entry => entry.isDirectory())
+      .map(async (entry) => {
+        const directoryPath = path.join(storageRoot, entry.name)
+        const metadata = await readSkillMetadata(directoryPath).catch(() => null)
+        if (!metadata?.name) {
+          return null
+        }
+
+        return {
+          id: entry.name,
+          type: 'opencode_skill' as const,
+          name: metadata.name,
+          description: metadata.description || 'No description provided.',
+          source: 'global' as const,
+        }
+      }),
+  )
+
   return skills
-    .map((skill) => normalizeRuntimeSkill(skill))
     .filter((skill): skill is OpencodeSkillRecord => Boolean(skill))
     .sort((left, right) => left.name.localeCompare(right.name))
 }
 
-function normalizeRuntimeSkill(skill: BundledSkillInfo): OpencodeSkillRecord | null {
-  const name = normalizeText(skill.name)
-  const description = normalizeText(skill.description)
-  const location = normalizeText(skill.location)
-
-  if (!name || !description || !location) {
-    return null
-  }
-
-  return {
-    id: `${name}::${location.replace(/\\/g, '/').trim().toLowerCase()}`,
-    type: 'opencode_skill',
-    name,
-    description,
-    source: inferSkillSource(location),
-  }
+function resolveManagedSkillsRoot(managedRoot: string) {
+  return path.join(managedRoot, '.agents', 'skills')
 }
 
-function inferSkillSource(location: string): OpencodeSkillRecord['source'] {
-  const normalizedLocation = location.replace(/\\/g, '/').toLowerCase()
+async function readSkillMetadata(skillDirectoryPath: string) {
+  const skillFilePath = path.join(skillDirectoryPath, 'SKILL.md')
+  const raw = await readFile(skillFilePath, 'utf8')
+  const frontmatter = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/m)?.[1] || ''
+  const heading = raw.match(/^#\s+(.+)$/m)?.[1] || ''
 
-  if (normalizedLocation.includes('/cache/skills/') || normalizedLocation.startsWith('cache/skills/')) {
-    return 'remote'
-  }
+  const name = normalizeFrontmatterValue(frontmatter.match(/^name:\s*(.+)$/m)?.[1]) || normalizeText(heading) || path.basename(skillDirectoryPath)
+  const description = normalizeFrontmatterValue(frontmatter.match(/^description:\s*(.+)$/m)?.[1]) || null
 
-  if (/^[a-z]+:\/\//.test(normalizedLocation)) {
-    return 'remote'
-  }
-
-  if (normalizedLocation.includes('/.claude/skills/') || normalizedLocation.includes('/.agents/skills/')) {
-    return 'global'
-  }
-
-  return 'project'
+  return { name, description }
 }
 
 function normalizeText(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
-function resolveSkillDestinationRoot(input: { scope: 'global' | 'project'; projectRoot?: string | null }) {
-  if (input.scope === 'global') {
-    return path.join(homedir(), '.agents', 'skills')
-  }
+function normalizeFrontmatterValue(value: unknown) {
+  const normalized = normalizeText(value)
+  if (!normalized) return null
+  return normalized.replace(/^['"]|['"]$/g, '').trim() || null
+}
 
-  const projectRoot = normalizeText(input.projectRoot)
-  if (!projectRoot) {
-    throw new Error('当前没有可用的项目工作区，无法导入项目技能。')
-  }
+function normalizeSkillName(value: string) {
+  return value.trim().replace(/\s+/g, ' ').toLocaleLowerCase()
+}
 
-  return path.join(projectRoot, '.agents', 'skills')
+function slugifySkillName(value: string) {
+  const normalized = value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9\u4E00-\u9FFF]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLocaleLowerCase()
+
+  return normalized || 'skill'
 }
 
 async function assertSkillDirectory(sourcePath: string) {
   const sourceStat = await stat(sourcePath).catch(() => null)
   if (!sourceStat?.isDirectory()) {
-    throw new Error('请选择一个包含 SKILL.md 的技能文件夹。')
+    throw new Error('请选择包含 SKILL.md 的技能文件夹')
   }
 
   const skillFilePath = path.join(sourcePath, 'SKILL.md')
@@ -168,13 +179,20 @@ async function assertSkillDirectory(sourcePath: string) {
     await access(skillFilePath)
   }
   catch {
-    throw new Error('所选文件夹中没有找到 SKILL.md，无法导入为技能。')
+    throw new Error('所选文件夹中没有找到 SKILL.md，无法导入为技能')
   }
 }
 
-async function assertDestinationAvailable(destinationPath: string) {
+async function assertSkillCanBeImported(destinationRoot: string, skillName: string, skillId: string) {
+  const existingSkills = await listManagedSkills(destinationRoot)
+  const normalizedName = normalizeSkillName(skillName)
+  if (existingSkills.some(skill => normalizeSkillName(skill.name) === normalizedName)) {
+    throw new Error(`已存在同名技能：${skillName}`)
+  }
+
+  const destinationPath = path.join(destinationRoot, skillId)
   const existing = await stat(destinationPath).catch(() => null)
   if (existing) {
-    throw new Error(`目标位置已经存在同名技能：${path.basename(destinationPath)}`)
+    throw new Error(`已存在同名技能目录：${skillId}`)
   }
 }

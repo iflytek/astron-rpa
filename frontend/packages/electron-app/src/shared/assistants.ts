@@ -17,6 +17,7 @@ export type AssistantRecord = {
   skillIds: string[]
   toolIds: string[]
   toolPolicy: AssistantToolPolicy
+  workspacePath?: string
   createdAt: string
   updatedAt: string
 }
@@ -37,6 +38,7 @@ export type GroupRoomRecord = {
   memberAssistantIds: string[]
   coordinatorPrompt: string | null
   collaborationMode: GroupRoomCollaborationMode
+  workspacePath?: string
   createdAt: string
   updatedAt: string
 }
@@ -62,4 +64,5 @@ export type RuntimeSkillDiscoveryState = {
   skills: OpencodeSkillRecord[]
   unavailable: boolean
   error: string | null
+  storageRoot?: string | null
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { message } from 'ant-design-vue'
 import {
   AtSign,
   Check,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-vue-next'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
+import { utilsManager } from '@/platform'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
@@ -23,7 +25,7 @@ import StudioChatCardRenderer from './StudioChatCardRenderer.vue'
 import MarkdownMessage from './MarkdownMessage.vue'
 import MessageActions from './MessageActions.vue'
 
-import type { StudioChatCard, StudioSessionDetail } from '../types'
+import type { StudioChatCard, StudioMessage, StudioMessageAttachment, StudioSessionDetail } from '../types'
 
 const props = defineProps<{
   session: StudioSessionDetail
@@ -37,7 +39,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'open-invite'): void
-  (e: 'send-message', payload: { content: string, attachments: string[], mentions?: string[], skills?: string[] }): void
+  (e: 'send-message', payload: { content: string, attachments: StudioMessageAttachment[], mentions?: string[], skills?: string[] }): void
   (e: 'submit-choice', payload: { cardId: string, optionId: string }): void
   (e: 'submit-param', payload: { cardId: string, values: Record<string, string> }): void
   (e: 'submit-action', payload: { cardId: string, actionId: string }): void
@@ -78,10 +80,46 @@ interface TaskProgressStrip {
   steps: TaskProgressStep[]
 }
 
+type ComposerAttachment = StudioMessageAttachment
+
+const TEXT_LIKE_EXTENSIONS = new Set([
+  'c',
+  'cc',
+  'cpp',
+  'cs',
+  'css',
+  'go',
+  'h',
+  'hpp',
+  'html',
+  'ini',
+  'java',
+  'js',
+  'jsx',
+  'log',
+  'md',
+  'mjs',
+  'py',
+  'rb',
+  'rs',
+  'scss',
+  'sh',
+  'sql',
+  'svg',
+  'toml',
+  'ts',
+  'tsx',
+  'txt',
+  'vue',
+  'xml',
+  'yaml',
+  'yml',
+])
+
 const choiceValues = reactive<Record<string, string>>({})
 const paramValues = reactive<Record<string, Record<string, string>>>({})
 const draft = ref('')
-const localAttachments = ref<string[]>([])
+const localAttachments = ref<ComposerAttachment[]>([])
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const activeTrigger = ref<ComposerTriggerState | null>(null)
 const activeMenuIndex = ref(0)
@@ -569,24 +607,107 @@ function cardNameTone(card: StudioChatCard) {
   return 'text-[#726FFF]'
 }
 
-function attachmentPool() {
-  if (props.session.id.startsWith('office'))
-    return ['meeting-notes.md', 'sales-weekly.xlsx', 'follow-up-email.eml']
-  if (props.session.id.startsWith('code'))
-    return ['error-log.txt', 'login-page.png', 'trace-export.json']
-  if (props.session.id.startsWith('data'))
-    return ['weekly-growth.xlsx', 'channel-breakdown.csv', 'retention-cohort.png']
-  return ['Q3_finance_data.xlsx', 'budget_detail.csv', 'review-note.docx']
+function extractFileName(filePath: string) {
+  return filePath.split(/[/\\]/).filter(Boolean).pop() || filePath
 }
 
-function addAttachment() {
-  const next = attachmentPool().find(item => !localAttachments.value.includes(item))
-  if (next)
-    localAttachments.value.push(next)
+function toFileUrl(filePath: string) {
+  const normalized = filePath.replace(/\\/g, '/')
+  if (/^[A-Za-z]:/.test(normalized))
+    return encodeURI(`file:///${normalized}`)
+  if (normalized.startsWith('/'))
+    return encodeURI(`file://${normalized}`)
+  return encodeURI(normalized)
 }
 
-function removeAttachment(name: string) {
-  localAttachments.value = localAttachments.value.filter(item => item !== name)
+function guessMimeType(fileName: string) {
+  const extension = fileName.split('.').pop()?.toLowerCase() || ''
+  if (extension === 'png')
+    return 'image/png'
+  if (extension === 'jpg' || extension === 'jpeg')
+    return 'image/jpeg'
+  if (extension === 'gif')
+    return 'image/gif'
+  if (extension === 'webp')
+    return 'image/webp'
+  if (extension === 'json')
+    return 'application/json'
+  if (extension === 'csv')
+    return 'text/csv'
+  if (extension === 'pdf')
+    return 'application/pdf'
+  if (extension === 'xlsx')
+    return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  if (extension === 'xls')
+    return 'application/vnd.ms-excel'
+  if (extension === 'docx')
+    return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  if (extension === 'eml')
+    return 'message/rfc822'
+  if (TEXT_LIKE_EXTENSIONS.has(extension))
+    return extension === 'md' ? 'text/markdown' : 'text/plain'
+  return 'application/octet-stream'
+}
+
+function isSupportedAttachmentMime(mime: string) {
+  return mime !== 'application/octet-stream'
+}
+
+function createAttachment(filePath: string, index = 0): ComposerAttachment | null {
+  const name = extractFileName(filePath)
+  const mime = guessMimeType(name)
+  if (!isSupportedAttachmentMime(mime))
+    return null
+  return {
+    id: `attachment-${Date.now()}-${index}-${name}`,
+    name,
+    mime,
+    url: toFileUrl(filePath),
+  }
+}
+
+async function addAttachment() {
+  if (utilsManager.getAppEnv() === 'browser') {
+    return
+  }
+
+  const selectedPaths = await utilsManager.showDialog({
+    file_type: 'files',
+    multiple: true,
+  })
+  if (!selectedPaths?.length)
+    return
+
+  const unsupportedNames: string[] = []
+  const nextAttachments = selectedPaths
+    .map((filePath, index) => {
+      const attachment = createAttachment(filePath, index)
+      if (!attachment)
+        unsupportedNames.push(extractFileName(filePath))
+      return attachment
+    })
+    .filter((attachment): attachment is ComposerAttachment => !!attachment)
+    .filter(attachment => !localAttachments.value.some(current => current.url === attachment.url))
+
+  if (nextAttachments.length)
+    localAttachments.value = [...localAttachments.value, ...nextAttachments]
+
+  if (unsupportedNames.length) {
+    message.error(`暂不支持这些附件类型：${unsupportedNames.join('、')}`)
+  }
+}
+
+function removeAttachment(attachmentId: string) {
+  localAttachments.value = localAttachments.value.filter(item => item.id !== attachmentId)
+}
+
+function startEditingMessage(message: StudioMessage) {
+  draft.value = message.content
+  localAttachments.value = message.attachments ? [...message.attachments] : []
+  activeTrigger.value = null
+  activeMenuIndex.value = 0
+  dismissedTriggerSignature.value = ''
+  focusTextarea()
 }
 
 function resolvePendingActionId(card: StudioChatCard) {
@@ -600,33 +721,28 @@ function resolvePendingActionId(card: StudioChatCard) {
 function sendMessage() {
   if (!canSend.value || props.sessionPending)
     return
-
+  const unsupportedAttachment = displayedAttachments.value.find(attachment => !isSupportedAttachmentMime(attachment.mime))
+  if (unsupportedAttachment) {
+    message.error(`附件 ${unsupportedAttachment.name} 的类型暂不支持发送`)
+    return
+  }
   const mentions = selectedMentionOptions.value.map(option => option.id)
   const skills = selectedSkillOptions.value.map(option => option.id)
-  const attachmentSummary = displayedAttachments.value.length
-    ? `已附带：${displayedAttachments.value.join('、')}`
-    : ''
-
-  const content = [draft.value.trim(), attachmentSummary].filter(Boolean).join('。')
-
   emit('send-message', {
-    content,
+    content: draft.value.trim(),
     attachments: [...displayedAttachments.value],
     mentions,
     skills,
   })
-
   draft.value = ''
   localAttachments.value = []
   activeTrigger.value = null
   activeMenuIndex.value = 0
   dismissedTriggerSignature.value = ''
-
   nextTick(() => {
     resizeTextarea()
   })
 }
-
 function sendSuggestedPrompt(content: string) {
   if (props.sessionPending)
     return
@@ -817,14 +933,31 @@ function onDraftKeydown(event: KeyboardEvent) {
         </div>
 
         <template v-for="item in displayedTimeline" :key="item.id">
-          <div v-if="item.kind === 'user-message'" class="flex flex-col items-end gap-1">
-            <div data-testid="user-message-bubble" class="rounded-t-[18px] rounded-bl-[18px] rounded-br-[6px] bg-[linear-gradient(180deg,rgba(244,243,255,0.9)_0%,rgba(238,240,255,0.82)_100%)] px-4 py-2.5 shadow-[0_6px_14px_rgba(114,111,255,0.05)]" :class="isGroupSession() ? 'max-w-[56%]' : 'max-w-[58%]'">
+          <div v-if="item.kind === 'user-message'" class="chat-row__stack flex flex-col items-end gap-1">
+            <div v-if="item.message.attachments?.length" class="flex max-w-[58%] flex-wrap justify-end gap-1.5">
+              <div
+                v-for="attachment in item.message.attachments"
+                :key="attachment.id"
+                class="flex items-center gap-1 rounded-full bg-[rgba(255,255,255,0.78)] px-2.5 py-1 shadow-[0_6px_14px_rgba(15,23,42,0.03)]"
+              >
+                <FileText class="h-3 w-3 text-black/38" />
+                <div class="max-w-[220px] truncate text-[11px] leading-4 text-black/56">{{ attachment.name }}</div>
+              </div>
+            </div>
+            <div
+              v-if="item.message.content.trim()"
+              data-testid="user-message-bubble"
+              class="rounded-t-[18px] rounded-bl-[18px] rounded-br-[6px] bg-[linear-gradient(180deg,rgba(244,243,255,0.9)_0%,rgba(238,240,255,0.82)_100%)] px-4 py-2.5 shadow-[0_6px_14px_rgba(114,111,255,0.05)]"
+              :class="isGroupSession() ? 'max-w-[56%]' : 'max-w-[58%]'"
+            >
               <MarkdownMessage :content="item.message.content" tone="user" />
             </div>
             <MessageActions
               :message-id="item.message.id"
               :content="item.message.content"
               tone="user"
+              editable
+              @edit="startEditingMessage(item.message)"
             />
           </div>
           <div v-else class="flex flex-col gap-1.5">
@@ -956,14 +1089,14 @@ function onDraftKeydown(event: KeyboardEvent) {
           : 'bg-[rgba(255,255,255,0.58)] shadow-[0_12px_30px_rgba(15,23,42,0.028),inset_0_0_0_1px_rgba(236,240,248,0.72)]'"
       >
         <div v-if="displayedAttachments.length > 0" class="mb-2.5 flex flex-wrap items-center gap-1.5">
-          <div v-for="attachment in displayedAttachments" :key="attachment" class="flex items-center gap-1 rounded-full bg-[rgba(255,255,255,0.72)] px-2.5 py-1">
+          <div v-for="attachment in displayedAttachments" :key="attachment.id" class="flex items-center gap-1 rounded-full bg-[rgba(255,255,255,0.72)] px-2.5 py-1">
             <FileText class="h-3 w-3 text-black/38" />
-            <div class="text-[11px] leading-4 text-black/56">{{ attachment }}</div>
-            <button class="text-black/26 transition-colors hover:text-black/42" @click="removeAttachment(attachment)">
+            <div class="max-w-[220px] truncate text-[11px] leading-4 text-black/56">{{ attachment.name }}</div>
+            <button type="button" class="text-black/26 transition-colors hover:text-black/42" @click="removeAttachment(attachment.id)">
               <X class="h-3 w-3" />
             </button>
           </div>
-          <button class="flex items-center gap-1 rounded-full bg-[rgba(255,255,255,0.64)] px-2.5 py-1 transition-colors hover:bg-[rgba(255,255,255,0.88)]" @click="addAttachment">
+          <button type="button" class="flex items-center gap-1 rounded-full bg-[rgba(255,255,255,0.64)] px-2.5 py-1 transition-colors hover:bg-[rgba(255,255,255,0.88)]" @click="void addAttachment()">
             <Plus class="h-3 w-3 text-black/34" />
             <div class="text-[11px] leading-4 text-black/40">添加附件</div>
           </button>
@@ -1096,7 +1229,7 @@ function onDraftKeydown(event: KeyboardEvent) {
               <span>@ 提及</span>
             </Button>
 
-            <Button variant="ghost" size="icon" class="h-8 w-8 rounded-full border-0 bg-[rgba(255,255,255,0.72)] text-black/56 shadow-none hover:bg-[rgba(255,255,255,0.96)] hover:text-[#726FFF] hover:translate-y-0" @click="addAttachment">
+            <Button variant="ghost" size="icon" class="h-8 w-8 rounded-full border-0 bg-[rgba(255,255,255,0.72)] text-black/56 shadow-none hover:bg-[rgba(255,255,255,0.96)] hover:text-[#726FFF] hover:translate-y-0" @click="void addAttachment()">
               <Paperclip class="h-3.5 w-3.5" />
             </Button>
 

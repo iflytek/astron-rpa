@@ -1,6 +1,7 @@
 import type { AssistantRecord, GroupRoomRecord } from '../../shared/assistants'
 import type {
   OpencodeAssistantMessage,
+  OpencodeFilePart,
   OpencodeMessageRecord,
   OpencodeSessionInfo,
   OpencodeTextPart,
@@ -42,9 +43,17 @@ export type StudioMessage = {
   id: string
   role: 'user' | 'assistant' | 'system'
   content: string
+  attachments?: StudioMessageAttachment[]
   time?: string
   assistantName?: string
   order?: number
+}
+
+export type StudioMessageAttachment = {
+  id: string
+  name: string
+  mime: string
+  url: string
 }
 
 export type StudioToolCall = {
@@ -107,6 +116,12 @@ export type StudioSessionDetail = {
   inputPlaceholder?: string
 }
 
+type StudioWorkspaceSnapshot = {
+  workspacePath?: string
+  workspaceFiles?: StudioWorkspaceFile[]
+  artifacts?: StudioArtifact[]
+}
+
 export type AIStudioBootstrap = {
   assistantGroups: StudioAssistantGroup[]
   defaultSessionId: string
@@ -120,6 +135,89 @@ function formatRelativeTime(epochMs: number) {
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours}小时前`
   return `${Math.floor(hours / 24)}天前`
+}
+
+function getBaseName(value: string) {
+  const normalized = value.replace(/\\/g, '/')
+  const segments = normalized.split('/').filter(Boolean)
+  return segments[segments.length - 1] || value
+}
+
+function toStudioMessageAttachment(part: OpencodeFilePart): StudioMessageAttachment {
+  return {
+    id: part.id,
+    name: part.filename?.trim() || getBaseName(part.url),
+    mime: part.mime,
+    url: part.url,
+  }
+}
+
+function isToolNarrationText(text: string) {
+  const normalized = text.trim()
+  if (!normalized) return false
+
+  return /^Called the [\w -]+ tool with the following input:\s*[\s\S]+$/i.test(normalized)
+}
+
+function parseToolNarrationText(text: string) {
+  const normalized = text.trim()
+  const match = normalized.match(/^Called the ([\w -]+) tool with the following input:\s*([\s\S]+)$/i)
+  if (!match) return null
+
+  return {
+    name: match[1]!.trim().replace(/\s+/g, '-').toLowerCase(),
+    rawName: match[1]!.trim(),
+    rawInput: match[2]!.trim(),
+  }
+}
+
+function extractToolArgument(rawInput: string) {
+  try {
+    const parsed = JSON.parse(rawInput) as Record<string, unknown>
+    const filePath = typeof parsed.filePath === 'string' ? parsed.filePath.trim() : ''
+    const path = typeof parsed.path === 'string' ? parsed.path.trim() : ''
+    const target = filePath || path
+    if (target) return target
+    return JSON.stringify(parsed, null, 2)
+  }
+  catch {
+    return rawInput
+  }
+}
+
+function parseSyntheticFileContext(text: string) {
+  const normalized = text.trim()
+  const pathMatch = normalized.match(/<path>([\s\S]*?)<\/path>/i)
+  const typeMatch = normalized.match(/<type>([\s\S]*?)<\/type>/i)
+  const contentMatch = normalized.match(/<content>([\s\S]*?)<\/content>/i)
+
+  if (!pathMatch && !contentMatch) return null
+
+  const filePath = pathMatch?.[1]?.trim() || ''
+  const fileType = typeMatch?.[1]?.trim() || ''
+  const content = contentMatch?.[1]?.trim() || ''
+
+  return { filePath, fileType, content }
+}
+
+function summarizeSyntheticFileContext(textParts: OpencodeTextPart[], targetPath: string) {
+  const contexts = textParts
+    .map(part => parseSyntheticFileContext(part.text))
+    .filter((value): value is NonNullable<ReturnType<typeof parseSyntheticFileContext>> => !!value)
+
+  const targetNormalized = targetPath.trim().toLowerCase()
+  const match = contexts.find((item) => {
+    const filePath = item.filePath.trim().toLowerCase()
+    return filePath && targetNormalized && filePath === targetNormalized
+  }) || contexts[0]
+
+  if (!match) return undefined
+
+  const name = match.filePath ? getBaseName(match.filePath) : '附件'
+  const lineCount = match.content ? match.content.split(/\r?\n/).filter(Boolean).length : 0
+  const suffix = lineCount > 0 ? `，共 ${lineCount} 行` : ''
+  const typeLabel = match.fileType ? `${match.fileType} ` : ''
+  return `已读取${typeLabel}${name}${suffix}`
 }
 
 function getAssistantBadge(assistant: AssistantRecord): string {
@@ -151,7 +249,7 @@ export function toStudioAssistantGroups(
       name: assistant.name,
       badge: getAssistantBadge(assistant),
       status: '待命',
-      workspacePath: undefined,
+      workspacePath: assistant.workspacePath,
       persona: assistant.systemPrompt ?? undefined,
       capabilities: assistant.description ?? undefined,
       skills: assistant.skillIds.length ? [...assistant.skillIds] : undefined,
@@ -178,6 +276,7 @@ export function toStudioAssistantGroups(
       id: room.id,
       name: room.name,
       badge: getGroupRoomBadge(room),
+      workspacePath: room.workspacePath,
       status: '群聊',
       persona: room.coordinatorPrompt ?? undefined,
       capabilities: room.description ?? undefined,
@@ -245,6 +344,7 @@ export function toStudioSessionDetail(
   messageRecords: OpencodeMessageRecord[],
   assistantName: string = 'AI 助手',
   assistantBadge: string = 'AI',
+  workspaceSnapshot?: StudioWorkspaceSnapshot,
 ): StudioSessionDetail {
   const messages: StudioMessage[] = []
   const chatCards: StudioChatCard[] = []
@@ -258,12 +358,43 @@ export function toStudioSessionDetail(
     const { info, parts } = record
 
     if (info.role === 'user') {
-      const textPart = parts.find((p): p is OpencodeTextPart => p.type === 'text')
-      if (textPart?.text?.trim()) {
+      const visibleTextParts = parts.filter((p): p is OpencodeTextPart => p.type === 'text' && !p.synthetic && !p.ignored)
+      const syntheticTextParts = parts.filter((p): p is OpencodeTextPart => p.type === 'text' && !!p.synthetic && !p.ignored)
+      const fileParts = parts.filter((p): p is OpencodeFilePart => p.type === 'file')
+      const content = visibleTextParts.map(part => part.text.trim()).filter(Boolean).join('\n').trim()
+      if (content || fileParts.length > 0) {
         messages.push({
           id: info.id,
           role: 'user',
-          content: textPart.text,
+          content,
+          attachments: fileParts.length ? fileParts.map(toStudioMessageAttachment) : undefined,
+          time: formatRelativeTime(info.time.created),
+          order: seq++,
+        })
+      }
+
+      const syntheticToolCalls: StudioToolCall[] = syntheticTextParts
+        .map((part) => {
+          const narration = parseToolNarrationText(part.text)
+          if (!narration) return null
+
+          const arg = extractToolArgument(narration.rawInput)
+          return {
+            name: narration.name,
+            arg,
+            status: 'done' as const,
+            detail: `${narration.rawName} tool 调用`,
+            result: summarizeSyntheticFileContext(syntheticTextParts, arg),
+          }
+        })
+        .filter((value): value is StudioToolCall => !!value)
+
+      if (syntheticToolCalls.length > 0) {
+        chatCards.push({
+          id: `${info.id}-synthetic-tools`,
+          type: 'tool-call-list',
+          calls: syntheticToolCalls,
+          assistantName,
           time: formatRelativeTime(info.time.created),
           order: seq++,
         })
@@ -276,7 +407,11 @@ export function toStudioSessionDetail(
       const timeStr = formatRelativeTime(info.time.created)
 
       const toolParts = parts.filter((p): p is OpencodeToolPart => p.type === 'tool')
-      const textParts = parts.filter((p): p is OpencodeTextPart => p.type === 'text' && !p.synthetic && !p.ignored)
+      const textParts = parts.filter((p): p is OpencodeTextPart => {
+        if (p.type !== 'text' || p.synthetic || p.ignored) return false
+        if (toolParts.length > 0 && isToolNarrationText(p.text)) return false
+        return true
+      })
 
       if (toolParts.length > 0) {
         const calls: StudioToolCall[] = toolParts.map((tp) => {
@@ -344,11 +479,11 @@ export function toStudioSessionDetail(
     headerTag: '运行中',
     headerBadge: assistantBadge,
     assistantName,
-    workspacePath: session.directory,
+    workspacePath: workspaceSnapshot?.workspacePath || session.directory,
     inputPlaceholder: '向 AI 助手发送消息…',
     messages,
     chatCards,
-    workspaceFiles: [],
-    artifacts: [],
+    workspaceFiles: workspaceSnapshot?.workspaceFiles ? [...workspaceSnapshot.workspaceFiles] : [],
+    artifacts: workspaceSnapshot?.artifacts ? [...workspaceSnapshot.artifacts] : [],
   }
 }

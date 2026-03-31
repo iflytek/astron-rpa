@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { DEFAULT_AI_STUDIO_SESSION_ID } from '@/views/AIStudio/contracts'
 import AIStudioSidebar from '@/views/AIStudio/components/AssistantSidebar.vue'
 
 import MarketSiderMenu from '@/components/MarketSiderMenu.vue'
@@ -25,7 +24,7 @@ const { assistantGroups } = storeToRefs(aiStudioStore)
 
 const isMarket = computed(() => route.matched[0].name === APPLICATIONMARKET)
 const isAIStudio = computed(() => route.matched[0].name === AIASSISTANT)
-const routeDefaultSessionId = typeof window !== 'undefined' && 'opencodeApi' in window ? '' : DEFAULT_AI_STUDIO_SESSION_ID
+const routeDefaultSessionId = ''
 const activeSessionId = computed(() => String(route.query.sessionId || routeDefaultSessionId))
 
 async function handleSelectSession(_assistantId: string, sessionId: string) {

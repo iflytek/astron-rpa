@@ -55,12 +55,20 @@ export interface StudioMessage {
   id: string
   role: 'user' | 'assistant' | 'system'
   content: string
+  attachments?: StudioMessageAttachment[]
   time?: string
   assistantName?: string
   order?: number
   originRole?: 'coordinator' | 'participant' | 'system'
   participantAssistantId?: string
   taskId?: string
+}
+
+export interface StudioMessageAttachment {
+  id: string
+  name: string
+  mime: string
+  url: string
 }
 
 export type StudioToolStatus = 'done' | 'running' | 'pending' | 'failed'
@@ -429,7 +437,7 @@ export interface StudioSessionDetail {
   promptDescription?: string
   options?: StudioOption[]
   confirmLabel?: string
-  attachments?: string[]
+  attachments?: StudioMessageAttachment[]
   inputPlaceholder?: string
   workspacePath?: string
   chartTitle?: string

@@ -27,6 +27,7 @@ globalThis.MainWindowLoaded = false
 const settingsStore = createSettingsStore()
 const assistantStore = createAssistantStore({
   storagePath: () => path.join(app.getPath('userData'), 'opencode-assistants.json'),
+  workspaceRoot: () => path.join(app.getPath('userData'), 'opencode', 'workspaces'),
 })
 const sidecar = createSidecarManager({
   getConfigContent: async () => {
@@ -34,7 +35,8 @@ const sidecar = createSidecarManager({
       const settings = await settingsStore.getStoredSettings()
       const assistants = await assistantStore.listAssistants()
       const groupRooms = await assistantStore.listGroupRooms()
-      return buildRuntimeConfigContent(settings, assistants, groupRooms)
+      const skills = await skillsService.getState()
+      return buildRuntimeConfigContent(settings, assistants, groupRooms, skills.skills)
     }
     catch {
       return null
@@ -44,7 +46,9 @@ const sidecar = createSidecarManager({
 const api = createRuntimeApi(sidecar)
 const sessionStore = createSessionStore(api)
 const eventStream = createRuntimeEventStream(api)
-const skillsService = createRuntimeSkillsService(sidecar)
+const skillsService = createRuntimeSkillsService({
+  getManagedRoot: () => path.join(app.getPath('userData'), 'opencode'),
+})
 
 registerOpencodeIpc({ sidecar, api, eventStream, skillsService, assistantStore, settingsStore, sessionStore })
 

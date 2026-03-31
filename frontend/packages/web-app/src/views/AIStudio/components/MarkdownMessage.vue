@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import MarkdownIt from 'markdown-it'
 
 const props = defineProps<{
@@ -36,8 +36,8 @@ const renderedHtml = computed(() => {
 
 const containerRef = ref<HTMLDivElement>()
 
-onMounted(() => {
-  // 为代码块添加复制按钮
+async function enhanceCodeBlocks() {
+  await nextTick()
   if (!containerRef.value) return
 
   const codeBlocks = containerRef.value.querySelectorAll('pre code')
@@ -47,6 +47,7 @@ onMounted(() => {
 
     const button = document.createElement('button')
     button.className = 'code-copy-btn'
+    button.type = 'button'
     button.textContent = '复制'
     button.onclick = async () => {
       const code = block.textContent || ''
@@ -70,7 +71,11 @@ onMounted(() => {
     wrapper.appendChild(pre)
     wrapper.insertBefore(button, pre)
   })
-})
+}
+
+watch(renderedHtml, () => {
+  void enhanceCodeBlocks()
+}, { immediate: true })
 </script>
 
 <template>
@@ -87,6 +92,13 @@ onMounted(() => {
   font-size: 13px;
   line-height: 1.6;
   color: #343A52;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.markdown-message :deep(*) {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .markdown-message.is-user {
@@ -159,8 +171,18 @@ onMounted(() => {
   border-radius: 6px;
   cursor: pointer;
   color: #5a5a5a;
-  transition: all 0.15s;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
   z-index: 1;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.markdown-message :deep(.code-block-wrapper:hover .code-copy-btn),
+.markdown-message :deep(.code-block-wrapper:focus-within .code-copy-btn) {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .markdown-message :deep(.code-copy-btn:hover) {
@@ -182,6 +204,8 @@ onMounted(() => {
   font-size: 0.85em;
   line-height: 1.5;
   display: block;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* 引用 */

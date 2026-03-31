@@ -1,12 +1,11 @@
 import type {
   StudioAssistantGroup,
+  StudioMessageAttachment,
   StudioRunEvent,
   StudioRunSyncMode,
   StudioSessionDetail,
   StudioSessionRun,
 } from './types'
-
-export const DEFAULT_AI_STUDIO_SESSION_ID = 'finance-q3'
 
 export interface AIStudioBootstrap {
   assistantGroups: StudioAssistantGroup[]
@@ -16,7 +15,7 @@ export interface AIStudioBootstrap {
 export interface AIStudioSendMessagePayload {
   sessionId: string
   content: string
-  attachments?: string[]
+  attachments?: StudioMessageAttachment[]
   mentions?: string[]
   skills?: string[]
 }
