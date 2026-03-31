@@ -6,6 +6,7 @@ import subprocess
 import sys
 import time
 import warnings
+from pathlib import Path
 
 import psutil
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
@@ -16,13 +17,65 @@ from astronverse.software.error import *
 
 if sys.platform == "win32":
     from astronverse.software.core_win import SoftwareCore
+elif sys.platform == "darwin":
+    from astronverse.software.core_mac import SoftwareCore
 elif platform.system() == "Linux":
     from astronverse.software.core_unix import SoftwareCore
 else:
-    raise NotImplementedError(f"Your platform ({platform.system()}) is not supported by (clipboard).")
+    raise NotImplementedError(f"Your platform ({platform.system()}) is not supported by software.")
 
 SoftwareCore: ISoftwareCore = SoftwareCore()
 system_encoding = locale.getpreferredencoding()
+
+
+def _normalize_process_names(*names: str) -> list[str]:
+    normalized_names = []
+    seen = set()
+    for name in names:
+        if not name:
+            continue
+        candidates = [name.strip()]
+        if name.endswith(".app"):
+            candidates.append(name[: -len(".app")].strip())
+        for candidate in candidates:
+            if candidate and candidate not in seen:
+                seen.add(candidate)
+                normalized_names.append(candidate)
+    return normalized_names
+
+
+def _is_macos_app_bundle(app_absolute_path: str) -> bool:
+    return sys.platform == "darwin" and app_absolute_path.lower().endswith(".app")
+
+
+def _build_open_command(app_absolute_path: str, app_arguments: str) -> list[str]:
+    app_args = shlex.split(app_arguments)
+    if _is_macos_app_bundle(app_absolute_path):
+        command = ["open", "-a", app_absolute_path]
+        if app_args:
+            command.extend(["--args", *app_args])
+        return command
+    return [app_absolute_path, *app_args]
+
+
+def _close_process_by_name(process_name: str):
+    subprocess.run(
+        ["pkill", "-x", process_name],
+        check=False,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+
+def _close_macos_app(app_absolute_path: str):
+    app_name = Path(app_absolute_path).name
+
+    # macOS app bundles are launched via LaunchServices. Bundle names and
+    # process names do not always align exactly, so keep the matching logic
+    # isolated here and refine it after validation on a real Mac.
+    for process_name in _normalize_process_names(app_name):
+        _close_process_by_name(process_name)
 
 
 class Software:
@@ -57,7 +110,7 @@ class Software:
 
         warnings.filterwarnings("ignore", category=ResourceWarning)
         process = subprocess.Popen(
-            [app_absolute_path] + shlex.split(app_arguments),
+            _build_open_command(app_absolute_path, app_arguments),
             start_new_session=True,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
@@ -114,14 +167,10 @@ class Software:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
+            elif sys.platform == "darwin":
+                _close_macos_app(app_absolute_path)
             else:
-                subprocess.run(
-                    ["pkill", exe_name],
-                    check=False,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                _close_process_by_name(exe_name)
         except Exception as e:
             logger.error(f"error: Software close {e}")
             return
@@ -145,18 +194,21 @@ class Software:
         :param parent_name: 软件的父级名称
         :return:
         """
+        app_names = _normalize_process_names(app_name)
+        parent_names = _normalize_process_names(parent_name)
+
         for process in psutil.process_iter():
             try:
-                if process.name() != app_name:
+                if app_names and process.name() not in app_names:
                     continue
 
-                if not parent_name:
+                if not parent_names:
                     return process.pid
 
                 for parent in process.parents():
-                    if parent.name() == parent_name:
+                    if parent.name() in parent_names:
                         return process.pid
-            except Exception as e:
+            except Exception:
                 pass
         return -1
 
