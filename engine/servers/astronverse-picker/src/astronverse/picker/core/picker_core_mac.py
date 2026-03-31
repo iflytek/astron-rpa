@@ -143,7 +143,12 @@ class PickerCore(IPickerCore):
         pick_type = data.get("pick_type")
         if pick_type == PickerType.POINT:
             return {"point": {"x": self.last_point.x, "y": self.last_point.y}, "version": "1"}
-        elif pick_type in [PickerType.WINDOW, PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
+        elif pick_type == PickerType.WINDOW:
+            with self.lock:
+                if self.last_element:
+                    return AXUIOperate.build_window_pick(self.last_element.element)
+                return {}
+        elif pick_type in [PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
             with self.lock:
                 if self.last_element:
                     return self.last_element.path(svc, self.last_strategy_svc)

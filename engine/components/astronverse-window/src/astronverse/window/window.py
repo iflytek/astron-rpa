@@ -11,10 +11,12 @@ from astronverse.window.error import *
 
 if sys.platform == "win32":
     from astronverse.window.core_win import WindowsCore
+elif sys.platform == "darwin":
+    from astronverse.window.core_mac import WindowsCore
 elif platform.system() == "Linux":
     from astronverse.window.core_unix import WindowsCore
 else:
-    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "clipboard"))
+    raise NotImplementedError("Your platform (%s) is not supported by (%s)." % (platform.system(), "window"))
 
 WindowsCore: IWindowsCore = WindowsCore()
 
