@@ -604,24 +604,32 @@ class AXUIOperate:
                 app_name = ""
 
         window_name = _window_like_title(app_window)
-        window_class = (
-            _ax_attr(app_window, "AXSubrole")
-            or _ax_attr(app_window, "AXRole")
-            or ""
-        )
+        window_role = _ax_attr(app_window, "AXRole") or ""
+        window_class = _ax_attr(app_window, "AXSubrole") or window_role or ""
+        window_tag_name = str(window_role).replace("AX", "") if window_role else ""
+        window_rect = _ax_to_rect(app_window)
 
-        return {
+        result = {
             "version": "1",
-            "elementData": {
-                "app": app_name,
-                "path": [
-                    {
-                        "name": window_name,
-                        "cls": window_class,
-                    }
-                ],
-            },
+            "type": PickerDomain.UIA.value,
+            "app": app_name,
+            "path": [
+                {
+                    "tag_name": window_tag_name,
+                    "cls": window_class,
+                    "name": window_name,
+                    "checked": True,
+                    "disable_keys": [],
+                }
+            ],
         }
+
+        if window_rect is not None:
+            result["img"] = {
+                "self": screenshot(window_rect),
+            }
+
+        return result
 
     @classmethod
     def get_web_control(cls, element: Any, app: APP = None, point: Point = None) -> tuple[bool, int, int, Any]:
