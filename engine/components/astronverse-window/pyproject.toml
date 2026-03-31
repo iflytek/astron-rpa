@@ -8,7 +8,11 @@ dependencies = [
     "astronverse-actionlib",
     "pywin32; sys_platform == 'win32'",
     "uiautomation; sys_platform == 'win32'",
-    "dogtail; sys_platform == 'linux'"
+    "dogtail; sys_platform == 'linux'",
+    "pyobjc-core; sys_platform == 'darwin'",
+    "pyobjc-framework-AppKit; sys_platform == 'darwin'",
+    "pyobjc-framework-ApplicationServices; sys_platform == 'darwin'",
+    "pyobjc-framework-Quartz; sys_platform == 'darwin'"
 ]
 
 [tool.uv.sources]
