@@ -11,6 +11,7 @@ import pyperclip
 import requests
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.baseline.logger.logger import logger
+from astronverse.cua.error import BizException, UNKNOWN_RESPONSE_FORMAT
 
 # 电脑 GUI 任务场景的提示词模板
 COMPUTER_USE_PROMPT = """You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.  
@@ -186,23 +187,6 @@ Analyze context (screenshots and action history), then:
 API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/cua/chat".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
-CUA_DEBUG_PREFIX = "CUA_DEBUG::"
-CUA_DEBUG_CONFIG_PATH = Path.cwd() / ".cua_debug_config.json"
-CUA_DEBUG_STREAM_PATH = Path.cwd() / ".cua_debug_stream.jsonl"
-
-
-def resolve_debug_stream_path() -> Path:
-    try:
-        if CUA_DEBUG_CONFIG_PATH.exists():
-            config = json.loads(CUA_DEBUG_CONFIG_PATH.read_text(encoding="utf-8"))
-            stream_path = config.get("streamPath")
-            if stream_path:
-                return Path(stream_path)
-    except Exception:
-        pass
-
-    return CUA_DEBUG_STREAM_PATH
-
 
 
 class CustomActionScreen:
@@ -211,15 +195,18 @@ class CustomActionScreen:
     def __init__(
         self,
         max_steps: int = 20,
+        temperature: float = 0.0,
     ):
         """
         初始化Agent
 
         Args:
             max_steps: 最大执行步数
+            temperature: 模型温度参数
         """
 
         self.max_steps = max_steps
+        self.temperature = temperature
 
         # 设置截图目录
         self.screenshot_dir = Path(tempfile.mkdtemp(prefix="cua_agent_"))
@@ -238,24 +225,6 @@ class CustomActionScreen:
         self.max_history_rounds = 3
 
         logger.info(f"[初始化] 截图保存目录: {self.screenshot_dir}")
-
-    def emit_debug_event(self, event: str, **payload) -> None:
-        debug_payload = {"event": event, **payload}
-        debug_payload = {key: value for key, value in debug_payload.items() if value not in (None, "", [], {})}
-        debug_message = f"{CUA_DEBUG_PREFIX}{json.dumps(debug_payload, ensure_ascii=False)}"
-        logger.info(debug_message)
-        print(debug_message, flush=True)
-
-    def emit_realtime_text_log(self, message: str) -> None:
-        print(f"[CUA_DEBUG] {message}", flush=True)
-
-    def append_debug_stream(self, event: str, **payload) -> None:
-        stream_payload = {"event": event, "timestamp": datetime.now().isoformat(), **payload}
-        stream_payload = {key: value for key, value in stream_payload.items() if value not in (None, "", [], {})}
-        stream_path = resolve_debug_stream_path()
-        stream_path.parent.mkdir(parents=True, exist_ok=True)
-        with stream_path.open("a", encoding="utf-8") as file:
-            file.write(json.dumps(stream_payload, ensure_ascii=False) + "\n")
 
     def take_screenshot(self) -> tuple[str, str]:
         """
@@ -369,12 +338,8 @@ class CustomActionScreen:
                 # 原格式
                 return response_json["choices"][0]["message"]["content"]
             else:
-                raise ValueError("未知的响应格式")
-
-        except requests.exceptions.RequestException as e:
-            logger.info(f"请求错误: {e}")
-            return None
-        except KeyError:
+                raise BizException(UNKNOWN_RESPONSE_FORMAT, "未知的响应格式")
+        except Exception as e:
             logger.info("响应格式不正确")
             return None
 
@@ -401,7 +366,7 @@ class CustomActionScreen:
             if not isinstance(actions, list):
                 actions = [actions]
 
-            thought, param, action_type = "", "", ""
+            thought, param = "", ""
 
             # 执行每个动作
             for action in actions:
@@ -528,20 +493,20 @@ class CustomActionScreen:
                     # 处理数据返回动作
                     data = param.get("data", None)
                     print(f"[执行动作] 返回数据: {data}")
-                    return True, thought, param, action_type
+                    return True, thought, param
                     # 数据类型动作不需要特殊处理，只需要记录
 
                 elif action_type == "finished":
                     # 处理完成动作
                     print("[执行动作] 任务完成")
-                    return True, thought, param, action_type
+                    return True, thought, param
 
                 elif action_type == "error":
                     # 处理错误动作
                     reason = param.get("reason", "未知错误")
                     print(f"[执行动作] 错误: {reason}")
                     # 根据 prompt 中的说明，遇到 error 动作时应该终止任务
-                    return True, thought, param, action_type
+                    return True, thought, param
 
                 else:
                     print(f"[执行动作] 未知动作类型: {action_type}")
@@ -549,14 +514,14 @@ class CustomActionScreen:
                 # 每个动作后等待一小段时间
                 time.sleep(0.5)
 
-            return False, thought, param, action_type  # 未完成，继续循环
+            return False, thought, param  # 未完成，继续循环
 
         except Exception as e:
             print(f"[错误] 执行动作时出错: {e}")
             import traceback
 
             traceback.print_exc()
-            return False, "", e, ""
+            return False, "", e
 
     def run(self, instruction: str) -> dict:
         """
@@ -570,9 +535,6 @@ class CustomActionScreen:
         logger.info(f"{'=' * 60}")
         logger.info(f"[任务开始] {instruction}")
         logger.info(f"{'=' * 60}\n")
-        self.emit_debug_event("start", status="running", instruction=instruction, message="debug_started")
-        self.emit_realtime_text_log("Debug started")
-        self.append_debug_stream("start", instruction=instruction, status="running", message="Debug started")
 
         step = 0
         thought = ""
@@ -622,26 +584,7 @@ class CustomActionScreen:
                 # 3. 执行动作
                 logger.info("执行动作...")
 
-                is_finished, thought, param, action_type = self.execute_action(response, image_height, image_width)
-                self.emit_debug_event(
-                    "step",
-                    step=step,
-                    status="running",
-                    thought=thought,
-                    screenshot=screenshot_path,
-                    action_type=action_type,
-                )
-                self.emit_realtime_text_log(
-                    f'Step {step}: {thought or action_type or "running"}'
-                )
-                self.append_debug_stream(
-                    "step",
-                    step=step,
-                    thought=thought,
-                    action_type=action_type,
-                    screenshot=screenshot_path,
-                    status="running",
-                )
+                is_finished, thought, param = self.execute_action(response, image_height, image_width)
 
                 if is_finished:
                     logger.info("=" * 60)
@@ -649,9 +592,6 @@ class CustomActionScreen:
                     logger.info(f"总步骤数: {step}")
                     logger.info(f"总耗时: {time.time() - start_time:.2f}秒")
                     logger.info("=" * 60)
-                    self.emit_debug_event("finish", step=step, status="success", message="run_finished")
-                    self.emit_realtime_text_log("Run finished")
-                    self.append_debug_stream("finish", step=step, status="success", message="Run finished")
                     return {
                         "success": True,
                         "steps": step,
@@ -670,9 +610,6 @@ class CustomActionScreen:
             logger.info(f"总步骤数: {step}")
             logger.info(f"总耗时: {time.time() - start_time:.2f}秒")
             logger.info("=" * 60)
-            self.emit_debug_event("finish", step=step, status="max_steps", message="max_steps_reached")
-            self.emit_realtime_text_log("Max steps reached")
-            self.append_debug_stream("finish", step=step, status="max_steps", message="Max steps reached")
             return {
                 "success": False,
                 "steps": step,
@@ -684,9 +621,6 @@ class CustomActionScreen:
             }
         except KeyboardInterrupt:
             logger.info("\n\n[任务中断] 用户手动停止")
-            self.emit_debug_event("finish", step=step, status="manual_stop", message="debug_stopped")
-            self.emit_realtime_text_log("Debug stopped")
-            self.append_debug_stream("finish", step=step, status="manual_stop", message="Debug stopped")
             return {
                 "success": False,
                 "steps": step,
@@ -698,9 +632,6 @@ class CustomActionScreen:
             }
         except Exception as e:
             logger.info(f"\n\n[任务失败] 发生错误: {e}")
-            self.emit_debug_event("error", step=step, status="error", error=str(e), message="run_failed")
-            self.emit_realtime_text_log(f"Run failed: {e}")
-            self.append_debug_stream("error", step=step, status="error", error=str(e), message=f"Run failed: {e}")
             return {
                 "success": False,
                 "steps": step,
@@ -714,113 +645,3 @@ class CustomActionScreen:
             # 设置PyAutoGUI安全设置
             pyautogui.FAILSAFE = current_failsafe  # 鼠标移到左上角会触发异常停止
             pyautogui.PAUSE = current_pause  # 每个操作之间暂停0.5秒
-
-    def judge_screen_condition(self, instruction: str) -> bool:
-        """
-        判断屏幕是否满足条件（单次推理，用于 IF 条件判断）
-        仅解析模型返回的 JSON，不执行任何屏幕操作
-        支持 CUA Debug：输出截图、thought，与 run() 保持一致的调试流格式
-
-        Args:
-            instruction: 判断条件描述，如"判断谷歌浏览器是否在任务栏中"
-
-        Returns:
-            True 表示条件满足，False 表示不满足或解析失败
-        """
-        step = 1
-        result = False
-        thought = ""
-        action_type = "finished"
-        screenshot_path = ""
-        try:
-            # 与 run() 一致的 start 事件
-            self.emit_debug_event("start", status="running", instruction=instruction, message="debug_started")
-            self.emit_realtime_text_log("Debug started")
-            self.append_debug_stream("start", instruction=instruction, status="running", message="Debug started")
-
-            # 1. 截图
-            screenshot_path, base64_image = self.take_screenshot()
-            # 2. 构建消息并调用模型
-            messages = self.build_messages(instruction, screenshot_path, base64_image)
-            response = self.inference(messages)
-            if not response:
-                self.emit_debug_event("error", step=step, status="error", message="run_failed")
-                self.emit_realtime_text_log("Run failed: no response")
-                self.append_debug_stream("error", step=step, status="error", message="Run failed: no response")
-                return False
-
-            # 3. 解析响应（与 execute_action 类似的解析逻辑）
-            cleaned_str = response.strip().replace("```json", "").replace("```JSON", "").replace("```", "").strip()
-            actions = json.loads(cleaned_str)
-            if not isinstance(actions, list):
-                actions = [actions]
-
-            for action in actions:
-                action_type = action.get("type", "")
-                param = action.get("param", {})
-                thought = action.get("thought", "") or thought
-                if action_type == "finished":
-                    data = param.get("data")
-                    if isinstance(data, bool):
-                        result = data
-                    else:
-                        result = bool(data) if data is not None else False
-                    break
-                if action_type == "data":
-                    data = param.get("data")
-                    if isinstance(data, bool):
-                        result = data
-                    else:
-                        result = bool(data) if data is not None else False
-                    break
-
-            # 与 run() 一致的 step 事件：截图 + thought
-            self.emit_debug_event(
-                "step",
-                step=step,
-                status="running",
-                thought=thought,
-                screenshot=screenshot_path,
-                action_type=action_type,
-            )
-            self.emit_realtime_text_log(f"Step {step}: {thought or action_type or 'running'}")
-            self.append_debug_stream(
-                "step",
-                step=step,
-                thought=thought,
-                action_type=action_type,
-                screenshot=screenshot_path,
-                status="running",
-            )
-
-            # 与 run() 一致的 finish 事件，并输出判断结果供调试窗口展示
-            self.emit_debug_event("finish", step=step, status="success", result=result, message="run_finished")
-            self.emit_realtime_text_log(f"Run finished，判断结果: {result}")
-            self.append_debug_stream("finish", step=step, status="success", result=result, message="Run finished")
-            return result
-        except Exception as e:
-            logger.info(f"[屏幕条件判断] 解析失败: {e}")
-            err_msg = str(e)
-            self.emit_debug_event("error", step=step, status="error", error=err_msg, message="run_failed")
-            self.emit_realtime_text_log(f"Run failed: {e}")
-            self.append_debug_stream("error", step=step, status="error", error=err_msg, message=f"Run failed: {e}")
-            # 解析失败时仍输出 step（截图 + thought），与 run() 出错前会输出 step 的逻辑一致
-            if screenshot_path:
-                self.emit_debug_event(
-                    "step",
-                    step=step,
-                    status="running",
-                    thought=f"解析失败: {err_msg}",
-                    screenshot=screenshot_path,
-                    action_type="error",
-                )
-                self.emit_realtime_text_log(f"Step {step}: 解析失败: {err_msg}")
-                self.append_debug_stream(
-                    "step",
-                    step=step,
-                    thought=f"解析失败: {err_msg}",
-                    action_type="error",
-                    screenshot=screenshot_path,
-                    status="running",
-                )
-            return False
