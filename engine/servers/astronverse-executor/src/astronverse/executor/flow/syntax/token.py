@@ -51,7 +51,6 @@ special_token_type_end = {
 
 exist_atomic_dict = [
     "CV.is_image_exist",
-    "ComputerUse.screen_condition",
     "File.file_exist",
     "Folder.folder_exist",
     "Window.exist",
