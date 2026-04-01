@@ -13,7 +13,11 @@ export function useToolsRun() {
 
   const handleConfirmRun = throttle(async () => {
     await processStore.saveProject()
-    useRunningStore().startRun(processStore.project.id, processStore.activeProcessId)
+    useRunningStore().startRun(
+      processStore.project.id,
+      processStore.project.version, 
+      processStore.activeProcessId
+    )
   }, 1500, { leading: true, trailing: false })
 
   const item: ArrangeTools = {

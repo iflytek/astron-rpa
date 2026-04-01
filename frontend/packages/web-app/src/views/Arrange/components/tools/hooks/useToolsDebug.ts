@@ -12,7 +12,11 @@ export function useToolsDebug() {
 
   const handleDebugBreakpoint = async () => {
     await processStore.saveProject()
-    useRunningStore().startDebug(processStore.project.id, processStore.activeProcessId)
+    useRunningStore().startDebug(
+      processStore.project.id, 
+      processStore.project.version,
+      processStore.activeProcessId
+    )
   }
 
   const item: ArrangeTools = {

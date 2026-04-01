@@ -77,8 +77,8 @@ export const useVariableStore = defineStore('variable', () => {
   }
 
   // 获取全局变量列表
-  const getGlobalVariableList = async (robotId: string = processStore.project.id) => {
-    const { data = [] } = await getGlobalVariable({ robotId })
+  const getGlobalVariableList = async (robotId: string, robotVersion: number) => {
+    const { data = [] } = await getGlobalVariable({ robotId, robotVersion })
     return globalVariableList.value = data.reverse()
   }
 
@@ -118,7 +118,7 @@ export const useVariableStore = defineStore('variable', () => {
     }
 
     await addGlobalVariable(newVariable)
-    const newVariableList = await getGlobalVariableList()
+    const newVariableList = await getGlobalVariableList(processStore.project.id, processStore.project.version)
 
     return newVariableList[0]
   }
@@ -126,7 +126,7 @@ export const useVariableStore = defineStore('variable', () => {
   // 修改/保存全局变量
   const saveGlobalVariableList = async (globalVariable: RPA.GlobalVariable) => {
     await saveGlobalVariable(globalVariable)
-    await getGlobalVariableList()
+    await getGlobalVariableList(processStore.project.id, processStore.project.version)
   }
 
   const getActiveAtomIndex = () => {
@@ -135,7 +135,7 @@ export const useVariableStore = defineStore('variable', () => {
 
   watch(() => processStore.project.id, (robotId) => {
     if (robotId) {
-      getGlobalVariableList(robotId)
+      getGlobalVariableList(robotId, processStore.project.version)
     }
   }, { immediate: true })
 

@@ -10,9 +10,10 @@ import { deleteApp } from '@/api/market'
 import { createComponentAbility } from '@/views/Arrange/utils/generateData'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate'
 
-const props = defineProps<{ 
+const props = defineProps<{
   data: RPA.ComponentManageItem
-  robotId: string 
+  robotId: string
+  robotVersion: number
 }>()
 const emit = defineEmits(['refresh'])
 
@@ -120,6 +121,7 @@ function handleRemove() {
     execute(() =>
       removeComponent({
         robotId: props.robotId,
+        robotVersion: props.robotVersion,
         componentId: props.data.componentId,
       }),
     )
@@ -127,22 +129,25 @@ function handleRemove() {
 }
 
 // 下架组件
-function handleTakeDown() {
-  handleDeleteConfirm(`将要下架：${props.data.name}，下架后将无法恢复，是否仍要下架？`, () => {
-    execute(() =>
-      deleteApp({
-        appId: props.data.appId!, // 使用 appId 而不是 componentId
-        marketId: props.data.marketId!,
-        appType: 'component',
-      }),
-    )
-  })
+async function handleTakeDown() {
+  const confirm = await handleDeleteConfirm(`将要下架：${props.data.name}，下架后将无法恢复，是否仍要下架？`)
+  if (!confirm) {
+    return
+  }
+  execute(() =>
+    deleteApp({
+      appId: props.data.appId!, // 使用 appId 而不是 componentId
+      marketId: props.data.marketId!,
+      appType: 'component',
+    }),
+  )
 }
 
 function handleUpdate() {
   execute(async () => {
     await updateComponent({
       robotId: props.robotId,
+      robotVersion: props.robotVersion,
       componentId: props.data.componentId,
       componentVersion: props.data.latestVersion,
     })
@@ -159,18 +164,16 @@ function handleUpdate() {
     <div class="flex items-center gap-[6px] mb-[6px]">
       <rpa-icon :name="data.icon" size="20" />
       <a-tooltip :title="data.name">
-        <span class="font-medium text-[16px] leading-[22px] max-w-[calc(100%-70px)] text-ellipsis whitespace-nowrap overflow-hidden">
+        <span
+          class="font-medium text-[16px] leading-[22px] max-w-[calc(100%-70px)] text-ellipsis whitespace-nowrap overflow-hidden">
           {{ data.name }}
         </span>
       </a-tooltip>
-      <span
-        class="px-2 rounded"
-        :class="[
-          data.isLatest === 1
-            ? 'bg-[#726FFF]/[.1] text-primary'
-            : 'bg-[#000000]/[.06] dark:bg-[#FFFFFF]/[.12]',
-        ]"
-      >
+      <span class="px-2 rounded" :class="[
+        data.isLatest === 1
+          ? 'bg-[#726FFF]/[.1] text-primary'
+          : 'bg-[#000000]/[.06] dark:bg-[#FFFFFF]/[.12]',
+      ]">
         v{{ data.version }}
       </span>
     </div>
@@ -185,12 +188,7 @@ function handleUpdate() {
 
     <!-- 卡片操作按钮 -->
     <div class="flex space-x-2">
-      <a-button
-        v-if="props.data.marketId && canOperate"
-        class="flex-1"
-        :disabled="loading"
-        @click="handleTakeDown"
-      >
+      <a-button v-if="props.data.marketId && canOperate" class="flex-1" :disabled="loading" @click="handleTakeDown">
         下架
       </a-button>
       <template v-if="!isInstalled">

@@ -43,7 +43,7 @@ export async function saveSmartComp(data) {
 /**
  * @description: 智能组件读取
  */
-export async function getSmartComp(data: { robotId: string, smartId: string }) {
+export async function getSmartComp(data: { robotId: string, robotVersion: number, smartId: string }) {
   const res = await http.post<RPA.Atom>('/api/robot/smart/detail/all', data)
   return res.data
 }

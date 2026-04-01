@@ -59,7 +59,12 @@ export async function createComponentAbility(key: string, version?: string | num
 // 生成智能组件节点
 export async function loadSmartComponentAbility(key: string, version?: string | number) {
   const processStore = useProcessStore()
-  const node = getAtomByKey(key, version) || await ProjectDocument.gainSmartComponentAbility(processStore.project.id, key, version)
+  const node = getAtomByKey(key, version) || await ProjectDocument.gainSmartComponentAbility(
+    processStore.project.id,
+    processStore.project.version,
+    key,
+    version
+  )
   return node
 }
 

@@ -14,7 +14,7 @@ import { useProcessStore } from '@/stores/useProcessStore'
 
 import Panel from './Panel.vue'
 
-const props = defineProps<{ robotId: string }>()
+const props = defineProps<{ robotId: string, robotVersion: number }>()
 
 const modal = NiceModal.useModal()
 const processStore = useProcessStore()
@@ -24,7 +24,7 @@ const ALL_MARKETS_KEY = 'all' // 全部市场的标识
 const selectedMarketId = ref<string>(ALL_MARKETS_KEY) // 选中的团队市场ID，默认选择全部
 
 // 自建组件列表
-const { state: componentList, execute: executeCustom } = useAsyncState(() => getComponentManageList(props.robotId), [])
+const { state: componentList, execute: executeCustom } = useAsyncState(() => getComponentManageList(props.robotId, props.robotVersion), [])
 
 // 团队市场列表 - 返回的是 List<IPage<AppInfoVo>>，每个 IPage 对应一个团队市场
 const { state: marketPages, execute: executeMarket } = useAsyncState(async () => {
@@ -231,6 +231,7 @@ async function handleJumpToMarket() {
               :key="item.componentId"
               :data="item"
               :robot-id="robotId"
+              :robot-version="robotVersion"
               @refresh="handleRefresh"
             />
           </div>

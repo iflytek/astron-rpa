@@ -30,6 +30,7 @@ export function useSmartCompService() {
     // 保存到服务器
     const savedSmartId = await saveSmartComp({
       robotId: processStore.project.id,
+      robotVersion: processStore.project.version,
       smartId,
       smartType,
       detail: {
@@ -52,6 +53,7 @@ export function useSmartCompService() {
     if (isNewComponent) {
       await saveSmartComp({
         robotId: processStore.project.id,
+        robotVersion: processStore.project.version,
         smartId: savedSmartId,
         smartType,
         detail: {
