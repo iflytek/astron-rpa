@@ -25,14 +25,26 @@ const rulesRef = computed(() => ({
       required: true,
       message: `请输入${nameTitle.value}！`,
     },
+    {
+      validator: (_rule: any, value: string) => {
+        const exists = processStore.canvasManager.processList.some(
+          p => p.state.name === value && p.state.resourceId !== props.processItem?.resourceId
+        )
+        if (exists) {
+          return Promise.reject(`${nameTitle.value}已存在`)
+        }
+        return Promise.resolve()
+      },
+    },
   ],
 }))
 
 const { validate, validateInfos } = Form.useForm(formState, rulesRef)
 
 onBeforeMount(async () => {
-  if (props.processItem?.name) {
-    formState.name = props.processItem.name
+  if (props.processItem?.resourceId) {
+    const tab = processStore.canvasManager.getTab(props.processItem.resourceId)
+    formState.name = tab?.state.name || props.processItem.name
   }
   else {
     formState.name = await processStore.canvasManager.genTabName(props.type)
