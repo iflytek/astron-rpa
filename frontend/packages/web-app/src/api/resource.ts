@@ -22,6 +22,7 @@ export interface StartExecutorParams {
   open_virtual_desk?: string
   line?: string | number
   end_line?: string | number
+  version?: number
   is_custom_component?: boolean
 }
 export async function startExecutor(data: StartExecutorParams) {
@@ -43,7 +44,7 @@ export function getProcess(data: { robotId: string, processId: string }) {
   return http.post('/api/robot/process/process-json', data)
 }
 
-export async function getProcessAndCodeList(data: { robotId: string }): Promise<RPA.Flow.ProcessModule[]> {
+export async function getProcessAndCodeList(data: { robotId: string, robotVersion: number }): Promise<RPA.Flow.ProcessModule[]> {
   const res = await http.post<RPA.Flow.ProcessModule[]>('/api/robot/module/processModuleList', data)
   return res.data
 }
@@ -51,7 +52,7 @@ export async function getProcessAndCodeList(data: { robotId: string }): Promise<
 /**
  * 获取 python 模块代码内容
  */
-export async function getProcessPyCode(data: { robotId: string, mode?: string, moduleId: string }): Promise<string> {
+export async function getProcessPyCode(data: { robotId: string, robotVersion: number, mode?: string, moduleId: string }): Promise<string> {
   // mode 为空时，默认值为 EDIT_PAGE
   // EDIT_PAGE - 编辑页
   // PROJECT_LIST - 设计器列表页
@@ -68,8 +69,8 @@ export async function getProcessPyCode(data: { robotId: string, mode?: string, m
 /**
  * 删除 python 模块代码内容
  */
-export async function deleteProcessPyCode(moduleId: string) {
-  const res = await http.get<boolean>('/api/robot/module/delete', { moduleId })
+export async function deleteProcessPyCode(robotId: string, moduleId: string) {
+  const res = await http.get<boolean>('/api/robot/module/delete', { moduleId, robotId })
   return res.data
 }
 
@@ -116,7 +117,7 @@ export async function renameProcessPyCode(data: { robotId: string, moduleId: str
 /**
  * 获取代码模块列表
  */
-export async function getProcessPyCodeList(data: { robotId: string }) {
+export async function getProcessPyCodeList(data: { robotId: string, robotVersion: number }) {
   const res = await http.post<{ moduleId: string, name: string }[]>('/api/robot/module/moduleList', data)
   return res.data
 }
@@ -172,7 +173,7 @@ export function getElementsAll(params: { robotId: string, elementType?: ElementT
 }
 
 // 查询元素/图像详细信息
-export function getElementDetail(params: { robotId: string, elementId: string }) {
+export function getElementDetail(params: { robotId: string, robotVersion: number, elementId: string }) {
   return http.post('/api/robot/element/detail', null, { params })
 }
 
@@ -222,7 +223,7 @@ export function saveGlobalVariable(data: RPA.GlobalVariable) {
 }
 
 // 查询全局变量
-export function getGlobalVariable(params: { robotId: string }) {
+export function getGlobalVariable(params: { robotId: string, robotVersion: number }) {
   return http.post<RPA.GlobalVariable[]>('/api/robot/global/all', null, { params })
 }
 
@@ -269,7 +270,7 @@ export function updatePyPackageApi(data: { robotId: string, packageName: string,
   return http.post('/api/robot/require/update', data)
 }
 // 获取依赖包列表
-export function getPyPackageListApi(data: { robotId: string }) {
+export function getPyPackageListApi(data: { robotId: string, robotVersion: number }) {
   return http.post('/api/robot/require/list', data)
 }
 /**

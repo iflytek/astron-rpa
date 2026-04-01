@@ -187,7 +187,7 @@ async function removefavorite(likeId) {
 
 // 打开组件管理弹窗
 function openComponentManageModal() {
-  NiceModal.show(ComponentManageModal, { robotId: processStore.project.id })
+  NiceModal.show(ComponentManageModal, { robotId: processStore.project.id, robotVersion: processStore.project.version })
 }
 
 // 刷新自定义组件
@@ -339,6 +339,7 @@ onBeforeMount(() => {
                   <CompDetail
                     v-if="isComponentKey(item.key)"
                     :robot-id="processStore.project.id"
+                    :robot-version="processStore.project.version"
                     :component-id="item.componentId"
                     @refresh="refreshComponentTree"
                   >

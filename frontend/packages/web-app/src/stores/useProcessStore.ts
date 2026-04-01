@@ -77,7 +77,7 @@ export const useProcessStore = defineStore('process', () => {
   // 扩展组件 tree 列表
   const extendTree = useAsyncState(getModuleMeta, [], { immediate: false })
   // 自定义组件 tree 列表
-  const componentTree = useAsyncState(() => getComponentList({ robotId: project.value.id }), [], { immediate: false })
+  const componentTree = useAsyncState(() => getComponentList({ robotId: project.value.id, robotVersion: project.value.version }), [], { immediate: false })
   // 全局变量模板列表
   const globalVarTypeList = computed<Record<string, RPA.VariableValueType>>(
     () => atomMeta.state.value?.types || {},
@@ -343,6 +343,7 @@ export const useProcessStore = defineStore('process', () => {
     pyCodeText.value = await getProcessPyCode({
       moduleId: resourceId,
       robotId: project.value.id,
+      robotVersion: project.value.version,
     })
     activeProcess.value.isLoading = false
   }

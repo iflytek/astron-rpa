@@ -278,12 +278,12 @@ export async function getComponentForm(params: {
   const processStore = useProcessStore()
   const { componentId, version, context = 'get' } = params
   const info = context === 'get'
-    ? await getEditComponentDetail({ componentId, robotId: processStore.project.id })
+    ? await getEditComponentDetail({ componentId, robotId: processStore.project.id, robotVersion: processStore.project.version })
     : await getComponentDetail({ componentId })
-  const processList = await getProcessAndCodeList({ robotId: componentId })
+  const processList = await getProcessAndCodeList({ robotId: componentId, robotVersion: version as number })
   const mainProcessId = processList.find(item => item.name === '主流程')?.resourceId
   const componentAttrs = await getConfigParams({
-    robotVersion: version,
+    robotVersion: version as number,
     robotId: componentId,
     processId: mainProcessId,
   })
@@ -412,6 +412,7 @@ export async function trackComponentUsageChange(operation: () => void | Promise<
   for (const key of addedKeys) {
     await addComponentUse({
       robotId: useProcessStore().project.id,
+      robotVersion: useProcessStore().project.version,
       componentId: getComponentId(key),
     })
   }
@@ -419,6 +420,7 @@ export async function trackComponentUsageChange(operation: () => void | Promise<
   for (const key of deletedKeys) {
     await deleteComponentUse({
       robotId: useProcessStore().project.id,
+      robotVersion: useProcessStore().project.version,
       componentId: getComponentId(key),
     })
   }

@@ -953,20 +953,22 @@ export function useDataBatch() {
   }
 
   // 初始化
-  const hookInit = () => {
+  const hookInit = async () => {
     http.resolveReadyPromise()
     isEdit = getUrlQueryField('isEdit') === 'true'
     const robotId = getUrlQueryField('robotId')
+    const robotVersion = getUrlQueryField('robotVersion')
+
     if (isEdit) {
       // 编辑元素
       const elementId = getUrlQueryField('elementId')
-      getElementDetail({
+      const res = await getElementDetail({
         robotId,
+        robotVersion: Number(robotVersion),
         elementId,
-      }).then((res) => {
-        batchObject = res.data
-        getElementData(res.data)
       })
+      batchObject = res.data
+      getElementData(res.data)
     }
     else {
       // 新增元素

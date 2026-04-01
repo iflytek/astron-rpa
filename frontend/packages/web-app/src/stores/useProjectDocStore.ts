@@ -150,7 +150,7 @@ const useProjectDocStore = defineStore('projectDoc', () => {
   }
 
   function createProjectDoc() {
-    document = new ProjectDocument(processStore.project.id)
+    document = new ProjectDocument(processStore.project.id, processStore.project.version)
     document.processEmitter.$on('open', processListener_open)
     document.processNodeEmitter.$on('add', processNodeListener_add)
     document.processNodeEmitter.$on('delete', processNodeListener_del)

@@ -14,6 +14,7 @@ import { ProcessEditor } from './ProcessEditor'
 
 export class ProjectDocument implements IProjectDocument {
   id: string
+  version: number
   private project: ProjectVM
   static nodeAbility: Record<string, any> = {}
   static noVersionMap: Record<string, string> = {}
@@ -58,12 +59,13 @@ export class ProjectDocument implements IProjectDocument {
 
   private processEditorMap = new Map<string, ProcessEditor>()
 
-  constructor(id: string) {
+  constructor(id: string, version: number) {
     this.id = id
+    this.version = version
   }
 
   async loadProject() {
-    this.project = await service.loadProject(this.id)
+    this.project = await service.loadProject(this.id, this.version)
     return this.project
   }
 
@@ -218,9 +220,9 @@ export class ProjectDocument implements IProjectDocument {
     })
   }
 
-  static gainSmartComponentAbility(robotId: string, key: string, version?: string | number) {
+  static gainSmartComponentAbility(robotId: string, robotVersion: number, key: string, version?: string | number) {
     const smartId = getSmartComponentId(key)
-    return getSmartComp({ smartId, robotId }).then((data) => {
+    return getSmartComp({ robotId, robotVersion, smartId }).then((data) => {
       const node = data.detail?.versionList.find(item => item.version === version) || data.detail?.versionList?.[0]
       if (!node) {
         console.error(`未找到 key 为 '${key}' 的智能组件`)
@@ -296,7 +298,7 @@ export class ProjectDocument implements IProjectDocument {
   private deleteProcessOrModule(data: RPA.Flow.ProcessModule) {
     const deleteFuns: Record<RPA.Flow.ProcessModuleType, () => Promise<boolean>> = {
       process: () => service.deleteProcess(this.id, data.resourceId, data.name),
-      module: () => service.deleteModule(data.resourceId),
+      module: () => service.deleteModule(this.id,data.resourceId),
     }
     return deleteFuns[data.resourceCategory]()
   }

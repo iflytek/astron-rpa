@@ -29,7 +29,7 @@ export function usePackageCheckContext() {
 
     isChecking.value = true
     try {
-      const res = await getPyPackageListApi({ robotId: processStore.project.id })
+      const res = await getPyPackageListApi({ robotId: processStore.project.id, robotVersion: processStore.project.version })
       const installedPackageNames = (res.data || []).map((pkg: any) =>
         pkg.packageName?.toLowerCase(),
       )

@@ -276,7 +276,13 @@ export function debug(atomIds: any) {
   processStore.saveProject().then(() => {
     const startLine = idxList[0] + 1
     const endLine = atomIds.length === 1 ? startLine : idxList[idxList.length - 1] + 1
-    useRunningStore().startRun(useProcessStore().project.id, useProcessStore().activeProcessId, startLine, endLine)
+    useRunningStore().startRun(
+      processStore.project.id,
+      processStore.project.version,
+      processStore.activeProcessId, 
+      startLine, 
+      endLine
+    )
   })
 }
 
@@ -288,7 +294,12 @@ export function runFromHere(atomIds: string[]) {
   const processStore = useProcessStore()
 
   processStore.saveProject().then(() => {
-    useRunningStore().startRun(useProcessStore().project.id, useProcessStore().activeProcessId, useFlowStore().simpleFlowUIData.findIndex(ui => ui.id === atomIds[0]) + 1)
+    useRunningStore().startRun(
+      processStore.project.id,
+      processStore.project.version,
+      processStore.activeProcessId, 
+      useFlowStore().simpleFlowUIData.findIndex(ui => ui.id === atomIds[0]) + 1
+    )
   })
 }
 

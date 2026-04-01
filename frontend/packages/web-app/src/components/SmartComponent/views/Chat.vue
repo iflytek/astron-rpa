@@ -47,6 +47,7 @@ async function restoreChat(smartId: string, targetVersion?: number) {
 
     const smartCompData = await getSmartComp({
       robotId: processStore.project.id,
+      robotVersion: processStore.project.version,
       smartId,
     })
 

@@ -150,8 +150,8 @@ export async function getRobotBasicInfo(robotId: string) {
 /**
  * 获取编辑页内组件管理列表
  */
-export async function getComponentManageList(robotId: string) {
-  const res = await http.post<RPA.ComponentManageItem[]>('/api/robot/component/editing/manage-list', { robotId, version: 0 })
+export async function getComponentManageList(robotId: string, robotVersion: number) {
+  const res = await http.post<RPA.ComponentManageItem[]>('/api/robot/component/editing/manage-list', { robotId, robotVersion, version: 0 })
   return res.data
 }
 
@@ -166,7 +166,7 @@ export async function installComponent(data: { robotId: string, componentId: str
 /**
  * 移除组件
  */
-export async function removeComponent(data: { robotId: string, componentId: string }) {
+export async function removeComponent(data: { robotId: string, robotVersion: number, componentId: string }) {
   const res = await http.post<string>('/api/robot/component-robot-block/add', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
@@ -190,7 +190,7 @@ export async function deleteComponentUse(data: { componentId: string, robotId: s
 /**
  * 更新组件引用
  */
-export async function updateComponent(data: { robotId: string, componentId: string, componentVersion: number }) {
+export async function updateComponent(data: { robotId: string, robotVersion: number, componentId: string, componentVersion: number }) {
   const res = await http.post<string>('/api/robot/component-robot-use/update', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
@@ -198,7 +198,7 @@ export async function updateComponent(data: { robotId: string, componentId: stri
 /**
  * 获取组件详情
  */
-export async function getComponentDetail(data: { robotId: string, componentId: string }) {
+export async function getComponentDetail(data: { robotId: string, robotVersion: number, componentId: string }) {
   const res = await http.post<RPA.ComponentManageItem>('/api/robot/component/editing/info', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }
@@ -206,7 +206,7 @@ export async function getComponentDetail(data: { robotId: string, componentId: s
 /**
  * 查询编辑页引入的组件详情
  */
-export async function getEditComponentDetail(data: { robotId: string, componentId: string }) {
+export async function getEditComponentDetail(data: { robotId: string, robotVersion: number, componentId: string }) {
   const res = await http.post('/api/robot/component-robot-use/edit', { ...data, mode: 'EDIT_PAGE' })
   return res.data
 }

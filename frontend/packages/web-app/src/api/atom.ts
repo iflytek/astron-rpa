@@ -58,6 +58,7 @@ export async function getFavoriteList() {
  */
 export async function getComponentList(data: {
   robotId: string
+  robotVersion: number
   version?: number
 }) {
   const res = await http.post<RPA.ComponentManageItem[]>('/api/robot/component/editing/list', { ...data, mode: 'EDIT_PAGE' })
