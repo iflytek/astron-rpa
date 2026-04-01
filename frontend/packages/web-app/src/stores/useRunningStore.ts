@@ -240,7 +240,7 @@ export const useRunningStore = defineStore('running', () => {
       RpaExecutorUrl = await startExecutor({
         ...params,
         jwt: getCookie('jwt'),
-        hide_log_window: !userSettingStore.openLogModalAfterRun,
+        hide_log_window: params.hide_log_window ?? !userSettingStore.openLogModalAfterRun,
         project_name: params.project_name || processStore.project.name,
       })
       // 连接 ws
@@ -266,16 +266,27 @@ export const useRunningStore = defineStore('running', () => {
       .finally(() => reset())
   }
 
-  const startRun = (projectId: string | number, processId?: string | number, line?: string | number, end_line?: string | number) => {
+  const startRun = (
+    projectId: string | number,
+    processId?: string | number,
+    line?: string | number,
+    end_line?: string | number,
+    options: { minimizeWindow?: boolean, hideLogWindow?: boolean } = {},
+  ) => {
     const runParams: StartExecutorParams = { project_id: projectId, process_id: processId }
 
     line && (runParams.line = line)
     end_line && (runParams.end_line = end_line)
+    if (options.hideLogWindow !== undefined) {
+      runParams.hide_log_window = options.hideLogWindow
+    }
     processStore.isComponent && (runParams.is_custom_component = processStore.isComponent)
 
     running.value = 'run'
     start(runParams)
-    windowManager.minimizeWindow()
+    if (options.minimizeWindow !== false) {
+      windowManager.minimizeWindow()
+    }
   }
 
   const startDebug = (projectId: string | number, processId: string | number) => {
