@@ -1,12 +1,15 @@
 import os
+import sys
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
-from astronverse.system.core.printer_core import PrinterCore
 from astronverse.system.core.screenshot_core import ScreenShotCore
 from astronverse.system.error import *
 from astronverse.system.utils import file_is_exists, folder_is_exists, get_files_in_folder, path_join
+
+if sys.platform == "win32":
+    from astronverse.system.core.printer_core import PrinterCore
 
 ScreenShotCore = ScreenShotCore()
 
@@ -378,6 +381,9 @@ class System:
         bottom_margin: float = 9.5,
     ):
         """打印机打印"""
+        if sys.platform != "win32":
+            raise BizException(PLATFORM_NOT_SUPPORTED, "打印机功能目前仅支持 Windows 平台，macOS 和 Linux 平台暂未实现")
+
         if batch_print == BatchType.SINGLE:
             if not file_is_exists(file_path):
                 raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息")

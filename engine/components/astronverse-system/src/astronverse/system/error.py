@@ -64,3 +64,6 @@ COMMAND_EMPTY_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("命令不能为�
 # 进程相关错误（动态消息）
 COMMAND_EXEC_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("执行命令失败: {}"))
 PROCESS_KILL_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("终止进程失败: {}"))
+
+# 平台支持
+PLATFORM_NOT_SUPPORTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("当前平台暂未实现"))
