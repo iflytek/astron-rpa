@@ -284,6 +284,7 @@ REM 4.4. Package and Release
 REM ============================================
 
 echo Compressing python_core directory...
+if exist "%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z" del /f /q "%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z"
 cd /d "%PYTHON_CORE_DIR%"
 "%SEVENZ_EXE%" a -t7z "%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z" "*" >nul
 cd /d "%SCRIPT_DIR%"
