@@ -29,17 +29,19 @@ type AtomOperation = Operation<ProcessNode>
 export class UndoManager implements RPA.Process.UndoManager {
   public canUndo = ref(false)
   public canRestore = ref(false)
-  
+
   private undoManager: BaseUndoManager<AtomOperation>
 
   constructor(private editor: VisualEditor) {
     this.undoManager = new BaseUndoManager(this.applyOperation.bind(this))
   }
 
-  private applyOperation(operation: AtomOperation, isUndo: boolean) {
+  private syncState() {
     this.canUndo.value = this.undoManager.canUndo()
     this.canRestore.value = this.undoManager.canRestore()
+  }
 
+  private applyOperation(operation: AtomOperation, isUndo: boolean) {
     switch(operation.type) {
       case 'insert':
         if (isUndo) {
@@ -50,7 +52,8 @@ export class UndoManager implements RPA.Process.UndoManager {
         break
       case 'delete':
         if (isUndo) {
-          operation.items.forEach(it => this.insert(it.preId, it.item))
+          // 逆序插入，确保节点恢复到原来的相对位置
+          [...operation.items].reverse().forEach(it => this.insert(it.preId, it.item))
         } else {
           operation.items.forEach(it => this.delete([it.id]))
         }
@@ -79,6 +82,8 @@ export class UndoManager implements RPA.Process.UndoManager {
     }
 
     this.editor.updateData()
+    this.editor.updateState({ isDirty: true })
+    this.syncState()
   }
 
   private insert(targetId: string | undefined, processNodes: ProcessNode[]) {
@@ -99,5 +104,10 @@ export class UndoManager implements RPA.Process.UndoManager {
 
   restore(): boolean {
     return this.undoManager.restore()
+  }
+
+  clear() {
+    this.undoManager.clear()
+    this.syncState()
   }
 }

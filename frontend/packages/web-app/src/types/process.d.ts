@@ -99,6 +99,7 @@ declare namespace RPA {
       canRestore: Ref<boolean>
       undo(): boolean
       restore(): boolean
+      clear?(): void
     }
 
     interface NodeParameter {

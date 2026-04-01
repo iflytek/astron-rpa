@@ -236,9 +236,14 @@ export const useCanvasManagerStore = (project: Ref<{ id: string }>) => {
 
     if (targetTab.save && isFunction(targetTab.save)) {
       updateTab(targetTab.id, { isSaveing: true })
-      await targetTab.save()
-      updateTab(targetTab.id, { isDirty: false, isSaveing: false, isSaved: true })
-      return true
+      const result = await targetTab.save()
+      if (result) {
+        updateTab(targetTab.id, { isDirty: false, isSaveing: false, isSaved: true })
+      }
+      else {
+        updateTab(targetTab.id, { isSaveing: false })
+      }
+      return result
     }
 
     return false
