@@ -182,3 +182,8 @@ class ProcessCoreLinux(IProcessCore):
             raise BizException(PROCESS_KILL_ERROR_FORMAT.format(f"进程 {pid}"), f"进程 {pid} 未在超时时间内终止。")
         except Exception as e:
             raise BizException(PROCESS_KILL_ERROR_FORMAT.format(f"进程 {pid}"), f"进程 {pid} 终止时发生错误：{e}")
+
+
+class ProcessCoreMac(ProcessCoreLinux):
+    """macOS 进程管理，继承 Linux 实现"""
+    pass
