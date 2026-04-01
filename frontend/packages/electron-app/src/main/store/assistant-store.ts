@@ -58,6 +58,7 @@ export type AssistantStore = {
   deleteAssistant: (id: string) => Promise<DeleteAssistantResult | null>
   listAssistantSessions: () => Promise<AssistantSessionRecord[]>
   attachRuntimeSession: (assistantId: string, runtimeSessionId: string, title?: string | null) => Promise<AssistantSessionRecord>
+  renameSession: (runtimeSessionId: string, title?: string | null) => Promise<{ runtimeSessionId: string; title: string | null } | null>
   cleanupMissingRuntimeSessions: (runtimeSessionIds: string[]) => Promise<AssistantSessionCleanupResult>
   listGroupRooms: () => Promise<GroupRoomRecord[]>
   getGroupRoom: (id: string) => Promise<GroupRoomRecord | null>
@@ -227,6 +228,38 @@ export function createAssistantStore(options: AssistantStoreOptions): AssistantS
 
         await writeStoreState(storagePath, state)
         return cloneAssistantSession(session)!
+      }),
+    renameSession: async (runtimeSessionId, title) =>
+      runSerialized(async () => {
+        const storagePath = resolveStoragePath(options.storagePath)
+        const normalizedRuntimeSessionId = normalizeRequiredText(runtimeSessionId)
+        const normalizedTitle = normalizeNullableText(title)
+        const state = await loadStoreState(storagePath)
+        const timestamp = isoTimestamp(now())
+
+        const assistantSessionIndex = state.assistantSessions.findIndex((session) => session.runtimeSessionId === normalizedRuntimeSessionId)
+        if (assistantSessionIndex >= 0) {
+          state.assistantSessions[assistantSessionIndex] = {
+            ...state.assistantSessions[assistantSessionIndex],
+            title: normalizedTitle,
+            updatedAt: timestamp,
+          }
+          await writeStoreState(storagePath, state)
+          return { runtimeSessionId: normalizedRuntimeSessionId, title: normalizedTitle }
+        }
+
+        const groupRoomSessionIndex = state.groupRoomSessions.findIndex((session) => session.runtimeSessionId === normalizedRuntimeSessionId)
+        if (groupRoomSessionIndex >= 0) {
+          state.groupRoomSessions[groupRoomSessionIndex] = {
+            ...state.groupRoomSessions[groupRoomSessionIndex],
+            title: normalizedTitle,
+            updatedAt: timestamp,
+          }
+          await writeStoreState(storagePath, state)
+          return { runtimeSessionId: normalizedRuntimeSessionId, title: normalizedTitle }
+        }
+
+        return null
       }),
     listGroupRoomSessions: async () => {
       const state = await loadStoreState(resolveStoragePath(options.storagePath))

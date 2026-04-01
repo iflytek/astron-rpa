@@ -2,6 +2,7 @@ import type { ProviderId } from './settings'
 
 export type CreateSessionInput = {
   title?: string | null
+  directory?: string | null
 }
 
 export type ComposerAttachment = {
@@ -15,6 +16,7 @@ export type ComposerAttachment = {
 export type SendMessageInput = {
   sessionID: string
   text: string
+  directory?: string | null
   attachments?: ComposerAttachment[]
   assistantId?: string | null
   roomId?: string | null

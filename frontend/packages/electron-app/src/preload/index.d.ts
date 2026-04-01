@@ -9,7 +9,8 @@ declare global {
       awaitInitialization: () => Promise<unknown>
       getBootstrap: () => Promise<{ assistantGroups: unknown[]; defaultSessionId: string }>
       getSession: (sessionId: string) => Promise<unknown>
-      createSession: (payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null }) => Promise<unknown>
+      createSession: (payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null; workspacePath?: string | null }) => Promise<unknown>
+      renameSession: (payload: { sessionId: string; title?: string | null }) => Promise<unknown>
       deleteSession: (sessionId: string) => Promise<{ success: boolean }>
       sendMessage: (payload: { sessionID: string; text: string; model?: string | null; providerId?: string | null }) => Promise<{ success: boolean }>
       getSettings: () => Promise<unknown>

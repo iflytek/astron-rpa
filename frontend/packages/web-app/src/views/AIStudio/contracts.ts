@@ -29,6 +29,11 @@ export interface AIStudioCreateSessionPayload {
   agentId?: string
 }
 
+export interface AIStudioRenameSessionPayload {
+  sessionId: string
+  title: string
+}
+
 export interface AIStudioChoiceSubmissionPayload {
   sessionId: string
   cardId: string
@@ -86,6 +91,7 @@ export interface AIStudioProvider {
   submitParamForm: (payload: AIStudioParamSubmissionPayload) => Promise<AIStudioSessionMutationResult>
   submitCardAction: (payload: AIStudioCardActionPayload) => Promise<AIStudioSessionMutationResult>
   createSession?: (payload: AIStudioCreateSessionPayload) => Promise<AIStudioSessionMutationResult>
+  renameSession?: (payload: AIStudioRenameSessionPayload) => Promise<AIStudioSessionMutationResult>
   getRun?: (payload: AIStudioRunQueryPayload) => Promise<AIStudioRunResult>
   listRunEvents?: (payload: AIStudioRunEventQueryPayload) => Promise<AIStudioRunEventBatch>
   resolvePermissionRequest?: (payload: AIStudioPermissionResolutionPayload) => Promise<AIStudioSessionMutationResult>

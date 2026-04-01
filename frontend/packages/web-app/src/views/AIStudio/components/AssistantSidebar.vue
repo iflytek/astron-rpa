@@ -178,11 +178,9 @@ function cancelAssistantDeleteConfirm() {
 <template>
   <aside
     data-testid="ai-sidebar-shell"
-    class="relative my-3 ml-3 mr-2.5 flex min-h-0 w-[clamp(276px,19.5vw,320px)] shrink-0 self-stretch flex-col overflow-hidden rounded-[24px] bg-[linear-gradient(180deg,rgba(255,255,255,0.74)_0%,rgba(252,252,255,0.9)_22%,rgba(255,255,255,0.94)_100%)] shadow-[0_14px_34px_rgba(15,23,42,0.028)] backdrop-blur-[16px]"
+    class="relative my-3 ml-3 mr-2.5 flex min-h-0 w-[clamp(276px,19.5vw,320px)] shrink-0 self-stretch flex-col overflow-hidden rounded-[24px] bg-[radial-gradient(circle_at_top_left,rgba(114,111,255,0.10),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.74)_0%,rgba(252,252,255,0.9)_22%,rgba(255,255,255,0.94)_100%)] shadow-[0_14px_34px_rgba(15,23,42,0.028)] backdrop-blur-[16px]"
     style="font-family: var(--font-sans-ui);"
   >
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top_left,rgba(114,111,255,0.10),transparent_62%)]" />
-
     <div class="relative px-4 pb-3 pt-4">
       <a-dropdown :trigger="['click']" placement="bottomLeft" :destroy-popup-on-hide="true" overlay-class-name="ai-sidebar-create-menu-overlay">
         <Button
@@ -217,20 +215,21 @@ function cancelAssistantDeleteConfirm() {
       </a-dropdown>
     </div>
 
-    <div class="relative px-4 pb-2">
-      <div class="relative">
-        <Search class="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/28" />
-        <Input
-          v-model="searchQuery"
-          data-testid="assistant-search-input"
-          class="h-9 rounded-[14px] border-0 bg-white/88 pl-9 text-[13px] shadow-[inset_0_0_0_1px_rgba(215,224,239,0.72)] shadow-none focus:ring-[3px]"
-          placeholder="搜索助手或会话..."
-        />
+    <div class="relative mb-3 flex min-h-0 flex-1 flex-col">
+      <div class="relative px-4 pt-3">
+        <div class="relative">
+          <Search class="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/28" />
+          <Input
+            v-model="searchQuery"
+            data-testid="assistant-search-input"
+            class="h-9 rounded-[14px] border-0 bg-white/62 pl-9 text-[13px] shadow-none ring-1 ring-[rgba(228,234,245,0.55)] focus:bg-white/82 focus:ring-[rgba(114,111,255,0.16)]"
+            placeholder="搜索助手或会话..."
+          />
+        </div>
       </div>
-    </div>
 
-    <ScrollArea class="relative min-h-0 flex-1 px-3 pb-4 pt-0.5">
-      <div data-testid="assistant-list" class="space-y-1 rounded-[18px] bg-white/28 px-1.5 py-1.5 pb-4">
+      <ScrollArea class="relative min-h-0 flex-1 px-3 pb-4 pt-2">
+        <div data-testid="assistant-list" class="space-y-1 rounded-[18px] px-1 py-1.5 pb-4">
         <template v-if="visibleAssistants.length">
           <div
             v-for="{ assistant, sessions, expanded } in visibleAssistants"
@@ -241,14 +240,9 @@ function cancelAssistantDeleteConfirm() {
               :data-testid="`assistant-shell-${assistant.id}`"
               class="group/assistant relative flex items-center gap-1.5 rounded-[14px] px-2.5 py-1.5 transition-all duration-200"
               :class="assistant.id === focusedAssistantId
-                ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(245,244,255,0.92)_100%)] shadow-[0_10px_22px_rgba(114,111,255,0.08)]'
+                ? 'bg-[linear-gradient(180deg,rgba(238,236,255,0.98)_0%,rgba(230,228,255,0.94)_100%)] shadow-[0_10px_22px_rgba(114,111,255,0.10)] ring-1 ring-[rgba(114,111,255,0.12)]'
                 : 'opacity-[0.88] hover:bg-white/42 hover:opacity-100'"
             >
-              <span
-                v-if="assistant.id === focusedAssistantId"
-                :data-testid="`assistant-focus-indicator-${assistant.id}`"
-                class="absolute left-0 top-1/2 h-7 w-[2px] -translate-y-1/2 rounded-full bg-[linear-gradient(180deg,rgba(114,111,255,0.18)_0%,rgba(114,111,255,0.72)_48%,rgba(114,111,255,0.22)_100%)] shadow-[0_0_0_4px_rgba(114,111,255,0.06)]"
-              />
               <button
                 :data-testid="`assistant-row-${assistant.id}`"
                 class="flex min-w-0 flex-1 items-center gap-2 text-left"
@@ -364,7 +358,7 @@ function cancelAssistantDeleteConfirm() {
             <div
               v-if="expanded && canExpand(assistant)"
               :data-testid="`assistant-session-list-${assistant.id}`"
-              class="space-y-0.5 pl-[38px] pr-1"
+              class="space-y-1 pt-1 pl-[30px] pr-1"
             >
               <div
                 v-for="session in sessions"
@@ -372,7 +366,7 @@ function cancelAssistantDeleteConfirm() {
                 :data-testid="`assistant-session-row-${assistant.id}-${session.id}`"
                 class="group/session flex items-center gap-1.5 rounded-[10px] px-2 py-1 transition-all duration-150"
                 :class="session.id === activeSessionId
-                  ? 'bg-[rgba(114,111,255,0.10)] text-[#5E5AE8]'
+                  ? 'bg-[linear-gradient(180deg,rgba(242,242,255,0.96)_0%,rgba(236,237,252,0.92)_100%)] text-[#6468A8] ring-1 ring-[rgba(182,188,232,0.34)]'
                   : 'text-black/68 hover:bg-white/80 hover:text-black/84'"
               >
                 <button
@@ -419,8 +413,9 @@ function cancelAssistantDeleteConfirm() {
         >
           没有匹配的助手或会话
         </div>
-      </div>
-    </ScrollArea>
+        </div>
+      </ScrollArea>
+    </div>
 
     <div class="bg-[rgba(255,255,255,0.6)] px-3.5 pb-4 pt-2 backdrop-blur-[12px]">
       <div class="space-y-2">

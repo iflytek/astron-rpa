@@ -2,6 +2,7 @@ type OpencodeWindowApi = {
   getBootstrap?: () => Promise<unknown>
   getSession?: (sessionId: string) => Promise<unknown>
   createSession?: (payload: unknown) => Promise<unknown>
+  renameSession?: (payload: unknown) => Promise<unknown>
   deleteSession?: (sessionId: string) => Promise<unknown>
   sendMessage?: (payload: unknown) => Promise<unknown>
   getSettings?: () => Promise<unknown>

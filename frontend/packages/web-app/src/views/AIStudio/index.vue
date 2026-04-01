@@ -113,6 +113,7 @@ async function handleCreateSession(payload: {
           :is-action-pending="aiStudioStore.isActionPending"
           :is-card-pending="aiStudioStore.isCardPending"
           @open-invite="aiStudioStore.openInviteAssistant()"
+          @rename-session="aiStudioStore.renameSession($event.sessionId, $event.title)"
           @send-message="aiStudioStore.sendMessage($event)"
           @submit-action="aiStudioStore.submitCardAction($event)"
           @submit-choice="aiStudioStore.submitChoiceForm($event)"
@@ -138,6 +139,7 @@ async function handleCreateSession(payload: {
           :is-action-pending="aiStudioStore.isActionPending"
           :is-card-pending="aiStudioStore.isCardPending"
           class="pointer-events-none opacity-30 blur-[1px]"
+          @rename-session="aiStudioStore.renameSession($event.sessionId, $event.title)"
         />
         <SettingsCenterView @close="handleCloseSurface" />
       </template>

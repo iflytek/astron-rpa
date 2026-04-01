@@ -480,7 +480,7 @@ export function toStudioSessionDetail(
     headerBadge: assistantBadge,
     assistantName,
     workspacePath: workspaceSnapshot?.workspacePath || session.directory,
-    inputPlaceholder: '向 AI 助手发送消息…',
+    inputPlaceholder: `向 ${assistantName} 发送消息…`,
     messages,
     chatCards,
     workspaceFiles: workspaceSnapshot?.workspaceFiles ? [...workspaceSnapshot.workspaceFiles] : [],

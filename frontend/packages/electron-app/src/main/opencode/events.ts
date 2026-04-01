@@ -126,12 +126,19 @@ export function createRuntimeEventStream(api: Pick<RuntimeApi, 'openEventStream'
 
 function parseRuntimeEvent(payload: string): DesktopRuntimeEvent | null {
   try {
-    const parsed = JSON.parse(payload) as { type?: unknown; properties?: unknown }
-    if (typeof parsed.type !== 'string' || !('properties' in parsed)) {
+    const parsed = JSON.parse(payload) as
+      | { type?: unknown; properties?: unknown }
+      | { payload?: { type?: unknown; properties?: unknown } }
+
+    const candidate = 'payload' in parsed && parsed.payload
+      ? parsed.payload
+      : parsed
+
+    if (!candidate || typeof candidate !== 'object' || typeof candidate.type !== 'string' || !('properties' in candidate)) {
       return null
     }
 
-    return parsed as DesktopRuntimeEvent
+    return candidate as DesktopRuntimeEvent
   }
   catch {
     return null

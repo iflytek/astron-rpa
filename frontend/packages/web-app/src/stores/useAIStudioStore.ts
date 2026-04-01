@@ -86,6 +86,9 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
   const errorMessage = ref('')
   const pendingMutation = ref<PendingMutation>(null)
   const isAiTyping = ref(false)
+  let runtimeRefreshTimer: ReturnType<typeof setTimeout> | null = null
+  let runtimeRefreshInFlight = false
+  let queuedRuntimeRefreshSessionId: string | null = null
 
   const activeSession = computed(() => {
     return sessionMap.value[activeSessionId.value]
@@ -161,6 +164,7 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
       ...detail,
       selectedArtifactId: detail.selectedArtifactId || previous?.selectedArtifactId,
     })
+    syncSessionTitle(detail.id, next.headerTitle)
     sessionMap.value = {
       ...sessionMap.value,
       [next.id]: next,
@@ -227,6 +231,20 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
           active: session.id === sessionId,
           time: session.id === sessionId ? '刚刚' : session.time,
         })),
+      })),
+    }))
+  }
+
+  function syncSessionTitle(sessionId: string, title: string) {
+    assistantGroups.value = assistantGroups.value.map(group => ({
+      ...group,
+      assistants: group.assistants.map(assistant => ({
+        ...assistant,
+        sessions: assistant.sessions.map(session => (
+          session.id === sessionId
+            ? { ...session, title }
+            : session
+        )),
       })),
     }))
   }
@@ -361,14 +379,6 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
     showInviteAssistant.value = false
   }
 
-  function deriveSessionTitleFromWorkspace(workspacePath: string, assistantName: string) {
-    const normalized = workspacePath.trim().replace(/\\/g, '/').replace(/\/+$/, '')
-    const segment = normalized.split('/').filter(Boolean).pop()
-    if (!segment || segment === '~' || ['Documents', 'Desktop', 'Downloads'].includes(segment))
-      return `${assistantName}新会话`
-    return segment
-  }
-
   function updateAssistantSessionDetails(
     assistantId: string,
     updater: (detail: StudioSessionDetail) => StudioSessionDetail,
@@ -462,8 +472,8 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
     const isGroupSession = !!targetAssistant.groupParticipantAssistantIds?.length || !!targetAssistant.groupCollaborationMode
     const customTitle = payload.sessionTitle?.trim()
     const title = customTitle || (isGroupSession
-      ? `${targetAssistant.name}协作会话`
-      : deriveSessionTitleFromWorkspace(workspacePath, targetAssistant.name))
+      ? `${targetAssistant.name} 协作会话`
+      : `${targetAssistant.name} 新会话`)
 
     const result = await provider.createSession!({
       assistantId: isGroupSession ? '' : targetAssistant.id,
@@ -493,6 +503,22 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
     closeNewSession()
     markSessionActive(createdDetail.id)
     return createdDetail.id
+  }
+
+  async function renameSession(sessionId: string, title: string) {
+    const normalizedTitle = title.trim()
+    if (!normalizedTitle)
+      return null
+
+    const result = await provider.renameSession?.({
+      sessionId,
+      title: normalizedTitle,
+    })
+
+    if (!result)
+      return null
+
+    return updateSessionDetail(result.session)
   }
 
   async function deleteSession(assistantId: string, sessionId: string) {
@@ -613,6 +639,82 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
     )
   }
 
+  function extractRuntimeEventSessionId(event: { type: string; properties: Record<string, unknown> }) {
+    if (event.type === 'session.idle' || event.type === 'session.status' || event.type === 'session.compacted') {
+      return event.properties.sessionID as string | undefined
+    }
+
+    if (event.type === 'session.updated' || event.type === 'session.created' || event.type === 'session.deleted') {
+      return (event.properties.info as { id?: string } | undefined)?.id
+    }
+
+    if (event.type === 'message.updated') {
+      return (event.properties.info as { sessionID?: string } | undefined)?.sessionID
+    }
+
+    if (event.type === 'message.removed' || event.type === 'message.part.delta' || event.type === 'message.part.removed') {
+      return event.properties.sessionID as string | undefined
+    }
+
+    if (event.type === 'message.part.updated') {
+      return (event.properties.part as { sessionID?: string } | undefined)?.sessionID
+    }
+
+    return undefined
+  }
+
+  async function flushRuntimeSessionRefresh(sessionId: string) {
+    if (sessionId !== activeSessionId.value)
+      return
+
+    if (runtimeRefreshInFlight) {
+      queuedRuntimeRefreshSessionId = sessionId
+      return
+    }
+
+    runtimeRefreshInFlight = true
+
+    try {
+      await loadSessionDetail(sessionId, { force: true })
+    }
+    finally {
+      runtimeRefreshInFlight = false
+
+      if (queuedRuntimeRefreshSessionId && queuedRuntimeRefreshSessionId === activeSessionId.value) {
+        const nextSessionId = queuedRuntimeRefreshSessionId
+        queuedRuntimeRefreshSessionId = null
+        void flushRuntimeSessionRefresh(nextSessionId)
+      }
+    }
+  }
+
+  function scheduleRuntimeSessionRefresh(sessionId: string, immediate = false) {
+    if (sessionId !== activeSessionId.value)
+      return
+
+    if (immediate) {
+      if (runtimeRefreshTimer) {
+        clearTimeout(runtimeRefreshTimer)
+        runtimeRefreshTimer = null
+      }
+      void flushRuntimeSessionRefresh(sessionId)
+      return
+    }
+
+    queuedRuntimeRefreshSessionId = sessionId
+    if (runtimeRefreshTimer)
+      return
+
+    runtimeRefreshTimer = setTimeout(() => {
+      runtimeRefreshTimer = null
+      const nextSessionId = queuedRuntimeRefreshSessionId
+      queuedRuntimeRefreshSessionId = null
+      if (nextSessionId) {
+        void flushRuntimeSessionRefresh(nextSessionId)
+      }
+    }, 120)
+  }
+
   // Subscribe to opencode runtime events for real-time session updates.
   // This is the primary mechanism for receiving AI responses and message updates —
   // sendMessage only triggers async processing; results arrive via this event stream.
@@ -621,15 +723,7 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
       const event = rawEvent as { type: string; properties: Record<string, unknown> }
       if (!event?.type) return
 
-      // Extract the sessionID from whichever event shape carries it
-      let eventSessionId: string | undefined
-      if (event.type === 'session.idle' || event.type === 'session.status') {
-        eventSessionId = event.properties.sessionID as string | undefined
-      }
-      else if (event.type === 'message.updated') {
-        eventSessionId = (event.properties.info as { sessionID?: string } | undefined)?.sessionID
-      }
-
+      const eventSessionId = extractRuntimeEventSessionId(event)
       if (!eventSessionId || eventSessionId !== activeSessionId.value) return
 
       if (event.type === 'session.status') {
@@ -638,10 +732,18 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
       }
       else if (event.type === 'session.idle') {
         isAiTyping.value = false
-        void loadSessionDetail(eventSessionId, { force: true })
+        scheduleRuntimeSessionRefresh(eventSessionId, true)
       }
-      else if (event.type === 'message.updated') {
-        void loadSessionDetail(eventSessionId, { force: true })
+      else if (
+        event.type === 'message.updated'
+        || event.type === 'message.removed'
+        || event.type === 'message.part.updated'
+        || event.type === 'message.part.delta'
+        || event.type === 'message.part.removed'
+        || event.type === 'session.updated'
+        || event.type === 'session.created'
+      ) {
+        scheduleRuntimeSessionRefresh(eventSessionId)
       }
     })
   }
@@ -681,6 +783,7 @@ export const useAIStudioStore = defineStore('aiStudio', () => {
     openNewSession,
     openSurface,
     pendingMutation,
+    renameSession,
     selectArtifact,
     sendMessage,
     sessionMap,

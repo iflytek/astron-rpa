@@ -15,6 +15,7 @@ import {
   IPC_OPENCODE_LIST_GROUP_ROOMS,
   IPC_OPENCODE_LIST_SKILLS,
   IPC_OPENCODE_IMPORT_SKILL,
+  IPC_OPENCODE_RENAME_SESSION,
   IPC_OPENCODE_RUNTIME_EVENT,
   IPC_OPENCODE_SAVE_ASSISTANT,
   IPC_OPENCODE_SAVE_DEFAULT_MODEL,
@@ -37,6 +38,12 @@ import {
 import { scanWorkspaceArtifacts } from './opencode/workspace-scan'
 import { resolveSessionMessageContext, resolveSessionWorkspaceContext } from './opencode/workspace-context'
 import type { DesktopRuntimeEvent } from '../shared/sessions'
+import type {
+  AssistantRecord,
+  AssistantSessionRecord,
+  GroupRoomRecord,
+  GroupRoomSessionRecord,
+} from '../shared/assistants'
 
 type OpencodeIpcDeps = {
   sidecar: SidecarManager
@@ -93,7 +100,10 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
       const runtimeSession = rootSessions.find((s) => s.id === sess.runtimeSessionId)
       if (!runtimeSession) continue
       const list = sessionsByAssistantId.get(sess.assistantId) ?? []
-      list.push(runtimeSession)
+      list.push({
+        ...runtimeSession,
+        title: sess.title?.trim() || runtimeSession.title,
+      })
       sessionsByAssistantId.set(sess.assistantId, list)
     }
 
@@ -102,7 +112,10 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
       const runtimeSession = rootSessions.find((s) => s.id === sess.runtimeSessionId)
       if (!runtimeSession) continue
       const list = sessionsByGroupRoomId.get(sess.groupRoomId) ?? []
-      list.push(runtimeSession)
+      list.push({
+        ...runtimeSession,
+        title: sess.title?.trim() || runtimeSession.title,
+      })
       sessionsByGroupRoomId.set(sess.groupRoomId, list)
     }
 
@@ -122,9 +135,7 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
   })
 
   ipcMain.handle(IPC_OPENCODE_GET_SESSION, async (_event, sessionId: string) => {
-    const [session, messages, assistants, groupRooms, assistantSessions, groupRoomSessions] = await Promise.all([
-      api.getSession(sessionId),
-      api.getSessionMessages(sessionId),
+    const [assistants, groupRooms, assistantSessions, groupRoomSessions] = await Promise.all([
       assistantStore.listAssistants(),
       assistantStore.listGroupRooms(),
       assistantStore.listAssistantSessions(),
@@ -138,12 +149,27 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
       assistantSessions,
       groupRoomSessions,
     )
+    const runtimeDirectory = workspaceContext.workspacePath?.trim() || null
+    const [session, messages] = await Promise.all([
+      api.getSession(sessionId, runtimeDirectory),
+      api.getSessionMessages(sessionId, runtimeDirectory),
+    ])
+    const sessionBinding = resolveSessionBinding(
+      sessionId,
+      assistants,
+      groupRooms,
+      assistantSessions,
+      groupRoomSessions,
+    )
     const workspacePath = workspaceContext.workspacePath?.trim() || session.directory
     const workspaceSnapshot = workspacePath
       ? await scanWorkspaceArtifacts(workspacePath)
       : { workspaceFiles: [], artifacts: [] }
 
-    return toStudioSessionDetail(session, messages, undefined, undefined, {
+    return toStudioSessionDetail({
+      ...session,
+      title: sessionBinding.title || session.title,
+    }, messages, sessionBinding.assistantName, sessionBinding.assistantBadge, {
       workspacePath,
       workspaceFiles: workspaceSnapshot.workspaceFiles,
       artifacts: workspaceSnapshot.artifacts,
@@ -152,8 +178,11 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
 
   ipcMain.handle(
     IPC_OPENCODE_CREATE_SESSION,
-    async (_event, payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null }) => {
-      const session = await api.createSession({ title: payload?.title ?? null })
+    async (_event, payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null; workspacePath?: string | null }) => {
+      const session = await api.createSession({
+        title: payload?.title ?? null,
+        directory: payload?.workspacePath ?? null,
+      })
       if (payload?.groupRoomId) {
         await assistantStore.attachGroupRoomSession(payload.groupRoomId, session.id, session.title ?? payload?.title ?? null)
       }
@@ -164,8 +193,29 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
     },
   )
 
+  ipcMain.handle(
+    IPC_OPENCODE_RENAME_SESSION,
+    async (_event, payload: { sessionId: string; title?: string | null }) => {
+      await assistantStore.renameSession(payload.sessionId, payload.title ?? null)
+      return { success: true }
+    },
+  )
+
   ipcMain.handle(IPC_OPENCODE_DELETE_SESSION, async (_event, sessionId: string) => {
-    await api.deleteSession(sessionId)
+    const [assistants, groupRooms, assistantSessions, groupRoomSessions] = await Promise.all([
+      assistantStore.listAssistants(),
+      assistantStore.listGroupRooms(),
+      assistantStore.listAssistantSessions(),
+      assistantStore.listGroupRoomSessions(),
+    ])
+    const workspaceContext = resolveSessionWorkspaceContext(
+      sessionId,
+      assistants,
+      groupRooms,
+      assistantSessions,
+      groupRoomSessions,
+    )
+    await api.deleteSession(sessionId, workspaceContext.workspacePath?.trim() || null)
     const liveSessions = await api.listSessions().catch(() => [])
     const liveRuntimeSessionIds = liveSessions
       .filter((s) => !s.parentID && !s.time.archived)
@@ -207,9 +257,17 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
         assistantSessions,
         groupRoomSessions,
       )
+      const workspaceContext = resolveSessionWorkspaceContext(
+        payload.sessionID,
+        assistants,
+        groupRooms,
+        assistantSessions,
+        groupRoomSessions,
+      )
       await api.sendMessage({
         sessionID: payload.sessionID,
         text: payload.text,
+        directory: workspaceContext.workspacePath?.trim() || null,
         attachments: payload.attachments,
         model: payload.model ?? null,
         providerId: payload.providerId ?? null,
@@ -287,6 +345,7 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
       ipcMain.removeHandler(IPC_OPENCODE_GET_BOOTSTRAP)
       ipcMain.removeHandler(IPC_OPENCODE_GET_SESSION)
       ipcMain.removeHandler(IPC_OPENCODE_CREATE_SESSION)
+      ipcMain.removeHandler(IPC_OPENCODE_RENAME_SESSION)
       ipcMain.removeHandler(IPC_OPENCODE_DELETE_SESSION)
       ipcMain.removeHandler(IPC_OPENCODE_SEND_MESSAGE)
       ipcMain.removeHandler(IPC_OPENCODE_GET_SETTINGS)
@@ -303,6 +362,53 @@ export function registerOpencodeIpc(deps: OpencodeIpcDeps) {
       ipcMain.removeHandler(IPC_OPENCODE_DELETE_SKILL)
     },
   }
+}
+
+function resolveSessionBinding(
+  sessionID: string,
+  assistants: AssistantRecord[],
+  groupRooms: GroupRoomRecord[],
+  assistantSessions: AssistantSessionRecord[],
+  groupRoomSessions: GroupRoomSessionRecord[],
+) {
+  const groupSession = groupRoomSessions.find((session) => session.runtimeSessionId === sessionID)
+  if (groupSession) {
+    const room = groupRooms.find((item) => item.id === groupSession.groupRoomId)
+    return {
+      title: groupSession.title?.trim() || undefined,
+      assistantName: room?.name?.trim() || 'AI 助手',
+      assistantBadge: getGroupRoomBadge(room),
+    }
+  }
+
+  const assistantSession = assistantSessions.find((session) => session.runtimeSessionId === sessionID)
+  if (assistantSession) {
+    const assistant = assistants.find((item) => item.id === assistantSession.assistantId)
+    return {
+      title: assistantSession.title?.trim() || undefined,
+      assistantName: assistant?.name?.trim() || 'AI 助手',
+      assistantBadge: getAssistantBadge(assistant),
+    }
+  }
+
+  return {
+    title: undefined,
+    assistantName: 'AI 助手',
+    assistantBadge: 'AI',
+  }
+}
+
+function getAssistantBadge(assistant?: AssistantRecord) {
+  const avatar = assistant?.avatar?.trim()
+  if (avatar) {
+    return avatar.slice(0, 1)
+  }
+
+  return assistant?.name?.trim().slice(0, 1).toUpperCase() || 'AI'
+}
+
+function getGroupRoomBadge(room?: GroupRoomRecord) {
+  return room?.name?.trim().slice(0, 1).toUpperCase() || '群'
 }
 
 function broadcastToAllWindows(channel: string, payload: unknown) {

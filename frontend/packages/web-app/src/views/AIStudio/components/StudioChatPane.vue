@@ -9,6 +9,7 @@ import {
   FolderOpen,
   LoaderCircle,
   Paperclip,
+  Pencil,
   Plus,
   Send,
   UserPlus,
@@ -43,6 +44,7 @@ const emit = defineEmits<{
   (e: 'submit-choice', payload: { cardId: string, optionId: string }): void
   (e: 'submit-param', payload: { cardId: string, values: Record<string, string> }): void
   (e: 'submit-action', payload: { cardId: string, actionId: string }): void
+  (e: 'rename-session', payload: { sessionId: string, title: string }): void
   (e: 'toggle-workspace'): void
 }>()
 
@@ -121,11 +123,14 @@ const paramValues = reactive<Record<string, Record<string, string>>>({})
 const draft = ref('')
 const localAttachments = ref<ComposerAttachment[]>([])
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const titleInputRef = ref<HTMLInputElement | null>(null)
 const activeTrigger = ref<ComposerTriggerState | null>(null)
 const activeMenuIndex = ref(0)
 const dismissedTriggerSignature = ref('')
 const isComposerFocused = ref(false)
 const taskProgressExpanded = ref(false)
+const editingSessionTitle = ref(false)
+const sessionTitleDraft = ref('')
 
 const skillOptions: ComposerSkillOption[] = [
   { id: 'summary', label: '总结', badge: '总', description: '快速归纳当前会话重点、风险与下一步。' },
@@ -172,7 +177,7 @@ const composerInteractive = computed(() =>
   || selectedSkillOptions.value.length > 0,
 )
 const inputPlaceholder = computed(() => props.session.inputPlaceholder || '输入消息，或使用 / 技能、@ 提及助手')
-const composerPlaceholder = computed(() => '输入消息')
+const composerPlaceholder = computed(() => inputPlaceholder.value)
 const groupParticipants = computed(() => [...new Set([...participantIds(), ...props.invitedAssistants])])
 const groupHeaderParticipants = computed(() => groupParticipants.value.slice(0, 2))
 const groupInlineParticipants = computed(() => groupParticipants.value.slice(0, 3))
@@ -285,6 +290,15 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => [props.session.id, props.session.headerTitle],
+  () => {
+    editingSessionTitle.value = false
+    sessionTitleDraft.value = props.session.headerTitle
+  },
+  { immediate: true },
+)
+
 watch(draft, async () => {
   await nextTick()
   resizeTextarea()
@@ -300,6 +314,13 @@ function resizeTextarea() {
     return
   textareaRef.value.style.height = '0px'
   textareaRef.value.style.height = `${Math.min(Math.max(textareaRef.value.scrollHeight, 44), 128)}px`
+}
+
+function focusSessionTitleInput() {
+  nextTick(() => {
+    titleInputRef.value?.focus()
+    titleInputRef.value?.select()
+  })
 }
 
 function escapeRegExp(value: string) {
@@ -433,6 +454,52 @@ function onDraftBlur() {
   window.setTimeout(() => {
     activeTrigger.value = null
   }, 120)
+}
+
+function startRenamingSession() {
+  if (props.sessionPending)
+    return
+
+  sessionTitleDraft.value = props.session.headerTitle
+  editingSessionTitle.value = true
+  focusSessionTitleInput()
+}
+
+function cancelRenamingSession() {
+  editingSessionTitle.value = false
+  sessionTitleDraft.value = props.session.headerTitle
+}
+
+function submitSessionRename() {
+  const nextTitle = sessionTitleDraft.value.trim()
+  if (!nextTitle) {
+    cancelRenamingSession()
+    return
+  }
+
+  editingSessionTitle.value = false
+  sessionTitleDraft.value = nextTitle
+
+  if (nextTitle === props.session.headerTitle.trim())
+    return
+
+  emit('rename-session', {
+    sessionId: props.session.id,
+    title: nextTitle,
+  })
+}
+
+function onSessionTitleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    submitSessionRename()
+    return
+  }
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    cancelRenamingSession()
+  }
 }
 
 function skillButtonActive() {
@@ -823,7 +890,30 @@ function onDraftKeydown(event: KeyboardEvent) {
                 </div>
               </div>
               <div class="min-w-0">
-                <span class="block truncate text-sm font-semibold leading-[18px] text-[#1A1A2E]">{{ session.headerTitle }}</span>
+                <div class="flex min-w-0 items-center gap-1.5">
+                  <template v-if="editingSessionTitle">
+                    <input
+                      ref="titleInputRef"
+                      v-model="sessionTitleDraft"
+                      type="text"
+                      class="h-8 min-w-0 max-w-[320px] rounded-[10px] border border-[rgba(114,111,255,0.16)] bg-white/92 px-2.5 text-sm font-semibold leading-[18px] text-[#1A1A2E] outline-none ring-0"
+                      @blur="submitSessionRename"
+                      @keydown="onSessionTitleKeydown"
+                    >
+                    <button class="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(240,239,255,0.96)] text-[#726FFF] transition-colors hover:bg-[#ECEAFF]" type="button" @mousedown.prevent @click="submitSessionRename">
+                      <Check class="h-3.5 w-3.5" />
+                    </button>
+                    <button class="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(255,255,255,0.86)] text-black/42 transition-colors hover:bg-white hover:text-black/62" type="button" @mousedown.prevent @click="cancelRenamingSession">
+                      <X class="h-3.5 w-3.5" />
+                    </button>
+                  </template>
+                  <template v-else>
+                    <span class="block truncate text-sm font-semibold leading-[18px] text-[#1A1A2E]">{{ session.headerTitle }}</span>
+                    <button class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-black/30 transition-colors hover:bg-white/70 hover:text-[#726FFF]" type="button" aria-label="重命名会话" title="重命名会话" @click="startRenamingSession">
+                      <Pencil class="h-3.5 w-3.5" />
+                    </button>
+                  </template>
+                </div>
                 <span
                   v-if="groupCoordinatorSummary"
                   class="mt-0.5 block truncate text-[11px] leading-4 text-black/48"
@@ -903,7 +993,28 @@ function onDraftKeydown(event: KeyboardEvent) {
           <div class="flex items-center gap-2.5">
             <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EEF2FF] text-xs font-semibold text-[#726FFF]">{{ session.headerBadge }}</div>
             <div class="flex items-center gap-1.5">
-              <div class="text-sm font-semibold leading-[18px] text-[#1A1A2E]">{{ session.headerTitle }}</div>
+              <template v-if="editingSessionTitle">
+                <input
+                  ref="titleInputRef"
+                  v-model="sessionTitleDraft"
+                  type="text"
+                  class="h-8 min-w-0 max-w-[320px] rounded-[10px] border border-[rgba(114,111,255,0.16)] bg-white/92 px-2.5 text-sm font-semibold leading-[18px] text-[#1A1A2E] outline-none ring-0"
+                  @blur="submitSessionRename"
+                  @keydown="onSessionTitleKeydown"
+                >
+                <button class="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(240,239,255,0.96)] text-[#726FFF] transition-colors hover:bg-[#ECEAFF]" type="button" @mousedown.prevent @click="submitSessionRename">
+                  <Check class="h-3.5 w-3.5" />
+                </button>
+                <button class="flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(255,255,255,0.86)] text-black/42 transition-colors hover:bg-white hover:text-black/62" type="button" @mousedown.prevent @click="cancelRenamingSession">
+                  <X class="h-3.5 w-3.5" />
+                </button>
+              </template>
+              <template v-else>
+                <div class="text-sm font-semibold leading-[18px] text-[#1A1A2E]">{{ session.headerTitle }}</div>
+                <button class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-black/30 transition-colors hover:bg-white/70 hover:text-[#726FFF]" type="button" aria-label="重命名会话" title="重命名会话" @click="startRenamingSession">
+                  <Pencil class="h-3.5 w-3.5" />
+                </button>
+              </template>
               <div class="rounded-full bg-[#F3F4F6] px-2 py-0.5">
                 <div class="flex items-center gap-1 text-[10px] font-medium leading-3 text-[#6B7280]">
                   <div class="h-1.5 w-1.5 rounded-full bg-[#6B7280]" :class="sessionPending ? 'animate-pulse' : ''" />

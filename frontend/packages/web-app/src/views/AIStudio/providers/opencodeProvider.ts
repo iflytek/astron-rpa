@@ -5,6 +5,7 @@ import type {
   AIStudioCreateSessionPayload,
   AIStudioParamSubmissionPayload,
   AIStudioProvider,
+  AIStudioRenameSessionPayload,
   AIStudioSendMessagePayload,
   AIStudioSessionMutationResult,
 } from '../contracts'
@@ -13,7 +14,8 @@ import type { StudioMessageAttachment } from '../types'
 export type OpencodeDesktopApi = {
   getBootstrap: () => Promise<AIStudioBootstrap>
   getSession: (sessionId: string) => Promise<unknown>
-  createSession: (payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null }) => Promise<{ id: string }>
+  createSession: (payload: { title?: string | null; assistantId?: string | null; groupRoomId?: string | null; workspacePath?: string | null }) => Promise<{ id: string }>
+  renameSession: (payload: { sessionId: string; title?: string | null }) => Promise<{ success: boolean }>
   deleteSession: (sessionId: string) => Promise<{ success: boolean }>
   sendMessage: (payload: {
     sessionID: string
@@ -130,8 +132,19 @@ export const opencodeAIStudioProvider: AIStudioProvider = {
       title: payload.title ?? null,
       assistantId: payload.assistantId ?? null,
       groupRoomId: payload.agentId ?? null,
+      workspacePath: payload.workspacePath ?? null,
     })
     const session = await fetchSessionDetail(created.id)
+    return { session }
+  },
+
+  renameSession: async (payload: AIStudioRenameSessionPayload): Promise<AIStudioSessionMutationResult> => {
+    const api = getOpencodeDesktopApi()
+    await api.renameSession({
+      sessionId: payload.sessionId,
+      title: payload.title ?? null,
+    })
+    const session = await fetchSessionDetail(payload.sessionId)
     return { session }
   },
 
