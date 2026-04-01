@@ -4,7 +4,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="{} service".format("scheduler"))
-    parser.add_argument("--conf", type=str, default="../resources/conf.json", help="配置文件")
+    parser.add_argument("--conf", type=str, default="../resources/conf.yaml", help="配置文件")
     parser.add_argument("--venv", type=str, help="配置文件")
     parser.add_argument("--stop", type=bool, default=False, help="关闭服务")
     args = parser.parse_args()
