@@ -82,8 +82,32 @@ function handleJumpBack(payload: MouseEvent) {
   // flowStore.jumpBack()
 }
 
-function handleClick() {
-  flowManager.toggleAtomSelected(props.item.id)
+function handleClick(event: MouseEvent) {
+  const { id } = props.item
+  const isCtrl = event.ctrlKey || event.metaKey
+  const isShift = event.shiftKey
+
+  // Ctrl+Shift+点击：范围选中（追加模式）
+  if (isCtrl && isShift) {
+    flowManager.selectRange(id, true)
+    return
+  }
+
+  // Shift+点击：范围选中（替换模式）
+  if (isShift) {
+    flowManager.selectRange(id, false)
+    return
+  }
+
+  // Ctrl/Cmd+点击：切换多选
+  if (isCtrl) {
+    flowManager.toggleMultiSelect(true)
+    flowManager.toggleAtomSelected(id)
+    return
+  }
+
+  // 普通点击：单选
+  flowManager.toggleAtomSelected(id)
 }
 
 function handleDoubleClick() {

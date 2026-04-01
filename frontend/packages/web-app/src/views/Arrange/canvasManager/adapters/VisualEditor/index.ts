@@ -1,5 +1,5 @@
 import { markRaw, shallowReactive, shallowRef } from 'vue'
-import { isNil, uniq, isEmpty, last, keyBy, forEach, set } from 'lodash-es'
+import { isNil, uniq, isEmpty, last, keyBy, forEach, set, findLast } from 'lodash-es'
 import { message } from 'ant-design-vue'
 import EventEmitter from 'eventemitter3'
 import hotkeys from 'hotkeys-js'
@@ -39,6 +39,8 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
   astParser: IncrementalASTParser
   // 记录上次 selected 的 atomId
   lastSelectedAtomId: string | undefined
+  // 记录选中锚点（用于 Shift 范围选中）
+  anchorAtomId: string | undefined
   containerRef = shallowRef<HTMLElement | null>(null)
   /** 配置参数管理 */
   configParameter: ConfigParameter
@@ -270,6 +272,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     this.executeDynamicScript(activeAtom)
 
     this.updateData()
+    this.updateState({ isDirty: true })
   }
 
   /**
@@ -316,6 +319,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
 
     if (isSelected) {
       this.lastSelectedAtomId = id
+      this.anchorAtomId = id  // 更新锚点
       this.nodeParameter.toggleAtomActive(this, id)
     }
   }
@@ -379,8 +383,31 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
       return acc
     }, [] as string[])
 
-    uniq(deleteIds).forEach(it => this.astParser.deleteNode(it))
-    this.updateData()
+    // 收集被删除的前置节点id用于撤销
+    const uniqueDeleteIds = uniq(deleteIds)
+    const deleteItems = uniqueDeleteIds
+      .map(id => {
+        const node = this.astParser.getNode(id)
+        if (!node) return null
+
+        const parent = node.parent
+        const index = parent?.children.indexOf(node) ?? -1
+        const preNode = findLast(
+          parent?.children.slice(0, index),
+          n => !uniqueDeleteIds.includes(n.id)
+        )
+
+        return {
+          id,
+          preId: preNode?.id,
+          item: [{ ...node.raw }] as [ProcessNode]
+        }
+      })
+      .filter((it): it is NonNullable<typeof it> => it?.item[0] != null)
+
+    if (deleteItems.length > 0) {
+      this.undoManager.update({ type: 'delete', items: deleteItems })
+    }
   }
 
   /**
@@ -501,8 +528,8 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
       message.warning('剪切板为空，不可粘贴')
       return
     }
+    
 
-  
     if (ids.length > 1) {
       message.warning('多选模式不支持粘贴')
       return
@@ -510,8 +537,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
 
     const targetId = ids[0];
     const processNodes = VisualEditor.clipBoardData.map(it => this.convertAtomToProcessNode(it, true))
-    this.astParser.insertNodeAfter(targetId, processNodes, false, true)
-    this.updateData()
+    this.undoManager.update({ type: 'insert', targetId, item: processNodes })
   }
 
   /**
@@ -525,6 +551,42 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     }
 
     this.updateState({ selectedAtomIds: this.state.data.map(it => it.id) })
+  }
+
+  /**
+   * 范围选中（Shift+点击）
+   * @param targetId 目标节点 ID
+   * @param append 是否追加到现有选中（true: 追加，false: 替换）
+   */
+  selectRange(targetId: string, append: boolean = false) {
+    const anchorId = this.anchorAtomId
+
+    // 没有锚点，直接选中当前节点并设置为锚点
+    if (!anchorId) {
+      this.toggleAtomSelected(targetId, true)
+      return
+    }
+
+    const anchorIndex = this.state.data.findIndex(it => it.id === anchorId)
+    const targetIndex = this.state.data.findIndex(it => it.id === targetId)
+
+    if (anchorIndex === -1 || targetIndex === -1) return
+
+    // 计算范围并收集 ID
+    const [start, end] = [Math.min(anchorIndex, targetIndex), Math.max(anchorIndex, targetIndex)]
+    const rangeIds = this.state.data.slice(start, end + 1).map(it => it.id)
+
+    // 开启多选模式并设置选中范围
+    this.updateState({
+      multiSelect: true,
+      selectedAtomIds: append
+        ? uniq([...(this.state.selectedAtomIds || []), ...rangeIds])  // 追加模式
+        : rangeIds  // 替换模式
+    })
+
+    // Shift 选中不更新锚点，但要更新 lastSelectedAtomId（用于激活节点参数面板）
+    this.lastSelectedAtomId = targetId
+    this.nodeParameter.toggleAtomActive(this, targetId)
   }
 
   /**
