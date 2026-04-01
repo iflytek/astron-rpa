@@ -3,6 +3,7 @@ from typing import Any
 
 import AppKit
 import ApplicationServices as AS
+import psutil
 from ApplicationServices import (
     AXUIElementCopyAttributeValue,
     AXUIElementCreateApplication,
@@ -12,7 +13,7 @@ from ApplicationServices import (
     kAXErrorSuccess,
 )
 
-from astronverse.browser import BROWSER_MAC_APP_NAME
+from astronverse.browser import BROWSER_AX_PROCESS_NAMES, BROWSER_MAC_APP_NAME
 
 
 def _ax_attr(element: Any, attr_name: str):
@@ -52,7 +53,8 @@ def _ax_unpack_point(value: Any):
 def _match_browser_app(running_app: Any, browser_type: str) -> bool:
     app_name = BROWSER_MAC_APP_NAME.get(browser_type, "")
     plain_name = app_name.removesuffix(".app")
-    candidates = {browser_type.lower(), app_name.lower(), plain_name.lower()}
+    process_names = BROWSER_AX_PROCESS_NAMES.get(browser_type, [])
+    candidates = {browser_type.lower(), app_name.lower(), plain_name.lower(), *(name.lower() for name in process_names)}
 
     for getter in (
         lambda: running_app.localizedName() or "",
@@ -81,14 +83,36 @@ def _get_running_app(browser_type: str):
     for running_app in workspace.runningApplications() or []:
         if _match_browser_app(running_app, browser_type):
             return running_app
+
+    target_names = {name.lower() for name in BROWSER_AX_PROCESS_NAMES.get(browser_type, [])}
+    for proc in psutil.process_iter(["pid", "name"]):
+        try:
+            proc_name = (proc.info.get("name", "") or "").strip()
+            if not proc_name:
+                continue
+            proc_name_lower = proc_name.lower()
+            if proc_name_lower not in target_names and not any(name in proc_name_lower for name in target_names):
+                continue
+            return AppKit.NSRunningApplication.runningApplicationWithProcessIdentifier_(int(proc.info["pid"]))
+        except Exception:
+            continue
     return None
 
 
 def _get_main_window(app_element: Any):
-    return _ax_attr(app_element, "AXMainWindow") or _ax_attr(app_element, "AXFocusedWindow") or next(
-        iter(_ax_attr(app_element, "AXWindows") or []),
-        None,
-    )
+    main_window = _ax_attr(app_element, "AXMainWindow") or _ax_attr(app_element, "AXFocusedWindow")
+    if main_window is not None:
+        return main_window
+
+    windows = _ax_attr(app_element, "AXWindows") or []
+    if not windows:
+        return None
+
+    for window in windows:
+        minimized = _ax_attr(window, "AXMinimized")
+        if minimized is False:
+            return window
+    return windows[0]
 
 
 def _get_pid(element: Any) -> int:
@@ -119,6 +143,17 @@ def _walk_children(node: Any, depth: int = 0, max_depth: int = 20):
     yield node, depth
     for child in _ax_attr(node, "AXChildren") or []:
         yield from _walk_children(child, depth + 1, max_depth)
+
+
+def _has_web_content(window: Any) -> bool:
+    for node, _depth in _walk_children(window):
+        role = _ax_attr(node, "AXRole") or ""
+        if role == "AXWebArea":
+            return True
+        dom_class = _ax_attr(node, "AXDOMClassList") or []
+        if "BrowserView" in dom_class or "View" in dom_class:
+            return True
+    return False
 
 
 class BrowserCore:
@@ -177,7 +212,16 @@ class BrowserCore:
             return None
 
         app_element = AXUIElementCreateApplication(int(running_app.processIdentifier()))
-        return _get_main_window(app_element)
+        main_window = _get_main_window(app_element)
+        if main_window is not None and _has_web_content(main_window):
+            return main_window
+
+        windows = _ax_attr(app_element, "AXWindows") or []
+        for window in windows:
+            if _has_web_content(window):
+                return window
+
+        return main_window
 
     @staticmethod
     def download_window_operate(**kwargs) -> Any:
