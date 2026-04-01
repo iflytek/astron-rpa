@@ -89,7 +89,6 @@ export default defineConfig((env) => {
           batch: '/src/views/Batch/index.ts',
           multichat: '/src/views/MultiChat/index.ts',
           userform: '/src/views/UserForm/index.ts',
-          cuadebug: '/src/views/CUADebug/index.ts',
           record: '/src/views/Record/index.ts',
           recordmenu: '/src/views/RecordMenu/index.ts',
           smartcompickmenu: '/src/views/SmartCompPickMenu/index.ts'

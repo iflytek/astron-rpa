@@ -30,8 +30,6 @@ export const Group = 'Code.Group'
 export const GroupEnd = 'Code.GroupEnd'
 export const CvImageExist = 'CV.is_image_exist' // 判断图像存在
 export const CvImageExistEnd = 'CV.is_image_exist_end' // 判断图像存在结束
-export const ScreenCondition = 'ComputerUse.screen_condition' // IF屏幕满足条件
-export const ScreenConditionEnd = 'ComputerUse.screen_condition_end' // IF屏幕满足条件结束
 export const FileExist = 'File.file_exist'
 export const FolderExist = 'Folder.folder_exist'
 export const WindowExist = 'Window.exist'
@@ -74,7 +72,6 @@ export const LOOP_END_MAP = {
   [Group]: GroupEnd,
   // [Netbreak]: NetbreakEnd,  // 网络断联检测 TODO
   [CvImageExist]: IfEnd,
-  [ScreenCondition]: IfEnd,
   [FileExist]: IfEnd,
   [FolderExist]: IfEnd,
   [WindowExist]: IfEnd,
@@ -88,7 +85,6 @@ export const LOOP_START_MAP = {
   [GroupEnd]: Group,
   // [NetbreakEnd]: Netbreak,  // 网络断联检测 TODO
   [CvImageExistEnd]: CvImageExist,
-  [ScreenConditionEnd]: ScreenCondition,
 }
 
 // 配置结束节点之后下一个节点的类型
@@ -113,7 +109,6 @@ export const LOOP_END = [
   WhileEnd,
   GroupEnd,
   CvImageExistEnd,
-  ScreenConditionEnd,
 ]
 
 export const CONVERT_MAP = {
@@ -136,7 +131,6 @@ export const CONVERT_MAP = {
   [Group]: GROUP_TEXT,
   [GroupEnd]: GROUP_END_TEXT,
   [CvImageExist]: IF_TEXT,
-  [ScreenCondition]: IF_TEXT,
   [FileExist]: IF_TEXT,
   [FolderExist]: IF_TEXT,
   [WindowExist]: IF_TEXT,

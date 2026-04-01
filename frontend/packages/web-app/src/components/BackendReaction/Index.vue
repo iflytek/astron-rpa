@@ -6,7 +6,7 @@
  *  3、尽量使用BUS进行触发，减少导入
  */
 import { message } from 'ant-design-vue'
-import { h, nextTick } from 'vue'
+import { h } from 'vue'
 import { useRoute } from 'vue-router'
 
 import i18next from '@/plugins/i18next'
@@ -26,8 +26,6 @@ import { utilsManager, windowManager } from '@/platform'
 import type { CreateWindowOptions, WindowPosition } from '@/platform'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useAppModeStore } from '@/stores/useAppModeStore'
-import { useFlowStore } from '@/stores/useFlowStore'
-import { useProcessStore } from '@/stores/useProcessStore'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
@@ -39,8 +37,6 @@ export interface W2WType {
   data?: any // 数据
 }
 
-const flowStore = useFlowStore()
-const processStore = useProcessStore()
 const permissionStore = usePermissionStore()
 const userSettingStore = useUserSettingStore()
 const runningStore = useRunningStore()
@@ -63,8 +59,6 @@ type SubWindowSchedulerEventType = SchedulerEventType<{
 }>
 
 const route = useRoute()
-
-let cuaDebugStandaloneRunning = false
 
 // 主进程与渲染进程通信
 utilsManager.listenEvent('scheduler-event', (eventMsg) => {
@@ -90,12 +84,7 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
     case 'executor_end': {
       runningStore.closeCreatedWindows()
       if (appModeStore.appMode === 'normal') {
-        if (!cuaDebugStandaloneRunning) {
-          executorHandle()
-        }
-        else {
-          cuaDebugStandaloneRunning = false
-        }
+        executorHandle()
         runningStore.reset()
       }
       break
@@ -166,44 +155,6 @@ utilsManager.listenEvent('w2w', (eventMsg: W2WType) => {
   else if (from === WINDOW_NAME.MULTICHAT) {
     if (type === 'chatContentSave') {
       runningStore.sendReplyMessage(data)
-    }
-  }
-  else if (from === WINDOW_NAME.CUA_DEBUG) {
-    const currentFlowStore = useFlowStore()
-    const currentProcessStore = useProcessStore()
-
-    if (type === 'cua-debug-sync-instruction' && data?.atomId) {
-      currentFlowStore.setFormItemValue('instruction', data.value, data.atomId)
-    }
-    else if (type === 'cua-debug-run-state') {
-      cuaDebugStandaloneRunning = data?.running === true
-    }
-    else if (type === 'cua-debug-save-project') {
-      ;(async () => {
-        try {
-          if (data?.atomId && data?.value) {
-            currentFlowStore.setFormItemValue('instruction', data.value, data.atomId)
-            await nextTick()
-          }
-
-          await currentProcessStore.saveProject()
-          await windowManager.emitTo({
-            from: WINDOW_NAME.MAIN,
-            target: WINDOW_NAME.CUA_DEBUG,
-            type: 'cua-debug-save-project-result',
-            data: { requestId: data?.requestId, ok: true },
-          })
-        }
-        catch (error) {
-          console.error('Failed to save project for CUA debug window:', error)
-          await windowManager.emitTo({
-            from: WINDOW_NAME.MAIN,
-            target: WINDOW_NAME.CUA_DEBUG,
-            type: 'cua-debug-save-project-result',
-            data: { requestId: data?.requestId, ok: false },
-          })
-        }
-      })()
     }
   }
 })
