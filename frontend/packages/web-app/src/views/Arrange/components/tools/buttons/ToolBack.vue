@@ -20,11 +20,6 @@ const disabled = computed(() => {
 })
 
 const handleClick = async () => {
-  if (disabled.value) {
-    message.warning(t('toolsTips.runningOrDebuggingStopFirst'))
-    return
-  }
-
   try {
     await canvasManager.saveTab()
     await message.success('保存成功', 0.5)

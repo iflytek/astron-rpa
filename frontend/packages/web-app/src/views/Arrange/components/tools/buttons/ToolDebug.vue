@@ -19,10 +19,6 @@ const show = computed(() => ['free'].includes(runningStore.running))
 const disabled = computed(() => ['debug', 'run'].includes(runningStore.running))
 
 async function handleClick() {
-  if (disabled.value || !show.value) {
-    message.warning(t('toolsTips.runningOrDebuggingNoRepeat'))
-    return
-  }
   const saved = await processStore.canvasManager.saveTab()
   if (!saved) {
     message.error(t('toolsTips.saveFailed'))

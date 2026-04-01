@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount } from 'vue'
 import { message } from 'ant-design-vue'
 import { throttle } from 'lodash-es'
 import { useTranslation } from 'i18next-vue'
@@ -8,7 +8,6 @@ import { SAVE } from '@/constants/shortcuts'
 import { registerHotkey, unregisterHotkey } from '@/utils/registerHotkeys'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
-import { onBeforeUnmount } from 'vue'
 
 import ToolButton from '../components/ToolButton.vue'
 
@@ -17,7 +16,12 @@ const runningStore = useRunningStore()
 const { t } = useTranslation()
 
 const disabled = computed(() => {
-  return !canvasManager?.activeTab || ['debug', 'run'].includes(runningStore.running)
+  const tab = canvasManager?.activeTab
+  if (!tab) return true
+
+  if (['debug', 'run'].includes(runningStore.running)) return true
+
+  return canvasManager.getActionState('save').disabled
 })
 
 const save = throttle(async () => {
@@ -31,10 +35,6 @@ const save = throttle(async () => {
 }, 1500, { leading: true, trailing: false })
 
 const handleClick = async () => {
-  if (disabled.value) {
-    message.warning(t('toolsTips.runningOrDebuggingCannotSave'))
-    return
-  }
   await save()
 }
 

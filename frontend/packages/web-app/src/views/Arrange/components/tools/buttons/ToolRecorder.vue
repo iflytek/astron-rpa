@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, computed } from 'vue'
-import { message } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 
 import BUS from '@/utils/eventBus'
 import { useRecordWindow } from '@/views/Arrange/hook/useRecordWindow'
@@ -12,7 +10,6 @@ import ToolButton from '../components/ToolButton.vue'
 
 const { open } = useRecordWindow()
 const runningStore = useRunningStore()
-const { t } = useTranslation()
 
 onMounted(() => {
   BUS.$off('record-save')
@@ -22,19 +19,14 @@ onBeforeUnmount(() => {
   BUS.$off('record-save')
 })
 
-const show = computed(() => true)
 const disabled = computed(() => ['debug', 'run'].includes(runningStore.running))
 
 function handleClick() {
-  if (disabled.value) {
-    message.warning(t('toolsTips.runningOrDebuggingStopFirst'))
-    return
-  }
   open()
 }
 </script>
 
 <template>
-  <ToolButton v-if="show" :tooltip="$t('smartRecording')" :label="$t('smartRecording')" :disabled="disabled" icon="tools-record" @click="handleClick" />
+  <ToolButton :tooltip="$t('smartRecording')" :label="$t('smartRecording')" :disabled="disabled" icon="tools-record" @click="handleClick" />
 </template>
 

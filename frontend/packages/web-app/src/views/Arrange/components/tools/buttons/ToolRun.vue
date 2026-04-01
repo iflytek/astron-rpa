@@ -30,10 +30,6 @@ const handleConfirmRun = throttle(async () => {
 }, 1500, { leading: true, trailing: false })
 
 function handleClick() {
-  if (disabled.value || !show.value) {
-    message.warning(t('toolsTips.runningOrDebuggingNoRepeat'))
-    return
-  }
   handleConfirmRun()
 }
 
