@@ -22,8 +22,9 @@ export function useCreateWindow() {
       return
 
     const robotId = processStore.project.id
+    const robotVersion = processStore.project.version
     const { id, noEmit } = customOptions || {}
-    let url = `${baseUrl}/batch.html?robotId=${robotId}`
+    let url = `${baseUrl}/batch.html?robotId=${robotId}&robotVersion=${robotVersion}`
     if (id) {
       url = `${url}&elementId=${id}&isEdit=true`
     }

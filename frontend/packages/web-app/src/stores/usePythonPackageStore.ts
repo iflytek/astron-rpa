@@ -36,10 +36,12 @@ export const usePythonPackageStore = defineStore('pythonPackage', () => {
   }
 
   // 获取已安装的python包列表
-  function getPythonList() {
-    getPyPackageListApi({ robotId: useProcessStore().project.id }).then((res) => {
-      setPythonPackageList(res.data)
+  async function getPythonList() {
+    const res = await getPyPackageListApi({
+      robotId: useProcessStore().project.id,
+      robotVersion: useProcessStore().project.version
     })
+    setPythonPackageList(res.data)
   }
 
   function updatePythonList() {

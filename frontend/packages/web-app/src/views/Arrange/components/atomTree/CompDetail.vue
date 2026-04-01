@@ -7,7 +7,7 @@ import { COMPONENT_KEY_PREFIX, updateFlowNodesComponent } from '@/utils/customCo
 import { getComponentDetail, removeComponent, removeMarketComponent, updateComponent } from '@/api/robot'
 import { createComponentAbility } from '@/views/Arrange/utils/generateData'
 
-const props = defineProps<{ robotId: string, componentId: string }>()
+const props = defineProps<{ robotId: string, robotVersion: number, componentId: string, }>()
 const emit = defineEmits(['refresh'])
 
 const { state, executeImmediate } = useAsyncState(() => getComponentDetail(props), null)
@@ -48,6 +48,7 @@ function handleRemove() {
     execute(() =>
       removeComponent({
         robotId: props.robotId,
+        robotVersion: props.robotVersion,
         componentId: props.componentId,
       }),
     )
@@ -58,6 +59,7 @@ function handleUpdate() {
   execute(async () => {
     await updateComponent({
       robotId: props.robotId,
+      robotVersion: props.robotVersion,
       componentId: props.componentId,
       componentVersion: state.value.latestVersion,
     })

@@ -76,7 +76,11 @@ export const useCvStore = defineStore('cv', () => {
   }
 
   const getCvItemDetail = async (elementId: string) => {
-    const { data } = await getElementDetail({ robotId: processStore.project.id, elementId })
+    const { data } = await getElementDetail({
+      robotId: processStore.project.id,
+      robotVersion: processStore.project.version,
+      elementId
+    })
     isNewElement = false
     return data
   }

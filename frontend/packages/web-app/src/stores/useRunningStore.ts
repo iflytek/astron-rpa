@@ -266,8 +266,14 @@ export const useRunningStore = defineStore('running', () => {
       .finally(() => reset())
   }
 
-  const startRun = (projectId: string | number, processId?: string | number, line?: string | number, end_line?: string | number) => {
-    const runParams: StartExecutorParams = { project_id: projectId, process_id: processId }
+  const startRun = (
+    projectId: string | number,
+    version: number,
+    processId?: string | number, 
+    line?: string | number, 
+    end_line?: string | number
+  ) => {
+    const runParams: StartExecutorParams = { project_id: projectId, version, process_id: processId }
 
     line && (runParams.line = line)
     end_line && (runParams.end_line = end_line)
@@ -278,8 +284,8 @@ export const useRunningStore = defineStore('running', () => {
     windowManager.minimizeWindow()
   }
 
-  const startDebug = (projectId: string | number, processId: string | number) => {
-    const debugParams: StartExecutorParams = { project_id: projectId, process_id: processId, debug: 'y' }
+  const startDebug = (projectId: string | number, version: number, processId: string | number) => {
+    const debugParams: StartExecutorParams = { project_id: projectId, version, process_id: processId, debug: 'y' }
 
     processStore.isComponent && (debugParams.is_custom_component = processStore.isComponent)
 
@@ -291,6 +297,7 @@ export const useRunningStore = defineStore('running', () => {
     running.value = 'silence'
     await start({
       project_id: editObj.robotId,
+      version: editObj.version,
       exec_position: editObj.exec_position || 'PROJECT_LIST',
       recording_config: JSON.stringify(userSettingStore.userSetting.videoForm),
       project_name: editObj.robotName,

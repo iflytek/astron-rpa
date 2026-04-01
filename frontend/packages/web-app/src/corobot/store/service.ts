@@ -2,8 +2,8 @@ import { getAbilityInfo, getNewAtomDesc, getTreeByParentKey } from '@/api/atom'
 import { addProcess as addProcessApi, addProcessPyCode, copyProcess as copyProcessApi, copyProcessPyCode, deleteProcessPyCode, delProcess, flowSave, genProcessName as genProcessNameApi, genProcessPyCodeName, getProcess, getProcessAndCodeList, renameProcess as renameProcessApi, renameProcessPyCode } from '@/api/resource'
 import type { ProcessNodeVM, ProjectVM } from '@/corobot/vm'
 
-export function loadProject(robotId: string): Promise<ProjectVM> {
-  return getProcessAndCodeList({ robotId }).then(res => ({
+export function loadProject(robotId: string, robotVersion: number): Promise<ProjectVM> {
+  return getProcessAndCodeList({ robotId, robotVersion }).then(res => ({
     id: robotId,
     name: '',
     processes: res,
@@ -63,8 +63,8 @@ export function deleteProcess(_robotId: string, _processId: string, _processName
   return delProcess({ processId: _processId, robotId: _robotId, processName: _processName })
 }
 
-export function deleteModule(_processId: string) {
-  return deleteProcessPyCode(_processId)
+export function deleteModule(robotId: string, moduleId: string) {
+  return deleteProcessPyCode(robotId, moduleId)
 }
 
 export function getAtomicSchemaByVersion(atomList: { key: string, version: string }[]): Promise<any[]> {

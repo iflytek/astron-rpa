@@ -89,8 +89,9 @@ export const useElementsStore = defineStore('elements', () => {
   // 请求到当前元素
   const requestElementDetail = async (params: ElementsType) => {
     const robotId = route.query?.projectId as string
+    const robotVersion = Number(route.query?.projectVersion as string)
     const elementId = params.id
-    const { data } = await getElementDetail({ robotId, elementId })
+    const { data } = await getElementDetail({ robotId, robotVersion, elementId })
     setCurrentElement(data)
     return data
   }
@@ -103,9 +104,11 @@ export const useElementsStore = defineStore('elements', () => {
     }
 
     const robotId = route.query?.projectId as string
-    await getElementDetail({ robotId, elementId: params.id })
+    const robotVersion = Number(route.query?.projectVersion as string)
+    await getElementDetail({ robotId, robotVersion, elementId: params.id })
     const res = await updateElement({
       robotId,
+      robotVersion,
       element: {
         id: params.id,
         name: _name,
