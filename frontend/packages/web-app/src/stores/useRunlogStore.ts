@@ -4,6 +4,8 @@ import { debounce } from 'lodash-es'
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
 
+const CUA_DEBUG_PREFIX = 'CUA_DEBUG::'
+
 const LOG_LEVEL_MAP: Record<RPA.LogLevel, string> = {
   error: '错误',
   info: '信息',
@@ -48,6 +50,26 @@ export const useRunlogStore = defineStore('runlog', () => {
     if (log.status === 'debug_start')
       return
 
+    const isRealtimeDebugLog = typeof log.msg_str === 'string' && log.msg_str.startsWith(CUA_DEBUG_PREFIX)
+
+    if (isRealtimeDebugLog) {
+      flushLogs.cancel()
+
+      if (pendingLogs.value.length > 0) {
+        const bufferedLogs = pendingLogs.value.map((it, index) =>
+          geneLogItem(it, logList.value.length + index),
+        )
+        logList.value = [...logList.value, ...bufferedLogs]
+        pendingLogs.value = []
+      }
+
+      logList.value = [...logList.value, geneLogItem(log, logList.value.length)]
+      if (logList.value.length > 10000) {
+        logList.value = logList.value.slice(-10000)
+      }
+      return
+    }
+
     // 如果 logList 为空，立即添加第一条日志
     if (logList.value.length === 0) {
       logList.value.push(geneLogItem(log, 0))
@@ -60,6 +82,8 @@ export const useRunlogStore = defineStore('runlog', () => {
   }
 
   const clearLogs = () => {
+    flushLogs.cancel()
+    pendingLogs.value = []
     logList.value = []
   }
 
