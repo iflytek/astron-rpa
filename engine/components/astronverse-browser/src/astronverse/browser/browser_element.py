@@ -14,7 +14,7 @@ from astronverse.browser.utils.table_filter import (
     table_df_to_out,
     table_json_merge_values,
 )
-from astronverse.browser.core.core_win import BrowserCore
+from astronverse.browser.core import BrowserCore
 from astronverse.locator import smooth_move
 from astronverse.locator.locator import locator
 

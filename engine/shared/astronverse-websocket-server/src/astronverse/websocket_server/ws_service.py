@@ -151,9 +151,15 @@ class WsManager:
         if not uuid:
             self.no_login_conns.append(conn)
         else:
-            if uuid not in self.conns:
-                self.conns[uuid] = []
-            self.conns[uuid].append(conn)
+            old_conns = self.conns.get(uuid, [])
+            self.conns[uuid] = [conn]
+            for old_conn in old_conns:
+                if old_conn is conn:
+                    continue
+                try:
+                    asyncio.create_task(old_conn.ws.close())
+                except Exception:
+                    pass
 
     def _del_conn(self, uuid: str, conn: Conn):
         """
