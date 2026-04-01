@@ -1,19 +1,12 @@
 import os
-import sys
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
-from astronverse.system.core.clipboard_core import IClipBoardCore
+from astronverse.system.core.clipboard_core import ClipBoardCore
+from astronverse.system.utils.clipboard import Clipboard as SchedulerClipboard
 from astronverse.system.error import *
 from astronverse.system.utils import folder_is_exists
-
-if sys.platform == "win32":
-    from astronverse.system.core.clipboard_core_win import ClipBoardCore
-else:
-    from astronverse.system.core.clipboard_core_linux import ClipBoardCore
-
-ClipBoardCore: IClipBoardCore = ClipBoardCore()
 
 
 class Clipboard:
@@ -235,7 +228,7 @@ class Clipboard:
                 shutil.copytree(src_path, dst_path)
             output_content = dst_path
         elif content_type == ContentType.HTML:
-            output_content = ClipBoardCore.paste_html_clip()
+            output_content = SchedulerClipboard.paste_html_clip()
         else:
             raise NotImplementedError()
         return output_content

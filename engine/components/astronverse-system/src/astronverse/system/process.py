@@ -9,11 +9,12 @@ from astronverse.system.error import *
 
 if sys.platform == "win32":
     from astronverse.system.core.process_core import ProcessCoreWin
-
     ProcessCore = ProcessCoreWin
+elif sys.platform == "darwin":
+    from astronverse.system.core.process_core import ProcessCoreMac
+    ProcessCore = ProcessCoreMac
 else:
     from astronverse.system.core.process_core import ProcessCoreLinux
-
     ProcessCore = ProcessCoreLinux
 
 
