@@ -177,6 +177,29 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
       disabled: false,
     }
 
+    const selectedIds = this.state.selectedAtomIds || []
+
+    if (actionType === 'save') {
+      defaultState.disabled = !this.state.isDirty
+    }
+
+    if (actionType === 'group') {
+      if (selectedIds.length === 0) {
+        defaultState.disabled = true
+      } else {
+        const idIndexList = selectedIds.map(it => this.state.data.findIndex(item => item.id === it))
+        defaultState.disabled = !isContinuous(idIndexList)
+      }
+    }
+
+    if (actionType === 'ungroup') {
+      const hasGroup = selectedIds.some(id => {
+        const node = this.astParser.getNode(id)
+        return node?.type === AST_NODE_TYPE.GROUP_TEXT
+      })
+      defaultState.disabled = !hasGroup
+    }
+
     return defaultState
   }
 
