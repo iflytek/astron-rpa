@@ -15,9 +15,6 @@ atomic:
       - key: max_steps
         title: 最大执行步数
         tip: 任务执行的最大步数限制，防止无限循环
-      - key: temperature
-        title: 模型温度
-        tip: 模型生成时的温度参数，控制输出的随机性，默认0
     outputList:
       - key: computer_use_res
         title: 执行结果
@@ -39,9 +36,6 @@ atomic:
       - key: max_steps
         title: 最大执行步数
         tip: 任务执行的最大步数限制，防止无限循环
-      - key: temperature
-        title: 模型温度
-        tip: 模型生成时的温度参数，控制输出的随机性，默认0
     outputList:
       - key: computer_use_res
         title: 执行结果
@@ -59,13 +53,10 @@ atomic:
     inputList:
       - key: instruction
         title: 用户指令
-        tip: 描述要执行的GUI自动化任务，例如"帮我从屏幕中提取数据，并返回 JSON 格式"
+        tip: 描述要执行的GUI自动化任务，例如"帮我从屏幕中提取数据，并返回 JSON 格式。"
       - key: max_steps
         title: 最大执行步数
         tip: 任务执行的最大步数限制，防止无限循环
-      - key: temperature
-        title: 模型温度
-        tip: 模型生成时的温度参数，控制输出的随机性，默认0
     outputList:
       - key: computer_use_res
         title: 执行结果
@@ -83,18 +74,31 @@ atomic:
     inputList:
       - key: instruction
         title: 用户指令
-        tip: 描述要执行的GUI自动化任务，例如"帮我将 [数据内容] 填写到屏幕中的表单，数据内容："
+        tip: 描述要执行的GUI自动化任务，例如"帮我将 [数据内容] 填写到屏幕中的表单。数据内容："
       - key: max_steps
         title: 最大执行步数
         tip: 任务执行的最大步数限制，防止无限循环
-      - key: temperature
-        title: 模型温度
-        tip: 模型生成时的温度参数，控制输出的随机性，默认0
     outputList:
       - key: computer_use_res
         title: 执行结果
         subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
+  ComputerUse.screen_condition:
+    title: IF屏幕满足条件
+    comment: 使用视觉大模型判断当前屏幕是否满足条件：@{instruction}
+    icon: computer-use
+    helpManual: |
+      使用说明：
+      1. 描述要判断的屏幕条件，如"判断谷歌浏览器是否在任务栏中"
+      2. 条件满足(True)时执行流程内逻辑，不满足(False)时跳出该流程
+    inputList:
+      - key: instruction
+        title: 判断条件
+        tip: 描述要判断的屏幕条件，如"判断谷歌浏览器是否在任务栏中"
+      - key: max_steps
+        title: 最大执行步数
+        tip: 任务执行的最大步数限制，防止无限循环，默认1（单次判断）
+    outputList: []
   ComputerUse.process_captcha:
     title: 处理验证码
     comment: 使用视觉大模型分析屏幕并处理屏幕中验证码
@@ -107,13 +111,10 @@ atomic:
     inputList:
       - key: instruction
         title: 用户指令
-        tip: 描述要执行的GUI自动化任务，例如"帮我处理并关闭屏幕中的验证码"
+        tip: 描述要执行的GUI自动化任务，例如"帮我处理并关闭屏幕中的验证码。"
       - key: max_steps
         title: 最大执行步数
         tip: 任务执行的最大步数限制，防止无限循环
-      - key: temperature
-        title: 模型温度
-        tip: 模型生成时的温度参数，控制输出的随机性，默认0
     outputList:
       - key: computer_use_res
         title: 执行结果
