@@ -1007,7 +1007,7 @@ atomic:
 options:
   ApplicationType:
     - value: Excel
-      label: Excel
+      label: Office
     - value: WPS
       label: WPS
     - value: Default
