@@ -26,6 +26,7 @@ def auto_default_strategy_web_mac(
     from astronverse.picker.strategy.web_strategy_mac import web_default_strategy_mac
 
     chrome_like_apps = [
+        APP.Chrome_MAC,
         APP.Chrome,
         APP.Firefox,
         APP.Chrome360X,
@@ -39,6 +40,9 @@ def auto_default_strategy_web_mac(
         try:
             # TODO: 用 AXUIOperate.get_web_control() 替代 UIAOperate.get_web_control()
             from astronverse.picker.engines.axui_picker import AXUIOperate
+
+            if strategy_svc.app == APP.Chrome_MAC:
+                strategy_svc.app = APP.Chrome
 
             web_control_result = AXUIOperate.get_web_control(
                 strategy_svc.start_control,

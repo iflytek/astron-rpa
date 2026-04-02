@@ -40,6 +40,22 @@ BROWSER_REGISTER_NAME = {
     CommonForBrowserType.BTFirefox.value: "firefox.exe",
 }
 
+# macOS 应用名称
+BROWSER_MAC_APP_NAME = {
+    CommonForBrowserType.BTChrome.value: "Google Chrome.app",
+    CommonForBrowserType.BTEdge.value: "Microsoft Edge.app",
+    CommonForBrowserType.BTFirefox.value: "Firefox.app",
+    CommonForBrowserType.BTChromium.value: "Chromium.app",
+}
+
+# macOS 进程/应用名候选
+BROWSER_AX_PROCESS_NAMES = {
+    CommonForBrowserType.BTChrome.value: ["Google Chrome", "chrome"],
+    CommonForBrowserType.BTEdge.value: ["Microsoft Edge", "msedge"],
+    CommonForBrowserType.BTFirefox.value: ["Firefox", "firefox"],
+    CommonForBrowserType.BTChromium.value: ["Chromium", "chromium"],
+}
+
 # 隐身模式
 BROWSER_PRIVATE_MAP = {
     CommonForBrowserType.BTChrome.value: "incognito",
