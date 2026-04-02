@@ -1,3 +1,5 @@
+# @format
+
 remote_addr: http://127.0.0.1:32742/
 skip_engine_start: false
 app_auth_type: casdoor

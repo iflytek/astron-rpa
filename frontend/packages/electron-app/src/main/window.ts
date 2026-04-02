@@ -53,7 +53,7 @@ export function createMainWindow() {
 
 export function createSubWindow(options: CreateWindowOptions) {
   logger.info('createSubWindow', JSON.stringify(options))
-  const {
+  let {
     width = 800,
     height = 600,
     url,
@@ -99,6 +99,12 @@ export function createSubWindow(options: CreateWindowOptions) {
       x = screenWidth - width - offset
       y = screenHeight / 2 - height / 2
       break
+    case 'fullscreen':
+      x = 0
+      y = 0
+      width = screenWidth
+      height = screenHeight
+      break
     default:
       break
   }
@@ -118,7 +124,26 @@ export function createSubWindow(options: CreateWindowOptions) {
 
   const window = createWindow(subWindowOptions, options.label)
   window.loadURL(url).then(() => sendElectronInfo(window)).catch(() => logger.error('Failed to load URL'))
+
+  if (options.mouseListen === false) {
+    window.setIgnoreMouseEvents(true, { forward: true });
+  }
+  if (options.keyboardListen === true) {
+    window.webContents.on('before-input-event', (event, input) => {
+      // input.type: 'keyUp' 或 'keyDown'
+      // input.key: 按键名称，如 'a', 'Enter', 'Control'
+      // input.code: 物理按键位置，如 'KeyA'
+      // input.control / input.shift / input.alt / input.meta: 修饰键状态
+
+      if (input.type === 'keyDown' && input.control ) {
+        console.log('按下了 Ctrl');
+        event.preventDefault();  // 阻止事件传递给页面，防止浏览器默认行为（如保存网页）
+        // 执行自定义逻辑
+      }
+    });
+  }
   window.on('ready-to-show', () => {
+    window.openDevTools()
     if (options?.show !== false) {
       window.show()
     }

@@ -10,6 +10,7 @@ export enum WINDOW_NAME {
   LOGWIN = 'logwin',
   MULTICHAT = 'multichat',
   USERFORM = 'userform',
+  HIGHLIGHT = 'highlight',
   CUA = 'cua',
 }
 

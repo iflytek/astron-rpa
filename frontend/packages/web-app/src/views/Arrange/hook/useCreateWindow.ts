@@ -56,5 +56,35 @@ export function useCreateWindow() {
     windowManager.hideWindow()
   }
 
-  return { openDataPickWindow }
+  const openHighlightWindow = async (customOptions?: { id: string }) => {
+    const url = `${baseUrl}/highlight.html`
+    const options: CreateWindowOptions = {
+      show: false,
+      url,
+      title: 'Highlight',
+      label: WINDOW_NAME.HIGHLIGHT,
+      alwaysOnTop: true,
+      width: screen.width,
+      height: screen.height,
+      position: 'fullscreen', // 自定义参数
+      resizable: false,
+      decorations: false,
+      fileDropEnabled: false,
+      maximizable: false,
+      transparent: true,
+      // skipTaskbar:true,
+      fullscreen: true,
+      hasShadow: false,            // 无阴影
+      movable: false,              // 不可移动
+      minimizable: false,          // 不可最小化
+      fullscreenable: true,
+      keyboardListen: true,
+      mouseListen: false,
+    }
+    await windowManager.createWindow(options, () => {
+      
+    })
+  }
+
+  return { openDataPickWindow, openHighlightWindow }
 }

@@ -40,7 +40,7 @@ export interface WindowManager {
   emitTo: (msg: WindowMessage) => Promise<any>
 }
 
-export type WindowPosition = 'left_top' | 'right_top' | 'left_bottom' | 'right_bottom' | 'top_center' | 'center' | 'right_center'
+export type WindowPosition = 'left_top' | 'right_top' | 'left_bottom' | 'right_bottom' | 'top_center' | 'center' | 'right_center' | 'fullscreen'
 
 // 窗口创建选项
 export interface CreateWindowOptions {
@@ -75,6 +75,11 @@ export interface CreateWindowOptions {
   maximizable?: boolean
   minimizable?: boolean
   closable?: boolean
+  kiosk?: boolean
+  fullscreenable?: boolean
+  simpleFullscreen?: boolean
+  mouseListen?: boolean
+  keyboardListen?: boolean
 }
 
 // 窗口消息类型
