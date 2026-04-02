@@ -1,12 +1,11 @@
-import { get } from 'lodash-es'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 import { addGlobalVariable, deleteGlobalVariable, getGlobalVariable, saveGlobalVariable } from '@/api/resource'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
-// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-// import useProjectDocStore from '@/stores/useProjectDocStore'
+import { caculateConditional } from '@/utils/selfExecuting'
+import { get } from 'lodash-es'
 
 // 定义流程变量store
 export const useVariableStore = defineStore('variable', () => {
@@ -18,40 +17,51 @@ export const useVariableStore = defineStore('variable', () => {
 
   //   设置流程变量列表
   const getFlowVariableList = (idx: number, processId: string) => {
-    const localVariableList = [] // 流程变量列表
+    const localVariableList: any[] = [] // 流程变量列表
 
-    // projectDocStore.userFlowNode(processId).slice(0, idx).forEach((flow: RPA.Atom, pos) => {
-    //   const { outputList, id, alias } = flow
-    //   const formItemList = [
-    //     ...get(flow, 'inputList', []),
-    //     ...get(flow, 'outputList', []),
-    //     ...get(flow, 'advanced', []),
-    //   ]
-    //   const formValues = formItemList.reduce((result, item) => {
-    //     return Object.assign(result, { [item.key]: typeof item.value === 'string' ? { value: item.value } : item.value })
-    //   }, {})
+    const tab = processStore.canvasManager?.getTab(processId)
+    if (!tab) return localVariableList
 
-    //   outputList.forEach((item, index) => {
-    //     const { dynamics } = item
-    //     const isShow = !dynamics || caculateConditional(dynamics, formValues, item)
+    const flowData = (tab.state.data as RPA.Atom[]).slice(0, idx)
 
-    //     if (isShow) {
-    //       const { value } = item
-    //       const notNullArr = Array.isArray(value) ? value.filter((item: RPA.AtomFormItemResult) => item.value) : []
-    //       const dialogResult = flow.key === 'Dialog.custom_box' ? flow.inputList.find(input => input.key === 'design_interface')?.value : ''
+    flowData.forEach((flow: RPA.Atom, pos: number) => {
+      const { outputList, id, alias } = flow
 
-    //       notNullArr.length > 0 && localVariableList.push({
-    //         id: `${id}-${index}`,
-    //         types: item.types,
-    //         rowNum: pos + 1,
-    //         anotherName: alias,
-    //         atomId: id,
-    //         value: notNullArr,
-    //         dialogResult,
-    //       })
-    //     }
-    //   })
-    // })
+      const formItemList = [
+        ...get(flow, 'inputList', []),
+        ...get(flow, 'outputList', []),
+        ...get(flow, 'advanced', []),
+      ]
+      const formValues = formItemList.reduce((result, item) => {
+        return Object.assign(result, { [item.key]: typeof item.value === 'string' ? { value: item.value } : item.value })
+      }, {})
+
+      outputList?.forEach((item: RPA.AtomDisplayItem, index: number) => {
+        const { dynamics, value } = item
+
+        let isShow = true
+        if (dynamics && Array.isArray(dynamics)) {
+          isShow = dynamics.every(dynamic => caculateConditional(dynamic.expression, formValues))
+        }
+
+        if (isShow) {
+          const notNullArr = Array.isArray(value) ? value.filter((item: RPA.AtomFormItemResult) => item.value) : []
+          const dialogResult = flow.key === 'Dialog.custom_box' ? flow.inputList?.find(input => input.key === 'design_interface')?.value : ''
+
+          if (notNullArr.length > 0) {
+            localVariableList.push({
+              id: `${id}-${index}`,
+              types: item.types,
+              rowNum: pos + 1,
+              anotherName: alias,
+              atomId: id,
+              value: notNullArr,
+              dialogResult,
+            })
+          }
+        }
+      })
+    })
 
     return localVariableList
   }
@@ -67,7 +77,7 @@ export const useVariableStore = defineStore('variable', () => {
   const getCurrentVariableList = (rowNum: number, id: string) => getFlowVariableList(rowNum + 1, id)
 
   //   筛选符合当前原子能力类型的变量
-  const filterCurrentVariableListByType = (ioType: string, idx = getActiveAtomIndex(), processId = processStore.activeProcessId) => {
+  const filterCurrentVariableListByType = (ioType: string, idx = getActiveAtomIndex(), processId = processStore.canvasManager?.activeTab?.id) => {
     if (Object.is(ioType, ATOM_FORM_TYPE.RESULT)) {
       return getCurrentVariableList(idx, processId)
     }
@@ -129,8 +139,10 @@ export const useVariableStore = defineStore('variable', () => {
   }
 
   const getActiveAtomIndex = () => {
-    // return flowStore.simpleFlowUIData.findIndex(flow => flow.id === flowStore.activeAtom.id)
-    return 0;
+    const activeTab = processStore.canvasManager?.activeTab
+    if (!activeTab?.nodeParameter?.activeAtomId?.value) return 0
+
+    return activeTab.state.data.findIndex((atom: RPA.Atom) => atom.id === activeTab.nodeParameter.activeAtomId.value)
   }
 
   watch(() => processStore.project.id, (robotId) => {

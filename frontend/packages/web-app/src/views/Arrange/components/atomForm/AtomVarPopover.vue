@@ -95,7 +95,8 @@ function getGlobalVarTree(): VarTreeItem[] {
 
 // 生成配置参数
 function getParameterVarTree(): VarTreeItem[] {
-  return processStore.parameters.map((item) => {
+  const parameters = processStore.canvasManager?.activeTab?.configParameter?.parameters.value || []
+  return parameters.map((item) => {
     const { desc, funcList } = processStore.globalVarTypeList[item.varType]
 
     return {
