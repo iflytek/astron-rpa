@@ -1,3 +1,5 @@
+# ⚠️  此文件与以下文件保持完全一致，任意一处改动必须同步到对方：
+#     D:\astra-rpa\engine\components\astronverse-system\src\astronverse\system\utils\clipboard.py
 import re
 import subprocess
 import sys

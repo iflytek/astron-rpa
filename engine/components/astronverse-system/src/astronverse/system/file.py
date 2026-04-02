@@ -5,7 +5,7 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsIt
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.error import *
-from astronverse.system.utils import *
+from astronverse.system.utils.utils import *
 
 
 class File:
