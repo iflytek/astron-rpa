@@ -1,11 +1,13 @@
+from abc import ABC, abstractmethod
 from enum import Enum
 
 
 class ApplicationType(Enum):
     """默认创建程序类型"""
 
-    EXCEL = "Excel"  # Excel
+    EXCEL = "Excel"  # Office
     WPS = "WPS"  # WPS
+    OPENPYXL = "Openpyxl"  # Openpyxl（非可视化）
     DEFAULT = "Default"  # 系统自动选择
 
 
@@ -383,3 +385,191 @@ class EditType(Enum):
 
     OVERWRITE = "overwrite"  # 覆盖
     APPEND = "append"  # 追加
+
+
+class ApplicationDriverInterface(ABC):
+    """Driver contract for workbook application lifecycle."""
+
+    @staticmethod
+    @abstractmethod
+    def init_app(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def quit_app(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def create_workbook(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def open_workbook(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_existing_workbook(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def save_workbook(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def close_workbook(*args, **kwargs): ...
+
+
+class WorksheetDriverInterface(ABC):
+    """Driver contract for worksheet operations."""
+
+    @staticmethod
+    @abstractmethod
+    def get_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_all_worksheets(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_all_worksheet_names(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_active_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def add_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def move_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_worksheet_name(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def rename_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def delete_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def copy_worksheet(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_worksheet_used_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_cell(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_rows(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_columns(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_range_from_cells(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def insert_picture(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def delete_all_comments(*args, **kwargs): ...
+
+
+class RangeDriverInterface(ABC):
+    """Driver contract for range operations."""
+
+    @staticmethod
+    @abstractmethod
+    def get_range_data(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_range_color(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def get_range_size(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def set_range_data(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def set_range_type(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def delete_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def clear_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def copy_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def paste_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def insert_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def merge_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def autofill_range(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def set_row_height(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def set_column_width(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def convert_text_to_number(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def convert_number_to_text(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def add_comment(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def delete_comment(*args, **kwargs): ...
+
+    @staticmethod
+    @abstractmethod
+    def search_and_replace(*args, **kwargs): ...

@@ -1,4 +1,5 @@
 import ast
+import sys
 import time
 from itertools import zip_longest
 
@@ -20,17 +21,59 @@ from astronverse.excel.error import (
     WIDTH_PARAM_EMPTY_ERROR,
     WIDTH_VALUE_ERROR,
     HEIGHT_PARAM_EMPTY_ERROR,
-    HEIGHT_VALUE_ERROR,
+    HEIGHT_VALUE_ERROR, DRIVER_UNSUPPORTED_ERROR,
 )
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.excel import *
-from astronverse.excel.core_win.application import Application
-from astronverse.excel.core_win.range import Range
-from astronverse.excel.core_win.worksheet import Worksheet
 from astronverse.excel.excel_obj import ExcelObj
 from astronverse.excel.utils import *
+
+
+def _get_application_driver(at: ApplicationType = ApplicationType.DEFAULT):
+    if sys.platform == "win32":
+        if at not in [ApplicationType.DEFAULT, ApplicationType.EXCEL, ApplicationType.WPS]:
+            from astronverse.excel.core_com.application import Application
+            return at, Application()
+    elif sys.platform == "darwin":
+        if at not in [ApplicationType.DEFAULT, ApplicationType.OPENPYXL]:
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "不支持的应用程序类型 {}".format(at))
+    else:
+        if at not in [ApplicationType.DEFAULT, ApplicationType.OPENPYXL]:
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "不支持的应用程序类型 {}".format(at))
+    from astronverse.excel.core_openpyxl.application import Application
+    return ApplicationType.OPENPYXL, Application()
+
+
+def _get_range_driver(at: ApplicationType = ApplicationType.DEFAULT):
+    if sys.platform == "win32":
+        if at not in [ApplicationType.DEFAULT, ApplicationType.EXCEL, ApplicationType.WPS]:
+            from astronverse.excel.core_com.range import Range
+            return at, Range()
+    elif sys.platform == "darwin":
+        if at not in [ApplicationType.DEFAULT, ApplicationType.OPENPYXL]:
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "不支持的应用程序类型 {}".format(at))
+    else:
+        if at not in [ApplicationType.DEFAULT, ApplicationType.OPENPYXL]:
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "不支持的应用程序类型 {}".format(at))
+    from astronverse.excel.core_openpyxl.range import Range
+    return ApplicationType.OPENPYXL, Range()
+
+
+def _get_worksheet_driver(at: ApplicationType = ApplicationType.DEFAULT):
+    if sys.platform == "win32":
+        if at not in [ApplicationType.DEFAULT, ApplicationType.EXCEL, ApplicationType.WPS]:
+            from astronverse.excel.core_com.worksheet import Worksheet
+            return at, Worksheet()
+    elif sys.platform == "darwin":
+        if at not in [ApplicationType.DEFAULT, ApplicationType.OPENPYXL]:
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "不支持的应用程序类型 {}".format(at))
+    else:
+        if at not in [ApplicationType.DEFAULT, ApplicationType.OPENPYXL]:
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "不支持的应用程序类型 {}".format(at))
+    from astronverse.excel.core_openpyxl.worksheet import Worksheet
+    return ApplicationType.OPENPYXL, Worksheet()
 
 
 class Excel:
@@ -53,31 +96,34 @@ class Excel:
         ],
     )
     def open_excel(
-        file_path: PATH = "",
-        default_application: ApplicationType = ApplicationType.DEFAULT,
-        visible_flag: bool = True,
-        password: str = "",
-        update_links: bool = True,
-        write_res_password: str = "",
+            file_path: PATH = "",
+            default_application: ApplicationType = ApplicationType.DEFAULT,
+            visible_flag: bool = True,
+            password: str = "",
+            update_links: bool = True,
+            write_res_password: str = "",
     ) -> ExcelObj:
         if not os.path.exists(file_path):
             raise BizException(FILE_PATH_ERROR, "填写的文件路径有误，请输入正确的路径！")
         else:
             file_path = os.path.abspath(file_path)
-        application = Application.init_app(
+
+        default_application, application_driver = _get_application_driver(default_application)
+        application = application_driver.init_app(
             default_application=default_application,
             visible_flag=visible_flag,
             retry=2,
             retry_delay=1,
             prefer_existing=False,
         )
-        excel = Application.open_workbook(
+        excel = application_driver.open_workbook(
             application=application,
             file_path=file_path,
             password=password,
             update_links=update_links,
             write_res_password=write_res_password,
         )
+        excel.app_type = default_application
         return excel
 
     @staticmethod
@@ -88,6 +134,9 @@ class Excel:
         ],
     )
     def get_excel(file_name) -> ExcelObj:
+        if sys.platform != "win32":
+            raise BizException(DRIVER_UNSUPPORTED_ERROR, "当前驱动程序不支持此功能")
+
         excel_flag, excel_pid, wps_flag, wps_pid = get_excel_processes()
         if not excel_flag and not wps_flag:
             raise BizException(EXCEL_NOT_FOUND, "未检测到wps或office打开！")
@@ -98,13 +147,14 @@ class Excel:
         if excel_flag:
             keys.append(ApplicationType.EXCEL)
 
+        default_application, application_driver = _get_application_driver()
         res = []
         for key in keys:
             try:
-                application = Application.init_app(
+                application = application_driver.init_app(
                     default_application=key, visible_flag=None, retry=0, retry_delay=0, prefer_existing=True
                 )
-                excel_obj = Application.get_existing_workbook(application, match_name=file_name)
+                excel_obj = application_driver.get_existing_workbook(application, match_name=file_name)
                 if excel_obj:
                     res.append(excel_obj)
             except Exception as e:
@@ -137,12 +187,12 @@ class Excel:
         ],
     )
     def create_excel(
-        file_path: str = "",
-        file_name: str = "",
-        default_application: ApplicationType = ApplicationType.EXCEL,
-        visible_flag: bool = True,
-        exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
-        password: str = "",
+            file_path: str = "",
+            file_name: str = "",
+            default_application: ApplicationType = ApplicationType.EXCEL,
+            visible_flag: bool = True,
+            exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
+            password: str = "",
     ) -> tuple[ExcelObj, str]:
         if not os.path.exists(file_path):
             raise BizException(FILE_PATH_ERROR, "填写的文件路径有误，请输入正确的路径！")
@@ -155,15 +205,16 @@ class Excel:
 
         new_file_path = os.path.join(file_path, file_name)
         new_file_path = resolve_file_path(new_file_path, exist_handle_type)
+        default_application, application_driver = _get_application_driver(default_application)
 
-        application = Application.init_app(
+        application = application_driver.init_app(
             default_application=default_application,
             visible_flag=visible_flag,
             retry=2,
             retry_delay=1,
             prefer_existing=True,
         )
-        excel = Application.create_workbook(application=application, file_path=new_file_path, password=password)
+        excel = application_driver.create_workbook(application=application, file_path=new_file_path, password=password)
         return excel, new_file_path
 
     @staticmethod
@@ -206,27 +257,28 @@ class Excel:
         outputList=[],
     )
     def save_excel(
-        excel: ExcelObj,
-        save_type: SaveType = SaveType.SAVE,
-        file_path: str = "",
-        file_name: str = "",
-        exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
-        close_flag: bool = False,
+            excel: ExcelObj,
+            save_type: SaveType = SaveType.SAVE,
+            file_path: str = "",
+            file_name: str = "",
+            exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
+            close_flag: bool = False,
     ):
+        default_application, application_driver = _get_application_driver(excel.app_type)
         if save_type == SaveType.SAVE_AS and file_path:
             file_suffix = "." + excel.get_name().split(".")[-1]
             if not file_name:
                 file_name = excel.get_name().split(".")[0]
             dst_file = os.path.join(file_path, file_name + file_suffix)
             new_file_path = resolve_file_path(dst_file, exist_handle_type)
-            Application.save_workbook(excel_obj=excel, file_path=new_file_path)
+            application_driver.save_workbook(excel_obj=excel, file_path=new_file_path)
         elif save_type == SaveType.SAVE:
-            Application.save_workbook(excel_obj=excel)
+            application_driver.save_workbook(excel_obj=excel)
         else:
             # 不做任何处理 SaveType.SAVE_AS 没有 file_path 或者是 SaveType.ABORT
             pass
         if close_flag:
-            Application.close_workbook(excel_obj=excel, save_changes=False)
+            application_driver.close_workbook(excel_obj=excel, save_changes=False)
 
     @staticmethod
     @atomicMg.atomic(
@@ -304,14 +356,14 @@ class Excel:
         outputList=[],
     )
     def close_excel(
-        close_range_flag: CloseRangeType = CloseRangeType.ONE,
-        excel: ExcelObj = None,
-        save_type_one: SaveType = SaveType.SAVE,
-        save_type_all: SaveType_ALL = SaveType_ALL.SAVE,
-        file_path: str = "",
-        file_name: str = "",
-        exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
-        pkill_flag: bool = False,
+            close_range_flag: CloseRangeType = CloseRangeType.ONE,
+            excel: ExcelObj = None,
+            save_type_one: SaveType = SaveType.SAVE,
+            save_type_all: SaveType_ALL = SaveType_ALL.SAVE,
+            file_path: str = "",
+            file_name: str = "",
+            exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
+            pkill_flag: bool = False,
     ):
         if close_range_flag == CloseRangeType.ALL:
             save_changes = False
@@ -319,10 +371,11 @@ class Excel:
                 save_changes = True
 
             excel_flag, excel_pid, wps_flag, wps_pid = get_excel_processes()
+            default_application, application_driver = _get_application_driver(excel.app_type)
             if wps_flag:
-                Application.quit_app(default_application=ApplicationType.WPS, save_changes=save_changes)
+                application_driver.quit_app(default_application=ApplicationType.WPS, save_changes=save_changes)
             if excel_flag:
-                Application.quit_app(default_application=ApplicationType.EXCEL, save_changes=save_changes)
+                application_driver.quit_app(default_application=ApplicationType.EXCEL, save_changes=save_changes)
             if pkill_flag:
                 if excel_pid:
                     psutil.Process(excel_pid).kill()
@@ -363,13 +416,13 @@ class Excel:
         outputList=[],
     )
     def edit_excel(
-        excel: ExcelObj,
-        edit_range: EditRangeType = EditRangeType.ROW,
-        sheet_name: str = "",
-        start_col: str = "A",
-        start_row: str = "1",
-        value: str = "",
-        edit_type: EditType = EditType.OVERWRITE,
+            excel: ExcelObj,
+            edit_range: EditRangeType = EditRangeType.ROW,
+            sheet_name: str = "",
+            start_col: str = "A",
+            start_row: str = "1",
+            value: str = "",
+            edit_type: EditType = EditType.OVERWRITE,
     ):
         if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
             try:
@@ -377,8 +430,11 @@ class Excel:
             except Exception as e:
                 raise BizException(LIST_FORMAT_ERROR, "填写的列表格式有误")
 
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, end_row, end_col, _ = used_range
 
         start_col_num = handle_column_input(start_col, end_col)
@@ -389,15 +445,15 @@ class Excel:
                 raise BizException(CONTENT_LIST_FORMAT_ERROR, "填写内容的列表格式有误")
             first_col = end_col + 1 if edit_type == EditType.APPEND else start_col_num
             for offset, val in enumerate(value):
-                r_obj = Worksheet.get_cell(worksheet, start_row_num, first_col + offset)
-                Range.set_range_data(r_obj, val)
+                r_obj = worksheet_driver.get_cell(worksheet, start_row_num, first_col + offset)
+                range_driver.set_range_data(r_obj, val)
         elif edit_range == EditRangeType.COLUMN:
             if not isinstance(value, list):
                 raise BizException(CONTENT_LIST_FORMAT_ERROR, "填写内容的列表格式有误")
             first_row = end_row + 1 if edit_type == EditType.APPEND else start_row_num
             for offset, val in enumerate(value):
-                r_obj = Worksheet.get_cell(worksheet, first_row + offset, start_col_num)
-                Range.set_range_data(r_obj, val)
+                r_obj = worksheet_driver.get_cell(worksheet, first_row + offset, start_col_num)
+                range_driver.set_range_data(r_obj, val)
         elif edit_range == EditRangeType.AREA:
             if not isinstance(value, list):
                 raise Exception("填写内容的列表格式有误")
@@ -407,12 +463,12 @@ class Excel:
             first_row = end_row + 1 if edit_type == EditType.APPEND else start_row_num
             for row in value:
                 for offset, val in enumerate(row):
-                    r_obj = Worksheet.get_cell(worksheet, first_row, first_col + offset)
-                    Range.set_range_data(r_obj, val)
+                    r_obj = worksheet_driver.get_cell(worksheet, first_row, first_col + offset)
+                    range_driver.set_range_data(r_obj, val)
                 first_row += 1  # 写完一行，整体下移
         elif edit_range == EditRangeType.CELL:
-            r_obj = Worksheet.get_cell(worksheet, start_row_num, start_col_num)
-            Range.set_range_data(r_obj, value)
+            r_obj = worksheet_driver.get_cell(worksheet, start_row_num, start_col_num)
+            range_driver.set_range_data(r_obj, value)
 
     @staticmethod
     @atomicMg.atomic(
@@ -488,40 +544,43 @@ class Excel:
         ],
     )
     def read_excel(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        read_range: ReadRangeType = ReadRangeType.CELL,
-        start_col: str = "",
-        end_col: str = "",
-        cell: str = "",
-        row: str = 1,
-        column: str = "",
-        start_row: str = 1,
-        end_row: str = 1,
-        read_display: bool = True,
-        trim_spaces: bool = False,
-        replace_none: bool = True,
+            excel: ExcelObj,
+            sheet_name: str = "",
+            read_range: ReadRangeType = ReadRangeType.CELL,
+            start_col: str = "",
+            end_col: str = "",
+            cell: str = "",
+            row: str = 1,
+            column: str = "",
+            start_row: str = 1,
+            end_row: str = 1,
+            read_display: bool = True,
+            trim_spaces: bool = False,
+            replace_none: bool = True,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, _ = used_range
 
         if read_range == ReadRangeType.CELL:
-            r_obj = Worksheet.get_range(worksheet, cell)
-            content = Range.get_range_data(r_obj, use_text=True if read_display else False)
+            r_obj = worksheet_driver.get_range(worksheet, cell)
+            content = range_driver.get_range_data(r_obj, use_text=True if read_display else False)
         elif read_range == ReadRangeType.ROW:
             start_row_num = handle_row_input(row, r_end_row)
             content = []
             for col in range(1, r_end_col + 1):
-                r_obj = Worksheet.get_cell(worksheet, start_row_num, col)
-                cell_text = Range.get_range_data(r_obj, use_text=True if read_display else False)
+                r_obj = worksheet_driver.get_cell(worksheet, start_row_num, col)
+                cell_text = range_driver.get_range_data(r_obj, use_text=True if read_display else False)
                 content.append(cell_text)
         elif read_range == ReadRangeType.COLUMN:
             start_col_num = handle_column_input(column, r_end_col)
             content = []
             for row in range(1, r_end_row + 1):
-                r_obj = Worksheet.get_cell(worksheet, row, start_col_num)
-                cell_text = Range.get_range_data(r_obj, use_text=True if read_display else False)
+                r_obj = worksheet_driver.get_cell(worksheet, row, start_col_num)
+                cell_text = range_driver.get_range_data(r_obj, use_text=True if read_display else False)
                 content.append(cell_text)
         elif read_range == ReadRangeType.AREA:
             start_col_num = handle_column_input(start_col, r_end_col)
@@ -532,8 +591,8 @@ class Excel:
             for row in range(start_row_num, end_row_num + 1):
                 row_data = []
                 for col in range(start_col_num, end_col_num + 1):
-                    r_obj = Worksheet.get_cell(worksheet, row, col)
-                    cell_text = Range.get_range_data(r_obj, use_text=True if read_display else False)
+                    r_obj = worksheet_driver.get_cell(worksheet, row, col)
+                    cell_text = range_driver.get_range_data(r_obj, use_text=True if read_display else False)
                     row_data.append(cell_text)
                 content.append(row_data)
         elif read_range == ReadRangeType.ALL:
@@ -541,8 +600,8 @@ class Excel:
             for row in range(1, r_end_row + 1):
                 row_data = []
                 for col in range(1, r_end_col + 1):
-                    r_obj = Worksheet.get_cell(worksheet, row, col)
-                    cell_text = Range.get_range_data(r_obj, use_text=True if read_display else False)
+                    r_obj = worksheet_driver.get_cell(worksheet, row, col)
+                    cell_text = range_driver.get_range_data(r_obj, use_text=True if read_display else False)
                     row_data.append(cell_text)
                 content.append(row_data)
         else:
@@ -637,34 +696,35 @@ class Excel:
         outputList=[],
     )
     def design_cell_type(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        design_type: ReadRangeType = ReadRangeType.CELL,
-        cell_position: str = "",
-        range_position: str = "",
-        col: str = "",
-        row: str = "",
-        col_width: str = "",
-        bg_color: str = "",
-        font_color: str = "",
-        font_type: FontType = FontType.NO_CHANGE,
-        font_name: FontNameType = FontNameType.NO_CHANGE,
-        font_size: int = 11,
-        numberformat: NumberFormatType = NumberFormatType.NO_CHANGE,
-        numberformat_other: str = "",
-        horizontal_align: HorizontalAlign = HorizontalAlign.NO_CHANGE,
-        vertical_align: VerticalAlign = VerticalAlign.NO_CHANGE,
-        wrap_text: bool = True,
-        auto_row_height: bool = False,
-        auto_column_width: bool = False,
+            excel: ExcelObj,
+            sheet_name: str = "",
+            design_type: ReadRangeType = ReadRangeType.CELL,
+            cell_position: str = "",
+            range_position: str = "",
+            col: str = "",
+            row: str = "",
+            col_width: str = "",
+            bg_color: str = "",
+            font_color: str = "",
+            font_type: FontType = FontType.NO_CHANGE,
+            font_name: FontNameType = FontNameType.NO_CHANGE,
+            font_size: int = 11,
+            numberformat: NumberFormatType = NumberFormatType.NO_CHANGE,
+            numberformat_other: str = "",
+            horizontal_align: HorizontalAlign = HorizontalAlign.NO_CHANGE,
+            vertical_align: VerticalAlign = VerticalAlign.NO_CHANGE,
+            wrap_text: bool = True,
+            auto_row_height: bool = False,
+            auto_column_width: bool = False,
     ):
         if bg_color:
             bg_color = check_color(bg_color)
         if font_color:
             font_color = check_color(font_color)
-
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         cell_positions = calculate_cell_positions(
@@ -679,8 +739,8 @@ class Excel:
         )
 
         for cell_position in cell_positions:
-            r_obj = Worksheet.get_range(worksheet, cell_position)
-            Range.set_range_type(
+            r_obj = worksheet_driver.get_range(worksheet, cell_position)
+            range_driver.set_range_type(
                 range_obj=r_obj,
                 col_width=col_width,
                 bg_color=bg_color,
@@ -745,16 +805,18 @@ class Excel:
         ],
     )
     def copy_excel(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        copy_range_type: ReadRangeType = ReadRangeType.CELL,
-        cell_position: str = "A1",
-        row: str = "",
-        col: str = "",
-        range_position: str = "A1:B5",
+            excel: ExcelObj,
+            sheet_name: str = "",
+            copy_range_type: ReadRangeType = ReadRangeType.CELL,
+            cell_position: str = "A1",
+            row: str = "",
+            col: str = "",
+            range_position: str = "A1:B5",
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         cell_positions = calculate_cell_positions(
@@ -772,8 +834,8 @@ class Excel:
         else:
             return ""
 
-        r_obj = Worksheet.get_range(worksheet, cell)
-        Range.copy_range(r_obj)
+        r_obj = worksheet_driver.get_range(worksheet, cell)
+        range_driver.copy_range(r_obj)
         try:
             cv.OpenClipboard()
             return cv.GetClipboardData(cv.CF_UNICODETEXT)
@@ -792,16 +854,18 @@ class Excel:
         outputList=[],
     )
     def paste_excel(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        paste_type: PasteType = PasteType.ALL,
-        start_location: str = "A1",
-        skip_blanks: bool = False,
-        transpose: bool = False,
+            excel: ExcelObj,
+            sheet_name: str = "",
+            paste_type: PasteType = PasteType.ALL,
+            start_location: str = "A1",
+            skip_blanks: bool = False,
+            transpose: bool = False,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        r_obj = Worksheet.get_range(worksheet, start_location)
-        Range.paste_range(r_obj, paste_type=paste_type.value, skip_blanks=skip_blanks, transpose=transpose)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        r_obj = worksheet_driver.get_range(worksheet, start_location)
+        range_driver.paste_range(r_obj, paste_type=paste_type.value, skip_blanks=skip_blanks, transpose=transpose)
 
     @staticmethod
     @atomicMg.atomic(
@@ -859,17 +923,19 @@ class Excel:
         outputList=[],
     )
     def delete_excel_cell(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        delete_range_excel: ReadRangeType = ReadRangeType.CELL,
-        coordinate: str = "",
-        row: str = "",
-        col: str = "",
-        data_region: str = "",
-        direction: DeleteCellDirection = DeleteCellDirection.LOWER_MOVE_UP,
+            excel: ExcelObj,
+            sheet_name: str = "",
+            delete_range_excel: ReadRangeType = ReadRangeType.CELL,
+            coordinate: str = "",
+            row: str = "",
+            col: str = "",
+            data_region: str = "",
+            direction: DeleteCellDirection = DeleteCellDirection.LOWER_MOVE_UP,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
         cell_positions = calculate_cell_positions(
             design_type=delete_range_excel.value,
@@ -882,11 +948,11 @@ class Excel:
             r_address=r_address,
         )
         for cell_position in cell_positions:
-            r_obj = Worksheet.get_range(worksheet, cell_position)
+            r_obj = worksheet_driver.get_range(worksheet, cell_position)
             if delete_range_excel in [ReadRangeType.CELL, ReadRangeType.AREA]:
-                Range.delete_range(r_obj, direction=direction.value)
+                range_driver.delete_range(r_obj, direction=direction.value)
             else:
-                Range.delete_range(r_obj)
+                range_driver.delete_range(r_obj)
 
     @staticmethod
     @atomicMg.atomic(
@@ -933,17 +999,19 @@ class Excel:
         outputList=[],
     )
     def clear_excel_content(
-        excel: ExcelObj,
-        sheet_name: str,
-        select_type: ReadRangeType = ReadRangeType.CELL,
-        cell_location: str = "",
-        row: str = "",
-        col: str = "",
-        data_range: str = "A1:B5",
-        clear_type: ClearType = ClearType.CONTENT,
+            excel: ExcelObj,
+            sheet_name: str,
+            select_type: ReadRangeType = ReadRangeType.CELL,
+            cell_location: str = "",
+            row: str = "",
+            col: str = "",
+            data_range: str = "A1:B5",
+            clear_type: ClearType = ClearType.CONTENT,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
         cell_positions = calculate_cell_positions(
             design_type=select_type.value,
@@ -956,8 +1024,8 @@ class Excel:
             r_address=r_address,
         )
         for cell_position in cell_positions:
-            r_obj = Worksheet.get_range(worksheet, cell_position)
-            Range.clear_range(r_obj, clear_type.value)
+            r_obj = worksheet_driver.get_range(worksheet, cell_position)
+            range_driver.clear_range(r_obj, clear_type.value)
 
     @staticmethod
     @atomicMg.atomic(
@@ -1016,19 +1084,21 @@ class Excel:
         outputList=[],
     )
     def insert_excel_row_or_column(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        insert_type: EnhancedInsertType = EnhancedInsertType.ROW,
-        row: str = 1,
-        row_direction: RowDirectionType = RowDirectionType.LOWER,
-        col: str = 1,
-        col_direction: ColumnDirectionType = ColumnDirectionType.RIGHT,
-        blank_rows: bool = False,
-        insert_num: int = 1,
-        insert_content: str = "",
+            excel: ExcelObj,
+            sheet_name: str = "",
+            insert_type: EnhancedInsertType = EnhancedInsertType.ROW,
+            row: str = 1,
+            row_direction: RowDirectionType = RowDirectionType.LOWER,
+            col: str = 1,
+            col_direction: ColumnDirectionType = ColumnDirectionType.RIGHT,
+            blank_rows: bool = False,
+            insert_num: int = 1,
+            insert_content: str = "",
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         r_end_col_letter = column_number_to_letter(r_end_col)
@@ -1058,16 +1128,16 @@ class Excel:
             start_row_num = handle_row_input(row, r_end_row)
             if row_direction == RowDirectionType.UPPER:  # 向上
                 for _ in range(insert_num):
-                    r_obj = Worksheet.get_range(
+                    r_obj = worksheet_driver.get_range(
                         worksheet, "A{}:{}{}".format(start_row_num, r_end_col_letter, start_row_num)
                     )
-                    Range.insert_range(r_obj, "row")
+                    range_driver.insert_range(r_obj, "row")
             elif row_direction == RowDirectionType.LOWER:  # 向下
                 for _ in range(insert_num):
-                    r_obj = Worksheet.get_range(
+                    r_obj = worksheet_driver.get_range(
                         worksheet, "A{}:{}{}".format(start_row_num + 1, r_end_col_letter, start_row_num + 1)
                     )
-                    Range.insert_range(r_obj, "row")
+                    range_driver.insert_range(r_obj, "row")
                 start_row_num = start_row_num + 1
 
             if not blank_rows:
@@ -1076,23 +1146,23 @@ class Excel:
                 first_row = start_row_num
                 for row in value:
                     for offset, val in enumerate(row):
-                        r_obj = Worksheet.get_cell(worksheet, first_row, first_col + offset)
-                        Range.set_range_data(r_obj, val)
+                        r_obj = worksheet_driver.get_cell(worksheet, first_row, first_col + offset)
+                        range_driver.set_range_data(r_obj, val)
                     first_row += 1  # 写完一行，整体下移
         elif insert_type in [EnhancedInsertType.COLUMN, EnhancedInsertType.ADD_COLUMNS]:
             start_col_num = handle_column_input(col, r_end_col)
             if col_direction == ColumnDirectionType.LEFT:  # 向上
                 for _ in range(insert_num):
-                    r_obj = Worksheet.get_range(
+                    r_obj = worksheet_driver.get_range(
                         worksheet,
                         "{}1:{}{}".format(
                             column_number_to_letter(start_col_num), column_number_to_letter(start_col_num), r_end_row
                         ),
                     )
-                    Range.insert_range(r_obj, "column")
+                    range_driver.insert_range(r_obj, "column")
             elif col_direction == ColumnDirectionType.RIGHT:  # 向下
                 for _ in range(insert_num):
-                    r_obj = Worksheet.get_range(
+                    r_obj = worksheet_driver.get_range(
                         worksheet,
                         "{}1:{}{}".format(
                             column_number_to_letter(start_col_num + 1),
@@ -1100,7 +1170,7 @@ class Excel:
                             r_end_row,
                         ),
                     )
-                    Range.insert_range(r_obj, "column")
+                    range_driver.insert_range(r_obj, "column")
                 start_col_num = start_col_num + 1
             if not blank_rows:
                 filled_T = list(zip_longest(*value, fillvalue=""))
@@ -1110,8 +1180,8 @@ class Excel:
                 first_row = 1
                 for row in value:
                     for offset, val in enumerate(row):
-                        r_obj = Worksheet.get_cell(worksheet, first_row, first_col + offset)
-                        Range.set_range_data(r_obj, val)
+                        r_obj = worksheet_driver.get_cell(worksheet, first_row, first_col + offset)
+                        range_driver.set_range_data(r_obj, val)
                     first_row += 1  # 写完一行，整体下移
 
     @staticmethod
@@ -1134,10 +1204,12 @@ class Excel:
         ],
     )
     def get_excel_row_num(
-        excel: ExcelObj, sheet_name: str = "", get_col_type: ColumnType = ColumnType.ALL, col: str = ""
+            excel: ExcelObj, sheet_name: str = "", get_col_type: ColumnType = ColumnType.ALL, col: str = ""
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         if get_col_type == ColumnType.ALL:
@@ -1145,7 +1217,7 @@ class Excel:
         elif get_col_type == ColumnType.ONE_COLUMN:
             start_col_num = handle_column_input(col, r_end_col)
             for row in range(r_end_row, 0, -1):  # 倒序
-                val = Range.get_range_data(Worksheet.get_cell(worksheet, row, start_col_num), False)
+                val = range_driver.get_range_data(worksheet_driver.get_cell(worksheet, row, start_col_num), False)
                 if val not in [None, ""]:
                     return row  # Excel 行号 = row
             return 0  # 全空
@@ -1170,14 +1242,16 @@ class Excel:
         ],
     )
     def get_excel_col_num(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        get_row_type: RowType = RowType.ALL,
-        row: str = "",
-        output_type: ColumnOutputType = ColumnOutputType.NUMBER,
+            excel: ExcelObj,
+            sheet_name: str = "",
+            get_row_type: RowType = RowType.ALL,
+            row: str = "",
+            output_type: ColumnOutputType = ColumnOutputType.NUMBER,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         r_start_row, r_start_col, r_end_row, r_end_col, r_address = used_range
 
         if get_row_type == RowType.ALL:
@@ -1186,7 +1260,7 @@ class Excel:
             start_row_num = handle_row_input(row, r_end_row)
 
             for col in range(r_end_col, 0, -1):  # 从最后一列向前查
-                val = Range.get_range_data(Worksheet.get_cell(worksheet, start_row_num, col), False)
+                val = range_driver.get_range_data(worksheet_driver.get_cell(worksheet, start_row_num, col), False)
                 if val not in [None, ""]:
                     return column_number_to_letter(col) if output_type == ColumnOutputType.LETTER else col
             return "" if output_type == ColumnOutputType.LETTER else 0
@@ -1212,13 +1286,15 @@ class Excel:
         Returns:
             第一个空行的行号（1-based），如果都不为空，返回最后一行+1
         """
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         r_start_row, r_start_col, r_end_row, r_end_col, r_address = used_range
 
         for row in range(r_start_row, r_end_row + 1):
             for col in range(r_start_col, r_end_col + 1):
-                val = Range.get_range_data(Worksheet.get_cell(worksheet, row, col), False)
+                val = range_driver.get_range_data(worksheet_driver.get_cell(worksheet, row, col), False)
                 if val not in (None, ""):
                     break
             else:
@@ -1236,7 +1312,7 @@ class Excel:
         ],
     )
     def get_excel_first_available_col(
-        excel: ExcelObj, sheet_name: str = "", output_type: ColumnOutputType = ColumnOutputType.LETTER
+            excel: ExcelObj, sheet_name: str = "", output_type: ColumnOutputType = ColumnOutputType.LETTER
     ):
         """
         获取第一个空列的列号或字母
@@ -1249,13 +1325,15 @@ class Excel:
         Returns:
             第一个空列的列号或字母（1-based）。如果都不为空，返回最后一列+1
         """
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         r_start_row, r_start_col, r_end_row, r_end_col, r_address = used_range
 
         for col in range(r_start_col, r_end_col + 1):
             for row in range(r_start_row, r_end_row + 1):
-                val = Range.get_range_data(Worksheet.get_cell(worksheet, row, col), False)
+                val = range_driver.get_range_data(worksheet_driver.get_cell(worksheet, row, col), False)
                 if val not in (None, ""):
                     break
             else:
@@ -1318,18 +1396,20 @@ class Excel:
         ],
     )
     def loop_excel_content(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        select_type: SearchRangeType = SearchRangeType.ROW,
-        start_row: str = "1",
-        end_row: str = "-1",
-        start_col: str = "A",
-        end_col: str = "-1",
-        real_text: bool = False,
-        cell_strip: bool = False,
+            excel: ExcelObj,
+            sheet_name: str = "",
+            select_type: SearchRangeType = SearchRangeType.ROW,
+            start_row: str = "1",
+            end_row: str = "-1",
+            start_col: str = "A",
+            end_col: str = "-1",
+            real_text: bool = False,
+            cell_strip: bool = False,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         r_end_col_letter = column_number_to_letter(r_end_col)
@@ -1354,7 +1434,7 @@ class Excel:
         else:
             raise BizException(PARAM_ERROR_FORMAT.format(select_type), f"不支持的操作类型：{select_type}")
 
-        content = Range.get_range_data(Worksheet.get_range(worksheet, data_region), True if real_text else False)
+        content = range_driver.get_range_data(worksheet_driver.get_range(worksheet, data_region), True if real_text else False)
         if content:
             if cell_strip:
                 content = util_trim(content)
@@ -1389,9 +1469,11 @@ class Excel:
         ],
     )
     def excel_get_cell_color(excel: ExcelObj, coordinate: str, sheet_name: str = ""):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        range_obj = Worksheet.get_range(worksheet, coordinate)
-        r, g, b = Range.get_range_color(range_obj)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        range_obj = worksheet_driver.get_range(worksheet, coordinate)
+        r, g, b = range_driver.get_range_color(range_obj)
         color_str = "{},{},{}".format(r, g, b)
         return color_str
 
@@ -1422,18 +1504,20 @@ class Excel:
         outputList=[],
     )
     def merge_split_excel_cell(
-        excel: ExcelObj,
-        sheet_name: str,
-        job_type: MergeOrSplitType = MergeOrSplitType.MERGE,
-        merge_cell_range: str = "A1:B2",
-        split_cell_range: str = "A1:B2",
+            excel: ExcelObj,
+            sheet_name: str,
+            job_type: MergeOrSplitType = MergeOrSplitType.MERGE,
+            merge_cell_range: str = "A1:B2",
+            split_cell_range: str = "A1:B2",
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
         if job_type == MergeOrSplitType.MERGE:
-            range_obj = Worksheet.get_range(worksheet, merge_cell_range)
+            range_obj = worksheet_driver.get_range(worksheet, merge_cell_range)
         else:
-            range_obj = Worksheet.get_range(worksheet, split_cell_range)
-        Range.merge_range(range_obj, job_type.value)
+            range_obj = worksheet_driver.get_range(worksheet, split_cell_range)
+        range_driver.merge_range(range_obj, job_type.value)
 
     @staticmethod
     @atomicMg.atomic(
@@ -1455,10 +1539,10 @@ class Excel:
         outputList=[],
     )
     def add_excel_worksheet(
-        excel: ExcelObj,
-        sheet_name: str,
-        insert_type: SheetInsertType = SheetInsertType.FIRST,
-        relative_sheet_name: str = "",
+            excel: ExcelObj,
+            sheet_name: str,
+            insert_type: SheetInsertType = SheetInsertType.FIRST,
+            relative_sheet_name: str = "",
     ):
         """
         创建工作表
@@ -1469,23 +1553,24 @@ class Excel:
             insert_type: 插入位置类型
             relative_sheet_name: 参考工作表名称（当 insert_type 为 BEFORE 或 AFTER 时使用）
         """
-        sheet_names = Worksheet.get_all_worksheet_names(excel)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        sheet_names = worksheet_driver.get_all_worksheet_names(excel)
         if sheet_name in sheet_names:
             raise BizException(SHEET_NAME_EXISTS_ERROR, "新sheet名称已存在")
         if len(sheet_name) >= 31:
             raise BizException(SHEET_NAME_TOO_LONG_ERROR, "sheet名称过长,需要小于31个字符")
 
         if insert_type == SheetInsertType.FIRST:
-            Worksheet.add_worksheet(excel, sheet_name, before=1)
+            worksheet_driver.add_worksheet(excel, sheet_name, before=1)
         elif insert_type == SheetInsertType.LAST:
-            Worksheet.add_worksheet(excel, sheet_name)
+            worksheet_driver.add_worksheet(excel, sheet_name)
         else:
             if (not relative_sheet_name) or (relative_sheet_name not in sheet_names):
                 raise BizException(REFERENCE_SHEET_NOT_FOUND_ERROR, "参考sheet名称不存在")
             if insert_type == SheetInsertType.BEFORE:
-                Worksheet.add_worksheet(excel, sheet_name, before=relative_sheet_name)
+                worksheet_driver.add_worksheet(excel, sheet_name, before=relative_sheet_name)
             elif insert_type == SheetInsertType.AFTER:
-                Worksheet.add_worksheet(excel, sheet_name, after=relative_sheet_name)
+                worksheet_driver.add_worksheet(excel, sheet_name, after=relative_sheet_name)
 
     @staticmethod
     @atomicMg.atomic(
@@ -1506,10 +1591,10 @@ class Excel:
         outputList=[],
     )
     def move_excel_worksheet(
-        excel: ExcelObj,
-        move_type: MoveSheetType = MoveSheetType.MOVE_AFTER,
-        move_sheet: str = "",
-        move_to_sheet: str = "",
+            excel: ExcelObj,
+            move_type: MoveSheetType = MoveSheetType.MOVE_AFTER,
+            move_sheet: str = "",
+            move_to_sheet: str = "",
     ):
         """
         移动工作表
@@ -1520,20 +1605,21 @@ class Excel:
             move_sheet: 要移动的工作表名称
             move_to_sheet: 目标工作表名称（当 move_type 为 MOVE_AFTER 或 MOVE_BEFORE 时使用）
         """
-        sheet_names = Worksheet.get_all_worksheet_names(excel)
-        move_worksheet = Worksheet.get_worksheet(excel, move_sheet, default=0)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        sheet_names = worksheet_driver.get_all_worksheet_names(excel)
+        move_worksheet = worksheet_driver.get_worksheet(excel, move_sheet, default=0)
 
         if move_type == MoveSheetType.MOVE_TO_FIRST:
-            Worksheet.move_worksheet(move_worksheet, before=1)
+            worksheet_driver.move_worksheet(move_worksheet, before=1)
         elif move_type == MoveSheetType.MOVE_TO_LAST:
-            Worksheet.move_worksheet(move_worksheet)
+            worksheet_driver.move_worksheet(move_worksheet)
         else:
             if (not move_to_sheet) or (move_to_sheet not in sheet_names):
                 raise BizException(REFERENCE_SHEET_NOT_FOUND_ERROR, "参考sheet名称不存在")
             if move_type == MoveSheetType.MOVE_BEFORE:
-                Worksheet.move_worksheet(move_worksheet, before=move_to_sheet)
+                worksheet_driver.move_worksheet(move_worksheet, before=move_to_sheet)
             elif move_type == MoveSheetType.MOVE_AFTER:
-                Worksheet.move_worksheet(move_worksheet, after=move_to_sheet)
+                worksheet_driver.move_worksheet(move_worksheet, after=move_to_sheet)
 
     @staticmethod
     @atomicMg.atomic("Excel")
@@ -1545,8 +1631,9 @@ class Excel:
             excel: ExcelObj 对象
             del_sheet_name: 需要删除的工作表名称
         """
-        worksheet = Worksheet.get_worksheet(excel, del_sheet_name)
-        Worksheet.delete_worksheet(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, del_sheet_name)
+        worksheet_driver.delete_worksheet(worksheet)
 
     @staticmethod
     @atomicMg.atomic("Excel")
@@ -1560,13 +1647,14 @@ class Excel:
             new_sheet_name: 新工作表名称
         """
         try:
-            sheet_names = Worksheet.get_all_worksheet_names(excel)
+            default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+            sheet_names = worksheet_driver.get_all_worksheet_names(excel)
             if new_sheet_name in sheet_names:
                 raise BizException(SHEET_NAME_EXISTS_ERROR, "新sheet名称已存在")
             if len(new_sheet_name) >= 31:
                 raise BizException(SHEET_NAME_TOO_LONG_ERROR, "sheet名称过长,需要小于31个字符")
-            worksheet = Worksheet.get_worksheet(excel, source_sheet_name)
-            Worksheet.rename_worksheet(worksheet, new_sheet_name)
+            worksheet = worksheet_driver.get_worksheet(excel, source_sheet_name)
+            worksheet_driver.rename_worksheet(worksheet, new_sheet_name)
         except Exception as err:
             raise err
 
@@ -1587,13 +1675,13 @@ class Excel:
         outputList=[],
     )
     def copy_excel_worksheet(
-        excel: ExcelObj,
-        source_sheet_name: str,
-        new_sheet_name: str,
-        location: CopySheetLocationType = CopySheetLocationType.LAST,
-        copy_type: CopySheetType = CopySheetType.CURRENT_WORKBOOK,
-        other_excel_obj: ExcelObj = "",
-        is_cover: bool = False,
+            excel: ExcelObj,
+            source_sheet_name: str,
+            new_sheet_name: str,
+            location: CopySheetLocationType = CopySheetLocationType.LAST,
+            copy_type: CopySheetType = CopySheetType.CURRENT_WORKBOOK,
+            other_excel_obj: ExcelObj = "",
+            is_cover: bool = False,
     ):
         """
         复制工作表
@@ -1607,10 +1695,11 @@ class Excel:
             other_excel_obj: 其他工作簿对象（当copy_type为OTHER_WORKBOOK时使用）
             is_cover: 是否覆盖同名工作表
         """
-        sheet_names = Worksheet.get_all_worksheet_names(excel)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        sheet_names = worksheet_driver.get_all_worksheet_names(excel)
         other_sheet_names = []
         if other_excel_obj:
-            other_sheet_names = Worksheet.get_all_worksheet_names(other_excel_obj)
+            other_sheet_names = worksheet_driver.get_all_worksheet_names(other_excel_obj)
 
         if copy_type == CopySheetType.CURRENT_WORKBOOK:
             trigger_excel = excel
@@ -1624,15 +1713,15 @@ class Excel:
         if len(new_sheet_name) >= 31:
             raise BizException(SHEET_NAME_TOO_LONG_ERROR, "sheet名称过长,需要小于31个字符")
 
-        source_worksheet = Worksheet.get_worksheet(excel, source_sheet_name)
+        source_worksheet = worksheet_driver.get_worksheet(excel, source_sheet_name)
 
         # 删除
         if is_cover and new_sheet_name in sheet_names:
-            Worksheet.delete_worksheet(Worksheet.get_worksheet(trigger_excel, new_sheet_name))
+            worksheet_driver.delete_worksheet(worksheet_driver.get_worksheet(trigger_excel, new_sheet_name))
 
         # 复制，并设置active
         time.sleep(0.5)
-        Worksheet.copy_worksheet(
+        worksheet_driver.copy_worksheet(
             source_worksheet,
             trigger_excel,
             location,
@@ -1640,7 +1729,7 @@ class Excel:
         )
 
         # 重命名
-        Worksheet.rename_worksheet(Worksheet.get_active_worksheet(excel), new_sheet_name)
+        worksheet_driver.rename_worksheet(worksheet_driver.get_active_worksheet(excel), new_sheet_name)
 
     @staticmethod
     @atomicMg.atomic(
@@ -1660,10 +1749,11 @@ class Excel:
         Returns:
             工作表名称或名称列表
         """
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
         if sheet_range == SheetRangeType.ALL:
-            return Worksheet.get_all_worksheet_names(excel)
+            return worksheet_driver.get_all_worksheet_names(excel)
         else:
-            return Worksheet.get_worksheet_name(Worksheet.get_active_worksheet(excel))
+            return worksheet_driver.get_worksheet_name(worksheet_driver.get_active_worksheet(excel))
 
     @staticmethod
     @atomicMg.atomic(
@@ -1743,23 +1833,23 @@ class Excel:
         outputList=[atomicMg.param("search_excel_result", types="Dict")],
     )
     def search_and_replace_excel_content(
-        excel: ExcelObj,
-        find_str: str,
-        replace_flag: bool = False,
-        replace_str: str = "",
-        lookup_range_excel: SearchSheetType = SearchSheetType.ALL,
-        sheet_name: str = "",
-        search_range: SearchRangeType = SearchRangeType.ALL,
-        row: str = "",
-        col: str = "",
-        start_row: str = "",
-        end_row: str = "",
-        start_col: str = "",
-        end_col: str = "",
-        exact_match: bool = False,
-        case_flag: bool = False,
-        match_range: MatchCountType = MatchCountType.ALL,
-        output_type: SearchResultType = SearchResultType.CELL,
+            excel: ExcelObj,
+            find_str: str,
+            replace_flag: bool = False,
+            replace_str: str = "",
+            lookup_range_excel: SearchSheetType = SearchSheetType.ALL,
+            sheet_name: str = "",
+            search_range: SearchRangeType = SearchRangeType.ALL,
+            row: str = "",
+            col: str = "",
+            start_row: str = "",
+            end_row: str = "",
+            start_col: str = "",
+            end_col: str = "",
+            exact_match: bool = False,
+            case_flag: bool = False,
+            match_range: MatchCountType = MatchCountType.ALL,
+            output_type: SearchResultType = SearchResultType.CELL,
     ):
         """
         查找和替换 Excel 中的内容
@@ -1791,13 +1881,15 @@ class Excel:
             find_str = str(find_str)
 
         # 确定要搜索的工作表列表
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
         if lookup_range_excel == SearchSheetType.ALL:
-            sheet_list = Worksheet.get_all_worksheets(excel)
+            sheet_list = worksheet_driver.get_all_worksheets(excel)
             sheet_name = ""
         else:
-            worksheet = Worksheet.get_worksheet(excel, sheet_name, 1)
+            worksheet = worksheet_driver.get_worksheet(excel, sheet_name, 1)
             sheet_list = [worksheet]
-            sheet_name = Worksheet.get_worksheet_name(worksheet)
+            sheet_name = worksheet_driver.get_worksheet_name(worksheet)
 
         contents = {}
 
@@ -1824,8 +1916,8 @@ class Excel:
 
         # 遍历每个工作表
         for worksheet in sheet_list:
-            name = Worksheet.get_worksheet_name(worksheet)
-            used_range = Worksheet.get_worksheet_used_range(worksheet)
+            name = worksheet_driver.get_worksheet_name(worksheet)
+            used_range = worksheet_driver.get_worksheet_used_range(worksheet)
             _, _, r_end_row, r_end_col, r_address = used_range
 
             # 对于 AREA 类型，需要特殊处理
@@ -1856,8 +1948,8 @@ class Excel:
             # 在每个范围内搜索
             all_results = []
             for cell_pos in cell_positions:
-                range_obj = Worksheet.get_range(worksheet, cell_pos)
-                results = Range.search_and_replace(
+                range_obj = worksheet_driver.get_range(worksheet, cell_pos)
+                results = range_driver.search_and_replace(
                     range_obj,
                     find_str,
                     replace_str if replace_flag else "",
@@ -1919,19 +2011,21 @@ class Excel:
         outputList=[],
     )
     def insert_pic(
-        excel: ExcelObj,
-        sheet_name: str,
-        insert_pos: str,
-        pic_path: str,
-        pic_size_type: ImageSizeType = ImageSizeType.AUTO,
-        pic_height: int = 300,
-        pic_width: int = 400,
-        pic_scale: float = 1.0,
+            excel: ExcelObj,
+            sheet_name: str,
+            insert_pos: str,
+            pic_path: str,
+            pic_size_type: ImageSizeType = ImageSizeType.AUTO,
+            pic_height: int = 300,
+            pic_width: int = 400,
+            pic_scale: float = 1.0,
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        r_obj = Worksheet.get_range(worksheet, insert_pos)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        r_obj = worksheet_driver.get_range(worksheet, insert_pos)
 
-        left, top, width, height = Range.get_range_size(r_obj)
+        left, top, width, height = range_driver.get_range_size(r_obj)
         scale = 1.0
         if pic_size_type == ImageSizeType.SCALE:
             scale = pic_scale
@@ -1941,7 +2035,7 @@ class Excel:
         elif pic_size_type == ImageSizeType.AUTO:
             width = width
             height = height
-        Worksheet.insert_picture(worksheet, pic_path, left, top, height, width, scale)
+        worksheet_driver.insert_picture(worksheet, pic_path, left, top, height, width, scale)
 
     @staticmethod
     @atomicMg.atomic(
@@ -2018,19 +2112,21 @@ class Excel:
         outputList=[],
     )
     def insert_formula(
-        excel: ExcelObj,
-        sheet_name: str = "",
-        insert_direction: InsertFormulaDirectionType = InsertFormulaDirectionType.DOWN,
-        col: str = "",
-        start_row: str = "1",
-        end_row: str = "-1",
-        row: str = "",
-        start_col: str = "A",
-        end_col: str = "-1",
-        formula: str = "",
+            excel: ExcelObj,
+            sheet_name: str = "",
+            insert_direction: InsertFormulaDirectionType = InsertFormulaDirectionType.DOWN,
+            col: str = "",
+            start_row: str = "1",
+            end_row: str = "-1",
+            row: str = "",
+            start_col: str = "A",
+            end_col: str = "-1",
+            formula: str = "",
     ):
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, _ = used_range
 
         if insert_direction == InsertFormulaDirectionType.DOWN:
@@ -2039,12 +2135,12 @@ class Excel:
             start_row_num = handle_row_input(start_row, r_end_row)
             end_row_num = handle_row_input(end_row, r_end_row)
 
-            starter = Worksheet.get_range(worksheet, "{}{}".format(col_letter, str(start_row_num)))
-            Range.set_range_data(starter, formula)
-            target_range = Worksheet.get_range(
+            starter = worksheet_driver.get_range(worksheet, "{}{}".format(col_letter, str(start_row_num)))
+            range_driver.set_range_data(starter, formula)
+            target_range = worksheet_driver.get_range(
                 worksheet, "{}{}:{}{}".format(col_letter, str(start_row_num), col_letter, str(end_row_num))
             )
-            Range.autofill_range(starter, target_range)
+            range_driver.autofill_range(starter, target_range)
 
         if insert_direction == InsertFormulaDirectionType.RIGHT:
             start_col_num = handle_column_input(start_col, r_end_col)
@@ -2053,12 +2149,12 @@ class Excel:
             end_col_letter = column_number_to_letter(end_col_num)
             row_num = handle_row_input(row, r_end_row)
 
-            starter = Worksheet.get_range(worksheet, "{}{}".format(start_col_letter, str(row_num)))
-            Range.set_range_data(starter, formula)
-            target_range = Worksheet.get_range(
+            starter = worksheet_driver.get_range(worksheet, "{}{}".format(start_col_letter, str(row_num)))
+            range_driver.set_range_data(starter, formula)
+            target_range = worksheet_driver.get_range(
                 worksheet, "{}{}:{}{}".format(start_col_letter, str(row_num), end_col_letter, str(row_num))
             )
-            Range.autofill_range(starter, target_range)
+            range_driver.autofill_range(starter, target_range)
 
     @staticmethod
     @atomicMg.atomic(
@@ -2116,14 +2212,14 @@ class Excel:
         outputList=[],
     )
     def create_excel_comment(
-        excel: ExcelObj,
-        comment_type: CreateCommentType = CreateCommentType.POSITION,
-        comment: str = "",
-        sheet_name: str = "",
-        cell_position: str = "",
-        comment_range: SearchSheetType = SearchSheetType.ONE,
-        find_str: str = "",
-        comment_all: bool = False,
+            excel: ExcelObj,
+            comment_type: CreateCommentType = CreateCommentType.POSITION,
+            comment: str = "",
+            sheet_name: str = "",
+            cell_position: str = "",
+            comment_range: SearchSheetType = SearchSheetType.ONE,
+            find_str: str = "",
+            comment_all: bool = False,
     ):
         """
         创建 Excel 批注
@@ -2138,35 +2234,37 @@ class Excel:
             find_str: 待查找的内容（用于 CONTENT 类型）
             comment_all: 是否批注所有匹配的内容（用于 CONTENT 类型）
         """
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
         if comment_type == CreateCommentType.POSITION:
             # 指定位置批注
-            worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
-            range_obj = Worksheet.get_range(worksheet, cell_position)
-            Range.add_comment(range_obj, comment)
+            worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
+            range_obj = worksheet_driver.get_range(worksheet, cell_position)
+            range_driver.add_comment(range_obj, comment)
         elif comment_type == CreateCommentType.CONTENT:
             # 指定内容批注
             count = 0
 
             # 确定要搜索的工作表列表
             if comment_range == SearchSheetType.ALL:
-                sheet_list = Worksheet.get_all_worksheets(excel)
+                sheet_list = worksheet_driver.get_all_worksheets(excel)
             else:
-                sheet_list = [Worksheet.get_worksheet(excel, sheet_name, 1)]
+                sheet_list = [worksheet_driver.get_worksheet(excel, sheet_name, 1)]
 
             # 遍历工作表搜索并添加批注
             for worksheet in sheet_list:
-                used_range = Worksheet.get_worksheet_used_range(worksheet)
+                used_range = worksheet_driver.get_worksheet_used_range(worksheet)
                 _, _, r_end_row, r_end_col, _ = used_range
 
                 # 遍历所有单元格查找匹配的内容
                 for row in range(1, r_end_row + 1):
                     for col in range(1, r_end_col + 1):
-                        cell = Worksheet.get_cell(worksheet, row, col)
-                        cell_value = Range.get_range_data(cell, use_text=True)
+                        cell = worksheet_driver.get_cell(worksheet, row, col)
+                        cell_value = range_driver.get_range_data(cell, use_text=True)
 
                         # 检查是否匹配查找内容
                         if cell_value and find_str in str(cell_value):
-                            Range.add_comment(cell, comment)
+                            range_driver.add_comment(cell, comment)
                             count += 1
 
                             # 如果只批注第一个匹配项，则退出所有循环
@@ -2196,10 +2294,10 @@ class Excel:
         outputList=[],
     )
     def delete_excel_comment(
-        excel: ExcelObj,
-        delete_all: bool = False,
-        sheet_name: str = "",
-        cell_position: str = "",
+            excel: ExcelObj,
+            delete_all: bool = False,
+            sheet_name: str = "",
+            cell_position: str = "",
     ):
         """
         删除 Excel 批注
@@ -2213,15 +2311,17 @@ class Excel:
         Raises:
             ValueError: 当不存在批注时抛出异常
         """
-        worksheet = Worksheet.get_worksheet(excel, sheet_name, default=1)
+        default_application, worksheet_driver = _get_worksheet_driver(excel.app_type)
+        default_application, range_driver = _get_range_driver(excel.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel, sheet_name, default=1)
 
         if delete_all:
             # 删除工作表中的所有批注
-            Worksheet.delete_all_comments(worksheet)
+            worksheet_driver.delete_all_comments(worksheet)
         else:
             # 删除指定单元格的批注
-            range_obj = Worksheet.get_range(worksheet, cell_position)
-            Range.delete_comment(range_obj)
+            range_obj = worksheet_driver.get_range(worksheet, cell_position)
+            range_driver.delete_comment(range_obj)
 
     @staticmethod
     @atomicMg.atomic(
@@ -2268,13 +2368,13 @@ class Excel:
         outputList=[],
     )
     def excel_text_to_number(
-        excel_obj: ExcelObj,
-        sheet_name: str = "",
-        select_type: ReadRangeType = ReadRangeType.CELL,
-        cell_position: str = "",
-        row: str = "",
-        col: str = "",
-        range_location: str = "",
+            excel_obj: ExcelObj,
+            sheet_name: str = "",
+            select_type: ReadRangeType = ReadRangeType.CELL,
+            cell_position: str = "",
+            row: str = "",
+            col: str = "",
+            range_location: str = "",
     ):
         """
         Excel 文本转数值格式
@@ -2288,8 +2388,10 @@ class Excel:
             col: 列号（用于COLUMN类型）
             range_location: 区域位置（用于AREA类型）
         """
-        worksheet = Worksheet.get_worksheet(excel_obj, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel_obj.app_type)
+        default_application, range_driver = _get_range_driver(excel_obj.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel_obj, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         # 计算单元格位置
@@ -2306,12 +2408,12 @@ class Excel:
 
         # 使用一个临时单元格来存储转换结果
         temp_cell = "{}{}".format(column_number_to_letter(r_end_col), r_end_row + 1)
-        temp_range = Worksheet.get_range(worksheet, temp_cell)
+        temp_range = worksheet_driver.get_range(worksheet, temp_cell)
 
         # 遍历所有单元格位置
         for cell_pos in cell_positions:
-            range_obj = Worksheet.get_range(worksheet, cell_pos)
-            Range.convert_text_to_number(range_obj, temp_range)
+            range_obj = worksheet_driver.get_range(worksheet, cell_pos)
+            range_driver.convert_text_to_number(range_obj, temp_range)
 
         # 清理临时单元格
         temp_range.Value = None
@@ -2361,13 +2463,13 @@ class Excel:
         outputList=[],
     )
     def excel_number_to_text(
-        excel_obj: ExcelObj,
-        sheet_name: str = "",
-        select_type: ReadRangeType = ReadRangeType.CELL,
-        cell_position: str = "",
-        row: str = "",
-        col: str = "",
-        range_location: str = "",
+            excel_obj: ExcelObj,
+            sheet_name: str = "",
+            select_type: ReadRangeType = ReadRangeType.CELL,
+            cell_position: str = "",
+            row: str = "",
+            col: str = "",
+            range_location: str = "",
     ):
         """
         Excel 数值转文本格式
@@ -2381,8 +2483,10 @@ class Excel:
             col: 列号（用于COLUMN类型）
             range_location: 区域位置（用于AREA类型）
         """
-        worksheet = Worksheet.get_worksheet(excel_obj, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel_obj.app_type)
+        default_application, range_driver = _get_range_driver(excel_obj.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel_obj, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, r_address = used_range
 
         # 计算单元格位置
@@ -2399,8 +2503,8 @@ class Excel:
 
         # 遍历所有单元格位置
         for cell_pos in cell_positions:
-            range_obj = Worksheet.get_range(worksheet, cell_pos)
-            Range.convert_number_to_text(range_obj)
+            range_obj = worksheet_driver.get_range(worksheet, cell_pos)
+            range_driver.convert_number_to_text(range_obj)
 
     @staticmethod
     @atomicMg.atomic(
@@ -2420,7 +2524,7 @@ class Excel:
         outputList=[],
     )
     def excel_set_col_width(
-        excel_obj: ExcelObj, sheet_name: str, set_type: SetType = SetType.AUTO, col: str = "", width: str = ""
+            excel_obj: ExcelObj, sheet_name: str, set_type: SetType = SetType.AUTO, col: str = "", width: str = ""
     ):
         """
         设置指定列宽。
@@ -2430,8 +2534,10 @@ class Excel:
         :param col: 指定列号（支持多列，如"A:B,C"或"1:3,5"）
         :param width: 指定列宽(0-255)
         """
-        worksheet = Worksheet.get_worksheet(excel_obj, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel_obj.app_type)
+        default_application, range_driver = _get_range_driver(excel_obj.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel_obj, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, _ = used_range
 
         # 验证列宽输入
@@ -2451,7 +2557,7 @@ class Excel:
         else:
             col_list = list(range(1, r_end_col + 1))
         for col_num in col_list:
-            Range.set_column_width(Worksheet.get_columns(worksheet, col_num), set_type, width_float)
+            range_driver.set_column_width(worksheet_driver.get_columns(worksheet, col_num), set_type, width_float)
 
     @staticmethod
     @atomicMg.atomic(
@@ -2471,7 +2577,7 @@ class Excel:
         outputList=[],
     )
     def excel_set_row_height(
-        excel_obj: ExcelObj, sheet_name: str, set_type: SetType = SetType.AUTO, row: str = "", height: str = ""
+            excel_obj: ExcelObj, sheet_name: str, set_type: SetType = SetType.AUTO, row: str = "", height: str = ""
     ):
         """
         设置指定行高。
@@ -2481,8 +2587,10 @@ class Excel:
         :param row: 指定行号（支持多行，如"1:3,5"）
         :param height: 指定行高(0-409.5)
         """
-        worksheet = Worksheet.get_worksheet(excel_obj, sheet_name, default=1)
-        used_range = Worksheet.get_worksheet_used_range(worksheet)
+        default_application, worksheet_driver = _get_worksheet_driver(excel_obj.app_type)
+        default_application, range_driver = _get_range_driver(excel_obj.app_type)
+        worksheet = worksheet_driver.get_worksheet(excel_obj, sheet_name, default=1)
+        used_range = worksheet_driver.get_worksheet_used_range(worksheet)
         _, _, r_end_row, r_end_col, _ = used_range
 
         # 验证行高输入
@@ -2503,4 +2611,4 @@ class Excel:
         else:
             row_list = list(range(1, r_end_row + 1))
         for row_num in row_list:
-            Range.set_row_height(Worksheet.get_rows(worksheet, row_num), set_type, height_float)
+            range_driver.set_row_height(worksheet_driver.get_rows(worksheet, row_num), set_type, height_float)
