@@ -5,7 +5,7 @@ from typing import Optional
 import win32com
 import win32com.client
 from astronverse.actionlib.logger import logger
-from astronverse.excel import ApplicationType
+from astronverse.excel import ApplicationDriverInterface, ApplicationType
 from astronverse.excel.excel_obj import ExcelObj
 
 
@@ -98,7 +98,7 @@ def _get_key(default_application: ApplicationType = ApplicationType.DEFAULT):
     return keys
 
 
-class Application:
+class Application(ApplicationDriverInterface):
     @staticmethod
     def init_app(
         default_application: ApplicationType = ApplicationType.DEFAULT,
