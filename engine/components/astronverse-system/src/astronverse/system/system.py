@@ -6,7 +6,7 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.core.screenshot_core import ScreenShotCore
 from astronverse.system.error import *
-from astronverse.system.utils import file_is_exists, folder_is_exists, get_files_in_folder, path_join
+from astronverse.system.utils.utils import file_is_exists, folder_is_exists, get_files_in_folder, path_join
 
 if sys.platform == "win32":
     from astronverse.system.core.printer_core import PrinterCore

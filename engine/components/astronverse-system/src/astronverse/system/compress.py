@@ -5,7 +5,7 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.core.compress_core import CompressCore
 from astronverse.system.error import *
-from astronverse.system.utils import folder_is_exists, get_file_name_only
+from astronverse.system.utils.utils import folder_is_exists, get_file_name_only
 
 CompressCore = CompressCore()
 

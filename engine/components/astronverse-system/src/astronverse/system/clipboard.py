@@ -6,7 +6,7 @@ from astronverse.system import *
 from astronverse.system.core.clipboard_core import ClipBoardCore
 from astronverse.system.utils.clipboard import Clipboard as SchedulerClipboard
 from astronverse.system.error import *
-from astronverse.system.utils import folder_is_exists
+from astronverse.system.utils.utils import folder_is_exists
 
 
 class Clipboard:
