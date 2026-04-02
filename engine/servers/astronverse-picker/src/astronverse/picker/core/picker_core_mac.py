@@ -50,7 +50,12 @@ class PickerCore(IPickerCore):
             pick_type = data.get("pick_type")
 
             if pick_type == PickerType.POINT:
-                return DrawResult(success=True)
+                point_rect = Rect(p_x - 2, p_y - 2, p_x + 2, p_y + 2)
+                self.last_valid_rect = point_rect
+                self.last_valid_tag = f"({p_x}, {p_y})"
+                self.last_valid_domain = PickerDomain.UIA.value
+                highlight_client.draw_wnd(point_rect, msgs=self.last_valid_tag)
+                return DrawResult(success=True, rect=point_rect, domain=PickerDomain.UIA.value)
             elif pick_type == PickerType.WINDOW:
                 return self._draw_window(svc, highlight_client, data)
             elif pick_type in [PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
@@ -126,6 +131,11 @@ class PickerCore(IPickerCore):
         current_rect = self.last_element.rect()
         current_tag = self.last_element.tag()
         actual_domain = self._get_element_domain(self.last_element)
+
+        logger.info(
+            f"mac draw element result type={type(self.last_element).__name__} "
+            f"domain={actual_domain} rect={current_rect.to_json() if current_rect else None} tag={current_tag}"
+        )
 
         self.last_valid_rect = current_rect
         self.last_valid_tag = current_tag

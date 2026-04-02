@@ -10,7 +10,7 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, URL, WebPick
 from astronverse.browser import *
 from astronverse.browser.browser import Browser
-from astronverse.browser.core.core_win import BrowserCore
+from astronverse.browser.core import BrowserCore
 from astronverse.browser.error import *
 from astronverse.software.software import Software
 from astronverse.browser.core.launcher import BrowserLauncher
