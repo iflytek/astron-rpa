@@ -1,8 +1,8 @@
-from astronverse.excel import CopySheetLocationType
+from astronverse.excel import CopySheetLocationType, WorksheetDriverInterface
 from astronverse.excel.excel_obj import ExcelObj
 
 
-class Worksheet:
+class Worksheet(WorksheetDriverInterface):
     @staticmethod
     def get_worksheet(excel_obj: ExcelObj, sheet_name: str = "", default: int = 0) -> object:
         workbook = excel_obj.obj

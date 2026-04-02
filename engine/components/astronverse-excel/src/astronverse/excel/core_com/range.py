@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from astronverse.excel import (
+    RangeDriverInterface,
     ClearType,
     FontNameType,
     FontType,
@@ -12,7 +13,7 @@ from astronverse.excel import (
 )
 
 
-class Range:
+class Range(RangeDriverInterface):
     @staticmethod
     def get_range_data(range_obj, use_text: bool = False) -> Any:
         """
