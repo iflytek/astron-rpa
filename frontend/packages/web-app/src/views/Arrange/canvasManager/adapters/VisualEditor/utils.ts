@@ -2,8 +2,10 @@ import { SnowflakeIdv1 } from 'simple-flakeid'
 import { isEmpty, cloneDeep } from 'lodash-es'
 
 import { getAbilityInfo, getNewAtomDesc } from '@/api/atom'
-import { ATOM_KEY_MAP } from '@/constants/atom'
+import { ATOM_FORM_TYPE, ATOM_KEY_MAP, VAR_IN_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
+import { useVariableStore } from '@/stores/useVariableStore'
+import { generateName } from '@/views/Arrange/utils'
 
 export class AbilityInfoCache {
   // 缓存 Map，以 key:version 作为键
@@ -171,4 +173,43 @@ export function generateId(type: string) {
 export function isContinuous(arr: number[]) {
   const set = new Set(arr)
   return set.size === arr.length && Math.max(...set) - Math.min(...set) + 1 === arr.length
+}
+
+/**
+ * 为新增原子能力的输出表单生成不重复的变量名
+ * @param outputList 原子能力的输出表单列表
+ * @param existingVarNames 当前流程中已存在的变量名列表
+ */
+export function generateOutItems(outputList: RPA.AtomDisplayItem[], existingVarNames: string[]): RPA.AtomDisplayItem[] {
+  return outputList.map((item) => {
+    if (item.formType?.type !== ATOM_FORM_TYPE.RESULT) {
+      return { ...item, value: [{ type: VAR_IN_TYPE, value: '' }] }
+    }
+
+    const newVarName = generateName(
+      existingVarNames.filter(v => new RegExp(`^${item.key}_\\d+$`).test(v) || v === item.key),
+      item.key,
+      '_',
+    )
+    existingVarNames.push(newVarName)
+
+    return { ...item, value: [{ type: VAR_IN_TYPE, value: newVarName }] }
+  })
+}
+
+/**
+ * 收集当前流程中所有输出流变量名 + 全局变量名
+ */
+export function collectFlowVarNames(data: RPA.Atom[]): string[] {
+  const names: string[] = []
+  data.forEach(atom => {
+    (atom.outputList || []).forEach((item: RPA.AtomDisplayItem) => {
+      const values = item.value as Array<{ type: string, value: string }>
+      if (Array.isArray(values)) {
+        values.forEach(v => { if (v.type === VAR_IN_TYPE && v.value) names.push(v.value) })
+      }
+    })
+  })
+  const globalVarNames = useVariableStore().globalVariableList.map(v => v.varName)
+  return names.concat(globalVarNames)
 }
