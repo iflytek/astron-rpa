@@ -21,3 +21,4 @@ WIDTH_PARAM_EMPTY_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("指定列宽
 WIDTH_VALUE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("输入列宽有误，请检查！列宽范围：0-255"))
 HEIGHT_PARAM_EMPTY_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("指定行高模式下，height参数不能为空！"))
 HEIGHT_VALUE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("输入行高有误，请检查！行高范围：0-409.5"))
+DRIVER_UNSUPPORTED_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("当前驱动程序不支持此功能"))

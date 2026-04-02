@@ -10,6 +10,7 @@ dependencies = [
     "numpy",
     "Pillow",
     "keyring",
+    "openpyxl",
     "pywin32; sys_platform == 'win32'"
 ]
 
