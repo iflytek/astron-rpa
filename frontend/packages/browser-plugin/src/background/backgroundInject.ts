@@ -867,7 +867,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
       return false
     }
   })
-  if (details.url === tab.url && matchingRule) {
+  if (details && tab && details.url === tab.url && matchingRule) {
     Handlers.networkHandler().startDebugNetworkListen(globalThis.requestInterceptionFilters)
   }
 })

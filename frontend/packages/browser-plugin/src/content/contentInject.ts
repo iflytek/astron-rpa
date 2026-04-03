@@ -4,7 +4,7 @@ import { Utils } from '../common/utils'
 import { t } from '../i18n/index'
 
 import type { MotionOptions } from './aiMotion'
-import { destroyAIMotion, focusElementAnimation, highlightElementBorder, removeFocusElementAnimation, startAIMotion, stopAIMotion } from './aiMotion'
+import { destroyAIMotion, focusElementAnimation, removeFocusElementAnimation, startAIMotion, stopAIMotion } from './aiMotion'
 import { similarBatch, similarListBatch, tableColumnDataBatch, tableDataBatch, tableDataFormatterProcure, tableHeaderBatch } from './dataBatch'
 import {
   filterVisibleElements,
@@ -34,7 +34,7 @@ import { elementChangeWatcher } from './watcher'
 let timeoutId
 let deepTimeoutId
 let highlightTime = 0
-let frontCheckEnabled = false
+const frontCheckEnabled = false
 let deepSearchEnabled = false
 let aiMotion = false
 /**
@@ -230,7 +230,7 @@ const ContentHandler = {
       return result
     },
     getZTopElement: async (data: ElementInfo): Promise<HTMLElement | null> => {
-      let eles = await ContentHandler.ele.getElement(data)
+      const eles = await ContentHandler.ele.getElement(data)
       if (!eles || eles.length === 0) {
         return null
       }
@@ -282,7 +282,6 @@ const ContentHandler = {
       catch (error) {
         return Utils.fail(error.toString(), StatusCode.EXECUTE_ERROR)
       }
-      
     },
 
     scrollIntoView: async (data: ElementInfo) => {
@@ -345,7 +344,8 @@ const ContentHandler = {
         const eles = await ContentHandler.ele.getElement({ ...data, filterVisible: true })
         if (eles && eles.length > 0) {
           return Utils.success(true)
-        } else {
+        }
+        else {
           return Utils.success(false)
         }
       }
@@ -359,7 +359,8 @@ const ContentHandler = {
         const eles = await ContentHandler.ele.getElement(data)
         if (eles && eles.length > 0) {
           return Utils.success(true)
-        } else {
+        }
+        else {
           return Utils.success(false)
         }
       }
@@ -728,7 +729,7 @@ const ContentHandler = {
         // Set value using native setter to trigger Vue/React updates
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
           result.tagName === 'INPUT' ? HTMLInputElement.prototype : HTMLTextAreaElement.prototype,
-          'value'
+          'value',
         )?.set
         if (nativeInputValueSetter) {
           nativeInputValueSetter.call(result, inputText)
@@ -736,15 +737,15 @@ const ContentHandler = {
         else {
           result.value = inputText
         }
-        
+
         // Trigger input event for React controlled components
         const inputEvent = new Event('input', { bubbles: true, cancelable: true })
         result.dispatchEvent(inputEvent)
-        
+
         // Trigger change event for Vue and other frameworks
         const changeEvent = new Event('change', { bubbles: true, cancelable: true })
         result.dispatchEvent(changeEvent)
-        
+
         return Utils.success(true)
       }
       else {

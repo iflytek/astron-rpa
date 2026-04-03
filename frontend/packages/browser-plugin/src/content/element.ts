@@ -986,9 +986,11 @@ export function getSiblingElementByType(element: HTMLElement, params: Options): 
  * @returns top element
  */
 export function getCoveredTopElement(els: HTMLElement[]): HTMLElement | null {
-  if (els.length === 0) return null
-  if (els.length === 1) return els[0]
-  const topEls = els.map(el => {
+  if (els.length === 0)
+    return null
+  if (els.length === 1)
+    return els[0]
+  const topEls = els.map((el) => {
     const rect = el.getBoundingClientRect()
     const centerPoint = {
       x: Math.floor(rect.left + rect.width / 2),
@@ -996,7 +998,8 @@ export function getCoveredTopElement(els: HTMLElement[]): HTMLElement | null {
     }
     return document.elementFromPoint(centerPoint.x, centerPoint.y) as HTMLElement
   })
-  if (topEls.length === 0) return null
+  if (topEls.length === 0)
+    return null
   const uniqueTopEls = [...new Set(topEls)]
   return uniqueTopEls.length === 1 ? uniqueTopEls[0] : uniqueTopEls[uniqueTopEls.length - 1]
 }
