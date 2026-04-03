@@ -1,126 +1,223 @@
-import random
-import subprocess
-import time
-
+import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.input import KeyboardType, KeyModel, Simulate_flag
-from astronverse.input.code.clipboard import Clipboard
+from astronverse.actionlib.types import WinPick
+from astronverse.input import (
+    BtnModel,
+    BtnType,
+    ControlType,
+    Direction,
+    MoveType,
+    ScrollType,
+    Speed,
+    WindowType,
+)
 from astronverse.input.code.keyboard import Keyboard
+from astronverse.input.code.mouse import Mouse
+from astronverse.input.code.window_backend import window_find, window_info, window_top
 from astronverse.input.error import *
 
-# 定义输入法的语言代码
-ENGLISH = 0x0409  # 英文（美国）
-CHINESE = 0x0804  # 中文（简体，中国）
 
+class GuiMouse:
+    @staticmethod
+    @atomicMg.atomic("Gui")
+    def mouse(
+        btn_type: BtnType = BtnType.LEFT,
+        btn_model: BtnModel = BtnModel.CLICK,
+        ctrl_type: ControlType = ControlType.EMPTY,
+    ):
+        """
+        鼠标点击
+        :param btn_type: 鼠标按键类型   LEFT:左键，RIGHT:右键，MIDDLE:中键
+        :param btn_model: 鼠标按键模式  Click:单击, DoubleClick:双击, Down:按下, Up:松开
+        :param ctrl_type: 辅助按键类型  无/Ctrl/Alt/Shift/Win/Shape
+        """
+        # 按下辅助按键
+        if ctrl_type != ControlType.EMPTY:
+            Keyboard.key_down(ctrl_type.value)
+        try:
+            if btn_model == BtnModel.CLICK:
+                Mouse.click(None, None, 1, 0, btn_type.value)
+            elif btn_model == BtnModel.DOUBLE_CLICK:
+                Mouse.click(None, None, 2, 0, btn_type.value)
+            elif btn_model == BtnModel.DOWN:
+                Mouse.down(None, None, btn_type.value)
+            elif btn_model == BtnModel.UP:
+                Mouse.up(None, None, btn_type.value)
+            else:
+                raise NotImplementedError()
+        finally:
+            # 松开辅助按键
+            if ctrl_type != ControlType.EMPTY:
+                Keyboard.key_up(ctrl_type.value)
 
-class GuiKeyBoard:
     @staticmethod
     @atomicMg.atomic(
         "Gui",
         inputList=[
             atomicMg.param(
-                "message",
-                formType=AtomicFormTypeMeta(
-                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
-                    params={"size": "middle"},
-                ),
+                "times",
                 dynamics=[
                     DynamicsItem(
-                        key="$this.message.show",
-                        expression="return ['{}', '{}', '{}'].includes($this.keyboard_type.value)".format(
-                            KeyboardType.NORMAL.value,
-                            KeyboardType.DRIVER.value,
-                            KeyboardType.GBLID.value,
-                        ),
+                        key="$this.times.show",
+                        expression="return $this.scroll_type.value == '{}'".format(ScrollType.TIME.value),
                     )
                 ],
             ),
             atomicMg.param(
-                "simulate_flag",
+                "scroll_px",
                 dynamics=[
                     DynamicsItem(
-                        key="$this.simulate_flag.show",
-                        expression="return $this.keyboard_type.value == '{}'".format(KeyboardType.NORMAL.value),
+                        key="$this.scroll_px.show",
+                        expression="return $this.scroll_type.value == '{}'".format(ScrollType.PX.value),
                     )
                 ],
             ),
             atomicMg.param(
-                "interval",
+                "ctrl_type",
                 dynamics=[
                     DynamicsItem(
-                        key="$this.interval.show",
-                        expression="return ['{}', '{}'].includes($this.keyboard_type.value)".format(
-                            KeyboardType.NORMAL.value, KeyboardType.DRIVER.value
+                        key="$this.ctrl_type.show",
+                        expression="return ['{}', '{}'].includes($this.scroll_type.value)".format(
+                            ScrollType.PX.value, ScrollType.TIME.value
                         ),
                     )
                 ],
             ),
         ],
     )
-    def keyboard(
-        keyboard_type: KeyboardType = KeyboardType.NORMAL,
-        message: str = "",
-        simulate_flag: Simulate_flag = Simulate_flag.NO,
-        interval: float = 0.1,
+    def mouse_wheel(
+        scroll_type: ScrollType = ScrollType.TIME,
+        times: int = 1,
+        scroll_px: int = 120,
+        direction: Direction = Direction.DOWN,
+        ctrl_type: ControlType = ControlType.EMPTY,
     ):
         """
-        键盘输入
+        鼠标滚轮
+        :param scroll_type: 滚轮类型  次数/像素
+        :param times: 滚轮次数
+        :param scroll_px: 滚轮像素
+        :param direction: 滚轮方向      上/下
+        :param ctrl_type: 辅助按键类型  无/Ctrl/Alt/Shift/Win/Shape
         """
-        if keyboard_type == KeyboardType.NORMAL:
-            message = str(message)
-            if simulate_flag == Simulate_flag.YES:
-                # Keyboard.change_language(ENGLISH)
-                for char in message:
-                    random_num = random.uniform(0, interval)
-                    Keyboard.write_unicode(char)
-                    time.sleep(random_num)
-                # Keyboard.change_language(CHINESE)
-            elif simulate_flag == Simulate_flag.NO:
-                # Keyboard.change_language(ENGLISH)
-                for char in message:
-                    Keyboard.write_unicode(char)
-                    time.sleep(interval)
-                # Keyboard.change_language(CHINESE)
-            else:
-                raise NotImplementedError()
-        elif keyboard_type == KeyboardType.CLIP:
-            msg = Clipboard.paste()
-            if not msg:
-                raise BizException(CLIP_PASTE_ERROR, "Clip is empty.")
-            else:
-                Keyboard.hotkey("ctrl", "v")
-                Clipboard.clear()
-        elif keyboard_type == KeyboardType.DRIVER:
-            if message == "":
-                raise BizException(KEYBOARD_MSG_ERROR, "输入内容为空，请检查输入内容")
+        if not isinstance(scroll_type, ScrollType):
+            raise ValueError("Invalid scroll_type")
+        if not isinstance(direction, Direction):
+            raise ValueError("Invalid direction")
+        if not isinstance(ctrl_type, ControlType):
+            raise ValueError("Invalid ctrl_type")
 
-            file_path = Keyboard.get_drive_path()
-            cmd = [file_path, message, f"{interval}"]
-            try:
-                subprocess.run(
-                    cmd, check=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-                )
-            except Exception as e:
-                raise BizException(DRIVE_INPUT_ERROR, "键盘驱动输入没有管理员权限")
-        elif keyboard_type == KeyboardType.GBLID:
-            from astronverse.input.code import ghostbox as gb
+        if scroll_type == ScrollType.TIME:
+            scroll_px = 120
+        elif scroll_type == ScrollType.PX:
+            times = 1
+        else:
+            raise NotImplementedError()
 
-            device = gb.opendevicebyid(0x5188, 0x1801)
-            is_connected = gb.isconnected()
-            if not device or not is_connected:
-                raise BizException(GHOST_DRIVE_ERROR, "设备不存在或未连接,请检查设备连接")
-            if message == "":
-                raise BizException(KEYBOARD_MSG_ERROR, "输入内容为空，请检查输入内容")
-            try:
-                Keyboard.change_language(ENGLISH)
-                gb.inputstring(message)
-                Keyboard.change_language(CHINESE)
-            except Exception as e:
-                raise BizException(DRIVE_INPUT_ERROR, "键盘驱动输入错误")
-            finally:
-                gb.closedevice()
+        reversal = -1 if direction == Direction.DOWN else 1
 
+        if ctrl_type != ControlType.EMPTY:
+            Keyboard.key_down(ctrl_type.value)
+        try:
+            for _ in range(times):
+                try:
+                    Mouse.scroll(scroll_px * reversal)
+                except Exception as e:
+                    raise BizException(
+                        SCROLL_FAILURE,
+                        "滑轮滚动过程中失败, 请检查环境是否出现异常 {}".format(e),
+                    )
+        finally:
+            # 松开辅助按键
+            if ctrl_type != ControlType.EMPTY:
+                Keyboard.key_up(ctrl_type.value)
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Gui",
+        inputList=[
+            atomicMg.param(
+                "window_position",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.window_position.show",
+                        expression="return $this.window_type.value == '{}'".format(WindowType.ACTIVE_WINDOW.value),
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "get_mouse_position",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.MOUSEPOSITION.value, params={"size": "middle"}),
+                required=False,
+            ),
+            atomicMg.param(
+                "position_x",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+            ),
+            atomicMg.param(
+                "position_y",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+            ),
+            atomicMg.param(
+                "move_speed",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.move_speed.show",
+                        expression="return ['{}', '{}'].includes($this.move_type.value)".format(
+                            MoveType.LINEAR.value, MoveType.SIMULATION.value
+                        ),
+                    )
+                ],
+            ),
+        ],
+    )
+    def mouse_move(
+        window_type: WindowType = WindowType.FULL_SCREEN,
+        window_position: list = [],
+        get_mouse_position: str = "",
+        position_x: int = 0,
+        position_y: int = 0,
+        move_type: MoveType = MoveType.LINEAR,
+        move_speed: Speed = Speed.NORMAL,
+    ):
+        """
+        :param window_type: 窗口类型  全屏/活动窗口
+        :param window_position: 激活窗口左上角坐标
+        :param position_x: 移动终点位置x坐标
+        :param position_y: 移动终点位置y坐标
+        :param move_speed: 移动速度    高/中/低
+        :param move_type: 移动方式     LINEAR:线性移动，SIMULATION:模拟移动，TELEPORTATION:瞬移
+        """
+        if window_type == WindowType.ACTIVE_WINDOW and window_position is not None:
+            position_x = window_position[0] + position_x
+            position_y = window_position[1] + position_y
+
+        screen_weight, screen_height = Mouse.screen_size()
+        if position_x < 0 or position_x > screen_weight or position_y < 0 or position_y > screen_height:
+            raise BizException(REGION_ERROR, "坐标参数不合法！")
+
+        # Get current mouse position
+        current_x, current_y = Mouse.position()
+
+        if move_type == MoveType.LINEAR:
+            duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
+            Mouse.move(position_x, position_y, duration=duration, tween=pyautogui.linear)
+        elif move_type == MoveType.SIMULATION:
+            duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
+            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)  # type: ignore
+        elif move_type == MoveType.TELEPORTATION:
+            Mouse.move(position_x, position_y, duration=0)
         else:
             raise NotImplementedError()
 
@@ -129,30 +226,216 @@ class GuiKeyBoard:
         "Gui",
         inputList=[
             atomicMg.param(
-                "keys_str",
-                types="Str",
-                formType=AtomicFormTypeMeta(type=AtomicFormType.KEYBOARD.value),
+                "window_pick",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.PICK.value, params={"use": "WINDOW"}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.window_pick.show",
+                        expression="return $this.window_type.value == '{}'".format(WindowType.ACTIVE_WINDOW.value),
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "get_mouse_position",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.MOUSEPOSITION.value, params={"size": "middle"}),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.get_mouse_position.show",
+                        expression="return $this.window_type.value == '{}'".format(WindowType.FULL_SCREEN.value),
+                    )
+                ],
+                required=False,
+            ),
+            atomicMg.param(
+                "position_x",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value, params={"size": "middle"}),
+            ),
+            atomicMg.param(
+                "position_y",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value, params={"size": "middle"}),
+            ),
+            atomicMg.param(
+                "move_speed",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.move_speed.show",
+                        expression="return ['{}', '{}'].includes($this.move_type.value)".format(
+                            MoveType.LINEAR.value, MoveType.SIMULATION.value
+                        ),
+                    )
+                ],
             ),
         ],
     )
-    def key_input(keys_str: str = "", key_model: KeyModel = KeyModel.CLICK):
+    def mouse_move_new(
+        window_type: WindowType = WindowType.FULL_SCREEN,
+        window_pick: WinPick = None,
+        get_mouse_position: str = "",
+        position_x: int = 0,
+        position_y: int = 0,
+        move_type: MoveType = MoveType.LINEAR,
+        move_speed: Speed = Speed.NORMAL,
+    ):
+        """
+        :param window_type: 窗口类型  全屏/活动窗口
+        :param pick: 目标窗口
+        :param position_x: 移动终点位置x坐标
+        :param position_y: 移动终点位置y坐标
+        :param move_speed: 移动速度    高/中/低
+        :param move_type: 移动方式     LINEAR:线性移动，SIMULATION:模拟移动，TELEPORTATION:瞬移
+        """
+        if window_type == WindowType.ACTIVE_WINDOW and window_pick is not None:
+            try:
+                handler = window_find(window_pick)
+                window_top(handler)
+                info = window_info(handler)
+                position = info.position
+                position_x = position[0] + position_x
+                position_y = position[1] + position_y
+            except NotImplementedError as exc:
+                raise BizException(WINDOW_OPERATION_ERROR, str(exc))
+
+        screen_weight, screen_height = Mouse.screen_size()
+        if position_x < 0 or position_x > screen_weight or position_y < 0 or position_y > screen_height:
+            raise BizException(REGION_ERROR, "坐标参数不合法！")
+
+        # Get current mouse position
+        current_x, current_y = Mouse.position()
+
+        if move_type == MoveType.LINEAR:
+            duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
+            Mouse.move(position_x, position_y, duration=duration, tween=pyautogui.linear)
+        elif move_type == MoveType.SIMULATION:
+            duration = Mouse.calculate_movement_duration(current_x, current_y, position_x, position_y, move_speed)
+            Mouse.move_simulate(position_x, position_y, duration=duration, tween=pyautogui.easeInOutQuad)
+        elif move_type == MoveType.TELEPORTATION:
+            Mouse.move(position_x, position_y, duration=0)
+        else:
+            raise NotImplementedError()
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Gui",
+        inputList=[
+            atomicMg.param(
+                "start_pos_x",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+            ),
+            atomicMg.param(
+                "start_pos_y",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+            ),
+            atomicMg.param(
+                "end_pos_x",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+            ),
+            atomicMg.param(
+                "end_pos_y",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={"size": "middle"},
+                ),
+            ),
+            atomicMg.param(
+                "move_speed",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.move_speed.show",
+                        expression="return ['{}', '{}'].includes($this.move_type.value)".format(
+                            MoveType.LINEAR.value, MoveType.SIMULATION.value
+                        ),
+                    )
+                ],
+            ),
+            atomicMg.param("ctrl_type"),
+        ],
+    )
+    def mouse_drag(
+        start_pos_x: int = 0,
+        start_pos_y: int = 0,
+        end_pos_x: int = 0,
+        end_pos_y: int = 0,
+        btn_type: BtnType = BtnType.LEFT,
+        move_type: MoveType = MoveType.LINEAR,
+        move_speed: Speed = Speed.NORMAL,
+        ctrl_type: ControlType = ControlType.EMPTY,
+    ):
+        """
+        鼠标拖拽
+        :param start_pos_x: 起始位置x
+        :param start_pos_y: 起始位置y
+        :param end_pos_x: 结束位置x
+        :param end_pos_y: 结束位置y
+        :param btn_type: 按键类型        LEFT:左键，RIGHT:右键，MIDDLE:中键
+        :param move_type: 移动类型       LINEAR:线性移动，SIMULATION:模拟移动，TELEPORTATION:瞬移
+        :param move_speed: 移动速度      高/中/低
+        :param ctrl_type: 键盘辅助按键   无/Ctrl/Alt/Shift/Win/Shape
+
+        :return: None
+        """
+        screen_weight, screen_height = Mouse.screen_size()
+        if (
+            start_pos_x < 0
+            or start_pos_x > screen_weight
+            or start_pos_y < 0
+            or start_pos_y > screen_height
+            or end_pos_x < 0
+            or end_pos_x > screen_weight
+            or end_pos_y < 0
+            or end_pos_y > screen_height
+        ):
+            raise BizException(REGION_ERROR, "坐标参数不合法！")
+
+        if ctrl_type != ControlType.EMPTY:
+            Keyboard.key_down(ctrl_type.value)
         try:
-            keys_str = keys_str.replace("ArrowLeft", "left")
-            keys_str = keys_str.replace("ArrowRight", "right")
-            keys_str = keys_str.replace("ArrowUp", "up")
-            keys_str = keys_str.replace("ArrowDown", "down")
-            key_list = []
-            for k in keys_str.split("+"):
-                key_list.append(k.strip())
-            if key_model == KeyModel.CLICK:
-                Keyboard.hotkey(*key_list)
-            elif key_model == KeyModel.DOWN:
-                for key in key_list:
-                    Keyboard.key_down(key)
-            elif key_model == KeyModel.UP:
-                for key in key_list:
-                    Keyboard.key_up(key)
+            Mouse.down(x=start_pos_x, y=start_pos_y, button=btn_type.value)
+            if move_type == MoveType.LINEAR:
+                duration = Mouse.calculate_movement_duration(start_pos_x, start_pos_y, end_pos_x, end_pos_y, move_speed)
+                Mouse.move(x=end_pos_x, y=end_pos_y, duration=duration, tween=pyautogui.linear)
+            elif move_type == MoveType.SIMULATION:
+                duration = Mouse.calculate_movement_duration(start_pos_x, start_pos_y, end_pos_x, end_pos_y, move_speed)
+                Mouse.move_simulate(
+                    x=end_pos_x,
+                    y=end_pos_y,
+                    duration=duration,
+                    tween=pyautogui.easeInOutQuad,  # type: ignore
+                )
+            elif move_type == MoveType.TELEPORTATION:
+                Mouse.move(x=end_pos_x, y=end_pos_y, duration=0)
             else:
                 raise NotImplementedError()
-        except Exception as e:
-            raise BizException(KEY_INPUT_ERROR, "模拟键盘按键输入错误")
+            Mouse.up(button=btn_type.value)
+        finally:
+            if ctrl_type != ControlType.EMPTY:
+                Keyboard.key_up(ctrl_type.value)
+
+    @staticmethod
+    @atomicMg.atomic(
+        "Gui",
+        outputList=[
+            atomicMg.param(
+                "point_x",
+                types="Int",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.RESULT.value),
+            ),
+            atomicMg.param(
+                "point_y",
+                types="Int",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.RESULT.value),
+            ),
+        ],
+    )
+    def mouse_position() -> tuple:
+        """获取鼠标位置"""
+        point_x, point_y = Mouse.position()
+        return point_x, point_y

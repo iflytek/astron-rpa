@@ -1,10 +1,21 @@
 import random
+import sys
 import time
 
 import pyautogui
 from astronverse.input import Speed
 
+if sys.platform == "darwin":
+    import AppKit
+    import Quartz
+else:
+    AppKit = None
+    Quartz = None
+
+
 speed_to_int = {Speed.SLOW: 0.5, Speed.NORMAL: 1, Speed.FAST: 2}
+_DARWIN_ACTIVE_BUTTON: str | None = None
+_DARWIN_MOUSE_EVENT_TAP = Quartz.kCGHIDEventTap if Quartz is not None else None
 
 
 class Mouse:
@@ -12,10 +23,111 @@ class Mouse:
         pyautogui.FAILSAFE = False
 
     @staticmethod
+    def _is_darwin_native_available() -> bool:
+        return sys.platform == "darwin" and Quartz is not None
+
+    @staticmethod
+    def _current_position() -> tuple[int, int]:
+        if Mouse._is_darwin_native_available():
+            loc = Quartz.CGEventGetLocation(Quartz.CGEventCreate(None))
+            return int(loc.x), int(loc.y)
+        point = pyautogui.position()
+        return point.x, point.y
+
+    @staticmethod
+    def _normalize_point(x=None, y=None) -> tuple[int, int]:
+        current_x, current_y = Mouse._current_position()
+        return int(current_x if x is None else x), int(current_y if y is None else y)
+
+    @staticmethod
+    def _mouse_event_spec(button: str):
+        normalized = (button or "left").lower()
+        if normalized == "primary":
+            normalized = "left"
+        elif normalized == "secondary":
+            normalized = "right"
+        if normalized == "right":
+            return (
+                Quartz.kCGMouseButtonRight,
+                Quartz.kCGEventRightMouseDown,
+                Quartz.kCGEventRightMouseUp,
+                Quartz.kCGEventRightMouseDragged,
+            )
+        if normalized == "middle":
+            return (
+                Quartz.kCGMouseButtonCenter,
+                Quartz.kCGEventOtherMouseDown,
+                Quartz.kCGEventOtherMouseUp,
+                Quartz.kCGEventOtherMouseDragged,
+            )
+        return (
+            Quartz.kCGMouseButtonLeft,
+            Quartz.kCGEventLeftMouseDown,
+            Quartz.kCGEventLeftMouseUp,
+            Quartz.kCGEventLeftMouseDragged,
+        )
+
+    @staticmethod
+    def _post_mouse_event(event_type, x: int, y: int, button_code):
+        source = Quartz.CGEventSourceCreate(Quartz.kCGEventSourceStateCombinedSessionState)
+        event = Quartz.CGEventCreateMouseEvent(source, event_type, (x, y), button_code)
+        if event_type in {
+            Quartz.kCGEventLeftMouseDown,
+            Quartz.kCGEventLeftMouseUp,
+            Quartz.kCGEventRightMouseDown,
+            Quartz.kCGEventRightMouseUp,
+            Quartz.kCGEventOtherMouseDown,
+            Quartz.kCGEventOtherMouseUp,
+        }:
+            Quartz.CGEventSetIntegerValueField(event, Quartz.kCGMouseEventClickState, 1)
+        Quartz.CGEventPost(_DARWIN_MOUSE_EVENT_TAP, event)
+
+    @staticmethod
+    def _darwin_pid_at_point(x: int, y: int) -> int:
+        if not Mouse._is_darwin_native_available():
+            return 0
+        try:
+            window_list = Quartz.CGWindowListCopyWindowInfo(
+                Quartz.kCGWindowListOptionOnScreenOnly | Quartz.kCGWindowListExcludeDesktopElements,
+                Quartz.kCGNullWindowID,
+            )
+            for window in window_list or []:
+                layer = int(window.get("kCGWindowLayer", 999))
+                if layer >= 25:
+                    continue
+                bounds = window.get("kCGWindowBounds", {})
+                wx = int(bounds.get("X", 0))
+                wy = int(bounds.get("Y", 0))
+                ww = int(bounds.get("Width", 0))
+                wh = int(bounds.get("Height", 0))
+                if wx <= x <= wx + ww and wy <= y <= wy + wh:
+                    pid = int(window.get("kCGWindowOwnerPID", 0))
+                    if pid > 1:
+                        return pid
+        except Exception:
+            return 0
+        return 0
+
+    @staticmethod
+    def _darwin_activate_pid(pid: int):
+        if AppKit is None or pid <= 1:
+            return
+        try:
+            app = AppKit.NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
+            if app is not None:
+                app.activateWithOptions_(AppKit.NSApplicationActivateIgnoringOtherApps)
+        except Exception:
+            return
+
+    @staticmethod
+    def _darwin_activate_app_at_point(x: int, y: int):
+        pid = Mouse._darwin_pid_at_point(x, y)
+        if pid > 1:
+            Mouse._darwin_activate_pid(pid)
+            time.sleep(0.12)
+
+    @staticmethod
     def calculate_movement_duration(start_x: int, start_y: int, end_x: int, end_y: int, speed: Speed) -> float:
-        """
-        根据距离和速度计算移动所需时间。
-        """
         distance = ((end_x - start_x) ** 2 + (end_y - start_y) ** 2) ** 0.5
         base_speed = 1000
         speed_multiplier = speed_to_int[speed]
@@ -24,30 +136,38 @@ class Mouse:
 
     @staticmethod
     def position() -> tuple:
-        """
-        鼠标位置
-        """
-
-        point = pyautogui.position()
-        return point.x, point.y
+        return Mouse._current_position()
 
     @staticmethod
     def move(x=None, y=None, duration: float = 0.0, tween=pyautogui.linear) -> None:
-        """
-        鼠标移动
-        """
-        return pyautogui.moveTo(x=x, y=y, duration=duration, tween=tween)
+        if not Mouse._is_darwin_native_available():
+            return pyautogui.moveTo(x=x, y=y, duration=duration, tween=tween)
+
+        target_x, target_y = Mouse._normalize_point(x, y)
+        start_x, start_y = Mouse._current_position()
+        event_type = Quartz.kCGEventMouseMoved
+        button_code = Quartz.kCGMouseButtonLeft
+        if _DARWIN_ACTIVE_BUTTON is not None:
+            button_code, _, _, drag_event = Mouse._mouse_event_spec(_DARWIN_ACTIVE_BUTTON)
+            event_type = drag_event
+        if duration <= 0:
+            Mouse._post_mouse_event(event_type, target_x, target_y, button_code)
+            return None
+
+        steps = max(1, int(duration / 0.01))
+        for index in range(1, steps + 1):
+            progress = index / steps
+            next_x = int(start_x + (target_x - start_x) * progress)
+            next_y = int(start_y + (target_y - start_y) * progress)
+            Mouse._post_mouse_event(event_type, next_x, next_y, button_code)
+            time.sleep(duration / steps)
+        return None
 
     @staticmethod
     def move_simulate(x=None, y=None, duration: float = 0.0, tween=pyautogui.linear) -> None:
-        """
-        鼠标模拟人工移动方式
-        """
         start_x, start_y = Mouse.position()
-        # 计算移动距离
         distance = ((x - start_x) ** 2 + (y - start_y) ** 2) ** 0.5
 
-        # 根据距离动态调整步数，减少步数以提高流畅度
         if distance < 300:
             steps = 1
         elif distance < 800:
@@ -55,34 +175,20 @@ class Mouse:
         else:
             steps = 3
 
-        # 计算每步的时间间隔
-        interval = duration / steps
+        interval = duration / steps if steps else 0
+        ease_param = random.uniform(1.5, 2.5)
+        time.sleep(random.uniform(0.02, 0.05))
 
-        # 生成随机的缓动参数，使每次移动的曲线都不同
-        ease_param = random.uniform(1.5, 2.5)  # 减小参数范围，使移动更平滑
-
-        # 添加随机的起始延迟，模拟人类反应时间
-        time.sleep(random.uniform(0.02, 0.05))  # 减少延迟时间
-
-        # 分步移动
         for i in range(steps):
             t = i / steps
-            # 使用改进的缓动函数，使移动更自然
             ease_t = t**ease_param / (t**ease_param + (1 - t) ** ease_param)
-
-            # 计算当前步骤的目标位置
             new_x = start_x + (x - start_x) * ease_t
             new_y = start_y + (y - start_y) * ease_t
-
-            # 添加微小的随机偏移，模拟手部抖动，但减小抖动范围
-            if i < steps - 1:  # 最后一步不添加抖动
+            if i < steps - 1:
                 new_x += random.uniform(-1, 1)
                 new_y += random.uniform(-1, 1)
+            Mouse.move(new_x, new_y, duration=interval, tween=tween)
 
-            # 使用pyautogui的moveTo函数，但减少调用次数
-            pyautogui.moveTo(new_x, new_y, duration=interval, tween=pyautogui.easeInOutQuad)  # type: ignore
-
-        # 确保最终位置准确
         Mouse.move(x=x, y=y)
 
     @staticmethod
@@ -95,43 +201,85 @@ class Mouse:
         duration=0.0,
         tween=pyautogui.linear,
     ) -> None:
-        """
-        鼠标点击
-        """
-        return pyautogui.click(
-            x=x,
-            y=y,
-            clicks=clicks,
-            interval=interval,
-            button=button,
-            duration=duration,
-            tween=tween,
-        )
+        if x is None or y is None:
+            pos = pyautogui.position()
+            x, y = pos.x, pos.y
+        if not Mouse._is_darwin_native_available():
+            return pyautogui.click(
+                x=x,
+                y=y,
+                clicks=clicks,
+                interval=interval,
+                button=button,
+                duration=duration,
+                tween=tween,
+            )
+        target_x, target_y = Mouse._normalize_point(x, y)
+        Mouse._darwin_activate_app_at_point(target_x, target_y)
+        if duration > 0:
+            Mouse.move(target_x, target_y, duration=duration, tween=tween)
+        else:
+            Mouse.move(target_x, target_y, duration=0)
+        time.sleep(0.05)
+
+        button_code, down_event, up_event, _ = Mouse._mouse_event_spec(button)
+
+        for _ in range(clicks):
+            Mouse._post_mouse_event(down_event, target_x, target_y, button_code)
+            time.sleep(max(0.05, interval / 2 if interval > 0 else 0.05))
+            Mouse._post_mouse_event(up_event, target_x, target_y, button_code)
+            if interval > 0:
+                time.sleep(interval)
+        return None
 
     @staticmethod
     def down(x=None, y=None, button=pyautogui.PRIMARY, duration=0.0, tween=pyautogui.linear):
-        """
-        鼠标按键
-        """
-        return pyautogui.mouseDown(x=x, y=y, button=button, duration=duration, tween=tween)
+        if not Mouse._is_darwin_native_available():
+            return pyautogui.mouseDown(x=x, y=y, button=button, duration=duration, tween=tween)
+
+        target_x, target_y = Mouse._normalize_point(x, y)
+        Mouse._darwin_activate_app_at_point(target_x, target_y)
+        if duration > 0:
+            Mouse.move(target_x, target_y, duration=duration, tween=tween)
+        else:
+            Mouse.move(target_x, target_y, duration=0)
+        button_code, down_event, _, _ = Mouse._mouse_event_spec(button)
+        global _DARWIN_ACTIVE_BUTTON
+        _DARWIN_ACTIVE_BUTTON = (button or "left").lower()
+        Mouse._post_mouse_event(down_event, target_x, target_y, button_code)
+        time.sleep(0.08)
+        return None
 
     @staticmethod
     def up(x=None, y=None, button=pyautogui.PRIMARY, duration=0.0, tween=pyautogui.linear):
-        """
-        鼠标松键
-        """
-        return pyautogui.mouseUp(x=x, y=y, button=button, duration=duration, tween=tween)
+        if not Mouse._is_darwin_native_available():
+            return pyautogui.mouseUp(x=x, y=y, button=button, duration=duration, tween=tween)
+
+        target_x, target_y = Mouse._normalize_point(x, y)
+        Mouse._darwin_activate_app_at_point(target_x, target_y)
+        if duration > 0:
+            Mouse.move(target_x, target_y, duration=duration, tween=tween)
+        else:
+            Mouse.move(target_x, target_y, duration=0)
+        button_code, _, up_event, _ = Mouse._mouse_event_spec(button)
+        time.sleep(0.05)
+        Mouse._post_mouse_event(up_event, target_x, target_y, button_code)
+        global _DARWIN_ACTIVE_BUTTON
+        _DARWIN_ACTIVE_BUTTON = None
+        return None
 
     @staticmethod
     def scroll(clicks, x=None, y=None):
-        """
-        鼠标滚动
-        """
-        return pyautogui.scroll(clicks=clicks, x=x, y=y)
+        if not Mouse._is_darwin_native_available():
+            return pyautogui.scroll(clicks=clicks, x=x, y=y)
+
+        event = Quartz.CGEventCreateScrollWheelEvent(None, Quartz.kCGScrollEventUnitLine, 1, int(clicks))
+        Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
+        return None
 
     @staticmethod
     def screen_size() -> tuple:
-        """
-        获取屏幕大小
-        """
+        if Mouse._is_darwin_native_available():
+            bounds = Quartz.CGDisplayBounds(Quartz.CGMainDisplayID())
+            return int(bounds.size.width), int(bounds.size.height)
         return pyautogui.size()
