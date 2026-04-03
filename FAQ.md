@@ -51,6 +51,23 @@ This is usually because the system lacks necessary runtime components.
 It is not recommended to build the client locally by yourself, as you may encounter configuration or environmental issues.
 It is recommended to download the official stable installation package (e.g., v1.1.2+) directly from the [Release page](https://github.com/iflytek/astron-rpa/releases).
 
+### Q: 🆕 Can RPA be deployed and run in an offline intranet environment? How to import images?
+
+**A:** ✅ **Yes!**
+In an offline environment, you need to export image packages using `docker save` in an environment with internet access, and import them using `docker load` in the intranet. After importing, please use `docker images` to check if the image Tags are complete. If there are dangling images without names, please use `docker tag` to re-tag them.
+
+### Q: 🆕 Installation of dependencies like `pywinhook` and `psycopg2` fails with errors when building the client locally (`build.bat`)?
+
+**A:**
+1. **C++ Build Environment**: Ensure Microsoft Visual C++ 14.0 or higher is installed (including MSVC v143 and Win10/11 SDK).
+2. **Permission Issue**: Please run the build script with Administrator privileges.
+3. **Dependency Trimming**: If specific database drivers (like Oracle/PostgreSQL) are not needed in the current scenario, you can modify `/engine/components/astronverse-database/pyproject.toml` and remove dependencies like `psycopg2` and `cx-oracle` to bypass complex local compilation.
+
+### Q: 🆕 Does the open-source version of RPA support front-end and back-end separate deployment for secondary development and debugging?
+
+**A:** ✅ **Yes!**
+The front-end and back-end separate mode is fully supported and recommended for development and debugging scenarios. You can independently run and debug front-end and back-end code. Please make sure to pull the latest code for configuration.
+
 ---
 
 ## 👥 Client Related
@@ -340,6 +357,31 @@ http://{IP_ADDRESS}:32742/api/rpa-openapi/workflows/get
 - **Input parameters:** Define "Process Parameters" in the RPA workflow design, and pass the corresponding Key-Value when calling externally.
 - **Output parameters:** Return JSON data through HTTP request nodes or Python scripts, which can be referenced by subsequent nodes via variables.
 
+### Q: 🆕 How does the main workflow pass parameters to a component?
+
+**A:** 
+
+1. Set "Input Parameters" (or component properties) in the component.
+2. Publish the component.
+3. Drag the component into the main workflow again, and you can assign values to these parameters in the right configuration panel.
+> ⚠️ **Note:** If the component's parameters are modified, it must be published first, and re-dragged into the main workflow to use the new parameters.
+
+### Q: 🆕 Are component element names unique within a component? Do duplicate names across different components cause issues?
+
+**A:** Element names are unique within a single component. Element names across different components can be duplicated without affecting each other.
+
+### Q: 🆕 Does RPA web element positioning (XPath) support using variables?
+
+**A:** ✅ **Yes!** You can use variables or parameters in the XPath path string to achieve dynamic element positioning.
+
+### Q: 🆕 What is the default positioning method used for capturing web elements? What if the absolute path changes due to changes in the page structure?
+
+**A:** 
+
+- When capturing an element, if the element has an ID, the ID will be locked by default (as part of the XPath).
+- If the absolute path changes due to a web page structure change, but the ID remains the same, you can adapt by adjusting the ID's checkbox state.
+- If the ID changes or is unstable, consider unchecking the ID attribute, and use other stable relative paths or attributes for positioning, or observe the page change patterns to manually modify the XPath.
+
 ### Q: What if dependency package downloads fail?
 
 **A:** 
@@ -415,6 +457,14 @@ docker logs [container_name] > logs.txt
 **A:** 
 
 It may be missing `Microsoft Edge WebView2 Runtime` or the version is too low (common in older systems or cloud desktops). Please try updating WebView2 Runtime.
+
+### Q: 🆕 What should I do if the email component reports errors (e.g., search parameter mismatch, unknown encoding utf-8) when using imap4 to receive emails?
+
+**A:** This is due to compatibility issues with specific email server interactions and encoding processing. It is recommended to update to the latest version of the client. The underlying component has fixed the encoding parsing and attachment name regex extraction null pointer issues. If encountered in older versions, you can contact technical support for a source code patch.
+
+### Q: 🆕 Why does Excel automation abnormally open a new blank workbook when performing operations like "Copy Cells"?
+
+**A:** This may be an instance conflict caused by the underlying scheduling mechanism. In the latest version, `application.py` has been optimized to prioritize taking over existing Excel instances and disable warning pop-ups by default. Please ensure you upgrade to the latest client version.
 
 ### Q: 🆕 Web element capturing feature frequently fails or causes the browser to crash?
 
