@@ -606,7 +606,7 @@ class CV:
                         if not msg:
                             raise BizException(CLIP_PASTE_ERROR, "Clip is empty.")
                         else:
-                            Keyboard.hotkey("ctrl", "v")
+                            Keyboard.paste_hotkey()
                             Clipboard.clear()
                     else:
                         raise NotImplementedError()
