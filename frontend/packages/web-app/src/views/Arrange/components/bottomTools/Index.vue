@@ -1,16 +1,26 @@
 <script setup lang="ts">
+import { NiceModal } from '@rpa/components'
 import { computed, toValue } from 'vue'
 
+import { CustomComponentSettingModal } from '@/components/CustomComponentSetting'
 import { BOTTOM_BOOTLS_HEIGHT_SIZE_MIN } from '@/constants'
+import { useProcessStore } from '@/stores/useProcessStore'
 
 import { useProvideToolsStore } from './store'
-import { useToolsCustomComp } from '../tools/hooks/useToolsCustomComp.ts'
 
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
 const { moduleType, activeKey, activeTab, tabs } = useProvideToolsStore()
-const customCompSetting = useToolsCustomComp()
+
+// 自定义组件设置（复用 ToolCustomComp.vue 相同逻辑）
+const processStore = useProcessStore()
+const settingModal = NiceModal.useModal(CustomComponentSettingModal)
+const customCompShow = computed(() => processStore.isComponent && processStore.canvasManager.activeTab?.state?.isMain)
+
+function handleCustomCompClick() {
+  settingModal.visible ? settingModal.hide() : settingModal.show({ clickOutsideIgnoreSelector: '_tools-custom-comp-setting' })
+}
 
 // 内容的最大高度
 const contentHeight = computed(() => {
@@ -46,16 +56,16 @@ function expand(bool: boolean) {
             @click="() => expand(!collapsed)"
           />
           <rpa-hint-icon
-            v-if="customCompSetting.show && activeKey === 'config-params'"
-            :name="customCompSetting.icon"
-            :disabled="(customCompSetting.disable as boolean)"
-            :title="$t(customCompSetting.title as string)"
-            class="ml-4"
+            v-if="customCompShow && activeKey === 'config-params'"
+            name="tools-custom-comp-setting"
+            :disabled="!processStore.isComponent"
+            :title="$t('components.customComponentSetting')"
+            class="ml-4 _tools-custom-comp-setting"
             enable-hover-bg
-            @click="customCompSetting.clickFn"
+            @click="handleCustomCompClick"
           >
             <template #suffix>
-              <span class="ml-1">{{ $t(customCompSetting.title as string) }}</span>
+              <span class="ml-1">{{ $t('components.customComponentSetting') }}</span>
             </template>
           </rpa-hint-icon>
         </div>
