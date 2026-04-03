@@ -5,42 +5,6 @@ function gen_event_id() {
     return v.toString(16);
   });
 }
-function get_navigator_user_agent() {
-  const isChrome = /Chrome/.test(navigator.userAgent);
-  const isFirefox = /Firefox/.test(navigator.userAgent);
-  const isEdge = /Edg/.test(navigator.userAgent);
-
-  if (isFirefox) return "$firefox$";
-  if (isEdge) return "$edge$";
-  if (isChrome) return "$chrome$";
-  return "$unknown$";
-}
-function custom_agent() {
-  const modeAgent = {
-    '360se': "$360se$",
-    '360ChromeX': "$360ChromeX$",
-    'chromium': "$chromium$"
-  }
-  return modeAgent[__BUILD_MODE__] || '';
-}
-function get_navigator_version() {
-  const nu = navigator.userAgentData;
-  let ver = 'unknown';
-  if (nu && nu.brands) {
-    for (const brand of nu.brands) {
-      if (brand.brand === "Chromium") {
-        ver = brand.version;
-      }
-    }
-  }
-  return ver
-}
-function gen_short_id() {
-  return "xxxxxxxx".replace(/[x]/g, function () {
-    let r = (Math.random() * 16) | 0;
-    return r.toString(16);
-  });
-}
 
 function gen_ack_msg(event_id = "") {
   let msg = new BaseMsg();
@@ -414,22 +378,8 @@ class WsApp {
   }
 }
 
-const storage = get_navigator_user_agent() === '$firefox$' ? browser.storage.local : chrome.storage.local;
-
-function isValidPipeName(pipeName) {
-  return typeof pipeName === 'string' && /^[A-Za-z0-9_-]+$/.test(pipeName);
-}
-
-export async function createWsApp(pipeName) {
-  const { cid = gen_short_id() } = await storage.get('cid')
-  await storage.set({ cid })
-  const ws_base_url = import.meta.env.VITE_APP_WS_URL;
-  const customAgent = custom_agent();
-  const agent = customAgent ? customAgent : get_navigator_user_agent()
-  console.info('[info]', `token: ${agent}`);
-  const token = isValidPipeName(pipeName) ? btoa(pipeName) : btoa(agent)
-  const version = get_navigator_version();
-  const wsUrl = `${ws_base_url}?token=${token}&nv=${version}&cid=${cid}`;
+export function createWsApp(ws_url, token, n_version) {
+  const wsUrl = `${ws_url}?token=${token}&nv=${n_version}`;
   const wsApp = new WsApp(
     wsUrl,
     10,
