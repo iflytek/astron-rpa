@@ -1,11 +1,10 @@
 import path from 'node:path'
 
-import { app, BrowserWindow, screen } from 'electron'
+import { BrowserWindow, screen } from 'electron'
 import type { CreateWindowOptions } from '@rpa/shared/platform'
 import { isUndefined } from 'lodash'
 
-import { APP_ICON_PATH, MAIN_WINDOW_LABEL } from './config'
-import { resourcePath } from './path'
+import { APP_ICON_PATH, MAIN_WINDOW_LABEL, electronInfo } from './config'
 import logger from './log'
 
 export const WindowStack: Map<string, BrowserWindow> = new Map()
@@ -18,20 +17,8 @@ export function getMainWindow() {
   return getWindowFromLabel(MAIN_WINDOW_LABEL)
 }
 
-export function electronInfo(win: BrowserWindow) {
-  const electronVersion = process.versions.electron
-  const electronInfo = JSON.stringify({
-    electronVersion,
-    appPath: app.getPath('exe'),
-    userDataPath: app.getPath('userData'),
-    appVersion: app.getVersion(),
-    release: process.getSystemVersion(),
-    arch: process.arch,
-    platform: process.platform,
-    preload: path.join(__dirname, '../preload/index.js'),
-    resourcePath,
-  })
-  win.webContents.send('electron-info', electronInfo)
+export function sendElectronInfo(win: BrowserWindow) {
+  win.webContents.send('electron-info', JSON.stringify(electronInfo))
 }
 
 function createWindow(options: Electron.BrowserWindowConstructorOptions, label?: string) {
@@ -131,7 +118,7 @@ export function createSubWindow(options: CreateWindowOptions) {
   }
 
   const window = createWindow(subWindowOptions, options.label)
-  window.loadURL(url).then(() => electronInfo(window)).catch(() => logger.error('Failed to load URL'))
+  window.loadURL(url).then(() => sendElectronInfo(window)).catch(() => logger.error('Failed to load URL'))
   window.on('ready-to-show', () => {
     if (options?.show !== false) {
       window.show()

@@ -44,15 +44,15 @@ function getStatus(status: AppFileStatus) {
         @click="cancelDownload(item)"
       >
         <template v-if="item.status === AppFileStatus.cancled">
-          已取消
+          {{ $t('canceled') }}
         </template>
         <template v-else>
-          取消下载
+          {{ $t('cancelDownload') }}
         </template>
       </a-button>
     </div>
   </template>
-  <span v-else>暂无附件</span>
+  <span v-else>{{ $t('noAttachment') }}</span>
 </template>
 
 <style lang="scss" scoped>

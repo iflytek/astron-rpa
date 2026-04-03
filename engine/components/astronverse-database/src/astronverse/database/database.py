@@ -43,7 +43,6 @@ class Database:
     @staticmethod
     @atomicMg.atomic(
         "Database",
-        inputList=[],
         outputList=[atomicMg.param("query_db_result", types="Any")],
     )
     def query_sql(database_obj: object, sql: str):

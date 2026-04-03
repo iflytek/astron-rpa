@@ -2,13 +2,14 @@
 
 import ast
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.ai import InputType
 from astronverse.ai.api.llm import chat_prompt
 from astronverse.ai.prompt.contract import CONTRACT_FACTOR_DICT
 from astronverse.ai.utils.extract import FileExtractor
+from astronverse.ai.error import BizException, CUSTOM_FACTORS_ERROR_FORMAT
 
 
 class ContractAI:
@@ -74,7 +75,7 @@ class ContractAI:
                 formType=AtomicFormTypeMeta(type=AtomicFormType.MODALBUTTON.value, params={"loading": False}),
                 required=False,
             ),
-            atomicMg.param("model", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("model", required=False),
         ],
         outputList=[atomicMg.param("factor_result", types="Dict")],
     )
@@ -92,8 +93,8 @@ class ContractAI:
 
         try:
             custom_factors = ast.literal_eval(custom_factors)
-        except:
-            raise ValueError("custom_factors 格式错误，请检查")
+        except Exception as e:
+            raise BizException(CUSTOM_FACTORS_ERROR_FORMAT.format("custom_factors"), "custom_factors 格式错误，请检查")
         preset_factors = custom_factors.get("preset", [])  # type: ignore
         custom_factors = custom_factors.get("custom", [])  # type: ignore
 

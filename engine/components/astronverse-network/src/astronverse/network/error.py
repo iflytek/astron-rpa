@@ -1,10 +1,11 @@
-from astronverse.baseline.error.error import BaseException, BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = BaseException
+BizException = BizException
 
-MSG_EMPTY_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("消息为空") + ": {}")
 HTTP_DOWNLOAD_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("HTTP下载失败，错误：{}"))
+HTTP_REQUEST_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("HTTP请求失败: {}"))
+FILE_WRITE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件写入失败，请检查文件类型是否正确"))
 
 FTP_CONNECTION_FORMAT: ErrorCode = ErrorCode(
     BizCode.LocalErr, _("连接到FTP服务器失败，请检查服务器地址：{}及端口号：{}")
@@ -17,6 +18,10 @@ FTP_RENAME_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("FTP文件/文件�
 FTP_CREATE_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("FTP目录创建失败：{},请检查FTP连接"))
 FTP_UPLOAD_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("{}上传失败，请检查FTP连接"))
 FTP_DOWNLOAD_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("{}下载失败，请检查FTP连接"))
+FTP_PERMISSION_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("权限错误或命令不支持：{}"))
+FTP_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("FTP操作失败：{}"))
+FTP_INVALID_DIR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("{}非有效目录"))
+FTP_CREATE_DIR_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("工作目录创建失败，请检查FTP连接"))
 
 FILE_EXIST_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件：{}不存在或格式错误，请检查文件路径信息"))
 FOLDER_EXIST_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件夹：{}不存在，请检查文件夹路径信息"))

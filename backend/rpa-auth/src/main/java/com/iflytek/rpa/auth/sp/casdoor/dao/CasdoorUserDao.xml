@@ -107,66 +107,20 @@
         LIMIT 1000
     </select>
 
-    <!-- 获取市场用户列表（分页） -->
-    <select id="getMarketUserList" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
-        select
-            amu.id id,
-            amu.user_type userType,
-            amu.creator_id creatorId,
-            amu.create_time createTime,
-            u.name userName,
-            u.display_name realName,
-            u.email email,
-            u.phone phone
-        from app_market_user amu
-            inner join ${databaseName}.`user` u on u.id = amu.creator_id and u.is_deleted = 0
-        where
-            amu.market_id = #{dto.marketId}
-            and amu.deleted = 0
-            <if test="dto.userName != null and dto.userName != ''">
-                and upper(u.name) like concat('%', upper(#{dto.userName}), '%')
-            </if>
-            <if test="dto.realName != null and dto.realName != ''">
-                and upper(u.display_name) like concat('%', upper(#{dto.realName}), '%')
-            </if>
-            <choose>
-                <when test="dto.sortBy !=null and dto.sortBy != ''">
-                    <if test="dto.sortType == 'descend'.toString()">
-                        order by ${dto.sortBy} desc
-                    </if>
-                    <if test="dto.sortType == 'ascend'.toString() ">
-                        order by ${dto.sortBy} asc
-                    </if>
-                </when>
-                <otherwise>
-                    order by createTime desc
-                </otherwise>
-            </choose>
-    </select>
-
-    <!-- 根据手机号或姓名查询市场用户（排除已在团队内的用户，已禁用的不再查询） -->
-    <select id="getMarketUserByPhone" resultType="com.iflytek.rpa.auth.core.entity.MarketDto">
-        select
-            u.phone phone,
-            u.display_name realName,
-            u.id creatorId
-        from ${databaseName}.`user` u
-        where
-            not exists(
-                select id
-                from app_market_user amu
-                where amu.creator_id = u.id 
-                    and amu.deleted = 0 
-                    and amu.market_id = #{dto.marketId}
-            )
-            <if test="dto.keyword != null and dto.keyword != ''">
-                and (
-                    u.phone like CONCAT('%', #{dto.keyword}, '%') 
-                    or u.display_name like CONCAT('%', #{dto.keyword}, '%')
-                )
-            </if>
-            and u.is_deleted = 0
-            limit 20
+    <!-- 根据用户ID列表查询租户用户列表 -->
+    <select id="getMarketTenantUserList" resultType="com.iflytek.rpa.auth.core.entity.TenantUser">
+        SELECT
+            u.owner tenantId,
+            u.id userId
+        FROM
+            ${databaseName}.`user` u
+        WHERE
+            u.is_deleted = 0
+            AND u.owner = #{dto.tenantId}
+            AND u.id IN
+            <foreach collection="dto.userIdList" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
     </select>
 
 </mapper>

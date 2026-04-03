@@ -78,9 +78,9 @@ class BrowserScript:
             with open(file_path, encoding="utf8") as f:
                 content = f.read()
         if not content:
-            raise BaseException(CODE_EMPTY, f"脚本数据为空 {input_type} {content} {file_path}")
+            raise BizException(CODE_EMPTY, f"脚本数据为空 {input_type} {content} {file_path}")
         if "function main" not in content:
-            raise BaseException(CODE_NO_MAIN_FUNC, "代码中必须包含main函数")
+            raise BizException(CODE_NO_MAIN_FUNC, "代码中必须包含main函数")
         is_await = False
         if "await function main" in content:
             is_await = True

@@ -1,9 +1,10 @@
-import { ErrorMessage, StatusCode } from './constant'
+import { ErrorMessage, StatusCode } from '../common/constant'
+import { Utils } from '../common/utils'
+
 import { Debugger } from './debugger'
 import { captureArea, captureFullPage } from './full_page_shot'
-import { Utils } from './utils'
 
-const isFirefox = Utils.getNavigatorUserAgent() === '$firefox$'
+const isFirefox = Utils.isFirefox()
 
 export const Tabs = {
   query: (queryInfo): Promise<chrome.tabs.Tab[]> => {
@@ -139,27 +140,29 @@ export const Tabs = {
     })
   },
   /**
-   *  Executes a script in a specific frame of a tab using the Debugger API.
-   * @param tabId - The ID of the tab containing the frame.
-   * @param frameId - The ID of the frame where the script will be executed.
-   * @param code - The JavaScript code to be executed as a string.
-   * @returns A promise that resolves with the result of the script execution.
+   * execute function on all frames of the tab, and return the result as an array
    */
-  executeScriptOnFrame: (
+  executeFuncOnAllFrame: async (tabId: number, funcCode: (...args: any[]) => void, args: any[]): Promise<unknown[]> => {
+    const frames = await Tabs.getAllFrames(tabId)
+    const promises = frames.map(frame => Tabs.executeFuncOnFrame(tabId, frame.frameId, funcCode, args))
+    return Promise.all(promises)
+  },
+  /**
+   * Executes JavaScript code in a specified frame of a tab, only for Chromium-based browsers.
+   */
+  executeScriptOnFrame: async (
     tabId: number,
     frameId: number,
     code: string,
   ): Promise<unknown> => {
-    return new Promise((resolve, reject) => {
-      Debugger.evaluate(tabId, code, frameId)
-        .then((result) => {
-          resolve(result)
-        })
-        .catch((error) => {
-          Debugger.detachDebugger(tabId)
-          reject(error)
-        })
-    })
+    try {
+      await Tabs.getAllFrames(tabId)
+      return await Debugger.evaluate(tabId, code, frameId)
+    }
+    catch (error) {
+      await Debugger.detachDebugger(tabId)
+      throw new Error(`Error executing script on frame ${frameId}: ${error.message}`)
+    }
   },
   /**
    * Runs JavaScript code in a specified tab and frame, handling differences between Firefox and other browsers.
@@ -197,6 +200,7 @@ export const Tabs = {
   getAllTabs: (): Promise<chrome.tabs.Tab[]> => {
     return new Promise<chrome.tabs.Tab[]>((resolve) => {
       chrome.tabs.query({}, (tabs) => {
+        tabs = tabs.filter(tab => Utils.isSupportProtocal(tab.url))
         resolve(tabs)
       })
     })
@@ -386,8 +390,8 @@ export const Tabs = {
   /**
    * Sends a message to a specific frame within a tab and returns the response.
    * @param tabId - The ID of the tab containing the target frame.
-   * @param frameId - The ID of the target frame to which the message will be sent.
    * @param message - The message object to be sent to the frame.
+   * @param frameId - The ID of the target frame to which the message will be sent.
    * @returns A promise that resolves with the response from the frame.
    */
   sendTabFrameMessage: (tabId: number, message, frameId: number): Promise<ContentResult> => {
@@ -422,6 +426,16 @@ export const Tabs = {
     return new Promise<ContentResult>((resolve) => {
       chrome.tabs.sendMessage(tabId, message, {}, (response) => {
         resolve(response)
+      })
+    })
+  },
+  sendTabMessageToAllFrames: (tabId: number, message): Promise<ContentResult[]> => {
+    return new Promise<ContentResult[]>((resolve) => {
+      Tabs.getAllFrames(tabId).then((frames) => {
+        const promises = frames.map(frame => Tabs.sendTabFrameMessage(tabId, message, frame.frameId))
+        Promise.all(promises).then((responses) => {
+          resolve(responses)
+        })
       })
     })
   },
@@ -497,9 +511,6 @@ export const Tabs = {
         resolve(true)
       })
     })
-  },
-  getFrameTree: (tabId: number) => {
-    return Debugger.getFrameTree(tabId)
   },
   printPage: (tabId: number, options) => {
     return Debugger.printToPDF(tabId, { printBackground: true, ...options })

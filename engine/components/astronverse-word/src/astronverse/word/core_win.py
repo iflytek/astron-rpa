@@ -8,34 +8,8 @@ import win32clipboard
 import win32com.client as wc
 from astronverse.actionlib.logger import logger
 from astronverse.actionlib.types import PATH
-from astronverse.actionlib.utils import FileExistenceType, handle_existence
-from astronverse.word import (
-    ApplicationType,
-    CloseRangeType,
-    CommentType,
-    ConvertPageType,
-    CursorPointerType,
-    CursorPositionType,
-    DeleteMode,
-    EncodingType,
-    FileExistenceType,
-    InsertImgType,
-    InsertionType,
-    MoveDirectionType,
-    MoveLeftRightType,
-    MoveUpDownType,
-    ReplaceMethodType,
-    ReplaceType,
-    RowAlignment,
-    SaveFileType,
-    SaveType,
-    SearchTableType,
-    SelectRangeType,
-    SelectTextType,
-    TableBehavior,
-    UnderLineStyle,
-    VerticalAlignment,
-)
+from astronverse.actionlib.utils import handle_existence
+from astronverse.word import *
 from astronverse.word.core import IDocumentCore
 from astronverse.word.error import *
 from win32api import RGB
@@ -49,11 +23,14 @@ class WordDocumentCore(IDocumentCore):
         is_word_running, is_wps_running = False, False
         process_ids = psutil.pids()
         for process_id in process_ids:
-            process = psutil.Process(process_id)
-            if process.name() == "WINWORD.EXE":
-                is_word_running = True
-            if process.name() == "wps.exe":
-                is_wps_running = True
+            try:
+                process = psutil.Process(process_id)
+                if process.name() == "WINWORD.EXE":
+                    is_word_running = True
+                if process.name() == "wps.exe":
+                    is_wps_running = True
+            except Exception as e:
+                pass
         return is_word_running, is_wps_running
 
     @staticmethod
@@ -112,9 +89,11 @@ class WordDocumentCore(IDocumentCore):
                 if cls.word_application_instance:
                     return cls.word_application_instance
         except Exception as e:
-            raise Exception("兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！")
+            raise BizException(
+                WORD_FALLBACK_FAILED_ERROR, "兜底失败，请尝试手动删除 %LOCALAPPDATA%\\Temp\\gen_py 目录再运行！"
+            )
 
-        raise Exception("未检测到wps和office注册表信息！")
+        raise BizException(WORD_REGISTRY_NOT_FOUND_ERROR, "未检测到wps和office注册表信息！")
 
     @classmethod
     def open(
@@ -154,7 +133,7 @@ class WordDocumentCore(IDocumentCore):
             cls.word_application_instance.DisplayAlerts = True
             print(document.Name)
         else:
-            raise LookupError("没有输入路径，请检查输入的word路径是否正确!")
+            raise BizException(PATH_NOT_INPUT_ERROR, "没有输入路径，请检查输入的word路径是否正确")
         return document
 
     @classmethod
@@ -204,7 +183,7 @@ class WordDocumentCore(IDocumentCore):
                 try:
                     doc.SaveAs(FileName=new_file_path)
                 except Exception as e:
-                    raise RuntimeError(f"文档保存失败: {e}")
+                    raise BizException(DOCUMENT_SAVE_ERROR_FORMAT.format(str(e)), f"文档保存失败: {e}")
         return doc, new_file_path
 
     @classmethod
@@ -269,19 +248,24 @@ class WordDocumentCore(IDocumentCore):
         if enter_flag:
             selection.TypeParagraph()
         selection.TypeText(text)
-        selection.Start = selection.Start - len(text)  # 将光标移回到插入的文字开始位置 32
-        selection.End = selection.End  # 将光标移到插入的文字结束位置
-        # 设置文字格式（例如加粗、斜体等）
-        selection.Font.Bold = text_format["bold"]
-        selection.Font.Italic = text_format["italic"]
-        selection.Font.Underline = text_format["underline"].value
-        # 设置文字字体
-        selection.Font.Name = text_format["font_name"]
-        # 设置文字大小
-        selection.Font.Size = text_format["font_size"]
-        rgb_color = text_format["font_color"].split(",")
-        selection.Font.Color = RGB(int(rgb_color[0]), int(rgb_color[1]), int(rgb_color[2]))
-        selection.Start = selection.End  # 将光标移到末尾
+        # 将光标移回插入文字的开始位置并设置格式；若格式设置失败，文本已插入，仅记录日志不抛错
+        try:
+            selection.Start = selection.Start - len(text)  # 将光标移回到插入的文字开始位置
+            selection.End = selection.End  # 将光标移到插入的文字结束位置
+            # 设置文字格式（例如加粗、斜体等）
+            selection.Font.Bold = text_format["bold"]
+            selection.Font.Italic = text_format["italic"]
+            selection.Font.Underline = 1 if text_format["underline"] else 0
+            selection.Font.Name = text_format["font_name"]
+            selection.Font.Size = text_format["font_size"]
+            rgb_color = text_format["font_color"].split(",")
+            selection.Font.Color = RGB(int(rgb_color[0]), int(rgb_color[1]), int(rgb_color[2]))
+        except Exception as e:
+            logger.warning(f"Word 插入文本后格式设置失败（文本已插入）: {e}")
+        try:
+            selection.Start = selection.End  # 将光标移到末尾
+        except Exception as e:
+            logger.warning(f"Word 光标复位失败: {e}")
 
     @classmethod
     def replace(
@@ -412,10 +396,7 @@ class WordDocumentCore(IDocumentCore):
         s = doc.Application.Selection
         if by == CursorPointerType.CONTENT:  # 按照文本定位
             if not content:
-                raise BaseException(
-                    CONTENT_FORMAT_ERROR_FORMAT,
-                    "请填写要定位光标的文本内容,目前不支持空内容的定位!!!",
-                )
+                raise BizException(CONTENT_EMPTY_ERROR, "请填写要定位光标的文本内容,目前不支持空内容的定位!!!")
             try:
                 s.GoTo(3, 1, 1)  # 移动到文档第一行最开始的地方
                 for _ in range(
@@ -427,7 +408,7 @@ class WordDocumentCore(IDocumentCore):
                 else:
                     s.SetRange(Start=s.End, End=s.End)
             except Exception as e:
-                raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "内容不存在！") from e
+                raise BizException(CONTENT_NOT_EXIST_ERROR, "内容不存在") from e
         elif by == CursorPointerType.ALL:  # 按照文档定位光标
             try:
                 p_num = doc.Paragraphs.Count  # 获取全部段落号
@@ -436,7 +417,7 @@ class WordDocumentCore(IDocumentCore):
                 else:  # 移动到整个文档开头
                     s.Move(4, -p_num)
             except Exception as e:
-                raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "文档为空！") from e
+                raise BizException(DOCUMENT_EMPTY_ERROR, "文档为空") from e
         elif by == CursorPointerType.PARAGRAPH:  # 按照段落号定位光标
             if pos == CursorPositionType.TAIL:  # 定位到某个段落末尾
                 s.SetRange(
@@ -449,10 +430,7 @@ class WordDocumentCore(IDocumentCore):
                     End=doc.Paragraphs(p_idx).Range.Start,
                 )
             else:
-                raise BaseException(
-                    CONTENT_FORMAT_ERROR_FORMAT,
-                    "不支持的参考位置，请前端检查传入的p_pos参数！",
-                )
+                raise NotImplementedError()
         elif by == CursorPointerType.ROW:
             try:
                 if pos == CursorPositionType.HEAD:  # 定位到行首
@@ -461,7 +439,7 @@ class WordDocumentCore(IDocumentCore):
                     s.GoTo(3, 1, r_idx)
                     s.EndKey(5)
             except Exception as e:
-                raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "内容为空！") from e
+                raise BizException(CONTENT_EMPTY_ERROR, "内容为空") from e
 
     @classmethod
     def move_cursor(
@@ -500,10 +478,7 @@ class WordDocumentCore(IDocumentCore):
             else:
                 s.MoveRight(unit, distance)
         else:
-            raise BaseException(
-                CONTENT_FORMAT_ERROR_FORMAT,
-                "不支持的direction，请前端检查传入的direction参数！",
-            )
+            raise NotImplementedError()
 
     @classmethod
     def insert_sep(cls, doc: object = None, sep_type: InsertionType = InsertionType.PARAGRAPH):
@@ -514,10 +489,7 @@ class WordDocumentCore(IDocumentCore):
         elif sep_type == InsertionType.PARAGRAPH:
             s.InsertParagraph()
         else:
-            raise BaseException(
-                CONTENT_FORMAT_ERROR_FORMAT,
-                "不支持的分隔符类型，请前端检查传入的sep_type参数！！！",
-            )
+            raise NotImplementedError()
 
     @classmethod
     def insert_hyperlink(cls, doc: object = None, url: str = "", display: str = ""):
@@ -565,7 +537,7 @@ class WordDocumentCore(IDocumentCore):
                 img = win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5)
             else:
                 win32clipboard.CloseClipboard()
-                raise BaseException(CLIPBOARD_PASTE_ERROR.format("剪贴板没有图片数据"), "")
+                raise BizException(CLIPBOARD_PASTE_ERROR.format("剪贴板没有图片数据"), "")
             # 将字节数据转换为Image对象
             image = Image.open(io.BytesIO(img))
             if image.mode != "RGB":
@@ -585,7 +557,7 @@ class WordDocumentCore(IDocumentCore):
         else:
             img_shape = s.InlineShapes.AddPicture(img_path)
             if not os.path.isfile(img_path):
-                raise BaseException(DOCUMENT_PATH_ERROR_FORMAT.format(img_path), "图片路径错误")
+                raise BizException(IMAGE_PATH_ERROR, "图片路径错误")
         img_shape.ScaleWidth = scale
         img_shape.ScaleHeight = scale
 
@@ -606,7 +578,7 @@ class WordDocumentCore(IDocumentCore):
                 table = doc.Tables(idx)
                 table_content = cls._extract_table_content(table)
             except Exception as e:
-                raise BaseException(TABLE_NOT_EXIST_ERROR.format("序号" + str(idx))) from e
+                raise BizException(TABLE_NOT_EXIST_ERROR_FORMAT.format("序号" + str(idx))) from e
         elif search_type == SearchTableType.TEXT:
             # 遍历所有表格，查找包含指定文本的表格
             count = 0
@@ -617,7 +589,7 @@ class WordDocumentCore(IDocumentCore):
                         table_content = cls._extract_table_content(table)
                         return table_content
             if not table_content:
-                raise BaseException(TABLE_NOT_EXIST_ERROR.format("内容" + str(text)))
+                raise BizException(TABLE_NOT_EXIST_ERROR_FORMAT.format("内容" + str(text)))
 
         return table_content
 
@@ -640,20 +612,26 @@ class WordDocumentCore(IDocumentCore):
         newline: bool = True,
     ):
         rows = len(table_content)
-        cols = len(table_content[0]) if rows > 0 else 0
+        cols = max(len(row) for row in table_content) if rows > 0 else 0
         doc.Activate()
         selection_range = doc.Application.Selection.Range
         # 插入表格
         table = doc.Tables.Add(selection_range, NumRows=rows, NumColumns=cols)
         table.AutoFitBehavior(table_behavior == TableBehavior.AUTO)
+        colors = (0, 0, 0)
+        if font_color and isinstance(font_color, str) and if_change_font:
+            try:
+                colors = tuple(map(int, font_color.split(",")))
+            except Exception:
+                logger.warning(f"font_color parse error: {font_color}")
 
         for row_idx, row_data in enumerate(table_content):
             row = table.Rows.Item(row_idx + 1)
             for col_idx, cell_data in enumerate(row_data):
                 cell = row.Cells.Item(col_idx + 1)
                 cell.Range.Text = cell_data
-                cell.Range.Paragraphs.Alignment = alignment.value
-                cell.VerticalAlignment = v_alignment.value
+                cell.Range.Paragraphs.Alignment = alignment
+                cell.VerticalAlignment = v_alignment
                 if if_change_font:
                     # 设置字体属性
                     run = cell.Range.Font
@@ -661,9 +639,9 @@ class WordDocumentCore(IDocumentCore):
                     run.Size = font_size or 12
                     run.Bold = font_bold
                     run.Italic = font_italic
-                    run.Underline = underline.value if underline else 0
+                    run.Underline = underline or 0
                     if font_color:
-                        run.Color = RGBColor(*font_color).rgb
+                        run.Color = RGB(*colors)
 
                     # 获取或添加 rPr 元素
                     # rPr = run._element.get_or_add_rPr()
@@ -797,7 +775,7 @@ class WordDocumentCore(IDocumentCore):
         filename = f"{output_name}.txt"
         if WordDocumentCore.check_file_in_path(output_path, filename):
             if save_type == SaveFileType.WARN:
-                raise BaseException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
+                raise BizException(FILENAME_ALREADY_EXISTS_ERROR_FORMAT.format(filename), "")
             if save_type == SaveFileType.GENERATE:
                 # 生成非重复文件名
                 counter = 1
@@ -829,7 +807,7 @@ class WordDocumentCore(IDocumentCore):
         filename = f"{output_name}.pdf"
         if WordDocumentCore.check_file_in_path(output_path, filename):
             if save_type == SaveFileType.WARN:
-                raise BaseException(FILENAME_ALREADY_EXISTS_ERROR.format(filename), "")
+                raise BizException(FILENAME_ALREADY_EXISTS_ERROR_FORMAT.format(filename), "")
             if save_type == SaveFileType.GENERATE:
                 # 生成非重复文件名
                 counter = 1

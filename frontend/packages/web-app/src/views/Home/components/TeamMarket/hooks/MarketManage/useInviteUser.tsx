@@ -1,4 +1,5 @@
 import { Button, message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
 import { storeToRefs } from 'pinia'
 import { reactive, ref } from 'vue'
@@ -9,6 +10,7 @@ import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/ma
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
+  const { t } = useTranslation()
   const userList = ref([])
   const selectIds = ref([])
   const tempSelectIds = ref([])
@@ -20,10 +22,10 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
       userList.value = []
       return
     }
-    
+
     if (type !== 'invite' && (Object.is(Number(keyword), Number.NaN) || keyword.length > 11)) {
       message.destroy()
-      message.error('请输入正确的手机号')
+      message.error(t('common.invalidPhoneNumber'))
       userList.value = []
       return
     }
@@ -38,7 +40,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
           return item
         })
       }
-    }).catch(()=> {
+    }).catch(() => {
       userList.value = []
     })
   }, 200)
@@ -176,6 +178,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 export function useLinkInvite(marketId: string, emit?: any) {
   const appStore = useAppConfigStore()
   const { appInfo } = storeToRefs(appStore)
+  const { t } = useTranslation()
   const invitData = ref({
     inviteKey: '',
     expireTime: '',
@@ -183,10 +186,10 @@ export function useLinkInvite(marketId: string, emit?: any) {
     expireType: '24H',
   })
   const expireTypes = ref([
-    { label: '4小时后过期', value: '4H' },
-    { label: '24小时后过期', value: '24H' },
-    { label: '7天后过期', value: '7D' },
-    { label: '30天后过期', value: '30D' },
+    { label: t('market.expireAfter4Hours'), value: '4H' },
+    { label: t('market.expireAfter24Hours'), value: '24H' },
+    { label: t('market.expireAfter7Days'), value: '7D' },
+    { label: t('market.expireAfter30Days'), value: '30D' },
   ])
 
   const formState = reactive({

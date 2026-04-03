@@ -1,5 +1,7 @@
-import { toString } from 'lodash-es'
 import type { Rule } from 'ant-design-vue/es/form'
+import { toString } from 'lodash-es'
+
+import i18next from '@/plugins/i18next'
 
 import type { AnyObj } from '@/types/common'
 import type { DialogOption, FormItemConfig } from '@/views/Arrange/components/customDialog/types'
@@ -10,8 +12,7 @@ function getPasswordRules(title: string) {
       validator: (_rule: Rule, value: string) => {
         const text = toString(value)
         if (text.length < 4 || text.length > 16) {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return Promise.reject(`${title}请输入4-16位字符`)
+          return Promise.reject(i18next.t('userForm.lengthRangeTip', { title, min: 4, max: 16 }))
         }
         return Promise.resolve()
       },
@@ -21,7 +22,7 @@ function getPasswordRules(title: string) {
 }
 
 // 定义自定义对话框数据转换方法
-const transformCustom = (data: AnyObj): DialogOption => {
+function transformCustom(data: AnyObj): DialogOption {
   const { box_title, design_interface, result_button } = data
   const { mode = 'window', buttonType = 'confirm_cancel', formList = [] } = JSON.parse(design_interface || '{}') ?? {}
   const formModel = { result_button } as AnyObj
@@ -31,7 +32,7 @@ const transformCustom = (data: AnyObj): DialogOption => {
     const res = { dialogFormType } as FormItemConfig
     configKeys.forEach((key) => {
       if (key === 'options') {
-        res[key] = item[key].value?.map((op) => ({ label: op.value, value: op.value }))
+        res[key] = item[key].value?.map(op => ({ label: op.value, value: op.value }))
       }
       else {
         // eslint-disable-next-line no-prototype-builtins
@@ -53,7 +54,7 @@ const transformCustom = (data: AnyObj): DialogOption => {
 
   return {
     mode,
-    title: box_title || '自定义对话框',
+    title: box_title || i18next.t('customDialogBox'),
     buttonType,
     itemList,
     formModel,
@@ -74,7 +75,7 @@ export function transformData(data: AnyObj): DialogOption {
         return {
           dialogFormType: data.select_type === 'multi' ? 'MULTI_SELECT' : 'SINGLE_SELECT',
           label: data.options_title,
-          options: data?.options?.map((op) => ({ label: op.value, value: op.value })) || [],
+          options: data?.options?.map(op => ({ label: op.value, value: op.value })) || [],
           defaultValue: data.select_type === 'multi' ? [] : '',
         }
       case 'Dialog.input_box':

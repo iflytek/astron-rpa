@@ -24,8 +24,6 @@ export const ELEMENTS_TREE_EXPANDE_KEYS = 'elements_tree_expanded_keys'
 export const IMAGES_TREE_EXPANDE_KEYS = 'images_tree_expanded_keys'
 // 保存编辑器中打开的流程 key
 export const PROCESS_OPEN_KEYS = 'process_open_keys'
-// 选择关闭更新提示弹窗的版本号
-export const CLOSE_UPDATE_MODAL_VERSION = 'close_update_modal_version'
 
 // 画布左侧操作栏默认宽度
 export const LEFT_BOOTLS_WIDTH_DEFAULT = 40

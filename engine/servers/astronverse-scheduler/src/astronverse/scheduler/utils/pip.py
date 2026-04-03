@@ -3,6 +3,7 @@ import sys
 import time
 from urllib.parse import urlparse
 
+from astronverse.scheduler.error import BizException, PIP_DOWNLOAD_ERROR_FORMAT, PIP_INSTALL_ERROR_FORMAT
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.subprocess import SubPopen
 from importlib_metadata import version
@@ -121,8 +122,7 @@ class PipManager:
         ]
         _, error_data = SubPopen(cmd=cmd).run(log=True).logger_handler()
         if error_data:
-            logger.error("download_pip error:{}".format(error_data))
-            raise Exception("download_pip error:{}".format(error_data))
+            raise BizException(PIP_DOWNLOAD_ERROR_FORMAT.format(error_data), "download_pip error:{}".format(error_data))
 
         # 缓存
         PipManager.DOWNLOADED_PACKAGES[package] = -1  # 结束
@@ -191,8 +191,9 @@ class PipManager:
             try:
                 _, error_data = SubPopen(cmd=cmd).run(log=True).logger_handler()
                 if error_data:
-                    logger.error("install_pip error:{}".format(error_data))
-                    raise Exception("install_pip error:{}".format(error_data))
+                    raise BizException(
+                        PIP_INSTALL_ERROR_FORMAT.format(error_data), "install_pip error:{}".format(error_data)
+                    )
             except Exception as e:
                 new_version = PipManager.local_packages_version(package)
                 if not ver and new_version:

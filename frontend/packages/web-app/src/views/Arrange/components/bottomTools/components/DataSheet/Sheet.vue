@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { Sheet, type SheetLocaleType, useTheme } from '@rpa/components'
+import { Sheet, useTheme } from '@rpa/components'
+import type { SheetLocaleType } from '@rpa/components'
 import { useTranslation } from 'i18next-vue'
 import { computed, ref, shallowRef } from 'vue'
 

@@ -4,9 +4,10 @@ import time
 from collections.abc import Callable
 from typing import Optional
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dialog import *
+from astronverse.dialog.error import BizException, DIALOG_ERROR_FORMAT
 
 
 def wait_with_timeout(check_done: Callable[[], bool], reset_timeout_on_activity: bool, wait_time: int):
@@ -56,23 +57,19 @@ class Dialog:
                 formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value),
                 limitLength=[-1, 120],
             ),
-            atomicMg.param("button_type"),
             atomicMg.param(
                 "auto_check",
                 formType=AtomicFormTypeMeta(AtomicFormType.SWITCH.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "wait_time",
                 types="Int",
                 dynamics=[DynamicsItem(key="$this.wait_time.show", expression="return $this.auto_check.value == true")],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "default_button_c",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -85,7 +82,6 @@ class Dialog:
             ),
             atomicMg.param(
                 "default_button_cn",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -98,7 +94,6 @@ class Dialog:
             ),
             atomicMg.param(
                 "default_button_y",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -111,7 +106,6 @@ class Dialog:
             ),
             atomicMg.param(
                 "default_button_yn",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(
@@ -173,7 +167,7 @@ class Dialog:
 
         wait_with_timeout(lambda: done.is_set(), reset_timeout_on_activity=auto_check, wait_time=wait_time)
         if res_e:
-            raise Exception(res_e)
+            raise BizException(DIALOG_ERROR_FORMAT.format(str(res_e)), str(res_e))
 
         if not res and auto_check:
             default_mapping = {
@@ -266,7 +260,7 @@ class Dialog:
 
         done.wait()
         if res_e:
-            raise Exception(res_e)
+            raise BizException(DIALOG_ERROR_FORMAT.format(str(res_e)), str(res_e))
 
         return res.get("input_content")
 
@@ -281,7 +275,6 @@ class Dialog:
                 required=False,
                 limitLength=[-1, 50],
             ),
-            atomicMg.param("select_type"),
             atomicMg.param("options", formType=AtomicFormTypeMeta(AtomicFormType.OPTIONSLIST.value), need_parse="str"),
             atomicMg.param(
                 "options_title",
@@ -328,7 +321,7 @@ class Dialog:
 
         done.wait()
         if res_e:
-            raise Exception(res_e)
+            raise BizException(DIALOG_ERROR_FORMAT.format(str(res_e)), str(res_e))
 
         return res.get("select_result")
 
@@ -419,7 +412,7 @@ class Dialog:
 
         done.wait()
         if res_e:
-            raise Exception(res_e)
+            raise BizException(DIALOG_ERROR_FORMAT.format(str(res_e)), str(res_e))
 
         return res.get("select_time") if (res.get("select_time") and res.get("select_time") != ["", ""]) else None
 
@@ -483,7 +476,6 @@ class Dialog:
             atomicMg.param(
                 "default_path",
                 required=False,
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(
                     AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value, params={"filters": [], "file_type": "folder"}
                 ),
@@ -538,7 +530,7 @@ class Dialog:
 
         done.wait()
         if res_e:
-            raise Exception(res_e)
+            raise BizException(DIALOG_ERROR_FORMAT.format(str(res_e)), str(res_e))
         return res.get("select_file")
 
     @staticmethod
@@ -561,19 +553,16 @@ class Dialog:
             atomicMg.param(
                 "auto_check",
                 formType=AtomicFormTypeMeta(AtomicFormType.SWITCH.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "wait_time",
                 types="Int",
                 dynamics=[DynamicsItem(key="$this.wait_time.show", expression="return $this.auto_check.value == true")],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "default_button",
-                level=AtomicLevel.ADVANCED,
                 formType=AtomicFormTypeMeta(AtomicFormType.SELECT.value),
                 dynamics=[
                     DynamicsItem(

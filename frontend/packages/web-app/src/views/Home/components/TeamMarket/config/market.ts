@@ -8,26 +8,26 @@ export const MARKET_TYPE_TEAM = 'team'
 export const USER_TYPES = [
   {
     key: MARKET_USER_OWNER,
-    name: '所有者',
+    name: 'market.user.owner',
   },
   {
     key: MARKET_USER_ADMIN,
-    name: '管理员',
+    name: 'market.user.admin',
   },
   {
     key: MARKET_USER_DEVELOPER,
-    name: '开发者',
+    name: 'market.user.developer',
   },
   {
     key: MARKET_USER_COMMON,
-    name: '获取者',
+    name: 'market.user.common',
   },
 ]
 
-export const FIRETEAM = '解散团队'
-export const LEAVETEAM = '离开团队'
-export const GIVETEAM = '移交所有权'
-export const INVITEMEMBER = '邀请成员'
+export const FIRETEAM = 'market.dissolveTeam'
+export const LEAVETEAM = 'market.leaveTeam'
+export const GIVETEAM = 'market.transferOwnership'
+export const INVITEMEMBER = 'market.inviteMember'
 
 export const MARKET_APPSTATUS_TOOBTAIN = 'toObtain'
 export const MARKET_APPSTATUS_OBTAINING = 'obtaining'
@@ -40,10 +40,10 @@ export const REJECTED = 'rejected'
 export const APPROVED = 'approved'
 export const CANCELED = 'canceled'
 export const applicationStatusMap = {
-  [PENDING]: '待审核',
-  [REJECTED]: '未通过',
-  [APPROVED]: '已通过',
-  [CANCELED]: '已撤销',
+  [PENDING]: 'market.status.pending',
+  [REJECTED]: 'market.status.rejected',
+  [APPROVED]: 'market.status.approved',
+  [CANCELED]: 'market.status.canceled',
 }
 export const applicationStatus = [PENDING, REJECTED, APPROVED, CANCELED].map((status) => {
   return {
@@ -56,7 +56,7 @@ export const SECURITY_RED = 'red'
 export const SECURITY_YELLOW = 'yellow'
 export const SECURITY_GREEN = 'green'
 export const SECURITY_LEVEL_TEXT = {
-  [SECURITY_GREEN]: '公开',
-  [SECURITY_YELLOW]: '内部',
-  [SECURITY_RED]: '机密',
+  [SECURITY_GREEN]: 'market.security.public',
+  [SECURITY_YELLOW]: 'market.security.internal',
+  [SECURITY_RED]: 'market.security.secret',
 }

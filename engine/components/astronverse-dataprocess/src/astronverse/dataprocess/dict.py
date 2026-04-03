@@ -5,6 +5,7 @@ from typing import Any
 from astronverse.actionlib import DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dataprocess import NoKeyOptionType
+from astronverse.dataprocess.error import BizException, DICT_KEY_NOT_FOUND
 
 
 class DictProcess:
@@ -92,7 +93,7 @@ class DictProcess:
             return dict_data[dict_key]
         else:
             if fail_option == NoKeyOptionType.RAISE_ERROR:
-                raise ValueError("字典中不存在该键!")
+                raise BizException(DICT_KEY_NOT_FOUND, "字典中不存在该键")
             elif fail_option == NoKeyOptionType.RETURN_DEFAULT:
                 return default_value
 

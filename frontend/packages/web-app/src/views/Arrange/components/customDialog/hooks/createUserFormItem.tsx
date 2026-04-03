@@ -1,7 +1,7 @@
 import { CloseCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined, QuestionCircleOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { Checkbox, DatePicker, Input, Radio, RangePicker, Select, Tag } from 'ant-design-vue'
-import { nanoid } from 'nanoid'
 import { omit } from 'lodash-es'
+import { nanoid } from 'nanoid'
 
 import { utilsManager } from '@/platform'
 
@@ -13,7 +13,7 @@ import { fontFamilyMap, fontStyleMap } from '../config'
  */
 function renderInput(item, modelObj = {}) {
   const nodeProps = omit(item, ['dialogFormType', 'bind', 'label', 'required'])
-  
+
   if (Array.isArray(item?.defaultValue)) { // 处理变量预览的情况
     return <TagInputUser itemData={item} />
   }
@@ -82,11 +82,12 @@ function renderRangePicker(item, modelObj = {}) {
  */
 function renderPathInput(item, modelObj = {}) {
   const bindKey = item.bind || nanoid()
-  let open = false;
+  let open = false
 
   async function handleOpenFileDialog() {
-    if (open) return;
-    open = true;
+    if (open)
+      return
+    open = true
     try {
       const filters = (item.filter === '.' || !item?.filter) ? ['*'] : item.filter.split(',')
       const filePaths = await utilsManager.showDialog({
@@ -97,8 +98,9 @@ function renderPathInput(item, modelObj = {}) {
       })
       const filePath = filePaths.join(',')
       filePath && (modelObj[bindKey] = filePath)
-    } finally {
-      open = false;
+    }
+    finally {
+      open = false
     }
   }
 
@@ -107,7 +109,7 @@ function renderPathInput(item, modelObj = {}) {
       v-model:value={modelObj[bindKey]}
       placeholder={item?.placeholder}
       defaultValue={item?.selectType === 'folder' ? item?.defaultPath : ''}
-      suffix={ <UploadOutlined onClick={handleOpenFileDialog} /> }
+      suffix={<UploadOutlined onClick={handleOpenFileDialog} />}
     />
   )
 }
@@ -195,7 +197,7 @@ function renderSelect(item, modelObj = {}, mode) {
     'required',
     'options',
   ])
-  
+
   return (
     <Select
       mode={mode}

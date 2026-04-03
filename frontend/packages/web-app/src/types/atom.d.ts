@@ -50,7 +50,7 @@ declare namespace RPA {
     title?: string
     subTitle?: string
     key: string
-    sourceValue: string
+    sourceValue?: string
     value: string | boolean | number | Array<AtomFormItemResult>
     noInput?: boolean // 禁止编辑
   }
@@ -62,7 +62,7 @@ declare namespace RPA {
     default?: string | boolean | number
     show?: boolean
     dynamics?: AtomFormItemConditional[]
-    options?: { label: string; value: string }[]
+    options?: { label?: string; value: string | any; rId?: string }[]
     errors?: string[] // 校验错误信息
     level?: 'advanced' // level = advanced 表示高级参数
     linkageValue?: {

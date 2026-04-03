@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 独立的 MSAA 拾取与校验模块
-整合原有项目中的 MSAA 相关功能，可独立运行，不依赖项目中的其他文件
+整合原有项目中的 MSAA 相关功能，可独立运行,不依赖项目中的其他文件
 """
 
 import ctypes
@@ -18,6 +18,7 @@ from astronverse.picker.logger import logger
 from astronverse.picker.utils.cv import screenshot
 from astronverse.picker.utils.process import get_process_name
 from pywin.mfc.object import Object
+from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT, MSAA_SIMILAR_NOT_SUPPORTED_ERROR
 
 # 加载 MSAA 相关的 COM 类型库
 try:
@@ -94,28 +95,49 @@ ACC_ROLE_NAME_MAP = {
 
 # 可读类型映射
 WIN32_CONTROL_TYPE = {
-    "ListItem": "列表项",
-    "List": "列表",
-    "Button": "按钮",
-    "Text": "文本",
-    "ToolBar": "工具栏",
-    "MenuItem": "菜单项",
-    "Window": "窗口",
-    "PushButton": "按钮",
-    "EditableText": "可编辑文本",
-    "CheckBox": "复选框",
-    "RadioButton": "单选按钮",
-    "ComboBox": "组合框",
-    "DropDown": "下拉框",
-    "ProgressBar": "进度条",
-    "Slider": "滑块",
-    "SpinBox": "数字调节器",
-    "Dialog": "对话框",
-    "Pane": "面板",
-    "Client": "客户区",
-    "Application": "应用程序",
-    "Document": "文档",
+    "ListItem": {"zh_CN": "列表项", "en_US": "List Item"},
+    "List": {"zh_CN": "列表", "en_US": "List"},
+    "Button": {"zh_CN": "按钮", "en_US": "Button"},
+    "Text": {"zh_CN": "文本", "en_US": "Text"},
+    "ToolBar": {"zh_CN": "工具栏", "en_US": "Tool Bar"},
+    "MenuItem": {"zh_CN": "菜单项", "en_US": "Menu Item"},
+    "Window": {"zh_CN": "窗口", "en_US": "Window"},
+    "PushButton": {"zh_CN": "按钮", "en_US": "Push Button"},
+    "EditableText": {"zh_CN": "可编辑文本", "en_US": "Editable Text"},
+    "CheckBox": {"zh_CN": "复选框", "en_US": "CheckBox"},
+    "RadioButton": {"zh_CN": "单选按钮", "en_US": "Radio Button"},
+    "ComboBox": {"zh_CN": "组合框", "en_US": "ComboBox"},
+    "DropDown": {"zh_CN": "下拉框", "en_US": "DropDown"},
+    "ProgressBar": {"zh_CN": "进度条", "en_US": "Progress Bar"},
+    "Slider": {"zh_CN": "滑块", "en_US": "Slider"},
+    "SpinBox": {"zh_CN": "数字调节器", "en_US": "Spin Box"},
+    "Dialog": {"zh_CN": "对话框", "en_US": "Dialog"},
+    "Pane": {"zh_CN": "面板", "en_US": "Pane"},
+    "Client": {"zh_CN": "客户区", "en_US": "Client"},
+    "Application": {"zh_CN": "应用程序", "en_US": "Application"},
+    "Document": {"zh_CN": "文档", "en_US": "Document"},
 }
+
+
+def get_win32_control_type(control_type: str) -> str:
+    """获取WIN32控件类型的本地化名称
+
+    Args:
+        control_type: 控件类型名称
+
+    Returns:
+        本地化后的控件类型名称，如果没有找到则返回原始名称
+    """
+    try:
+        from astronverse.baseline.i18n.i18n import i18n
+
+        language = i18n.getlanguage()
+        type_dict = WIN32_CONTROL_TYPE.get(control_type)
+        if type_dict and isinstance(type_dict, dict):
+            return type_dict.get(language, control_type)
+    except Exception:
+        pass
+    return control_type
 
 
 class MSAAElement(IElement):
@@ -133,9 +155,7 @@ class MSAAElement(IElement):
     def tag(self) -> str:
         if self.__tag is None:
             tag = self.ia_ele.accRoleName()
-            if WIN32_CONTROL_TYPE.get(tag):
-                tag = WIN32_CONTROL_TYPE.get(tag)
-            self.__tag = tag
+            self.__tag = get_win32_control_type(tag) if tag else tag
         return self.__tag
 
     def path(self, svc=None, strategy_svc=None):
@@ -164,7 +184,7 @@ class IAElement(Object):
     def __init__(self, IAccessible, iObjectId):
         if not isinstance(iObjectId, int):
             error_msg = "MSAAElement(IAccessible,iObjectId) second argument type must be int"
-            raise TypeError(error_msg)
+            raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
         self.IAccessible = IAccessible
         self.iObjectId = iObjectId
         self.dictCache = {}
@@ -384,7 +404,8 @@ class MSAAPickerUtil:
             )
             objElement = IAElement(IAccessible, 0)
         else:
-            raise TypeError("window argument objHandle must be a int/str/unicode, not %r" % objHandle)
+            error_msg = f"window argument objHandle must be a int/str/unicode, not {objHandle!r}"
+            raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
         return objElement
 
     @staticmethod
@@ -663,7 +684,7 @@ class MSAAPicker:
     @classmethod
     def get_similar_path(cls, strategy_svc, curr_path):
         """用户给定两个相似元素"""
-        raise Exception("msaa暂不支持相似元素")
+        raise BizException(MSAA_SIMILAR_NOT_SUPPORTED_ERROR, "msaa暂不支持相似元素")
 
     @classmethod
     def get_element(cls, point: Point, pid, **kwargs):

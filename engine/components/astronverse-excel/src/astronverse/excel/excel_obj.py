@@ -17,7 +17,7 @@ class ExcelObj:
     def __validate__(cls, name: str, value):
         if isinstance(value, ExcelObj):
             return value
-        raise BaseException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}".format(name, value))
+        raise BizException(PARAM_VERIFY_ERROR_FORMAT.format(name, value), "{}参数验证失败{}".format(name, value))
 
     def get_name(self):
         if sys.platform == "win32":

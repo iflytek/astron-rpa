@@ -35,7 +35,7 @@ atomic:
         tip: ''
   DataConvertProcess.other_to_str:
     title: 其他格式转文本
-    comment: 将输入内容 @{input_data} 转换为文本（字符串）格式，返回转换后的结果 @{other_convert_str}
+    comment: 将输入内容 @{input_data}（如数字、列表、字典等）转换为字符串格式，返回转换后的结果 @{other_convert_str}
     icon: format-to-text
     helpManual: ''
     inputList:
@@ -45,7 +45,7 @@ atomic:
     outputList:
       - key: other_convert_str
         title: 转换结果
-        tip: ''
+        tip: 返回转换为字符串的结果
   DataConvertProcess.str_to_other:
     title: 文本转其他格式
     comment: 将输入文本（字符串） @{input_data} 转换为其他格式，返回转换后的结果 @{str_convert_other}
@@ -168,19 +168,20 @@ atomic:
     inputList:
       - key: list_type
         title: 列表类型
-        tip: ''
+        tip: 请选择要创建的列表类型
       - key: size
         title: 列表长度
-        tip: ''
+        tip: 请输入要创建的列表长度
       - key: value
         title: 列表初始值
-        tip: ''
+        tip: 请输入列表的初始值
       - key: custom_list
         title: 自定义列表
+        tip: 自定义列表内容，多个元素用逗号分隔
     outputList:
       - key: created_list_data
         title: 创建的列表
-        tip: ''
+        tip: 返回新创建的列表
   ListProcess.clear_list:
     title: 清空列表
     comment: 清空列表 @{list_data} ，返回清空后的列表 @{cleared_list_data}
@@ -210,14 +211,14 @@ atomic:
         tip: ''
       - key: insert_method
         title: 插入方式
-        tip: ''
+        tip: 请选择插入方式，如追加或指定位置插入
       - key: index
         title: 插入位置
         tip: ''
     outputList:
       - key: inserted_list_data
         title: 插入后的列表
-        tip: ''
+        tip: 返回插入值后的新列表
   ListProcess.change_value_in_list:
     title: 列表修改值
     comment: >-
@@ -258,8 +259,7 @@ atomic:
   ListProcess.remove_value_from_list:
     title: 列表删除值
     comment: >-
-      以 @{del_mode} 删除@{list_data}@{del_value||del_pos}的内容，返回删除后的列表
-      @{removed_list_data}
+      以 @{del_mode} 方式，从列表 @{list_data} 删除指定的值 @{del_value} 或位置 @{del_pos} 的元素，返回删除后的列表 @{removed_list_data}
     icon: list-remove-value
     helpManual: ''
     inputList:
@@ -268,7 +268,7 @@ atomic:
         tip: ''
       - key: del_mode
         title: 删除方式
-        tip: ''
+        tip: 请选择删除方式，如按值删除或按索引删除
       - key: del_value
         title: 删除值
         tip: ''
@@ -278,7 +278,7 @@ atomic:
     outputList:
       - key: removed_list_data
         title: 删除后的列表
-        tip: ''
+        tip: 返回删除元素后的新列表
   ListProcess.sort_list:
     title: 列表排序
     comment: 对列表 @{list_data} 进行 @{sort_method} 排序，返回排序后的列表 @{sorted_list_data}
@@ -446,7 +446,7 @@ atomic:
         tip: ''
       - key: precision
         title: 精度
-        tip: 可填写小数位数，如填写2，则四舍五入到小数点后2位；也支持填写负数和0，如填写-2，则四舍五入到小数点前2位。
+        tip: 可填写小数位数，如填写2，则四舍五入到小数点后2位；也支持填写负数和0，如填写-2，则四舍五入到小数点前2位
     outputList:
       - key: rounding_number
         title: 四舍五入后的数字

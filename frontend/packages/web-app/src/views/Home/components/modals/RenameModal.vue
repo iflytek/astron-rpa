@@ -2,6 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import type { FormInstance } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { reactive, ref } from 'vue'
 
 import { rename, renameCheck } from '@/api/project'
@@ -20,6 +21,7 @@ const emit = defineEmits(['refresh'])
 
 const modal = NiceModal.useModal()
 const confirmLoading = ref(false)
+const { t } = useTranslation()
 
 const formRef = ref<FormInstance>()
 const formState = reactive<FormState>({
@@ -36,7 +38,7 @@ async function handleOk() {
     await renameCheck(formState)
     await rename(formState)
     modal.hide()
-    message.success('重命名成功')
+    message.success(t('common.renameSuccess'))
     emit('refresh', formState.newName)
   }
   catch (error) {
@@ -62,9 +64,9 @@ async function handleOk() {
       layout="vertical"
     >
       <a-form-item
-        label="名称"
+        :label="$t('name')"
         name="newName"
-        :rules="[{ required: true, message: '请输入名称' }]"
+        :rules="[{ required: true, message: t('common.enterPlaceholder', { name: t('name') }) }]"
       >
         <a-input v-model:value="formState.newName" />
       </a-form-item>

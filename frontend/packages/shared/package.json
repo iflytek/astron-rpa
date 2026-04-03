@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "style-dictionary": "^4.4.0",
-    "tsdown": "^0.19.0-beta.2"
+    "tsdown": "catalog:dev"
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.1.0"

@@ -12,17 +12,17 @@ function handleDeleteSelection() {
   <a-dropdown :disabled="!isReady">
     <rpa-hint-icon name="atom-delete" enable-hover-bg :disabled="!isReady">
       <template #suffix>
-        <span class="ml-1 text-xs">删除</span>
+        <span class="ml-1 text-xs">{{ $t('delete') }}</span>
       </template>
     </rpa-hint-icon>
 
     <template #overlay>
       <a-menu>
         <a-menu-item @click="handleDeleteSelection">
-          删除选中区域
+          {{ $t('sheet.deleteSelection') }}
         </a-menu-item>
         <a-menu-item @click="handleClearAll">
-          清除全部数据
+          {{ $t('sheet.clearAllData') }}
         </a-menu-item>
       </a-menu>
     </template>

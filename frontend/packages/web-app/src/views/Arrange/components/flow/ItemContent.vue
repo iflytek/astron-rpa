@@ -196,7 +196,7 @@ function handleToggleFold() {
       <template v-for="level in item.level">
         <div
           v-if="level > 1"
-          class="guideline absolute top-0 w-[2px] h-full bg-primary"
+          class="guideline absolute top-0 w-[1px] h-full bg-primary"
           :style="`left: ${(level - 1) * PAGE_LEVEL_INDENT}px`"
         />
       </template>

@@ -6,6 +6,7 @@ import { computed, inject, ref, watch } from 'vue'
 import BUS from '@/utils/eventBus'
 
 import AtomFormList from '@/views/Arrange/components/atomForm/AtomFormList.vue'
+// @ts-expect-error merge: TODO - useBaseConfig removed in refactor, need to adapt
 import { renderBaseConfig, useBaseConfig } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
 import type { AtomTabs } from '@/views/Arrange/types/atomForm'
 

@@ -1,16 +1,16 @@
 <!-- 子流程选择组件 -->
 <script setup lang="ts">
-import { some, find, get, has, isArray, isEmpty, isEqual } from 'lodash-es'
+import { useTranslation } from 'i18next-vue'
+import { get, has, isArray, isEmpty, isEqual, some } from 'lodash-es'
 import { computed, ref, toRaw, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
 import VxeGrid from '@/plugins/VxeTable'
 
 import { getConfigParams } from '@/api/atom'
-import { useProcessStore } from '@/stores/useProcessStore.ts'
-
-import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 import { OTHER_IN_TYPE } from '@/constants/atom'
+import { useProcessStore } from '@/stores/useProcessStore.ts'
+import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 import AtomConfig from '../AtomConfig.vue'
 import type { FormItemProps } from './index'
 
@@ -22,13 +22,15 @@ interface ParamItemValue {
 type ParamValues = Array<{ varId: string, varName: string, varValue: ParamItemValue }>
 
 const props = defineProps<FormItemProps>()
+const renderData = computed(() => props.item)
 
 const gridData = ref<RPA.ConfigParamData[]>([])
 
 // const flowStore = useFlowStore()
 const processStore = useProcessStore()
+const { t } = useTranslation()
 
-const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
+const gridOptions = computed<VxeGridProps<RPA.ConfigParamData>>(() => ({
   height: 160,
   size: 'mini',
   scrollY: { enabled: true },
@@ -37,17 +39,16 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   keepSource: true,
   round: true,
   columns: [
-    { field: 'varName', title: '参数名', width: 100 },
-    { field: 'varValue', title: '参数值', slots: { default: 'value_default' } },
+    { field: 'varName', title: t('parameter.paramName'), width: 100 },
+    { field: 'varValue', title: t('parameter.paramValue'), slots: { default: 'value_default' } },
   ],
-}
+}))
 
 const linkageKey = computed(() => {
   // 获取联动的选择子流程 id
-  const linkageKey = get(props.item, ['formType', 'params', 'linkage'])
-  // 只从输入信息中查找联动
-  // const targetFormValue = find(flowStore.activeAtom.inputList, { key: linkageKey })
-
+  const linkageKeyName = get(props.item, ['formType', 'params', 'linkage'])
+  // TODO: adapt to canvasManager - need active atom's inputList to find linkage
+  // const targetFormValue = find(flowStore.activeAtom.inputList, { key: linkageKeyName })
   // return targetFormValue?.value
   return undefined
 })
@@ -55,7 +56,8 @@ const linkageKey = computed(() => {
 function safeParse(str) {
   try {
     return JSON.parse(str)
-  } catch {
+  }
+  catch {
     return str
   }
 }
@@ -67,24 +69,25 @@ watch(linkageKey, async (newLinkageKey) => {
   }
 
   // 判断是子流程还是 python 子模块
-  const processType = get(linkageFormItem.value, ['formType', 'params', 'filters'])
+  // TODO merge: adapt to canvasManager - linkageFormItem needs active atom context
+  const processType = '' as string // get(linkageFormItem.value, ['formType', 'params', 'filters'])
   const idParams = processType === 'PyModule' ? { moduleId: newLinkageKey } : { processId: newLinkageKey }
   const list = await getConfigParams({ robotId: processStore.project.id, ...idParams })
 
-  const values = props.renderData.value as unknown as ParamValues
+  const values = renderData.value.value as unknown as ParamValues
   // 当前保存的参数值
   const currentParamMap = new Map((isArray(values) && values.map(p => [p.varId, p.varValue.value])) || [])
   // 配置参数默认值
   const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
 
-  gridData.value = list.filter(item => item.varDirection === 0).map(item => {
+  gridData.value = list.filter(item => item.varDirection === 0).map((item) => {
     const _varValue = currentParamMap.get(item.id) || defaultParamMap.get(item.id)
     const varValue = safeParse(_varValue)
     const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
 
     return {
       ...item,
-      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue
+      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue,
     }
   })
 }, { immediate: true })

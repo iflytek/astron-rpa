@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { nanoid } from 'nanoid'
 import { ref, shallowRef, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
@@ -20,6 +21,7 @@ const props = defineProps<FormItemProps>()
 
 const gird = shallowRef()
 const paramsData = ref(tranformToFront(JSON.parse(props?.item?.value as string || '[]')))
+const { t } = useTranslation()
 
 const gridOptions: VxeGridProps<PARAM_MAP> = {
   size: 'mini',
@@ -30,9 +32,9 @@ const gridOptions: VxeGridProps<PARAM_MAP> = {
   rowConfig: { isHover: true },
   columnConfig: { resizable: true },
   columns: [
-    { field: 'varName', title: '参数名称', width: 80, slots: { default: 'name_default' } },
-    { field: 'varValue', title: '参数值', slots: { default: 'default_default' } },
-    { field: 'operation', title: '操作', width: 60, slots: { default: 'operation_default' } },
+    { field: 'varName', title: t('atomScriptParams.paramName'), width: 80, slots: { default: 'name_default' } },
+    { field: 'varValue', title: t('atomScriptParams.paramValue'), slots: { default: 'default_default' } },
+    { field: 'operation', title: t('operate'), width: 60, slots: { default: 'operation_default' } },
   ],
 }
 
@@ -113,7 +115,7 @@ function handleBlur(row: PARAM_MAP) {
   // 检查是否存在重名的参数
   const index = paramsData.value.findIndex(item => item.varName === row.varName && item.id !== row.id)
   if (index !== -1) {
-    message.warning('参数名称已存在')
+    message.warning(t('atomScriptParams.paramNameExists'))
     row.varName = row.perVarName
     return
   }
@@ -137,14 +139,14 @@ function handleBlur(row: PARAM_MAP) {
         <AtomConfig :key="row.id" :form-item="row.varValue" size="small" />
       </template>
       <template #operation_default="{ row }">
-        <a-popconfirm title="确定删除么?" @confirm="deleteParam(row.id)">
-          <a href="#">删除</a>
+        <a-popconfirm :title="$t('deleteConfirmTip')" @confirm="deleteParam(row.id)">
+          <a href="#">{{ $t('delete') }}</a>
         </a-popconfirm>
       </template>
     </VxeGrid>
     <rpa-hint-icon name="python-package-plus" class="mt-2 w-min whitespace-nowrap text-primary" enable-hover-bg @click="addParam">
       <template #suffix>
-        <span class="ml-1">添加参数</span>
+        <span class="ml-1">{{ $t('addParameter') }}</span>
       </template>
     </rpa-hint-icon>
   </div>

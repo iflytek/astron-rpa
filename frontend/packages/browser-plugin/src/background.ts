@@ -1,7 +1,11 @@
 import { log } from './3rd/log'
 import { createWsApp } from './3rd/rpa_websocket'
 import { bgHandler, contentMessageHandler } from './background/backgroundInject'
-import { IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './background/constant'
+import { connectToNativeHost } from './background/native'
+import { BROWSER_MAP, IGNORE_LOG_KEYS, OLD_EXTENSION_IDS } from './common/constant'
+
+let wsApp: any = null
+let connectedTimestamp: number = 0
 
 function getAllTabs() {
   return new Promise<chrome.tabs.Tab[]>((resolve) => {
@@ -63,12 +67,23 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 })
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'Astron-Service-Worker') {
-    log.info('Astron service worker port connected')
+    const now = Date.now()
+    const last = connectedTimestamp
+    if (now - last > 10000) {
+      log.info('Astron-Service-Worker connected')
+      connectedTimestamp = now
+    }
   }
 })
 
-; (async function () {
-  const wsApp = await createWsApp()
+async function connectToWebsocket(pipeName = '') {
+  const agent = BROWSER_MAP[pipeName] || pipeName
+  log.info(`Pipe name: ${pipeName}, Agent: ${agent}`)
+  if (wsApp) {
+    log.info('WebSocket already connected, closing existing connection')
+    wsApp.close()
+  }
+  wsApp = await createWsApp(agent)
   wsApp.start()
   wsApp.event('browser', '', (msg) => {
     const newMsg = msg.to_reply()
@@ -77,18 +92,44 @@ chrome.runtime.onConnect.addListener((port) => {
       wsApp.send(newMsg)
     })
   })
-})()
+}
 
 async function wsHandler(message) {
   const msgObject = typeof message === 'string' ? JSON.parse(message) : message
   if (!IGNORE_LOG_KEYS.includes(msgObject.key)) {
     log.info(msgObject.key, msgObject)
-    log.time(msgObject.key)
+    // log.time(msgObject.key)
   }
   const result = await bgHandler(msgObject)
   if (!IGNORE_LOG_KEYS.includes(msgObject.key)) {
-    log.timeEnd(msgObject.key)
+    // log.timeEnd(msgObject.key)
     log.info(msgObject.key, result)
   }
   return result
 }
+
+; (function () {
+  connectToWebsocket()
+  try {
+    const port = connectToNativeHost()
+    if (port) {
+      port.postMessage({ type: 'ASTRON_GET_IPC_KEY', data: Date.now() })
+      port.onMessage.addListener((message) => {
+        log.info('Received message from native host:', message)
+        if (message?.type === 'ASTRON_GET_IPC_KEY' && message?.data) {
+          const pipeName = message.data.split('_')[1].toLowerCase()
+          connectToWebsocket(pipeName)
+        }
+        if (message?.type === 'ASTRON_IPC_START') {
+          port.postMessage({ type: 'ASTRON_IPC_STARTED', data: Date.now() })
+        }
+        if (message?.type === 'ASTRON_IPC_PING') {
+          port.postMessage({ type: 'ASTRON_IPC_PONG', data: Date.now() })
+        }
+      })
+    }
+  }
+  catch (error) {
+    log.error('Error connecting to native host:', error)
+  }
+})()

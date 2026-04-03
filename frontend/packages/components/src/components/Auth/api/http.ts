@@ -1,6 +1,7 @@
 import { message } from 'ant-design-vue'
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
+import i18next from 'i18next'
 
 let BASE_URL = localStorage.getItem('authBaseUrl') || import.meta.env.VITE_API_BASE_URL || '/api'
 export function setBaseUrl(url?: string) {
@@ -33,14 +34,14 @@ export async function request<T = any, P = any>(
       return res
 
     if (res.code !== SUCCESS_CODE) {
-      message.error(res.message || res.msg || '服务异常')
+      message.error(res.message || res.msg || i18next.t('components.auth.serviceError'))
     }
     return Promise.reject(res)
   }
   catch (err: any) {
     const msg = err.response
       ? `${err.response.status} ${err.response.statusText}`
-      : err.message || '服务异常'
+      : err.message || i18next.t('components.auth.serviceError')
     message.error(msg)
     return Promise.reject(err)
   }

@@ -3,6 +3,8 @@ import { Auth } from '@rpa/components/auth'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
+import i18next from '@/plugins/i18next'
+
 import { getTermianlStatus } from '@/api/engine'
 import { taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
@@ -35,10 +37,10 @@ export const useUserStore = defineStore('user', () => {
 
     return new Promise<void>((resolve, reject) => {
       const modal = GlobalModal.confirm({
-        title: '警告',
-        content: '切换工作空间将中断正在运行的应用，请确认？',
-        okText: '确定',
-        cancelText: '取消',
+        title: i18next.t('common.warning'),
+        content: i18next.t('common.switchWorkspaceInterruptRunningConfirm'),
+        okText: i18next.t('confirm'),
+        cancelText: i18next.t('cancel'),
         maskClosable: false,
         onOk: async () => {
           const runningStore = useRunningStore()
@@ -48,14 +50,15 @@ export const useUserStore = defineStore('user', () => {
         },
         onCancel: () => {
           modal.destroy()
-          reject(new Error('用户取消切换'))
+          reject(new Error(i18next.t('common.userCancelSwitchWorkspace')))
         },
       })
     })
   }
 
   async function switchTenant(tenant: TenantItem) {
-    if (currentTenant.value?.id === tenant.id) return
+    if (currentTenant.value?.id === tenant.id)
+      return
 
     currentTenant.value = tenant
     usePermissionStore().reset()

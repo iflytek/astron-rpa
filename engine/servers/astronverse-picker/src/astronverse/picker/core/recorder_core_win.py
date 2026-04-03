@@ -18,6 +18,13 @@ from astronverse.picker import (
 )
 from astronverse.picker.core.picker_core_win import PickerCore
 from astronverse.picker.engines.uia_picker import UIAOperate
+from astronverse.picker.error import (
+    BizException,
+    PICKER_CONVERTER_ERROR,
+    PICKER_CONVERTER_MISSING_ERROR,
+    CUR_RECT_NOT_INITIALIZED_ERROR,
+    MOUSE_POSITION_OUT_OF_RANGE_ERROR,
+)
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.process import find_real_application_process
 
@@ -72,8 +79,7 @@ class RecordPickerAdapter:
             current_point = Point(current_x, current_y)
             start_control = UIAOperate.get_windows_by_point(current_point)
             if not start_control:
-                logger.info(f"获取点位所在uia-control出错{self.picker_core.last_point}")
-                raise Exception("拾取转换器出错，请退出项目重新开始")
+                raise BizException(PICKER_CONVERTER_ERROR, f"获取点位所在uia-control出错{self.picker_core.last_point}")
 
             process_id = UIAOperate.get_process_id(start_control)
             process_info = find_real_application_process(process_id)
@@ -371,8 +377,11 @@ class RecordManager:
     def _continuous_drawing_loop(self):
         """持续绘框循环"""
         import pythoncom
-
-        pythoncom.CoInitialize()
+        
+        try:
+            pythoncom.CoInitialize()
+        except Exception:
+            pass
         self.highlight_client.start_wnd("record")
         while not self.stop_drawing and self.state == RecordingState.RECORDING:
             try:
@@ -384,7 +393,7 @@ class RecordManager:
                 if self.record_adapter:
                     result: DrawResult = self.record_adapter.draw_for_record(self.svc, self.highlight_client, draw_data)
                 else:
-                    raise Exception("缺少拾取转换器。。。")
+                    raise BizException(PICKER_CONVERTER_MISSING_ERROR, "缺少拾取转换器")
 
                 # 更新当前状态
                 if result.success and result.rect:
@@ -464,10 +473,10 @@ class RecordManager:
 
             x, y = win32api.GetCursorPos()
             if not hasattr(self, "cur_rect") or self.cur_rect is None:
-                raise ValueError("cur_rect 未初始化")
+                raise BizException(CUR_RECT_NOT_INITIALIZED_ERROR, "cur_rect 未初始化")
             # 判断鼠标是否在矩形范围内
             if not (self.cur_rect.left <= x <= self.cur_rect.right and self.cur_rect.top <= y <= self.cur_rect.bottom):
-                raise ValueError("鼠标点位不在当前元素范围内")
+                raise BizException(MOUSE_POSITION_OUT_OF_RANGE_ERROR, "鼠标点位不在当前元素范围内")
             final_record_rect = {
                 "left": self.cur_rect.left,
                 "top": self.cur_rect.top,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DownOutlined } from '@ant-design/icons-vue'
 import { Button, Dropdown, Menu } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 
 import { MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
 
@@ -20,6 +21,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['change'])
+
+const { t } = useTranslation()
+
 function menuItemClick(menuItem) {
   menuItem.domEvent.stopPropagation()
   menuItem.domEvent.preventDefault()
@@ -37,7 +41,7 @@ const getTypeName = userType => USER_TYPES.find(item => item.key === userType)?.
     :disabled="userType === MARKET_USER_OWNER"
   >
     <Button class="ant-dropdown-link inline-flex items-center" :class="props.type === 'link' ? 'p-0 !pr-[5px]' : 'ml-[5px] border border-[#000000]/[.15] dark:border-[#FFFFFF]/[.15]'" :type="props.type" @click="e => e.preventDefault()">
-      <span>{{ getTypeName(props.userType) }}</span>
+      <span>{{ t(getTypeName(props.userType) || '') }}</span>
       <DownOutlined />
     </Button>
     <template #overlay>
@@ -47,7 +51,7 @@ const getTypeName = userType => USER_TYPES.find(item => item.key === userType)?.
         @click="(menuItem) => menuItemClick(menuItem)"
       >
         <Menu.Item v-for="item in userTypes" :key="item.key" class="powerItem">
-          {{ item.name }}
+          {{ t(item.name) }}
         </Menu.Item>
       </Menu>
     </template>

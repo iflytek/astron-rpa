@@ -1,5 +1,5 @@
-import { createInstance } from '@module-federation/enhanced/runtime'
-import type { ModuleFederation } from '@module-federation/enhanced/runtime'
+import { createInstance } from '@module-federation/runtime'
+import type { ModuleFederation } from '@module-federation/runtime'
 import type {
   IPluginConfig,
   IPluginContext,

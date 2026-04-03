@@ -18,10 +18,12 @@ class IDocumentCore(ABC):
 
                 # 如果参数值不存在，抛出异常
                 if not os.path.exists(path):
-                    raise ValueError(f"{param_name} 路径不存在")
+                    raise BizException(DOCUMENT_PATH_ERROR_FORMAT.format(path), f"{param_name} 路径不存在")
 
                 if not (path.endswith(".docx") or path.endswith(".doc") or path.endswith(".wps")):
-                    raise ValueError(f"{param_name} 路径必须是.docx 或.doc或.wps 结尾")
+                    raise BizException(
+                        DOCUMENT_PATH_ERROR_FORMAT.format(path), f"{param_name} 路径必须是.docx 或.doc或.wps 结尾"
+                    )
                 # 如果校验通过，调用原函数
                 return func(*args, **kwargs)
 
@@ -63,7 +65,7 @@ class IDocumentCore(ABC):
     def check_file_in_path(file_path, file_name):
         # 检查文件路径是否存在
         if not os.path.exists(file_path):
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_PATH_ERROR_FORMAT.format(file_path),
                 "填写的路径有误，请输入正确的路径！",
             )

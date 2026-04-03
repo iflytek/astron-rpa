@@ -1,5 +1,6 @@
 <!-- @format -->
 <script setup lang="ts">
+import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { provide } from 'vue'
 
 import type { VariableTypes } from '@/views/Arrange/types/atomForm'
@@ -18,8 +19,14 @@ provide<VariableTypes>('variableType', 'globalVariables')
 
 <template>
   <a-form :model="customData" layout="vertical" class="custom-table-form">
-    <a-form-item v-for="item in customData" :key="item.uniqueKey" :label="item.name">
+    <a-form-item v-for="item in customData" :key="item.uniqueKey">
       <!-- 变量选择器 -->
+      <template #label>
+        <span>{{ item.name }}</span>
+        <a-tooltip :title="$t(`customElement.${item.name}`)">
+          <QuestionCircleOutlined style="margin-left: 4px" />
+        </a-tooltip>
+      </template>
       <AtomConfig :form-item="item" />
     </a-form-item>
   </a-form>
@@ -28,11 +35,11 @@ provide<VariableTypes>('variableType', 'globalVariables')
 <style lang="scss" scoped>
 .custom-table-form {
   :deep(.ant-form-item-label) {
-    padding-top: 8px;
+    padding-top: 4px;
   }
 
   :deep(.ant-form-item) {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   :deep(.form-item-container .editor-container) {
     margin: 2px 0px;

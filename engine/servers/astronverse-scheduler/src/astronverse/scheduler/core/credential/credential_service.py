@@ -9,6 +9,7 @@ from typing import Optional
 
 import keyring
 import keyring.errors
+from astronverse.scheduler.error import BizException, CREDENTIAL_EXISTS_FORMAT
 from astronverse.scheduler.logger import logger
 
 # 服务名称，用于 keyring 存储
@@ -48,8 +49,6 @@ class CredentialService:
             if not raw:
                 return []
             return json.loads(raw)
-        except json.JSONDecodeError:
-            return []
         except Exception as e:
             logger.exception(f"获取凭证索引失败: {e}")
             return []
@@ -58,7 +57,7 @@ class CredentialService:
     def _save_index(names: list[str]):
         """保存凭证名称索引"""
         try:
-            keyring.set_password(SERVICE_NAME, INDEX_KEY, json.dumps(sorted(set(names))))
+            keyring.set_password(SERVICE_NAME, INDEX_KEY, json.dumps(list(dict.fromkeys(names))))
         except Exception as e:
             logger.exception(f"保存凭证索引失败: {e}")
 
@@ -91,7 +90,7 @@ class CredentialService:
         """
         try:
             CredentialService._cleanup_index()
-            return [{"name": name} for name in CredentialService._get_index()]
+            return [{"name": name} for name in reversed(CredentialService._get_index())]
         except Exception as e:
             logger.exception(f"获取凭证列表失败: {e}")
             return []
@@ -113,7 +112,7 @@ class CredentialService:
         """
         try:
             if CredentialService.exists(name):
-                raise ValueError(f"凭证 '{name}' 已存在")
+                raise BizException(CREDENTIAL_EXISTS_FORMAT.format(name), f"凭证 '{name}' 已存在")
 
             # 编码密码（处理空密码情况）
             encoded = CredentialService._encode_password(password)
@@ -126,7 +125,7 @@ class CredentialService:
 
             logger.info(f"凭证 '{name}' 创建成功")
             return True
-        except ValueError:
+        except BizException:
             raise
         except Exception as e:
             logger.exception(f"创建凭证失败: {e}")

@@ -3,22 +3,22 @@ import { Table } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
 
+import { paginationConfig } from '@/constants'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
-import { paginationConfig } from '@/constants'
 
 const processStore = useProcessStore()
 const { t } = useTranslation()
-const processId = ref(processStore.activeProcessId)
+const processId = ref(processStore.canvasManager.activeTabId)
 const keyword = ref('')
 const varData = ref([])
 
 const columns = [
-  { title: '原子能力名', dataIndex: 'anotherName' },
-  { title: '变量名', dataIndex: 'name' },
-  { title: '类型', dataIndex: 'types' },
-  { title: '行号', dataIndex: 'rowNum' },
+  { title: t('atomicPower'), dataIndex: 'anotherName' },
+  { title: t('varName'), dataIndex: 'name' },
+  { title: t('varType'), dataIndex: 'types' },
+  { title: t('lineNumber'), dataIndex: 'rowNum' },
 ]
 
 function handleSearchChange() {
@@ -50,8 +50,8 @@ function getTableData(len: number, processId?: string) {
   <div class="process-var-panel">
     <nav class="flex justify-end  mb-3 items-center gap-2">
       <a-select v-model:value="processId" class="w-[150px] bg-[#F3F3F7] dark:bg-[rgba(255,255,255,0.08)] dark:text-[rgba(255,255,255,0.85)] text-[12px]" @change="handleProcessChange">
-        <a-select-option v-for="item in processStore.processList" :key="item.resourceId" :value="item.resourceId">
-          {{ item.name }}
+        <a-select-option v-for="item in processStore.canvasManager.processList" :key="item.id" :value="item.id">
+          {{ item.state.name }}
         </a-select-option>
       </a-select>
       <a-input

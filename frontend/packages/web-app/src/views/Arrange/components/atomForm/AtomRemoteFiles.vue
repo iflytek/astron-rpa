@@ -23,7 +23,7 @@ const shareDataStore = useSharedData()
 
 function handleFilesModal() {
   NiceModal.show(FileManageModal, {
-    itemDataVal: renderData.value[0]?.value || '',
+    itemDataVal: renderData.value?.[0]?.value || '',
     onOk: (fileId: string) => {
       emit('refresh', [{ type: OTHER_IN_TYPE, value: fileId }])
       setFileName(fileId)
@@ -45,6 +45,6 @@ function setFileName(fileId: string) {
     {{ fileName }}
   </div>
   <span class="w-5 h-5 flex justify-center items-center relative" @click="handleFilesModal">
-    <rpa-hint-icon title="选择文件" class="cursor-pointer" width="16px" height="16px" name="bottom-menu-ele-manage" />
+    <rpa-hint-icon :title="$t('common.selectFile')" class="cursor-pointer" width="16px" height="16px" name="bottom-menu-ele-manage" />
   </span>
 </template>

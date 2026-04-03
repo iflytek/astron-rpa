@@ -7,7 +7,7 @@ import { LRUCache } from '@/utils/lruCache'
 
 import { newTabInstance, createTabInstance, genName } from './adapters'
 
-export const useCanvasManagerStore = (project: Ref<{ id: string }>) => {
+export const useCanvasManagerStore = (project: Ref<{ id: string, version: number }>) => {
   const openProcessLRUCache = new LRUCache<string[]>(PROCESS_OPEN_KEYS, 10, [])
 
   /** 所有 tab 列表 */
@@ -32,12 +32,12 @@ export const useCanvasManagerStore = (project: Ref<{ id: string }>) => {
   const init = async (projectId: string) => {
     // 从缓存中获取打开的流程
     const openProcessKeys = openProcessLRUCache.get(projectId) ?? []
-    const list = await getProcessAndCodeList({ robotId: projectId })
+    const list = await getProcessAndCodeList({ robotId: projectId, robotVersion: project.value.version })
 
     processList.value = list
       .map(it => ({ ...it, isMain: it.name === '主流程' }))
       .sort((a, b) => (b.isMain ? 1 : 0) - (a.isMain ? 1 : 0)) // 根据 isMain 进行排序
-      .map(it => newTabInstance(projectId, it))
+      .map(it => newTabInstance(projectId, project.value.version, it))
 
     tabs.value = processList.value.filter(it => it.state.isMain || openProcessKeys.includes(it.id))
 
@@ -66,7 +66,7 @@ export const useCanvasManagerStore = (project: Ref<{ id: string }>) => {
       name,
       resourceId: newTabId,
     }
-    const processInstance = newTabInstance(project.value.id, processModule)
+    const processInstance = newTabInstance(project.value.id, project.value.version, processModule)
     processList.value.push(processInstance)
     return addTab(processInstance)
   }

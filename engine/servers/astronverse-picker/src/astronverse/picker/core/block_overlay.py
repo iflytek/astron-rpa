@@ -24,6 +24,7 @@ import win32api
 import win32con
 import win32gui
 import win32process
+from astronverse.picker.error import BizException, CODE_INNER
 
 from astronverse.picker.logger import logger
 
@@ -199,7 +200,7 @@ class BlockOverlay:
         )
 
         if not hwnd:
-            raise RuntimeError("CreateWindowEx 创建覆盖窗口失败")
+            raise BizException(CODE_INNER, "CreateWindowEx 创建覆盖窗口失败")
 
         # 设置透明度 1/255 ≈ 0.4%，肉眼不可见
         _user32.SetLayeredWindowAttributes(hwnd, 0, 1, LWA_ALPHA)

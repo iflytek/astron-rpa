@@ -4,6 +4,7 @@ import requests as requests
 from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect
 from astronverse.picker.utils.browser import Browser
 from astronverse.picker.utils.cv import screenshot
+from astronverse.picker.error import BizException, BROWSER_EXTENSION_ERROR_FORMAT
 
 
 class WEBElement(IElement):
@@ -128,7 +129,7 @@ class WEBPicker:
                 )
                 return web_info
         except Exception as e:
-            raise Exception("插件响应出错", e)
+            raise BizException(BROWSER_EXTENSION_ERROR_FORMAT.format(f"插件响应出错: {e}"), f"插件响应出错: {e}")
 
     @classmethod
     def get_element(

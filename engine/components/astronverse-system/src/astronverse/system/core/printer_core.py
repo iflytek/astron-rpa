@@ -18,6 +18,7 @@ import win32com
 import win32com.client as wc
 import win32print
 import win32ui
+from astronverse.system.error import *
 from astronverse.baseline.logger.logger import logger
 from astronverse.system import BatchType, DocAppType, FileType, XlsAppType
 from PIL import Image, ImageWin
@@ -116,9 +117,9 @@ class PrinterCore:
                 if self.word_obj:
                     return self.word_obj
         except:
-            raise Exception(r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise BizException(GENPY_REBUILD_ERROR, r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
-        raise Exception("未检测到wps和office注册表信息！")
+        raise BizException(REGISTRY_NOT_FOUND, "未检测到wps和office注册表信息！")
 
     def init_excel_app(self, default_application: XlsAppType = XlsAppType.EXCEL):
         """初始化 excel app"""
@@ -148,9 +149,9 @@ class PrinterCore:
                 if self.excel_obj:
                     return self.excel_obj
         except:
-            raise Exception(r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
+            raise BizException(GENPY_REBUILD_ERROR, r"兜底失败，请尝试手动删除 %LOCALAPPDATA%\Temp\gen_py 目录再运行！")
 
-        raise Exception("未检测到wps和office注册表信息！")
+        raise BizException(REGISTRY_NOT_FOUND, "未检测到wps和office注册表信息！")
 
     def run(self, printer_name="", print_file=None, printer_type="", file_type="", batch_print="", **kwargs):
         """
@@ -181,18 +182,23 @@ class PrinterCore:
             all_printers = PrinterCore.view_printer()
             logger.info(f"获取到的打印机列表为：{all_printers}")
             if all_printers and printer_name not in all_printers:
-                raise ValueError("未发现 {} 打印机，请检查打印机名称.".format(printer_name))
+                raise BizException(
+                    PRINTER_NOT_FOUND_FORMAT.format(printer_name), f"未发现 {printer_name} 打印机，请检查打印机名称。"
+                )
             _default_printer_name = printer_name
 
         if not print_file:
-            raise ValueError("待打印文件为空，请检查文件路径信息")
+            raise BizException(PRINT_FILE_EMPTY, "待打印文件为空，请检查文件路径信息")
 
         print_queue = PrinterCore.generate_printer_task(
             _default_printer_name, print_file, printer_type, file_type, **kwargs
         )
 
         if print_queue is None:
-            raise ValueError("{} 打印机暂不支持打印，请检查打印机信息".format(printer_name))
+            raise BizException(
+                PRINTER_NOT_SUPPORTED_FORMAT.format(printer_name),
+                f"{printer_name} 打印机暂不支持打印，请检查打印机信息",
+            )
 
         flags = []
         while not print_queue.empty():
@@ -257,7 +263,7 @@ class PrinterCore:
         elif any(file_path.endswith(img) for img in PrinterCore.IMAGE_TYPES) and file_type == FileType.PICTURE.value:
             task = PrinterCore._add_task(printer_name, file_path, PrinterCore.print_img, printer_type, **kwargs)
         else:
-            raise ValueError("不支持打印的文件类型，请检查文件信息")
+            raise BizException(PRINT_FILE_TYPE_ERROR, "不支持打印的文件类型，请检查文件信息")
         return task
 
     def print_word(self, printer_name: str, file_path: str, printer_type: str, **kwargs):
@@ -296,69 +302,60 @@ class PrinterCore:
 
         doc_app = self.word_obj
         if doc_app is None:
-            raise ValueError("未检测到所选程序的注册表信息，请检查是否安装！")
+            raise BizException(REGISTRY_NOT_FOUND, "未检测到所选程序的注册表信息，请检查是否安装！")
         doc_app.Visible = 0
         doc_app.DisplayAlerts = 0
         doc_ = doc_app.Documents.Open(file_path)
         if printer_type == "default":
-            try:
-                doc_.PrintOut()
-                doc_.Close(SaveChanges=0)
-                # if hasattr(doc_app, "Quit"):
-                #     doc_app.Quit()
-            except AttributeError as e:
-                raise e
+            doc_.PrintOut()
+            doc_.Close(SaveChanges=0)
 
         elif printer_type == "custom":
-            try:
-                paper_size_params = {
-                    "A3": 6,
-                    "A4": 7,
-                    "小A4": 8,
-                    "A5": 9,
-                    "B4": 10,
-                    "B5": 11,
-                    "C_Sheet": 12,
-                    "D_Sheet": 13,
-                    "自定义": 41,
-                }
+            paper_size_params = {
+                "A3": 6,
+                "A4": 7,
+                "小A4": 8,
+                "A5": 9,
+                "B4": 10,
+                "B5": 11,
+                "C_Sheet": 12,
+                "D_Sheet": 13,
+                "自定义": 41,
+            }
 
-                if params["orientation_type"] == "horizontal":
-                    doc_.PageSetup.Orientation = 1
-                elif params["orientation_type"] == "vertical":
-                    doc_.PageSetup.Orientation = 0
+            if params["orientation_type"] == "horizontal":
+                doc_.PageSetup.Orientation = 1
+            elif params["orientation_type"] == "vertical":
+                doc_.PageSetup.Orientation = 0
 
-                if params["paper_size"] == "custom":
-                    doc_.PageSetup.PageWidth = float(params["page_width"]) * 2.83
-                    doc_.PageSetup.PageHeight = float(params["page_height"]) * 2.83
-                else:
-                    doc_.PageSetup.PaperSize = paper_size_params.get(params["paper_size"], 7)
+            if params["paper_size"] == "custom":
+                doc_.PageSetup.PageWidth = float(params["page_width"]) * 2.83
+                doc_.PageSetup.PageHeight = float(params["page_height"]) * 2.83
+            else:
+                doc_.PageSetup.PaperSize = paper_size_params.get(params["paper_size"], 7)
 
-                if str(params["margin_type"]) == "custom":
-                    doc_.PageSetup.LeftMargin = float(params["margin"][0]) * 2.83
-                    doc_.PageSetup.RightMargin = float(params["margin"][2]) * 2.83
-                    doc_.PageSetup.TopMargin = float(params["margin"][1]) * 2.83
-                    doc_.PageSetup.BottomMargin = float(params["margin"][3]) * 2.83
+            if str(params["margin_type"]) == "custom":
+                doc_.PageSetup.LeftMargin = float(params["margin"][0]) * 2.83
+                doc_.PageSetup.RightMargin = float(params["margin"][2]) * 2.83
+                doc_.PageSetup.TopMargin = float(params["margin"][1]) * 2.83
+                doc_.PageSetup.BottomMargin = float(params["margin"][3]) * 2.83
 
-                print_params = {}
-                if 10 <= params["scale"] <= 200 and params["scale"] != 100:
-                    scale = params["scale"] / 100
-                    print_params["PrintZoomPaperWidth"] = round(doc_.PageSetup.PageWidth * scale * 20, 2)
-                    print_params["PrintZoomPaperHeight"] = round(doc_.PageSetup.PageHeight * scale * 20, 2)
+            print_params = {}
+            if 10 <= params["scale"] <= 200 and params["scale"] != 100:
+                scale = params["scale"] / 100
+                print_params["PrintZoomPaperWidth"] = round(doc_.PageSetup.PageWidth * scale * 20, 2)
+                print_params["PrintZoomPaperHeight"] = round(doc_.PageSetup.PageHeight * scale * 20, 2)
 
-                if params["pages"]:
-                    print_params["Range"] = 4
-                    print_params["Pages"] = params["pages"]
+            if params["pages"]:
+                print_params["Range"] = 4
+                print_params["Pages"] = params["pages"]
 
-                if params["print_num"]:
-                    print_params["Copies"] = int(params["print_num"])
+            if params["print_num"]:
+                print_params["Copies"] = int(params["print_num"])
 
-                doc_.PrintOut(**print_params)
-                doc_.Close(SaveChanges=0)
-                doc_app.Quit()
-
-            except AttributeError as e:
-                raise e
+            doc_.PrintOut(**print_params)
+            doc_.Close(SaveChanges=0)
+            doc_app.Quit()
         return True
 
     def print_excel(self, printer_name: str, file_path: str, printer_type: str, **kwargs):
@@ -396,88 +393,85 @@ class PrinterCore:
         if self.excel_obj is None:
             self.init_excel_app(printer_app)
 
-        try:
-            xl_app = self.excel_obj
-            if xl_app is None:
-                raise ValueError("未检测到所选程序的注册表信息，请检查是否安装！")
-            xl_app.Visible = 0  # 不显示EXEL的界面，True时为显示。 不在后台运行
-            xl_app.DisplayAlerts = 0  # 不显示弹窗
-            if hasattr(xl_app, "EnableEvents") and xl_app:
-                xl_app.EnableEvents = False
+        xl_app = self.excel_obj
+        if xl_app is None:
+            raise BizException(REGISTRY_NOT_FOUND, "未检测到所选程序的注册表信息，请检查是否安装！")
+        xl_app.Visible = 0  # 不显示EXEL的界面，True时为显示。 不在后台运行
+        xl_app.DisplayAlerts = 0  # 不显示弹窗
+        if hasattr(xl_app, "EnableEvents") and xl_app:
+            xl_app.EnableEvents = False
 
-            xl_workbook = xl_app.Workbooks.Open(file_path)
-            if xl_workbook is None:
-                raise ValueError("无法打开该软件")
-            if hasattr(xl_workbook, "Checkcompatibility"):
-                xl_workbook.Checkcompatibility = False  # 屏蔽弹窗
-            if hasattr(xl_workbook, "RunAutoMacros"):
-                xl_workbook.RunAutoMacros(2)  # 1:打开宏，2:禁用宏
-            if printer_type == "default":
-                sheets = xl_workbook.Sheets.Count
-                for sheet in range(sheets):
-                    wsheet = xl_workbook.Worksheets(sheet + 1)
-                    value = str(wsheet.Cells(4, 6))
-                    if value != "None":
-                        wsheet.PageSetup.Zoom = 50
+        xl_workbook = xl_app.Workbooks.Open(file_path)
+        if xl_workbook is None:
+            raise BizException(SOFTWARE_OPEN_ERROR, "无法打开该软件")
+        if hasattr(xl_workbook, "Checkcompatibility"):
+            xl_workbook.Checkcompatibility = False  # 屏蔽弹窗
+        if hasattr(xl_workbook, "RunAutoMacros"):
+            xl_workbook.RunAutoMacros(2)  # 1:打开宏，2:禁用宏
+        if printer_type == "default":
+            sheets = xl_workbook.Sheets.Count
+            for sheet in range(sheets):
+                wsheet = xl_workbook.Worksheets(sheet + 1)
+                value = str(wsheet.Cells(4, 6))
+                if value != "None":
+                    wsheet.PageSetup.Zoom = 50
 
-                    wsheet.PageSetup.PaperSize = 9  # 设置纸张大小，A3=8，A4=9(与Word不同)
+                wsheet.PageSetup.PaperSize = 9  # 设置纸张大小，A3=8，A4=9(与Word不同)
+                wsheet.PageSetup.Orientation = 2  # 设置页面方向，纵向=1，横向=2(与Word不同)
+                wsheet.PrintOut()  # 打印# xl_workbook.Close(SaveChanges=0)  # 关闭文件，不保存
+            xl_workbook.Close(SaveChanges=0)
+            xl_app.Quit()
+        elif printer_type == "custom":
+            sheets = xl_workbook.Sheets.Count
+            sheets_pages = PrinterCore.parse_pages(self, page_string=params["pages"])
+            if max(sheets_pages) > sheets:
+                raise BizException(PAGE_RANGE_ERROR, "请检查页码范围！")
+            for sheet in sheets_pages:
+                wsheet = xl_workbook.Worksheets(sheet)
+                if 10 <= params["scale"] <= 200 and params["scale"] != 100:
+                    wsheet.PageSetup.Zoom = params["scale"]
+
+                paper_size_parms = {
+                    "A3": 8,
+                    "A4": 9,
+                    "小A4": 10,
+                    "A5": 11,
+                    "B4": 12,
+                    "B5": 13,
+                    "C_Sheet": 24,
+                    "D_Sheet": 25,
+                    "自定义": 256,
+                }
+                wsheet.PageSetup.PaperSize = 9  # 设置纸张大小，A3=8，A4=9(与Word不同)
+                if params["orientation_type"] == "horizontal":
                     wsheet.PageSetup.Orientation = 2  # 设置页面方向，纵向=1，横向=2(与Word不同)
-                    wsheet.PrintOut()  # 打印# xl_workbook.Close(SaveChanges=0)  # 关闭文件，不保存
-                xl_workbook.Close(SaveChanges=0)
-                xl_app.Quit()
-            elif printer_type == "custom":
-                sheets = xl_workbook.Sheets.Count
-                sheets_pages = PrinterCore.parse_pages(self, page_string=params["pages"])
-                if max(sheets_pages) > sheets:
-                    raise ValueError("请检查页码范围！")
-                for sheet in sheets_pages:
-                    wsheet = xl_workbook.Worksheets(sheet)
-                    if 10 <= params["scale"] <= 200 and params["scale"] != 100:
-                        wsheet.PageSetup.Zoom = params["scale"]
+                elif params["orientation_type"] == "vertical":
+                    wsheet.PageSetup.Orientation = 1  # 设置页面方向，纵向=1，横向=2(与Word不同)
+                if params["paper_size"] == "自定义":
+                    wsheet.PageSetup.PageWidth = float(params["page_width"]) * 2.83
+                    wsheet.PageSetup.PageHeight = float(params["page_width"]) * 2.83
+                else:
+                    paper_size = paper_size_parms.get(params["paper_size"])
+                    wsheet.PageSetup.PaperSize = paper_size
 
-                    paper_size_parms = {
-                        "A3": 8,
-                        "A4": 9,
-                        "小A4": 10,
-                        "A5": 11,
-                        "B4": 12,
-                        "B5": 13,
-                        "C_Sheet": 24,
-                        "D_Sheet": 25,
-                        "自定义": 256,
-                    }
-                    wsheet.PageSetup.PaperSize = 9  # 设置纸张大小，A3=8，A4=9(与Word不同)
-                    if params["orientation_type"] == "horizontal":
-                        wsheet.PageSetup.Orientation = 2  # 设置页面方向，纵向=1，横向=2(与Word不同)
-                    elif params["orientation_type"] == "vertical":
-                        wsheet.PageSetup.Orientation = 1  # 设置页面方向，纵向=1，横向=2(与Word不同)
-                    if params["paper_size"] == "自定义":
-                        wsheet.PageSetup.PageWidth = float(params["page_width"]) * 2.83
-                        wsheet.PageSetup.PageHeight = float(params["page_width"]) * 2.83
-                    else:
-                        paper_size = paper_size_parms.get(params["paper_size"])
-                        wsheet.PageSetup.PaperSize = paper_size
+                # wsheet.PageSetup.AlignMarginsHeaderFooter =True #边距对齐页眉和页脚
+                if str(params["margin_type"]) == "custom":
+                    wsheet.PageSetup.LeftMargin = xl_app.CentimetersToPoints(float(params["margin"][0]) / 10)
+                    wsheet.PageSetup.RightMargin = xl_app.CentimetersToPoints(float(params["margin"][1]) / 10)
+                    wsheet.PageSetup.TopMargin = xl_app.CentimetersToPoints(float(params["margin"][2]) / 10)
+                    wsheet.PageSetup.BottomMargin = xl_app.CentimetersToPoints(float(params["margin"][3]) / 10)
 
-                    # wsheet.PageSetup.AlignMarginsHeaderFooter =True #边距对齐页眉和页脚
-                    if str(params["margin_type"]) == "custom":
-                        wsheet.PageSetup.LeftMargin = xl_app.CentimetersToPoints(float(params["margin"][0]) / 10)
-                        wsheet.PageSetup.RightMargin = xl_app.CentimetersToPoints(float(params["margin"][1]) / 10)
-                        wsheet.PageSetup.TopMargin = xl_app.CentimetersToPoints(float(params["margin"][2]) / 10)
-                        wsheet.PageSetup.BottomMargin = xl_app.CentimetersToPoints(float(params["margin"][3]) / 10)
-
-                    params_printer = {}
-                    if params["print_num"]:
-                        params_printer["Copies"] = int(params["print_num"])
-                    if printer_name:
-                        params_printer["ActivePrinter"] = printer_name
-                    try:
-                        wsheet.PrintOut(**params_printer)
-                    except AttributeError as e:
-                        xl_workbook.Close(SaveChanges=False)
-                        xl_app.Quit()
-                        raise e
-        except Exception as e:
-            raise e
+                params_printer = {}
+                if params["print_num"]:
+                    params_printer["Copies"] = int(params["print_num"])
+                if printer_name:
+                    params_printer["ActivePrinter"] = printer_name
+                try:
+                    wsheet.PrintOut(**params_printer)
+                except AttributeError as e:
+                    xl_workbook.Close(SaveChanges=False)
+                    xl_app.Quit()
+                    raise e
         return True
 
     def print_pdf(self, printer_name: str, file_path: str, printer_type: str, **kwargs):
@@ -612,7 +606,7 @@ class PrinterCore:
         try:
             hDC = win32ui.CreateDC()
             if hDC is None:
-                raise ValueError("无法创建打印设备上下文")
+                raise BizException(PRINTER_CONTEXT_ERROR, "无法创建打印设备上下文")
             hDC.CreatePrinterDC(printer_name)
             printable_area = hDC.GetDeviceCaps(HORZRES), hDC.GetDeviceCaps(VERTRES)
             printer_size = hDC.GetDeviceCaps(PHYSICALWIDTH), hDC.GetDeviceCaps(PHYSICALHEIGHT)

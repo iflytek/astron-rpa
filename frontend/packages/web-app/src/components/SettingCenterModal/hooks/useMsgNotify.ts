@@ -1,5 +1,6 @@
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import { useTranslation } from 'i18next-vue'
 import { isEmpty } from 'lodash-es'
 import { onBeforeUnmount, ref } from 'vue'
 import type { Ref } from 'vue'
@@ -30,55 +31,52 @@ function initPhoneData(): RPA.PhoneFormMap {
 }
 
 export function useNotify() {
+  const { t } = useTranslation()
   const emailRef = ref()
 
   const email: Ref<RPA.EmailFormMap> = ref(initEmailData())
   const emailFormRules: Record<string, Rule[]> = {
     receiver: [
-      { required: true, message: '请输入收件箱地址', trigger: 'blur' },
+      { required: true, trigger: 'change' },
       {
         pattern: /\w[-\w.+]*@([A-Z0-9][-A-Z0-9]+\.)+[A-Z]{2,14}/i,
-        message: '邮箱地址格式错误',
+        message: t('settingCenter.msgNotify.mailFormatError'),
         trigger: 'blur',
       },
     ],
-    mail_server: [{ required: true, message: '请输入邮箱服务器', trigger: 'blur' }],
-    mail_port: [{ required: true, message: '请输入邮箱端口号', trigger: 'blur' }],
+    mail_server: [{ required: true, message: t('settingCenter.msgNotify.inputMailServer'), trigger: 'blur' }],
+    mail_port: [{ required: true, message: t('settingCenter.msgNotify.inputMailPort'), trigger: 'blur' }],
     sender_mail: [
-      { required: true, message: '请输入发件箱地址！', trigger: 'blur' },
+      { required: true, message: t('settingCenter.msgNotify.inputSenderMail'), trigger: 'blur' },
       {
         pattern: /\w[-\w.+]*@([A-Z0-9][-A-Z0-9]+\.)+[A-Z]{2,14}/i,
-        message: '邮箱地址格式错误！',
+        message: t('settingCenter.msgNotify.mailFormatError'),
         trigger: 'blur',
       },
     ],
-    password: [{ required: true, message: '请输入密钥', trigger: 'blur' }],
+    password: [{ required: true, message: t('settingCenter.msgNotify.inputSenderPassword'), trigger: 'blur' }],
   }
   const phoneRef = ref()
   const phone_msg: Ref<RPA.PhoneFormMap> = ref(initPhoneData())
   const phoneFormRules: Record<string, Rule[]> = {
     receiver: [
       // /0?(13|14|15|18)[0-9]{9}/
-      { required: true, message: '请输入手机号码', trigger: 'blur' },
+      { required: true, trigger: 'change' },
       {
         pattern: /^1([3-9])\d{9}$/,
-        message: '手机号码格式错误！',
+        message: t('settingCenter.msgNotify.phoneFormatError'),
         trigger: 'blur',
       },
     ],
   }
 
-  function handleMsgTest(key: string) {
-    console.log('handleMsgTest', key)
-    handleValidateSave().then(() => {
-      toolsInterfacePost({
-        alert_type: key,
-      }).then((res) => {
-        message.success(res.msg || '测试成功')
-      })
-      message.info(`${key === 'mail' ? '邮箱' : '短信'}测试已发送，可稍后查看！`)
-    })
+  async function handleMsgTest(key: string) {
+    await handleValidateSave()
+    await toolsInterfacePost({ alert_type: key })
+    const type = key === 'mail' ? t('settingCenter.msgNotify.email') : t('settingCenter.msgNotify.sms')
+    message.info(t('settingCenter.msgNotify.testSent', { type }))
   }
+
   function errorSave() {
     let newSetting
     if (email.value.is_enable) {
@@ -99,22 +97,17 @@ export function useNotify() {
     }
     useUserSettingStore().saveUserSetting(newSetting)
   }
-  function handleValidateSave() {
-    return new Promise((resolve, reject) => {
-      const currRef = email.value.is_enable ? emailRef : phoneRef
-      currRef.value.validate().then(() => {
-        const newSetting = {
-          msgNotifyForm: {
-            email: email.value,
-            phone_msg: phone_msg.value,
-          },
-        }
-        useUserSettingStore().saveUserSetting(newSetting)
-        resolve({})
-      }).catch(() => {
-        reject(new Error('未通过校验'))
-      })
-    })
+
+  async function handleValidateSave() {
+    const currRef = email.value.is_enable ? emailRef : phoneRef
+    await currRef.value.validate()
+    const newSetting = {
+      msgNotifyForm: {
+        email: email.value,
+        phone_msg: phone_msg.value,
+      },
+    }
+    useUserSettingStore().saveUserSetting(newSetting)
   }
 
   function initData() {
@@ -130,7 +123,7 @@ export function useNotify() {
   initData()
 
   onBeforeUnmount(() => {
-    handleValidateSave().catch(() => { errorSave() })
+    handleValidateSave().catch(() => errorSave())
   })
   return {
     emailRef,
@@ -139,7 +132,6 @@ export function useNotify() {
     phoneRef,
     phone_msg,
     phoneFormRules,
-    handleValidateSave,
     handleMsgTest,
   }
 }

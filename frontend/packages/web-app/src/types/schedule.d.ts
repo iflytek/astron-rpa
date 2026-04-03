@@ -1,9 +1,6 @@
-/** @format */
-
 type TaskType = 'schedule' | 'mail' | 'file' | 'hotKey' | 'manual'
 type FrequencyType = 'days' | 'weeks' | 'months' | 'hours' | 'minutes' | 'regular' | 'advance'
 type FileEvents = 'create' | 'delete' | 'update' | 'renamed'
-type MailFlag = 'qq' | '163' | '126' | 'iflytek' | 'advance'
 type FixedLengthArray = [0, 1, 2, 3, 4, 5, 6]
 
 export interface Schedule {
@@ -20,7 +17,7 @@ export interface Schedule {
 export interface Mail {
   user_mail: string
   user_authorization: string
-  mail_flag: MailFlag
+  mail_flag: RPA.IMailFlag
   end_time: string
   interval_time: number
   condition: string

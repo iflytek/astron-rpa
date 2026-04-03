@@ -5,6 +5,11 @@ import cv2
 import numpy as np
 import pyautogui
 from astronverse.vision.cv_match import AnchorMatch
+from astronverse.vision.error import (
+    BizException,
+    INPUT_DATA_NONE_ERROR,
+    MATCH_RESULT_INVALID_ERROR,
+)
 from PIL import Image
 
 desktop_filepath = "desktop.png"
@@ -27,7 +32,7 @@ class CvCore:
     def match_imgs(input_data=None, match_similarity=0.95, canny_flag=False):
         match = AnchorMatch()
         if input_data is None:
-            raise ValueError("input_data cannot be None")
+            raise BizException(INPUT_DATA_NONE_ERROR, "input_data 不能为空")
         data = input_data.get("elementData")
 
         # data = input_data
@@ -59,7 +64,7 @@ class CvCore:
             match_similarity=match_similarity,
         )
         if result is None or not isinstance(result, (list, tuple)) or len(result) != 2:
-            raise ValueError("match.process_image did not return a valid (out_img, match_box) tuple")
+            raise BizException(MATCH_RESULT_INVALID_ERROR, "match.process_image 未返回有效的 (out_img, match_box) 元组")
         out_img, match_box = result
         cv2.imwrite(desktop_filepath, out_img)
         return match_box

@@ -2,6 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup, Comment, NavigableString
+from astronverse.picker.error import (
+    BizException,
+    PROCESSOR_INHERITANCE_ERROR,
+    CANNOT_REMOVE_DEFAULT_PROCESSOR_ERROR,
+    PROCESSOR_NOT_SET_ERROR,
+    PROCESSOR_NOT_FOUND_FORMAT,
+)
 
 
 class HTMLProcessor(ABC):
@@ -63,7 +70,7 @@ class HTMLProcessorManager:
             processor: 处理器实例
         """
         if not isinstance(processor, HTMLProcessor):
-            raise TypeError("处理器必须继承自HTMLProcessor")
+            raise BizException(PROCESSOR_INHERITANCE_ERROR, "处理器必须继承自HTMLProcessor")
 
         self._processors[name] = processor
 
@@ -75,14 +82,14 @@ class HTMLProcessorManager:
             name: 处理器名称
         """
         if name not in self._processors:
-            raise ValueError(f"未找到名为 '{name}' 的处理器")
+            raise BizException(PROCESSOR_NOT_FOUND_FORMAT.format(name), f"未找到名为 '{name}' 的处理器")
 
         self._current_processor = self._processors[name]
 
     def get_current_processor(self) -> HTMLProcessor:
         """获取当前处理器"""
         if self._current_processor is None:
-            raise RuntimeError("未设置当前处理器")
+            raise BizException(PROCESSOR_NOT_SET_ERROR, "未设置当前处理器")
 
         return self._current_processor
 
@@ -93,7 +100,7 @@ class HTMLProcessorManager:
     def remove_processor(self, name: str) -> None:
         """移除处理器"""
         if name == "default":
-            raise ValueError("不能移除默认处理器")
+            raise BizException(CANNOT_REMOVE_DEFAULT_PROCESSOR_ERROR, "不能移除默认处理器")
 
         if name in self._processors:
             del self._processors[name]

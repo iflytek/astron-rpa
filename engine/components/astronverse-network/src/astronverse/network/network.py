@@ -1,6 +1,6 @@
 import os.path
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.network import FileExistenceType, RequestType, SaveType, StateType
 from astronverse.network.core_network import NetworkCore
@@ -19,7 +19,6 @@ class Network:
         "Network",
         inputList=[
             atomicMg.param("url", types="Str", required=True),
-            atomicMg.param("request_type"),
             atomicMg.param("headers", types="Str", required=False),
             atomicMg.param(
                 "body",
@@ -49,14 +48,13 @@ class Network:
                 required=False,
             ),
             atomicMg.param("time_out", types="Int", required=False),
-            atomicMg.param("save_type", required=False, level=AtomicLevel.ADVANCED.value),
+            atomicMg.param("save_type", required=False),
             atomicMg.param(
                 "save_path",
                 formType=AtomicFormTypeMeta(
                     AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
                     params={"filters": [], "file_type": "folder"},
                 ),
-                level=AtomicLevel.ADVANCED.value,
                 dynamics=[
                     DynamicsItem(
                         key="$this.save_path.show",
@@ -96,7 +94,7 @@ class Network:
         if request_type == RequestType.POST:
             if file_path:
                 if not file_is_exist(file_path):
-                    raise BaseException(
+                    raise BizException(
                         FILE_EXIST_FORMAT.format(file_path),
                         "指定文件不存在，请检查文件路径",
                     )
@@ -124,7 +122,7 @@ class Network:
 
         if save_type == SaveType.YES:
             if not folder_is_exist(save_path):
-                raise BaseException(
+                raise BizException(
                     FOLDER_EXIST_FORMAT.format(save_path),
                     "文件夹不存在，请检查路径信息",
                 )
@@ -135,7 +133,7 @@ class Network:
                     f.write(response_str)
                 return save_path
             except Exception as e:
-                raise ValueError("文件写入失败，请检查文件类型是否正确")
+                raise BizException(FILE_WRITE_ERROR, "文件写入失败，请检查文件类型是否正确")
         else:
             return http_response
 
@@ -184,7 +182,7 @@ class Network:
             if state_type == StateType.CREATE:
                 os.makedirs(dst_dir, exist_ok=True)
             elif state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_EXIST_FORMAT.format(dst_dir=dst_dir),
                     "指定目录不存在，请检查路径信息",
                 )
@@ -209,5 +207,5 @@ class Network:
         try:
             http_download_path = NetworkCore.http_download(url=url, dst_path=download_path)
             return http_download_path
-        except BaseException as e:
-            raise BaseException(HTTP_DOWNLOAD_FORMAT.format(e), "文件下载失败")
+        except Exception as e:
+            raise BizException(HTTP_DOWNLOAD_FORMAT.format(e), "文件下载失败")

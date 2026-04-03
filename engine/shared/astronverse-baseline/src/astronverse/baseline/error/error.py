@@ -18,7 +18,7 @@ class ErrorCode:
         return self
 
 
-class BaseException(Exception):
+class BizException(Exception):
     def __init__(self, code: ErrorCode, message: str):
         self.code = code
         self.message = message

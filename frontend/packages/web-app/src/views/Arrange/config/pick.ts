@@ -44,6 +44,9 @@ export const CUSTOM_XPATH = 'customXPath' // 自定义路径
 export const VISUALIZATION = 'visualization'
 export const CUSTOMIZATION = 'customization'
 
+export const IFRAME_NODES = ['iframe', 'frame', 'object', 'embed'] // 识别iframe的标签列表
+export const SHADOW_ROOT_FLAG = '$shadow$' // shadow root标识
+
 export const CUSTOM_OPTIONS = [
   {
     label: 'visualEditing',
@@ -60,49 +63,78 @@ export const MATCH_OPTIONS = [
   {
     label: 'onlyPosition',
     value: 'onlyPosition',
-    tip: '一键定位相同位置相似元素，支持翻页定位',
   },
   {
     label: 'scrollPosition',
     value: 'scrollPosition',
-    tip: '持续滚动页面直到定位到目标元素（最多滚动20条页面）',
   },
+  // {
+  //   label: 'iframePosition',
+  //   value: 'iframePosition',
+  // }
 ]
 
 export const PATTERN_RULES = [
   {
     label: '等于',
+    key: 'equals',
+    value: 0,
+  },
+]
+
+export const PATTERN_RULES_WEB = [
+  {
+    label: '等于',
+    key: 'equals',
     value: 0,
   },
   {
     label: '通配',
+    key: 'includes',
     value: 1,
   },
   {
     label: '正则',
+    key: 'regex',
     value: 2,
   },
-  // {
-  //   label: '开头为',
-  //   value: 3,
-  // },
-  // {
-  //   label: '结尾为',
-  //   value: 4,
-  // },
 ]
 
 export const PATTERN_RULES_TYPE = {
-  0: ' = ',
+  0: ' equals ',
   1: ' includes ',
   2: ' regex ',
-  // 3: ' startsWith ',
-  // 4: ' endsWith ',
 }
 
 export const PATTERN_RULES_UIA = [
   {
     label: '等于',
+    key: 'equals',
+    value: 0,
+  },
+  {
+    label: '通配',
+    key: 'includes',
+    value: 1,
+  },
+  {
+    label: '正则',
+    key: 'regex',
+    value: 2,
+  },
+]
+export const PATTERN_RULES_JAB = [
+  {
+    label: '等于',
+    key: 'equals',
+    value: 0,
+  },
+]
+
+export const PATTERN_RULES_IE = [
+  {
+    label: '等于',
+    key: 'equals',
     value: 0,
   },
 ]

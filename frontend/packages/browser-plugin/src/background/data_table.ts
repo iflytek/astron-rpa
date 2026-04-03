@@ -4,8 +4,6 @@
  * For a single element, only one call is needed to obtain the element and data. For multiple elements, a loop call is required to obtain the element and data
  */
 
-import type { SimilarDataType, TableDataType } from '../types/data_batch'
-
 class DataTable {
   public data: TableDataType | SimilarDataType
   private produceType: 'table' | 'similar'

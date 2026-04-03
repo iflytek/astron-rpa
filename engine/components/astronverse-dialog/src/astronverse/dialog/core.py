@@ -50,13 +50,13 @@ class DialogController:
                 try:
                     output_data = json.loads(output_line)
                     print(f"output_data：{output_data}")
-                except (json.JSONDecodeError, ValueError):
+                except Exception as e:
                     # 忽略JSON解析错误，继续处理下一行
                     pass
             try:
                 time.sleep(1)
                 process.kill()
-            except (OSError, ProcessLookupError):
+            except Exception as e:
                 # 进程可能已经结束，忽略错误
                 pass
             return output_data

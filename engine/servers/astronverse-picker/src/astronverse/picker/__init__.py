@@ -311,7 +311,7 @@ class APP(Enum):
             if name == "msedge":
                 return APP.Edge
             return cls(name)
-        except ValueError:
+        except Exception as e:
             return APP.Unknown
 
 

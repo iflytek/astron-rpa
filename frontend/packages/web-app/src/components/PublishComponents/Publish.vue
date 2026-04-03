@@ -45,7 +45,7 @@ async function handleSubmit(): Promise<void> {
   console.log('lastPublishData', lastPublishData)
 
   const res = await publishRobot(lastPublishData)
-  message.success('发版成功')
+  message.success(t('publish.success'))
 
   // 检查是否需要上架申请(如果开启上架审核且分享过市场, 需弹窗提示是否要发起上架申请，用户确认后发起上架申请)
   applicationReleaseCheck({
@@ -55,11 +55,11 @@ async function handleSubmit(): Promise<void> {
   }, async (params) => {
     // 需要上架申请
     const releaseRes = await releaseWithPublish({ robotId: lastPublishData.robotId, robotVersion: lastPublishData.version, name: lastPublishData.name, ...params }) as { data?: string }
-    message.success(releaseRes.data || '当前应用自动通过上架审核，请至应用市场查看更新')
+    message.success(releaseRes.data || t('publish.autoCheckSuccess'))
   }, () => { // 不需要上架申请, 原发版逻辑
     // 如果分享过市场，data内容为market，如果没分享过，内容为create，对应两种提示
     if (Number(basicFormData.value.version) > 1 && res.data === 'market') {
-      message.success('当前应用发版更新已自动同步到应用市场')
+      message.success(t('publish.syncMarketSuccess'))
     }
   })
   emits('submited')
@@ -79,10 +79,10 @@ async function handleSubmit(): Promise<void> {
     </div>
     <div class="publish-footer flex h-[60px] items-center justify-between px-6">
       <Checkbox v-if="!isFirstVerison" v-model:checked="enableLastVersion">
-        同步启用该版本
+        {{ t('publish.syncEnableVersion') }}
       </Checkbox>
       <Button type="primary" @click="handleSubmit">
-        {{ t('publish') }}
+        {{ t('publish.btn') }}
       </Button>
     </div>
   </div>

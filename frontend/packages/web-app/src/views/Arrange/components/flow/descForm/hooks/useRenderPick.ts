@@ -1,12 +1,8 @@
+import { useTranslation } from 'i18next-vue'
+
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useCvStore } from '@/stores/useCvStore'
 import { useElementsStore } from '@/stores/useElementsStore'
-
-// 拾取类型文本映射
-const PICK_TYPE_TEXT: Record<ATOM_FORM_TYPE.CVPICK | ATOM_FORM_TYPE.PICK, string> = {
-  [ATOM_FORM_TYPE.CVPICK]: '图像',
-  [ATOM_FORM_TYPE.PICK]: '元素',
-} as const
 
 // 拾取操作类型
 type PickOperatorKey = 'editPick' | 'pick' | 'selectPick'
@@ -25,6 +21,13 @@ type PickType = ATOM_FORM_TYPE.CVPICK | ATOM_FORM_TYPE.PICK
 export function useRenderPick() {
   const cvStore = useCvStore()
   const elementsStore = useElementsStore()
+  const { t } = useTranslation()
+
+  // 拾取类型文本映射
+  const PickTypeText: Record<string, string> = {
+    [ATOM_FORM_TYPE.CVPICK]: t('common.image'),
+    [ATOM_FORM_TYPE.PICK]: t('common.element'),
+  }
 
   /**
    * 获取拾取操作下拉列表
@@ -33,19 +36,19 @@ export function useRenderPick() {
    * @returns 操作选项列表
    */
   const getOperators = (notEmpty: boolean, itemType: PickType): PickOperator[] => {
-    const text = PICK_TYPE_TEXT[itemType]
+    const text = PickTypeText[itemType]
     
     if (notEmpty) {
       return [
-        { label: `编辑${text}`, key: 'editPick' },
-        { label: `拾取${text}`, key: 'pick' },
-        { label: `选择${text}`, key: 'selectPick' },
+        { label: t('common.editSomething', { name: text }), key: 'editPick' },
+        { label: t('common.pickSomething', { name: text }), key: 'pick' },
+        { label: t('common.selectSomething', { name: text }), key: 'selectPick' },
       ]
     }
-    
+
     return [
-      { label: `拾取${text}`, key: 'pick' },
-      { label: `选择${text}`, key: 'selectPick' },
+      { label: t('common.pickSomething', { name: text }), key: 'pick' },
+      { label: t('common.selectSomething', { name: text }), key: 'selectPick' },
     ]
   }
 
@@ -55,7 +58,7 @@ export function useRenderPick() {
    * @returns 默认文本
    */
   const getDefaultText = (itemType: PickType): string => {
-    return `拾取${PICK_TYPE_TEXT[itemType]}`
+    return t('common.pickSomething', { name: PickTypeText[itemType] })
   }
 
   /**
@@ -108,6 +111,6 @@ export function useRenderPick() {
     getDefaultText,
     notEmpty,
     getPickImg,
-    PickTypeText: PICK_TYPE_TEXT,
+    PickTypeText,
   }
 }

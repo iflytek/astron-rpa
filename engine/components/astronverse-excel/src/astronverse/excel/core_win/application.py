@@ -27,7 +27,7 @@ def get_default_excel_application():
             return ApplicationType.WPS
         elif "excel.exe" in default_value.lower():
             return ApplicationType.EXCEL
-    except FileNotFoundError:
+    except Exception as e:
         return ApplicationType.EXCEL
 
 
@@ -189,11 +189,18 @@ class Application:
         return ExcelObj(obj=workbook, path=file_path or "")
 
     @staticmethod
-    def open_workbook(application, file_path: str, password: str = "", update_links: bool = True) -> ExcelObj:
+    def open_workbook(
+        application, file_path: str, password: str = "", update_links: bool = True, write_res_password: str = ""
+    ) -> ExcelObj:
         """打开工作簿"""
 
         workbook = application.Workbooks.Open(
-            Filename=file_path, UpdateLinks=update_links, Password=password, ReadOnly=False, Format=None
+            Filename=file_path,
+            UpdateLinks=update_links,
+            Password=password,
+            ReadOnly=False,
+            Format=None,
+            WriteResPassword=write_res_password,
         )
         return ExcelObj(obj=workbook, path=file_path or "")
 

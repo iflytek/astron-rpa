@@ -5,14 +5,13 @@ import { useTranslation } from 'i18next-vue'
 import { cloneDeep } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
+import { paginationConfig } from '@/constants'
 import { GLOBAL_VAR_IN_TYPE } from '@/constants/atom'
 // import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
 // import { getFlowVariable } from '@/views/Arrange/utils/generateData'
-import { paginationConfig } from '@/constants'
-
 
 const { t } = useTranslation()
 // const flowStore = useFlowStore()
@@ -89,9 +88,9 @@ function judgeVarName({ varName, globalId }: RPA.GlobalVariable) {
 
 async function handleSave(record: LocalGlobalVariable) {
   if (!editableData.value.varName.trim())
-    return message.error('变量名不能为空')
+    return message.error(t('variable.varNameEmpty'))
   if (judgeVarName(editableData.value))
-    return message.error('变量名已存在')
+    return message.error(t('variable.varNameExists'))
 
   await variableStore.saveGlobalVariableList(editableData.value)
 

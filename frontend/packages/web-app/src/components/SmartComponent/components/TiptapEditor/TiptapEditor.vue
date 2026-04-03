@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { Icon } from '@rpa/components'
+import { Icon, useTheme } from '@rpa/components'
 import StarterKit from '@tiptap/starter-kit'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
-import { computed, h, nextTick, ref, watch } from 'vue'
 import { useTranslation } from 'i18next-vue'
-
-import { useTheme } from '@rpa/components'
+import { computed, h, nextTick, ref, watch } from 'vue'
 
 import type { DocNode } from '../../types'
 

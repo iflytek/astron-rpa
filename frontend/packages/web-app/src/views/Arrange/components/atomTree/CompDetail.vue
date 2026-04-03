@@ -4,9 +4,9 @@ import { computed, ref } from 'vue'
 
 import { getComponentForm, updateFlowNodesComponent } from '@/utils/customComponent'
 
-import { getComponentDetail, removeComponent, updateComponent } from '@/api/robot'
+import { getComponentDetail, removeComponent, removeMarketComponent, updateComponent } from '@/api/robot'
 
-const props = defineProps<{ robotId: string, componentId: string }>()
+const props = defineProps<{ robotId: string, robotVersion: number, componentId: string, }>()
 const emit = defineEmits(['refresh'])
 
 const { state, executeImmediate } = useAsyncState(() => getComponentDetail(props), null)
@@ -34,12 +34,24 @@ async function execute<T>(func: () => Promise<T>) {
 }
 
 function handleRemove() {
-  execute(() =>
-    removeComponent({
-      robotId: props.robotId,
-      componentId: props.componentId,
-    }),
-  )
+  // 根据 dataSource 决定调用哪个接口
+  if (state.value?.dataSource === 'market') {
+    // 团队市场组件：使用 removeMarketComponent
+    execute(() =>
+      removeMarketComponent({
+        componentId: props.componentId,
+      }),
+    )
+  } else {
+    // 自建组件：使用 removeComponent
+    execute(() =>
+      removeComponent({
+        robotId: props.robotId,
+        robotVersion: props.robotVersion,
+        componentId: props.componentId,
+      }),
+    )
+  }
 }
 
 function handleUpdate() {
@@ -52,6 +64,7 @@ function handleUpdate() {
 
     await updateComponent({
       robotId: props.robotId,
+      robotVersion: props.robotVersion,
       componentId: props.componentId,
       componentVersion: state.value.latestVersion,
     })

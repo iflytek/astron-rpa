@@ -8,6 +8,7 @@ import com.iflytek.rpa.auth.core.entity.*;
 import com.iflytek.rpa.auth.core.service.UserService;
 import com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorGroupDao;
 import com.iflytek.rpa.auth.sp.casdoor.dao.CasdoorUserDao;
+import com.iflytek.rpa.auth.sp.casdoor.dao.MarketUserDao;
 import com.iflytek.rpa.auth.sp.casdoor.entity.CasdoorLoginResult;
 import com.iflytek.rpa.auth.sp.casdoor.entity.CasdoorSignupDto;
 import com.iflytek.rpa.auth.sp.casdoor.mapper.CasdoorOrganizationMapper;
@@ -66,6 +67,9 @@ public class CasdoorUserServiceImpl implements UserService {
 
     @Autowired
     private CasdoorUserDao casdoorUserDao;
+
+    @Autowired
+    private MarketUserDao marketUserDao;
 
     @Autowired
     private CasdoorGroupDao casdoorGroupDao;
@@ -1932,15 +1936,114 @@ public class CasdoorUserServiceImpl implements UserService {
                 dto.setPageSize(10);
             }
             Page<MarketDto> page = new Page<>(dto.getPageNo(), dto.getPageSize(), true);
-            // 获取市场下的用户列表
-            IPage<MarketDto> result = casdoorUserDao.getMarketUserList(page, dto, databaseName);
-
+            
+            // 步骤1：从rpa数据库查询市场用户列表（app_market_user表）
+            IPage<MarketDto> marketUserPage = marketUserDao.getMarketUserListFromRpa(page, dto);
+            List<MarketDto> marketUsers = marketUserPage.getRecords();
+            
+            if (CollectionUtils.isEmpty(marketUsers)) {
+                PageDto<MarketDto> pageDto = new PageDto<>();
+                pageDto.setResult(Collections.emptyList());
+                pageDto.setTotalCount(0);
+                pageDto.setCurrentPageNo((int) marketUserPage.getCurrent());
+                pageDto.setPageSize((int) marketUserPage.getSize());
+                return AppResponse.success(pageDto);
+            }
+            
+            // 步骤2：收集所有creatorId，批量从casdoor数据库查询用户详细信息
+            List<String> creatorIds = marketUsers.stream()
+                    .map(MarketDto::getCreatorId)
+                    .filter(StringUtils::isNotBlank)
+                    .distinct()
+                    .collect(Collectors.toList());
+            
+            // 从casdoor数据库批量查询用户信息
+            Map<String, User> userMap = new HashMap<>();
+            if (!CollectionUtils.isEmpty(creatorIds)) {
+                for (String creatorId : creatorIds) {
+                    try {
+                        User user = userExtendService.getUserById(creatorId);
+                        if (user != null && !user.isDeleted) {
+                            userMap.put(creatorId, user);
+                        }
+                    } catch (Exception e) {
+                        log.warn("查询用户信息失败，creatorId: {}", creatorId, e);
+                    }
+                }
+            }
+            
+            // 步骤3：合并数据，填充用户详细信息，并应用过滤条件
+            List<MarketDto> resultList = new ArrayList<>();
+            for (MarketDto marketUser : marketUsers) {
+                User user = userMap.get(marketUser.getCreatorId());
+                if (user != null) {
+                    // 应用用户名和真实名称过滤（对应原始SQL中的条件）
+                    boolean match = true;
+                    if (StringUtils.isNotBlank(dto.getUserName())) {
+                        match = match && (StringUtils.containsIgnoreCase(user.name, dto.getUserName())
+                                || StringUtils.containsIgnoreCase(user.displayName, dto.getUserName()));
+                    }
+                    if (StringUtils.isNotBlank(dto.getRealName())) {
+                        match = match && StringUtils.containsIgnoreCase(user.displayName, dto.getRealName());
+                    }
+                    
+                    if (match) {
+                        marketUser.setUserName(user.name);
+                        marketUser.setRealName(user.displayName);
+                        marketUser.setEmail(user.email);
+                        marketUser.setPhone(user.phone);
+                        resultList.add(marketUser);
+                    }
+                }
+            }
+            
+            // 步骤4：应用排序（对应原始SQL中的ORDER BY）
+            if (StringUtils.isNotBlank(dto.getSortBy())) {
+                String sortBy = dto.getSortBy();
+                boolean isDesc = "descend".equals(dto.getSortType());
+                resultList.sort((a, b) -> {
+                    int compare = 0;
+                    switch (sortBy) {
+                        case "userName":
+                            compare = StringUtils.compareIgnoreCase(a.getUserName(), b.getUserName());
+                            break;
+                        case "realName":
+                            compare = StringUtils.compareIgnoreCase(a.getRealName(), b.getRealName());
+                            break;
+                        case "createTime":
+                            compare = a.getCreateTime() != null && b.getCreateTime() != null
+                                    ? a.getCreateTime().compareTo(b.getCreateTime())
+                                    : 0;
+                            break;
+                        default:
+                            compare = a.getCreateTime() != null && b.getCreateTime() != null
+                                    ? a.getCreateTime().compareTo(b.getCreateTime())
+                                    : 0;
+                    }
+                    return isDesc ? -compare : compare;
+                });
+            } else {
+                // 默认按创建时间倒序（对应原始SQL中的order by createTime desc）
+                resultList.sort((a, b) -> {
+                    if (a.getCreateTime() != null && b.getCreateTime() != null) {
+                        return b.getCreateTime().compareTo(a.getCreateTime());
+                    }
+                    return 0;
+                });
+            }
+            
+            // 步骤5：分页处理
+            int total = resultList.size();
+            int fromIndex = ((int) marketUserPage.getCurrent() - 1) * (int) marketUserPage.getSize();
+            int toIndex = Math.min(fromIndex + (int) marketUserPage.getSize(), total);
+            List<MarketDto> pagedResult = fromIndex < total ? resultList.subList(fromIndex, toIndex) : Collections.emptyList();
+            
             PageDto<MarketDto> pageDto = new PageDto<>();
-            pageDto.setResult(result.getRecords());
-            pageDto.setTotalCount(result.getTotal());
-            pageDto.setCurrentPageNo((int) result.getCurrent());
-            pageDto.setPageSize((int) result.getSize());
-
+            pageDto.setResult(pagedResult);
+            pageDto.setTotalCount(total);
+            pageDto.setCurrentPageNo((int) marketUserPage.getCurrent());
+            pageDto.setPageSize((int) marketUserPage.getSize());
+            
             return AppResponse.success(pageDto);
         } catch (Exception e) {
             log.error("获取市场用户列表失败", e);
@@ -1967,11 +2070,36 @@ public class CasdoorUserServiceImpl implements UserService {
                 return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "市场ID不能为空");
             }
 
-            // 调用DAO查询
-            List<MarketDto> result = casdoorUserDao.getMarketUserByPhone(dto, databaseName);
-            if (result == null) {
-                result = Collections.emptyList();
+            // 步骤1：从casdoor数据库查询符合条件的用户（对应原始SQL中的FROM ${databaseName}.`user` u）
+            List<User> casdoorUsers = Collections.emptyList();
+            if (StringUtils.isNotBlank(dto.getKeyword())) {
+                // 根据关键字查询用户（姓名或手机号）
+                casdoorUsers = casdoorUserDao.searchUserByNameOrPhone(dto.getKeyword(), null, databaseName);
+            } else {
+                // 如果没有关键字，查询所有用户（限制数量）
+                casdoorUsers = casdoorUserDao.searchUserByNameOrPhone("", null, databaseName);
             }
+            
+            if (CollectionUtils.isEmpty(casdoorUsers)) {
+                return AppResponse.success(Collections.emptyList());
+            }
+            
+            // 步骤2：从rpa数据库查询该市场下已存在的用户ID列表（对应原始SQL中的NOT EXISTS子查询）
+            List<String> existingUserIds = marketUserDao.getExistingUserIdsByMarketId(dto.getMarketId());
+            Set<String> existingUserIdsSet = new HashSet<>(existingUserIds != null ? existingUserIds : Collections.emptyList());
+            
+            // 步骤3：过滤掉已存在的用户，并转换为MarketDto（对应原始SQL中的NOT EXISTS和LIMIT 20）
+            List<MarketDto> result = casdoorUsers.stream()
+                    .filter(user -> user != null && !user.isDeleted && !existingUserIdsSet.contains(user.id))
+                    .map(user -> {
+                        MarketDto marketDto = new MarketDto();
+                        marketDto.setCreatorId(user.id);
+                        marketDto.setPhone(user.phone);
+                        marketDto.setRealName(user.displayName);
+                        return marketDto;
+                    })
+                    .limit(20)
+                    .collect(Collectors.toList());
 
             log.debug("根据手机号或姓名查询市场用户成功，返回 {} 条结果，marketId: {}", result.size(), dto.getMarketId());
             return AppResponse.success(result);
@@ -1991,9 +2119,40 @@ public class CasdoorUserServiceImpl implements UserService {
     @Override
     public AppResponse<List<TenantUser>> getMarketTenantUserList(
             GetMarketTenantUserListDto dto, HttpServletRequest request) {
-        return null;
-    }
+        try {
+            log.debug("开始根据用户ID列表查询租户用户列表，tenantId: {}, userIdList size: {}", 
+                    dto != null ? dto.getTenantId() : "null",
+                    dto != null && dto.getUserIdList() != null ? dto.getUserIdList().size() : 0);
 
+            // 参数校验
+            if (dto == null) {
+                log.warn("根据用户ID列表查询租户用户列表失败：参数为空");
+                return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "查询参数不能为空");
+            }
+
+            if (StringUtils.isBlank(dto.getTenantId())) {
+                log.warn("根据用户ID列表查询租户用户列表失败：租户ID为空");
+                return AppResponse.error(ErrorCodeEnum.E_PARAM_LOSE, "租户ID不能为空");
+            }
+
+            if (CollectionUtils.isEmpty(dto.getUserIdList())) {
+                log.debug("用户ID列表为空，返回空列表");
+                return AppResponse.success(Collections.emptyList());
+            }
+
+            // 调用DAO查询租户用户列表
+            List<TenantUser> result = casdoorUserDao.getMarketTenantUserList(dto, databaseName);
+            
+            log.debug("根据用户ID列表查询租户用户列表成功，返回 {} 条结果，tenantId: {}", 
+                    result != null ? result.size() : 0, dto.getTenantId());
+            
+            return AppResponse.success(result != null ? result : Collections.emptyList());
+        } catch (Exception e) {
+            log.error("根据用户ID列表查询租户用户列表失败，tenantId: {}", 
+                    dto != null ? dto.getTenantId() : "null", e);
+            return AppResponse.error(ErrorCodeEnum.E_SERVICE, "根据用户ID列表查询租户用户列表失败: " + e.getMessage());
+        }
+    }
     @Override
     public AppResponse<String> logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {

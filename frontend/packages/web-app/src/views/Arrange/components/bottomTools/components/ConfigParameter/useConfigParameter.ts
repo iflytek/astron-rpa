@@ -1,5 +1,6 @@
 import { createInjectionState, reactiveComputed, useToggle } from '@vueuse/core'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { find, isEmpty } from 'lodash-es'
 import { ref, shallowRef, computed, markRaw } from 'vue'
 
@@ -12,6 +13,7 @@ import Manager from './Manager.vue'
 import RightExtra from './RightExtra.vue'
 
 const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() => {
+  const { t } = useTranslation()
   const processStore = useProcessStore()
   const searchText = ref('')
 
@@ -39,8 +41,10 @@ const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() 
   // })
 
   const findQuoted = (row?: RPA.ConfigParamData) => {
-    // findQuotedRow = row || findQuotedRow
+    findQuotedRow = row || findQuotedRow
+    // TODO: useFlowStore has been removed in refactor, need to adapt to canvasManager
     // const processData = useFlowStore().simpleFlowUIData
+
     // const list = processData.reduce((acc, node, index) => {
     //   const formItems = [...node?.inputList, ...node?.outputList, ...node?.advanced]
     //   const findItem = formItems.find(item => Array.isArray(item.value) && find(item.value, { type: 'p_var', value: findQuotedRow.varName }))
@@ -53,6 +57,7 @@ const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() 
     //   }
     //   return acc
     // }, [])
+
     // const items = isEmpty(list)
     //   ? []
     //   : [{
@@ -63,7 +68,7 @@ const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() 
 
     // quotedData.value = { name: findQuotedRow.varName, items }
     // if (!row) {
-    //   message.success('刷新成功')
+    //   message.success(t('common.refreshSuccess'))
     // }
     // toggleQuoted(true)
   }

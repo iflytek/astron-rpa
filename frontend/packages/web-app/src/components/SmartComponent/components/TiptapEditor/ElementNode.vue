@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { nodeViewProps, NodeViewWrapper } from '@tiptap/vue-3'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { throttle } from 'lodash-es'
 import { computed } from 'vue'
-import { useTranslation } from 'i18next-vue'
 
 import { getBaseURL } from '@/api/http/env'
 import { getLatestCurrentElementData } from '@/components/SmartComponent/utils/pick'

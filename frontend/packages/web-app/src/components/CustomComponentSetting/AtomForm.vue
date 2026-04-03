@@ -1,156 +1,176 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
-import { storeToRefs } from 'pinia'
 import type { Ref } from 'vue'
-import { computed, inject, onMounted, provide, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
-import { getComponentPreviewForm } from '@/utils/customComponent'
+import BUS from '@/utils/eventBus'
 
-import { useProcessStore } from '@/stores/useProcessStore'
-import AtomFormList from '@/views/Arrange/components/atomForm/AtomFormList.vue'
-import type { AtomTabs } from '@/views/Arrange/types/atomForm'
+import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
+import EditControlModal from './EditControlModal.vue'
+import { cloneDeep, isEmpty } from 'lodash-es'
+
+const props = defineProps<{
+  atom: RPA.Atom
+  showCollapse?: boolean
+}>()
 
 const emit = defineEmits<{
-  (evt: 'toggleWidth', e: boolean)
+  (e: 'collapse', v: boolean)
 }>()
 
 const { i18next, t } = useTranslation()
-const {  } = useProcessStore()
-
-// 自定义组件设置预览禁止表单输入
-provide('atomFormDisabled', ref(true))
+const isShowFormItem = inject<Ref<boolean>>('showAtomFormItem', ref(true))
 
 const activeKey = ref<number>(0)
-const sidebarWide = ref(false)
-const atomTab = ref<AtomTabs[]>([])
+const atomTab = ref<RPA.Process.AtomTabs[]>([])
+const formattedTabs = computed(() => atomTab.value.map((item, index) => ({
+  title: item.name,
+  value: index,
+})))
 
-const formattedTabs = computed(() => {
-  return atomTab.value.map((item, index) => ({
-    title: item.name,
-    value: index,
-  }))
-})
-// const extraFormItem = {
-//   types: 'Browser',
-//   formType: {
-//     type: 'RESULT',
-//   },
-//   key: 'edit_desc',
-//   title: '编辑区便捷描述',
-//   tip: '',
-//   value: [
-//     {
-//       type: 'var',
-//       value: '',
-//     },
-//   ],
-// }
+const editControlForm = ref<RPA.AtomDisplayItem>()
+const editModalOpen = ref(false)
 
-// watch(() => parameters.value, () => {
-//   renderForm(mockAtom.value)
-// }, { deep: true })
-
-// watch(() => flowStore.selectedAtomIds, () => {
-//   activeKey.value = 0
-// })
-
-// watch(() => isShowFormItem.value, () => {
-//   atomTab.value = renderBaseConfig(atomTab.value)
-// })
-
-const mockAtom = computed(() => {
-  // return getComponentPreviewForm({
-  //   componentId: useProcessStore().project.id,
-  //   componentName: useProcessStore().project.name,
-  //   componentAttrs: parameters.value,
-  // })
-})
-
-function toggleWidth() {
-  sidebarWide.value = !sidebarWide.value
-  emit('toggleWidth', sidebarWide.value)
+function handleEdit(form: RPA.AtomDisplayItem) {
+  editControlForm.value = cloneDeep(form)
+  editModalOpen.value = true
 }
 
-onMounted(() => {
-  // renderForm(mockAtom.value)
-})
+function handleAfterClose() {
+  editControlForm.value = undefined
+}
+
+function renderForm(atom: RPA.Atom) {
+  if (!atom) {
+    atomTab.value = []
+    return
+  }
+
+  const { inputList = [], outputList = [] } = atom
+
+  const baseParam: RPA.Process.AtomTabs = {
+    key: 'baseParam',
+    name: t('basicParameters'),
+    params: [
+      {
+        name: { 'zh-CN': '输入信息', 'en-US': 'Input information' },
+        key: `input-${atom.key}`,
+        formItems: inputList as RPA.AtomDisplayItem[],
+      },
+      {
+        name: { 'zh-CN': '输出信息', 'en-US': 'Output information' },
+        key: `output-${atom.key}`,
+        formItems: outputList as RPA.AtomDisplayItem[],
+      },
+    ],
+  }
+
+  let tabs: RPA.Process.AtomTabs[] = [baseParam]
+
+  // 过滤空的 params
+  tabs = tabs.map(item => ({
+    ...item,
+    params: item.params.filter(param => !isEmpty(param.formItems)),
+  }))
+
+  // 过滤空的 tabs
+  tabs = tabs.filter(item => !isEmpty(item.params))
+
+  atomTab.value = tabs
+}
+
+watch(() => props.atom, (newVal, oldVal) => {
+  if (!newVal?.key) {
+    BUS.$emit('toggleAtomForm', false)
+  }
+  if (newVal?.key !== oldVal?.key) {
+    activeKey.value = 0
+  }
+  renderForm(newVal)
+  console.log('atomForm', atomTab.value)
+}, { immediate: true })
+
+const alias = computed(() => atomTab.value
+  .find(item => item.key === 'baseParam')
+  ?.params[0]
+  ?.formItems
+  ?.find(item => item.key === 'anotherName')
+  ?.value?.[0]
+  ?.value,
+)
+
+watch(() => alias.value, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    props.atom.alias = newVal
+  }
+}, { deep: true })
 </script>
 
 <template>
-  <section class="atom-config flex-1 flex flex-col w-full relative bg-white dark:bg-[#1d1d1d] overflow-hidden">
-    <section
-      v-if="atomTab.length > 0"
-      class="flex-1 relative atom-config-container border border-dashed border-[#000000]/[.16] dark:border-[#FFFFFF]/[.16] rounded-[8px] h-full overflow-y-auto py-5 px-4"
-    >
-      <div class="flex items-center mb-4">
-        <a-segmented v-model:value="activeKey" block :options="formattedTabs" class="flex-1">
-          <template #label="{ title }">
-            <span class="text-[12px]">{{ $t(title) }}</span>
-          </template>
-        </a-segmented>
-        <rpa-hint-icon
-          :name="sidebarWide ? 'sidebar-wide' : 'sidebar-narrow'"
-          :title="sidebarWide ? '切换到窄版' : '切换到宽版'"
-          class="ml-[12px]"
-          width="16px"
-          height="16px"
-          enable-hover-bg
-          @click="toggleWidth"
-        />
-      </div>
-      <article
-        v-for="item in atomTab[activeKey]?.params" :key="item.key"
-        class="tab-container text-[#333] dark:text-[rgba(255,255,255,0.45)]"
+  <div v-if="atomTab.length > 0" class="h-full flex flex-col gap-4 bg-bg-elevated">
+    <div class="flex items-center gap-2">
+      <a-segmented v-model:value="activeKey" block :options="formattedTabs" class="flex-1">
+        <template #label="{ title }">
+          <span class="text-[12px]">{{ $t(title) }}</span>
+        </template>
+      </a-segmented>
+      <rpa-hint-icon
+        v-if="showCollapse"
+        :title="$t('common.collapse')"
+        name="navigate-expand"
+        enable-hover-bg
+        class="p-1.5"
+        @click="emit('collapse', true)" />
+    </div>
+
+    <div class="form-container flex-1 flex flex-col gap-6 overflow-y-auto">
+      <section
+        v-for="item in atomTab[activeKey]?.params"
+        :key="item.key"
+        class="text-[12px]"
       >
-        <label v-if="item.name" class="tab-container-label dark:text-[rgba(255,255,255,0.85)] font-bold flex">
+        <label v-if="item.name" class="text-[14px] font-bold mb-3 inline-block">
           {{ item.name[i18next.language] }}
         </label>
-        <AtomFormList :atom-form="item.formItems" />
-      </article>
-    </section>
-  </section>
+        <template
+          v-for="form in item.formItems?.filter(item => !item.dynamics || [undefined, true].includes(item.show))"
+          :key="form.key"
+        >
+          <template v-if="item.key.startsWith('input')">
+            <div class="group relative p-1.5 rounded-lg hover:bg-[#5D59FF]/[.35] [&_*]:cursor-pointer" @click="handleEdit(form)">
+              <AtomFormItem :atom-form-item="form" :hide-required-tip="true" disabled />
+              <rpa-icon
+                name="edit-outline"
+                size="20"
+                class="invisible group-hover:visible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              />
+            </div>
+          </template>
+          <template v-else>
+            <AtomFormItem :atom-form-item="form" disabled :hide-required-tip="true" />
+          </template>
+        </template>
+      </section>
+    </div>
+
+    <EditControlModal
+      v-model:open="editModalOpen"
+      :form-item="editControlForm"
+      :after-close="handleAfterClose"
+    />
+  </div>
 </template>
 
 <style lang="scss" scoped>
-.atom-config {
-  .atom-config-container {
-    opacity: 1;
+.form-container {
+  padding-right: 2px;
 
-    .tab-container {
-      font-size: 12px;
-      margin-bottom: 24px;
-
-      .tab-container-label {
-        font-size: 14px;
-        margin-bottom: 12px;
-      }
-    }
-
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    :deep(.ant-tabs-tab) {
-      padding: 8px 16px;
-    }
-
-    :deep(.ant-tabs-tabpane) {
-      padding: 0 10px 10px;
-    }
+  &::-webkit-scrollbar {
+    width: 6px;
   }
 
-  .atom-config-rectangle {
-    width: 20px;
-    height: 50px;
-    left: -20px;
-    line-height: 50px;
-    margin-top: -45px;
-    font-size: 20px;
-    color: #7d7d7d;
-    background: #f2f2f2;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    z-index: 3;
+  :deep(.form-container-label-name) {
+    color: var(--text-text-tertiary);
   }
 }
 </style>

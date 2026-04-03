@@ -3,11 +3,11 @@ import { storeToRefs } from 'pinia'
 import { reactive, ref, watch } from 'vue'
 
 import { getDesignList } from '@/api/project'
+import type { TableOption } from '@/components/NormalTable'
 import type { VIEW_OTHER } from '@/constants/resource'
 import { VIEW_OWN } from '@/constants/resource'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
-import { type TableOption } from '@/components/NormalTable'
 
 import { useProjectOperate } from './useProjectOperate'
 
@@ -29,8 +29,6 @@ export default function useProjectTableOption(dataSource: DataSource = VIEW_OWN)
   const appStore = useAppConfigStore()
   const userStore = useUserStore()
   const { appInfo } = storeToRefs(appStore)
-
-  
 
   const tableOption = reactive<TableOption>({
     refresh: false, // 控制表格数据刷新

@@ -5,6 +5,7 @@ from astronverse.picker.engines.smart_component.web_picker_smart_component impor
 from astronverse.picker.engines.web_picker import web_picker
 from astronverse.picker.logger import logger
 from astronverse.picker.strategy.types import StrategySvc
+from astronverse.picker.error import BizException, PARAM_ERROR_FORMAT
 
 # 使用TYPE_CHECKING避免循环导入
 if TYPE_CHECKING:
@@ -66,5 +67,6 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
                 left_top_point=Point(menu_left, menu_top),
             )
         else:
-            raise Exception(f"拾取接口参数传递异常,不存在SmartComponentAction {smart_component_action}")
+            error_msg = f"拾取接口参数传递异常,不存在SmartComponentAction {smart_component_action}"
+            raise BizException(PARAM_ERROR_FORMAT.format(error_msg), error_msg)
     return ele

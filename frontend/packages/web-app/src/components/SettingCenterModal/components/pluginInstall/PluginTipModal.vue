@@ -28,20 +28,20 @@ function openPluginFolder() {
     :z-index="101"
     :width="700"
     :mask-closable="false"
-    title="提示"
+    :title="$t('pluginInstallTip')"
   >
     <template #footer>
       <a-button v-if="step > 0" @click="() => { nextOrPrevStep(-1) }">
-        上一步
+        {{$t("previous")}}
       </a-button>
       <a-button v-if="step < stepImgs.length - 1" @click="() => { nextOrPrevStep(1) }">
-        下一步
+        {{ $t("next") }}
       </a-button>
       <a-button v-if="step === stepImgs.length - 1" @click="openPluginFolder">
-        打开插件路径
+        {{ $t("plugin.openPluginPath") }}
       </a-button>
       <a-button type="primary" @click="modal.hide">
-        完成
+        {{ $t("done") }}
       </a-button>
     </template>
     <div class="pluginTipModal-tip">

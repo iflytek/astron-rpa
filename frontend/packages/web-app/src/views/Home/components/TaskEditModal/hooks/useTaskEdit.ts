@@ -152,7 +152,7 @@ export function useTaskEdit(taskId: string, handleRefresh: () => void, handleClo
     if (data) {
       return Promise.reject(new Error(t('taskRuleRequire.taskNameDuplicate')))
     }
-    
+
     return Promise.resolve()
   }
 

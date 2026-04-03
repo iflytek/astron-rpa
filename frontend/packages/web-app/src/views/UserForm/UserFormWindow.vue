@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, toRaw, useTemplateRef } from 'vue'
 import { useElementSize } from '@vueuse/core'
+import { onMounted, toRaw, useTemplateRef } from 'vue'
 
 import { WINDOW_NAME } from '@/constants'
 import { windowManager } from '@/platform'
 import type { AnyObj } from '@/types/common'
-import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
 import UserFormDialog from '@/views/Arrange/components/customDialog/components/userFormDialog.vue'
+import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
 
 import { transformData } from './utils'
 

@@ -1,5 +1,5 @@
-import { computed, inject, provide, ref } from 'vue'
 import { useTranslation } from 'i18next-vue'
+import { computed, inject, provide, ref } from 'vue'
 
 import { getBaseURL } from '@/api/http/env'
 import { addPyPackageApi, getPyPackageListApi, packageVersion } from '@/api/resource'
@@ -29,7 +29,7 @@ export function usePackageCheckContext() {
 
     isChecking.value = true
     try {
-      const res = await getPyPackageListApi({ robotId: processStore.project.id })
+      const res = await getPyPackageListApi({ robotId: processStore.project.id, robotVersion: processStore.project.version })
       const installedPackageNames = (res.data || []).map((pkg: any) =>
         pkg.packageName?.toLowerCase(),
       )

@@ -52,7 +52,7 @@ class Browser:
             )
 
             if response.status_code != 200:
-                raise Exception("浏览器插件连接器通信通道出错，请重试")
+                raise BizException(BROWSER_EXTENSION_INSTALL_ERROR, "浏览器插件连接器通信通道出错，请重试")
 
             res_json = response.json()
             res_code = res_json.get("code")
@@ -65,11 +65,13 @@ class Browser:
                     time.sleep(retry_interval)
                     continue
                 else:
-                    raise Exception(f"[{browser_type}] 浏览器插件响应出错，请检查插件是否安装并已开启")
+                    error_msg = f"[{browser_type}] 浏览器插件响应出错，请检查插件是否安装并已开启"
+                    raise BizException(BROWSER_EXTENSION_INSTALL_ERROR, error_msg)
 
             # 插件返回错误
             if res_code != "0000":
-                raise Exception(f"[{browser_type}] {res_msg}")
+                error_msg = f"[{browser_type}] {res_msg}"
+                raise BizException(BROWSER_EXTENSION_ERROR_FORMAT.format(error_msg), error_msg)
 
             if not res_data:
                 return None
@@ -79,15 +81,15 @@ class Browser:
 
             # 定义错误码与对应异常映射表
             error_map = {
-                "5001": (BaseException, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
-                "5002": (BaseException, WEB_GET_ElE_ERROR, data_msg),
-                "5003": (BaseException, WEB_EXEC_ElE_ERROR, data_msg),
+                "5001": (BizException, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
+                "5002": (BizException, WEB_GET_ElE_ERROR, data_msg),
+                "5003": (BizException, WEB_EXEC_ElE_ERROR, data_msg),
                 "5004": (Exception, BROWSER_EXTENSION_ERROR_FORMAT, data_msg),
             }
 
             if data_code in error_map and key != "getElement":
                 _, _, fallback_msg = error_map[data_code]
-                raise Exception(fallback_msg)
+                raise BizException(BROWSER_EXTENSION_ERROR_FORMAT.format(fallback_msg), fallback_msg)
 
             return res_data.get("data", "")
 
@@ -155,7 +157,7 @@ class BrowserControlFinder:
                 try:
                     if proc.info["name"] and proc.info["name"].lower() == process_name.lower():
                         pids.add(proc.info["pid"])
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                except Exception as e:
                     continue
         except Exception as e:
             print(f"获取进程ID失败: {e}")

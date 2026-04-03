@@ -1,7 +1,7 @@
 atomic:
   OpenApi.id_card:
     title: 身份证识别
-    comment: 身份证识别
+    comment: 身份证识别，输入身份证图片文件或文件夹路径，输出身份证识别结果对象
     icon: id-card-recognition
     helpManual: ''
     inputList:
@@ -29,7 +29,7 @@ atomic:
         tip: 输出身份证识别结果
   OpenApi.business_license:
     title: 营业执照识别
-    comment: 营业执照识别
+    comment: 营业执照识别，输入营业执照图片文件或文件夹路径，输出营业执照识别结果对象
     icon: business-license-recognition
     helpManual: ''
     inputList:
@@ -57,7 +57,7 @@ atomic:
         tip: 输出营业执照结果对象
   OpenApi.vat_invoice:
     title: 增值税发票识别
-    comment: 增值税发票识别
+    comment: 增值税发票识别，输入增值税发票图片文件或文件夹路径，输出增值税发票识别结果对象
     icon: vat-invoice-recognition
     helpManual: ''
     inputList:
@@ -85,7 +85,7 @@ atomic:
         tip: 输出增值税发票识别结果对象
   OpenApi.train_ticket:
     title: 火车票识别
-    comment: 火车票识别
+    comment: 火车票识别，输入火车票图片文件或文件夹路径，输出火车票识别结果对象
     icon: train-ticket-recognition
     helpManual: ''
     inputList:
@@ -113,7 +113,7 @@ atomic:
         tip: 火车票识别结果对象
   OpenApi.taxi_ticket:
     title: 出租车发票识别
-    comment: 出租车发票识别
+    comment: 出租车发票识别，输入出租车发票图片文件或文件夹路径，输出出租车发票识别结果对象
     icon: taxi-invoice-recognition
     helpManual: ''
     inputList:
@@ -141,7 +141,7 @@ atomic:
         tip: 出租车发票识别结果对象
   OpenApi.common_ocr:
     title: 通用文字识别
-    comment: 通用文字识别
+    comment: 通用文字识别，输入通用文字图片文件或文件夹路径，输出通用文字识别结果对象
     icon: general-text-recognition
     helpManual: ''
     inputList:

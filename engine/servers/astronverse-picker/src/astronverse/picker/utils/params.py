@@ -96,6 +96,7 @@ class ComplexParamParser:
         ):
             # 预处理1: 处理data优先
             # 预处理2: 过略前端无效数据
+            # 预处理3: 如果数组只有一个且type是python且value为""的时候，把value设置为None
             for v in param_value:
                 if "data" not in v:
                     v["data"] = v.get("value", "")
@@ -104,6 +105,8 @@ class ComplexParamParser:
                     ls.append(v)
             if len(ls) == 0:
                 ls.append(param_value[0])
+            if len(ls) == 1 and ls[0].get("type") == ParamType.PYTHON.value and ls[0].get("data") == "":
+                ls[0]["data"] = None
         else:
             ls = [{"type": ParamType.OTHER.value, "data": param_value}]
         return ls

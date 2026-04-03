@@ -1,0 +1,7 @@
+{
+  "name": "com.astronrpa.nativehost",
+  "description": "Astron RPA native message channel",
+  "path": "astron_native_messaging.exe",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://hklbenkcbnefkhgodegcoihmgoodlgod/"]
+}

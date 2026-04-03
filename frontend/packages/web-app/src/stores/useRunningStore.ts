@@ -6,7 +6,9 @@ import { set } from 'lodash-es'
 import { defineStore } from 'pinia'
 import { computed, ref, shallowRef } from 'vue'
 
-import { generateUUID } from '@/utils/common'
+import i18next from '@/plugins/i18next'
+
+import { generateUUID, getCookie, sleep } from '@/utils/common'
 import { baseUrl } from '@/utils/env'
 
 import type { StartExecutorParams } from '@/api/resource'
@@ -17,9 +19,8 @@ import { windowManager, type CreateWindowOptions } from '@/platform'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
-import type { Fun, AnyObj } from '@/types/common'
+import type { AnyObj, Fun } from '@/types/common'
 import { changeDebugging } from '@/views/Arrange/components/flow/hooks/useChangeStatus'
-import { getCookie, sleep } from '@/utils/common'
 
 export type RunState = 'run' | 'free' | 'debug' | 'silence' // 执行状态
 
@@ -262,8 +263,14 @@ export const useRunningStore = defineStore('running', () => {
       .finally(() => reset())
   }
 
-  const startRun = (projectId: string | number, processId?: string | number, line?: string | number, end_line?: string | number) => {
-    const runParams: StartExecutorParams = { project_id: projectId, process_id: processId }
+  const startRun = (
+    projectId: string | number,
+    version: number,
+    processId?: string | number, 
+    line?: string | number, 
+    end_line?: string | number
+  ) => {
+    const runParams: StartExecutorParams = { project_id: projectId, version, process_id: processId }
 
     line && (runParams.line = line)
     end_line && (runParams.end_line = end_line)
@@ -274,8 +281,8 @@ export const useRunningStore = defineStore('running', () => {
     windowManager.minimizeWindow()
   }
 
-  const startDebug = (projectId: string | number, processId: string | number) => {
-    const debugParams: StartExecutorParams = { project_id: projectId, process_id: processId, debug: 'y' }
+  const startDebug = (projectId: string | number, version: number, processId: string | number) => {
+    const debugParams: StartExecutorParams = { project_id: projectId, version, process_id: processId, debug: 'y' }
 
     processStore.isComponent && (debugParams.is_custom_component = processStore.isComponent)
 
@@ -287,6 +294,7 @@ export const useRunningStore = defineStore('running', () => {
     running.value = 'silence'
     await start({
       project_id: editObj.robotId,
+      version: editObj.version,
       exec_position: editObj.exec_position || 'PROJECT_LIST',
       recording_config: JSON.stringify(userSettingStore.userSetting.videoForm),
       project_name: editObj.robotName,
@@ -297,7 +305,7 @@ export const useRunningStore = defineStore('running', () => {
 
   const nextStepDebug = () => {
     if (running.value !== 'debug')
-      return message.warning('请先启动调试')
+      return message.warning(i18next.t('common.startDebugFirst'))
     const msg = {
       event_id: generateUUID(),
       event_time: Date.now(),
@@ -311,7 +319,7 @@ export const useRunningStore = defineStore('running', () => {
 
   const continueDebug = () => {
     if (running.value !== 'debug')
-      return message.warning('请先启动调试')
+      return message.warning(i18next.t('common.startDebugFirst'))
     const msg = {
       event_id: generateUUID(),
       event_time: Date.now(),

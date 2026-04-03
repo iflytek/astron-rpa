@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
+import { useTranslation } from 'i18next-vue'
 
 import { CreateTeamMarketModal } from '@/components/CreateTeamMarketModal'
 
 const openTeam = () => NiceModal.show(CreateTeamMarketModal)
+const { t } = useTranslation()
 </script>
 
 <template>
   <section class="w-full h-full flex justify-center items-center">
     <a-empty>
       <span slot="description">
-        您还未创建或加入任何团队市场，
+        {{ t('market.createMarketTipPrefix') }}
         <span class="text-primary cursor-pointer" @click="openTeam">
-          点击
+          {{ t('market.click') }}
         </span>
-        创建团队市场
+        {{ t('market.createMarketTipSuffix') }}
       </span>
     </a-empty>
   </section>

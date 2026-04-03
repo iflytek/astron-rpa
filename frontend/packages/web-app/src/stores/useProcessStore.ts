@@ -38,6 +38,8 @@ export const useProcessStore = defineStore('process', () => {
   
   // 组件属性列表
   const attributes = ref<RPA.ComponentAttrData[]>([])
+  // 组件 comment（编辑区便捷描述）
+  const componentComment = ref('')
   // 原子能力 tree 列表
   const atomicTreeData = computed<RPA.AtomTreeNode[]>(
     () => atomMeta.state.value.atomicTree || [],
@@ -47,7 +49,7 @@ export const useProcessStore = defineStore('process', () => {
   // 扩展组件 tree 列表
   const extendTree = useAsyncState(getModuleMeta, [], { immediate: false })
   // 自定义组件 tree 列表
-  const componentTree = useAsyncState(() => getComponentList({ robotId: project.value.id }), [], { immediate: false })
+  const componentTree = useAsyncState(() => getComponentList({ robotId: project.value.id, robotVersion: project.value.version }), [], { immediate: false })
   // 全局变量模板列表
   const globalVarTypeList = computed<Record<string, RPA.VariableValueType>>(
     () => atomMeta.state.value?.types || {},
@@ -149,6 +151,7 @@ export const useProcessStore = defineStore('process', () => {
     globalVarTypeList,
     globalVarTypeOption,
     attributes,
+    componentComment,
     commonAdvancedParameter,
     atomicTreeDataFlat,
     atomicTreeData,

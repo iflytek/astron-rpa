@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { COMPONENT_DEFAULT_ICON, DEFAULT_COLOR } from '@/constants/avatar'
+import { DEFAULT_COLOR } from '@/constants/avatar'
 
 type Size = 'xlarge' | 'large' | 'middle' | 'small'
 
@@ -38,25 +38,24 @@ const backgroundColor = computed(() => {
   }
   return props.color || DEFAULT_COLOR
 })
+
+const containerStyle = computed(() => ({
+  width: `${sizeStyle.value.size}px`,
+  height: `${sizeStyle.value.size}px`,
+  borderRadius: `${sizeStyle.value.radius}px`,
+  background: backgroundColor.value,
+  color: props.icon?.includes('comp') ? '#000000' : '#FFFFFF'
+}))
 </script>
 
 <template>
   <div
-    v-if="robotName"
-    :style="{ width: `${sizeStyle.size}px`, height: `${sizeStyle.size}px`, borderRadius: `${sizeStyle.radius}px`, background: backgroundColor }"
-    class="shrink-0 inline-flex justify-center items-center text-[#FFFFFF]"
+    :style="containerStyle"
+    class="shrink-0 inline-flex justify-center items-center"
   >
     <rpa-icon v-if="icon" :name="props.icon" :size="`${sizeStyle.iconSize}px`" />
     <div v-else :style="{ fontSize: `${sizeStyle.fontSize}px` }">
-      {{ robotName[0] }}
+      {{ robotName?.[0] }}
     </div>
-  </div>
-  <div
-    v-else
-    class="inline-flex items-center justify-center bg-[rgba(0,0,0,0.03)] dark:bg-[rgba(255,255,255,0.03)]"
-    :class="{ 'cursor-pointer hover:bg-[rgba(93,89,255,0.35)]': props.hover, 'border dark:border-white border-black/[.85]': props.active }"
-    :style="{ width: `${sizeStyle.size}px`, height: `${sizeStyle.size}px`, borderRadius: `${sizeStyle.radius}px` }"
-  >
-    <rpa-icon :name="props.icon || COMPONENT_DEFAULT_ICON" :size="`${sizeStyle.iconSize}px`" />
   </div>
 </template>

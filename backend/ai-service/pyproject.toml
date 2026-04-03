@@ -14,6 +14,7 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "redis[hiredis]>=6.1.0",
     "sqlalchemy>=2.0.41",
+    "pytz"
 ]
 
 [dependency-groups]

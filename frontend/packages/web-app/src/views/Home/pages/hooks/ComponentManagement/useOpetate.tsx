@@ -3,12 +3,16 @@ import { App, message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { h } from 'vue'
 
+import $loading from '@/utils/globalLoading'
+
+import { getTeams } from '@/api/market'
 import { checkComponentName, createCopyComponent, createCopyComponentName, deleteComponent, renameComponent } from '@/api/project'
 import { ComponentPublishDetail, ComponentPublishModal } from '@/components/ComponentPublish'
 import { ARRANGE } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
 import type { AnyObj } from '@/types/common'
 import { newProjectModal } from '@/views/Home/components/modals'
+import { ShareComponentModal } from '@/views/Home/components/ShareComponentModal'
 
 export function useOperate(refreshTable: () => void) {
   const { t } = useTranslation()
@@ -97,6 +101,34 @@ export function useOperate(refreshTable: () => void) {
     }
   }
 
+  // 分享组件到应用市场
+  const handleShare = (record: AnyObj) => {
+    $loading.open({ msg: '加载中...' })
+    getTeams().then((data) => {
+      $loading.close()
+      if (!(data && data.length > 0)) {
+        message.warning(t('market.noTeamJoinTip'))
+        return
+      }
+
+      NiceModal.show(ShareComponentModal, {
+        record: {
+          componentId: record.componentId,
+          componentName: record.name,
+          version: record.version,
+          icon: record.icon,
+        },
+        marketList: data.map(item => ({
+          ...item,
+          marketName: `${item.marketName} ID:${item.marketId}`,
+        })),
+        onRefresh: () => refreshTable(),
+      })
+    }).finally(() => {
+      $loading.close()
+    })
+  }
+
   const baseOpts = [
     {
       key: 'edit',
@@ -125,12 +157,12 @@ export function useOperate(refreshTable: () => void) {
       icon: h(<Icon name="tools-publish" size="16px" />),
       clickFn: handlePublish,
     },
-    // {
-    //   key: 'share',
-    //   text: 'common.share',
-    //   icon: h(<Icon name="share" size="16px" />),
-    //   clickFn: () => {},
-    // },
+    {
+      key: 'share',
+      text: 'common.share',
+      icon: h(<Icon name="share" size="16px" />),
+      clickFn: handleShare,
+    },
     {
       key: 'del',
       text: 'delete',

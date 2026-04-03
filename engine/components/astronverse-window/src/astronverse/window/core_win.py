@@ -28,7 +28,7 @@ class WindowsCore(IWindowsCore):
         if not window_handle:
             window_handle = win32gui.FindWindowEx(None, None, None, wnd_name)
             if not window_handle:
-                raise BaseException(WINDOW_NO_FIND, "未找到目标窗口{}".format(pick))
+                raise BizException(WINDOW_NO_FIND, "未找到目标窗口{}".format(pick))
         return window_handle
 
     @staticmethod

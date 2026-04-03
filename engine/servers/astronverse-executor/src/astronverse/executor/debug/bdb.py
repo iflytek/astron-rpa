@@ -90,7 +90,7 @@ class CustomBdb(bdb.Bdb):
         """把绝对路径转成 project 相对路径，方便用户输入/显示"""
         try:
             return os.path.relpath(path, self.project_dir)
-        except ValueError:
+        except Exception as e:
             return path
 
     def _to_abs_path(self, path):

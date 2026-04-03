@@ -1,20 +1,15 @@
-"""AI 相关错误与错误码定义。"""
-
-from astronverse.baseline.error.error import (
-    BaseException as BaselineBaseException,
-)
-from astronverse.baseline.error.error import (
-    BizCode,
-    ErrorCode,
-)
+from astronverse.baseline.error.error import *
 from astronverse.baseline.i18n.i18n import _
 
+BizException = BizException
 
-class AIBaseError(BaselineBaseException):
-    """AI 模块自定义基础异常。"""
+# 通用错误
+ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("错误: {}"))
+PARAM_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数错误: {}"))
 
-
-LLM_NO_RESPONSE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("大模型无返回结果，请重试") + ": {}")
-
-# 保留兼容：外部仍可能引用 BaseException，这里导出 Baseline 基类
-BaseException = BaselineBaseException  # type: ignore
+# AI组件特定错误
+LLM_NO_RESPONSE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("大模型无返回结果，请重试: {}"))
+FILE_NOT_FOUND_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("文件不存在: {}"))
+UNSUPPORTED_FILE_TYPE_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("不支持的文件类型: {}"))
+UNKNOWN_RESPONSE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("未知的响应格式"))
+CUSTOM_FACTORS_ERROR_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("{} 格式错误，请检查"))

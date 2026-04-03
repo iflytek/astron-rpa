@@ -67,9 +67,8 @@ class StringProcess:
         if regex_formula:
             try:
                 re.compile(regex_formula)
-                pass
-            except re.error:
-                raise BaseException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
+            except Exception:
+                raise BizException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
 
         pattern = get_pattern(extract_type, regex_formula) or ""
         result = re.findall(pattern, text)
@@ -115,9 +114,8 @@ class StringProcess:
         if regex_formula:
             try:
                 re.compile(regex_formula)
-                pass
-            except re.error:
-                raise BaseException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
+            except Exception:
+                raise BizException(INVALID_REGEX_ERROR_FORMAT.format(regex_formula), "请重新输入")
 
         if replace_type == ReplaceType.REGEX:
             old_value = regex_formula
@@ -153,7 +151,6 @@ class StringProcess:
     @staticmethod
     @atomicMg.atomic(
         "StringProcess",
-        inputList=[],
         outputList=[atomicMg.param("split_list_from_string", types="List")],
     )
     def split_string_to_list(string_data: str, separator: str = ""):
@@ -220,12 +217,12 @@ class StringProcess:
     ):
         """按指定方向填充字符串到目标长度。"""
         if (not string_data) or (not add_str):
-            raise ValueError("目标文本或补充文本不能为空!")
+            raise BizException(STRING_EMPTY_ERROR, "目标文本或补充文本不能为空")
         try:
             total_length_int = int(total_length)
             assert total_length_int >= 0
         except Exception as e:
-            raise ValueError("长度输入不合法,请提供整数类型数据!")
+            raise BizException(INVALID_LENGTH_INPUT, "长度输入不合法,请提供整数类型数据")
 
         result_str = deepcopy(str(string_data))
         if total_length_int <= len(string_data):
@@ -294,9 +291,9 @@ class StringProcess:
     ):
         """按照指定方式截取字符串。"""
         if not string_data:
-            raise ValueError("目标文本不能为空!")
+            raise BizException(STRING_EMPTY_ERROR, "目标文本不能为空")
         if length < 0:
-            raise ValueError("长度输入不合法,请提供整数类型数据!")
+            raise BizException(INVALID_LENGTH_INPUT, "长度输入不合法,请提供整数类型数据")
 
         result_str = ""
         if cut_type == CutStringType.FIRST:
@@ -306,7 +303,7 @@ class StringProcess:
         elif cut_type == CutStringType.STRING:
             index = string_data.find(find_str)
             if index == -1:
-                raise ValueError("未找到指定字符串!")
+                raise BizException(STRING_NOT_FOUND, "未找到指定字符串")
             result_str = string_data[index : index + length]
         return result_str
 
@@ -328,7 +325,7 @@ class StringProcess:
             return string_data.upper()
         if case_type == CaseChangeType.CAPS:
             return string_data.capitalize()
-        raise ValueError("不支持的大小写转换类型")
+        raise BizException(UNSUPPORTED_CASE_TYPE, "不支持的大小写转换类型")
 
     @staticmethod
     @atomicMg.atomic(

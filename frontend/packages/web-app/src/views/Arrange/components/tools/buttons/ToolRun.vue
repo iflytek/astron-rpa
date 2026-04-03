@@ -26,7 +26,7 @@ const handleConfirmRun = throttle(async () => {
     return
   }
   const processId = processStore.canvasManager.activeTab?.id || ''
-  useRunningStore().startRun(processStore.project.id, processId)
+  useRunningStore().startRun(processStore.project.id, processStore.project.version, processId)
 }, 1500, { leading: true, trailing: false })
 
 function handleClick() {

@@ -11,7 +11,7 @@ const className = '_tools-custom-comp-setting'
 const settingModal = NiceModal.useModal(CustomComponentSettingModal)
 const processStore = useProcessStore()
 
-const show = computed(() => processStore.isComponent)
+const show = computed(() => processStore.isComponent && processStore.canvasManager.activeTab?.state?.isMain)
 
 function handleClick() {
   settingModal.visible ? settingModal.hide() : settingModal.show({ clickOutsideIgnoreSelector: className })

@@ -3,6 +3,7 @@ import winreg
 
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
+from astronverse.browser_plugin.error import BizException, CHROME_NOT_FOUND
 from astronverse.browser_plugin.utils import (
     Registry,
     check_chrome_plugin,
@@ -25,6 +26,9 @@ class ChromePluginManager(PluginManagerCore):
         self.old_extension_ids = Config.OLD_EXTENSIONS_IDS
         self.browser_path = r"Software\Google\Chrome"
         self.extension_path = f"{self.browser_path}\\Extensions\\{plugin_data.plugin_id}"
+        self.native_message_host_path = r"Software\Google\Chrome\NativeMessagingHosts\{}".format(
+            Config.NATIVE_MESSAGE_HOST_NAME
+        )
         self.user_data_path = r"C:\Users\{}\AppData\Local\Google\Chrome\User Data".format(getpass.getuser())
         self.preferences_path_list = get_profile_list(self.user_data_path)
         self.secure_preferences = (
@@ -39,14 +43,14 @@ class ChromePluginManager(PluginManagerCore):
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
             value, _ = winreg.QueryValueEx(key, "")
             return value
-        except FileNotFoundError:
+        except Exception as e:
             try:
                 key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe"
                 key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ)
                 value, _ = winreg.QueryValueEx(key, "")
                 return value
-            except FileNotFoundError:
-                raise FileNotFoundError("Chrome is not installed or the registry key is not found.")
+            except Exception as e:
+                raise BizException(CHROME_NOT_FOUND, "Chrome 未安装或注册表项未找到")
 
     def check_browser(self):
         browser_registry = Registry.exist(self.browser_path)
@@ -54,7 +58,7 @@ class ChromePluginManager(PluginManagerCore):
             try:
                 self.get_browser_path()
                 return True
-            except FileNotFoundError:
+            except Exception:
                 return False
         return browser_registry
 
@@ -99,6 +103,11 @@ class ChromePluginManager(PluginManagerCore):
         Registry.create(self.extension_path)
         Registry.add_string_value(self.extension_path, "path", self.plugin_data.plugin_path)
         Registry.add_string_value(self.extension_path, "version", self.plugin_data.plugin_version)
+
+        Registry.create(self.native_message_host_path)
+        Registry.add_string_value(
+            self.native_message_host_path, "", self.plugin_data.plugin_native_message_host_json_path
+        )
 
         # https://chromeenterprise.google/policies/?policy=ExtensionInstallAllowlist
         try:

@@ -5,6 +5,7 @@ import winreg
 
 from astronverse.baseline.logger.logger import logger
 from astronverse.browser_plugin import PluginData, PluginManagerCore, PluginStatus
+from astronverse.browser_plugin.error import BizException, BROWSER_360_NOT_FOUND
 from astronverse.browser_plugin.utils import (
     Registry,
     check_chrome_plugin,
@@ -23,7 +24,7 @@ class Browser360PluginManager(PluginManagerCore):
         try:
             self.browser_exe_path = Browser360PluginManager.get_browser_path()
             self.browser_data_path = self.browser_exe_path.replace(r"\Application\360se.exe", r"\User Data")
-        except FileNotFoundError:
+        except Exception as e:
             logger.warning("360 browser path not found, using default user data path.")
         self.user_data_path = self.browser_data_path or r"C:\Users\{}\AppData\Roaming\360se6\User Data".format(
             getpass.getuser()
@@ -41,14 +42,14 @@ class Browser360PluginManager(PluginManagerCore):
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
             value, _ = winreg.QueryValueEx(key, "")
             return value
-        except FileNotFoundError:
+        except Exception as e:
             try:
                 key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\360se6.exe"
                 key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ)
                 value, _ = winreg.QueryValueEx(key, "")
                 return value
-            except FileNotFoundError:
-                raise FileNotFoundError("360 is not installed or the registry key is not found.")
+            except Exception as e:
+                raise BizException(BROWSER_360_NOT_FOUND, "360浏览器未安装或注册表项未找到")
 
     def check_browser(self):
         browser_registry = Registry.exist(self.browser_path)
@@ -56,7 +57,7 @@ class Browser360PluginManager(PluginManagerCore):
             try:
                 self.get_browser_path()
                 return True
-            except FileNotFoundError:
+            except Exception as e:
                 return False
         return browser_registry
 

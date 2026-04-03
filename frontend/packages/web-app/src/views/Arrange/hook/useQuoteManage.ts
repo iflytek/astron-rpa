@@ -6,10 +6,10 @@ export function quoteManage(currentItem, callback: (args: any) => void, pickType
   const processStore = useProcessStore()
   const obj = {}
   const list = []
-  processStore.processList.filter(i => i.resourceCategory === 'process').forEach((item) => {
+  processStore.canvasManager.processList.filter(i => i.state.resourceCategory === 'process').forEach((item) => {
     list.push({
-      resourceId: item.resourceId,
-      name: item.name,
+      resourceId: item.id,
+      name: item.state.name,
     })
     // obj[item.resourceId] = useProjectDocStore().userFlowNode(item.resourceId)
   })
@@ -38,10 +38,10 @@ export function gainUnUseQuote(callback: (args: any) => void, pickType = '') {
   const processStore = useProcessStore()
   const obj = {}
   const list = []
-  processStore.processList.filter(i => i.resourceCategory === 'process').forEach((item) => {
+  processStore.canvasManager.processList.filter(i => i.state.resourceCategory === 'process').forEach((item) => {
     list.push({
-      resourceId: item.resourceId,
-      name: item.name,
+      resourceId: item.id,
+      name: item.state.name,
     })
     // obj[item.resourceId] = useProjectDocStore().userFlowNode(item.resourceId)
   })

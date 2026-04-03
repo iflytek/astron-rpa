@@ -17,11 +17,11 @@ class Script:
         except SyntaxError as e:
             raise e
         except Exception as e:
-            raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
+            raise BizException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
         main_func = getattr(process_module, "main", None)
         if not main_func or not callable(main_func):
-            raise BaseException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
+            raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
         res = main_func(kwargs)
 
@@ -34,7 +34,7 @@ class Script:
         except SyntaxError as e:
             raise e
         except Exception as e:
-            raise BaseException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
+            raise BizException(MODULE_IMPORT_ERROR.format(path), f"无法导入模块 {path}: {str(e)}")
 
         def is_v2() -> bool:
             """
@@ -63,9 +63,7 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BaseException(
-                    MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
-                )
+                raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
             res = main_func(out_kwargs)
             return out_kwargs
@@ -74,9 +72,7 @@ class Script:
 
             main_func = getattr(process_module, "main", None)
             if not main_func or not callable(main_func):
-                raise BaseException(
-                    MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数"
-                )
+                raise BizException(MODULE_MAIN_FUNCTION_NOT_FOUND.format(path), f"模块 {path} 未定义可调用的 main 函数")
 
             res = main_func(**inn_kwargs)
             return res
@@ -135,7 +131,7 @@ class Script:
             atomicMg.param(
                 "process_param",
                 types="List",
-                need_parse=True,
+                need_parse="str",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "process"}),
                 required=False,
             ),
@@ -147,7 +143,7 @@ class Script:
         if isinstance(process, tuple):
             process, param_meta = process
         else:
-            process = process
+            process, param_meta = process, None  # 为了兼容，可以删除
         kwargs = {}
         if process_param:
             for p in process_param:
@@ -169,7 +165,7 @@ class Script:
             atomicMg.param(
                 "module_param",
                 types="List",
-                need_parse=True,
+                need_parse="str",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.PROCESSPARAM.value, params={"linkage": "content"}),
                 required=False,
             ),
@@ -181,7 +177,7 @@ class Script:
         if isinstance(content, tuple):
             content, param_meta = content
         else:
-            content = content
+            content, param_meta = content, None  # 为了兼容，可以删除
         out_kwargs = {}
         if module_param:
             for p in module_param:
@@ -201,7 +197,7 @@ class Script:
         return res
 
     @staticmethod
-    @atomicMg.atomic("Script", inputList=[], outputList=[])
+    @atomicMg.atomic("Script")
     def component(component: Any, **kwargs):
         # 忽略掉所有__开头的kwargs值
         kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
@@ -209,8 +205,7 @@ class Script:
         if isinstance(component, tuple):
             component, param_meta = component
         else:
-            # 为了兼容，可以删除
-            component = component
+            component, param_meta = component, None  # 为了兼容，可以删除
 
         # 解析组件路径: c1990298105483890688.main -> 组件目录名和模块名
         package = component.split(".")[0] if "." in component else component
@@ -221,4 +216,10 @@ class Script:
             #  为了兼容，可以删除
             return None
 
-        return tuple(kwargs.get(p["varName"]) for p in param_meta if p.get("varDirection") == 1)
+        output_values = [kwargs.get(p["varName"]) for p in param_meta if p.get("varDirection") == 1]
+        if len(output_values) == 1:
+            return output_values[0]
+        elif len(output_values) > 1:
+            return tuple(output_values)
+        else:
+            return None

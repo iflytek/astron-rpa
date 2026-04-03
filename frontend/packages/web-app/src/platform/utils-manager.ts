@@ -4,7 +4,7 @@ const Utils: UtilsManager = {
   getAppVersion: () => Promise.resolve('0.0.0'),
   getAppPath: () => Promise.resolve('/unknown'),
   getAppConfig: () => Promise.resolve({
-    remote_addr: 'http://172.29.231.250:32742/',
+    remote_addr: 'http://127.0.0.1:32742/',
     skip_engine_start: false,
     app_auth_type: 'uap',
     app_edition: 'saas',
@@ -74,6 +74,11 @@ const Utils: UtilsManager = {
   getPluginList: () => {
     return Promise.resolve([])
   },
+  restartApp: () => {
+    window.location.reload()
+  },
+  getUserSetting: () => Promise.resolve({ version: '1.0.0', platform: 'win32' } as RPA.UserSetting),
+  saveUserSetting: (_setting: RPA.UserSetting) => Promise.resolve(void 0),
 }
 
 export default Utils

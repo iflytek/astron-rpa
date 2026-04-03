@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
+
 import { useAppConfigStore } from '@/stores/useAppConfig'
 
 const appConfigStore = useAppConfigStore()
@@ -10,7 +11,7 @@ const needUpdate = computed(() => appConfigStore.updaterState.couldUpdate && app
 </script>
 
 <template>
-  <a-tooltip v-if="needUpdate" title="点击查看新版本">
+  <a-tooltip v-if="needUpdate" :title="$t('common.clickToViewNewVersion')">
     <div class="w-[22px] h-[22px] rounded-3xl bg-primary flex items-center justify-center cursor-pointer" @click="handleClick">
       <rpa-icon name="arrow-up" class="w-[14px] h-[14px] text-white" />
     </div>

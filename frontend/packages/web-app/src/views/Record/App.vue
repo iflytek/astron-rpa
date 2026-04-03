@@ -50,19 +50,19 @@ function handleSubmit() {
               :is="isRecording ? PauseCircleOutlined : PlayCircleOutlined"
               size="16"
             />
-            <span>{{ isRecording ? "暂停录制[ESC]" : "开始录制[F4]" }}</span>
+            <span>{{ isRecording ? $t('record.pauseRecordingHotkey') : $t('record.startRecordingHotkey') }}</span>
           </Button>
 
           <rpa-hint-icon
             name="tools-undo"
-            title="撤销"
+            :title="$t('undo')"
             enable-hover-bg
             :disabled="!canUndo"
             @click="recordStore.undo"
           />
           <rpa-hint-icon
             name="tools-recover"
-            title="重做"
+            :title="$t('redo')"
             enable-hover-bg
             :disabled="!canRedo"
             @click="recordStore.redo"
@@ -107,25 +107,25 @@ function handleSubmit() {
                 @click="recordStore.clearAll"
               >
                 <template #suffix>
-                  <span class="pl-1">清空</span>
+                  <span class="pl-1">{{ $t('record.clear') }}</span>
                 </template>
               </rpa-hint-icon>
             </div>
           </template>
           <Empty v-else :image="Empty.PRESENTED_IMAGE_SIMPLE">
             <template v-if="isRecording" #description>
-              请在桌面或软件中开始操作
+              {{ $t('record.startOperatingTip') }}
             </template>
             <template v-else #description>
-              <div>点击上方“开始录制”</div>
-              <div>星辰RPA会记录你的操作，智能生成流程</div>
+              <div>{{ $t('record.clickStartRecordingTip') }}</div>
+              <div>{{ $t('record.recordingTip') }}</div>
             </template>
           </Empty>
         </div>
 
         <div class="flex justify-end pb-4 px-3">
           <Button type="primary" @click="handleSubmit">
-            完成
+            {{ $t('done') }}
           </Button>
         </div>
       </div>

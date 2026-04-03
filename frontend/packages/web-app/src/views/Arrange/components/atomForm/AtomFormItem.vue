@@ -6,8 +6,17 @@ import { ProcessModal } from '@/views/Arrange/components/process'
 
 import AtomConfig from './AtomConfig.vue'
 import { useFormStore } from './hooks/useFormStore'
+import {
+  getLimitLengthTip,
+  useFormItemLimitLength,
+  useFormItemRequired,
+} from './hooks/useFormItemSort'
 
-const { atomFormItem } = defineProps<{ atomFormItem: RPA.AtomDisplayItem }>()
+const { atomFormItem } = defineProps<{
+  atomFormItem: RPA.AtomDisplayItem
+  disabled?: boolean
+  hideRequiredTip?: boolean // 是否隐藏必填提示
+}>()
 const emit = defineEmits<{ (e: 'update', key: string, value: any): void }>()
 
 const { formValues } = useFormStore()
@@ -38,24 +47,53 @@ function handleUpdate(key: string, value: any) {
       <span v-if="atomFormItem.subTitle" class="text-[10px] leading-4">
         {{ atomFormItem.subTitle }}
       </span>
-      <a-tooltip v-if="atomFormItem.tip" :title="atomFormItem.tip">
+      <a-tooltip v-if="atomFormItem.tip">
+        <template #title>
+          <slot name="tooltip-title" :atom-form-item="atomFormItem">
+            {{ atomFormItem.tip }}
+          </slot>
+        </template>
         <rpa-hint-icon name="atom-form-tip" width="16px" height="16px" />
       </a-tooltip>
       <span
-        v-if="atomFormItem.title === '选择Python模块'"
+        v-if="atomFormItem.title === $t('common.selectPythonModule')"
         class="text-xs text-primary ml-auto cursor-pointer"
         @click="NiceModal.show(ProcessModal, { type: 'module' })"
       >
-        创建Python脚本
+        {{ $t('common.createPythonScript') }}
       </span>
     </label>
-    <AtomConfig :form-item="atomFormItem" :form-values="formValues" class="mt-2" @update="handleUpdate" />
+    <AtomConfig
+      :form-item="atomFormItem"
+      :form-values="formValues"
+      class="mt-2 relative"
+      :class="{ 'pointer-events-none after:pointer-events-auto after:absolute after:inset-0 cursor-not-allowed': disabled }"
+      @update="handleUpdate"
+    />
     <article
       v-for="value in atomFormItem.errors"
       :key="value"
       class="form-container-context-required"
     >
       {{ value }}
+    </article>
+    <article
+      v-if="!hideRequiredTip && useFormItemRequired(atomFormItem)"
+      class="form-container-context-required"
+    >
+      {{ $t('common.fieldIsRequired', { field: atomFormItem.title }) }}
+    </article>
+    <article
+      v-if="atomFormItem.customizeTip"
+      class="form-container-context-required"
+    >
+      {{ atomFormItem.customizeTip }}
+    </article>
+    <article
+      v-if="!useFormItemLimitLength(atomFormItem)"
+      class="form-container-context-required"
+    >
+      {{ atomFormItem.title }}{{ $t('common.length') }}{{ getLimitLengthTip(atomFormItem.limitLength) || $t('common.exceedLimit') }}
     </article>
   </div>
 </template>

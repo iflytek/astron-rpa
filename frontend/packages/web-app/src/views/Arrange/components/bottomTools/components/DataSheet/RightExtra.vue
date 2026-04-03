@@ -19,7 +19,7 @@ const { isReady, handleUndo, handleRedo, handleFind } = useDataSheetStore()
 
     <rpa-hint-icon name="bottom-pick-menu-search" enable-hover-bg :disabled="!isReady" @click="handleFind">
       <template #suffix>
-        <span class="ml-1 text-xs">查找替换</span>
+        <span class="ml-1 text-xs">{{ $t('sheet.findReplace') }}</span>
       </template>
     </rpa-hint-icon>
   </div>

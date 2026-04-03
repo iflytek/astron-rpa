@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import psutil
+from astronverse.executor.error import BizException, TIMEOUT_ERROR, SUBPROCESS_ERROR_FORMAT
 from astronverse.executor.logger import logger
 
 
@@ -66,7 +67,7 @@ def str_to_list_if_possible(s):
             return result
         else:
             return s  # 虽然是 [] 形式，但解析后不是 list（如可能是 tuple）
-    except (ValueError, SyntaxError):
+    except Exception as e:
         return s  # 解析失败，说明不是有效的列表字符串
 
 
@@ -87,7 +88,7 @@ def exec_run(exec_args: list, ignore_error: bool = False, timeout=-1):
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait()
-        raise TimeoutError("error: timeout") from None
+        raise BizException(TIMEOUT_ERROR, "error: timeout") from None
 
     if proc.returncode != 0 and not ignore_error:
-        raise BaseException(f"error: return code({proc.returncode})")
+        raise BizException(SUBPROCESS_ERROR_FORMAT.format(proc.returncode), f"error: return code({proc.returncode})")

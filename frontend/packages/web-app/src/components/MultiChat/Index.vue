@@ -1,34 +1,37 @@
 <script setup lang="ts">
 import { CloseOutlined, LoadingOutlined, RightOutlined, SaveOutlined, StopOutlined, ZoomInOutlined } from '@ant-design/icons-vue'
+import { useTheme } from '@rpa/components'
+import { useAsyncState, useToggle } from '@vueuse/core'
 import { message } from 'ant-design-vue'
+import { to } from 'await-to-js'
+import { useTranslation } from 'i18next-vue'
+import { get } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import { computed, h, nextTick, onBeforeUnmount, ref } from 'vue'
-import { useAsyncState, useToggle } from '@vueuse/core'
-import { get } from 'lodash-es'
-import { to } from 'await-to-js'
-import { useTheme } from '@rpa/components'
 
-import { WINDOW_NAME } from '@/constants'
 import { getAPIBaseURL } from '@/api/http/env'
 import { sseRequest } from '@/api/sse'
+import { WINDOW_NAME } from '@/constants'
 import { utilsManager, windowManager } from '@/platform'
 import type { chatItem } from '@/types/chat'
 
-import { type FileInfo, initFileInfo, FILE_TYPE_IMG } from './utils'
-import Preview from './Preview.vue'
-import ChatBgLightSvg from './assets/chat-bg-light.svg?component'
 import ChatBgDarkSvg from './assets/chat-bg-dark.svg?component'
+import ChatBgLightSvg from './assets/chat-bg-light.svg?component'
+import Preview from './Preview.vue'
+import { FILE_TYPE_IMG, initFileInfo } from './utils'
+import type { FileInfo } from './utils'
 
 let controller: AbortController | null = null
 // 初始化信息
 const targetInfo = new URL(location.href).searchParams
 // 文件路径
 const filePath = targetInfo.get('file_path') || ''
-const fileName = filePath.split(/[/\\]/).pop() || '';
-const fileSuffix = fileName.split('.').pop()?.toLowerCase() || '';
+const fileName = filePath.split(/[/\\]/).pop() || ''
+const fileSuffix = fileName.split('.').pop()?.toLowerCase() || ''
 const initFileInfoData = initFileInfo({ path: filePath, name: fileName, suffix: fileSuffix })
 
-const title = filePath ? '知识问答' : (targetInfo.get('title') || 'AI Chat组件')
+const { t } = useTranslation()
+const title = filePath ? t('multiChat.knowledgeQaTitle') : (targetInfo.get('title') || t('multiChat.defaultTitle'))
 // 是否显示保存按钮
 const showSave = ['1', 1].includes(targetInfo.get('is_save'))
 // 最大轮数
@@ -56,12 +59,13 @@ const [showPreview, togglePreview] = useToggle(false) // 是否显示预览弹�
 
 // 文件信息
 const { state: fileInfo } = useAsyncState<FileInfo>(async () => {
-  if (!filePath) return initFileInfoData
-  const [err, _fileContent] = await to(utilsManager.readFile(filePath, null));
-  const fileContent = err ? '' : _fileContent;
+  if (!filePath)
+    return initFileInfoData
+  const [err, _fileContent] = await to(utilsManager.readFile(filePath, null))
+  const fileContent = err ? '' : _fileContent
   const filePreviewContent = fileSuffix === 'txt' && fileContent instanceof Uint8Array
     ? new TextDecoder().decode(fileContent)
-    : fileContent;
+    : fileContent
 
   return {
     ...initFileInfoData,
@@ -109,7 +113,7 @@ function handleSave() {
     return
   }
   if (!saveQAIds.value?.length) {
-    message.warning('请选择要保存的对话')
+    message.warning(t('multiChat.selectChatsToSave'))
     return
   }
 
@@ -137,7 +141,7 @@ function handleScrollToBottom() {
 
 function handleEnd() {
   updateMessagingChat('timestamp', Date.now())
-  isThinking.value && updateMessagingChat('answer', '已取消')
+  isThinking.value && updateMessagingChat('answer', t('canceled'))
   isThinking.value = false
   messagingId.value = ''
   controller.abort()
@@ -161,15 +165,16 @@ function createSSE(url: string, query: string) {
   const queryData = {
     messages: queryLst,
     stream: true,
-    ...(model ? { model } : null)
+    ...(model ? { model } : null),
   }
 
   controller = sseRequest.post(
-    url, 
-    queryData, 
+    url,
+    queryData,
     (res) => {
       console.log('res', res)
-      if (!res) return;
+      if (!res)
+        return
 
       if (res.data === '[DONE]') {
         handleEnd()
@@ -183,13 +188,14 @@ function createSSE(url: string, query: string) {
           updateMessagingChat('answer', content)
           handleScrollToBottom()
         }
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Failed to parse SSE data:', error, res.data)
       }
     },
     () => {
       handleEnd() // 错误处理
-      updateMessagingChat('answer', '异常无法响应')
+      updateMessagingChat('answer', t('multiChat.responseError'))
     },
   )
 }
@@ -202,11 +208,11 @@ function handleSend() {
       return
     if (messagingId.value || isThinking.value) {
       console.log('messagingId', messagingId.value)
-      message.warning('请等待上一次对话结束')
+      message.warning(t('multiChat.waitPreviousChatEnd'))
       return
     }
     if (!promptValue.trim()) {
-      message.warning('请输入指令')
+      message.warning(t('multiChat.enterCommand'))
       return
     }
     createSSE(`${getAPIBaseURL()}/rpa-ai-service/v1/chat/completions`, promptValue)
@@ -252,7 +258,9 @@ onBeforeUnmount(() => clearAllData())
     <div class="chat-main flex-1 bg-bg-elevated relative">
       <component :is="ChatBgSvg" class="absolute top-0 left-0 w-full" />
       <div class="chat-header relative flex items-center pr-[18px]">
-        <div class="drag flex-1 px-[18px] pt-[18px]">{{ title }}</div>
+        <div class="drag flex-1 px-[18px] pt-[18px]">
+          {{ title }}
+        </div>
         <CloseOutlined @click="handleClose" />
       </div>
       <div class="chat-content relative">
@@ -262,7 +270,7 @@ onBeforeUnmount(() => clearAllData())
             <a-tooltip :title="fileInfo.path">
               {{ fileInfo.name }}
             </a-tooltip>
-            <a-tooltip v-if="couldPreview" title="查看文档">
+            <a-tooltip v-if="couldPreview" :title="t('multiChat.viewDocument')">
               <ZoomInOutlined />
             </a-tooltip>
           </div>
@@ -277,12 +285,12 @@ onBeforeUnmount(() => clearAllData())
         </div>
         <div v-if="chatType === 'multi' && chatDataList?.length === 0" class="chat-list-empty">
           <div class="title">
-            你好，我可以为你做什么
+            {{ t('multiChat.greeting') }}
           </div>
           <div class="flex items-center gap-[3px] text-text-tertiary">
-            <span>内容由</span>
+            <span>{{ t('multiChat.contentBy') }}</span>
             <img width="16" height="16" src="@/assets/img/xinghuo.png" alt="xinghuo">
-            <span>星火大模型生成</span>
+            <span>{{ t('multiChat.generatedBy', { model: t('sparkDesk') }) }}</span>
           </div>
         </div>
         <div v-if="chatDataList?.length > 0" class="chat-list">
@@ -301,7 +309,7 @@ onBeforeUnmount(() => clearAllData())
               <div class="answer">
                 <span v-if="item.answer" class="message" v-html="item.answer" />
                 <span v-if="isThinking && messagingId === item.id" class="thinking">
-                  <LoadingOutlined />思考中...
+                  <LoadingOutlined />{{ t('multiChat.thinking') }}
                 </span>
               </div>
               <a-button
@@ -313,20 +321,20 @@ onBeforeUnmount(() => clearAllData())
                 ghost
                 @click="handleEnd"
               >
-                停止响应
+                {{ t('multiChat.stopResponding') }}
               </a-button>
             </div>
           </div>
         </div>
       </div>
       <div v-if="isMultiTurnLimit" class="limitTip">
-        {{ `———————— 最多对话${limitTurns}轮 ————————` }}
+        {{ t('multiChat.maxTurnsTip', { count: limitTurns }) }}
       </div>
       <div class="chat-footer">
         <a-input
           v-if="!isSave"
           v-model:value="prompt"
-          :placeholder="isMultiTurnLimit ? '已达到最大对话轮次，请选择需要保存的对话结果' : '输入指令，让AI帮你完成'"
+          :placeholder="isMultiTurnLimit ? t('multiChat.maxTurnsReachedPlaceholder') : t('multiChat.inputPlaceholder')"
           :disabled="isMultiTurnLimit"
           class="promptInput"
           @press-enter="handleSend"
@@ -336,12 +344,14 @@ onBeforeUnmount(() => clearAllData())
           </template>
         </a-input>
         <a-button v-else @click="handleCancel">
-          取消
+          {{ t('cancel') }}
         </a-button>
-        <a-tooltip title="保存为输出参数" placement="topRight">
-          <a-button v-if="showSave" :type="isSave ? 'primary' : 'default'" :icon="h(SaveOutlined)" class="saveBtn"
-            @click="handleSave">
-            {{ isSave ? '保存' : '' }}
+        <a-tooltip :title="t('multiChat.saveAsOutputParam')" placement="topRight">
+          <a-button
+            v-if="showSave" :type="isSave ? 'primary' : 'default'" :icon="h(SaveOutlined)" class="saveBtn"
+            @click="handleSave"
+          >
+            {{ isSave ? t('save') : '' }}
           </a-button>
         </a-tooltip>
       </div>

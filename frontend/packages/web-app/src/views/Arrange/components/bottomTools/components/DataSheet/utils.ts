@@ -1,5 +1,4 @@
-import type { SheetLocaleType } from '@rpa/components'
-import type { ISheetWorkbookData, IWorksheetData } from '@rpa/components'
+import type { ISheetWorkbookData, IWorksheetData, SheetLocaleType } from '@rpa/components'
 
 const DEFAULT_SHEET_NAME = 'sheet'
 const DEFAULT_EXCEL_NAME = 'datatable.xlsx'

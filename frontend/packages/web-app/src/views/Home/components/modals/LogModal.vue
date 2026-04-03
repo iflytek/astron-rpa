@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NiceModal } from '@rpa/components'
 import { Drawer } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed, onMounted, provide, ref, watch } from 'vue'
 
 import { blob2Text, text2LogArray } from '@/utils/common'
@@ -15,16 +16,6 @@ import type { AnyObj } from '@/types/common'
 import ReadonlyDataTable from './ReadonlyDataTable.vue'
 
 type ModalType = 'modal' | 'drawer'
-enum SegmentValue {
-  Log = 'log',
-  Table = 'table',
-}
-
-const segmentOptions = [
-  { label: '详细日志', value: SegmentValue.Log },
-  { label: '数据表格', value: SegmentValue.Table },
-]
-
 const props = withDefaults(
   defineProps<{
     record?: AnyObj
@@ -37,11 +28,22 @@ const props = withDefaults(
 
 const emit = defineEmits(['clearLogs'])
 
+enum SegmentValue {
+  Log = 'log',
+  Table = 'table',
+}
+
+const { t } = useTranslation()
+const segmentOptions = computed(() => ([
+  { label: t('logModal.detailLog'), value: SegmentValue.Log },
+  { label: t('logModal.dataTable'), value: SegmentValue.Table },
+]))
+
 const modal = NiceModal.useModal()
 const runlogStore = useRunlogStore()
 
 const loaded = ref(false)
-const segmentValue = ref(segmentOptions[0].value)
+const segmentValue = ref(SegmentValue.Log)
 
 if (props.type === 'drawer') {
   provide('logTableHeight', window.innerHeight - 100)

@@ -1,5 +1,5 @@
 let highlight: HTMLElement | null = null
-let timeoutId: number | null = null
+let timeoutId
 export function highLight(rect: DOMRectT) {
   if (timeoutId) {
     clearTimeout(timeoutId)
