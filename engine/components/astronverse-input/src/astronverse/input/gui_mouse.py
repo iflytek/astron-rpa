@@ -1,3 +1,5 @@
+import sys
+
 import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -14,8 +16,28 @@ from astronverse.input import (
 )
 from astronverse.input.code.keyboard import Keyboard
 from astronverse.input.code.mouse import Mouse
-from astronverse.input.code.win32gui import window_find, window_info, window_top
 from astronverse.input.error import *
+
+_IS_WINDOWS = sys.platform == "win32"
+_IS_MAC = sys.platform == "darwin"
+
+
+def _get_window_ops():
+    if _IS_WINDOWS:
+        from astronverse.input.code.win32gui import window_find, window_info, window_top
+
+        return window_find, window_info, window_top
+    if _IS_MAC:
+        from astronverse.input.code.window_mac import window_find, window_info, window_top
+
+        return window_find, window_info, window_top
+    raise NotImplementedError(f"Platform {sys.platform} not supported")
+
+
+def _normalize_ctrl_key(key: str) -> str:
+    if _IS_MAC and key == ControlType.WIN.value:
+        return "command"
+    return key
 
 
 class GuiMouse:
@@ -34,7 +56,7 @@ class GuiMouse:
         """
         # 按下辅助按键
         if ctrl_type != ControlType.EMPTY:
-            Keyboard.key_down(ctrl_type.value)
+            Keyboard.key_down(_normalize_ctrl_key(ctrl_type.value))
         try:
             if btn_model == BtnModel.CLICK:
                 Mouse.click(None, None, 1, 0, btn_type.value)
@@ -49,7 +71,7 @@ class GuiMouse:
         finally:
             # 松开辅助按键
             if ctrl_type != ControlType.EMPTY:
-                Keyboard.key_up(ctrl_type.value)
+                Keyboard.key_up(_normalize_ctrl_key(ctrl_type.value))
 
     @staticmethod
     @atomicMg.atomic(
@@ -118,7 +140,7 @@ class GuiMouse:
         reversal = -1 if direction == Direction.DOWN else 1
 
         if ctrl_type != ControlType.EMPTY:
-            Keyboard.key_down(ctrl_type.value)
+            Keyboard.key_down(_normalize_ctrl_key(ctrl_type.value))
         try:
             for _ in range(times):
                 try:
@@ -131,7 +153,7 @@ class GuiMouse:
         finally:
             # 松开辅助按键
             if ctrl_type != ControlType.EMPTY:
-                Keyboard.key_up(ctrl_type.value)
+                Keyboard.key_up(_normalize_ctrl_key(ctrl_type.value))
 
     @staticmethod
     @atomicMg.atomic(
@@ -285,6 +307,7 @@ class GuiMouse:
         :param move_type: 移动方式     LINEAR:线性移动，SIMULATION:模拟移动，TELEPORTATION:瞬移
         """
         if window_type == WindowType.ACTIVE_WINDOW and window_pick is not None:
+            window_find, window_info, window_top = _get_window_ops()
             handler = window_find(window_pick)
             window_top(handler)
             info = window_info(handler)
@@ -393,7 +416,7 @@ class GuiMouse:
             raise BizException(REGION_ERROR, "坐标参数不合法！")
 
         if ctrl_type != ControlType.EMPTY:
-            Keyboard.key_down(ctrl_type.value)
+            Keyboard.key_down(_normalize_ctrl_key(ctrl_type.value))
         try:
             Mouse.down(x=start_pos_x, y=start_pos_y, button=btn_type.value)
             if move_type == MoveType.LINEAR:
@@ -414,7 +437,7 @@ class GuiMouse:
             Mouse.up(button=btn_type.value)
         finally:
             if ctrl_type != ControlType.EMPTY:
-                Keyboard.key_up(ctrl_type.value)
+                Keyboard.key_up(_normalize_ctrl_key(ctrl_type.value))
 
     @staticmethod
     @atomicMg.atomic(
