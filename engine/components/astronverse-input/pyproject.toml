@@ -10,7 +10,12 @@ dependencies = [
     "pyperclip",
     "pynput",
     "pywin32; sys_platform == 'win32'",
-    "Pillow; sys_platform == 'linux'"
+    "Pillow; sys_platform == 'linux'",
+    "Pillow; sys_platform == 'darwin'",
+    "pyobjc-core; sys_platform == 'darwin'",
+    "pyobjc-framework-Cocoa; sys_platform == 'darwin'",
+    "pyobjc-framework-Quartz; sys_platform == 'darwin'",
+    "pyobjc-framework-ApplicationServices; sys_platform == 'darwin'"
 ]
 
 [tool.uv.sources]
