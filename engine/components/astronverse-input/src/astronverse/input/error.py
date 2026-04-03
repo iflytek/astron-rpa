@@ -10,3 +10,6 @@ SCROLL_FAILURE: ErrorCode = ErrorCode(BizCode.LocalErr, _("滑轮滚动过程中
 CLIP_PASTE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("剪切板中未获取到有效输入信息，请重新输入！"))
 GHOST_DRIVE_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("设备不存在或未连接,请检查设备连接"))
 REGION_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("参数不合法，请检查指定参数范围是否小于0或超出屏幕边界"))
+PLATFORM_NOT_SUPPORTED: ErrorCode = ErrorCode(BizCode.LocalErr, _("Current platform is not supported for this feature."))
+WINDOW_OPERATION_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("Window operation is not supported on the current platform yet."))
+SCREENSHOT_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("Screenshot failed on the current platform."))

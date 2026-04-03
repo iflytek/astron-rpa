@@ -1,5 +1,6 @@
 import base64
 import os
+import sys
 import time
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
@@ -359,9 +360,11 @@ class BrowserElement:
 
             # 清空输入
             if input_type == FillInputForInputTypeFlag.Overwrite:
-                Keyboard.hotkey("ctrl", "a")
+                select_all_key = "command" if sys.platform == "darwin" else "ctrl"
+                delete_key = "backspace" if sys.platform == "darwin" else "delete"
+                Keyboard.hotkey(select_all_key, "a")
                 time.sleep(0.5)
-                Keyboard.press("delete")
+                Keyboard.press(delete_key)
                 time.sleep(0.5)
 
             # 聚焦时间
@@ -377,7 +380,7 @@ class BrowserElement:
                 from astronverse.input.code.clipboard import Clipboard
 
                 Clipboard.copy(data=text)
-                Keyboard.hotkey("ctrl", "v")
+                Keyboard.paste_hotkey()
 
         return text
 
