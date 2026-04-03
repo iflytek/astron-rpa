@@ -223,8 +223,6 @@ class Mouse:
         time.sleep(0.05)
 
         button_code, down_event, up_event, _ = Mouse._mouse_event_spec(button)
-        if button_code == Quartz.kCGMouseButtonLeft:
-            pyautogui.click(x,y)
 
         for _ in range(clicks):
             Mouse._post_mouse_event(down_event, target_x, target_y, button_code)
