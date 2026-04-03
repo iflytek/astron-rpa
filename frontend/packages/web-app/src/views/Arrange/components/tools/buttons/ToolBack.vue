@@ -7,6 +7,7 @@ import { useRouteBack } from '@/hooks/useCommonRoute'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
+import { confirmRemoveComponent } from '@/api/robot'
 
 import ToolButton from '../components/ToolButton.vue'
 
@@ -22,7 +23,11 @@ const disabled = computed(() => {
 const handleClick = async () => {
   try {
     await canvasManager.saveTab()
-    await message.success('保存成功', 0.5)
+    await confirmRemoveComponent({
+      robotId: processStore.project.id,
+      robotVersion: processStore.project.version
+    })
+    await message.success(t('toolsTips.saveSuccess'), 0.5)
     canvasManager.activeTab?.toggleMultiSelect?.(false)
     useRunlogStore().clearLogs()
     useRouteBack()

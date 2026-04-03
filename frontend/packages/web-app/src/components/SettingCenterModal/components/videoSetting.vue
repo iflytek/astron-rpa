@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Form, InputNumber, Radio, Select, Switch } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
+import { computed } from 'vue'
 
 import { videoRunOption, videoTimeOption } from '../config'
 import { useVideoConfig } from '../hooks/useVideoSetting'
@@ -7,12 +9,16 @@ import { useVideoConfig } from '../hooks/useVideoSetting'
 import Card from './card.vue'
 
 const { isEnable, videoRef, videoForm, handleOpenFile, handleSwitchChange } = useVideoConfig()
+const { t } = useTranslation()
+
+const runOptions = computed(() => videoRunOption.map(i => ({ ...i, label: t(i.label) })))
+const timeOptions = computed(() => videoTimeOption.map(i => ({ ...i, label: t(i.label) })))
 </script>
 
 <template>
   <Card
-    title="是否启用"
-    description="视频形式记录应用运行过程"
+    :title="$t('settingCenter.runRecord.enable')"
+    :description="$t('settingCenter.runRecord.subtitle')"
     class="h-[84px] px-[20px] py-[17px]"
   >
     <template #suffix>
@@ -28,46 +34,46 @@ const { isEnable, videoRef, videoForm, handleOpenFile, handleSwitchChange } = us
   >
     <div class="space-y-6 py-6 px-5">
       <div class="flex items-center">
-        自动录制应用
+        {{ $t('settingCenter.runRecord.autoRecord') }}
         <Select
           v-model:value="videoForm.scene"
           class="w-[120px] mx-2"
-          :options="videoRunOption"
+          :options="runOptions"
         />
-        时保存
+        {{ $t('saveAtTime') }}
         <Select
           v-model:value="videoForm.cutTime"
           class="w-[120px] mx-2"
-          :options="videoTimeOption"
+          :options="timeOptions"
         />
-        的视频
+        {{ $t('videoSuffix') }}
       </div>
       <div class="flex items-center">
-        视频文件
+        {{ $t('videoFile') }}
         <Radio.Group v-model:value="videoForm.saveType" class="mx-2">
           <Radio :value="false">
-            永久保存
+            {{ $t('saveForever') }}
           </Radio>
           <Radio :value="true">
             <div class="inline-flex items-center">
-              生成
+              {{ $t('generate') }}
               <InputNumber
                 v-model:value="videoForm.fileClearTime"
                 class="mx-2"
                 :min="1"
                 :max="365"
               />
-              天后，自动清除
+              {{ $t('autoDeleteAfterNDays') }}
             </div>
           </Radio>
         </Radio.Group>
       </div>
       <div class="flex items-center">
-        视频文件保存地址
+        {{ $t('videoFilePath') }}
         <a-input-search
           v-model:value="videoForm.filePath"
           class="w-[328px] mx-2"
-          enter-button="选择"
+          :enter-button="$t('choose')"
           @search="handleOpenFile"
         />
       </div>

@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.error import *
@@ -30,7 +30,7 @@ class Process:
                 ),
                 required=True,
             ),
-            atomicMg.param("params", types="Str", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("params", types="Str", required=False),
             atomicMg.param("cmd_type", required=False),
             atomicMg.param(
                 "work_dir",
@@ -38,7 +38,6 @@ class Process:
                     AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
                     params={"filters": [], "file_type": "folder"},
                 ),
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
             atomicMg.param(
@@ -93,7 +92,7 @@ class Process:
             else:
                 raise NotImplementedError()
         except Exception as e:
-            raise BaseException(CMD_ERROR_FORMAT.format(command, e), "CMD命令执行失败")
+            raise BizException(CMD_ERROR_FORMAT.format(command, e), "CMD命令执行失败")
         return True
 
     @staticmethod
@@ -123,7 +122,7 @@ class Process:
         import psutil
 
         if not process_name:
-            raise BaseException(
+            raise BizException(
                 MSG_EMPTY_FORMAT.format(process_name),
                 "待匹配名称输入为空，请检查输入信息！",
             )
@@ -150,7 +149,7 @@ class Process:
                         match_proces_pid.append(proc.pid)
                     else:
                         raise NotImplementedError()
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            except Exception as e:
                 continue
 
         return match_proces_pid
@@ -185,7 +184,6 @@ class Process:
             atomicMg.param(
                 "time_out",
                 types="Int",
-                level=AtomicLevel.ADVANCED.value,
                 required=False,
             ),
         ],

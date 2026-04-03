@@ -81,8 +81,7 @@ class AtomicManager:
                 return {key: config.get(key, "")}
 
             return {}
-
-        except OSError:
+        except Exception as e:
             return {}
 
     def atomic(self, group_key="", **kwargs):
@@ -95,7 +94,7 @@ class AtomicManager:
             @wraps(func)
             def wrapper(*args, **war_kwargs):
                 if len(args) > 1:
-                    raise BaseException(PARAM_ARGS_NO_SUPPORT_FORMAT.format(args), "参数不支持args")
+                    raise BizException(PARAM_ARGS_NO_SUPPORT_FORMAT.format(args), "参数不支持args")
                 return self.atomic_run(func, t.key, *args, **war_kwargs)
 
             wrapper.__tag_key__ = "atomic"  # 标记
@@ -111,8 +110,8 @@ class AtomicManager:
         return AtomicParamMeta(**kwargs, key=key)
 
     def atomic_run(self, func: Any, key: str, *args, **kwargs):
-        base_kwargs = {k: v for k, v in kwargs.items() if v is not None and not k.startswith("__")}
-        advance_kwargs = {k: v for k, v in kwargs.items() if v is not None and k.startswith("__")}
+        base_kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
+        advance_kwargs = {k: v for k, v in kwargs.items() if k.startswith("__")}
 
         info = kwargs.get("__info__", [])
         if not info:
@@ -159,12 +158,12 @@ class AtomicManager:
         if delay_before > 0:
             time.sleep(delay_before)
 
-        # 验证只验证 __convert__ 为true的参数，不适用于对象验证
+        # 验证并转换
         model_res = model(**base_kwargs)
         for name, value in model_res.items():
             base_kwargs[name] = value
 
-        # 只有**kwargs的原子能力才接受高级参数,且过滤掉多余的参数,保证兼容
+        # 没有**kwargs的原子能力, 需要过滤掉多余的参数,保证兼容，并不传入高级参数advance_kwargs
         if not self.atomic_dict[key].__has_kwargs__:
             advance_kwargs = {}
             sig = inspect.signature(func)
@@ -270,7 +269,7 @@ class AtomicManager:
             for k2, v2 in enumerate(self.atomic_dict[key].outputList):
                 assert isinstance(v2, AtomicParamMeta)
                 if not v2.types:
-                    raise BaseException(REQUIRED_PARAM_MISSING.format("types"), "缺少必填参数, 返回值的types必须传值")
+                    raise BizException(REQUIRED_PARAM_MISSING.format("types"), "缺少必填参数, 返回值的types必须传值")
                 v2.update(formType=AtomicFormTypeMeta(type=AtomicFormType.RESULT.value), required=None)
                 outputList.append(v2)
         self.atomic_dict[key].outputList = outputList
@@ -383,9 +382,7 @@ class AtomicManager:
                     if (res in outputMap) or (res in inputMap):
                         continue
                     else:
-                        raise BaseException(
-                            REQUIRED_PARAM_MISSING.format(res), "comment存在未定义的数据:{}".format(res)
-                        )
+                        raise BizException(REQUIRED_PARAM_MISSING.format(res), "comment存在未定义的数据:{}".format(res))
 
             # 6.2 回写
             temp_atomic_dict[k] = v

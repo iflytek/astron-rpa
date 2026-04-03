@@ -42,4 +42,4 @@ COPY backend/openapi-service/app/ ./app/
 EXPOSE 8020
 
 # 启动应用
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8020", "--proxy-headers", "--workers", "4"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8020", "--proxy-headers"]

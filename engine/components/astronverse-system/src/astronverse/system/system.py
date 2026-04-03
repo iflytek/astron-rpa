@@ -90,7 +90,7 @@ class System:
         """
         if not folder_is_exists(png_path):
             if state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(png_path),
                     "指定保存路径不存在，请检查路径信息",
                 )
@@ -102,13 +102,14 @@ class System:
         if not (os.path.splitext(png_name)[1] == ".png" or os.path.splitext(png_name)[1] == ".jpg"):
             png_name = png_name + ".png"
         screenshot_path = os.path.join(png_path, png_name)
+        screen_width, screen_height = ScreenShotCore.screen_size()
         if screen_type == ScreenType.FULL:
+            region = (0, 0, screen_width, screen_height)
             try:
-                ScreenShotCore.screenshot(file_path=screenshot_path)
+                ScreenShotCore.screenshot(region=region, file_path=screenshot_path)
             except Exception as e:
-                raise BaseException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
+                raise BizException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
         elif screen_type == ScreenType.REGION:
-            screen_width, screen_height = ScreenShotCore.screen_size()
             if (
                 top_left_x < 0
                 or top_left_y < 0
@@ -119,7 +120,8 @@ class System:
                 or bottom_right_x > screen_width
                 or bottom_right_y > screen_height
             ):
-                raise ValueError(
+                raise BizException(
+                    PARAM_ERROR_FORMAT.format("coordinates"),
                     "输入坐标{}，{}，{}，{}须大于0且在屏幕范围[{}*{}]内".format(
                         top_left_x,
                         top_left_y,
@@ -127,7 +129,7 @@ class System:
                         bottom_right_y,
                         screen_width,
                         screen_height,
-                    )
+                    ),
                 )
             region = (
                 top_left_x,
@@ -138,7 +140,7 @@ class System:
             try:
                 ScreenShotCore.screenshot(region=region, file_path=screenshot_path)
             except Exception as e:
-                raise BaseException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
+                raise BizException(SCREENSHOT_ERROR_FORMAT.format(e), "{e}")
         return screenshot_path
 
     @staticmethod
@@ -192,7 +194,6 @@ class System:
     @atomicMg.atomic(
         "System",
         inputList=[
-            atomicMg.param("file_type"),
             atomicMg.param(
                 "doc_app_type",
                 dynamics=[
@@ -236,7 +237,6 @@ class System:
                     )
                 ],
             ),
-            atomicMg.param("printer_type"),  # 打印设置  系统设置和自定义设置
             atomicMg.param("printer_name", required=False),
             atomicMg.param(
                 "paper_size",
@@ -380,13 +380,11 @@ class System:
         """打印机打印"""
         if batch_print == BatchType.SINGLE:
             if not file_is_exists(file_path):
-                raise BaseException(
-                    FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息"
-                )
+                raise BizException(FILE_PATH_ERROR_FORMAT.format(file_path), "文件不存在或路径信息有误，请检查路径信息")
             print_file = file_path
         elif batch_print == BatchType.BATCH:
             if not folder_is_exists(folder_path):
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(folder_path), "文件夹不存在或路径信息有误，请检查路径信息"
                 )
             print_file = []

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
-import { useTranslation } from 'i18next-vue'
-import { Button } from 'ant-design-vue'
 import { useTimeoutFn } from '@vueuse/core'
+import { Button } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
+import { nextTick, ref } from 'vue'
 
 import { LoadingDots } from '../LoadingDots'
 
@@ -49,14 +49,14 @@ function setLoading(props: LoadingProps) {
     immediate = false,
     timeout = 200,
     exit = false,
-    exitCallback
+    exitCallback,
   } = props
 
   // Immediate update overrides everything
   if (immediate) {
     stopHideDelay()
     stopAutoClose()
-    
+
     visible.value = isLoading
     if (isLoading) {
       tip.value = text || t('loading')
@@ -69,7 +69,7 @@ function setLoading(props: LoadingProps) {
   if (isLoading) {
     // Show loading
     stopHideDelay() // Cancel pending hide
-    
+
     visible.value = true
     tip.value = text || t('loading')
     showExit.value = exit
@@ -80,7 +80,8 @@ function setLoading(props: LoadingProps) {
       autoCloseDelay.value = timeout * 1000
       startAutoClose()
     }
-  } else {
+  }
+  else {
     // Hide loading with delay (debounce)
     if (visible.value) {
       startHideDelay()
@@ -138,7 +139,10 @@ defineExpose({
     min-height: 88px;
     background: var(--color-bg-elevated, #fff);
     border-radius: 8px;
-    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    box-shadow:
+      0 6px 16px 0 rgba(0, 0, 0, 0.08),
+      0 3px 6px -4px rgba(0, 0, 0, 0.12),
+      0 9px 28px 8px rgba(0, 0, 0, 0.05);
   }
 
   .loading-exit {

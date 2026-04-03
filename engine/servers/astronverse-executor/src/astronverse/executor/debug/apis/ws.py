@@ -31,12 +31,12 @@ def ws_log(msg):
 def error_format(e=None) -> dict:
     """错误格式化"""
 
-    def error_to_base_error() -> BaseException:
-        if isinstance(e, BaseException):
+    def error_to_base_error() -> BizException:
+        if isinstance(e, BizException):
             return e
-        return BaseException(GENERAL_ERROR_FORMAT.format(e), "内部错误 error: {}".format(e))
+        return BizException(GENERAL_ERROR_FORMAT.format(e), "内部错误 error: {}".format(e))
 
-    def gen_error_msg(exc: BaseException):
+    def gen_error_msg(exc: BizException):
         return CustomResponse(exc.code.code.value, exc.code.message, {}).__dict__
 
     return gen_error_msg(error_to_base_error())
@@ -206,7 +206,7 @@ class Ws:
                 self.send_report(self.svc.report.queue),
             )
         except Exception as e:
-            if isinstance(e, BaseException):
+            if isinstance(e, BizException):
                 error_str = e.code.message
             else:
                 error_str = str(e)

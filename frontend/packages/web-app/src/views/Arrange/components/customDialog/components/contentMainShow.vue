@@ -60,7 +60,7 @@ function handleClick(e: Event, item: FormItemConfig) {
 <template>
   <div class="dialog-modal_main flex flex-col">
     <div class="header">
-      对话框配置
+      {{ $t('dialogConfigTitle') }}
     </div>
     <div class="flex-1 container border-[#E6E6E6] dark:border-[#494949]">
       <draggable
@@ -81,7 +81,7 @@ function handleClick(e: Event, item: FormItemConfig) {
           >
             <div v-if="item.dialogFormType !== 'TEXT_DESC'" class="name" :style="`${!item?.label.value[0].value ? 'color:#f00;' : ''}`">
               <span v-if="item?.required?.value" class="starRequired">*</span>
-              {{ !item?.label.value[0].value ? '请配置标题' : item.label.value[0].value }}
+              {{ !item?.label.value[0].value ? $t('configureTitle') : item.label.value[0].value }}
             </div>
             <div><FormItem :option="item" /></div>
             <rpa-hint-icon
@@ -94,16 +94,16 @@ function handleClick(e: Event, item: FormItemConfig) {
         </template>
       </draggable>
       <div v-if="dialogData" class="footer">
-        <a-button>取消</a-button>
+        <a-button>{{ $t('cancel') }}</a-button>
         <a-button type="primary" style="margin-left: 8px;">
-          确定
+          {{ $t('confirm') }}
         </a-button>
       </div>
       <span
         v-if="dialogData?.formList.length === 0"
         class="list-empty-items text-[#000000]/[.85] dark:text-[#FFFFFF]/[.85]"
       >
-        从左侧表单控件中拖拽控件进行对话框配置
+        {{ $t('dialogDragTip') }}
       </span>
     </div>
   </div>

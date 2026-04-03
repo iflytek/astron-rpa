@@ -5,6 +5,7 @@ from astronverse.ai.chat import ChatAI
 from astronverse.ai.contract import ContractAI
 from astronverse.ai.document import DocumentAI
 from astronverse.ai.recruit import RecruitAI
+from astronverse.ai.image import ImageAI
 from astronverse.baseline.config.config import load_config
 
 
@@ -20,4 +21,5 @@ if __name__ == "__main__":
     atomicMg.register(Agent, version=get_version())
     atomicMg.register(RecruitAI, version=get_version())
     atomicMg.register(ContractAI, version=get_version())
+    atomicMg.register(ImageAI, version=get_version())
     atomicMg.meta()

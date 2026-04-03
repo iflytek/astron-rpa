@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button, Input, message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed, onBeforeUnmount, ref } from 'vue'
 
 interface Props {
@@ -15,32 +16,37 @@ interface Props {
   sendCaptcha?: (phone: string) => Promise<void>
 }
 
-const { modelValue = '', placeholder = '请输入验证码', maxlength = 6, countdownSeconds = 60, disabled, wrapRef, relationKey, sendCaptcha } = defineProps<Props>()
-
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: '',
+  maxlength: 6,
+  countdownSeconds: 60,
+})
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'send': []
 }>()
-
-const captcha = ref(modelValue || '')
+const { t } = useTranslation()
+const captcha = ref(props.modelValue || '')
 const countdown = ref(0)
 const isCodeSending = ref(false)
 let countdownTimer: number | null = null
 
+const placeholderText = computed(() => props.placeholder || t('components.auth.enterCaptcha'))
+
 // 验证码按钮文本
 const codeButtonText = computed(() => {
   if (countdown.value > 0) {
-    return `验证码已发送(${countdown.value}s)`
+    return t('components.auth.captchaSent', { seconds: countdown.value })
   }
   if (isCodeSending.value) {
-    return '发送中...'
+    return t('components.auth.sending')
   }
-  return '发送验证码'
+  return t('components.auth.sendCaptcha')
 })
 
 // 验证码按钮是否禁用
 const codeButtonDisabled = computed(() => {
-  return isCodeSending.value || countdown.value > 0 || disabled
+  return isCodeSending.value || countdown.value > 0 || props.disabled
 })
 
 // 发送验证码
@@ -49,15 +55,15 @@ async function handleSendCode() {
     return
   isCodeSending.value = true
   try {
-    await wrapRef?.validateFields([relationKey || 'phone'])
-    const phone = wrapRef?.getFieldsValue()[relationKey || 'phone']
-    if (sendCaptcha) {
-      await sendCaptcha?.(phone)
+    await props.wrapRef?.validateFields([props.relationKey || 'phone'])
+    const phone = props.wrapRef?.getFieldsValue()[props.relationKey || 'phone']
+    if (props.sendCaptcha) {
+      await props.sendCaptcha?.(phone)
       startCountdown()
-      message.success('验证码发送成功')
+      message.success(t('components.auth.captchaSendSuccess'))
     }
     else {
-      throw new Error('sendCaptcha 方法未定义')
+      throw new Error(t('components.auth.sendCaptchaUndefined'))
     }
   }
   catch (e) {
@@ -73,7 +79,7 @@ function startCountdown() {
   if (countdownTimer)
     clearInterval(countdownTimer)
 
-  countdown.value = countdownSeconds
+  countdown.value = props.countdownSeconds
   countdownTimer = window.setInterval(() => {
     countdown.value--
     if (countdown.value <= 0) {
@@ -127,9 +133,9 @@ onBeforeUnmount(() => {
   <div class="captcha-input-wrapper">
     <Input
       :value="captcha"
-      :placeholder="placeholder"
-      :maxlength="maxlength"
-      :disabled="disabled"
+      :placeholder="placeholderText"
+      :maxlength="props.maxlength"
+      :disabled="props.disabled"
       size="large"
       @input="(e) => handleInput(e.target.value ?? '')"
       @blur="trimInput"

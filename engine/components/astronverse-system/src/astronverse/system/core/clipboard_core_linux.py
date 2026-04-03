@@ -29,18 +29,15 @@ class ClipBoardCore(IClipBoardCore):
 
     @staticmethod
     def paste_file_clip() -> str:
-        try:
-            result = subprocess.run(
-                ["xclip", "-o", "-selection", "clipboard"],
-                check=True,
-                text=True,
-                capture_output=True,
-                encoding="utf-8",
-                errors="replace",
-            )
-            return result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            raise e
+        result = subprocess.run(
+            ["xclip", "-o", "-selection", "clipboard"],
+            check=True,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        return result.stdout.strip()
 
     @staticmethod
     def paste_html_clip() -> str:

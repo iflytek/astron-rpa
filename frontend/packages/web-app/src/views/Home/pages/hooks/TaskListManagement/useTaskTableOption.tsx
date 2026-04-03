@@ -4,8 +4,8 @@ import { Button, Switch, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { reactive } from 'vue'
 
+import type { TableOption } from '@/types/normalTable'
 import type { TaskTrigger } from '@/types/schedule'
-import { TableOption } from '@/types/normalTable'
 
 import { TASK_TYPE, TASK_TYPE_OPTION, WEEK_MAP_EN } from '../../../config/task'
 

@@ -10,8 +10,15 @@ from astronverse.scheduler.core.executor.executor import (
     TaskExecuteStatus,
 )
 from astronverse.scheduler.core.svc import Svc, get_svc
+from astronverse.scheduler.error import (
+    BizException,
+    EXECUTOR_LOG_ERROR,
+    EXECUTOR_TIMEOUT_ERROR,
+    EXECUTOR_START_ERROR_FORMAT,
+)
 from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.utils import EmitType, emit_to_front, get_settings
+from astronverse.baseline.config.config import load_user_settings
+from astronverse.scheduler.utils.utils import EmitType, emit_to_front
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
@@ -104,14 +111,14 @@ def executor_run_list(task_info: TaskInfo, svc: Svc = Depends(get_svc)):
     if svc.executor_mg.status():
         return res_msg(code=ResCode.ERR, msg="已有实例在运行，无法启动")
     svc.terminal_task_stop = False
-    settings = get_settings()
+    settings = load_user_settings(force_reload=True)
     task_executor_id = ""
     try:
         emit_to_front(EmitType.EDIT_SHOW_HIDE, msg={"type": "hide"})
 
         task_executor_id = report_task_log(svc, TaskExecuteStatus.EXECUTING, task_info.trigger_id)
         if not task_executor_id:
-            raise Exception("服务日志上报异常")
+            raise BizException(EXECUTOR_LOG_ERROR, "服务日志上报异常")
 
         end_time = 0
         if task_info.timeout > 0:
@@ -146,7 +153,7 @@ def executor_run_list(task_info: TaskInfo, svc: Svc = Depends(get_svc)):
                     time.sleep(1)
                     if 0 < end_time < time.time():
                         svc.executor_mg.close(executor)
-                        raise Exception("启动失败: 运行超时")
+                        raise BizException(EXECUTOR_TIMEOUT_ERROR, "启动失败: 运行超时")
 
                 # 检查全局状态
                 if temp_terminal_mod != svc.terminal_mod:
@@ -180,13 +187,18 @@ def executor_run_list(task_info: TaskInfo, svc: Svc = Depends(get_svc)):
                         break
                     elif task_info.exceptional == "retry_stop":
                         if t == task_info.retry_num - 1:
-                            raise Exception("启动失败: {}".format(execute_reason))
+                            raise BizException(
+                                EXECUTOR_START_ERROR_FORMAT.format(execute_reason),
+                                "启动失败: {}".format(execute_reason),
+                            )
                     elif task_info.exceptional == "retry_jump":
                         if t == task_info.retry_num - 1:
                             break
                     else:
                         # stop
-                        raise Exception("启动失败: {}".format(execute_reason))
+                        raise BizException(
+                            EXECUTOR_START_ERROR_FORMAT.format(execute_reason), "启动失败: {}".format(execute_reason)
+                        )
 
             if is_break:
                 break

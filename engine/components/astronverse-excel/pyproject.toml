@@ -9,6 +9,7 @@ dependencies = [
     "psutil",
     "numpy",
     "Pillow",
+    "keyring",
     "pywin32; sys_platform == 'win32'"
 ]
 

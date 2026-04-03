@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Tooltip } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
+import { computed } from 'vue'
 
 import { Icon as RpaIcon } from '../../../Icon'
 import type { TenantItem } from '../../interface'
@@ -15,11 +17,13 @@ const emit = defineEmits<{
   click: []
 }>()
 
-const tenantTypeMap = {
-  personal: '个人免费版',
-  professional: '专业版',
-  enterprise: '企业版',
-}
+const { t } = useTranslation()
+
+const tenantTypeMap = computed<Record<string, string>>(() => ({
+  personal: t('components.auth.personalFree'),
+  professional: t('components.auth.professional'),
+  enterprise: t('components.auth.enterprise'),
+}))
 
 function handleClick() {
   emit('click')

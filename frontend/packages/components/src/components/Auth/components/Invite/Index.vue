@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
+
 import type { AuthType, Edition, Platform } from '../../interface'
 import InviteHeader from '../Base/InviteHeader.vue'
 import StatusCard from '../Base/StatusCard.vue'
@@ -19,6 +21,7 @@ const emit = defineEmits<{
   joinSuccess: []
 }>()
 
+const { t } = useTranslation()
 const {
   currentStatus,
   inviteInfo,
@@ -41,8 +44,8 @@ const {
     <StatusCard
       v-if="currentStatus === 'linkExpired'"
       :status="currentStatus"
-      title="邀请链接已失效"
-      desc="请联系管理员获得新的链接"
+      :title="t('auth.inviteLinkExpired')"
+      :desc="t('auth.contactAdminForLink')"
     />
     <Transition name="slide-up">
       <Login v-if="currentStatus === 'needLogin'" :platform="platform" :base-url="baseUrl" :invite-info="inviteInfo" :edition="edition" :auth-type="authType" @finish="toJoin" />
@@ -59,30 +62,30 @@ const {
     <StatusCard
       v-if="currentStatus === 'joinSuccess'"
       :status="currentStatus"
-      title="成功加入"
+      :title="t('auth.joinSuccess')"
       :desc="inviteInfo.marketName || inviteInfo.deptName"
-      button-txt="进入星辰RPA"
+      :button-txt="t('auth.enterApp')"
       @click="openApp"
     />
     <StatusCard
       v-if="currentStatus === 'joined'"
       :status="currentStatus"
-      title="您已经加入，无需重复加入"
+      :title="t('auth.alreadyJoined')"
       :desc="inviteInfo.marketName || inviteInfo.deptName"
-      button-txt="进入星辰RPA"
+      :button-txt="t('auth.enterApp')"
       @click="openApp"
     />
     <StatusCard
       v-if="currentStatus === 'marketFull'"
       status="reachLimited"
-      :title="`当前${inviteInfo.inviteType === 'market' ? '市场' : '空间'}人数已满`"
-      :desc="`请联系${inviteInfo.inviteType === 'market' ? '市场' : '空间'}所有者处理`"
+      :title="t('auth.marketFull', { type: inviteInfo.inviteType === 'market' ? t('auth.market') : t('auth.space') })"
+      :desc="t('auth.contactOwner', { type: inviteInfo.inviteType === 'market' ? t('auth.market') : t('auth.space') })"
     />
     <StatusCard
       v-if="currentStatus === 'reachLimited'"
       :status="currentStatus"
-      title="已达免费邀请人数上限"
-      desc="请联系管理员升级"
+      :title="t('auth.freeLimitReached')"
+      :desc="t('auth.contactAdminUpgrade')"
     />
     <!-- 移动端点击遮罩层回到初始页面 -->
     <div

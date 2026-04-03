@@ -30,7 +30,7 @@ class Process:
 
         # 收集所有需要关联的进程
         all_process_ids = []
-        for process_name in ["python.exe", "route.exe", "ConsoleApp1.exe", "winvnc.exe"]:
+        for process_name in ["python.exe", "astron_router.exe", "ConsoleApp1.exe", "winvnc.exe"]:
             output = subprocess.check_output(
                 ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV"],
                 encoding=system_encoding,
@@ -94,11 +94,16 @@ class Process:
         root = Process.get_root_process(self)
         root_id = root.pid
         root_name = root.name()
+        logger.debug(
+            f"[CheckStartPidExits] 监控 root pid={root_id} name={root_name}"
+        )
         while True:
             time.sleep(1)
             try:
                 if not psutil.pid_exists(root_id) or psutil.Process(root_id).name() != root_name:
-                    logger.info("pid_exist_check kill process...")
+                    logger.warning(
+                        f"[CheckStartPidExits] 根进程变化 pid={root_id}，清理退出"
+                    )
                     # 首先递归杀一遍子进程
                     kill_proc_tree(psutil.Process(os.getpid()), exclude_pids=[os.getpid()])
                     # 再找到当前的启动路径的所有python进程杀一遍

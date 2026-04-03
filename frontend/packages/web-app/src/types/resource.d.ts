@@ -63,6 +63,7 @@ export interface DirectoryItem {
   attrs?: DirectoryAttrItem[]
   name?: string
   disable_keys?: string[]
+  attrs_map?: Record<string, number> // 属性名和属性值的匹配关系，0表示属性值完全匹配，1表示属性值通配符匹配，2表示属性值正则表达式匹配
 }
 
 export interface VarDataType {

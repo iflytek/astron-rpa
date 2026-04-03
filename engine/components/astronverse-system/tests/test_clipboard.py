@@ -41,7 +41,7 @@ class TestClipboard(TestCase):
 
     def test_copy_clip_message_empty(self):
         """测试复制到剪贴板 - 空消息"""
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Clipboard.copy_clip(content_type=ContentType.MSG, message="")
 
     def test_copy_clip_file_success(self):
@@ -61,7 +61,7 @@ class TestClipboard(TestCase):
     def test_copy_clip_file_not_exists(self):
         """测试复制到剪贴板 - 文件不存在"""
         non_existent_file = os.path.join(self.temp_dir, "non_existent.txt")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Clipboard.copy_clip(content_type=ContentType.FILE, file_path=non_existent_file)
 
     def test_copy_clip_folder_success(self):
@@ -81,7 +81,7 @@ class TestClipboard(TestCase):
     def test_copy_clip_folder_not_exists(self):
         """测试复制到剪贴板 - 文件夹不存在"""
         non_existent_folder = os.path.join(self.temp_dir, "non_existent_folder")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Clipboard.copy_clip(content_type=ContentType.FOLDER, folder_path=non_existent_folder)
 
     def test_copy_clip_invalid_content_type(self):
@@ -181,7 +181,7 @@ class TestClipboard(TestCase):
         Clipboard.copy_clip(content_type=ContentType.FILE, file_path=self.test_file_path)
 
         non_existent_dir = os.path.join(self.temp_dir, "non_existent")
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Clipboard.paste_clip(
                 content_type=ContentType.FILE,
                 dst_path=non_existent_dir,

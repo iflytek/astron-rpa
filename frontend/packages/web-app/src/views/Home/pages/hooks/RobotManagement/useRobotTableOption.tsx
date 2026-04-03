@@ -4,11 +4,11 @@ import { Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { h, reactive, ref, watch } from 'vue'
 
+import type { TableOption } from '@/components/NormalTable'
 import { useUserStore } from '@/stores/useUserStore'
 import type { AnyObj } from '@/types/common'
 import { ROBOT_SOURCE_LOCAL, ROBOT_SOURCE_TEXT } from '@/views/Home/config'
 import { handleRun } from '@/views/Home/pages/hooks/useCommonOperate.tsx'
-import { type TableOption } from '@/components/NormalTable'
 
 import OperMenu from '../../../components/OperMenu.vue'
 
@@ -30,7 +30,7 @@ export default function useRobotTableOption() {
   const { getTableData, handleToConfig, openRobotDetailModal, openMcpConfigModal, handleDeleteRobot, handleRobotUpdate, expiredTip } = useRobotOperation(
     homeTableRef,
     refreshHomeTable,
-    refreshWithDelete
+    refreshWithDelete,
   )
 
   const baseOpts = [
@@ -102,7 +102,7 @@ export default function useRobotTableOption() {
       customRender: ({ record }) => (
         <div>
           <span class="inline-flex items-center w-full overflow-hidden">
-            <Tooltip title={`ID：${record.robotId}`}>
+            <Tooltip title={t('common.idWithColon', { id: record.robotId })}>
               <span class="truncate">{record.robotName}</span>
             </Tooltip>
             {record.updateStatus === 1 && <SyncOutlined onClick={() => { handleRobotUpdate(record) }} />}

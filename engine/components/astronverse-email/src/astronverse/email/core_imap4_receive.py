@@ -2,12 +2,91 @@
 基于 IMAP4 协议的邮件接收与解析工具类。
 """
 
+import base64
 import email
 import email.header
 import email.utils
 import imaplib
+import re
 from datetime import datetime
 from imaplib import IMAP4_SSL
+
+from astronverse.baseline.logger.logger import logger
+
+
+def encode_imap_utf7(folder_name: str) -> bytes:
+    """
+    将邮箱文件夹名编码为 IMAP 修改版 UTF-7 格式（RFC 3501）。
+    - 普通可打印 ASCII（除 & 外）原样保留
+    - & 编码为 &-
+    - 非 ASCII 字符（如中文）编码为 &<base64(UTF-16BE)>-，其中 base64 中的 / 替换为 ,
+    """
+    res = bytearray()
+    buf = []
+
+    def flush_buf():
+        if buf:
+            encoded = base64.b64encode("".join(buf).encode("utf-16-be")).decode("ascii")
+            encoded = encoded.rstrip("=").replace("/", ",")
+            res.extend(("&" + encoded + "-").encode("ascii"))
+            buf.clear()
+
+    for char in folder_name:
+        if char == "&":
+            flush_buf()
+            res.extend(b"&-")
+        elif 0x20 <= ord(char) <= 0x7E:
+            flush_buf()
+            res.append(ord(char))
+        else:
+            buf.append(char)
+
+    flush_buf()
+    return bytes(res)
+
+
+def decode_imap_utf7(encoded: str) -> str:
+    """
+    将 IMAP 修改版 UTF-7 字符串解码为 Unicode（RFC 3501），方便日志可读。
+    """
+    import re as _re
+
+    result = []
+    for part in _re.split(r"(&[^-]*-)", encoded):
+        if part.startswith("&") and part.endswith("-"):
+            inner = part[1:-1]
+            if inner == "":
+                result.append("&")
+            else:
+                b64 = inner.replace(",", "/")
+                # 补齐 base64 padding
+                b64 += "=" * (-len(b64) % 4)
+                try:
+                    result.append(base64.b64decode(b64).decode("utf-16-be"))
+                except Exception:
+                    result.append(part)
+        else:
+            result.append(part)
+    return "".join(result)
+
+
+def decode_folder_list(raw_list) -> list:
+    """将 showFolders 返回的原始字节列表解码为可读字符串列表"""
+    folders = []
+    for item in raw_list or []:
+        try:
+            text = item.decode("ascii") if isinstance(item, bytes) else str(item)
+            # 提取引号内的文件夹名，例如 () "/" "&XfJT0ZAB-"
+            match = re.search(r'"([^"]*)"\s*$', text) or re.search(r'"([^"]+)"[^"]*$', text)
+            if match:
+                raw_name = match.group(1)
+                decoded = decode_imap_utf7(raw_name)
+                folders.append(f"{decoded!r}  (raw: {raw_name})")
+            else:
+                folders.append(text)
+        except Exception as e:
+            folders.append(repr(item))
+    return folders
 
 
 def decode_data(b, added_encode=None):
@@ -75,9 +154,19 @@ class EmailImap4Receive:
 
     def select(self, selector):
         """
-        选择收件箱（如“INBOX”，如果不知道可以调用showFolders）
+        选择收件箱（如“INBOX”，如果不知道可以调用showFolders）。
+        若 selector 包含非 ASCII 字符（如中文），自动编码为 IMAP 修改版 UTF-7。
         """
-        return self.mail_handler.select(selector)
+        status, folder_data = self.showFolders()
+        logger.info(f"available folders:\n" + "\n".join(decode_folder_list(folder_data)))
+        if isinstance(selector, str):
+            encoded_selector = encode_imap_utf7(selector)
+            logger.info(f"selecting folder: {selector!r} -> encoded: {encoded_selector}")
+        else:
+            encoded_selector = selector
+        result = self.mail_handler.select(encoded_selector)
+        logger.info(f"select result: {result}")
+        return result
 
     def search(self, charset="utf-8", *criteria):
         """

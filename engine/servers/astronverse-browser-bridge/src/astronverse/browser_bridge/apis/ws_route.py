@@ -14,17 +14,17 @@ from fastapi import APIRouter, Depends
 from starlette.websockets import WebSocket
 
 
-def error_to_base_error(e=None) -> BaseException:
-    if isinstance(e, BaseException):
+def error_to_base_error(e=None) -> BizException:
+    if isinstance(e, BizException):
         return e
     elif isinstance(e, WsException):
-        return BaseException(ERROR_FORMAT.format(e), "ERROR_FORMAT error: {}".format(e))
+        return BizException(ERROR_FORMAT.format(e), "ERROR_FORMAT error: {}".format(e))
     else:
-        return BaseException(CODE_INNER, "raw error: {}".format(e))
+        return BizException(CODE_INNER, "raw error: {}".format(e))
 
 
 def error_format(e=None) -> dict:
-    def gen_error_msg(exc: BaseException):
+    def gen_error_msg(exc: BizException):
         logger.error(
             "http_base_exception: code:{} message:{} httpcode:{} error:{}".format(
                 exc.code.code, exc.code.message, exc.code.httpcode, exc.message

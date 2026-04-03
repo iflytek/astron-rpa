@@ -1,8 +1,11 @@
+import type { ITableResponse } from '@/types/normalTable'
+
 import http from './http'
 
 // 邮箱列表
-export function apiGetMailList(params: { pageNo: number, pageSize: number }) {
-  return http.get('/api/robot/taskMail/page/list', params)
+export async function apiGetMailList(params: { pageNo: number, pageSize: number }) {
+  const res = await http.get<ITableResponse<RPA.IMailItem>>('/api/robot/taskMail/page/list', params)
+  return res.data || { records: [], total: 0 }
 }
 
 // 邮箱

@@ -19,6 +19,7 @@ export class CodeEditor implements RPA.Process.TabInstance<string> {
 
   constructor(
     public projectId: string,
+    public projectVersion: number,
     config: RPA.Process.ProcessModule,
   ) {
     this.id = config.resourceId
@@ -29,7 +30,7 @@ export class CodeEditor implements RPA.Process.TabInstance<string> {
   }
 
   async init() {
-    this.state.data = await getProcessPyCode({ robotId: this.projectId, moduleId: this.id })
+    this.state.data = await getProcessPyCode({ robotId: this.projectId, robotVersion: this.projectVersion, moduleId: this.id })
   }
 
   updateState(updates: Partial<CodeEditorState>): void {

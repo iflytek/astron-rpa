@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 export interface IllustrationItem {
   img: string
   text: string
@@ -8,57 +10,57 @@ export const illustrationList: IllustrationItem[][] = [
   [
     {
       img: 'designer-illustration-1',
-      text: '创建自动化应用',
-      desc: '从左侧拖拽原子能力到中间编辑区',
+      text: i18next.t('launch.designer.text'),
+      desc: i18next.t('launch.designer.desc1'),
     },
     {
       img: 'designer-illustration-2',
-      text: '创建自动化应用',
-      desc: '使用元素拾取器捕获一个界面控件',
+      text: i18next.t('launch.designer.text'),
+      desc: i18next.t('launch.designer.desc2'),
     },
     {
       img: 'designer-illustration-3',
-      text: '创建自动化应用',
-      desc: '编辑对应原子能力',
+      text: i18next.t('launch.designer.text'),
+      desc: i18next.t('launch.designer.desc3'),
     },
     {
       img: 'designer-illustration-4',
-      text: '创建自动化应用',
-      desc: '点击运行查看应用完整执行过程',
+      text: i18next.t('launch.designer.text'),
+      desc: i18next.t('launch.designer.desc4'),
     },
   ],
   [
     {
       img: 'actuator-illustration-1',
-      text: '通过执行器新建计划任务',
-      desc: '选择单个或多个应用',
+      text: i18next.t('launch.actuator.text'),
+      desc: i18next.t('launch.actuator.desc1'),
     },
     {
       img: 'actuator-illustration-2',
-      text: '通过执行器新建计划任务',
-      desc: '选择触发方式',
+      text: i18next.t('launch.actuator.text'),
+      desc: i18next.t('launch.actuator.desc2'),
     },
     {
       img: 'actuator-illustration-3',
-      text: '通过执行器新建计划任务',
-      desc: '执行器调用应用运行',
+      text: i18next.t('launch.actuator.text'),
+      desc: i18next.t('launch.actuator.desc3'),
     },
     {
       img: 'actuator-illustration-4',
-      text: '通过执行器新建计划任务',
-      desc: '执行记录页面查看执行记录：完整日志和录屏',
+      text: i18next.t('launch.actuator.text'),
+      desc: i18next.t('launch.actuator.desc4'),
     },
   ],
   [
     {
       img: 'market-illustration-1',
-      text: '团队应用共享',
-      desc: '支持发布应用至指定团队市场，实现共享',
+      text: i18next.t('launch.market.text1'),
+      desc: i18next.t('launch.market.desc1'),
     },
     {
       img: 'market-illustration-2',
-      text: '获取共享应用',
-      desc: '可获取进行二次开发，也可获取直接运行',
+      text: i18next.t('launch.market.text2'),
+      desc: i18next.t('launch.market.desc2'),
     },
   ],
 ]

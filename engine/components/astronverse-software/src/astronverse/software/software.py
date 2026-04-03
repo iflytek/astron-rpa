@@ -8,14 +8,11 @@ import time
 import warnings
 
 import psutil
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.logger import logger
 from astronverse.software.core import ISoftwareCore
 from astronverse.software.error import *
-from astronverse.software.error import (
-    BaseException as SoftwareBaseException,
-)
 
 if sys.platform == "win32":
     from astronverse.software.core_win import SoftwareCore
@@ -40,7 +37,7 @@ class Software:
                     params={"filters": []},
                 ),
             ),
-            atomicMg.param("app_arguments", required=False, level=AtomicLevel.ADVANCED),
+            atomicMg.param("app_arguments", required=False),
         ],
         outputList=[atomicMg.param("software_open", types="Str")],
     )
@@ -53,7 +50,7 @@ class Software:
         """
 
         if not os.path.exists(app_absolute_path):
-            raise SoftwareBaseException(
+            raise BizException(
                 INVALID_APP_PATH_ERROR_CODE.format(app_absolute_path),
                 "填写的应用程序路径有误，请输入正确的路径！",
             )
@@ -92,7 +89,7 @@ class Software:
         """
 
         if not os.path.exists(app_absolute_path):
-            raise SoftwareBaseException(
+            raise BizException(
                 INVALID_APP_PATH_ERROR_CODE.format(app_absolute_path),
                 "填写的应用程序路径有误，请输入正确的路径！",
             )
@@ -125,8 +122,8 @@ class Software:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-        except (subprocess.SubprocessError, OSError) as error:
-            logger.error(f"error: Software close {error}")
+        except Exception as e:
+            logger.error(f"error: Software close {e}")
             return
 
     @staticmethod
@@ -159,7 +156,7 @@ class Software:
                 for parent in process.parents():
                     if parent.name() == parent_name:
                         return process.pid
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            except Exception as e:
                 pass
         return -1
 

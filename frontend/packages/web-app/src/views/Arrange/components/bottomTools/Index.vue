@@ -4,11 +4,13 @@ import { computed, toValue } from 'vue'
 import { BOTTOM_BOOTLS_HEIGHT_SIZE_MIN } from '@/constants'
 
 import { useProvideToolsStore } from './store'
+import { useToolsCustomComp } from '../tools/hooks/useToolsCustomComp.ts'
 
 const props = defineProps<{ height: number }>()
 const collapsed = defineModel('collapsed', { type: Boolean, default: false })
 
 const { moduleType, activeKey, activeTab, tabs } = useProvideToolsStore()
+const customCompSetting = useToolsCustomComp()
 
 // 内容的最大高度
 const contentHeight = computed(() => {
@@ -37,12 +39,25 @@ function expand(bool: boolean) {
           <rpa-hint-icon
             v-if="!activeTab.hideCollapsed"
             name="caret-down-small"
-            :title="collapsed ? '展开' : '收起'"
+            :title="collapsed ? $t('common.expand') : $t('common.collapse')"
             class="ml-1"
             :class="[collapsed ? '-rotate-180' : 'rotate-0']"
             enable-hover-bg
             @click="() => expand(!collapsed)"
           />
+          <rpa-hint-icon
+            v-if="customCompSetting.show && activeKey === 'config-params'"
+            :name="customCompSetting.icon"
+            :disabled="(customCompSetting.disable as boolean)"
+            :title="$t(customCompSetting.title as string)"
+            class="ml-4"
+            enable-hover-bg
+            @click="customCompSetting.clickFn"
+          >
+            <template #suffix>
+              <span class="ml-1">{{ $t(customCompSetting.title as string) }}</span>
+            </template>
+          </rpa-hint-icon>
         </div>
       </template>
       <a-tab-pane v-for="item in tabs" :key="item.key" class="z-0">

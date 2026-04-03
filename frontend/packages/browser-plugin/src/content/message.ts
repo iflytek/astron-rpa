@@ -1,4 +1,4 @@
-import { ASTRON_SW_NAME } from './constant'
+import { ASTRON_SW_NAME } from '../common/constant'
 
 function isExtensionContextValid() {
   try {

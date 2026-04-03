@@ -14,7 +14,7 @@ export async function getTeams() {
  * @description: 获取全部应用列表
  */
 export async function getAppCards(data) {
-  const res = await http.post<ITableResponse>('/api/robot/market-resource/get-all-app-list', data)
+  const res = await http.post<ITableResponse>('/api/robot/market-resource/get-all-app-list', { ...data, appType: 'robot' })
   return res.data || { records: [], total: 0 }
 }
 

@@ -3,7 +3,7 @@ import { Button, message, Tooltip } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
 import type { Ref } from 'vue'
-import { computed, h, ref } from 'vue'
+import { h, ref } from 'vue'
 
 import $loading from '@/utils/globalLoading'
 
@@ -50,7 +50,7 @@ export function useProjectOperate(
       resizable: true,
       customRender: ({ record }) => (
         <div class="flex items-center gap-2 overflow-hidden w-full">
-          <Tooltip title={`ID：${record.robotId}`}>
+          <Tooltip title={t('common.idWithColon', { id: record.robotId })}>
             <span class="truncate flex-1">{ record.robotName }</span>
           </Tooltip>
           {currHoverId.value === record.robotId && (
@@ -176,7 +176,7 @@ export function useProjectOperate(
   function handleEdit(editObj: AnyObj) {
     const { robotId, robotName, version, editEnable } = editObj
     if (!editEnable) {
-      message.info('当前应用未开放源码，无法进行编辑，升级账户后可获得编辑权限')
+      message.info(t('common.sourceNotOpenEditDisabled'))
       return
     }
     useRoutePush({ name: ARRANGE, query: { projectId: robotId, projectName: robotName, projectVersion: version } })
@@ -191,13 +191,19 @@ export function useProjectOperate(
           authType: appInfo.value.appAuthType,
           trigger: 'modal',
           modalConfirm: {
-            title: '已达到应用数量上限',
-            content: userStore.currentTenant?.tenantType === 'personal' ? `个人版设计器最多可编辑19个应用，您已满额。` : `专业版设计器最多可编辑99个应用，您已满额。`,
-            okText: userStore.currentTenant?.tenantType === 'personal' ? '升级至专业版' : '升级至企业版',
-            cancelText: '我知道了',
+            title: t('designerManage.limitReachedTitle'),
+            content: userStore.currentTenant?.tenantType === 'personal'
+              ? t('designerManage.personalLimitReachedContent')
+              : t('designerManage.proLimitReachedContent'),
+            okText: userStore.currentTenant?.tenantType === 'personal'
+              ? t('designerManage.upgradeToPro')
+              : t('designerManage.upgradeToEnterprise'),
+            cancelText: t('designerManage.gotIt'),
           },
           consult: {
-            consultTitle: userStore.currentTenant?.tenantType === 'personal' ? '专业版咨询' : '企业版咨询',
+            consultTitle: userStore.currentTenant?.tenantType === 'personal'
+              ? t('designerManage.consultProTitle')
+              : t('designerManage.consultEnterpriseTitle'),
             consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
             consultType: 'consult',
           },
@@ -237,14 +243,14 @@ export function useProjectOperate(
   // 分享
   function shareToMarket(editObj: AnyObj) {
     if (editObj.publishStatus === ROBOT_EDITING) {
-      message.info('应用编辑中暂不支持分享')
+      message.info(t('market.notSupportShareWhileEditing'))
       return
     }
-    $loading.open({ msg: '加载中...' })
+    $loading.open({ msg: t('loading') })
     getTeams().then((data) => {
       $loading.close()
       if (!(data && data.length > 0)) {
-        message.warning('暂无团队，请先创建或加入团队')
+        message.warning(t('market.noTeamJoinTip'))
         return
       }
 

@@ -24,7 +24,8 @@ const instanceId = `var-value-${Date.now()}-${Math.random().toString(36).slice(2
 function safeParse(str) {
   try {
     return JSON.parse(str)
-  } catch {
+  }
+  catch {
     return str
   }
 }

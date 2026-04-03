@@ -1,27 +1,23 @@
-import { useAsyncState, useLocalStorage } from '@vueuse/core'
+import { NiceModal } from '@rpa/components'
+import type { IAppConfig, UpdateInfo } from '@rpa/shared/platform'
+import { useAsyncState } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-import type { IAppConfig, UpdateInfo } from '@rpa/shared/platform'
-import { NiceModal } from '@rpa/components'
 
 import { checkBrowerPlugin, getSupportBrowser } from '@/api/plugin'
+import { UpdaterModal } from '@/components/Updater'
 import type { PLUGIN_ITEM } from '@/constants/plugin'
 import { BROWER_PLUGIN_LIST } from '@/constants/plugin'
 import { updaterManager, utilsManager } from '@/platform'
-import { UpdaterModal } from '@/components/Updater'
-import { CLOSE_UPDATE_MODAL_VERSION } from '@/constants'
 
 const ENV = import.meta.env
 
 interface UpdaterState extends UpdateInfo {
-  checkLoading: boolean, // 检查更新loading
+  checkLoading: boolean // 检查更新loading
 }
 
 // app config 信息
 export const useAppConfigStore = defineStore('appConfig', () => {
-  // 关闭更新提示弹窗的版本号
-  const closeUpdateModalVersion = useLocalStorage<string[]>(CLOSE_UPDATE_MODAL_VERSION, [])
-
   const updaterState = reactive<UpdaterState>({
     couldUpdate: false, // 是否需要更新
     downloaded: false, // 是否下载完成
@@ -101,7 +97,7 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   /**
    * 检查更新
    * @param manualCheck 是否手动检查更新
-   * @returns 
+   * @returns
    */
   const checkUpdate = async (manualCheck = false) => {
     if (updaterState.checkLoading)
@@ -123,7 +119,7 @@ export const useAppConfigStore = defineStore('appConfig', () => {
   }
 
   const showUpdaterModal = () => {
-    const needUpdate = updaterState.couldUpdate && updaterState.downloaded;
+    const needUpdate = updaterState.couldUpdate && updaterState.downloaded
     const latestVersion = needUpdate ? updaterState.manifest?.version : appInfo.value.appVersion
 
     NiceModal.show(UpdaterModal, {
@@ -135,21 +131,6 @@ export const useAppConfigStore = defineStore('appConfig', () => {
 
   const onUpdaterDownloaded = () => {
     updaterState.downloaded = true
-
-    // 下载完成后，如果新的版本已经被拒绝更新，则不提示
-    if (closeUpdateModalVersion.value.includes(updaterState.manifest?.version)) {
-      console.log('新的版本已经被拒绝更新，不提示')
-      return
-    }
-
-    showUpdaterModal()
-  }
-
-  // 拒绝更新
-  const rejectUpdate = (version: string) => {
-    if (!closeUpdateModalVersion.value.includes(version)) {
-      closeUpdateModalVersion.value.push(version)
-    }
   }
 
   return {
@@ -162,7 +143,6 @@ export const useAppConfigStore = defineStore('appConfig', () => {
     checkUpdate,
     quitAndInstall,
     showUpdaterModal,
-    rejectUpdate,
     refreshBrowserPluginStatus,
     onUpdaterDownloaded,
   }

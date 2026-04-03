@@ -14,6 +14,12 @@ from astronverse.encrypt import (
     MD5bitsType,
     SHAType,
 )
+from astronverse.encrypt.error import (
+    BizException,
+    ENCRYPT_OBJECT_EMPTY_ERROR,
+    DECRYPT_OBJECT_EMPTY_ERROR,
+    STRING_TYPE_REQUIRED_ERROR,
+)
 from Cryptodome.Cipher import AES
 
 
@@ -87,9 +93,9 @@ class EncryptCore:  # pylint: disable=too-few-public-methods
             return value.encode("utf-8")
 
         if not source_str:
-            raise ValueError("加密对象不能为空!")
+            raise BizException(ENCRYPT_OBJECT_EMPTY_ERROR, "加密对象不能为空")
         if not isinstance(source_str, str):  # 防御式
-            raise ValueError("请提供字符串类型对象！")
+            raise BizException(STRING_TYPE_REQUIRED_ERROR, "请提供字符串类型对象")
 
         password = str(password)
         iv = password
@@ -107,9 +113,9 @@ class EncryptCore:  # pylint: disable=too-few-public-methods
             return value.encode("utf-8")
 
         if not source_str:
-            raise ValueError("解密对象不能为空!")
+            raise BizException(DECRYPT_OBJECT_EMPTY_ERROR, "解密对象不能为空")
         if not isinstance(source_str, str):
-            raise ValueError("请提供字符串类型对象！")
+            raise BizException(STRING_TYPE_REQUIRED_ERROR, "请提供字符串类型对象")
 
         password = str(password)
         iv = password

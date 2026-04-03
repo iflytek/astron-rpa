@@ -153,12 +153,12 @@ class Atomic(Node):
                 elif key == "__retry_time__":
                     try:
                         info["retry_time"] = int(param.value)
-                    except (ValueError, TypeError):
+                    except Exception:
                         pass
                 elif key == "__retry_interval__":
                     try:
                         info["retry_interval"] = float(param.value)
-                    except (ValueError, TypeError):
+                    except Exception as e:
                         pass
         return info
 
@@ -203,8 +203,6 @@ class Atomic(Node):
                 continue  # 这些由外层处理，不传给 atomic_run
             else:
                 modified_arguments.append(param.show())
-        # 添加标记，告诉 atomic_run 跳过 START 上报
-        modified_arguments.append("__in_external_retry__=True")
 
         # 生成函数调用代码
         src = self.token.value.get("src")
@@ -274,7 +272,6 @@ class Atomic(Node):
                 continue
             else:
                 modified_arguments.append(param.show())
-        modified_arguments.append("__in_external_retry__=True")
 
         # 生成函数调用代码
         src = self.token.value.get("src")
@@ -296,6 +293,10 @@ class Atomic(Node):
 
         # 4. except:
         code_lines.append(CodeLine(tab_num, f"except Exception as __e{uid}:", 0))
+
+        # 4.1 给输出参数赋 None，避免后续引用未定义变量
+        for r in self.__returned__:
+            code_lines.append(CodeLine(tab_num + 1, f"{r.show()} = None", 0))
 
         # 5. SKIP 上报（不 raise，继续执行）
         code_lines.append(

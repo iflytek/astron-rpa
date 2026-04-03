@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
 import { replaceMiddle } from '@/utils/common'
 
@@ -21,6 +22,8 @@ const props = withDefaults(defineProps<Props>(), {
   canEdit: true,
 })
 
+const { t } = useTranslation()
+
 const isFolder = computed(() => {
   return props.itemData.formType?.params?.file_type === 'folder'
 })
@@ -29,7 +32,7 @@ const fileText = computed(() => {
   if (props.desc !== DEFAULT_DESC_TEXT) {
     return props.desc
   }
-  return isFolder.value ? '选择文件夹' : '选择文件'
+  return isFolder.value ? t('common.selectFolder') : t('common.selectFile')
 })
 
 function handleClick() {

@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 import About from './components/about.vue'
 import ApiKeyManage from './components/apiKeyManage/index.vue'
 import CommonSetting from './components/commonSetting/index.vue'
-// import MsgNotify from './components/msgNotify.vue'
+import MsgNotify from './components/msgNotify.vue'
 import PluginInstall from './components/pluginInstall/index.vue'
 import ShortCut from './components/shortCut/index.vue'
 import VideoSetting from './components/videoSetting.vue'
@@ -36,12 +36,12 @@ export const menuConfig: MenuItem[] = [
     name: 'runRecording',
     component: VideoSetting,
   },
-  // {
-  //   key: 'msgNotify',
-  //   icon: 'message',
-  //   name: 'notification',
-  //   component: MsgNotify,
-  // },
+  {
+    key: 'msgNotify',
+    icon: 'message',
+    name: 'notification',
+    component: MsgNotify,
+  },
   {
     key: 'shortcut',
     icon: 'shortcut-key',
@@ -70,38 +70,38 @@ export const menuConfig: MenuItem[] = [
 
 export const videoRunOption = [
   {
-    label: '每次运行',
+    label: 'settingCenter.runRecord.always',
     value: 'always',
   },
   {
-    label: '运行失败',
+    label: 'settingCenter.runRecord.onFail',
     value: 'fail',
   },
 ]
 
 export const videoTimeOption = [
   {
-    label: '最后30秒',
+    label: 'settingCenter.runRecord.last30s',
     value: 30,
   },
   {
-    label: '最后1分钟',
+    label: 'settingCenter.runRecord.last1m',
     value: 60,
   },
   {
-    label: '最后5分钟',
+    label: 'settingCenter.runRecord.last5m',
     value: 300,
   },
   {
-    label: '最后10分钟',
+    label: 'settingCenter.runRecord.last10m',
     value: 600,
   },
   {
-    label: '最后30分钟',
+    label: 'settingCenter.runRecord.last30m',
     value: 1800,
   },
   {
-    label: '全部',
+    label: 'settingCenter.runRecord.all',
     value: 0,
   },
 ]

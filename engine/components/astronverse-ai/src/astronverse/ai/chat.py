@@ -11,7 +11,7 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsIt
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import LLMModelTypes
 from astronverse.ai.api.llm import DEFAULT_MODEL, chat_normal, chat_streamable
-from astronverse.ai.error import *
+from astronverse.ai.error import BizException, ERROR_FORMAT, UNSUPPORTED_FILE_TYPE_ERROR_FORMAT
 from astronverse.ai.prompt.g_chat import prompt_generate_question
 from astronverse.ai.utils.extract import FileExtractor
 from astronverse.ai.utils.str import replace_keyword
@@ -64,7 +64,7 @@ class ChatAI:
         ],
         outputList=[atomicMg.param("single_chat_res", types="Str")],
     )
-    def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DS_CHAT, custom_model: str = "") -> str:
+    def single_turn_chat(query: str, model: LLMModelTypes = LLMModelTypes.DEEPSEEK_V3_2, custom_model: str = "") -> str:
         """
         单轮对话方法
         Args:
@@ -98,7 +98,7 @@ class ChatAI:
         is_save: bool,
         title: str,
         max_turns: int,
-        model: LLMModelTypes = LLMModelTypes.DS_CHAT,
+        model: LLMModelTypes = LLMModelTypes.DEEPSEEK_V3_2,
         custom_model: str = "",
     ) -> dict:
         """
@@ -110,6 +110,11 @@ class ChatAI:
         Return:
             `dict`, 选择导出的记录
         """
+
+        if model == LLMModelTypes.CUSTOM_MODEL and custom_model:
+            model = custom_model
+        else:
+            model = model.value
 
         done = threading.Event()
         res = {}
@@ -129,13 +134,13 @@ class ChatAI:
                 "max_turns": str(max_turns),
                 "is_save": str(int(is_save)),
                 "title": title,
-                "model": model.value,
+                "model": model,
             }
             ws.send_reply({"data": {"name": "multichat", "params": params, "height": 600}}, 600, callback_func)
 
         done.wait()
         if res_e:
-            raise Exception(res_e)
+            raise BizException(ERROR_FORMAT.format(res_e), str(res_e))
 
         return res
 
@@ -149,7 +154,9 @@ class ChatAI:
         elif "docx" in extension.lower():
             return FileExtractor.extract_docx(file_path)
         else:
-            raise NotImplementedError(f"Not support file type：{extension}")
+            raise BizException(
+                UNSUPPORTED_FILE_TYPE_ERROR_FORMAT.format(extension), f"Not support file type：{extension}"
+            )
 
     @staticmethod
     def _generate_questions(file_content: str) -> list:
@@ -163,7 +170,7 @@ class ChatAI:
 
         try:
             output = ast.literal_eval(s_content)
-        except (ValueError, SyntaxError):
+        except Exception as e:
             output = [
                 "这篇文本的主题是什么？",
                 "文本中提到了哪些关键信息?",
@@ -257,7 +264,7 @@ class ChatAI:
             os.remove(dest_file)
 
         if res_e:
-            raise Exception(res_e)
+            raise BizException(ERROR_FORMAT.format(res_e), str(res_e))
         return res
 
     @staticmethod

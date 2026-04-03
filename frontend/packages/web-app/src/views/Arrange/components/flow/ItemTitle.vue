@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue'
 import { computed } from 'vue'
 
 import { ATOM_KEY_MAP } from '@/constants/atom'
-import { template } from 'lodash-es';
 
 const props = defineProps<{ item: RPA.Atom }>()
+
+const { t } = useTranslation()
 
 const isGroup = computed(() => {
   return props.item.key === ATOM_KEY_MAP.Group || props.item.key === ATOM_KEY_MAP.GroupEnd
@@ -27,12 +29,12 @@ const displayText = computed(() => {
 })
 
 const groupSuffix = computed(() => {
-  return isGroupStart.value ? '编组开始' : '编组结束'
+  return isGroupStart.value ? t('groupStart') : t('groupEnd')
 })
 </script>
 
 <template>
-  <div class="inline font-medium">
+  <div class="inline font-semibold">
     <rpa-hint-icon
       v-if="iconName"
       :name="iconName"

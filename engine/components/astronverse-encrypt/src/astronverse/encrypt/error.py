@@ -1,19 +1,11 @@
-"""本组件加密相关错误与错误码定义。
-
-避免直接覆盖内置 `BaseException`，使用别名导入。
-"""
-
-from astronverse.baseline.error.error import BaseException as CoreBaseException
-from astronverse.baseline.error.error import BizCode, ErrorCode
+from astronverse.baseline.error.error import BizException, BizCode, ErrorCode
 from astronverse.baseline.i18n.i18n import _
 
-BaseException = CoreBaseException
+BizException = BizException
 
-__all__ = [
-    "MSG_EMPTY_FORMAT",
-    "BizCode",
-    "CoreBaseException",
-    "ErrorCode",
-]
+FILE_NOT_FOUND: ErrorCode = ErrorCode(BizCode.LocalErr, _("图片文件不存在!"))
 
-MSG_EMPTY_FORMAT: ErrorCode = ErrorCode(BizCode.LocalErr, _("消息为空") + ": {}")
+# 加密/解密特定错误
+ENCRYPT_OBJECT_EMPTY_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("加密对象不能为空"))
+DECRYPT_OBJECT_EMPTY_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("解密对象不能为空"))
+STRING_TYPE_REQUIRED_ERROR: ErrorCode = ErrorCode(BizCode.LocalErr, _("请提供字符串类型对象"))

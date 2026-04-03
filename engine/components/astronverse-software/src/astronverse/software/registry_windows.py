@@ -16,16 +16,16 @@ class WindowsRegistryManager:
             registry_handle = win32con.HKEY_CURRENT_USER
         try:
             self.registry_handle = win32api.RegOpenKeyEx(registry_handle, registry_key_path, 0, access)
-        except OSError:
+        except Exception as e:
             # 可预见错误，没有就创建
             try:
                 self.registry_handle = win32api.RegCreateKey(registry_handle, registry_key_path)
-            except OSError as error:
-                raise OSError(f"RegCreateKey error {error}") from error
+            except Exception as error:
+                raise Exception(f"RegCreateKey error {error}") from error
 
     def __getattr__(self, name):
         if name[0] == "_":
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+            raise Exception(f"'{self.__class__.__name__}' object has no attribute '{name}'")
         return self.__class__(name, self.registry_handle, self.mode)
 
     def __setattr__(self, name, value):
@@ -40,8 +40,8 @@ class WindowsRegistryManager:
             if types == win32con.REG_MULTI_SZ:
                 return tuple(value)
             return value
-        except OSError as error:
-            raise OSError(f"RegQueryValueEx error {error}") from error
+        except Exception as error:
+            raise Exception(f"RegQueryValueEx error {error}") from error
 
     def __setitem__(self, name, value):
         try:
@@ -58,8 +58,8 @@ class WindowsRegistryManager:
                 )
             else:
                 win32api.RegSetValueEx(self.registry_handle, name, None, win32con.REG_SZ, str(value))
-        except OSError as error:
-            raise OSError(f"RegSetValueEx error {error}") from error
+        except Exception as error:
+            raise Exception(f"RegSetValueEx error {error}") from error
 
     def __del__(self):
         if self.registry_handle is not None:

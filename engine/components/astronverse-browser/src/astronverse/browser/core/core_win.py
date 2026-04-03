@@ -2,7 +2,7 @@ import os
 import time
 from typing import Any
 from astronverse.browser import BROWSER_UIA_WINDOW_CLASS, BROWSER_REGISTER_NAME, BROWSER_UIA_POINT_CLASS
-from astronverse.browser.error import DOWNLOAD_WINDOW_NO_FIND, UPLOAD_WINDOW_NO_FIND
+from astronverse.browser.error import DOWNLOAD_WINDOW_NO_FIND, UPLOAD_WINDOW_NO_FIND, BizException, DOWNLOAD_TIMEOUT
 
 
 class BrowserCore:
@@ -119,7 +119,7 @@ class BrowserCore:
                 time.sleep(3)
                 break
         if dialog == 0:
-            raise BaseException(DOWNLOAD_WINDOW_NO_FIND, "未弹出下载窗口")
+            raise BizException(DOWNLOAD_WINDOW_NO_FIND, "未弹出下载窗口")
 
         # 查找到edit， button
         button = win32gui.FindWindowEx(dialog, 0, "Button", "保存(S)")
@@ -170,7 +170,7 @@ class BrowserCore:
                         break
                     time.sleep(3)
                 if wait_time_download <= 0 and not os.path.exists(dest_path):
-                    raise Exception("等待下载完成超时")
+                    raise BizException(DOWNLOAD_TIMEOUT, "等待下载完成超时")
         return dest_path
 
     @staticmethod
@@ -194,7 +194,7 @@ class BrowserCore:
                 time.sleep(3)
                 break
         if dialog == 0:
-            raise BaseException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
+            raise BizException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
 
         button = win32gui.FindWindowEx(dialog, 0, "Button", "打开(O)")  # 四级
 

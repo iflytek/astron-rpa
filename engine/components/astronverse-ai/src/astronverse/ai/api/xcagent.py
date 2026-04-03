@@ -6,6 +6,7 @@ import os
 
 import requests
 from astronverse.baseline.logger.logger import logger
+from astronverse.ai.error import BizException, FILE_NOT_FOUND_ERROR_FORMAT
 
 
 class xcAgent:  # pylint: disable=invalid-name
@@ -121,7 +122,7 @@ class xcAgent:  # pylint: disable=invalid-name
     def upload_file(self, file_path):
         # 检查文件是否存在
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"文件不存在: {file_path}")
+            raise BizException(FILE_NOT_FOUND_ERROR_FORMAT.format(file_path), f"文件不存在: {file_path}")
 
         file_name = os.path.basename(file_path)
 
@@ -144,18 +145,6 @@ class xcAgent:  # pylint: disable=invalid-name
                 response.raise_for_status()
                 logger.info(f"上传成功: {response.json()}")
                 return response
-
-            except requests.exceptions.RequestException as e:
+            except Exception as e:
                 logger.info(f"上传失败: {e}")
-                raise
-
-
-if __name__ == "__main__":
-    api_key = "20xxxxxxxxxxxx0083741"
-    api_secret = "ZjcxxxxxxxxxxxUyNjI2"
-    agent = xcAgent(api_key, api_secret)
-    inputs = [
-        {"key": "AGENT_USER_INPUT", "value": "value1", "type": "string"},
-        {"key": "nihao", "value": r"C:\Users\xxxx\Downloads\中环项目运行问题.pdf", "type": "file"},
-    ]
-    agent.run_astron_flow("735xxxxxxx170", False, inputs)
+                raise e

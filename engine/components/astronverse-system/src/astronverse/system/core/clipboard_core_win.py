@@ -39,8 +39,8 @@ class ClipBoardCore(IClipBoardCore):
         try:
             file_list = cp.GetClipboardData(cp.CF_HDROP)
         except TypeError as e:
-            raise BaseException(
-                CONTENT_TYPE_ERROR_FORMAT,
+            raise BizException(
+                CONTENT_TYPE_ERROR,
                 "剪切板中内容为文本内容，请检查剪切板内容及获取类型设置是否正确",
             )
         file_path = file_list[0]
@@ -89,7 +89,7 @@ class ClipBoardCore(IClipBoardCore):
             cp.CloseClipboard()
 
         if html_data:
-            html_fragment = ClipBoardCoreWin.__extract_html_fragment__(html_data)
+            html_fragment = ClipBoardCore.__extract_html_fragment__(html_data)
             if html_fragment:
                 # 正则表达式模式，匹配 src=" 和 " 之间的内容
                 pattern = r'src="file:///(.*?\.(?:jpg|png|gif))"'

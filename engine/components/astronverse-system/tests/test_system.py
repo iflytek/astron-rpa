@@ -72,7 +72,7 @@ class TestSystem(TestCase):
         """测试屏幕截图 - 文件夹不存在且设置为错误"""
         non_existent_dir = os.path.join(self.temp_dir, "non_existent")
 
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             System.screen_shot(
                 png_path=non_existent_dir,
                 state_type=StateType.ERROR,

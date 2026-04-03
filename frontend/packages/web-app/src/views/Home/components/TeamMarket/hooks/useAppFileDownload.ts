@@ -1,5 +1,7 @@
-import { ref } from 'vue'
 import { to } from 'await-to-js'
+import { ref } from 'vue'
+
+import i18next from '@/plugins/i18next'
 
 import { appendixDownload, cancelAppendixDownload } from '@/api/market'
 import { utilsManager } from '@/platform'
@@ -50,7 +52,7 @@ export function useAppFileDownload() {
     item.percent = 0
     item.status = AppFileStatus.normal
     const res = await utilsManager.showDialog({
-      title: '选择保存文件目录',
+      title: i18next.t('common.selectSaveDirectory'),
       properties: ['openDirectory'],
     })
     startProgress(item)

@@ -33,8 +33,6 @@ class FirefoxPluginManager(PluginManagerCore):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-        except subprocess.CalledProcessError:
-            pass
         except Exception as e:
             pass
 

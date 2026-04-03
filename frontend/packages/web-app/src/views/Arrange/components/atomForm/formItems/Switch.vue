@@ -24,10 +24,10 @@ const handleChange = (value: boolean) => {
 <template>
   <a-switch
     :checked="selectValue"
-    :checked-value="props.item?.options[0].value"
-    :un-checked-value="props.item?.options[1].value"
-    :checked-children="props.item?.options[0].label"
-    :un-checked-children="props.item?.options[1].label"
+    :checked-value="props.item?.options?.[0]?.value"
+    :un-checked-value="props.item?.options?.[1]?.value"
+    :checked-children="props.item?.options?.[0]?.label"
+    :un-checked-children="props.item?.options?.[1]?.label"
     @update:checked="handleChange"
   />
 </template>

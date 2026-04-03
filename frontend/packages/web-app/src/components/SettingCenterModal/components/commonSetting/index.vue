@@ -6,6 +6,7 @@ import useUserSettingStore from '@/stores/useUserSetting'
 import LanguageCheck from './languageCheck.vue'
 import PanelCard from './panelCard.vue'
 import ThemeCheck from './themeCheck.vue'
+import MailPanel from './MailPanel.vue'
 
 const panelOption = ref([
   {
@@ -68,5 +69,6 @@ watch(
         (value) => useUserSettingStore().changeCommonConfig(panel.key, value)
       "
     />
+    <MailPanel />
   </div>
 </template>

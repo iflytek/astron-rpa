@@ -3,6 +3,17 @@ from typing import Any, Union
 
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
+from astronverse.trigger.error import (
+    BizException,
+    FREQUENCY_FLAG_REQUIRED,
+    FREQUENCY_NOT_IMPLEMENTED,
+    FREQUENCY_OPTION_INVALID,
+    HOUR_INVALID,
+    MINUTE_INVALID,
+    MONTH_INVALID,
+    TIME_PARAMS_REQUIRED,
+    WEEK_INVALID,
+)
 from pydantic import BaseModel, field_validator, model_validator
 
 
@@ -44,7 +55,7 @@ class FrequencyMinutes(BaseModel):
     def check_valid_m(cls, m):
         valid_minutes = range(0, 60)
         if int(m) not in valid_minutes:
-            raise ValueError(f"{m} is not a valid minute of the time")
+            raise BizException(MINUTE_INVALID, f"{m} 不是有效的分钟值")
         return int(m)
 
     def to_crontab(self):
@@ -64,15 +75,15 @@ class FrequencyHours(BaseModel):
         h = int(values.get("hours"))
 
         if m is None or h is None:
-            raise ValueError("'Minutes' and 'Hours' must be set.")
+            raise BizException(TIME_PARAMS_REQUIRED, "分钟和小时参数必须设置")
 
         # validate minute
         if m not in range(0, 60):
-            raise ValueError(f"{m} is not a valid minute, must be between 0 and 59.")
+            raise BizException(MINUTE_INVALID, f"{m} 不是有效的分钟值，必须在0-59之间")
 
         # validate hours
         if h not in range(0, 25):
-            raise ValueError(f"{h} is not a valid hours, must be between 0 and 23.")
+            raise BizException(HOUR_INVALID, f"{h} 不是有效的小时值，必须在0-23之间")
 
         return values
 
@@ -93,15 +104,15 @@ class FrequencyDays(BaseModel):
         h = int(values.get("hours"))
 
         if m is None or h is None:
-            raise ValueError("'Minutes' and 'Hours' must be set.")
+            raise BizException(TIME_PARAMS_REQUIRED, "分钟和小时参数必须设置")
 
         # validate minute
         if m not in range(0, 60):
-            raise ValueError(f"{m} is not a valid minute, must be between 0 and 59.")
+            raise BizException(MINUTE_INVALID, f"{m} 不是有效的分钟值，必须在0-59之间")
 
         # validate hours
         if h not in range(0, 25):
-            raise ValueError(f"{h} is not a valid hours, must be between 0 and 23.")
+            raise BizException(HOUR_INVALID, f"{h} 不是有效的小时值，必须在0-23之间")
 
         return values
 
@@ -124,19 +135,19 @@ class FrequencyWeeks(BaseModel):
         ws = values.get("weeks")
 
         if m is None or h is None or ws is None:
-            raise ValueError("'Minutes' and 'Hours' and 'Weeks' must be set.")
+            raise BizException(TIME_PARAMS_REQUIRED, "分钟、小时和星期参数必须设置")
 
         # validate minute
         if m not in range(0, 60):
-            raise ValueError(f"{m} is not a valid minute, must be between 0 and 59.")
+            raise BizException(MINUTE_INVALID, f"{m} 不是有效的分钟值，必须在0-59之间")
 
         # validate hours
         if h not in range(0, 25):
-            raise ValueError(f"{h} is not a valid hours, must be between 0 and 23.")
+            raise BizException(HOUR_INVALID, f"{h} 不是有效的小时值，必须在0-23之间")
 
         # validate weeks
         if not all(int(w) in range(0, 7) for w in ws):
-            raise ValueError(f"{ws} is not a valid weeks. Must be between 0 and 6.")
+            raise BizException(WEEK_INVALID, f"{ws} 不是有效的星期值，必须在0-6之间")
 
         return values
 
@@ -162,23 +173,23 @@ class FrequencyMonths(BaseModel):
         ms = values.get("months")
 
         if m is None or h is None or ws is None or ms is None:
-            raise ValueError("'Minutes' and 'Hours' and 'Weeks' and 'Months' must be set.")
+            raise BizException(TIME_PARAMS_REQUIRED, "分钟、小时、星期和月份参数必须设置")
 
         # validate minute
         if m not in range(0, 60):
-            raise ValueError(f"{m} is not a valid minute, must be between 0 and 59.")
+            raise BizException(MINUTE_INVALID, f"{m} 不是有效的分钟值，必须在0-59之间")
 
         # validate hours
         if h not in range(0, 25):
-            raise ValueError(f"{h} is not a valid hours, must be between 0 and 23.")
+            raise BizException(HOUR_INVALID, f"{h} 不是有效的小时值，必须在0-23之间")
 
         # validate weeks
         if not all(int(w) in range(0, 7) for w in ws):
-            raise ValueError(f"{ws} is not a valid weeks, must be between 0 and 6.")
+            raise BizException(WEEK_INVALID, f"{ws} 不是有效的星期值，必须在0-6之间")
 
         # validate months
         if not all(int(m) in range(1, 13) for m in ms):
-            raise ValueError(f"{ms} is not a valid months, must be between 1 and 12.")
+            raise BizException(MONTH_INVALID, f"{ms} 不是有效的月份值，必须在1-12之间")
 
         return values
 
@@ -218,7 +229,7 @@ class ScheduledTask:
         self.f = kwargs.get("frequency_flag")  # 该f用于控制调度的频率
         self._end_time: str = end_time
         if not self.f:
-            raise Exception
+            raise BizException(FREQUENCY_FLAG_REQUIRED, "频率标识不能为空")
 
         self._init_f_model(kwargs)
 
@@ -237,7 +248,7 @@ class ScheduledTask:
         }
         fm = m.get(self.f)
         if not fm:
-            raise Exception("该选择正确的频次选项")
+            raise BizException(FREQUENCY_OPTION_INVALID, "请选择正确的频次选项")
 
         self.f_model = params_filter(kwargs, fm)
 
@@ -304,6 +315,6 @@ class ScheduledTask:
             }
             trigger = CronTrigger(end_date=self._end_time, **_datetime)
         else:
-            raise NotImplementedError
+            raise BizException(FREQUENCY_NOT_IMPLEMENTED, "频率类型未实现")
 
         return trigger

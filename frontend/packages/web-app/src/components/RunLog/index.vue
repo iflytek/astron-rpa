@@ -22,7 +22,7 @@ const emit = defineEmits(['rowClick'])
 const { colorTheme } = useTheme()
 const height = inject<Ref<number>>('logTableHeight', ref(320)) // 若没有注入，默认值为320
 const runlogStore = useRunlogStore()
-const { t } = useTranslation()
+const { t, i18next } = useTranslation()
 const xGrid = ref<VxeGridInstance<RPA.LogItem>>()
 const isMinimized = ref(false) // 是否最小化
 const dataList = shallowRef<RPA.LogItem[]>([])
@@ -40,6 +40,7 @@ onUnmounted(() => unWindowResizeListen())
 
 const columns = computed<VxeGridProps<RPA.LogItem>['columns']>(() => {
   const isSmall = props.size === 'small'
+  const isEnglish = i18next.language === 'en-US'
 
   return [
     {
@@ -55,7 +56,7 @@ const columns = computed<VxeGridProps<RPA.LogItem>['columns']>(() => {
     {
       title: t('processName'),
       field: 'processName',
-      width: isSmall ? 60 : 80,
+      width: isSmall ? 60 : isEnglish ? 100 : 80,
       align: 'right',
       formatter: ({ cellValue }) => (isNil(cellValue) ? '--' : cellValue),
     },
@@ -173,7 +174,7 @@ const setRowClassName: VxeGridProps['rowClassName'] = ({ row }) => {
       :row-config="{ isHover: true }"
       :menu-config="{
         body: {
-          options: [[{ code: 'copy', name: $t('复制') }]],
+          options: [[{ code: 'copy', name: $t('copy') }]],
         },
         visibleMethod: ({ options, column }) => {
           const isVisible = column?.field === 'content';

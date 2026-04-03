@@ -60,5 +60,5 @@ class DataProcess:
             else:
                 result = value
         except Exception as e:
-            raise BaseException(VALUE_ERROR_FORMAT.format(e), "输入数据类型有误，无法设置为变量")
+            raise BizException(VALUE_ERROR_FORMAT.format(e), "输入数据类型有误，无法设置为变量")
         return result

@@ -19,27 +19,27 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
   const projectMoreOpts = [
     {
       key: 'runningLog',
-      text: '日志详情',
+      text: translate.t('record.logDetail'),
       icon: h(<Icon name="log" size="16px" />),
       clickFn: record => handleCheck({ type: !props.robotId ? 'drawer' : 'modal', record }),
     },
     {
       key: 'runningDataTable',
-      text: '数据表格',
+      text: translate.t('dataSheet'),
       icon: h(<Icon name="sheet" size="16px" />),
       disableFn: record => !record.dataTablePath,
       clickFn: record => handleOpenDataTable(record),
     },
     {
       key: 'runningVideo',
-      text: '视频播放',
+      text: translate.t('record.videoPlay'),
       icon: h(<Icon name="video-play" size="16px" />),
       disableFn: record => !(record?.videoExist === '0'), // '0': 本地存在 '1': 本地不存在
       clickFn: record => utilsManager.playVideo(record.videoLocalPath),
     },
     {
       key: 'delete',
-      text: '删除',
+      text: translate.t('delete'),
       icon: h(<Icon name="market-del" size="16px" />),
       clickFn: record => batchDelete([record.executeId]),
     },
@@ -56,7 +56,7 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
         ellipsis: true,
       },
       {
-        title: '版本',
+        title: translate.t('record.version'),
         dataIndex: 'robotVersion',
         key: 'robotVersion',
         width: 60,
@@ -68,7 +68,7 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
   if (!(props.robotId || props.taskId)) {
     conditionColumns.push(
       {
-        title: '任务名称',
+        title: translate.t('taskName'),
         dataIndex: 'taskName',
         key: 'taskName',
         ellipsis: true,
@@ -94,7 +94,7 @@ export default function useRecordTableColumns(props?: { robotId?: string, taskId
       sorter: true,
     },
     {
-      title: '执行时长',
+      title: translate.t('record.duration'),
       key: 'executeTime',
       dataIndex: 'executeTime',
       customRender: ({ record }) => getDurationText(record.executeTime),

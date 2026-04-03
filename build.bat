@@ -172,11 +172,11 @@ if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 if not exist %DIST_DIR% mkdir %DIST_DIR%
 if not exist %PYTHON_CORE_DIR% mkdir %PYTHON_CORE_DIR%
 if not exist %ARCHIVE_DIST_DIR% mkdir %ARCHIVE_DIST_DIR%
-for %%i in ("%PYTHON_EXE%") do set PYTHON_SOURCE_DIR=%%~dpi
+for /f "delims=" %%F in ("%PYTHON_EXE%") do set "PYTHON_SOURCE_DIR=%%~dpF"
 if not exist "%PYTHON_CORE_DIR%\python.exe" (
     echo Copying Python environment...
     if exist "%PYTHON_SOURCE_DIR%" (
-        xcopy /E /I /Y "%PYTHON_SOURCE_DIR%." "%PYTHON_CORE_DIR%\"
+        xcopy /E /I /Y "%PYTHON_SOURCE_DIR%*" "%PYTHON_CORE_DIR%\"
         if errorlevel 1 (
             echo Python directory copy failed
             exit /b 1

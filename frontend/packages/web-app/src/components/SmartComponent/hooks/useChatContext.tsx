@@ -1,7 +1,7 @@
 import { message, Typography } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
 import type { BubbleProps, XRequestCallbacks } from 'ant-design-x-vue'
 import { useXAgent, useXChat, XRequest } from 'ant-design-x-vue'
+import { useTranslation } from 'i18next-vue'
 import markdownit from 'markdown-it'
 import { computed, inject, provide, ref } from 'vue'
 
@@ -19,7 +19,7 @@ import type { SmartCompContext } from '.'
 // 创建聊天上下文
 export function useChatContext(smartComp: SmartCompContext) {
   const { t } = useTranslation()
-  
+
   const promptItmes = computed(() => [
     {
       key: 'web_auto',

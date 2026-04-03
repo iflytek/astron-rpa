@@ -13,12 +13,12 @@ const modal = NiceModal.useModal()
 const currentSettingWin = ref(menuConfig[0].key)
 
 const menuItems = computed(() => {
-  const pluginItems: MenuItem[] = (extensionManager.extensions?.settings.getAll() ?? []).map(item => ({
+  const pluginItems = (extensionManager.extensions?.settings.getAll() ?? []).map(item => ({
     key: item.id,
     icon: item.icon,
     name: item.title,
     component: item.content,
-  }))
+  })) as MenuItem[]
 
   if (isEmpty(pluginItems)) {
     return menuConfig

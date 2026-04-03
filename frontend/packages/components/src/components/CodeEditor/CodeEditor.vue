@@ -1,14 +1,3 @@
-<template>
-  <MonacoEditor
-    :height="height"
-    :lsp-client="lspClient"
-    :code="code"
-    :diagnostics="diagnostics"
-    :theme="isDark ? 'vs-dark' : 'vs'"
-    @update-code="handleUpdate"
-  />
-</template>
-
 <script setup lang="ts">
 import type { Diagnostic } from 'vscode-languageserver-types'
 import { DiagnosticSeverity } from 'vscode-languageserver-types'
@@ -33,7 +22,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   height: '100%',
   value: '',
-  isDark: false
+  isDark: false,
 })
 
 const emit = defineEmits<Emits>()
@@ -65,7 +54,7 @@ lspClient.requestNotification({
   },
 })
 
-const handleUpdate = (codeText: string) => {
+function handleUpdate(codeText: string) {
   code.value = codeText
   lspClient.updateCode(codeText)
   emit('update:value', codeText)
@@ -83,3 +72,14 @@ watch(() => props.value, (newCode) => {
   lspClient.updateCode(newCode)
 })
 </script>
+
+<template>
+  <MonacoEditor
+    :height="height"
+    :lsp-client="lspClient"
+    :code="code"
+    :diagnostics="diagnostics"
+    :theme="isDark ? 'vs-dark' : 'vs'"
+    @update-code="handleUpdate"
+  />
+</template>

@@ -1,28 +1,32 @@
 <script lang="ts" setup>
+import { CodeEditor } from '@rpa/components'
+import { useDark } from '@vueuse/core'
 import { message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { throttle } from 'lodash-es'
 import { computed, provide, ref, watch } from 'vue'
-import { useTranslation } from 'i18next-vue'
 import { useRoute } from 'vue-router'
-import { CodeEditor } from '@rpa/components'
 
 import { codeToMeta } from '@/api/component'
 import { getBaseURL } from '@/api/http/env'
-import { useFlowStore } from '@/stores/useFlowStore'
+// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
-import { debug } from '@/views/Arrange/components/flow/hooks/useFlow'
+// TODO merge: debug function removed in refactor, adapt to canvasManager
+// import { debug } from '@/views/Arrange/components/flow/hooks/useFlow'
 
 import AtomForm from '../components/AtomForm.vue'
 import { modeOptions } from '../config/constants'
 import { usePackageCheck, useSmartComp } from '../hooks'
 import { generateComponentForm } from '../utils'
-import { useDark } from '@vueuse/core'
 
 const isDark = useDark()
 const processStore = useProcessStore()
-const flowStore = useFlowStore()
+// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
+const flowStore = { simpleFlowUIData: [] as any[] }
+const debug = (..._args: any[]) => { /* TODO merge: adapt to canvasManager */ }
 const smartComp = useSmartComp()
 const runningStore = useRunningStore()
 const runlogStore = useRunlogStore()
@@ -73,14 +77,14 @@ const buttonConfig = computed(() => {
   if (runningStore.running === 'run' || runningStore.running === 'debug') {
     return {
       icon: 'tools-stop',
-      text: '停止',
+      text: t('stop'),
       clickHandler: handleStop,
     }
   }
   else {
     return {
       icon: 'tools-run',
-      text: '运行',
+      text: t('run'),
       clickHandler: handleRun,
     }
   }

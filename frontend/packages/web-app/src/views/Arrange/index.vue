@@ -44,7 +44,8 @@ onMounted(async () => {
 })
 
 onUnmounted(async () => {
-  if (!isStart) return 
+  if (!isStart)
+    return
   await stopPickServices({})
   isStart = false
 })

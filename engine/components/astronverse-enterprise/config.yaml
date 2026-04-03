@@ -1,7 +1,7 @@
 atomic:
   Enterprise.upload_to_sharefolder:
     title: 上传文件至共享文件夹
-    comment: 上传 @{file_path} 的文件，返回上传结果 @{upload_result}
+    comment: 上传 @{file_path} 文件至共享文件夹，返回上传结果 @{upload_result}
     icon: upload-to-shared-folder
     helpManual: ''
     inputList:
@@ -14,7 +14,7 @@ atomic:
         tip: ''
   Enterprise.download_from_sharefolder:
     title: 从共享文件夹下载文件
-    comment: 下载 @{file_path} 的文件到 @{save_folder}，返回下载结果 @{download_result}
+    comment: 从共享文件夹下载 @{file_path} 的文件到 @{save_folder}，返回下载结果 @{download_result}
     icon: download-from-shared-folder
     helpManual: ''
     inputList:
@@ -30,7 +30,7 @@ atomic:
         tip: ''
   Enterprise.get_shared_variable:
     title: 获取共享变量
-    comment: 获取共享变量 @{shared_variable} 给变量 @{variable_data}
+    comment: 获取共享变量 @{shared_variable} 并赋值给变量 @{variable_data}
     icon: get-shared-variable
     helpManual: ''
     inputList:

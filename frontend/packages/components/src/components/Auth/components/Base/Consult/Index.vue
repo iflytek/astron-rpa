@@ -1,82 +1,74 @@
 <script setup lang="ts">
-import { Button, Modal } from 'ant-design-vue'
-import { ref } from 'vue'
+import { Button, Modal } from "ant-design-vue";
+import { ref } from "vue";
 
-import { Icon as RpaIcon } from '../../../../Icon'
-import type { AuthType } from '../../../interface'
+import { Icon as RpaIcon } from "../../../../Icon";
+import type { AuthType } from "../../../interface";
 
-import ConsultModal from './ConsultModal.vue'
+import ConsultModal from "./ConsultModal.vue";
 
-const props = defineProps({
-  authType: {
-    type: String as () => AuthType,
-    default: 'uap',
-  },
-  trigger: {
-    type: String as () => 'button' | 'modal',
-    default: 'button',
-  },
-  buttonConf: {
-    type: Object as () => {
-      buttonType: 'tag' | 'text' | 'button'
-      buttonTxt?: string
-      currentEdition?: 'personal' | 'professional' | 'enterprise'
-      expirationDate?: string
-      shouldAlert?: boolean
-    } | undefined,
-    default: undefined,
-  },
-  customClass: {
-    type: String,
-    default: undefined,
-  },
-  modalConfirm: {
-    type: Object as () => {
-      title: string
-      content: string
-      okText: string
-      cancelText: string
-    } | undefined,
-    default: undefined,
-  },
-  consult: {
-    type: Object as () => {
-      consultTitle?: string
-      consultEdition?: 'professional' | 'enterprise'
-      consultType: 'consult' | 'renewal'
-    } | undefined,
-    default: undefined,
-  },
-})
+type TriggerType = "button" | "modal";
 
-const tenantTypeMap = {
-  personal: '个人免费版',
-  professional: '专业版',
-  enterprise: '企业版',
+interface ButtonConf {
+  buttonType: "tag" | "text" | "button";
+  buttonTxt?: string;
+  currentEdition?: "personal" | "professional" | "enterprise";
+  expirationDate?: string;
+  shouldAlert?: boolean;
 }
 
-const confData = ref(props)
-const consultModalRef = ref<InstanceType<typeof ConsultModal> | null>(null)
+interface ModalConfirmConf {
+  title: string;
+  content: string;
+  okText: string;
+  cancelText: string;
+}
+
+interface ConsultConf {
+  consultTitle?: string;
+  consultEdition?: "professional" | "enterprise";
+  consultType: "consult" | "renewal";
+}
+
+interface Props {
+  authType?: AuthType;
+  trigger?: TriggerType;
+  buttonConf?: ButtonConf;
+  customClass?: string;
+  modalConfirm?: ModalConfirmConf;
+  consult?: ConsultConf;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  authType: "uap",
+  trigger: "button",
+});
+
+const tenantTypeMap = {
+  personal: "components.auth.personalFree",
+  professional: "components.auth.professional",
+  enterprise: "components.auth.enterprise",
+};
+
+const confData = ref(props);
+const consultModalRef = ref<InstanceType<typeof ConsultModal> | null>(null);
 function openModal() {
-  if (confData.value.authType !== 'casdoor')
-    consultModalRef.value?.showModal()
+  if (confData.value.authType !== "casdoor") consultModalRef.value?.showModal();
 }
 
 function init(config: typeof props) {
-  confData.value = config
-  if (confData.value.trigger === 'modal') {
+  confData.value = config;
+  if (confData.value.trigger === "modal") {
     Modal.confirm({
       ...confData.value.modalConfirm!,
-      onOk() {
-        openModal()
-      },
-    })
+      onOk: () => openModal(),
+    });
   }
 }
 
 defineExpose({
   init,
-})
+});
 </script>
 
 <template>
@@ -86,30 +78,99 @@ defineExpose({
         v-if="confData?.buttonConf?.buttonType === 'tag'"
         class="cursor-pointer flex items-center justify-start text-gradient-bg text-upgrader-bg !rounded-[12px] !w-full !text-[14px] hover:!opacity-90"
       >
-        <div v-if="confData?.buttonConf?.currentEdition && confData?.buttonConf?.currentEdition !== 'personal'">
+        <div
+          v-if="
+            confData?.buttonConf?.currentEdition &&
+            confData?.buttonConf?.currentEdition !== 'personal'
+          "
+        >
           <div class="w-[fit-content] font-bold">
-            <span class="text-gradient">{{ tenantTypeMap[confData?.buttonConf?.currentEdition] }}</span>
+            <span class="text-gradient">
+              {{ $t(tenantTypeMap[confData?.buttonConf?.currentEdition]) }}
+            </span>
           </div>
-          <span v-if="confData?.buttonConf?.expirationDate" class="text-[12px] mt-[8px]">
-            到期时间： {{ confData?.buttonConf?.expirationDate }}
-            <span v-if="confData?.buttonConf?.shouldAlert" class="bg-[#ec483e] text-white px-[6px] py-[1px] !text-[12px] rounded-[3px]">即将到期</span>
+          <span
+            v-if="confData?.buttonConf?.expirationDate"
+            class="text-[12px] mt-[8px]"
+          >
+            {{ $t("components.auth.expirationDateLabel") }}
+            {{ confData?.buttonConf?.expirationDate }}
+            <span
+              v-if="confData?.buttonConf?.shouldAlert"
+              class="bg-[#ec483e] text-white px-[6px] py-[1px] !text-[12px] rounded-[3px]"
+            >
+              {{ $t("components.auth.expiringSoon") }}
+            </span>
           </span>
         </div>
-        <div v-else class="w-full text-left" :class="{ 'min-h-[38px] leading-[38px]': !confData?.buttonConf?.currentEdition }" @click="openModal">
-          <div v-if="confData?.buttonConf?.currentEdition" class="w-[fit-content] font-bold">
-            <span class="text-gradient">{{ tenantTypeMap[confData?.buttonConf?.currentEdition] }}</span>
+        <div
+          v-else
+          class="w-full text-left"
+          :class="{
+            'min-h-[38px] leading-[38px]':
+              !confData?.buttonConf?.currentEdition,
+          }"
+          @click="openModal"
+        >
+          <div
+            v-if="confData?.buttonConf?.currentEdition"
+            class="w-[fit-content] font-bold"
+          >
+            <span class="text-gradient">
+              {{ $t(tenantTypeMap[confData?.buttonConf?.currentEdition]) }}
+            </span>
           </div>
-          <div v-if="confData?.authType !== 'casdoor'" class="flex items-center justify-start" :class="confData?.buttonConf?.currentEdition ? 'text-[12px] mt-[2px]' : ''">
-            <RpaIcon class="w-[26px] h-[26px] mr-[8px]" :class="confData?.buttonConf?.currentEdition ? '!w-[20px] !h-[20px] !mr-[4px]' : ''" name="upgrade-icon" />
-            <span class="text-gradient">{{ confData?.buttonConf?.buttonTxt || '开通专业版/企业版' }}</span>
+          <div
+            v-if="confData?.authType !== 'casdoor'"
+            class="flex items-center justify-start"
+            :class="{
+              'text-[12px] mt-[2px]': confData?.buttonConf?.currentEdition,
+            }"
+          >
+            <RpaIcon
+              class="w-[26px] h-[26px] mr-[8px]"
+              :class="{
+                '!w-[20px] !h-[20px] !mr-[4px]':
+                  confData?.buttonConf?.currentEdition,
+              }"
+              name="upgrade-icon"
+            />
+            <span class="text-gradient">
+              {{
+                confData?.buttonConf?.buttonTxt ||
+                $t("components.auth.upgradeProEnterprise")
+              }}
+            </span>
           </div>
         </div>
       </div>
-      <span v-else-if="confData?.buttonConf?.buttonType === 'text'" @click="openModal">{{ confData?.buttonConf?.buttonTxt }}</span>
-      <Button v-else type="primary" ghost block class="border !border-[#0000001A] dark:!border-[#FFFFFF29]" @click="openModal">
-        <span class="!flex items-center justify-center text-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]">
-          <RpaIcon class="w-[16px] h-[16px] mr-[4px]" name="python-package-plus" />
-          <span>{{ confData?.buttonConf?.buttonTxt || '创建新的空间' }}</span>
+      <span
+        v-else-if="confData?.buttonConf?.buttonType === 'text'"
+        @click="openModal"
+      >
+        {{ confData?.buttonConf?.buttonTxt }}
+      </span>
+      <Button
+        v-else
+        type="primary"
+        ghost
+        block
+        class="border !border-[#0000001A] dark:!border-[#FFFFFF29]"
+        @click="openModal"
+      >
+        <span
+          class="!flex items-center justify-center text-[12px] text-[#000000D9] dark:text-[#FFFFFFD9]"
+        >
+          <RpaIcon
+            class="w-[16px] h-[16px] mr-[4px]"
+            name="python-package-plus"
+          />
+          <span>
+            {{
+              confData?.buttonConf?.buttonTxt ||
+              $t("components.auth.createWorkspace")
+            }}
+          </span>
         </span>
       </Button>
     </template>

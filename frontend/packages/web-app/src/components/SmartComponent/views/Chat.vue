@@ -1,14 +1,15 @@
 <script lang="ts" setup>
+import { useTheme } from '@rpa/components'
 import { message } from 'ant-design-vue'
 import { Bubble } from 'ant-design-x-vue'
+import { useTranslation } from 'i18next-vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useTranslation } from 'i18next-vue'
 
 import { getSmartComp, optimizeQuestion } from '@/api/component'
 import { clipboardManager } from '@/platform'
-import { useTheme } from '@rpa/components'
-import { useFlowStore } from '@/stores/useFlowStore'
+// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 
 import ComponentDetailPanel from '../components/ComponentDetailPanel.vue'
@@ -24,7 +25,8 @@ import { isAssistantMessage, isUserMessage, parseChatContent, parseOptimizedText
 
 const smartComp = useSmartComp()
 const processStore = useProcessStore()
-const flowStore = useFlowStore()
+// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
+const flowStore = { simpleFlowUIData: [] as any[] }
 const route = useRoute()
 const { colorTheme } = useTheme()
 const { t } = useTranslation()
@@ -47,6 +49,7 @@ async function restoreChat(smartId: string, targetVersion?: number) {
 
     const smartCompData = await getSmartComp({
       robotId: processStore.project.id,
+      robotVersion: processStore.project.version,
       smartId,
     })
 

@@ -1,8 +1,9 @@
 import os
 import platform
 import sys
+from pathlib import Path
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.word import (
@@ -30,6 +31,7 @@ from astronverse.word import (
     SelectRangeType,
     SelectTextType,
     TableBehavior,
+    TextInputSourceType,
     UnderLineStyle,
     VerticalAlignment,
 )
@@ -60,8 +62,6 @@ class Docx:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
-            atomicMg.param("encoding", level=AtomicLevel.ADVANCED),
-            atomicMg.param("open_pwd_flag", level=AtomicLevel.ADVANCED),
             atomicMg.param(
                 "open_pwd",
                 dynamics=[
@@ -70,10 +70,8 @@ class Docx:
                         expression="return $this.open_pwd_flag.value == true",
                     )
                 ],
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
-            atomicMg.param("write_pwd_flag", level=AtomicLevel.ADVANCED),
             atomicMg.param(
                 "write_pwd",
                 dynamics=[
@@ -114,7 +112,7 @@ class Docx:
             )
             return DocumentObject(doc_obj)
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(file_path),
                 "打开文档失败，请检查文件路径是否正确！",
             ) from e
@@ -131,12 +129,12 @@ class Docx:
     )
     def read_docx(doc: DocumentObject, select_range: SelectRangeType = SelectRangeType.ALL):
         if not doc:
-            raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             doc_data = WordDocumentCore.read(doc.document_object, select_range)
             return doc_data
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "读取文档内容失败，请检查文档是否打开！",
             ) from e
@@ -166,7 +164,7 @@ class Docx:
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
     ) -> tuple[DocumentObject, PATH]:
         if not os.path.exists(file_path):
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_PATH_ERROR_FORMAT.format(file_path),
                 "填写的应用程序路径有误，请输入正确的路径！",
             )
@@ -184,7 +182,7 @@ class Docx:
             )
             return DocumentObject(doc_obj), doc_create_path
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(file_path),
                 "打开文档失败，请检查文件路径是否正确！",
             ) from e
@@ -238,7 +236,7 @@ class Docx:
         close_flag: bool = False,
     ):
         if not doc:
-            raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             save_file_path = WordDocumentCore.save(
                 doc.document_object,
@@ -250,7 +248,7 @@ class Docx:
             )
             return save_file_path
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(e),
                 "读取文档内容失败，请检查文档是否打开！",
             ) from e
@@ -321,7 +319,7 @@ class Docx:
         pkill_flag: bool = False,
     ):
         if not doc:
-            raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
             WordDocumentCore.close(
                 doc.document_object,
@@ -333,7 +331,7 @@ class Docx:
                 pkill_flag,
             )
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "读取文档内容失败，请检查文档是否打开！",
             ) from e
@@ -342,6 +340,29 @@ class Docx:
     @atomicMg.atomic(
         "Docx",
         inputList=[
+            atomicMg.param(
+                "text",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.INPUT_VARIABLE_PYTHON.value),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.text.show",
+                        expression=f"return $this.text_source.value == '{TextInputSourceType.INPUT.value}'",
+                    )
+                ],
+            ),
+            atomicMg.param(
+                "text_file_path",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
+                    params={"filters": [".txt"], "file_type": "file"},
+                ),
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.text_file_path.show",
+                        expression=f"return $this.text_source.value == '{TextInputSourceType.FILE.value}'",
+                    )
+                ],
+            ),
             atomicMg.param("font_size", required=False),
             atomicMg.param("font_name", required=False),
             atomicMg.param(
@@ -354,18 +375,39 @@ class Docx:
     )
     def insert_docx(
         doc: DocumentObject,
+        text_source: TextInputSourceType = TextInputSourceType.INPUT,
         text: str = "",
+        text_file_path: str = "",
         enter_flag: bool = False,
         font_size: int = 12,
         bold_flag: bool = False,
         italic_flag: bool = False,
-        underline_flag: UnderLineStyle = UnderLineStyle.DEFAULT,
+        underline_flag: bool = False,
         font_name: str = "宋体",
         font_color: str = "0,0,0",
     ):
         if not doc:
-            raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         try:
+            # 选择文件读取时，从 txt 文件读取文本
+            if text_source == TextInputSourceType.FILE:
+                if text_file_path and os.path.exists(text_file_path):
+                    for encoding in ("utf-8", "gbk", "gb2312", "utf-16"):
+                        try:
+                            text = Path(text_file_path).read_text(encoding=encoding)
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                    else:
+                        raise BizException(
+                            DOCUMENT_READ_ERROR_FORMAT.format(text_file_path),
+                            "无法解码 txt 文件编码，请确保文件为 UTF-8 或 GBK 编码！",
+                        )
+                else:
+                    raise BizException(
+                        DOCUMENT_PATH_ERROR_FORMAT.format(text_file_path),
+                        "txt 文件不存在，请检查路径！",
+                    )
             if not font_color:
                 font_color = "0,0,0"
             text_format = {
@@ -378,9 +420,11 @@ class Docx:
             }
             WordDocumentCore.insert(doc.document_object, text, enter_flag, text_format)
         except Exception as e:
-            raise BaseException(
+            if isinstance(e, BizException):
+                raise
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
-                "读取文档内容失败，请检查文档是否打开！",
+                f"读取文档内容失败: {e}",
             ) from e
 
     @staticmethod
@@ -435,17 +479,17 @@ class Docx:
         r_end: int = 1,
     ):
         if not doc:
-            raise BaseException(DOCUMENT_NOT_EXIST_ERROR_FORMAT, "文档不存在，请先打开文档！")
+            raise BizException(DOCUMENT_NOT_EXIST_ERROR, "文档不存在，请先打开文档")
         if (
             p_start > p_end
             or r_start > r_end
             or not IDocumentCore.are_positive_integers(p_start, p_end, r_start, r_end)
         ):
-            raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "请正确输入起始行号或段落号！")
+            raise BizException(CONTENT_INPUT_ERROR, "请正确输入起始行号或段落号")
         try:
             WordDocumentCore.select(doc.document_object, select_type, p_start, p_end, r_start, r_end)
         except Exception:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "选中文档内容失败，请检查文档是否打开！",
             )
@@ -503,16 +547,16 @@ class Docx:
         r_idx: int = 1,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if not IDocumentCore.are_positive_integers(c_idx, p_idx, r_idx):
-            raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "请输入正确的数值!")
+            raise BizException(CONTENT_VALUE_ERROR, "请输入正确的数值")
         try:
             WordDocumentCore.cursor_position(doc.document_object, by, pos, content, c_idx, p_idx, r_idx)
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "定位光标位置失败，请检查文档是否打开！",
             ) from e
@@ -551,12 +595,12 @@ class Docx:
         with_shift: bool = False,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if not IDocumentCore.are_positive_integers(distance):
-            raise BaseException(CONTENT_FORMAT_ERROR_FORMAT, "请输入正确的数值!")
+            raise BizException(CONTENT_VALUE_ERROR, "请输入正确的数值")
         try:
             WordDocumentCore.move_cursor(
                 doc.document_object,
@@ -567,30 +611,30 @@ class Docx:
                 with_shift,
             )
         except Exception as e:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "移动光标失败，请检查文档是否打开！",
             ) from e
 
     @staticmethod
-    @atomicMg.atomic("Docx", inputList=[], outputList=[])
+    @atomicMg.atomic("Docx")
     def insert_sep(doc: DocumentObject, sep_type: InsertionType = InsertionType.PARAGRAPH):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
             WordDocumentCore.insert_sep(doc.document_object, sep_type)
         except Exception as e:
-            raise BaseException(DOCUMENT_READ_ERROR_FORMAT.format(doc), "插入失败，请检查文档是否打开！") from e
+            raise BizException(DOCUMENT_INSERT_ERROR, "插入失败，请检查文档是否打开") from e
 
     @staticmethod
-    @atomicMg.atomic("Docx", inputList=[], outputList=[])
+    @atomicMg.atomic("Docx")
     def insert_hyperlink(doc: DocumentObject, url: str = "", display: str = ""):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         WordDocumentCore.insert_hyperlink(doc.document_object, url, display)
@@ -623,8 +667,8 @@ class Docx:
         newline: bool = False,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         WordDocumentCore.insert_img(doc.document_object, img_from, img_path, scale, newline)
@@ -654,8 +698,8 @@ class Docx:
         text: str = "",
     ) -> DocumentObject:
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -663,7 +707,7 @@ class Docx:
             return table_content
         except Exception as e:
             print(e)
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "读取表格失败，请检查文档是否打开！",
             ) from e
@@ -747,8 +791,8 @@ class Docx:
         newline: bool = True,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -769,7 +813,7 @@ class Docx:
                 newline,
             )
         except Exception as exc:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "插入表格失败，请检查文档是否打开！",
             ) from exc
@@ -856,8 +900,8 @@ class Docx:
         c_end: int = 0,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -873,7 +917,7 @@ class Docx:
                 c_end,
             )
         except Exception as exc:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "删除内容失败，请检查文档是否打开！",
             ) from exc
@@ -926,8 +970,8 @@ class Docx:
         ignore_case: bool = True,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -941,7 +985,7 @@ class Docx:
                 ignore_case,
             )
         except Exception as exc:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "查找替换内容失败，请检查文档是否打开！",
             ) from exc
@@ -1019,8 +1063,8 @@ class Docx:
         comment_index: int = 1,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
@@ -1036,7 +1080,7 @@ class Docx:
                 comment_index,
             )
         except Exception as exc:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "创建批注失败，请检查文档是否打开！",
             ) from exc
@@ -1059,14 +1103,14 @@ class Docx:
     )
     def delete_comment(doc: DocumentObject, delete_all: bool = False, comment_index: int = 1):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         try:
             WordDocumentCore.delete_comment(doc.document_object, comment_index, delete_all)
         except Exception as exc:
-            raise BaseException(
+            raise BizException(
                 DOCUMENT_READ_ERROR_FORMAT.format(doc),
                 "删除批注失败，请检查文档是否打开！",
             ) from exc
@@ -1133,8 +1177,8 @@ class Docx:
         save_type: SaveFileType = SaveFileType.WARN,
     ):
         if not doc:
-            raise BaseException(
-                DOCUMENT_NOT_EXIST_ERROR_FORMAT,
+            raise BizException(
+                DOCUMENT_NOT_EXIST_ERROR,
                 "没有查找到Word对象，请检查输入的Word对象是否正确!",
             )
         if default_name:
@@ -1155,7 +1199,7 @@ class Docx:
             elif output_file_type == FileType.TXT:
                 WordDocumentCore.convert_to_txt(doc.document_object, output_path, output_name, save_type)
         except Exception as exc:
-            raise BaseException(
-                FILENAME_ALREADY_EXISTS_ERROR.format(output_name),
+            raise BizException(
+                FILENAME_ALREADY_EXISTS_ERROR_FORMAT.format(output_name),
                 "导出失败，文件名已存在！",
             ) from exc

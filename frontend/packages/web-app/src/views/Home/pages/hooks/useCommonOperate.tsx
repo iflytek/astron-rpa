@@ -1,8 +1,11 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { NiceModal } from '@rpa/components'
 import { Button } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { h } from 'vue'
-import { JSX } from 'vue/jsx-runtime'
+import type { JSX } from 'vue/jsx-runtime'
+
+import i18next from '@/plugins/i18next'
 
 import $loading from '@/utils/globalLoading'
 
@@ -33,12 +36,13 @@ function tabValue(item: string) {
 
 // 运行
 export async function handleRun(editObj: AnyObj) {
-  $loading.open({ msg: '加载中' })
+  $loading.open({ msg: i18next.t('loading') })
   await useRunningStore().startSlice(editObj)
   $loading.close()
 }
 
 export function useCommonOperate() {
+  const { t } = useTranslation()
   function handleOpenDataTable(record) {
     NiceModal.show(DataTableModal, { record })
   }
@@ -54,7 +58,7 @@ export function useCommonOperate() {
   function handleDeleteConfirm(content: string | JSX.Element) {
     return new Promise<boolean>((resolve) => {
       GlobalModal.confirm({
-        title: '删除',
+        title: t('delete'),
         icon: h(ExclamationCircleOutlined),
         content,
         okType: 'danger',
@@ -67,7 +71,7 @@ export function useCommonOperate() {
   function useApplicationConfirm(content: any, cb: Fun) {
     return new Promise((resolve) => {
       GlobalModal.confirm({
-        title: '提示',
+        title: t('prompt'),
         content,
         onOk: () => {
           cb && cb()
@@ -102,10 +106,10 @@ export function useCommonOperate() {
           // 首次上架申请通过后，未发版的前提下再次分享至其他团队市场，不需要再次发起申请
           const content
             = checkParams.source === 'publish'
-              ? '企业管理员开启了上架前审核，审核通过后方可分享至应用市场，是否同时发起上架申请？'
-              : '企业管理员开启了上架前审核，审核通过后方可分享至应用市场，请确认是否发起申请？'
+              ? t('market.releaseAuditPromptPublish')
+              : t('market.releaseAuditPromptShare')
           GlobalModal.confirm({
-            title: '提示',
+            title: t('prompt'),
             content,
             onOk: () => applicationCallback(res.data),
             onCancel: () => cancelCallback && cancelCallback(),
@@ -128,23 +132,28 @@ export function useCommonOperate() {
   ) {
     switch (situation) {
       case 1:
-        return '应用删除后不可恢复，确认删除么？'
+        return t('market.deleteAppNoRecoverConfirm')
       case 2:
-        return `删除后执行器列表页中的应用也将被删除，确认删除么？`
+        return t('market.deleteAlsoRemoveExecutorConfirm')
       case 3:
+      {
+        const contentPrefix = source === 'design'
+          ? t('market.deleteAlsoRemoveExecutorPrefix')
+          : t('market.deleteAppNoRecoverPrefix')
         return (
           <div>
-            <div>{`${source === 'design' ? '删除后执行器列表页中的应用也将被删除' : '应用删除后不可恢复'}，确认删除么？`}</div>
-            <p style="color: #aaa; font-size: 14px;margin: 10px 0 0 0;">{`检测到该应用被${taskReferInfoList[0].taskName}等计划任务引用，继续删除会同时解除计划任务中的引用关系，当计划任务仅存在一个引用关系时，计划任务也会被删除。`}</p>
+            <div>{t('market.deleteConfirmWithPrefix', { prefix: contentPrefix })}</div>
+            <p style="color: #aaa; font-size: 14px;margin: 10px 0 0 0;">{t('market.deleteTaskReferenceWarning', { taskName: taskReferInfoList[0].taskName })}</p>
             <Button
               type="link"
               style="padding: 0;"
               onClick={() => openTaskReferInfoModal(taskReferInfoList)}
             >
-              查看应用的引用关系表
+              {t('market.viewTaskReferences')}
             </Button>
           </div>
         )
+      }
       default:
         break
     }

@@ -4,6 +4,12 @@ from typing import Any
 
 import requests
 import sseclient
+from astronverse.scheduler.error import (
+    BizException,
+    ERROR_FORMAT,
+    UNSUPPORTED_FILE_EXT_FORMAT,
+    CUSTOM_FACTORS_FORMAT_ERROR,
+)
 
 
 class InputType(Enum):
@@ -97,11 +103,12 @@ def extract_docx(path: str) -> str:
     try:
         from docx import Document as d_doc
     except Exception:
-        raise Exception(
+        msg = (
             "Docx package depend on Python 3.x version,"
             "Which compatible with most of OS and file generate by support Microsoft Office 2007"
             "if import error, please execute `pip install python-docx`"
         )
+        raise BizException(ERROR_FORMAT.format(msg), msg)
     document = d_doc(path)
     return "\n\n".join([para.text for para in document.paragraphs])
 
@@ -135,11 +142,13 @@ def get_factors(
         elif file_extension == "txt":
             contract_content = open(contract_path).read()
         else:
-            raise ValueError("不支持的文件扩展类型: " + file_extension)
+            raise BizException(
+                UNSUPPORTED_FILE_EXT_FORMAT.format(file_extension), "不支持的文件扩展类型: " + file_extension
+            )
     try:
         custom_factors = ast.literal_eval(custom_factors)
     except:
-        raise ValueError("custom_factors 格式错误，请检查")
+        raise BizException(CUSTOM_FACTORS_FORMAT_ERROR, "custom_factors 格式错误，请检查")
     preset_factors = custom_factors.get("preset", [])
     custom_factors = custom_factors.get("custom", [])
 

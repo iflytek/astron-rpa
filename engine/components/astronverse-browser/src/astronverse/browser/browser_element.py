@@ -1,7 +1,7 @@
 import base64
 import os
 import time
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, WebPick
 from astronverse.baseline.logger.logger import logger
@@ -46,9 +46,10 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
     """检测browser_obj， element_data"""
     if element_data:
         if element_data.get("elementData", {}).get("app", "") == "iexplore":
-            raise Exception(
-                "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(browser_obj.browser_type.value)
+            error_msg = "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(
+                browser_obj.browser_type.value
             )
+            raise BizException(ERROR_FORMAT.format(error_msg), error_msg)
 
     if not browser_obj:
         browser_obj = get_default_browser()
@@ -69,7 +70,7 @@ def check_element(browser_obj: Browser, element_data: WebPick, element_timeout: 
             msg = ""
             if isinstance(reason, dict):
                 msg = reason.get("msg", "")
-            raise BaseException(WEB_GET_ELE_ERROR.format(msg), "浏览器元素未找到！")
+            raise BizException(WEB_GET_ELE_ERROR_FORMAT.format(msg), "浏览器元素未找到！")
     return browser_obj
 
 
@@ -92,18 +93,17 @@ class BrowserElement:
         """等待元素出现或消失。"""
         if element_data:
             if element_data.get("elementData", {}).get("app", "") == "iexplore":
-                raise Exception(
-                    "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(
-                        browser_obj.browser_type.value
-                    )
+                error_msg = "拾取元素类型需要跟浏览器类型保持一致！当前操作的浏览器为！{}".format(
+                    browser_obj.browser_type.value
                 )
+                raise BizException(ERROR_FORMAT.format(error_msg), error_msg)
 
         if not browser_obj:
             browser_obj = get_default_browser()
 
         timeout = element_timeout
         if timeout < 0:
-            raise BaseException(PARAMETER_INVALID_FORMAT.format(timeout), f"等待时间不能小于0！{timeout}")
+            raise BizException(PARAMETER_INVALID_FORMAT.format("timeout"), f"等待时间不能小于0！{timeout}")
         while timeout >= 0:
             start = time.time()
             # 获取状态
@@ -151,7 +151,6 @@ class BrowserElement:
             ),
             atomicMg.param(
                 "scroll_into_center",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.scroll_into_center.show",
@@ -197,8 +196,6 @@ class BrowserElement:
                     cur_target_app=browser_obj.browser_type.value,
                     scroll_into_center=scroll_into_center,
                 )
-                if isinstance(element.rect(), list):
-                    raise Exception("浏览器元素定位不唯一，请检查！")
 
                 # 点击
                 center = element.point()
@@ -271,7 +268,6 @@ class BrowserElement:
             ),
             atomicMg.param(
                 "scroll_into_center",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.scroll_into_center.show",
@@ -312,6 +308,8 @@ class BrowserElement:
         elif fill_type == FillInputForFillTypeFlag.Credential:
             from astronverse.actionlib.utils import Credential
 
+            if not fill_input_credential:
+                raise BizException(CREDENTIAL_NOT_SELECTED, "请先选择凭据名称")
             text = Credential.get_credential(fill_input_credential)
         else:
             text = ""
@@ -343,9 +341,9 @@ class BrowserElement:
 
             # 参数验证
             if focus_time < 0:
-                raise BaseException(FOCUS_TIMEOUT_MUST_BE_POSITIVE, "焦点超时时间必须大于0")
+                raise BizException(FOCUS_TIMEOUT_MUST_BE_POSITIVE, "焦点超时时间必须大于0")
             if write_gap_time < 0:
-                raise BaseException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
+                raise BizException(KEY_PRESS_INTERVAL_MUST_BE_NON_NEGATIVE, "按键输入间隔必须大于等于0")
 
             # 定位
             element = locator.locator(
@@ -353,8 +351,6 @@ class BrowserElement:
                 cur_target_app=browser_obj.browser_type.value,
                 scroll_into_center=scroll_into_center,
             )
-            if isinstance(element.rect(), list):
-                raise Exception("浏览器元素定位不唯一，请检查！")
 
             # 点击
             center = element.point()
@@ -389,7 +385,7 @@ class BrowserElement:
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
-            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("scroll_into_center", required=False),
         ],
         outputList=[],
     )
@@ -408,8 +404,6 @@ class BrowserElement:
             cur_target_app=browser_obj.browser_type.value,
             scroll_into_center=scroll_into_center,
         )
-        if isinstance(element.rect(), list):
-            raise Exception("浏览器元素定位不唯一，请检查！")
         element.move()
 
     @staticmethod
@@ -448,7 +442,7 @@ class BrowserElement:
         if data:
             data = data.replace("data:image/jpeg;base64,", "")
         else:
-            raise Exception("插件返回数据为空")
+            raise BizException(PLUGIN_EMPTY_RESPONSE, "插件返回数据为空")
 
         # 输出
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
@@ -484,9 +478,9 @@ class BrowserElement:
         """元素位置截图"""
         browser_obj = check_element(browser_obj, element_data, element_timeout)
         element = locator.locator(element_data.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(element.rect(), list):
-            raise Exception("浏览器元素定位不唯一，请检查！")
         rect = element.rect()
+        if isinstance(rect, list):
+            rect = rect[-1]
 
         if not image_name.endswith((".png", ".jpg", ".jpeg")):
             image_name += ".jpg"
@@ -632,7 +626,7 @@ class BrowserElement:
     @atomicMg.atomic(
         "BrowserElement",
         inputList=[
-            atomicMg.param("scroll_into_center", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("scroll_into_center", required=False),
         ],
         outputList=[],
     )
@@ -854,17 +848,15 @@ class BrowserElement:
         # 定位滑块和滑条元素
         # 滑块（要拖动的元素）
         element = locator.locator(element_slider.get("elementData"), cur_target_app=browser_obj.browser_type.value)
-        if isinstance(element.rect(), list):
-            raise Exception("滑块元素定位不唯一，请检查！")
         slider_center = element.point()
 
         # 滑条（滑块可移动的轨道）
         element = locator.locator(
             element_progress.get("elementData"), cur_target_app=browser_obj.browser_type.value, scroll_into_view=False
         )
-        if isinstance(element.rect(), list):
-            raise Exception("滑轨元素定位不唯一，请检查！")
         progress_rect = element.rect()
+        if isinstance(progress_rect, list):
+            progress_rect = progress_rect[-1]
 
         # 计算滑条的尺寸和位置
         progress_left = progress_rect.left
@@ -1296,13 +1288,15 @@ class BrowserElement:
             if to_excel:
                 # 检查 excel_path 是否为 .xlsx 文件
                 if excel_path and not excel_path.endswith(".xlsx"):
-                    raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
+                    raise BizException(
+                        FILE_PATH_ERROR_FORMAT.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件"
+                    )
                 if excel_path is None:
                     excel_path = f"{element_data['elementData']['name']}.xlsx"
                 df.to_excel(excel_path, index=False)
             return [table_head] + table_list
         else:
-            raise Exception(table_data["msg"])
+            raise BizException(ERROR_FORMAT.format(table_data["msg"]), table_data["msg"])
 
     @staticmethod
     @atomicMg.atomic(
@@ -1381,7 +1375,6 @@ class BrowserElement:
             atomicMg.param("output_head", required=False),
             atomicMg.param(
                 "scroll_into_center",
-                level=AtomicLevel.ADVANCED,
                 dynamics=[
                     DynamicsItem(
                         key="$this.scroll_into_center.show",
@@ -1441,7 +1434,7 @@ class BrowserElement:
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BizException(WEB_GET_ELE_ERROR_FORMAT.format("请检查抓取元素"), "浏览器元素未找到！")
                 # 发送给插件
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
@@ -1457,20 +1450,22 @@ class BrowserElement:
                 similar_element = batch_element["path"]
                 wait = BrowserElement.wait_element(
                     browser_obj=browser_obj,
-                    element_data={
-                        "elementData": {
-                            "version": batch_element["version"],
-                            "type": batch_element["type"],
-                            "app": batch_element["app"],
-                            "picker_type": "ELEMENT",
-                            "path": similar_element,
+                    element_data=WebPick(
+                        {
+                            "elementData": {
+                                "version": batch_element["version"],
+                                "type": batch_element["type"],
+                                "app": batch_element["app"],
+                                "picker_type": "ELEMENT",
+                                "path": similar_element,
+                            }
                         }
-                    },
+                    ),
                     ele_status=WaitElementForStatusFlag.ElementExists,
                     element_timeout=int(element_timeout),
                 )
                 if not wait:
-                    raise BaseException(WEB_GET_ELE_ERROR.format("请检查抓取元素"), "浏览器元素未找到！")
+                    raise BizException(WEB_GET_ELE_ERROR_FORMAT.format("请检查抓取元素"), "浏览器元素未找到！")
                 response = browser_obj.send_browser_extension(
                     browser_type=browser_obj.browser_type.value,
                     key="simalarListBatch",
@@ -1539,7 +1534,9 @@ class BrowserElement:
             # 将table_list 转换为excel
             # 检查 excel_path 是否为 .xlsx 文件
             if excel_path and not excel_path.endswith(".xlsx"):
-                raise Exception(f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件")
+                raise BizException(
+                    FILE_PATH_ERROR_FORMAT.format(excel_path), f"{excel_path}表格文件路径错误，仅支持 .xlsx 文件"
+                )
             if excel_path is None:
                 excel_path = f"{table_element['name']}.xlsx"
             table_df_out.to_excel(excel_path, index=False, header=output_head)
@@ -1575,7 +1572,7 @@ class BrowserElement:
 
         # 校验locate_value
         if not locate_value:
-            raise BaseException(CODE_EMPTY, "定位值不能为空")
+            raise BizException(CODE_EMPTY, "定位值不能为空")
 
         # 发送给插件
         response = browser_obj.send_browser_extension(

@@ -5,7 +5,7 @@ import threading
 import time
 from ast import literal_eval
 import requests
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH, URL, WebPick
 from astronverse.browser import *
@@ -21,26 +21,23 @@ class BrowserSoftware:
     @atomicMg.atomic(
         "BrowserSoftware",
         inputList=[
-            atomicMg.param("wait_load_success", level=AtomicLevel.NORMAL, required=False),
+            atomicMg.param("wait_load_success", required=False),
             atomicMg.param(
                 "browser_abs_path",
-                level=AtomicLevel.NORMAL,
                 required=False,
                 formType=AtomicFormTypeMeta(
                     type=AtomicFormType.INPUT_VARIABLE_PYTHON_FILE.value,
                     params={"file_type": "file"},
                 ),
             ),
-            atomicMg.param("open_args", level=AtomicLevel.ADVANCED, required=False),
+            atomicMg.param("open_args", required=False),
             atomicMg.param(
                 "open_with_incognito",
                 formType=AtomicFormTypeMeta(type=AtomicFormType.CHECKBOX.value),
-                level=AtomicLevel.ADVANCED,
                 required=False,
             ),
             atomicMg.param(
                 "timeout",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.timeout.show",
@@ -50,7 +47,6 @@ class BrowserSoftware:
             ),
             atomicMg.param(
                 "timeout_handle_type",
-                level=AtomicLevel.NORMAL,
                 dynamics=[
                     DynamicsItem(
                         key="$this.timeout_handle_type.show",
@@ -80,13 +76,13 @@ class BrowserSoftware:
             app_exe = os.path.basename(browser_abs_path)
             software_tag = BROWSER_SOFTWARE_TAG.get(browser_type.value, None)
             if not (software_tag and software_tag.lower() in app_exe.lower()):
-                raise BaseException(SELECT_MATCHING_APP_PATH.format(app_exe.lower()), "请选择跟浏览器匹配的应用路径")
+                raise BizException(SELECT_MATCHING_APP_PATH.format(app_exe.lower()), "请选择跟浏览器匹配的应用路径")
 
         # 检查browser_abs_path的路径
         if not browser_abs_path:
             browser_abs_path = BrowserCore.get_browser_path(browser_type.value)
             if not browser_abs_path:
-                raise BaseException(BROWSER_PATH_EMPTY, "注册表中未找到浏览器路径{}".format(browser_type))
+                raise BizException(BROWSER_PATH_EMPTY, "注册表中未找到浏览器路径{}".format(browser_type))
 
         # 内置浏览器加载插件
         if browser_type == CommonForBrowserType.BTChromium:
@@ -121,7 +117,7 @@ class BrowserSoftware:
                 if control:
                     break
             if not control:
-                raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+                raise BizException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
 
         try:
             # 置顶最大化
@@ -379,8 +375,8 @@ class BrowserSoftware:
         等待页面加载完成，直到超时或页面加载完成。
         """
         if timeout < 0:
-            raise BaseException(
-                PARAMETER_INVALID_FORMAT.format(timeout),
+            raise BizException(
+                PARAMETER_INVALID_FORMAT.format("timeout"),
                 f"等待时间不能小于0！{timeout}",
             )
 
@@ -471,7 +467,7 @@ class BrowserSoftware:
         if data:
             data = data.replace("data:image/jpeg;base64,", "")
         else:
-            raise Exception("插件返回数据为空")
+            raise BizException(PLUGIN_EMPTY_RESPONSE, "插件返回数据为空")
         with open(dest_path, "wb") as f:
             f.write(base64.b64decode(data))
         return dest_path
@@ -513,7 +509,7 @@ class BrowserSoftware:
             time.sleep(1)
             open_timeout -= 1
         if not control:
-            raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+            raise BizException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
 
         try:
             # 置顶最大化
@@ -661,7 +657,7 @@ class BrowserSoftware:
         elif download_mode == DownloadModeForFlag.Link:
             file_path_arr = []
             if not (link_str and save_path):
-                raise ValueError("请提供正确的url链接和文件存储路径")
+                raise BizException(UPLOAD_PATH_INVALID, "请提供正确的url链接和文件存储路径")
             try:
                 link_strs = literal_eval(link_str)
             except Exception:

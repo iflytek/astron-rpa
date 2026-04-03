@@ -41,7 +41,6 @@ export function checkBrowerRunning(params) {
   )
 }
 
-
 // 一键安装所有更新的浏览器插件
 export function installAllUpdateBrowerPlugin() {
   return http.post(

@@ -9,6 +9,7 @@ import numpy as np
 import pyautogui
 import requests
 from astronverse.vision_picker.core.cv_match import AnchorMatch
+from astronverse.vision_picker.error import BizException, SERVER_ERROR
 from PIL import Image
 
 current_directory = os.getcwd()
@@ -113,7 +114,7 @@ class IPickCore(ABC):
             response = requests.get(f"{remote_addr}{input_url}")
             response.raise_for_status()  # 自动抛出HTTP错误
         except requests.exceptions.RequestException as e:
-            raise Exception(f"服务器错误: {e}")
+            raise BizException(SERVER_ERROR.format(str(e)), f"服务器错误: {e}")
         print(response.content)
         base64_encoded_data = base64.b64encode(response.content).decode("utf-8")
         return base64_encoded_data

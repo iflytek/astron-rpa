@@ -15,7 +15,7 @@ def _handle_files_input(files_path):
                     # 最后一项是正常路径
                     files_path[i] = files_path[i].strip() + ".pdf"
     elif not isinstance(files_path, list):
-        raise BaseException(FILE_PATH_ERROR_FORMAT.format(str(files_path)), "PDF文件路径有误，请输入正确的路径")
+        raise BizException(FILE_PATH_ERROR_FORMAT.format(str(files_path)), "PDF文件路径有误，请输入正确的路径")
 
 
 class FileExistenceType(Enum):

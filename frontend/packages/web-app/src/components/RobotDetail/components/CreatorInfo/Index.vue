@@ -11,13 +11,13 @@ defineProps<{
   <section class="px-6 py-5 rounded-xl bg-[#000000]/[.03] dark:bg-[#FFFFFF]/[.03]">
     <div class="inline-flex items-center gap-[6px] font-semibold mb-4">
       <div class="inline-block w-[2px] h-[12px] bg-primary" />
-      <span>创建者信息</span>
+      <span>{{ $t('creatorInformation') }}</span>
     </div>
     <a-descriptions layout="vertical" size="middle" :colon="false">
-      <a-descriptions-item label="创建者" :span="1">
+      <a-descriptions-item :label="$t('creator')" :span="1">
         {{ creatorName }}
       </a-descriptions-item>
-      <a-descriptions-item label="创建时间" :span="1">
+      <a-descriptions-item :label="$t('createTime')" :span="1">
         {{ dayjs(createTime).format("YYYY-MM-DD HH:mm:ss") }}
       </a-descriptions-item>
     </a-descriptions>

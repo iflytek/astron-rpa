@@ -1,3 +1,5 @@
+import i18next from '@/plugins/i18next'
+
 export const EMAIL_OPTIONS = [
   {
     label: '163',
@@ -12,7 +14,7 @@ export const EMAIL_OPTIONS = [
     value: 'qqEmail',
   },
   {
-    label: '其他邮箱',
+    label: i18next.t('mail.otherEmail'),
     value: 'customEmail',
   },
 ]

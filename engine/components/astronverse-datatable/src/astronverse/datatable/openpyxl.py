@@ -45,9 +45,9 @@ class OpenpyxlWrapper:
         try:
             self.workbook.save(save_path)
         except PermissionError:
-            raise DATAFRAME_EXPECTION(WRITE_PERMISSION_DENIED_ERROR_FORMAT.format(save_path), "写入Excel文件失败")
+            raise BizException(WRITE_PERMISSION_DENIED_ERROR_FORMAT.format(save_path), "写入Excel文件失败")
         except Exception as e:
-            raise DATAFRAME_EXPECTION(WRITE_DATA_ERROR_FORMAT.format(save_path, str(e)), "写入Excel文件失败")
+            raise BizException(WRITE_DATA_ERROR_FORMAT.format(save_path, str(e)), "写入Excel文件失败")
 
     def close(self):
         """
@@ -180,7 +180,7 @@ class OpenpyxlWrapper:
         elif col_index:
             return [cell.value for cell in self.sheet[get_column_letter(col_index)]]
         else:
-            raise ValueError("Either column name or column index must be provided.")
+            raise BizException(COL_PARAM_ERROR, "必须提供列名或列索引")
 
     def read_range(self, range_str: str) -> list:
         """

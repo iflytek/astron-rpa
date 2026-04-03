@@ -1,6 +1,6 @@
 import os
 
-from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
+from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.system import *
 from astronverse.system.core.compress_core import CompressCore
@@ -60,7 +60,7 @@ class Compress:
                 required=True,
             ),
             atomicMg.param("pwd", required=False),
-            atomicMg.param("save_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("save_type", required=False),
         ],
         outputList=[
             atomicMg.param("compress_path", types="Str"),
@@ -77,11 +77,13 @@ class Compress:
         save_type: SaveType = SaveType.SAVE,
     ):
         if file_type == FileFolderType.FILE and not file_path:
-            raise ValueError("待压缩文件路径不能为空，请检查所选内容")
+            raise BizException(PARAM_ERROR_FORMAT.format("file_path"), "待压缩文件路径不能为空，请检查所选内容")
         if file_type == FileFolderType.FOLDER and not folder_path:
-            raise ValueError("待压缩文件夹路径不能为空，请检查所选内容")
+            raise BizException(PARAM_ERROR_FORMAT.format("folder_path"), "待压缩文件夹路径不能为空，请检查所选内容")
         if file_type == FileFolderType.BOTH and not (file_path or folder_path):
-            raise ValueError("待压缩文件和文件夹路径不能为空，请检查所选内容")
+            raise BizException(
+                PARAM_ERROR_FORMAT.format("file_path/folder_path"), "待压缩文件和文件夹路径不能为空，请检查所选内容"
+            )
 
         items_file = [path.strip() for path in file_path.split(",")]
         items_folder = [path.strip() for path in folder_path.split(",")]
@@ -93,7 +95,7 @@ class Compress:
                 compress_name = get_file_name_only(items[0])
         if not folder_is_exists(compress_dir):
             if state_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(compress_dir),
                     "指定目标路径不存在，请检查路径信息",
                 )
@@ -136,7 +138,7 @@ class Compress:
                 required=True,
             ),
             atomicMg.param("pwd", required=False),
-            atomicMg.param("save_type", level=AtomicLevel.ADVANCED.value, required=False),
+            atomicMg.param("save_type", required=False),
         ],
         outputList=[
             atomicMg.param("uncompress_path", types="Str"),
@@ -150,12 +152,12 @@ class Compress:
         save_type: SaveType = SaveType.SAVE,
     ):
         if not os.path.isfile(source_path):
-            raise BaseException(FILE_PATH_ERROR_FORMAT.format(source_path), "文件不存在，请检查文件路径")
+            raise BizException(FILE_PATH_ERROR_FORMAT.format(source_path), "文件不存在，请检查文件路径")
         if not folder_is_exists(target_path):
             if status_type == StateType.CREATE:
                 os.makedirs(target_path, exist_ok=True)
             elif status_type == StateType.ERROR:
-                raise BaseException(
+                raise BizException(
                     FOLDER_PATH_ERROR_FORMAT.format(target_path),
                     "指定目录不存在，请检查路径信息",
                 )

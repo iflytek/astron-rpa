@@ -78,7 +78,7 @@ class OpenApi:
         src_file = src_file if not is_multi else src_dir
         files = utils.generate_src_files(src_file)
         if len(files) == 0:
-            raise BaseException(IMAGE_EMPTY, "图片路径不存在或格式错误")
+            raise BizException(IMAGE_EMPTY, "图片路径不存在或格式错误")
 
         res = OpenapiIflytek.template_ocr(
             header_dict,
@@ -166,7 +166,7 @@ class OpenApi:
         src_file = src_file if not is_multi else src_dir
         files = utils.generate_src_files(src_file)
         if len(files) == 0:
-            raise BaseException(IMAGE_EMPTY, "图片路径不存在或格式错误")
+            raise BizException(IMAGE_EMPTY, "图片路径不存在或格式错误")
 
         res = OpenapiIflytek.template_ocr(
             header_dict,
@@ -267,7 +267,7 @@ class OpenApi:
         src_file = src_file if not is_multi else src_dir
         files = utils.generate_src_files(src_file)
         if len(files) == 0:
-            raise BaseException(IMAGE_EMPTY, "图片路径不存在或格式错误")
+            raise BizException(IMAGE_EMPTY, "图片路径不存在或格式错误")
 
         res = OpenapiIflytek.template_ocr(
             header_dict,
@@ -356,7 +356,7 @@ class OpenApi:
         src_file = src_file if not is_multi else src_dir
         files = utils.generate_src_files(src_file)
         if len(files) == 0:
-            raise BaseException(IMAGE_EMPTY, "图片路径不存在或格式错误")
+            raise BizException(IMAGE_EMPTY, "图片路径不存在或格式错误")
 
         res = OpenapiIflytek.template_ocr(
             header_dict,
@@ -441,7 +441,7 @@ class OpenApi:
         src_file = src_file if not is_multi else src_dir
         files = utils.generate_src_files(src_file)
         if len(files) == 0:
-            raise BaseException(IMAGE_EMPTY, "图片路径不存在或格式错误")
+            raise BizException(IMAGE_EMPTY, "图片路径不存在或格式错误")
 
         res = OpenapiIflytek.template_ocr(
             header_dict,
@@ -522,7 +522,7 @@ class OpenApi:
         src_file = src_file if not is_multi else src_dir
         files = utils.generate_src_files(src_file)
         if len(files) == 0:
-            raise BaseException(IMAGE_EMPTY, "图片路径不存在或格式错误")
+            raise BizException(IMAGE_EMPTY, "图片路径不存在或格式错误")
 
         res = OpenapiIflytek.common_ocr(header_dict, files)
         if is_save:

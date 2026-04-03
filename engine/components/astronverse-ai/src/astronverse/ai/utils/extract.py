@@ -1,5 +1,7 @@
 """File content extraction utilities for pdf, docx and text files."""
 
+from astronverse.ai.error import BizException, UNSUPPORTED_FILE_TYPE_ERROR_FORMAT
+
 
 class FileExtractor:
     """Unified file content extractor supporting PDF, DOCX/DOC and TXT."""
@@ -20,7 +22,9 @@ class FileExtractor:
 
             text_content = Path(self.file_path).read_text(encoding="utf-8")
         else:
-            raise ValueError("不支持的文件扩展类型: " + file_extension)
+            raise BizException(
+                UNSUPPORTED_FILE_TYPE_ERROR_FORMAT.format(file_extension), "不支持的文件扩展类型: " + file_extension
+            )
         return text_content
 
     @staticmethod

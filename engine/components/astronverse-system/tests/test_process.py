@@ -107,7 +107,7 @@ class TestProcess(TestCase):
 
     def test_get_pid_empty_name(self):
         """测试获取PID - 空名称"""
-        with self.assertRaises(BaseException):
+        with self.assertRaises(BizException):
             Process.get_pid(process_name="", search_type=SearchType.EXACT, pid_type=PidType.ALL)
 
     def test_get_pid_no_such_process(self):

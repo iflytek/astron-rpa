@@ -1,6 +1,7 @@
 import type { Level } from '@tiptap/extension-heading'
 import type { Editor } from '@tiptap/vue-3'
 import { Dropdown, Menu } from 'ant-design-vue'
+import i18next from 'i18next'
 import type { PropType } from 'vue'
 import { computed, defineComponent } from 'vue'
 
@@ -9,12 +10,12 @@ import { IconButton } from '../../IconButton'
 const HEADLINE_LEVEL: Level[] = [1, 2, 3]
 
 const HEADLINE_LEVEL_TEXT: Record<Level, string> = {
-  1: '一',
-  2: '二',
-  3: '三',
-  4: '四',
-  5: '五',
-  6: '六',
+  1: i18next.t('components.richText.heading1'),
+  2: i18next.t('components.richText.heading2'),
+  3: i18next.t('components.richText.heading3'),
+  4: i18next.t('components.richText.heading4'),
+  5: i18next.t('components.richText.heading5'),
+  6: i18next.t('components.richText.heading6'),
 }
 
 export const HeadingToolbar = defineComponent({
@@ -47,18 +48,21 @@ export const HeadingToolbar = defineComponent({
     return () => (
       <Dropdown overlay={(
         <Menu class="w-24">
-          <Menu.Item onClick={() => editor.chain().focus().setParagraph().run()}>正文</Menu.Item>
+          <Menu.Item onClick={() => editor.chain().focus().setParagraph().run()}>
+            {i18next.t('components.richText.body')}
+          </Menu.Item>
           <Menu.Divider />
           {HEADLINE_LEVEL.map(level => (
             <Menu.Item onClick={() => editor.chain().focus().toggleHeading({ level }).run()}>
-              标题
               { HEADLINE_LEVEL_TEXT[level] }
             </Menu.Item>
           ))}
         </Menu>
       )}
       >
-        <IconButton>{activeLevel.value ? `标题${HEADLINE_LEVEL_TEXT[activeLevel.value]}` : '正文' }</IconButton>
+        <IconButton>
+          {activeLevel.value ? HEADLINE_LEVEL_TEXT[activeLevel.value] : i18next.t('components.richText.body') }
+        </IconButton>
       </Dropdown>
     )
   },

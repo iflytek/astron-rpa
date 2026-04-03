@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, app } from 'electron'
 import { clipboard, dialog, globalShortcut, ipcMain, screen, shell } from 'electron'
 import throttle from 'lodash/throttle'
 import { IPluginConfig } from '@rpa/shared'
@@ -12,7 +12,7 @@ import logger from './log'
 import { openPath } from './path'
 import { getMainWindow, getWindowFromLabel } from './window'
 import { checkForUpdates, quitAndInstallUpdates } from './updater'
-import { config } from './config'
+import { config, loadSetting, saveSetting } from './config'
 import { loadExtensions } from './extension'
 
 type MainToRender = (channel: string, msg: string, _win?: BrowserWindow, encode?: boolean) => void
@@ -298,11 +298,24 @@ export function listenRender() {
     quitAndInstallUpdates()
   })
 
+  ipcMain.on('restart-app', () => {
+    app.relaunch()
+    app.exit()
+  })
+
   ipcMain.handle('get-app-config', () => {
     return config
   })
 
   ipcMain.handle('get-plugin-list', async (): Promise<IPluginConfig[]> => {
     return loadExtensions()
+  })
+
+  ipcMain.handle('get-user-setting', async () => {
+    return loadSetting()
+  })
+
+  ipcMain.handle('save-user-setting', async (_event, setting) => {
+    return saveSetting(setting)
   })
 }

@@ -11,11 +11,11 @@ const height = inject<Ref<number>>('logTableHeight', ref(180)) // 若没有注�
 const processStore = useProcessStore()
 
 const searchSubProcessName = computed(() => {
-  return processStore.processList.find((pItem: any) => pItem.resourceId === processStore.searchSubProcessId)?.name
+  return processStore.canvasManager.processList.find((pItem: any) => pItem.id === processStore.searchSubProcessId)?.state?.name
 })
 
 function clickSearchNode(pitem: any, node: any) {
-  processStore.openProcess(pitem.processId)
+  processStore.canvasManager.activateTab(pitem.processId)
   changeSelectAtoms(node.id, null, false)
   nextTick(() => {
     atomScrollIntoView(node.id)

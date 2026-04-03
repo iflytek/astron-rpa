@@ -10,7 +10,8 @@ dependencies = [
     "astronverse-locator",
     "pyautogui",
     "pytweening",
-    "requests"
+    "requests",
+    "pillow",
 ]
 
 [tool.uv.sources]

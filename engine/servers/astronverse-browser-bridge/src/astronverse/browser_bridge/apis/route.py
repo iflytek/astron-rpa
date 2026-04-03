@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 def handler(app: FastAPI):
     # 添加全局错误处理
-    app.add_exception_handler(BaseException, http_base_exception)
+    app.add_exception_handler(BizException, http_base_exception)
     app.add_exception_handler(Exception, http_exception)
 
     # 添加全局中间件

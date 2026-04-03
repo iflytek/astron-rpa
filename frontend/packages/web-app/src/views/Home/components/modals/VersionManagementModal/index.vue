@@ -40,7 +40,7 @@ function handleAfterOpenChange(v: boolean) {
     :open="modal.visible"
     class="versionHistoryModal"
     :width="560"
-    title="版本管理"
+    :title="$t('common.versionManagement')"
     :footer="null"
     @close="handleClose"
     @after-open-change="handleAfterOpenChange"
@@ -57,21 +57,21 @@ function handleAfterOpenChange(v: boolean) {
                 {{ getVersionDes(version.versionNum) }}
               </div>
               <div v-if="['enable'].includes(version.online)" class="w-[52px] h-[22px] flex items-center justify-center rounded-[4px] bg-[#e6f4ff] dark:bg-[#111a2c] text-[#726fff]">
-                启用中
+                {{ $t('common.enable') }}
               </div>
               <div v-if="version.versionNum === CURRENT_VERSION_VALUE" class="w-[52px] h-[22px] flex items-center justify-center rounded-[4px] bg-[#fff7e6] dark:bg-[#2b1d11] text-[#fa8c16] dark:text-[#d87a16]">
-                编辑中
+                {{ $t('common.editing') }}
               </div>
             </div>
             <div class="header-right-tools flex items-center">
               <a-button v-if="version.versionNum === CURRENT_VERSION_VALUE" class="flex items-center cursor-pointer" @click="() => { publish(version) }">
-                <rpa-icon name="publish" class="mr-[5px]" />发版
+                <rpa-icon name="publish" class="mr-[5px]" />{{ $t('release') }}
               </a-button>
               <a-button v-else class="flex items-center cursor-pointer ml-[8px]" @click="() => { recoverEdit(version) }">
-                <rpa-icon name="edit" class="mr-[5px]" />恢复编辑
+                <rpa-icon name="edit" class="mr-[5px]" />{{ $t('recoverEditing') }}
               </a-button>
               <a-button v-if="version.online === 'disable' && version.versionNum !== CURRENT_VERSION_VALUE" class="cursor-pointer ml-[8px]" @click="() => { enableVersion(version) }">
-                <div><ToolOutlined class="mr-[5px]" />启用版本</div>
+                <div><ToolOutlined class="mr-[5px]" />{{ $t('common.enabled') }}</div>
               </a-button>
             </div>
           </div>
@@ -79,8 +79,8 @@ function handleAfterOpenChange(v: boolean) {
             {{ getTimeDes(version.updateTime) }}
           </div>
           <div class="desc max-h-[71px] text-[12px] leading-6 text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] overflow-hidden text-ellipsis line-clamp-3 ">
-            <a-tooltip :title="version?.updateLog || '暂无描述信息'">
-              {{ version?.updateLog || '暂无描述信息' }}
+            <a-tooltip :title="version?.updateLog || $t('noDescription')">
+              {{ version?.updateLog || $t('noDescription') }}
             </a-tooltip>
           </div>
         </div>

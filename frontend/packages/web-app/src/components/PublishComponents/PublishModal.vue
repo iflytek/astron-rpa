@@ -2,6 +2,7 @@
 import { NiceModal } from '@rpa/components'
 import { useAsyncState } from '@vueuse/core'
 import { Drawer, Spin } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 
 import { getRobotLastVersion } from '@/api/robot'
 
@@ -11,6 +12,7 @@ import { toFrontData } from './utils'
 const props = defineProps<{ robotId: string }>()
 
 const emits = defineEmits(['ok'])
+const { t } = useTranslation()
 
 const modal = NiceModal.useModal()
 const { state, isLoading } = useAsyncState(() => getRobotLastVersion(props.robotId), null)
@@ -24,7 +26,7 @@ function handleSubmited() {
 <template>
   <Drawer
     v-bind="NiceModal.antdDrawer(modal)"
-    title="发布应用"
+    :title="t('publish.title')"
     class="no-drag"
     :body-style="{ padding: '0px' }"
     :width="568"

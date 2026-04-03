@@ -8,7 +8,7 @@ import FormLayout from '../Base/FormLayout.vue'
 import { useForgotPassword } from './hooks/useForgotPassword'
 
 const { title, running, modelValue } = defineProps({
-  title: { type: String, default: '找回密码' },
+  title: { type: String },
   modelValue: { type: Object as () => LoginFormData, default: () => ({}) },
   running: { type: String as () => AsyncAction, default: 'IDLE' },
 })
@@ -26,7 +26,7 @@ const { formRef, formData, config, handleEvents } = useForgotPassword(modelValue
 <template>
   <FormLayout
     wrap-class="auth-forgot-password h-full relative"
-    :title="title || '找回密码'"
+    :title="title || $t('auth.forgetPassword')"
     show-back
     @back="() => emit('switchToLogin')"
   >

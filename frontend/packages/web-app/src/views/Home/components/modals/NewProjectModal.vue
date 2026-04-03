@@ -28,7 +28,8 @@ const formState = reactive<FormState>({ name: '' })
 
 async function handleOk() {
   const valid = await formRef.value.validate()
-  if (!valid) return
+  if (!valid)
+    return
 
   loading.value = true
   try {

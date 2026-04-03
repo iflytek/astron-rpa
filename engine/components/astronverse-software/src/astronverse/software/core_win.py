@@ -19,7 +19,7 @@ class SoftwareCore(ISoftwareCore):
                 "r",
             )
             path = getattr(registry_manager, app_name)[None]
-        except OSError:
+        except Exception:
             try:
                 registry_manager = WindowsRegistryManager(
                     r"Software\Microsoft\Windows\CurrentVersion\App Paths",
@@ -27,6 +27,6 @@ class SoftwareCore(ISoftwareCore):
                     "r",
                 )
                 path = getattr(registry_manager, app_name)[None]
-            except OSError:
+            except Exception:
                 return ""
         return path

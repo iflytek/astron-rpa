@@ -86,14 +86,14 @@ function addPresetItem(op: string) {
     <div v-if="code !== 2" class="preset">
       <div class="flex items-center justify-center gap-1">
         <div class="text-[#7b7c7d]">
-          预置要素：
+          {{ $t('presetElements') }}：
         </div>
         <a-select
           class="flex-1"
           mode="multiple"
           :value="[]"
           :options="filterOptions"
-          placeholder="请选择预置要素"
+          :placeholder="$t('selectPresetElements')"
           @select="addPresetItem"
         />
       </div>
@@ -110,10 +110,10 @@ function addPresetItem(op: string) {
     </div>
     <div v-if="code !== 1" class="mt-2.5">
       <div class="flex items-center justify-between gap-1">
-        <span class="text-[#7b7c7d]">自定义要素：</span>
+        <span class="text-[#7b7c7d]">{{ $t('customElements') }}：</span>
         <rpa-hint-icon name="python-package-plus" enable-hover-bg class="text-primary" @click="handleCustomItemAdd">
           <template #suffix>
-            添加自定义要素
+            {{ $t('addCustomElements') }}
           </template>
         </rpa-hint-icon>
       </div>

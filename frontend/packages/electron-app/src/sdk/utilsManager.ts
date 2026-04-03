@@ -159,6 +159,18 @@ const getPluginList: UtilsManagerType['getPluginList'] = async () => {
   return ipcRenderer.invoke('get-plugin-list')
 }
 
+const restartApp: UtilsManagerType['restartApp'] = () => {
+  ipcRenderer.send('restart-app')
+}
+
+const getUserSetting: UtilsManagerType['getUserSetting'] = async () => {
+  return ipcRenderer.invoke('get-user-setting')
+}
+
+const saveUserSetting: UtilsManagerType['saveUserSetting'] = async (setting) => {
+  return ipcRenderer.invoke('save-user-setting', setting)
+}
+
 const UtilsManager: UtilsManagerType = {
   getAppEnv,
   getAppPath,
@@ -179,6 +191,9 @@ const UtilsManager: UtilsManagerType = {
   showDialog,
   getPluginList,
   getResourcePath,
+  restartApp,
+  getUserSetting,
+  saveUserSetting,
 }
 
 export default UtilsManager

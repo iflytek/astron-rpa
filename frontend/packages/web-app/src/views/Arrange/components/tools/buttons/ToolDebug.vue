@@ -25,7 +25,7 @@ async function handleClick() {
     return
   }
   const processId = processStore.canvasManager.activeTab?.id || ''
-  useRunningStore().startDebug(processStore.project.id, processId)
+  useRunningStore().startDebug(processStore.project.id, processStore.project.version, processId)
 }
 
 registerHotkey(DEBUG, handleClick)

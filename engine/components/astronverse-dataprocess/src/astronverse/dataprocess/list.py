@@ -17,7 +17,7 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
     用于内部检查列表是否合法
     """
     if not allow_empty and len(list_data) == 0:
-        raise ValueError("列表不能为空!")
+        raise BizException(LIST_EMPTY_ERROR, "列表不能为空")
     index_int = 0
     if index:
         try:
@@ -27,7 +27,7 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
                 # 检查每个索引是否在有效范围内
                 for idx in index_list:
                     if idx < -len(list_data) or idx >= len(list_data):
-                        raise ValueError("数组索引值超出范围!")
+                        raise BizException(LIST_INDEX_OUT_OF_RANGE, "数组索引值超出范围")
                 # 如果只有一个索引，返回第一个值
                 if len(index_list) == 1:
                     index_int = index_list[0]
@@ -37,11 +37,9 @@ def list_legal_check(list_data: list, index: str = "", allow_empty: bool = True)
                 # 如果不是字符串，直接转换为整数
                 index_int = int(index)
                 if index < -len(list_data) or index >= len(list_data):
-                    raise ValueError("数组索引值超出范围!")
-        except ValueError as e:
-            raise ValueError("请提供有效的整数类型索引!")
-        except Exception:
-            raise ValueError("请提供整数类型的索引!")
+                    raise BizException(LIST_INDEX_OUT_OF_RANGE, "数组索引值超出范围")
+        except Exception as e:
+            raise BizException(INVALID_INDEX_TYPE, "请提供整数类型的索引")
     return list_data, index_int
 
 
@@ -94,7 +92,7 @@ class ListProcess:
             try:
                 value = ast.literal_eval(value)
             except Exception as e:
-                raise BaseException(INVALID_LIST_FORMAT_ERROR_FORMAT.format(e), "请输入正确的列表格式")
+                raise BizException(INVALID_LIST_FORMAT_ERROR_FORMAT.format(e), "请输入正确的列表格式")
         new_array = []
         if list_type == ListType.EMPTY:
             pass
@@ -112,7 +110,7 @@ class ListProcess:
             elif isinstance(custom_list, list):
                 new_array = custom_list
             else:
-                raise ValueError("用户自定义列表类型错误!")
+                raise BizException(INVALID_LIST_TYPE, "用户自定义列表类型错误")
         return new_array
 
     @staticmethod
@@ -164,7 +162,7 @@ class ListProcess:
             try:
                 index_int = int(index)
             except:
-                raise BaseException(INVALID_INDEX_ERROR_FORMAT.format(index), "需要提供整数类型的索引！")
+                raise BizException(INVALID_INDEX_ERROR_FORMAT.format(index), "需要提供整数类型的索引！")
             list_data.insert(index_int, value)
         return list_data
 
@@ -185,7 +183,7 @@ class ListProcess:
         list_data, index_int = list_legal_check(list_data, index, False)
 
         if isinstance(index_int, list):
-            raise ValueError("请提供单个整数类型的索引！")
+            raise BizException(INVALID_INDEX_TYPE, "请提供单个整数类型的索引")
         else:
             list_data[index_int] = new_value
         return list_data
@@ -206,8 +204,8 @@ class ListProcess:
         try:
             list_pos = list_data.index(value)
             return list_pos
-        except ValueError:
-            raise ValueError("列表中不存在该对象!")
+        except Exception as e:
+            raise BizException(ELEMENT_NOT_FOUND, "列表中不存在该对象")
 
     @staticmethod
     @atomicMg.atomic(
@@ -260,8 +258,8 @@ class ListProcess:
         elif del_mode == DeleteMethodType.VALUE:
             try:
                 index = list_data.index(del_value)
-            except ValueError:
-                raise ValueError("列表中未找到该元素！")
+            except Exception as e:
+                raise BizException(ELEMENT_NOT_FOUND, "列表中未找到该元素")
             del list_data[index]
             return list_data
 
@@ -282,12 +280,12 @@ class ListProcess:
             try:
                 list_instance = sorted(list_data)  # 升序
             except:
-                raise ValueError("请提供元素数据类型一致的列表进行排序!")
+                raise BizException(INCONSISTENT_LIST_TYPE, "请提供元素数据类型一致的列表进行排序")
         elif sort_method == SortMethodType.DESC:
             try:
                 list_instance = sorted(list_data, reverse=True)  # 默认降序
             except:
-                raise ValueError("请提供元素数据类型一致的列表进行排序!")
+                raise BizException(INCONSISTENT_LIST_TYPE, "请提供元素数据类型一致的列表进行排序")
         return list_instance
 
     @staticmethod

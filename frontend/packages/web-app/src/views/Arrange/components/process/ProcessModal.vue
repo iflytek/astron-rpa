@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { NiceModal } from '@rpa/components'
 import { Form, message } from 'ant-design-vue'
+import { useTranslation } from 'i18next-vue'
 import { computed, onBeforeMount, reactive } from 'vue'
 
 import { useProcessStore } from '@/stores/useProcessStore'
@@ -13,17 +14,18 @@ const props = defineProps<{
 const modal = NiceModal.useModal()
 
 const processStore = useProcessStore()
+const { t } = useTranslation()
 
-const categoryTitle = computed(() => props.type === 'process' ? '子流程' : 'Python模块')
-const modalTitle = computed(() => props.processItem ? `编辑${categoryTitle.value}` : `新建${categoryTitle.value}`)
-const nameTitle = computed(() => `${categoryTitle.value}名称`)
+const categoryTitle = computed(() => props.type === 'process' ? t('processModal.subProcess') : t('processModal.pythonModule'))
+const modalTitle = computed(() => t('processModal.title', { action: props.processItem ? t('edit') : t('new'), category: categoryTitle.value }))
+const nameTitle = computed(() => t('processModal.nameTitle', { category: categoryTitle.value }))
 
 const formState = reactive({ name: '' })
 const rulesRef = computed(() => ({
   name: [
     {
       required: true,
-      message: `请输入${nameTitle.value}！`,
+      message: t('processModal.enterName', { name: nameTitle.value }),
     },
     {
       validator: (_rule: any, value: string) => {
@@ -54,7 +56,7 @@ onBeforeMount(async () => {
 async function handleOkConfirm() {
   await validate()
 
-  const msgPrefix = props.processItem ? '更新' : '新建'
+  const msgPrefix = props.processItem ? t('common.update') : t('create')
 
   try {
     if (props.processItem) {
@@ -64,11 +66,11 @@ async function handleOkConfirm() {
       await processStore.canvasManager.createTab(props.type, formState.name)
     }
 
-    message.success(`${msgPrefix}成功`)
+    message.success(t('processModal.actionSuccess', { action: msgPrefix }))
     modal.hide()
   }
   catch {
-    message.error(`${msgPrefix}失败`)
+    message.error(t('processModal.actionFail', { action: msgPrefix }))
   }
 }
 </script>
@@ -84,7 +86,7 @@ async function handleOkConfirm() {
     <a-form layout="vertical">
       <div v-if="type === 'process'" class="mb-2.5">
         <span>{{ modalTitle }}：</span>
-        <span>在流程具有较多操作步骤时，便于整体工程的管理。</span>
+        <span>{{ $t('processModal.tip') }}</span>
       </div>
       <a-form-item
         :label="nameTitle"

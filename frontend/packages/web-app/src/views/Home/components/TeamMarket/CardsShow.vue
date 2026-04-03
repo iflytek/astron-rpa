@@ -82,7 +82,7 @@ const loading = computed(() => props.loading)
                     {{ t('common.hasUpdateVersion') }}
                   </div>
                 </div>
-                <a-tooltip v-if="item.securityLevel" :title="SECURITY_LEVEL_TEXT[item.securityLevel]" placement="top">
+                <a-tooltip v-if="item.securityLevel" :title="t(SECURITY_LEVEL_TEXT[item.securityLevel])" placement="top">
                   <rpa-icon class="inline-block ml-[4px]" :name="`market-${item.securityLevel}`" size="18px" />
                 </a-tooltip>
               </div>

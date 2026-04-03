@@ -1,6 +1,7 @@
-import { MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from './constant'
+import { FRAME_ELEMENT_TAGS, MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from '../common/constant'
+import { Utils } from '../common/utils'
+
 import { highLight, highLightRects } from './highlight'
-import { Utils } from './utils'
 
 function getSupportTag(tagName: string) {
   if (Utils.isSpecialCharacter(tagName)) {
@@ -67,7 +68,7 @@ export function getAttr(element: HTMLElement, attrName: string) {
     'type': element.getAttribute('type'),
     'value': (element as HTMLInputElement).value,
     'href': (element as HTMLAnchorElement).href,
-    'src': (element as HTMLImageElement | HTMLSourceElement).src,
+    'src': (element as HTMLImageElement | HTMLSourceElement).src || element.getAttribute('src'),
     'title': element.title,
     'text': getNodeText(element),
     'placeholder': (element as HTMLInputElement | HTMLTextAreaElement).placeholder,
@@ -145,11 +146,11 @@ function elementFromPoint(x: number, y: number, docu: Document | ShadowRoot) {
 }
 
 function isUniqueIdFn(id: string) {
-  return id && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
+  return id && !Utils.isNumberString(id) && !Utils.isSpecialCharacter(id) && document.querySelectorAll(`#${id}`).length === 1
 }
 
 function isHighWeightClass(cls: string) {
-  return cls && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
+  return cls && !Utils.isNumberString(cls) && !Utils.isSpecialCharacter(cls) && !Utils.isDynamicAttribute('class', cls)
 }
 
 function isSvgElement(element: Element): boolean {
@@ -456,25 +457,28 @@ function getShadowElementsBySelector(selector: string) {
  * @returns The updated array of `ElementDirectory` objects with potentially modified 'index' attribute states.
  */
 function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) {
-  // Re-weight dirs again, try to uncheck the index of each node
+  const idIndex = dirs.findLastIndex(dir => dir.attrs.some(attr => attr.name === 'id' && attr.checked))
   for (let i = dirs.length - 1; i >= 0; i--) {
     const dir = dirs[i]
-    const idAttr = dir.attrs.find(attr => attr.name === 'id' && attr.checked)
-    if (idAttr) {
-      dir.attrs.forEach((attr) => {
-        attr.checked = attr.name === 'id'
-      })
+    if (idIndex !== -1 && i < idIndex) {
+      // try to uncheck dir.checked
+      dir.checked = false
+      dir.attrs.forEach(attr => attr.checked = false)
     }
-    const indexAttr = dir.attrs.find(attr => attr.name === 'index')
-    if (indexAttr && indexAttr.checked) {
-      indexAttr.checked = false
-      const xpath = generateXPath(dirs)
-      const elements = getElementsByXpath(xpath)
-      const ignoreIndex = elements && elements.length === 1 && elements[0] === originElement
-      if (!ignoreIndex) {
-        indexAttr.checked = true
+    // try to uncheck index attr
+    const tryUncheckAttr = (attrName: string) => {
+      const attr = dir.attrs.find(a => a.name === attrName)
+      if (attr?.checked) {
+        attr.checked = false
+        const xpath = Utils.generateXPath(dirs)
+        const elements = getElementsByXpath(xpath)
+        const shouldKeepChecked = !(elements?.length === 1 && elements[0] === originElement)
+        attr.checked = shouldKeepChecked
       }
     }
+
+    tryUncheckAttr('index')
+    tryUncheckAttr('class')
   }
   return dirs
 }
@@ -484,10 +488,9 @@ function rebuildDirectory(originElement: HTMLElement, dirs: ElementDirectory[]) 
  * The directory is built from the element up to the root or until a unique identifier is found.
  *
  * @param element - The target HTMLElement for which to generate the directory.
- * @param isAbsolute - If true, traverses up to the root element regardless of unique identifiers; otherwise, stops at a unique id or the body element.
  * @returns An array of `ElementDirectory` objects, each describing an ancestor element and its relevant attributes.
  */
-export function getElementDirectory(element: HTMLElement, isAbsolute = false): ElementDirectory[] {
+export function getElementDirectory(element: HTMLElement): ElementDirectory[] {
   if (!element)
     return []
   const originElement = element
@@ -501,7 +504,6 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
     let index = getElementIndex(element)
     let hasSubling = hasSameTypeSiblings(element)
     const isSvg = isSvgElement(element)
-    const isUniqueId = isUniqueIdFn(id)
 
     tagName = isSvg ? `*` : tagName
     index = isSvg ? getAllElementIndex(element) : index
@@ -509,8 +511,10 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
 
     // assemble attrs with initial weights
     const attrs = []
-    if (isUniqueId)
-      attrs.push({ name: 'id', value: id, checked: true, type: 0 })
+    if (id) {
+      const idChecked = isUniqueIdFn(id)
+      attrs.push({ name: 'id', value: id, checked: idChecked, type: 0 })
+    }
     if (isSvg)
       attrs.push({ name: 'local-name', value: element.tagName.toLowerCase(), checked: true, type: 0 })
     if (hasSubling && index)
@@ -541,10 +545,6 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
 
     const attributes = { tag: tagName, checked: true, value: tagName, attrs }
     elementDirectory.unshift(attributes)
-    // id has highest weight, stop here
-    if (id && isUniqueId && !isAbsolute) {
-      return rebuildDirectory(originElement, elementDirectory)
-    }
     element = element.parentElement
     if (element && element.tagName.toLowerCase() === 'body') {
       return rebuildDirectory(originElement, elementDirectory)
@@ -565,7 +565,7 @@ export function getElementDirectory(element: HTMLElement, isAbsolute = false): E
  */
 export function directoryXpath(element: HTMLElement): string {
   const elementDirectory = getElementDirectory(element)
-  return generateXPath(elementDirectory)
+  return Utils.generateXPath(elementDirectory)
 }
 
 /**
@@ -622,132 +622,17 @@ function checkElementsByRegular(searchElements: HTMLElement[], elementDirectory:
 
 function directoryFindElement(elementDirectory: ElementDirectory[], onlyPosition: boolean = false) {
   let searchElements: HTMLElement[] = []
-  const xpath = generateXPath(elementDirectory, onlyPosition)
+  const xpath = Utils.generateXPath(elementDirectory, onlyPosition)
   // console.log('directoryFindElement generateXPath xpath: ', xpath)
   searchElements = getElementsByXpath(xpath, onlyPosition)
   if (searchElements && searchElements.length > 0) {
     searchElements = checkElementsByRegular(searchElements, elementDirectory)
+    // console.log(xpath, searchElements.length);
     return searchElements
   }
   else {
     return null
   }
-}
-
-function textfn(val: string) {
-  if (val.includes('"')) {
-    return `text()=concat(${val
-      .split('"')
-      .map((part, index, arr) => (index < arr.length - 1 ? `"${part}", '"', ` : `"${part}"`))
-      .join('')})`
-  }
-  return `text()="${val}"`
-}
-
-/**
- * Generates an XPath condition string based on the provided element attributes.
- *
- * The function inspects the `attr` parameter and constructs a condition string
- * suitable for use in XPath queries. The condition depends on the attribute's
- * name, value, type, and checked status:
- * - For `index`, returns a position-based condition.
- * - For `innertext` and `text`, returns a condition using `contains` or a custom text function.
- * - For `local-name`, matches the element's local name.
- * - For other attributes, uses either `contains` or direct equality based on the type.
- *
- * @param attr - The element attributes used to generate the condition.
- * @returns The XPath condition string, or `undefined` if no condition is generated.
- */
-function conditionStr(attr: ElementAttrs) {
-  attr.value = `${attr.value}`
-  let condition: string
-  if (attr.checked && attr.value) {
-    switch (attr.name) {
-      case 'index':
-        condition = `position()=${attr.value}`
-        break
-
-      case 'innertext':
-        condition
-          = attr.type === 1
-            ? `contains(., "${attr.value}")`
-            : textfn(attr.value)
-        break
-      case 'text':
-        condition
-          = attr.type === 1
-            ? `contains(., "${attr.value}")`
-            : textfn(attr.value)
-        break
-
-      case 'local-name':
-        condition = `local-name()="${attr.value}"`
-        break
-
-      default:
-        condition
-          = attr.type === 1
-            ? `contains(@${attr.name}, "${attr.value}")`
-            : `@${attr.name}="${attr.value}"`
-        break
-    }
-  }
-
-  return condition
-}
-
-/**
- * Generates an XPath string based on a list of element directories and their attributes.
- *
- * @param dirs - An array of `ElementDirectory` objects representing the hierarchy of elements and their attributes.
- * @param onlyPosition - If `true`, only position-related attributes (such as `index` and `id`) are considered for XPath generation.
- * @returns The generated XPath string representing the element hierarchy and attribute conditions.
- */
-export function generateXPath(dirs: ElementDirectory[], onlyPosition: boolean = false): string {
-  if (dirs && dirs.length === 0) {
-    return ''
-  }
-  if (onlyPosition) {
-    dirs = JSON.parse(JSON.stringify(dirs)) // deep copy avoid modifying original dirs
-    dirs.forEach((item) => {
-      item.attrs.forEach((attr) => {
-        const attrValue = `${attr.value}`.trim()
-        if (attr.name === 'index' && attrValue !== '') {
-          attr.checked = true
-        }
-        else if (attr.name === 'id' && attrValue !== '') {
-          attr.checked = true
-        }
-        else {
-          attr.checked = false
-        }
-      })
-    })
-  }
-  const xpath = dirs
-    .filter(dir => dir.checked)
-    .map((dir) => {
-      const attrs = dir.attrs
-        .filter((attr) => {
-          if (attr.type === 2 && attr.value && attr.checked) {
-            return false
-          }
-          else {
-            return attr.checked
-          }
-        })
-        .map((attr) => {
-          const condition: string = conditionStr(attr)
-          return condition
-        })
-        .join(' and ')
-      return attrs ? `${dir.tag}[${attrs}]` : dir.tag
-    })
-    .join('/')
-  if (xpath.startsWith('html')) {
-    return `/${xpath}`
-  }
-  return `//${xpath}`
 }
 
 export function hasChildElement(element) {
@@ -837,14 +722,16 @@ export function getAllElements() {
 }
 
 /**
- * Retrieves all `<iframe>` and `<frame>` elements from the current document.
+ * Retrieves all FRAME_ELEMENT_TAGS support frames
  *
  * @returns {Element[]} An array containing all iframe and frame elements found in the document.
  */
 function getAllFrames() {
-  const iframeList = document.querySelectorAll('iframe') || []
-  const frameList = document.querySelectorAll('frame') || []
-  const frames = Array.from(iframeList).concat(Array.from(frameList))
+  const frames = []
+  FRAME_ELEMENT_TAGS.forEach((tag) => {
+    const list = Array.from(document.querySelectorAll(tag) || [])
+    frames.push(...list)
+  })
   return frames
 }
 
@@ -853,7 +740,7 @@ export function getWindowFrames() {
   const framesList = Array.from(frames).map((frame) => {
     return {
       xpath: directoryXpath(frame),
-      src: frame.src,
+      src: getAttr(frame, 'src') || getAttr(frame, 'data') || '',
       rect: getFrameContentRect(frame),
     }
   })
@@ -1091,4 +978,25 @@ export function getSiblingElementByType(element: HTMLElement, params: Options): 
   if (elementGetType === 'next') {
     return element.nextElementSibling as HTMLElement
   }
+}
+
+/**
+ * get the top element in els which z level is the highest, if there are multiple elements in the same z level, return the last one in els, if els is empty, return null
+ * @param els elements
+ * @returns top element
+ */
+export function getCoveredTopElement(els: HTMLElement[]): HTMLElement | null {
+  if (els.length === 0) return null
+  if (els.length === 1) return els[0]
+  const topEls = els.map(el => {
+    const rect = el.getBoundingClientRect()
+    const centerPoint = {
+      x: Math.floor(rect.left + rect.width / 2),
+      y: Math.floor(rect.top + rect.height / 2),
+    }
+    return document.elementFromPoint(centerPoint.x, centerPoint.y) as HTMLElement
+  })
+  if (topEls.length === 0) return null
+  const uniqueTopEls = [...new Set(topEls)]
+  return uniqueTopEls.length === 1 ? uniqueTopEls[0] : uniqueTopEls[uniqueTopEls.length - 1]
 }
