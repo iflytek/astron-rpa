@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 import { formItemConfigs } from '@/utils/customComponent'
 import { useProcessStore } from '@/stores/useProcessStore'
-import AtomOptions from '@/views/Arrange/components/atomForm/AtomOptions.vue'
+import OptionsList from '@/views/Arrange/components/atomForm/formItems/OptionsList.vue'
 import { getRealValue } from '@/views/Arrange/components/atomForm/hooks/usePreview'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 
@@ -219,8 +219,8 @@ watch(() => open.value, (isOpen) => {
       </div>
       <div v-if="needsOptions" class="flex flex-col gap-2">
         <label class="text-xs leading-[22px] text-text-tertiary font-medium">选项列表</label>
-        <AtomOptions
-          :render-data="optionsData"
+        <OptionsList
+          :item="optionsData"
           @refresh="handleOptionsRefresh"
         />
       </div>

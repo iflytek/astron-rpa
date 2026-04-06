@@ -13,6 +13,10 @@ import AtomConfig from '../AtomConfig.vue'
 import type { FormItemProps } from './index'
 
 const props = defineProps<FormItemProps>()
+const emit = defineEmits<{
+  (e: 'update', key: string, value: any): void
+  (e: 'refresh', data: any): void
+}>()
 
 const MAX_OPTION_LENGTH = 30
 const ADD_OPTION = cloneDeep(props.item)
@@ -33,7 +37,7 @@ watch(() => optionsList.value, (val) => {
         value: item.value,
       },
     }))
-    // emits('refresh', optionResArr)
+    emit('refresh', optionResArr)
   }
 }, { deep: true })
 
