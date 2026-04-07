@@ -13,7 +13,7 @@ import { caculateConditional, caculateResultKey } from '@/utils/selfExecuting'
 import FlowList from '../../../components/flow/FlowList.vue'
 import { AST_NODE_TYPE, IncrementalASTParser, ProcessNode } from '../../ast'
 import { CONVERT_MAP } from './constants'
-import { AbilityInfoCache, mergeAtomFormToAtomMeta, generateId, isContinuous, normalizeAtomFormLists, generateOutItems, collectFlowVarNames } from './utils'
+import { AbilityInfoCache, mergeAtomFormToAtomMeta, generateId, isContinuous, normalizeAtomFormLists, generateOutItems, collectFlowVarNames, serializeAtomForSave } from './utils'
 import { ConfigParameter } from './ConfigParameter'
 import { nodeParameter } from './NodeParameter'
 import { UndoManager } from './UndoManager'
@@ -156,14 +156,8 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
   private getSavePayload(): RPA.Flow.FlowItemValue[] {
     const [_root, ...nodes] = this.astParser.getSubtreeNodes()
     return nodes.map((node) => {
-      const raw = { ...(node.raw as any) }
-      delete raw.level
-      delete raw.isHide
-      delete raw.isOpen
-      delete raw.hasFold
-      delete raw.showInput
-      delete raw.debugging
-      return raw as RPA.Flow.FlowItemValue
+      const raw = node.raw as unknown as RPA.Atom
+      return serializeAtomForSave(raw)
     })
   }
 

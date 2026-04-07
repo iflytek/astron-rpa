@@ -97,6 +97,44 @@ export function normalizeAtomFormLists(atom: RPA.Atom): RPA.Atom {
 }
 
 /**
+ * 将 Atom 节点数据序列化为后端存储格式
+ * 白名单提取：只保留后端需要的字段，去除前端 UI 元数据（formType, options, errors 等）
+ */
+export function serializeAtomForSave(atom: RPA.Atom): RPA.Flow.FlowItemValue {
+  const { key, version, id, alias, disabled, breakpoint, inputList, outputList, advanced, exception } = atom
+
+  const serializeFormItems = (items: RPA.AtomDisplayItem[]) =>
+    items.map((item) => {
+      const result: RPA.AtomDisplayItem = { key: item.key, value: '' }
+
+      if (Array.isArray(item.value)) {
+        result.value = item.value.map((v) =>
+          v.varId ? { ...v } : { type: v.type, value: v.value, ...(v.data ? { data: v.data } : {}) },
+        )
+      } else {
+        result.value = item.value
+      }
+
+      if (item.show !== undefined) result.show = item.show
+
+      return result
+    })
+
+  return {
+    key,
+    version,
+    id,
+    alias,
+    inputList: serializeFormItems(inputList),
+    outputList: serializeFormItems(outputList),
+    advanced: serializeFormItems(advanced),
+    exception: serializeFormItems(exception),
+    ...(disabled ? { disabled } : {}),
+    ...(breakpoint ? { breakpoint } : {}),
+  }
+}
+
+/**
  * 原子能力的结构分成两部分：
  * 1. AtomMeta 原子能力的元数据，类型为 RPA.Flow.FlowItemValue
  * 2. AtomForm 原子能力的表单数据，类型为 RPA.Atom

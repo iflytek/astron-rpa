@@ -53,7 +53,8 @@ export function createDom(inputVal: any, renderData: RPA.AtomDisplayItem, origin
     hrElement = creaetHr(val, inputVal)
   }
   hrElement && cursorStore.setCursorPos(hrElement, editableDiv)
-  // generateHtmlVal(editableDiv, renderData)
+  // 触发 input 事件，让 Input 组件将 DOM 内容同步到数据模型
+  editableDiv.dispatchEvent(new Event('input', { bubbles: true }))
   return true
 }
 
