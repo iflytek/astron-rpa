@@ -1640,6 +1640,7 @@
   "userInfo": {
     "userName": "User Name",
     "userRight": "Rights Information",
+    "pointsManage": "Points management",
     "startSchedulingMode": "Start Scheduling Mode",
     "schedulingModeDesc": "When enabled, this client will automatically receive remote tasks from the console, and task execution will be monitored by the console. Please confirm."
   },

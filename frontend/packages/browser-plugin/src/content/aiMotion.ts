@@ -97,7 +97,7 @@ export function focusElementAnimation(element: HTMLElement) {
 
 export function removeFocusElementAnimation() {
   const dots = document.querySelectorAll('.rpa-ele-dotindicator')
-  dots.forEach(dot => {
+  dots.forEach((dot) => {
     if (dot && dot.parentNode) {
       dot.parentNode.removeChild(dot)
     }
@@ -111,5 +111,5 @@ export function highlightElementBorder(element: HTMLElement) {
   element.style.outline = '2px solid #ff0000'
   setTimeout(() => {
     element.style.outline = oldOutline
-  }, 1500);
+  }, 1500)
 }

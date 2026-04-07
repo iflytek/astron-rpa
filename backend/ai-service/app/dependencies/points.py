@@ -78,3 +78,23 @@ class PointsContext:
                 status_code=500,
                 detail=f"Failed to deduct points: {str(e)}",
             )
+
+    async def deduct_custom_points(self, amount: int):
+        """扣除自定义数量的积分"""
+        try:
+            await self.service.deduct_points(
+                user_id=self.user_id,
+                amount=amount,
+                transaction_type=self.transaction_type,
+            )
+            return True
+        except InsufficientPointsError:
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient points.",
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to deduct points: {str(e)}",
+            )

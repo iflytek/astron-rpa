@@ -6,7 +6,7 @@ from typing import Any
 import requests
 import sseclient
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.ai.error import BizException, LLM_NO_RESPONSE_ERROR_FORMAT, ERROR_FORMAT, UNKNOWN_RESPONSE_ERROR
+from astronverse.ai.error import BizException, LLM_NO_RESPONSE_ERROR_FORMAT, UNKNOWN_RESPONSE_ERROR
 from astronverse.baseline.logger.logger import logger
 
 API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/v1/chat/completions".format(
@@ -25,15 +25,6 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
     :param
     messages: 历史问题
     model: 模型id
-
-    - example
-        inputs = [
-            {"role": "assistant", "content": "请模仿李白的口吻"},
-            {"role": "user", "content": "写一首咏鹅诗"}
-        ]
-
-        outputs = {"content":"笔","reasoning_content":null}
-
     """
     chat_json = {"messages": messages, "model": model, "stream": True}
 
@@ -44,7 +35,11 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
             if event.data and event.data != "[DONE]":
                 response_json = json.loads(event.data)
                 if response_json.get("choices"):
-                    yield response_json["choices"][0]["delta"]["content"]
+                    choice = response_json["choices"][0] or {}
+                    delta = choice.get("delta") or {}
+                    content = delta.get("content")
+                    if content is not None:
+                        yield content
     else:
         raise BizException(LLM_NO_RESPONSE_ERROR_FORMAT.format(response), "error: {}".format(response))
 
@@ -52,7 +47,7 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
 def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
     """构建请求的 payload"""
     data = {
-        "model": model,  # 选择大模型，替换为实际模型标识
+        "model": model,
         "messages": [
             {"role": "system", "content": system_input},
             {"role": "user", "content": user_input},
@@ -61,22 +56,15 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
     }
 
     try:
-        # 发送 API 请求
         response = requests.post(API_URL, json=data)
-        response.raise_for_status()  # 检查请求是否成功
-
-        # 返回模型生成的回复
+        response.raise_for_status()
         response_json = response.json()
 
-        # 兼容两种响应格式
         if "data" in response_json and "choices" in response_json["data"]:
-            # 新格式
             return response_json["data"]["choices"][0]["message"]["content"]
-        elif "choices" in response_json:
-            # 原格式
+        if "choices" in response_json:
             return response_json["choices"][0]["message"]["content"]
-        else:
-            raise BizException(UNKNOWN_RESPONSE_ERROR, "未知的响应格式")
+        raise BizException(UNKNOWN_RESPONSE_ERROR, "未知的响应格式")
     except Exception as e:
         logger.error("响应格式不正确 {}".format(e))
         return None
@@ -85,17 +73,14 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
 def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
     """chat_prompt"""
     data = {
-        "model": model,  # 选择大模型，替换为实际模型标识
+        "model": model,
         "prompt_type": prompt_type,
         "params": params,
     }
 
     try:
-        # 发送 API 请求
         response = requests.post(PROMPT_URL, json=data)
-        response.raise_for_status()  # 检查请求是否成功
-
-        # 返回模型生成的回复
+        response.raise_for_status()
         response_json = response.json()
         return response_json["data"]
     except Exception as e:

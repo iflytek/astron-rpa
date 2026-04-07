@@ -1,3 +1,4 @@
+import os
 import pytest
 import pytest_asyncio
 from contextlib import asynccontextmanager
@@ -12,8 +13,8 @@ from app.database import get_db, Base
 from app.redis_op import get_redis
 
 # 测试环境配置
-TEST_MYSQL_URL = "mysql+asyncmy://test_user:test_password@localhost:3307/test_db"
-TEST_REDIS_URL = "redis://localhost:6380/0"
+TEST_MYSQL_URL = os.getenv("TEST_MYSQL_URL", "mysql+aiomysql://test_user:test_password@localhost:3307/test_db")
+TEST_REDIS_URL = os.getenv("TEST_REDIS_URL", "redis://localhost:6380/0")
 
 
 @asynccontextmanager

@@ -19,6 +19,25 @@ export const Utils = {
     return '$unknown$'
   },
 
+  getNavigatorVersion() {
+    const ua = navigator.userAgent
+
+    const browserVersionPatterns = [
+      /Firefox\/([\d.]+)/i,
+      /Edg\/([\d.]+)/i,
+      /Chrome\/([\d.]+)/i,
+      /Version\/([\d.]+)/i,
+    ]
+
+    for (const pattern of browserVersionPatterns) {
+      const match = ua.match(pattern)
+      if (match && match[1]) {
+        return match[1]
+      }
+    }
+    return 'unknown'
+  },
+
   isFirefox() {
     return this.getNavigatorUserAgent() === '$firefox$'
   },
