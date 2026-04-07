@@ -917,6 +917,7 @@
   "userInfo": {
     "userName": "用户名称",
     "userRight": "权益信息",
+    "pointsManage": "积分管理",
     "startSchedulingMode": "开始调度模式",
     "schedulingModeDesc": "开启后当前客户端会自动接收控制台下发的远程任务，对应任务执行情况会被控制台监控，请确认。"
   },

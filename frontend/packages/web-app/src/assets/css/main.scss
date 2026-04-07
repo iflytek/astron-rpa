@@ -47,6 +47,11 @@
   -webkit-app-region: no-drag;
 }
 
+// Message 默认 z-index≈1010，低于积分弹窗(1100)与充值二维码弹窗(1200)，成功/失败 toast 会被挡住
+.ant-message {
+  z-index: 1300 !important;
+}
+
 // 修改antd-picker的默认高度
 .ant-picker {
   height: 32px;

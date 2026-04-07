@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { Auth } from '@rpa/components/auth'
+import { ConsultUpgradeTrigger } from '@rpa/components/auth'
+import { NiceModal } from '@rpa/components'
 import { Button, Checkbox, Dropdown } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
-import { computed, h } from 'vue'
+import { computed, h, inject } from 'vue'
 
 import { getTermianlStatus, startSchedulingMode } from '@/api/engine'
 import { taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
+import { PointsModal } from '@/components/PointsModal'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
 
+import { OPEN_HEADER_UPGRADE_CONSULT_KEY } from './headerUpgradeConsult'
+
 const { t } = useTranslation()
+
+const openHeaderUpgradeConsult = inject(OPEN_HEADER_UPGRADE_CONSULT_KEY, () => {})
 const runningStore = useRunningStore()
 const userStore = useUserStore()
 const appStore = useAppConfigStore()
@@ -34,6 +40,11 @@ const menuData = computed(() => {
       hidden: () => userStore.currentTenant?.tenantType === 'personal',
     },
     {
+      key: 'pointsManage',
+      icon: 'ai',
+      label: t('userInfo.pointsManage'),
+    },
+    {
       key: 'logout',
       icon: 'logout',
       label: t('logout'),
@@ -42,6 +53,12 @@ const menuData = computed(() => {
 })
 
 async function menuClick(item: any) {
+  if (item.key === 'pointsManage') {
+    NiceModal.show(PointsModal, {
+      workspaceName: userStore.currentTenant?.name,
+    })
+    return
+  }
   const { data: { running } } = await getTermianlStatus()
   if (running) {
     modalTip()
@@ -129,16 +146,17 @@ function modalTip() {
             <span class="text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.65)]">{{ userStore.currentUserInfo?.name || userStore.currentUserInfo?.loginName }}</span>
           </div>
         </div>
-        <Auth.Consult
+        <ConsultUpgradeTrigger
           v-if="userStore.currentTenant?.tenantType !== 'enterprise'"
+          class="upgrade-btn"
           :auth-type="appInfo.appAuthType"
-          trigger="button"
-          :button-conf="{ buttonType: 'tag', currentEdition: userStore.currentTenant?.tenantType, expirationDate: userStore.currentTenant?.expirationDate, shouldAlert: userStore.currentTenant?.shouldAlert }"
-          custom-class="upgrade-btn"
-          :consult="{
-            consultType: userStore.currentTenant?.expirationDate ? 'renewal' : 'consult',
-            consultEdition: userStore.currentTenant?.tenantType as 'professional' | 'enterprise',
+          :button-conf="{
+            buttonType: 'tag',
+            currentEdition: userStore.currentTenant?.tenantType,
+            expirationDate: userStore.currentTenant?.expirationDate,
+            shouldAlert: userStore.currentTenant?.shouldAlert,
           }"
+          @open="openHeaderUpgradeConsult"
         />
         <a-menu-item v-for="item in menuData" :key="item.key">
           <template #icon>
