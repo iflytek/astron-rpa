@@ -16,6 +16,3 @@ export * from './components/StarMotion'
 
 export { default } from './install'
 export * from './theme'
-
-export { initI18next, useTranslation, TranslationComponent, LanguageText } from './utils/i18next'
-export type { LanguageType, LanguageResource } from './utils/i18next'

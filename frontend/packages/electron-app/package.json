@@ -44,7 +44,7 @@
     "electron-builder": "^24.13.3",
     "electron-vite": "^5.0.0",
     "tsdown": "catalog:dev",
-    "typescript": "catalog:dev",
+    "typescript": "^5.5.2",
     "vite": "catalog:dev"
   }
 }
