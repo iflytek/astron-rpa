@@ -1,6 +1,5 @@
 import i18next from '@/plugins/i18next'
 
-import { getContextMenuList } from '@/views/Arrange/utils/contextMenu'
 
 export const SCOPE = 'global'
 
@@ -89,10 +88,22 @@ export const shortcuts = {
   },
 }
 
+export const CANVAS_SHORTCUTS = {
+  'runHere': 'Ctrl+Alt+H',
+  'runDebug': 'Ctrl+Alt+R',
+  'enableToggle': 'Ctrl+B',
+  'copy': 'Ctrl+C',
+  'cut': 'Ctrl+X',
+  'paste': 'Ctrl+V',
+  'mergeGroup': 'Ctrl+G',
+  'unGroup': 'Ctrl+Shift+G',
+  'deleteNode': 'Delete',
+  'selectAll': 'Ctrl+A'
+}
+
 // 设置中心快捷键设置,不可使用的快捷键
-const contextKeys = getContextMenuList().filter(i => i.shortcutKey).map(i => i.shortcutKey) // 编排页面右键菜单快捷键
 export const commonKeys = [
-  ...contextKeys,
+  ...Object.values(CANVAS_SHORTCUTS),
   'ctrl+w',
   'ctrl+r',
   'ctrl+s',

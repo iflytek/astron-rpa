@@ -68,7 +68,7 @@ function getElementData(isSave: boolean) {
   const elementData = {
     ...eleData, // 元素数据
     img,
-    similarity: similarity.value.value,
+    similarity: similarityValue.value,
   }
   return elementData
 }
@@ -98,18 +98,18 @@ const save = throttle((isContinue = false) => {
 }, 1500, { leading: true, trailing: false })
 
 // 校验元素
-const similarity: Ref<RPA.AtomDisplayItem> = ref({ value: 0.95, key: '', title: '' })
+const similarityValue = ref<number>(0.95)
 const validate = throttle(() => {
   validateForm(() => {
     const eleData = getElementData(false)
-    useCv.check({ ...eleData, similarity: similarity.value.value })
+    useCv.check({ ...eleData, similarity: similarityValue.value })
   })
 }, 1500, { leading: true, trailing: false })
 
 // 拾取锚点
 const pickAnchor = throttle(() => {
   validateForm(() => {
-    useCv.pickAnchor({ ...cvStore.currentCvItem, elementData: { ...getElementData(false), similarity: similarity.value.value } })
+    useCv.pickAnchor({ ...cvStore.currentCvItem, elementData: { ...getElementData(false), similarity: similarityValue.value } })
   })
 }, 1500, { leading: true, trailing: false })
 
@@ -126,7 +126,7 @@ watch(() => cvStore.currentCvItem, (newVal) => {
     setFormOption({ pickName: newVal.name })
     const eleData = JSON.parse(newVal.elementData)
     defaultAnchor.value = eleData.defaultAnchor
-    similarity.value = { value: eleData.similarity || 0.95, key: '', title: '' }
+    similarityValue.value = eleData.similarity || 0.95
   }
 }, { immediate: true })
 
@@ -212,7 +212,7 @@ onUnmounted(() => {
               </a-button>
               <span class="text-left validate-slider">
                 {{ $t('cvPick.similarityCheck') }}
-                <AtomSlider class="cursor-pointer mr-1" :render-data="similarity" />
+                <AtomSlider class="cursor-pointer mr-1" v-model:value="similarityValue" />
               </span>
             </span>
           </a-col>

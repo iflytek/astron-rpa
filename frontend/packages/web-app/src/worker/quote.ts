@@ -45,7 +45,7 @@ function quoteManage(params: { processList: { resourceId: string; name: string }
     })
 }
 
-function unUseQuoteManage(params: { processList: RPA.Flow.ProcessModule[], pickType: string, nodes: any }) {
+function unUseQuoteManage(params: { processList: RPA.Process.ProcessModule[], pickType: string, nodes: any }) {
     const { processList, nodes, pickType } = params
     let useImgs = []
     const userNodes = JSON.parse(nodes)

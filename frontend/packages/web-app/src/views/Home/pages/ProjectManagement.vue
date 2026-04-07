@@ -43,7 +43,7 @@ async function createRobot() {
           consultEdition: userStore.currentTenant?.tenantType === 'personal' ? 'professional' : 'enterprise',
           consultType: 'consult',
         },
-      })
+      } as any)
       return
     }
   }

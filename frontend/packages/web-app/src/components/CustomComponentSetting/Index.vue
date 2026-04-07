@@ -19,7 +19,9 @@ const container = useTemplateRef('container')
 const processStore = useProcessStore()
 
 const mockAtom = computed(() => {
-  const { project, parameters } = processStore
+  const { project } = processStore
+  const activeTab = processStore.canvasManager.activeTab
+  const parameters = activeTab?.configParameter?.parameters.value ?? []
   return getComponentPreviewForm({
     componentId: project.id,
     componentName: project.name,

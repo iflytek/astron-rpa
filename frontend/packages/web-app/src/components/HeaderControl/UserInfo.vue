@@ -12,7 +12,6 @@ import GlobalModal from '@/components/GlobalModal/index.ts'
 import { PointsModal } from '@/components/PointsModal'
 import { utilsManager, windowManager } from '@/platform'
 import { useAppConfigStore } from '@/stores/useAppConfig'
-import { useAppModeStore } from '@/stores/useAppModeStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { useUserStore } from '@/stores/useUserStore'
 
@@ -95,7 +94,7 @@ async function menuClick(item: any) {
             type: 'primary',
             onClick: () => {
               startSchedulingMode({ start_watch: startWatch }) // 通知引擎用户确定切换为调度模式
-              useAppModeStore().setAppMode('scheduling') // 设置为调度模式
+              useAppConfigStore().setAppMode('scheduling') // 设置为调度模式
               windowManager.hideWindow() // 隐藏主界面
               utilsManager.invoke('tray_change', { mode: 'scheduling', status: 'idle' }) // 改变托盘菜单
               modal.destroy()

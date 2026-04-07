@@ -7,7 +7,7 @@ import { ProcessActionEnum, useProcessMenuActions } from './hooks/useProcessMenu
 
 const props = defineProps({
   data: {
-    type: Object as () => RPA.Flow.ProcessModule,
+    type: Object as () => RPA.Process.ProcessModule,
     required: true,
   },
 })

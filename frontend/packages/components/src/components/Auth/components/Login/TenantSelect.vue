@@ -45,7 +45,7 @@ function handleSelect(tenant: TenantItem) {
         consultEdition: tenant.tenantType as 'professional' | 'enterprise',
         consultType: 'renewal',
       },
-    })
+    } as any)
     return
   }
   emit('submit', tenant.id)

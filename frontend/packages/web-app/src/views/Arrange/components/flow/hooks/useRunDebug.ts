@@ -5,7 +5,7 @@ import i18next from '@/plugins/i18next'
 
 import $loading from '@/utils/globalLoading'
 
-import { useFlowStore } from '@/stores/useFlowStore'
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import { atomScrollIntoView } from '@/views/Arrange/utils'
 
@@ -15,7 +15,7 @@ export function useRunDebug() {
   watch(() => runningStore?.breakpointAtom?.id, () => {
     const debugAtom = runningStore?.breakpointAtom
     if (debugAtom) {
-      useFlowStore().setActiveAtom(useFlowStore().simpleFlowUIData.find(item => item.id === debugAtom.id))
+      // useFlowStore().setActiveAtom(useFlowStore().simpleFlowUIData.find(item => item.id === debugAtom.id))
       nextTick(() => atomScrollIntoView(debugAtom.id))
     }
   })

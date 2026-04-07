@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { ProcessModal } from '@/views/Arrange/components/process'
 
 import AtomConfig from './AtomConfig.vue'
+import { useFormStore } from './hooks/useFormStore'
 import {
   getLimitLengthTip,
   useFormItemLimitLength,
@@ -16,11 +17,18 @@ const { atomFormItem } = defineProps<{
   disabled?: boolean
   hideRequiredTip?: boolean // 是否隐藏必填提示
 }>()
+const emit = defineEmits<{ (e: 'update', key: string, value: any): void }>()
+
+const { formValues } = useFormStore()
 
 // 是否展示 label
 const showLabel = computed(() => {
   return atomFormItem.formType?.type !== 'CHECKBOX'
 })
+
+function handleUpdate(key: string, value: any) {
+  emit('update', key, value)
+}
 </script>
 
 <template>
@@ -57,9 +65,18 @@ const showLabel = computed(() => {
     </label>
     <AtomConfig
       :form-item="atomFormItem"
+      :form-values="formValues"
       class="mt-2 relative"
       :class="{ 'pointer-events-none after:pointer-events-auto after:absolute after:inset-0 cursor-not-allowed': disabled }"
+      @update="handleUpdate"
     />
+    <article
+      v-for="value in atomFormItem.errors"
+      :key="value"
+      class="form-container-context-required"
+    >
+      {{ value }}
+    </article>
     <article
       v-if="!hideRequiredTip && useFormItemRequired(atomFormItem)"
       class="form-container-context-required"

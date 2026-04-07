@@ -6,15 +6,12 @@ import { useRoute } from 'vue-router'
 
 import { useRouteBack } from '@/hooks/useCommonRoute'
 import { windowManager } from '@/platform'
-import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
 
 import CloseTip from './CloseTip.vue'
 
 export function useCloseApp() {
   const { message, modal } = App.useApp()
-  const processStore = useProcessStore()
   const { t } = useTranslation()
   const route = useRoute()
   let modalInstance = null
@@ -70,34 +67,5 @@ export function useCloseApp() {
     })
   }
 
-  // 编排页面自动保存，并退出
-  const autoSave = async () => {
-    // 解决保存接口长时间不返回，自动跳转到列表页面
-    const timer = setTimeout(() => modalSaveTimeout(), 5000)
-
-    try {
-      await processStore.saveProject()
-      // 保存成功，跳转到列表页面
-      await message.success('保存成功', 0.5)
-      useRouteBack()
-      message.destroy()
-      useProjectDocStore().clearAllData()
-    }
-    catch {
-      modalSaveTimeout()
-    }
-
-    clearTimeout(timer)
-  }
-
-  const closeApp = () => {
-    if (route.meta.closeConfirm === false) {
-      autoSave()
-    }
-    else {
-      modalCloseApp()
-    }
-  }
-
-  return { closeApp }
+  return { closeApp: modalCloseApp }
 }

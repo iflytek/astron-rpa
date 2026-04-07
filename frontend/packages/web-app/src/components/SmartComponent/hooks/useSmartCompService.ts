@@ -1,9 +1,7 @@
 import { useRoute } from 'vue-router'
 
 import { saveSmartComp } from '@/api/component'
-import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import { addAtomData } from '@/views/Arrange/components/flow/hooks/useFlow'
 
 import { SMART_COMPONENT_KEY_PREFIX } from '../config/constants'
 import type { SmartComp, SmartType } from '../types'
@@ -12,7 +10,6 @@ import { getSmartComponentId } from '../utils'
 // 业务逻辑服务
 export function useSmartCompService() {
   const processStore = useProcessStore()
-  const flowStore = useFlowStore()
   const route = useRoute()
 
   async function saveSmartCompWithVersionList(
@@ -62,35 +59,25 @@ export function useSmartCompService() {
       })
     }
 
+    // TODO merge: adapt to canvasManager (need flowStore.simpleFlowUIData and addAtomData)
     // 如果组件不存在于流程中，添加到流程
-    const hasExist = flowStore.simpleFlowUIData.find(item => item.key === smartComp.key)
-    if (!hasExist) {
-      await addAtomData(key, route.query.newIndex ? Number(route.query.newIndex) : undefined)
-    }
-    else {
-      updateDocAndFlowNode(smartComp)
-    }
+    // const hasExist = flowStore.simpleFlowUIData.find(item => item.key === smartComp.key)
+    // if (!hasExist) {
+    //   await addAtomData(key, route.query.newIndex ? Number(route.query.newIndex) : undefined)
+    // }
+    // else {
+    //   updateDocAndFlowNode(smartComp)
+    // }
 
     return updatedComp
   }
 
+  // TODO merge: adapt to canvasManager (need flowStore.simpleFlowUIData and updataOriginFlowData)
   function updateDocAndFlowNode(smartComp: SmartComp) {
-    const index = flowStore.simpleFlowUIData.findIndex(item => item.key === smartComp.key)
-    const flowNode = flowStore.simpleFlowUIData[index]
-    const node = {
-      ...smartComp,
-      key: smartComp.key,
-      version: smartComp.version,
-      id: flowNode.id,
-      alias: smartComp.alias || smartComp.title,
-      inputList: smartComp.inputList || [],
-      outputList: smartComp.outputList || [],
-      advanced: smartComp.advanced || [],
-      exception: smartComp.exception || [],
-      disabled: flowNode.disabled,
-      breakpoint: flowNode.breakpoint,
-    } as unknown as RPA.Atom
-    flowStore.updataOriginFlowData([{ node, index, process: processStore.activeProcessId }])
+    // TODO: adapt to canvasManager
+    // const index = flowStore.simpleFlowUIData.findIndex(item => item.key === smartComp.key)
+    // const flowNode = flowStore.simpleFlowUIData[index]
+    // ...
   }
 
   return {

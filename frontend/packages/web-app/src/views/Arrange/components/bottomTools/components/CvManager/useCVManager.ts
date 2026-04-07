@@ -1,4 +1,4 @@
-import { onMounted } from 'vue'
+import { onMounted, markRaw } from 'vue'
 
 import { useCvStore } from '@/stores/useCvStore.ts'
 
@@ -12,8 +12,8 @@ export function useCVManager() {
     text: 'cvManagement',
     key: 'cvManagement',
     icon: 'bottom-menu-img-manage',
-    component: CvManager,
-    rightExtra: RightExtra,
+    component: markRaw(CvManager),
+    rightExtra: markRaw(RightExtra),
   }
 
   onMounted(() => {

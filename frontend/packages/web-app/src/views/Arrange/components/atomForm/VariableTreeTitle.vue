@@ -3,20 +3,12 @@ import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { ref, watch } from 'vue'
 
-const { title } = defineProps({
-  title: {
-    type: String,
-    default: '',
-  },
-  leafKey: {
-    type: String,
-    default: '',
-  },
-})
+const props = defineProps<{ title: string }>()
+
 const emits = defineEmits(['getInputVal'])
 
 watch(
-  () => title,
+  () => props.title,
   (newVal) => {
     titleVal.value = {}
     leaf.value = []
@@ -57,7 +49,7 @@ function generateTreeInput(title = '') {
     }
   }
 }
-generateTreeInput(title)
+generateTreeInput(props.title)
 </script>
 
 <template>

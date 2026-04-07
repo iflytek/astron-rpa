@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 import { formItemConfigs } from '@/utils/customComponent'
 import { useProcessStore } from '@/stores/useProcessStore'
-import AtomOptions from '@/views/Arrange/components/atomForm/AtomOptions.vue'
+import OptionsList from '@/views/Arrange/components/atomForm/formItems/OptionsList.vue'
 import { getRealValue } from '@/views/Arrange/components/atomForm/hooks/usePreview'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 
@@ -65,7 +65,7 @@ function buildTypesToControlTypesMap(): Record<string, Set<string>> {
 /**
  * 将 formItem.options 格式转换为 AtomOptions 需要的格式
  */
-function convertOptionsToAtomOptionsFormat(options: Array<{ label: string; value: string }> = []) {
+function convertOptionsToAtomOptionsFormat(options: Array<{ label?: string; value: any; rId?: string }> = []) {
   return options.map((opt, index) => ({
     rId: `option_${index}`,
     value: {
@@ -149,7 +149,9 @@ async function handleOk() {
   if (!baseFormItem) return
   
   const varName = props.formItem.key
-  const parameter = processStore.parameters.find(p => p.varName === varName)
+  const activeTab = processStore.canvasManager.activeTab
+  const configParameter = activeTab?.configParameter
+  const parameter = configParameter?.parameters.value.find(p => p.varName === varName)
   
   if (!parameter) return
 
@@ -170,7 +172,7 @@ async function handleOk() {
     value: controlTypeChanged ? [] : props.formItem.value,
   }
   
-  await processStore.updateParameter({
+  await configParameter?.update({
     ...parameter,
     // 切换控件类型时清空参数默认值
     varValue: controlTypeChanged ? '' : parameter.varValue,
@@ -217,8 +219,8 @@ watch(() => open.value, (isOpen) => {
       </div>
       <div v-if="needsOptions" class="flex flex-col gap-2">
         <label class="text-xs leading-[22px] text-text-tertiary font-medium">选项列表</label>
-        <AtomOptions
-          :render-data="optionsData"
+        <OptionsList
+          :item="optionsData"
           @refresh="handleOptionsRefresh"
         />
       </div>

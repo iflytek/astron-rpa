@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { NiceModal } from '@rpa/components'
 import { Image, message } from 'ant-design-vue'
-import type { Ref } from 'vue'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { getImageURL } from '@/api/http/env'
 import ElementsTree from '@/components/ElementsTree/Index.vue'
@@ -17,14 +16,13 @@ import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
 import { quoteManage } from '@/views/Arrange/hook/useQuoteManage'
 
 import { useGroupManager } from '../hooks/useGroup'
+import { useToolsStore } from '../../store'
+import type { TabContentProps } from '../../types'
 
-const searchText = inject<Ref<string>>('searchText')
-const collapsed = inject<Ref<boolean>>('collapsed')
-const moduleType = inject<Ref<string>>('moduleType')
-const activeTab = inject<Ref<string>>('activeTab')
-const height = inject<Ref<number>>('logTableHeight', ref(180)) // 若没有注入，默认值为320
+const props = defineProps<TabContentProps>()
 
-const refresh = inject<Ref<boolean>>('refresh')
+const { searchText, collapsed, moduleType, activeKey, refresh } = useToolsStore()
+
 const useElements = useElementsStore()
 const usePick = usePickStore()
 const useGroup = useGroupManager()
@@ -34,10 +32,10 @@ const flowItems = ref([])
 const currentItem = ref()
 
 const expandTreeAll = computed(() => collapsed.value)
-const checkUnused = computed(() => activeTab.value === 'elements' && moduleType.value === 'unuse')
+const checkUnused = computed(() => activeKey.value === 'elements' && moduleType.value === 'unuse')
 
 watch(() => refresh.value, () => {
-  if (activeTab.value !== 'elements')
+  if (activeKey.value !== 'elements')
     return
 
   quoteManage(currentItem.value, list => flowItems.value = list)
@@ -138,7 +136,7 @@ function handleAction(data: { keys: ElementActionType[], data: ElementsType }) {
 <template>
   <div class="elements-manager">
     <div class="elements-manager__container flex ">
-      <div class="elements-manager__tree flex-1 " :style="`height: ${height}px;`">
+      <div class="elements-manager__tree flex-1 " :style="`height: ${props.height}px;`">
         <template v-if="moduleType === 'quoted'">
           <ElementUseFlowList v-if="flowItems.length > 0" :use-name="currentItem?.name" :use-flow-items="flowItems" :collapsed="collapsed" />
           <a-empty v-else description="暂无引用" />

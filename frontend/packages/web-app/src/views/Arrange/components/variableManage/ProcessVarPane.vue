@@ -6,12 +6,11 @@ import { ref } from 'vue'
 import { paginationConfig } from '@/constants'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 
 const processStore = useProcessStore()
 const { t } = useTranslation()
-const processId = ref(processStore.activeProcessId)
+const processId = ref(processStore.canvasManager.activeTabId)
 const keyword = ref('')
 const varData = ref([])
 
@@ -31,10 +30,10 @@ function handleSearchChange() {
 }
 function handleProcessChange() {
   console.log(processId.value)
-  getTableData(
-    useProjectDocStore().userFlowNode(processId.value).length,
-    processId.value,
-  )
+  // getTableData(
+  //   useProjectDocStore().userFlowNode(processId.value).length,
+  //   processId.value,
+  // )
 }
 
 function getTableData(len: number, processId?: string) {
@@ -44,15 +43,15 @@ function getTableData(len: number, processId?: string) {
     processId,
   )
 }
-getTableData(useProjectDocStore().userFlowNode().length)
+// getTableData(useProjectDocStore().userFlowNode().length)
 </script>
 
 <template>
   <div class="process-var-panel">
     <nav class="flex justify-end  mb-3 items-center gap-2">
       <a-select v-model:value="processId" class="w-[150px] bg-[#F3F3F7] dark:bg-[rgba(255,255,255,0.08)] dark:text-[rgba(255,255,255,0.85)] text-[12px]" @change="handleProcessChange">
-        <a-select-option v-for="item in processStore.processList" :key="item.resourceId" :value="item.resourceId">
-          {{ item.name }}
+        <a-select-option v-for="item in processStore.canvasManager.processList" :key="item.id" :value="item.id">
+          {{ item.state.name }}
         </a-select-option>
       </a-select>
       <a-input

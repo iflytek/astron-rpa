@@ -15,9 +15,8 @@ import { addFavorite, removeFavorite } from '@/api/atom'
 import { ComponentManageModal } from '@/components/ComponentManage'
 import { SMARTCOMPONENT } from '@/constants/menu'
 import { useRoutePush } from '@/hooks/useCommonRoute'
-import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import { addAtomData, draggableAddStyle } from '@/views/Arrange/components/flow/hooks/useFlow'
+import { draggableAddStyle } from '@/views/Arrange/components/flow/hooks/useFlow'
 import type { ATOMTABKEYS } from '@/views/Arrange/config/atom'
 
 import AtomMenu from './AtomMenu.vue'
@@ -148,7 +147,6 @@ function toggleCollapsed() {
 
 const onExpand: TreeProps['onExpand'] = (_, { expanded, node }) => {
   if (expanded) {
-    console.log('node: ', node)
     // useProjectDocStore().gainLastNodeAbility(node.key as unknown as string)
   }
 }
@@ -198,19 +196,19 @@ function refreshComponentTree() {
 // 双击
 function doubleItemClick(item: AtomTreeNode) {
   if (item.key === 'smart-component') {
-    const flowStore = useFlowStore()
-    const activeAtomIdx = (flowStore.simpleFlowUIData.findIndex(item => item.id === flowStore.activeAtom?.id) + 1) || 0
-    useRoutePush({
-      name: SMARTCOMPONENT,
-      query: {
-        projectId: processStore.project.id,
-        projectName: processStore.project.name,
-        newIndex: activeAtomIdx,
-      },
-    })
+    // const flowStore = useFlowStore()
+    // const activeAtomIdx = (flowStore.simpleFlowUIData.findIndex(item => item.id === flowStore.activeAtom?.id) + 1) || 0
+    // useRoutePush({
+    //   name: SMARTCOMPONENT,
+    //   query: {
+    //     projectId: processStore.project.id,
+    //     projectName: processStore.project.name,
+    //     newIndex: activeAtomIdx,
+    //   },
+    // })
   }
   else {
-    addAtomData(item.key)
+    // processStore.activeTab?.add(item.key)
   }
 }
 

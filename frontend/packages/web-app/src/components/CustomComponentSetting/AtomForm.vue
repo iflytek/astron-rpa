@@ -6,10 +6,8 @@ import { computed, inject, ref, watch } from 'vue'
 import BUS from '@/utils/eventBus'
 
 import AtomFormItem from '@/views/Arrange/components/atomForm/AtomFormItem.vue'
-import { renderBaseConfig, useBaseConfig } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
-import type { AtomTabs } from '@/views/Arrange/types/atomForm'
 import EditControlModal from './EditControlModal.vue'
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep, isEmpty } from 'lodash-es'
 
 const props = defineProps<{
   atom: RPA.Atom
@@ -24,7 +22,7 @@ const { i18next, t } = useTranslation()
 const isShowFormItem = inject<Ref<boolean>>('showAtomFormItem', ref(true))
 
 const activeKey = ref<number>(0)
-const atomTab = ref<AtomTabs[]>([])
+const atomTab = ref<RPA.Process.AtomTabs[]>([])
 const formattedTabs = computed(() => atomTab.value.map((item, index) => ({
   title: item.name,
   value: index,
@@ -43,12 +41,43 @@ function handleAfterClose() {
 }
 
 function renderForm(atom: RPA.Atom) {
-  atomTab.value = atom ? useBaseConfig(atom, t) : []
-}
+  if (!atom) {
+    atomTab.value = []
+    return
+  }
 
-watch(() => isShowFormItem.value, () => {
-  atomTab.value = renderBaseConfig(atomTab.value)
-})
+  const { inputList = [], outputList = [] } = atom
+
+  const baseParam: RPA.Process.AtomTabs = {
+    key: 'baseParam',
+    name: t('basicParameters'),
+    params: [
+      {
+        name: { 'zh-CN': '输入信息', 'en-US': 'Input information' },
+        key: `input-${atom.key}`,
+        formItems: inputList as RPA.AtomDisplayItem[],
+      },
+      {
+        name: { 'zh-CN': '输出信息', 'en-US': 'Output information' },
+        key: `output-${atom.key}`,
+        formItems: outputList as RPA.AtomDisplayItem[],
+      },
+    ],
+  }
+
+  let tabs: RPA.Process.AtomTabs[] = [baseParam]
+
+  // 过滤空的 params
+  tabs = tabs.map(item => ({
+    ...item,
+    params: item.params.filter(param => !isEmpty(param.formItems)),
+  }))
+
+  // 过滤空的 tabs
+  tabs = tabs.filter(item => !isEmpty(item.params))
+
+  atomTab.value = tabs
+}
 
 watch(() => props.atom, (newVal, oldVal) => {
   if (!newVal?.key) {
@@ -63,11 +92,11 @@ watch(() => props.atom, (newVal, oldVal) => {
 
 const alias = computed(() => atomTab.value
   .find(item => item.key === 'baseParam')
-  .params[0]
-  .formItems
-  .find(item => item.key === 'anotherName')
-  .value[0]
-  .value,
+  ?.params[0]
+  ?.formItems
+  ?.find(item => item.key === 'anotherName')
+  ?.value?.[0]
+  ?.value,
 )
 
 watch(() => alias.value, (newVal, oldVal) => {
@@ -110,15 +139,6 @@ watch(() => alias.value, (newVal, oldVal) => {
           <template v-if="item.key.startsWith('input')">
             <div class="group relative p-1.5 rounded-lg hover:bg-[#5D59FF]/[.35] [&_*]:cursor-pointer" @click="handleEdit(form)">
               <AtomFormItem :atom-form-item="form" :hide-required-tip="true" disabled />
-              <!-- <div class="mt-2 pt-2 border-t border-[#000000]/[.08] dark:border-[#FFFFFF]/[.08]">
-                <div class="text-[10px] text-[#000000]/[.45] dark:text-[#FFFFFF]/[.45] mb-1">
-                  Value (实时):
-                </div>
-                <pre class="text-[10px] text-[#000000]/[.85] dark:text-[#FFFFFF]/[.85] bg-[#ffffff] dark:bg-[#2a2a2a] p-2 rounded overflow-x-auto max-h-[120px] overflow-y-auto font-mono whitespace-pre-wrap break-words">{{ form.value }}</pre>
-                <div class="text-[9px] text-[#000000]/[.35] dark:text-[#FFFFFF]/[.35] mt-1">
-                  类型: {{ Array.isArray(form.value) ? 'Array' : typeof form.value }}
-                </div>
-              </div> -->
               <rpa-icon
                 name="edit-outline"
                 size="20"
@@ -154,4 +174,3 @@ watch(() => alias.value, (newVal, oldVal) => {
   }
 }
 </style>
-  

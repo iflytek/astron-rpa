@@ -4,15 +4,16 @@ import { Form, message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { computed, onBeforeMount, reactive } from 'vue'
 
-import useProjectDocStore from '@/stores/useProjectDocStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 
 const props = defineProps<{
-  type: RPA.Flow.ProcessModuleType
-  processItem?: RPA.Flow.ProcessModule
+  type: RPA.Process.ProcessModuleType
+  processItem?: RPA.Process.ProcessModule
 }>()
 
 const modal = NiceModal.useModal()
-const { addProcessOrModule, genProcessOrModuleName, renameProcessOrModule } = useProjectDocStore()
+
+const processStore = useProcessStore()
 const { t } = useTranslation()
 
 const categoryTitle = computed(() => props.type === 'process' ? t('processModal.subProcess') : t('processModal.pythonModule'))
@@ -26,17 +27,29 @@ const rulesRef = computed(() => ({
       required: true,
       message: t('processModal.enterName', { name: nameTitle.value }),
     },
+    {
+      validator: (_rule: any, value: string) => {
+        const exists = processStore.canvasManager.processList.some(
+          p => p.state.name === value && p.state.resourceId !== props.processItem?.resourceId
+        )
+        if (exists) {
+          return Promise.reject(`${nameTitle.value}已存在`)
+        }
+        return Promise.resolve()
+      },
+    },
   ],
 }))
 
 const { validate, validateInfos } = Form.useForm(formState, rulesRef)
 
 onBeforeMount(async () => {
-  if (props.processItem?.name) {
-    formState.name = props.processItem.name
+  if (props.processItem?.resourceId) {
+    const tab = processStore.canvasManager.getTab(props.processItem.resourceId)
+    formState.name = tab?.state.name || props.processItem.name
   }
   else {
-    formState.name = await genProcessOrModuleName(props.type)
+    formState.name = await processStore.canvasManager.genTabName(props.type)
   }
 })
 
@@ -47,10 +60,10 @@ async function handleOkConfirm() {
 
   try {
     if (props.processItem) {
-      await renameProcessOrModule(props.type, formState.name, props.processItem.resourceId)
+      await processStore.canvasManager.renameTab(props.processItem.resourceId, formState.name)
     }
     else {
-      await addProcessOrModule(props.type, formState.name)
+      await processStore.canvasManager.createTab(props.type, formState.name)
     }
 
     message.success(t('processModal.actionSuccess', { action: msgPrefix }))

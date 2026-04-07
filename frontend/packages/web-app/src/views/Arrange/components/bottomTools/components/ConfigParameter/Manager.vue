@@ -11,8 +11,6 @@ import VxeGrid from '@/plugins/VxeTable'
 import ElementUseFlowList from '@/components/ElementUseFlowList/Index.vue'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { PARAMETER_VAR_IN_TYPE } from '@/constants/atom'
-import { useFlowStore } from '@/stores/useFlowStore'
-import { isPyModel, useProcessStore } from '@/stores/useProcessStore.ts'
 
 import { getChildProcessParameterOption, getMainProcessParameterOption, usageOptions } from './constant.ts'
 import { useConfigParameter } from './useConfigParameter.ts'
@@ -26,9 +24,7 @@ interface LocalConfigParamData extends RPA.ConfigParamData {
 const props = defineProps<{ height?: number }>()
 
 const { colorTheme } = useTheme()
-const flowStore = useFlowStore()
-const processStore = useProcessStore()
-const { searchText, isQuoted, quotedData, findQuoted } = useConfigParameter()
+const { searchText, isQuoted, quotedData, management, isComponent, isMainProcess, findQuoted } = useConfigParameter()
 const [messageApi, contextHolder] = message.useMessage()
 const { t } = useTranslation()
 
@@ -49,11 +45,14 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   ],
 }
 
-const searchedData = computed(() => {
-  let list = processStore.parameters as LocalConfigParamData[]
+const parameters = computed(() => management.value.parameters.value)
 
+const searchedData = computed<LocalConfigParamData[]>(() => {
+  let list = parameters.value as LocalConfigParamData[]
+
+  // 根据参数名称查询
   if (searchText.value) {
-    list = processStore.parameters.filter(item => item.varName.includes(searchText.value)) as LocalConfigParamData[]
+    list = parameters.value.filter(item => item.varName.includes(searchText.value)) as LocalConfigParamData[]
   }
 
   // 使用forEach替代map，防止row对象重建导致输入框焦点丢失
@@ -70,7 +69,7 @@ const emptyText = computed(() => searchText.value ? t('configParameter.noSearchR
 
 const varTypeOptions = computed(() => {
   // 主进程和子进程可选择的类型不一样
-  if (processStore.activeProcess.isMain && !processStore.isComponent) {
+  if (isMainProcess && !isComponent) {
     return getMainProcessParameterOption()
   }
 
@@ -78,19 +77,20 @@ const varTypeOptions = computed(() => {
 })
 
 // 是否是 python 模块
-const isPyProcessModule = computed(() => isPyModel(processStore.activeProcess.resourceCategory))
+// const isPyProcessModule = computed(() => isPyModel(processStore.activeProcess.resourceCategory))
+const isPyProcessModule = false
 
 // 删除事件
 function deleteEvent(row: RPA.ConfigParamData) {
   const deleteFn = async () => {
-    await processStore.deleteParameter(row)
+    await management.value.delete(row)
 
-    flowStore.flowVariableUpdate({
-      varName: row.varName,
-      varType: PARAMETER_VAR_IN_TYPE,
-      type: 'delete',
-      processId: processStore.activeProcessId,
-    })
+    // flowStore.flowVariableUpdate({
+    //   varName: row.varName,
+    //   varType: PARAMETER_VAR_IN_TYPE,
+    //   type: 'delete',
+    //   processId: processStore.activeProcessId,
+    // })
   }
   GlobalModal.confirm({
     title: t('delete'),
@@ -103,7 +103,7 @@ function deleteEvent(row: RPA.ConfigParamData) {
 
 async function handleBlur(row: LocalConfigParamData) {
   // 检查是否存在重名的参数
-  const index = processStore.parameters.findIndex(item => item.varName === row.varName && item.id !== row.id)
+  const index = parameters.value.findIndex(item => item.varName === row.varName && item.id !== row.id)
   if (index !== -1) {
     messageApi.warning(t('duplicateNameError'))
     row.varName = row.perVarName
@@ -112,18 +112,18 @@ async function handleBlur(row: LocalConfigParamData) {
 
   await handleChange(row)
 
-  flowStore.flowVariableUpdate({
-    varName: row.perVarName,
-    varType: PARAMETER_VAR_IN_TYPE,
-    newVarName: row.varName,
-    type: 'rename',
-    processId: processStore.activeProcessId,
-  })
+  // flowStore.flowVariableUpdate({
+  //   varName: row.perVarName,
+  //   varType: PARAMETER_VAR_IN_TYPE,
+  //   newVarName: row.varName,
+  //   type: 'rename',
+  //   processId: processStore.activeProcessId,
+  // })
 
   row.perVarName = row.varName
 }
 
-const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateParameter(row), 500, { leading: true })
+const handleChange = debounce((row: RPA.ConfigParamData) => management.value.update(row), 500, { leading: true })
 </script>
 
 <template>

@@ -9,11 +9,13 @@ import { useRoute } from 'vue-router'
 
 import { codeToMeta } from '@/api/component'
 import { getBaseURL } from '@/api/http/env'
-import { useFlowStore } from '@/stores/useFlowStore'
+// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
+// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
-import { debug } from '@/views/Arrange/components/flow/hooks/useFlow'
+// TODO merge: debug function removed in refactor, adapt to canvasManager
+// import { debug } from '@/views/Arrange/components/flow/hooks/useFlow'
 
 import AtomForm from '../components/AtomForm.vue'
 import { modeOptions } from '../config/constants'
@@ -22,7 +24,9 @@ import { generateComponentForm } from '../utils'
 
 const isDark = useDark()
 const processStore = useProcessStore()
-const flowStore = useFlowStore()
+// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
+const flowStore = { simpleFlowUIData: [] as any[] }
+const debug = (..._args: any[]) => { /* TODO merge: adapt to canvasManager */ }
 const smartComp = useSmartComp()
 const runningStore = useRunningStore()
 const runlogStore = useRunlogStore()

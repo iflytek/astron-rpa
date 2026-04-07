@@ -22,10 +22,8 @@ import { taskCancel, taskNotify } from '@/api/task'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { WINDOW_NAME } from '@/constants'
 import { EDITORPAGE, SMARTCOMPONENT } from '@/constants/menu'
-import { utilsManager, windowManager } from '@/platform'
-import type { CreateWindowOptions, WindowPosition } from '@/platform'
+import { utilsManager, windowManager, type CreateWindowOptions, type WindowPosition } from '@/platform'
 import { useAppConfigStore } from '@/stores/useAppConfig'
-import { useAppModeStore } from '@/stores/useAppModeStore'
 import { usePermissionStore } from '@/stores/usePermissionStore'
 import { useRunningStore } from '@/stores/useRunningStore'
 import useUserSettingStore from '@/stores/useUserSetting.ts'
@@ -41,7 +39,6 @@ const permissionStore = usePermissionStore()
 const userSettingStore = useUserSettingStore()
 const runningStore = useRunningStore()
 const appConfigStore = useAppConfigStore()
-const appModeStore = useAppModeStore()
 
 interface SchedulerEventType<T = any> {
   type: string
@@ -83,7 +80,7 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
     }
     case 'executor_end': {
       runningStore.closeCreatedWindows()
-      if (appModeStore.appMode === 'normal') {
+      if (appConfigStore.appMode === 'normal') {
         executorHandle()
         runningStore.reset()
       }
@@ -94,7 +91,7 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
       break
     }
     case 'edit_show_hide': {
-      if (appModeStore.appMode === 'normal') {
+      if (appConfigStore.appMode === 'normal') {
         if (msg.type === 'hide') {
           windowManager.minimizeWindow()
         }
@@ -161,7 +158,7 @@ utilsManager.listenEvent('w2w', (eventMsg: W2WType) => {
 
 utilsManager.listenEvent('exit_scheduling_mode', () => {
   console.log('exit_scheduling_mode')
-  appModeStore.setAppMode('normal') // 设置为正常模式
+  appConfigStore.setAppMode('normal') // 设置为正常模式
   endSchedulingMode()
 })
 

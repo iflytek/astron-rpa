@@ -5,7 +5,7 @@ import type { IMenuItem } from '../process/DropdownMenu.vue'
 import { ProcessActionEnum, useProcessMenuActions } from '../process/hooks/useProcessMenus'
 
 const props = defineProps<{
-  processItem: RPA.Flow.ProcessModule
+  processItem: RPA.Process.ProcessModule
 }>()
 
 const menus: IMenuItem[] = useProcessMenuActions({

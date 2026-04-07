@@ -12,25 +12,23 @@ import {
 } from '@/constants'
 import { useElementsStore } from '@/stores/useElementsStore'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 
 import AtomTree from './components/atomTree/AtomTree.vue'
 import BottomTools from './components/bottomTools/Index.vue'
-import FlowContent from './components/flow/FlowContent.vue'
 import ProcessHeader from './components/process/ProcessHeader.vue'
 import RightTab from './components/rightTab/Index.vue'
-import Search from './components/search/Index.vue'
 import Tools from './components/tools/Tools.vue'
-import useArrangeProvide from './hook/useArrangeProvide'
+import ProcessSearch from './components/search/Index.vue'
+import ProcessContent from './components/process/ProcessContent.vue'
 
 defineOptions({
   name: 'EditorPage',
 })
 
-useArrangeProvide() // 注册表单全局数据
 
 const processStore = useProcessStore()
 const elementStore = useElementsStore()
+
 
 const contentContainer = useTemplateRef<HTMLElement>('contentContainer')
 const contentContainerSize = useElementSize(contentContainer)
@@ -43,8 +41,6 @@ const horizontalSpliterSize = reactive({
   size: [LEFT_BOOTLS_WIDTH_SIZE_MAX, undefined],
   collapseLeft: false,
 })
-
-useProjectDocStore().createProjectDoc() // 创建项目文档
 
 onBeforeUnmount(() => {
   processStore.reset()
@@ -94,8 +90,8 @@ function handleLeftToolsCollapsed(collapsed: boolean) {
               <Splitter.Panel :size="contentSplitterState.size[0]">
                 <div class="h-full flex flex-col">
                   <ProcessHeader />
-                  <Search />
-                  <FlowContent />
+                  <ProcessSearch />
+                  <ProcessContent />
                 </div>
               </Splitter.Panel>
               <Splitter.Panel

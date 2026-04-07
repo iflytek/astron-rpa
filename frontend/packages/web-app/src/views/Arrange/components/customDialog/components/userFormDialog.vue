@@ -4,10 +4,10 @@ import { Empty, Form } from 'ant-design-vue'
 import { isEmpty } from 'lodash-es'
 
 import type { AnyObj } from '@/types/common'
-import type { DialogOption } from '@/views/Arrange/components/customDialog/types'
 
 import { createUserFormItem } from '../hooks/createUserFormItem'
 import useUserFormDialog from '../hooks/useUserFormDialog'
+import type { DialogOption } from '../types'
 
 const props = defineProps<{ option: DialogOption, draggable?: boolean }>()
 

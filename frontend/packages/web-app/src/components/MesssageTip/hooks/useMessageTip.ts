@@ -123,7 +123,7 @@ export function useMessageTip() {
     if (messageType === TEAMMARKETUPDATE) {
       // 编排页面，点击消息，保存编排页面数据，并跳转到对应市场应用
       if (route.name === EDITORPAGE) {
-        await processStore.saveProject()
+        await processStore.canvasManager.saveTab()
       }
       toMarket(marketId)
       showMessage.value = false

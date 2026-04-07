@@ -26,7 +26,10 @@ const gridOptions: VxeGridProps<RPA.ConfigParamData> = {
   ],
 }
 
-const handleChange = debounce((row: RPA.ConfigParamData) => processStore.updateParameter(row), 300, { leading: true })
+const handleChange = debounce((row: RPA.ConfigParamData) => {
+  const activeTab = processStore.canvasManager.activeTab
+  activeTab?.configParameter?.update(row)
+}, 300, { leading: true })
 </script>
 
 <template>

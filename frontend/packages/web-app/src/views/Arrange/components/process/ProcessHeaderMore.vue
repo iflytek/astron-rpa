@@ -10,19 +10,18 @@ interface ProcessMenuItem extends IMenuItem {
   isMain: boolean
 }
 
-const props = defineProps<{
-  inVisibleProcessList: RPA.Flow.ProcessModule[]
-}>()
+const props = defineProps<{ inVisibleProcessList: RPA.Process.ProcessModule[] }>()
 
-const processStore = useProcessStore()
+const { canvasManager } = useProcessStore()
+
 const menus = computed(() => props.inVisibleProcessList.map(process => ({
   key: process.resourceId,
   name: process.name,
   isMain: process.isMain,
   fn: () => {
     // 假如点击项就是激活项，activeProcessId不会改变，ProcessHeader组件中的watch不会生效，需要手动触发滚动
-    if (process.resourceId === processStore.activeProcessId) {
-      const activeProcessDom = document.getElementById(`process_${processStore.activeProcessId}`)
+    if (process.resourceId === canvasManager.activeTabId) {
+      const activeProcessDom = document.getElementById(`process_${canvasManager.activeTabId}`)
       activeProcessDom?.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
@@ -30,17 +29,17 @@ const menus = computed(() => props.inVisibleProcessList.map(process => ({
       })
     }
     else {
-      processStore.saveProject().then(() => {
-        processStore.openProcess(process.resourceId)
-      })
+      // processStore.saveProject().then(() => {
+      //   processStore.openProcess(process.resourceId)
+      // })
     }
   },
 })))
 
 function closeProcess(item: IMenuItem) {
-  processStore.saveProject().then(() => {
-    processStore.closeProcess(item.key)
-  })
+  // processStore.saveProject().then(() => {
+  //   processStore.closeProcess(item.key)
+  // })
 }
 </script>
 

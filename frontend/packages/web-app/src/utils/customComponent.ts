@@ -5,10 +5,8 @@ import { getComponentDetail } from '@/api/project'
 import { getProcessAndCodeList } from '@/api/resource'
 import { addComponentUse, deleteComponentUse, getEditComponentDetail } from '@/api/robot'
 import { ATOM_FORM_TYPE, OTHER_IN_TYPE } from '@/constants/atom'
-import type { ProcessNode } from '@/corobot/type'
-import { useFlowStore } from '@/stores/useFlowStore'
+import type { ProcessNode } from '@/views/Arrange/canvasManager/ast/ASTNode'
 import { useProcessStore } from '@/stores/useProcessStore'
-import useProjectDocStore from '@/stores/useProjectDocStore'
 
 export const COMPONENT_KEY_PREFIX = 'Code.Component'
 
@@ -248,8 +246,9 @@ function buildComponentFormData(params: {
   version?: string | number
   icon?: string
   comment?: string
+  noAdvanced?: boolean
 }) {
-  const { componentId, componentAttrs, title, version = '', icon = '', comment = '' } = params
+  const { componentId, componentAttrs, title, version = '', icon = '', comment = '', noAdvanced = false } = params
   const { inputFormItems, outputFormItems } = buildFormItemsFromAttrs(componentAttrs)
 
   return {
@@ -263,6 +262,7 @@ function buildComponentFormData(params: {
     outputList: outputFormItems,
     icon,
     helpManual: '',
+    noAdvanced,
   }
 }
 
@@ -294,7 +294,8 @@ export async function getComponentForm(params: {
     title: info.name,
     version: version || info.componentVersion || info.latestVersion,
     icon: info.icon,
-    comment: info.comment
+    comment: info.comment,
+    noAdvanced: true,
   }) as unknown as ProcessNode
 }
 
@@ -390,11 +391,10 @@ function getDefaultFormItem(attr: RPA.ConfigParamData): RPA.AtomDisplayItem {
 
 export function getUsedComponentKeySet() {
   const processStore = useProcessStore()
-  const projectDocStore = useProjectDocStore()
-
   const usedkeySet = new Set(
-    processStore.processList
-      .flatMap(process => projectDocStore.getProcessNodes(process.resourceId))
+    processStore.canvasManager.processList
+      .filter(process => process.state.resourceCategory === 'process')
+      .flatMap(process => (Array.isArray(process.state.data) ? process.state.data : []))
       .filter(node => isComponentKey(node.key))
       .map(item => item.key),
   )
@@ -429,31 +429,65 @@ export async function trackComponentUsageChange(operation: () => void | Promise<
 /**
  * 更新应用流程节点中使用到的组件数据
  */
-export function updateFlowNodesComponent(componentId: string, defaultNode: ProcessNode) {
+export function updateFlowNodesComponent(componentId: string, defaultNode: RPA.Flow.FlowItemValue) {
   const processStore = useProcessStore()
-  const projectDocStore = useProjectDocStore()
-  const flowStore = useFlowStore()
+  const processTabs = processStore.canvasManager.processList.filter(
+    process => process.state.resourceCategory === 'process',
+  )
 
-  const updateParams: { node: RPA.Atom, index: number, process: string }[] = []
+  processTabs.forEach((tab) => {
+    const nodes = Array.isArray(tab.state.data) ? tab.state.data : []
+    let hasChanged = false
 
-  processStore.processList.forEach((process) => {
-    const nodes = projectDocStore.getProcessNodes(process.resourceId)
-    nodes.forEach((node, index) => {
-      if (isComponentKey(node.key) && getComponentId(node.key) === componentId) {
-        const oldFormItems = [...node.inputList, ...node.outputList]
-        const newNode = {
-          ...node,
-          icon: defaultNode.icon,
-          version: defaultNode.version,
-          inputList: defaultNode.inputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
-          outputList: defaultNode.outputList.map(item => ({ ...item, value: oldFormItems.find(i => i.key === item.key)?.value || item.value })),
-        }
-        updateParams.push({ node: newNode, index, process: process.resourceId })
+    const nextNodes = nodes.map((node) => {
+      if (!isComponentKey(node.key) || getComponentId(node.key) !== componentId) {
+        return node
+      }
+
+      hasChanged = true
+      const oldFormItems = [
+        ...(Array.isArray(node.inputList) ? node.inputList : []),
+        ...(Array.isArray(node.outputList) ? node.outputList : []),
+        ...(Array.isArray(node.advanced) ? node.advanced : []),
+        ...(Array.isArray(node.exception) ? node.exception : []),
+      ]
+
+      const mapValue = (item: RPA.AtomFormBaseForm) => ({
+        ...item,
+        value: oldFormItems.find(i => i.key === item.key)?.value ?? item.value,
+      })
+
+      return {
+        ...node,
+        icon: defaultNode.icon,
+        version: defaultNode.version,
+        inputList: (defaultNode.inputList || []).map(mapValue),
+        outputList: (defaultNode.outputList || []).map(mapValue),
+        advanced: (defaultNode.advanced || []).map(mapValue),
+        exception: (defaultNode.exception || []).map(mapValue),
       }
     })
-  })
 
-  flowStore.updataOriginFlowData(updateParams)
+    if (!hasChanged) return
+
+    tab.updateState({ data: nextNodes, isDirty: true })
+
+    const visualTab = tab as RPA.Process.TabInstance<RPA.Atom[]> & {
+      astParser?: { getSubtreeNodes?: () => { raw: RPA.Atom }[] }
+      updateData?: () => void
+    }
+    if (!visualTab.astParser?.getSubtreeNodes) return
+
+    const nextNodeMap = new Map(nextNodes.map(it => [it.id, it]))
+    const parserNodes = visualTab.astParser.getSubtreeNodes().slice(1)
+    parserNodes.forEach((it) => {
+      const target = nextNodeMap.get(it.raw.id)
+      if (target) {
+        Object.assign(it.raw, target)
+      }
+    })
+    visualTab.updateData?.()
+  })
 }
 
 function safeParse(str) {

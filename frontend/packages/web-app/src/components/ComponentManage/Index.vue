@@ -154,7 +154,7 @@ function handleRefresh() {
 async function handleJumpToMarket() {
   try {
     modal.hide()
-    await processStore.saveProject()
+    await processStore.canvasManager.saveTab()
     message.success('保存成功')
     useRoutePush({ name: APPLICATIONMARKET })
   }

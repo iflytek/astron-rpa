@@ -3,55 +3,56 @@ import { DoubleRightOutlined } from '@ant-design/icons-vue'
 import { useTheme } from '@rpa/components'
 import { useEventBus } from '@vueuse/core'
 import { isEmpty, throttle } from 'lodash-es'
-import { nextTick, ref } from 'vue'
-import type { PropType } from 'vue'
+import { nextTick, ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 
 import CustomCheckbox from '@/components/CustomCheckbox.vue'
 import { showTriggerInputKey } from '@/constants/eventBusKey'
-import { useFlowStore } from '@/stores/useFlowStore'
-import { Catch, LOOP_END } from '@/views/Arrange/config/atomKeyMap'
+import { ATOM_KEY_MAP, LOOP_END } from '@/constants/atom'
 import { FLOW_ACTIVE, FLOW_DISABLE, FLOW_FORBID } from '@/views/Arrange/config/flow'
-import { FLOW_DEBUGGING, PAGE_INIT_INDENT, PAGE_LEVEL_INDENT } from '@/views/Arrange/config/flow.ts'
+import { FLOW_DEBUGGING, PAGE_INIT_INDENT, PAGE_LEVEL_INDENT } from '@/views/Arrange/config/flow'
+import { useProcessStore } from '@/stores/useProcessStore'
 
-import {
-  checkboxChange,
-  clickAtom,
-  contextmenu,
-  dbclickAtom,
-  getBreakpointClass,
-  toggleBreakPoint,
-  toggleFold,
-} from './hooks/useFlow'
+// import { getBreakpointClass, toggleBreakPoint } from './hooks/useFlow'
 import { useRenderList } from './hooks/useRenderList'
+import { useFlowState } from './hooks/useFlowState'
 import ItemAction from './ItemAction.vue'
 import ItemDesc from './ItemDesc.vue'
 import ItemTitle from './ItemTitle.vue'
+import { RIGHT_TAB_KEY } from '../../config'
 
-const { item, index } = defineProps({
-  item: {
-    type: Object as PropType<RPA.Atom>,
-  },
-  index: {
-    type: Number,
-  },
-})
+const props = defineProps<{ item: RPA.Atom, index: number }>()
 
+const processStore = useProcessStore()
 const { colorTheme } = useTheme()
-const flowStore = useFlowStore()
+const { setRightClickSelectedAtom, flowManager } = useFlowState()
 const { triggerInsert, canInsert } = useRenderList()
 
+const { rightTabActiveKey } = storeToRefs(processStore)
 const content = ref() // 节点内容
 const addPos = ref<'top' | 'bottom' | ''>('') // 添加按钮位置 top | bottom
 const addPosStyle = ref({}) // 添加按钮样式
 
+// 原子能力错误信息
+const atomErrors = computed(() => {
+  const { inputList, outputList, advanced, exception } = props.item
+  const safeInputList = Array.isArray(inputList) ? inputList : []
+  const safeOutputList = Array.isArray(outputList) ? outputList : []
+  const safeAdvanced = Array.isArray(advanced) ? advanced : []
+  const safeException = Array.isArray(exception) ? exception : []
+
+  return [...safeInputList, ...safeOutputList, ...safeAdvanced, ...safeException]
+    .filter(it => it?.show)
+    .map(it => it?.errors)
+    .flat()
+})
+
 const mouseMove = throttle((e: MouseEvent) => {
   if (content.value) {
     const domRect = content.value.getBoundingClientRect()
-    const pos = (e.clientY > domRect.top + domRect.height / 2) || index === 0 ? 'bottom' : 'top'
-    if (canInsert(item, pos)) {
-      addPosStyle.value = {
-        [pos]: 0,
-      }
+    const pos = (e.clientY > domRect.top + domRect.height / 2) || props.index === 0 ? 'bottom' : 'top'
+    if (canInsert(props.item, pos)) {
+      addPosStyle.value = { [pos]: 0 }
       addPos.value = pos
     }
     else {
@@ -68,7 +69,7 @@ function mouseLeave() {
 
 // 展示输入框
 function showTriggerInput() {
-  triggerInsert(item, addPos.value)
+  triggerInsert(props.item, addPos.value)
   addPosStyle.value = {}
   addPos.value = ''
   // 通知输入框聚焦
@@ -76,16 +77,52 @@ function showTriggerInput() {
   nextTick(() => bus.emit())
 }
 
-function rowWidth(item: RPA.Atom) {
-  return {
-    width: `${item.level * 30 + PAGE_INIT_INDENT + 1 - 10}`,
-  }
-}
-
 function handleJumpBack(payload: MouseEvent) {
   payload.stopPropagation()
-  flowStore.jumpBack()
+  // flowStore.jumpBack()
 }
+
+function handleClick(event: MouseEvent) {
+  const { id } = props.item
+  const isCtrl = event.ctrlKey || event.metaKey
+  const isShift = event.shiftKey
+
+  // Ctrl+Shift+点击：范围选中（追加模式）
+  if (isCtrl && isShift) {
+    flowManager.selectRange(id, true)
+    return
+  }
+
+  // Shift+点击：范围选中（替换模式）
+  if (isShift) {
+    flowManager.selectRange(id, false)
+    return
+  }
+
+  // Ctrl/Cmd+点击：切换多选
+  if (isCtrl) {
+    flowManager.toggleMultiSelect(true)
+    flowManager.toggleAtomSelected(id)
+    return
+  }
+
+  // 普通点击：单选
+  flowManager.toggleAtomSelected(id)
+}
+
+function handleDoubleClick() {
+  rightTabActiveKey.value = RIGHT_TAB_KEY.NODE
+}
+
+function handleContextmenu() {
+  flowManager.toggleAtomSelected(props.item.id, true)
+  setRightClickSelectedAtom(props.item)
+}
+
+function handleToggleFold() {
+  flowManager.toggleFold(props.item.id)
+}
+
 </script>
 
 <template>
@@ -93,30 +130,34 @@ function handleJumpBack(payload: MouseEvent) {
     class="flow-list-item-header"
     :class="{
       [FLOW_DISABLE]: item.disabled,
-      [FLOW_ACTIVE]: item.checked,
-      [FLOW_FORBID]: LOOP_END.concat([Catch]).includes(item.key),
+      [FLOW_ACTIVE]: flowManager.state.selectedAtomIds?.includes(item.id),
+      [FLOW_FORBID]: LOOP_END.concat([ATOM_KEY_MAP.Catch]).includes(item.key),
       [FLOW_DEBUGGING]: item.debugging,
     }"
-    @click="clickAtom($event, item)"
-    @dblclick="dbclickAtom($event, item)"
-    @contextmenu.prevent="contextmenu($event, item)"
+    @click="handleClick"
+    @dblclick.stop="handleDoubleClick"
+    @contextmenu.prevent="handleContextmenu"
   >
-    <span class="row-left" :style="rowWidth(item)">
+    <span class="row-left" :style="{ width: `${item.level * 30 + PAGE_INIT_INDENT + 1 - 10}` }">
       <span class="row-num">{{ index + 1 }}</span>
-      <template v-if="flowStore.multiSelect">
-        <CustomCheckbox v-model="item.checked" @click.stop @change="checkboxChange($event, item)" />
+      <template v-if="flowManager.state.multiSelect">
+        <CustomCheckbox
+          :model-value="flowManager.state.selectedAtomIds?.includes(item.id)"
+          @click.stop
+          @update:model-value="flowManager.toggleAtomSelected(item.id, $event)"
+        />
       </template>
       <template v-else>
-        <DoubleRightOutlined
-          v-if="item.id && flowStore.jumpFlowId === item.id"
+        <!-- <DoubleRightOutlined
+          v-if="item.id"
           :id="`jump-back__${item.id}`"
           class="text-primary inline-flex text-xs"
           :rotate="90"
           @click="handleJumpBack"
-        />
-        <a-tooltip v-else-if="(!item.disabled) && !isEmpty(item?.nodeError)">
+        /> -->
+        <a-tooltip v-if="(!item.disabled) && !isEmpty(atomErrors)">
           <template #title>
-            <div v-for="(validateText, idx) in item.nodeError">
+            <div v-for="(validateText, idx) in atomErrors">
               {{ idx + 1 }}、{{ validateText }}
             </div>
           </template>
@@ -124,11 +165,15 @@ function handleJumpBack(payload: MouseEvent) {
         </a-tooltip>
         <span
           v-else
-          :class="getBreakpointClass(item)"
-          @click.prevent.stop="toggleBreakPoint([item.id], !item.breakpoint)"
         />
       </template>
-      <rpa-icon v-if="item.hasFold" class="absolute -right-2" size="16" :name="item.isOpen ? 'un-fold' : 'fold'" @click="toggleFold(item)" />
+      <rpa-icon
+        v-if="item.hasFold"
+        class="absolute -right-2"
+        size="16"
+        :name="item.isOpen ? 'un-fold' : 'fold'"
+        @click.prevent.stop="handleToggleFold"
+      />
     </span>
     <div
       ref="content"

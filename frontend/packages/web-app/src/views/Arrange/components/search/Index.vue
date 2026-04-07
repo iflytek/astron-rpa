@@ -5,12 +5,11 @@ import { escapeRegExp, isArray } from 'lodash-es'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { SCOPE } from '@/constants/shortcuts'
-import { useFlowStore } from '@/stores/useFlowStore'
-import { toggleFold } from '@/views/Arrange/components/flow/hooks/useFlow'
+// import { useFlowStore } from '@/stores/useFlowStore'
 import SearchWidget from '@/views/Arrange/components/search/SearchWidget.vue'
 import { backContainNodeIdx } from '@/views/Arrange/utils/flowUtils'
 import { atomScrollIntoView, decodeHtml } from '@/views/Arrange/utils/index'
-import { renderAtomRemark } from '@/views/Arrange/utils/renderAtomRemark'
+// import { renderAtomRemark } from '@/views/Arrange/utils/renderAtomRemark'
 import { changeSelectAtoms } from '@/views/Arrange/utils/selectItemByClick'
 
 const SEARCH_HOTKEY = 'Ctrl+F'
@@ -22,7 +21,7 @@ const activeIndex = ref(0)
 const searchKeyword = ref('')
 const debouncedSearchKeyword = refDebounced(searchKeyword, 300)
 const searchWidget = useTemplateRef('searchWidget')
-const flowStore = useFlowStore()
+// const flowStore = useFlowStore()
 
 // 搜索结果显示
 const searchResults = computed(() => {
@@ -30,17 +29,19 @@ const searchResults = computed(() => {
     return []
 
   const searchRegex = new RegExp(escapeRegExp(debouncedSearchKeyword.value), 'i')
-  const dataWithComments = flowStore.simpleFlowUIData.map((item, index) => {
-    const comment = renderAtomRemark(item)
-    const commentText = isArray(comment)
-      ? comment.map(i => (i.variable ? decodeHtml(i.sr[2]) : i)).join('')
-      : comment
-    return { id: item.id, title: item.alias, commentText, item, index }
-  })
+  // const dataWithComments = flowStore.simpleFlowUIData.map((item, index) => {
+  //   const comment = renderAtomRemark(item)
+  //   const commentText = isArray(comment)
+  //     ? comment.map(i => (i.variable ? decodeHtml(i.sr[2]) : i)).join('')
+  //     : comment
+  //   return { id: item.id, title: item.alias, commentText, item, index }
+  // })
 
-  return dataWithComments.filter(
-    it => searchRegex.test(it.title) || searchRegex.test(it.commentText),
-  )
+  // return dataWithComments.filter(
+  //   it => searchRegex.test(it.title) || searchRegex.test(it.commentText)
+  // )
+
+  return []
 })
 
 // 当前激活的搜索结果
@@ -50,15 +51,15 @@ const activeSearchAtom = computed(() => {
 
 // 展开包含当前搜索结果的折叠组
 function expandContainingGroups(atomIndex: number) {
-  const groupKeys = Object.keys(flowStore.nodeContactMap)
-  groupKeys.forEach((groupId) => {
-    const groupStartIdx = flowStore.simpleFlowUIData.findIndex(node => node.id === groupId)
-    const groupEndIdx = backContainNodeIdx(groupId)
-
-    if (groupStartIdx > -1 && groupStartIdx <= atomIndex && groupEndIdx >= atomIndex) {
-      toggleFold(flowStore.simpleFlowUIData[groupStartIdx])
-    }
-  })
+  // const groupKeys = Object.keys(flowStore.nodeContactMap)
+  // groupKeys.forEach((groupId) => {
+  //   const groupStartIdx = flowStore.simpleFlowUIData.findIndex(node => node.id === groupId)
+  //   const groupEndIdx = backContainNodeIdx(groupId)
+    
+  //   if (groupStartIdx > -1 && groupStartIdx <= atomIndex && groupEndIdx >= atomIndex) {
+  //     toggleFold(flowStore.simpleFlowUIData[groupStartIdx])
+  //   }
+  // })
 }
 
 // 处理搜索结果切换
@@ -111,7 +112,6 @@ function previous() {
 
 // 上下键处理函数
 function handleArrowUp() {
-  console.log('handleArrowUp')
   previous()
 }
 

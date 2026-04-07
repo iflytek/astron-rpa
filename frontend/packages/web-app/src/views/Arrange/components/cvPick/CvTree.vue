@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { Empty } from 'ant-design-vue'
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-import { scrollToName } from '@/utils/domUtils'
 import { LRUCache } from '@/utils/lruCache'
 
 import ElementGroupContextmenu from '@/components/ElementGroupContextmenu/Index.vue'
@@ -15,31 +14,15 @@ import { useGroupManager } from '../bottomTools/components/hooks/useGroup.ts'
 import CvItem from './CvItem.vue'
 import { useCvPick } from './hooks/useCvPick.ts'
 
-const props = defineProps({
-  storageId: String,
-  treeData: {
-    type: Array as () => Array<ElementGroup>,
-  },
-  collapsed: {
-    type: Boolean,
-    default: false,
-  },
-  elementActions: {
-    type: Array<ElementActionType>,
-  },
-  disabledContextmenu: {
-    type: Boolean,
-    default: false,
-  },
-  itemChosed: {
-    type: String,
-    default: '',
-  },
-  defaultCollapse: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = defineProps<{
+  treeData: ElementGroup[]
+  collapsed: boolean
+  storageId?: string
+  elementActions?: ElementActionType[]
+  disabledContextmenu?: boolean
+  itemChosed?: string
+  emptyText?: string
+}>()
 
 const emits = defineEmits(['click', 'actionClick'])
 
@@ -73,88 +56,48 @@ function itemClick(item: any) {
   emits('click', item)
 }
 
+function getOpenKeys(): string[] {
+  if (!props.collapsed) {
+    return props.treeData.map(i => i.id)
+  }
+  else if (props.storageId) {
+    return openKeyLRUCache.get(props.storageId)
+  }
+  return []
+}
+
 // 展开折叠
-const openKeys = ref<string[]>([])
-const canUpdateOpenKey = ref(true)
+const openKeys = ref<string[]>(getOpenKeys())
 
 function toggleOpen(key: string, flag: boolean) {
-  canUpdateOpenKey.value = false
   if (flag) {
-    openKeys.value.push(key)
+    updateOpenKeys([...openKeys.value, key])
   }
   else {
-    openKeys.value = openKeys.value.filter(i => i !== key)
+    updateOpenKeys(openKeys.value.filter(i => i !== key))
   }
 }
 
-watch(
-  () => props.treeData,
-  (val) => {
-    let keys: string[] = []
-
-    if (canUpdateOpenKey.value && !props.defaultCollapse) {
-      keys = val.map(i => i.id)
-    }
-    else if (props.storageId) {
-      keys = openKeyLRUCache.get(props.storageId)
-    }
-
-    openKeys.value = keys
-  },
-  { immediate: true },
-)
-
-watch(
-  () => props.defaultCollapse,
-  () => {
-    canUpdateOpenKey.value = true
-  },
-  { immediate: true },
-)
+function updateOpenKeys(keys: string[]) {
+  openKeys.value = keys
+  if (props.storageId) {
+    openKeyLRUCache.set(props.storageId, keys)
+  }
+}
 
 // 全部展开/折叠
 watch(
-  () => props.collapsed,
-  (val) => {
-    setTimeout(() => {
-      openKeys.value = val ? props.treeData.map(i => i.id) : []
-    }, 100)
-  },
-  { immediate: true },
-)
-
-// 滚动到 name 项
-function scrollInto(id: string) {
-  const isExist = props.treeData.find(i => i.elements.some(j => j.id === id))
-  if (!isExist)
-    return // 不存在, 默认则不需要滚动
-  toggleOpen(isExist.id, true)
-  scrollToName(id)
-}
-
-function autoScroll() {
-  if (props.itemChosed && props.treeData.length > 0) {
-    scrollInto(props.itemChosed)
+  () => [props.collapsed, props.treeData],
+  () => {
+    const keys = getOpenKeys()
+    updateOpenKeys(keys)
   }
-}
-
-onMounted(() => autoScroll())
-
-// 监听 expandedKeys 变化，保存到 localStorage
-watch(
-  openKeys,
-  (val) => {
-    if (props.storageId) {
-      openKeyLRUCache.set(props.storageId, val)
-    }
-  },
-  { deep: true },
 )
 </script>
 
 <template>
   <div id="cv-group" class="cv-group h-full overflow-y-auto">
-    <div class="cv-group-list">
+    <div class="cv-group-list" v-if="treeData.length > 0">
       <div
         v-for="item in treeData"
         class="cv-group-item"
@@ -198,8 +141,7 @@ watch(
         </div>
       </div>
     </div>
-    <template v-if="treeData.length === 0">
-      <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" />
-    </template>
+    
+    <a-empty v-else :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="props.emptyText" />
   </div>
 </template>
