@@ -1,6 +1,6 @@
 import { isEmpty, omit } from 'lodash-es'
 
-import { translate } from '@/plugins/i18next'
+import i18next from '@/plugins/i18next'
 
 export interface AtomTreeNode extends Omit<RPA.AtomTreeNode, 'atomics'> {
   uniqueId: string
@@ -55,7 +55,7 @@ export function searchTreeAndKeepStructure(treeNodes: AtomTreeNode[], keyword: s
         matchedChildren = traverse(node.atomics)
       }
 
-      const isMatch = translate(node.title).toLowerCase().includes(keyword.toLowerCase())
+      const isMatch = i18next.translate(node.title).toLowerCase().includes(keyword.toLowerCase())
 
       if (matchedChildren?.length > 0) {
         expandKeys.push(node.uniqueId)
