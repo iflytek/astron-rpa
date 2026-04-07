@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from astronverse.openapi.error import BizException, EXCEL_WORKSHEET_ERROR
 from openpyxl import Workbook
@@ -16,11 +17,9 @@ def write_to_excel(dst_file, dst_file_name, header_dict, json_data):
     if not os.path.splitext(dst_file_name)[1]:
         dst_file_name += ".xlsx"
 
-    # 确保目标文件夹存在
     if not os.path.exists(dst_file):
         os.makedirs(dst_file)
 
-    # 构建完整的文件路径
     full_file_path = os.path.join(dst_file, dst_file_name)
     wb = Workbook()
     ws = wb.active
@@ -28,16 +27,13 @@ def write_to_excel(dst_file, dst_file_name, header_dict, json_data):
         raise BizException(EXCEL_WORKSHEET_ERROR, "无法获取活动工作表")
     cols = []
 
-    # 先用自定义值写表头
     for title in header_dict.values():
         if title not in cols:
             cols.append(title)
-    ws.append(cols)  # 标题
-    # 写值
+    ws.append(cols)
     for line in json_data:
         row_data = []
         for title in cols:
-            # 获取每一行title值对应的value值
             value = line.get(title)
             if isinstance(value, list):
                 value = ",".join(value)
@@ -57,12 +53,7 @@ def generate_src_files(src_file, file_type="image"):
         if os.path.isdir(src_file):
             for file in os.listdir(src_file):
                 if file_type == "image":
-                    if os.path.splitext(file)[1].lower() in (
-                        ".jpg",
-                        ".jpeg",
-                        ".png",
-                        ".bmp",
-                    ):
+                    if os.path.splitext(file)[1].lower() in (".jpg", ".jpeg", ".png", ".bmp"):
                         files.append(os.path.join(src_file, file))
                 else:
                     if file.startswith("~$"):
@@ -72,13 +63,30 @@ def generate_src_files(src_file, file_type="image"):
                         files.append(file_path)
         else:
             if file_type == "image":
-                if os.path.splitext(src_file)[1].lower() in (
-                    ".jpg",
-                    ".jpeg",
-                    ".png",
-                    ".bmp",
-                ):
+                if os.path.splitext(src_file)[1].lower() in (".jpg", ".jpeg", ".png", ".bmp"):
                     files.append(src_file)
             else:
                 files.append(src_file)
     return files
+
+
+def ensure_parent_dir(dst_file: str):
+    Path(dst_file).mkdir(parents=True, exist_ok=True)
+
+
+def write_text_file(dst_dir: str, dst_name: str, content: str, suffix: str = ".txt") -> str:
+    ensure_parent_dir(dst_dir)
+    if not os.path.splitext(dst_name)[1]:
+        dst_name = f"{dst_name}{suffix}"
+    full_path = os.path.join(dst_dir, dst_name)
+    Path(full_path).write_text(content, encoding="utf-8")
+    return full_path
+
+
+def write_binary_file(dst_dir: str, dst_name: str, content: bytes, suffix: str) -> str:
+    ensure_parent_dir(dst_dir)
+    if not os.path.splitext(dst_name)[1]:
+        dst_name = f"{dst_name}{suffix}"
+    full_path = os.path.join(dst_dir, dst_name)
+    Path(full_path).write_bytes(content)
+    return full_path
