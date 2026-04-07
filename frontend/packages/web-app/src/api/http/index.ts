@@ -6,10 +6,11 @@ import type {
   AxiosResponse,
 } from 'axios'
 import axios, { AxiosHeaders } from 'axios'
+import i18next from 'i18next'
 import { isNil } from 'lodash-es'
 
 import { promiseWithResolvers } from '@/utils/common'
-import i18next from '@/plugins/i18next'
+
 import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 import useUserSettingStore from '@/stores/useUserSetting'
 

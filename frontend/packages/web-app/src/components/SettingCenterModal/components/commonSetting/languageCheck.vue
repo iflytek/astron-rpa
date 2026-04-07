@@ -3,7 +3,7 @@ import { Select } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 
 import GlobalModal from '@/components/GlobalModal'
-import { LanguageText } from '@rpa/components'
+import locales from '@/constants/i18n'
 import { utilsManager } from '@/platform'
 import useUserSettingStore from '@/stores/useUserSetting'
 
@@ -12,17 +12,17 @@ import Card from '../card.vue'
 const userSettingStore = useUserSettingStore()
 const { t, i18next } = useTranslation()
 
-const handleCheck = (lang: string) => {
-  if (lang === i18next.language) {
+const handleCheck = (locale: typeof locales[0]) => {
+  if (locale.lng === i18next.language) {
     return
   }
 
   GlobalModal.confirm({
-    title: t('settingCenter.languageRestartTitle', { lang: LanguageText[lang] }),
+    title: t('settingCenter.languageRestartTitle', { lang: locale.lang }),
     okType: 'primary',
     okText: t('restart'),
     onOk: async () => {
-      await userSettingStore.setLanguageSetting(lang)
+      await userSettingStore.setLanguageSetting(locale.lng)
       utilsManager.restartApp()
     },
   })
@@ -34,12 +34,12 @@ const handleCheck = (lang: string) => {
     <template #suffix>
       <Select :value="i18next.language" style="width: 160px;">
         <Select.Option
-          v-for="[lng, text] in Object.entries(LanguageText)"
-          :key="lng"
-          :value="lng"
-          @click="handleCheck(lng)"
+          v-for="locale in locales"
+          :key="locale.lng"
+          :value="locale.lng"
+          @click="handleCheck(locale)"
         >
-          {{ text }}
+          {{ locale.lang }}
         </Select.Option>
       </Select>
     </template>
