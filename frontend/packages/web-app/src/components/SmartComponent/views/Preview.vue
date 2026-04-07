@@ -9,13 +9,10 @@ import { useRoute } from 'vue-router'
 
 import { codeToMeta } from '@/api/component'
 import { getBaseURL } from '@/api/http/env'
-// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
-// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
-// TODO merge: debug function removed in refactor, adapt to canvasManager
-// import { debug } from '@/views/Arrange/components/flow/hooks/useFlow'
+import type { VisualEditor } from '@/views/Arrange/canvasManager/adapters'
 
 import AtomForm from '../components/AtomForm.vue'
 import { modeOptions } from '../config/constants'
@@ -24,9 +21,6 @@ import { generateComponentForm } from '../utils'
 
 const isDark = useDark()
 const processStore = useProcessStore()
-// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
-const flowStore = { simpleFlowUIData: [] as any[] }
-const debug = (..._args: any[]) => { /* TODO merge: adapt to canvasManager */ }
 const smartComp = useSmartComp()
 const runningStore = useRunningStore()
 const runlogStore = useRunlogStore()
@@ -104,8 +98,22 @@ const handleRun = throttle(async () => {
     }
 
     await smartComp.saveSmartComp()
-    const componentId = flowStore.simpleFlowUIData.find(item => item.key === smartComp.editingSmartComp.value?.key)?.id
-    debug([componentId])
+
+    // 先保存当前 tab
+    const saved = await processStore.canvasManager.saveTab()
+    if (!saved) {
+      message.error(t('toolsTips.saveFailed'))
+      return
+    }
+
+    const activeTab = processStore.canvasManager.activeTab as VisualEditor | null
+    const flowData: RPA.Atom[] = activeTab?.state?.data || []
+    const componentIndex = flowData.findIndex(item => item.key === smartComp.editingSmartComp.value?.key)
+    if (componentIndex >= 0) {
+      const line = componentIndex + 1
+      const processId = activeTab?.id || ''
+      runningStore.startRun(processStore.project.id, processStore.project.version, processId, line, line)
+    }
   }
   catch (error) {
     console.error('运行失败:', error)

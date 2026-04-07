@@ -69,14 +69,14 @@ function handleDragChange(e: any) {
 
 function handleBeforeAdd(e: { element: any, newIndex: number }) {
   if (e.element?.key === 'smart-component') {
-    // useRoutePush({
-    //   name: SMARTCOMPONENT,
-    //   query: {
-    //     projectId: processStore.project.id,
-    //     projectName: processStore.project.name,
-    //     newIndex: Math.min(e.newIndex, flowStore.simpleFlowUIData.length),
-    //   },
-    // })
+    useRoutePush({
+      name: SMARTCOMPONENT,
+      query: {
+        projectId: processStore.project.id,
+        projectName: processStore.project.name,
+        newIndex: Math.min(e.newIndex, props.manage.state.data?.length || 0),
+      },
+    })
     return false
   }
   else {

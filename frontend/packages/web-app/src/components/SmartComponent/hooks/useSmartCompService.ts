@@ -2,10 +2,19 @@ import { useRoute } from 'vue-router'
 
 import { saveSmartComp } from '@/api/component'
 import { useProcessStore } from '@/stores/useProcessStore'
+import type { VisualEditor } from '@/views/Arrange/canvasManager/adapters'
 
 import { SMART_COMPONENT_KEY_PREFIX } from '../config/constants'
 import type { SmartComp, SmartType } from '../types'
 import { getSmartComponentId } from '../utils'
+
+/**
+ * 获取当前活动 tab 的流程数据（VisualEditor 的 state.data）
+ */
+function getActiveFlowData(processStore: ReturnType<typeof useProcessStore>): RPA.Atom[] {
+  const activeTab = processStore.canvasManager.activeTab as VisualEditor | null
+  return activeTab?.state?.data || []
+}
 
 // 业务逻辑服务
 export function useSmartCompService() {
@@ -59,25 +68,51 @@ export function useSmartCompService() {
       })
     }
 
-    // TODO merge: adapt to canvasManager (need flowStore.simpleFlowUIData and addAtomData)
     // 如果组件不存在于流程中，添加到流程
-    // const hasExist = flowStore.simpleFlowUIData.find(item => item.key === smartComp.key)
-    // if (!hasExist) {
-    //   await addAtomData(key, route.query.newIndex ? Number(route.query.newIndex) : undefined)
-    // }
-    // else {
-    //   updateDocAndFlowNode(smartComp)
-    // }
+    const flowData = getActiveFlowData(processStore)
+    const hasExist = flowData.find(item => item.key === smartComp.key)
+    if (!hasExist) {
+      const activeTab = processStore.canvasManager.activeTab as VisualEditor | null
+      if (activeTab?.add) {
+        const newIndex = route.query.newIndex ? Number(route.query.newIndex) : undefined
+        await activeTab.add(key, newIndex)
+      }
+    }
+    else {
+      updateFlowNode(smartComp)
+    }
 
     return updatedComp
   }
 
-  // TODO merge: adapt to canvasManager (need flowStore.simpleFlowUIData and updataOriginFlowData)
-  function updateDocAndFlowNode(smartComp: SmartComp) {
-    // TODO: adapt to canvasManager
-    // const index = flowStore.simpleFlowUIData.findIndex(item => item.key === smartComp.key)
-    // const flowNode = flowStore.simpleFlowUIData[index]
-    // ...
+  /**
+   * 更新流程中已有的智能组件节点数据
+   */
+  function updateFlowNode(smartComp: SmartComp) {
+    const flowData = getActiveFlowData(processStore)
+    const activeTab = processStore.canvasManager.activeTab as VisualEditor | null
+    if (!activeTab) return
+
+    const flowNode = flowData.find(item => item.key === smartComp.key)
+    if (!flowNode) return
+
+    const node = activeTab.astParser.getNode(flowNode.id)
+    if (!node) return
+
+    const oldItem = { ...node.raw }
+    const newItem = {
+      ...node.raw,
+      alias: smartComp.alias || smartComp.title,
+      inputList: smartComp.inputList || [],
+      outputList: smartComp.outputList || [],
+      advanced: smartComp.advanced || [],
+      exception: smartComp.exception || [],
+    }
+
+    activeTab.undoManager.update({
+      type: 'update',
+      items: [{ id: flowNode.id, oldItem, newItem }],
+    })
   }
 
   return {

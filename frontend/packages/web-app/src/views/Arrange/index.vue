@@ -22,6 +22,10 @@ async function initByRoute() {
   if (!projectId)
     return
 
+  // 同一个工程不重复初始化，避免子路由切换时丢失画布状态
+  if (processStore.project.id === projectId && processStore.canvasManager.tabs.length > 0)
+    return
+
   processStore.setProject({ id: projectId, name: projectName, version: projectVersion })
   await processStore.canvasManager.init(projectId)
 }
