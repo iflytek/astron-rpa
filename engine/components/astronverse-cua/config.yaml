@@ -2,6 +2,8 @@ atomic:
   ComputerUse.run:
     title: 计算机使用代理
     comment: 使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
+    notices: ai_notices
+    debugButton: ai_debug
     icon: computer-use
     helpManual: |
       使用说明：
@@ -23,6 +25,8 @@ atomic:
   ComputerUse.custom_action_screen:
     title: 自定义AI操作屏幕
     comment: 使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
+    notices: ai_notices
+    debugButton: ai_debug
     icon: computer-use
     helpManual: |
       使用说明：
@@ -44,6 +48,8 @@ atomic:
   ComputerUse.extract_data:
     title: 提取屏幕数据
     comment: 使用视觉大模型分析屏幕并提取屏幕数据
+    notices: ai_notices
+    debugButton: ai_debug
     icon: computer-use
     helpManual: |
       使用说明：
@@ -65,6 +71,8 @@ atomic:
   ComputerUse.fill_form:
     title: 填写表单
     comment: 使用视觉大模型分析屏幕并填写屏幕中表单
+    notices: ai_notices
+    debugButton: ai_debug
     icon: computer-use
     helpManual: |
       使用说明：
@@ -86,6 +94,8 @@ atomic:
   ComputerUse.screen_condition:
     title: IF屏幕满足条件
     comment: 使用视觉大模型判断当前屏幕是否满足条件：@{instruction}
+    notices: ai_notices
+    debugButton: ai_debug
     icon: computer-use
     helpManual: |
       使用说明：
@@ -102,6 +112,8 @@ atomic:
   ComputerUse.process_captcha:
     title: 处理验证码
     comment: 使用视觉大模型分析屏幕并处理屏幕中验证码
+    notices: ai_notices
+    debugButton: ai_debug
     icon: computer-use
     helpManual: |
       使用说明：
