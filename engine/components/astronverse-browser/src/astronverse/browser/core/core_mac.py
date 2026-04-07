@@ -209,11 +209,11 @@ class BrowserCore:
         _ax_set(control, "AXFocused", True)
         _ax_perform(control, "AXRaise")
 
-        zoom_button = _ax_attr(control, "AXZoomButton")
-        if zoom_button is not None:
-            _ax_perform(zoom_button, "AXPress")
-        else:
-            _ax_set(control, "AXMinimized", False)
+        # zoom_button = _ax_attr(control, "AXZoomButton")
+        # if zoom_button is not None:
+        #     _ax_perform(zoom_button, "AXPress")
+        # else:
+        #     _ax_set(control, "AXMinimized", False)
 
     @staticmethod
     def get_browser_point(browser_type: str) -> Any:
