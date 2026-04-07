@@ -7,7 +7,7 @@ import BUS from '@/utils/eventBus'
 
 import AtomFormList from '@/views/Arrange/components/atomForm/AtomFormList.vue'
 // @ts-expect-error merge: TODO - useBaseConfig removed in refactor, need to adapt
-import { renderBaseConfig, useBaseConfig } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
+// import { renderBaseConfig, useBaseConfig } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
 import type { AtomTabs } from '@/views/Arrange/types/atomForm'
 
 const props = defineProps<{
@@ -25,12 +25,12 @@ const formattedTabs = computed(() => atomTab.value.map((item, index) => ({
 })))
 
 function renderForm(atom: RPA.Atom) {
-  atomTab.value = atom ? useBaseConfig(atom, t) : []
+  // atomTab.value = atom ? useBaseConfig(atom, t) : []
 }
 
-watch(() => isShowFormItem.value, () => {
-  atomTab.value = renderBaseConfig(atomTab.value)
-})
+// watch(() => isShowFormItem.value, () => {
+//   atomTab.value = renderBaseConfig(atomTab.value)
+// })
 
 watch(() => props.atom, (newVal, oldVal) => {
   if (!newVal?.key) {

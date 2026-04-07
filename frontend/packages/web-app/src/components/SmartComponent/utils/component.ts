@@ -1,6 +1,6 @@
 import { VAR_IN_TYPE } from '@/constants/atom'
 // @ts-expect-error merge: TODO - these functions were removed in refactor, need to adapt
-import { generateAdvancedItems, generateExceptionItems, generateOutItems } from '@/views/Arrange/utils/generateData'
+// import { generateAdvancedItems, generateExceptionItems, generateOutItems } from '@/views/Arrange/utils/generateData'
 
 import { SMART_COMPONENT_KEY_PREFIX } from '../config/constants'
 import type { SmartComp } from '../types'
@@ -48,8 +48,8 @@ export function generateComponentForm(comp: SmartComp, oldOutputList?: any[]) {
 
   return {
     ...comp,
-    outputList: generateOutItems(comp.outputList, targetArr, excludeVariables),
-    advanced: generateAdvancedItems(comp.outputList),
-    exception: generateExceptionItems(comp.outputList),
+    // outputList: generateOutItems(comp.outputList, targetArr, excludeVariables),
+    // advanced: generateAdvancedItems(comp.outputList),
+    // exception: generateExceptionItems(comp.outputList),
   }
 }
