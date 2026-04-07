@@ -109,11 +109,13 @@ const listText = YAML.stringify(list);
 
 console.log(listText);
 
+const tagName = `reward-${issueNumber}`;
+
 await $`git config user.name "github-actions[bot]"`;
 await $`git config user.email "github-actions[bot]@users.noreply.github.com"`;
 
-await $`git tag -a "reward-${issueNumber}" ${mergeCommitSha} -m ${listText}`;
-await $`git push origin --tags --no-verify`;
+await $`git tag -a ${tagName} ${mergeCommitSha} -m ${listText}`;
+await $`git push origin ${tagName} --no-verify`;
 
 await $`git config unset user.name`;
 await $`git config unset user.email`;
