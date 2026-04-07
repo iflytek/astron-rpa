@@ -3,6 +3,7 @@ import sys
 import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
+from astronverse.baseline.logger.logger import logger
 from astronverse.actionlib.types import WinPick
 from astronverse.input import (
     BtnModel,
@@ -20,6 +21,38 @@ from astronverse.input.error import *
 
 _IS_WINDOWS = sys.platform == "win32"
 _IS_MAC = sys.platform == "darwin"
+
+if _IS_MAC:
+    from pynput.keyboard import Key, Controller as KeyboardController
+    from pynput.mouse import Button, Controller as MouseController
+else:
+    Key = None
+    Button = None
+    KeyboardController = None
+    MouseController = None
+
+
+_MAC_MOUSE = MouseController() if MouseController is not None else None
+_MAC_KEYBOARD = KeyboardController() if KeyboardController is not None else None
+_MAC_BUTTON_MAP = (
+    {
+        "left": Button.left,
+        "middle": Button.middle,
+        "right": Button.right,
+    }
+    if Button is not None
+    else {}
+)
+_MAC_MODIFIER_MAP = (
+    {
+        "shift": Key.shift,
+        "ctrl": Key.ctrl,
+        "alt": Key.alt,
+        "command": Key.cmd,
+    }
+    if Key is not None
+    else {}
+)
 
 
 def _get_window_ops():
@@ -40,6 +73,45 @@ def _normalize_ctrl_key(key: str) -> str:
     return key
 
 
+def _mac_modifier_key(ctrl_type: ControlType):
+    normalized = _normalize_ctrl_key(ctrl_type.value)
+    modifier = _MAC_MODIFIER_MAP.get(normalized)
+    if modifier is None:
+        raise ValueError(f"Unsupported macOS modifier key: {normalized}")
+    return modifier
+
+
+def _mac_press_modifier(ctrl_type: ControlType):
+    if ctrl_type == ControlType.EMPTY:
+        return
+    _MAC_KEYBOARD.press(_mac_modifier_key(ctrl_type))
+
+
+def _mac_release_modifier(ctrl_type: ControlType):
+    if ctrl_type == ControlType.EMPTY:
+        return
+    _MAC_KEYBOARD.release(_mac_modifier_key(ctrl_type))
+
+
+def _mac_button(btn_type: BtnType):
+    button = _MAC_BUTTON_MAP.get(btn_type.value)
+    if button is None:
+        raise ValueError(f"Unsupported macOS mouse button: {btn_type.value}")
+    return button
+
+
+def _mac_click(btn_type: BtnType, clicks: int):
+    Mouse.click(None, None, clicks, 0.05, btn_type.value)
+
+
+def _mac_mouse_down(btn_type: BtnType):
+    Mouse.down(None, None, btn_type.value)
+
+
+def _mac_mouse_up(btn_type: BtnType):
+    Mouse.up(None, None, btn_type.value)
+
+
 class GuiMouse:
     @staticmethod
     @atomicMg.atomic("Gui")
@@ -54,6 +126,26 @@ class GuiMouse:
         :param btn_model: 鼠标按键模式  Click:单击, DoubleClick:双击, Down:按下, Up:松开
         :param ctrl_type: 辅助按键类型  无/Ctrl/Alt/Shift/Win/Shape
         """
+        logger.info(f"[mouse-diag] gui_mouse.GuiMouse.mouse btn_type={btn_type.value} btn_model={btn_model.value} ctrl_type={ctrl_type.value} is_mac={_IS_MAC}")
+        if _IS_MAC:
+            if ctrl_type != ControlType.EMPTY:
+                _mac_press_modifier(ctrl_type)
+            try:
+                if btn_model == BtnModel.CLICK:
+                    _mac_click(btn_type, 1)
+                elif btn_model == BtnModel.DOUBLE_CLICK:
+                    _mac_click(btn_type, 2)
+                elif btn_model == BtnModel.DOWN:
+                    _mac_mouse_down(btn_type)
+                elif btn_model == BtnModel.UP:
+                    _mac_mouse_up(btn_type)
+                else:
+                    raise NotImplementedError()
+            finally:
+                if ctrl_type != ControlType.EMPTY:
+                    _mac_release_modifier(ctrl_type)
+            return
+
         # 按下辅助按键
         if ctrl_type != ControlType.EMPTY:
             Keyboard.key_down(_normalize_ctrl_key(ctrl_type.value))
@@ -138,6 +230,23 @@ class GuiMouse:
             raise NotImplementedError()
 
         reversal = -1 if direction == Direction.DOWN else 1
+
+        if _IS_MAC:
+            if ctrl_type != ControlType.EMPTY:
+                _mac_press_modifier(ctrl_type)
+            try:
+                for _ in range(times):
+                    try:
+                        Mouse.scroll(scroll_px * reversal)
+                    except Exception as e:
+                        raise BizException(
+                            SCROLL_FAILURE,
+                            "滑轮滚动过程中失败, 请检查环境是否出现异常 {}".format(e),
+                        )
+            finally:
+                if ctrl_type != ControlType.EMPTY:
+                    _mac_release_modifier(ctrl_type)
+            return
 
         if ctrl_type != ControlType.EMPTY:
             Keyboard.key_down(_normalize_ctrl_key(ctrl_type.value))
@@ -414,6 +523,33 @@ class GuiMouse:
             or end_pos_y > screen_height
         ):
             raise BizException(REGION_ERROR, "坐标参数不合法！")
+
+        if _IS_MAC:
+            if ctrl_type != ControlType.EMPTY:
+                _mac_press_modifier(ctrl_type)
+            try:
+                Mouse.move(x=start_pos_x, y=start_pos_y, duration=0)
+                _mac_mouse_down(btn_type)
+                if move_type == MoveType.LINEAR:
+                    duration = Mouse.calculate_movement_duration(start_pos_x, start_pos_y, end_pos_x, end_pos_y, move_speed)
+                    Mouse.move(x=end_pos_x, y=end_pos_y, duration=duration, tween=pyautogui.linear)
+                elif move_type == MoveType.SIMULATION:
+                    duration = Mouse.calculate_movement_duration(start_pos_x, start_pos_y, end_pos_x, end_pos_y, move_speed)
+                    Mouse.move_simulate(
+                        x=end_pos_x,
+                        y=end_pos_y,
+                        duration=duration,
+                        tween=pyautogui.easeInOutQuad,  # type: ignore
+                    )
+                elif move_type == MoveType.TELEPORTATION:
+                    Mouse.move(x=end_pos_x, y=end_pos_y, duration=0)
+                else:
+                    raise NotImplementedError()
+                _mac_mouse_up(btn_type)
+            finally:
+                if ctrl_type != ControlType.EMPTY:
+                    _mac_release_modifier(ctrl_type)
+            return
 
         if ctrl_type != ControlType.EMPTY:
             Keyboard.key_down(_normalize_ctrl_key(ctrl_type.value))

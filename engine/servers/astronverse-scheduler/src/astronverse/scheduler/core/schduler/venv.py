@@ -22,6 +22,49 @@ def _validate_venv_config(venv_path):
     return True
 
 
+def _python_core_site_packages(python_core: str) -> str:
+    python_run_dir = os.path.dirname(os.path.dirname(os.path.abspath(python_core)))
+    return os.path.join(
+        python_run_dir,
+        "lib",
+        f"python{sys.version_info.major}.{sys.version_info.minor}",
+        "site-packages",
+    )
+
+
+def _ensure_python_core_pth(svc, v_path: str):
+    """
+    python_core 自身是一个 venv，嵌套创建项目 venv 时不会自动继承 python_core 的 site-packages。
+    这里补一条 .pth，确保 astronverse.executor 等运行时模块可见。
+    """
+    site_packages = os.path.join(
+        v_path,
+        "venv",
+        "lib",
+        f"python{sys.version_info.major}.{sys.version_info.minor}",
+        "site-packages",
+    )
+    if not os.path.exists(site_packages):
+        return
+
+    python_core_site = _python_core_site_packages(svc.config.python_core)
+    if not os.path.exists(python_core_site):
+        logger.warning("python_core site-packages not found: {}".format(python_core_site))
+        return
+
+    pth_file = os.path.join(site_packages, "astronverse_python_core.pth")
+    pth_content = python_core_site + "\n"
+    try:
+        current = None
+        if os.path.exists(pth_file):
+            with open(pth_file, "r", encoding="utf-8") as f:
+                current = f.read()
+        if current != pth_content:
+            with open(pth_file, "w", encoding="utf-8") as f:
+                f.write(pth_content)
+    except Exception as e:
+        logger.warning("write python_core pth failed: {} {}".format(pth_file, e))
+
 class VenvManager:
     @staticmethod
     def list_temp_venvs(svc):
@@ -146,7 +189,7 @@ def create_project_venv(svc, project_id: str):
     if not _validate_venv_config(v_path):
         shutil.rmtree(v_path, ignore_errors=True)
         raise BizException(EXECUTOR_ERROR.format("虚拟环境配置错误"), "invalid venv config...")
-
+    _ensure_python_core_pth(svc, v_path)
     return platform_python_venv_path(v_path)
 
 
