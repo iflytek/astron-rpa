@@ -1,6 +1,7 @@
 import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
+from astronverse.baseline.logger.logger import logger
 from astronverse.actionlib.types import WinPick
 from astronverse.input import (
     BtnModel,
@@ -32,14 +33,15 @@ class GuiMouse:
         :param btn_model: 鼠标按键模式  Click:单击, DoubleClick:双击, Down:按下, Up:松开
         :param ctrl_type: 辅助按键类型  无/Ctrl/Alt/Shift/Win/Shape
         """
+        logger.info(f"[mouse-diag] gui_key.GuiMouse.mouse btn_type={btn_type.value} btn_model={btn_model.value} ctrl_type={ctrl_type.value}")
         # 按下辅助按键
         if ctrl_type != ControlType.EMPTY:
             Keyboard.key_down(ctrl_type.value)
         try:
             if btn_model == BtnModel.CLICK:
-                Mouse.click(None, None, 1, 0, btn_type.value)
+                Mouse.click(None, None, 1, 0.05, btn_type.value)
             elif btn_model == BtnModel.DOUBLE_CLICK:
-                Mouse.click(None, None, 2, 0, btn_type.value)
+                Mouse.click(None, None, 2, 0.05, btn_type.value)
             elif btn_model == BtnModel.DOWN:
                 Mouse.down(None, None, btn_type.value)
             elif btn_model == BtnModel.UP:
