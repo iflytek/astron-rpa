@@ -170,7 +170,7 @@ class ChatAI:
 
         try:
             output = ast.literal_eval(s_content)
-        except Exception as e:
+        except (ValueError, SyntaxError):
             output = [
                 "这篇文本的主题是什么？",
                 "文本中提到了哪些关键信息?",
@@ -203,6 +203,15 @@ class ChatAI:
                     params={"filters": [], "file_type": "file"},
                 ),
             ),
+            atomicMg.param(
+                "custom_model",
+                dynamics=[
+                    DynamicsItem(
+                        key="$this.custom_model.show",
+                        expression="return $this.model.value == '{}'".format(LLMModelTypes.CUSTOM_MODEL.value),
+                    )
+                ],
+            ),
         ],
         outputList=[atomicMg.param("knowledge_chat_res", types="Dict")],
     )
@@ -210,6 +219,8 @@ class ChatAI:
         file_path: str,
         is_save: bool = False,
         max_turns: int = 20,
+        model: LLMModelTypes = LLMModelTypes.DEEPSEEK_V3_2,
+        custom_model: str = "",
     ):
         """
         知识库问答
@@ -221,6 +232,11 @@ class ChatAI:
         Return:
             `dict`, 选择导出的记录
         """
+        if model == LLMModelTypes.CUSTOM_MODEL and custom_model:
+            model = custom_model
+        else:
+            model = model.value
+
         # 提取文件内容
         file_content = ChatAI._extract_file_content(file_path)
 
@@ -250,6 +266,7 @@ class ChatAI:
                 "is_save": str(int(is_save)),
                 "questions": "$-$".join(output),
                 "file_path": file_path,
+                "model": model,
             }
             ws.send_reply(
                 {"data": {"name": "multichat", "params": params, "content": file_content[:5000], "height": 700}},
