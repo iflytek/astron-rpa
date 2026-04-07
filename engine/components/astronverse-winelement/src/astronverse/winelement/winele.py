@@ -1,10 +1,12 @@
 import os
+import sys
 
 import pyautogui
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import WinPick
 from astronverse.actionlib.utils import FileExistenceType, handle_existence, Credential
+from astronverse.input.code.keyboard import Keyboard
 from astronverse.locator import PickerDomain, Point
 from astronverse.winelement import (
     ElementInputType,
@@ -13,10 +15,44 @@ from astronverse.winelement import (
     MouseClickType,
 )
 from astronverse.winelement.core import IWinEleCore
-from astronverse.winelement.core_win import WinEleCore
 from astronverse.winelement.error import *
 
+if sys.platform == "win32":
+    from astronverse.winelement.core_win import WinEleCore
+elif sys.platform == "darwin":
+    from astronverse.winelement.core_mac import WinEleCore
+else:
+    from astronverse.winelement.core_win import WinEleCore
+
 WinEleCore: IWinEleCore = WinEleCore()
+
+
+def _modifier_key_name(keyboard_input: MouseClickKeyboard) -> str:
+    if sys.platform == "darwin" and keyboard_input == MouseClickKeyboard.WIN:
+        return "command"
+    return keyboard_input.value
+
+
+def _clear_text_field(locator, clear_first: bool):
+    if not clear_first:
+        Keyboard.press("end")
+        return
+
+    if sys.platform == "win32":
+        import uiautomation
+
+        window_control = locator.control()
+        if window_control.ControlTypeName == uiautomation.EditControl.ControlTypeName:
+            window_control.GetValuePattern().SetValue("")
+            return
+
+        Keyboard.press("home")
+        Keyboard.hotkey("ctrl", "a")
+        Keyboard.press("delete")
+        return
+
+    Keyboard.hotkey("command", "a")
+    Keyboard.press("backspace")
 
 
 class WinEle:
@@ -44,7 +80,7 @@ class WinEle:
 
         # 按下辅助按键
         if keyboard_input != MouseClickKeyboard.NONE:
-            pyautogui.keyDown(keyboard_input.value)
+            Keyboard.key_down(_modifier_key_name(keyboard_input))
         try:
             locator.move(Point(point.x + int(horizontals_offset), point.y + int(verticals_offset)))
             pyautogui.click(
@@ -56,7 +92,7 @@ class WinEle:
         finally:
             # 记得释放
             if keyboard_input != MouseClickKeyboard.NONE:
-                pyautogui.keyUp(keyboard_input.value)
+                Keyboard.key_up(_modifier_key_name(keyboard_input))
 
     @staticmethod
     @atomicMg.atomic(
@@ -158,28 +194,16 @@ class WinEle:
         locator = WinEleCore.find(pick, wait_time)
         locator.move()
         pyautogui.click()
-
-        import uiautomation
-
-        if clear_first:
-            window_control = locator.control()
-            if window_control.ControlTypeName == uiautomation.EditControl.ControlTypeName:
-                window_control.GetValuePattern().SetValue("")
-            else:
-                pyautogui.press("home")
-                pyautogui.hotkey("ctrl", "a")
-                pyautogui.press("delete")
-        else:
-            pyautogui.press("end")
+        _clear_text_field(locator, clear_first)
 
         if input_type == ElementInputType.KEYBOARD:
-            uiautomation.SendKeys(text)
+            Keyboard.write_unicode(text)
         elif input_type == ElementInputType.CLIPBOARD:
-            pyautogui.hotkey("ctrl", "v")
+            Keyboard.paste_hotkey()
         elif input_type == ElementInputType.Credential:
             if not credential_text:
                 raise BizException(CREDENTIAL_NOT_SELECTED, "请先选择凭据名称")
-            uiautomation.SendKeys(Credential.get_credential(credential_text))
+            Keyboard.write_unicode(Credential.get_credential(credential_text))
 
     @staticmethod
     @atomicMg.atomic(
