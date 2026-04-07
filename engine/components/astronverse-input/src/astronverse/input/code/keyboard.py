@@ -10,9 +10,21 @@ from pynput.keyboard import Controller
 if sys.platform == "darwin":
     import AppKit
     import Quartz
+    from ApplicationServices import (
+        AXUIElementCopyAttributeValue,
+        AXUIElementCopyElementAtPosition,
+        AXUIElementCreateSystemWide,
+        AXUIElementGetPid,
+        kAXErrorSuccess,
+    )
 else:
     AppKit = None
     Quartz = None
+    AXUIElementCopyAttributeValue = None
+    AXUIElementCopyElementAtPosition = None
+    AXUIElementCreateSystemWide = None
+    AXUIElementGetPid = None
+    kAXErrorSuccess = None
 
 
 _DARWIN_ACTIVE_MODIFIERS: set[str] = set()
@@ -141,6 +153,58 @@ _DARWIN_FLAGS_CHANGED_KEYCODES = {
     "rightctrl": 62,
 }
 _DARWIN_EVENT_TAP = Quartz.kCGAnnotatedSessionEventTap if Quartz is not None else None
+
+def _darwin_ax_attr(element, attr_name: str):
+    if AXUIElementCopyAttributeValue is None:
+        return None
+    try:
+        err, value = AXUIElementCopyAttributeValue(element, attr_name, None)
+        if err == kAXErrorSuccess:
+            return value
+    except Exception:
+        return None
+    return None
+
+
+def _darwin_ax_pid(element) -> int:
+    if AXUIElementGetPid is None:
+        return 0
+    try:
+        result = AXUIElementGetPid(element, None)
+        if isinstance(result, (tuple, list)) and len(result) == 2:
+            err, pid = result
+            if err == kAXErrorSuccess and isinstance(pid, int) and pid > 1:
+                return pid
+    except Exception:
+        pass
+    try:
+        import ctypes
+        pid = ctypes.c_int32(0)
+        err = AXUIElementGetPid(element, ctypes.byref(pid))
+        if err == kAXErrorSuccess and pid.value > 1:
+            return pid.value
+    except Exception:
+        pass
+    return 0
+
+
+def _darwin_pid_from_ax_element(element) -> int:
+    cur = element
+    visited = 0
+    while cur is not None and visited < 64:
+        visited += 1
+        role = _darwin_ax_attr(cur, "AXRole")
+        if role == "AXApplication":
+            pid = _darwin_ax_pid(cur)
+            if pid > 1:
+                return pid
+            break
+        parent = _darwin_ax_attr(cur, "AXParent")
+        if parent is None:
+            break
+        cur = parent
+    return _darwin_ax_pid(element)
+
 
 
 class Keyboard:
@@ -275,14 +339,31 @@ class Keyboard:
             return 0
         try:
             loc = Quartz.CGEventGetLocation(Quartz.CGEventCreate(None))
+            logger.info(f"[mouse-diag] Keyboard._darwin_pid_at_cursor loc=({int(loc.x)}, {int(loc.y)})")
             x, y = int(loc.x), int(loc.y)
+
+            if AXUIElementCreateSystemWide is not None and AXUIElementCopyElementAtPosition is not None:
+                try:
+                    sys_el = AXUIElementCreateSystemWide()
+                    err, el = AXUIElementCopyElementAtPosition(sys_el, float(x), float(y), None)
+                    if err == kAXErrorSuccess and el is not None:
+                        pid = _darwin_pid_from_ax_element(el)
+                        if pid > 1:
+                            logger.info(f"[mouse-diag] Keyboard._darwin_pid_at_cursor ax pid={pid}")
+                            return pid
+                except Exception as e:
+                    logger.info(f"[mouse-diag] Keyboard._darwin_pid_at_cursor ax error={e}")
+
             window_list = Quartz.CGWindowListCopyWindowInfo(
                 Quartz.kCGWindowListOptionOnScreenOnly | Quartz.kCGWindowListExcludeDesktopElements,
                 Quartz.kCGNullWindowID,
             )
             for window in window_list or []:
                 layer = int(window.get("kCGWindowLayer", 999))
-                if layer >= 25:
+                if layer >= 20:
+                    continue
+                owner_name = str(window.get("kCGWindowOwnerName", "") or "")
+                if owner_name in {"程序坞", "Dock", "控制中心", "SystemUIServer"}:
                     continue
                 bounds = window.get("kCGWindowBounds", {})
                 wx = int(bounds.get("X", 0))
@@ -292,24 +373,32 @@ class Keyboard:
                 if wx <= x <= wx + ww and wy <= y <= wy + wh:
                     pid = int(window.get("kCGWindowOwnerPID", 0))
                     if pid > 1:
+                        logger.info(f"[mouse-diag] Keyboard._darwin_pid_at_cursor quartz pid={pid} owner={owner_name} bounds=({wx},{wy},{ww},{wh}) layer={layer}")
                         return pid
-        except Exception:
+        except Exception as e:
+            logger.info(f"[mouse-diag] Keyboard._darwin_pid_at_cursor error={e}")
             return 0
         return 0
 
     @staticmethod
     def _darwin_activate_target_app():
         if AppKit is None:
+            logger.info('[mouse-diag] Keyboard._darwin_activate_target_app AppKit unavailable')
             return
         pid = Keyboard._darwin_pid_at_cursor()
         if pid <= 1:
+            logger.info(f"[mouse-diag] Keyboard._darwin_activate_target_app invalid pid={pid}")
             return
         try:
+            logger.info(f"[mouse-diag] Keyboard._darwin_activate_target_app pid={pid}")
             app = AppKit.NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
             if app is not None:
+                logger.info(f"[mouse-diag] Keyboard._darwin_activate_target_app app={app.localizedName() if hasattr(app, 'localizedName') else app}")
                 app.activateWithOptions_(AppKit.NSApplicationActivateIgnoringOtherApps)
                 time.sleep(0.12)
-        except Exception:
+                logger.info('[mouse-diag] Keyboard._darwin_activate_target_app done')
+        except Exception as e:
+            logger.info(f"[mouse-diag] Keyboard._darwin_activate_target_app error={e}")
             return
 
     @staticmethod
