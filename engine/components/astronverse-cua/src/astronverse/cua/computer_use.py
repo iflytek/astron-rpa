@@ -14,14 +14,13 @@ from typing import Optional
 import pyautogui
 import pyperclip
 import requests
-from astronverse.actionlib.atomic import atomicMg
+from astronverse.actionlib.atomic import AtomicFormType, AtomicFormTypeMeta, atomicMg
 from astronverse.baseline.logger.logger import logger
 from astronverse.cua.action_parser import (
     parse_action_to_structure_output,
     parsing_response_to_pyautogui_code,
 )
 from astronverse.cua.custom_action_screen import DEFAULT_CUA_MODEL, CustomActionScreen
-from astronverse.cua.error import BizException, UNKNOWN_RESPONSE_FORMAT
 from PIL import Image, ImageDraw
 
 # 电脑 GUI 任务场景的提示词模板
@@ -71,7 +70,6 @@ def resolve_debug_stream_path() -> Path:
         pass
 
     return CUA_DEBUG_STREAM_PATH
-
 
 
 class ComputerUseAgent:
@@ -663,7 +661,53 @@ class ComputerUse:
     @atomicMg.atomic(
         "ComputerUse",
         inputList=[
-            atomicMg.param("instruction", types="Str"),
+            atomicMg.param(
+                "instruction",
+                types="Str",
+                formType=AtomicFormTypeMeta(
+                    type=AtomicFormType.INPUT_VARIABLE_PYTHON.value,
+                    params={
+                        "templates": [
+                            {
+                                "key": "general",
+                                "label": "通用模板",
+                                "type": "preset",
+                                "value": "请根据当前屏幕完成用户目标：{{目标}}。需要先观察页面再执行，必要时先询问我确认。",
+                            },
+                            {
+                                "key": "extract",
+                                "label": "提取屏幕数据",
+                                "type": "preset",
+                                "value": "请从当前屏幕提取以下信息：{{字段列表}}。要求逐条列出，并保持原文。",
+                            },
+                            {
+                                "key": "fill",
+                                "label": "填写表单",
+                                "type": "preset",
+                                "value": "请根据提供的信息填写表单：{{字段与值}}。填写前先确认字段是否匹配。",
+                            },
+                            {
+                                "key": "captcha",
+                                "label": "处理验证码",
+                                "type": "preset",
+                                "value": "如果页面出现验证码，请提示我输入或确认；不要自动猜测。",
+                            },
+                            {
+                                "key": "click",
+                                "label": "单击",
+                                "type": "preset",
+                                "value": "请在当前屏幕上单击：{{目标元素}}。如果有多个相似项，先高亮并让我确认。",
+                            },
+                            {
+                                "key": "screen_condition",
+                                "label": "屏幕条件判断",
+                                "type": "preset",
+                                "value": "判断当前屏幕是否满足条件：{{条件描述}}。满足则继续执行，不满足则停止或提示。",
+                            },
+                        ]
+                    },
+                ),
+            ),
             atomicMg.param("max_steps", types="Int", required=False),
             atomicMg.param("temperature", types="Float", required=False),
             atomicMg.param("model", types="Str", required=False, default=DEFAULT_CUA_MODEL),

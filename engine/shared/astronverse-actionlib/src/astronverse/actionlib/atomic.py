@@ -384,6 +384,11 @@ class AtomicManager:
                     else:
                         raise BizException(REQUIRED_PARAM_MISSING.format(res), "comment存在未定义的数据:{}".format(res))
 
+            # notices, debugButton
+            if not v.notices:
+                v.notices = config.get("atomic", v.key, "notices")
+            if not v.debugButton:
+                v.debugButton = config.get("atomic", v.key, "debugButton")
             # 6.2 回写
             temp_atomic_dict[k] = v
 

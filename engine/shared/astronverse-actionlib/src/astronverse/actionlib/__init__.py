@@ -161,6 +161,10 @@ class AtomicMeta:
     # 原子能力支持的平台
     platform: str = None  # 默认只支持windows linux windows linux,windows
 
+    # ai能力相关
+    notices: str = None  # 注意事项
+    debugButton: str = None  # 调试按钮类型
+
     def tojson(self, filtered_none=True):
         data = self.__dict__
         if filtered_none:
