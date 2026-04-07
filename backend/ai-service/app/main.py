@@ -9,7 +9,7 @@ from app.internal import admin
 from app.logger import get_logger
 from app.middlewares.tracing import RequestTracingMiddleware
 from app.redis_op import close_redis_pool, init_redis_pool
-from app.routers import computer_use, jfbym, ocr, smart_component
+from app.routers import computer_use, jfbym, nlp, ocr, smart_component, speech
 from app.routers.v1 import chat, models
 
 # Ensure configuration is loaded
@@ -34,6 +34,8 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 app.include_router(ocr.router)
+app.include_router(nlp.router)
+app.include_router(speech.router)
 app.include_router(chat.router, prefix="/v1")
 app.include_router(models.router, prefix="/v1")
 app.include_router(jfbym.router)

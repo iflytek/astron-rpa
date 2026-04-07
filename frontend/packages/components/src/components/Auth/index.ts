@@ -1,5 +1,6 @@
 import { logout, userInfo } from './api/login'
 import Consult from './components/Base/Consult/Index.vue'
+import ConsultUpgradeTrigger from './components/Base/Consult/ConsultUpgradeTrigger.vue'
 import PageLayout from './components/Base/PageLayout/Index.vue'
 import Invite from './components/Invite/Index.vue'
 import LoginForm from './components/Login/Index.vue'
@@ -21,4 +22,5 @@ export const Auth = {
 }
 
 export * from './interface'
+export { ConsultUpgradeTrigger }
 export default LoginForm

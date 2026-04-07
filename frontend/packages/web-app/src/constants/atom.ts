@@ -90,6 +90,8 @@ export const ATOM_KEY_MAP = {
   GroupEnd: 'Code.GroupEnd',
   CvImageExist: 'CV.is_image_exist',
   CvImageExistEnd: 'CV.is_image_exist_end',
+  ScreenCondition: 'ComputerUse.screen_condition',
+  ScreenConditionEnd: 'ComputerUse.screen_condition_end',
   FileExist: 'File.file_exist',
   FolderExist: 'Folder.folder_exist',
   WindowExist: 'Window.exist',
@@ -112,6 +114,7 @@ export const LOOP_END_MAP = {
   [ATOM_KEY_MAP.Group]: ATOM_KEY_MAP.GroupEnd,
   // [Netbreak]: NetbreakEnd,  // 网络断联检测 TODO
   [ATOM_KEY_MAP.CvImageExist]: ATOM_KEY_MAP.IfEnd,
+  [ATOM_KEY_MAP.ScreenCondition]: ATOM_KEY_MAP.IfEnd,
   [ATOM_KEY_MAP.FileExist]: ATOM_KEY_MAP.IfEnd,
   [ATOM_KEY_MAP.FolderExist]: ATOM_KEY_MAP.IfEnd,
   [ATOM_KEY_MAP.WindowExist]: ATOM_KEY_MAP.IfEnd,
@@ -131,4 +134,5 @@ export const LOOP_END = [
   ATOM_KEY_MAP.WhileEnd,
   ATOM_KEY_MAP.GroupEnd,
   ATOM_KEY_MAP.CvImageExistEnd,
+  ATOM_KEY_MAP.ScreenConditionEnd,
 ]

@@ -186,23 +186,7 @@ Analyze context (screenshots and action history), then:
 API_URL = "http://127.0.0.1:{}/api/rpa-ai-service/cua/chat".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
 )
-CUA_DEBUG_PREFIX = "CUA_DEBUG::"
-CUA_DEBUG_CONFIG_PATH = Path.cwd() / ".cua_debug_config.json"
-CUA_DEBUG_STREAM_PATH = Path.cwd() / ".cua_debug_stream.jsonl"
-
-
-def resolve_debug_stream_path() -> Path:
-    try:
-        if CUA_DEBUG_CONFIG_PATH.exists():
-            config = json.loads(CUA_DEBUG_CONFIG_PATH.read_text(encoding="utf-8"))
-            stream_path = config.get("streamPath")
-            if stream_path:
-                return Path(stream_path)
-    except Exception:
-        pass
-
-    return CUA_DEBUG_STREAM_PATH
-
+DEFAULT_CUA_MODEL = "doubao-seed-1-8-251228"
 
 
 class CustomActionScreen:
@@ -211,6 +195,8 @@ class CustomActionScreen:
     def __init__(
         self,
         max_steps: int = 20,
+        temperature: float = 0.0,
+        model: str = DEFAULT_CUA_MODEL,
     ):
         """
         初始化Agent
@@ -220,6 +206,8 @@ class CustomActionScreen:
         """
 
         self.max_steps = max_steps
+        self.temperature = temperature
+        self.model = model.strip() if model and model.strip() else DEFAULT_CUA_MODEL
 
         # 设置截图目录
         self.screenshot_dir = Path(tempfile.mkdtemp(prefix="cua_agent_"))
@@ -354,7 +342,7 @@ class CustomActionScreen:
 
         try:
             # 发送 API
-            request_body = {"messages": messages}
+            request_body = {"messages": messages, "model": self.model}
             response = requests.post(API_URL, json=request_body)
             response.raise_for_status()  # 检查请求是否成功
 
