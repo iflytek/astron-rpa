@@ -2,8 +2,8 @@
 import { toUpper } from 'lodash-es'
 import { computed } from 'vue'
 
-import type { LanguageType } from '@rpa/components'
-import i18next from '@/plugins/i18next'
+import type { LanguageType } from '@/plugins/i18next'
+import { translate } from '@/plugins/i18next'
 
 const props = defineProps<{
   title: string | LanguageType
@@ -13,7 +13,7 @@ const props = defineProps<{
   dot?: boolean
 }>()
 
-const titleText = computed(() => i18next.translate(props.title))
+const titleText = computed(() => translate(props.title))
 const idx = computed(() => toUpper(titleText.value).indexOf(toUpper(props.searchAtom)))
 </script>
 
