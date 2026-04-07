@@ -386,7 +386,7 @@ class HighlightForm(QWidget):
         self.clear_timer.start(800)
 
     def show_rect_with_toolbar(self, boxes, labels=None):
-        """designate 模式：高亮 + 立即显示重拾/确定工具栏"""
+        """designate 模式：仅高亮，等待用户点击后再显示重拾/确定工具栏"""
         self._stop_blink()
         self.clear_timer.stop()
         self._mode = "designate"
@@ -396,8 +396,6 @@ class HighlightForm(QWidget):
 
         self._ensure_visible(mouse_passthrough=True)
         self.update()
-        if self._boxes:
-            self.show_toolbar(self._boxes[0])
 
     def show_rect_cv_alt(self, boxes, labels=None):
         """CV_ALT 模式：高亮 + 等待点击显示工具栏（通过全局事件过滤器实现）"""
@@ -1059,6 +1057,7 @@ class ConsoleApp(QMainWindow):
         self._sender_host = None
         self._sender_port = None
         self._cv_alt_locked = False
+        self._designate_locked = False
         self._click_tap = None
         self._click_tap_src = None
         self._click_tap_rl = None
@@ -1103,7 +1102,7 @@ class ConsoleApp(QMainWindow):
         if event.type() == QEvent.MouseButtonPress:
             # 仅在 CV_ALT 模式下且高亮窗口可见、存在高亮框时检查
             if (self.highlight.isVisible() and
-                    self.highlight._mode == "CV_ALT" and
+                    self.highlight._mode in ("CV_ALT", "designate") and
                     self.highlight._boxes):
                 # 获取全局点击位置
                 pos = QCursor.pos()
@@ -1120,18 +1119,25 @@ class ConsoleApp(QMainWindow):
         """处理 macOS 全局左键点击；只观察，不拦截底层应用事件"""
         if not (
             self.highlight.isVisible()
-            and self.highlight._mode == "CV_ALT"
+            and self.highlight._mode in ("CV_ALT", "designate")
             and self.highlight._boxes
-            and not self._cv_alt_locked
         ):
+            return
+
+        if self.highlight._mode == "CV_ALT" and self._cv_alt_locked:
+            return
+        if self.highlight._mode == "designate" and self._designate_locked:
             return
 
         pos = QPoint(int(x), int(y))
         for box in self.highlight._boxes:
             expanded = box.adjusted(-10, -10, 10, 10)
             if expanded.contains(pos):
-                self._cv_alt_locked = True
-                self.highlight.show_toolbar(self.highlight._boxes[0])
+                if self.highlight._mode == "CV_ALT":
+                    self._cv_alt_locked = True
+                else:
+                    self._designate_locked = True
+                self.highlight.show_toolbar(box)
                 break
 
     def _start_global_click_monitor(self):
@@ -1268,6 +1274,7 @@ class ConsoleApp(QMainWindow):
         if op == "start":
             self._current_mode = mode
             self._cv_alt_locked = False
+            self._designate_locked = False
             self.highlight.initialize()
             boxes, labels = self._parse_boxes(msg)
 
@@ -1320,6 +1327,7 @@ class ConsoleApp(QMainWindow):
             if msg.get("Type") == "invalid":
                 # 弹出"请选择不重复的元素"
                 self._cv_alt_locked = False
+                self._designate_locked = False
                 self.highlight._hide_toolbar()
                 dlg = CustomMessageBox(
                     Strings.get("select_unique_element"),
@@ -1340,6 +1348,8 @@ class ConsoleApp(QMainWindow):
                         return
                     self.highlight.show_rect_cv_alt(boxes, labels)
                 elif self._current_mode == "designate":
+                    if self._designate_locked:
+                        return
                     self.highlight.show_rect_with_toolbar(boxes, labels)
                 else:
                     self.highlight.update_rect(boxes, labels, self._current_mode)
@@ -1364,6 +1374,7 @@ class ConsoleApp(QMainWindow):
             self.highlight.initialize()
             self.screenshot.dismiss()
             self._cv_alt_locked = False
+            self._designate_locked = False
 
             if init_type == "SHIFT":
                 # 回到 CV 模式
@@ -1387,6 +1398,7 @@ class ConsoleApp(QMainWindow):
     def _on_repick(self):
         """重拾按钮"""
         self._cv_alt_locked = False
+        self._designate_locked = False
         self.highlight._hide_toolbar()
         self.highlight._boxes = []
         self.highlight.update()
@@ -1395,6 +1407,7 @@ class ConsoleApp(QMainWindow):
     def _on_confirm(self):
         """确定按钮"""
         self._cv_alt_locked = False
+        self._designate_locked = False
         if self.highlight._boxes:
             box = self.highlight._boxes[0]
             self._send_response(
