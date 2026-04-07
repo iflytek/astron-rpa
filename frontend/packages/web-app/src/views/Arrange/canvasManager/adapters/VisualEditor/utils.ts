@@ -103,19 +103,19 @@ export function normalizeAtomFormLists(atom: RPA.Atom): RPA.Atom {
 export function serializeAtomForSave(atom: RPA.Atom): RPA.Flow.FlowItemValue {
   const { key, version, id, alias, disabled, breakpoint, inputList, outputList, advanced, exception } = atom
 
-  const serializeFormItems = (items: RPA.AtomDisplayItem[]) =>
+  const serializeFormItems = (items: RPA.AtomDisplayItem[] = []) =>
     items.map((item) => {
       const result: RPA.AtomDisplayItem = { key: item.key, value: '' }
 
       if (Array.isArray(item.value)) {
         result.value = item.value.map((v) =>
-          v.varId ? { ...v } : { type: v.type, value: v.value, ...(v.data ? { data: v.data } : {}) },
+          v.varId ? { ...v } : { type: v.type, value: v.value, ...(v.data != null ? { data: v.data } : {}) },
         )
       } else {
         result.value = item.value
       }
 
-      if (item.show !== undefined) result.show = item.show
+      if (item.show != null) result.show = item.show
 
       return result
     })
