@@ -617,19 +617,28 @@ class OverlayForm(QWidget):
     def update_cursor(self, x, y):
         if self._mouse_x == x and self._mouse_y == y:
             return
+
+        # 检测鼠标是否从外部进入 overlay 区域（手动模拟 enterEvent，因为窗口设置了鼠标穿透）
+        was_inside = self.isVisible() and self.geometry().contains(self._mouse_x, self._mouse_y)
+
         self._mouse_x = x
         self._mouse_y = y
-        if self.isVisible() and self.geometry().contains(x, y):
-            debug_log("OverlayForm cursor_inside_geometry", (x, y), self.geometry().getRect())
+
+        if self.isVisible():
+            is_inside = self.geometry().contains(x, y)
+            if is_inside and not was_inside:
+                debug_log("OverlayForm cursor_entered_geometry", (x, y), self.geometry().getRect())
+                self._at_default_pos = not self._at_default_pos
+                self._update_geometry()
+
         if self.isVisible() and self._alert_type in ("CV", "CV_ALT", "CV_CTRL"):
             self.update()
 
     # ── 自动避让 ─────────────────────────────
 
     def enterEvent(self, event):
+        # 窗口启用鼠标穿透时此事件不会触发，位置切换已移至 update_cursor
         debug_log("OverlayForm enterEvent")
-        self._at_default_pos = not self._at_default_pos
-        self._update_geometry()
         super().enterEvent(event)
 
     def _update_geometry(self):
