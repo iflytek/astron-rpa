@@ -300,7 +300,7 @@ export function listenRender() {
 
   ipcMain.on('restart-app', () => {
     app.relaunch()
-    app.exit()
+    app.quit()
   })
 
   ipcMain.handle('get-app-config', () => {

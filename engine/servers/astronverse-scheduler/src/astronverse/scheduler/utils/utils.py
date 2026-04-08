@@ -114,7 +114,10 @@ def kill_proc_tree(proc: psutil.Process = None, including_parent: bool = True, e
 
             # 尝试杀死父进程
             proc.kill()
-            proc.wait(5)  # 等待进程结束，防止僵尸进程
+            try:
+                proc.wait(0)  # 等待进程结束，防止僵尸进程
+            except Exception:
+                pass
         except psutil.NoSuchProcess:
             pass
 
