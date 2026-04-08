@@ -89,46 +89,6 @@ importers:
 
   locales: {}
 
-  packages/auth-app:
-    dependencies:
-      '@rpa/components':
-        specifier: workspace:*
-        version: link:../components
-      '@rpa/shared':
-        specifier: workspace:*
-        version: link:../shared
-      vue:
-        specifier: catalog:dev
-        version: 3.5.24(typescript@5.9.3)
-    devDependencies:
-      '@types/node':
-        specifier: ^24.10.0
-        version: 24.10.1
-      '@vitejs/plugin-vue':
-        specifier: catalog:dev
-        version: 6.0.5(vite@8.0.3)(vue@3.5.24(typescript@5.9.3))
-      '@vitejs/plugin-vue-jsx':
-        specifier: catalog:dev
-        version: 5.1.5(vite@8.0.3)(vue@3.5.24(typescript@5.9.3))
-      '@vue/tsconfig':
-        specifier: ^0.8.1
-        version: 0.8.1(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))
-      tailwindcss:
-        specifier: ^3.4.4
-        version: 3.4.17(ts-node@10.9.2(@types/node@24.10.1)(typescript@5.9.3))
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: catalog:dev
-        version: 8.0.3(@types/node@24.10.1)(@vitejs/devtools@0.1.11)(esbuild@0.27.2)(jiti@2.6.1)(less@4.2.0)(sass@1.77.8)(terser@5.39.0)(yaml@2.8.2)
-      vite-plugin-svg4vue:
-        specifier: ^4.5.1
-        version: 4.5.1
-      vue-tsc:
-        specifier: ^3.1.3
-        version: 3.1.4(typescript@5.9.3)
-
   packages/browser-plugin:
     devDependencies:
       '@babel/cli':
@@ -4504,17 +4464,6 @@ packages:
 
   '@vue/shared@3.5.31':
     resolution: {integrity: sha512-nBxuiuS9Lj5bPkPbWogPUnjxxWpkRniX7e5UBQDWl6Fsf4roq9wwV+cR7ezQ4zXswNvPIlsdj1slcLB7XCsRAw==}
-
-  '@vue/tsconfig@0.8.1':
-    resolution: {integrity: sha512-aK7feIWPXFSUhsCP9PFqPyFOcz4ENkb8hZ2pneL6m2UjCkccvaOhC/5KCKluuBufvp2KzkbdA2W2pk20vLzu3g==}
-    peerDependencies:
-      typescript: 5.x
-      vue: ^3.4.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      vue:
-        optional: true
 
   '@vueuse/core@11.0.3':
     resolution: {integrity: sha512-RENlh64+SYA9XMExmmH1a3TPqeIuJBNNB/63GT35MZI+zpru3oMRUA6cEFr9HmGqEgUisurwGwnIieF6qu3aXw==}
@@ -15527,11 +15476,6 @@ snapshots:
   '@vue/shared@3.5.24': {}
 
   '@vue/shared@3.5.31': {}
-
-  '@vue/tsconfig@0.8.1(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))':
-    optionalDependencies:
-      typescript: 5.9.3
-      vue: 3.5.24(typescript@5.9.3)
 
   '@vueuse/core@11.0.3(vue@3.5.24(typescript@5.9.3))':
     dependencies:
