@@ -119,7 +119,7 @@ const props = withDefaults(defineProps<Props>(), {
           <!-- Text step (regular assistant content) -->
           <ChainOfThoughtStep
             v-else
-            :label="step.label"
+            :label="step.data?.content"
             :status="step.status"
           >
             <template #icon>
