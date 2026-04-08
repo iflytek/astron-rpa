@@ -87,6 +87,7 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
           icon: item.icon,
           componentId: item.componentId,
           dot: item.isLatest === 0,
+          version: item.version,
         })),
       }
       const businessComps = processStore.extendTree.state
@@ -212,7 +213,8 @@ function doubleItemClick(item: AtomTreeNode) {
     })
   }
   else {
-    processStore.canvasManager.activeTab?.add?.(item.key)
+    const key = item.version != null ? `${item.key}:${item.version}` : item.key
+    processStore.canvasManager.activeTab?.add?.(key)
   }
 }
 

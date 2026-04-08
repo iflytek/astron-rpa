@@ -150,14 +150,14 @@ export function findFormItemConfigByType(varType: RPA.VariableType | string) {
 }
 
 /**
- * @param key 为Code.Component和componentId拼接组成，如：Code.Component.1960590437807538176
+ * @param key 格式：Code.Component.{componentId}
  */
 export function isComponentKey(key: string) {
   return key?.startsWith(COMPONENT_KEY_PREFIX)
 }
 
 /**
- * @param key 为Code.Component和componentId拼接组成，如：Code.Component.1960590437807538176
+ * @param key 格式：Code.Component.{componentId}
  */
 export function getComponentId(key: string) {
   return key?.split(`${COMPONENT_KEY_PREFIX}.`)?.[1] || ''
@@ -243,11 +243,11 @@ function buildComponentFormData(params: {
   componentId: string
   componentAttrs: RPA.ConfigParamData[]
   title: string
-  version?: string | number
+  version?: number
   icon?: string
   comment?: string
   noAdvanced?: boolean
-}) {
+}): RPA.Atom {
   const { componentId, componentAttrs, title, version = '', icon = '', comment = '', noAdvanced = false } = params
   const { inputFormItems, outputFormItems } = buildFormItemsFromAttrs(componentAttrs)
 
@@ -255,7 +255,7 @@ function buildComponentFormData(params: {
     key: `${COMPONENT_KEY_PREFIX}.${componentId}`,
     title,
     alias: title,
-    version,
+    version: version,
     src: '',
     comment,
     inputList: inputFormItems,
@@ -263,7 +263,7 @@ function buildComponentFormData(params: {
     icon,
     helpManual: '',
     noAdvanced,
-  }
+  } as unknown as RPA.Atom
 }
 
 /**
@@ -274,7 +274,7 @@ export async function getComponentForm(params: {
   componentId?: string
   version?: string | number
   context?: 'add' | 'get' | 'update'
-}) {
+}): Promise<RPA.Atom> {
   const processStore = useProcessStore()
   const { componentId, version, context = 'get' } = params
   const info = context === 'get'
@@ -296,7 +296,7 @@ export async function getComponentForm(params: {
     icon: info.icon,
     comment: info.comment,
     noAdvanced: true,
-  }) as unknown as ProcessNode
+  })
 }
 
 /**

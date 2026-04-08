@@ -11,6 +11,7 @@ declare namespace RPA {
     parentKey?: string
     likeId?: string
     iconColor?: string
+    version?: number // 暂时只有自定义组件使用
     atomics?: RPA.AtomTreeNode[]
   }
 
