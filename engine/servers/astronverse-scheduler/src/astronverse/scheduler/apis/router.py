@@ -4,6 +4,7 @@ from astronverse.scheduler.apis.connector import (
     credential,
     datatable,
     executor,
+    mac_permission,
     picker,
     terminal,
     tools,
@@ -83,5 +84,13 @@ def handler(app: FastAPI):
         credential.router,
         prefix="/credential",
         tags=["credential"],
+        dependencies=[Depends(get_svc)],
+    )
+
+    # 绑定 macOS 权限管理路由
+    app.include_router(
+        mac_permission.router,
+        prefix="/mac_permission",
+        tags=["mac_permission"],
         dependencies=[Depends(get_svc)],
     )
