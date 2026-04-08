@@ -49,6 +49,11 @@ utilsManager.listenEvent('scheduler-event', (eventMsg) => {
       loginAuto()
       break
     }
+    case 'alert': {
+      if (msg.type === 'mac_permission')
+        sessionStorage.setItem('mac_permission', JSON.stringify(msg.permissions))
+      break
+    }
     default:
       break
   }
