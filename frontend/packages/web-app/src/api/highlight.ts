@@ -1,9 +1,8 @@
 import Socket from './ws'
 
-export const RpaHighlight = new Socket('', {
-  url: 'ws://localhost:8080',
+export const RpaHighlight = new Socket('picker/picker/?tag=hl', {
   noInitCreat: true,
-  port: 8080,
-  isReconnect: true,
+  port: 13159,
+  isReconnect: false,
   timeout: 1000 * 10, // 10s
 })

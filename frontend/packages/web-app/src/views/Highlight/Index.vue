@@ -14,7 +14,7 @@ const mousePos = ref({ x: 0, y: 0 })
 const tooltipVisible = ref(true)
 const pickMode = ref('')
 const appName = ref('')
-const tagName = ref('nihaoadadasdasdsadsa')
+const tagName = ref('')
 const dpr = window.devicePixelRatio || 1
 
 const tooltipPos = computed(() => {
@@ -26,7 +26,7 @@ const tooltipPos = computed(() => {
   if (mouse.x > (screen.width  - margin) * dpr && mouse.y > (screen.height - margin) * dpr) {
     return  'leftTop'
   }
-  return tooltipPos.value
+  return 'rightBottom'
 })
 
 const tagPosition = computed(() => {
@@ -45,13 +45,29 @@ pickMode.value = PickMode.NORMAL
 const shortcuts = computed(() => PickShortCuts[pickMode.value] || [])
 onMounted(() => {
   RpaHighlight.create(() => {
-    windowManager.showWindow()
+    
     RpaHighlight.bindMessage((data) => {
-      if (data.rect) highlightRect.value = data.rect
-      if (data.mouse) mousePos.value = data.mouse
-      // if (data.mode) pickMode.value = data.mode
-      if (data.app) appName.value = data.app
-      // if (data.tag) tagName.value = data.mouse || '元素'
+      const op = data.Operation
+      if (op === 'start') {
+        windowManager.showWindow()
+        if (data.Type) pickMode.value = data.Type
+      } else if (op === 'hide') {
+        windowManager.hideWindow()
+        highlightRect.value = { x: 0, y: 0, width: 0, height: 0 }
+        tagName.value = ''
+      } else if (op === 'draw') {
+        const boxes = data.Boxes
+        if (boxes && boxes.length > 0) {
+          const box = boxes[0]
+          highlightRect.value = {
+            x: box.Left,
+            y: box.Top,
+            width: (box.Right - box.Left) / dpr,
+            height: (box.Bottom - box.Top) / dpr,
+          }
+          if (box.Msg !== undefined) tagName.value = box.Msg
+        }
+      }
       windowManager.setWindowAlwaysOnTop(true)
     })
   })
