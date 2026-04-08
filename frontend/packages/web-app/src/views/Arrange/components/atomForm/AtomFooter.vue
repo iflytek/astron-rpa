@@ -9,9 +9,9 @@ const { atom } = useFormStore();
 
 const handleAIDebug = async () => {
   // 从输入参数中挑出 key 为 instruction 的参数
-  const instruction = atom.value.inputList.find((item) => item.key === 'instruction')?.value[0]?.value || ''
+  const instruction = atom.value?.inputList?.find((item) => item.key === 'instruction')?.value[0]?.value || ''
   const options: CreateWindowOptions = {
-    url: `${baseUrl}/${WINDOW_NAME.CUA}.html?message=${instruction}`,
+    url: `${baseUrl}/${WINDOW_NAME.CUA}.html?message=${encodeURIComponent(instruction)}`,
     title: WINDOW_NAME.CUA,
     label: WINDOW_NAME.CUA,
     alwaysOnTop: true,

@@ -8,7 +8,7 @@ const props = defineProps<{
   atomFormMeta: RPA.Process.AtomTabs;
 }>()
 
-const { atom } = useFormStore();
+const { nodeParameter } = useFormStore();
 
 // 查找是否存在模版
 const template = computed(() => {
@@ -22,13 +22,22 @@ const template = computed(() => {
     templates: templateItem.formType?.params?.templates || [],
   }
 })
+
+const handleTemplateClick = (key: string, template: RPA.AtomFormAITemplate) => {
+  nodeParameter.value?.updateValue(key, template.value)
+}
 </script>
 
 <template>
   <div v-if="template">
     <label class="leading-6 text-text-secondary">试一试</label>
     <div class="mt-2 space-x-3">
-      <a-button class="px-2" v-for="item in template.templates" :key="item.key">
+      <a-button
+        class="px-2"
+        v-for="item in template.templates"
+        :key="item.key"
+        @click="handleTemplateClick(template.key, item)"
+      >
         {{ item.label }}
       </a-button>
     </div>

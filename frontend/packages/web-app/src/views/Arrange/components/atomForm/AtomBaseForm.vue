@@ -13,7 +13,7 @@ const emit = defineEmits(["close", "toggleCollapsed"]);
 
 const { atom, atomTab, nodeParameter } = useProvideFormStore();
 
-const activeKey = ref<number>(0);
+const activeKey = ref<string | number>(0);
 const inputRef = useTemplateRef<HTMLInputElement>('inputRef')
 const [isEdit, toggleEdit] = useToggle(false);
 
