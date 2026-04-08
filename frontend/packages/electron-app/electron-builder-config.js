@@ -25,6 +25,7 @@ function createExtraFiles() {
 const config = {
   appId: 'astron-rpa',
   productName: 'astron-rpa',
+  afterSign: './scripts/notarize.js',
   artifactName: '星辰RPA-${version}-${arch}.${ext}',
   electronLanguages: ['zh-CN', 'en-US'],
   asar: false,
@@ -43,6 +44,12 @@ const config = {
   mac: {
     target: 'dmg',
     icon: '../../public/icons/icon.png',
+    identity: 'aiguo ji (VFD339XNU8)',
+    hardenedRuntime: true,
+    gatekeeperAssess: false,
+    notarize: false,
+    entitlements: './entitlements.mac.plist',
+    entitlementsInherit: './entitlements.mac.inherit.plist',
     extendInfo: {
       CFBundleURLTypes: [
         {
