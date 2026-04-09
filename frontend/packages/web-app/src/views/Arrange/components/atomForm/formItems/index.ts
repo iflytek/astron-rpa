@@ -83,6 +83,7 @@ export type ComponentPosition = 'prefix' | 'suffix' | 'inline' | 'addonBefore' |
 export interface FormItemProps {
   item: RPA.AtomDisplayItem
   values?: Record<string, any>
+  readonly?: boolean
 }
 
 export interface FormItemEmits {
