@@ -199,7 +199,7 @@ export function useLinkInvite(marketId: string, emit?: any) {
 
   const retInviteLink = (data) => {
     invitData.value = data
-    formState.inviteLink = data.overNumLimit === 1 ? '' : `${appInfo.value.remotePath}login/#/invite?inviteKey=${data.inviteKey}`
+    formState.inviteLink = data.overNumLimit === 1 ? '' : `${appInfo.value.remotePath}login/invite?inviteKey=${data.inviteKey}`
     formState.expireType = data.expireType || '24H'
     emit && emit('linkChange', formState.inviteLink)
   }
