@@ -1454,6 +1454,17 @@ if __name__ == "__main__":
         sys.exit(1)
 
     app = QApplication(sys.argv)
+
+    # 👇 必须放在这里（核心位置）
+    if sys.platform == "darwin":
+        try:
+            from AppKit import NSApplication, NSApplicationActivationPolicyAccessory
+            NSApplication.sharedApplication().setActivationPolicy_(
+                NSApplicationActivationPolicyAccessory
+            )
+        except Exception:
+            pass
+
     app.setQuitOnLastWindowClosed(False)
 
     console = ConsoleApp(sys.argv[1])
