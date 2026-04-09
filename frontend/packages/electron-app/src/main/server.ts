@@ -121,11 +121,18 @@ export function closeSubProcess() {
     exec(
       `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --stop="True"`,
       { cwd: appWorkPath },
-      (error) => {
+      async (error) => {
         if (error) {
           logger.error(`${envJson.SCHEDULER_NAME} closeSubProcess error: ${error}`)
         } else {
           logger.info(`${envJson.SCHEDULER_NAME} closeSubProcess success`)
+        }
+        // 等待 scheduler 进程真正消失，最多等 3s
+        const deadline = Date.now() + 3000
+        while (Date.now() < deadline) {
+          const still = await checkPythonRpaProcess()
+          if (!still) break
+          await new Promise(r => setTimeout(r, 200))
         }
         resolve()
       }

@@ -253,7 +253,7 @@ else
     if ! uv pip install --link-mode=copy --python "$PYTHON_BIN" \
             --find-links="$DIST_DIR" -r "${ENGINE_DIR}/requirements.txt" \
             --upgrade --force-reinstall \
-            -i https://pypi.tuna.tsinghua.edu.cn/simple; then
+            -i https://mirrors.aliyun.com/pypi/simple/; then
         echo "Package installation failed"
         exit 1
     fi
@@ -265,6 +265,7 @@ else
 
     echo "Compressing python_core directory..."
     ARCHIVE_PATH="${SCRIPT_DIR}/${ARCHIVE_DIST_DIR}/python_core.7z"
+    [ -f "$ARCHIVE_PATH" ] && rm -f "$ARCHIVE_PATH"
     (cd "$PYTHON_CORE_DIR" && "$SEVENZ_EXE" a -t7z "$ARCHIVE_PATH" "*" > /dev/null) \
         || { echo "python_core directory compression failed"; exit 1; }
     echo "Python_core directory compressed successfully, file saved to: ${ARCHIVE_PATH}"
