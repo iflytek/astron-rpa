@@ -495,13 +495,14 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     const hasDifferent = this.state.data.some(it => ids.includes(it.id) && it.disabled === enable)
     if (!hasDifferent) return
 
-    this.state.data.forEach(it => {
-      if (ids.includes(it.id)) {
-        it.disabled = !enable
-      }
+    ids.forEach((_id) => {
+      const node = this.astParser.getNode(_id)
+      if (!node) return
+      node.raw.disabled = !enable
     })
 
     this.updateData()
+    this.updateState({ isDirty: true })
   }
 
   /**
