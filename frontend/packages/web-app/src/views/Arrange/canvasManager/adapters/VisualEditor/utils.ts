@@ -297,7 +297,7 @@ export function generateOutItems(outputList: RPA.AtomDisplayItem[], existingVarN
 /**
  * 收集当前流程中所有输出流变量名 + 全局变量名
  */
-export function collectFlowVarNames(data: RPA.Atom[]): string[] {
+export function collectFlowVarNames(data: RPA.Atom[] = []): string[] {
   const names: string[] = []
   data.forEach(atom => {
     (atom.outputList || []).forEach((item: RPA.AtomDisplayItem) => {
