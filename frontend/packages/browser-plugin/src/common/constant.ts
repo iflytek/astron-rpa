@@ -35,6 +35,9 @@ export const HIGH_LIGHT_COLOR = 'red'
 export const HIGH_LIGHT_DURATION = 3000
 export const ASTRON_SW_NAME = 'Astron-Service-Worker'
 export const FRAME_ELEMENT_TAGS = ['iframe', 'frame', 'object', 'embed']
+export const PAGE_INFO = {
+  pageZoom: 1,
+}
 
 export const SVG_NODETAGS = [
   'svg',

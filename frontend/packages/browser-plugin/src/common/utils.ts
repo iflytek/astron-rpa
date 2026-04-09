@@ -42,6 +42,10 @@ export const Utils = {
     return this.getNavigatorUserAgent() === '$firefox$'
   },
 
+  isMac() {
+    return navigator.userAgent.includes('Macintosh') || navigator.userAgent.includes('Mac')
+  },
+
   async wait(seconds: number) {
     return new Promise((resolve) => {
       setTimeout(resolve, seconds * 1000)

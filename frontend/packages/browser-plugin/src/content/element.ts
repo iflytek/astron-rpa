@@ -1,4 +1,4 @@
-import { FRAME_ELEMENT_TAGS, MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, SVG_NODETAGS } from '../common/constant'
+import { FRAME_ELEMENT_TAGS, MAX_TEXT_INCLUDE_LENGTH, MAX_TEXT_LENGTH, PAGE_INFO, SVG_NODETAGS } from '../common/constant'
 import { Utils } from '../common/utils'
 
 import { highLight, highLightRects } from './highlight'
@@ -855,8 +855,39 @@ export function shadowRootElement(point: Point, shadowRoot: ShadowRoot, shadowPa
   }
 }
 
-function getPadding(element: HTMLElement) {
+/**
+ * Returns the effective device pixel ratio for coordinate mapping.
+ *
+ * On macOS, `window.devicePixelRatio` includes both the Retina display physical
+ * pixel density (typically ×2) and the browser zoom factor. However, macOS automation
+ * APIs (CGEvent, Accessibility APIs) operate in logical pixels (points), which match
+ * CSS pixels at 100% zoom — the display density is already abstracted by the OS.
+ * We therefore divide out the inferred native display DPR so that only the browser
+ * zoom component remains.
+ *
+ * On Windows, `devicePixelRatio` directly reflects DPI scaling and is returned as-is.
+ *
+ * Edge cases:
+ * - Mac + browser zoom ≤ 50%: dpr may fall below 1.5, causing the native DPR to be
+ *   inferred as 1 instead of 2. This is an uncommon scenario in RPA usage.
+ * - For production accuracy, prefer `chrome.tabs.getZoom()` (background script) or
+ *   CDP `Page.getLayoutMetrics` → `pageScaleFactor`.
+ */
+function getEffectiveDpr(): number {
   const dpr = window.devicePixelRatio
+  const isMac = Utils.isMac()
+  if (isMac) {
+    return PAGE_INFO.pageZoom
+  }
+  return dpr
+  // Retina displays have a native DPR of ≥1.5 (commonly 2); non-Retina Macs are 1.
+  // Dividing by the native display DPR isolates the browser zoom factor.
+  // const nativeDisplayDpr = dpr >= 1.5 ? 2 : 1
+  // return dpr / nativeDisplayDpr
+}
+
+function getPadding(element: HTMLElement) {
+  const dpr = getEffectiveDpr()
   const computedStyle = window.getComputedStyle(element)
   const paddingLeft = Number.parseInt(computedStyle.paddingLeft) || 0
   const paddingTop = Number.parseInt(computedStyle.paddingTop) || 0
@@ -866,7 +897,7 @@ function getPadding(element: HTMLElement) {
 }
 
 function getBorder(element: HTMLElement) {
-  const dpr = window.devicePixelRatio
+  const dpr = getEffectiveDpr()
   const computedStyle = window.getComputedStyle(element)
   const borderLeft = Number.parseInt(computedStyle.borderLeftWidth) || 0
   const borderTop = Number.parseInt(computedStyle.borderTopWidth) || 0
@@ -881,7 +912,7 @@ export function getBoundingClientRect(element: HTMLElement): DOMRectT {
   const { scaleX = 1, scaleY = 1 } = iframeTransform
   const safeNum = 8
   const rect = element.getBoundingClientRect().toJSON()
-  const dpr = window.devicePixelRatio
+  const dpr = getEffectiveDpr()
   const { left, top, width, height, right, bottom, x, y } = rect
   return {
     left: Math.round(left * scaleX * dpr),

@@ -37,6 +37,11 @@ function contentMessageHandler(request, sender: chrome.runtime.MessageSender, _s
   if (request.type === 'contentLoaded' && sender.tab) {
     _sendResponse(true)
   }
+  if (request.type === 'getPageZoom' && sender.tab) {
+    Tabs.getZoom(sender.tab.id).then((zoom) => {
+      _sendResponse(zoom)
+    })
+  }
   // if (request.type === 'nativeMessage') {
   //   sendNativeMessage(request.data);
   // }
