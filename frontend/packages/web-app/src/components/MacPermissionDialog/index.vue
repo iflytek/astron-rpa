@@ -4,6 +4,7 @@ import { Button, Modal } from 'ant-design-vue'
 import { onBeforeUnmount, reactive, ref } from 'vue'
 
 import { getMacPermissionStatus, openMacPermissionSettings, type MacPermissions } from '@/api/macPermission'
+import { utilsManager } from '@/platform'
 import BUS from '@/utils/eventBus'
 
 const visible = ref(false)
@@ -174,7 +175,7 @@ onBeforeUnmount(() => {
       <Button
         v-if="allGranted || hasChanged"
         type="primary"
-        @click="handleClose"
+        @click="utilsManager.restartApp()"
       >
         已完成授权，重启应用
       </Button>
