@@ -17,6 +17,27 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+/core/python_base/
+/core/.venv/
+/core/venvs/
+
 # =============================================================================
 # Build & Output Directories
 # =============================================================================
