@@ -8,9 +8,8 @@ import { useRoute } from 'vue-router'
 
 import { getSmartComp, optimizeQuestion } from '@/api/component'
 import { clipboardManager } from '@/platform'
-// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
-// import { useFlowStore } from '@/stores/useFlowStore'
 import { useProcessStore } from '@/stores/useProcessStore'
+import type { VisualEditor } from '@/views/Arrange/canvasManager/adapters'
 
 import ComponentDetailPanel from '../components/ComponentDetailPanel.vue'
 import PackageBar from '../components/PackageBar.vue'
@@ -25,8 +24,6 @@ import { isAssistantMessage, isUserMessage, parseChatContent, parseOptimizedText
 
 const smartComp = useSmartComp()
 const processStore = useProcessStore()
-// TODO merge: useFlowStore removed in refactor, adapt to canvasManager
-const flowStore = { simpleFlowUIData: [] as any[] }
 const route = useRoute()
 const { colorTheme } = useTheme()
 const { t } = useTranslation()
@@ -60,9 +57,11 @@ async function restoreChat(smartId: string, targetVersion?: number) {
       const targetVersionData = versionList.find(v => v.version === version)
 
       if (targetVersionData) {
-        // 从 simpleFlowUIData 中获取对应的原子能力数据
+        // 从当前流程数据中获取对应的原子能力数据
         const key = `${SMART_COMPONENT_KEY_PREFIX}.${smartId}`
-        const flowNode = flowStore.simpleFlowUIData.find(item => item.key === key)
+        const activeTab = processStore.canvasManager.activeTab as VisualEditor | null
+        const flowData: RPA.Atom[] = activeTab?.state?.data || []
+        const flowNode = flowData.find(item => item.key === key)
 
         // 如果存在流程节点，将表单属性同步到 editingSmartComp
         if (flowNode) {

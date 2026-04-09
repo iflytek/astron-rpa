@@ -87,6 +87,7 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
           icon: item.icon,
           componentId: item.componentId,
           dot: item.isLatest === 0,
+          version: item.version,
         })),
       }
       const businessComps = processStore.extendTree.state
@@ -196,19 +197,24 @@ function refreshComponentTree() {
 // 双击
 function doubleItemClick(item: AtomTreeNode) {
   if (item.key === 'smart-component') {
-    // const flowStore = useFlowStore()
-    // const activeAtomIdx = (flowStore.simpleFlowUIData.findIndex(item => item.id === flowStore.activeAtom?.id) + 1) || 0
-    // useRoutePush({
-    //   name: SMARTCOMPONENT,
-    //   query: {
-    //     projectId: processStore.project.id,
-    //     projectName: processStore.project.name,
-    //     newIndex: activeAtomIdx,
-    //   },
-    // })
+    const activeTab = processStore.canvasManager.activeTab as any
+    const flowData: RPA.Atom[] = activeTab?.state?.data || []
+    const selectedId = activeTab?.lastSelectedAtomId
+    const activeAtomIdx = selectedId
+      ? (flowData.findIndex(it => it.id === selectedId) + 1) || 0
+      : 0
+    useRoutePush({
+      name: SMARTCOMPONENT,
+      query: {
+        projectId: processStore.project.id,
+        projectName: processStore.project.name,
+        newIndex: activeAtomIdx,
+      },
+    })
   }
   else {
-    // processStore.activeTab?.add(item.key)
+    const key = item.version != null ? `${item.key}:${item.version}` : item.key
+    processStore.canvasManager.activeTab?.add?.(key)
   }
 }
 

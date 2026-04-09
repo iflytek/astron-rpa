@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
+import { isEmpty } from 'lodash-es'
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
 
 import BUS from '@/utils/eventBus'
 
 import AtomFormList from '@/views/Arrange/components/atomForm/AtomFormList.vue'
-// @ts-expect-error merge: TODO - useBaseConfig removed in refactor, need to adapt
-// import { renderBaseConfig, useBaseConfig } from '@/views/Arrange/components/atomForm/hooks/useBaseConfig'
 import type { AtomTabs } from '@/views/Arrange/types/atomForm'
 
 const props = defineProps<{
@@ -24,13 +23,72 @@ const formattedTabs = computed(() => atomTab.value.map((item, index) => ({
   value: index,
 })))
 
-function renderForm(atom: RPA.Atom) {
-  // atomTab.value = atom ? useBaseConfig(atom, t) : []
+/**
+ * 根据原子能力数据生成表单 tabs 配置
+ */
+function generateFormTabs(atom: RPA.Atom): AtomTabs[] {
+  if (!atom) return []
+
+  const { inputList = [], outputList = [], advanced = [], exception = [], noAdvanced } = atom
+
+  const baseParam: AtomTabs = {
+    key: 'baseParam',
+    name: 'basicParameters',
+    params: [
+      {
+        name: { 'zh-CN': '输入信息', 'en-US': 'Input information' },
+        key: `input-${atom.key}`,
+        id: atom.id ?? '',
+        atomKey: atom.key ?? '',
+        formItems: inputList,
+      },
+      {
+        name: { 'zh-CN': '输出信息', 'en-US': 'Output information' },
+        key: `output-${atom.key}`,
+        formItems: outputList,
+      },
+    ],
+  }
+
+  const advancedParam: AtomTabs = {
+    key: 'advancedParam',
+    name: 'advancedParameters',
+    params: [
+      {
+        key: `advanced-${atom.key}`,
+        formItems: advanced,
+      },
+    ],
+  }
+
+  const exceptionParam: AtomTabs = {
+    key: 'exceptParam',
+    name: 'exceptionHandling',
+    params: [
+      {
+        key: `exception-${atom.key}`,
+        formItems: exception,
+      },
+    ],
+  }
+
+  let tabs: AtomTabs[] = noAdvanced ? [baseParam] : [baseParam, advancedParam, exceptionParam]
+
+  // 过滤空的 formItems
+  tabs = tabs.map(item => ({
+    ...item,
+    params: item.params.filter(param => !isEmpty(param.formItems)),
+  }))
+
+  // 过滤空的 params
+  tabs = tabs.filter(item => !isEmpty(item.params))
+
+  return tabs
 }
 
-// watch(() => isShowFormItem.value, () => {
-//   atomTab.value = renderBaseConfig(atomTab.value)
-// })
+function renderForm(atom: RPA.Atom) {
+  atomTab.value = atom ? generateFormTabs(atom) : []
+}
 
 watch(() => props.atom, (newVal, oldVal) => {
   if (!newVal?.key) {
@@ -40,20 +98,17 @@ watch(() => props.atom, (newVal, oldVal) => {
     activeKey.value = 0
   }
   renderForm(newVal)
-  console.log('atomForm', atomTab.value)
 }, { immediate: true })
 
-const alias = computed(() => atomTab.value
-  .find(item => item.key === 'baseParam')
-  .params[0]
-  .formItems
-  .find(item => item.key === 'anotherName')
-  .value[0]
-  .value,
-)
+const alias = computed(() => {
+  const baseParam = atomTab.value.find(item => item.key === 'baseParam')
+  const baseInfo = baseParam?.params.find(p => p.formItems?.some(f => f.key === 'anotherName'))
+  const anotherNameItem = baseInfo?.formItems?.find(item => item.key === 'anotherName')
+  return anotherNameItem?.value?.[0]?.value
+})
 
 watch(() => alias.value, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
+  if (newVal && newVal !== oldVal) {
     props.atom.alias = newVal
   }
 }, { deep: true })

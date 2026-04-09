@@ -5,6 +5,7 @@ import { getAbilityInfo, getNewAtomDesc } from '@/api/atom'
 import { ATOM_FORM_TYPE, ATOM_KEY_MAP, VAR_IN_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
+import { isComponentKey, getComponentId, getComponentForm } from '@/utils/customComponent'
 import { generateName } from '@/views/Arrange/utils'
 
 export class AbilityInfoCache {
@@ -20,6 +21,34 @@ export class AbilityInfoCache {
   }
 
   /**
+   * 按 key 模糊查找缓存，返回 version 最新的条目
+   */
+  private findLatestCacheByKey(key: string): RPA.Atom | undefined {
+    let latest: RPA.Atom | undefined
+    let maxVersion = ''
+    for (const [cacheKey, atom] of this.abilityInfoCache) {
+      if (!cacheKey.startsWith(`${key}:`)) continue
+      const ver = cacheKey.split(':').pop() || ''
+      if (!maxVersion || this.compareVersion(ver, maxVersion) > 0) {
+        maxVersion = ver
+        latest = atom
+      }
+    }
+    return latest
+  }
+
+  private compareVersion(a: string, b: string): number {
+    const pa = a.split('.').map(Number)
+    const pb = b.split('.').map(Number)
+    const len = Math.max(pa.length, pb.length)
+    for (let i = 0; i < len; i++) {
+      const diff = (pa[i] || 0) - (pb[i] || 0)
+      if (diff !== 0) return diff
+    }
+    return 0
+  }
+
+  /**
    * 获取原子能力信息（带缓存和去重）
    * @param atomKeyMap 原子能力的 key 和 version 数组
    * @returns 以 CacheKey 为键，RPA.Atom 为值的对象
@@ -29,40 +58,70 @@ export class AbilityInfoCache {
     const seen = new Set<string>()
     const cachedAtoms: Record<string, RPA.Atom> = {}
     const uncachedKeys: { key: string; version: string }[] = []
-  
+    const uncachedComponentItems: RPA.Flow.FlowItemValue[] = []
+
     for (const item of atomValues) {
       const cacheKey = this.getCacheKey(item)
       if (seen.has(cacheKey)) continue
       seen.add(cacheKey)
-  
+
       const cached = this.abilityInfoCache.get(cacheKey)
       if (cached) {
         cachedAtoms[cacheKey] = cached
+      } else if (isComponentKey(item.key)) {
+        uncachedComponentItems.push(item)
       } else {
         uncachedKeys.push({ key: item.key, version: item.version })
       }
     }
-  
-    // 请求未缓存的数据并更新缓存
+
+    // 请求未缓存的标准原子能力
     const newAtoms = uncachedKeys.length > 0 ? await getAbilityInfo(uncachedKeys) : []
-  
-    const result: Record<string, RPA.Atom> = { ...cachedAtoms }
-    newAtoms.forEach(atom => {
+
+    // 请求未缓存的自定义组件
+    const componentAtoms = await Promise.all(
+      uncachedComponentItems.map(item =>
+        getComponentForm({ componentId: getComponentId(item.key), version: item.version, context: 'get' }),
+      ),
+    )
+
+    const result: Record<string, RPA.Atom> = { ...cachedAtoms };
+
+    [...newAtoms, ...componentAtoms].forEach(atom => {
       const cacheKey = this.getCacheKey(atom)
       this.setAbilityInfoCache(atom)
       result[cacheKey] = atom
     })
-  
+
     return result
   }
 
   /**
    * 获取最新的原子能力信息
-   * @param key 原子能力 key
+   * @param key 原子能力 key，可带版本后缀，格式：{atom.key}:{atom.version}
    * @returns 原子能力信息
    */
   public async getLatestAbilityInfo(key: string): Promise<RPA.Atom> {
-    const abilityInfo = await getNewAtomDesc(key)
+    // 1. 精确匹配缓存
+    const exactCached = this.abilityInfoCache.get(key)
+    if (exactCached) return exactCached
+
+    // 2. 按 key 匹配缓存中 version 最新的条目
+    const latestCached = this.findLatestCacheByKey(key)
+    if (latestCached) return latestCached
+
+    // 3. 缓存未命中，请求接口
+    let abilityInfo: RPA.Atom
+    if (isComponentKey(key)) {
+      const [componentKey, version] = key.split(':')
+      abilityInfo = await getComponentForm({
+        componentId: getComponentId(componentKey),
+        version,
+        context: 'add',
+      })
+    } else {
+      abilityInfo = await getNewAtomDesc(key)
+    }
 
     this.setAbilityInfoCache(abilityInfo)
 
@@ -103,19 +162,19 @@ export function normalizeAtomFormLists(atom: RPA.Atom): RPA.Atom {
 export function serializeAtomForSave(atom: RPA.Atom): RPA.Flow.FlowItemValue {
   const { key, version, id, alias, disabled, breakpoint, inputList, outputList, advanced, exception } = atom
 
-  const serializeFormItems = (items: RPA.AtomDisplayItem[]) =>
+  const serializeFormItems = (items: RPA.AtomDisplayItem[] = []) =>
     items.map((item) => {
       const result: RPA.AtomDisplayItem = { key: item.key, value: '' }
 
       if (Array.isArray(item.value)) {
         result.value = item.value.map((v) =>
-          v.varId ? { ...v } : { type: v.type, value: v.value, ...(v.data ? { data: v.data } : {}) },
+          v.varId ? { ...v } : { type: v.type, value: v.value, ...(v.data != null ? { data: v.data } : {}) },
         )
       } else {
         result.value = item.value
       }
 
-      if (item.show !== undefined) result.show = item.show
+      if (item.show != null) result.show = item.show
 
       return result
     })

@@ -1,5 +1,4 @@
 import { ATOM_FORM_TYPE } from '@/constants/atom'
-import { getRealValue } from '@/views/Arrange/components/atomForm/hooks/usePreview'
 
 // 自定义表单项排序
 export function useFormItemSort() {
@@ -107,47 +106,4 @@ export function useFormItemSort() {
     },
   ]
   return { extraItem, editItem }
-}
-
-// 表单项是否必填
-export function useFormItemRequired(item: RPA.AtomDisplayItem) {
-  const { required, value: atomValue } = item
-  if (!required)
-    return required
-  if (Array.isArray(atomValue)) {
-    return atomValue.every(atomItem => Object.is(atomItem.value, ''))
-  }
-  if (typeof atomValue === 'boolean')
-    return false
-  if (atomValue === '')
-    return true
-  return false
-}
-
-// 表单长度限制提示
-export function getLimitLengthTip(limitLength: Array<string | number>) {
-  const [min, max] = limitLength
-  if (['-1', 1].includes(min)) {
-    return `不应大于${max}`
-  }
-  if (['-1', 1].includes(max)) {
-    return `不应小于${min}`
-  }
-  return `应在${min}到${max}之间`
-}
-
-// 表单项是否符合长度限制
-export function useFormItemLimitLength(item: RPA.AtomDisplayItem) {
-  const { limitLength, value } = item
-  if (!(limitLength && limitLength.length === 2))
-    return true
-  const atomValue = getRealValue(value)
-  const [min, max] = limitLength // [-1, 16] 有最大长度限制 [4, -1] 有最小长度限制 [4, 16] 有最小最大长度限制
-  if (['-1', 1].includes(min)) {
-    return atomValue.length <= max
-  }
-  if (['-1', 1].includes(max)) {
-    return atomValue.length >= min
-  }
-  return atomValue.length >= min && atomValue.length <= max
 }

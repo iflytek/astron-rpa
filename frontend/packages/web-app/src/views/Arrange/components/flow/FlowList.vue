@@ -58,7 +58,9 @@ function handleDraggableAddStyle() {
 function handleDragChange(e: any) {
   if (e.added) {
     const { element, newIndex } = e.added
-    flowManager.add(element.data.key, newIndex)
+    const { key, version } = element.data
+    const addKey = version != null ? `${key}:${version}` : key
+    flowManager.add(addKey, newIndex)
   }
   else if (e.moved) {
     const { oldIndex, newIndex } = e.moved
@@ -69,14 +71,14 @@ function handleDragChange(e: any) {
 
 function handleBeforeAdd(e: { element: any, newIndex: number }) {
   if (e.element?.key === 'smart-component') {
-    // useRoutePush({
-    //   name: SMARTCOMPONENT,
-    //   query: {
-    //     projectId: processStore.project.id,
-    //     projectName: processStore.project.name,
-    //     newIndex: Math.min(e.newIndex, flowStore.simpleFlowUIData.length),
-    //   },
-    // })
+    useRoutePush({
+      name: SMARTCOMPONENT,
+      query: {
+        projectId: processStore.project.id,
+        projectName: processStore.project.name,
+        newIndex: Math.min(e.newIndex, props.manage.state.data?.length || 0),
+      },
+    })
     return false
   }
   else {

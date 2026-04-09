@@ -16,10 +16,16 @@ interface UngroupItem<T> {
   children: string[]
 }
 
+interface UpdateItem<T> {
+  id: string
+  oldItem: T
+  newItem: T
+}
+
 type Operation<T>
   = | { type: 'insert', targetId: string, item: T[] }
     | { type: 'delete', items: DeleteItem<T>[] }
-    | { type: 'update', index: number[], oldItem: T[], newItem: T[] }
+    | { type: 'update', items: UpdateItem<T>[] }
     | { type: 'group', children: string[], items: [T, T] }
     | { type: 'ungroup', items: UngroupItem<T>[] }
     | { type: 'move', fromId: string, afterId: string, fromPreId: string }
@@ -77,6 +83,16 @@ export class UndoManager implements RPA.Process.UndoManager {
           this.editor.astParser.moveNodeAfter(operation.fromId, operation.fromPreId)
         } else {
           this.editor.astParser.moveNodeAfter(operation.fromId, operation.afterId)
+        }
+        break
+      case 'update':
+        {
+          operation.items.forEach((item) => {
+            const node = this.editor.astParser.getNode(item.id)
+            if (node) {
+              Object.assign(node.raw, isUndo ? item.oldItem : item.newItem)
+            }
+          })
         }
         break
     }
