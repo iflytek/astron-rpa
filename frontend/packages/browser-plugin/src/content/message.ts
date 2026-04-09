@@ -1,4 +1,4 @@
-import { ASTRON_SW_NAME } from '../common/constant'
+import { ASTRON_SW_NAME, PAGE_INFO } from '../common/constant'
 
 function isExtensionContextValid() {
   try {
@@ -51,5 +51,13 @@ export function keepServiceWorkerAlive() {
 export function notifyContentLoaded() {
   return sendToBackground({
     type: 'contentLoaded',
+  })
+}
+
+export function getPageZoom() {
+  sendToBackground({
+    type: 'getPageZoom',
+  }).then((zoom) => {
+    PAGE_INFO.pageZoom = Number(zoom) || 1
   })
 }
