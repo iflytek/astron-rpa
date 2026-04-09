@@ -1,3 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+/core/python_base/
+/core/.venv/
+/core/venvs/
+
+# 其他
 pip_cache
 .cookie.json
 .setting.json
