@@ -1,5 +1,6 @@
-import { app, ipcMain, protocol, session } from 'electron'
+import { app, ipcMain, protocol, session, net } from 'electron'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import type { W2WType } from '../types'
 
@@ -9,7 +10,7 @@ import { listenRender } from './event'
 import { checkPythonRpaProcess, closeSubProcess, startBackend } from './server'
 import { changeTray, createTray } from './tray'
 import { createSubWindow, createMainWindow as createWindow, sendElectronInfo, getWindowFromLabel, getMainWindow, WindowStack } from './window'
-import { rendererPath, windowBaseUrl, extensionHost } from './path'
+import { rendererPath, windowBaseUrl, extensionHost, rendererHost } from './path'
 import { getExtensionResourcePath } from './extension'
 
 const startTime = Date.now()
@@ -93,24 +94,26 @@ function sessionHanlder() {
   )
 }
 
+/**
+ * 注册自定义协议，目前定义了两种扩展
+ * 1. rpa://localhost/boot.html 映射到本地 rendererPath/boot.html
+ * 2. rpa://extensions/extensionName/file.html 映射到插件目录下的 file.html 文件
+ */
 function registerRpaProtocol() {
-  // 注册自定义协议 rpa://localhost/boot.html 映射到本地 rendererPath/boot.html
-  protocol.registerFileProtocol('rpa', (request, callback) => {
+  protocol.handle('rpa', async (request) => {
     const u = new URL(request.url)
-    try {
-      if (u.hostname === extensionHost) {
-        const paths = u.pathname.split('/')
-        const extensionName = paths[1]
-        const resourcePath = getExtensionResourcePath(extensionName)
-        const filePath = path.join(resourcePath, ...paths.slice(2))
-        callback({ path: filePath })
-      } else {
-        const filePath = path.join(rendererPath, u.pathname)
-        callback({ path: filePath })
-      }
-    }
-    catch (err) {
-      logger.error('rpa protocol file resolve error:', err)
+    if (u.hostname === extensionHost) {
+      const paths = u.pathname.split('/')
+      const extensionName = paths[1]
+      const resourcePath = getExtensionResourcePath(extensionName)
+      const filePath = path.join(resourcePath, ...paths.slice(2))
+      return net.fetch(pathToFileURL(filePath).toString())
+    } else if (u.hostname === rendererHost) {
+      const filePath = path.join(rendererPath, u.pathname)
+      return net.fetch(pathToFileURL(filePath).toString())
+    } else {
+      logger.error('rpa protocol file resolve error:', request.url)
+      return new Response('File not found', { status: 404 })
     }
   })
 }
