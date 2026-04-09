@@ -4,6 +4,7 @@ import { Button, Modal } from 'ant-design-vue'
 import { onBeforeUnmount, reactive, ref } from 'vue'
 
 import { getMacPermissionStatus, openMacPermissionSettings, type MacPermissions } from '@/api/macPermission'
+import { utilsManager } from '@/platform'
 import BUS from '@/utils/eventBus'
 
 const visible = ref(false)
@@ -160,10 +161,9 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- 变更提示 -->
-    <div v-if="hasChanged" class="perm-notice">
-      <ExclamationCircleFilled style="color: #faad14; margin-right: 6px;" />
-      权限已更新，重启应用后生效
+    <div class="perm-notice">
+      <ExclamationCircleFilled style="color: #faad14; margin-right: 6px; flex-shrink: 0;" />
+      <span>在系统设置中完成授权后，请点击右侧按钮重启应用。由于 macOS 缓存机制，授权状态可能不会立即刷新，重启后方可生效。</span>
     </div>
 
     <!-- 底部操作 -->
@@ -172,9 +172,8 @@ onBeforeUnmount(() => {
         暂时忽略
       </Button>
       <Button
-        v-if="allGranted || hasChanged"
         type="primary"
-        @click="handleClose"
+        @click="utilsManager.restartApp()"
       >
         已完成授权，重启应用
       </Button>

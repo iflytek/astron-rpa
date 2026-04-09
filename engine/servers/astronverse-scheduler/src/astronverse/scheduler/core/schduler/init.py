@@ -41,6 +41,8 @@ def darwin_check_screen_recording() -> bool:
         return True
     try:
         import Quartz
+        # CGRequestScreenCaptureAccess 会将应用加入系统设置列表，首次调用触发授权弹窗
+        Quartz.CGRequestScreenCaptureAccess()
         return bool(Quartz.CGPreflightScreenCaptureAccess())
     except Exception:
         return False

@@ -173,6 +173,13 @@ app.on('before-quit', async (e) => {
   app.exit()
 })
 
+process.on('SIGTERM', async () => {
+  if (isQuitting) return
+  isQuitting = true
+  await closeSubProcess()
+  app.exit(0)
+})
+
 ipcMain.handle('ipcCreateWindow', (_event, options) => {
   const local_win = createSubWindow(options)
   const id = local_win.id
