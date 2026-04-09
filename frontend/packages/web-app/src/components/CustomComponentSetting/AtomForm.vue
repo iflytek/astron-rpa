@@ -138,7 +138,7 @@ watch(() => alias.value, (newVal, oldVal) => {
         >
           <template v-if="item.key.startsWith('input')">
             <div class="group relative p-1.5 rounded-lg hover:bg-[#5D59FF]/[.35] [&_*]:cursor-pointer" @click="handleEdit(form)">
-              <AtomFormItem :atom-form-item="form" :hide-required-tip="true" disabled />
+              <AtomFormItem :atom-form-item="form" hide-required-tip disabled />
               <rpa-icon
                 name="edit-outline"
                 size="20"
@@ -147,7 +147,7 @@ watch(() => alias.value, (newVal, oldVal) => {
             </div>
           </template>
           <template v-else>
-            <AtomFormItem :atom-form-item="form" disabled :hide-required-tip="true" />
+            <AtomFormItem :atom-form-item="form" hide-required-tip disabled />
           </template>
         </template>
       </section>
