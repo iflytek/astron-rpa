@@ -345,7 +345,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
    * @param key 原子能力 key
    * @param index 插入位置索引
    */
-  async add(key: string, index: number = 0) {
+  async add(key: string, index: number = (this.nodeParameter.activeAtomIndex + 1) || 0) {
     const addKeys = [key];
     // 如果是容器类的节点,开始和结束节点需要一起添加
     const endKey = LOOP_END_MAP[key]
