@@ -28,7 +28,7 @@ import {
   shadowRootElement,
 } from './element'
 import { currentFrameInfo, loadIframe, tagFrames } from './iframe'
-import { keepServiceWorkerAlive, notifyContentLoaded, sendElementData } from './message'
+import { getPageZoom, keepServiceWorkerAlive, notifyContentLoaded, sendElementData } from './message'
 import { elementChangeWatcher } from './watcher'
 
 let timeoutId
@@ -1237,9 +1237,12 @@ function RpaExtGetElement(data) {
 }
 
 loadIframe()
+getPageZoom()
 keepServiceWorkerAlive()
 window.addEventListener('load', loadIframe)
 window.addEventListener('load', notifyContentLoaded)
+window.removeEventListener('resize', getPageZoom)
+window.addEventListener('resize', getPageZoom)
 // @ts-expect-error Mount to window
 window.handle = handle
 // @ts-expect-error  Mount to window
