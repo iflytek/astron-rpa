@@ -23,7 +23,6 @@ dist-types
 *.njsproj
 *.sln
 *.sw?
-.vscode
 
 # Auto-generated type declaration files
 components.d.ts
