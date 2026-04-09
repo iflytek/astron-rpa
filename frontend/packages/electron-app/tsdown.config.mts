@@ -8,8 +8,10 @@ export default defineConfig({
   platform: 'browser',
   sourcemap: true,
   outDir: '../../public/',
-  noExternal: ['lodash-es', 'await-to-js'],
   minify: true,
+  deps: {
+    alwaysBundle: ['lodash-es', 'await-to-js'],
+  },
   outputOptions: {
     entryFileNames: 'client-sdk.js',
   },
