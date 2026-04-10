@@ -183,10 +183,7 @@ def terminal_list_task():
                     for key, value in project.items():
                         if value is None:
                             project[key] = ""
-                    if project.get("robotVersion"):
-                        # 引擎内部用version流转，上下服务端用robotVersion流转
-                        project["version"] = project.get("robotVersion")
-
+                    project["version"] = project.get("robotVersion")  # 引擎内部用version流转，上下服务端用robotVersion流转
             if _d.get("retry_num"):
                 _d["retry_num"] = int(_d.get("retry_num"))
             else:

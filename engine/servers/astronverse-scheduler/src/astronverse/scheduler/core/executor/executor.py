@@ -538,8 +538,7 @@ class ExecutorManager:
             }
             if exec_position.value:
                 data["mode"] = exec_position.value
-            if version:
-                data["robotVersion"] = int(version)
+            data["robotVersion"] = int(version)
             if self.svc.terminal_mod:
                 data["dispatchTaskExecuteId"] = task_exec_id
             response = requests.post(

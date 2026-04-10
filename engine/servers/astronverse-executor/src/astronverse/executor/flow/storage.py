@@ -176,16 +176,14 @@ class HttpStorage(IStorage):
             }
             if mode:
                 data["mode"] = mode
-            if version:
-                data["componentVersion"] = int(version)
+            data["componentVersion"] = int(version)
         else:
             data = {
                 "robotId": project_id,
             }
             if mode:
                 data["mode"] = mode
-            if version:
-                data["robotVersion"] = int(version)
+            data["robotVersion"] = int(version)
         try:
             if self.svc.conf.is_custom_component:
                 res = self.__http__("/api/robot/component/info-version", data, None, meta="get")
@@ -218,9 +216,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
-
+        data["robotVersion"] = int(version)
         res = self.__http__("/api/robot/process/process-json", None, data)
         try:
             if res:
@@ -303,9 +299,7 @@ class HttpStorage(IStorage):
             data["moduleId"] = module_id
         if mode:
             data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
-
+        data["robotVersion"] = int(version)
         res = self.__http__("/api/robot/param/all", None, data)
         if res and isinstance(res, str):
             res = json.loads(res)
@@ -330,8 +324,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             params["mode"] = mode
-        if version:
-            params["robotVersion"] = int(version)
+        params["robotVersion"] = int(version)
         return self.__http__("/api/robot/component-robot-use/component-use", None, params, meta="post")
 
     def pip_list(self, project_id: str, mode: str, version: str = "") -> list:
@@ -353,9 +346,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
-
+        data["robotVersion"] = int(version)
         details = self.__http__("/api/robot/smart/detail/version", None, data)
         version_info = next(
             filter(lambda item: item.get("version") == int(smart_version), details["detail"]["versionList"]), {}
