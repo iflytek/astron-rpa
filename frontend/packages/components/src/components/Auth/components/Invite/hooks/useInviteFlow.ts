@@ -7,7 +7,7 @@ import { acceptEnterpriseInvite, acceptMarketInvite, queryEnterpriseInviteData, 
 import { loginStatus, userInfo } from '../../../api/login'
 import type { InviteInfo } from '../../../interface'
 
-type PageStatus = 'init' | 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull'
+type PageStatus = 'init' | 'linkExpired' | 'needLogin' | 'showUserInfo' | 'joinSuccess' | 'joined' | 'reachLimited' | 'marketFull' | 'marketJoinLimited'
 
 export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
   const isMobile = useMediaQuery('(max-width: 768px)')
@@ -36,6 +36,9 @@ export function useInviteFlow(emits: { (e: 'joinSuccess'): void }) {
         break
       case '102':
         pageStatus = 'linkExpired'
+        break
+      case '103':
+        pageStatus = 'marketJoinLimited'
         break
       case '100':
         pageStatus = 'marketFull'

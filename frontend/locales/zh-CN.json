@@ -1608,6 +1608,7 @@
     "marketFull": "当前{{type}}人数已满",
     "contactOwner": "请联系{{type}}所有者处理",
     "freeLimitReached": "已达免费邀请人数上限",
+    "marketJoinLimited": "已达可加入团队市场数量上限",
     "contactAdminUpgrade": "请联系管理员升级",
     "market": "市场",
     "space": "空间",
