@@ -7,14 +7,16 @@ import { ProcessModal } from '@/views/Arrange/components/process'
 import AtomConfig from './AtomConfig.vue'
 import { useFormStore } from './hooks/useFormStore'
 
-const { atomFormItem } = defineProps<{
+const { atomFormItem, disabled, formValues: formValuesProp } = defineProps<{
   atomFormItem: RPA.AtomDisplayItem
   disabled?: boolean
   hideRequiredTip?: boolean // 是否隐藏必填提示
+  formValues?: Record<string, any>
 }>()
 const emit = defineEmits<{ (e: 'update', key: string, value: any): void }>()
 
-const { formValues } = useFormStore()
+const formStore = useFormStore()
+const formValues = computed(() => formValuesProp ?? formStore?.formValues.value ?? {})
 
 // 是否展示 label
 const showLabel = computed(() => {
