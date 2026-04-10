@@ -183,27 +183,21 @@ export function serializeAtomForSave(atom: RPA.Atom): RPA.Flow.FlowItemValue {
 export function mergeAtomFormToAtomMeta(atomMeta: RPA.Atom, atomForm: RPA.Flow.FlowItemValue = {} as RPA.Flow.FlowItemValue): RPA.Atom {
   const processStore = useProcessStore()
 
-  const mergeValue = (target: RPA.AtomDisplayItem[], origin: RPA.AtomDisplayItem[]) => {
+  const mergeValue = (target: RPA.AtomDisplayItem[], origin: RPA.AtomDisplayItem[] = []) => {
     if (isEmpty(target)) {
       return []
     }
 
-    if (isEmpty(origin)) {
-      return target
-    }
+    const orginMap = new Map(origin.map(item => [item.key, item]))
 
-    return target.map((item) => {
-      const findItem = origin.find((i) => i.key === item.key)
-      if (findItem) {
-        item.value = findItem.value ?? item.default
-        item.show = findItem.show ?? true
-      }
-
-      return item
-    })
+    return target.map((item) => ({
+      ...item,
+      value: orginMap.get(item.key)?.value ?? item.default,
+      show: orginMap.get(item.key)?.show ?? true
+    }))
   }
 
-  const [baseAdvanced, baseException] = partition(cloneDeep(processStore.commonAdvancedParameter), item => exceptionKeys.includes(item.key))
+  const [baseAdvanced, baseException] = partition(cloneDeep(processStore.commonAdvancedParameter), item => !exceptionKeys.includes(item.key))
 
   const advanced = mergeValue(baseAdvanced, atomForm.advanced)
   const exception = mergeValue(baseException, atomForm.exception)
