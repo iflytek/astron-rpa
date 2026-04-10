@@ -21,6 +21,12 @@ class NodeParameter implements RPA.Process.NodeParameter {
     return this.activeInstance.state.data.find(it => it.id === this.activeAtomId.value) || null
   }
 
+  get activeAtomIndex() {
+    if (!this.activeInstance || !this.activeAtomId.value) return null
+
+    return this.activeInstance.state.data.findIndex(it => it.id === this.activeAtomId.value) || null
+  }
+
   /**
    * 检查表单项是否违反了必填规则
    * @param item 表单项数据

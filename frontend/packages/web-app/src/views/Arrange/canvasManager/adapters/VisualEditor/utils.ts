@@ -1,5 +1,5 @@
 import { SnowflakeIdv1 } from 'simple-flakeid'
-import { isEmpty, cloneDeep } from 'lodash-es'
+import { isEmpty, cloneDeep, partition } from 'lodash-es'
 
 import { getAbilityInfo, getNewAtomDesc } from '@/api/atom'
 import { ATOM_FORM_TYPE, ATOM_KEY_MAP, VAR_IN_TYPE } from '@/constants/atom'
@@ -136,26 +136,6 @@ const exceptionKeys = [
 ]
 
 /**
- * 统一规范化原子能力表单列表：
- */
-export function normalizeAtomFormLists(atom: RPA.Atom): RPA.Atom {
-  const inputList = Array.isArray(atom?.inputList) ? atom.inputList : []
-  const outputList = Array.isArray(atom?.outputList) ? atom.outputList : []
-  const advanced = Array.isArray(atom?.advanced) ? atom.advanced : []
-  const exception = Array.isArray(atom?.exception) ? atom.exception : []
-
-  const advancedFromInputList = inputList.filter(item => item?.level === 'advanced')
-  const filteredInputList = inputList.filter(item => item?.level !== 'advanced')
-
-  return Object.assign(atom, {
-    inputList: filteredInputList,
-    outputList,
-    advanced: [...advancedFromInputList, ...advanced],
-    exception,
-  })
-}
-
-/**
  * 将 Atom 节点数据序列化为后端存储格式
  * 白名单提取：只保留后端需要的字段，去除前端 UI 元数据（formType, options, errors 等）
  */
@@ -200,12 +180,16 @@ export function serializeAtomForSave(atom: RPA.Atom): RPA.Flow.FlowItemValue {
  *
  * 将 AtomForm 合并到 AtomMeta 中
  */
-export function mergeAtomFormToAtomMeta(atomMeta: RPA.Atom, atomForm: RPA.Flow.FlowItemValue): RPA.Atom {
+export function mergeAtomFormToAtomMeta(atomMeta: RPA.Atom, atomForm: RPA.Flow.FlowItemValue = {} as RPA.Flow.FlowItemValue): RPA.Atom {
   const processStore = useProcessStore()
 
   const mergeValue = (target: RPA.AtomDisplayItem[], origin: RPA.AtomDisplayItem[]) => {
     if (isEmpty(target)) {
       return []
+    }
+
+    if (isEmpty(origin)) {
+      return target
     }
 
     return target.map((item) => {
@@ -219,30 +203,22 @@ export function mergeAtomFormToAtomMeta(atomMeta: RPA.Atom, atomForm: RPA.Flow.F
     })
   }
 
-  const mergeException = (origin: RPA.AtomDisplayItem[]): RPA.AtomDisplayItem[] => {
-    const target = cloneDeep(processStore.commonAdvancedParameter).filter(item => exceptionKeys.includes(item.key))
-    const result = isEmpty(origin) ? target : origin
-    return mergeValue(target, result)
-  }
+  const [baseAdvanced, baseException] = partition(cloneDeep(processStore.commonAdvancedParameter), item => exceptionKeys.includes(item.key))
 
-  const mergeAdvanced = (origin: RPA.AtomDisplayItem[]): RPA.AtomDisplayItem[] => {
-    const target = cloneDeep(processStore.commonAdvancedParameter).filter(item => !exceptionKeys.includes(item.key))
-    const result = isEmpty(origin) ? target : origin
-    return mergeValue(target, result)
-  }
+  const advanced = mergeValue(baseAdvanced, atomForm.advanced)
+  const exception = mergeValue(baseException, atomForm.exception)
+  const inputList = mergeValue(atomMeta.inputList, atomForm.inputList)
+  const outputList = mergeValue(atomMeta.outputList, atomForm.outputList)
 
-  const advanced = mergeAdvanced(atomForm.advanced);
-  const inputList = mergeValue(atomMeta.inputList, atomForm.inputList);
-
-  return normalizeAtomFormLists({
+  return {
     ...atomMeta,
     id: atomForm.id,
     alias: atomForm.alias,
     advanced,
-    exception: mergeException(atomForm.exception),
+    exception,
     inputList,
-    outputList: mergeValue(atomMeta.outputList, atomForm.outputList),
-  })
+    outputList,
+  }
 }
 
 /**
@@ -279,10 +255,6 @@ export function isContinuous(arr: number[]) {
  */
 export function generateOutItems(outputList: RPA.AtomDisplayItem[], existingVarNames: string[]): RPA.AtomDisplayItem[] {
   return outputList.map((item) => {
-    if (item.formType?.type !== ATOM_FORM_TYPE.RESULT) {
-      return { ...item, value: [{ type: VAR_IN_TYPE, value: '' }] }
-    }
-
     const newVarName = generateName(
       existingVarNames.filter(v => new RegExp(`^${item.key}_\\d+$`).test(v) || v === item.key),
       item.key,
@@ -297,7 +269,7 @@ export function generateOutItems(outputList: RPA.AtomDisplayItem[], existingVarN
 /**
  * 收集当前流程中所有输出流变量名 + 全局变量名
  */
-export function collectFlowVarNames(data: RPA.Atom[]): string[] {
+export function collectFlowVarNames(data: RPA.Atom[] = []): string[] {
   const names: string[] = []
   data.forEach(atom => {
     (atom.outputList || []).forEach((item: RPA.AtomDisplayItem) => {

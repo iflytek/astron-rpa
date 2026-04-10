@@ -13,7 +13,7 @@ import { caculateConditional, caculateResultKey } from '@/utils/selfExecuting'
 import FlowList from '../../../components/flow/FlowList.vue'
 import { AST_NODE_TYPE, IncrementalASTParser, ProcessNode } from '../../ast'
 import { CONVERT_MAP } from './constants'
-import { AbilityInfoCache, mergeAtomFormToAtomMeta, generateId, isContinuous, normalizeAtomFormLists, generateOutItems, collectFlowVarNames, serializeAtomForSave } from './utils'
+import { AbilityInfoCache, mergeAtomFormToAtomMeta, generateId, isContinuous, generateOutItems, collectFlowVarNames, serializeAtomForSave } from './utils'
 import { ConfigParameter } from './ConfigParameter'
 import { nodeParameter } from './NodeParameter'
 import { UndoManager } from './UndoManager'
@@ -345,7 +345,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
    * @param key 原子能力 key
    * @param index 插入位置索引
    */
-  async add(key: string, index: number = 0) {
+  async add(key: string, index: number = (this.nodeParameter.activeAtomIndex + 1) || 0) {
     const addKeys = [key];
     // 如果是容器类的节点,开始和结束节点需要一起添加
     const endKey = LOOP_END_MAP[key]
@@ -359,8 +359,10 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     const existingVarNames = collectFlowVarNames(this.state.data)
 
     const processNodes = atomAbilityInfos
-      .map(it => normalizeAtomFormLists(it))
+      .map(it => mergeAtomFormToAtomMeta(it))
       .map(it => ({ ...it, outputList: generateOutItems(it.outputList, existingVarNames) }))
+      .map(it => this.validateAtom(it))
+      .map(it => this.executeDynamicScript(it))
       .map(it => this.convertAtomToProcessNode(it, true))
     const preNodeId = this.state.data[index - 1]?.id;
 
@@ -495,13 +497,14 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     const hasDifferent = this.state.data.some(it => ids.includes(it.id) && it.disabled === enable)
     if (!hasDifferent) return
 
-    this.state.data.forEach(it => {
-      if (ids.includes(it.id)) {
-        it.disabled = !enable
-      }
+    ids.forEach((_id) => {
+      const node = this.astParser.getNode(_id)
+      if (!node) return
+      node.raw.disabled = !enable
     })
 
     this.updateData()
+    this.updateState({ isDirty: true })
   }
 
   /**

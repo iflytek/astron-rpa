@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { isArray } from 'lodash-es'
 
-import type { FormItemProps } from './index'
+import type { FormItemProps, FormItemEmits } from './index'
 
 const props = defineProps<FormItemProps>()
+const emit = defineEmits<FormItemEmits>()
 
 const isMultiple = computed(() => props.item.formType.params?.multiple)
 
@@ -19,6 +20,10 @@ const selectValue = computed(() => {
 
   return props.item.value as string
 })
+
+function handleUpdateValue(value: any) {
+  emit('update', props.item.key, value)
+}
 </script>
 
 <template>
@@ -28,6 +33,7 @@ const selectValue = computed(() => {
     placeholder="请选择"
     class="bg-[#f3f3f7] dark:bg-[rgba(255,255,255,0.08)] text-[rgba(0,0,0,0.85)] dark:text-[rgba(255,255,255,0.85)] rounded-[8px]"
     style="width: 100%;"
+    @update:value="handleUpdateValue"
   >
     <a-select-option v-for="(op, index) in props.item.options" :key="index" :value="op?.label ? op.value : op.rId">
       <template v-if="op?.label">
