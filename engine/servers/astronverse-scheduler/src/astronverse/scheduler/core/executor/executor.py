@@ -255,7 +255,7 @@ class ExecutorManager:
         task_exec_id: str = "",  # 计划任务执行id
         run_param: str = "",  # 执行参数
         open_virtual_desk: bool = False,  # 虚拟桌面
-        version: str = "",  # 版本号
+        version: str = "0",  # 版本号
         is_send_log_event: bool = True,  # 是否需要发送日志事件
         is_custom_component: bool = False,  # 是否是自定义组件
     ):
@@ -353,8 +353,8 @@ class ExecutorManager:
             ins.set_param("is_custom_component", "y")
         if project_name:
             ins.set_param("project_name", quote(project_name))
-        if version:
-            ins.set_param("version", int(version))
+
+        ins.set_param("version", int(version))
         if self.svc.config and self.svc.config.conf_file:
             resource_dir = os.path.dirname(self.svc.config.conf_file)
             ins.set_param("resource_dir", quote(resource_dir))

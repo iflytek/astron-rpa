@@ -38,7 +38,7 @@ class ExecutorProject(BaseModel):
     hide_log_window: bool = False  # 是否隐藏日志框
     run_param: str = ""  # 执行器参数
     open_virtual_desk: bool = False  # 虚拟桌面
-    version: Union[int, str] = ""  # 机器人版本
+    version: Union[int, str] = "0"  # 机器人版本
     is_custom_component: bool = False  # 是否是自定义组件
 
 
