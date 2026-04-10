@@ -201,8 +201,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
+        data["robotVersion"] = int(version)
 
         return self.__http__("/api/robot/module/processModuleList", None, data)
 
@@ -278,8 +277,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
+        data["robotVersion"] = int(version)
 
         res = self.__http__("/api/robot/module/open", None, data)
         if res:
@@ -313,8 +311,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             params["mode"] = mode
-        if version:
-            params["robotVersion"] = int(version)
+        params["robotVersion"] = int(version)
 
         return self.__http__("/api/robot/global/all", params, None)
 
@@ -333,8 +330,7 @@ class HttpStorage(IStorage):
         }
         if mode:
             data["mode"] = mode
-        if version:
-            data["robotVersion"] = int(version)
+        data["robotVersion"] = int(version)
 
         return self.__http__("/api/robot/require/list", None, data)
 
