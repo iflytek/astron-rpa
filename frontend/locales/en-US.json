@@ -67,6 +67,7 @@
     "marketFull": "The current {{type}} is full",
     "contactOwner": "Please contact the {{type}} owner",
     "freeLimitReached": "Free invitation limit reached",
+    "marketJoinLimited": "Market join limit reached",
     "contactAdminUpgrade": "Please contact admin to upgrade",
     "market": "Market",
     "space": "Space",

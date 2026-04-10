@@ -87,6 +87,12 @@ const {
       :title="t('auth.freeLimitReached')"
       :desc="t('auth.contactAdminUpgrade')"
     />
+    <StatusCard
+      v-if="currentStatus === 'marketJoinLimited'"
+      :status="currentStatus"
+      :title="t('auth.marketJoinLimited')"
+      :desc="t('auth.contactAdminUpgrade')"
+    />
     <!-- 移动端点击遮罩层回到初始页面 -->
     <div
       v-if="currentStatus === 'needLogin' || currentStatus === 'showUserInfo'"
