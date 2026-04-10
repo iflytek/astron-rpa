@@ -84,6 +84,7 @@ class Flow:
         global_var = self._get_global_vars(project_id=project_id, mode=mode, version=version)
         requirement = self._get_requirements(project_id=project_id, mode=mode, version=version)
         project_info = self.svc.storage.project_info(project_id=project_id, mode=mode, version=version)
+        logger.info("project_info: {}".format(project_info))
         self.svc.add_project_info(
             project_id=project_id,
             mode=mode,

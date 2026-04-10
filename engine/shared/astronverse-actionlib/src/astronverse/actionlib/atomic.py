@@ -111,7 +111,7 @@ class AtomicManager:
 
     def atomic_run(self, func: Any, key: str, *args, **kwargs):
         base_kwargs = {k: v for k, v in kwargs.items() if not k.startswith("__")}
-        advance_kwargs = {k: v for k, v in kwargs.items() if k.startswith("__")}
+        advance_kwargs = {k: v for k, v in kwargs.items() if v is not None and k.startswith("__")}
 
         info = kwargs.get("__info__", [])
         if not info:

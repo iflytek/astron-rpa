@@ -130,9 +130,7 @@ class HttpStorage(Storage):
         }
         if mode:
             params["mode"] = mode
-        if version:
-            params["robotVersion"] = int(version)
-
+        params["robotVersion"] = int(version)
         res = self.__http__("/api/robot/element/detail", params, None)
         if not res:
             raise Exception("Failed to get element data for {}: empty response".format(element_id))
