@@ -88,8 +88,8 @@
   "shortcutKey": "快捷键",
   "pythonDeps": "Python 依赖",
   "apiKeyMg": "API keys",
-  "voucher": "凭证管理",
-  "voucherName": "凭证名称",
+  "voucher": "凭据管理",
+  "voucherName": "凭据名称",
   "about": "关于",
   "enterUserName": "请输入账号或手机号",
   "enterPassword": "请输入密码（6-20位）",
@@ -963,7 +963,7 @@
       "createVoucher": "添加凭据",
       "deleteVoucherConfirm": "删除后不可恢复，请确认？",
       "tips": "安全凭据存储库，对本机用户数据进行本地加密存储，支持在填写输入框原子能力中获取本地凭据进行填入",
-      "voucherNameExists": "凭证名称已存在"
+      "voucherNameExists": "凭据名称已存在"
     },
     "msgNotify": {
       "inputMailServer": "请输入发件箱服务器",

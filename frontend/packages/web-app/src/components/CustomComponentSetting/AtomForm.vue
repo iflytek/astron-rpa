@@ -19,10 +19,18 @@ const emit = defineEmits<{
 }>()
 
 const { i18next, t } = useTranslation()
-const isShowFormItem = inject<Ref<boolean>>('showAtomFormItem', ref(true))
 
 const activeKey = ref<number>(0)
 const atomTab = ref<RPA.Process.AtomTabs[]>([])
+
+const drawerFormValues = computed(() => {
+  const formItems = atomTab.value.flatMap(item => item.params).flatMap(i => i.formItems ?? [])
+  return formItems.reduce((acc, curr) => {
+    acc[curr.key] = curr.value
+    return acc
+  }, {} as Record<string, any>)
+})
+
 const formattedTabs = computed(() => atomTab.value.map((item, index) => ({
   title: item.name,
   value: index,
@@ -138,7 +146,7 @@ watch(() => alias.value, (newVal, oldVal) => {
         >
           <template v-if="item.key.startsWith('input')">
             <div class="group relative p-1.5 rounded-lg hover:bg-[#5D59FF]/[.35] [&_*]:cursor-pointer" @click="handleEdit(form)">
-              <AtomFormItem :atom-form-item="form" hide-required-tip disabled />
+              <AtomFormItem :atom-form-item="form" :form-values="drawerFormValues" hide-required-tip disabled />
               <rpa-icon
                 name="edit-outline"
                 size="20"
@@ -147,7 +155,7 @@ watch(() => alias.value, (newVal, oldVal) => {
             </div>
           </template>
           <template v-else>
-            <AtomFormItem :atom-form-item="form" hide-required-tip disabled />
+            <AtomFormItem :atom-form-item="form" :form-values="drawerFormValues" hide-required-tip disabled />
           </template>
         </template>
       </section>

@@ -227,7 +227,7 @@ export function getMarketComponentList(data: {
   appName?: string
   appType?: string
 }) {
-  return http.post('/api/robot/market-resource/get-all-app-list-for-component', data)
+  return http.post<RPA.MarketComponentGroupVo[]>('/api/robot/market-resource/get-all-app-list-for-component', data)
 }
 
 /**

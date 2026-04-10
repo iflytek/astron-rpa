@@ -69,7 +69,7 @@ const emptyText = computed(() => searchText.value ? t('configParameter.noSearchR
 
 const varTypeOptions = computed(() => {
   // 主进程和子进程可选择的类型不一样
-  if (isMainProcess && !isComponent) {
+  if (isMainProcess.value && !isComponent.value) {
     return getMainProcessParameterOption()
   }
 

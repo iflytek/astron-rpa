@@ -32,7 +32,7 @@
     "@ant-design/colors": "^7.2.1",
     "@guolao/vue-monaco-editor": "^1.5.4",
     "@progress/jszip-esm": "^1.0.4",
-    "@rpa/components": "file:",
+    "@rpa/components": "file:.",
     "@rpa/shared": "workspace:*",
     "@tiptap/extension-gapcursor": "^2.7.2",
     "@tiptap/extension-image": "^2.7.2",

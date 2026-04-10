@@ -71,9 +71,8 @@ async function handleOk() {
         />
       </a-form-item>
       <a-form-item :label="$t('password')" name="password" required>
-        <a-input
+        <a-input-password
           v-model:value="formState.password"
-          type="password"
           :placeholder="$t('common.enterPlaceholder', { name: $t('password') })"
         />
       </a-form-item>

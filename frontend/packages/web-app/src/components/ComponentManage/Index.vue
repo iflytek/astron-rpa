@@ -26,18 +26,14 @@ const selectedMarketId = ref<string>(ALL_MARKETS_KEY) // 选中的团队市场ID
 // 自建组件列表
 const { state: componentList, execute: executeCustom } = useAsyncState(() => getComponentManageList(props.robotId, props.robotVersion), [])
 
-// 团队市场列表 - 返回的是 List<IPage<AppInfoVo>>，每个 IPage 对应一个团队市场
-const { state: marketPages, execute: executeMarket } = useAsyncState(async () => {
+const { state: marketList, execute: executeMarket } = useAsyncState(async () => {
   const res = await getMarketComponentList({
     pageNo: 1,
     pageSize: 1000,
     appName: searchKeyword.value.trim() || undefined,
-    appType: 'component', // 组件类型
+    appType: 'component',
   })
-  if (Array.isArray(res.data)) {
-    return res.data as RPA.IPage<RPA.AppInfoVo>[]
-  }
-  return []
+  return Array.isArray(res.data) ? res.data : []
 }, [])
 
 // 将 AppInfoVo 转换为 ComponentManageItem 格式
@@ -59,21 +55,14 @@ function convertAppInfoToComponentManageItem(appInfo: RPA.AppInfoVo): RPA.Compon
 
 // 团队市场分组数据
 const marketGroups = computed(() => {
-  if (!Array.isArray(marketPages.value) || marketPages.value.length === 0) {
+  if (!marketList.value.length) {
     return []
   }
-  
-  return marketPages.value.map((page: RPA.IPage<RPA.AppInfoVo>, index: number) => {
-    const firstRecord = page.records?.[0]
-    const marketName = firstRecord?.marketName || `团队市场${index + 1}`
-    const marketId = firstRecord?.marketId || `market-${index}`
-    
-    return {
-      key: marketId,
-      name: marketName,
-      components: (page.records || []).map(convertAppInfoToComponentManageItem),
-    }
-  })
+  return marketList.value.map((row, index) => ({
+    key: row.marketId,
+    name: row.marketName,
+    components: (row.appPage?.records ?? []).map(convertAppInfoToComponentManageItem),
+  }))
 })
 
 // 初始化时保持选择"全部"

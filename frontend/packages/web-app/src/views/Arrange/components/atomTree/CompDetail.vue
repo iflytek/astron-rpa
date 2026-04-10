@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useAsyncState } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { getComponentForm, updateFlowNodesComponent } from '@/utils/customComponent'
 
@@ -9,11 +9,17 @@ import { getComponentDetail, removeComponent, removeMarketComponent, updateCompo
 const props = defineProps<{ robotId: string, robotVersion: number, componentId: string, }>()
 const emit = defineEmits(['refresh'])
 
-const { state, executeImmediate } = useAsyncState(() => getComponentDetail(props), null)
+const { state, executeImmediate } = useAsyncState(() => getComponentDetail(props), null, { immediate: false })
 
 const open = ref(false)
 const loading = ref(false)
 const isLatest = computed(() => state.value?.isLatest === 1)
+
+watch(open, (visible) => {
+  if (visible) {
+    executeImmediate()
+  }
+})
 
 function close() {
   open.value = false

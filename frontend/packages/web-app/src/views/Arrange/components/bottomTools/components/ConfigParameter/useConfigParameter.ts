@@ -22,7 +22,7 @@ const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() 
   const management = computed(() => processStore.canvasManager.activeTab?.configParameter)
 
   // 是组件且是主流程
-  const isMainProcess = computed(() => processStore.canvasManager.activeTab.state?.isMain)
+  const isMainProcess = computed(() => processStore.canvasManager.activeTab?.state?.isMain)
   const isComponent = computed(() => processStore.isComponent)
   const isComponentAndMainProcess = computed(() => isComponent.value && isMainProcess.value)
 
