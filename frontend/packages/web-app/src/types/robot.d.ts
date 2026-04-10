@@ -69,6 +69,13 @@ declare namespace RPA {
     pages: number
   }
 
+  interface MarketComponentGroupVo {
+    marketId: string
+    marketName: string
+    allowOperate?: number
+    appPage: IPage<AppInfoVo>
+  }
+
   /**
    * 数据表格
    */
