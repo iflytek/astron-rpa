@@ -4,10 +4,8 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { flatAtomicTree } from '@/utils/common'
-import { trackComponentUsageChange } from '@/utils/customComponent'
 
 import { getAtomsMeta, getComponentList, getFavoriteList, getModuleMeta } from '@/api/atom'
-import useUserSettingStore from '@/stores/useUserSetting.ts'
 import { querySubProcessQuote } from '@/views/Arrange/utils'
 import { useCanvasManagerStore } from '@/views/Arrange/canvasManager'
 

@@ -401,28 +401,34 @@ export function getUsedComponentKeySet() {
   return usedkeySet
 }
 
-export async function trackComponentUsageChange(operation: () => void | Promise<void>) {
-  const beforeUsedKeys = getUsedComponentKeySet()
-  await operation()
-  const afterUsedKeys = getUsedComponentKeySet()
+/** 根据画布前后自定义组件 key 集合差异，同步 addComponentUse / deleteComponentUse */
+export async function syncComponentUsageBetween(beforeUsedKeys: Set<string>, afterUsedKeys: Set<string>) {
   const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
   const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
+  const store = useProcessStore()
 
   for (const key of addedKeys) {
     await addComponentUse({
-      robotId: useProcessStore().project.id,
-      robotVersion: useProcessStore().project.version,
+      robotId: store.project.id,
+      robotVersion: store.project.version,
       componentId: getComponentId(key),
     })
   }
 
   for (const key of deletedKeys) {
     await deleteComponentUse({
-      robotId: useProcessStore().project.id,
-      robotVersion: useProcessStore().project.version,
+      robotId: store.project.id,
+      robotVersion: store.project.version,
       componentId: getComponentId(key),
     })
   }
+}
+
+export async function trackComponentUsageChange(operation: () => void | Promise<void>) {
+  const beforeUsedKeys = getUsedComponentKeySet()
+  await operation()
+  const afterUsedKeys = getUsedComponentKeySet()
+  await syncComponentUsageBetween(beforeUsedKeys, afterUsedKeys)
 }
 
 /**
