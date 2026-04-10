@@ -2,10 +2,14 @@
 import { computed } from 'vue'
 import { isArray } from 'lodash-es'
 
+import { useProcessSelectOptions } from '@/views/Arrange/components/flow/hooks/useProcessSelectOptions'
+
 import type { FormItemProps, FormItemEmits } from './index'
 
 const props = defineProps<FormItemProps>()
 const emit = defineEmits<FormItemEmits>()
+
+const options = computed(() => useProcessSelectOptions(props.item) ?? []) as Record<string, any>
 
 const isMultiple = computed(() => props.item.formType.params?.multiple)
 
@@ -35,7 +39,7 @@ function handleUpdateValue(value: any) {
     style="width: 100%;"
     @update:value="handleUpdateValue"
   >
-    <a-select-option v-for="(op, index) in props.item.options" :key="index" :value="op?.label ? op.value : op.rId">
+    <a-select-option v-for="(op, index) in options" :key="index" :value="op?.label ? op.value : op.rId">
       <template v-if="op?.label">
         {{ op.label }}
       </template>
