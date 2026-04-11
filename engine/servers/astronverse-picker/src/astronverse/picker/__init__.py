@@ -103,54 +103,6 @@ class DrawResult:
         return result
 
 
-class OperationResultStatus(Enum):
-    """业务操作结果状态"""
-
-    SUCCESS = "success"
-    ERROR = "error"
-    CANCEL = "cancel"
-
-
-class OperationResult(BaseModel):
-    """统一的操作结果模型"""
-
-    status: OperationResultStatus
-    data: Optional[Any] = None
-    message: Optional[str] = None
-
-    @classmethod
-    def success(cls, data: Any = None, message: str = None):
-        """创建成功响应"""
-        return cls(status=OperationResultStatus.SUCCESS, data=data, message=message)
-
-    @classmethod
-    def error(cls, message: str, data: Any = None):
-        """创建错误响应"""
-        return cls(status=OperationResultStatus.ERROR, message=message, data=data)
-
-    @classmethod
-    def cancel(cls, message: str = "操作已取消"):
-        """创建取消响应"""
-        return cls(status=OperationResultStatus.CANCEL, message=message)
-
-    def to_dict(self):
-        """转换为字典格式，兼容现有的_send_response函数"""
-        result = {}
-
-        if self.status == OperationResultStatus.SUCCESS:
-            result["success"] = True
-            if self.data is not None:
-                result["data"] = self.data
-        elif self.status == OperationResultStatus.CANCEL:
-            result["success"] = False
-            result["cancel"] = True
-        else:  # ERROR
-            result["success"] = False
-            result["error"] = self.message or "未知错误"
-
-        return result
-
-
 class PickerType(Enum):
     """拾取类型"""
 
@@ -159,38 +111,21 @@ class PickerType(Enum):
     POINT = "POINT"  # 鼠标位置拾取
     SIMILAR = "SIMILAR"  # 相识元素
     BATCH = "BATCH"  # 抓取
+    RECORD = "RECORD"  # 录制器
+    SMART_COMPONENT = "SMART_COMPONENT"  # 智能录制
 
 
 PICKER_TYPE_DICT = {p.value: True for p in PickerType}
 
 
-class SVCSign(Enum):
-    """定义键鼠监听启动方"""
+class PickerAction(Enum):
+    """拾取动作 - 专门处理拾取的子操作"""
 
-    PICKER = "PICKER"
-    SMARTCOMPONENT = "SMARTCOMPONENT"
-
-
-class MKSign(Enum):
-    """定义键鼠监听启动方"""
-
-    PICKER = "PICKER"
-    RECORD = "RECORD"  # 录制器专用
-
-
-class PickerSign(Enum):
-    """定义用户拾取传入的消息类型"""
-
-    START = "START"
-    STOP = "STOP"  # EXIT
-    VALIDATE = "VALIDATE"
-    DESIGNATE = "DESIGNATE"  # CV的作用
-    GAIN = "GAIN"  # 获取拾取结果
-    HIGHLIGHT = "HIGHLIGHT"  # 高亮,区别与校验
-
-    RECORD = "RECORD"  # 录制器专用
-
-    SMART_COMPONENT = "SMART_COMPONENT"
+    START = "START"          # 开始
+    STOP = "STOP"            # 结束
+    VALIDATE = "VALIDATE"    # 验证
+    GAIN = "GAIN"            # 数据抓取获取原始数据，类似验证
+    HIGHLIGHT = "HIGHLIGHT"  # 数据抓取验证表格高亮, 类似验证
 
 
 class RecordAction(Enum):
@@ -326,7 +261,6 @@ BROWSER_UIA_POINT_CLASS = {
     APP.IE.value: ("Internet Explorer_Server", "ClassName"),
     APP.Chromium.value: ("Chrome_RenderWidgetHostHWND", "ClassName"),
 }
-
 
 CHROME_LIKE_BROWSER_TYPES = [
     APP.Chrome.value,
