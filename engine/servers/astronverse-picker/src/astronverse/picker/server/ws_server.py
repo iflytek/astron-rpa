@@ -25,6 +25,8 @@ class WsServer:
         }
         self._picker_handler = None
         self._hl_handler = None
+        self._record_handler = None
+        self._smart_component_handler = None
 
     def _add(self, ws: ServerConnection) -> None:
         """新连接放入未识别池"""
@@ -57,6 +59,18 @@ class WsServer:
             self._hl_handler = HlHandler(self.connections)
         return self._hl_handler
 
+    def _import_record_handler(self):
+        if self._record_handler is None:
+            from astronverse.picker.server.handlers.record_handler import RecordHandler
+            self._record_handler = RecordHandler(self.svc)
+        return self._record_handler
+
+    def _import_smart_component_handler(self):
+        if self._smart_component_handler is None:
+            from astronverse.picker.server.handlers.smart_component_handler import SmartComponentHandler
+            self._smart_component_handler = SmartComponentHandler(self.svc)
+        return self._smart_component_handler
+
     @property
     def hl(self):
         return self._import_hl_handler()
@@ -85,10 +99,10 @@ class WsServer:
                         pick_type = data.get("pick_type", None)
                         if pick_type == PickerType.RECORD.value:
                             self._move(ws, "record")
-                            pass
+                            await self._import_record_handler().dispatch(ws_server=self, data=data)
                         elif pick_type == PickerType.SMART_COMPONENT.value:
                             self._move(ws, "smart_component")
-                            pass
+                            await self._import_smart_component_handler().dispatch(ws_server=self, data=data)
                         else:
                             self._move(ws, "picker")
                             await self._import_picker_handler().dispatch(ws_server=self, data=data)

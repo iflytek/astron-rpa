@@ -18,8 +18,10 @@ class PickerHandler:
         try:
             match request.pick_action:
                 case PickerAction.START:
+                    # todo 后续处理
                     pass
                 case PickerAction.STOP:
+                    # todo 后续处理
                     pass
                 case PickerAction.VALIDATE:
                     await self._handle_validate(request)
