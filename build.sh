@@ -328,7 +328,7 @@ else
 
     echo "Building desktop application..."
     if [[ "$(uname)" == "Darwin" ]]; then
-        BUILD_CMD="build:mac"
+        BUILD_CMD="build:darwin"
     else
         BUILD_CMD="build:linux"
     fi

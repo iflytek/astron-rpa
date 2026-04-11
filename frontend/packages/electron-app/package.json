@@ -21,7 +21,7 @@
     "build:unpack": "npm run build && electron-builder --config electron-builder-config.js --dir",
     "build:win": "npm run build && electron-builder --config electron-builder-config.js --win",
     "build:win32": "npm run build && electron-builder --config electron-builder-config.js --win --ia32",
-    "build:mac": "npm run build && electron-builder --config electron-builder-config.js --mac",
+    "build:darwin": "npm run build && electron-builder --config electron-builder-config.js --darwin",
     "build:linux": "npm run build && electron-builder --config electron-builder-config.js --linux",
     "build:sdk": "tsdown --config tsdown.config.mts",
     "build:web": "pnpm --filter @rpa/web-app run build && npm run copy:renderer",

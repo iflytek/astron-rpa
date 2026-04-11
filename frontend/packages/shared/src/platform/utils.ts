@@ -34,7 +34,7 @@ function hasFlag(flag: string) {
 
 function parsePlatformFromArgv() {
   if (hasFlag('--win')) return 'win32'
-  if (hasFlag('--mac')) return 'darwin'
+  if (hasFlag('--darwin')) return 'darwin'
   if (hasFlag('--linux')) return 'linux'
   return process.platform
 }
