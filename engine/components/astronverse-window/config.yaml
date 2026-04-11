@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Window.exist:
     title: IF窗口存在
@@ -15,6 +17,9 @@ atomic:
         title: 等待时间（秒）
         tip: 等待判断结果的时间
     outputList: []
+    path:
+      - /atomicTree/code/if
+      - /atomicTree/desktop/desktop.window
   Window.top:
     title: 置顶窗口
     comment: 置顶窗口对象@{pick}
@@ -25,6 +30,8 @@ atomic:
         title: 窗口拾取
         tip: 拾取需要置顶的窗口对象
     outputList: []
+    path:
+      - /atomicTree/desktop/desktop.window
   Window.close:
     title: 关闭窗口
     comment: 关闭窗口对象 @{pick}
@@ -35,6 +42,8 @@ atomic:
         title: 窗口拾取
         tip: 拾取需要关闭的窗口对象
     outputList: []
+    path:
+      - /atomicTree/desktop/desktop.window
   Window.set_size:
     title: 调整窗口大小
     comment: 按照 @{size_type} 方式调整窗口 @{pick} 大小
@@ -54,6 +63,8 @@ atomic:
         title: 窗口高度
         tip: 设置指定窗口高度值，单位为屏幕的分辨率像素px，一般为0-9999之间的数值
     outputList: []
+    path:
+      - /atomicTree/desktop/desktop.window
 options:
   WindowExistType:
     - value: exist

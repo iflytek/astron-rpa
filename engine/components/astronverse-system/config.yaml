@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   System.copy_clip:
     title: 复制到剪贴板
@@ -18,6 +20,8 @@ atomic:
         title: 待复制的文件夹路径
         tip: 输入或选择待复制文件夹
     outputList: []
+    path:
+      - /atomicTree/os/os.clipboard
   System.clear_clip:
     title: 清空剪贴板
     comment: 清空剪贴板中的内容
@@ -25,6 +29,8 @@ atomic:
     helpManual: 清空剪贴板中的内容
     inputList: []
     outputList: []
+    path:
+      - /atomicTree/os/os.clipboard
   System.paste_clip:
     title: 获取剪贴板
     comment: 获取剪贴板中的 @{content_type} ，并保存至变量 @{output_content}
@@ -50,6 +56,8 @@ atomic:
       - key: output_content
         title: 输出剪贴板内容至变量
         tip: 获取文本内容输出为文本变量，获取文件/文件夹输出为路径信息
+    path:
+      - /atomicTree/os/os.clipboard
   System.compress:
     title: 压缩
     comment: 压缩 @{file_type} 到指定目录 @{compress_dir} 中，并保存压缩包路径至 @{compress_path}
@@ -84,11 +92,11 @@ atomic:
       - key: compress_path
         title: 输出压缩后压缩包路径
         tip: ''
+    path:
+      - /atomicTree/os/os.zip
   System.uncompress:
     title: 解压
-    comment: >-
-      将压缩文件 @{source_path} 解压至指定目录 @{target_path} 下，并输出解压后文件所在路径
-      @{uncompress_path}
+    comment: 将压缩文件 @{source_path} 解压至指定目录 @{target_path} 下，并输出解压后文件所在路径 @{uncompress_path}
     icon: decompress
     helpManual: 将压缩文件解压至指定路径
     inputList:
@@ -111,6 +119,8 @@ atomic:
       - key: uncompress_path
         title: 输出解压后文件路径
         tip: ''
+    path:
+      - /atomicTree/os/os.zip
   File.file_exist:
     title: IF文件存在
     comment: 判断文件 @{file_path} 是否存在，存在就执行以下操作
@@ -124,6 +134,9 @@ atomic:
         title: 判断类型
         tip: 选择判断类型
     outputList: []
+    path:
+      - /atomicTree/code/if
+      - /atomicTree/os/os.file
   File.file_create:
     title: 创建文件
     comment: 在指定目录 @{dst_path} 下创建文件 @{file_name} ，并保存创建文件路径到 @{new_file_path}
@@ -138,12 +151,13 @@ atomic:
         tip: 输入文件名称及扩展名
       - key: exist_options
         title: 文件存在时
-        tip: >-
-          选择创建文件已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1).txt，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件并重新创建；跳过:返回当前已存在文件路径
+        tip: 选择创建文件已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1).txt，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件并重新创建；跳过:返回当前已存在文件路径
     outputList:
       - key: new_file_path
         title: 创建文件路径
         tip: 输出创建文件路径，并保存到变量中，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.file_delete:
     title: 删除文件
     comment: 删除文件 @{file_path} ，并将结果输出至变量 @{delete_file_result}
@@ -160,6 +174,8 @@ atomic:
       - key: delete_file_result
         title: 输出删除结果至
         tip: 将文件删除结果保存至变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.file
   File.file_copy:
     title: 复制文件
     comment: 复制文件 @{file_path} 到指定目录 @{target_path} 下，并保存复制后的文件路径 @{copy_file_path}
@@ -180,13 +196,14 @@ atomic:
         tip: 指定复制后文件名，无需输入文件扩展名，为空默认使用原文件名称
       - key: copy_options
         title: 文件存在时
-        tip: >-
-          选择指定目录下文件已存在时的操作； 生成副本:将在文件名称后增加数字标识，如a(1).txt，如果副本文件同样存在，则数字递增；
-          覆盖:删除已存在文件并重新创建； 跳过:返回当前已存在文件路径
+        tip: 选择指定目录下文件已存在时的操作； 生成副本:将在文件名称后增加数字标识，如a(1).txt，如果副本文件同样存在，则数字递增； 覆盖:删除已存在文件并重新创建；
+          跳过:返回当前已存在文件路径
     outputList:
       - key: copy_file_path
         title: 复制后文件路径
         tip: 输出复制后文件路径，并保存至变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.file_write:
     title: 写入文件
     comment: 写入内容 @{msg} 到文件 @{file_path} 中，并保存写入后的文件路径 @{write_file_path}
@@ -212,6 +229,8 @@ atomic:
       - key: write_file_path
         title: 文件路径
         tip: 输出写入后文件路径至变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.get_file_encoding_type:
     title: 获取文件编码类型
     comment: 获取文件 @{file_path} 的编码类型并保存至变量 @{file_encoding_type}
@@ -225,6 +244,8 @@ atomic:
       - key: file_encoding_type
         title: 文件编码类型
         tip: 输出文件编码类型至变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.file_read:
     title: 读取文件
     comment: 按照 @{read_type} 方式读取文件 @{file_path} 中的内容，并保存至变量 @{read_file_content}
@@ -233,9 +254,7 @@ atomic:
     inputList:
       - key: file_path
         title: 待读取文件路径
-        tip: >-
-          选择或输入待读取文件路径， 支持读取的文件类型有：".txt"， ".docx"， ".md"， ".py"， ".json"，
-          ".csv"
+        tip: 选择或输入待读取文件路径， 支持读取的文件类型有：".txt"， ".docx"， ".md"， ".py"， ".json"， ".csv"
       - key: read_type
         title: 读取方式
         tip: 选择读取方式，全部读取:读取全部内容； 按行读取:按行读取文本内容； 二进制:以二进制方式读取文件内容
@@ -246,6 +265,8 @@ atomic:
       - key: read_file_content
         title: 读取内容为
         tip: 输出读取内容至变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.file_move:
     title: 移动文件
     comment: 将文件 @{file_path} 移动至指定目录 @{target_folder} 下，并保存移动后的文件路径 @{move_file_path}
@@ -271,6 +292,8 @@ atomic:
       - key: move_file_path
         title: 移动后文件路径
         tip: 输出移动后文件路径至变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.file_rename:
     title: 重命名文件
     comment: 将文件 @{file_path} 重命名为 @{new_name} 并保存重命名后的文件路径 @{rename_file_path}
@@ -290,11 +313,11 @@ atomic:
       - key: rename_file_path
         title: 重命名后文件路径
         tip: 输出重命名后文件路径至变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.file_search:
     title: 查找文件
-    comment: >-
-      在 @{folder_path} 目录中查找文件名包含 @{search_pattern} 的文件，并保存匹配文件路径至变量
-      @{find_file_result}
+    comment: 在 @{folder_path} 目录中查找文件名包含 @{search_pattern} 的文件，并保存匹配文件路径至变量 @{find_file_result}
     icon: find-file
     helpManual: 在指定目录中查找文件名包含指定内容的文件，并输出文件列表至变量
     inputList:
@@ -314,6 +337,8 @@ atomic:
       - key: find_file_result
         title: 保存查找结果至
         tip: 输出匹配文件路径列表，并保存到变量，数据类型为列表
+    path:
+      - /atomicTree/os/os.file
   File.file_wait_status:
     title: 等待文件
     comment: 等待文件 @{file_path} 状态为 @{status_type} 时执行下一步，保存等待结果到 @{wait_file_result}
@@ -333,6 +358,8 @@ atomic:
       - key: wait_file_result
         title: 保存等待结果至
         tip: 输出等待结果至变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.file
   File.file_info:
     title: 获取文件信息
     comment: 获取指定文件 @{file_path} 的 @{info_type} 信息，并保存文件信息至变量 @{file_info}
@@ -349,6 +376,8 @@ atomic:
       - key: file_info
         title: 文件信息为
         tip: 输出文件信息至变量，获取全部信息时数据类型为字典，获取其他信息时数据类型为字符串
+    path:
+      - /atomicTree/os/os.file
   File.get_file_list:
     title: 获取文件列表
     comment: 获取指定目录 @{folder_path} 中的文件列表，并保存文件列表至变量 @{file_list}
@@ -386,6 +415,8 @@ atomic:
       - key: file_list
         title: 获取文件列表为
         tip: 输出获取到的文件列表到变量，数据类型为列表
+    path:
+      - /atomicTree/os/os.file
   Folder.folder_exist:
     title: IF文件夹存在
     comment: 判断文件夹 @{folder_path}  @{exist_type}，存在就执行以下操作
@@ -399,6 +430,9 @@ atomic:
         title: 判断类型
         tip: 设置判断类型
     outputList: []
+    path:
+      - /atomicTree/code/if
+      - /atomicTree/os/os.path
   Folder.folder_open:
     title: 打开文件夹
     comment: 打开指定文件夹 @{folder_path}
@@ -409,6 +443,8 @@ atomic:
         title: 文件夹路径
         tip: 选择或输入文件夹路径
     outputList: []
+    path:
+      - /atomicTree/os/os.path
   Folder.folder_create:
     title: 创建文件夹
     comment: 在指定目录 @{target_path} 创建文件夹 @{folder_name} ，并保存新文件夹路径至变量 @{new_folder_path}
@@ -423,12 +459,13 @@ atomic:
         tip: 输入创建文件夹名称
       - key: exist_options
         title: 文件夹存在时
-        tip: >-
-          选择创建文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件夹并重新创建；跳过:返回当前已存在文件夹路径
+        tip: 选择创建文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件同样存在，则数字递增；覆盖:删除已存在文件夹并重新创建；跳过:返回当前已存在文件夹路径
     outputList:
       - key: new_folder_path
         title: 创建文件夹路径
         tip: 保存创建的文件夹路径到输出变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.path
   Folder.folder_delete:
     title: 删除文件夹
     comment: 删除文件夹 @{folder_path} ，并将结果输出至变量 @{delete_folder_result}
@@ -445,11 +482,11 @@ atomic:
       - key: delete_folder_result
         title: 删除文件夹结果
         tip: 保存删除文件夹的结果到输出变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.path
   Folder.folder_copy:
     title: 复制文件夹
-    comment: >-
-      将文件夹 @{source_path} 复制到指定目录 @{target_path} 下，并保存复制后的文件夹路径至变量
-      @{copy_folder_path}
+    comment: 将文件夹 @{source_path} 复制到指定目录 @{target_path} 下，并保存复制后的文件夹路径至变量 @{copy_folder_path}
     icon: copy-folder
     helpManual: 复制文件夹到指定目录，并保存复制后的文件夹路径到输出变量
     inputList:
@@ -467,17 +504,16 @@ atomic:
         tip: 默认为空，使用源文件夹名称
       - key: exist_options
         title: 文件夹存在时
-        tip: >-
-          选择文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件夹同样存在，则数字递增；覆盖:删除已存在文件夹；跳过:返回当前已存在文件路径
+        tip: 选择文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件夹同样存在，则数字递增；覆盖:删除已存在文件夹；跳过:返回当前已存在文件路径
     outputList:
       - key: copy_folder_path
         title: 复制后文件夹路径
         tip: 保存复制后的文件夹路径到输出变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.path
   Folder.folder_move:
     title: 移动文件夹
-    comment: >-
-      移动文件夹 @{folder_path} 到指定目录 @{target_folder} 下，并保存移动后的文件夹路径至变量
-      @{move_folder_path}
+    comment: 移动文件夹 @{folder_path} 到指定目录 @{target_folder} 下，并保存移动后的文件夹路径至变量 @{move_folder_path}
     icon: move-folder
     helpManual: 移动文件夹到指定目录，并保存移动后的文件夹路径到输出变量
     inputList:
@@ -495,17 +531,16 @@ atomic:
         tip: 默认为空，使用原文件夹名称
       - key: exist_options
         title: 文件夹存在时
-        tip: >-
-          选择文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件夹同样存在，则数字递增；覆盖:删除已存在文件夹；跳过:返回当前已存在文件路径
+        tip: 选择文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件夹同样存在，则数字递增；覆盖:删除已存在文件夹；跳过:返回当前已存在文件路径
     outputList:
       - key: move_folder_path
         title: 移动后文件夹路径
         tip: 保存移动后文件夹路径至输出变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.path
   Folder.folder_rename:
     title: 重命名文件夹
-    comment: >-
-      重命名文件夹 @{folder_path} 为 @{new_name} ，并保存重命名后的文件夹路径至变量
-      @{rename_folder_path}
+    comment: 重命名文件夹 @{folder_path} 为 @{new_name} ，并保存重命名后的文件夹路径至变量 @{rename_folder_path}
     icon: rename-folder
     helpManual: 重命名文件夹，并保存重命名后的文件夹路径到输出变量
     inputList:
@@ -517,12 +552,13 @@ atomic:
         tip: 输入新文件夹名称
       - key: exist_options
         title: 文件夹存在时
-        tip: >-
-          选择文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件夹同样存在，则数字递增；覆盖:删除已存在文件夹；跳过:返回当前已存在文件路径
+        tip: 选择文件夹已存在时的操作；生成副本:将在文件名称后增加数字标识，如a(1)，如果副本文件夹同样存在，则数字递增；覆盖:删除已存在文件夹；跳过:返回当前已存在文件路径
     outputList:
       - key: rename_folder_path
         title: 重命名文件夹路径
         tip: 保存重命名后文件夹路径到输出变量，数据类型为字符串
+    path:
+      - /atomicTree/os/os.path
   Folder.folder_clear:
     title: 清空文件夹
     comment: 清空文件夹 @{folder_path} ，并保存清空结果到变量 @{clear_folder_result}
@@ -536,6 +572,8 @@ atomic:
       - key: clear_folder_result
         title: 清空操作结果
         tip: 保存清空结果到输出变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.path
   Folder.get_folder_list:
     title: 获取文件夹列表
     comment: 获取指定目录 @{folder_path} 下的文件夹列表，并保存文件夹列表至变量 @{folder_list}
@@ -570,6 +608,8 @@ atomic:
       - key: folder_list
         title: 文件夹列表
         tip: 保存获取的文件夹列表到输出变量，数据类型为列表
+    path:
+      - /atomicTree/os/os.path
   System.run_command:
     title: 运行或打开
     comment: 运行或打开 @{command} ，并将执行结果保存到输出变量 @{process_out}
@@ -598,6 +638,8 @@ atomic:
       - key: process_out
         title: 保存执行结果至
         tip: 输出cmd命令的执行结果并保存至变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.system
   System.get_pid:
     title: 获取进程PID
     comment: 获取与输入 @{process_name} 匹配的进程PID，并保存至输出变量 @{match_proces_pid}
@@ -617,6 +659,8 @@ atomic:
       - key: match_proces_pid
         title: 输出匹配进程PID至
         tip: 当获取全部匹配PID时输出为列表，获取单个匹配PID时输出为整型
+    path:
+      - /atomicTree/os/os.system
   System.terminate_process:
     title: 终止进程
     comment: 终止指定 @{termination_type} 的进程，并保存执行结果至输出变量 @{termination_process}
@@ -639,6 +683,8 @@ atomic:
       - key: termination_process
         title: 保存执行结果至
         tip: 输出执行结果并保存到变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.system
   System.screen_shot:
     title: 屏幕截图
     comment: 按 @{screen_type} 方式截图并保存到 @{png_path} ，输出图片保存路径 @{screenshot_path}
@@ -673,44 +719,48 @@ atomic:
       - key: screenshot_path
         title: 截图保存路径
         tip: ''
-  System.screen_lock:
-    title: 屏幕锁定
-    comment: 系统屏幕锁屏，并将操作结果输出至变量 @{screen_lock_result}
-    icon: screen-lock
-    helpManual: 系统屏幕锁屏
-    inputList: []
-    outputList:
-      - key: screen_lock_result
-        title: 锁屏执行结果
-        tip: 输出锁屏操作的执行结果并保存至变量，变量类型为布尔值
-  System.screen_unlock:
-    title: 屏幕解锁
-    comment: >-
-      通过用户名 @{user_name} 和 @{pwd_type}  @{password_text||password_rsa}
-      进行系统屏幕解锁，并将操作结果输出至变量 @{screen_unlock_result}
-    icon: screen-unlock
-    helpManual: 输入用户名和密码进行系统屏幕解锁
-    inputList:
-      - key: user_name
-        title: 用户名
-        tip: 待解锁屏幕用户名
-      - key: pwd_type
-        title: 解锁类型
-        tip: 待解锁屏幕解锁类型
-      - key: password_text
-        title: 密码
-        tip: 待解锁屏幕解锁密码
-      - key: password_rsa
-        title: 密钥
-        tip: 待解锁屏幕解锁密钥
-    outputList:
-      - key: screen_unlock_result
-        title: 执行结果
-        tip: 输出屏幕解锁的执行结果并保存至变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.screenshot
+  # System.screen_lock:
+  #   title: 屏幕锁定
+  #   comment: 系统屏幕锁屏，并将操作结果输出至变量 @{screen_lock_result}
+  #   icon: screen-lock
+  #   helpManual: 系统屏幕锁屏
+  #   inputList: []
+  #   outputList:
+  #     - key: screen_lock_result
+  #       title: 锁屏执行结果
+  #       tip: 输出锁屏操作的执行结果并保存至变量，变量类型为布尔值
+  #   path:
+  #     - /atomicTree/os/os.screen_lock
+  # System.screen_unlock:
+  #   title: 屏幕解锁
+  #   comment: 通过用户名 @{user_name} 和 @{pwd_type}  @{password_text||password_rsa} 进行系统屏幕解锁，并将操作结果输出至变量
+  #     @{screen_unlock_result}
+  #   icon: screen-unlock
+  #   helpManual: 输入用户名和密码进行系统屏幕解锁
+  #   inputList:
+  #     - key: user_name
+  #       title: 用户名
+  #       tip: 待解锁屏幕用户名
+  #     - key: pwd_type
+  #       title: 解锁类型
+  #       tip: 待解锁屏幕解锁类型
+  #     - key: password_text
+  #       title: 密码
+  #       tip: 待解锁屏幕解锁密码
+  #     - key: password_rsa
+  #       title: 密钥
+  #       tip: 待解锁屏幕解锁密钥
+  #   outputList:
+  #     - key: screen_unlock_result
+  #       title: 执行结果
+  #       tip: 输出屏幕解锁的执行结果并保存至变量，数据类型为布尔值
+  #   path:
+  #     - /atomicTree/os/os.screen_lock
   System.printer:
     title: 打印机打印
-    comment: >-
-      使用打印机 @{printer_name} 打印指定文件 @{file_path||folder_path} ，并保存执行结果至输出变量
+    comment: 使用打印机 @{printer_name} 打印指定文件 @{file_path||folder_path} ，并保存执行结果至输出变量
       @{printer_status}
     icon: printer-print
     helpManual: 连接指定打印机进行文档打印
@@ -779,6 +829,8 @@ atomic:
       - key: printer_status
         title: 打印结果
         tip: 保存打印结果到输出变量，数据类型为布尔值
+    path:
+      - /atomicTree/os/os.printer
 options:
   ContentType:
     - value: msg

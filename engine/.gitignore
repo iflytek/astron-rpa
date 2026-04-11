@@ -32,3 +32,9 @@ build
 python313
 log.txt
 temp_*.json
+.shiftengine/*
+astron
+rpaexternal
+components/*/meta.json
+temp_*.py
+

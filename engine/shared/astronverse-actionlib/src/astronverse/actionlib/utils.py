@@ -81,7 +81,7 @@ def gen_type(__annotation__):
         # typing.Optional|Union|Any
         types = "Any"
         kind = InspectType.TYPING
-        logger.warning("type not support: {}".format(__annotation__))
+        # logger.warning("type not support: {}".format(__annotation__))
     elif issubclass(__annotation__, Enum):
         # Enum类型
         types = __annotation__.__name__ if getattr(__annotation__, "__name__", "_empty") != "_empty" else None
@@ -94,7 +94,7 @@ def gen_type(__annotation__):
         # 其他类型
         types = "Any"
         kind = InspectType.OTHER
-        logger.warning("type not support: {}".format(__annotation__))
+        # logger.warning("type not support: {}".format(__annotation__))
     return types, kind
 
 

@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Email.send_email:
     title: 发送邮件
@@ -51,6 +53,8 @@ atomic:
         title: 智能填充表
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/network/email
   Email.receive_email:
     title: 接收邮件
     comment: 从邮箱 @{user_mail} 接收邮件信息
@@ -106,6 +110,8 @@ atomic:
       - key: mail_list
         title: 保存邮件列表
         tip: 指定一个变量名称，将返回的邮件列表存储至该变量
+    path:
+      - /atomicTree/network/email
 options:
   Bool:
     - value: true

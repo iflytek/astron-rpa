@@ -1,5 +1,6 @@
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.actionlib.tree import treeMg
 from astronverse.baseline.config.config import load_config
 from astronverse.network.ftp import FTP
 from astronverse.network.network import Network
@@ -15,3 +16,7 @@ if __name__ == "__main__":
     atomicMg.register(FTP, group_key="Network", version=get_version())
     atomicMg.register(Network, group_key="Network", version=get_version())
     atomicMg.meta()
+
+    treeMg.load_node_config_from_frame_json("../../../resources/meta/tree_frame.json")
+    treeMg.build_from_meta_and_config("meta.json", "config.yaml")
+    treeMg.meta("tree.json")

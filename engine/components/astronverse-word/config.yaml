@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Docx.open_docx:
     title: 打开Word
@@ -33,6 +35,8 @@ atomic:
       - key: doc_obj
         title: Word对象
         tip: 返回Word对象，用于后续操作
+    path:
+      - /atomicTree/document/document.Word
   Docx.read_docx:
     title: 读取Word内容
     comment: 读取Word对象 @{doc} 内容，返回文档内容 @{doc_data}
@@ -49,10 +53,11 @@ atomic:
       - key: doc_data
         title: 文档内容
         tip: 返回读取的文档内容，格式为字符串
+    path:
+      - /atomicTree/document/document.Word
   Docx.create_docx:
     title: 创建Word
-    comment: >-
-      创建Word，保存到路径为 @{file_path} 的位置，文件名为 @{file_name} ，返回Word对象 @{doc_obj}
+    comment: 创建Word，保存到路径为 @{file_path} 的位置，文件名为 @{file_name} ，返回Word对象 @{doc_obj}
       和保存路径 @{doc_create_path}
     icon: word-new-document
     helpManual: ''
@@ -79,6 +84,8 @@ atomic:
       - key: doc_create_path
         title: 文档保存路径
         tip: 保存的Word的完整路径
+    path:
+      - /atomicTree/document/document.Word
   Docx.save_docx:
     title: 保存Word
     comment: 保存Word对象 @{doc} ，保存方式为 @{save_type}, 并输出保存路径 @{save_file_path}
@@ -107,6 +114,8 @@ atomic:
       - key: save_file_path
         title: 保存路径
         tip: 保存的Word的完整路径
+    path:
+      - /atomicTree/document/document.Word
   Docx.close_docx:
     title: 关闭Word
     comment: 关闭Word对象 @{doc}
@@ -135,6 +144,8 @@ atomic:
         title: 是否结束Word或WPS进程
         tip: 选择是否结束Word或WPS进程
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.insert_docx:
     title: 插入文本到Word
     comment: 向Word对象 @{doc} 插入文本 @{text}
@@ -175,6 +186,8 @@ atomic:
         title: 字体颜色
         tip: 选择字体颜色
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.select_text:
     title: 选择Word文本
     comment: 从Word对象 @{doc} 中选择文本
@@ -200,6 +213,8 @@ atomic:
         title: 结束行号
         tip: 输入结束行号
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.get_cursor_position:
     title: 定位Word光标
     comment: 在Word对象 @{doc} 中定位光标位置
@@ -228,6 +243,8 @@ atomic:
         title: 行号
         tip: 选择定位的行号
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.move_cursor:
     title: 移动Word光标
     comment: 在Word对象 @{doc} 中移动光标
@@ -253,6 +270,8 @@ atomic:
         title: 是否按下Shift
         tip: 选择是否按下Shift
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.insert_sep:
     title: Word插入页/段落
     comment: 在Word对象 @{doc} 中插入页/段落
@@ -266,6 +285,8 @@ atomic:
         title: 插入类型
         tip: 选择页、段落
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.insert_hyperlink:
     title: Word插入超链接
     comment: 在Word对象 @{doc} 中插入超链接
@@ -282,6 +303,8 @@ atomic:
         title: 显示文本
         tip: 输入要显示的文本
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.insert_img:
     title: Word插入图片
     comment: 在Word对象 @{doc} 中，从路径 @{img_path} 或剪贴板插入图片
@@ -304,6 +327,8 @@ atomic:
         title: 是否换行
         tip: 选择插入前是否换行
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.read_table:
     title: Word读取表格
     comment: 在Word对象 @{doc} 中，读取表格内容并返回表格数据对象 @{table_content}
@@ -326,6 +351,8 @@ atomic:
       - key: table_content
         title: 表格内容
         tip: ''
+    path:
+      - /atomicTree/document/document.Word
   Docx.insert_table:
     title: Word插入表格
     comment: 在Word对象 @{doc} 中，插入表格内容
@@ -375,6 +402,8 @@ atomic:
         title: 在新的一行插入
         tip: 选择是否在新的一行插入
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.delete:
     title: Word删除内容
     comment: 在Word对象 @{doc} 中，删除内容
@@ -409,6 +438,8 @@ atomic:
         title: 结束字符
         tip: 输入结束字符
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.replace:
     title: Word替换内容
     comment: 在Word对象 @{doc} 中，查找内容并替换
@@ -437,6 +468,8 @@ atomic:
         title: 大小写忽略
         tip: 选择是否大小写忽略
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.create_comment:
     title: Word创建批注
     comment: 在Word对象 @{doc} 中，创建批注
@@ -471,6 +504,8 @@ atomic:
         title: 序号
         tip: 选择批注内容的序号
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.delete_comment:
     title: Word删除批注
     comment: 在Word对象 @{doc} 中，删除指定批注
@@ -487,6 +522,8 @@ atomic:
         title: 批注序号
         tip: 输入要删除批注的序号
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
   Docx.convert_format:
     title: Word导出为PDF/TXT
     comment: 在Word对象 @{doc} 中，导出指定内容为PDF或TXT文件
@@ -521,6 +558,8 @@ atomic:
         title: 重名保存方式
         tip: 选择存在重名文件时报错、覆盖、自动重命名
     outputList: []
+    path:
+      - /atomicTree/document/document.Word
 options:
   ApplicationType:
     - value: Word

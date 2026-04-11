@@ -4,6 +4,8 @@ atomic:
     comment: 调用Dify工作流 @{app_token} ，完成您指定的任务
     icon: call-dify-workflow
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/ai_workflow
     inputList:
       - key: user
         title: 用户名
@@ -39,6 +41,8 @@ atomic:
     comment: 调用Dify对话流 @{app_token} ，完成您指定的任务
     icon: call-dify-workflow
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/ai_workflow
     inputList:
       - key: user
         title: 用户名
@@ -77,6 +81,8 @@ atomic:
     comment: 调用星辰Agent流程 @{flow_id} ，完成您指定的任务
     icon: call-dify-workflow
     helpManual: ''
+    path:
+      - /ai/ai_workflow
     inputList:
       - key: api_key
         title: API Key
@@ -112,6 +118,8 @@ atomic:
     comment: 根据您的配置获取星辰Agent流程，完成您指定的任务。
     icon: call-dify-workflow
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/ai_workflow
     inputList:
       - key: astron_workflow
         title: 星辰Agent流程配置
@@ -126,6 +134,8 @@ atomic:
     comment: 大模型将扮演角色，并进行最多 @{max_turns} 轮问答
     icon: multi-chat
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: is_save
         title: 保存会话
@@ -152,6 +162,8 @@ atomic:
     comment: 大模型将读取位于 @{file_path} 的文件进行知识问答
     icon: knowledge-qa
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: file_path
         title: 文件路径
@@ -172,6 +184,8 @@ atomic:
     comment: 大模型将根据提示词 @{prompt} 进行回答
     icon: single-chat
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -192,6 +206,8 @@ atomic:
     comment: 提取合同 @{contract_content} 中的要素
     icon: contract-element-extraction
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/business_ai
     inputList:
       - key: contract_type
         title: 输入合同方式
@@ -221,6 +237,8 @@ atomic:
     comment: 大模型将根据您给定的主题 @{theme} 和提示词 @{prompt} 进行扩写
     icon: topic-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -241,6 +259,8 @@ atomic:
     comment: 大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行扩写
     icon: paragraph-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -261,6 +281,8 @@ atomic:
     comment: 大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行缩写
     icon: paragraph-abbreviate
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -281,6 +303,8 @@ atomic:
     comment: 自动整理笔记内容，支持文本和思维导图两种输出形式
     icon: topic-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -316,6 +340,8 @@ atomic:
     comment: 根据提示词 @{prompt} 对文档内容进行智能总结
     icon: topic-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -342,6 +368,8 @@ atomic:
     comment: 根据提示词 @{prompt} 对文档内容进行深度分析
     icon: topic-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -368,6 +396,8 @@ atomic:
     comment: 根据提示词 @{prompt} 对文档内容进行润色优化
     icon: topic-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: model_select
         title: 模型选择
@@ -394,6 +424,8 @@ atomic:
     comment: 对文档进行智能结构化解析与自动排版美化
     icon: topic-expand
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/llm_capability
     inputList:
       - key: input_mode
         title: 输入方式
@@ -422,6 +454,8 @@ atomic:
     comment: 根据提示词 @{prompt} 生成高质量图像
     icon: image-generation
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/image
     inputList:
       - key: model_select
         title: 模型选择
@@ -450,6 +484,8 @@ atomic:
     comment: 对图片 @{image_path} 进行深度视觉理解与分析
     icon: image-understanding
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/image
     inputList:
       - key: model_select
         title: 模型选择
@@ -470,6 +506,8 @@ atomic:
     comment: 根据职位描述 @{job_description} 生成关键词
     icon: job-keyword-generation
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/business_ai
     inputList:
       - key: job_name
         title: 职位名称
@@ -493,6 +531,8 @@ atomic:
     comment: 根据简历 @{resume_content} 评分
     icon: resume-scoring
     helpManual: ''
+    path:
+      - /atomicTreeExtend/ai/business_ai
     inputList:
       - key: job_name
         title: 职位名称
@@ -612,22 +652,22 @@ options:
     - value: xopdeepseekocr
       label: DeepSeek_OCR
   AspectRatio:
-    - value: "1:1"
-      label: "1:1"
-    - value: "3:4"
-      label: "3:4"
-    - value: "4:3"
-      label: "4:3"
-    - value: "4:7"
-      label: "4:7"
-    - value: "7:4"
-      label: "7:4"
-    - value: "9:16"
-      label: "9:16"
-    - value: "16:9"
-      label: "16:9"
+    - value: '1:1'
+      label: '1:1'
+    - value: '3:4'
+      label: '3:4'
+    - value: '4:3'
+      label: '4:3'
+    - value: '4:7'
+      label: '4:7'
+    - value: '7:4'
+      label: '7:4'
+    - value: '9:16'
+      label: '9:16'
+    - value: '16:9'
+      label: '16:9'
   ImageSize:
-    - value: "1024p"
-      label: "1024p"
-    - value: "720p"
-      label: "720p"
+    - value: 1024p
+      label: 1024p
+    - value: 720p
+      label: 720p

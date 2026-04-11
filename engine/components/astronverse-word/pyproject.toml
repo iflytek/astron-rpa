@@ -22,3 +22,6 @@ packages = ["src/astronverse"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+
+"meta_type.json" = "meta_type.json"

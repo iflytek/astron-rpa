@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   CV.cv_click:
     title: 点击图像
@@ -36,6 +38,8 @@ atomic:
         title: 等待图像出现时间(秒)
         tip: 超过该时间停止等待，默认为10秒
     outputList: []
+    path:
+      - /atomicTree/cv
   CV.hover_image:
     title: 鼠标悬停在图像上
     comment: 鼠标悬停在图像@{input_data}的@{click_position}
@@ -67,6 +71,8 @@ atomic:
         title: 等待图像出现时间(秒)
         tip: 超过该时间停止等待，默认为10秒
     outputList: []
+    path:
+      - /atomicTree/cv
   CV.is_image_exist:
     title: IF图像存在
     comment: 判断图像@{input_data}在当前界面@{exist_type}
@@ -83,6 +89,9 @@ atomic:
         title: 等待图像时间(秒)
         tip: 超过该时间停止等待，默认为10秒
     outputList: []
+    path:
+      - /atomicTree/code/if
+      - /atomicTree/cv
   CV.wait_image:
     title: 等待图像
     comment: 等待图像 @{input_data} @{wait_type}
@@ -102,6 +111,8 @@ atomic:
       - key: image_wait_result
         title: 等待结果
         tip: 目标图像是否出现/消失，在等待时间内出现/消失为true，反之为false
+    path:
+      - /atomicTree/cv
   CV.image_input:
     title: 图像输入框输入
     comment: 拾取图像输入框@{input_data}以@{input_type}输入@{input_content}
@@ -127,6 +138,8 @@ atomic:
         title: 等待图像出现时间(秒)
         tip: 超过该时间停止等待，默认为10秒
     outputList: []
+    path:
+      - /atomicTree/cv
 options:
   BtnType:
     - value: left

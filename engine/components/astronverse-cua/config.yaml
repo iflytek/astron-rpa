@@ -1,38 +1,49 @@
+# @format
+
 atomic:
-  ComputerUse.run:
-    title: 计算机使用代理
-    comment: 使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
-    notices: ai_notices
-    debugButton: ai_debug
-    icon: computer-use
-    helpManual: |
-      使用说明：
-      1. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
-      2. Agent会自动循环执行直到任务完成或达到最大步数
-      3. 所有截图会保存在指定目录，可用于调试和验证
-    inputList:
-      - key: instruction
-        title: 用户指令
-        tip: 描述要执行的GUI自动化任务，例如"打开计算器并计算123+456"
-      - key: max_steps
-        title: 最大执行步数
-        tip: 任务执行的最大步数限制，防止无限循环
-    outputList:
-      - key: computer_use_res
-        title: 执行结果
-        subTitle: AI生成
-        tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
+  # ComputerUse.run:
+  #   title: 计算机使用代理
+  #   comment: 使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
+  #   icon: computer-use
+  #   helpManual: '使用说明：
+
+  #     1. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
+
+  #     2. Agent会自动循环执行直到任务完成或达到最大步数
+
+  #     3. 所有截图会保存在指定目录，可用于调试和验证
+
+  #     '
+  #   inputList:
+  #   - key: instruction
+  #     title: 用户指令
+  #     tip: 描述要执行的GUI自动化任务，例如"打开计算器并计算123+456"
+  #   - key: max_steps
+  #     title: 最大执行步数
+  #     tip: 任务执行的最大步数限制，防止无限循环
+  #   - key: temperature
+  #     title: 模型温度
+  #     tip: 模型生成时的温度参数，控制输出的随机性，默认0
+  #   outputList:
+  #   - key: computer_use_res
+  #     title: 执行结果
+  #     subTitle: AI生成
+  #     tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
   ComputerUse.custom_action_screen:
     title: 自定义AI操作屏幕
     comment: 使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}
     notices: ai_notices
     debugButton: ai_debug
     icon: computer-use
-    helpManual: |
-      使用说明：
+    helpManual: '使用说明：
+
       1. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
+
       2. Agent会自动循环执行直到任务完成或达到最大步数
+
       3. 所有截图会保存在指定目录，可用于调试和验证
+
+      '
     inputList:
       - key: instruction
         title: 用户指令
@@ -45,17 +56,23 @@ atomic:
         title: 执行结果
         subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
+    path:
+      - /atomicTreeExtend/ai/cua
   ComputerUse.extract_data:
     title: 提取屏幕数据
     comment: 使用视觉大模型分析屏幕并提取屏幕数据
     notices: ai_notices
     debugButton: ai_debug
     icon: computer-use
-    helpManual: |
-      使用说明：
+    helpManual: '使用说明：
+
       1. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
+
       2. Agent会自动循环执行直到任务完成或达到最大步数
+
       3. 所有截图会保存在指定目录，可用于调试和验证
+
+      '
     inputList:
       - key: instruction
         title: 用户指令
@@ -68,17 +85,23 @@ atomic:
         title: 执行结果
         subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
+    path:
+      - /atomicTreeExtend/ai/cua
   ComputerUse.fill_form:
     title: 填写表单
     comment: 使用视觉大模型分析屏幕并填写屏幕中表单
     notices: ai_notices
     debugButton: ai_debug
     icon: computer-use
-    helpManual: |
-      使用说明：
+    helpManual: '使用说明：
+
       1. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
+
       2. Agent会自动循环执行直到任务完成或达到最大步数
+
       3. 所有截图会保存在指定目录，可用于调试和验证
+
+      '
     inputList:
       - key: instruction
         title: 用户指令
@@ -91,6 +114,8 @@ atomic:
         title: 执行结果
         subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
+    path:
+      - /atomicTreeExtend/ai/cua
   ComputerUse.screen_condition:
     title: IF屏幕满足条件
     comment: 使用视觉大模型判断当前屏幕是否满足条件：@{instruction}
@@ -109,17 +134,23 @@ atomic:
         title: 最大执行步数
         tip: 任务执行的最大步数限制，防止无限循环，默认1（单次判断）
     outputList: []
+    path:
+      - /atomicTreeExtend/ai/cua
   ComputerUse.process_captcha:
     title: 处理验证码
     comment: 使用视觉大模型分析屏幕并处理屏幕中验证码
     notices: ai_notices
     debugButton: ai_debug
     icon: computer-use
-    helpManual: |
-      使用说明：
+    helpManual: '使用说明：
+
       1. 支持的操作包括：点击、双击、右键、拖拽、快捷键、输入文本、滚动等
+
       2. Agent会自动循环执行直到任务完成或达到最大步数
+
       3. 所有截图会保存在指定目录，可用于调试和验证
+
+      '
     inputList:
       - key: instruction
         title: 用户指令
@@ -132,4 +163,6 @@ atomic:
         title: 执行结果
         subTitle: AI生成
         tip: 包含任务执行状态、步数、耗时、截图目录和错误信息的字典
+    path:
+      - /atomicTreeExtend/ai/cua
 options: {}

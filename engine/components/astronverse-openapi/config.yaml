@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   OpenApi.id_card:
     title: 身份证识别
@@ -27,6 +29,8 @@ atomic:
       - key: id_card
         title: 身份证识别结果对象
         tip: 输出身份证识别结果
+    path:
+      - /atomicTreeExtend/ai/ocr
   OpenApi.business_license:
     title: 营业执照识别
     comment: 营业执照识别，输入营业执照图片文件或文件夹路径，输出营业执照识别结果对象
@@ -55,6 +59,8 @@ atomic:
       - key: business_license
         title: 营业执照结果对象
         tip: 输出营业执照结果对象
+    path:
+      - /atomicTreeExtend/ai/ocr
   OpenApi.vat_invoice:
     title: 增值税发票识别
     comment: 增值税发票识别，输入增值税发票图片文件或文件夹路径，输出增值税发票识别结果对象
@@ -83,6 +89,8 @@ atomic:
       - key: vat_invoice
         title: 增值税发票识别结果对象
         tip: 输出增值税发票识别结果对象
+    path:
+      - /atomicTreeExtend/ai/ocr
   OpenApi.train_ticket:
     title: 火车票识别
     comment: 火车票识别，输入火车票图片文件或文件夹路径，输出火车票识别结果对象
@@ -111,6 +119,8 @@ atomic:
       - key: train_ticket
         title: 火车票识别结果对象
         tip: 火车票识别结果对象
+    path:
+      - /atomicTreeExtend/ai/ocr
   OpenApi.taxi_ticket:
     title: 出租车发票识别
     comment: 出租车发票识别，输入出租车发票图片文件或文件夹路径，输出出租车发票识别结果对象
@@ -139,6 +149,8 @@ atomic:
       - key: taxi_ticket
         title: 出租车发票识别结果对象
         tip: 出租车发票识别结果对象
+    path:
+      - /atomicTreeExtend/ai/ocr
   OpenApi.common_ocr:
     title: 通用文字识别
     comment: 通用文字识别，输入通用文字图片文件或文件夹路径，输出通用文字识别结果对象
@@ -167,6 +179,8 @@ atomic:
       - key: common_ocr
         title: 通用文字识别结果对象
         tip: 输出通用文字识别结果对象
+    path:
+      - /atomicTreeExtend/ai/ocr
 options:
   Bool:
     - value: true

@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Encrypt.md5_encrypt:
     title: MD5加密
@@ -18,6 +20,8 @@ atomic:
       - key: md5_encrypted_result
         title: MD5加密结果
         tip: ''
+    path:
+      - /atomicTree/os/encrypt
   Encrypt.sha_encrypt:
     title: SHA加密
     comment: 对字符串 @{source_str} 进行SHA加密
@@ -37,6 +41,8 @@ atomic:
       - key: sha_encrypted_result
         title: SHA加密结果
         tip: ''
+    path:
+      - /atomicTree/os/encrypt
   Encrypt.symmetric_encrypt:
     title: 对称加密
     comment: 对字符串 @{source_str} 进行对称加密
@@ -53,6 +59,8 @@ atomic:
       - key: symmetric_encrypted_result
         title: 对称加密结果
         tip: ''
+    path:
+      - /atomicTree/os/encrypt
   Encrypt.symmetric_decrypt:
     title: 对称解密
     comment: 对字符串 @{source_str} 进行对称解密
@@ -69,9 +77,11 @@ atomic:
       - key: symmetric_decrypted_result
         title: 对称解密结果
         tip: ''
+    path:
+      - /atomicTree/os/encrypt
   Encrypt.base64_encoding:
     title: Base64编码
-    comment: 读取字符串或图片文件编码为Base64字符串，返回编码后的字符串 @{encoded_string} 
+    comment: 读取字符串或图片文件编码为Base64字符串，返回编码后的字符串 @{encoded_string}
     icon: base64-encode
     helpManual: ''
     inputList:
@@ -88,6 +98,8 @@ atomic:
       - key: encoded_string
         title: 编码后的字符串
         tip: ''
+    path:
+      - /atomicTree/os/encrypt
   Encrypt.base64_decoding:
     title: Base64解码
     comment: 读取Base64字符串 @{string_data} ，解码为字符串或图片文件
@@ -113,6 +125,8 @@ atomic:
       - key: decoded_string
         title: 解码后的字符串/图片绝对路径
         tip: ''
+    path:
+      - /atomicTree/os/encrypt
 options:
   MD5bitsType:
     - value: '32'

@@ -1,8 +1,9 @@
+# @format
+
 atomic:
   Software.open:
     title: 打开程序
-    comment: >-
-      打开路径为 @{app_absolute_path} 的应用程序，将结果输出为 @{software_open}
+    comment: 打开路径为 @{app_absolute_path} 的应用程序，将结果输出为 @{software_open}
     icon: open-program
     helpManual: ''
     inputList:
@@ -16,6 +17,8 @@ atomic:
       - key: software_open
         title: 应用程序路径
         tip: 输出该被打开的应用程序路径
+    path:
+      - /atomicTree/desktop
   Software.close:
     title: 关闭程序
     comment: 关闭应用程序路径为 @{app_absolute_path} 的程序
@@ -26,17 +29,21 @@ atomic:
         title: 应用程序路径
         tip: 需要被关闭的应用程序路径
     outputList: []
-  Software.cmd:
-    title: Cmd命令
-    comment: 通过配置cmd字符串@{cmd}，执行cmd命令，执行结果保存至@{exec_cmd}
-    icon: cmd-command
-    helpManual: ''
-    inputList:
-      - key: cmd
-        title: cmd字符串
-        tip: 输入cmd字符串
-    outputList:
-      - key: exec_cmd
-        title: 执行结果
-        tip: 输出自定义cmd命令运行后返回的对象结果
+    path:
+      - /atomicTree/desktop
+  # Software.cmd:
+  #   title: Cmd命令
+  #   comment: 通过配置cmd字符串@{cmd}，执行cmd命令，执行结果保存至@{exec_cmd}
+  #   icon: cmd-command
+  #   helpManual: ''
+  #   inputList:
+  #   - key: cmd
+  #     title: cmd字符串
+  #     tip: 输入cmd字符串
+  #   outputList:
+  #   - key: exec_cmd
+  #     title: 执行结果
+  #     tip: 输出自定义cmd命令运行后返回的对象结果
+  #   path:
+  #   - /atomicTree/desktop
 options: {}

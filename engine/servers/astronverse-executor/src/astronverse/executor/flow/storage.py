@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
 from typing import Any, Optional
@@ -158,9 +159,11 @@ class HttpStorage(IStorage):
     def __process_json_full__(self, atom_list: list) -> list:
         if len(atom_list) == 0:
             return []
-
+        debug_flag = os.getenv('DEBUG', '')
+        is_debug = debug_flag.strip().lower() in ('1', 'true')
+        path = "/scheduler/meta/list" if is_debug else "/api/robot/atom-new/list"
         res = self.__http__(
-            "/api/robot/atom-new/list",
+            path,
             None,
             {
                 "keys": atom_list,

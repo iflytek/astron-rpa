@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Report.print:
     title: 日志打印
@@ -12,6 +14,8 @@ atomic:
         title: 日志内容
         tip: 打印日志的内容，支持字符串和变量
     outputList: []
+    path:
+      - /atomicTree/code
 options:
   ReportLevelType:
     - value: info

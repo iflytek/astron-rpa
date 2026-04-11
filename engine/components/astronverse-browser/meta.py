@@ -1,5 +1,6 @@
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.actionlib.tree import treeMg
 from astronverse.actionlib.types import typesMg
 from astronverse.baseline.config.config import load_config
 from astronverse.browser.browser import Browser
@@ -19,6 +20,11 @@ if __name__ == "__main__":
     atomicMg.register(BrowserSoftware, version=get_version())
     atomicMg.register(BrowserScript, version=get_version())
     atomicMg.meta()
+
+    # 生成 tree.json
+    treeMg.load_node_config_from_frame_json("../../../resources/meta/tree_frame.json")
+    treeMg.build_from_meta_and_config("meta.json", "config.yaml")
+    treeMg.meta("tree.json")
 
     config.set_config_file("config_type.yaml")
     typesMg.register_types(Browser, version=get_version(), channel="global", template="Browser对象")

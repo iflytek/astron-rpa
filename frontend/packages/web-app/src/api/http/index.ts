@@ -28,7 +28,7 @@ interface InternalRequestConfig<T = any, P = any> extends RequestConfig<T, P> {
   headers: AxiosRequestHeaders
 }
 
-interface ResponseData<T = any> {
+export interface ResponseData<T = any> {
   code?: string
   data: T
   message?: string

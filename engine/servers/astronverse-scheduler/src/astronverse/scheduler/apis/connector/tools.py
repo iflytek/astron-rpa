@@ -5,6 +5,7 @@ import json
 import mimetypes
 import os
 import re
+from dataclasses import field
 
 from astronverse.scheduler.apis.response import ResCode, res_msg
 from astronverse.scheduler.core.schduler.venv import create_project_venv, get_project_venv
@@ -74,6 +75,7 @@ async def startup_event():
             EmitType.SYNC_CANCEL,
             msg={"route_port": get_svc().rpa_route_port, "step": 100},
         )
+        print(f"scheduler startup_event: route_port={get_svc().rpa_route_port}")
 
     task = asyncio.create_task(startup())
 
@@ -283,6 +285,75 @@ def get_clipboard_html(params: ClipboardParams, svc: Svc = Depends(get_svc)):
     else:
         content = Clipboard.paste_str_clip()
     return res_msg(code=ResCode.SUCCESS, msg="", data={"content": content})
+
+
+class MetaKeys(BaseModel):
+    """
+    定义获取meta数据的参数
+    """
+
+    keys: list[str] = field(default_factory=list)
+
+
+@router.post("/meta/list")
+def get_meta_list(params: MetaKeys, svc: Svc = Depends(get_svc)):
+    """
+    获取temp_meta_merged.json的数据
+    支持通过keys参数获取指定的多个atomKey数据
+    """
+    try:
+        # 获取temp_meta_merged.json文件路径
+        meta_file_path = os.path.join(
+            os.path.dirname(os.path.dirname(svc.config.conf_file)), "resources", "meta", "meta.json"
+        )
+
+        # 检查文件是否存在
+        if not os.path.exists(meta_file_path):
+            return {"code": "500001", "message": "Meta data file not found", "data": None}
+
+        # 读取JSON文件
+        with open(meta_file_path, "r", encoding="utf-8") as f:
+            meta_data = json.load(f)
+
+        # 如果没有指定keys，返回所有数据
+        if not params.keys:
+            return {"code": "000000", "message": "", "data": meta_data}
+
+        # 根据keys过滤数据
+        filtered_data = [item for item in meta_data if item.get("atomKey") in params.keys]
+
+        return {"code": "000000", "message": "", "data": filtered_data}
+    except Exception as e:
+        logger.exception(e)
+        return {"code": "500001", "message": str(e), "data": None}
+
+
+@router.post("/meta/tree")
+def get_meta_tree(svc: Svc = Depends(get_svc)):
+    """
+    获取原子能力树数据
+    """
+    try:
+        # 获取temp_meta_merged.json文件路径
+        tree_file_path = os.path.join(
+            os.path.dirname(os.path.dirname(svc.config.conf_file)), "resources", "meta", "tree.json"
+        )
+
+        # 检查文件是否存在
+        if not os.path.exists(tree_file_path):
+            return {"code": "500001", "message": "Tree data file not found", "data": None}
+
+        # 读取JSON文件
+        with open(tree_file_path, "r", encoding="utf-8") as f:
+            tree_data = json.load(f)
+
+        # 转换为JSON字符串
+        tree_data_json = json.dumps(tree_data, ensure_ascii=False)
+
+        return {"code": "000000", "message": "", "data": tree_data_json}
+    except Exception as e:
+        logger.exception(e)
+        return {"code": "500001", "message": str(e), "data": None}
 
 
 @router.post("/smart/code-to-meta")

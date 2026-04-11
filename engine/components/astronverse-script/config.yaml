@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Script.process:
     title: 运行子流程
@@ -15,6 +17,8 @@ atomic:
       - key: process_res
         title: 保存流程输出结果
         tip: ''
+    path:
+      - /atomicTree/process
   Script.module:
     title: 运行Python模块
     comment: 运行Python模块 @{content:Python模块}
@@ -31,14 +35,19 @@ atomic:
       - key: program_script
         title: ''
         tip: ''
+    path:
+      - /atomicTree/process
+      - /atomicTree/script
   Script.component:
     title: 运行组件
     comment: 运行组件 @{component:组件}
-    icon: ''
+    icon: custom-component
     helpManual: ''
     inputList:
       - key: component
         title: 选择组件
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/process
 options: {}

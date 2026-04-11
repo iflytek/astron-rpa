@@ -1,9 +1,9 @@
+# @format
+
 atomic:
   DataTable.read_data:
     title: 读取数据表格
-    comment: >-
-      读取数据表格 @{read_type} 中的数据，输出到变量
-      @{cell_info||row_info||column_info||area_info}
+    comment: 读取数据表格 @{read_type} 中的数据，输出到变量 @{cell_info||row_info||column_info||area_info}
     icon: read_data_table
     helpManual: ''
     inputList:
@@ -47,6 +47,8 @@ atomic:
       - key: area_info
         title: 区域数据
         tip: 返回指定区域的数据信息, 类型为二维数组
+    path:
+      - /atomicTree/datatable
   DataTable.write_data:
     title: 写入数据表格
     comment: 写入数据到数据表格的 @{write_type}
@@ -87,6 +89,8 @@ atomic:
         title: 追加方式
         tip: 选择追加数据的方式（行追加、列追加）
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.get_max_row:
     title: 获取数据表格已用行
     comment: 获取数据表格中已用的最大行号并输出到 @{max_row}
@@ -97,6 +101,8 @@ atomic:
       - key: max_row
         title: 最大行号
         tip: 返回数据表格中的最大行号，类型为整数
+    path:
+      - /atomicTree/datatable
   DataTable.get_max_column:
     title: 获取数据表格已用列
     comment: 获取数据表格中已用的最大列号并输出到 @{max_column}
@@ -107,6 +113,8 @@ atomic:
       - key: max_column
         title: 最大列号
         tip: 返回数据表格中的最大列号，类型为整数
+    path:
+      - /atomicTree/datatable
   DataTable.copy_data:
     title: 复制数据表格
     comment: 复制数据表格中的 @{copy_type} 数据到剪切板
@@ -147,6 +155,8 @@ atomic:
       - key: copied_area
         title: 复制的区域
         tip: 以二维数组形式返回复制的区域数据
+    path:
+      - /atomicTree/datatable
   DataTable.paste_data:
     title: 粘贴数据表格
     comment: 从剪切板粘贴数据到数据表格中的 @{paste_type}
@@ -169,6 +179,8 @@ atomic:
         title: 开始列号
         tip: 指定要粘贴的开始列号（例如A，B，C，AB...）
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.delete_data:
     title: 删除数据表格
     comment: 删除数据表格中 @{delete_type} 的数据
@@ -206,6 +218,8 @@ atomic:
         title: 行删除是否上移
         tip: 删除行时的移动方式（上移）
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.loop_data_table:
     title: 循环数据表格
     comment: 循环遍历数据表格中的 @{loop_type}，输出索引至 @{index}，输出值至 @{value}
@@ -240,6 +254,8 @@ atomic:
       - key: value
         title: 当前值
         tip: 返回当前循环项的值
+    path:
+      - /atomicTree/datatable
   DataTable.insert_row_column:
     title: 数据表格插入行/列
     comment: 在数据表格中插入 @{amount} 个空白 @{insert_type}
@@ -265,6 +281,8 @@ atomic:
         title: 列插入方式
         tip: 插入列时的位置（左边插入、右边插入）
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.insert_formula:
     title: 数据表格插入公式
     comment: 在数据表格单元格 @{col}@{row} 中插入公式 @{formula}
@@ -279,9 +297,10 @@ atomic:
         tip: 指定要插入公式的列号
       - key: formula
         title: 公式内容
-        tip: >-
-          要插入的公式，例如"=SUM(A1:A5)"。支持数学、统计、逻辑、文本、日期、查找引用等常用公式
+        tip: 要插入的公式，例如"=SUM(A1:A5)"。支持数学、统计、逻辑、文本、日期、查找引用等常用公式
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.set_column_title:
     title: 数据表格设置列信息
     comment: 设置数据表格 @{col} 列的信息为 @{title}
@@ -295,6 +314,8 @@ atomic:
         title: 列信息
         tip: 要设置的列信息
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.get_column_title:
     title: 数据表格获取列信息
     comment: 获取数据表格 @{col} 列的信息并输出到 @{column_title}
@@ -308,6 +329,8 @@ atomic:
       - key: column_title
         title: 列信息
         tip: 返回指定列的信息
+    path:
+      - /atomicTree/datatable
   DataTable.find_and_replace:
     title: 数据表格查找和替换
     comment: 在数据表格中 @{find_type} 查找 @{find_value}@{is_replace:，并替换}
@@ -336,6 +359,8 @@ atomic:
       - key: find_data_positions
         title: 查找位置
         tip: 返回查找到的内容所在的位置列表
+    path:
+      - /atomicTree/datatable
   DataTable.filter_data_table:
     title: 数据表格筛选
     comment: 根据 @{filter_type} 条件筛选数据表格
@@ -373,6 +398,8 @@ atomic:
       - key: data_filtered
         title: 筛选结果
         tip: 返回筛选后的数据结果
+    path:
+      - /atomicTree/datatable
   DataTable.import_data_table_from_file:
     title: 从文件导入数据到数据表格
     comment: 从文件 @{import_file_path} 导入数据到数据表格
@@ -386,6 +413,8 @@ atomic:
         title: 工作表名称
         tip: 要导入的工作表名称，默认为活动工作表
     outputList: []
+    path:
+      - /atomicTree/datatable
   DataTable.export_data_table_to_file:
     title: 导出数据表格到文件
     comment: 将数据表格导出到文件 @{export_dest_path}
@@ -408,6 +437,8 @@ atomic:
       - key: export_file_path
         title: 导出文件路径
         tip: 返回导出文件的完整路径
+    path:
+      - /atomicTree/datatable
 options:
   BaseOperateType:
     - value: cell

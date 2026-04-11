@@ -15,11 +15,11 @@ atomic:
       - key: variable_var
         title: 设置后的变量值
         tip: ''
+    path:
+      - /atomicTree/code
   DataConvertProcess.json_convertor:
     title: JSON字符串互转
-    comment: >-
-      将输入文本 @{input_data} 从JSON格式转换为字符串或从字符串格式转换为JSON格式，返回转换后的文本
-      @{json_convert_data}
+    comment: 将输入文本 @{input_data} 从JSON格式转换为字符串或从字符串格式转换为JSON格式，返回转换后的文本 @{json_convert_data}
     icon: json-string-convert
     helpManual: ''
     inputList:
@@ -33,6 +33,8 @@ atomic:
       - key: json_convert_data
         title: 转换结果
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   DataConvertProcess.other_to_str:
     title: 其他格式转文本
     comment: 将输入内容 @{input_data}（如数字、列表、字典等）转换为字符串格式，返回转换后的结果 @{other_convert_str}
@@ -46,6 +48,8 @@ atomic:
       - key: other_convert_str
         title: 转换结果
         tip: 返回转换为字符串的结果
+    path:
+      - /atomicTree/data/data.String
   DataConvertProcess.str_to_other:
     title: 文本转其他格式
     comment: 将输入文本（字符串） @{input_data} 转换为其他格式，返回转换后的结果 @{str_convert_other}
@@ -62,6 +66,8 @@ atomic:
       - key: str_convert_other
         title: 转换结果
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   DictProcess.create_new_dict:
     title: 创建新字典
     comment: 创建一个字典，返回创建的字典 @{created_new_dict_data}
@@ -75,11 +81,11 @@ atomic:
       - key: created_new_dict_data
         title: 新创建的字典
         tip: ''
+    path:
+      - /atomicTree/data/data.Dict
   DictProcess.set_value_to_dict:
     title: 字典设置值
-    comment: >-
-      设置字典 @{dict_data} 的键为 @{dict_key} ，值为 @{value} ，返回设置后的字典
-      @{inserted_dict_data}
+    comment: 设置字典 @{dict_data} 的键为 @{dict_key} ，值为 @{value} ，返回设置后的字典 @{inserted_dict_data}
     icon: dict-set-value
     helpManual: ''
     inputList:
@@ -96,6 +102,8 @@ atomic:
       - key: inserted_dict_data
         title: 设置后的字典
         tip: ''
+    path:
+      - /atomicTree/data/data.Dict
   DictProcess.delete_value_from_dict:
     title: 字典删除值
     comment: 从字典 @{dict_data} 中删除键为 @{dict_key} 的值，返回删除后的字典 @{deleted_dict_data}
@@ -112,6 +120,8 @@ atomic:
       - key: deleted_dict_data
         title: 删除后的字典
         tip: ''
+    path:
+      - /atomicTree/data/data.Dict
   DictProcess.get_value_from_dict:
     title: 字典获取值
     comment: 获取字典 @{dict_data} 的键为 @{dict_key} 的值 @{get_dict_value}
@@ -134,6 +144,8 @@ atomic:
       - key: get_dict_value
         title: 字典值
         tip: ''
+    path:
+      - /atomicTree/data/data.Dict
   DictProcess.get_keys_from_dict:
     title: 获取字典所有键
     comment: 获取字典 @{dict_data} 的所有键 @{get_dict_keys}
@@ -147,6 +159,8 @@ atomic:
       - key: get_dict_keys
         title: 键列表
         tip: ''
+    path:
+      - /atomicTree/data/data.Dict
   DictProcess.get_values_from_dict:
     title: 获取字典所有值
     comment: 获取字典 @{dict_data} 的所有值 @{get_dict_values}
@@ -160,6 +174,8 @@ atomic:
       - key: get_dict_values
         title: 值列表
         tip: ''
+    path:
+      - /atomicTree/data/data.Dict
   ListProcess.create_new_list:
     title: 创建新列表
     comment: 创建一个 @{list_type} 类型的列表，返回创建的列表 @{created_list_data}
@@ -182,6 +198,8 @@ atomic:
       - key: created_list_data
         title: 创建的列表
         tip: 返回新创建的列表
+    path:
+      - /atomicTree/data/data.List
   ListProcess.clear_list:
     title: 清空列表
     comment: 清空列表 @{list_data} ，返回清空后的列表 @{cleared_list_data}
@@ -195,10 +213,11 @@ atomic:
       - key: cleared_list_data
         title: 清空后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.insert_value_to_list:
     title: 列表插入值
-    comment: >-
-      将值 @{value} 插入到列表 @{list_data} 的 @{insert_method} 位置 @{index} ，返回插入后的列表
+    comment: 将值 @{value} 插入到列表 @{list_data} 的 @{insert_method} 位置 @{index} ，返回插入后的列表
       @{inserted_list_data}
     icon: list-insert-value
     helpManual: ''
@@ -219,11 +238,11 @@ atomic:
       - key: inserted_list_data
         title: 插入后的列表
         tip: 返回插入值后的新列表
+    path:
+      - /atomicTree/data/data.List
   ListProcess.change_value_in_list:
     title: 列表修改值
-    comment: >-
-      将列表 @{list_data} 的 @{index} 位置的值修改为 @{new_value} ，返回修改后的列表
-      @{changed_list_data}
+    comment: 将列表 @{list_data} 的 @{index} 位置的值修改为 @{new_value} ，返回修改后的列表 @{changed_list_data}
     icon: list-modify-value
     helpManual: ''
     inputList:
@@ -240,6 +259,8 @@ atomic:
       - key: changed_list_data
         title: 修改后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.get_list_position:
     title: 获取值在列表位置
     comment: 获取值 @{value} 在列表 @{list_data} 的位置 @{get_list_position}
@@ -256,10 +277,12 @@ atomic:
       - key: get_list_position
         title: 位置索引
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.remove_value_from_list:
     title: 列表删除值
-    comment: >-
-      以 @{del_mode} 方式，从列表 @{list_data} 删除指定的值 @{del_value} 或位置 @{del_pos} 的元素，返回删除后的列表 @{removed_list_data}
+    comment: 以 @{del_mode} 方式，从列表 @{list_data} 删除指定的值 @{del_value} 或位置 @{del_pos}
+      的元素，返回删除后的列表 @{removed_list_data}
     icon: list-remove-value
     helpManual: ''
     inputList:
@@ -279,6 +302,8 @@ atomic:
       - key: removed_list_data
         title: 删除后的列表
         tip: 返回删除元素后的新列表
+    path:
+      - /atomicTree/data/data.List
   ListProcess.sort_list:
     title: 列表排序
     comment: 对列表 @{list_data} 进行 @{sort_method} 排序，返回排序后的列表 @{sorted_list_data}
@@ -295,6 +320,8 @@ atomic:
       - key: sorted_list_data
         title: 排序后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.random_shuffle_list:
     title: 列表随机打乱顺序
     comment: 对列表 @{list_data} 进行随机打乱顺序，返回打乱顺序后的列表 @{shuffled_list_data}
@@ -308,6 +335,8 @@ atomic:
       - key: shuffled_list_data
         title: 打乱顺序后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.filter_elements_from_list:
     title: 剔除列表中的多项
     comment: 从列表 @{list_data_1} 中剔除列表 @{list_data_2} 中的元素，返回剔除后的列表 @{filter_list_data}
@@ -324,6 +353,8 @@ atomic:
       - key: filter_list_data
         title: 剔除后的列表
         tip: 返回剔除后的列表
+    path:
+      - /atomicTree/data/data.List
   ListProcess.reverse_list:
     title: 列表反转
     comment: 将列表 @{list_data} 反转，返回反转后的列表 @{reversed_list_data}
@@ -337,6 +368,8 @@ atomic:
       - key: reversed_list_data
         title: 反转后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.merge_list:
     title: 列表合并
     comment: 将列表 @{list_data_1} 和列表 @{list_data_2} 合并为一个列表 @{merged_list_data}
@@ -353,6 +386,8 @@ atomic:
       - key: merged_list_data
         title: 合并后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.get_unique_list:
     title: 列表去重
     comment: 将列表 @{list_data} 去重，返回去重后的列表 @{unique_list_data}
@@ -366,6 +401,8 @@ atomic:
       - key: unique_list_data
         title: 去重后的列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.get_common_elements_from_list:
     title: 获取两个列表的重复项
     comment: 获取列表 @{list_data_1} 和列表 @{list_data_2} 的重复项，返回重复项列表 @{common_list_data}
@@ -382,6 +419,8 @@ atomic:
       - key: common_list_data
         title: 重复项列表
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.get_value_from_list:
     title: 根据索引获取列表值
     comment: 根据索引 @{index} 获取列表 @{list_data} 的值 @{get_list_value}
@@ -398,6 +437,8 @@ atomic:
       - key: get_list_value
         title: 值
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   ListProcess.get_length_of_list:
     title: 获取列表长度
     comment: 获取列表 @{list_data} 的长度 @{get_list_length}
@@ -411,11 +452,11 @@ atomic:
       - key: get_list_length
         title: 长度
         tip: ''
+    path:
+      - /atomicTree/data/data.List
   MathProcess.generate_random_number:
     title: 生成随机数
-    comment: >-
-      生成 @{number_type} 类型 @{size} 个随机数，范围为 @{start} 到 @{end} ，返回生成的随机数
-      @{generated_random_numbers}
+    comment: 生成 @{number_type} 类型 @{size} 个随机数，范围为 @{start} 到 @{end} ，返回生成的随机数 @{generated_random_numbers}
     icon: generate-random-number
     helpManual: ''
     inputList:
@@ -435,6 +476,8 @@ atomic:
       - key: generated_random_numbers
         title: 生成的随机数
         tip: ''
+    path:
+      - /atomicTree/data/data.Math
   MathProcess.get_rounding_number:
     title: 四舍五入
     comment: 将数字 @{number} 四舍五入 @{precision} 位，返回四舍五入后的数字 @{rounding_number}
@@ -451,6 +494,8 @@ atomic:
       - key: rounding_number
         title: 四舍五入后的数字
         tip: ''
+    path:
+      - /atomicTree/data/data.Math
   MathProcess.self_calculation_number:
     title: 自增自减
     comment: 对数字 @{number} 自增或自减 @{add_sub_number} ，返回计算后的结果 @{self_calculation_number}
@@ -470,6 +515,8 @@ atomic:
       - key: self_calculation_number
         title: 自增自减后的结果
         tip: ''
+    path:
+      - /atomicTree/data/data.Math
   MathProcess.get_absolute_number:
     title: 获取绝对值
     comment: 获取数字 @{raw_number} 的绝对值 @{absolute_number}
@@ -483,6 +530,8 @@ atomic:
       - key: absolute_number
         title: 原数据绝对值
         tip: ''
+    path:
+      - /atomicTree/data/data.Math
   MathProcess.calculate_expression:
     title: 数学计算
     comment: 进行基本的数学计算 @{left}  @{operator}  @{right} ，返回计算结果 @{calculation_number}
@@ -508,6 +557,8 @@ atomic:
       - key: calculation_number
         title: 计算结果
         tip: ''
+    path:
+      - /atomicTree/data/data.Math
   StringProcess.extract_content_from_string:
     title: 文本提取内容
     comment: 从文本 @{text} 中提取 @{extract_type} 类型的内容
@@ -530,6 +581,8 @@ atomic:
       - key: extract_from_string
         title: 提取内容
         tip: 返回提取的内容
+    path:
+      - /atomicTree/data/data.String
   StringProcess.replace_content_in_string:
     title: 文本替换内容
     comment: 将文本 @{text} 中的 @{replace_type} 类型内容替换为 @{new_value}
@@ -561,6 +614,8 @@ atomic:
       - key: replaced_content_string
         title: 替换后的文本
         tip: 返回替换后的文本
+    path:
+      - /atomicTree/data/data.String
   StringProcess.merge_list_to_string:
     title: 列表聚合为文本
     comment: 将列表 @{list_data} 中的内容聚合为文本 @{merged_string_from_list}
@@ -577,6 +632,8 @@ atomic:
       - key: merged_string_from_list
         title: 聚合后的文本
         tip: 返回聚合后的文本
+    path:
+      - /atomicTree/data/data.String
   StringProcess.split_string_to_list:
     title: 文本分割为列表
     comment: 将文本 @{string_data} 按 @{separator} 分割为列表 @{split_list_from_string}
@@ -593,6 +650,8 @@ atomic:
       - key: split_list_from_string
         title: 分割后的列表
         tip: 返回分割后的列表
+    path:
+      - /atomicTree/data/data.String
   StringProcess.concatenate_string:
     title: 文本合并
     comment: 将 @{string_data_1} 和 @{string_data_2} 合并为 @{concat_string}
@@ -615,6 +674,8 @@ atomic:
       - key: concat_string
         title: 合并后的文本
         tip: 返回合并后的文本
+    path:
+      - /atomicTree/data/data.String
   StringProcess.fill_string_to_length:
     title: 文本补齐至固定长度
     comment: 将文本 @{string_data} 补齐至 @{total_length} 长度，补齐方式为 @{fill_type}
@@ -637,6 +698,8 @@ atomic:
       - key: complete_string
         title: 补齐后的文本
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   StringProcess.strip_string:
     title: 文本去除两侧空格
     comment: 将文本 @{string_data} 两侧的空格去除 @{stripped_string}
@@ -653,11 +716,11 @@ atomic:
       - key: stripped_string
         title: 去除两侧空格后的文本
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   StringProcess.cut_string_to_length:
     title: 截取固定长度文本
-    comment: >-
-      将文本 @{string_data} 截取 @{length} 长度，截取方式为 @{cut_type} ，返回截取后的文本
-      @{cut_string}
+    comment: 将文本 @{string_data} 截取 @{length} 长度，截取方式为 @{cut_type} ，返回截取后的文本 @{cut_string}
     icon: screenshot-fixed-text
     helpManual: ''
     inputList:
@@ -680,6 +743,8 @@ atomic:
       - key: cut_string
         title: 截取后的文本
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   StringProcess.change_case_of_string:
     title: 更改文本大小写
     comment: 将文本 @{string_data} 的大小写更改为 @{case_type} ，返回更改后的文本 @{change_case_string}
@@ -696,6 +761,8 @@ atomic:
       - key: change_case_string
         title: 更改后的文本
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   StringProcess.get_string_length:
     title: 获取文本长度
     comment: 获取文本 @{string_data} 的长度 @{string_length}
@@ -709,6 +776,8 @@ atomic:
       - key: string_length
         title: 文本长度
         tip: ''
+    path:
+      - /atomicTree/data/data.String
   TimeProcess.get_current_time:
     title: 获取当前时间
     comment: 获取当前时间，格式为 @{time_format}，返回当前时间对象 @{current_time}
@@ -722,6 +791,8 @@ atomic:
       - key: current_time
         title: 当前时间对象
         tip: 返回值为时间对象，可通过快捷函数或转化原子能力输出字符串形式
+    path:
+      - /atomicTree/data/data.Time
   TimeProcess.set_time:
     title: 设置时间
     comment: 设置时间 @{time}，设置方式为 @{change_type}，返回设置后的时间对象 @{set_time}
@@ -756,11 +827,11 @@ atomic:
       - key: set_time
         title: 设置时间对象
         tip: ''
+    path:
+      - /atomicTree/data/data.Time
   TimeProcess.time_to_timestamp:
     title: 时间对象转时间戳
-    comment: >-
-      将时间对象 @{time} 转换为 @{timestamp_unit} 精度的时间戳，返回转换后的时间戳
-      @{converted_timestamp}
+    comment: 将时间对象 @{time} 转换为 @{timestamp_unit} 精度的时间戳，返回转换后的时间戳 @{converted_timestamp}
     icon: datetime-to-timestamp
     helpManual: ''
     inputList:
@@ -774,6 +845,8 @@ atomic:
       - key: converted_timestamp
         title: 时间戳
         tip: ''
+    path:
+      - /atomicTree/data/data.Time
   TimeProcess.timestamp_to_time:
     title: 时间戳转时间对象
     comment: 将时间戳 @{timestamp} 转换为时间对象 @{converted_time}
@@ -790,6 +863,8 @@ atomic:
       - key: converted_time
         title: 时间对象
         tip: ''
+    path:
+      - /atomicTree/data/data.Time
   TimeProcess.get_time_difference:
     title: 获取时间差
     comment: 获取 @{time_1} 和 @{time_2} 之间的时间差，单位为 @{time_unit}，返回时间差 @{time_difference}
@@ -809,6 +884,8 @@ atomic:
       - key: time_difference
         title: 时间差
         tip: ''
+    path:
+      - /atomicTree/data/data.Time
   TimeProcess.format_datetime:
     title: 输出指定格式时间文本
     comment: 将时间对象 @{time} 按照指定格式 @{format_type} 输出文本 @{format_datetime}
@@ -825,6 +902,8 @@ atomic:
       - key: format_datetime
         title: 时间文本
         tip: ''
+    path:
+      - /atomicTree/data/data.Time
 options:
   VariableType:
     - value: str

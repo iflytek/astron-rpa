@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   PDF.get_pages_num:
     title: 获取PDF文档页数
@@ -15,6 +17,8 @@ atomic:
       - key: pdf_pages_num
         title: PDF文档页数
         tip: 返回PDF文档页数
+    path:
+      - /atomicTree/document/document.PDF
   PDF.get_pdf_text:
     title: 提取PDF文档文本
     comment: 提取路径为 @{file_path} 的PDF文档文本，返回为字符串或列表 @{pdf_text}
@@ -49,6 +53,8 @@ atomic:
       - key: pdf_text
         title: 提取的PDF文档文本
         tip: 提取的PDF文档文本，以列表形式存储返回
+    path:
+      - /atomicTree/document/document.PDF
   PDF.get_pdf_images:
     title: 提取PDF文档图片
     comment: 提取路径为 @{file_path} 的PDF文档图片，并保存到 @{save_dir} 文件夹
@@ -80,6 +86,8 @@ atomic:
         title: 存在同名文件处理方式
         tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作
     outputList: []
+    path:
+      - /atomicTree/document/document.PDF
   PDF.merge_pdf_files:
     title: 合并PDF文件
     comment: 合并PDF文件为一个PDF文件，并保存到 @{pdf_merge_file_path} 路径
@@ -114,6 +122,8 @@ atomic:
       - key: pdf_merge_file_path
         title: 合并后的PDF文件路径
         tip: 合并后的PDF文件路径
+    path:
+      - /atomicTree/document/document.PDF
   PDF.extract_pdf_file:
     title: 抽取PDF指定页
     comment: 抽取路径为 @{file_path} 的PDF文档指定页，并保存到 @{extract_file_path} 文件夹
@@ -148,6 +158,8 @@ atomic:
       - key: extract_file_path
         title: 提取后的PDF文件路径
         tip: 提取后的PDF文件路径
+    path:
+      - /atomicTree/document/document.PDF
   PDF.extract_forms_from_pdf:
     title: 提取PDF表格到Excel
     comment: 提取路径为 @{file_path} 的PDF文档中的表格，并保存到 @{forms_file_path} 文件夹
@@ -182,6 +194,8 @@ atomic:
       - key: forms_file_path
         title: 提取后的Excel路径
         tip: 提取后的Excel路径
+    path:
+      - /atomicTree/document/document.PDF
   PDF.convert_pdf_to_img:
     title: PDF页面转图片
     comment: 转换路径为 @{file_path} 的PDF文档为图片，并保存到 @{save_dir} 文件夹
@@ -213,37 +227,39 @@ atomic:
         title: 存在同名文件处理方式
         tip: 选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作
     outputList: []
-  PDF.convert_img_to_pdf:
-    title: 图片转PDF页面
-    comment: 转换路径为 @{image_files} 的图片为PDF文件，并保存到 @{save_dir} 文件夹
-    icon: pdf-page-to-image
-    helpManual: ''
-    inputList:
-      - key: image_files
-        title: 图片文件
-        tip: ''
-      - key: save_dir
-        title: 保存PDF文件路径
-        tip: ''
-      - key: new_file_name
-        title: PDF文件名
-        tip: ''
-      - key: layout_type
-        title: PDF文件布局
-        tip: ''
-      - key: new_pwd_flag
-        title: 是否设置密码
-        tip: ''
-      - key: new_pwd
-        title: 密码
-        tip: ''
-      - key: exist_handle_type
-        title: 存在同名文件处理方式
-        tip: ''
-    outputList:
-      - key: pdf_file_path
-        title: PDF文件路径
-        tip: ''
+    path:
+      - /atomicTree/document/document.PDF
+  # PDF.convert_img_to_pdf:
+  #   title: 图片转PDF页面
+  #   comment: 转换路径为 @{image_files} 的图片为PDF文件，并保存到 @{save_dir} 文件夹
+  #   icon: pdf-page-to-image
+  #   helpManual: ''
+  #   inputList:
+  #   - key: image_files
+  #     title: 图片文件
+  #     tip: ''
+  #   - key: save_dir
+  #     title: 保存PDF文件路径
+  #     tip: ''
+  #   - key: new_file_name
+  #     title: PDF文件名
+  #     tip: ''
+  #   - key: layout_type
+  #     title: PDF文件布局
+  #     tip: ''
+  #   - key: new_pwd_flag
+  #     title: 是否设置密码
+  #     tip: ''
+  #   - key: new_pwd
+  #     title: 密码
+  #     tip: ''
+  #   - key: exist_handle_type
+  #     title: 存在同名文件处理方式
+  #     tip: ''
+  #   outputList:
+  #   - key: pdf_file_path
+  #     title: PDF文件路径
+  #     tip: ''
 options:
   SelectRangeType:
     - value: all

@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Enterprise.upload_to_sharefolder:
     title: 上传文件至共享文件夹
@@ -12,6 +14,8 @@ atomic:
       - key: upload_result
         title: 上传文件结果
         tip: ''
+    path:
+      - /atomicTree/enterprise
   Enterprise.download_from_sharefolder:
     title: 从共享文件夹下载文件
     comment: 从共享文件夹下载 @{file_path} 的文件到 @{save_folder}，返回下载结果 @{download_result}
@@ -28,6 +32,8 @@ atomic:
       - key: download_result
         title: 下载结果
         tip: ''
+    path:
+      - /atomicTree/enterprise
   Enterprise.get_shared_variable:
     title: 获取共享变量
     comment: 获取共享变量 @{shared_variable} 并赋值给变量 @{variable_data}
@@ -41,4 +47,6 @@ atomic:
       - key: variable_data
         title: 保存共享变量至
         tip: ''
+    path:
+      - /atomicTree/enterprise
 options: {}

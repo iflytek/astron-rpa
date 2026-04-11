@@ -392,6 +392,17 @@ class AtomicManager:
                 v.notices = config.get("atomic", v.key, "notices")
             if not v.debugButton:
                 v.debugButton = config.get("atomic", v.key, "debugButton")
+                
+            v.path = config.get("atomic", v.key, "path")
+            if v.path:
+                path_pattern = re.compile(r"^(/[^/]+)+$")
+                invalid_paths = [p for p in v.path if not path_pattern.match(p)]
+                if invalid_paths:
+                    raise BizException(
+                        REQUIRED_PARAM_MISSING.format("path"),
+                        "path格式错误，必须为 /path1/path2/... 形式: {}".format(invalid_paths),
+                    )
+
             # 6.2 回写
             temp_atomic_dict[k] = v
 

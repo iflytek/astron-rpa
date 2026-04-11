@@ -1,5 +1,6 @@
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.actionlib.tree import treeMg
 from astronverse.ai.agent import Agent
 from astronverse.ai.chat import ChatAI
 from astronverse.ai.contract import ContractAI
@@ -23,3 +24,7 @@ if __name__ == "__main__":
     atomicMg.register(ContractAI, version=get_version())
     atomicMg.register(ImageAI, version=get_version())
     atomicMg.meta()
+
+    treeMg.load_node_config_from_frame_json("../../../resources/meta/tree_frame.json")
+    treeMg.build_from_meta_and_config("meta.json", "config.yaml")
+    treeMg.meta("tree.json")

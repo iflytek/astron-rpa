@@ -11,6 +11,8 @@ import logger from './log'
 import { appWorkPath, confPath, pythonExe, resourcePath } from './path'
 import { getMainWindow } from './window'
 import { envJson } from './env'
+import { config } from './config'
+
 import { isWindows } from './utils'
 
 process.on('uncaughtException', (err) => {
@@ -19,6 +21,10 @@ process.on('uncaughtException', (err) => {
 
 function sendToRender(message: string, percent: number) {
   const unicodeMessage = `{"type":"sync","msg":{"msg":"${toUnicode(message)}","step":${percent}}}`
+  mainToRender('scheduler-event', unicodeMessage, undefined, true)
+}
+function sendReady(port?: number) {
+  const unicodeMessage = `{"type": "sync_cancel", "msg": {"route_port": ${port}, "step": 100}}`
   mainToRender('scheduler-event', unicodeMessage, undefined, true)
 }
 
@@ -83,6 +89,14 @@ export async function startServer() {
   logger.info('正在启动服务')
   sendToRender('正在启动服务', 90)
 
+  if (config.skip_engine_start) {
+    const port = process.env.PORT || 13160 // 从环境变量获取端口号，默认为 13160
+    logger.info(`跳过engine启动，直接进入开发模式，连接端口号: ${port}`)
+    setTimeout(() => {
+      sendReady(Number(port))
+    }, 3000);
+    return
+  }
   const rpaSetup = exec(
     `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
     { cwd: appWorkPath },
@@ -308,6 +322,13 @@ export async function startBackend() {
   const isRunning = await checkPythonRpaProcess()
   if (isRunning) {
     logger.info('rpa is already running')
+    return
+  }
+
+  // 开发模式跳过包内engine 启动
+  if (config.skip_engine_start) {
+    logger.info('跳过engine启动，直接进入开发模式')
+    startServer()
     return
   }
 

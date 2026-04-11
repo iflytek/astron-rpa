@@ -165,6 +165,8 @@ class AtomicMeta:
     notices: str = None  # 注意事项
     debugButton: str = None  # 调试按钮类型
 
+    path: list[str] = None  # 原子能力在树上的路径配置，优先级高于树的默认配置
+
     def tojson(self, filtered_none=True):
         data = self.__dict__
         if filtered_none:

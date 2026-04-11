@@ -1,23 +1,40 @@
 import type { ITableResponse } from '@/types/normalTable'
+import type { ResponseData } from './http'
 
 import http from './http'
+import { isDev } from '@/utils/env'
 
 // 根据id和version获取原子能力的具体信息
 export async function getAbilityInfo(atomList: { key: string, version: string }[]): Promise<RPA.Atom[]> {
-  const res = await http.post<string[]>('/api/robot/atom-new/list', { keys: atomList.map(i => i.key) })
+  let res: ResponseData
+  if (isDev) {
+    res = await http.post<any[]>('/scheduler/meta/list', { keys: atomList.map(i => i.key) })
+  } else {
+    res = await http.post<string[]>('/api/robot/atom-new/list', { keys: atomList.map(i => i.key) })
+  }
   const data = res.data || []
   return data.map((atom: any) => JSON.parse(atom.atomContent))
 }
 
 // 获取原子能力左侧菜单数据
 export async function getAtomsMeta(): Promise<RPA.AtomMetaData> {
-  const res = await http.post('/api/robot/atom-new/tree')
+  let res: ResponseData
+  if (isDev) {
+    res = await http.post('/scheduler/meta/tree')
+  } else {
+    res = await http.post('/api/robot/atom-new/tree')
+  }
   return JSON.parse(res.data)
 }
 
 // 获取扩展组件左侧菜单数据
 export async function getModuleMeta(): Promise<RPA.AtomTreeNode[]> {
-  const res = await http.post('/api/robot/atom-new/tree')
+  let res: ResponseData
+  if (isDev) {
+    res = await http.post('/scheduler/meta/tree')
+  } else {
+    res = await http.post('/api/robot/atom-new/tree')
+  }
   const data = JSON.parse(res.data)
   return data.atomicTreeExtend ?? []
 }
@@ -27,9 +44,13 @@ export function getTreeByParentKey(parentKey: string) {
   return http.post('/api/robot/atom/getListByParentKey', null, { params: { parentKey } })
 }
 
-// 获取指定原子能力的最新元数据
 export async function getNewAtomDesc(key: string): Promise<RPA.Atom> {
-  const res = await http.post('/api/robot/atom-new/list', { keys: [key] })
+  let res: ResponseData
+  if (isDev) {
+    res = await http.post<any[]>('/scheduler/meta/list', { keys: [key] })
+  } else {
+    res = await http.post<string[]>('/api/robot/atom-new/list', { keys: [key] })
+  }
   const atom = res.data && res.data.length > 0 ? res.data[0] : ''
   return JSON.parse(atom?.atomContent ?? '{}')
 }

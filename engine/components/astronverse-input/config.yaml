@@ -9,8 +9,7 @@ atomic:
     inputList:
       - key: keyboard_type
         title: 输入方式
-        tip: >-
-          普通输入：windows键盘消息的方式来模拟按键输入；剪切板输入：获取剪切板内容并粘贴输入；按键组合：使用插入键盘符号组合快捷输入；驱动输入：使用驱动来模拟按键输入，一般用于网银密码框输入场景或其它普通输入方式无法输入的场景
+        tip: 普通输入：windows键盘消息的方式来模拟按键输入；剪切板输入：获取剪切板内容并粘贴输入；按键组合：使用插入键盘符号组合快捷输入；驱动输入：使用驱动来模拟按键输入，一般用于网银密码框输入场景或其它普通输入方式无法输入的场景
       - key: message
         title: 输入内容
         tip: ''
@@ -21,6 +20,8 @@ atomic:
         title: 输入间隔
         tip: 设置输入间隔，单位为秒
     outputList: []
+    path:
+      - /atomicTree/keyboard
   Gui.key_input:
     title: 键盘模拟按键
     comment: 使用键盘模拟按键@{keys_str}@{key_model}
@@ -34,6 +35,8 @@ atomic:
         title: 按键方式
         tip: 设置按键方式
     outputList: []
+    path:
+      - /atomicTree/keyboard
   Gui.mouse:
     title: 鼠标点击
     comment: 模拟鼠标@{btn_type:左键/右键/中键} @{btn_model:按下/弹起/单击/双击}
@@ -50,6 +53,8 @@ atomic:
         title: 键盘辅助按键
         tip: 选择键盘辅助按键，默认为无
     outputList: []
+    path:
+      - /atomicTree/keyboard
   Gui.mouse_wheel:
     title: 鼠标滚动
     comment: 模拟鼠标 @{scroll_type} 滚动 @{scroll_px||times}，滚动方向为:@{direction}
@@ -72,6 +77,8 @@ atomic:
         title: 键盘辅助按键
         tip: 选择键盘辅助按键，默认为无
     outputList: []
+    path:
+      - /atomicTree/keyboard
   Gui.mouse_move_new:
     title: 鼠标移动
     comment: 在@{window_type}上模拟鼠标移动到@{position_x}, @{position_y}
@@ -100,11 +107,11 @@ atomic:
         title: 鼠标移动速度
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/keyboard
   Gui.mouse_drag:
     title: 鼠标拖拽
-    comment: >-
-      模拟鼠标从起点位置@{start_pos_x}, @{start_pos_y}拖拽到终点位置@{end_pos_x},
-      @{end_pos_y}
+    comment: 模拟鼠标从起点位置@{start_pos_x}, @{start_pos_y}拖拽到终点位置@{end_pos_x}, @{end_pos_y}
     icon: mouse-drag
     helpManual: ''
     inputList:
@@ -133,6 +140,8 @@ atomic:
         title: 键盘辅助按键
         tip: 选择鼠标拖拽时的键盘辅助按键，默认为无
     outputList: []
+    path:
+      - /atomicTree/keyboard
   Gui.mouse_position:
     title: 获取鼠标位置
     comment: 获取当前鼠标位置并输出至@{point_x}, @{point_y}
@@ -146,6 +155,8 @@ atomic:
       - key: point_y
         title: 鼠标y位置
         tip: ''
+    path:
+      - /atomicTree/keyboard
 options:
   KeyboardType:
     - value: normal

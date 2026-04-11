@@ -1,3 +1,5 @@
+# @format
+
 atomic:
   Excel.open_excel:
     title: 打开Excel
@@ -27,6 +29,8 @@ atomic:
       - key: open_excel_obj
         title: 打开的Excel对象
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.get_excel:
     title: 获取已打开的Excel对象
     comment: 获取文件名为 @{file_name} 的Excel对象，返回Excel对象 @{get_excel_obj}
@@ -40,11 +44,11 @@ atomic:
       - key: get_excel_obj
         title: 获取的Excel对象
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.create_excel:
     title: 创建Excel
-    comment: >-
-      在路径为 @{file_path} 下创建文件名为 @{file_name} 的Excel，返回Excel对象
-      @{create_excel_obj}
+    comment: 在路径为 @{file_path} 下创建文件名为 @{file_name} 的Excel，返回Excel对象 @{create_excel_obj}
     icon: excel-create-file
     helpManual: ''
     inputList:
@@ -73,6 +77,8 @@ atomic:
       - key: excel_path
         title: 创建的Excel路径
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.save_excel:
     title: 保存Excel
     comment: 保存Excel对象 @{excel} ，保存方式为 @{save_type}
@@ -98,11 +104,11 @@ atomic:
         title: 是否关闭文件
         tip: 选择保存后是否关闭文件，可选关闭或不关闭
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.close_excel:
     title: 关闭Excel
-    comment: >-
-      关闭 @{close_range_flag}，当前Excel对象 @{excel}，保存类型为
-      @{save_type_one||save_type_all}
+    comment: 关闭 @{close_range_flag}，当前Excel对象 @{excel}，保存类型为 @{save_type_one||save_type_all}
     icon: excel-close-file
     helpManual: ''
     inputList:
@@ -131,6 +137,8 @@ atomic:
         title: 是否关闭进程
         tip: 选择是否关闭进程，可选关闭或不关闭
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.edit_excel:
     title: 写入Excel
     comment: 编辑Excel对象 @{excel} ，写入内容 @{value}
@@ -154,12 +162,13 @@ atomic:
         tip: 输入要编辑的起始行号，从1开始计数，当选择列(COLUMN)时可不填，当选择行(ROW)或区域(AREA)时必填
       - key: value
         title: 写入内容
-        tip: >-
-          修改的内容以列表方式输入，当选择行或列时输入列表如[1,2,3]，表示在指定行依次写入1,2,3；当选择区域时输入列表如[[1,1],[2,2]]，表示在指定区域按行写入数据
+        tip: 修改的内容以列表方式输入，当选择行或列时输入列表如[1,2,3]，表示在指定行依次写入1,2,3；当选择区域时输入列表如[[1,1],[2,2]]，表示在指定区域按行写入数据
       - key: edit_type
         title: 写入方式
         tip: 选择写入类型，可选覆盖或追加
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.read_excel:
     title: 读取Excel内容
     comment: 读取Excel对象 @{excel} 中工作表 @{sheet_name} 的Excel内容
@@ -209,11 +218,12 @@ atomic:
       - key: read_excel_contents
         title: 读取的Excel内容
         tip: 读取的Excel内容以列表方式返回
+    path:
+      - /atomicTree/document/document.Excel
   Excel.design_cell_type:
     title: 设置单元格属性
-    comment: >-
-      设置 @{excel} 中工作表 @{sheet_name} 的单元格格式，字体大小为 @{font_size}，字体名称为
-      @{font_name}，字体颜色为 @{font_color}，背景颜色 @{bg_color}
+    comment: 设置 @{excel} 中工作表 @{sheet_name} 的单元格格式，字体大小为 @{font_size}，字体名称为 @{font_name}，字体颜色为
+      @{font_color}，背景颜色 @{bg_color}
     icon: excel-set-cell-format
     helpManual: ''
     inputList:
@@ -278,11 +288,11 @@ atomic:
         title: 自动列宽
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.copy_excel:
     title: 复制Excel单元格
-    comment: >-
-      复制Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格，返回复制内容的字符串格式
-      @{copy_excel_contents}
+    comment: 复制Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格，返回复制内容的字符串格式 @{copy_excel_contents}
     icon: excel-copy-cell
     helpManual: ''
     inputList:
@@ -311,6 +321,8 @@ atomic:
       - key: copy_excel_contents
         title: Excel复制内容
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.paste_excel:
     title: 粘贴Excel单元格
     comment: 向Excel对象 @{excel} 中工作表 @{sheet_name} 粘贴单元格
@@ -336,6 +348,8 @@ atomic:
         title: 是否转置
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.delete_excel_cell:
     title: 删除Excel单元格
     comment: 删除Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格
@@ -367,6 +381,8 @@ atomic:
         title: 剩余数据填充方向
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.clear_excel_content:
     title: 清除Excel区域内容
     comment: 清除Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格内容
@@ -398,6 +414,8 @@ atomic:
         title: 清除类型
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.insert_excel_row_or_column:
     title: 插入Excel行或列
     comment: 向Excel对象 @{excel} 中工作表 @{sheet_name} 插入行或列
@@ -433,11 +451,12 @@ atomic:
         tip: ''
       - key: insert_content
         title: 插入内容
-        tip: >-
-          插入单行或多行时，插入内容需为多维列表，字符需使用单引号''，例：插入1行，写入内容：[[123,24,32]]，插入2行，写入内容：[[123,123],['aaa']]，则实际写入excel内容为：第一行：123 
-          123；第二行：aaa；写入内容：[[123,123],'aaa']，则实际写入excel内容为：第一行：123  123；第二行：a a
-          a；如果插入的行或列超过数据长度，多余的单元格将保持为空
+        tip:
+          插入单行或多行时，插入内容需为多维列表，字符需使用单引号''，例：插入1行，写入内容：[[123,24,32]]，插入2行，写入内容：[[123,123],['aaa']]，则实际写入excel内容为：第一行：123  123；第二行：aaa；写入内容：[[123,123],'aaa']，则实际写入excel内容为：第一行：123  123；第二行：a
+          a a；如果插入的行或列超过数据长度，多余的单元格将保持为空
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.get_excel_row_num:
     title: 获取Excel行数
     comment: 获取Excel对象 @{excel} 中工作表 @{sheet_name} 的行数，返回行数 @{excel_row_num}
@@ -460,6 +479,8 @@ atomic:
       - key: excel_row_num
         title: Excel行数
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.get_excel_col_num:
     title: 获取Excel列数
     comment: 获取Excel对象 @{excel} 中工作表 @{sheet_name} 的列数，返回列数 @{excel_col_num}
@@ -485,11 +506,11 @@ atomic:
       - key: excel_col_num
         title: Excel列数
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.get_excel_first_available_row:
     title: 获取Excel第一个可用行
-    comment: >-
-      获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用行，返回可用行
-      @{get_first_available_row}
+    comment: 获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用行，返回可用行 @{get_first_available_row}
     icon: excel-get-first-available-row
     helpManual: ''
     inputList:
@@ -503,11 +524,11 @@ atomic:
       - key: get_first_available_row
         title: 第一个可用行
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.get_excel_first_available_col:
     title: 获取Excel第一个可用列
-    comment: >-
-      获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用列，返回可用列
-      @{get_first_available_col}
+    comment: 获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用列，返回可用列 @{get_first_available_col}
     icon: excel-get-first-available-column
     helpManual: ''
     inputList:
@@ -524,6 +545,8 @@ atomic:
       - key: get_first_available_col
         title: 第一个可用列
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.loop_excel_content:
     title: 循环Excel内容
     comment: 循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至 @{key} ，输出循环项至 @{value}
@@ -564,11 +587,12 @@ atomic:
       - key: value
         title: 循环项
         tip: 例如 [1.0, None]
+    path:
+      - /atomicTree/code/for
+      - /atomicTree/document/document.Excel
   Excel.excel_get_cell_color:
     title: 获取Excel单元格颜色
-    comment: >-
-      获取Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格 @{coordinate} 的颜色，返回颜色
-      @{get_cell_color}
+    comment: 获取Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格 @{coordinate} 的颜色，返回颜色 @{get_cell_color}
     icon: excel-get-cell-color
     helpManual: ''
     inputList:
@@ -585,6 +609,8 @@ atomic:
       - key: get_cell_color
         title: 单元格颜色
         tip: ''
+    path:
+      - /atomicTree/document/document.Excel
   Excel.merge_split_excel_cell:
     title: 合并或拆分Excel单元格
     comment: 合并或拆分Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格
@@ -607,6 +633,8 @@ atomic:
         title: 拆分单元格范围
         tip: 输入需拆分的连续单元格范围，如A1:B2
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.add_excel_worksheet:
     title: 添加Excel工作表
     comment: 向Excel对象 @{excel} 中添加工作表 @{sheet_name}
@@ -626,6 +654,8 @@ atomic:
         title: 在...表之前/之后插入
         tip: 输入相对位置相关的工作表名称，如'Sheet1'
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.move_excel_worksheet:
     title: 移动Excel工作表
     comment: 移动Excel对象 @{excel} 中工作表 @{move_sheet} ，移动方式为 @{move_type}
@@ -645,6 +675,8 @@ atomic:
         title: 目标工作表
         tip: 工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.delete_excel_worksheet:
     title: 删除Excel工作表
     comment: 删除Excel对象 @{excel} 中工作表 @{del_sheet_name}
@@ -658,6 +690,8 @@ atomic:
         title: 删除工作表
         tip: 工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.rename_excel_worksheet:
     title: 重命名Excel工作表
     comment: 重命名Excel对象 @{excel} 中工作表 @{source_sheet_name} 为 @{new_sheet_name}
@@ -674,6 +708,8 @@ atomic:
         title: 新工作表名
         tip: 工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.copy_excel_worksheet:
     title: 复制Excel工作表
     comment: 复制Excel对象 @{excel} 中工作表 @{source_sheet_name} ，复制类型为 @{copy_type}
@@ -702,6 +738,8 @@ atomic:
         title: 是否覆盖
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.get_excel_worksheet_names:
     title: 获取Excel工作表名称
     comment: 获取Excel对象 @{excel} 中工作表名称，返回工作表名称列表 @{sheet_names}
@@ -718,11 +756,11 @@ atomic:
       - key: sheet_names
         title: 工作表名称
         tip: 返回工作表名称列表，如['Sheet1', 'Sheet2']
+    path:
+      - /atomicTree/document/document.Excel
   Excel.search_and_replace_excel_content:
     title: 查找或替换Excel内容
-    comment: >-
-      查找或替换Excel对象 @{excel} 中 @{search_range} 范围内 @{find_str} ，返回查找结果
-      @{search_excel_result}
+    comment: 查找或替换Excel对象 @{excel} 中 @{search_range} 范围内 @{find_str} ，返回查找结果 @{search_excel_result}
     icon: excel-find-replace
     helpManual: ''
     inputList:
@@ -780,15 +818,13 @@ atomic:
     outputList:
       - key: search_excel_result
         title: 查找结果
-        tip: >-
-          选择单工作表查找是返回单元格位置列表，比如['A1',
-          'B2']，选择多工作表查找是返回工作表名称和单元格位置列表字典，比如{'Sheet1': ['A1', 'B2'], 'Sheet2':
-          ['C3', 'D4']}
+        tip: "选择单工作表查找是返回单元格位置列表，比如['A1', 'B2']，选择多工作表查找是返回工作表名称和单元格位置列表字典，比如{'Sheet1':
+          ['A1', 'B2'], 'Sheet2': ['C3', 'D4']}"
+    path:
+      - /atomicTree/document/document.Excel
   Excel.insert_pic:
     title: 插入Excel图片
-    comment: >-
-      向Excel对象 @{excel} 中工作表 @{sheet_name} 插入图片 @{pic_path} ，插入类型为
-      @{pic_size_type}
+    comment: 向Excel对象 @{excel} 中工作表 @{sheet_name} 插入图片 @{pic_path} ，插入类型为 @{pic_size_type}
     icon: excel-insert-image
     helpManual: ''
     inputList:
@@ -817,6 +853,8 @@ atomic:
         title: 图片缩放比例
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.insert_formula:
     title: 插入Excel公式
     comment: 向Excel对象 @{excel} 中工作表 @{sheet_name} 插入公式 @{formula}
@@ -854,6 +892,8 @@ atomic:
         title: 插入公式
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.create_excel_comment:
     title: 创建Excel批注
     comment: 向Excel对象 @{excel} 中插入批注 @{comment}
@@ -885,6 +925,8 @@ atomic:
         title: 是否批注所有匹配内容
         tip: 选择是将会对所有匹配内容进行批注，选择否只会对第一个匹配内容进行批注
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.delete_excel_comment:
     title: 删除Excel批注
     comment: 删除Excel对象 @{excel} 中批注
@@ -904,6 +946,8 @@ atomic:
         title: 单元格位置
         tip: 输入单元格位置，如A1
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.excel_text_to_number:
     title: Excel区域文本转数字
     comment: 将Excel对象 @{excel_obj} 中工作表 @{sheet_name} 中的区域文本转化为数字格式
@@ -932,6 +976,8 @@ atomic:
         title: 单元格范围
         tip: 输入单元格范围，如A1:B2
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.excel_number_to_text:
     title: Excel区域数字转文本
     comment: 将Excel对象 @{excel_obj} 中工作表 @{sheet_name} 中的区域数字转化为文本格式
@@ -960,6 +1006,8 @@ atomic:
         title: 单元格范围
         tip: 输入单元格范围，如A1:B2
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.excel_set_col_width:
     title: 设置Excel列宽
     comment: 设置Excel对象 @{excel_obj} 工作表 @{sheet_name} 中 @{col} 的列宽
@@ -982,6 +1030,8 @@ atomic:
         title: 列宽
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
   Excel.excel_set_row_height:
     title: 设置Excel行高
     comment: 设置Excel对象 @{excel_obj} 工作表 @{sheet_name} 中 @{row} 的行高
@@ -1004,6 +1054,8 @@ atomic:
         title: 行高
         tip: ''
     outputList: []
+    path:
+      - /atomicTree/document/document.Excel
 options:
   ApplicationType:
     - value: Excel

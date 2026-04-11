@@ -1,0 +1,863 @@
+{
+  "atomicTree": [
+    {
+      "key": "process",
+      "title": "流程",
+      "icon": "process",
+      "atomics": []
+    },
+    {
+      "key": "code",
+      "title": "代码流程",
+      "icon": "code-process",
+      "atomics": [
+        {
+          "key": "if",
+          "title": "条件判断",
+          "atomics": [
+            {
+              "key": "Code.If",
+              "title": "IF条件",
+              "icon": "if-condition"
+            },
+            {
+              "key": "Code.ElseIf",
+              "title": "ELSE IF条件",
+              "icon": "else-if-condition"
+            },
+            {
+              "key": "Code.Else",
+              "title": "ELSE条件",
+              "icon": "else-condition"
+            }
+          ]
+        },
+        {
+          "key": "for",
+          "title": "循环",
+          "atomics": [
+            {
+              "key": "Code.ForDict",
+              "title": "字典For循环",
+              "icon": "dictionary-for-loop"
+            },
+            {
+              "key": "Code.ForList",
+              "title": "列表For循环",
+              "icon": "list-for-loop"
+            },
+            {
+              "key": "Code.ForStep",
+              "title": "计数For循环",
+              "icon": "count-for-loop"
+            },
+            {
+              "key": "Code.While",
+              "title": "While循环",
+              "icon": "while-loop"
+            },
+            {
+              "key": "Code.Break",
+              "title": "退出循环（Break）",
+              "icon": "break-loop"
+            },
+            {
+              "key": "Code.Continue",
+              "title": "继续下次循环（Continue）",
+              "icon": "continue-next-loop"
+            },
+            {
+              "key": "Code.Return",
+              "title": "退出流程（Return）",
+              "icon": "break-loop"
+            }
+          ]
+        },
+        {
+          "key": "error",
+          "title": "错误处理",
+          "atomics": [
+            {
+              "key": "Code.Try",
+              "title": "捕获异常（Try)",
+              "icon": "try-exception"
+            },
+            {
+              "key": "Code.Finally",
+              "title": "捕获异常（Finally)",
+              "icon": "finally-exception"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "web",
+      "title": "网页自动化",
+      "icon": "web-automation",
+      "atomics": [
+        {
+          "key": "web.cookie",
+          "title": "Cookie",
+          "atomics": []
+        },
+        {
+          "key": "web.page",
+          "title": "网页操作",
+          "atomics": []
+        },
+        {
+          "key": "web.file",
+          "title": "网页文件",
+          "atomics": []
+        }
+      ]
+    },
+    {
+      "key": "desktop",
+      "title": "桌面自动化",
+      "icon": "desktop-automation",
+      "atomics": [
+        {
+          "key": "desktop.window",
+          "title": "窗口操作",
+          "atomics": []
+        },
+        {
+          "key": "SAP",
+          "title": "SAP自动化",
+          "atomics": []
+        }
+      ]
+    },
+    {
+      "key": "document",
+      "title": "文档处理",
+      "icon": "document-processing",
+      "atomics": [
+        {
+          "key": "document.PDF",
+          "title": "PDF",
+          "atomics": []
+        },
+        {
+          "key": "document.Word",
+          "title": "Word",
+          "atomics": []
+        },
+        {
+          "key": "document.Excel",
+          "title": "Excel",
+          "atomics": []
+        }
+      ]
+    },
+    {
+      "key": "keyboard",
+      "title": "鼠标键盘",
+      "icon": "mouse-keyboard",
+      "atomics": []
+    },
+    {
+      "key": "data",
+      "title": "数据处理",
+      "icon": "data-processing",
+      "atomics": [
+        {
+          "key": "data.Math",
+          "title": "数学操作",
+          "atomics": []
+        },
+        {
+          "key": "data.String",
+          "title": "字符串操作",
+          "atomics": []
+        },
+        {
+          "key": "data.List",
+          "title": "列表操作",
+          "atomics": []
+        },
+        {
+          "key": "data.Dict",
+          "title": "字典操作",
+          "atomics": []
+        },
+        {
+          "key": "data.Time",
+          "title": "时间操作",
+          "atomics": []
+        }
+      ]
+    },
+    {
+      "key": "datatable",
+      "title": "数据表格",
+      "icon": "data-table",
+      "atomics": []
+    },
+    {
+      "key": "os",
+      "title": "操作系统",
+      "icon": "operating-system",
+      "atomics": [
+        {
+          "key": "os.file",
+          "title": "文件操作",
+          "atomics": []
+        },
+        {
+          "key": "os.path",
+          "title": "文件夹操作",
+          "atomics": []
+        },
+        {
+          "key": "os.zip",
+          "title": "压缩/解压",
+          "atomics": []
+        },
+        {
+          "key": "os.system",
+          "title": "系统命令",
+          "atomics": []
+        },
+        {
+          "key": "os.screenshot",
+          "title": "截图",
+          "atomics": []
+        },
+        {
+          "key": "os.clipboard",
+          "title": "剪切板",
+          "atomics": []
+        },
+        {
+          "key": "encrypt",
+          "title": "加解密/编解码",
+          "atomics": []
+        },
+        {
+          "key": "os.printer",
+          "title": "打印机",
+          "atomics": []
+        }
+      ]
+    },
+    {
+      "key": "network",
+      "title": "网络",
+      "icon": "network",
+      "atomics": [
+        {
+          "key": "email",
+          "title": "邮件",
+          "atomics": []
+        },
+        {
+          "key": "http",
+          "title": "HTTP",
+          "atomics": []
+        },
+        {
+          "key": "ftp",
+          "title": "FTP",
+          "atomics": []
+        }
+      ]
+    },
+    {
+      "key": "cv",
+      "title": "CV图像",
+      "icon": "cv-image",
+      "atomics": []
+    },
+    {
+      "key": "enterprise",
+      "title": "控制台",
+      "icon": "center-of-excellence",
+      "atomics": []
+    },
+    {
+      "key": "dialog",
+      "title": "对话框",
+      "icon": "dialog",
+      "atomics": []
+    },
+    {
+      "key": "script",
+      "title": "自定义脚本",
+      "icon": "custom-script",
+      "atomics": []
+    }
+  ],
+  "atomicTreeExtend": [
+    {
+      "key": "ai",
+      "title": "AI",
+      "icon": "ai",
+      "atomics": [
+        {
+          "key": "llm_capability",
+          "title": "大模型LLM能力",
+          "atomics": []
+        },
+        {
+          "key": "business_ai",
+          "title": "业务AI",
+          "atomics": []
+        },
+        {
+          "key": "ai_workflow",
+          "title": "AI工作流",
+          "atomics": []
+        },
+        {
+          "key": "cua",
+          "title": "屏幕操作Agent（CUA）",
+          "atomics": []
+        },
+        {
+          "key": "ocr",
+          "title": "OCR识别",
+          "atomics": []
+        },
+        {
+          "key": "verify",
+          "title": "验证码识别",
+          "atomics": []
+        },
+        {
+          "key": "speech",
+          "title": "语音处理",
+          "atomics": []
+        },
+        {
+          "key": "image",
+          "title": "图像AI",
+          "atomics": []
+        }
+      ]
+    }
+  ],
+  "commonAdvancedParameter": [
+    {
+      "types": "Bool",
+      "formType": {
+        "type": "RADIO",
+        "params": {}
+      },
+      "key": "__res_print__",
+      "title": "打印输出变量值",
+      "name": "__res_print__",
+      "options": [
+        {
+          "label": "是",
+          "value": true
+        },
+        {
+          "label": "否",
+          "value": false
+        }
+      ],
+      "default": false
+    },
+    {
+      "types": "Float",
+      "formType": {
+        "type": "INPUT_VARIABLE_PYTHON",
+        "params": {}
+      },
+      "key": "__delay_before__",
+      "title": "执行前延迟(秒)",
+      "name": "__delay_before__",
+      "default": 0
+    },
+    {
+      "types": "Float",
+      "formType": {
+        "type": "INPUT_VARIABLE_PYTHON"
+      },
+      "key": "__delay_after__",
+      "title": "执行后延迟(秒)",
+      "name": "__delay_after__",
+      "default": 0
+    },
+    {
+      "types": "Str",
+      "formType": {
+        "type": "RADIO",
+        "params": {}
+      },
+      "key": "__skip_err__",
+      "title": "执行异常时",
+      "name": "__skip_err__",
+      "options": [
+        {
+          "label": "退出",
+          "value": "exit"
+        },
+        {
+          "label": "跳过",
+          "value": "skip"
+        },
+        {
+          "label": "重试",
+          "value": "retry"
+        }
+      ],
+      "default": "exit"
+    },
+    {
+      "types": "Int",
+      "formType": {
+        "type": "INPUT_VARIABLE_PYTHON"
+      },
+      "key": "__retry_time__",
+      "title": "重试次数(次)",
+      "name": "__retry_time__",
+      "dynamics": [
+        {
+          "key": "$this.__retry_time__.show",
+          "expression": "return  $this.__skip_err__.value == 'retry'"
+        }
+      ],
+      "default": 0
+    },
+    {
+      "types": "Float",
+      "formType": {
+        "type": "INPUT_VARIABLE_PYTHON"
+      },
+      "key": "__retry_interval__",
+      "title": "重试间隔(秒)",
+      "name": "__retry_interval__",
+      "dynamics": [
+        {
+          "key": "$this.__retry_interval__.show",
+          "expression": "return  $this.__skip_err__.value == 'retry'"
+        }
+      ],
+      "default": 0
+    }
+  ],
+  "types": {
+    "Any": {
+      "key": "Any",
+      "src": "",
+      "desc": "任意值",
+      "version": "1.1.47",
+      "channel": "global",
+      "template": "任何值",
+      "funcList": []
+    },
+    "Float": {
+      "key": "Float",
+      "src": "",
+      "desc": "数值",
+      "version": "1.1.47",
+      "channel": "global,main",
+      "template": "10.1",
+      "funcList": [
+        {
+          "key": "Float.toStr",
+          "funcDesc": "转文本",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "str(@{self:self})"
+        },
+        {
+          "key": "Float.toInt",
+          "funcDesc": "取整数部分",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "int(@{self:self})"
+        }
+      ]
+    },
+    "Int": {
+      "key": "Int",
+      "src": "",
+      "desc": "整数",
+      "version": "1.1.47",
+      "channel": "global,main",
+      "template": "10",
+      "funcList": [
+        {
+          "key": "Int.toStr",
+          "funcDesc": "转文本",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "str(@{self:self})"
+        }
+      ]
+    },
+    "Bool": {
+      "key": "Bool",
+      "src": "",
+      "desc": "布尔值",
+      "version": "1.1.47",
+      "channel": "global,main",
+      "template": "true或者false",
+      "funcList": []
+    },
+    "Str": {
+      "key": "Str",
+      "src": "",
+      "desc": "字符串",
+      "version": "1.1.47",
+      "channel": "global,main",
+      "template": "“你好”",
+      "funcList": [
+        {
+          "key": "Str.strip",
+          "funcDesc": "删除两端空格",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.strip()"
+        },
+        {
+          "key": "Str.toInt",
+          "funcDesc": "转整数",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "int(@{self:self})"
+        },
+        {
+          "key": "Str.toFloat",
+          "funcDesc": "转数值",
+          "resType": "Float",
+          "resDesc": "数值",
+          "useSrc": "float(@{self:self})"
+        }
+      ]
+    },
+    "List": {
+      "key": "List",
+      "src": "",
+      "desc": "列表",
+      "version": "1.1.47",
+      "channel": "global",
+      "template": "[1,2,3]",
+      "funcList": [
+        {
+          "key": "List.get",
+          "funcDesc": "列表第@{p1:int}项",
+          "resType": "Any",
+          "resDesc": "任意值",
+          "useSrc": "@{self:self}[@(p1:int)]"
+        },
+        {
+          "key": "List.getEnd",
+          "funcDesc": "列表倒数第@{p1:int}项",
+          "resType": "Any",
+          "resDesc": "任意值",
+          "useSrc": "@{self:self}[-@(p1:int)]"
+        },
+        {
+          "key": "List.getLen",
+          "funcDesc": "列表长度",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "len(@{self:self})"
+        },
+        {
+          "key": "List.getSlice",
+          "funcDesc": "列表第@{p1:int}项到第@{p2:int}项",
+          "resType": "List",
+          "resDesc": "列表",
+          "useSrc": "@{self:self}[@(p1:int):@(p2:int)]"
+        }
+      ]
+    },
+    "Dict": {
+      "key": "Dict",
+      "src": "",
+      "desc": "字典",
+      "version": "1.1.47",
+      "channel": "global",
+      "template": {
+        "name": "小明"
+      },
+      "funcList": [
+        {
+          "key": "Dict.get",
+          "funcDesc": "字典键@{p1:str}的值",
+          "resType": "Any",
+          "resDesc": "任意值",
+          "useSrc": "@{self:self}[\"@(p1:str)\"]"
+        },
+        {
+          "key": "List.getLen",
+          "funcDesc": "字典包含元素个数",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "len(@{self:self})"
+        }
+      ]
+    },
+    "PATH": {
+      "key": "PATH",
+      "src": "",
+      "desc": "文件路径",
+      "version": "1.1.47",
+      "channel": "global,main",
+      "template": "C://Users",
+      "funcList": [
+        {
+          "key": "PATH.root",
+          "funcDesc": "根目录",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.root()"
+        },
+        {
+          "key": "PATH.directory",
+          "funcDesc": "父目录",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.directory()"
+        },
+        {
+          "key": "PATH.file_name",
+          "funcDesc": "文件名称",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.file_name()"
+        },
+        {
+          "key": "PATH.file_name_without_extension",
+          "funcDesc": "文件名称(不带扩展名)",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.file_name_without_extension()"
+        },
+        {
+          "key": "PATH.file_extension",
+          "funcDesc": "文件扩展名",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.file_extension()"
+        }
+      ]
+    },
+    "DIRPATH": {
+      "key": "DIRPATH",
+      "src": "",
+      "desc": "文件夹路径",
+      "version": "1.1.79",
+      "channel": "global,main",
+      "template": "C://Users",
+      "funcList": [
+        {
+          "key": "DIRPATH.root",
+          "funcDesc": "root",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.root()"
+        },
+        {
+          "key": "DIRPATH.directory",
+          "funcDesc": "directory",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.directory()"
+        }
+      ]
+    },
+    "Date": {
+      "key": "Date",
+      "src": "",
+      "desc": "日期时间",
+      "version": "1.1.53",
+      "channel": "global,main",
+      "template": "2025-01-10 17:00:00",
+      "funcList": [
+        {
+          "key": "Date.get_time_year",
+          "funcDesc": "获取年份",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_year()"
+        },
+        {
+          "key": "Date.get_time_month",
+          "funcDesc": "获取月份",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_month()"
+        },
+        {
+          "key": "Date.get_time_day",
+          "funcDesc": "获取日",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_day()"
+        },
+        {
+          "key": "Date.get_time_hour",
+          "funcDesc": "获取小时",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_hour()"
+        },
+        {
+          "key": "Date.get_time_minute",
+          "funcDesc": "获取分钟",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_minute()"
+        },
+        {
+          "key": "Date.get_time_second",
+          "funcDesc": "获取秒",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_second()"
+        },
+        {
+          "key": "Date.get_time_weekday",
+          "funcDesc": "获取周几",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_weekday()"
+        },
+        {
+          "key": "Date.get_time_week",
+          "funcDesc": "获取周数",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_time_week()"
+        }
+      ]
+    },
+    "URL": {
+      "key": "URL",
+      "src": "",
+      "desc": "地址",
+      "version": "1.1.47",
+      "channel": "global",
+      "template": "https://www.iflytek.com/",
+      "funcList": []
+    },
+    "Pick": {
+      "key": "Pick",
+      "src": "",
+      "desc": "元素",
+      "version": "1.1.47",
+      "channel": "",
+      "template": "JSON字符串",
+      "funcList": []
+    },
+    "WebPick": {
+      "key": "WebPick",
+      "src": "",
+      "desc": "网页元素",
+      "version": "1.1.47",
+      "channel": "global",
+      "template": "JSON字符串",
+      "funcList": []
+    },
+    "WinPick": {
+      "key": "WinPick",
+      "src": "",
+      "desc": "桌面元素",
+      "version": "1.1.47",
+      "channel": "global",
+      "template": "JSON字符串",
+      "funcList": []
+    },
+    "IMGPick": {
+      "key": "IMGPick",
+      "src": "",
+      "desc": "图像元素",
+      "version": "1.1.79",
+      "channel": "global",
+      "template": "JSON字符串",
+      "funcList": []
+    },
+    "Password": {
+      "key": "Password",
+      "src": "",
+      "desc": "密码",
+      "version": "1.1.51",
+      "channel": "global,main",
+      "template": "******",
+      "funcList": []
+    },
+    "FeishuBaseInstance": {
+      "key": "FeishuBaseInstance",
+      "src": "",
+      "desc": "飞书对象",
+      "version": "1.1.47",
+      "channel": "",
+      "template": "飞书对象.",
+      "funcList": []
+    },
+    "DialogResult": {
+      "key": "DialogResult",
+      "src": "",
+      "desc": "对话框输出结果",
+      "version": "1.1.47",
+      "channel": "",
+      "template": "JSON字符串",
+      "funcList": []
+    },
+    "Browser": {
+      "key": "Browser",
+      "src": "rpabrowser.browser.Browser()",
+      "desc": "浏览器对象",
+      "version": "1.0.22",
+      "channel": "global",
+      "template": "Browser对象",
+      "funcList": [
+        {
+          "key": "Browser.get_url",
+          "funcDesc": "该网页的地址",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.get_url()"
+        },
+        {
+          "key": "Browser.get_title",
+          "funcDesc": "该网页的标题",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.get_title()"
+        }
+      ]
+    },
+    "DocumentObject": {
+      "key": "DocumentObject",
+      "src": "astronverse.word.docx_obj.DocumentObject()",
+      "desc": "Word对象",
+      "version": "1.0.1",
+      "channel": "global",
+      "template": "DocumentObject对象",
+      "funcList": []
+    },
+    "ExcelObj": {
+      "key": "ExcelObj",
+      "src": "astronverse.excel.excel_obj.ExcelObj()",
+      "desc": "Excel对象",
+      "version": "1.0.38",
+      "channel": "global",
+      "template": "ExcelObj对象",
+      "funcList": [
+        {
+          "key": "ExcelObj.get_full_name",
+          "funcDesc": "文件所在位置",
+          "resType": "Str",
+          "resDesc": "字符串",
+          "useSrc": "@{self:self}.get_full_name()"
+        },
+        {
+          "key": "ExcelObj.get_first_free_row",
+          "funcDesc": "第一个可用行",
+          "resType": "Int",
+          "resDesc": "整数",
+          "useSrc": "@{self:self}.get_first_free_row()"
+        }
+      ]
+    }
+  }
+}
