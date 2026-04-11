@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel
-
 
 class Point:
     """点"""
@@ -75,7 +73,7 @@ class Rect:
 
     def __eq__(self, rect):
         return (
-            self.left == rect.left and self.top == rect.top and self.right == rect.right and self.bottom == rect.bottom
+                self.left == rect.left and self.top == rect.top and self.right == rect.right and self.bottom == rect.bottom
         )
 
 
@@ -121,10 +119,10 @@ PICKER_TYPE_DICT = {p.value: True for p in PickerType}
 class PickerAction(Enum):
     """拾取动作 - 专门处理拾取的子操作"""
 
-    START = "START"          # 开始
-    STOP = "STOP"            # 结束
-    VALIDATE = "VALIDATE"    # 验证
-    GAIN = "GAIN"            # 数据抓取获取原始数据，类似验证
+    START = "START"  # 开始
+    STOP = "STOP"  # 结束
+    VALIDATE = "VALIDATE"  # 验证
+    GAIN = "GAIN"  # 数据抓取获取原始数据，类似验证
     HIGHLIGHT = "HIGHLIGHT"  # 数据抓取验证表格高亮, 类似验证
 
 

@@ -25,6 +25,8 @@ def start():
 
     # 启动ws服务
     ws = WsServer(svc=service_context, port=args.port)
+    service_context.ws_server = ws
+
     thread_ws = threading.Thread(target=ws.server, args=(), daemon=True)
     thread_ws.start()
 

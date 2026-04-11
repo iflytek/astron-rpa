@@ -49,8 +49,8 @@ class WsServer:
 
     def _import_picker_handler(self):
         if self._picker_handler is None:
-            from astronverse.picker.server.handlers.picker_handler import PickerHandler
-            self._picker_handler = PickerHandler(self.svc)
+            from astronverse.picker.server.handlers.normal_picker_handler import NormalPickerHandler
+            self._picker_handler = NormalPickerHandler(self.svc)
         return self._picker_handler
 
     def _import_hl_handler(self):

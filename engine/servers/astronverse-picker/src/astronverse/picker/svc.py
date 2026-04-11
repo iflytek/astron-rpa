@@ -7,7 +7,7 @@ import threading
 import time
 from typing import Any
 
-from astronverse.picker import IEventCore, IPickerCore, PickerSign, SVCSign
+from astronverse.picker import IEventCore, IPickerCore
 from astronverse.picker.error import *
 from astronverse.picker.logger import logger
 
@@ -42,83 +42,59 @@ class ServiceContext:
 
     def __init__(self, port: int, highlight_socket_port: int, route_port: int) -> None:
         # 运行配置
-        self.port: str = port
-        self.highlight_socket_port: str = highlight_socket_port
-        self.route_port: str = route_port
+        self.port: int = port
+        self.highlight_socket_port: int = highlight_socket_port
+        self.route_port: int = route_port
 
         # 全局运行事件
         self.__sign__: SyncMap = SyncMap()  # PickerSign
 
-        # 策略
-        self.strategy = None
-
         # 组件
-        self.highlight_client = None
-        self.locator = None
+        self.strategy = None  # 策略
+        self.locator = None  # 定位
+        self.pick_server = None  # 拾取服务
         self.event_core = None
-        self.picker_core = None
+        self.ws_server = None
 
-        self.pick_server = None
-
-        # sap预初始化用
+        # 全局状态
         self.sapguiauto = None
         self.application = None
-
-        # highlight关闭用
-        self.event_tag = None
 
     def load_modules(self):
         """加载系统模块组件"""
 
-        # 高亮
-        from astronverse.picker.core.highlight_client import highlight_client
-
-        self.highlight_client = highlight_client
-
         # 策略
         from astronverse.picker.strategy.manager import Strategy
-
         self.strategy: Strategy = Strategy(self)
 
         # 拾取 - 平台相关导入
         if sys.platform == "win32":
             from astronverse.picker.core.event_core_win import EventCore
-            from astronverse.picker.core.picker_core_win import PickerCore
-
             self.event_core: IEventCore = EventCore()
-            self.picker_core: IPickerCore = PickerCore()
         elif platform.system() == "Linux":
             pass
         elif sys.platform == "darwin":
             from astronverse.picker.core.event_core_mac import EventCore
-            from astronverse.picker.core.picker_core_mac import PickerCore
-
             self.event_core: IEventCore = EventCore()
-            self.picker_core: IPickerCore = PickerCore()
 
-        # 定住 - 可选模块
+        # 定位
         try:
             from astronverse.locator.locator import LocatorManager
-
             self.locator = LocatorManager
         except ImportError:
-            logger.info("无法导入rpa_locator模块，如非必要请忽略")
             self.locator = None
-
-    def tag(self, tag=SVCSign.PICKER):
-        self.event_tag = tag
 
     def sign(self) -> SyncMap:
         """获取信号映射对象"""
         return self.__sign__
 
-    async def send_sign(self, sign: PickerSign, data: Any, interval: int = 180) -> Any:
+    async def send_sign(self, sign: str, data: Any, interval: int = 180) -> Any:
         """发送信号并等待响应"""
         # 清空返回值并发送sign
-        result_sign = f"{sign.value}_RES"
+        result_sign = f"{sign}_RES"
         if result_sign in self.__sign__:
             del self.__sign__[result_sign]
-        self.__sign__[sign.value] = data
+        self.__sign__[sign] = data
 
         # 超时等待sign的返回结果
         start_time = interval
@@ -127,7 +103,8 @@ class ServiceContext:
             await asyncio.sleep(0.1)
             start_time -= 0.1
             if self.pick_server and self.pick_server.start_time and time.time() - self.pick_server.start_time > 15:
-                self.event_core.close()  # 关闭监听
+                self.event_core.close()
+                # 关闭监听
                 raise BizException(TIMEOUT_LAG, "拾取卡顿超过15s，请退出编辑器后重新进入")
         if start_time <= 0:
             raise BizException(TIMEOUT, "拾取超时")
