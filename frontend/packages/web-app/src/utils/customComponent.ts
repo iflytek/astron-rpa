@@ -5,8 +5,8 @@ import { getComponentDetail } from '@/api/project'
 import { getProcessAndCodeList } from '@/api/resource'
 import { addComponentUse, deleteComponentUse, getEditComponentDetail } from '@/api/robot'
 import { ATOM_FORM_TYPE, OTHER_IN_TYPE } from '@/constants/atom'
-import type { ProcessNode } from '@/views/Arrange/canvasManager/ast/ASTNode'
 import { useProcessStore } from '@/stores/useProcessStore'
+import { mergeAtomFormToAtomMeta } from '@/views/Arrange/canvasManager/adapters/VisualEditor/utils'
 
 export const COMPONENT_KEY_PREFIX = 'Code.Component'
 
@@ -246,12 +246,11 @@ function buildComponentFormData(params: {
   version?: number
   icon?: string
   comment?: string
-  noAdvanced?: boolean
 }): RPA.Atom {
-  const { componentId, componentAttrs, title, version = '', icon = '', comment = '', noAdvanced = false } = params
+  const { componentId, componentAttrs, title, version = '', icon = '', comment = '' } = params
   const { inputFormItems, outputFormItems } = buildFormItemsFromAttrs(componentAttrs)
 
-  return {
+  const componentAbility = mergeAtomFormToAtomMeta({
     key: `${COMPONENT_KEY_PREFIX}.${componentId}`,
     title,
     alias: title,
@@ -262,8 +261,9 @@ function buildComponentFormData(params: {
     outputList: outputFormItems,
     icon,
     helpManual: '',
-    noAdvanced,
-  } as unknown as RPA.Atom
+  } as unknown as RPA.Atom)
+
+  return componentAbility as unknown as RPA.Atom
 }
 
 /**
@@ -295,7 +295,6 @@ export async function getComponentForm(params: {
     version: version || info.componentVersion || info.latestVersion,
     icon: info.icon,
     comment: info.comment,
-    noAdvanced: true,
   })
 }
 
@@ -402,28 +401,34 @@ export function getUsedComponentKeySet() {
   return usedkeySet
 }
 
-export async function trackComponentUsageChange(operation: () => void | Promise<void>) {
-  const beforeUsedKeys = getUsedComponentKeySet()
-  await operation()
-  const afterUsedKeys = getUsedComponentKeySet()
+/** 根据画布前后自定义组件 key 集合差异，同步 addComponentUse / deleteComponentUse */
+export async function syncComponentUsageBetween(beforeUsedKeys: Set<string>, afterUsedKeys: Set<string>) {
   const deletedKeys = new Set(difference([...beforeUsedKeys], [...afterUsedKeys]))
   const addedKeys = new Set(difference([...afterUsedKeys], [...beforeUsedKeys]))
+  const store = useProcessStore()
 
   for (const key of addedKeys) {
     await addComponentUse({
-      robotId: useProcessStore().project.id,
-      robotVersion: useProcessStore().project.version,
+      robotId: store.project.id,
+      robotVersion: store.project.version,
       componentId: getComponentId(key),
     })
   }
 
   for (const key of deletedKeys) {
     await deleteComponentUse({
-      robotId: useProcessStore().project.id,
-      robotVersion: useProcessStore().project.version,
+      robotId: store.project.id,
+      robotVersion: store.project.version,
       componentId: getComponentId(key),
     })
   }
+}
+
+export async function trackComponentUsageChange(operation: () => void | Promise<void>) {
+  const beforeUsedKeys = getUsedComponentKeySet()
+  await operation()
+  const afterUsedKeys = getUsedComponentKeySet()
+  await syncComponentUsageBetween(beforeUsedKeys, afterUsedKeys)
 }
 
 /**

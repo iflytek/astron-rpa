@@ -1,5 +1,7 @@
 import { ref } from 'vue'
 
+import { getUsedComponentKeySet, syncComponentUsageBetween } from '@/utils/customComponent'
+
 import { UndoManager as BaseUndoManager } from '../../UndoManager'
 
 import type { VisualEditor } from '.'
@@ -48,6 +50,7 @@ export class UndoManager implements RPA.Process.UndoManager {
   }
 
   private applyOperation(operation: AtomOperation, isUndo: boolean) {
+    const beforeUsedKeys = getUsedComponentKeySet()
     switch(operation.type) {
       case 'insert':
         if (isUndo) {
@@ -100,6 +103,9 @@ export class UndoManager implements RPA.Process.UndoManager {
     this.editor.updateData()
     this.editor.updateState({ isDirty: true })
     this.syncState()
+
+    const afterUsedKeys = getUsedComponentKeySet()
+    syncComponentUsageBetween(beforeUsedKeys, afterUsedKeys)
   }
 
   private insert(targetId: string | undefined, processNodes: ProcessNode[]) {
