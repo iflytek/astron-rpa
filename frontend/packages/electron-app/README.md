@@ -27,7 +27,7 @@ $ pnpm dev
 $ pnpm build:win
 
 # For macOS
-$ pnpm build:mac
+$ pnpm build:darwin
 
 # For Linux
 $ pnpm build:linux
