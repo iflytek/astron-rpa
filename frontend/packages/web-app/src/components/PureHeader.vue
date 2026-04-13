@@ -4,6 +4,8 @@ import { onMounted, ref } from 'vue'
 
 import { isBrowser, windowManager } from '@/platform'
 
+import WindowControls from './WindowControls.vue'
+
 const props = defineProps({
   minimize: {
     type: Boolean,
@@ -29,6 +31,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  platform: {
+    type: String,
+    default: (navigator.userAgent.includes('Macintosh') || navigator.userAgent.includes('Mac')) ? 'mac' : 'win',
+  },
 })
 
 const isMaximized = ref(false)
@@ -39,35 +45,7 @@ function dbClickFn(e: MouseEvent) {
     e.stopPropagation()
   }
 }
-function handleMinMaxClose(type: string) {
-  if (isBrowser)
-    return
 
-  switch (type) {
-    case 'minimize':
-      windowManager.minimizeWindow()
-      break
-    case 'maximize':
-      windowManager.maximizeWindow().then((isMax) => {
-        isMaximized.value = isMax
-      })
-      break
-    case 'close':
-      handleClose()
-      break
-    default:
-      break
-  }
-}
-
-function handleClose() {
-  if (props.closeFn) {
-    props.closeFn()
-  }
-  else {
-    windowManager.closeWindow()
-  }
-}
 onMounted(() => {
   windowManager.onWindowResize(() => {
     windowManager.isMaximized().then((isMax) => {
@@ -79,9 +57,25 @@ onMounted(() => {
 
 <template>
   <div data-tauri-drag-region class="app_control w-full drag shrink-0">
+    <!-- Mac 样式的控制按钮放在左侧 -->
+    <div
+      v-if="props.platform === 'mac'"
+      class="flex items-center no-drag h-full pl-2"
+    >
+      <WindowControls
+        v-model:isMaximized="isMaximized"
+        :minimize="props.minimize"
+        :maximize="props.maximize"
+        :close="props.close"
+        :close-fn="props.closeFn"
+        :platform="props.platform"
+      />
+    </div>
+
     <div
       data-tauri-drag-region
       class="app_control_text flex items-center gap-2 drag whitespace-nowrap"
+      :class="{ 'pl-1': props.platform === 'mac' }"
       @dblclick="dbClickFn"
     >
       <img
@@ -114,28 +108,16 @@ onMounted(() => {
         <Divider type="vertical" />
       </template>
 
-      <!-- 使用props控制显示 -->
-      <span
-        v-if="props.minimize"
-        class="app_control__item"
-        @click="handleMinMaxClose('minimize')"
-      >
-        <rpa-icon name="remove" />
-      </span>
-      <span
-        v-if="props.maximize"
-        class="app_control__item"
-        @click="handleMinMaxClose('maximize')"
-      >
-        <rpa-icon :name="isMaximized ? 'middle' : 'maxwin'" />
-      </span>
-      <span
-        v-if="props.close"
-        class="app_control__item"
-        @click="handleMinMaxClose('close')"
-      >
-        <rpa-icon name="close" />
-      </span>
+      <!-- 窗口控制按钮 (Windows 样式放在右侧) -->
+      <WindowControls
+        v-if="props.platform === 'win'"
+        v-model:isMaximized="isMaximized"
+        :minimize="props.minimize"
+        :maximize="props.maximize"
+        :close="props.close"
+        :close-fn="props.closeFn"
+        :platform="props.platform"
+      />
     </div>
   </div>
 </template>
@@ -153,21 +135,6 @@ onMounted(() => {
     padding-left: 16px;
     user-select: none;
     min-width: 160px;
-  }
-}
-
-.app_control__item {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 40px;
-  &:hover {
-    background-color: $color-fill-secondary;
-  }
-  &:last-child:hover {
-    background-color: red;
   }
 }
 </style>
