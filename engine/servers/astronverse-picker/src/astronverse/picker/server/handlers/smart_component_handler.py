@@ -16,8 +16,10 @@ class SmartComponentHandler:
         request = RequestMessage(**data)
         try:
             match request.smart_component_action:
-                case SmartComponentAction.START | SmartComponentAction.NEXT | SmartComponentAction.PREVIOUS:
+                case SmartComponentAction.START:
                     await self._handle_start(request)
+                case SmartComponentAction.NEXT | SmartComponentAction.PREVIOUS:
+                    await self._handle_navigate(request)
                 case SmartComponentAction.CANCEL | SmartComponentAction.END:
                     await self._handle_stop(request)
         except Exception as e:
@@ -40,6 +42,22 @@ class SmartComponentHandler:
         finally:
             await self.ws_server.hl.hide()
 
+    async def _handle_navigate(self, request: RequestMessage):
+        """上下级切换：直接 send_sign，由 picker 侧负责重绘高亮"""
+        try:
+            payload = self._build_start_sign_payload(request)
+            result = await self.svc.send_sign(request.smart_component_action.value, payload)
+            if result == "cancel":
+                await self._send_response(ResponseKey.CANCEL, error="")
+            elif isinstance(result, dict):
+                out = dict(result)
+                out["picker_type"] = request.pick_type.name
+                await self._send_response(ResponseKey.SUCCESS, data=out)
+            else:
+                await self._send_response(ResponseKey.ERROR, error=str(result))
+        finally:
+            pass
+
     async def _handle_stop(self, request: RequestMessage):
         """取消 / 结束拾取：隐藏高亮 + send_sign（与 NormalPickerHandler._handle_stop 形态一致）"""
         await self.svc.send_sign(request.smart_component_action.value, request.model_dump(mode="json"))
@@ -47,19 +65,20 @@ class SmartComponentHandler:
 
     def _build_start_sign_payload(self, request: RequestMessage) -> dict:
         """与 ws_server.back 中拾取开始一致：SIMILAR/BATCH 需先解析元素与 pick_mode"""
-        payload = request.model_dump(mode="json")
-        if request.pick_type in (PickerType.SIMILAR, PickerType.BATCH):
-            payload["data"] = self._process_element_data(request)
+        request.data = self._process_element_data(request)
 
-            # 特殊处理 pick_mode
-            if request.pick_mode and isinstance(payload.get("data"), dict):
-                payload["data"]["pick_mode"] = request.pick_mode.value
+        # 特殊处理 pick_mode
+        if request.pick_mode and isinstance(request.data, dict):
+            request.data["pick_mode"] = request.pick_mode.value
 
-        return payload
+        return request.model_dump(mode="json")
 
     @staticmethod
     def _process_element_data(request: RequestMessage):
         """处理元素数据"""
+        if not request.data:
+            return None
+
         from astronverse.locator.locator import LocatorManager
         from astronverse.picker.utils.params import complex_param_parser
 
@@ -67,7 +86,7 @@ class SmartComponentHandler:
         data = (LocatorManager.parse_element_json(request.data) if isinstance(request.data, str) else request.data)
         return complex_param_parser(complex_param=data, global_data=global_data)
 
-    async def _send_response(self, key: ResponseKey, data=None, error: str = "未知错误"):
+    async def _send_response(self, key: ResponseKey, data=None, error: str = ""):
         if data is None:
             data = ""
         if key == ResponseKey.SUCCESS:

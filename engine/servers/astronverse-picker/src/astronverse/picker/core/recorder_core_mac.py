@@ -14,7 +14,6 @@ from typing import Any, Optional
 from astronverse.picker import (
     RECORDING_BLACKLIST,
     DrawResult,
-    MKSign,
     OperationResult,
     PickerType,
     Point,

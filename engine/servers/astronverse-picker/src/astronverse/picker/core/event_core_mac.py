@@ -2,7 +2,7 @@ import threading
 import time
 
 import Quartz
-from astronverse.picker import IEventCore, MKSign
+from astronverse.picker import IEventCore
 from astronverse.picker.logger import logger
 
 
@@ -125,7 +125,7 @@ class EventCore(IEventCore):
 
     # ── IEventCore 接口 ─────────────────────────────────────────────────────
 
-    def start(self, domain=MKSign.PICKER):
+    def start(self):
         if not self.__closed:
             return False
 
@@ -143,8 +143,6 @@ class EventCore(IEventCore):
         # 等待 tap 初始化完成
         while not self.__init:
             time.sleep(0.01)
-
-        self.domain = domain
         return True
 
     def close(self):

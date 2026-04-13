@@ -3,7 +3,7 @@ import time
 
 import pythoncom
 import pyWinhook as pyWinhook
-from astronverse.picker import IEventCore, MKSign
+from astronverse.picker import IEventCore
 from astronverse.picker.logger import logger
 from pyWinhook import KeyboardEvent
 
@@ -21,8 +21,6 @@ class EventCore(IEventCore):
         self.__init = False
         # 新增的标志位
         self.__f4_pressed = False  # F4键按下标志
-        # 键鼠启动的上层应用
-        self.domain = None
 
     def __mouse_left_down__(self, event):
         if self.__control_down:
@@ -83,7 +81,7 @@ class EventCore(IEventCore):
         """重置ESC取消标志位"""
         self.__esc = False
 
-    def start(self, domain=MKSign.PICKER):
+    def start(self):
         if not self.__closed:
             return False
 
@@ -100,7 +98,6 @@ class EventCore(IEventCore):
 
         while not self.__init:
             time.sleep(0.01)
-        self.domain = domain
         return True
 
     def close(self):
@@ -114,5 +111,4 @@ class EventCore(IEventCore):
         self.__esc = False
         self.__f4_pressed = False
         self.__closed = True
-        self.domain = None
         return True

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from astronverse.picker import IElement, PickerSign, Point, SmartComponentAction
+from astronverse.picker import IElement, Point, SmartComponentAction, PickerType
 from astronverse.picker.engines.smart_component.web_picker_smart_component import web_picker_smart_component
 from astronverse.picker.engines.web_picker import web_picker
 from astronverse.picker.logger import logger
@@ -31,9 +31,7 @@ def web_default_strategy(service: "ServiceContext", strategy_svc: StrategySvc, c
         return None
 
     logger.info(f"测试data数据 {strategy_svc}")
-    if (
-        strategy_svc.data.get("pick_sign", "") != PickerSign.SMART_COMPONENT
-    ):  # 对于不是使用各类基础拾取的业务，需要走定制
+    if strategy_svc.data.get("pick_type") in [PickerType.ELEMENT, PickerType.WINDOW, PickerType.POINT, PickerType.SIMILAR, PickerType.BATCH]:
         ele = web_picker.get_element(
             root_control=strategy_svc.start_control,
             route_port=service.route_port,

@@ -37,7 +37,14 @@ class PickerServer:
 
     def server(self):
         """公共分发循环：等待模块就绪后，按 action 路由到对应子服务"""
+        try:
+            import pythoncom
+            pythoncom.CoInitialize()  # noqa
+        except Exception as e:
+            pass
+
         while True:
+            self.start_time = time.time()
 
             # 等待模块加载完成
             if not self.service_context.event_core:

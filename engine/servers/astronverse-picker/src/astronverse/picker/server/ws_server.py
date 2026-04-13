@@ -119,8 +119,8 @@ class WsServer:
 
     def server(self):
         if sys.platform == "win32":
-            import pythoncom
             try:
+                import pythoncom
                 pythoncom.CoInitialize()  # noqa
             except Exception as e:
                 pass
@@ -134,8 +134,8 @@ class WsServer:
         WsServer.loop = loop
 
         async def _start():
-            srv = await websockets.serve(self.websocket_endpoint, "127.0.0.1", self.svc.conf.port)
-            logger.info("服务已启动 ws://127.0.0.1:%s", self.svc.conf.port)
+            srv = await websockets.serve(self.websocket_endpoint, "127.0.0.1", self.port)
+            logger.info("服务已启动 ws://127.0.0.1:%s", self.port)
             await asyncio.Event().wait()  # 永远挂起，等价于 run_forever
             return srv
 

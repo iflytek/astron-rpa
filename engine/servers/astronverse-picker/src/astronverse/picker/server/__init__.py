@@ -27,7 +27,7 @@ class RequestMessage(BaseModel):
     record_action: Optional[RecordAction] = None
     smart_component_action: Optional[SmartComponentAction] = None
     data: Any = None
-    pick_mode: Optional[PickMode] = None
+    pick_mode: str = None
     ext_data: dict = None
 
 

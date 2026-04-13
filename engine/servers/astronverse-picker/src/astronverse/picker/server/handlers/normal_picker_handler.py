@@ -54,15 +54,13 @@ class NormalPickerHandler:
 
     def _build_start_sign_payload(self, request: RequestMessage) -> dict:
         """与 ws_server.back 中拾取开始一致：SIMILAR/BATCH 需先解析元素与 pick_mode"""
-        payload = request.model_dump(mode="json")
-        if request.pick_type in (PickerType.SIMILAR, PickerType.BATCH):
-            payload["data"] = self._process_element_data(request)
-            
-            # 特殊处理 pick_mode
-            if request.pick_mode and isinstance(payload.get("data"), dict):
-                payload["data"]["pick_mode"] = request.pick_mode.value
+        request.data = self._process_element_data(request)
 
-        return payload
+        # 特殊处理 pick_mode
+        if request.pick_mode and isinstance(request.data, dict):
+            request.data["pick_mode"] = request.pick_mode.value
+
+        return request.model_dump(mode="json")
 
     async def _handle_validate(self, request: RequestMessage):
         """处理拾取校验"""
@@ -124,6 +122,9 @@ class NormalPickerHandler:
     @staticmethod
     def _process_element_data(request: RequestMessage):
         """处理元素数据"""
+        if not request.data:
+            return None
+
         from astronverse.locator.locator import LocatorManager
         from astronverse.picker.utils.params import complex_param_parser
 
@@ -131,7 +132,7 @@ class NormalPickerHandler:
         data = (LocatorManager.parse_element_json(request.data) if isinstance(request.data, str) else request.data)
         return complex_param_parser(complex_param=data, global_data=global_data)
 
-    async def _send_response(self, key: ResponseKey, data=None, error: str = "未知错误"):
+    async def _send_response(self, key: ResponseKey, data=None, error: str = ""):
         if data is None:
             data = ""
         if key == ResponseKey.SUCCESS:

@@ -69,7 +69,7 @@ class RecordHandler:
         # todo 后续处理
         pass
 
-    async def _send_response(self, key: ResponseKey, data="", error: str = "未知错误"):
+    async def _send_response(self, key: ResponseKey, data="", error: str = ""):
         if data is None:
             data = ""
         if key == ResponseKey.SUCCESS:

@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 
 import pyautogui
-from astronverse.picker import APP, IElement, PickerDomain, PickerSign, PickerType, Point, Rect, SmartComponentAction
+from astronverse.picker import APP, IElement, PickerDomain, PickerType, Point, Rect, SmartComponentAction
 from astronverse.picker.engines.smart_component.utils import parse_html
 from astronverse.picker.logger import logger
 from astronverse.picker.utils.browser import Browser

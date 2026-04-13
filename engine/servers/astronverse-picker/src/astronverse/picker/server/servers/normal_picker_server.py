@@ -106,9 +106,9 @@ class NormalPickServer:
             self.last_point.y = p_y
             pick_type = data.get("pick_type")
 
-            if pick_type == PickerType.POINT:
+            if pick_type == PickerType.POINT.value:
                 return DrawResult(success=True)
-            elif pick_type == PickerType.WINDOW:
+            elif pick_type == PickerType.WINDOW.value:
                 start_control = UIAOperate.get_windows_by_point(self.last_point)
                 result_control = UIAOperate.get_app_windows(start_control)
                 if not result_control:
@@ -132,7 +132,7 @@ class NormalPickServer:
                     app=self.last_strategy_svc.app.value,
                     domain=PickerDomain.UIA.value,
                 )
-            elif pick_type in [PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
+            elif pick_type in [PickerType.ELEMENT.value, PickerType.SIMILAR.value, PickerType.BATCH.value]:
                 start_control = UIAOperate.get_windows_by_point(self.last_point)
                 if not start_control:
                     logger.info("拾取预处理 start_control 为空")
@@ -192,9 +192,9 @@ class NormalPickServer:
 
     def element(self, svc, data: dict) -> dict:
         pick_type = data.get("pick_type")
-        if pick_type == PickerType.POINT:
+        if pick_type == PickerType.POINT.value:
             return {"point": {"x": self.last_point.x, "y": self.last_point.y}, "version": "1"}
-        elif pick_type in [PickerType.WINDOW, PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
+        elif pick_type in [PickerType.WINDOW.value, PickerType.ELEMENT.value, PickerType.SIMILAR.value, PickerType.BATCH.value]:
             with self.lock:
                 if self.last_element:
                     return self.last_element.path(svc, self.last_strategy_svc)

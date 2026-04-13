@@ -47,7 +47,7 @@ class ServiceContext:
         self.route_port: int = route_port
 
         # 全局运行事件
-        self.__sign__: SyncMap = SyncMap()  # PickerSign
+        self.__sign__: SyncMap = SyncMap()
 
         # 组件
         self.strategy = None  # 策略
