@@ -90,11 +90,11 @@ class ServerManager:
                     logger.debug(f"[ServerManager] NORMAL {n_server.name}")
                     n_server.run()
             logger.info("[ServerManager] 提交异步守护任务")
-            with ThreadPoolExecutor() as pool:
-                for a_server in self.server_list:
-                    if a_server.run_is_async:
-                        logger.debug(f"[ServerManager] async {a_server.name}")
-                        pool.submit(a_server.run)
+            for a_server in self.server_list:
+                if a_server.run_is_async:
+                    logger.debug(f"[ServerManager] async {a_server.name}")
+                    threading.Thread(target=a_server.run, daemon=True).start()
+
 
         threading.Thread(target=async_run, daemon=True).start()
         threading.Thread(target=self.check, daemon=True).start()

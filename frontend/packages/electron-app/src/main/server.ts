@@ -89,8 +89,8 @@ export async function startServer() {
   logger.info('正在启动服务')
   sendToRender('正在启动服务', 90)
 
-  if (config.skip_engine_start) {
-    const port = process.env.PORT || 13160 // 从环境变量获取端口号，默认为 13160
+  if (config.skip_engine_start || process.env.NODE_ENV === 'development') {
+    const port = process.env.PORT || 13159 // 从环境变量获取端口号，默认为 13159
     logger.info(`跳过engine启动，直接进入开发模式，连接端口号: ${port}`)
     setTimeout(() => {
       sendReady(Number(port))

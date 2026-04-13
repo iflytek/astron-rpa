@@ -1,7 +1,7 @@
 English | [简体中文](README.zh.md)
 # Automatic Build of Meta Configuration Guide
 
-This project uses the `meta_build.py` script to automatically build and merge component meta and tree configurations.
+This directory contains the `meta_build.py` script, which is executed from the `engine` uv project to build and merge component meta and tree configurations.
 
 ## Features
 
@@ -13,7 +13,7 @@ This project uses the `meta_build.py` script to automatically build and merge co
 
 ## Environment Setup
 
-This project uses [uv](https://docs.astral.sh/uv/) to manage the Python environment and dependencies.
+This script is run with [uv](https://docs.astral.sh/uv/) from the `engine` project root so it can reuse the engine project's dependencies.
 
 1. Install uv (skip if already installed):
   ```bash
@@ -38,7 +38,7 @@ No environment variables required.
   ```
 2. Run the script:
   ```bash
-  uv run meta_build.py
+  uv run scripts/meta_build.py
   ```
 
 ## Workflow
@@ -62,14 +62,14 @@ No environment variables required.
 
 | File | Description |
 |------|-------------|
-| `engine/temp_local_meta.json` | Temporary merged local component meta |
-| `engine/temp_local_tree.json` | Temporary merged local component tree |
+| `engine/scripts/temp_local_meta.json` | Temporary merged local component meta |
+| `engine/scripts/temp_local_tree.json` | Temporary merged local component tree |
 | `resources/meta/meta.json` | Final merged meta configuration |
 | `resources/meta/tree.json` | Final merged tree configuration |
 
 ## Notes
 
-- Directories to skip are configured in the `skipped_verse` list; `astronverse-database` is skipped by default.
+- Directories to skip are configured in the `SKIPPED_COMPONENTS` list; `astronverse-database` is skipped by default.
 - The merge logic prioritizes local component data; `tree_frame.json` provides the tree structure skeleton.
 
 If you have any questions, please contact the project maintainer.

@@ -161,7 +161,9 @@ class Process:
                     kill_proc_tree(psutil.Process(os.getpid()), exclude_pids=[os.getpid()])
                     # 再找到当前的启动路径的所有python进程杀一遍
                     Process.kill_all_zombie()
-                    # 自行杀掉
-                    kill_proc_tree(psutil.Process(os.getpid()))
+                    # # 自行杀掉
+                    # kill_proc_tree(psutil.Process(os.getpid()))
+                    # 强制退出当前进程（不依赖路径守卫，开发模式 uv run 下 Python 路径不含 astron-rpa）
+                    os._exit(1)
             except Exception as e:
                 logger.exception(e)

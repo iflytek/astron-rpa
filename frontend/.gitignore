@@ -33,3 +33,4 @@ components.d.ts
 
 /public/client-sdk.js
 /public/client-sdk.js.map
+/public/manifest.json

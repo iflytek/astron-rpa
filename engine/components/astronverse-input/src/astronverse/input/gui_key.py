@@ -19,7 +19,7 @@ from astronverse.input.code.window_backend import window_find, window_info, wind
 from astronverse.input.error import *
 
 
-class GuiMouse:
+class GuiKeyBoard:
     @staticmethod
     @atomicMg.atomic("Gui")
     def mouse(

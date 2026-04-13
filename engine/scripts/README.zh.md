@@ -1,7 +1,7 @@
-简体中文 | [English](META_BUILD.md)
+简体中文 | [English](README.md)
 # 自动构建 meta 配置说明
 
-本项目通过 `meta_build.py` 脚本实现组件 meta 与 tree 配置的自动构建与合并。以下为使用说明：
+本目录下的 `meta_build.py` 会作为 `engine` 的 uv 脚本执行，用于自动构建和合并组件的 meta 与 tree 配置。以下为使用说明：
 
 ## 功能简介
 
@@ -13,7 +13,7 @@
 
 ## 环境准备
 
-本项目使用 [uv](https://docs.astral.sh/uv/) 管理 Python 环境与依赖。
+脚本需要在 `engine` 项目根目录通过 [uv](https://docs.astral.sh/uv/) 执行，以复用引擎项目依赖。
 
 1. 安装 uv（如已安装可跳过）：
   ```bash
@@ -39,7 +39,7 @@
 2. 运行脚本：
   ```bash
   uv sync
-  uv run meta_build.py
+  uv run scripts/meta_build.py
   ```
 
 ## 工作流程
@@ -63,14 +63,14 @@
 
 | 文件 | 说明 |
 |------|------|
-| `engine/temp_local_meta.json` | 本地组件 meta 合并临时文件 |
-| `engine/temp_local_tree.json` | 本地组件 tree 合并临时文件 |
+| `engine/scripts/temp_local_meta.json` | 本地组件 meta 合并临时文件 |
+| `engine/scripts/temp_local_tree.json` | 本地组件 tree 合并临时文件 |
 | `resources/meta/meta.json` | 最终合并后的 meta 配置 |
 | `resources/meta/tree.json` | 最终合并后的 tree 配置 |
 
 ## 注意事项
 
-- 跳过目录在 `skipped_verse` 列表中配置，默认跳过 `astronverse-database`。
+- 跳过目录在 `SKIPPED_COMPONENTS` 列表中配置，默认跳过 `astronverse-database`。
 - 合并逻辑以本地组件数据为主，骨架配置 `tree_frame.json` 提供树结构框架。
 
 如有问题请联系项目维护者。
