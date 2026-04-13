@@ -143,7 +143,7 @@ export function createSubWindow(options: CreateWindowOptions) {
     });
   }
   window.on('ready-to-show', () => {
-    window.openDevTools()
+    // window.openDevTools()
     if (options?.show !== false) {
       window.show()
     }

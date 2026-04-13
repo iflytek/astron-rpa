@@ -22,6 +22,11 @@ function sendToRender(message: string, percent: number) {
   mainToRender('scheduler-event', unicodeMessage, undefined, true)
 }
 
+function sendReady(port?: number) {
+  const unicodeMessage = `{"type": "sync_cancel", "msg": {"route_port": ${port}, "step": 100}}`
+  mainToRender('scheduler-event', unicodeMessage, undefined, true)
+}
+
 /**
  * 检查 python envJson.SCHEDULER_NAME 是否正在运行
  */
@@ -80,18 +85,32 @@ export async function startServer() {
     return
   }
 
-  logger.info('正在启动服务')
-  sendToRender('正在启动服务', 90)
+  logger.info('Starting server...')
+  sendToRender('Starting server', 90)
 
-  const rpaSetup = exec(
-    `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
-    { cwd: appWorkPath },
-    (error) => {
-      if (error) {
-        logger.error(`${envJson.SCHEDULER_NAME} error: ${error}`)
+  await ensureAppWorkPathExists()
+
+  let rpaSetup: ReturnType<typeof exec>
+  if (process.env.NODE_ENV === 'development') {
+    const port = process.env.PORT || 13159 // 从环境变量获取端口号，默认为 13159
+    logger.info(`跳过engine启动，直接进入开发模式，连接端口号: ${port}`)
+    setTimeout(() => {
+      sendReady(Number(port))
+    }, 3000);
+    return
+  } else {
+    rpaSetup = exec(
+      `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --conf="${confPath}"`,
+      { cwd: appWorkPath },
+      (error) => {
+        if (error) {
+          logger.error(`${envJson.SCHEDULER_NAME} error: ${error}`)
+        }
       }
-    }
-  )
+    )
+  }
+
+  
 
   rpaSetup.stdout?.on('data', (data) => msgFilter(data.toString()))
 
@@ -309,6 +328,10 @@ export async function startBackend() {
   if (isRunning) {
     logger.info('rpa is already running')
     return
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    logger.info('Skipping Python package extraction in development mode')
   }
 
   // 安装资源目录下的需要解压的 python 包

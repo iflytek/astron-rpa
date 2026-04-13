@@ -92,7 +92,7 @@ export default defineConfig((env) => {
           record: '/src/views/Record/index.ts',
           recordmenu: '/src/views/RecordMenu/index.ts',
           smartcompickmenu: '/src/views/SmartCompPickMenu/index.ts',
-          cua: '/src/views/CUA/index.ts',,
+          cua: '/src/views/CUA/index.ts',
           highlight: '/src/views/Highlight/index.ts',
         },
       }),
