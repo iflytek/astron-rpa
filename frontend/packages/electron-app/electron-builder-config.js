@@ -43,7 +43,7 @@ const config = {
   },
   mac: {
     target: 'dmg',
-    icon: '../../public/icons/icon.png',
+    icon: '../../public/icons/icon.icns',
     identity: 'aiguo ji (VFD339XNU8)',
     hardenedRuntime: true,
     gatekeeperAssess: false,
