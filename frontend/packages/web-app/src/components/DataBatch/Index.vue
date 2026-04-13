@@ -14,8 +14,7 @@ import { defineAsyncComponent, h, onMounted } from 'vue'
 import VxeGrid from '@/plugins/VxeTable'
 
 import { useBatchPickStore } from '@/stores/useBatchPickStore'
-
-import Header from '../PureHeader.vue'
+import Header from '@/components/Header.vue'
 
 import { useDataBatch } from './useDataBatch'
 
