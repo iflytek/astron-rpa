@@ -19,7 +19,8 @@ export const confPath = path.join(resourcePath, 'conf.yaml')
 const d7zrBin = isWindows ? '7zr.exe' : process.platform === 'darwin' ? '7zz' : '7zzs'
 export const d7zrPath = path.join(resourcePath, platformFolder, d7zrBin)
 export const settingPath = path.join(appWorkPath, '.setting.json')
-
+export const enginePath = path.join(resourcePath, 'engine')
+export const mainPy = path.join(enginePath, 'main.py')
 // 插件目录
 export const extensionPath = [
   path.join(appPath, 'extensions'), // 系统插件目录
