@@ -2,7 +2,8 @@
 import { Divider } from 'ant-design-vue'
 import { onMounted, ref } from 'vue'
 
-import { isBrowser, windowManager } from '@/platform'
+import { windowManager } from '@/platform'
+import { usePlatform } from '@/hooks/usePlatform'
 
 import WindowControls from './WindowControls.vue'
 
@@ -32,11 +33,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  platform: {
-    type: String,
-    default: (navigator.userAgent.includes('Macintosh') || navigator.userAgent.includes('Mac')) ? 'mac' : 'win',
-  },
 })
+
+const { isMac } = usePlatform()
 
 const isMaximized = ref(true)
 
@@ -47,36 +46,33 @@ function dbClickFn(e: MouseEvent) {
   }
 }
 
+async function checkMaximized() {
+  isMaximized.value = await windowManager.isMaximized()
+}
+
 onMounted(() => {
-  windowManager.onWindowResize(() => {
-    windowManager.isMaximized().then((isMax) => {
-      isMaximized.value = isMax
-    })
-  })
+  checkMaximized();
+  windowManager.onWindowResize(() => checkMaximized())
 })
 </script>
 
 <template>
   <div data-tauri-drag-region class="app_control w-full drag shrink-0">
     <!-- Mac 样式的控制按钮放在左侧 -->
-    <div
-      v-if="props.platform === 'mac'"
-      class="flex items-center no-drag h-full pl-2"
-    >
-      <WindowControls
-        v-model:isMaximized="isMaximized"
-        :minimize="props.minimize"
-        :maximize="props.maximize"
-        :close="props.close"
-        :close-fn="props.closeFn"
-        :platform="props.platform"
-      />
-    </div>
+    <WindowControls
+      v-if="isMac"
+      class="pl-2"
+      v-model:isMaximized="isMaximized"
+      :minimize="props.minimize"
+      :maximize="props.maximize"
+      :close="props.close"
+      :close-fn="props.closeFn"
+    />
 
     <div
       data-tauri-drag-region
       class="app_control_text flex items-center gap-2 drag whitespace-nowrap"
-      :class="{ 'pl-1': props.platform === 'mac' }"
+      :class="{ 'pl-1': isMac }"
       @dblclick="dbClickFn"
     >
       <img
@@ -101,23 +97,23 @@ onMounted(() => {
     <div
       data-tauri-drag-region
       class="flex items-center no-drag whitespace-nowrap h-full"
+      :class="{ 'pr-2': isMac }"
       @dblclick="dbClickFn"
     >
       <slot name="headControl" />
 
-      <template v-if="$slots.headControl">
+      <template v-if="$slots.headControl && !isMac">
         <Divider type="vertical" />
       </template>
 
       <!-- 窗口控制按钮 (Windows 样式放在右侧) -->
       <WindowControls
-        v-if="props.platform === 'win'"
+        v-if="!isMac"
         v-model:isMaximized="isMaximized"
         :minimize="props.minimize"
         :maximize="props.maximize"
         :close="props.close"
         :close-fn="props.closeFn"
-        :platform="props.platform"
       />
     </div>
   </div>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { MacOSTrafficLight } from '@rpa/components'
 
 import { isBrowser, windowManager } from '@/platform'
+import { usePlatform } from '@/hooks/usePlatform'
 
 import { useCloseApp } from './HeaderControl/useCloseApp'
 
@@ -26,11 +27,9 @@ const props = defineProps({
     type: Function,
     default: null,
   },
-  platform: {
-    type: String,
-    default: 'win', // 'win' | 'mac'
-  },
 })
+
+const { isMac } = usePlatform()
 
 const emit = defineEmits(['update:isMaximized'])
 
@@ -72,9 +71,23 @@ function handleClose() {
 </script>
 
 <template>
-  <div class="window-controls flex items-center no-drag h-full" :class="[`is-${platform}`]">
+  <div class="window-controls flex items-center no-drag h-full">
+    <!-- Mac Style -->
+    <template v-if="isMac">
+      <MacOSTrafficLight
+        class="px-3"
+        :close="props.close"
+        :minimize="props.minimize"
+        :maximize="props.maximize"
+        :is-maximized="props.isMaximized"
+        @close="handleMinMaxClose('close')"
+        @minimize="handleMinMaxClose('minimize')"
+        @maximize="handleMinMaxClose('maximize')"
+      />
+    </template>
+
     <!-- Windows Style -->
-    <template v-if="platform === 'win'">
+    <template v-else>
       <span
         v-if="props.minimize"
         class="win-control-item"
@@ -100,46 +113,10 @@ function handleClose() {
         <rpa-icon name="close" />
       </span>
     </template>
-
-    <!-- Mac Style -->
-    <template v-else-if="platform === 'mac'">
-      <div class="mac-controls-container flex items-center gap-2 px-3">
-        <span
-          v-if="props.close"
-          class="mac-control-item mac-close"
-          title="关闭"
-          @click="handleMinMaxClose('close')"
-        >
-          <rpa-icon name="close" size="8" class="mac-icon" />
-        </span>
-        <span
-          v-if="props.minimize"
-          class="mac-control-item mac-minimize"
-          title="最小化"
-          @click="handleMinMaxClose('minimize')"
-        >
-          <rpa-icon name="remove" size="8" class="mac-icon" />
-        </span>
-        <span
-          v-if="props.maximize"
-          class="mac-control-item mac-maximize"
-          :title="isMaximized ? '还原' : '最大化'"
-          @click="handleMinMaxClose('maximize')"
-        >
-          <rpa-icon :name="isMaximized ? 'middle' : 'maxwin'" size="8" class="mac-icon" />
-        </span>
-      </div>
-    </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.window-controls {
-  &.is-win {
-    height: 100%;
-  }
-}
-
 /* Windows Style */
 .win-control-item {
   cursor: pointer;
@@ -157,48 +134,6 @@ function handleClose() {
   &.close-btn:hover {
     background-color: #e81123;
     color: white;
-  }
-}
-
-/* Mac Style */
-.mac-controls-container {
-  &:hover {
-    .mac-icon {
-      opacity: 1;
-    }
-  }
-}
-
-.mac-control-item {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: relative;
-
-  .mac-icon {
-    opacity: 0;
-    transition: opacity 0.2s;
-    font-weight: bold;
-    color: rgba(0, 0, 0, 0.5);
-  }
-
-  &.mac-close {
-    background-color: #ff5f56;
-    border: 0.5px solid #e0443e;
-  }
-
-  &.mac-minimize {
-    background-color: #ffbd2e;
-    border: 0.5px solid #dea123;
-  }
-
-  &.mac-maximize {
-    background-color: #27c93f;
-    border: 0.5px solid #1aab29;
   }
 }
 </style>

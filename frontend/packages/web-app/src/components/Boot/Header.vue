@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { MacOSTrafficLight } from '@rpa/components'
+
 import { isBrowser, windowManager } from '@/platform'
+import { usePlatform } from '@/hooks/usePlatform'
+
+const { isMac } = usePlatform()
 
 // 控制窗口最小化、最大化、关闭
 function handleMinMaxClose(type: string) {
@@ -20,19 +25,25 @@ function handleMinMaxClose(type: string) {
 </script>
 
 <template>
-  <div data-tauri-drag-region class="app_control w-full drag fixed top-0 left-0">
-    <div
-      data-tauri-drag-region
-      class="app_control_text flex items-center gap-2 drag whitespace-nowrap"
-    >
-      <img data-tauri-drag-region class="w-5" src="/icons/icon.png">
+  <div class="app_control w-full drag fixed top-0 left-0 pl-2">
+    <MacOSTrafficLight
+      v-if="isMac"
+      class="px-3 no-drag"
+      :close="true"
+      :minimize="true"
+      @close="handleMinMaxClose('close')"
+      @minimize="handleMinMaxClose('minimize')"
+    />
+
+    <div class="app_control_text flex items-center gap-2 drag whitespace-nowrap">
+      <img class="w-5" src="/icons/icon.png">
       <span class="text-base text-[#ffffff] leading-5 font-bold">
         {{ $t('app') }}
       </span>
     </div>
     <div
-      data-tauri-drag-region
-      class="flex items-center no-drag whitespace-nowrap h-full"
+      v-if="!isMac"
+      class="flex ml-auto items-center no-drag whitespace-nowrap h-full"
     >
       <!-- 使用props控制显示 -->
       <span
@@ -57,7 +68,6 @@ function handleMinMaxClose(type: string) {
   z-index: var(--headerZindex);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   user-select: none;
   transition: all ease 0.2s;
   &_text {
