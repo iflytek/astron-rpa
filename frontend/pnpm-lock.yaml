@@ -41,8 +41,6 @@ catalogs:
       specifier: ^4.17.12
       version: 4.17.12
 
-packageExtensionsChecksum: sha256-9kB00ZzQz9tWsoqSNxzIYPYQJ3hsmGsu0ajsLlZ0Zxs=
-
 importers:
 
   .:
