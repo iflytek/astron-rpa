@@ -116,6 +116,17 @@ class NormalPickServer:
                 with self.lock:
                     self.last_element = UIAElement(control=result_control)
                 process_id = UIAOperate.get_process_id(start_control)
+
+                if not svc.strategy:
+                    timeout = 10
+                    wait_time = 0
+                    while not svc.strategy and wait_time < timeout:
+                        time.sleep(0.1)
+                        wait_time += 0.1
+                    if not svc.strategy:
+                        return DrawResult(success=False, error_message="策略加载超时（10s）")
+                    logger.info("strategy 加载完成")
+
                 self.last_strategy_svc = svc.strategy.gen_svc(
                     process_id=process_id,
                     last_point=self.last_point,

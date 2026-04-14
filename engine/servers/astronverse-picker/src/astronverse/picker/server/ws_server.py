@@ -78,14 +78,15 @@ class WsServer:
     async def websocket_endpoint(self, ws: ServerConnection):
         # 业务通道确认
         path = ws.request.path
-        if path in ["", "/"]:
-            # 业务通道，业务通道需要读取他的第一个消息来确定
-            self._add(ws)
-        elif path == "/?tag=hl":
+        logger.info("WebSocket连接: {}".format(path))
+
+        if path in ["?tag=hl", "/picker?tag=hl"]:
             # 高亮通道
             self._add(ws)
             self._move(ws, "hl")
-
+        else:
+            self._add(ws)
+        
         # 消息分发
         try:
             async for message in ws:

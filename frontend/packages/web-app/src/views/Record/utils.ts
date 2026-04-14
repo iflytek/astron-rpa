@@ -27,7 +27,7 @@ export class RecordEvent {
     console.log('sendEvent', action, data)
 
     const params: PickParams = {
-      pick_sign: 'RECORD',
+      pick_type: 'RECORD',
       record_action: action,
       data,
     }

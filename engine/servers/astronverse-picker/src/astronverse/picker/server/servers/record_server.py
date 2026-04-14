@@ -10,7 +10,6 @@ from astronverse.picker import (
     RecordAction,
     Rect,
 )
-from astronverse.picker.core.hover_core import HoverCore
 from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
 from astronverse.picker.server.servers.normal_picker_server import _get_element_domain
@@ -35,54 +34,34 @@ class RecordServer:
         self.last_valid_tag: str = ""
         self.last_valid_domain: Optional[str] = None
 
-        # 悬停检测核心（类比 EventCore）
-        self.hover_core = HoverCore()
-
     def handle(self, sign):
         """处理录制信号（类比 NormalPickServer.handle）"""
         if RecordAction.END.value in sign:
-            self.hl.hide_sync()
-            self.hover_core.close()
+            # 停止绘框：删除 START 信号，让 send_sign(START) 返回
+            if RecordAction.START.value in sign:
+                del sign[RecordAction.START.value]
+                sign[f"{RecordAction.START.value}_RES"] = None
 
-            result = None
+            self.hl.hide_sync()
+            result = self.element(self.service_context, {})
 
             del sign[RecordAction.END.value]
             sign[f"{RecordAction.END.value}_RES"] = result
-            logger.info("录制结束")
+            logger.info("录制结束，返回元素数据")
         elif RecordAction.START.value in sign:
-            is_start = self.hover_core.start()
-            if is_start:
-                logger.info("录制拾取开始")
-            is_hover = self.hover_core.is_hover()
-            if is_hover:
-
+            # 持续绘框：只有出错才写 START_RES
+            draw_result: DrawResult = self.draw(
+                self.service_context,
+                sign[RecordAction.START.value],
+            )
+            if not draw_result.success and draw_result.error_message:
                 self.hl.hide_sync()
-                self.hover_core.close()
 
-                try:
-                    picker_data = sign[RecordAction.START.value]
-                    result = self.element(self.service_context, picker_data)
-                except Exception as e:
-                    result = "{}".format(e)
+                result = "{}".format(draw_result.error_message)
 
                 del sign[RecordAction.START.value]
-                sign["{}_RES".format(RecordAction.START.value)] = result
-                logger.info("悬停确认，返回元素")
-            else:
-                draw_result: DrawResult = self.draw(
-                    self.service_context,
-                    sign[RecordAction.START.value],
-                )
-                if not draw_result.success and draw_result.error_message:
-
-                    self.hl.hide_sync()
-                    self.hover_core.close()
-
-                    result = "{}".format(draw_result.error_message)
-
-                    del sign[RecordAction.START.value]
-                    sign[f"{RecordAction.START.value}_RES"] = result
-                    logger.info("录制拾取因异常结束")
+                sign[f"{RecordAction.START.value}_RES"] = result
+                logger.info("录制拾取因异常结束")
 
     def draw(self, svc, data: dict) -> DrawResult:
         """执行一次拾取绘框"""
@@ -130,7 +109,6 @@ class RecordServer:
             self.last_valid_tag = current_tag
             self.last_valid_domain = actual_domain
 
-            self.hover_core.update_rect(current_rect)
             self.hl.draw_sync(current_rect, msgs=current_tag)
             return DrawResult(
                 success=True,

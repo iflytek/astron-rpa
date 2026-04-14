@@ -43,6 +43,10 @@ export function useHighlight() {
           highlightRect.value = { x: 0, y: 0, width: 0, height: 0 }
           tagName.value = ''
         } else if (op === 'draw') {
+          mousePos.value = {
+            x: data.MouseX,
+            y: data.MouseY,
+          }
           const boxes = data.Boxes
           if (boxes && boxes.length > 0) {
             const box = boxes[0]

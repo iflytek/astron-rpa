@@ -179,52 +179,49 @@ class SmartComponentServer:
             return {}
 
     def navigate(self, svc, data: dict) -> dict:
-        try:
-            # 整理data
-            payload = data.get("data", {})
-            payload = json.loads(payload) if isinstance(payload, str) else payload
-            data["data"] = payload
+        # 整理data
+        payload = data.get("data", {})
+        payload = json.loads(payload) if isinstance(payload, str) else payload
+        data["data"] = payload
 
-            p_x, p_y = UIAOperate.get_cursor_pos()
+        p_x, p_y = UIAOperate.get_cursor_pos()
 
-            # 获取
-            app = payload.get("app")
-            title = payload.get("path", {}).get("tabTitle", "")
-            parent_control = BrowserControlFinder.get_control_by_app_name(app, title)
-            start_control = BrowserControlFinder.get_document_control(parent_control)
-            if not start_control:
-                logger.error(f"start_control error: empty")
-                return {}
-            process_id = UIAOperate.get_process_id(start_control)
-
-            if not svc.strategy:
-                timeout = 10
-                wait_time = 0
-                while not svc.strategy and wait_time < timeout:
-                    time.sleep(0.1)
-                    wait_time += 0.1
-                if not svc.strategy:
-                    logger.error(f"策略加载超时（10s）")
-                logger.info("strategy 加载完成")
-
-            strategy_svc = svc.strategy.gen_svc(
-                process_id=process_id,
-                last_point=Point(p_x, p_y),
-                data=data,
-                start_control=start_control,
-                domain=PickerDomain.WEB,
-            )
-            element = svc.strategy.run(self.last_strategy_svc)
-            if not element:
-                return {}
-
-            # 结果渲染
-            current_rect = element.rect()
-            current_tag = element.tag()
-            self.hl.draw_sync(current_rect, msgs=current_tag)
-
-            # 返回path
-            return element.path(svc, strategy_svc)
-        except Exception as e:
-            logger.error(f"拾取navigate绘制失败: {e}")
+        # 获取
+        app = payload.get("app")
+        title = payload.get("path", {}).get("tabTitle", "")
+        parent_control = BrowserControlFinder.get_control_by_app_name(app, title)
+        start_control = BrowserControlFinder.get_document_control(parent_control)
+        if not start_control:
+            logger.error(f"start_control error: empty")
             return {}
+        process_id = UIAOperate.get_process_id(start_control)
+
+        if not svc.strategy:
+            timeout = 10
+            wait_time = 0
+            while not svc.strategy and wait_time < timeout:
+                time.sleep(0.1)
+                wait_time += 0.1
+            if not svc.strategy:
+                logger.error(f"策略加载超时（10s）")
+                return {}
+            logger.info("strategy 加载完成")
+
+        strategy_svc = svc.strategy.gen_svc(
+            process_id=process_id,
+            last_point=Point(p_x, p_y),
+            data=data,
+            start_control=start_control,
+            domain=PickerDomain.WEB,
+        )
+        element = svc.strategy.run(strategy_svc)
+        if not element:
+            return {}
+
+        # 结果渲染
+        current_rect = element.rect()
+        current_tag = element.tag()
+        self.hl.draw_sync(current_rect, msgs=current_tag)
+
+        # 返回path
+        return element.path(svc, strategy_svc)

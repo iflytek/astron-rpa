@@ -32,29 +32,28 @@ class SmartComponentHandler:
         payload = self._build_start_sign_payload(request)
         result = await self.svc.send_sign(request.smart_component_action.value, payload)
         if result == "cancel":
+            await self.ws_server.hl.hide()
             await self._send_response(ResponseKey.CANCEL, error="")
         elif isinstance(result, dict):
             out = dict(result)
             out["picker_type"] = request.pick_type.name
             await self._send_response(ResponseKey.SUCCESS, data=out)
         else:
+            await self.ws_server.hl.hide()
             await self._send_response(ResponseKey.ERROR, error=str(result))
 
     async def _handle_navigate(self, request: RequestMessage):
         """上下级切换：直接 send_sign，由 picker 侧负责重绘高亮"""
-        try:
-            payload = self._build_start_sign_payload(request)
-            result = await self.svc.send_sign(request.smart_component_action.value, payload)
-            if result == "cancel":
-                await self._send_response(ResponseKey.CANCEL, error="")
-            elif isinstance(result, dict):
-                out = dict(result)
-                out["picker_type"] = request.pick_type.name
-                await self._send_response(ResponseKey.SUCCESS, data=out)
-            else:
-                await self._send_response(ResponseKey.ERROR, error=str(result))
-        finally:
-            pass
+
+        payload = self._build_start_sign_payload(request)
+        result = await self.svc.send_sign(request.smart_component_action.value, payload)
+        if isinstance(result, dict):
+            out = dict(result)
+            out["picker_type"] = request.pick_type.name
+            await self._send_response(ResponseKey.SUCCESS, data=out)
+        else:
+            await self.ws_server.hl.hide()
+            await self._send_response(ResponseKey.ERROR, error=str(result))
 
     async def _handle_stop(self, request: RequestMessage):
         """取消 / 结束拾取：隐藏高亮 + send_sign（与 NormalPickerHandler._handle_stop 形态一致）"""

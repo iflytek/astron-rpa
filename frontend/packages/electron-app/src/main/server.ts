@@ -91,7 +91,7 @@ export async function startServer() {
   await ensureAppWorkPathExists()
 
   let rpaSetup: ReturnType<typeof exec>
-  if (process.env.NODE_ENV === 'development') {
+  if (false) {
     const port = process.env.PORT || 13159 // 从环境变量获取端口号，默认为 13159
     logger.info(`跳过engine启动，直接进入开发模式，连接端口号: ${port}`)
     setTimeout(() => {

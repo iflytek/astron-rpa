@@ -110,7 +110,7 @@ export interface PickElementType {
 }
 
 export interface PickParams {
-  pick_sign: 'START' | 'VALIDATE' | 'RECORD'
+  pick_sign?: 'START' | 'VALIDATE'
   pick_type?: string
   record_action?: RecordAction
   data: string
