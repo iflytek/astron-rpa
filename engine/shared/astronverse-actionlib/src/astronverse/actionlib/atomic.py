@@ -153,7 +153,10 @@ class AtomicManager:
         # 2. 高级参数处理
         has_result = True
         if self.atomic_dict[key].outputList is None or len(self.atomic_dict[key].outputList) == 0:
-            has_result = False
+            if key in ["Script.component"]:
+                has_result = True
+            else:
+                has_result = False
 
         if delay_before > 0:
             time.sleep(delay_before)
