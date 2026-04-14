@@ -2,21 +2,26 @@
 import { NiceModal } from '@rpa/components'
 import { Image } from 'ant-design-vue'
 import { computed, ref } from 'vue'
+import BUS from '@/utils/eventBus'
 
 import { getImageURL } from '@/api/http/env'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
+import { ELEMENT_IN_TYPE } from '@/constants/atom'
 import { useCvPickStore } from '@/stores/useCvPickStore'
 import { useCvStore } from '@/stores/useCvStore'
 import { useElementsStore } from '@/stores/useElementsStore'
 import { usePickStore } from '@/stores/usePickStore'
+import { useProcessStore } from '@/stores/useProcessStore'
 import CvPopover from '@/views/Arrange/components/cvPick/CvPopover.vue'
 import ElePopover from '@/views/Arrange/components/pick/ElePopover.vue'
+import useFormPick from '@/views/Arrange/components/atomForm/hooks/useFormPick'
 import { useCvManager } from '@/views/Arrange/components/cvPick/hooks/useCvManager'
 import { useCvPick } from '@/views/Arrange/components/cvPick/hooks/useCvPick'
 import { useRenderPick } from '@/views/Arrange/components/flow/descForm/hooks/useRenderPick'
 import { ElementPickModal } from '@/views/Arrange/components/pick'
 import { DEFAULT_DESC_TEXT } from '@/views/Arrange/config/flow'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
+import type { VisualEditor } from '@/views/Arrange/canvasManager'
 
 interface Props {
   itemType: ATOM_FORM_TYPE.PICK | ATOM_FORM_TYPE.CVPICK
@@ -38,6 +43,8 @@ const selectValue = ref<RPA.AtomFormItemResult[]>(
 
 const elementPickModal = NiceModal.useModal(ElementPickModal)
 const pickLoading = ref(false)
+const processStore = useProcessStore()
+const activeTab = computed(() => processStore.canvasManager.activeTab as VisualEditor | null)
 
 const { PickTypeText, getPickImg, getDefaultText, getOperators } = useRenderPick()
 
@@ -47,6 +54,14 @@ const { PickTypeText, getPickImg, getDefaultText, getOperators } = useRenderPick
 function changeSelect(data: RPA.AtomFormItemResult[]) {
   selectValue.value = data
   props.itemData.value = selectValue.value
+
+  if (props.itemData.sourceValue) {
+    activeTab.value?.updateFormItemValue(
+      props.id,
+      props.itemData.sourceValue,
+      selectValue.value,
+    )
+  }
 }
 
 /**
@@ -100,11 +115,25 @@ function handleBatchElement(elementId: string) {
  * 拾取操作
  */
 function pick() {
-  const extra: Record<string, any> = { id: props.id }
-  if (props.itemType === ATOM_FORM_TYPE.PICK) {
-    extra.pickLoading = pickLoading
-    extra.elementPickModal = () => elementPickModal.show()
+  if (props.itemType !== ATOM_FORM_TYPE.PICK) {
+    return
   }
+
+  BUS.$once('batch-done', (res: any) => {
+    changeSelect([{ type: ELEMENT_IN_TYPE, value: res.value, data: res.data }])
+  })
+  BUS.$once('pick-done', (res: any) => {
+    if (props.itemData.key === 'batch_data')
+      return
+    changeSelect([{ type: ELEMENT_IN_TYPE, value: res.value, data: res.data }])
+  })
+
+  useFormPick(
+    props.itemData.formType?.params?.use,
+    pickLoading,
+    () => elementPickModal.show(),
+    props.itemData,
+  )
 }
 
 /**
@@ -191,17 +220,17 @@ const rePickFnMap = {
  */
 function pickClick(key: string) {
   const firstValue = props.itemData.value?.[0]
-  if (!firstValue) {
-    return
-  }
-
-  const params = { id: firstValue.data, name: firstValue.value }
+  const params = { id: firstValue?.data, name: firstValue?.value }
 
   switch (key) {
     case 'editPick':
+      if (!firstValue)
+        return
       editFnMap[props.itemType]?.(params)
       break
     case 'rePick':
+      if (!firstValue)
+        return
       rePickFnMap[props.itemType]?.(params)
       break
     case 'selectPick':

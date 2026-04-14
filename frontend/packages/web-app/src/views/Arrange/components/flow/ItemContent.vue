@@ -11,7 +11,7 @@ import { ATOM_KEY_MAP, LOOP_END } from '@/constants/atom'
 import { FLOW_ACTIVE, FLOW_DISABLE, FLOW_FORBID } from '@/views/Arrange/config/flow'
 import { FLOW_DEBUGGING, PAGE_INIT_INDENT, PAGE_LEVEL_INDENT } from '@/views/Arrange/config/flow'
 
-// import { getBreakpointClass, toggleBreakPoint } from './hooks/useFlow'
+import { getBreakpointClass, toggleBreakPoint } from './hooks/useFlow'
 import { useRenderList } from './hooks/useRenderList'
 import { useFlowState } from './hooks/useFlowState'
 import ItemAction from './ItemAction.vue'
@@ -154,7 +154,11 @@ function handleToggleFold() {
           </template>
           <rpa-hint-icon name="error" />
         </a-tooltip>
-        <span v-else />
+        <span
+          v-else
+          :class="getBreakpointClass(item)"
+          @click.prevent.stop="toggleBreakPoint(flowManager, [item.id], !item.breakpoint)"
+        />
       </template>
       <rpa-icon
         v-if="item.hasFold"

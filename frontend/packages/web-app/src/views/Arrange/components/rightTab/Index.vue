@@ -20,7 +20,7 @@ const { rightTabActiveKey } = storeToRefs(processStore)
 const { colorTheme } = useTheme()
 const tabsRef = useTemplateRef('tabsRef')
 
-const hasNodeParameter = computed(() => !!processStore.canvasManager.activeTab?.nodeParameter)
+const hasNodeParameter = computed(() => !!processStore.canvasManager.activeTab?.nodeParameter?.activeAtom)
 
 onClickOutside(tabsRef, (e) => {
   // 点击 "顶部工具栏/底部tab栏/流程切换栏/原子能力编辑页" 空白处关闭右侧tab

@@ -2,7 +2,7 @@ import { createInjectionState, reactiveComputed, useToggle } from '@vueuse/core'
 import { message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { find, isEmpty } from 'lodash-es'
-import { ref, shallowRef, computed, markRaw } from 'vue'
+import { ref, shallowRef, computed, markRaw, watch } from 'vue'
 
 import { useProcessStore } from '@/stores/useProcessStore'
 import type { PickUseItemType } from '@/types/resource.d'
@@ -36,41 +36,45 @@ const [useProvideConfigParameter, useConfigParameter] = createInjectionState(() 
     rightExtra: markRaw(RightExtra),
   }))
 
-  // watch(() => processStore.activeProcessId, () => {
-  //   toggleQuoted(false)
-  // })
+  watch(() => processStore.canvasManager.activeTabId, () => {
+    toggleQuoted(false)
+  })
 
   const findQuoted = (row?: RPA.ConfigParamData) => {
     findQuotedRow = row || findQuotedRow
-    // TODO: useFlowStore has been removed in refactor, need to adapt to canvasManager
-    // const processData = useFlowStore().simpleFlowUIData
+    if (!findQuotedRow) {
+      return
+    }
 
-    // const list = processData.reduce((acc, node, index) => {
-    //   const formItems = [...node?.inputList, ...node?.outputList, ...node?.advanced]
-    //   const findItem = formItems.find(item => Array.isArray(item.value) && find(item.value, { type: 'p_var', value: findQuotedRow.varName }))
-    //   if (findItem) {
-    //     acc.push({
-    //       ...node,
-    //       index: index + 1,
-    //       level: 1,
-    //     })
-    //   }
-    //   return acc
-    // }, [])
+    const activeTab = processStore.canvasManager.activeTab
+    const processData = (activeTab?.state?.data || []) as RPA.Atom[]
 
-    // const items = isEmpty(list)
-    //   ? []
-    //   : [{
-    //       processId: processStore.activeProcess.resourceId,
-    //       processName: processStore.activeProcess.name,
-    //       atoms: list,
-    //     }]
+    const list: Array<RPA.Atom & { index: number, level: number }> = processData.reduce((acc, node, index) => {
+      const formItems = [...(node?.inputList || []), ...(node?.outputList || []), ...(node?.advanced || [])]
+      const findItem = formItems.find(item => Array.isArray(item.value) && find(item.value, { type: 'p_var', value: findQuotedRow.varName }))
+      if (findItem) {
+        acc.push({
+          ...node,
+          index: index + 1,
+          level: 1,
+        })
+      }
+      return acc
+    }, [])
 
-    // quotedData.value = { name: findQuotedRow.varName, items }
-    // if (!row) {
-    //   message.success(t('common.refreshSuccess'))
-    // }
-    // toggleQuoted(true)
+    const items = isEmpty(list)
+      ? []
+      : [{
+          processId: activeTab?.state?.resourceId || activeTab?.id,
+          processName: activeTab?.state?.name || '',
+          atoms: list,
+        }]
+
+    quotedData.value = { name: findQuotedRow.varName, items }
+    if (!row) {
+      message.success(t('common.refreshSuccess'))
+    }
+    toggleQuoted(true)
   }
 
   return {

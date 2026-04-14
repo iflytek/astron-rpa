@@ -3,14 +3,15 @@ import { NiceModal } from '@rpa/components'
 import { Empty, message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
 import { ref, watchEffect } from 'vue'
+import BUS from '@/utils/eventBus'
 
 import ElementsTree from '@/components/ElementsTree/Index.vue'
-import { ATOM_FORM_TYPE, ELEMENT_IN_TYPE } from '@/constants/atom'
+import { ELEMENT_IN_TYPE } from '@/constants/atom'
 import { useElementsStore } from '@/stores/useElementsStore'
 import type { ElementActionType, ElementsType } from '@/types/resource'
 import { ElementPickModal } from '@/views/Arrange/components/pick'
-import { ORIGIN_VAR } from '@/views/Arrange/config/atom'
 import { useCreateWindow } from '@/views/Arrange/hook/useCreateWindow'
+import useFormPick from '../atomForm/hooks/useFormPick'
 
 interface ElePopoverProps {
   renderData: RPA.AtomDisplayItem
@@ -83,15 +84,26 @@ function handleLookOver(data: ElementsType) {
 }
 
 function handleNewPick() {
-  const extra = {
-    pickLoading: ref(true),
-    elementPickModal: () => elementPickModal.show(),
-  }
+  BUS.$once('batch-done', (res: any) => {
+    emit('select', [{ type: ELEMENT_IN_TYPE, value: res.value, data: res.data }])
+  })
+  BUS.$once('pick-done', (res: any) => {
+    if (props.renderData.key === 'batch_data')
+      return
+    emit('select', [{ type: ELEMENT_IN_TYPE, value: res.value, data: res.data }])
+  })
+
+  useFormPick(
+    props.renderData.formType?.params?.use,
+    ref(true),
+    () => elementPickModal.show(),
+    props.renderData,
+  )
   emit('close')
 }
 
 watchEffect(() => {
-  collapsed.value = props.renderData.value[0]?.type === ELEMENT_IN_TYPE
+  collapsed.value = props.renderData?.value?.[0]?.type === ELEMENT_IN_TYPE
 })
 </script>
 

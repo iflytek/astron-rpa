@@ -21,7 +21,7 @@ const disabled = computed(() => {
 
   if (['debug', 'run'].includes(runningStore.running)) return true
 
-  return canvasManager.getActionState('save').disabled
+  // return canvasManager.getActionState('save').disabled
 })
 
 const save = throttle(async () => {

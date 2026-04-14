@@ -1,7 +1,7 @@
 <!-- 子流程选择组件 -->
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
-import { get, has, isArray, isEmpty, isEqual, some } from 'lodash-es'
+import { find, get, has, isArray, isEmpty, isEqual, some } from 'lodash-es'
 import { computed, ref, toRaw, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 
@@ -11,8 +11,7 @@ import { getConfigParams } from '@/api/atom'
 import { OTHER_IN_TYPE } from '@/constants/atom'
 import { useProcessStore } from '@/stores/useProcessStore.ts'
 import VarValueEditor from '@/views/Arrange/components/bottomTools/components/ConfigParameter/VarValueEditor.vue'
-import AtomConfig from '../AtomConfig.vue'
-import type { FormItemProps } from './index'
+import type { FormItemEmits, FormItemProps } from './index'
 
 interface ParamItemValue {
   rpa: 'special'
@@ -22,11 +21,11 @@ interface ParamItemValue {
 type ParamValues = Array<{ varId: string, varName: string, varValue: ParamItemValue }>
 
 const props = defineProps<FormItemProps>()
+const emits = defineEmits<FormItemEmits>()
 const renderData = computed(() => props.item)
 
 const gridData = ref<RPA.ConfigParamData[]>([])
 
-// const flowStore = useFlowStore()
 const processStore = useProcessStore()
 const { t } = useTranslation()
 
@@ -44,13 +43,24 @@ const gridOptions = computed<VxeGridProps<RPA.ConfigParamData>>(() => ({
   ],
 }))
 
-const linkageKey = computed(() => {
-  // 获取联动的选择子流程 id
+const linkageFormItem = computed(() => {
+  // 获取联动的选择子流程id
   const linkageKeyName = get(props.item, ['formType', 'params', 'linkage'])
-  // TODO: adapt to canvasManager - need active atom's inputList to find linkage
-  // const targetFormValue = find(flowStore.activeAtom.inputList, { key: linkageKeyName })
-  // return targetFormValue?.value
-  return undefined
+  if (!linkageKeyName) {
+    return undefined
+  }
+
+  const activeAtom = processStore.canvasManager.activeTab?.nodeParameter?.activeAtom
+  return find(activeAtom?.inputList ?? [], { key: linkageKeyName })
+})
+
+const linkageKey = computed(() => {
+  const linkageKeyName = get(props.item, ['formType', 'params', 'linkage'])
+  if (linkageKeyName && props.values?.[linkageKeyName] != null) {
+    return props.values[linkageKeyName]
+  }
+
+  return linkageFormItem.value?.value
 })
 
 function safeParse(str) {
@@ -62,35 +72,38 @@ function safeParse(str) {
   }
 }
 
-watch(linkageKey, async (newLinkageKey) => {
-  if (!newLinkageKey) {
-    gridData.value = []
-    return
-  }
-
-  // 判断是子流程还是 python 子模块
-  // TODO merge: adapt to canvasManager - linkageFormItem needs active atom context
-  const processType = '' as string // get(linkageFormItem.value, ['formType', 'params', 'filters'])
-  const idParams = processType === 'PyModule' ? { moduleId: newLinkageKey } : { processId: newLinkageKey }
-  const list = await getConfigParams({ robotId: processStore.project.id, ...idParams })
-
-  const values = renderData.value.value as unknown as ParamValues
-  // 当前保存的参数值
-  const currentParamMap = new Map((isArray(values) && values.map(p => [p.varId, p.varValue.value])) || [])
-  // 配置参数默认值
-  const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
-
-  gridData.value = list.filter(item => item.varDirection === 0).map((item) => {
-    const _varValue = currentParamMap.get(item.id) || defaultParamMap.get(item.id)
-    const varValue = safeParse(_varValue)
-    const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
-
-    return {
-      ...item,
-      varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue,
+watch(
+  [linkageKey, () => processStore.canvasManager.activeTab?.nodeParameter?.activeAtom?.id],
+  async ([newLinkageKey]) => {
+    if (!newLinkageKey) {
+      gridData.value = []
+      return
     }
-  })
-}, { immediate: true })
+
+    // 判断是子流程还是 python 子模块
+    const processType = get(linkageFormItem.value, ['formType', 'params', 'filters']) as unknown as string
+    const idParams = processType === 'PyModule' ? { moduleId: newLinkageKey } : { processId: newLinkageKey }
+    const list = await getConfigParams({ robotId: processStore.project.id, ...idParams })
+
+    const values = renderData.value.value as unknown as ParamValues
+    // 当前保存的参数值
+    const currentParamMap = new Map((isArray(values) && values.map(p => [p.varId, p.varValue.value])) || [])
+    // 配置参数默认值
+    const defaultParamMap = new Map(list.map(p => [p.id, p.varValue]))
+
+    gridData.value = list.filter(item => item.varDirection === 0).map((item) => {
+      const _varValue = currentParamMap.get(item.id) || defaultParamMap.get(item.id)
+      const varValue = safeParse(_varValue)
+      const illegal = !isArray(varValue) || isEmpty(varValue) || some(varValue, item => !has(item, 'type') || !has(item, 'value'))
+
+      return {
+        ...item,
+        varValue: illegal ? [{ type: OTHER_IN_TYPE, value: _varValue ?? '' }] : varValue,
+      }
+    })
+  },
+  { immediate: true },
+)
 
 watch(() => gridData.value, (newGridData) => {
   const values: ParamValues = toRaw(newGridData).map(item => ({
@@ -106,6 +119,7 @@ watch(() => gridData.value, (newGridData) => {
     return
   }
 
+  emits('update', props.item.key, values)
 }, { deep: true })
 </script>
 

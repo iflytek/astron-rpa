@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { isString } from 'lodash-es'
+import { computed } from 'vue'
 
+import { useProcessStore } from '@/stores/useProcessStore'
+import type { VisualEditor } from '@/views/Arrange/canvasManager'
 import { renderAtomRemark } from './utils/renderAtomRemark'
 import RenderFormItem from './descForm/RenderFormItem.vue'
 import { useFlowState } from './hooks'
@@ -10,7 +13,16 @@ const props = withDefaults(defineProps<{ item: RPA.Atom, canEdit?: boolean, flow
   flowId: '',
 })
 
-const { astParser } = useFlowState()
+const processStore = useProcessStore()
+const flowState = useFlowState()
+const astParser = computed(() => {
+  if (flowState?.astParser) {
+    return flowState.astParser.value
+  }
+
+  const tab = props.flowId ? processStore.canvasManager.getTab(props.flowId) as VisualEditor | undefined : undefined
+  return tab?.astParser
+})
 </script>
 
 <template>

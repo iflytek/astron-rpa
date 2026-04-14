@@ -1,5 +1,5 @@
 import { markRaw, shallowReactive, shallowRef } from 'vue'
-import { isNil, uniq, isEmpty, last, keyBy, forEach, set, findLast } from 'lodash-es'
+import { isNil, uniq, isEmpty, last, keyBy, forEach, set, findLast, cloneDeep } from 'lodash-es'
 import { message } from 'ant-design-vue'
 import EventEmitter from 'eventemitter3'
 import hotkeys from 'hotkeys-js'
@@ -517,7 +517,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     const atoms = this.state.data.filter(it => ids.includes(it.id))
     if (!atoms) return
 
-    VisualEditor.clipBoardData = atoms
+    VisualEditor.clipBoardData = cloneDeep(atoms)
     message.success('复制成功')
   }
 
@@ -536,7 +536,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     }
 
     const atoms = this.state.data.filter(it => ids.includes(it.id))
-    VisualEditor.clipBoardData = atoms
+    VisualEditor.clipBoardData = cloneDeep(atoms)
 
     this.delete(ids)
   }
@@ -560,7 +560,7 @@ export class VisualEditor extends EventEmitter implements RPA.Process.TabInstanc
     }
 
     const targetId = ids[0];
-    const processNodes = VisualEditor.clipBoardData.map(it => this.convertAtomToProcessNode(it, true))
+    const processNodes = VisualEditor.clipBoardData.map(it => this.convertAtomToProcessNode(cloneDeep(it), true))
     this.undoManager.update({ type: 'insert', targetId, item: processNodes })
   }
 

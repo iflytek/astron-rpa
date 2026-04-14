@@ -1,15 +1,30 @@
 import { message } from 'ant-design-vue'
 import { uniq } from 'lodash-es'
 
+import { useProcessStore } from '@/stores/useProcessStore'
+import type { VisualEditor } from '@/views/Arrange/canvasManager'
+
 import { betweenTowItem, getIdx, getMultiSelectIds } from '@/views/Arrange/utils/flowUtils'
 
 export function changeSelectAtoms(curId: string | null, newIds, isSetLastClickItem = true) {
-  // const flowStore = useFlowStore()
-  // if (isSetLastClickItem)
-  //   setLastClickAtomId(curId)
-  // const selectedIds = newIds || (curId ? [curId] : [])
-  // curId !== null && curId !== flowStore.activeAtom?.id && flowStore.setActiveAtom(flowStore.simpleFlowUIData.find(item => item.id === curId))
-  // flowStore.setSelectedAtomIds(selectedIds)
+  const processStore = useProcessStore()
+  const activeTab = processStore.canvasManager.activeTab as VisualEditor | null
+  if (!activeTab) {
+    return
+  }
+
+  if (isSetLastClickItem)
+    setLastClickAtomId(curId)
+  const selectedIds = newIds || (curId ? [curId] : [])
+
+  activeTab.updateState({
+    multiSelect: selectedIds.length > 1,
+    selectedAtomIds: selectedIds,
+  })
+
+  if (curId !== null) {
+    activeTab.nodeParameter.toggleAtomActive(activeTab, curId)
+  }
 }
 
 // 记录鼠标最后一次点击的item数据信息

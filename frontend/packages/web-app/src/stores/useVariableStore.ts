@@ -25,7 +25,7 @@ export const useVariableStore = defineStore('variable', () => {
     const flowData = (tab.state.data as RPA.Atom[]).slice(0, idx)
 
     flowData.forEach((flow: RPA.Atom, pos: number) => {
-      const { outputList, id, alias } = flow
+      const { outputList, id, alias, title } = flow
 
       const formItemList = [
         ...get(flow, 'inputList', []),
@@ -53,7 +53,7 @@ export const useVariableStore = defineStore('variable', () => {
               id: `${id}-${index}`,
               types: item.types,
               rowNum: pos + 1,
-              anotherName: alias,
+              anotherName: alias || title || '',
               atomId: id,
               value: notNullArr,
               dialogResult,

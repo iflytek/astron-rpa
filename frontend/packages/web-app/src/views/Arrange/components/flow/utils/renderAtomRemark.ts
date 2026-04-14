@@ -8,7 +8,9 @@ import {
   defaultValueText,
 } from '@/views/Arrange/config/flow'
 import { IncrementalASTParser } from '@/views/Arrange/canvasManager'
+import { setSourceValue } from '@/views/Arrange/canvasManager/adapters/VisualEditor/NodeParameter'
 import { varHtmlToStr } from '@/views/Arrange/utils'
+import { useProcessSelectOptions } from '../hooks/useProcessSelectOptions'
 
 import { getValue } from './atomDescUtils'
 
@@ -22,10 +24,11 @@ type ResultSegment = string | {
 // 获取表单值的显示文本
 const getFormItemDisplayValue = (item: RPA.AtomDisplayItem): string => {
   const rawValue = item.value === '""' ? '' : item.value
+  const options = useProcessSelectOptions(item) ?? item.options
 
   // 处理选项类型：从 options 中查找对应的 label
-  if (item.options && rawValue) {
-    const matchedOption = item.options.find(opt => opt.value === rawValue)
+  if (options && rawValue) {
+    const matchedOption = options.find(opt => opt.value === rawValue)
     return matchedOption ? i18next.translate(matchedOption.label) : String(rawValue ?? '')
   }
   // 处理数组类型：提取数组中的 value 并拼接
@@ -37,41 +40,46 @@ const getFormItemDisplayValue = (item: RPA.AtomDisplayItem): string => {
 }
 
 // 渲染原子能力的备注
-export function renderAtomRemark(item: RPA.Atom, astParser: IncrementalASTParser) {
+export function renderAtomRemark(item: RPA.Atom, astParser?: IncrementalASTParser) {
   const { key, isOpen = true, id, inputList, outputList, advanced } = item
   if (!id) {
     return
   }
+
+  const title = i18next.translate(item.alias)
 
   if (key === ATOM_KEY_MAP.GroupEnd || (key === ATOM_KEY_MAP.Group && isOpen)) {
     return
   }
 
   if (key === ATOM_KEY_MAP.Group) {
+    if (!astParser) {
+      return title
+    }
     const node = astParser.getNode(id)
     const childrenLength = node.children.length - 1
     return `共${childrenLength}条指令`
   }
-
   const desc = i18next.translate(item.comment)
-  const title = i18next.translate(item.alias)
 
   if (!desc)
     return title
 
-  // 收集所有表单项（inputList、outputList、advancedItems）
-  const allFormItems = [
-    ...(inputList || []),
-    ...(outputList || []),
-    ...(advanced || []),
+  const formItemsObj: Record<string, RPA.AtomDisplayItem> = {}
+  const formItemGroups: Array<[string, RPA.AtomDisplayItem[]]> = [
+    ['inputList', setSourceValue(inputList || [], 'inputList')],
+    ['outputList', setSourceValue(outputList || [], 'outputList')],
+    ['advanced', setSourceValue(advanced || [], 'advanced')],
   ]
 
-  // 构建表单项映射对象，便于快速查找
-  const formItemsObj: Record<string, RPA.AtomDisplayItem> = {}
-  allFormItems.forEach((item) => {
-    if (item?.key) {
-      formItemsObj[item.key] = item
-    }
+  formItemGroups.forEach(([, formItems]) => {
+    formItems.forEach((formItem) => {
+      if (!formItem?.key) {
+        return
+      }
+
+      formItemsObj[formItem.key] = formItem
+    })
   })
 
   // 根据条件选择有效的 key（支持 || 分隔的多个 key）

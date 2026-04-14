@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Table } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import { paginationConfig } from '@/constants'
 import { ATOM_FORM_TYPE } from '@/constants/atom'
@@ -9,8 +9,9 @@ import { useProcessStore } from '@/stores/useProcessStore'
 import { useVariableStore } from '@/stores/useVariableStore'
 
 const processStore = useProcessStore()
+const variableStore = useVariableStore()
 const { t } = useTranslation()
-const processId = ref(processStore.canvasManager.activeTabId)
+const processId = ref(processStore.canvasManager.activeTab?.id)
 const keyword = ref('')
 const varData = ref([])
 
@@ -29,21 +30,22 @@ function handleSearchChange() {
   )
 }
 function handleProcessChange() {
-  console.log(processId.value)
-  // getTableData(
-  //   useProjectDocStore().userFlowNode(processId.value).length,
-  //   processId.value,
-  // )
+  const flowLength = (processStore.canvasManager.getTab(processId.value)?.state.data as RPA.Atom[] | undefined)?.length ?? 0
+  getTableData(flowLength, processId.value)
 }
 
 function getTableData(len: number, processId?: string) {
-  varData.value = useVariableStore().filterCurrentVariableListByType(
+  varData.value = variableStore.filterCurrentVariableListByType(
     ATOM_FORM_TYPE.RESULT,
     len,
     processId,
   )
 }
-// getTableData(useProjectDocStore().userFlowNode().length)
+
+watch(() => processStore.canvasManager.activeTabId, (activeTabId) => {
+  processId.value = activeTabId
+  handleProcessChange()
+}, { immediate: true })
 </script>
 
 <template>

@@ -13,7 +13,6 @@ import ContextMenu from './ContextMunus.vue'
 import DraggableVirtualScroller from './DraggableVirtualScroller.vue'
 import { draggableAddStyle } from './hooks/useFlow'
 import { useRenderListProvide } from './hooks/useRenderList'
-import { useRunDebug } from './hooks/useRunDebug'
 import { useFlowStateProvide } from './hooks'
 import Item from './Item.vue'
 import { VisualEditor } from '../../canvasManager'
@@ -46,10 +45,16 @@ useScroll(flowManager.containerRef, {
 
 const bus = useEventBus(atomScrollIntoViewKey)
 bus.on((idOrIndex) => {
+  if (processStore.canvasManager.activeTab?.id !== props.manage.id) {
+    return
+  }
+
+  if (typeof idOrIndex === 'string' && !props.manage.state.data?.some(item => item.id === idOrIndex)) {
+    return
+  }
+
   draggableRef.value.scrollTo(idOrIndex)
 })
-
-useRunDebug()
 
 function handleDraggableAddStyle() {
   draggableAddStyle(flowManager)

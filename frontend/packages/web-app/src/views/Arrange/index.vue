@@ -9,10 +9,13 @@ import HeaderControl from '@/components/HeaderControl/HeaderControl.vue'
 import { useProcessStore } from '@/stores/useProcessStore'
 import { useRunlogStore } from '@/stores/useRunlogStore'
 import { useRunningStore } from '@/stores/useRunningStore'
+import { useRunDebug } from '@/views/Arrange/components/flow/hooks/useRunDebug'
 
 const processStore = useProcessStore()
 const runningStore = useRunningStore()
 const route = useRoute()
+
+useRunDebug()
 
 async function initByRoute() {
   const projectId = route?.query?.projectId as string

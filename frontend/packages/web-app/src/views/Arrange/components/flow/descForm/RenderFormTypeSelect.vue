@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { useProcessStore } from '@/stores/useProcessStore'
+import type { VisualEditor } from '@/views/Arrange/canvasManager'
+
 import { useProcessSelectOptions } from '../hooks'
 
 interface Props {
@@ -15,8 +18,9 @@ const props = withDefaults(defineProps<Props>(), {
   id: '',
   canEdit: true,
 })
+const processStore = useProcessStore()
+const activeTab = computed(() => processStore.canvasManager.activeTab as VisualEditor | null)
 
-// 将菜单项转换为计算属性，提高性能
 const menuItems = computed(() => {
   const options = useProcessSelectOptions(props.itemData)
   return options?.map(i => ({ key: i.value, label: i.label })) ?? []
@@ -24,15 +28,20 @@ const menuItems = computed(() => {
 
 const isEmpty = computed(() => menuItems.value.length === 0)
 
-// TODO: 更新表单值
 function handleClick(val: string) {
-  // 更新 itemData 的值（因为 itemData 是响应式对象引用）
   props.itemData.value = val
+
+  if (props.id && props.itemData.sourceValue) {
+    activeTab.value?.updateFormItemValue(
+      props.id,
+      props.itemData.sourceValue,
+      val,
+    )
+  }
 }
 </script>
 
 <template>
-  <!-- 下拉选择、单选、切换、复选框 -->
   <a-dropdown :disabled="!props.canEdit || isEmpty">
     <span>{{ isEmpty ? '--' : props.desc }}</span>
     <template #overlay>
@@ -47,7 +56,6 @@ function handleClick(val: string) {
 </template>
 
 <style lang="scss" scoped>
-// 每个菜单项高度约为 32px，5 项共 160px
 .form-type-select-menu {
   min-width: 130px;
   max-height: 168px;

@@ -4,7 +4,7 @@
 import { message } from 'ant-design-vue'
 import { set } from 'lodash-es'
 import { defineStore } from 'pinia'
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ComputedRef, ref, shallowRef, watch } from 'vue'
 
 import i18next from '@/plugins/i18next'
 
@@ -59,9 +59,9 @@ export const useRunningStore = defineStore('running', () => {
   }
 
   const setDebugData = (debugMsg, replyEventId: string) => {
-    // if (debugMsg.process_id && debugMsg.process_id !== processStore.activeProcessId) {
-      // processStore.checkActiveProcess(debugMsg.process_id)
-    // }
+    if (debugMsg.process_id && debugMsg.process_id !== processStore.canvasManager.activeTab?.id) {
+      processStore.canvasManager.activateTab(debugMsg.process_id)
+    }
     if (debugMsg.debug_data?.data) {
       debugDataVar.value = debugMsg.debug_data.data
     }
@@ -84,13 +84,22 @@ export const useRunningStore = defineStore('running', () => {
 
   // 断点调试的原子能力
   const breakpointAtom = computed(() => {
-    changeDebugging(debugData.value.atomId)
-    if (debugData.value.atomId) {
-      // const findIdx = flowStore.simpleFlowUIData.findIndex(i => i.id === debugData.value.atomId)
-      // return flowStore.simpleFlowUIData[findIdx]
+    const { atomId, processId } = debugData.value || {}
+    if (!atomId || !processId) {
+      return null
     }
-    return null
-  })
+
+    const debugTab = processStore.canvasManager.processList.find(tab => tab.id === processId)
+    return debugTab?.state.data?.find(item => item.id === atomId) ?? null
+  }) as ComputedRef<RPA.Atom | null>
+
+  watch(
+    () => [debugData.value.atomId, debugData.value.processId],
+    ([atomId, processId]) => {
+      changeDebugging(atomId, processId)
+    },
+    { immediate: true },
+  )
 
   const setStatus = (value: string) => {
     status.value = value

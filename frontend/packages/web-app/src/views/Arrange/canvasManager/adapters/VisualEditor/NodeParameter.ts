@@ -6,6 +6,13 @@ import { BASE_FORM } from '@/views/Arrange/config/atom'
 
 import type { VisualEditor } from '.'
 
+export function setSourceValue(formItems: RPA.AtomDisplayItem[], prefix: string): RPA.AtomDisplayItem[] {
+  return formItems.map((item, index) => ({
+    ...item,
+    sourceValue: `${prefix}[${index}].value`,
+  }))
+}
+
 class NodeParameter implements RPA.Process.NodeParameter {
   /** 当前激活的原子能力ID */
   public activeAtomId = ref<string>()
@@ -16,13 +23,13 @@ class NodeParameter implements RPA.Process.NodeParameter {
   public formTabs = ref<RPA.Process.AtomTabs[]>([])
 
   get activeAtom() {
-    if (!this.activeInstance || !this.activeAtomId.value) return null
+    if (!this.activeAtomId.value || !this.activeInstance) return null
 
     return this.activeInstance.state.data.find(it => it.id === this.activeAtomId.value) || null
   }
 
   get activeAtomIndex() {
-    if (!this.activeInstance || !this.activeAtomId.value) return null
+    if (!this.activeAtomId.value || !this.activeInstance) return null
 
     return this.activeInstance.state.data.findIndex(it => it.id === this.activeAtomId.value) || null
   }
@@ -160,14 +167,6 @@ class NodeParameter implements RPA.Process.NodeParameter {
 
     const { inputList = [], outputList = [], advanced = [], exception = [] } = atom
 
-    // 给表单项添加 sourceValue
-    const setSourceValue = (formItems: RPA.AtomDisplayItem[], prefix: string) => {
-      return formItems.map((item, index) => ({
-        ...item,
-        sourceValue: `${prefix}[${index}].value`,
-      }))
-    }
-    
     // 基本参数表单配置
     const baseParam: RPA.Process.AtomTabs = {
       key: 'baseParam',

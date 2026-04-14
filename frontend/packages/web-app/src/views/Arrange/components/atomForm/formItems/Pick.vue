@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { FormItemProps } from './index'
+import type { FormItemEmits, FormItemProps } from './index'
 import ElePopover from '../../pick/ElePopover.vue'
 import AtomPopover from '../components/AtomPopover.vue'
 
 const props = defineProps<FormItemProps>()
+const emits = defineEmits<FormItemEmits>()
 const open = ref(false)
 
 function closePopover() {
   open.value = false
+}
+
+function handleSelect(data: RPA.AtomFormItemResult[]) {
+  emits('update', props.item.key, data)
+  closePopover()
 }
 </script>
 
@@ -22,7 +28,7 @@ function closePopover() {
     </a-button>
 
     <template #content>
-      <ElePopover :render-data="props.item" @close="closePopover" />
+      <ElePopover :render-data="props.item" @close="closePopover" @select="handleSelect" />
     </template>
   </AtomPopover>
 </template>
