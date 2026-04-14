@@ -228,8 +228,7 @@ export const useSmartCompPickStore = defineStore('smartCompPickStore', () => {
     RpaPicker.create(() => {
       setTimeout(() => {
         const sendParams = {
-          pick_sign: 'SMART_COMPONENT',
-          pick_type: 'ELEMENT',
+          pick_type: 'SMART_COMPONENT',
           data: JSON.stringify(pickData.value),
           smart_component_action: action,
         }

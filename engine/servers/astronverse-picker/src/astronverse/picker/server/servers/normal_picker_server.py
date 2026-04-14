@@ -6,7 +6,7 @@ from typing import Optional
 from astronverse.picker import (
     DrawResult,
     IElement,
-    PickerAction,
+    PickerSign,
     PickerDomain,
     PickerType,
     Point,
@@ -51,16 +51,16 @@ class NormalPickServer:
 
     def handle(self, sign):
         """处理普通拾取信号"""
-        if PickerAction.STOP.value in sign:
+        if PickerSign.STOP.value in sign:
             self.hl.hide_sync()
             self.event_core.close()
 
             result = None
 
-            del sign[PickerAction.STOP.value]
-            sign["{}_RES".format(PickerAction.STOP.value)] = result
+            del sign[PickerSign.STOP.value]
+            sign["{}_RES".format(PickerSign.STOP.value)] = result
             logger.info("拾取结束，外部退出")
-        elif PickerAction.START.value in sign:
+        elif PickerSign.START.value in sign:
             is_start = self.event_core.start()
             if is_start:
                 logger.info("拾取开始")
@@ -75,18 +75,18 @@ class NormalPickServer:
 
                 if is_focus:
                     try:
-                        picker_data = sign[PickerAction.START.value]
+                        picker_data = sign[PickerSign.START.value]
                         result = self.element(self.service_context, picker_data)
                     except Exception as e:
                         result = "{}".format(e)
 
-                del sign[PickerAction.START.value]
-                sign["{}_RES".format(PickerAction.START.value)] = result
+                del sign[PickerSign.START.value]
+                sign["{}_RES".format(PickerSign.START.value)] = result
                 logger.info("拾取结束，主动退出")
             else:
                 draw_result: DrawResult = self.draw(
                     self.service_context,
-                    sign[PickerAction.START.value],
+                    sign[PickerSign.START.value],
                 )
                 if not draw_result.success and draw_result.error_message:
 
@@ -95,8 +95,8 @@ class NormalPickServer:
 
                     result = "{}".format(draw_result.error_message)
 
-                    del sign[PickerAction.START.value]
-                    sign["{}_RES".format(PickerAction.START.value)] = result
+                    del sign[PickerSign.START.value]
+                    sign["{}_RES".format(PickerSign.START.value)] = result
                     logger.info("拾取因异常结束")
 
     def draw(self, svc, data: dict) -> DrawResult:
@@ -106,9 +106,9 @@ class NormalPickServer:
             self.last_point.y = p_y
             pick_type = data.get("pick_type")
 
-            if pick_type == PickerType.POINT.value:
+            if pick_type == PickerType.POINT:
                 return DrawResult(success=True)
-            elif pick_type == PickerType.WINDOW.value:
+            elif pick_type == PickerType.WINDOW:
                 start_control = UIAOperate.get_windows_by_point(self.last_point)
                 result_control = UIAOperate.get_app_windows(start_control)
                 if not result_control:
@@ -132,7 +132,7 @@ class NormalPickServer:
                     app=self.last_strategy_svc.app.value,
                     domain=PickerDomain.UIA.value,
                 )
-            elif pick_type in [PickerType.ELEMENT.value, PickerType.SIMILAR.value, PickerType.BATCH.value]:
+            elif pick_type in [PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
                 start_control = UIAOperate.get_windows_by_point(self.last_point)
                 if not start_control:
                     logger.info("拾取预处理 start_control 为空")
@@ -192,9 +192,9 @@ class NormalPickServer:
 
     def element(self, svc, data: dict) -> dict:
         pick_type = data.get("pick_type")
-        if pick_type == PickerType.POINT.value:
+        if pick_type == PickerType.POINT:
             return {"point": {"x": self.last_point.x, "y": self.last_point.y}, "version": "1"}
-        elif pick_type in [PickerType.WINDOW.value, PickerType.ELEMENT.value, PickerType.SIMILAR.value, PickerType.BATCH.value]:
+        elif pick_type in [PickerType.WINDOW, PickerType.ELEMENT, PickerType.SIMILAR, PickerType.BATCH]:
             with self.lock:
                 if self.last_element:
                     return self.last_element.path(svc, self.last_strategy_svc)

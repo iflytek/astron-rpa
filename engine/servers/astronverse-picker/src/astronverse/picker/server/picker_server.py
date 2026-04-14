@@ -1,9 +1,9 @@
 import time
 
-from astronverse.picker import PickerAction, RecordAction, SmartComponentAction
+from astronverse.picker import PickerSign, RecordAction, SmartComponentAction
 
 
-_NORMAL_PICK_ACTIONS = {a.value for a in PickerAction}
+_NORMAL_PICK_ACTIONS = {a.value for a in PickerSign}
 _SMART_COMPONENT_ACTIONS = {a.value for a in SmartComponentAction}
 _RECORD_ACTIONS = {a.value for a in RecordAction}
 

@@ -1,7 +1,7 @@
 import asyncio
 import json
 from astronverse.picker.server import RequestMessage, ResponseMessage, ResponseKey
-from astronverse.picker import PickerAction, PickerType
+from astronverse.picker import PickerSign, PickerType
 from astronverse.picker.utils.utils import call
 
 
@@ -16,16 +16,16 @@ class NormalPickerHandler:
         self.ws_server = ws_server
         request = RequestMessage(**data)
         try:
-            match request.pick_action:
-                case PickerAction.START:
+            match request.pick_sign:
+                case PickerSign.START:
                     await self._handle_start(request)
-                case PickerAction.STOP:
+                case PickerSign.STOP:
                     await self._handle_stop(request)
-                case PickerAction.VALIDATE:
+                case PickerSign.VALIDATE:
                     await self._handle_validate(request)
-                case PickerAction.GAIN:
+                case PickerSign.GAIN:
                     await self._handle_gain(request)
-                case PickerAction.HIGHLIGHT:
+                case PickerSign.HIGHLIGHT:
                     await self._handle_highlight(request)
         except Exception as e:
             await self._send_response(ResponseKey.ERROR, error=str(e))
@@ -35,7 +35,7 @@ class NormalPickerHandler:
         try:
             await self.ws_server.hl.start("normal")
             payload = self._build_start_sign_payload(request)
-            result = await self.svc.send_sign(PickerAction.START.value, payload)
+            result = await self.svc.send_sign(PickerSign.START.value, payload)
             if result == "cancel":
                 await self._send_response(ResponseKey.CANCEL, error="")
             elif isinstance(result, dict):
@@ -49,7 +49,7 @@ class NormalPickerHandler:
 
     async def _handle_stop(self, request: RequestMessage):
         """结束拾取：通知 NormalPickServer 退出监听并隐藏画框"""
-        await self.svc.send_sign(PickerAction.STOP.value, request.model_dump(mode="json"))
+        await self.svc.send_sign(PickerSign.STOP.value, request.model_dump(mode="json"))
         await self._send_response(ResponseKey.SUCCESS)
 
     def _build_start_sign_payload(self, request: RequestMessage) -> dict:
@@ -60,7 +60,7 @@ class NormalPickerHandler:
         if request.pick_mode and isinstance(request.data, dict):
             request.data["pick_mode"] = request.pick_mode.value
 
-        return request.model_dump(mode="json")
+        return request.model_dump()
 
     async def _handle_validate(self, request: RequestMessage):
         """处理拾取校验"""

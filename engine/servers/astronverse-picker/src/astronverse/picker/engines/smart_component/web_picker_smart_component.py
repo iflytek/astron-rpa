@@ -62,10 +62,7 @@ class WEBElement(IElement):
             batch_path = WEBPicker.get_batch_path(svc.route_port, strategy_svc, self)
             if batch_path:
                 res["path"] = batch_path
-        if (
-            strategy_svc.data.get("pick_sign", "") == PickerSign.SMART_COMPONENT
-            and strategy_svc.data.get("smart_component_action", "") == SmartComponentAction.START
-        ):
+        if pick_type == PickerType.SMART_COMPONENT and strategy_svc.data.get("smart_component_action", "") == SmartComponentAction.START:
             update_path = WEBPicker.get_element_html(svc.route_port, strategy_svc, self.left_top_point)
             res["path"] = update_path
             size = pyautogui.size()

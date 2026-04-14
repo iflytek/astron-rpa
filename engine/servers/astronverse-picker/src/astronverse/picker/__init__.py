@@ -116,7 +116,7 @@ class PickerType(Enum):
 PICKER_TYPE_DICT = {p.value: True for p in PickerType}
 
 
-class PickerAction(Enum):
+class PickerSign(Enum):
     """拾取动作 - 专门处理拾取的子操作"""
 
     START = "START"  # 开始

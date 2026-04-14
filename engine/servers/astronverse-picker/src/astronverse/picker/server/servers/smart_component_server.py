@@ -7,7 +7,6 @@ from astronverse.picker import (
     DrawResult,
     IElement,
     PickerDomain,
-    PickerType,
     Point,
     Rect,
     SmartComponentAction,
@@ -174,14 +173,10 @@ class SmartComponentServer:
             return DrawResult(success=False, error_message=str(e))
 
     def element(self, svc, data: dict) -> dict:
-        pick_type = data.get("pick_type")
-        if pick_type == PickerType.SMART_COMPONENT:
-            with self.lock:
-                if self.last_element:
-                    return self.last_element.path(svc, self.last_strategy_svc)
-                return {}
-        else:
-            raise NotImplementedError()
+        with self.lock:
+            if self.last_element:
+                return self.last_element.path(svc, self.last_strategy_svc)
+            return {}
 
     def navigate(self, svc, data: dict) -> dict:
         try:
@@ -191,9 +186,6 @@ class SmartComponentServer:
             data["data"] = payload
 
             p_x, p_y = UIAOperate.get_cursor_pos()
-            pick_type = data.get("pick_type")
-            if pick_type != PickerType.SMART_COMPONENT:
-                return {}
 
             # 获取
             app = payload.get("app")

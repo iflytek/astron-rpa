@@ -66,7 +66,7 @@ class RecordHandler:
         self._continue_event = asyncio.Event()
         while True:
             self._continue_event.clear()
-            payload = request.model_dump(mode="json")
+            payload = request.model_dump()
             result = await self.svc.send_sign(RecordAction.START.value, payload)
             if isinstance(result, dict):
                 await self._push_element(result)

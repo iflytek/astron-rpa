@@ -4,6 +4,7 @@ from typing import Union
 
 from astronverse.baseline.i18n.i18n import i18n
 from astronverse.picker import Rect
+from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
 
 
@@ -52,7 +53,8 @@ class HlHandler:
         msgs: Union[str, list[str]] = "",
         draw_type: str = "picking",
     ) -> None:
-        msg = {"Operation": "draw", "Type": draw_type, "Boxes": []}
+        cur_x, cur_y = UIAOperate.get_cursor_pos()
+        msg = {"Operation": "draw", "Type": draw_type, "Boxes": [], "MouseX": cur_x, "MouseY": cur_y}
         if isinstance(rects, list):
             if msgs == "":
                 msgs = [""] * len(rects)

@@ -27,20 +27,18 @@ class SmartComponentHandler:
 
     async def _handle_start(self, request: RequestMessage):
         """开始拾取：高亮 + send_sign(SMART_COMPONENT_START)"""
-        try:
-            await self.ws_server.hl.start("normal")
-            payload = self._build_start_sign_payload(request)
-            result = await self.svc.send_sign(request.smart_component_action.value, payload)
-            if result == "cancel":
-                await self._send_response(ResponseKey.CANCEL, error="")
-            elif isinstance(result, dict):
-                out = dict(result)
-                out["picker_type"] = request.pick_type.name
-                await self._send_response(ResponseKey.SUCCESS, data=out)
-            else:
-                await self._send_response(ResponseKey.ERROR, error=str(result))
-        finally:
-            await self.ws_server.hl.hide()
+
+        await self.ws_server.hl.start("normal")
+        payload = self._build_start_sign_payload(request)
+        result = await self.svc.send_sign(request.smart_component_action.value, payload)
+        if result == "cancel":
+            await self._send_response(ResponseKey.CANCEL, error="")
+        elif isinstance(result, dict):
+            out = dict(result)
+            out["picker_type"] = request.pick_type.name
+            await self._send_response(ResponseKey.SUCCESS, data=out)
+        else:
+            await self._send_response(ResponseKey.ERROR, error=str(result))
 
     async def _handle_navigate(self, request: RequestMessage):
         """上下级切换：直接 send_sign，由 picker 侧负责重绘高亮"""
@@ -71,7 +69,7 @@ class SmartComponentHandler:
         if request.pick_mode and isinstance(request.data, dict):
             request.data["pick_mode"] = request.pick_mode.value
 
-        return request.model_dump(mode="json")
+        return request.model_dump()
 
     @staticmethod
     def _process_element_data(request: RequestMessage):
