@@ -130,28 +130,33 @@ export async function startServer() {
 /**
  * 关闭所有子进程
  */
-export function closeSubProcess() {
-  return new Promise<void>((resolve) => {
-    exec(
-      `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --stop="True"`,
-      { cwd: appWorkPath },
-      async (error) => {
-        if (error) {
-          logger.error(`${envJson.SCHEDULER_NAME} closeSubProcess error: ${error}`)
-        } else {
-          logger.info(`${envJson.SCHEDULER_NAME} closeSubProcess success`)
-        }
-        // 等待 scheduler 进程真正消失，最多等 3s
-        const deadline = Date.now() + 3000
-        while (Date.now() < deadline) {
-          const still = await checkPythonRpaProcess()
-          if (!still) break
-          await new Promise(r => setTimeout(r, 200))
-        }
-        resolve()
+export async function closeSubProcess() {
+  try {
+    await fs.access(pythonExe)
+  }
+  catch {
+    return
+  }
+
+  await new Promise<void>((resolve) => exec(
+    `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --stop="True"`,
+    { cwd: appWorkPath },
+    async (error) => {
+      if (error) {
+        logger.error(`${envJson.SCHEDULER_NAME} closeSubProcess error: ${error}`)
       }
-    )
-  })
+      else {
+        logger.info(`${envJson.SCHEDULER_NAME} closeSubProcess success`)
+      }
+      const deadline = Date.now() + 3000
+      while (Date.now() < deadline) {
+        const still = await checkPythonRpaProcess()
+        if (!still) break
+        await new Promise(r => setTimeout(r, 200))
+      }
+      resolve()
+    }
+  ))
 }
 
 /**
@@ -355,6 +360,7 @@ export async function startBackend() {
   }
 
   await ensureAppWorkPathExists()
+  await closeSubProcess()
 
   logger.info(`需要解压的文件: ${needExtractFiles.join(', ')}`)
 
