@@ -204,6 +204,17 @@ class SmartComponentServer:
                 logger.error(f"start_control error: empty")
                 return {}
             process_id = UIAOperate.get_process_id(start_control)
+
+            if not svc.strategy:
+                timeout = 10
+                wait_time = 0
+                while not svc.strategy and wait_time < timeout:
+                    time.sleep(0.1)
+                    wait_time += 0.1
+                if not svc.strategy:
+                    logger.error(f"策略加载超时（10s）")
+                logger.info("strategy 加载完成")
+
             strategy_svc = svc.strategy.gen_svc(
                 process_id=process_id,
                 last_point=Point(p_x, p_y),
