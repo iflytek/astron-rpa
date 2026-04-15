@@ -42,7 +42,6 @@ class RecordServer:
                 del sign[RecordAction.START.value]
                 sign[f"{RecordAction.START.value}_RES"] = None
 
-            self.hl.hide_sync()
             result = self.element(self.service_context, {})
 
             del sign[RecordAction.END.value]
@@ -55,8 +54,6 @@ class RecordServer:
                 sign[RecordAction.START.value],
             )
             if not draw_result.success and draw_result.error_message:
-                self.hl.hide_sync()
-
                 result = "{}".format(draw_result.error_message)
 
                 del sign[RecordAction.START.value]
