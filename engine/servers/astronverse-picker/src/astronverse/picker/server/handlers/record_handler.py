@@ -6,16 +6,19 @@ from typing import Optional
 
 import pyautogui
 
-from astronverse.picker import RecordAction, RECORDING_BLACKLIST, PickerType
+from astronverse.picker import RecordAction, RECORDING_BLACKLIST, PickerType, Rect
 from astronverse.picker.logger import logger
 from astronverse.picker.server import RequestMessage, ResponseMessage, ResponseKey, PushKey, RequestPush
 
 
 class RecordState(Enum):
-    IDLE = "idle"                  # 未录制
-    RECORDING = "recording"        # 录制中（绘框循环运行）
-    HOVER_PENDING = "hover_pending"  # monitor 已推送悬停，等待前端 HOVER_START 确认
-    HOVER = "hover"                # 前端已确认 HOVER_START，完全静默
+    """录制状态枚举"""
+
+    IDLE = "idle"
+    LISTENING = "listening"
+    RECORDING = "recording"
+    HOVERING = "hovering"
+    PAUSED = "paused"
 
 
 class RecordEventMonitor:
@@ -51,7 +54,7 @@ class RecordEventMonitor:
         try:
             await asyncio.sleep(self.STARTUP_DELAY)
             h = self._handler
-            while h.ws_server:
+            while True:
                 event_core = h.svc.event_core
 
                 if event_core.is_f4_pressed():
@@ -79,10 +82,7 @@ class RecordEventMonitor:
     async def _check_hover(self):
         try:
             cur_x, cur_y = pyautogui.position()
-            current_time = time.time()
-            h = self._handler
-
-            rs = h.record_server
+            rs = self._handler.svc.pick_server._record # noqa
             cur_rect = rs.last_valid_rect if rs else None
 
             if self._is_rect_changed(cur_rect, self._last_hover_rect):
@@ -93,25 +93,21 @@ class RecordEventMonitor:
             if cur_rect is None:
                 return
 
-            in_rect = (
-                    cur_rect.left <= cur_x <= cur_rect.right
-                    and cur_rect.top <= cur_y <= cur_rect.bottom
-            )
+            in_rect = cur_rect.left <= cur_x <= cur_rect.right and cur_rect.top <= cur_y <= cur_rect.bottom
 
-            if in_rect:
-                if self._hover_start_time is None:
-                    self._hover_start_time = current_time
-                    self._hover_triggered = False
-                elif not self._hover_triggered:
-                    if current_time - self._hover_start_time >= self.HOVER_THRESHOLD:
-                        self._hover_triggered = True
-                        rect_data = self._build_rect_data(rs, cur_x, cur_y)
-                        await h.on_mouse_hover(rect_data)
-            else:
+            if not in_rect:
                 if self._hover_triggered:
-                    await h.on_mouse_out()
+                    await self._handler.on_mouse_out()
                 self._hover_start_time = None
                 self._hover_triggered = False
+                return
+
+            if self._hover_start_time is None:
+                self._hover_start_time = time.time()
+            if not self._hover_triggered and time.time() - self._hover_start_time >= self.HOVER_THRESHOLD:
+                self._hover_triggered = True
+                await self._handler.on_mouse_hover(self._build_rect_data(cur_rect, rs.last_valid_domain, cur_x, cur_y))
+
         except Exception as e:
             import traceback
             logger.error(f"[EventMonitor] 悬停检测异常: {e}\n{traceback.format_exc()}")
@@ -125,22 +121,17 @@ class RecordEventMonitor:
         return a != b
 
     @staticmethod
-    def _build_rect_data(rs, cur_x: int, cur_y: int) -> str:
-        try:
-            if rs and rs.last_valid_rect:
-                rect = rs.last_valid_rect
-                return json.dumps({
-                    "left": rect.left,
-                    "top": rect.top,
-                    "right": rect.right,
-                    "bottom": rect.bottom,
-                    "mouse_x": cur_x,
-                    "mouse_y": cur_y,
-                    "domain": rs.last_valid_domain,
-                }, ensure_ascii=False)
-        except Exception as e:
-            logger.error(f"[EventMonitor] 构造 rect_data 失败: {e}")
-        return "{}"
+    def _build_rect_data(rect, domain: Optional[str], cur_x: int, cur_y: int) -> str:
+        data = {
+            "left": rect.left,
+            "top": rect.top,
+            "right": rect.right,
+            "bottom": rect.bottom,
+            "mouse_x": cur_x,
+            "mouse_y": cur_y,
+            "domain": domain,
+        }
+        return json.dumps(data, ensure_ascii=False)
 
 
 class RecordHandler:
@@ -162,13 +153,6 @@ class RecordHandler:
         self._cached_element = None
 
         self.event_monitor: RecordEventMonitor = None
-
-    @property
-    def record_server(self):
-        try:
-            return self.svc.pick_server._record  # noqa 不太规范但是这样做有效
-        except AttributeError:
-            return None
 
     # ------------------------------------------------------------------
     # 分发
@@ -203,161 +187,143 @@ class RecordHandler:
     # ------------------------------------------------------------------
 
     async def _handle_listening(self, request: RequestMessage):
-        if self.svc.event_core:
-            self.svc.event_core.start()
+        if self._state == RecordState.IDLE:
+            if self.svc.event_core:
+                self.svc.event_core.start()
 
-        self.event_monitor = RecordEventMonitor(self)
-        self.event_monitor.start()
-
-        await self._send_response(ResponseKey.SUCCESS, data="监听已启动")
+            self.event_monitor = RecordEventMonitor(self)
+            self.event_monitor.start()
+            self._state = RecordState.LISTENING
+            await self._send_response(ResponseKey.SUCCESS, data="监听已启动")
+        elif self._state == RecordState.LISTENING:
+            await self._send_response(ResponseKey.SUCCESS, data="监听已启动")
+        else:
+            await self._send_response(ResponseKey.ERROR, error="当前状态不允许监听")
 
     async def _handle_end(self, request: RequestMessage):
-        if self.event_monitor:
-            self.event_monitor.stop()
-            self.event_monitor = None
+        if self._state == RecordState.IDLE:
+            await self._send_response(ResponseKey.SUCCESS, data="录制已结束")
+        else:
+            if self.event_monitor:
+                self.event_monitor.stop()
+                self.event_monitor = None
 
-        await self._stop_recording()
-        await self.ws_server.hl.hide()
-        self._state = RecordState.IDLE
+            if self.svc.event_core:
+                self.svc.event_core.close()
 
-        if self.svc.event_core:
-            self.svc.event_core.close()
+            await self._stop_recording()
 
-        await self._send_response(ResponseKey.SUCCESS, data="录制已结束")
+            self._state = RecordState.IDLE
+            await self._send_response(ResponseKey.SUCCESS, data="录制已结束")
 
     # ------------------------------------------------------------------
     # 录制控制
     # ------------------------------------------------------------------
 
     async def _handle_start(self, request: RequestMessage):
-        if self._state == RecordState.RECORDING:
-            await self._send_response(ResponseKey.SUCCESS, data="录制已在进行中")
-            return
-        await self._start_recording(request)
-        await self._send_response(ResponseKey.SUCCESS, data="录制已开始")
+        if await self._start_recording(request):
+            await self._send_response(ResponseKey.SUCCESS, data="录制已开始")
 
     async def _handle_pause(self, request: RequestMessage):
-        await self._stop_recording()
-        await self.ws_server.hl.hide()
-        await self._send_response(ResponseKey.SUCCESS, data="已暂停")
+        if await self._stop_recording():
+            await self._send_response(ResponseKey.SUCCESS, data="已暂停")
 
     async def _start_recording(self, request: RequestMessage = None) -> bool:
-        if self._state == RecordState.RECORDING:
+        if self._state == RecordState.LISTENING:
+            await self.ws_server.hl.start("normal")
+
+            self._cached_element = None
+            self._continue_event = None
+            self.record_task = asyncio.create_task(self._record_loop(request))
+            self._state = RecordState.RECORDING
+            return True
+        elif self._state == RecordState.RECORDING:
+            return True
+        else:
             return False
-        await self.ws_server.hl.start("normal")
-        self._cached_element = None
-        self._continue_event = None
-        self.record_task = asyncio.create_task(self._record_loop(request))
-        self._state = RecordState.RECORDING
-        return True
 
     async def _stop_recording(self) -> bool:
         if self._state == RecordState.IDLE:
             return False
-        if self.record_task and not self.record_task.done():
-            self.record_task.cancel()
-            try:
-                await self.record_task
-            except asyncio.CancelledError:
-                pass
-        self.record_task = None
-        self._state = RecordState.IDLE
-        await self.svc.send_sign(RecordAction.END.value, {})
-        return True
+        elif self._state == RecordState.LISTENING:
+            return True
+        else:
+            await self.ws_server.hl.hide()
+
+            if self.record_task and not self.record_task.done():
+                self.record_task.cancel()
+                try:
+                    await self.record_task
+                except asyncio.CancelledError:
+                    pass
+                self.record_task = None
+
+            await self.svc.send_sign(RecordAction.END.value, {})
+            self._state = RecordState.LISTENING
+            return True
 
     # ------------------------------------------------------------------
     # 悬停交互
     # ------------------------------------------------------------------
 
     async def _handle_hover_start(self, request: RequestMessage):
-        # 前端确认悬停，_continue_event 已在 on_mouse_hover 中 clear，无需重复操作
-        result = await self.svc.send_sign(RecordAction.END.value, {})
-        self._cached_element = result
-        self._state = RecordState.HOVER  # 前端已确认，完全静默
-        await self._send_response(ResponseKey.SUCCESS, data="悬停检测已启动")
+        if self._state == RecordState.HOVERING:
+            self._state = RecordState.PAUSED
+            await self._send_response(ResponseKey.SUCCESS, data="悬停检测已启动")
 
     async def _handle_hover_end(self, request: RequestMessage):
-        self._cached_element = None
-        if self._continue_event:
-            self._continue_event.set()
-        self._state = RecordState.RECORDING
-        await self._send_response(ResponseKey.SUCCESS, data="已恢复拾取")
+        if self._state == RecordState.PAUSED:
+            self._state = RecordState.HOVERING
+            await self._send_response(ResponseKey.SUCCESS, data="已恢复拾取")
 
     async def _handle_automic_end(self, request: RequestMessage):
-        if isinstance(self._cached_element, dict):
-            await self._send_response(ResponseKey.SUCCESS, data=self._cached_element)
-        else:
-            await self._send_response(ResponseKey.ERROR, error="未找到元素")
-
-        self._cached_element = None
-        if self._continue_event:
-            self._continue_event.set()
-        self._state = RecordState.RECORDING
+        if self._state == RecordState.PAUSED:
+            self._state = RecordState.RECORDING
+            if isinstance(self._cached_element, dict):
+                await self._send_response(ResponseKey.SUCCESS, data=self._cached_element)
+            else:
+                await self._send_response(ResponseKey.ERROR, error="未找到元素")
 
     # ------------------------------------------------------------------
     # 推送回调（由 RecordEventMonitor 调用）
     # ------------------------------------------------------------------
 
     async def on_f4_pressed(self):
-        if self._state != RecordState.IDLE:
-            return
         started = await self._start_recording(RequestMessage(
             pick_type=PickerType.RECORD,
-            record_action=RecordAction.START,
-            data="",
+            record_action=RecordAction.START
         ))
         if started:
             await self._push(PushKey.RECORD_START)
 
     async def on_esc_pressed(self):
-        if self._state == RecordState.IDLE:
-            return
         stopped = await self._stop_recording()
         if stopped:
-            await self.ws_server.hl.hide()
             await self._push(PushKey.RECORD_PAUSE)
 
     async def on_mouse_hover(self, rect_data: str):
-        if self._state != RecordState.RECORDING:
-            return
-        if self._continue_event:
-            self._continue_event.clear()  # 悬停触发后立即暂停绘框
-        self._state = RecordState.HOVER_PENDING  # 等待前端 HOVER_START 确认
-        await self._push(PushKey.RECORD_AUTOMIC_CHOICE, data=rect_data)
+        if self._state == RecordState.RECORDING:
+            self._state = RecordState.HOVERING
+            await self._push(PushKey.RECORD_AUTOMIC_CHOICE, data=rect_data)
+            self._cached_element = await self.svc.send_sign(RecordAction.END.value, {})
 
     async def on_mouse_out(self):
-        if self._state != RecordState.HOVER_PENDING:
-            return  # HOVER（前端已确认）状态下完全静默
-        if self._continue_event:
-            self._continue_event.set()  # 前端未确认前移出，恢复绘框
-        self._state = RecordState.RECORDING
-        await self._push(PushKey.RECORD_AUTOMIC_DRAW_END)
+        if self._state == RecordState.HOVERING:
+            self._state = RecordState.RECORDING
+            await self._push(PushKey.RECORD_AUTOMIC_DRAW_END)
 
     # ------------------------------------------------------------------
     # 工具方法
     # ------------------------------------------------------------------
 
     async def _record_loop(self, request: RequestMessage):
-        self._continue_event = asyncio.Event()
-        self._continue_event.set()
-
+        payload = request.model_dump() if request else {}
         try:
             while True:
-                await self._continue_event.wait()
-
-                # event set 之后再检查状态，防止 hover 触发期间继续 draw
-                if self._state != RecordState.RECORDING:
-                    await asyncio.sleep(0.05)
-                    continue
-
-                payload = request.model_dump() if request else {}
-                result = await self.svc.send_sign(RecordAction.START.value, payload)
-
-                if isinstance(result, str) and result:
-                    logger.warning(f"拾取失败: {result}")
-
-                await asyncio.sleep(0.05)
-
+                if self._state in [RecordState.RECORDING, RecordState.HOVERING]:
+                    result = await self.svc.send_sign(RecordAction.START.value, payload)
+                    if result:
+                        logger.warning(f"拾取错误: {result}")
         except asyncio.CancelledError:
             logger.info("录制循环已取消")
 

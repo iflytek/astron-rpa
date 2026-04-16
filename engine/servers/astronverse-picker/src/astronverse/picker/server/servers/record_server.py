@@ -9,10 +9,12 @@ from astronverse.picker import (
     Point,
     RecordAction,
     Rect,
+    RECORDING_BLACKLIST,
 )
 from astronverse.picker.engines.uia_picker import UIAOperate
 from astronverse.picker.logger import logger
 from astronverse.picker.server.servers.normal_picker_server import _get_element_domain
+from astronverse.picker.utils.process import find_real_application_process
 
 
 class RecordServer:
@@ -33,6 +35,9 @@ class RecordServer:
         self.last_valid_rect: Optional[Rect] = None
         self.last_valid_tag: str = ""
         self.last_valid_domain: Optional[str] = None
+
+        # 黑名单开关
+        self.enable_blacklist = True
 
     def handle(self, sign):
         """处理录制信号（类比 NormalPickServer.handle）"""
@@ -74,15 +79,27 @@ class RecordServer:
 
             process_id = UIAOperate.get_process_id(start_control)
 
+            # 黑名单检查：若当前进程在黑名单中，复用上次缓存结果
+            if self.enable_blacklist:
+                process_info = find_real_application_process(process_id)
+                process_name = process_info["name"]
+                if process_name in RECORDING_BLACKLIST:
+                    return DrawResult(
+                        success=True,
+                        rect=self.last_valid_rect,
+                        app=process_name,
+                        domain=self.last_valid_domain,
+                    )
+
+            # 等待strategy加载
+            timeout = 10
+            wait_time = 0
+            while not svc.strategy and wait_time < timeout:
+                time.sleep(0.1)
+                wait_time += 0.1
             if not svc.strategy:
-                timeout = 10
-                wait_time = 0
-                while not svc.strategy and wait_time < timeout:
-                    time.sleep(0.1)
-                    wait_time += 0.1
-                if not svc.strategy:
-                    return DrawResult(success=False, error_message="策略加载超时（10s）")
-                logger.info("strategy 加载完成")
+                return DrawResult(success=False, error_message="策略加载超时（10s）")
+            logger.info("strategy 加载完成")
 
             self.last_strategy_svc = svc.strategy.gen_svc(
                 process_id=process_id,
