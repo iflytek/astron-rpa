@@ -9,6 +9,7 @@ import { computed, h } from 'vue'
 import { getVersionLst, versionEnable, versionRecover } from '@/api/project'
 import GlobalModal from '@/components/GlobalModal/index.ts'
 import { PublishModal } from '@/components/PublishComponents'
+import {getRobotLastIsExternalCall, setRobotIsExternalCall} from '@/api/robot';
 
 interface versionMap {
   robotId: string
@@ -78,6 +79,33 @@ export default function useVersionManage(props) {
     recoverVersion(item)
   }, 300)
 
+    // 更新已发布工作流外部调用版本
+    const refreshExternalCall = async (item: versionMap) => {
+        try {
+            // 获取工作流外部调用版本外部调用配置
+            const currentConfig = await getRobotLastIsExternalCall(props.robotId)
+
+            // 是否开启外部调用
+            if (currentConfig?.status === 1) {
+                console.log('检测到外部调用已开启，更新外部调用版本...')
+
+                const updatePayload = {
+                    ...currentConfig,
+                    project_id: props.robotId,
+                    version: item.versionNum,
+                    status: 1,
+                    parameters: JSON.stringify(currentConfig.parameters),
+                }
+
+                // 更新已发布工作流
+                await setRobotIsExternalCall(updatePayload)
+                console.log('外部调用配置强制更新成功')
+            }
+        } catch (error) {
+            console.error('发版后更新已发布工作流外部调用版本失败', error)
+        }
+    }
+
   const enableVersion = debounce((item: versionMap) => {
     const onOk = async () => {
       message.success(t('versionManage.enableVersionSuccess'))
@@ -85,6 +113,8 @@ export default function useVersionManage(props) {
         robotId: props.robotId,
         version: item.versionNum,
       })
+      // 更新已发布工作流外部调用版本
+      refreshExternalCall(item)
       executeImmediate()
     }
 

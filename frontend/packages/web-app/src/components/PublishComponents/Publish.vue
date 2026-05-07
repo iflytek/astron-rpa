@@ -5,7 +5,7 @@ import type { PropType } from 'vue'
 import { computed, defineAsyncComponent, ref, useTemplateRef } from 'vue'
 
 import { releaseWithPublish } from '@/api/market'
-import { publishRobot } from '@/api/robot'
+import {getRobotLastIsExternalCall, publishRobot, setRobotIsExternalCall} from '@/api/robot'
 import { useCommonOperate } from '@/views/Home/pages/hooks/useCommonOperate'
 
 import type BasicForm from './BasicForm.vue'
@@ -47,6 +47,33 @@ async function handleSubmit(): Promise<void> {
   const res = await publishRobot(lastPublishData)
   message.success(t('publish.success'))
 
+  // 更新已发布工作流外部调用版本
+  const refreshExternalCall = async () => {
+    try {
+      // 获取工作流外部调用版本外部调用配置
+      const currentConfig = await getRobotLastIsExternalCall(props.robotId)
+
+      // 是否开启外部调用且启用当前发布版本
+      if (currentConfig?.status === 1 && enableLastVersion.value) {
+        console.log('检测到外部调用已开启，执行强制更新以同步版本...')
+
+        const updatePayload = {
+          ...currentConfig,
+          project_id: props.robotId,
+          version: lastPublishData.version,
+          status: 1,
+          parameters: JSON.stringify(currentConfig.parameters),
+        }
+
+        // 更新已发布工作流
+        await setRobotIsExternalCall(updatePayload)
+        console.log('外部调用配置强制更新成功')
+      }
+    } catch (error) {
+      console.error('发版后更新已发布工作流外部调用版本失败', error)
+    }
+  }
+
   // 检查是否需要上架申请(如果开启上架审核且分享过市场, 需弹窗提示是否要发起上架申请，用户确认后发起上架申请)
   applicationReleaseCheck({
     robotId: lastPublishData.robotId,
@@ -60,6 +87,8 @@ async function handleSubmit(): Promise<void> {
     // 如果分享过市场，data内容为market，如果没分享过，内容为create，对应两种提示
     if (Number(basicFormData.value.version) > 1 && res.data === 'market') {
       message.success(t('publish.syncMarketSuccess'))
+      // 更新已发布工作流外部调用版本
+      refreshExternalCall()
     }
   })
   emits('submited')
