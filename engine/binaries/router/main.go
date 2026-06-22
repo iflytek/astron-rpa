@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"local-route/proxy"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -21,6 +22,63 @@ var (
 	httpRegister = make(map[string]proxy.ConfigMap)
 	wxRegister   = make(map[string]proxy.ConfigMap)
 )
+
+var lanTerminalRoutes = map[string]bool{
+	"start":       true,
+	"end":         true,
+	"ping":        true,
+	"terminal_id": true,
+}
+
+var lanExecutorRoutes = map[string]bool{
+	"run_list":     true,
+	"run_sync":     true,
+	"run":          true,
+	"status":       true,
+	"stop":         true,
+	"stop_current": true,
+	"stop_list":    true,
+}
+
+func isLocalRequest(r *http.Request) bool {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func isAllowedRoute(segs []string, index int, allowed map[string]bool) bool {
+	return len(segs) == index+1 && allowed[segs[index]]
+}
+
+func isLanAccessiblePath(urlPath string) bool {
+	segs := strings.Split(strings.Trim(urlPath, "/"), "/")
+	if len(segs) == 0 || segs[0] == "" {
+		return false
+	}
+	switch segs[0] {
+	case "executor":
+		return isAllowedRoute(segs, 1, lanExecutorRoutes)
+	case "terminal":
+		return isAllowedRoute(segs, 1, lanTerminalRoutes)
+	case "scheduler":
+		if len(segs) <= 1 {
+			return false
+		}
+		switch segs[1] {
+		case "terminal":
+			return isAllowedRoute(segs, 2, lanTerminalRoutes)
+		case "executor":
+			return isAllowedRoute(segs, 2, lanExecutorRoutes)
+		default:
+			return false
+		}
+	default:
+		return false
+	}
+}
 
 // RegistryReq is the request body for local route registry.
 type RegistryReq struct {
@@ -68,6 +126,14 @@ func main() {
 	router.Use(gin.LoggerWithConfig(gin.LoggerConfig{
 		Output: log.Out,
 	}))
+	router.Use(func(c *gin.Context) {
+		if !isLocalRequest(c.Request) && !isLanAccessiblePath(c.Request.URL.Path) {
+			log.Warnf("deny non-local request remote=%s path=%s", c.Request.RemoteAddr, c.Request.URL.Path)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"msg": "forbidden"})
+			return
+		}
+		c.Next()
+	})
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"*"},
