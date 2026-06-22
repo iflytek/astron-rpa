@@ -1,4 +1,5 @@
 from astronverse.scheduler.apis.connector import credential, datatable, executor, picker, terminal, tools, ws
+from astronverse.scheduler.apis.access_control import local_access_guard
 from astronverse.scheduler.core.lsp.routes import router as lsp_router
 from astronverse.scheduler.core.svc import get_svc
 from fastapi import Depends, FastAPI
@@ -6,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 def handler(app: FastAPI):
+    app.middleware("http")(local_access_guard)
+
     # 添加全局中间件
     app.add_middleware(
         CORSMiddleware,

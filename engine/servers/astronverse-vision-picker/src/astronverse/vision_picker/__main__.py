@@ -174,7 +174,7 @@ if __name__ == "__main__":
             async def main():
                 # 在指定的主机和端口上启动Websocket服务器
                 start_serve = websockets.serve(
-                    handler, "localhost", Config.VISION_PICKER_PORT, max_size=10 * 1024 * 1024
+                    handler, "127.0.0.1", Config.VISION_PICKER_PORT, max_size=10 * 1024 * 1024
                 )
                 # 等待服务器启动完成
                 await start_serve

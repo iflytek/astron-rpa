@@ -14,7 +14,7 @@ class HttpSettings:
     http配置
     """
 
-    app_host: str = "0.0.0.0"
+    app_host: str = "127.0.0.1"
     app_port: int = 9082
     gateway_port: int = 13159
 

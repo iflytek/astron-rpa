@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 
+from astronverse.scheduler.apis.access_control import is_local_websocket
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.logger import logger
 from astronverse.websocket_server.ws import Conn, IWebSocket
@@ -38,6 +39,10 @@ class WsSocket(IWebSocket):
 
 @router.websocket("/ws")
 async def websocket(ws: WebSocket, svc: Svc = Depends(get_svc)):
+    if not is_local_websocket(ws):
+        await ws.close(code=1008)
+        return
+
     try:
         uuid = "$executor$"
         await asyncio.gather(
