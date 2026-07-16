@@ -7,6 +7,7 @@ import com.iflytek.rpa.resource.file.entity.enums.FileType;
 import com.iflytek.rpa.resource.file.entity.vo.ShareFileUploadVo;
 import com.iflytek.rpa.resource.file.service.FileService;
 import java.io.IOException;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,9 +100,8 @@ public class FileController {
     private void checkVideo(MultipartFile file) {
         // 校验视频文件格式
         String originalFilename = file.getOriginalFilename();
-        String fileExtension = originalFilename
-                .substring(originalFilename.lastIndexOf(".") + 1)
-                .toLowerCase();
+        String fileExtension =
+                StringUtils.substringAfterLast(originalFilename, ".").toLowerCase(Locale.ROOT);
         String[] allowedVideoFormats = {"mp4", "webm", "ogg", "avi", "mov", "mpeg"};
 
         boolean isValidFormat = false;
@@ -121,9 +121,22 @@ public class FileController {
     private void checkParam(MultipartFile file, long maxSize) {
         if (file == null || file.isEmpty()) throw new ServiceException(ErrorCodeEnum.E_PARAM_LOSE.getCode(), "文件不能为空");
 
-        if (file.getSize() > maxSize) throw new ServiceException(ErrorCodeEnum.E_PARAM_CHECK.getCode(), "文件大小不能超过50MB");
+        if (file.getSize() > maxSize)
+            throw new ServiceException(ErrorCodeEnum.E_PARAM_CHECK.getCode(), "文件大小不能超过" + formatFileSize(maxSize));
 
         if (StringUtils.isBlank(file.getOriginalFilename()))
             throw new ServiceException(ErrorCodeEnum.E_PARAM_LOSE.getCode(), "文件名不能为空");
+    }
+
+    private String formatFileSize(long size) {
+        long mb = 1024L * 1024L;
+        long kb = 1024L;
+        if (size > 0 && size % mb == 0) {
+            return size / mb + "MB";
+        }
+        if (size > 0 && size % kb == 0) {
+            return size / kb + "KB";
+        }
+        return size + "B";
     }
 }
