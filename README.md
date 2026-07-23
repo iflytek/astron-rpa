@@ -196,6 +196,8 @@ We welcome any form of contribution! Please check [Contributing Guide](CONTRIBUT
 
 ## 🌟 Star History
 
+If AstronRPA saves you time, consider giving it a ⭐ — it is the simplest way to support the project and helps other automation builders discover it.
+
 <div align="center">
   <img src="https://api.star-history.com/svg?repos=iflytek/astron-rpa&type=Date" alt="Star History Chart" width="600">
 </div>
