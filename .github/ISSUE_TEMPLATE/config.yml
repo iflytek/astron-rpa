@@ -23,3 +23,6 @@ contact_links:
   - name: 🐛 已知问题
     url: https://github.com/iflytek/astron-rpa/labels/bug
     about: 查看已知问题和正在处理的 Bug 列表
+  - name: ⭐ 支持我们
+    url: https://github.com/iflytek/astron-rpa/stargazers
+    about: 如果 AstronRPA 对你有帮助，点个 Star 支持项目发展，让更多人发现它
