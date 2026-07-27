@@ -1,14 +1,13 @@
-from urllib.parse import urljoin
-
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import get_settings
 from app.dependencies import get_user_id_from_header
 from app.logger import get_logger
+from app.utils.url import join_api_url
 
 API_KEY = get_settings().AICHAT_API_KEY
-API_ENDPOINT = urljoin(get_settings().AICHAT_BASE_URL, "models")
+API_ENDPOINT = join_api_url(get_settings().AICHAT_BASE_URL, "models")
 
 logger = get_logger(__name__)
 
@@ -42,7 +41,9 @@ async def list_models(current_user_id: str = Depends(get_user_id_from_header)):
 
 
 @router.get("/{model_id}")
-async def get_model(model_id: str, current_user_id: str = Depends(get_user_id_from_header)):
+async def get_model(
+    model_id: str, current_user_id: str = Depends(get_user_id_from_header)
+):
     """
     Get details of a specific model.
     """

@@ -1,5 +1,4 @@
 import json
-from urllib.parse import urljoin
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -11,9 +10,10 @@ from app.schemas.chat import ChatCompletionParam, ChatPromptParam
 from app.services.chat import chat_completions
 from app.services.point import PointTransactionType
 from app.utils.prompt import format_prompt, get_available_prompts, prompt_dict
+from app.utils.url import join_api_url
 
 API_KEY = get_settings().AICHAT_API_KEY
-API_ENDPOINT = urljoin(get_settings().AICHAT_BASE_URL, "chat/completions")
+API_ENDPOINT = join_api_url(get_settings().AICHAT_BASE_URL, "chat/completions")
 
 logger = get_logger(__name__)
 
@@ -27,7 +27,9 @@ router = APIRouter(
 async def chat(
     params: ChatCompletionParam,
     points_context: PointsContext = Depends(
-        PointChecker(get_settings().AICHAT_POINTS_COST, PointTransactionType.AICHAT_COST),
+        PointChecker(
+            get_settings().AICHAT_POINTS_COST, PointTransactionType.AICHAT_COST
+        ),
     ),
 ):
     response = await chat_completions(params, API_KEY, API_ENDPOINT)
@@ -41,7 +43,9 @@ async def chat(
 async def chat_prompt(
     params: ChatPromptParam,
     points_context: PointsContext = Depends(
-        PointChecker(get_settings().AICHAT_POINTS_COST, PointTransactionType.AICHAT_COST),
+        PointChecker(
+            get_settings().AICHAT_POINTS_COST, PointTransactionType.AICHAT_COST
+        ),
     ),
 ):
     """

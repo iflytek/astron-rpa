@@ -1,5 +1,3 @@
-from urllib.parse import urljoin
-
 import httpx
 from fastapi import HTTPException
 from fastapi.responses import Response, StreamingResponse
@@ -7,9 +5,10 @@ from fastapi.responses import Response, StreamingResponse
 from app.config import get_settings
 from app.logger import get_logger
 from app.schemas.chat import ChatCompletionParam
+from app.utils.url import join_api_url
 
 API_KEY = get_settings().AICHAT_API_KEY
-API_ENDPOINT = urljoin(get_settings().AICHAT_BASE_URL, "chat/completions")
+API_ENDPOINT = join_api_url(get_settings().AICHAT_BASE_URL, "chat/completions")
 
 logger = get_logger(__name__)
 
@@ -21,7 +20,9 @@ long_timeout = httpx.Timeout(
 )
 
 
-async def chat_completions(params: ChatCompletionParam, key: str = API_KEY, endpoint: str = API_ENDPOINT):
+async def chat_completions(
+    params: ChatCompletionParam, key: str = API_KEY, endpoint: str = API_ENDPOINT
+):
     logger.info("Processing chat completion request...")
     logger.info(f"Request params: {params}")
     # 构造请求参数
@@ -72,7 +73,9 @@ async def handle_stream_request(headers, data, endpoint):
                     json=data,
                 ) as upstream_response:
                     upstream_response.raise_for_status()
-                    response_meta["media_type"] = upstream_response.headers.get("content-type", "text/event-stream")
+                    response_meta["media_type"] = upstream_response.headers.get(
+                        "content-type", "text/event-stream"
+                    )
                     async for chunk in upstream_response.aiter_raw():
                         yield chunk
             except httpx.HTTPStatusError as e:
