@@ -28,7 +28,36 @@
 
 ### Q: 🆕 Agent 服务端无法连接 RPA 服务？
 
-**A:** 请检查 Agent 部署目录下的 `.env` 文件，确保 `RPA_URL` 设置为 RPA 服务端的实际地址（如 `http://YOUR_IP:32742`）。
+**A:** 请按以下顺序检查 Agent、RPA 服务端和客户端是否使用了同一个可达地址：
+
+1. **确认 RPA 服务端正常运行**
+
+   先检查 RPA 服务端各组件是否正常启动，重点查看异常退出的容器及其日志。默认网关端口为 `32742`；如果修改过端口，请以下面的实际端口为准。
+
+2. **配置 Agent 访问 RPA 的地址**
+
+   在 Agent 部署目录的 `.env` 中，将 `RPA_URL` 设置为 **Agent 服务端能够访问** 的 RPA 地址：
+
+   ```env
+   RPA_URL=http://YOUR_RPA_SERVER_IP:32742
+   ```
+
+   远程或容器化部署时不要填写 `localhost`：它通常指向 Agent 容器或 Agent 所在主机自身，而不是 RPA 服务端。
+
+3. **配置 RPA 客户端访问服务端的地址**
+
+   在 RPA 客户端安装目录的 `resources/conf.yaml` 中，将 `remote_addr` 指向同一套 RPA 服务端网关：
+
+   ```yaml
+   remote_addr: http://YOUR_RPA_SERVER_IP:32742/
+   skip_engine_start: false
+   ```
+
+4. **验证网络并重新加载配置**
+
+   从 Agent 所在机器或容器验证该地址和端口可达，并检查防火墙、反向代理及 Docker 网络配置。修改 `.env` 后需要重新创建或重启相关 Agent 服务；修改 `conf.yaml` 后请重启 RPA 客户端。
+
+如果仍无法连接，请同时收集 Agent 侧调用日志、RPA 服务端容器日志和客户端 `data/logs`，确认失败发生在地址解析、网络连接、鉴权还是任务执行阶段。
 
 ### Q: 🆕 客户端安装卡在最后一步很久？
 
