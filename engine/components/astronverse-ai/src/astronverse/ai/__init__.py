@@ -42,6 +42,8 @@ class LLMModelTypes(Enum):
     QWEN_3_5_397B = "xopqwen35397b"
     QWEN3_235B = "xop3qwen235b"
     QWEN3_30B = "xop3qwen30b2507"
+    MINIMAX_M3 = "xminimaxm3"
+    MINIMAX_M2_7 = "xminimaxm27"
     MINIMAX_M2_5 = "xminimaxm25"
     MINIMAX_M2_1 = "xminimaxm2"
     GLM_5 = "xopglm5"

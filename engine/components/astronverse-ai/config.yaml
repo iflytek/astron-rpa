@@ -355,6 +355,10 @@ options:
       label: Qwen3-235B-A22B
     - value: xop3qwen30b2507
       label: Qwen3-30B-A3B-Instruct-2507
+    - value: xminimaxm3
+      label: MiniMax-M3
+    - value: xminimaxm27
+      label: MiniMax-M2.7
     - value: xminimaxm25
       label: MiniMax-M2.5
     - value: xminimaxm2
