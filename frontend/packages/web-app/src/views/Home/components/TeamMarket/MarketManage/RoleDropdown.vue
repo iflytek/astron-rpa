@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { DownOutlined } from '@ant-design/icons-vue'
 import { Button, Dropdown, Menu } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
+
+import i18next from '@/plugins/i18next'
 
 import { MARKET_USER_OWNER, USER_TYPES } from '@/views/Home/components/TeamMarket/config/market'
 
@@ -22,7 +23,7 @@ const props = defineProps({
 
 const emit = defineEmits(['change'])
 
-const { t } = useTranslation()
+const t = i18next.t.bind(i18next)
 
 function menuItemClick(menuItem) {
   menuItem.domEvent.stopPropagation()

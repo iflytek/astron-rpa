@@ -86,13 +86,27 @@ export function useTeamUserTable() {
 
   // 邀请用户
   const inviteUser = () => {
+    const marketId = activeMarket.value?.marketId
+    if (!marketId) {
+      message.error(t('common.operationFail'))
+      return
+    }
+
     const inviteType = ref('link') // phone 组织架构 link 邀请链接
     const inviteUsers = ref([])
     const inviteLink = ref('')
+    let modalRef
 
-    const updateModalState = (modal) => {
+    const getErrorMessage = (error) => {
+      return error?.response?.data?.message || error?.response?.data?.msg || error?.message || error?.msg || t('market.inviteMemberFail')
+    }
+
+    const updateModalState = () => {
+      if (!modalRef)
+        return
+
       const isLinkMode = inviteType.value === 'link'
-      modal.update({
+      modalRef.update({
         okText: isLinkMode ? t('market.copyLink') : t('common.confirm'),
         okButtonProps: {
           loading: false,
@@ -102,56 +116,55 @@ export function useTeamUserTable() {
     }
 
     try {
-      const m = GlobalModal.confirm({
+      modalRef = GlobalModal.confirm({
         title: t('market.inviteMember'),
         class: 'invite-user-modal',
         icon: null,
         width: 540,
-        content: h(
-          <InviteUser
-            marketId={activeMarket.value.marketId}
-            onInviteTypeChange={(type: string) => {
-              inviteType.value = type
-              updateModalState(m)
-            }}
-            onChange={(values) => {
-              inviteUsers.value = values
-              updateModalState(m)
-            }}
-            onLinkChange={(link: string) => {
-              inviteLink.value = link
-              updateModalState(m)
-            }}
-          />,
-        ),
+        content: h(InviteUser, {
+          marketId,
+          onInviteTypeChange: (type: string) => {
+            inviteType.value = type
+            updateModalState()
+          },
+          onChange: (values) => {
+            inviteUsers.value = values
+            updateModalState()
+          },
+          onLinkChange: (link: string) => {
+            inviteLink.value = link
+            updateModalState()
+          },
+        }),
         okText: t('common.confirm'),
         okButtonProps: { loading: false, disabled: true },
-        onOk: () => {
-          return new Promise((resolve, reject) => {
-            if (inviteType.value === 'link') {
-              clipboardManager.writeClipboardText(inviteLink.value)
-              message.success(t('common.copySuccess'))
-              reject(new Error(t('common.copySuccess')))
-              return
-            }
-            if (inviteUsers.value.length <= 0) {
-              const error = t('market.noInviteMember')
-              message.warn(error)
-              reject(new Error(error))
-              return
+        onOk: async () => {
+          if (inviteType.value === 'link') {
+            clipboardManager.writeClipboardText(inviteLink.value)
+            message.success(t('common.copySuccess'))
+            return true
+          }
+          if (inviteUsers.value.length <= 0) {
+            const error = t('market.noInviteMember')
+            message.warn(error)
+            return Promise.reject(new Error(error))
+          }
+
+          try {
+            const res = await inviteMarketUser({ marketId, userInfoList: inviteUsers.value })
+            if (res.data) {
+              message.success(t('market.inviteMemberSuccess'))
+              return true
             }
 
-            inviteMarketUser({ marketId: activeMarket.value.marketId, userInfoList: inviteUsers.value })
-              .then((res) => {
-                if (res.data) {
-                  message.success(t('market.inviteMemberSuccess'))
-                }
-                else {
-                  message.error(t('market.inviteMemberFail'))
-                }
-                resolve(true)
-              })
-          })
+            message.error(t('market.inviteMemberFail'))
+            return Promise.reject(new Error(t('market.inviteMemberFail')))
+          }
+          catch (error) {
+            console.error('[market-user] invite failed:', error)
+            message.error(getErrorMessage(error))
+            return Promise.reject(error)
+          }
         },
         onCancel() {
           console.log('Cancel')
@@ -159,9 +172,11 @@ export function useTeamUserTable() {
         centered: true,
         keyboard: false,
       })
+      updateModalState()
     }
     catch (e) {
-      console.log(e)
+      console.error(e)
+      message.error(e instanceof Error ? e.message : t('common.operationFail'))
     }
   }
 

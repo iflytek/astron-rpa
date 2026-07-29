@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Select } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
+
+import i18next from '@/plugins/i18next'
 
 import { usePhoneInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser.tsx'
 
@@ -13,7 +14,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['change'])
-const { t } = useTranslation()
+const t = i18next.t.bind(i18next)
 
 const { userList, userListByPhone } = usePhoneInvite(props.marketId, 'leave', emit)
 const newOwner = ref()

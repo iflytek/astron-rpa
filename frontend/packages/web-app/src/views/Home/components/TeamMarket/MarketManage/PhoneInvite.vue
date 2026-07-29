@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Empty, Select, Table } from 'ant-design-vue'
 
+import i18next from '@/plugins/i18next'
+
 import { usePhoneInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser.tsx'
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
 
@@ -18,6 +20,7 @@ const { marketId } = defineProps({
 const emit = defineEmits(['change'])
 
 const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, inviteUsersTableColumns, allSelectUsers, selectData, keyDownChange, changeDefaultUserType } = usePhoneInvite(marketId, 'invite', emit)
+const t = i18next.t.bind(i18next)
 </script>
 
 <template>
@@ -26,7 +29,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
       <Select
         v-model:value="selectIds"
         popup-class-name="invite"
-        :placeholder="$t('market.enterUserNameOrPhone')"
+        :placeholder="t('market.enterUserNameOrPhone')"
         style="width: 100%"
         :get-popup-container="(triggerNode) => triggerNode.parentNode"
         show-search
@@ -55,7 +58,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
     </div>
     <div>
       <div v-if="allSelectUsers.length > 0" class="my-[10px]">
-        {{ $t('market.selectedMembers', { count: allSelectUsers.length }) }}
+        {{ t('market.selectedMembers', { count: allSelectUsers.length }) }}
       </div>
       <Table
         :columns="inviteUsersTableColumns"
@@ -66,7 +69,7 @@ const { defaultUserType, selectIds, userList, clearUserList, userListByPhone, in
         size="small"
       >
         <template #emptyText>
-          <Empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="$t('market.searchMembersTip')" />
+          <Empty :image="Empty.PRESENTED_IMAGE_SIMPLE" :description="t('market.searchMembersTip')" />
         </template>
       </Table>
     </div>

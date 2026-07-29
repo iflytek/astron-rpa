@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Input } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
 import { ref } from 'vue'
+
+import i18next from '@/plugins/i18next'
 
 const { marketName } = defineProps({
   marketName: {
@@ -11,7 +12,7 @@ const { marketName } = defineProps({
 })
 
 const emit = defineEmits(['change'])
-const { t } = useTranslation()
+const t = i18next.t.bind(i18next)
 
 const fireTeamName = ref('')
 

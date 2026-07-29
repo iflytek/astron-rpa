@@ -1,8 +1,9 @@
 import { Button, message } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
 import { debounce } from 'lodash-es'
 import { storeToRefs } from 'pinia'
 import { reactive, ref } from 'vue'
+
+import i18next from '@/plugins/i18next'
 
 import { generateInviteLink, getInviteUser, getTransferUser, resetInviteLink } from '@/api/market'
 import { useAppConfigStore } from '@/stores/useAppConfig'
@@ -10,7 +11,7 @@ import { MARKET_USER_COMMON } from '@/views/Home/components/TeamMarket/config/ma
 import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDropdown.vue'
 
 export function usePhoneInvite(marketId: string, type: string = 'invite', emit?: any) {
-  const { t } = useTranslation()
+  const t = i18next.t.bind(i18next)
   const userList = ref([])
   const selectIds = ref([])
   const tempSelectIds = ref([])
@@ -178,7 +179,7 @@ export function usePhoneInvite(marketId: string, type: string = 'invite', emit?:
 export function useLinkInvite(marketId: string, emit?: any) {
   const appStore = useAppConfigStore()
   const { appInfo } = storeToRefs(appStore)
-  const { t } = useTranslation()
+  const t = i18next.t.bind(i18next)
   const invitData = ref({
     inviteKey: '',
     expireTime: '',
@@ -205,13 +206,29 @@ export function useLinkInvite(marketId: string, emit?: any) {
   }
 
   const generateLink = async () => {
-    const res = await generateInviteLink({ marketId, expireType: formState.expireType })
-    retInviteLink(res.data)
+    try {
+      const res = await generateInviteLink({ marketId, expireType: formState.expireType })
+      retInviteLink(res.data)
+    }
+    catch (error) {
+      console.error('[invite-link] generate failed:', error)
+      retInviteLink({
+        inviteKey: '',
+        expireTime: '',
+        overNumLimit: 1,
+        expireType: formState.expireType,
+      })
+    }
   }
 
   const resetLink = async () => {
-    const res = await resetInviteLink({ marketId, expireType: formState.expireType })
-    retInviteLink(res.data)
+    try {
+      const res = await resetInviteLink({ marketId, expireType: formState.expireType })
+      retInviteLink(res.data)
+    }
+    catch (error) {
+      console.error('[invite-link] reset failed:', error)
+    }
   }
 
   generateLink()

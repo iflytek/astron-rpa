@@ -2,6 +2,8 @@
 import { Auth } from '@rpa/components/auth'
 import { storeToRefs } from 'pinia'
 
+import i18next from '@/plugins/i18next'
+
 import { useAppConfigStore } from '@/stores/useAppConfig'
 import { useUserStore } from '@/stores/useUserStore'
 import { useLinkInvite } from '@/views/Home/components/TeamMarket/hooks/MarketManage/useInviteUser.tsx'
@@ -17,6 +19,7 @@ const appStore = useAppConfigStore()
 const userStore = useUserStore()
 const { appInfo } = storeToRefs(appStore)
 const { invitData, expireTypes, formState, resetLink } = useLinkInvite(marketId, emit)
+const t = i18next.t.bind(i18next)
 </script>
 
 <template>
@@ -27,21 +30,21 @@ const { invitData, expireTypes, formState, resetLink } = useLinkInvite(marketId,
       layout="vertical"
       autocomplete="off"
     >
-      <a-form-item name="marketName" :label="$t('market.inviteLink')">
+      <a-form-item name="marketName" :label="t('market.inviteLink')">
         <a-input v-model:value="formState.inviteLink" :disabled="invitData.overNumLimit === 1" readonly />
       </a-form-item>
-      <a-form-item name="marketName" :label="$t('market.inviteLink')">
+      <a-form-item name="marketName" :label="t('market.inviteLink')">
         <a-select v-model:value="formState.expireType" :disabled="invitData.overNumLimit === 1" :options="expireTypes" />
       </a-form-item>
       <div class="flex items-center w-full text-[12px] text-[#00000090] dark:text-[#FFFFFF99]">
         <span v-if="invitData.overNumLimit === 1 && userStore.currentTenant?.tenantType === 'personal'" class="flex items-center w-full">
-          {{ $t('market.marketFullTipPrefix') }}
-          <Auth.Consult trigger="button" :auth-type="appInfo.appAuthType" custom-class="text-primary !w-auto cursor-pointer" :button-conf="{ buttonTxt: $t('market.goUpgrade'), buttonType: 'text' }" />
-          {{ $t('market.marketFullTipSuffix') }}
+          {{ t('market.marketFullTipPrefix') }}
+          <Auth.Consult trigger="button" :auth-type="appInfo.appAuthType" custom-class="text-primary !w-auto cursor-pointer" :button-conf="{ buttonTxt: t('market.goUpgrade'), buttonType: 'text' }" />
+          {{ t('market.marketFullTipSuffix') }}
         </span>
         <span v-else>
-          {{ $t('market.inviteExpireAt') }}：{{ invitData.expireTime }}
-          <span class="text-primary cursor-pointer hover:opacity-95" @click="resetLink">{{ $t('market.clickReset') }}</span>
+          {{ t('market.inviteExpireAt') }}：{{ invitData.expireTime }}
+          <span class="text-primary cursor-pointer hover:opacity-95" @click="resetLink">{{ t('market.clickReset') }}</span>
         </span>
       </div>
     </a-form>

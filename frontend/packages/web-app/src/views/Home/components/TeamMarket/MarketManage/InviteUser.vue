@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { TabPane, Tabs } from 'ant-design-vue'
-import { useTranslation } from 'i18next-vue'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+
+import i18next from '@/plugins/i18next'
 
 import { useUserStore } from '@/stores/useUserStore'
 import LinkInvite from '@/views/Home/components/TeamMarket/MarketManage/LinkInvite.vue'
@@ -20,7 +21,7 @@ const { marketId } = defineProps({
 
 const emit = defineEmits(['change', 'inviteTypeChange', 'linkChange'])
 const userStore = useUserStore()
-const { t } = useTranslation()
+const t = i18next.t.bind(i18next)
 const tabs = computed(() => {
   return [
     { key: 'phone', tab: t('market.directAdd'), show: userStore.currentTenant?.tenantType !== 'personal' },
@@ -28,9 +29,16 @@ const tabs = computed(() => {
   ].filter(i => i.show)
 })
 
-const activeTab = ref(tabs.value[0].key)
+const activeTab = ref(tabs.value[0]?.key || 'link')
 nextTick(() => {
   emit('inviteTypeChange', activeTab.value)
+})
+
+watch(tabs, (newTabs) => {
+  if (!newTabs.some(tab => tab.key === activeTab.value)) {
+    activeTab.value = newTabs[0]?.key || 'link'
+    emit('inviteTypeChange', activeTab.value)
+  }
 })
 </script>
 
