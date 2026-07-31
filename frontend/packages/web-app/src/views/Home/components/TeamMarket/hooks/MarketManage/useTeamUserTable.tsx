@@ -1,7 +1,7 @@
 import { Button, message } from 'ant-design-vue'
 import { useTranslation } from 'i18next-vue'
 import { storeToRefs } from 'pinia'
-import { h, inject, reactive, ref, watch } from 'vue'
+import { getCurrentInstance, h, inject, reactive, ref, watch } from 'vue'
 
 import { dissolveTeamMarket, inviteMarketUser, leaveTeamMarket, marketUserList, removeUserRole, setUserRole } from '@/api/market'
 import GlobalModal from '@/components/GlobalModal/index.ts'
@@ -20,6 +20,7 @@ import RoleDropdown from '@/views/Home/components/TeamMarket/MarketManage/RoleDr
 const INIT_SCROLLY = window.innerHeight - 480
 
 export function useTeamUserTable() {
+  const appContext = getCurrentInstance()?.appContext
   const { setOnlyUser } = inject('isOnlyUser') as { setOnlyUser: Fun }
   const homeTableRef = ref(null)
   const marketStore = useMarketStore()
@@ -37,6 +38,7 @@ export function useTeamUserTable() {
 
   const removeUser = ({ creatorId }) => {
     GlobalModal.confirm({
+      parentContext: appContext,
       title: t('market.removeUserConfirm'),
       okType: 'danger',
       onOk: () => {
@@ -63,6 +65,7 @@ export function useTeamUserTable() {
     const { creatorId } = itemData
     const user = t(USER_TYPES.find(item => item.key === userType)?.name || '')
     GlobalModal.confirm({
+      parentContext: appContext,
       title: t('market.setUserRoleConfirm', { role: user }),
       onOk: () => {
         setUserRole({
@@ -117,6 +120,7 @@ export function useTeamUserTable() {
 
     try {
       modalRef = GlobalModal.confirm({
+        parentContext: appContext,
         title: t('market.inviteMember'),
         class: 'invite-user-modal',
         icon: null,
@@ -183,6 +187,7 @@ export function useTeamUserTable() {
   // 离开
   const leaveTeam = () => {
     GlobalModal.confirm({
+      parentContext: appContext,
       title: t('market.leaveTeam'),
       content: t('market.leaveTeamConfirm', { marketName: activeMarket.value.marketName }),
       onOk: () => {
@@ -210,6 +215,7 @@ export function useTeamUserTable() {
   const giveOwner = () => {
     const newManager = ref('')
     GlobalModal.confirm({
+      parentContext: appContext,
       title: t('market.transferOwnership'),
       content: (
         <GiveOwner
@@ -249,6 +255,7 @@ export function useTeamUserTable() {
   const fireTeam = () => {
     const teamName = ref('')
     GlobalModal.confirm({
+      parentContext: appContext,
       title: t('market.dissolveTeam'),
       content: <FireTeam marketName={activeMarket.value.marketName} onChange={value => teamName.value = value} />,
       onOk: () => {
