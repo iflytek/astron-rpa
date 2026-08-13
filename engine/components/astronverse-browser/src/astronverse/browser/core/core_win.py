@@ -88,9 +88,7 @@ class BrowserCore:
     def download_window_operate(**kwargs) -> Any:
         """获取浏览器下载文件另存为窗口"""
 
-        import pyperclip
         import win32con
-        import pyautogui
         import win32gui
 
         file_name = kwargs.get("file_name")
@@ -148,15 +146,14 @@ class BrowserCore:
             dest_path = os.path.join(kwargs.get("save_path"), name + "." + suffix)
         else:
             dest_path = os.path.join(kwargs.get("save_path"), name)
-        pyperclip.copy(dest_path)
 
-        # 等待一段时间，以确保字符串已复制到剪贴板
+        # 直接向 Edit 控件句柄写入路径，避免经由系统剪贴板 + Ctrl+V：
+        # 剪贴板是全局共享资源，粘贴依赖窗口焦点，二者在人工辅助、
+        # 多机器人并发或前台窗口切换时会互相污染 / 抢焦点（见 issue #795）。
+        # upload_window_operate 已采用同样的 WM_SETTEXT 直写方式。
+        win32gui.SendMessage(edit, win32con.WM_SETTEXT, None, dest_path)  # 写入文件路径
         time.sleep(0.5)
-
-        # 模拟 Ctrl+V 粘贴操作
-        pyautogui.hotkey("ctrl", "v")
-        time.sleep(0.5)
-        win32gui.SendMessage(dialog, win32con.WM_COMMAND, 1, button)  # 点击打开按钮
+        win32gui.SendMessage(dialog, win32con.WM_COMMAND, 1, button)  # 点击保存按钮
 
         if is_wait:
             if not (time_out == 0 or time_out == ""):
