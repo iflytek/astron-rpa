@@ -200,7 +200,7 @@ docker compose ps
 如果 AstronRPA 帮你省下了时间，欢迎点一个 ⭐——这是支持项目最简单的方式，也能让更多自动化开发者发现它。
 
 <div align="center">
-  <img src="https://api.star-history.com/svg?repos=iflytek/astron-rpa&type=Date" alt="Star 历史图表" width="600">
+  <img src="https://star-history.dera.page/svg?repos=iflytek/astron-rpa&type=Date" alt="Star 历史图表" width="600">
 </div>
 
 ## 💖 赞助支持
