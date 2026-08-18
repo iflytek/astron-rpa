@@ -1,7 +1,9 @@
+# syntax=docker/dockerfile:1
+
 # 多阶段构建 Dockerfile for Java 21 Spring Boot Application
 
 # 第一阶段：构建JAR包
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-21 AS build
 
 # 设置工作目录
 WORKDIR /app
@@ -19,7 +21,7 @@ COPY backend/resource-service/src ./src
 RUN mvn clean package -DskipTests
 
 # 第二阶段：构建可执行镜像
-FROM eclipse-temurin:21-jre AS runtime
+FROM eclipse-temurin:21-jre-noble AS runtime
 
 # 设置工作目录
 WORKDIR /app

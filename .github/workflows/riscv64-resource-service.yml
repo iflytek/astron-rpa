@@ -1,0 +1,46 @@
+name: RISC-V Resource Service
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/riscv64-resource-service.yml'
+      - 'backend/resource-service/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build resource-service (linux/riscv64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: riscv64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build RISC-V image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/resource-service/Dockerfile
+          platforms: linux/riscv64
+          load: true
+          tags: astron-rpa/resource-service:riscv64-ci
+          cache-from: type=gha,scope=riscv64-resource-service
+          cache-to: type=gha,mode=max,scope=riscv64-resource-service
+
+      - name: Verify image architecture and Java runtime
+        shell: bash
+        run: |
+          image=astron-rpa/resource-service:riscv64-ci
+          test "$(docker image inspect "$image" --format '{{.Architecture}}')" = riscv64
+          docker run --rm --platform linux/riscv64 --entrypoint java "$image" -version
