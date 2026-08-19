@@ -226,6 +226,13 @@ If AstronRPA saves you time, consider giving it a ⭐ — it is the simplest way
   <img src="./docs/images/WeCom_Group.png" alt="WeChat Work Group" width="300">
 </div>
 
+## 🌐 Related Projects
+
+AstronRPA is part of the **[iFlytek Astron](https://github.com/iflytek)** open-source ecosystem. These sibling projects pair naturally with it:
+
+- **[Astron Agent](https://github.com/iflytek/astron-agent)** — Enterprise-grade agentic workflow platform. Call AstronRPA workflow nodes from Astron Agent (and use Agent workflows inside AstronRPA) for end-to-end automation.
+- **[SkillHub](https://github.com/iflytek/skillhub)** — Self-hosted, open-source agent skill registry to publish, version, and govern reusable skill packages across the Astron ecosystem.
+
 ## 📄 License
 
 This project is open source under the [Open Source License](LICENSE).
