@@ -107,10 +107,22 @@ class BrowserCore:
             return text
 
         # 判断是否弹出下载窗口
-        dialog = win32gui.FindWindow("#32770", "另存为")  # 一级窗口
+        # 「另存为」对话框标题随系统语言变化（issue #791）：
+        # 中文为「另存为」，英文为「Save As」，日文为「名前を付けて保存」等，
+        # 依次尝试各语言标题，避免在非中文 Windows 上找不到窗口。
+        save_as_titles = ["另存为", "另存新檔", "Save As", "名前を付けて保存", "다른 이름으로 저장"]
+
+        def find_dialog():
+            for title in save_as_titles:
+                hwnd = win32gui.FindWindow("#32770", title)  # 一级窗口
+                if hwnd:
+                    return hwnd
+            return 0
+
+        dialog = find_dialog()
         start_time = time.time()
         while time.time() - start_time < 10:
-            dialog = win32gui.FindWindow("#32770", "另存为")  # 一级窗口
+            dialog = find_dialog()
             if dialog == 0:
                 time.sleep(0.1)
             else:
@@ -120,7 +132,15 @@ class BrowserCore:
             raise BaseException(DOWNLOAD_WINDOW_NO_FIND, "未弹出下载窗口")
 
         # 查找到edit， button
-        button = win32gui.FindWindowEx(dialog, 0, "Button", "保存(S)")
+        # 「保存(S)」按钮文案随语言变化，改用标准文件对话框默认按钮的控件 ID
+        # （IDOK=1，与下方 WM_COMMAND 的 wParam 一致），不依赖按钮文案；
+        # 取不到再回退到按标题查找，兼容非标准对话框。
+        button = win32gui.GetDlgItem(dialog, win32con.IDOK)
+        if not button:
+            for _caption in ("保存(S)", "保存", "Save", "저장(S)"):
+                button = win32gui.FindWindowEx(dialog, 0, "Button", _caption)
+                if button:
+                    break
 
         a1 = win32gui.FindWindowEx(dialog, None, "DUIViewWndClassName", None)
         a2 = win32gui.FindWindowEx(a1, None, "DirectUIHWND", None)
@@ -181,10 +201,20 @@ class BrowserCore:
         browser_type = kwargs.get("browser_type")
 
         # 判断是否弹出上传窗口
-        dialog = win32gui.FindWindow("#32770", "打开")
+        # 「打开」对话框标题随系统语言变化（issue #791），依次尝试各语言标题。
+        open_titles = ["打开", "開啟", "Open", "開く", "열기"]
+
+        def find_dialog():
+            for title in open_titles:
+                hwnd = win32gui.FindWindow("#32770", title)  # 一级窗口
+                if hwnd:
+                    return hwnd
+            return 0
+
+        dialog = find_dialog()
         start_time = time.time()
         while time.time() - start_time < 10:
-            dialog = win32gui.FindWindow("#32770", "打开")  # 一级窗口
+            dialog = find_dialog()
             if dialog == 0:
                 time.sleep(0.1)
             else:
@@ -193,7 +223,14 @@ class BrowserCore:
         if dialog == 0:
             raise BaseException(UPLOAD_WINDOW_NO_FIND, "未弹出上传窗口")
 
-        button = win32gui.FindWindowEx(dialog, 0, "Button", "打开(O)")  # 四级
+        # 「打开(O)」按钮文案随语言变化，改用默认按钮控件 ID（IDOK=1），
+        # 回退到按标题查找。
+        button = win32gui.GetDlgItem(dialog, win32con.IDOK)  # 四级
+        if not button:
+            for _caption in ("打开(O)", "打开", "Open", "열기(O)"):
+                button = win32gui.FindWindowEx(dialog, 0, "Button", _caption)
+                if button:
+                    break
 
         a1 = win32gui.FindWindowEx(dialog, 0, "ComboBoxEx32", None)  # 二级
         a2 = win32gui.FindWindowEx(a1, 0, "ComboBox", None)  # 三级
