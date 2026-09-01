@@ -132,6 +132,25 @@ rpa-openapi-service/
 ### 5. MCP 协议支持 (`/mcp`)
 - **Model Context Protocol** - 支持 AI 模型与工作流的交互
 - **流式 HTTP 处理** - 支持流式数据传输和处理
+- **API Key 鉴权** - 支持 Bearer 和 `X-API-Key` 请求头
+
+#### MCP 鉴权
+
+生产环境推荐使用 Bearer：
+
+```http
+Authorization: Bearer <API_KEY>
+```
+
+也可以使用独立请求头：
+
+```http
+X-API-Key: <API_KEY>
+```
+
+默认不接受 URL 查询参数中的 `?key=`，避免密钥进入浏览器历史和代理日志。仅在迁移旧客户端时临时设置
+`MCP_ALLOW_QUERY_API_KEY=true`。同一请求只能使用一种凭据来源；缺失、格式错误、无效或已吊销的密钥返回
+HTTP 401。
 
 ## 🚀 快速开始
 
@@ -169,6 +188,9 @@ REDIS_URL=redis://localhost:6379/0
 
 # 应用名称
 APP_NAME="My New Service"
+
+# 仅迁移旧 MCP 客户端时临时开启，生产环境保持 false
+MCP_ALLOW_QUERY_API_KEY=false
 ```
 
 ### 3. 启动服务

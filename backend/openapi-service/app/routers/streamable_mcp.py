@@ -5,11 +5,12 @@ from mcp.server.lowlevel import Server
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from starlette.types import Receive, Scope, Send
 
+from app.config import get_settings
 from app.logger import get_logger
+from app.security.mcp_auth import MCPAPIKeyAuthMiddleware
+from app.services.streamable_mcp import ToolsConfig
 
 logger = get_logger(__name__)
-from app.dependencies import extract_api_key_from_request
-from app.services.streamable_mcp import ToolsConfig
 
 app = Server("iflyrpa-mcp")
 
@@ -25,22 +26,22 @@ session_manager = StreamableHTTPSessionManager(
 )
 
 
+def get_authenticated_user_id(ctx) -> str:
+    """Read the user identity established by the HTTP authentication boundary."""
+    if ctx.request is None:
+        raise RuntimeError("MCP request context is unavailable")
+
+    user_id = getattr(ctx.request.state, "mcp_user_id", None)
+    if not user_id:
+        raise RuntimeError("MCP request is missing its authenticated user")
+    return str(user_id)
+
+
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock]:
     ctx = app.request_context
-
-    # 从URL参数获取API_KEY
-    api_key = extract_api_key_from_request(ctx)
-    user_id = await tools_config.get_uid_from_raw_key(api_key)
+    user_id = get_authenticated_user_id(ctx)
     logger.info(f"[call_tool] user_id: {user_id}")
-    if not user_id:
-        await ctx.session.send_log_message(
-            level="error",
-            data=f"No user found for API key: {api_key}",
-            logger="permission_check",
-            related_request_id=ctx.request_id,
-        )
-        raise Exception("未找到用户: No user found for API key")
 
     # 使用 ToolsConfig 执行工作流
     result = await tools_config.execute_workflow_by_name(name, user_id, arguments)
@@ -74,23 +75,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock]:
 async def list_tools() -> list[types.Tool]:
     # 获取请求上下文信息
     ctx = app.request_context
-
-    # 从URL参数获取API_KEY
-    api_key = extract_api_key_from_request(ctx)
-    if not api_key:
-        return []
-
-    user_id = await tools_config.get_uid_from_raw_key(api_key)
-    if not user_id:
-        # 记录权限检查失败
-        if hasattr(ctx, "session"):
-            await ctx.session.send_log_message(
-                level="warning",
-                data=f"No user found for API key: {api_key}",
-                logger="permission_check",
-                related_request_id=ctx.request_id,
-            )
-        return []
+    user_id = get_authenticated_user_id(ctx)
 
     # 获取用户可用的工具
     allowed_tools = await tools_config.get_tools_for_user(user_id)
@@ -107,5 +92,12 @@ async def list_tools() -> list[types.Tool]:
     return allowed_tools
 
 
+mcp_auth_app = MCPAPIKeyAuthMiddleware(
+    session_manager.handle_request,
+    tools_config.get_uid_from_raw_key,
+    allow_query_api_key=get_settings().MCP_ALLOW_QUERY_API_KEY,
+)
+
+
 async def handle_streamable_http(scope: Scope, receive: Receive, send: Send) -> None:
-    await session_manager.handle_request(scope, receive, send)
+    await mcp_auth_app(scope, receive, send)

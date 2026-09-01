@@ -47,13 +47,19 @@ class ExecutionService:
 
         return execution
 
-    async def get_execution(self, execution_id: str, user_id: str | None = None) -> Optional[Execution]:
-        """获取执行记录"""
-        query = select(Execution).where(Execution.id == execution_id)
+    async def get_execution(self, execution_id: str, user_id: str) -> Optional[Execution]:
+        """获取属于指定用户的执行记录。"""
+        query = select(Execution).where(
+            Execution.id == execution_id,
+            Execution.user_id == user_id,
+        )
 
-        # 不校验user_id
-        # if user_id is not None:
-        #     query = query.where(Execution.user_id == user_id)
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
+    async def get_execution_internal(self, execution_id: str) -> Optional[Execution]:
+        """供后台执行流程按 ID 获取记录，不作为外部授权边界。"""
+        query = select(Execution).where(Execution.id == execution_id)
 
         result = await self.db.execute(query)
         return result.scalars().first()
@@ -136,7 +142,7 @@ class ExecutionService:
             await self.db.commit()
 
             # 返回更新后的执行记录
-            return await self.get_execution(execution_id)
+            return await self.get_execution_internal(execution_id)
         except Exception as e:
             # 如果更新失败，回滚事务并记录错误
             try:
@@ -159,8 +165,11 @@ class ExecutionService:
 
         # 确保执行记录已经提交到数据库
         await self.db.commit()
-        logger.info("Created execution %s and committed to database", execution.id)
-        logger.info("[execute_workflow] user_id: %s ", user_id)
+        logger.info(
+            "Created execution %s for authenticated user %s and committed to database",
+            execution.id,
+            execution.user_id,
+        )
 
         # 保存 execution_id，后续需要用
         execution_id = execution.id
@@ -171,28 +180,28 @@ class ExecutionService:
 
         if wait:
             # 同步执行模式 - 使用新的数据库会话，避免长时间占用连接
-            await self._run_workflow_with_new_session_sync(execution_id, workflow_timeout, user_id)
+            await self._run_workflow_with_new_session_sync(execution_id, workflow_timeout)
 
             # 使用原会话重新获取最新状态
             await self.db.refresh(execution)
         else:
             # 异步执行模式，后台执行（不等待结果）
-            asyncio.create_task(self._run_workflow_with_new_session(execution_id, workflow_timeout, user_id))
+            asyncio.create_task(self._run_workflow_with_new_session(execution_id, workflow_timeout))
 
         return execution
 
-    async def _run_workflow(self, execution_id: str, workflow_timeout: int = 36000, user_id: str = "") -> None:
+    async def _run_workflow(self, execution_id: str, workflow_timeout: int = 36000) -> None:
         """运行工作流执行逻辑"""
         try:
-            # 获取执行记录
-            execution = await self.get_execution(execution_id)
+            # 重新读取已提交的执行记录。此处的 user_id 是派发目标的唯一可信来源，
+            # 避免调用方另传身份而造成审计记录与实际执行主体不一致。
+            execution = await self.get_execution_internal(execution_id)
             if not execution:
                 logger.info("Execution not found for execution_id: %s", execution_id)
                 raise Exception(f"Execution not found for execution_id: {execution_id}")
-            logger.info("[_run_workflow] user_id: %s ", user_id)
             # 设置超时
             await asyncio.wait_for(
-                self._execute_workflow_logic(execution, user_id),
+                self._execute_workflow_logic(execution),
                 timeout=workflow_timeout,
             )
         except TimeoutError:
@@ -202,20 +211,20 @@ class ExecutionService:
         except Exception as e:
             await self.update_execution_status(execution_id, ExecutionStatus.FAILED.value, error=str(e))
 
-    async def _run_workflow_with_new_session_sync(self, execution_id: str, workflow_timeout: int, user_id: str) -> None:
+    async def _run_workflow_with_new_session_sync(self, execution_id: str, workflow_timeout: int) -> None:
         """使用新的数据库会话运行工作流（同步版本，会抛出异常）"""
         async with AsyncSessionLocal() as db:
             execution_service = ExecutionService(db, self.redis)
             logger.info("Running workflow execution %s", execution_id)
-            await execution_service._run_workflow(execution_id, workflow_timeout, user_id)
+            await execution_service._run_workflow(execution_id, workflow_timeout)
 
-    async def _run_workflow_with_new_session(self, execution_id: str, workflow_timeout: int, user_id: str) -> None:
+    async def _run_workflow_with_new_session(self, execution_id: str, workflow_timeout: int) -> None:
         """使用新的数据库会话运行工作流（异步版本，不抛出异常）"""
         async with AsyncSessionLocal() as db:
             try:
                 execution_service = ExecutionService(db, self.redis)
                 logger.info("Running background workflow execution %s", execution_id)
-                await execution_service._run_workflow(execution_id, workflow_timeout, user_id)
+                await execution_service._run_workflow(execution_id, workflow_timeout)
             except Exception as e:
                 # 记录错误日志
                 logger.exception("Error in background workflow execution %s", execution_id)
@@ -231,7 +240,7 @@ class ExecutionService:
                 except Exception as update_error:
                     logger.exception("Failed to update execution status for %s", execution_id)
 
-    async def _execute_workflow_logic(self, execution: Execution, user_id: str) -> None:
+    async def _execute_workflow_logic(self, execution: Execution) -> None:
         """
         实现工作流执行的实际逻辑
         这里是一个示例，实际项目中需要根据不同工作流实现不同的逻辑
@@ -248,8 +257,14 @@ class ExecutionService:
 
             websocket_service = await get_ws_service()
             logger.info("Got websocket service for execution %s", execution.id)
-            logger.info("execution.user_id: %s", execution.user_id)
-            logger.info("input user_id: %s", user_id)
+
+            if not execution.user_id:
+                raise ValueError(f"Execution {execution.id} has no authenticated user identity")
+            logger.info(
+                "Dispatching execution %s for recorded user %s",
+                execution.id,
+                execution.user_id,
+            )
 
             wait = asyncio.Event()
             res = {}
@@ -300,7 +315,7 @@ class ExecutionService:
                 channel="remote",
                 key="run",
                 uuid="$root$",
-                send_uuid=f"{user_id}",
+                send_uuid=str(execution.user_id),
                 need_reply=True,
                 data=executor_data,
             ).init()

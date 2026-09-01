@@ -168,4 +168,5 @@ async def test_get_nonexistent_execution(client: AsyncClient, api_key):
     non_existent_id = f"non-existent-{random.randint(10000, 99999)}"
     response = await client.get(f"/executions/{non_existent_id}", headers=headers)
     assert response.status_code == 404
-    assert "不存在" in response.json()["detail"] or "not found" in response.json()["detail"].lower()
+    assert response.json()["code"] == "5001"
+    assert "not found" in response.json()["msg"].lower()
