@@ -1,6 +1,5 @@
 package com.iflytek.rpa.example.service.impl;
 
-import static com.iflytek.rpa.example.constants.ExampleConstants.WORKFLOWS_UPSERT_URL;
 import static com.iflytek.rpa.robot.constants.RobotConstant.EXECUTOR;
 
 import com.alibaba.fastjson.JSON;
@@ -19,6 +18,7 @@ import com.iflytek.rpa.base.entity.CProcess;
 import com.iflytek.rpa.base.entity.dto.ParamDto;
 import com.iflytek.rpa.base.entity.dto.QueryParamDto;
 import com.iflytek.rpa.base.service.handler.ExecutorModeHandler;
+import com.iflytek.rpa.example.config.OpenApiProperties;
 import com.iflytek.rpa.example.constants.ExampleConstants;
 import com.iflytek.rpa.example.dao.SampleTemplatesDao;
 import com.iflytek.rpa.example.dao.SampleUsersDao;
@@ -96,6 +96,9 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
     @Autowired
     private IdWorker idWorker;
+
+    @Autowired
+    private OpenApiProperties openApiProperties;
 
     @Value("${example.expoUserId}")
     private String expoUserId;
@@ -176,17 +179,20 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         String parameters = JSON.toJSONString(responseData);
         log.info("新的机器人参数如下：" + parameters);
 
-        WorkflowsUpsertDto requestDto = new WorkflowsUpsertDto();
-        requestDto.setProject_id(robotId);
-        requestDto.setVersion(version);
-        requestDto.setParameters(parameters);
+        RobotExecute robotExecute = robotExecuteDao.getRobotExecute(robotId, userId, tenantId);
+        String workflowName = robotExecute == null ? robotId : robotExecute.getName();
+        if (robotExecute == null || StringUtils.isBlank(robotExecute.getName())) {
+            log.warn("Robot name is unavailable during OpenAPI sync; using robotId as fallback: {}", robotId);
+        }
+        WorkflowsUpsertDto requestDto =
+                WorkflowsUpsertDto.published(robotId, workflowName, "", version, parameters, null);
 
         // 将 requestDto 转换为 JSON 字符串
         String requestBody = JSONObject.toJSONString(requestDto);
         log.info("请求openapi参数:" + requestBody);
 
         // 创建 RestTemplate 实例
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = createRestTemplate();
 
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
@@ -199,16 +205,17 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
         // 发起 POST 请求
         try {
+            String workflowsUpsertUrl = openApiProperties.getWorkflowsUpsertUrl();
             ResponseEntity<String> response =
-                    restTemplate.exchange(WORKFLOWS_UPSERT_URL, HttpMethod.POST, requestEntity, String.class);
+                    restTemplate.exchange(workflowsUpsertUrl, HttpMethod.POST, requestEntity, String.class);
 
             log.info(
                     "OpenAPI 请求成功，URL: {}, 响应状态: {}, 响应体: {}",
-                    WORKFLOWS_UPSERT_URL,
+                    workflowsUpsertUrl,
                     response.getStatusCode(),
                     response.getBody());
         } catch (Exception e) {
-            log.error("OpenAPI 请求失败，URL: {}, 错误信息: {}", WORKFLOWS_UPSERT_URL, e.getMessage(), e);
+            log.error("OpenAPI 请求失败，URL: {}, 错误信息: {}", openApiProperties.getWorkflowsUpsertUrl(), e.getMessage(), e);
             throw e;
         }
     }
@@ -412,22 +419,20 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
         String parameters = JSON.toJSONString(responseData);
         log.info("robot params are as follows:" + parameters);
 
-        WorkflowsUpsertDto requestDto = new WorkflowsUpsertDto();
-        requestDto.setProject_id(robotExecute.getRobotId());
-        requestDto.setName(robotExecute.getName());
-        requestDto.setEnglish_name(robotExecute.getName());
-        requestDto.setDescription("");
-        requestDto.setVersion(robotExecute.getRobotVersion());
-        requestDto.setStatus(1);
-        requestDto.setParameters(parameters);
-        requestDto.setExample_project_id(expoUserRobotId);
+        WorkflowsUpsertDto requestDto = WorkflowsUpsertDto.published(
+                robotExecute.getRobotId(),
+                robotExecute.getName(),
+                "",
+                robotExecute.getRobotVersion(),
+                parameters,
+                expoUserRobotId);
 
         // 将 requestDto 转换为 JSON 字符串
         String requestBody = JSONObject.toJSONString(requestDto);
         log.info("请求openapi参数:" + requestBody);
 
         // 创建 RestTemplate 实例
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = createRestTemplate();
 
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
@@ -440,18 +445,23 @@ public class SampleUsersServiceImpl extends ServiceImpl<SampleUsersDao, SampleUs
 
         // 发起 POST 请求
         try {
+            String workflowsUpsertUrl = openApiProperties.getWorkflowsUpsertUrl();
             ResponseEntity<String> response =
-                    restTemplate.exchange(WORKFLOWS_UPSERT_URL, HttpMethod.POST, requestEntity, String.class);
+                    restTemplate.exchange(workflowsUpsertUrl, HttpMethod.POST, requestEntity, String.class);
 
             log.info(
                     "OpenAPI 请求成功，URL: {}, 响应状态: {}, 响应体: {}",
-                    WORKFLOWS_UPSERT_URL,
+                    workflowsUpsertUrl,
                     response.getStatusCode(),
                     response.getBody());
         } catch (Exception e) {
-            log.error("OpenAPI 请求失败，URL: {}, 错误信息: {}", WORKFLOWS_UPSERT_URL, e.getMessage(), e);
+            log.error("OpenAPI 请求失败，URL: {}, 错误信息: {}", openApiProperties.getWorkflowsUpsertUrl(), e.getMessage(), e);
             throw e;
         }
+    }
+
+    RestTemplate createRestTemplate() {
+        return new RestTemplate();
     }
 
     /**

@@ -292,6 +292,8 @@ services:
     container_name: rpa-opensource-robot-service
     restart: always
     env_file: *env_file
+    environment:
+      - OPENAPI_WORKFLOWS_UPSERT_URL=${OPENAPI_WORKFLOWS_UPSERT_URL:-http://openapi-service:8020/workflows/upsert}
     # ports:
     #   - "8040:8040"
     volumes:

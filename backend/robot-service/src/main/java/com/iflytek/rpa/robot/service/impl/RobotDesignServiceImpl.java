@@ -16,7 +16,7 @@ import com.iflytek.rpa.component.dao.ComponentRobotBlockDao;
 import com.iflytek.rpa.component.dao.ComponentRobotUseDao;
 import com.iflytek.rpa.component.entity.ComponentRobotBlock;
 import com.iflytek.rpa.component.entity.ComponentRobotUse;
-import com.iflytek.rpa.example.constants.ExampleConstants;
+import com.iflytek.rpa.example.config.OpenApiProperties;
 import com.iflytek.rpa.market.entity.vo.AcceptResultVo;
 import com.iflytek.rpa.market.entity.vo.LatestVersionRobotVo;
 import com.iflytek.rpa.market.service.AppApplicationService;
@@ -130,6 +130,9 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
 
     @Autowired
     private QuotaCheckService quotaCheckService;
+
+    @Autowired
+    private OpenApiProperties openApiProperties;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -620,7 +623,7 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             log.info("请求openapi参数: {}", requestBodyStr);
 
             // 创建 RestTemplate 实例
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = createRestTemplate();
 
             // 设置请求头
             HttpHeaders headers = new HttpHeaders();
@@ -631,7 +634,7 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyStr, headers);
 
             // openapi URL
-            String openApiUrl = ExampleConstants.WORKFLOWS_UPSERT_URL;
+            String openApiUrl = openApiProperties.getWorkflowsUpsertUrl();
 
             // 发起 POST 请求
             ResponseEntity<String> response =
@@ -646,6 +649,10 @@ public class RobotDesignServiceImpl extends ServiceImpl<RobotDesignDao, RobotDes
             log.error("OpenAPI 请求失败，robotId: {}, 错误信息: {}", robotId, e.getMessage(), e);
             // 不抛出异常，避免影响删除操作
         }
+    }
+
+    RestTemplate createRestTemplate() {
+        return new RestTemplate();
     }
 
     // 后处理，查看以taskIdList为taskId的在taskRobot中还是否存在，如果不存在，则需要在schedule task表中也删除
