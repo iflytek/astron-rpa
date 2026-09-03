@@ -32,7 +32,6 @@ class ApiKeyService:
 
         # 生成唯一ID和密钥
         api_key = APIKeyUtils.generate_api_key()
-        logger.info("Generated API key: %s", api_key)
         hashed_key = APIKeyUtils.hash_api_key(api_key)
         prefix = api_key[:8]
         name = api_key_data.name
@@ -53,6 +52,8 @@ class ApiKeyService:
 
         # 清除缓存
         await self._invalidate_api_keys_cache(user_id)
+
+        logger.info("Generated API key for user %s", user_id)
 
         return api_key
 

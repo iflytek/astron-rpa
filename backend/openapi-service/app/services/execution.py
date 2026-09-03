@@ -228,7 +228,7 @@ class ExecutionService:
                         await update_service.update_execution_status(
                             execution_id, ExecutionStatus.FAILED.value, error=str(e)
                         )
-                except Exception as update_error:
+                except Exception:
                     logger.exception("Failed to update execution status for %s", execution_id)
 
     async def _execute_workflow_logic(self, execution: Execution, user_id: str) -> None:
@@ -259,7 +259,7 @@ class ExecutionService:
                 nonlocal wait, res, res_e
                 if watch_msg:
                     res = watch_msg.data
-                    logger.info("Received response for execution %s: %s", execution.id, res)
+                    logger.info("Received response for execution %s", execution.id)
                     # Received response for execution 71e3147f-55cd-43f5-b7a8-b734d1075618:
                     # {'code': '5001', 'msg': '', 'data': None}
                 if e:
@@ -273,7 +273,7 @@ class ExecutionService:
             elif isinstance(execution.parameters, str):
                 try:
                     parameters_dict = json.loads(execution.parameters)
-                except json.JSONDecodeError as e:
+                except json.JSONDecodeError:
                     logger.exception("Failed to parse parameters JSON for execution %s", execution.id)
                     parameters_dict = {}
             else:
@@ -281,7 +281,7 @@ class ExecutionService:
 
             run_param = []
             for key, value in parameters_dict.items():
-                logger.debug("参数: %s=%s", key, value)
+                logger.debug("Preparing workflow parameter: %s", key)
                 run_param.append({"varName": key, "varValue": value})
             run_param = json.dumps(run_param, ensure_ascii=False)
 
@@ -305,7 +305,7 @@ class ExecutionService:
                 data=executor_data,
             ).init()
 
-            logger.info("Sending WebSocket message for execution %s: %s", execution.id, base_msg.data)
+            logger.info("Sending WebSocket message for execution %s", execution.id)
             await websocket_service.ws_manager.send_reply(base_msg, 10 * 3600, callback)
 
             # 等待
@@ -331,7 +331,7 @@ class ExecutionService:
                 )
                 logger.info("Updated execution %s status to FAILED", execution.id)
 
-        except Exception as e:
+        except Exception:
             logger.exception("Error in workflow execution logic for %s", execution.id)
             raise
 
@@ -349,6 +349,6 @@ class ExecutionService:
             updated_execution = await self.update_execution_status(execution_id, ExecutionStatus.CANCELLED.value)
 
             return updated_execution is not None
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to cancel execution %s", execution_id)
             return False

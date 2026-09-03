@@ -54,20 +54,15 @@ class UserService:
                 # 检查 HTTP 状态码
                 if response.status_code != 200:
                     logger.error(
-                        "外部接口返回异常状态码，phone: %s, status_code: %s, response: %s",
+                        "外部接口返回异常状态码，phone: %s, status_code: %s",
                         phone,
                         response.status_code,
-                        response.text,
                     )
                     return None
 
                 # 解析返回数据
                 response_data = response.json()
-                logger.info(
-                    "外部接口返回数据，phone: %s, response: %s",
-                    phone,
-                    json.dumps(response_data, ensure_ascii=False),
-                )
+                logger.info("外部接口调用成功，phone: %s, code: %s", phone, response_data.get("code"))
 
                 # 提取完整的用户信息
                 user_data = response_data.get("data", {})
@@ -79,16 +74,16 @@ class UserService:
                 logger.info("外部接口返回成功，phone: %s, user_id: %s", phone, user_id)
                 return user_data
 
-        except httpx.TimeoutException as e:
+        except httpx.TimeoutException:
             logger.exception("调用外部接口超时，phone: %s", phone)
             return None
-        except httpx.RequestError as e:
+        except httpx.RequestError:
             logger.exception("调用外部接口请求错误，phone: %s", phone)
             return None
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             logger.exception("解析外部接口返回数据失败，phone: %s", phone)
             return None
-        except Exception as e:
+        except Exception:
             logger.exception("调用外部接口发生异常，phone: %s", phone)
             return None
 
@@ -122,22 +117,17 @@ class UserService:
                 # 检查 HTTP 状态码
                 if response.status_code != 200:
                     logger.error(
-                        "外部接口返回异常状态码，phone: %s, status_code: %s, response: %s",
+                        "外部接口返回异常状态码，phone: %s, status_code: %s",
                         phone,
                         response.status_code,
-                        response.text,
                     )
                     return None
 
                 # 解析返回数据
                 response_data = response.json()
-                logger.info(
-                    "外部接口返回数据，phone: %s, response: %s",
-                    phone,
-                    json.dumps(response_data, ensure_ascii=False),
-                )
+                logger.info("外部接口调用成功，phone: %s, code: %s", phone, response_data.get("code"))
                 if response_data.get("code") == "500000":
-                    logger.error("查询用户信息报错，%s", response_data.get("message"))
+                    logger.error("查询用户信息接口返回业务错误，code: %s", response_data.get("code"))
                     return None
 
                 # 提取完整的用户信息
@@ -150,16 +140,16 @@ class UserService:
                 logger.info("外部接口返回成功，phone: %s, user_id: %s", phone, user_id)
                 return user_data
 
-        except httpx.TimeoutException as e:
+        except httpx.TimeoutException:
             logger.exception("调用外部接口超时，phone: %s", phone)
             return None
-        except httpx.RequestError as e:
+        except httpx.RequestError:
             logger.exception("调用外部接口请求错误，phone: %s", phone)
             return None
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             logger.exception("解析外部接口返回数据失败，phone: %s", phone)
             return None
-        except Exception as e:
+        except Exception:
             logger.exception("调用外部接口发生异常，phone: %s", phone)
             return None
 
@@ -207,7 +197,7 @@ class UserService:
                 api_key_data = ApiKeyCreate(name=f"default_key_{phone}")
                 default_api_key = await self.api_key_service.create_api_key(api_key_data, user_id)
                 logger.info("为用户生成默认API Key，user_id: %s", user_id)
-            except Exception as e:
+            except Exception:
                 logger.exception("生成API Key失败，user_id: %s", user_id)
                 # API Key生成失败不影响用户创建
 
@@ -274,7 +264,7 @@ class UserService:
                 api_key_data = ApiKeyCreate(name=f"default_key_{phone}")
                 default_api_key = await self.api_key_service.create_api_key(api_key_data, user_id)
                 logger.info("为用户生成默认API Key，user_id: %s", user_id)
-            except Exception as e:
+            except Exception:
                 logger.exception("生成API Key失败，user_id: %s", user_id)
                 # API Key生成失败不影响用户创建
 

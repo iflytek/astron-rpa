@@ -26,7 +26,19 @@ class WsService(IWebSocket):
 
 
 def ws_log(msg):
-    logger.info(msg)
+    message = str(msg)
+    if message.startswith(">>>"):
+        logger.debug("WebSocket message sent")
+    elif message.startswith("<<<"):
+        logger.debug("WebSocket message received")
+    elif message.startswith("_add_conn "):
+        logger.info("WebSocket connection added")
+    elif message.startswith("_del_conn "):
+        logger.info("WebSocket connection removed")
+    elif message.startswith(("error", "listen error", "uuid empty")):
+        logger.warning("WebSocket manager reported an error")
+    else:
+        logger.debug("WebSocket manager event")
 
 
 class WsManagerService:

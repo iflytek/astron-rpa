@@ -203,7 +203,6 @@ class WorkflowService:
             return workflow
 
         if "parameters" in workflow_dict:
-            logger.info(workflow_dict["parameters"])
             # 用户没设置parameters，去请求接口并比较
             merged_params = await self._compare_and_merge_parameters(
                 workflow_dict["parameters"],  # 新参数为None表示用户未设置

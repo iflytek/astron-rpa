@@ -3,10 +3,6 @@ import string
 
 import bcrypt
 
-from app.logger import get_logger
-
-logger = get_logger(__name__)
-
 
 class APIKeyUtils:
     @staticmethod
@@ -24,5 +20,4 @@ class APIKeyUtils:
 
     @staticmethod
     def verify_api_key(input_key, hashed_key):
-        logger.info(f"input_key: {input_key}, hashed_key: {hashed_key}")
         return bcrypt.checkpw(input_key.encode("utf-8"), hashed_key.encode("utf-8"))

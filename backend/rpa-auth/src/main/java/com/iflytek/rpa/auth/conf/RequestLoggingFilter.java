@@ -2,6 +2,7 @@ package com.iflytek.rpa.auth.conf;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iflytek.rpa.auth.utils.SensitiveDataSanitizer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -49,7 +50,8 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         long startTime = System.currentTimeMillis();
         String path = requestWrapper.getRequestURI();
         String method = requestWrapper.getMethod();
-        String query = StringUtils.defaultString(requestWrapper.getQueryString(), "");
+        String query = SensitiveDataSanitizer.sanitize(
+                StringUtils.defaultString(requestWrapper.getQueryString(), ""));
         String startTimeText = LocalDateTime.now().format(TIME_FORMATTER);
         boolean hasException = false;
         Exception capturedException = null;
@@ -67,15 +69,17 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
                     method,
                     path,
                     duration,
-                    ex.getMessage(),
+                    SensitiveDataSanitizer.sanitize(ex.getMessage()),
                     ex);
             throw ex;
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            String reqBody =
-                    shouldLogBody(requestWrapper.getContentType()) ? getRequestBody(requestWrapper) : "[ignored]";
-            String respBody =
-                    shouldLogBody(responseWrapper.getContentType()) ? getResponseBody(responseWrapper) : "[ignored]";
+            String reqBody = shouldLogBody(requestWrapper.getContentType())
+                    ? SensitiveDataSanitizer.sanitize(getRequestBody(requestWrapper))
+                    : "[ignored]";
+            String respBody = shouldLogBody(responseWrapper.getContentType())
+                    ? SensitiveDataSanitizer.sanitize(getResponseBody(responseWrapper))
+                    : "[ignored]";
 
             log.info(
                     "{} requestId={} time={} method={} path={} query={} params={} reqBody={} duration={}ms hasException={}",
@@ -85,7 +89,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
                     method,
                     path,
                     query,
-                    truncate(buildParameterJson(requestWrapper)),
+                    truncate(SensitiveDataSanitizer.sanitize(buildParameterJson(requestWrapper))),
                     truncate(reqBody),
                     duration,
                     hasException);
@@ -100,7 +104,9 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
                     duration,
                     truncate(respBody),
                     hasException,
-                    capturedException == null ? "" : truncate(capturedException.getMessage()));
+                    capturedException == null
+                            ? ""
+                            : truncate(SensitiveDataSanitizer.sanitize(capturedException.getMessage())));
 
             responseWrapper.copyBodyToResponse();
             MDC.remove(REQUEST_ID_KEY);

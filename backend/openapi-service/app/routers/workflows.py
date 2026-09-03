@@ -240,7 +240,7 @@ async def execute_workflow_async(
                 )
                 if response.status_code == 200:
                     result = response.json().get("data")
-                    logger.info(f"复制工作流结果: {result}")
+                    logger.info("Workflow copy completed with status %s", response.status_code)
                     if not result:
                         return StandardResponse(
                             code=ResCode.ERR,
@@ -248,7 +248,7 @@ async def execute_workflow_async(
                             data=None,
                         )
                 else:
-                    logger.error(f"Failed to copy workflow: HTTP {response.status_code}, {response.text}")
+                    logger.error("Failed to copy workflow: HTTP %s", response.status_code)
                     return StandardResponse(code=ResCode.ERR, msg="请求后端拷贝工作流接口失败", data=None)
 
             workflow_data = WorkflowBase(
@@ -343,7 +343,7 @@ async def stop_current_workflow(user_id: str = Depends(get_user_id_from_api_key)
             nonlocal wait, res, res_e
             if watch_msg:
                 res = watch_msg.data
-                logger.info("Received response for stop_current: %s", res)
+                logger.info("Received response for stop_current")
             if e:
                 res_e = e
                 logger.error("Received error for stop_current: %s", e)
@@ -433,7 +433,7 @@ async def copy_workflow(
                 result = response.json()
                 return StandardResponse(code=ResCode.SUCCESS, msg="工作流复制成功", data=result)
             else:
-                logger.error(f"Failed to copy workflow: HTTP {response.status_code}, {response.text}")
+                logger.error("Failed to copy workflow: HTTP %s", response.status_code)
                 return StandardResponse(code=ResCode.ERR, msg=f"复制失败: HTTP {response.status_code}", data=None)
 
     except httpx.RequestError as e:
