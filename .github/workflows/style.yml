@@ -47,6 +47,14 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: uv run --project engine --dev ruff format ./engine --check
 
+      - name: Install scheduler test dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: uv sync --project engine/servers/astronverse-scheduler --dev --frozen
+
+      - name: Run scheduler tests
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: uv run --project engine/servers/astronverse-scheduler --dev --no-sync pytest engine/servers/astronverse-scheduler/tests
+
   java-style:
     name: Java Style
     runs-on: ubuntu-latest

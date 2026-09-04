@@ -179,10 +179,10 @@ def executor_run_list(task_info: TaskInfo, svc: Svc = Depends(get_svc)):
                     if task_info.exceptional == "jump":
                         break
                     elif task_info.exceptional == "retry_stop":
-                        if t == task_info.retry_num - 1:
+                        if t >= task_info.retry_num:
                             raise Exception("启动失败: {}".format(execute_reason))
                     elif task_info.exceptional == "retry_jump":
-                        if t == task_info.retry_num - 1:
+                        if t >= task_info.retry_num:
                             break
                     else:
                         # stop
